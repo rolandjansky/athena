@@ -1564,8 +1564,8 @@ namespace VKalVrtAthena {
     
     
     // Post process -- Additional augmentations
-    if( m_jp.doAugmentDVimpactParametersToMuons     ) { ATH_CHECK( augmentDVimpactParametersToMuons()     ); }
-    if( m_jp.doAugmentDVimpactParametersToElectrons ) { ATH_CHECK( augmentDVimpactParametersToElectrons() ); }
+    if( m_jp.doAugmentDVimpactParametersToMuons     ) { ATH_CHECK( augmentDVimpactParametersToLeptons<xAOD::Muon>    ( "Muons"     ) ); }
+    if( m_jp.doAugmentDVimpactParametersToElectrons ) { ATH_CHECK( augmentDVimpactParametersToLeptons<xAOD::Electron>( "Electrons" ) ); }
 
     return StatusCode::SUCCESS;
   }

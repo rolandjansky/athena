@@ -6,6 +6,7 @@
 #define _VrtSecInclusive_VrtSecInclusive_Utilities_H
 
 #include "VrtSecInclusive/IntersectionPos.h"
+#include <numeric>
 
 namespace VKalVrtAthena {
   
@@ -82,6 +83,101 @@ namespace VKalVrtAthena {
     delete Output;
   }
   
+
+  //____________________________________________________________________________________________________
+  template<class LeptonFlavor>
+  void genSequence( const LeptonFlavor&, std::vector<unsigned>& ) {}
+
+  template<> void genSequence( const xAOD::Muon&, std::vector<unsigned>& trackTypes );
+  template<> void genSequence( const xAOD::Electron& electron, std::vector<unsigned>& trackTypes );
+  
+  //____________________________________________________________________________________________________
+  template<class LeptonFlavor>
+  const xAOD::TrackParticle* getLeptonTrackParticle( const LeptonFlavor&, const unsigned& ) { return nullptr; }
+  
+  template<> const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Muon& muon, const unsigned& trackType );
+  template<> const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Electron& electron, const unsigned& trackType );
+  
+  //____________________________________________________________________________________________________
+  template<class LeptonFlavor>
+  StatusCode VrtSecInclusive::augmentDVimpactParametersToLeptons( const std::string& containerName )
+  {
+    
+    const xAOD::VertexContainer *secondaryVertexContainer( nullptr );
+    ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
+    
+    using LeptonContainer = DataVector<LeptonFlavor>;
+    
+    const LeptonContainer *leptonContainer( nullptr );
+    ATH_CHECK( evtStore()->retrieve( leptonContainer, containerName ) );
+    
+    static SG::AuxElement::Decorator< std::vector< std::vector<float> > > decor_d0wrtSV( "d0_wrtSVs" );
+    static SG::AuxElement::Decorator< std::vector< std::vector<float> > > decor_z0wrtSV( "z0_wrtSVs" );
+    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
+    
+    // Loop over muons
+    for( const auto& lepton : *leptonContainer ) {
+      
+      std::vector< std::vector<float> > d0wrtSVs;
+      std::vector< std::vector<float> > z0wrtSVs;
+      
+      bool linkFlag { false };
+      
+      std::vector<unsigned> trackTypes;
+      genSequence( lepton, trackTypes );
+    
+      // Loop over lepton types
+      for( auto& trackType : trackTypes ) {
+        
+        std::vector<float> d0wrtSV;
+        std::vector<float> z0wrtSV;
+        
+        const auto* trk = getLeptonTrackParticle( lepton, trackType );
+        
+        if( !trk ) continue;
+      
+        std::map< const xAOD::Vertex*, std::vector<double> > distanceMap;
+      
+        std::vector<ElementLink< xAOD::VertexContainer > > links;
+      
+        for( const auto& vtx : *secondaryVertexContainer ) {
+      
+          std::vector<double> impactParameters;
+          std::vector<double> impactParErrors;
+          
+          m_fitSvc->VKalGetImpact( trk, vtx->position(), static_cast<int>( lepton->charge() ), impactParameters, impactParErrors);
+          
+          enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
+          
+          d0wrtSV.emplace_back( impactParameters.at(k_d0) );
+          z0wrtSV.emplace_back( impactParameters.at(k_z0) );
+          
+          if( !linkFlag ) {
+            
+            ElementLink<xAOD::VertexContainer> link_SV( *( dynamic_cast<const xAOD::VertexContainer*>( vtx->container() ) ), static_cast<size_t>( vtx->index() ) );
+            links.emplace_back( link_SV );
+            
+          }
+          
+        }
+      
+        if( !linkFlag ) {
+          decor_svLink ( *lepton ) = links;
+          linkFlag = true;
+        }
+        
+        d0wrtSVs.emplace_back( d0wrtSV );
+        z0wrtSVs.emplace_back( z0wrtSV );
+        
+      }
+      
+      decor_d0wrtSV( *lepton ) = d0wrtSVs;
+      decor_z0wrtSV( *lepton ) = z0wrtSVs;
+      
+    }
+    
+    return StatusCode::SUCCESS;
+  }
   
   
 }
