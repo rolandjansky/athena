@@ -85,6 +85,26 @@ namespace top{
       m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon;
       m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon;
     } 
+    else if (m_leptonType == "kTriElectron") {
+      if (m_LHType != "ttZTrilepton") {
+        ATH_MSG_ERROR(" LeptonType kTriElectron is only defined for the ttZTrilepton likelihood");
+        return StatusCode::FAILURE;
+      }
+      m_leptonTypeKLFitterEnum = KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron;
+      m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron;
+      m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron;
+      m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron;
+    }
+    else if (m_leptonType == "kTriMuon") {
+      if (m_LHType != "ttZTrilepton") {
+        ATH_MSG_ERROR(" LeptonType kTriMuon is only defined for the ttZTrilepton likelihood");
+        return StatusCode::FAILURE;
+      }
+      m_leptonTypeKLFitterEnum = KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon;
+      m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon;
+      m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon;
+      m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon;
+    }
     else {
       ATH_MSG_ERROR(" Please supply a valid LeptonType : kElectron or kMuon");
       return StatusCode::FAILURE;
@@ -179,8 +199,14 @@ namespace top{
       m_myFitter->SetLikelihood(myLikelihood_TTH);
     else if (m_LHType == "ttbar_JetAngles")
       m_myFitter->SetLikelihood(myLikelihood_JetAngles);
-    else if (m_LHType == "ttZTrilepton")
+    else if (m_LHType == "ttZTrilepton" && (m_leptonType == "kTriElectron" || m_leptonType == "kTriMuon")) {
+      // For ttZ->trilepton, we can have difficult combinations of leptons in the
+      // final state (3x same flavour, or mixed case). The latter is trivial, for
+      // which we can default back to the ljets likelihood. So we distinguish here:
+      //  - kTriMuon, kTriElectron: dedicated TTZ->trilepton likelihood,
+      //  - kMuon, kElectron: standard ttbar->l+jets likelihood.
       m_myFitter->SetLikelihood(myLikelihood_TTZ);
+    }
 
     else{
 
@@ -283,30 +309,38 @@ namespace top{
 
     if (m_LHType == "ttZTrilepton") {
       if (m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron) {
-        if (event.m_electrons.size() < 3) {
-          ATH_MSG_ERROR( "KLFitter: kDedicated requires three electrons..." );
-          return StatusCode::FAILURE;
-        }
-        TLorentzVector el;
-        for (unsigned int i = 0; i < 3; ++i) {
-          const auto& electron = event.m_electrons.at(i);
-          el.SetPtEtaPhiE(electron->pt() / 1.e3, electron->eta(), electron->phi(), electron->e() / 1.e3);
-          myParticles->AddParticle(&el, el.Eta(), KLFitter::Particles::kElectron, "", i);
+        if (m_leptonType == "kTriElectron") {
+          // This is the "true" trilepton case with three leptons of the same flavour.
+          if (event.m_electrons.size() < 3) {
+            ATH_MSG_ERROR( "KLFitter: kTriElectron requires three electrons..." );
+            return StatusCode::FAILURE;
+          }
+          TLorentzVector el;
+          for (unsigned int i = 0; i < 3; ++i) {
+            const auto& electron = event.m_electrons.at(i);
+            el.SetPtEtaPhiE(electron->pt() / 1.e3, electron->eta(), electron->phi(), electron->e() / 1.e3);
+            myParticles->AddParticle(&el, el.Eta(), KLFitter::Particles::kElectron, "", i);
+          }
         }
       }
+
       if (m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon) {
-        if (event.m_muons.size() < 3) {
-          ATH_MSG_ERROR( "KLFitter: kDedicated requires three muons..." );
-          return StatusCode::FAILURE;
-        }
-        TLorentzVector mu;
-        for (unsigned int i = 0; i < 3; ++i) {
-          const auto& muon = event.m_muons.at(i);
-          mu.SetPtEtaPhiE(muon->pt() / 1.e3, muon->eta(), muon->phi(), muon->e() / 1.e3);
-          myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon, "", i);
+        if (m_leptonType == "kTriMuon") {
+          // This is the "true" trilepton case with three leptons of the same flavour.
+          if (event.m_muons.size() < 3) {
+            ATH_MSG_ERROR( "KLFitter: kTriMuon requires three muons..." );
+            return StatusCode::FAILURE;
+          }
+          TLorentzVector mu;
+          for (unsigned int i = 0; i < 3; ++i) {
+            const auto& muon = event.m_muons.at(i);
+            mu.SetPtEtaPhiE(muon->pt() / 1.e3, muon->eta(), muon->phi(), muon->e() / 1.e3);
+            myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon, "", i);
+          }
         }
       }
     }
+
     // set the jets, depending on the Jet Selection Mode
     setJets(event, myParticles); 
     
@@ -411,7 +445,7 @@ namespace top{
         result->setModel_lep_phi( myModelParticles->Electron(0)->Phi() );
         result->setModel_lep_E( myModelParticles->Electron(0)->E() );
 
-        if (m_LHType == "ttZTrilepton") {
+        if (m_leptonType == "kTriElectron") {
           result->setModel_lep_index( (*myPermutedParticles)->ElectronIndex(0) );
 
           result->setModel_lepZ1_pt( myModelParticles->Electron(1)->Pt() );
@@ -437,7 +471,7 @@ namespace top{
         result->setModel_lep_phi( myModelParticles->Muon(0)->Phi() );
         result->setModel_lep_E( myModelParticles->Muon(0)->E() );
 
-        if (m_LHType == "ttZTrilepton") {
+        if (m_leptonType == "kTriMuon") {
           result->setModel_lep_index( (*myPermutedParticles)->MuonIndex(0) );
 
           result->setModel_lepZ1_pt( myModelParticles->Muon(1)->Pt() );
