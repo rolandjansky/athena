@@ -17,6 +17,7 @@ class ISvcLocator;
 TrigMuonEFExtrapolatorHypo::TrigMuonEFExtrapolatorHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator){
   declareProperty("AcceptAll", m_acceptAll=true);
+  declareProperty("MSonlyCut", m_msonlyCut=false);
   std::vector<float> def_bins;
   def_bins.push_back(0);
   def_bins.push_back(9.9);
@@ -58,6 +59,14 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltInitialize(){
 	    << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
 	    << " GeV" << endreq;
     }
+  }
+
+  if(m_msonlyCut) {
+     if(msgLvl() <= MSG::DEBUG) {
+        msg() << MSG::DEBUG
+         << "Apply GoodPrecisonLayers cut in MS-only triggers"
+         << endreq;
+     }
   }
 
   msg() << MSG::INFO
@@ -151,6 +160,15 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 	  m_fex_phi.push_back(tr->phi());
 
 	  float absEta = fabs(eta);
+     if (m_msonlyCut) {
+       uint8_t nGoodPrcLayers(0);
+       if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
+          if (debug) msg() << MSG::DEBUG 
+                           << " No numberOfGoodPrecisionLayers variable foud." << endreq;
+          continue;
+       }
+       if(absEta > 1.05 && nGoodPrcLayers < 3) continue;
+     }
 	  float threshold = 0;
 	  for (std::vector<float>::size_type k=0; k<m_bins; ++k) {
 	    if (absEta > m_ptBins[k] && absEta <= m_ptBins[k+1]) threshold = m_ptThresholds[k];
