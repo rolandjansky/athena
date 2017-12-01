@@ -29,6 +29,11 @@ setupATLAS
 asetup AthAnalysis,21.2.11
 ```
 
+If you are unsure about which release to use, "latest" literally brings you to the latest nightly release::
+```bash
+asetup 21.2,AnalysisBase,latest
+```
+ 
 For working with code, a sparse checkout is pretty straightforward.  
 (In order for this to work, you need your own fork of the athena project, see the [ATLAS git tutorial](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/))  
 
