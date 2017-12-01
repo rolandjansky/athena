@@ -72,6 +72,10 @@ cmake ../athena/Projects/WorkDir/
 make -j 4
 ```
 
+(Note that the `-j 4` argument in the last line is just to tell make
+to run 4 processes in parallel. If you have limited cores on your
+machine you can omit this.)
+
 Step 4: Run a test job
 ----------------------
 
@@ -81,7 +85,7 @@ before doing anything though, you need to set up the local
 environment:
 
 ```
-source x86_64-slc6-gcc62-opt/setup.sh
+source $AnalysisBase_PLATFORM/setup.sh
 ```
 
 In general you have to do this every time you start working (after
@@ -90,7 +94,7 @@ setting up the release).
 Now run
 
 ```
-./x86_64-slc6-gcc62-opt/bin/test_SmoothedWZTagger
+test_SmoothedWZTagger
 ```
 
 it should start printing lines that indicate it's processing events.

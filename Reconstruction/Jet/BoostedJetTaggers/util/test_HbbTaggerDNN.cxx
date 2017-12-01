@@ -116,14 +116,14 @@ int main( int argc, char* argv[] ) {
   xAOD::TReturnCode::enableFailure();
 
   // Open the input file:
-  TFile* ifile( TFile::Open( fileName, "READ" ) );
+  std::unique_ptr<TFile> ifile( TFile::Open( fileName, "READ" ) );
   if( !ifile ) Error( APP_NAME, "Cannot find file %s",fileName.Data() );
 
-  TChain *chain = new TChain ("CollectionTree","CollectionTree");
+  std::unique_ptr<TChain> chain(new TChain ("CollectionTree","CollectionTree"));
   chain->Add(fileName);
 
   // Create a TEvent object:
-  xAOD::TEvent event( (TTree*)chain, xAOD::TEvent::kAthenaAccess );
+  xAOD::TEvent event(chain.get(), xAOD::TEvent::kAthenaAccess );
   Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
 
   // Create a transient object store. Needed for the tools.
@@ -133,9 +133,9 @@ int main( int argc, char* argv[] ) {
   Long64_t entries = event.getEntries();
 
   // Fill a validation true with the tag return value
-  TFile* outputFile = TFile::Open( "output_BoostedXbbTagger.root", "recreate" );
+  std::unique_ptr<TFile> outputFile(TFile::Open( "output_BoostedXbbTagger.root", "recreate" ));
   int pass;
-  TTree* Tree = new TTree( "tree", "test_tree" );
+  std::unique_ptr<TTree> Tree(new TTree( "tree", "test_tree" ));
   Tree->Branch( "pass", &pass, "pass/I" );
 
   ////////////////////////////////////////////
@@ -171,7 +171,7 @@ int main( int argc, char* argv[] ) {
     // Print some event information
     const xAOD::EventInfo* evtInfo = 0;
     if(event.retrieve( evtInfo, "EventInfo" ) != StatusCode::SUCCESS){
-      continue;
+      return 1;
     }
     if(ievent!=-1 && static_cast <int> (evtInfo->eventNumber())!=ievent) {
       continue;
@@ -179,11 +179,13 @@ int main( int argc, char* argv[] ) {
 
     // Get the jets
     const xAOD::JetContainer* myJets = 0;
-    if( event.retrieve( myJets, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ) != StatusCode::SUCCESS)
-      continue ;
+    std::string jc_name = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets";
+    auto sc = event.retrieve( myJets, jc_name );
+    if (sc != StatusCode::SUCCESS) return 1;
+
 
     // Loop over jet container
-    for(const xAOD::Jet* jet : * myJets ){
+    for(const xAOD::Jet* jet : *myJets ){
 
       if (m_Tagger->n_subjets(*jet) >= 2 && jet->pt() > 250e3) {
         double score = m_Tagger->getScore(*jet);
@@ -205,9 +207,6 @@ int main( int argc, char* argv[] ) {
   outputFile->cd();
   Tree->Write();
   outputFile->Close();
-
-  // cleanup
-  delete chain;
 
   // print the branches that were used for help with smart slimming
   std::cout<<std::endl<<std::endl;
