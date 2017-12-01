@@ -63,8 +63,8 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
 }
 //------------------------------------------------------------------------------
 ByteStreamEventStorageInputSvc::~ByteStreamEventStorageInputSvc() {
-  //   delete m_re; m_re = 0;
-  //   delete m_reader; m_reader = 0;
+  
+  delete m_reader; m_reader = 0;
 }
 //------------------------------------------------------------------------------
 StatusCode ByteStreamEventStorageInputSvc::initialize() {
