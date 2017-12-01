@@ -139,13 +139,15 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
       GeoTransform* xformA = new GeoTransform(ladderTransform*ladderLocalTrf*HepGeom::TranslateZ3D(endblockZpos-serviceZpos-dogLegStaveLength*0.5));
       m_supportPhysA->add(tag);
       m_supportPhysA->add(xformA);
-      m_supportPhysA->add(endblockA);
-      
+      if(endblockA) m_supportPhysA->add(endblockA);
+      else  m_gmt_mgr->msg(MSG::ERROR) <<"endblockA is NULL in GeoPixelStaveRingServices "<<endmsg;  
+
       GeoTransform* xformC = new GeoTransform(ladderTransform*ladderLocalTrf*HepGeom::TranslateZ3D(-endblockZpos+serviceZpos+dogLegStaveLength*0.5));
       m_supportPhysC->add(tag);
       m_supportPhysC->add(xformC);
-      m_supportPhysC->add(endblockC);
-      
+      if(endblockC) m_supportPhysC->add(endblockC);
+      else  m_gmt_mgr->msg(MSG::ERROR) <<"endblockC is NULL in GeoPixelStaveRingServices "<<endmsg;      
+
       //
       // Add endblock flex section
       //
@@ -157,12 +159,12 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
       
       m_supportPhysA->add(tagFlex);
       m_supportPhysA->add(xformFlexA);
-      m_supportPhysA->add(endblockFlex);
-      
+      if(endblockFlex) m_supportPhysA->add(endblockFlex);
+      else  m_gmt_mgr->msg(MSG::ERROR) <<"endblockFlex is NULL in GeoPixelStaveRingServices "<<endmsg;   
+   
       m_supportPhysC->add(tagFlex);
       m_supportPhysC->add(xformFlexB);
-      m_supportPhysC->add(endblockFlex);
-      
+      if(endblockFlex) m_supportPhysC->add(endblockFlex);
       
       //
       // Add cooling pipe service
