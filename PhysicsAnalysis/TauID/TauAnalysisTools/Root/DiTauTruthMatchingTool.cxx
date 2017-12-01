@@ -210,9 +210,9 @@ StatusCode DiTauTruthMatchingTool::checkTruthMatch (const xAOD::DiTauJet& xDiTau
 
   if (decIsTruthHadronic(xDiTau))
   {
-    static SG::AuxElement::Decorator<double> decTruthLeadPt("TruthVisLeadPt");
-    static SG::AuxElement::Decorator<double> decTruthSubleadPt("TruthVisSubleadPt");
-    static SG::AuxElement::Decorator<double> decTruthDeltaR("TruthVisDeltaR");
+    static const SG::AuxElement::Decorator<double> decTruthLeadPt("TruthVisLeadPt");
+    static const SG::AuxElement::Decorator<double> decTruthSubleadPt("TruthVisSubleadPt");
+    static const SG::AuxElement::Decorator<double> decTruthDeltaR("TruthVisDeltaR");
     
     TLorentzVector tlvTruthTau1;
     TLorentzVector tlvTruthTau2;

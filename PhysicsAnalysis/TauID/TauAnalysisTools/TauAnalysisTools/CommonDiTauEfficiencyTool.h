@@ -60,7 +60,7 @@ public:
   double (*m_fY)(const xAOD::DiTauJet& xDiTau);
   double (*m_fZ)(const xAOD::DiTauJet& xDiTau);
 
-  void ReadInputs(TFile* fFile);
+  void ReadInputs(std::unique_ptr<TFile> const &fFile);
 
   using CommonEfficiencyTool::getValue;
   virtual CP::CorrectionCode getValue(const std::string& sHistName,

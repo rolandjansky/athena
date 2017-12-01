@@ -46,8 +46,8 @@ StatusCode CommonDiTauEfficiencyTool::initialize()
   {
     std::string sInputFilePath = PathResolverFindCalibFile(m_sInputFilePath);
 
-    m_mSF = new tSFMAP();
-    TFile* fSF = TFile::Open(sInputFilePath.c_str(), "READ");
+    m_mSF = std::make_unique< tSFMAP >();
+    std::unique_ptr< TFile > fSF( TFile::Open( sInputFilePath.c_str(), "READ" ) );
     if(!fSF)
     {
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
@@ -55,7 +55,6 @@ StatusCode CommonDiTauEfficiencyTool::initialize()
     }
     ReadInputs(fSF);
     fSF->Close();
-    delete fSF;
   }
 
   // needed later on in generateSystematicSets(), maybe move it there
@@ -187,7 +186,7 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::applyEfficiencyScaleFactor(const x
 
 
 // //______________________________________________________________________________
-void CommonDiTauEfficiencyTool::ReadInputs(TFile* fFile)
+void CommonDiTauEfficiencyTool::ReadInputs(std::unique_ptr<TFile> const &fFile)
 {
   m_mSF->clear();
 
@@ -343,20 +342,23 @@ e_TruthMatchedParticleType CommonDiTauEfficiencyTool::checkTruthMatch(const xAOD
 double TauAnalysisTools::TruthLeadPt(const xAOD::DiTauJet& xDiTau)
 {
   // return leading truth tau pt in GeV
-  return xDiTau.auxdata<double>("TruthVisLeadPt")/1000.;
+  static const SG::AuxElement::ConstAccessor< double > acc( "TruthVisLeadPt" );
+  return acc( xDiTau ) * 0.001;
 }
 
 //______________________________________________________________________________
 double TauAnalysisTools::TruthSubleadPt(const xAOD::DiTauJet& xDiTau)
 {
   // return subleading truth tau pt in GeV
-  return xDiTau.auxdata<double>("TruthVisSubleadPt")/1000.;
+  static const SG::AuxElement::ConstAccessor< double > acc( "TruthVisSubleadPt" );
+  return acc( xDiTau ) * 0.001;
 }
 
 //______________________________________________________________________________
 double TauAnalysisTools::TruthDeltaR(const xAOD::DiTauJet& xDiTau)
 {
   // return truth taus distance delta R
-  return xDiTau.auxdata<double>("TruthVisDeltaR");
+  static const SG::AuxElement::ConstAccessor< double > acc( "TruthVisDeltaR" );
+  return acc( xDiTau );
 }
 

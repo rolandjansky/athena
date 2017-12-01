@@ -67,7 +67,7 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   : asg::AsgTool( sName )
-  , m_mSF(0)
+  , m_mSF(nullptr)
   , m_sSystematicSet(0)
   , m_fX(&caloTauPt)
   , m_fY(&caloTauEta)
@@ -101,7 +101,6 @@ CommonEfficiencyTool::~CommonEfficiencyTool()
   if (m_mSF)
     for (auto mEntry : *m_mSF)
       delete std::get<0>(mEntry.second);
-  delete m_mSF;
 }
 
 /*
@@ -119,8 +118,8 @@ StatusCode CommonEfficiencyTool::initialize()
   {
     std::string sInputFilePath = PathResolverFindCalibFile(m_sInputFilePath);
 
-    m_mSF = new tSFMAP();
-    TFile* fSF = TFile::Open(sInputFilePath.c_str(), "READ");
+    m_mSF = std::make_unique< tSFMAP >();
+    std::unique_ptr< TFile > fSF( TFile::Open( sInputFilePath.c_str(), "READ" ) );
     if(!fSF)
     {
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
@@ -128,7 +127,6 @@ StatusCode CommonEfficiencyTool::initialize()
     }
     ReadInputs(fSF);
     fSF->Close();
-    delete fSF;
   }
 
   // needed later on in generateSystematicSets(), maybe move it there
@@ -410,7 +408,7 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
   top)
 */
 //______________________________________________________________________________
-void CommonEfficiencyTool::ReadInputs(TFile* fFile)
+void CommonEfficiencyTool::ReadInputs(std::unique_ptr<TFile> const &fFile)
 {
   m_mSF->clear();
 

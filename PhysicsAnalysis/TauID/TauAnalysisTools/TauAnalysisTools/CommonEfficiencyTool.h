@@ -92,7 +92,7 @@ protected:
                                  double& dEfficiencyScaleFactor,
                                  double dVars[] ) > tTupleObjectFunc;
   typedef std::map<std::string, tTupleObjectFunc > tSFMAP;
-  tSFMAP* m_mSF;
+  std::unique_ptr< tSFMAP > m_mSF;
 
   std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
@@ -103,7 +103,7 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  void ReadInputs(TFile* fFile);
+  void ReadInputs(std::unique_ptr<TFile> const &fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
 
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
