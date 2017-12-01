@@ -50,7 +50,6 @@ namespace Muon {
 
     bool m_tightTrackletRequirement;
 
-    float m_PI;
     float m_BIL;
     float m_BML;
     float m_BMS;

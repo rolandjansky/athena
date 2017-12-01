@@ -80,7 +80,6 @@ namespace Muon {
     unsigned int m_maxGlobalTracklets;
     unsigned int m_maxClusterTracklets;
     float m_MaxTollDist;
-    float m_PI;
     bool m_doSystematics;
 
     CLHEP::HepRandomEngine* m_rndmEngine;
