@@ -76,6 +76,7 @@ void StripsResponseSimulation::initHistos()
 	m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]    = new TH2F("deltaLorentzAngleVsByForPosTheta","deltaLorentzAngleVsByForPosTheta",  100,-3,3,  100,-2.,2.);
 	m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]    = new TH2F("deltaLorentzAngleVsByForNegTheta","deltaLorentzAngleVsByForNegTheta",  100,-3,3,  100,-2.,2.);
 
+	m_mapOf2DHistograms["driftDistanceVsDriftTime"]            = new TH2F("driftDistanceVsDriftTime","driftDistanceVsDriftTime",  100,0,10,  100,0,200);
 
 }
 /*******************************************************************************/
@@ -274,6 +275,8 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 			Electron->setTime(Electron->getTime() + eventTime);
 
 			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
+
+			m_mapOf2DHistograms["driftDistanceVsDriftTime"]->Fill(Electron->getOffsetPosition().Mod(), Electron->getTime() );
 
 			tmpEffectiveNElectrons+= effectiveCharge;
 		}

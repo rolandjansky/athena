@@ -29,24 +29,10 @@ void MM_IonizationCluster::createElectrons(TRandom3* rndm) {
     Electrons.push_back(new MM_Electron(IonizationStart.X(), IonizationStart.Y()));
 }
 
-void MM_IonizationCluster::diffuseElectrons(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm) {
-
-  for (auto& Electron : Electrons)
-    Electron->diffuseElectron(LongitudinalSigma, TransverseSigma, rndm);
-
-}
-
 void MM_IonizationCluster::propagateElectrons(float lorentzAngle, float driftVel) {
 
   for (auto& Electron : Electrons)
     Electron->propagateElectron(lorentzAngle, driftVel);
-
-}
-
-void MM_IonizationCluster::avalancheElectrons(float gain, TRandom3* rndm) {
-
-  for (auto& Electron : Electrons)
-    Electron->avalancheElectron(gain, rndm);
 
 }
 
