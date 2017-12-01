@@ -140,8 +140,11 @@ class TrigL2MuonSAConfig(MuFastSteering):
 
 	# Setup MonTool for monitored variables in AthenaMonitoring package 
         # defined which histogram are created at TrigL2MuonSAMonitoring.py
+        
         try:
-            self.MonTool = TrigL2MuonSAMonitoring()
+            TriggerFlags.enableMonitoring = ["Validation"]
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                self.MonTool = TrigL2MuonSAMonitoring()
         except AttributeError:
             self.MonTool = ""
             print name, ' Monitoring Tool failed'

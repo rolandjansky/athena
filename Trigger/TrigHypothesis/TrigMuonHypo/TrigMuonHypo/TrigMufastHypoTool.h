@@ -42,7 +42,7 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     MuonClusterInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::L2StandAloneMuon* c,
   		     const TrigCompositeUtils::Decision* previousDecision )
     : decision( d ), 
-      roi( r ), 
+      roi( r ),
       cluster( c ),
       previousDecisionIDs(TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			  TrigCompositeUtils::decisionIDs( previousDecision ).end() )

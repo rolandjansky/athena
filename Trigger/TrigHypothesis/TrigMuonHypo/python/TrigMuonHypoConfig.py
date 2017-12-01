@@ -6,6 +6,7 @@ from AthenaCommon.SystemOfUnits import GeV
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 import re
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
@@ -471,7 +472,9 @@ class TrigMufastHypoConfig(TrigMufastHypoAlg) :
     
         # Setup MonTool for monitored variables in AthenaMonitoring package
         try:
-            tool.MonTool = TrigMufastHypoMonitoring() 
+            TriggerFlags.enableMonitoring = ["Validation"]
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMufastHypoMonitoring() 
         except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'
