@@ -41,7 +41,6 @@ namespace CP {
   };
 
 
-  //class JetQGTagger: public IJetQGTagger, public asg::AsgTool, public SystematicsTool{
   class JetQGTagger: public IJetQGTagger, public JSSTaggerBase, public SystematicsTool{
     ASG_TOOL_CLASS( JetQGTagger, IJetQGTagger )
 
@@ -61,14 +60,7 @@ namespace CP {
 
       // classifier functions
       virtual IJetQGTagger::Classifier classify(const xAOD::Jet& jet) const { return classify(tag(jet) ); }
-      virtual IJetQGTagger::Classifier classify(Root::TAccept accept) const
-      {
-        if (accept.getCutResult("QuarkJetTag") )
-          return IJetQGTagger::QuarkJet;
-        if (accept.getCutResult("GluonJetTag") )
-          return IJetQGTagger::GluonJet;
-        return IJetQGTagger::OutOfValidRange;
-      }
+      virtual IJetQGTagger::Classifier classify(Root::TAccept accept) const;
 
       // functions for systematic variations
       bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
