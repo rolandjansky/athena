@@ -41,31 +41,34 @@ namespace CP {
   };
 
 
-  class JetQGTagger: public IJetQGTagger, public asg::AsgTool, public SystematicsTool{
+  //class JetQGTagger: public IJetQGTagger, public asg::AsgTool, public SystematicsTool{
+  class JetQGTagger: public IJetQGTagger, public JSSTaggerBase, public SystematicsTool{
     ASG_TOOL_CLASS( JetQGTagger, IJetQGTagger )
 
     public:
 
       JetQGTagger( const std::string& name);
 
-      ///////////////// =======================
-      // these are available in JSSTaggerBase and they should be taken from there
-      bool m_decorate;
-      mutable Root::TAccept m_accept;
-      void showCuts() const;
-      float m_jetPtMin;
-      float m_jetPtMax;
-      float m_jetEtaMax;
-      ///////////////// =======================
 
       virtual StatusCode initialize();
       virtual StatusCode finalize();
 
       // Implement IJetSelectorTool interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+      virtual Root::TAccept tag(const xAOD::Jet& jet) const { return tag(jet, 0); }
 
       // Implement IJetQGTagger interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex * _pv = NULL) const;
+      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const;
+
+      // classifier functions
+      virtual IJetQGTagger::Classifier classify(const xAOD::Jet& jet) const { return classify(tag(jet) ); }
+      virtual IJetQGTagger::Classifier classify(Root::TAccept accept) const
+      {
+        if (accept.getCutResult("QuarkJetTag") )
+          return IJetQGTagger::QuarkJet;
+        if (accept.getCutResult("GluonJetTag") )
+          return IJetQGTagger::GluonJet;
+        return IJetQGTagger::OutOfValidRange;
+      }
 
       // functions for systematic variations
       bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
@@ -78,6 +81,9 @@ namespace CP {
       JetQGTagger();
       StatusCode getNTrack(const xAOD::Jet * jet, const xAOD::Vertex * pv, int &ntracks) const ;
       StatusCode getNTrackWeight(const xAOD::Jet * jet, double &weight) const ;
+      // Check a status code and throw an error if it's a failure
+      // JBurr: The best solution I could think of quickly to register a failure in a function returning something else
+      void checkAndThrow(StatusCode sc, const std::string& message = "") const;
 
       QGSystApplied m_appliedSystEnum;
 
@@ -111,8 +117,6 @@ namespace CP {
       std::string m_pdffile;
       std::string m_weight_decoration_name;
       std::string m_tagger_decoration_name;
-      float m_minpt;
-      float m_maxeta;
 
       std::string m_configFile;
       int m_NTrackCut;
