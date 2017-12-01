@@ -143,7 +143,7 @@ StatusCode RpcLv1RawDataValAlg::initialize()
 
 
 StatusCode RpcLv1RawDataValAlg::StoreTriggerType() {
-  const xAOD::EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo = nullptr;
   StatusCode sc = StatusCode::SUCCESS;
   sc = m_eventStore->retrieve(eventInfo);
   if ( sc.isFailure() ) {

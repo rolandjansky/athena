@@ -13,27 +13,24 @@
 // Include interface class
 #include "SCT_ConditionsServices/ISCT_ReadCalibChipDataSvc.h"
 
+// Include STL
+#include <mutex>
+
+// Include Gaudi classes
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
+
 // Include Athena stuff 
 #include "AthenaBaseComps/AthService.h"
-#include "AthenaKernel/IIOVDbSvc.h" 
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
-#include "SCT_ConditionsData/SCT_ModuleNoiseCalibData.h"
-#include "SCT_ConditionsData/SCT_ModuleGainCalibData.h"
 #include "SCT_ConditionsData/SCT_GainCalibData.h"
 #include "SCT_ConditionsData/SCT_NoiseCalibData.h"
 
-// Include boost stuff
-#include "boost/array.hpp"
-
 // Forward declarations
-class CondAttrListCollection;
 class ISvcLocator;
 class StoreGateSvc;
 class SCT_ID;
-namespace InDetDD{class SCT_DetectorManager;}
-namespace coral{class AttributeList;}
 
 /** This class contains a Service that reads SCT calibration data and makes it available to 
     other algorithms. The current implementation reads the data from a COOL database. 
@@ -72,9 +69,6 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   virtual bool canFillDuringInitialize() { return false; } //PJ need to know IOV/run#
   //@}
   
-  //Define methods
-  virtual StatusCode fillCalibData(std::list<std::string>& keys); //!< Callback for retriving defect data
-  
   // Methods to return calibration data
   virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype); //!<Get NPtGain data per wafer
   virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype); //!<Get NoiseOccupancy data wafer
@@ -84,36 +78,30 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   enum FolderType {NPTGAIN, NOISEOCC, UNKNOWN_FOLDER, N_FOLDERTYPES};
 
   // Private methods
-  void insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData);
-  void insertNoiseOccFolderData(SCT_ModuleNoiseCalibData& theseCalibData, const coral::AttributeList& folderData);
   int nPtGainIndex(const std::string& dataName) const;
   int noiseOccIndex(const std::string& dataName) const;
 
+  const SCT_GainCalibData* getCondDataGain(const EventContext& ctx) const;
+  const SCT_NoiseCalibData* getCondDataNoise(const EventContext& ctx) const;
+
   //----------Private Attributes----------//
-  ServiceHandle<StoreGateSvc>         m_storeGateSvc;      //!< Handle to StoreGate service
   ServiceHandle<StoreGateSvc>         m_detStoreSvc;       //!< Handle to detector store
-  ServiceHandle<IIOVDbSvc>            m_IOVDbSvc;          //!< Handle on the IOVDb service
-  const InDetDD::SCT_DetectorManager* m_SCTdetMgr;         //!< Handle to SCT detector manager
-  const CondAttrListCollection*       m_attrListColl;      //!< Pointer to AL collection
   const SCT_ID*                       m_id_sct;            //!< Handle to SCT ID helper
   
-  // If data filled correctly
-  bool m_dataFilled;  
-  // List folders to be read as CondAttrListCollection*
-  StringArrayProperty m_atrcollist;
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheGain;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheNoise;
+  // Pointers of SCT_GainCalibData and SCT_NoiseCalibData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_GainCalibData> m_condDataGain;
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_NoiseCalibData> m_condDataNoise;
+  // Read Cond Handles
+  SG::ReadCondHandleKey<SCT_GainCalibData> m_condKeyGain;
+  SG::ReadCondHandleKey<SCT_NoiseCalibData> m_condKeyNoise;
 
-  // Calib data maps
-  SCT_GainCalibData m_nPtGainData;
-  SCT_NoiseCalibData m_noiseOccData;
-
-  // DataHandles for callback
-  const DataHandle<CondAttrListCollection> m_coolGainData;
-  const DataHandle<CondAttrListCollection> m_coolNoiseData;
-  // Key for DataHandle
-  std::string m_key;
   // Noise level for isGood::Side
   float m_noiseLevel;
-  BooleanProperty m_printCalibDataMaps; //!< Print the calib data maps?
 };
 
 //---------------------------------------------------------------------- 
