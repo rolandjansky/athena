@@ -206,6 +206,8 @@ namespace top{
       //  - kTriMuon, kTriElectron: dedicated TTZ->trilepton likelihood,
       //  - kMuon, kElectron: standard ttbar->l+jets likelihood.
       m_myFitter->SetLikelihood(myLikelihood_TTZ);
+    } else if (m_LHType == "ttZTrilepton") {
+      m_myFitter->SetLikelihood(myLikelihood);
     }
 
     else{
@@ -321,6 +323,11 @@ namespace top{
             el.SetPtEtaPhiE(electron->pt() / 1.e3, electron->eta(), electron->phi(), electron->e() / 1.e3);
             myParticles->AddParticle(&el, el.Eta(), KLFitter::Particles::kElectron, "", i);
           }
+        } else {
+          // Trivial case of mixed lepton flavours. Use ttbar->l+jets likelihood and only add the single lepton.
+          TLorentzVector el;
+          el.SetPtEtaPhiE(event.m_electrons.at(0)->pt() / 1.e3, event.m_electrons.at(0)->eta(), event.m_electrons.at(0)->phi(), event.m_electrons.at(0)->e() / 1.e3);
+          myParticles->AddParticle(&el, event.m_electrons.at(0)->caloCluster()->etaBE(2) , KLFitter::Particles::kElectron);
         }
       }
 
@@ -337,6 +344,11 @@ namespace top{
             mu.SetPtEtaPhiE(muon->pt() / 1.e3, muon->eta(), muon->phi(), muon->e() / 1.e3);
             myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon, "", i);
           }
+        } else {
+          // Trivial case of mixed lepton flavours. Use ttbar->l+jets likelihood and only add the single lepton.
+          TLorentzVector mu;
+          mu.SetPtEtaPhiE(event.m_muons.at(0)->pt() / 1.e3, event.m_muons.at(0)->eta(), event.m_muons.at(0)->phi(), event.m_muons.at(0)->e() / 1.e3);
+          myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon);
         }
       }
     }
