@@ -179,7 +179,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     const GeoMaterial* flex_material = m_mat_mgr->getMaterial(flexMatName);
     if(flex_material==0)
     {
-      m_gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading material"<<flexMatName<<endmsg;
+      m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading material"<<flexMatName<<endmsg;
       return 0;
     } else{
     flex_logVolA = new GeoLogVol("Flex",flex_shapeA,flex_material);
@@ -207,7 +207,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     
     if(Iflex_material==0)
     {
-      m_gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading IFlex material"<<endmsg;
+      m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading IFlex material"<<endmsg;
       return 0;
     } else{
     flex_logVolA = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);

@@ -109,7 +109,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
   }
 
   if(lastShape==0) {
-     std::cout << "There is no shape for GeoPixelTMT" << std::endl;
+    msg(MSG::ERROR) << "There is no shape for GeoPixelTMT " <<endmsg;
     return 0; 
   } else {
   const GeoShape * tmtShape = lastShape;
