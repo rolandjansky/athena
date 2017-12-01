@@ -39,5 +39,5 @@ atlas_add_component( MuonMM_CnvTools
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonMDT_CablingLib MdtCalibSvcLib MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData )
 
 # Install files from the package:
-atlas_install_headers( MuonMDT_CnvTools )
+atlas_install_headers( MuonMM_CnvTools )
 
