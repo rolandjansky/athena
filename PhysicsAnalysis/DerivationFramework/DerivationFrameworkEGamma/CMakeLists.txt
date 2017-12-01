@@ -32,14 +32,14 @@ atlas_add_library( DerivationFrameworkEGammaLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkEGamma
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib
+                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib 
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth )
 
 atlas_add_component( DerivationFrameworkEGamma
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools AthenaBaseComps PATCoreLib  EgammaAnalysisInterfacesLib xAODBase 
-		     xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib DerivationFrameworkEGammaLib )
+		     xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkEGammaLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
