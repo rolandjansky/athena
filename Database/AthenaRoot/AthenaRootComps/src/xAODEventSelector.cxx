@@ -450,7 +450,7 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     if ( !m_dataStore->record( evtInfo, "EventInfo" ).isSuccess() ) {
       ATH_MSG_ERROR ("Could not record EventInfo !");
       delete evtInfo; evtInfo = 0;
-      throw GaudiException("xAODEventSelector::next() - Could not record xAOD::EventInfo","xAODEventSelector",StatusCode::FAILURE);
+      throw GaudiException("xAODEventSelector::next() - Could not record EventInfo","xAODEventSelector",StatusCode::FAILURE);
     }
 
     return StatusCode::SUCCESS;
