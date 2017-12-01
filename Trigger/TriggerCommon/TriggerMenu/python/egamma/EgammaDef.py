@@ -169,10 +169,11 @@ class EgammaFexBuilder(object):
 
         self._fast_calo_egamma          = T2CaloEgamma_eGamma()
         self._fast_calo_ringer          = T2CaloEgamma_Ringer()
-        
+
         self._fast_electron                = L2ElectronFex_1()
         self._fast_photon                 = L2PhotonFex_1()
         self._egamma_rec         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doPrint=False)()
+        self._egamma_rec_gsf         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doBremCollection = True,doPrint=False)()
         self._egamma_rec_conv    = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)()
         self._egamma_rec_noid    = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
         self._egamma_rec_ph_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
@@ -437,6 +438,7 @@ class EgammaHypoBuilder(object):
                             'perf':False,
                             'ringer':False,
                             'sc':False,
+                            'gsf':False,
                             'g':False,
                             'e':False,
                             'hiptrt':False,
