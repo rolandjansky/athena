@@ -1646,13 +1646,6 @@ Double_t CP::TPileupReweighting::GetPrescaleWeight(Int_t runNumber, const TStrin
   if(out<=0) return 0; //happens when triggers disabled/unavailable for a given mu ... therefore the prescale weight is 0
   return 1./out;
 
-
-Double_t CP::TPileupReweighting::GetPrescaleWeight(Int_t runNumber, const TString& trigger) {
-   //special mu-independent version of GetPrescaleWeight. Will just use the global luminosity
-   m_doGlobalDataWeight=true;
-   double out = GetPrescaleWeight(runNumber, trigger, 0);
-   m_doGlobalDataWeight=false;
-   return out;
 }
 
 

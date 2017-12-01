@@ -21,7 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
-                          PhysicsAnalysis/MCTruthClassifier )
+                          PhysicsAnalysis/MCTruthClassifier 
+			  Calorimeter/CaloCalibHitRec )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
