@@ -8,6 +8,7 @@
 
 #include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
 #pragma message "In the process of moving the Interface part under PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces"
+#pragma GCC warning "TODO: Use the headers from EgammaAnalysisInterfaces"
 
 #endif
 
