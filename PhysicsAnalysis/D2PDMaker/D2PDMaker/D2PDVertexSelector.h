@@ -39,7 +39,7 @@
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // INav4Mom includes
 #include "EventKernel/INavigable4Momentum.h"
