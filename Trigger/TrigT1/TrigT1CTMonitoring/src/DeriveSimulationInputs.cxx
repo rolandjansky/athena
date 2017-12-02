@@ -749,7 +749,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::DeriveL1CaloInput() {
     
    ATH_MSG_DEBUG("Rederiving L1 Calo input to CTP from hits info" );
 		
-   const CMMCPHitsCollection* CMMCPHits;
+   const CMMCPHitsCollection* CMMCPHits = nullptr;
    ATH_MSG_DEBUG("Retrieving CMMCP hits from storegate location "  << LVL1::TrigT1CaloDefs::CMMCPHitsLocation);
    sc = evtStore()->retrieve(CMMCPHits, LVL1::TrigT1CaloDefs::CMMCPHitsLocation);
     
@@ -769,7 +769,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::DeriveL1CaloInput() {
          }
       }
 			
-      const CMMJetHitsCollection* CMMJetHits;
+      const CMMJetHitsCollection* CMMJetHits = nullptr;
       sc = evtStore()->retrieve(CMMJetHits, LVL1::TrigT1CaloDefs::CMMJetHitsLocation);
       if (sc.isFailure()) {
          ATH_MSG_WARNING("No CMM JetHits found in TES at "  << LVL1::TrigT1CaloDefs::CMMJetHitsLocation);
@@ -795,7 +795,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::DeriveL1CaloInput() {
          return sc;
       }
 			
-      const CMMEtSumsCollection* CMMEtSums;
+      const CMMEtSumsCollection* CMMEtSums = nullptr;
       sc = evtStore()->retrieve(CMMEtSums, LVL1::TrigT1CaloDefs::CMMEtSumsLocation);
       if (sc.isFailure()) {
          ATH_MSG_WARNING("No CMMEtSums found in TES at " << LVL1::TrigT1CaloDefs::CMMEtSumsLocation);
