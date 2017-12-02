@@ -56,12 +56,11 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                      SelectionDecorator = "isCloseByObject",
 #                                                      PassOverlapDecorator = "passOR",
                                                       IsolationSelectionDecorator = "correctedIsol" ,
-                                                      BackupPrefix = "default")
+                                                      CorrectIsolationOf = "considerInCorrection" ,
+                                                      BackupPrefix = "default"
+                                                      )
 
-ToolSvc.IsolationCloseByCorrectionTool.OutputLevel = 0
-ToolSvc.IsolationCloseByCorrectionTool.UseTTVATool = True
 ## Test algorithm
-
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 from IsolationSelection.IsolationSelectionConf import CP__TestIsolationCloseByCorrAthenaAlg 

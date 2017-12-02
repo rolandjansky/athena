@@ -13,8 +13,8 @@
 #include <vector>
 namespace CP{
     
-    typedef SG::AuxElement::ConstAccessor<char> CharAccessor;
-    typedef SG::AuxElement::ConstAccessor<float> FloatAccessor;
+    typedef SG::AuxElement::Accessor<char> CharAccessor;
+    typedef SG::AuxElement::Accessor<float> FloatAccessor;
 
     typedef SG::AuxElement::Decorator<char> CharDecorator;
     typedef SG::AuxElement::Decorator<float> FloatDecorator;  

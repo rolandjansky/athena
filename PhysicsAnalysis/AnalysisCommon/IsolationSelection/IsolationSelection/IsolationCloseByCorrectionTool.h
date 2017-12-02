@@ -109,7 +109,7 @@ namespace CP {
 
             bool isEgamma(const xAOD::IParticle*  particle) const;
 
-            const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle*  particlear) const;
+            const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle*  particle, bool force_id = false) const;
             const xAOD::IParticle* trackIsoRefPart(const xAOD::IParticle*  particle) const;
 
             TrackCollection getAssociatedTracks(const xAOD::IParticle*  particle) const;
