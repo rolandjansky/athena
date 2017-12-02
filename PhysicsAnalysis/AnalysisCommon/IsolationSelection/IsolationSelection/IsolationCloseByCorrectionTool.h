@@ -33,8 +33,7 @@ namespace InDet {
     class IInDetTrackSelectionTool;
 }
 namespace CP {
-    class ITrackVertexAssociationTool;
-
+    
     //For tracks it does not matter whether we're using a set of a vector
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;
     typedef std::vector<const xAOD::CaloCluster*> ClusterCollection;
