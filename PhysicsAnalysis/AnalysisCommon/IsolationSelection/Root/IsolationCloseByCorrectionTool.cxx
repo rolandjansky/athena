@@ -3,7 +3,7 @@
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
-
+#include <TrackVertexAssociationTool/ITrackVertexAssociationTool.h>
 #include <xAODPrimitives/IsolationHelpers.h>
 
 #include <xAODPrimitives/tools/getIsolationAccessor.h>
@@ -51,12 +51,15 @@ namespace CP {
                 m_acc_ToCorrect(),
                 m_backup_prefix(),
                 m_trkselTool(),
+                m_ttvaTool(),
+                m_useTTVA(false),
                 m_isohelpers() {
         //IMPORTANT USER PROPERTIES
         declareProperty("IsolationSelectionTool", m_selectorTool, "Please give me your configured IsolationSelectionTool!");
 
         //OPTIONAL PROPERTIES
-        m_trkselTool.declarePropertyFor(this, "TrackSelectionTool"); // Makes the track selection tool a settable property of this tool
+        m_trkselTool.declarePropertyFor(this, "TrackSelectionTool", "TrackSelectionTool to select tracks which made it actually into the isolation"); // Makes the track selection tool a settable property of this tool
+        m_ttvaTool.declarePropertyFor(this, "TTVASelectionTool", "TTVA selection tool further discards badly asscoiated tracks"); // Makes the track selection tool a settable property of this tool
         declareProperty("SelectionDecorator", m_quality_name, "Name of the char auxdata defining whether the particle shall be considered for iso correction");
         declareProperty("PassoverlapDecorator", m_passOR_name, "Does the particle also need to pass the overlap removal?");
         declareProperty("IsolationSelectionDecorator", m_isoSelection_name, "Name of the final isolation decorator.");
@@ -72,7 +75,7 @@ namespace CP {
         declareProperty("PtvarconeRadius", m_ptvarconeRadius, "This is the kT parameter for the ptvarcone variables.");
         declareProperty("MaxClusterFrac", m_maxTopoPolution, "Maximum energy fraction a single cluster can make up to be considered as contributed to the isolation");
         declareProperty("ExtrapolationConeSize", m_ConeSizeVariation, "Constant factor to be multiplied on top of the topo-etcone size if the reference particle is not a calorimeter particle in order to account for extrapolation effects");
-
+        declareProperty("UseTTVATool", m_useTTVA);
     }
 
     StatusCode IsolationCloseByCorrectionTool::initialize() {
@@ -85,9 +88,15 @@ namespace CP {
             ATH_CHECK(m_trkselTool.setProperty("minPt", 1000.));
             ATH_CHECK(m_trkselTool.setProperty("CutLevel", "Loose"));
         }
-
         ATH_CHECK(m_trkselTool.retrieve());
-
+        if (m_useTTVA){
+            if (!m_ttvaTool.isUserConfigured()){
+                m_ttvaTool.setTypeAndName("CP::TrackVertexAssociationTool/IsoCorrTTVATool");
+                
+            }
+            ATH_CHECK(m_ttvaTool.retrieve());
+       
+        }
         ATH_CHECK(m_selectorTool.retrieve());
         isoTypesFromWP(m_selectorTool->getElectronWPs(), m_electron_isoTypes);
         isoTypesFromWP(m_selectorTool->getMuonWPs(), m_muon_isoTypes);
@@ -292,10 +301,10 @@ namespace CP {
             return TrackCollection { getTrackParticle(P) };
         } else if (P->type() == xAOD::Type::Electron) {
             const xAOD::Electron* E = dynamic_cast<const xAOD::Electron*>(P);
-            return xAOD::EgammaHelpers::getTrackParticles(E);
+            return xAOD::EgammaHelpers::getTrackParticles(E,true);
         } else if (P->type() == xAOD::Type::Photon) {
             const xAOD::Photon* Ph = dynamic_cast<const xAOD::Photon*>(P);
-            return xAOD::EgammaHelpers::getTrackParticles(Ph);
+            return xAOD::EgammaHelpers::getTrackParticles(Ph,true);
         }
         return TrackCollection();
     }
@@ -337,9 +346,9 @@ namespace CP {
         for (const auto P : *Particles) {
             if (!passSelectionQuality(P)) continue;
             TrackCollection AssocCloseTrks = getAssociatedTracks(P);
-            for (const auto& T : AssocCloseTrks) {
-                if (!T || !m_trkselTool->accept(*T, Vtx)) continue;
-                ATH_MSG_VERBOSE("Found ID-track with pt:" << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " associated with " << particleName(P) << " having pt: " << P->pt() / 1.e3 << " eta: " << P->eta() << " phi: " << P->phi());
+            for (const auto T : AssocCloseTrks) {
+                if (!T || !m_trkselTool->accept(*T, Vtx) || !(!m_useTTVA || !m_ttvaTool->isCompatible(*T,*Vtx))) continue;
+                ATH_MSG_VERBOSE("Found ID-track with pt: " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " associated with " << particleName(P) << " having pt: " << P->pt() / 1.e3 << " eta: " << P->eta() << " phi: " << P->phi()<<" ptr-address: "<<T);
                 Tracks.insert(T);
             }
         }
@@ -353,7 +362,7 @@ namespace CP {
             if (!passSelectionQuality(P)) continue;
             ClusterCollection AssocClusters = getAssociatedClusters(P);
             Clusters.reserve(AssocClusters.size() + Clusters.size());
-            for (auto& C : AssocClusters)
+            for (const auto C : AssocClusters)
                 if (!isElementInList(Clusters, C)) Clusters.push_back(C);
         }
         Clusters.shrink_to_fit();
@@ -386,16 +395,16 @@ namespace CP {
             ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toString(type));
             return CorrectionCode::Error;
         } else if (tracks.empty()) return CorrectionCode::Ok;
-
+    
         double MaxDR = coneSize(par, type);
         TrackCollection ToExclude = getAssociatedTracks(par);
 
         const xAOD::IParticle* Ref = trackIsoRefPart(par);
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV. "<<ToExclude.size()<<" tracks will be excluded.");
 
-        for (auto& T : tracks) {
+        for (const auto T : tracks) {
             if (overlap(Ref, T, MaxDR) && !isElementInList(ToExclude, T)) {
-                ATH_MSG_VERBOSE("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(deltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV.");
+                ATH_MSG_VERBOSE("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(deltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV. Ptr address: "<<T);
                 correction -= T->pt();
             }
         }

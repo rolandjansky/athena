@@ -12,12 +12,12 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval = 5000)
 ServiceMgr += THistSvc()
-OutFileName = "AnalysisOutput.root" if not "outFile" in globals() else outFile
+OutFileName = "IsoCorrectionTester.root" if not "outFile" in globals() else outFile
 ServiceMgr.THistSvc.Output += ["ISOCORRECTION DATAFILE='{}' OPT='RECREATE'".format(OutFileName)]
 ROOTFiles = []
 
 #Cmd to execute the tester:
-# athena.py -c "inputFile='/ptmp/mpp/junggjo9/Datasets/mc16_13TeV.344235.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125.DAOD.e5500_e5984_s3126_r9781_r9778_21.2_r05_EXT0/user.schaffer/user.schaffer.12283539.EXT0._000004.DAOD_HIGG2D1.pool.root'" IsolationSelection/testIsoCloseByCorr_jobOptions.py
+# athena.py -c "inputFile='/ptmp/mpp/junggjo9/Datasets/mc16_13TeV.364253.Sherpa_222_NNPDF30NNLO_lllv.deriv.DAOD_SUSY2.e5916_s3126_r9364_r9315_p3354/DAOD_SUSY2.12500474._000035.pool.root.1'" IsolationSelection/testIsoCloseByCorr_jobOptions.py
 #
 
 
@@ -58,7 +58,8 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                       IsolationSelectionDecorator = "correctedIsol" ,
                                                       BackupPrefix = "default")
 
-
+ToolSvc.IsolationCloseByCorrectionTool.OutputLevel = 0
+ToolSvc.IsolationCloseByCorrectionTool.UseTTVATool = True
 ## Test algorithm
 
 from AthenaCommon.AlgSequence import AlgSequence
