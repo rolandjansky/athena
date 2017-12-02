@@ -168,8 +168,6 @@ namespace CP {
             std::string m_backup_prefix;
 
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
-            asg::AnaToolHandle<CP::ITrackVertexAssociationTool> m_ttvaTool;
-            bool m_useTTVA;
             mutable IsoHelperMap m_isohelpers;
 
     };

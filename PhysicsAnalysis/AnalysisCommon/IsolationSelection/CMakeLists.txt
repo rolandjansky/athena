@@ -27,7 +27,6 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODPrimitives
   PhysicsAnalysis/AnalysisCommon/PATCore
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-  InnerDetector/InDetRecTools/TrackVertexAssociationTool
   InnerDetector/InDetRecTools/InDetTrackSelectionTool
   PRIVATE
   Control/AthenaBaseComps

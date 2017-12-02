@@ -3,7 +3,6 @@
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
-#include <TrackVertexAssociationTool/ITrackVertexAssociationTool.h>
 #include <xAODPrimitives/IsolationHelpers.h>
 
 #include <xAODPrimitives/tools/getIsolationAccessor.h>
@@ -51,15 +50,12 @@ namespace CP {
                 m_acc_ToCorrect(),
                 m_backup_prefix(),
                 m_trkselTool(),
-                m_ttvaTool(),
-                m_useTTVA(false),
                 m_isohelpers() {
         //IMPORTANT USER PROPERTIES
         declareProperty("IsolationSelectionTool", m_selectorTool, "Please give me your configured IsolationSelectionTool!");
 
         //OPTIONAL PROPERTIES
         m_trkselTool.declarePropertyFor(this, "TrackSelectionTool", "TrackSelectionTool to select tracks which made it actually into the isolation"); // Makes the track selection tool a settable property of this tool
-        m_ttvaTool.declarePropertyFor(this, "TTVASelectionTool", "TTVA selection tool further discards badly asscoiated tracks"); // Makes the track selection tool a settable property of this tool
         declareProperty("SelectionDecorator", m_quality_name, "Name of the char auxdata defining whether the particle shall be considered for iso correction");
         declareProperty("PassoverlapDecorator", m_passOR_name, "Does the particle also need to pass the overlap removal?");
         declareProperty("IsolationSelectionDecorator", m_isoSelection_name, "Name of the final isolation decorator.");
@@ -75,7 +71,6 @@ namespace CP {
         declareProperty("PtvarconeRadius", m_ptvarconeRadius, "This is the kT parameter for the ptvarcone variables.");
         declareProperty("MaxClusterFrac", m_maxTopoPolution, "Maximum energy fraction a single cluster can make up to be considered as contributed to the isolation");
         declareProperty("ExtrapolationConeSize", m_ConeSizeVariation, "Constant factor to be multiplied on top of the topo-etcone size if the reference particle is not a calorimeter particle in order to account for extrapolation effects");
-        declareProperty("UseTTVATool", m_useTTVA);
     }
 
     StatusCode IsolationCloseByCorrectionTool::initialize() {
@@ -89,14 +84,6 @@ namespace CP {
             ATH_CHECK(m_trkselTool.setProperty("CutLevel", "Loose"));
         }
         ATH_CHECK(m_trkselTool.retrieve());
-        if (m_useTTVA){
-            if (!m_ttvaTool.isUserConfigured()){
-                m_ttvaTool.setTypeAndName("CP::BaseTrackVertexAssociationTool/IsoCorrTTVATool");
-                
-            }
-            ATH_CHECK(m_ttvaTool.retrieve());
-       
-        }
         ATH_CHECK(m_selectorTool.retrieve());
         isoTypesFromWP(m_selectorTool->getElectronWPs(), m_electron_isoTypes);
         isoTypesFromWP(m_selectorTool->getMuonWPs(), m_muon_isoTypes);
@@ -347,7 +334,7 @@ namespace CP {
             if (!passSelectionQuality(P)) continue;
             TrackCollection AssocCloseTrks = getAssociatedTracks(P);
             for (const auto T : AssocCloseTrks) {
-                if (T == nullptr || !m_trkselTool->accept(*T, Vtx) || (m_useTTVA && !m_ttvaTool->isCompatible(*T,*Vtx))) continue;
+                if (T == nullptr || !m_trkselTool->accept(*T, Vtx)) continue;
                 ATH_MSG_VERBOSE("Found ID-track with pt: " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " associated with " << particleName(P) << " having pt: " << P->pt() / 1.e3 << " eta: " << P->eta() << " phi: " << P->phi()<<" ptr-address: "<<T);
                 Tracks.insert(T);
             }
