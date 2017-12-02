@@ -47,9 +47,9 @@ Trk::BasicVtxValidationNtupleTool::BasicVtxValidationNtupleTool(
         m_ntupleVtxTreeName("VxCandidate"),
         m_ntupleTrkAtVxTreeName("TrueTracksAtVertex"),
         // see: http://atlas-computing.web.cern.ch/atlas-computing/projects/qa/draft_guidelines-0.2.html
-        tree(nullptr),           //should be m_tree
-        vtx_tree(nullptr),       //should be m_vtxTree
-        trk_at_vxtree(nullptr),  //should be m_trkAtVxTree
+        m_tree(nullptr),           //should be m_tree
+        m_vtx_tree(nullptr),       //should be m_vtxTree
+        m_trk_at_vxtree(nullptr),  //should be m_trkAtVxTree
         m_lastEventNumber{},
         m_runNumber{},
         m_eventNumber{},
@@ -122,50 +122,50 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
 	    return status;
     }
 
-   //registering the event info tree
-    tree = new TTree(TString(m_ntupleTreeName), "Event info output");
+   //registering the event info m_tree
+    m_tree = new TTree(TString(m_ntupleTreeName), "Event info output");
     std::string fullNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
-    status = hist_svc->regTree(fullNtupleName, tree);
+    status = hist_svc->regTree(fullNtupleName, m_tree);
     if (status.isFailure()) {
 	     msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
 	     return status;
     }
-    //registering the vtx tree --> VxCandidate info
-    vtx_tree = new TTree(TString(m_ntupleVtxTreeName), "VxCandidate output");
+    //registering the vtx m_tree --> VxCandidate info
+    m_vtx_tree = new TTree(TString(m_ntupleVtxTreeName), "VxCandidate output");
     std::string fullVtxNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleVtxTreeName;
-    status = hist_svc->regTree(fullVtxNtupleName, vtx_tree);
+    status = hist_svc->regTree(fullVtxNtupleName, m_vtx_tree);
     if (status.isFailure()) {
 	    msg(MSG::ERROR) << "Unable to register TTree : " << fullVtxNtupleName << endmsg;
 	    return status;
     }
-    //registering the true trackAtVertex tree
-    trk_at_vxtree = new TTree(TString(m_ntupleTrkAtVxTreeName), "True tracks at vertex info output");
+    //registering the true trackAtVertex m_tree
+    m_trk_at_vxtree = new TTree(TString(m_ntupleTrkAtVxTreeName), "True tracks at vertex info output");
     std::string fullTrkAtVxNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTrkAtVxTreeName;
-    status = hist_svc->regTree(fullTrkAtVxNtupleName, trk_at_vxtree);
+    status = hist_svc->regTree(fullTrkAtVxNtupleName, m_trk_at_vxtree);
     if (status.isFailure()) {
 	    msg(MSG::ERROR) << "Unable to register TTree : " << fullTrkAtVxNtupleName << endmsg;
 	    return status;
     }
-    //event info tree
-    tree->Branch("RunNumber", &m_runNumber, "runNum/I");       // Run number
-    tree->Branch("EventNumber", &m_eventNumber, "eventNum/I");   // Event number
-    tree->Branch ("numVertices", &m_numVertices, "numVtx/I");
+    //event info m_tree
+    m_tree->Branch("RunNumber", &m_runNumber, "runNum/I");       // Run number
+    m_tree->Branch("EventNumber", &m_eventNumber, "eventNum/I");   // Event number
+    m_tree->Branch ("numVertices", &m_numVertices, "numVtx/I");
 
-    //VxCandidate-->vtx tree
-    vtx_tree->Branch ("vertex_x", &m_x, "vtx_x/F");
-    vtx_tree->Branch ("vertex_y", &m_y, "vtx_y/F");
-    vtx_tree->Branch ("vertex_z", &m_z, "vtx_z/F");
+    //VxCandidate-->vtx m_tree
+    m_vtx_tree->Branch ("vertex_x", &m_x, "vtx_x/F");
+    m_vtx_tree->Branch ("vertex_y", &m_y, "vtx_y/F");
+    m_vtx_tree->Branch ("vertex_z", &m_z, "vtx_z/F");
 
-    vtx_tree->Branch ("vertex_error_x", &m_err_x, "vtx_err_x/F");
-    vtx_tree->Branch ("vertex_error_y", &m_err_y, "vtx_err_y/F");
-    vtx_tree->Branch ("vertex_error_z", &m_err_z, "vtx_err_z/F");
+    m_vtx_tree->Branch ("vertex_error_x", &m_err_x, "vtx_err_x/F");
+    m_vtx_tree->Branch ("vertex_error_y", &m_err_y, "vtx_err_y/F");
+    m_vtx_tree->Branch ("vertex_error_z", &m_err_z, "vtx_err_z/F");
 
-    vtx_tree->Branch ("vertex_chi2_per_ndf", &m_chi2, "vtx_chi2/F");
-    vtx_tree->Branch ("vertex_chi2_prob", &m_chi2prob, "vtx_chi2prob/F");
+    m_vtx_tree->Branch ("vertex_chi2_per_ndf", &m_chi2, "vtx_chi2/F");
+    m_vtx_tree->Branch ("vertex_chi2_prob", &m_chi2prob, "vtx_chi2prob/F");
 
-    vtx_tree->Branch ("num_tracks_per_vertex", &m_numTracksPerVertex, "trk_per_vtx/I");
+    m_vtx_tree->Branch ("num_tracks_per_vertex", &m_numTracksPerVertex, "trk_per_vtx/I");
 
-    //VxCandidate-->trks tree
+    //VxCandidate-->trks m_tree
     m_d0 = new std::vector<float>();
     m_z0 = new std::vector<float>();
     m_phi0 = new std::vector<float>();
@@ -192,34 +192,34 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     m_err_initial_theta = new std::vector<float>();
     m_err_initial_qOverP = new std::vector<float>();
 
-    vtx_tree->Branch ("track_d0", &m_d0);
-    vtx_tree->Branch ("track_z0", &m_z0);
-    vtx_tree->Branch ("track_phi0", &m_phi0);
-    vtx_tree->Branch ("track_theta", &m_theta);
-    vtx_tree->Branch ("track_qOverP", &m_qOverP);
+    m_vtx_tree->Branch ("track_d0", &m_d0);
+    m_vtx_tree->Branch ("track_z0", &m_z0);
+    m_vtx_tree->Branch ("track_phi0", &m_phi0);
+    m_vtx_tree->Branch ("track_theta", &m_theta);
+    m_vtx_tree->Branch ("track_qOverP", &m_qOverP);
     
-    vtx_tree->Branch ("track_err_d0", &m_err_d0);
-    vtx_tree->Branch ("track_err_z0", &m_err_z0);
-    vtx_tree->Branch ("track_err_phi0", &m_err_phi0);
-    vtx_tree->Branch ("track_err_theta", &m_err_theta);
-    vtx_tree->Branch ("track_err_qOverP", &m_err_qOverP);
+    m_vtx_tree->Branch ("track_err_d0", &m_err_d0);
+    m_vtx_tree->Branch ("track_err_z0", &m_err_z0);
+    m_vtx_tree->Branch ("track_err_phi0", &m_err_phi0);
+    m_vtx_tree->Branch ("track_err_theta", &m_err_theta);
+    m_vtx_tree->Branch ("track_err_qOverP", &m_err_qOverP);
 
-    vtx_tree->Branch ("chi2_per_track", &m_chi2_per_track);
+    m_vtx_tree->Branch ("chi2_per_track", &m_chi2_per_track);
          
-    vtx_tree->Branch ("track_initial_d0", &m_initial_d0);
-    vtx_tree->Branch ("track_initial_z0", &m_initial_z0);
-    vtx_tree->Branch ("track_initial_phi0", &m_initial_phi0);
-    vtx_tree->Branch ("track_initial_theta", &m_initial_theta);
-    vtx_tree->Branch ("track_initial_qOverP", &m_initial_qOverP);
+    m_vtx_tree->Branch ("track_initial_d0", &m_initial_d0);
+    m_vtx_tree->Branch ("track_initial_z0", &m_initial_z0);
+    m_vtx_tree->Branch ("track_initial_phi0", &m_initial_phi0);
+    m_vtx_tree->Branch ("track_initial_theta", &m_initial_theta);
+    m_vtx_tree->Branch ("track_initial_qOverP", &m_initial_qOverP);
 
-    vtx_tree->Branch ("track_err_initial_d0", &m_err_initial_d0);
-    vtx_tree->Branch ("track_err_initial_z0", &m_err_initial_z0);
-    vtx_tree->Branch ("track_err_initial_phi0", &m_err_initial_phi0);
-    vtx_tree->Branch ("track_err_initial_theta", &m_err_initial_theta);
-    vtx_tree->Branch ("track_err_initial_qOverP", &m_err_initial_qOverP);	
+    m_vtx_tree->Branch ("track_err_initial_d0", &m_err_initial_d0);
+    m_vtx_tree->Branch ("track_err_initial_z0", &m_err_initial_z0);
+    m_vtx_tree->Branch ("track_err_initial_phi0", &m_err_initial_phi0);
+    m_vtx_tree->Branch ("track_err_initial_theta", &m_err_initial_theta);
+    m_vtx_tree->Branch ("track_err_initial_qOverP", &m_err_initial_qOverP);	
 
 
-    //vxCandidate->true tracks tree
+    //vxCandidate->true tracks m_tree
     m_vxprod_x = new std::vector<float>();
     m_vxprod_y= new std::vector<float>();
     m_vxprod_z = new std::vector<float>();
@@ -227,14 +227,14 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     m_vxparticle_id = new std::vector<int>();
     m_vxparent_id = new std::vector<int>();
 
-    trk_at_vxtree->Branch ("vtx_track_ prod_x", &m_vxprod_x);
-    trk_at_vxtree->Branch ("vtx_track_prod_y", &m_vxprod_y);
-    trk_at_vxtree->Branch ("vtx_track_prod_z", &m_vxprod_z);
+    m_trk_at_vxtree->Branch ("vtx_track_ prod_x", &m_vxprod_x);
+    m_trk_at_vxtree->Branch ("vtx_track_prod_y", &m_vxprod_y);
+    m_trk_at_vxtree->Branch ("vtx_track_prod_z", &m_vxprod_z);
 
-    trk_at_vxtree->Branch ("vtx_track_particle_id", &m_vxparticle_id);
-    trk_at_vxtree->Branch ("vtx_track_parent_id", &m_vxparent_id);
+    m_trk_at_vxtree->Branch ("vtx_track_particle_id", &m_vxparticle_id);
+    m_trk_at_vxtree->Branch ("vtx_track_parent_id", &m_vxparent_id);
 
-    trk_at_vxtree->Branch ("vtx_track_num_tracks", &m_vxnum_trks, "vx_numTrks/I");
+    m_trk_at_vxtree->Branch ("vtx_track_num_tracks", &m_vxnum_trks, "vx_numTrks/I");
 
     return StatusCode::SUCCESS;
 }
@@ -320,7 +320,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillVxCandidateData (const Trk::Vx
     }// loop over all tracks
    }
   
-   vtx_tree->Fill();
+   m_vtx_tree->Fill();
 
    //clear
    m_chi2_per_track->clear();
@@ -408,7 +408,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
        return 0; 
     }
     
-    trk_at_vxtree->Fill();
+    m_trk_at_vxtree->Fill();
     
       //clear
     m_vxprod_x->clear();
@@ -432,6 +432,6 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillEventInfo(int& numRecVtx) cons
    m_eventNumber = eventInfo->eventNumber();
    m_runNumber=eventInfo->runNumber();
    m_numVertices = numRecVtx;
-   tree->Fill();
+   m_tree->Fill();
    return StatusCode::SUCCESS;
 }
