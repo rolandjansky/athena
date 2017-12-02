@@ -504,7 +504,7 @@ namespace AtlasRoot {
 
     TH1F*         m_pedestals_es2017;
 
-    TH1D*         m_convRadius;
+    TH2D*         m_convRadius;
     TH1D*         m_convFakeRate;
     TH1D*         m_convRecoEfficiency;
 
