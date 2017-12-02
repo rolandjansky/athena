@@ -643,9 +643,6 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 
 	if (newRunFlag()) ATH_MSG_VERBOSE("newRun");
 
-	// NOTE
-	// evtStore()->contains() was used to set up histogram booking
-	// ReadHandle isValid() is doing this now, but it is (probably) the best to remove RH from here
 	StatusCode sc = StatusCode::SUCCESS;
 
 	//If it is a new run check rdo and track containers.
@@ -667,7 +664,7 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 	}
 
 	// NOTE: This is already retrieved during initialization
-	// Is this needed?
+	// Is this needed here?
 	if (m_lumiTool.retrieve().isFailure()) {
 		ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");
 		return StatusCode::FAILURE;
@@ -689,16 +686,16 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 
 			if (sc == StatusCode::FAILURE) {
 				ATH_MSG_ERROR("Unable to book trt shift tracks histograms");
-			}//if sc== failure
-		}//if m_doShift
-	}//if do tracks mon
+			}
+		}
+	}
 
 	if (m_doEfficiency) {
 		sc = bookTRTEfficiency (newLumiBlockFlag(), newRunFlag());
 
 		if (sc == StatusCode::FAILURE) {
 			ATH_MSG_ERROR("Unable to book trt efficiency");
-		}//if sc== failure
+		}
 	}
 
 	if (newRunFlag()) {
@@ -854,9 +851,7 @@ StatusCode TRT_Monitoring_Tool::bookTRTRDOs(bool newLumiBlock, bool newRun) {
 
 				for (int iside = 0; iside < 2; iside++) {
 					const std::string regionTag = " (" + be_id[ibe] + side_id[iside] + ")";
-					// WARNING! Return this after testing 
-					//					const std::string regionMarker = (m_environment == AthenaMonManager::online) ? (be_id[ibe] + side_id[iside]) : (side_id[iside]); // for historical reasons ...
-					const std::string regionMarker = (true) ? (be_id[ibe] + side_id[iside]) : (side_id[iside]); // for historical reasons ...
+					const std::string regionMarker = (m_environment == AthenaMonManager::online) ? (be_id[ibe] + side_id[iside]) : (side_id[iside]); // for historical reasons ...
 					m_hAvgHLOcc_side[ibe][iside] = bookTProfile_LW(rdoShift, "hAvgHLOcc_" + regionMarker, "Avg. HL Occupancy" + regionTag, 32, 1, 33, 0, 1, stack_or_sector[ibe], "Occupancy", scode);
 					m_hAvgLLOcc_side[ibe][iside] = bookTProfile_LW(rdoShift, "hAvgLLOcc_" + regionMarker, "Avg. LL Occupancy" + regionTag, 32, 1, 33, 0, 1, stack_or_sector[ibe], "Occupancy", scode);
 					m_hAvgLLOccMod_side[ibe][iside] = bookTProfile_LW(rdo, "hAvgLLOccMod_" + regionMarker, "Avg. LL Occupancy: " + module_or_wheel[ibe] + "s" + regionTag, s_moduleNum[ibe], 0, s_moduleNum[ibe], 0, 1, modulenum_assign2[ibe], "Occupancy", scode);
@@ -1269,9 +1264,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms() {
 	double nfill[2] = {3.0, 2.0};  // [0]:barrel, [1]:endcap
 
 	//proccesing of online histograms
-	// WARNING! Return this after testing
-	//	if (m_environment != AthenaMonManager::online) {
-	if (true) {
+	if (m_environment != AthenaMonManager::online) {
 		if (m_doShift && m_doRDOsMon) {
 			m_hSummary->SetBinContent(1, m_totalEvents);
 
@@ -1776,9 +1769,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms() {
 		}
 
 		//Resetting Occupuncy histograms for online environment
-		// WARNING! Return this after testing
-		//		if (m_doShift && m_environment == AthenaMonManager::online &&
-		if (m_doShift && true &&
+		if (m_doShift && m_environment == AthenaMonManager::online &&
 		    (m_lastLumiBlock % m_lumiBlocksToResetOcc) == 0) {
 			for (int ibe = 0; ibe < 2; ibe++) {
 				for (int iside = 0; iside < 2; iside++) {
@@ -1909,9 +1900,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 		//Explanation: While online monitoring running we need to present out histograms repeatedly so we need to pay attention to normalization.
 		//before adding any information from new event to normalized histograms we need to take out the normalization of the previous event by scaling histograms back.
 		//After  we are done with filling those histograms we will normalize them again
-		// WARNING! Return this after testing
-		//		if (m_environment == AthenaMonManager::online && m_totalEvents > 0) {
-		if (true && m_totalEvents > 0) {
+		if (m_environment == AthenaMonManager::online && m_totalEvents > 0) {
 			//Loop over stack histograms and normalize to number of events processed.
 			if (m_doChips && m_doExpert) {
 				for (int i = 0; i < 64; i++) {
@@ -2311,9 +2300,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 		}
 
 		//Normalization for online environmenmet
-		// WARNING! Return this after testing
-		//		if (m_environment == AthenaMonManager::online) {
-		if (true) {
+		if (m_environment == AthenaMonManager::online) {
 			//Loop over stack histograms and normalize to number of events processed.
 			if (m_doChips && m_doExpert) {
 				for (int i = 0; i < 64; i++) {
@@ -2385,16 +2372,16 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 					}
 
 					for (int j = 0; j < s_iChip_max[ibe]; j++) {
-						if (m_doExpert) m_hStrawOcc[ibe][i]->Fill(m_hHitAMapS[ibe][i]->GetBinContent(j + 1));
+						if (m_doExpert) {
+							m_hStrawOcc[ibe][i]->Fill(m_hHitAMapS[ibe][i]->GetBinContent(j + 1));
+						}
 					}
 				}
 			}
 		}
 	}
 
-	// WARNING! Return this after testing
-	//	if (m_environment == AthenaMonManager::online) {
-	if (true) {
+	if (m_environment == AthenaMonManager::online) {
 		if (m_doShift) m_hSummary->SetBinContent(1, m_totalEvents);
 	}
 
@@ -2420,9 +2407,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 	//Explanation: While online monitoring running we need to present out histograms repeatedly so we need to pay attention to normalization.
 	//before adding any information from new event to normalized histograms we need to take out the normalization of the previous event by scaling histograms back.
 	//After  we are done with filling those histograms we will normalize them again
-	// WARNING! Return this after testing
-	//	if (m_environment == AthenaMonManager::online) {
-	if (true) {
+	if (m_environment == AthenaMonManager::online) {
 		// ibe = 0 (Barrel), ibe = 1 (Endcap)
 		for (int ibe = 0; ibe < 2; ibe++) {
 			if (m_doChips && m_doExpert) {
@@ -2930,6 +2915,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 						}
 
 						if (isArgonStraw) {
+							ATH_MSG_VERBOSE("Hit loc: " << loc);
+							ATH_MSG_VERBOSE("Track loc: " << locR);
 							m_hResidual_B_Ar->Fill(loc - locR);
 
 							if (cnst_is_pT_over_20GeV) {
@@ -2993,6 +2980,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 							if (m_isCosmics) {
 								m_hrtRelation_B_Ar->Fill(LE - EP - t0, fabs(locR));
 							} else {
+								ATH_MSG_VERBOSE("Leading Edge: " << LE);
+								ATH_MSG_VERBOSE("t0: " << t0);
 								m_hrtRelation_B_Ar->Fill(LE - t0, fabs(locR));
 							}
 						} else {
@@ -3284,13 +3273,11 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			if (m_doShift) {
 				std::vector<int> trigid;
 				trigid.clear(); // Trigger ID
-				// std::vector<unsigned int> level1TriggerInfo_t = eventInfo.trigger_info()->level1TriggerInfo();
 				// get bits for trigger after veto
 				std::vector<unsigned int> level1TAV = trigDecision.tav();
 
 				for (unsigned int j = 0; j < 8 && j < level1TAV.size(); ++j) {
 					for (unsigned int i = 0; i < 32; ++i) {
-						//if ((level1TriggerInfo_t[j] >> i) & 0x1) trigid.push_back(i + (j % 8) * 32); // Found the ID
 						if ((level1TAV[j] >> i) & 0x1) {
 							trigid.push_back(i + (j % 8) * 32); // Found the ID
 						}
@@ -3305,9 +3292,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 	}
 
 	for (int ibe = 0; ibe < 2; ibe++) {
-		// WARNING! Return this after testing
-		//		if (m_environment == AthenaMonManager::online && m_totalEvents > 0) {
-		if (true && m_totalEvents > 0) {
+		if (m_environment == AthenaMonManager::online && m_totalEvents > 0) {
 			//Loop over stack histograms and normalize to number of events processed.
 			if (m_doChips && m_doExpert) {
 				for (int i = 0; i < 64; i++) {
@@ -3615,9 +3600,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 
 	for (auto track = combTrackCollection.begin(); track != combTrackCollection.end(); ++track) {
 		// online: use all tracks, offline: use only every xth track, skip the rest
-		// WARNING! Return this after testing
-		//		if (m_environment != AthenaMonManager::online && (itrack % m_every_xth_track) != 0) continue;
-		if (true && (itrack % m_every_xth_track) != 0) continue;
+		if (m_environment != AthenaMonManager::online && (itrack % m_every_xth_track) != 0) continue;
 
 		++itrack;
 		// get perigee
