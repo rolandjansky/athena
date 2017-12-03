@@ -31,7 +31,7 @@
 #include "CLHEP/GenericFunctions/Cos.hh"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // need if we want tu use EMEC from LArGeoTBEC:
 #include "LArGeoTBEC/EMECModuleConstruction.h"

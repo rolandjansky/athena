@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           PRIVATE
                           Calorimeter/CaloDetDescr
-                          Control/DataModel
+                          Control/AthContainers
                           Database/AthenaPOOL/RDBAccessSvc
                           GaudiKernel
                           LArCalorimeter/LArG4/LArG4RunControl
@@ -33,7 +33,7 @@ atlas_add_component( LArGeoH62004Algs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GeoModelKernel GeoModelUtilities LArReadoutGeometry CaloDetDescrLib DataModel GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoH6Cryostats LArGeoTBECLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GeoModelKernel GeoModelUtilities LArReadoutGeometry CaloDetDescrLib AthContainers GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoH6Cryostats LArGeoTBECLib )
 
 # Install files from the package:
 atlas_install_headers( LArGeoH62004Algs )
