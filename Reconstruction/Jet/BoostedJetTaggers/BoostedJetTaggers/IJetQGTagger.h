@@ -32,19 +32,11 @@ namespace CP {
     ASG_TOOL_INTERFACE( CP::IJetQGTagger )
 
     public:
-    enum Classifier {
-      OutOfValidRange = 0,
-      QuarkJet = 1,
-      GluonJet = 2
-    };
 
     virtual ~IJetQGTagger() {}
 
     virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
     virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex* pv) const = 0;
-
-    virtual Classifier classify(const xAOD::Jet& jet) const = 0;
-    virtual Classifier classify(Root::TAccept accept) const = 0;
 
   };
 

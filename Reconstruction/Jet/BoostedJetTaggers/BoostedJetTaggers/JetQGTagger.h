@@ -58,10 +58,6 @@ namespace CP {
       // Implement IJetQGTagger interface
       virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const;
 
-      // classifier functions
-      virtual IJetQGTagger::Classifier classify(const xAOD::Jet& jet) const { return classify(tag(jet) ); }
-      virtual IJetQGTagger::Classifier classify(Root::TAccept accept) const;
-
       // functions for systematic variations
       bool isAffectedBySystematic(const SystematicVariation& var) const{return SystematicsTool::isAffectedBySystematic(var);}
       SystematicSet affectingSystematics() const {return SystematicsTool::affectingSystematics();}

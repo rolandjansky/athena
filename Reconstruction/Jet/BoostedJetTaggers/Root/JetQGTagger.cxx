@@ -239,14 +239,6 @@ namespace CP {
     return StatusCode::SUCCESS;
   }
 
-  IJetQGTagger::Classifier JetQGTagger::classify(Root::TAccept accept) const
-  {
-    if (accept.getCutResult("QuarkJetTag") )
-      return IJetQGTagger::QuarkJet;
-    if (accept.getCutResult("GluonJetTag") )
-      return IJetQGTagger::GluonJet;
-    return IJetQGTagger::OutOfValidRange;
-  }
 
   Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
 
