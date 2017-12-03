@@ -207,11 +207,11 @@ def applyJetCalibration(jetalg,algname,sequence):
     else:
         isdata=False
 
-        configdict = {'AntiKt4EMTopo':('JES_MC16Recommendation_Nov2017.config',
+        configdict = {'AntiKt4EMTopo':('JES_MC16Recommendation_28Nov2017.config',
                                        'JetArea_Residual_EtaJES_GSC'),
-                      'AntiKt4LCTopo':('JES_MC16Recommendation_Nov2017.config',
+                      'AntiKt4LCTopo':('JES_MC16Recommendation_28Nov2017.config',
                                        'JetArea_Residual_EtaJES_GSC'),
-                      'AntiKt4EMPFlow':('JES_MC16Recommendation_PFlow_Nov2017.config',
+                      'AntiKt4EMPFlow':('JES_MC16Recommendation_PFlow_28Nov2017.config',
                                         'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config',
                                                               'EtaJES_JMS'),
