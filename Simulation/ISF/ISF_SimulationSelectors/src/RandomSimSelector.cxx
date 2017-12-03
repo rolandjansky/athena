@@ -17,11 +17,9 @@
 
 /** Constructor **/
 ISF::RandomSimSelector::RandomSimSelector(const std::string& t, const std::string& n, const IInterface* p)
-  : ISimulationSelector(t,n,p)
+  : BaseSimulationSelector(t,n,p)
   , m_random(0)
 {
-  declareInterface<ISF::ISimulationSelector>(this);
-
   m_random = new TRandom();
 }
 
