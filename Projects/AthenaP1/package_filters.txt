@@ -85,6 +85,7 @@
 + Simulation/ISF/ISF_Fatras/ISF_FatrasTools
 + Simulation/ISF/ISF_Fatras/ISF_FatrasToolsID
 + Simulation/ISF/ISF_Fatras/ISF_FatrasToolsMS
++ Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimParametrization
 + Simulation/TruthJiveXML
 - Simulation/.*
 - TestBeam/TBDetDescrCnv
