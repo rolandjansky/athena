@@ -173,7 +173,7 @@ class EgammaFexBuilder(object):
         self._fast_electron                = L2ElectronFex_1()
         self._fast_photon                 = L2PhotonFex_1()
         self._egamma_rec         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doPrint=False)()
-        self._egamma_rec_gsf         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doBremCollection = True,doPrint=False)()
+        self._egamma_rec_gsf         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma_gsf",doBremCollection = True,doPrint=False)()
         self._egamma_rec_conv    = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)()
         self._egamma_rec_noid    = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
         self._egamma_rec_ph_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
