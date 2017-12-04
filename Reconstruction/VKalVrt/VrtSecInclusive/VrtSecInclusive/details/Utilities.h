@@ -86,17 +86,17 @@ namespace VKalVrtAthena {
 
   //____________________________________________________________________________________________________
   template<class LeptonFlavor>
-  void genSequence( const LeptonFlavor&, std::vector<unsigned>& ) {}
+  void genSequence( const LeptonFlavor*, std::vector<unsigned>& ) {}
 
-  template<> void genSequence( const xAOD::Muon&, std::vector<unsigned>& trackTypes );
-  template<> void genSequence( const xAOD::Electron& electron, std::vector<unsigned>& trackTypes );
+  template<> void genSequence( const xAOD::Muon*, std::vector<unsigned>& trackTypes );
+  template<> void genSequence( const xAOD::Electron* electron, std::vector<unsigned>& trackTypes );
   
   //____________________________________________________________________________________________________
   template<class LeptonFlavor>
-  const xAOD::TrackParticle* getLeptonTrackParticle( const LeptonFlavor&, const unsigned& ) { return nullptr; }
+  const xAOD::TrackParticle* getLeptonTrackParticle( const LeptonFlavor*, const unsigned& ) { return nullptr; }
   
-  template<> const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Muon& muon, const unsigned& trackType );
-  template<> const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Electron& electron, const unsigned& trackType );
+  template<> const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Muon* muon, const unsigned& trackType );
+  template<> const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Electron* electron, const unsigned& trackType );
   
   //____________________________________________________________________________________________________
   template<class LeptonFlavor>
@@ -115,16 +115,19 @@ namespace VKalVrtAthena {
     static SG::AuxElement::Decorator< std::vector< std::vector<float> > > decor_z0wrtSV( "z0_wrtSVs" );
     static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
     
+    std::vector< std::vector<float> > d0wrtSVs;
+    std::vector< std::vector<float> > z0wrtSVs;
+      
     // Loop over muons
     for( const auto& lepton : *leptonContainer ) {
       
-      std::vector< std::vector<float> > d0wrtSVs;
-      std::vector< std::vector<float> > z0wrtSVs;
+      d0wrtSVs.clear();
+      z0wrtSVs.clear();
       
       bool linkFlag { false };
       
       std::vector<unsigned> trackTypes;
-      genSequence( lepton, trackTypes );
+      genSequence<LeptonFlavor>( lepton, trackTypes );
     
       // Loop over lepton types
       for( auto& trackType : trackTypes ) {
@@ -132,7 +135,7 @@ namespace VKalVrtAthena {
         std::vector<float> d0wrtSV;
         std::vector<float> z0wrtSV;
         
-        const auto* trk = getLeptonTrackParticle( lepton, trackType );
+        const auto* trk = getLeptonTrackParticle<LeptonFlavor>( lepton, trackType );
         
         if( !trk ) continue;
       

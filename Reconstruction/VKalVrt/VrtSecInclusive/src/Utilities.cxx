@@ -75,7 +75,7 @@ namespace VKalVrtAthena {
   
   //____________________________________________________________________________________________________
   template<>
-  void genSequence( const xAOD::Muon&, std::vector<unsigned>& trackTypes ) {
+  void genSequence( const xAOD::Muon*, std::vector<unsigned>& trackTypes ) {
     trackTypes = { xAOD::Muon::Primary,
                    xAOD::Muon::InnerDetectorTrackParticle,
                    xAOD::Muon::MuonSpectrometerTrackParticle,
@@ -85,20 +85,20 @@ namespace VKalVrtAthena {
   }
   
   template<>
-  void genSequence( const xAOD::Electron& electron, std::vector<unsigned>& trackTypes ) {
-    for( size_t i=0; i<electron.nTrackParticles(); i++ ) trackTypes.emplace_back( i );
+  void genSequence( const xAOD::Electron* electron, std::vector<unsigned>& trackTypes ) {
+    for( size_t i=0; i<electron->nTrackParticles(); i++ ) trackTypes.emplace_back( i );
   }
   
   
   //____________________________________________________________________________________________________
   template<>
-  const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Muon& muon, const unsigned& trackType ) {
-    return muon.trackParticle( static_cast<xAOD::Muon::TrackParticleType>( trackType ) );
+  const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Muon* muon, const unsigned& trackType ) {
+    return muon->trackParticle( static_cast<xAOD::Muon::TrackParticleType>( trackType ) );
   }
   
   template<>
-  const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Electron& electron, const unsigned& trackType ) {
-    return electron.trackParticle( trackType );
+  const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Electron* electron, const unsigned& trackType ) {
+    return electron->trackParticle( trackType );
   }
   
   
