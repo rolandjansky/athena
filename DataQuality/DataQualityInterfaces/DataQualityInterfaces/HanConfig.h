@@ -56,6 +56,7 @@ public:
                                   std::map<std::string,TSeqCollection*>* outputMap, TSeqCollection *outputList );
   
   virtual TObject* GetReference( std::string& groupName, std::string& name );
+  //static std::string SplitReference( std::string );
   virtual const HanConfigAssessor* GetAssessor( std::string& groupName, std::string& name ) const;
 
   virtual void GetRegexList( std::set<std::string>& regexlist );
@@ -70,8 +71,8 @@ protected:
     RefVisitor( TFile* outfile_, HanConfig::DirMap_t& directories_, TMap* refsourcedata );
     virtual void Visit( const MiniConfigTreeNode* node ) const;
   protected:
-    TFile* m_outfile;
-    HanConfig::DirMap_t& m_directories;
+    TFile* outfile;
+    HanConfig::DirMap_t& directories;
     TMap* m_refsourcedata;
   };
   
@@ -87,12 +88,12 @@ protected:
     void GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
                                     std::string assessorName = "" ) const;
     
-    HanConfigGroup* m_root;
-    const MiniConfig& m_algConfig;
-    const MiniConfig& m_thrConfig;
-    const MiniConfig& m_refConfig;
-    TFile* m_outfile;
-    HanConfig::DirMap_t& m_directories;
+    HanConfigGroup* root;
+    const MiniConfig& algConfig;
+    const MiniConfig& thrConfig;
+    const MiniConfig& refConfig;
+    TFile* outfile;
+    HanConfig::DirMap_t& directories;
     TMap* m_refsourcedata;
     // File cache
     mutable std::map<std::string, std::shared_ptr<TFile> > m_filecache;
@@ -125,7 +126,7 @@ protected:
     virtual boost::shared_ptr<dqm_core::Node>
       Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> ) const;
   protected:
-    std::set<std::string>& m_regexes;
+    std::set<std::string>& regexes;
   };  
   
   class ConfigVisitor : public HanConfigAssessor::Visitor {
@@ -134,8 +135,8 @@ protected:
     virtual boost::shared_ptr<dqm_core::Node>
       Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> dqParent ) const;
   protected:
-    TFile* m_file;
-    dqm_core::Output* m_output;
+    TFile* file;
+    dqm_core::Output* output;
   };
 #endif
   
@@ -144,8 +145,8 @@ protected:
     CompAlgVisitor( TFile* outfile_ , const MiniConfig& compAlgConfig_);
     virtual void Visit( const MiniConfigTreeNode* node ) const;
   protected:
-    TFile* m_outfile;
-    const MiniConfig& m_compAlgConfig;
+    TFile* outfile;
+    const MiniConfig& compAlgConfig;
   };
   
   class MetadataVisitor : public MiniConfigTreeNode::Visitor {
@@ -153,20 +154,20 @@ protected:
     MetadataVisitor( TFile* outfile_ , const MiniConfig& metadataConfig_);
     virtual void Visit( const MiniConfigTreeNode* node ) const;
   protected:
-    TFile* m_outfile;
-    const MiniConfig& m_metadataConfig;
+    TFile* outfile;
+    const MiniConfig& metadataConfig;
   };
   
 
   bool Initialize( std::string configName );
   
   
-  TFile*             m_config;
+  TFile*             config;
 #ifndef __CINT__
-  boost::shared_ptr<dqm_core::Region>  m_dqRoot;
+  boost::shared_ptr<dqm_core::Region>  dqRoot;
 #endif
-  HanConfigGroup*    m_top_level;
-  TSeqCollection*    m_metadata;
+  HanConfigGroup*    top_level;
+  TSeqCollection*    metadata;
   
 //Get rid of Root macros that confuse Doxygen
 ///\cond CLASSDEF
