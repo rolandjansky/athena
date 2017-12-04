@@ -44,12 +44,11 @@ JetCollectionCnv::JetCollectionCnv(ISvcLocator *svcLocator)
 /// we might read back others (see below).
 ///
 JetCollection_PERS* 
-JetCollectionCnv::createPersistent( JetCollection* transCont ) 
+JetCollectionCnv::createPersistent( JetCollection* ) 
 {
-
-  MsgStream msg( msgSvc(), "JetCollectionCnv" );
-  msg << MSG::DEBUG << " in createPersistent" << endmsg;
-  return m_TPConverter.createPersistent (transCont, m_log);
+   MsgStream msg( msgSvc(), "JetCollectionCnv" );
+   msg << MSG::ERROR << "createPersistent() is obsolete" << endmsg;
+   return nullptr;
 }
 
 ///
