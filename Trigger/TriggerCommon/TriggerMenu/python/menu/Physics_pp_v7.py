@@ -1767,20 +1767,6 @@ def setupMenu():
         ['e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', 'L1_JPSI-1M5-EM12', ['L1_EM12','L1_EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
         ['e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12', 'L1_JPSI-1M5-EM12', ['L1_EM3','L1_EM12'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
 
-
-        # B->eeK* final state, while it is chain for Bphys program, for a technical reason it resides here.  ATR-XXX
-        ['e9_etcut_e5_etcut',                              'L1_EM7_2EM3',       ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_bloose_e5_bloose_bBeexM6000_L1JPSI-1M5-EM7',  'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM6000_L1EM8VH',         'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM2700_L1JPSI-1M5-EM7',  'L1_JPSI-1M5-EM7',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_e5_bloose_bBeexM2700_L1EM8VH',         'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_etcut_bBeexM2700_L1EM7',                      'L1_EM7',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_etcut_bBeexv2_L1EM7',                      'L1_EM7',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_etcut_bBeexM6000_L1EM7',                      'L1_EM7',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-
-        ['e9_bloose_bBeexM2700_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-        ['e9_bloose_bBeexM6000_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],        
-
         # Supporting trigger
         ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
         ['g0_perf_L1EM15',                'L1_EM15',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], 
