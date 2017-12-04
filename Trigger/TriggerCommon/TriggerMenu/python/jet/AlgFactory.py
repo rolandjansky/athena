@@ -212,6 +212,7 @@ class AlgFactory(object):
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.second_fex_params.jet_calib,
             'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
+            'do_substructure': "'True'", # "'%s'" % (self.fex_params.do_substructure),
             'output_collection_label': "'%s'" % (self.second_fex_params.fex_label),
             # ptMinCut and etaMaxCut are cuts applied to the
             # input jets before the reclustering jet finding is done.

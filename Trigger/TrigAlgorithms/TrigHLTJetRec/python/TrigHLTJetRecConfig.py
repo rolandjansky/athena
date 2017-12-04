@@ -249,6 +249,7 @@ def _getJetBuildTool(merge_param,
                      jet_calib,
                      cluster_calib,
                      do_minimalist_setup,
+                     do_substructure,
                      name='',
                      trkopt = '',
                      secondary_label='',
@@ -328,6 +329,33 @@ def _getJetBuildTool(merge_param,
                 jtm.bchcorrclus,
                 jtm.width
                 ])
+
+    if do_substructure:
+        # this set of moments will be reduced once we've run once to evaluate costs
+
+        # don't want to include nsubjettiness and width twice
+        if do_minimalist_setup:
+            mymods.extend([
+                    jtm.nsubjettiness,
+                    jtm.width
+                    ])
+        mymods.extend([
+                # jtm.nsubjettiness,
+                jtm.ktdr,
+                jtm.ktsplitter,
+                jtm.encorr,
+                jtm.charge
+                jtm.angularity,
+                jtm.comshapes,
+                jtm.ktmassdrop,
+                jtm.dipolarity,
+                jtm.pull,
+                jtm.planarflow,
+                # jtm.width,
+                jtm.qw,
+                jtm.trksummoms
+                ])
+
     # DEBUG DEBUG DEBUG
     # mymods = []
     # DEBUG DEBUG DEBUG
@@ -736,6 +764,7 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
                  jet_calib='subjes',
                  cluster_calib='EM',
                  do_minimalist_setup=True,
+                 do_substructure=False,
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  ):
@@ -766,6 +795,7 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            do_substructure=do_substructure,
             name=name,
             trkopt = trkopt,
             secondary_label=secondary_label, # needed for retrieving the track psjgetter and configuring and adding of track modifiers.
@@ -791,6 +821,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  jet_calib='subjes',
                  cluster_calib='LC',
                  do_minimalist_setup=True,
+                 do_substructure=True,
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  rclus= 0.2,
@@ -811,6 +842,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                                              jet_calib='nojcalib',
                                              cluster_calib=cluster_calib,
                                              do_minimalist_setup=do_minimalist_setup,
+                                             do_substructure=do_substructure,
                                              name=name+'notrim',
                                              )
         print 'after trimming jetbuild'
@@ -840,6 +872,7 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
                  jet_calib='nojcalib',  # no calibration to be done
                  cluster_calib='EM',
                  do_minimalist_setup=True,
+                 do_substructure=False,
                  output_collection_label='reclusteredJets',  # do not use this
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromJet',
                  ptMinCut=15000.,
@@ -863,6 +896,7 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            do_substructure=do_substructure,
             )
 
         self.output_collection_label = output_collection_label
@@ -881,6 +915,7 @@ class TrigHLTJetRecFromTriggerTower(
                  jet_calib='nojcalib',  # no calibration to be done
                  cluster_calib='EM',
                  do_minimalist_setup=True,
+                 do_substructure=False,
                  output_collection_label='triggerTowerjets',  # do not use this
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromTriggerTower',
                  ptMinCut=15000.,
@@ -905,6 +940,7 @@ class TrigHLTJetRecFromTriggerTower(
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            do_substructure=do_substructure,
             outputLabel='triggerTowerjets',
             )
 
