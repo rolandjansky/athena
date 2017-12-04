@@ -153,6 +153,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   std::string jetname("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
   std::string jetcoll(jetname + "Jets");
+  std::string calibArea("00-04-81"); 
 
   if (!m_jetCalibTool.isUserConfigured()) {
     toolName = "JetCalibTool_" + jetname;
@@ -211,6 +212,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("JetCollection", jetname) );
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
+    ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
     ATH_CHECK( m_jetCalibTool.retrieve() );
   }
@@ -233,6 +235,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFatCalibTool.setProperty("JetCollection", fatjetcoll) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", calibseq) );
+    ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetFatCalibTool.retrieve() );
   }
