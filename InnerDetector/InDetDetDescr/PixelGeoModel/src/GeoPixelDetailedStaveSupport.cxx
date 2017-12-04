@@ -614,6 +614,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	std::string flexMatName=m_gmt_mgr->IBLFlexMaterial(iModule+1,"staveA");
 	scaledFlexMaterial= m_mat_mgr->getMaterial(flexMatName);
       }
+//They are commented off due to the judgement in Line 177 about bFlexAndWing and bFlexConstantThickness.
+//But we keep it here in case they are needed in the future.
 //       else if(bFlexConstantThickness){
 // 	std::ostringstream tmp;
 // 	tmp<<"Staveflex"<<iModule+1<<"_IBL";
@@ -728,11 +730,13 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	    std::string flexMatName=m_gmt_mgr->IBLFlexMaterial(iModule+1,"staveC");
 	    scaledFlexMaterial= m_mat_mgr->getMaterial(flexMatName);
 	  }
-	  else if(bFlexConstantThickness){
-	    std::ostringstream tmp;
-	    tmp<<"Staveflex"<<iModule+1<<"_IBL";
-	    scaledFlexMaterial= m_mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(iModule+1), tmp.str());
-	  }
+          //They are commented off due to the judgement in Line 177 about bFlexAndWing and bFlexConstantThickness.
+          //But we keep it here in case they are needed in the future.
+	  //else if(bFlexConstantThickness){
+	  //  std::ostringstream tmp;
+	  //  tmp<<"Staveflex"<<iModule+1<<"_IBL";
+	  //  scaledFlexMaterial= m_mat_mgr->getMaterial("pix::CableFlex_IBL", flexDensity*(iModule+1), tmp.str());
+	  //}
 
 	  if(bFlexAndWing||bFlexConstantThickness)
 	    cableflex_logVol= new GeoLogVol(lname.str(),cableflex_shape,scaledFlexMaterial);
@@ -1003,6 +1007,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
     std::string flexMatName=m_gmt_mgr->IBLFlexMaterial(1,"doglegA");
     scaledFlexMaterial= m_mat_mgr->getMaterial(flexMatName);
   }
+  //They are commented off due to the judgement in Line 177 about bFlexAndWing and bFlexConstantThickness.
+  //But we keep it here in case they are needed in the future.
   //else if(bFlexConstantThickness){
   //  std::ostringstream tmp;
   //  tmp<<"CableFlex_IBL";
