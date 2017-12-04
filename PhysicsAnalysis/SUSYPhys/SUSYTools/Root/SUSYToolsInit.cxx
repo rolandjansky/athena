@@ -225,7 +225,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config");
+    std::string JES_config_file("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config");
     //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
 
     // form the string describing the calibration sequence to use
@@ -235,7 +235,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFatCalibTool.setProperty("JetCollection", fatjetcoll) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", calibseq) );
-    ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
+    ATH_CHECK( m_jetFatCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetFatCalibTool.retrieve() );
   }
