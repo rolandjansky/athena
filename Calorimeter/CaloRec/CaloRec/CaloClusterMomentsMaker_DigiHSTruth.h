@@ -42,15 +42,15 @@ class LArHVFraction;
 #include <string>
 #include <vector>
 
-class CaloClusterMomentsMaker_DigiHSTruth: public AthAlgTool, virtual public CaloClusterCollectionProcessor
+class CaloClusterMomentsMaker_DigiHSTruth final: public extends<AthAlgTool, CaloClusterCollectionProcessor>
 {
  public:    
   CaloClusterMomentsMaker_DigiHSTruth(const std::string& type, const std::string& name,
 			  const IInterface* parent);
 
-  StatusCode execute(xAOD::CaloClusterContainer* theClusColl);
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode execute(xAOD::CaloClusterContainer* theClusColl) override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   
   /** Callback added to handle Data-driven GeoModel initialisation

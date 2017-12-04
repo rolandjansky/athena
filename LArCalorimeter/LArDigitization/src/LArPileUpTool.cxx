@@ -508,11 +508,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
     ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
 
     if (m_recordMap) {
-       StatusCode sc = detStore()->record(m_hitmap,"LArHitEMap");
-       if (sc.isFailure()) {
-         ATH_MSG_ERROR(" Failed to record hitEmap in detector Store ");
-         return sc;
-       }
+       ATH_CHECK(detStore()->record(m_hitmap,"LArHitEMap"));
     }
 
     if (!m_useMBTime) m_energySum.resize(m_hitmap->GetNbCells(),0.);
@@ -525,11 +521,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
     }
 
     if (m_recordMap) {
-      StatusCode sc = detStore()->record(m_hitmap_DigiHSTruth,"LArHitEMap_DigiHSTruth");
-      if (sc.isFailure()) {
-        ATH_MSG_ERROR(" Failed to record DigiTruth hitEmap in detector Store ");
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(detStore()->record(m_hitmap_DigiHSTruth,"LArHitEMap_DigiHSTruth"));
     }
     if (!m_useMBTime) m_energySum_DigiHSTruth.resize(m_hitmap_DigiHSTruth->GetNbCells(),0.);
   }
@@ -603,7 +595,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
   //
   // ...... register the digit container into the TDS and check if succeeded
   //
-  StatusCode sc = evtStore()->record(m_DigitContainer ,  m_DigitContainerName) ;
+  StatusCode sc = ATH_CHECK(evtStore()->record(m_DigitContainer ,  m_DigitContainerName) );
   if( sc.isFailure() )
   {
     ATH_MSG_ERROR("Could not record new LArDigitContainer in TDS : " << m_DigitContainerName);
@@ -616,20 +608,15 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
       ATH_MSG_ERROR("Could not allocate a new LArDigitContainer");
       return StatusCode::FAILURE;
     }
-    sc = evtStore()->record(m_DigitContainer_DigiHSTruth ,  m_DigitContainerName_DigiHSTruth) ;
+    sc = ATH_CHECK(evtStore()->record(m_DigitContainer_DigiHSTruth ,  m_DigitContainerName_DigiHSTruth) );
     if( sc.isFailure() ){
       ATH_MSG_ERROR("Could not record new LArDigitContainer in TDS : " << m_DigitContainerName_DigiHSTruth);
       return StatusCode::FAILURE;
     }
-		else{
-
-      ATH_MSG_INFO("Did record new LArDigitContainer in TDS : " << m_DigitContainerName_DigiHSTruth);
-		}
   }
 
 
-  //
-  // ..... get OFC pointer for overlay case
+  // ..... get OFC pointer for overlay case (only for data)
 
   m_larOFC=NULL;
   if(m_RndmEvtOverlay  && !m_isMcOverlay) {
@@ -915,7 +902,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
       ATH_MSG_DEBUG(" Subevt time : " << SubEvtTimOffset);
       const LArDigitContainer& rndm_digit_container =  *(iTzeroDigitCont->second);
       int ndigit=0;
-      for (LArDigit* digit : rndm_digit_container) {
+      for (const LArDigit* digit : rndm_digit_container) {
        if (m_hitmap->AddDigit(digit)) ndigit++;
       }
       ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
@@ -941,8 +928,8 @@ StatusCode LArPileUpTool::mergeEvent()
    int it,it_end;
    it =  0;
    it_end = m_hitmap->GetNbCells();
-   LArHitList * hitlist;
-   LArHitList * hitlist_DigiHSTruth = 0;
+   LArHitList * hitlist = nullptr;
+   LArHitList * hitlist_DigiHSTruth = nullptr;
 
    Identifier cellID;
    const std::vector<std::pair<float,float> >* TimeE;
@@ -987,7 +974,7 @@ StatusCode LArPileUpTool::mergeEvent()
 
 
   // lock Digit container in StoreGate
-  StatusCode sc = evtStore()->setConst(m_DigitContainer);
+  StatusCode sc = ATH_CHECK(evtStore()->setConst(m_DigitContainer));
   if (sc.isFailure()) {
     ATH_MSG_ERROR( " Cannot lock DigitContainer ");
     return(StatusCode::FAILURE);
@@ -2222,7 +2209,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
   m_DigitContainer->push_back(Digit);
 
 
-  if(m_doDigiTruth == true && createDigit_DigiHSTruth == true){
+  if(m_doDigiTruth && createDigit_DigiHSTruth){
     createDigit_DigiHSTruth = false;
 
     for(int i=0; i<m_NSamples; i++) {

@@ -51,8 +51,8 @@ if doTileHitToDigit:
     theTileDigitsMaker.UseCoolPulseShapes=True
     theTileDigitsMaker.MaskBadChannels=False
     theTileDigitsMaker.RndmEvtOverlay=False
-    from RecExConfig.RecFlags import rec
-    theTileDigitsMaker.DoHSTruthReconstruction = rec.doDigiTruth()
+    from Digitization.DigitizationFlags import digitizationFlags
+    theTileDigitsMaker.DoHSTruthReconstruction = digitizationFlags.doDigiTruth()
     
 if doTileDigitsFromPulse:
     
@@ -129,8 +129,8 @@ if doTileDigitToRawChannel:
     theTileRawChannelGetter=TileRawChannelGetter()
     
     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelCnt"
-    from RecExConfig.RecFlags import rec
-    if rec.doDigiTruth():
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doDigiTruth():
       from TileRecUtils.TileRawChannelGetter_DigiHSTruth import *
       theTileRawChannelGetter_DigiHSTruth=TileRawChannelGetter_DigiHSTruth()
       theTileRawChannelGetter_DigiHSTruth.TileDigitsContainer = "TileDigitsCnt_DigiHSTruth"

@@ -11,8 +11,8 @@ def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitCon
         theTool = CfgGetter.getPublicTool("LArPileUpTool")
         theTool.DigitContainer = outputKey
         theTool.DigitContainer_DigiHSTruth = outputKey_DigiHSTruth
-        from RecExConfig.RecFlags import rec
-        theTool.DoDigiTruthReconstruction = rec.doDigiTruth()
+        from Digitization.DigitizationFlags import digitizationFlags
+        theTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
     except Exception as configException:
         print configException
         print "ERROR Problem with configuration"

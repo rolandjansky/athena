@@ -989,11 +989,6 @@ class doCaloRinger(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doDigiTruth(JobProperty):
-    """ Switch for TrackParticle cell association  """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
 
 #
 # Defines a sub-container for the algorithm switches
@@ -1025,7 +1020,7 @@ doWriteAOD, doWritexAOD, doWriteESD, doWriteBS, doWriteRDO, doWriteTAG, doWriteT
 readESD, doDetStatus, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
-AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger, doDigiTruth]
+AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger]
 for j in _list_Rec:
     jobproperties.Rec.add_JobProperty(j)
 del _list_Rec

@@ -27,7 +27,7 @@
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
 //#include "CxxUtils/unordered_set.h"
 #include "CxxUtils/prefetch.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include <Eigen/Dense>
@@ -40,11 +40,6 @@
 //#include "fastjet/PseudoJet.hh"
 //#include <fastjet/PseudoJet.hh>
 
-
-using HepGeom::Vector3D;
-using HepGeom::Point3D;
-using CLHEP::deg;
-using CLHEP::cm;
 
 
 namespace {
@@ -121,11 +116,11 @@ bool operator< (const MomentName& m, const std::string& v)
 CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const std::string& type, 
 						 const std::string& name,
 						 const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_calo_id(0),
-    m_maxAxisAngle(20*deg), 
-    m_minRLateral(4*cm), 
-    m_minLLongitudinal(10*cm),
+    m_maxAxisAngle(20*Gaudi::Units::deg), 
+    m_minRLateral(4*Gaudi::Units::cm), 
+    m_minLLongitudinal(10*Gaudi::Units::cm),
     m_minBadLArQuality(4000),
     m_calculateSignificance(false),
     m_calculateIsolation(false),
@@ -135,7 +130,7 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
     m_caloDepthTool("CaloDepthTool",this),
     m_noiseTool("CaloNoiseTool"),
     m_larHVScaleRetriever("LArHVScaleRetriever"),
-    m_larHVFraction(NULL),
+    m_larHVFraction(nullptr),
     m_absOpt(false) 
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
@@ -185,7 +180,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
     return sc;
   }
 
@@ -199,14 +194,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
   }
   else
   {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloClusterMomentsMaker_DigiHSTruth::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    return StatusCode::SUCCESS;
   }
   return sc;
 }
@@ -253,14 +241,14 @@ CaloClusterMomentsMaker_DigiHSTruth::geoInit(IOVSVC_CALLBACK_ARGS)
       int count = 0;
       for (const MomentName& m : moment_names)
 	msg() << ((count++)==0?" ":", ") << m.name;
-      msg() << endreq;
+      msg() << endmsg;
     }
   }
 
   m_calculateLArHVFraction = false;
   // sort and remove duplicates, order is not required for any of the code below
   // but still may be useful property
-  std::sort(m_validMoments.begin(), m_validMoments.end());
+  std::stable_sort(m_validMoments.begin(), m_validMoments.end());
 /*
   m_validMoments.erase(std::unique(m_validMoments.begin(),
                                    m_validMoments.end()),
@@ -288,18 +276,18 @@ CaloClusterMomentsMaker_DigiHSTruth::geoInit(IOVSVC_CALLBACK_ARGS)
   //m_calo_dd_man = CaloDetDescrManager::instance(); 
   
   //m_calo_id = m_calo_dd_man->getCaloCell_ID();
-  CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
+  ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   
-  CHECK(m_caloDepthTool.retrieve());
+  ATH_CHECK(m_caloDepthTool.retrieve());
 
   if (m_calculateSignificance) {
     
     if(m_noiseTool.retrieve().isFailure()){
       msg(MSG::WARNING)
-	  << "Unable to find Noise Tool" << endreq;
+	  << "Unable to find Noise Tool" << endmsg;
     }  
     else {
-      msg(MSG::INFO) << "Noise Tool retrieved" << endreq;
+      msg(MSG::INFO) << "Noise Tool retrieved" << endmsg;
     }
   }
 
@@ -307,10 +295,10 @@ CaloClusterMomentsMaker_DigiHSTruth::geoInit(IOVSVC_CALLBACK_ARGS)
     
     if(m_larHVScaleRetriever.retrieve().isFailure()){
       msg(MSG::WARNING)
-	  << "Unable to find LAr HV Scale Retriever Tool" << endreq;
+	  << "Unable to find LAr HV Scale Retriever Tool" << endmsg;
     }  
     else {
-      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endreq;
+      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endmsg;
     }
   }
 
@@ -337,12 +325,12 @@ struct cellinfo {
 
 } // namespace CaloClusterMomentsMaker_detail
 
-StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContainer *theClusColl)
+StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContainer *theClusColl) const
 {
 
   ATH_MSG_DEBUG("Executing " << name());
 
-  const CaloCellContainer *signalCells;
+  const CaloCellContainer *signalCells = nullptr;
   StatusCode sc = evtStore()->retrieve(signalCells,"AllCalo_DigiHSTruth");
   if (sc.isFailure()) ATH_MSG_WARNING( "Could not retrieve AllCalo_DigiHSTruth container ");
 
@@ -364,7 +352,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
   if ( m_calculateIsolation ) {
 
     if (theClusColl->size() >= noCluster) {
-      msg(MSG::ERROR) << "Too many clusters" << endreq;
+      msg(MSG::ERROR) << "Too many clusters" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -372,7 +360,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
     clusterIdx.resize(m_calo_id->calo_cell_hash_max(),
                       clusterPair_t(noCluster, noCluster));
 
-    int iClus = 0;
+    int iCluster = 0;
     for (xAOD::CaloCluster* theCluster : *theClusColl) {
       // loop over all cell members and fill cell vector for used cells
       xAOD::CaloCluster::cell_iterator cellIter    = theCluster->cell_begin();
@@ -397,13 +385,13 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 	  // check weight and assign to current cluster if weight is > 0.5
 	  double weight = cellIter.weight();
 	  if ( weight > 0.5 )
-	    clusterIdx[(unsigned int)myHashId].first = iClus;
+	    clusterIdx[(unsigned int)myHashId].first = iCluster;
 	}
 	else {
-	  clusterIdx[(unsigned int)myHashId].first = iClus;
+	  clusterIdx[(unsigned int)myHashId].first = iCluster;
 	}
       }
-      ++iClus;
+      ++iCluster;
     }
   }
 
@@ -618,16 +606,16 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 	xc/=w;
 	yc/=w;
 	zc/=w;
-	Point3D<double> showerCenter(xc,yc,zc);
+	HepGeom::Point3D<double> showerCenter(xc,yc,zc);
 	w=0;
 	
 
-	//log << MSG::WARNING << "Found bad cells " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " << ebad_dac <<  endreq;
-	//log << MSG::WARNING << "Found Cluster   " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " <<  endreq;
+	//log << MSG::WARNING << "Found bad cells " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " << ebad_dac <<  endmsg;
+	//log << MSG::WARNING << "Found Cluster   " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " <<  endmsg;
 	// shower axis is just the vector pointing from the IP to the shower center
 	// in case there are less than 3 cells in the cluster
 	
-	Vector3D<double> showerAxis(xc,yc,zc);
+	HepGeom::Vector3D<double> showerAxis(xc,yc,zc);
 	showerAxis.setMag(1);
 
 	// otherwise the principal direction with the largest absolute 
@@ -665,7 +653,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 
 	  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(C);
 	  if (eigensolver.info() != Eigen::Success) {
-	    msg(MSG::WARNING) << "Failed to compute Eigenvalues -> Can't determine shower axis" << endreq;
+	    msg(MSG::WARNING) << "Failed to compute Eigenvalues -> Can't determine shower axis" << endmsg;
 	  }
 	  else {
 	    // don't use the principal axes if at least one of the 3 
@@ -676,18 +664,18 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 
 	    if ( !( S[0] == 0.0 || S[1] == 0.0 || S[2] == 0.0 ) ) { 
 	    
-	      Vector3D<double> prAxis(showerAxis);
+	      HepGeom::Vector3D<double> prAxis(showerAxis);
 	      int iEigen = -1;
 	    
 	      for (i=0;i<3;i++) {
 		if ( S[i] != 0 ) {
-		  Vector3D<double> tmpAxis = Vector3D<double>(U(0,i),U(1,i),U(2,i));
+		  HepGeom::Vector3D<double> tmpAxis = HepGeom::Vector3D<double>(U(0,i),U(1,i),U(2,i));
 		
 		  // calculate the angle
 		  
 		  double tmpAngle = tmpAxis.angle(showerAxis);
-		  if ( tmpAngle > 90*deg ) { 
-		    tmpAngle = 180*deg - tmpAngle;
+		  if ( tmpAngle > 90*Gaudi::Units::deg ) { 
+		    tmpAngle = 180*Gaudi::Units::deg - tmpAngle;
 		    tmpAxis = -tmpAxis;
 		  }
 		
@@ -712,7 +700,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 	      else 
 		ATH_MSG_DEBUG("principal Direction (" << prAxis.x() << ", " 
 			      << prAxis.y() << ", " << prAxis.z() << ") deviates more than " 
-			      << m_maxAxisAngle/deg 
+			      << m_maxAxisAngle/Gaudi::Units::deg 
 			      << " deg from IP-to-ClusterCenter-axis (" << showerAxis.x() << ", "
 			      << showerAxis.y() << ", " << showerAxis.z() << ")");
 	    }//end if !S[i]==0
@@ -728,7 +716,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 	
 	for(i=0;i<ncell;i++) {
           CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
-	  Point3D<double> currentCell(ci.x,ci.y,ci.z);
+	  HepGeom::Point3D<double> currentCell(ci.x,ci.y,ci.z);
 	  // calculate distance from shower axis r
 	  ci.r = ((currentCell-showerCenter).cross(showerAxis)).mag();
 	  // calculate distance from shower center along shower axis

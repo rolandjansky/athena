@@ -56,8 +56,8 @@ class TileDigitsGetter ( Configured )  :
         self._TileDigitsMakerHandle = theTileDigitsMaker ;
 
         theTileDigitsMaker.TileHitContainer_DigiHSTruth="TileHitCnt_DigiHSTruth"
-        from RecExConfig.RecFlags import rec
-        theTileDigitsMaker.DoHSTruthReconstruction = rec.doDigiTruth()
+        from Digitization.DigitizationFlags import digitizationFlags
+        theTileDigitsMaker.DoHSTruthReconstruction = digitizationFlags.doDigiTruth()
         # Configure TileDigitsMaker here
         # Check TileDigitization_jobOptions.py for full configurability
         theTileDigitsMaker.TileHitContainer="TileHitCnt"
@@ -66,7 +66,6 @@ class TileDigitsGetter ( Configured )  :
         theTileDigitsMaker.CalibrationRun=False
 
         # Random number engine
-        from Digitization.DigitizationFlags import digitizationFlags
         theTileDigitsMaker.RndmSvc=digitizationFlags.rndmSvc()
         digitizationFlags.rndmSeedList.addSeed("Tile_DigitsMaker", 4789899, 989240512)
 
