@@ -106,7 +106,12 @@ AODMoments=[#"LATERAL"
             ,"EM_PROBABILITY"
             #,"PTD"
             ,"BadChannelList"
-            "SECOND_R_Truth"
+            ,#"LATERAL"
+            ]
+from Digitization.DigitizationFlags import digitizationFlags
+if digitizationFlags.doDigiTruth():
+
+  AODMoments+=["SECOND_R_Truth"
             ,"SECOND_LAMBDA_Truth"
             ,"CENTER_MAG_Truth"
             ,"CENTER_LAMBDA_Truth"
