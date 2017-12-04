@@ -344,7 +344,7 @@ def _getJetBuildTool(merge_param,
                 jtm.ktdr,
                 jtm.ktsplitter,
                 jtm.encorr,
-                jtm.charge
+                jtm.charge,
                 jtm.angularity,
                 jtm.comshapes,
                 jtm.ktmassdrop,
