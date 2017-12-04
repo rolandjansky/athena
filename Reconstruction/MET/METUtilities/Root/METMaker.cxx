@@ -294,8 +294,16 @@ namespace met {
         if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
 	if(assocs.empty()) {
-	  ATH_MSG_WARNING("Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration?");
+	    ATH_MSG_WARNING("Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration?");
 	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
+	  // if this is an uncalibrated electron below the threshold, then we put it into the soft term
+	  if(orig->type()==xAOD::Type::Electron){
+	    uniqueWeights.emplace_back( 0. );
+	    ATH_MSG_WARNING("Missing an electron from the MET map. Included as a track in the soft term. pT: " << obj->pt());
+	    continue;
+	  }else{
+	    ATH_MSG_ERROR("Missing an object: " << orig->type() << " pT: " << obj->pt() << " may be duplicated in the soft term.");
+	  }
 	}
 
 	// If the object has already been selected and processed, ignore it.
