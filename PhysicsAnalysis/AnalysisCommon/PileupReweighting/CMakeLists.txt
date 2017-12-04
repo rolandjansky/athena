@@ -21,7 +21,6 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    Trigger/TrigEvent/TrigDecisionInterface
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   DataQuality/GoodRunsLists
    PRIVATE
    Event/xAOD/xAODEventInfo
    Tools/PathResolver
@@ -45,7 +44,7 @@ atlas_add_library( PileupReweightingLib
    PUBLIC_HEADERS PileupReweighting
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools PATInterfaces AsgAnalysisInterfaces
-   TrigDecisionInterface GoodRunsListsLib
+   TrigDecisionInterface
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )

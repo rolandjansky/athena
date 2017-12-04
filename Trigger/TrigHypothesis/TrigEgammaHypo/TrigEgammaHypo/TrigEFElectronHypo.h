@@ -37,8 +37,8 @@
 #include "xAODEgamma/EgammaContainer.h"
 
 // Asg SelectorTools
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "VxVertex/RecVertex.h"

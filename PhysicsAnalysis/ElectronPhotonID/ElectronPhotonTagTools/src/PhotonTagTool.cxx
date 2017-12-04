@@ -9,6 +9,8 @@ Purpose : create a collection of PhotonTag
 
 *****************************************************************************/
 
+#include "ElectronPhotonTagTools/PhotonTagTool.h"
+
 #include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODCore/ShallowCopy.h"
@@ -20,8 +22,6 @@ Purpose : create a collection of PhotonTag
 #include "xAODEgamma/Photon.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODEgamma/EgammaEnums.h"
-#include "ElectronPhotonTagTools/PhotonTagTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "TagEvent/PhotonAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthContainers/ConstDataVector.h"

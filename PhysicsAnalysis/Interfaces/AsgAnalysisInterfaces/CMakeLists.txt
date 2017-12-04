@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 782748 2016-11-07 13:28:06Z will $
 
 # The name of the package:
 atlas_subdir( AsgAnalysisInterfaces )

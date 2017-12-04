@@ -94,9 +94,9 @@ namespace ana
   correctObject (xAOD::Electron& electron)
   {
     ATH_MSG_DEBUG("correctObject");
-    const Root::TAccept& passLHLoose = m_likelihoodTool_loose->accept( &electron );
-    const Root::TAccept& passLHMedium = m_likelihoodTool_medium->accept( &electron );
-    const Root::TAccept& passLHTight = m_likelihoodTool_tight->accept( &electron );
+    const Root::TAccept& passLHLoose = m_likelihoodTool_loose->accept( electron );
+    const Root::TAccept& passLHMedium = m_likelihoodTool_medium->accept( electron );
+    const Root::TAccept& passLHTight = m_likelihoodTool_tight->accept( electron );
 
     electron.auxdecor<SelectType>("QuickAna_LooseAndBLayerLLH")  = static_cast<bool>(passLHLoose);
     electron.auxdecor<SelectType>("QuickAna_MediumLLH") = static_cast<bool>(passLHMedium);

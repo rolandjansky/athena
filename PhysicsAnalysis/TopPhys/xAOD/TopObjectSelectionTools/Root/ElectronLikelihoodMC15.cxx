@@ -190,7 +190,7 @@ bool ElectronLikelihoodMC15::passChargeIDCut(const xAOD::Electron& el) const
   // see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ElectronChargeFlipTaggerTool
   if ( asg::ToolStore::contains<AsgElectronChargeIDSelectorTool> ("ECIDS_medium") ) {
     AsgElectronChargeIDSelectorTool* electronChargeIDSelectorTool = asg::ToolStore::get<AsgElectronChargeIDSelectorTool> ("ECIDS_medium");
-    if (!electronChargeIDSelectorTool->accept(&el)) return false;
+    if (!electronChargeIDSelectorTool->accept(el)) return false;
   }
   return true;
 }

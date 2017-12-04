@@ -8,6 +8,7 @@ Package : offline/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 Purpose : create a collection of ElectronTag
 
 *****************************************************************************/
+#include "ElectronPhotonTagTools/ElectronTagTool.h"
 
 #include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -20,8 +21,6 @@ Purpose : create a collection of ElectronTag
 #include "xAODEgamma/Electron.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODEgamma/EgammaEnums.h"
-#include "ElectronPhotonTagTools/ElectronTagTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "TagEvent/ElectronAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthContainers/ConstDataVector.h"
