@@ -69,7 +69,9 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 ## Populate alg sequence
 from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+alg = getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+alg.InputTruthCollection = 'GEN_EVENT'
+topSeq += alg
 
 MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 
