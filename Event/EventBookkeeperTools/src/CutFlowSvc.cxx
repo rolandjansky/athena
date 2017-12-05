@@ -481,20 +481,12 @@ StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collNam
     // is connected to just a single input file.
     const xAOD::CutBookkeeperContainer* constColl = 0;
     ATH_CHECK( m_inMetaDataStore->retrieve( constColl, collName ) );
-    xAOD::CutBookkeeperContainer* tmpColl = const_cast<xAOD::CutBookkeeperContainer*>(constColl);
-    if ( !(tmpColl->hasStore()) ) {
-      ATH_MSG_VERBOSE("Setting store of xAOD::CutBookkeeperContainer");
-      // Get also the auxilliary store
-      // const SG::IConstAuxStore* auxColl = 0;
-      const xAOD::CutBookkeeperAuxContainer* auxColl = 0;
-      ATH_CHECK( m_inMetaDataStore->retrieve(auxColl, collName+"Aux.") );
-      tmpColl->setConstStore( auxColl );
-    }
     // Now, iterate over all CutBookkeepers and search for the highest cycle number
     int maxCycle=0;
-    for ( std::size_t i=0; i<tmpColl->size(); ++i ) {
+    for ( std::size_t i=0; i<constColl->size(); ++i ) {
       // Get the current old EBK
-      const xAOD::CutBookkeeper* cbk = tmpColl->at(i);
+      //const xAOD::CutBookkeeper* cbk = tmpColl->at(i);
+      const xAOD::CutBookkeeper* cbk = constColl->at(i);
       int inCycle = cbk->cycle();
       if (inCycle > maxCycle) maxCycle = inCycle;
     }

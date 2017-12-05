@@ -386,7 +386,7 @@ StatusCode BookkeeperTool::copyContainerToOutput(const std::string& outname)
 {
 
   // Get the complete bookkeeper collection of the output meta-data store
-  xAOD::CutBookkeeperContainer* contBook(NULL); 
+  xAOD::CutBookkeeperContainer* contBook(nullptr); 
   if( !(outputMetaStore()->retrieve( contBook, outname) ).isSuccess() ) {
     ATH_MSG_ERROR( "Could not get " << outname << " CutBookkeepers from output MetaDataStore" );
     return StatusCode::FAILURE;
