@@ -10,7 +10,6 @@
 #include "D2PDMaker/D2PDTruthParticleSelector.h"
 #include "D2PDMaker/CheckD2PD.h"
 #include "D2PDMaker/CreateControlPlots.h"
-#include "D2PDMaker/UserDataHelperTool.h"
 #include "D2PDMaker/FilterTool.h"
 
 DECLARE_COMPONENT( D2PDINavigable4MomentumSelector )
@@ -25,6 +24,5 @@ DECLARE_COMPONENT( D2PDVertexSelector )
 DECLARE_COMPONENT( D2PDTruthParticleSelector )
 DECLARE_COMPONENT( CheckD2PD )
 DECLARE_COMPONENT( CreateControlPlots )
-DECLARE_COMPONENT( UserDataHelperTool )
 DECLARE_COMPONENT( FilterTool )
 
