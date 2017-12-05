@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/PhotonKillerTool.h"
+#include "CxxUtils/make_unique.h"
 
 namespace G4UA
 {
@@ -13,27 +13,15 @@ namespace G4UA
                                      const std::string& name,
                                      const IInterface* parent)
     : ActionToolBase<PhotonKiller>(type, name, parent)
-  {}
-
-  //---------------------------------------------------------------------------
-  std::unique_ptr<PhotonKiller>  PhotonKillerTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<PhotonKiller>();
-    return std::move(action);
+  {
+    declareInterface<IG4SteppingActionTool>(this);
+    declareInterface<IG4TrackingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
-  StatusCode PhotonKillerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } if(riid == IPreTrackingActionTool::interfaceID()) {
-      *ppvIf = (IPreTrackingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<PhotonKiller>::queryInterface(riid, ppvIf);
+  std::unique_ptr<PhotonKiller> PhotonKillerTool::makeAction(){
+    ATH_MSG_DEBUG("Making a PhotonKiller action");
+    return CxxUtils::make_unique<PhotonKiller>();
   }
 
 } // namespace G4UA

@@ -19,6 +19,7 @@
 #include "G4Track.hh"
 
 #include "LArG4Code/EnergySpot.h"
+#include "LArG4ShowerLib/ShowerEnergySpot.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -54,6 +55,8 @@ namespace ShowerLib {
 
   IShowerLib* FCALDistEtaEnergyShowerLib::readFromROOTFile(TFile* source)
   {
+
+      
       TParameter<int>* ver;
       ver = (TParameter<int>*)source->Get("version");
 
@@ -340,7 +343,7 @@ namespace ShowerLib {
 	  //std::cout << "Scale: " << energyScale << std::endl;
 
 	  for (iter = (*distit).second.begin() /*outshower->begin()*/; iter != (*distit).second.end() /*outshower->end()*/; iter++) {
-		  EnergySpot tmp(**iter);
+		  EnergySpot tmp( (*iter)->GetPosition(), (*iter)->GetEnergy(), (*iter)->GetTime() );
 		  tmp.SetEnergy(tmp.GetEnergy() * energyScale);
 		  outshower->push_back(tmp);
 		  //(*iter).SetEnergy((*iter).GetEnergy() * energyScale);
@@ -677,7 +680,7 @@ namespace ShowerLib {
 				  shower->setZSize(z);
 				  for(int k = 0; k < nhits; k++) {
 					  source->GetEntry(entr++); //variables mean what the name suggests
-					  shower->push_back(new EnergySpot(G4ThreeVector(x,y,z),e,time));
+					  shower->push_back(new ShowerEnergySpot(G4ThreeVector(x,y,z),e,time));
 				  }
 			  }
 		  }

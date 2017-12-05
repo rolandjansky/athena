@@ -12,8 +12,10 @@ namespace G4UA
   HIPKillerTool::HIPKillerTool(const std::string& type, const std::string& name,
                                const IInterface* parent)
     : ActionToolBase<HIPKiller>(type, name, parent)
-  {}
-  
+  {
+    declareInterface<IG4SteppingActionTool>(this);
+  }
+
   //---------------------------------------------------------------------------
   std::unique_ptr<HIPKiller>  HIPKillerTool::makeAction()
   {
@@ -22,14 +24,4 @@ namespace G4UA
     return std::move(action);
   }
 
-  //---------------------------------------------------------------------------
-  StatusCode HIPKillerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<HIPKiller>::queryInterface(riid, ppvIf);
-  }
-
-} // namespace G4UA 
+} // namespace G4UA

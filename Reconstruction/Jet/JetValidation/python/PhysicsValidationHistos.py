@@ -171,16 +171,20 @@ akt4refContainer = "AntiKt4TruthJets" if rec.doTruth() else ""
 #globalSelection = "0.7<JVF[0]"
 globalSelection = ""
 
+##
+# necessary updates for validation directories
+###
 
 athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
     commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-    commonPhysValTool( "AntiKt10LCTopoJets" ),
-    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-    commonPhysValTool( "AntiKt2PV0TrackJets" ),
+#   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
+#   commonPhysValTool( "AntiKt10LCTopoJets" ),
+#   commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+#   commonPhysValTool( "AntiKt2PV0TrackJets" ),
     commonPhysValTool( "AntiKt4EMPFlowJets" ),
     commonPhysValTool( "AntiKt4TruthJets" ),
-    commonPhysValTool( "AntiKt10TruthJets" ),
+#    commonPhysValTool( "AntiKt10TruthJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
 
 
@@ -188,12 +192,12 @@ if (isMC==False):
   athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
     commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
-    commonPhysValTool( "AntiKt10LCTopoJets" ),
-    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
-    commonPhysValTool( "AntiKt2PV0TrackJets" ),
+#   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
+#    commonPhysValTool( "AntiKt10LCTopoJets" ),
+#    commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+#    commonPhysValTool( "AntiKt2PV0TrackJets" ),
     commonPhysValTool( "AntiKt4EMPFlowJets" ),
     ], IntervalType=8) # 8 == HistoGroupBase::all
-
 
 ToolSvc += athenaMonTool
 

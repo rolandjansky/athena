@@ -852,7 +852,7 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
       }else{
 	exPars = m_extrapolator->extrapolateDirectly(pars,surf,Trk::anyDirection,false,Trk::muon);
 	if( !exPars ) {
-	  ATH_MSG_WARNING(" Propagation cluster hole failed!! ");
+	  ATH_MSG_DEBUG(" Propagation cluster hole failed!! ");
 	  continue;
 	}
 	parsToBeDeleted.push_back(exPars);

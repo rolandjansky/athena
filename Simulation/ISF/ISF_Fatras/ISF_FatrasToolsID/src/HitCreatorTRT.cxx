@@ -42,7 +42,7 @@
 iFatras::HitCreatorTRT::HitCreatorTRT(const std::string& t,
     const std::string& n,
     const IInterface*  p ) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_incidentSvc("IncidentSvc", n),
   m_hitColl(0),
   m_collectionName("TRTUncompressedHits"),
@@ -54,7 +54,6 @@ iFatras::HitCreatorTRT::HitCreatorTRT(const std::string& t,
   m_trtStatusSummarySvc("TRT_StrawStatusSummarySvc", n),
   m_useConditionsSvc(false)
 {
-    declareInterface<IHitCreator>(this);
     // The Hit Collection Name
     declareProperty("CollectionName",               m_collectionName, "TRTUncompressedHits");
     // Random number svc 

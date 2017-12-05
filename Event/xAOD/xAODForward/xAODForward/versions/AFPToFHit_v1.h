@@ -64,8 +64,10 @@ namespace xAOD {
     /// @brief Lenght of the signal pulse which is proportional to the signal
     /// amplitude
     ///
-    /// The returned value is roughly lenght of the signal above
-    /// threshold expressed in nanoseconds.
+    /// The returned value is lenght of the signal above
+    /// threshold expressed in nanoseconds. Available values should be
+    /// multiples of 0.521. Pulse lenght of 1 nanosecond corresponds
+    /// roughtly to signal of about 67 mV.
     float pulseLength() const;
 
     void setPulseLength(float pulseLength);

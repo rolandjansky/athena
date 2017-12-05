@@ -3,8 +3,6 @@
 */
 
 #include "G4UserActions/PhotonKiller.h"
-#include <iostream>
-#include <cmath>
 
 #include "G4Step.hh"
 #include "G4Event.hh"
@@ -19,17 +17,18 @@ namespace G4UA
   PhotonKiller::PhotonKiller()
     :m_lastTrack(0), m_count(0), m_energy(0)
   {}
-  
+
   //---------------------------------------------------------------------------
-  void PhotonKiller::preTracking(const G4Track*){;
+  void PhotonKiller::PreUserTrackingAction(const G4Track*)
+  {
     // reset counters
     m_count=0;
     m_energy=0;
   }
-  
+
   //---------------------------------------------------------------------------
-  void PhotonKiller::processStep(const G4Step* aStep){
-  
+  void PhotonKiller::UserSteppingAction(const G4Step* aStep)
+  {
     if ( fabs(m_energy-aStep->GetTrack()->GetKineticEnergy())<0.00001 ){
       // same energy as last time
       m_count++;
@@ -38,7 +37,7 @@ namespace G4UA
       m_energy = aStep->GetTrack()->GetKineticEnergy();
       return;
     }
-    
+
     if (aStep->GetTrack()->GetKineticEnergy() < 0.0001){ // Less than one hundred eV
       if ( (m_count>3 && aStep->GetTrack()->GetDefinition() == G4Gamma::Gamma() ) ||
            (m_count>10000) ){ // more than three steps with less than one keV of energy...
@@ -52,9 +51,6 @@ namespace G4UA
       rmk->GetEventManager()->AbortCurrentEvent();
       rmk->GetEventManager()->GetNonconstCurrentEvent()->SetEventAborted();
     }
-    
   }
-  
-} // namespace G4UA 
 
-
+} // namespace G4UA

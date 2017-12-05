@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [[ $# < 2 ]];
+if [[ $# < 4 ]];
 then
-  echo "Syntax: $0 [-append] [-offline] [-onerun] <Run> <LB> File1 File2 ..."
+  echo "Syntax: $0 [-append] [-offline] [-onerun] <Run> <LBb> <LBe> File1 File2 ..."
   exit
 fi
 
@@ -60,6 +60,17 @@ else
     exit
 fi
 
+if [ $onerun == 1 ]
+then
+  if echo $1 | grep -q "^[0-9]*$";
+  then
+    lbnumbere=$1
+    shift
+  else
+    echo "ERROR: Expected a lumi-block-number, got $1"
+    exit
+  fi
+fi
 
 if ! which AtlCoolCopy.exe 1>/dev/null 2>&1
 then
@@ -119,7 +130,7 @@ done
 #Get UPD4-nn tag connected to 'current':
 echo "Resolving current folder-level tag suffix for /LAR/BadChannelsOfl/MissingFEBs...."
 fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/CONDBR2" /LAR/BadChannelsOfl/MissingFEBs` 
-upd4TagName=`echo $fulltag | grep -o "UPD4-[0-9][0-9]"` 
+upd4TagName=`echo $fulltag | grep -o "RUN2-UPD4-[0-9][0-9]"` 
 echo "Found $upd4TagName"
 
 
@@ -140,8 +151,10 @@ if [ $? -ne 0 ];  then
 fi
 
 if [ $onerun -eq 1 ]; then
- prefix=$[ $runnumber + 1]
- prefix="IOVEndRun=${prefix};IOVEndLB=0;"
+ #prefix=$[ $runnumber + 1]
+ #prefix="IOVEndRun=${prefix};IOVEndLB=0;"
+ endlb=$[ $lbnumbere + 1]
+ prefix="IOVEndRun=${runnumber};IOVEndLB=$endlb;"
 else 
  prefix=""
 fi
@@ -192,7 +205,7 @@ fi
 
 if [ $online -eq 1 ]; then
    echo "Copying UPD3 to UPD1 tag..."
-   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-UPD3-01 -ot LARBadChannelsOflMissingFEBs-UPD1-01 -r 2147483647 -a  > AtlCoolCopy.upd3.log 2>&1
+   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -ot LARBadChannelsOflMissingFEBs-RUN2-UPD1-01 -r 2147483647 -a  > AtlCoolCopy.upd3.log 2>&1
 
    if [ $? -ne 0 ];  then
        echo "AtlCoolCopy reported an error! Please check AtlCoolCopy.upd3.log!"
@@ -201,7 +214,7 @@ if [ $online -eq 1 ]; then
 fi
 
 echo "Copying UPD3 to UPD4 tag..."
-AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-UPD3-01 -ot LARBadChannelsOflMissingFEBs-$upd4TagName  > AtlCoolCopy.upd4.log 2>&1
+AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -ot LARBadChannelsOflMissingFEBs-$upd4TagName  > AtlCoolCopy.upd4.log 2>&1
 
 if [ $? -ne 0 ];  then
     echo "AtlCoolCopy reported an error! Please check AtlCoolCopy.upd4.log!"
@@ -216,7 +229,7 @@ fi
 
 if [ $online -eq 1 ]; then
    echo "Copying to for online database..."
-   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqliteOnl};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-UPD3-01 -of  /LAR/BadChannels/MissingFEBs -ot LARBadChannelsMissingFEBs-UPD1-01 -r 2147483647 -a -c > AtlCoolCopy.onl.log 2>&1
+   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqliteOnl};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -of  /LAR/BadChannels/MissingFEBs -ot LARBadChannelsMissingFEBs-RUN2-UPD1-01 -r 2147483647 -a -c > AtlCoolCopy.onl.log 2>&1
 
 
    if [ $? -ne 0 ];  then

@@ -21,8 +21,6 @@ namespace HepMC {
  
 namespace ISF {
  
-  static const InterfaceID IID_IGenParticleFilter("IGenParticleFilter", 1, 0);
-   
   /**
    @class IGenParticleFilter
       
@@ -38,8 +36,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IGenParticleFilter(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IGenParticleFilter; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IGenParticleFilter, 1, 0);
        
        /** Returns a boolean if the particle has passed or not */
        virtual bool pass(const HepMC::GenParticle& particle) const = 0;

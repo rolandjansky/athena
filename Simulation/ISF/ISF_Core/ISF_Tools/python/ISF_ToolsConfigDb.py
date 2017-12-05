@@ -25,4 +25,6 @@ addTool("ISF_Tools.ISF_ToolsConfig.getMC15aPlusLLPEntryLayerFilter"         , "I
 addTool("ISF_Tools.ISF_ToolsConfig.getMC15EntryLayerFilter"                 , "ISF_MC15EntryLayerFilter"            )
 addTool("ISF_Tools.ISF_ToolsConfig.getMC16EntryLayerFilter"                 , "ISF_MC16EntryLayerFilter"            )
 addTool("ISF_Tools.ISF_ToolsConfig.getMC16LLPEntryLayerFilter"              , "ISF_MC16LLPEntryLayerFilter"         )
+addTool("ISF_Tools.ISF_ToolsConfig.getMC18EntryLayerFilter"                 , "ISF_MC18EntryLayerFilter"            )
+addTool("ISF_Tools.ISF_ToolsConfig.getMC18LLPEntryLayerFilter"              , "ISF_MC18LLPEntryLayerFilter"         )
 addTool("ISF_Tools.ISF_ToolsConfig.getValidationEntryLayerFilter"           , "ISF_ValidationEntryLayerFilter"      )

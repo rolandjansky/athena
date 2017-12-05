@@ -4,41 +4,37 @@
 
 #include "G4UserActions/G4TrackCounter.h"
 #include "MCTruth/TrackHelper.h"
-#include <iostream>
 
-
-#include "G4ios.hh"
 
 namespace G4UA
 {
 
   //---------------------------------------------------------------------------
-  // merge results
+  // Merge results
   //---------------------------------------------------------------------------
-
-  void G4TrackCounter::Report::merge(const G4TrackCounter::Report& rep){
-
-    nEvents+=rep.nEvents;
-    nTotalTracks+=rep.nTotalTracks;
-    nPrimaryTracks+=rep.nPrimaryTracks;
-    nSecondaryTracks+=rep.nSecondaryTracks;
-    n50MeVTracks+=rep.n50MeVTracks;
+  void G4TrackCounter::Report::merge(const G4TrackCounter::Report& rep)
+  {
+    nEvents += rep.nEvents;
+    nTotalTracks += rep.nTotalTracks;
+    nPrimaryTracks += rep.nPrimaryTracks;
+    nSecondaryTracks += rep.nSecondaryTracks;
+    n50MeVTracks += rep.n50MeVTracks;
   }
 
   //---------------------------------------------------------------------------
   // Increment event counter
   //---------------------------------------------------------------------------
-  void G4TrackCounter::beginOfEvent(const G4Event* /*event*/)
+  void G4TrackCounter::BeginOfEventAction(const G4Event* /*event*/)
   {
-     m_report.nEvents++;
+    m_report.nEvents++;
   }
 
   //---------------------------------------------------------------------------
   // Increment track counters
   //---------------------------------------------------------------------------
-  void G4TrackCounter::preTracking(const G4Track* track)
+  void G4TrackCounter::PreUserTrackingAction(const G4Track* track)
   {
-     m_report.nTotalTracks++;
+    m_report.nTotalTracks++;
     TrackHelper helper(track);
 
     // Primary tracks

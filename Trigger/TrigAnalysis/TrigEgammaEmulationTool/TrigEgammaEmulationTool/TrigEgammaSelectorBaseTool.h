@@ -18,14 +18,9 @@
 #include <map>
 #include <boost/any.hpp>
 
-//define RINGER_OFFLINE_PACKAGES
-#ifdef RINGER_OFFLINE_PACKAGES
-//////////////////////// Ringer Offline //////////////////////////
-#include "xAODCaloRings/RingSetContainer.h"                     //
-#include "xAODCaloRings/CaloRingsContainer.h"                   //
-#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
-//////////////////////////////////////////////////////////////////
-#endif
+//#include "xAODCaloRings/RingSetContainer.h"                     //
+//#include "xAODCaloRings/CaloRingsContainer.h"                   //
+//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
 
 
 namespace Trig{
@@ -48,7 +43,9 @@ namespace Trig{
       //how generate this for these levels.
       bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::IParticle              *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &){return true;};
+      
       //parser TDT tool as a pointer
       void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s)
       { m_trigdec=&(*t); m_storeGate=s;};

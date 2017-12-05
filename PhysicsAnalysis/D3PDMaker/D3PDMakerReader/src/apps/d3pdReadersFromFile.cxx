@@ -23,12 +23,6 @@
 #include <TString.h>
 #include <TObjString.h>
 #include <TError.h>
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#  include <Cintex/Cintex.h>
-#  define CINTEX_ENABLE   ROOT::Cintex::Cintex::Enable();
-#else
-#  define CINTEX_ENABLE
-#endif
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/StatusCode.h"
@@ -97,9 +91,6 @@ mergeObjects( const std::set< D3PD::ObjectMetadata >& objects );
 namespace po = boost::program_options;
 
 int main( int argc, char* argv[] ) {
-
-   // As a first thing, let's enable Cintex:
-   CINTEX_ENABLE
    // Let's disable the ROOT warnings:
    gErrorIgnoreLevel = kError;
 

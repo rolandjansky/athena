@@ -220,6 +220,8 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     else:
         simFlags.EventFilter.set_On()
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
@@ -241,18 +243,8 @@ except:
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
-# Add G4 alg to alg sequence
-try:
-    # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
-    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-    topSeq += PyG4AtlasAlg()
-except ImportError:
-    try:
-        # the hive version provides PyG4AtlasSvc
-        from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
-        svcMgr += PyG4AtlasSvc()
-    except ImportError:
-        atlasG4log.fatal("Failed to import PyG4AtlasAlg/Svc")
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):

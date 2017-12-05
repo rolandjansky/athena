@@ -25,8 +25,8 @@ StatusCode LArHVScaleCorr2Ntuple::stop() {
   const ILArHVScaleCorr* larHVScaleCorr;
   StatusCode sc=m_detStore->retrieve(larHVScaleCorr,m_contKey);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log)  << MSG::ERROR << "Unable to retrieve ILArHVScaleCorr with key " 
-	      << m_contKey << " from DetectorStore" << endreq;
+    ATH_MSG_ERROR( "Unable to retrieve ILArHVScaleCorr with key " 
+	      << m_contKey << " from DetectorStore" );
     return StatusCode::FAILURE;
     } 
 
@@ -34,7 +34,7 @@ StatusCode LArHVScaleCorr2Ntuple::stop() {
 
  sc=m_nt->addItem("hvcorr",corr,-1000.,2.);
  if (sc!=StatusCode::SUCCESS)
-   {(*m_log)  << MSG::ERROR << "addItem 'corr' failed" << endreq;
+   {ATH_MSG_ERROR( "addItem 'corr' failed" );
     return StatusCode::FAILURE;
    }
 
@@ -51,7 +51,7 @@ StatusCode LArHVScaleCorr2Ntuple::stop() {
 	 corr=value;
 	 sc=ntupleSvc()->writeRecord(m_nt);
 	 if (sc!=StatusCode::SUCCESS) {
-	   (*m_log)  << MSG::ERROR << "writeRecord failed" << endreq;
+	   ATH_MSG_ERROR( "writeRecord failed" );
 	   return StatusCode::FAILURE;
 	 }
        }// end if object exists
@@ -59,6 +59,6 @@ StatusCode LArHVScaleCorr2Ntuple::stop() {
   cellCounter++;
  }//end loop over online ID
 
- (*m_log)  << MSG::INFO << "LArHVScaleCorr2Ntuple has finished." << endreq;
+ ATH_MSG_INFO( "LArHVScaleCorr2Ntuple has finished." );
  return StatusCode::SUCCESS;
 }// end finalize-method.

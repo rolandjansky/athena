@@ -33,7 +33,6 @@ LArG4H62004ActiveSDTool::LArG4H62004ActiveSDTool(const std::string& type, const 
   declareProperty("FCAL1Volumes",m_fcal1Volumes);
   declareProperty("FCAL2Volumes",m_fcal2Volumes);
   declareProperty("FCALColdVolumes",m_fcalColdVolumes);
-  declareInterface<ISensitiveDetector>(this);
 }
 
 StatusCode LArG4H62004ActiveSDTool::initializeCalculators()

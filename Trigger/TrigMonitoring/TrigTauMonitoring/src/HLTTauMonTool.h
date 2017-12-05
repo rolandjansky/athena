@@ -106,6 +106,8 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode dijetFakeTausEfficiency();
   StatusCode FTKtest(const std::string & trigItem);
   StatusCode trackCurves(const std::string & trigItem);
+  StatusCode efficiencyRatioPlots (const std::string & trigItem);
+  StatusCode L1TopoLeptons(const std::string & trigItem, const std::string & typeOfChain);
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
@@ -161,6 +163,9 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doTopoValidation;
   bool m_doL1JetPlots;
   bool m_doEFTProfiles;
+  bool m_domuCut40; 
+  bool m_doEfficiencyRatioPlots;
+  bool m_doL1TopoLeptonsMonitoringWarnings;
   bool m_bootstrap;
   bool m_isData;
 
@@ -195,8 +200,16 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_prescaled_tau;
   std::vector<std::string> m_emulation_l1_tau;
   std::vector<std::string> m_emulation_hlt_tau;
-  std::vector<std::string> m_topo_chains;
+  std::vector<std::string> m_topo_chains_ditau;
+  std::vector<std::string> m_topo_chains_mutau;
+  std::vector<std::string> m_topo_chains_eltau;
   std::vector<std::string> m_topo_support_chains;
+  std::vector<std::string> m_LST_HLTsel_FTK_chains;
+  std::vector<std::string> m_LST_HLTsel0Prong_FTK_chains;
+  std::vector<std::string> m_LST_HLTsel_FTKNoPrec_chains;
+  std::vector<std::string> m_LST_HLTsel0Prong_FTKNoPrec_chains;
+  std::vector<std::string> m_LST_HLTsel_tracktwo_chains;
+  std::vector<std::string> m_Ratio;
   std::string m_lowest_singletau;
   //std::string m_lowest_ditau;
   //std::string m_lowest_etau;
@@ -205,6 +218,56 @@ class HLTTauMonTool : public IHLTMonTool {
   //std::string m_cosmic_chain;
   // offline tau pt threshold for efficiency plots as a function of eta, phi, and nvtx
   float m_effOffTauPtCut;
+
+  int counterOfdR0_Topomutau;
+  int counterOfdR0_Topoeltau;
+
+  unsigned int activeFTKvsNonFTKEffRatioChains;
+  unsigned int activeFTKvsNonFTKEffRatio0prongChains;
+  unsigned int activeFTKvsNonFTKEffRatioNoPrecChains;
+  unsigned int activeFTKvsNonFTKEffRatio0prongNoPrecChains;
+  std::string lstE_FTK;	// energy cut of lowest single tau in FTK
+//  std::string lstE_tracktwo;	// energy cut of lowest single tau in std chains
+  unsigned chainFTKName_tau;		// *.
+  unsigned chainFTKName_sep;		// stings to determine the LST energy in the FTK menu
+  std::string chainFTKName_tauE;	// .*
+  std::string lstChainFTK_idperf;
+  std::string lstChainFTK_perf;
+  std::string lstChainFTK_medium1;
+  bool FTKLST_idperfActive;
+  bool FTKLST_perfActive;
+  bool FTKLST_medium1Active;
+  bool FTKLST_perf0Active;
+  bool FTKLST_medium0Active;
+  bool FTKLST_medium1NoPrecActive;
+  bool FTKLST_medium0NoPrecActive;
+
+  // FTKEffTProf flags
+  bool doFTKEffTProf;
+  bool doFTKEffTProf_2;
+  bool do0prongFTKEffTProf;
+  bool do0prongFTKEffTProf_2;
+  bool doFTKNoPrecEffTProf_2;
+  bool do0prongFTKNoPrecEffTProf_2;
+
+  std::vector<int> LST_FTK_PassHLTsel;
+  std::vector<int> LST_FTK0Prong_PassHLTsel;
+  std::vector<int> LST_FTKBDT_PassHLTsel;
+  std::vector<int> LST_FTK0ProngBDT_PassHLTsel;
+  std::vector<int> LST_tracktwo_PassHLTsel;
+
+
+  // EffRatioPlots flags
+  //bool doEffRatioPlots = false;
+  bool effRatioChains_Active;
+  //bool do0prongEffRatioPlots = false;
+  bool effRatio0ProngChains_Active;
+  //bool doBDTEffRatioPlots = false;
+  bool effRatioBDTChains_Active;
+  //bool do0prongBDTEffRatioPlots = false;
+  bool effRatio0ProngBDTChains_Active;
+
+  bool muCut40Passed;
 
 };
 

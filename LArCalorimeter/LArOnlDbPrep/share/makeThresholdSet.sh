@@ -8,22 +8,31 @@ else
 fi 
 if [[ $# > 1 ]]
 then
- Pileup=$2
+ Noise=$2
 else 
- Pileup=""
+ Noise=""
 fi 
 if [[ $# > 2 ]]
 then
- Noise=$3
+ Pileup=$3
 else 
- Noise=""
+ Pileup=""
 fi 
 fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/CONDBR2"  /LAR/NoiseOfl/CellNoise | tail -1`
 #foreach i in `seq 0 11`
 #foreach i in `seq 0 22`
 foreach i in `seq 5 22`
 #foreach i in `seq 16 22`
-    athena.py -s -c "RunNumber=$Run;tagNum=$i;pileupsqlite=\"$Pileup\";noisesqlite=\"$Noise\";noisetag=\"$fulltag\"" LArOnlDbPrep/LArDSPThresholdTopOptions.py
+    cmdline="RunNumber=$Run;RunSince=$Run;tagNum=$i;noisetag=\"$fulltag\";"
+    if [[ $Noise != "" ]]
+    then
+       cmdline+="noisesqlite=\"$Noise\";" 
+    fi
+    if [[ $Pileup != "" ]]
+    then
+       cmdline+="pileupsqlite=\"$Pileup\";"
+    fi   
+    athena.py -c "$cmdline" LArOnlDbPrep/LArDSPThresholdTopOptions.py
 end
 
 #foreach i in `seq 0 16`
