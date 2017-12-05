@@ -78,7 +78,8 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     // "Final": use text file, "COOL": read from COOL
     declareProperty("MappingType", m_mappingType = "COOL");
     // Name of mapping file to use, if mappingType == Final
-    declareProperty("MappingFile", m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat");
+// STSTST    declareProperty("MappingFile", m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat");
+    declareProperty("MappingFile", m_final_mapping_file = "PixelCabling/Pixels_Atlas_IdMapping_2016.dat");
     // NOT USED
     declareProperty("Bandwidth", m_bandwidth = 0);
     // NOT USED

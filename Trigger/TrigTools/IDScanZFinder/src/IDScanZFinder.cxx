@@ -167,25 +167,19 @@ StatusCode IDScanZFinder::finalize() {
 
 TrigVertexCollection* IDScanZFinder::findZ( const std::vector<const TrigSiSpacePoint *>& spVec, const IRoiDescriptor& roi)
 {
-  MsgStream athenaLog( msgSvc(), name() );
 
   TrigVertexCollection* output = new TrigVertexCollection;
   //  int outputLevel = msgSvc()->outputLevel( name() );
 
   std::vector<vertex>* vertices = findZInternal( spVec, roi);
-  //athenaLog << MSG::INFO << "RoI: " << *RoI << endreq;
-  //athenaLog << MSG::INFO << "RoI->phi0(): " << RoI->phi0() << endreq;
 
-
-  athenaLog << MSG::DEBUG << "roi: "    << roi << endreq;
-  athenaLog << MSG::DEBUG << "m_NumPhiSlices: " << m_NumPhiSlices << endreq;
+  ATH_MSG_DEBUG("roi: "    << roi);
+  ATH_MSG_DEBUG("m_NumPhiSlices: " << m_NumPhiSlices);
  
 
   if ( GetInternalStatus()==-1 ) { 
-    //    athenaLog << MSG::ERROR << "phi of spacepoint out of range!" << endreq;
-    //    athenaLog << MSG::ERROR << "Exiting ZFinder..." << endreq;
-    athenaLog << MSG::WARNING << "phi of spacepoint out of range! phi=" << GetReturnValue() << endreq;
-    athenaLog << MSG::WARNING << "Exiting ZFinder..." << endreq;
+    ATH_MSG_WARNING("phi of spacepoint out of range! phi=" << GetReturnValue());
+    ATH_MSG_WARNING("Exiting ZFinder...");
   }
 
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 

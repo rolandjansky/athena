@@ -69,7 +69,7 @@ modulator0=iter0.Modulator
 subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
 
 #now iterate
-seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibTool,jtm.jetfilHISeeds],shallow=False)
+seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibMap[seed_prefix],jtm.jetfilHISeeds],shallow=False)
 jtm.HIJetRecs+=[seeds1]
 iteration_dict=dict(suffix="iter1")
 if jetFlags.useTracks() and HIJetFlags.TrackJetSeeds() : iteration_dict['track_jet_seeds']=HIJetFlags.TrackJetContainerName()
@@ -90,8 +90,6 @@ subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulato
 #put subtraction tool at the FRONT of the jet modifiers list
 hi_tools=[subtr1,subtr2]
 hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
-hi_tools += jtm.modifiersMap['HI']
-jtm.modifiersMap['HI']=hi_tools
 
 ###
 #subtracted algorithms
@@ -102,7 +100,7 @@ for k in jtm.jetrecs :
     if unsubtr_suffix in k.name() :
         in_name=k.OutputContainer
         out_name=in_name.replace("_%s" % unsubtr_suffix,"")
-        copier=jtm.addJetCopier(out_name,in_name,"HI",shallow=False)
+        copier=jtm.addJetCopier(out_name,in_name,GetHIModifierList(out_name,hi_tools),shallow=False)
         AddToOutputList(out_name)
         jtm.HIJetRecs+=[copier]
 

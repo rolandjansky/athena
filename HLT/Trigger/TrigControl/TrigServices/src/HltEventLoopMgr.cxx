@@ -279,7 +279,10 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_l1_hltPrescaleUpdateLB(0xffffffff),
   m_mandatoryL1ROBs{{begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)}},
-  m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,200000,100)),
+  m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,500000,100)),
+  m_histProp_Hlt_result_size_physics(Gaudi::Histo1DDef("HltResultSize-(Stream (Main_physics))",0,500000,100)),
+  m_histProp_Hlt_result_size_express(Gaudi::Histo1DDef("HltResultSize-(Stream (express_express))",0,250000,100)),
+  m_histProp_Hlt_result_size_DataScouting(Gaudi::Histo1DDef("HltResultSize-(Streams (DataScouting_*_calibration))",0,125000,100)),
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,19.5,20)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
   m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,199.5,200)),
@@ -297,7 +300,10 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("HltEDMCollectionNames",    m_hltEdmCollectionNames, "Names of all HLT EDM Collections");
   declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
   declareProperty("doMonitoring",             m_doMonitoring=true, "Produce framework monitoring histograms");
-  declareProperty("histHltResultSize",        m_histProp_Hlt_result_size, "Histogram for HLT result size in words");
+  declareProperty("histHltResultSize",        m_histProp_Hlt_result_size, "Histogram for HLT result size in words (overall)");
+  declareProperty("histHltResultSizePhysics", m_histProp_Hlt_result_size_physics, "Histogram for HLT result size in words for physics stream ");
+  declareProperty("histHltResultSizeExpress", m_histProp_Hlt_result_size_express, "Histogram for HLT result size in words for express stream ");
+  declareProperty("histHltResultSizeDS",      m_histProp_Hlt_result_size_DataScouting, "Histogram for HLT result size in words for DataScouting stream ");
   declareProperty("histNumberOfStreamTags",   m_histProp_numStreamTags, "Histogram with number of stream tags");
   declareProperty("histStreamTagNames",       m_histProp_streamTagNames,"Histogram with stream tag names");  
   declareProperty("histNumberROBsPartialEB",  m_histProp_num_partial_eb_robs, "Histogram with number of ROBs for PEB" );
@@ -472,18 +478,21 @@ StatusCode HltEventLoopMgr::initialize()
   }
   msgStream() << endmsg;
 
-  msgStream() << MSG::INFO << " ---> Fill monitoring histograms   = " << m_doMonitoring << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize      = " << m_histProp_Hlt_result_size << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histNumberOfStreamTags = " << m_histProp_numStreamTags << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histStreamTagNames     = " << m_histProp_streamTagNames << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histNumberROBsPartialEB= " << m_histProp_num_partial_eb_robs << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histHltEdmSizes        = " << m_histProp_Hlt_Edm_Sizes << endmsg;
-  msgStream() << MSG::INFO << " ---> HLT EDM Collection Names     = " << m_hltEdmCollectionNames << endmsg;
-  msgStream() << MSG::INFO << " ---> HltResult SG key             = " << m_HltResultName << endmsg ;
-  msgStream() << MSG::INFO << " ---> HLT debug stream name        = " << m_HltDebugStreamName << endmsg ;
-  msgStream() << MSG::INFO << " ---> HLT stream for forced events = " << m_HltForcedStreamName << endmsg ;
-  msgStream() << MSG::INFO << " ---> ForceHltReject               = " << m_forceHltReject << endmsg ;
-  msgStream() << MSG::INFO << " ---> ForceHltAccept               = " << m_forceHltAccept << endmsg;
+  msgStream() << MSG::INFO << " ---> Fill monitoring histograms             = " << m_doMonitoring << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (overall)      = " << m_histProp_Hlt_result_size << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (physics)      = " << m_histProp_Hlt_result_size_physics << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (express)      = " << m_histProp_Hlt_result_size_express << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (DataScouting) = " << m_histProp_Hlt_result_size_DataScouting << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histNumberOfStreamTags           = " << m_histProp_numStreamTags << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histStreamTagNames               = " << m_histProp_streamTagNames << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histNumberROBsPartialEB          = " << m_histProp_num_partial_eb_robs << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltEdmSizes                  = " << m_histProp_Hlt_Edm_Sizes << endmsg;
+  msgStream() << MSG::INFO << " ---> HLT EDM Collection Names               = " << m_hltEdmCollectionNames << endmsg;
+  msgStream() << MSG::INFO << " ---> HltResult SG key                       = " << m_HltResultName << endmsg ;
+  msgStream() << MSG::INFO << " ---> HLT debug stream name                  = " << m_HltDebugStreamName << endmsg ;
+  msgStream() << MSG::INFO << " ---> HLT stream for forced events           = " << m_HltForcedStreamName << endmsg ;
+  msgStream() << MSG::INFO << " ---> ForceHltReject                         = " << m_forceHltReject << endmsg ;
+  msgStream() << MSG::INFO << " ---> ForceHltAccept                         = " << m_forceHltAccept << endmsg;
 
   if (m_forceHltReject.value()) {
     msgStream() << MSG::INFO << " +------------------------------------------+ "  << endmsg ;
@@ -1935,7 +1944,6 @@ void HltEventLoopMgr::bookHistograms()
                                      m_histProp_Hlt_result_size.value().lowEdge(),
                                      m_histProp_Hlt_result_size.value().highEdge());
 
-  m_hist_Hlt_result_size->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size);
 
   // *-- HLT result status codes
@@ -1966,37 +1974,34 @@ void HltEventLoopMgr::bookHistograms()
 
   // *-- HLT result size plot (Stream Physics Main)
   m_hist_Hlt_result_size_physics = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main_physics))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Stream (Main_physics))" + ";words;entries").c_str(),
-              m_histProp_Hlt_result_size.value().bins(),
-              m_histProp_Hlt_result_size.value().lowEdge(),
-              m_histProp_Hlt_result_size.value().highEdge());
+    new TH1F ((m_histProp_Hlt_result_size_physics.value().title()).c_str(),
+              (m_histProp_Hlt_result_size_physics.value().title() + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size_physics.value().bins(),
+              m_histProp_Hlt_result_size_physics.value().lowEdge(),
+              m_histProp_Hlt_result_size_physics.value().highEdge());
 
-  m_hist_Hlt_result_size_physics->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size_physics);
 
 
   // *-- HLT result size plot (Stream Express)
   m_hist_Hlt_result_size_express = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express_express))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Stream (express_express))" + ";words;entries").c_str(),
-              m_histProp_Hlt_result_size.value().bins(),
-              m_histProp_Hlt_result_size.value().lowEdge(),
-              m_histProp_Hlt_result_size.value().highEdge());
+    new TH1F ((m_histProp_Hlt_result_size_express.value().title()).c_str(),
+              (m_histProp_Hlt_result_size_express.value().title() + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size_express.value().bins(),
+              m_histProp_Hlt_result_size_express.value().lowEdge(),
+              m_histProp_Hlt_result_size_express.value().highEdge());
 
-  m_hist_Hlt_result_size_express->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size_express);
 
 
   // *-- HLT result size plot (Stream calibration, DataScouting results)
   m_hist_Hlt_result_size_DataScouting = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*_calibration))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Streams (DataScouting_*_calibration))" + ";words;entries").c_str(),
-              m_histProp_Hlt_result_size.value().bins(),
-              m_histProp_Hlt_result_size.value().lowEdge(),
-              m_histProp_Hlt_result_size.value().highEdge());
+    new TH1F ((m_histProp_Hlt_result_size_DataScouting.value().title()).c_str(),
+              (m_histProp_Hlt_result_size_DataScouting.value().title() + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size_DataScouting.value().bins(),
+              m_histProp_Hlt_result_size_DataScouting.value().lowEdge(),
+              m_histProp_Hlt_result_size_DataScouting.value().highEdge());
 
-  m_hist_Hlt_result_size_DataScouting->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size_DataScouting);
 
 

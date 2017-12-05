@@ -3,18 +3,13 @@
 echo 'Testing SMKey upload'
 if [ $# -ge 1 ]; then
    type=$1
-   echo 'Trying to upload Menu generated  with test "${type}"_menu' 
+   echo "Trying to upload Menu generated  with test "${type}"_menu" 
 else
    type=""
 fi
 
 #setup the TT
-export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
-
-source $TDAQ_RELEASE_BASE/tdaq/$TDAQ_VERSION/installed/setup.sh $TDAQ_VERSION
-export PATH=$PATH:$TDAQ_JAVA_HOME/bin
-
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
 
 ##get the right pattern to load LVl1 xml file
@@ -49,8 +44,6 @@ get_files -xmls -copy LVL1config_"${stump}".xml
 l1menu=`find .  -name LVL1config_${stump}.xml` 
 
 #get the L1 Topo configuration
-
-
 get_files -xmls -copy L1Topoconfig_"${stump}".xml 
 l1topo=`find . -name L1Topoconfig_${stump}.xml` 
 
@@ -101,7 +94,7 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"\\\"${rundate}${nightly}_${rel}\"\\\" --dbConn $DBConn -w_n 50 -w_t 60"
 
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log

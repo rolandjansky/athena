@@ -485,8 +485,8 @@ bool InDet::SiTrajectory_xk::initialize
  const InDet::SiClusterContainer*                     PIXc      ,
  const InDet::SiClusterContainer*                     SCTc      ,
  const Trk::TrackParameters                          & Tp        ,
- std::list<const InDet::SiCluster*>                  & lSiCluster, 
- std::list<const InDet::SiDetElementBoundaryLink_xk*>& DE        ,
+ std::vector<const InDet::SiCluster*>                  & lSiCluster, 
+ std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DE        ,
  bool                                                & rquality   )
 {
   m_nholes          =    0;
@@ -505,10 +505,10 @@ bool InDet::SiTrajectory_xk::initialize
   int    ndfwrong   =    0;
   double Xi2cut     = 2.*m_tools->xi2max(); 
 
-  std::list<const InDet::SiCluster*>::iterator c;
+  std::vector<const InDet::SiCluster*>::iterator c;
   if(lSiCluster.size() < 2) return false;
 
-  std::list<const InDet::SiDetElementBoundaryLink_xk*>::iterator r,re=DE.end();
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator r,re=DE.end();
   InDet::SiClusterCollection::const_iterator  sib,sie;
 
   int up    = 0;
@@ -656,9 +656,9 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
 (const InDet::SiClusterContainer*                         PIXc      ,
  const InDet::SiClusterContainer*                         SCTc      ,
  const Trk::TrackParameters                              & Tp        ,
- std::list<const InDet::SiDetElementBoundaryLink_xk*>    & DE        ,
+ std::vector<const InDet::SiDetElementBoundaryLink_xk*>  & DE        ,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT        ,
- std::list<const InDet::SiCluster*>                      & lSiCluster) 
+ std::vector<const InDet::SiCluster*>                      & lSiCluster) 
 {
   m_nElements = 0;
   m_ndf       = 0;  
@@ -666,7 +666,7 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
   std::multimap<double,const InDet::SiCluster*> xi2cluster;
 
   InDet::SiClusterCollection::const_iterator  sib,sie;
-  std::list<const InDet::SiDetElementBoundaryLink_xk*>::iterator r,re=DE.end();
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator r,re=DE.end();
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator t, te =PT.end();
 
   double xi2Cut = .5;
@@ -740,11 +740,11 @@ bool InDet::SiTrajectory_xk::globalPositionsToClusters
  	(const InDet::SiClusterContainer*                         PIXc      ,
 	 const InDet::SiClusterContainer*                         SCTc      ,  
 	 const std::list<Amg::Vector3D>                          & Gp        ,
-	 std::list<const InDet::SiDetElementBoundaryLink_xk*>    & DE        ,
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>    & DE        ,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT        ,
-	 std::list<const InDet::SiCluster*>                      & lSiCluster)
+	 std::vector<const InDet::SiCluster*>                      & lSiCluster)
 {
-  std::list<const InDet::SiDetElementBoundaryLink_xk*>::iterator r = DE.begin(), re = DE.end();
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator r = DE.begin(), re = DE.end();
   std::list<Amg::Vector3D>::const_iterator                    g,gb = Gp.begin(), ge = Gp.end();
   InDet::SiClusterCollection::const_iterator                  sib,sie;
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator t, te =PT.end();
@@ -1332,7 +1332,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiTrajectory_xk::getClusters
-(std::list<const InDet::SiCluster*>& Cl)
+(std::vector<const InDet::SiCluster*>& Cl)
 {
   for(int i = m_firstElement; i<=m_lastElement; ++i) {
     int m = m_elementsMap[i];

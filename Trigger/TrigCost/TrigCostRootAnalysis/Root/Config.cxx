@@ -135,6 +135,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _doExponentialMu = kFALSE;
     static Int_t _invertHighMuRunVeto = kFALSE;
     static Int_t _ignoreGRL = kFALSE;
+    static Int_t _ignorePSGreaterThanOne = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -436,7 +437,10 @@ namespace TrigCostRootAnalysis {
         },
         {
           "ignoreGRL", no_argument, &_ignoreGRL, 1
-        },       
+        },  
+        {
+          "ignorePSGreaterThanOne", no_argument, &_ignorePSGreaterThanOne, 1
+        }, 
         {
           "invertHighMuRunVeto", no_argument, &_invertHighMuRunVeto, 1
         }, // Hidden option
@@ -835,6 +839,9 @@ namespace TrigCostRootAnalysis {
                     << std::endl;
           std::cout <<
             "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales."
+                    << std::endl;
+          std::cout <<
+            "--ignorePSGreaterThanOne\t\t\t\t\tAll prescales greater than 1 will be set to -1."
                     << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." <<
             std::endl;
@@ -1823,6 +1830,7 @@ namespace TrigCostRootAnalysis {
     set(kInvertHighMuRunVeto, _invertHighMuRunVeto, "InvertHighMuRunVeto");
     set(kUseOnlyTheseBCIDs, _useOnlyTheseBCIDs, "UseOnlyTheseBCIDs");
     set(kIgnoreGRL, _ignoreGRL, "IgnoreGRL");
+    set(kIgnorePSGreaterThanOne, _ignorePSGreaterThanOne, "IgnorePSGreaterThanOne");
 
     std::stringstream _multiRunss(_multiRun); // Comma separated
     std::string _tempStr;

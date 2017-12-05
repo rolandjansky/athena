@@ -25,6 +25,9 @@ dqconfig.filemap        = { 'RPCDQMFOFFLINE.db': '/afs/cern.ch/user/m/muoncali/w
                             'RPCConditionDB.db': '/afs/cern.ch/user/m/muoncali/w0/RPC/DQAresults',
                             'MDTDQMFOFFLINE_DEAD.db': '/afs/cern.ch/user/m/muoncali/w0/RPC/DQAresults',
                             'MDTDQMFOFFLINE_NOISY.db': '/afs/cern.ch/user/m/muoncali/w0/RPC/DQAresults',
+                            'zrate.csv': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/zlumi',
+                            'zlumi.root': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/zlumi',
+                            'zlumi.root_lumicomp.eps': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/zlumi',
                             }
 
 dqconfig.dbConnection  = "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=CONDBR2;"

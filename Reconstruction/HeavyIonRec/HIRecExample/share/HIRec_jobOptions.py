@@ -35,3 +35,5 @@ if rec.doESD:
 #       include( "HIValidation/HIValidation_jobOptions.py")
 
 
+if not rec.doESD and rec.doWritexAOD :
+    include( "HIJetRec/HIJetRec_AODFix_207.py" );

@@ -114,11 +114,11 @@ const FTK_RawTrack* FTK_DuplicateTrackRemovalTool::besttrack(const FTK_RawTrack*
 void FTK_DuplicateTrackRemovalTool::addtophimap(double trackphi, unsigned int pos){
 	phimap[trackphi].push_back(pos);//add it to the map
 
-	//check that track phi is within 0-2pi
-	if (trackphi<-CLHEP::pi) ATH_MSG_ERROR("FTK track with phi < -pi! "<<trackphi);
-	else if (trackphi>CLHEP::pi) ATH_MSG_ERROR("FTK track with phi > pi! "<<trackphi);
+	//check that track phi is within -pi to pi
+	if (trackphi<(-CLHEP::pi-0.1)) ATH_MSG_WARNING("FTK track with phi < -pi! "<<trackphi);
+	else if (trackphi>(CLHEP::pi+0.1)) ATH_MSG_WARNING("FTK track with phi > pi! "<<trackphi);
 
-	//add extra copy in case of wraparound past 0 or 2pi
+	//add extra copy in case of wraparound
 	if (trackphi>(CLHEP::pi-m_dphi_roughmatch)) phimap[trackphi-CLHEP::twopi].push_back(pos);
 	else if (trackphi<(-CLHEP::pi+m_dphi_roughmatch)) phimap[trackphi+CLHEP::twopi].push_back(pos);
 }

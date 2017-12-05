@@ -111,8 +111,8 @@ StatusCode EventDensityTool::fillEventShape() const {
   ATH_MSG_DEBUG("Begin fillEventShape()");
 
   if ( evtStore()->contains<xAOD::EventShape>(m_outcon) ){
-    ATH_MSG_ERROR( "EventShape with key "<< m_outcon << " already exists. " );
-    return StatusCode::FAILURE;      
+    ATH_MSG_WARNING( "EventShape with key "<< m_outcon << " already exists. Not overwriting it." );
+    return StatusCode::SUCCESS;      
   }
 
   xAOD::EventShape *pevs = new xAOD::EventShape();

@@ -1,5 +1,5 @@
 
-## --postExec='ServiceMgr.PixelCablingSvc.MappingFile='Pixels_Atlas_IdMapping_M5.dat''
+## --postExec='ServiceMgr.PixelCablingSvc.MappingFile='PixelCabling/Pixels_Atlas_IdMapping_M5.dat''
 ## will override the below settings
 ## To verify the cabling map contents in COOL, on can do
 ## --postExec='ServiceMgr.PixelCablingSvc.DumpMapToFile=True'

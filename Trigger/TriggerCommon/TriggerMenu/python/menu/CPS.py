@@ -52,7 +52,7 @@ def defineCPSGroups():
         #Egamma chains
         "RATE:CPS:HLT_e5_vloose"  :  ['e5_lhvloose_nod0',],
                                       
-        "RATE:CPS:HLT_2g3" : ['2g3_loose_L12EM3_VTE70','2g3_loose_dPhi15_L12EM3_VTE70','2g3_medium_dPhi15_L12EM3_VTE70'],
+        "RATE:CPS:HLT_2g3" : ['2g3_loose_L12EM3_VTE50','2g3_loose_dPhi15_L12EM3_VTE50','2g3_medium_dPhi15_L12EM3_VTE50'],
         ########################################################################
 
         "RATE:CPS:HLT_e20_vloose"        : ['e20_lhvloose_nod0'],
@@ -314,9 +314,9 @@ def defineCPSGroups():
                                                    'mu6_j60_gsc110_boffperf_split_dr05_dz02',
                                                    ],
 
-                'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose'],
-                'RATE:CPS:HLT_mu6_bJpsi_Trk' : ['mu6_bJpsi_TrkPEB','mu6_bJpsi_lowpt_TrkPEB', 'mu6_bJpsi_Trkloose' ],
-                'RATE:CPS:HLT_mu10_bJpsi_Trk' : ['mu10_bJpsi_TrkPEB','mu10_bJpsi_Trkloose'],
+                'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose','mu4_mu2noL1_L1MU4'],
+                'RATE:CPS:HLT_mu6_bJpsi_Trk' : ['mu6_bJpsi_TrkPEB','mu6_bJpsi_lowpt_TrkPEB', 'mu6_bJpsi_Trkloose','mu6_mu2noL1_L1MU6'],
+                'RATE:CPS:HLT_mu10_bJpsi_Trk' : ['mu10_bJpsi_TrkPEB','mu10_bJpsi_Trkloose', 'mu10_bJpsi_TrkPEBmon'],
                 'RATE:CPS:HLT_mu14_bJpsi_Trk' : ['mu14_bJpsi_TrkPEB','mu14_bJpsi_Trkloose'],
 
 #        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
@@ -922,6 +922,13 @@ def defineCPSGroups():
         "RATE:CPS:HLT_g60_loose" : ['g60_loose',],
 
         "RATE:CPS:HLT_g60_loose_L1EM24VHIM" : ['g60_loose_L1EM24VHIM',],
+
+        "RATE:CPS:HLT_jX_L1AFP_A_OR_C_J12" : ['j20_L1AFP_A_OR_C_J12',
+                                              'j45_L1AFP_A_OR_C_J12'],
+        "RATE:CPS:HLT_jX_L1AFP_A_AND_C_J12" : ['j20_L1AFP_A_AND_C_J12',
+                                              'j45_L1AFP_A_AND_C_J12'],
+        "RATE:CPS:HLT_jX_L1J12" : ['j20_L1J12',
+                                   'j45_L1J12'],
 
 
         })

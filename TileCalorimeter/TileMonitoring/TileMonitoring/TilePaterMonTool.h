@@ -60,7 +60,8 @@ class TilePaterMonTool: public ManagedMonitorToolBase
   ~TilePaterMonTool();
 
   StatusCode initialize();
-    
+
+  enum TileFragStatus {ALL_OK=0, CRC_ERR=1, ALL_FF=0x10, ALL_00=0x20, NO_FRAG=0x40, NO_ROB=0x80};
 
 protected:
 /// Implicit version of book1D 

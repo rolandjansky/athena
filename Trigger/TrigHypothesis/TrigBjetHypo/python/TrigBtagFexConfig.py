@@ -138,8 +138,3 @@ class BtagFexSplit (TrigBtagFex):
         self.AthenaMonTools = [ time, validation, online ]
 
 
-
-
-
-
-

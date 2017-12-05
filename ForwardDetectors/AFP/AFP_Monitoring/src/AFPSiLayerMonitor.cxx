@@ -103,7 +103,7 @@ void AFPSiLayerMonitor::eventEnd()
   m_colIDs.clear();
 }
 
-void AFPSiLayerMonitor::endOfLumiBlock(ManagedMonitorToolBase* toolToStoreHistograms)
+void AFPSiLayerMonitor::endOfLumiBlock(ManagedMonitorToolBase* /* toolToStoreHistograms */)
 {
   
 }

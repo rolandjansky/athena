@@ -298,10 +298,8 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
                     log.info( "added algorithm to the configuration: "+alg)
        
         try:
-            from TrigSteerMonitor.TrigSteerMonitorConfig import TrigSteerMonitorToolList,  TrigRateMoniConfig20s
-            TrigSteerMonitorToolList_HLT = [  TrigRateMoniConfig20s() ]
+            from TrigSteerMonitor.TrigSteerMonitorConfig import TrigSteerMonitorToolList
             self.MonTools += TrigSteerMonitorToolList
-            self.MonTools += TrigSteerMonitorToolList_HLT
         except Exception as e:
             log.warning("Exception while adding monitoring tools ('%s'). Will continue without them." % e)
 
