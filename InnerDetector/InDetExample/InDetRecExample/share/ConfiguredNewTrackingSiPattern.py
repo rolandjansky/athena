@@ -243,7 +243,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
         
          elif NewTrackingCuts.mode() == "PixelThreeLayer":
-           InDetSiTrackMaker.CombinatorialTrackFinder  = InDetSiComTrackFinderThreeLayerTracking,
+           InDetSiTrackMaker.CombinatorialTrackFinder  = InDetSiComTrackFinderThreeLayerTracking
 
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
