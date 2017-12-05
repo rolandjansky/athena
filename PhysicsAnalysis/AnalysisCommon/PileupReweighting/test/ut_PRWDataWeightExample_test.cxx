@@ -17,6 +17,9 @@
 
 #include "TROOT.h"
 
+#include "TTree.h"
+#include "TH1D.h"
+
 #include <assert.h>
 
 using namespace asg::msgUserCode;
@@ -60,6 +63,22 @@ int main() {
     throw std::runtime_error("data weight not expected value 960312");
   }
   
+  //compute expected prescale for mu of 24-25 in run 297730 for single trigger
+  TFile f1("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160803/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root");
+  TTree* t1 = (TTree*)f1.Get("LumiMetaData");
+  TH1* h1 = new TH1D("h1","h1",1,-0.5,0.5);
+  t1->Draw("0>>h1","IntLumi*(RunNbr==297730&&AvergeInteractionPerXing>=(24*1.09)&&AvergeInteractionPerXing<(25*1.09))");
+  TFile f2("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/ilumicalc_histograms_HLT_e12_lhvloose_nod0_L1EM10VH_297730-304494_OflLumi-13TeV-005.root");
+  TTree* t2 = (TTree*)f2.Get("LumiMetaData");
+  TH1* h2 = new TH1D("h2","h2",1,-0.5,0.5);
+  t2->Draw("0>>h2","IntLumi*(RunNbr==297730&&AvergeInteractionPerXing>=(24*1.09)&&AvergeInteractionPerXing<(25*1.09))");
+  
+  std::cout << "Expected run-dependent DataWeight  = " << h1->Integral()/h2->Integral() << std::endl;
+  std::cout << prwTool->expert()->GetDataWeight( 297730 , "HLT_e12_lhvloose_nod0_L1EM10VH", 24.5,true) << std::endl; 
+  if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e12_lhvloose_nod0_L1EM10VH", 24.5, true)  - (h1->Integral()/h2->Integral()) ) < 1e-3) ) {
+     throw std::runtime_error("data weight not expected value");
+  }
+//   
   //in this version 4.0 onwards, trigger bits default to assuming the trigger passed
   
   prwTool->expert()->SetTriggerBit("HLT_e12_lhvloose_nod0_L1EM10VH" , 1);
