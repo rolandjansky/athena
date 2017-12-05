@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
@@ -8,6 +9,13 @@ class DefaultRoIBuilder(ROIB__RoIBuilder):
     
     def __init__(self, name = "DefaultRoIBuilder"):
         super( DefaultRoIBuilder, self ).__init__( name )
+        self.CaloEMTauLocation = [ "CaloTriggerDataLocation/EmTauSlink0", 
+                                   "CaloTriggerDataLocation/EmTauSlink1", 
+                                   "CaloTriggerDataLocation/EmTauSlink2", 
+                                   "CaloTriggerDataLocationEmTauSlink3" ]
+
+        self.CaloJetEnergyLocation = [ "CaloTriggerDataLocation/JEPSlink0", 
+                                       "CaloTriggerDataLocation/JEPSlink0" ]
 
     def setDefaults(self, handle):
         pass
@@ -27,7 +35,7 @@ class RoIBuilderInDigi(DefaultRoIBuilder):
 
     def __init__(self, name = "RoIBuilder"):
         super( RoIBuilderInDigi, self ).__init__( name )
-
+        
     def setDefaults(self, handle):
         DefaultRoIBuilder.setDefaults(handle)
 
