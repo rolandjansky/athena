@@ -273,7 +273,7 @@ SplitReference(std::string refPath, std::string refName )
   refFileList.push_back(refPath);
 
   //Try to open each file in the list
-  for(int i=0; i<refFileList.size(); i++){
+  for(std::size_t i=0; i<refFileList.size(); i++){
     std::string fileName=refFileList.at(i)+refName;
     size_t first = fileName.find_first_not_of(" ");
     fileName.erase(0, first);
