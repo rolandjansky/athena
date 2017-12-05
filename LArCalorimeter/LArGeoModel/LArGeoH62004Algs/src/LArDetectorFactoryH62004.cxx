@@ -91,7 +91,7 @@ void LArGeo::LArDetectorFactoryH62004::getSimulationParameters()
 {
 
 //  StoreGateSvc* detStore;
-  const LArGeoTB2004Options      *largeoTB2004Options ;
+  const LArGeoTB2004Options      *largeoTB2004Options = nullptr;
   
   StatusCode status;
 //  ISvcLocator* svcLocator = Gaudi::svcLocator(); 
