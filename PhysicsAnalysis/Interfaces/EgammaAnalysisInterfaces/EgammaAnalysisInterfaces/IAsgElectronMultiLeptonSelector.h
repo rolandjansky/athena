@@ -33,14 +33,8 @@ public:
   /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
-  /// accept method with reference to IParticle 
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
-
   /// accept method with pointer to electron */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-
-  /// accept method with reference  to electron
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
   ///Method to get the operating point */
   virtual std::string getOperatingPointName( ) const=0;
