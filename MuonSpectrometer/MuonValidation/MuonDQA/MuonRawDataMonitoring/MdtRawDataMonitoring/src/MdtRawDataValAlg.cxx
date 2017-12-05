@@ -195,7 +195,6 @@ StatusCode MdtRawDataValAlg::initialize()
   //initialize to stop coverity bugs
    m_activeStore = 0;
    m_mdtIdHelper=0;
-   m_idHelper=0;
    p_MuonDetectorManager=0;
    //mdtevents_RPCtrig = 0;
    //mdtevents_TGCtrig=0;

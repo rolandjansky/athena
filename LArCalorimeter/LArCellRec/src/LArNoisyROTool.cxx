@@ -25,7 +25,9 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
 				const std::string& name, 
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
-  m_calo_id(0), m_onlineID(0) , m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
+  m_calo_id(0), m_onlineID(0), 
+  m_cablingService("LArCablingService"),
+  m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
   m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);

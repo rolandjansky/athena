@@ -19,6 +19,7 @@ LArAutoCorrNoiseTool::LArAutoCorrNoiseTool(const std::string& type,
     m_lar_on_id(nullptr),
     m_lar_scon_id(nullptr),
     m_cablingService("LArCablingService"),
+    m_cablingSCService("LArSuperCellCablingTool"),
     m_larmcsym("LArMCSymTool"),
     m_keyAutoCorr("LArAutoCorr"),
     m_cacheValid(false),m_loadAtBegin(true),
@@ -51,12 +52,16 @@ StatusCode LArAutoCorrNoiseTool::initialize()
   if ( m_isSC ){
     ATH_CHECK(  detStore()->retrieve(m_lar_scon_id,"LArOnline_SuperCellID") );
     ATH_CHECK( m_cablingSCService.retrieve() );
+    m_cablingService.disable();
   } // m_isSC
   else {
     ATH_CHECK(  detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
     ATH_CHECK( m_cablingService.retrieve() );
+    m_cablingSCService.disable();
     if (m_MCSym) {
       ATH_CHECK( m_larmcsym.retrieve() );
+    } else {
+      m_larmcsym.disable();
     }
   }
   

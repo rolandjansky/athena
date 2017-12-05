@@ -8,12 +8,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class MessageHelper
 {
 public:
-    MessageHelper				(const AthMessaging& parent);
+    MessageHelper				(const AthAlgTool& parent);
     void	incrementCount			(unsigned int messageNumber);    
     void	printSummary			(void) const;
     void	printWarning			(unsigned int messageNumber);
@@ -24,14 +24,14 @@ public:
     bool	wouldPrintWarning		(unsigned int messageNumber) const;
 
 private:
-    const AthMessaging&               m_parent; 
+    const AthAlgTool&                 m_parent; 
     unsigned int                      m_maxWarnings;	//!< Maximum number of WARNING messages permitted. 
     mutable std::vector<unsigned int> m_warningCounts;	//!< The counts per error (the index is the error number)
     mutable std::vector<std::string>  m_warningText;	//!< The text for the WARNINGs (the index is the error number). Filled in ctor. 
 };
 
 inline
-MessageHelper::MessageHelper (const AthMessaging& parent)
+MessageHelper::MessageHelper (const AthAlgTool& parent)
     : m_parent		(parent),
       m_maxWarnings	(3)
 {}
