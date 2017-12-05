@@ -408,7 +408,7 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
   top)
 */
 //______________________________________________________________________________
-void CommonEfficiencyTool::ReadInputs(std::unique_ptr<TFile> const &fFile)
+void CommonEfficiencyTool::ReadInputs(std::unique_ptr<TFile> &fFile)
 {
   m_mSF->clear();
 

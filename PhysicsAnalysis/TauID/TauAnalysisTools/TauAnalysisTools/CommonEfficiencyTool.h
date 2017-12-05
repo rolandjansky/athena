@@ -103,7 +103,7 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  void ReadInputs(std::unique_ptr<TFile> const &fFile);
+  void ReadInputs(std::unique_ptr<TFile> &fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
 
   virtual CP::CorrectionCode getValue(const std::string& sHistName,

@@ -186,7 +186,7 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::applyEfficiencyScaleFactor(const x
 
 
 // //______________________________________________________________________________
-void CommonDiTauEfficiencyTool::ReadInputs(std::unique_ptr<TFile> const &fFile)
+void CommonDiTauEfficiencyTool::ReadInputs(std::unique_ptr<TFile> &fFile)
 {
   m_mSF->clear();
 
