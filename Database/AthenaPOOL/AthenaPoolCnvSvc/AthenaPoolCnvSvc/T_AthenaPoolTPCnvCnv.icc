@@ -33,6 +33,7 @@ template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
 typename T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::Pers_t*
 T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::createPersistent( TRANS* trans )
 {
+  AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<TRANS>::ID());
   return m_tpcnv_cur.createPersistent (trans, this->msg());
 }
 
@@ -47,6 +48,7 @@ template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
 TRANS*
 T_AthenaPoolTPCnvCnv<TRANS, TPCNV_CUR, TPCNVS...>::createTransient()
 {
+  AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<TRANS>::ID());
   if ( this->compareClassGuid( m_guid ) ) {
     // It's the latest version.
     std::unique_ptr<Pers_t> persObj( this->template poolReadObject<Pers_t>() );
