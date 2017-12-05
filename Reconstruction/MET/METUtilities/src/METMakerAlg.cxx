@@ -19,8 +19,8 @@
 #include "xAODTau/TauJetContainer.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
 
 using std::string;
