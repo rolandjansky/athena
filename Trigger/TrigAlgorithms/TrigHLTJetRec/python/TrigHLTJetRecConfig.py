@@ -360,6 +360,10 @@ def _getJetBuildTool(merge_param,
     # mymods = []
     # DEBUG DEBUG DEBUG
 
+    # Add jet calo width always
+    if do_minimalist_setup and not do_substructure:
+        mymods.append(jtm.width)
+
     jtm.modifiersMap["mymods"] = mymods
     
     # name = 'TrigAntiKt%d%sTopoJets' % (int_merge_param, cluster_calib)
@@ -452,6 +456,7 @@ def _getJetBuildTool(merge_param,
 def _getJetTrimmerTool (merge_param,
                         jet_calib, 
                         cluster_calib, 
+                        do_substructure,
                         ptfrac,
                         rclus, 
                         name="",
@@ -488,6 +493,25 @@ def _getJetTrimmerTool (merge_param,
     except Exception, e:
         print 'Error building trimmed jet calibration modifier for %s' % name
         raise e
+
+    if do_substructure:
+        # this set of moments will be reduced once we've run once to evaluate costs
+        mymods.extend([
+                jtm.nsubjettiness,
+                jtm.ktdr,
+                jtm.ktsplitter,
+                jtm.encorr,
+                jtm.charge,
+                jtm.angularity,
+                jtm.comshapes,
+                jtm.ktmassdrop,
+                jtm.dipolarity,
+                jtm.pull,
+                jtm.planarflow,
+                jtm.width,
+                jtm.qw,
+                jtm.trksummoms
+                ])
 
     jtm.modifiersMap["mymods"] = mymods
  
@@ -821,7 +845,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  jet_calib='subjes',
                  cluster_calib='LC',
                  do_minimalist_setup=True,
-                 do_substructure=True,
+                 do_substructure=False,
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  rclus= 0.2,
@@ -850,6 +874,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         self.jetTrimTool = _getJetTrimmerTool(merge_param=float(int(merge_param))/10.,
                                               jet_calib=jet_calib,
                                               cluster_calib=cluster_calib,
+                                              do_substructure=do_substructure,
                                               rclus=rclus,
                                               ptfrac=ptfrac,
                                               name=name,
