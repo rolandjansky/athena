@@ -491,7 +491,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector< NSWL1::StripCluster
 
 
 
-      for(;hit!=hit_end;hit++){
+      for(hit=strips.begin();hit!=hit_end;hit++){
 
 	if(!(*hit)->readStrip() )continue;
 	if( ((*hit)->bandId()==-1) ){ // Someone from sTGC should really check this...
