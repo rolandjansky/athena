@@ -65,6 +65,19 @@ namespace xAOD{
     AUX_VARIABLE( model_lep_eta );    
     AUX_VARIABLE( model_lep_phi );
     AUX_VARIABLE( model_lep_E );     
+    AUX_VARIABLE( model_lep_index );
+
+    AUX_VARIABLE( model_lepZ1_pt );
+    AUX_VARIABLE( model_lepZ1_eta );
+    AUX_VARIABLE( model_lepZ1_phi );
+    AUX_VARIABLE( model_lepZ1_E );
+    AUX_VARIABLE( model_lepZ1_index );
+
+    AUX_VARIABLE( model_lepZ2_pt );
+    AUX_VARIABLE( model_lepZ2_eta );
+    AUX_VARIABLE( model_lepZ2_phi );
+    AUX_VARIABLE( model_lepZ2_E );
+    AUX_VARIABLE( model_lepZ2_index );
 
     AUX_VARIABLE( model_nu_pt );
     AUX_VARIABLE( model_nu_eta );
@@ -131,6 +144,19 @@ namespace xAOD{
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lep_eta , setModel_lep_eta )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lep_phi , setModel_lep_phi )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lep_E , setModel_lep_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lep_index , setModel_lep_index )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_pt , setModel_lepZ1_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_eta , setModel_lepZ1_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_phi , setModel_lepZ1_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_E , setModel_lepZ1_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lepZ1_index , setModel_lepZ1_index )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_pt , setModel_lepZ2_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_eta , setModel_lepZ2_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_phi , setModel_lepZ2_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_E , setModel_lepZ2_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lepZ2_index , setModel_lepZ2_index )
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_nu_pt , setModel_nu_pt )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_nu_eta , setModel_nu_eta )

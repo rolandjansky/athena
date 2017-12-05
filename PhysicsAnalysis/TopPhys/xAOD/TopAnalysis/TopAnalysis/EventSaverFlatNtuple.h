@@ -636,6 +636,19 @@ private:
     std::vector<float> m_klfitter_model_lep_eta;
     std::vector<float> m_klfitter_model_lep_phi;
     std::vector<float> m_klfitter_model_lep_E;
+    std::vector<unsigned int> m_klfitter_model_lep_index;
+
+    std::vector<float> m_klfitter_model_lepZ1_pt;
+    std::vector<float> m_klfitter_model_lepZ1_eta;
+    std::vector<float> m_klfitter_model_lepZ1_phi;
+    std::vector<float> m_klfitter_model_lepZ1_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ1_index;
+
+    std::vector<float> m_klfitter_model_lepZ2_pt;
+    std::vector<float> m_klfitter_model_lepZ2_eta;
+    std::vector<float> m_klfitter_model_lepZ2_phi;
+    std::vector<float> m_klfitter_model_lepZ2_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ2_index;
 
     std::vector<float> m_klfitter_model_nu_pt;
     std::vector<float> m_klfitter_model_nu_eta;
