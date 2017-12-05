@@ -85,6 +85,9 @@ namespace ISF {
     /** Set shared barcode for child particles */
     void setSharedChildParticleBarcode( ITruthIncident& truthincident) const;
 
+    /** Delete child vertex */
+    void deleteChildVertex(unsigned int i, std::vector<HepMC::GenVertex*>& verticesToDelete) const;
+
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
 
     /** the truth strategie applied (as AthenaToolHandle Array) */
