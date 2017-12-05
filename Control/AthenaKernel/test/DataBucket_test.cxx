@@ -4,16 +4,22 @@
 
 #undef NDEBUG
 
-#include "SGTools/BuiltinsClids.h"
-#include "SGTools/StlVectorClids.h"
-#include "SGTools/StlMapClids.h"
-#include "SGTools/DataBucket.h"
-#include "SGTools/StorableConversions.h"
+//#include "SGTools/BuiltinsClids.h"
+//#include "SGTools/StlVectorClids.h"
+//#include "SGTools/StlMapClids.h"
+#include "AthenaKernel/DataBucket.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/ILockable.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CxxUtils/checker_macros.h"
 #include <atomic>
 #include <iostream>
 #include <cassert>
+#include <map>
+
+CLASS_DEF2( std::map<int,float> ,  256222847 , 1 )
+CLASS_DEF( int ,          244260744 , 1 )
+CLASS_DEF( std::vector<int> ,             22592129 , 1 )
 
 /*FIXME can get it from TestTools circ package dep */
 #define SGASSERTERROR( FALSEEXPR )   \

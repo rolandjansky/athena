@@ -4,18 +4,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IRegisterTransient.h,v 1.2 2008-04-08 16:05:32 ssnyder Exp $
-
 /**
- * @file  SGTools/IRegisterTransient.h
+ * @file  AthenaKernel/IRegisterTransient.h
  * @author scott snyder
  * @date Mar, 2008
  * @brief Interface for registering a transient object in t2p map.
  */
 
 
-#ifndef SGTOOLS_IREGISTERTRANSIENT
-#define SGTOOLS_IREGISTERTRANSIENT
+#ifndef ATHENAKERNEL_IREGISTERTRANSIENT_H
+#define ATHENAKERNEL_IREGISTERTRANSIENT_H
 
 
 namespace SG {
@@ -44,4 +42,4 @@ public:
 } // namespace SG
 
 
-#endif // not SGTOOLS_IREGISTERTRANSIENT
+#endif // not ATHENAKERNEL_IREGISTERTRANSIENT_H

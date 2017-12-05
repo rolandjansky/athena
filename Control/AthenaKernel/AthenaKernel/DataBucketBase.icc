@@ -2,9 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataBucketBase.icc,v 1.3 2008-04-08 16:05:32 ssnyder Exp $
 /**
- * @file  SGTools/DataBucketBase.icc
+ * @file  AthenaKernel/DataBucketBase.icc
  * @author scott snyder
  * @date Nov 2005
  * @brief A non-templated base class for DataBucket, allows to access the
@@ -13,7 +12,7 @@
  */
 
 #include "AthenaKernel/ClassID_traits.h"
-#include "boost/type_traits/remove_const.hpp"
+#include <type_traits>
 #include <typeinfo>
 
 
@@ -30,6 +29,6 @@ T* DataBucketBase::cast (SG::IRegisterTransient* irt /*= 0*/,
                          bool isConst /*= true*/)
 {
   return reinterpret_cast<T*>
-    (cast (typeid (typename boost::remove_const<T>::type), irt, isConst));
+    (cast (typeid (typename std::remove_const<T>::type), irt, isConst));
 }
 

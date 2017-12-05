@@ -3353,7 +3353,7 @@ public:
 
 
 #include "AthContainers/tools/DVLDataBucket.h"
-#include "SGTools/DataBucketTraitFwd.h"
+#include "AthenaKernel/DataBucketTraitFwd.h"
 
 
 namespace SG {

@@ -4,13 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <boost/type_traits/cv_traits.hpp>
-#include <boost/type_traits/transform_traits.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_abstract.hpp>
-#include <boost/type_traits/has_trivial_copy.hpp>
-
-#include "SGTools/IRegisterTransient.h"
+#include "AthenaKernel/IRegisterTransient.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ILockable.h"
@@ -55,12 +49,12 @@ void db_free_ptr (T* ptr, std::true_type)
 
 // if T is abstract just return NULL and let clients deal with that
 template <typename T>
-SG::DataBucket<T>* db_clone_ptr (T*, boost::false_type)
+SG::DataBucket<T>* db_clone_ptr (T*, std::false_type)
 { return NULL; }
 
 // else use the copy constructor
 template <typename T>
-SG::DataBucket<T>* db_clone_ptr (T* ptr, boost::true_type)
+SG::DataBucket<T>* db_clone_ptr (T* ptr, std::true_type)
 { return new SG::DataBucket<T>( new T(*ptr) ); }
 
 } // namespace SG
@@ -101,8 +95,8 @@ const CLID& SG::DataBucket<T>::clID() const {return classID();}
 
 template <typename T> 
 const CLID& SG::DataBucket<T>::classID() { 
-  typedef typename ::boost::remove_pointer<T>::type BareTp;
-  typedef typename ::boost::remove_const<BareTp>::type BareT;
+  typedef typename std::remove_pointer<T>::type BareTp;
+  typedef typename std::remove_const<BareTp>::type BareT;
   return ClassID_traits<BareT>::ID();
 }
 
@@ -199,8 +193,8 @@ SG::DataBucket<T>* SG::DataBucket<T>::clone() const
   if (!m_ptr) { return NULL; }
 
   typedef 
-    boost::integral_constant< bool, !::boost::is_abstract<T>::value &&
-                                     ::boost::has_trivial_copy<T>::value >
+    std::integral_constant< bool, !std::is_abstract<T>::value &&
+                                   std::is_trivially_copyable<T>::value >
     truth_type_t;
   return SG::db_clone_ptr( m_ptr, truth_type_t() );
 }

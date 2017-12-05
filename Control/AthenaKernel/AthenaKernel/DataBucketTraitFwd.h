@@ -7,15 +7,15 @@
 // $Id: DataBucketTraitFwd.h,v 1.2 2008-04-08 16:05:32 ssnyder Exp $
 
 /**
- * @file  SGTools/DataBucketTrait.h
+ * @file AthenaKernel/DataBucketTrait.h
  * @author scott snyder
  * @date Mar, 2008
  * @brief Forward declaration of DataBucketTrait template.
  */
 
 
-#ifndef SGTOOLS_DATABUCKETTRAITFWD_H
-#define SGTOOLS_DATABUCKETTRAITFWD_H
+#ifndef ATHENAKERNEL_DATABUCKETTRAITFWD_H
+#define ATHENAKERNEL_DATABUCKETTRAITFWD_H
 
 
 namespace SG {
@@ -33,4 +33,4 @@ namespace SG {
 } // namespace SG
 
 
-#endif // not SGTOOLS_DATABUCKETTRAITFWD_H
+#endif // not ATHENAKERNEL_DATABUCKETTRAITFWD_H
