@@ -49,6 +49,7 @@ FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& n
 	m_trtcaldbSvc("ITRT_CalDbSvc", name),
 	m_neighbourSvc("ITRT_StrawNeighbourSvc", name),
 	m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
+	m_updator(nullptr),
 	m_maxDistance(2.8),
 	m_maxTimeResidual(150),
 	m_minTimebinsOverThreshold(2),
@@ -57,7 +58,6 @@ FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& n
 	m_numOfHitsAccepted(0),
 	m_numOfProcessedTracks(0),
 	m_DoMCCosmicTimeShift(0),
-	m_updator(nullptr),
 	m_f(nullptr), m_ntuple(nullptr)
 {
 	declareInterface<IFillAlignTrkInfo>(this);
