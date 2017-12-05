@@ -474,7 +474,7 @@ float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo
    //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod
    unsigned int randomRunNum = (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")) ? eventInfo.auxdataConst<unsigned int>(m_prefix+"RandomRunNumber") : getRandomRunNumber( eventInfo, mu_dependent );
    if(!mu_dependent) out *= m_activeTool->GetPrescaleWeight(randomRunNum, trigger);
-   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/, true /*run-dependent*/ );
    return out;
 }
 

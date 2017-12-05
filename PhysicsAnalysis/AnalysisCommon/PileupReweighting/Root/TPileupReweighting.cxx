@@ -1583,7 +1583,7 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
    return out;
 }
 
-Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x) {
+Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent) {
 
    if(!m_isInitialized) { Info("GetDataWeight","Initializing the subtool.."); Initialize(); }
    if(m_countingMode) return 0.;
@@ -1607,12 +1607,13 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
    if(tobj==m_triggerObjs.end()) {
       //try to do a subtrigger calculation we need to reopen all the lumicalc files and do the fiddily prescaled luminosity calculation
       //will throw errors if can't
-      CalculatePrescaledLuminosityHistograms(trigger);
+      CalculatePrescaledLuminosityHistograms(trigger,0);
       tobj = m_triggerObjs.find(trigger);
    }
    
    //check 
 
+   
    
    if(tobj->second->triggerHists.find(p->id) == tobj->second->triggerHists.end()) {
     Error("GetDataWeight","Could not find trigger %s in period %d",trigger.Data(),p->id);
@@ -1625,16 +1626,19 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
    
    if(tbits==0) return 1; //no trigger passed
    
-   auto dItr = tobj->second->triggerHists[p->id].find(tbits);
+   int idx = (run_dependent) ? -runNumber : p->id;
+   
+   
+   auto dItr = tobj->second->triggerHists[idx].find(tbits);
    
    TH1* denomHist = 0;
-   if(dItr == tobj->second->triggerHists[p->id].end()) {
+   if(dItr == tobj->second->triggerHists[idx].end()) {
       //possible that the tbits for this event have not been encountered before, so just redo the calculation ...
-      calculateHistograms(tobj->second.get());
+      calculateHistograms(tobj->second.get(),(run_dependent) ? runNumber:0);
    
-      denomHist = tobj->second->triggerHists[p->id][tbits].get();
+      denomHist = tobj->second->triggerHists[idx][tbits].get();
       if(denomHist==0) {
-        Error("GetDataWeight","Could not find trigger %s in period %d with bits %ld",trigger.Data(),p->id, tbits);
+        Error("GetDataWeight","Could not find trigger %s in period %d with bits %ld",trigger.Data(),idx, tbits);
         throw std::runtime_error("GetDataWeight: Could not find trigger 2");
       }
    } else {
@@ -1642,9 +1646,9 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
    }
 
    
-   TH1* numerHist = m_triggerObjs["None"]->triggerHists[p->id][0].get();
+   TH1* numerHist = m_triggerObjs["None"]->triggerHists[idx][0].get();
    if(numerHist==0) {
-      Error("GetDataWeight","Could not find unprescaled trigger in period %d",p->id);
+      Error("GetDataWeight","Could not find unprescaled trigger in period %d",idx);
       throw std::runtime_error("GetDataWeight: Could not find unprescaled trigger. Please AddLumiCalc with a 'None' trigger");
    }
    
@@ -1671,10 +1675,10 @@ Double_t CP::TPileupReweighting::GetPrescaleWeight(Int_t runNumber, const TStrin
    return out;
 }
 
-Double_t CP::TPileupReweighting::GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x) {
+Double_t CP::TPileupReweighting::GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent) {
 
   m_doPrescaleWeight = true;
-  double out = GetDataWeight(runNumber,trigger,x);
+  double out = GetDataWeight(runNumber,trigger,x,run_dependent);
   m_doPrescaleWeight = false;
   if(out<=0) return 0; //happens when triggers disabled/unavailable for a given mu ... therefore the prescale weight is 0
   return 1./out;
@@ -1926,7 +1930,7 @@ Int_t CP::TPileupReweighting::Merge(TCollection *coll) {
 }
 
 
-void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TString& trigger) {
+void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TString& trigger, int run_dependent) {
    //check if this is a composite trigger (user has provided OR of triggers that are passed before prescale)
    
    TString triggerCopy = trigger; triggerCopy.ReplaceAll(" ",""); triggerCopy.ReplaceAll("&&","&");triggerCopy.ReplaceAll("||","|");
@@ -1942,15 +1946,20 @@ void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStrin
 
    t->subTriggers = subTriggers; //cache the vector of triggers
    
-   calculateHistograms(t.get());
+   calculateHistograms(t.get(),run_dependent);
    
    //save trigger object
    m_triggerObjs[trigger] = std::move( t );
 
 }
 
-void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
-   
+void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t, int run_dependent) {
+  TH1* unprescaledLumi = 0;
+  if(run_dependent) {
+     unprescaledLumi = m_triggerObjs["None"]->triggerHists[-run_dependent][0].get();
+  }
+  bool fillUnprescaledLumi = (unprescaledLumi==0); //only fill the unprescaled histogram once ... so if it already exists, it must have already been filled
+
    //now we need the trigger bits for this trigger for this event
    long tbits = t->getBits(this);
    //1. Open all the lumicalc files
@@ -1997,6 +2006,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
               for(long i=0;i<nEntries;i++) {
                 b_runNbr->GetEntry(i);b_L1Presc->GetEntry(i);b_L2Presc->GetEntry(i);b_L3Presc->GetEntry(i);b_lbn->GetEntry(i);
                 runNbr += m_lumicalcRunNumberOffset;
+                if(run_dependent && int(runNbr)!=run_dependent) continue; //only use the given run with doing calculation run-dependently
                 //save the prescale by run and lbn 
                 //if(runNbr==215643) 
                 if(m_debugging) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
@@ -2043,6 +2053,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
               b_lbn->GetEntry(i);
   
               runNbr += m_lumicalcRunNumberOffset;
+              if(run_dependent && int(runNbr)!=run_dependent) continue; //only use the given run with doing calculation run-dependently
               //for each subtrigger, lookup prescale, and calculate pFactor 
   /*
               double pFactor(1);
@@ -2054,6 +2065,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
               pFactor = 1. - pFactor;
   */
               
+                           
               double pFactor = t->eval(prescaleByRunAndLbn,runNbr,lbn,this);
   
               //Info("...","prescale in [%d,%d] = %f", runNbr,lbn,1./pFactor);
@@ -2061,22 +2073,38 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
               int bin = m_emptyHistogram->FindFixBin(mu*m_dataScaleFactorX);
   
               //add into all periods that contain this runNbr 
+              bool firstFill=false;
               for(auto p : m_periods) {
                 if(p.first != p.second->id) continue; //skips remappings 
                 if(!p.second->contains(runNbr)) continue;
+                if(run_dependent && firstFill) continue; //only fill run_dependent once, since they aren't kept in the period they go in their own run-indexed histogram
+                
+                int idx = (run_dependent) ? -run_dependent : p.second->id; //use negative runNumber to avoid clash with periodID
                 
                 
-                
-                
-                auto& triggerHists = t->triggerHists[p.second->id];
+                auto& triggerHists = t->triggerHists[idx];
                 if(triggerHists.find(tbits) == triggerHists.end()) {
                     triggerHists[tbits] = CloneEmptyHistogram(p.first,-1);
-                    if(m_debugging) Info("CalculatePrescaledLuminosityHistograms","Created Data Weight Histogram for [%s,%d,%ld]",t->val.Data(),p.first, tbits);
+                    if(m_debugging) Info("CalculatePrescaledLuminosityHistograms","Created Data Weight Histogram for [%s,%d,%d,%ld]",t->val.Data(),p.first,idx,tbits);
                 }
                   //check if we were about to fill a bad bin ... if we are, we either skipp the fill (unrep action=1) or redirect (unrep action=3)
                 if( (m_unrepresentedDataAction==1) && p.second->inputBinRedirect[bin]!=bin) { } //do nothing
                 else if( m_unrepresentedDataAction==3 ) {triggerHists[tbits]->Fill(triggerHists[tbits]->GetBinCenter(p.second->inputBinRedirect[bin]), intLumi*pFactor);}
                 else triggerHists[tbits]->Fill(mu*m_dataScaleFactorX,intLumi*pFactor);
+                
+                
+                if(run_dependent && fillUnprescaledLumi) {
+                  //need to fill unprescaled lumi histogram for this particular run ...
+                  if(unprescaledLumi==0) {
+                    m_triggerObjs["None"]->triggerHists[-run_dependent][0] = CloneEmptyHistogram(p.first,-1);
+                    unprescaledLumi = m_triggerObjs["None"]->triggerHists[-run_dependent][0].get();
+                  }
+                  if( (m_unrepresentedDataAction==1) && p.second->inputBinRedirect[bin]!=bin) { } //do nothing
+                  else if( m_unrepresentedDataAction==3 ) {unprescaledLumi->Fill(unprescaledLumi->GetBinCenter(p.second->inputBinRedirect[bin]), intLumi);}
+                  else unprescaledLumi->Fill(mu*m_dataScaleFactorX,intLumi);
+                } 
+                
+                firstFill=true;
                 
               }
           }
