@@ -49,7 +49,7 @@ namespace DerivationFramework {
         double m_MassLower;
         double m_MassUpper;
 
-        const HepPDT::ParticleDataTable*        m_particleDataTable;
+        const HepPDT::ParticleDataTable*           m_particleDataTable;
         double m_mass_muon;
         double m_mass_pion;
         double m_mass_proton;
@@ -61,13 +61,12 @@ namespace DerivationFramework {
         int m_v0_pid;
         bool m_constrV0;
         bool m_constrJpsi;
-        //bool m_pvConstraint;
 
+        ServiceHandle<IBeamCondSvc>                m_beamSpotSvc;
         ToolHandle < Trk::TrkVKalVrtFitter > m_iVertexFitter;
+        ToolHandle < Analysis::PrimaryVertexRefitter > m_pvRefitter;
         ToolHandle < Trk::V0Tools > m_V0Tools;
         ToolHandle < DerivationFramework::CascadeTools > m_CascadeTools;
-        ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter;
-        ServiceHandle<IBeamCondSvc>                 m_beamSpotSvc;
 
         bool        m_refitPV;
         std::string m_refPVContainerName;

@@ -46,16 +46,9 @@ namespace DerivationFramework {
        BPhysPVCascadeTools(CascadeTools *cascadeTools,
                            const ServiceHandle<IBeamCondSvc> *beamSpotSvc);
          
-       //StatusCode FillCandExistingVertices(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::VertexContainer* vtxContainer, const xAOD::VertexContainer* pvContainer, int DoVertexType);
        
        static void FillBPhysHelperNULL(xAOD::BPhysHelper &vtx, const xAOD::VertexContainer* PvContainer,
            xAOD::BPhysHelper::pv_type pvtype);
-       
-       //StatusCode FillCandwithRefittedVertices(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::VertexContainer* vtxContainer, const xAOD::VertexContainer* pvContainer,xAOD::VertexContainer* refPvContainer, Analysis::PrimaryVertexRefitter* , size_t in_PV_max, int DoVertexType);
-       
-       //void DecorateWithNULL(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::VertexContainer* vtxContainer,const xAOD::VertexContainer* pvContainer, int DoVertexType) const;
-       
-       //void DecorateWithDummyVertex(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::VertexContainer* vtxContainer, const xAOD::VertexContainer* pvContainer, const xAOD::Vertex* Dummy, int DoVertexType, bool SetOrignal) const;
        
        //Fills the BPhysHelper object with the standard parameters
        void FillBPhysHelper(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::BPhysHelper &vtx, const xAOD::Vertex* refPV,const xAOD::VertexContainer* refPvContainer,

@@ -218,7 +218,6 @@ namespace DerivationFramework {
         if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[1].ptr(), cascadeVertices[0])) 
             ATH_MSG_ERROR("Error decorating vertices");
 
-
         std::vector<const xAOD::TrackParticle*> exclTrk; exclTrk.clear();
         for( unsigned int jt=0; jt<cascadeVertices.size(); jt++) {
           for( unsigned int it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
@@ -330,8 +329,7 @@ namespace DerivationFramework {
         double TauErr_v = m_CascadeTools->tauError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1],mass_v0);
         double TauErr_v0 = m_V0Tools->tauError(cascadeVertices[0],cascadeVertices[1],massesV0,mass_v0);
         ATH_MSG_DEBUG("TauErr_b " << TauErr_b << " TauErr_v " << TauErr_v << " TauErr_v0 " << TauErr_v0);
-//This are buggy at the moment skipping for now
-        //continue;
+
         Lxy_sv2decor(*defaultVertex) = lxy_v;
         LxyErr_sv2decor(*defaultVertex) = lxyErr_v;
         Tau_sv2decor(*defaultVertex) = tau_v;
@@ -393,9 +391,13 @@ namespace DerivationFramework {
         const bool doZ0   = (m_DoVertexType & 4) != 0;
         const bool doZ0BA = (m_DoVertexType & 8) != 0;
         xAOD::BPhysHelper vtx(defaultVertex);
-        if (m_refitPV) {
 
-          if (GoodPVs.empty() == false) {
+        // 1) pT error
+        BPHYS_CHECK( vtx.setPtErr(ptErr_b) );
+
+        if (GoodPVs.empty() == false) {
+
+          if (m_refitPV) {
             size_t pVmax =std::min((size_t)m_PV_max, GoodPVs.size());
             std::vector<const xAOD::Vertex*> refPVvertexes;
             std::vector<const xAOD::Vertex*> refPVvertexes_toDelete;
@@ -403,29 +405,22 @@ namespace DerivationFramework {
             refPVvertexes.reserve(pVmax);
             refPVvertexes_toDelete.reserve(pVmax);
             exitCode.reserve(pVmax);
-            //const bool doPt   = (m_DoVertexType & 1) != 0;
-            //const bool doA0   = (m_DoVertexType & 2) != 0;
-            //const bool doZ0   = (m_DoVertexType & 4) != 0;
-            //const bool doZ0BA = (m_DoVertexType & 8) != 0;
-            //xAOD::BPhysHelper vtx(defaultVertex);
 
-            // 1) pT error
-            BPHYS_CHECK( vtx.setPtErr(ptErr_b) );
+            // refit the primary vertex and set the related decorations.
 
-            // 2) refit the primary vertex and set the related decorations.
             for (size_t i =0; i < pVmax ; i++) {
-                const xAOD::Vertex* oldPV = GoodPVs.at(i);
-                //when set to false this will return null when a new vertex is not required
-                const xAOD::Vertex* refPV = m_pvRefitter->refitVertex(oldPV, exclTrk, false);
-                exitCode.push_back(m_pvRefitter->getLastExitCode());
-                //I want positioning to match the goodPrimaryVertices
-                if (refPV == nullptr) {
-                   refPVvertexes.push_back(oldPV);
-                   refPVvertexes_toDelete.push_back(nullptr);
-                } else {
-                   refPVvertexes.push_back(refPV);
-                   refPVvertexes_toDelete.push_back(refPV);
-                }
+              const xAOD::Vertex* oldPV = GoodPVs.at(i);
+              //when set to false this will return null when a new vertex is not required
+              const xAOD::Vertex* refPV = m_pvRefitter->refitVertex(oldPV, exclTrk, false);
+              exitCode.push_back(m_pvRefitter->getLastExitCode());
+              //we want positioning to match the goodPrimaryVertices
+              if (refPV == nullptr) {
+                 refPVvertexes.push_back(oldPV);
+                 refPVvertexes_toDelete.push_back(nullptr);
+              } else {
+                 refPVvertexes.push_back(refPV);
+                 refPVvertexes_toDelete.push_back(refPV);
+              }
             }
 
             size_t highPtindex = doPt ? helper.FindHighPtIndex(refPVvertexes) : 9999999; //Should be 0 in PV ordering
@@ -446,6 +441,7 @@ namespace DerivationFramework {
             //     << (highPtindex != lowZBA ? "6!" : "  ")
             //     );
 
+            // 2.a) the first PV with the largest sum pT.
             if(doPt) {
                 //Choose old PV container if not refitted
                 const xAOD::VertexContainer* ParentContainer =
@@ -457,6 +453,7 @@ namespace DerivationFramework {
                      ParentContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2, exitCode[highPtindex]);
                 vtx.setOrigPv(GoodPVs[highPtindex], pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2);
             }
+            // 2.b) the closest in 3D:
             if(doA0) {
                 const xAOD::VertexContainer* ParentContainer =
                      (refPVvertexes_toDelete.at(lowA0)) ? refPvContainer : pvContainer.cptr();
@@ -495,26 +492,7 @@ namespace DerivationFramework {
                               xAOD::BPhysHelper::PV_MIN_Z0_BA);
               } else {
                 // nothing found -- fill NULL
-                const xAOD::Vertex* PV = NULL;
-                BPHYS_CHECK( vtx.setPv     ( PV, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                const float errConst = std::numeric_limits<float>::lowest();
-                // set variables claculated from PV
-                BPHYS_CHECK( vtx.setLxy    ( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setLxyErr ( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setA0     ( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setA0Err  ( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setA0xy   ( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setA0xyErr( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setZ0     ( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setZ0Err  ( errConst, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-                BPHYS_CHECK( vtx.setRefitPVStatus ( 0, xAOD::BPhysHelper::PV_MIN_Z0_BA ) );
-
-                ////FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
-                // nothing found -- fill dummy vertex (type-0 vertex)
-                // if(pvContainer->empty()) return StatusCode::FAILURE;
-                // const xAOD::Vertex* dummy = pvContainer->at(pvContainer->size()-1);  //No good vertices so last vertex must be dummy
-                // FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
-                // vtx.setOrigPv(Dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
+                helper.FillBPhysHelperNULL(vtx, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA);
               }
             }
 
@@ -535,76 +513,61 @@ namespace DerivationFramework {
 
           } else {
 
-            const xAOD::Vertex* Dummy = pvContainer->at(0);
-            // 1) pT error
-            BPHYS_CHECK( vtx.setPtErr(ptErr_b) );
-            if(doPt) {
-              // 2.a) the first PV with the largest sum pT.
-              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2, 0);
-              //if(SetOrignal) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2);
-                //helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, refPVvertexes[highPtindex],
-                //     ParentContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2, exitCode[highPtindex]);
-                //vtx.setOrigPv(GoodPVs[highPtindex], pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2);
-            }
-            if(doA0) {
-              // 2.b) the closest in 3D:
-              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0, 0);
-              //if(SetOrignal) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0);
-            }
-            if(doZ0) {
-              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0, 0);
-              //if(SetOrignal) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0);
-            }
-            if(doZ0BA) {
-              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
-              //if(SetOrignal) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA);
-            }
-
-
-          }
-
-        } else { // m_refitPV
-          if (GoodPVs.empty() == false) {
-            //const bool doPt   = (m_DoVertexType & 1) != 0;
-            //const bool doA0   = (m_DoVertexType & 2) != 0;
-            //const bool doZ0   = (m_DoVertexType & 4) != 0;
-            //const bool doZ0BA = (m_DoVertexType & 8) != 0;
-
-            // 1) pT error
-            BPHYS_CHECK( vtx.setPtErr(ptErr_b) );
-
-            // 2) refit the primary vertex and set the related decorations.
+            // 2.a) the first PV with the largest sum pT.
             if(doPt) {
               size_t highPtindex = helper.FindHighPtIndex(GoodPVs); //Should be 0 in PV ordering
-              // 2.a) the first PV with the largest sum pT.
               helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[highPtindex], pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2, 0);
             }
+            // 2.b) the closest in 3D:
             if(doA0) {
-              // 2.b) the closest in 3D:
               size_t lowA0 =  helper.FindLowA0Index(moms[1], vtx, GoodPVs, m_PV_minNTracks);
               helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowA0], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0, 0);
             }
+            // 2.c) the closest in Z:
             if(doZ0) {
               size_t lowZ  = helper.FindLowZIndex(moms[1], vtx, GoodPVs, m_PV_minNTracks);
               helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowZ], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0, 0);
             }
+            // 2.d) the closest in Z (DOCA w.r.t. beam axis):
             if(doZ0BA) {
               size_t lowZBA = helper.FindLowZ0BAIndex(moms[1], vtx, GoodPVs, m_PV_minNTracks);
               if ( lowZBA < GoodPVs.size() ) { // safety against vector index out-of-bounds
                 helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowZBA], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
               } else {
                 // nothing found -- fill NULL
-      ////          helper.FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
+                helper.FillBPhysHelperNULL(vtx, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA);
               }
             }
+          } // m_refitPV
 
-          } else {
-          //cout << "Warning: DerivationFramework::BPhysPVCascadeTools::FillCandExistingVertices No Primary Vertices Found trying to decorate wilth dummy \n";
-          ////if(pvContainer->empty()) return StatusCode::FAILURE;
-          ////const xAOD::Vertex* dummy = pvContainer->at(0);  //No good vertices so last vertex must be dummy
-          ////DecorateWithDummyVertex(moms[1], x->getCovariance()[1], vtxContainer, pvContainer, dummy, DoVertexType, false);
+        } else {
+
+          if(pvContainer->empty()) return StatusCode::FAILURE;
+          const xAOD::Vertex* Dummy = pvContainer->at(0);
+
+          // 2.a) the first PV with the largest sum pT.
+          if(doPt) {
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2);
           }
-        } // m_refitPV
+          // 2.b) the closest in 3D:
+          if(doA0) {
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0);
+          }
+          // 2.c) the closest in Z:
+          if(doZ0) {
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0);
+          }
+          // 2.d) the closest in Z (DOCA w.r.t. beam axis):
+          if(doZ0BA) {
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA);
+          }
+
+        } // GoodPVs.empty()
+
 
       } // loop over cascadeinfoContainer
 
@@ -639,16 +602,16 @@ namespace DerivationFramework {
     m_v0_pid(310),
     m_constrV0(true),
     m_constrJpsi(true),
-    //m_pvConstraint(false),
-    m_pvRefitter("Analysis::PrimaryVertexRefitter"),
     m_beamSpotSvc("BeamCondSvc",n),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
+    m_pvRefitter("Analysis::PrimaryVertexRefitter"),
     m_V0Tools("Trk::V0Tools"),
     m_CascadeTools("DerivationFramework::CascadeTools")
     {
        declareProperty("JpsiVertices", m_vertexContainerKey);
        declareProperty("V0Vertices", m_vertexV0ContainerKey);
        declareProperty("VxPrimaryCandidateName", m_VxPrimaryCandidateName);
+       declareProperty("RefPVContainerName", m_refPVContainerName  = "RefittedPrimaryVertices");
        declareProperty("JpsiMassLowerCut", m_jpsiMassLower);
        declareProperty("JpsiMassUpperCut", m_jpsiMassUpper);
        declareProperty("V0MassLowerCut", m_V0MassLower);
@@ -658,16 +621,15 @@ namespace DerivationFramework {
        declareProperty("V0Hypothesis",              m_v0_pid);
        declareProperty("ApplyV0MassConstraint",     m_constrV0);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
-       declareProperty("PVRefitter",                m_pvRefitter);
-       declareProperty("RefPVContainerName",        m_refPVContainerName     = "RefittedPrimaryVertices");
        declareProperty("RefitPV",                   m_refitPV                = true);
        declareProperty("MaxnPV",                    m_PV_max                 = 999);
        declareProperty("MinNTracksInPV",            m_PV_minNTracks          = 0);
        declareProperty("DoVertexType",              m_DoVertexType           = 7);
        declareProperty("TrkVertexFitterTool",       m_iVertexFitter);
+       declareProperty("PVRefitter",                m_pvRefitter);
        declareProperty("V0Tools",                   m_V0Tools);
        declareProperty("CascadeTools",              m_CascadeTools);
-       declareProperty("CascadeVertexCollections",              m_cascadeOutputsKeys);
+       declareProperty("CascadeVertexCollections",  m_cascadeOutputsKeys);
     }
 
     JpsiPlusV0Cascade::~JpsiPlusV0Cascade(){ }
