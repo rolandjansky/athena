@@ -353,7 +353,7 @@ def _getJetBuildTool(merge_param,
                 jtm.planarflow,
                 # jtm.width,
                 jtm.qw,
-                jtm.trksummoms
+                # jtm.trksummoms # this needs tracks and vertices which we don't have by default
                 ])
 
     # DEBUG DEBUG DEBUG
@@ -372,6 +372,7 @@ def _getJetBuildTool(merge_param,
         name = 'TrigAntiKt%d%s%sTopoJets' % (int_merge_param,
                                              cluster_calib,
                                              jet_calib)
+
 
     def findjetBuildTool():
         for jr in jtm.trigjetrecs:
@@ -510,7 +511,7 @@ def _getJetTrimmerTool (merge_param,
                 jtm.planarflow,
                 jtm.width,
                 jtm.qw,
-                jtm.trksummoms
+                # jtm.trksummoms # this needs tracks and vertices which we don't have by default
                 ])
 
     jtm.modifiersMap["mymods"] = mymods
