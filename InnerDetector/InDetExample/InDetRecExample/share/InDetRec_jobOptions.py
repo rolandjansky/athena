@@ -702,15 +702,11 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Tracklets on all PRDs (after standard reconstruction + forward tracking)
+    # --- Pixel Tracklets on all PRDs
     #
     # ------------------------------------------------------------
     
     if InDetFlags.doTrackSegmentsPixelFourLayer():
-      #InputPixelFourLayerInDetTracks = []
-      #InputPixelInDetTracks += InputCombinedInDetTracks
-      #if InDetFlags.doForwardTracks(): 
-      #  InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
       # --- load cuts for pixel segment finding
       if (not 'InDetNewTrackingCutsPixelFourLayer' in dir()):
         print "InDetRec_jobOptions: InDetNewTrackingCutsPixelFourLayer not set before - import them now"
@@ -736,15 +732,11 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Stublets (3 layer tracks) on all PRDs (after standard reconstruction + forward tracking)
+    # --- Pixel Stublets (3 layer tracks) on all PRDs
     #
     # ------------------------------------------------------------
     
     if InDetFlags.doTrackSegmentsPixelThreeLayer():
-      #InputPixelFourLayerInDetTracks = []
-      #InputPixelInDetTracks += InputCombinedInDetTracks
-      #if InDetFlags.doForwardTracks(): 
-      #  InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
       # --- load cuts for pixel segment finding
       if (not 'InDetNewTrackingCutsPixelThreeLayer' in dir()):
         print "InDetRec_jobOptions: InDetNewTrackingCutsPixelThreeLayer not set before - import them now"

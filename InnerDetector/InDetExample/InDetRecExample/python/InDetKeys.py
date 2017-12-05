@@ -535,7 +535,7 @@ class ExtendedTracksMapPixelPrdAssociation(JobProperty):
     StoredValue  = 'ExtendedTracksMapPixelPrdAssociation'
 
 class ResolvedPixelFourLayerTracks(JobProperty):
-    """StoreGate key for resolved pixel tracks run after New Tracking on remaining PRDs"""
+    """StoreGate key for resolved pixel tracks run after New Tracking on all PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ResolvedPixelFourLayerTracks'
@@ -547,7 +547,7 @@ class ExtendedTracksPixelFourLayer(JobProperty):
     StoredValue  = 'ExtendedTracksPixelFourLayer'
 
 class PixelFourLayerTracks(JobProperty):
-    """StoreGate key for rfinal pixel tracks run after New Tracking on remaining PRDs"""
+    """StoreGate key for rfinal pixel tracks run after New Tracking on all PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'PixelFourLayerTracks'
@@ -559,7 +559,7 @@ class ExtendedTracksMapPixelFourLayer(JobProperty):
     StoredValue  = 'ExtendedTracksMapPixelFourLayer'
 
 class ResolvedPixelThreeLayerTracks(JobProperty):
-    """StoreGate key for resolved pixel tracks run after New Tracking on remaining PRDs"""
+    """StoreGate key for resolved pixel tracks run after New Tracking on all PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ResolvedPixelThreeLayerTracks'
@@ -571,7 +571,7 @@ class ExtendedTracksPixelThreeLayer(JobProperty):
     StoredValue  = 'ExtendedTracksPixelThreeLayer'
 
 class PixelThreeLayerTracks(JobProperty):
-    """StoreGate key for rfinal pixel tracks run after New Tracking on remaining PRDs"""
+    """StoreGate key for rfinal pixel tracks run after New Tracking on all PRDs"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'PixelThreeLayerTracks'
@@ -1066,25 +1066,25 @@ class xAODPixelPrdAssociationExtendedTrackParticleContainer(JobProperty):
     StoredValue = "InDetPixelPrdAssociationExtendedTrackParticles"
 
 class xAODPixelFourLayerTrackParticleContainer(JobProperty):
-    """xAOD PixelTrackParticle with PRD association"""
+    """xAOD PixelTrackParticle on all hits using four layers"""
     statusOn = True
     allowedTypes = ['str']
     StoredValue = "InDetPixelFourLayerTrackParticles"
 
 class xAODPixelFourLayerExtendedTrackParticleContainer(JobProperty):
-    """xAOD Extended PixelTrackParticle with PRD association"""
+    """xAOD Extended PixelTrackParticle on all hits using four layers"""
     statusOn = True
     allowedTypes = ['str']
     StoredValue = "InDetPixelFourLayerExtendedTrackParticles"
 
 class xAODPixelThreeLayerTrackParticleContainer(JobProperty):
-    """xAOD PixelTrackParticle with PRD association"""
+    """xAOD PixelTrackParticle on all hits using three layers"""
     statusOn = True
     allowedTypes = ['str']
     StoredValue = "InDetPixelThreeLayerTrackParticles"
 
 class xAODPixelThreeLayerExtendedTrackParticleContainer(JobProperty):
-    """xAOD Extended PixelTrackParticle with PRD association"""
+    """xAOD Extended PixelTrackParticle on all hits using four layers"""
     statusOn = True
     allowedTypes = ['str']
     StoredValue = "InDetPixelThreeLayerExtendedTrackParticles"

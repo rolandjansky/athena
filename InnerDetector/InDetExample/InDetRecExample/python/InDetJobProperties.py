@@ -1118,13 +1118,13 @@ class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     StoredValue  = True
 
 class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
-    """Turn running of track segment creation in pixel after NewTracking, and all PRD association, on and off"""
+    """Turn running of track segment creation in pixel after NewTracking, using all available hits, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
 
 class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
-    """Turn running of pixel stablet creation in pixel after NewTracking, and all PRD association, on and off"""
+    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
