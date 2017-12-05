@@ -58,6 +58,7 @@ namespace CP {
             IsoHelperPtr m_TrackAcc;
             IsoHelperPtr m_CaloAcc;
             
+            SelectionAccessor m_acc_used_for_corr;
             SelectionAccessor m_acc_passDefault;
             SelectionAccessor m_acc_passCorrected;
             
