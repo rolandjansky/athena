@@ -229,7 +229,6 @@ StatusCode PileupReweightingTool::initialize() {
             m_noWeightsMode=true; //will stop the prw weight being decorated in apply method
             if(m_upTool) m_upTool->UsePeriodConfig("MC16");
             if(m_downTool) m_downTool->UsePeriodConfig("MC16");
-            return StatusCode::SUCCESS;
          }
       }
    
