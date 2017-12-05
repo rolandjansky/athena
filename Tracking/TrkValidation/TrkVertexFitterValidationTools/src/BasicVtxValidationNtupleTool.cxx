@@ -424,7 +424,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
 StatusCode Trk::BasicVtxValidationNtupleTool::fillEventInfo(int& numRecVtx) const {
     // ---------------------------------------
     // reset Vtx counter if new event
-   const xAOD::EventInfo* eventInfo;
+   const xAOD::EventInfo* eventInfo = nullptr;
    if ((evtStore()->retrieve(eventInfo)).isFailure()) { 
      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info" << endmsg; }
 
