@@ -145,7 +145,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 {
  StatusCode sc;
 
- const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
+ const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer = nullptr;
  
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
@@ -264,7 +264,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
 {
  StatusCode sc;
 
- const LArCalibDigitContainer* larCalibDigitContainer;
+ const LArCalibDigitContainer* larCalibDigitContainer = nullptr;
  
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
