@@ -17,8 +17,6 @@
 
 #include "TROOT.h"
 
-#include "POOLRootAccess/TEvent.h"
-
 #include <assert.h>
 
 using namespace asg::msgUserCode;
@@ -26,8 +24,6 @@ using namespace asg::msgUserCode;
 int main() {
   ANA_CHECK_SET_TYPE (int); //makes ANA_CHECK return ints if exiting function
 
-  POOL::TEvent evt;
-  evt.readFrom("/r04/atlas/will/xAOD/data16_13TeV/DAOD_HIGG3D1.08297165._000001.pool.root.1");//"$ASG_TEST_FILE_DATA");
 
   asg::AnaToolHandle<CP::IPileupReweightingTool> prwTool("CP::PileupReweightingTool/prw");
   
@@ -35,8 +31,7 @@ int main() {
                                       "dev/PileupReweighting/ilumicalc_histograms_HLT_e12_lhvloose_nod0_L1EM10VH_297730-304494_OflLumi-13TeV-005.root:HLT_e12_lhvloose_nod0_L1EM10VH",
                                       "dev/PileupReweighting/ilumicalc_histograms_HLT_e24_lhvloose_nod0_L1EM20VH_297730-304494_OflLumi-13TeV-005.root:HLT_e24_lhvloose_nod0_L1EM20VH"}; //feed with lc files for each trigger
   
-  
-  
+
   prwTool.setProperty( "LumiCalcFiles" , lcFiles );
   
   

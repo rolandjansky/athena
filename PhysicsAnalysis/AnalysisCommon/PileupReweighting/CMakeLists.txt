@@ -85,10 +85,11 @@ atlas_add_test( testPRWTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
-atlas_add_executable( ut_PRWDataWeightExample_test test/ut_PRWDataWeightexample_test.cxx 
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} PileupWeightingLib )
-
+atlas_add_test( ut_PRWDataWeightExample_test
+   SOURCES test/ut_PRWDataWeightExample_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+   
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
