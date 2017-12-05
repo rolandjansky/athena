@@ -709,9 +709,17 @@ void IParticleHandle_Jet::updateBTagging(const std::string& bTaggingTagger, cons
 //____________________________________________________________________
 double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 {
-	const xAOD::BTagging * myBTag = d->m_jet->btagging();
+    double weight = 0.0;
 
-	double weight = 0.0;
+	const xAOD::BTagging * myBTag = nullptr;
+    myBTag = d->m_jet->btagging();
+
+   if (myBTag == nullptr) {
+    VP1Msg::messageWarningRed("It was not possible to access the pointer to b-tagging info, for the selected collection! Returning 'weight': 0.0"); //("It was not possible to access the tagger '"+ tagger +"' for the selected collection: " + d->m_jet->getInputType() + d->m_jet->getAlgorithmType() );
+    return weight;
+   }
+    
+	
 
 	// TODO: add the other taggers
 
