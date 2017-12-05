@@ -39,7 +39,7 @@ set( CMAKE_AUTOMOC TRUE )
 atlas_get_package_name( pkgName )
 
    
-# Build the library.
+# Build the library. // TODO: I removed the TrackCalo plugin so far, because it does not compile with the new plugin system. I should get it back, later.
 atlas_add_library( ${pkgName} ${pkgName}/VP13DCocktail*.h src/VP13DCocktail*.cxx src/*.qrc 
    PUBLIC_HEADERS ${pkgName}
    INCLUDE_DIRS ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS} ${QT5_INCLUDE_DIRS} 
