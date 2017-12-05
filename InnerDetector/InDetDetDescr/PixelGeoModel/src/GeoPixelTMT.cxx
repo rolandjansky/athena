@@ -109,8 +109,8 @@ GeoVPhysVol* GeoPixelTMT::Build() {
   }
 
   if(lastShape==0) {
-    msg(MSG::ERROR) << "There is no shape for GeoPixelTMT " <<endmsg;
-    return 0; 
+    msg(MSG::ERROR) << "There is no shape for GeoPixelTMT in "<<__FILE__<<":"<<__LINE__<<endmsg;
+    exit(EXIT_FAILURE);
   } else {
   const GeoShape * tmtShape = lastShape;
     // don't trust boolean volume

@@ -470,8 +470,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   if(layerPhys==0)
   {
-      m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer"<<endmsg;
-      return 0;
+      m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
+      exit(EXIT_FAILURE);
   } 
 
   InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
