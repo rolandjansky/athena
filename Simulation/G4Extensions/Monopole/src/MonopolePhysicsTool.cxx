@@ -34,10 +34,8 @@
 //=============================================================================
 MonopolePhysicsTool::MonopolePhysicsTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
-  : AthAlgTool ( type, nam , parent )
+  : base_class ( type, nam , parent )
 {
-  ATH_MSG_DEBUG("MonopolePhysicsTool "<<type<<" "<<nam);
-  declareInterface< IPhysicsOptionTool >( this ) ;
 }
 
 //=============================================================================

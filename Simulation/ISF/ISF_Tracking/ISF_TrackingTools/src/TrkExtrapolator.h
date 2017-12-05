@@ -41,7 +41,7 @@ namespace ISF {
 
       @author Elmar.Ritsch@cern.ch (refactored original implementation by Robert Harrington <roberth@cern.ch>)
      */
-  class TrkExtrapolator : public AthAlgTool, virtual public ISF::ITrkExtrapolator {
+  class TrkExtrapolator : public extends<AthAlgTool, ISF::ITrkExtrapolator> {
 
     public:
       /** Constructor with parameters */

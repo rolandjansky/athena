@@ -78,7 +78,7 @@ double iFatras::G4HadIntProcessor::s_projectionFactor = sqrt(2.);
 
 // constructor
 iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper"),
   m_doElastic(false),
@@ -135,7 +135,6 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_edLayerEnergyDeposit(0.),     
   m_edLayerSample(0)
 {
-  declareInterface<iFatras::IHadronicInteractionProcessor>(this);
   // steering
   declareProperty("MomentumCut"                     , m_minMomentum                                                       );     
   declareProperty("DoElasticInteractions"            , m_doElastic                                                       );

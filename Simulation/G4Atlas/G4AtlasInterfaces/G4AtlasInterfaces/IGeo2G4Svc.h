@@ -11,12 +11,7 @@
 class IGeo2G4Svc: virtual public IService,
                   virtual public Geo2G4SvcBase {
 public:
-  static const InterfaceID& interfaceID();
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IGeo2G4Svc, 1, 0);
 };
-
-inline const InterfaceID& IGeo2G4Svc::interfaceID()
-{
-  static const InterfaceID IID_IGeo2G4Svc("IGeo2G4Svc",1,0);
-  return IID_IGeo2G4Svc;
-}
 #endif // G4AtlasInterfaces_IGeo2G4Svc_H
