@@ -28,7 +28,7 @@ int LoadXS(){
     readSusyMetaDir(sh, "$ROOTCOREBIN/data/SUSYTools/mc15_8TeV");
   }
   catch (std::exception e) {
-    ATH_MSG_INFO ("A problem was encountered when reading the xsec files: "<< e.what());
+    ATH_MSG_ERROR ("A problem was encountered when reading the xsec files: "<< e.what());
     return 1;
   }
 

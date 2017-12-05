@@ -28,7 +28,7 @@ int main()
   int ret = system(cmd.c_str());
 
   if (ret != 0) {
-    ATH_MSG_INFO ("Test failed (return code was " << ret << ")");
+    ATH_MSG_ERROR ("Test failed (return code was " << ret << ")");
     return 1;
   }
   ATH_MSG_INFO ("Finished (return code was " << ret << ")");
