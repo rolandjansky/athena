@@ -48,7 +48,6 @@ namespace Gaudi {
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthMemMacros.h"
-#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/HandleClassifier.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -114,16 +113,12 @@ namespace Gaudi {
 
 
 class AthReentrantAlgorithm
-  : public ::ReEntAlgorithm,
-    public ::AthMessaging
+  : public ::ReEntAlgorithm
 { 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
 
   // Copy constructor: 
 
@@ -427,6 +422,17 @@ public:
    */
   virtual const DataObjIDColl& extraOutputDeps() const override;
 
+
+  // forward to CommonMessaging
+  inline MsgStream& msg() const {
+    return msgStream();
+  }
+  inline MsgStream& msg(const MSG::Level lvl) const {
+    return msgStream(lvl);
+  }
+  inline bool msgLvl(const MSG::Level lvl) const {
+    return msgLevel(lvl);
+  }
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

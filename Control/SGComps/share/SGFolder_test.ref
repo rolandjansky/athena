@@ -2,50 +2,40 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/SGFolder_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/SGFolder_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/work/v30r0.msg/src/Control/SGComps/share/../share/SGFolder_test.txt
 JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (6,1): ToolSvc.MyFolder.ItemList = ["Foo#Bla", "Bar#*", "8101", "8107#", "Baricco#*"]
 JobOptionsSvc        INFO # (7,1): ToolSvc.MyFolder.CheckItems = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/SGFolder_test.txt
+MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sun May 15 22:59:34 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on zeus.lbl.gov on Fri Dec  1 11:36:27 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ServiceManager      DEBUG Initializing service AppMgrRunable
-AppMgrRunable       DEBUG Property update for OutputLevel : new value = 2
 AppMgrRunable       DEBUG Service base class initialized successfully
 ServiceManager      DEBUG Initializing service EventLoopMgr
-EventLoopMgr        DEBUG Property update for OutputLevel : new value = 2
 EventLoopMgr        DEBUG Service base class initialized successfully
-IncidentSvc         DEBUG Property update for OutputLevel : new value = 2
 IncidentSvc         DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
-EventDataSvc        DEBUG Property update for OutputLevel : new value = 2
 EventDataSvc        DEBUG Service base class initialized successfully
-EventPersistenc...  DEBUG Property update for OutputLevel : new value = 2
 EventPersistenc...  DEBUG Service base class initialized successfully
+AlgExecStateSvc     DEBUG Service base class initialized successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramDataSvc    DEBUG Property update for OutputLevel : new value = 2
 HistogramDataSvc    DEBUG Service base class initialized successfully
-HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
 HistogramPersis...  DEBUG Service base class initialized successfully
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-ToolSvc             DEBUG Property update for OutputLevel : new value = 2
 ToolSvc             DEBUG Service base class initialized successfully
-ClassIDSvc          DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
 ClassIDSvc          DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
-ClassIDSvc           INFO  getRegistryEntries: read 989 CLIDRegistry entries for module ALL
-ClassIDSvc          DEBUG processCLIDDB: read 412 entries from CLIDDB file: /home/sss/atlas/dvtest/build/share/clid.db
+ClassIDSvc           INFO  getRegistryEntries: read 1205 CLIDRegistry entries for module ALL
 ToolSvc.MyFolder  WARNING add: can not find type [Baricco] in clid db
-ToolSvc.MyFolder    DEBUG Property update for OutputLevel : new value = 2
 ToolSvc.MyFolder  WARNING add: can not find type [basfbojjvd] in clid db
 ToolSvc.MyFolder  WARNING add: can not find type [cucu] in clid db
 ToolSvc.MyFolder  WARNING add: can not find clid 56789401 in clid db

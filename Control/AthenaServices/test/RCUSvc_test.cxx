@@ -46,13 +46,15 @@ public:
   virtual StatusCode selectStore(size_t /*partitionIndex*/) override { std::abort(); }
   virtual StatusCode clearStore(size_t /*partitionIndex*/) override { std::abort(); }
   virtual StatusCode setNumberOfStores(size_t /*slots*/) override { std::abort(); }
-  virtual StatusCode getNewDataObjects(DataObjIDColl& /*products*/) override { std::abort(); }
-  virtual bool newDataObjectsPresent() override { std::abort(); }
+  virtual DataObjIDColl getNewDataObjects() override { std::abort(); }
+  virtual void addNewDataObjects( DataObjIDColl& /*products*/ ){ std::abort(); }
+  virtual bool exists( const DataObjID& ) override { std::abort(); }
   virtual size_t allocateStore( int /*evtnumber*/ ) override { std::abort(); }
   virtual StatusCode freeStore( size_t /*partitionIndex*/ ) override { std::abort(); }
   virtual size_t getPartitionNumber(int /*eventnumber*/) const override { std::abort(); }
-
   virtual size_t getNumberOfStores() const override { return nslots; }
+  virtual unsigned int freeSlots() override { std::abort(); }
+
 };
 
 

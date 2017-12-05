@@ -22,9 +22,6 @@ class AthViewAlgorithm : public AthAlgorithm
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
-
   // Copy constructor: 
 
   /// Constructor with parameters: 

@@ -10,6 +10,7 @@
 #define ErrorHandler_h
 #include <stdexcept>
 #include <xercesc/sax2/DefaultHandler.hpp>
+#include <iostream>
 class XmlErrorHandler: public xercesc::DefaultHandler {
 public:
   void
