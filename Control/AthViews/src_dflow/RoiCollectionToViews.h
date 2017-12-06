@@ -60,17 +60,20 @@ class RoiCollectionToViews
   /// Containers
   
   // vars
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_trigRoIs;
-  SG::WriteHandleKey< std::vector< SG::View* > > m_w_views;
-  SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_viewRoIs;
-  std::vector< std::string > m_algorithmNameSequence;
-  std::string m_algPoolName;
-  std::string m_viewBaseName;
-  Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may access StoreGate directly to retrieve data" };
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_trigRoIs { this, "InputRoICollection", "input_rois", "Collection of RoIs to split into views" };
+  SG::WriteHandleKey< std::vector< SG::View* > > m_w_views { this, "AllViews", "all_views", "Output view collection" };
+  SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_viewRoIs { this, "OutputRoICollection", "output_rois", "RoI collection to use inside views" };
+  Gaudi::Property< std::vector< std::string > > m_algorithmNameSequence { this, "AlgorithmNameSequence", std::vector< std::string >(), "Names of algorithms to run in the views (DEPRECIATED)" };
+  Gaudi::Property< std::string > m_algPoolName { this, "AlgPoolName", "", "Name for the algorithm pool service to use with the views (DEPRECIATED)"};
+  Gaudi::Property< std::string > m_viewBaseName { this, "ViewBaseName", "", "Name to use for all views - number will be appended" };
+  Gaudi::Property< std::string > m_viewNodeName { this, "ViewNodeName", "", "Name of the CF node to attach views to" };
+  Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", true, "Set whether views may access StoreGate directly to retrieve data" };
+
 }; 
 
+/////////////////////////////////////////////////////////////////// 
 // I/O operators
-//////////////////////
+/////////////////////////////////////////////////////////////////// 
 
 /////////////////////////////////////////////////////////////////// 
 // Inline methods: 

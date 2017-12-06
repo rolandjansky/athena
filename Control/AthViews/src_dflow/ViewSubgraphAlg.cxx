@@ -101,6 +101,8 @@ StatusCode ViewSubgraphAlg::execute()
   if ( m_algorithmNameSequence.size() )
   {
     //Run the algorithms in views
+    ATH_MSG_WARNING( "This method of EventView scheduling (specifying algorithm names) is DEPRECIATED" );
+    ATH_MSG_WARNING( "Please use the scheduler EventView handling by specifying a CF node name" );
     CHECK( ViewHelper::RunViews( viewVector, //View vector
           m_algorithmNameSequence, //Algorithms to run in each view
           ctx, //Context to attach the views to
