@@ -80,8 +80,9 @@ StatusCode egammaTrkRefitterTool::initialize()
   if (m_ITrackFitter.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_ITrackFitter);
     return StatusCode::FAILURE;
-  } else 
+  } else {
     ATH_MSG_INFO("Retrieved tool " << m_ITrackFitter);
+  }
 
   //linearized track factory
   if (m_linFactory.retrieve().isFailure()){
@@ -105,6 +106,8 @@ StatusCode egammaTrkRefitterTool::initialize()
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_CCOTBuilder);
+  } else {
+    m_CCOTBuilder.disable();
   }
 
 
