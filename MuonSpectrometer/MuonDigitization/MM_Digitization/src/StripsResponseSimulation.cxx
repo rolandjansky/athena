@@ -50,6 +50,7 @@ StripsResponseSimulation::StripsResponseSimulation():
 	m_interactionDensityFunction(0),
 	m_random(0),
 	m_writeOutputFile(true),
+	m_writeEventDisplays(false),
 	m_outputFile(0)
 	{
 	}
@@ -122,14 +123,6 @@ void StripsResponseSimulation::initFunctions()
 /*******************************************************************************/
 void StripsResponseSimulation::clearValues()
 {
-
-	if (m_polyaFunction                  != 0 ) delete m_polyaFunction                  ;
-	if (m_lorentzAngleFunction           != 0 ) delete m_lorentzAngleFunction           ;
-	if (m_longitudinalDiffusionFunction  != 0 ) delete m_longitudinalDiffusionFunction  ;
-	if (m_transverseDiffusionFunction    != 0 ) delete m_transverseDiffusionFunction    ;
-	if (m_interactionDensityFunction     != 0 ) delete m_interactionDensityFunction     ;
-	if (m_random                         != 0 ) delete m_random                         ;
-
 }
 
 /*******************************************************************************/
@@ -271,12 +264,12 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 				<< effectiveCharge
 				<< endmsg;
 
-			// Add eventTime in Electron time
-			Electron->setTime(Electron->getTime() + eventTime);
-
 			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
 
 			m_mapOf2DHistograms["driftDistanceVsDriftTime"]->Fill(Electron->getOffsetPosition().Mod(), Electron->getTime() );
+
+			// Add eventTime in Electron time
+			Electron->setTime(Electron->getTime() + eventTime);
 
 			tmpEffectiveNElectrons+= effectiveCharge;
 		}
@@ -319,21 +312,22 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 	m_mapOfHistograms["nElectrons"]->Fill( stripResponseObject.getNElectrons() );
 	m_mapOfHistograms["lorentzAngle"]->Fill( lorentzAngle );
 
-	if(m_outputFile) m_outputFile->cd();
-	TGraph grIonizationXZ( IonizationClusters.size() );
-	for (int iIonization=0; iIonization <  (int) IonizationClusters.size(); iIonization++) {
-		TVector2 ionizationPosition( IonizationClusters.at(iIonization).getIonizationStart() );
-		grIonizationXZ.SetPoint( iIonization, ionizationPosition.X(), ionizationPosition.Y() );
-	}
-	grIonizationXZ.Write("ionizationXZ");
+	if(m_writeEventDisplays){
+		if(m_outputFile) m_outputFile->cd();
+		TGraph grIonizationXZ( IonizationClusters.size() );
+		for (int iIonization=0; iIonization <  (int) IonizationClusters.size(); iIonization++) {
+			TVector2 ionizationPosition( IonizationClusters.at(iIonization).getIonizationStart() );
+			grIonizationXZ.SetPoint( iIonization, ionizationPosition.X(), ionizationPosition.Y() );
+		}
+		grIonizationXZ.Write("ionizationXZ");
 
-	TGraph grElectronsXZ( stripResponseObject.getNElectrons() );
-	std::vector<MM_Electron*> tmpElectrons = stripResponseObject.getElectrons();
-	for (int iElectron=0; iElectron < (int) tmpElectrons.size(); iElectron++){
-		grElectronsXZ.SetPoint( iElectron, tmpElectrons.at(iElectron)->getX(), tmpElectrons.at(iElectron)->getY() );
+		TGraph grElectronsXZ( stripResponseObject.getNElectrons() );
+		std::vector<MM_Electron*> tmpElectrons = stripResponseObject.getElectrons();
+		for (int iElectron=0; iElectron < (int) tmpElectrons.size(); iElectron++){
+			grElectronsXZ.SetPoint( iElectron, tmpElectrons.at(iElectron)->getX(), tmpElectrons.at(iElectron)->getY() );
+		}
+		grElectronsXZ.Write("electronsXZ");
 	}
-	grElectronsXZ.Write("electronsXZ");
-
 
 } // end of whichStrips()
 
@@ -344,20 +338,6 @@ StripsResponseSimulation::~StripsResponseSimulation()
 		writeHistos();
 		delete m_outputFile;
 	}
-	clearValues();
 
-	for (auto & tmpHist : m_mapOfHistograms){
-		delete tmpHist.second;
-	}
-	for (auto & tmpHist : m_mapOf2DHistograms){
-		delete tmpHist.second;
-	}
-
-	delete m_interactionDensityFunction;
-	delete m_polyaFunction;
-	delete m_lorentzAngleFunction;
-	delete m_longitudinalDiffusionFunction;
-	delete m_transverseDiffusionFunction;
-	delete m_random;
 }
 /*******************************************************************************/

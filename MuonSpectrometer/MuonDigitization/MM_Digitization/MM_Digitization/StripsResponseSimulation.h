@@ -187,6 +187,7 @@ private:
 
 
   bool m_writeOutputFile;
+  bool m_writeEventDisplays;
   TFile * m_outputFile;
 
 
