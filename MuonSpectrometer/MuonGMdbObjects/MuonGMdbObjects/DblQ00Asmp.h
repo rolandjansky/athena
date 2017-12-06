@@ -13,7 +13,8 @@
 #ifndef DBLQ00_ASMP_H
 #define DBLQ00_ASMP_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 
 namespace MuonGM
 {
@@ -22,7 +23,7 @@ class DblQ00Asmp {
 public:
     DblQ00Asmp(){};
     ~DblQ00Asmp();
-    DblQ00Asmp(IRDBQuery*);
+    DblQ00Asmp(std::unique_ptr<IRDBQuery>&&);
     // data members for DblQ00/ASMP fields
 
     struct ASMP {
