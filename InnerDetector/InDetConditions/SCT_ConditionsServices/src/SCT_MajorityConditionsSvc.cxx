@@ -6,6 +6,7 @@
 
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
 
@@ -19,7 +20,9 @@ SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, IS
   AthService(name, pSvcLocator),
   m_overall{false},
   m_majorityFraction{0.9},
-  m_condData{nullptr},
+  m_mutex{},
+  m_cache{},
+  m_condData{},
   m_condKey{std::string{"SCT_MajorityCondData"}}
  {
   declareProperty("UseOverall", m_overall);
@@ -58,34 +61,38 @@ StatusCode SCT_MajorityConditionsSvc::queryInterface(const InterfaceID& riid, vo
 
 // Is the detector good?
 bool SCT_MajorityConditionsSvc::isGood() {
-  if(not getCondData()) return false;
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const SCT_MajorityCondData* condData{getCondData(ctx)};
+  if (!condData) return false;
 
   if (m_overall) {
-    return (m_condData->getMajorityState(OVERALL) and (m_condData->getHVFraction(OVERALL) > m_majorityFraction));
+    return (condData->getMajorityState(OVERALL) and (condData->getHVFraction(OVERALL) > m_majorityFraction));
   } else {
-    return ((m_condData->getMajorityState(BARREL) and 
-             m_condData->getMajorityState(ECA)    and 
-             m_condData->getMajorityState(ECC))                      and
-	    (m_condData->getHVFraction(BARREL) > m_majorityFraction) and
-            (m_condData->getHVFraction(ECA)    > m_majorityFraction) and
-            (m_condData->getHVFraction(ECC)    > m_majorityFraction));
+    return ((condData->getMajorityState(BARREL) and 
+             condData->getMajorityState(ECA)    and 
+             condData->getMajorityState(ECC))                      and
+	    (condData->getHVFraction(BARREL) > m_majorityFraction) and
+            (condData->getHVFraction(ECA)    > m_majorityFraction) and
+            (condData->getHVFraction(ECC)    > m_majorityFraction));
   }
 }
 
 // Is a barrel/endcap good?
 bool SCT_MajorityConditionsSvc::isGood(int bec) {
-  if(not getCondData()) return false;
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const SCT_MajorityCondData* condData{getCondData(ctx)};
+  if (!condData) return false;
 
   bool result{true};
 
   // Check numbering
 
   if (bec == bec_BARREL) {
-    result = (m_condData->getMajorityState(BARREL) and (m_condData->getHVFraction(BARREL) > m_majorityFraction));
+    result = (condData->getMajorityState(BARREL) and (condData->getHVFraction(BARREL) > m_majorityFraction));
   } else if (bec == bec_ECC) { 
-    result = (m_condData->getMajorityState(ECC)    and (m_condData->getHVFraction(ECC)    > m_majorityFraction));
+    result = (condData->getMajorityState(ECC)    and (condData->getHVFraction(ECC)    > m_majorityFraction));
   } else if (bec == bec_ECA) {
-    result = (m_condData->getMajorityState(ECA)    and (m_condData->getHVFraction(ECA)    > m_majorityFraction));
+    result = (condData->getMajorityState(ECA)    and (condData->getHVFraction(ECA)    > m_majorityFraction));
   } else {
     ATH_MSG_WARNING("Unrecognised BEC " << bec);
   }
@@ -95,18 +102,27 @@ bool SCT_MajorityConditionsSvc::isGood(int bec) {
 
 // Is the information filled?
 bool SCT_MajorityConditionsSvc::filled() const {
-  if(not getCondData()) return false;
-  return m_condData->isFilled();
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const SCT_MajorityCondData* condData{getCondData(ctx)};
+  if (!condData) return false;
+  return condData->isFilled();
 }
 
-bool SCT_MajorityConditionsSvc::getCondData() const {
-  if(!m_condData) {
-    SG::ReadCondHandle<SCT_MajorityCondData> condData{m_condKey};
-    if((not condData.isValid()) or !(*condData)) {
-      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
-      return false;
-    }
-    m_condData = *condData;
+const SCT_MajorityCondData* SCT_MajorityConditionsSvc::getCondData(const EventContext& ctx) const {
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cache.size()) {
+    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
-  return true;
+  if (m_cache[slot]!=evt) {
+    SG::ReadCondHandle<SCT_MajorityCondData> condData{m_condKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
+    }
+    m_condData.set(*condData);
+    m_cache[slot] = evt;
+  }
+  return m_condData.get();
 }

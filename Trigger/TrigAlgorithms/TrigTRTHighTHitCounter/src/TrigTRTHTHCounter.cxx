@@ -3,7 +3,6 @@
 */
 
 #include "TrigTRTHTHCounter.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "InDetIdentifier/TRT_ID.h"

@@ -122,11 +122,6 @@ import MagFieldServices.SetupField
 
 from IOVDbSvc.CondDB import conddb
 
-from IOVSvc.IOVSvcConf import CondInputLoader
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-condSeq += CondInputLoader()
-
 if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
    globalflags.ConditionsTag=runArgs.conditionsTag
    if len(globalflags.ConditionsTag())!=0:

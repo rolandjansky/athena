@@ -1,3 +1,4 @@
 #include "../AFP_GeoModelTool.h"
 
-DECLARE_TOOL_FACTORY(AFP_GeoModelTool)
+DECLARE_COMPONENT( AFP_GeoModelTool )
+

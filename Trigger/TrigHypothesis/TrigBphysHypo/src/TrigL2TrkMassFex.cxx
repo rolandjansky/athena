@@ -47,6 +47,7 @@ using namespace std;
 /*------------------------------------------------------------------------------------*/
 TrigL2TrkMassFex::TrigL2TrkMassFex(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::FexAlgo(name, pSvcLocator),
+  m_bphysHelperTool("TrigBphysHelperUtilsTool"),
   m_vertFitter("TrigVertexFitter",this),
   m_L2vertFitter("TrigL2VertexFitter",this),
   m_vertexingTool("TrigVertexingTool",this),

@@ -36,7 +36,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/errorcheck.h"
-#include "boost/foreach.hpp"
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -422,7 +421,7 @@ CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells)
   CHECK( detstore->retrieve (scmgr, "CaloSuperCellMgr") );
 
   std::vector<CaloCell*> scells (schelper->calo_cell_hash_max());
-  BOOST_FOREACH (const CaloCell* cell, cells) {
+  for (const CaloCell* cell : cells) {
     Identifier scid = sctool->offlineToSuperCellID (cell->ID());
     if (!scid.is_valid()) continue;
     IdentifierHash hash = schelper->calo_cell_hash (scid);
@@ -469,7 +468,7 @@ CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells)
     }
   }
 
-  BOOST_FOREACH (CaloCell* cell, scells) {
+  for (CaloCell* cell : scells) {
     cont->push_back (cell);
   }
 
@@ -811,8 +810,9 @@ void test_supercells (int version,
 //============================================================================
 
 
-struct CaloCellPacker_400_500_test
+class CaloCellPacker_400_500_test
 {
+public:
   typedef CaloCellPacker_400_500::header500 header_t;
   typedef CaloCompactCellContainer::value_type value_type;
   typedef std::vector<value_type> vec_t;
@@ -1025,14 +1025,9 @@ CaloCellPacker_400_500_test::test_err10(const CaloCompactCellContainer&
   int hash = (val & 3) << 16 | ((val & 0xffff0000)>>16);
   int target = hash + std::min (10, nseq);
 
-  CaloDetDescrManager::calo_element_const_iterator cbeg =
-    g_mgr->element_begin();
-  CaloDetDescrElement * const & rcbeg = *cbeg;
-  CaloDetDescrElement** beg = const_cast<CaloDetDescrElement**> (&rcbeg);
-  CaloDetDescrElement* dde = beg[target];
-  beg[target] = 0;
+  CaloDetDescrElement* dde = g_mgr->release_element (target);
   test_fin (ccc2, tool);
-  beg[target] = dde;
+  g_mgr->add (dde);
 }
 
 

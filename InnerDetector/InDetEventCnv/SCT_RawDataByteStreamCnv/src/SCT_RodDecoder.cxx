@@ -142,7 +142,7 @@ SCT_RodDecoder::finalize() {
 
 StatusCode
 SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                               SCT_RDO_Container& rdoIdc,
+                               ISCT_RDO_Container& rdoIdc,
                                InDetBSErrContainer* errs,
                                std::vector<IdentifierHash>* vecHash)
 {
@@ -178,8 +178,9 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
                   */
 
   /** These are for the trigger */
-  IdentifierHash skipHash, lastHash;
-
+  CacheHelper cache;
+  cache.vecHash = vecHash;
+  
   IdentifierHash currentLinkIdHash;
 
   std::vector<int> errorHit;
@@ -291,7 +292,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           if ((side == 1) and ((linkNb%2)==0)) {
             if (((strip != oldstrip) or (side!=oldside)) and (groupSize>0)) { /** if it is a new cluster,
                                                                                * make RDO with the previous cluster */
-              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -307,7 +308,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           if ((side == 0) and ((linkNb%2)!=0)) {
             if (((strip != oldstrip) or (side!=oldside)) and (groupSize>0)) { /** if it is a new cluster,
                                                                                * make RDO with the previous cluster */
-              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -330,7 +331,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           if ((strip != oldstrip) or (side!=oldside)) {
             /** if it is a new cluster,
              * make RDO with the previous cluster */
-            int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+            int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
             if (rdoMade == -1) {
               sc=StatusCode::RECOVERABLE;
               addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -366,7 +367,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           if ((side == 1) and ((linkNb%2)==0)) {
             if (((strip != oldstrip) or (side!=oldside)) and (groupSize>0)) { /** if it is a new cluster,
                                                                                * make RDO with the previous cluster */
-              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -382,7 +383,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           if ((side == 0) and ((linkNb%2)!=0)) {
             if (((strip != oldstrip) or (side!=oldside)) and (groupSize>0)) { /** if it is a new cluster,
                                                                                * make RDO with the previous cluster */
-              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -405,7 +406,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             if ((strip != oldstrip) or (side!=oldside)) {
               /** if it is a new cluster,
                * make RDO with the previous cluster */
-              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -438,7 +439,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             if ((strip != oldstrip) or (side!=oldside)) { /** if it is a new cluster,
                                                            * make RDO with the previous cluster 
                                                            */
-              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(oldstrip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -496,7 +497,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
             }
             onlineId = ((robid & 0xFFFFFF)|(linkNb << 24)); 
             groupSize =  1;
-            int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+            int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
             if (rdoMade == -1) {
               sc=StatusCode::RECOVERABLE;
               addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -523,7 +524,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               strip++;
               tbin = d[n]&0x7;
               groupSize = 1;
-              int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -533,7 +534,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               /** second hit from the pair */
               strip++;
               tbin = (d[n] >> 4) & 0x7;
-              rdoMade = this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit);
+              rdoMade = this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit);
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -552,7 +553,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
               strip++;
               tbin = d[n]&0x7;
               groupSize = 1;
-              int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+              int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
               if (rdoMade == -1) {
                 sc=StatusCode::RECOVERABLE;
                 addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -574,7 +575,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
   
         m_headnumber++;
         if (saved[side*768+strip]==false and oldstrip>=0) {
-          int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+          int rdoMade{this->makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
           if (rdoMade == -1) {
             sc=StatusCode::RECOVERABLE;
             addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -806,7 +807,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
 
   /** create RDO of the last ink or stream of the event */
   if (saved[side*768+strip]==false and oldstrip>=0) {
-    int rdoMade{makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, vecHash, skipHash, lastHash, errorHit)};
+    int rdoMade{makeRDO(strip, groupSize, tbin, onlineId, ERRORS, rdoIdc, cache, errorHit)};
     if (rdoMade == -1) {
       sc=StatusCode::RECOVERABLE;
       addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
@@ -828,8 +829,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
  *            on as StatusCode::RECOVERABLE by fillCollection().
  */
 
-int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineId, int ERRORS, SCT_RDO_Container& rdoIdc,
-                            std::vector<IdentifierHash>* vecHash, IdentifierHash& skipHash, IdentifierHash& lastHash,
+int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineId, int ERRORS, ISCT_RDO_Container& rdoIdc,
+                            CacheHelper& cache,
                             const std::vector<int>& errorHit)
 {
 
@@ -857,28 +858,32 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
   }
 
   /** this option is for the trigger, if there is a vecHash* given, test it ! */
-  if (vecHash) {
-    if (idCollHash == skipHash) {
+  if (cache.vecHash) {
+    if (idCollHash == cache.skipHash) {
       ATH_MSG_VERBOSE("Collection for Hash not to be decoded, skip");
       return 0;
-    } else if (idCollHash != lastHash) {
-      lastHash = idCollHash;
+    } else if (idCollHash != cache.lastHash) {
+      cache.lastHash = idCollHash;
       /** maybe the new hash is not in the list, so test it */
-      std::vector<IdentifierHash>::iterator p{find(vecHash->begin(), vecHash->end(), idCollHash)};
-      if (p == vecHash->end()) {
+      std::vector<IdentifierHash>::iterator p{find(cache.vecHash->begin(), cache.vecHash->end(), idCollHash)};
+      if (p == cache.vecHash->end()) {
         ATH_MSG_VERBOSE("Collection for Hash not to be decoded, skip");
         /** remember this one, so that we do not find(...) forever */
-        skipHash = idCollHash;
+        cache.skipHash = idCollHash;
         return 0;
       }
     }
   }
 
+
+  if(rdoIdc.hasExternalCache() && rdoIdc.tryFetch(idCollHash)){
+    ATH_MSG_DEBUG("Hash already in collection - cache hit " << idCollHash);
+    return 0;
+  }
+
   /** get identifier from the hash, this is not nice */
   Identifier idColl{m_sct_id->wafer_id(idCollHash)};
 
-  SCT_RDO_Collection* theColl{nullptr};
-  SCT_RDO_Container::const_iterator itColl;
 
   /** see if strips go from 0 to 767 or vice versa */
   const InDetDD::SiDetectorElement* p_element{m_indet_mgr->getDetectorElement(idCollHash)};
@@ -895,21 +900,21 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
   unsigned int rawDataWord{static_cast<unsigned int>(groupSize | (strip << 11) | (tbin <<22) | (ERRORS << 25))};
 
   ATH_MSG_DEBUG("Output Raw Data " << std::hex << " Coll " << idColl.getString() << ":-> " << m_sct_id->print_to_string(iddigit) << std::dec);
-  
-  itColl = rdoIdc.indexFind(idCollHash);
-  
-  /** Check if the Collection is already created.*/
-  if (itColl != rdoIdc.end()) {
-    theColl = const_cast<SCT_RDO_Collection*>(&**itColl); //very nasty!!
-  } else {
+
+
+
+  SCT_RDO_Collection* col = nullptr;
+  ATH_CHECK(rdoIdc.naughtyRetrieve(idCollHash, col));//Returns null if not present
+
+  if(!col){
     ATH_MSG_DEBUG(" Collection ID = " << idCollHash << " does not exist, create it ");
-    /** create new collection */
-    theColl = new SCT_RDO_Collection{idCollHash};
-    /** set the Identifier to be nice to downstream clients */
-    theColl->setIdentifier(idColl);
-    /** add collection into IDC */
-    if (rdoIdc.addCollection(theColl, idCollHash).isFailure()) {
-      ATH_MSG_ERROR("Failed to add SCT RDO collection to container");
+    /** create new collection */   
+    col  = new SCT_RDO_Collection(idCollHash);
+    col->setIdentifier(idColl);
+    StatusCode sc = rdoIdc.addCollection(col, idCollHash);
+    ATH_MSG_DEBUG("Adding " << idCollHash);
+    if (sc.isFailure()){
+        ATH_MSG_ERROR("failed to add SCT RDO collection to container");
     }
   }
   
@@ -917,9 +922,9 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
    * into Collection. 
    */
   m_nRDOs++;
-  theColl->push_back(std::make_unique<SCT3_RawData>(iddigit,
-                                                    rawDataWord,
-                                                    &errorHit));
+  col->push_back(std::make_unique<SCT3_RawData>(iddigit,
+                                                     rawDataWord,
+                                                     &errorHit));
   return 1;
 }
 

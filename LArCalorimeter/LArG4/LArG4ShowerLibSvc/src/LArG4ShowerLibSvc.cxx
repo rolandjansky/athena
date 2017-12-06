@@ -153,6 +153,8 @@ StatusCode LArG4ShowerLibSvc::finalize()
       ATH_MSG_INFO(m_statisticsMap.find((*iter).second)->second->statistics());
     else
       ATH_MSG_INFO("No statistics available for this kind of library");
+    // delete the library:
+    delete (*iter).second ;
   }
 
   return StatusCode::SUCCESS;

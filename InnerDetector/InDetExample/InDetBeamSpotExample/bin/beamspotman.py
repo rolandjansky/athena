@@ -43,16 +43,11 @@ mctag STATUS POSX POSY POSZ             Create an sqlite file containing a MC ta
                                         
 '''
 
-# TODO: additional commands
-# - authorize USERID
-# - deauthorize USERID
-
-
 proddir = '/afs/cern.ch/user/a/atlidbs/jobs'
-produserfile = '/private/produsers.dat'
-prodcoolpasswdfile = '/private/coolinfo.dat'
-proddqcoolpasswdfile = '/private/cooldqinfo.dat'
-tier0dbinfofile = '/private/t0dbinfo.dat'
+produserfile = '/afs/cern.ch/user/a/atlidbs/private/produsers.dat'
+prodcoolpasswdfile = '/afs/cern.ch/user/a/atlidbs/private/coolinfo.dat'
+proddqcoolpasswdfile = '/afs/cern.ch/user/a/atlidbs/private/cooldqinfo.dat'
+tier0dbinfofile = '/afs/cern.ch/user/a/atlidbs/private/t0dbinfo.dat'
 beamspottag = ''
 backuppath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/backup'
 archivepath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/archive'
@@ -133,9 +128,12 @@ parser.add_option('', '--prefix', dest='prefix', default='', help='Prefix for re
 parser.add_option('', '--rl', dest='runMin', type='int', default=None, help='Minimum run number for mctag (inclusive)')
 parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Maximum run number for mctag (inclusive)')
 parser.add_option('', '--noCheckAcqFlag', dest='noCheckAcqFlag', action='store_true', default=False, help='Don\'t check acqFlag when submitting VdM jobs')
-parser.add_option('', '--mon', dest='mon', action='store_true', default=False, help='mon directory structure')
 parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status')
 parser.add_option('-q', '--queue', dest='batch_queue', default=None, help='Name of batch queue to use (default is context-specific)')
+
+g_deprecated = OptionGroup(parser, 'Deprecated Options')
+g_deprecated.add_option('', '--mon', dest='legacy_mon', action='store_true', default=False, help='mon directory structure (now inferred from montaskname)')
+parser.add_option_group(g_deprecated)
 
 (options, args) = parser.parse_args()
 if len(args) < 1: parser.error('wrong number of command line arguments')
@@ -144,14 +142,14 @@ cmdargs = args[1:]
 
 # General error checking (skipped in expert mode to allow testing)
 if not options.expertmode:
-    if commands.getoutput('pwd') != options.proddir:
+    if os.path.realpath(os.getcwd()) != os.path.realpath(options.proddir):
         sys.exit('ERROR: You must run this command in the production directory %s' % options.proddir)
-    if not os.path.exists(os.environ.get('HOME')+produserfile):
-        sys.exit('ERROR: Authorization file unreadable or does not exists')
-    if not commands.getoutput('grep `whoami` %s' % os.environ.get('HOME')+produserfile):
-        sys.exit('ERROR: You are not authorized to run this command (user name must be listed in produser file)')
+    if not os.path.exists(produserfile):
+        sys.exit('ERROR: Authorization file unreadable or does not exists %s' % produserfile)
+    if not commands.getoutput('grep `whoami` %s' % produserfile):
+        sys.exit('ERROR: You are not authorized to run this command (user name must be listed in produser file %s)' % produserfile)
 else:
-    if commands.getoutput('pwd') != options.proddir:
+    if os.path.realpath(os.getcwd()) != os.path.realpath(options.proddir):
         print 'WARNING: You are not running in the production directory %s' % options.proddir
 
 
@@ -160,7 +158,8 @@ else:
 #
 def getT0DbConnection():
     try:
-        connstring = open(os.environ.get('HOME')+tier0dbinfofile,'r').read().strip()
+        with open(tier0dbinfofile, 'r') as dbinfofile:
+            connstring = dbinfofile.read().strip()
     except:
         sys.exit('ERROR: Unable to read connection information for Tier-0 database')
     dbtype, dbname = connstring.split(':',1)
@@ -235,7 +234,8 @@ if cmd == 'upload' and len(cmdargs) == 1:
     if not options.beamspottag:
         fail('No beam spot tag specified')
     try:
-        passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
+        with open(prodcoolpasswdfile, 'r') as passwdfile:
+            passwd = passwdfile.read().strip()
     except:
         fail('Unable to determine COOL upload password')
 
@@ -393,7 +393,7 @@ if cmd=='backup' and len(args)==2:
         if status:
             sys.exit('\nERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
 
-        status = os.system('xrdcp -f %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,path,outname)) >> 8
+        status = os.system('xrdcp -f %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
 
         if status:
             # Continue to try other files if one failed to upload to EOS
@@ -511,7 +511,8 @@ if cmd=='upload' and len(args)==3:
             sys.exit()
 
         try:
-            passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
+            with open(prodcoolpasswdfile, 'r') as passwdfile:
+                passwd = passwdfile.read().strip()
         except:
             sys.exit('ERROR: Unable to determine COOL upload password')
 
@@ -577,9 +578,9 @@ if cmd=='dq2get' and len(args)==3:
     except TaskManagerCheckError, e:
         print e
         sys.exit(1)
-    dir = '/'.join([dsname,task])
+    dir = os.path.join(dsname, task)
     griddsname = '%s.%s-%s' % (options.griduser,dsname,task)
-    path = '/'.join([dir,griddsname])
+    path = os.path.join(dir, griddsname)
     if os.path.exists(path):
         print 'ERROR: Path exists already:',path
         sys.exit(1)
@@ -618,10 +619,11 @@ if cmd=='queryT0' and len(args)==3:
     if 'ESD' in options.filter:
         t0TaskName = '%s.recon.ESD.%s.beamspotproc.task' % (dsname,tags)
     else:
-        if "_m" in tags:
+        if any(t[0] == 'm' for t in tags.split('_')):
           t0TaskName = '%s.merge.AOD.%s.beamspotproc.task' % (dsname,tags)
-        else: 
+        else:
           t0TaskName = '%s.recon.AOD.%s.beamspotproc.task' % (dsname,tags)
+
     print 'Querying Tier-0 database for task',t0TaskName,'...'
     oracle = getT0DbConnection()
     cur = oracle.cursor()
@@ -808,11 +810,16 @@ if cmd=='runMonJobs' and len(args)<3:
         bstag = cooltags.split()[0]
 
         filter = 'AOD'
-        t0dsname = '%s.merge.AOD.%s%%' % (dsname,datatag)  # For running over AOD
+        if any(t[0] == 'm' for t in fulldatatag.split('_')):
+            t0dsname = '%s.merge.AOD.%s%%' % (dsname, datatag)
+        else:
+            t0dsname = '%s.recon.AOD.%s%%' % (dsname, datatag)
+
         c = getJobConfig('.',dsname,taskName)
         if 'ESD' in c['inputfiles'][0]:
             filter = 'ESD'
-            t0dsname = '%s.recon.ESD.%s' % (dsname,datatag)   # For running over ESD
+            t0dsname = '%s.recon.ESD.%s' % (dsname, datatag)
+
         print '\nRunning monitoring job for run %s:' % runnr
 
         submitjob=True
@@ -911,7 +918,7 @@ if cmd=='archive' and len(args)==3:
                 status = os.system('tar czf %s/%s %s' % (tmpdir,outname,dir)) >> 8
                 if status:
                     sys.exit('\n**** ERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
-                status = os.system('xrdcp %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,path,outname)) >> 8
+                status = os.system('xrdcp %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
                 if status:
                     sys.exit('\n**** ERROR: Unable to copy file to EOS to %s/%s' % (path,outname))
 
@@ -932,7 +939,7 @@ if cmd=='archive' and len(args)==3:
     sys.exit(0)
 
 #
-# Run beam spot resumit failed jobs
+# Run beam spot resubmit failed jobs
 # Double check directory structure is appropriate for you
 #
 
@@ -949,17 +956,17 @@ if cmd=='resubmit' and len(args) in [3,4]:
         print 'ERROR: No queue was specified (use -q)'
         sys.exit(1)
 
-    basepath = os.getcwd()+'/'+dsname+'/'+taskname+'/'
-    dircontents = os.listdir( basepath )
+    basepath = os.path.join(os.getcwd(), dsname, taskname)
+    dircontents = os.listdir(basepath)
 
     for dir in dircontents:
-        if not os.path.isdir(os.path.join(basepath,dir)):
+        if not os.path.isdir(os.path.join(basepath, dir)):
             continue
         print dir
-        jobname=dir
-        if options.mon:
-           jobname= dsname+'-'+taskname+'-'+dir
-        fullpath = os.getcwd()+'/'+dsname+'/'+taskname+'/'+dir
+        jobname = dir
+        if (options.montaskname in taskname.split('.')) or options.legacy_mon:
+           jobname = '-'.join([dsname, taskname, 'lb' + dir])
+        fullpath = os.path.join(basepath, dir)
 
         isRunning = False
         isFailed = False
@@ -967,8 +974,8 @@ if cmd=='resubmit' and len(args) in [3,4]:
           if re.search('RUNNING', f) or re.search('POSTPROCESSING',f):
             isRunning = True
           if re.search('COMPLETED',f) or re.search('POSTPROCESSING',f):
-            statusFile  = open( fullpath+'/'+jobname + '.exitstatus.dat', 'r')
-            status  = statusFile.read(1)
+            with open(os.path.join(fullpath, jobname + '.exitstatus.dat')) as statusFile:
+                status = statusFile.read(1)
             print status
             if status != "0":
               isFailed  = True
@@ -989,16 +996,16 @@ if cmd=='resubmit' and len(args) in [3,4]:
           elif re.search('.py.final.py', f):
             os.remove(os.path.join(fullpath, f))
 
-        #params['lbList'] = '[' + ','.join([str(l) for l in lbs]) + ']'
+        jobConfig = {
+                'test': 'this',
+                'batchqueue' : queue,
+                'jobname' : jobname,
+                'jobdir' : fullpath,
+                }
+        jobConfig['logfile'] = '%(jobdir)s/%(jobname)s.log' % jobConfig
+        jobConfig['scriptfile'] = '%(jobdir)s/%(jobname)s.sh' % jobConfig
 
-        jobConfig ={'test':'this' }
-        jobConfig['batchqueue'] = queue
-        jobConfig['jobname'] = jobname
-        jobConfig['jobdir'] = os.getcwd()+'/'+dsname+'/'+taskname+'/'+dir
-        jobConfig['logfile']='%(jobdir)s/%(jobname)s.log' % jobConfig
-        jobConfig['scriptfile']='%(jobdir)s/%(jobname)s.sh' % jobConfig
-
-        batchCmd = 'bsub -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
+        batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
         print batchCmd
         os.system(batchCmd)
 
@@ -1104,7 +1111,7 @@ if cmd=='reproc' and len(args)==5:
             queue = options.batch_queue or 'atlasb1_long'
             runner = LSFJobRunner.LSFJobRunner(
                     jobnr=jobnr,
-                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
+                    jobdir=os.path.join(os.getcwd(), dsname, taskname, jobname),
                     jobname=jobname,
                     inputds='',
                     inputfiles=files,
@@ -1270,7 +1277,7 @@ if cmd=='runaod' and len(args)==5:
                 queue='atlasb1_long' if options.pseudoLbFile else 'atlasb1'
             runner = LSFJobRunner.LSFJobRunner(
                     jobnr=jobnr,
-                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
+                    jobdir=os.path.join(os.getcwd(), dsname, taskname, jobname),
                     jobname=jobname,
                     inputds='',
                     inputfiles=files,
@@ -1307,7 +1314,8 @@ if cmd=='dqflag' and len(args)==2:
     if not options.dqtag:
         sys.exit('ERROR: No beamspot DQ tag specified')
     try:
-        passwd = open(os.environ.get('HOME')+proddqcoolpasswdfile,'r').read().strip()
+        with open(proddqcoolpasswdfile, 'r') as passwdfile:
+            passwd = passwdfile.read().strip()
     except:
         sys.exit('ERROR: Unable to determine DQ COOL upload password')
 
@@ -1358,7 +1366,8 @@ if cmd=='dqflag' and len(args)==3:
         sys.exit()
 
     try:
-        passwd = open(os.environ.get('HOME')+proddqcoolpasswdfile,'r').read().strip()
+        with open(proddqcoolpasswdfile, 'r') as passwdfile:
+            passwd = passwdfile.read().strip()
     except:
         sys.exit('ERROR: Unable to determine DQ COOL upload password')
 
@@ -1472,14 +1481,21 @@ if cmd=='runBCIDJobs' and len(args)<3:
         ptag = dsname.split('.')[0]
         stream = dsname.split('.')[2]
         taskName = t['TASKNAME']
+        fulldatatag = taskName.split('.')[-1].split('_')[0]
         datatag = taskName.split('.')[-1].split('_')[0]
         bcidTaskName = 'BCID.%s.%s' % (taskName,datatag)
+
         filter = 'AOD'
-        t0dsname = '%s.merge.AOD.%s%%' % (dsname,datatag)  # For running over AOD
+        if any(t[0] == 'm' for t in fulldatatag.split('_')):
+            t0dsname = '%s.merge.%s.%s%%' % (dsname, filter, datatag)
+        else:
+            t0dsname = '%s.recon.%s.%s%%' % (dsname, filter, datatag)
+
         c = getJobConfig('.',dsname,taskName)
         if 'ESD' in c['inputfiles'][0]:
             filter = 'ESD'
-            t0dsname = '%s.recon.ESD.%s' % (dsname,datatag)   # For running over ESD
+            t0dsname = '%s.recon.ESD.%s' % (dsname, datatag)
+
         print '\nRunning BCID job for run %s:' % runnr
 
         print '... Querying T0 database for replication of %s' % t0dsname

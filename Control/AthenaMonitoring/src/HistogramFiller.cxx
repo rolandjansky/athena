@@ -7,7 +7,8 @@
 using namespace std;
 using namespace Monitored;
 
-HistogramFillerFactory::HistogramFillerFactory(ServiceHandle<ITHistSvc> histSvc, std::string groupName)
+HistogramFillerFactory::HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc,
+                                               std::string groupName)
     : m_histSvc(histSvc), m_groupName(std::move(groupName)), m_histogramCategory({
       { "EXPERT", new MonitoringGroup(m_histSvc, m_groupName, MonitoringGroup::expert) },
       { "SHIFT", new MonitoringGroup(m_histSvc, m_groupName, MonitoringGroup::shift) },
@@ -162,7 +163,7 @@ void HistogramFillerFactory::setLabels(TH1* hist, const vector<string>& labels) 
   }
 }
 
-HistogramFillerFactory::MonitoringGroup::MonitoringGroup(ServiceHandle<ITHistSvc> histSvc, std::string groupName, Level l)
+HistogramFillerFactory::MonitoringGroup::MonitoringGroup(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName, Level l)
   : m_histSvc(histSvc), m_groupName(std::move(groupName)), m_level(l) { }
 
 StatusCode HistogramFillerFactory::MonitoringGroup::regHist(TH1* h){

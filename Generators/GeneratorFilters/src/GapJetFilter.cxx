@@ -153,7 +153,7 @@ GapJetFilter::filterEvent()
   // Get TruthJets
   //
   msg(MSG::DEBUG) << "get truthJet container" << endmsg;
-  const xAOD::JetContainer* truthjetTES;
+  const xAOD::JetContainer* truthjetTES = nullptr;
   sc=m_storeGate->retrieve(truthjetTES, m_jetContainer);
   if( sc.isFailure() || !truthjetTES ) {
     msg(MSG::WARNING)
@@ -247,10 +247,7 @@ GapJetFilter::filterEvent()
   Int_t Clustag=0;
  
 // Loop over all events in McEventCollection
-  McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr != events()->end(); ++itr) {
-
-    HepMC::GenEvent* genEvt = *itr;
+  for (HepMC::GenEvent* genEvt : *events()) {
 
     // Loop over all particles in event
     HepMC::GenEvent::particle_const_iterator pitr;

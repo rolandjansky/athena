@@ -2,20 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// -------------------------------------------------------------------------// 
-//                                                                          // 
-// Query class.  This class can be used to return the result of a query     // 
-// that can fail.  Objects of this class can convert themselves to the      // 
-// result type T.  Client code can check for a valid result; if it doesn't, // 
-// and the result is valid, no problem.   But if the result is invalid you  // 
-// will print an error message and terminate.                               // 
-//                                                                          // 
-// Joe Boudreau                                                             // 
-// based on Barton & Nackman's "Scientific and Engineering C++"             // 
-//                                                                          // 
-// -------------------------------------------------------------------------// 
 #ifndef GEOMODELKERNEL_QUERY_H
 #define GEOMODELKERNEL_QUERY_H
+
+/**
+ * @class Query
+ *
+ * @brief  This class can be used to return the result of a query      
+ * that can fail.  Objects of this class can convert themselves to the       
+ * result type T.  Client code can check for a valid result; if it doesn't,  
+ * and the result is valid, no problem.   But if the result is invalid you   
+ * will print an error message and terminate.                                
+ *
+ * Joe Boudreau
+ * based on Barton & Nackman's "Scientific and Engineering C++"              
+ */
+
 #include <stdexcept>
 template < class T > class Query
 {

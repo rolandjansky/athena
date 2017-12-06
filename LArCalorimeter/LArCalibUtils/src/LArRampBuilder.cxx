@@ -206,7 +206,7 @@ StatusCode LArRampBuilder::execute()
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
   
-  const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
+  const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer = nullptr;
   
   
   // if using Shape Reco method, retrieve caliWaveContainer (only once !)
@@ -464,8 +464,8 @@ StatusCode LArRampBuilder::stop()
 
   for (unsigned k=0;k<(int)CaloGain::LARNGAIN;k++) {
     CaloGain::CaloGain gain=(CaloGain::CaloGain)k;
-    LArConditionsContainer<ACCRAMP>::ConstConditionsMapIterator cell_it=m_ramps->begin(gain);
-    LArConditionsContainer<ACCRAMP>::ConstConditionsMapIterator cell_it_e=m_ramps->end(gain);
+    LArConditionsContainer<ACCRAMP>::ConditionsMapIterator cell_it=m_ramps->begin(gain);
+    LArConditionsContainer<ACCRAMP>::ConditionsMapIterator cell_it_e=m_ramps->end(gain);
     if (cell_it==cell_it_e) {
       ATH_MSG_INFO( "No ramp points found for gain " << gain);
       continue; //No data for this gain

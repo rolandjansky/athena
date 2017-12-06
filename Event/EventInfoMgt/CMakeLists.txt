@@ -22,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( EventInfoMgt
                      src/TagInfoMgr.cxx
                      src/EventInfoMgt_entries.cxx
-                     src/EventInfoMgt_load.cxx
                      LINK_LIBRARIES AthenaKernel GaudiKernel CxxUtils SGTools StoreGateLib SGtests AthenaBaseComps AthenaPoolUtilities EventInfo )
 
 # Install files from the package:

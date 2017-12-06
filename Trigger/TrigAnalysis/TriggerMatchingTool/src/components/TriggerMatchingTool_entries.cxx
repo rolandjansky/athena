@@ -1,9 +1,9 @@
 #include "TriggerMatchingTool/MatchingTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( Trig, MatchingTool )
+DECLARE_COMPONENT( Trig::MatchingTool )
 
 
 
 #include "../TestMatchingToolAlg.h"
-DECLARE_ALGORITHM_FACTORY( TestMatchingToolAlg )
+DECLARE_COMPONENT( TestMatchingToolAlg )
 

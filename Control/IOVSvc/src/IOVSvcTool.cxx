@@ -24,6 +24,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Guards.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
@@ -334,14 +335,17 @@ IOVSvcTool::handle(const Incident &inc) {
 
   set< const DataProxy*, SortDPptr > proxiesToReset;
 
-  if (inc.type() == "BeginRun") {
-    m_firstEventOfRun = true;
-  }
+  // Forcing IOV checks on the first event in the run for AthenaMP (ATEAM-439)
+  if(Gaudi::Concurrency::ConcurrencyFlags::numProcs()==0) {
+    if (inc.type() == "BeginRun") {
+      m_firstEventOfRun = true;
+    }
 
-  if (inc.type() == "BeginEvent" && m_firstEventOfRun) {
-    m_firstEventOfRun = false;
-    if (m_checkTrigger == "BeginEvent") {
-      return;
+    if (inc.type() == "BeginEvent" && m_firstEventOfRun) {
+      m_firstEventOfRun = false;
+      if (m_checkTrigger == "BeginEvent") {
+	return;
+      }
     }
   }
 

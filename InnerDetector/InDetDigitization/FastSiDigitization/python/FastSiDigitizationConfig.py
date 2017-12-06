@@ -65,6 +65,10 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
             PixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
             ServiceMgr += PixelSiPropertiesSvc
+        if not hasattr(ServiceMgr, "PixelOfflineCalibSvc"):
+            from PixelConditionsServices.PixelConditionsServicesConf import PixelOfflineCalibSvc
+            ServiceMgr +=PixelOfflineCalibSvc()
+            ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)
@@ -163,6 +167,7 @@ def PixelFastDigitizationToolSplitNoMergePU(name="PixelFastDigitizationToolSplit
     kwargs.setdefault("PixelClusterContainerName", "PixelFast_PU_Clusters")
     kwargs.setdefault("TruthNamePixel", "PRD_MultiTruthPixel_PU")
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", "PixelClusterAmbiguitiesMapPU")
     return commonPixelFastDigitizationConfig(name, **kwargs)
 
 ######################################################################################

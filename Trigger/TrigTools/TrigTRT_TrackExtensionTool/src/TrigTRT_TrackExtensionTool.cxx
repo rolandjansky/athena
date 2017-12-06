@@ -18,7 +18,6 @@
 #include <iostream>
 
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/IssueSeverity.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"

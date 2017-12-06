@@ -3,8 +3,8 @@
 #include "TrigMinBias/TrigVertexCounter.h"
 #include "TrigMinBias/TrigVertexCounterHypo.h"
 
-DECLARE_ALGORITHM_FACTORY( TrigTrackCounter )
-DECLARE_ALGORITHM_FACTORY( TrigTrackCounterHypo )
-DECLARE_ALGORITHM_FACTORY( TrigVertexCounter )
-DECLARE_ALGORITHM_FACTORY( TrigVertexCounterHypo )
+DECLARE_COMPONENT( TrigTrackCounter )
+DECLARE_COMPONENT( TrigTrackCounterHypo )
+DECLARE_COMPONENT( TrigVertexCounter )
+DECLARE_COMPONENT( TrigVertexCounterHypo )
 

@@ -13,7 +13,8 @@
 #ifndef DBLQ00_DBAM_H
 #define DBLQ00_DBAM_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 namespace MuonGM
 {
 class DblQ00Dbam {
@@ -21,7 +22,7 @@ class DblQ00Dbam {
 public:
     DblQ00Dbam(){};
     ~DblQ00Dbam();
-    DblQ00Dbam(IRDBQuery*);
+    DblQ00Dbam(std::unique_ptr<IRDBQuery>&&);
 
     // data members for DblQ00/DBAM fields
     struct DBAM {

@@ -9,8 +9,8 @@ Author: Sami Kama 2017
 //  
 
 
-#ifndef __ALP_H
-#define __ALP_H
+#ifndef ALP_ALP_H
+#define ALP_ALP_H
 
 #include <string>
 #include <set>
@@ -121,11 +121,11 @@ private:
   bool m_skipFinalize,m_skipFinalizeWorker,m_exitImmediately;
   int m_eventsInInterval,m_acceptedInInterval,m_rejectedInInterval;
   std::shared_ptr<hltinterface::GenericHLTContainer> m_motherInfo,m_childInfo;
-  size_t MINumKills,MINumForks,MIUnexpectedChildExits,MINumRequested,MINumActive,MINumExited;
-  size_t CINumEvents,CIAcceptedEvents,CIRejectedEvents,CIL1ResultFetchTimeouts,CISoftTimeouts,
-    CILongestWaitForL1Result, CILongestProcessingTime, CIAverageProcessingTime, CIAverageAcceptTime, 
-    CIAverageRejectTime, CIAverageL1ResultTime, CITimePercentInProcessing, CITimePercentInAccept, 
-    CITimePercentInReject, CITimePercentInWait, CITimePercentInSend;
+  size_t m_MINumKills,m_MINumForks,m_MIUnexpectedChildExits,m_MINumRequested,m_MINumActive,m_MINumExited;
+  size_t m_CINumEvents,m_CIAcceptedEvents,m_CIRejectedEvents,m_CIL1ResultFetchTimeouts,m_CISoftTimeouts,
+    m_CILongestWaitForL1Result, m_CILongestProcessingTime, m_CIAverageProcessingTime, m_CIAverageAcceptTime, 
+    m_CIAverageRejectTime, m_CIAverageL1ResultTime, m_CITimePercentInProcessing, m_CITimePercentInAccept, 
+    m_CITimePercentInReject, m_CITimePercentInWait, m_CITimePercentInSend;
   std::vector<TH1F*> m_histos;
   boost::property_tree::ptree *m_configTree,*m_prepareForRunTree;
   std::unique_ptr<std::thread> m_timeoutThread;

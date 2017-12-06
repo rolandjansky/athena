@@ -6,13 +6,24 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
     from G4AtlasApps.SimFlags import simFlags
     if "ATLAS" in simFlags.SimLayout():
         kwargs.setdefault('KillAllNeutrinos',  True)
-    return CfgMgr.G4UA__AthenaStackingActionTool(name, **kwargs)
+    kwargs.setdefault('IsISFJob', simFlags.ISFRun())
+    return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
 
 def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
     kwargs.setdefault('SecondarySavingLevel', 2)
+    subDetLevel=1
+    from AthenaCommon.BeamFlags import jobproperties
+    from G4AtlasApps.SimFlags import simFlags
+    if "ATLAS" in simFlags.SimLayout() and \
+    (jobproperties.Beam.beamType() == 'cosmics' or \
+     (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ) ):
+        subDetLevel=2
+    kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
+    kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")
+    kwargs.setdefault("OutputTruthCollection", "TruthEvent")
     ## Killing neutrinos
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags, 'ReleaseGeoModel') and simFlags.ReleaseGeoModel.statusOn:
@@ -22,10 +33,6 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
         ## Record the particle flux during the simulation
         kwargs.setdefault('RecordFlux' ,simFlags.RecordFlux.get_Value())
-
-    if hasattr(simFlags, 'IncludeParentsInG4Event') and simFlags.IncludeParentsInG4Event.statusOn:
-        ## Propagate quasi-stable particles
-        kwargs.setdefault('IncludeParentsInG4Event' ,simFlags.IncludeParentsInG4Event.get_Value())
 
     if hasattr(simFlags, 'FlagAbortedEvents') and simFlags.FlagAbortedEvents.statusOn:
         ## default false
@@ -42,6 +49,7 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         kwargs.setdefault('AtRndmGenSvc' ,simFlags.RandomSvc.get_Value())
     if not simFlags.RandomSeedList.checkForExistingSeed('AtlasG4'):
         simFlags.RandomSeedList.addSeed( "AtlasG4", 423451, 3213210 )
+    kwargs.setdefault("RandomGenerator", "athena")
 
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
@@ -50,6 +58,9 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     else:
         is_hive = False
     kwargs.setdefault('MultiThreading', is_hive)
+
+    kwargs.setdefault('TruthRecordService', simFlags.TruthStrategy.TruthServiceName())
+    kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
     ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG

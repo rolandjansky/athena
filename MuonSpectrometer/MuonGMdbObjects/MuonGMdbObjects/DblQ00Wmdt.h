@@ -13,7 +13,8 @@
 #ifndef DBLQ00_WMDT_H
 #define DBLQ00_WMDT_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 namespace MuonGM
 {
 class DblQ00Wmdt {
@@ -21,7 +22,7 @@ class DblQ00Wmdt {
 public:
     DblQ00Wmdt(){};
     ~DblQ00Wmdt();
-    DblQ00Wmdt(IRDBQuery*);
+    DblQ00Wmdt(std::unique_ptr<IRDBQuery>&&);
 
     // data members for DblQ00/WMDT fields
     struct WMDT {

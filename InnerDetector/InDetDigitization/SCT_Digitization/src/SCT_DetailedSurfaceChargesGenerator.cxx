@@ -159,32 +159,32 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
       m_h_efieldz = new TProfile("efieldz", "", 50, 0., 0.03);
       rc = m_thistSvc->regHist("/file1/efieldz", m_h_efieldz);
       if (rc.isFailure()) {
-	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
+        return StatusCode::FAILURE;
       }
       m_h_yzRamo = new TProfile2D("yzRamo", "", 60, -0.44, 0.44, 60, 0., 0.285);
       rc = m_thistSvc->regHist("/file1/yzRamo", m_h_yzRamo);
       if (rc.isFailure()) {
-	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
+        return StatusCode::FAILURE;
       }
       m_h_yzEfield = new TProfile2D("yzEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
       rc = m_thistSvc->regHist("/file1/yzEfield", m_h_yzEfield);
       if (rc.isFailure()) {
-	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
+        return StatusCode::FAILURE;
       }
       m_h_yEfield = new TProfile2D("yEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
       rc = m_thistSvc->regHist("/file1/yEfield", m_h_yEfield);
       if (rc.isFailure()) {
-	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
+        return StatusCode::FAILURE;
       }
       m_h_zEfield = new TProfile2D("zEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
       rc = m_thistSvc->regHist("/file1/zEfield", m_h_zEfield);
       if (rc.isFailure()) {
-	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
+        return StatusCode::FAILURE;
       }
     }
   }
@@ -261,7 +261,7 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit) const {
   if (denominator<=0.0) {
     if(vbias>=vdepl) { //Should not happen
       if(!m_isOverlay) {
-	ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
+        ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
       }
       return -1.0 ;
     }
@@ -282,7 +282,7 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit) const {
 float SCT_DetailedSurfaceChargesGenerator::DiffusionSigma(float zhit) const {
 
   float t = this->DriftTime(zhit); // in ns
-  if(t>0.0) {	
+  if(t>0.0) {
     float diffusionSigma = sqrt(2*m_siPropertiesSvc->getSiProperties(m_hashId).holeDiffusionConstant()*t); // in mm    
     return diffusionSigma;  
   }
@@ -330,19 +330,19 @@ float SCT_DetailedSurfaceChargesGenerator::SurfaceDriftTime(float ysurf) const {
     if((ysurf>=0.0) && (ysurf<=m_distInterStrip)) {
       float surfaceDriftTime ;
       if(ysurf<m_distHalfInterStrip) {
-	float y=ysurf/m_distHalfInterStrip ;
-	surfaceDriftTime =  m_tHalfwayDrift*y*y ;
+        float y=ysurf/m_distHalfInterStrip ;
+        surfaceDriftTime =  m_tHalfwayDrift*y*y ;
       } 
       else {
-	float y=(m_distInterStrip-ysurf)/(m_distInterStrip-m_distHalfInterStrip) ;
-	surfaceDriftTime = m_tSurfaceDrift+(m_tHalfwayDrift-m_tSurfaceDrift)*y*y ;
+        float y=(m_distInterStrip-ysurf)/(m_distInterStrip-m_distHalfInterStrip) ;
+        surfaceDriftTime = m_tSurfaceDrift+(m_tHalfwayDrift-m_tSurfaceDrift)*y*y ;
       }
       return surfaceDriftTime ;
     }
     else {
       ATH_MSG_INFO (" ysurf out of range "<<ysurf) ;
       return -1.0 ;
-    }	
+    }
   }
   else return 0.0 ;
 }
@@ -460,104 +460,104 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
     float tdrift=DriftTime(zReadout) ;  //!< tdrift: perpandicular drift time 
     if(tdrift>-2.0000002 && tdrift<-1.9999998)
       {
-	ATH_MSG_DEBUG ( "Checking for rounding errors in compression");
-	if( (fabs(z1)-0.5*sensorThickness)<0.000010 )
-	  {
-	    ATH_MSG_DEBUG ( "Rounding error found attempting to correct it. z1 = "<<std::fixed<<std::setprecision(8)<<z1);
-	    if(z1<0.0) { z1= 0.0000005-0.5*sensorThickness; } //set new coordinate to be 0.5nm inside wafer volume.
-	    else { z1 = 0.5*sensorThickness-0.0000005; } //set new coordinate to be 0.5nm inside wafer volume.
-	    zReadout = 0.5*sensorThickness - p_design->readoutSide() * z1 ;
-	    tdrift=DriftTime(zReadout);
-	    if(tdrift>-2.0000002 && tdrift<-1.9999998)
-	      {
-		ATH_MSG_WARNING ( "Attempt failed. Making no correction.");
-	      }
-	    else
-	      {
-		ATH_MSG_DEBUG ( "Correction Successful! z1 = "<<std::fixed<<std::setprecision(8)<<z1<<", zReadout = "<<zReadout<<", tdrift = "<<tdrift);
-	      }
-	  }
-	else ATH_MSG_DEBUG ( "No rounding error found. Making no correction.");
+        ATH_MSG_DEBUG ( "Checking for rounding errors in compression");
+        if( (fabs(z1)-0.5*sensorThickness)<0.000010 )
+          {
+            ATH_MSG_DEBUG ( "Rounding error found attempting to correct it. z1 = "<<std::fixed<<std::setprecision(8)<<z1);
+            if(z1<0.0) { z1= 0.0000005-0.5*sensorThickness; } //set new coordinate to be 0.5nm inside wafer volume.
+            else { z1 = 0.5*sensorThickness-0.0000005; } //set new coordinate to be 0.5nm inside wafer volume.
+            zReadout = 0.5*sensorThickness - p_design->readoutSide() * z1 ;
+            tdrift=DriftTime(zReadout);
+            if(tdrift>-2.0000002 && tdrift<-1.9999998)
+              {
+                ATH_MSG_WARNING ( "Attempt failed. Making no correction.");
+              }
+            else
+              {
+                ATH_MSG_DEBUG ( "Correction Successful! z1 = "<<std::fixed<<std::setprecision(8)<<z1<<", zReadout = "<<zReadout<<", tdrift = "<<tdrift);
+              }
+          }
+        else ATH_MSG_DEBUG ( "No rounding error found. Making no correction.");
       }
-    if(tdrift > 0.0) {	
+    if(tdrift > 0.0) {
       float x1 = xhit+StepX*dstep;//(static_cast<float>(istep)+0.5) ;
       float y1 = yhit+StepY*dstep;//(static_cast<float>(istep)+0.5) ;
 
       //PJ select driftmodel here
       if (m_chargeDriftModel == 0 || m_element->isEndcap()){ //Standard SCT driftmodel
-	y1 += tanLorentz*zReadout ; //!< Taking into account the magnetic field
-	float diffusionSigma = DiffusionSigma(zReadout);
-	for(int i=0 ; i<m_numberOfCharges; ++i) { 
-	  float rx = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) ;
-	  float xd = x1+diffusionSigma*rx;
-	  float ry = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) ;
-	  float yd = y1+diffusionSigma*ry;
-	  
-	  SiLocalPosition position(m_element->hitLocalToLocal(xd,yd)) ;
-	  if(p_design->inActiveArea(position)) {
-	    float sdist = p_design->scaledDistanceToNearestDiode(position) ;       //!< dist on the surface from the hit point to the nearest strip (diode)
-	    float tsurf = this->SurfaceDriftTime(2.0*sdist) ;                      //!< Surface drift time
-	    float totaltime = (m_tfix>-998.) ? m_tfix : tdrift + timeOfFlight + tsurf ;    //!< Total drift time
-	    inserter(SiSurfaceCharge(position, SiCharge(q1,totaltime,hitproc,trklink))) ;
+        y1 += tanLorentz*zReadout ; //!< Taking into account the magnetic field
+        float diffusionSigma = DiffusionSigma(zReadout);
+        for(int i=0 ; i<m_numberOfCharges; ++i) {
+          float rx = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) ;
+          float xd = x1+diffusionSigma*rx;
+          float ry = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) ;
+          float yd = y1+diffusionSigma*ry;
+
+          SiLocalPosition position(m_element->hitLocalToLocal(xd,yd)) ;
+          if(p_design->inActiveArea(position)) {
+            float sdist = p_design->scaledDistanceToNearestDiode(position) ;       //!< dist on the surface from the hit point to the nearest strip (diode)
+            float tsurf = this->SurfaceDriftTime(2.0*sdist) ;                      //!< Surface drift time
+            float totaltime = (m_tfix>-998.) ? m_tfix : tdrift + timeOfFlight + tsurf ;    //!< Total drift time
+            inserter(SiSurfaceCharge(position, SiCharge(q1,totaltime,hitproc,trklink))) ;
 
 #ifdef SCT_DIG_DEBUG
-	    ATH_MSG_INFO ("Total Time: "<<totaltime<<" tdrift "<<tdrift<<" tsurf  "<<tsurf<<" sdist "<<sdist << " charge: " << q1) ;
+            ATH_MSG_INFO ("Total Time: "<<totaltime<<" tdrift "<<tdrift<<" tsurf  "<<tsurf<<" sdist "<<sdist << " charge: " << q1) ;
 #endif
 
-	  }
-	  else {
+          }
+          else {
 #ifdef SCT_DIG_DEBUG
-	    ATH_MSG_INFO ( std::fixed<<std::setprecision(8)<<"Local position: "<<position<<" of the element is out of active area, charge = "<<q1) ;
+            ATH_MSG_INFO ( std::fixed<<std::setprecision(8)<<"Local position: "<<position<<" of the element is out of active area, charge = "<<q1) ;
 #endif
-	  }
-	} // end of loop on charges
+          }
+        } // end of loop on charges
       }
       else if (m_chargeDriftModel == 1  && m_element->isBarrel()){ //TKs eh-transport model
-	//PJ calculates induced charge from e's and h's for 5 strips with 0.5 ns steps
-	// Set up local taka parameters, TK using cm...
+        //PJ calculates induced charge from e's and h's for 5 strips with 0.5 ns steps
+        // Set up local taka parameters, TK using cm...
 
-	const InDetDD::SCT_BarrelModuleSideDesign *b_design = dynamic_cast<const InDetDD::SCT_BarrelModuleSideDesign *>(&(m_element->design() ) );
-	if (!b_design) {
-	  ATH_MSG_ERROR ( "SCT_DetailedSurfaceChargesGenerator::process can not get "<<b_design) ;
-	  return ;
-	}
-	
-	double stripPitch         = p_design->stripPitch();
-	double stripPatternCentre = b_design->phiStripPatternCentre();
-	double dstrip=(y1-stripPatternCentre)/stripPitch;
+        const InDetDD::SCT_BarrelModuleSideDesign *b_design = dynamic_cast<const InDetDD::SCT_BarrelModuleSideDesign *>(&(m_element->design() ) );
+        if (!b_design) {
+          ATH_MSG_ERROR ( "SCT_DetailedSurfaceChargesGenerator::process can not get "<<b_design) ;
+          return ;
+        }
 
-	// need the distance from the nearest strips edge not centre, xtaka = 1/2*stripPitch
-	// centre of detector, y1=0, is in the middle of an interstrip gap
-	if(dstrip>0.){
-	  dstrip=dstrip-static_cast<double>(int(dstrip));
-	}
-	else{
-	  dstrip=dstrip-static_cast<double>(int(dstrip)) + 1;
-	}
-	double xtakadist = dstrip*stripPitch;	
-        double x0 = xtakadist/10.;                    // [mm] to [cm] 
-        double y0 = (sensorThickness - zReadout)/10.; // [mm] to [cm] 
-	double Q_m2[50], Q_m1[50], Q_00[50], Q_p1[50], Q_p2[50] ; // Charge arrays for up to 25 ns
-	
+        double stripPitch         = p_design->stripPitch();
+        double stripPatternCentre = b_design->phiStripPatternCentre();
+        double dstrip=(y1-stripPatternCentre)/stripPitch;
+
+        // need the distance from the nearest strips edge not centre, xtaka = 1/2*stripPitch
+        // centre of detector, y1=0, is in the middle of an interstrip gap
+        if(dstrip>0.){
+          dstrip=dstrip-static_cast<double>(int(dstrip));
+        }
+        else{
+          dstrip=dstrip-static_cast<double>(int(dstrip)) + 1;
+        }
+        double xtakadist = dstrip*stripPitch;
+        double x0 = xtakadist/10.;                    // [mm] to [cm]
+        double y0 = (sensorThickness - zReadout)/10.; // [mm] to [cm]
+        double Q_m2[50], Q_m1[50], Q_00[50], Q_p1[50], Q_p2[50] ; // Charge arrays for up to 25 ns
+
 #ifdef SCT_DIG_DEBUG
-	ATH_MSG_INFO("m_element->isBarrel(): " << m_element->isBarrel() << " stripPitch: " << stripPitch << " stripPatternCentre: " << stripPatternCentre);
-	ATH_MSG_INFO("tanLorentz, y1, xtakadist = " << tanLorentz << ", " << y1 << ", " << xtakadist);
+        ATH_MSG_INFO("m_element->isBarrel(): " << m_element->isBarrel() << " stripPitch: " << stripPitch << " stripPatternCentre: " << stripPatternCentre);
+        ATH_MSG_INFO("tanLorentz, y1, xtakadist = " << tanLorentz << ", " << y1 << ", " << xtakadist);
 #endif
-	
+
         // Clear charge arrays
         for (int it=0; it<50; it++) {
           Q_m2[it]=0.; Q_m1[it]=0.; Q_00[it]=0.; Q_p1[it]=0.; Q_p2[it]=0.;
         }
-		     
+
         // Electron and hole transportation starting at x0 and y0
-	holeTransport    (x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
-	electronTransport(x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
-	
-	//Loop over the strips and add the surface charges from each step and strip
+        holeTransport    (x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
+        electronTransport(x0, y0, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
+
+        //Loop over the strips and add the surface charges from each step and strip
         for (int strip=-2; strip<=2; strip++) {
           double ystrip = y1 + strip*stripPitch;
-   	  SiLocalPosition position(m_element->hitLocalToLocal(x1,ystrip)) ;
-	  if(p_design->inActiveArea(position)) {
+          SiLocalPosition position(m_element->hitLocalToLocal(x1,ystrip)) ;
+          if(p_design->inActiveArea(position)) {
             for (int itq=0; itq<50; itq++) {
               double charge(0.);
               if (strip == -2) charge = Q_m2[itq];
@@ -566,70 +566,70 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
               if (strip ==  1) charge = Q_p1[itq];
               if (strip ==  2) charge = Q_p2[itq];
               double time = (itq+1)*0.5 + timeOfFlight;
-	      if (charge != 0.) inserter(SiSurfaceCharge(position, SiCharge(q1*charge,time,hitproc,trklink))) ;
+              if (charge != 0.) inserter(SiSurfaceCharge(position, SiCharge(q1*charge,time,hitproc,trklink))) ;
 #ifdef SCT_DIG_DEBUG
-	      ATH_MSG_DEBUG("strip: " << strip << " position, x,y:" << x1 << ", " << ystrip << " charge: " << q1*charge);
+              ATH_MSG_DEBUG("strip: " << strip << " position, x,y:" << x1 << ", " << ystrip << " charge: " << q1*charge);
 #endif
-	
-	    }
-	  }
-	  else {
+
+            }
+          }
+          else {
 #ifdef SCT_DIG_DEBUG
-	    ATH_MSG_INFO ( std::fixed<<std::setprecision(8)<<"Local position: "<<position<<" of the element is out of active area, charge = "<<q1) ;
+            ATH_MSG_INFO ( std::fixed<<std::setprecision(8)<<"Local position: "<<position<<" of the element is out of active area, charge = "<<q1) ;
 #endif
-	  }
-	}
+          }
+        }
 
       }
       else if (m_chargeDriftModel == 2 && m_element->isBarrel()){ //TKs fixed charge map model
-	ATH_MSG_ERROR ("Fixed charge map model, implementation not finished yet...");
+        ATH_MSG_ERROR ("Fixed charge map model, implementation not finished yet...");
 
-	const InDetDD::SCT_BarrelModuleSideDesign *b_design = dynamic_cast<const InDetDD::SCT_BarrelModuleSideDesign *>(&(m_element->design() ) );
-	if (!b_design) {
-	  ATH_MSG_ERROR ( "SCT_DetailedSurfaceChargesGenerator::process can not get "<<b_design) ;
-	  return ;
-	}
+        const InDetDD::SCT_BarrelModuleSideDesign *b_design = dynamic_cast<const InDetDD::SCT_BarrelModuleSideDesign *>(&(m_element->design() ) );
+        if (!b_design) {
+          ATH_MSG_ERROR ( "SCT_DetailedSurfaceChargesGenerator::process can not get "<<b_design) ;
+          return ;
+        }
 
-	// Set up local taka parameters, TK using um...I think
-	double stripPitch         = p_design->stripPitch();
+        // Set up local taka parameters, TK using um...I think
+        double stripPitch         = p_design->stripPitch();
         double stripPatternCentre = b_design->phiStripPatternCentre();
-	double dstrip=(y1-stripPatternCentre)/stripPitch;
+        double dstrip=(y1-stripPatternCentre)/stripPitch;
 
-	// need the distance from the nearest strips edge not centre, xtaka = 1/2*stripPitch
-	// centre of detector, y1=0, is in the middle of an interstrip gap
-	if(dstrip>0.){
-	  dstrip=dstrip-static_cast<double>(int(dstrip));
-	}
-	else{
-	  dstrip=dstrip-static_cast<double>(int(dstrip)) + 1;
-	}
-	double xtakadist = dstrip*stripPitch;	
-        double x0 = xtakadist*1000.;                    // [mm] to [um] 
-        double y0 = (sensorThickness - zReadout)*1000.; // [mm] to [um] 
+        // need the distance from the nearest strips edge not centre, xtaka = 1/2*stripPitch
+        // centre of detector, y1=0, is in the middle of an interstrip gap
+        if(dstrip>0.){
+          dstrip=dstrip-static_cast<double>(int(dstrip));
+        }
+        else{
+          dstrip=dstrip-static_cast<double>(int(dstrip)) + 1;
+        }
+        double xtakadist = dstrip*stripPitch;
+        double x0 = xtakadist*1000.;                    // [mm] to [um]
+        double y0 = (sensorThickness - zReadout)*1000.; // [mm] to [um]
 
-	//Loop over the strips and add the surface charges from each step and strip
+        //Loop over the strips and add the surface charges from each step and strip
         for (int strip=-2; strip<=2; strip++) {
-	  float ystrip = y1 + strip*stripPitch;
-   	  SiLocalPosition position(m_element->hitLocalToLocal(x1,ystrip)) ;
-	  if(p_design->inActiveArea(position)) {
-	    //PJ best way of doing this... 
-	    double time = 0.;
-	    double charge = 0.;
-	    for (int it=0; it<50; it++) {
-	      time = 0.25 + 0.5*it;
-	      charge = q1 * inducedCharge(strip, x0, y0, time);
-	      if (charge != 0.) inserter(SiSurfaceCharge(position, SiCharge(charge,time+timeOfFlight,hitproc,trklink))) ; 
-	    }
-	  }
-	  else {
+          float ystrip = y1 + strip*stripPitch;
+          SiLocalPosition position(m_element->hitLocalToLocal(x1,ystrip)) ;
+          if(p_design->inActiveArea(position)) {
+            //PJ best way of doing this...
+            double time = 0.;
+            double charge = 0.;
+            for (int it=0; it<50; it++) {
+              time = 0.25 + 0.5*it;
+              charge = q1 * inducedCharge(strip, x0, y0, time);
+              if (charge != 0.) inserter(SiSurfaceCharge(position, SiCharge(charge,time+timeOfFlight,hitproc,trklink))) ;
+            }
+          }
+          else {
 #ifdef SCT_DIG_DEBUG
-	    ATH_MSG_INFO ( std::fixed<<std::setprecision(8)<<"Local position: "<<position<<" of the element is out of active area, charge = "<<q1) ;
+            ATH_MSG_INFO ( std::fixed<<std::setprecision(8)<<"Local position: "<<position<<" of the element is out of active area, charge = "<<q1) ;
 #endif
-	  }  
-	}
+          }
+        }
       }
       else{
-	ATH_MSG_ERROR("Wrong chargeDriftModel " << m_chargeDriftModel << " 0, standard, 1 eh transport, 2 fixed charge map");
+        ATH_MSG_ERROR("Wrong chargeDriftModel " << m_chargeDriftModel << " 0, standard, 1 eh transport, 2 fixed charge map");
       }
     
     }
@@ -752,13 +752,13 @@ void SCT_DetailedSurfaceChargesGenerator::initExEyArray() {
       m_ExValue150[ix][iy] = ExValue150(ix,iy);
       m_EyValue150[ix][iy] = EyValue150(ix,iy);
       if (m_doHistoTrap){   
-	m_h_yzEfield->Fill(ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
-	m_h_yzEfield->Fill(-ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
-	m_h_yEfield->Fill(ix*0.0005,iy*0.00025,ExValue150(ix,iy));
-	m_h_yEfield->Fill(-ix*0.0005,iy*0.00025,ExValue150(ix,iy));
-	m_h_zEfield->Fill(ix*0.0005,iy*0.00025,EyValue150(ix,iy));
-	m_h_zEfield->Fill(-ix*0.0005,iy*0.00025,EyValue150(ix,iy));
-	//	m_h_yzEfield->Fill(-ix*0.0025,iy*0.0025,GetPotentialValue(ix,iy));
+        m_h_yzEfield->Fill(ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
+        m_h_yzEfield->Fill(-ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
+        m_h_yEfield->Fill(ix*0.0005,iy*0.00025,ExValue150(ix,iy));
+        m_h_yEfield->Fill(-ix*0.0005,iy*0.00025,ExValue150(ix,iy));
+        m_h_zEfield->Fill(ix*0.0005,iy*0.00025,EyValue150(ix,iy));
+        m_h_zEfield->Fill(-ix*0.0005,iy*0.00025,EyValue150(ix,iy));
+        // m_h_yzEfield->Fill(-ix*0.0025,iy*0.0025,GetPotentialValue(ix,iy));
       }
     }
   }
@@ -772,8 +772,8 @@ void SCT_DetailedSurfaceChargesGenerator::initPotentialValue() {
     for (int iy=0 ; iy<115 ; iy++ ) {
       m_PotentialValue[ix][iy] = GetPotentialValue(ix,iy);
       if (m_doHistoTrap){   
-	m_h_yzRamo->Fill(ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
-	m_h_yzRamo->Fill(-ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
+        m_h_yzRamo->Fill(ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
+        m_h_yzRamo->Fill(-ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
       }
     }
   }
@@ -863,7 +863,7 @@ double SCT_DetailedSurfaceChargesGenerator::induced (int istrip, double x, doubl
     + m_PotentialValue[ix1][iy1] *fx*fy ;
 #ifdef SCT_DIG_DEBUG
   ATH_MSG_DEBUG("induced: x,y,iy="<<x<<" "<<y<<" "<<iy<<" istrip,xc,dx,ix="
-		<<istrip<<" "<<xc<<" " <<dx<<" "<<ix<<" fx,fy="<<fx <<" " <<fy<< ", P="<<P);
+                <<istrip<<" "<<xc<<" " <<dx<<" "<<ix<<" fx,fy="<<fx <<" " <<fy<< ", P="<<P);
 #endif
   
   return P;
@@ -1033,11 +1033,11 @@ void SCT_DetailedSurfaceChargesGenerator::holeTransport(double & x0, double & y0
       int jt = int( (t_current+0.001) / 0.50) ;
       if(jt < 50) {
         switch(istrip) {
-	case -2: Q_m2[jt] += dq ; break;
-	case -1: Q_m1[jt] += dq ; break;
-	case  0: Q_00[jt] += dq ; break;
-	case +1: Q_p1[jt] += dq ; break;
-	case +2: Q_p2[jt] += dq ; break;
+        case -2: Q_m2[jt] += dq ; break;
+        case -1: Q_m1[jt] += dq ; break;
+        case  0: Q_00[jt] += dq ; break;
+        case +1: Q_p1[jt] += dq ; break;
+        case +2: Q_p2[jt] += dq ; break;
         } 
       }
     }
@@ -1122,11 +1122,11 @@ void SCT_DetailedSurfaceChargesGenerator::electronTransport(double & x0, double 
       int jt = int( (t_current + 0.001) / 0.50);
       if(jt< 50) {
         switch(istrip) {
-	case -2: Q_m2[jt] += dq ; break;
-	case -1: Q_m1[jt] += dq ; break;
-	case  0: Q_00[jt] += dq ; break;
-	case +1: Q_p1[jt] += dq ; break;
-	case +2: Q_p2[jt] += dq ; break;
+        case -2: Q_m2[jt] += dq ; break;
+        case -1: Q_m1[jt] += dq ; break;
+        case  0: Q_00[jt] += dq ; break;
+        case +1: Q_p1[jt] += dq ; break;
+        case +2: Q_p2[jt] += dq ; break;
         } 
       }
     }

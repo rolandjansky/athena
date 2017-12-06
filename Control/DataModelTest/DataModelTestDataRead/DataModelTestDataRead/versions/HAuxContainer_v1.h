@@ -18,7 +18,7 @@
 
 
 #include "xAODCore/AuxContainerBase.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 #include <vector>
 
 

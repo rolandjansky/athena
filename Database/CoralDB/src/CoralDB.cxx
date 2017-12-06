@@ -70,6 +70,8 @@ namespace CoralDB {
 } // this is for better indentation in Emacs
 #endif
 
+using namespace std;
+
 const string CoralDB::TABLENAME_PREFIX = "CORALDB2_";
 
 

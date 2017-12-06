@@ -46,7 +46,6 @@
 #include <fstream>
 
 // Forward declarations
-template <class TYPE> class SvcFactory;
 
 
 
@@ -55,6 +54,11 @@ class AthenaSummarySvc: virtual public AthService,
 		 virtual public IAthenaSummarySvc {
 
 public:
+
+  AthenaSummarySvc( const std::string& name, ISvcLocator* svc );
+  
+  // Destructor.
+  virtual ~AthenaSummarySvc();
 
   virtual StatusCode initialize();
   virtual StatusCode reinitialize();
@@ -70,17 +74,7 @@ public:
 
   const std::string& getOutputFile() const { return m_summaryFile; }
 
-protected:
-
-  AthenaSummarySvc( const std::string& name, ISvcLocator* svc );
-  
-  // Destructor.
-  virtual ~AthenaSummarySvc();
-
 private:
-
- // Allow SvcFactory to instantiate the service.
-  friend class SvcFactory<AthenaSummarySvc>;
 
   void createDict(std::ofstream& );
   void createASCII(std::ofstream& );

@@ -382,7 +382,7 @@ StatusCode TruthJetWeightFilter::saveWeight(double weight) {
   // Prepare write access to put weights
   McEventCollection* mymccoll;
   CHECK(evtStore()->retrieve(mymccoll, "GEN_EVENT"));
-  McEventCollection::const_iterator itr = mymccoll->begin();
+  McEventCollection::iterator itr = mymccoll->begin();
   for (int ii = 0; itr!=mymccoll->end(); ++itr, ii++) {
     HepMC::GenEvent* genEvt = (*itr);
     HepMC::WeightContainer& wgtsC = genEvt->weights();

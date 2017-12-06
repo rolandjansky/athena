@@ -102,14 +102,14 @@ protected:
   /// vector of AlgTools that that are executed by this stream
   ToolHandleArray<IAthenaOutputTool> m_helperTools;
 
-protected:
+public:
+  typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;
+  
   /// Standard algorithm Constructor
   RootNtupleOutputStream(const std::string& name, ISvcLocator* pSvcLocator); 
   /// Standard Destructor
   virtual ~RootNtupleOutputStream();
 
-public:
-  typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;
   /// \name implement IAlgorithm
   //@{
   virtual StatusCode initialize();

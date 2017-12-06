@@ -70,8 +70,6 @@ class LArShapeSC: public ILArShape,
 };  
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArShapeSC,ILArShape); 
 CLASS_DEF( LArShapeSC , 125125776 , 1 )
-//ConditionsContainer clid for athenaMT
-CLASS_DEF( CondCont<LArShapeSC> , 70096552 , 1 )
+CONDCONT_DEF( LArShapeSC, 70096552, ILArShape );
 #endif 

@@ -43,16 +43,11 @@ namespace TRTCond{
     private:
     } ;
   
-REGISTER_CC(StrawStatusMultChanContainer);  
 }
 
+
 CLASS_DEF(TRTCond::StrawStatusMultChanContainer,1112780409,1)
+CONDCONT_DEF(TRTCond::StrawStatusMultChanContainer,1335119793);
 
-
-CLASS_DEF(CondCont<TRTCond::StrawStatusMultChanContainer>,1335119793,1)
-
-//#include "SGTools/BaseInfo.h"
-//SG_BASE( CondCont<TRTCond::StrawStatusMultChanContainer>, CondContBase );
-//REGISTER_CC(TRTCond::StrawStatusMultChanContainer);
 
 #endif

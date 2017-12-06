@@ -36,7 +36,6 @@ class IProxyRegistry; //this is DataStore
 class IConversionSvc;
 class IOpaqueAddress;
 class ISvcLocator;
-template <class TYPE> class SvcFactory;
 
 ///manages the address providers and add proxies on demand to the store
 class ProxyProviderSvc : public extends<AthService, IProxyProviderSvc>
@@ -54,7 +53,9 @@ public:
   ///add proxies to the store to modify (during Begin Event)
   virtual StatusCode loadProxies(IProxyRegistry& storeToModify) override;
 
-  ///get the default proxy. Optionally add proxies to the store to modify
+  /// Use a provider to create a proxy for ID/KEY.
+  /// If successful, the new proxy will be added to DATASTORE
+  /// and returned; otherwise, return null.
   virtual SG::DataProxy* retrieveProxy(const CLID& id, const std::string& key,
 				       IProxyRegistry& storeToModify) override;
 
@@ -73,9 +74,6 @@ public:
   virtual StatusCode initialize() override;
   //@}
 
-protected:    
-  /// the Service Factory
-  friend class SvcFactory<ProxyProviderSvc>;
   /// Standard Service Constructor
   ProxyProviderSvc(const std::string& name, ISvcLocator* svcLoc);
   virtual ~ProxyProviderSvc();

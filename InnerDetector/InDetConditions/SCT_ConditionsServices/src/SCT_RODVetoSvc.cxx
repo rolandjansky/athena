@@ -6,7 +6,7 @@
  * @file SCT_RODVetoSvc.cxx
  * implementation file for service allowing one to declare modules as bad
  * @author daiki.hayakawa@cern.ch
-**/
+ **/
 
 #include "SCT_RODVetoSvc.h"
 //STL includes
@@ -37,13 +37,13 @@
 template <class T> 
 static std::vector<T> 
 string2Vector(const std::string & s){
-		std::vector<T> v;
-		std::istringstream inputStream(s);
-		std::istream_iterator<T> vecRead(inputStream);
-		std::istream_iterator<T> endOfString; //relies on default constructor to produce eof
-		std::copy(vecRead,endOfString,std::back_inserter(v));// DOESN'T ALLOW NON-WHITESPACE DELIMITER !
-		return v;
-	}
+  std::vector<T> v;
+  std::istringstream inputStream(s);
+  std::istream_iterator<T> vecRead(inputStream);
+  std::istream_iterator<T> endOfString; //relies on default constructor to produce eof
+  std::copy(vecRead,endOfString,std::back_inserter(v));// DOESN'T ALLOW NON-WHITESPACE DELIMITER !
+  return v;
+}
 
 // Constructor
 SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -54,11 +54,11 @@ SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocato
   m_rFilled("isFilled"),
   m_pHelper{nullptr},
   m_detStore("DetectorStore", name)
-{
-  declareProperty("BadRODIdentifiers",m_badRODElements );
-  declareProperty("w_isFilled", m_wFilled );
-  declareProperty("r_isFilled", m_rFilled );
-}
+  {
+    declareProperty("BadRODIdentifiers",m_badRODElements );
+    declareProperty("w_isFilled", m_wFilled );
+    declareProperty("r_isFilled", m_rFilled );
+  }
 
 //Initialize
 StatusCode 
@@ -129,14 +129,14 @@ SCT_RODVetoSvc::fillData(){
     ATH_MSG_ERROR("Can't find BadRODIdentifiers in StoreGate");
     return StatusCode::FAILURE;
   } else
-  if ((*badRODElements).empty()){
-    ATH_MSG_INFO("No bad RODs in job options.");
-    return StatusCode::SUCCESS;
-  } else
-  if (filled() ) {
-    ATH_MSG_INFO("RodVetoSvc has already been successfully filled.");
-    return StatusCode::SUCCESS;
-  }   
+    if ((*badRODElements).empty()){
+      ATH_MSG_INFO("No bad RODs in job options.");
+      return StatusCode::SUCCESS;
+    } else
+      if (filled() ) {
+        ATH_MSG_INFO("RodVetoSvc has already been successfully filled.");
+        return StatusCode::SUCCESS;
+      }   
 
  
   ATH_MSG_INFO((*badRODElements).size() <<" RODs were declared bad");
@@ -148,8 +148,8 @@ SCT_RODVetoSvc::fillData(){
   for(unsigned int thisRod: (*badRODElements) ){
     //check whether rod exists
     if (std::find(allRods.begin(),allRods.end(),thisRod)==allRods.end()){
-    	ATH_MSG_WARNING("Your vetoed selection "<<std::hex<<"0x"<<thisRod<<" does not exist."<<std::dec);
-    	continue;
+      ATH_MSG_WARNING("Your vetoed selection "<<std::hex<<"0x"<<thisRod<<" does not exist."<<std::dec);
+      continue;
     }
     std::vector<IdentifierHash> listOfHashes;
     m_cabling->getHashesForRod(listOfHashes,thisRod);
@@ -166,7 +166,7 @@ SCT_RODVetoSvc::fillData(){
       ATH_MSG_VERBOSE("This Id is "<<modId);
       const bool thisInsertionOk=m_badIds.insert(modId).second;
       if (not thisInsertionOk){
-      	ATH_MSG_WARNING("Insertion failed for rod "<<thisRod<<" and module (hash,id): "<<thisHash<<", "<<modId);
+        ATH_MSG_WARNING("Insertion failed for rod "<<thisRod<<" and module (hash,id): "<<thisHash<<", "<<modId);
       }
       success &= thisInsertionOk;
     }
@@ -197,8 +197,8 @@ SCT_RODVetoSvc::fillData(){
 
 StatusCode 
 SCT_RODVetoSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/){
-	ATH_MSG_WARNING("A database fill callback was triggered for the SCT_RODVetoSvc, which does not use the database");
-	return StatusCode::RECOVERABLE;
+  ATH_MSG_WARNING("A database fill callback was triggered for the SCT_RODVetoSvc, which does not use the database");
+  return StatusCode::RECOVERABLE;
 }
 
 bool 
@@ -214,4 +214,3 @@ SCT_RODVetoSvc::filled() const{
     return false;
   }else return *rFilled;
 }
-

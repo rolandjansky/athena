@@ -6,7 +6,7 @@
  * @file SCT_ModuleVetoSvc.cxx
  * implementation file for service allowing one to declare modules as bad
  * @author shaun.roe@cern.ch
-**/
+ **/
 
 #include "SCT_ModuleVetoSvc.h"
 //STL includes
@@ -29,12 +29,12 @@ static const std::string coolFolderName("/SCT/Manual/BadModules"); //a single-ch
 template <class T> 
 static std::vector<T> 
 string2Vector(const std::string & s){
-		std::vector<T> v;
-		std::istringstream inputStream(s);
-		std::istream_iterator<T> vecRead(inputStream);
-		std::istream_iterator<T> endOfString; //relies on default constructor to produce eof
-		std::copy(vecRead,endOfString,std::back_inserter(v));// DOESN'T ALLOW NON-WHITESPACE DELIMITER !
-		return v;
+  std::vector<T> v;
+  std::istringstream inputStream(s);
+  std::istream_iterator<T> vecRead(inputStream);
+  std::istream_iterator<T> endOfString; //relies on default constructor to produce eof
+  std::copy(vecRead,endOfString,std::back_inserter(v));// DOESN'T ALLOW NON-WHITESPACE DELIMITER !
+  return v;
 }
 
 // Constructor
@@ -46,13 +46,13 @@ SCT_ModuleVetoSvc::SCT_ModuleVetoSvc( const std::string& name, ISvcLocator* pSvc
   m_maskLayers{false},
   m_maskSide{-1},
   m_detStore("DetectorStore",name)
-{
-  declareProperty("BadModuleIdentifiers",m_badElements);
-  declareProperty("MaskLayers",  m_maskLayers, "Mask full layers/disks in overlay" ); 
-  declareProperty("MaskSide",  m_maskSide, "Mask full modules (-1), innwe (0) or outer (1) sides" );  
-  declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1"); 
-  declareProperty("DisksToMask", m_disksToMask, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero");
-}
+  {
+    declareProperty("BadModuleIdentifiers",m_badElements);
+    declareProperty("MaskLayers",  m_maskLayers, "Mask full layers/disks in overlay" ); 
+    declareProperty("MaskSide",  m_maskSide, "Mask full modules (-1), innwe (0) or outer (1) sides" );  
+    declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1"); 
+    declareProperty("DisksToMask", m_disksToMask, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero");
+  }
 
 //Initialize
 StatusCode 
@@ -70,7 +70,7 @@ SCT_ModuleVetoSvc::initialize(){
 
   if(!m_maskLayers &&  m_maskSide!=-1) {
     ATH_MSG_DEBUG( "Layer/Disk side to mask specified, but masking is disabled!" );
-   } 
+  } 
   
   if(m_maskLayers &&  m_disksToMask.size() && (std::find(m_disksToMask.begin(), m_disksToMask.end(),0)!=m_disksToMask.end())) {
     ATH_MSG_WARNING( "0th Disk not defined (-N to N) - check your setup!" );
@@ -98,8 +98,8 @@ SCT_ModuleVetoSvc::initialize(){
   //
   const std::string databaseUseString{m_useDatabase?"":"not "};
   ATH_MSG_INFO("Initialized veto service with data, "
-	       <<(m_badElements.value().size() - int(m_useDatabase))
-	       <<" elements declared bad. Database will "<<databaseUseString<<"be used.");
+               <<(m_badElements.value().size() - int(m_useDatabase))
+               <<" elements declared bad. Database will "<<databaseUseString<<"be used.");
  
   return sc;
 }
@@ -168,12 +168,12 @@ SCT_ModuleVetoSvc::fillData() {
     for(unsigned int i{0}; i < m_pHelper->wafer_hash_max(); i++){
       Identifier mID{m_pHelper->wafer_id(i)};
       if(
-	  (m_pHelper->barrel_ec(mID) == 0 && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_layersToMask.begin(), m_layersToMask.end(), m_pHelper->layer_disk(mID)) != m_layersToMask.end())) ||
-	  (m_pHelper->barrel_ec(mID) == 2  && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_disksToMask.begin(), m_disksToMask.end(), (m_pHelper->layer_disk(mID) + 1)) != m_disksToMask.end())) ||
-	  (m_pHelper->barrel_ec(mID) == -2 && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_disksToMask.begin(), m_disksToMask.end(), -1*(m_pHelper->layer_disk(mID) + 1)) != m_disksToMask.end()))
-	 ) {
-	ATH_MSG_DEBUG("Masking ID Hash"<<i);
-	m_badIds.insert(mID);
+         (m_pHelper->barrel_ec(mID) == 0 && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_layersToMask.begin(), m_layersToMask.end(), m_pHelper->layer_disk(mID)) != m_layersToMask.end())) ||
+         (m_pHelper->barrel_ec(mID) == 2  && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_disksToMask.begin(), m_disksToMask.end(), (m_pHelper->layer_disk(mID) + 1)) != m_disksToMask.end())) ||
+         (m_pHelper->barrel_ec(mID) == -2 && (m_maskSide==-1 || m_pHelper->side(mID)==m_maskSide) && (std::find(m_disksToMask.begin(), m_disksToMask.end(), -1*(m_pHelper->layer_disk(mID) + 1)) != m_disksToMask.end()))
+         ) {
+        ATH_MSG_DEBUG("Masking ID Hash"<<i);
+        m_badIds.insert(mID);
       }
     }
   }

@@ -29,6 +29,7 @@ struct sTGCReadoutParameters {
     std::vector<double> firstPadH;
     std::vector<int> firstPadRow;
     std::vector<int> nWires;
+    std::vector<double> wireCutout;
     std::vector<double> firstWire;
     int wireGroupWidth;
     int nStrips;
@@ -42,7 +43,6 @@ struct sTGCReadoutParameters {
     std::vector<int> StripsInBandsLayer4;
     std::vector<int> nWireGroups;
     std::vector<int> firstWireGroup;
-
 };
 
 class sTGCDetectorDescription: public AGDDDetector {
@@ -50,19 +50,19 @@ public:
     sTGCDetectorDescription(std::string s);
     void Register();
 	
-	void SetXYZ(std::vector<double> v) 
+        virtual void SetXYZ(std::vector<double> v) override
 	{
-		_small_x=v[0];
-		_large_x=v[1];
-		_y=v[2];
-		_z=v[3];
+                small_x(v[0]);
+		large_x(v[1]);
+		y(v[2]);
+		z(v[3]);
 		_yCutout=v[4];
 	}
 	
-	double sWidth() {return _small_x;}
-	double lWidth() {return _large_x;}
-	double Length() {return _y;}
-	double Tck()    {return _z;}
+	double sWidth() {return small_x();}
+	double lWidth() {return large_x();}
+	double Length() {return y();}
+	double Tck()    {return z();}
 
 	void yCutout(double y) {_yCutout=y;}
 	double yCutout() {return _yCutout;}
@@ -83,8 +83,7 @@ public:
 	static sTGCDetectorDescription* GetCurrent() {return current;}
 	
 	sTGC_Technology* GetTechnology();
-	
-	
+
 protected:
 
 	double _yCutout;

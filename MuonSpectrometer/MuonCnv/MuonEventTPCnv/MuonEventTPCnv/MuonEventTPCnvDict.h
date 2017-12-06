@@ -34,7 +34,10 @@
 #include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p2.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollection_p1.h"
+#include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollection_p2.h"
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p1.h"
+#include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p2.h"
+#include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainer_p1.h"
 
 struct MuonEventTPCnvDict 
 {
@@ -72,7 +75,9 @@ struct MuonEventTPCnvDict
     Muon::MuonDigitContainer_p1<Muon::MM_Digit_p1>      m_v22;
     Muon::MuonDigitContainer_p1<Muon::STGC_Digit_p1>      m_v23;
     Muon::MuonDigitContainer_p2<Muon::MM_Digit_p2>      m_v24;
-    
+    Muon::STGC_RawDataContainer_p1      m_v25;
+    Muon::STGC_RawDataCollection_p1 m_v26;
+    std::vector< Muon::STGC_RawData_p1 > m_v27;
 };
 
 #endif // MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H

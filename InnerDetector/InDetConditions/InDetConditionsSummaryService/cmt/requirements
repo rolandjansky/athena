@@ -1,6 +1,0 @@
-package InDetConditionsSummaryService
-
-author Shaun Roe <Shaun.Roe@cern.ch>
-
-use AtlasPolicy AtlasPolicy-* 
-use GaudiInterface GaudiInterface-*  External

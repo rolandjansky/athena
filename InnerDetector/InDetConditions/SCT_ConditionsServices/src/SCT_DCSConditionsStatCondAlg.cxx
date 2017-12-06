@@ -74,7 +74,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
     m_chanstatCut = m_useHVChanCut;
     ATH_MSG_INFO("Using HV and Chanstat"<< m_chanstatCut << " for marking modules bad. >=Hvlow: "
                  << m_hvLowLimit<< " and <=Hv Up: " <<  m_hvUpLimit <<
-		 ". Note: UseHV Overrides hv limit and chanstat values in joboptions!!");
+                 ". Note: UseHV Overrides hv limit and chanstat values in joboptions!!");
   }
 
   return StatusCode::SUCCESS;
@@ -135,7 +135,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
       if (   ( (m_chanstatCut=="NORM")  and not ((hvstate==16 or hvstate==48)                                and (lvstate==1 or lvstate==3))                             )
           or ( (m_chanstatCut=="NSTBY") and not ((hvstate==16 or hvstate==48 or hvstate==32)                 and (lvstate==1 or lvstate==3 or lvstate==2))               )
           or ( (m_chanstatCut=="LOOSE") and not ((hvstate==16 or hvstate==48 or hvstate==32 or hvstate==128) and (lvstate==1 or lvstate==3 or lvstate==2 or lvstate==8)) )
-	 ) {
+             ) {
         writeCdoState->fill(channelNumber, paramState);
       } else {
         writeCdoState->remove(channelNumber, paramState);
@@ -197,8 +197,8 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   // Record the output cond object
   if (writeHandle.record(rangeState, writeCdoState).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSStatCondData " << writeHandle.key() 
-		  << " with EventRange " << rangeState
-		  << " into Conditions Store");
+                  << " with EventRange " << rangeState
+                  << " into Conditions Store");
     delete writeCdoState;
     return StatusCode::FAILURE;
   }

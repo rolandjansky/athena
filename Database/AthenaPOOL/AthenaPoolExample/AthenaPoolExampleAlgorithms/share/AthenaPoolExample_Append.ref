@@ -1,4 +1,4 @@
-Tue Jun 13 18:39:06 CEST 2017
+Mon Oct 30 16:28:17 CET 2017
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,19 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5328 configurables from 11 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 11 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -DumpDecisions: DecisionHandling.DecisionHandlingConf - ['ViewAlgs.ViewAlgsConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 5436 configurables from 58 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
-                                          running on lxplus074.cern.ch on Tue Jun 13 18:39:18 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus012.cern.ch on Mon Oct 30 16:28:24 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -26,7 +21,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2348 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2398 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
@@ -37,7 +32,7 @@ WriteData           DEBUG output handles: 0
 WriteData           DEBUG Data Deps for WriteData
 WriteTag             INFO in initialize()
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 1730 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1763 CLIDRegistry entries for module ALL
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG In initialize 
 Stream1             DEBUG Found IDecisionSvc.
@@ -52,23 +47,20 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-06-04T2251/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus074.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-29T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
-PoolSvc             DEBUG OutputLevel is 2
+PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-PoolSvc              INFO Re-initializing PoolSvc
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1259 CLIDRegistry entries for module ALL
-Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
+ClassIDSvc           INFO  getRegistryEntries: read 1332 CLIDRegistry entries for module ALL
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
 Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
-Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
 Stream1              INFO Data output: SimplePoolFile2.root
@@ -88,7 +80,6 @@ DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
 RegStream1          DEBUG End initialize 
 RegStream1          DEBUG In initialize 
 RegStream1          DEBUG Found  'StoreName':StoreGateSvc store.
-RegStream1.TagTool  DEBUG Property update for OutputLevel : new value = 2
 RegStream1          DEBUG  Tool initialized
 RegStream1          DEBUG Retrieved IncidentSvc
 RegStream1          DEBUG Added MetaDataStop listener
@@ -105,125 +96,125 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+ClassIDSvc           INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 2    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #20, run #2 0 events processed so far  <<<===
 WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 20  run: 2
-ClassIDSvc           INFO  getRegistryEntries: read 106 CLIDRegistry entries for module ALL
 WriteData            INFO registered all data
 WriteTag             INFO EventInfo event: 20  run: 2
 WriteTag             INFO registered all data
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
 AthenaPoolCnvSvc    DEBUG setAttribute TREE_MAX_SIZE to 1099511627776L
 AthenaPoolCnvSvc    DEBUG setAttribute DEFAULT_SPLITLEVEL to 0
 AthenaPoolCnvSvc    DEBUG setAttribute STREAM_MEMBER_WISE to 1
 AthenaPoolCnvSvc    DEBUG setAttribute DEFAULT_BUFFERSIZE to 32000
-Domain[ROOT_All] Info ->  Access   DbDatabase   UPDATE    [ROOT_All] ????
-Domain[ROOT_All] Info                           SimplePoolFile2.root
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_All] ##Shapes
-##Shapes Debug Opening
-##Shapes Debug    attributes# = 1
-##Shapes Debug Opened container ##Shapes of type ROOT_Tree
-SimplePoolFile2.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
-SimplePoolFile2.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile2.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
-SimplePoolFile2.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile2.root Debug --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile2.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile2.root Debug --->Reading Shape[3 , ????]: [1 Column(s)]
-SimplePoolFile2.root Debug ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
-SimplePoolFile2.root Debug --->Reading Shape[4 , ????]: [1 Column(s)]
-SimplePoolFile2.root Debug ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
-SimplePoolFile2.root Debug --->Reading Shape[5 , ????]: [1 Column(s)]
-SimplePoolFile2.root Debug ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-##Shapes Debug No objects passing selection criteria... Container has 6 Entries in total.
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_All] ##Links
-##Links Debug Opening
-##Links Debug    attributes# = 1
-##Links Debug Opened container ##Links of type ROOT_Tree
-SimplePoolFile2.root Debug --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/POOLContainerForm(DataHeaderForm) [202]  (4 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/POOLContainer(DataHeader) [202]  (5 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/POOLCollectionTree(Token) [202]  (6 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/POOLCollectionTree(RunNumber) [202]  (7 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/POOLCollectionTree(EventNumber) [202]  (8 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/POOLCollectionTree(MagicNumber) [202]  (9 , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/POOLContainer(basic/DataHeader) [202]  (a , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream2) [202]  (b , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (c , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (d , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-##Links Debug No objects passing selection criteria... Container has 12 Entries in total.
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_All] ##Params
-##Params Debug Opening
-##Params Debug    attributes# = 1
-##Params Debug Opened container ##Params of type ROOT_Tree
-SimplePoolFile2.root Debug --->Reading Param:FID=[????]
-SimplePoolFile2.root Debug --->Reading Param:PFN=[SimplePoolFile2.root]
-SimplePoolFile2.root Debug --->Reading Param:POOL_VSN=[1.1]
-SimplePoolFile2.root Debug --->Reading Param:FORMAT_VSN=[1.1]
-##Params Debug No objects passing selection criteria... Container has 4 Entries in total.
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   UPDATE    [ROOT_All] ????
+Domain[ROOT_All]     INFO                           SimplePoolFile2.root
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_All] ##Shapes
+##Shapes            DEBUG Opening
+##Shapes            DEBUG    attributes# = 1
+##Shapes            DEBUG Opened container ##Shapes of type ROOT_Tree
+SimplePoolFile2...  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
+SimplePoolFile2...  DEBUG ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile2...  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
+SimplePoolFile2...  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile2...  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
+SimplePoolFile2...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile2...  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
+SimplePoolFile2...  DEBUG ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
+SimplePoolFile2...  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
+SimplePoolFile2...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
+SimplePoolFile2...  DEBUG --->Reading Shape[5 , ????]: [1 Column(s)]
+SimplePoolFile2...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
+##Shapes            DEBUG No objects passing selection criteria... Container has 6 Entries in total.
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_All] ##Links
+##Links             DEBUG Opening
+##Links             DEBUG    attributes# = 1
+##Links             DEBUG Opened container ##Links of type ROOT_Tree
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/CollectionTree(EventInfo_p4/McEventInfo) [202]  (3 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLContainerForm(DataHeaderForm) [202]  (4 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLContainer(DataHeader) [202]  (5 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(Token) [202]  (6 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(RunNumber) [202]  (7 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventNumber) [202]  (8 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(MagicNumber) [202]  (9 , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLContainer(basic/DataHeader) [202]  (a , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream2) [202]  (b , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (c , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (d , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+##Links             DEBUG No objects passing selection criteria... Container has 12 Entries in total.
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_All] ##Params
+##Params            DEBUG Opening
+##Params            DEBUG    attributes# = 1
+##Params            DEBUG Opened container ##Params of type ROOT_Tree
+SimplePoolFile2...  DEBUG --->Reading Param:FID=[????]
+SimplePoolFile2...  DEBUG --->Reading Param:PFN=[SimplePoolFile2.root]
+SimplePoolFile2...  DEBUG --->Reading Param:POOL_VSN=[1.1]
+SimplePoolFile2...  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
+##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
 AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolFile2.root and cont: TTree=POOLContainerForm(DataHeaderForm)
-ClassIDSvc           INFO  getRegistryEntries: read 89 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 38 CLIDRegistry entries for module ALL
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 1
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
-CollectionTree(EventInfo_p4/McEventInfo) Debug Opening
-CollectionTree(EventInfo_p4/McEventInfo) Debug    attributes# = 1
-CollectionTree(EventInfo_p4/McEventInfo) Debug Branch container 'EventInfo_p4_McEventInfo'
-CollectionTree(EventInfo_p4/McEventInfo) Debug Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
-POOLContainerForm(DataHeaderForm) Debug Opening
-POOLContainerForm(DataHeaderForm) Debug    attributes# = 1
-POOLContainerForm(DataHeaderForm) Debug Branch container 'DataHeaderForm'
-POOLContainerForm(DataHeaderForm) Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
-POOLContainer(DataHeader) Debug Opening
-POOLContainer(DataHeader) Debug    attributes# = 1
-POOLContainer(DataHeader) Debug Branch container 'DataHeader'
-POOLContainer(DataHeader) Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
-POOLCollectionTree(Token) Debug Opening
-POOLCollectionTree(Token) Debug    attributes# = 1
-POOLCollectionTree(Token) Debug Branch container 'Token'
-POOLCollectionTree(Token) Debug Opened container POOLCollectionTree(Token) of type ROOT_Tree
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
-POOLCollectionTree(RunNumber) Debug Opening
-POOLCollectionTree(RunNumber) Debug    attributes# = 1
-POOLCollectionTree(RunNumber) Debug Branch container 'RunNumber'
-POOLCollectionTree(RunNumber) Debug Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventNumber)
-POOLCollectionTree(EventNumber) Debug Opening
-POOLCollectionTree(EventNumber) Debug    attributes# = 1
-POOLCollectionTree(EventNumber) Debug Branch container 'EventNumber'
-POOLCollectionTree(EventNumber) Debug Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(MagicNumber)
-POOLCollectionTree(MagicNumber) Debug Opening
-POOLCollectionTree(MagicNumber) Debug    attributes# = 1
-POOLCollectionTree(MagicNumber) Debug Branch container 'MagicNumber'
-POOLCollectionTree(MagicNumber) Debug Opened container POOLCollectionTree(MagicNumber) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+CollectionTree(...  DEBUG Opening
+CollectionTree(...  DEBUG    attributes# = 1
+CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
+CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+POOLContainerFo...  DEBUG Opening
+POOLContainerFo...  DEBUG    attributes# = 1
+POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
+POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+POOLContainer(D...  DEBUG Opening
+POOLContainer(D...  DEBUG    attributes# = 1
+POOLContainer(D...  DEBUG Branch container 'DataHeader'
+POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'Token'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(Token) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'RunNumber'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventNumber)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventNumber'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(MagicNumber)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'MagicNumber'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(MagicNumber) of type ROOT_Tree
 ClassIDSvc           INFO  getRegistryEntries: read 13 CLIDRegistry entries for module ALL
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
-POOLContainer(basic/DataHeader) Debug Opening
-POOLContainer(basic/DataHeader) Debug    attributes# = 1
-POOLContainer(basic/DataHeader) Debug Branch container 'basic_DataHeader'
-POOLContainer(basic/DataHeader) Debug Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
+POOLContainer(b...  DEBUG Opening
+POOLContainer(b...  DEBUG    attributes# = 1
+POOLContainer(b...  DEBUG Branch container 'basic_DataHeader'
+POOLContainer(b...  DEBUG Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile2.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile2.root and cont: POOLContainerForm(DataHeaderForm)
 RegStream1          DEBUG RegistrationStream execute
@@ -234,12 +225,6 @@ RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeade
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File SimplePoolCollection2.root in mode: UPDATE
-RootCollection Debug File SimplePoolCollection2.root exists.
-RootCollection Info File SimplePoolCollection2.root opened
-RootCollection Debug Retrieved Collection TTree  "POOLCollectionTree" from file SimplePoolCollection2.root
-RootCollection Info Root collection opened, size = 20
-RootCollection Debug Collection size=21
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #20, run #2 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #21, run #2 1 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -259,7 +244,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000015] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=22
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #21, run #2 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #22, run #2 2 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -279,7 +263,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000016] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #22, run #2 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #23, run #2 3 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -299,7 +282,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000017] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #23, run #2 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #24, run #2 4 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -319,7 +301,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000018] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=25
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #24, run #2 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #25, run #2 5 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -339,7 +320,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000019] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=26
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #25, run #2 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #26, run #2 6 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -359,7 +339,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001A] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #26, run #2 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #27, run #2 7 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -379,7 +358,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001B] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=28
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #27, run #2 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #28, run #2 8 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -399,7 +377,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001C] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=29
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #28, run #2 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #29, run #2 9 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -419,7 +396,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001D] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=30
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #29, run #2 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #30, run #2 10 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -439,7 +415,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001E] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #30, run #2 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #31, run #2 11 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -459,7 +434,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001F] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=32
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #31, run #2 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #32, run #2 12 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -479,7 +453,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000020] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=33
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #32, run #2 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #33, run #2 13 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -499,7 +472,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000021] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=34
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #33, run #2 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #34, run #2 14 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -519,7 +491,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000022] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=35
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #34, run #2 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #35, run #2 15 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -539,7 +510,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000023] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=36
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #35, run #2 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #36, run #2 16 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -559,7 +529,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000024] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=37
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #36, run #2 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #37, run #2 17 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -579,7 +548,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000025] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=38
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #37, run #2 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #38, run #2 18 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -599,7 +567,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000026] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=39
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #38, run #2 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #39, run #2 19 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -619,7 +586,6 @@ RegStream1          DEBUG Retrieved DataHeader with key Stream1
 RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000027] for Stream1
 RegStream1          DEBUG Setting tagKey to RunEventTag
 RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RootCollection Debug Collection size=40
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #39, run #2 20 events processed so far  <<<===
 Stream1             DEBUG handle() incident type: MetaDataStop
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
@@ -627,40 +593,30 @@ Stream1             DEBUG            Key:Stream1
 Stream1             DEBUG  Added object 167728019,"Stream1"
 Stream1             DEBUG addItemObjects(1316383046,"*") called
 Stream1             DEBUG            Key:*
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
-MetaData(EventStreamInfo_p3/Stream1) Debug Opening
-MetaData(EventStreamInfo_p3/Stream1) Debug    attributes# = 1
-MetaData(EventStreamInfo_p3/Stream1) Debug Branch container 'EventStreamInfo_p3_Stream1'
-MetaData(EventStreamInfo_p3/Stream1) Debug Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
-SimplePoolFile2.root Debug --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (e , ffffffff)
-SimplePoolFile2.root Debug ---->ClassID:????
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
-MetaDataHdrForm(DataHeaderForm) Debug Opening
-MetaDataHdrForm(DataHeaderForm) Debug    attributes# = 1
-MetaDataHdrForm(DataHeaderForm) Debug Branch container 'DataHeaderForm'
-MetaDataHdrForm(DataHeaderForm) Debug Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
-MetaDataHdr(DataHeader) Debug Opening
-MetaDataHdr(DataHeader) Debug    attributes# = 1
-MetaDataHdr(DataHeader) Debug Branch container 'DataHeader'
-MetaDataHdr(DataHeader) Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
+MetaData(EventS...  DEBUG Opening
+MetaData(EventS...  DEBUG    attributes# = 1
+MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream1'
+MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (e , ffffffff)
+SimplePoolFile2...  DEBUG ---->ClassID:????
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
+MetaDataHdrForm...  DEBUG Opening
+MetaDataHdrForm...  DEBUG    attributes# = 1
+MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
+MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
+SimplePoolFile2...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
+MetaDataHdr(Dat...  DEBUG Opening
+MetaDataHdr(Dat...  DEBUG    attributes# = 1
+MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
+MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
 Stream1              INFO Records written: 21
 Stream1             DEBUG Leaving handle
 RegStream1          DEBUG handle() incident type: MetaDataStop
 RegStream1.TagTool   INFO Collection Events output: 20
-POOLCollFactory Debug Registering existing collection PFN=RootCollection||PFN:SimplePoolCollection2.root, LFN=
-RootCollection::Metadata Debug  Using char buffer of size: 4100
-RootCollection::Metadata Debug  readKeys: found 3 metadata keys
-POOLCollFactory Debug  ---  found catalog guid=????
-POOLCollFactory Debug  ---     collection guid=????
-RootCollection Debug Commit: saving collection TTree to file: SimplePoolCollection2.root
-RootCollection Debug    bytes written to TTree ????
-RootCollection::MetadataCommit Debug Bytes written to the Metadata TTree ????
-RootCollection Info Closing open collection 'SimplePoolCollection2.root'
-RootCollectionSchemaEditor Debug ###### Writing schema....
-Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   UPDATE    [ROOT_All] ????
-Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   UPDATE    [ROOT_All] ????
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 WriteData            INFO in finalize()
@@ -678,14 +634,13 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
+commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 21
 fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 62
-commitOutput         INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.952(+- 2.94)/    0/   10 [ms] #= 21
-cRepR_ALL            INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.273(+- 1.94)/    0/   20 [ms] #=183
-cRep_ALL             INFO Time User   : Tot=  100 [ms] Ave/Min/Max= 1.61(+- 6.01)/    0/   40 [ms] #= 62
-ChronoStatSvc        INFO Time User   : Tot=  1.6  [s]                                             #=  1
+cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.164(+- 1.64)/    0/   20 [ms] #=183
+cRep_ALL             INFO Time User   : Tot=   60 [ms] Ave/Min/Max=0.968(+- 4.29)/    0/   30 [ms] #= 62
+ChronoStatSvc        INFO Time User   : Tot= 0.86  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Athena               INFO leaving with code 0: "successful run"
-CORAL/Services/ConnectionService Info Deleting the ConnectionPool

@@ -28,7 +28,6 @@ LArG4H62004InactiveSDTool::LArG4H62004InactiveSDTool(const std::string& type, co
   declareProperty("HECWheelInactiveCalculator", m_heccalc);
   declareProperty("FCAL1CalibCalculator", m_fcal1calc);
   declareProperty("FCAL2CalibCalculator", m_fcal2calc);
-  declareInterface<ISensitiveDetector>(this);
 }
 
 StatusCode LArG4H62004InactiveSDTool::initializeCalculators()

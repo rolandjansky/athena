@@ -39,7 +39,8 @@ namespace Monitored {
        * @param scopeMonitored  list of variables to be monitored
        **/
       template <typename... T>
-      static MonitoredScope declare(ToolHandle<GenericMonitoringTool> tool, T&&... scopeMonitored) {
+      static MonitoredScope declare(const ToolHandle<GenericMonitoringTool>& tool,
+                                    T&&... scopeMonitored) {
           return MonitoredScope(tool, {std::forward<T>(scopeMonitored)...});
       }
         
@@ -77,7 +78,7 @@ namespace Monitored {
       const std::vector<std::reference_wrapper<IMonitoredVariable>> m_scopeMonitored;
       const std::vector<HistogramFiller*> m_histogramsFillers;
         
-      MonitoredScope(ToolHandle<GenericMonitoringTool> tool, 
+      MonitoredScope(const ToolHandle<GenericMonitoringTool>& tool, 
                      std::initializer_list<std::reference_wrapper<IMonitoredVariable>> scopeMonitored)
         : m_tool(tool), 
           m_autoSave(true), 

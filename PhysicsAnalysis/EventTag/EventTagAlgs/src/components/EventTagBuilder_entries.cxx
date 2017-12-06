@@ -11,34 +11,18 @@
 
 #include "EventTagAlgs/EventSplitter.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_ALGORITHM_FACTORY( AnalysisTagBuilder )
-DECLARE_ALGORITHM_FACTORY( RawInfoSummaryTagBuilder )
-DECLARE_ALGORITHM_FACTORY( ElectronTagBuilder )
-DECLARE_ALGORITHM_FACTORY( GlobalEventTagBuilder )
-DECLARE_ALGORITHM_FACTORY( GlobalTriggerTagBuilder )
-DECLARE_ALGORITHM_FACTORY( MuonTagBuilder )
-DECLARE_ALGORITHM_FACTORY( PhotonTagBuilder )
-DECLARE_ALGORITHM_FACTORY( TauJetTagBuilder )
-DECLARE_ALGORITHM_FACTORY( ParticleJetTagBuilder )
-DECLARE_ALGORITHM_FACTORY( MissingETTagBuilder )
+DECLARE_COMPONENT( AnalysisTagBuilder )
+DECLARE_COMPONENT( RawInfoSummaryTagBuilder )
+DECLARE_COMPONENT( ElectronTagBuilder )
+DECLARE_COMPONENT( GlobalEventTagBuilder )
+DECLARE_COMPONENT( GlobalTriggerTagBuilder )
+DECLARE_COMPONENT( MuonTagBuilder )
+DECLARE_COMPONENT( PhotonTagBuilder )
+DECLARE_COMPONENT( TauJetTagBuilder )
+DECLARE_COMPONENT( ParticleJetTagBuilder )
+DECLARE_COMPONENT( MissingETTagBuilder )
 
 
-DECLARE_ALGORITHM_FACTORY( EventSplitter )
+DECLARE_COMPONENT( EventSplitter )
 
-DECLARE_FACTORY_ENTRIES( EventTagAlgs ) {
-
-  DECLARE_ALGORITHM( AnalysisTagBuilder )  
-  DECLARE_ALGORITHM( RawInfoSummaryTagBuilder )
-  DECLARE_ALGORITHM( ElectronTagBuilder )
-  DECLARE_ALGORITHM( GlobalEventTagBuilder )
-  DECLARE_ALGORITHM( GlobalTriggerTagBuilder )
-  DECLARE_ALGORITHM( MuonTagBuilder )
-  DECLARE_ALGORITHM( PhotonTagBuilder )
-  DECLARE_ALGORITHM( TauJetTagBuilder )
-  DECLARE_ALGORITHM( ParticleJetTagBuilder )
-  DECLARE_ALGORITHM( MissingETTagBuilder )
-
-  DECLARE_ALGORITHM( EventSplitter )
-}

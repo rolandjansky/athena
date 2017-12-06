@@ -12,7 +12,7 @@
 
 // $Id: DataProxy.icc,v 1.6 2008-07-14 22:16:25 calaf Exp $
 
-#include "SGTools/DataBucketBase.h"
+#include "AthenaKernel/DataBucketBase.h"
 #include "SGTools/StorableConversions.h"
 #include "AthenaKernel/ClassID_traits.h"
 #ifndef NDEBUG

@@ -5,9 +5,9 @@
 #include "TrigFake/ZVertexFromKine.h"
 
 
-DECLARE_TOOL_FACTORY( FakeLvl1RoIfromKine )
-  //DECLARE_ALGORITHM_FACTORY( FakeLvl1ConversionTestBeam )
-DECLARE_TOOL_FACTORY( FakeLvl1RoIatFixedEtaPhi )
-DECLARE_TOOL_FACTORY( FakeLvl1MultipleRoIsatFixedEtaPhi )
-DECLARE_ALGORITHM_FACTORY( ZVertexFromKine )
+DECLARE_COMPONENT( FakeLvl1RoIfromKine )
+  //DECLARE_COMPONENT( FakeLvl1ConversionTestBeam )
+DECLARE_COMPONENT( FakeLvl1RoIatFixedEtaPhi )
+DECLARE_COMPONENT( FakeLvl1MultipleRoIsatFixedEtaPhi )
+DECLARE_COMPONENT( ZVertexFromKine )
 

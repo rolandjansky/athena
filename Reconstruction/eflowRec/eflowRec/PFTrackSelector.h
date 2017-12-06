@@ -7,12 +7,12 @@
 #include "StoreGate/DataHandle.h"
 
 #include "eflowRec/eflowRecTrack.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "Particle/TrackParticleContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 
 class eflowTrackExtrapolatorBaseAlgTool;
-namespace InDet { class IInDetTrackSelectionTool; }
 
 class PFTrackSelector : public AthAlgorithm {
 

@@ -85,6 +85,7 @@ public:
     /// Typedefs for DB
     typedef LArConditionsContainerDB<T>                          ConditionsMap;
     typedef typename ConditionsMap::const_iterator               ConstConditionsMapIterator; 
+    typedef typename ConditionsMap::iterator                     ConditionsMapIterator; 
     typedef typename std::map<unsigned int,  ConditionsMap >     GainMap;
     typedef typename std::pair<unsigned int, ConditionsMap >     GainPair;
     typedef typename GainMap::const_iterator                     ConstGainMapIterator; 
@@ -243,17 +244,23 @@ public:
 
     /// get iterator for all channels for a gain
     ConstConditionsMapIterator  begin(unsigned int gain) const ; 
+    ConditionsMapIterator       begin(unsigned int gain); 
 
     /// get iterator for all channels for a gain, restricted to a list of FebIds
     ConstConditionsMapIterator  begin(unsigned int gain,
   				      const std::vector<FebId>& febIds) const ; 
+    ConditionsMapIterator       begin(unsigned int gain,
+                                      const std::vector<FebId>& febIds); 
 
     /// get iterator for all channels for a gain, restricted to one Feb
     ConstConditionsMapIterator  begin(unsigned int gain,
 				      const HWIdentifier& febId) const ; 
+    ConditionsMapIterator       begin(unsigned int gain,
+				      const HWIdentifier& febId) ; 
 
     /// end of all channels for this gain
     ConstConditionsMapIterator  end  (unsigned int gain) const ; 
+    ConditionsMapIterator       end  (unsigned int gain); 
 
     /// Remove conditions leaving the corrections - may be needed to
     /// only write out the corrections when both are present

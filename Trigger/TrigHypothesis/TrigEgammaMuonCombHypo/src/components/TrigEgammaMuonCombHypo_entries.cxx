@@ -5,9 +5,9 @@
 #include "TrigEgammaMuonCombHypo/TrigEFElectronMuonAngleFexAlgo.h"
 #include "TrigEgammaMuonCombHypo/TrigEFPhotonMuonAngleFexAlgo.h"
 
-DECLARE_ALGORITHM_FACTORY( TrigL2ElectronMuonAngleHypo )
-DECLARE_ALGORITHM_FACTORY( TrigL2ElectronMuonAngleFexAlgo )
-DECLARE_ALGORITHM_FACTORY( TrigEFElectronMuonAngleHypo )
-DECLARE_ALGORITHM_FACTORY( TrigEFElectronMuonAngleFexAlgo ) 
-DECLARE_ALGORITHM_FACTORY( TrigL2PhotonMuonAngleFexAlgo )
-DECLARE_ALGORITHM_FACTORY( TrigEFPhotonMuonAngleFexAlgo ) 
+DECLARE_COMPONENT( TrigL2ElectronMuonAngleHypo )
+DECLARE_COMPONENT( TrigL2ElectronMuonAngleFexAlgo )
+DECLARE_COMPONENT( TrigEFElectronMuonAngleHypo )
+DECLARE_COMPONENT( TrigEFElectronMuonAngleFexAlgo ) 
+DECLARE_COMPONENT( TrigL2PhotonMuonAngleFexAlgo )
+DECLARE_COMPONENT( TrigEFPhotonMuonAngleFexAlgo ) 

@@ -329,9 +329,9 @@ TRT_DetectorTool::registerCallback()
 
 StatusCode TRT_DetectorTool::clear()
 {
-  SG::DataProxy* _proxy = detStore()->proxy(ClassID_traits<InDetDD::TRT_DetectorManager>::ID(),m_manager->getName());
-  if(_proxy) {
-    _proxy->reset();
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::TRT_DetectorManager>::ID(),m_manager->getName());
+  if(proxy) {
+    proxy->reset();
     m_manager = 0;
   }
   return StatusCode::SUCCESS;

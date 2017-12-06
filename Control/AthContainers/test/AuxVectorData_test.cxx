@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file DataModel/test/AuxVectorData_test.cxx
+ * @file AthContainers/test/AuxVectorData_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2013
  * @brief Regression tests for AuxVectorData

@@ -1,9 +1,7 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "LArTools/LArMCSymTool.h"
 #include "LArTools/LArHVPathologyDbTool.h"
 
 
-DECLARE_TOOL_FACTORY( LArMCSymTool )
-DECLARE_TOOL_FACTORY( LArHVPathologyDbTool )
+DECLARE_COMPONENT( LArMCSymTool )
+DECLARE_COMPONENT( LArHVPathologyDbTool )
 

@@ -53,7 +53,7 @@ done
 
 # Version comparison function. Taken from a StackOverflow article.
 verlte() {
-    if [ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]; then
+    if [ "$1" = "`echo -e $1'\n'$2 | sort -V | head -n1`" ]; then
         return 1
     fi
     return 0
@@ -70,9 +70,10 @@ if [ $? = 0 ]; then
     exit 1
 fi
 
-# Stop on errors from here on out:
+# Stop on errors from here on out
 set -e
 set -o pipefail
+
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -80,6 +81,14 @@ thisdir=$(cd ${thisdir};pwd)
 
 # Go to the main directory of the repository:
 cd ${thisdir}/../..
+
+{ 
+ test "X${NIGHTLY_STATUS}" != "X" && {
+    scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
+    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status 
+    test -x $scriptsdir_nightly_status/externals_status_on_exit.sh  && trap $scriptsdir_nightly_status/externals_status_on_exit.sh EXIT
+ }
+}
 
 # Check if the user specified any source/build directories:
 if [ "$BUILDDIR" = "" ]; then
@@ -124,6 +133,19 @@ ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthenaExternalsVersion} \
     -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
 
+# log analyzer never affects return status in the parent shell:
+{
+ branch=$(basename $(cd .. ; pwd)) #FIXME: should be taken from env.
+ timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ #to be used until the final stamp from ReleaseData is available
+
+ test "X${NIGHTLY_STATUS}" != "X" && {
+   (set +e 
+    touch ${BUILDDIR}/.${timestamp_tmp}
+    ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
+   )
+ } || true
+}
+
 # Build AthenaExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
 ${scriptsdir}/build_atlasexternals.sh \
@@ -132,6 +154,15 @@ ${scriptsdir}/build_atlasexternals.sh \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
     -v ${NICOS_PROJECT_VERSION}
+
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+   (set +e 
+    ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_config.log 
+    ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_build.log 
+   )
+ } || true
+}
 
 # Get the "platform name" from the directory created by the AthenaExternals
 # build:
@@ -145,6 +176,14 @@ ${scriptsdir}/checkout_Gaudi.sh \
     -t ${GaudiVersion} \
     -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
 
+{
+ test "X${NIGHTLY_STATUS}" != "X" && { 
+   (set +e
+    ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/src/checkout.GAUDI.log
+   )
+ } || true
+}
+
 # Build Gaudi:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
 ${scriptsdir}/build_Gaudi.sh \
@@ -153,3 +192,13 @@ ${scriptsdir}/build_Gaudi.sh \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
     -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
+
+{
+ test "X${NIGHTLY_STATUS}" != "X" && {
+   (set +e
+    ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_config.log 
+    ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_build.log 
+   )
+ } || true
+}
+

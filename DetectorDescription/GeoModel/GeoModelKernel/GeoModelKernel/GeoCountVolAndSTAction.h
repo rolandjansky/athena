@@ -2,16 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoCountVolAndSTAction_h
-#define GeoCountVolAndSTAction_h 1
+#ifndef GEOMODELKERNEL_GEOCOUNTVOLANDSTACTION_H
+#define GEOMODELKERNEL_GEOCOUNTVOLANDSTACTION_H
+
+/**
+ * @class: GeoCountVolAndSTAction
+ * 
+ * @brief An action to count the number of physical volumes
+ * and Serial Transformers
+ */
 
 #include "GeoModelKernel/GeoNodeAction.h"
-
-//
-// Class: GeoCountVolAndSTAction
-// An action to count the number of physical volumes
-// and Serial Transformers
-//
 
 class GeoCountVolAndSTAction : public GeoNodeAction
 {

@@ -1,1 +1,1 @@
-root://eosatlas//eos/atlas/atlascerngroupdisk/phys-top/topreco/rel21/mc/group.phys-top.11303793.EXT0._000011.DAOD_TOPQ1.DAOD.root
+root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-top/topreco/rel21/mc/group.phys-top.11303793.EXT0._000011.DAOD_TOPQ1.DAOD.root

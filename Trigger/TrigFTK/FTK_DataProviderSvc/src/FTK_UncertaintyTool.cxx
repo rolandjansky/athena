@@ -30,10 +30,12 @@ FTK_UncertaintyTool::FTK_UncertaintyTool(const std::string& t,
 					       const std::string& n,
 					       const IInterface*  p ): 
   AthAlgTool(t,n,p),
-  m_noIBL(false)
+  m_noIBL(false),
+  m_ftkparversion("OCT2017_V1")
 {
   declareInterface< IFTK_UncertaintyTool >( this );
   declareProperty( "NoIBL",  m_noIBL);
+  declareProperty( "ftkparversion",  m_ftkparversion);
 }
 
 StatusCode FTK_UncertaintyTool::initialize() {
@@ -44,11 +46,17 @@ StatusCode FTK_UncertaintyTool::initialize() {
   //
   //   Load Constants
   //
+  
   if(m_noIBL)
     LoadConstants_NoIBL();
   else
-    LoadConstants();
-
+    if(m_ftkparversion == "LEGACY")
+      LoadConstants();
+    else if(m_ftkparversion == "OCT2017_V1")
+      LoadConstants_OCT2017_V1();
+    else 
+      ATH_MSG_WARNING("m_ftkparversion not supported, reverting to default OCT2017_V1 parameters");
+      LoadConstants_OCT2017_V1();
 
   athenaLog << MSG::INFO << "FTK_UncertaintyTool initialized "<< endmsg;
   return sc;
@@ -409,5 +417,245 @@ void FTK_UncertaintyTool::LoadConstants_NoIBL()
   nBLConsts.set(FTKTrackParam::Ipt,  2,  linear,  3.3e-6,  0.028);
   nBLConsts.set(FTKTrackParam::Ipt,  3,  linear,  3.3e-6,  0.028);
   nBLConsts.set(FTKTrackParam::Ipt,  4,  linear,  3.3e-6,  0.028);
+  return;
+}
+
+
+/**
+ * 
+ * 
+ * 
+ * 
+ * 
+ */ 
+
+/** New Constants for FTK error parameterisation.
+ *    Generated uses single muon samples
+ *    For more information see the JIRA: FTKSIM-22
+ */
+void FTK_UncertaintyTool::LoadConstants_OCT2017_V1()
+{
+  //////////////////////////////////////////////////
+  // constants for tracks with an Inner B Layer hit.
+
+  TPConsts&  nomConsts =  m_allConsts[1];
+
+  //////////////////////////////////////////////////
+  // constants for tracks with NO Inner B Layer hit.
+
+  TPConsts&  nBLConsts =  m_allConsts[0];
+  
+
+
+  //////////////////////////////////////////////////
+  // constants for tracks with an Inner B Layer hit.
+  //
+  //////////////////////////////////////////////////
+  //
+  // Fit Mode : Linear
+  //////////////////////////////////////////////////
+  //
+  // Track Parameter : d0
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::d0, 0,linear ,0.0220148,  46.2681 );
+  nomConsts.set(FTKTrackParam::d0, 1,linear ,0.0215074,  54.7555 );
+  nomConsts.set(FTKTrackParam::d0, 2,linear ,0.0245233,  63.6461 );
+  nomConsts.set(FTKTrackParam::d0, 3,linear ,0.0289256,  81.6173 );
+  nomConsts.set(FTKTrackParam::d0, 4,linear ,0.0355705,  107.437 );
+
+  //
+  // Track Parameter : z0
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::z0, 0,linear ,0.0843801,  49.9992 );
+  nomConsts.set(FTKTrackParam::z0, 1,linear ,0.0768551,  59.5731 );
+  nomConsts.set(FTKTrackParam::z0, 2,linear ,0.109679,  109.795 );
+  nomConsts.set(FTKTrackParam::z0, 3,linear ,0.157026,  213.575 );
+  nomConsts.set(FTKTrackParam::z0, 4,linear ,0.294999,  382.75 );
+
+  //
+  // Track Parameter : eta
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::eta, 0,linear ,0.000985233,  1.74928 );
+  nomConsts.set(FTKTrackParam::eta, 1,linear ,0.000794436,  1.86279 );
+  nomConsts.set(FTKTrackParam::eta, 2,linear ,0.000814759,  2.24591 );
+  nomConsts.set(FTKTrackParam::eta, 3,linear ,0.000928633,  2.62711 );
+  nomConsts.set(FTKTrackParam::eta, 4,linear ,0.0012434,  2.86116 )  ;
+
+  //
+  // Track Parameter : phi
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::phi, 0,linear ,0.000470877,  1.65773 );
+  nomConsts.set(FTKTrackParam::phi, 1,linear ,0.000491551,  1.8313 );
+  nomConsts.set(FTKTrackParam::phi, 2,linear ,0.000567083,  2.20669 );
+  nomConsts.set(FTKTrackParam::phi, 3,linear ,0.000744999,  2.63184 );
+  nomConsts.set(FTKTrackParam::phi, 4,linear ,0.000931243,  3.47986 );
+
+  //
+  // Track Parameter : inverse pt
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::Ipt, 0,linear ,0.00340545,  15.5999 );
+  nomConsts.set(FTKTrackParam::Ipt, 1,linear ,0.00341737,  18.7316 );
+  nomConsts.set(FTKTrackParam::Ipt, 2,linear ,0.00423504,  24.7642 );
+  nomConsts.set(FTKTrackParam::Ipt, 3,linear ,0.00900023,  27.4348 );
+  nomConsts.set(FTKTrackParam::Ipt, 4,linear ,0.00973772,  37.3089 );
+
+  //////////////////////////////////////////////////
+  //
+  // Fit Mode : Square Root
+  //////////////////////////////////////////////////
+  //
+  // Track Parameter : d0
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::d0, 0,sqroot ,0.000637139,  6001.77 );
+  nomConsts.set(FTKTrackParam::d0, 1,sqroot ,0.00066471,  7508.6 );
+  nomConsts.set(FTKTrackParam::d0, 2,sqroot ,0.000822638,  10604.5 );
+  nomConsts.set(FTKTrackParam::d0, 3,sqroot ,0.00117164,  15415.9 );
+  nomConsts.set(FTKTrackParam::d0, 4,sqroot ,0.00187295,  25707 );
+
+  //
+  // Track Parameter : z0
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::z0, 0,sqroot ,0.00787881,  17682.2 );
+  nomConsts.set(FTKTrackParam::z0, 1,sqroot ,0.00678476,  20436.2 );
+  nomConsts.set(FTKTrackParam::z0, 2,sqroot ,0.0138578,  59498.7 );
+  nomConsts.set(FTKTrackParam::z0, 3,sqroot ,0.0307752,  163152 );
+  nomConsts.set(FTKTrackParam::z0, 4,sqroot ,0.104587,  573875 );
+
+  //
+  // Track Parameter : eta
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::eta, 0,sqroot ,1.21166e-06,  10.0528 );
+  nomConsts.set(FTKTrackParam::eta, 1,sqroot ,8.54596e-07,  9.59626 );
+  nomConsts.set(FTKTrackParam::eta, 2,sqroot ,9.45997e-07,  12.7565 );
+  nomConsts.set(FTKTrackParam::eta, 3,sqroot ,1.25597e-06,  16.3869 );
+  nomConsts.set(FTKTrackParam::eta, 4,sqroot ,2.09273e-06,  22.9401 );
+
+  //
+  // Track Parameter : phi
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::phi, 0,sqroot ,3.29631e-07,  5.74672 );
+  nomConsts.set(FTKTrackParam::phi, 1,sqroot ,3.69142e-07,  7.05712 );
+  nomConsts.set(FTKTrackParam::phi, 2,sqroot ,4.99178e-07,  10.1754 );
+  nomConsts.set(FTKTrackParam::phi, 3,sqroot ,8.4178e-07,  14.6755 );
+  nomConsts.set(FTKTrackParam::phi, 4,sqroot ,1.30762e-06,  24.8247 );
+
+  //
+  // Track Parameter : inverse pt
+  //////////////////////////////////////////////////
+  nomConsts.set(FTKTrackParam::Ipt, 0,sqroot ,1.69434e-05,  448.741 );
+  nomConsts.set(FTKTrackParam::Ipt, 1,sqroot ,1.94485e-05,  587.337 );
+  nomConsts.set(FTKTrackParam::Ipt, 2,sqroot ,3.04694e-05,  1055.24 );
+  nomConsts.set(FTKTrackParam::Ipt, 3,sqroot ,0.000120377,  1720.64 );
+  nomConsts.set(FTKTrackParam::Ipt, 4,sqroot ,0.000149814,  2797.65 );
+
+
+  //////////////////////////////////////////////////
+  // NEW SECTION 
+  //////////////////////////////////////////////////
+
+  // constants for tracks with NO Inner B Layer hit.
+  //
+  //////////////////////////////////////////////////
+  //
+  // Fit Mode : Linear
+  //////////////////////////////////////////////////
+  //
+  // Track Parameter : d0
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::d0, 0,linear ,0.0303368,  86.0664 );
+  nBLConsts.set(FTKTrackParam::d0, 1,linear ,0.0285923,  109.879 );
+  nBLConsts.set(FTKTrackParam::d0, 2,linear ,0.0297772,  132.037 );
+  nBLConsts.set(FTKTrackParam::d0, 3,linear ,0.0405575,  160.262 );
+  nBLConsts.set(FTKTrackParam::d0, 4,linear ,0.0510576,  244.525 );
+
+  //
+  // Track Parameter : z0
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::z0, 0,linear ,0.150392,  111.119 );
+  nBLConsts.set(FTKTrackParam::z0, 1,linear ,0.143484,  131.085 );
+  nBLConsts.set(FTKTrackParam::z0, 2,linear ,0.159992,  214.075 );
+  nBLConsts.set(FTKTrackParam::z0, 3,linear ,0.234851,  431.632 );
+  nBLConsts.set(FTKTrackParam::z0, 4,linear ,0.433525,  862.367 );
+
+  //
+  // Track Parameter : eta
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::eta, 0,linear ,0.00117151,  2.23426 );
+  nBLConsts.set(FTKTrackParam::eta, 1,linear ,0.000972738,  2.54413 );
+  nBLConsts.set(FTKTrackParam::eta, 2,linear ,0.000881282,  2.8418 );
+  nBLConsts.set(FTKTrackParam::eta, 3,linear ,0.000886967,  3.85905 );
+  nBLConsts.set(FTKTrackParam::eta, 4,linear ,0.00127867,  4.97624 );
+
+  //
+  // Track Parameter : phi
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::phi, 0,linear ,0.000417072,  2.37975 );
+  nBLConsts.set(FTKTrackParam::phi, 1,linear ,0.000444298,  2.77566 );
+  nBLConsts.set(FTKTrackParam::phi, 2,linear ,0.000468003,  3.45385 );
+  nBLConsts.set(FTKTrackParam::phi, 3,linear ,0.000742838,  4.20268 );
+  nBLConsts.set(FTKTrackParam::phi, 4,linear ,0.00104741,  5.76834 );
+
+  //
+  // Track Parameter : inverse pt
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::Ipt, 0,linear ,0.00354561,  15.5388 );
+  nBLConsts.set(FTKTrackParam::Ipt, 1,linear ,0.00385489,  17.9517 );
+  nBLConsts.set(FTKTrackParam::Ipt, 2,linear ,0.004851,  23.0106 );
+  nBLConsts.set(FTKTrackParam::Ipt, 3,linear ,0.00987171,  26.3157 );
+  nBLConsts.set(FTKTrackParam::Ipt, 4,linear ,0.0106293,  38.0365 );
+
+  //////////////////////////////////////////////////
+  //
+  // Fit Mode : Square Root
+  //////////////////////////////////////////////////
+  //
+  // Track Parameter : d0
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::d0, 0,sqroot ,0.00126753,  16937 );
+  nBLConsts.set(FTKTrackParam::d0, 1,sqroot ,0.00124176,  24184.4 );
+  nBLConsts.set(FTKTrackParam::d0, 2,sqroot ,0.00150547,  33635.4 );
+  nBLConsts.set(FTKTrackParam::d0, 3,sqroot ,0.00260565,  51653.5 );
+  nBLConsts.set(FTKTrackParam::d0, 4,sqroot ,0.00437864,  106540 );
+
+  //
+  // Track Parameter : z0
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::z0, 0,sqroot ,0.0256128,  67263.8 );
+  nBLConsts.set(FTKTrackParam::z0, 1,sqroot ,0.0238329,  79920.8 );
+  nBLConsts.set(FTKTrackParam::z0, 2,sqroot ,0.0314672,  170293 );
+  nBLConsts.set(FTKTrackParam::z0, 3,sqroot ,0.0707115,  571577 );
+  nBLConsts.set(FTKTrackParam::z0, 4,sqroot ,0.242194,  2.20335e+06 );
+
+  //
+  // Track Parameter : eta
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::eta, 0,sqroot ,1.8004e-06,  14.4476 );
+  nBLConsts.set(FTKTrackParam::eta, 1,sqroot ,1.34158e-06,  15.9376 );
+  nBLConsts.set(FTKTrackParam::eta, 2,sqroot ,1.10103e-06,  18.6251 );
+  nBLConsts.set(FTKTrackParam::eta, 3,sqroot ,1.30795e-06,  29.8202 );
+  nBLConsts.set(FTKTrackParam::eta, 4,sqroot ,2.6078e-06,  50.8278 );
+
+  //
+  // Track Parameter : phi
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::phi, 0,sqroot ,2.96999e-07,  9.5144 );
+  nBLConsts.set(FTKTrackParam::phi, 1,sqroot ,3.21576e-07,  12.9412 );
+  nBLConsts.set(FTKTrackParam::phi, 2,sqroot ,4.12824e-07,  19.3168 );
+  nBLConsts.set(FTKTrackParam::phi, 3,sqroot ,9.64825e-07,  30.6326 );
+  nBLConsts.set(FTKTrackParam::phi, 4,sqroot ,1.99829e-06,  57.3082 );
+
+  //
+  // Track Parameter : inverse pt
+  //////////////////////////////////////////////////
+  nBLConsts.set(FTKTrackParam::Ipt, 0,sqroot ,1.68493e-05,  449.859 );
+  nBLConsts.set(FTKTrackParam::Ipt, 1,sqroot ,2.0417e-05,  577.767 );
+  nBLConsts.set(FTKTrackParam::Ipt, 2,sqroot ,3.99292e-05,  975.569 );
+  nBLConsts.set(FTKTrackParam::Ipt, 3,sqroot ,0.000147852,  1702.44 );
+  nBLConsts.set(FTKTrackParam::Ipt, 4,sqroot ,0.000193678,  2728.82 );
+
+  //////////////////////////////////////////////////
+  // END OF SECTION
+  //////////////////////////////////////////////////
+
   return;
 }

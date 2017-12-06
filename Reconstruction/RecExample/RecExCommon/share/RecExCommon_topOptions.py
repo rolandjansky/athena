@@ -129,6 +129,9 @@ from AODFix.AODFix import *
 AODFix_Init()
 AODFix_preInclude()
 
+from RecoFix.RecoFix import RecoFix_Init, RecoFix_addMetaData
+RecoFix_Init()
+
 
 ###################
 # Common Services #
@@ -178,6 +181,7 @@ else:
 
 
 AODFix_addMetaData()
+RecoFix_addMetaData()
 
 if rec.oldFlagCompatibility:
     print "RecExCommon_flags.py flags values:"
@@ -1387,7 +1391,7 @@ if rec.doWriteAOD():
 
 
     # cannot redo the slimming if readAOD and writeAOD
-    if not rec.readAOD():
+    if not rec.readAOD() and (rec.doESD() or rec.readESD()):
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
             doEgammaPhoton = AODFlags.Photon
             doEgammaElectron= AODFlags.Electron

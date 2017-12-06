@@ -19,7 +19,7 @@
 typedef boost::array<SCT_ModuleCalibParameter, SCT_ConditionsServices::N_NPTGAIN> SCT_ModuleGainCalibData;
 
 // Class definition
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_ModuleGainCalibData , 48634490 , 1 )
 
 #endif // SCT_MODULEGAINCALIBDATA_H

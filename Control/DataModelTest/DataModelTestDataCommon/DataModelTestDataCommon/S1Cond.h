@@ -20,7 +20,7 @@
 #include "AthenaKernel/CondCont.h"
 
 
-CLASS_DEF (CondCont<DMTest::S1>, 243030043, 0)
+CONDCONT_DEF(DMTest::S1, 243030043);
 
 
 #endif // not DATAMODELTESTDATACOMMON_S1COND_H

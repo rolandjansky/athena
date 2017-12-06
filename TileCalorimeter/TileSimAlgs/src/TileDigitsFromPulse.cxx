@@ -57,7 +57,12 @@ using CLHEP::RandFlat;
 // Constructor
 //
 TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLocator) :
-		AthAlgorithm(name, pSvcLocator), m_tileHWID(0), m_tileInfo(0), m_pHRengine(0), m_rndmSvc("AtRndmGenSvc", name)
+  AthAlgorithm(name, pSvcLocator),
+  m_tileHWID(0),
+  m_tileInfo(0),
+  m_tileToolNoiseSample("TileCondToolNoiseSample"),
+  m_pHRengine(0),
+  m_rndmSvc("AtRndmGenSvc", name)
 
 {
 	m_rChUnit = TileRawChannelUnit::ADCcounts;

@@ -16,12 +16,16 @@
 
 #include "StorageSvc/pool.h"
 #include "StorageSvc/DbType.h"
+#include "StorageSvc/DbPrint.h"
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
 #include <cstdio>
 #include <map>
 using namespace std;
+
+using namespace pool;
+DbPrintLvl::MsgLevel DbPrintLvl::outputLvl = None;
 
 static bool s_debug = (0 != ::getenv("POOL_TRACE")) || (0 != ::getenv("POOLDB_TRACE"));
 

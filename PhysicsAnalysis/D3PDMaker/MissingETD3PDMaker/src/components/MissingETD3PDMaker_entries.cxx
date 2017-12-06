@@ -1,12 +1,3 @@
-// $Id$
-/**
- * @file MissingETD3PDMaker/src/components/MissingETD3PDMaker_entries.cxx
- * @author Jet Goodson <jgoodson@cern.ch>
- * @date Oct, 2009
- * @brief List Gaudi components.
- */
-
-
 #include "MissingETD3PDMaker/MissingETFillerTool.h"
 #include "MissingETD3PDMaker/ScalarMissingETFillerTool.h"
 #include "MissingETD3PDMaker/SumETFillerTool.h"
@@ -28,49 +19,25 @@
 #include "MissingETD3PDMaker/MissingETCompAssociationTool.h"
 #include "../MissingETContainerFillerTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, ScalarMissingETFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, SumETFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETPhiFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETTruthNonIntFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, ScalarMissingETTruthNonIntFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, SumETTruthNonIntFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETTruthNonIntPhiFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, ScalarMissingETTruthIntFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, SumETTruthIntFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETTruthIntPhiFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETTruthIntFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETEtaRingsFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETJetsInfoFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETGoodnessFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETRegionFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETCaloSamplingFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETCaloEMFracSETFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETCompAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETContainerFillerTool)
-
-DECLARE_FACTORY_ENTRIES(MissingETD3PDMaker) {
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, ScalarMissingETFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, SumETFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETPhiFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETTruthNonIntFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, ScalarMissingETTruthNonIntFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETTruthNonIntPhiFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, SumETTruthNonIntFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, ScalarMissingETTruthIntFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETTruthIntPhiFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, SumETTruthIntFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETTruthIntFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETEtaRingsFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETJetsInfoFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETGoodnessFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETRegionFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETCaloSamplingFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETCaloEMFracSETFillerTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETCompAssociationTool)
-    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETContainerFillerTool)
-     }
+DECLARE_COMPONENT( D3PD::MissingETFillerTool )
+DECLARE_COMPONENT( D3PD::ScalarMissingETFillerTool )
+DECLARE_COMPONENT( D3PD::SumETFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETPhiFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETTruthNonIntFillerTool )
+DECLARE_COMPONENT( D3PD::ScalarMissingETTruthNonIntFillerTool )
+DECLARE_COMPONENT( D3PD::SumETTruthNonIntFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETTruthNonIntPhiFillerTool )
+DECLARE_COMPONENT( D3PD::ScalarMissingETTruthIntFillerTool )
+DECLARE_COMPONENT( D3PD::SumETTruthIntFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETTruthIntPhiFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETTruthIntFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETEtaRingsFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETJetsInfoFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETGoodnessFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETRegionFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETCaloSamplingFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETCaloEMFracSETFillerTool )
+DECLARE_COMPONENT( D3PD::MissingETCompAssociationTool )
+DECLARE_COMPONENT( D3PD::MissingETContainerFillerTool )
 

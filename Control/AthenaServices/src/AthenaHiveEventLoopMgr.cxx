@@ -116,8 +116,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
   declareProperty("FakeTimestampInterval", m_timeStampInt = 1,
                   "timestamp interval between events when creating Events "
                   "without an EventSelector");
-  declareProperty("ShowTimestamp", m_showTimeStamp = false,
-                  "show timestamp in heartbeat");
 
   m_scheduledStop = false;
 
@@ -656,6 +654,9 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
     return (StatusCode::SUCCESS);
   }
 
+  // Make sure context with slot is set before calling es->next().
+  Gaudi::Hive::setCurrentContext (*evtContext);
+
   int declEvtRootSc = declareEventRootAddress(evtContext);
   if (declEvtRootSc == 0 ) { // We ran out of events!
     createdEvts = -1;  // Set created event to a negative value: we finished!
@@ -673,7 +674,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   assert(pEvent);
 
   // Make sure context is set before firing any incidents.
-  Gaudi::Hive::setCurrentContext (*evtContext);
+  //Gaudi::Hive::setCurrentContext (*evtContext);
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
@@ -710,12 +711,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
       }
   }
 
-
   EventID::number_type evtNumber = pEvent->event_ID()->event_number();
-  // evtContext->setEventID(EventIDBase(pEvent->event_ID()->run_number(),
-  //       			     pEvent->event_ID()->event_number(),
-  //       			     pEvent->event_ID()->time_stamp(),
-  //       			     pEvent->event_ID()->time_stamp_ns_offset()));
   evtContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
 
   unsigned int conditionsRun = pEvent->event_ID()->run_number();
@@ -729,32 +725,32 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   }
   evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun (conditionsRun);
 
+  // Make sure context global context has event id
+  Gaudi::Hive::setCurrentContext (*evtContext);
+
+  // Record EventContext in current whiteboard
+  if (eventStore()->record(std::make_unique<EventContext> (*evtContext),
+                           "EventContext").isFailure())
+  {
+    m_msg << MSG::ERROR 
+          << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
+
   m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
 		 0 == (m_nev % m_eventPrintoutInterval.value()));
   if (m_doEvtHeartbeat)  {
-    if(!m_useTools) {
-      m_msg << MSG::INFO
-            << "  ===>>>  start processing event #" << evtNumber 
-            << ", run #" << m_currentRun;
-      if (m_showTimeStamp && pEvent->event_ID()->isTimeStamp()) {
-        m_msg << " [t=" << pEvent->event_ID()->time_stamp() << ".";
-        if (pEvent->event_ID()->time_stamp_ns_offset() != 0) {
-          m_msg << std::setfill('0') << std::setw(9);
-        } else {
-          m_msg << "0";
-        }
-        m_msg << "]";
-      }
-      m_msg << " on slot " << evtContext->slot() << ",  " << m_proc 
-            << " events processed so far  <<<===" << endmsg;
-    } else  {
-      m_msg << MSG::INFO
-            << "  ===>>>  start processing event #" << evtNumber 
-            << ", run #" << m_currentRun 
-            << " on slot " << evtContext->slot() << ",  " 
-            << m_nev << " events read and " << m_proc 
-            << " events processed so far  <<<===" << endmsg;   
-    }
+   if(!m_useTools) 
+     m_msg << MSG::INFO
+           << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
+           << " on slot " << evtContext->slot() << ",  " << m_proc 
+           << " events processed so far  <<<===" << endmsg;
+   else 
+     m_msg << MSG::INFO
+           << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
+           << " on slot " << evtContext->slot() << ",  " 
+           << m_nev << " events read and " << m_proc 
+           << " events processed so far  <<<===" << endmsg;   
   }
 
   // Reset the timeout singleton
@@ -1229,15 +1225,6 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
     debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " 
 	    << evtContext->slot() << endmsg;
   }
-
-  if (eventStore()->record(std::make_unique<EventContext> (*evtContext),
-                           "EventContext").isFailure())
-  {
-    m_msg << MSG::ERROR 
-          << "Error recording event context object" << endmsg;
-    return (StatusCode::FAILURE);
-  }
-
   return sc;
 }
 

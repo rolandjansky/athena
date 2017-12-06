@@ -21,11 +21,11 @@ using fastjet::VoronoiAreaSpec;
 //**********************************************************************
 
 EventDensityTool::EventDensityTool(const std::string& name)
-: asg::AsgTool(name),
+  : asg::AsgTool(name),
   m_useAreaFourMom(true),
   m_rhoDec(""), 
   m_sigmaDec(""), 
-  m_areaDec("") {
+  m_areaDec("") {  
   declareProperty("JetAlgorithm",    m_jetalg  = "Kt");
   declareProperty("JetRadius",       m_jetrad  = 0.4);
   declareProperty("JetInput",        m_pjgetter);
@@ -89,7 +89,7 @@ StatusCode EventDensityTool::initialize() {
   ATH_MSG_INFO("   AbsRapidityMax: " << m_rapmax);
   ATH_MSG_INFO("   AreaDefinition: " << m_areadef);
   ATH_MSG_INFO("     VoronoiRfact: " << m_vrfact);
-  ATH_MSG_INFO("  OutputContainer: " << m_outcon);
+  ATH_MSG_INFO("  OutputContainer: " << m_outcon.key());
   ATH_MSG_INFO("Derived properties:");
   ATH_MSG_INFO("        Fastjet jet defn: " << m_fjjetdef.description());
   ATH_MSG_INFO("       Fastjet area defn: " << m_fjareadef.description());
@@ -101,6 +101,11 @@ StatusCode EventDensityTool::initialize() {
   m_sigmaDec = SG::AuxElement::Accessor<float>("DensitySigma");
   m_areaDec  = SG::AuxElement::Accessor<float>("DensityArea");
 
+  // DataHandles
+  ATH_CHECK( m_outcon.initialize() );
+  m_outconIn = m_outcon.key();
+  ATH_CHECK( m_outconIn.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -110,19 +115,31 @@ StatusCode EventDensityTool::fillEventShape() const {
   
   ATH_MSG_DEBUG("Begin fillEventShape()");
 
-  if ( evtStore()->contains<xAOD::EventShape>(m_outcon) ){
-    ATH_MSG_WARNING( "EventShape with key "<< m_outcon << " already exists. Not overwriting it." );
-    return StatusCode::SUCCESS;      
+  // check if not already existing
+  auto handle_inOut = SG::makeHandle (m_outconIn);
+  if ( handle_inOut.isValid() ) {
+    ATH_MSG_WARNING( "EventShape with key "<< m_outconIn.key() << " already exists. Not overwriting it." );
+    return StatusCode::SUCCESS;
   }
 
   xAOD::EventShape *pevs = new xAOD::EventShape();
-  xAOD::EventShapeAuxInfo* aux = new xAOD::EventShapeAuxInfo();
-  pevs->setStore( aux );
-  ATH_CHECK( evtStore()->record( aux, m_outcon + "Aux." ) );
-  ATH_CHECK( evtStore()->record( pevs, m_outcon ) );
-  ATH_MSG_DEBUG("Created new EventShape container: " << m_outcon);
+  std::unique_ptr<const xAOD::EventShape> pevs_ptr(pevs);
 
-  return fillEventShape(pevs);  
+  xAOD::EventShapeAuxInfo* pevsaux = new xAOD::EventShapeAuxInfo();
+  std::unique_ptr<const xAOD::EventShapeAuxInfo> pevsaux_ptr(pevsaux);
+  pevs->setStore( pevsaux );
+
+  // Change the order: first fill the object and then record
+  ATH_CHECK(fillEventShape(pevs));  
+
+  SG::WriteHandle<xAOD::EventShape> h_out(m_outcon);
+  if ( ! h_out.put(std::move(pevs_ptr), std::move(pevsaux_ptr) )) {
+    ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outcon.key());
+  } else {
+    ATH_MSG_DEBUG("Created new EventShape container: " << m_outcon.key());
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

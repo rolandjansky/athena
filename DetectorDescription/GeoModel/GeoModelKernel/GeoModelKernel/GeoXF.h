@@ -8,8 +8,8 @@
 //  evaluate to a HepTransform.                                         //
 //                                                                      //
 //----------------------------------------------------------------------//
-#ifndef GeoTransformFunction_h
-#define GeoTransformFunction_h 1
+#ifndef GEOMODELKERNEL_GEOTRANSFORMFUNCTION_H
+#define GEOMODELKERNEL_GEOTRANSFORMFUNCTION_H
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
 #include "CLHEP/GenericFunctions/Argument.hh"
 #include "CLHEP/Geometry/Transform3D.h"

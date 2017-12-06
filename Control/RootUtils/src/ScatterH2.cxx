@@ -382,44 +382,4 @@ ScatterH2::rescale (const char* name, double xscale, double yscale) const
 }
 
 
-/// Required for ROOT persistency.
-void ScatterH2::Streamer(TBuffer &b)
-{
-  if (b.IsReading()) {
-    IsA()->ReadBuffer(b, this);
-  } else {
-    IsA()->WriteBuffer(b,this);
-  }
-}
-
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-/// Required for ROOT persistency.
-void ScatterH2::ShowMembers(TMemberInspector &insp)
-{
-  // Inspect the data members of an object of class ScatterH2.
-  TClass *cl = ScatterH2::IsA();
-  insp.Inspect(cl, insp.GetParent(), "m_scatter", &m_scatter);
-  insp.Inspect(cl, insp.GetParent(), "m_shadestep", &m_shadestep);
-  insp.Inspect(cl, insp.GetParent(), "m_vals", &m_vals);
-  TH2F::ShowMembers(insp);
-}
-#endif
-
-
-TClass* ScatterH2::Class()
-{
-  if (!fgIsA)
-    fgIsA = TClass::GetClass ("RootUtils::ScatterH2");
-  return fgIsA;
-}
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
-atomic_TClass_ptr ScatterH2::fgIsA;
-#else
-TClass* ScatterH2::fgIsA = 0;
-#endif
-
-
 } // namespace RootUtils

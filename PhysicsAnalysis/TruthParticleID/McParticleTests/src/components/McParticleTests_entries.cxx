@@ -5,15 +5,9 @@
 #include "McParticleKernel/IMcVtxFilterTool.h"
 #include "McParticleKernel/ITruthParticleCnvTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
   
-DECLARE_ALGORITHM_FACTORY( McAodSymLinkTests  )
+DECLARE_COMPONENT( McAodSymLinkTests )
 using namespace McAod;
-DECLARE_ALGORITHM_FACTORY( McTopAna )
-DECLARE_ALGORITHM_FACTORY( McTopAnaSolution )
+DECLARE_COMPONENT( McTopAna )
+DECLARE_COMPONENT( McTopAnaSolution )
 
-DECLARE_FACTORY_ENTRIES( McParticleTests ) {
-  DECLARE_ALGORITHM( McAodSymLinkTests )
-  DECLARE_ALGORITHM( McTopAna )
-  DECLARE_ALGORITHM( McTopAnaSolution )
-}

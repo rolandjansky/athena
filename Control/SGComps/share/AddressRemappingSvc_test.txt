@@ -1,9 +1,15 @@
-ApplicationMgr.ExtSvc += { "AddressRemappingSvc/ARSTest1", "AddressRemappingSvc/ARSTest2" };
+ApplicationMgr.ExtSvc += { "AddressRemappingSvc/ARSTest1",
+                           "AddressRemappingSvc/ARSTest2",
+                           "TestAlgResourcePool/TestAlgResourcePool",
+                           "SG::HiveMgrSvc/EventDataSvc",
+                           "AthenaEventLoopMgr/AthenaEventLoopMgr"};
 ARSTest1.TypeKeyRenameMaps = {"bad1", "bad2", "foo#asdasd->zzz"};
 ARSTest2.TypeKeyRenameMaps = {};
-AddressRemappingSvc.TypeKeyRenameMaps = { "AddressRemappingSvc_test::Foo#foo1->bar1",
+AddressRemappingSvc.TypeKeyRenameMaps = { "AddressRemappingSvc_test::xAODFoo#foo1->bar1",
                                           "874546632#foo2->bar2",
                                           "874546632#foo2.d3->bar2.x3",
-                                          "AddressRemappingSvc_test::Foo#foo3.d1->foo3.x1"
+                                          "AddressRemappingSvc_test::xAODFoo#foo3.d1->foo3.x1"
                                           };
+AddressRemappingSvc.AlgResourcePool = "TestAlgResourcePool";
 
+ApplicationMgr.EventLoop = "AthenaEventLoopMgr";

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "MuonTrackingGeometry/MuonTrackingGeometryBuilder.h"
 #include "MuonTrackingGeometry/MuonStationBuilder.h"
 #include "MuonTrackingGeometry/MuonStationTypeBuilder.h"
@@ -7,17 +6,8 @@
 
 using namespace Muon;
 
-DECLARE_TOOL_FACTORY( MuonTrackingGeometryBuilder )
-DECLARE_TOOL_FACTORY( MuonStationBuilder )
-DECLARE_TOOL_FACTORY( MuonStationTypeBuilder )
-DECLARE_TOOL_FACTORY( MuonInertMaterialBuilder )
-
-DECLARE_FACTORY_ENTRIES( MuonTrackingGeometry )
-{
-  DECLARE_TOOL( MuonTrackingGeometryBuilder )  
-  DECLARE_TOOL( MuonStationBuilder )  
-  DECLARE_TOOL( MuonStationTypeBuilder )  
-  DECLARE_TOOL( MuonInertMaterialBuilder )  
-}
-
+DECLARE_COMPONENT( MuonTrackingGeometryBuilder )
+DECLARE_COMPONENT( MuonStationBuilder )
+DECLARE_COMPONENT( MuonStationTypeBuilder )
+DECLARE_COMPONENT( MuonInertMaterialBuilder )
 

@@ -62,7 +62,7 @@ void SCT_ClusterContainerCnv_p3::transToPers(const InDet::SCT_ClusterContainer* 
     //to retrieve the SCT_ID helper
     if(!m_isInitialized) {
       if (this->initialize(log) != StatusCode::SUCCESS) {
-	log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endmsg;
+        log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endmsg;
       }
     }
 
@@ -88,10 +88,10 @@ void SCT_ClusterContainerCnv_p3::transToPers(const InDet::SCT_ClusterContainer* 
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
         InDet::InDetPRD_Collection_p2& pcollection = persCont->m_collections[collIndex];
-	unsigned int deltaId = (collection.identifyHash()-idLast);
+        unsigned int deltaId = (collection.identifyHash()-idLast);
 
         pcollection.m_hashId = deltaId;
-	idLast=collection.identifyHash();
+        idLast=collection.identifyHash();
         pcollection.m_size = collection.size();
         // Add in channels
 
@@ -100,7 +100,7 @@ void SCT_ClusterContainerCnv_p3::transToPers(const InDet::SCT_ClusterContainer* 
             const InDet::SCT_Cluster* chan = dynamic_cast<const InDet::SCT_Cluster*>(collection[i]);
             chanCnv.transToPers(chan, pchan, log);
 
-	    persCont->m_prdDeltaId[i+chanBegin]=m_sctId->calc_offset(collection.identify(), chan->identify() );
+            persCont->m_prdDeltaId[i+chanBegin]=m_sctId->calc_offset(collection.identify(), chan->identify() );
         }
     }
 
@@ -108,6 +108,11 @@ void SCT_ClusterContainerCnv_p3::transToPers(const InDet::SCT_ClusterContainer* 
 
 void  SCT_ClusterContainerCnv_p3::persToTrans(const InDet::SCT_ClusterContainer_p3* persCont, InDet::SCT_ClusterContainer* transCont, MsgStream &log) 
 {
+    if(!m_isInitialized) {
+        if (this->initialize(log) != StatusCode::SUCCESS) {
+            log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p3 from persToTrans" << endmsg;
+        }
+    }
 
     // The transient model has a container holding collections and the
     // collections hold channels.
@@ -136,7 +141,7 @@ void  SCT_ClusterContainerCnv_p3::persToTrans(const InDet::SCT_ClusterContainer_
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - in NOT owner of SCT_DriftCircle (SG::VIEW_ELEMENTS)
-	// IDet collection don't have the Ownership policy c'tor
+        // IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p2& pcoll = persCont->m_collections[icoll];       
         idLast += pcoll.m_hashId;
         // Identifier collID= Identifier(idLast);
@@ -154,14 +159,14 @@ void  SCT_ClusterContainerCnv_p3::persToTrans(const InDet::SCT_ClusterContainer_
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const InDet::SCT_Cluster_p3* pchan = &(persCont->m_rawdata[ichan + collBegin]);
             //chan->m_clusId=Identifier(collID.get_compact()+persCont->m_prdDeltaId[ichan + collBegin]);
-	    Identifier clusId=m_sctId->strip_id_offset(coll->identify() , persCont->m_prdDeltaId[ichan + collBegin]);
+            Identifier clusId=m_sctId->strip_id_offset(coll->identify() , persCont->m_prdDeltaId[ichan + collBegin]);
             InDet::SCT_Cluster* chan = new InDet::SCT_Cluster
               (chanCnv.createSCT_Cluster (pchan, clusId, de, log));
             
-	    //            chan->m_rdoList.resize(1);
+            //            chan->m_rdoList.resize(1);
             //            chan->m_rdoList[0]=chan->m_clusId;
             //DC Bugfix: Set the idhash for this channel
-	    chan->setHashAndIndex(collIDHash,ichan);
+            chan->setHashAndIndex(collIDHash,ichan);
             (*coll)[ichan] = chan;
         }
         collBegin += pcoll.m_size;

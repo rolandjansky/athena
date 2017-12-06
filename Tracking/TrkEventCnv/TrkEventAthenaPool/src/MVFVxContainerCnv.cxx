@@ -51,12 +51,14 @@ StatusCode MVFVxContainerCnv::initialize()
   return StatusCode::SUCCESS;
 }
 
-MVFVxContainer_PERS * MVFVxContainerCnv::createPersistent( MVFVxContainer *transCont)
+
+MVFVxContainer_PERS * MVFVxContainerCnv::createPersistent( MVFVxContainer* )
 { 
-    MsgStream log(msgSvc());
-    // updateLog();
-  return m_TPConverter.createPersistent( transCont, log );
+   MsgStream log(msgSvc(), "MVFVxContainerCnv" );
+   log << MSG::ERROR << "createPersistent() is obsolete" << endmsg;
+   return nullptr;
 }
+
 
 MVFVxContainer * MVFVxContainerCnv::createTransient()
 {

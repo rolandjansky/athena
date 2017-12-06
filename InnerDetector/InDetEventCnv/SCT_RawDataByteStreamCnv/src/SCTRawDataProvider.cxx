@@ -9,7 +9,7 @@
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetIdentifier/SCT_ID.h"
-
+#include "EventContainers/IdentifiableContTemp.h"
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 /// --------------------------------------------------------------------
@@ -26,7 +26,8 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   m_roiCollectionKey{""},
   m_rdoContainerKey{""},
   m_lvl1CollectionKey{""},
-  m_bcidCollectionKey{""}
+  m_bcidCollectionKey{""},
+  m_rdoContainerCacheKey{""}
 {
   declareProperty("RoIs", m_roiCollectionKey = std::string{""}, "RoIs to read in");
   declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
@@ -35,6 +36,7 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   declareProperty("BCIDKey", m_bcidCollectionKey = std::string{"SCT_BCID"});
   declareProperty("ByteStreamErrContainer", m_bsErrContainerKey = std::string{"SCT_ByteStreamErrs"});
   declareProperty("CablingSvc", m_cabling);
+  declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }
 
 /// --------------------------------------------------------------------
@@ -57,17 +59,31 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK(m_lvl1CollectionKey.initialize());
   ATH_CHECK(m_bcidCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
+  ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
   return StatusCode::SUCCESS;
 }
 
+typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawData>> DummySCTRDO;
+
 /// --------------------------------------------------------------------
 /// Execute
-
 StatusCode SCTRawDataProvider::execute()
 {
+
+  m_rawDataTool->BeginNewEvent();
+
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
-  ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max())));
-  ATH_CHECK(rdoContainer.isValid());
+  bool externalcacheRDO = !m_rdoContainerCacheKey.key().empty();
+  if(!externalcacheRDO){
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max())));
+    ATH_MSG_DEBUG("Created container for " << m_sct_id->wafer_hash_max());
+  }else{
+    SG::UpdateHandle<SCT_RDO_Cache> update(m_rdoContainerCacheKey);
+    ATH_CHECK(update.isValid());
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(update.ptr())));
+    ATH_MSG_DEBUG("Created container using cache for " << m_rdoContainerCacheKey.key());
+  }
+
   
   SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey);
   ATH_CHECK(bsErrContainer.record(std::make_unique<InDetBSErrContainer>()));
@@ -118,21 +134,25 @@ StatusCode SCTRawDataProvider::execute()
      **/
     
     unsigned int lvl1id{(*rob_it)->rod_lvl1_id()};
-    std::unique_ptr<std::pair<uint32_t, unsigned int>> lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(std::make_pair(robid, lvl1id))};
+    auto lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(robid, lvl1id)};
     lvl1Collection->push_back(std::move(lvl1Pair));
     
     unsigned int bcid{(*rob_it)->rod_bc_id()};
-    std::unique_ptr<std::pair<uint32_t, unsigned int>> bcidPair{std::make_unique<std::pair<uint32_t, unsigned int>>(std::make_pair(robid, bcid))};
+    auto bcidPair{std::make_unique<std::pair<uint32_t, unsigned int>>(robid, bcid)};
     bcidCollection->push_back(std::move(bcidPair));
     
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1id << " and BCID " << bcid << " in InDetTimeCollections");
     
   }
-
+  std::unique_ptr<DummySCTRDO> dummyrdo;
+  if(externalcacheRDO) dummyrdo = std::make_unique<DummySCTRDO>(rdoContainer.ptr());
+  ISCT_RDO_Container *rdoInterface = externalcacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
+                     : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfRobf, *rdoContainer, bsErrContainer.ptr()).isFailure()) {
-    ATH_MSG_ERROR("BS conversion into RDOs failed");
+  if (m_rawDataTool->convert(listOfRobf, *rdoInterface, bsErrContainer.ptr()).isFailure()) {
+    ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
+  if(dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());
   
   return StatusCode::SUCCESS;
 }

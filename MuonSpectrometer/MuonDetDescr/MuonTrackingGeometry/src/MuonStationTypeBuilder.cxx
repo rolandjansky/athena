@@ -36,6 +36,7 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkVolumes/SimplePolygonBrepVolumeBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/DiamondBounds.h"
 #include "TrkGeometrySurfaces/SubtractedPlaneSurface.h"
@@ -61,6 +62,7 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+#include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -109,20 +111,13 @@ StatusCode Muon::MuonStationTypeBuilder::initialize()
 {
     
     // get Muon Spectrometer Description Manager
-    StatusCode ds = detStore()->retrieve(m_muonMgr);
-
-    if (ds.isFailure()) {
-      ATH_MSG_ERROR( "Could not get MuonDetectorManager, no layers for muons will be built. " );
-    }
+    ATH_CHECK( detStore()->retrieve(m_muonMgr) );
 
     ATH_MSG_DEBUG( m_muonMgr->geometryVersion()); 
     
     // Retrieve the tracking volume array creator   -------------------------------------------    
-    if (m_trackingVolumeArrayCreator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_trackingVolumeArrayCreator);
-      return StatusCode::FAILURE;
-    } else
-      ATH_MSG_INFO("Retrieved tool " << m_trackingVolumeArrayCreator);
+    ATH_CHECK( m_trackingVolumeArrayCreator.retrieve() );
+    ATH_MSG_INFO("Retrieved tool " << m_trackingVolumeArrayCreator);
 
     // default (trivial) muon material properties 
     m_muonMaterial = new Trk::Material(10e10,10e10,0.,0.,0.);      
@@ -2416,9 +2411,19 @@ double Muon::MuonStationTypeBuilder::decodeX(const GeoShape* sh) const
   const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (sh);
   const GeoShapeUnion* uni = dynamic_cast<const GeoShapeUnion*> (sh);
   const GeoShapeSubtraction* sub = dynamic_cast<const GeoShapeSubtraction*> (sh);
+  const GeoSimplePolygonBrep* spb = dynamic_cast<const GeoSimplePolygonBrep*> (sh);
 
-  if (!trd && !box && !tub && !shift && !uni && !sub ) 
+  if (!trd && !box && !tub && !shift && !uni && !sub && !spb) {
     std::cout << "MuonStationTypeBuilder::decodeX : unknown shape type ?" <<sh->type() << std::endl;  
+  }
+
+  if(spb) {
+    for (unsigned int i=0;i<spb->getNVertices();i++) {
+        ATH_MSG_DEBUG( " XVertex " << spb->getXVertex(i) << " YVertex " << spb->getYVertex(i) );
+        if(spb->getXVertex(i)>xHalf) xHalf = spb->getXVertex(i);
+    }
+    ATH_MSG_DEBUG( " GeoSimplePolygonBrep xHalf " << xHalf );
+  }
 
   //  if (trd ) std::cout << "trapezoid dimensions:" << trd->getXHalfLength1()<<"," << trd->getXHalfLength2()<<
   //	      "," << trd->getYHalfLength1()<<"," << trd->getYHalfLength2()<<"," << trd->getZHalfLength() << std::endl; 
@@ -2605,12 +2610,14 @@ Identifier Muon::MuonStationTypeBuilder::identifyNSW( std::string vName, Amg::Tr
 {
   Identifier id(0);
 
-  if ((vName[0]=='T') || (vName[0]=='M')) {     // NSW stations
+  if ((vName[0]=='Q') || (vName[0]=='M')) {     // NSW stations
     // station eta
     std::istringstream istr(&vName[1]);
     int iEta;
-    istr >> iEta;
-    iEta += 1; 
+    if(vName[0]=='Q') {
+      std::istringstream istr2(&vName[2]);
+      istr2 >> iEta;
+    } else istr >> iEta;
     if (transf.translation().z()<0.) iEta *= -1;
     // station Phi
     unsigned int iPhi = 1;
@@ -2619,14 +2626,16 @@ Identifier Muon::MuonStationTypeBuilder::identifyNSW( std::string vName, Amg::Tr
     std::istringstream istm(&vName[3]);
     int iMult;
     istm >> iMult;
+    if(vName[0]=='Q'&&vName[3]=='P') iMult = 1;
+    if(vName[0]=='Q'&&vName[3]=='C') iMult = 2;
     // layer
     std::string stl(&vName[vName.size()-1]);
     std::istringstream istl(stl);
     int iLay;
     istl >> iLay;
     iLay += 1;
-    if (vName[0]=='T') {
-      std::string stName = (vName[2]=='L') ? "STL" : "STS";
+    if (vName[0]=='Q') {
+      std::string stName = (vName[1]=='L') ? "STL" : "STS";
       //int stId = (vName[2]=='L') ? 0 : 1;
       id = m_muonMgr->stgcIdHelper()->channelID(stName,iEta,iPhi,iMult,iLay,1,1);
     } else {
@@ -2652,12 +2661,14 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
   unsigned int layType = 0;  
 
   //std::cout <<vName[0]<<","<<vName[1]<<","<<vName[2]<< ","<<vName[vName.size()-1]<<std::endl;
-  if ((vName[0]=='T') || (vName[0]=='M')) {     // NSW stations
+  if ((vName[0]=='Q') || (vName[0]=='M')) {     // NSW stations
     // station eta
     std::istringstream istr(&vName[1]);
     int iEta;
-    istr >> iEta;
-    iEta += 1; 
+    if(vName[0]=='Q') {
+      std::istringstream  istr2(&vName[2]);
+      istr2 >> iEta;
+    } else istr >> iEta;
     if (transf.translation().z()<0.) iEta *= -1;
     // station Phi
     unsigned int iPhi = 1;
@@ -2666,13 +2677,15 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
     std::istringstream istm(&vName[3]);
     unsigned int iMult;
     istm >> iMult;
+    if(vName[0]=='Q'&&vName[3]=='P') iMult = 1;
+    if(vName[0]=='Q'&&vName[3]=='C') iMult = 2;
     // layer
     std::string stl(&vName[vName.size()-1]);
     std::istringstream istl(stl);
     unsigned int iLay;
     istl >> iLay;
     iLay += 1;
-    if (vName[0]=='T') {
+    if (vName[0]=='Q') {
       std::string stName = (vName[2]=='L') ? "STL" : "STS";
       int stId = (vName[2]=='L') ? 0 : 1;
       Identifier id = m_muonMgr->stgcIdHelper()->channelID(stName,iEta,iPhi,iMult,iLay,1,1);

@@ -39,6 +39,7 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   , m_OFNI(false)
   , m_corrtime(false)
   , m_tileToolEmscale("TileCondToolEmscale")
+  , m_beamInfo("TileBeamInfoProvider")
   , m_tileBadChanTool("TileBadChanTool")
   , m_robSvc("ROBDataProviderSvc", name)
   , m_evEref{}

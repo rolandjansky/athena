@@ -5,8 +5,8 @@
 #ifndef LARCALIBDIGITCONTAINER_H
 #define LARCALIBDIGITCONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "LArRawEvent/LArCalibDigit.h"
 

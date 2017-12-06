@@ -29,7 +29,7 @@ public:
   virtual ~MuonDetectorTool() override final;
 
   //initialize - needed to retrieve the alignment Tool 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
     
   //register call back to condition data 
@@ -45,7 +45,7 @@ public:
   virtual StatusCode clear() override final;
 
   // incident svc handle
-  virtual void handle(const Incident&);
+  virtual void handle(const Incident&) override;
 
 
 private:

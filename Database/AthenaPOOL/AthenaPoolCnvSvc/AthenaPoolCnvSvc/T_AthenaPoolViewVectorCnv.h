@@ -19,13 +19,14 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "AthenaPoolCnvSvc/exceptions.h"
+#include "AthenaPoolCnvSvc/debug.h"
 #include "StorageSvc/DbReflex.h"
 #include "AthContainers/ViewVector.h"
 #include "AthContainers/dataVectorAsELV.h"
 #include "AthContainers/ConstDataVector.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "CxxUtils/StrFormat.h"
 #include <vector>
 #include <cstdlib>

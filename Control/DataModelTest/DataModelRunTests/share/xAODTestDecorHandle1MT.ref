@@ -1,24 +1,24 @@
-Fri Sep 15 16:59:00 CEST 2017
+Mon Oct 16 19:48:38 CEST 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/ba9ec413b9] -- built on [2017-09-15T1452]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/16a61e8faf] -- built on [2017-10-16T1807]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO configuring AthenaHive with [1] concurrent threads
+Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle1MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle1_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5400 configurables from 58 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5421 configurables from 64 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
-                                          running on lxplus032.cern.ch on Fri Sep 15 16:59:20 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus032.cern.ch on Mon Oct 16 19:48:55 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -36,6 +36,8 @@ ThreadPoolSvc                                      INFO no thread init tools att
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
 AvalancheSchedulerSvc                              INFO Start checking the actionsQueue
+PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
+PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                              INFO Found 10 algorithms
 AvalancheSchedulerSvc                              INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg
@@ -173,7 +175,7 @@ AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processi
 xAODTestReadDecor                       19  0      INFO cvec.dInt1: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
 xAODTestReadDecor                       19  0      INFO cinfo.dInt1: 60000
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.290431
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.303719
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...
@@ -181,7 +183,6 @@ IncidentProcAlg2                                   INFO Finalize
 EventSelector                                      INFO finalize
 AvalancheSchedulerSvc                              INFO Joining Scheduler thread
 AvalancheSchedulerSvc                   19  0      INFO Terminating thread-pool resources
-TimelineSvc                                        INFO Outputting timeline with 200 entries to file  'TimelineFile':timeline.csv
 EventDataSvc                                       INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
 AthDictLoaderSvc                                   INFO in finalize...
 ToolSvc                                            INFO Removing all tools created by ToolSvc

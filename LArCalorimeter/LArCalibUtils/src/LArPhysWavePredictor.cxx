@@ -155,6 +155,9 @@ struct FileCloser
   FileCloser (FILE* the_f): f (the_f) {}
   ~FileCloser() { if (f) fclose(f); }
   FILE* f;
+
+  FileCloser (const FileCloser&) = delete;
+  FileCloser& operator= (const FileCloser&) = delete;
 };
 } // anonymous namespace
 
@@ -663,11 +666,6 @@ StatusCode LArPhysWavePredictor::stop()
           } // end of if ( m_testmode && nchannel>=1 )
 
         } // end loop over DAC value for a given cell
-
-	// intermediate map cleanup (save memory)
-	const LArCaliWaveVec* cvec = &(*itVec);
-        LArCaliWaveVec* vec = const_cast<LArCaliWaveVec*>(cvec);
-        vec->clear();
 
       }  // end loop over cells for a given gain
 

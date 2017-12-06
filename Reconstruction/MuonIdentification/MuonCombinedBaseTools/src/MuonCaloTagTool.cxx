@@ -142,6 +142,13 @@ namespace MuonCombined {
   
   }
 
+  void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
+					const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
+					const Muon::MMPrepDataContainer* mmPRDs ) {
+    //shouldn't need this interface for this tool, I don't think
+    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs) extend(inDetCandidates);
+  }
+
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) {
     extend(inDetCandidates, nullptr, nullptr);
   }

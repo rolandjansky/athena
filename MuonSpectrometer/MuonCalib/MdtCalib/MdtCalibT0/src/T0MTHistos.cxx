@@ -311,7 +311,10 @@ namespace MuonCalib {
     }
     char scrambuffer[100]; 
     snprintf(scrambuffer,100, "scrammt_t0_fermi");
-    TF1 *scramm_t0_fermi=new TF1(scrambuffer, m_t0_fermi, scramrec.GetFitRangeMin(), scramrec.GetFitRangeMax(), N_T0_FIT_PAR);
+    TF1* scramm_t0_fermi=new TF1();
+    m_t0_fermi->Copy(*scramm_t0_fermi);
+    scramm_t0_fermi->SetName(scrambuffer);
+    scramm_t0_fermi->SetRange(scramrec.GetFitRangeMin(),scramrec.GetFitRangeMax());
 //set parameter names
     scramm_t0_fermi->SetParName(T0_PAR_NR_T0, "t_{0}");
     scramm_t0_fermi->SetParName(T0_PAR_NR_T, "T");

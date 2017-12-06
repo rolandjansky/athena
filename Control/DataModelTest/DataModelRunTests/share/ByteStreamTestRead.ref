@@ -1,21 +1,20 @@
-Wed Jun 21 15:45:02 EDT 2017
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Fri Nov  3 18:38:36 CET 2017
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/1de7b3f4e9] -- built on [2017-11-03T1432]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/ByteStreamTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 442 configurables from 2 genConfDb files
+[?1034hPy:ConfigurableDb    INFO Read module info for 5424 configurables from 57 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Wed Jun 21 15:45:27 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus045.cern.ch on Fri Nov  3 18:38:54 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,12 +22,12 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 9499 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 9865 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 312 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 380 CLIDRegistry entries for module ALL
 ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
 ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
@@ -47,17 +46,16 @@ AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version Athena
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-11-02T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus045.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-PoolSvc              INFO Re-initializing PoolSvc
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1819 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1854 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO reinitialization...
@@ -67,7 +65,7 @@ EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 ToolSvc.ByteStr...   INFO handle() FirstInputFile, filename = BSF:test.bs
-ClassIDSvc           INFO  getRegistryEntries: read 106 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
 ByteStreamInputSvc   INFO Picked valid file: test.bs
 ToolSvc.ByteStr...   INFO handle() BeginInputFile, filename = BSF:test.bs
 ApplicationMgr       INFO Application Manager Started successfully
@@ -76,301 +74,23 @@ EventInfoByteSt...   INFO UserType : RawEvent
 EventInfoByteSt...   INFO IsSimulation : 0
 EventInfoByteSt...   INFO IsTestbeam : 0
 EventInfoByteSt...   INFO IsCalibration : 0
+EventInfoByteSt...   INFO  EventContext not valid 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-Warning in <TClass::Init>: no dictionary for class TauRecDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class ParticleBase_p1 is available
-Warning in <TClass::Init>: no dictionary for class IsoMuonFeatureContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigVertexCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TauDetailsContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2BjetContainer_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class CombinedMuonFeatureContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigEFBphysContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigSpacePointCountsCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class JetCollection_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class egDetailContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2JetContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauTracksInfoCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class egammaContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigEFBjetContainer_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrackCollection_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMissingETContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeatureContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrackCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrackCountsCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigElectronContainer_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class TrigRoiDescriptorCollection_tlp1 is available
 Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigPhotonContainer_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class TrigEMClusterContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigOperationalInfoCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfoContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2MbtsBitsContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TileMuFeatureContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2BphysContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class Rec::TrackParticleContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TauJetContainer_p3 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TileTrackMuFeatureContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrackParticleBase_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauJet_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigElectron_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigPhoton_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigEMCluster_p2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::Perigee_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauCommonDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2JetContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2Jet_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigCaloCluster_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2MbtsBitsContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigEMClusterContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauCluster_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigEMCluster_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEF_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfoTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrackSummary_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauCluster_p2 is available
-Warning in <TClass::Init>: no dictionary for class IsoMuonFeatureContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class IsoMuonFeature_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTau_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigVertexCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigVertex_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrackFitPar_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauDetailsContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauCommonExtraDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class Tau1P3PDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class Tau1P3PExtraDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauRecExtraDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class tauAnalysisHelperObject_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::RecVertex_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::Vertex_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::FitQuality_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::HepSymMatrix_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2BjetContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2Bjet_p2 is available
-Warning in <TClass::Init>: no dictionary for class CombinedMuonFeatureContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class CombinedMuonFeature_p1 is available
-Warning in <TClass::Init>: no dictionary for class CombinedMuonFeature_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigEFBphysContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigEFBphys_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigEFBphys_p2 is available
-Warning in <TClass::Init>: no dictionary for class Rec::TrackParticleContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigEFBjetContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigEFBjet_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigSpacePointCountsCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigSpacePointCounts_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigSpacePointCounts_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigHisto2D_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigSpacePointCounts_p3 is available
-Warning in <TClass::Init>: no dictionary for class JetCollection_p4 is available
-Warning in <TClass::Init>: no dictionary for class Jet_p4 is available
-Warning in <TClass::Init>: no dictionary for class JetAssociationBase_p1 is available
-Warning in <TClass::Init>: no dictionary for class egDetailContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeatureDetailsContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeatureDetailsContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeatureDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauTracksInfoCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauTracksInfo_p1 is available
-Warning in <TClass::Init>: no dictionary for class egammaContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class RingerRingsContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class RingerRingsContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class RingerRings_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigRNNOutputContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigRNNOutputContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigRNNOutput_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrackCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::Track_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrackStateOnSurface_p2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::CompetingRIOsOnTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::RIO_OnTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::PseudoMeasurementOnTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrackParameters_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::AtaSurface_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::MeasuredAtaSurface_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::MeasuredPerigee_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::BoundSurface_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::Surface_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::CylinderBounds_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::DiamondBounds_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::DiscBounds_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::RectangleBounds_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrapezoidBounds_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::RotatedTrapezoidBounds_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::DetElementSurface_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::MaterialEffectsBase_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::EnergyLoss_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::MaterialEffectsOnTrack_p2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::EstimatedBremOnTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::LocalDirection_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::LocalPosition_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::LocalParameters_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonEventCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonEventCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonEvent_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonROB_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonROBData_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonRoi_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonSeq_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonAlg_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonTE_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigElectronContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeatureContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeature_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrackCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrackFitPar_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrack_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrackCountsCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrackCounts_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrackCounts_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMissingETContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMissingET_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMissingET_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigRoiDescriptorCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigRoiDescriptor_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonConfigCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonConfigCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMonConfig_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigConfChain_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigConfSig_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigConfSeq_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigConfAlg_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigPhotonContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigCaloCluster_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigOperationalInfoCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigOperationalInfo_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfoContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfo_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfo_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfo_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfo_p4 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFTrack_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFTrack_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFTrack_p4 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFTrack_p5 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFCbTrack_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFCbTrack_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFCbTrack_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFCbTrack_p4 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfoTrackContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterDetailsContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterDetailsContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2MbtsBits_p1 is available
-Warning in <TClass::Init>: no dictionary for class TileMuFeatureContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TileMuFeature_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2BphysContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2Bphys_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2Bphys_p2 is available
-Warning in <TClass::Init>: no dictionary for class Rec::TrackParticle_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::VxCandidate_p1 is available
 Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_p1 is available
 Warning in <TClass::Init>: no dictionary for class CosmicMuon_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrtHitCountsCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrtHitCountsCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrtHitCounts_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigHisto1D_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p1 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegment_p1 is available
-Warning in <TClass::Init>: no dictionary for class TileTrackMuFeatureContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TileTrackMuFeature_p1 is available
-Warning in <TClass::Init>: no dictionary for class TileTrackMuFeature_p2 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeature_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2MbtsBits_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrackCollection_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrackFitPar_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigInDetTrack_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfoContainer_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfoContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfo_p5 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFTrack_p6 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFCbTrack_p6 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFInfoTrackContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::MuonTrackSummary_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::TrackInfo_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigVertexCountsCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigVertexCountsCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigVertexCounts_p1 is available
-Warning in <TClass::Init>: no dictionary for class IsoMuonFeatureContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TauDetailsContainer_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class TauCommonDetails_p2 is available
-Warning in <TClass::Init>: no dictionary for class CombinedMuonFeatureContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class JetCollection_tlp5 is available
-Warning in <TClass::Init>: no dictionary for class JetCollection_p5 is available
-Warning in <TClass::Init>: no dictionary for class Jet_p5 is available
-Warning in <TClass::Init>: no dictionary for class JetConverterTypes::momentum is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonClusterFeatureContainer_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonClusterFeatureContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonClusterFeature_p1 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeatureDetailsContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeatureContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigPassBitsCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterDetailsContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class Trk::InDetTrackSummary_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauJetContainer_p4 is available
-Warning in <TClass::Init>: no dictionary for class TrigElectronContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class IsoMuonFeatureContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class JetKeyDescriptorCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFCbTrack_p7 is available
-Warning in <TClass::Init>: no dictionary for class TrigTrtHitCountsCollection_p2 is available
-Warning in <TClass::Init>: no dictionary for class TileMuFeatureContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2JetContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigRoiDescriptorCollection_p2 is available
-Warning in <TClass::Init>: no dictionary for class JetCollection_p6 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauTracksInfoCollection_p2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::VxContainer_tlp2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::VxContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::ExtendedVxCandidate_p1 is available
-Warning in <TClass::Init>: no dictionary for class Trk::VxTrackAtVertex_p2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::RecVertex_p2 is available
-Warning in <TClass::Init>: no dictionary for class Trk::Track_p12 is available
-Warning in <TClass::Init>: no dictionary for class Trk::Perigee_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigPhotonContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TileTrackMuFeatureContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigMissingETContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigCaloClusterContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFIsolationContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class Jet_p6 is available
-Warning in <TClass::Init>: no dictionary for class JetCollection_tlp6 is available
-Warning in <TClass::Init>: no dictionary for class ElectronMuonTopoInfoContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigRNNOutputContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class CombinedMuonFeatureContainer_p4 is available
 Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigPassFlagsCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigL2BjetContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigT2MbtsBitsContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauClusterContainer_p5 is available
-Warning in <TClass::Init>: no dictionary for class RingerRingsContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigSpacePointCountsCollection_p4 is available
-Warning in <TClass::Init>: no dictionary for class TrigMuonEFContainer_p2 is available
-Warning in <TClass::Init>: no dictionary for class TrigEMClusterContainer_p4 is available
-Warning in <TClass::Init>: no dictionary for class JetMomentMapCollection_p6 is available
-Warning in <TClass::Init>: no dictionary for class MuonFeature_p3 is available
-Warning in <TClass::Init>: no dictionary for class TrigTauContainer_p3 is available
-Warning in <TClass::Init>: no dictionary for class TauDetailsContainer_tlp4 is available
-Warning in <TClass::Init>: no dictionary for class PanTauDetails_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauPi0Details_p2 is available
-Warning in <TClass::Init>: no dictionary for class TauPi0Candidate_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauPi0Cluster_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauShot_p1 is available
-Warning in <TClass::Init>: no dictionary for class TrigCompositeContainer_p1 is available
-Warning in <TClass::Init>: no dictionary for class TauJetContainer_p5 is available
-Warning in <TClass::Init>: no dictionary for class TrigEMCluster_p4 is available
 ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-00-00
-APR:DbReflex:forGuid Warning  doing GUID scan on ALL types for Class ID=10DE610D-5634-4D42-80D4-80B0A8C16452
+APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=10DE610D-5634-4D42-80D4-80B0A8C16452
 Warning in <TClass::Init>: no dictionary for class coral::AttributeList is available
-ClassIDSvc           INFO  getRegistryEntries: read 2547 CLIDRegistry entries for module ALL
-APR:DbReflex:forGuid Warning  doing GUID scan on ALL types for Class ID=2577D84A-BC0F-4CD2-9539-9F0A4EFC64AA
-ClassIDSvc           INFO  getRegistryEntries: read 73 CLIDRegistry entries for module ALL
-APR:DbReflex:forGuid Warning  doing GUID scan on ALL types for Class ID=740C4020-F0A3-40B3-88E1-B15A8055DB64
+ClassIDSvc           INFO  getRegistryEntries: read 13214 CLIDRegistry entries for module ALL
+APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=2577D84A-BC0F-4CD2-9539-9F0A4EFC64AA
+ClassIDSvc           INFO  getRegistryEntries: read 70 CLIDRegistry entries for module ALL
+APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=740C4020-F0A3-40B3-88E1-B15A8055DB64
 HLT_DMTest__CVec_cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 101 aFloat: 200 pInt: 501 pFloat: 0.01 anInt2: 301 dInt1: 401 dVar1: 451 dpInt1: 51 cEL: [9]
@@ -1881,7 +1601,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 ToolSvc.ByteStr...   INFO handle() LastInputFile, filename = stop
-Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize
@@ -1894,4 +1614,3 @@ ChronoStatSvc.f...   INFO  Service finalized successfully
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"
-CORAL/Services/ConnectionService Info Deleting the ConnectionPool

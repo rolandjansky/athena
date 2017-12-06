@@ -17,6 +17,8 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 //
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
@@ -30,6 +32,7 @@
 #include <list>
 #include <string>
 #include <map>
+#include <mutex>
 
 class SCT_ID;
 
@@ -93,9 +96,17 @@ private:
   float m_barrel_correction;
   float m_ecInner_correction;
   float m_ecOuter_correction;
-  mutable const SCT_DCSStatCondData* m_pBadModules;
-  mutable const SCT_DCSFloatCondData* m_pModulesHV;
-  mutable const SCT_DCSFloatCondData* m_pModulesTemp0;
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheState;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheHV;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheTemp0;
+  // Pointer of SCT_DCSStatCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSStatCondData> m_pBadModules;
+  // Pointers of SCT_DCSFloatCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesHV;
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesTemp0;
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState;
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
@@ -106,9 +117,9 @@ private:
   static const Identifier s_invalidId;
   static const float s_defaultHV;
   static const float s_defaultTemperature;
-  bool getCondDataState() const;
-  bool getCondDataHV() const;
-  bool getCondDataTemp0() const;
+  const SCT_DCSStatCondData* getCondDataState(const EventContext& ctx) const;
+  const SCT_DCSFloatCondData* getCondDataHV(const EventContext& ctx) const;
+  const SCT_DCSFloatCondData* getCondDataTemp0(const EventContext& ctx) const;
 };
 
 #endif // SCT_DCSConditionsSvc_h 

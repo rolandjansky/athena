@@ -276,7 +276,7 @@ StatusCode LArTimePhysPrediction::stop()
 	//use the "best" available parametrisation of the shower depth at the time of development
 	//WARNING: use the CaloDepthTool's convention radius=r(barrel), radius=z(end-cap)
 	//for HEC and FCAL: lengths could be moved in the job options
-	if(emId->is_lar_em(id)){
+	if(emId->is_lar_em(id) && m_CaloDepthTool){
 	  radius = m_CaloDepthTool->cscopt2_parametrized(sample,real_eta,real_phi);
 	}
 	else if(hecId->is_lar_hec(id)){//assumption: "arrival point" = middle of the compartment 

@@ -68,12 +68,11 @@ class LArRampComplete: public LArRampCompleteBase {
 
 };
 
-#ifndef __CINT__ 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArRampCompleteBase,ILArRamp);
+CLASS_DEF( LArRampCompleteBase, 157708224,1)
 CLASS_DEF( LArRampComplete, 236941963,1)
-CLASS_DEF( CondCont<LArRampCompleteBase> , 209705886 , 1 )
-#endif
+CONDCONT_DEF( LArRampCompleteBase, 209705886, ILArRamp );
+CONDCONT_DEF( LArRampComplete, 46870495, LArRampCompleteBase );
 
 #endif 

@@ -23,19 +23,25 @@ sTgcDigit::sTgcDigit(const Identifier& id, float time)
   : MuonDigit(id),
     m_bcTag(BC_CURRENT),
     m_charge(-1.),
-    m_time(time) { } 
+    m_time(time),
+    m_isDead(false),
+    m_isPileup(false) { } 
 //**********************************************************************
 sTgcDigit::sTgcDigit(const Identifier& id, uint16_t bctag, float time)
   : MuonDigit (id),
     m_bcTag (bctag),
     m_charge(-1.),
-    m_time(time) { }    
+    m_time(time),
+    m_isDead(false),
+    m_isPileup(false) { }    
 //**********************************************************************
-sTgcDigit::sTgcDigit(const Identifier& id, uint16_t bctag, float time, float charge)
+sTgcDigit::sTgcDigit(const Identifier& id, uint16_t bctag, float time, float charge, bool isDead, bool isPileup)
   : MuonDigit (id),
     m_bcTag(bctag),
     m_charge(charge),
-    m_time(time) { }    
+    m_time(time),
+    m_isDead(isDead),
+    m_isPileup(isPileup) { }    
 // //**********************************************************************
 // Validity check.
 
@@ -46,6 +52,14 @@ bool sTgcDigit::is_valid( const sTgcIdHelper *sTgcHelper ) const {
 // get BC tag
 uint16_t sTgcDigit::bcTag() const {
   return m_bcTag;
+}
+// get isDead
+bool sTgcDigit::isDead() const {
+  return m_isDead;
+}
+// get isPileup
+bool sTgcDigit::isPileup() const {
+  return m_isPileup;
 }
 // get the charge
 float sTgcDigit::charge() const { 
@@ -77,6 +91,20 @@ void sTgcDigit::set_bcTag(uint16_t newbcTag) {
 // Set the charge
 void sTgcDigit::set_charge(float newCharge) { 
   m_charge = newCharge; 
+}
+
+// Set the time
+void sTgcDigit::set_time(float newTime) { 
+  m_time = newTime; 
+}
+
+// Set isDead
+void sTgcDigit::set_isDead(bool newIsDead) { 
+  m_isDead = newIsDead; 
+}
+// Set isPileup
+void sTgcDigit::set_isPileup(bool newIsPileup) { 
+  m_isPileup = newIsPileup; 
 }
 
 

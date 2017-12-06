@@ -21,7 +21,6 @@ atlas_add_component( McEventSelector
                      src/McEventCnv.cxx
                      src/McCnvSvc.cxx
                      src/McEventSelector_entries.cxx
-                     src/McEventSelector_load.cxx
                      LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel SGTools EventInfo )
 
 # Install files from the package:

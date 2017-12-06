@@ -416,7 +416,10 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
 
   //do not overwrite a persistent object
   if (m_pPPS) {
-    DataProxy *dp(m_pPPS->retrieveProxy(dataID, skey, *m_pStore));
+    DataProxy* dp = m_pStore->proxy (dataID, skey);
+    if (!dp) {
+      dp = m_pPPS->retrieveProxy(dataID, skey, *m_pStore);
+    }
     if (dp && dp->provider()) {
       std::string clidTypeName; 
       m_pCLIDSvc->getTypeNameOfID(dataID, clidTypeName).ignore();
@@ -1087,7 +1090,10 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
   }
   if (!allowOverwrite && m_pPPS) {
     //do not overwrite a persistent object
-    DataProxy *dp(m_pPPS->retrieveProxy(clid, rawKey, *m_pStore));
+    DataProxy* dp = m_pStore->proxy (clid, rawKey);
+    if (!dp) {
+      dp = m_pPPS->retrieveProxy(clid, rawKey, *m_pStore);
+    }
     if (dp && dp->provider()) {
       std::string clidTypeName; 
       m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
@@ -1232,6 +1238,7 @@ SGImplSvc::t2pRemove(const void* const pTrans)
 void
 SGImplSvc::msg_update_handler(Property& /*outputLevel*/)
 {
+  setUpMessaging();
   msg().setLevel (outputLevel());
   msgSvc()->setOutputLevel(name(), outputLevel());
 }
@@ -1285,7 +1292,10 @@ bool SGImplSvc::bindHandleToProxy(const CLID& id, const string& key,
                                   IResetable* ir, DataProxy *&dp) 
 {
 
-  dp = (0 == m_pPPS) ? 0 : m_pPPS->retrieveProxy(id, key, *m_pStore);
+  dp = m_pStore->proxy (id, key);
+  if (dp == nullptr && m_pPPS != nullptr) {
+    dp = m_pPPS->retrieveProxy(id, key, *m_pStore);
+  }
 
   if (0 == dp) return false;
 

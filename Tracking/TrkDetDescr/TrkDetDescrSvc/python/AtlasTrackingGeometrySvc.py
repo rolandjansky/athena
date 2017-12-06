@@ -26,7 +26,7 @@ from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingGeometrySvc
 class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :   
 
     # constructor
-    def __init__(self,name = 'AtlasExtrapolator'):
+    def __init__(self,name = 'AtlasTrackingGeometrySvc'):
         
         if TrkDetFlags.ConfigurationOutputLevel() < 3 :
           print '[ Configuration : start ] *** '+name+' ********************************'

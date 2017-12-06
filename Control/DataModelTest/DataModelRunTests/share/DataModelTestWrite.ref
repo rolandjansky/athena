@@ -1,21 +1,21 @@
-Fri Mar 17 21:52:37 CET 2017
+Fri Oct 27 20:39:05 CEST 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaExternals-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-16 21:31]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/9f528da37a] -- built on [2017-10-27T2018]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/DataModelTestWrite_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5282 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5436 configurables from 58 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
+[?1034hPy:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on p05614910w96644.cern.ch on Fri Mar 17 21:52:56 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus012.cern.ch on Fri Oct 27 20:39:21 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,27 +23,27 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 8426 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 9608 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 720 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 754 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier05.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca20.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/multithreading/2017-03-16T2130/Athena/22.0.0/InstallArea/x86_64-slc6-gcc49-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host p05614910w96644.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-26T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:DataModelTestWrite_catalog.xml
-PoolSvc              INFO Re-initializing PoolSvc
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 577 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 724 CLIDRegistry entries for module ALL
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
 Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
 Stream1              INFO Found HelperTools = PrivateToolHandleArray([])
@@ -55,32 +55,31 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+ClassIDSvc           INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 104 CLIDRegistry entries for module ALL
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] DE40FF2F-B0DC-3647-A952-E8EC666EC6C5
-Domain[ROOT_All] Info                           SimplePoolFile.root
-RootDatabase.open Info SimplePoolFile.root File version:60802
-ClassIDSvc           INFO  getRegistryEntries: read 9 CLIDRegistry entries for module ALL
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info EventInfo_p4 [C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DMTest::BDer [F899E479-B507-44CD-B571-B3CD254D215D]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DMTest::DDer [BF1FF2FB-332A-497B-B55E-D704108C68D0]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DataVector<DMTest::B> [726A6BED-3DD9-4AD9-9F5E-1DCBFA42EB75]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DataVector<DMTest::D> [14085919-C66D-45B2-A183-17D77986CACC]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DMTest::ELVec [08A5FE26-1553-44E0-BFC4-196B96D3AD44]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
-ClassIDSvc           INFO  getRegistryEntries: read 70 CLIDRegistry entries for module ALL
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] C557E30D-E011-044B-8496-904BD95C3DDD
+Domain[ROOT_All]     INFO                           SimplePoolFile.root
+RootDatabase.open    INFO SimplePoolFile.root File version:60806
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO EventInfo_p4 [C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DMTest::BDer [F899E479-B507-44CD-B571-B3CD254D215D]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DMTest::DDer [BF1FF2FB-332A-497B-B55E-D704108C68D0]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataVector<DMTest::B> [726A6BED-3DD9-4AD9-9F5E-1DCBFA42EB75]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataVector<DMTest::D> [14085919-C66D-45B2-A183-17D77986CACC]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DMTest::ELVec [08A5FE26-1553-44E0-BFC4-196B96D3AD44]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
+ClassIDSvc           INFO  getRegistryEntries: read 73 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
@@ -121,9 +120,10 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 Stream1              INFO Records written: 21
-SimplePoolFile.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] DE40FF2F-B0DC-3647-A952-E8EC666EC6C5
-Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+SimplePoolFile....   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] C557E30D-E011-044B-8496-904BD95C3DDD
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize
@@ -135,4 +135,3 @@ ChronoStatSvc.f...   INFO  Service finalized successfully
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"
-CORAL/Services/ConnectionService Info Deleting the ConnectionPool

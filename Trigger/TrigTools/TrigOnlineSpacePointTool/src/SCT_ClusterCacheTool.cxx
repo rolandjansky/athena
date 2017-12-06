@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"

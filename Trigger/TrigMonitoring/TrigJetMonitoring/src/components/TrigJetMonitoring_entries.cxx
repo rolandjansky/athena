@@ -2,5 +2,5 @@
 #include "TrigJetMonitoring/HLTJetMonTool.h"
 
 
-DECLARE_TOOL_FACTORY(HLTJetMonTool )
+DECLARE_COMPONENT( HLTJetMonTool )
 

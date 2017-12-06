@@ -36,10 +36,6 @@
 #include <algorithm>
 #include "Identifier/Identifier.h"
 
-// remove classdef as this is now abstract class which TRT alignment inherits
-//#ifndef CLIDSVC_CLASSDEF_H
-//#include "CLIDSvc/CLASS_DEF.h"
-//#endif
 
 class DetCondFloat {
  public:
@@ -66,7 +62,6 @@ class DetCondFloat {
   std::vector<float> m_buf;
 };
 
-// CLASS_DEF(DetCondFloat,158187412,1);
 
 // inline functions for DetCondFloat
 

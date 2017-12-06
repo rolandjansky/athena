@@ -10,11 +10,10 @@
 #include "TRT_DCS_ConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
+#include "xAODEventInfo/EventInfo.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -38,15 +37,15 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
   m_numFlagNOINFO(0),
   m_currentTimestamp(0),
   m_doMonitoring(false),
-  h_Barrel_nRED(0),
-  h_EndcapA_nRED(0),
-  h_EndcapC_nRED(0),
-  h_Barrel_nNOINFO(0),
-  h_EndcapA_nNOINFO(0),
-  h_EndcapC_nNOINFO(0),
-  h_Barrel_HVvalAvg(0),
-  h_EndcapA_HVvalAvg(0),
-  h_EndcapC_HVvalAvg(0),
+  m_h_Barrel_nRED(0),
+  m_h_EndcapA_nRED(0),
+  m_h_EndcapC_nRED(0),
+  m_h_Barrel_nNOINFO(0),
+  m_h_EndcapA_nNOINFO(0),
+  m_h_EndcapC_nNOINFO(0),
+  m_h_Barrel_HVvalAvg(0),
+  m_h_EndcapA_HVvalAvg(0),
+  m_h_EndcapC_HVvalAvg(0),
   m_nEvts(0)
 {
   // Get properties from job options
@@ -57,7 +56,6 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
   declareProperty( "HV_WarningValueLow",  m_HVWarnValHi = 2000. );
   declareProperty( "HV_WarningValueHigh", m_HVWarnValLo = 1000. );
   declareProperty( "HWMapSvc", m_mapSvc );
-  declareProperty( "EventInfoKey", m_EventInfoKey = "EventInfo" );
   declareProperty( "DoIOVChecking", m_doIOVchecking = false );
   declareProperty( "IOVmaxLength", m_IOVmaxLength = 86400 /* 24 hours */ );
   declareProperty( "FallBackOnCOOLChanNames", m_FallBackOnCOOLChanNames = false );
@@ -91,6 +89,9 @@ StatusCode TRT_DCS_ConditionsSvc::initialize() {
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to retrieve " << m_detStore << endmsg;
   }
+
+  // initialize DataHandle keys
+  ATH_CHECK(m_EventInfoKey.initialize());
 
   // Get the TRT Identifier Helper.
   sc = m_detStore->retrieve( m_TRT_ID_Helper, "TRT_ID" );
@@ -347,21 +348,21 @@ StatusCode TRT_DCS_ConditionsSvc::finalize() {
   ATH_MSG_INFO( "Reported RED " << m_numFlagRED << " times." );
   ATH_MSG_INFO( "If these are suspicious numbers, turn on VERBOSE output and set VeryVerbose=True to see more info." );
   if ( m_doMonitoring ) {
-    h_Barrel_HVvalAvg->Scale(1./double(m_nEvts));
-    h_EndcapA_HVvalAvg->Scale(1./double(m_nEvts));
-    h_EndcapC_HVvalAvg->Scale(1./double(m_nEvts));
+    m_h_Barrel_HVvalAvg->Scale(1./double(m_nEvts));
+    m_h_EndcapA_HVvalAvg->Scale(1./double(m_nEvts));
+    m_h_EndcapC_HVvalAvg->Scale(1./double(m_nEvts));
     TFile* outFile = new TFile("TRT_DCS_Monitoring.root","RECREATE");
     bool file = outFile->cd();
     if (file){
-    	h_Barrel_nRED->Write();
-    	h_Barrel_nNOINFO->Write();
-    	h_Barrel_HVvalAvg->Write();
-    	h_EndcapA_nRED->Write();
-    	h_EndcapA_nNOINFO->Write();
-    	h_EndcapA_HVvalAvg->Write();
-    	h_EndcapC_nRED->Write();
-    	h_EndcapC_nNOINFO->Write();
-    	h_EndcapC_HVvalAvg->Write();
+    	m_h_Barrel_nRED->Write();
+    	m_h_Barrel_nNOINFO->Write();
+    	m_h_Barrel_HVvalAvg->Write();
+    	m_h_EndcapA_nRED->Write();
+    	m_h_EndcapA_nNOINFO->Write();
+    	m_h_EndcapA_HVvalAvg->Write();
+    	m_h_EndcapC_nRED->Write();
+    	m_h_EndcapC_nNOINFO->Write();
+    	m_h_EndcapC_HVvalAvg->Write();
     }
     outFile->Close();
   }
@@ -401,18 +402,15 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 
     // Get the current event timestamp
     m_currentTimestamp = 0;
-    const EventInfo* evtInfo;
-    sc = m_evtStore->retrieve(evtInfo,m_EventInfoKey);
-    if ( sc.isFailure() || !evtInfo ) {
-      ATH_MSG_WARNING( "Couldn't get " << m_EventInfoKey
+    SG::ReadHandle<xAOD::EventInfo> evtInfo(m_EventInfoKey);
+
+    if (not evtInfo.isValid()) {
+      ATH_MSG_WARNING( "Couldn't get " << m_EventInfoKey.key()
 		       << " from StoreGate." );
       return;
     }
-    if ( !evtInfo->event_ID() ) {
-      ATH_MSG_WARNING( m_EventInfoKey << " object has no EventID object." );
-      return;
-    }
-    m_currentTimestamp = evtInfo->event_ID()->time_stamp();
+
+    m_currentTimestamp = evtInfo->timeStamp();
     if (m_VeryVerbose) ATH_MSG_VERBOSE( "Event timestamp: " << m_currentTimestamp );
 
     // Monitoring Histograms
@@ -421,45 +419,45 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
       m_nEvts++;
       
       // Set up Monitoring Histograms if not done (first event)
-      if (!h_Barrel_HVvalAvg) {
-	h_Barrel_nRED = new TH1D("Barrel_nRED","Barrel - nRED",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
-	h_Barrel_nNOINFO = new TH1D("Barrel_nNOINFO","Barrel - nNOINFO",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
-	h_Barrel_HVvalAvg = new TH1D("Barrel_HVvalAvg","Barrel - HVvalAvg",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
+      if (!m_h_Barrel_HVvalAvg) {
+	m_h_Barrel_nRED = new TH1D("Barrel_nRED","Barrel - nRED",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
+	m_h_Barrel_nNOINFO = new TH1D("Barrel_nNOINFO","Barrel - nNOINFO",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
+	m_h_Barrel_HVvalAvg = new TH1D("Barrel_HVvalAvg","Barrel - HVvalAvg",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
 	for ( chanNameMapItr = m_Barrel_HV_COOLCont->name_begin();
 	      chanNameMapItr != m_Barrel_HV_COOLCont->name_end(); ++chanNameMapItr ) {
 	  std::string chanName( (*chanNameMapItr).second );
 	  int chanNum( (*chanNameMapItr).first );
-	  h_Barrel_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  h_Barrel_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  h_Barrel_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_Barrel_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_Barrel_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_Barrel_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
 	}
       }
 
-      if (!h_EndcapA_HVvalAvg) {
-	h_EndcapA_nRED = new TH1D("EndcapA_nRED","EndcapA - nRED",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
-	h_EndcapA_nNOINFO = new TH1D("EndcapA_nNOINFO","EndcapA - nNOINFO",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
-	h_EndcapA_HVvalAvg = new TH1D("EndcapA_HVvalAvg","EndcapA - HVvalAvg",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
+      if (!m_h_EndcapA_HVvalAvg) {
+	m_h_EndcapA_nRED = new TH1D("EndcapA_nRED","EndcapA - nRED",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
+	m_h_EndcapA_nNOINFO = new TH1D("EndcapA_nNOINFO","EndcapA - nNOINFO",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
+	m_h_EndcapA_HVvalAvg = new TH1D("EndcapA_HVvalAvg","EndcapA - HVvalAvg",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
 	for ( chanNameMapItr = m_EndcapA_HV_COOLCont->name_begin();
 	      chanNameMapItr != m_EndcapA_HV_COOLCont->name_end(); ++chanNameMapItr ) {
 	  std::string chanName( (*chanNameMapItr).second );
 	  int chanNum( (*chanNameMapItr).first );
-	  h_EndcapA_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  h_EndcapA_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  h_EndcapA_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapA_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapA_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapA_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
 	}
       }
 
-      if (!h_EndcapC_HVvalAvg) {
-	h_EndcapC_nRED = new TH1D("EndcapC_nRED","EndcapC - nRED",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
-	h_EndcapC_nNOINFO = new TH1D("EndcapC_nNOINFO","EndcapC - nNOINFO",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
-	h_EndcapC_HVvalAvg = new TH1D("EndcapC_HVvalAvg","EndcapC - HVvalAvg",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
+      if (!m_h_EndcapC_HVvalAvg) {
+	m_h_EndcapC_nRED = new TH1D("EndcapC_nRED","EndcapC - nRED",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
+	m_h_EndcapC_nNOINFO = new TH1D("EndcapC_nNOINFO","EndcapC - nNOINFO",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
+	m_h_EndcapC_HVvalAvg = new TH1D("EndcapC_HVvalAvg","EndcapC - HVvalAvg",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
 	for ( chanNameMapItr = m_EndcapC_HV_COOLCont->name_begin();
 	      chanNameMapItr != m_EndcapC_HV_COOLCont->name_end(); ++chanNameMapItr ) {
 	  std::string chanName( (*chanNameMapItr).second );
 	  int chanNum( (*chanNameMapItr).first );
-	  h_EndcapC_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  h_EndcapC_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  h_EndcapC_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapC_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapC_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapC_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
 	}
       }
 
@@ -476,9 +474,9 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 	if ( sc.isFailure() ) theFlag = InDet::TRT_DCS_NOINFO;
 	else if ( theVoltage < m_HVWarnValLo || theVoltage > m_HVWarnValHi ) theFlag = InDet::TRT_DCS_RED;
 	else theFlag = InDet::TRT_DCS_GREEN;
-	if ( theFlag == InDet::TRT_DCS_RED ) h_Barrel_nRED->Fill(chanNum);
-	if ( theFlag == InDet::TRT_DCS_NOINFO ) h_Barrel_nNOINFO->Fill(chanNum);
-	if (!sc.isFailure()) h_Barrel_HVvalAvg->Fill(chanNum,theVoltage);
+	if ( theFlag == InDet::TRT_DCS_RED ) m_h_Barrel_nRED->Fill(chanNum);
+	if ( theFlag == InDet::TRT_DCS_NOINFO ) m_h_Barrel_nNOINFO->Fill(chanNum);
+	if (!sc.isFailure()) m_h_Barrel_HVvalAvg->Fill(chanNum,theVoltage);
       }
       // EndcapA
       for ( chanNameMapItr = m_EndcapA_HV_COOLCont->name_begin();
@@ -491,9 +489,9 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 	if ( sc.isFailure() ) theFlag = InDet::TRT_DCS_NOINFO;
 	else if ( theVoltage < m_HVWarnValLo || theVoltage > m_HVWarnValHi ) theFlag = InDet::TRT_DCS_RED;
 	else theFlag = InDet::TRT_DCS_GREEN;
-	if ( theFlag == InDet::TRT_DCS_RED ) h_EndcapA_nRED->Fill(chanNum);
-	if ( theFlag == InDet::TRT_DCS_NOINFO ) h_EndcapA_nNOINFO->Fill(chanNum);
-	if (!sc.isFailure()) h_EndcapA_HVvalAvg->Fill(chanNum,theVoltage);
+	if ( theFlag == InDet::TRT_DCS_RED ) m_h_EndcapA_nRED->Fill(chanNum);
+	if ( theFlag == InDet::TRT_DCS_NOINFO ) m_h_EndcapA_nNOINFO->Fill(chanNum);
+	if (!sc.isFailure()) m_h_EndcapA_HVvalAvg->Fill(chanNum,theVoltage);
       }
       // EndcapC
       for ( chanNameMapItr = m_EndcapC_HV_COOLCont->name_begin();
@@ -506,9 +504,9 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 	if ( sc.isFailure() ) theFlag = InDet::TRT_DCS_NOINFO;
 	else if ( theVoltage < m_HVWarnValLo || theVoltage > m_HVWarnValHi ) theFlag = InDet::TRT_DCS_RED;
 	else theFlag = InDet::TRT_DCS_GREEN;
-	if ( theFlag == InDet::TRT_DCS_RED ) h_EndcapC_nRED->Fill(chanNum);
-	if ( theFlag == InDet::TRT_DCS_NOINFO ) h_EndcapC_nNOINFO->Fill(chanNum);
-	if (!sc.isFailure()) h_EndcapC_HVvalAvg->Fill(chanNum,theVoltage);
+	if ( theFlag == InDet::TRT_DCS_RED ) m_h_EndcapC_nRED->Fill(chanNum);
+	if ( theFlag == InDet::TRT_DCS_NOINFO ) m_h_EndcapC_nNOINFO->Fill(chanNum);
+	if (!sc.isFailure()) m_h_EndcapC_HVvalAvg->Fill(chanNum,theVoltage);
       }
 
     } // end of doMonitoring

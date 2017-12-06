@@ -143,12 +143,12 @@ namespace InDetDD {
 
   protected:
     // Protected Member data:
-    TRT_BarrelCode              _code;
-    const TRT_BarrelDescriptor *_descriptor;
-    const TRT_BarrelElement    *_nextInPhi;
-    const TRT_BarrelElement    *_previousInPhi;
-    const TRT_BarrelElement    *_nextInR;
-    const TRT_BarrelElement    *_previousInR;
+    TRT_BarrelCode              m_code;
+    const TRT_BarrelDescriptor *m_descriptor;
+    const TRT_BarrelElement    *m_nextInPhi;
+    const TRT_BarrelElement    *m_previousInPhi;
+    const TRT_BarrelElement    *m_nextInR;
+    const TRT_BarrelElement    *m_previousInR;
 
     mutable Trk::Surface*       m_surface;
     

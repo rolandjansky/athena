@@ -59,7 +59,7 @@ StripsResponse::StripsResponse():
 /*******************************************************************************/
 void StripsResponse::loadGasFile(std::string fileName){
   Athena::MsgStreamMember log("StripsResponse::loadGasFile"); 
-  std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
+  std::string fileWithPath = PathResolver::find_file (fileName, "CALIBPATH");
   if (fileWithPath == "") {
     log << MSG::FATAL << "StripResponse::loadGasFile(): Could not find file " << fileName << endmsg;
     exit(1);

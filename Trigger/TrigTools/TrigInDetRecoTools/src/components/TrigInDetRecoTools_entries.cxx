@@ -10,13 +10,13 @@
 #include "../TrigL2LayerSetPredictorTool.h"
 
 
-DECLARE_TOOL_FACTORY(TrigL2PattRecoStrategyA)
-DECLARE_TOOL_FACTORY(TrigL2PattRecoStrategyB)
-DECLARE_TOOL_FACTORY(TrigL2PattRecoStrategyC)
-DECLARE_TOOL_FACTORY(TrigL2PattRecoStrategyF)
-DECLARE_TOOL_FACTORY(TrigL2PattRecoStrategyT)
-DECLARE_TOOL_FACTORY(TrigL2DupTrackRemovalTool)
-DECLARE_TOOL_FACTORY(TrigInDetRoadMakerTool)
-DECLARE_TOOL_FACTORY(FTK_DataProviderTool)
-DECLARE_TOOL_FACTORY(TrigL2LayerSetPredictorTool)
+DECLARE_COMPONENT( TrigL2PattRecoStrategyA )
+DECLARE_COMPONENT( TrigL2PattRecoStrategyB )
+DECLARE_COMPONENT( TrigL2PattRecoStrategyC )
+DECLARE_COMPONENT( TrigL2PattRecoStrategyF )
+DECLARE_COMPONENT( TrigL2PattRecoStrategyT )
+DECLARE_COMPONENT( TrigL2DupTrackRemovalTool )
+DECLARE_COMPONENT( TrigInDetRoadMakerTool )
+DECLARE_COMPONENT( FTK_DataProviderTool )
+DECLARE_COMPONENT( TrigL2LayerSetPredictorTool )
 

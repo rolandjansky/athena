@@ -279,3 +279,6 @@ def getCavernWorld(name="Cavern", **kwargs):
 def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):
     return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
 
+def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
+    ## kwargs.setdefault("SomeProperty", aValue)
+    return CfgMgr.MaterialDescriptionTool(name, **kwargs)

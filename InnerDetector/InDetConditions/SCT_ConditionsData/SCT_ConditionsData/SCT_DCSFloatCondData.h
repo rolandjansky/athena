@@ -11,7 +11,7 @@
 #ifndef SCT_DCSFLOATCONDDATA_H
 #define SCT_DCSFLOATCONDDATA_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include <map>
 
@@ -40,8 +40,7 @@ private:
 CLASS_DEF( SCT_DCSFloatCondData , 234553277 , 1 )
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<SCT_DCSFloatCondData> , 257878639 , 1 )
-REGISTER_CC( SCT_DCSFloatCondData );
+CONDCONT_DEF( SCT_DCSFloatCondData, 257878639 );
 
 
 #endif // SCT_DCSFLOATCONDDATA_H

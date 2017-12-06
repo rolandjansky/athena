@@ -1,5 +1,5 @@
 #include "TrigSerializeTP/TrigSerTPTool.h"
 
 
-DECLARE_TOOL_FACTORY( TrigSerTPTool )
+DECLARE_COMPONENT( TrigSerTPTool )
 

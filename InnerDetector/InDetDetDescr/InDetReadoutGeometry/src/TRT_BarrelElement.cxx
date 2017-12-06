@@ -29,22 +29,22 @@ TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume,
   TRT_BaseElement(volume, 
 		  idHelper->layer_id((isPositive ? 1:-1), phiIndex, modIndex, strawLayIndex),
 		  idHelper, conditions),
-  _code(isPositive,modIndex,phiIndex,strawLayIndex),
-  _descriptor(descriptor),
-  _nextInPhi(NULL),
-  _previousInPhi(NULL),
-  _nextInR(NULL),
-  _previousInR(NULL),
+  m_code(isPositive,modIndex,phiIndex,strawLayIndex),
+  m_descriptor(descriptor),
+  m_nextInPhi(NULL),
+  m_previousInPhi(NULL),
+  m_nextInR(NULL),
+  m_previousInR(NULL),
   m_surface(0)
 		      
 {
-  _descriptor->ref();
+  m_descriptor->ref();
 }
 
 
 TRT_BarrelElement::~TRT_BarrelElement()
 {
-  _descriptor->unref();
+  m_descriptor->unref();
   delete m_surface;
 }
 
@@ -56,27 +56,27 @@ const TRT_BarrelConditions * TRT_BarrelElement::getConditionsData() const
 
 const TRT_BarrelDescriptor * TRT_BarrelElement::getDescriptor() const
 {
-  return _descriptor;
+  return m_descriptor;
 }
 
 void  TRT_BarrelElement::setNextInPhi(const TRT_BarrelElement *element)
 {
-  _nextInPhi=element;
+  m_nextInPhi=element;
 }
 
 void  TRT_BarrelElement::setPreviousInPhi(const TRT_BarrelElement *element)
 {
-  _previousInPhi=element;
+  m_previousInPhi=element;
 }
 
 void  TRT_BarrelElement::setNextInR(const TRT_BarrelElement *element)
 {
-  _nextInR=element;
+  m_nextInR=element;
 }
 
 void  TRT_BarrelElement::setPreviousInR(const TRT_BarrelElement *element)
 {
-  _previousInR=element;
+  m_previousInR=element;
 }
 
 
@@ -90,11 +90,11 @@ HepGeom::Transform3D TRT_BarrelElement::calculateStrawTransform(int straw) const
   // for both positive and negative endcaps).
   //std::cout << "In calculateStrawTransform" << std::endl;
 
-  const GeoXF::Function *f= _descriptor->getStrawTransform();
+  const GeoXF::Function *f= m_descriptor->getStrawTransform();
   if (f) {
-    size_t offsetInto = _descriptor->getStrawTransformOffset();
-    double zPos = -_descriptor->strawZPos();
-    double zAng =  _code.isPosZ() ? M_PI : 0;
+    size_t offsetInto = m_descriptor->getStrawTransformOffset();
+    double zPos = -m_descriptor->strawZPos();
+    double zAng =  m_code.isPosZ() ? M_PI : 0;
     return  getMaterialGeom()->getAbsoluteTransform()*((*f)(straw+offsetInto))
       * HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos)
       * calculateLocalStrawTransform(straw);
@@ -147,11 +147,11 @@ HepGeom::Transform3D TRT_BarrelElement::defStrawTransform(int straw) const
   // at the cost of doubling the descriptors.  (One descriptor now suffices
   // for both positive and negative endcaps).
 
-  const GeoXF::Function *f= _descriptor->getStrawTransform();
+  const GeoXF::Function *f= m_descriptor->getStrawTransform();
   if (f) {
-    size_t offsetInto = _descriptor->getStrawTransformOffset();
-    double zPos = -_descriptor->strawZPos();
-    double zAng =  _code.isPosZ() ? M_PI : 0;
+    size_t offsetInto = m_descriptor->getStrawTransformOffset();
+    double zPos = -m_descriptor->strawZPos();
+    double zAng =  m_code.isPosZ() ? M_PI : 0;
     return getMaterialGeom()->getDefAbsoluteTransform()*((*f)(straw+offsetInto))* HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos);
   } else {
     std::cout << "calculateStrawTransform:  f is 0 !!!!" << std::endl;
@@ -163,7 +163,7 @@ HepGeom::Transform3D TRT_BarrelElement::defStrawTransform(int straw) const
  
 const Trk::SurfaceBounds& TRT_BarrelElement::strawBounds() const 
 {
-  return _descriptor->strawBounds();
+  return m_descriptor->strawBounds();
 }
 
 const Trk::Surface& TRT_BarrelElement::elementSurface() const 
@@ -187,7 +187,7 @@ void TRT_BarrelElement::createSurfaceCache() const
   Amg::Vector3D  phiAxis = centerLastStraw - centerFirstStraw;
   double width = phiAxis.mag();
   phiAxis = phiAxis.normalized();
-  double elementWidth = width + 2 * _descriptor->innerTubeRadius(); // Add the straw tube radius
+  double elementWidth = width + 2 * m_descriptor->innerTubeRadius(); // Add the straw tube radius
   
   // Get local z-axis. This is roughly in +ve global z direction  (exactly if no misalignment) 
   // We could probably use any straw for this but we average the first and last straw and renormalize
@@ -233,7 +233,7 @@ int TRT_BarrelElement::strawDirection() const
   // So for -ve endcap this is the positive z direction (we return +1) and in the 
   // +ve endcap its in the -ve z direction (we return -1).
   // 
-  return !(_code.isPosZ()) ? +1 : -1;
+  return !(m_code.isPosZ()) ? +1 : -1;
 }
 
 

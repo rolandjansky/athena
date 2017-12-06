@@ -1,9 +1,0 @@
-package VP1LegoPlugin
-
-
-author Joe Boudreau <boudreau@pitt.edu>
-
-use AtlasPolicy          AtlasPolicy-*
-use VP1LegoSystems       VP1LegoSystems-*       graphics/VP1/VP1Systems
-
-apply_pattern vp1plugin

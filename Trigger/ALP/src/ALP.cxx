@@ -114,36 +114,36 @@ ALP::ALP(){
 		hltinterface::GenericHLTContainer::UntilEOR,
 		hltinterface::GenericHLTContainer::WRITE);
   //size_t MINumKills,MINumForks,MIUnexpectedChildExits,MINumRequested,MINumActive,MINumExited;
-  MINumKills=inst->addInt(m_motherInfo,"NumKills");
-  MINumForks=inst->addInt(m_motherInfo,"NumForks");
-  MIUnexpectedChildExits=inst->addInt(m_motherInfo,"UnexpectedChildExits");
-  MINumRequested=inst->addInt(m_motherInfo,"NumRequested");
-  MINumActive=inst->addInt(m_motherInfo,"NumActive");
-  MINumExited=inst->addInt(m_motherInfo,"NumExited");
+  m_MINumKills=inst->addInt(m_motherInfo,"NumKills");
+  m_MINumForks=inst->addInt(m_motherInfo,"NumForks");
+  m_MIUnexpectedChildExits=inst->addInt(m_motherInfo,"UnexpectedChildExits");
+  m_MINumRequested=inst->addInt(m_motherInfo,"NumRequested");
+  m_MINumActive=inst->addInt(m_motherInfo,"NumActive");
+  m_MINumExited=inst->addInt(m_motherInfo,"NumExited");
   m_childInfo=inst->constructContainer("PU_ChildInfo",
 		"ALPInfo",
 		hltinterface::GenericHLTContainer::UntilEOR,
 		hltinterface::GenericHLTContainer::WRITE);
   
-  CINumEvents=inst->addInt(m_childInfo,"NumEvents");
-  CIAcceptedEvents=inst->addInt(m_childInfo,"AcceptedEvents");
-  CIRejectedEvents=inst->addInt(m_childInfo,"RejectedEvents");
-  CIL1ResultFetchTimeouts=inst->addInt(m_childInfo,"L1ResultFetchTimeouts");
-  CISoftTimeouts=inst->addInt(m_childInfo,"Softtimeouts");
+  m_CINumEvents=inst->addInt(m_childInfo,"NumEvents");
+  m_CIAcceptedEvents=inst->addInt(m_childInfo,"AcceptedEvents");
+  m_CIRejectedEvents=inst->addInt(m_childInfo,"RejectedEvents");
+  m_CIL1ResultFetchTimeouts=inst->addInt(m_childInfo,"L1ResultFetchTimeouts");
+  m_CISoftTimeouts=inst->addInt(m_childInfo,"Softtimeouts");
 
-  CILongestWaitForL1Result=inst->addInt(m_childInfo,"LongestWaitForL1Result");
-  CILongestProcessingTime=inst->addInt(m_childInfo,"LongestProcessingTime");
-  CIAverageProcessingTime=inst->addFloat(m_childInfo,"AverageProcessingTime");
-  CIAverageAcceptTime=inst->addFloat(m_childInfo,"AverageAcceptTime");
+  m_CILongestWaitForL1Result=inst->addInt(m_childInfo,"LongestWaitForL1Result");
+  m_CILongestProcessingTime=inst->addInt(m_childInfo,"LongestProcessingTime");
+  m_CIAverageProcessingTime=inst->addFloat(m_childInfo,"AverageProcessingTime");
+  m_CIAverageAcceptTime=inst->addFloat(m_childInfo,"AverageAcceptTime");
  
-  CIAverageRejectTime=inst->addFloat(m_childInfo,"AverageRejectTime");
-  CIAverageL1ResultTime=inst->addFloat(m_childInfo,"AverageL1ResultTime");
-  CITimePercentInProcessing=inst->addFloat(m_childInfo,"TimePercentInProcessing");
-  CITimePercentInAccept=inst->addFloat(m_childInfo,"TimePercentInAccept");
+  m_CIAverageRejectTime=inst->addFloat(m_childInfo,"AverageRejectTime");
+  m_CIAverageL1ResultTime=inst->addFloat(m_childInfo,"AverageL1ResultTime");
+  m_CITimePercentInProcessing=inst->addFloat(m_childInfo,"TimePercentInProcessing");
+  m_CITimePercentInAccept=inst->addFloat(m_childInfo,"TimePercentInAccept");
  
-  CITimePercentInReject=inst->addFloat(m_childInfo,"TimePercentInReject");
-  CITimePercentInWait=inst->addFloat(m_childInfo,"TimePercentInWait");
-  CITimePercentInSend=inst->addFloat(m_childInfo,"TimePercentInSend");;
+  m_CITimePercentInReject=inst->addFloat(m_childInfo,"TimePercentInReject");
+  m_CITimePercentInWait=inst->addFloat(m_childInfo,"TimePercentInWait");
+  m_CITimePercentInSend=inst->addFloat(m_childInfo,"TimePercentInSend");;
     
   m_configTree=new boost::property_tree::ptree();
   m_prepareForRunTree=new boost::property_tree::ptree();
@@ -564,12 +564,12 @@ bool ALP::configure(const boost::property_tree::ptree& args ) {
   // m_motherInfo->LastUserCommand=std::vector<std::string>();
   // m_motherInfo->LastStateTransition="Configure";
   // m_motherInfo->LastExitedChild="";
-  m_motherInfo->setIntField(MINumKills,0);
-  m_motherInfo->setIntField(MINumForks,0);
-  m_motherInfo->setIntField(MIUnexpectedChildExits,0);
-  m_motherInfo->setIntField(MINumRequested,m_numChildren);
-  m_motherInfo->setIntField(MINumActive,0);
-  m_motherInfo->setIntField(MINumExited,0);
+  m_motherInfo->setIntField(m_MINumKills,0);
+  m_motherInfo->setIntField(m_MINumForks,0);
+  m_motherInfo->setIntField(m_MIUnexpectedChildExits,0);
+  m_motherInfo->setIntField(m_MINumRequested,m_numChildren);
+  m_motherInfo->setIntField(m_MINumActive,0);
+  m_motherInfo->setIntField(m_MINumExited,0);
   // char * tmp = getenv("TDAQ_PARTITION");
   // std::shared_ptr<IPCPartition> m_part(0);
   // ERS_LOG("Starting IS Publishing");
@@ -644,12 +644,12 @@ bool ALP::prepareForRun(const boost::property_tree::ptree& args) {
   // m_motherInfo->LastStateTransition="prepareForRun";
   // m_motherInfo->LastExitedChild="";
 
-  m_motherInfo->setIntField(MINumKills,0);
-  m_motherInfo->setIntField(MINumForks,0);
-  m_motherInfo->setIntField(MIUnexpectedChildExits,0);
-  m_motherInfo->setIntField(MINumRequested,m_numChildren);
-  m_motherInfo->setIntField(MINumActive,0);
-  m_motherInfo->setIntField(MINumExited,0);
+  m_motherInfo->setIntField(m_MINumKills,0);
+  m_motherInfo->setIntField(m_MINumForks,0);
+  m_motherInfo->setIntField(m_MIUnexpectedChildExits,0);
+  m_motherInfo->setIntField(m_MINumRequested,m_numChildren);
+  m_motherInfo->setIntField(m_MINumActive,0);
+  m_motherInfo->setIntField(m_MINumExited,0);
 
   if(m_infoService){
     bool ret=false;
@@ -748,8 +748,8 @@ bool ALP::prepareForRun(const boost::property_tree::ptree& args) {
 	std::cerr<<ALPUtils::getTimeTag()<<"setpgid failed with "<<spidRet<<" "<<errNo<<std::endl;
 	ers::error(ALPIssues::UnexpectedIssue(ERS_HERE,"Can't set pgid. ZOMBIE INFESTATION RISK!!!"));
       }
-      //m_motherInfo->setField(MINumActive,m_motherInfo->getIntField(MINumActive)+1);
-      GCIncrIntField(m_motherInfo,MINumActive,1);
+      //m_motherInfo->setField(m_MINumActive,m_motherInfo->getIntField(m_MINumActive)+1);
+      GCIncrIntField(m_motherInfo,m_MINumActive,1);
       m_myChildren[t]=i;
       m_posPidMap[i]=t;
     }else{ //forked children
@@ -758,8 +758,8 @@ bool ALP::prepareForRun(const boost::property_tree::ptree& args) {
     }
   }//Forking loop
   
-  char *dummv=0;
-  int dummc=0;
+  //char *dummv=0;
+  //int dummc=0;
   //sleep(300);
   // try{
   //   IPCCore::init(dummc,&dummv);
@@ -784,7 +784,7 @@ bool ALP::prepareForRun(const boost::property_tree::ptree& args) {
   }
 
   ERS_LOG("--ALP_prepareForRun End. ");
-  if(m_motherInfo->getIntField(MINumActive)!=(uint)m_numChildren){
+  if(m_motherInfo->getIntField(m_MINumActive)!=(uint)m_numChildren){
     ers::warning(ALPIssues::UnexpectedIssue(ERS_HERE,"Some children exited immediately after forking!"));
     return false;
   }
@@ -853,10 +853,10 @@ void ALP::terminateChildren(int timeOut){
 	//strerror_r(errno,buff,200);
 	ERS_LOG("Killing process id "<<it->first<<" failed with error \""<<strerror(errno)<<"\"");
       }else{
-	GCIncrIntField(m_motherInfo,MINumKills,1);
-	GCDecrIntField(m_motherInfo,MINumActive,1);
-	// m_motherInfo->setIntField(MINumKills,m_motherInfo->getIntField(MINumKills)+1);
-	// m_motherInfo->setIntField(MINumActive,m_motherInfo->getIntField(MINumActive)-1);
+	GCIncrIntField(m_motherInfo,m_MINumKills,1);
+	GCDecrIntField(m_motherInfo,m_MINumActive,1);
+	// m_motherInfo->setIntField(m_MINumKills,m_motherInfo->getIntField(m_MINumKills)+1);
+	// m_motherInfo->setIntField(m_MINumActive,m_motherInfo->getIntField(m_MINumActive)-1);
 	ERS_LOG("Killed child process "<<it->first);
       }
     }
@@ -946,9 +946,9 @@ bool ALP::hltUserCommand(const boost::property_tree::ptree& args) {
       int pos;
       if(m_availableSlots.empty()){
 	m_numChildren++;
-	m_motherInfo->setIntField(MINumRequested,m_numChildren);
-	// m_motherInfo->setIntField(MINumActive,m_motherInfo->getIntField(MINumActive)+1);
-	GCIncrIntField(m_motherInfo,MINumActive,1);
+	m_motherInfo->setIntField(m_MINumRequested,m_numChildren);
+	// m_motherInfo->setIntField(m_MINumActive,m_motherInfo->getIntField(m_MINumActive)+1);
+	GCIncrIntField(m_motherInfo,m_MINumActive,1);
 	pos=m_numChildren;
 	pid_t t=forkChildren(pos);
 	if(t!=0){//mother 
@@ -1009,7 +1009,7 @@ bool ALP::hltUserCommand(const boost::property_tree::ptree& args) {
 	  m_myChildren[t]=pos;
 	  m_posPidMap[pos]=t;
 	  //m_motherInfo->NumActive++;
-	  GCIncrIntField(m_motherInfo,MINumActive,1);
+	  GCIncrIntField(m_motherInfo,m_MINumActive,1);
 	}else{//children
 	  return doProcessLoop(*m_prepareForRunTree,pos);
 	}
@@ -1052,8 +1052,8 @@ bool ALP::hltUserCommand(const boost::property_tree::ptree& args) {
 	  ERS_LOG("Killed child process "<<it->first<<" pid="<<it->second);
 	  // m_motherInfo->NumKills++;
 	  // m_motherInfo->NumActive--;
-	  GCIncrIntField(m_motherInfo,MINumKills,1);
-	  GCDecrIntField(m_motherInfo,MINumActive,1);
+	  GCIncrIntField(m_motherInfo,m_MINumKills,1);
+	  GCDecrIntField(m_motherInfo,m_MINumActive,1);
 	  //m_motherInfo->LastExitedChild=childName;
 	  std::map<pid_t,int>::iterator itPid=m_myChildren.find(it->second);
 	  if(itPid!=m_myChildren.end()){
@@ -1182,22 +1182,22 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
       hltr.max_result_size=hltinterface::HLTResult::DEFAULT_MAX_RESULTSIZE;
       ERS_LOG("--ALP_Starting Processing Loop");
       std::cerr<<ALPUtils::getTimeTag()<<" Starting processing loop"<<std::endl;
-      m_childInfo->setIntField(CINumEvents,0);
-      m_childInfo->setIntField(CIAcceptedEvents,0);
-      m_childInfo->setIntField(CIRejectedEvents,0);
-      m_childInfo->setIntField(CIL1ResultFetchTimeouts,0);
-      m_childInfo->setIntField(CISoftTimeouts,0);
-      m_childInfo->setIntField(CILongestWaitForL1Result,0);
-      m_childInfo->setIntField(CILongestProcessingTime,0);
-      m_childInfo->setFloatField(CIAverageAcceptTime,0);
-      m_childInfo->setFloatField(CIAverageRejectTime,0);
-      m_childInfo->setFloatField(CIAverageProcessingTime,0);
-      m_childInfo->setFloatField(CIAverageL1ResultTime,0);
-      m_childInfo->setFloatField(CITimePercentInProcessing,0);
-      m_childInfo->setFloatField(CITimePercentInAccept,0);
-      m_childInfo->setFloatField(CITimePercentInReject,0);
-      m_childInfo->setFloatField(CITimePercentInWait,0);
-      m_childInfo->setFloatField(CITimePercentInSend,0);
+      m_childInfo->setIntField(m_CINumEvents,0);
+      m_childInfo->setIntField(m_CIAcceptedEvents,0);
+      m_childInfo->setIntField(m_CIRejectedEvents,0);
+      m_childInfo->setIntField(m_CIL1ResultFetchTimeouts,0);
+      m_childInfo->setIntField(m_CISoftTimeouts,0);
+      m_childInfo->setIntField(m_CILongestWaitForL1Result,0);
+      m_childInfo->setIntField(m_CILongestProcessingTime,0);
+      m_childInfo->setFloatField(m_CIAverageAcceptTime,0);
+      m_childInfo->setFloatField(m_CIAverageRejectTime,0);
+      m_childInfo->setFloatField(m_CIAverageProcessingTime,0);
+      m_childInfo->setFloatField(m_CIAverageL1ResultTime,0);
+      m_childInfo->setFloatField(m_CITimePercentInProcessing,0);
+      m_childInfo->setFloatField(m_CITimePercentInAccept,0);
+      m_childInfo->setFloatField(m_CITimePercentInReject,0);
+      m_childInfo->setFloatField(m_CITimePercentInWait,0);
+      m_childInfo->setFloatField(m_CITimePercentInSend,0);
 
       m_accDuration=std::chrono::milliseconds(0);
       m_rejDuration=std::chrono::milliseconds(0);
@@ -1232,13 +1232,13 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	try{
 	  m_timeoutCond.notify_all();
 	  {
-	    std::unique_lock<std::mutex>(m_statMutex);
+	    std::lock_guard<std::mutex> lock (m_statMutex);
 	    tStart=std::chrono::steady_clock::now();
 	  }
 	  m_dataSource->getL1Result(l1r,l1id,evId.globalId,evId.lbNumber);
 	  std::chrono::time_point<std::chrono::steady_clock> tL1=std::chrono::steady_clock::now();
 	  {
-	    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+	    std::lock_guard<std::mutex> lock(m_timeoutMutex);
 	    m_softTOTrigger=true;
 	    m_hardTOTrigger=false;
 	    m_TOTimerStart=tL1;
@@ -1247,7 +1247,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	  evId.l1Id=l1id;
 	  auto dtime=std::chrono::duration_cast<std::chrono::milliseconds>(tL1-tStart);
 	  {
-	    std::unique_lock<std::mutex>(m_statMutex);
+	    std::lock_guard<std::mutex> lock(m_statMutex);
 	    m_waitDuration+=dtime;
 	    m_waitDurationCum+=dtime;	    
 	  }
@@ -1261,11 +1261,11 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	    return false;
 	  }
 	  {
-	    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+	    std::lock_guard<std::mutex> lock(m_timeoutMutex);
 	    m_softTOTrigger=false;
 	    m_hardTOTrigger=false;
-	    if(m_childInfo->getIntField(CILongestWaitForL1Result)<deltaT){
-	      m_childInfo->setIntField(CILongestWaitForL1Result,deltaT);
+	    if(m_childInfo->getIntField(m_CILongestWaitForL1Result)<deltaT){
+	      m_childInfo->setIntField(m_CILongestWaitForL1Result,deltaT);
 	    }
 	  }
 	  std::chrono::time_point<std::chrono::steady_clock> tProc=std::chrono::steady_clock::now();
@@ -1276,40 +1276,40 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	  m_dataSource->sendResult(accept,l1id,hltr);
 	  tProc=std::chrono::steady_clock::now();
 	  {
-	    std::unique_lock<std::mutex>(m_statMutex);
+	    std::lock_guard<std::mutex> lock(m_statMutex);
 	    m_procDuration+=dtime;
 	    m_procDurationCum+=dtime;
 	    m_eventsInInterval++;
 	  }
-	  if(m_childInfo->getIntField(CILongestProcessingTime)<deltaT){
-	    m_childInfo->setIntField(CILongestProcessingTime,deltaT);
+	  if(m_childInfo->getIntField(m_CILongestProcessingTime)<deltaT){
+	    m_childInfo->setIntField(m_CILongestProcessingTime,deltaT);
 	  }
 	  if(accept){
 	    // m_childInfo->AverageAcceptTime+=deltaT;
-	    GCIncrIntField(m_childInfo,CIAcceptedEvents,1);
+	    GCIncrIntField(m_childInfo,m_CIAcceptedEvents,1);
 	    m_histos[1]->Fill(deltaT);
 	    {
-	      std::unique_lock<std::mutex>(m_statMutex);
+	      std::lock_guard<std::mutex> lock(m_statMutex);
 	      m_accDuration+=dtime;
 	      m_accDurationCum+=dtime;
 	      m_acceptedInInterval++;
 	    }
 	  }else{
 	    //m_childInfo->AverageRejectTime+=deltaT;
-	    GCIncrIntField(m_childInfo,CIRejectedEvents,1);
+	    GCIncrIntField(m_childInfo,m_CIRejectedEvents,1);
 	    m_histos[2]->Fill(deltaT);
 	    {
-	      std::unique_lock<std::mutex>(m_statMutex);
+	      std::lock_guard<std::mutex> lock(m_statMutex);
 	      m_rejDuration+=dtime;
 	      m_rejDurationCum+=dtime;
 	      m_rejectedInInterval++;
 	    }
 	  }
 	  m_histos[3]->Fill(deltaT);
-	  GCIncrIntField(m_childInfo,CINumEvents,1);
+	  GCIncrIntField(m_childInfo,m_CINumEvents,1);
 	  dtime=std::chrono::duration_cast<std::chrono::milliseconds>(tProc-tL1);
 	  {
-	    std::unique_lock<std::mutex>(m_statMutex); 
+	    std::lock_guard<std::mutex> lock(m_statMutex); 
 	    m_sendDuration+=dtime;
 	    m_sendDurationCum+=dtime;
 	  }
@@ -1347,7 +1347,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
 	hltr.psc_errors.clear();   
 	hltr.hltResult_robs.clear();
 	{
-	  std::unique_lock<std::mutex>(m_statMutex); 
+	  std::lock_guard<std::mutex> lock(m_statMutex); 
 	  auto tdiff=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()-tStart);
 	  m_totDuration+=tdiff;
 	  m_totDurationCum+=tdiff;
@@ -1366,7 +1366,7 @@ bool ALP::doProcessLoop(const boost::property_tree::ptree& args,int childNo){
       // do finalization.
       ERS_LOG("--ALP_Processing Ended. ");
       {
-	std::unique_lock<std::mutex> lock(m_timeoutMutex);
+	std::lock_guard<std::mutex> lock(m_timeoutMutex);
 	m_timerWork=false;
 	m_softTOTrigger=false;
 	m_hardTOTrigger=false;
@@ -1458,7 +1458,7 @@ pid_t ALP::forkChildren(int pos){
     std::cerr<<ALPUtils::getTimeTag()<<"Forked a child with pid "<<t<<std::endl;
     std::cout<<ALPUtils::getTimeTag()<<"AfterFork"<<std::endl;
     //m_motherInfo->NumForks++;
-    GCIncrIntField(m_motherInfo,MINumKills,1);
+    GCIncrIntField(m_motherInfo,m_MINumKills,1);
     if(m_dumpFD)printOpenFDs("mother post-fork->");
     if(m_dumpThreads)printTasks("mother post-fork Tasks(threads)->");
     const int bufflen=8192;
@@ -1473,8 +1473,8 @@ pid_t ALP::forkChildren(int pos){
   }else{// child process detached from parent.
     if(m_dumpFD)printOpenFDs("child pre-redirection->");
     if(m_dumpThreads)printTasks("child pre-redirection Tasks(threads)->");
-    char *dummv=0;
-    int dummc=0;
+    //char *dummv=0;
+    //int dummc=0;
     std::cerr<<ALPUtils::getTimeTag()<<"Fork done"<<std::endl;
     std::cout<<ALPUtils::getTimeTag()<<"Fork done"<<std::endl;
     m_myPid=getpid();
@@ -1555,7 +1555,7 @@ void ALP::doNannyWork(){
       }
     }else if(baby==-1){//if no child remains
       //m_motherInfo->NumActive=0;
-      m_motherInfo->setIntField(MINumActive,0);
+      m_motherInfo->setIntField(m_MINumActive,0);
       if(errno==ECHILD){
 	ERS_LOG("All children are exited. Returning");
 	return;
@@ -1574,14 +1574,14 @@ void ALP::doNannyWork(){
 	ERS_LOG("Child with PID="<<baby<<" exited normally with status="<<exitStat);
 	// m_motherInfo->NumActive--;	
 	// m_motherInfo->NumExited++;
-	GCIncrIntField(m_motherInfo,MINumExited,1);
-	GCDecrIntField(m_motherInfo,MINumActive,1);
+	GCIncrIntField(m_motherInfo,m_MINumExited,1);
+	GCDecrIntField(m_motherInfo,m_MINumActive,1);
 	if(exitStat!=0){
 	  char errbuff[200];
 	  snprintf(errbuff,200,"Child pid= %d exited with unexpected return value %d ",baby,exitStat);
 	  ers::warning(ALPIssues::ChildIssue(ERS_HERE, errbuff));
 	  //m_motherInfo->UnexpectedChildExits++;
-	  GCIncrIntField(m_motherInfo,MIUnexpectedChildExits,1);
+	  GCIncrIntField(m_motherInfo,m_MIUnexpectedChildExits,1);
 	}
 	std::map<pid_t,int>::iterator it=m_myChildren.find(baby);
 	if(it!=m_myChildren.end()){
@@ -1599,14 +1599,14 @@ void ALP::doNannyWork(){
 	ERS_LOG("Child with PID="<<baby<<" exited with a signal="<<WTERMSIG(retVal));
 	// m_motherInfo->NumActive--;	
 	// m_motherInfo->NumExited++;
-	GCIncrIntField(m_motherInfo,MINumExited,1);
-	GCDecrIntField(m_motherInfo,MINumActive,1);
+	GCIncrIntField(m_motherInfo,m_MINumExited,1);
+	GCDecrIntField(m_motherInfo,m_MINumActive,1);
 
 	if(exitStat!=0){
 	  char errbuff[200];
 	  snprintf(errbuff,200,"Child pid= %d exited with signal  %d ",baby,exitStat);
 	  // m_motherInfo->UnexpectedChildExits++;
-	  GCIncrIntField(m_motherInfo,MIUnexpectedChildExits,1);
+	  GCIncrIntField(m_motherInfo,m_MIUnexpectedChildExits,1);
 	  ers::warning(ALPIssues::ChildIssue(ERS_HERE, errbuff));
 	}
 	// std::map<pid_t,int>::iterator it=m_myChildren.find(baby);
@@ -1754,25 +1754,25 @@ void ALP::statsPublisher(){
   //   }
   //   try{
   //     {
-  // 	std::unique_lock<std::mutex>(m_statMutex);
+  // 	std::lock_guard<std::mutex>(m_statMutex);
   // 	if(m_eventsInInterval){
   // 	  double ievts=1.0/m_eventsInInterval;
-  // 	  m_childInfo->setFloatField(CIAverageL1ResultTime,m_waitDuration.count()*ievts);
-  // 	  m_childInfo->setFloatField(CIAverageProcessingTime,m_procDuration.count()*ievts);
+  // 	  m_childInfo->setFloatField(m_CIAverageL1ResultTime,m_waitDuration.count()*ievts);
+  // 	  m_childInfo->setFloatField(m_CIAverageProcessingTime,m_procDuration.count()*ievts);
   // 	}
   // 	if(m_acceptedInInterval){
-  // 	  m_childInfo->setFloatField(CIAverageAcceptTime,m_accDuration.count()/m_acceptedInInterval);
+  // 	  m_childInfo->setFloatField(m_CIAverageAcceptTime,m_accDuration.count()/m_acceptedInInterval);
   // 	}
   // 	if(m_rejectedInInterval){
-  // 	  m_childInfo->setFloatField(CIAverageRejectTime,m_rejDuration.count()/m_rejectedInInterval);
+  // 	  m_childInfo->setFloatField(m_CIAverageRejectTime,m_rejDuration.count()/m_rejectedInInterval);
   // 	}
   // 	if(m_totDuration.count()){
   // 	  double invDur=1./m_totDuration.count();
-  // 	  m_childInfo->setFloatField(CITimePercentInProcessing,m_procDuration.count()*invDur);
-  // 	  m_childInfo->setFloatField(CITimePercentInAccept,m_accDuration.count()*invDur);
-  // 	  m_childInfo->setFloatField(CITimePercentInReject,m_rejDuration.count()*invDur);
-  // 	  m_childInfo->setFloatField(CITimePercentInWait,m_waitDuration.count()*invDur);
-  // 	  m_childInfo->setFloatField(CITimePercentInSend,m_sendDuration.count()*invDur);
+  // 	  m_childInfo->setFloatField(m_CITimePercentInProcessing,m_procDuration.count()*invDur);
+  // 	  m_childInfo->setFloatField(m_CITimePercentInAccept,m_accDuration.count()*invDur);
+  // 	  m_childInfo->setFloatField(m_CITimePercentInReject,m_rejDuration.count()*invDur);
+  // 	  m_childInfo->setFloatField(m_CITimePercentInWait,m_waitDuration.count()*invDur);
+  // 	  m_childInfo->setFloatField(m_CITimePercentInSend,m_sendDuration.count()*invDur);
   // 	}
   // 	m_accDuration=std::chrono::milliseconds(0);
   // 	m_rejDuration=std::chrono::milliseconds(0);
@@ -1783,7 +1783,7 @@ void ALP::statsPublisher(){
   // 	m_eventsInInterval=0;
   // 	m_acceptedInInterval=0;
   // 	m_rejectedInInterval=0;
-  // 	m_childInfo->setIntField(CILongestProcessingTime,0);
+  // 	m_childInfo->setIntField(m_CILongestProcessingTime,0);
   //     }
   //     //id.checkin(objName,*m_childInfo);
   //   }catch(daq::is::Exception &ex){
@@ -1803,25 +1803,25 @@ void ALP::statsPublisher(){
   //     }
   //     try{
   // 	{
-  // 	  std::unique_lock<std::mutex>(m_statMutex);	  
+  // 	  std::lock_guard<std::mutex>(m_statMutex);	  
   // 	  if(m_eventsInInterval){
   // 	    double ievts=1.0/m_eventsInInterval;
-  // 	    m_childInfo->setFloatField(CIAverageL1ResultTime,m_waitDuration.count()*ievts);
-  // 	    m_childInfo->setFloatField(CIAverageProcessingTime,m_procDuration.count()*ievts);
+  // 	    m_childInfo->setFloatField(m_CIAverageL1ResultTime,m_waitDuration.count()*ievts);
+  // 	    m_childInfo->setFloatField(m_CIAverageProcessingTime,m_procDuration.count()*ievts);
   // 	  }
   // 	  if(m_acceptedInInterval){
-  // 	    m_childInfo->setFloatField(CIAverageAcceptTime,m_accDuration.count()/m_acceptedInInterval);
+  // 	    m_childInfo->setFloatField(m_CIAverageAcceptTime,m_accDuration.count()/m_acceptedInInterval);
   // 	  }
   // 	  if(m_rejectedInInterval){
-  // 	    m_childInfo->setFloatField(CIAverageRejectTime,m_rejDuration.count()/m_rejectedInInterval);
+  // 	    m_childInfo->setFloatField(m_CIAverageRejectTime,m_rejDuration.count()/m_rejectedInInterval);
   // 	  }
   // 	  if(m_totDuration.count()){
   // 	    double invDur=1./(double)m_totDuration.count();
-  // 	    m_childInfo->setFloatField(CITimePercentInProcessing,m_procDuration.count()*invDur);
-  // 	    m_childInfo->setFloatField(CITimePercentInAccept,m_accDuration.count()*invDur);
-  // 	    m_childInfo->setFloatField(CITimePercentInReject,m_rejDuration.count()*invDur);
-  // 	    m_childInfo->setFloatField(CITimePercentInWait,m_waitDuration.count()*invDur);
-  // 	    m_childInfo->setFloatField(CITimePercentInSend,m_sendDuration.count()*invDur);
+  // 	    m_childInfo->setFloatField(m_CITimePercentInProcessing,m_procDuration.count()*invDur);
+  // 	    m_childInfo->setFloatField(m_CITimePercentInAccept,m_accDuration.count()*invDur);
+  // 	    m_childInfo->setFloatField(m_CITimePercentInReject,m_rejDuration.count()*invDur);
+  // 	    m_childInfo->setFloatField(m_CITimePercentInWait,m_waitDuration.count()*invDur);
+  // 	    m_childInfo->setFloatField(m_CITimePercentInSend,m_sendDuration.count()*invDur);
   // 	  }
   // 	  m_accDuration=std::chrono::milliseconds(0);
   // 	  m_rejDuration=std::chrono::milliseconds(0);
@@ -1832,7 +1832,7 @@ void ALP::statsPublisher(){
   // 	  m_eventsInInterval=0;
   // 	  m_acceptedInInterval=0;
   // 	  m_rejectedInInterval=0;
-  // 	  m_childInfo->setIntField(CILongestProcessingTime,0);
+  // 	  m_childInfo->setIntField(m_CILongestProcessingTime,0);
   // 	}
   // 	//id.checkin(objName,*m_childInfo);
   //     }catch(daq::is::Exception &ex){
@@ -2070,7 +2070,7 @@ void ALP::softTimeout(){
   m_HLTSteering->timeOutReached(a);
   m_softTOTrigger=false;
   m_hardTOTrigger=false;
-  GCIncrIntField(m_childInfo,CISoftTimeouts,1);
+  GCIncrIntField(m_childInfo,m_CISoftTimeouts,1);
 }
 
 void ALP::hardTimeout(){

@@ -15,6 +15,7 @@ rec.doForwardDet=False
 rec.doInDet=True
 rec.doMuon=True
 rec.doCalo=False
+rec.doEgamma=False
 
 # If Calo is off, this needs to be off too.
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
@@ -25,6 +26,12 @@ isoGetter (disable=True)
 
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doTrackParticleCellAssociation = False
+
+
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 
 # main jobOption

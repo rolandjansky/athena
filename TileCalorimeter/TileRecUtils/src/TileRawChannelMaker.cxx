@@ -32,6 +32,7 @@ TileRawChannelMaker::TileRawChannelMaker(const std::string& name,
     , m_TileDigitsContainerID("TileDigitsCnt")
     , m_tileRawChannelBuilderList()
     , m_fitOverflow(false)      
+    , m_tileRawChannelBuilderFitOverflow("TileRawChannelBuilder")
 {
   // declareProperty("TileRawChannelBuilder",m_TileRawChannelBuilderIDVec);
   declareProperty("TileDigitsContainer", m_TileDigitsContainerID);
@@ -67,6 +68,8 @@ StatusCode TileRawChannelMaker::initialize() {
   
   if (m_fitOverflow) {
     CHECK( m_tileRawChannelBuilderFitOverflow.retrieve() );
+  } else {
+    m_tileRawChannelBuilderFitOverflow.disable();
   }
 
   ATH_MSG_INFO( "Initialization completed successfully");

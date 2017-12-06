@@ -9,12 +9,12 @@
 #include "TrigConfigSvc/TrigConfigSvc.h"
 #include "TrigConfigSvc/TrigConfDataIOVChanger.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( TrigConf, TrigConfDataIOVChanger )
+DECLARE_COMPONENT( TrigConf::TrigConfDataIOVChanger )
 
-DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, L1TopoConfigSvc     )
-DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, LVL1ConfigSvc     )
-DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, HLTConfigSvc      )
-DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, HLTJobOptionsSvc  )
-DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, DSConfigSvc       )
-DECLARE_NAMESPACE_SERVICE_FACTORY( TrigConf, TrigConfigSvc     )
+DECLARE_COMPONENT( TrigConf::L1TopoConfigSvc )
+DECLARE_COMPONENT( TrigConf::LVL1ConfigSvc )
+DECLARE_COMPONENT( TrigConf::HLTConfigSvc )
+DECLARE_COMPONENT( TrigConf::HLTJobOptionsSvc )
+DECLARE_COMPONENT( TrigConf::DSConfigSvc )
+DECLARE_COMPONENT( TrigConf::TrigConfigSvc )
 

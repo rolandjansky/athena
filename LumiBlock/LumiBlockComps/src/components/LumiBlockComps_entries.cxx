@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "LumiBlockComps/CreateLumiBlockCollectionFromFile.h"
 //#include "LumiBlockComps/CreateAANTFromLumiBlockCollection.h"
 #include "LumiBlockComps/LumiBlockMetaDataTool.h"
@@ -13,34 +12,18 @@
 #include "LumiBlockComps/LumiBlockTester.h"
 #endif
 
-DECLARE_ALGORITHM_FACTORY( CreateLumiBlockCollectionFromFile )
-//DECLARE_ALGORITHM_FACTORY( CreateAANTFromLumiBlockCollection )
+DECLARE_COMPONENT( CreateLumiBlockCollectionFromFile )
+//DECLARE_COMPONENT( CreateAANTFromLumiBlockCollection )
 #ifndef XAOD_ANALYSIS
-DECLARE_ALGORITHM_FACTORY( LumiBlockMuWriter )
-DECLARE_ALGORITHM_FACTORY( LumiBlockTester )
-DECLARE_TOOL_FACTORY( LumiBlockMuTool )
-DECLARE_TOOL_FACTORY( LuminosityTool )
-DECLARE_TOOL_FACTORY( TrigLivefractionTool )
-DECLARE_SERVICE_FACTORY( LumiCalcSvc )
+DECLARE_COMPONENT( LumiBlockMuWriter )
+DECLARE_COMPONENT( LumiBlockTester )
+DECLARE_COMPONENT( LumiBlockMuTool )
+DECLARE_COMPONENT( LuminosityTool )
+DECLARE_COMPONENT( TrigLivefractionTool )
+DECLARE_COMPONENT( LumiCalcSvc )
 #endif
-DECLARE_TOOL_FACTORY( LumiBlockMetaDataTool )
+DECLARE_COMPONENT( LumiBlockMetaDataTool )
 
 #include "../xAOD2NtupLumiSvc.h"
-DECLARE_SERVICE_FACTORY( xAOD2NtupLumiSvc )
-
-DECLARE_FACTORY_ENTRIES(LumiBlockComps) {
-  DECLARE_ALGORITHM( CreateLumiBlockCollectionFromFile );
-  //  DECLARE_ALGORITHM( CreateAANTFromLumiBlockCollection );
-  DECLARE_ALGTOOL( LumiBlockMetaDataTool);
-  DECLARE_SERVICE( xAOD2NtupLumiSvc );
-
-#ifndef XAOD_ANALYSIS
-  DECLARE_ALGORITHM( LumiBlockMuWriter );
-  DECLARE_ALGORITHM( LumiBlockTester );
-  DECLARE_ALGTOOL( LumiBlockMuTool);
-  DECLARE_ALGTOOL( LuminosityTool);
-  DECLARE_ALGTOOL( TrigLivefractionTool);
-  DECLARE_SERVICE( LumiCalcSvc );
-#endif
-}
+DECLARE_COMPONENT( xAOD2NtupLumiSvc )
 

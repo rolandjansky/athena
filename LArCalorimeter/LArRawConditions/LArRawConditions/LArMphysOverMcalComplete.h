@@ -47,7 +47,6 @@ class LArMphysOverMcalComplete: public ILArMphysOverMcal,
 };
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArMphysOverMcalComplete,ILArMphysOverMcal);
 CLASS_DEF( LArMphysOverMcalComplete,84212362,1)
-CLASS_DEF( CondCont<LArMphysOverMcalComplete> , 216720142 , 1 )
+CONDCONT_DEF( LArMphysOverMcalComplete, 216720142, ILArMphysOverMcal );
 #endif 

@@ -53,10 +53,10 @@ void AGDDMicromegas::CreateVolume()
 	
 	MuonGM::MicromegasComponent *mm_comp=new MuonGM::MicromegasComponent;
 	mm_comp->name=tech;
-	mm_comp->dx1=_small_x;
-	mm_comp->dx2=_large_x;
-	mm_comp->dy=_y;
-	mm_comp->subType=sType;
+	mm_comp->dx1=small_x();
+	mm_comp->dx2=large_x();
+	mm_comp->dy=y();
+	mm_comp->subType=subType();
 	
 	MuonGM::Micromegas *cham=new MuonGM::Micromegas(mm_comp);
 	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);

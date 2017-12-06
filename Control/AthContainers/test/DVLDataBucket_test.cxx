@@ -18,12 +18,10 @@
 #include "AthContainers/tools/DVLDataBucket.h"
 #include "AthContainers/tools/DVLInfo.h"
 #include "AthContainers/DataVector.h"
-#include "AthContainers/DataList.h"
 #include "AthContainers/ConstDataVector.h"
-#include "AthContainers/ConstDataList.h"
-#include "SGTools/BaseInfo.h"
-#include "SGTools/IRegisterTransient.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/IRegisterTransient.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
 #include <vector>
 #include <cassert>
@@ -70,14 +68,10 @@ struct D
 
 SG_BASES2 (D, SG_VIRTUAL(B), A);
 DATAVECTOR_VIRTBASES1(D, B);
-DATALIST_VIRTBASES1(D, B);
 
 CLASS_DEF( DataVector<A> , 178538882, 1 )
 CLASS_DEF( DataVector<B> , 178538883, 1 )
 CLASS_DEF( DataVector<D> , 178538884, 1 )
-CLASS_DEF( DataList<A>   , 178538885, 1 )
-CLASS_DEF( DataList<B>   , 178538886, 1 )
-CLASS_DEF( DataList<D>   , 178538887, 1 )
 
 
 template <class CONTA, class CONTB, class CONTD, class CONSTCONT>
@@ -211,7 +205,6 @@ void test1t()
 void test1()
 {
   test1t<DataVector<A>, DataVector<B>, DataVector<D>, ConstDataVector<DataVector<A> > >();
-  test1t<DataList<A>, DataList<B>, DataList<D>, ConstDataList<DataList<A> > >();
 }
 
 

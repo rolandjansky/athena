@@ -10,7 +10,8 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "PixelCabling/IPixelCablingSvc.h"
-  
+#include "EventContainers/IdentifiableContTemp.h"
+
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 // --------------------------------------------------------------------
@@ -22,17 +23,19 @@ PixelRawDataProvider::PixelRawDataProvider(const std::string& name,
   m_regionSelector  ("RegSelSvc", name), 
   m_pixelCabling    ("PixelCablingSvc",name),
   m_robDataProvider ("ROBDataProviderSvc",name),
-  m_rawDataTool     ("PixelRawDataProviderTool"),
+  m_rawDataTool     ("PixelRawDataProviderTool", this), //make private
   m_pixel_id        (nullptr),
   m_roiSeeded(false),
   m_roiCollectionKey(""),
-  m_rdoContainerKey("")
+  m_rdoContainerKey(""),
+  m_rdoCacheKey("")
 {
   declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
   declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
   declareProperty("RDOKey", m_rdoContainerKey = std::string("PixelRDOs"));
   declareProperty ("ROBDataProvider", m_robDataProvider);
   declareProperty ("ProviderTool", m_rawDataTool);
+  declareProperty ("RDOCacheKey", m_rdoCacheKey);
 }
 
 // Destructor
@@ -74,6 +77,7 @@ StatusCode PixelRawDataProvider::initialize() {
     msg(MSG::INFO) << "Retrieved tool " << m_pixelCabling << endmsg;
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
+  ATH_CHECK( m_rdoCacheKey.initialize(!m_rdoCacheKey.key().empty()) );
 
   if (m_roiSeeded) {
     ATH_CHECK( m_roiCollectionKey.initialize() );
@@ -89,6 +93,8 @@ StatusCode PixelRawDataProvider::initialize() {
 // --------------------------------------------------------------------
 // Execute
 
+typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<PixelRDORawData>> DummyPixelRDO;
+
 StatusCode PixelRawDataProvider::execute() {
 
 #ifdef PIXEL_DEBUG
@@ -96,10 +102,18 @@ StatusCode PixelRawDataProvider::execute() {
 #endif
 
   // now create the container and register the collections
+ 
 
   // write into StoreGate
+  bool ExternalCacheMode = !m_rdoCacheKey.key().empty();
   SG::WriteHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey);
-  rdoContainer = std::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max()); 
+  if(!ExternalCacheMode) rdoContainer = std::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max()); 
+  else{
+    SG::UpdateHandle<PixelRDO_Cache> updateh(m_rdoCacheKey);
+    if(!updateh.isValid()) ATH_MSG_FATAL("Failure to retrieve cache " << m_rdoCacheKey.key());
+    rdoContainer = std::make_unique<PixelRDO_Container>(updateh.ptr());
+    ATH_MSG_DEBUG("Created container " << m_rdoContainerKey.key() << " using external cache " << m_rdoCacheKey.key());
+  }
   ATH_CHECK(rdoContainer.isValid());
 
   // Print ROB map in m_robDataProvider
@@ -137,11 +151,16 @@ StatusCode PixelRawDataProvider::execute() {
 		    << " (out of=" << listOfRobs.size() << " expected)" << endmsg;
 #endif
 
+  std::unique_ptr<DummyPixelRDO> tempcont;
+  if(ExternalCacheMode) tempcont = std::make_unique<DummyPixelRDO> (rdoContainer.ptr());
+
+  IPixelRDO_Container *containerInterface = tempcont ? static_cast< IPixelRDO_Container* >(tempcont.get()) :
+         static_cast< IPixelRDO_Container* >(rdoContainer.ptr());
   // ask PixelRawDataProviderTool to decode it and to fill the IDC
-  if (m_rawDataTool->convert(listOfRobf,&(*rdoContainer)).isFailure())
+  if (m_rawDataTool->convert(listOfRobf,  containerInterface).isFailure())
     msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
 
-
+  if(tempcont) tempcont->MergeToRealContainer(rdoContainer.ptr());
 #ifdef PIXEL_DEBUG
     msg(MSG::DEBUG) << "Number of Collections in IDC " << rdoContainer->numberOfCollections() << endmsg;
 #endif

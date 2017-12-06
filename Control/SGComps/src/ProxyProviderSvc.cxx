@@ -196,15 +196,13 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
   return dp;
 }
 
-///get the default proxy from Provider
+/// Use a provider to create a proxy for ID/KEY.
+/// If successful, the new proxy will be added to DATASTORE
+/// and returned; otherwise, return null.
 SG::DataProxy* 
 ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
 				IProxyRegistry& store)
 {
-
-  SG::DataProxy *dp;
-  if ( (dp=store.proxy(id,key)) != 0 ) return dp;
-
   if ( !m_providers.empty() && store.storeID() != StoreID::SIMPLE_STORE ) {
     const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress pTAd (id, key);

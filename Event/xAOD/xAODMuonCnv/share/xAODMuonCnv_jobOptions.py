@@ -1,7 +1,7 @@
 # $Id: ClusterCreator_jobOptions.py 297184 2013-10-03 11:18:41Z krasznaa $
 
 # Set up the reading of the input AOD:
-FNAME = "root://eosatlas//eos/atlas/atlasdatadisk/rucio/valid1/36/d9/AOD.01447493._000116.pool.root.1"
+FNAME = "root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/valid1/36/d9/AOD.01447493._000116.pool.root.1"
 
 include( "AthenaPython/iread_file.py" )
 # from RecExConfig.RecFlags  import rec

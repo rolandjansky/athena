@@ -25,7 +25,6 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( MCTruthSimAlgs
                      src/*.cxx
                      src/components/MCTruthSimAlgs_entries.cxx
-                     src/components/MCTruthSimAlgs_load.cxx
                      LINK_LIBRARIES CaloSimEvent AthenaBaseComps AthenaKernel CxxUtils PileUpToolsLib StoreGateLib SGtests xAODJet GaudiKernel GeneratorObjects TruthUtils MuonSimEvent RecEvent )
 
 # Install files from the package:

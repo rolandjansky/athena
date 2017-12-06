@@ -718,40 +718,4 @@ void TBranchAlias::setFixup (IARAFixup* fixup)
   m_fixup = std::unique_ptr<IARAFixup> (fixup);
 }
 
-
-
-//***********************************************************************
-//  Dummy methods required by root.
-//
-
-
-TClass* TBranchAlias::Class()
-{
-  if (!fgIsA)
-    fgIsA = TClass::GetClass ("AthenaROOTAccess::TBranchAlias");
-  return fgIsA;
-}
-
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-void TBranchAlias::ShowMembers (TMemberInspector& R__insp)
-{
-  TBranch::ShowMembers (R__insp);
-}
-#endif
-
-
-void TBranchAlias::Streamer (TBuffer& b)
-{
-  TBranch::Streamer (b);
-}
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
-atomic_TClass_ptr TBranchAlias::fgIsA;
-#else
-TClass* TBranchAlias::fgIsA = 0;
-#endif
-
-
 } // namespace AthenaROOTAccess

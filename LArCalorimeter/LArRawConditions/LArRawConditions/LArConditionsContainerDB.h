@@ -22,13 +22,7 @@
     Furthermore, the data object must have a operator= 
     because this operator is used by the set function.
 
-    The current implementation assumes that the container 
-    is filled ONCE using the set-function and later on 
-    read using the const_iterator or the get-function 
-    (which returns a const reference). There is no non-const 
-    iterator!
-
-    About the interator: 
+    About the iterator: 
     The iterator-class holds internally a iterator over the 
     FEB map and a iterator over the channels inside this FEB 
     as well as an interator pointing to the last feb (NOT 
@@ -72,38 +66,37 @@ public:
     typedef typename Traits::ConstPointer               ConstPointer;
 
     /// Declaration of const iterator
-    class const_iterator 
+    template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
+    class iteratorT
     {
     public:
-	const_iterator();
-	const_iterator(ConstConditionsMapIterator febit, 
-		       ConstChannelIt chanit, 
-		       ConstConditionsMapIterator febendit,
-		       const LArOnlineID* onlineHelper);
-	const_iterator(ConstConditionsMapIterator febit, 
-		       ConstChannelIt chanit, 
-		       ConstConditionsMapIterator febendit,
-		       const LArOnlineID* onlineHelper,
-		       const FebIdVec& febIds);
-	ConstReference operator*() const;
-        ConstPointer   operator->() const;
-	const_iterator operator++();
-	const_iterator operator++(int);
-// 	const_iterator operator--();
-// 	const_iterator operator--(int);
-	bool           operator!=(const const_iterator& a) const;
-	bool           operator==(const const_iterator& a) const;
+	iteratorT();
+	iteratorT(MAP_ITERATOR febit, 
+                  CHAN_ITERATOR chanit, 
+                  MAP_ITERATOR febendit,
+                  const LArOnlineID* onlineHelper);
+	iteratorT(MAP_ITERATOR febit, 
+                  CHAN_ITERATOR chanit, 
+                  MAP_ITERATOR febendit,
+                  const LArOnlineID* onlineHelper,
+                  const FebIdVec& febIds);
+	REFERENCE operator*() const;
+        POINTER   operator->() const;
+	iteratorT& operator++();
+	iteratorT  operator++(int);
+	bool           operator!=(const iteratorT& a) const;
+	bool           operator==(const iteratorT& a) const;
 	FebId          getFebId() const;
 	int            getChannel() const;
 	HWIdentifier   febId() const;
 	HWIdentifier   channelId() const;
 
     private:
-	ConstChannelIt m_channelIt;
-	ConstConditionsMapIterator m_febIt;
+	CHAN_ITERATOR m_channelIt;
+	MAP_ITERATOR m_febIt;
 	// m_lastFebit is initialized with m_febMap.end()...
 	//...and decremented to point to the last filled FEB.
-	ConstConditionsMapIterator m_lastFebIt;
+	MAP_ITERATOR m_lastFebIt;
 	const LArOnlineID*         m_onlineHelper;
 	FebIdVec                   m_febIds;
 	unsigned int               m_febIdsIndex;
@@ -111,15 +104,19 @@ public:
 	
     };
 
-    /// Default constructor
-    LArConditionsContainerDB();
+    typedef iteratorT<ConditionsMapIterator,
+                      ChannelIt,
+                      Pointer,
+                      Reference> iterator;
+
+    typedef iteratorT<ConstConditionsMapIterator,
+                      ConstChannelIt,
+                      ConstPointer,
+                      ConstReference> const_iterator;
 
     /// Constructor with gain
-    LArConditionsContainerDB(unsigned int gain);
+    LArConditionsContainerDB(unsigned int gain = 0);
     
-    /// Destructor
-    ~LArConditionsContainerDB();
-
     /// Setter
     void                         set(const FebId id, const int channel, const T& payload); 
 
@@ -137,9 +134,15 @@ public:
     const_iterator               begin(const LArOnlineID* onlineHelper) const;
     const_iterator               end  (const LArOnlineID* onlineHelper) const;
 
+    iterator                     begin(const LArOnlineID* onlineHelper);
+    iterator                     end  (const LArOnlineID* onlineHelper);
+
     /// Iterator over all channels of selected FEBs
     const_iterator               begin(const LArOnlineID* onlineHelper,
 				       const FebIdVec& febIds) const;
+
+    iterator                     begin(const LArOnlineID* onlineHelper,
+				       const FebIdVec& febIds);
 
     /// Size of map
     size_type                    size() const;
@@ -156,7 +159,7 @@ public:
     ///  add pointer to vector of (febid/channel vector)
     void                         add(FebId id, ChannelVectorPointer channelVec);
 
-    ///  erase element ofr this FebId
+    ///  erase element for this FebId
     void                         erase(FebId id);
 
 protected:
@@ -167,7 +170,7 @@ protected:
 private:
 
     // Since the raw-data usually comes FEB-wise, we assume that
-    // subsequent calls to operator[] are likley to concern the same
+    // subsequent calls to operator[] are likely to concern the same
     // FEB. Therefore we cache an iterator to current FEB to save
     // unnecessary map-lookups.  The variable is mutable to allow
     // caching inside of const objects (the content of the DetectorStore
@@ -180,30 +183,12 @@ private:
     mutable bool                       m_feb_it_valid_write;
 
   
-    //Dummy iterator to mark the beginning and the end of an empty container instance
-    const const_iterator m_dummyIt;
+    //Dummy iterators to mark the beginning and the end of an empty container instance
+    const iterator m_dummyIt;
+    const const_iterator m_dummyConstIt;
 };
 
 
-
-//Destructor 
-template<class T> 
-inline
-LArConditionsContainerDB<T>::~LArConditionsContainerDB() 
-{
-
-}
-
-template<class T> 
-inline
-LArConditionsContainerDB<T>::LArConditionsContainerDB( ) 
-    :
-    m_gain(0),
-    m_curr_feb_it(m_febMap.end()),
-    m_feb_it_valid(false),
-    m_curr_feb_it_write(m_febMap.end()),
-    m_feb_it_valid_write(false)
-{}
 
 template<class T> 
 inline
@@ -223,8 +208,7 @@ typename LArConditionsContainerDB<T>::const_iterator
 LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper) const 
 {
     if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
-	//return const_iterator(m_febMap.begin(),empty.begin());
-	return m_dummyIt;
+	return m_dummyConstIt;
     }
     else {
 	return const_iterator(m_febMap.begin(),
@@ -235,33 +219,72 @@ LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper) const
 
 template<class T> 
 inline
+typename LArConditionsContainerDB<T>::iterator 
+LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper)
+{
+    if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
+	return m_dummyIt;
+    }
+    else {
+	return iterator(m_febMap.begin(),
+                        m_febMap.begin()->second->begin(),
+                        m_febMap.end(),
+                        onlineHelper);    }
+}
+
+template<class T> 
+inline
 typename LArConditionsContainerDB<T>::const_iterator 
 LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper,
 				   const FebIdVec& febIds) const 
 {
     if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
-	//return const_iterator(m_febMap.begin(),empty.begin());
-	return m_dummyIt;
+	return m_dummyConstIt;
     }
     else {
       if(febIds.size()==0) return end(onlineHelper);
 
-      typename FebIdVec::const_iterator it_feb = febIds.begin();
-      typename FebIdVec::const_iterator it_feb_e = febIds.end();
-      
       ConstConditionsMapIterator it2 = m_febMap.end() ;
-      for( ;it_feb!=it_feb_e;++it_feb){
-	FebId id = *it_feb;
+      for (FebId id : febIds) {
 	it2 = m_febMap.find(id);
 	if( it2 != m_febMap.end()) break; 
       }
       if( it2 == m_febMap.end()) return end(onlineHelper);
 
       return const_iterator( it2,
-			      it2->second->begin(),
-			      m_febMap.end(),
-			      onlineHelper,
-			      febIds);    }
+                             it2->second->begin(),
+                             m_febMap.end(),
+                             onlineHelper,
+                             febIds);
+    }
+}
+
+
+template<class T> 
+inline
+typename LArConditionsContainerDB<T>::iterator 
+LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper,
+				   const FebIdVec& febIds)
+{
+    if (m_febMap.size()==0) { //no elements yet, begin() and end() have to be identical
+	return m_dummyIt;
+    }
+    else {
+      if(febIds.size()==0) return end(onlineHelper);
+
+      ConditionsMapIterator it2 = m_febMap.end() ;
+      for (FebId id : febIds) {
+	it2 = m_febMap.find(id);
+	if( it2 != m_febMap.end()) break; 
+      }
+      if( it2 == m_febMap.end()) return end(onlineHelper);
+
+      return iterator( it2,
+                       it2->second->begin(),
+                       m_febMap.end(),
+                       onlineHelper,
+                       febIds);
+    }
 }
 
 
@@ -269,10 +292,10 @@ LArConditionsContainerDB<T>::begin(const LArOnlineID* onlineHelper,
 template<class T> 
 inline
 typename LArConditionsContainerDB<T>::const_iterator
-LArConditionsContainerDB<T>::end(const LArOnlineID* onlineHelper) const {
+LArConditionsContainerDB<T>::end(const LArOnlineID* onlineHelper) const
+{
     if (m_febMap.size()==0) {
-	//return const_iterator(m_febMap.begin(),empty.begin());
-	return m_dummyIt;
+	return m_dummyConstIt;
     }
     else {
 	ConstConditionsMapIterator feb_end_it=m_febMap.end();
@@ -286,10 +309,33 @@ LArConditionsContainerDB<T>::end(const LArOnlineID* onlineHelper) const {
 }
 
 
-
 template<class T> 
 inline
-LArConditionsContainerDB<T>::const_iterator::const_iterator() : 
+typename LArConditionsContainerDB<T>::iterator
+LArConditionsContainerDB<T>::end(const LArOnlineID* onlineHelper)
+{
+    if (m_febMap.size()==0) {
+	return m_dummyIt;
+    }
+    else {
+	ConditionsMapIterator feb_end_it=m_febMap.end();
+	ConditionsMapIterator last_feb_it=feb_end_it;
+	last_feb_it--;
+	return iterator(last_feb_it,
+                        last_feb_it->second->end(),
+                        feb_end_it,
+                        onlineHelper);
+    }
+}
+
+
+
+#define ITERATORT iteratorT<MAP_ITERATOR, CHAN_ITERATOR, POINTER, REFERENCE>
+
+template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
+inline
+LArConditionsContainerDB<T>::ITERATORT::iteratorT() : 
 	m_channelIt(),
 	m_febIt(),
 	m_onlineHelper(0),
@@ -297,11 +343,13 @@ LArConditionsContainerDB<T>::const_iterator::const_iterator() :
 {}
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
-LArConditionsContainerDB<T>::const_iterator::const_iterator(ConstConditionsMapIterator febit, 
-							    ConstChannelIt chanit, 
-							    ConstConditionsMapIterator febendit,
-							    const LArOnlineID* onlineHelper) : 
+LArConditionsContainerDB<T>::ITERATORT::iteratorT
+  (MAP_ITERATOR febit, 
+   CHAN_ITERATOR chanit, 
+   MAP_ITERATOR febendit,
+   const LArOnlineID* onlineHelper) : 
 	m_channelIt(chanit),
 	m_febIt(febit),
 	m_lastFebIt(febendit),
@@ -310,12 +358,14 @@ LArConditionsContainerDB<T>::const_iterator::const_iterator(ConstConditionsMapIt
 { m_lastFebIt--; }
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
-LArConditionsContainerDB<T>::const_iterator::const_iterator(ConstConditionsMapIterator febit, 
-							    ConstChannelIt chanit, 
-							    ConstConditionsMapIterator febendit,
-							    const LArOnlineID* onlineHelper,
-							    const FebIdVec& febIds)
+LArConditionsContainerDB<T>::ITERATORT::iteratorT
+  (MAP_ITERATOR febit, 
+   CHAN_ITERATOR chanit, 
+   MAP_ITERATOR febendit,
+   const LArOnlineID* onlineHelper,
+   const FebIdVec& febIds)
 	:
 	m_channelIt(chanit),
 	m_febIt(febit),
@@ -325,7 +375,7 @@ LArConditionsContainerDB<T>::const_iterator::const_iterator(ConstConditionsMapIt
 	m_febIdsIndex(0)
 { 
     // Save last feb it for id match below
-    ConstConditionsMapIterator lastFeb = m_lastFebIt;
+    MAP_ITERATOR lastFeb = m_lastFebIt;
 
     // decrement iterator to point to the last valid feb
     m_lastFebIt--; 
@@ -369,7 +419,7 @@ LArConditionsContainerDB<T>::const_iterator::const_iterator(ConstConditionsMapIt
 	    return;
 	}
 	if (m_febIds[m_febIdsIndex] != m_febIt->first) {
-	    std::cout << "LArConditionsContainerDB<T>::const_iterator constructor - ERROR: NO MATCH FOUND" 
+	    std::cout << "LArConditionsContainerDB<T>::iteratorT constructor - ERROR: NO MATCH FOUND" 
 		      << std::endl;
 	}
     }
@@ -377,24 +427,27 @@ LArConditionsContainerDB<T>::const_iterator::const_iterator(ConstConditionsMapIt
 
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
-typename LArConditionsContainerDB<T>::ConstReference
-LArConditionsContainerDB<T>::const_iterator::operator*() const 
+REFERENCE
+LArConditionsContainerDB<T>::ITERATORT::operator*() const 
 {return *m_channelIt; }
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
-typename LArConditionsContainerDB<T>::ConstPointer
-LArConditionsContainerDB<T>::const_iterator::operator->() const 
+POINTER
+LArConditionsContainerDB<T>::ITERATORT::operator->() const 
 {
-  ConstReference ref = *m_channelIt;
+  REFERENCE ref = *m_channelIt;
   return &ref;
 }
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
-typename LArConditionsContainerDB<T>::const_iterator
-LArConditionsContainerDB<T>::const_iterator::operator++()
+typename LArConditionsContainerDB<T>::template ITERATORT&
+LArConditionsContainerDB<T>::ITERATORT::operator++()
 { 
 
     // Increment to next channel within the currect feb vector
@@ -407,7 +460,7 @@ LArConditionsContainerDB<T>::const_iterator::operator++()
 	// of feb ids with those in the vector
 	if (m_febIds.size()) {
 	    // Get map end - it is 'one past' the saved last m_lastFebIt
-	    ConstConditionsMapIterator lastFeb = m_lastFebIt;
+            MAP_ITERATOR lastFeb = m_lastFebIt;
 	    ++lastFeb;
 
 	    // Move the feb vector index forward
@@ -435,7 +488,7 @@ LArConditionsContainerDB<T>::const_iterator::operator++()
 	    
 	    // Print out warning if no match found
 	    if (m_febIds[m_febIdsIndex] != m_febIt->first) {
-		std::cout << "LArConditionsContainerDB<T>::const_iterator constructor - ERROR: NO MATCH FOUND" 
+		std::cout << "LArConditionsContainerDB<T>::iteratorT constructor - ERROR: NO MATCH FOUND" 
 			  << std::endl;
 	    }
 	}
@@ -449,69 +502,62 @@ LArConditionsContainerDB<T>::const_iterator::operator++()
 }
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
-typename LArConditionsContainerDB<T>::const_iterator
-LArConditionsContainerDB<T>::const_iterator::operator++(int) 
-{ return operator++(); }
-
-// template<class T> 
-// inline
-// typename LArConditionsContainerDB<T>::const_iterator
-// LArConditionsContainerDB<T>::const_iterator::operator--()
-// { 
-//   if (m_channelIt==m_febIt->second->begin()) {
-//     m_febIt--;
-//     m_channelIt=(m_febIt->second->end())-1;
-//   }
-//   else
-//     m_channelIt--;
-//   return *this;
-// }
-
-// template<class T> 
-// inline
-// typename LArConditionsContainerDB<T>::const_iterator
-// LArConditionsContainerDB<T>::const_iterator::operator--(int) 
-// { return operator--(); }
+typename LArConditionsContainerDB<T>::template ITERATORT
+LArConditionsContainerDB<T>::ITERATORT::operator++(int) 
+{
+  iteratorT tmp = *this;
+  operator++();
+  return tmp;
+}
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
 bool
-LArConditionsContainerDB<T>::const_iterator::operator==(const const_iterator& a) const
+LArConditionsContainerDB<T>::ITERATORT::operator==
+  (const iteratorT& a) const
 { return (m_channelIt==a.m_channelIt) && (m_febIt==a.m_febIt); }
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
 bool
-LArConditionsContainerDB<T>::const_iterator::operator!=(const const_iterator& a) const
+LArConditionsContainerDB<T>::ITERATORT::operator!=
+  (const iteratorT& a) const
 { return !(*this == a); }
 
 template<class T> 
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
 typename LArConditionsContainerDB<T>::FebId 
-LArConditionsContainerDB<T>::const_iterator::getFebId() const {
+LArConditionsContainerDB<T>::ITERATORT::getFebId() const {
   return m_febIt->first;
 }
 
 template<class T>
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
 int
-LArConditionsContainerDB<T>::const_iterator::getChannel() const {
+LArConditionsContainerDB<T>::ITERATORT::getChannel() const {
   return (m_channelIt - m_febIt->second->begin());
 }
 
 template<class T>
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
 HWIdentifier
-LArConditionsContainerDB<T>::const_iterator::febId() const
+LArConditionsContainerDB<T>::ITERATORT::febId() const
 {
     return (HWIdentifier(m_febIt->first));
 }
 
 template<class T>
+template <class MAP_ITERATOR, class CHAN_ITERATOR, class POINTER, class REFERENCE>
 inline
 HWIdentifier
-LArConditionsContainerDB<T>::const_iterator::channelId() const
+LArConditionsContainerDB<T>::ITERATORT::channelId() const
 {
     // Construct channel id
     if (m_onlineHelper) {
@@ -521,6 +567,8 @@ LArConditionsContainerDB<T>::const_iterator::channelId() const
     HWIdentifier result;
     return (result); // return invalid one if helper is not available
 }
+
+#undef ITERATORT
 
 
 

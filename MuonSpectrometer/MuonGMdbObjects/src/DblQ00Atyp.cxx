@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Atyp.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <stdio.h>
 
@@ -30,7 +29,7 @@
 namespace MuonGM
 {
 
-DblQ00Atyp::DblQ00Atyp(IRDBQuery* atyp)
+DblQ00Atyp::DblQ00Atyp(std::unique_ptr<IRDBQuery>&& atyp)
  : m_nObj(0)
 {
   if(atyp) {

@@ -16,7 +16,7 @@
 #define CALOREC_CALOCELLPOSITIONSHIFT_H
 
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include <vector>
 
 namespace CaloRec {

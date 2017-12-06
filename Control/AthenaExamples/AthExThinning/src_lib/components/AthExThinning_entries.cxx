@@ -4,8 +4,8 @@
 #include "AthExThinning/SlimmerAlg.h"
 
   
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthExThinning, CreateData )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthExThinning, WriteThinnedData )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthExThinning, ReadThinnedData )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthExThinning, SlimmerAlg )
+DECLARE_COMPONENT( AthExThinning::CreateData )
+DECLARE_COMPONENT( AthExThinning::WriteThinnedData )
+DECLARE_COMPONENT( AthExThinning::ReadThinnedData )
+DECLARE_COMPONENT( AthExThinning::SlimmerAlg )
 

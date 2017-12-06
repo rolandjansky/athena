@@ -56,7 +56,7 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   declareProperty("BiasVoltage", m_biasVoltage = 150., "Default  bias voltage in Volt.");
   declareProperty("DepletionVoltage", m_deplVoltage = 70.,  "Default depletion voltage in Volt.");
   // declareProperty("IgnoreLocalPos", m_ignoreLocalPos = false,  "Treat methods that take a local position as if one "
-// 		  "called the methods without a local position" );
+  //     "called the methods without a local position" );
   declareProperty("DetStore", m_detStore);
   
   // -- Radiation damage specific
@@ -64,9 +64,9 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   // -- Fluence: Need to make it layer-dependent
   declareProperty("Fluence", m_fluence=(double)1.0E15, "Fluence received by the detector."); 
   declareProperty("BetaElectrons",m_betaElectrons=(double)3.1E-16,"Constant for the trapping model for electrons, in [cm^2/ns] " 
-		  "-- average value from Table 2 in ATL-INDET-2003-014");
+                  "-- average value from Table 2 in ATL-INDET-2003-014");
   declareProperty("BetaHoles",m_betaHoles=(double)5.1E-16,"Constant for the trapping model for holes in [cm^2/ns] " 
-		   "-- average value from Table 2 in ATL-INDET-2003-014");
+                  "-- average value from Table 2 in ATL-INDET-2003-014");
 }
 
 SCT_ChargeTrappingSvc::~SCT_ChargeTrappingSvc()
@@ -358,10 +358,10 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   }
   
   double electricField=m_electricFieldTool->getElectricField(pos,//posZ
-                                                            totalFluence,
-                                                            fabs(deplVoltage),
-                                                            element->thickness(),
-                                                            fabs(biasVoltage));
+                                                             totalFluence,
+                                                             fabs(deplVoltage),
+                                                             element->thickness(),
+                                                             fabs(biasVoltage));
 
   //electric field will be a function of bias voltage and fluence...
 
@@ -531,7 +531,7 @@ double SCT_ChargeTrappingSvc::induced (int istrip, double x, double y)const{
     + m_PotentialValue[ix1][iy1] *fx*fy ;
 #ifdef SCT_DIG_DEBUG
   ATH_MSG_DEBUG("induced: x,y,iy="<<x<<" "<<y<<" "<<iy<<" istrip,xc,dx,ix="
-		<<istrip<<" "<<xc<<" " <<dx<<" "<<ix<<" fx,fy="<<fx <<" " <<fy<< ", P="<<P);
+                <<istrip<<" "<<xc<<" " <<dx<<" "<<ix<<" fx,fy="<<fx <<" " <<fy<< ", P="<<P);
 #endif
   
   return P;
