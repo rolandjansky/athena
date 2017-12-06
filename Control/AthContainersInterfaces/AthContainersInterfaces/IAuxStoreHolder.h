@@ -53,7 +53,8 @@ namespace SG {
       /// There's not much use case for this function yet, but it makes the
       /// interface complete at least.
       ///
-      virtual IAuxStore* getStore() const = 0;
+      virtual IAuxStore* getStore() = 0;
+      virtual const IAuxStore* getStore() const = 0;
 
       /// Type of the auxiliary store
       ///
