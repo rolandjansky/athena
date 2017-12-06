@@ -165,8 +165,8 @@ if DetFlags.makeRIO.Calo_on() and not rec.doWriteBS() :
         DetFlags.makeRIO.Calo_setOff()
 
 # CaloCellGetter_DigiHSTruth
-    from RecExConfig.RecFlags import rec
-    if rec.doDigiTruth():
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doDigiTruth():
       try:
         from CaloRec.CaloCellGetter_DigiHSTruth import CaloCellGetter_DigiHSTruth
         CaloCellGetter_DigiHSTruth()

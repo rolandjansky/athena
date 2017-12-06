@@ -245,8 +245,8 @@ class CaloClusterTopoGetter ( Configured )  :
 
 
 
-        from RecExConfig.RecFlags import rec
-        if rec.doDigiTruth():
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlage.doDigiTruth():
           TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
