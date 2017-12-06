@@ -3005,9 +3005,10 @@
         <InternalTrigger name="BGRP5"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="364" partition="1" name="L1_MU21_FTK" complex_deadtime="0" definition="(MU21[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="364" partition="1" name="L1_LFV-MU11" complex_deadtime="0" definition="(0DR15-2MU6ab[x1]&amp;MU11[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
+        <TriggerCondition multi="1" name="0DR15-2MU6ab_x1" triggerthreshold="0DR15-2MU6ab"/>
+        <TriggerCondition multi="1" name="MU11_x1" triggerthreshold="MU11"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
