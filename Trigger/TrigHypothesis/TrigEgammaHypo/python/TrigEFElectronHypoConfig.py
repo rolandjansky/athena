@@ -100,6 +100,10 @@ class TrigEFElectronHypo_e_ID (TrigEFElectronHypoBase):
         if( 'lh' in IDinfo):
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
             self.UseAthenaElectronLHIDSelectorTool = True
+        elif( 'bloose' in IDinfo  ):
+            from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
+            self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
         else:
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
@@ -121,6 +125,10 @@ class TrigEFElectronHypo_e_ID_HI (TrigEFElectronHypoBase):
         if( 'lh' in IDinfo):
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
             self.UseAthenaElectronLHIDSelectorTool = True
+        elif( 'bloose' in IDinfo):
+            from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
+            self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
         else:
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]

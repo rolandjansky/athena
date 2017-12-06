@@ -4465,7 +4465,7 @@ def setupMenu():
         ['eb_high_L1RD2_FILLED',              'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         ]
 
-
+ 
     ###############################################################
     #################################################################
     signatureList=[]

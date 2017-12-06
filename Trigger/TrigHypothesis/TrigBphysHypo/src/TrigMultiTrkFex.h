@@ -7,7 +7,7 @@
  **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkFex.h
  **
  **
- **   Author:Olya Igonkina
+ **   Author:Olya Igonkina (Nikhef)
  **
  **   Created:   15/07/2016
  **   Modified:     

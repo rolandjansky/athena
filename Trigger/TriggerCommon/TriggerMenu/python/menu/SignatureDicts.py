@@ -52,13 +52,13 @@ ChainDictTemplate = {
 #==========================================================
 # ----- Allowed HLT Topo Keywords (in addition to generic topos like DR, DETA, DPHI...)
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg"]
+AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg", "bBeexv2", "bBeexM2700", "bBeexM6000"]
 AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi10', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
 AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut','bVertex2', 'bVertex3',
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
-                      'bBmumuxv2', 'bBmumuxv3',
+                      'bBmumuxv2', 'bBmumuxv3', 
                       '02dr-2mu6', '2invm', 
                       'BcmumuDs' ,   'BcmumuDsloose' ,
                       '7invm9', 'noos', 'noid', 'novtx',
@@ -377,7 +377,7 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : ['0eta250', '250eta490'],
-    'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose', 'mergedtight'],
+    'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose', 'mergedtight', 'bloose'],
     'isoInfo'        : [ 'iloose','ivarloose','ivarmedium','ivartight','icalovloose','icaloloose','icalomedium','icalotight'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDTrkNoCut','FwdBackTrk','idperf'],
     'caloInfo'       : ['L2EFCalo','HLTCalo'],

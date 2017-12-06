@@ -914,7 +914,7 @@ def defineMenu():
 # 509-511 are reserved for CALREQ
 
     Lvl1Flags.CtpIdMap = {
-
+ 
         'L1_EM3' : 0,
         'L1_EM7' : 1,
         'L1_EM12' : 2,
