@@ -759,6 +759,7 @@ def defineMenu():
         'L1_DY-BOX-2MU6',
         'L1_LFV-MU',
         'L1_LFV-MU6',
+        'L1_LFV-MU11',
         'L1_LFV-EM8I',
         'L1_LFV-EM15I',
         'L1_DPHI-J20s2XE50',
@@ -893,7 +894,6 @@ def defineMenu():
         #item with FTK trigger type, for FTK commissioning
         'L1_MU6_FTK',
         'L1_MU20_FTK',
-        'L1_MU21_FTK',
         'L1_TAU12IM_FTK', 
         'L1_TAU20IM_FTK',
         'L1_MU20_TAU12IM_FTK', 
@@ -1389,6 +1389,7 @@ def defineMenu():
         'L1_DY-BOX-2MU6' : 318,
         'L1_LFV-MU' : 319,
         'L1_LFV-MU6' : 332,
+        'L1_LFV-MU11' : 364,
         'L1_LFV-EM8I' : 320,
         'L1_LFV-EM15I' : 321,
         'L1_DPHI-J20s2XE50' : 323,
@@ -1608,7 +1609,6 @@ def defineMenu():
         
         'L1_MU6_FTK'                           : 499,
         'L1_MU20_FTK'                          : 500,
-#        'L1_MU21_FTK'                          : 497,
         'L1_TAU12IM_FTK'                       : 501,
         'L1_TAU20IM_FTK'                       : 86,
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK': 502,
