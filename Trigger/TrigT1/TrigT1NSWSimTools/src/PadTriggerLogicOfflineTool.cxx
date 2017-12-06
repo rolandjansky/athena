@@ -120,7 +120,8 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
         if(TTree *tree = get_tree_from_histsvc()){
             m_validation_tree.init_tree(tree);
         } else {
-            return STATUSCODE(StatusCode::FAILURE, IssueSeverity::FATAL, "cannot book requested output tree");
+            ATH_MSG_FATAL("Cannot book requested output tree");
+            return StatusCode::FAILURE;
         }
     }
     // retrieve the Incident Service

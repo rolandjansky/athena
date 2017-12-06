@@ -67,7 +67,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/RandGaussZiggurat.h"
+// #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandExponential.h"
 
 #include "MuonAGDDDescription/MMDetectorDescription.h"
@@ -1138,7 +1138,7 @@ StatusCode MmDigitizationTool::doDigitization() {
      }
    }
    else {
-     digitCollection = const_cast<MmDigitCollection*>( it_coll->cptr() );
+     digitCollection = const_cast<MmDigitCollection*>( *it_coll );
      digitCollection->push_back(newDigit);
    }
 
@@ -1240,18 +1240,18 @@ bool MmDigitizationTool::checkMMSimHit( const GenericMuonSimHit& /*hit*/ ) const
 
   return true;
 }
-/*******************************************************************************/
-int MmDigitizationTool::digitizeTime(double time) const {
+// /*******************************************************************************/
+// int MmDigitizationTool::digitizeTime(double time) const {
 
-  int    tdcCount;
-  double tmpCount = time/m_ns2TDC;
-  double rand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, tmpCount, m_resTDC);
-  tdcCount = static_cast<long>(rand);
+//   int    tdcCount;
+//   double tmpCount = time/m_ns2TDC;
+//   double rand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, tmpCount, m_resTDC);
+//   tdcCount = static_cast<long>(rand);
 
-  if (tdcCount < 0 || tdcCount > 4096){
-    //ATH_MSG_DEBUG( " Count outside TDC window: " << tdcCount );
-  }
+//   if (tdcCount < 0 || tdcCount > 4096){
+//     //ATH_MSG_DEBUG( " Count outside TDC window: " << tdcCount );
+//   }
 
-  return tdcCount;
-}
+//   return tdcCount;
+// }
 /*******************************************************************************/
