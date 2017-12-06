@@ -128,7 +128,13 @@ public:
   /**
    * @brief Return the container holding the element that this object proxies.
    */
-  DVL* container() const;
+  DVL* container();
+
+
+  /**
+   * @brief Return the container holding the element that this object proxies.
+   */
+  const DVL* container() const;
 
 
   typedef typename

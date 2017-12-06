@@ -24,19 +24,19 @@ struct A
   : public SG::AuxElement
 {
   int& xint()
-  { static Accessor<int> acc ("xint");  return acc(*this); }
+  { static const Accessor<int> acc ("xint");  return acc(*this); }
   int xint() const
-  { static Accessor<int> acc ("xint");  return acc(*this); }
+  { static const Accessor<int> acc ("xint");  return acc(*this); }
 
   float& xfloat()
-  { static Accessor<float> acc ("xfloat");  return acc(*this); }
+  { static const Accessor<float> acc ("xfloat");  return acc(*this); }
   float xfloat() const
-  { static Accessor<float> acc ("xfloat");  return acc(*this); }
+  { static const Accessor<float> acc ("xfloat");  return acc(*this); }
 
   std::vector<int>& xvint()
-  { static Accessor<std::vector<int> > acc ("xvint");  return acc(*this); }
+  { static const Accessor<std::vector<int> > acc ("xvint");  return acc(*this); }
   const std::vector<int>& xvint() const
-  { static Accessor<std::vector<int> > acc ("xvint");  return acc(*this); }
+  { static const Accessor<std::vector<int> > acc ("xvint");  return acc(*this); }
 };
 
 
