@@ -37,8 +37,8 @@ StatusCode TauEfficiencyTriggerTool::initialize()
   {
     std::string sInputFilePath = PathResolverFindCalibFile(m_sInputFilePath);
 
-    m_mSF = new tSFMAP();
-    TFile* fSF = TFile::Open(sInputFilePath.c_str(), "READ");
+    m_mSF = std::make_unique< tSFMAP >();
+    std::unique_ptr< TFile > fSF( TFile::Open( sInputFilePath.c_str(), "READ" ) );
     if(!fSF)
     {
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
@@ -46,7 +46,6 @@ StatusCode TauEfficiencyTriggerTool::initialize()
     }
     ReadInputs(fSF);
     fSF->Close();
-    delete fSF;
   }
 
   std::vector<std::string> vInputFilePath;
