@@ -325,7 +325,7 @@ struct cellinfo {
 
 } // namespace CaloClusterMomentsMaker_detail
 
-StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContainer *theClusColl) const
+StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContainer *theClusColl)
 {
 
   ATH_MSG_DEBUG("Executing " << name());

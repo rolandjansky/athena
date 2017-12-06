@@ -595,12 +595,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
   //
   // ...... register the digit container into the TDS and check if succeeded
   //
-  StatusCode sc = ATH_CHECK(evtStore()->record(m_DigitContainer ,  m_DigitContainerName) );
-  if( sc.isFailure() )
-  {
-    ATH_MSG_ERROR("Could not record new LArDigitContainer in TDS : " << m_DigitContainerName);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->record(m_DigitContainer ,  m_DigitContainerName) );
 
   if(m_doDigiTruth){
     m_DigitContainer_DigiHSTruth = new LArDigitContainer();
@@ -608,11 +603,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
       ATH_MSG_ERROR("Could not allocate a new LArDigitContainer");
       return StatusCode::FAILURE;
     }
-    sc = ATH_CHECK(evtStore()->record(m_DigitContainer_DigiHSTruth ,  m_DigitContainerName_DigiHSTruth) );
-    if( sc.isFailure() ){
-      ATH_MSG_ERROR("Could not record new LArDigitContainer in TDS : " << m_DigitContainerName_DigiHSTruth);
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(evtStore()->record(m_DigitContainer_DigiHSTruth ,  m_DigitContainerName_DigiHSTruth) );
   }
 
 
@@ -620,12 +611,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
   m_larOFC=NULL;
   if(m_RndmEvtOverlay  && !m_isMcOverlay) {
-    sc=detStore()->retrieve(m_larOFC);
-    if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Can't retrieve LArOFC from Conditions Store");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(m_larOFC));
   }
 
 
@@ -974,17 +960,9 @@ StatusCode LArPileUpTool::mergeEvent()
 
 
   // lock Digit container in StoreGate
-  StatusCode sc = ATH_CHECK(evtStore()->setConst(m_DigitContainer));
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( " Cannot lock DigitContainer ");
-    return(StatusCode::FAILURE);
-  }
+  ATH_CHECK(evtStore()->setConst(m_DigitContainer));
   if(m_doDigiTruth){
-    sc = evtStore()->setConst(m_DigitContainer_DigiHSTruth);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( " Cannot lock DigitContainer_DigiHSTruth");
-      return(StatusCode::FAILURE);
-    }
+    ATH_CHECK(evtStore()->setConst(m_DigitContainer_DigiHSTruth));
   }
 
 
@@ -2381,5 +2359,6 @@ bool LArPileUpTool::fillMapfromSum(float bunchTime)  {
        m_energySum_DigiHSTruth[i]=0.;
     }
   }
+
   return true;
 }
