@@ -1173,7 +1173,7 @@ if InDetFlags.doPattern():
                                                                                        SCTManagerLocation    = InDetKeys.SCT_Manager(),
                                                                                        PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                                        SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
-                                                                                       PathThroughExtension  = True
+                                                                                       PassThroughExtension  = True
                                                                                        )
 
         ToolSvc += InDetSiComTrackFinderThreeLayerTracking
