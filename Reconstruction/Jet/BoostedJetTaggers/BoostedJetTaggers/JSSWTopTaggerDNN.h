@@ -10,8 +10,8 @@
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
 
-#include "BoostedJetTaggers/lwtnn/LightweightNeuralNetwork.h"
-#include "BoostedJetTaggers/lwtnn/parse_json.h"
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/parse_json.hh"
 
 #include <TSystem.h>
 #include <TFile.h>
