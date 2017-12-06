@@ -914,7 +914,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
     StatusCode sc = rdoIdc.addCollection(col, idCollHash);
     ATH_MSG_DEBUG("Adding " << idCollHash);
     if (sc.isFailure()){
-        msg(MSG::ERROR) << "failed to add SCT RDO collection to container" << endmsg;
+        ATH_MSG_ERROR("failed to add SCT RDO collection to container");
     }
   }
   
