@@ -36,6 +36,7 @@ namespace CP {
     virtual ~IJetQGTagger() {}
 
     virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
+    virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex* pv) const = 0;
 
   };
 
