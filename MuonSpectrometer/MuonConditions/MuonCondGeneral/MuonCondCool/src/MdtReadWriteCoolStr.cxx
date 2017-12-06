@@ -45,7 +45,6 @@ MdtReadWriteCoolStr::MdtReadWriteCoolStr(const std::string& name,
   declareProperty("Folder",par_folder);
   declareProperty("RFile",par_rfile);
   declareProperty("WFile",par_wfile);
-  declareProperty("WFile",par_wfile);
   declareProperty("CalT0",par_calT0);
   declareProperty("CalRT",par_calRT);
   declareProperty("AlignCorr",par_alignCorr);
