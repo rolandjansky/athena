@@ -26,7 +26,7 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/DataObject.h"
 
@@ -67,7 +67,6 @@ public:
 
 CLASS_DEF(AthenaAttributeList, 40774348, 0)
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<AthenaAttributeList>, 211215482 , 0)
-
+CONDCONT_DEF(AthenaAttributeList, 211215482);
 
 #endif // PERSISTENTDATAMODEL_ATHENAATTRIBUTELIST_H

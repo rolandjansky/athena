@@ -31,7 +31,6 @@ atlas_add_component( GeoModelSvc
                      src/GeoDbTagSvc.cxx
                      src/RDBMaterialManager.cxx
                      src/components/GeoModelSvc_entries.cxx
-                     src/components/GeoModelSvc_load.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps CxxUtils AthenaKernel SGTools StoreGateLib SGtests GeoModelKernel GeoModelUtilities EventInfo GaudiKernel )
 

@@ -19,11 +19,18 @@
 #include "InDetRawData/PixelRDORawData.h"
 #include "InDetRawData/PixelRDO_Collection.h" // Needed to pick up CLID.
 #include "AthLinks/DeclareIndexingPolicy.h"
+#include "EventContainers/IIdentifiableCont.h"
 
 typedef InDetRawDataContainer<InDetRawDataCollection<PixelRDORawData> > 
 PixelRDO_Container; 
 
+typedef EventContainers::IdentifiableCache< InDetRawDataCollection<PixelRDORawData> > PixelRDO_Cache;
+
 CLASS_DEF(PixelRDO_Container,2540,1)
 CONTAINER_IS_IDENTCONT(PixelRDO_Container)
+
+CLASS_DEF( PixelRDO_Cache , 24943700 , 1 )
+
+typedef EventContainers::IIdentifiableCont<InDetRawDataCollection<PixelRDORawData>> IPixelRDO_Container;//Interface only, do not place in storegate
 
 #endif // INDETRAWDATA_PIXELRDO_CONTAINER_H

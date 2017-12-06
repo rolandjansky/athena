@@ -17,7 +17,7 @@
 #define CALOREC_TOOLCONSTANTS_H
 
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include "CxxUtils/Array.h"
 #include <string>
 #include <map>

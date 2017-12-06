@@ -4,34 +4,34 @@
 
 namespace InDetDD {
 inline double & TRT_BarrelDescriptor::strawXPos       	(unsigned int i) {
-  return _x[i];
+  return m_x[i];
 }
 
 inline const double & TRT_BarrelDescriptor::strawXPos (unsigned int i) const {
-  return _x[i];
+  return m_x[i];
 }
 
 inline double & TRT_BarrelDescriptor::strawYPos       (unsigned int i) {
-  return _y[i];
+  return m_y[i];
 }
 inline const double & TRT_BarrelDescriptor::strawYPos (unsigned int i) const {
-  return _y[i];
+  return m_y[i];
 }
 
 inline unsigned int TRT_BarrelDescriptor::nStraws() const {
-  return _x.size();
+  return m_x.size();
 }
 
 inline const double & TRT_BarrelDescriptor::strawLength() const {
-  return _length;
+  return m_length;
 }
 
 inline double & TRT_BarrelDescriptor::strawLength() {
-  return _length;
+  return m_length;
 }
 
 inline void TRT_BarrelDescriptor::strawLength(double newLength) {
-  _length = newLength;
+  m_length = newLength;
 }
 
  
@@ -42,35 +42,35 @@ inline double TRT_BarrelDescriptor::innerTubeRadius() const
 
 
 inline const double & TRT_BarrelDescriptor::strawZDead() const  {
-  return _zDead;
+  return m_zDead;
 }
 
 inline double & TRT_BarrelDescriptor::strawZDead()  {
-  return _zDead;
+  return m_zDead;
 }
 
 inline void TRT_BarrelDescriptor::strawZDead(double zDead)  {
-  _zDead = zDead;
+  m_zDead = zDead;
 }
 
 inline const double & TRT_BarrelDescriptor::strawZPos() const  {
-  return _zPos;
+  return m_zPos;
 }
 
 inline double & TRT_BarrelDescriptor::strawZPos()  {
-  return _zPos;
+  return m_zPos;
 }
 
 inline void TRT_BarrelDescriptor::strawZPos(double zPos)  {
-  _zPos = zPos;
+  m_zPos = zPos;
 }
 
 inline const GeoXF::Function * TRT_BarrelDescriptor::getStrawTransform() const {
-  return _f;
+  return m_f;
 }
 
 inline size_t TRT_BarrelDescriptor::getStrawTransformOffset() const {
-  return _o;
+  return m_o;
 }
 
 

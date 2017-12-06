@@ -21,6 +21,9 @@ MODIFIED :
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h" 
 
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "EventPrimitives/EventPrimitives.h"
+
 // Forward declarations.
 class egamma;
 //class EMClusterErrorsParametrizations;

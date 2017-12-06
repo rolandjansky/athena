@@ -28,6 +28,8 @@ class egammaKeysDict:
     TopoSeededCluster  = [ 'xAOD::CaloClusterContainer', 'egammaTopoSeededClusters', '','-CellLink' ],
     Electron =      [ 'xAOD::ElectronContainer', 'Electrons', '',ShowerShapesSuppress+ElectronisemSupress ],
     EgammaRec =     [ 'egammaRecContainer', 'egammaRecCollection', '','' ],
+    PhotonSuperRec =   [ 'egammaRecContainer', 'PhotonSuperRecCollection', '','' ],
+    ElectronSuperRec = [ 'egammaRecContainer', 'ElectronSuperRecCollection', '','' ],
     FwdElectron =   [ 'xAOD::ElectronContainer', 'ForwardElectrons', '',FwdElectronisemSupress ],
     FwdCluster  =   [ 'xAOD::CaloClusterContainer', 'ForwardElectronClusters','-SisterCluster','.-CellLink' ],
     Photon   =      [ 'xAOD::PhotonContainer', 'Photons', '',ShowerShapesSuppress+PhotonisemSupress ],

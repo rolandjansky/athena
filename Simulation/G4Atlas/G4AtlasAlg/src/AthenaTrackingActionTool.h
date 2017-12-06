@@ -46,6 +46,8 @@ namespace G4UA
 
       /// The saving level for secondaries.
       int m_secondarySavingLevel;
+      /// The level in the G4 volume hierarchy at which can we find the sub-detector name
+      int m_subDetVolLevel;
 
   }; // class AthenaTrackingActionTool
 

@@ -3,14 +3,14 @@
 */
 
 /**
- *   $Id: LArG4GenShowerLib.cxx 797404 2017-02-15 19:01:55Z sfarrell $:
+ *   $Id: LArG4GenShowerLib.cxx 770430 2016-08-26 20:49:25Z ssnyder $:
  *
  *   @short Implementation of shower library generation algorithm
  *
  *
  *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
  *  @author Sasha Glazov, DESY Hamburg, Germany
- * @version $Revision: 797404 $
+ * @version $Revision: 770430 $
  *
  */
 
@@ -26,7 +26,7 @@
 #include "GeneratorObjects/McEventCollection.h"// For MC Truth information:
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "LArG4Code/EnergySpot.h"
+#include "LArG4ShowerLib/ShowerEnergySpot.h"
 #include "LArG4ShowerLib/Shower.h"
 #include "LArG4ShowerLib/ShowerLibList.h"
 
@@ -255,7 +255,7 @@ StatusCode LArG4GenShowerLib::execute()
 
   for (ShowerLib::StepInfoList::iterator i(eventSteps->begin());i != eventSteps->end(); ++i) {
 
-    shower->push_back(new EnergySpot(G4ThreeVector((*i)->x(), (*i)->y(), (*i)->z()),(*i)->dep(),(*i)->time()));
+      shower->push_back(new ShowerLib::ShowerEnergySpot(G4ThreeVector((*i)->x(), (*i)->y(), (*i)->z()),(*i)->dep(),(*i)->time()));
 
     delete (*i);
   }

@@ -9,7 +9,9 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 #include "TrkTruthData/TrackTruthCollection.h"
+#include "TrkTruthTPCnv/TrackTruthCollection_p2.h"
 #include "TrkTruthTPCnv/TrackTruthCollection_p1.h"
+#include "TrkTruthTPCnv/TrackTruthCollectionCnv_p2.h"
 #include "TrkTruthTPCnv/TrackTruthCollectionCnv_p1.h"
 #include "TrkTruthTPCnv/TrackTruthCollectionCnv_p0.h"
 
@@ -29,9 +31,11 @@ protected:
 private:
   TrackTruthCollectionCnv_p0 m_converter_p0;
   TrackTruthCollectionCnv_p1 m_converter_p1;
+  TrackTruthCollectionCnv_p2 m_converter_p2;
 
   static pool::Guid s_p0_guid;
   static pool::Guid s_p1_guid;
+  static pool::Guid s_p2_guid;
 };
 
 #endif

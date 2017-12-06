@@ -90,7 +90,9 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_tileToolPulseShape("TileCondToolPulseShape")
   , m_tileBadChanTool("TileBadChanTool")
-  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider") {
+  , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
+  , m_MuRcvBuildTool("TileRawChannelBuilderMF")
+{
   // declare properties...
 
   declareProperty("TileHitContainer"               , m_hitContainer         = "TileHitCnt");
@@ -179,9 +181,14 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
 
     m_shapeMuonReceiver = m_tileInfo->MuRcvFullShape();
     m_shapeMuonReceiver.push_back(0.0);
+    m_tileToolPulseShape.disable();
   }
 
-  if (m_maskBadChannels) CHECK(m_tileBadChanTool.retrieve());
+  if (m_maskBadChannels) {
+    CHECK(m_tileBadChanTool.retrieve());
+  } else {
+    m_tileBadChanTool.disable();
+  }
 
   ATH_MSG_VERBOSE("TilePulseForTileMuonReceiver initialization completed");
   return StatusCode::SUCCESS;

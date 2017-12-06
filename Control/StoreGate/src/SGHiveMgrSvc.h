@@ -22,7 +22,6 @@
 class StoreGateSvc;
 class ISvcLocator;
 
-template <class TYPE> class SvcFactory;
 
 /** @class HiveMgrSvc
  *  @brief A service that manages a multi-event collection of StoreGateSvc
@@ -32,7 +31,6 @@ template <class TYPE> class SvcFactory;
  **/
 namespace SG {
   class HiveMgrSvc : virtual public IHiveWhiteBoard, public Service,  public IIncidentListener {
-  friend class SvcFactory<HiveMgrSvc>;
   friend class TestSGHiveMgrSvc;
 public:
   //@{ @name IHiveWhiteBoard implementation
@@ -64,19 +62,26 @@ public:
    */
   virtual size_t getNumberOfStores() const override;
  
+  /** explicitly notify the presence of new object in the store
+   *
+   * @param  products     [IN]     Location of new objects
+   */
+  virtual void addNewDataObjects( DataObjIDColl& products ) override;
+
   /** Get the latest new data objects registered in store.
    *
    * @param  products     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
    */
-  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override;
+  virtual DataObjIDColl getNewDataObjects() override;
 
-  /** Check if something is new in the whiteboard without getting the products.
+  /** Check if a data object exists in store.
+   *  TODO: remove the method ASA a cross-experiment
+   *        event data store interface emerges
    *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Boolean indicating the presence of new products
+   * @return  boolean
    */
-  virtual bool newDataObjectsPresent() override;
+    virtual bool exists( const DataObjID& ) override;
   
   /** Allocate a store slot for new event
    *
@@ -101,25 +106,29 @@ public:
    */
   virtual size_t getPartitionNumber(int eventnumber) const override;
   
+  /// Get free slots number
+  virtual unsigned int freeSlots() override;
+    
   //@{ @name Gaudi Service boilerplate
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
-    //handle incidents
-    virtual void handle(const Incident&) override final;    
+  //handle incidents
+  virtual void handle(const Incident&) override final;    
+
+  /// Standard Service Constructor. sets active store to default event store
+  HiveMgrSvc(const std::string& name, ISvcLocator* svc);
+
+  virtual ~HiveMgrSvc() {}
 
 private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
   std::vector<SG::HiveEventSlot> m_slots;
+    std::atomic<unsigned int> m_freeSlots {0};
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
-protected:
-  /// Standard Service Constructor. sets active store to default event store
-  HiveMgrSvc(const std::string& name, ISvcLocator* svc);
-
-  virtual ~HiveMgrSvc() {}
 
 };
 } //namespace SG

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 //#include "ParticleJetTools/JetTrackTruthMatching.h"
 #include "ParticleJetTools/JetQuarkLabel.h"
 #include "ParticleJetTools/JetConeLabeling.h"
@@ -17,39 +16,20 @@
 
 using namespace Analysis;
 
-/* DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetTrackTruthMatching ) */
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetQuarkLabel )
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetConeLabeling )
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetPartonTruthLabel )
-/* DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetQGPartonLabel ) */
-DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, ParticleToJetAssociator )
-/* DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, FindLeptonTruth ) */
+/* DECLARE_COMPONENT( Analysis::JetTrackTruthMatching ) */
+DECLARE_COMPONENT( Analysis::JetQuarkLabel )
+DECLARE_COMPONENT( Analysis::JetConeLabeling )
+DECLARE_COMPONENT( Analysis::JetPartonTruthLabel )
+/* DECLARE_COMPONENT( Analysis::JetQGPartonLabel ) */
+DECLARE_COMPONENT( Analysis::ParticleToJetAssociator )
+/* DECLARE_COMPONENT( Analysis::FindLeptonTruth ) */
 /// @todo Convert to namespace, tool, etc?
-DECLARE_TOOL_FACTORY( CopyFlavorLabelTruthParticles )
-DECLARE_TOOL_FACTORY( CopyBosonTopLabelTruthParticles )
-DECLARE_TOOL_FACTORY( CopyTruthPartons )
-DECLARE_TOOL_FACTORY( CopyTruthJetParticles )
-DECLARE_TOOL_FACTORY( ParticleJetDeltaRLabelTool )
-DECLARE_TOOL_FACTORY( JetParticleShrinkingConeAssociation )
-DECLARE_TOOL_FACTORY( JetParticleCenterOfMassAssociation )
-DECLARE_ALGORITHM_FACTORY( JetParticleAssociationAlg )
+DECLARE_COMPONENT( CopyFlavorLabelTruthParticles )
+DECLARE_COMPONENT( CopyBosonTopLabelTruthParticles )
+DECLARE_COMPONENT( CopyTruthPartons )
+DECLARE_COMPONENT( CopyTruthJetParticles )
+DECLARE_COMPONENT( ParticleJetDeltaRLabelTool )
+DECLARE_COMPONENT( JetParticleShrinkingConeAssociation )
+DECLARE_COMPONENT( JetParticleCenterOfMassAssociation )
+DECLARE_COMPONENT( JetParticleAssociationAlg )
 
-/** factory entries need to have the name of the package */
-DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
-/*    DECLARE_NAMESPACE_TOOL( Analysis, JetTrackTruthMatching ) */
-    DECLARE_NAMESPACE_TOOL( Analysis, JetQuarkLabel )
-    DECLARE_NAMESPACE_TOOL( Analysis, JetConeLabeling )
-    DECLARE_NAMESPACE_TOOL( Analysis, JetPartonTruthLabel )
-/*    DECLARE_NAMESPACE_TOOL( Analysis, JetQGPartonLabel ) */
-    DECLARE_NAMESPACE_TOOL( Analysis, ParticleToJetAssociator )
-/*    DECLARE_NAMESPACE_TOOL( Analysis, FindLeptonTruth ) */
-    /// @todo Convert to namespace, tool, etc?
-    DECLARE_TOOL( CopyFlavorLabelTruthParticles )
-    DECLARE_TOOL( CopyBosonTopLabelTruthParticles )
-    DECLARE_TOOL( CopyTruthPartons )
-    DECLARE_TOOL( CopyTruthJetParticles )
-    DECLARE_TOOL( ParticleJetDeltaRLabelTool )
-    DECLARE_TOOL( JetParticleShrinkingConeAssociation )
-    DECLARE_TOOL( JetParticleCenterOfMassAssociation )
-    DECLARE_ALGORITHM( JetParticleAssociationAlg )
-}

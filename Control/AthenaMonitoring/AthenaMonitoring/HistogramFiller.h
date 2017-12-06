@@ -27,7 +27,7 @@ namespace Monitored {
    */
   class HistogramFiller {
   public:
-    HistogramFiller(TH1* hist, HistogramDef histDef) 
+    HistogramFiller(TH1* hist, const HistogramDef& histDef) 
       : m_hist(hist), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
     HistogramFiller(const HistogramFiller& hf) 
       : m_hist(hf.m_hist), m_mutex(hf.m_mutex), m_histDef(hf.m_histDef) {}
@@ -70,7 +70,7 @@ namespace Monitored {
     private:
       std::string level2string(Level l) const;
     public:
-      MonitoringGroup(ServiceHandle<ITHistSvc> histSvc, std::string groupName, Level l);
+      MonitoringGroup(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName, Level l);
     
       StatusCode regHist(TH1* h);
       StatusCode deregHist(TH1* h);
@@ -91,7 +91,7 @@ namespace Monitored {
     };
     
   public:
-    HistogramFillerFactory(ServiceHandle<ITHistSvc> histSvc, std::string groupName);
+    HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName);
     virtual ~HistogramFillerFactory();
     HistogramFiller* create(const HistogramDef& def); //!< creates filler*/
     
@@ -120,7 +120,7 @@ namespace Monitored {
    */
   class HistogramFiller1D : public HistogramFiller {
   public: 
-    HistogramFiller1D(TH1* hist, HistogramDef histDef)
+    HistogramFiller1D(TH1* hist, const HistogramDef& histDef)
       : HistogramFiller(hist, histDef) {}
     virtual unsigned fill() override;
     HistogramFiller1D* clone() override { return new HistogramFiller1D(*this); };
@@ -133,7 +133,7 @@ namespace Monitored {
    */
   class CumulativeHistogramFiller1D : public HistogramFiller1D {
   public:
-    CumulativeHistogramFiller1D(TH1* hist, HistogramDef histDef) 
+    CumulativeHistogramFiller1D(TH1* hist, const HistogramDef& histDef) 
       : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill() override;
     virtual CumulativeHistogramFiller1D* clone() override { return new CumulativeHistogramFiller1D(*this); };
@@ -141,7 +141,7 @@ namespace Monitored {
   
   class VecHistogramFiller1D : public HistogramFiller1D {
   public:
-    VecHistogramFiller1D(TH1* hist, HistogramDef histDef) 
+    VecHistogramFiller1D(TH1* hist, const HistogramDef& histDef) 
       : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill() override;
     virtual VecHistogramFiller1D* clone() override { return new VecHistogramFiller1D(*this); };
@@ -149,7 +149,7 @@ namespace Monitored {
   
   class VecHistogramFiller1DWithOverflows : public HistogramFiller1D {
   public:
-    VecHistogramFiller1DWithOverflows(TH1* hist, HistogramDef histDef) 
+    VecHistogramFiller1DWithOverflows(TH1* hist, const HistogramDef& histDef) 
       : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill() override;
     virtual VecHistogramFiller1DWithOverflows* clone() override { return new VecHistogramFiller1DWithOverflows(*this); };
@@ -160,7 +160,7 @@ namespace Monitored {
    */
   class HistogramFillerProfile : public HistogramFiller {
   public:
-    HistogramFillerProfile(TProfile* hist, HistogramDef histDef)
+    HistogramFillerProfile(TProfile* hist, const HistogramDef& histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill() override;
     virtual HistogramFillerProfile* clone() override { return new HistogramFillerProfile(*this); };
@@ -173,7 +173,7 @@ namespace Monitored {
    */
   class HistogramFiller2D : public HistogramFiller {
   public:
-    HistogramFiller2D(TH2* hist, HistogramDef histDef)
+    HistogramFiller2D(TH2* hist, const HistogramDef& histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill() override;
     virtual HistogramFiller2D* clone() override { return new HistogramFiller2D(*this); };
@@ -186,7 +186,7 @@ namespace Monitored {
    */
   class HistogramFiller2DProfile : public HistogramFiller {
   public:
-    HistogramFiller2DProfile(TProfile2D* hist, HistogramDef histDef)
+    HistogramFiller2DProfile(TProfile2D* hist, const HistogramDef& histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill() override;
     virtual HistogramFiller2DProfile* clone() override { return new HistogramFiller2DProfile(*this); };

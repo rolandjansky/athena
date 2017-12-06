@@ -19,6 +19,7 @@
 //*****************************************************************************
 
 // Atlas includes
+#include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Tile includes
@@ -80,7 +81,7 @@ StatusCode TileDigitsFilter::execute() {
   ATH_MSG_DEBUG( "in execute()" );
 
   // Create new container for filtered digits
-  TileDigitsContainer* outputCont = new TileDigitsContainer(true, SG::VIEW_ELEMENTS);
+  auto outputCont = std::make_unique<TileDigitsContainer>(false, SG::VIEW_ELEMENTS);
   if (!outputCont) {
     ATH_MSG_FATAL( "Could not create a new TileDigitsContainer instance as requested!" );
     return StatusCode::FAILURE;
@@ -95,7 +96,7 @@ StatusCode TileDigitsFilter::execute() {
     const TileDigitsContainer* inputCont;
     if (evtStore()->retrieve(inputCont, m_inputContainer).isFailure()) {
       ATH_MSG_WARNING( "can't retrieve TileDigitsContainer with name '"
-                      << m_inputContainer << "' from TDS" );
+                       << m_inputContainer << "' from TDS" );
     } else {
       collItr = inputCont->begin();
       lastColl = inputCont->end();
@@ -112,7 +113,7 @@ StatusCode TileDigitsFilter::execute() {
     const TileRawChannelContainer* inRchCont;
     if (evtStore()->retrieve(inRchCont, m_inRchContainer).isFailure()) {
       ATH_MSG_WARNING( "can't retrieve TileRawChannelContainer with name '"
-                      << m_inRchContainer << "' from TDS" );
+                       << m_inRchContainer << "' from TDS" );
     } else {
       collRchItr = firstRchColl = inRchCont->begin();
       lastRchColl = inRchCont->end();
@@ -123,30 +124,27 @@ StatusCode TileDigitsFilter::execute() {
   }
 
   // Create new container for filtered raw channels
-  TileRawChannelContainer* outRchCont = new TileRawChannelContainer(true, type, unit, SG::VIEW_ELEMENTS);
+  auto outRchCont = std::make_unique<TileRawChannelContainer>(false, type, unit, SG::VIEW_ELEMENTS);
 
   // Iterate over all collections (drawers)
   for (; collItr != lastColl; ++collItr) {
 
+    const TileDigitsCollection* coll = *collItr;
     std::set<HWIdentifier> ids;
 
-    // Iterate over all digits in this collection
-    TileDigitsCollection::const_iterator digitItr = (*collItr)->begin();
-    TileDigitsCollection::const_iterator lastDigit = (*collItr)->end();
+    auto outColl = std::make_unique<ConstDataVector<TileDigitsCollection> >
+      (SG::VIEW_ELEMENTS, coll->identify());
 
-    for (; digitItr != lastDigit; ++digitItr) {
-      std::vector<float> digits = (*digitItr)->samples();
-      std::vector<float>::const_iterator idig = digits.begin();
-      std::vector<float>::const_iterator iend = digits.end();
+    // Iterate over all digits in this collection
+    for (const TileDigits* digit : *coll) {
       float smin = 99999., smax = -99999.;
-      for (; idig != iend; ++idig) {
-        float samp = (*idig);
+      for (float samp : digit->samples()) {
         smin = std::min(samp, smin);
         smax = std::max(samp, smax);
       }
-      HWIdentifier adcId = (*digitItr)->adc_HWID();
+      HWIdentifier adcId = digit->adc_HWID();
       if (smax - smin > m_threshold[m_tileHWID->adc(adcId)]) {
-        outputCont->push_back(*digitItr);
+        outColl->push_back(digit);
         ids.insert(adcId);
         ++digCounter;
         if (msgLvl(MSG::VERBOSE)) {
@@ -154,25 +152,29 @@ StatusCode TileDigitsFilter::execute() {
                             << "id=" << m_tileHWID->to_string(adcId)
                             << " samples=";
 
-          for (idig = digits.begin(); idig != iend; ++idig)
-            msg(MSG::VERBOSE) << " " << (*idig);
+          for (float samp : digit->samples()) {
+            msg(MSG::VERBOSE) << " " << samp;
+          }
 
           msg(MSG::VERBOSE) << endmsg;
         }
       }
 
-//      else if (msgLvl(MSG::VERBOSE)){
-//        msg(MSG::VERBOSE) << "Filtered Out "
-//                          << (m_tileHWID->adc(adcId) ? " HG " : " LG ")
-//                          << "id=" << m_tileHWID->to_string(adcId)
-//                          << " samples=";
-//        for(idig=digits.begin(); idig!=iend; ++idig)
-//          msg(MSG::VERBOSE) << " " << (*idig);
-//
-//        msg(MSG::VERBOSE) << endmsg;
-//      }
+      //      else if (msgLvl(MSG::VERBOSE)){
+      //        msg(MSG::VERBOSE) << "Filtered Out "
+      //                          << (m_tileHWID->adc(adcId) ? " HG " : " LG ")
+      //                          << "id=" << m_tileHWID->to_string(adcId)
+      //                          << " samples=";
+      //        for(idig=digits.begin(); idig!=iend; ++idig)
+      //          msg(MSG::VERBOSE) << " " << (*idig);
+      //
+      //        msg(MSG::VERBOSE) << endmsg;
+      //      }
 
     }
+
+    ATH_CHECK( outputCont->addCollection (outColl.release()->asDataVector(),
+                                          collItr.hashId()) );
 
     if (ids.size() == 0 || emptyRch)
       continue;
@@ -193,21 +195,25 @@ StatusCode TileDigitsFilter::execute() {
           << " and TileRawChannelCollection ID 0x" << (*collRchItr)->identify()
           << " do not match " << MSG::dec );
 
-    } else {
-      // Iterate over all rawChannels in this collection
-      TileRawChannelCollection::const_iterator rchItr = (*collRchItr)->begin();
-      TileRawChannelCollection::const_iterator lastRch = (*collRchItr)->end();
+    }
+    else {
+      const TileRawChannelCollection* collRch = *collRchItr;
+      auto outRchColl = std::make_unique<ConstDataVector<TileRawChannelCollection> >
+        (SG::VIEW_ELEMENTS, collRch->identify());
 
-      for (; rchItr != lastRch; ++rchItr) {
-        HWIdentifier adcId = (*rchItr)->adc_HWID();
+      // Iterate over all rawChannels in this collection
+      for (const TileRawChannel* rch : *collRch) {
+        HWIdentifier adcId = rch->adc_HWID();
         if (ids.find(adcId) != ids.end()) {
-          outRchCont->push_back(*rchItr);
+          outRchColl->push_back (rch);
           ++rchCounter;
           ATH_MSG_VERBOSE( (m_tileHWID->adc(adcId) ? " HG " : " LG ")
                             << "id=" << m_tileHWID->to_string(adcId)
-                            << " amp=" << (*rchItr)->amplitude() );
+                            << " amp=" << rch->amplitude() );
         }
       }
+      ATH_CHECK( outRchCont->addCollection (outRchColl.release()->asDataVector(),
+                                            collRchItr.hashId()) );
     }
   }
 
@@ -216,21 +222,15 @@ StatusCode TileDigitsFilter::execute() {
 
   if (m_outputContainer.size() > 0) {
     // register new container in the TES
-    CHECK( evtStore()->record(outputCont, m_outputContainer, false));
+    CHECK( evtStore()->record(std::move(outputCont), m_outputContainer, false));
     ATH_MSG_DEBUG( "TileDigitsContainer registered successfully (" << m_outputContainer << ")");
 
-  } else if (outputCont) {
-    ATH_MSG_DEBUG( "Deleting filtered digits container");
-    delete outputCont;
   }
 
   if (m_outRchContainer.size() > 0) {
     // register new container in the TES
-    CHECK( evtStore()->record(outRchCont, m_outRchContainer, false));
+    CHECK( evtStore()->record(std::move(outRchCont), m_outRchContainer, false));
     ATH_MSG_DEBUG( "TileRawChannelContainer registered successfully (" << m_outRchContainer << ")");
-  } else if (outRchCont) {
-    ATH_MSG_DEBUG( "Deleting filtered raw channel container");
-    delete outRchCont;
   }
 
   // Execution completed.

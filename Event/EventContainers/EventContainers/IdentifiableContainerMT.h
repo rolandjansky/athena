@@ -17,7 +17,7 @@
 
 #include "Identifier/Identifier.h"
 #include "EventContainers/IdentifiableCache.h"
-#include <iostream>
+#include "EventContainers/IIdentifiableCont.h"
 #include <memory>
 #include <algorithm>
 #include "GaudiKernel/DataObject.h"
@@ -35,7 +35,7 @@ IT is faster to iterate over the container with this method:
 */
 
 template < class T>
-class IdentifiableContainerMT : public DataObject
+class IdentifiableContainerMT : public DataObject, public EventContainers::IIdentifiableCont<T>
 {
 
 
@@ -201,13 +201,13 @@ public:
 
     ~IdentifiableContainerMT() { if(!m_OnlineMode) delete m_cacheLink; }
 
-
+    virtual bool hasExternalCache() const override final { return m_OnlineMode; }
 
 
     /// return pointer on the found entry or null if out of
     ///  range using hashed index - fast version, does not call cnv
     ///  if object not there
-    const T* indexFindPtr( IdentifierHash hashId ) const;
+    virtual const T* indexFindPtr( IdentifierHash hashId ) const override final;
 
     const_iterator indexFind( IdentifierHash hashId ) const {
         const_iterator it(this, hashId);
@@ -216,19 +216,26 @@ public:
 
     /// insert collection into container with id hash
     /// if IDC should not take ownership of collection, set ownsColl to false
-    StatusCode addCollection(const T* coll, IdentifierHash hashId, bool ownsColl = true);
+    StatusCode addCollection(const T* coll, IdentifierHash hashId, bool ownsColl = true) override final;
 
     /// Tries to add the item to the cache, if the item already exists then it is deleted
     /// This is a convenience method for online multithreaded scenarios
-    StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId);
+    virtual StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId) override final;
+
+    ///identical to previous excepts allows counting of deletions
+    virtual StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId, bool &deleted);
 
     /// Looks in the cache to see if item already exists if not it returns false,
     /// If it does exist it incorporates it into the IDC view but changing the mask.
-    bool tryFetch(IdentifierHash hashId);
+    virtual bool tryFetch(IdentifierHash hashId) override final;
 
     /// Tries will look for item in cache, if it doesn't exist will call the cache IMAKER
     /// If cache doesn't have an IMAKER then this fails.
     StatusCode fetchOrCreate(IdentifierHash hashId);
+
+    //This is a method to support bad behaviour in old code. Remove ASAP
+    virtual StatusCode naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve) const override final;
+
 
 #ifdef IdentifiableCacheBaseRemove
     /// remove collection from container for id hash, returning it
@@ -241,20 +248,20 @@ public:
     void setAllCollections(unsigned int hashMax);
 
     /// reset m_hashids and call IdentifiableCache's cleanup
-    void cleanup();
+    virtual void cleanup() override final;
 
     /// return full size of container
-    size_t fullSize() const {
-        return m_cacheLink->fullSize();
+    virtual size_t fullSize() const  override final {
+        return m_mask.size();
     }
 
     //Duplicate of fullSize for backwards compatability
     size_t size() const {
-        return m_cacheLink->fullSize();
+        return m_mask.size();
     }    
 
     /// return number of collections
-    size_t numberOfCollections() const {
+    virtual size_t numberOfCollections() const override final{
         if(!m_OnlineMode) return m_cacheLink->numberOfHashes();
         size_t count =0;
         for(auto b : m_mask) count += b;
@@ -266,7 +273,7 @@ public:
     //If this is an "offline" mode IDC then this is identical to the cache
     //If this is an "online" mode IDC then this is the items that both exist in the cache 
     //and have a postive mask element
-    std::vector<IdentifierHash> GetAllCurrentHashs() const {
+    virtual std::vector<IdentifierHash> GetAllCurrentHashs() const override final {
         if(not m_OnlineMode) return m_cacheLink->ids();
         else{
 	    std::vector<IdentifierHash> ids;
@@ -376,12 +383,43 @@ IdentifiableContainerMT<T>::tryFetch(IdentifierHash hashId)
     return true; 
 }
 
+template < class T >
+StatusCode 
+IdentifiableContainerMT<T>::naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve) const
+{
+   if(m_OnlineMode) return StatusCode::FAILURE;//NEVER ALLOW FOR EXTERNAL CACHE
+   else {
+      collToRetrieve = const_cast< T* > (m_cacheLink->find(hashId));//collToRetrieve can be null on success
+      return StatusCode::SUCCESS;
+   }
+}
+
 template < class T>
 StatusCode
 IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId)
 {
+    if(hashId >= m_mask.size()) return StatusCode::FAILURE;
     bool added = m_cacheLink->add(hashId, std::move(ptr));
-    if(added) return StatusCode::SUCCESS;
+    if(added) {
+       m_mask[hashId] = true;
+       return StatusCode::SUCCESS;
+    }
+    ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
+    return StatusCode::SUCCESS;
+}
+
+template < class T>
+StatusCode
+IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId, bool &deleted)
+{
+    if(hashId >= m_mask.size()) return StatusCode::FAILURE;
+    bool added = m_cacheLink->add(hashId, std::move(ptr));
+    if(added) {
+       deleted = false;
+       m_mask[hashId] = true;
+       return StatusCode::SUCCESS;
+    }
+    deleted = true;
     ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
     return StatusCode::SUCCESS;
 }

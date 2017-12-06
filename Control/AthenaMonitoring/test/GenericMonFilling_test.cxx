@@ -371,6 +371,8 @@ int main() {
   // Make sure that THistSvc gets finalized.
   // Otherwise, the output file will get closed while global dtors are running,
   // which can lead to crashes.
-  dynamic_cast<ISvcManager*>( pSvcLoc )->finalizeServices().ignore();
+  if (ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( pSvcLoc )) {
+    svcmgr->finalizeServices().ignore();
+  }
   return 0;
 }

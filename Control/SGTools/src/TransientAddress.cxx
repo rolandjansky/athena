@@ -16,40 +16,123 @@ using SG::TransientAddress;
 
 // Default Constructor:
 TransientAddress::TransientAddress()
-  : m_clid(0), m_name(""), m_address(0), m_clearAddress(true),
-    m_consultProvider(false), m_pAddressProvider(0), m_storeID(StoreID::UNKNOWN),
-    m_sgkey(0)
-{ }
+  : TransientAddress (CLID_NULL, "", nullptr, true, false)
+{
+}
 
 // Constructor with CLID and string key:
 // (typically used through a StoreGate::record()
-TransientAddress::TransientAddress(const CLID& id, const std::string& key)
-  : m_clid(id), m_name(key), m_address(0), m_clearAddress(true),
-    m_consultProvider(false), m_pAddressProvider(0), m_storeID(StoreID::UNKNOWN),
-    m_sgkey(0)
+TransientAddress::TransientAddress(CLID id, const std::string& key)
+  : TransientAddress (id, key, nullptr, true, false)
 { 
-  if (id != CLID_NULL)
-    m_transientID.push_back(id);
 }
 
 // Constructor with CLID, string key and IOpaqueAddress:
 // (typically used by a ProxyProvider)
-TransientAddress::TransientAddress(const CLID& id, const std::string& key, 
+TransientAddress::TransientAddress(CLID id, const std::string& key, 
 				   IOpaqueAddress* addr, 
 				   bool clearAddress)
-  : m_clid(id), m_name(key), m_address(0), m_clearAddress(clearAddress),
-    m_consultProvider(true), m_pAddressProvider(0), m_storeID(StoreID::UNKNOWN),
-    m_sgkey(0)
+  : TransientAddress (id, key, addr, clearAddress, true)
+{
+}
+
+
+TransientAddress::TransientAddress(CLID id, const std::string& key, 
+				   IOpaqueAddress* addr, 
+				   bool clearAddress,
+                                   bool consultProvider)
+  : m_clid(id),
+    m_sgkey(0),
+    m_storeID(StoreID::UNKNOWN),
+    m_clearAddress(clearAddress),
+    m_consultProvider(consultProvider),
+    m_address(nullptr),
+    m_name(key), 
+    m_pAddressProvider(nullptr)
 { 
   if (id != CLID_NULL)
     m_transientID.push_back(id);
-  setAddress(addr);
+  if (addr) {
+    setAddress(addr);
+  }
 }
+
+
+TransientAddress::TransientAddress (const TransientAddress& other)
+  : m_clid (other.m_clid),
+    m_sgkey (other.m_sgkey),
+    m_storeID (other.m_storeID),
+    m_clearAddress (other.m_clearAddress),
+    m_consultProvider (other.m_consultProvider),
+    m_name (other.m_name),
+    m_transientID (other.m_transientID),
+    m_transientAlias (other.m_transientAlias),
+    m_pAddressProvider (other.m_pAddressProvider)
+{
+  m_address = nullptr;
+  setAddress (other.m_address);
+}
+
+
+TransientAddress::TransientAddress (TransientAddress&& other)
+  : m_clid (other.m_clid),
+    m_sgkey (other.m_sgkey),
+    m_storeID (other.m_storeID),
+    m_clearAddress (other.m_clearAddress),
+    m_consultProvider (other.m_consultProvider),
+    m_name (std::move (other.m_name)),
+    m_transientID (std::move (other.m_transientID)),
+    m_transientAlias (std::move (other.m_transientAlias)),
+    m_pAddressProvider (other.m_pAddressProvider)
+{
+  m_address = other.m_address;
+  other.m_address = nullptr;
+}
+
 
 // Destructor
 TransientAddress::~TransientAddress() 
 { 
   setAddress(0);
+}
+
+
+TransientAddress& TransientAddress::operator= (const TransientAddress& other)
+{
+  if (this != &other) {
+    m_clid = other.m_clid;
+    m_name = other.m_name;
+    m_transientID = other.m_transientID;
+    m_transientAlias = other.m_transientAlias;
+    m_clearAddress = other.m_clearAddress;
+    m_consultProvider = other.m_consultProvider;
+    m_pAddressProvider = other.m_pAddressProvider;
+    m_storeID = other.m_storeID;
+    m_sgkey = other.m_sgkey;
+
+    setAddress (other.m_address);
+  }
+  return *this;
+}
+
+
+TransientAddress& TransientAddress::operator= (TransientAddress&& other)
+{
+  if (this != &other) {
+    m_clid = other.m_clid;
+    m_name = std::move (other.m_name);
+    m_transientID = std::move (other.m_transientID);
+    m_transientAlias = std::move (other.m_transientAlias);
+    m_clearAddress = other.m_clearAddress;
+    m_consultProvider = other.m_consultProvider;
+    m_pAddressProvider = other.m_pAddressProvider;
+    m_storeID = other.m_storeID;
+    m_sgkey = other.m_sgkey;
+
+    m_address = other.m_address;
+    other.m_address = nullptr;
+  }
+  return *this;
 }
 
 
@@ -119,9 +202,10 @@ bool TransientAddress::isValid(IProxyDict* store,
 const EventContext& TransientAddress::contextFromStore (IProxyDict* store) const
 {
   if (store) {
-    SG::DataProxy* proxy = store->proxy (ClassID_traits<EventContext>::ID(),
-                                         "EventContext");
-    if (proxy) {
+    static const SG::sgkey_t ctxkey = 
+      store->stringToKey ("EventContext", ClassID_traits<EventContext>::ID());
+    SG::DataProxy* proxy = store->proxy_exact (ctxkey);
+    if (proxy && proxy->object()) {
       EventContext* ctx = SG::DataProxy_cast<EventContext> (proxy);
       if (ctx) return *ctx;
     }

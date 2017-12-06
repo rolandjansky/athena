@@ -1,31 +1,30 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/VarHandleBase_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/StoreGate/share/../share/VarHandleBase_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/VarHandleBase_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/OtherStore"]
 JobOptionsSvc        INFO # (2,1): OtherStore.ProxyProviderSvc = ""
 JobOptionsSvc        INFO Job options successfully read in from ../share/VarHandleBase_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
-                                          running on lxplus013.cern.ch on Fri Sep  1 02:16:48 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Mon Oct 30 13:30:13 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 221 CLIDRegistry entries for module ALL
-ClassIDSvc          ERROR uncheckedSetTypePackageForID: PyAnalysisExamples-00-00-00 can not set CLID <86839352> for type name MyObj: Known CLID for this name <293847295> It was set by StoreGate-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 313 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 930 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 902 CLIDRegistry entries for module ALL
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (FUNC): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (FUNC): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc
 test2
 test3
 VarHandle(FooSv...WARNING FILE:LINE (FUNC): could not get proxy for key foox
@@ -35,7 +34,7 @@ VarHandle(FooSv...WARNING FILE:LINE (FUNC): could not get proxy for key foox
 test4
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (FUNC): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
-                    FATAL FILE:LINE (FUNC): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (FUNC): code 0: Cannot locate store: BazSvc

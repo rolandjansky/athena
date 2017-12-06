@@ -10,13 +10,16 @@
 #include <map>
 #include <set>
 #include <list>
+#include <mutex>
 
 // Gaudi includes
-#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 // Athena includes
+#include "AthenaBaseComps/AthService.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -40,7 +43,7 @@ class SCT_ID;
  ** Class for keeping track of errors caught by the monitoring
  **/
 
-class SCT_MonitorConditionsSvc: virtual public ISCT_MonitorConditionsSvc, virtual public AthService{
+class SCT_MonitorConditionsSvc: virtual public ISCT_MonitorConditionsSvc, virtual public AthService {
 
 public:
   // Constructor
@@ -51,7 +54,7 @@ public:
   // overloading functions
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
   ///Can the service report about the given component? (chip, module...)
   virtual bool canReportAbout(InDetConditions::Hierarchy h);
@@ -69,7 +72,7 @@ public:
   virtual bool filled() const;
 
   //I'm going to fill this from job options, so the callback version of fillData is not needed.
-  virtual StatusCode fillData(int& /*i */, std::list<std::string>& /*l*/) { //comment out unused parameters to prevent compiler warning
+  virtual StatusCode fillData(int& /*i*/, std::list<std::string>& /*l*/) { //comment out unused parameters to prevent compiler warning
     return StatusCode::FAILURE;
   }
 
@@ -80,16 +83,16 @@ public:
   virtual void badStrips(std::set<Identifier>& strips);
   
   /// List of bad strip Identifiers for a given module
-  virtual void badStrips(const Identifier & moduleId, std::set<Identifier>& strips);
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips);
 
   /// String of bad strip numbers for a given module
-  virtual std::string badStripsAsString(const Identifier & moduleId);
+  virtual std::string badStripsAsString(const Identifier& moduleId);
 
 private:
   // ------------------------------------------------------------------------------------
   // local stuff 
   // ------------------------------------------------------------------------------------
-  std::string getList(const Identifier & imodule) const;
+  std::string getList(const Identifier& imodule) const;
 
   bool stripIsNoisy(const int strip, const std::string& defectList) const;
 
@@ -132,9 +135,15 @@ private:
   const SCT_ID*                m_pHelper;
   mutable std::string          m_currentDefectList;
 
-  mutable const SCT_MonitorConditionsCondData *m_condData;
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cache;
+  // Pointer of SCT_MonitorConditionsCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MonitorConditionsCondData> m_condData;
+
   SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey;
-  bool getCondData() const;
+  const SCT_MonitorConditionsCondData* getCondData(const EventContext& ctx) const;
 };
 
 #endif // SCT_MonitorConditinosSvc.h

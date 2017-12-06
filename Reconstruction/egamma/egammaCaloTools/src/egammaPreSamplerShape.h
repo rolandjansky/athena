@@ -57,7 +57,9 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
   /** @brief Cell container*/
   const CaloCellContainer* m_cellContainer;
   /** @brief tool to calculate sum of energy in all samples */
-  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples;
+  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
+      "egammaEnergyPositionAllSamplesTool", 
+      "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
 
   /** @brief  energy in S0 in a 1x1 window in cells in eta X phi*/
   double m_e011;     

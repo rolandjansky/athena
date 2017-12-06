@@ -10,19 +10,15 @@
 #include "src/TrackSelectionAlg.h" 
 #include "src/IDAlignMonPVBiases.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
-DECLARE_TOOL_FACTORY(IDAlignMonPVBiases)
-DECLARE_TOOL_FACTORY(IDAlignMonEfficiencies)
-DECLARE_TOOL_FACTORY(IDAlignMonGenericTracks)
-DECLARE_TOOL_FACTORY(InDetAlignMonBeamSpot)
-DECLARE_TOOL_FACTORY(IDAlignMonResiduals)
-DECLARE_TOOL_FACTORY(IDAlignMonTruthComparison)
-DECLARE_TOOL_FACTORY(IDAlignMonNtuple)
-DECLARE_TOOL_FACTORY(IDAlignMonTrackSegments)
-DECLARE_TOOL_FACTORY(IDAlignMonSivsTRT)
-DECLARE_NAMESPACE_TOOL_FACTORY(InDetAlignMon, TrackSelectionTool)
-DECLARE_ALGORITHM_FACTORY(TrackSelectionAlg)
+DECLARE_COMPONENT( IDAlignMonPVBiases )
+DECLARE_COMPONENT( IDAlignMonEfficiencies )
+DECLARE_COMPONENT( IDAlignMonGenericTracks )
+DECLARE_COMPONENT( InDetAlignMonBeamSpot )
+DECLARE_COMPONENT( IDAlignMonResiduals )
+DECLARE_COMPONENT( IDAlignMonTruthComparison )
+DECLARE_COMPONENT( IDAlignMonNtuple )
+DECLARE_COMPONENT( IDAlignMonTrackSegments )
+DECLARE_COMPONENT( IDAlignMonSivsTRT )
+DECLARE_COMPONENT( InDetAlignMon::TrackSelectionTool )
+DECLARE_COMPONENT( TrackSelectionAlg )
 
-DECLARE_FACTORY_ENTRIES(InDetAlignmentMonitoring) {
-  DECLARE_NAMESPACE_TOOL(InDetAlignMon, TrackSelectionTool);
-}

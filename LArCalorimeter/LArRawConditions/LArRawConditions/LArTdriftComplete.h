@@ -47,4 +47,5 @@ class LArTdriftComplete: public ILArTdrift,
 };
 
 CLASS_DEF( LArTdriftComplete,89410564,1)
+SG_BASE(LArTdriftComplete, ILArTdrift);
 #endif 

@@ -18,8 +18,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IegammaSwTool.h" 
 #include "xAODCaloEvent/CaloClusterFwd.h"
-
-class CaloClusterProcessor;
+#include "CaloRec/CaloClusterProcessor.h"
 
 class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
 {
@@ -44,58 +43,44 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
 
  private:
   
-  StatusCode populateTools(const std::vector<std::string>& names , std::vector<CaloClusterProcessor*>& tools) ;
-  StatusCode processTools(const std::vector<CaloClusterProcessor*>& tools, xAOD::CaloCluster* cluster) const;
+  StatusCode populateTools(ToolHandleArray<CaloClusterProcessor>& tools);
+  StatusCode processTools(ToolHandleArray<CaloClusterProcessor>& tools, xAOD::CaloCluster* cluster) const;
 
   /**
    * @brief a list of names for tools to correct clusters
    * 
    * the tools in this list are executed after all maker tools are done
    * and run one after each other on each cluster in the container.  */
-  std::vector<std::string> m_clusterCorrectionNamesEle55;
-  std::vector<std::string> m_clusterCorrectionNamesEle35;
-  std::vector<std::string> m_clusterCorrectionNamesEle37;
-  std::vector<std::string> m_clusterCorrectionNamesGam35;
-  std::vector<std::string> m_clusterCorrectionNamesGam55;
-  std::vector<std::string> m_clusterCorrectionNamesGam37;
-  std::vector<std::string> m_clusterCorrectionNamesEconv55;
-  std::vector<std::string> m_clusterCorrectionNamesEconv35;
-  std::vector<std::string> m_clusterCorrectionNamesEconv37;
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersEle55{this, "ClusterCorrectionToolsEle55", {}}; 
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersEle35{this, "ClusterCorrectionToolsEle35", {}}; 
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersEle37{this, "ClusterCorrectionToolsEle37", {}}; 
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersGam35{this, "ClusterCorrectionToolsGam35", {}}; 
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersGam55{this, "ClusterCorrectionToolsGam55", {}}; 
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersGam37{this, "ClusterCorrectionToolsGam37", {}};
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersEconv55{this, "ClusterCorrectionToolsEconv55", {}}; 
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersEconv35{this, "ClusterCorrectionToolsEconv35", {}}; 
+  ToolHandleArray<CaloClusterProcessor>  m_clusterCorrectionPointersEconv37{this, "ClusterCorrectionToolsEconv37", {}}; 
   //SuperCluster
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEle37;
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterGam37;
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEconv37;
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterEle35{this, 
+      "ClusterCorrectionToolsSuperClusterEle35", {}};
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterEconv35{this, 
+      "ClusterCorrectionToolsSuperClusterEconv35", {}};
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterGam35{this, 
+      "ClusterCorrectionToolsSuperClusterGam35", {}};
   //
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEle55;
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterGam55;
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEconv55;
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterEle55{this, 
+      "ClusterCorrectionToolsSuperClusterEle55", {}};
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterGam55{this, 
+      "ClusterCorrectionToolsSuperClusterGam55", {}};
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterEconv55{this, 
+      "ClusterCorrectionToolsSuperClusterEconv55", {}};
   //
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEle35;
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterGam35;
-  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEconv35;
-
-  /** @brief the actual list of tools corresponding to above names */
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEle55; 
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEle35; 
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEle37; 
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersGam35; 
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersGam55; 
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersGam37;
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv55; 
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv35; 
-  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv37; 
-  //SuperCluster
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEle35;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEconv35;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterGam35;
-  //
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEle55;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterGam55;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEconv55;
-  //
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEle37;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterGam37;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEconv37;
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterEle37{this, 
+      "ClusterCorrectionToolsSuperClusterEle37", {}};
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterGam37{this, 
+      "ClusterCorrectionToolsSuperClusterGam37", {}};
+  ToolHandleArray<CaloClusterProcessor> m_clusterCorrectionPointersSuperClusterEconv37{this, 
+      "ClusterCorrectionToolsSuperClusterEconv37", {}};
 
 };
 

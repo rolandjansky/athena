@@ -359,7 +359,12 @@ namespace xAOD {
 
       BranchInfo bi;
       bi.m_proxy.reset( proxy );
-      m_branches.insert( std::make_pair( proxy->sgkey(),
+      m_branches.insert( std::make_pair(
+#ifdef XAOD_STANDALONE
+                                         0,
+#else
+                                         proxy->sgkey(),
+#endif // XAOD_STANDALONE
                                          std::move( bi ) ) );
 
       // Return gracefully:

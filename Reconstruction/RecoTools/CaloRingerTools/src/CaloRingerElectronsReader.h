@@ -24,6 +24,8 @@
 // Asg selectors include:
 #include "RingerSelectorTools/IAsgElectronRingerSelector.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 namespace Ringer {
 
 class CaloRingerElectronsReader : public CaloRingerInputReader, 
@@ -78,20 +80,28 @@ class CaloRingerElectronsReader : public CaloRingerInputReader,
     /** 
      * @brief Electron selectors.
      **/
-    ToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors;
+    PublicToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors {this,
+	"ElectronSelectors", {}, "The ASG Electron Selectors."};
+
+    /** @brief electron collection input name*/
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_inputElectronContainerKey {this,
+      "inputKey",
+      "Electrons",
+      "Name of the input electron container"};
     /// @}
 
     /// Tool CaloRingerElectronsReader props (non configurables):
     /// @{
-    /// The electron container
-    xAOD::ElectronContainer* m_container;
-    const xAOD::ElectronContainer* m_constContainer;
+
+    /// The writeDecorHandleKeys for the selectors
+    writeDecorHandleKeys<xAOD::ElectronContainer> m_selectorDecorHandleKeys;
 
     /// The CaloRings Builder functor:
-    BuildCaloRingsFctor<xAOD::Electron> *m_clRingsBuilderElectronFctor;
+    BuildCaloRingsFctor<const xAOD::Electron> *m_clRingsBuilderElectronFctor;
 
     /// Whether selectors are available
-    bool m_selectorsAvailable;
+    Gaudi::Property<bool> m_selectorsAvailable {this, 
+	"selectorsAvailable", false, "Whether Selector Tool is available."};
     /// @}
 
 };

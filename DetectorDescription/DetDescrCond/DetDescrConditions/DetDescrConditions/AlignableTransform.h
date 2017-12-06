@@ -18,7 +18,7 @@
 #include <algorithm>
 #include "Identifier/Identifier.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "boost/range/iterator_range.hpp"
 
 class AlignableTransform {

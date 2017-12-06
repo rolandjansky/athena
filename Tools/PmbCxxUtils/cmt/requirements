@@ -1,9 +1,0 @@
-package PmbCxxUtils
-
-author Thomas Kittelmann <thomas.kittelmann@cern.ch>
-
-use AtlasPolicy AtlasPolicy-*
-use AtlasCxxPolicy AtlasCxxPolicy-*
-
-library PmbCxxUtils *.cxx
-apply_pattern installed_library

@@ -23,7 +23,7 @@ class IPixelRawDataProviderTool : virtual public IAlgTool
 
   //! this is the main decoding method
   virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      PixelRDO_Container*               rdoIdc ) = 0;
+		      IPixelRDO_Container*               rdoIdc ) = 0;
 
 };
 

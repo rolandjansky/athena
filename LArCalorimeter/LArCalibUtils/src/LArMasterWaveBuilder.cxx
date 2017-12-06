@@ -279,7 +279,7 @@ StatusCode LArMasterWaveBuilder::stop()
       }
 
       std::vector<double>   vDACs ;
-      std::vector<LArWave*> vWaves ;
+      std::vector<const LArWave*> vWaves ;
       std::vector<bool>     usable ;
       std::vector<int>      thisDAC ;
       std::vector<double>   thisPeak ;
@@ -375,7 +375,7 @@ StatusCode LArMasterWaveBuilder::stop()
       for ( unsigned i=0 ; i<nDACs ; i++ ) {
 	  if ( usable[i] ) {
 	    vDACs.push_back( (double)( thisDAC[i] ) ) ;
-	    LArWave* wave =  const_cast<LArCaliWave*>(&vCaliWaves[i]);
+	    const LArWave* wave =  &vCaliWaves[i];
 	    vWaves.push_back(wave);
 	  } else {
 	      if ( (unsigned int)thisDAC[i] > 1000/gainFactor )   // record bad "non-zero" DACs

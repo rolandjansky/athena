@@ -20,7 +20,7 @@ class DataObject;
 namespace SG {
 class View : public IProxyDict {
 public:
-  View (const std::string& name, bool AllowFallThrough=false);
+  View (const std::string& name, bool AllowFallThrough = true);
   virtual ~View ();
   View (const View&) = delete;
   View& operator= (const View&) = delete;

@@ -27,7 +27,6 @@
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "GaudiKernel/IssueSeverity.h"
 
 //---------------------------------------------------------------------------------
 

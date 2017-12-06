@@ -37,9 +37,6 @@ pool::TestDriver::TestDriver():
   m_fileName( "pool.root" ),
   m_events( 100 )
 {
-  
-  // pool::POOLContext::setMessageVerbosityLevel( coral::Info );
-  
   std::cout << "[OVAL] Creating a file catalog" << std::endl;
   m_fileCatalog = new pool::IFileCatalog;
   if ( ! m_fileCatalog ) {

@@ -157,7 +157,6 @@ public:
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    void handle(const Incident& incident);
 
-protected: // constructor and destructor
    /// Standard Service Constructor
    AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator);
    /// Destructor
@@ -241,6 +240,9 @@ private: // properties
    BooleanProperty m_skipFirstChronoCommit;
    /// bool to activate the chrono stats, depending on the m_skipFirstChronoCommit data member
    bool m_doChronoStat;
+
+   /// For SharedWriter to use MetadataSvc to merge data placed in a certain container
+   StringProperty  m_metadataContainerProp;
 };
 
 #endif

@@ -18,7 +18,7 @@
 using namespace SG;
 using namespace std;
 
-__thread HiveEventSlot* s_pSlot(0);
+thread_local HiveEventSlot* StoreGateSvc::s_pSlot = nullptr;
 
 
 /// Standard Constructor
@@ -27,8 +27,11 @@ StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) :
   m_defaultStore(0),
   m_pPPSHandle("ProxyProviderSvc", name),
   m_incSvc("IncidentSvc", name),
-  m_pIOVSvc(nullptr)
+  m_activeStoreSvc("ActiveStoreSvc", name),
+  m_storeID (StoreID::findStoreID(name))
 {
+  
+
   //our properties
   //properties of SGImplSvc
   declareProperty("Dump", m_DumpStore=false, "Dump contents at EndEvent");
@@ -49,16 +52,6 @@ StoreGateSvc::setDefaultStore(SGImplSvc* pStore) {
   if (m_defaultStore) m_defaultStore->release();
   m_defaultStore = pStore;
   if (m_defaultStore) m_defaultStore->addRef();  
-}
-
-bool
-StoreGateSvc::isHiveStore() const {
-  return ((m_defaultStore->store()->storeID() == StoreID::EVENT_STORE) &&  (0 != s_pSlot));
-}
-
-SGImplSvc* 
-StoreGateSvc::currentStore() const {
-  return isHiveStore() ? s_pSlot->pEvtStore : m_defaultStore;
 }
 
 
@@ -204,6 +197,10 @@ StatusCode StoreGateSvc::initialize()    {
     error() << "Could not locate IncidentSvc" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  // Don't retrieve m_activeStoreSvc here to prevent a possible
+  // initialization loop.
+
   const int PRIORITY=100;
   m_incSvc->addListener(this, "EndEvent",PRIORITY);
   m_incSvc->addListener(this, "BeginEvent", PRIORITY);
@@ -412,12 +409,9 @@ StoreGateSvc::typeless_overwrite( const CLID& id,
 void 
 StoreGateSvc::setStoreID(StoreID::type id)
 {
+  m_storeID = id;
+  // FIXME: should broadcast this to all instances.
   _SGVOIDCALL(setStoreID,(id));
-}
-StoreID::type 
-StoreGateSvc::storeID() const
-{
-  _SGXCALL(storeID,(),StoreID::UNKNOWN);
 }
 
 void
@@ -497,10 +491,8 @@ StoreGateSvc::clearProxyPayload(SG::DataProxy* proxy) {
 
 StatusCode 
 StoreGateSvc::loadEventProxies() {
-  ActiveStoreSvc* pActive(0);
-  const bool CREATEIF(true);
-  if (!(serviceLocator()->service("ActiveStoreSvc", pActive, CREATEIF)).isSuccess()) return StatusCode::FAILURE;
-  pActive->setStore(this);
+  CHECK( m_activeStoreSvc.retrieve() );
+  m_activeStoreSvc->setStore(this);
   _SGXCALL(loadEventProxies, (), StatusCode::FAILURE);
 }
 
@@ -509,12 +501,7 @@ StoreGateSvc::loadEventProxies() {
 StatusCode 
 StoreGateSvc::clearStore(bool forceRemove)
 {
-  StatusCode sc;
-  if (isHiveStore()) { 
-    if (0 != s_pSlot->pEvtStore) {
-      sc = s_pSlot->pEvtStore->clearStore(forceRemove);
-    }
-  } else sc = m_defaultStore->clearStore(forceRemove);
+  StatusCode sc = currentStore()->clearStore(forceRemove);
 
   // Send a notification that the store was cleared.
   if (sc.isSuccess()) {

@@ -16,8 +16,8 @@
 
 #include "StorageSvc/DbReflex.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/ClassName.h"
 #include "PersistentDataModel/Token.h"
 #include "SGTools/StorableConversions.h"
 

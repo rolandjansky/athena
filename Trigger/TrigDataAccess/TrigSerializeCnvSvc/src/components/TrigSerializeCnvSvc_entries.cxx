@@ -9,7 +9,7 @@
 
 
 
-DECLARE_TOOL_FACTORY( TrigSerializeConvHelper )
-DECLARE_TOOL_FACTORY( TrigSerializeGuidHelper )
-DECLARE_SERVICE_FACTORY( TrigSerializeCnvSvc )
+DECLARE_COMPONENT( TrigSerializeConvHelper )
+DECLARE_COMPONENT( TrigSerializeGuidHelper )
+DECLARE_COMPONENT( TrigSerializeCnvSvc )
 

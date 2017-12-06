@@ -1,1 +1,0 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"

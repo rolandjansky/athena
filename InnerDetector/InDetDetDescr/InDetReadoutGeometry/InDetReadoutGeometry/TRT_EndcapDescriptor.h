@@ -86,28 +86,28 @@ namespace InDetDD {
       
       
       // Number of straws in the module.
-      unsigned int _nStraws;
+      unsigned int m_nStraws;
       
       // (Angular) straw pitch
-      double _strawPitch;
+      double m_strawPitch;
       
       // Starting phi:
-      double _startPhi;
+      double m_startPhi;
       
       // Straw length:
-      double _strawLength;
+      double m_strawLength;
       
       // Inner radius of straw:
-      double _innerRadius;
+      double m_innerRadius;
 
       // Inner tube radius of straw.
       double m_innerTubeRadius;
       
       // The straw transformation field:
-      const GeoXF::Function *_f;
+      const GeoXF::Function *m_f;
 
       // And offset:
-      size_t                 _o;
+      size_t                 m_o;
       
       // Bounds
       mutable Trk::CylinderBounds * m_bounds;

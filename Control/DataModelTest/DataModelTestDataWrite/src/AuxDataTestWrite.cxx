@@ -63,9 +63,9 @@ StatusCode AuxDataTestWrite::execute()
 {
   ++m_count;
 
-  BAuxVec* vec = new BAuxVec;
-  SG::AuxStoreInternal* store = new SG::AuxStoreInternal;
-  vec->setStore (store);
+  auto vec = std::make_unique<BAuxVec>();
+  auto store = std::make_unique<SG::AuxStoreInternal>();
+  vec->setStore (store.get());
 
   static BAux::Accessor<int> anInt1 ("anInt1");
   static BAux::Accessor<float> aFloat1 ("aFloat1");
@@ -110,21 +110,19 @@ StatusCode AuxDataTestWrite::execute()
   CHECK_OPTION( vec->setOption ("pfloat", SG::AuxDataOption ("scale", 10)) );
 
   CHECK_OPTION( vec->setOption ("pvint", SG::AuxDataOption ("nbits", 13)) );
+
+  BAuxVec& rvec = *vec;
+  CHECK( evtStore()->record (std::move(vec), "bauxvec", false) );
+  CHECK( evtStore()->record (std::move(store), "bauxvecAux.", false) );
   
-  CHECK( evtStore()->record (vec, "bauxvec") );
-  CHECK( evtStore()->record (store, "bauxvecAux.") );
-  CHECK( evtStore()->setConst (vec) );
-  CHECK( evtStore()->setConst (store) );
-  
-  BAuxStandalone* b = new BAuxStandalone (m_count * 10000);
+  auto b = std::make_unique<BAuxStandalone> (m_count * 10000);
   b->makePrivateStore();
   anInt1(*b) = m_count*9999;
   aFloat1(*b) = m_count*9999 + 0.5;
   dFloat1(*b) = m_count*9999 + 200 + 0.5;
   aB(*b) = m_count*9999 + 100;
-  anEL(*b).toIndexedElement (*vec, m_count % vec->size());
-  CHECK( evtStore()->record (b, "b") );
-  CHECK( evtStore()->setConst (b) );
+  anEL(*b).toIndexedElement (rvec, m_count % rvec.size());
+  CHECK( evtStore()->record (std::move(b), "b", false) );
 
   return StatusCode::SUCCESS;
 }

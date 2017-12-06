@@ -30,13 +30,13 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/StorableConversions.h"
 #include "AthenaKernel/errorcheck.h"
-#include "boost/foreach.hpp"
 #include <cassert>
 
 
 namespace {
 
 
+const
 CaloDetDescriptor* get_descriptor (Identifier cell_id,
                                    const CaloDetDescrManager_Base* mgr)
 {
@@ -49,7 +49,7 @@ CaloDetDescriptor* get_descriptor (Identifier cell_id,
 
   int clayer = calo_helper->sample (cell_id);
   bool is_sc = calo_helper->is_supercell (cell_id);
-  BOOST_FOREACH (CaloDetDescriptor* d, mgr->tile_descriptors_range()) {
+  for (const CaloDetDescriptor* d : mgr->tile_descriptors_range()) {
     if (d->identify() != reg_id) continue;
     int dlayer = d->layer();
     if (clayer == dlayer) return d;
@@ -223,7 +223,7 @@ StatusCode
 CaloSuperCellMgrDetDescrCnv::createDescriptors (CaloSuperCellDetDescrManager* mgr)
 {
   const CaloCell_Base_ID* calo_helper = mgr->getCaloCell_ID();
-  BOOST_FOREACH (Identifier reg_id, calo_helper->reg_range()) {
+  for (Identifier reg_id : calo_helper->reg_range()) {
     if (! calo_helper->is_tile (reg_id)) {
       mgr->add (new CaloDetDescriptor (reg_id, 0, calo_helper));
     }
@@ -252,12 +252,12 @@ StatusCode
 CaloSuperCellMgrDetDescrCnv::createElements (CaloSuperCellDetDescrManager* mgr)
 {
   const CaloCell_Base_ID* calo_helper = mgr->getCaloCell_ID();
-  BOOST_FOREACH (Identifier cell_id, calo_helper->cell_range()) {
+  for (Identifier cell_id : calo_helper->cell_range()) {
     int subCalo = -1;
     IdentifierHash subCaloHash =
       calo_helper->subcalo_cell_hash (cell_id, subCalo);
 
-    CaloDetDescriptor* desc = get_descriptor (cell_id, mgr);
+    const CaloDetDescriptor* desc = get_descriptor (cell_id, mgr);
     assert (desc);
     mgr->add (new CaloSuperCellDetectorElement (subCaloHash, desc));
   }

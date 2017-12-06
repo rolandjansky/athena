@@ -123,9 +123,7 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
                                                      doRPCClust = muonRecFlags.doRPCClusterSegmentFinding() ))
 
-
-
-            self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
+            self.addAlg(CfgMgr.MooSegmentFinderAlg("MuonSegmentMaker_NCB",
                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
                                                                                         DoSummary=False,
                                                                                         Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
@@ -167,14 +165,15 @@ class MuonStandalone(ConfiguredMuonRec):
 
         
         if muonStandaloneFlags.createTrackParticles():
+            from AthenaCommon.Include import include
+            include("InDetBeamSpotService/BeamCondSvc.py" )        
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
 
             muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
-            muonParticleCreatorTool.OutputLevel = 1
 
-            muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool, OutputLevel=1 )
+            muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool )
             
-            muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool, OutputLevel=1)
+            muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool )
 
             xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
                                                                       TrackParticleCreator = muonParticleCreatorTool,
@@ -183,8 +182,7 @@ class MuonStandalone(ConfiguredMuonRec):
                                                                       TrackContainerName = "MuonSpectrometerTracks",
                                                                       xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
                                                                       ConvertTrackParticles = False,
-                                                                      ConvertTracks = True,
-                                                                      OutputLevel=1 )
+                                                                      ConvertTracks = True)
 
             self.addAlg( xAODTrackParticleCnvAlg )
 

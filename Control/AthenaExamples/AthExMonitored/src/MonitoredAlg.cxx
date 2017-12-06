@@ -3,6 +3,7 @@
 */
 
 #include "MonitoredAlg.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 #include <vector>
 #include <cmath>

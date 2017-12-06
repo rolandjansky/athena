@@ -34,21 +34,22 @@ def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    kwargs.setdefault("usePRDs",True)
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     tools = [getPublicTool("MuonStauRecoTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
-
+      
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
     from InDetRecExample.InDetJobProperties import InDetFlags
-    kwargs.setdefault("InDetCandidateTool",getPublicTool("InDetCandidateTool") )
+    kwargs.setdefault("TrackSelector",getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool") )
     if muonCombinedRecFlags.doSiAssocForwardMuons() and InDetFlags.doForwardTracks():
         kwargs.setdefault("DoSiliconAssocForwardMuons", True )
-        kwargs.setdefault("InDetForwardCandidateTool", getPublicTool("MuonInDetForwardCandidateTool") )
+        kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
-    
+
 def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs ):
     kwargs.setdefault("MuonCandidateTool",getPublicTool("MuonCandidateTool"))
     return CfgMgr.MuonCombinedMuonCandidateAlg(name,**kwargs)

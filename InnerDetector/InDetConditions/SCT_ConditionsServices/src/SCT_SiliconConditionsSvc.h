@@ -36,7 +36,7 @@ class IBLParameterSvc;
 **/
 
 class SCT_SiliconConditionsSvc: public AthService,
-				virtual public ISiliconConditionsSvc{
+  virtual public ISiliconConditionsSvc{
 public:
 
   /** Constructor */

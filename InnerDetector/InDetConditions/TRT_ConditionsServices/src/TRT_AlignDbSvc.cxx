@@ -41,7 +41,7 @@ TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocato
     m_trtman(0),
     m_alignroot("/TRT/Align"),
     m_alignString("AL"),
-    par_alitextfile(""),
+    m_par_alitextfile(""),
     m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
     m_alignDBprefix("/TRT/Align/"),
     m_dynamicDB(false),
@@ -49,7 +49,7 @@ TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocato
 {
   declareProperty("StreamTool",m_streamer);
   declareProperty("alignroot",m_alignroot);
-  declareProperty("alignTextFile",par_alitextfile);
+  declareProperty("alignTextFile",m_par_alitextfile);
   declareProperty("DetectorStore",m_detStore);
   declareProperty("TrtStrawAlignDbSvc",   m_trtStrawAlignDbSvc,"Service for interaction with the TRT straw alignment DB");
   declareProperty("alignString",m_alignString);
@@ -173,7 +173,7 @@ StatusCode TRT_AlignDbSvc::initialize()
 
   /** This is the text files whence the constants.
   */
-  bool alignTextFileExists = !par_alitextfile.empty();
+  bool alignTextFileExists = !m_par_alitextfile.empty();
   
   if( alignFolderExists ) {    
     
@@ -197,7 +197,7 @@ StatusCode TRT_AlignDbSvc::initialize()
     }
     
     /** Read the newly created objects */
-    if(StatusCode::SUCCESS!=this->readAlignTextFile(par_alitextfile)) {
+    if(StatusCode::SUCCESS!=this->readAlignTextFile(m_par_alitextfile)) {
       msg(MSG::FATAL) << "Could not read alignment objects. Existing." << endmsg;
       return StatusCode::FAILURE ;
     }
@@ -218,7 +218,7 @@ StatusCode TRT_AlignDbSvc::initialize()
 StatusCode TRT_AlignDbSvc::finalize()
 {
   msg(MSG::INFO) << "TRT_AlignDbSvc finalize method called" << endmsg;
-  for(std::vector<Amg::Transform3D*>::iterator it = amgTransformCache.begin(); it != amgTransformCache.end(); it++){
+  for(std::vector<Amg::Transform3D*>::iterator it = m_amgTransformCache.begin(); it != m_amgTransformCache.end(); it++){
       delete *it;
   }
   return StatusCode::SUCCESS;
@@ -247,13 +247,13 @@ StatusCode TRT_AlignDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
     msg(MSG::INFO) << "IOVCALLBACK for key " << *itr<< " number " << I << endmsg;
   
   
-  if(!par_alitextfile.empty()){
-    if(StatusCode::SUCCESS!=this->readAlignTextFile(par_alitextfile)) {
+  if(!m_par_alitextfile.empty()){
+    if(StatusCode::SUCCESS!=this->readAlignTextFile(m_par_alitextfile)) {
       msg(MSG::FATAL) << "Could not read alignment objects " << endmsg;
       return StatusCode::FAILURE ;
     }
   }else{
-    msg(MSG::INFO) << "Text file " << par_alitextfile << " is empty" << endmsg;
+    msg(MSG::INFO) << "Text file " << m_par_alitextfile << " is empty" << endmsg;
   }
 
   /** print out the objects we have 
@@ -704,7 +704,7 @@ const Amg::Transform3D*  TRT_AlignDbSvc::getAlignmentTransformL1Ptr(Identifier c
       AlignableTransform::AlignTransMem_citr iter = pat->findIdent(mid) ;
       if(iter != pat->end() ) {
           Amg::Transform3D* amgTransform = new Amg::Transform3D((Amg::CLHEPTransformToEigen(iter->transform())));
-          amgTransformCache.push_back(amgTransform);
+          m_amgTransformCache.push_back(amgTransform);
           rc = amgTransform;
       }
     }
@@ -741,7 +741,7 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformL2Ptr(Identifier co
       if(iter != pat->end() ){
           AlignableTransform::AlignTransMem_citr iter = pat->findIdent(mid) ;
           Amg::Transform3D* amgTransform = new Amg::Transform3D((Amg::CLHEPTransformToEigen(iter->transform())));
-          amgTransformCache.push_back(amgTransform);
+          m_amgTransformCache.push_back(amgTransform);
           rc = amgTransform;
       }
 
@@ -857,7 +857,7 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL2 (Identifier ident, Amg::Transform
   int sector=m_trtid->phi_module(ident);
   int strawLayer=m_trtid->straw_layer(ident);
   int ring = getRingForStrawLayer(strawLayer);
-  Identifier m_ident;
+  Identifier ident2;
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting the L2 Alignment for: " 
 					 << " Bec= " << bec << " layer= " << layer << " sector= " << sector 
@@ -865,21 +865,21 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL2 (Identifier ident, Amg::Transform
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "The translations are: x= " << trans(0,3) << " y= "<<trans(1,3) << " z= "<<trans(2,3) << endmsg;
 
   if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C"))
-    m_ident=m_trtid->layer_id(bec,0,layer,ring);    
+    ident2=m_trtid->layer_id(bec,0,layer,ring);    
   else
-    m_ident=m_trtid->module_id(bec,sector,layer);
+    ident2=m_trtid->module_id(bec,sector,layer);
 
   // make sure the identifier is a TRT identifier
-  if( !(m_trtid->is_trt(m_ident)) ){
-    msg(MSG::FATAL) << "The identifier " << m_ident << " is not from the TRT " << endmsg;
+  if( !(m_trtid->is_trt(ident2)) ){
+    msg(MSG::FATAL) << "The identifier " << ident2 << " is not from the TRT " << endmsg;
     msg(MSG::FATAL) << "Failing ... " <<endmsg;
     return StatusCode::FAILURE;
   }
   
   // update or add (mid,trans) pair
   HepGeom::Transform3D clhepTrans = Amg::EigenTransformToCLHEP(trans);
-  if( !(pat->update(m_ident,clhepTrans)) ) {
-    pat->add(m_ident,clhepTrans);
+  if( !(pat->update(ident2,clhepTrans)) ) {
+    pat->add(ident2,clhepTrans);
     pat->sortv() ;
   }
   
@@ -906,13 +906,13 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL3 (Identifier ident, Amg::Transform
 
     // Need the length of the wires to translate the rotation to a translation.
     const InDetDD::TRT_BaseElement* strawElement =  m_trtman->getElement( ident );
-    double m_strawLenthOver2 = 0.5* strawElement->strawLength();
+    double strawLenthOver2 = 0.5* strawElement->strawLength();
 
     // The alignment frames are the same for straws on side A and side C (verrify this!!)
     // but variables stored in the db are not. We'll calculate the dispacement of each end 
     // in the alignment frame and in a second step, convert to the values in the DB. 
-    double delta_dx_atLargerZ = dx + m_strawLenthOver2 * sin(rotz);
-    double delta_dx_atSmallerZ = dx - m_strawLenthOver2 * sin(rotz);
+    double delta_dx_atLargerZ = dx + strawLenthOver2 * sin(rotz);
+    double delta_dx_atSmallerZ = dx - strawLenthOver2 * sin(rotz);
 	
     // For the definition of dx1 and dx2 see TRT_ConditionsData/StrawDx.h
     // Now we need to know the real meaning of dx1 and dx2. Alas, we
@@ -947,12 +947,12 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL3 (Identifier ident, Amg::Transform
 
     // Need the length of the wires to translate the rotation to a translation.
     const InDetDD::TRT_BaseElement* strawElement =  m_trtman->getElement( ident );
-    double m_strawLenthOver2 = 0.5* strawElement->strawLength();
+    double strawLenthOver2 = 0.5* strawElement->strawLength();
 
     // In the global frame, 'dx1' corresponds to the readout side and 'dx2'
     // to the side closest the beampipe.
-    double delta_dx_nearBeamPipe = dy + m_strawLenthOver2 * sin(rotx);
-    double delta_dx_nearReadOut = dy - m_strawLenthOver2 * sin(rotx);
+    double delta_dx_nearBeamPipe = dy + strawLenthOver2 * sin(rotx);
+    double delta_dx_nearReadOut = dy - strawLenthOver2 * sin(rotx);
     
     // Uncertianty on straw positions (Arbitrary for now)
     double dxErr = 0.001;
@@ -1142,22 +1142,22 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL3 (Identifier ident, Amg::Transfo
 
     // Need the length of the wires to translate the rotation to a translation.
     const InDetDD::TRT_BaseElement* strawElement =  m_trtman->getElement( ident );
-    double m_strawLenthOver2 = 0.5* strawElement->strawLength();
+    double strawLenthOver2 = 0.5* strawElement->strawLength();
 
     // Old way (buggy)
-    //double delta_dx_atLargerZ = dx + m_strawLenthOver2 * sin(rotz);
-    //double delta_dx_atSmallerZ = dx - m_strawLenthOver2 * sin(rotz);
+    //double delta_dx_atLargerZ = dx + strawLenthOver2 * sin(rotz);
+    //double delta_dx_atSmallerZ = dx - strawLenthOver2 * sin(rotz);
 
     // New way - The rotation is opposite for side A as compared to side C
     double delta_dx_atLargerZ;
     double delta_dx_atSmallerZ;
     if (sideA){
-      delta_dx_atLargerZ = dx - m_strawLenthOver2 * sin(rotz);
-      delta_dx_atSmallerZ = dx + m_strawLenthOver2 * sin(rotz);
+      delta_dx_atLargerZ = dx - strawLenthOver2 * sin(rotz);
+      delta_dx_atSmallerZ = dx + strawLenthOver2 * sin(rotz);
     }
     else{
-      delta_dx_atLargerZ = dx + m_strawLenthOver2 * sin(rotz);
-      delta_dx_atSmallerZ = dx - m_strawLenthOver2 * sin(rotz);
+      delta_dx_atLargerZ = dx + strawLenthOver2 * sin(rotz);
+      delta_dx_atSmallerZ = dx - strawLenthOver2 * sin(rotz);
     }
 
     // Straw position closest to the electronics 
@@ -1205,12 +1205,12 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL3 (Identifier ident, Amg::Transfo
 
     // Need the length of the wires to translate the rotation to a translation.
     const InDetDD::TRT_BaseElement* strawElement =  m_trtman->getElement( ident );
-    double m_strawLenthOver2 = 0.5* strawElement->strawLength();
+    double strawLenthOver2 = 0.5* strawElement->strawLength();
 
     // In the global frame, 'dx1' corresponds to the readout side and 'dx2'
     // to the side closest the beampipe.
-    double delta_dx_nearBeamPipe = dy + m_strawLenthOver2 * sin(rotx);
-    double delta_dx_nearReadOut = dy - m_strawLenthOver2 * sin(rotx);
+    double delta_dx_nearBeamPipe = dy + strawLenthOver2 * sin(rotx);
+    double delta_dx_nearReadOut = dy - strawLenthOver2 * sin(rotx);
 
     // Uncertianty on straw positions
     double dxErr = 0.001;

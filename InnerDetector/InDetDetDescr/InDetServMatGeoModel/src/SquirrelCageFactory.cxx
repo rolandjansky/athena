@@ -144,7 +144,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     
     double zLengthUS = eUSS - bUSS;
 
-    IRDBQuery* queryUSP = rdbAccessSvc()->getQuery("IDDetRailUSP",indetVersionKey.tag(), indetVersionKey.node());
+    std::unique_ptr<IRDBQuery> queryUSP = rdbAccessSvc()->getQuery("IDDetRailUSP",indetVersionKey.tag(), indetVersionKey.node());
     if(!queryUSP)
       queryUSP = rdbAccessSvc()->getQuery("IDDetRailUSP","IDDetRailUSP-00");
 
@@ -164,7 +164,6 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     double yWidthUSP3 = queryUSP->data<double>("IDDETRAILUSP_DATA.YWIDTH");
 
     queryUSP->finalize();
-    delete queryUSP;
 //Definition of "U shape" support    
 
     GeoBox* UShapePart1 = new GeoBox(xDepthUSP1/2., yWidthUSP1/2., zLengthUS/2.);

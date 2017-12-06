@@ -869,6 +869,28 @@ void test_insertmove()
 }
 
 
+class VBase
+  : public DataVector<int>
+{
+public:
+  VBase (SG::OwnershipPolicy ownPolicy, float f)
+    : DataVector<int> (ownPolicy), m_f(f)
+  {
+  }
+
+  float m_f;
+};
+
+
+// Test forwarding ctor of ConstDataVector.
+void test_constctor()
+{
+  std::cout << "test_constctor\n";
+  ConstDataVector<VBase> vb (SG::OWN_ELEMENTS, 1.5);
+  assert (vb.asDataVector()->m_f == 1.5);
+}
+
+
 int main()
 {
   test1();
@@ -880,6 +902,7 @@ int main()
   test_auxdata();
   test_emptysort();
   test_insertmove();
+  test_constctor();
   return 0;
 }
 

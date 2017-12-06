@@ -25,6 +25,27 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "SGTools/BaseInfo.h"
 
+#include "TClass.h"
+
+
+namespace
+{
+  struct DataObjIDSorter {
+    bool operator()( const DataObjID* a, const DataObjID* b ) { return a->fullKey() < b->fullKey(); }
+  };
+
+  // Sort a DataObjIDColl in a well-defined, reproducible manner.
+  // Used for making debugging dumps.
+  std::vector<const DataObjID*> sortedDataObjIDColl( const DataObjIDColl& coll )
+  {
+    std::vector<const DataObjID*> v;
+    v.reserve( coll.size() );
+    for ( const DataObjID& id : coll ) v.push_back( &id );
+    std::sort( v.begin(), v.end(), DataObjIDSorter() );
+    return v;
+  }
+}
+
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -69,36 +90,17 @@ CondInputLoader::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  if (!m_condSvc.isValid()) {
-    ATH_MSG_ERROR("could not get the CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-  if (!m_condStore.isValid()) {
-    ATH_MSG_ERROR("could not get the ConditionStore");
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( m_condSvc.retrieve() );
+  ATH_CHECK( m_condStore.retrieve() );
+  ATH_CHECK( m_clidSvc.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
-  if (!ivs.isValid()) {
-    ATH_MSG_FATAL("unable to retrieve IOVSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( ivs.retrieve() );
 
   // Update the SG keys if different from Folder Names
   ServiceHandle<IIOVDbSvc> idb("IOVDbSvc",name());
-  if (!idb.isValid()) {
-    ATH_MSG_FATAL("unable to retrieve IOVDbSvc");
-    return StatusCode::FAILURE;
-  }
-
-  ServiceHandle<IClassIDSvc> m_clidSvc("ClassIDSvc", name());
-  if (!m_clidSvc.isValid()) {
-    ATH_MSG_FATAL("unable to retrieve ClassIDSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( idb.retrieve() );
 
   std::vector<std::string> keys = idb->getKeyList();
   std::string folderName, tg;
@@ -201,13 +203,13 @@ CondInputLoader::initialize()
   StatusCode sc(StatusCode::SUCCESS);
   std::ostringstream str;
   str << "Will create WriteCondHandle dependencies for the following DataObjects:";
-  for (auto &e : m_load) {
-    str << "\n    + " << e;
-    if (e.key() == "") {
+  for (auto &e : sortedDataObjIDColl(m_load)) {
+    str << "\n    + " << *e;
+    if (e->key() == "") {
       sc = StatusCode::FAILURE;
       str << "   ERROR: empty key is not allowed!";
     } else {
-      SG::VarHandleKey vhk(e.clid(),e.key(),Gaudi::DataHandle::Writer,
+      SG::VarHandleKey vhk(e->clid(),e->key(),Gaudi::DataHandle::Writer,
                            StoreID::storeName(StoreID::CONDITION_STORE));
       if (m_condSvc->regHandle(this, vhk).isFailure()) {
         ATH_MSG_ERROR("Unable to register WriteCondHandle " << vhk.fullKey());
@@ -258,6 +260,12 @@ CondInputLoader::start()
       }
       CondContBase* cb = 
         CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+      if (cb == 0) {
+        // try to force a load of libraries using ROOT
+        (void)TClass::GetClass (tp.c_str());
+        cb =
+          CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+      }
       if (cb == 0) {
         ATH_MSG_ERROR("failed to create CondCont<" << tp
                       << "> clid=" << ditr->clid()

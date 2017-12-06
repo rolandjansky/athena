@@ -45,8 +45,6 @@ class ISCT_ReadCalibChipDataSvc: virtual public ISCT_ConditionsSvc {
   // Report whether the service can fill its data during the initialize phase
   virtual bool canFillDuringInitialize()=0;
 
-  virtual StatusCode fillCalibData(std::list<std::string>&)=0; //!< Callback for retriving chip data
-  
   // Methods to return calibration data 
   //PJ change to wafer hash id?!
   virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype)=0; //!<Get NPtGain data per wafer

@@ -35,7 +35,6 @@ atlas_add_library( SGTutorialLib
 
 atlas_add_library( SGTutorial
                    Tutorial/SGTutorial_entries.cxx
-                   Tutorial/SGTutorial_load.cxx
                    PUBLIC_HEADERS AthExStoreGateExample
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaKernel SGTools PileUpToolsLib StoreGateLib SGtests SGTutorialLib

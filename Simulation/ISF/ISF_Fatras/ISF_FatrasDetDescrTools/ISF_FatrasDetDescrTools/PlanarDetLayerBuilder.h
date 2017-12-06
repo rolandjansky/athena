@@ -58,7 +58,7 @@ namespace iFatras {
       
       @author Noemi.Calace@cern.ch
   */
-  class PlanarDetLayerBuilder : virtual public AthAlgTool, virtual public Trk::ILayerBuilder {
+  class PlanarDetLayerBuilder : public extends<AthAlgTool, Trk::ILayerBuilder> {
     
   public:
     /** AlgTool style constructor */

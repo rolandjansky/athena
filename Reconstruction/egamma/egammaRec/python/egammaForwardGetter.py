@@ -9,7 +9,7 @@ import traceback
 from RecExConfig.Configured import Configured
 
 from egammaRec import egammaKeys
-from egammaRec import egammaRecConf
+from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper, FullNameWrapper
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
@@ -20,7 +20,7 @@ def forwardSelectorTools():
    "Return a list with the selectors for forward electrons"
    return [ LooseForwardElectronSelector(), MediumForwardElectronSelector(), TightForwardElectronSelector() ]
 
-egammaForwardBuilder = AlgFactory( egammaRecConf.egammaForwardBuilder,
+egammaForwardBuilder = AlgFactory( egammaAlgsConf.egammaForwardBuilder,
                                    name = 'egammaForward',
                                    
                                    # Keys

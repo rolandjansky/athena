@@ -113,6 +113,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                   SummaryTool          = InDetTrackSummaryTool)
             
          else:
+            have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
             from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
             InDetExtenScoringTool = InDet__InDetAmbiScoringTool(name                    = 'InDetExtenScoringTool'+NewTrackingCuts.extension(),
                                                                 Extrapolator            = InDetExtrapolator,
@@ -134,7 +135,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                 useSCT                  = NewTrackingCuts.useSCT(),
                                                                 minTRTonTrk             = NewTrackingCuts.minTRTonTrk(),
                                                                 minTRTPrecisionFraction = NewTrackingCuts.minTRTPrecFrac(),
-                                                                doEmCaloSeed = DetFlags.detdescr.Calo_allOn())
+                                                                doEmCaloSeed            = have_calo_rois)
             if not InDetExtenScoringTool.doEmCaloSeed:
                InDetExtenScoringTool.InputEmClusterContainerName = ''
             

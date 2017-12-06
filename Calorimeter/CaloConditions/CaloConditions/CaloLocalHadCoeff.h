@@ -33,7 +33,7 @@
  */
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -305,8 +305,6 @@ class CaloLocalHadCoeff {
 CLASS_DEF(CaloLocalHadCoeff, 29079131, 1)
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<CaloLocalHadCoeff> , 82862607 , 1 )
-
-REGISTER_CC( CaloLocalHadCoeff  )
+CONDCONT_DEF( CaloLocalHadCoeff, 82862607 );
 
 #endif

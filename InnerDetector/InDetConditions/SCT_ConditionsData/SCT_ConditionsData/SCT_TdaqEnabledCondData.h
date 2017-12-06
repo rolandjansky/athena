@@ -15,7 +15,7 @@
 #include <vector>
 
 // Include Athena stuff
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
 
 class SCT_TdaqEnabledCondData {
@@ -66,7 +66,7 @@ private:
 CLASS_DEF( SCT_TdaqEnabledCondData , 137549585 , 1 )
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<SCT_TdaqEnabledCondData> , 31730865 , 1 )
+CONDCONT_DEF( SCT_TdaqEnabledCondData , 31730865 );
 
 
 #endif // SCT_TDAQENABLEDDATA_H

@@ -7,19 +7,19 @@
 
 namespace LArG4 {
 
-   enum LArWheelCalculator_t {
-		InnerAbsorberWheel,  OuterAbsorberWheel,
-		InnerElectrodWheel,  OuterElectrodWheel,
-		InnerAbsorberModule, OuterAbsorberModule,
-		InnerElectrodModule, OuterElectrodModule,
-		BackInnerBarretteWheel,       BackOuterBarretteWheel,
-		BackInnerBarretteWheelCalib,  BackOuterBarretteWheelCalib,
-		BackInnerBarretteModule,      BackOuterBarretteModule,
-		BackInnerBarretteModuleCalib, BackOuterBarretteModuleCalib,
-		InnerGlueWheel, OuterGlueWheel,
-		InnerLeadWheel, OuterLeadWheel
-	};
+  enum LArWheelCalculator_t {
+    InnerAbsorberWheel,  OuterAbsorberWheel,
+    InnerElectrodWheel,  OuterElectrodWheel,
+    InnerAbsorberModule, OuterAbsorberModule,
+    InnerElectrodModule, OuterElectrodModule,
+    BackInnerBarretteWheel,       BackOuterBarretteWheel,
+    BackInnerBarretteWheelCalib,  BackOuterBarretteWheelCalib,
+    BackInnerBarretteModule,      BackOuterBarretteModule,
+    BackInnerBarretteModuleCalib, BackOuterBarretteModuleCalib,
+    InnerGlueWheel, OuterGlueWheel,
+    InnerLeadWheel, OuterLeadWheel
+  };
 
-   struct ROOT6_NamespaceAutoloadHook_WheelCalc{};
+  struct ROOT6_NamespaceAutoloadHook_WheelCalc{};
 }
 #endif

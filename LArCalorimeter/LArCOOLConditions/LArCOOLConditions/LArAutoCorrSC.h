@@ -30,9 +30,8 @@ class LArAutoCorrSC:
   
 };
 #include "AthenaKernel/CondCont.h"
-CONDCONT_BASE(LArAutoCorrSC,ILArAutoCorr);
 CLASS_DEF( LArAutoCorrSC , 219258685, 1 )
-CLASS_DEF( CondCont<LArAutoCorrSC> , 169266589 , 1 )
+CONDCONT_DEF( LArAutoCorrSC, 169266589, ILArAutoCorr );
 
 
 #endif 

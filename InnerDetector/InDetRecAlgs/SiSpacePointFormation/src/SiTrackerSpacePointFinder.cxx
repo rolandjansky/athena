@@ -353,8 +353,12 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
   {
     ATH_MSG_DEBUG( spacepointoverlapCollection->size() <<" overlap space points registered." );
   }
-  m_numberOfPixel += spacePointContainerPixel->numberOfCollections();
-  m_numberOfSCT   += spacePointContainer_SCT->numberOfCollections();
+  if (m_selectPixels) {
+    m_numberOfPixel += spacePointContainerPixel->numberOfCollections();
+  }
+  if (m_selectSCTs) {
+    m_numberOfSCT   += spacePointContainer_SCT->numberOfCollections();
+  }
   if(m_cachemode)//Prevent unnecessary atomic counting
   {
      m_sctCacheHits  += sctCacheCount;

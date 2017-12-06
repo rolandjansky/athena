@@ -101,41 +101,6 @@ Long64_t  TChainROOTAccess::LoadTree(Long64_t entry)
   return TChain::LoadTree (entry);
 }
 
-
-//***********************************************************************
-//  Dummy methods required by root.
-//
-
-
-TClass* TChainROOTAccess::Class()
-{
-  if (!fgIsA)
-    fgIsA = TClass::GetClass ("AthenaROOTAccess::TChainROOTAccess");
-  return fgIsA;
-}
-
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-void TChainROOTAccess::ShowMembers (TMemberInspector& R__insp)
-{
-  TChain::ShowMembers (R__insp);
-}
-#endif
-
-
-void TChainROOTAccess::Streamer (TBuffer& b)
-{
-  TChain::Streamer (b);
-}
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
-atomic_TClass_ptr TChainROOTAccess::fgIsA;
-#else
-TClass* TChainROOTAccess::fgIsA = 0;
-#endif
-
-
 } // namespace AthenaROOTAccess
 
 
@@ -152,39 +117,3 @@ TChainROOTAccess::TChainROOTAccess (const char* name,
              "::TChainROOTAccess is deprecated; "
              "use AthenaROOTAccess::TChainROOTAccess instead.");
 }
-
-
-//***********************************************************************
-//  Dummy methods required by root.
-//
-
-
-TClass* TChainROOTAccess::Class()
-{
-  if (!fgIsA)
-    fgIsA = TClass::GetClass ("TChainROOTAccess");
-  return fgIsA;
-}
-
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-void TChainROOTAccess::ShowMembers (TMemberInspector& R__insp)
-{
-  AthenaROOTAccess::TChainROOTAccess::ShowMembers (R__insp);
-}
-#endif
-
-
-void TChainROOTAccess::Streamer (TBuffer& b)
-{
-  AthenaROOTAccess::TChainROOTAccess::Streamer (b);
-}
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
-atomic_TClass_ptr TChainROOTAccess::fgIsA;
-#else
-TClass* TChainROOTAccess::fgIsA = 0;
-#endif
-
-

@@ -17,20 +17,20 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput=os.environ['OUTFILENAME']
 athenaCommonFlags.EvtMax=int(os.environ['EVTMAX'])
 
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags()
-#SimFlags.SimLayout='ATLAS-SLHC-00-00-00'
-SimFlags.SimLayout='ATLAS-SLHC-01-00-00_VALIDATION'
-SimFlags.SimLayout.set_On() 
-SimFlags.EventFilter.set_On()
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags()
+#simFlags.SimLayout='ATLAS-SLHC-00-00-00'
+simFlags.SimLayout='ATLAS-SLHC-01-00-00_VALIDATION'
+simFlags.SimLayout.set_On() 
+simFlags.EventFilter.set_On()
 
-SimFlags.KinematicsMode.set_Value('SingleParticle')
-# SimFlags.ParticlePDG.set_Value('11') # <-- electron
-#SimFlags.ParticlePDG.set_Value('13') # <-- muon
-#SimFlags.MagneticField.set_Off()
-SimFlags.ParticlePDG.statusOn=False
-SimFlags.SeedsG4 = SeedNumber + "72" + SeedNumber
-SimFlags.Seeds = "SINGLE " + SeedNumber + "72" + SeedNumber + " " + SeedNumber + "41" + SeedNumber
+simFlags.KinematicsMode.set_Value('SingleParticle')
+# simFlags.ParticlePDG.set_Value('11') # <-- electron
+#simFlags.ParticlePDG.set_Value('13') # <-- muon
+#simFlags.MagneticField.set_Off()
+simFlags.ParticlePDG.statusOn=False
+simFlags.SeedsG4 = SeedNumber + "72" + SeedNumber
+simFlags.Seeds = "SINGLE " + SeedNumber + "72" + SeedNumber + " " + SeedNumber + "41" + SeedNumber
 
 from AthenaServices.AthenaServicesConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
@@ -42,7 +42,7 @@ EtaRange = ' flat ' + os.environ['ETAMIN'] + ' ' + os.environ['ETAMAX']
 PhiRange = ' flat 0 6.283185'
 PtSequence = ' sequence 2000.0, 4000.0, 6000.0, 15000.0, 50000.0, 100000.0'
 
-SimFlags.ParticleGeneratorOrders={
+simFlags.ParticleGeneratorOrders={
     'vertX:' : ' constant 0.0',
     'vertY:' : ' constant 0.0',
     'vertZ:' : ' constant 0.0',

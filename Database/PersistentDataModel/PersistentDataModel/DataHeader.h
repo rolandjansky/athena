@@ -206,6 +206,6 @@ private:
    std::string m_evtRefTokenStr;
 };
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(DataHeader, 222376821, 1)
 #endif

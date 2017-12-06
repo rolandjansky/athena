@@ -37,15 +37,33 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     ## TODO remove all this stuff and see if PixelDigitization works without it.
     # Setup the DCS folders and Svc used in the sctSiliconConditionsSvc
     from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
-        conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-    if not conddb.folderRequested('/SCT/DCS/MODTEMP'):
-        conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-    if not conddb.folderRequested('/SCT/DCS/HV'):
-        conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
+    sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
+    sctDCSTempFolder = '/SCT/DCS/MODTEMP'
+    sctDCSHVFolder = '/SCT/DCS/HV'
+    if not conddb.folderRequested(sctDCSStateFolder):
+        conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
+    if not conddb.folderRequested(sctDCSTempFolder):
+        conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
+    if not conddb.folderRequested(sctDCSHVFolder):
+        conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
     ## SCT_DCSConditionsSvc - used by SCT_SurfaceChargesGenerator
     from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "InDetSCT_DCSConditionsSvc"):
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+            condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                  ReadKey = sctDCSHVFolder)
+        if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+            condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                    ReadKeyHV = sctDCSHVFolder,
+                                                    ReadKeyState = sctDCSStateFolder)
+        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+            condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                    ReadKey = sctDCSTempFolder)
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
         ServiceMgr += InDetSCT_DCSConditionsSvc
@@ -134,10 +152,22 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     kwargs.setdefault("UseCalibData", True)
     # Setup the ReadCalibChip folders and Svc
     from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested('/SCT/DAQ/Calibration/ChipGain'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/ChipGain","/SCT/DAQ/Calibration/ChipGain")
-    if not conddb.folderRequested('/SCT/DAQ/Calibration/ChipNoise'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/ChipNoise","/SCT/DAQ/Calibration/ChipNoise")
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    sctGainFolder = "/SCT/DAQ/Calibration/ChipGain"
+    sctGainCondAlg = "SCT_ReadCalibChipGainCondAlg"
+    if not conddb.folderRequested(sctGainFolder):
+        conddb.addFolderSplitMC("SCT", sctGainFolder, sctGainFolder, className="CondAttrListCollection")
+        if not hasattr(condSeq, sctGainCondAlg):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
+            condSeq += SCT_ReadCalibChipGainCondAlg(name=sctGainCondAlg, ReadKey=sctGainFolder)
+    sctNoiseFolder = "/SCT/DAQ/Calibration/ChipNoise"
+    sctNoiseCondAlg = "SCT_ReadCalibChipNoiseCondAlg"
+    if not conddb.folderRequested(sctNoiseFolder):
+        conddb.addFolderSplitMC("SCT", sctNoiseFolder, sctNoiseFolder, className="CondAttrListCollection")
+        if not hasattr(condSeq, sctNoiseCondAlg):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
+            condSeq += SCT_ReadCalibChipNoiseCondAlg(name=sctNoiseCondAlg, ReadKey=sctNoiseFolder)
     from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "InDetSCT_ReadCalibChipDataSvc"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataSvc

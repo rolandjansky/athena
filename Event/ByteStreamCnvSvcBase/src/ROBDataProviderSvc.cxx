@@ -4,6 +4,8 @@
 
 //===================================================================
 //  Implementation of ROBDataProviderSvc
+//  Revision: November 2017
+//      MT readiness
 //  Revision:  July 11, 2002
 //      Modified for eformat
 //  Revision:  Aug 18, 2003
@@ -82,16 +84,17 @@
 #include "eformat/Status.h"
 
 // Constructor.
-ROBDataProviderSvc::ROBDataProviderSvc(const std::string& name, ISvcLocator* svcloc) :
-  ::AthService(name,svcloc), m_robmap(), m_currentLvl1ID(0), m_maskL2EFModuleID(false), m_event(0), m_eventStatus(0) {
-   declareProperty("filterRobWithStatus", m_filterRobWithStatus);
-   declareProperty("filterSubDetWithStatus", m_filterSubDetWithStatus);
-   declareProperty("filterEmptyROB", m_filterEmptyROB = false);
+ROBDataProviderSvc::ROBDataProviderSvc(const std::string& name, ISvcLocator* svcloc) 
+  : base_class(name, svcloc) {
+
+  declareProperty("filterRobWithStatus", m_filterRobWithStatus);
+  declareProperty("filterSubDetWithStatus", m_filterSubDetWithStatus);
+  declareProperty("filterEmptyROB", m_filterEmptyROB = false);
 }
 
 // Destructor.
 ROBDataProviderSvc::~ROBDataProviderSvc() {
-   robmapClear();
+  // the eventsCache take care of cleaaning itself
 }
 
 // Initialization
@@ -101,7 +104,8 @@ StatusCode ROBDataProviderSvc::initialize() {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
    }
-
+   m_eventsCache = SG::SlotSpecificObj<EventCache>( SG::getNSlots() );
+   
    for (unsigned int i = 0; i < m_filterRobWithStatus.value().size(); i++) {
       eformat::helper::SourceIdentifier tmpsrc(m_filterRobWithStatus.value()[i].first);
       if (tmpsrc.human_detector() != "UNKNOWN") {
@@ -146,23 +150,34 @@ StatusCode ROBDataProviderSvc::initialize() {
    }
    return(StatusCode::SUCCESS);
 }
-/// Query interface
-StatusCode ROBDataProviderSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-   if (IROBDataProviderSvc::interfaceID().versionMatch(riid)) {
-      *ppvInterface = dynamic_cast<IROBDataProviderSvc*>(this);
-   } else {
-      // Interface is not directly available: try out a base class
-      return(::AthService::queryInterface(riid, ppvInterface));
-   }
-   addRef();
-   return(StatusCode::SUCCESS);
-}
+
+// /// Query interface
+// StatusCode ROBDataProviderSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+//    if (IROBDataProviderSvc::interfaceID().versionMatch(riid)) {
+//       *ppvInterface = dynamic_cast<IROBDataProviderSvc*>(this);
+//    } else {
+//       // Interface is not directly available: try out a base class
+//       return(::AthService::queryInterface(riid, ppvInterface));
+//    }
+//    addRef();
+//    return(StatusCode::SUCCESS);
+// }
 
 /**
     - in offline only check that given ROB ids are in the map, issue an
       error if not
 */
+  
+
+
 void ROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const std::string callerName) {
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  return addROBData( context, robIds, callerName );
+}
+
+void ROBDataProviderSvc::addROBData(const EventContext& context, const std::vector<uint32_t>& robIds, const std::string callerName) {
+    EventCache* cache = m_eventsCache.get( context );
+
    // Copy missing ROB ids to vector with pthread allocator
    ATH_MSG_DEBUG(" ---> Number of ROB Id s requested : " << robIds.size() << ", Caller Name = " << callerName);
    // for offline running all requested ROBs should be found in cache
@@ -173,23 +188,25 @@ void ROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const s
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_LVL2) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
-	 if (!m_maskL2EFModuleID) {
+	 // TB if it is inconsistent we should not continue like this?
+	 if ( !m_maskL2EFModuleID ) {
 	   ATH_MSG_ERROR("Inconsistent flag for masking L2/EF module IDs");
 	   m_maskL2EFModuleID=true;
 	 }
       } else if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) && 
 		  (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_EVENT_FILTER) &&
-		  (m_maskL2EFModuleID) ) {
+		  ( m_maskL2EFModuleID ) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
       }
-      ROBMAP::iterator map_it = m_robmap.find(id) ;
-      if (map_it != m_robmap.end()) {
+      ROBMAP& robmap( cache->robmap );
+      ROBMAP::iterator map_it = robmap.find(id) ;
+      if (map_it != robmap.end()) {
          ATH_MSG_DEBUG(" ---> Found   ROB Id : 0x" << MSG::hex << (*map_it).second->source_id()
 	         << MSG::dec << " in cache");
       } else {
          ATH_MSG_DEBUG(" ---> ROB Id : 0x" << MSG::hex << id
 	         << MSG::dec << " not found in cache for running mode OFFLINE (method addROBData),");
-	 ATH_MSG_DEBUG("      Lvl1 id  = " << m_currentLvl1ID);
+	 ATH_MSG_DEBUG("      Lvl1 id  = " << cache->currentLvl1ID);
     }
   }
   return;
@@ -199,8 +216,13 @@ void ROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, const s
     - this version is for offline use only
 */
 void ROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result) {
-   // clear the old map
-   robmapClear();
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  return setNextEvent( context, result );
+}
+void ROBDataProviderSvc::setNextEvent(const EventContext& /*context*/, const std::vector<ROBF>& result) { 
+  // clear the old map
+  // TB honestly, why do any action if this is FATAL mistake
+  //  robmapClear( m_eventsCache.get(context)->robmap );
 
    // This method should never be used by offline
    ATH_MSG_FATAL(" +-----------------------------------------------------------------+ ");
@@ -212,15 +234,26 @@ void ROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result) {
    return;
 }
 
+
+
+
 /** - add a new Raw event
     - rebuild the map
 */
 void ROBDataProviderSvc::setNextEvent(const RawEvent* re) {
-   m_event = re;
+  // obtain context and redirect to the real implementation
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  return setNextEvent( context, re );
+}
+
+void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEvent* re ) {
+  EventCache* cache = m_eventsCache.get( context );
+  
+   cache->event = re;
    // clear the old map
-   robmapClear();
+   robmapClear( cache->robmap );
    // set the LVL1 id
-   m_currentLvl1ID = re->lvl1_id();
+   cache->currentLvl1ID = re->lvl1_id();
    // set flag for masking L2/EF module ID, this is only necessary for the separate L2 and EF systems from Run 1 
    m_maskL2EFModuleID = (re->nlvl2_trigger_info() != 0);
 
@@ -253,7 +286,7 @@ void ROBDataProviderSvc::setNextEvent(const RawEvent* re) {
       }
       if ((rob->rod_ndata() == 0) && (m_filterEmptyROB)) {
          ATH_MSG_DEBUG( " ---> Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-	         << " removed for L1 Id = " << m_currentLvl1ID);
+	         << " removed for L1 Id = " << cache->currentLvl1ID);
           delete rob;
       } else if (filterRobWithStatus(rob)) {
          if (rob->nstatus() > 0) {
@@ -263,29 +296,36 @@ void ROBDataProviderSvc::setNextEvent(const RawEvent* re) {
             ATH_MSG_DEBUG(" ---> ROB Id = 0x" << MSG::hex << id << std::setfill('0')
 	            << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
 	            << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific() << MSG::dec
-	            << " removed for L1 Id = " << m_currentLvl1ID);
+	            << " removed for L1 Id = " << cache->currentLvl1ID);
          }
          delete rob;
       } else {
-         ROBMAP::const_iterator it = m_robmap.find(id);
-         if (it != m_robmap.end()) {
+         ROBMAP::const_iterator it = cache->robmap.find(id);
+         if (it != cache->robmap.end()) {
             ATH_MSG_WARNING(" ROBDataProviderSvc:: Duplicate ROBID 0x" << MSG::hex << id
 	            << " found. " << MSG::dec << " Overwriting the previous one ");
-            delete m_robmap[id];
-            m_robmap[id] = rob;
+            delete cache->robmap[id];
+            cache->robmap[id] = rob;
          } else {
-            m_robmap[id] = rob;
+            cache->robmap[id] = rob;
          }
       }
    }
-   ATH_MSG_DEBUG(" ---> setNextEvent offline for " << name());
-   ATH_MSG_DEBUG("      current LVL1 id   = " << m_currentLvl1ID);
-   ATH_MSG_DEBUG("      size of ROB cache = " << m_robmap.size());
+   ATH_MSG_DEBUG(" ---> setNextEvent offline for " << name() );
+   ATH_MSG_DEBUG("      current LVL1 id   = " << cache->currentLvl1ID );
+   ATH_MSG_DEBUG("      size of ROB cache = " << cache->robmap.size() );
    return;
 }
 /** return ROBData for ROBID
  */
 void ROBDataProviderSvc::getROBData(const std::vector<uint32_t>& ids, std::vector<const ROBF*>& v, const std::string callerName) {
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  return getROBData( context, ids, v, callerName );
+}
+
+void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vector<uint32_t>& ids, std::vector<const ROBF*>& v, const std::string callerName) {
+  EventCache* cache = m_eventsCache.get( context );
+  
    for (std::vector<uint32_t>::const_iterator it = ids.begin(), it_end = ids.end(); it != it_end; it++) {
       uint32_t id = (*it);
       // mask off the module ID for L2 and EF result for Run 1 data
@@ -301,15 +341,15 @@ void ROBDataProviderSvc::getROBData(const std::vector<uint32_t>& ids, std::vecto
 		  (m_maskL2EFModuleID) ) {
 	 id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
       }
-      ROBMAP::iterator map_it = m_robmap.find(id);
-      if (map_it != m_robmap.end()) {
+      ROBMAP::iterator map_it = cache->robmap.find(id);
+      if (map_it != cache->robmap.end()) {
          v.push_back((*map_it).second);
       } else {
 	ATH_MSG_DEBUG("Failed to find ROB for id 0x" << MSG::hex << id << MSG::dec << ", Caller Name = " << callerName);
 #ifndef NDEBUG
          int nrob = 0;
-         ATH_MSG_VERBOSE(" --- Dump of ROB cache ids --- total size = " << m_robmap.size());
-         for (ROBMAP::iterator cache_it = m_robmap.begin(), cache_end = m_robmap.end();
+         ATH_MSG_VERBOSE(" --- Dump of ROB cache ids --- total size = " << cache->robmap.size());
+         for (ROBMAP::iterator cache_it = cache->robmap.begin(), cache_end = cache->robmap.end();
 	         cache_it != cache_end; cache_it++) {
 	    ++nrob;
 	    ATH_MSG_VERBOSE(" # = " << nrob << "  id = 0x" << MSG::hex << (*cache_it).second->source_id() << MSG::dec);
@@ -321,23 +361,40 @@ void ROBDataProviderSvc::getROBData(const std::vector<uint32_t>& ids, std::vecto
 }
 /** - clear ROB map
  */
-void ROBDataProviderSvc::robmapClear() {
-  for (ROBMAP::const_iterator it = m_robmap.begin(), itE = m_robmap.end(); it != itE; ++it) {
+void ROBDataProviderSvc::robmapClear( ROBMAP& toclear) {
+  for (ROBMAP::const_iterator it = toclear.begin(), itE = toclear.end(); it != itE; ++it) {
      delete it->second;
   }
-  m_robmap.clear();
+  toclear.clear();
 }
 /// Retrieve the whole event.
 const RawEvent* ROBDataProviderSvc::getEvent() {
-   return(m_event);
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  return getEvent( context );
 }
+const RawEvent* ROBDataProviderSvc::getEvent( const EventContext& context ) {
+  
+  return m_eventsCache.get( context )->event;
+}
+
+
 /// Set the status for the event.
 void ROBDataProviderSvc::setEventStatus(uint32_t status) {
-   m_eventStatus = status;
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  setEventStatus( context, status );
+}
+
+void ROBDataProviderSvc::setEventStatus(const EventContext& context, uint32_t status) {
+  m_eventsCache.get(context)->eventStatus = status;
 }
 /// Retrieve the status for the event.
 uint32_t ROBDataProviderSvc::getEventStatus() {
-   return(m_eventStatus);
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  return getEventStatus( context );
+}
+
+uint32_t ROBDataProviderSvc::getEventStatus( const EventContext& context ) {
+  return m_eventsCache.get( context )->eventStatus;
 }
 /** - filter ROB with Sub Detector Id and Status Code
 */
@@ -378,4 +435,10 @@ bool ROBDataProviderSvc::filterRobWithStatus(const ROBF* rob) {
       }
    }
    return(false);
+}
+
+
+ROBDataProviderSvc::EventCache::~EventCache() {
+  delete event;
+  ROBDataProviderSvc::robmapClear( robmap );
 }

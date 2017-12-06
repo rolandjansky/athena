@@ -85,8 +85,6 @@ class CondInputLoader
       "Abort execution if unable to create the CondCont<T> in first event"};
 
 
-  bool m_first { true };
-
   ServiceHandle<StoreGateSvc> m_condStore;
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<IIOVSvc> m_IOVSvc;

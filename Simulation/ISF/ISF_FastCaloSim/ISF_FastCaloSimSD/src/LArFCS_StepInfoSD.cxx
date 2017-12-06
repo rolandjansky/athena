@@ -84,6 +84,12 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                  << "          " << "Orig position: "<<substep->GetPreStepPoint()->GetPosition()<<"  /  "<<substep->GetPostStepPoint()->GetPosition()<<G4endl
                  << "          " << "StepLength: "<<StepLength<<" step: "<<preStepPosition<<" / "<<postStepPosition<<G4endl;
             }
+	
+	if (madeSubSteps) {
+	  //only delete steps when doing substeps. Do not delete the original G4Step!
+	  while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
+	}
+	
         return result;
       }
 
@@ -93,6 +99,12 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         if (m_config.verboseLevel > 4) {
           G4cout << this->GetName()<<" WARNING ProcessHits: Total negative energy: " << et << " not processing..." << G4endl;
         }
+
+	if (madeSubSteps) {
+	  //only delete steps when doing substeps. Do not delete the original G4Step!
+	  while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
+	}
+	
         return result;
       }
 
@@ -139,6 +151,12 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
               //find subhit with largest energy
               if (maxSubHitEnergyindex == -1) {
                 G4cout << this->GetName()<<" WARNING ProcessHits: no subhit index with e>-999??? "<<G4endl;
+
+		if (madeSubSteps) {
+		  //only delete steps when doing substeps. Do not delete the original G4Step!
+		  while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
+		}
+		
                 return result;
               }
               if(m_config.verboseLevel > 9) {
@@ -191,6 +209,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
     }
   }
+
   return result;
 }
 

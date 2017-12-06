@@ -11,8 +11,8 @@
 // e-mail: ahaas@cern.ch
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __TRIG_FTK_DUPLICATETRACKREMOVAL_TOOL_H__
-#define __TRIG_FTK_DUPLICATETRACKREMOVAL_TOOL_H__
+#ifndef TRIG_FTK_DUPLICATETRACKREMOVAL_TOOL_H
+#define TRIG_FTK_DUPLICATETRACKREMOVAL_TOOL_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -39,7 +39,7 @@ class FTK_DuplicateTrackRemovalTool : public AthAlgTool, virtual public IFTK_Dup
     int m_HW_ndiff;
     double m_dphi_roughmatch;
 #ifdef FTKDuplicateTrackRemovalUseMap
-    std::map<double, std::vector<unsigned int> > phimap;//keep track of the phi of tracks in the output container - at each phi there could be a vector of track indices...
+    std::map<double, std::vector<unsigned int> > m_phimap;//keep track of the phi of tracks in the output container - at each phi there could be a vector of track indices...
     void addtophimap(double trackphi, unsigned int pos);
     void removefromphimap(double trackphi, unsigned int pos);
 #endif

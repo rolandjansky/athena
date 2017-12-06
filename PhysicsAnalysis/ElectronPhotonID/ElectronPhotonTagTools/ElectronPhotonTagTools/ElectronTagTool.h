@@ -103,7 +103,7 @@ private:
   std::string m_vxCandidate;
 
   /** calib tool */
-  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
+  //  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
   
 };
 

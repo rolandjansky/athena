@@ -121,10 +121,10 @@ namespace InDetDD {
       const TRT_EndcapElement & operator=(const TRT_EndcapElement &right);
       
       // Private Member Data:
-      TRT_EndcapCode              _code;
-      const TRT_EndcapDescriptor *_descriptor;
-      const TRT_EndcapElement    *_nextInZ;
-      const TRT_EndcapElement    *_previousInZ;
+      TRT_EndcapCode              m_code;
+      const TRT_EndcapDescriptor *m_descriptor;
+      const TRT_EndcapElement    *m_nextInZ;
+      const TRT_EndcapElement    *m_previousInZ;
     
       mutable Trk::Surface       * m_surface;
     

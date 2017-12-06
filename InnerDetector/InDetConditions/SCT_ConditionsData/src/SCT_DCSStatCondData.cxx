@@ -14,7 +14,9 @@ using namespace std;
 
 //////////////////////////////////
 //constructor
-SCT_DCSStatCondData::SCT_DCSStatCondData() {
+SCT_DCSStatCondData::SCT_DCSStatCondData():
+  m_bad_channels{}
+{
 }
 //////////////////////////////////
 //destructor
@@ -58,7 +60,7 @@ void SCT_DCSStatCondData::remove(const CondAttrListCollection::ChanNum& chanNum,
 }
 //////////////////////////////////
 //output map vector
-int SCT_DCSStatCondData::output(const CondAttrListCollection::ChanNum& chanNum, vector<string>& usersVector) {
+int SCT_DCSStatCondData::output(const CondAttrListCollection::ChanNum& chanNum, vector<string>& usersVector) const {
   DCSConditions::const_iterator pPair{m_bad_channels.find(chanNum)};
   if (pPair!=m_bad_channels.end()) {
     const vector<string>& v{pPair->second};
@@ -68,7 +70,7 @@ int SCT_DCSStatCondData::output(const CondAttrListCollection::ChanNum& chanNum, 
 }
 //////////////////////////////////
 //output map size
-int SCT_DCSStatCondData::output(const CondAttrListCollection::ChanNum& chanNum) {
+int SCT_DCSStatCondData::output(const CondAttrListCollection::ChanNum& chanNum) const {
   DCSConditions::const_iterator pPair{m_bad_channels.find(chanNum)};
   return (pPair!=m_bad_channels.end()) ? (pPair->second.size()) : 0;
 }

@@ -2,7 +2,7 @@
 #include "../TrigGenericMonitoringTool.h"
 #include <boost/preprocessor/punctuation/comma.hpp>
 
-DECLARE_TOOL_FACTORY( TrigHLTBaseTreeTool )
-DECLARE_TOOL_FACTORY( TrigGenericMonitoringToolST )
-DECLARE_TOOL_FACTORY( TrigGenericMonitoringToolMT )
+DECLARE_COMPONENT( TrigHLTBaseTreeTool )
+DECLARE_COMPONENT( TrigGenericMonitoringToolST )
+DECLARE_COMPONENT( TrigGenericMonitoringToolMT )
 

@@ -15,6 +15,12 @@
 //=======================================================
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkSegment/SegmentCollection.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+
 
 class PRD_MultiTruthCollection;
 class AtlasDetectorID;
@@ -70,10 +76,11 @@ namespace InDet
     
     void combineSegments(void);
 
-
-    std::string m_inputSegmentCollectionName; //!< Name of the TrackSegment Collection to read in
-    std::string m_outputTrackCollectionName;  //!< Name of the TrackCollection to write out
     
+    SG::ReadHandleKey<Trk::SegmentCollection> m_inputSegmentCollectionName{this,"InputSegmentsCollection","TrackSegments","RHK to retrieve input track collection"}; //!< Name of the TrackSegment Collection to read in
+
+    SG::WriteHandleKey<TrackCollection> m_outputTrackCollectionName{this,"OutputTrackCollection","SegmentTracks","WHK to store output tracks"};  //!< Name of the TrackCollection to write out 
+
     ToolHandle<Trk::ITrackFitter> m_trackFitter;   //!< The TrackFitter
 
     ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< The Extrapolator    
@@ -85,8 +92,9 @@ namespace InDet
     
     const TRT_ID* m_trtid ;
     
-    std::string m_multiTruthCollectionTRTName; //!< Name of the TRT MultiTruthCollection
-    
+
+    SG::ReadHandleKey<PRD_MultiTruthCollection> m_multiTruthCollectionTRTName{this,"PRDTruthCollectionTRT","PRD_MultiTruthTRT","RHK to retrieve TRT turth info"}; //!< Name of the TRT MultiTruthCollection 
+
     int m_nTracksReal;                        //!< Counter for real reconstructed Tracks
     int m_nTracksFake;                        //!< Counter for fake reconstructed Track
     
@@ -101,15 +109,14 @@ namespace InDet
     
 
     bool m_combineSegments;                   //!< Try to combine segments from Barrel and Endcap
-    std::string m_barrelSegments;             //!< Name of Barrel segment collection
-    std::string m_endcapSegments;             //!< Name of Endcap segment collection
-    
-    std::string m_BECCollectionName;  //!< Name of the combined (TRT Barrel+EC) TrackCollection to write out
+
+    SG::ReadHandleKey<Trk::SegmentCollection> m_barrelSegments{this,"BarrelSegments","TRTBarrelSegments","RHK to retrieve barrel track segments"}; //!< Name of Barrel segment collection
+    SG::ReadHandleKey<Trk::SegmentCollection> m_endcapSegments{this,"EndcapSegments","TRTEndcapSegments","RHK to retrieve endcap track segments"}; //!< Name of Endcap segment collection
+
+    SG::WriteHandleKey<TrackCollection> m_BECCollectionName{this,"BarrelEndcapTracks","TRT_Barrel_EC","WHK to write tracks"};  //!< Name of the combined (TRT Barrel+EC) TrackCollection to write out
 
     std::string m_dummy;
     bool m_dummy_bool;
-
-    const PRD_MultiTruthCollection *m_truthCollectionTRT; //!< Truth information for the TRT
     
     
     int m_n_combined_fit;

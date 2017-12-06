@@ -461,10 +461,7 @@ CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
       zend = zend * side;
     }
     if (sample == CaloCell_ID::HEC3){
-      std::vector <CaloDetDescriptor*>::const_iterator  HEC_first = m_calo_dd->calo_descriptors_begin();
-      std::vector <CaloDetDescriptor*>::const_iterator  HEC_last = m_calo_dd->calo_descriptors_end();
-      for (; HEC_first != HEC_last; ++HEC_first) {
-	CaloDetDescriptor* descr = *HEC_first;
+      for (const CaloDetDescriptor* descr : m_calo_dd->calo_descriptors_range()) {
 	if (descr) {
 	  if ( descr->getSampling(0) == CaloCell_ID::HEC3){
 	    zend = descr->calo_z_max();
@@ -673,11 +670,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
        sample == CaloCell_ID::EMB2 ||
        sample == CaloCell_ID::EMB3 ) {
 
-    std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->calo_descriptors_begin();
-    std::vector <CaloDetDescriptor*>::const_iterator  last = m_calo_dd->calo_descriptors_end();
-
-    for (; first != last; ++first) {
-      CaloDetDescriptor* reg = *first;
+    for (const CaloDetDescriptor* reg : m_calo_dd->calo_descriptors_range()) {
       if (reg) {
         if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0)
           {
@@ -709,10 +702,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
       return 0;
     }
 
-    std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->tile_descriptors_begin();
-    std::vector <CaloDetDescriptor*>::const_iterator  last = m_calo_dd->tile_descriptors_end();
-    for (; first != last; ++first) {
-      CaloDetDescriptor* reg = *first;
+    for (const CaloDetDescriptor* reg : m_calo_dd->tile_descriptors_range()) {
       if (reg) {
         if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0){
 	  /*result =*/(void) reg->get_cylinder_surface(htrans,radius,hphi,hl,depth);
@@ -768,11 +758,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
   //log<<MSG::VERBOSE<<" get_disk_surface in sample   "<<sample<<endmsg;
   //std::cout << "  disk work ..." << std::endl;
 
-  std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->calo_descriptors_begin();
-  std::vector <CaloDetDescriptor*>::const_iterator  last = m_calo_dd->calo_descriptors_end();
-
-  for (; first != last; ++first) {
-    CaloDetDescriptor* reg = *first;
+  for (const CaloDetDescriptor* reg : m_calo_dd->calo_descriptors_range()) {
     if (reg) {
       if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0 )
 	{
@@ -787,11 +773,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
   if ( sample == CaloCell_ID::TileGap3 ){
     //log<<MSG::VERBOSE<<" get_disk_surface in TileGap3 sample   "<<sample<<endmsg;
 
-    std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->tile_descriptors_begin();
-    std::vector <CaloDetDescriptor*>::const_iterator  last = m_calo_dd->tile_descriptors_end();
-
-    for (; first != last; ++first) {
-      CaloDetDescriptor* reg = *first;
+    for (const CaloDetDescriptor* reg : m_calo_dd->tile_descriptors_range()) {
       if (reg) {
 	if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0 )
 	  {

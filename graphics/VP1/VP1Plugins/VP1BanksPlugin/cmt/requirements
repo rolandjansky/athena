@@ -1,9 +1,0 @@
-package VP1BanksPlugin
-
-author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
-manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
-
-use AtlasPolicy        AtlasPolicy-*
-use VP1BanksSystems    VP1BanksSystems-*    graphics/VP1/VP1Systems
-
-apply_pattern vp1plugin

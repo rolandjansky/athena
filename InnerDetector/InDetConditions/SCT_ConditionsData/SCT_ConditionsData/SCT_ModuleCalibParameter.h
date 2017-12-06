@@ -20,7 +20,7 @@
 typedef boost::array<float, SCT_ConditionsServices::CHIPS_PER_MODULE> SCT_ModuleCalibParameter;
 
 // Class definition
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_ModuleCalibParameter , 119421667 , 1 )
 
 #endif // SCT_MODULECALIBPARAMETER_H

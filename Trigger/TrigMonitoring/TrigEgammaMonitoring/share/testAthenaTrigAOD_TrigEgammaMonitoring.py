@@ -12,7 +12,7 @@ elif ('inputDir' in dir()):
     inputFiles = glob(inputDir+'*')
     acf.PoolAODInput=inputFiles
 elif 'RTT' in dir():
-    rttfile='root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/'+RTT+'/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root'
+    rttfile='root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/'+RTT+'/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root'
     acf.PoolAODInput=[rttfile]
 if not acf.EvtMax.is_locked():
     acf.EvtMax=-1

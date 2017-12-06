@@ -1,7 +1,4 @@
-
 #include "TrigT1ZDC/TrigT1ZDC.h"
 
-using namespace LVL1;
-
-DECLARE_ALGORITHM_FACTORY(TrigT1ZDC)
+DECLARE_COMPONENT( LVL1::TrigT1ZDC )
 

@@ -13,18 +13,15 @@
 
 class IAthenaMPTool;
 class ISvcLocator;
-template <class TYPE> class SvcFactory;
 
 class AthMpEvtLoopMgr
    :virtual public ::IEventProcessor 
    , public AthService
 {
-  friend class SvcFactory<AthMpEvtLoopMgr>;
-
+ public:
   AthMpEvtLoopMgr(const std::string& name, ISvcLocator* svcLocator);
   virtual ~AthMpEvtLoopMgr();
 
- public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 

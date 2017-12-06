@@ -23,7 +23,7 @@ globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-RUN12-SDR-10')
 #--------------------------------------------------------------
 
 # top no pileup
-athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasdatadisk/rucio/valid1/b8/04/RDO.04860198._000028.pool.root.1"]
+athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/valid1/b8/04/RDO.04860198._000028.pool.root.1"]
 
 # --- number of events to process
 athenaCommonFlags.EvtMax     =  3

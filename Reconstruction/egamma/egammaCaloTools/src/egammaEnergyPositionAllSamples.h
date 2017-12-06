@@ -25,7 +25,6 @@ class CaloDetDescrManager;
 
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 
 class egammaEnergyPositionAllSamples : public AthAlgTool, virtual public IegammaEnergyPositionAllSamples {

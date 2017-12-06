@@ -7,7 +7,6 @@
 // general Atlas classes
 //#include "GaudiKernel/PropertyMgr.h"
 //#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/IssueSeverity.h"
 
 //#include "AthenaKernel/Timeout.h"
 

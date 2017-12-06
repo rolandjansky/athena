@@ -6,7 +6,7 @@ mkdir $WORKDIR
 cd $WORKDIR
 
 #INPUTDIR="/afs/cern.ch/work/s/stelzer/LegacySimWorkareaForWernerJoerg/hitfiles"
-INPUTDIR="root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/LegacySim/hitfiles"
+INPUTDIR="root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/LegacySim/hitfiles"
 INPUTHITS="mc12_8TeV.126940.PowhegPythia8_AU2CT10_ZZ_4mu_mll4_2pt5.merge.HITS.e1280_s1469_s1470_tid00857308_00/HITS.00857308._000585.pool.root.1"
 
 # globbing does not work well with EOS, need to specify each individual file

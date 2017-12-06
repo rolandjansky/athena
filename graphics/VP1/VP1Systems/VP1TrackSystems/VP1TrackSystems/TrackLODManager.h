@@ -48,7 +48,7 @@ public slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   friend class TrackLODHandle;
 };
 
@@ -65,7 +65,7 @@ private:
   friend class TrackLODManager;
   friend class TrackLODManager::Imp;
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 

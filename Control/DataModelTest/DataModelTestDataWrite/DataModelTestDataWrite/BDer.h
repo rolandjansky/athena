@@ -22,8 +22,8 @@
 
 #include "DataModelTestDataWrite/BVec.h"
 #include "AthLinks/ElementLink.h"
-#include "SGTools/BaseInfo.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 namespace DMTest {

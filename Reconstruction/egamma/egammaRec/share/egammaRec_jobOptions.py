@@ -14,6 +14,27 @@ topSequence = AlgSequence()
 ###############Print Egamma JobProperties#############
 jobproperties.egammaRecFlags.print_JobProperties("full")
 #####################################################################
+
+# Run Brem builder.
+if jobproperties.egammaRecFlags.doBremFinding() and DetFlags.detdescr.ID_on():
+    try:
+        from egammaAlgs.EMBremCollectionBuilder import EMBremCollectionBuilder
+        EMBremCollectionBuilder()
+    except Exception:
+        treatException("Could not set up EMBremFinder. Switch it off !")
+        jobproperties.egammaRecFlags.doBremFinding=False    
+        #EMBremCollectionBuilder(disable=True)
+
+# Run conversion vertex builder.
+if jobproperties.egammaRecFlags.doVertexBuilding() and DetFlags.detdescr.ID_on():
+    try:
+        from egammaAlgs.EMVertexBuilder import EMVertexBuilder
+        EMVertexBuilder()
+    except Exception:
+        treatException("Could not set up the conversion vertex building. Switch it off !")
+        jobproperties.egammaRecFlags.doVertexBuilding=False
+        #EMVertexBuilder(disable=True)
+
 # Run calo-based (egamma) algorithm, includes topo-seeded
 # It requires either to read ESD
 # either that Emcluster have been build
@@ -21,19 +42,29 @@ if jobproperties.egammaRecFlags.doEgammaCaloSeeded()  and ( rec.readESD() or job
     # 
     try:
         if jobproperties.egammaRecFlags.doEgammaCaloSeeded:
-            from egammaRec.egammaGetter import egammaGetter
-            egammaGetter(ignoreExistingDataObject=True)
+            if jobproperties.egammaRecFlags.doSuperclusters():
+                from egammaRec.topoEgammaGetter import topoEgammaGetter
+                topoEgammaGetter(ignoreExistingDataObject=True)
+            else:
+                from egammaRec.egammaGetter import egammaGetter
+                egammaGetter(ignoreExistingDataObject=True)
     except Exception:
-        treatException("Could not set up egammaGetter. Switch it off !")
+        treatException("Could not set up egammaGetter or topoEgammaGetter. Switch it off !")
         jobproperties.egammaRecFlags.doEgammaCaloSeeded=False    
-        egammaGetter(disable=True)
+        if jobproperties.egammaRecFlags.doSuperclusters():
+            topoEgammaGetter(disable=True)
+        else:
+            egammaGetter(disable=True)
 else:
     jobproperties.egammaRecFlags.doEgammaCaloSeeded=False
-    try:
-        from egammaRec.egammaGetter import egammaGetter
-        egammaGetter(disable=True)
-    except Exception:
-        pass
+
+    # Is the stuff below really necessary?
+
+    # try:
+    #     from egammaRec.egammaGetter import egammaGetter
+    #     egammaGetter(disable=True)
+    # except Exception:
+    #     pass
 
 ####################################################################
 # Run forward electrons algorithm
@@ -49,11 +80,11 @@ if jobproperties.egammaRecFlags.doEgammaForwardSeeded and ( rec.readESD() or job
         else:
             egammaForwardGetter(ignoreExistingDataObject=True)
     except Exception: 
-        jobproperties.egammaRecFlags.doEgammaForwardSeeded=False    
+        jobproperties.egammaRecFlags.doEgammaForwardSeeded=False
         treatException("Could not set up egammaForwardGetter. Switch it off !")
         egammaForwardGetter(disable=True)
 else:
-    jobproperties.egammaRecFlags.doEgammaForwardSeeded=False    
+    jobproperties.egammaRecFlags.doEgammaForwardSeeded=False
     try:
         from egammaRec.egammaForwardGetter import egammaForwardGetter
         egammaForwardGetter(disable=True)
@@ -76,7 +107,7 @@ if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.ega
         egammaTruthAssociationGetter(disable=True)
 
 ####################################################################
-# Lock egamma containers
+# miscallaneous algorithms
 if rec.doESD():
 
     #Decorate cluster with links to Topo clusters (when not superclusters)
@@ -90,13 +121,4 @@ if rec.doESD():
         except:
             treatException("Could not set up ClusterMatching tool! Switched off")
 
-    #Finalize clusters 
-    try:
-        from egammaRec.egammaRecConf import egammaFinalizeClusters
-        topSequence += egammaFinalizeClusters(name= "egammaFinalizeClusters",
-                                             outputClusterKey=egammaKeys.outputClusterKey(),
-                                             outputForwardClusterKey=egammaKeys.outputFwdClusterKey(),
-                                             outputTopoSeededClusterKey=egammaKeys.outputTopoSeededClusterKey())
-    except:
-        treatException("Could not set up egammaLocker. Switched off !")
 

@@ -2,7 +2,7 @@
 
 import CaloRingerToolsConf
 
-from egammaRec.Factories import ToolFactory
+from egammaRec.Factories import PublicToolFactory
 from egammaRec import egammaKeys
 
 from CaloRingerAlgs import CaloRingerKeys
@@ -101,20 +101,20 @@ class ConfigurePhotonCaloRings( ConfigureEgammaCaloRings ):
       from AthenaCommon.SystemOfUnits import GeV
       crBuilder.MinPartEnergy = minEnergy * GeV
 
-ElectronCaloRingsBuilder = ToolFactory(CaloRingerToolsConf.Ringer__CaloRingsBuilder,
+ElectronCaloRingsBuilder = PublicToolFactory(CaloRingerToolsConf.Ringer__CaloRingsBuilder,
   name = "ElectronCaloRingsBuilder",
   postInit = [ConfigureElectronCaloRings().__call__])
 
-ElectronCaloAsymRingsBuilder = ToolFactory(CaloRingerToolsConf.Ringer__CaloAsymRingsBuilder,
+ElectronCaloAsymRingsBuilder = PublicToolFactory(CaloRingerToolsConf.Ringer__CaloAsymRingsBuilder,
   name = "ElectronCaloAsymRingsBuilder",
   postInit = [ ConfigureElectronCaloRings().__call__
              , AsymRings(doEtaAxesDivision = True, doPhiAxesDivision = True).__call__ ])
 
-PhotonCaloRingsBuilder = ToolFactory(CaloRingerToolsConf.Ringer__CaloRingsBuilder,
+PhotonCaloRingsBuilder = PublicToolFactory(CaloRingerToolsConf.Ringer__CaloRingsBuilder,
   name = "PhotonCaloRingsBuilder",
   postInit = [ConfigurePhotonCaloRings().__call__])
 
-PhotonCaloAsymRingsBuilder = ToolFactory(CaloRingerToolsConf.Ringer__CaloAsymRingsBuilder,
+PhotonCaloAsymRingsBuilder = PublicToolFactory(CaloRingerToolsConf.Ringer__CaloAsymRingsBuilder,
   name = "PhotonCaloAsymRingsBuilder",
   postInit = [ConfigurePhotonCaloRings().__call__
              , AsymRings(doEtaAxesDivision = True, doPhiAxesDivision = True).__call__])

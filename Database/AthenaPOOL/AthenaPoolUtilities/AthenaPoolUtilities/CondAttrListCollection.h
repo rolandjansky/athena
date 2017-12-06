@@ -23,7 +23,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 
 #include "AthenaKernel/IOVRange.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/DataObject.h"
 
 #include <vector>
@@ -196,9 +196,7 @@ private:
 CLASS_DEF(CondAttrListCollection, 1238547719, 0)
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<CondAttrListCollection>, 1223307417  , 1 )
-
-REGISTER_CC( CondAttrListCollection )
+CONDCONT_DEF( CondAttrListCollection, 1223307417 );
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>

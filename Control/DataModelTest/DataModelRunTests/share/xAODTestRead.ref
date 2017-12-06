@@ -1,4 +1,4 @@
-Mon Oct  2 12:54:46 EDT 2017
+Thu Nov  2 15:25:04 EDT 2017
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
@@ -7,7 +7,7 @@ Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 463 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
@@ -16,7 +16,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Mon Oct  2 12:55:10 2017
+                                          running on karma on Thu Nov  2 15:25:30 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -24,7 +24,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 10227 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10187 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -39,26 +39,17 @@ DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:xAODTestRead_catalog.xml
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-PoolSvc              INFO Re-initializing PoolSvc
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-RootCollection Info Opening Collection File xaoddata.root in mode: READ
-RootCollection Info File xaoddata.root opened
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
-Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60806
-ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
-ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO                           xaoddata.root
+RootDatabase.open    INFO xaoddata.root File version:60806
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-RootCollection Info Opening Collection File xaoddata.root in mode: READ
-RootCollection Info File xaoddata.root opened
-ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
-ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 1402 CLIDRegistry entries for module ALL
@@ -81,18 +72,15 @@ Stream2              INFO I/O reinitialization...
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
-RootCollection Info Opening Collection File xaoddata.root in mode: READ
-RootCollection Info File xaoddata.root opened
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
-Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60806
-ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
-ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+xaoddata.root        INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO                           xaoddata.root
+RootDatabase.open    INFO xaoddata.root File version:60806
 ApplicationMgr       INFO Application Manager Started successfully
+AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
@@ -169,27 +157,27 @@ cvecWD 1001: 201 202 203 204 205 206 207 208 209 210
 cview: 110 109 108 107 106 105 104 103 102 101
 hvec: 401.5 402.5 403.5 404.5 405.5 406.5 407.5 408.5 409.5 410.5 411.5 412.5 413.5 414.5 415.5 416.5 417.5 418.5 419.5 420.5
 hview: 420.5 419.5 418.5 417.5 416.5 415.5 414.5 413.5 412.5 411.5 410.5 409.5 408.5 407.5 406.5 405.5 404.5 403.5 402.5 401.5
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 3A8200FB-0D74-334B-818B-FAD96A2D6522
-Domain[ROOT_All] Info                           xaoddata2.root
-RootDatabase.open Info xaoddata2.root File version:60806
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DataVector<DMTest::H_v2> [CD6C3074-425B-4C08-AF1C-43D7E8C84288]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DMTest::HAuxContainer_v2 [2BDBFB04-C1C2-4B14-A977-3A61B8054700]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info ViewVector<DataVector<DMTest::H_v2> > [17849966-6667-4732-A1C7-096FBC778CF3]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info xAOD::ShallowAuxInfo [BE505E75-8760-4F39-9331-689CB5443DB1]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info xAOD::ShallowAuxContainer [C63C39D7-9501-49DC-B1B0-6AD98B1AEEFA]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info xAOD::AuxContainerBase [C87C71B3-B03F-42FC-AF99-DF497F148397]
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] BB1BAA54-1D6C-5D4B-BADC-634CFA49EB53
+Domain[ROOT_All]     INFO                           xaoddata2.root
+RootDatabase.open    INFO xaoddata2.root File version:60806
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataVector<DMTest::H_v2> [CD6C3074-425B-4C08-AF1C-43D7E8C84288]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DMTest::HAuxContainer_v2 [2BDBFB04-C1C2-4B14-A977-3A61B8054700]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO ViewVector<DataVector<DMTest::H_v2> > [17849966-6667-4732-A1C7-096FBC778CF3]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO xAOD::ShallowAuxInfo [BE505E75-8760-4F39-9331-689CB5443DB1]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO xAOD::ShallowAuxContainer [C63C39D7-9501-49DC-B1B0-6AD98B1AEEFA]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO xAOD::AuxContainerBase [C87C71B3-B03F-42FC-AF99-DF497F148397]
 ClassIDSvc           INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
-Domain[ROOT_All] Info                           xaoddata2b.root
-RootDatabase.open Info xaoddata2b.root File version:60806
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] E7544441-F45C-F14F-82BC-EA8EF0911D5F
+Domain[ROOT_All]     INFO                           xaoddata2b.root
+RootDatabase.open    INFO xaoddata2b.root File version:60806
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -1503,22 +1491,21 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events 
 ClassIDSvc           INFO  getRegistryEntries: read 8 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21
 Stream2              INFO Records written: 21
-xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 9D197882-3A7D-9B46-967F-2158F3356825
-xaoddata2.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 3A8200FB-0D74-334B-818B-FAD96A2D6522
-xaoddata2b.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
-Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+xaoddata.root        INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+xaoddata2.root       INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] BB1BAA54-1D6C-5D4B-BADC-634CFA49EB53
+xaoddata2b.root      INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] E7544441-F45C-F14F-82BC-EA8EF0911D5F
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize
 DecisionSvc          INFO Finalized successfully.
-Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"
-CORAL/Services/ConnectionService Info Deleting the ConnectionPool

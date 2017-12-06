@@ -6,7 +6,7 @@
  
  @brief 
  Class for storing/accessing trt rtrelations with channels 
-
+1;95;0c
  @author Wouter Hulsbergen <wouter.hulsbergen@cern.ch>
 */
 
@@ -17,6 +17,7 @@
 
 #include "TRT_ConditionsData/RtRelationContainer.h"
 #include "TRT_ConditionsData/MultChanContainer.h"
+#include "AthenaKernel/CondCont.h"
 
 namespace TRTCond
 {
@@ -43,6 +44,9 @@ namespace TRTCond
   } ;
 }
 
+
 CLASS_DEF(TRTCond::RtRelationMultChanContainer,1169148363,1)
+CONDCONT_DEF(TRTCond::RtRelationMultChanContainer,163845982);
+
 
 #endif

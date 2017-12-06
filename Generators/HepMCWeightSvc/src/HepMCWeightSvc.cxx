@@ -75,15 +75,23 @@ StatusCode HepMCWeightSvc::loadWeights() {
    //only look a the first one, assuming it exists, and within that only look at the first channel;
    if(! (cont->payloadContainer()->size()>0 && cont->payloadContainer()->at(0)->size()>0) ) return StatusCode::FAILURE;
 
-   //need to retrieve the EventStreamInfo to get at the channel number 
-   const EventStreamInfo* esi = 0;
-   CHECK( inputMetaStore->retrieve(esi) );
-   if(esi->getEventTypes().size() == 0) return StatusCode::FAILURE;
-   int chanNum = esi->getEventTypes().begin()->mc_channel_number();
-   if(chanNum==0) {
-      //perhaps channel number not set yet, use the first run number instead 
-      if(esi->getRunNumbers().size()==0) return StatusCode::FAILURE;
-      chanNum = *esi->getRunNumbers().begin();
+
+   int chanNum(0);
+   //if there is only one collection of weights, then we just load that one 
+   if(cont->payloadContainer()->at(0)->size()==1) {
+     chanNum = cont->payloadContainer()->at(0)->chanNum(0);
+   } else {
+     ATH_MSG_DEBUG("Multiple /Generation/Parameters attributeLists found ... using EventStreamInfo to determine which to use");
+     //need to retrieve the EventStreamInfo to get at the channel number 
+     const EventStreamInfo* esi = 0;
+     CHECK( inputMetaStore->retrieve(esi) );
+     if(esi->getEventTypes().size() == 0) return StatusCode::FAILURE;
+     chanNum = esi->getEventTypes().begin()->mc_channel_number();
+     if(chanNum==0) {
+       //perhaps channel number not set yet, use the first run number instead 
+       if(esi->getRunNumbers().size()==0) return StatusCode::FAILURE;
+       chanNum = *esi->getRunNumbers().begin();
+     }
    }
    const coral::Attribute& attr = cont->payloadContainer()->at(0)->attributeList(chanNum)["HepMCWeightNames"];
 

@@ -100,12 +100,12 @@ StatusCode SCT_ReadCalibChipDataTestAlg::processProperties()
   
   ATH_MSG_DEBUG("Module positions from jobOpt property:");
   ATH_MSG_DEBUG("B-EC/layer-disk/eta/phi: "
-		<< offlineBarrelEC  << "/"
-		<< offlineLayerDisk << "/"
-		<< offlineEta       << "/"
-		<< offlinePhi       << "/"
-		<< offlineSide      << "/"
-		<< offlineStrip);
+                << offlineBarrelEC  << "/"
+                << offlineLayerDisk << "/"
+                << offlineEta       << "/"
+                << offlinePhi       << "/"
+                << offlineSide      << "/"
+                << offlineStrip);
   
   // Create offline Identifier for this module position, wafer,chip and strip
   m_moduleId = m_id_sct->module_id(offlineBarrelEC, offlineLayerDisk, offlinePhi, offlineEta);
@@ -137,10 +137,10 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Current Run.Event,Time: "
-		<< "[" << currentEvent->runNumber()
-		<< "." << currentEvent->eventNumber()
-		<< "," << currentEvent->timeStamp()
-		<< "]");
+                << "[" << currentEvent->runNumber()
+                << "." << currentEvent->eventNumber()
+                << "," << currentEvent->timeStamp()
+                << "]");
   
   //Make sure data was filled
   bool CalibChipDataFilled{m_ReadCalibChipDataSvc->filled()};
@@ -174,7 +174,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
       std::vector<float> NOdata{m_ReadCalibChipDataSvc->getNoiseOccupancyData(Id, side, whatNOdata)};
       ATH_MSG_INFO("Size of returned data: "<<NOdata.size());
       for (unsigned int i{0}; i<NOdata.size(); i++) {
-	ATH_MSG_INFO("The " << whatNOdata << " for chip number " << i << " on side " << side << " is: " << NOdata[i]);
+        ATH_MSG_INFO("The " << whatNOdata << " for chip number " << i << " on side " << side << " is: " << NOdata[i]);
       }
       
       // Try to get some INVALID NPtGain data

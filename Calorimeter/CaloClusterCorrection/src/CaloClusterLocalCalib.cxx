@@ -41,21 +41,12 @@ StatusCode  CaloClusterLocalCalib::initialize() {
   }
   //Retrieve classification tool (if necessary)
   if (m_classificationTool.size()>0) {
-    StatusCode sc=m_classificationTool[0].retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve classification tool " << m_classificationTool[0] << endmsg;
-      return sc;
-    }
+    ATH_CHECK(m_classificationTool.retrieve());
     msg(MSG::INFO) << "Found classification tool " << m_classificationTool[0] << endmsg;
   }
 
   //Retrieve calibration tools
-  for (ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
-    if(tool.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve calibration tool " << m_classificationTool << endmsg;
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK(m_calibTools.retrieve());
   msg(MSG::INFO) <<"Loaded "<< m_calibTools.size() <<" hadronic calibration tools"<<endmsg;
   
   // check that at least one reco status is defined

@@ -11,18 +11,17 @@ atlas_depends_on_subdirs( PRIVATE
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Component(s) in the package:
 atlas_add_library( POOLCore
                    src/*.cpp
                    PUBLIC_HEADERS POOLCore
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} )
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 atlas_add_test( CommandOptions_test
                 SOURCES
                 test/CommandOptions_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} POOLCore )
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} POOLCore )
 

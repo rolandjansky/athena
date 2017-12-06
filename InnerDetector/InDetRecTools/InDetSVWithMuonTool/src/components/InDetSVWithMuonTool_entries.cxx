@@ -1,19 +1,6 @@
 #include "InDetSVWithMuonTool/InDetSVWithMuonTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
 using namespace InDet;
 
-DECLARE_TOOL_FACTORY( InDetSVWithMuonTool )
-DECLARE_FACTORY_ENTRIES( InDetSVWithMuonTool ) {
-    DECLARE_TOOL( InDetSVWithMuonTool );
-}
-//Notes:
-//
-//1. The argument to the DECLARE_FACTORY_ENTRIES(XXX) is the name of the
-//   component library (libXXX.so).
-//2. Each Algorithm that is contained in the library should be declared
-//   by the DECLARE_ALGORITHM() statement.
-//3. Each Service that is contained in the library should be declared
-//   by the DECLARE_SERVICE() statement.
-// 
-// See Athena User Guide for more information
+DECLARE_COMPONENT( InDetSVWithMuonTool )
+

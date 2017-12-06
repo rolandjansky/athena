@@ -209,7 +209,7 @@ namespace ViewHelper
   /**
    * @arg unique_index - gets appended to the view name if >= 0
    */
-  inline SG::View* makeView( const std::string& common_name, int unique_index=-1, bool allowFallThrough=false) {
+  inline SG::View* makeView( const std::string& common_name, int unique_index=-1, bool allowFallThrough = true) {
 	  return  (( unique_index == -1 ) ?
 		   new SG::View( common_name, allowFallThrough ) :
 		   new SG::View( common_name+ " "+std::to_string(unique_index), allowFallThrough ) );

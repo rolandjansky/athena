@@ -7,8 +7,6 @@ atlas_subdir( DetDescrConditions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/SGTools
 			  Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier
@@ -31,12 +29,12 @@ atlas_add_library( DetDescrConditions
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} SGTools AthenaPoolUtilities Identifier GaudiKernel
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolUtilities Identifier GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( DetDescrConditionsDict
                       DetDescrConditions/DetDescrConditionsDict.h
                       DetDescrConditions/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} SGTools AthenaPoolUtilities Identifier GaudiKernel DetDescrConditions )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaPoolUtilities Identifier GaudiKernel DetDescrConditions )
 

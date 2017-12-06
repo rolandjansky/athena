@@ -35,7 +35,6 @@
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
-#include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "LumiBlockComps/ILuminosityTool.h" 
 

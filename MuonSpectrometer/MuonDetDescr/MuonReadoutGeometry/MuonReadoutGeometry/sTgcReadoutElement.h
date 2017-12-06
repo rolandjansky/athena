@@ -150,15 +150,21 @@ namespace MuonGM {
     std::vector<int> m_nPads;
     int m_nlayers;
     
-    int m_ml;  
+    int m_ml;
+
+    int m_sTGC_type;
 
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;
 
-    // surface dimensions
+    // surface dimensions for strips
     std::vector<double> m_halfX;
     std::vector<double> m_minHalfY;
     std::vector<double> m_maxHalfY;
+    // surface dimensions for pads and wires
+    std::vector<double> m_PadhalfX;
+    std::vector<double> m_PadminHalfY;
+    std::vector<double> m_PadmaxHalfY;
 
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];

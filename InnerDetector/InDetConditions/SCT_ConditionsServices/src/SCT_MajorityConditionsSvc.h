@@ -6,7 +6,7 @@
  * @file SCT_MajorityConditionsSvc.h
  * header file for service 
  * @author gwilliam@mail.cern.ch
-**/
+ **/
 
 #ifndef SCT_MajorityConditionsSvc_h
 #define SCT_MajorityConditionsSvc_h
@@ -14,18 +14,20 @@
 // STL includes
 #include <string>
 #include <list>
+#include <mutex>
 
 // Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
-
-#include "AthenaKernel/IIOVSvc.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "SCT_ConditionsServices/ISCT_DetectorLevelConditionsSvc.h"
+#include "SCT_ConditionsData/SCT_MajorityCondData.h"
+
+// Read Handle Key
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
@@ -37,20 +39,20 @@ class StatusCode;
  * Service which reports on whether the majority of the SCT (or component) is in LV/HV on state with 
  * at least a fraction (default 0.9) of the HV in that state
  * 
-**/
+ **/
 
-class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc, virtual public AthService{
+class SCT_MajorityConditionsSvc: virtual public ISCT_DetectorLevelConditionsSvc, virtual public AthService {
   friend class SvcFactory<SCT_MajorityConditionsSvc>;
-public:
 
+ public:
   //@name Service methods
   //@{
-  SCT_MajorityConditionsSvc( const std::string & name, ISvcLocator* svc);
-  virtual ~SCT_MajorityConditionsSvc(){}
+  SCT_MajorityConditionsSvc(const std::string& name, ISvcLocator* svc);
+  virtual ~SCT_MajorityConditionsSvc() {}
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-  static const InterfaceID & interfaceID();
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  static const InterfaceID& interfaceID();
   //@}
   
   /**Is the detector good?*/
@@ -60,33 +62,32 @@ public:
   virtual bool                             isGood(int bec);
   
   /**Manually get the data in the structure before proceding*/
-  virtual StatusCode                       fillData(){return StatusCode::FAILURE;}
+  virtual StatusCode                       fillData() { return StatusCode::FAILURE; }
   
   /**Fill data from an IOVDbSvc callback*/
-  virtual StatusCode                       fillData(int& i , std::list<std::string>& l);
+  virtual StatusCode                       fillData(int& /*i*/, std::list<std::string>& /*l*/) { 
+    return StatusCode::FAILURE; 
+  };
   
   /**Are the data available?*/
   virtual bool                             filled() const;
   
   /**Can the data be filled during the initialize phase?*/
-  virtual bool                             canFillDuringInitialize(){ return false; }
+  virtual bool                             canFillDuringInitialize() { return false; }
 
-private:
-  bool                                     m_filled;                        //!< Had the data been filled?
-  ServiceHandle<StoreGateSvc>              m_detStore;                      //!< Handle on the detector store
-  ServiceHandle<IIOVSvc>                   m_IOVSvc;                        //!< Handle on the IOV service
-  const DataHandle<CondAttrListCollection> m_dataMajority;                  //!< Handle for majority data
-  std::map<int, int>                       m_majorityState;                 //!< Map to store majority state 
-  std::map<int, float>                     m_hvFraction;                    //!< Map to store HV fraction
+ private:
   bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC
   float                                    m_majorityFraction;              //!< Required fraction in majority state
-  
 
-  /** Retreive a given folder from the DB*/
-  StatusCode                               retrieveFolder(const DataHandle<CondAttrListCollection> &pDataVec, const std::string & folderName);
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cache;
+  // Pointer of SCT_MajorityCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MajorityCondData> m_condData;
 
-  enum {HighAndLowVoltageOK=17, // 17 = 0x11 -> majority state for both LV and HV.
-	OVERALL=110, BARREL=111, ECA=114, ECC=115};
+  SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey;
+  const SCT_MajorityCondData* getCondData(const EventContext& ctx) const;
 };
 
-#endif
+#endif // SCT_MajorityConditionsSvc_h

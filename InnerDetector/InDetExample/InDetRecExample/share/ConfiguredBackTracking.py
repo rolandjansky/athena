@@ -206,6 +206,7 @@ class ConfiguredBackTracking:
                                                                        minTRTHits           = NewTrackingCuts.minSecondaryTRTonTrk(),
                                                                        SummaryTool          = InDetTrackSummaryTool)
          else:
+            have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
             from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
             InDetTRT_SeededScoringTool = InDet__InDetAmbiScoringTool(name                    = 'InDetTRT_SeededScoringTool',
                                                                      Extrapolator            = InDetExtrapolator,
@@ -226,7 +227,7 @@ class ConfiguredBackTracking:
                                                                      useSCT                  = NewTrackingCuts.useSCT(),
                                                                      minTRTonTrk             = NewTrackingCuts.minSecondaryTRTonTrk(),
                                                                      minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac(),
-                                                                     doEmCaloSeed = DetFlags.detdescr.Calo_allOn())
+                                                                     doEmCaloSeed            = have_calo_rois)
             if not InDetTRT_SeededScoringTool.doEmCaloSeed:
                InDetTRT_SeededScoringTool.InputEmClusterContainerName = ''
                                                                      

@@ -30,6 +30,7 @@ IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
     m_owns(maxHash, false),
     m_maker (maker)
 {
+   for(auto &h : m_vec) h.store(nullptr, std::memory_order_relaxed); //Ensure initialized to null
 }
 
 
@@ -48,9 +49,7 @@ void IdentifiableCacheBase::clear (deleter_f* deleter)
     m_owns[hash] = false;
   }
   m_ids.clear();
-
-//debug
-  for(auto& h : m_vec) h = nullptr;
+  for(auto& h : m_vec) h.store(nullptr, std::memory_order_relaxed); //This should not be being called in a thread contensious situation
 }
 
 void IdentifiableCacheBase::cleanUp (deleter_f* deleter)
@@ -65,7 +64,7 @@ void IdentifiableCacheBase::cleanUp (deleter_f* deleter)
 const void* IdentifiableCacheBase::find (IdentifierHash hash) const
 {
   if (hash >= m_vec.size()) return nullptr;
-  const void* p = m_vec[hash];
+  const void* p = m_vec[hash].load(std::memory_order_relaxed);
   if (p == INVALID)
     return nullptr;
   return p;

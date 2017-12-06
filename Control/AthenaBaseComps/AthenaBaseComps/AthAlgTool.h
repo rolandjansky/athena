@@ -21,11 +21,13 @@
 namespace SG {
   class VarHandleKey;
   class VarHandleKeyArray;
+  class VarHandleBase;
 }
 namespace Gaudi {
   namespace Parsers {
     StatusCode parse(SG::VarHandleKey& v, const std::string& s);
     StatusCode parse(SG::VarHandleKeyArray& v, const std::string& s);
+    StatusCode parse(SG::VarHandleBase& v, const std::string& s);
   }
 }
 
@@ -36,28 +38,25 @@ namespace Gaudi {
 #include "AthenaBaseComps/AthMemMacros.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/HandleClassifier.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
 #include "StoreGate/VarHandleKeyProperty.h"
 #include "StoreGate/VarHandleKey.h"
+#include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
 #include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
 
 class AthAlgTool : 
-  public ::AlgTool,
-  public ::AthMessaging
+  public ::AlgTool
 { 
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
 public: 
-
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
 
   // Copy constructor: 
 
@@ -101,10 +100,8 @@ public:
 
   template <class T>
   Property& declareProperty(Gaudi::Property<T> &t) {
-    return AthAlgTool::declareGaudiProperty(t, 
-                                            std::is_base_of<SG::VarHandleKey, T>(),
-                                            std::is_base_of<SG::VarHandleKeyArray, T>()
-                                            );
+    typedef typename SG::HandleClassifier<T>::type htype;
+    return AthAlgTool::declareGaudiProperty(t, htype());
   }
 
 private:
@@ -113,9 +110,9 @@ private:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
-                                 std::true_type, std::false_type) {
-
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl,
+                                 const SG::VarHandleKeyType&)
+  {
     return *AthAlgTool::declareProperty(hndl.name(), hndl.value(), hndl.documentation());
   }
 
@@ -125,23 +122,22 @@ private:
    */
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
-                                 std::false_type, std::true_type) {
-
+                                 const SG::VarHandleKeyArrayType&)
+  {
     return *AthAlgTool::declareProperty(hndl.name(), hndl.value(), hndl.documentation());
-
   }
 
   /**
-   * @brief Error: can't be both a VarHandleKey and VarHandleKeyArray
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleBase>
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::true_type, std::true_type) {
-      ATH_MSG_ERROR("AthAlgTool::declareGaudiProperty: " << t 
-                    << " cannot be both a VarHandleKey and VarHandleKeyArray. "
-                    << "This should not happen!");
-      throw std::runtime_error("AthAlgTool::declareGaudiProperty: cannot be both a VarHandleKey and VarHandleKeyArray (this should not happen)!");
-    return AlgTool::declareProperty(t);
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 const SG::VarHandleType&)
+  {
+    return *AthAlgTool::declareProperty(hndl.name(), hndl.value(), 
+                                        hndl.documentation());
+
   }
 
   /**
@@ -150,7 +146,7 @@ private:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type, std::false_type) {
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, const SG::NotHandleType&) {
     return AlgTool::declareProperty(t);
   }
 
@@ -172,9 +168,8 @@ public:
    */
   Property* declareProperty(const std::string& name,
                             SG::VarHandleKey& hndl,
-                            const std::string& doc,
-                            std::true_type,
-                            std::false_type)
+                            const std::string& doc, 
+                            const SG::VarHandleKeyType&)
   {
     this->declare(hndl);
     hndl.setOwner(this);
@@ -185,11 +180,35 @@ public:
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documentation string for the property.
+   *
+   * This is the version for types that derive from @c SG::VarHandleBase.
+   * The property value object is put on the input and output lists as
+   * appropriate; then we forward to the base class.
+   */
+  Property* declareProperty(const std::string& name,
+                            SG::VarHandleBase& hndl,
+                            const std::string& doc,
+                            const SG::VarHandleType&)
+  {
+    this->declare(hndl.vhKey());
+    hndl.vhKey().setOwner(this);
+
+    return AlgTool::declareProperty(name,hndl,doc);
+  }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
   Property* declareProperty(const std::string& name,
                             SG::VarHandleKeyArray& hndArr,
                             const std::string& doc,
-                            std::false_type,
-                            std::true_type)
+                            const SG::VarHandleKeyArrayType&)
   {
 
     m_vhka.push_back(&hndArr);
@@ -252,8 +271,7 @@ public:
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc,
-                            std::false_type,
-                            std::false_type)
+                            const SG::NotHandleType&)
   {
     return AlgTool::declareProperty(name, property, doc);
   }
@@ -266,18 +284,15 @@ public:
    * @param doc Documentation string for the property.
    *
    * This dispatches to either the generic @c declareProperty or the one
-   * for VarHandle/Key, depending on whether or not @c property
-   * derives from @c SG::VarHandleKey or SG::VarHandleKeyArray.
+   * for VarHandle/Key/KeyArray.
    */
   template <class T>
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc="none")
   {
-    return declareProperty (name, property, doc,
-                            std::is_base_of<SG::VarHandleKey, T>(),
-                            std::is_base_of<SG::VarHandleKeyArray,T>()
-                            );
+    typedef typename SG::HandleClassifier<T>::type htype;
+    return declareProperty (name, property, doc, htype());
   }
 
 
@@ -310,6 +325,17 @@ public:
    */
   virtual std::vector<Gaudi::DataHandle*> outputHandles() const override;
 
+
+  // forward to CommonMessaging
+  inline MsgStream& msg() const {
+    return msgStream();
+  }
+  inline MsgStream& msg(const MSG::Level lvl) const {
+    return msgStream(lvl);
+  }
+  inline bool msgLvl(const MSG::Level lvl) const {
+    return msgLevel(lvl);
+  }
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

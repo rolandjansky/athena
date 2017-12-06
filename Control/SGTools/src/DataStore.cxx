@@ -221,11 +221,15 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
     for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
          i != clids.end(); ++i)
     {
+      if (*i == clid) continue;
       m_keyMap.erase (m_pool.stringToKey (name, *i));
       storeIter = m_storeMap.find(*i);
       if (storeIter != m_storeMap.end()) {
-        if (1 == storeIter->second.erase(name))
+        SG::ProxyIterator it = storeIter->second.find (name);
+        if (it != storeIter->second.end() && it->second == proxy) {
+          storeIter->second.erase (it);
           proxy->release();
+        }
       }
     } //symlinks loop
 
@@ -465,23 +469,6 @@ StatusCode DataStore::tRange(ConstStoreIterator& tf,
 {
   tf = m_storeMap.begin();
   te = m_storeMap.end();
-  return StatusCode::SUCCESS;
-}
-//---------------------------------------------------------------//
-// Build a list of proxies that are in the Store:
-StatusCode DataStore::proxyList(std::list<DataProxy*>& plist) const
-{
-  ConstProxyIterator pf, pe;
-  ConstStoreIterator sf, se;
-  (tRange(sf, se)).ignore();
-  for (; sf!=se; sf++) 
-  {
-    (pRange(sf->first, pf, pe)).ignore();
-    for (; pf!=pe; pf++) {
-      // FIXME : Check validity of proxy.
-      plist.push_back(pf->second);
-    }
-  }
   return StatusCode::SUCCESS;
 }
 //---------------------------------------------------------------//

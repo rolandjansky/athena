@@ -52,7 +52,7 @@ atlas_add_component( CaloTools
    ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES}
    ${CLHEP_LIBRARIES} CaloConditions CaloDetDescrLib CaloEvent CaloGeoHelpers
-   CaloIdentifier AthenaBaseComps AthenaKernel DataModel StoreGateLib
+   CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib
    AthenaPoolUtilities AtlasDetDescr Identifier GaudiKernel LArIdentifier
    LArRecEvent LArToolsLib LumiBlockCompsLib TileConditionsLib TileEvent
    CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo
@@ -61,4 +61,4 @@ atlas_add_component( CaloTools
 # Install files from the package:
 atlas_install_headers( CaloTools )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.txt share/*.py )
+atlas_install_joboptions( share/*.py )

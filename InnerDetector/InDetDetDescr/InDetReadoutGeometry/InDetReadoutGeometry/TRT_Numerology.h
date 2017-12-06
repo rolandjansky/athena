@@ -8,8 +8,8 @@
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef _TRTNUMEROLOGY_H_
-#define _TRTNUMEROLOGY_H_
+#ifndef INDETREADOUTGEOMETRY_TRTNUMEROLOGY_H
+#define INDETREADOUTGEOMETRY_TRTNUMEROLOGY_H
 
 namespace InDetDD {
   
@@ -49,13 +49,13 @@ namespace InDetDD {
     
     private:
     
-      unsigned int _nlayerBarrel[3];
-      unsigned int _nlayerEndcap[18];
+      unsigned int m_nlayerBarrel[3];
+      unsigned int m_nlayerEndcap[18];
 
-      unsigned int _nringBarrel;
-      unsigned int _nphiBarrel;
-      unsigned int _nwheelEndcap;
-      unsigned int _nphiEndcap;
+      unsigned int m_nringBarrel;
+      unsigned int m_nphiBarrel;
+      unsigned int m_nwheelEndcap;
+      unsigned int m_nphiEndcap;
   };
 }
 #include "TRT_Numerology.icc"

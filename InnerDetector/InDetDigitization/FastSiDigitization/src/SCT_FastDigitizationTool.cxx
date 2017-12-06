@@ -1003,7 +1003,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
       std::vector<Identifier>::const_iterator existingClusterRDOIter = existingClusterRDOList.begin();
       for( ; existingClusterRDOIter != existingClusterRDOList.end(); ++existingClusterRDOIter)
         {
-          if(abs(existingClusterRDOIter->get_compact() - potentialClusterRDOIter->get_compact()) < 2)
+	  if(std::abs(static_cast<Identifier::diff_type>(existingClusterRDOIter->get_compact() - potentialClusterRDOIter->get_compact())) < 2)
             {
               isNeighbour = true;
               break;

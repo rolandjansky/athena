@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Execute common slice code
+echo  "Execute Athena"
 
 ### DEFAULTS
 
@@ -13,7 +13,7 @@ if [ -z ${EVENTS} ]; then
 fi
 
 if [ -z ${JOBOPTION} ]; then
-  export JOBOPTION="testCommonSliceAthenaTrigRDO.py"
+  export JOBOPTION="TriggerTest/testCommonSliceAthenaTrigRDO.py"
 fi
 
 if [ -z ${JOB_LOG} ]; then
@@ -50,6 +50,10 @@ else
   export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1","/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000002.pool.root.1"]'
 fi
 
+trap 'PREVIOUS_COMMAND=$THIS_COMMAND; THIS_COMMAND=$BASH_COMMAND' DEBUG
+
+######################################
+
 athena.py -b -c \
 "enableCostMonitoring=${COST_MONITORING};\
 RunningRTT=True;\
@@ -61,6 +65,10 @@ jp.Rec.OutputLevel=WARNING;\
 ${EXTRA}\
 LVL1OutputLevel=WARNING;\
 HLTOutputLevel=WARNING;" \
-TriggerTest/${JOBOPTION} | tee ${JOB_LOG}
+${JOBOPTION} | tee ${JOB_LOG}
 
-export ATH_EXIT=$?
+######################################
+
+COMMAND=$PREVIOUS_COMMAND ATH_RETURN=${PIPESTATUS[0]}
+echo "Command to reproduce: ${COMMAND}"
+echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"

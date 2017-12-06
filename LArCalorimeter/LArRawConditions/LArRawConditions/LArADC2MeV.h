@@ -39,10 +39,10 @@ class LArADC2MeV {
   const size_t m_nGains;
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArADC2MeV, 87645297, 1)
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArADC2MeV>, 155872295, 0)
+CONDCONT_DEF (LArADC2MeV, 155872295);
 
 #endif
 

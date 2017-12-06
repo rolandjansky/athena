@@ -18,7 +18,7 @@ from AthenaCommon.SystemOfUnits import GeV,MeV,deg
 # New configuration for use in rel 19.X with xAOD
 # Adapted from egammaRec/egammaGetter.py
 # Factory tools, handles configuration of tools and dependencies
-from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyValue 
+from egammaRec.Factories import Factory, PublicToolFactory, FcnWrapper, getPropertyValue 
 
 # Import tools required for trigger reconstruction
 # Following offline tools not used at HLT: 
@@ -33,8 +33,6 @@ from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 ElectronPidTools()
 PhotonPidTools()
-from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-lumiTool = LuminosityToolOnline()
 
 # Following tools have TrigEgamma factories
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
@@ -42,7 +40,7 @@ from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 from egammaTools.egammaToolsConf import EMPIDBuilder
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
-TrigCaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
+TrigCaloFillRectangularCluster = PublicToolFactory( Cccc.CaloFillRectangularCluster,
         name = "trigegamma_CaloFillRectangularCluster",
         eta_size = 5,
         phi_size = 7,
@@ -51,12 +49,12 @@ TrigCaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
 from AthenaCommon.GlobalFlags import globalflags
 isMC = not globalflags.DataSource()=='data'
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
-IsoCorrectionToolTrig = ToolFactory(ICT,
+IsoCorrectionToolTrig = PublicToolFactory(ICT,
                                     name = "NewLeakageCorrToolTrig",
                                     IsMC = isMC)
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
 from CaloIdentifier import SUBCALO
-TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloIsolationTool",
+TrigCaloIsolationTool = PublicToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloIsolationTool",
         doEnergyDensityCorrection = False,
         saveOnlyRequestedCorrections = True,
         IsoLeakCorrectionTool          = IsoCorrectionToolTrig,
@@ -65,9 +63,9 @@ TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCa
         HadCaloNums = [SUBCALO.LARHEC,SUBCALO.TILE])
 
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
-TrigCaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,CaloClusterLocation = "CaloCalTopoCluster")
+TrigCaloClustersInConeTool = PublicToolFactory(xAOD__CaloClustersInConeTool,CaloClusterLocation = "CaloCalTopoCluster")
 
-TrigCaloTopoIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloTopoIsolationTool",
+TrigCaloTopoIsolationTool = PublicToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloTopoIsolationTool",
         doEnergyDensityCorrection = True,
         saveOnlyRequestedCorrections = True,
         IsoLeakCorrectionTool          = IsoCorrectionToolTrig,
@@ -77,14 +75,14 @@ TrigCaloTopoIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgam
         TopoClusterEDCentralContainer = "HLTTopoClusterIsoCentralEventShape",
         TopoClusterEDForwardContainer = "HLTTopoClusterIsoForwardEventShape")
 
-TrigTrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
+TrigTrackIsolationTool = PublicToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
 
 TrkIsoCfg = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
 TrkIsoCfg.TrackSelectionTool.maxZ0SinTheta = 3.
 TrkIsoCfg.TrackSelectionTool.minPt = 1000.
 TrkIsoCfg.TrackSelectionTool.CutLevel = "Loose"
 
-TrigElectronPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronPIDBuilder",
+TrigElectronPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigElectronPIDBuilder",
     electronIsEMselectors = [ToolSvc.AsgElectronIsEMVLooseSelector,
         ToolSvc.AsgElectronIsEMLooseSelector,
         ToolSvc.AsgElectronIsEMMediumSelector,
@@ -97,10 +95,9 @@ TrigElectronPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronPIDBuild
         ToolSvc.AsgElectronLHTightSelector],
     electronLHselectorResultNames= ["LHVLoose","LHLoose","LHMedium","LHTight"],
     UseLuminosityTool = True,
-    LuminosityTool = lumiTool
 )
 
-TrigElectronCaloPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronCaloPIDBuilder",
+TrigElectronCaloPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigElectronCaloPIDBuilder",
     electronLHselectors = [ToolSvc.AsgElectronLHVLooseCaloSelector,
         ToolSvc.AsgElectronLHLooseCaloSelector,
         ToolSvc.AsgElectronLHMediumCaloSelector,
@@ -108,10 +105,9 @@ TrigElectronCaloPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronCalo
     electronLHselectorResultNames= ["LHCaloVLoose","LHCaloLoose","LHCaloMedium","LHCaloTight"],
     LHValueName = "LHCaloValue",
     UseLuminosityTool = True,
-    LuminosityTool = lumiTool
 )
 
-TrigPhotonPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigPhotonPIDBuilder",
+TrigPhotonPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigPhotonPIDBuilder",
     photonIsEMselectors= [ToolSvc.AsgPhotonIsEMLooseSelector,
         ToolSvc.AsgPhotonIsEMMediumSelector,
         ToolSvc.AsgPhotonIsEMTightSelector],
@@ -123,7 +119,7 @@ def appendtoTrigEMTrackMatchBuilder(tool):
     if not hasattr(tool,"EMExtrapolationTools"):
         tool += EMExtrapolationTools()
 
-TrigEMTrackMatchBuilder = EMTrackMatchBuilder.copy(
+TrigEMTrackMatchBuilder = EMTrackMatchBuilder.copyPublic(
     name = "TrigEMTrackMatchBuilder",
     postInit=[appendtoTrigEMTrackMatchBuilder],
     broadDeltaEta      = 0.2, #For offline 0.1
@@ -133,7 +129,7 @@ TrigEMTrackMatchBuilder = EMTrackMatchBuilder.copy(
 
 )
 
-TrigEMShowerBuilder = EMShowerBuilder.copy(
+TrigEMShowerBuilder = EMShowerBuilder.copyPublic(
   name = "TrigEgammaShowerBuilder", 
   CellsName = "",
   Print = True,
@@ -144,7 +140,7 @@ from egammaMVACalib import egammaMVACalibConf
 mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
 mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
 EgammaSliceFlags.calibMVAVersion.set_On()
-TrigEgammaMVACalibTool = ToolFactory(egammaMVACalibConf.egammaMVATool,name="TrigEgammaMVACalibTool",
+TrigEgammaMVACalibTool = PublicToolFactory(egammaMVACalibConf.egammaMVATool,name="TrigEgammaMVACalibTool",
         folder=EgammaSliceFlags.calibMVAVersion(),use_layer_corrected = False)
 
 from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMaker

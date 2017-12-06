@@ -5,6 +5,7 @@
 // $Id: CaloRingerPhotonsReader.cxx 752568 2016-06-03 16:03:21Z ssnyder $
 // =============================================================================
 #include "CaloRingerPhotonsReader.h"
+#include "StoreGate/ReadHandle.h"
 
 #include <algorithm>
 
@@ -15,7 +16,6 @@ CaloRingerPhotonsReader::CaloRingerPhotonsReader(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent)
   : CaloRingerInputReader(type, name, parent),
-    m_container(nullptr),
     m_clRingsBuilderPhotonFctor(0)
     //m_selectorAvailable(false)
 {
@@ -23,13 +23,6 @@ CaloRingerPhotonsReader::CaloRingerPhotonsReader(const std::string& type,
   // declare interface
   declareInterface<ICaloRingerPhotonsReader>(this);
 
-  // @brief Electron selectors.
-  declareProperty("PhotonSelectors", m_ringerSelectors,
-      "The ASG Photon Selectors.");
-
-  // Result names for each asg selector
-  declareProperty("ResultNames", m_ringerSelectorResultNames, 
-      "The ASG Selectors result names.");
 }
 
 // =============================================================================
@@ -44,10 +37,12 @@ StatusCode CaloRingerPhotonsReader::initialize()
 
   CHECK( CaloRingerInputReader::initialize() );
 
+  ATH_CHECK(m_inputPhotonContainerKey.initialize());
+
   if ( m_builderAvailable ) {
     // Initialize our fctor 
     m_clRingsBuilderPhotonFctor = 
-      new BuildCaloRingsFctor<xAOD::Photon>(
+      new BuildCaloRingsFctor<const xAOD::Photon>(
           m_crBuilder, 
           msg() );
   }
@@ -68,20 +63,20 @@ StatusCode CaloRingerPhotonsReader::execute()
   ATH_MSG_DEBUG("Entering " << name() << " execute.");
 
   // Retrieve photons 
-  if ( evtStore()->retrieve(m_container, m_inputKey).isFailure() )
-  {
-    ATH_MSG_ERROR("Cannot retrieve photon container " << m_inputKey );
+  SG::ReadHandle<xAOD::PhotonContainer> photons(m_inputPhotonContainerKey);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!photons.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve "<< m_inputPhotonContainerKey.key());
     return StatusCode::FAILURE;
   }
 
-
   if ( m_builderAvailable ) {
-    m_clRingsBuilderPhotonFctor->prepareToLoopFor(m_container->size());
+    m_clRingsBuilderPhotonFctor->prepareToLoopFor(photons->size());
 
     // loop over our particles:
     std::for_each( 
-        m_container->begin(), 
-        m_container->end(), 
+        photons->begin(), 
+        photons->end(), 
         *m_clRingsBuilderPhotonFctor );
   }
 

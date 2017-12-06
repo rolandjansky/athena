@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/IInterface.h"
 #include <string>
+#include <map>
 
 /// @brief IService to read/write HepMC's WeightContainer key names from/to IOVMetaDataContainers
 ///  author: will buttinger , NLAA

@@ -1,7 +1,7 @@
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
-                                          running on p05614910w96644.cern.ch on Wed Jun 28 19:34:24 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Mon Oct 30 13:22:03 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -10,10 +10,10 @@ HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 166 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 259 CLIDRegistry entries for module ALL
 VarHandleKey::assign failure: SG::ExcBadHandleKey: Bad key format for VarHandleKey: `key "FeeSvc+foo/aac": keys with "/" only allowed for ConditionStore - store is "FeeSvc"'
-ClassIDSvc           INFO  getRegistryEntries: read 931 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 904 CLIDRegistry entries for module ALL
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
-                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: m_storeHandle.retrieve()
+                    ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: FooSvc
                     ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot initialize a Read/Write/Update handle with a null key.

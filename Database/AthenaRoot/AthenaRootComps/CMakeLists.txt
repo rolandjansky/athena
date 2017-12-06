@@ -32,19 +32,20 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Core Graf Tree MathCore Hist pthread )
 find_package( Xrootd )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( AthenaRootComps
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools AthenaBaseComps AthenaKernel DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo)
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} SGTools AthenaBaseComps AthenaKernel DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo)
 
 # Install files from the package:
 atlas_install_headers( AthenaRootComps )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/tests/*.py )
-atlas_install_scripts( test/*.sh test/ref.* )
+atlas_install_scripts( test/*.sh test/ref.* test/*.py )
 
 
 atlas_add_test( test_athena_ntuple_dumper_multiple
@@ -93,3 +94,14 @@ atlas_add_test( test_athena_variable_shape_merged
 set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
                       PROPERTIES DEPENDS
                       "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
+                    
+atlas_add_test( test_athena_multtuple
+                SCRIPT test/test_athena_multtuple.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+                    
+atlas_add_test( test_athena_multtuple_seek
+                SCRIPT test/test_athena_multtuple_seek.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+

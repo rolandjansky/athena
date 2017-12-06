@@ -1,6 +1,0 @@
-package GeoModelInterfaces
-
-use AtlasPolicy      AtlasPolicy-*
-use AthenaKernel     AthenaKernel-*      Control
-use CLIDSvc          CLIDSvc-*           Control
-use GaudiInterface   GaudiInterface-*    External

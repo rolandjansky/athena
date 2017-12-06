@@ -147,7 +147,7 @@ StatusCode TruthJetFilterTool::execute()
 	m_WZleptons.clear();
 
   // Fetch input collection.
-  const McEventCollection* mc_in;
+  const McEventCollection* mc_in = nullptr;
   CHECK( evtStore()->retrieve (mc_in, m_resolver.key()) );
 
   // Create output collection.

@@ -51,6 +51,7 @@ namespace MuonGM {
     double Length;
     double sWidth;
     double lWidth;
+    double Size;
     double thickness;
     mutable double radialDistance; ///< DT-2015-11-29 distance from the beamline to the center of the module
 

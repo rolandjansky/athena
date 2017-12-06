@@ -48,12 +48,12 @@ template < typename particle_t > struct GetParticleProp;
   }
 
 // Declare Ringer known particles:
-DECLARE_RINGER_KNOWN_PARTICLE( xAOD::Electron  , true  ) 
-DECLARE_RINGER_KNOWN_PARTICLE( xAOD::Photon    , true  ) 
+DECLARE_RINGER_KNOWN_PARTICLE( const xAOD::Electron  , true  ) 
+DECLARE_RINGER_KNOWN_PARTICLE( const xAOD::Photon    , true  ) 
 
 // Ringer can be run with IParticles, but it won't use cluster information
 // since it is not available:
-DECLARE_RINGER_KNOWN_PARTICLE( xAOD::IParticle , false ) 
+DECLARE_RINGER_KNOWN_PARTICLE( const xAOD::IParticle , false ) 
 
 #undef DECLARE_RINGER_KNOWN_PARTICLE
 

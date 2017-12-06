@@ -31,9 +31,11 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
 
   //! this is the main decoding method
   virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
-			      SCT_RDO_Container&,
+                              ISCT_RDO_Container&,
                               InDetBSErrContainer* errs) = 0;
 
+  //Replace the incident calls with private calls, more MT friendly
+  virtual void BeginNewEvent() = 0;
 };
 
 

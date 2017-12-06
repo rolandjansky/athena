@@ -13,7 +13,6 @@ atlas_depends_on_subdirs(
    Control/AthLinks
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CLIDSvc
    Control/CxxUtils
    Control/DataModelRoot
    Control/SGTools

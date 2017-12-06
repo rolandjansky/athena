@@ -8,13 +8,9 @@
 #ifndef LARTTL1CONTAINER_H
 #define LARTTL1CONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LArRawEvent/LArTTL1.h"
-
-//#ifndef CLIDSVC_CLASSDEF_H
-//#include "CLIDSvc/CLASS_DEF.h"
-//#endif
 
 
 /**

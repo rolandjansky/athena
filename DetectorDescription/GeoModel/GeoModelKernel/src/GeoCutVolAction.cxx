@@ -12,11 +12,11 @@
 
 GeoCutVolAction::GeoCutVolAction(const GeoShape& Shape,
 				 const HepGeom::Transform3D& Transform)
-  :GeoVolumeAction (GeoVolumeAction::TOP_DOWN),
-   m_physVol(0),
-   m_shape(Shape),
-   m_transform(Transform),
-   m_copyStack(new std::stack<GeoPhysVol*>)
+  : GeoVolumeAction (GeoVolumeAction::TOP_DOWN)
+  , m_physVol(0)
+  , m_shape(Shape)
+  , m_transform(Transform)
+  , m_copyStack(new std::stack<GeoPhysVol*>)
 {
 }
 

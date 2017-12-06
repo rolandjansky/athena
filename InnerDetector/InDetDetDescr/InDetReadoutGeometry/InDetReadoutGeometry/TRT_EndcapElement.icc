@@ -5,16 +5,16 @@
 namespace InDetDD {
   inline const TRT_EndcapElement * TRT_EndcapElement::nextInZ() const
     {
-      return _nextInZ;
+      return m_nextInZ;
     }
   
   inline const TRT_EndcapElement * TRT_EndcapElement::previousInZ() const
     {
-      return _previousInZ;
+      return m_previousInZ;
     }
   
   inline const TRT_EndcapCode & TRT_EndcapElement::getCode() const
     {
-      return _code;
+      return m_code;
     }
 }

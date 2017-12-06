@@ -27,6 +27,7 @@ Most of the informations are given separately for each layer of the EM calorimet
 #include "CaloUtils/CaloCellList.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class IToolSvc;
 class CaloCellContainer;
@@ -55,14 +56,21 @@ class egammaOQFlagsBuilder : public egammaBaseTool
 
  private:
   /** Handle to bad-channel tools */
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
-  ToolHandle<LArCablingService> m_larCablingSvc;
-  ToolHandle<ICaloAffectedTool> m_affectedTool;
+  ToolHandle<ILArBadChanTool> m_badChannelTool {this,
+      "LArBadChannelTool", "LArBadChanTool", "This is the larBadChannelTool"};
+
+  ToolHandle<LArCablingService> m_larCablingSvc {this,
+      "LArCablingService", "LArCablingService", "LArCablingService"};
+
+  ToolHandle<ICaloAffectedTool> m_affectedTool {this,
+      "affectedTool", "CaloAffectedTool", "CaloAffectedTool"};
+
   const LArEM_ID* m_emHelper;
   const CaloCell_ID* m_calocellId;
   const CaloAffectedRegionInfoVec* m_affRegVec;
-  const CaloCellContainer* m_cellcoll;
-  std::string m_cellsName;
+
+  SG::ReadHandleKey<CaloCellContainer> m_cellsKey {this,
+      "CellsName", "AllCalo","Names of container which contain cells"};
 
   // IToolSvc* m_toolSvc;
   bool isCore(Identifier Id, const std::vector<IdentifierHash>& neighbourList) const;
@@ -72,14 +80,14 @@ class egammaOQFlagsBuilder : public egammaBaseTool
 
   Identifier m_cellCentrId;
   bool findCentralCell(const xAOD::CaloCluster* cluster);
-  StoreGateSvc* m_detStore;
-  double m_QCellCut;
-  double m_QCellHECCut;
-  double m_QCellSporCut;
-  double m_LArQCut;
-  double m_TCut;
-  double m_TCutVsE;
-  double m_RcellCut;
+
+  Gaudi::Property<double> m_QCellCut {this, "QCellCut", 4000.};
+  Gaudi::Property<double> m_QCellHECCut {this, "QCellHECCut", 60000.};
+  Gaudi::Property<double> m_QCellSporCut {this, "QCellSporCut", 4000.};
+  Gaudi::Property<double> m_LArQCut {this, "LArQCut", 0.8};
+  Gaudi::Property<double> m_TCut {this, "TCut", 10.0};
+  Gaudi::Property<double> m_TCutVsE {this, "TCutVsE", 2.0};
+  Gaudi::Property<double> m_RcellCut {this, "RcellCut", 0.8};
 };
 
 #endif
