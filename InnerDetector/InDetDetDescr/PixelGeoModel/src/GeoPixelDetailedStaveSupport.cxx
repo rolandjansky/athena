@@ -557,7 +557,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double flex_angle=((maxFlex1x-maxFlex4x)*(foam1x-foam5x)+(maxFlex1y-maxFlex4y)*(foam1y-foam5y))/(FlexWidth*FoamBaseWidth);
   flex_angle=acos(flex_angle);
   const GeoMaterial* cableflex_material = m_mat_mgr->getMaterial("pix::CableFlex_IBL");
-  double flexDensity=cableflex_material->getDensity();
+  //double flexDensity=cableflex_material->getDensity();
 
   m_gmt_mgr->msg(MSG::INFO)<<"Flex angle : "<<flex_angle<<"  Flex pos. in Z : ";
   double EndblockFlexXpos=0.;
