@@ -56,7 +56,6 @@ public:
                                   std::map<std::string,TSeqCollection*>* outputMap, TSeqCollection *outputList );
   
   virtual TObject* GetReference( std::string& groupName, std::string& name );
-  //static std::string SplitReference( std::string );
   virtual const HanConfigAssessor* GetAssessor( std::string& groupName, std::string& name ) const;
 
   virtual void GetRegexList( std::set<std::string>& regexlist );
@@ -95,9 +94,6 @@ protected:
     TFile* outfile;
     HanConfig::DirMap_t& directories;
     TMap* m_refsourcedata;
-    // File cache
-    mutable std::map<std::string, std::shared_ptr<TFile> > m_filecache;
-    std::shared_ptr<TFile> GetROOTFile(std::string& fname) const;
   };
   
   

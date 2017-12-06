@@ -85,8 +85,7 @@ void
 HanConfig::
 AssembleAndSave( std::string infileName, std::string outfileName )
 {
-  std::unique_ptr< TFile > outfile( TFile::Open( outfileName.c_str(),
-                                                 "RECREATE" ) );
+  TFile* outfile = TFile::Open( outfileName.c_str(), "RECREATE" );
   DirMap_t directories;
   
   // Collect reference histograms and copy to config file
@@ -94,7 +93,7 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   refconfig.AddKeyword("reference");
   refconfig.ReadFile(infileName);
   TMap refsourcedata;
-  RefVisitor refvisitor( outfile.get(), directories, &refsourcedata );
+  RefVisitor refvisitor( outfile, directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
   
   // Collect threshold definitions
@@ -124,23 +123,23 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   MiniConfig compalgconfig;
   compalgconfig.AddKeyword("compositealgorithm");
   compalgconfig.ReadFile(infileName);
-  CompAlgVisitor compalgvisitor(outfile.get(), compalgconfig);
+  CompAlgVisitor compalgvisitor(outfile, compalgconfig);
   compalgconfig.SendVisitor(compalgvisitor);
   
   MiniConfig metadataconfig;
   metadataconfig.AddKeyword("metadata");
   metadataconfig.ReadFile(infileName);
-  MetadataVisitor metadatavisitor(outfile.get(), metadataconfig);
+  MetadataVisitor metadatavisitor(outfile, metadataconfig);
   metadataconfig.SendVisitor(metadatavisitor);
 
   // Assemble into a hierarchical configuration
   outfile->cd();
-  std::unique_ptr< HanConfigGroup > root( new HanConfigGroup() );
-
-  RegionVisitor regvisitor( root.get(), algconfig, thrconfig, refconfig, directories );
+  HanConfigGroup* root = new HanConfigGroup();
+  
+  RegionVisitor regvisitor( root, algconfig, thrconfig, refconfig, directories );
   regconfig.SendVisitor( regvisitor );
   
-  AssessmentVisitor histvisitor( root.get(), algconfig, thrconfig, refconfig, outfile.get(), 
+  AssessmentVisitor histvisitor( root, algconfig, thrconfig, refconfig, outfile, 
 				 directories, &refsourcedata );  
   histconfig.SendVisitor( histvisitor );
   
@@ -149,6 +148,7 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   root->Write();
   outfile->Write();
   outfile->Close();
+  delete root;
 }
 
 void
@@ -271,7 +271,7 @@ SplitReference(std::string refPath, std::string refName )
     refPath.erase(0, pos + delimiter.length());
   }
   refFileList.push_back(refPath);
-
+  
   //Try to open each file in the list
   for(std::size_t i=0; i<refFileList.size(); i++){
     std::string fileName=refFileList.at(i)+refName;
@@ -365,10 +365,11 @@ Visit( const MiniConfigTreeNode* node ) const
     TObjString* fnameostr = new TObjString(fileName.c_str());
     m_refsourcedata->Add(new TObjString(newHistoName.c_str()),
 			 fnameostr);
-    if (! m_refsourcedata->FindObject(fileName.c_str())) {
-      m_refsourcedata->Add(fnameostr, refInfo != "" ? new TObjString(refInfo.c_str())
-			   : new TObjString("Reference"));
-    }  
+    if (refInfo != "") {
+      if (! m_refsourcedata->FindObject(fileName.c_str())) {
+	m_refsourcedata->Add(fnameostr, new TObjString(refInfo.c_str()));
+      }  
+    }
   }
 }
 
@@ -386,23 +387,6 @@ AssessmentVisitorBase( HanConfigGroup* root_, const MiniConfig& algConfig_,
   , directories(directories_)
   , m_refsourcedata(refsourcedata_)
 {
-}
-
-std::shared_ptr<TFile>
-HanConfig::AssessmentVisitorBase::
-GetROOTFile( std::string& fname ) const
-{
-  auto it = m_filecache.find(fname);
-  if (it != end(m_filecache)) {
-    return it->second;
-  } else {
-    std::shared_ptr<TFile> thisptr(TFile::Open(fname.c_str()));
-    if (thisptr.get()) {
-      return ( m_filecache[fname] = thisptr );
-     } else {
-      return thisptr;
-    }	  
-  }
 }
 
 float AttribToFloat(const MiniConfigTreeNode* node, const std::string attrib,
@@ -512,16 +496,11 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	      algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
 	    }
 	    if( algRefFile != "" ) {
-	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
-	      if ( ! infile.get() ) {
-		std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
-		continue;
-	      }
+	      std::auto_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
 	      TKey* key = getObjKey( infile.get(), absAlgRefName );
 	      if( key == 0 ) {
-		// Quiet this error ...
-		//std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
-		//<< "Reference not found: \"" << absAlgRefName << "\"\n";
+		std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
+			  << "Reference not found: \"" << absAlgRefName << "\"\n";
 		continue;
 	      }
 	      // TDirectory* dir = ChangeOutputDir( outfile, absAlgRefName, directories );
@@ -563,10 +542,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    newRefId=CS.getNewReferenceName(algRefName,true);
 	    if(newRefId.empty()){
 	      std::cerr<<"Warning New reference id is empty for refId=\""
-		       <<refID<<"\", cond=\""<<cond<<"\", assessorName=\""
-		       <<assessorName<<"\", algRefName=\""
-		       <<algRefName<<"\""<<std::endl;
-	      std::cerr << "AlgRefPath=" << algRefPath << " AlgRefInfo=" << algRefInfo << std::endl;
+		       <<refID<<"\", cond=\""<<cond<<"\", assessorName= \""
+		       <<assessorName<<"\""<<std::endl;
 	    }
 	  }
 	} 
@@ -864,8 +841,7 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string objPath("");
       std::string absObjPath("");
       
-      //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
-      std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
+      std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
       TDirectory* basedir(0);
       TDirectory* dir(0);
       TKey* key;
