@@ -38,7 +38,6 @@ SCT_LinkMaskingTestAlg::~SCT_LinkMaskingTestAlg()
 
 //Initialize
 StatusCode SCT_LinkMaskingTestAlg::initialize(){
-  StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO)<< "Calling initialize" << endmsg;
   
   // Retrieve link masking service
