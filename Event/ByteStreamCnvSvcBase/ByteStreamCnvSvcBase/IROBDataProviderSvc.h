@@ -23,7 +23,8 @@
 class IROBDataProviderSvc : virtual public IInterface {
 
 public:
-   typedef std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> VROBFRAG;
+  typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
+  typedef std::vector<const ROBF*> VROBFRAG;
 
    /// Retrieve interface ID
   //   static const InterfaceID& interfaceID() { return IID_IROBDataProviderSvc; }
@@ -33,7 +34,7 @@ public:
    virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") = 0 ;
 
    /// Add a given LVL1/LVL2 ROBFragment to cache
-   virtual void setNextEvent(const std::vector<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>& result) = 0 ;
+   virtual void setNextEvent(const std::vector<ROBF>& result) = 0 ;
 
 
    /// Add all ROBFragments of a RawEvent to cache
@@ -58,16 +59,16 @@ public:
 
    // variants for MT, it has an implementation for now in order not to require change in all implementations yet, they will all become pure virtual methods
    virtual void addROBData(const EventContext& /*context*/, const std::vector<uint32_t>& /*robIds*/, const std::string callerName="UNKNOWN") { 
-     throw std::runtime_error( std::string( "Unimplemented ") + __FUNCTION__ + callerName) ; 
+     throw std::runtime_error( std::string( callerName+" is using unimplemented ") + __FUNCTION__ ) ; 
    }
-   virtual void setNextEvent(const EventContext& /*context*/, const std::vector<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>& /*result*/) {
+   virtual void setNextEvent(const EventContext& /*context*/, const std::vector<ROBF>& /*result*/) {
      throw std::runtime_error( std::string("Unimplemented ") + __FUNCTION__ ); 
    }
    virtual void setNextEvent( const EventContext& /*context*/, const RawEvent* /*re*/) {
      throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
    }
    virtual void getROBData(const EventContext& /*context*/, const std::vector<uint32_t>& /*robIds*/, VROBFRAG& /*robFragments*/, const std::string callerName="UNKNOWN") { 
-     throw std::runtime_error( std::string( "Unimplemented ") + __FUNCTION__ + callerName) ; 
+     throw std::runtime_error( std::string( callerName+" is using unimplemented ") + __FUNCTION__ ) ; 
    }
    virtual const RawEvent* getEvent(const EventContext& /*context*/) {
      throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
@@ -79,6 +80,44 @@ public:
      throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
      return 0;
    }
+   
+  // additional interface for online use
+  /// Return vector with all ROBFragments stored in the cache 
+  // TB this name seems to be missleading, would getCachedROBs be better?
+  virtual void getAllROBData(const EventContext& /*context*/, std::vector<const ROBF*>&) {
+    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );
+  }
+  
+  /// Dump the internal ROB cache
+  // TB given the getAllROBData is available isn't this only a convenience function? 
+  // i.e.: the implementation would be: svc->getCachedROBs(ctx,robs); .. print what is needed 
+  virtual std::string dumpROBcache(const EventContext& /*context*/) const {
+    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );      
+    return "";
+  }
+  
+  /// Return size of ROBFragments cache 
+  virtual int sizeROBCache(const EventContext& /*context*/) {
+    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );
+    return 0;
+  };
+
+  /// Check if complete event data are already in cache
+  virtual bool isEventComplete(const EventContext& /*context*/) {
+    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );      
+  } 
+
+  /// Collect all data for an event from the ROS and put them into the cache
+  /// Return value: number of ROBs which were retrieved to complete the event
+  /// Optinonally the name of the caller of this method can be specified for monitoring
+  virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string callerName="UNKNOWN") {
+    throw std::runtime_error(std::string(callerName + " is using unimplemented ") + __FUNCTION__ );
+    return 0;
+  }
+
+
+
+
 };
 
 #endif
