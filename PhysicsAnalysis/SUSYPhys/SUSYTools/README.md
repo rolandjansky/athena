@@ -14,20 +14,27 @@ The recommended tags are on the [background forum TWiki page](https://twiki.cern
 AnalysisBase / AthAnalysisBase Setup
 ------------------------------------
 
-Because these two releases are becoming more similar, most of the instructions are the same.  These instructions refer to 21.2.8 as an example, but you should pick the appropriate version when setting up.  Set up the latest recommended AnalysisBase release::
+Because these two releases are becoming more similar, most of the instructions are the same.  These instructions refer to 21.2.11 as an example, but you should pick the appropriate version when setting up.  Set up the latest recommended AnalysisBase release::
 
 ```bash
 setupATLAS
 lsetup git
-asetup AnalysisBase,21.2.10
+asetup AnalysisBase,21.2.11
 ```
 
 Or the latest AthAnalysis release::
 
 ```bash
 setupATLAS
-asetup AthAnalysis,21.2.10
+asetup AthAnalysis,21.2.11
 ```
+
+For early R&D study, if you are unsure about which release to use, "latest" literally brings you to the latest nightly release::
+```bash
+asetup 21.2,AnalysisBase,latest
+```
+
+[Release 21.2 Note](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AnalysisBaseReleaseNotes21_2) details the difference among the releases. 
 
 For working with code, a sparse checkout is pretty straightforward.  
 (In order for this to work, you need your own fork of the athena project, see the [ATLAS git tutorial](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork/))  

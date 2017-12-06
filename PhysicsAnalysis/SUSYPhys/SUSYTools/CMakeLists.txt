@@ -153,7 +153,7 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_SUSYTools_test_xs_files
       SOURCES test/ut_SUSYTools_test_xs_files.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} SampleHandler )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} SampleHandler AsgTools)
    #  Veto lines:  Timing (can change night to night); cvmfs path (changes every night); local SUSYTools data directory (so local builds pass)
    #  build path (for nightlies and CI builds - note that CI has Analysis*/build/Analysis*, while NICOS has build/build/Analysis*...)
    atlas_add_test( ut_SUSYTools_config_checker
@@ -167,17 +167,25 @@ if( XAOD_STANDALONE )
    set_tests_properties( SUSYTools_ut_SUSYTools_wp_checker_ctest PROPERTIES TIMEOUT 700)
    atlas_add_test( ut_SUSYToolsTester_atlfast
       SOURCES test/ut_SUSYToolsTester_atlfast.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
       EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
    atlas_add_test( ut_SUSYToolsTester_data
       SOURCES test/ut_SUSYToolsTester_data.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
       EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
    # Needs just a little extra time to be sure we get 100% success
    set_tests_properties( SUSYTools_ut_SUSYToolsTester_data_ctest PROPERTIES TIMEOUT 180)
    atlas_add_test( ut_SUSYToolsTester_mc
       SOURCES test/ut_SUSYToolsTester_mc.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
       EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
    atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi
       SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools
       EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt")
 endif()
 

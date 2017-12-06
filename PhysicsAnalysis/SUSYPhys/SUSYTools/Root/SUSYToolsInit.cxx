@@ -153,13 +153,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   std::string jetname("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
   std::string jetcoll(jetname + "Jets");
+  std::string calibArea("00-04-81"); 
 
   if (!m_jetCalibTool.isUserConfigured()) {
     toolName = "JetCalibTool_" + jetname;
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName); 
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC16Recommendation_Nov2017.config");
+    std::string JES_config_file("JES_MC16Recommendation_28Nov2017.config");
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
@@ -193,7 +194,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       //Note! : There is no origin correction explicitly included in the PFlow JES
       //
       
-      JES_config_file = "JES_MC16Recommendation_PFlow_Nov2017.config"; 
+      JES_config_file = "JES_MC16Recommendation_PFlow_28Nov2017.config"; 
 
       calibseq = "JetArea_Residual_EtaJES_GSC";
 
@@ -211,6 +212,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("JetCollection", jetname) );
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
+    ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
     ATH_CHECK( m_jetCalibTool.retrieve() );
   }
@@ -223,7 +225,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config");
+    std::string JES_config_file("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config");
     //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
 
     // form the string describing the calibration sequence to use
@@ -233,6 +235,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFatCalibTool.setProperty("JetCollection", fatjetcoll) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", calibseq) );
+    ATH_CHECK( m_jetFatCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetFatCalibTool.retrieve() );
   }
