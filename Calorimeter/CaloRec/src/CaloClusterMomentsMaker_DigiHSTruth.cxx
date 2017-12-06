@@ -133,7 +133,6 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
     m_larHVFraction(nullptr),
     m_absOpt(false) 
 {
-  declareInterface<CaloClusterCollectionProcessor> (this);
   // Name(s) of Moments to calculate
   declareProperty("MomentsNames",m_momentsNames);
 
@@ -177,12 +176,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
 {
 
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
-    return sc;
-  }
+  ATH_CHECK(service("GeoModelSvc", geoModel));
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -196,7 +190,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
   {
     return StatusCode::SUCCESS;
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
