@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/MomentumConservationTool.h"
 
 namespace G4UA
@@ -21,8 +20,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   std::unique_ptr<MomentumConservation>  MomentumConservationTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<MomentumConservation>();
-    return std::move(action);
+    return std::make_unique<MomentumConservation>();
   }
 
 } // namespace G4UA
