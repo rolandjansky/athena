@@ -7,10 +7,10 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
+
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
-#include "MuonPrepRawData/MdtPrepDataContainer.h"
+
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
@@ -49,16 +49,16 @@ namespace Muon {
     AthAlgTool(type, name, parent),
     m_mdtIdHelper(0),
     m_DeltaAlphaCut(0),
-    m_nMDT(0),
-    m_PI(3.1415927),
     m_BIL(28.4366),
     m_BML(62.8267),
     m_BMS(53.1259),
-    m_BOL(29.7554)
+    m_BOL(29.7554),
+    m_mdtTESKey("MDT_DriftCircles"),
+    m_TPContainer("MSonlyTracklets")
   {
     declareInterface<IMSVertexTrackletTool>(this);    
 
-    declareProperty("xAODTrackParticleContainer",m_TPContainer = "MSonlyTracklets");
+    declareProperty("xAODTrackParticleContainer", m_TPContainer );
     // max residual for tracklet seeds
     declareProperty("SeedResidual",m_SeedResidual = 5);
     // segment fitter chi^2 cut
@@ -71,6 +71,8 @@ namespace Muon {
     declareProperty("EndcapDeltaAlpha",m_EndcapDeltaAlphaCut = 0.015);
     // tight tracklet requirement (affects efficiency - disabled by default)
     declareProperty("TightTrackletRequirement",m_tightTrackletRequirement = false);
+    declareProperty("mdtTES", m_mdtTESKey);
+    
   }
 
 
@@ -79,24 +81,17 @@ namespace Muon {
 
   StatusCode MSVertexTrackletTool::initialize() {
     
-    if( AthAlgTool::initialize().isFailure() ) {
-      ATH_MSG_ERROR("Failed to initialize AthAlgTool " );
-      return StatusCode::FAILURE;
-    }
-    
-    if(detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER").isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve the mdtIdHelper");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
     s_mdtCompareIdHelper = m_mdtIdHelper;
 
-    //CONSTANTS
-    m_PI = 3.1415927;
     //Delta Alpha Constants -- p = k/(delta_alpha)
     m_BIL = 28.4366;//MeV*mrad
     m_BML = 62.8267;//MeV*mrad
     m_BMS = 53.1259;//MeV*mrad
     m_BOL = 29.7554;//MeV*mrad
+
+    ATH_CHECK(m_mdtTESKey.initialize());
+    ATH_CHECK(m_TPContainer.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -123,31 +118,25 @@ namespace Muon {
 
   StatusCode MSVertexTrackletTool::findTracklets(std::vector<Tracklet>& tracklets) {
 
-    //sort the MDT hits into chambers & MLs
-    std::vector<std::vector<Muon::MdtPrepData*> > SortedMdt;
-    m_nMDT = SortMDThits(SortedMdt);   
 
-    if (m_nMDT<=0) {
 
-      //record TrackParticle container in StoreGate
-      xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
-      if(evtStore()->record( container, m_TPContainer ).isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleContainer with key " << m_TPContainer);
-	return StatusCode::SUCCESS;
-      }
-      
-      xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-      if(evtStore()->record( aux, m_TPContainer + "Aux." ).isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleAuxContainer with key " << m_TPContainer << "Aux");
-	return StatusCode::SUCCESS;
-      }
-      container->setStore(aux);
-      
+    SG::WriteHandle<xAOD::TrackParticleContainer> container(m_TPContainer);
+    //record TrackParticle container in StoreGate
+
+    ATH_CHECK( container.record (std::make_unique<xAOD::TrackParticleContainer>(),
+                           std::make_unique<xAOD::TrackParticleAuxContainer>()) );
+
+   //sort the MDT hits into chambers & MLs
+    std::vector<std::vector<const Muon::MdtPrepData*> > SortedMdt;
+
+    int nMDT = SortMDThits(SortedMdt);   
+
+    if (nMDT<=0) {   
       return StatusCode::SUCCESS;
     }
 
     if (msgLvl(MSG::DEBUG)) 
-      msg(MSG::DEBUG) << m_nMDT << " MDT hits are selected and sorted" << endmsg;
+      msg(MSG::DEBUG) << nMDT << " MDT hits are selected and sorted" << endmsg;
 
     //loop over the MDT hits and find segments
     //select the tube combinations to be fit
@@ -160,18 +149,18 @@ namespace Muon {
     */
     double d12_max = 50.; double d13_max = 80.;
 
-    static double errorCutOff = 0.001;
+    constexpr double errorCutOff = 0.001;
     std::vector<TrackletSegment> segs[6][2][16];//single ML segment array (indicies [station type][ML][sector])
-    std::vector<std::vector<Muon::MdtPrepData*> >::const_iterator ChamberItr = SortedMdt.begin();
+    std::vector<std::vector<const Muon::MdtPrepData*> >::const_iterator ChamberItr = SortedMdt.begin();
     for(; ChamberItr != SortedMdt.end(); ++ChamberItr) {      
       std::vector<TrackletSegment> mlsegments;
       //loop on hits inside the chamber
-      std::vector<Muon::MdtPrepData*>::const_iterator mdt1 = ChamberItr->begin();
-      std::vector<Muon::MdtPrepData*>::const_iterator mdtEnd = ChamberItr->end();
+      std::vector<const Muon::MdtPrepData*>::const_iterator mdt1 = ChamberItr->begin();
+      std::vector<const Muon::MdtPrepData*>::const_iterator mdtEnd = ChamberItr->end();
       int stName = m_mdtIdHelper->stationName((*mdt1)->identify());
       int stEta = m_mdtIdHelper->stationEta((*mdt1)->identify());
       if(stName == 6 || stName == 14 || stName == 15) continue; //ignore hits from BEE, EEL and EES
-      if(stName == 1 && fabs(stEta) >= 7) continue; //ignore hits from BIS7/8
+      if(stName == 1 && std::abs(stEta) >= 7) continue; //ignore hits from BIS7/8
       if(stName == 53 || stName == 54) continue; //ignore hits from BME and BMG
 
       //convert to the hardware sector [1-16]
@@ -188,7 +177,7 @@ namespace Muon {
         }
 	int tl1 = m_mdtIdHelper->tubeLayer((*mdt1)->identify());
 	if(tl1 == maxLayer) break;//require hits in at least 2 layers
-	std::vector<Muon::MdtPrepData*>::const_iterator mdt2 = (mdt1+1);
+	std::vector<const Muon::MdtPrepData*>::const_iterator mdt2 = (mdt1+1);
 	for(; mdt2 != mdtEnd; ++mdt2) {
 
           if( Amg::error( (*mdt2)->localCovariance(),Trk::locR) < errorCutOff ){
@@ -209,7 +198,7 @@ namespace Muon {
 	  }
 	  if( (tl2-tl1) == 0 && (m_mdtIdHelper->tube((*mdt2)->identify()) - m_mdtIdHelper->tube((*mdt1)->identify())) < 0) continue;	
 	  //find the third hit
-	  std::vector<Muon::MdtPrepData*>::const_iterator mdt3 = (mdt2+1);
+	  std::vector<const Muon::MdtPrepData*>::const_iterator mdt3 = (mdt2+1);
 	  for(; mdt3 != mdtEnd; ++mdt3) {
 
             if( Amg::error( (*mdt3)->localCovariance(),Trk::locR) < errorCutOff ){
@@ -231,7 +220,7 @@ namespace Muon {
 	      if(fabs(mdt1R-mdt3R) > d13_max) continue;
 	    }
 	    //store and fit the good combinations
-	    std::vector<Muon::MdtPrepData*> mdts;
+	    std::vector<const Muon::MdtPrepData*> mdts;
 	    mdts.push_back((*mdt1));
 	    mdts.push_back((*mdt2));
 	    mdts.push_back((*mdt3));
@@ -302,8 +291,8 @@ namespace Muon {
 		if(pTot >= 9999.) {
 		  //if we find a straight track, try to do a global refit to minimize the number of duplicates
 		  charge = 0;
-		  std::vector<Muon::MdtPrepData*> mdts = CleanSegs[st][0][sector].at(i1).mdtHitsOnTrack();
-		  std::vector<Muon::MdtPrepData*> mdts2 = CleanSegs[st][1][sector].at(i2).mdtHitsOnTrack();
+		  std::vector<const Muon::MdtPrepData*> mdts = CleanSegs[st][0][sector].at(i1).mdtHitsOnTrack();
+		  std::vector<const Muon::MdtPrepData*> mdts2 = CleanSegs[st][1][sector].at(i2).mdtHitsOnTrack();
 		  for(unsigned int k=0; k<mdts2.size(); ++k) mdts.push_back(mdts2.at(k));
 		  std::vector<TrackletSegment> CombinedSeg = TrackletSegmentFitter(mdts);
 		  if(CombinedSeg.size() > 0) {
@@ -349,8 +338,8 @@ namespace Muon {
 	      }//end barrel chamber selection
 	      else if(st >= 3) {//endcap tracklets
 		//always straight tracklets (no momentum measurement possible)
-		std::vector<Muon::MdtPrepData*> mdts = CleanSegs[st][0][sector].at(i1).mdtHitsOnTrack();
-		std::vector<Muon::MdtPrepData*> mdts2 = CleanSegs[st][1][sector].at(i2).mdtHitsOnTrack();
+		std::vector<const Muon::MdtPrepData*> mdts = CleanSegs[st][0][sector].at(i1).mdtHitsOnTrack();
+		std::vector<const Muon::MdtPrepData*> mdts2 = CleanSegs[st][1][sector].at(i2).mdtHitsOnTrack();
 		for(unsigned int k=0; k<mdts2.size(); ++k) mdts.push_back(mdts2.at(k));
 		std::vector<TrackletSegment> CombinedSeg = TrackletSegmentFitter(mdts);
 		if(CombinedSeg.size() > 0) {
@@ -383,7 +372,7 @@ namespace Muon {
     tracklets = ResolveAmbiguousTracklets(tracklets);
 
     //convert from tracklets to Trk::Tracks
-    convertToTrackParticles(tracklets);
+    convertToTrackParticles(tracklets, container);
 
     return StatusCode::SUCCESS;
   }
@@ -393,22 +382,8 @@ namespace Muon {
 
 
   //convert tracklets to Trk::Track and store in a TrackCollection
-  void MSVertexTrackletTool::convertToTrackParticles(std::vector<Tracklet>& tracklets) {
+  void MSVertexTrackletTool::convertToTrackParticles(std::vector<Tracklet>& tracklets, SG::WriteHandle<xAOD::TrackParticleContainer> &container) {
     
-    //record TrackParticle container in StoreGate
-    xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
-    if(evtStore()->record( container, m_TPContainer ).isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleContainer with key " << m_TPContainer);
-      return;
-    }
-    
-    xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-    if(evtStore()->record( aux, m_TPContainer + "Aux." ).isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleAuxContainer with key " << m_TPContainer << "Aux");
-      return;
-    }
-    container->setStore(aux);
-
     for(std::vector<Tracklet>::iterator trkItr=tracklets.begin(); trkItr!=tracklets.end(); ++trkItr) {
 
       //create the Trk::Perigee for the tracklet
@@ -444,12 +419,13 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  int MSVertexTrackletTool::SortMDThits(std::vector<std::vector<Muon::MdtPrepData*> >& SortedMdt) {
+  int MSVertexTrackletTool::SortMDThits(std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt) {
 
     SortedMdt.clear();
     int nMDT(0);
-    const Muon::MdtPrepDataContainer* mdtTES = 0;
-    if(evtStore()->retrieve(mdtTES,"MDT_DriftCircles").isFailure()) {
+
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtTES(m_mdtTESKey);
+    if(!mdtTES.isValid()) {
       if (msgLvl(MSG::DEBUG)) 
 	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endmsg;
       return 0;
@@ -475,14 +451,14 @@ namespace Muon {
       if(stName == 6 || stName == 14 || stName == 15) continue;
 
       // Doesn't consider hits belonging to chambers BIS7 and BIS8
-      if(stName == 1 && fabs(m_mdtIdHelper->stationEta((*mpdc)->identify())) >= 7) continue;
+      if(stName == 1 && std::abs(m_mdtIdHelper->stationEta((*mpdc)->identify())) >= 7) continue;
 
       // Doesn't consider hits belonging to BME or BMG chambers
       if(stName == 53 || stName == 54) continue;
 
       // sort per multi layer
-      std::vector<Muon::MdtPrepData*> hitsML1;
-      std::vector<Muon::MdtPrepData*> hitsML2;
+      std::vector<const Muon::MdtPrepData*> hitsML1;
+      std::vector<const Muon::MdtPrepData*> hitsML2;
 
       for(; mpdc != mpdcE; ++mpdc) {
 
@@ -517,7 +493,7 @@ namespace Muon {
     return nMDT;
   }
 
-  void MSVertexTrackletTool::addMDTHits( std::vector<Muon::MdtPrepData*>& hits, std::vector<std::vector<Muon::MdtPrepData*> >& SortedMdt ) const { 
+  void MSVertexTrackletTool::addMDTHits( std::vector<const Muon::MdtPrepData*>& hits, std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt ) const { 
     if( hits.empty() ) return;
 
     // calculate number of hits in ML
@@ -554,7 +530,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitter(std::vector<Muon::MdtPrepData*>& mdts) {
+  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitter(std::vector<const Muon::MdtPrepData*>& mdts) {
 
     //create the segment seeds
     std::vector<std::pair<float,float> > SeedParams = SegSeeds(mdts);
@@ -568,7 +544,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<std::pair<float,float> > MSVertexTrackletTool::SegSeeds(std::vector<Muon::MdtPrepData*>& mdts) {
+  std::vector<std::pair<float,float> > MSVertexTrackletTool::SegSeeds(std::vector<const Muon::MdtPrepData*>& mdts) {
 
     std::vector<std::pair<float,float> > SeedParams;
     //create seeds by drawing the 4 possible lines tangent to the two outermost drift circles
@@ -675,7 +651,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
   
-  float MSVertexTrackletTool::SeedResiduals(std::vector<Muon::MdtPrepData*>& mdts, float slope, float inter) {
+  float MSVertexTrackletTool::SeedResiduals(std::vector<const Muon::MdtPrepData*>& mdts, float slope, float inter) {
     //calculate the residual of the MDTs not used to create the seed
     float resid = 0;
     for(unsigned int i=1; i<(mdts.size()-1); ++i) {
@@ -691,7 +667,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitterCore(std::vector<Muon::MdtPrepData*>& mdts,std::vector<std::pair<float,float> >& SeedParams){
+  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitterCore(std::vector<const Muon::MdtPrepData*>& mdts,std::vector<std::pair<float,float> >& SeedParams){
     std::vector<TrackletSegment> segs;
     int stName = m_mdtIdHelper->stationName(mdts.at(0)->identify());
     float mlmidpt = 0;
@@ -717,7 +693,7 @@ namespace Muon {
       
       //Find the initial parameters of the fit
       float alpha = atan2(SeedParams.at(i_p).first,1.0);
-      if(alpha < 0) alpha += m_PI;
+      if(alpha < 0) alpha += M_PI;
       float dalpha = 0;
       float d = (SeedParams.at(i_p).second - yc + zc*SeedParams.at(i_p).first)*cos(alpha);
       float dd = 0;
@@ -888,12 +864,12 @@ namespace Muon {
 	//else, combine all like segments & refit
 	else if(segsToCombine.size() >= 1 ) {
 	  //create a vector of all unique MDT hits in the segments
-	  std::vector<Muon::MdtPrepData*> mdts = it->mdtHitsOnTrack();
+	  std::vector<const Muon::MdtPrepData*> mdts = it->mdtHitsOnTrack();
 	  for(unsigned int i=0; i<segsToCombine.size(); ++i) {
-	    std::vector<Muon::MdtPrepData*> tmpmdts = segsToCombine[i].mdtHitsOnTrack();
-	    for(std::vector<Muon::MdtPrepData*>::iterator mit=tmpmdts.begin(); mit!=tmpmdts.end(); ++mit) {
+	    std::vector<const Muon::MdtPrepData*> tmpmdts = segsToCombine[i].mdtHitsOnTrack();
+	    for(std::vector<const Muon::MdtPrepData*>::iterator mit=tmpmdts.begin(); mit!=tmpmdts.end(); ++mit) {
 	      bool isNewHit(true);
-	      for(std::vector<Muon::MdtPrepData*>::iterator msit=mdts.begin(); msit!=mdts.end(); ++msit) {
+	      for(std::vector<const Muon::MdtPrepData*>::iterator msit=mdts.begin(); msit!=mdts.end(); ++msit) {
 		if((*mit)->identify() == (*msit)->identify()) {
 		  isNewHit = false;
 		  break;
@@ -942,9 +918,9 @@ namespace Muon {
 		while(keeprefitting) {
 		  nItr2++;
 		  int nMinSeg(nSeg[0]);
-		  Muon::MdtPrepData* minmdt = mdts[0];
+		  const Muon::MdtPrepData* minmdt = mdts[0];
 		  std::vector<int> nrfsegs;
-		  std::vector<Muon::MdtPrepData*> refitmdts;
+		  std::vector<const Muon::MdtPrepData*> refitmdts;
 		  //loop on MDTs, identify the overlapping set of hits
 		  for(unsigned int i=1; i<mdts.size(); ++i) {		    
 		    if(nSeg[i] < nMinSeg) {
@@ -1184,8 +1160,8 @@ namespace Muon {
 	  }
 	  if(DistML1 < 40 || DistML2 < 40) {
 	    //find how many MDTs the tracks share
-	    std::vector<Muon::MdtPrepData*> mdt1 = tracks.at(tk1).mdtHitsOnTrack();
-	    std::vector<Muon::MdtPrepData*> mdt2 = tracks.at(tk2).mdtHitsOnTrack();
+	    std::vector<const Muon::MdtPrepData*> mdt1 = tracks.at(tk1).mdtHitsOnTrack();
+	    std::vector<const Muon::MdtPrepData*> mdt2 = tracks.at(tk2).mdtHitsOnTrack();
 	    nShared = 0;
 	    for(unsigned int m1=0; m1<mdt1.size(); ++m1) {
 	      for(unsigned int m2=0; m2<mdt2.size(); ++m2) {
@@ -1304,10 +1280,10 @@ namespace Muon {
 
       //Endcap tracks
       else if( (tracks.at(tk1).mdtChamber() > 11 && tracks.at(tk1).mdtChamber() <= 21) || tracks.at(tk1).mdtChamber() == 49 ) {
-	std::vector<Muon::MdtPrepData*> AllMdts;
+	std::vector<const Muon::MdtPrepData*> AllMdts;
 	for(unsigned int i=0; i<AmbigTracks.size(); ++i) {      
-	  std::vector<Muon::MdtPrepData*> mdts = AmbigTracks.at(i).mdtHitsOnTrack();
-	  std::vector<Muon::MdtPrepData*> tmpAllMdt = AllMdts;
+	  std::vector<const Muon::MdtPrepData*> mdts = AmbigTracks.at(i).mdtHitsOnTrack();
+	  std::vector<const Muon::MdtPrepData*> tmpAllMdt = AllMdts;
 	  for(unsigned int m1=0; m1<mdts.size(); ++m1) {
 	    bool isNewHit = true;
 	    for(unsigned int m2=0; m2<tmpAllMdt.size(); ++m2) {
