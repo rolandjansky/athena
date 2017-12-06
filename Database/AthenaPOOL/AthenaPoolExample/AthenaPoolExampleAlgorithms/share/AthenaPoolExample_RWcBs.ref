@@ -1,4 +1,4 @@
-Fri Nov  3 18:50:02 CET 2017
+Wed Dec  6 21:53:28 CET 2017
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -7,14 +7,14 @@ Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RWcBsJobOptions.py"
 Athena               INFO including file "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5424 configurables from 57 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5437 configurables from 60 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus045.cern.ch on Fri Nov  3 18:50:11 2017
+                                          running on lxplus020.cern.ch on Wed Dec  6 21:53:37 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -50,8 +50,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-11-02T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus045.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-05T2302/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus020.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -67,9 +67,9 @@ ReadData             INFO in initialize()
 ReadData            DEBUG input handles: 0
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
-Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 3841 CLIDRegistry entries for module ALL
 Stream1             DEBUG Property update for OutputLevel : new value = 2
+Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
+ClassIDSvc           INFO  getRegistryEntries: read 3895 CLIDRegistry entries for module ALL
 Stream1             DEBUG In initialize 
 Stream1             DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
@@ -78,9 +78,11 @@ Stream1             DEBUG In initialize
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
+Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 ClassIDSvc           INFO  getRegistryEntries: read 402 CLIDRegistry entries for module ALL
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
 Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
+Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
 Stream1              INFO Data output: SimplePoolFromRaw.root
@@ -93,14 +95,15 @@ Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEve
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaPoolOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
 WriteTag             INFO in initialize()
-RegStream1.RegS...  DEBUG Property update for OutputLevel : new value = 2
 RegStream1          DEBUG Property update for OutputLevel : new value = 2
+RegStream1.RegS...  DEBUG Property update for OutputLevel : new value = 2
 RegStream1          DEBUG In initialize 
 RegStream1          DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
 RegStream1          DEBUG End initialize 
 RegStream1          DEBUG In initialize 
 RegStream1          DEBUG Found  'StoreName':StoreGateSvc store.
+RegStream1.TagTool  DEBUG Property update for OutputLevel : new value = 2
 RegStream1          DEBUG  Tool initialized
 RegStream1          DEBUG Retrieved IncidentSvc
 RegStream1          DEBUG Added MetaDataStop listener
@@ -112,11 +115,9 @@ RegStream1          DEBUG output handles: 0
 RegStream1          DEBUG Adding private ToolHandle tool RegStream1.TagTool (RegistrationStreamTagTool)
 RegStream1          DEBUG Data Deps for RegStream1
 HistogramPersis...WARNING Histograms saving not required.
-EventSelector        INFO reinitialization...
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
 EventSelector     WARNING InputCollections not properly set, checking EventStorageInputSvc properties
 EventSelector        INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
-EventSelector        INFO reinitialization...
 EventSelector        INFO Retrieved InputCollections from InputSvc
 ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
 ByteStreamInputSvcWARNING ProcessBadEvent property has been moved to EventSelector, please use svgMgr.EventSelector.ProcessBadEvent instead
@@ -351,7 +352,7 @@ MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
 SimplePoolFromR...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (a , ffffffff)
 SimplePoolFromR...  DEBUG ---->ClassID:????
-ClassIDSvc           INFO  getRegistryEntries: read 20 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 4
 Stream1             DEBUG Leaving handle
 RegStream1          DEBUG handle() incident type: MetaDataStop
@@ -367,8 +368,6 @@ Stream1             DEBUG finalize: Optimize output
 Stream1             DEBUG finalize: end optimize output
 WriteTag             INFO in finalize()
 RegStream1          DEBUG In finalize
-ReadBs              DEBUG Calling destructor
-ReadData            DEBUG Calling destructor
 IncidentProcAlg2     INFO Finalize
 EventInfoByteSt...   INFO finalize 
 DecisionSvc          INFO Finalized successfully.
@@ -379,11 +378,11 @@ ToolSvc.ByteStr...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 12
-cRepR_ALL            INFO Time User   : Tot=   40 [ms] Ave/Min/Max= 2.11(+- 5.21)/    0/   20 [ms] #= 19
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #=  4
-cRep_ALL             INFO Time User   : Tot=  110 [ms] Ave/Min/Max= 9.17(+- 17.1)/    0/   60 [ms] #= 12
-ChronoStatSvc        INFO Time User   : Tot= 1.24  [s]                                             #=  1
+fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 12
+cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max= 1.58(+- 4.88)/    0/   20 [ms] #= 19
+cRep_ALL             INFO Time User   : Tot=   80 [ms] Ave/Min/Max= 6.67(+- 13.7)/    0/   50 [ms] #= 12
+ChronoStatSvc        INFO Time User   : Tot= 1.14  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
