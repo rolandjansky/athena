@@ -531,13 +531,24 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
       // create the particle to be put into ISF stack
       const G4ThreeVector &momG4 = dynPar->GetMomentum();
       Amg::Vector3D mom( momG4.x(), momG4.y(), momG4.z() );
+
+      //Let's make sure the new ISFParticle get some valid TruthBinding and HepMcParticleLink objects
+      ISF::TruthBinding* truthBinding = NULL;
+      if (parent->getTruthBinding()) {
+ 	        ATH_MSG_VERBOSE("Could retrieve TruthBinding from original ISFParticle");
+ 	        truthBinding = new ISF::TruthBinding(*parent->getTruthBinding());
+      }
+      else
+ 	        ATH_MSG_WARNING("Could not retrieve TruthBinding from original ISFParticle, might cause issues later on.");
       ISF::ISFParticle* cParticle = new ISF::ISFParticle( position,
                                                           mom,
                                                           parDef->GetPDGMass(),
                                                           parDef->GetPDGCharge(),
                                                           parDef->GetPDGEncoding(),
                                                           time, 
-                                                          *parent );
+                                                          *parent,
+							  Barcode::fUndefinedBarcode,
+							  truthBinding );
       cParticle->setNextGeoID( parent->nextGeoID() );
       cParticle->setNextSimID( parent->nextSimID() );
       // process sampling tool takes care of validation info
@@ -581,7 +592,13 @@ bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::V
   // push onto ParticleStack
 
   if (processSecondaries) {
-    for (unsigned int ic=0; ic<ispVec.size(); ic++) m_particleBroker->push(ispVec[ic], parent);
+    for (unsigned int ic=0; ic<ispVec.size(); ic++) {
+	//First let's make sure that new ISFParticles have valid truth info
+	if (!ispVec[ic]->getTruthBinding()) {
+		ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+	}
+	m_particleBroker->push(ispVec[ic], parent);
+    }
   }
 
   return true;

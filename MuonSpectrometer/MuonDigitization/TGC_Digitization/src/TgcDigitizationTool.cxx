@@ -33,6 +33,10 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
+static constexpr unsigned int crazyParticleBarcode(
+    std::numeric_limits<int32_t>::max());
+// Barcodes at the HepMC level are int
+
 TgcDigitizationTool::TgcDigitizationTool(const std::string& type, 
 					 const std::string& name,
 					 const IInterface* parent) : 
@@ -50,7 +54,8 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
   m_sdoContainer(0), 
   m_inputHitCollectionName("TGC_Hits"),
   m_outputDigitCollectionName("TGC_DIGITS"),
-  m_outputSDO_CollectionName("TGC_SDO")
+  m_outputSDO_CollectionName("TGC_SDO"),
+  m_vetoThisBarcode(crazyParticleBarcode) 
 {
   declareInterface<IMuonDigitizationTool>(this);
 
@@ -59,6 +64,8 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
   declareProperty("InputObjectName",  m_inputHitCollectionName    = "TGC_Hits",   "name of the input object");
   declareProperty("OutputObjectName", m_outputDigitCollectionName = "TGC_DIGITS", "name of the output object");
   declareProperty("OutputSDOsName",   m_outputSDO_CollectionName  = "TGC_SDO",    "name of the output object");
+  declareProperty("IncludePileUpTruth",  m_includePileUpTruth     =  true,        "Include pile-up truth info");
+  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode        =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 //--------------------------------------------
@@ -96,7 +103,10 @@ StatusCode TgcDigitizationTool::initialize()
   } else {
     ATH_MSG_INFO("Output digits: '" << m_outputDigitCollectionName << "'");
   }
-  
+
+  ATH_MSG_DEBUG("IncludePileUpTruth: " << m_includePileUpTruth);
+  ATH_MSG_DEBUG("ParticleBarcodeVeto: " << m_vetoThisBarcode);
+
   const IGeoModelSvc* geoModel = nullptr;
   CHECK( service("GeoModelSvc", geoModel) );
   std::string atlasVersion = geoModel->atlasVersion();
@@ -457,11 +467,17 @@ StatusCode TgcDigitizationTool::digitizeCore() {
             gpos = tgcChamber->localToGlobalCoords(hit.localPosition(),newDigiId);
           }
 
-	  // fill the SDO collection in StoreGate
+	  // fill the SDO collection in StoreGate if not pile-up
+      if (!m_includePileUpTruth &&
+          ((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) {
+        continue;
+      }
+
 	  // link to MC info
 	  //const HepMcParticleLink & particleLink = hit.particleLink();
 	  // create here deposit for MuonSimData, link and tof
 	  MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(), phit.eventId()), MuonMCData(tof, 0));
+
 	  std::vector<MuonSimData::Deposit> deposits;
 	  deposits.push_back(deposit);
           MuonSimData simData(deposits,0);

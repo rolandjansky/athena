@@ -132,6 +132,9 @@ void iGeant4::G4TransportTool::initializeOnce()
   }
   ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
   m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : nullptr;
+  if (!m_pRunMgr) {
+    throw std::runtime_error("G4RunManagerHelper::g4RunManager() returned nullptr.");
+  }
 
   if(m_physListTool.retrieve().isFailure()) {
     throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");

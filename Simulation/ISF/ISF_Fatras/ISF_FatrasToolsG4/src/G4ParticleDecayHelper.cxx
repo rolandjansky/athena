@@ -374,14 +374,21 @@ iFatras::G4ParticleDecayHelper::decayParticle(const ISF::ISFParticle& parent,
     const G4ThreeVector &mom= prod->GetMomentum();
     Amg::Vector3D amgMom( mom.x(), mom.y(), mom.z() );
 
-    // !< @TODO : insert truth binding 
+    ISF::TruthBinding * truthBinding = NULL;
+    if (parent.getTruthBinding()) {
+       ATH_MSG_VERBOSE("Could retrieve TruthBinding from original ISFParticle");
+       truthBinding = new ISF::TruthBinding(*parent.getTruthBinding());
+    }
+    else ATH_MSG_WARNING("Could not retrieve original TruthBinding  from ISFParticle");
     ISF::ISFParticle* childParticle = new ISF::ISFParticle( vertex,
                                                             amgMom,
                                                             prod->GetMass(),
                                                             prod->GetCharge(),
                                                             prod->GetPDGcode(),
                                                             timeStamp, 
-                                                            parent );
+                                                            parent,
+							    Barcode::fUndefinedBarcode,
+							    truthBinding );
 
     children.push_back( childParticle);
   }

@@ -157,11 +157,24 @@ _setup_python_package( pyflakes
    84a99f05e5409f8196325dda3f5a1b9a
    SINGLE_VERSION )
 
+# Install setuptools-scm
+_setup_python_package( setuptools-scm
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/setuptools_scm-1.15.6.tar.gz
+   f17493d53f0d842bb0152f214775640b
+   SINGLE_VERSION)
+
+# Install pytest-runner
+_setup_python_package( pytest-runner
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pytest-runner-3.0.tar.gz
+   8f8363a52bbabc4cedd5e239beb2ba11
+   DEPENDS setuptools-scm
+   SINGLE_VERSION)
+
 # Install flake8:
 _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
    3df622aac9bad27c04f34164609bbed8
-   DEPENDS pyflakes
+   DEPENDS pyflakes pytest-runner
    SINGLE_VERSION )
 
 # Install configparser:

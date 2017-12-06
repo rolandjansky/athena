@@ -20,6 +20,21 @@ if _perigee_expression == 'Vertex' :
     _perigee_expression = 'BeamLine'
     
 
+# Run the xAOD truth builder for PU if needed
+if InDetFlags.doSplitReco() :
+    from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+    xAODTruthCnvPU = xAODMaker__xAODTruthCnvAlg("xAODTruthCnvPU")
+    xAODTruthCnvPU.WriteInTimePileUpTruth = False
+    xAODTruthCnvPU.WriteAllPileUpTruth = True
+    xAODTruthCnvPU.AODContainerName = "GEN_EVENT_PU"
+    xAODTruthCnvPU.xAODTruthEventContainerName = "TruthEvents_PU" #output
+    xAODTruthCnvPU.xAODTruthPileupEventContainerName = "TruthPileupEvents_PU" #output
+    xAODTruthCnvPU.xAODTruthParticleContainerName = "TruthParticles_PU" #output
+    xAODTruthCnvPU.xAODTruthVertexContainerName = "TruthVertices_PU" #output
+    xAODTruthCnvPU.TruthLinks = "xAODTruthLinks_PU" #output/intermediate
+    xAODTruthCnvPU.MetaObjectName = "TruthMetaData_PU" #output
+    topSequence += xAODTruthCnvPU
+    
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
 InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool", 
                                                              Extrapolator            = InDetExtrapolator,

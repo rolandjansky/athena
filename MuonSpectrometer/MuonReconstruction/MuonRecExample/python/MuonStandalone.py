@@ -166,6 +166,8 @@ class MuonStandalone(ConfiguredMuonRec):
 
         
         if muonStandaloneFlags.createTrackParticles() and DetFlags.ID_on():
+            from AthenaCommon.Include import include
+            include("InDetBeamSpotService/BeamCondSvc.py" )
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
             xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
                                                                       TrackParticleCreator = getPublicTool("MuonParticleCreatorTool"),

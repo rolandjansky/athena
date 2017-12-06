@@ -450,6 +450,11 @@ ISF::ISFParticle* iFatras::McMaterialEffectsEngine::bremPhoton(const ISF::ISFPar
 
   }
 
+  //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+  if (!bremPhoton->getTruthBinding()) {
+         bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+  }
+
   return bremPhoton;
   
 } 
@@ -726,6 +731,10 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
       if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
       else validInfo->setGeneration(-1);        // signal problem in the validation chain
     }
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!regisp->getTruthBinding()) {
+ 	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
+    }
     m_particleBroker->push(regisp, m_isp);
   }
 
@@ -909,6 +918,10 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
       else validInfo->setProcess(-2);        // signal problem in the validation chain
       if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
       else validInfo->setGeneration(-1);        // signal problem in the validation chain
+    }
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!regisp->getTruthBinding()) {
+	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
     }
     m_particleBroker->push(regisp, m_isp);
   }

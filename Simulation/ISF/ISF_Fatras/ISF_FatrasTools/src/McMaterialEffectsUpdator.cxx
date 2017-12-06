@@ -505,6 +505,18 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 	else validInfo->setGeneration(-1);        // signal problem in the validation chain
 	regisp->setUserInformation(validInfo);
       }
+      // register TruthIncident
+      ISF::ISFParticleVector children(1, regisp);
+      ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*m_isp),
+                                   children,
+                                   (isp->getUserInformation()) ? isp->getUserInformation()->process() : -2 /*!< @TODO fix non-static */,
+                                   m_isp->nextGeoID(),
+                                   ISF::fKillsPrimary );
+      m_truthRecordSvc->registerTruthIncident( truth);
+      //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+      if (!regisp->getTruthBinding()) {
+	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
+      }
       m_particleBroker->push(regisp, m_isp);
     }
     if (isp!=m_isp) { delete isp; delete parm; }
@@ -644,7 +656,11 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       else validInfo->setProcess(-2);        // signal problem in the validation chain
       if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
       else validInfo->setGeneration(-1);        // signal problem in the validation chain
-   }
+    }
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!regisp->getTruthBinding()) {
+	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
+    }
     m_particleBroker->push(regisp, m_isp);
   }
 
@@ -1414,6 +1430,10 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhoton(double time,
                                  parent->nextGeoID(),
                                  ISF::fPrimarySurvives );
     m_truthRecordSvc->registerTruthIncident( truth);
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!bremPhoton->getTruthBinding()) {
+	bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
     m_particleBroker->push( bremPhoton, parent);
 
 
@@ -1538,6 +1558,11 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
                                  parent->nextGeoID(),
                                  ISF::fPrimarySurvives );
     m_truthRecordSvc->registerTruthIncident( truth);
+
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!bremPhoton->getTruthBinding()) {
+	bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
 
     // save info for validation
     if (m_validationMode && m_validationTool) {
@@ -1841,6 +1866,14 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
       delete nMom;
     }
 
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!children[0]->getTruthBinding()) {
+	children[0]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+    if (!children[1]->getTruthBinding()) {
+	children[1]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+
     return children;
   }
 
@@ -1867,7 +1900,14 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 	delete nMom;
       }
     }
-  
+ 
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    for (unsigned int i=0; i<childVector.size(); i++) {
+	if (!childVector[i]->getTruthBinding()) {
+		childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+	}
+    }
+ 
     return childVector;
   }
 
@@ -1909,6 +1949,13 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
       m_validationTool->saveISFVertexInfo(process,parm.position(),*parent,parm.momentum(),nMom,childVector);
       delete nMom;
     }
+  }
+
+  //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+  for (unsigned int i=0; i<childVector.size(); i++) {
+	if (!childVector[i]->getTruthBinding()) {
+		childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+	}
   }
     
   return childVector;
