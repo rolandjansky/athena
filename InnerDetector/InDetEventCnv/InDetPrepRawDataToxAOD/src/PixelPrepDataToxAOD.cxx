@@ -120,7 +120,13 @@ StatusCode PixelPrepDataToxAOD::execute()
 {
   //Mandatory. Require if the algorithm is scheduled.
   SG::ReadHandle<InDet::PixelClusterContainer> PixelClusterContainer(m_clustercontainer_key);
-
+  
+  if ( !PixelClusterContainer.isValid() )
+  {
+      ATH_MSG_ERROR("Failed to retrieve PixelClusterContainer with key" << PixelClusterContainer.key() );
+      return StatusCode::FAILURE;
+  }
+  
   // Create the xAOD container and its auxiliary store:
   SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod);
   ATH_CHECK(xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
@@ -132,7 +138,7 @@ StatusCode PixelPrepDataToxAOD::execute()
   // Loop over the container
   unsigned int counter(0);
   
-  for( const auto& clusterCollection : *PixelClusterContainer){
+  for( const auto& clusterCollection : * PixelClusterContainer ){
 
     //Fill Offset container
     (*offsets)[clusterCollection->identifyHash()] = counter;
