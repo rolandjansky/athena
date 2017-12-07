@@ -60,7 +60,8 @@ class Jet_ROI;
 
 namespace Trig {
   /**
-   * @class Feature is basic vehicle of object access in TDT
+   * @class Feature 
+   * is basic vehicle of object access in TDT
    *
    * It is wrapped pointer to trigger object of given type (template argument). 
    *
