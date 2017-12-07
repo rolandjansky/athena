@@ -62,6 +62,10 @@ def defineMenu():
         # module: 0, FPGA: 0
         TopoOutput( algoname='INVM_AJ_HighMass',                            module=0, fpga=0, clock=0, firstbit=0 ), # need 4bits 
         TopoOutput( algoname='INVM_AJ_LowMass',                             module=0, fpga=0, clock=0, firstbit=4 ), # 4 bits 
+        TopoOutput( algoname='INVM_NFF',                                    module=0, fpga=1, clock=1, firstbit=12 ), # 4 bits 
+        TopoOutput( algoname='63DETA127-FJ20s1-FJ20s2',                     module=1, fpga=1, clock=0, firstbit=14 ), # 4 bits 
+        TopoOutput( algoname='0DETA20-J50s1-Js2',                           module=1, fpga=1, clock=0, firstbit=12 ), # 4 bits 
+        TopoOutput( algoname='27DPHI31-EMs1-EMs6',                          module=0, fpga=0, clock=1, firstbit=12 ), # 4 bits 
         TopoOutput( algoname='HT150-J20s5.ETA31',                           module=0, fpga=0, clock=0, firstbit=9 ),
         TopoOutput( algoname='HT190-J15s5.ETA21',                           module=0, fpga=0, clock=0, firstbit=10 ),
         TopoOutput( algoname='05MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=0, firstbit=14 ),#v6
@@ -74,9 +78,13 @@ def defineMenu():
 #        TopoOutput( algoname='10MINDPHI-Js2-XE50',                          module=0, fpga=0, clock=1, firstbit=5 ),
         TopoOutput( algoname='10MINDPHI-J20s2-XE50',                        module=0, fpga=0, clock=1, firstbit=6 ),
         TopoOutput( algoname='100RATIO-0MATCH-TAU30si2-EMall',              module=0, fpga=0, clock=1, firstbit=7 ),
-        TopoOutput( algoname='NOT-0MATCH-TAU30si2-EMall',                   module=0, fpga=0, clock=1, firstbit=8 ), 
-        TopoOutput( algoname='LAR-EM50s1',                                  module=0, fpga=0, clock=1, firstbit=9 ), 
-        TopoOutput( algoname='LAR-J100s1',                                  module=0, fpga=0, clock=1, firstbit=10 ), 
+        TopoOutput( algoname='NOT-0MATCH-TAU30si1-EMall',                   module=0, fpga=0, clock=1, firstbit=8 ), 
+        TopoOutput( algoname='LAR-EM20shi1',                                module=0, fpga=0, clock=1, firstbit=9 ), 
+        TopoOutput( algoname='LAR-J100s1',                                  module=0, fpga=0, clock=1, firstbit=10 ),
+        TopoOutput( algoname='ZEE-EM20shi2',                                module=0, fpga=0, clock=1, firstbit=2 ),
+        TopoOutput( algoname='FTK-EM20s1',                                  module=1, fpga=0, clock=1, firstbit=13 ),  
+        TopoOutput( algoname='FTK-J100s1',                                  module=1, fpga=0, clock=0, firstbit=10 ),  
+        TopoOutput( algoname='FTK-MU20s1',                                  module=1, fpga=0, clock=0, firstbit=15 ),  
         TopoOutput( algoname='NOT-02MATCH-EM10s1-AJj15all.ETA49',           module=0, fpga=0, clock=1, firstbit=11 ), 
 #        TopoOutput( algoname='05RATIO-XE0-SUM0-EM10s1-HT0-AJj15all.ETA49',  module=0, fpga=0, clock=1, firstbit=12 ), 
         TopoOutput( algoname='15MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=1, firstbit=14 ),#v6n        
@@ -190,6 +198,8 @@ def defineMenu():
         TopoOutput( algoname='8INVM15-MU6ab-MU4ab',                         module=1, fpga=1, clock=1, firstbit=12 ), #v6
 #        TopoOutput( algoname='2INVM999-2MU6ab',                             module=1, fpga=1, clock=1, firstbit=13 ),
         TopoOutput( algoname='8INVM15-2MU6ab',                              module=1, fpga=1, clock=1, firstbit=13 ), #v6
+        TopoOutput( algoname='0INVM9-EM7ab-EMab',                           module=0, fpga=0, clock=0, firstbit=8 ), #v6
+        TopoOutput( algoname='0DR04-EM7ab-CJ15ab',                          module=0, fpga=1, clock=0, firstbit=0 ), #v6
 #        TopoOutput( algoname='4INVM8-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), 
         TopoOutput( algoname='2INVM8-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), #v6
 # ATR-15197        TopoOutput( algoname='2INVM9-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), #v6
