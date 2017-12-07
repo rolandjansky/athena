@@ -25,11 +25,11 @@ void CondContFactory::regMaker(const CLID& key, ICondContMaker* maker) {
   }
 }
 
-CondContBase* CondContFactory::Create( const CLID& clid, const std::string& key ) const {
+SG::DataObjectSharedPtr<DataObject> CondContFactory::Create( const CLID& clid, const std::string& key ) const {
   std::lock_guard<std::mutex> guard(m_mapMutex);
   auto i = m_makers.find(clid);
   if ( i == m_makers.end()) {
-    return nullptr;
+    return SG::DataObjectSharedPtr<DataObject>();
   }
   ICondContMaker* maker = i->second;
   return maker->Create(clid,key);

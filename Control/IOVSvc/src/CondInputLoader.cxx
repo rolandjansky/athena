@@ -258,7 +258,7 @@ CondInputLoader::start()
         ATH_MSG_WARNING("unable to convert clid " << ditr->clid() << " to a classname."
                         << "This is a BAD sign, but will try to continue");
       }
-      CondContBase* cb = 
+      SG::DataObjectSharedPtr<DataObject> cb = 
         CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
       if (cb == 0) {
         // try to force a load of libraries using ROOT
@@ -274,7 +274,7 @@ CondInputLoader::start()
       } else {
         ATH_MSG_INFO("created CondCont<" << tp << "> with key '"
                      << ditr->key() << "'");
-        if (m_condStore->record(cb, vhk.key()).isFailure()) {
+        if (m_condStore->recordObject(cb, vhk.key(), true, false) == nullptr) {
           ATH_MSG_ERROR("while creating a CondContBase for " 
                         << vhk.fullKey());
           fail = true;
