@@ -64,8 +64,9 @@ class lockable_list(list):
                 self.__dict__["_locked"] = True
 
 ###This Include builds some Truth Information needed by the smart slimming list
-if globalflags.DataSource()=='geant4':
-	from DerivationFrameworkMCTruth.MCTruthCommon import *
+# Commented out for 21.0 to avoid problems with DAOD_IDTRKVALID - see ATLASRECTS-3861
+#if globalflags.DataSource()=='geant4':
+#	from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 
 def buildNamesAndTypes():
