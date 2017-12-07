@@ -34,10 +34,13 @@ HltEventLoopMgr.HltResultName = "HLTResult_HLT"
 #HltEventLoopMgr.ExcludeFromHltTruncationDebugStream = ["CostMonitoring"]
 
 #
-# properties for the HLT result size histogram
+# properties for the HLT result size histograms
 # --> set upper edge of histogram to maximum allowed number of words in HLT
 #
-HltEventLoopMgr.histHltResultSize=("HltResultSize",0,125000,100)
+# HltEventLoopMgr.histHltResultSize=("HltResultSize",0,500000,100)
+# HltEventLoopMgr.histHltResultSizePhysics=("HltResultSize-(Stream (Main_physics))",0,500000,100)
+# HltEventLoopMgr.histHltResultSizeExpress=("HltResultSize-(Stream (express_express))",0,250000,100)
+# HltEventLoopMgr.histHltResultSizeDS=("HltResultSize-(Streams (DataScouting_*_calibration))",0,125000,100)
 
 #
 # Configuration of EDM size monitoring plots

@@ -278,6 +278,16 @@ namespace TrigCostRootAnalysis {
     if (dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
       if (_toAdd->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
         // We are much stricter if this is a GLOBAL counter - don't want to have to disable it
+        // HACK - we don't want to vero MU20||MU21 (June 17)
+        if (_toAdd->getLower().size() == 2) { // TODO this is temporary for July 2017
+          bool passesHack = kTRUE;
+          for (ChainItemSetIt_t _L1Hack = _toAdd->getLower().begin(); _L1Hack != _toAdd->getLower().end(); ++_L1Hack) {
+            if ((*_L1Hack)->getName() == "L1_MU20") continue;
+            else if ((*_L1Hack)->getName() == "L1_MU21") continue;
+            passesHack = kFALSE;
+          }
+          if (passesHack) return kTRUE;
+        }
         Bool_t _isGlobal = kFALSE;
         if (getName() == Config::config().getStr(kRateGlobalL1String)) _isGlobal = kTRUE;
         else if (getName() == Config::config().getStr(kRateGlobalHLTString)) _isGlobal = kTRUE;

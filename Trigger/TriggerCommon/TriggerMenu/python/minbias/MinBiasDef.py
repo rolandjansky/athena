@@ -10,22 +10,14 @@ logging.getLogger().info("Importing %s",__name__)
 
 logMinBiasDef = logging.getLogger("TriggerMenu.minbias.MinBiasDef")
 
-from AthenaCommon import CfgGetter
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.SystemOfUnits import GeV
 
-import re
+from TriggerMenu.menu.HltConfig import L2EFChainDef,mergeRemovingOverlap
 
-from TriggerJobOpts.TriggerFlags            import TriggerFlags
-
-from TriggerMenu.minbias.MinBiasSliceFlags  import MinBiasSliceFlags
-
-from TriggerMenu.menu.HltConfig import *
-
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-
-#theTrigEFIDInsideOut_FullScan = TrigEFIDSequence("FullScan","fullScan")
-
-from TrigT2MinBias.TrigT2MinBiasConfig import *
+from TrigT2MinBias.TrigT2MinBiasConfig import (MbMbtsHypo,L2MbMbtsFex,L2MbSpFex,L2MbSpFex_SCTNoiseSup,L2MbSpFex_ncb,
+                                               L2MbSpHypo_blayer,L2MbSpHypo_veto,L2MbSpFex_noPix,L2MbSpMhNoPixHypo_hip,
+                                               L2MbSpFex_BLayer,L2MbSpHypo_ncb,L2MbSpHypo,L2MbSpHypo_PT,
+                                               L2MbMbtsHypo_PT,L2MbZdcFex_LG,L2MbZdcHypo_PT,L2MbZdcFex_HG,trigT2MinBiasProperties)
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
 #fexes.efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 #fexes.efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
@@ -35,20 +27,19 @@ efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 efid_heavyIon = TrigEFIDSequence("heavyIonFS","heavyIonFS","InsideOut").getSequence()
 efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 
-from TrigMinBias.TrigMinBiasConfig import *
-
+from TrigMinBias.TrigMinBiasConfig import (EFMbTrkFex,EFMbTrkHypoExclusiveLoose,EFMbTrkHypoExclusiveTight,EFMbTrkHypo,
+                                           EFMbVxFex,MbVxHypo,MbTrkHypo)
 
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
 from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
 dummyRoI=DummyRoI(name='MinBiasDummyRoI', createRoIDescriptors = True, NumberOfOutputTEs=1)
 terminateAlgo = PrescaleAlgo('terminateAlgo')
 
-
 # for HI
 from TrigHIHypo.TrigHIHypoConfig import HIEFTrackHypo_AtLeastOneTrack
 atLeastOneTrack = HIEFTrackHypo_AtLeastOneTrack(name='HIEFTrackHypo_AtLeastOneTrack')
 
-from TrigHIHypo.TrigHIHypoConfig import *
+from TrigHIHypo.TrigHIHypoConfig import HIL2VtxMultHypo
 #hypos.update(hi_hypos)
 
 #L2 pileup suppression
@@ -326,7 +317,6 @@ class L2EFChain_MB(L2EFChainDef):
             chainSuffix = "idperf"
             if not doHeavyIon:
                 theEFFex1 =  efid
-                theEFFex2 =  efid2P
             else:
                 theEFFex1 =  efid_heavyIon
 
@@ -351,9 +341,6 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_perf(self):
-        doHeavyIon=False
-        if 'ion' in self.chainPart['extra']:
-            doHeavyIon=True
 
         ########## L2 algos ##################
         if "perf" in self.chainPart['recoAlg']:
@@ -399,9 +386,6 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_zdcperf(self):
-        doHeavyIon=False
-        if 'ion' in self.chainPart['extra']:
-            doHeavyIon=True
 
         ########## L2 algos ##################
         if "zdcperf" in self.chainPart['recoAlg']:
@@ -438,9 +422,6 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_mbts(self):
-        doHeavyIon=False
-        if 'ion' in self.chainPart['extra']:
-            doHeavyIon=True
 
         theL2Fex  = L2MbMbtsFex
 

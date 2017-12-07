@@ -7,9 +7,7 @@
 __author__  = 'M.Backes, C.Bernius'
 __version__=""
 __doc__="Implementation of beamspot chains "
-from TriggerMenu.menu.HltConfig import *
-from AthenaCommon.Include import include
-from AthenaCommon.SystemOfUnits import GeV
+from TriggerMenu.menu.HltConfig import L2EFChainDef,mergeRemovingOverlap
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -112,7 +110,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
         TrigL2SiTrackFinder_Config = __import__('TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config', fromlist=[""])      
         my_trk_alg = getattr(TrigL2SiTrackFinder_Config, "TrigL2SiTrackFinder_BeamSpotB") 
         trk_alg = [my_trk_alg()] 
-        teaddition = 'L2StarB'
         
      elif ('trkfast' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -128,8 +125,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
            mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
 
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-        [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
-        teaddition = 'trkfast'
+        [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
         
      elif ('FTK' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -152,16 +148,15 @@ class L2EFChain_Beamspot(L2EFChainDef):
            
         if 'idperf' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()           
+           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
+           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["mon"]).getSequence()
         elif 'mon' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["mon"]).getSequence()
         else:   
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
-        teaddition = 'trkFTK'
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
 
      elif ('FTKRefit' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -183,13 +178,12 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
         if 'idperf' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
+           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
+           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["refit"]).getSequence()
         else: 
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
-           teaddition = 'trkFTKRefit'
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["refit"]).getSequence()
 
      else:
         mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))        
