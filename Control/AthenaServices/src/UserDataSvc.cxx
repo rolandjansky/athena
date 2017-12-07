@@ -157,7 +157,7 @@ StatusCode UserDataSvc::typeIDtoAny(const std::type_info &decoinfo, void* & deco
 int UserDataSvc::vdecorateElement(const IAthenaBarCode &abc, const std::string& label,
 					 const std::type_info &decoinfo, void* & deco) {
   boost::any value;
-  CHECK(this->typeIDtoAny(decoinfo,deco,value));
+  CHECK(this->typeIDtoAny(decoinfo,deco,value), -1);
   if (this->recordAny(abc,label,value).isSuccess()) 
     return 0;
   else
