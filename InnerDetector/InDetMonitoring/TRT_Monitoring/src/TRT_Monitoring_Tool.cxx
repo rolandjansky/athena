@@ -4,7 +4,6 @@
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
 
-//#include "TRT_TrackHoleSearch/TRTTrackHoleSearchTool.h"
 #include "DataModel/DataVector.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -27,10 +26,7 @@
 #include "EventInfo/EventID.h"
 #include "xAODTrigger/TrigDecision.h"
 
-//#include "TrkParameters/TrackParameters.h"
-//#include "TrkTrack/TrackStateOnSurface.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-//#include "VxVertex/VxContainer.h"
 
 #include "StoreGate/ReadHandle.h"
 
@@ -77,7 +73,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_nRobErrors(),
 	m_passEventBurst(),
 	m_idHelper(0),
-	p_toolSvc("IToolSvc", name), // NOTE: is this service neccessary?
+	p_toolSvc("IToolSvc", name),
 	m_sumSvc("TRT_StrawStatusSummarySvc", name),
 	m_DCSSvc("TRT_DCS_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_DAQSvc("TRT_DAQ_ConditionsSvc", name), // NOTE: not used anywhere?
@@ -85,6 +81,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_condSvc_BS("TRT_ByteStream_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
 	m_TRTCalDbSvc("TRT_CalDbSvc", name),
+	m_drifttool("TRT_DriftFunctionTool"),
 	m_pTRTHelper(0),
 	m_mgr(0),
 	m_rbins(40),
@@ -167,6 +164,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("InDetTRT_DCS_ConditionsSvc", m_DCSSvc);
 	declareProperty("TRT_ByteStream_ConditionsSvc", m_BSSvc);
 	declareProperty("TRT_StrawNeighbourSvc",   m_TRTStrawNeighbourSvc);
+	declareProperty("DriftFunctionTool",        m_drifttool);
 	declareProperty("DoTRT_DCS",                m_doDCS);
 	declareProperty("DoRDOsMon",                m_doRDOsMon           = true);
 	declareProperty("DoGeoMon",                 m_doGeoMon            = false);//obsolete
@@ -408,12 +406,11 @@ TRT_Monitoring_Tool::~TRT_Monitoring_Tool() {}
 StatusCode TRT_Monitoring_Tool::initialize() {
 //------------------------------------------------------------------------------------//
 	ATH_MSG_VERBOSE("Initializing TRT Monitoring");
-	//	StatusCode sc = StatusCode::SUCCESS;
 
 	ATH_CHECK( ManagedMonitorToolBase::initialize() );
 	ATH_CHECK( AlgTool::initialize() );
 
-	IToolSvc *p_toolSvc;
+	IToolSvc *p_toolSvc; // NOTE: recreation of ToolSvc
 
 	ATH_CHECK( service("ToolSvc", p_toolSvc) );
 	// Retrieve detector manager.
@@ -441,6 +438,7 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 		}// if do dcs
 
 		// NOTE: is this used anywhere?
+		// NOTE: This is the same of m_BSSvc
 		// Retrieve the TRT_Conditions Service.
 		if (m_condSvc_BS.name().empty()) {
 			ATH_MSG_WARNING("TRT_ConditionsSvc not given.");
@@ -1222,6 +1220,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			              " in store");
 			return StatusCode::FAILURE;
 		}
+		// NOTE: failing to retrieve ComTime from store for some reason
 		if (!comTimeObject.isValid()) {
 			ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() <<
 			              " in store");
@@ -2832,6 +2831,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 				bool is_anybininVgate_high = (hitinvaliditygate != 0);
 				float m_timeOverThreshold = RawDriftCircle->timeOverThreshold();
 				double t0 = m_TRTCalDbSvc->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
+				//				auto rc = m_TRTCalDbSvc->getT0Container();
+				//				auto valWithContainer = rc->getWithContainer(ITRT_CalDbSvc::trtcondid(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
 
 				if (m_doExpert && m_doStraws) {
 					m_hHitToTonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], m_timeOverThreshold);
@@ -2915,8 +2916,6 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 						}
 
 						if (isArgonStraw) {
-							ATH_MSG_VERBOSE("Hit loc: " << loc);
-							ATH_MSG_VERBOSE("Track loc: " << locR);
 							m_hResidual_B_Ar->Fill(loc - locR);
 
 							if (cnst_is_pT_over_20GeV) {
@@ -2980,8 +2979,6 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 							if (m_isCosmics) {
 								m_hrtRelation_B_Ar->Fill(LE - EP - t0, fabs(locR));
 							} else {
-								ATH_MSG_VERBOSE("Leading Edge: " << LE);
-								ATH_MSG_VERBOSE("t0: " << t0);
 								m_hrtRelation_B_Ar->Fill(LE - t0, fabs(locR));
 							}
 						} else {
