@@ -206,7 +206,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::string m_Pixel_SpacePointsName;
   std::string m_Pixel_SiClustersName;
   std::string m_TracksName;
-  //std::string m_error_summary;
 
   std::string m_histTitleExt;
 
@@ -267,8 +266,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_isNewRun;
   bool m_isNewLumiBlock;
   bool m_newLowStatInterval;
-
-  //double m_occupancy_cut;
 
   int m_ClusPerEventArray_disksA[48][3];
   int m_ClusPerEventArray_disksC[48][3];
@@ -478,6 +475,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_errhist_errtype_avg[ErrorCategoryMODROD::COUNT - 3][PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_errhist_syncerr_LB_pix;
+  TProfile2D_LW* m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
+  TProfile2D_LW* m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
   TProfile* m_error_time1;
   TProfile* m_error_time2;
   TProfile* m_error_time3;
@@ -488,8 +487,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
   TProfile_LW* m_errhist_expert_LB[PixLayer::COUNT - 1][kNumErrorStates];
   TProfile_LW* m_errhist_expert_IBL_LB[kNumErrorStatesIBL];
-  TProfile2D_LW* m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
-  TProfile2D_LW* m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
   TH3F* m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
   TH1F_LW* m_errhist_expert_servrec_ibl_unweighted;
   TH1F_LW* m_errhist_expert_servrec_ibl_weighted;
@@ -585,7 +582,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile2D_LW* m_hist_LB_staveID_thermalFigureMerit;
 
   std::vector<std::string> m_atrcollist;
-  //std::map<std::string, std::vector<std::string> > m_elementsMap;
   int m_currentLumiBlockNumber;
 
   class dcsDataHolder {
