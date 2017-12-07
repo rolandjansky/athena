@@ -1,9 +1,11 @@
 #include "../SCT_ConditionsSummarySvc.h"
-#include "../SCT_ModuleVetoSvc.h"
+#include "../SCT_ConditionsSummaryTestAlg.h"
+
 #include "../SCT_StripVetoSvc.h"
 
+#include "../SCT_ModuleVetoSvc.h"
+#include "../SCT_ModuleVetoCondAlg.h"
 #include "../SCT_ModuleVetoTestAlg.h"
-#include "../SCT_ConditionsSummaryTestAlg.h"
 
 #include "../SCT_DCSConditionsSvc.h"
 #include "../SCT_DCSConditionsHVCondAlg.h"
@@ -39,6 +41,7 @@
 #include "../SCT_ReadoutTestAlg.h"
 
 #include "../SCT_LinkMaskingSvc.h"
+#include "../SCT_LinkMaskingCondAlg.h"
 #include "../SCT_LinkMaskingTestAlg.h"
 
 #include "../SCT_TdaqEnabledSvc.h"
@@ -64,7 +67,6 @@
 #include "../SCT_ElectricFieldTool.h"
 
 #include "../SCT_RODVetoSvc.h"
-
 #include "../SCT_RODVetoTestAlg.h"
 
 //specific to rod veto testing:
@@ -72,6 +74,7 @@
 DECLARE_COMPONENT( SCT_RODVetoTestAlg )
 DECLARE_COMPONENT( SCT_RODVetoSvc )
 
+DECLARE_COMPONENT( SCT_ModuleVetoCondAlg )
 DECLARE_COMPONENT( SCT_ModuleVetoTestAlg )
 DECLARE_COMPONENT( SCT_ConditionsSummaryTestAlg )
 DECLARE_COMPONENT( SCT_CachedSummaryTestAlg )
@@ -88,6 +91,7 @@ DECLARE_COMPONENT( SCT_ReadCalibChipNoiseCondAlg )
 DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadoutTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibDataCondAlg )
+DECLARE_COMPONENT( SCT_LinkMaskingCondAlg )
 DECLARE_COMPONENT( SCT_LinkMaskingTestAlg )
 DECLARE_COMPONENT( SCT_ConfigurationConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ConfigurationCondAlg )
