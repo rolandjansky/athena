@@ -20,6 +20,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "Gaudi/PluginService.h"
 #include "TestTools/leakcheck.h"
+#include "TestTools/initGaudi.h"
 #include <cassert>
 #include <iostream>
 
@@ -237,6 +238,14 @@ void test1()
 
 int main()
 {
+  // This isn't really needed, except that without it, CommonMessaging
+  // will leak memory, causing a Leakcheck failure.
+  ISvcLocator* pSvcLoc;
+  if (!Athena_test::initGaudi("", pSvcLoc)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
   populate_surfaces();
   test1();
   return 0;
