@@ -24,7 +24,7 @@ namespace D3PD {
 inline
 StatusCode IBlockFillerTool::againok (StatusCode sc)
 {
-  if (sc == AGAIN || sc == EMPTY)
+  if (sc.getCode() == AGAIN || sc.getCode() == EMPTY)
     sc = StatusCode::SUCCESS;
   return sc;
 }
@@ -44,11 +44,11 @@ StatusCode IBlockFillerTool::againok (StatusCode sc)
 inline
 StatusCode IBlockFillerTool::againok (StatusCode sc, StatusCode& scout)
 {
-  if (sc == AGAIN) {
+  if (sc.getCode() == AGAIN) {
     sc = StatusCode::SUCCESS;
     scout = StatusCode(AGAIN);
   }
-  if (sc == EMPTY)
+  if (sc.getCode() == EMPTY)
     sc = StatusCode::SUCCESS;
   else
     scout = sc;

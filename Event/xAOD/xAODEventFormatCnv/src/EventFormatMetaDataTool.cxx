@@ -71,14 +71,14 @@ namespace xAODMaker {
 
       if( inc.type() == IncidentType::BeginInputFile ) {
          if( collectMetaData().isFailure() ) {
-            REPORT_ERROR( MSG::FATAL )
+            REPORT_ERROR( StatusCode::FAILURE )
                << "Failed to collect metadata from the input file";
             throw std::runtime_error( "Failed to collect trigger configuration "
                                       "metadata from the input" );
          }
       } else if( inc.type() == METADATASTOP ) {
          if( writeMetaData().isFailure() ) {
-            REPORT_ERROR( MSG::FATAL )
+            REPORT_ERROR( StatusCode::FAILURE )
                << "Failed to write metadata to the output store";
             throw std::runtime_error( "Failed write xAOD::EventFormat "
                                       "to the output" );

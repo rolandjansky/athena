@@ -405,7 +405,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
       m_vxnum_trks = numTracksPerVertex;
     } else { 
        if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "VxCandidate without tracks!!" << endmsg; 
-       return 0; 
+       return StatusCode::FAILURE; 
     }
     
     trk_at_vxtree->Fill();

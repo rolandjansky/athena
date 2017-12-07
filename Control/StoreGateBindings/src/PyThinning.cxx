@@ -424,7 +424,7 @@ namespace SG {
 	PyROOT::throw_py_exception();
       }
 
-      StatusCode sc = PyInt_AS_LONG( pysc );
+      StatusCode sc (PyInt_AS_LONG( pysc ));
       Py_DECREF (pysc);
       if ( !sc.isSuccess() ) {
 	PyErr_Format

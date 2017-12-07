@@ -607,7 +607,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
   
   if (0 == element) { 
     ATH_MSG_ERROR( "MuonGeoManager does not return valid element for given id!" );
-    return StatusCode::FAILURE;
+    return false;
   } 
   else {
     distRO = element->tubeFrame_localROPos(multilayer,layer,tube).z();
@@ -977,7 +977,7 @@ bool MdtDigitizationTool::createDigits(){
     }
     if(digitCollection==NULL) {
       ATH_MSG_ERROR( "Trying to use NULL pointer digitCollection" );
-      return StatusCode::FAILURE;
+      return false;
     }
       
     
