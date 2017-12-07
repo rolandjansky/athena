@@ -40,7 +40,7 @@ StatusCode HitRdoOverlayExample::initialize()
 {
   ATH_MSG_DEBUG ("HitRdoOverlayExample initialize()" );
 
-  CHECK(m_mergeSvc.retrieve().isSuccess());
+  CHECK(m_mergeSvc.retrieve());
   m_nevt=0;
   return StatusCode::SUCCESS;
 
