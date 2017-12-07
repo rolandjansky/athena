@@ -1,4 +1,4 @@
-/*
+/* we are in GIT -- we are in GIT ----
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
