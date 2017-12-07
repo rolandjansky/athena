@@ -195,7 +195,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleKey.
@@ -219,7 +219,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleBase.
