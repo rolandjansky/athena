@@ -32,7 +32,7 @@ rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 
-(idtrigChainlist, tidaAnalysischains) = minBiasChains(rMC,rID)
+(idtrigChainlist, tidaAnalysischains) = minBiasChains(rID)
 
 def resetSigs():
   TriggerFlags.Slices_all_setOff()
