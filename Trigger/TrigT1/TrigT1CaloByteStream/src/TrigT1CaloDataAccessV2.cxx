@@ -35,7 +35,7 @@ StatusCode TrigT1CaloDataAccessV2::initialize()
 	ATH_MSG_INFO("Initializing " << name() << " - package version "
                  << PACKAGE_VERSION);
 	// Retrieve Tool
-	CHECK(m_tool.retrieve().isSuccess());
+	CHECK(m_tool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -46,7 +46,7 @@ StatusCode TrigT1CaloDataAccessV2::initialize()
 
 StatusCode TrigT1CaloDataAccessV2::loadTriggerTowers(xAOD::TriggerTowerContainer&  container)
 {
-	CHECK((m_tool->convert(&container)).isSuccess());
+  CHECK(m_tool->convert(&container));
 	return StatusCode::SUCCESS;
 }
 

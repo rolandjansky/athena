@@ -251,7 +251,7 @@ StatusCode WriteThinnedData::test( const std::string& testName )
   {
     AthExParticles * pristine_particles = new AthExParticles;
     const std::string key = "NonThinned-" + particlesName;
-    ATH_CHECK(evtStore()->record(pristine_particles, key).isSuccess());
+    ATH_CHECK(evtStore()->record(pristine_particles, key));
 
     if (m_thinningSvc->thinningOccurred(pristine_particles)) {
       ATH_MSG_ERROR("IThinningSvc::thinningOccurred(non-thinned) tells lies !");

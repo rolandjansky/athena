@@ -171,7 +171,7 @@ StatusCode SCT_FastDigitizationTool::processBunchXing(int bunchXing,
       StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
       const SiHitCollection* seHitColl(nullptr);
-      CHECK(seStore.retrieve(seHitColl,m_inputObjectName).isSuccess());
+      CHECK(seStore.retrieve(seHitColl,m_inputObjectName));
 
       //Copy Hit Collection
       SiHitCollection* siHitColl(new SiHitCollection("SCT_Hits"));
