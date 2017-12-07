@@ -61,7 +61,7 @@ bool DerivationFramework::DVMissingETFilterTool::eventPassesFilter() const
      StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
      if( sc.isFailure()  ||  !metContainer ) {
        msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
-       return StatusCode::FAILURE;
+       return false;
      } 
      ///  msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endmsg;
 
@@ -78,7 +78,7 @@ bool DerivationFramework::DVMissingETFilterTool::eventPassesFilter() const
 	 StatusCode sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
 	 if( sc.isFailure()  ||  !jetContainer ) {
 	   msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
-	   return StatusCode::FAILURE;
+	   return false;
 	 }
 	 if ((jetContainer->size() > 0) && (jetContainer->at(0)->pt() > m_jetPtCut)){
 	   double phiJet = jetContainer->at(0)->phi();
