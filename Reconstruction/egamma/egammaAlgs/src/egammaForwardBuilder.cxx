@@ -17,7 +17,7 @@
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/Electron.h"
  
-#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 
 #include <algorithm> 
 #include <math.h>
