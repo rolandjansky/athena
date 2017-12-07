@@ -73,7 +73,7 @@ class TileDigitsMaker: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
-    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi) const;
+    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[]) const;
 
     std::string m_hitContainer;    //!< Name of the TileHitContainer
     std::string m_hitContainer_DigiHSTruth;    //!< Name of the TileHitContainer
