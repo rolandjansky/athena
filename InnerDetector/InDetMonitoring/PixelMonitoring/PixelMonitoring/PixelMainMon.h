@@ -474,9 +474,9 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_errhist_errtype_avg[ErrorCategoryMODROD::COUNT - 3][PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
-  TProfile_LW* m_errhist_syncerr_LB_pix;
   TProfile2D_LW* m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
   TProfile2D_LW* m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
+  TProfile_LW* m_errhist_syncerr_LB_pix;
   TProfile* m_error_time1;
   TProfile* m_error_time2;
   TProfile* m_error_time3;
