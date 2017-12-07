@@ -62,9 +62,9 @@ StatusCode TRT_Hits_Monitoring_Tool::fillHistograms() {
 	const boost::posix_time::ptime now = boost::posix_time::microsec_clock::universal_time();
 	if (now - m_lastPublishTime < sleepTime) return StatusCode::SUCCESS; // do not publish results too often
 
-	SG::ReadHandle<TRT_RDO_Container> rdoContainer(m_rdoContainer);
+	SG::ReadHandle<TRT_RDO_Container> rdoContainer(m_rdoContainerKey);
 	if (!rdoContainer.isValid()) {
-		ATH_MSG_ERROR("Could not find TRT RDO container " << m_rdoContainer.key());
+		ATH_MSG_ERROR("Could not find TRT RDO container " << m_rdoContainerKey.key());
 		return StatusCode::FAILURE;
 	}
 
