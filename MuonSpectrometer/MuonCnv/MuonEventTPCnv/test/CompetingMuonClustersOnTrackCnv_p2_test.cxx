@@ -14,6 +14,7 @@
 #include "MuonEventTPCnv/MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrackCnv_p2.h"
 #include "MuonEventTPCnv/MuonMeasurementsCnv_tlp2.h"
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
+#include "TestTools/leakcheck.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/initGaudi.h"
@@ -175,6 +176,8 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
                                              childrots,
                                              new std::vector<double> (probs));
 
+  testit (trans1);
+  Athena_test::Leakcheck check;
   testit (trans1);
 }
 

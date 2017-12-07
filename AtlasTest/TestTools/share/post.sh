@@ -144,10 +144,16 @@ PP="$PP"'|^ConditionStore +INFO Start ConditionStore'
 PP="$PP"'|^ConditionStore +INFO Stop ConditionStore'
 
 # Differences between Gaudi versions.
-PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :|-ExtraInputs |-ExtraOutputs |-Cardinality |-IsClonable |-NeededResources |-Timeline '
+PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :|-ExtraInputs |-ExtraOutputs |-Cardinality |-IsClonable |-NeededResources |-Timeline |Service base class initialized successfully'
 
 # StoreGate INFO messages changed to VERBOSE
 PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
+
+# Transient frontier warnings.
+PP="$PP"'|^warn  .fn-'
+
+# ubsan
+PP="$PP"'|bits/regex.h:1545'
 
 
 if [ "$extrapatterns" != "" ]; then

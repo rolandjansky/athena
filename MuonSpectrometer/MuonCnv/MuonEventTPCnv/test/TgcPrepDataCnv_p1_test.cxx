@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/TgcPrepDataContainerCnv_tlp1.h"
+#include "TestTools/leakcheck.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -84,6 +85,8 @@ void test1()
                             nullptr,
                             123);
                             
+  testit (trans1);
+  Athena_test::Leakcheck check;
   testit (trans1);
 }
 
