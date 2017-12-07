@@ -67,8 +67,15 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
-conddb.addFolder("", "<dbConnection>sqlite://;schema=LinkMasking.db;dbname=CONDBR2</dbConnection>/purple/pants")
+conddb.addFolder("", "<dbConnection>sqlite://;schema=LinkMasking.db;dbname=CONDBR2</dbConnection>/purple/pants", className="CondAttrListCollection")
 # This folder can be created by SCT_ConditionsServices/python/createLinkMaskingSQLiteFile.py
+
+from IOVSvc.IOVSvcConf import CondSvc
+ServiceMgr += CondSvc()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_LinkMaskingCondAlg
+condSeq += SCT_LinkMaskingCondAlg("SCT_LinkMaskingCondAlg")
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_LinkMaskingSvc
 LinkMaskingSvc = SCT_LinkMaskingSvc(name = "SCT_LinkMaskingSvc")
