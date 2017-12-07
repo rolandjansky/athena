@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+#ifndef SIMULATIONBASE
 
 /** @file TRT_ByteStream_ConditionsSvc.cxx
  *  @brief Service for accessing TRT ByteStream conditions information
@@ -583,3 +584,5 @@ TRT_ByteStream_ConditionsSvc::recordData()
 
   return sc;
  }
+
+#endif //ifndef SIMULATIONBASE

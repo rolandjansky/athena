@@ -73,6 +73,7 @@ namespace Analysis
 
   SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
+      m_calibrationTool("Analysis::CalibrationBroker"),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_muonSelectorTool("JVC_MuonSelectorTool"),
       m_likelihoodTool("Analysis::NewLikelihoodTool"),

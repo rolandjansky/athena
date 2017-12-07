@@ -15,7 +15,8 @@
 #ifndef DBLQ00_IACSC_H
 #define DBLQ00_IACSC_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 
 namespace MuonGM
 {
@@ -26,7 +27,7 @@ class DblQ00IAcsc {
 public:
     DblQ00IAcsc();
     ~DblQ00IAcsc();
-    DblQ00IAcsc(IRDBQuery*);
+    DblQ00IAcsc(std::unique_ptr<IRDBQuery>&&);
     DblQ00IAcsc(std::string asciiFileName);
     
     void WriteIAcscToAsciiFile(std::string filename);

@@ -11,7 +11,7 @@
  * vptr).
  *
  * However, ubsan will report warnings only once for any given source location.
- * So we can effectively suppress warnings by trigging the warning
+ * So we can effectively suppress warnings by triggering the warning
  * with stderr pointing to /dev/null.  You can do that by calling the
  * @c ubsan_suppress function, passing it a function to call with
  * stderr redirected to /dev/null.

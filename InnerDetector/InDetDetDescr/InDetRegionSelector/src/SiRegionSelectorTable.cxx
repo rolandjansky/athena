@@ -253,8 +253,7 @@ SiRegionSelectorTable::createTable()
 
 #ifdef USE_STOREGATE
   // save new map in StoreGate RegSelSiLUT
-  sc = detStore()->contains< RegSelSiLUT >(newkey);
-  if (sc == StatusCode::SUCCESS ) {
+  if ( detStore()->contains< RegSelSiLUT >(newkey) ) {
     msg(MSG::FATAL) << " RegSelSiLUT " << newkey << " already exists " << endmsg;
   } else {
     // create and store LUT

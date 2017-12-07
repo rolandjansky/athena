@@ -25,9 +25,7 @@ from AthenaCommon.Logging import logging
 logAODFix = logging.getLogger( 'AODFix' )
 
 from AODFix_base import AODFix_base
-from AODFix_r191 import AODFix_r191
-from AODFix_r201 import AODFix_r201
-from AODFix_r207 import AODFix_r207
+from AODFix_r210 import AODFix_r210
 
 _aodFixInstance = AODFix_base()
 
@@ -65,33 +63,12 @@ def AODFix_Init():
     logAODFix.debug("curRelease set to " + curRelease)
     
     
-    runningInNightly = False
-    if curRelease.count(".")<2: #Build release always have dots
-        runningInNightly = True
-        # change rec.AtlasReleaseVersion to be more useful
-        atlasBaseDir = os.getenv("AtlasBaseDir") or ''
-
-        import re
-        matchList = re.findall(r"\d+\.\d+\.[^/]*", atlasBaseDir)
-        if len(matchList) > 0:
-            curRelease = matchList[0]
-        logAODFix.info("Running in nightly, curRelease set to " + curRelease)
-
-
-    ##################
-    # exit if not locked to true and running in a nightly
-    ##################
-    if runningInNightly and not rec.doApplyAODFix.is_locked():
-        logAODFix.info("running in a nightly. AODFix not scheduled.")
-        logAODFix.info("Please do manually 'rec.doApplyAODFix.set_Value_and_Lock(True)' to overwrite")
-        return 
- 
     ##################
     # determine athena with which input file was created and previous AODFix
     ##################
    
     # RDO doesn't have MetaData
-    prevAODFix='none'
+    prevAODFix =''
     prevRelease = ''
     isMC = False
 
@@ -103,9 +80,7 @@ def AODFix_Init():
         logAODFix.warning("Could not tell if the input file is data or MC; setting to data")
         isMC = False
 
-    if rec.readRDO():
-        prevRelease = 'bs'
-    else:
+    if not rec.readRDO():
 
         try:
             AtlasReleaseVersionString=inputFileSummary['metadata']['/TagInfo']['AtlasRelease']
@@ -114,7 +89,7 @@ def AODFix_Init():
                 prevRelease = rv[1]
         except Exception:
             logAODFix.warning("no AthenRelease found in input file, setting to <none> !!")
-            prevRelease='none'
+            prevRelease=''
 
 
         ##################
@@ -127,7 +102,7 @@ def AODFix_Init():
                 prevAODFix=prevAODFix.split("_")[0]
         except Exception:
             logAODFix.debug("no AODFixVersion found in input file, setting to <none>.")
-            prevAODFix='none'
+            prevAODFix=''
 
     logAODFix.info("Summary of MetaData for AODFix:")
     if isMC:
@@ -142,13 +117,7 @@ def AODFix_Init():
     ##################
 
     doAODFix = False
-    metadataOnly = False
-    if rec.doESD():
-        # running from RAW or ESD, don't apply it, but set metadata
-        logAODFix.debug("detected doESD=True, *not* applying AODFix (but setting metadata)")
-        doAODFix = True
-        metadataOnly = True
-    elif rec.readAOD():  # change in policy: no AODFix if reading ESD.
+    if rec.readAOD():  # change in policy: no AODFix if reading ESD.
         doAODFix = True
         # check to see if it's a DAOD; do not run by default in DAODs
         from RecExConfig.InputFilePeeker import inputFileSummary
@@ -170,28 +139,18 @@ def AODFix_Init():
 
     curReleaseSplit = curRelease.split('.')
     prevReleaseSplit = prevRelease.split('.')
-    if len(curReleaseSplit) >= 2 and (metadataOnly or rec.doApplyAODFix.is_locked() or len(prevReleaseSplit) >= 2):
+    if len(curReleaseSplit) >= 2 and (rec.doApplyAODFix.is_locked() or len(prevReleaseSplit) >= 2):
         ### If adding an AODFix for a release family that does not have it,
         ### please add it to the if-elif... statement below
-        if (curReleaseSplit[0] == '19' and curReleaseSplit[1] == '1' and 
-              (metadataOnly or rec.doApplyAODFix.is_locked() or 
-               (prevReleaseSplit[0] == '19' and prevReleaseSplit[1] == '1'))):
-            _aodFixInstance = AODFix_r191(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
-        elif (curReleaseSplit[0] == '20' and curReleaseSplit[1] == '1' and 
-              (metadataOnly or rec.doApplyAODFix.is_locked() or 
-               (prevReleaseSplit[0] == '20' and prevReleaseSplit[1] == '1'))):
-            _aodFixInstance = AODFix_r201(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
-        elif (curReleaseSplit[0] == '20' and curReleaseSplit[1] == '7' and 
-              (metadataOnly or rec.doApplyAODFix.is_locked() or 
-               (prevReleaseSplit[0] == '20' and prevReleaseSplit[1] == '7'))):
-            _aodFixInstance = AODFix_r207(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
+        if (curReleaseSplit[0] == '21' and (curReleaseSplit[1] == '0' or curReleaseSplit[1] == '2') and 
+              (rec.doApplyAODFix.is_locked() or 
+               (prevReleaseSplit[0] == '21' and (prevReleaseSplit[1] == '0' or prevReleaseSplit[1] == '2')))):
+            _aodFixInstance = AODFix_r210(prevAODFix, isMC, rec.doApplyAODFix.is_locked())
         else:
             logAODFix.info("No AODFix scheduled for this release.")
 
-    # file produced by nightly ?
-    #elif prevRelease.startswith("rel_"):
-    elif  len(prevReleaseSplit) <2 and prevRelease not in ("bs","none"):
-        logAODFix.info("input file produced from a nightly, and no AODFix applied. Will *not* schedule AODFix automatically! Please do manually 'rec.doApplyAODFix.set_Value_and_Lock(True)' to overwrite")
+    else:
+        logAODFix.info("Current release is of strange form: %s" % curRelease)
 
 # To inquire whether AODFix will be run
 

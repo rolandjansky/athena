@@ -19,9 +19,9 @@
 #include <string>
 #include <vector>
 
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 

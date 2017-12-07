@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Awln.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 //#include <stdio>
@@ -31,7 +30,7 @@
 namespace MuonGM
 {
 
-DblQ00Awln::DblQ00Awln(IRDBQuery* awln)
+DblQ00Awln::DblQ00Awln(std::unique_ptr<IRDBQuery>&& awln)
  : m_nObj(0)
 {
   if(awln) {

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ELECTRON_LIKELIHOODENUMS_H
-#define ELECTRON_LIKELIHOODENUMS_H
+#ifndef _LIKELIHOODENUMS_H
+#define _LIKELIHOODENUMS_H
 
 
 namespace LikeEnum {

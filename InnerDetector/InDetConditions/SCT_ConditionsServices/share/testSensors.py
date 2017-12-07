@@ -8,9 +8,7 @@ from GaudiSvc.GaudiSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 
@@ -31,21 +29,22 @@ print globalflags
 from RecExConfig.RecFlags import rec
 rec.projectName.set_Value_and_Lock("data12_8TeV")
 
+from IOVSvc.IOVSvcConf import CondSvc
+ServiceMgr += CondSvc()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+from IOVDbSvc.CondDB import conddb
+
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsCondAlg
+condSeq += SCT_SensorsCondAlg( "SCT_SensorsCondAlg" )
+
 # Load IOVDbSvc
 IOVDbSvc = Service("IOVDbSvc")
 IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = 3
-from IOVDbSvc.CondDB import conddb
 conddb.dbdata="COMP200"
-conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14")
-
-# Not clear why these tags are not resolved from global tag
-conddb.blockFolder("/Indet/Align")
-conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-BLK-UPD4-09")
-conddb.blockFolder("/Indet/PixelDist")
-conddb.addFolderWithTag("INDET_OFL","/Indet/PixelDist","InDetPixelDist-ES1-UPD1-01")
-conddb.blockFolder("/Indet/IBLDist")
-conddb.addFolderWithTag("INDET_OFL","/Indet/IBLDist","IBLDist-NULL")
+conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14", className="CondAttrListCollection")
 
 #--------------------------------------------------------------
 # Set Detector setup

@@ -16,7 +16,5 @@
 */
 
 #include "PhotonEfficiencyCorrection/AsgPhotonEfficiencyCorrectionTool.h"
-#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
-#include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
 
 #endif

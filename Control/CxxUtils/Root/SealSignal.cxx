@@ -1616,7 +1616,7 @@ Signal::crashed ATLAS_NOT_THREAD_SAFE (void)
 
 extern "C" {
   /// Install fatal handler with default options.
-  /// This is meant to be easy to call from pyton via ctypes.
+  /// This is meant to be easy to call from python via ctypes.
   void CxxUtils_installFatalHandler ATLAS_NOT_THREAD_SAFE ()
   {
     Athena::Signal::handleFatal(nullptr, 1);

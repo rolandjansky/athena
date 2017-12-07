@@ -90,9 +90,7 @@ StatusCode EMPIDBuilder::initialize()
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }
   } else {
-    // Switch to using disable when supported by Gaudi version
-    m_lumiBlockMuTool = nullptr;
-    // m_lumiBlockMuTool.disable();
+    m_lumiBlockMuTool.disable();
   }
   return StatusCode::SUCCESS;
 }

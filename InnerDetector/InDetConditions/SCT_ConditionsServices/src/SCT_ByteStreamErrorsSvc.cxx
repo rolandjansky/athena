@@ -38,8 +38,6 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_config("InDetSCT_ConfigurationConditionsSvc",name),
   m_filled(false) ,
   m_lookForSGErrContainer(true),
-  //
-  m_rxRedundancy{},
   m_tempMaskedChips{},
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
@@ -70,7 +68,6 @@ StatusCode
 SCT_ByteStreamErrorsSvc::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
 
-  m_rxRedundancy.clear();
   for(int errorType=0; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
     m_bsErrors[errorType].clear();
   }
@@ -81,7 +78,6 @@ SCT_ByteStreamErrorsSvc::initialize(){
   sc = service("IncidentSvc", incsvc);
   int priority = 100;
   if( sc.isSuccess() ) {
-    incsvc->addListener( this, "BeginRun", priority);
     incsvc->addListener( this, "BeginEvent", priority);
   }
  
@@ -146,37 +142,7 @@ SCT_ByteStreamErrorsSvc::finalize(){
 
 void
 SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
-  if ((inc.type() == "BeginRun") && (m_useRXredundancy)) {
-    m_rxRedundancy.clear();
-    m_rodDecodeStatuses.clear();
-
-    std::vector<boost::uint32_t> listOfRODs;
-    m_cabling->getAllRods(listOfRODs);
-    std::vector<boost::uint32_t>::iterator rodIter = listOfRODs.begin();
-    std::vector<boost::uint32_t>::iterator rodEnd = listOfRODs.end();
-    for (; rodIter != rodEnd; ++rodIter) {
-      // Store ROD ID and set all RODs as not decoded
-      m_rodDecodeStatuses.insert(std::pair<boost::uint32_t, bool>(*rodIter, false));
-
-      std::vector<IdentifierHash> listOfHashes;
-      m_cabling->getHashesForRod(listOfHashes,*rodIter);
-      std::vector<IdentifierHash>::iterator hashIt = listOfHashes.begin();
-      std::vector<IdentifierHash>::iterator hashEnd = listOfHashes.end();
-      for (; hashIt != hashEnd; ++hashIt) {
-        Identifier wafId = m_sct_id->wafer_id(*hashIt);
-        Identifier modId = m_sct_id->module_id(wafId);
-        int side = m_sct_id->side(wafId);
-
-        std::pair<bool, bool> links = m_config->badLinks(modId);
-        if (((! links.first) && ( links.second) && (side==1)) ||  
-            ((links.first) && ( ! links.second) && (side==0))) {
-          m_rxRedundancy.insert(*hashIt);
-        }
-      }
-    }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Number of hashes in redundancy are "<<m_rxRedundancy.size()<<endmsg;
-    
-  } else if (inc.type() == "BeginEvent") {
+  if (inc.type() == "BeginEvent") {
     this->resetSets();
     this->resetCounts();
     m_filled = false;
@@ -536,12 +502,13 @@ SCT_ByteStreamErrorsSvc::fillData() {
     for (const auto* elt : *errCont) {
       addError(elt->first,elt->second);
       if (m_useRXredundancy) {
-        bool result = std::find(m_rxRedundancy.begin(),
-                                m_rxRedundancy.end(),
-                                elt->first) != m_rxRedundancy.end();
+        Identifier wafer_id = m_sct_id->wafer_id(elt->first);
+        Identifier module_id = m_sct_id->module_id(wafer_id);
+        std::pair<bool, bool> badLinks = m_config->badLinks(module_id);
+        int side = m_sct_id->side(m_sct_id->wafer_id(elt->first));
+        bool result = (side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second);
         if (result) {
           /// error in a module using RX redundancy - add an error for the other link as well!!
-          int side = m_sct_id->side(m_sct_id->wafer_id(elt->first));
           if (side==0) {
             IdentifierHash otherSide = IdentifierHash(elt->first  + 1);
             addError(otherSide,elt->second);
@@ -701,17 +668,16 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   
   int type(0);
   // Check if Rx redundancy is used or not in this module
-  if(m_rxRedundancy.find(hash_side0)!=m_rxRedundancy.end() or 
-     m_rxRedundancy.find(hash_side1)!=m_rxRedundancy.end()) {
+  std::pair<bool, bool> badLinks{m_config->badLinks(moduleId)};
+  if(badLinks.first xor badLinks.second) {
     // Rx redundancy is used in this module.
-    std::pair<bool, bool> links(m_config->badLinks(moduleId));
-    if(links.first and not links.second) {
+    if(badLinks.first and not badLinks.second) {
       // link-1 is broken
       type = 1;
-    } else if(links.second and not links.first) {
+    } else if(badLinks.second and not badLinks.first) {
       // link-0 is broken
       type = 2;
-    } else if(links.first and links.second) {
+    } else if(badLinks.first and badLinks.second) {
       // both link-0 and link-1 are working
       ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
       return;

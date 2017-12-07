@@ -21,8 +21,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "METInterface/IMETMaker.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"

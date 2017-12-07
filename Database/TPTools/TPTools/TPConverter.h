@@ -193,7 +193,7 @@ public:
   /// @copydoc ITPCnvBase::transientTInfo()
   virtual const std::type_info& transientTInfo() const { return typeid(TRANS); }
 
-  /// @copydoc ITPCnvBase::transBaseTInfo()
+  /// @copydoc ITPConverter::transBaseTInfo()
   /// this method is not overwritten in the subclasses like transientTInfo()
   const std::type_info& transBaseTInfo() const { return typeid(TRANS); }
 

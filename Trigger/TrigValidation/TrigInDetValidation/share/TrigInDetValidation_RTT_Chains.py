@@ -151,7 +151,7 @@ def bjetChains(doIDNewTracking, doFTK, doBperf):
     ]
   return (idTrigChainlist, tidaAnalysischains)
 
-def beamspotChains(runMergedChain, doIDNewTracking, doFTK):
+def beamspotChains(doIDNewTracking, doFTK):
   idTrigChainlist = []
   tidaAnalysischains = ["Truth"]
 
