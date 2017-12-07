@@ -3,6 +3,7 @@
 import pickle
 import subprocess
 import unittest
+import os
 
 
 class TestAtlasG4(unittest.TestCase):
@@ -281,4 +282,8 @@ class TestAtlasG4(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    dirname = 'tf_config_test'
+    os.system ('rm -rf ' + dirname)
+    os.mkdir (dirname)
+    os.chdir (dirname)
     unittest.main()
