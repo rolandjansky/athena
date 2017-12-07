@@ -246,7 +246,7 @@ class CaloClusterTopoGetter ( Configured )  :
 
 
         from Digitization.DigitizationFlags import digitizationFlags
-        if digitizationFlage.doDigiTruth():
+        if digitizationFlags.doDigiTruth():
           TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
@@ -435,8 +435,8 @@ class CaloClusterTopoGetter ( Configured )  :
         
         CaloTopoCluster.ClusterCorrectionTools += [TopoMoments]
 
-        from RecExConfig.RecFlags import rec
-        if rec.doDigiTruth():
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.doDigiTruth():
           CaloTopoCluster.ClusterCorrectionTools += [TopoMoments_Truth]
 
         CaloTopoCluster += TopoMaker
@@ -444,7 +444,7 @@ class CaloClusterTopoGetter ( Configured )  :
         CaloTopoCluster += BadChannelListCorr
         CaloTopoCluster += TopoMoments
         from RecExConfig.RecFlags import rec
-        if rec.doDigiTruth():
+        if digitizationFlags.doDigiTruth():
           CaloTopoCluster += TopoMoments_Truth
         
         if jobproperties.CaloTopoClusterFlags.doClusterVertexFraction():
