@@ -398,7 +398,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     // For now, we don't try to retrieve the lumi tool
     if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
         ATH_MSG_FATAL("Unable to retrieve Luminosity Tool"); 
-        // 244            return HLT::ERROR;                                                         
+        return HLT::ERROR;                                                         
     } else {                                                                     
         ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }      
