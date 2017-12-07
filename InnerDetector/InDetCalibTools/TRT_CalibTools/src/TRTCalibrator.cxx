@@ -369,16 +369,16 @@ void TRTCalibrator::MakeBDKeys(int bec, int low, int mod, int brd, int chp, int 
   //make map keys for the board-chip view
 
   char ckey[100];
-  sprintf(ckey,"_%i_%i_%i_%i_%i_%i",bec,low,mod,brd,chp,strawid); Skey=std::string(ckey);
-  sprintf(ckey,"_%i_%i_%i_%i_%i",bec,low,mod,brd,chp); Ckey=std::string(ckey);
-  sprintf(ckey,"_%i_%i_%i_%i",bec,low,mod,brd); Bkey=std::string(ckey);
-  sprintf(ckey,"_%i_%i_%i",bec,low,mod); Mkey=std::string(ckey);
-  sprintf(ckey,"_%i_%i",bec,low); Lkey=std::string(ckey);
-  sprintf(ckey,"_%i",bec); Dkey=std::string(ckey);
-  sprintf(ckey,"_all"); Tkey=std::string(ckey);
+  sprintf(ckey,"_%i_%i_%i_%i_%i_%i",bec,low,mod,brd,chp,strawid); m_Skey=std::string(ckey);
+  sprintf(ckey,"_%i_%i_%i_%i_%i",bec,low,mod,brd,chp); m_Ckey=std::string(ckey);
+  sprintf(ckey,"_%i_%i_%i_%i",bec,low,mod,brd); m_Bkey=std::string(ckey);
+  sprintf(ckey,"_%i_%i_%i",bec,low,mod); m_Mkey=std::string(ckey);
+  sprintf(ckey,"_%i_%i",bec,low); m_Lkey=std::string(ckey);
+  sprintf(ckey,"_%i",bec); m_Dkey=std::string(ckey);
+  sprintf(ckey,"_all"); m_Tkey=std::string(ckey);
 
-  sprintf(ckey,"_%i_%i",abs(bec),low); Lkey_acc=std::string(ckey);
-  sprintf(ckey,"_%i",abs(bec)); Dkey_acc=std::string(ckey);
+  sprintf(ckey,"_%i_%i",abs(bec),low); m_Lkey_acc=std::string(ckey);
+  sprintf(ckey,"_%i",abs(bec)); m_Dkey_acc=std::string(ckey);
 
 }
 
@@ -682,8 +682,8 @@ bool TRTCalibrator::calibrate() {
       MakeBDKeys(hitdata.det, hitdata.lay, hitdata.mod, hitdata.brd, hitdata.chp, hitdata.sid);
       
       //make the level hierachy dictionaries
-      trt.t[Tkey].d[Dkey].l[Lkey].m[Mkey].b[Bkey].c[Ckey].s[Skey].z=0;
-      trt_acc.t[Tkey].d[Dkey_acc].l[Lkey_acc].m[Mkey].b[Bkey].c[Ckey].s[Skey].z=0;
+      m_trt.t[m_Tkey].d[m_Dkey].l[m_Lkey].m[m_Mkey].b[m_Bkey].c[m_Ckey].s[m_Skey].z=0;
+      m_trt_acc.t[m_Tkey].d[m_Dkey_acc].l[m_Lkey_acc].m[m_Mkey].b[m_Bkey].c[m_Ckey].s[m_Skey].z=0;
       
       //populate the hit data structure to be added 
       strawelement = m_trtmanager->getElement(ident);
@@ -721,21 +721,21 @@ bool TRTCalibrator::calibrate() {
  
       //add histogram to the Calibrators (A and C side separated)
    if(!m_DoArXenonSep){
-      nTRThist += TRT.AddHit(Tkey,hitdata,chist,true);
+      nTRThist += TRT.AddHit(m_Tkey,hitdata,chist,true);
       if (Detector.CheckSelection(hitdata.det)) { //only add the histogram if it is in the selection
-        if (m_SplitBarrel) ndethist += Detector.AddHit(Dkey,hitdata,chist,true);
-        else ndethist += Detector.AddHit(Dkey_acc,hitdata,chist,true);
+        if (m_SplitBarrel) ndethist += Detector.AddHit(m_Dkey,hitdata,chist,true);
+        else ndethist += Detector.AddHit(m_Dkey_acc,hitdata,chist,true);
         if (Layer.CheckSelection(hitdata.lay)) {
-          if (m_SplitBarrel) nlayhist += Layer.AddHit(Lkey,hitdata,chist,true);
-          else { nlayhist += Layer.AddHit(Lkey_acc,hitdata,chist,true); continue;}
+          if (m_SplitBarrel) nlayhist += Layer.AddHit(m_Lkey,hitdata,chist,true);
+          else { nlayhist += Layer.AddHit(m_Lkey_acc,hitdata,chist,true); continue;}
           if (Module.CheckSelection(hitdata.mod)) {
-            nmodhist += Module.AddHit(Mkey,hitdata,chist,true);
+            nmodhist += Module.AddHit(m_Mkey,hitdata,chist,true);
             if (Board.CheckSelection(hitdata.brd)) {
-              nbrdhist += Board.AddHit(Bkey,hitdata,chist,true);
+              nbrdhist += Board.AddHit(m_Bkey,hitdata,chist,true);
               if (Chip.CheckSelection(hitdata.chp)) {
-                nchphist += Chip.AddHit(Ckey,hitdata,chist,true);
+                nchphist += Chip.AddHit(m_Ckey,hitdata,chist,true);
                 if (Straw.CheckSelection(hitdata.stw))
-                  nstwhist += Straw.AddHit(Skey,hitdata,chist,true);
+                  nstwhist += Straw.AddHit(m_Skey,hitdata,chist,true);
               }
             }
           }
@@ -746,21 +746,21 @@ bool TRTCalibrator::calibrate() {
 
     else{
      if(isArgonStraw==0){
-      nTRThist += TRT.AddHit(Tkey,hitdata,chist,true);
+      nTRThist += TRT.AddHit(m_Tkey,hitdata,chist,true);
       if (Detector.CheckSelection(hitdata.det)) { //only add the histogram if it is in the selection
-        if (m_SplitBarrel) ndethist += Detector.AddHit(Dkey,hitdata,chist,true);
-        else ndethist += Detector.AddHit(Dkey_acc,hitdata,chist,true);
+        if (m_SplitBarrel) ndethist += Detector.AddHit(m_Dkey,hitdata,chist,true);
+        else ndethist += Detector.AddHit(m_Dkey_acc,hitdata,chist,true);
         if (Layer.CheckSelection(hitdata.lay)) {
-          if (m_SplitBarrel) nlayhist += Layer.AddHit(Lkey,hitdata,chist,true);
-          else { nlayhist += Layer.AddHit(Lkey_acc,hitdata,chist,true); continue;}
+          if (m_SplitBarrel) nlayhist += Layer.AddHit(m_Lkey,hitdata,chist,true);
+          else { nlayhist += Layer.AddHit(m_Lkey_acc,hitdata,chist,true); continue;}
           if (Module.CheckSelection(hitdata.mod)) {
-            nmodhist += Module.AddHit(Mkey,hitdata,chist,true);
+            nmodhist += Module.AddHit(m_Mkey,hitdata,chist,true);
             if (Board.CheckSelection(hitdata.brd)) {
-              nbrdhist += Board.AddHit(Bkey,hitdata,chist,true);
+              nbrdhist += Board.AddHit(m_Bkey,hitdata,chist,true);
               if (Chip.CheckSelection(hitdata.chp)) {
-                nchphist += Chip.AddHit(Ckey,hitdata,chist,true);
+                nchphist += Chip.AddHit(m_Ckey,hitdata,chist,true);
                 if (Straw.CheckSelection(hitdata.stw))
-                  nstwhist += Straw.AddHit(Skey,hitdata,chist,true);
+                  nstwhist += Straw.AddHit(m_Skey,hitdata,chist,true);
               }
             }
           }
@@ -770,21 +770,21 @@ bool TRTCalibrator::calibrate() {
     }
 
     else{               // ARGON HITS
-      nTRThistAr += TRT_Ar.AddHit(Tkey,hitdata,chist,true);
+      nTRThistAr += TRT_Ar.AddHit(m_Tkey,hitdata,chist,true);
       if (Detector_Ar.CheckSelection(hitdata.det)) { //only add the histogram if it is in the selection
-        if (m_SplitBarrel) ndethistAr += Detector_Ar.AddHit(Dkey,hitdata,chist,true);
-        else ndethistAr += Detector_Ar.AddHit(Dkey_acc,hitdata,chist,true);
+        if (m_SplitBarrel) ndethistAr += Detector_Ar.AddHit(m_Dkey,hitdata,chist,true);
+        else ndethistAr += Detector_Ar.AddHit(m_Dkey_acc,hitdata,chist,true);
         if (Layer_Ar.CheckSelection(hitdata.lay)) {
-          if (m_SplitBarrel) nlayhistAr += Layer_Ar.AddHit(Lkey,hitdata,chist,true);
-          else { nlayhistAr += Layer_Ar.AddHit(Lkey_acc,hitdata,chist,true); continue;}
+          if (m_SplitBarrel) nlayhistAr += Layer_Ar.AddHit(m_Lkey,hitdata,chist,true);
+          else { nlayhistAr += Layer_Ar.AddHit(m_Lkey_acc,hitdata,chist,true); continue;}
           if (Module_Ar.CheckSelection(hitdata.mod)) {
-            nmodhistAr += Module_Ar.AddHit(Mkey,hitdata,chist,true);
+            nmodhistAr += Module_Ar.AddHit(m_Mkey,hitdata,chist,true);
             if (Board_Ar.CheckSelection(hitdata.brd)) {
-              nbrdhistAr += Board_Ar.AddHit(Bkey,hitdata,chist,true);
+              nbrdhistAr += Board_Ar.AddHit(m_Bkey,hitdata,chist,true);
               if (Chip_Ar.CheckSelection(hitdata.chp)) {
-                nchphistAr += Chip_Ar.AddHit(Ckey,hitdata,chist,true);
+                nchphistAr += Chip_Ar.AddHit(m_Ckey,hitdata,chist,true);
                 if (Straw_Ar.CheckSelection(hitdata.stw))
-                  nstwhistAr += Straw_Ar.AddHit(Skey,hitdata,chist,true);
+                  nstwhistAr += Straw_Ar.AddHit(m_Skey,hitdata,chist,true);
               }
             }
           }
@@ -924,7 +924,7 @@ bool TRTCalibrator::calibrate() {
           MakeBDKeys(hitdata.det, hitdata.lay, hitdata.mod, hitdata.brd, hitdata.chp, hitdata.sid);
 
           //make the level hierachy dictionary
-          trt.t[Tkey].d[Dkey].l[Lkey].m[Mkey].b[Bkey].c[Ckey].s[Skey].z=0;
+          m_trt.t[m_Tkey].d[m_Dkey].l[m_Lkey].m[m_Mkey].b[m_Bkey].c[m_Ckey].s[m_Skey].z=0;
 
           //populate the hit data structure to be added 
           strawelement = m_trtmanager->getElement(ident);
@@ -942,13 +942,13 @@ bool TRTCalibrator::calibrate() {
           hitdata.z=(strawelement->center(ident)).z();
 
           //add the hit to the Calibrators on all levelels 
-          nTRThist += TRT.AddHit(Tkey,hitdata,nullptr,true);
-          ndethist += Detector.AddHit(Dkey,hitdata,nullptr,true);
-          nlayhist += Layer.AddHit(Lkey,hitdata,nullptr,true);
-          nmodhist += Module.AddHit(Mkey,hitdata,nullptr,true);    
-          nbrdhist += Board.AddHit(Bkey,hitdata,nullptr,true);    
-          nchphist += Chip.AddHit(Ckey,hitdata,nullptr,true);    
-          nstwhist += Straw.AddHit(Skey,hitdata,nullptr,true);   
+          nTRThist += TRT.AddHit(m_Tkey,hitdata,nullptr,true);
+          ndethist += Detector.AddHit(m_Dkey,hitdata,nullptr,true);
+          nlayhist += Layer.AddHit(m_Lkey,hitdata,nullptr,true);
+          nmodhist += Module.AddHit(m_Mkey,hitdata,nullptr,true);    
+          nbrdhist += Board.AddHit(m_Bkey,hitdata,nullptr,true);    
+          nchphist += Chip.AddHit(m_Ckey,hitdata,nullptr,true);    
+          nstwhist += Straw.AddHit(m_Skey,hitdata,nullptr,true);   
 
           if (msgLvl(MSG::DEBUG)) msg() << hitdata.sid << endmsg;
           if (msgLvl(MSG::DEBUG)) msg() << m_TRTID->barrel_ec(ident) << endmsg;
@@ -1012,7 +1012,7 @@ bool TRTCalibrator::calibrate() {
 
   //if (m_SplitBarrel){
   
-  for (std::map<std::string,BDdetector>::iterator it = trt.t.begin(); it != trt.t.end(); it++){
+  for (std::map<std::string,BDdetector>::iterator it = m_trt.t.begin(); it != m_trt.t.end(); it++){
     
     if (TRT.Skip()) break;
     if (TRT.HasKey(it->first)) {
@@ -1113,7 +1113,7 @@ bool TRTCalibrator::calibrate() {
 
   if (m_DoArXenonSep){
 
-  for (std::map<std::string,BDdetector>::iterator it = trt.t.begin(); it != trt.t.end(); it++){
+  for (std::map<std::string,BDdetector>::iterator it = m_trt.t.begin(); it != m_trt.t.end(); it++){
 
     if (TRT_Ar.Skip()) break;
     if (TRT_Ar.HasKey(it->first)) {
