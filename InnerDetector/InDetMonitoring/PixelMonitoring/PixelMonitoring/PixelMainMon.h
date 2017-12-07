@@ -106,6 +106,8 @@ class PixLayerIBL2D3DDBM {
 class PixelMainMon : public ManagedMonitorToolBase {
  public:
   PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent);
+  PixelMainMon (const PixelMainMon&) = delete;
+  PixelMainMon& operator = (const PixelMainMon&) = delete;
   virtual ~PixelMainMon();
   virtual StatusCode initialize();      //!< Runs once at the start of the code.  Sets up services etc.
   virtual StatusCode bookHistograms();  //!< Runs at the start of every event.  Books some histograms if one of the function parameters is true
@@ -588,6 +590,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
    public:
     dcsDataHolder() : m_values(new std::map<int, std::map<int, float>*>),
                       m_maps(new std::map<std::string, int>){};
+    dcsDataHolder (const dcsDataHolder&) = delete;
+    dcsDataHolder& operator = (const dcsDataHolder&) = delete;
     ~dcsDataHolder() {
       for (auto lbmap : *m_values) {
         delete lbmap.second;
@@ -620,7 +624,10 @@ class PixelMainMon : public ManagedMonitorToolBase {
                             m_fsm_state(new std::map<int, std::map<int, float>*>),
                             m_fsm_status(new std::map<int, std::map<int, float>*>),
                             m_moduleMap(new std::map<std::string, int>){};
-    ~moduleDcsDataHolder() {
+    moduleDcsDataHolder (const moduleDcsDataHolder&) = delete;
+    moduleDcsDataHolder& operator = (const moduleDcsDataHolder&) = delete;
+
+      ~moduleDcsDataHolder() {
       for (auto lbmap : *m_tempModule) {
         delete lbmap.second;
       }
