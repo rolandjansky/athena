@@ -19,13 +19,16 @@
 #include <TDirectory.h>
 #include "TrigFTKSim/FTKLogging.h"
 
+class FTKSSMap;
+
 class FTKMergeRoot : FTKLogging {
 public:
    FTKMergeRoot(std::string outfilename);
    ~FTKMergeRoot();
    void DoTextImport();
    void DoTextExport(std::string const &TextOutFilename, int MinCoverage=1);
-   int DoMerge(int MinCoverage=1,int compression=1);
+   int DoMerge(int MinCoverage=1,int compression=1,
+               FTKSSMap *checkMap=0,int checkTower=-1,int checkHWmodeid=-1);
    void AddFile(std::string const &filename);
    void AddFiles(std::vector<std::string> const &filenames);
 

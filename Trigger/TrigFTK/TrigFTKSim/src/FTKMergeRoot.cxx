@@ -91,7 +91,8 @@ void FTKMergeRoot::AddFiles(vector<string> const &filenames){
 
 
 //___________________________________________________________________________________________ //
-int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
+int FTKMergeRoot::DoMerge(int MinCoverage,int compression,
+                          FTKSSMap *checkMap,int checkTower,int checkHWmodeid) {
    //! Merge all input files into one root file
    //! Return number of merged files
 
@@ -133,6 +134,13 @@ int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
       Warning("DoMerge")<<"number of layers not set, cannot merge patterns!\n";
       delete input;
       return 2;
+   }
+   if(checkMap && (checkTower>=0) && (checkHWmodeid>=0)) {
+      Info("DoMerge")<<"Performing input file consistency check\n";
+      input->CheckConsistency(checkMap,checkTower,checkHWmodeid);
+   } else {
+      Warning("DoMerge")<<"No input file consistency check "
+                        <<"\n";
    }
    if((input->GetContentType()!=FTKPatternBySectorBase::CONTENT_NOTMERGED )
       &&(!MinCoverage)&&(chain.GetLength()==1)) { // nothing to do
