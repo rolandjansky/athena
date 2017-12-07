@@ -15,6 +15,7 @@
 
 
 #include "AthContainers/tools/AuxTypeVector.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -308,7 +309,7 @@ public:
   virtual bool setOption (const SG::AuxDataOption& option) 
   { lastopt = option; return true; }
 
-  static SG::AuxDataOption lastopt;
+  static SG::AuxDataOption lastopt ATLAS_THREAD_SAFE;
 };
 
 

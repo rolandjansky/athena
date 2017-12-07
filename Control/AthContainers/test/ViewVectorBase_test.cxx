@@ -19,6 +19,7 @@
 #include "AthContainers/AuxElement.h"
 #include "SGTools/TestStore.h"
 #include "SGTools/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -78,7 +79,7 @@ void ViewVectorBaseTest::checkELV (unsigned int sgkey)
 }
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
   ViewVectorBaseTest vvb1;
@@ -86,8 +87,8 @@ void test1()
   DataVector<X>* dv = new DataVector<X>;
   for (int i = 0; i < 10; i++)
     dv->push_back (new X(i));
-  SGTest::store.record (dv, "dv");
-  unsigned int sgkey = SGTest::store.stringToKey ("dv", x_clid);
+  store.record (dv, "dv");
+  unsigned int sgkey = store.stringToKey ("dv", x_clid);
 
   DataVector<X> vv (SG::VIEW_ELEMENTS);
   for (int i = 0; i < 10; i++)
@@ -112,7 +113,7 @@ void test1()
   vvb1.checkClear();
 
   for (int i = 0; i < 10; i++)
-    SGTest::store.remap (sgkey, 12345, i, i);
+    store.remap (sgkey, 12345, i, i);
   vvb1.testToPersistent (vv);
   vvb1.checkELV (12345);
 
@@ -122,10 +123,10 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
-  test1();
+  test1 (SGTest::store);
   return 0;
 }
 

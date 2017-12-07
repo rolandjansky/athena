@@ -17,6 +17,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/tools/error.h"
+#include "CxxUtils/checker_macros.h"
 #include <sstream>
 
 
@@ -28,7 +29,7 @@ size_t AuxVectorData::s_minCacheLen = 1024;
 
 
 /// Empty auxid set, used for a return value when we have no associated store.
-SG::auxid_set_t AuxVectorData::s_emptySet;
+const SG::auxid_set_t AuxVectorData::s_emptySet;
 
 
 /**
@@ -238,7 +239,12 @@ bool AuxVectorData::isAvailableOol (auxid_t id) const
   // Explicitly try to fetch the data.
   const void* ptr = store->getData (id);
   if (ptr) {
-    m_constCache.store (id, const_cast<void*> (ptr));
+    // We could avoid the const_cast here by having distinct const and
+    // non-const Cache types, holding const void* and void*, respectively.
+    // However, since this is a purely internal class that users don't
+    // deal with directly, that's not worth the bother (and the extra code).
+    void* vp ATLAS_THREAD_SAFE = const_cast<void*> (ptr);
+    m_constCache.store (id, vp);
     return true;
   }
   return false;
@@ -249,7 +255,7 @@ bool AuxVectorData::isAvailableOol (auxid_t id) const
  * @brief Out-of-line portion of isAvailableWritable.
  * @param id The variable to test.
  */
-bool AuxVectorData::isAvailableWritableOol (auxid_t id) const
+bool AuxVectorData::isAvailableWritableOol (auxid_t id)
 {
   const SG::IAuxStore* store = getStore();
   if (!store) return false;
@@ -341,8 +347,14 @@ const void* AuxVectorData::getDataOol (SG::auxid_t auxid,
     throw SG::ExcNoAuxStore (auxid);
 
   // Check that we got a good pointer back, otherwise throw.
-  if (ptr)
-    m_constCache.store (auxid, const_cast<void*>(ptr));
+  if (ptr) {
+    // We could avoid the const_cast here by having distinct const and
+    // non-const Cache types, holding const void* and void*, respectively.
+    // However, since this is a purely internal class that users don't
+    // deal with directly, that's not worth the bother (and the extra code).
+    void* vp ATLAS_THREAD_SAFE = const_cast<void*> (ptr);
+    m_constCache.store (auxid, vp);
+  }
   else if (!allowMissing)
     throw SG::ExcBadAuxVar (auxid);
 
@@ -378,7 +390,8 @@ void* AuxVectorData::getDecorationOol (SG::auxid_t auxid) const
     // something that's otherwise const.  So we have the const_cast here.
     // The store object is responsible for determining whether the
     // modification is really allowed or not.
-    IConstAuxStore* store = const_cast<IConstAuxStore*> (getConstStore());
+    IConstAuxStore* store ATLAS_THREAD_SAFE =
+       const_cast<IConstAuxStore*> (getConstStore());
     ptr = store->getDecoration (auxid, this->size_v(), this->capacity_v());
   }
   else
@@ -561,7 +574,8 @@ bool AuxVectorData::clearDecorations() const
     // something that's otherwise const.  So we have the const_cast here.
     // The store object is responsible for determining whether the
     // modification is really allowed or not.
-    IConstAuxStore* store = const_cast<IConstAuxStore*> (getConstStore());
+    IConstAuxStore* store ATLAS_THREAD_SAFE =
+       const_cast<IConstAuxStore*> (getConstStore());
     ret = store->clearDecorations();
   }
   else

@@ -15,6 +15,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "AthLinks/ElementLink.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -60,6 +61,10 @@ public:
 
   SG::StringPool m_pool;
 };
+#else
+namespace SGTest {
+class TestStore {};
+}
 #endif // not XAOD_STANDALONE
 
 
@@ -393,7 +398,7 @@ void test_get_by_ti()
 }
 
 
-void test_copyForOutput()
+void test_copyForOutput (SGTest::TestStore& store)
 {
   std::cout << "test_copyForOutput\n";
 
@@ -471,7 +476,7 @@ void test_renameMap()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
 #ifndef XAOD_STANDALONE
   initTestStore();
@@ -481,7 +486,7 @@ int main()
   test_placeholder();
   test_factories();
   test_get_by_ti();
-  test_copyForOutput();
+  test_copyForOutput (SGTest::store);
   test_renameMap();
   return 0;
 }

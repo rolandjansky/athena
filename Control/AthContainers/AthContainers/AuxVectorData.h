@@ -26,7 +26,6 @@
 #   include "AthenaKernel/ILockable.h"
 #   include "AthenaKernel/IThinningSvc.h"
 #endif // not XAOD_STANDALONE
-#include "CxxUtils/override.h"
 #include <vector>
 #include <utility>
 #include <cstdlib>
@@ -34,6 +33,7 @@
 #include "AthContainers/tools/likely.h"
 #include "AthContainers/tools/assume.h"
 #include "AthContainers/tools/threading.h"
+#include "CxxUtils/checker_macros.h"
 
 
 namespace SG {
@@ -238,7 +238,15 @@ public:
    *
    * This will be non-zero if a non-const store is associated with this object.
    */
-  SG::IAuxStore* getStore() const;
+  SG::IAuxStore* getStore();
+
+
+  /**
+   * @brief Return the current store, as a non-const interface.
+   *
+   * This will be non-zero if a non-const store is associated with this object.
+   */
+  const SG::IAuxStore* getStore() const;
 
 
   /**
@@ -433,7 +441,7 @@ public:
    * @brief Test to see if a variable is available for writing.
    * @param id The variable to test.
    */
-  bool isAvailableWritable (auxid_t id) const;
+  bool isAvailableWritable (auxid_t id);
 
 
   /**
@@ -443,7 +451,7 @@ public:
    */
   template <class T>
   bool isAvailableWritable (const std::string& name,
-                            const std::string& clsname = "") const;
+                            const std::string& clsname = "");
 
 
   /**
@@ -572,8 +580,8 @@ protected:
 
 
   /// Minimum length to use for the cache vector.
-  /// This can be changed for regression tests.
-  static size_t s_minCacheLen;
+  /// Only changed by unit tests.
+  static size_t s_minCacheLen ATLAS_THREAD_SAFE;
 
 
   //@}
@@ -610,7 +618,7 @@ public:
 #endif // not XAOD_STANDALONE
           void lock()
 #ifndef XAOD_STANDALONE
-                      ATH_OVERRIDE
+                      override
 #endif // not XAOD_STANDALONE
      ;
 
@@ -794,7 +802,7 @@ private:
    * @brief Out-of-line portion of isAvailableWritable.
    * @param id The variable to test.
    */
-  bool isAvailableWritableOol (auxid_t id) const;
+  bool isAvailableWritableOol (auxid_t id);
 
 
   /**
@@ -848,13 +856,13 @@ private:
 
 
   /// Cached pointers to the start of aux data vectors, non-const.
-  mutable Cache m_cache;
+  mutable Cache m_cache ATLAS_THREAD_SAFE;
 
   /// Cached pointers to the start of aux data vectors, const.
-  mutable Cache m_constCache;
+  mutable Cache m_constCache ATLAS_THREAD_SAFE;
 
   /// Cached pointers to the start of aux data vectors, decorations.
-  mutable Cache m_decorCache;
+  mutable Cache m_decorCache ATLAS_THREAD_SAFE;
 
 
   /// Associated store, non-const.
@@ -875,7 +883,7 @@ private:
   mutable mutex_t m_mutex;
 
   /// Empty auxid set, used for a return value when we have no associated store.
-  static SG::auxid_set_t s_emptySet;
+  static const SG::auxid_set_t s_emptySet;
 };
 
 
