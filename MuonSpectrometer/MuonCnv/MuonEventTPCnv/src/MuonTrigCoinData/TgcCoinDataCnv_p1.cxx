@@ -11,7 +11,7 @@
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinDataCnv_p1.h"
 #include <algorithm>
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "CxxUtils/make_unique.h"
 
@@ -69,7 +69,7 @@ persToTrans( const Muon::TgcCoinData_p1 *persObj, Muon::TgcCoinData *transObj,Ms
 void TgcCoinDataCnv_p1::
 transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p1 *persObj, MsgStream &log )
 {
-   //log << MSG::DEBUG << "TgcCoinDataCnv_p1::transToPers" << endreq;
+   //log << MSG::DEBUG << "TgcCoinDataCnv_p1::transToPers" << endmsg;
  
   persObj->m_channelIdIn = transObj->channelIdIn().get_identifier32().get_compact(); 
    persObj->m_channelIdOut = transObj->channelIdOut().get_identifier32().get_compact(); 

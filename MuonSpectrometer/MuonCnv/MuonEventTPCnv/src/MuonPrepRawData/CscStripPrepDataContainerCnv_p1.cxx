@@ -26,7 +26,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::CscStripPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -37,7 +37,7 @@ StatusCode Muon::CscStripPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
     StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "StoreGate service not found !" << endreq;
+        log << MSG::FATAL << "StoreGate service not found !" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -45,29 +45,29 @@ StatusCode Muon::CscStripPrepDataContainerCnv_p1::initialize(MsgStream &log) {
     StoreGateSvc *detStore;
     sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
 
    // Get the pixel helper from the detector store
     sc = detStore->retrieve(m_cscStripId);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get CscStrip ID helper !" << endreq;
+        log << MSG::FATAL << "Could not get CscStrip ID helper !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the CscStrip ID helper." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the CscStrip ID helper." << endmsg;
     }
 
     sc = detStore->retrieve(m_muonDetMgr);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
+        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
         return sc;
     }
 
     if (log.level() <= MSG::DEBUG) 
-      log << MSG::DEBUG << "Converter initialized." << endreq;
+      log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -99,11 +99,11 @@ void Muon::CscStripPrepDataContainerCnv_p1::transToPers(const Muon::CscStripPrep
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::CscStripPrepDataCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -119,7 +119,7 @@ void Muon::CscStripPrepDataContainerCnv_p1::transToPers(const Muon::CscStripPrep
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing CscStripPrepDataContainer ***" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing CscStripPrepDataContainer ***" << endmsg;
 }
 
 void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Container_p1* persCont, Muon::CscStripPrepDataContainer* transCont, MsgStream &log) 
@@ -145,7 +145,7 @@ void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Con
     CscStripPrepDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of CscStripPrepData (SG::VIEW_ELEMENTS)
@@ -163,7 +163,7 @@ void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Con
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             Muon::CscStripPrepData* chan = dynamic_cast<Muon::CscStripPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
             if (!chan) {
-               log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscStripPrepData!" << endreq;
+               log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscStripPrepData!" << endmsg;
                continue;
             }
             const MuonGM::CscReadoutElement * de = m_muonDetMgr->getCscReadoutElement(chan->identify());
@@ -178,11 +178,11 @@ void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Con
         }
         if (log.level() <= MSG::DEBUG) {
             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-                collID.get_compact() << ", added to Identifiable container." << endreq;
+                collID.get_compact() << ", added to Identifiable container." << endmsg;
         }
     }
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CscStripPrepDataContainer" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CscStripPrepDataContainer" << endmsg;
 }
 
 
@@ -192,7 +192,7 @@ Muon::CscStripPrepDataContainer* Muon::CscStripPrepDataContainerCnv_p1::createTr
 {
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize CscStripPrepDataContainerCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize CscStripPrepDataContainerCnv_p1 " << endmsg;
             return 0;
         } 
     }

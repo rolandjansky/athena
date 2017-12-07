@@ -15,6 +15,7 @@
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -37,6 +38,7 @@
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "AGDDKernel/AGDDDetector.h"
+#include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
 #include "IdDict/IdDictDefs.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -214,6 +216,11 @@ const MuonGM::MuonDetectorManager& make_dd()
   ddsdet.roParameters.nPadH.push_back(0);
   ddsdet.roParameters.firstPadH.push_back(0);
   ddsdet.roParameters.padH.push_back(0);
+  ddsdet.roParameters.firstStripWidth.push_back(0);
+  ddsdet.roParameters.firstWire.push_back(0);
+  ddsdet.roParameters.firstWireGroup.push_back(0);
+  ddsdet.roParameters.nWireGroups.push_back(0);
+  ddsdet.roParameters.wireCutout.push_back(0);
 
   HepGeom::Transform3D xform;
   AGDDDetectorPositioner* spos2 = new AGDDDetectorPositioner ("psdum2", xform);

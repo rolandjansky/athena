@@ -50,7 +50,7 @@ persToTrans( const Muon::TgcPrepData_p2 *persObj, Muon::TgcPrepData *transObj,Ms
 void TgcPrepDataCnv_p2::
 transToPers( const Muon::TgcPrepData *transObj, Muon::TgcPrepData_p2 *persObj, MsgStream & /**log*/ )
 {
-  //log << MSG::DEBUG << "TgcPrepDataCnv_p2::transToPers" << endreq;
+  //log << MSG::DEBUG << "TgcPrepDataCnv_p2::transToPers" << endmsg;
   persObj->m_locX      = transObj->localPosition().x();
   persObj->m_errorMat  = transObj->localCovariance()(0,0);
 }

@@ -14,7 +14,7 @@
 void RpcPrepDataCnv_p1::
 persToTrans( const Muon::RpcPrepData_p1 *persObj, Muon::RpcPrepData *transObj,MsgStream &log ) 
 {
-   log << MSG::DEBUG << "RpcPrepDataCnv_p1::persToTrans" << endreq;
+   log << MSG::DEBUG << "RpcPrepDataCnv_p1::persToTrans" << endmsg;
 
    Amg::Vector2D locpos;
    locpos.setZero();
@@ -35,7 +35,7 @@ persToTrans( const Muon::RpcPrepData_p1 *persObj, Muon::RpcPrepData *transObj,Ms
 void RpcPrepDataCnv_p1::
 transToPers( const Muon::RpcPrepData *transObj, Muon::RpcPrepData_p1 *persObj, MsgStream &log )
 {
-   log << MSG::DEBUG << "RpcPrepDataCnv_p1::transToPers" << endreq;
+   log << MSG::DEBUG << "RpcPrepDataCnv_p1::transToPers" << endmsg;
    persObj->m_prd = baseToPersistent( &m_prdCnv, transObj, log );
    persObj->m_time           = transObj->time();
    persObj->m_triggerInfo    = transObj->triggerInfo();

@@ -44,7 +44,7 @@ void MuonSegmentCnv_p2::transToPers( const Muon::MuonSegment *transObj, Muon::Mu
     //if (transObj->m_localDirection!=0) 
     //    m_localDirCnv.transToPers(&persObj->m_localDirection,const_cast<Trk::LocalDirection*>(transObj->m_localDirection),log);
     //else
-    //    log<<MSG::WARNING<<"MuonSegment is apparently missing a LocalDirection. Dumping:"<<*transObj<<endreq;
+    //    log<<MSG::WARNING<<"MuonSegment is apparently missing a LocalDirection. Dumping:"<<*transObj<<endmsg;
   m_surfCnv=0;
   if (transObj->associatedSurface().isFree() ) // if this is a free surface, write it out 'as is'
     persObj->m_associatedSurface = toPersistent(&m_surfCnv, &transObj->associatedSurface(), log);

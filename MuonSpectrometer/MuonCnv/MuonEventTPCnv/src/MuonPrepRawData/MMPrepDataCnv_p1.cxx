@@ -18,7 +18,7 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
                    const MuonGM::MMReadoutElement* detEl,
                    MsgStream & /**log*/ ) 
 {
-  //log << MSG::DEBUG << "MMPrepDataCnv_p3::persToTrans" << endreq;
+  //log << MSG::DEBUG << "MMPrepDataCnv_p3::persToTrans" << endmsg;
   // Fill localposition
   Amg::Vector2D localPos;
   localPos[Trk::locX] = persObj->m_locX; 
@@ -50,7 +50,7 @@ persToTrans( const Muon::MMPrepData_p1 *persObj, Muon::MMPrepData *transObj,MsgS
 void MMPrepDataCnv_p1::
 transToPers( const Muon::MMPrepData *transObj, Muon::MMPrepData_p1 *persObj, MsgStream & /**log*/ )
 {
-    //log << MSG::DEBUG << "MMPrepDataCnv_p3::transToPers" << endreq;
+    //log << MSG::DEBUG << "MMPrepDataCnv_p3::transToPers" << endmsg;
     persObj->m_locX     = transObj->localPosition()[Trk::locX];
     persObj->m_errorMat = (transObj->localCovariance())(0,0);
     persObj->m_id       = transObj->identify().get_identifier32().get_compact(); // FIXME - remove when diff issue understood.

@@ -22,7 +22,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include <limits>       // std::numeric_limits
 
-//#include "DataModel/DataPool.h"
 
 StatusCode Muon::MM_DigitContainerCnv_p2::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -33,7 +32,7 @@ StatusCode Muon::MM_DigitContainerCnv_p2::initialize(MsgStream &log) {
    // get StoreGate service
   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
+    log << MSG::FATAL << "StoreGate service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -41,36 +40,36 @@ StatusCode Muon::MM_DigitContainerCnv_p2::initialize(MsgStream &log) {
   StoreGateSvc *detStore;
   sc = svcLocator->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
   }
 
    // Get the helper from the detector store
   sc = detStore->retrieve(m_MMId);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get MM IdHelper !" << endreq;
+    log << MSG::FATAL << "Could not get MM IdHelper !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the MM IdHelper." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the MM IdHelper." << endmsg;
   }
 
   sc = detStore->retrieve(m_muonDetMgr);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get DetectorDescription manager" << endreq;
+    log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
     return sc;
   }
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
   return StatusCode::SUCCESS;
 }
 
 void Muon::MM_DigitContainerCnv_p2::transToPers(const MmDigitContainer* transCont,  Muon::MM_DigitContainer_p2* persCont, MsgStream &log) 
 {
-  if(log.level() <= MSG::DEBUG && !m_isInitialized) {
+  if(!m_isInitialized) {
       if (this->initialize(log) != StatusCode::SUCCESS) {
-          log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p2 " << endreq;
+          log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p2 " << endmsg;
       } 
   }
     // The transient model has a container holding collections and the
@@ -114,12 +113,12 @@ void Muon::MM_DigitContainerCnv_p2::transToPers(const MmDigitContainer* transCon
   persCont->m_digitDeltaId.resize(numOfDigits);
   
   if (log.level() <= MSG::DEBUG) 
-    log << MSG::DEBUG<< " Preparing " << persCont->m_collectionId.size() << "collections and "<<numOfDigits<<" digits in total." <<endreq;
+    log << MSG::DEBUG<< " Preparing " << persCont->m_collectionId.size() << "collections and "<<numOfDigits<<" digits in total." <<endmsg;
   // std::cout<<"Preparing " << persCont->m_collections.size() << " collections" << std::endl;
   for (it_Coll = transCont->begin(); it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {  
     const MmDigitCollection& collection = (**it_Coll);
     if (log.level() <= MSG::DEBUG) 
-      log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifierHash()<<endreq;
+      log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifierHash()<<endmsg;
     // Add in new collection
     // Muon::MuonDIGIT_Collection_p2& pcollection = persCont->m_collections[pcollIndex]; //get ref to collection we're going to fill
 
@@ -141,12 +140,12 @@ void Muon::MM_DigitContainerCnv_p2::transToPers(const MmDigitContainer* transCon
       unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
       unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
       unsigned int diff = clusIdCompact - collIdCompact;
-      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::ERROR<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endreq;
+      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::ERROR<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endmsg;
       persCont->m_digitDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
     }
   }
   if (log.level() <= MSG::DEBUG) 
-    log << MSG::DEBUG<< " ***  Writing MM_DigitContainer ***" <<endreq;
+    log << MSG::DEBUG<< " ***  Writing MM_DigitContainer ***" <<endmsg;
 }
 
 void  Muon::MM_DigitContainerCnv_p2::persToTrans(const Muon::MM_DigitContainer_p2* persCont, MmDigitContainer* transCont, MsgStream &log) 
@@ -172,11 +171,11 @@ void  Muon::MM_DigitContainerCnv_p2::persToTrans(const Muon::MM_DigitContainer_p
   unsigned int pchanIndex(0); // position within persCont->m_digits. Incremented inside innermost loop 
   unsigned int pCollEnd = persCont->m_size.size();
   if (log.level() <= MSG::DEBUG) 
-    log << MSG::DEBUG<< " Reading " << pCollEnd << "Collections" <<endreq;
+    log << MSG::DEBUG<< " Reading " << pCollEnd << "Collections" <<endmsg;
   for (unsigned int pcollIndex = 0; pcollIndex < pCollEnd; ++pcollIndex) {
     // const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];        
     IdentifierHash collIDHash(persCont->m_collectionHashId[pcollIndex] );
-    log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collIDHash<<endreq;
+    log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collIDHash<<endmsg;
     
     coll = new MmDigitCollection(Identifier(persCont->m_collectionId[pcollIndex]),collIDHash);
 
@@ -190,15 +189,15 @@ void  Muon::MM_DigitContainerCnv_p2::persToTrans(const Muon::MM_DigitContainer_p
       MmDigit* chan = new MmDigit;
 
       chanCnv.persToTrans(pchan, chan, log);// FIXME! remove.
-      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->identify().get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_muonId<<std::dec<<endreq;
+      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->identify().get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_muonId<<std::dec<<endmsg;
       // std::cout <<"Trans id:"<<chan->identify()<<"\t pers Id:"<<pchan->m_id<<std::endl;
       
       if ( m_MMId->valid(chan->identify())!=true ) {
                 // have invalid PRD
         log << MSG::WARNING  << "MM PRD has invalid Identifier of "<< m_MMId->show_to_string(chan->identify())
-          <<" - are you sure you have the correct geometry loaded, and NSW enabled?" << endreq;
+          <<" - are you sure you have the correct geometry loaded, and NSW enabled?" << endmsg;
       } 
-      log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endreq;      
+      log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endmsg;      
       coll->push_back(chan);    
     }
 
@@ -209,19 +208,19 @@ void  Muon::MM_DigitContainerCnv_p2::persToTrans(const Muon::MM_DigitContainer_p
     }
     if (log.level() <= MSG::DEBUG) {
       log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-        coll->identify().get_compact() << ", added to Identifiable container." << endreq;
+        coll->identify().get_compact() << ", added to Identifiable container." << endmsg;
     }
   }
 
     if (log.level() <= MSG::DEBUG) 
-      log << MSG::DEBUG<< " ***  Reading MM_DigitContainer ***" << endreq;
+      log << MSG::DEBUG<< " ***  Reading MM_DigitContainer ***" << endmsg;
 }
 
 MmDigitContainer* Muon::MM_DigitContainerCnv_p2::createTransient(const Muon::MM_DigitContainer_p2* persObj, MsgStream& log) 
 {
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p2 " << endreq;
+      log << MSG::FATAL << "Could not initialize MM_DigitContainerCnv_p2 " << endmsg;
       return 0;
     } 
   }

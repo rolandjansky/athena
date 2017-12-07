@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -56,6 +57,7 @@ void testit (const MuonSimData& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   std::vector<MuonSimData::Deposit> deps;
   deps.emplace_back (123, MuonMCData ( 2.5,  3.5));
