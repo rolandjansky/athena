@@ -255,6 +255,7 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
       if( (0<=tau32) && (tau32 < cut_var2) )
         m_accept.setCutResult("PassTau32",true);
 
+      break;
     }
     case Tau32Split23:{
       if(m_decorate) {
@@ -274,6 +275,7 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
       if( ( acc_s23(jet)/1000.> cut_var2) )
         m_accept.setCutResult("PassSplit23",true);
 
+      break;
     }
     case QwTau32:{
       if(m_decorate) {
@@ -292,6 +294,8 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
 
       if( (0<=tau32) && (tau32 < cut_var2) )
         m_accept.setCutResult("PassTau32",true);
+      
+      break;
     }
     default:
       break;
