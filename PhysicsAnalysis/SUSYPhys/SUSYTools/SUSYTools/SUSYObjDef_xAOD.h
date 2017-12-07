@@ -133,7 +133,7 @@ namespace ST {
     StatusCode setBoolProperty(const std::string& name, const bool& property) override final;
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool();
+    StatusCode autoconfigurePileupRWTool() override final;
 
     // Hack to make thisx configurable from python
     // 0 = data, 1 = full sim, 2 = AF-II

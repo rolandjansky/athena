@@ -1014,7 +1014,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauSmearingTool.isUserConfigured()) {
     m_tauSmearingTool.setTypeAndName("TauAnalysisTools::TauSmearingTool/TauSmearingTool");
     if (m_tauMVACalib) { // Apply the MVA calibration?
-      ATH_CHECK( m_tauSmearingTool.setProperty("ApplyMVATES",true) );
+      ATH_MSG_WARNING("'TauMVACalibration' set to true in SUSYTools config file, but 'ApplyMVATES' is not supperted anymore in R21. Just ignoring 'TauMVACalibration' for now; please remove it from your config file!");
     }
     ATH_CHECK( m_tauSmearingTool.retrieve() );
   }
