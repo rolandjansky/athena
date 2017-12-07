@@ -17,11 +17,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRKIPATFITTERUTILS_FITPROCEDURE_H
-# define TRKIPATFITTERUTILS_FITPROCEDURE_H
+#define TRKIPATFITTERUTILS_FITPROCEDURE_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include <list>
+#include <vector>
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
