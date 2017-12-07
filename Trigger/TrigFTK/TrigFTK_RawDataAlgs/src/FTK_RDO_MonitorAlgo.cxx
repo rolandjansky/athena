@@ -180,8 +180,8 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
 
       if (returnCode) {
 	ATH_MSG_WARNING("Error " << returnCode << " loading constants for tower " << itower);
-	//	ret=StatusCode::FAILURE;
-	//	break;
+	ret=StatusCode::FAILURE;
+	break;
       } 
 
     }
@@ -602,14 +602,12 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
 	  if (m_getHashFromTrack) { 
 	    if (hashfromConstants != hash) {
 	    
-	      ATH_MSG_WARNING(" ");
 	      ATH_MSG_WARNING(" Pixel HashID missmatch: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
 	      unsigned int track_tower=tower, track_sector=sector, track_plane=iPlane;
 	      bool found = this->findHash(hash, false, track_tower, track_sector, track_plane);
 	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
 	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hash)));
 	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hashfromConstants)));
-	      ATH_MSG_WARNING(" ");
 	      
 	    } else {
 	      ATH_MSG_VERBOSE(" Pixel HashID successful match: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
@@ -666,15 +664,7 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
 	  if (m_getHashFromTrack) {
 	    if (hashfromConstants != hash) {
 	    
-	      ATH_MSG_WARNING(" ");
-	      
 	      ATH_MSG_WARNING(" SCT HashID missmatch: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
-	      cout<<"Sector " << sector<<": "<<std::hex;
-	      for(int k=0;k<12;k++) {
-		cout<<" 0x"<<(*m_moduleFromSector[tower])[sector][k];
-	      }
-	      cout<<std::dec<<"\n";
-	    
 
 	      unsigned int track_tower, track_sector, track_plane;
 
@@ -683,7 +673,7 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
 	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
 	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hash)));
 	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hashfromConstants)));
-	      ATH_MSG_WARNING(" ");
+
 	    
 	    } else {
 	      ATH_MSG_VERBOSE(" SCT HashID successful match: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
