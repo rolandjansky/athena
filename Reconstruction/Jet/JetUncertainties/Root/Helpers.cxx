@@ -106,6 +106,10 @@ TString findFilePath(const TString& fileName, const TString& path)
     else if (fileExists(path+(path.EndsWith("/")?"":"/")+fileName))
         pathToGet = path+(path.EndsWith("/")?"":"/")+fileName;
 
+    // Second, try PathResolver, but without specifying. This is to allow the tool to read files residing in other packages
+    if (pathToGet == "")
+        pathToGet = TString(PathResolverFindCalibFile(Form("%s",fileName.Data())).c_str());    
+    
     // Next, try PathResolver
     if (pathToGet == "")
         pathToGet = TString(PathResolverFindCalibFile(Form("JetUncertainties/%s",fileName.Data())).c_str());
