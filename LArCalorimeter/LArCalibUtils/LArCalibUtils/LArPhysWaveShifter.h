@@ -35,7 +35,7 @@ class LArPhysWaveShifter : public AthAlgorithm
  
  private:
 
-  const LArOnlineID_Base* m_onlineHelper;
+  const LArOnlineID* m_onlineHelper;
   
   std::vector<std::string> m_keylist;
   std::string m_keyout;
@@ -55,7 +55,6 @@ class LArPhysWaveShifter : public AthAlgorithm
   bool m_timeShiftByFEB;
   int  m_timeShiftGuardRegion;
   bool m_usePhysCaliTdiff;
-  bool m_isSC;
 
   bool m_timeShiftOffset;
   float m_timeShiftOffsetValue;

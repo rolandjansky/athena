@@ -9,8 +9,9 @@
 #include "LArElecCalib/ILArPhysCaliTdiff.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "GaudiKernel/ToolHandle.h"
+//#include "LArTools/LArCablingService.h"
+//#include "CaloIdentifier/LArEM_ID.h"
 
-#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include <iostream>
 #include <fstream>
@@ -64,54 +65,28 @@ LArPhysWaveShifter::LArPhysWaveShifter (const std::string& name, ISvcLocator* pS
   declareProperty("OutputShiftsKey",   m_totalShiftsKey);
   declareProperty("CellByCellShiftsKey",    m_cellByCellShiftsKey);
   
-  declareProperty("isSC",m_isSC=false);
-  
 }
 
 LArPhysWaveShifter::~LArPhysWaveShifter() 
 {}
 
 StatusCode LArPhysWaveShifter::stop() {
-  msg(MSG::INFO) << "... in stop()" << endmsg ;
+  msg(MSG::INFO) << "... in stop()" << endreq ;
   
   LArWaveHelper larWaveHelper;
 
   // get LArOnlineID helper
-  /*StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
+  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArOnlineID" << endreq;
     return sc;
-  }*/
-  StatusCode sc;
-  if ( m_isSC ) {
-    const LArOnline_SuperCellID* ll;
-    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineHelper = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG("Found the LArOnlineID helper");
-    }
-  } else { // m_isSC
-    const LArOnlineID* ll;
-    sc = detStore()->retrieve(ll, "LArOnlineID");
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineHelper = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
-    }
   }
 
   // Retrieve LArPhysWaveTool
   ToolHandle<LArPhysWaveTool> larPhysWaveTool("LArPhysWaveTool");
   sc=larPhysWaveTool.retrieve();
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << " Can't get LArPhysWaveTool " << endmsg;
+    msg(MSG::ERROR) << " Can't get LArPhysWaveTool " << endreq;
     return sc;
   }
 
@@ -121,10 +96,10 @@ StatusCode LArPhysWaveShifter::stop() {
     sc = detStore()->retrieve(larPhysCaliTdiff,m_cellByCellShiftsKey);
     if (sc!=StatusCode::SUCCESS) {
       msg(MSG::WARNING) << "Cannot retrieve LArPhysCaliTdiff with key " <<  m_cellByCellShiftsKey 
-			<< ". Disabling use of PhysCaliTdiff values in wave shift." << endmsg; 
+			<< ". Disabling use of PhysCaliTdiff values in wave shift." << endreq; 
       m_usePhysCaliTdiff = false;
     }else {
-      msg(MSG::INFO) << "LArPhysCaliTdiff successfully retrieved" << endmsg;
+      msg(MSG::INFO) << "LArPhysCaliTdiff successfully retrieved" << endreq;
     }
   }
 
@@ -133,27 +108,27 @@ StatusCode LArPhysWaveShifter::stop() {
     if ( ( m_modeTimeShiftByFEB==2 || m_modeTimeShiftByFEB==3 ) && m_nIndexFromPeak==0 ) m_nIndexFromPeak=m_nSamplings*m_nDelays;
     sc = ComputeTimeShiftByFEB(m_modeTimeShiftByFEB);
     if(!sc.isSuccess()) {
-      msg(MSG::ERROR) << "Can't compute time shifts by FEB." << endmsg;
+      msg(MSG::ERROR) << "Can't compute time shifts by FEB." << endreq;
       return sc;
     }
   }
 
   // apply time shifts
   if ( m_timeShiftByHelper ) {
-      msg(MSG::INFO) << "Will use helper class for start time." << endmsg;
+      msg(MSG::INFO) << "Will use helper class for start time." << endreq;
       m_timeShiftByIndex  = 0 ;
       m_timeShiftFromPeak = false ;
       m_timeShiftByFEB    = false ;
   }  
 
   if ( m_timeShiftByIndex != 0 ) {
-      msg(MSG::INFO) << "Manually shifting pulses by time index " << m_timeShiftByIndex << endmsg;
+      msg(MSG::INFO) << "Manually shifting pulses by time index " << m_timeShiftByIndex << endreq;
       m_timeShiftFromPeak = false ;
       m_timeShiftByFEB    = false ;
   }
 
   if ( m_timeShiftFromPeak ) {
-      msg(MSG::INFO) << "Manually shifting pulses by a constant index from peak." << endmsg;
+      msg(MSG::INFO) << "Manually shifting pulses by a constant index from peak." << endreq;
       if ( m_nIndexFromPeak==0 ) m_nIndexFromPeak=m_nSamplings*m_nDelays;
       m_timeShiftByFEB    = false ;
   }
@@ -170,10 +145,10 @@ StatusCode LArPhysWaveShifter::stop() {
   */
   const ILArFEBTimeOffset* larFebTshift = NULL;
   if ( m_timeShiftByFEB ) {
-      msg(MSG::INFO) << "Manually shifting pulses by *FEB* time indexes." << endmsg;
+      msg(MSG::INFO) << "Manually shifting pulses by *FEB* time indexes." << endreq;
       sc = detStore()->retrieve(larFebTshift);
       if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Cannot find any FEB time offsets. Please check." << endmsg;
+        msg(MSG::ERROR) << "Cannot find any FEB time offsets. Please check." << endreq;
         return sc;
       }	 
   }
@@ -182,12 +157,12 @@ StatusCode LArPhysWaveShifter::stop() {
   //LArPhysCaliTdiffComplete* totalShifts=new LArPhysCaliTdiffComplete();
   LArOFCBinComplete* totalShifts=new LArOFCBinComplete();
   if (totalShifts->setGroupingType(m_groupingType,msg()).isFailure()) {
-    msg(MSG::ERROR) << "Failed to set grouping type for LArPhysCaliTdiffComplete object" << endmsg;
+    msg(MSG::ERROR) << "Failed to set grouping type for LArPhysCaliTdiffComplete object" << endreq;
     return StatusCode::FAILURE;
   }
   
   if(totalShifts->initialize().isFailure()) {
-     msg(MSG::ERROR) << "Failed to initialize LArPhysCaliTdiffComplete object" << endmsg;
+     msg(MSG::ERROR) << "Failed to initialize LArPhysCaliTdiffComplete object" << endreq;
      return StatusCode::FAILURE;
   }
 
@@ -203,10 +178,10 @@ StatusCode LArPhysWaveShifter::stop() {
 
     sc= detStore()->retrieve(larPhysWaveContainerOld,*key_it);
     if (sc.isFailure()) {
-      msg(MSG::INFO) << "LArPhysWaveContainer (key=" << *key_it << ") not found in StoreGate" << endmsg;
+      msg(MSG::INFO) << "LArPhysWaveContainer (key=" << *key_it << ") not found in StoreGate" << endreq;
       continue ;
     }
-    msg(MSG::INFO) << "Processing LArPhysWaveContainer from StoreGate, key = " << *key_it << endmsg;
+    msg(MSG::INFO) << "Processing LArPhysWaveContainer from StoreGate, key = " << *key_it << endreq;
 
     // loop over physwave in 'old' container
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN; gain++ ) { // Loop over all gains
@@ -216,14 +191,14 @@ StatusCode LArPhysWaveShifter::stop() {
         PhysWaveIt wave_it_e = larPhysWaveContainerOld->end(gain);
 
         if ( wave_it ==  wave_it_e ) {
-	  msg(MSG::INFO) << "LArPhysWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain << endmsg;
+	  msg(MSG::INFO) << "LArPhysWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain << endreq;
 	  continue; // skip to next gain
 	}
 
         for ( ; wave_it!=wave_it_e; wave_it++) {
     
           if ( nchannel < 100 || ( nchannel < 1000 && nchannel%100==0 ) || nchannel%1000==0 ) 
-             msg(MSG::INFO) << "Processing physics waveform number " << nchannel << endmsg;
+             msg(MSG::INFO) << "Processing physics waveform number " << nchannel << endreq;
           nchannel++ ;
       
           const LArPhysWave* larPhysWave = &(*wave_it);
@@ -310,11 +285,11 @@ StatusCode LArPhysWaveShifter::stop() {
   if (m_totalShiftsKey.size()) {
     sc=detStore()->record(totalShifts,m_totalShiftsKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to recrod LArPhysCaliTdiffComplete with key " << m_totalShiftsKey << endmsg;
+      msg(MSG::ERROR) << "Failed to recrod LArPhysCaliTdiffComplete with key " << m_totalShiftsKey << endreq;
     }
   }
 
-  msg(MSG::INFO) << "LArPhysWaveShifter stopped!" << endmsg;  
+  msg(MSG::INFO) << "LArPhysWaveShifter stopped!" << endreq;  
   
   return StatusCode::SUCCESS;
 }
@@ -349,15 +324,15 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
 
     sc=detStore()->retrieve(larPhysWaveContainerOld,*key_it);
     if (sc.isFailure()) {
-      msg(MSG::INFO) << "LArPhysWaveContainer (key=" << *key_it << ") not found in StoreGate" << endmsg;
+      msg(MSG::INFO) << "LArPhysWaveContainer (key=" << *key_it << ") not found in StoreGate" << endreq;
       continue ;
     }
     if ( larPhysWaveContainerOld == NULL ) {
-      msg(MSG::INFO) << "LArPhysWaveContainer (key=" << *key_it << ") is empty" << endmsg;
+      msg(MSG::INFO) << "LArPhysWaveContainer (key=" << *key_it << ") is empty" << endreq;
       continue ;
     }
     
-    msg(MSG::INFO) << "ComputeTimeShiftByFEB(): processing LArPhysWaveContainer from StoreGate, key = " << *key_it << endmsg;
+    msg(MSG::INFO) << "ComputeTimeShiftByFEB(): processing LArPhysWaveContainer from StoreGate, key = " << *key_it << endreq;
 
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN; gain++ ) { // Loop over all gains
         
@@ -365,7 +340,7 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
         PhysWaveIt wave_it_e = larPhysWaveContainerOld->end(gain);
 
         if ( wave_it ==  wave_it_e ) {
-	  msg(MSG::INFO) << "ComputeTimeShiftByFEB(): LArPhysWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain << endmsg;
+	  msg(MSG::INFO) << "ComputeTimeShiftByFEB(): LArPhysWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain << endreq;
 	  continue; // skip to next gain
 	}
 	
@@ -426,7 +401,7 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
 	  m_larFEBTstart->setTimeOffset(*it,timeoff); 
 	}
 	msg(MSG::INFO) << nFeb << ". FEB ID 0x" << std::hex << (*it).get_compact() << std::dec 
-            << " - Tstart = " <<  (int)m_larFEBTstart->TimeOffset(*it) << endmsg ;
+            << " - Tstart = " <<  (int)m_larFEBTstart->TimeOffset(*it) << endreq ;
 
       } else {
         m_larFEBTstart->setTimeOffset(*it,0);
@@ -456,7 +431,7 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
       }
       outfile << " ]" << std::endl ;
       outfile.close() ;
-      msg(MSG::INFO) << "Minimum Tstart per FEB (all gain) saved in " << m_fileTimeShiftByFEB << endmsg ;
+      msg(MSG::INFO) << "Minimum Tstart per FEB (all gain) saved in " << m_fileTimeShiftByFEB << endreq ;
     }
   
   } else {
@@ -465,14 +440,14 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
   
   sc=detStore()->record(m_larFEBTstart,"FebTimeOffset");
   if(sc.isFailure()) {
-     msg(MSG::ERROR) << "Can't record LArFEBTimeOffset to DetectorStore" << endmsg;
+     msg(MSG::ERROR) << "Can't record LArFEBTimeOffset to DetectorStore" << endreq;
      return StatusCode::FAILURE;
   }
 
   const ILArFEBTimeOffset* ilarFEBTimeOffset=NULL;
   sc=detStore()->symLink(m_larFEBTstart,ilarFEBTimeOffset);
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Can't symlink LArFEBTimeOffset to abstract interface in  DetectorStore" << endmsg;
+    msg(MSG::ERROR) << "Can't symlink LArFEBTimeOffset to abstract interface in  DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
 

@@ -8,7 +8,6 @@
 #define LARCABLING_LARSUPERCELLCABLINGTOOL_H
 
 #include "LArCabling/LArCablingService.h"
-#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 
 
 /** 
@@ -36,16 +35,8 @@ public:
   // Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_LArSuperCellCablingTool; }
 
-  virtual const std::vector<HWIdentifier>& calibSlotLine(const HWIdentifier & id);
 
   //All other methods inherited from regular LArCablingBase
-
-private:
-  ToolHandle<ICaloSuperCellIDTool> m_sc2ccMappingTool;
-  ToolHandle<LArCablingService> m_larCablingSvc;
-
-  const std::vector<HWIdentifier> m_vecEmpty;
-
 };
 
 #endif // LARCABLING_LARSUPERCELLCABLINGTOOL_H

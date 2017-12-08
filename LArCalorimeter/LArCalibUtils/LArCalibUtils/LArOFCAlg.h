@@ -33,11 +33,10 @@
 #include "tbb/blocked_range.h"
 
 class LArOnlineID; 
-class LArOnline_SuperCellID;
-class CaloDetDescrManager_Base; 
+class CaloDetDescrManager; 
 class LArDSPConfig;
 
-class LArCablingBase; 
+class LArCablingService  ; 
 #include "GaudiKernel/ToolHandle.h"
 
 class LArOFCAlg:public AthAlgorithm {
@@ -125,9 +124,9 @@ private:
   ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder;
   ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoderV2;
 
-  LArCablingBase*    m_cablingService;
-  const LArOnlineID_Base*  m_onlineID; 
-  const CaloDetDescrManager_Base* m_calo_dd_man;
+  ToolHandle<LArCablingService> m_cablingService;
+  const LArOnlineID*       m_onlineID; 
+  const CaloDetDescrManager* m_calo_dd_man;
   const LArOFCBinComplete* m_larPhysWaveBin;
 
   double m_errAmpl;
@@ -181,9 +180,7 @@ private:
     std::vector<perChannelData_t>* m_perChanData;
     const LArOFCAlg* m_ofcAlg;
   };
-  
-  // Running on cells or supercells?
-  bool m_isSC;
+
 };
 
 

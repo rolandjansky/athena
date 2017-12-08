@@ -16,7 +16,7 @@
 
 class ILArBadChannelMasker;
 class ILArBadChanTool;
-class LArOnlineID_Base;
+class LArOnlineID;
 
 class LArPhysWavePredictor : public AthAlgorithm
 {
@@ -34,12 +34,11 @@ class LArPhysWavePredictor : public AthAlgorithm
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
   ToolHandle<ILArBadChanTool> m_badChanTool;
 
-  const LArOnlineID_Base* m_onlineHelper;
+  const LArOnlineID* m_onlineHelper;
   bool m_testmode;
   bool m_storeEmpty;
   bool m_dumpMphysMcali;
   bool m_normalizeCali;
-  bool m_isSC;
   
   std::vector<std::string> m_keyCali;
   std::string m_keyPhys;

@@ -37,10 +37,8 @@
 #include "LArRecUtils/LArShapePeakRecoTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
-#include "CaloIdentifier/LArEM_SuperCell_ID.h"
 
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArRinj.h"
@@ -55,7 +53,7 @@
 #include <map>
 
 class ILArBadChannelMasker;
-class LArOnlineID_Base;
+class LArOnlineID;
 class LArCalibTriggerAccumulator;
 
 class LArRampBuilder : public AthAlgorithm//, public IIncidentListener 
@@ -148,20 +146,19 @@ private:
   //  hashID     sample
   std::vector<std::vector<short> > m_adc0;
 
-  LArCablingBase* m_larCablingSvc;
+  ToolHandle<LArCablingService> m_larCablingSvc;
   //ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle< ILArBadChannelMasker> m_badChannelMask;
   bool m_doBadChannelMask;
 
-  const LArOnlineID_Base* m_onlineHelper;
-  const LArEM_Base_ID* m_emId;
+  const LArOnlineID* m_onlineHelper;
+  const LArEM_ID* m_emId;
 
   // Grouping type
   std::string m_groupingType;
 
   const DataHandle<ILArRinj> m_dd_rinj;
   std::string m_hec_key;
-  bool        m_isSC;
   bool        m_ishec;
   bool        m_iterate;
 

@@ -17,10 +17,8 @@
 #include <Eigen/Dense>
 
 #include "StoreGate/DataHandle.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArTools/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArRawConditions/LArConditionsContainer.h"
 
@@ -64,15 +62,13 @@ class LArAutoCorrDecoderTool: public AthAlgTool,
   const Eigen::MatrixXd ACDiagonal( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
   const Eigen::MatrixXd ACPhysics( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
 
-  const LArOnlineID_Base*  m_onlineID;
-  LArCablingBase*    m_cablingService;
+  const LArOnlineID*  m_onlineID;
+  ToolHandle<LArCablingService> m_cablingService;
 
   std::string m_keyAutoCorr;
 
   const DataHandle<ILArAutoCorr> m_autoCorr;
 
-  // Running on cells or supercells?
-  bool m_isSC;
 };
 
 #endif

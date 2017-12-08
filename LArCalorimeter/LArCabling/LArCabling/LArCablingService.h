@@ -39,10 +39,12 @@ public:
   StatusCode initialize( );
 
   StatusCode iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys));
+  /**
+   * return Calibration slot and channel numbers 
+   */
+  const std::vector<HWIdentifier>& calibSlotLine(const HWIdentifier & id) ;
   
   
-  virtual const std::vector<HWIdentifier>& calibSlotLine(const HWIdentifier & id);
-
   /**
    * returns the LArReadoutModuleID corresponding to the given LArFEB_ID<p>
    */

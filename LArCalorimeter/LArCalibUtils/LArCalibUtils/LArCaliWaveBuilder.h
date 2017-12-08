@@ -20,7 +20,7 @@
 
 
 class ILArPedestal;
-class LArCablingBase;
+class LArCablingService;
 
 class LArCaliWaveBuilder : public AthAlgorithm
 {
@@ -58,9 +58,6 @@ class LArCaliWaveBuilder : public AthAlgorithm
   // Reco also unpulsed and saturated cells ?
   bool            m_recAll;
   
-  // Running on cells or supercells?
-  bool            m_isSC;
-  
   //used to store different waves for different HEC calib lines
   bool m_useDacAndIsPulsedIndex;
 
@@ -70,8 +67,8 @@ class LArCaliWaveBuilder : public AthAlgorithm
   // Empty phases (missing files) check
   bool            m_checkEmptyPhases;
 
-  const LArOnlineID_Base*   m_onlineID;
-  LArCablingBase*     m_cablingSvc;
+  const LArOnlineID*   m_onlineID;
+  ToolHandle<LArCablingService> m_cablingSvc;
   
   unsigned m_event_counter; 
   int      m_NStep;

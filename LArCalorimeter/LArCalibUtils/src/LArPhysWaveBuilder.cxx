@@ -22,7 +22,7 @@
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArPhaseTool.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "Identifier/HWIdentifier.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -338,7 +338,7 @@ StatusCode LArPhysWaveBuilder::execute()
                        - gain_enums;
     if (gain_index >= N_GAINS) {
       REPORT_ERROR (StatusCode::FAILURE) << "Bad gain value " << digiGain
-                                         << " for channel " << chid << endmsg;
+                                         << " for channel " << chid << endreq;
       continue;
     }
 

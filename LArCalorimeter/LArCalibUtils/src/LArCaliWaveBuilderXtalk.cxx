@@ -77,7 +77,7 @@ StatusCode LArCaliWaveBuilderXtalk::initialize()
 { 
 
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initialize LArCaliWaveBuilderXtalk" << endmsg;
+  log << MSG::INFO << "Initialize LArCaliWaveBuilderXtalk" << endreq;
 
   // Set barrel_ec and pos_neg from PartitionPulsed
   m_barrelEndcap = 0; m_posOrNeg = 0;
@@ -419,7 +419,7 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 	  relevantForXtalk = true;
 
 //  	if (m_onlineHelper->slot((*it)->hardwareID()) == 2 && m_onlineHelper->channel((*it)->hardwareID())<10)
-// 	  log << MSG::DEBUG << "Relevant ? HW id ->" << m_onlineHelper->show_to_string((*it)->hardwareID()) << "Calib -> " << m_onlineHelper->show_to_string(calibLine[0]) << "Pulsed ?" << (*it)->isPulsed() << endmsg;
+// 	  log << MSG::DEBUG << "Relevant ? HW id ->" << m_onlineHelper->show_to_string((*it)->hardwareID()) << "Calib -> " << m_onlineHelper->show_to_string(calibLine[0]) << "Pulsed ?" << (*it)->isPulsed() << endreq;
 
       } 
 
@@ -451,7 +451,7 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
       for (int jj=0; jj<15; jj++){
       log << MSG::DEBUG << "[" << jj << "-" << nbOfEventSlot[jj] << "] ";
       }
-      log << MSG::DEBUG << " - Shall I keep this? " << relevantForXtalk << endmsg;
+      log << MSG::DEBUG << " - Shall I keep this? " << relevantForXtalk << endreq;
     */
 
     // Debug : print number of events per detector region
@@ -460,9 +460,9 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
     msg() << MSG::DEBUG << "  -  EMEC Std PS/F/M/B=" << nbOfEventPart[4] << "/" << nbOfEventPart[5] << "/" << nbOfEventPart[6] << "/" << nbOfEventPart[7];
     msg() << MSG::DEBUG << " - A/(A+C)=" << (sideA+sideC==0 ? -1 : float(sideA)/float(sideA+sideC));
     if (!relevantForXtalk) 
-      msg() << MSG::DEBUG << " - don't keep (partition/pattern)" << endmsg;
+      msg() << MSG::DEBUG << " - don't keep (partition/pattern)" << endreq;
     else 
-      msg() << MSG::DEBUG << " - KEEP THIS EVENT" << endmsg;
+      msg() << MSG::DEBUG << " - KEEP THIS EVENT" << endreq;
 
 
     // Process relevant events
