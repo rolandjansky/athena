@@ -114,6 +114,42 @@ namespace xAOD{
       std::vector<float> model_nu_phi;
       std::vector<float> model_nu_E;
 
+      // model particles for ttbar allhadronic channel
+      std::vector<float> model_b_from_top1_pt;
+      std::vector<float> model_b_from_top1_eta;
+      std::vector<float> model_b_from_top1_phi;
+      std::vector<float> model_b_from_top1_E;
+      std::vector<unsigned int>   model_b_from_top1_jetIndex;
+
+      std::vector<float> model_b_from_top2_pt;
+      std::vector<float> model_b_from_top2_eta;
+      std::vector<float> model_b_from_top2_phi;
+      std::vector<float> model_b_from_top2_E;
+      std::vector<unsigned int>   model_b_from_top2_jetIndex;
+
+      std::vector<float> model_lj1_from_top1_pt;
+      std::vector<float> model_lj1_from_top1_eta;
+      std::vector<float> model_lj1_from_top1_phi;
+      std::vector<float> model_lj1_from_top1_E;
+      std::vector<unsigned int>   model_lj1_from_top1_jetIndex;
+
+      std::vector<float> model_lj2_from_top1_pt;
+      std::vector<float> model_lj2_from_top1_eta;
+      std::vector<float> model_lj2_from_top1_phi;
+      std::vector<float> model_lj2_from_top1_E;
+      std::vector<unsigned int>   model_lj2_from_top1_jetIndex;
+
+      std::vector<float> model_lj1_from_top2_pt;
+      std::vector<float> model_lj1_from_top2_eta;
+      std::vector<float> model_lj1_from_top2_phi;
+      std::vector<float> model_lj1_from_top2_E;
+      std::vector<unsigned int>   model_lj1_from_top2_jetIndex;
+
+      std::vector<float> model_lj2_from_top2_pt;
+      std::vector<float> model_lj2_from_top2_eta;
+      std::vector<float> model_lj2_from_top2_phi;
+      std::vector<float> model_lj2_from_top2_E;
+      std::vector<unsigned int>   model_lj2_from_top2_jetIndex;
       
 
   };
@@ -421,6 +457,156 @@ namespace xAOD{
       /// set model_nu_E                                                                                                                                             
       void setModel_nu_E(float);
     
+      /// get model_b_from_top1_pt
+      float model_b_from_top1_pt() const;
+      /// set model_b_from_top1_pt
+      void setModel_b_from_top1_pt(float);
+
+      /// get model_b_from_top1_eta
+      float model_b_from_top1_eta() const;
+      /// set model_b_from_top1_eta
+      void setModel_b_from_top1_eta(float);
+
+      /// get model_b_from_top1_phi
+      float model_b_from_top1_phi() const;
+      /// set model_b_from_top1_phi
+      void setModel_b_from_top1_phi(float);
+
+      /// get model_b_from_top1_E
+      float model_b_from_top1_E() const;
+      /// set model_b_from_top1_E
+      void setModel_b_from_top1_E(float);
+
+      /// get model_b_from_top1_jetIndex
+      unsigned int model_b_from_top1_jetIndex() const;
+      /// set model_b_from_top1_jetIndex
+      void setModel_b_from_top1_jetIndex(unsigned int);
+      
+      /// get model_b_from_top2_pt
+      float model_b_from_top2_pt() const;
+      /// set model_b_from_top2_pt
+      void setModel_b_from_top2_pt(float);
+
+      /// get model_b_from_top2_eta
+      float model_b_from_top2_eta() const;
+      /// set model_b_from_top2_eta
+      void setModel_b_from_top2_eta(float);
+
+      /// get model_b_from_top2_phi
+      float model_b_from_top2_phi() const;
+      /// set model_b_from_top2_phi
+      void setModel_b_from_top2_phi(float);
+
+      /// get model_b_from_top2_E
+      float model_b_from_top2_E() const;
+      /// set model_b_from_top2_E
+      void setModel_b_from_top2_E(float);
+
+      /// get model_b_from_top2_jetIndex
+      unsigned int model_b_from_top2_jetIndex() const;
+      /// set model_b_from_top2_jetIndex
+      void setModel_b_from_top2_jetIndex(unsigned int);
+      
+      /// get model_lj1_from_top1_pt
+      float model_lj1_from_top1_pt() const;
+      /// set model_lj1_from_top1_pt
+      void setModel_lj1_from_top1_pt(float);
+
+      /// get model_lj1_from_top1_eta
+      float model_lj1_from_top1_eta() const;
+      /// set model_lj1_from_top1_eta
+      void setModel_lj1_from_top1_eta(float);
+
+      /// get model_lj1_from_top1_phi
+      float model_lj1_from_top1_phi() const;
+      /// set model_lj1_from_top1_phi
+      void setModel_lj1_from_top1_phi(float);
+
+      /// get model_lj1_from_top1_E
+      float model_lj1_from_top1_E() const;
+      /// set model_lj1_from_top1_E
+      void setModel_lj1_from_top1_E(float);
+
+      /// get model_lj1_from_top1_jetIndex
+      unsigned int model_lj1_from_top1_jetIndex() const;
+      /// set model_lj1_from_top1_jetIndex
+      void setModel_lj1_from_top1_jetIndex(unsigned int);
+      
+      /// get model_lj2_from_top1_pt
+      float model_lj2_from_top1_pt() const;
+      /// set model_lj2_from_top1_pt
+      void setModel_lj2_from_top1_pt(float);
+
+      /// get model_lj2_from_top1_eta
+      float model_lj2_from_top1_eta() const;
+      /// set model_lj2_from_top1_eta
+      void setModel_lj2_from_top1_eta(float);
+
+      /// get model_lj2_from_top1_phi
+      float model_lj2_from_top1_phi() const;
+      /// set model_lj2_from_top1_phi
+      void setModel_lj2_from_top1_phi(float);
+
+      /// get model_lj2_from_top1_E
+      float model_lj2_from_top1_E() const;
+      /// set model_lj2_from_top1_E
+      void setModel_lj2_from_top1_E(float);
+
+      /// get model_lj2_from_top1_jetIndex
+      unsigned int model_lj2_from_top1_jetIndex() const;
+      /// set model_lj2_from_top1_jetIndex
+      void setModel_lj2_from_top1_jetIndex(unsigned int);
+      
+      /// get model_lj1_from_top2_pt
+      float model_lj1_from_top2_pt() const;
+      /// set model_lj1_from_top2_pt
+      void setModel_lj1_from_top2_pt(float);
+
+      /// get model_lj1_from_top2_eta
+      float model_lj1_from_top2_eta() const;
+      /// set model_lj1_from_top2_eta
+      void setModel_lj1_from_top2_eta(float);
+
+      /// get model_lj1_from_top2_phi
+      float model_lj1_from_top2_phi() const;
+      /// set model_lj1_from_top2_phi
+      void setModel_lj1_from_top2_phi(float);
+
+      /// get model_lj1_from_top2_E
+      float model_lj1_from_top2_E() const;
+      /// set model_lj1_from_top2_E
+      void setModel_lj1_from_top2_E(float);
+
+      /// get model_lj1_from_top2_jetIndex
+      unsigned int model_lj1_from_top2_jetIndex() const;
+      /// set model_lj1_from_top2_jetIndex
+      void setModel_lj1_from_top2_jetIndex(unsigned int);
+      
+      /// get model_lj2_from_top2_pt
+      float model_lj2_from_top2_pt() const;
+      /// set model_lj2_from_top2_pt
+      void setModel_lj2_from_top2_pt(float);
+
+      /// get model_lj2_from_top2_eta
+      float model_lj2_from_top2_eta() const;
+      /// set model_lj2_from_top2_eta
+      void setModel_lj2_from_top2_eta(float);
+
+      /// get model_lj2_from_top2_phi
+      float model_lj2_from_top2_phi() const;
+      /// set model_lj2_from_top2_phi
+      void setModel_lj2_from_top2_phi(float);
+
+      /// get model_lj2_from_top2_E
+      float model_lj2_from_top2_E() const;
+      /// set model_lj2_from_top2_E
+      void setModel_lj2_from_top2_E(float);
+
+      /// get model_lj2_from_top2_jetIndex
+      unsigned int model_lj2_from_top2_jetIndex() const;
+      /// set model_lj2_from_top2_jetIndex
+      void setModel_lj2_from_top2_jetIndex(unsigned int);
+      
             
   };
   

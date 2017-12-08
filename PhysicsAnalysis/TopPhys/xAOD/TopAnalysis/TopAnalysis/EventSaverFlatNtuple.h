@@ -655,6 +655,42 @@ private:
     std::vector<float> m_klfitter_model_nu_phi;
     std::vector<float> m_klfitter_model_nu_E;
 
+    std::vector<float> m_klfitter_model_b_from_top1_pt;
+    std::vector<float> m_klfitter_model_b_from_top1_eta;
+    std::vector<float> m_klfitter_model_b_from_top1_phi;
+    std::vector<float> m_klfitter_model_b_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_b_from_top2_pt;
+    std::vector<float> m_klfitter_model_b_from_top2_eta;
+    std::vector<float> m_klfitter_model_b_from_top2_phi;
+    std::vector<float> m_klfitter_model_b_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top2_jetIndex;
+
     // calculated KLFitter variables for best perm
     float m_klfitter_bestPerm_topLep_pt;
     float m_klfitter_bestPerm_topLep_eta;
@@ -1121,6 +1157,37 @@ protected:
   const std::vector<float>& klfitter_model_nu_eta() const { return m_klfitter_model_nu_eta;}
   const std::vector<float>& klfitter_model_nu_phi() const { return m_klfitter_model_nu_phi;}
   const std::vector<float>& klfitter_model_nu_E() const { return m_klfitter_model_nu_E;}
+  const std::vector<float>& klfitter_model_b_from_top1_pt() const { return m_klfitter_model_b_from_top1_pt;}
+  const std::vector<float>& klfitter_model_b_from_top1_eta() const { return m_klfitter_model_b_from_top1_eta;}
+  const std::vector<float>& klfitter_model_b_from_top1_phi() const { return m_klfitter_model_b_from_top1_phi;}
+  const std::vector<float>& klfitter_model_b_from_top1_E() const { return m_klfitter_model_b_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top1_jetIndex() const { return m_klfitter_model_b_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_b_from_top2_pt() const { return m_klfitter_model_b_from_top2_pt;}
+  const std::vector<float>& klfitter_model_b_from_top2_eta() const { return m_klfitter_model_b_from_top2_eta;}
+  const std::vector<float>& klfitter_model_b_from_top2_phi() const { return m_klfitter_model_b_from_top2_phi;}
+  const std::vector<float>& klfitter_model_b_from_top2_E() const { return m_klfitter_model_b_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top2_jetIndex() const { return m_klfitter_model_b_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_pt() const { return m_klfitter_model_lj1_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_eta() const { return m_klfitter_model_lj1_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_phi() const { return m_klfitter_model_lj1_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_E() const { return m_klfitter_model_lj1_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top1_jetIndex() const { return m_klfitter_model_lj1_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_pt() const { return m_klfitter_model_lj2_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_eta() const { return m_klfitter_model_lj2_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_phi() const { return m_klfitter_model_lj2_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_E() const { return m_klfitter_model_lj2_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top1_jetIndex() const { return m_klfitter_model_lj2_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_pt() const { return m_klfitter_model_lj1_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_eta() const { return m_klfitter_model_lj1_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_phi() const { return m_klfitter_model_lj1_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_E() const { return m_klfitter_model_lj1_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top2_jetIndex() const { return m_klfitter_model_lj1_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_pt() const { return m_klfitter_model_lj2_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_eta() const { return m_klfitter_model_lj2_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_phi() const { return m_klfitter_model_lj2_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_E() const { return m_klfitter_model_lj2_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top2_jetIndex() const { return m_klfitter_model_lj2_from_top2_jetIndex;}
+  
   // calculated KLFitter variables for best perm
   const float& klfitter_bestPerm_topLep_pt() const { return m_klfitter_bestPerm_topLep_pt;}
   const float& klfitter_bestPerm_topLep_eta() const { return m_klfitter_bestPerm_topLep_eta;}
