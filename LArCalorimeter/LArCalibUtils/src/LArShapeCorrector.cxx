@@ -35,8 +35,8 @@ StatusCode LArShapeCorrector::initialize()
   } else if ( m_groupingName == "ExtendedSubDetector" ) {
      m_groupingType = LArConditionsContainerBase::ExtendedSubDetGrouping ;
   } else {
-     msg(MSG::ERROR)<< "Grouping type " << m_groupingName << " is not foreseen!" << endmsg ;
-     msg(MSG::ERROR)<< "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDetector\" are allowed" << endmsg ;
+     msg(MSG::ERROR)<< "Grouping type " << m_groupingName << " is not foreseen!" << endreq ;
+     msg(MSG::ERROR)<< "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDetector\" are allowed" << endreq ;
      return StatusCode::FAILURE ;
   }
 
@@ -57,7 +57,7 @@ StatusCode LArShapeCorrector::stop() {
   const LArShapeComplete* inputShape=NULL;
   StatusCode sc=detStore()->retrieve(inputShape,m_keyShape);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to get input Shapes with key " << m_keyShape << endmsg;
+    msg(MSG::ERROR)<< "Failed to get input Shapes with key " << m_keyShape << endreq;
     return sc;
   }
     
@@ -65,7 +65,7 @@ StatusCode LArShapeCorrector::stop() {
   const LArShapeComplete* inputShapeResidual=NULL;
   sc=detStore()->retrieve(inputShapeResidual,m_keyShapeResidual);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to get input Shape residuals with key " << m_keyShapeResidual << endmsg;
+    msg(MSG::ERROR)<< "Failed to get input Shape residuals with key " << m_keyShapeResidual << endreq;
     return sc;
   }
 
@@ -73,7 +73,7 @@ StatusCode LArShapeCorrector::stop() {
   larShapeCompleteCorr->setGroupingType( static_cast<LArConditionsContainerBase::GroupingType>(m_groupingType));
   sc  = larShapeCompleteCorr->initialize(); 
   if ( sc.isFailure() ) {
-     msg(MSG::ERROR)<< "Could not initialize LArShapeComplete data object - exit!" << endmsg ;
+     msg(MSG::ERROR)<< "Could not initialize LArShapeComplete data object - exit!" << endreq ;
      return sc;
   }
 
@@ -99,12 +99,12 @@ StatusCode LArShapeCorrector::stop() {
       //some sanity check on the Shapes
       bool doShapeCorr=true;
       if ( vShape.size() == 0 || vShapeDer.size() == 0 ) {
-	msg(MSG::WARNING) << "Shape not found for gain "<< gain << " channel 0x"  << std::hex << id.get_compact() << std::dec << endmsg;
+	msg(MSG::WARNING) << "Shape not found for gain "<< gain << " channel 0x"  << std::hex << id.get_compact() << std::dec << endreq;
 	continue;
       }
       if ( vShape.size() != vShapeDer.size() ) {
 	msg(MSG::WARNING) << "Shape (" << vShape.size() << ") derivative (" << vShapeDer.size() << ") don't have the same size for channel 0x" 
-			  << std::hex << id.get_compact() << std::dec << endmsg;
+			  << std::hex << id.get_compact() << std::dec << endreq;
 	continue;
       }
 
@@ -116,14 +116,14 @@ StatusCode LArShapeCorrector::stop() {
       if ( vShapeResidual.size() == 0 || vShapeResidualDer.size() == 0 ) {
 	msg(MSG::WARNING) << "Shape residual not found for gain " << gain 
 			  << " channel 0x"  << std::hex << id.get_compact() << std::dec 
-			  << ". Will not be applied!" << endmsg;
+			  << ". Will not be applied!" << endreq;
 	doShapeCorr=false;
       }
       if ( vShapeResidual.size() != vShapeResidualDer.size() ) {
 	msg(MSG::ERROR) << "Shape residual (" << vShapeResidual.size() << ") and its derivative (" << vShapeResidualDer.size() 
 			<< ") don't have the same size for channel 0x" 
 			<< std::hex << id.get_compact() << std::dec 
-			<< ". Will be not applied!" << endmsg;
+			<< ". Will be not applied!" << endreq;
 	doShapeCorr=false;
       }
 
@@ -131,7 +131,7 @@ StatusCode LArShapeCorrector::stop() {
       if ( vShape.size() > vShapeResidual.size() ) { //FIXME, allow to apply 5 sample residual on 4 sample shape
 	msg(MSG::WARNING) << "Shape residual size does not match the shape size for channel 0x" 
 			  << std::hex << id.get_compact() << std::dec 
-			  << ". Will be not corrected!" << endmsg;
+			  << ". Will be not corrected!" << endreq;
 	doShapeCorr=false;
       }
 	 
@@ -163,18 +163,18 @@ StatusCode LArShapeCorrector::stop() {
 
   sc = detStore()->record(larShapeCompleteCorr,  m_keyShape_newcorr);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to record LArShapeComplete object with key " << m_keyShape_newcorr << endmsg;
+    msg(MSG::ERROR)<< "Failed to record LArShapeComplete object with key " << m_keyShape_newcorr << endreq;
     return sc;
   }
-  msg(MSG::INFO) << "Successfully registered LArShapeComplete object with key " << m_keyShape_newcorr << endmsg;
+  msg(MSG::INFO) << "Successfully registered LArShapeComplete object with key " << m_keyShape_newcorr << endreq;
 
   sc = detStore()->symLink(larShapeCompleteCorr, (ILArShape*)larShapeCompleteCorr);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to sym-link LArShapeComplete object" << endmsg;
+    msg(MSG::ERROR)<< "Failed to sym-link LArShapeComplete object" << endreq;
     return sc;
   }
 
-  //msg(MSG::INFO) << detStore()->dump() << endmsg;
+  //msg(MSG::INFO) << detStore()->dump() << endreq;
 
   return StatusCode::SUCCESS;
   

@@ -22,7 +22,8 @@
 #include "LArElecCalib/ILArH6Oscillation.h"
 #include "LArElecCalib/ILArRamp.h"
 
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
+//#include "LArTools/LArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 class LArCablingService ;

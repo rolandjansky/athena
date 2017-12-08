@@ -12,7 +12,6 @@ use AthenaBaseComps     AthenaBaseComps-*   Control
 use Identifier 		Identifier-*        DetectorDescription
 use LArIdentifier 	LArIdentifier-*     LArCalorimeter
 use CaloIdentifier 	CaloIdentifier-*    Calorimeter
-use CaloDetDescr        CaloDetDescr-*      Calorimeter
 #use LArElecCalib        LArElecCalib-*      LArCalorimeter
 
 use AthenaBaseComps    AthenaBaseComps-*    Control

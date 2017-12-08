@@ -100,7 +100,7 @@ StatusCode LArPedestalMaker::execute()
       const CaloGain::CaloGain gain=(*it)->gain();
       //LArPedestal& thisPed=m_pedestal[gain][chid];
       LArPedestal& thisPed=m_pedestal.get(chid,gain);
-      //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endmsg;
+      //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endreq;
       if (gain<0 || gain>CaloGain::LARNGAIN) {
 	ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
@@ -154,7 +154,7 @@ StatusCode LArPedestalMaker::stop()
 
  //Outermost loop goes over all gains (different containers).
  for (int gain=0;gain<(int)CaloGain::LARNGAIN;gain++) {
-   //log << MSG::INFO << "Gain " << gain << ", m_pedestal size for this gain = " <<  m_pedestal[gain].size() << endmsg;
+   //log << MSG::INFO << "Gain " << gain << ", m_pedestal size for this gain = " <<  m_pedestal[gain].size() << endreq;
 
    LARPEDMAP::ConstConditionsMapIterator cell_it=m_pedestal.begin(gain);
    LARPEDMAP::ConstConditionsMapIterator cell_it_e=m_pedestal.end(gain);

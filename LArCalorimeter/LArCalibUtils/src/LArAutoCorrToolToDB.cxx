@@ -28,7 +28,6 @@ LArAutoCorrToolToDB::LArAutoCorrToolToDB(const std::string& name, ISvcLocator* p
    declareProperty("AutoCorrTool",m_autocorrTool);
    declareProperty("GroupingType",    m_groupingType="ExtendedFeedThrough");
    declareProperty("AutoCorrKey",   m_acContName="LArAutoCorr");
-   declareProperty("isSC",m_isSC=false);
 }
 
 
@@ -38,31 +37,7 @@ LArAutoCorrToolToDB::~LArAutoCorrToolToDB()
 //----------------------------------------------------------------------------
 StatusCode LArAutoCorrToolToDB::initialize()
 {
-  StatusCode sc;
-  if ( m_isSC ) {
-    const LArOnline_SuperCellID* ll;
-    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineHelper = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG("Found the LArOnlineID helper");
-    }
-  } else { // m_isSC
-    const LArOnlineID* ll;
-    sc = detStore()->retrieve(ll, "LArOnlineID");
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineHelper = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
-    }
-  }
-  
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_CHECK( m_autocorrTool.retrieve() );
   return StatusCode::SUCCESS;
 }
@@ -107,8 +82,8 @@ StatusCode LArAutoCorrToolToDB::stop() {
 	++nSkipped;
 	continue;
       }
-      //for(unsigned ii=0; ii<AutoCorr.size(); ++ii) std::cout<<AutoCorr[ii]<<" : ";
-      //std::cout<<std::endl;
+      for(unsigned ii=0; ii<AutoCorr.size(); ++ii) std::cout<<AutoCorr[ii]<<" : ";
+      std::cout<<std::endl;
       const std::vector<double> rmsSampl =  m_autocorrTool->samplRMS(chid,igain,-1);
       unsigned int nsamples_AC = (1+((int)(sqrt(1+8*AutoCorr.size()))))/2;
 

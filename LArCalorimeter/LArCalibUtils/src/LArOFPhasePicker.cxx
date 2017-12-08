@@ -8,8 +8,6 @@
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "CaloIdentifier/CaloGain.h"
 
-#include "LArIdentifier/LArOnlineID.h"
-#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 LArOFPhasePicker::LArOFPhasePicker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -27,7 +25,6 @@ LArOFPhasePicker::LArOFPhasePicker(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("DefaultPhase",m_defaultPhase=4);
   declareProperty("doOFC",m_doOFC=true);  
   declareProperty("doShape",m_doShape=true);  
-  declareProperty("isSC",m_isSC=false);
 }
 
 LArOFPhasePicker::~LArOFPhasePicker()
@@ -48,35 +45,13 @@ StatusCode LArOFPhasePicker::initialize()
   } else if ( m_groupingName == "ExtendedSubDetector" ) {
      m_groupingType = LArConditionsContainerBase::ExtendedSubDetGrouping ;
   } else {
-     msg(MSG::ERROR)<< "Grouping type " << m_groupingName << " is not foreseen!" << endmsg ;
-     msg(MSG::ERROR)<< "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDetector\" are allowed" << endmsg ;
+     msg(MSG::ERROR)<< "Grouping type " << m_groupingName << " is not foreseen!" << endreq ;
+     msg(MSG::ERROR)<< "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDetector\" are allowed" << endreq ;
      return StatusCode::FAILURE ;
   }
 
-  StatusCode sc;
-  if ( m_isSC ) {
-    const LArOnline_SuperCellID* ll;
-    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineID = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG("Found the LArOnlineID helper");
-    }
-  } else { // m_isSC
-    const LArOnlineID* ll;
-    sc = detStore()->retrieve(ll, "LArOnlineID");
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineID = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
-    }
-  }
+
+  ATH_CHECK(detStore()->retrieve(m_onlineID));
 
   return StatusCode::SUCCESS;
 }
@@ -96,13 +71,13 @@ StatusCode LArOFPhasePicker::stop() {
   if (m_keyPhase.size()) {
     StatusCode sc=detStore()->retrieve(m_inputPhase,m_keyPhase);
     if (sc.isFailure()) {
-      msg(MSG::ERROR)<< "Failed to get input OFC phase with key " << m_keyPhase << endmsg;
-      msg(MSG::ERROR)<< "Will use default phase !!" << endmsg;
+      msg(MSG::ERROR)<< "Failed to get input OFC phase with key " << m_keyPhase << endreq;
+      msg(MSG::ERROR)<< "Will use default phase !!" << endreq;
       m_inputPhase=NULL;
     }
   }
   else {
-    msg(MSG::INFO) << "No StoreGate key for OFC bin given. Will use default phase=" << m_defaultPhase << endmsg;
+    msg(MSG::INFO) << "No StoreGate key for OFC bin given. Will use default phase=" << m_defaultPhase << endreq;
   }
 
 
@@ -122,7 +97,7 @@ StatusCode LArOFPhasePicker::pickOFC() {
   const LArOFCComplete* inputOFC=NULL;
   sc=detStore()->retrieve(inputOFC,m_keyOFC);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to get input OFCs with key " << m_keyOFC << endmsg;
+    msg(MSG::ERROR)<< "Failed to get input OFCs with key " << m_keyOFC << endreq;
     return sc;
   }
   
@@ -130,7 +105,7 @@ StatusCode LArOFPhasePicker::pickOFC() {
   larOFCComplete->setGroupingType( static_cast<LArConditionsContainerBase::GroupingType>(m_groupingType));
   sc  = larOFCComplete->initialize(); 
   if ( sc.isFailure() ) {
-     msg(MSG::ERROR)<< "Could not initialize LArOFCComplete data object - exit!" << endmsg ;
+     msg(MSG::ERROR)<< "Could not initialize LArOFCComplete data object - exit!" << endreq ;
      return sc ;
   }
   ATH_MSG_DEBUG("Working on OFC container '"<< m_keyOFC << "' new container will be '" << m_keyOFC_new << "'");
@@ -161,12 +136,12 @@ StatusCode LArOFPhasePicker::pickOFC() {
       const float timeOffset=ofc.timeOffset()+m_timeOffsetCorr;
       //some sanity check on the OFCs
       if ( vOFC_a.size() == 0 || vOFC_b.size() == 0 ) {
-	msg(MSG::WARNING) << "OFC not found for gain "<< gain << " channel "  <<  m_onlineID->channel_name(id) << endmsg;
+	msg(MSG::WARNING) << "OFC not found for gain "<< gain << " channel "  <<  m_onlineID->channel_name(id) << endreq;
 
       }else if ( vOFC_a.size() != vOFC_b.size() ) {
 	msg(MSG::WARNING) << "OFC a (" << vOFC_a.size() << ") and b (" << vOFC_b.size() << ") are not the same size for channel " 
-			  <<  m_onlineID->channel_name(id) << endmsg;
-	msg(MSG::WARNING) << "Will be not exported !!!" << endmsg;
+			  <<  m_onlineID->channel_name(id) << endreq;
+	msg(MSG::WARNING) << "Will be not exported !!!" << endreq;
       } else { // save in new container
 	std::vector<std::vector<float> > OFC_a;
 	OFC_a.push_back(vOFC_a.asVector());
@@ -181,12 +156,12 @@ StatusCode LArOFPhasePicker::pickOFC() {
 
   sc = detStore()->record(larOFCComplete,  m_keyOFC_new);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to record LArOFCComplete object with key " << m_keyOFC_new << endmsg;
+    msg(MSG::ERROR)<< "Failed to record LArOFCComplete object with key " << m_keyOFC_new << endreq;
     return sc;
   }
   sc = detStore()->symLink(larOFCComplete, (ILArOFC*)larOFCComplete);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to sym-link LArOFCComplete object" << endmsg;
+    msg(MSG::ERROR)<< "Failed to sym-link LArOFCComplete object" << endreq;
     return sc;
   }
   return StatusCode::SUCCESS;
@@ -201,7 +176,7 @@ StatusCode LArOFPhasePicker::pickShape()
   const LArShapeComplete* inputShape=NULL;
   sc=detStore()->retrieve(inputShape,m_keyShape);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to get input Shapes with key " << m_keyShape << endmsg;
+    msg(MSG::ERROR)<< "Failed to get input Shapes with key " << m_keyShape << endreq;
     return sc;
   }
   
@@ -209,7 +184,7 @@ StatusCode LArOFPhasePicker::pickShape()
   larShapeComplete->setGroupingType( static_cast<LArConditionsContainerBase::GroupingType>(m_groupingType));
   sc  = larShapeComplete->initialize(); 
   if ( sc.isFailure() ) {
-     msg(MSG::ERROR)<< "Could not initialize LArShapeComplete data object - exit!" << endmsg ;
+     msg(MSG::ERROR)<< "Could not initialize LArShapeComplete data object - exit!" << endreq ;
      return sc ;
   }
 
@@ -241,11 +216,11 @@ StatusCode LArOFPhasePicker::pickShape()
       const float timeOffset=shape.timeOffset();
       //some sanity check on the Shapes
       if ( vShape.size() == 0 || vShapeDer.size() == 0 ) {
-	msg(MSG::WARNING) << "Shape not found for gain "<< gain << " channel " <<  m_onlineID->channel_name(id) << endmsg;
+	msg(MSG::WARNING) << "Shape not found for gain "<< gain << " channel " <<  m_onlineID->channel_name(id) << endreq;
       } else if ( vShape.size() != vShapeDer.size() ) {
 	msg(MSG::WARNING) << "Shape a (" << vShape.size() << ") and b (" << vShapeDer.size() << ") are not the same size for channel" 
-			  <<  m_onlineID->channel_name(id) << endmsg;
-	msg(MSG::WARNING) << "Will be not exported !!!" << endmsg;
+			  <<  m_onlineID->channel_name(id) << endreq;
+	msg(MSG::WARNING) << "Will be not exported !!!" << endreq;
       } else { // save in new container
 	std::vector<std::vector<float> > shapeDer;
 	std::vector<std::vector<float> > shapeAmpl;
@@ -260,12 +235,12 @@ StatusCode LArOFPhasePicker::pickShape()
 
   sc = detStore()->record(larShapeComplete,  m_keyShape_new);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to record LArShapeComplete object with key " << m_keyShape_new << endmsg;
+    msg(MSG::ERROR)<< "Failed to record LArShapeComplete object with key " << m_keyShape_new << endreq;
     return sc;
   }
   sc = detStore()->symLink(larShapeComplete, (ILArShape*)larShapeComplete);
   if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to sym-link LArShapeComplete object" << endmsg;
+    msg(MSG::ERROR)<< "Failed to sym-link LArShapeComplete object" << endreq;
     return sc;
   }
 

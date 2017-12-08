@@ -12,7 +12,7 @@
 
 #include "LArCalibUtils/LArDumpShapes.h"
 #include "LArElecCalib/ILArShape.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "StoreGate/StoreGateSvc.h"
