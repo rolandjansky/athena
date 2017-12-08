@@ -163,9 +163,7 @@ namespace Egamma{
       demax1->Fill(deltemax1);
       demax2->Fill(emax2 / (1. + 0.009 * et37*0.001)*0.001); // use more official GeV
       de->Fill(DeltaE*0.001);
-
-
-      
+     
       demax1vset->Fill(deltemax1, egamma.pt()*0.001);
       demax2vset->Fill(emax2 / (1. + 0.009 * et37*0.001)*0.001, egamma.pt()*0.001); // use more official GeV
       devset->Fill(DeltaE,egamma.pt()*0.001);
