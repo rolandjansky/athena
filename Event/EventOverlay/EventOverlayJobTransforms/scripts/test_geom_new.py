@@ -81,8 +81,6 @@ athenaCommonFlags.PoolEvgenInput = ['/afs/cern.ch/atlas/offline/ProdData/15.6.11
 athenaCommonFlags.PoolHitsOutput = "atlasG4.hits.pool.root"
 athenaCommonFlags.EvtMax = 1
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 ## Add G4 sim framework alg sequence
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()

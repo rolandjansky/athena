@@ -1,0 +1,27 @@
+package InDetAlignGeomTools
+
+author Anthony Morley <amorley@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthContainers              AthContainers-*                 Control
+use  TrkAlignEvent              TrkAlignEvent-*                 Tracking/TrkAlignment
+use  TrkAlignInterfaces         TrkAlignInterfaces-*            Tracking/TrkAlignment
+use  TrkAlignGenTools           TrkAlignGenTools-*              Tracking/TrkAlignment
+use  AtlasROOT                  AtlasROOT-*                     External
+
+private
+use  GaudiInterface             GaudiInterface-*                External
+use  InDetIdentifier            InDetIdentifier-*               InnerDetector/InDetDetDescr
+use  InDetReadoutGeometry       InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
+use  RDBAccessSvc	              RDBAccessSvc-*       		Database/AthenaPOOL
+use  GeoModelInterfaces         GeoModelInterfaces-*            DetectorDescription/GeoModel
+use  GeoModelUtilities          GeoModelUtilities-*             DetectorDescription/GeoModel
+
+public
+library InDetAlignGeomTools *.cxx components/*.cxx
+apply_pattern component_library
+
+macro_append InDetAlignGeomTools_shlibflags  "-L$(ROOTSYS)/lib -lGeom -lCore -lm -ldl -lpthread -rdynamic"

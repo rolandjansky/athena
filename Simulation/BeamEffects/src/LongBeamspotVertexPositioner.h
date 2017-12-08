@@ -36,7 +36,9 @@ namespace Simulation {
 
       @author John.Chapman -at- cern.ch, Elmar.Ritsch -at- cern.ch
      */
-  class LongBeamspotVertexPositioner : public extends<AthAlgTool, ILorentzVectorGenerator> {
+  class LongBeamspotVertexPositioner : public AthAlgTool,
+                                       virtual public ILorentzVectorGenerator
+  {
 
     public:
 

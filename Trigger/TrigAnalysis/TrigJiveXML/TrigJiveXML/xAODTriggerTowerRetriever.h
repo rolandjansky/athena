@@ -14,7 +14,7 @@
 namespace JiveXML{
 
   /**
-   * @class xAODTriggerTowerRetriever
+   * @class TriggerTower xAOD Retriever
    * @brief Retrieves TriggerTower xAOD objects
    *
    *  - @b Retrieved @b Data

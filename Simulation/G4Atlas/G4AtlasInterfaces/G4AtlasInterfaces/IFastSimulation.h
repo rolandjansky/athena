@@ -20,8 +20,10 @@ class IFastSimulation : virtual public IAlgTool {
  public:
   IFastSimulation() {}
   virtual ~IFastSimulation() {}
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IFastSimulation, 1, 0);
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IFastSimulation( "IFastSimulation" , 1 , 0 ) ;
+    return IID_IFastSimulation ;
+  }
   /** Method to initialize the Fast Simulation mdoel itself - this is our hook for initialization in G4,
    since in a multi-threaded setup the Fast Simulation models are local and they might need to be
    initialized in each thread.  Saves us using the AlgTool's initialize() for this. */

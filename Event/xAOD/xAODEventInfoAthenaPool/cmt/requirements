@@ -1,0 +1,27 @@
+package xAODEventInfoAthenaPool
+# $Id: requirements 594317 2014-04-25 17:36:58Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODEventInfo       xAODEventInfo-*       Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::EventInfo xAOD::EventAuxInfo\
+                                          xAOD::EventInfoContainer \
+                                          xAOD::EventInfoAuxContainer" \
+                      files="-s=${xAODEventInfo_root}/xAODEventInfo \
+                             EventInfo.h EventAuxInfo.h \
+                             EventInfoContainer.h \
+                             EventInfoAuxContainer.h" \
+                      cnv_pfx="xAOD"

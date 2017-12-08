@@ -46,8 +46,11 @@
 //=============================================================================
 QuirksPhysicsTool::QuirksPhysicsTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
-  : base_class ( type, nam , parent )
+  : AthAlgTool ( type, nam , parent )
 {
+  ATH_MSG_DEBUG("QuirksPhysicsTool "<<type<<" "<<nam);
+  declareInterface< IPhysicsOptionTool >( this ) ;
+
  std::ifstream f;
     f.open("quirks_setup.txt");
     f >> m_mass;                m_mass *= CLHEP::MeV;

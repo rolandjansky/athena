@@ -1,0 +1,38 @@
+package InDetTrackingGeometry
+
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy            AtlasPolicy-*
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use GaudiInterface         GaudiInterface-*         External
+use GeoPrimitives          GeoPrimitives-*          DetectorDescription
+use InDetIdentifier        InDetIdentifier-*        InnerDetector/InDetDetDescr
+use TrkDetDescrInterfaces  TrkDetDescrInterfaces-*  Tracking/TrkDetDescr
+use TrkDetDescrUtils       TrkDetDescrUtils-*       Tracking/TrkDetDescr
+use TrkGeometry            TrkGeometry-*            Tracking/TrkDetDescr
+
+private
+use AtlasROOT              AtlasROOT-*              External
+use AtlasBoost             AtlasBoost-*             External
+use StoreGate              StoreGate-*              Control
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
+use TrkVolumes             TrkVolumes-*             Tracking/TrkDetDescr
+use TrkDetDescrGeoModelCnv TrkDetDescrGeoModelCnv-* Tracking/TrkDetDescr    
+use GeoModelKernel         GeoModelKernel-*         DetectorDescription/GeoModel
+use InDetReadoutGeometry   InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
+use BeamPipeGeoModel	   BeamPipeGeoModel-*	    AtlasGeometryCommon
+use SubDetectorEnvelopes   SubDetectorEnvelopes-*   AtlasGeometryCommon
+use Identifier             Identifier-*             DetectorDescription
+
+public
+library InDetTrackingGeometry *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+
+private
+# macro cppdebugflags '$(cppdebugflags_s)'
+# macro_remove componentshr_linkopts "-Wl,-s"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+macro DOXYGEN_INLINE_INHERITED_MEMB "YES"

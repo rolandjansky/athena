@@ -132,41 +132,6 @@ if hasattr( runArgs, 'part' ) :
         DoLorentzAngle = True
     else :
         DoLorentzAngle = False
-
-
-#--------------------------------------------------------------
-# Read start/end time stamp and LB for HIST
-#--------------------------------------------------------------
-ProjTag   = ''
-SORTime   = ''
-EORTime   = ''
-nLB       = ''
-DAQConfig = ''
-
-if os.path.exists("./runInfo.txt") :
-    runInfo = open( './runInfo.txt', 'r' ).read()
-    list  = runInfo.split( ' ' )
-    ProjTag   = list[1]
-    SORTime   = list[2]
-    EORTime   = list[3]
-    nLB       = list[4]
-    DAQConfig = list[5]
-else :
-    ProjTag   = 'cannot retrieve ProjTag'
-    SORTime   = 'cannot retrieve SORTime'
-    EORTime   = 'cannot retrieve EORTime'
-    nLB       = 'cannot retrieve LB'
-    DAQConfig = 'cannot retrieve DAQConfig'
-
-
-#--------------------------------------------------------------
-# Set up RunNo/initial timestamp when running over HIST
-#--------------------------------------------------------------
-if runArgs.InputType is not 'RAW':
-    ServiceMgr.EventSelector.RunNumber         = runArgs.RunNumber
-    ServiceMgr.EventSelector.InitialTimeStamp  = int(SORTime)
-
-
 #--------------------------------------------------------------
 # Setup geometry and conditions tag
 # - Chosen from magnet current info
@@ -245,7 +210,29 @@ if DoDeadStrip or DoDeadChip :
 if DoHIST :
     EvtMax = 1
 
+#--------------------------------------------------------------
+# Read start/end time stamp and LB for HIST
+#--------------------------------------------------------------
+ProjTag   = ''
+SORTime   = ''
+EORTime   = ''
+nLB       = ''
+DAQConfig = ''
 
+if os.path.exists("./runInfo.txt") :
+    runInfo = open( './runInfo.txt', 'r' ).read()
+    list  = runInfo.split( ' ' )
+    ProjTag   = list[1]
+    SORTime   = list[2]
+    EORTime   = list[3]
+    nLB       = list[4]
+    DAQConfig = list[5]
+else :
+    ProjTag   = 'cannot retrieve ProjTag'
+    SORTime   = 'cannot retrieve SORTime'
+    EORTime   = 'cannot retrieve EORTime'
+    nLB       = 'cannot retrieve LB'
+    DAQConfig = 'cannot retrieve DAQConfig'
 
 #--------------------------------------------------------------
 # Read /SCT/Derived/Monotoring in COOL
@@ -375,15 +362,8 @@ rec.__dict__.get('projectName').set_Value(projectName)
 #-------------------------------------------------------------
 from IOVDbSvc.CondDB import conddb
 conddb.dbdata = 'CONDBR2'
-conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>", className="CondAttrListCollection") 
-#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>259237</forceRunNumber>", className="CondAttrListCollection") 
-
-sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
-condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg", ReadKey = sctDerivedMonitoringFolder)
-
+conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-004</tag>") 
+#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-004</tag><forceRunNumber>259237</forceRunNumber>") 
 
 # GeoModel & MagneticFieldSvc
 #--------------------------------------------------------------
@@ -425,16 +405,15 @@ else:
 #--- For Conditions algorithm for Athena MT (start)
 from IOVSvc.IOVSvcConf import CondSvc
 ServiceMgr += CondSvc()
-#from AthenaCommon.AlgSequence import AthSequencer
-#condSeq = AthSequencer("AthCondSeq")
-#from IOVSvc.IOVSvcConf import CondInputLoader
-#condSeq += CondInputLoader("CondInputLoader")
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+from IOVSvc.IOVSvcConf import CondInputLoader
+condSeq += CondInputLoader("CondInputLoader")
 import StoreGate.StoreGateConf as StoreGateConf
 ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
 condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg")
 #--- For Conditions algorithm for Athena MT (end)
-
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityConditionsSvc
 InDetSCT_MajorityConditionsSvc = SCT_MajorityConditionsSvc( name = "InDetSCT_MajorityConditionsSvc" )
@@ -448,7 +427,6 @@ if ( InDetFlags.doPrintConfigurables() ):
 conddb.setGlobalTag( globalflags.ConditionsTag() ) 
 #IOVDbSvc.CacheRun = M    # can also just do M runs at a time. 
 #IOVDbSvc.CacheTime = 3600 # in seconds
-
 
 #--------------------------------------------------------------
 # Saving ROOT histograms
@@ -644,7 +622,7 @@ print SCTCalib
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
-#ServiceMgr.EventSelector.RunNumber = RunNumber
+ServiceMgr.EventSelector.RunNumber = RunNumber
 theApp.EvtMax                      = EvtMax
 
 #--------------------------------------------------------------

@@ -1,0 +1,62 @@
+package InDetTrackValidation
+ 
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author Sebastian Fleischmann <Sebastian.Fleischmann@cern.ch>
+ 
+use AtlasPolicy             AtlasPolicy-*
+use AthenaBaseComps         AthenaBaseComps-*           Control
+use AthenaKernel            AthenaKernel-*              Control
+use InDetPrepRawData        InDetPrepRawData-*          InnerDetector/InDetRecEvent
+use InDetSimEvent           InDetSimEvent-*             InnerDetector/
+use InDetRawData            InDetRawData-*              InnerDetector/InDetRawEvent
+#use TrkSpacePoint           TrkSpacePoint-*             Tracking/TrkEvent
+use TrkParameters           TrkParameters-*             Tracking/TrkEvent
+use TrkValInterfaces        TrkValInterfaces-*          Tracking/TrkValidation
+use GaudiInterface          GaudiInterface-*            External
+use TrkTrack                TrkTrack-*                  Tracking/TrkEvent
+
+
+library InDetTrackValidation *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+
+use DataModel               DataModel-*                  Control
+use AtlasDetDescr           AtlasDetDescr-*             DetectorDescription
+use TrkSpacePoint           TrkSpacePoint-*             Tracking/TrkEvent
+
+use AtlasCLHEP              AtlasCLHEP-*                External
+use AtlasROOT               AtlasROOT-*                 External
+
+use TrkRIO_OnTrack          TrkRIO_OnTrack-*            Tracking/TrkEvent
+use TrkMeasurementBase      TrkMeasurementBase-*        Tracking/TrkEvent
+use TrkPrepRawData          TrkPrepRawData-*            Tracking/TrkEvent
+use TrkSurfaces             TrkSurfaces-*               Tracking/TrkDetDescr
+use xAODEventInfo           xAODEventInfo-*             Event/xAOD
+use AtlasHepMC              AtlasHepMC-*                External
+use GeneratorObjects        GeneratorObjects-*          Generators
+
+use GeoModelInterfaces      GeoModelInterfaces-*        DetectorDescription/GeoModel
+use PixelGeoModel           PixelGeoModel-*             InnerDetector/InDetDetDescr
+
+use InDetIdentifier         InDetIdentifier-*           InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack        InDetRIO_OnTrack-*          InnerDetector/InDetRecEvent
+use InDetReadoutGeometry    InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
+use PixelConditionsServices PixelConditionsServices-*   InnerDetector/InDetConditions
+use SCT_ConditionsServices  SCT_ConditionsServices-*    InnerDetector/InDetConditions
+use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use InDetTrackSplitterTool  InDetTrackSplitterTool-*    InnerDetector/InDetValidation
+use SCT_Cabling             SCT_Cabling-*               InnerDetector/InDetDetDescr
+use TRT_ConditionsServices   TRT_ConditionsServices-*    InnerDetector/InDetConditions
+use TRT_ConditionsData   TRT_ConditionsData-*    InnerDetector/InDetConditions
+use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
+use TrkToolInterfaces       TrkToolInterfaces-*         Tracking/TrkTools
+use TrkEventPrimitives      TrkEventPrimitives-*        Tracking/TrkEvent
+use EventPrimitives	    EventPrimitives-*		Event
+
+private
+
+#macro DOXYGEN_IMAGE_PATH "../doc/images"
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

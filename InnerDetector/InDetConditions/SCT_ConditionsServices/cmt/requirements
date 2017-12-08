@@ -1,0 +1,55 @@
+package SCT_ConditionsServices
+
+author Shaun Roe <Shaun.Roe@cern.ch>
+
+use AtlasPolicy           	  AtlasPolicy-*
+use GaudiInterface	  	  GaudiInterface-*	 		External
+use AthenaKernel          	  AthenaKernel-*         		Control
+use AtlasCLHEP                    AtlasCLHEP-*                          External      
+
+use Identifier            	  Identifier-*           		DetectorDescription
+
+use SCT_ConditionsData    	  SCT_ConditionsData-*     		InnerDetector/InDetConditions
+use InDetConditionsSummaryService InDetConditionsSummaryService-* 	InnerDetector/InDetConditions
+
+use AtlasBoost            	  AtlasBoost-*             		External
+
+private
+use AthenaBaseComps       	  AthenaBaseComps-*      		Control
+use StoreGate             	  StoreGate-*            		Control
+use CxxUtils                  CxxUtils-*                Control
+
+use SCT_Cabling           	  SCT_Cabling-*            		InnerDetector/InDetDetDescr
+use AthenaPoolUtilities	  	  AthenaPoolUtilities-*  		Database/AthenaPOOL
+
+use AtlasCORAL            	  AtlasCORAL-*             		External
+use AtlasCOOL             	  AtlasCOOL-*              		External
+use AtlasROOT                     AtlasROOT-*                           External
+use RegistrationServices  	  RegistrationServices-*   		Database
+use EventInfo             	  EventInfo-*              		Event
+use PathResolver          	  PathResolver-*           		Tools
+use InDetByteStreamErrors 	  InDetByteStreamErrors-* 		InnerDetector/InDetConditions
+use InDetIdentifier       	  InDetIdentifier-*        		InnerDetector/InDetDetDescr
+use InDetReadoutGeometry  	  InDetReadoutGeometry-*   		InnerDetector/InDetDetDescr
+use GeoModelUtilities             GeoModelUtilities-*                   DetectorDescription/GeoModel
+use GeoModelInterfaces            GeoModelInterfaces-*                  DetectorDescription/GeoModel
+use RDBAccessSvc                  RDBAccessSvc-*                        Database/AthenaPOOL
+use SiPropertiesSvc               SiPropertiesSvc-*                     InnerDetector/InDetConditions
+#use TrkEventPrimitives            TrkEventPrimitives-*                  Tracking/TrkEvent
+
+end_private
+
+library SCT_ConditionsServices *.cxx components/*.cxx
+apply_pattern component_library
+
+#add pictures for doxygen
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+# alternatives are:
+#apply_pattern component_library
+#apply_pattern dual_use_library files="*.cxx"
+
+
+#apply_pattern declare_python_modules files="*.py"
+
+

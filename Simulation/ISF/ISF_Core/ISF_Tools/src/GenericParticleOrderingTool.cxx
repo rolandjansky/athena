@@ -14,10 +14,12 @@
 
 /** Constructor **/
 ISF::GenericParticleOrderingTool::GenericParticleOrderingTool(const std::string& t, const std::string& n, const IInterface* p) :
-  base_class(t,n,p),
+  AthAlgTool(t,n,p),
   m_geoIDorder(),
   m_simIDorder()
 {
+  declareInterface<ISF::IParticleOrderingTool>(this);
+
   declareProperty( "OrderID",
                    m_geoIDorder[AtlasDetDescr::fAtlasID]=1,
                    "Order for Inner Detector particles");

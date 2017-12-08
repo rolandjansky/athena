@@ -1,0 +1,10 @@
+package TauCorrUncert
+author NLAA
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasROOT AtlasROOT-* External
+
+library TauCorrUncert ../Root/*.cxx
+apply_pattern installed_library
+
+apply_pattern have_root_headers root_headers="TauSF.h BDTSF.h TESUncertainty.h CommonSF.h ../Root/LinkDef.h" headers_lib=TauCorrUncert

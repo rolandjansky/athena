@@ -1,0 +1,37 @@
+## automatically generated CMT requirements file
+package HepMCWeightSvc
+author  will
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## for gaudi tools, services and objects
+use GaudiInterface 	GaudiInterface-* 	External
+
+private
+use EventInfo         EventInfo-*         Event
+use AthenaBaseComps AthenaBaseComps-* Control
+use IOVDbMetaDataTools IOVDbMetaDataTools-* Database
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use IOVDbDataModel IOVDbDataModel-* Database
+use AtlasBoost AtlasBoost-* External
+use AtlasCORAL AtlasCORAL-* External
+end_private
+
+## put here your package dependencies...
+
+##
+
+branches src src/components doc python share
+
+private
+## default is to make component library
+library HepMCWeightSvc *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+end_private
+
+

@@ -295,6 +295,31 @@ void test_pRange()
 }
 
 
+void test_proxyList()
+{
+  std::cout << "test_proxyList\n";
+
+  SGTest::TestStore pool;
+  SG::DataStore store (pool);
+
+  SG::DataProxy* dp1 = make_proxy (123, "dp1");
+  assert (store.addToStore (123, dp1).isSuccess());
+  assert (store.addSymLink (124, dp1).isSuccess());
+
+  SG::DataProxy* dp2 = make_proxy (123, "dp2");
+  assert (store.addToStore (123, dp2).isSuccess());
+
+  std::list<SG::DataProxy*> pl;
+  assert (store.proxyList (pl).isSuccess());
+  assert (pl.size() == 3);
+
+  std::vector<SG::DataProxy*> pv (pl.begin(), pl.end());
+  assert (pv[0] == dp1);
+  assert (pv[1] == dp2);
+  assert (pv[2] == dp1);
+}
+
+
 void test_keys()
 {
   std::cout << "test_keys\n";
@@ -510,6 +535,7 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test_typeCount();
   test_tRange();
   test_pRange();
+  test_proxyList();
   test_keys();
   test_removeProxy();
   test_clearStore();

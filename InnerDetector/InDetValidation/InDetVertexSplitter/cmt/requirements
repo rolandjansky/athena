@@ -1,0 +1,30 @@
+package InDetVertexSplitter
+
+author Peter Loscutoff <ploscutoff@gmail.com>
+
+
+use AtlasPolicy         AtlasPolicy-*
+
+public
+apply_pattern declare_joboptions files=" *.py"
+library InDetVertexSplitter *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+use AthenaBaseComps     AthenaBaseComps-*     Control
+use GaudiInterface      GaudiInterface-*      External
+use Particle             Particle-*           Reconstruction
+
+
+#use GeoPrimitives        GeoPrimitives-*       DetectorDescription
+use xAODEventInfo        xAODEventInfo-*       Event/xAOD
+use VxVertex             VxVertex-*            Tracking/TrkEvent
+use GeneratorObjects     GeneratorObjects-*    Generators
+use TrkTrack             TrkTrack-*            Tracking/TrkEvent
+use TrkParticleBase      TrkParticleBase-*     Tracking/TrkEvent
+apply_tag ROOTMathLibs
+end_private
+
+public
+use AtlasROOT            AtlasROOT-*            External
+

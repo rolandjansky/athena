@@ -56,8 +56,8 @@ private:
       double m_radiusRes;
       double m_zPosRes;
 
-      TTree * m_vtx_tree;
-      TTree * m_quark_tree;
+      TTree * vtx_tree;
+      TTree * quark_tree;
 	      
         // vertex
       mutable int  m_numTrueVertices; //!< number of the gen vertices 

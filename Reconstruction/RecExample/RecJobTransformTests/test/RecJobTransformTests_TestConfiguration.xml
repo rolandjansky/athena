@@ -51,7 +51,6 @@
         <!-- ++++++++++++++++++++++++++ Running on Cosmics Data  +++++++++++++++++++++++++++++++++++++++++++++ -->
     
         <!-- XS: please update with new 2015 cosmics file: cosmics 2015 reconstruction -->
-        <!-- Disabled since this has been failing for a long time.  See ATR-14581.
         <TEST name="RecoTf_cosmic_data_2011" type="script" suite="Reco_tf">
             <options_atn>
                 export TRF_ECHO=True; Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/data/data11_cos.00193024.physics_CosmicCalo.merge.RAW/data11_cos.00193024.physics_CosmicCalo.merge.RAW._lb0096._SFO-ALL._0001.1 --maxEvents 10 --autoConfiguration everything --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputHISTFile myHIST.root --preExec 'rec.doDetailedAuditor=True' 'rec.doNameAuditor=True' 
@@ -64,7 +63,6 @@
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
-        -->
     
         <!-- ++++++++++++++++++++++++++ Running on highmu Data  +++++++++++++++++++++++++++++++++++++++++++++ -->
     

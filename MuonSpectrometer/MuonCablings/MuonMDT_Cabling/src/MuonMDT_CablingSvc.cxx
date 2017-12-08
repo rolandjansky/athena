@@ -426,7 +426,7 @@ StatusCode MuonMDT_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     sc = m_detStore->retrieve(m_cablingMap);
     if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "Can't retrieve the cabling map from the detector store" << endmsg;
-      return StatusCode::FAILURE;
+      return false;
     }
     else {
       msg(MSG::DEBUG) << "Retrieved map from the detector store" << endmsg;
@@ -468,7 +468,7 @@ StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback()
     sc = m_detStore->retrieve(m_cablingMap);
     if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "Can't retrieve the cabling map from the detector store" << endmsg;
-      return StatusCode::FAILURE;
+      return false;
     }
     else {
       msg(MSG::DEBUG) << "Retrieved map from the detector store" << endmsg;

@@ -47,7 +47,8 @@ namespace iFatras {
       @author Andreas.Salzburger@cern.ch, Joerg.Mechnich@cern.ch
    */
 
-  class G4ParticleDecayHelper : public extends<AthAlgTool, IParticleDecayHelper> {
+   class G4ParticleDecayHelper : public AthAlgTool, 
+                                 virtual public IParticleDecayHelper {
     public:
       /**AlgTool constructor for ParticleDecayHelper*/
       G4ParticleDecayHelper(const std::string&,const std::string&,const IInterface*);

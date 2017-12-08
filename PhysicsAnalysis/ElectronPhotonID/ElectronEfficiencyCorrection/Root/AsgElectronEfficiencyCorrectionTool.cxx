@@ -5,11 +5,15 @@
 /**
    @class AthElectronEfficiencyCorrectionTool
    @brief Calculate the egamma scale factors in Athena
+
+   @author Rob Roy Fletcher <rob.fletcher@cern.ch>, Karsten Koeneke
+   @date   May 2014
 */
 
 // Include this class's header
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include "PathResolver/PathResolver.h"
+
 
 // STL includes
 #include <string>
@@ -28,13 +32,10 @@
 // xAOD includes
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
-
-#include <boost/algorithm/string.hpp>
-
 #ifndef ROOTCORE
+#include <boost/algorithm/string.hpp>
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
-
 #include "xAODMetaData/FileMetaData.h"
 #include "PathResolver/PathResolver.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
@@ -45,11 +46,11 @@
 
 namespace correlationModel{
   enum model { COMBMCTOYS =0,
-	       MCTOYS=1,
-	       FULL=2,
-	       SIMPLIFIED=3,
-	       TOTAL=4,
-	       SYST=5
+         MCTOYS=1,
+         FULL=2,
+         SIMPLIFIED=3,
+         TOTAL=4,
+         SYST=5
   };
 }
 
@@ -85,7 +86,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
                   "Key associated with trigger working point");
 
   declareProperty("ForceDataType", m_dataTypeOverwrite = -1,
-		  "Force the DataType of the electron to specified value (to circumvent problem of incorrect DataType for forward electrons in some old releases)");
+                  "Force the DataType of the electron to specified value (to circumvent problem of incorrect DataType for forward electrons in some old releases)");
 
   declareProperty("ResultPrefix", m_resultPrefix = "", "The prefix string for the result");
   declareProperty("ResultName", m_resultName = "", "The string for the result");
@@ -133,7 +134,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
   // and if overwrite is not set we will set the m_dataType based on metadata
   if (m_dataTypeOverwrite != -1) {
     if (m_dataTypeOverwrite != static_cast<int> (PATCore::ParticleDataType::Full)
-	&& m_dataTypeOverwrite != static_cast<int> (PATCore::ParticleDataType::Fast)) {
+        && m_dataTypeOverwrite != static_cast<int> (PATCore::ParticleDataType::Fast)) {
       ATH_MSG_ERROR("Unsupported Particle Data Type Overwrite" << m_dataTypeOverwrite);
       return StatusCode::FAILURE;
     }
@@ -276,12 +277,12 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
   //
   //Initialize the systematics
   if (InitSystematics() != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("(InitSystematics() != CP::SystematicCode::Ok)");
+      ATH_MSG_ERROR("(InitSystematics() != CP::SystematicCode::Ok)");
     return StatusCode::FAILURE;
   }
   // Add the recommended systematics to the registry
   if (registerSystematics() != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("(registerSystematics() != CP::SystematicCode::Ok)");
+      ATH_MSG_ERROR("(registerSystematics() != CP::SystematicCode::Ok)");
     return StatusCode::FAILURE;
   }
   // Configure for nominal systematics
@@ -306,7 +307,10 @@ AsgElectronEfficiencyCorrectionTool::finalize() {
 
 CP::CorrectionCode
 AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electron &inputObject,
-							      double &efficiencyScaleFactor) const {
+                                                              double &efficiencyScaleFactor) const {
+
+  int currentUncorrSystRegion = 0;
+  int currentSimplifiedUncorrSystRegion = 0;
 
   //Retrieve the proper random Run Number
   unsigned int runnumber = m_defaultRandomRunNumber;
@@ -327,18 +331,9 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     runnumber = randomrunnumber(*(eventInfo));
   }
   //
-  //Get the result 
-  double cluster_eta(-9999.9);
-  double et(0.0);
-
-
-  et = inputObject.pt();
-  const xAOD::CaloCluster *cluster = inputObject.caloCluster();
-  if (cluster) {
-    cluster_eta = cluster->etaBE(2);
-  }
-
-  const Root::TResult& result = calculate(cluster_eta,et, runnumber);
+  //Get the result
+  const Root::TResult& result = calculate(inputObject, runnumber, currentSimplifiedUncorrSystRegion,
+           currentUncorrSystRegion);
   efficiencyScaleFactor = result.getScaleFactor();
   //
   // The default of the underlying tool is -999 , if we are in a valid range
@@ -399,30 +394,17 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     }
   }
   //If there are not correlated systematic
-  if (m_nCorrSyst == 0) {
+  else if (m_nCorrSyst == 0) {
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty",1))) {
-
+      
       sys = sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
-		 - result.getResult(4) * result.getResult(4)); // total -stat
+       - result.getResult(4) * result.getResult(4)); // total -stat
       func(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty" ,-1))) {
 
       sys = -1* sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
-		     - result.getResult(4) * result.getResult(4)); // total -stat
-      func(efficiencyScaleFactor, sys);
-    }
-  }else if (m_correlation_model == correlationModel::TOTAL) { // one "TOTAL" uncertainty
-    if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-                                                                     m_correlation_model_name + "_" +
-                                                                     "1NPCOR_PLUS_UNCOR" ,1))) {
-      sys = result.getTotalUncertainty();
-      func(efficiencyScaleFactor, sys);
-    }
-    if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-                                                                     m_correlation_model_name + "_" +
-                                                                     "1NPCOR_PLUS_UNCOR" ,-1))) {
-      sys =  -1*result.getTotalUncertainty();
+         - result.getResult(4) * result.getResult(4)); // total -stat
       func(efficiencyScaleFactor, sys);
     }
   }
@@ -431,40 +413,34 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
   // =======================================================================
   // Then the uncorrelated, we just need to see if the applied matches the current electron pt and eta
   if (m_correlation_model == correlationModel::FULL) {// The Full Model
-
-    int currentUncorrSystReg = currentUncorrSystRegion( cluster_eta, et);
-
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     m_correlation_model_name + "_" +
-								     Form("UncorrUncertaintyNP%d",
-									  currentUncorrSystReg),1))) {
+                                                                     m_correlation_model_name + "_" +
+                                                                     Form("UncorrUncertaintyNP%d",
+                                                                          currentUncorrSystRegion),1))) {
       sys = result.getResult(4);//
       func(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     m_correlation_model_name + "_" +
-								     Form("UncorrUncertaintyNP%d",
-									  currentUncorrSystReg),-1))) {
+                                                                     m_correlation_model_name + "_" +
+                                                                     Form("UncorrUncertaintyNP%d",
+                                                                          currentUncorrSystRegion),-1))) {
       sys = -1*result.getResult(4);//
       func(efficiencyScaleFactor, sys);
     }
   }
   else if (m_correlation_model == correlationModel::SIMPLIFIED) {
-
-    int currentSimplifiedUncorrSystReg = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     m_correlation_model_name + "_" +
-								     Form("UncorrUncertaintyNP%d",
-									  currentSimplifiedUncorrSystReg),1))) {
+                                                                     m_correlation_model_name + "_" +
+                                                                     Form("UncorrUncertaintyNP%d",
+                                                                          currentSimplifiedUncorrSystRegion),1))) {
       sys = result.getResult(4);//
       func(efficiencyScaleFactor, sys);
     }
 
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     m_correlation_model_name + "_" +
-								     Form("UncorrUncertaintyNP%d",
-									  currentSimplifiedUncorrSystReg),-1))) {
+                                                                     m_correlation_model_name + "_" +
+                                                                     Form("UncorrUncertaintyNP%d",
+                                                                          currentSimplifiedUncorrSystRegion),-1))) {
       sys = -1*result.getResult(4);//
       func(efficiencyScaleFactor, sys);
     }
@@ -473,12 +449,12 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
   //If it has not returned so far , it means we wants to do the correlated for the full models
   for (int i = 0; i < m_nCorrSyst; ++i) {/// number of correlated sources
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     Form("CorrUncertaintyNP%d", i),1))) {
+                     Form("CorrUncertaintyNP%d", i),1))) {
       sys = result.getResult(5 + i);
       func(efficiencyScaleFactor, sys);
     }
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
-								     Form("CorrUncertaintyNP%d", i),-1))) {
+                     Form("CorrUncertaintyNP%d", i),-1))) {
       sys = -1* result.getResult(5 + i);
       func(efficiencyScaleFactor, sys);
     }
@@ -570,7 +546,7 @@ AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::Systemat
     if (filteredSys.size() == 0 && systConfig.size() > 0) {
       ATH_MSG_DEBUG("systematics : ");
       for (auto &syst : systConfig) {
-	ATH_MSG_DEBUG(syst.name());
+        ATH_MSG_DEBUG(syst.name());
       }
       ATH_MSG_DEBUG(" Not supported ");
     }
@@ -589,14 +565,75 @@ AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::Systemat
 // The main Result  method:
 // TRANSFER RESULT OF UNDERLYING TOOL TO xAOD TOOL
 // =============================================================================
-const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate(const double cluster_eta, const double et, const unsigned int runnumber) const {
+const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate(const xAOD::Electron &egam, const unsigned int runnumber,
+                   int &currentSimplifiedUncorrSystRegion, int &currentUncorrSystRegion
+                   ) const {
+  double cluster_eta(-9999.9);
+  double et(0.0);
+
+  et = egam.pt();
+  const xAOD::CaloCluster *cluster = egam.caloCluster();
+  if (cluster) {
+    cluster_eta = cluster->etaBE(2);
+  }
+
+  //  std::cout<< cluster_eta << std::endl;
+  /* For now the dataType must be set by the user. May be added to the IParticle class later.  */
+  if (m_correlation_model == correlationModel::SIMPLIFIED) {
+    int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
+    int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
+    int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
+    currentSimplifiedUncorrSystRegion = reg;
+  }
+
+  if (m_correlation_model == correlationModel::FULL) {
+    int etabin = -1;
+    int reg = 0;
+    bool found = false;
+    float cluster_eta_electron = 0;
+    std::map<float, std::vector<float> >::const_iterator itr_ptBEGIN = m_pteta_bins.begin();
+    std::map<float, std::vector<float> >::const_iterator itr_ptEND = m_pteta_bins.end();
+
+    // Consider using std::map::lower_bound, returns the iterator to the first element that is greater-or-equal to a pt
+    for (; itr_ptBEGIN != itr_ptEND; itr_ptBEGIN++) {
+      std::map<float, std::vector<float> >::const_iterator itr_ptBEGINplusOne = itr_ptBEGIN;
+      itr_ptBEGINplusOne++;
+
+      if ((et > itr_ptBEGIN->first && itr_ptBEGINplusOne == itr_ptEND) ||
+          (et > itr_ptBEGIN->first && et <= itr_ptBEGINplusOne->first)) {// find the pt bin
+        etabin=0;
+        // if it is ordered in eta from smaller to larger ascending order
+        // consider using std::lower_bound(begin,end) to find the position?
+        if ((itr_ptBEGIN->second).at(0) >= 0) {
+          cluster_eta_electron = fabs(cluster_eta);
+        }else {
+          cluster_eta_electron = (cluster_eta);
+        };
+
+        for (unsigned int etab = 0; etab < ((itr_ptBEGIN->second).size() - 1); ++etab) {// find the eta bin
+	etabin++;	
+          if ((cluster_eta_electron) > (itr_ptBEGIN->second).at(etab) &&
+              (cluster_eta_electron) <= (itr_ptBEGIN->second).at(etab + 1)) {
+            found = true;
+            break;
+          } // if ( (cluster_eta_electron)
+        } // for (unsigned int etab=0;etab<((itr_ptBEGIN->second).size()-1) ; ++etab)
+      }
+      if (found) {
+        break;
+      }
+      reg = reg + (itr_ptBEGIN->second).size();
+    }
+    reg = reg + etabin;
+    currentUncorrSystRegion = reg;
+  }
 
   // Call the ROOT tool to get an answer
   return m_rootTool->calculate(m_dataType,
-			       runnumber,
-			       cluster_eta,
-			       et /* in MeV */
-			       );
+                               runnumber,
+                               cluster_eta,
+                               et /* in MeV */
+                               );
 }
 /// returns: initialized the list for a specific model
 
@@ -608,10 +645,6 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
     m_affectedSys.insert((CP::SystematicVariation::makeToyEnsemble("EL_EFF_" + m_sysSubstring + "COMBMCTOY")));
   }else if (m_correlation_model == correlationModel::MCTOYS) {
     m_affectedSys.insert((CP::SystematicVariation::makeToyEnsemble("EL_EFF_" + m_sysSubstring + "MCTOY")));
-
-  }else if (m_nCorrSyst == 0) {
-    m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty", 1));
-    m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty", -1));
 
   }else if (m_correlation_model != correlationModel::TOTAL) {
     if ( m_nCorrSyst == 0 ) {
@@ -625,22 +658,22 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
   // Different tratement for the uncorrelated
   if (m_correlation_model == correlationModel::TOTAL) {
     m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
-						 "1NPCOR_PLUS_UNCOR", 1));
+                                                 "1NPCOR_PLUS_UNCOR", 1));
     m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
                                                  "1NPCOR_PLUS_UNCOR", -1));
   }else if (m_correlation_model == correlationModel::FULL) {
     for (int i = 0; i < m_nUncorrSyst; ++i) {
       m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
-						   Form("UncorrUncertaintyNP%d", i), 1));
+                                                   Form("UncorrUncertaintyNP%d", i), 1));
       m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
-						   Form("UncorrUncertaintyNP%d", i), -1));
+                                                   Form("UncorrUncertaintyNP%d", i), -1));
     }
   }else if (m_correlation_model == correlationModel::SIMPLIFIED) {
     for (int i = 0; i < m_nSimpleUncorrSyst; ++i) {
       m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
-						   Form("UncorrUncertaintyNP%d", i), 1));
+                                                   Form("UncorrUncertaintyNP%d", i), 1));
       m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + m_correlation_model_name + "_" +
-						   Form("UncorrUncertaintyNP%d", i), -1));
+                                                   Form("UncorrUncertaintyNP%d", i), -1));
     }
   }
   return CP::SystematicCode::Ok;
@@ -651,30 +684,30 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
 //===============================================================================
 StatusCode AsgElectronEfficiencyCorrectionTool::beginInputFile(){
 
-  // User preference of dataType, already done in initialize
+ // User preference of dataType, already done in initialize
   if (m_dataTypeOverwrite != -1) return StatusCode::SUCCESS;
 
-  PATCore::ParticleDataType::DataType dataType_metadata;
-  const StatusCode status = get_simType_from_metadata(dataType_metadata);
+ PATCore::ParticleDataType::DataType dataType_metadata;
+ const StatusCode status = get_simType_from_metadata(dataType_metadata);
 
-  if (status == StatusCode::SUCCESS) {
+ if (status == StatusCode::SUCCESS) {
     //m_metadata_retrieved isn't useful (might remove it later)
     m_metadata_retrieved = true;
     ATH_MSG_DEBUG("metadata from new file: " << (dataType_metadata == PATCore::ParticleDataType::Data ? "data" : (dataType_metadata == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
 
     if (dataType_metadata != PATCore::ParticleDataType::Data) {
 
-      if (m_dataTypeOverwrite == -1) { m_dataType = dataType_metadata; }
-      else {ATH_MSG_DEBUG("Use should set the dataType, otherwise it will take FullSim Type");}
+       if (m_dataTypeOverwrite == -1) { m_dataType = dataType_metadata; }
+       else {ATH_MSG_DEBUG("Use should set the dataType, otherwise it will take FullSim Type");}
     }
-  }
+ }
 
   else { // not able to retrieve metadata
     m_metadata_retrieved = false;
     ATH_MSG_DEBUG("not able to retrieve metadata, please set the dataType");
   }
 
-  return StatusCode::SUCCESS;
+return StatusCode::SUCCESS;
 }
 //===============================================================================
 // end input file
@@ -689,7 +722,7 @@ StatusCode AsgElectronEfficiencyCorrectionTool::endInputFile(){
 //===============================================================================
 StatusCode AsgElectronEfficiencyCorrectionTool::beginEvent(){
 
-  return StatusCode::SUCCESS;
+return StatusCode::SUCCESS;
 }
 
 //===============================================================================
@@ -699,7 +732,6 @@ StatusCode
 AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const
 {
   // adapted from https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples/trunk/Root/MetadataToolExample.cxx
-
 #ifndef ROOTCORE
   //Determine MC/Data
   std::string dataType("");
@@ -722,13 +754,14 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
   }
 #endif
 
-  //Here's how things will work dual use, when file metadata is available in files
+  //here's how things will work dual use, when file metadata is available in files
   if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
     const xAOD::FileMetaData* fmd = 0;
     ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
 
     std::string simType("");
     const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simType);
+
     if (!s) {
       ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
       result = PATCore::ParticleDataType::Data;
@@ -736,8 +769,7 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
     }
     else {
       ATH_MSG_DEBUG("sim type = " + simType);
-      boost::to_upper(simType);
-      result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
+      result = simType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;
     }
   }
@@ -795,11 +827,11 @@ AsgElectronEfficiencyCorrectionTool::convertToOneKey(const std::string& recokey,
 
     // Trigger SF file with isolation
     if (isokey != "") {
-      key = std::string (trigkey + "_" + idkey + "_" + isokey);
-    } else {
-      // Trigger SF file without isolation
-      key = std::string(trigkey + "_" + idkey);
-    }
+          key = std::string (trigkey + "_" + idkey + "_" + isokey);
+      } else {
+          // Trigger SF file without isolation
+  key = std::string(trigkey + "_" + idkey);
+      }
   }
   ATH_MSG_DEBUG("Full Key is " + key);
   return key;
@@ -812,15 +844,15 @@ AsgElectronEfficiencyCorrectionTool::getValueByKey(const std::string& mapFile, c
 
   std::string value;
   if (read(mapFile).isFailure()) {
-    ATH_MSG_ERROR("Couldn't read Map File" + mapFile);
-    return "" ;
+      ATH_MSG_ERROR("Couldn't read Map File" + mapFile);
+      return "" ;
   }
   if (getValue(key, value) == "") {
-    ATH_MSG_DEBUG("Error(" + key + ") not found ");
-    return "";
+      ATH_MSG_DEBUG("Error(" + key + ") not found ");
+      return "";
   } else {
-    ATH_MSG_DEBUG("Full Path of the correction file is " + value);
-    return value;
+      ATH_MSG_DEBUG("Full Path of the correction file is " + value);
+      return value;
   }
 }
 // Reads the provided map file
@@ -830,19 +862,19 @@ AsgElectronEfficiencyCorrectionTool::read(const std::string& strFile) {
 
   std::ifstream is(strFile.c_str());
   if (!is.is_open()){
-    ATH_MSG_ERROR("Couldn't read Map File" + strFile);
-    return StatusCode::FAILURE;
+      ATH_MSG_ERROR("Couldn't read Map File" + strFile);
+      return StatusCode::FAILURE;
   }
   while (!is.eof()) {
-    std::string strLine;
-    getline(is,strLine);
+      std::string strLine;
+      getline(is,strLine);
 
-    int nPos = strLine.find('=');
+      int nPos = strLine.find('=');
 
-    if ((signed int)std::string::npos == nPos) continue; // no '=', invalid line;
-    std::string strKey = strLine.substr(0,nPos);
-    std::string strVal = strLine.substr(nPos + 1, strLine.length() - nPos + 1);
-    m_map.insert(std::map<std::string,std::string>::value_type(strKey,strVal));
+      if ((signed int)std::string::npos == nPos) continue; // no '=', invalid line;
+      std::string strKey = strLine.substr(0,nPos);
+      std::string strVal = strLine.substr(nPos + 1, strLine.length() - nPos + 1);
+      m_map.insert(std::map<std::string,std::string>::value_type(strKey,strVal));
   }
   return StatusCode::SUCCESS;
 }
@@ -857,82 +889,8 @@ AsgElectronEfficiencyCorrectionTool::getValue(const std::string& strKey, std::st
   i = m_map.find(strKey);
 
   if (i != m_map.end()) {
-    strValue = i->second;
-    return strValue;
+      strValue = i->second;
+      return strValue;
   }
   return "";
 }
-
-int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const {
-  int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
-  int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
-  int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
-  return reg;
-}
-
-
-
-int AsgElectronEfficiencyCorrectionTool::currentUncorrSystRegion(const double cluster_eta, const double et) const {
-  int etabin = -1;
-  int reg = 0; 
-  bool found = false;
-  float cluster_eta_electron = 0;
-  std::map<float, std::vector<float> >::const_iterator itr_ptBEGIN = m_pteta_bins.begin();
-  std::map<float, std::vector<float> >::const_iterator itr_ptEND = m_pteta_bins.end();
-  // Consider using std::map::lower_bound, returns the iterator to the first element that is greater-or-equal to a pt
-  for (; itr_ptBEGIN != itr_ptEND; itr_ptBEGIN++) {
-    std::map<float, std::vector<float> >::const_iterator itr_ptBEGINplusOne = itr_ptBEGIN;
-    itr_ptBEGINplusOne++;
-
-    if ((et > itr_ptBEGIN->first && itr_ptBEGINplusOne == itr_ptEND) ||
-	(et > itr_ptBEGIN->first && et <= itr_ptBEGINplusOne->first)) {// find the pt bin
-      etabin=0;
-      // if it is ordered in eta from smaller to larger ascending order
-      // consider using std::lower_bound(begin,end) to find the position?
-      if ((itr_ptBEGIN->second).at(0) >= 0) {
-	cluster_eta_electron = fabs(cluster_eta);
-      }else {
-	cluster_eta_electron = (cluster_eta);
-      };
-      for (unsigned int etab = 0; etab < ((itr_ptBEGIN->second).size() - 1); ++etab) {// find the eta bin
-	etabin++;       
-	if ((cluster_eta_electron) > (itr_ptBEGIN->second).at(etab) &&
-	    (cluster_eta_electron) <= (itr_ptBEGIN->second).at(etab + 1)) {
-	  found = true;
-	  break;
-	} // if ( (cluster_eta_electron)
-      } // for (unsigned int etab=0;etab<((itr_ptBEGIN->second).size()-1) ; ++etab)
-    } 
-    if (found) {
-      break;
-    } 
-    reg = reg + (itr_ptBEGIN->second).size();
-  } 
-  reg = reg + etabin;
-  return reg;
-}
-
-int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::Electron &inputObject) const{
-  int currentSystRegion=-999;
-  double cluster_eta(-9999.9);
-  double et(0.0);
- 
-  et = inputObject.pt();
-  const xAOD::CaloCluster *cluster = inputObject.caloCluster();
-  if (cluster) {
-    cluster_eta = cluster->etaBE(2);
-  }
-
-
-
-  if (m_correlation_model == correlationModel::SIMPLIFIED) {
-    currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-  }
-
-  if (m_correlation_model == correlationModel::FULL) {
-    currentSystRegion = currentUncorrSystRegion( cluster_eta, et);
-  }
-
-  return currentSystRegion;
-}
-

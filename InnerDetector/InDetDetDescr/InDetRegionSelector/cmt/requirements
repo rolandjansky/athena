@@ -1,0 +1,29 @@
+package InDetRegionSelector
+
+author Grant Gorfine <Grant.Gorfine@cern.ch>
+
+public
+use AtlasPolicy          AtlasPolicy-* 
+use AthenaBaseComps      AthenaBaseComps-*      Control
+use GaudiInterface       GaudiInterface-*  	External 
+use PixelCabling         PixelCabling-*   	InnerDetector/InDetDetDescr
+# use RegionSelector	 RegionSelector-*       DetectorDescription
+use RegSelLUT	         RegSelLUT-*            DetectorDescription
+use SCT_Cabling          SCT_Cabling-*   	InnerDetector/InDetDetDescr
+
+# Specify an explicit dependency on tdaq-common (cmake-specific) 
+apply_pattern cmake_add_command command="find_package(tdaq-common)"
+
+private
+use AtlasCLHEP	         AtlasCLHEP-*	  	External
+use InDetReadoutGeometry InDetReadoutGeometry-*	InnerDetector/InDetDetDescr
+use InDetIdentifier	 InDetIdentifier-*	InnerDetector/InDetDetDescr
+use TRT_Cabling          TRT_Cabling-*  	InnerDetector/InDetDetDescr
+use Identifier		 Identifier-*		DetectorDescription
+
+public
+library InDetRegionSelector *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+

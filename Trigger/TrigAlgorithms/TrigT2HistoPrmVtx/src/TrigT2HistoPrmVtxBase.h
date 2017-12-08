@@ -96,15 +96,15 @@ class TrigT2HistoPrmVtxBase {
   unsigned int m_logLvl; 
 
   /** @brief Vector of primary vertex candidates (the first candidate is assumed to be the best). */
-  std::vector<float> m_zPrmVtx;
+  std::vector<float> zPrmVtx;
   /** @brief Vector of primary vertex candidate sigmas (including 1-track vertices). */
-  std::vector<float> m_zPrmVtxSigmaAll;
+  std::vector<float> zPrmVtxSigmaAll;
   /** @brief Vector of primary vertex candidate sigmas (excluding 1-track vertices). */
-  std::vector<float> m_zPrmVtxSigma2Trk;
+  std::vector<float> zPrmVtxSigma2Trk;
   /** @brief Vector of selected tracks per primary vertex candidated. */
-  std::vector<int> m_nTrackVtx;
+  std::vector<int> nTrackVtx;
   /** @brief Number of primary vertex candidates found by the algorithm. */
-  int m_nVtxFound;
+  int nVtxFound;
 
   /** @brief Number of reconstructed tracks per RoI. */
   unsigned int m_totTracks;

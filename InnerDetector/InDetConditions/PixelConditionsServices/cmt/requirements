@@ -1,0 +1,47 @@
+package PixelConditionsServices
+
+author Weiming Yao <WMYAO@LBL.GOV> \
+       Christoph Ruwiedel <ruwiedel@physik.uni-bonn.de>
+
+use AtlasPolicy AtlasPolicy-* 
+
+#use RegistrationServices 	  RegistrationServices-00-* 	  Database
+use AthenaBaseComps               AthenaBaseComps-*               Control
+use AthenaPoolUtilities           AthenaPoolUtilities-*           Database/AthenaPOOL
+use AthenaKernel                  AthenaKernel-*                  Control
+use GaudiInterface                GaudiInterface-*                External
+use PixelConditionsData           PixelConditionsData-*           InnerDetector/InDetConditions
+use InDetByteStreamErrors	  InDetByteStreamErrors-*	  InnerDetector/InDetConditions
+
+use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+
+# Specify the required ROOT components (cmake-specific) 
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
+
+private
+
+use StoreGate                     StoreGate-*                     Control
+use SGTools                       SGTools-*                       Control
+use Identifier                    Identifier-*                    DetectorDescription
+use InDetIdentifier               InDetIdentifier-*               InnerDetector/InDetDetDescr
+use AtlasCORAL                    AtlasCORAL-*                    External
+use AtlasCOOL                     AtlasCOOL-*                     External
+use AtlasCLHEP                    AtlasCLHEP-*                    External
+use PixelConditionsTools          PixelConditionsTools-*          InnerDetector/InDetConditions
+use PixelGeoModel                 PixelGeoModel-*                 InnerDetector/InDetDetDescr
+use PixelCabling                  PixelCabling-*                  InnerDetector/InDetDetDescr
+use InDetReadoutGeometry          InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use CoralDB                       CoralDB-*                       Database
+use RDBAccessSvc                  RDBAccessSvc-*                  Database/AthenaPOOL
+use GeoModelUtilities             GeoModelUtilities-*             DetectorDescription/GeoModel
+use GeoModelInterfaces            GeoModelInterfaces-*            DetectorDescription/GeoModel
+use AtlasROOT                     AtlasROOT-*                     External
+
+public
+
+library PixelConditionsServices *.cxx components/*.cxx
+apply_pattern component_library
+#apply_pattern dual_use_library files ="*.cxx"
+#apply_pattern dual_use_library files="-s=components/*.cxx"
+apply_pattern declare_joboptions files=" -s=../share/ *.py"
+

@@ -107,6 +107,7 @@ namespace LArG4 {
       G4double m_Rmax;
       G4double m_Rphi[5000];
       G4double m_dR;
+      double m_2pi;
 
       // function to compute distance to electrode
       double Distance_Ele(const double &x, const double &y,

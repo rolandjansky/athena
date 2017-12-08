@@ -1,0 +1,17 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!-- @version: -->
+
+<!ELEMENT FADS (ConstantField*)+>
+
+<!ELEMENT  ConstantField  EMPTY>
+<!ATTLIST  ConstantField
+        Bx    	CDATA #IMPLIED
+        By      CDATA #IMPLIED
+        Bz     	CDATA #IMPLIED
+	Xmin	CDATA #IMPLIED
+	Xmax	CDATA #IMPLIED
+	Ymin	CDATA #IMPLIED
+	Ymax	CDATA #IMPLIED
+	Zmin	CDATA #IMPLIED
+	Zmax	CDATA #IMPLIED>

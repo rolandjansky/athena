@@ -1,0 +1,31 @@
+package RecExAlgs
+
+author David Rousseau <rousseau@lal.in2p3.fr>
+
+public
+
+use AtlasPolicy          AtlasPolicy-*          
+use SGTools              SGTools-*                 Control
+use GaudiInterface       GaudiInterface-*          External
+use AthenaBaseComps      AthenaBaseComps-*         Control
+
+private
+use StoreGate            StoreGate-*               Control
+end_private
+
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+
+private
+library RecExAlgs *.cxx components/*.cxx
+apply_pattern component_library
+
+end_private
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+end_private
+

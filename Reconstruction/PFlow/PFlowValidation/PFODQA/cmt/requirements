@@ -1,0 +1,18 @@
+package PFODQA
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+
+use AtlasROOT           AtlasROOT-*             External
+
+private
+
+use AthenaMonitoring    AthenaMonitoring-*      Control
+use xAODPFlow           xAODPFlow-*             Event/xAOD
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
+use PFOHistUtils        PFOHistUtils-*          Reconstruction/PFlow/PFlowValidation
+use PFlowUtils          PFlowUtils-*            Reconstruction/PFlow
+
+library PFODQA *.cxx components/*.cxx
+apply_pattern component_library

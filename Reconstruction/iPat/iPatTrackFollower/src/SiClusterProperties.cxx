@@ -38,25 +38,11 @@ SiClusterProperties::SiClusterProperties(const std::string&	type,
 					 const std::string&	name,
 					 const IInterface*	parent)
     :   AthAlgTool		(type, name, parent),
-	m_pixelIdHelper		(nullptr),
 	m_pixelBroadROT_Maker	(""),
 	m_pixelPreciseROT_Maker	(""),
-	m_sctIdHelper		(nullptr),
 	m_sctBroadROT_Maker	(""),
 	m_sctPreciseROT_Maker	(""),
-	m_broadEtaError		(0.),
-	m_broadPhiError		(0.),
-	m_cluster		(nullptr),
-	m_element		(nullptr),
-	m_parameters		(nullptr),
-	m_preciseEtaError	(0.),
-	m_precisePhiError	(0.),
-	m_rotBroad		(nullptr),
-	m_rotPrecise		(nullptr),
-	m_sqrt12		(sqrt(12.)),
-	m_status		(pending),
-	m_trackCotTheta		(0.),
-	m_trackRadius		(0.)	
+	m_sqrt12		(sqrt(12.))
 {
     declareInterface<ISiClusterProperties>(this);
     declareProperty("PixelBroadROT_Maker",	m_pixelBroadROT_Maker);

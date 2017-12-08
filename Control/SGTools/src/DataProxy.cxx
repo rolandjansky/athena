@@ -17,8 +17,8 @@
 
 #include "SGTools/TransientAddress.h"
 #include "SGTools/T2pMap.h"
+#include "SGTools/DataBucketBase.h"
 #include "SGTools/CurrentEventStore.h"
-#include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/IProxyDict.h"
 
 #include "SGTools/DataProxy.h"

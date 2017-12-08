@@ -3,7 +3,7 @@
 # Change the input file
 #InputFile = "/afs/cern.ch/work/h/hristova/public/M7/248370/data14_cos.00248370.express_express.merge.RAW._lb0163._SFO-ALL._0001.1"
 #InputFile = "/afs/cern.ch/user/k/korcyl/public/ZDC/data/data_test.1438344841.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data"
-InputFile = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"
+InputFile = "root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"
 # ==============================================================================
 #from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__TrigT1CaloDataAccessV2
 from ZdcByteStream.ZdcByteStreamConf import ZdcDataAccessV2

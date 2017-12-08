@@ -21,13 +21,11 @@
 namespace SG {
   class VarHandleKey;
   class VarHandleKeyArray;
-  class VarHandleBase;
 }
 namespace Gaudi {
   namespace Parsers {
     StatusCode parse(SG::VarHandleKey& v, const std::string& s);
     StatusCode parse(SG::VarHandleKeyArray& v, const std::string& s);
-    StatusCode parse(SG::VarHandleBase& v, const std::string& s);
   }
 }
 
@@ -38,14 +36,13 @@ namespace Gaudi {
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthMemMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaBaseComps/HandleClassifier.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
 #include "StoreGate/VarHandleKeyProperty.h"
 #include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "StoreGate/VarHandleKey.h"
-#include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
@@ -74,12 +71,16 @@ namespace Gaudi {
  */ 
 
 class AthAlgorithm
-  : public ::Algorithm
+  : public ::Algorithm,
+    public ::AthMessaging
 { 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
+
+  // fwd compat w/ gaudi-21
+  using AthMessaging::msg;
 
   // Copy constructor: 
 
@@ -130,8 +131,10 @@ public:
 
   template <class T>
   Property& declareProperty(Gaudi::Property<T> &t) {
-    typedef typename SG::HandleClassifier<T>::type htype;
-    return AthAlgorithm::declareGaudiProperty(t, htype());
+    return AthAlgorithm::declareGaudiProperty(t, 
+                                              std::is_base_of<SG::VarHandleKey, T>(),
+                                              std::is_base_of<SG::VarHandleKeyArray, T>()
+                                              );
   }
 
 private:
@@ -140,9 +143,9 @@ private:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &hndl,
-                                 const SG::VarHandleKeyType&)
-  {
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 std::true_type, std::false_type) {
+
     return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
                                           hndl.documentation());
 
@@ -154,24 +157,26 @@ private:
    */
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
-                                 const SG::VarHandleKeyArrayType&)
-  {
+                                 std::false_type, std::true_type) {
+
     return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
                                           hndl.documentation());
 
   }
 
   /**
-   * @brief specialization for handling Gaudi::Property<SG::VarHandleBase>
+   * @brief Error: can't be both a VarHandleKey and VarHandleKeyArray
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
-                                 const SG::VarHandleType&)
-  {
-    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
-                                          hndl.documentation());
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::true_type, std::true_type) {
+      ATH_MSG_ERROR("AthAlgorith::declareGaudiProperty: " << t 
+                    << " cannot be both a VarHandleKey and VarHandleKeyArray. "
+                    << "This should not happen!");
+      throw std::runtime_error("AthAlgorith::declareGaudiProperty: cannot be both a VarHandleKey and VarHandleKeyArray (this should not happen)!");
+    return Algorithm::declareProperty(t);
   }
+
 
 
   /**
@@ -180,8 +185,7 @@ private:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &t, const SG::NotHandleType&)
-  {
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type, std::false_type) {
     return Algorithm::declareProperty(t);
   }
 
@@ -195,7 +199,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param hndl Object holding the property value.
+   * @param property Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleKey.
@@ -205,7 +209,8 @@ public:
   Property* declareProperty(const std::string& name,
                             SG::VarHandleKey& hndl,
                             const std::string& doc,
-                            const SG::VarHandleKeyType&)
+                            std::true_type,
+                            std::false_type)
   {
     this->declare(hndl);
     hndl.setOwner(this);
@@ -216,34 +221,11 @@ public:
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-  /**
-   * @brief Declare a new Gaudi property.
-   * @param name Name of the property.
-   * @param hndl Object holding the property value.
-   * @param doc Documentation string for the property.
-   *
-   * This is the version for types that derive from @c SG::VarHandleBase.
-   * The property value object is put on the input and output lists as
-   * appropriate; then we forward to the base class.
-   */
-  Property* declareProperty(const std::string& name,
-                            SG::VarHandleBase& hndl,
-                            const std::string& doc,
-                            const SG::VarHandleType&)
-  {
-    this->declare(hndl.vhKey());
-    hndl.vhKey().setOwner(this);
-
-    return Algorithm::declareProperty(name,hndl,doc);
-  }
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
   Property* declareProperty(const std::string& name,
                             SG::VarHandleKeyArray& hndArr,
                             const std::string& doc,
-                            const SG::VarHandleKeyArrayType&)
+                            std::false_type,
+                            std::true_type)
   {
 
     // std::ostringstream ost;
@@ -316,7 +298,9 @@ public:
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc,
-                            const SG::NotHandleType&)
+                            std::false_type,
+                            std::false_type
+                            ) 
   {
     return Algorithm::declareProperty(name, property, doc);
   }
@@ -329,15 +313,20 @@ public:
    * @param doc Documentation string for the property.
    *
    * This dispatches to either the generic @c declareProperty or the one
-   * for VarHandle/Key/KeyArray.
+   * for VarHandle/Key, depending on whether or not @c property
+   * derives from @c SG::VarHandleKey or @c SG::VarHandleKeyArray.
    */
   template <class T>
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc="none") 
   {
-    typedef typename SG::HandleClassifier<T>::type htype;
-    return declareProperty (name, property, doc, htype());
+
+    return declareProperty (name, property, doc,
+                            std::is_base_of<SG::VarHandleKey, T>(),
+                            std::is_base_of<SG::VarHandleKeyArray,T>()
+    );
+
   }
 
 
@@ -380,18 +369,6 @@ public:
   virtual const DataObjIDColl& extraOutputDeps() const override;
 
 
-  // forward to CommonMessaging
-  inline MsgStream& msg() const {
-    return msgStream();
-  }
-  inline MsgStream& msg(const MSG::Level lvl) const {
-    return msgStream(lvl);
-  }
-  inline bool msgLvl(const MSG::Level lvl) const {
-    return msgLevel(lvl);
-  }
-  
-  
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 

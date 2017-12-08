@@ -23,6 +23,9 @@
 #include "ISF_Event/EntryLayer.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
 
+/** Declaration of the interface ID ( interface id, major version, minor version) */
+static const InterfaceID IID_IParticleBroker("IParticleBroker", 1 , 0);
+
 namespace ISF {
 
   class ISFParticle;
@@ -41,8 +44,8 @@ namespace ISF {
       /////////////////////////////////////////////////////////////////// 
     public: 
 
-      /// Creates the InterfaceID and interfaceID() method
-      DeclareInterfaceID(IParticleBroker, 1, 0);
+      /** Retrieve interface ID */
+      static const InterfaceID& interfaceID() { return IID_IParticleBroker; }
       
       /** Register an array of SimulationSelectors */
       virtual StatusCode registerSimSelector(SimSelectorToolArray &simSelectorTools, AtlasDetDescr::AtlasRegion geoID) = 0;

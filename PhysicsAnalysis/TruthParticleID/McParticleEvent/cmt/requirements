@@ -1,0 +1,64 @@
+package McParticleEvent
+
+author Sebastien Binet <binet@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+use AtlasBoost          AtlasBoost-*       External
+use AtlasCLHEP          AtlasCLHEP-*       External
+
+use CLIDSvc             CLIDSvc-*          Control
+use AthContainers       AthContainers-*    Control
+use AthLinks            AthLinks-*         Control
+use Navigation          Navigation-*       Control
+
+use EventKernel         EventKernel-*      Event
+use NavFourMom          NavFourMom-*       Event
+
+use GeneratorObjects    GeneratorObjects-* Generators
+use AtlasHepMC          AtlasHepMC-*       External
+
+use VxVertex            VxVertex-*         Tracking/TrkEvent
+
+use ParticleEvent       ParticleEvent-*    PhysicsAnalysis/AnalysisCommon
+
+branches McParticleEvent src doc share test python
+
+library McParticleEvent *.cxx
+
+
+apply_pattern installed_library
+apply_pattern declare_python_modules files="*.py"
+
+#########################
+# Dictionary generation #
+#########################
+private
+use GaudiInterface      GaudiInterface-*   External
+use AtlasReflex         AtlasReflex-*      External -no_auto_imports
+
+macro navigables_McParticleEvent ""
+macro_append navigables_McParticleEvent "TruthParticleContainer "
+
+macro elemLinks_McParticleEvent ""
+macro_append elemLinks_McParticleEvent "McEventCollection "
+macro_append elemLinks_McParticleEvent "TruthEtIsolationsContainer "
+
+apply_pattern lcgdict dict=McParticleEvent selectionfile=selection.xml \
+        navigables=$(navigables_McParticleEvent) \
+	elementLinks=$(elemLinks_McParticleEvent) \
+	headerfiles=" ../McParticleEvent/McParticleEventDict.h"
+end_private
+
+
+################
+## Unit tests ##
+################
+
+private
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern install_runtime
+apply_pattern UnitTest_run unit_test=TruthParticle
+
+end_private

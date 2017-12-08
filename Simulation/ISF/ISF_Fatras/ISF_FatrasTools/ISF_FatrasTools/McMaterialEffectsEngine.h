@@ -67,7 +67,7 @@ namespace iFatras {
       @author Andreas.Salzburger@cern.ch, Noemi.Calace@cern.ch
   */
   
-  class McMaterialEffectsEngine : public extends<AthAlgTool, Trk::IMaterialEffectsEngine> { 
+  class McMaterialEffectsEngine : public AthAlgTool, virtual public Trk::IMaterialEffectsEngine { 
   public:      
     /**AlgTool constructor for McMaterialEffectsEngine*/
     McMaterialEffectsEngine(const std::string&,const std::string&,const IInterface*);

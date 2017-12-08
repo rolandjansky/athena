@@ -43,8 +43,7 @@ DQTNonCollBkg_ZDC::DQTNonCollBkg_ZDC(const std::string & type,
                                           m_complainContain(1),
                                           m_complainRetrieve(1),
 					  m_nsamples(0),
-					  m_bcid(nullptr),
-                                          m_trigDec("Trig::TrigDecisionTool")
+					  m_bcid(nullptr)
 
 {
   declareInterface<IMonitorToolBase> (this);

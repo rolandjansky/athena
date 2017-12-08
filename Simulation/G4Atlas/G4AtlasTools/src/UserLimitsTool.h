@@ -18,13 +18,16 @@
  *  Concrete Tool to apply G4 User Limits
  */
 
-class UserLimitsTool final : public extends<AthAlgTool, IUserLimitsTool> {
+class UserLimitsTool final :  public AthAlgTool, virtual public IUserLimitsTool {
  public:
   // Standard constructor and destructor
   UserLimitsTool(const std::string& type, const std::string& name, const IInterface *parent);
   ~UserLimitsTool() {}
 
   virtual StatusCode initialize() override final;
+
+  /** Query interface method to make athena happy */
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
  private:
   bool isMatch(const std::string& a,const std::string b) const;

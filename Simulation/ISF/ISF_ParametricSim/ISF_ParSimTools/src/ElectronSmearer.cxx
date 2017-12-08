@@ -14,8 +14,9 @@
 
 //================ Constructor =================================================
 iParSim::ElectronSmearer::ElectronSmearer(const std::string& t, const std::string& n, const IInterface*  p ) :
-  base_class(t,n,p)
+  AthAlgTool(t,n,p)
 {
+    declareInterface<iParSim::IChargedSmearer>(this);
 }
 
 //================ Destructor =================================================

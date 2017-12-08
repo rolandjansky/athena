@@ -24,7 +24,7 @@ BasicCellBuilderTool::BasicCellBuilderTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :base_class(type, name, parent),
+  :AthAlgTool(type, name, parent),
    m_nEvent(0),
    m_caloDDM(0),
    m_caloCID(0),

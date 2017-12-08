@@ -1,0 +1,30 @@
+package CombinedMuonRefit
+
+manager Thijs Cornelissen <Thijs.Cornelissen@cern.ch>
+author Thijs Cornelissen <Thijs.Cornelissen@cern.ch>
+
+public
+use AtlasPolicy 	AtlasPolicy-*
+use GaudiInterface      GaudiInterface-* 	External
+
+
+use TrkTrack            TrkTrack-*            Tracking/TrkEvent
+
+private
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
+use TrkParameters       TrkParameters-*      Tracking/TrkEvent
+
+use MuonRecHelperTools     MuonRecHelperTools-*          MuonSpectrometer/MuonReconstruction/MuonRecTools
+use MuonRecToolInterfaces  MuonRecToolInterfaces-*       MuonSpectrometer/MuonReconstruction/MuonRecTools
+use TrkExInterfaces        TrkExInterfaces-*             Tracking/TrkExtrapolation
+
+public
+library CombinedMuonRefit *.cxx components/*.cxx
+apply_pattern component_library
+#apply_pattern declare_joboptions files="*.py"
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

@@ -28,11 +28,11 @@
 TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(MsgStream& log, unsigned int logLvl) :
   m_log(log),
   m_logLvl(logLvl),
-  m_zPrmVtx(3),
-  m_zPrmVtxSigmaAll(3),
-  m_zPrmVtxSigma2Trk(3),
-  m_nTrackVtx(3),
-  m_nVtxFound(0),
+  zPrmVtx(3),
+  zPrmVtxSigmaAll(3),
+  zPrmVtxSigma2Trk(3),
+  nTrackVtx(3),
+  nVtxFound(0),
   m_totTracks(0),
   m_totTracks_All(0),
   m_totSelTracks(0),
@@ -68,11 +68,11 @@ TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(MsgStream& log, unsigned int logLvl
 TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(const TrigT2HistoPrmVtxBase &other) :
   m_log(other.m_log),
   m_logLvl(other.m_logLvl),
-  m_zPrmVtx(other.m_zPrmVtx),
-  m_zPrmVtxSigmaAll(other.m_zPrmVtxSigmaAll),
-  m_zPrmVtxSigma2Trk(other.m_zPrmVtxSigma2Trk),
-  m_nTrackVtx(other.m_nTrackVtx),
-  m_nVtxFound(other.m_nVtxFound),
+  zPrmVtx(other.zPrmVtx),
+  zPrmVtxSigmaAll(other.zPrmVtxSigmaAll),
+  zPrmVtxSigma2Trk(other.zPrmVtxSigma2Trk),
+  nTrackVtx(other.nTrackVtx),
+  nVtxFound(other.nVtxFound),
   m_totTracks(other.m_totTracks),
   m_totTracks_All(other.m_totTracks_All),
   m_totSelTracks(other.m_totSelTracks),
@@ -126,11 +126,11 @@ TrigT2HistoPrmVtxBase& TrigT2HistoPrmVtxBase::operator=(const TrigT2HistoPrmVtxB
 
   //this->m_log = rhs.m_log;
   this->m_logLvl = rhs.m_logLvl;
-  this->m_zPrmVtx = rhs.m_zPrmVtx;
-  this->m_zPrmVtxSigmaAll = rhs.m_zPrmVtxSigmaAll;
-  this->m_zPrmVtxSigma2Trk = rhs.m_zPrmVtxSigma2Trk;
-  this->m_nTrackVtx = rhs.m_nTrackVtx;
-  this->m_nVtxFound = rhs.m_nVtxFound;
+  this->zPrmVtx = rhs.zPrmVtx;
+  this->zPrmVtxSigmaAll = rhs.zPrmVtxSigmaAll;
+  this->zPrmVtxSigma2Trk = rhs.zPrmVtxSigma2Trk;
+  this->nTrackVtx = rhs.nTrackVtx;
+  this->nVtxFound = rhs.nVtxFound;
   this->m_totTracks = rhs.m_totTracks;
   this->m_totTracks_All = rhs.m_totTracks_All;
   this->m_totSelTracks = rhs.m_totSelTracks;
@@ -374,7 +374,7 @@ void TrigT2HistoPrmVtxBase::findPrmVtx() {
   std::vector<float> numMean(3), numSigma(3), den(3);
 
   int val=0; 
-  m_nVtxFound=0;
+  nVtxFound=0;
 
   if (m_logLvl <= MSG::DEBUG)
     m_log << MSG::DEBUG << "Finding primary vertex candidates:" << " histogram with "  << m_hisVtx->getNBin() << " bins" << endmsg;      
@@ -411,32 +411,32 @@ void TrigT2HistoPrmVtxBase::findPrmVtx() {
 
     if (den[j] != 0) {
 
-      m_nVtxFound++;
-      m_zPrmVtx.at(j) = m_hisVtx->getZ(numMean[j]/den[j]);   	 
-      m_nTrackVtx.at(j) = m_hisVtx->getIntegral(pos[j], m_nBins);
+      nVtxFound++;
+      zPrmVtx.at(j) = m_hisVtx->getZ(numMean[j]/den[j]);   	 
+      nTrackVtx.at(j) = m_hisVtx->getIntegral(pos[j], m_nBins);
 
       for (int i = pos[j]; i < (pos[j]+m_nBins); i++)
 	for (int k=0; k<m_hisVtx->getN(i); k++)
-	  numSigma[j] += (m_hisVtx->getZ(i)-m_zPrmVtx.at(j)) * (m_hisVtx->getZ(i)-m_zPrmVtx.at(j));
+	  numSigma[j] += (m_hisVtx->getZ(i)-zPrmVtx.at(j)) * (m_hisVtx->getZ(i)-zPrmVtx.at(j));
 
       if (den[j] == 1) {
-	m_zPrmVtxSigmaAll.at(j)  = 0.025;
-	m_zPrmVtxSigma2Trk.at(j) = 0.025;
-      } else if (m_nTrackVtx.at(j)<20) {
-	m_zPrmVtxSigmaAll.at(j)  = sqrt(numSigma[j]/(den[j]-1));
-	m_zPrmVtxSigma2Trk.at(j) = sqrt(numSigma[j]/(den[j]-1));
+	zPrmVtxSigmaAll.at(j)  = 0.025;
+	zPrmVtxSigma2Trk.at(j) = 0.025;
+      } else if (nTrackVtx.at(j)<20) {
+	zPrmVtxSigmaAll.at(j)  = sqrt(numSigma[j]/(den[j]-1));
+	zPrmVtxSigma2Trk.at(j) = sqrt(numSigma[j]/(den[j]-1));
       } else {
-	m_zPrmVtxSigmaAll.at(j)  = sqrt(numSigma[j]/den[j]);
-	m_zPrmVtxSigma2Trk.at(j) = sqrt(numSigma[j]/den[j]);
+	zPrmVtxSigmaAll.at(j)  = sqrt(numSigma[j]/den[j]);
+	zPrmVtxSigma2Trk.at(j) = sqrt(numSigma[j]/den[j]);
       }
 
       m_hisVtx->reset(pos[j], m_nBins);
 
     } else {
 
-      m_zPrmVtx.at(j)          = -200;
-      m_zPrmVtxSigmaAll.at(j)  = -200;
-      m_zPrmVtxSigma2Trk.at(j) = -200;
+      zPrmVtx.at(j)          = -200;
+      zPrmVtxSigmaAll.at(j)  = -200;
+      zPrmVtxSigma2Trk.at(j) = -200;
       break;
 
     }

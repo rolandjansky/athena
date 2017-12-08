@@ -1,0 +1,30 @@
+package Starlight_i
+
+author Andrzej Olszewski <Andrzej.Olszewski@ifj.edu.pl>
+
+use AtlasPolicy      AtlasPolicy-*
+
+use Starlight        Starlight-*           External
+use GeneratorModules GeneratorModules-*    Generators
+
+private
+use GaudiInterface   GaudiInterface-*      External
+use AthenaKernel     AthenaKernel-*        Control
+use StoreGate        StoreGate-*           Control
+use GeneratorUtils   GeneratorUtils-*      Generators
+use TruthUtils       TruthUtils-*          Generators
+use AtlasCLHEP       AtlasCLHEP-*          External
+use AtlasHepMC       AtlasHepMC-*          External
+end_private
+
+private
+apply_tag notAsNeeded
+end_private
+
+public
+apply_pattern dual_use_library files=" *.cxx "
+
+apply_pattern declare_joboptions files="*.py"
+
+path_prepend LD_LIBRARY_PATH "$(Starlight_lib)"
+

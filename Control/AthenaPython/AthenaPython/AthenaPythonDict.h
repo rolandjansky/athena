@@ -15,6 +15,7 @@
 #include "AthenaKernel/ISlimmingHdlr.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/IValgrindSvc.h"
+#include "AthenaKernel/IUserDataSvc.h"
 #include "AthenaKernel/IAthenaSealSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/IEvtIdModifierSvc.h"
@@ -42,6 +43,7 @@ namespace AthenaInternal {
 
   struct AthenaInternalInstan {
     ServiceHandle<StoreGateSvc> hsg;
+    ServiceHandle<IUserDataSvc> huds;
   };
 
 }

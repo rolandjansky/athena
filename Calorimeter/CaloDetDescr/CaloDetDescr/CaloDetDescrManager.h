@@ -13,14 +13,13 @@
 #ifndef CALODETDESCR_CALODETDESCRMANAGER_H
 #define CALODETDESCR_CALODETDESCRMANAGER_H
 
-#include "AthenaKernel/CLASS_DEF.h"
+#include "CLIDSvc/CLASS_DEF.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "boost/range/iterator_range.hpp"
 
 class CaloCell_SuperCell_ID;
 class CaloDetDescrElement;
 class CaloDetDescriptor;
-class CaloCellPacker_400_500_test;
 
 class Identifier;
 class IdentifierHash;
@@ -352,13 +351,6 @@ class CaloDetDescrManager_Base
   void add_tile(CaloDetDescriptor* descr);
 
 private:
-  /**
-   * @brief Helper for CaloCompactCellTool_test.
-   */
-  friend class CaloCellPacker_400_500_test;
-  CaloDetDescrElement* release_element (IdentifierHash hash);
-
-
   /** @brief Calo Cell ID helper
    */
   const CaloCell_Base_ID*    m_cell_id;

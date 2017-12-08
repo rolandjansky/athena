@@ -36,7 +36,7 @@ Trk::TrueTracksNtupleTool::TrueTracksNtupleTool(
         m_ntupleFileName("/NTUPLES"),
         m_ntupleDirName("VtxFitterValidation"),
         m_ntupleTreeName("TrueTracks"),
-        m_tree(nullptr),
+        tree(nullptr),
         m_prod_x(nullptr),
         m_prod_y(nullptr),
         m_prod_z(nullptr),
@@ -72,10 +72,10 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
 	     return status;
     }
 
-    //registering the true tracks m_tree
-    m_tree = new TTree(TString(m_ntupleTreeName), "True tracks info output");
+    //registering the true tracks tree
+    tree = new TTree(TString(m_ntupleTreeName), "True tracks info output");
     std::string fullNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
-    status = hist_svc->regTree(fullNtupleName, m_tree);
+    status = hist_svc->regTree(fullNtupleName, tree);
     if (status.isFailure()) {
 	      msg (MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
 	      return status;
@@ -88,14 +88,14 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
     m_particle_id = new std::vector<int>();
     m_parent_id = new std::vector<int>();
 
-    m_tree->Branch ("track_ prod_x", &m_prod_x);
-    m_tree->Branch ("track_prod_y", &m_prod_y);
-    m_tree->Branch ("track_prod_z", &m_prod_z);
+    tree->Branch ("track_ prod_x", &m_prod_x);
+    tree->Branch ("track_prod_y", &m_prod_y);
+    tree->Branch ("track_prod_z", &m_prod_z);
 
-    m_tree->Branch ("track_particle_id", &m_particle_id);
-    m_tree->Branch ("track_parent_id", &m_parent_id);
+    tree->Branch ("track_particle_id", &m_particle_id);
+    tree->Branch ("track_parent_id", &m_parent_id);
 
-    m_tree->Branch ("track_num_tracks", &m_num_trks, "numTrks/I");
+    tree->Branch ("track_num_tracks", &m_num_trks, "numTrks/I");
 
 
     return StatusCode::SUCCESS;
@@ -152,7 +152,7 @@ StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& 
      if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "No tracks in the Track Collection!!" << endmsg;
    }
    
-   m_tree->Fill();
+   tree->Fill();
 
    m_prod_x->clear();
    m_prod_y->clear();

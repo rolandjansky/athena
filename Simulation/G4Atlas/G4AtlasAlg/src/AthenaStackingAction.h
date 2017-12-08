@@ -2,13 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
 #define G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
 
 #include "G4UserStackingAction.hh"
-
-class PrimaryParticleInformation;
 
 namespace G4UA
 {
@@ -32,8 +29,6 @@ namespace G4UA
         bool killAllNeutrinos;
         /// Photon energy cut
         double photonEnergyCut;
-        /// Is this an ISF job
-        bool isISFJob;
       };
 
       /// Constructor with configuration
@@ -53,8 +48,6 @@ namespace G4UA
 
       /// @brief Identify track as a photon.
       bool isGamma(const G4Track*) const;
-      /// @brief obtain the PrimaryParticleInformation from the current G4Track
-      PrimaryParticleInformation* getPrimaryParticleInformation(const G4Track *track) const;
 
       /// My configuration options
       Config m_config;

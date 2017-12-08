@@ -1,0 +1,11 @@
+# Author: Karsten Koeneke (karsten.koeneke@cernSPAMNOT.ch)
+# PATCore root stand-alone makefile
+
+PACKAGE          = PATCore
+PACKAGE_DEP      = 
+PACKAGE_TRYDEP   = D3PDReader AthContainers
+PACKAGE_CXXFLAGS = 
+PACKAGE_LDFLAGS  =
+PACKAGE_CLEAN    = PATCore/config.h
+
+include $(ROOTCOREDIR)/Makefile-common

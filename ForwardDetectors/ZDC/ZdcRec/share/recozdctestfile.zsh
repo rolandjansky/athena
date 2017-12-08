@@ -11,7 +11,7 @@ if [ ! -z $2 ]; then
 fi
 
 zfile=data15_calib.00$zrun.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data
-zin=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/calib/$zfile
+zin=root://eosatlas//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/calib/$zfile
 zdir=run$zrun
 zesd=zdclaser.run00$zrun.ESD.pool.root
 zaod=zdclaser.run00$zrun.AOD.pool.root

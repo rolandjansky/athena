@@ -51,7 +51,6 @@ MuonTriggerAnalysisTool::MuonTriggerAnalysisTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent), 
      m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-     m_lvl1Tool("HLT::Lvl1ResultAccessTool"),
      m_rpcRoiService( "LVL1RPC::RPCRecRoiSvc", name),
      m_tgcRoiService( "LVL1TGC::TGCRecRoiSvc", name)
  {

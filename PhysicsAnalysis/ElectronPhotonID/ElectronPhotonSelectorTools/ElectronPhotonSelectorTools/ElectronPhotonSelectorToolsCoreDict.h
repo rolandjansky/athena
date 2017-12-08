@@ -8,6 +8,6 @@
 #define __ELECTRONPHOTONSELECTORTOOLSCOREDICT__
 
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h" 
-#include "ElectronPhotonSelectorTools/LikelihoodEnums.h" 
+#include "ElectronPhotonSelectorTools/LikelihoodEnums.h" //For the LikelihoodEnums
 
 #endif

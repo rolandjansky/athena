@@ -17,7 +17,6 @@
 LArDigitThinner::LArDigitThinner(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator)
-    , m_larCablingSvc("LArCablingService")
     , m_onlineID(NULL)
     , m_caloCellId(NULL)
     , m_inputContainerName("LArDigitContainer_MC")

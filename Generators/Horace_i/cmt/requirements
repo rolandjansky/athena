@@ -1,0 +1,27 @@
+package Horace_i
+
+author Massimiliano Bellomo <massimiliano.bellomo@pv.infn.it>
+author Giacomo Polesello <giacomo.polesello@pv.infn.it>
+author Carlo Carloni Calame <carlo.carloni.calame@pv.infn.it>
+
+use AtlasPolicy        AtlasPolicy-*
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+#use GeneratorModules   GeneratorModules-*    Generators
+#use AtlasHepMC         AtlasHepMC-*          External
+
+public
+
+#apply_pattern dual_use_library files="*.F *.f"
+#macro Horace_i_fflags "-DFVOIDP=INTEGER*4 -fno-second-underscore "
+#macro_append  Horace_i_shlibflags  "$(HepMC_IO_linkopts)"
+
+library Horace_i *.f *.F
+
+#macro   Horace_i_fflags "-DFVOIDP=INTEGER*4 -fno-second-underscore "
+macro Horace_i_fflags "" \
+      32                "-DFVOIDP=INTEGER*4 -fno-second-underscore"\
+      64                "-DFVOIDP=INTEGER*8 -fno-second-underscore"
+
+apply_pattern installed_library
+
+apply_pattern declare_joboptions files="*.py"

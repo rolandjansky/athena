@@ -52,7 +52,7 @@ atlas_add_component( CaloTools
    ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES}
    ${CLHEP_LIBRARIES} CaloConditions CaloDetDescrLib CaloEvent CaloGeoHelpers
-   CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib
+   CaloIdentifier AthenaBaseComps AthenaKernel DataModel StoreGateLib
    AthenaPoolUtilities AtlasDetDescr Identifier GaudiKernel LArIdentifier
    LArRecEvent LArToolsLib LumiBlockCompsLib TileConditionsLib TileEvent
    CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo

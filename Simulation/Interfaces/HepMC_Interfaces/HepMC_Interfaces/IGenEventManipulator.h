@@ -18,6 +18,8 @@ namespace HepMC {
 
 namespace Simulation {
 
+  static const InterfaceID IID_IGenEventManipulator("IGenEventManipulator", 1, 0);
+
   /**
    @class IGenEventManipulator
 
@@ -34,8 +36,8 @@ namespace Simulation {
        /** Virtual destructor */
        virtual ~IGenEventManipulator(){}
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(IGenEventManipulator, 1, 0);
+       /** AlgTool interface methods */
+       static const InterfaceID& interfaceID() { return IID_IGenEventManipulator; }
 
        /** Applies any required transformations to the GenEvent */
        virtual StatusCode manipulate(HepMC::GenEvent& ge) const = 0;

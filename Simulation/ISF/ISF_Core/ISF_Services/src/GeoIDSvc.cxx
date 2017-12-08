@@ -21,7 +21,7 @@
 
 /** Constructor **/
 ISF::GeoIDSvc::GeoIDSvc(const std::string& name,ISvcLocator* svc) :
-  base_class(name,svc),
+  AthService(name,svc),
   m_envDefSvc("ISF_ISFEnvelopeDefSvc", name),
   m_tolerance(1e-5),
   m_zBins(0),
@@ -41,6 +41,20 @@ ISF::GeoIDSvc::GeoIDSvc(const std::string& name,ISvcLocator* svc) :
 /** Destructor **/
 ISF::GeoIDSvc::~GeoIDSvc()
 {
+}
+
+
+/** Query the interfaces. */
+StatusCode ISF::GeoIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
+
+  if ( ISF::IID_IGeoIDSvc == riid )
+    *ppvInterface = (IGeoIDSvc*)this;
+  else  {
+    // Interface is not directly available: try out a base class
+    return Service::queryInterface(riid, ppvInterface);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -319,9 +333,9 @@ AtlasDetDescr::AtlasRegion ISF::GeoIDSvc::identifyGeoID(const Amg::Vector3D &pos
   ////                " r>"<<m_radiusBins[zBin*m_maxRBins+radiusBin-1]);
   //ATH_MSG_VERBOSE("  --> geoID=" << m_radiusBins[zBin*m_maxRBins+radiusBin].second);
 
-  // is AtlasDetDescr::fUndefinedAtlasRegion in case not found
-  AtlasDetDescr::AtlasRegion identifiedGeoID = m_radiusBins[zBin*m_maxRBins+radiusBin].second;
-  return identifiedGeoID;
+  // returns the found GeoID
+  //  -> returns AtlasDetDescr::fUndefinedAtlasRegion in case not found
+  return m_radiusBins[zBin*m_maxRBins+radiusBin].second;
 }
 
 

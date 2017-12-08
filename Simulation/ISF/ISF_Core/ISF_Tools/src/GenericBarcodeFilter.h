@@ -31,7 +31,8 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class GenericBarcodeFilter : public extends<AthAlgTool, IParticleFilter> { 
+  class GenericBarcodeFilter : public AthAlgTool,
+                               public IParticleFilter { 
       
     public: 
       /** Constructor with parameters */

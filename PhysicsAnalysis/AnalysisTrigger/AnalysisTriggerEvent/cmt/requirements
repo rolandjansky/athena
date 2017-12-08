@@ -1,0 +1,26 @@
+package AnalysisTriggerEvent
+
+author Ketevi A. Assamagan  <ketevi@bnl.gov>
+author Tadashi.Maeno        <Tadashi.Maeno@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+use CLIDSvc             CLIDSvc-*            Control
+use EventKernel         EventKernel-*         Event
+use FourMom             FourMom-*             Event
+use Navigation          Navigation-*          Control
+
+library AnalysisTriggerEvent *.cxx
+
+apply_pattern installed_library
+
+private
+
+macro DOXYGEN_QT_AUTOBRIEF "" Doxygen "NO"
+macro DOXYGEN_JAVADOC_AUTOBRIEF "" Doxygen "NO"
+
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
+
+apply_pattern lcgdict dict=AnalysisTriggerEvent selectionfile=selection.xml \
+        headerfiles="../AnalysisTriggerEvent/AnalysisTriggerEventDict.h"

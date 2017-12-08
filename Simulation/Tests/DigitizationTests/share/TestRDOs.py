@@ -10,8 +10,8 @@ topSequence = AlgSequence()
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #Jobs should stop if an include fails.
 athenaCommonFlags.AllowIgnoreConfigError = False
-#athenaCommonFlags.FilesInput = [ 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_3/devval/x86_64-slc5-gcc43-opt/offline/DigitizationTests/mc11_ttbar_LVL1_on/mc11_ttbar.RDO.pool.root' ]
-athenaCommonFlags.FilesInput = [ 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1' ]
+#athenaCommonFlags.FilesInput = [ 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_3/devval/x86_64-slc5-gcc43-opt/offline/DigitizationTests/mc11_ttbar_LVL1_on/mc11_ttbar.RDO.pool.root' ]
+athenaCommonFlags.FilesInput = [ 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1' ]
 
 from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = -1

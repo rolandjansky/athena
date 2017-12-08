@@ -19,7 +19,6 @@
 
 HLTCaloToolL2::HLTCaloToolL2(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent),
         m_onlineHelper(NULL),
-        m_cablingSvc("LArCablingService"),
 	m_tileID(NULL)
 {
 	declareProperty ("DoNtuple", m_ntuple = false);

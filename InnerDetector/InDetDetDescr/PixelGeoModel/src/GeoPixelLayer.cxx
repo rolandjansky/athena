@@ -468,12 +468,6 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // Extra Material. I don't think there is much room but we provide the hooks anyway   
   //
-  if(layerPhys==0)
-  {
-      m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
-      exit(EXIT_FAILURE);
-  } 
-
   InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
   xMat.add(layerPhys,"PixelLayer");
   std::ostringstream ostr; ostr << m_gmt_mgr->GetLD();

@@ -11,17 +11,24 @@
 #ifndef ALIGNABLETRANSFORMCNV_H
 #define ALIGNABLETRANSFORMCNV_H
 
-
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "DetDescrConditions/AlignableTransform.h"
-#include "DetDescrCondTPCnv/AlignableTransformCnv_p1.h"
+#include "DetDescrCondTPCnv/AlignableTransform_p1.h"
 
+// the latest persistent representation type of AlignableTransform
+typedef  AlignableTransform_p1  AlignableTransform_PERS;
+typedef  T_AthenaPoolCustomCnv<AlignableTransform, AlignableTransform_PERS >   AlignableTransformCnvBase;
 
-typedef T_AthenaPoolTPCnvCnv<AlignableTransform,
-                             AlignableTransformCnv_p1,
-                             T_TPCnvNull<AlignableTransform> >
-  AlignableTransformCnv;
+class AlignableTransformCnv : public AlignableTransformCnvBase {
+    friend class CnvFactory<AlignableTransformCnv >;
 
+    virtual StatusCode initialize();
+
+protected:
+    AlignableTransformCnv (ISvcLocator* svcloc);
+    virtual AlignableTransform_PERS*   createPersistent (AlignableTransform* transObj);
+    virtual AlignableTransform*        createTransient ();
+};
 
 #endif
 

@@ -1,0 +1,12 @@
+package McParticleKernel
+
+author Sebastien Binet <binet@cern.ch>
+
+use AtlasPolicy 	AtlasPolicy-*
+use GaudiInterface	GaudiInterface-*	      External
+
+branches McParticleKernel src
+
+library McParticleKernel *.cxx
+
+apply_pattern installed_library

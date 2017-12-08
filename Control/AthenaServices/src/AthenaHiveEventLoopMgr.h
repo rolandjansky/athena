@@ -269,6 +269,9 @@ private:
   UnsignedIntegerProperty m_writeInterval;
   bool m_writeHists;
 
+  /// a @c std::cout like object
+  mutable MsgStream m_msg;
+
   /// events processed
   unsigned int m_nev;
   unsigned int m_proc;

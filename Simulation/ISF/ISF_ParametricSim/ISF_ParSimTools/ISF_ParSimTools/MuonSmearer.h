@@ -48,7 +48,8 @@ namespace iParSim {
    @author Miha.Muskinja -at- cern.ch 
    */
       
-  class MuonSmearer : public extends<AthAlgTool, iParSim::IChargedSmearer>
+  class MuonSmearer : public AthAlgTool, 
+        virtual public iParSim::IChargedSmearer
   {
     public:
 

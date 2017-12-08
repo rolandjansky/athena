@@ -1,0 +1,51 @@
+############################################
+package PixelMonitoring
+
+author Nathan Triplett
+
+
+private
+use EventInfo                      EventInfo-*                     Event
+use EventPrimitives		   EventPrimitives-*		   Event
+use GeoPrimitives		   GeoPrimitives-*		   DetectorDescription
+use TrkSpacePoint                  TrkSpacePoint-*                 Tracking/TrkEvent
+use InDetRIO_OnTrack               InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
+use TrkParameters                  TrkParameters-*                 Tracking/TrkEvent
+#use StoreGate                      StoreGate-02-*                  Control
+use InDetReadoutGeometry           InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack               InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
+#use PixelConditionsServices        PixelConditionsServices*        InnerDetector/InDetConditions
+#use InDetConditionsSummaryService  InDetConditionsSummaryService*  InnerDetector/InDetConditions
+use PixelConditionsServices        PixelConditionsServices*        InnerDetector/InDetConditions
+use InDetConditionsSummaryService  InDetConditionsSummaryService*  InnerDetector/InDetConditions
+use InDetIdentifier                InDetIdentifier-*               InnerDetector/InDetDetDescr
+use AtlasROOT                      AtlasROOT-*                     External
+use PixelCabling                   PixelCabling-*                  InnerDetector/InDetDetDescr
+use TrkTrackSummary                TrkTrackSummary-*               Tracking/TrkEvent
+use LWHists                        LWHists-*                       Tools
+use TrkToolInterfaces              TrkToolInterfaces-*             Tracking/TrkTools
+#use  LumiBlockComps             LumiBlockComps-*                LumiBlock
+use AthenaPoolUtilities      AthenaPoolUtilities-*      Database/AthenaPOOL
+
+public
+use TrkTrack                       TrkTrack-*                      Tracking/TrkEvent
+use GaudiInterface                 GaudiInterface-*                External
+use  AtlasDetDescr                 AtlasDetDescr-*                 DetectorDescription
+use AtlasPolicy                    AtlasPolicy-*
+use AthenaMonitoring               AthenaMonitoring-*              Control
+use InDetRawData                   InDetRawData-*                  InnerDetector/InDetRawEvent
+use InDetPrepRawData               InDetPrepRawData-*              InnerDetector/InDetRecEvent
+use  PixelGeoModel                 PixelGeoModel-*                 InnerDetector/InDetDetDescr
+use  LumiBlockComps             LumiBlockComps-*                LumiBlock
+#use PixelRawDataByteStreamCnv      PixelRawDataByteStreamCnv-*     InnerDetector/InDetEventCnv
+
+library PixelMonitoring *.cxx componets/*.cxx
+#apply_pattern declare_joboptions files="*.py"
+apply_pattern component_library
+apply_pattern declare_runtime files="*.csv"
+
+macro_append cppflags "" \
+
+
+#############################################################
+

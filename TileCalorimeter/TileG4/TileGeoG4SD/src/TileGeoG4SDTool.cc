@@ -17,6 +17,7 @@ TileGeoG4SDTool::TileGeoG4SDTool(const std::string& type, const std::string& nam
   : SensitiveDetectorBase(type,name,parent)
   , m_tileCalculator("TileGeoG4SDCalc", name)
 {
+  declareInterface<ISensitiveDetector>(this);
   declareProperty( "TileCalculator", m_tileCalculator);
   declareProperty( "DeltaTHit" , m_options.deltaTHit );
   declareProperty( "TimeCut" , m_options.timeCut );

@@ -23,6 +23,14 @@ namespace Trk {
 }
 
 /*-------------------------------------------------------------------------
+ *  Interface definition
+ *-------------------------------------------------------------------------*/
+namespace iFatras
+{
+  static const InterfaceID IID_IPhotonConversionTool("IPhotonConversionTool", 1, 0);
+}
+
+/*-------------------------------------------------------------------------
  *  class IPhotonConversionTool
  *-------------------------------------------------------------------------*/
 namespace iFatras
@@ -41,8 +49,8 @@ namespace iFatras
     
     /** Virtual destructor */    virtual ~IPhotonConversionTool(){}
     
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IPhotonConversionTool, 1, 0);
+    /** AlgTool interface methods */
+    static const InterfaceID& interfaceID() { return IID_IPhotonConversionTool; }
     
     /** interface for processing of the pair production */
     virtual bool pairProduction(const Trk::MaterialProperties& mprop,

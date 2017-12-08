@@ -10,7 +10,7 @@
 
 // ISF includes
 #include "ISF_Event/KinematicParticleCuts.h"
-#include "BaseSimulationSelector.h"
+#include "ISF_Interfaces/ISimulationSelector.h"
 
 // Barcode interpretation
 #include "BarcodeServices/BitCalculator.h"
@@ -18,15 +18,15 @@
 namespace ISF {
 
   /** @class KinematicPileupSimSelector
-
+  
       Simplistic pileup filter with cuts on energy and pseudorapidity.
-
+  
       @author Elmar.Ritsch -at- cern.ch
       @author Artem.Basalaev -at- cern.ch
      */
-  class KinematicPileupSimSelector final : public BaseSimulationSelector, public KinematicParticleCuts {
-
-    public:
+  class KinematicPileupSimSelector : public ISimulationSelector, public KinematicParticleCuts {
+      
+    public: 
      /** Constructor with parameters */
      KinematicPileupSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
@@ -35,8 +35,8 @@ namespace ISF {
 
 
     // Athena algtool's Hooks
-    StatusCode  initialize() override;
-    StatusCode  finalize() override;
+    StatusCode  initialize() override final;
+    StatusCode  finalize() override final;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
     inline virtual bool passSelectorCuts(const ISFParticle& particle) const override final;

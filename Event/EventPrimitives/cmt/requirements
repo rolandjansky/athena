@@ -1,0 +1,12 @@
+package EventPrimitives
+
+author Robert Langenberg <Robert.Langenberg@cern.ch>
+
+public
+use AtlasPolicy         AtlasPolicy-*
+use AtlasEigen	        AtlasEigen-*		     External
+use AtlasCLHEP	        AtlasCLHEP-*		     External
+
+macro_append reflex_dict_options_cppflags " -DEIGEN_DONT_VECTORIZE "
+
+private

@@ -1,0 +1,20 @@
+package iPatInterfaces
+
+manager Alan Poppleton <Alan.Poppleton@cern.ch>
+
+use AtlasPolicy		       AtlasPolicy-*
+use AthenaKernel	       AthenaKernel-*		     Control
+use GaudiInterface	       GaudiInterface-*		     External
+use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
+use InDetPrepRawData	       InDetPrepRawData-*	     InnerDetector/InDetRecEvent
+use TrkParameters	       TrkParameters-*		     Tracking/TrkEvent
+use iPatTrack		       iPatTrack-*		     Reconstruction/iPat 
+
+# Declare this package as a metalibrary for cmake in order to allow its clients access to
+# include files and libraries from packages that this one depends on (transparent to CMT)
+apply_pattern cmake_add_command command=metalibrary
+
+# apply_pattern declare_non_standard_include name=doc
+
+private
+# macro DOXYGEN_IMAGE_PATH "../doc/images"

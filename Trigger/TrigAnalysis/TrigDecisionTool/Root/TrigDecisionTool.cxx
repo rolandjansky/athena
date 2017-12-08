@@ -26,9 +26,7 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 
-#ifdef ASGTOOL_ATHENA
-#include "AthenaKernel/getMessageSvc.h"
-#endif
+
 
 
 static std::vector<std::string> s_instances;
@@ -36,9 +34,6 @@ static std::vector<std::string> s_instances;
 
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   asg::AsgMetadataTool(name),
-#ifdef ASGTOOL_ATHENA
-  AthMessaging( Athena::getMessageSvc(), name),
-#endif
   m_configKeysCache(),
   m_configKeysCached( false )
   ,m_configTool("TrigConf::xAODConfigTool")
@@ -55,18 +50,15 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
    declareProperty( "UseAODDecision", m_useAODDecision = false );
    declareProperty( "AcceptMultipleInstance", m_acceptMultipleInstance = false );
 
-  //full Athena env
+   //full Athena env
 #ifndef XAOD_ANALYSIS
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger Config Service");
-   declareProperty( "Navigation", m_fullNavigation);
-   // ugly hack to prevent genconf from causing the MessageSvc to bork
-   const std::string cmd = System::cmdLineArgs()[0];
-   if ( cmd.find( "genconf" ) == std::string::npos ) {
-     m_navigation = &*m_fullNavigation;
-   }
+   declareProperty( "Navigation", m_fullNavigation); 
+   m_navigation = &*m_fullNavigation; 
 #endif
    declareProperty( "ConfigTool", m_configTool);
-   
+
+
 #ifndef XAOD_STANDALONE
    //just for Athena/AthAnalysisBase
    auto props = getProperties();

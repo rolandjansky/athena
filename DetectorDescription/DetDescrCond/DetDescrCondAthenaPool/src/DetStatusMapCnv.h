@@ -11,17 +11,22 @@
 #ifndef DETSTATUSMAPCNV_H
 #define DETSTATUSMAPCNV_H
 
-
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "DetDescrConditions/DetStatusMap.h"
-#include "DetDescrCondTPCnv/DetStatusMapCnv_p1.h"
+#include "DetDescrCondTPCnv/DetStatusMap_p1.h"
 
+// the latest persistent representation type of DetStatusMap
+typedef  DetStatusMap_p1  DetStatusMap_PERS;
+typedef  T_AthenaPoolCustomCnv<DetStatusMap, DetStatusMap_PERS >   DetStatusMapCnvBase;
 
-typedef T_AthenaPoolTPCnvCnv<DetStatusMap,
-                             DetStatusMapCnv_p1,
-                             T_TPCnvNull<DetStatusMap> >
-  DetStatusMapCnv;
+class DetStatusMapCnv : public DetStatusMapCnvBase {
+    friend class CnvFactory<DetStatusMapCnv >;
 
+protected:
+    DetStatusMapCnv (ISvcLocator* svcloc);
+    virtual DetStatusMap_PERS*   createPersistent (DetStatusMap* transObj);
+    virtual DetStatusMap*        createTransient ();
+};
 
 #endif
 

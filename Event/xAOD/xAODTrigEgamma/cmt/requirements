@@ -1,0 +1,43 @@
+package xAODTrigEgamma
+
+author Gordon Watts <gwatts@uw.edu>
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+use AthContainers	    AthContainers-*	Control
+use xAODCore		    xAODCore-*		Event/xAOD
+use xAODBase		    xAODBase-*		Event/xAOD
+
+use AthLinks		    AthLinks-*		Control
+use xAODTrigCalo	    xAODTrigCalo-*	Event/xAOD
+use xAODTracking	    xAODTracking-*	Event/xAOD
+use xAODEgamma              xAODEgamma-*        Event/xAOD
+use xAODCaloEvent           xAODCaloEvent-*     Event/xAOD
+
+library xAODTrigEgamma ../Root/*.cxx
+apply_pattern installed_library
+apply_pattern do_genCLIDDB library=xAODTrigEgamma
+
+# Local things
+private
+# Use reflex for dict generation...
+
+use AtlasReflex             AtlasReflex-*             External
+use AtlasROOT               AtlasROOT-*               External
+
+apply_tag ROOTGenVectorLibs
+
+apply_pattern lcgdict dict=xAODTrigEgamma selectionfile=selection.xml \
+                      headerfiles="../xAODTrigEgamma/xAODTrigEgammaDict.h" \
+                      extralibfiles="../Root/dict/*.cxx"
+
+#
+# Use "make CppUnit" to run the unit tests for this package.
+# Note that stand-alone builds can't get at tests, so these need to
+# be commented out. :(
+#
+
+#use TestPolicy                  TestPolicy-*
+#use TestTools                  TestTools-*             AtlasTest
+#apply_pattern CppUnit name=xAODTrigEgamma files="-s=../test TrigElectronTest_CppUnit.cxx TrigPhotonTest_CppUnit.cxx"

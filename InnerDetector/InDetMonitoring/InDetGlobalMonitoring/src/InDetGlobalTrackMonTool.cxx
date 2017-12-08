@@ -72,12 +72,12 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_nBinsEta( 50 ),
       m_nBinsPhi( 50 ),
       m_trackBin( 100 ),
-      m_c_etaRange(2.5),
-      m_c_etaTrackletsMin(2.4),
-      m_c_etaTrackletsMax(2.7),
-      m_c_etaRangeTRT(2.0),
-      m_c_range_LB(3000),
-      m_c_detector_labels{ "IBL", "PIX", "SCT", "TRT" },
+      c_etaRange(2.5),
+      c_etaTrackletsMin(2.4),
+      c_etaTrackletsMax(2.7),
+      c_etaRangeTRT(2.0),
+      c_range_LB(3000),
+      c_detector_labels{ "IBL", "PIX", "SCT", "TRT" },
       m_IBLParameterSvc("IBLParameterSvc",name),
       m_holes_search_tool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
       m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
@@ -87,14 +87,14 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_CombinedTracksName("Tracks"),
       m_ForwardTracksName("ResolvedForwardTracks"),
       m_JetsName("AntiKt4EMTopoJets"),
-      m_sct_holes(nullptr),
-      m_trt_holes(nullptr),
-      m_pixel_holes(nullptr),
-      m_comb_holes(nullptr),
-      m_silicon_vs_trt(nullptr),
-      m_sct_vs_pixels(nullptr),
-      m_holes_quality(nullptr),
-      m_holes_quality_profile(nullptr),
+      sct_holes(nullptr),
+      trt_holes(nullptr),
+      pixel_holes(nullptr),
+      comb_holes(nullptr),
+      silicon_vs_trt(nullptr),
+      sct_vs_pixels(nullptr),
+      holes_quality(nullptr),
+      holes_quality_profile(nullptr),
       m_Trk_eta_phi_Base(nullptr),
       m_Trk_eta_phi_Tight_ratio(nullptr),
       m_Trk_eta_phi_noIBLhit_ratio(nullptr),
@@ -227,25 +227,25 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     // Eta-phi maps
     registerManHist( m_Trk_eta_phi_Base, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Base_eta_phi","Distribution of eta vs phi for combined tracks passing Loose Primary selection",
-                     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+                     m_nBinsEta, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
 
     registerManHist( m_Trk_eta_phi_Tight_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Tight_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Tight selection",
-                     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+                     m_nBinsEta, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
     
     registerManHist( m_Trk_eta_phi_noTRText_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noTRText_eta_phi_ratio","Distribution of eta vs phi for combined tracks with no TRT extension",
-		     20, -m_c_etaRangeTRT, m_c_etaRangeTRT, 
+		     20, -c_etaRangeTRT, c_etaRangeTRT, 
 		     m_nBinsPhi, -M_PI, M_PI,
 		     "eta", "#phi_{0}" ).ignore();
     
     registerManHist( m_Trk_eta_phi_noBLhit_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noBLhit_eta_phi_ratio","Eta-phi of tracks with no b-layer hit but a hit is expected, ratio to total tracks",
-		     m_nBinsEta, -m_c_etaRange, m_c_etaRange, 
+		     m_nBinsEta, -c_etaRange, c_etaRange, 
 		     m_nBinsPhi, -M_PI, M_PI,
 		     "#eta", "#phi_{0}").ignore();
     
@@ -253,7 +253,7 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     {
 	registerManHist( m_Trk_eta_phi_noIBLhit_ratio, "InDetGlobal/Track", detailsInterval,
 			 "Trk_noIBLhit_eta_phi_ratio","Eta-phi of tracks with no IBL hit but a hit is expected, ratio to total tracks",
-			 m_nBinsEta, -m_c_etaRange, m_c_etaRange, 
+			 m_nBinsEta, -c_etaRange, c_etaRange, 
 			 m_nBinsPhi, -M_PI, M_PI,
 			 "#eta", "#phi_{0}").ignore();
     }
@@ -283,35 +283,35 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     for (unsigned int i = ( (m_doIBL) ? 0 : 1) ; i < m_trk_hits_eta_phi.size(); i++ )
     {
 	registerManHist( m_trk_hits_eta_phi[i],  "InDetGlobal/Hits", detailsInterval,
-			 "Trk_n"+m_c_detector_labels[i]+"hits_eta_phi","Number of "+m_c_detector_labels[i]+" hits per track, eta-phi profile",
-			 m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+			 "Trk_n"+c_detector_labels[i]+"hits_eta_phi","Number of "+c_detector_labels[i]+" hits per track, eta-phi profile",
+			 m_nBinsEta, -c_etaRange, c_etaRange,
 			 m_nBinsPhi,-M_PI,M_PI,
 			 "#eta", "#phi" ).ignore();
     
 	registerManHist( m_trk_hits_LB[i], "InDetGlobal/Track", detailsInterval,
-			 "trk_n"+m_c_detector_labels[i]+"hits_LB","Average number of " + m_c_detector_labels[i] + " hits by LB",
-			 m_c_range_LB,0,m_c_range_LB,
+			 "trk_n"+c_detector_labels[i]+"hits_LB","Average number of " + c_detector_labels[i] + " hits by LB",
+			 c_range_LB,0,c_range_LB,
 			 "LB #", "Average number of hits in LB").ignore();
     }
     
     for (unsigned int i = 1; i < m_trk_disabled_eta_phi.size(); i++ )
     {
 	registerManHist( m_trk_disabled_eta_phi[i],  "InDetGlobal/Hits", detailsInterval,
-			 "Trk_n"+m_c_detector_labels[i]+"disabled_eta_phi","Number of "+m_c_detector_labels[i]+" disabled detector elements per track, eta-phi profile",
-			 m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+			 "Trk_n"+c_detector_labels[i]+"disabled_eta_phi","Number of "+c_detector_labels[i]+" disabled detector elements per track, eta-phi profile",
+			 m_nBinsEta, -c_etaRange, c_etaRange,
 			 m_nBinsPhi,-M_PI,M_PI,
 			 "#eta", "#phi" ).ignore();
     }
     
     registerManHist( m_trk_shared_pix_eta_phi,  "InDetGlobal/Hits", detailsInterval,
 		     "Trk_nPixShared_eta_phi","Number of Pixel shared hits per track, eta-phi profile",
-		     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+		     m_nBinsEta, -c_etaRange, c_etaRange,
 		     m_nBinsPhi,-M_PI,M_PI,
 		     "#eta", "#phi" ).ignore();
 
     registerManHist( m_trk_split_pix_eta_phi,  "InDetGlobal/Hits", detailsInterval,
 		     "Trk_nPixSplit_eta_phi","Number of Pixel split hits per track, eta-phi profile",
-		     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+		     m_nBinsEta, -c_etaRange, c_etaRange,
 		     m_nBinsPhi,-M_PI,M_PI,
 		     "#eta", "#phi" ).ignore();
     
@@ -373,31 +373,31 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 
     registerManHist( m_trk_jetassoc_ip_reso_lb, "InDetGlobal/Hits", detailsInterval,
 		     "Trk_jetassoc_ip_reso_lb", "IP resolution  per ghost associated track vs LB",
-		     m_c_range_LB, 0, m_c_range_LB, "#Delta R", "Fraction" ).ignore();
+		     c_range_LB, 0, c_range_LB, "#Delta R", "Fraction" ).ignore();
 
     registerManHist( m_trk_jetassoc_split_pix_lb, "InDetGlobal/Hits", detailsInterval,
 		     "Trk_jetassoc_split_pix_lb", "Fraction of split Pixel hits vs LB",
-		     m_c_range_LB, 0, m_c_range_LB, "#Delta R", "Fraction" ).ignore();
+		     c_range_LB, 0, c_range_LB, "#Delta R", "Fraction" ).ignore();
 
     registerManHist( m_trk_jetassoc_shared_pix_lb, "InDetGlobal/Hits", detailsInterval,
 		     "Trk_jetassoc_shared_pix_lb", "Fraction of shared Pixel hits vs LB",
-		     m_c_range_LB, 0, m_c_range_LB, "#DeltaR", "Fraction" ).ignore();
+		     c_range_LB, 0, c_range_LB, "#DeltaR", "Fraction" ).ignore();
 
     registerManHist( m_trk_shared_sct_eta_phi,  "InDetGlobal/Hits", detailsInterval,
 		     "Trk_nSCTShared_eta_phi","Number of SCT shared hits per track, eta-phi profile",
-		     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+		     m_nBinsEta, -c_etaRange, c_etaRange,
 		     m_nBinsPhi,-M_PI,M_PI,
 		     "#eta", "#phi" ).ignore();
 
     registerManHist( m_trk_holes_pix_eta_phi,  "InDetGlobal/Hits", detailsInterval,
 		     "Trk_nPixHoles_eta_phi","Number of Pixel holes per track, eta-phi profile",
-		     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+		     m_nBinsEta, -c_etaRange, c_etaRange,
 		     m_nBinsPhi,-M_PI,M_PI,
 		     "#eta", "#phi" ).ignore();
 
     registerManHist( m_trk_holes_sct_eta_phi,  "InDetGlobal/Hits", detailsInterval,
 		     "Trk_nSCTHoles_eta_phi","Number of SCT holes per track, eta-phi profile",
-		     m_nBinsEta, -m_c_etaRange, m_c_etaRange,
+		     m_nBinsEta, -c_etaRange, c_etaRange,
 		     m_nBinsPhi,-M_PI,M_PI,
 		     "#eta", "#phi" ).ignore();
 
@@ -406,13 +406,13 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     {	
 	registerManHist( m_Trk_FORW_FA_eta_phi, "InDetGlobal/Track", detailsInterval,
 			 "Trk_FORW_FA_eta_phi", "Eta-phi for pixel tracklets in the forward region (positive eta)",
-			 5, m_c_etaTrackletsMin, m_c_etaTrackletsMax, 
+			 5, c_etaTrackletsMin, c_etaTrackletsMax, 
 			 m_nBinsPhi, -M_PI, M_PI, 
 			 "#eta", "#phi_{0}" ).ignore();
 	
 	registerManHist( m_Trk_FORW_FC_eta_phi, "InDetGlobal/Track", detailsInterval,
 			 "Trk_FORW_FC_eta_phi", "Eta-phi for pixel tracklets in the forward region (negative eta)",
-			 5, -m_c_etaTrackletsMax, -m_c_etaTrackletsMin, 
+			 5, -c_etaTrackletsMax, -c_etaTrackletsMin, 
 			 m_nBinsPhi, -M_PI, M_PI, 
 			 "#eta", "#phi_{0}" ).ignore();
 	
@@ -440,81 +440,81 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     // LB histograms
     registerManHist( m_Trk_nBase_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_nBase_LB","Average number of baseline tracks per event in LB",
-		     m_c_range_LB,0,m_c_range_LB,
+		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of loose primary tracks per event in LB").ignore();
 
     registerManHist( m_Trk_nTight_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_nTight_LB","Average number of tight tracks per event in LB",
-		     m_c_range_LB,0,m_c_range_LB,
+		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of tight tracks per event in LB").ignore();
     
     if ( m_doIBL )
     {
 	registerManHist( m_Trk_noIBLhits_LB, "InDetGlobal/Track", detailsInterval,
 			 "Trk_noIBLhits_LB","Average number of tracks with missing IBL hit per event in LB",
-			 m_c_range_LB,0,m_c_range_LB,
+			 c_range_LB,0,c_range_LB,
 			 "LB #", "Average number of tracks with missing IBL hit per event in LB").ignore();
 	registerManHist( m_Trk_noIBLhits_frac_LB, "InDetGlobal/Track", detailsInterval,
 			 "Trk_noIBLhits_frac_LB","Fraction of tracks with missing IBL hit per event in LB",
-			 m_c_range_LB,0,m_c_range_LB,
+			 c_range_LB,0,c_range_LB,
 			 "LB #", "Fraction of tracks with missing IBL hit per event in LB").ignore();
     }
     
     registerManHist( m_Trk_noBLhits_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noBLhits_LB","Average number of tracks with missing b-layer hit per event in LB",
-		     m_c_range_LB,0,m_c_range_LB,
+		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of tracks with missing b-layer hit per event in LB").ignore();
 
     registerManHist( m_Trk_noBLhits_frac_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noBLhits_frac_LB","Fraction of tracks with missing b-layer hit per event in LB",
-		     m_c_range_LB,0,m_c_range_LB,
+		     c_range_LB,0,c_range_LB,
 		     "LB #", "Fraction of tracks with missing b-layer hit per event in LB").ignore();
 
     registerManHist( m_Trk_noTRText_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noTRText_LB","Average number of tracks without TRT extension per event in LB",
-		     m_c_range_LB,0,m_c_range_LB,
+		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of tracks with without TRT extension per event in LB").ignore();
     registerManHist( m_Trk_noTRText_frac_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noTRText_frac_LB","Fraction of tracks without TRT extension per event in LB",
-		     m_c_range_LB,0,m_c_range_LB,
+		     c_range_LB,0,c_range_LB,
 		     "LB #", "Fraction of tracks with without TRT extension per event in LB").ignore();
 
     // Holes
     if ( m_doHolePlots )
     {
-	registerManHist( m_sct_holes, "InDetGlobal/Hits", detailsInterval,
+	registerManHist( sct_holes, "InDetGlobal/Hits", detailsInterval,
 			 "sct_holes", "Distribution of SCT Holes ",
 			 104,-3.5,100.5,
 			 "Number of SCT holes").ignore();	
 	
-	registerManHist( m_trt_holes, "InDetGlobal/Hits", detailsInterval,
+	registerManHist( trt_holes, "InDetGlobal/Hits", detailsInterval,
 			 "trt_holes", "Distribution of TRT Holes ",
 			 104,-3.5,100.5,
 			 "Number of TRT holes").ignore();
 	
-	registerManHist( m_pixel_holes, "InDetGlobal/Hits", detailsInterval,
+	registerManHist( pixel_holes, "InDetGlobal/Hits", detailsInterval,
 			 "pixel_holes", "Distribution of Pixel Holes ",
 			 104,-3.5,100.5,
 			 "Number of Pixel holes").ignore();
 	
-	registerManHist( m_comb_holes, "InDetGlobal/Hits", detailsInterval,
+	registerManHist( comb_holes, "InDetGlobal/Hits", detailsInterval,
 			 "comb_holes", "Distribution of Combined Holes ",
 			 104,-3.5,100.5,
 			 "Total number of holes").ignore();
 	
-	registerManHist( m_silicon_vs_trt, "InDetGlobal/Hits", detailsInterval,
+	registerManHist( silicon_vs_trt, "InDetGlobal/Hits", detailsInterval,
 			 "silicon_vs_trt", "Silicon vs TRT holes ",
 			 104,-3.5,100.5,
 			 104,-3.5,100.5,
 			 "Silicon Combined holes", "TRT holes").ignore();
 	
-	registerManHist( m_sct_vs_pixels, "InDetGlobal/Hits", detailsInterval,
+	registerManHist( sct_vs_pixels, "InDetGlobal/Hits", detailsInterval,
 			 "sct_vs_pixels", "SCT vs Pixels holes ",
 			 104,-3.5,100.5,
 			 104,-3.5,100.5,
 			 "SCT", "Pixels").ignore();
 	
-	registerManHist( m_holes_quality, "InDetGlobal/Hits", detailsInterval,
+	registerManHist( holes_quality, "InDetGlobal/Hits", detailsInterval,
 			 "holes_quality", "Number of holes/track vs #chi^{2}/ndf",
 			 160,-0.5,15.5,
 			 104,-3.5,100.5,
@@ -522,14 +522,14 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 	
 	registerManHist( m_holes_eta_phi, "InDetGlobal/Hits", detailsInterval,
 			 "holes_eta_phi", "Holes Map #eta #phi",
-			 m_nBinsEta,-m_c_etaRange,m_c_etaRange,
+			 m_nBinsEta,-c_etaRange,c_etaRange,
 			 m_nBinsPhi,-M_PI,M_PI,
 			 "#eta", "#phi").ignore();
 	
 	
 	registerManHist( m_holes_eta_pt,  "InDetGlobal/Hits", detailsInterval,
 			 "holes_eta_pt", "Holes #eta vs p_{t}",
-			 m_nBinsEta,-m_c_etaRange,m_c_etaRange,
+			 m_nBinsEta,-c_etaRange,c_etaRange,
 			 30,-0.,30.,
 			 "#eta", "#p_{t}").ignore();
 	
@@ -541,17 +541,17 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 	
 	registerManHist( m_holes_eta_phi_n,  "InDetGlobal/Hits", detailsInterval,
 			 "holes_eta_phi_n", "Holes Map (Norm) #eta #phi",
-			 m_nBinsEta,-m_c_etaRange,m_c_etaRange,
+			 m_nBinsEta,-c_etaRange,c_etaRange,
 			 m_nBinsPhi,-M_PI,M_PI,
 			 "#eta", "#phi").ignore();
 	
-	registerManHist( m_holes_quality_profile,  "InDetGlobal/Hits", detailsInterval,
+	registerManHist( holes_quality_profile,  "InDetGlobal/Hits", detailsInterval,
 			 "holes_quality_profile", "#chi^{2}/ndf vs Number of holes/track profile",
 			 104,-3.5,100.5,
 			 "<#chi^{2}/ndf> / comb hole", "Combined Holes").ignore();
-	m_holes_quality_profile->SetErrorOption("S");
-	m_holes_quality_profile->SetMaximum( 1000 );
-	m_holes_quality_profile->SetMinimum( 0 );
+	holes_quality_profile->SetErrorOption("S");
+	holes_quality_profile->SetMaximum( 1000 );
+	holes_quality_profile->SetMinimum( 0 );
     
 	
 	registerManHist( m_holes_hits,  "InDetGlobal/Hits", detailsInterval,
@@ -1124,26 +1124,26 @@ void InDetGlobalTrackMonTool::FillHoles( const Trk::Track * track, const std::un
     int trth   = summary->get(Trk::numberOfTRTHoles) >= 0 ? summary->get(Trk::numberOfTRTHoles) : 0;
     
     // Gaetano Added : 
-    m_pixel_holes->Fill(summary->get(Trk::numberOfPixelHoles));
-    m_sct_holes->Fill(summary->get(Trk::numberOfSCTHoles));
-    m_trt_holes->Fill(summary->get(Trk::numberOfTRTHoles));
+    pixel_holes->Fill(summary->get(Trk::numberOfPixelHoles));
+    sct_holes->Fill(summary->get(Trk::numberOfSCTHoles));
+    trt_holes->Fill(summary->get(Trk::numberOfTRTHoles));
     
     // Filling Combined Holes and Excluding # holes = -1 case Tracks on surface does not exist		
     if (summary->get(Trk::numberOfPixelHoles)>=0)
-	m_comb_holes->Fill(pixelh);
+	comb_holes->Fill(pixelh);
 
     if (summary->get(Trk::numberOfSCTHoles) >=0 )
-	m_comb_holes->Fill(scth);
+	comb_holes->Fill(scth);
 
     if (summary->get(Trk::numberOfTRTHoles)>=0)
-	m_comb_holes->Fill(trth);
+	comb_holes->Fill(trth);
 
-    m_silicon_vs_trt->Fill(pixelh+scth,trth);
-    m_sct_vs_pixels->Fill(scth,pixelh);	
+    silicon_vs_trt->Fill(pixelh+scth,trth);
+    sct_vs_pixels->Fill(scth,pixelh);	
 	    
     if ( track->fitQuality() && track->fitQuality()->numberDoF() > 0 ){
-	m_holes_quality->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF(),pixelh+scth+trth);
-	m_holes_quality_profile->Fill(scth+trth+pixelh,track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	holes_quality->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF(),pixelh+scth+trth);
+	holes_quality_profile->Fill(scth+trth+pixelh,track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
     }
     
     // Filling Number of holes vs number of hits for tracks with at least a hole. 			

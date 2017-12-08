@@ -9,13 +9,12 @@
 
 #include "CSC_PrepDataToxAOD.h"
 
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "xAODTracking/TrackMeasurementValidation.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
-
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 
 // Constructor with parameters:
 CSC_PrepDataToxAOD::CSC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -28,10 +27,6 @@ CSC_PrepDataToxAOD::CSC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
 // Initialize method:
 StatusCode CSC_PrepDataToxAOD::initialize()
 {
-  m_cscPrds="CSC_Clusters";
-  m_trackMeasVal="CSC_Clusters_TrackMeasVal";
-  ATH_CHECK(m_cscPrds.initialize());
-  ATH_CHECK(m_trackMeasVal.initialize());
   ATH_CHECK(m_idHelper.retrieve());
   return StatusCode::SUCCESS;
 }
@@ -39,18 +34,20 @@ StatusCode CSC_PrepDataToxAOD::initialize()
 // Execute method:
 StatusCode CSC_PrepDataToxAOD::execute() 
 {
-  SG::ReadHandle<Muon::CscPrepDataContainer> cscPrds(m_cscPrds);
-  if(!cscPrds.isValid()){
-    ATH_MSG_WARNING(m_cscPrds.key()<<" not valid");
+  std::string key = "CSC_Clusters";
+  const Muon::CscPrepDataContainer* cscPrds = 0;     
+  if( evtStore()->retrieve(cscPrds,key).isFailure() ) {
+    ATH_MSG_ERROR("Cannot retrieve CscPrepDataContainer " << key);
     return StatusCode::FAILURE;
   }
-  if(!cscPrds.isPresent()){
-    ATH_MSG_DEBUG("no "<<m_cscPrds.key()<<" collection present");
-    return StatusCode::SUCCESS;
-  }
 
-  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_trackMeasVal);
-  ATH_CHECK(xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()));
+  // Create the xAOD container and its auxiliary store:
+  xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
+  CHECK( evtStore()->record( xaod, key ) );
+  xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
+  CHECK( evtStore()->record( aux, key + "Aux." ) );
+  xaod->setStore( aux );
+	
   
   Muon::CscPrepDataContainer::const_iterator it = cscPrds->begin();
   Muon::CscPrepDataContainer::const_iterator it_end = cscPrds->end();
@@ -82,7 +79,7 @@ StatusCode CSC_PrepDataToxAOD::execute()
   return StatusCode::SUCCESS;
 }
 
-// Finalize method:
+// Initialize method:
 StatusCode CSC_PrepDataToxAOD::finalize()
 {
   return StatusCode::SUCCESS;

@@ -1,0 +1,112 @@
+package CPAnalysisExamples
+# $Id$
+	
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+	
+public
+	
+use AtlasPolicy     AtlasPolicy-*
+use AthenaBaseComps AthenaBaseComps-* Control
+use AtlasROOT       AtlasROOT-*       External
+
+use AtlasBoost	    AtlasBoost-*      External	
+use AsgTools        AsgTools-*        Control/AthToolSupport
+use PATCore         PATCore-*         PhysicsAnalysis/AnalysisCommon
+use PATInterfaces   PATInterfaces-*   PhysicsAnalysis/AnalysisCommon
+	
+use xAODMuon        xAODMuon-*        Event/xAOD
+use xAODJet	    xAODJet-*	      Event/xAOD
+use xAODBTagging    xAODBTagging-*    Event/xAOD
+use xAODCore 	    xAODCore-*	      Event/xAOD
+use xAODEgamma 	    xAODEgamma-*      Event/xAOD
+use xAODMissingET   xAODMissingET-*   Event/xAOD
+use xAODPrimitives  xAODPrimitives-*  Event/xAOD
+use xAODTau         xAODTau-*         Event/xAOD
+use xAODTracking    xAODTracking-*    Event/xAOD
+use xAODTruth       xAODTruth-*       Event/xAOD
+use xAODEventInfo   xAODEventInfo-*   Event/xAOD
+
+use ElectronEfficiencyCorrection ElectronEfficiencyCorrection-* PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
+use JetResolution JetResolution-* Reconstruction/Jet
+use JetUncertainties JetUncertainties-* Reconstruction/Jet
+use METUtilities METUtilities-* Reconstruction/MET
+use JetCalibTools   JetCalibTools-*   Reconstruction/Jet
+use METInterface    METInterface-*    Reconstruction/MET
+use JetInterface JetInterface-* Reconstruction/Jet
+use MuonEfficiencyCorrections MuonEfficiencyCorrections-* PhysicsAnalysis/MuonID/MuonIDAnalysis
+use MuonMomentumCorrections MuonMomentumCorrections-* PhysicsAnalysis/MuonID/MuonIDAnalysis
+use MuonSelectorTools MuonSelectorTools-* PhysicsAnalysis/MuonID
+use TauAnalysisTools TauAnalysisTools-* PhysicsAnalysis/TauID
+use JetSelectorTools JetSelectorTools-* PhysicsAnalysis/JetMissingEtID
+use xAODBTaggingEfficiency xAODBTaggingEfficiency-* PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration
+
+#General CP Tools
+use PileupReweighting PileupReweighting-* PhysicsAnalysis/AnalysisCommon
+use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
+use TriggerMatchingTool TriggerMatchingTool-* Trigger/TrigAnalysis
+use AssociationUtils AssociationUtils-* PhysicsAnalysis/AnalysisCommon
+use AsgAnalysisInterfaces AsgAnalysisInterfaces-*   PhysicsAnalysis/Interfaces
+
+#Electrons
+use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
+use IsolationCorrections IsolationCorrections-* PhysicsAnalysis/ElectronPhotonID
+use IsolationSelection IsolationSelection-* PhysicsAnalysis/AnalysisCommon
+use ElectronEfficiencyCorrection ElectronEfficiencyCorrection-* PhysicsAnalysis/ElectronPhotonID
+
+#Muons
+use MuonMomentumCorrections MuonMomentumCorrections-* PhysicsAnalysis/MuonID/MuonIDAnalysis
+use  MuonSelectorTools          MuonSelectorTools-*             PhysicsAnalysis/MuonID
+use MuonEfficiencyCorrections MuonEfficiencyCorrections-* PhysicsAnalysis/MuonID/MuonIDAnalysis
+
+#Jets
+use JetInterface JetInterface-* Reconstruction/Jet
+use JetCalibTools JetCalibTools-* Reconstruction/Jet
+
+use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
+
+private
+	
+use GaudiInterface  GaudiInterface-*  External
+
+use POOLRootAccess POOLRootAccess-* PhysicsAnalysis
+	
+use xAODMetaData xAODMetaData-* Event/xAOD
+
+use xAODBase xAODBase-* Event/xAOD
+
+end_private
+	
+# Declare the library:
+library CPAnalysisExamples . ../Root/MuonSelectionToolExample.cxx  ../Root/JetCalibrationToolExample.cxx  ../Root/MuonEfficiencyToolExample.cxx  ../Root/MuonSmearingToolExample.cxx ../Root/xExampleUtils.cxx ../Root/MetadataToolExample.cxx components/*.cxx ../src/*.cxx 
+
+apply_pattern component_library
+	
+# Install the jobOptions:
+apply_pattern declare_joboptions files=*.py
+
+#RTT-related statements
+apply_pattern declare_python_modules files="../share/*.py"
+
+apply_pattern declare_scripts files="../share/*.py"
+
+apply_pattern declare_runtime extras="../test/CPAnalysisExamples_TestConfiguration.xml ../share/*.py"
+
+macro CPAnalysisExamples_TestConfiguration "../test/CPAnalysisExamples_TestConfiguration.xml"
+
+private
+use TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=ut_ath_EgammaCalibrationAndSmearingTool
+#apply_pattern UnitTest_run unit_test=ut_ath_checkTrigger
+end_private
+
+#Reflex Dictionary Generation:
+private
+use AtlasReflex AtlasReflex-* External
+apply_pattern lcgdict dict=CPAnalysisExamples selectionfile=selection.xml headerfiles="../CPAnalysisExamples/CPAnalysisExamplesDict.h"
+end_private
+
+application checkxAODTrigger ../util/checkxAODTrigger.cxx
+
+application ut_ath_checkTrigger_test ../test/ut_ath_checkTrigger_test.cxx

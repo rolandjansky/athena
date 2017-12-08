@@ -398,10 +398,10 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
     int nPIX_trk_ECA = 0;
     int nPIX_trk_ECC = 0;
 
-    int TRT_nOnTrack_phi_BA[32] = {0};
-    int TRT_nOnTrack_phi_BC[32] = {0};
-    int TRT_nOnTrack_phi_ECA[32] = {0};
-    int TRT_nOnTrack_phi_ECC[32] = {0};
+    int m_TRT_nOnTrack_phi_BA[32] = {0};
+    int m_TRT_nOnTrack_phi_BC[32] = {0};
+    int m_TRT_nOnTrack_phi_ECA[32] = {0};
+    int m_TRT_nOnTrack_phi_ECC[32] = {0};
 
 
     if (m_tracks) {
@@ -443,16 +443,16 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 			switch ( m_trtID->barrel_ec(rdoId) )
 			{
 			case 1:
-			    TRT_nOnTrack_phi_BA[m_trtID->phi_module(rdoId)]++;
+			    m_TRT_nOnTrack_phi_BA[m_trtID->phi_module(rdoId)]++;
 			    break;
 			case -1:
-			    TRT_nOnTrack_phi_BC[m_trtID->phi_module(rdoId)]++;
+			    m_TRT_nOnTrack_phi_BC[m_trtID->phi_module(rdoId)]++;
 			    break;
 			case -2:
-			    TRT_nOnTrack_phi_ECA[m_trtID->phi_module(rdoId)]++;
+			    m_TRT_nOnTrack_phi_ECA[m_trtID->phi_module(rdoId)]++;
 			    break;
 			case 2:
-			    TRT_nOnTrack_phi_ECC[m_trtID->phi_module(rdoId)]++;
+			    m_TRT_nOnTrack_phi_ECC[m_trtID->phi_module(rdoId)]++;
 			    break;
 			}
 	    
@@ -520,10 +520,10 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
     // loop over TRT RDOs collections
     //--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*
 
-    int TRT_nRDOs_phi_BA[32] = {0};
-    int TRT_nRDOs_phi_BC[32] = {0};
-    int TRT_nRDOs_phi_ECA[32] = {0};
-    int TRT_nRDOs_phi_ECC[32] = {0};
+    int m_TRT_nRDOs_phi_BA[32] = {0};
+    int m_TRT_nRDOs_phi_BC[32] = {0};
+    int m_TRT_nRDOs_phi_ECA[32] = {0};
+    int m_TRT_nRDOs_phi_ECC[32] = {0};
 
     if(m_driftCircleContainer!=0){
 	TRT_DriftCircleContainer::const_iterator colIt =
@@ -552,16 +552,16 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 		switch ( m_trtID->barrel_ec(rdoId) )
 		{
 		case 1:
-		    TRT_nRDOs_phi_BA[m_trtID->phi_module(rdoId)]++;
+		    m_TRT_nRDOs_phi_BA[m_trtID->phi_module(rdoId)]++;
 		    break;
 		case -1:
-		    TRT_nRDOs_phi_BC[m_trtID->phi_module(rdoId)]++;
+		    m_TRT_nRDOs_phi_BC[m_trtID->phi_module(rdoId)]++;
 		    break;
 		case -2:
-		    TRT_nRDOs_phi_ECA[m_trtID->phi_module(rdoId)]++;
+		    m_TRT_nRDOs_phi_ECA[m_trtID->phi_module(rdoId)]++;
 		    break;
 		case 2:
-		    TRT_nRDOs_phi_ECC[m_trtID->phi_module(rdoId)]++;
+		    m_TRT_nRDOs_phi_ECC[m_trtID->phi_module(rdoId)]++;
 		    break;
 		}
 	
@@ -740,9 +740,9 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
       
 	/*
 	 * add the current struct to end of the vector
-	 * m_NO - declared in header
+	 * NO - declared in header
 	 */
-	m_NO.push_back(noise_occupancy);
+	NO.push_back(noise_occupancy);
       
 	/* strem for debug
 	 * msg << "added strct to vector" << endl;
@@ -779,10 +779,10 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
 	m_TRT_NO->Fill(dTRTstraw);
 
 	for (int i = 0;i < 32;i++){
-	    m_TRT_NO_BA_phi->Fill(i,((float)TRT_nRDOs_phi_BA[i]-(float)TRT_nOnTrack_phi_BA[i])/(float)m_nStraws_B*32.0*2);
-	    m_TRT_NO_BC_phi->Fill(i,((float)TRT_nRDOs_phi_BC[i]-(float)TRT_nOnTrack_phi_BC[i])/(float)m_nStraws_B*32.0*2);
-	    m_TRT_NO_ECA_phi->Fill(i,((float)TRT_nRDOs_phi_ECA[i]-(float)TRT_nOnTrack_phi_ECA[i])/(float)m_nStraws_ECA*32.0 );
-	    m_TRT_NO_ECC_phi->Fill(i,((float)TRT_nRDOs_phi_ECC[i]-(float)TRT_nOnTrack_phi_ECC[i])/(float)m_nStraws_ECC*32.0 );
+	    m_TRT_NO_BA_phi->Fill(i,((float)m_TRT_nRDOs_phi_BA[i]-(float)m_TRT_nOnTrack_phi_BA[i])/(float)m_nStraws_B*32.0*2);
+	    m_TRT_NO_BC_phi->Fill(i,((float)m_TRT_nRDOs_phi_BC[i]-(float)m_TRT_nOnTrack_phi_BC[i])/(float)m_nStraws_B*32.0*2);
+	    m_TRT_NO_ECA_phi->Fill(i,((float)m_TRT_nRDOs_phi_ECA[i]-(float)m_TRT_nOnTrack_phi_ECA[i])/(float)m_nStraws_ECA*32.0 );
+	    m_TRT_NO_ECC_phi->Fill(i,((float)m_TRT_nRDOs_phi_ECC[i]-(float)m_TRT_nOnTrack_phi_ECC[i])/(float)m_nStraws_ECC*32.0 );
 	}
 
 	m_TRT_NO_nseg->Fill(nTRT_seg,dTRTstraw);
@@ -868,14 +868,14 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::fillHistograms( )
      * Added by m
      */
     if(m_evt%10==0){
-	correlation_coeffs(m_NO);
+	correlation_coeffs(NO);
 
 	/* 
-	 * clear the m_NO occupancy vector as .push_back()
+	 * clear the NO occupancy vector as .push_back()
 	 * will continue to add onto the end even although
 	 * we're starting a new calcualtion
 	 */
-	m_NO.clear();
+	NO.clear();
     }
     
     //--*--*--*--*--*--*--*--*--*--*--*--*--*--*--*

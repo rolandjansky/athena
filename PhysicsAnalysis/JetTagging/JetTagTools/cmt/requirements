@@ -1,0 +1,129 @@
+package JetTagTools
+
+author Andreas Wildauer <andreas.wildauer@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*        External
+use AthenaBaseComps      AthenaBaseComps-*       Control
+
+use AtlasCLHEP           AtlasCLHEP-*            External
+use GeoPrimitives        GeoPrimitives-*         DetectorDescription
+use TrkParameters        TrkParameters-*         Tracking/TrkEvent
+
+use xAODJet              xAODJet-*               Event/xAOD
+use xAODBTagging         xAODBTagging-*          Event/xAOD
+use xAODTracking         xAODTracking-*          Event/xAOD
+use MVAUtils       	 MVAUtils-*        	 Reconstruction/
+use egammaMVACalib       egammaMVACalib-*        Reconstruction/egamma
+
+use InDetSVWithMuonTool  InDetSVWithMuonTool-*   InnerDetector/InDetRecTools
+
+# for ExKtbbTagTool
+use JetRec               JetRec-*                Reconstruction/Jet
+use AsgTools             AsgTools-*              Control/AthToolSupport
+use JetSubStructureMomentTools JetSubStructureMomentTools-*    Reconstruction/Jet
+use JetSubStructureUtils       JetSubStructureUtils-*          Reconstruction/Jet
+
+use AtlasEigen           AtlasEigen-*            External
+
+
+private
+apply_tag ROOTRooFitLibs
+apply_tag ROOTMathLibs
+apply_tag ROOTTMVALibs
+end_private
+use AtlasROOT            AtlasROOT-*             External
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS TMVA)"
+
+use SGTools		 SGTools-*		 Control
+use JetTagInfo           JetTagInfo-*            PhysicsAnalysis/JetTagging
+use TrkParameters        TrkParameters-*         Tracking/TrkEvent
+private
+use AtlasBoost           AtlasBoost-*            External
+use AthenaKernel         AthenaKernel-*          Control
+use Particle             Particle-*              Reconstruction
+use TrkTrack             TrkTrack-*              Tracking/TrkEvent
+
+use xAODMuon              xAODMuon-*               Event/xAOD
+
+use TrkNeuralNetworkUtils  TrkNeuralNetworkUtils-* Tracking/TrkUtilityPackages
+
+use Navigation           Navigation-*            Control
+#use FourMom              FourMom-*               Event
+
+#use ParticleTruth        ParticleTruth-*         Reconstruction
+#use egammaEvent          egammaEvent-*           Reconstruction/egamma
+#use muonEvent            muonEvent-*             Reconstruction/MuonIdentification
+#use JetEvent             JetEvent-*              Reconstruction/Jet
+#use MuonIDEvent          MuonIDEvent-*           PhysicsAnalysis/MuonID
+use VxVertex             VxVertex-*              Tracking/TrkEvent
+
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetRecTools
+
+#use JetTagEvent          JetTagEvent-*           PhysicsAnalysis/JetTagging
+use JetTagCalibration    JetTagCalibration-*     PhysicsAnalysis/JetTagging
+use MuonSelectorTools	MuonSelectorTools-*	PhysicsAnalysis/MuonID
+use MuonMomentumCorrections	MuonMomentumCorrections-*	PhysicsAnalysis/MuonID/MuonIDAnalysis
+
+use TrkEventPrimitives   TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
+#use TrkVertexFitterUtils  TrkVertexFitterUtils-*     Tracking/TrkVertexFitter
+
+#use TrkToolInterfaces    TrkToolInterfaces-*     Tracking/TrkTools
+#use TrkParticleBase      TrkParticleBase-*       Tracking/TrkEvent
+use TrkTrackLink         TrkTrackLink-*          Tracking/TrkEvent
+use TrkLinks             TrkLinks-*              Tracking/TrkEvent
+#use EventPrimitives      EventPrimitives-*       Event
+
+# truth label information
+use ParticleJetTools	ParticleJetTools-*	PhysicsAnalysis/AnalysisCommon
+
+# for new extrapolation
+use ITrackToVertex      ITrackToVertex-*         Reconstruction/RecoTools
+
+# LV 2005/0204: additional uses for TrackSelector (will move away):
+#use StoreGate           StoreGate-*              Control
+use TrkTrackSummary     TrkTrackSummary-*        Tracking/TrkEvent
+
+# additional for general secondary vertex finder framework
+use VxSecVertex         VxSecVertex-*            Tracking/TrkEvent
+#use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+
+# additional for JetFitter (GP, March 2007)
+use VxJetVertex         VxJetVertex-*		 Tracking/TrkEvent
+
+
+# for Shared hit mapper (old mode):
+#use InDetIdentifier * InnerDetector/InDetDetDescr
+#use TrkRIO_OnTrack * Tracking/TrkEvent
+
+# for SoftEl calibration
+#use AtlasHepMC       AtlasHepMC-*       External
+#use GeneratorObjects GeneratorObjects-* Generators
+
+# for ExKtbbTagTool
+use  JetEDM                     JetEDM-*                        Reconstruction/Jet
+
+end_private
+
+# Set the path to use images in doxygen
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+#library JetTagTools *.cxx components/*.cxx
+#library JetTagTools DummyTag.cxx components/*.cxx
+#apply_pattern dual_use_library files="*.cxx"
+apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MyTag.cxx MV2Tag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx JetVertexCharge.cxx SoftMuonTag.cxx ExKtbbTag.cxx ExKtbbTagTool.cxx MultivariateTagManager.cxx DL1Tag.cxx LightweightNeuralNetwork.cxx TagNtupleDumper.cxx parse_json.cxx Stack.cxx RNNIPTag.cxx"
+#apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime files="-s=../share *.root *.txt"
+
+private
+#macro_append rootBasicLibs " -lTMVA "
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+#Remove warning
+#macro_append cppflags " -w"
+

@@ -31,9 +31,9 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "egammaMVACalib/IegammaMVATool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
 
 namespace Trig{

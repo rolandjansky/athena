@@ -1,0 +1,45 @@
+package JetValidation
+
+use AtlasPolicy			AtlasPolicy-*
+
+branches run
+
+#########################
+
+private 
+
+use GaudiInterface		GaudiInterface-*		External
+
+use AtlasROOT			AtlasROOT-*                     External
+
+use TestPolicy                  TestPolicy-*
+apply_pattern validate_xml
+
+#########################
+
+public
+
+use AtlasROOT       AtlasROOT-*         External
+
+
+#########################
+
+library JetValidation *.cxx components/*.cxx
+
+apply_pattern component_library
+
+#use AtlasReflex     AtlasReflex-*       External
+#apply_pattern lcgdict dict=JetValidation \
+#                selectionfile="selection.xml"  headerfiles="../JetValidation/JetValidationDict.h"
+
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_scripts files="../scripts/jetMakeRefSamples.py"
+
+# for RTT configuration
+macro JetValidation_TestConfiguration "../test/JetValidation_TestConfiguration.xml"
+apply_pattern declare_runtime extras="../test/JetValidation_TestConfiguration.xml ../share/*.root"
+
+
+

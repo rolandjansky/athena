@@ -30,42 +30,44 @@ class TRTParametersOfWheelsA
     void DefineParameters();
     void PrintParameters() const;
 
-    int m_numberOfWheelsA;
-    double m_distanceBetweenWheelsA;
-    double* m_positionsOfWheelsA;
+    int printMessages;
 
-    double m_innerRadiusOfWheelA;
-    double m_outerRadiusOfWheelA;
-    double m_lengthOfWheelA;
+    int numberOfWheelsA;
+    double distanceBetweenWheelsA;
+    double* positionsOfWheelsA;
 
-    double m_innerRadiusOfInnerSupportA;
-    double m_outerRadiusOfInnerSupportA;
-    double m_lengthOfInnerSupportA;
+    double innerRadiusOfWheelA;
+    double outerRadiusOfWheelA;
+    double lengthOfWheelA;
 
-    double m_innerRadiusOfOuterSupportA;
-    double m_outerRadiusOfOuterSupportA;
-    double m_lengthOfOuterSupportA;
+    double innerRadiusOfInnerSupportA;
+    double outerRadiusOfInnerSupportA;
+    double lengthOfInnerSupportA;
 
-    int m_numberOfStrawPlanesA;
-    int m_numberOfStrawsInPlaneA;
-    double* m_positionsOfStrawPlanesA;
-    double* m_rotationAnglesOfStrawPlanesA;
+    double innerRadiusOfOuterSupportA;
+    double outerRadiusOfOuterSupportA;
+    double lengthOfOuterSupportA;
 
-    int m_numberOfMainRadiatorsA;
-    double* m_positionsOfMainRadiatorsA;
+    int numberOfStrawPlanesA;
+    int numberOfStrawsInPlaneA;
+    double* positionsOfStrawPlanesA;
+    double* rotationAnglesOfStrawPlanesA;
 
-    double m_innerRadiusOfMainRadiatorA;
-    double m_outerRadiusOfMainRadiatorA;
-    double m_lengthOfMainRadiatorA;
+    int numberOfMainRadiatorsA;
+    double* positionsOfMainRadiatorsA;
 
-    int m_numberOfThinRadiatorsA;
-    double* m_positionsOfThinRadiatorsA;
+    double innerRadiusOfMainRadiatorA;
+    double outerRadiusOfMainRadiatorA;
+    double lengthOfMainRadiatorA;
 
-    double m_innerRadiusOfThinRadiatorA;
-    double m_outerRadiusOfThinRadiatorA;
-    double m_lengthOfThinRadiatorA;
+    int numberOfThinRadiatorsA;
+    double* positionsOfThinRadiatorsA;
 
-    TRTParameters* m_pParameters;
+    double innerRadiusOfThinRadiatorA;
+    double outerRadiusOfThinRadiatorA;
+    double lengthOfThinRadiatorA;
+
+    TRTParameters* pParameters;
   
     mutable Athena::MsgStreamMember m_msg;
 };

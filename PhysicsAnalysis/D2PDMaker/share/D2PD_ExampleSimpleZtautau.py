@@ -121,3 +121,9 @@ ExampleSimpleZtautauStream.AddItem( ['INav4MomLinkContainer#MyZtautauLooseTauLin
 
 
 
+#====================================================================
+# UserDataSvc, only really needed/used when UserData is computed...
+#====================================================================
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataInExampleSimpleZtautauStream")
+svcMgr.UserDataInExampleSimpleZtautauStream.OutputStream = ExampleSimpleZtautauStream.Stream

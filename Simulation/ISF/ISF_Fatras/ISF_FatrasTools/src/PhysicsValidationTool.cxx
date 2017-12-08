@@ -29,10 +29,12 @@
 iFatras::PhysicsValidationTool::PhysicsValidationTool( const std::string& t,
                                       const std::string& n,
                                       const IInterface*  p )
- : base_class(t,n,p),
+ : AthAlgTool(t,n,p),
    m_thistSvc("THistSvc",n),
    m_validationStream("ISFFatras")
 {
+  declareInterface<IPhysicsValidationTool>(this);
+  
   // validation output section
   declareProperty("ValidationStreamName",
                   m_validationStream = "ISFFatras",
@@ -47,10 +49,7 @@ iFatras::PhysicsValidationTool::PhysicsValidationTool( const std::string& t,
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::PhysicsValidationTool::~PhysicsValidationTool()
-{
-  m_interactions = 0;
-  delete(m_interactions);
-}
+{}
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:

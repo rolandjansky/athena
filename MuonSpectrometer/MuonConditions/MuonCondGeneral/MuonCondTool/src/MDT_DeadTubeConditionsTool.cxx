@@ -187,7 +187,7 @@ StatusCode MDT_DeadTubeConditionsTool::loadDeadTube(IOVSVC_CALLBACK_ARGS_P(I,key
  
   
 	
-  const CondAttrListCollection * atrc = nullptr;
+  const CondAttrListCollection * atrc;
   m_log << MSG::INFO << "Try to read from folder <"<<m_deadtubeFolder<<">"<<endmsg;
   
    sc=m_detStore->retrieve(atrc,m_deadtubeFolder);

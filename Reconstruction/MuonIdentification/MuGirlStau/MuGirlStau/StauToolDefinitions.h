@@ -36,8 +36,7 @@ namespace MuGirlNS
 #define RPCRESOLUTION 6.6   // time resolution 3.125
 #define MDTTRESOLUTION 5   //  time resolution
 #define TILECALRESOLUTION 2   //  time resolution
-// seems to be unused -> commenting for the moment as it would be wrong
-// #define TDC2NS 0.78125 			//1tdc=0.78125ns; 1tdc=0.1953125ns for BMG!
+#define TDC2NS 0.78125 			//1tdc=0.78125ns
 
     typedef std::vector<const Muon::MdtDriftCircleOnTrack*> MDCOTList;
     typedef std::vector<MDCOTList> MDCOTLists;

@@ -1,0 +1,34 @@
+package xAODParticleEvent
+
+author  karsten.koeneke@cern.ch
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+
+use  AthContainers              AthContainers-*                 Control
+use  AthLinks                   AthLinks-*                      Control
+use  xAODBase                   xAODBase-*                      Event/xAOD
+use  xAODCore                   xAODCore-*                      Event/xAOD
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+use  xAODJet                    xAODJet-*                       Event/xAOD
+use  xAODMissingET              xAODMissingET-*                 Event/xAOD
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODTau                    xAODTau-*                       Event/xAOD
+use  xAODTruth                  xAODTruth-*                     Event/xAOD
+
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AtlasReflex                AtlasReflex-*                   External
+end_private
+
+branches Root
+
+# create an installed library, i.e., one where others can inherit from
+library xAODParticleEvent ../Root/*.cxx
+apply_pattern installed_library
+
+private
+apply_pattern lcgdict dict=xAODParticleEvent selectionfile=selection.xml \
+              headerfiles="../xAODParticleEvent/xAODParticleEventDict.h" \
+              extralibfiles=../Root/dict/*.cxx
+end_private

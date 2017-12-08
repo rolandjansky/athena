@@ -1,0 +1,10 @@
+package TrkVertexKinematicFitterUtils
+
+author Maaike Limper <Maaike.Limper@cern.ch>
+
+use  AtlasPolicy AtlasPolicy-*
+use  TrkVertexFitterInterfaces   TrkVertexFitterInterfaces-*   Tracking/TrkVertexFitter
+
+library TrkVertexKinematicFitterUtils *.cxx 
+apply_pattern installed_library
+#apply_pattern component_library

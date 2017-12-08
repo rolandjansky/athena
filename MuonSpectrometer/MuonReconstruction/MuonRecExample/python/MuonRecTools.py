@@ -291,7 +291,6 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     kwargs.setdefault("StraightLine"         , False)
     kwargs.setdefault("OutlierCut"           , 3.0)
     kwargs.setdefault("GetMaterialFromTrack" , False)
-    kwargs.setdefault("RejectLargeNScat"     , True)
 
     # take propagator and navigator from the extrapolator
     Extrapolator = getPublicTool(kwargs["ExtrapolationTool"])

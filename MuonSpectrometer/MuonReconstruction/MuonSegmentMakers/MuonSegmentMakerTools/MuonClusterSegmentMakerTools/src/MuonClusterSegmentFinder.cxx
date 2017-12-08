@@ -3,7 +3,7 @@
 */
 
 #include "MuonClusterSegmentFinder.h"
-#include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
+#include "MuonPrepRawDataProviderTools/MuonPrepRawDataCollectionProviderTool.h"
 #include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
 
 // ROOT includes
@@ -38,7 +38,7 @@ namespace Muon {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_layerHashProvider("Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool"),
+    m_muonPrepRawDataCollectionProviderTool("Muon::MuonPrepRawDataCollectionProviderTool/MuonPrepRawDataCollectionProviderTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_clusterTool("Muon::MuonClusterizationTool/MuonClusterizationTool"),
@@ -56,11 +56,13 @@ namespace Muon {
     declareProperty("MuonClusterizationTool", m_clusterTool);
     declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
+    declareProperty("MuonPrepRawDataCollectionProviderTool",m_muonPrepRawDataCollectionProviderTool );    
     declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
     declareProperty("MdtSegmentMaker",m_segmentMaker);
     declareProperty("SLFitter",            m_slTrackFitter);
     declareProperty("TrackToSegmentTool",  m_trackToSegmentTool);
     declareProperty("AmbiguityProcessor",m_ambiguityProcessor);
+    declareProperty("DoTruth",m_doTruth = true);
     declareProperty("DoNtuple",m_doNtuple = false);
     declareProperty("TrackCleaner",        m_trackCleaner);
 
@@ -91,7 +93,7 @@ namespace Muon {
 
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_layerHashProvider.retrieve());
+    ATH_CHECK(m_muonPrepRawDataCollectionProviderTool.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
@@ -123,6 +125,21 @@ namespace Muon {
 return (fabs(i.z()) < fabs(j.z()));}
   bool sortfunctionVec (std::pair<int,int> i, std::pair<int,int> j){return (i.second < j.second);}
 
+
+  const PRD_MultiTruthCollection* MuonClusterSegmentFinder::getTruth(std::string name) const {
+    if( !evtStore()->contains<PRD_MultiTruthCollection>(name) ) {
+      ATH_MSG_WARNING( "PRD_MultiTruthCollection " << name << " NOT found");
+      return 0;
+    }
+
+    const PRD_MultiTruthCollection* truthCollection = 0;      
+    if( evtStore()->retrieve(truthCollection, name).isFailure() ) {
+      ATH_MSG_WARNING(  "PRD_MultiTruthCollection " << name << " NOT found");
+      return 0;
+    }
+    return truthCollection;
+  }
+
   bool MuonClusterSegmentFinder::matchTruth(const PRD_MultiTruthCollection& truthCol, const Identifier& id,int& bcode) const {
     typedef PRD_MultiTruthCollection::const_iterator iprdt;
     std::pair<iprdt, iprdt> range = truthCol.equal_range(id); 
@@ -143,63 +160,17 @@ return (fabs(i.z()) < fabs(j.z()));}
     return false;
   }
 
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinder::getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-										      std::vector<const Muon::TgcPrepDataCollection*>* tgcCols, 
-										      std::vector<const Muon::RpcPrepDataCollection*>* rpcCols,
-										      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const {
-    std::vector<const Muon::MuonSegment*>* segs = new std::vector<const Muon::MuonSegment*>;
-
-    if(tgcCols){
-      Muon::TgcPrepDataContainer* clusterPRD=new Muon::TgcPrepDataContainer(m_idHelper->tgcIdHelper().module_hash_max());
-      for(const auto tgcCol : *tgcCols){
-	Muon::TgcPrepDataCollection* clusteredCol = m_clusterTool->cluster(*tgcCol);
-	if(clusteredCol) clusterPRD->addCollection(clusteredCol, tgcCol->identifyHash() ).ignore();
-      }
-      std::vector<const Muon::TgcPrepDataCollection*> theTGCs;
-      Muon::TgcPrepDataContainer::const_iterator theIt = clusterPRD->begin();
-      int theEmpty(0),contInt(-1);
-      for (;theIt!=clusterPRD->end();theIt++){
-	contInt++;
-        if ((*theIt)->size() == 0) {
-          theEmpty++;
-	}
-        theTGCs.push_back(*theIt);
-      }
-
-      findSegments(theTGCs,mdtPrdCont,segs,tgcTruthColl);
-    }//end if TGC
-
-    if(rpcCols){
-      Muon::RpcPrepDataContainer* clusterPRD=new Muon::RpcPrepDataContainer(m_idHelper->rpcIdHelper().module_hash_max());
-      for(const auto rpcCol : *rpcCols){
-	Muon::RpcPrepDataCollection* clusteredCol = m_clusterTool->cluster(*rpcCol);
-        if(clusteredCol) clusterPRD->addCollection(clusteredCol, rpcCol->identifyHash() ).ignore();
-      }
-      std::vector<const Muon::RpcPrepDataCollection*> theRPCs;
-      Muon::RpcPrepDataContainer::const_iterator theIt = clusterPRD->begin();
-      int theEmpty(0),contInt(-1);
-      for (;theIt!=clusterPRD->end();theIt++){
-        contInt++;
-        if ((*theIt)->size() == 0) {
-          theEmpty++;
-        }
-        theRPCs.push_back(*theIt);
-      }
-
-      findSegments(theRPCs,mdtPrdCont,segs,rpcTruthColl);
-    }//end if RPC
-
-    return segs;
-  }
-
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinder::getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-										      const Muon::RpcPrepDataContainer* rpcPrdCont, const Muon::TgcPrepDataContainer* tgcPrdCont,
-										      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const {
+  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinder::getClusterSegments(bool doTGCClust, bool doRPCClust) const {
     std::vector<const Muon::MuonSegment*>* segs = new std::vector<const Muon::MuonSegment*>;
     
-    if (tgcPrdCont) { 
+    if (doTGCClust) { 
+      const Muon::TgcPrepDataContainer* tgcPrds = new Muon::TgcPrepDataContainer(0); //Isn't this memory leak?
+      const std::string keyTgc ("TGC_Measurements");
+      if ( evtStore()->contains<Muon::TgcPrepDataContainer>(keyTgc) && evtStore()->retrieve(tgcPrds,keyTgc).isFailure()) {
+        ATH_MSG_WARNING("Cannot retrieve TgcPrepDataContainer " << keyTgc);
+      }
 
-      Muon::TgcPrepDataContainer* clusterPRD = m_clusterTool->cluster(*tgcPrdCont);
+      Muon::TgcPrepDataContainer* clusterPRD = m_clusterTool->cluster(*tgcPrds);
       std::vector<const Muon::TgcPrepDataCollection*> theTGCs;
       Muon::TgcPrepDataContainer::const_iterator theIt = clusterPRD->begin();
       int theEmpty(0),contInt(-1);
@@ -211,12 +182,17 @@ return (fabs(i.z()) < fabs(j.z()));}
         theTGCs.push_back(*theIt);
       }
 
-      findSegments(theTGCs,mdtPrdCont,segs,tgcTruthColl);
+      if (tgcPrds) findSegments(theTGCs,segs);
     }//end if TGC
 
-    if (rpcPrdCont) {
+    if (doRPCClust) {
+      const Muon::RpcPrepDataContainer* rpcPrds = new Muon::RpcPrepDataContainer(0); //Isn't this memory leak?
+      const std::string keyRpc ("RPC_Measurements");
+      if ( evtStore()->contains<Muon::RpcPrepDataContainer>(keyRpc) && evtStore()->retrieve(rpcPrds,keyRpc).isFailure()) {
+        ATH_MSG_WARNING("Cannot retrieve RpcPrepDataContainer " << keyRpc);
+      }
 
-      Muon::RpcPrepDataContainer* clusterPRD = m_clusterTool->cluster(*rpcPrdCont);
+      Muon::RpcPrepDataContainer* clusterPRD = m_clusterTool->cluster(*rpcPrds);
       std::vector<const Muon::RpcPrepDataCollection*> theRPCs;
       Muon::RpcPrepDataContainer::const_iterator theIt = clusterPRD->begin();
       int theEmpty(0),contInt(-1);
@@ -228,19 +204,20 @@ return (fabs(i.z()) < fabs(j.z()));}
         theRPCs.push_back(*theIt);
       }
 
-      findSegments(theRPCs,mdtPrdCont,segs,rpcTruthColl);
+      if (rpcPrds) findSegments(theRPCs,segs);
     }//end if rpc
 
     return segs;
   }
 
-  void MuonClusterSegmentFinder::findSegments( std::vector<const TgcPrepDataCollection*>& tgcCols, const Muon::MdtPrepDataContainer* mdtPrdCont,
-					       std::vector<const Muon::MuonSegment*>* segments, const PRD_MultiTruthCollection* tgcTruthColl) const {
+  void MuonClusterSegmentFinder::findSegments( std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector<const Muon::MuonSegment*>* segments) const {
     ATH_MSG_INFO ("Executing " << name() << "...");
 
     candEvent*  thisEvent = new candEvent;
 
-    makeClusterVecs(tgcTruthColl,tgcCols,thisEvent);
+    const PRD_MultiTruthCollection* truthCollectionTGC = m_doTruth ? getTruth("TGC_TruthMap") : 0;
+    
+    makeClusterVecs(truthCollectionTGC,tgcCols,thisEvent);
 	
     ClusterSeg::ClusterAnalysis theAnalysis;
     ATH_MSG_DEBUG("the size of Clust is " << thisEvent->Clust().size() );
@@ -254,7 +231,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     findOverlap(themap,thisEvent);
     resolveCollections(themap,thisEvent);
 
-    std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent, mdtPrdCont);
+    std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent);
 
     ATH_MSG_DEBUG("the size of resolved segments " << resolvedSegments.size() );
 
@@ -269,13 +246,14 @@ return (fabs(i.z()) < fabs(j.z()));}
     delete thisEvent;
   }
 
-  void MuonClusterSegmentFinder::findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, const Muon::MdtPrepDataContainer* mdtPrdCont,
-					      std::vector<const Muon::MuonSegment*>* segments, const PRD_MultiTruthCollection* rpcTruthColl ) const {
+  void MuonClusterSegmentFinder::findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, std::vector<const Muon::MuonSegment*>* segments ) const {
     ATH_MSG_INFO ("Executing " << name() << "...");
 
     candEvent * thisEvent = new candEvent;
 
-    makeClusterVecs(rpcTruthColl,rpcCols,thisEvent);
+    const PRD_MultiTruthCollection* truthCollectionRPC = m_doTruth ? getTruth("RPC_TruthMap") : 0;
+    
+    makeClusterVecs(truthCollectionRPC,rpcCols,thisEvent);
  
     ClusterSeg::ClusterAnalysis theAnalysis;
     ATH_MSG_DEBUG("the size of Clust is " << thisEvent->Clust().size() );
@@ -290,7 +268,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     findOverlap(themap,thisEvent);
     resolveCollections(themap,thisEvent);
 
-    std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent,mdtPrdCont);
+    std::vector<const MuonSegment*> resolvedSegments = getSegments(thisEvent);
 
     ATH_MSG_DEBUG("the size of resolved segments " << resolvedSegments.size() );
 
@@ -489,7 +467,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     ATH_MSG_DEBUG("Resolved track candidates: old size " << theEvent->segTrkColl()->size() << " new size " << theEvent->resolvedTracks()->size() );
   }
  
-  std::vector<const MuonSegment*> MuonClusterSegmentFinder::getSegments(candEvent* theEvent, const Muon::MdtPrepDataContainer* mdtPrdCont) const {
+  std::vector<const MuonSegment*> MuonClusterSegmentFinder::getSegments(candEvent* theEvent) const {
 
     std::vector<const Muon::MuonSegment*> appendSegments; 
         
@@ -520,7 +498,7 @@ return (fabs(i.z()) < fabs(j.z()));}
         MuonSystemExtension::Intersection intersection( parsPtr, layerSurface);
         
         std::vector<const MdtPrepDataCollection*> mdtCols;
-        if( !getLayerData( sector, regionIndex, layerIndex, mdtPrdCont, mdtCols ) ){
+        if( !m_muonPrepRawDataCollectionProviderTool->getLayerData( sector, MuonStationIndex::TechnologyIndex::MDT, regionIndex, layerIndex, mdtCols ) ){
           ATH_MSG_DEBUG("Failed to get MDT PRD collections ");
           continue;
         }
@@ -543,30 +521,4 @@ return (fabs(i.z()) < fabs(j.z()));}
     return m_segmentOverlapRemovalTool->removeDuplicates(appendSegments);
   }
 
-  bool MuonClusterSegmentFinder::getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex,MuonStationIndex::LayerIndex layerIndex, 
-					       const Muon::MdtPrepDataContainer* input, std::vector<const MdtPrepDataCollection*>& output ) const {
-
-    // get technologies in the given layer
-    unsigned int sectorLayerHash = MuonStationIndex::sectorLayerHash( regionIndex, layerIndex );
-
-    // get hashes
-    const MuonLayerHashProviderTool::HashVec& hashes = m_layerHashProvider->getHashes( sector, MuonStationIndex::TechnologyIndex::MDT, sectorLayerHash );
-
-    // skip empty inputs
-    if( hashes.empty() ) return true;
-
-    // loop over hashes
-    for( MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
-      // skip if not found
-      Muon::MdtPrepDataContainer::const_iterator colIt = input->indexFind(*it);
-      if( colIt == input->end() ) {
-	//ATH_MSG_WARNING("Cannot find hash " << *it << " in container at " << location);
-	continue;
-      }
-      ATH_MSG_VERBOSE("  adding " << m_idHelper->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
-      // else add
-      output.push_back(*colIt);
-    }
-    return true;
-  }
 }

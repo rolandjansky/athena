@@ -18,6 +18,8 @@ namespace Trk{
          
 namespace ISF {
 
+  static const InterfaceID IID_IPunchThroughTool("IPunchThroughTool", 1, 0);
+           
   /**
      @class IPunchThroughTool
         
@@ -33,8 +35,8 @@ namespace ISF {
         /** Virtual destructor */
         virtual ~IPunchThroughTool(){}
         
-        /// Creates the InterfaceID and interfaceID() method
-        DeclareInterfaceID(IPunchThroughTool, 1, 0);
+        /** AlgTool interface methods */
+        static const InterfaceID& interfaceID() { return IID_IPunchThroughTool; }
                      
         /** Creates new vector of ISFParticle out of a given ISFParticle */
         virtual const ISF::ISFParticleContainer* computePunchThroughParticles(const ISFParticle& isfp ) const = 0;

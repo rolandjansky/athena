@@ -20,26 +20,26 @@ class TRTHit
     TRTHit(unsigned, unsigned, unsigned, unsigned, unsigned);
 
     unsigned GetFirstWord()
-      {return m_firstWord;}
+      {return firstWord;}
 
     unsigned GetSecondWord()
-      {return m_secondWord;}
+      {return secondWord;}
 
     unsigned GetThirdWord()
-      {return m_thirdWord;}
+      {return thirdWord;}
 
     unsigned GetFourthWord()
-      {return m_fourthWord;}
+      {return fourthWord;}
 
     unsigned GetFifthWord()
-      {return m_fifthWord;}
+      {return fifthWord;}
 
   private:
-    unsigned m_firstWord;
-    unsigned m_secondWord;
-    unsigned m_thirdWord;
-    unsigned m_fourthWord;
-    unsigned m_fifthWord;
+    unsigned firstWord;
+    unsigned secondWord;
+    unsigned thirdWord;
+    unsigned fourthWord;
+    unsigned fifthWord;
 };
 
 typedef AtlasHitsVector<TRTHit> TRTHitCollection;

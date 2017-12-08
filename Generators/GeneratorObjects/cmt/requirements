@@ -1,0 +1,50 @@
+package GeneratorObjects
+
+author Ian Hinchliffe <I_Hinchliffe@lbl.gov>
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasHepMC          AtlasHepMC-*            External
+use GaudiInterface      GaudiInterface-*        External
+use AthContainers       AthContainers-*         Control
+use AthLinks            AthLinks-*              Control
+use SGTools             SGTools-*               Control
+use xAODTruth           xAODTruth-*             Event/xAOD
+
+private
+use AthenaKernel        AthenaKernel-*          Control
+use CxxUtils            CxxUtils-*              Control
+use StoreGate           StoreGate-*             Control
+use AtlasGoogleTest     AtlasGoogleTest-*       External
+end_private
+
+# Must give explicit list of classes so as NOT to include in the list
+# the  dict_fix.cxx file
+library GeneratorObjects HepMcParticleLink.cxx McEventCollection.cxx HijingEventParams.cxx
+
+apply_pattern installed_library
+
+private
+use AtlasReflex         AtlasReflex-*           External -no_auto_imports
+use AtlasCLHEP          AtlasCLHEP-*            External
+# to fix iterator dicts...
+use RootUtils           RootUtils-*             Control
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+apply_pattern lcgdict dict=GeneratorObjects  selectionfile=selection.xml headerfiles="../GeneratorObjects/McEventDict.h"
+
+# Now build a special (hand-written) library to build a dictionary for
+# GenParticle and GenVertex due to HepLorentzVector
+#apply_pattern lcgdictfix libname=GeneratorObjects  dictfiles="McEventDict_dict_fix.cxx"
+
+apply_pattern install_runtime
+apply_pattern declare_joboptions files="HepMcParticleLink_test.txt"
+use TestTools           TestTools-*             AtlasTest
+apply_pattern UnitTest_run unit_test=HepMcParticleLink extrapatterns="ClassIDSvc Initialized successfully|^JobOptionsSvc +INFO"
+end_private
+

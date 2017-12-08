@@ -268,7 +268,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
   if ( m_SF_OS.size() <1 || m_SF_SS.size() <1 || m_SF_SS.size()!=m_SF_OS.size() ) {
     ATH_MSG_ERROR("OS/SS SF vectors not filled or of different size. -- Problem with files. -- Report to <hn-atlas-EGammaWG@cern.ch>");
-    return StatusCode(CP::CorrectionCode::Error);
+    return CP::CorrectionCode::Error;
   }
 
 

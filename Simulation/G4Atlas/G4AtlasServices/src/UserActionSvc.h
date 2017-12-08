@@ -14,7 +14,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// G4Atlas includes
+// Local includes
 #include "G4AtlasRunAction.h"
 #include "G4AtlasEventAction.h"
 #include "G4AtlasStackingAction.h"
@@ -25,7 +25,7 @@
 #include "G4AtlasInterfaces/IG4StackingActionTool.h"
 #include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasInterfaces/IUserActionTool.h"
+
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasTools/ThreadActionHolder.h"
 
@@ -37,7 +37,8 @@ namespace G4UA
   /// @brief A service which manages the user actions for G4 simulation
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class UserActionSvc : public extends<AthService, IUserActionSvc>
+  class UserActionSvc : public AthService,
+                        public virtual IUserActionSvc
   {
 
     public:
@@ -50,6 +51,10 @@ namespace G4UA
 
       /// Initialize the user actions for the current thread
       StatusCode initializeActions() override final;
+
+      /// Gaudi interface query
+      virtual StatusCode queryInterface(const InterfaceID& riid,
+                                        void** ppvInterface) override;
 
     private:
 
@@ -66,9 +71,6 @@ namespace G4UA
       ToolHandleArray<IG4TrackingActionTool> m_trackingActionTools;
       /// Stepping action tools
       ToolHandleArray<IG4SteppingActionTool> m_steppingActionTools;
-
-      /// New user action tools!!
-      ToolHandleArray<IUserActionTool> m_userActionTools;
 
       /// @}
 

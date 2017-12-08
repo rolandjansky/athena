@@ -17,6 +17,9 @@
 
 namespace ISF {
 
+      /** Declaration of the interface ID ( interface id, major version, minor version) */
+      static const InterfaceID IID_IMonitoringTool("IMonitoringTool", 1 , 0);
+
   /** @ class IMonitoringTool
   
   
@@ -25,8 +28,8 @@ namespace ISF {
     class IMonitoringTool : virtual public IAlgTool { 
 
       public: 
-        /// Creates the InterfaceID and interfaceID() method
-        DeclareInterfaceID(IMonitoringTool, 1, 0);
+        /** Retrieve interface ID */
+        static const InterfaceID& interfaceID() { return IID_IMonitoringTool; }
 
         /** virtual destructor */
         virtual ~IMonitoringTool() { }

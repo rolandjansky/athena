@@ -77,6 +77,11 @@ StatusCode LArCaliWaveMerger::stop()
 	  nwaves++;
 	
 	} // end of loop over DACs
+	
+	// intermediate map cleanup (save memory)
+	const LArCaliWaveVec* cvec = &(*cell_it);
+        LArCaliWaveVec* vec = const_cast<LArCaliWaveVec*>(cvec);
+        vec->clear();
 		
       } // end of loop over Channels
       

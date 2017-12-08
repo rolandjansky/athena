@@ -105,25 +105,6 @@ class TRT_RDOs(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'TRT_RDOs'
 
-	   
-class PixelPURDOs(JobProperty):
-    """StoreGate key for PU pixel raw data objects"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'Pixel_PU_RDOs'
-	
-class SCT_PU_RDOs(JobProperty):
-    """StoreGate key for PU SCT raw data objects"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'SCT_PU_RDOs'
-	
-class TRT_PU_RDOs(JobProperty):
-    """StoreGate key for PU TRT raw data objects"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'TRT_PU_RDOs'
-
 class BCM_RDOs(JobProperty):
     """StoreGate key for BCM raw data objects"""
     statusOn     = True
@@ -190,24 +171,6 @@ class TRT_SDOs(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'TRT_SDO_Map'
 
-class PixelPUSDOs(JobProperty):
-    """StoreGate key for PU pixel simulated data object"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'Pixel_PU_SDO_Map'
-
-class SCT_PU_SDOs(JobProperty):
-    """StoreGate key for PU SCT simulated data object"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'SCT_PU_SDO_Map'
-
-class TRT_PU_SDOs(JobProperty):
-    """StoreGate key for PU TRT simulated data object"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'TRT_PU_SDO_Map'
-
 class PixelClusters(JobProperty):
     """StoreGate key for PixelClusters prep raw data"""
     statusOn     = True
@@ -226,35 +189,11 @@ class TRT_DriftCircles(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'TRT_DriftCircles'
 
-class PixelPUClusters(JobProperty):
-    """StoreGate key for PU PixelClusters prep raw data"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'PixelPUClusters'
-
-class SCT_PU_Clusters(JobProperty):
-    """StoreGate key for PU SCT_Clusters prep raw data"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'SCT_PU_Clusters'
-
-class TRT_PU_DriftCircles(JobProperty):
-    """StoreGate key for PU TRT_DriftCircles prep raw data"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'TRT_PU_DriftCircles'
-
 class TRT_DriftCirclesUncalibrated(JobProperty):
     """StoreGate key for uncalibrated TRT_DriftCircles  prep raw data (only for cosmics)"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'TRT_DriftCirclesUncalibrated'
-
-class TRT_PU_DriftCirclesUncalibrated(JobProperty):
-    """StoreGate key for uncalibrated TRT_PU_DriftCircles  prep raw data (only for cosmics)"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'TRT_PU_DriftCirclesUncalibrated'
 
 class PixelClustersTruth(JobProperty):
     """StoreGate key for PixelClustersTruth"""
@@ -273,24 +212,6 @@ class TRT_DriftCirclesTruth(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'PRD_MultiTruthTRT'
-
-class PixelPUClustersTruth(JobProperty):
-    """StoreGate key for PU PixelClustersTruth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'PRD_PU_MultiTruthPixel'
-
-class SCT_PU_ClustersTruth(JobProperty):
-    """StoreGate key for PU SCT_ClustersTruth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'PRD_PU_MultiTruthSCT'
-
-class TRT_PU_DriftCirclesTruth(JobProperty):
-    """StoreGate key for PU TRT_DriftCirclesTruth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'PRD_PU_MultiTruthTRT'
 
 class PixelSpacePoints(JobProperty):
     """StoreGate key for PixelSpacePoints"""
@@ -1090,9 +1011,6 @@ jobproperties.InDetContainerKeys.add_JobProperty(TRT_Manager)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelRDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(SCT_RDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_RDOs)
-jobproperties.InDetContainerKeys.add_JobProperty(PixelPURDOs)
-jobproperties.InDetContainerKeys.add_JobProperty(SCT_PU_RDOs)
-jobproperties.InDetContainerKeys.add_JobProperty(TRT_PU_RDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(BCM_RDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(BCM_CompactDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelByteStreamErrs)
@@ -1104,23 +1022,13 @@ jobproperties.InDetContainerKeys.add_JobProperty(SplitClusterAmbiguityMap)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelSDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(SCT_SDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_SDOs)
-jobproperties.InDetContainerKeys.add_JobProperty(PixelPUSDOs)
-jobproperties.InDetContainerKeys.add_JobProperty(SCT_PU_SDOs)
-jobproperties.InDetContainerKeys.add_JobProperty(TRT_PU_SDOs)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelClusters)
 jobproperties.InDetContainerKeys.add_JobProperty(SCT_Clusters)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_DriftCircles)
-jobproperties.InDetContainerKeys.add_JobProperty(PixelPUClusters)
-jobproperties.InDetContainerKeys.add_JobProperty(SCT_PU_Clusters)
-jobproperties.InDetContainerKeys.add_JobProperty(TRT_PU_DriftCircles)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_DriftCirclesUncalibrated)
-jobproperties.InDetContainerKeys.add_JobProperty(TRT_PU_DriftCirclesUncalibrated)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelClustersTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SCT_ClustersTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(TRT_DriftCirclesTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(PixelPUClustersTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(SCT_PU_ClustersTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(TRT_PU_DriftCirclesTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelSpacePoints)
 jobproperties.InDetContainerKeys.add_JobProperty(SCT_SpacePoints)
 jobproperties.InDetContainerKeys.add_JobProperty(OverlapSpacePoints)

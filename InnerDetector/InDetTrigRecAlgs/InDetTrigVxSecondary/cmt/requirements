@@ -1,0 +1,36 @@
+package InDetTrigVxSecondary
+
+author Andrew Lowe <andrew.lowe@cern.ch>
+
+# ============================================================================================
+public
+use 	AtlasPolicy 		AtlasPolicy-*
+use 	GaudiInterface     	GaudiInterface-* 		External
+use 	TrigInterfaces      	TrigInterfaces-*        	Trigger/TrigSteer
+use 	VxSecVertex        	VxSecVertex-*       		Tracking/TrkEvent
+use 	TrigTrackJetFinderTool  TrigTrackJetFinderTool-*	Trigger/TrigTools
+use 	xAODTracking		xAODTracking-*			Event/xAOD
+
+# ============================================================================================
+private
+use     AtlasROOT               AtlasROOT-*                     External
+use     AthContainers           AthContainers-*                 Control
+use     GeoPrimitives           GeoPrimitives-*                 DetectorDescription
+use 	InDetBeamSpotService    InDetBeamSpotService-*          InnerDetector/InDetConditions
+use 	InDetRecToolInterfaces 	InDetRecToolInterfaces-* 	InnerDetector/InDetRecTools
+use 	TrkTrack           	TrkTrack-*       		Tracking/TrkEvent
+use 	TrkParameters      	TrkParameters-*  		Tracking/TrkEvent
+use 	VxVertex        	VxVertex-*       		Tracking/TrkEvent
+use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEvent
+use     TrigSteeringEvent       TrigSteeringEvent-*             Trigger/TrigEvent
+use 	IRegionSelector        	IRegionSelector-*		DetectorDescription
+use	xAODBase		xAODBase-*			Event/xAOD  
+end_private
+
+# ============================================================================================
+public
+
+library InDetTrigVxSecondary *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_python_modules files ="*.py"

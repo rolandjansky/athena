@@ -9,18 +9,18 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 if not doReadBS:
   # top no pileup (default)
-  athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch///eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc12_valid/ac/91/RDO.01385812._000001.pool.root.1"]
+  athenaCommonFlags.FilesInput = ["root://eosatlas///eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc12_valid/ac/91/RDO.01385812._000001.pool.root.1"]
   # H-gamgam, 20 pileup
-  # athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-egamma/dq2/mc11_valid/RDO/e850_s1310_s1300_d576/mc11_valid.106384.PythiaH120gamgam.digit.RDO.e850_s1310_s1300_d576_tid512888_00/RDO.512888._000001.pool.root.1"]
+  # athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-egamma/dq2/mc11_valid/RDO/e850_s1310_s1300_d576/mc11_valid.106384.PythiaH120gamgam.digit.RDO.e850_s1310_s1300_d576_tid512888_00/RDO.512888._000001.pool.root.1"]
   # H-gamgam, 0 pileup (filename ?)
-  # athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-egamma/dq2/mc11_valid/RDO/e850_s1310_s1300_d578/mc11_valid.106384.PythiaH120gamgam.digit.RDO.e850_s1310_s1300_d578_tid512902_00/RDO.512902._000001.pool.root.1"]
+  # athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-egamma/dq2/mc11_valid/RDO/e850_s1310_s1300_d578/mc11_valid.106384.PythiaH120gamgam.digit.RDO.e850_s1310_s1300_d578_tid512902_00/RDO.512902._000001.pool.root.1"]
   # electrons 5 GeV
-  # athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000024.pool.root.2"]
+  # athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105128.singlepart_e_pt5.digit.RDO.e605_s933_s946_d369/RDO.219312._000024.pool.root.2"]
   # pions 1 GeV
-  # athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000005.pool.root.1"]
+  # athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105130.singlepart_singlepi_pt1.digit.RDO.e605_s933_s946_d369/RDO.197118._000005.pool.root.1"]
 
 if doReadBS:
-  athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_7TeV.00154817.physics_MinBias.merge.RAW/data10_7TeV.00154817.physics_MinBias.merge.RAW._lb0100._0001.1"]
+  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_7TeV.00154817.physics_MinBias.merge.RAW/data10_7TeV.00154817.physics_MinBias.merge.RAW._lb0100._0001.1"]
   
 import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig', input_files=athenaCommonFlags.FilesInput())

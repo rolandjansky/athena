@@ -24,27 +24,8 @@ FinderTolerances::FinderTolerances	(const std::string&	type,
 					 const IInterface*	parent)
     :   AthAlgTool		(type, name, parent),
 	m_incidentSvc		("IncidentSvc", name),
-	m_magFieldSvc		("MagField::AtlasFieldSvc/AtlasFieldSvc", name), 
-	m_manager		(nullptr),
-	m_halfField		(0.),
-	m_maxPhiSlope		(0.),
-	m_maxDeltaRZ		(0.),
-	m_maxPrimaryDeltaEtaPix	(0.),
-	m_maxPrimaryDeltaEtaSct	(0.),
-	m_maxPrimaryDeltaEtaVtx	(0.),
-	m_maxPrimaryDeltaPhiPix	(0.),
-	m_maxPrimaryDeltaPhiSct	(0.),
-	m_maxPrimaryDeltaPhiVtx	(0.),
-	m_maxPrimaryImpact	(0.),
-	m_maxSecondaryImpact	(0.),
-	m_maxVertexRegionZ	(0.),
-	m_maxVertexZ		(0.),
-	m_minPt			(0.),
-	m_minVertexRegionZ	(0.),
-	m_minVertexZ		(0.),
-	m_pixelName     	("Pixel"),
-	m_printLevel		(0),
-	m_vertexZWidth		(0.)
+	m_magFieldSvc		("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
+	m_pixelName     	("Pixel")
 {
     declareInterface<IFinderConfiguration>(this);
     declareProperty("MagFieldSvc",	m_magFieldSvc );

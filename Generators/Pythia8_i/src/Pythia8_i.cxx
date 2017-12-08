@@ -307,7 +307,7 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }
   
-  StatusCode returnCode = StatusCode::SUCCESS;
+  StatusCode returnCode = SUCCESS;
   
   if(canInit){
     canInit = m_pythia.init();
@@ -471,7 +471,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   
   //HepMC::GenEvent *evtCopy = new HepMC::GenEvent(*evt);
 
-  return StatusCode::SUCCESS;
+  return SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -509,7 +509,7 @@ StatusCode Pythia8_i::genFinalize(){
     std::cout<<std::endl;
   }
   
-  return StatusCode::SUCCESS;
+  return SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

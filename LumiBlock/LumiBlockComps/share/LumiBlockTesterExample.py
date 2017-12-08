@@ -7,9 +7,9 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as af
 af.FilesInput = [
 #    "/afs/cern.ch/user/j/jboyd/gencomm/ForEric/data11_7TeV.00186156.express_express.recon.AOD.f391._lb0535._SFO-ALL._0001.1"
 #    "/afs/cern.ch/atlas/maxidisk/d36/lumiJuly2010/data10_7TeV.00152166.physics_MinBias.merge.AOD.r1239_p134_tid129143_00/AOD.129143._000120.pool.root.1"
-#    "root://eosatlas.cern.ch///eos/atlas/atlasdatadisk/data11_7TeV/AOD/f413_m1019/data11_7TeV.00191381.physics_JetTauEtmiss.merge.AOD.f413_m1019/data11_7TeV.00191381.physics_JetTauEtmiss.merge.AOD.f413_m1019._lb0502-lb0521._0001.1"
-#"root://eosatlas.cern.ch///eos/atlas/atlasdatadisk/data12_8TeV/AOD/r4768/data12_8TeV.00200805.physics_MinBias.recon.AOD.r4768_tid01304347_00/AOD.01304347._003283.pool.root.1"
-"root://eosatlas.cern.ch///eos/atlas/atlasproddisk/data12_8TeV/AOD/r4065/data12_8TeV.00213900.physics_Bphysics.recon.AOD.r4065_tid01228278_00/AOD.01228278._003644.pool.root.1"
+#    "root://eosatlas///eos/atlas/atlasdatadisk/data11_7TeV/AOD/f413_m1019/data11_7TeV.00191381.physics_JetTauEtmiss.merge.AOD.f413_m1019/data11_7TeV.00191381.physics_JetTauEtmiss.merge.AOD.f413_m1019._lb0502-lb0521._0001.1"
+#"root://eosatlas///eos/atlas/atlasdatadisk/data12_8TeV/AOD/r4768/data12_8TeV.00200805.physics_MinBias.recon.AOD.r4768_tid01304347_00/AOD.01304347._003283.pool.root.1"
+"root://eosatlas///eos/atlas/atlasproddisk/data12_8TeV/AOD/r4065/data12_8TeV.00213900.physics_Bphysics.recon.AOD.r4065_tid01228278_00/AOD.01228278._003644.pool.root.1"
 ]
 
 #af.EvtMax=-1 # number of event to process

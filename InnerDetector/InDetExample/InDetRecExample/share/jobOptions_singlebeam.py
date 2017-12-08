@@ -8,14 +8,14 @@ doReadBS        = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 if not doReadBS:
-  athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_1beam.00151841.physics_MinBias.recon.ESD.f229/data10_1beam.00151841.physics_MinBias.recon.ESD.f229._lb0004._0001.1"]
+  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_1beam.00151841.physics_MinBias.recon.ESD.f229/data10_1beam.00151841.physics_MinBias.recon.ESD.f229._lb0004._0001.1"]
 
 if doReadBS:
   # Since BS doesn't yet support xrootd need to set
   import os
   os.environ['STAGE_HOST']="castoratlast3"
   os.environ['STAGE_SVCCLASS']="atlascerngroupdisk"  
-  athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_1beam.00151841.physics_MinBias.merge.RAW/data10_1beam.00151841.physics_MinBias.merge.RAW._lb0004._0001.1"]
+  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_1beam.00151841.physics_MinBias.merge.RAW/data10_1beam.00151841.physics_MinBias.merge.RAW._lb0004._0001.1"]
  
 import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig', input_files=athenaCommonFlags.FilesInput())

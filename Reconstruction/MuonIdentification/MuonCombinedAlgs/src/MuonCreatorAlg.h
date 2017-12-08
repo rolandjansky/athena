@@ -9,9 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include "StoreGate/ReadHandleKey.h"
-
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
-#include "MuonCombinedEvent/MuonCandidateCollection.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/SlowMuonContainer.h"
@@ -45,8 +43,8 @@ class MuonCreatorAlg : public AthAlgorithm
   std::string m_combinedCollectionName;
   std::string m_extrapolatedCollectionName;
   std::string m_msOnlyExtrapolatedCollectionName;
-  SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","ID candidates"};
-  SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","Muon candidates"};
+  SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName;
+  std::string m_muonCandidateCollectionName;
   std::string m_segContainerName;
   std::string m_clusterContainerName;
   bool m_buildSlowMuon;

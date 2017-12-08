@@ -11,7 +11,7 @@
 
 // ISF includes
 #include "ISF_Event/ConeParticleCuts.h"
-#include "BaseSimulationSelector.h"
+#include "ISF_Interfaces/ISimulationSelector.h"
 #include "ISF_Event/HepMCHelper.h"
 
 // Framework
@@ -33,7 +33,7 @@ namespace ISF
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
-  class ConeSimSelector final: public BaseSimulationSelector, public ConeParticleCuts
+  class ConeSimSelector : public ISimulationSelector, public ConeParticleCuts
   {
 
   public:
@@ -44,23 +44,23 @@ namespace ISF
     ~ConeSimSelector();
 
     /** Athena AlgTool initialize */
-    StatusCode  initialize() override;
+    StatusCode  initialize() override final;
 
     /** Athena AlgTool finalize */
-    StatusCode  finalize() override;
+    StatusCode  finalize() override final;
 
     /** called at the beginning of each event (used for resetting dynamic selectors) */
-    virtual void beginEvent() override;
+    virtual void beginEvent() override final;
 
     /** called at the beginning of each event (used for resetting dynamic selectors) */
-    virtual void endEvent() override;
+    virtual void endEvent() override final;
 
     /** update internal event representation (create cones in our case)*/
-    virtual void update(const ISFParticle& p ) override;
+    virtual void update(const ISFParticle& p ) override final;
 
     /** check whether given particle is within any of the registered cones
         -> will be used for routing decision*/
-    virtual bool passSelectorCuts(const ISFParticle& particle) const override;
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
 
   private:
     std::vector<int>                          m_absPDGVector;  //!< abs(PDG) for particles to create cones around

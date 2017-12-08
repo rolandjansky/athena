@@ -7,7 +7,6 @@
 
 #include "PixelGeoModel/GeoPixelStaveSupport.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include "AthenaKernel/MsgStreamMember.h"
 
 class GeoShape;
 
@@ -31,14 +30,13 @@ public:
   virtual int PixelNModule() const {return 0;}
   virtual int PixelNPlanarModule() const {return 0;}
   virtual int PixelN3DModule() const {return 0;}
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl;}
 
 private:
   const GeoShape * addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans);
 
   GeoVPhysVol* m_physVol;
   HepGeom::Transform3D m_transform;
-  mutable Athena::MsgStreamMember m_msg;
+
 };
 
 #endif

@@ -28,7 +28,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ClassID.h"
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -148,7 +147,6 @@ class SCTCalibWriteSvc: public AthService {
 
 private:
   StoreGateSvc* m_detStore;
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 
   StatusCode registerIOV(const CLID& clid);
   int stringToInt(const std::string& s) const;
@@ -210,7 +208,7 @@ private:
   std::string                  m_tagID4BSErrors;
   std::string                  m_tagID4LorentzAngle;
 
-
+  const EventInfo*             m_evt;
   IIOVRegistrationSvc*         m_regSvc;
   //IAthenaOutputStreamTool*     m_streamer;
   ToolHandle<IAthenaOutputStreamTool> m_streamer;

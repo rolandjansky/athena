@@ -1,0 +1,22 @@
+package HIGlobal
+
+
+private
+use GaudiInterface	GaudiInterface-*	External
+use Navigation		Navigation-*		Control
+
+public
+#use AthContainers   AthContainers-*      Control
+use CaloEvent		CaloEvent-*		Calorimeter
+use NavFourMom		NavFourMom-*		Event
+use AtlasROOT		AtlasROOT-*		External
+use AtlasPolicy		AtlasPolicy-*
+use AthenaBaseComps 	AthenaBaseComps-*	Control
+use xAODHIEvent		xAODHIEvent-*		Event/xAOD
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use HIEventUtils        HIEventUtils-*          PhysicsAnalysis/HeavyIonPhys
+
+library HIGlobal *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"

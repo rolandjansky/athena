@@ -17,6 +17,7 @@ TrackRecorderSDTool::TrackRecorderSDTool(const std::string& type, const std::str
   : SensitiveDetectorBase( type , name , parent )
   , m_SD_type(1)
 {
+  declareInterface<ISensitiveDetector>(this);
   declareProperty("SD_type", m_SD_type);
   std::cout << "TrackRecorderSDTool Constructor: name" << name << std::endl;
 

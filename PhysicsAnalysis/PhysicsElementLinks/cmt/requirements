@@ -1,0 +1,36 @@
+package PhysicsElementLinks
+
+author Serban Protopopescu <serban@bnl.gov>
+
+use AtlasPolicy			AtlasPolicy-*
+
+branches run
+
+# The following dependencies satisfy the compile (build) time environment
+
+
+use AtlasDoxygen		AtlasDoxygen-*		Tools
+
+use SGTools                     SGTools-*               Control          
+use ParticleEvent		ParticleEvent-*		PhysicsAnalysis/AnalysisCommon
+use McParticleEvent		McParticleEvent-*	PhysicsAnalysis/TruthParticleID
+use tauEvent 			tauEvent-* 			Reconstruction
+use muonEvent 			muonEvent-* 			Reconstruction/MuonIdentification/
+use JetEvent 			JetEvent-*			Reconstruction/Jet
+use egammaEvent                 egammaEvent-*           Reconstruction/egamma       
+use Particle                    Particle-*           Reconstruction     
+
+### dict generation
+
+library PhysicsElementLinks *.cxx
+apply_pattern installed_library
+
+private
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
+
+apply_pattern lcgdict dict=PhysicsElementLinks \
+ selectionfile=selection.xml \
+ headerfiles="../PhysicsElementLinks/PhysicsElementLinksDict.h"
+
+
+

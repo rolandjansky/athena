@@ -31,7 +31,8 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class EntryLayerFilter : public extends<AthAlgTool, IParticleFilter> { 
+  class EntryLayerFilter : public AthAlgTool,
+                               public IParticleFilter { 
       
     public: 
       /** Constructor with parameters */

@@ -24,6 +24,8 @@ namespace ISF {
 
 namespace iParSim {
      
+  static const InterfaceID IID_IISPtoPerigeeTool("IISPtoPerigeeTool", 1, 0);
+    
   /** 
    @class IISPtoPerigeeTool
 
@@ -38,8 +40,8 @@ namespace iParSim {
        /** Virtual destructor */
        virtual ~IISPtoPerigeeTool(){}
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(IISPtoPerigeeTool, 1, 0);
+       /** AlgTool interface methods */
+       static const InterfaceID& interfaceID() { return IID_IISPtoPerigeeTool; }
 
        virtual const Trk::TrackParameters* extractTrkParameters(const ISF::ISFParticle& isp) const = 0;
 

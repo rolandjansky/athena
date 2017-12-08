@@ -131,3 +131,12 @@ atlas_add_test( AssociationMap_test
                 EXTRA_PATTERNS "ClassIDSvc Initialized successfully|^HistogramPersis.* INFO" )
 
 
+atlas_add_test( CachedValue_test
+                SOURCES
+                test/CachedValue_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthLinks
+                PROPERTIES TIMEOUT 300
+                )
+              
+

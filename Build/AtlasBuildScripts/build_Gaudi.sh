@@ -126,9 +126,6 @@ fi
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
 cpack || touch $error_stamp
-if [ "$BUILDTYPE" = "RelWithDebInfo" ]; then
-    cpack --config CPackDbgRPMConfig.cmake || touch $error_stamp
-fi
 } 2>&1 | tee cmake_cpack.log
 test -f $error_stamp && ((ERROR_COUNT++))
 rm -f $error_stamp

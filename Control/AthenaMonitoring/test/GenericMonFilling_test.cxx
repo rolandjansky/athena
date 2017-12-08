@@ -321,10 +321,7 @@ template<typename T>
 class InvalidToolHandle : public ToolHandle<T> {
 public:
   InvalidToolHandle() : ToolHandle<T>( "" ) {}
-  virtual StatusCode retrieve( ) const override {
-    return StatusCode::FAILURE;
-  }
-  virtual StatusCode retrieve( T*& ) const override {
+  StatusCode retrieve( T*& ) const override {
     return StatusCode::FAILURE;
   }
 

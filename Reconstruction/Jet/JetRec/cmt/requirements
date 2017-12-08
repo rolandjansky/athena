@@ -1,0 +1,38 @@
+package JetRec
+
+author David Adams <dladams at bnl.gov>
+
+private
+
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODCore            xAODCore-*              Event/xAOD
+use xAODBase            xAODBase-*              Event/xAOD
+
+public
+
+use AtlasPolicy		AtlasPolicy-*
+use GaudiInterface	GaudiInterface-* 	External
+use AtlasROOT           AtlasROOT-*             External
+use AtlasReflex		AtlasReflex-*		External
+use AthLinks            AthLinks-*              Control
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+use xAODJet             xAODJet-*               Event/xAOD
+use xAODMuon            xAODMuon-*              Event/xAOD
+use JetEDM              JetEDM-*                Reconstruction/Jet
+use JetInterface        JetInterface-*          Reconstruction/Jet
+use AtlasFastJet        AtlasFastJet-*          External
+use AtlasFastJetContrib AtlasFastJetContrib-*   External
+use EventShapeInterface EventShapeInterface-*   Reconstruction/EventShapes
+
+# Specify the required FastJet components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(FastJet COMPONENTS fastjetplugins fastjettools siscone siscone_spherical)"
+
+apply_pattern dual_use_library files="../Root/*.cxx *.cxx"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="JetRec_jobOptions.py myjets.py"
+apply_pattern lcgdict dict=JetRec \
+                   selectionfile=selection.xml \
+                   headerfiles="../JetRec/JetRecDict.h"

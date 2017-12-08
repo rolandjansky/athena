@@ -1,0 +1,92 @@
+package TestPolicy
+
+author    Alexander Undrus <undrus@bnl.gov>
+author    Jean-Francois Laporte <laport@hep.saclay.cea.fr>
+
+use AtlasPolicy AtlasPolicy-01-*
+
+#--------------------------------------------
+#
+#  This pattern is for unit test "make CppUnit"
+#
+#  usage:
+#    apply_pattern CppUnit name=<test name> files=<list of .cxx files>
+#
+#  Apply this pattern multiple times with different names for
+#  different tests.  The list of .cxx files may contain some of the
+#  same ones for different tests.
+#
+#  To compile and run the tests:
+#    gmake CppUnit
+#
+#--------------------------------------------
+
+pattern CppUnit \
+  private ; \
+  use AtlasCppUnit AtlasCppUnit-* External -no_auto_imports  ; \
+  use StoreGate StoreGate-* Control -no_auto_imports  ; \
+  document CppUnitLauncher <name>CppUnitTest -group=CppUnit  \
+    cppunitrun_exe="'<name>CppUnit.exe'" \
+    cppunitrun_opt="<options>" \
+    cppunitrun_out="' > <name>.log 2>&1'" \
+    cppunitrun_log="' <name>.log'" ; \ 
+  application <name>CppUnit <files> -suffix=_<name> -import=CppUnit -import=TestPolicy -import=TestTools <imports> -group=CppUnit  ; \
+  macro_append <name>CppUnitTest_dependencies " <name>CppUnit " ; \
+  end_private
+
+  
+make_fragment CppUnitLauncher -header=CppUnitLauncher_header
+
+
+#--------------------------------------------
+#
+#  This pattern is for unit test "make ctest"
+#
+#--------------------------------------------
+
+pattern -global ctest \
+document ctest myctest -group=ctest
+make_fragment ctest -header=ctest_header
+
+#--------------------------------------------
+#
+#  This pattern is a prototype unit test for "make check"
+#
+#--------------------------------------------
+
+make_fragment athenarun_launcher_header
+make_fragment athenarun_launcher -header=athenarun_launcher_header
+
+pattern athenarun_test \
+    document athenarun_launcher <name>_test -group=check \
+        athenarun_exe="'athena.py'" \
+        athenarun_opt="<options>" \
+        athenarun_pre="'logfile=<name>.log; . <pre_script>'" \
+        athenarun_out="' > <name>.log 2>&1'" \
+        athenarun_post="'sh <post_script>'"
+
+#--------------------------------------------
+#
+#  Pattern athenacreate_descr is similar to athenarun;
+#  It can be used for running athena jobs that are intended
+#  for purposes other than testing, e.g. creation some
+#  data files that are supposed to be part of a release.
+#  The corresponding make target is "descr". AU 03/11/04. 
+#
+#--------------------------------------------
+
+make_fragment athenacreate_launcher -header=athenacreate_launcher_header
+
+pattern athenacreate_descr \
+    document athenacreate_launcher <name>_test -group=descr \
+        athenacreate_exe="'athena.py'" \
+        athenacreate_opt="<options>" \
+        athenacreate_pre="'logfile=<name>.log; . <pre_script>'" \
+        athenacreate_out="' > <name>.log 2>&1'" \
+        athenacreate_post="'sh <post_script>'"
+
+pattern validate_xml \
+    private ; \
+    action <package>_validateXML "python ${TestPolicy_root}/python/validateXML.py $(<package>_root)/test/<package>_TestConfiguration.xml" ; \
+    macro_append all_dependencies " <package>_validateXML" AtlasHLT_scripts "" ; \
+    end_private

@@ -1,0 +1,43 @@
+package QGSJet_i
+author Sami Kama sami.kama@cern.ch
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+use GeneratorModules    GeneratorModules-*    Generators
+use QGSJet              QGSJet-*              External
+
+private
+use AthenaKernel        AthenaKernel-*        Control
+use AtlasCLHEP          AtlasCLHEP-*          External
+use AtlasHepMC          AtlasHepMC-*          External
+use GaudiInterface      GaudiInterface-*      External
+use TruthUtils          TruthUtils-*          Generators
+end_private
+
+private
+include_path none
+macro_append  fflags "" Linux&gcc34 "  -fno-automatic   -finit-local-zeros -fbounds-check "\
+	Linux&gcc43 "  -fno-automatic   -fbounds-check "
+apply_tag notAsNeeded
+end_private
+
+macro QGSJetLibFiles ""
+macro_append QGSJetLibFiles " QGSJet.cxx"
+#macro_append EposLibFiles " AtEposGenEvent.F"
+#macro_append EposLibFiles " AtEposFinalize.F"
+#macro_append EposLibFiles " AtEposInit.F"
+#macro_append EposLibFiles " AtEposReadCard.F"
+#macro_append EposLibFiles " AtEposSetParams.F"
+macro_append QGSJetLibFiles " Ranfini.F"
+macro_append QGSJetLibFiles " DRanf.F"
+macro_append QGSJetLibFiles " Rangen.F"
+
+#library QGSJet_i $(QGSJetLibFiles)
+# TODO: shouldn't this just be a component library (i.e. no-one wants to link against it)? - AB
+apply_pattern named_dual_use_library  library="QGSJet_i" files=$(QGSJetLibFiles)
+macro_append  QGSJet_i_shlibflags  " $(HepMC_IO_linkopts) "
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime_extras extras="qgsjet_crmc.param"
+
+# Link the package explicitly against HepMCfio:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"

@@ -138,7 +138,7 @@ class setupData:
 			print self.STAGE_SVCCLASS
 			for file in inputfiles:
 				if "eos" in path:
-					outputFile.write('root://eosatlas.cern.ch/'+path + '/' + file + '\n')
+					outputFile.write('root://eosatlas/'+path + '/' + file + '\n')
 				else:
 					check_staged = os.popen("stager_qry -S "+self.STAGE_SVCCLASS+" -M " + path + file.split()[8]).read()
 					if "STAGED" in check_staged or "CANBEMIGR" in check_staged:

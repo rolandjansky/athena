@@ -48,3 +48,9 @@ SUSYMuonStream.AddItem( ['INav4MomLinkContainer#*'] )
 
 
 
+#====================================================================
+# UserDataSvc, only really needed/used when UserData is computed...
+#====================================================================
+#from AthenaServices.TheUserDataSvc import TheUserDataSvc
+#svcMgr += TheUserDataSvc("UserDataInExampleSimpleMetStream")
+#svcMgr.UserDataInExampleSimpleMetStream.OutputStream = ExampleSimpleMetStream.Stream

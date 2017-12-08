@@ -62,26 +62,19 @@ public:
    */
   virtual size_t getNumberOfStores() const override;
  
-  /** explicitly notify the presence of new object in the store
-   *
-   * @param  products     [IN]     Location of new objects
-   */
-  virtual void addNewDataObjects( DataObjIDColl& products ) override;
-
   /** Get the latest new data objects registered in store.
    *
    * @param  products     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
    */
-  virtual DataObjIDColl getNewDataObjects() override;
+  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override;
 
-  /** Check if a data object exists in store.
-   *  TODO: remove the method ASA a cross-experiment
-   *        event data store interface emerges
+  /** Check if something is new in the whiteboard without getting the products.
    *
-   * @return  boolean
+   * @param  products     [IN]     Slot number (event slot)   *
+   * @return Boolean indicating the presence of new products
    */
-    virtual bool exists( const DataObjID& ) override;
+  virtual bool newDataObjectsPresent() override;
   
   /** Allocate a store slot for new event
    *
@@ -106,9 +99,6 @@ public:
    */
   virtual size_t getPartitionNumber(int eventnumber) const override;
   
-  /// Get free slots number
-  virtual unsigned int freeSlots() override;
-    
   //@{ @name Gaudi Service boilerplate
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
@@ -127,7 +117,6 @@ private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
   std::vector<SG::HiveEventSlot> m_slots;
-    std::atomic<unsigned int> m_freeSlots {0};
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
 
 };

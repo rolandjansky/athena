@@ -28,7 +28,7 @@ elif readAOD:
   if read13Reference:
     # 13.0.30.3 reference AOD with DetDescrVersion = "ATLAS-CSC-01-02-00"
     athenaCommonFlags.FilesInput = [ "/afs/cern.ch/atlas/maxidisk/d33/referencefiles/T1_5200.13.0.30.3.AOD.017284._00001.pool.root" ]
-athenaCommonFlags.FilesInput = [ 'root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/mc10_7TeV/DESD_MBIAS/e574_s932_s946_r2094/mc10_7TeV.105001.pythia_minbias.recon.DESD_MBIAS.e574_s932_s946_r2094_tid280668_00/DESD_MBIAS.280668._016228.pool.root.1']
+athenaCommonFlags.FilesInput = [ 'root://eosatlas//eos/atlas/atlasdatadisk/mc10_7TeV/DESD_MBIAS/e574_s932_s946_r2094/mc10_7TeV.105001.pythia_minbias.recon.DESD_MBIAS.e574_s932_s946_r2094_tid280668_00/DESD_MBIAS.280668._016228.pool.root.1']
 
 import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig', input_files=athenaCommonFlags.FilesInput())

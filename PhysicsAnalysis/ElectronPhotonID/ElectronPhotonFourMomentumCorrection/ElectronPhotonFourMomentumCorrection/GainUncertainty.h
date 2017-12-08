@@ -18,11 +18,11 @@ class TH1D;
 namespace egGain{
 
 class GainUncertainty : public asg::AsgMessaging {
+
 public:
 
-    GainUncertainty(std::string filename);
-    void Init(std::string filename);
-    ~GainUncertainty();
+  GainUncertainty();
+  ~GainUncertainty();
 
  // return relative uncertainty on energy from gain uncertainty
  // input etaCalo_input = eta in Calo frame

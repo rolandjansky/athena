@@ -1,0 +1,28 @@
+package TauTagTools
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*       External
+use AthenaBaseComps     AthenaBaseComps-*      Control
+use AthenaPoolUtilities AthenaPoolUtilities-*  Database/AthenaPOOL
+use TagEvent		TagEvent-*	       PhysicsAnalysis/EventTag
+
+
+private
+use AtlasCLHEP          AtlasCLHEP-*           External
+use AnalysisUtils       AnalysisUtils-*	       PhysicsAnalysis/AnalysisCommon
+use StoreGate           StoreGate-*            Control
+use xAODTau		xAODTau-*	       Event/xAOD
+use TauAnalysisTools    TauAnalysisTools-*     PhysicsAnalysis/TauID
+
+public
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+
+
+
+
+

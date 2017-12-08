@@ -1,0 +1,34 @@
+package SCT_ModuleDistortions
+
+author Anna Mayne <a.mayne@cern.ch>
+
+use GaudiInterface	   GaudiInterface-*	  External
+use AthenaKernel           AthenaKernel-*         Control
+use InDetReadoutGeometry   InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use Identifier		   Identifier-*		  DetectorDescription
+use TrkParameters          TrkParameters-*        Tracking/TrkEvent
+use AtlasPolicy            AtlasPolicy-*
+use GeoPrimitives          GeoPrimitives-*        DetectorDescription
+use TrkEventPrimitives     TrkEventPrimitives-*   Tracking/TrkEvent
+
+private
+use AtlasCLHEP             AtlasCLHEP-*           External
+
+use AtlasROOT              AtlasROOT-*            External
+use StoreGate              StoreGate-*            Control
+use AthenaBaseComps        AthenaBaseComps-*      Control
+
+use InDetIdentifier        InDetIdentifier-*      InnerDetector/InDetDetDescr
+use PathResolver           PathResolver-*         Tools
+use AtlasConditionsRunTime AtlasConditionsRunTime-*
+
+public
+
+library SCT_ModuleDistortions *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_runtime files="*.txt"
+
+apply_pattern declare_joboptions files="*.py"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+

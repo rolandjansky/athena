@@ -50,7 +50,6 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
     m_CaloDetDescrMgr(0),
     m_strHelper(0),
     m_rootStore(0),
-    m_larCablingService("LArCablingService"),
     m_hvCorrTool("LArHVCorrTool"),
     m_keyHVScaleCorr("LArHVScaleCorr"),
     m_eventsCounter(0)

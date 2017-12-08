@@ -1,0 +1,38 @@
+package JetTagEvent
+
+author Andreas Wildauer <andreas.wildauer@cern.ch>
+
+use AtlasPolicy     		AtlasPolicy-*
+use ParticleEvent   		ParticleEvent-*  		PhysicsAnalysis/AnalysisCommon
+#use ElectronPhotonIDEvent  	ElectronPhotonIDEvent-00-*  	PhysicsAnalysis/ElectronPhotonID
+#use MuonIDEvent     		MuonIDEvent-00-*  		PhysicsAnalysis/MuonID
+#use VxVertex        		VxVertex-*          		Tracking/TrkEvent
+use Navigation      		Navigation-*     		Control
+#use FourMom         		FourMom-*        		Event
+#use DataModel       		DataModel-*      		Control
+use JetEvent        		JetEvent-*          		Reconstruction/Jet
+#use CLIDSvc         		CLIDSvc-*        		Control
+#use JetTagInfo      		JetTagInfo-*     		PhysicsAnalysis/JetTagging
+#use AtlasBoost      		AtlasBoost-*        		External
+use CaloGeoHelpers              CaloGeoHelpers-*                Calorimeter               
+use Particle                    Particle-*                      Reconstruction
+
+library JetTagEvent *.cxx
+
+apply_pattern installed_library
+
+# Persistency: 
+private
+use AtlasReflex       AtlasReflex-*      External -no_auto_imports
+use VxSecVertex                 VxSecVertex-*                   Tracking/TrkEvent
+use NavFourMom                  NavFourMom-*                    Event
+use EventKernel                 EventKernel-*                   Event
+
+macro navigables_JetTagEvent ""
+
+apply_pattern lcgdict dict=JetTagEvent \
+selectionfile=selection.xml \ 
+navigables=$(navigables_JetTagEvent) \
+headerfiles="../JetTagEvent/JetTagEventDict.h"
+
+end_private

@@ -152,7 +152,7 @@ namespace Trk
     unsigned int ei_EventNumber =myEventInfo->eventNumber();
 
     if ( (ei_RunNumber == m_cacheRunNumber) && (ei_EventNumber == m_cacheEventNumber) )
-      return StatusCode::SUCCESS; //cached info already available
+      return SUCCESS; //cached info already available
 
     ATH_MSG_DEBUG("Retrieving interactions information");
     msg(MSG::DEBUG) << "StoreGate Step: MCTrueSeedFinder retrieves -- " << m_McEventCollectionName << endmsg;
@@ -209,7 +209,7 @@ namespace Trk
     }
 
     ATH_MSG_DEBUG("New interactions info stored successfully: " << m_interactions.size() << " interactions found.");
-    return StatusCode::SUCCESS;
+    return SUCCESS;
 
   }
 

@@ -32,10 +32,10 @@ public:
 
 	static MMDetectorDescription* GetCurrent() {return current;}
 	
-	double sWidth() {return small_x();}
-	double lWidth() {return large_x();}
-	double Length() {return y();}
-	double Tck()    {return z();}
+	double sWidth() {return _small_x;}
+	double lWidth() {return _large_x;}
+	double Length() {return _y;}
+	double Tck()    {return _z;}
 
 	void xFrame(double y) {_xFrame=y;}
 	double xFrame() {return _xFrame;}

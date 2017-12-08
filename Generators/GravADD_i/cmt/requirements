@@ -1,0 +1,27 @@
+package GravADD_i
+
+author Nele Boelaert<nele.boelaert@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+
+private
+use Pythia           Pythia-*           External
+use AtlasFortranPolicy   AtlasFortranPolicy-* 
+use Lhapdf           Lhapdf-*              External
+end_private
+
+use AtlasGSL         AtlasGSL-*               External
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this 
+# package explicitly sets the allowUndefined tag
+private
+apply_tag allowUndefined
+end_private
+
+public
+library GravADD_i *.cxx *.F *.c
+apply_pattern installed_library
+
+apply_pattern declare_joboptions files="*.py"
+

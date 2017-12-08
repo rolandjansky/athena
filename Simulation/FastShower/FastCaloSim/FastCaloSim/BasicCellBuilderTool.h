@@ -142,7 +142,8 @@ private:
 };
 
 
-class BasicCellBuilderTool: public extends<AthAlgTool, ICaloCellMakerTool>
+class BasicCellBuilderTool: public AthAlgTool, 
+       		                 virtual public ICaloCellMakerTool
 {
 public:    
 //  typedef std::vector< std::vector<cellinfo_vec> > cellinfo_map;

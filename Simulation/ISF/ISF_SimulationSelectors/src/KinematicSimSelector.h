@@ -11,7 +11,7 @@
 
 // ISF includes
 #include "ISF_Event/KinematicParticleCuts.h"
-#include "BaseSimulationSelector.h"
+#include "ISF_Interfaces/ISimulationSelector.h"
 
 namespace ISF
 {
@@ -22,7 +22,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class KinematicSimSelector final : public BaseSimulationSelector, public KinematicParticleCuts
+  class KinematicSimSelector : public ISimulationSelector, public KinematicParticleCuts
   {
 
   public:
@@ -33,11 +33,11 @@ namespace ISF
     ~KinematicSimSelector();
 
     // Athena algtool's Hooks
-    virtual StatusCode  initialize() override;
-    virtual StatusCode  finalize() override;
+    virtual StatusCode  initialize() override final;
+    virtual StatusCode  finalize() override final;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
-    virtual bool passSelectorCuts(const ISFParticle& particle) const override;
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
   };
 
 }

@@ -352,12 +352,12 @@ StatusCode InDetGlobalSynchMonTool::fillHistograms()
     int prev_bcm_bcid = -1;
     int prev_bcm_lvl1id = -1;
 
-    if ( m_doTrigger == true && InDetGlobalMotherTrigMonTool::CheckTriggers() != StatusCode::SUCCESS ){
+    if ( doTrigger == true && InDetGlobalMotherTrigMonTool::CheckTriggers() != StatusCode::SUCCESS ){
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Triggers not found!" << endmsg;
-	m_doTrigger = false;
+	doTrigger = false;
     }
       
-    //m_doTrigger = false;  // REMOVE
+    //doTrigger = false;  // REMOVE
 
     if ( m_BCM_RDO != 0 ) // Protection for when there is no BCM data
     {  

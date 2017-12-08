@@ -51,6 +51,7 @@
   <class name="RpcPad" />
   <class name="CscRawDataCollection" />
 
+
   <class name="TgcRdoContainer" />
   <class name="std::vector<TgcRdo * >" />
   <class name="DataVector<TgcRdo>" id="FBF8D72D-A6B9-4689-8E02-BB0F435BF2F7" />
@@ -66,10 +67,6 @@
   <class name="CscRawDataContainer" />
   <class name="std::vector<CscRawDataCollection * >" />
   <class name="DataVector<CscRawDataCollection>" id="D7600810-31BC-4344-A3C6-9C59F47E5551" />
-
-  <class name="sTGC_RawDataContainer" />
-  <class name="std::vector<sTGC_RawDataCollection * >" />
-  <class name="DataVector<sTGC_RawDataCollection>" id="3786AB67-8A7A-4DA5-B178-3FE9CB3A6FD2" />
 
 
 </lcgdict>

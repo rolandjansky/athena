@@ -86,7 +86,7 @@ namespace Muon {
 
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class MuonLayerHashProviderTool;
+  class MuonPrepRawDataCollectionProviderTool;
   class IMuonPRDSelectionTool;
   class IMuonSegmentMaker;
   class IMuonClusterOnTrackCreator;
@@ -104,25 +104,16 @@ namespace Muon {
     StatusCode initialize();
     StatusCode finalize();
 
-    std::vector<const Muon::MuonSegment*>* getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-							      const Muon::RpcPrepDataContainer* rpcPrdCont, const Muon::TgcPrepDataContainer* tgcPrdCont,
-							      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const;
-
-    std::vector<const Muon::MuonSegment*>* getClusterSegments(const Muon::MdtPrepDataContainer* mdtPrdCont,
-							      std::vector<const Muon::TgcPrepDataCollection*>* tgcCols, std::vector<const Muon::RpcPrepDataCollection*>* rpcCols,
-							      const PRD_MultiTruthCollection* tgcTruthColl, const PRD_MultiTruthCollection* rpcTruthColl) const;
-
+    std::vector<const Muon::MuonSegment*>* getClusterSegments(bool doTGCClust, bool doRPCClust) const;
     /** tgc segment finding */
-    void findSegments(std::vector<const TgcPrepDataCollection*>& tgcCols, const Muon::MdtPrepDataContainer* mdtPrdCont, std::vector<const Muon::MuonSegment*>* segments,
-		      const PRD_MultiTruthCollection* tgcTruthColl) const;
+    void findSegments(std::vector<const TgcPrepDataCollection*>& tgcCols, std::vector<const Muon::MuonSegment*>* segments ) const;
     /** rpc segment finding */
-    void findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, const Muon::MdtPrepDataContainer* mdtPrdCont, std::vector<const Muon::MuonSegment*>* segments,
-		      const PRD_MultiTruthCollection* tgcTruthColl) const;
+    void findSegments(std::vector<const RpcPrepDataCollection*>& rpcCols, std::vector<const Muon::MuonSegment*>* segments ) const;
 
   private:
     ToolHandle<MuonIdHelperTool>                      m_idHelper; 
     ToolHandle<MuonEDMPrinterTool>                    m_printer; 
-    ToolHandle<MuonLayerHashProviderTool>             m_layerHashProvider;
+    ToolHandle<MuonPrepRawDataCollectionProviderTool> m_muonPrepRawDataCollectionProviderTool;
     ToolHandle<IMuonPRDSelectionTool>                 m_muonPRDSelectionTool;
     ToolHandle<IMuonSegmentMaker>                     m_segmentMaker;
     ToolHandle<Muon::IMuonClusterizationTool>         m_clusterTool;     //<! clustering tool
@@ -135,10 +126,12 @@ namespace Muon {
     ToolHandle<IMuonSegmentOverlapRemovalTool>        m_segmentOverlapRemovalTool;
 
     bool m_doNtuple;
+    bool m_doTruth;
     TFile* m_file;
     TTree* m_tree;
     ClusterSeg::ClusterNtuple* m_ntuple;
 
+    const PRD_MultiTruthCollection* getTruth(std::string name) const;
     bool matchTruth(const PRD_MultiTruthCollection& truthCol, const Identifier& id, int& barcode) const;
     Trk::Track* fit( const std::vector<const Trk::MeasurementBase*>& vec2, const Trk::TrackParameters& startpar ) const;
     void makeClusterVecs(const std::vector<const Muon::MuonClusterOnTrack*>& clustCol, candEvent* theEvent) const;
@@ -147,9 +140,7 @@ namespace Muon {
     void findOverlap(std::map<int,bool>& themap,candEvent* theEvent) const;
     void processSpacePoints(candEvent* theEvent,std::vector<std::vector<ClusterSeg::SpacePoint>>& sPoints) const;
     void resolveCollections(std::map<int,bool> themap,candEvent* theEvent) const;
-    std::vector<const MuonSegment*> getSegments(candEvent* theEvent, const Muon::MdtPrepDataContainer* mdtPrdCont) const;
-    bool getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex, MuonStationIndex::LayerIndex layerIndex, 
-		       const Muon::MdtPrepDataContainer* input, std::vector<const MdtPrepDataCollection*>& output ) const;
+    std::vector<const MuonSegment*> getSegments(candEvent* theEvent) const;
   };
 
 }

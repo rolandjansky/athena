@@ -1,0 +1,26 @@
+package MinBiasD3PDMaker
+
+author Remi Zaidan <Remi.Zaidan@cern.ch>
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+
+use TrigCaloEvent          TrigCaloEvent-*             Trigger/TrigEvent
+use TrigInDetEvent         TrigInDetEvent-*            Trigger/TrigEvent
+
+apply_pattern dual_use_library files="*.cxx"
+apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+
+use GaudiInterface         GaudiInterface-*            External
+use CLIDSvc                CLIDSvc-*                   Control
+use AthenaKernel           AthenaKernel-*              Control
+use StoreGate              StoreGate-*                 Control
+use TrkToolInterfaces      TrkToolInterfaces-*         Tracking/TrkTools
+use TrkTrack               TrkTrack-*                  Tracking/TrkEvent
+use InDetPrepRawData       InDetPrepRawData-*          InnerDetector/InDetRecEvent
+use InDetReadoutGeometry   InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
+use D3PDMakerUtils         D3PDMakerUtils-*            PhysicsAnalysis/D3PDMaker

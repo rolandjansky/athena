@@ -1,0 +1,38 @@
+package SiTrigSpacePointFormation
+
+author Patricia Conde Munio <Patricia.Conde.Muino>
+
+public
+
+use AtlasPolicy          AtlasPolicy-*
+use Identifier           Identifier-*           DetectorDescription
+use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
+use TrigInterfaces       TrigInterfaces-*       Trigger/TrigSteer
+use GaudiInterface       GaudiInterface-*       External
+
+# Inform cmake that this package has private header files (transparent to CMT)
+apply_pattern cmake_add_command command="include_directories(src)"
+
+library SiTrigSpacePointFormation *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+#use AthenaKernel          AthenaKernel-*    Control
+use InDetTrigToolInterfaces InDetTrigToolInterfaces-* InnerDetector/InDetTrigRecTools
+use InDetBeamSpotService    InDetBeamSpotService-*  InnerDetector/InDetConditions
+use SiSpacePointTool        SiSpacePointTool-*      InnerDetector/InDetRecTools
+use TrigTimeAlgs            TrigTimeAlgs-*          Trigger/TrigTools
+use TrkSpacePoint           TrkSpacePoint-*         Tracking/TrkEvent
+use SiSpacePointFormation   SiSpacePointFormation-* InnerDetector/InDetRecAlgs
+use IRegionSelector         IRegionSelector-*       DetectorDescription
+use TrigSteeringEvent       TrigSteeringEvent-*     Trigger/TrigEvent
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use EventPrimitives      EventPrimitives-*    Event
+use AthenaBaseComps      AthenaBaseComps-*      Control
+
+#needed for a header in src
+macro_append includes " -I../src "
+
+apply_pattern declare_python_modules files ="*.py"
+end_private

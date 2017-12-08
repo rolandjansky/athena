@@ -46,8 +46,6 @@ class L2EFChain_Monitoring(L2EFChainDef):
             self.setupCSCMonChain()
         elif ('l1calooverflow' in self.monType):
             self.setupL1CaloOverflow()
-        elif ('l1topodebug' in self.monType):
-            self.setupL1TopoTransmission()
         else:
             log.error("No suitable configuration for chain %s found!" % self.chainName)
 
@@ -224,14 +222,7 @@ class L2EFChain_Monitoring(L2EFChainDef):
         CaloOverflowMonitor = TrigL1CaloOverflow("TrigL1CaloOverflow")
         self.L2sequenceList += [[ '' , [CaloOverflowMonitor],  'L2_l1calooverflow']]
         self.L2signatureList += [ [['L2_l1calooverflow']] ]
-    ####################################
-    ####################################
-    def setupL1TopoTransmission(self):
-        from TrigGenericAlgs.TrigGenericAlgsConf import AcceptL1TopoMonitor
-        l1topodebug = AcceptL1TopoMonitor('L1TopoAcceptDebug')
-        self.L2sequenceList += [[ '' , [l1topodebug],  'L2_l1topodebug']]
-        self.L2signatureList += [ [['L2_l1topodebug']] ]
-
+        
     ####################################
     ####################################
     def setupIdmonTrkFS(self):

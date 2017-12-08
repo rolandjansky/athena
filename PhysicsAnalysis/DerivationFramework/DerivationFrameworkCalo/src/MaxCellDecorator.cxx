@@ -29,8 +29,7 @@ DerivationFramework::MaxCellDecorator::MaxCellDecorator(const std::string& t,
 							const IInterface* p) :
   AthAlgTool(t,n,p),
   m_SGKey_photons(""),
-  m_SGKey_electrons(""),
-  m_larCablingSvc("LArCablingService")
+  m_SGKey_electrons("")
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("LArCablingService", m_larCablingSvc );

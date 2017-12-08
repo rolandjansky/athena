@@ -90,7 +90,7 @@ private:
 
 };
 
-#include "AthenaKernel/CLASS_DEF.h"
+#include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( CaloTTOnAttrIdMap,167960877,1)
 
 #endif

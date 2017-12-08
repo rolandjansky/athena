@@ -886,12 +886,10 @@ else:
 #        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 
         # --- the (1st) trajectory selector
-        PRD_TruthTrajectorySelector = []
-        if not InDetFlags.doSLHC() and not InDetFlags.doSplitReco() :
-          from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySelectorID
-          InDetTruthTrajectorySelector = InDet__PRD_TruthTrajectorySelectorID(name='InDetTruthTrajectorySelector')
-          ToolSvc += InDetTruthTrajectorySelector
-          PRD_TruthTrajectorySelector  = [ InDetTruthTrajectorySelector ]          
+        if not InDetFlags.doSLHC():
+            from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySelectorID
+            InDetTruthTrajectorySelector = InDet__PRD_TruthTrajectorySelectorID(name='InDetTruthTrajectorySelector')
+            ToolSvc += InDetTruthTrajectorySelector
 
         # --- the truth track creation algorithm
         from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
@@ -901,7 +899,9 @@ else:
                                                           OutputTrackCollection      = InDetKeys.PseudoTracks(),
                                                           AssoTool                   = InDetPrdAssociationTool,
                                                           TrackSummaryTool           = InDetTrackSummaryToolSharedHits,
-                                                          PRD_TruthTrajectorySelectors  = PRD_TruthTrajectorySelector )
+                                                          PRD_TruthTrajectorySelectors  = [ ] )
+        if not InDetFlags.doSLHC():
+            InDetTruthTrackCreation.PRD_TruthTrajectorySelectors  = [ InDetTruthTrajectorySelector ]
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
@@ -909,10 +909,7 @@ else:
         include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
         InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
                                                      InDetKeys.PseudoDetailedTracksTruth(),
-                                                     InDetKeys.PseudoTracksTruth(),
-                                                     PixelClusterTruth,
-                                                     SCT_ClusterTruth,
-                                                     TRT_DriftCircleTruth)
+                                                     InDetKeys.PseudoTracksTruth())
 
         from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
         InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
@@ -1256,8 +1253,6 @@ else:
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
       if InDetFlags.doDBM():
         InDetValidationDBM = ConfiguredInDetValidation("DBM",True,InDetFlags.doTruth(),InDetNewTrackingCutsDBM,TrackCollectionKeysDBM,TrackCollectionTruthKeysDBM)
-      if InDetFlags.doSplitReco():
-        InDetValidationPU = ConfiguredInDetValidation("PU",True,InDetFlags.doTruth(),cuts,[InDetKeys.PseudoTracks()],[InDetKeys.PseudoTracksTruth()],McEventCollectionKey="TruthEvent_PU")
 
     # ntuple creation for validation purposes    
     if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()) or InDetFlags.doPhysValMon():

@@ -1834,16 +1834,16 @@ double TRT_ToT_dEdx::getToTHighOccupancy(unsigned int BitPattern) const
 int TRT_ToT_dEdx::DriftTimeBin_v2(unsigned int BitPattern) const
 {
   unsigned  mask = 0x02000000;
-  unsigned  word_LE = BitPattern>>6;
-  word_LE = word_LE<<6;
+  unsigned  m_word_LE = BitPattern>>6;
+  m_word_LE = m_word_LE<<6;
  
   mask >>=1;
   bool SawZero = false;
   int i;
   for(i=1;i<18;++i)
     { 
-      if      (  (word_LE & mask) && SawZero) break;
-      else if ( !(word_LE & mask) ) SawZero = true; 
+      if      (  (m_word_LE & mask) && SawZero) break;
+      else if ( !(m_word_LE & mask) ) SawZero = true; 
       mask>>=1;
       if(i==7 || i==15) mask>>=1;
     }
@@ -1857,15 +1857,15 @@ int TRT_ToT_dEdx::TrailingEdge_v2(unsigned int BitPattern) const
 {
   unsigned mask = 0x00000001;
   unsigned mask_word = 0x0001fff0;
-  unsigned word_TE = BitPattern & mask_word;
+  unsigned m_word_TE = BitPattern & mask_word;
   //bool SawZero=false;
   bool SawZero=true;
   int i;
   for (i = 0; i < 24; ++i)
     {
-      if ( (word_TE & mask) && SawZero )
+      if ( (m_word_TE & mask) && SawZero )
         break;
-      else if ( !(word_TE & mask) )
+      else if ( !(m_word_TE & mask) )
         SawZero = true;
 
       mask <<= 1;
@@ -1899,7 +1899,7 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
   unsigned mask_word = 0x0001fff0; // 11111111 1 11110000   
   unsigned mask_last_bit =0x10; //10000
   
-  unsigned word_TE = BitPattern & mask_word;
+  unsigned m_word_TE = BitPattern & mask_word;
   
   bool SawZero=true;
   bool SawZero1=false;
@@ -1909,7 +1909,7 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
   int j=0;
   int k=0;
   
-  if(word_TE & mask_last_bit) 
+  if(m_word_TE & mask_last_bit) 
     {
   
       for (j = 0; j < 11; ++j)
@@ -1918,7 +1918,7 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
                 
           if(j==3) mask_last_bit=mask_last_bit<<1;
                 
-          if ( !(word_TE & mask_last_bit) )
+          if ( !(m_word_TE & mask_last_bit) )
             {
               SawZero2 = true;
               break;                  
@@ -1934,7 +1934,7 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
 
             if(k==3) mask_last_bit=mask_last_bit<<1;
 
-            if ( word_TE & mask_last_bit )
+            if ( m_word_TE & mask_last_bit )
               {
                 SawUnit1 = true;
                 break;                                  
@@ -1950,16 +1950,16 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
   
   for (i = 0; i < 24; ++i)
     {
-      if(!(word_TE & mask) && i>3)
+      if(!(m_word_TE & mask) && i>3)
         {
           SawZero1 = true;
         }
             
       if(SawZero1)
         {  
-          if ( (word_TE & mask) && SawZero )
+          if ( (m_word_TE & mask) && SawZero )
             break;
-          else if ( !(word_TE & mask) )
+          else if ( !(m_word_TE & mask) )
             SawZero = true;
         }
       mask <<= 1;

@@ -1,0 +1,11 @@
+package CompositeParticleEvent
+
+author Hong Ma <hma@bnl.gov>
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+author Kyle Cranmer <kyle.cranmer@cern.ch>
+author Sebastien Binet <binet@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use ParticleEvent	ParticleEvent-*		PhysicsAnalysis/AnalysisCommon
+
+branches src doc CompositeParticleEvent 

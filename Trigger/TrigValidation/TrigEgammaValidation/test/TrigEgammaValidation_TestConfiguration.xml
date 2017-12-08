@@ -28,7 +28,7 @@
                 <doc> RDOtoAOD_MC_transform MC_pp_v7 menu Zee events 25ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_Zee_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s2578_r6596_tid05293003_00/RDO.05293003._000176.pool.root.1"];acf.PoolAODOutput="AOD.Zee.25ns.pileup.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s2578_r6596_tid05293003_00/RDO.05293003._000176.pool.root.1"];acf.PoolAODOutput="AOD.Zee.25ns.pileup.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -85,7 +85,7 @@
                 <doc> RDOtoAOD_MC_transform MC_pp_v7 menu ggH125 events 25ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_ggH125_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.RDO.e3458_s2578_r6596_tid05293048_00/RDO.05293048._000184.pool.root.1"];acf.PoolAODOutput="AOD.ggH125.25ns.pileup.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.RDO.e3458_s2578_r6596_tid05293048_00/RDO.05293048._000184.pool.root.1"];acf.PoolAODOutput="AOD.ggH125.25ns.pileup.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -143,7 +143,7 @@
                 <doc> RDOtoAOD_MC_transform MC_pp_v7 menu dijet_JZ7W events 25ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_dijet_JZ7W_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147917.Pythia8_AU2CT10_jetjet_JZ7W.recon.RDO.e3099_s2578_r6596_tid05293007_00/RDO.05293007._000001.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ7W.25ns.pileup.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147917.Pythia8_AU2CT10_jetjet_JZ7W.recon.RDO.e3099_s2578_r6596_tid05293007_00/RDO.05293007._000001.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ7W.25ns.pileup.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -199,7 +199,7 @@
                 <doc> RDOtoAOD_MC_transform MC_pp_v7 menu pp to Jpsi e3e3 </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_ppToJpsie3e3 </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r6790_tid05594966_00/RDO.05594966._000001.pool.root.1"];acf.PoolAODOutput="AOD.ppToJpsie3e3.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r6790_tid05594966_00/RDO.05594966._000001.pool.root.1"];acf.PoolAODOutput="AOD.ppToJpsie3e3.pool.root";menu="MC_pp_v7"' TrigEgammaValidation/testAthenaTrigRDOtoAOD_RTT.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>

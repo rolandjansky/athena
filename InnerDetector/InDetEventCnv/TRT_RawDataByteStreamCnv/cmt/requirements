@@ -1,0 +1,38 @@
+package TRT_RawDataByteStreamCnv
+
+author Paul Keener <Paul.Keener@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps      AthenaBaseComps-*		Control
+use InDetRawData    	 InDetRawData-*  		InnerDetector/InDetRawEvent
+use Identifier		 Identifier-*			DetectorDescription
+use ByteStreamData	 ByteStreamData-*		Event
+
+
+private
+
+use StoreGate            StoreGate-*                    Control
+use GaudiInterface	 GaudiInterface-*		External
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* 	Event 
+use InDetIdentifier  	 InDetIdentifier-* 		InnerDetector/InDetDetDescr
+use TRT_Cabling          TRT_Cabling-*                  InnerDetector/InDetDetDescr
+use EventInfo		 EventInfo-*			Event
+use InDetReadoutGeometry InDetReadoutGeometry-* 	InnerDetector/InDetDetDescr
+use TRT_ConditionsServices TRT_ConditionsServices-*	InnerDetector/InDetConditions
+use PathResolver         PathResolver-*		         Tools
+use AtlasCOOL		AtlasCOOL-*			External
+use AtlasCORAL		AtlasCORAL-*			External
+use AthenaPoolUtilities	AthenaPoolUtilities-*		Database/AthenaPOOL
+end_private
+
+# Declare the tdaq-common components that are required (only relevent for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
+# create the regular dual_use_lib for the Container converters + helper classes
+#apply_pattern dual_use_library files="*.cxx"
+
+apply_pattern component_library 
+library TRT_RawDataByteStreamCnv *.cxx components/*.cxx
+
+apply_pattern declare_runtime files="*.dat"
+

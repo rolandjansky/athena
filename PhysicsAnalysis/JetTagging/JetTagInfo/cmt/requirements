@@ -1,0 +1,32 @@
+package JetTagInfo
+
+author Andreas Wildauer <andreas.wildauer@cern.ch>
+
+use AtlasPolicy       		AtlasPolicy-*
+use VxVertex	      		VxVertex-*       		Tracking/TrkEvent
+use JetEvent                    JetEvent-*                      Reconstruction/Jet
+use Particle 	      		Particle-*       		Reconstruction
+use egammaEvent			egammaEvent-*		        Reconstruction/egamma
+use muonEvent			muonEvent-*			Reconstruction/MuonIdentification
+use EventPrimitives		EventPrimitives-*		Event
+
+# added because checkreq complains
+use DataModel                   DataModel-*                     Control
+
+private
+use GaudiInterface    		GaudiInterface-* 		External
+use AtlasBoost                  AtlasBoost-*                    External
+end_private
+
+
+library JetTagInfo *.cxx
+
+apply_pattern installed_library
+
+# Persistency: 
+private
+use AtlasReflex                 AtlasReflex-*                External -no_auto_imports
+
+apply_pattern lcgdict dict=JetTagInfo \
+selectionfile=selection.xml \
+headerfiles="../JetTagInfo/JetTagInfoDict.h"

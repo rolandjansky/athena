@@ -1,7 +1,8 @@
 # Configure the scheduler
-from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.ShowControlFlow( False )
-AlgScheduler.ShowDataFlow( False)
+from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
+svcMgr += ForwardSchedulerSvc()
+svcMgr.ForwardSchedulerSvc.ShowDataFlow=True
+svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
 
 # Event-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer

@@ -1,0 +1,61 @@
+### automatically generated CMT requirements file
+package ElectronPhotonFourMomentumCorrection
+author  kkoeneke
+
+
+public
+## for athena policies: this has to be the first use statement
+use  AtlasPolicy                AtlasPolicy-*
+use  AtlasROOT                  AtlasROOT-*                     External
+use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
+use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  GaudiInterface             GaudiInterface-*                External
+use  PathResolver               PathResolver-*                  Tools
+use  egammaLayerRecalibTool     egammaLayerRecalibTool-*        Reconstruction/egamma
+use  egammaMVACalib             egammaMVACalib-*                Reconstruction/egamma
+use  xAODTracking		xAODTracking-*               		Event/xAOD
+use  xAODCore			xAODCore-*                   		Event/xAOD
+use  xAODBase			xAODBase-*				Event/xAOD
+use  CxxUtils                   CxxUtils-*                      Control
+use  AtlasBoost                 AtlasBoost-*                    External
+use  xAODMetaData               xAODMetaData-*                  Event/xAOD
+use  AthAnalysisBaseComps	AthAnalysisBaseComps-*		Control
+use  xAODTruth                  xAODTruth-*                     Event/xAOD
+
+
+end_private
+
+branches ElectronPhotonFourMomentumCorrection src src/components Root doc python share
+
+# Create a dual-use library
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+## install the xml files (in the data/ directory)
+apply_pattern declare_xmls extras="-s=../data *.root"
+
+# https://twiki.cern.ch/twiki/bin/view/AtlasComputing/PathResolver#What_if_I_really_have_to_keep_a
+apply_pattern declare_calib files="../data/*.root"
+private
+
+## For reflex dictionary generation
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=ElectronPhotonFourMomentumCorrection selectionfile=selection.xml headerfiles="..\/ElectronPhotonFourMomentumCorrection/ElectronPhotonFourMomentumCorrectionDict.h"
+
+use TestPolicy     TestPolicy-*
+use AthenaBaseComps AthenaBaseComps-* Control
+#runtime tests:
+apply_pattern athenarun_test \
+   name="EgammaCalibrationAndSmearing_test" \
+   options="ElectronPhotonFourMomentumCorrection/CalibrationExample2_jobOptions.py" \
+   pre_script="../cmt/setup.sh"  \
+   post_script="${TESTTOOLSROOT}/share/post.sh EgammaCalibrationAndSmearing_test"

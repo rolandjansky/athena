@@ -64,7 +64,7 @@ private:
   CaloTTPpmRxId_P m_persData;
 };
 
-#include "AthenaKernel/CLASS_DEF.h"
+#include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( CaloTTPpmRxIdMap,196539089,1)
 
 #endif

@@ -100,7 +100,7 @@ void EMTrackFit::set_parameter(egammaParameters::ParamDef key, double value, boo
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMTrackFit::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMTrackFit::set_parameter(...)", false);
     }
   }
 
@@ -143,7 +143,7 @@ void EMTrackFit::set_parameterInt(egammaParameters::ParamDef key, int value, boo
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMTrackFit::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMTrackFit::set_parameter(...)", false);
     }
   }
 
@@ -157,7 +157,7 @@ void EMTrackFit::fillDetails(Trk::Track *track){
     fillLastMeasurement(track);
     fillBrems(track);
   } else {
-    throw GaudiException("Parameters not saved, no track", "EMTrackFit::fillDetails(...)", StatusCode::FAILURE);
+    throw GaudiException("Parameters not saved, no track", "EMTrackFit::fillDetails(...)", false);
   }
   
   return;

@@ -1,6 +1,5 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
-from RecExConfig.ObjKeyStore   import cfgKeyStore
 
 doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0() ) \
                     and InDetFlags.doParticleCreation()
@@ -21,21 +20,6 @@ if _perigee_expression == 'Vertex' :
     _perigee_expression = 'BeamLine'
     
 
-# Run the xAOD truth builder for PU if needed
-if InDetFlags.doSplitReco() :
-    from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-    xAODTruthCnvPU = xAODMaker__xAODTruthCnvAlg("xAODTruthCnvPU")
-    xAODTruthCnvPU.WriteInTimePileUpTruth = False
-    xAODTruthCnvPU.WriteAllPileUpTruth = True
-    xAODTruthCnvPU.AODContainerName = "GEN_EVENT_PU"
-    xAODTruthCnvPU.xAODTruthEventContainerName = "TruthEvents_PU" #output
-    xAODTruthCnvPU.xAODTruthPileupEventContainerName = "TruthPileupEvents_PU" #output
-    xAODTruthCnvPU.xAODTruthParticleContainerName = "TruthParticles_PU" #output
-    xAODTruthCnvPU.xAODTruthVertexContainerName = "TruthVertices_PU" #output
-    xAODTruthCnvPU.TruthLinks = "xAODTruthLinks_PU" #output/intermediate
-    xAODTruthCnvPU.MetaObjectName = "TruthMetaData_PU" #output
-    topSequence += xAODTruthCnvPU
-    
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
 InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool", 
                                                              Extrapolator            = InDetExtrapolator,
@@ -93,8 +77,7 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
         topSequence += xAODDBMTrackParticleCnvAlg 
 
 if not InDetFlags.doVertexFinding():
-    if (not InDetFlags.doDBMstandalone() and
-        not cfgKeyStore.isInInput ('xAOD::VertexContainer', InDetKeys.xAODVertexContainer())):
+    if not InDetFlags.doDBMstandalone():
         from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__VertexCnvAlg
         xAODVertexCnvAlg = xAODMaker__VertexCnvAlg("VertexCnvAlg")
         xAODVertexCnvAlg.xAODContainerName = InDetKeys.xAODVertexContainer()

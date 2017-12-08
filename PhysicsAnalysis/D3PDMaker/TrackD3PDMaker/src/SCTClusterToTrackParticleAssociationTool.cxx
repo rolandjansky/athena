@@ -67,7 +67,7 @@ namespace D3PD {
   
     StatusCode sc = StatusCode::SUCCESS;
 
-    const xAOD::EventInfo* eventInfo = nullptr;
+    const xAOD::EventInfo* eventInfo;
     sc = evtStore()->retrieve(eventInfo);
     if (sc.isFailure())
       {

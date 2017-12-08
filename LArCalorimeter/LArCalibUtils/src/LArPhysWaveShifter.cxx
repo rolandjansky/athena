@@ -153,7 +153,7 @@ StatusCode LArPhysWaveShifter::stop() {
   
   //New TPhysCaliTimeDiff Container to store the final shift
   //LArPhysCaliTdiffComplete* totalShifts=new LArPhysCaliTdiffComplete();
-  auto totalShifts = std::make_unique<LArOFCBinComplete>();
+  LArOFCBinComplete* totalShifts=new LArOFCBinComplete();
   if (totalShifts->setGroupingType(m_groupingType,msg()).isFailure()) {
     msg(MSG::ERROR) << "Failed to set grouping type for LArPhysCaliTdiffComplete object" << endmsg;
     return StatusCode::FAILURE;
@@ -281,7 +281,7 @@ StatusCode LArPhysWaveShifter::stop() {
 
 
   if (m_totalShiftsKey.size()) {
-    sc=detStore()->record(std::move(totalShifts),m_totalShiftsKey);
+    sc=detStore()->record(totalShifts,m_totalShiftsKey);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Failed to recrod LArPhysCaliTdiffComplete with key " << m_totalShiftsKey << endmsg;
     }
@@ -310,8 +310,8 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
   }
 
   // This is a counter to compute the average time shift per FEB
-  LArFEBTimeOffset nChanInFEB;
-  nChanInFEB.setDefaultReturnValue(0);
+  LArFEBTimeOffset* nChanInFEB = new LArFEBTimeOffset();
+  nChanInFEB->setDefaultReturnValue(0);
 
   // Get the physics waveforms from the detector store 
   const LArPhysWaveContainer* larPhysWaveContainerOld;  
@@ -372,8 +372,8 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
 	    else
 	      newFEBTstart = 0;
 	    m_larFEBTstart->setTimeOffset(febid,oldFEBTstart+newFEBTstart); // accumulate offsets per FEB
-	    theChanInFEB = static_cast<unsigned>(nChanInFEB.TimeOffset(febid)+1);
-	    nChanInFEB.setTimeOffset(febid,theChanInFEB); // increment channel counter;
+	    theChanInFEB = static_cast<unsigned>(nChanInFEB->TimeOffset(febid)+1);
+	    nChanInFEB->setTimeOffset(febid,theChanInFEB); // increment channel counter;
 	    break;
 	  default:
 	    newFEBTstart = 0;
@@ -394,8 +394,8 @@ StatusCode LArPhysWaveShifter::ComputeTimeShiftByFEB(unsigned mode=2)
     for (;it!=it_e;it++) {
       if ( (int)m_larFEBTstart->TimeOffset(*it) != 999 ) {
         nFeb++;
-	if ( mode==3 && nChanInFEB.TimeOffset(*it) ) { // average time offset
-	  float timeoff = m_larFEBTstart->TimeOffset(*it)/nChanInFEB.TimeOffset(*it);
+	if ( mode==3 && nChanInFEB->TimeOffset(*it) ) { // average time offset
+	  float timeoff = m_larFEBTstart->TimeOffset(*it)/nChanInFEB->TimeOffset(*it);
 	  m_larFEBTstart->setTimeOffset(*it,timeoff); 
 	}
 	msg(MSG::INFO) << nFeb << ". FEB ID 0x" << std::hex << (*it).get_compact() << std::dec 

@@ -77,7 +77,7 @@ void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
             std::string tdir_run_name( tdir_run->GetName() );
             if (tdir_run_name.find("run")!= std::string::npos ) {
                 run_dir=tdir_run_name;
-		out_EOS = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/VertexMonitoring/VxMon_"+ run_dir + "_" + AthenaTAG + ".root";				    
+		out_EOS = "root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/VertexMonitoring/VxMon_"+ run_dir + "_" + AthenaTAG + ".root";				    
 		out_LOCAL = "VxMon_" + run_dir + "_" + AthenaTAG + ".root";
                 
                 lb_keys = tdir_run->GetListOfKeys();
@@ -122,7 +122,7 @@ void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
                 }
                 
                 if(writeEOS!=0 && writeLOCAL==0){
-                    int return_code = system("xrdcp VxMon_" + run_dir + "_" + AthenaTAG + ".root root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/VertexMonitoring/VxMon_" + run_dir + "_" + AthenaTAG + ".root");
+                    int return_code = system("xrdcp VxMon_" + run_dir + "_" + AthenaTAG + ".root root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/VertexMonitoring/VxMon_" + run_dir + "_" + AthenaTAG + ".root");
                     if(return_code==0)remove(out_LOCAL.c_str());
 		    else{
 		    	delete f;

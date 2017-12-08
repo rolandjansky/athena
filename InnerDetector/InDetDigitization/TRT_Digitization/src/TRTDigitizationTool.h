@@ -20,7 +20,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 //#include "CommissionEvent/ComTime.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "HepPDT/ParticleDataTable.hh"
@@ -28,8 +27,6 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/WriteHandle.h"
 
 class PileUpMergeSvc;
 class ITRT_PAITool;
@@ -115,10 +112,8 @@ private:
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */
   std::string m_dataObjectName; /**< Name of the hits collections */
-  SG::WriteHandleKey<TRT_RDO_Container> m_outputRDOCollName{this,"OutputObjectName","TRT_RDOs","WHK Output Object name"}; /**< name of the output RDOs. */
-  SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOCollName{this,"OutputSDOName","TRT_SDO_Map","WHK Output SDO container name"}; /**< name of the output SDOs. */ 
-  SG::WriteHandle<TRT_RDO_Container> m_trtrdo_container; //RDO container handle
-
+  std::string m_outputRDOCollName; /**< name of the output RDOs. */
+  std::string m_outputSDOCollName; /**< name of the output SDOs. */
   bool m_printOverrideableSettings;
   bool m_printUsedDigSettings;
   ToolHandle<ITRT_PAITool> m_TRTpaiToolXe;
@@ -131,6 +126,7 @@ private:
   TRTProcessingOfStraw* m_pProcessingOfStraw;
   TRTDigCondBase* m_pDigConditions;
   TRTNoise* m_pNoise;
+  TRT_RDO_Container* m_container;   /**< RDO container */
 
   //unsigned int m_timer_eventcount;
   ServiceHandle <IAtRndmGenSvc> m_atRndmGenSvc;  /**< Random number service */

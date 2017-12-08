@@ -8,7 +8,6 @@
 #include "MdtRODReadOut.h"
 #include "MdtCsmReadOut.h"
 #include "MdtAmtReadOut.h"
-#include "MdtHptdcReadOut.h"
 
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonRDO/MdtCsm.h"
@@ -92,12 +91,8 @@ private:
         MdtRODReadOut * m_rodReadOut;
         MdtCsmReadOut * m_csmReadOut;
         MdtAmtReadOut * m_amtReadOut;
-        MdtHptdcReadOut * m_hptdcReadOut;
         
         bool m_BMEpresent;
-        bool m_BMGpresent;
-        int m_BMEid;
-        int m_BMGid;
         
 	//        bool    m_debug; //!< If true, output debugging information
         //MsgStream       m_log;

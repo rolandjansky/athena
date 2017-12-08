@@ -100,7 +100,7 @@ StatusCode Trk::QuickCloseComponentsMultiStateMerger::initialize()
 
   if ( m_maximumNumberOfComponents <= 0 ){
     ATH_MSG_FATAL( "Attempting to merge multi-state into zero components... stop being silly!" );
-    return StatusCode::FAILURE;
+    return 0;
   }
 
   ATH_MSG_INFO(  "Initialisation of " << type() << " under instance " << name() << " was successful" );

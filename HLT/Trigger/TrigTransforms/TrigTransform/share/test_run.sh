@@ -157,7 +157,7 @@ mkdir runTest01_BSRDO_BS
 cd runTest01_BSRDO_BS
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --jobOptionSvcType TrigConf::HLTJobOptionsSvc \
 --useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
 --DBsmkey 46 --DBhltpskey 33 --DBextra "{'lvl1key': 14}" \
@@ -210,7 +210,7 @@ mkdir runTest11_BSRDO_BS_RelSwap
 cd runTest11_BSRDO_BS_RelSwap
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --jobOptionSvcType TrigConf::HLTJobOptionsSvc \
 --useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
 --DBsmkey 46 --DBhltpskey 33 --DBextra "{'lvl1key': 14}" \
@@ -266,7 +266,7 @@ mkdir runTest21_BSRDO_BS_l1key
 cd runTest21_BSRDO_BS_l1key
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --jobOptionSvcType TrigConf::HLTJobOptionsSvc \
 --useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
 --DBsmkey 46 --DBhltpskey 33 \
@@ -325,7 +325,7 @@ mkdir runTest02_BSRDO_RECO
 cd runTest02_BSRDO_RECO
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --jobOptionSvcType TrigConf::HLTJobOptionsSvc \
 --useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
 --DBsmkey 46 --DBhltpskey 33 --DBextra "{'lvl1key': 14}" \
@@ -385,7 +385,7 @@ cd runTest12_BSRDO_COST
 
 #version from DB (note test uses data12!)
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data \
 --jobOptionSvcType TrigConf::HLTJobOptionsSvc \
 --useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
 --DBsmkey 64 --DBhltpskey 44 --DBextra "{'lvl1key': 21}" \
@@ -438,7 +438,7 @@ cd runTest22_BSRDO_COST
 
 #version not from DB
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --precommand "testPhysicsV5=True;enableCostForCAF=True;enableCostMonitoring=True" \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
@@ -490,7 +490,7 @@ cd runTest03_BSRDO_BS_JSON
 
 echo "{\
 \"outputBSFile\": \"RAW.05530098._000001.pool.root.1\", \
-\"inputBS_RDOFile\": [\"root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1\"], \
+\"inputBS_RDOFile\": [\"root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1\"], \
 \"jobOptionSvcType\": \"TrigConf::HLTJobOptionsSvc\", \
 \"useDB\": \"TRUE\", \"DBtype\": \"Coral\", \"DBserver\": \"TRIGGERDBREPR\", \
 \"DBsmkey\": \"46\", \"DBhltpskey\": \"33\", \"DBextra\": \"{'lvl1key': 14}\", \
@@ -544,7 +544,7 @@ cd runTest13_BSRDO_BS_Debug
 echo "{\
 \"outputHIST_DEBUGSTREAMMONFile\": \"data15_cos.00263146.debugrec_hlt.reproc.HIST_DEBUGSTREAMMON.g17#data15_cos.00263146.debugrec_hlt.reproc.HIST_DEBUGSTREAMMON.g17._0005\", \
 \"outputBSFile\": \"data15_cos.00263146.debugrec_hlt.reproc.RAW.g17#data15_cos.00263146.debugrec_hlt.reproc.RAW.g17._0005\", \
-\"inputBS_RDOFile\": [\"root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_cos/debug_HLTSVForceAccept/00263146/data15_cos.00263146.debug_HLTSVForceAccept.daq.RAW/data15_cos.00263146.debug_HLTSVForceAccept.daq.RAW._lb0000._SFO-2._0001.data\"], \
+\"inputBS_RDOFile\": [\"root://eosatlas//eos/atlas/atlastier0/rucio/data15_cos/debug_HLTSVForceAccept/00263146/data15_cos.00263146.debug_HLTSVForceAccept.daq.RAW/data15_cos.00263146.debug_HLTSVForceAccept.daq.RAW._lb0000._SFO-2._0001.data\"], \
 \"ignoreErrors\": \"True\", \"runNumber\": \""263146"\", \
 \"outputHIST_HLTMONFile\": \"HIST_HLTMON.04854087._000852.pool.root.1\", \
 \"debug_stream\": \"True\", \
@@ -607,7 +607,7 @@ rm -rf runTest23_BSRDO_BS
 mkdir runTest23_BSRDO_BS
 cd runTest23_BSRDO_BS
 
-xrdcp -f root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 .
+xrdcp -f root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 .
 
 mv data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 data15_13TeV.00271595.debug_PUTimeout.daq.RAW._lb0000._SFO-5._0004.data
 
@@ -650,7 +650,7 @@ mkdir runTest04_BSRDO_BS_athOpt
 cd runTest04_BSRDO_BS_athOpt
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --jobOptionSvcType TrigConf::HLTJobOptionsSvc \
 --useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
 --DBsmkey 46 --DBhltpskey 33 --DBextra "{'lvl1key': 14}" \
@@ -670,7 +670,7 @@ cat runwrapper.BSRDOtoRAW.sh
 . ./runwrapper.BSRDOtoRAW.sh > dumpDBargs.txt 2>&1
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --athenaopts=" -J TrigConf::HLTJobOptionsSvc --db-type Coral --db-server TRIGGERDBREPR \
 --use-database \
 --db-smkey 46 --db-hltpskey 33 --db-extra \"{'lvl1key': 14}\" " \
@@ -711,7 +711,7 @@ mkdir runTest05_BSRDO_BS_noDB
 cd runTest05_BSRDO_BS_noDB
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --precommand "testPhysicsV5=True" \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
@@ -757,7 +757,7 @@ mkdir runTest00J
 cd runTest00J
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --AMITag r6839 \
 --DBhltpskey 76 --DBlvl1pskey 33 --DBserver TRIGGERDBREPR --DBsmkey 110 --DBtype Coral \
 --autoConfiguration everything --beamType collisions \
@@ -769,7 +769,7 @@ Trig_reco_tf.py \
 --dumpJSON hltonly.json
 
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
 --AMITag r6839 \
 --DBhltpskey 76 --DBlvl1pskey 33 --DBserver TRIGGERDBREPR --DBsmkey 110 --DBtype Coral \
 --asetup RAWtoESD:AtlasProduction,20.1.5.8 ESDtoAOD:AtlasProduction,20.1.5.8 RAWtoCOST:AtlasProduction,20.1.5.8 \

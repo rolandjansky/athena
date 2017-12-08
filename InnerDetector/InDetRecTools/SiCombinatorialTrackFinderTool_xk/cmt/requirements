@@ -1,0 +1,38 @@
+package SiCombinatorialTrackFinderTool_xk
+
+author Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
+
+private
+
+use AtlasBoost                    AtlasBoost-*                    External
+use EventInfo                     EventInfo-*                     Event
+use TrkMaterialOnTrack            TrkMaterialOnTrack-*            Tracking/TrkEvent
+use TrkRIO_OnTrack                TrkRIO_OnTrack-*                Tracking/TrkEvent
+use TrkMeasurementBase            TrkMeasurementBase-*            Tracking/TrkEvent
+use TrkSurfaces                   TrkSurfaces-*                   Tracking/TrkDetDescr 
+use InDetRIO_OnTrack              InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
+
+public
+
+use AtlasPolicy                   AtlasPolicy-*
+use AthenaBaseComps               AthenaBaseComps-*               Control
+use GaudiInterface                GaudiInterface-*                External 
+use MagFieldInterfaces *          MagneticField
+use TrkToolInterfaces             TrkToolInterfaces-*             Tracking/TrkTools
+use TrkExInterfaces               TrkExInterfaces-*               Tracking/TrkExtrapolation
+use TrkEventPrimitives            TrkEventPrimitives-*            Tracking/TrkEvent
+use TrkTrack                      TrkTrack-*                      Tracking/TrkEvent
+use TrkPatternParameters          TrkPatternParameters-*          Tracking/TrkEvent
+use TrkGeometry                   TrkGeometry-*                   Tracking/TrkDetDescr
+use InDetRecToolInterfaces        InDetRecToolInterfaces-*        InnerDetector/InDetRecTools
+use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions      
+use InDetPrepRawData              InDetPrepRawData-*              InnerDetector/InDetRecEvent
+use InDetReadoutGeometry          InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+    
+library SiCombinatorialTrackFinderTool_xk *.cxx components/*.cxx 
+apply_pattern component_library
+
+
+#private
+#macro_append cppflags " -ftree-vectorize  -ffast-math -fassociative-math -mtune=native -march=native"
+#end_private

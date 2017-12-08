@@ -59,6 +59,9 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
     m_muonMgr(nullptr),
     m_rpcHelper(nullptr),
+    m_rpcPrepDataContainer("RPC_Measurements"),
+    m_rpcCoinDataContainer("RPC_triggerHits"),
+    m_rdoContainer("RPCPAD"),
     m_rpcCabling(nullptr),
     //m_padHashIdHelper(0),
     m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
@@ -76,6 +79,9 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty("produceRpcCoinDatafromTriggerWords",m_producePRDfromTriggerWords = true);
   declareProperty("reduceCablingOverlap",      m_reduceCablingOverlap       = true);
   declareProperty("timeShift",                 m_timeShift                  = -12.5); // Zmumu muons are at t=0 in PRD time-domain
+  declareProperty("OutputCollection",          m_rpcPrepDataContainer );
+  declareProperty("TriggerOutputCollection",   m_rpcCoinDataContainer );
+  declareProperty("InputCollection",          m_rdoContainer);
   
   declareProperty("useBStoRdoTool",            m_useBStoRdoTool       = false);
   declareProperty("DecodeData",                m_decodeData = true );
@@ -84,11 +90,7 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty ("RdoDecoderTool",           m_rpcRdoDecoderTool);
   
   declareProperty("RPCInfoFromDb",             m_RPCInfoFromDb  = false );
-  // DataHandle
-  declareProperty("OutputCollection",          	m_rdoContainerKey = std::string("RPCPAD"),"RpcPadContainer to retrieve");
-  declareProperty("TriggerOutputCollection", 	m_rpcPrepDataContainerKey = std::string("RPC_Measurements"),"Muon::RpcPrepDataContainer to record");
-  declareProperty("InputCollection", 		m_rpcCoinDataContainerKey = std::string("RPC_triggerHits"),"Muon::RpcCoinDataContainer to record");
-  
+
 }
 
 //___________________________________________________________________________
@@ -206,13 +208,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
        return StatusCode::FAILURE;
      }
    }
-
-  // check if initializing of DataHandle objects success
-  ATH_CHECK( m_rdoContainerKey.initialize() );
-
-  ATH_CHECK( m_rpcPrepDataContainerKey.initialize() );
-
-  ATH_CHECK( m_rpcCoinDataContainerKey.initialize() );
+   
    
   return StatusCode::SUCCESS;
 }
@@ -319,15 +315,14 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   }
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");      
-  auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
-  if (!rdoContainerHandle.isValid()) {
+  if (!m_rdoContainer.isValid()) {
     ATH_MSG_WARNING("Retrieval of Mdt RDO container failed !");
     return StatusCode::SUCCESS;                                        
   }    
                                                            
   ///////////// here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
   RpcPadContainer::const_iterator rdoColli;
-  if (rdoContainerHandle->begin() == rdoContainerHandle->end()) {
+  if (m_rdoContainer->begin() == m_rdoContainer->end()) {
     // empty pad container - no rpc rdo in this event
     ATH_MSG_DEBUG("Empty pad container - no rpc rdo in this event ");
     return StatusCode::SUCCESS;
@@ -357,8 +352,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
       RpcPadContainer::const_iterator rdoColli;
       const RpcPad* rdoColl;
       for (std::vector<IdentifierHash>::iterator iPadHash  = rdoHashVec.begin(); iPadHash != rdoHashVec.end(); ++iPadHash) {
-        rdoColli =  rdoContainerHandle->indexFind(*iPadHash);
-        if(rdoColli != rdoContainerHandle->end()) {
+        rdoColli =  m_rdoContainer->indexFind(*iPadHash);
+        if(rdoColli != m_rdoContainer->end()) {
           rdoColl = *rdoColli;
           ++ipad;
        
@@ -373,13 +368,13 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
           if (sc != StatusCode::SUCCESS) return sc;
         }
         else {
-          ATH_MSG_DEBUG("Requested pad with online id "<<(int)(*iPadHash)<<" not found in the rdoContainerHandle.");   
+          ATH_MSG_DEBUG("Requested pad with online id "<<(int)(*iPadHash)<<" not found in the m_rdoContainer.");   
         }// end of if (pad collection exist in the container)
       }// end loop over requested pads hashes
     }
     else {// unseeded // whole event         
       ATH_MSG_DEBUG("Start loop over pads - unseeded mode ");
-      for (RpcPadContainer::const_iterator rdoColli = rdoContainerHandle->begin(); rdoColli!=rdoContainerHandle->end(); ++rdoColli) {            
+      for (RpcPadContainer::const_iterator rdoColli = m_rdoContainer->begin(); rdoColli!=m_rdoContainer->end(); ++rdoColli) {            
         // loop over all elements of the pad container 
         rdoColl = *rdoColli;
         if (rdoColl->empty()) continue;
@@ -547,13 +542,12 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
   
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
-  auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
-  if (!rdoContainerHandle.isValid()) {
+  if (!m_rdoContainer.isValid()) {
     ATH_MSG_WARNING("Retrieval of Mdt RDO container failed !");
     return StatusCode::SUCCESS;                                        
   }    
   // here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
-  if (rdoContainerHandle->begin() == rdoContainerHandle->end()) {
+  if (m_rdoContainer->begin() == m_rdoContainer->end()) {
     // empty pad container - no rpc rdo in this event
     ATH_MSG_DEBUG("Empty pad container - no rpc rdo in this event ");
     return StatusCode::SUCCESS;
@@ -589,9 +583,9 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
     RpcPadContainer::const_iterator rdoColli;
     const RpcPad* rdoColl;
     for (IdentifierHash padHashId : rdoHashVec) {
-      rdoColli = rdoContainerHandle->indexFind(padHashId);
-      if (rdoColli == rdoContainerHandle->end()) {
-        ATH_MSG_DEBUG("Requested pad with online id " << (unsigned int)padHashId << " not found in the rdoContainerHandle.");
+      rdoColli = m_rdoContainer->indexFind(padHashId);
+      if (rdoColli == m_rdoContainer->end()) {
+        ATH_MSG_DEBUG("Requested pad with online id " << (unsigned int)padHashId << " not found in the m_rdoContainer.");
         continue;
       }
       rdoColl = *rdoColli;
@@ -680,15 +674,14 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
   /// RPC context
   IdContext rpcContext = m_rpcHelper->module_context();
   /// RPC RDO container --- assuming it is available
-  auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
-  if (!rdoContainerHandle.isValid()) {
+  if (!m_rdoContainer.isValid()) {
     ATH_MSG_WARNING("Retrieval of Mdt RDO container failed !");
     return ;                                        
   }                                                                 
 
   
 
-  if (rdoContainerHandle->size() <= 0)msg (MSG::INFO) << "No RpcPad collections found" << endmsg;
+  if (m_rdoContainer->size() <= 0)msg (MSG::INFO) << "No RpcPad collections found" << endmsg;
   
   int ncoll = 0;
   int ictphi = 0;
@@ -698,7 +691,7 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
   
   int ipad = 0;
   const RpcPad * rdoColl;
-  for (RpcPadContainer::const_iterator rdoColli = rdoContainerHandle->begin(); rdoColli!=rdoContainerHandle->end(); ++rdoColli) {
+  for (RpcPadContainer::const_iterator rdoColli = m_rdoContainer->begin(); rdoColli!=m_rdoContainer->end(); ++rdoColli) {
     // loop over all elements of the pad container 
     rdoColl = *rdoColli;
     if (rdoColl->empty()) continue;
@@ -1157,7 +1150,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_rpcHelper->show_to_string(parentId)<<" hash = "
 			    <<static_cast<unsigned int>(rpcHashId)<<" in COINDATA container at "<<m_rpcCoinDataContainer);
-	      collectionTrg = Muon::IDC_Helper::getCollection<RpcCoinDataContainer, RpcIdHelper>(parentId, m_rpcCoinDataContainer , m_rpcHelper, msg());
+        RpcCoinDataContainer* tmp = m_rpcCoinDataContainer.ptr();
+	      collectionTrg = Muon::IDC_Helper::getCollection<RpcCoinDataContainer, RpcIdHelper>(parentId, tmp , m_rpcHelper, msg());
 	      if ( collectionTrg ==0 ) msg (MSG::WARNING) <<"Failed to get/create RpcCoinData collection"<<endmsg;
 	      oldIdTrg = parentId;
 	      ATH_MSG_DEBUG(" Resetting oldIDtrg to current parentID = "<<m_rpcHelper->show_to_string(oldIdTrg));
@@ -1169,10 +1163,11 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	      ATH_MSG_DEBUG(" Looking/Creating a collection with ID = "
 			    <<m_rpcHelper->show_to_string(parentId)<<" hash = "
 			    <<static_cast<unsigned int>(rpcHashId)<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
+           RpcPrepDataContainer* tmp = m_rpcPrepDataContainer.ptr();
 	      collection =	Muon::IDC_Helper::getCollection<RpcPrepDataContainer, RpcIdHelper>(parentId,
-										   		   m_rpcPrepDataContainer,
-										   		   m_rpcHelper,
-										   		   msg() );
+										   tmp,
+										   m_rpcHelper,
+										   msg() );
 	      if (collection) {                            
            bool alreadyRecorded = false;
            for (std::vector<IdentifierHash>::const_iterator ii=idWithDataVect.begin(); ii!=idWithDataVect.end();++ii) {		  
@@ -1471,31 +1466,24 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 
 StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInTheEvent)
 {
-  if(!evtStore()->contains<Muon::RpcPrepDataContainer>(m_rpcPrepDataContainerKey.key())) {  
+  if(!evtStore()->contains<Muon::RpcPrepDataContainer>(m_rpcPrepDataContainer.name())) {  
     firstTimeInTheEvent = true;
-
-    SG::WriteHandle< Muon::RpcPrepDataContainer > rpcPrepDataHandle(m_rpcPrepDataContainerKey);
-    StatusCode status = rpcPrepDataHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_rpcHelper->module_hash_max()));
-
-    if (status.isFailure() || !rpcPrepDataHandle.isValid() ) 	{
-      ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainerKey.key());
+    StatusCode status = m_rpcPrepDataContainer.record(std::make_unique<Muon::RpcPrepDataContainer>(m_rpcHelper->module_hash_max()));
+    if (status.isFailure() || !m_rpcPrepDataContainer.isValid() ) 	{
+      ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainer.name());
       return status;
     } else {
-      m_rpcPrepDataContainer = rpcPrepDataHandle.ptr();
-      ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key());
+      ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainer.name());
     }
     
     if (m_producePRDfromTriggerWords){
       /// create an empty RPC trigger hit container for filling
-      SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
-      status = rpcCoinDataHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_rpcHelper->module_hash_max()));
-
-      if (status.isFailure() || !rpcPrepDataHandle.isValid() ) 	{
-        ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcPrepDataContainerKey.key());
+      status = m_rpcCoinDataContainer.record(std::make_unique<Muon::RpcCoinDataContainer>(m_rpcHelper->module_hash_max()));
+      if (status.isFailure() || !m_rpcPrepDataContainer.isValid() ) 	{
+        ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcPrepDataContainer.name());
         return status;
       } else {
-        m_rpcCoinDataContainer = rpcCoinDataHandle.ptr();
-	ATH_MSG_DEBUG("RPC TrigCoinData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key());
+        ATH_MSG_DEBUG("RPC TrigCoinData Container recorded in StoreGate with key " << m_rpcPrepDataContainer.name());
       }      
       ATH_MSG_VERBOSE(" RpcCoinDataContainer created");
     } 
@@ -1505,7 +1493,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
   else {
     ATH_MSG_DEBUG("RPC PrepData Container is already in StoreGate ");
     if (m_producePRDfromTriggerWords){
-      if (!evtStore()->contains<Muon::RpcCoinDataContainer>(m_rpcCoinDataContainerKey.key())) {
+      if (!evtStore()->contains<Muon::RpcCoinDataContainer>(m_rpcCoinDataContainer.name())) {
         ATH_MSG_FATAL("Muon::RpcPrepDataContainer found while Muon::RpcCoinDataContainer not found in Event Store");
         return StatusCode::FAILURE;
       }

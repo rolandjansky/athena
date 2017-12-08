@@ -1670,11 +1670,11 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"Track parameters from segment:"<<par<<endmsg;
 
-  double universal=1.15;
+  double m_universal=1.15;
 
   /*  
   Trk::CovarianceMatrix* cov = new Trk::CovarianceMatrix(5);
-  cov->fast(1,1) = universal*universal;//FIXME: need to take correct drifttime measurement into account!!
+  cov->fast(1,1) = m_universal*m_universal;//FIXME: need to take correct drifttime measurement into account!!
   cov->fast(2,1) = 0.;
   cov->fast(2,2) = 160000./12. ;
   cov->fast(3,1) = 0.;
@@ -1695,7 +1695,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
   */
   Amg::MatrixX cov(5,5);
   cov<<
-    universal*universal,          0., 0.,   0., 0.,
+    m_universal*m_universal,          0., 0.,   0., 0.,
     0.                     , 160000./12., 0.,   0., 0.,
     0.                     ,          0., 0.1,  0., 0.,
     0.                     ,          0.,  0.,  1., 0.,
@@ -1756,13 +1756,13 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
 
 
   
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
-  if (not trtcontainer.isValid()) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
+  if (not m_trtcontainer.isValid()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
   
-  const InDet::TRT_DriftCircleContainer*   mjo_trtcontainer = trtcontainer.get();
+  const InDet::TRT_DriftCircleContainer*   mjo_trtcontainer = m_trtcontainer.get();
   
  
   if (!mjo_trtcontainer) return;
@@ -1787,7 +1787,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   realhits[0]=realhits[1]=0;
 
   InDet::TRT_DriftCircleContainer::const_iterator
-    w = trtcontainer->begin(),we = trtcontainer->end();
+    w = m_trtcontainer->begin(),we = m_trtcontainer->end();
   for(; w!=we; ++w) {
     
     Identifier ID = (*w)->identify();

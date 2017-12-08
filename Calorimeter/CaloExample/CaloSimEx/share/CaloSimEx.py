@@ -58,8 +58,6 @@ MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = 3
 
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 #######################################################################
 
 #==============================================================
@@ -68,9 +66,8 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 #==============================================================
 
 ## Populate alg sequence
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
-topSeq.G4AtlasAlg.InputTruthCollection='GEN_EVENT'
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()
 
 MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 

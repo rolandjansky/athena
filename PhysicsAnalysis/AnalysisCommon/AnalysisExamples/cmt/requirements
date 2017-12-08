@@ -1,0 +1,97 @@
+package AnalysisExamples
+
+author ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy			AtlasPolicy-*
+
+private
+use GaudiInterface		GaudiInterface-*		External
+use AtlasCLHEP			AtlasCLHEP-*			External
+use AtlasROOT 			AtlasROOT-*			    External
+
+use StoreGate			StoreGate-*			    Control
+#use DataModel			DataModel-*			    Control
+use Navigation 			Navigation-* 			Control
+use AthenaKernel        AthenaKernel-*          Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use SGTools             SGTools-*               Control
+
+use xAODTracking     xAODTracking-*          Event/xAOD
+
+use RecoToolInterfaces		RecoToolInterfaces-*		Reconstruction/RecoTools	
+use AnalysisUtils		AnalysisUtils-*			PhysicsAnalysis/AnalysisCommon
+use AnalysisTools		AnalysisTools-*			PhysicsAnalysis/AnalysisCommon
+#use UserAnalysisUtils	UserAnalysisUtils-*		PhysicsAnalysis/AnalysisCommon
+#use SpecialUtils		SpecialUtils-*			PhysicsAnalysis/AnalysisCommon
+
+#use EventKernel			EventKernel-*			Event
+use NavFourMom   		NavFourMom-*  			Event
+use xAODEventInfo               xAODEventInfo-*         Event/xAOD
+
+use GeneratorObjects 	GeneratorObjects-* 		Generators
+use TruthHelper 		TruthHelper-* 			Generators/GenAnalysisTools
+
+#use CBNT_Utils			CBNT_Utils-*			Reconstruction
+#use MissingETEvent		MissingETEvent-*		Reconstruction
+use muonEvent			muonEvent-*			    Reconstruction/MuonIdentification
+use Particle			Particle-*			    Reconstruction
+use egammaEvent         egammaEvent-*           Reconstruction/egamma
+#use tauEvent			tauEvent-*			    Reconstruction
+#use ITrackToVertex 		ITrackToVertex-*		Reconstruction/RecoTools
+#use TrkTrackSummary 	TrkTrackSummary-* 		Tracking/TrkEvent
+use VxVertex 			VxVertex-* 			    Tracking/TrkEvent
+#use TrkEventPrimitives               TrkEventPrimitives-*         Tracking/TrkEvent
+#use TrkParameters               TrkParameters-*         Tracking/TrkEvent
+
+# use BPhysAnalysisObjects    BPhysAnalysisObjects-*  PhysicsAnalysis/BPhys
+# use BPhysAnalysisTools      BPhysAnalysisTools-*    PhysicsAnalysis/BPhys
+use TrkVKalVrtFitter        TrkVKalVrtFitter-*      Tracking/TrkVertexFitter
+
+use ParticleEvent		    ParticleEvent-*			PhysicsAnalysis/AnalysisCommon
+use JetEvent			    JetEvent-*			    Reconstruction/Jet
+use CompositeParticleEvent	CompositeParticleEvent-*	PhysicsAnalysis/AnalysisCommon
+use CaloEvent			    CaloEvent-*			    Calorimeter
+
+use JetTagEvent			JetTagEvent-*	        	PhysicsAnalysis/JetTagging
+use JetTagInfo 			JetTagInfo-*	        	PhysicsAnalysis/JetTagging
+use MuonIDEvent			MuonIDEvent-*			    PhysicsAnalysis/MuonID
+# for HLT b-tagging
+use TrigParticle                TrigParticle-*                  Trigger/TrigEvent
+use AnalysisTriggerEvent        AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
+
+# for McTruth
+use AtlasHepMC                  AtlasHepMC-*                    External
+use McParticleKernel		McParticleKernel-*		PhysicsAnalysis/TruthParticleID
+use McParticleEvent 		McParticleEvent-* 		PhysicsAnalysis/TruthParticleID
+use ParticleTruth               ParticleTruth-*                 Reconstruction
+use HepPDT           		*			   	LCG_Interfaces
+
+# For TriggerExample
+use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
+use TrigInDetEvent TrigInDetEvent-* Trigger/TrigEvent
+use TrigParticle TrigParticle-* Trigger/TrigEvent
+use TrigSteeringEvent TrigSteeringEvent-* Trigger/TrigEvent
+
+#use TrkToolInterfaces		TrkToolInterfaces-*		Tracking/TrkTools
+
+use JetEvent JetEvent-* Reconstruction/Jet
+
+use AtlasAnalysisRunTime 	AtlasAnalysisRunTime-*
+
+## To access to minimization tools -------
+apply_tag ROOTMathLibs
+#use AtlasROOT 			AtlasROOT-02-* 			External
+
+## ---------------------------------------
+
+branches run
+
+library AnalysisExamples *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+
+apply_pattern declare_python_modules files="*.py"
+
+end_private
+

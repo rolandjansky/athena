@@ -258,8 +258,8 @@ MixingEventSelector::createAddress(const IEvtSelector::Context& /*c*/,
   if (!validTrigger()) return StatusCode::FAILURE;
 
   FORWARD___DEBUG( createAddress )
-  return (currentTrigger()->createAddress(pAddr).isSuccess() &&
-          pAddr != nullptr) ? StatusCode::SUCCESS : StatusCode::FAILURE;
+  return (currentTrigger()->createAddress(pAddr)).isSuccess() &&
+      pAddr != nullptr;
 }
 
 StatusCode

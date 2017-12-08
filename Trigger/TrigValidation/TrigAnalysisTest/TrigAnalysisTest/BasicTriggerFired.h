@@ -5,11 +5,12 @@
 //
 // Test that counts the number of triggers fired
 //
-#ifndef TRIGANALYSISTEST_BASICTRIGGERFIRED_H
-#define TRIGANALYSISTEST_BASICTRIGGERFIRED_H
+#ifndef __BasicTriggerFired__
+#define __BasicTriggerFired__
 
 #include "TrigAnalysisTest/ITest.h"
 
+using namespace std;
 
 namespace TrigAnalysisTest {
 
@@ -21,10 +22,10 @@ namespace TrigAnalysisTest {
     int finalize();
 
   private:
-    unsigned int m_passed_l1;
-    unsigned int m_passed_hlt;
-    bool m_first_call;
-    std::map<std::string,int> m_trigger_counts;
+    unsigned int _passed_l1;
+    unsigned int _passed_hlt;
+    bool _first_call;
+		map<string,int> trigger_counts;
   };
 
 }

@@ -73,9 +73,6 @@ void sTGC_readoutHandler::ElementHandle()
     sTGC->roParameters.nWires              = getAttributeAsIntVector ("nWires", ret);
     if (! ret) std::cout << "WARNING: nWires is missing" << std::endl;
 
-    sTGC->roParameters.wireCutout          = getAttributeAsVector ("wireCutout", ret);
-    if (! ret) std::cout << "WARNING: wireCutout is missing" << std::endl;
-
     sTGC->roParameters.firstWire           = getAttributeAsVector    ("firstWire", ret);
     if (! ret) std::cout << "WARNING: firstWire is missing" << std::endl;
 

@@ -188,7 +188,7 @@ namespace Trk {
 
     ATH_MSG_DEBUG("done with bookNtuple");
      
-    return true;
+    return StatusCode::SUCCESS;
   
 }   
 

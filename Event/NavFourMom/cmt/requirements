@@ -1,0 +1,50 @@
+package NavFourMom
+
+author Many People <Many.People@cern.ch>
+
+use  AtlasPolicy                AtlasPolicy-*                   
+
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  AthLinks                   AthLinks-*                      Control
+use  AthContainers              AthContainers-*                 Control
+use  EventKernel                EventKernel-*                   Event
+use  Navigation                 Navigation-*                    Control
+
+
+library NavFourMom *.cxx
+apply_pattern installed_library
+
+private
+use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
+use  FourMom                    FourMom-*                       Event
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+
+#old pattern won't work due to typedefs
+#apply_pattern lcgdict dict=NavFourMom \
+#navigables="INavigable4MomentumCollection IParticleContainer" \
+#selectionfile=selection.xml headerfiles="../NavFourMom/NavFourMomDict.h" 
+
+#need to use a macro to avoid cmt replacing the stuff between <>'s
+macro        navfourmom_navClasses "" 
+macro_append navfourmom_navClasses " DataVector<INavigable4Momentum>" 
+macro_append navfourmom_navClasses " DataVector<IParticle>"
+
+macro        navfourmom_elLinkClasses ""
+macro_append navfourmom_elLinkClasses " DataVector<I4Momentum>"
+
+apply_pattern lcgdict dict=NavFourMom \
+ navigables=$(navfourmom_navClasses) \
+ elementLinks=$(navfourmom_elLinkClasses) \
+ dataLinks="INav4MomAssocs" \
+ selectionfile=selection.xml \
+ headerfiles="../NavFourMom/NavFourMomDict.h" 
+
+end_private

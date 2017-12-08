@@ -17,12 +17,14 @@
 
 /** Constructor **/
 ISF::GenericBarcodeFilter::GenericBarcodeFilter(const std::string& t, const std::string& n, const IInterface* p) :
-  base_class(t,n,p),
+  AthAlgTool(t,n,p),
   m_filterOutUnsetBarcodes(true),
   m_onlyLegacyPrimaries(false),
   m_legacyPartGenerationIncrement(1000000),
   m_legacyFirstSecondary(200001)
 {
+  declareInterface<ISF::IParticleFilter>(this);
+
   declareProperty( "AllowOnlyDefinedBarcodes",
                    m_filterOutUnsetBarcodes=true,
                    "Filter out all particles with Barcode::fUndefinedBarcode");

@@ -1,0 +1,48 @@
+#################################################
+package egammaMVACalib
+
+author Christos Anastopoulos
+author Ruggero Turra <ruggero.turra@cern.ch>
+author Bruno Lenzi <Bruno.Lenzi@cern.ch>
+author Javier Salazar <jsalazar@cern.ch>
+
+use AtlasPolicy                AtlasPolicy-*
+use AtlasROOT                  AtlasROOT-*              External
+use GaudiInterface 	       GaudiInterface-* 	External
+
+############################################################
+# For the interface for the athena tool
+
+use AsgTools 	     AsgTools-*        Control/AthToolSupport
+use xAODEgamma 	     xAODEgamma-*      Event/xAOD
+use xAODCaloEvent    xAODCaloEvent-*   Event/xAOD
+use xAODTracking     xAODTracking-*    Event/xAOD
+
+# Add cmake compatibility (doesn't do anything on CMT side of things)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree TreePlayer TMVA XMLIO)"
+
+private
+use CxxUtils            CxxUtils-*              Control
+use PathResolver        PathResolver-*          Tools
+use AtlasReflex         AtlasReflex-*           External
+use MVAUtils		MVAUtils-*		Reconstruction
+end_private
+# end of it
+############################################################
+
+apply_pattern dual_use_library files="../Root/*.cxx"
+apply_pattern declare_joboptions files=*.py
+apply_pattern declare_python_modules files="../python/*.py"
+
+## install the ROOT files (in the data/ directory)
+apply_pattern declare_calib files="../share/*.root "
+
+private
+apply_pattern lcgdict dict=egammaMVACalib selectionfile=selection.xml \
+  headerfiles="../egammaMVACalib/egammaMVACalibDict.h"
+
+macro_append rootBasicLibs " -lXMLIO -lTMVA -lTreePlayer "
+
+end_private
+#################################################
+

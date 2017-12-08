@@ -14,7 +14,7 @@
 #include <boost/tokenizer.hpp>
 #include <limits>
 UserLimitsTool::UserLimitsTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent)
+  : AthAlgTool(type,name,parent)
   , m_MaxStep(-1.)
   , m_MinEkine(-1.)
   , m_MaxTrackLength(-1.)
@@ -112,3 +112,16 @@ bool UserLimitsTool::isMatch(const std::string& a,const std::string b) const
      }
   return returnValue;
 }
+
+StatusCode
+UserLimitsTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+{
+  if ( riid == IUserLimitsTool::interfaceID() )
+    {
+      *ppvIf = (IUserLimitsTool*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+  return AlgTool::queryInterface( riid, ppvIf );
+}
+

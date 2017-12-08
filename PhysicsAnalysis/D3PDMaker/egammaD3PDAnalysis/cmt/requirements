@@ -1,0 +1,36 @@
+package egammaD3PDAnalysis
+
+use AtlasPolicy                AtlasPolicy-*     
+
+
+private
+use GaudiInterface             GaudiInterface-*        External
+use CxxUtils                   CxxUtils-*              Control
+use AthenaKernel               AthenaKernel-*          Control
+use AthenaBaseComps            AthenaBaseComps-*       Control
+use AthContainers              AthContainers-*         Control
+use xAODCaloEvent              xAODCaloEvent-*         Event/xAOD
+use xAODEgamma                 xAODEgamma-*            Event/xAOD
+use xAODTruth                  xAODTruth-*             Event/xAOD
+use CaloGeoHelpers             CaloGeoHelpers-*        Calorimeter
+use CaloEvent                  CaloEvent-*             Calorimeter
+use CaloClusterCorrection      CaloClusterCorrection-* Calorimeter
+use CaloRec                    CaloRec-*               Calorimeter
+use CaloInterface              CaloInterface-*         Calorimeter
+use LArCabling                 LArCabling-*            LArCalorimeter
+use EventKernel                EventKernel-*           Event
+use EventInfo                  EventInfo*              Event
+use VxVertex                   VxVertex-*              Tracking/TrkEvent
+use TrkCaloExtension           TrkCaloExtension-*      Tracking/TrkEvent
+use RecoToolInterfaces         RecoToolInterfaces-*    Reconstruction/RecoTools
+use egammaInterfaces           egammaInterfaces-*      Reconstruction/egamma
+use egammaEvent                egammaEvent-*           Reconstruction/egamma
+use D3PDMakerInterfaces        D3PDMakerInterfaces-*   PhysicsAnalysis/D3PDMaker
+use D3PDMakerUtils             D3PDMakerUtils-*        PhysicsAnalysis/D3PDMaker
+use MCTruthClassifier          MCTruthClassifier-*     PhysicsAnalysis
+end_private
+
+
+library egammaD3PDAnalysis *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"

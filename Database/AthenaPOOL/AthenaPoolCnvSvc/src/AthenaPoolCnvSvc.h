@@ -240,9 +240,6 @@ private: // properties
    BooleanProperty m_skipFirstChronoCommit;
    /// bool to activate the chrono stats, depending on the m_skipFirstChronoCommit data member
    bool m_doChronoStat;
-
-   /// For SharedWriter to use MetadataSvc to merge data placed in a certain container
-   StringProperty  m_metadataContainerProp;
 };
 
 #endif

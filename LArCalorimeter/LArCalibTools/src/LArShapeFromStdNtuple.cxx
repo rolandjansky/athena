@@ -94,15 +94,15 @@ StatusCode LArShapeFromStdNtuple::stop()
   Int_t prevPhase=-1;
 
   // Create new LArShapeContainer
-  std::unique_ptr<LArShapeComplete> larShapeComplete;
-  std::unique_ptr<LArShape32MC> larShapeMC;
+  LArShapeComplete* larShapeComplete = NULL ;
+  LArShape32MC* larShapeMC = NULL ;
 
   if(m_isComplete) {
-    larShapeComplete = std::make_unique<LArShapeComplete>();
+    larShapeComplete = new LArShapeComplete();
     ATH_CHECK( larShapeComplete->setGroupingType(m_groupingType, msg()) );
     ATH_CHECK( larShapeComplete->initialize() );
   } else {
-    larShapeMC = std::make_unique<LArShape32MC>();
+    larShapeMC = new LArShape32MC();
     ATH_CHECK( larShapeMC->setGroupingType(m_groupingType, msg()) );
     ATH_CHECK( larShapeMC->initialize() );
   } 
@@ -225,10 +225,13 @@ StatusCode LArShapeFromStdNtuple::stop()
       }
   }
 
+  const ILArShape* larShape = NULL ;
   if(m_isComplete) {
-     ATH_CHECK( detStore()->record(std::move(larShapeComplete),m_store_key) );
+     ATH_CHECK( detStore()->record(larShapeComplete,m_store_key) );
+     ATH_CHECK( detStore()->symLink(larShapeComplete,larShape) );
   } else {
-     ATH_CHECK( detStore()->record(std::move(larShapeMC),m_store_key) );
+     ATH_CHECK( detStore()->record(larShapeMC,m_store_key) );
+     ATH_CHECK( detStore()->symLink(larShapeMC,larShape) );
   }
   return StatusCode::SUCCESS;
 }

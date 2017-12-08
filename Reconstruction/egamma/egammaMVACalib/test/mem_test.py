@@ -25,5 +25,4 @@ memUsage.append( Vmem() )
 m = ROOT.egammaMVACalib(0, True, 'egammaMVACalib/online/v3')
 memUsage.append( Vmem() )
 
-for i in memUsage:
-  print i/1e6 , 'GB'
+print np.diff(memUsage)/1e6, 'GB'

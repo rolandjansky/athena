@@ -17,33 +17,34 @@
 class sTgcDigitCollection : public DataVector<sTgcDigit> 
 {
 
-  public:  // functions
+ public:  // functions
   
   typedef Identifier ID; 
   typedef sTgcDigit DIGIT; 
   // Default constructor.
   sTgcDigitCollection() 
     : DataVector<sTgcDigit>(),m_id(0),m_idHash(0)
-  { }
+    { };
 
-  // Creates an empty container ready for writing.
-  sTgcDigitCollection(Identifier id,IdentifierHash idHash) 
-    : DataVector<sTgcDigit>(),m_id(id),m_idHash(idHash)
-  { }
+    // Creates an empty container ready for writing.
+    sTgcDigitCollection(Identifier id,IdentifierHash idHash) 
+      : DataVector<sTgcDigit>(),m_id(id),m_idHash(idHash)
+      { };
 
-  Identifier identify() const
-  {
-    return m_id;
-  }
+      Identifier identify() const
+      {
+	return m_id;
+      }
 
-  IdentifierHash identifierHash() const
-  {
-    return m_idHash;
-  }
+      IdentifierHash identifierHash() const
+      {
+	return m_idHash;
+      }
 
-private:
-  Identifier     m_id; 
-  IdentifierHash m_idHash; 
+ private:
+      Identifier     m_id; 
+      IdentifierHash m_idHash; 
+
 };
 
 CLASS_DEF(sTgcDigitCollection, 1084450701, 1)

@@ -103,9 +103,7 @@ StatusCode EMShowerBuilder::initialize()
   if (m_UseShowerShapeTool) { 
     if ((sc = RetrieveShowerShapeTool()).isFailure()) { 
       return sc; 
-    } else {
-      m_ShowerShapeTool.disable();
-    }
+    } 
   }
   // 
   // call calorimeter isolation tool only if needed
@@ -113,8 +111,6 @@ StatusCode EMShowerBuilder::initialize()
   if (m_UseCaloIsoTool) {
     if ((sc = RetrieveHadronicLeakageTool()).isFailure()) {
       return sc;
-    } else {
-      m_HadronicLeakageTool.disable();
     }
   }
   // for measuring the timing

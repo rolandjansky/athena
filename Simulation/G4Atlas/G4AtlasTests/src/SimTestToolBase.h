@@ -27,11 +27,12 @@ class TProfile;
 class TH1;
 class TH2;
 
-class SimTestToolBase : public SimTestHisto, public extends<AthAlgTool, ISimTestTool> {
+class SimTestToolBase :  virtual public ISimTestTool, public SimTestHisto, public AthAlgTool {
 public:
  /// \name structors and AlgTool implementation
  //@{
   SimTestToolBase(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
   virtual StatusCode initialize() {
     return StatusCode::SUCCESS;
   }

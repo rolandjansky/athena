@@ -14,7 +14,7 @@ athenaCommonFlags.EvtMax = 3
 ServiceMgr.MessageSvc.OutputLevel = WARNING
 
 from AthenaCommon.JobProperties import JobProperty
-from G4AtlasApps import simFlags, PyG4Atlas, AtlasG4Eng, SimSkeleton
+from G4AtlasApps import simFlags, PyG4Atlas, AtlasG4Eng
 
 ## SimLayout
 simFlags.SimLayout = 'mytest_tb_VALIDATION'
@@ -40,7 +40,7 @@ job.ParticleGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 
 
 ## Describe the simulation entity using the skeleton
-class MySimSkeleton(SimSkeleton.SimSkeleton):
+class MySimSkeleton(PyG4Atlas.SimSkeleton):
     """
     My own simulation entity skeleton based on the base class SimSkeleton from
     G4AtlasApps.PyG4Atlas
@@ -130,10 +130,8 @@ def change_worldvolume_y():
 simFlags.InitFunctions.add_function(1, change_worldvolume_y)
 
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 ## Insert the PyG4Atlas algorithm at the head of the alg sequence
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
-from AthenaCommon.CfgGetter import getAlgorithm
-job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+job += PyG4AtlasAlg()

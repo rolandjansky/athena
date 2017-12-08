@@ -24,7 +24,8 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class KinematicParticleFilter : public extends<AthAlgTool, IParticleFilter>,
+  class KinematicParticleFilter : public AthAlgTool,
+                                  public IParticleFilter,
                                   public KinematicParticleCuts { 
       
     public: 

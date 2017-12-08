@@ -14,7 +14,7 @@
 #include <set>
 
 // ISF includes
-#include "BaseSimulationSelector.h"
+#include "ISF_Interfaces/ISimulationSelector.h"
 
 // HepMC includes
 #include "HepMC/IteratorRange.h"
@@ -30,7 +30,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class TruthAssocSimSelector final : public BaseSimulationSelector
+  class TruthAssocSimSelector : public ISimulationSelector
   {
 
   public:
@@ -41,11 +41,11 @@ namespace ISF
     ~TruthAssocSimSelector();
 
     // Athena algtool's Hooks
-    virtual StatusCode  initialize() override;
-    virtual StatusCode  finalize() override;
+    virtual StatusCode  initialize() override final;
+    virtual StatusCode  finalize() override final;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
-    virtual bool passSelectorCuts(const ISFParticle& particle) const override;
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
 
   private:
     /** ISFParticle has to have a relative which is in this list */

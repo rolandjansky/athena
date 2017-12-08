@@ -12,7 +12,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"

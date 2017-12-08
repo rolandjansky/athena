@@ -13,6 +13,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Dbam.h"
+#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -31,7 +32,7 @@
 namespace MuonGM
 {
 
-DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam)
+DblQ00Dbam::DblQ00Dbam(IRDBQuery* dbam)
  : m_nObj(0)
 {
   if(dbam) {

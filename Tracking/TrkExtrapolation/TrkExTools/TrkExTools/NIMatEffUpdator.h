@@ -23,6 +23,8 @@
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkDetDescrUtils/GeometrySignature.h" 
 
+class StoreGateSvc;
+
 class TTree;
   
 namespace Trk {

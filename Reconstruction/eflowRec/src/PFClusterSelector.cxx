@@ -79,35 +79,29 @@ void PFClusterSelector::retrieveLCCalCellWeight(const double& energy, const unsi
   /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
   /* Note the read handle has been tested to be valid prior to the call of this function */
   const xAOD::CaloCluster* matchedCalCluster = caloCalClustersContainer.at(index);
-
-  if (matchedCalCluster){
-
-    if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
-      matchedCalCluster = nullptr;
-      for (unsigned iCalCalCluster = 0; iCalCalCluster < caloCalClustersContainer.size();
-	   ++iCalCalCluster) {
-	matchedCalCluster = caloCalClustersContainer.at(iCalCalCluster);
-	if (fabs(energy - matchedCalCluster->rawE()) < 0.001) {
-	  break;
-	}
+  if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
+    matchedCalCluster = nullptr;
+    for (unsigned iCalCalCluster = 0; iCalCalCluster < caloCalClustersContainer.size();
+        ++iCalCalCluster) {
+      matchedCalCluster = caloCalClustersContainer.at(iCalCalCluster);
+      if (fabs(energy - matchedCalCluster->rawE()) < 0.001) {
+        break;
       }
-      if (!matchedCalCluster) ATH_MSG_WARNING("Invalid pointer to matched cluster - failed to find cluster match");
-    }
-    assert(matchedCalCluster);
-
-    /* obtain cell index and cell weight */
-    const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance();
-    const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();
-    xAOD::CaloCluster::const_cell_iterator itCell = matchedCalCluster->cell_begin();
-    xAOD::CaloCluster::const_cell_iterator endCell = matchedCalCluster->cell_end();
-    for (; itCell != endCell; ++itCell) {
-      const CaloCell* pCell = *itCell;
-      Identifier myId = pCell->ID();
-      IdentifierHash myHashId = calo_id->calo_cell_hash(myId);
-      cellsWeight[myHashId] = itCell.weight();
     }
   }
-  else ATH_MSG_WARNING("Invalid pointer to matched cluster - could not look up local hadron cell weights");
+  assert (matchedCalCluster);
+
+  /* obtain cell index and cell weight */
+  const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance();
+  const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();
+  xAOD::CaloCluster::const_cell_iterator itCell = matchedCalCluster->cell_begin();
+  xAOD::CaloCluster::const_cell_iterator endCell = matchedCalCluster->cell_end();
+  for (; itCell != endCell; ++itCell) {
+    const CaloCell* pCell = *itCell;
+    Identifier myId = pCell->ID();
+    IdentifierHash myHashId = calo_id->calo_cell_hash(myId);
+    cellsWeight[myHashId] = itCell.weight();
+  }
 
   return ;
 }

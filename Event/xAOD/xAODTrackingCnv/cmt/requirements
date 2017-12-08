@@ -1,0 +1,37 @@
+package xAODTrackingCnv
+
+author Edward.Moyse@cern.ch
+author Ruslan.Mashinistov@cern.ch
+
+# Base package(s):
+use AtlasPolicy     AtlasPolicy-*
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaKernel               AthenaKernel-*                  Control
+use  EventPrimitives            EventPrimitives-*               Event
+use  GaudiInterface             GaudiInterface-*                External
+use  GeneratorObjects           GeneratorObjects-*              Generators
+use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis
+use  Particle                   Particle-*                      Reconstruction
+use  ParticleTruth              ParticleTruth-*                 Reconstruction
+use  TrkParticleBase            TrkParticleBase-*               Tracking/TrkEvent
+use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use  TrkTrackLink               TrkTrackLink-*                  Tracking/TrkEvent
+use  TrkTruthData               TrkTruthData-*                  Tracking/TrkEvent
+use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+use  TrkLinks                   TrkLinks-*              	Tracking/TrkEvent
+use CxxUtils                   CxxUtils-*                      Control
+end_private
+
+# Make a component library:
+library xAODTrackingCnv *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+# macro cppdebugflags '$(cppdebugflags_s)'
+# macro_remove componentshr_linkopts "-Wl,-s"

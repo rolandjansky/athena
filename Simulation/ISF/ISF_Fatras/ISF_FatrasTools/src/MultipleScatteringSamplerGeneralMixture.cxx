@@ -26,12 +26,13 @@ double iFatras::MultipleScatteringSamplerGeneralMixture::s_genMixScale = 0.60823
 
 // constructor
 iFatras::MultipleScatteringSamplerGeneralMixture::MultipleScatteringSamplerGeneralMixture(const std::string& t, const std::string& n, const IInterface* p) :
-  base_class(t,n,p),
+  AthAlgTool(t,n,p),
   m_log_include(true),
   m_rndGenSvc("AtRndmGenSvc", n),
   m_randomEngine(0),
   m_randomEngineName("TrkExRnd")
 {
+  declareInterface<IMultipleScatteringSampler>(this);
   // multiple scattering parameters
   declareProperty("MultipleScatteringLogarithmicTermOn", m_log_include);
   // random service for Gaussian mixture model

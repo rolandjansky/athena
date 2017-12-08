@@ -22,9 +22,10 @@
 namespace iFatras {
   PlanarClusterOnTrackTool::PlanarClusterOnTrackTool
   (const std::string& t,const std::string& n,const IInterface* p) :
-    base_class(t,n,p),
+    ::AthAlgTool(t,n,p),
     m_useDefinedParameters(false)
   {
+    declareInterface<IRIO_OnTrackCreator>(this);
     declareProperty("UseDefinedParameters",     m_useDefinedParameters);
   }
   

@@ -51,8 +51,9 @@ class TrfBuilder:
                 if section == sectionName:  # take only our section for sectionName into account
                     sectionCounter = sectionCounter + 1
                     for option in self.DigiRecoConfig.options(section):  # loop over all settings in specified our section
-                        # To support multiple values --preExec "AAA:aaa" "BBB:bbb":
-                        pfx += ' --' + option + ' ' \
+                        #pfx += option + '=' \
+                        #pfx += ' --' + option + '=' \
+                        pfx += ' --' + option + ' ' \ # to support multiple values --preExec "AAA:aaa" "BBB:bbb"
                             + self.DigiRecoConfig.get(section, option) \
                             + ' '
             if sectionCounter == 0:

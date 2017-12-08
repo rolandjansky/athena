@@ -9,6 +9,7 @@
 LArG4TBECBeamChSDTool::LArG4TBECBeamChSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : SensitiveDetectorBase(type,name,parent)
 {
+  declareInterface<ISensitiveDetector>(this);
 }
 
 G4VSensitiveDetector* LArG4TBECBeamChSDTool::makeSD()

@@ -182,7 +182,7 @@ class GSCFexFTK (TrigGSCFex):
             self.JetKey = "FarawayJet"
             instance = "EF"
         
-        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig"
         
         # IMPORT OFFLINE TOOLS
@@ -240,7 +240,7 @@ class GSCFexFTKRefit (TrigGSCFex):
             self.JetKey = "FarawayJet"
             instance = "EF"
         
-        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig"
         
         # IMPORT OFFLINE TOOLS
@@ -298,7 +298,7 @@ class GSCFexFTKVtx (TrigGSCFex):
             self.JetKey = "FarawayJet"
             instance = "EF"
         
-        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
         # IMPORT OFFLINE TOOLS

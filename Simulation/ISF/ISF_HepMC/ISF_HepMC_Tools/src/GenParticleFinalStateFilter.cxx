@@ -20,10 +20,11 @@
 ISF::GenParticleFinalStateFilter::GenParticleFinalStateFilter( const std::string& t,
                                                                const std::string& n,
                                                                const IInterface* p )
-  : base_class(t,n,p),
+  : AthAlgTool(t,n,p),
     m_checkGenSimStable(true),
     m_checkGenInteracting(true)
 {
+    declareInterface<ISF::IGenParticleFilter>(this);
     // different options
     declareProperty("CheckGenSimStable",        m_checkGenSimStable);
     declareProperty("CheckGenInteracting",      m_checkGenInteracting);

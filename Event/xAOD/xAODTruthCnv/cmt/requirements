@@ -1,0 +1,38 @@
+package xAODTruthCnv
+
+author James.Catmore@cern.ch
+author Jovan.Mitrevski@cern.ch
+author andy.buckley@cern.ch
+
+# Base package(s):
+use AtlasPolicy     AtlasPolicy-*
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+private
+use  AthenaBaseComps            AthenaBaseComps-*     Control
+use  AthenaKernel               AthenaKernel-*        Control
+use  GaudiInterface             GaudiInterface-*      External
+use  AtlasROOT                  AtlasROOT-*           External
+use  GeneratorObjects 		GeneratorObjects-*    Generators
+use  xAODTruth                  xAODTruth-*           Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*       Event/xAOD
+use  EventInfo            	EventInfo-*	      Event
+use  StoreGate       		StoreGate-*           Control
+use  AthLinks                   AthLinks-*            Control
+end_private
+
+#private
+#macro_append HepMC_linkopts " $(HepMC_IO_linkopts) "
+#end_private
+
+# Make a component library:
+library xAODTruthCnv *.cxx components/*.cxx
+apply_pattern component_library
+
+# Install the jobOptions:
+apply_pattern declare_joboptions files=*.py
+
+private
+# macro cppdebugflags '$(cppdebugflags_s)'
+# macro_remove componentshr_linkopts "-Wl,-s"

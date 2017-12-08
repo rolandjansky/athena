@@ -34,11 +34,13 @@ namespace SchedulerProxy {
 	  
 	  SG::WriteHandle< TestClusterContainer > clusterContainer("Clusters");
 	  CHECK(clusterContainer.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>()->proxy()));
-	  ATH_CHECK (clusterContainer.record (CxxUtils::make_unique< TestClusterContainer >()) );
+	  clusterContainer =  CxxUtils::make_unique< TestClusterContainer >();
+	  ATH_CHECK(clusterContainer.commit());
 	  
 	  SG::WriteHandle< TestClusterAuxContainer > clusterContainerAux("ClustersAux.");
 	  CHECK(clusterContainerAux.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>()->proxy()));
-	  ATH_CHECK( clusterContainerAux.record (CxxUtils::make_unique< TestClusterAuxContainer>()) );
+	  clusterContainerAux = CxxUtils::make_unique< TestClusterAuxContainer>();  	  
+	  ATH_CHECK(clusterContainerAux.commit());
 	  clusterContainer->setStore(clusterContainerAux.ptr());
 
 	  

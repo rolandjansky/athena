@@ -42,7 +42,7 @@ namespace Trk{
    if ( evtStore()->retrieve( mcCollptr, m_mcContainerName ).isFailure() ) 
    {
     ATH_MSG_WARNING( "Could not retrieve McEventCollection" );
-    return 1;
+    return StatusCode::SUCCESS;
    }    
    ATH_MSG_DEBUG( "HepMC info loaded" );
   

@@ -4,6 +4,13 @@
 
 #include "FEI4SimTool.h"
 
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
+
+#include "SiDigitization/SiHelper.h"
+#include "InDetReadoutGeometry/SiReadoutCellId.h"
+
+#include "CLHEP/Random/RandFlat.h"
+
 FEI4SimTool::FEI4SimTool( const std::string& type, const std::string& name,const IInterface* parent):
   FrontEndSimTool(type,name,parent),
   m_HitDiscConfig(2)
@@ -37,16 +44,14 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
   const IdentifierHash moduleHash = pixelId->wafer_hash(chargedDiodes.identify()); // wafer hash
 
-  int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
-  int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
-
-  if (abs(barrel_ec)!=m_BarrelEC) { return; }
-
   int maxFEI4SmallHit = 2;
   int overflowToT     = 16;
   if (m_HitDiscConfig==0) { maxFEI4SmallHit=0; overflowToT=14; }
   if (m_HitDiscConfig==1) { maxFEI4SmallHit=1; overflowToT=15; }
   if (m_HitDiscConfig==2) { maxFEI4SmallHit=2; overflowToT=16; }
+
+  int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
+  int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
 
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   int nSmallHitsFEI4 = 0;
@@ -54,18 +59,6 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   const int maxRow = p_design->rowsPerCircuit();
   const int maxCol = p_design->columnsPerCircuit();
   std::vector<std::vector<int>> FEI4Map(maxRow+16,std::vector<int>(maxCol+16));
-
-  // Add cross-talk
-  CrossTalk(m_CrossTalk.at(layerIndex), chargedDiodes);
-
-  // Add thermal noise
-  ThermalNoise(m_ThermalNoise.at(layerIndex), chargedDiodes);
-
-  // Add random noise
-  RandomNoise(chargedDiodes);
-
-  // Add random diabled pixels
-  RandomDisable(chargedDiodes);
 
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
 
@@ -93,7 +86,8 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (charge<m_Analogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && charge<m_BarrelAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec!=0 && charge<m_EndcapAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
@@ -111,7 +105,8 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     if (nToT==2 && maxFEI4SmallHit==2) { nToT=1; }
     if (nToT>=overflowToT) { nToT=overflowToT; }
 
-    if (nToT<=m_ToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && nToT<=m_BarrelToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec!=0 && nToT<=m_EndcapToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 

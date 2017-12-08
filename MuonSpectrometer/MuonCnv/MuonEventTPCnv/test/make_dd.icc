@@ -216,11 +216,6 @@ const MuonGM::MuonDetectorManager& make_dd()
   ddsdet.roParameters.nPadH.push_back(0);
   ddsdet.roParameters.firstPadH.push_back(0);
   ddsdet.roParameters.padH.push_back(0);
-  ddsdet.roParameters.firstStripWidth.push_back(0);
-  ddsdet.roParameters.firstWire.push_back(0);
-  ddsdet.roParameters.firstWireGroup.push_back(0);
-  ddsdet.roParameters.nWireGroups.push_back(0);
-  ddsdet.roParameters.wireCutout.push_back(0);
 
   HepGeom::Transform3D xform;
   AGDDDetectorPositioner* spos2 = new AGDDDetectorPositioner ("psdum2", xform);

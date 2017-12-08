@@ -54,21 +54,21 @@ athenaCommonFlags.EvtMax=options.nevents
 
 
 #--- Simulation flags -----------------------------------------
-from G4AtlasApps.SimFlags import simFlags
-simFlags.load_atlas_flags()
-simFlags.CalibrationRun.set_Off()
+from G4AtlasApps.SimFlags import SimFlags
+SimFlags.load_atlas_flags()
+SimFlags.CalibrationRun.set_Off()
 
 # Random seeds get random values
 from random import randint
-simFlags.RandomSeedOffset = randint(1,1000000000)
+SimFlags.RandomSeedOffset = randint(1,1000000000)
 
 if len(options.geometry) > 0 :
-    simFlags.SimLayout = options.geometry
+    SimFlags.SimLayout = options.geometry
 else :
-    simFlags.SimLayout.set_On()
+    SimFlags.SimLayout.set_On()
 
 if len(options.physlist) > 0 :
-    simFlags.PhysicsList = options.physlist
+    SimFlags.PhysicsList = options.physlist
 
 if options.input is not None:
     athenaCommonFlags.PoolEvgenInput=[options.input]
@@ -90,7 +90,7 @@ else:
     topSequence.ParticleGenerator.orders = sorted(spgorders)
 
 if (options.parameterize > 0): 
-    simFlags.LArParameterization=options.parameterize
+    SimFlags.LArParameterization=options.parameterize
 
     if len(options.fsLibs) > 0 :
         print "Setting up ShowerLib Service"
@@ -101,12 +101,10 @@ if (options.parameterize > 0):
     
 	
 ## Set Event #
-simFlags.RunNumber = options.runNumber
+SimFlags.RunNumber = options.runNumber
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSequence += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSequence += PyG4AtlasAlg()
 
 from LArG4Validation.LArG4ValidationConf import SingleTrackValidation
 topSequence += SingleTrackValidation()

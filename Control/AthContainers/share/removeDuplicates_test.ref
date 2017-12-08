@@ -1,4 +1,8 @@
---> We have purposely duplicated an element of pDV: 0x1af17a0 0x1af17e0 0x1af17a0 
+--> We have purposedly duplicated an element of pDV: 0x8317db0 0x8317dd0 0x8317db0 
 ---> now we should see a warning message from ~DataVector
-DataVector ERROR: duplicated pointer found in a DataVector of int owning its elements! 0x1af17a0
+DataVector ERROR: duplicated pointer found in a DataVector of int owning its elements! 0x8317db0
 <--- ~DataVector returns
+--> We have purposedly duplicated an element of pDL: 0x8317dd0 0x8317de0 0x8317dd0 
+---> now we should see a warning message from ~DataList
+DataVector ERROR: duplicated pointer found in a DataVector of int owning its elements! 0x8317dd0
+<--- ~DataList returns

@@ -117,7 +117,7 @@ dataFile = "/afs/cern.ch/atlas/offline/ReleaseData/v16/testfile/mc09_7TeV.105200
 #dataFile = "/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2081_r6112_10evt.pool.root"
 
 # An input data file
-#dataFile = 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/q431/data16_13TeV.00297447.physics_Main.daq.RAW._lb0555._SFO-1._0001.data'
+#dataFile = 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/q431/data16_13TeV.00297447.physics_Main.daq.RAW._lb0555._SFO-1._0001.data'
 
 #from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 

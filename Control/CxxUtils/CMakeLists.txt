@@ -84,8 +84,7 @@ foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
       fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
-      exctrace1_test exctrace2_test bitscan_test ConcurrentRangeMap_test
-      CachedValue_test CachedPointer_test )
+      exctrace1_test exctrace2_test bitscan_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LINK_LIBRARIES CxxUtils )

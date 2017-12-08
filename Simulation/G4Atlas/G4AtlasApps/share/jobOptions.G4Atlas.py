@@ -80,8 +80,6 @@ print topSeq.ParticleGun
 # This should only be used when evgen is run in the simulation step
 include('G4AtlasApps/fragment.SimCopyWeights.py')
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 #from TruthExamples.TruthExamplesConf import DumpMC
 #topSeq += DumpMC()
 
@@ -89,6 +87,6 @@ from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Add the G4 sim to the alg sequence after the generator
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()
 print topSeq

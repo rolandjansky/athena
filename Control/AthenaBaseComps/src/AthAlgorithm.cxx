@@ -29,6 +29,7 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
 			    ISvcLocator* pSvcLocator,
 			    const std::string& version ) : 
   ::Algorithm   ( name, pSvcLocator, version ),
+  ::AthMessaging( msgSvc(), name ),
   m_evtStore    ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore    ( "StoreGateSvc/DetectorStore", name ),
   m_userStore   ( "UserDataSvc/UserDataSvc", name ),
@@ -40,7 +41,10 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
 
   auto props = getProperties();
   for( Property* prop : props ) {
-    if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
+    if( prop->name() == "OutputLevel" ) {
+      prop->declareUpdateHandler
+        (&AthAlgorithm::msg_update_handler, this);
+    } else if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
       prop->declareUpdateHandler
         (&AthAlgorithm::extraDeps_update_handler, this);
     }
@@ -74,6 +78,7 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
 ///////////////
 AthAlgorithm::~AthAlgorithm()
 { 
+  ATH_MSG_DEBUG ("Calling destructor");
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -106,9 +111,9 @@ AthAlgorithm::msg_update_handler( Property& outputLevel )
    // type at one point, to be able to fall back on something.
    IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
    if( iprop ) {
-     msgStream().setLevel( static_cast<MSG::Level> (iprop->value()) );
+      this->setLevel( static_cast<MSG::Level> (iprop->value()) );
    } else {
-     msgStream().setLevel( msgLevel() );
+      this->setLevel( msgLevel() );
    }
 }
 

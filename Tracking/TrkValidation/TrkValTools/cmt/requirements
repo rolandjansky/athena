@@ -1,0 +1,55 @@
+package TrkValTools
+
+author Sebastian Fleischmann <Sebastian.Fleischmann@cern.ch>
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy             AtlasPolicy-*
+use GaudiInterface          GaudiInterface-*            External
+use AthenaBaseComps         AthenaBaseComps-*           Control
+use TrkValInterfaces        TrkValInterfaces-*          Tracking/TrkValidation
+use TrkEventPrimitives      TrkEventPrimitives-*        Tracking/TrkEvent
+use TrkParameters           TrkParameters-*             Tracking/TrkEvent
+use TrkTrack                TrkTrack-*                  Tracking/TrkEvent
+use TrkValEvent             TrkValEvent-*               Tracking/TrkValidation
+use AthContainers           AthContainers-*             Control
+use AtlasHepMC              AtlasHepMC-*                External
+use HepPDT                  v*                          LCG_Interfaces
+use SGTools                 SGTools-*                   Control	
+use xAODTracking            xAODTracking-*              Event/xAOD
+use TrkToolInterfaces       TrkToolInterfaces-*         Tracking/TrkTools
+private
+use AtlasCLHEP              AtlasCLHEP-*                External
+use AtlasROOT               AtlasROOT-*                 External
+use AtlasDetDescr           AtlasDetDescr-*             DetectorDescription
+use EventPrimitives         EventPrimitives-*           Event
+use TrkFitterUtils          TrkFitterUtils-*            Tracking/TrkFitter
+use TrkEventUtils           TrkEventUtils-*             Tracking/TrkEvent
+use TrkMaterialOnTrack      TrkMaterialOnTrack-*        Tracking/TrkEvent
+use TrkRIO_OnTrack          TrkRIO_OnTrack-*            Tracking/TrkEvent
+use TrkMeasurementBase      TrkMeasurementBase-*        Tracking/TrkEvent
+use TrkTruthData            TrkTruthData-*              Tracking/TrkEvent
+use TrkSurfaces             TrkSurfaces-*               Tracking/TrkDetDescr
+use TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-*   Tracking/TrkEvent
+use TrkTrackSummary         TrkTrackSummary-*           Tracking/TrkEvent
+use CommissionEvent         CommissionEvent-*           Commission
+
+use TrkExInterfaces         TrkExInterfaces-*           Tracking/TrkExtrapolation
+use EventInfo               EventInfo-*                 Event
+
+use AtlasCLHEP              AtlasCLHEP-*                External
+
+use GeneratorObjects        GeneratorObjects-*          Generators
+use TrkParticleBase	        TrkParticleBase-*		    Tracking/TrkEvent
+
+apply_tag  ROOTGraphicsLibs
+
+public
+
+library TrkValTools *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

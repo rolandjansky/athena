@@ -26,7 +26,7 @@ namespace Simulation
   VertexPositionFromFile::VertexPositionFromFile( const std::string& t,
                                                   const std::string& n,
                                                   const IInterface* p )
-    : base_class(t,n,p)
+    : AthAlgTool(t,n,p)
     , m_vertexPositionFile("")
     , m_vertexPositionMap()
     , m_runEventNumbersFile("")
@@ -35,12 +35,13 @@ namespace Simulation
     , m_vertexPositionEventNum()
     , m_eventInfoKey("McEventInfo")
   {
+    declareInterface<ILorentzVectorGenerator>(this);
+
     // used for vertex position overrides
     declareProperty( "VertexPositionsFile", m_vertexPositionFile );
     declareProperty( "RunAndEventNumbersFile", m_runEventNumbersFile );
     declareProperty( "EventInfoKey", m_eventInfoKey );
   }
-
 
   /** Destructor */
   VertexPositionFromFile::~VertexPositionFromFile()

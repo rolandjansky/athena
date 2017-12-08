@@ -12,7 +12,7 @@ from AthenaCommon.AthenaCommonFlags import jobproperties
 jobproperties.AthenaCommonFlags.AllowIgnoreConfigError=False #This job will stop if an include fails.
 
 jobproperties.AthenaCommonFlags.EvtMax = 5
-jobproperties.AthenaCommonFlags.PoolHitsInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1"]
+jobproperties.AthenaCommonFlags.PoolHitsInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1"]
 jobproperties.AthenaCommonFlags.PoolRDOOutput = "DigitizationOutput.pool.root"
 
 #--------------------------------------------------------------

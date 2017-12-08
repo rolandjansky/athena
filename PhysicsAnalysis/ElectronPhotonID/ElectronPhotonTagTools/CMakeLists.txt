@@ -17,7 +17,9 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
 			  PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
                           PhysicsAnalysis/AnalysisCommon/IsolationSelection
-			  PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
+			  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
                           PhysicsAnalysis/EventTag/TagEvent
                           PRIVATE
                           Event/xAOD/xAODCore
@@ -33,12 +35,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( ElectronPhotonTagToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS ElectronPhotonTagTools
-                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventInfo xAODEgamma xAODEventInfo xAODMissingET GaudiKernel TagEvent StoreGateLib SGtests IsolationSelectionLib EgammaAnalysisInterfacesLib AnalysisUtilsLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventInfo xAODEgamma xAODEventInfo xAODMissingET GaudiKernel TagEvent StoreGateLib SGtests IsolationSelectionLib ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib AnalysisUtilsLib
                    PRIVATE_LINK_LIBRARIES xAODCore xAODParticleEvent xAODTracking )
 
 atlas_add_component( ElectronPhotonTagTools
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel ElectronPhotonTagToolsLib )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities EventInfo xAODEgamma xAODEventInfo xAODMissingET GaudiKernel IsolationSelectionLib ElectronPhotonFourMomentumCorrectionLib ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib TagEvent xAODCore xAODParticleEvent xAODTracking AnalysisUtilsLib ElectronPhotonTagToolsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

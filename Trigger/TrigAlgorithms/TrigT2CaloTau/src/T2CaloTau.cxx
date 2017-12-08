@@ -322,14 +322,14 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 
     /// generate the new roiDescriptor with the correct sizes
 
-    const TrigRoiDescriptor* roitmp = roiDescriptor; 
+    const TrigRoiDescriptor* _roi = roiDescriptor; 
 
-    TrigRoiDescriptor roi( roitmp->eta(), roitmp->eta()-m_etaWidth, roitmp->eta()+m_etaWidth,
-			   roitmp->phi(), HLT::wrap_phi(roitmp->phi()-m_phiWidth), HLT::wrap_phi(roitmp->phi()+m_phiWidth) );
+    TrigRoiDescriptor roi( _roi->eta(), _roi->eta()-m_etaWidth, _roi->eta()+m_etaWidth,
+			   _roi->phi(), HLT::wrap_phi(_roi->phi()-m_phiWidth), HLT::wrap_phi(_roi->phi()+m_phiWidth) );
 
     /// this isn't needed 
-    //  TrigRoiDescriptor* roiEM = new TrigRoiDescriptor( roitmp->eta(), roitmp->eta()-m_etaWidthEM, roitmp->eta()+m_etaWidthE<,
-    //	  					          roitmp->phi(), HLT::wrap_phi(roitmp->phi()-m_phiWidthEM), HLT::wrap_phi(roitmp->phi()+m_phiWidthEM) );
+    //  TrigRoiDescriptor* roiEM = new TrigRoiDescriptor( _roi->eta(), _roi->eta()-m_etaWidthEM, _roi->eta()+m_etaWidthE<,
+    //	  					          _roi->phi(), HLT::wrap_phi(_roi->phi()-m_phiWidthEM), HLT::wrap_phi(_roi->phi()+m_phiWidthEM) );
 
     msg() << MSG::DEBUG << "Using RoIs " << roi << endmsg;
 
@@ -609,14 +609,14 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
       /// what size should we create this roi with ??? 
       /// use some new parameters
       
-      double eta = ptrigTauCluster->eta();
-      double phi = ptrigTauCluster->phi();
+      double _eta = ptrigTauCluster->eta();
+      double _phi = ptrigTauCluster->phi();
       
       TrigRoiDescriptor* newRoiDescriptor   = new TrigRoiDescriptor( roiDescriptor->roiWord(), 
 								     roiDescriptor->l1Id(), 
 								     roiDescriptor->roiId(), 
-								     eta, eta-m_etaWidthForID, eta+m_etaWidthForID,
-								     phi, HLT::wrap_phi(phi-m_phiWidthForID), HLT::wrap_phi(phi+m_phiWidthForID) );
+								     _eta, _eta-m_etaWidthForID, _eta+m_etaWidthForID,
+								     _phi, HLT::wrap_phi(_phi-m_phiWidthForID), HLT::wrap_phi(_phi+m_phiWidthForID) );
     
       /// obsolete constructor 
       //      TrigRoiDescriptor* newRoiDescriptor = new TrigRoiDescriptor(roiDescriptor->roiWord(), 

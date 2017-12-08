@@ -1,0 +1,29 @@
+package xAODEventShape
+# $Id: requirements 744251 2016-05-02 15:37:06Z krasznaa $
+
+author P-A Delsart <delsart in2p3 fr>
+
+public
+
+# General include(s):
+use AtlasPolicy   AtlasPolicy-*
+
+# EDM include(s):
+use AthContainers AthContainers-* Control
+use xAODCore      xAODCore-*      Event/xAOD
+
+# Create the library:
+library xAODEventShape ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+# Extra packages needed for the dictionary:
+use AtlasROOT   AtlasROOT-*   External
+use AtlasReflex AtlasReflex-* External -no_auto_imports
+
+# Generate the necessary Reflex dictionaries:
+apply_pattern lcgdict dict=xAODEventShape selectionfile=selection.xml \
+                      headerfiles="../xAODEventShape/xAODEventShapeDict.h"
+
+apply_pattern do_genCLIDDB library=xAODEventShape

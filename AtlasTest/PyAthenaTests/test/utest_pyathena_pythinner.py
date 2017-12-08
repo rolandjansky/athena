@@ -281,7 +281,7 @@ class PyThinAtlfastAod (PyAthenaTestCase):
 
         installRefFiles( ['pyathena_pythinner_atlfast_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pythinner_atlfast_rel140100.pool')
@@ -333,7 +333,7 @@ class PyThinRecAod (PyAthenaTestCase):
     
         installRefFiles( ['pyathena_pythinner_reco-aod_jets_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pythinner_reco-aod_jets_rel140100.pool')
@@ -375,7 +375,7 @@ class PyThinRecAod (PyAthenaTestCase):
 
         installRefFiles( ['pyathena_pythinner_reco-aod_eles_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pythinner_reco-aod_eles_rel140100.pool')
@@ -416,7 +416,7 @@ class PyThinRecAod (PyAthenaTestCase):
 
         installRefFiles( ['pyathena_pythinner_reco-aod_photons_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pythinner_reco-aod_photons_rel140100.pool')
@@ -458,7 +458,7 @@ class PyThinRecAod (PyAthenaTestCase):
         
         installRefFiles( ['pyathena_pythinner_reco-aod_taus_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pythinner_reco-aod_taus_rel140100.pool')
@@ -499,7 +499,7 @@ class PyThinRecAod (PyAthenaTestCase):
 
         installRefFiles( ['pyathena_pythinner_reco-aod_muons_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pythinner_reco-aod_muons_rel140100.pool')
@@ -546,7 +546,7 @@ class PyThinRecEsd (PyAthenaTestCase):
 
         installRefFiles( ['pyathena_pythinner_reco-esd_calocells_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.ESD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pythinner_reco-esd_calocells_rel140100.pool')

@@ -47,7 +47,6 @@ class ISvcLocator;
 TrigLArNoisyROAlg::TrigLArNoisyROAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator), 
     m_useCachedResult(false), m_roiEtaLimit(4.8), m_onlineID(0),
-    m_cablingService("LArCablingService"),
     m_AllTECaloClusterContainer(NULL)
 {
 

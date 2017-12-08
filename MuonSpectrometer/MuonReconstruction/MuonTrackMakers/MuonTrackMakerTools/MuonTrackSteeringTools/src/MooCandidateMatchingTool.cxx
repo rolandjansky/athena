@@ -153,14 +153,47 @@ namespace Muon {
     
   StatusCode MooCandidateMatchingTool::initialize(){
 
-    ATH_CHECK( m_slExtrapolator.retrieve() );
-    ATH_CHECK( m_atlasExtrapolator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
-    ATH_CHECK( m_segmentMatchingTool.retrieve() );
-    ATH_CHECK( m_segmentMatchingToolTight.retrieve() );
+    if ( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
+    
+    if (m_slExtrapolator.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find "<<m_slExtrapolator);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_atlasExtrapolator.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find "<< m_atlasExtrapolator);
+      return StatusCode::FAILURE;
+    } 
+
+    if (m_idHelperTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_idHelperTool);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_helperTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_idHelperTool);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_printer.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_printer);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_magFieldSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
+      return StatusCode::FAILURE;
+    }
+
+    if (m_segmentMatchingTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_segmentMatchingTool);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_segmentMatchingToolTight.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_segmentMatchingToolTight);
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -217,7 +250,7 @@ namespace Muon {
     }
 
 
-    return StatusCode::SUCCESS;
+    return AthAlgTool::finalize();
   }
 
 

@@ -959,8 +959,8 @@ if __name__ == "__main__":
 """
 tests:
 
-xrdcp root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root .
-xrdcp root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.1.root .
+xrdcp root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root .
+xrdcp root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.1.root .
 cat > input.txt << EOF
 ntuple.0.root
 ntuple.1.root

@@ -64,7 +64,6 @@ if hasattr(topSeq, 'CosmicGenerator'):
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
 ## Add alg to alg sequence
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()

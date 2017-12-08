@@ -75,13 +75,12 @@ StatusCode CondReaderAlg::execute_r (const EventContext& ctx) const
   ATH_MSG_INFO ("  s2 " << s2->m_x );
 
   {
-    std::string xint = "xint";
     Chrono chrono (&*m_chronoSvc, "spin time");
     int xx = 0;
     for (size_t i = 0; i < m_spins; i++) {
       {
         SG::ReadCondHandle<AthenaAttributeList> attrList (m_attrListKey, ctx);
-        xx += (**attrList)[xint].template data<int>();
+        xx += (**attrList)["xint"].template data<int>();
       }
       {
         SG::ReadCondHandle<DMTest::S1> s1 (m_scondKey, ctx);

@@ -1,0 +1,35 @@
+package RecExAnaTest
+ 
+author  David Rousseau <david.rousseau@cern.ch> 
+
+branches run
+
+
+
+
+use AtlasPolicy AtlasPolicy-*
+
+use AtlasAnalysisRunTime AtlasAnalysisRunTime-*
+
+private
+
+use TestPolicy          TestPolicy-*
+
+apply_pattern validate_xml
+
+end_private
+
+#put jobOption in InstallArea
+apply_pattern declare_joboptions files="*.py "
+
+
+macro RecExAnaTest_TestConfiguration "../test/RecExAnaTest_TestConfiguration.xml"
+
+apply_pattern declare_runtime extras="../test/RecExAnaTest_TestConfiguration.xml run_memleak_reat.sh"
+
+
+
+
+
+
+ 

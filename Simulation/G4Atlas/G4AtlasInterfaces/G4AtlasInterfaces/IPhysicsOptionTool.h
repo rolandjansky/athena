@@ -22,8 +22,10 @@ class IPhysicsOptionTool : virtual public IAlgTool
 public:
   IPhysicsOptionTool() {}
   virtual ~IPhysicsOptionTool() {}
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IPhysicsOptionTool, 1, 0);
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IPhysicsOptionTool( "IPhysicsOptionTool" , 1 , 0 ) ;
+    return IID_IPhysicsOptionTool ;
+  }
 
   // Method needed to register G4VPhysicsConstructor into G4VmodularPhysicsList
   virtual G4VPhysicsConstructor* GetPhysicsOption() = 0 ;

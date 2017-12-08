@@ -14,20 +14,22 @@
 
 TRTParametersOfBarrelStraws::TRTParametersOfBarrelStraws(): m_msg("TRTParametersOfBarrelStraws")
 {
-  m_pParameters = TRTParameters::GetPointer();
+  pParameters = TRTParameters::GetPointer();
+
+  printMessages = pParameters->GetInteger("PrintMessages");
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws" << endmsg;
 
   DefineParameters();
 
-  if (m_pParameters->GetInteger("PrintParametersOfBarrelStraws"))
+  if (pParameters->GetInteger("PrintParametersOfBarrelStraws"))
     PrintParameters();
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws done" << endmsg;
 }
 
 
-// Called by TRTConstructionOfBarrelStraws::~TRTConstructionOfBarrelStraws
+  // Called by TRTConstructionOfBarrelStraws::~TRTConstructionOfBarrelStraws
 
 TRTParametersOfBarrelStraws::~TRTParametersOfBarrelStraws()
 {
@@ -37,59 +39,59 @@ TRTParametersOfBarrelStraws::~TRTParametersOfBarrelStraws()
 }
 
 
-// Called by TRTParametersOfBarrelStraws
+  // Called by TRTParametersOfBarrelStraws
 
 void TRTParametersOfBarrelStraws::DefineParameters()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::DefineParameters" << endmsg;
 
-  // Parameters of straw hole:
-  m_outerRadiusOfStrawHole = m_pParameters->GetDouble("OuterRadiusOfStrawHole");
-  m_lengthOfStrawHole = m_pParameters->GetDouble("LengthOfBarrelVolume");
+    // Parameters of straw hole:
+  outerRadiusOfStrawHole = pParameters->GetDouble("OuterRadiusOfStrawHole");
+  lengthOfStrawHole = pParameters->GetDouble("LengthOfBarrelVolume");
 
-  // Parameters of straw:
-  m_outerRadiusOfStraw = m_pParameters->GetDouble("OuterRadiusOfStraw");
-  m_lengthOfStraw = m_lengthOfStrawHole;
+    // Parameters of straw:
+  outerRadiusOfStraw = pParameters->GetDouble("OuterRadiusOfStraw");
+  lengthOfStraw = lengthOfStrawHole;
 
-  // Parameters of wire:
-  m_outerRadiusOfWire = m_pParameters->GetDouble("OuterRadiusOfWire");
-  m_lengthOfWire = m_lengthOfStraw;
+    // Parameters of wire:
+  outerRadiusOfWire = pParameters->GetDouble("OuterRadiusOfWire");
+  lengthOfWire = lengthOfStraw;
 
-  // Parameters of twister:
-  m_innerRadiusOfTwister = m_outerRadiusOfWire;
-  m_outerRadiusOfTwister = m_pParameters->GetDouble("InnerRadiusOfStraw");
-  m_lengthOfTwister = m_pParameters->GetDouble("LengthOfTwister");
+    // Parameters of twister:
+  innerRadiusOfTwister = outerRadiusOfWire;
+  outerRadiusOfTwister = pParameters->GetDouble("InnerRadiusOfStraw");
+  lengthOfTwister = pParameters->GetDouble("LengthOfTwister");
 
-  // Parameters of dead regions:
-  m_innerRadiusOfDeadRegion = m_outerRadiusOfWire;
-  m_outerRadiusOfDeadRegion = m_outerRadiusOfTwister;
-  m_lengthOfDeadRegion = m_pParameters->GetDouble("LengthOfDeadRegion");
-  m_lengthOfLongDeadRegion =
-    m_pParameters->GetDouble("LengthOfInsensitiveRegionA") - m_lengthOfTwister / 2.;
+    // Parameters of dead regions:
+  innerRadiusOfDeadRegion = outerRadiusOfWire;
+  outerRadiusOfDeadRegion = outerRadiusOfTwister;
+  lengthOfDeadRegion = pParameters->GetDouble("LengthOfDeadRegion");
+  lengthOfLongDeadRegion =
+    pParameters->GetDouble("LengthOfInsensitiveRegionA") - lengthOfTwister / 2.;
 
-  m_positionOfDeadRegionLA = (m_lengthOfStraw - m_lengthOfDeadRegion) / 2.;
-  m_positionOfDeadRegionLB = (m_lengthOfTwister + m_lengthOfDeadRegion) / 2.;
-  m_positionOfDeadRegionSA = m_positionOfDeadRegionLA;
-  m_positionOfLongDeadRegionSB = (m_lengthOfTwister + m_lengthOfLongDeadRegion) / 2.;
+  positionOfDeadRegionLA = (lengthOfStraw - lengthOfDeadRegion) / 2.;
+  positionOfDeadRegionLB = (lengthOfTwister + lengthOfDeadRegion) / 2.;
+  positionOfDeadRegionSA = positionOfDeadRegionLA;
+  positionOfLongDeadRegionSB = (lengthOfTwister + lengthOfLongDeadRegion) / 2.;
 
-  // Parameters of gas:
-  m_innerRadiusOfGas = m_innerRadiusOfDeadRegion;
-  m_outerRadiusOfGas = m_outerRadiusOfDeadRegion;
-  m_lengthOfGasL = (m_lengthOfStraw - m_lengthOfTwister) / 2. -
-    m_lengthOfDeadRegion * 2.;
-  m_lengthOfGasS = (m_lengthOfStraw - m_lengthOfTwister) / 2. - m_lengthOfDeadRegion -
-    m_lengthOfLongDeadRegion;
+    // Parameters of gas:
+  innerRadiusOfGas = innerRadiusOfDeadRegion;
+  outerRadiusOfGas = outerRadiusOfDeadRegion;
+  lengthOfGasL = (lengthOfStraw - lengthOfTwister) / 2. -
+    lengthOfDeadRegion * 2.;
+  lengthOfGasS = (lengthOfStraw - lengthOfTwister) / 2. - lengthOfDeadRegion -
+    lengthOfLongDeadRegion;
 
-  m_positionOfGasL = (m_lengthOfGasL + m_lengthOfTwister) / 2. + m_lengthOfDeadRegion;
-  m_positionOfGasS = (m_lengthOfGasS + m_lengthOfTwister) / 2. +
-    m_lengthOfLongDeadRegion;
+  positionOfGasL = (lengthOfGasL + lengthOfTwister) / 2. + lengthOfDeadRegion;
+  positionOfGasS = (lengthOfGasS + lengthOfTwister) / 2. +
+    lengthOfLongDeadRegion;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::DefineParameters"
 						<< " done" << endmsg;
 }
 
 
-// Called by TRTParametersOfBarrelStraws
+  // Called by TRTParametersOfBarrelStraws
 
 void TRTParametersOfBarrelStraws::PrintParameters() const
 {
@@ -106,47 +108,47 @@ void TRTParametersOfBarrelStraws::PrintParameters() const
          << std::endl;
 
   output << "Parameters of barrel straw hole:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfStrawHole,
-                                  m_lengthOfStrawHole);
+  pUtilities->PrintTubeParameters(outerRadiusOfStrawHole,
+    lengthOfStrawHole);
 
   output << std::endl << "Parameters of barrel straw:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfStraw, m_lengthOfStraw);
+  pUtilities->PrintTubeParameters(outerRadiusOfStraw, lengthOfStraw);
 
   output << std::endl << "Parameters of barrel straw wire:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfWire, m_lengthOfWire);
+  pUtilities->PrintTubeParameters(outerRadiusOfWire, lengthOfWire);
 
   output << std::endl << "Parameters of barrel straw twister:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfTwister,
-    m_outerRadiusOfTwister, m_lengthOfTwister);
+  pUtilities->PrintTubeParameters(innerRadiusOfTwister,
+    outerRadiusOfTwister, lengthOfTwister);
 
   output << std::endl << "Parameters of gas S for short straw:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfGas, m_outerRadiusOfGas,
-    m_lengthOfGasS, m_positionOfGasS);
+  pUtilities->PrintTubeParameters(innerRadiusOfGas, outerRadiusOfGas,
+    lengthOfGasS, positionOfGasS);
 
   output << std::endl << "Parameters of dead region SA for short straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
-    m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionSA);
+  pUtilities->PrintTubeParameters(innerRadiusOfDeadRegion,
+    outerRadiusOfDeadRegion, lengthOfDeadRegion, positionOfDeadRegionSA);
 
   output << std::endl << "Parameters of long dead region SB for short straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
-    m_outerRadiusOfDeadRegion, m_lengthOfLongDeadRegion,
-    m_positionOfLongDeadRegionSB);
+  pUtilities->PrintTubeParameters(innerRadiusOfDeadRegion,
+    outerRadiusOfDeadRegion, lengthOfLongDeadRegion,
+    positionOfLongDeadRegionSB);
 
   output << std::endl << "Parameters of gas L for long straw:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfGas, m_outerRadiusOfGas,
-    m_lengthOfGasL, m_positionOfGasL);
+  pUtilities->PrintTubeParameters(innerRadiusOfGas, outerRadiusOfGas,
+    lengthOfGasL, positionOfGasL);
 
   output << std::endl << "Parameters of dead region LA for long straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
-    m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionLA);
+  pUtilities->PrintTubeParameters(innerRadiusOfDeadRegion,
+    outerRadiusOfDeadRegion, lengthOfDeadRegion, positionOfDeadRegionLA);
 
   output << std::endl << "Parameters of dead region LB for long straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
-    m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionLB);
+  pUtilities->PrintTubeParameters(innerRadiusOfDeadRegion,
+    outerRadiusOfDeadRegion, lengthOfDeadRegion, positionOfDeadRegionLB);
 
   output << std::endl;
 

@@ -1,0 +1,36 @@
+###################################################
+package IsolationSelection
+
+author John Morris <john.morris@cern.ch>
+author Dongliang Zhang <dongliang.zhang@cern.ch>
+author Arthur Lesage <arthur.lesage@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+use  AthContainers              AthContainers-*                 Control
+use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
+use  xAODBase                   xAODBase-*                      Event/xAOD
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODPrimitives             xAODPrimitives-*                Event/xAOD
+use  PATInterfaces       		PATInterfaces-*     			PhysicsAnalysis/AnalysisCommon
+use   xAODTracking               xAODTracking-*                  Event/xAOD
+use   InDetTrackSelectionTool    InDetTrackSelectionTool-*       InnerDetector/InDetRecTools
+use   FourMomUtils              FourMomUtils-*                    Event
+
+# use_ifndef pplist="XAOD_ANALYSIS" pkg="Reconstruction/RecoTools/ParticlesInConeTools"
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AtlasROOT                  AtlasROOT-*                     External
+use  GaudiInterface             GaudiInterface-*                External
+use  PathResolver               PathResolver-*                  Tools
+use  xAODCore					xAODCore-*						Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+end_private
+
+apply_pattern dual_use_library files= "../Root/*.cxx ../src/*.cxx"
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+##################################################

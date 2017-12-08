@@ -1,0 +1,89 @@
+package MissingETPerformance
+
+use AtlasPolicy         AtlasPolicy-*
+
+branches run
+
+use GeneratorObjects GeneratorObjects-*    Generators
+
+
+use GaudiInterface		GaudiInterface-*		External
+
+use AtlasCLHEP			AtlasCLHEP-*			External
+use AtlasROOT			AtlasROOT-*			External
+
+use McParticleEvent		McParticleEvent-*		PhysicsAnalysis/TruthParticleID
+#use TrkSegment			TrkSegment-*			Tracking/TrkEvent
+
+use AnalysisTools		AnalysisTools-*			PhysicsAnalysis/AnalysisCommon
+use AnalysisTriggerEvent AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+use TrigInDetEvent       TrigInDetEvent-*        Trigger/TrigEvent
+use TrigCaloEvent        TrigCaloEvent-*         Trigger/TrigEvent
+use TrigMissingEtEvent   TrigMissingEtEvent-*    Trigger/TrigEvent
+use TrigMuonEvent        TrigMuonEvent-*         Trigger/TrigEvent
+
+use egammaEvent              egammaEvent-*             Reconstruction/egamma
+use muonEvent			muonEvent-*			Reconstruction/MuonIdentification
+use Particle			Particle-*			Reconstruction
+#use TrkEventPrimitives  	TrkEventPrimitives-*		Tracking/TrkEvent
+use MissingETEvent		MissingETEvent-*		Reconstruction
+use CaloEvent			CaloEvent-*			Calorimeter
+use JetEvent			JetEvent-*			Reconstruction/Jet
+use CaloInterface               CaloInterface-*                 Calorimeter
+
+use CaloConditions CaloConditions-*     Calorimeter
+use LArRecConditions LArRecConditions-* LArCalorimeter
+
+#use CBNT_Utils			CBNT_Utils-*			Reconstruction
+use AthenaBaseComps AthenaBaseComps-* Control
+
+use StoreGate           	StoreGate-*   	                Control
+
+#for trigger decision tool
+use TrigDecisionTool            TrigDecisionTool-*          Trigger/TrigAnalysis
+
+#for etmissgoodness goodies map
+use MissingETGoodness		MissingETGoodness-*		Reconstruction
+#for collision filtering
+#use GoodRunsLists		GoodRunsLists-*			DataQuality
+#use PrimaryDPDMaker		PrimaryDPDMaker-*		PhysicsAnalysis
+
+#use EventBookkeeperMetaData     EventBookkeeperMetaData-00-*  Event
+use JetUtils	        	JetUtils-*	        	Reconstruction/Jet
+use SGTools            SGTools-*          Control
+
+#private uses
+private
+use AtlasBoost          AtlasBoost-*            External
+use AtlasHepMC          AtlasHepMC-*            External
+use AthenaKernel        AthenaKernel-*          Control
+use xAODEventInfo       xAODEventInfo-* Event/xAOD
+use FourMom             FourMom-*       Event
+use FourMomUtils        FourMomUtils-*  Event
+use CaloGeoHelpers      CaloGeoHelpers-* Calorimeter
+#use ParticleEvent               ParticleEvent-*                 PhysicsAnalysis/AnalysisCommon
+use TrigConfL1Data       TrigConfL1Data-*        Trigger/TrigConfiguration
+use TruthHelper    TruthHelper-*        Generators/GenAnalysisTools
+#use CxxUtils            CxxUtils-*              Control
+use VxVertex             	VxVertex-*                  	Tracking/TrkEvent
+use tauEvent			tauEvent-*			Reconstruction
+
+public
+
+# Specify the required ROOT componetns for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad)"
+
+## MB: Create a component library, dual-use not allowed.
+#library MissingETPerformance "../src/*.cxx ../components/*.cxx"
+#apply_pattern component_library
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py *.C *.sh"
+
+apply_pattern declare_python_modules files="*.py"
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs

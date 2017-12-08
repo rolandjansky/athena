@@ -1,0 +1,38 @@
+package eflowEvent
+
+author D.R. Tovey <d.r.tovey@sheffield.ac.uk>
+
+use AtlasROOT           AtlasROOT-*           External
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*      External
+use AtlasBoost		AtlasBoost-*		 External
+use AtlasReflex         AtlasReflex-*            External
+
+use CLIDSvc		CLIDSvc-*		 Control
+use AthContainers       AthContainers-*          Control
+use AthLinks            AthLinks-*               Control
+use FourMom             FourMom-*                Event
+
+use VxVertex            VxVertex-*             Tracking/TrkEvent
+
+use Navigation          Navigation-*          Control
+ 
+use EventKernel    	EventKernel-*    	 Event
+use FourMom		FourMom-*		 Event
+use NavFourMom          NavFourMom-*          Event
+
+use CaloEvent           CaloEvent-*           Calorimeter
+use xAODCaloEvent       xAODCaloEvent-*       Event/xAOD
+
+use Particle		Particle-*		 Reconstruction
+
+use muonEvent           muonEvent-*             Reconstruction/MuonIdentification
+
+use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODPFlow           xAODPFlow-*             Event/xAOD
+
+apply_pattern lcgdict dict=eflowEvent  selectionfile=selection.xml navigables="eflowObjectContainer" headerfiles="../eflowEvent/eflowEventDict.h"
+
+library eflowEvent *.cxx
+
+apply_pattern installed_library

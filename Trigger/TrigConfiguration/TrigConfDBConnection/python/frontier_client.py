@@ -83,7 +83,7 @@ class Session:
             self.__fieldNames     += [self.__session.assignString()]
             self.__fieldTypeStr     += [self.__session.assignString()]
             if self.__fieldTypeStr[-1].startswith("NUMBER"):
-                if ",0" in self.__fieldTypeStr[-1]:
+                if ",0" in .__fieldTypeStr[-1]:
                     self.__fieldType += [int]
                 else:
                     self.__fieldType += [float]

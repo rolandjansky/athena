@@ -1,0 +1,29 @@
+package CompHep_i
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use Pythia Pythia-* External
+use Lhapdf Lhapdf-* External
+
+private
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+end_private
+
+private
+macro_append fflags "" Linux " -Wno-character-truncation "
+end_private
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this
+# package explicitly sets the allowUndefined tag
+private
+apply_tag allowUndefined
+end_private
+
+library CompHep_i *.cxx *.F
+
+apply_pattern installed_library
+
+apply_pattern declare_runtime_extras extras="Mixed.PEV inparmCompHep.dat"
+apply_pattern declare_joboptions files="*.py"

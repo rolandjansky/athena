@@ -50,7 +50,8 @@ namespace iFatras
       @author Noemi Calace -at- cern.ch, Andreas Salzburger -at cern.ch 
   */  
   
-  class TransportEngine : public extends<AthAlgTool, ISF::IParticleProcessor>
+  class TransportEngine : virtual public ISF::IParticleProcessor,
+    public AthAlgTool
     {
     public:
       /** Constructor */

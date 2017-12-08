@@ -19,6 +19,8 @@ namespace HepMC {
 namespace ISF {
   class ITruthIncident;
 
+  static const InterfaceID IID_ITruthStrategy("ITruthStrategy", 1, 0);
+   
   /**
    @class ITruthStrategy
       
@@ -29,8 +31,8 @@ namespace ISF {
      
   class ITruthStrategy : virtual public IAlgTool {
     public:
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(ITruthStrategy, 1, 0);
+      /** AlgTool interface methods */
+      static const InterfaceID& interfaceID() { return IID_ITruthStrategy; }
       
       /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
       virtual bool pass( ITruthIncident& incident) const = 0;

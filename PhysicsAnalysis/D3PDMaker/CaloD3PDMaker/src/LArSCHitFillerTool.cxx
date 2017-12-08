@@ -44,7 +44,6 @@ LArSCHitFillerTool::LArSCHitFillerTool
      const std::string& name,
      const IInterface* parent)
       : BlockFillerTool<LArHitContainer> (type, name, parent), 
-        m_larCablingSvc("LArCablingService"),
 	m_caloEtaSelection( false ),
 	m_caloPhiSelection( false ),
 	m_caloLayerSelection( false ),

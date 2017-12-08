@@ -1,0 +1,19 @@
+package TrkAmbiguitySolver
+author Edward Moyse <edward.moyse@cern.ch>
+
+private
+use StoreGate             StoreGate-*             Control
+use TrkToolInterfaces     TrkToolInterfaces-*     Tracking/TrkTools
+
+public
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use AthContainers         AthContainers-*         Control
+use TrkTrack              TrkTrack-*              Tracking/TrkEvent
+
+branches TrkAmbiguitySolver src
+
+library TrkAmbiguitySolver *.cxx -s=components *.cxx
+apply_pattern component_library
+

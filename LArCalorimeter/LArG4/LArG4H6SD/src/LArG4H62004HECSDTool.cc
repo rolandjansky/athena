@@ -15,6 +15,7 @@ LArG4H62004HECSDTool::LArG4H62004HECSDTool(const std::string& type, const std::s
   , m_calculator("LArH62004HECLocalCalculator", name)
   , m_wheelSD(nullptr)
 {
+  declareInterface<ISensitiveDetector>(this);
   declareProperty("Calculator", m_calculator);
 }
 

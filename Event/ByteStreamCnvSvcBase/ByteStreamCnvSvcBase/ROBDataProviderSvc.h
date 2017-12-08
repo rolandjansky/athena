@@ -29,11 +29,11 @@
 #include "ByteStreamData/RawEvent.h"
 #include "eformat/SourceIdentifier.h"
 #include "AthenaBaseComps/AthService.h"
-#include "AthenaKernel/SlotSpecificObj.h"
+
 #include <vector>
 #include <map>
 
-class ROBDataProviderSvc :  public extends<AthService, IROBDataProviderSvc> {
+class ROBDataProviderSvc :  public ::AthService, virtual public IROBDataProviderSvc {
 
 public:
    /// ROB Fragment class
@@ -48,38 +48,28 @@ public:
    virtual StatusCode initialize();
 
    /// Gaudi queryInterface method.
-   //   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
    /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector
-   virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") override;
+   virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN");
 
    /// Add a given LVL1/LVL2 ROBFragment to cache
-   virtual void setNextEvent(const std::vector<ROBF>& result) override;
+   virtual void setNextEvent(const std::vector<ROBF>& result);
 
    /// Add all ROBFragments of a RawEvent to cache
-   virtual void setNextEvent(const RawEvent* re) override;
+   virtual void setNextEvent(const RawEvent* re);
 
    /// Retrieve ROBFragments for given ROB ids from cache
-   virtual void getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, const std::string callerName="UNKNOWN") override;
+   virtual void getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, const std::string callerName="UNKNOWN");
 
    /// Retrieve the whole event.
-   virtual const RawEvent* getEvent() override;
+   virtual const RawEvent* getEvent();
 
    /// Store the status for the event.
-   virtual void setEventStatus(uint32_t status) override;
+   virtual void setEventStatus(uint32_t status);
 
    /// Retrieve the status for the event.
-   virtual uint32_t getEventStatus() override;
-
-
-   /// MT variants 
-   virtual void addROBData(const EventContext& context, const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") override;
-   virtual void setNextEvent(const EventContext& context, const std::vector<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>& result) override;
-   virtual void setNextEvent(const EventContext& context, const RawEvent* re) override;
-   virtual void getROBData(const EventContext& context, const std::vector<uint32_t>& robIds, VROBFRAG& robFragments, const std::string callerName="UNKNOWN") override;
-   virtual const RawEvent* getEvent(const EventContext& context) override;
-   virtual void setEventStatus(const EventContext& context, uint32_t status) override;
-   virtual uint32_t getEventStatus(const EventContext& context) override;
+   virtual uint32_t getEventStatus();
 
 protected:
    /// vector of ROBFragment class
@@ -87,18 +77,11 @@ protected:
 
    /// map for all the ROB fragments
    typedef std::map<uint32_t, const ROBF*, std::less<uint32_t> > ROBMAP;
+   ROBMAP m_robmap;
 
-  struct EventCache {
-    ~EventCache();
-    const RawEvent* event = 0;
-    uint32_t eventStatus = 0;    
-    uint32_t currentLvl1ID = 0;    
-    ROBMAP robmap;
- 
-  };
-  SG::SlotSpecificObj<EventCache> m_eventsCache;
+   /// lvl1 ID of cached data
+   uint32_t m_currentLvl1ID;
 
-   /// Remaining attributes are for configuration
    /// vector of Source ids and status words to be ignored for the ROB map
    typedef SimpleProperty< std::vector< std::pair<int, int> > > ArrayPairIntProperty;
    ArrayPairIntProperty  m_filterRobWithStatus; // filter with full ROB SourceID
@@ -115,14 +98,17 @@ protected:
 
    /// Filter out empty ROB fragments which are send by the ROS
    BooleanProperty m_filterEmptyROB;
-   bool m_maskL2EFModuleID = false;    
 
-
+   /// flag which tells if module IDs from the L2 and EF result should be masked off
+   bool m_maskL2EFModuleID;
 
 private: // data
+   const RawEvent* m_event;
+
+   uint32_t m_eventStatus;
 
 private: //
-  static void robmapClear(ROBMAP& toclear);
+   void robmapClear();
 };
 
 #endif

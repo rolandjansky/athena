@@ -151,8 +151,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_rejectBadTracks(false),
   m_dPhiCut(0.4),
   m_dEtaCut(0.6),
-  m_nErrors(0),
-  m_reverseIBLlocx(false)
+  m_nErrors(0)
 {
   m_pixelBarrelPhiOffsets.reserve(4);
   m_pixelBarrelEtaOffsets.reserve(4);
@@ -214,7 +213,6 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("setBroadPixelClusterOnTrackErrors",m_broadPixelErrors);
   declareProperty("setBroadSCT_ClusterOnTrackErrors",m_broadSCT_Errors);
   declareProperty("RemoveDuplicates",m_remove_duplicates);
-  declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
 
 
 }
@@ -303,7 +301,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_MSG_INFO( " Pixel Barrel Eta Offsets (pixels): " << m_pixelBarrelEtaOffsets);
   ATH_MSG_INFO( " Pixel EndCap Phi Offsets (pixels): " << m_pixelEndCapPhiOffsets);
   ATH_MSG_INFO( " Pixel EndCap Eta Offsets (pixels): " << m_pixelEndCapEtaOffsets);
-  if  (m_reverseIBLlocx) ATH_MSG_INFO( "Reversing the direction of IBL LocX");
+
 
   if (m_correctPixelClusters) {
     ATH_MSG_INFO( " applying all corrections (lorentz, angle,  sag) to Pixel Clusters on converted tracks using RotCreatorTool");
@@ -446,10 +444,7 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
               if (tp !=nullptr) {
                 m_refit_tp_map[ftk_track_index] = (int) m_refit_tp->size()-1;
                 tpcont->push_back(tp);
-              } else {
-		m_nErrors++;
-		m_refit_tp_map[ftk_track_index]=-2;
-	      }
+              }
             } else { //trackLink not valid
               ATH_MSG_ERROR ("invalid ElementLink to m_refit_track_map["<<ftk_track_index<<"] = " << m_refit_track_map[ftk_track_index]);
               m_refit_tp_map[ftk_track_index]=-2;
@@ -543,22 +538,15 @@ StatusCode FTK_DataProviderSvc::fillTrackParticleCache(const bool withRefit){
               m_refit_tp_map[ftk_track_index] = (int) m_refit_tp->size()-1;
               ATH_MSG_VERBOSE("TrackParticle from refitted track added to cache at index " << m_refit_tp_map[ftk_track_index]
                   << "  created from FTK track at index " << ftk_track_index);
-	    } else {
-	      m_refit_tp_map[ftk_track_index]=-2;
-	      m_nErrors++;
-	      ATH_MSG_DEBUG("Failed to create TrackParticle from refitted track at index "<< m_refit_track_map[ftk_track_index] << 
-			      " from FTK track at index "  << ftk_track_index);
-	    }
-	    
-	  } else { // trackLink not Valid
-	    ATH_MSG_ERROR ("invalid ElementLink to m_refit_track_map["<<ftk_track_index<<"] = "<< m_refit_track_map[ftk_track_index]);
-	    m_refit_tp_map[ftk_track_index]=-2;
-	    m_nErrors++;
+            } else {
+              ATH_MSG_ERROR ("invalid ElementLink to m_refit_refit_map["<<ftk_track_index<<"] = "<< m_refit_track_map[ftk_track_index]);
+              m_refit_tp_map[ftk_track_index]=-2;
+            }
+
           }
         } else { // track==nullptr
           ATH_MSG_VERBOSE("Setting m_refit_tp_map["<<  ftk_track_index <<"]=-2");
           m_refit_tp_map[ftk_track_index] = -2;
-	  m_nErrors++;
         }
       }
 
@@ -584,21 +572,14 @@ StatusCode FTK_DataProviderSvc::fillTrackParticleCache(const bool withRefit){
               m_conv_tp_map[ftk_track_index] = (int) m_conv_tp->size()-1;
               ATH_MSG_VERBOSE("TrackParticle from converted track added to cache at index " << m_conv_tp_map[ftk_track_index]
                   << "  created from FTK track at index " << ftk_track_index);
-            } else {
-	      ATH_MSG_DEBUG("Failed to create TrackParticle from converted track at index "<< m_conv_track_map[ftk_track_index] << 
-			      " from FTK track at index "  << ftk_track_index);
-	      m_conv_tp_map[ftk_track_index] = -2;
-	      m_nErrors++;
-	    }
+            }
           } else {
             ATH_MSG_ERROR ("invalid ElementLink to m_conv_track_map["<<ftk_track_index<<"] = "<< m_conv_track_map[ftk_track_index]);
             m_conv_tp_map[ftk_track_index] = -2;
-	    m_nErrors++;
           }
         } else { // track== nullptr
           ATH_MSG_VERBOSE("Setting m_conv_tp_map["<<  ftk_track_index <<"]=-2");
           m_conv_tp_map[ftk_track_index] = -2;
-	  m_nErrors++;
         }
       }
 
@@ -680,8 +661,6 @@ StatusCode FTK_DataProviderSvc::fillTrackCache(const bool withRefit) {
       } else {
         ATH_MSG_VERBOSE("Setting m_conv_track_map["<<  ftk_track_index <<"]=-2");
         m_conv_track_map[ftk_track_index]=-2;
-	m_nErrors++;
-
       }
     }
     if (m_conv_track_map[ftk_track_index]>-1 && withRefit && m_refit_track_map[ftk_track_index]==-1) { // need to do refit
@@ -691,7 +670,6 @@ StatusCode FTK_DataProviderSvc::fillTrackCache(const bool withRefit) {
         ATH_MSG_VERBOSE("fillTrackCache: refit failed - refitted track coresponding to FTK track with index " << ftk_track_index << " has NOT added to  output collection");
         m_refit_track_map[ftk_track_index] = -2; // flag so we don't try to refit again
         ATH_MSG_VERBOSE("Setting m_refit_track_map["<<  ftk_track_index <<"]=-2");
-	m_nErrors++;
       } else {
         ATH_MSG_VERBOSE( "fillTrackCache: Track Refit SUCEEDED ");
         ATH_MSG_VERBOSE( "fillTrackCache:  adding refitted track to cache at index " <<  m_refit_tracks->size() << " corresponding to FTK track " << ftk_track_index);
@@ -1096,7 +1074,6 @@ Trk::Track* FTK_DataProviderSvc::getCachedTrack(const unsigned int ftk_track_ind
         m_trackSumTool->updateTrack(*track);
       } else {
         m_conv_track_map[ftk_track_index] = -2;
-	m_nErrors++;
         ATH_MSG_VERBOSE( "getCachedTrack: conversion failed, marking ftk track with index " << ftk_track_index << " as bad");
       }
 
@@ -1124,8 +1101,6 @@ Trk::Track* FTK_DataProviderSvc::getCachedTrack(const unsigned int ftk_track_ind
     if (refitTrack == nullptr) {
       ATH_MSG_VERBOSE( "getCachedTrack:  failed to retrieve refitted track with index " << m_refit_track_map[ftk_track_index] << " corresponding to FTK track " << ftk_track_index);
       m_refit_track_map[ftk_track_index] = -2;
-      m_nErrors++;
-
     }
 
   } else if (m_conv_track_map[ftk_track_index] != -2 && m_refit_track_map[ftk_track_index]!=-2){
@@ -1135,7 +1110,6 @@ Trk::Track* FTK_DataProviderSvc::getCachedTrack(const unsigned int ftk_track_ind
     if(newRefitTrack == nullptr ) {
       ATH_MSG_DEBUG("getCachedTrack: refit failed - refitted track coresponding to FTK track with index " << ftk_track_index << " has NOT added to  output collection");
       m_refit_track_map[ftk_track_index] = -2;
-      m_nErrors++;
       return nullptr;
     } else {
       ATH_MSG_VERBOSE( "getCachedTrack: Track Refit SUCEEDED");
@@ -1816,14 +1790,7 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   ATH_MSG_VERBOSE( " Module rows= " << design->rows() << " phiPitch= " << design->phiPitch() << " width= " << design->width() );
   ATH_MSG_VERBOSE( " columns = " << design->columns() << " etaPitch= " << design->etaPitch() <<  " length " << design->length());
 
-  int rawLocalPhiCoord;
-  
-  if (m_reverseIBLlocx && isBarrel && layer==0) {
-    rawLocalPhiCoord = 2680 -  raw_pixel_cluster.getRowCoord(); //335*8=2680
-  } else {
-    rawLocalPhiCoord = raw_pixel_cluster.getRowCoord();
-  }
-
+  int rawLocalPhiCoord = raw_pixel_cluster.getRowCoord();
   int rawLocalEtaCoord= raw_pixel_cluster.getColCoord();
 
   const InDetDD::SiCellId cornerCell(0, 0);
@@ -1832,8 +1799,6 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   const double eta0 = localPositionOfCornerCell.xEta();
 
   ATH_MSG_VERBOSE( " local position of pixel at (0,0) is "<<  phi0 << ",  " << eta0);
-
-
 
   // zero is center of the row coordinates, so to find the cell we can use it, units of 6.25 microns
   // zero is edge of the column coordinates, so to find the cell we add 0.5, units of 25 microns

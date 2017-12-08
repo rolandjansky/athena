@@ -41,7 +41,8 @@ namespace iFatras
       @author Sharka Todorova Sarka.Todorova -at- cern.ch
   */  
   
-  class ProcessSamplingTool : public extends<AthAlgTool, IProcessSamplingTool>
+  class ProcessSamplingTool : virtual public IProcessSamplingTool,
+                        public AthAlgTool
   {
   public:
     /** Constructor */

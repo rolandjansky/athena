@@ -1,0 +1,38 @@
+package InDetTrackScoringTools
+
+author Markus Elsing <Markus.Elsing@cern.ch>
+
+private
+
+apply_tag rootMathLibs
+
+use AtlasCLHEP               AtlasCLHEP-*              External
+use AtlasROOT                AtlasROOT-*                External
+use StoreGate                StoreGate-*                Control
+use TrkTrack                 TrkTrack-*                 Tracking/TrkEvent
+use TrkTrackSummary          TrkTrackSummary-*          Tracking/TrkEvent
+use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-*  Tracking/TrkEvent
+use InDetIdentifier          InDetIdentifier-*          InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack         InDetRIO_OnTrack-*         InnerDetector/InDetRecEvent
+use TrkExInterfaces          TrkExInterfaces-*          Tracking/TrkExtrapolation
+use InDetBeamSpotService     InDetBeamSpotService-*     InnerDetector/InDetConditions
+use InDetRecToolInterfaces   InDetRecToolInterfaces-*   InnerDetector/InDetRecTools
+use MagFieldInterfaces       MagFieldInterfaces-*       MagneticField
+use GeoPrimitives            GeoPrimitives-*            DetectorDescription
+use TrkCaloClusterROI        TrkCaloClusterROI-*        Tracking/TrkEvent
+public
+
+use AtlasPolicy              AtlasPolicy-*
+use GaudiInterface           GaudiInterface-*           External
+use AthenaBaseComps          AthenaBaseComps-*          Control
+use TrkEventPrimitives       TrkEventPrimitives-*       Tracking/TrkEvent
+use TrkParameters            TrkParameters-*            Tracking/TrkEvent
+use TrkToolInterfaces        TrkToolInterfaces-*        Tracking/TrkTools
+use AthenaKernel             AthenaKernel-*             Control
+use SGTools                  SGTools-*                  Control
+
+branches InDetTrackScoringTools src
+
+library InDetTrackScoringTools *.cxx -s=components *.cxx
+apply_pattern component_library
+

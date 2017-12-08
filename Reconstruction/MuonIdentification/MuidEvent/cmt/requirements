@@ -1,0 +1,34 @@
+package MuidEvent
+
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+author			Giorgos Stavropoulos <George.Stavropoulos@cern.ch>
+author			Dimitrios Fassouliotis <Dimitrios.Fassouliotis@cern.ch>
+author                  Michela Biglietti <michela.biglietti@na.infn.it>
+author			Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+author			Kostas Nikolopoulos <Konstantinos.Nikolopoulos@cern.ch>
+author			Gabriella Cataldi <Gabriella.Cataldi@le.infn.it>
+
+public
+use AtlasPolicy			AtlasPolicy-*
+use CLIDSvc			CLIDSvc-*			Control                    
+use DataModel			DataModel-*			Control
+use TrkParameters		TrkParameters-*			Tracking/TrkEvent
+
+private
+use AtlasCLHEP			AtlasCLHEP-*			External
+use Particle			Particle-*			Reconstruction
+use TrkSurfaces			TrkSurfaces-*			Tracking/TrkDetDescr
+use TrkTrack			TrkTrack-*			Tracking/TrkEvent
+use VxVertex			VxVertex-*			Tracking/TrkEvent
+
+public
+library MuidEvent  "CaloLayer.cxx		\
+		   CaloMeas.cxx			\
+		   IndetMatchCandidate.cxx	\
+		   MuidTrack.cxx		\
+		   MuonMatch.cxx"
+				
+apply_pattern installed_library
+
+
+

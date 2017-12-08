@@ -1,7 +1,7 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #RDO
-#athenaCommonFlags.FilesInput = ['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d639_tid682867_00/RDO.682867._000001.pool.root.1']
+#athenaCommonFlags.FilesInput = ['root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d639_tid682867_00/RDO.682867._000001.pool.root.1']
 
 #AOD data
 #athenaCommonFlags.FilesInput = ['root://eosatlas.cern.ch//eos/atlas/user/g/gbrooijm/dpd-rtt/data12_8TeV.00206299.physics_JetTauEtmiss.merge.AOD.f450_m1170._lb0078._0001.1']

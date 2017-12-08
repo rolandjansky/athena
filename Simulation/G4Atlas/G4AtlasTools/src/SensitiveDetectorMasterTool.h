@@ -22,7 +22,8 @@
 ///
 /// This will probably be changed (back) to a service in the near future.
 ///
-class SensitiveDetectorMasterTool : public extends<AthAlgTool, ISensitiveDetectorMasterTool>
+class SensitiveDetectorMasterTool : public AthAlgTool,
+                                    public virtual ISensitiveDetectorMasterTool
 {
  public:
   /// Standard constructor
@@ -30,6 +31,12 @@ class SensitiveDetectorMasterTool : public extends<AthAlgTool, ISensitiveDetecto
                               const IInterface* parent);
   /// Empty virtual destructor
   virtual ~SensitiveDetectorMasterTool() {}
+
+  /// Gaudi boiler plate methods
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
+  static const InterfaceID& interfaceID() {
+    return ISensitiveDetectorMasterTool::interfaceID();
+  }
 
   /// Retrieve the SD tools. SD creation is deferred until initializeSDs.
   StatusCode initialize() override final;

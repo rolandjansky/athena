@@ -128,9 +128,8 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   //Set up the FTK Data Provider SVC //
   ATH_CHECK(m_DataProviderSvc.retrieve());
   /// Get Histogram Service ///
-    
-  if (m_fillTree || m_fillHists) ATH_CHECK(service("THistSvc", rootHistSvc));
-  
+  ATH_CHECK(service("THistSvc", rootHistSvc));
+
   
 
   ///Tree
@@ -189,33 +188,31 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   ATH_MSG_DEBUG("FTK_RDO_ReaderAlgo::execute() start");
 
 
-  if (m_fillTree) {
-    const EventInfo* eventInfo;
-    StatusCode scEv = evtStore()->retrieve(eventInfo);
-    if (scEv.isFailure()) {
-      ATH_MSG_DEBUG( "Could not retrieve event info" );
-    } else {
-      int eventNumber = eventInfo->event_ID()->event_number();
-      ATH_MSG_DEBUG(" Event " << eventNumber);
-      
-      const EventID* eventID( eventInfo->event_ID());
-      ATH_MSG_DEBUG( "entered execution for run" << eventID->run_number()
-		     << "event" << eventID->event_number());
-      
-      const TriggerInfo *triggerInfo(eventInfo->trigger_info());
-      
-      RunNumber = eventID->run_number();
-      EventNumber = eventID->event_number();
-      LumiBlock = eventID->lumi_block();
-      BCID = eventID->bunch_crossing_id();
-      averageInteractionsPerCrossing = eventInfo->averageInteractionsPerCrossing();
-      actualInteractionsPerCrossing = eventInfo->actualInteractionsPerCrossing();
-      extendedLevel1ID = triggerInfo->extendedLevel1ID();
-      level1TriggerType = triggerInfo->level1TriggerType();
-      std::vector<unsigned int> info = triggerInfo->level1TriggerInfo();
-      
-      for (unsigned int i = 0; i < info.size(); i++) level1TriggerInfo.push_back(info[i]);
-    }
+  const EventInfo* eventInfo;
+  StatusCode scEv = evtStore()->retrieve(eventInfo);
+  if (scEv.isFailure()) {
+        ATH_MSG_DEBUG( "Could not retrieve event info" );
+  } else {
+    int eventNumber = eventInfo->event_ID()->event_number();
+    ATH_MSG_DEBUG(" Event " << eventNumber);
+    
+    const EventID* eventID( eventInfo->event_ID());
+    ATH_MSG_DEBUG( "entered execution for run" << eventID->run_number()
+		   << "event" << eventID->event_number());
+  
+    const TriggerInfo *triggerInfo(eventInfo->trigger_info());
+  
+    RunNumber = eventID->run_number();
+    EventNumber = eventID->event_number();
+    LumiBlock = eventID->lumi_block();
+    BCID = eventID->bunch_crossing_id();
+    averageInteractionsPerCrossing = eventInfo->averageInteractionsPerCrossing();
+    actualInteractionsPerCrossing = eventInfo->actualInteractionsPerCrossing();
+    extendedLevel1ID = triggerInfo->extendedLevel1ID();
+    level1TriggerType = triggerInfo->level1TriggerType();
+    std::vector<unsigned int> info = triggerInfo->level1TriggerInfo();
+
+    for (unsigned int i = 0; i < info.size(); i++) level1TriggerInfo.push_back(info[i]);
   }
 
   unsigned int track_requirement = 3;
@@ -831,10 +828,9 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Tracks(){
     ATH_MSG_DEBUG("Could not find FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate.");
     
   }
-  if (rawTracks == nullptr) return;
-  ATH_MSG_DEBUG(" Got FTK_RawTrackContainer " << m_ftk_raw_trackcollection_Name << " with " << rawTracks->size() << " tracks");
 
-  if (m_fillHists || m_fillTree) {
+  if (rawTracks != nullptr) {
+    ATH_MSG_DEBUG(" Got FTK_RawTrackContainer with " << rawTracks->size() << " tracks");
     
     FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
     FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
@@ -897,85 +893,86 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
     ATH_MSG_DEBUG("DataProviderSvc->getTracks(false) returned nullptr");
     return;
   }
- 
-  ATH_MSG_DEBUG( " Got TrackCollection with "<< track_collection->size()<< " FTK tracks" );
+  ATH_MSG_DEBUG("DataProviderSvc returned " <<  track_collection->size() << " converted tracks");
+  //  if ( evtStore()->record ( track_collection, m_TrackCollectionName).isFailure() ) {                                                                                      
+  //   ATH_MSG_DEBUG("Failed to record FTK TrackCollection with name " <<  m_TrackCollectionName);                                                                            
+  //  }                                                                                                                                                                       
 
-  if (m_fillHists || m_fillTree) {
-	
-    if (m_fillHists)h_Track_n->Fill(track_collection->size());
-    TrackCollection::const_iterator track_it   = track_collection->begin();
-    TrackCollection::const_iterator last_track = track_collection->end();
-    int iTrack=0;
-    
-    if(m_fillTree){
-      converted_track_eta.clear();
-      converted_track_theta.clear();
-      converted_track_invPt.clear();
-      converted_track_Pt.clear();
-      converted_track_d0.clear();
-      converted_track_z0.clear();
-      converted_track_phi0.clear();
+ 
+  ATH_MSG_VERBOSE( " Printing information for " << track_collection->size()<< " FTK tracks" );
+  if (m_fillHists)h_Track_n->Fill(track_collection->size());
+  TrackCollection::const_iterator track_it   = track_collection->begin();
+  TrackCollection::const_iterator last_track = track_collection->end();
+  int iTrack=0;
+
+  if(m_fillTree){
+    converted_track_eta.clear();
+    converted_track_theta.clear();
+    converted_track_invPt.clear();
+    converted_track_Pt.clear();
+    converted_track_d0.clear();
+    converted_track_z0.clear();
+    converted_track_phi0.clear();
+  }
+
+
+  for ( ; track_it!= last_track; track_it++, iTrack++) {
+    int nPix = 0;
+    int nSCT = 0;
+    const Trk::TrackSummary* summary = (*track_it)->trackSummary();
+    if( summary != 0){
+      nPix = summary->get(Trk::numberOfPixelHits);
+      nSCT = summary->get(Trk::numberOfSCTHits);
     }
     
+    float trkEta = -99999;
+    float trkPt = -99999;
+    float trkTheta = -99999;
+    float d0=-99999;
+    float z0=-99999;
+    float phi0= -99999;
     
-    for ( ; track_it!= last_track; track_it++, iTrack++) {
-      int nPix = 0;
-      int nSCT = 0;
-      const Trk::TrackSummary* summary = (*track_it)->trackSummary();
-      if( summary != 0){
-	nPix = summary->get(Trk::numberOfPixelHits);
-	nSCT = summary->get(Trk::numberOfSCTHits);
-      }
+    if(m_fillTree){
+      trkEta=-log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.));
+      trkTheta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
+      if (fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
+      d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
+      z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
+      phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
       
-      float trkEta = -99999;
-      float trkPt = -99999;
-      float trkTheta = -99999;
-      float d0=-99999;
-      float z0=-99999;
-      float phi0= -99999;
+      converted_track_eta.push_back(trkEta);
+      converted_track_theta.push_back(trkTheta);
+      if(fabs(trkPt) >= 1e-9) converted_track_invPt.push_back(1000/trkPt);
+      converted_track_Pt.push_back(trkPt);
+      converted_track_d0.push_back(d0);
+      converted_track_z0.push_back(z0);
+      converted_track_phi0.push_back(phi0);
+    }
     
-      if(m_fillTree){
-	trkEta=-log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.));
-	trkTheta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
-	if (fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
-	d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
-	z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
-	phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
-	
-	converted_track_eta.push_back(trkEta);
-	converted_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) converted_track_invPt.push_back(1000/trkPt);
-	converted_track_Pt.push_back(trkPt);
-	converted_track_d0.push_back(d0);
-	converted_track_z0.push_back(z0);
-	converted_track_phi0.push_back(phi0);
-      }
+    if (m_fillHists) {
+      h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
+      h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
+      h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
+      h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
+      double cotTheta=1.e10;
+      double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
+      if (fabs(tanTheta)>=1e-9) cotTheta= 1./tanTheta;
+      h_Track_cot->Fill(cotTheta);
       
-      if (m_fillHists) {
-	h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-	h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-	h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-	h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
-	double cotTheta=1.e10;
-	double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
-	if (fabs(tanTheta)>=1e-9) cotTheta= 1./tanTheta;
-	h_Track_cot->Fill(cotTheta);
-	
-	h_Track_nPix->Fill(nPix);
-	h_Track_nSCT->Fill(nSCT);
-      }
-      
-      trkPt = 1.e10;
-      const Trk::Perigee* peri=(*track_it)->perigeeParameters();
-      if (peri) {
-	if (fabs(peri->parameters()[Trk::qOverP])>=1e-9) trkPt= sin(peri->parameters()[Trk::theta])/peri->parameters()[Trk::qOverP];
-	ATH_MSG_VERBOSE( " Track "<< iTrack << ": pT: "<< trkPt <<
-			 " eta: " <<  -log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
-			 " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
-			 " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
-			 " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
-			 " nPix: " << nPix << " nSCT: " << nSCT );
-      }
+      h_Track_nPix->Fill(nPix);
+      h_Track_nSCT->Fill(nSCT);
+    }
+    
+    trkPt = 1.e10;
+    const Trk::Perigee* peri=(*track_it)->perigeeParameters();
+    if (peri) {
+      if (fabs(peri->parameters()[Trk::qOverP])>=1e-9) trkPt= sin(peri->parameters()[Trk::theta])/peri->parameters()[Trk::qOverP];
+      ATH_MSG_VERBOSE( " Track "<< iTrack << ": pT: "<< trkPt <<
+		       " eta: " <<  -log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
+		       " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
+		       " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
+		       " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
+		       " nPix: " << nPix << " nSCT: " << nSCT );
     }
   }
   delete(track_collection);
@@ -983,95 +980,94 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
 
 
 void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
-
+  ATH_MSG_DEBUG( " Getting refitted tracks from DataProviderSvc" );
   TrackCollection *refitTracks  = m_DataProviderSvc->getTracks(true);
   if (!refitTracks) {
     ATH_MSG_DEBUG( "DataProviderSvc->getTracks(true) returned nullptr");
     return;
   }
-
-  ATH_MSG_DEBUG( " Got TrackCollection with " << refitTracks->size()<< " refitted FTK tracks" );
+  ATH_MSG_DEBUG( "DataProviderSvc returned " <<  refitTracks->size() << " refitted tracks" );
+  //       if ( evtStore()->get ( refitTracks, m_refitTrackCollectionName).isFailure() ) {
+  //	 ATH_MSG_DEBUG( "Failed to get refit FTK TrackCollection with name " <<  m_refitTrackCollectionName );
+  //       }
   
-  if (m_fillTree || m_fillHists) {
-    if(m_fillTree){
-      refit_track_eta.clear();
-      refit_track_theta.clear();
-      refit_track_invPt.clear();
-      refit_track_Pt.clear();
-      refit_track_d0.clear();
-      refit_track_z0.clear();
-      refit_track_phi0.clear();
+  if(m_fillTree){
+    refit_track_eta.clear();
+    refit_track_theta.clear();
+    refit_track_invPt.clear();
+    refit_track_Pt.clear();
+    refit_track_d0.clear();
+    refit_track_z0.clear();
+    refit_track_phi0.clear();
+  }
+  
+  ATH_MSG_VERBOSE( " Printing information for " << refitTracks->size()<< " refitted FTK tracks" );
+  if (m_fillHists) h_Track_n->Fill(refitTracks->size());
+  auto track_it   = refitTracks->begin();
+  auto last_track = refitTracks->end();
+  for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
+    int nPix = 0;
+    int nSCT = 0;
+    const Trk::TrackSummary* summary = (*track_it)->trackSummary();
+    if( summary != 0){
+      nPix = summary->get(Trk::numberOfPixelHits);
+      nSCT = summary->get(Trk::numberOfSCTHits);
+    }
+    if (m_fillHists) {
+      h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
+      h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
+      h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
+      h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
+      double cotTheta=1.e10;
+      double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
+      if (fabs(tanTheta)>=1e-9) cotTheta=1./tanTheta;
+      h_Track_cot->Fill(cotTheta);
+      h_Track_nPix->Fill(nPix);
+      h_Track_nSCT->Fill(nSCT);
     }
     
-    if (m_fillHists) h_Track_n->Fill(refitTracks->size());
-    auto track_it   = refitTracks->begin();
-    auto last_track = refitTracks->end();
-    for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
-      int nPix = 0;
-      int nSCT = 0;
-      const Trk::TrackSummary* summary = (*track_it)->trackSummary();
-      if( summary != 0){
-	nPix = summary->get(Trk::numberOfPixelHits);
-	nSCT = summary->get(Trk::numberOfSCTHits);
-      }
-      if (m_fillHists) {
-	h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-	h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-	h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-	h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
-	double cotTheta=1.e10;
-	double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
-	if (fabs(tanTheta)>=1e-9) cotTheta=1./tanTheta;
-	h_Track_cot->Fill(cotTheta);
-	h_Track_nPix->Fill(nPix);
-	h_Track_nSCT->Fill(nSCT);
-      }
-      
-      float trkEta = -99999;
-      float trkPt = -999999;
-      float trkTheta = -99999;
-      float d0=-99999;
-      float z0=-9999999;
-      float phi0= -999999;
-      
-      trkEta=-log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.));
-      trkTheta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
-      if( fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
-      d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
-      z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
-      phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
-      
-      if (m_fillTree){
-	refit_track_eta.push_back(trkEta);
-	refit_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) refit_track_invPt.push_back(1000/trkPt);
-	refit_track_Pt.push_back(trkPt);
-	refit_track_d0.push_back(d0);
-	refit_track_z0.push_back(z0);
-	refit_track_phi0.push_back(phi0);
-      }
-      
-      
-      trkPt = 1.e10;
-      if (fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP])>=1e-9) trkPt= sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
-      
-      ATH_MSG_VERBOSE( " Track" << iTrack << ": pT: "<< trkPt <<
-		       " eta: " <<  -std::log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
-		       " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
-		       " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
-		       " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
-		       " nPix: " << nPix << " nSCT: " << nSCT );
+    float trkEta = -99999;
+    float trkPt = -999999;
+    float trkTheta = -99999;
+    float d0=-99999;
+    float z0=-9999999;
+    float phi0= -999999;
+    
+    trkEta=-log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.));
+    trkTheta = (*track_it)->perigeeParameters()->parameters()[Trk::theta];
+    if( fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]) >= 1e-9) trkPt = sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
+    d0 = (*track_it)->perigeeParameters()->parameters()[Trk::d0];
+    z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
+    phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
+    
+    if (m_fillTree){
+      refit_track_eta.push_back(trkEta);
+      refit_track_theta.push_back(trkTheta);
+      if(fabs(trkPt) >= 1e-9) refit_track_invPt.push_back(1000/trkPt);
+      refit_track_Pt.push_back(trkPt);
+      refit_track_d0.push_back(d0);
+      refit_track_z0.push_back(z0);
+      refit_track_phi0.push_back(phi0);
     }
-    if(m_fillTree && m_getClusters) Fill_Clusters(refitTracks,refit_x_residual,refit_y_residual,refit_locX,refit_locY,refit_isPixel,refit_isBarrel,refit_isSCT,refit_layer,refit_resAssociatedTrack,refit_clustID);
+    
+
+    trkPt = 1.e10;
+    if (fabs((*track_it)->perigeeParameters()->parameters()[Trk::qOverP])>=1e-9) trkPt= sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
+
+    ATH_MSG_VERBOSE( " Track" << iTrack << ": pT: "<< trkPt <<
+		     " eta: " <<  -std::log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
+		     " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
+		     " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
+		     " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
+		     " nPix: " << nPix << " nSCT: " << nSCT );
   }
+  if(m_fillTree && m_getClusters) Fill_Clusters(refitTracks,refit_x_residual,refit_y_residual,refit_locX,refit_locY,refit_isPixel,refit_isBarrel,refit_isSCT,refit_layer,refit_resAssociatedTrack,refit_clustID);
   delete (refitTracks);
 }
 
 
 void FTK_RDO_ReaderAlgo::Fill_Offline_Tracks(){
-
-  if (m_fillTree) {
-    
+  if(m_fillTree){
     offline_track_theta.clear();                                                                      
     offline_track_eta.clear();                                                                        
     offline_track_phi0.clear();                                                                       
@@ -1079,32 +1075,31 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Tracks(){
     offline_track_z0.clear();                                                                         
     offline_track_invPt.clear();                                                                      
     offline_track_Pt.clear();                                                                         
-      
-    const xAOD::TrackParticleContainer *offlineTracks = nullptr;
-    if(evtStore()->retrieve(offlineTracks,"InDetTrackParticles").isFailure()){
-      ATH_MSG_DEBUG("Failed to retrieve Offline Tracks");
-      return;
-    }
-    ATH_MSG_DEBUG( " Got TrackParticleContainer InDetTrackParticles with " << offlineTracks->size()<< " offline tracks" );
+  }     
+  const xAOD::TrackParticleContainer *offlineTracks = nullptr;
+  if(evtStore()->retrieve(offlineTracks,"InDetTrackParticles").isFailure()){
+    ATH_MSG_DEBUG("Failed to retrieve Offline Tracks");
+    return;
+  }
+  ATH_MSG_VERBOSE( " Printing information for " << offlineTracks->size()<< " offline tracks" );
    
-    if(offlineTracks->size()!=0){
-      auto track_it   = offlineTracks->begin();
-      auto last_track = offlineTracks->end();
-      for (int iTrk=0 ; track_it!= last_track; track_it++, iTrk++){
-	
-	if(m_fillTree){
-	  offline_track_Pt.push_back((*track_it)->pt()*(*track_it)->charge()/1000);
-	  if(fabs(1000*(*track_it)->pt()*(*track_it)->charge()) >= 1e-9) offline_track_invPt.push_back(1000/(*track_it)->pt()*(*track_it)->charge());
-	  offline_track_theta.push_back((*track_it)->theta());
-	  offline_track_eta.push_back((*track_it)->eta());
-	  offline_track_phi0.push_back((*track_it)->phi0());
-	  offline_track_d0.push_back((*track_it)->d0());
-	  offline_track_z0.push_back((*track_it)->z0());
-	}
+  if(offlineTracks->size()!=0){
+    auto track_it   = offlineTracks->begin();
+    auto last_track = offlineTracks->end();
+    for (int iTrk=0 ; track_it!= last_track; track_it++, iTrk++){
+
+      if(m_fillTree){
+	offline_track_Pt.push_back((*track_it)->pt()*(*track_it)->charge()/1000);
+	if(fabs(1000*(*track_it)->pt()*(*track_it)->charge()) >= 1e-9) offline_track_invPt.push_back(1000/(*track_it)->pt()*(*track_it)->charge());
+	offline_track_theta.push_back((*track_it)->theta());
+	offline_track_eta.push_back((*track_it)->eta());
+	offline_track_phi0.push_back((*track_it)->phi0());
+	offline_track_d0.push_back((*track_it)->d0());
+	offline_track_z0.push_back((*track_it)->z0());
       }
     }
-    if(m_getOfflineClusters) Fill_Clusters(offlineTracks,offline_x_residual,offline_y_residual,offline_locX,offline_locY,offline_isPixel,offline_isBarrel,offline_isSCT,offline_layer,offline_resAssociatedTrack,offline_clustID);
   }
+  if(m_fillTree && m_getOfflineClusters) Fill_Clusters(offlineTracks,offline_x_residual,offline_y_residual,offline_locX,offline_locY,offline_isPixel,offline_isBarrel,offline_isSCT,offline_layer,offline_resAssociatedTrack,offline_clustID);
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
@@ -1114,43 +1109,40 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
   ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from raw tracks from DataProviderSvc" );
   const xAOD::VertexContainer *vxr = m_DataProviderSvc->getFastVertices(ftk::RawTrack); // RAW  FTK tracks
   
-  if(vxr == nullptr) return;
-
-  ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " xAOD:Vertex created from raw tracks using fast FTK_VertexFinderTool" );
-    
-  if (m_fillTree) {
+  if(vxr != 0 && vxr != nullptr ){
+    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " xAOD:Vertex created from raw tracks using fast FTK_VertexFinderTool" );
     float this_vertex_sumpt = 0;
     
     ATH_MSG_VERBOSE( " " );
     ATH_MSG_VERBOSE( " Printing information for " <<  vxr->size()<< " Vertex " );
     int ivx=0;
     
-    
-    fastAlg_FTKraw_vertex_ndf.clear();
-    fastAlg_FTKraw_vertex_chi2.clear();
-    fastAlg_FTKraw_vertex_chi2_over_ndf.clear();
-    fastAlg_FTKraw_vertex_x_position.clear();
-    fastAlg_FTKraw_vertex_y_position.clear();
-    fastAlg_FTKraw_vertex_z_position.clear();
-    fastAlg_FTKraw_vertex_x_error.clear();
-    fastAlg_FTKraw_vertex_y_error.clear();
-    fastAlg_FTKraw_vertex_z_error.clear();
-    fastAlg_FTKraw_vertex_nTrack.clear();
-    fastAlg_FTKraw_vertex_number.clear();
-    fastAlg_FTKraw_vertex_associated_track_phi0.clear();
-    fastAlg_FTKraw_vertex_associated_track_d0.clear();
-    fastAlg_FTKraw_vertex_associated_track_z0.clear();
-    fastAlg_FTKraw_vertex_associated_track_invPt.clear();
-    fastAlg_FTKraw_vertex_associated_track_cot.clear();
-    fastAlg_FTKraw_vertex_associated_track_eta.clear();
-    fastAlg_FTKraw_vertex_associated_track_nVerts.clear();
-    fastAlg_FTKraw_vertex_associated_track_VtxNumber.clear();    
-    fastAlg_FTKraw_vertex_number.clear();
-    fastAlg_FTKraw_vertex_associated_track_Pt.clear();
-    fastAlg_FTKraw_vertex_associated_track_eta.clear();
-    fastAlg_FTKraw_vertex_associated_track_theta.clear();
-    isRawFastHS.clear();  // currently HS variable does not work for Fast Algo (use sumpt2 for HSV)
-
+    if(m_fillTree){
+      fastAlg_FTKraw_vertex_ndf.clear();
+      fastAlg_FTKraw_vertex_chi2.clear();
+      fastAlg_FTKraw_vertex_chi2_over_ndf.clear();
+      fastAlg_FTKraw_vertex_x_position.clear();
+      fastAlg_FTKraw_vertex_y_position.clear();
+      fastAlg_FTKraw_vertex_z_position.clear();
+      fastAlg_FTKraw_vertex_x_error.clear();
+      fastAlg_FTKraw_vertex_y_error.clear();
+      fastAlg_FTKraw_vertex_z_error.clear();
+      fastAlg_FTKraw_vertex_nTrack.clear();
+      fastAlg_FTKraw_vertex_number.clear();
+      fastAlg_FTKraw_vertex_associated_track_phi0.clear();
+      fastAlg_FTKraw_vertex_associated_track_d0.clear();
+      fastAlg_FTKraw_vertex_associated_track_z0.clear();
+      fastAlg_FTKraw_vertex_associated_track_invPt.clear();
+      fastAlg_FTKraw_vertex_associated_track_cot.clear();
+      fastAlg_FTKraw_vertex_associated_track_eta.clear();
+      fastAlg_FTKraw_vertex_associated_track_nVerts.clear();
+      fastAlg_FTKraw_vertex_associated_track_VtxNumber.clear();    
+      fastAlg_FTKraw_vertex_number.clear();
+      fastAlg_FTKraw_vertex_associated_track_Pt.clear();
+      fastAlg_FTKraw_vertex_associated_track_eta.clear();
+      fastAlg_FTKraw_vertex_associated_track_theta.clear();
+      isRawFastHS.clear();  // currently HS variable does not work for Fast Algo (use sumpt2 for HSV)
+    }
     
     for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivx++) {
       
@@ -1163,66 +1155,67 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
 		       " ) Chi2: " << (*pvx)->chiSquared() <<
 		       " nDoF " << (*pvx)->numberDoF() );
       
-
-      fastAlg_FTKraw_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      fastAlg_FTKraw_vertex_ndf.push_back((*pvx)->numberDoF());
-      fastAlg_FTKraw_vertex_chi2.push_back((*pvx)->chiSquared());
-      fastAlg_FTKraw_vertex_x_position.push_back((*pvx)->position().x());
-      fastAlg_FTKraw_vertex_y_position.push_back((*pvx)->position().y());
-      fastAlg_FTKraw_vertex_z_position.push_back((*pvx)->position().z());
-      fastAlg_FTKraw_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      fastAlg_FTKraw_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      fastAlg_FTKraw_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) fastAlg_FTKraw_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
-      
-      int isThisRawFastHS = 0;
-      if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRawFastHS = 1;
-      isRawFastHS.push_back(isThisRawFastHS);
-      
-      
-      for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
-	const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
+      if(m_fillTree){
+	fastAlg_FTKraw_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+	fastAlg_FTKraw_vertex_ndf.push_back((*pvx)->numberDoF());
+	fastAlg_FTKraw_vertex_chi2.push_back((*pvx)->chiSquared());
+	fastAlg_FTKraw_vertex_x_position.push_back((*pvx)->position().x());
+	fastAlg_FTKraw_vertex_y_position.push_back((*pvx)->position().y());
+	fastAlg_FTKraw_vertex_z_position.push_back((*pvx)->position().z());
+	fastAlg_FTKraw_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+	fastAlg_FTKraw_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+	fastAlg_FTKraw_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+	if (fabs((*pvx)->numberDoF()) >= 1e-9) fastAlg_FTKraw_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
 	
-	float trk_theta = 999;
-	float trk_eta = 999;
-	float trk_phi0 = 999;
-	float trk_d0 = 999;
-	float trk_z0 = 999;
-	float trk_invPt = 999;
+	int isThisRawFastHS = 0;
+	if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRawFastHS = 1;
+	isRawFastHS.push_back(isThisRawFastHS);
 	
-	if (vertexPerigee){
-	  trk_theta = vertexPerigee->parameters()[Trk::theta];
-	  trk_eta = -std::log(std::tan(trk_theta/2));
-	  trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
-	  trk_d0 = vertexPerigee->parameters()[Trk::d0];
-	  trk_z0 = vertexPerigee->parameters()[Trk::z0];
-	  trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
+	
+	for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
+	  const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
+	  
+	  float trk_theta = 999;
+	  float trk_eta = 999;
+	  float trk_phi0 = 999;
+	  float trk_d0 = 999;
+	  float trk_z0 = 999;
+	  float trk_invPt = 999;
+	  
+	  if (vertexPerigee){
+	    trk_theta = vertexPerigee->parameters()[Trk::theta];
+	    trk_eta = -std::log(std::tan(trk_theta/2));
+	    trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
+	    trk_d0 = vertexPerigee->parameters()[Trk::d0];
+	    trk_z0 = vertexPerigee->parameters()[Trk::z0];
+	    trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
+	  }
+	  if(m_fillTree){
+	    fastAlg_FTKraw_vertex_associated_track_theta.push_back(trk_theta);
+	    fastAlg_FTKraw_vertex_associated_track_phi0.push_back(trk_phi0);
+	    fastAlg_FTKraw_vertex_associated_track_d0.push_back(trk_d0);
+	    fastAlg_FTKraw_vertex_associated_track_z0.push_back(trk_z0);
+	    if( fabs(sin(trk_theta)) >= 1e-9) fastAlg_FTKraw_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	    if( fabs(1000*trk_invPt) >= 1e-9) fastAlg_FTKraw_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	    fastAlg_FTKraw_vertex_associated_track_eta.push_back(trk_eta);
+	    fastAlg_FTKraw_vertex_number.push_back(ivx);
+	  }
+	  if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
+	  if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
+	  else flag = false;
 	}
-
-	fastAlg_FTKraw_vertex_associated_track_theta.push_back(trk_theta);
-	fastAlg_FTKraw_vertex_associated_track_phi0.push_back(trk_phi0);
-	fastAlg_FTKraw_vertex_associated_track_d0.push_back(trk_d0);
-	fastAlg_FTKraw_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) fastAlg_FTKraw_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) fastAlg_FTKraw_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	fastAlg_FTKraw_vertex_associated_track_eta.push_back(trk_eta);
-	fastAlg_FTKraw_vertex_number.push_back(ivx);
 	
-	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
-	if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
-	else flag = false;
+	if(this_vertex_sumpt*this_vertex_sumpt >= fastAlg_FTKraw_vertex_sumPt*fastAlg_FTKraw_vertex_sumPt && flag == true ){
+	  fastAlg_FTKraw_vertex_sumPt = this_vertex_sumpt;
+	  fastAlg_FTKraw_vertex_sumPt2_vtxNumber = ivx;
+	}
+	fastAlg_FTKraw_vertex_associated_track_nVerts.push_back(vxr->size());
       }
-      
-      if(this_vertex_sumpt*this_vertex_sumpt >= fastAlg_FTKraw_vertex_sumPt*fastAlg_FTKraw_vertex_sumPt && flag == true ){
-	fastAlg_FTKraw_vertex_sumPt = this_vertex_sumpt;
-	fastAlg_FTKraw_vertex_sumPt2_vtxNumber = ivx;
-      }
-      fastAlg_FTKraw_vertex_associated_track_nVerts.push_back(vxr->size());
+      if(fabs(fastAlg_FTKraw_vertex_sumPt) >= 1e-9) fastAlg_FTKraw_vertex_sumPt2 = fastAlg_FTKraw_vertex_sumPt*fastAlg_FTKraw_vertex_sumPt;
     }
-    if(fabs(fastAlg_FTKraw_vertex_sumPt) >= 1e-9) fastAlg_FTKraw_vertex_sumPt2 = fastAlg_FTKraw_vertex_sumPt*fastAlg_FTKraw_vertex_sumPt;
+    delete(vxr);
   }
-  delete(vxr);
-  
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");  
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement){
@@ -1231,43 +1224,41 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement
 
   ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from refit tracks from DataProviderSvc" );
   const xAOD::VertexContainer *vxr = m_DataProviderSvc->getFastVertices(ftk::RefittedTrack); // Refitted FTK tracks
-  if(vxr == nullptr) return;
-
-  ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " xAOD:Vertex created from refit tracks using fast FTK_VertexFinderTool" );
+  if(vxr != 0 && vxr != nullptr){
+    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " xAOD:Vertex created from refit tracks using fast FTK_VertexFinderTool" );
     
-
-  if(m_fillTree){
     float this_vertex_sumpt = 0;
-    
+  
     ATH_MSG_VERBOSE( " " );
     ATH_MSG_VERBOSE( " Printing information for " <<  vxr->size()<< " Vertex " );
     int ivx=0;
     
-    fastAlg_FTKrefit_vertex_ndf.clear();
-    fastAlg_FTKrefit_vertex_chi2.clear();
-    fastAlg_FTKrefit_vertex_chi2_over_ndf.clear();
-    fastAlg_FTKrefit_vertex_x_position.clear();
-    fastAlg_FTKrefit_vertex_y_position.clear();
-    fastAlg_FTKrefit_vertex_z_position.clear();
-    fastAlg_FTKrefit_vertex_x_error.clear();
-    fastAlg_FTKrefit_vertex_y_error.clear();
-    fastAlg_FTKrefit_vertex_z_error.clear();
-    fastAlg_FTKrefit_vertex_nTrack.clear();
-    fastAlg_FTKrefit_vertex_number.clear();
-    fastAlg_FTKrefit_vertex_associated_track_phi0.clear();
-    fastAlg_FTKrefit_vertex_associated_track_d0.clear();
-    fastAlg_FTKrefit_vertex_associated_track_z0.clear();
-    fastAlg_FTKrefit_vertex_associated_track_invPt.clear();
-    fastAlg_FTKrefit_vertex_associated_track_cot.clear();
-    fastAlg_FTKrefit_vertex_associated_track_eta.clear();
-    fastAlg_FTKrefit_vertex_associated_track_nVerts.clear();
-    fastAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
-    fastAlg_FTKrefit_vertex_number.clear();
-    fastAlg_FTKrefit_vertex_associated_track_Pt.clear();
-    fastAlg_FTKrefit_vertex_associated_track_eta.clear();
-    fastAlg_FTKrefit_vertex_associated_track_theta.clear();
-    isRefitFastHS.clear();  // currently does not work for fast algo, use sumpt2 for HSV
-    
+    if(m_fillTree){
+      fastAlg_FTKrefit_vertex_ndf.clear();
+      fastAlg_FTKrefit_vertex_chi2.clear();
+      fastAlg_FTKrefit_vertex_chi2_over_ndf.clear();
+      fastAlg_FTKrefit_vertex_x_position.clear();
+      fastAlg_FTKrefit_vertex_y_position.clear();
+      fastAlg_FTKrefit_vertex_z_position.clear();
+      fastAlg_FTKrefit_vertex_x_error.clear();
+      fastAlg_FTKrefit_vertex_y_error.clear();
+      fastAlg_FTKrefit_vertex_z_error.clear();
+      fastAlg_FTKrefit_vertex_nTrack.clear();
+      fastAlg_FTKrefit_vertex_number.clear();
+      fastAlg_FTKrefit_vertex_associated_track_phi0.clear();
+      fastAlg_FTKrefit_vertex_associated_track_d0.clear();
+      fastAlg_FTKrefit_vertex_associated_track_z0.clear();
+      fastAlg_FTKrefit_vertex_associated_track_invPt.clear();
+      fastAlg_FTKrefit_vertex_associated_track_cot.clear();
+      fastAlg_FTKrefit_vertex_associated_track_eta.clear();
+      fastAlg_FTKrefit_vertex_associated_track_nVerts.clear();
+      fastAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
+      fastAlg_FTKrefit_vertex_number.clear();
+      fastAlg_FTKrefit_vertex_associated_track_Pt.clear();
+      fastAlg_FTKrefit_vertex_associated_track_eta.clear();
+      fastAlg_FTKrefit_vertex_associated_track_theta.clear();
+      isRefitFastHS.clear();  // currently does not work for fast algo, use sumpt2 for HSV
+    }
     
     for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivx++) {
       
@@ -1280,70 +1271,72 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement
 		       " ) Chi2: " << (*pvx)->chiSquared() <<
 		       " nDoF " << (*pvx)->numberDoF() );
       
-
-      fastAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      fastAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
-      fastAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
-      fastAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
-      fastAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
-      fastAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
-      fastAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      fastAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      fastAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) fastAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
-      
-      int isThisRefitFastHS = 0;
-      if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRefitFastHS = 1;
-      isRefitFastHS.push_back(isThisRefitFastHS);
-      
-      
-      for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
-	const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
-	  
-	float trk_theta = 999;
-	float trk_eta = 999;
-	float trk_phi0 = 999;
-	float trk_d0 = 999;
-	float trk_z0 = 999;
-	float trk_invPt = 999;
+      if(m_fillTree){
+	fastAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+	fastAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
+	fastAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
+	fastAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
+	fastAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
+	fastAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
+	fastAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+	fastAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+	fastAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+	if (fabs((*pvx)->numberDoF()) >= 1e-9) fastAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
 	
-	if (vertexPerigee){
-	  trk_theta = vertexPerigee->parameters()[Trk::theta];
-	  trk_eta = -std::log(std::tan(trk_theta/2));
-	  trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
-	  trk_d0 = vertexPerigee->parameters()[Trk::d0];
-	  trk_z0 = vertexPerigee->parameters()[Trk::z0];
-	  trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
+	int isThisRefitFastHS = 0;
+	if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRefitFastHS = 1;
+	isRefitFastHS.push_back(isThisRefitFastHS);
+	
+	
+	for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
+	  const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
+	  
+	  float trk_theta = 999;
+	  float trk_eta = 999;
+	  float trk_phi0 = 999;
+	  float trk_d0 = 999;
+	  float trk_z0 = 999;
+	  float trk_invPt = 999;
+	  
+	  if (vertexPerigee){
+	    trk_theta = vertexPerigee->parameters()[Trk::theta];
+	    trk_eta = -std::log(std::tan(trk_theta/2));
+	    trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
+	    trk_d0 = vertexPerigee->parameters()[Trk::d0];
+	    trk_z0 = vertexPerigee->parameters()[Trk::z0];
+	    trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
+	  }
+	  
+	  if(m_fillTree){
+	    fastAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
+	    fastAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
+	    fastAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
+	    fastAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
+	    if( fabs(sin(trk_theta)) >= 1e-9) fastAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	    if( fabs(1000*trk_invPt) >= 1e-9) fastAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	    fastAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
+	    fastAlg_FTKrefit_vertex_number.push_back(ivx);
+	  }
+	  
+	  if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
+	  if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
+	  else flag = false;
+	  
 	}
-	  
 	
-	fastAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
-	fastAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
-	fastAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
-	fastAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) fastAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) fastAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	fastAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
-	fastAlg_FTKrefit_vertex_number.push_back(ivx);
-
+	if(this_vertex_sumpt*this_vertex_sumpt >= fastAlg_FTKrefit_vertex_sumPt*fastAlg_FTKrefit_vertex_sumPt && flag == true ){
+	  fastAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
+	  fastAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
 	  
-	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
-	if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
-	else flag = false;
+	}
+	fastAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
 	
       }
-	
-      if(this_vertex_sumpt*this_vertex_sumpt >= fastAlg_FTKrefit_vertex_sumPt*fastAlg_FTKrefit_vertex_sumPt && flag == true ){
-	fastAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
-	fastAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
-	
-      }
-      fastAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
-	
+      if(fabs(fastAlg_FTKrefit_vertex_sumPt) >= 1e-9) fastAlg_FTKrefit_vertex_sumPt2 = fastAlg_FTKrefit_vertex_sumPt*fastAlg_FTKrefit_vertex_sumPt;
     }
-    if(fabs(fastAlg_FTKrefit_vertex_sumPt) >= 1e-9) fastAlg_FTKrefit_vertex_sumPt2 = fastAlg_FTKrefit_vertex_sumPt*fastAlg_FTKrefit_vertex_sumPt;
+    delete(vxr);
   }
-  delete(vxr);
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement){
@@ -1352,41 +1345,41 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement)
   
   ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from Converted tracks from DataProviderSvc" );
   xAOD::VertexContainer* vxc = m_DataProviderSvc->getVertexContainer(false);
-
-  if(vxc == nullptr)return;
-  ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxc->size() << " xAOD:Vertex created from converted tracks" );
-  
-  if(m_fillTree){
+  if(vxc != 0 && vxc != nullptr){
+    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxc->size() << " xAOD:Vertex created from converted tracks" );
+    
     float this_vertex_sumpt = 0;
     
     ATH_MSG_VERBOSE( " " );
     ATH_MSG_VERBOSE( " Printing information for " <<  vxc->size()<< " Vertex " );
     int ivx=0;
     
-    offlineAlg_FTKconverted_vertex_ndf.clear();
-    offlineAlg_FTKconverted_vertex_chi2.clear();
-    offlineAlg_FTKconverted_vertex_chi2_over_ndf.clear();
-    offlineAlg_FTKconverted_vertex_x_position.clear();
-    offlineAlg_FTKconverted_vertex_y_position.clear();
-    offlineAlg_FTKconverted_vertex_z_position.clear();
-    offlineAlg_FTKconverted_vertex_x_error.clear();
-    offlineAlg_FTKconverted_vertex_y_error.clear();
-    offlineAlg_FTKconverted_vertex_z_error.clear();
-    offlineAlg_FTKconverted_vertex_nTrack.clear();
-    offlineAlg_FTKconverted_vertex_number.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_phi0.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_d0.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_z0.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_invPt.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_cot.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_nVerts.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_VtxNumber.clear();    
-    offlineAlg_FTKconverted_vertex_number.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_Pt.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_theta.clear();
-    isConvertedOfflineHS.clear();
+    if(m_fillTree){
+      offlineAlg_FTKconverted_vertex_ndf.clear();
+      offlineAlg_FTKconverted_vertex_chi2.clear();
+      offlineAlg_FTKconverted_vertex_chi2_over_ndf.clear();
+      offlineAlg_FTKconverted_vertex_x_position.clear();
+      offlineAlg_FTKconverted_vertex_y_position.clear();
+      offlineAlg_FTKconverted_vertex_z_position.clear();
+      offlineAlg_FTKconverted_vertex_x_error.clear();
+      offlineAlg_FTKconverted_vertex_y_error.clear();
+      offlineAlg_FTKconverted_vertex_z_error.clear();
+      offlineAlg_FTKconverted_vertex_nTrack.clear();
+      offlineAlg_FTKconverted_vertex_number.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_phi0.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_d0.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_z0.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_invPt.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_cot.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_nVerts.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_VtxNumber.clear();    
+      offlineAlg_FTKconverted_vertex_number.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_Pt.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
+      offlineAlg_FTKconverted_vertex_associated_track_theta.clear();
+      isConvertedOfflineHS.clear();
+    }
     
     for (auto pvx = vxc->begin(); pvx != vxc->end(); pvx++, ivx++) {
       this_vertex_sumpt=0;
@@ -1398,67 +1391,68 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement)
 		       " ) Chi2: " << (*pvx)->chiSquared() <<
 		       " nDoF " << (*pvx)->numberDoF() );
       
-
-      offlineAlg_FTKconverted_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      offlineAlg_FTKconverted_vertex_ndf.push_back((*pvx)->numberDoF());
-      offlineAlg_FTKconverted_vertex_chi2.push_back((*pvx)->chiSquared());
-      offlineAlg_FTKconverted_vertex_x_position.push_back((*pvx)->position().x());
-      offlineAlg_FTKconverted_vertex_y_position.push_back((*pvx)->position().y());
-      offlineAlg_FTKconverted_vertex_z_position.push_back((*pvx)->position().z());
-      offlineAlg_FTKconverted_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      offlineAlg_FTKconverted_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      offlineAlg_FTKconverted_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) offlineAlg_FTKconverted_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
-      
-      int isThisConvertedOfflineHS = 0;
-      if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisConvertedOfflineHS = 1;
-      isConvertedOfflineHS.push_back(isThisConvertedOfflineHS);
-      
-      for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
-	const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
+      if(m_fillTree){
+	offlineAlg_FTKconverted_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+	offlineAlg_FTKconverted_vertex_ndf.push_back((*pvx)->numberDoF());
+	offlineAlg_FTKconverted_vertex_chi2.push_back((*pvx)->chiSquared());
+	offlineAlg_FTKconverted_vertex_x_position.push_back((*pvx)->position().x());
+	offlineAlg_FTKconverted_vertex_y_position.push_back((*pvx)->position().y());
+	offlineAlg_FTKconverted_vertex_z_position.push_back((*pvx)->position().z());
+	offlineAlg_FTKconverted_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+	offlineAlg_FTKconverted_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+	offlineAlg_FTKconverted_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+	if (fabs((*pvx)->numberDoF()) >= 1e-9) offlineAlg_FTKconverted_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
 	
-	float trk_theta = 999;
-	float trk_eta = 999;
-	float trk_phi0 = 999;
-	float trk_d0 = 999;
-	float trk_z0 = 999;
-	float trk_invPt = 999;
+	int isThisConvertedOfflineHS = 0;
+	if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisConvertedOfflineHS = 1;
+	isConvertedOfflineHS.push_back(isThisConvertedOfflineHS);
 	
-	if (vertexPerigee){
-	  trk_theta = vertexPerigee->parameters()[Trk::theta];
-	  trk_eta = -std::log(std::tan(trk_theta/2));
-	  trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
-	  trk_d0 = vertexPerigee->parameters()[Trk::d0];
-	  trk_z0 = vertexPerigee->parameters()[Trk::z0];
-	  trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
+	for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
+	  const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
+	  
+	  float trk_theta = 999;
+	  float trk_eta = 999;
+	  float trk_phi0 = 999;
+	  float trk_d0 = 999;
+	  float trk_z0 = 999;
+	  float trk_invPt = 999;
+	  
+	  if (vertexPerigee){
+	    trk_theta = vertexPerigee->parameters()[Trk::theta];
+	    trk_eta = -std::log(std::tan(trk_theta/2));
+	    trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
+	    trk_d0 = vertexPerigee->parameters()[Trk::d0];
+	    trk_z0 = vertexPerigee->parameters()[Trk::z0];
+	    trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
+	  }
+	  
+	  if(m_fillTree){
+	    offlineAlg_FTKconverted_vertex_associated_track_theta.push_back(trk_theta);
+	    offlineAlg_FTKconverted_vertex_associated_track_phi0.push_back(trk_phi0);
+	    offlineAlg_FTKconverted_vertex_associated_track_d0.push_back(trk_d0);
+	    offlineAlg_FTKconverted_vertex_associated_track_z0.push_back(trk_z0);
+	    if( fabs(sin(trk_theta)) >= 1e-9) offlineAlg_FTKconverted_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	    if( fabs(1000*trk_invPt) >= 1e-9) offlineAlg_FTKconverted_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	    offlineAlg_FTKconverted_vertex_associated_track_eta.push_back(trk_eta);
+	    offlineAlg_FTKconverted_vertex_number.push_back(ivx);
+	  }
+	  
+	  if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
+	  if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
+	  else flag = false;
 	}
 	
-	
-	offlineAlg_FTKconverted_vertex_associated_track_theta.push_back(trk_theta);
-	offlineAlg_FTKconverted_vertex_associated_track_phi0.push_back(trk_phi0);
-	offlineAlg_FTKconverted_vertex_associated_track_d0.push_back(trk_d0);
-	offlineAlg_FTKconverted_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) offlineAlg_FTKconverted_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) offlineAlg_FTKconverted_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	offlineAlg_FTKconverted_vertex_associated_track_eta.push_back(trk_eta);
-	offlineAlg_FTKconverted_vertex_number.push_back(ivx);
-	
-	  
-	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
-	if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
-	else flag = false;
+	if(this_vertex_sumpt*this_vertex_sumpt >= offlineAlg_FTKconverted_vertex_sumPt*offlineAlg_FTKconverted_vertex_sumPt && flag == true ){
+	  offlineAlg_FTKconverted_vertex_sumPt = this_vertex_sumpt;
+	  offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber = ivx;
+	}
+	offlineAlg_FTKconverted_vertex_associated_track_nVerts.push_back(vxc->size());
       }
-      
-      if(this_vertex_sumpt*this_vertex_sumpt >= offlineAlg_FTKconverted_vertex_sumPt*offlineAlg_FTKconverted_vertex_sumPt && flag == true ){
-	offlineAlg_FTKconverted_vertex_sumPt = this_vertex_sumpt;
-	offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber = ivx;
-      }
-      offlineAlg_FTKconverted_vertex_associated_track_nVerts.push_back(vxc->size());
-      
       if(fabs(offlineAlg_FTKconverted_vertex_sumPt) >= 1e-9) offlineAlg_FTKconverted_vertex_sumPt2 = offlineAlg_FTKconverted_vertex_sumPt*offlineAlg_FTKconverted_vertex_sumPt;
     }
+    delete(vxc);
   }
-  delete(vxc);
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
@@ -1466,43 +1460,42 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
   bool flag = false;
   ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from refit tracks from DataProviderSvc" );
   xAOD::VertexContainer* vxr = m_DataProviderSvc->getVertexContainer(true);
-
-  if(vxr==nullptr)return;
-  ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " xAOD:Vertex created from refit tracks" );
+  if(vxr != 0 && vxr != nullptr){
+    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " xAOD:Vertex created from refit tracks" );
     
-  if(m_fillTree){
     float this_vertex_sumpt = 0;
-    
+  
     ATH_MSG_VERBOSE( " " );
     ATH_MSG_VERBOSE( " Printing information for " <<  vxr->size()<< " Vertex " );
     int ivx=0;
     
     
-    offlineAlg_FTKrefit_vertex_ndf.clear();
-    offlineAlg_FTKrefit_vertex_chi2.clear();
-    offlineAlg_FTKrefit_vertex_chi2_over_ndf.clear();
-    offlineAlg_FTKrefit_vertex_x_position.clear();
-    offlineAlg_FTKrefit_vertex_y_position.clear();
-    offlineAlg_FTKrefit_vertex_z_position.clear();
-    offlineAlg_FTKrefit_vertex_x_error.clear();
-    offlineAlg_FTKrefit_vertex_y_error.clear();
-    offlineAlg_FTKrefit_vertex_z_error.clear();
-    offlineAlg_FTKrefit_vertex_nTrack.clear();
-    offlineAlg_FTKrefit_vertex_number.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_phi0.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_d0.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_z0.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_invPt.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_cot.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_nVerts.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
-    offlineAlg_FTKrefit_vertex_number.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_Pt.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_theta.clear();
-    isRefitOfflineHS.clear();
-
+    if(m_fillTree){
+      offlineAlg_FTKrefit_vertex_ndf.clear();
+      offlineAlg_FTKrefit_vertex_chi2.clear();
+      offlineAlg_FTKrefit_vertex_chi2_over_ndf.clear();
+      offlineAlg_FTKrefit_vertex_x_position.clear();
+      offlineAlg_FTKrefit_vertex_y_position.clear();
+      offlineAlg_FTKrefit_vertex_z_position.clear();
+      offlineAlg_FTKrefit_vertex_x_error.clear();
+      offlineAlg_FTKrefit_vertex_y_error.clear();
+      offlineAlg_FTKrefit_vertex_z_error.clear();
+      offlineAlg_FTKrefit_vertex_nTrack.clear();
+      offlineAlg_FTKrefit_vertex_number.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_phi0.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_d0.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_z0.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_invPt.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_cot.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_nVerts.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
+      offlineAlg_FTKrefit_vertex_number.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_Pt.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
+      offlineAlg_FTKrefit_vertex_associated_track_theta.clear();
+      isRefitOfflineHS.clear();
+    }
     
     for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivx++) {
     
@@ -1515,87 +1508,86 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
 		       " ) Chi2: " << (*pvx)->chiSquared() <<
 		       " nDoF " << (*pvx)->numberDoF() );
       
-
-      offlineAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      offlineAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
-      offlineAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
-      offlineAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
-      offlineAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
-      offlineAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
-      offlineAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      offlineAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      offlineAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) offlineAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
-      
-      int isThisRefitOfflineHS = 0;
-      if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRefitOfflineHS = 1;
-      isRefitOfflineHS.push_back(isThisRefitOfflineHS);
-      
-      
-      for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
-	const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
+      if(m_fillTree){
+	offlineAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+	offlineAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
+	offlineAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
+	offlineAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
+	offlineAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
+	offlineAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
+	offlineAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+	offlineAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+	offlineAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+	if (fabs((*pvx)->numberDoF()) >= 1e-9) offlineAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
 	
-	float trk_theta = 999;
-	float trk_eta = 999;
-	float trk_phi0 = 999;
-	float trk_d0 = 999;
-	float trk_z0 = 999;
-	float trk_invPt = 999;
+	int isThisRefitOfflineHS = 0;
+	if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRefitOfflineHS = 1;
+	isRefitOfflineHS.push_back(isThisRefitOfflineHS);
 	
-	if (vertexPerigee){
-	  trk_theta = vertexPerigee->parameters()[Trk::theta];
-	  trk_eta = -std::log(std::tan(trk_theta/2));
-	  trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
+	
+	for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
+	  const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
+	  
+	  float trk_theta = 999;
+	  float trk_eta = 999;
+	  float trk_phi0 = 999;
+	  float trk_d0 = 999;
+	  float trk_z0 = 999;
+	  float trk_invPt = 999;
+	  
+	  if (vertexPerigee){
+	    trk_theta = vertexPerigee->parameters()[Trk::theta];
+	    trk_eta = -std::log(std::tan(trk_theta/2));
+	    trk_phi0 =vertexPerigee->parameters()[Trk::phi0];
 	    trk_d0 = vertexPerigee->parameters()[Trk::d0];
 	    trk_z0 = vertexPerigee->parameters()[Trk::z0];
 	    trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
+	  }
+	  
+	  if(m_fillTree){
+	    offlineAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
+	    offlineAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
+	    offlineAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
+	    offlineAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
+	    if( fabs(sin(trk_theta)) >= 1e-9) offlineAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	    if( fabs(1000*trk_invPt) >= 1e-9) offlineAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	    offlineAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
+	    offlineAlg_FTKrefit_vertex_number.push_back(ivx);
+	  }
+	  
+	  if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
+	  if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
+	  else flag = false;
 	}
 	
-	
-	offlineAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
-	offlineAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
-	offlineAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
-	offlineAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) offlineAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) offlineAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	offlineAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
-	offlineAlg_FTKrefit_vertex_number.push_back(ivx);
-	
-	
-	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
-	if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
-	else flag = false;
+	if(this_vertex_sumpt*this_vertex_sumpt >= offlineAlg_FTKrefit_vertex_sumPt*offlineAlg_FTKrefit_vertex_sumPt && flag == true ){
+	  offlineAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
+	  offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
 	}
-      
-      if(this_vertex_sumpt*this_vertex_sumpt >= offlineAlg_FTKrefit_vertex_sumPt*offlineAlg_FTKrefit_vertex_sumPt && flag == true ){
-	offlineAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
-	offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
+	offlineAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
       }
-      offlineAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
-      
       if(fabs(offlineAlg_FTKrefit_vertex_sumPt) >= 1e-9) offlineAlg_FTKrefit_vertex_sumPt2 = offlineAlg_FTKrefit_vertex_sumPt*offlineAlg_FTKrefit_vertex_sumPt;
     }
+    delete(vxr);
   }
-
-  delete(vxr);
-
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");
 }
 
 
 void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
-  if(m_fillTree){
-    bool flag = false;
-    const xAOD::VertexContainer *offlineVertices = 0;
-    float this_vertex_sumpt = 0;
-    float this_vertex_sumpt2 = 0;
+  bool flag = false;
+  const xAOD::VertexContainer *offlineVertices = 0;
+  float this_vertex_sumpt = 0;
+  float this_vertex_sumpt2 = 0;
+  
+  if ( evtStore()->retrieve(offlineVertices,"PrimaryVertices").isFailure() || !offlineVertices ) {
+    ATH_MSG_DEBUG("Could not retrieve offline algo primary vertices");
+    return;
+  }
+  else {
     
-    if ( evtStore()->retrieve(offlineVertices,"PrimaryVertices").isFailure() || !offlineVertices ) {
-      ATH_MSG_DEBUG("Could not retrieve offline algo primary vertices");
-      return;
-    }
-    else {
-      
-      int ivertexc = 0;
+    int ivertexc = 0;
+    if(m_fillTree){
       offlineAlg_offlineTracks_vertex_x_position.clear();
       offlineAlg_offlineTracks_vertex_y_position.clear();
       offlineAlg_offlineTracks_vertex_z_position.clear();
@@ -1617,17 +1609,17 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
       offlineAlg_offlineTracks_vertex_associated_track_nVerts.clear();
       offlineAlg_offlineTracks_vertex_associated_track_VtxNumber.clear();
       isOfflineOfflineHS.clear();
-
+    }
     
-      for (auto pv = offlineVertices->begin(); pv != offlineVertices->end(); pv++, ivertexc++) {
-	
-	this_vertex_sumpt = 0;
-	this_vertex_sumpt2 = 0;
-	
-	ATH_MSG_VERBOSE( ivertexc << " Offline Alg, Offline Tracs: (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z() <<
-			 " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF() <<
-			 " VertexType: " << this->strVertexType((*pv)->vertexType()));
-
+    for (auto pv = offlineVertices->begin(); pv != offlineVertices->end(); pv++, ivertexc++) {
+      
+      this_vertex_sumpt = 0;
+      this_vertex_sumpt2 = 0;
+      
+      ATH_MSG_VERBOSE( ivertexc << " Offline Alg, Offline Tracs: (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z() <<
+		       " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF() <<
+		       " VertexType: " << this->strVertexType((*pv)->vertexType()));
+      //  if(m_fillTree){
 	offlineAlg_offlineTracks_vertex_nTrack.push_back((*pv)->vxTrackAtVertex().size());
 	offlineAlg_offlineTracks_vertex_ndf.push_back((*pv)->numberDoF());
 	offlineAlg_offlineTracks_vertex_chi2.push_back((*pv)->chiSquared());
@@ -1696,19 +1688,18 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
 	}
     }
     //}
-      offlineAlg_offlineTracks_vertex_sumPt2 = offlineAlg_offlineTracks_vertex_sumPt*offlineAlg_offlineTracks_vertex_sumPt;   
-    }
+    offlineAlg_offlineTracks_vertex_sumPt2 = offlineAlg_offlineTracks_vertex_sumPt*offlineAlg_offlineTracks_vertex_sumPt;   
   }
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Truth_Vtx(){
   if(m_fillTree){
-    const xAOD::TruthVertexContainer* importedTruthVertices;
-    
-    if (evtStore()->retrieve(importedTruthVertices,m_verticesKey).isFailure()) {
-      ATH_MSG_DEBUG("No TruthVertexContainer with name " << m_verticesKey << " found in StoreGate!");
-      return;
-    }
+     const xAOD::TruthVertexContainer* importedTruthVertices;
+
+     if (evtStore()->retrieve(importedTruthVertices,m_verticesKey).isFailure()) {
+       ATH_MSG_DEBUG("No TruthVertexContainer with name " << m_verticesKey << " found in StoreGate!");
+       return;
+     }
     
      if (importedTruthVertices->size() !=0 ){
 

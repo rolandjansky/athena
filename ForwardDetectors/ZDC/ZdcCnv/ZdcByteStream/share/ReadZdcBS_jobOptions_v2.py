@@ -13,7 +13,7 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 ByteStreamInputSvc =  svcMgr.ByteStreamInputSvc
 
 ByteStreamInputSvc.FullFileName = \
-["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
+["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
 #["/tmp/leite/test_map/data_test.00146536.calibration_map.daq.RAW._lb0000._ROSEventBuilder._0001.data"]
 #["/castor/cern.ch/grid/atlas/DAQ/2009/00115405/physics_ZDCStream/" + \
 #"data09_cos.00115405.physics_ZDCStream.daq.RAW._lb0000._SFO-1._0064.data"]

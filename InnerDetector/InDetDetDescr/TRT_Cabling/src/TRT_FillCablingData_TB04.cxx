@@ -127,13 +127,13 @@ void TRT_FillCablingData_TB04::defineParameters()
   std::vector<int> ncol2 (numberOfStrawsInLayersC, 
     numberOfStrawsInLayersC + sizeof(numberOfStrawsInLayersC) / sizeof(int));  
 
-  m_ncol.push_back(ncol0);
-  m_ncol.push_back(ncol1);
-  m_ncol.push_back(ncol2);
+  ncol.push_back(ncol0);
+  ncol.push_back(ncol1);
+  ncol.push_back(ncol2);
 
-  m_StrawsByModule[0] = 329;
-  m_StrawsByModule[1] = 520;
-  m_StrawsByModule[2] = 793;
+  StrawsByModule[0] = 329;
+  StrawsByModule[1] = 520;
+  StrawsByModule[2] = 793;
 
 }
 
@@ -205,7 +205,7 @@ void TRT_FillCablingData_TB04::defineTables()
 	if ( !(moduleId == 0 || moduleId == 1 || moduleId ==2) )
 	   continue;
 
-	if ( strawNumberInModule > m_StrawsByModule[moduleId] )
+	if ( strawNumberInModule > StrawsByModule[moduleId] )
 	   continue;
 
          // Swap of phi sectors for ROD 0: 3S1, 3S2
@@ -243,12 +243,12 @@ void TRT_FillCablingData_TB04::defineTables()
 	
 	while(strawInLayerId>=0){
 	  //std::cout << "moduleID, strawLyerID" << moduleId << strawLayerId << std::endl;
-	  strawInLayerId -= m_ncol[moduleId][strawLayerId];
+	  strawInLayerId -= ncol[moduleId][strawLayerId];
 	  strawLayerId++;
 	}
 	// Taking a step back
 	strawLayerId--;
-	strawInLayerId += m_ncol[moduleId][strawLayerId];
+	strawInLayerId += ncol[moduleId][strawLayerId];
 
    	  //Apparently this is needed to skip to the next line
 	inputFile.ignore(256,'\n');

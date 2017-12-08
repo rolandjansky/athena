@@ -1,0 +1,28 @@
+## automatically generated CMT requirements file
+package xAODCutFlow
+author  kkoeneke
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy                 AtlasPolicy-*
+
+use  AthContainers              AthContainers-*                 Control
+use  AthLinks                   AthLinks-*                      Control
+use  xAODCore                   xAODCore-*                      Event/xAOD
+use  AtlasROOT                  AtlasROOT-*                     External
+
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AtlasReflex                AtlasReflex-*                   External
+end_private
+
+branches Root
+
+# create an installed library, i.e., one where others can inherit from
+library xAODCutFlow ../Root/*.cxx
+apply_pattern installed_library
+
+private
+apply_pattern lcgdict dict=xAODCutFlow selectionfile=selection.xml \
+              headerfiles="../xAODCutFlow/xAODCutFlowDict.h" \
+              extralibfiles=../Root/dict/*.cxx
+end_private

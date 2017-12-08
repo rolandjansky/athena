@@ -31,6 +31,7 @@ AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name,
 			    ISvcLocator* pSvcLocator,
 			    const std::string& version ) : 
   ::ReEntAlgorithm   ( name, pSvcLocator, version ),
+  ::AthMessaging( msgSvc(), name ),
   m_evtStore    ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore    ( "StoreGateSvc/DetectorStore", name ),
   m_userStore   ( "UserDataSvc/UserDataSvc", name ),
@@ -40,12 +41,12 @@ AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name,
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
-  setUpMessaging();
+
   auto props = getProperties();
   for( Property* prop : props ) {
     if( prop->name() == "OutputLevel" ) {
-      // prop->declareUpdateHandler
-      //   (&AthReentrantAlgorithm::msg_update_handler, this);
+      prop->declareUpdateHandler
+        (&AthReentrantAlgorithm::msg_update_handler, this);
     } else if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
       prop->declareUpdateHandler
         (&AthReentrantAlgorithm::extraDeps_update_handler, this);
@@ -113,9 +114,9 @@ AthReentrantAlgorithm::msg_update_handler( Property& outputLevel )
    // type at one point, to be able to fall back on something.
    IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
    if( iprop ) {
-     msgStream().setLevel( static_cast<MSG::Level> (iprop->value()) );
+      this->setLevel( static_cast<MSG::Level> (iprop->value()) );
    } else {
-     msgStream().setLevel( msgLevel() );
+      this->setLevel( msgLevel() );
    }
 }
 

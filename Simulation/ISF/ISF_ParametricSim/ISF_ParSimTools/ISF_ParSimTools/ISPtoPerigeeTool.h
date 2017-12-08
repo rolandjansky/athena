@@ -35,7 +35,8 @@ namespace iParSim {
    */
 
 
-  class ISPtoPerigeeTool : public extends<AthAlgTool, iParSim::IISPtoPerigeeTool>
+  class ISPtoPerigeeTool : public AthAlgTool, 
+        virtual public iParSim::IISPtoPerigeeTool 
   {
     public:
 

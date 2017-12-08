@@ -1,0 +1,37 @@
+package xAODTrigCaloAthenaPool
+
+author Arantxa Ruiz Martinez <aranzazu.ruiz.martinez@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy        AtlasPolicy-*
+
+private
+
+# Base package(s):
+use GaudiInterface      GaudiInterface-*      External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+
+# EDM package(s):
+use xAODCaloEvent       xAODCaloEvent-*       Event/xAOD
+use xAODTrigCalo        xAODTrigCalo-*        Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::TrigCaloClusterContainer \
+                                          xAOD::TrigCaloClusterAuxContainer \
+                                          xAOD::TrigEMClusterContainer \
+                                          xAOD::TrigEMClusterAuxContainer \
+                                          xAOD::CaloClusterTrigAuxContainer" \
+                      files="-s=${xAODTrigCalo_root}/xAODTrigCalo \
+                             TrigCaloClusterContainer.h \
+                             TrigCaloClusterAuxContainer.h \
+                             TrigEMClusterContainer.h \
+                             TrigEMClusterAuxContainer.h \
+                             CaloClusterTrigAuxContainer.h" \
+                      cnv_pfx="xAOD"

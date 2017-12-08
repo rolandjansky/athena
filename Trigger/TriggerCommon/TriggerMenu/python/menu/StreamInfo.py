@@ -58,8 +58,7 @@ calibStreams = [
                 'IDFwd',
                 'BeamSpot',
                 'zdcCalib',
-                'AFP',
-                'L1TopoMismatches'
+                'AFP'
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

@@ -58,6 +58,8 @@ ThreadPoolSvc                                      INFO no thread init tools att
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
 AvalancheSchedulerSvc                              INFO Start checking the actionsQueue
+PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
+PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                              INFO Found 6 algorithms
 AvalancheSchedulerSvc                              INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg
@@ -78,8 +80,6 @@ AvalancheSchedulerSvc                              INFO Will attribute the follo
        * xAODTestReadDecor
    o ('DMTest::CVec','StoreGateSvc+cvec.dInt1')    required by Algorithm: 
        * xAODTestReadDecor
-PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
-PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                              INFO Concurrency level information:
 AvalancheSchedulerSvc                              INFO  o Number of events in flight: 1
 AvalancheSchedulerSvc                              INFO  o TBB thread pool size:  'ThreadPoolSize':1

@@ -1,0 +1,36 @@
+package HIJetRec
+
+
+use AtlasPolicy		AtlasPolicy-*
+
+private
+use CxxUtils       	CxxUtils-*		Control
+use xAODCore            xAODCore-*              Event/xAOD
+use PathResolver  	PathResolver-*		Tools
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Control/Navigation"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Event/NavFourMom"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Control/AthenaBaseComps"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloRec"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloUtils"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloInterface"
+
+public
+use HIEventUtils	HIEventUtils-*		PhysicsAnalysis/HeavyIonPhys
+use FourMomUtils	FourMomUtils-*		Event
+use GaudiInterface	GaudiInterface-* 	External
+use AtlasROOT           AtlasROOT-*             External
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use JetRec              JetRec-*                Reconstruction/Jet
+use xAODBase		xAODBase-*		Event/xAOD
+use xAODHIEvent         xAODHIEvent-*		Event/xAOD
+use xAODCaloEvent	xAODCaloEvent-*	  	Event/xAOD
+use xAODJet             xAODJet-*		Event/xAOD
+use JetInterface        JetInterface-*         	Reconstruction/Jet
+
+macro HIJetRec_conditional_compile "*.cxx components/*.cxx ../Root/*.cxx" AthAnalysisBase "components/*.cxx ../Root/*.cxx"
+library HIJetRec $(HIJetRec_conditional_compile)
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_calib files="../data/cluster.geo.root"

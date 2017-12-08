@@ -24,9 +24,9 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "Identifier/Identifier.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
-#include "AthenaKernel/CLASS_DEF.h"
+#include "CLIDSvc/CLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/PixelRDO_Container.h"

@@ -98,6 +98,7 @@ except:
     DetFlags.Forward_setOff() # Forward dets are off by default
 
 if 'truthStrategy' in dir():
+    simFlags.TruthService     = 'ISF_'     + truthStrategy + 'TruthService'
     simFlags.TruthStrategy    = truthStrategy
     try:
         from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
@@ -115,6 +116,7 @@ if 'truthStrategy' in dir():
         else:
             simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
 else:
+    simFlags.TruthService     = 'ISF_MC12TruthService'
     simFlags.TruthStrategy    = 'MC12'
     simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 

@@ -1,0 +1,17 @@
+package xAODBPhys
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Daniel Scheirich <daniel.scheirich@cern.ch>
+
+public
+
+# Central package(s):
+use AtlasPolicy   AtlasPolicy-*
+use AtlasROOT     AtlasROOT-*     External
+
+# EDM package(s):
+use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODMuon            xAODMuon-*              Event/xAOD
+
+library xAODBPhys ../Root/*.cxx
+apply_pattern installed_library

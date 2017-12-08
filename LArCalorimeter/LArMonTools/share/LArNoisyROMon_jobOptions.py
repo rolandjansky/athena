@@ -19,11 +19,8 @@ from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 theLArNoisyROMon = LArNoisyROMon(name="LArNoisyROMon")
 theLArNoisyROMon.IsOnline = OnlineMode
 theLArNoisyROMon.ProcessNEvents= EventBlockSize
-theLArNoisyROMon.NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
-theLArNoisyROMon.MNBLooseFEBDefStr =  '(>'+str(larNoisyROFlags.MNBLooseCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
-theLArNoisyROMon.MNBTightFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTightCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
-theLArNoisyROMon.KnownMNBFEBs =  larNoisyROFlags.KnownMNBFEBs()
-theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() 
+theLArNoisyROMon.NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')' #LArNoisyROCutHelper('BadChanPerFEB')
+theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() #LArNoisyROFEBCutHelper()
 
 from RecExConfig.RecFlags import rec
 if rec.doTrigger or LArNoisyROMonForceTrigger:

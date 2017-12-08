@@ -1,0 +1,54 @@
+package MCTruthClassifier
+
+author Oleg Fedin  <Oleg.Fedin@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-*     
+use AsgTools         AsgTools-*                   Control/AthToolSupport
+use GaudiInterface   GaudiInterface-*     	  External
+
+use xAODTruth            xAODTruth-*          	  Event/xAOD
+use xAODEgamma           xAODEgamma-*         	  Event/xAOD
+use xAODMuon             xAODMuon-*           	  Event/xAOD
+use xAODJet              xAODJet-*            	  Event/xAOD
+use xAODTracking         xAODTracking-*		  Event/xAOD
+use xAODCaloEvent        xAODCaloEvent-*      	  Event/xAOD
+
+use_ifndef pplist="XAOD_ANALYSIS"  pkg="Reconstruction/RecoTools/ParticlesInConeTools"
+
+private
+use_ifndef pplist="XAOD_ANALYSIS"   pkg="Generators/GeneratorObjects"
+use_ifndef pplist="XAOD_ANALYSIS"   pkg="External/AtlasHepMC"
+use_ifndef pplist="XAOD_ANALYSIS"   pkg="Reconstruction/RecoTools/RecoToolInterfaces"
+use_ifndef pplist="XAOD_ANALYSIS"   pkg="Tracking/TrkEvent/TrkEventPrimitives"
+use_ifndef pplist="XAOD_ANALYSIS"   pkg="Tracking/TrkEvent/TrkParametersIdentificationHelpers"
+use_ifndef pplist="XAOD_ANALYSIS"   pkg="Control/AthenaKernel"
+apply_pattern declare_python_modules files="*.py"
+
+# pattern dual_use_library must be declared public
+# so that clients can link against its public library
+
+public
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
+end_public
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep
+# clients of EventInfo from seeing excess dependencies
+private
+
+use AtlasReflex      AtlasReflex-*        External -no_auto_imports
+use AtlasROOT        AtlasROOT-*          External
+	
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+	
+# Must temporarily omit emission of methods - fails
+apply_pattern lcgdict dict=MCTruthClassifier selectionfile=selection.xml headerfiles="../MCTruthClassifier/MCTruthClassifierDict.h"
+	
+
+#remove use_linkopts
+macro MCTruthClassifierEnumsDict_shlibflags "$(componentshr_linkopts) $(Reflex_linkopts) $(egammaInterfaces_extra_shlibflags)"

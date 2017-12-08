@@ -27,7 +27,7 @@ namespace ISF {
 
       @author John Chapman -at- cern.ch
      */
-  class CosmicEventFilterTool : public extends<AthAlgTool, IEventFilterTool> {
+  class CosmicEventFilterTool : public AthAlgTool, public IEventFilterTool {
 
   public:
     /** Constructor with parameters */

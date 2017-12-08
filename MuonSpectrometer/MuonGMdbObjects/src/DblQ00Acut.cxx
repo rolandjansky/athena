@@ -13,6 +13,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Acut.h"
+#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -29,7 +30,7 @@
 namespace MuonGM
 {
 
-DblQ00Acut::DblQ00Acut(std::unique_ptr<IRDBQuery>&& acut)
+DblQ00Acut::DblQ00Acut(IRDBQuery* acut)
  : m_nObj(0)
 {
   if(acut) {

@@ -1,0 +1,38 @@
+package xAODMuon
+
+author Edward.Moyse@cern.ch
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthContainers              AthContainers-*                 Control
+use  AthLinks                   AthLinks-*                      Control
+use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
+#use  SGTools                    SGTools-*                       Control
+#use  TrkSegment                 TrkSegment-*                    Tracking/TrkEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkSegment"
+use  xAODBase                   xAODBase-*                      Event/xAOD
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODCore                   xAODCore-*                      Event/xAOD
+use  xAODPrimitives             xAODPrimitives-*                Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AtlasReflex                AtlasReflex-*                   External
+end_private
+
+library xAODMuon ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+
+apply_pattern lcgdict dict=xAODMuon selectionfile=selection.xml \
+                      headerfiles="../xAODMuon/xAODMuonDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
+
+use TestTools TestTools-* AtlasTest
+
+apply_pattern UnitTest_run unit_test=xAODMuon_Muon
+
+apply_pattern do_genCLIDDB library=xAODMuon

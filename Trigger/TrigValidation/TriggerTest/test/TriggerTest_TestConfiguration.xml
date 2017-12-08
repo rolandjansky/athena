@@ -523,7 +523,7 @@
                 </doc>
                 <displayName>MC_pp_v6_no_prescale_toxAOD_FTK</displayName>
                 <commandLineFlags>
-                    RunningRTT=True;menu='MC_pp_v6_no_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK.set_Value_and_Lock(True);from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700_FTK/';fileRange=[1,10]
+                    RunningRTT=True;menu='MC_pp_v6_no_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK.set_Value_and_Lock(True);dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700_FTK/';fileRange=[1,10]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -599,7 +599,7 @@
                 </doc>
                 <displayName>MC_pp_v7_no_prescale_toxAOD_FTK</displayName>
                 <commandLineFlags>
-                    RunningRTT=True;menu='MC_pp_v7_no_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK.set_Value_and_Lock(True);from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700_FTK/';fileRange=[1,10]
+                    RunningRTT=True;menu='MC_pp_v7_no_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK.set_Value_and_Lock(True);dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700_FTK/';fileRange=[1,10]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -693,7 +693,7 @@
                 </doc>
                 <displayName>BPhysics</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=True;RunningRTT=True;menu='MC_pp_v7_tightperf_mc_prescale';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
+                    enableCostMonitoring=True;RunningRTT=True;menu='MC_pp_v7_tightperf_mc_prescale';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -708,7 +708,7 @@
                 </doc>
                 <displayName>BPhysics_toAOD</displayName>
                 <commandLineFlags>
-                    RunningRTT=True;menu='MC_pp_v7_tightperf_mc_prescale';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
+                    RunningRTT=True;menu='MC_pp_v7_tightperf_mc_prescale';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -724,7 +724,7 @@
                 </doc>
                 <displayName>BPhysics_toAOD</displayName>
                 <commandLineFlags>
-                    RunningRTT=True;menu='MC_pp_v7_tightperf_mc_prescale';sliceName='mubphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.recon.RDO.e3802_s2608_s2183_r6790/RDO.05594910._000008.pool.root.1']
+                    RunningRTT=True;menu='MC_pp_v7_tightperf_mc_prescale';sliceName='mubphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.recon.RDO.e3802_s2608_s2183_r6790/RDO.05594910._000008.pool.root.1']
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>

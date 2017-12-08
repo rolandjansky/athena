@@ -6,11 +6,10 @@ include.block ('InDetRecExample/ConfiguredInDetTrackTruth.py')
 # ------- fragment to handle track truth association
 #
 # -------------------------------------------------------------------------
-from InDetRecExample.InDetKeys          import InDetKeys
+
 class  ConfiguredInDetTrackTruth:
     
-
-    def __init__(self, Tracks = None, DetailedTruth = None, TracksTruth = None, PixelClustersTruth = InDetKeys.PixelClustersTruth(), SCT_ClustersTruth = InDetKeys.SCT_ClustersTruth(), TRT_DriftCirclesTruth = InDetKeys.TRT_DriftCirclesTruth()):
+    def __init__(self, Tracks = None, DetailedTruth = None, TracksTruth = None):
 
         from InDetRecExample.InDetJobProperties import InDetFlags
         from AthenaCommon.DetFlags              import DetFlags
@@ -30,10 +29,9 @@ class  ConfiguredInDetTrackTruth:
         DetailedTruthMaker = InDet__InDetDetailedTrackTruthMaker(name                   = DetailedTruth+"Maker",
                                                                  TrackCollectionName    = Tracks,
                                                                  DetailedTrackTruthName = DetailedTruth,
-                                                                 TruthNamePixel         = PixelClustersTruth,
-                                                                 TruthNameSCT           = SCT_ClustersTruth,
-                                                                 TruthNameTRT           = TRT_DriftCirclesTruth)
-            
+                                                                 TruthNamePixel         = InDetKeys.PixelClustersTruth(),
+                                                                 TruthNameSCT           = InDetKeys.SCT_ClustersTruth(),
+                                                                 TruthNameTRT           = InDetKeys.TRT_DriftCirclesTruth())
         # this is how the truth maker gets to know which detector is on ...
         if (not DetFlags.haveRIO.pixel_on()):
             DetailedTruthMaker.TruthNamePixel = ""
@@ -45,7 +43,7 @@ class  ConfiguredInDetTrackTruth:
             DetailedTruthMaker.TruthNameTRT = ""
 
         #if Tracks == "Tracks":
-        #    DetailedTruthMaker.OutputLevel = VERBOSE
+        #    DetailedTruthMaker.OutputLevel = VERBOSE    
         topSequence += DetailedTruthMaker
         if (InDetFlags.doPrintConfigurables()):
             print DetailedTruthMaker        
@@ -76,7 +74,7 @@ class  ConfiguredInDetTrackTruth:
                                                                     OutputName               = TracksTruth,
                                                                     TrackTruthSimilarityTool = InDetTruthMatchSimilarityTool)
         #if Tracks == "Tracks":
-        #    InDetTruthSimilaritySelector.OutputLevel = VERBOSE
+        #    InDetTruthSimilaritySelector.OutputLevel = VERBOSE    
         topSequence += InDetTruthSimilaritySelector
         if (InDetFlags.doPrintConfigurables()):
             print InDetTruthSimilaritySelector

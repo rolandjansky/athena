@@ -1,0 +1,39 @@
+package SCT_Cabling
+
+author Shaun Roe <Shaun.Roe@cern.ch>
+
+
+
+
+use AtlasPolicy 	 AtlasPolicy-*
+use AthenaBaseComps	 AthenaBaseComps-*      Control
+use Identifier		 Identifier-*		DetectorDescription
+use GaudiInterface       GaudiInterface-*       External
+
+
+
+
+private
+use InDetIdentifier 	 InDetIdentifier-* 	InnerDetector/InDetDetDescr
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use PathResolver         PathResolver-*         Tools
+use EventInfo            EventInfo-*            Event
+use StoreGate            StoreGate-*            Control
+
+
+use AtlasCOOL            AtlasCOOL-*           External
+use AtlasCORAL           AtlasCORAL-*          External
+use CoraCool             CoraCool-*            Database
+
+
+
+apply_tag NEEDS_COOL_FACTORY
+#application openCoraCool ../utility/openCoraCool.cxx
+
+public
+apply_pattern dual_use_library files="*.cxx
+
+apply_pattern declare_runtime files="*.dat"
+apply_pattern declare_joboptions files="*.py"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"

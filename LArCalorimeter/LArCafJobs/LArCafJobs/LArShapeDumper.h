@@ -102,7 +102,7 @@ class LArShapeDumper : public AthAlgorithm
   ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle<ILArBadChannelMasker> m_badChannelMasker;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool; 
-  //  ToolHandle<LArOFPeakRecoTool> m_peakReco;
+  ToolHandle<LArOFPeakRecoTool> m_peakReco;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
 

@@ -6,8 +6,8 @@
 // Test that fills histograms for some of HLT xAOD variables from Run 1
 // and stores them to a root file, for the comparison with the AOD reference
 //
-#ifndef TRIGANALYSISTEST_RUN1BSTOXAODTRIGGER_H
-#define TRIGANALYSISTEST_RUN1BSTOXAODTRIGGER_H
+#ifndef __Run1BStoxAODTrigger__
+#define __Run1BStoxAODTrigger__
 
 #include "TrigAnalysisTest/ITest.h"
 
@@ -25,12 +25,12 @@ namespace TrigAnalysisTest {
     int finalize();
 
   private:
-    unsigned int m_passed_l1;
-    unsigned int m_passed_hlt;
-    //bool m_first_call;
-    std::map<std::string,int> m_trigger_counts;
+    unsigned int _passed_l1;
+    unsigned int _passed_hlt;
+    bool _first_call;
+    std::map<std::string,int> trigger_counts;
 
-    TFile *m_histFile;
+    TFile *histFile;
     // histograms
     // count all fired triggers
     TH1* m_all_triggers;

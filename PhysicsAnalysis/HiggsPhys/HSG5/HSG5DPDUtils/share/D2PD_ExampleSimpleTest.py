@@ -65,3 +65,14 @@ ExampleTestStream.AddItem( 'egDetailContainer#HLT_egamma_Electrons' )
 #'Rerunning' stuff
 ExampleTestStream.AddItem( 'CaloClusterContainer#CaloCalTopoCluster')
 ExampleTestStream.AddItem( 'Rec::TrackParticleContainer#TrackParticleCandidate')
+
+
+
+#====================================================================
+# UserDataSvc
+#====================================================================
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataInExampleTestStream")
+svcMgr.UserDataInExampleTestStream.OutputStream = ExampleTestStream.Stream
+
+

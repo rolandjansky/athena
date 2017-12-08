@@ -19,10 +19,13 @@
 iGeant4::G4RunManagerHelper::G4RunManagerHelper(const std::string& type,
                                                 const std::string& name,
                                                 const IInterface* parent)
-  : base_class(type,name,parent),
+  : AthAlgTool(type,name,parent),
     m_g4RunManager(0),
     m_fastG4RunManager(0)
 {
+
+  declareInterface<ISF::IG4RunManagerHelper>(this);
+
 }
 
 iGeant4::G4RunManagerHelper::~G4RunManagerHelper()

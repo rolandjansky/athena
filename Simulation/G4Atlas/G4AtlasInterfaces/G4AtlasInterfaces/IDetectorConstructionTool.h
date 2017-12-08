@@ -21,10 +21,11 @@ class G4VPhysicalVolume;
  *  @date   2015-02-20
  */
 
+static const InterfaceID IID_IDetectorConstructionTool( "IDetectorConstructionTool" , 1 , 0 ) ;
+
 class IDetectorConstructionTool : public G4VUserDetectorConstruction, virtual public IAlgTool {
  public:
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IDetectorConstructionTool, 1, 0);
+  static const InterfaceID& interfaceID() { return IID_IDetectorConstructionTool ; }
 
 // from G4VUserDetectorConstruction
 

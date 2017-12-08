@@ -21,7 +21,6 @@ namespace Muon {
     
     : AthAlgTool(type,name,parent)
     , m_tagTool("")
-    , m_muonAlignRefitTool("Muon::MuonAlignRefitTool")
     , m_inputTrackType(MSStandaloneWithIDTrackMatch)
   {
 

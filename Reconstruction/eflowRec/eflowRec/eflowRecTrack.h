@@ -159,11 +159,7 @@ public:
   virtual ~eflowRecMatchTrack() { }
 
   virtual eflowEtaPhiPosition etaPhiInLayer(PFMatch::LayerType layer) const {
-    if (m_efRecTrack) return m_efRecTrack->getTrackCaloPoints().getEtaPhiPos(layer);
-    else {
-      std::cerr << "eflowRecMatchTrack ERROR: Invalid pointer to eflowRecTrack " << std::endl;
-      return eflowEtaPhiPosition(-999.,-999.);
-    }
+    return m_efRecTrack->getTrackCaloPoints().getEtaPhiPos(layer);
   }
 
 private:

@@ -30,7 +30,6 @@ void test1()
   std::cout << SG::ExcNullReadHandle(123, "foo", "FooSvc").what() << "\n";
   std::cout << SG::ExcNullUpdateHandle(123, "foo", "FooSvc").what() << "\n";
   std::cout << SG::ExcUpdatedObjectFailure (123, "foo", "FooSvc").what() << "\n";
-  std::cout << SG::ExcNonConstHandleKey (123, "foo", "FooSvc").what() << "\n";
 }
 
 

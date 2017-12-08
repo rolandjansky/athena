@@ -56,11 +56,9 @@ job.ParticleGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 simFlags.ReleaseGeoModel = False
 
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 ## Add the G4 sim to the alg sequence after the generator
-from AthenaCommon.CfgGetter import getAlgorithm
-job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+job += PyG4AtlasAlg()
 
 
 ## User algorithms

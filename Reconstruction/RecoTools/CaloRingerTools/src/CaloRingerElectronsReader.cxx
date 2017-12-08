@@ -112,7 +112,7 @@ StatusCode CaloRingerElectronsReader::execute()
         *m_clRingsBuilderElectronFctor );
   }
 
-  StatusCode sc;
+  StatusCode sc(SUCCESS);
 
   writeDecorHandles<xAOD::ElectronContainer> decoHandles(m_selectorDecorHandleKeys);
 

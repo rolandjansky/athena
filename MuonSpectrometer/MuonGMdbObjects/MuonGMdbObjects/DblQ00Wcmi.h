@@ -13,8 +13,7 @@
 #ifndef DBLQ00_WCMI_H
 #define DBLQ00_WCMI_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 namespace MuonGM
 {
 class DblQ00Wcmi {
@@ -22,7 +21,7 @@ class DblQ00Wcmi {
 public:
     DblQ00Wcmi(){};
     ~DblQ00Wcmi();
-    DblQ00Wcmi(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcmi(IRDBQuery*);
 
     // data members for DblQ00/WCMI fields
     struct WCMI {

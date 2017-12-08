@@ -111,7 +111,7 @@ void EMShower::set_parameter(egammaParameters::ParamDef key, double value, bool 
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "egamma::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "egamma::set_parameter(...)", false);
     }
   }
 

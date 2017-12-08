@@ -72,7 +72,6 @@
 
 LArAffectedRegionAlg::LArAffectedRegionAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_larCablingSvc("LArCablingService"),
   m_BadChanTool("LArBadChanTool"),
   m_hvtool("LArHVToolMC"),
   m_onlineID(NULL),

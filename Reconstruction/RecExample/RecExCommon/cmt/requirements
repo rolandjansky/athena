@@ -1,0 +1,44 @@
+package RecExCommon
+
+author  David Rousseau <david.rousseau@cern.ch>
+
+branches run
+
+# put here the uses of the packages which need to be reached by cmt broadcast
+# Packages to be reached by cmt broadcast should be used either directly
+#
+# (the package should appear when typing cmt show uses)
+
+
+
+use AtlasPolicy AtlasPolicy-01-*
+
+# For unproblematic usage also in AthAnalysisBase releases
+use_unless pkg=AtlasReconstructionRunTime tag=ManaCore ver=*
+#use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
+
+private
+
+use TestPolicy          TestPolicy-*
+
+# for the argparse module
+use AtlasPyFwdBwdPorts	AtlasPyFwdBwdPorts-*	External -no_auto_imports
+end_private
+
+#put jobOption in InstallArea
+apply_pattern declare_joboptions files="*.py "
+
+# macro RecExRecoTest_TestConfiguration "../test/RecExRecoTest_TestConfiguration.xml"
+
+
+
+#scripts
+apply_pattern declare_scripts files="RecExCommon_links_zc.sh RecExCommon_links_cern_zc.sh RecExCommon_links.sh RecExCommon_links.csh RecExCommon_runTimeFiles_zc.sh RecExCommon_dump.C ../Testing/manyrecotests.sh recexcommon-links.py qtest_run1.sh qtest_run2.sh"
+
+apply_pattern declare_python_modules files="*.py"
+
+# runtime files
+apply_pattern declare_runtime files="../data/*.ascii.gz"
+
+
+apply_pattern athenarun_test name="RecExCommonTesting" pre_script="../Testing/script_pre_check.sh" options="RecExCommon/rdotoesdnotrigger.py" post_script="../Testing/script_post_check.sh"

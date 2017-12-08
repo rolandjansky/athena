@@ -46,7 +46,8 @@ namespace iFatras {
      @author sarka.todorova@cern.ch
   */
   
-  class SimHitCreatorID: public extends<AthAlgTool, ISimHitCreator>
+  class SimHitCreatorID: public AthAlgTool,
+                      virtual public ISimHitCreator
   {
   public:
     /**Constructor */

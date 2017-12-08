@@ -30,7 +30,8 @@ namespace Simulation {
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
      */
-  class GenEventVertexPositioner : public extends<AthAlgTool, IGenEventManipulator> {
+  class GenEventVertexPositioner : public AthAlgTool,
+                                   virtual public IGenEventManipulator {
 
     public:
       /** Constructor with parameters */

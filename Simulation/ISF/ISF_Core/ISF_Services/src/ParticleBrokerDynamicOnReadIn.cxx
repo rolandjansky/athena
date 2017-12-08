@@ -35,7 +35,7 @@
 
 /** Constructor **/
 ISF::ParticleBrokerDynamicOnReadIn::ParticleBrokerDynamicOnReadIn(const std::string& name,ISvcLocator* svc) :
-  base_class(name,svc),
+  AthService(name,svc),
   m_entryLayerTool("iGeant4::EntryLayerTool/ISF_EntryLayerTool"),
   m_orderingTool(""),
   m_hasOrderingTool(false),
@@ -412,14 +412,6 @@ void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const I
   if (parentPtr) {
     int bcid = parentPtr->getBCID();
     particle.setBCID(bcid);
-
-    //Let's make sure that the new ISFParticle has a valid TruthBinding and HepMcParticleLink
-    //(could happen that the new particles are not saved by the TruthSvc for instance)
-    //or attach pointers to the parent otherwise
-    if (!particlePtr->getTruthBinding()) {
-        ATH_MSG_WARNING("The provided new ISFParticle had no TruthBinding ! Copying over the one from the parent ISFParticle.");
-        particle.setTruthBinding(new TruthBinding(*parentPtr->getTruthBinding()));
-    }
   }
 
   // get the particle's next geoID
@@ -526,3 +518,18 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::dump() const
 
   return StatusCode::SUCCESS;
 }
+
+
+/** Query the interfaces. */
+StatusCode ISF::ParticleBrokerDynamicOnReadIn::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+
+  if ( IID_IParticleBroker == riid )
+    *ppvInterface = (IParticleBroker*)this;
+  else  {
+    // Interface is not directly available: try out a base class
+    return Service::queryInterface(riid, ppvInterface);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
+}
+

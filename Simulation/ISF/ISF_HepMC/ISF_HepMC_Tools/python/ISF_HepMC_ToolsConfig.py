@@ -7,7 +7,7 @@ KG Tan, 17/06/2012
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import MeV, mm
+from AthenaCommon.SystemOfUnits import *
 
 #--------------------------------------------------------------------------------------------------
 ## GenParticleFilters
@@ -92,7 +92,11 @@ def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
     EtaRange = 7.0 if DetFlags.geometry.Lucid_on() else 6.0
     kwargs.setdefault('MinEta' , -EtaRange)
     kwargs.setdefault('MaxEta' , EtaRange)
-    kwargs.setdefault('MaxApplicableRadius', 30*mm)
+    #kwargs.setdefault('MinPhi' , -M_PI)
+    #kwargs.setdefault('MaxPhi' , M_PI)
+    #kwargs.setdefault('MinMom' , -1)
+    #kwargs.setdefault('MaxMom' , -1)
+    #kwargs.setdefault('ParticlePDG' , [ 211, -211 ])
     return CfgMgr.ISF__GenParticleGenericFilter(name, **kwargs)
 
 #--------------------------------------------------------------------------------------------------

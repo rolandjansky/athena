@@ -357,7 +357,7 @@ int checkGetFeaturesOnAllTEsOnSameTypes(MsgStream& log, Navigation* nav, Trigger
   return 0;
 }
 //****************************************************************************************
-bool construction_test(HLT::Navigation* hns) {
+StatusCode construction_test(HLT::Navigation* hns) {
   BEGIN_TEST("Construction");
   TriggerElement* initial =  hns->getInitialNode();
   if ( not initial ) REPORT_AND_STOP("Can not get initial node");
@@ -481,7 +481,7 @@ bool construction_test(HLT::Navigation* hns) {
 }
 
 //****************************************************************************************
-bool counting_test(HLT::Navigation* hns) {
+StatusCode counting_test(HLT::Navigation* hns) {
   BEGIN_TEST("counting");
   
 
@@ -518,7 +518,7 @@ bool counting_test(HLT::Navigation* hns) {
 
 }
 //****************************************************************************************
-bool seeding_test(HLT::Navigation* /*hns*/) {
+StatusCode seeding_test(HLT::Navigation* /*hns*/) {
   BEGIN_TEST("seeding");
   
 
@@ -542,7 +542,7 @@ bool all_not_null(const std::initializer_list<TriggerElement*>& all) {
 }
 
 //****************************************************************************************
-bool topo_test(HLT::Navigation* hns) {
+StatusCode topo_test(HLT::Navigation* hns) {
   BEGIN_TEST("topo");
   TriggerElement* clu1      = getTE(hns, 111);
   TriggerElement* zz        = getTE(hns, 33301);
@@ -589,7 +589,7 @@ bool topo_test(HLT::Navigation* hns) {
 }
 
 //****************************************************************************************
-bool single_feature_test(HLT::Navigation* hns) {
+StatusCode single_feature_test(HLT::Navigation* hns) {
   BEGIN_TEST("single feature operations test");
   TriggerElement* clu1        = getTE(hns, 111);
   TriggerElement* track1      = getTE(hns, 1111);
@@ -674,7 +674,7 @@ TestBContainer* makeTestB(int value, size_t size=3) {
 }
 
 
-bool container_feature_test(HLT::Navigation* hns) {
+StatusCode container_feature_test(HLT::Navigation* hns) {
   BEGIN_TEST("container feature operations test");
   TriggerElement* clu1        = getTE(hns, 111);
   /* TriggerElement* track1 =*/ getTE(hns, 1111);
@@ -712,7 +712,7 @@ bool container_feature_test(HLT::Navigation* hns) {
 
 
 //****************************************************************************************
-bool serialize_test(HLT::Navigation* hns, HLT::Navigation* newhns) {
+StatusCode serialize_test(HLT::Navigation* hns, HLT::Navigation* newhns) {
   BEGIN_TEST("serialize test");
   std::vector<uint32_t> serialized;
   std::vector<unsigned> breaks;
@@ -730,7 +730,7 @@ bool serialize_test(HLT::Navigation* hns, HLT::Navigation* newhns) {
   END_TEST;
 }
 
-bool const_attach_test(HLT::Navigation* hns) {
+StatusCode const_attach_test(HLT::Navigation* hns) {
   BEGIN_TEST("const attach test");
   typedef ConstDataVector<TestBContainer> ConstTestBContainer; // this is container of consts
   ConstTestBContainer* cb = new ConstTestBContainer;
@@ -780,7 +780,7 @@ bool const_attach_test(HLT::Navigation* hns) {
 }
 
 
-bool external_collection_test(HLT::Navigation* hns) {
+StatusCode external_collection_test(HLT::Navigation* hns) {
   BEGIN_TEST("external_collection test");
   TestBContainer* dav = new TestBContainer;
   dav->push_back(new TestB(1));
@@ -850,29 +850,29 @@ int main () {
 
   hns->reset();
   
-  if ( !construction_test(hns) ) 
+  if ( construction_test(hns).isFailure() ) 
     ABORT("TEs construction test failed");
 
 
-  if ( !counting_test(hns) ) 
+  if ( counting_test(hns).isFailure() ) 
     ABORT("Counting test failed");
 
 
-  if ( !topo_test(hns) ) 
+  if ( topo_test(hns).isFailure() ) 
     ABORT("Topo test failed");
 
 
-  if ( !single_feature_test(hns) ) 
+  if ( single_feature_test(hns).isFailure() ) 
     ABORT("Single feature manipulation");
 
-  if ( !container_feature_test(hns) ) 
+  if ( container_feature_test(hns).isFailure() ) 
     ABORT("Container feature manipulation");
 
-  if ( !const_attach_test(hns) ) {
+  if ( const_attach_test(hns).isFailure() ) {
     ABORT("ConstDV attaching test failed");
   }
   //  log << MSG::DEBUG << pStore->dump() << endmsg;
-  if ( !external_collection_test(hns) ) {
+  if ( external_collection_test(hns).isFailure() ) {
     ABORT("ttest with externaly provided collection failed");
   }
 
@@ -883,7 +883,7 @@ int main () {
     REPORT_AND_CONTINUE( "OK navigation tool retrieved" );
     newhns = dynamic_cast< HLT::Navigation*>(algTool);
   }
-  if ( !serialize_test(hns, newhns) )
+  if ( serialize_test(hns, newhns).isFailure() )
     ABORT( "Serialization test failed" );
 
 

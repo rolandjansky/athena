@@ -1,0 +1,15 @@
+package TrkVKalVrtCore
+
+author Vadim Kostyukhin <Vadim.Kostyukhin@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-*
+
+
+library  TrkVKalVrtCore   *.cxx
+apply_pattern  installed_library
+
+
+
+private
+
+#macro_append cppflags " -pedantic-errors"

@@ -15,7 +15,6 @@ atlas_depends_on_subdirs(
    Control/SGTools
    Control/StoreGate
    Control/AthLinks
-   Control/AthContainersInterfaces
    Control/AthContainers
    GaudiKernel )
 

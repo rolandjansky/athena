@@ -117,7 +117,10 @@ namespace Muon {
     m_segmentFinder->setUseSegmentQuality( m_useSegmentQuality );
 
     if( !m_dcslFitProvider.empty() ){
-      ATH_CHECK( m_dcslFitProvider.retrieve() );
+      if( m_dcslFitProvider.retrieve().isFailure() ){
+	ATH_MSG_WARNING(" failed to retrieve " << m_dcslFitProvider);
+	return StatusCode::FAILURE;
+      }
       ATH_MSG_INFO(" Using fitter from " << m_dcslFitProvider);
       m_fitter = m_dcslFitProvider->getFitter();
       m_segmentFinder->setFitter( m_fitter );
@@ -125,7 +128,10 @@ namespace Muon {
     }
 
     if( !m_idHelperTool.empty() ){
-      ATH_CHECK( m_idHelperTool.retrieve() );
+      if( m_idHelperTool.retrieve().isFailure() ){
+	ATH_MSG_WARNING(" failed to retrieve " << m_idHelperTool);
+	return StatusCode::FAILURE;
+      }
     }
     return StatusCode::SUCCESS;
   }

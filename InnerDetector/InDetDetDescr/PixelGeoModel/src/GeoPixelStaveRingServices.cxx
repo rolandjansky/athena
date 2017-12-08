@@ -61,11 +61,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   double halfSupportLength=endblockLength*0.5+dogLegStaveLength*0.5;
   
   m_gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : "<<endblockZpos<<"  "<<serviceZpos<<"   "<<endblockLength<<endmsg;
-  if((!endblockA) || (!endblockC) || (!endblockFlex) || (!serviceCoolPipe))
-  {
-          m_gmt_mgr->msg(MSG::ERROR) <<"dynamic_cast failure in "<<__FILE__<< ":"<< __LINE__<<endmsg;
-          exit(EXIT_FAILURE);
-  } 
+  
   
   // Define staveRing for side A
   GeoPixelStaveRing staveRing;
@@ -144,12 +140,12 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
       m_supportPhysA->add(tag);
       m_supportPhysA->add(xformA);
       m_supportPhysA->add(endblockA);
-
+      
       GeoTransform* xformC = new GeoTransform(ladderTransform*ladderLocalTrf*HepGeom::TranslateZ3D(-endblockZpos+serviceZpos+dogLegStaveLength*0.5));
       m_supportPhysC->add(tag);
       m_supportPhysC->add(xformC);
       m_supportPhysC->add(endblockC);
-
+      
       //
       // Add endblock flex section
       //
@@ -162,10 +158,11 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
       m_supportPhysA->add(tagFlex);
       m_supportPhysA->add(xformFlexA);
       m_supportPhysA->add(endblockFlex);
-   
+      
       m_supportPhysC->add(tagFlex);
       m_supportPhysC->add(xformFlexB);
       m_supportPhysC->add(endblockFlex);
+      
       
       //
       // Add cooling pipe service

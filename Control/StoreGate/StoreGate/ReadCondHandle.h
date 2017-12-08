@@ -109,10 +109,10 @@ namespace SG {
     if (m_cc == 0) {
       // try to retrieve it
       CondContBase *cb(nullptr);
-      if (m_cs->retrieve(cb, SG::VarHandleBase::key()).isFailure()) {
+      if (m_cs->retrieve(cb, SG::VarHandleKey::key()).isFailure()) {
         MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
         msg << MSG::ERROR
-            << "can't retrieve " << SG::VarHandleBase::fullKey() 
+            << "can't retrieve " << Gaudi::DataHandle::fullKey() 
             << " via base class" << endmsg;
         throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
       } else {
@@ -120,7 +120,7 @@ namespace SG {
         if (m_cc == 0) {
           MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
           msg << MSG::ERROR
-              << "can't dcast CondContBase to " << SG::VarHandleBase::fullKey() 
+              << "can't dcast CondContBase to " << Gaudi::DataHandle::fullKey() 
               << endmsg;
           throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
         }

@@ -16,7 +16,7 @@
 
 
 #include "AthContainers/exceptions.h"
-#include "AthenaKernel/IRegisterTransient.h"
+#include "SGTools/IRegisterTransient.h"
 
 
 namespace SG {

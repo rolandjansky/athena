@@ -5,7 +5,6 @@
 // System include(s):
 #include <memory>
 #include <cstdlib>
-#include "Messaging.h"
 
 // ROOT include(s):
 #include <TFile.h>
@@ -25,7 +24,6 @@
 #include "xAODEgamma/Egamma.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include "xAODCore/ShallowCopy.h"
-#include "AsgTools/AsgMessaging.h"
 
 
 #include <string>
@@ -47,11 +45,6 @@ int main( int argc, char* argv[] ) {
 
    // The application's name:
    const char* APP_NAME = argv[ 0 ];
-
-  MSG::Level mylevel=MSG::DEBUG;
-
-  MSGHELPERS::getMsgStream().msg().setLevel(mylevel);
-  MSGHELPERS::getMsgStream().msg().setName(APP_NAME);
 
    // Check if we received a file name:
    if( argc < 2 ) {
@@ -91,14 +84,12 @@ int main( int argc, char* argv[] ) {
    //Likelihood
    AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
    //std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.Loose.2012.8TeV.rel17p2.v07.root"} ;
-   std::vector<std::string> inputFiles{"efficiencySF.offline.MediumLLH_d0z0_v11.root"} ;
+   std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.MediumLLH_d0z0_v11.root"} ;
    CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
-    myEgCorrections.msg().setLevel(mylevel);
 
    CHECK( myEgCorrections.setProperty("ForceDataType",3) );
    CHECK( myEgCorrections.setProperty("CorrelationModel", "SIMPLIFIED" ));
    CHECK( myEgCorrections.setProperty("UseRandomRunNumber", false ));
-   CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", 299999));
 
    CHECK( myEgCorrections.initialize() );
 
@@ -108,15 +99,14 @@ int main( int argc, char* argv[] ) {
    std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
   std::cout << "=="<<std::endl;
    // Loop over the events:
-   Long64_t entry = 10;
-   entries = entry+1;
-   for(  ; entry < entries; ++entry ) {
+   entries = 1;
+   for( Long64_t entry = 0; entry < entries; ++entry ) {
      
      // Tell the object which entry to look at:
      event.getEntry( entry );
      
      std::cout << "=================NEXT EVENT==========================" << std::endl;
-   //  Info (APP_NAME,"Electron 6" );
+     Info (APP_NAME,"Electron 6" );
 
  
      const xAOD::EventInfo* event_info = 0;  
@@ -157,10 +147,6 @@ int main( int argc, char* argv[] ) {
                    << el->caloCluster()->etaBE(2) << std::endl; 
 
          Info (APP_NAME,"Electron #%d", i); 
-
-int sysreg = myEgCorrections.systUncorrVariationIndex(*el);
-         Info (APP_NAME,"sysregion %d ", sysreg);
-
 
          if(myEgCorrections.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
            Error( APP_NAME, "Problem in getEfficiencyScaleFactor");

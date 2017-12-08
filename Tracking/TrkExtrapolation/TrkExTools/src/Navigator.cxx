@@ -10,6 +10,8 @@
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
+// StoreGate
+#include "StoreGate/StoreGateSvc.h"
 // Trk inlcudes
 #include "TrkExTools/Navigator.h"
 #include "TrkExInterfaces/IPropagator.h"
@@ -696,9 +698,16 @@ Trk::Navigator::trackingGeometry() const {
 StatusCode
 Trk::Navigator::updateTrackingGeometry() const {
   // -------------------- public TrackingGeometry (from DetectorStore) ----------------------------
+  // get the DetectorStore
+  StoreGateSvc *detectorStore = 0;
+  StatusCode s = service("DetectorStore", detectorStore);
 
-  StatusCode s = StatusCode::SUCCESS;
-  s = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
+  if (s.isFailure()) {
+    ATH_MSG_FATAL("DetectorStore service not found!");
+    throw Trk::NavigatorException();
+  }
+
+  s = detectorStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
   if (s.isFailure()) {
     ATH_MSG_FATAL("Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore.");
     ATH_MSG_FATAL("  - probably the chosen layout is not supported / no cool tag exists. ");

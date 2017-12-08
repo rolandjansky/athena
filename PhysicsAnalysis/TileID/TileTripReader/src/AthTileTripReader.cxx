@@ -30,6 +30,7 @@ AthTileTripReader::AthTileTripReader(const std::string& type,
     
     m_tripReader=new Root::TTileTripReader;
     declareInterface<IAthSelectorTool>(this);
+    declareInterface<IUserDataCalcTool>(this);
     declareInterface<AthTileTripReader>(this);
     
     declareProperty("TileTripFile",
@@ -119,6 +120,33 @@ const TResult& AthTileTripReader::calculate(const INavigable4Momentum* part){
 				   m_dR,
 				   tileError,
 				   tileFlags);
+}
+
+StatusCode AthTileTripReader::calculateElementUserData(const IAthenaBarCode* abc){
+    // Test if we got a jet
+    const INavigable4Momentum* inav = dynamic_cast<const INavigable4Momentum*>(abc);
+    if ( !inav ){
+        ATH_MSG_ERROR ( "Could NOT cast to a const INavigable4Momentum!!!" );
+        return StatusCode::FAILURE;
+    }
+
+    // get the result of the selection
+    const Root::TAccept& myAccept = this->accept(inav);
+    bool isAccepted = bool(myAccept);
+    ATH_MSG_VERBOSE( "This one is accepted: " << isAccepted );
+
+    // Store the result into user data (the name of the user data should be configurable)
+    ATH_CHECK ( userStore()->record(*inav, "passTileTripCleaning", isAccepted) );
+
+    // get the result of the fraction
+    const Root::TResult& myResult = this->calculate(inav);
+    double myFraction = myResult.getResult("TripAreaFrac");
+    ATH_MSG_VERBOSE( "This one has a fractional area with TileTrip of: " << myFraction );
+
+    // Store the result into user data (the name of the user data should be configurable)
+    ATH_CHECK ( userStore()->record(*inav, "fractionAreaInTileTrip", myFraction) );
+
+    return StatusCode::SUCCESS;
 }
 
 bool AthTileTripReader::checkEvent(){

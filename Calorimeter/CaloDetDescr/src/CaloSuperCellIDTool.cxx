@@ -17,6 +17,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "AthenaKernel/errorcheck.h"
+#include "boost/foreach.hpp"
 #include "boost/format.hpp"
 
 #include <iostream>
@@ -94,7 +95,7 @@ void CaloSuperCellIDTool::initIDMap ()
   m_superCellIndexEnd.resize (sc_helper->calo_region_hash_max(), -1);
 
   // Loop over all offline regions.
-  for (const Identifier& cell_reg : cell_helper->reg_range()) {
+  BOOST_FOREACH (const Identifier& cell_reg, cell_helper->reg_range()) {
     if (cell_helper->is_em(cell_reg) ||
         cell_helper->is_hec(cell_reg) ||
         cell_helper->is_fcal(cell_reg))
@@ -116,7 +117,7 @@ void CaloSuperCellIDTool::initIDMap ()
       // Find all overlapping supercell regions in the same sampling
       // and make table entries.  HEC supercells are summed
       // over samplings, so don't make sampling requirements there.
-      for (const Identifier& sc_reg : sc_helper->reg_range()) {
+      BOOST_FOREACH (const Identifier& sc_reg, sc_helper->reg_range()) {
         if (sc_helper->sub_calo (sc_reg) == sub_calo &&
             sc_helper->pos_neg (sc_reg) == pos_neg &&
             (sub_calo == CaloCell_ID::LARHEC ||
@@ -194,7 +195,7 @@ void CaloSuperCellIDTool::initIDMap ()
   if (msgLvl (MSG::DEBUG)) {
     msg(MSG::DEBUG) << "CaloSuperCellIDTool mapping table:\n";
     msg(MSG::DEBUG) << "LArEM ----------------------------\n";
-    for (const IDMapElt& elt : m_idmap) {
+    BOOST_FOREACH (const IDMapElt& elt, m_idmap) {
       Identifier cell_reg = cell_helper->region_id (elt.m_cell_reg);
       Identifier sc_reg = sc_helper->region_id (elt.m_sc_reg);
       msg(MSG::DEBUG) <<
@@ -257,7 +258,7 @@ void CaloSuperCellIDTool::initFCALIDMap ()
   m_fcal_fromCell.resize(fcal_helper->channel_hash_max());
   m_fcal_fromSuperCell.resize(sfcal_helper->channel_hash_max());
   
-  for (const Identifier& cell_id : fcal_helper->fcal_range()) {
+  BOOST_FOREACH (const Identifier& cell_id, fcal_helper->fcal_range()) {
     const int sc_phi = fcal_helper->phi (cell_id);
     const int sc_lay = fcal_helper->module (cell_id);
     const int cell_ieta = fcal_helper->eta (cell_id);
@@ -287,7 +288,7 @@ void CaloSuperCellIDTool::initFCALIDMap ()
   // Allow dumping the mapping table for validation.
   if (msgLvl (MSG::DEBUG)) {
     msg(MSG::DEBUG) << "\n LArFCAL ---------------------------\n";
-    for (const Identifier& sc_id : sfcal_helper->fcal_range()) {
+    BOOST_FOREACH (const Identifier& sc_id, sfcal_helper->fcal_range()) {
       IdentifierHash sc_hash = sfcal_helper->channel_hash( sc_id );
       std::vector<Identifier> cells = m_fcal_fromSuperCell[ sc_hash ];
       msg(MSG::DEBUG) <<

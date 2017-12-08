@@ -31,7 +31,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class GenericTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
+  class GenericTruthStrategy : public AthAlgTool, public ITruthStrategy {
       
     public: 
      /** Constructor with parameters */

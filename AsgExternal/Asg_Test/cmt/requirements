@@ -1,0 +1,24 @@
+package Asg_Test
+author NLAA
+
+
+use AtlasPolicy AtlasPolicy-*
+
+macro Asg_Test_ReleaseSeries "ASGSeries`cat $(Asg_Test_root)/cmt/ReleaseSeries.txt`"
+apply_tag $(Asg_Test_ReleaseSeries)
+
+macro Asg_Test_ReleaseSeriesNum "`cat $(Asg_Test_root)/cmt/ReleaseSeries.txt`"
+set ROOTCORE_RELEASE_SERIES $(Asg_Test_ReleaseSeriesNum)
+
+macro Asg_Test_TestFile "`cat $(Asg_Test_root)/cmt/TestFileMC.txt`"
+set ROOTCORE_TEST_FILE $(Asg_Test_TestFile)
+
+macro Asg_Test_TestFileMC "`cat $(Asg_Test_root)/cmt/TestFileMC.txt`"
+set ASG_TEST_FILE_MC $(Asg_Test_TestFileMC)
+
+macro Asg_Test_TestFileData "`cat $(Asg_Test_root)/cmt/TestFileData.txt`"
+set ASG_TEST_FILE_DATA $(Asg_Test_TestFileData)
+
+macro Asg_Test_TestFileMCAFII "`cat $(Asg_Test_root)/cmt/TestFileMCAFII.txt`"
+set ASG_TEST_FILE_MC_AFII $(Asg_Test_TestFileMCAFII)
+

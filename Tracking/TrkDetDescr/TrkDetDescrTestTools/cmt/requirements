@@ -1,0 +1,42 @@
+package TrkDetDescrTestTools
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author  Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy           AtlasPolicy-*
+use AtlasROOT             AtlasROOT-*             External
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
+use GaudiInterface        GaudiInterface-*        External
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use TrkDetDescrInterfaces TrkDetDescrInterfaces-* Tracking/TrkDetDescr
+
+
+#################################################################
+# private use statements
+private
+use EventPrimitives       EventPrimitives-*       Event
+use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkVolumes            TrkVolumes-*            Tracking/TrkDetDescr
+use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
+use TrkDetDescrUtils      TrkDetDescrUtils-*      Tracking/TrkDetDescr
+use TrkValidationUtils    TrkValidationUtils-*    Tracking/TrkUtilityPackages
+
+public
+library TrkDetDescrTestTools *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+# uncomment this line if you do want to build the memory monitoring lines
+# apply_tag  use_trkdetdescr_memmon
+
+macro_append TrkDetDescrMemMonMacro "-DTRKDETDESCR_MEMUSAGE"
+
+macro_append  use_pp_cppflags                "" \
+              use_trkdetdescr_memmon $(TrkDetDescrMemMonMacro)
+
+macro cppdebugflags '$(cppdebugflags_s)'
+macro_remove componentshr_linkopts "-Wl,-s"
+macro DOXYGEN_IMAGE_PATH "../doc/images"

@@ -28,12 +28,12 @@
 //xAOD includes
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
@@ -100,8 +100,6 @@ public:
 
   CP::SystematicCode registerSystematics();
 
-  int systUncorrVariationIndex( const xAOD::Electron &inputObject) const;
-
   // Private member variables
 private:
   // To check if the metadat can be retrieved 
@@ -110,12 +108,9 @@ private:
   // Get the simulation type from metadata
   StatusCode get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const;
 
-  int currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const ;
-  int currentUncorrSystRegion(const double cluster_eta, const double et) const ;
-
 
   /// The main calculate method: the actual correction factors are determined here
-  const Root::TResult& calculate( const double cluster_eta, const double et, const unsigned int runnumber ) const ;
+  const Root::TResult& calculate( const xAOD::Electron& egam, const unsigned int runnumber, int &currentElectronSimplifiedUncorrSystRegion, int& currentElectronUncorrSystRegion ) const ;
   CP::SystematicCode InitSystematics();
 
   // struct for toys
@@ -217,8 +212,6 @@ private:
   // simplified uncorrelation regions
   TH2F * m_UncorrRegions;
   int m_nSimpleUncorrSyst;
-
-
 
 }; // End: class definition
 

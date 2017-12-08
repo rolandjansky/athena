@@ -301,6 +301,16 @@ class SCT_ConditionsServicesSetup:
   def initConfigSvc(self, instanceName):
     "Init configuration conditions service"
     
+    if hasattr(self.svcMgr,instanceName):
+      configSvc = getattr(self.svcMgr, instanceName); 
+    else:
+      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
+      configSvc = SCT_ConfigurationConditionsSvc(name = instanceName)
+      self.svcMgr += configSvc
+      if self._print:  print configSvc
+
+    self.summarySvc.ConditionsServices+=[instanceName]
+
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     from IOVDbSvc.CondDB import conddb
     if conddb.dbdata == "COMP200" or InDetTrigFlags.ForceCoraCool():
@@ -315,18 +325,15 @@ class SCT_ConditionsServicesSetup:
     if not self.condDB.folderRequested(sctdaqpath+'/Chip'):
       self.condDB.addFolderSplitMC("SCT",
                                    sctdaqpath+'/Chip',
-                                   sctdaqpath+'/Chip',
-                                   className="CondAttrListVec")
+                                   sctdaqpath+'/Chip')
     if not self.condDB.folderRequested(sctdaqpath+'/Module'):
       self.condDB.addFolderSplitMC("SCT",
                                    sctdaqpath+'/Module',
-                                   sctdaqpath+'/Module',
-                                   className="CondAttrListVec")
+                                   sctdaqpath+'/Module')
     if not self.condDB.folderRequested(sctdaqpath+'/MUR'):
       self.condDB.addFolderSplitMC("SCT",
                                    sctdaqpath+'/MUR',
-                                   sctdaqpath+'/MUR',
-                                   className="CondAttrListVec")
+                                   sctdaqpath+'/MUR')
 
     if not self.condDB.folderRequested(sctdaqpath+'/ROD'):
       self.condDB.addFolderSplitMC("SCT",
@@ -340,25 +347,6 @@ class SCT_ConditionsServicesSetup:
       self.condDB.addFolderSplitMC("SCT",
                                    sctdaqpath+'/Geog',
                                    sctdaqpath+'/Geog')
-
-    if hasattr(self.svcMgr,instanceName):
-      configSvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
-        condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
-                                            ReadKeyChannel= sctdaqpath+'/Chip',
-                                            ReadKeyModule = sctdaqpath+'/Module',
-                                            ReadKeyMur = sctdaqpath+'/MUR')
-
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-      configSvc = SCT_ConfigurationConditionsSvc(name = instanceName)
-      self.svcMgr += configSvc
-      if self._print:  print configSvc
-
-    self.summarySvc.ConditionsServices+=[instanceName]
 
     if self._print:  print self.condDB
     return configSvc
@@ -395,22 +383,22 @@ class SCT_ConditionsServicesSetup:
 
     if hasattr(self.svcMgr,instanceName):
       dcsSvc = getattr(self.svcMgr, instanceName); 
-    else:
+    else:        
       from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
+      condSequence = AthSequencer("AthCondSeq")
+      if not hasattr(condSequence, "SCT_DCSConditionsHVCondAlg"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-        condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                              ReadKey = sctDCSHVFolder)
-      if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
+        condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                   ReadKey = sctDCSHVFolder)
+      if not hasattr(condSequence, "SCT_DCSConditionsStatCondAlg"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-        condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                ReadKeyHV = sctDCSHVFolder,
-                                                ReadKeyState = sctDCSStateFolder)
-      if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
+        condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                     ReadKeyHV = sctDCSHVFolder,
+                                                     ReadKeyState = sctDCSStateFolder)
+      if not hasattr(condSequence, "SCT_DCSConditionsTempCondAlg"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-        condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                ReadKey = sctDCSTempFolder)
+        condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                     ReadKey = sctDCSTempFolder)
 
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
       dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
@@ -469,21 +457,14 @@ class SCT_ConditionsServicesSetup:
 
       self.summarySvc.ConditionsServices+=[instanceName]
 
-      sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
-      if not self.condDB.folderRequested(sctGainDefectFolder):
-        self.condDB.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
-      sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
-      if not self.condDB.folderRequested(sctNoiseDefectFolder):
-        self.condDB.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
-      
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_ReadCalibDataCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
-        condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
-                                            ReadKeyGain = sctGainDefectFolder,
-                                            ReadKeyNoise = sctNoiseDefectFolder)
-
+      if not self.condDB.folderRequested('/SCT/DAQ/Calibration/NPtGainDefects'):
+        self.condDB.addFolderSplitMC("SCT",
+                                     "/SCT/DAQ/Calibration/NPtGainDefects",
+                                     "/SCT/DAQ/Calibration/NPtGainDefects")
+      if not self.condDB.folderRequested('/SCT/DAQ/Calibration/NoiseOccupancyDefects'):
+        self.condDB.addFolderSplitMC("SCT",
+                                     "/SCT/DAQ/Calibration/NoiseOccupancyDefects",
+                                     "/SCT/DAQ/Calibration/NoiseOccupancyDefects")
       return  calibSvc
     else:
       return None

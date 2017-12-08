@@ -22,7 +22,7 @@
 #include <vector>
 
 /// @todo NEEDS DOCUMENTATION
-class DetectorGeometryBase : public extends<AthAlgTool, IDetectorGeometryTool>
+class DetectorGeometryBase : virtual public IDetectorGeometryTool, public AthAlgTool
 {
 public:
   // Basic constructor and destructor
@@ -59,6 +59,9 @@ public:
   Envelope& GetEnvelope() override final;
 
   G4VPhysicalVolume* GetWorldVolume() override final;
+
+  /** Query interface method to make athena happy */
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
 protected:
   ToolHandleArray<IDetectorGeometryTool> m_subDetTools;

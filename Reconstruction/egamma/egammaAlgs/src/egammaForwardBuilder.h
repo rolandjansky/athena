@@ -38,7 +38,7 @@
 
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
-#include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
 
 #include <string>
 

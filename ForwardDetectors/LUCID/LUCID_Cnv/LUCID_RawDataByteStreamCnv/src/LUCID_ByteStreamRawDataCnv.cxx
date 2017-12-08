@@ -4,7 +4,6 @@
 
 
 #include "LUCID_RawDataByteStreamCnv/LUCID_ByteStreamRawDataCnv.h"
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 LUCID_ByteStreamRawDataCnv::LUCID_ByteStreamRawDataCnv(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm     (name                , pSvcLocator),

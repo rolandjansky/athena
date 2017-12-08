@@ -1,0 +1,36 @@
+package TrkTrack
+
+author Edward Moyse <Edward.Moyse@cern.ch>
+manager Edward Moyse <Edward.Moyse@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use CLIDSvc             CLIDSvc-*            Control
+use DataModel           DataModel-*          Control
+use Identifier          Identifier-*         DetectorDescription
+use TrkEventPrimitives  TrkEventPrimitives-* Tracking/TrkEvent
+use TrkParameters       TrkParameters-*      Tracking/TrkEvent
+use TrkNeutralParameters TrkNeutralParameters-*      Tracking/TrkEvent
+use TrkMeasurementBase  TrkMeasurementBase-* Tracking/TrkEvent
+use TrkMaterialOnTrack  TrkMaterialOnTrack-* Tracking/TrkEvent
+use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent
+
+library TrkTrack *.cxx
+apply_pattern installed_library
+
+private
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+use GaudiInterface      GaudiInterface-*     External
+use TrkTrackSummary     TrkTrackSummary-*    Tracking/TrkEvent
+use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+apply_pattern lcgdict dict=TrkTrack selectionfile=selection.xml headerfiles="../TrkTrack/TrkTrackDict.h" \
+elementLinks="TrackCollection"
+
+# Doxygen switches
+macro DOXYGEN_UML_LOOK "YES"

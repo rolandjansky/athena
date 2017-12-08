@@ -19,8 +19,9 @@
 ISF::GenParticleInteractingFilter::GenParticleInteractingFilter( const std::string& t,
                                                                  const std::string& n,
                                                                  const IInterface* p )
-  : base_class(t,n,p)
+  : AthAlgTool(t,n,p)
 {
+    declareInterface<ISF::IGenParticleFilter>(this);
 }
 
 /** passes through to the private version of the filter */

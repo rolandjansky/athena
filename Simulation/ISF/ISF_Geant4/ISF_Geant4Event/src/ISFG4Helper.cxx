@@ -1,6 +1,6 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+///////////////////////////////////////////////////////
+// ISFG4Helper.cxx, (c) ATLAS Detector software
+///////////////////////////////////////////////////////
 
 // class header
 #include "ISF_Geant4Event/ISFG4Helper.h"

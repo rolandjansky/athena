@@ -1,0 +1,44 @@
+package TrkDetDescrTPCnv
+
+author  Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-* 
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+use TrkGeometry          TrkGeometry-*          Tracking/TrkDetDescr
+use TrkDetDescrUtils     TrkDetDescrUtils-*     Tracking/TrkDetDescr
+
+private
+use GaudiInterface       GaudiInterface-*       External
+use CxxUtils             CxxUtils-*             Control
+end_private
+
+#apply_pattern tpcnv_library
+library TrkDetDescrTPCnv *.cxx  TrkDetDescrUtils/*.cxx TrkGeometry/*.cxx 
+apply_pattern installed_library
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep
+# clients of EventInfo from seeing excess dependencies
+private
+use AtlasReflex        AtlasReflex-*        External -no_auto_imports
+
+apply_pattern lcgdict dict=TrkDetDescrTPCnv  selectionfile=selection.xml headerfiles="../TrkDetDescrTPCnv/TrkDetDescrTPCnvDict.h"
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=BinnedLayerMaterialCnv_p1
+apply_pattern UnitTest_run unit_test=BinUtilityCnv_p1
+apply_pattern UnitTest_run unit_test=CompressedLayerMaterialCnv_p1
+apply_pattern UnitTest_run unit_test=CompoundLayerMaterialCnv_p1
+apply_pattern UnitTest_run unit_test=ElementTableCnv_p1
+apply_pattern UnitTest_run unit_test=HomogeneousLayerMaterialCnv_p1
+apply_pattern UnitTest_run unit_test=LayerMaterialMapCnv_p1
+apply_pattern UnitTest_run unit_test=MaterialCnv_p1
+apply_pattern UnitTest_run unit_test=MaterialPropertiesCnv_p1
+apply_pattern UnitTest_run unit_test=MaterialStepCnv_p1
+apply_pattern UnitTest_run unit_test=MaterialStepCollectionCnv_p1
+
+private
+# macro cppdebugflags '$(cppdebugflags_s)'
+# macro_remove componentshr_linkopts "-Wl,-s"
+

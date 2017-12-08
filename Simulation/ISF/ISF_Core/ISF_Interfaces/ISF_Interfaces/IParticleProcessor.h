@@ -14,6 +14,8 @@
 
 namespace ISF {
   
+  static const InterfaceID IID_IParticleProcessor("IParticleProcessor", 1, 0);
+
   class ISFParticle;    
     
   /** 
@@ -34,8 +36,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IParticleProcessor(){}
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(IParticleProcessor, 1, 0);
+       /** AlgTool interface methods */
+       static const InterfaceID& interfaceID() { return IID_IParticleProcessor; }
 
        /** Creates a new ISFParticle from a given ParticleState, 
           universal transport tool */

@@ -1,0 +1,450 @@
+package PythiaExo_i
+
+author Ian Hinchliffe
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy            AtlasPolicy-*
+use AtlasFortranPolicy     AtlasFortranPolicy-*
+use GeneratorModules GeneratorModules-*    Generators
+use Pythia           Pythia-*              External
+use Pythia_i         Pythia_i-*            Generators
+use Lhapdf           Lhapdf-*              External
+use AcerMC_i         AcerMC_i-*            Generators
+use Tauola_i         Tauola_i-*            Generators
+
+#use CompHep_i        CompHep_i-*           Generators
+#use HvGen_i          HvGen_i-*             Generators
+#use Lhef_i           Lhef_i-*              Generators
+#use LhaExt_i         LhaExt_i-*            Generators
+#use MadCUP_i         MadCUP_i-*            Generators
+#use Matchig_i        Matchig_i-*           Generators
+#use Photos_i         Photos_i-*            Generators
+
+private
+use GeneratorFortranCommon GeneratorFortranCommon-*  Generators
+use AtlasBoost       AtlasBoost-*          External
+use TruthUtils       TruthUtils-*          Generators
+use PythiaBc_i       PythiaBc_i-*          Generators
+use ExoGraviton_i    ExoGraviton_i-*       Generators
+use PathResolver     PathResolver-*        Tools
+use AlpGen_i         AlpGen_i-*            Generators
+use AthenaKernel     AthenaKernel-*        Control
+use AtlasCLHEP       AtlasCLHEP-*          External
+use AtlasGSL         AtlasGSL-*            External
+use AtlasHepMC       AtlasHepMC-*          External
+end_private
+
+use GaudiInterface   GaudiInterface-*      External
+
+private
+use GeneratorUtils   GeneratorUtils-*      Generators
+use GravADD_i        GravADD_i-*           Generators
+use MadGraph_i       MadGraph_i-*          Generators
+use StoreGate        StoreGate-*           Control
+
+end_private
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in asNeeded mode. Until that time, this package
+# explicitly overrides the asNeeded tag
+private
+apply_tag notAsNeeded
+end_private
+
+private
+macro_append  fflags "" Linux "  -fno-automatic "
+end_private
+
+
+
+
+#-------------------------------------------------------------------------
+# The PythiaTau3Mu Generator
+
+macro PythiaTau3MuLibFiles ""
+macro_append PythiaTau3MuLibFiles " PythiaTau3Mu.cxx"
+macro_append PythiaTau3MuLibFiles " Pydat1.cxx"
+macro_append PythiaTau3MuLibFiles " Pydatr.cxx "
+macro_append PythiaTau3MuLibFiles " Pydat2.cxx"
+macro_append PythiaTau3MuLibFiles " Pydat3_62.cxx"
+macro_append PythiaTau3MuLibFiles " Pyssmt.cxx"
+macro_append PythiaTau3MuLibFiles " Pysubs.cxx"
+macro_append PythiaTau3MuLibFiles " Pypars.cxx"
+macro_append PythiaTau3MuLibFiles " Pymssm.cxx"
+macro_append PythiaTau3MuLibFiles " Pyint1.cxx"
+macro_append PythiaTau3MuLibFiles " Pyint2.cxx"
+macro_append PythiaTau3MuLibFiles " Pyint5.cxx"
+macro_append PythiaTau3MuLibFiles " Pytcsm.cxx"
+macro_append PythiaTau3MuLibFiles " upinit_py.F"
+macro_append PythiaTau3MuLibFiles " upevnt_py.F"
+macro_append PythiaTau3MuLibFiles " upveto_py.F"
+macro_append PythiaTau3MuLibFiles " cldcay.F"
+macro_append PythiaTau3MuLibFiles " gpydat2.F"
+macro_append PythiaTau3MuLibFiles " gpydatr.F "
+macro_append PythiaTau3MuLibFiles " gpypars.F"
+macro_append PythiaTau3MuLibFiles " gpysubs.F"
+macro_append PythiaTau3MuLibFiles " gpydat1.F"
+macro_append PythiaTau3MuLibFiles " gpydat3_62.F"
+macro_append PythiaTau3MuLibFiles " gpymssm.F"
+macro_append PythiaTau3MuLibFiles " gpyssmt.F"
+macro_append PythiaTau3MuLibFiles " gpyint1.F"
+macro_append PythiaTau3MuLibFiles " gpyint2.F"
+macro_append PythiaTau3MuLibFiles " gpyint5.F"
+macro_append PythiaTau3MuLibFiles " gpytcsm.F"
+macro_append PythiaTau3MuLibFiles " initpyblock.F"
+macro_append PythiaTau3MuLibFiles " openrandom.F"
+macro_append PythiaTau3MuLibFiles " opdcay.F"
+macro_append PythiaTau3MuLibFiles " pyr.F"
+macro_append PythiaTau3MuLibFiles " extproc.F"
+macro_append PythiaTau3MuLibFiles " gatlastaula_decres_py.F"
+macro_append PythiaTau3MuLibFiles " atopyt.F"
+macro_append PythiaTau3MuLibFiles " opensusyfile.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/pyevwt.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/pykcut.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/pytime.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/sugra.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/visaje.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/ssmssm.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/fhhiggscorr.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/fhsetflags.F"
+macro_append PythiaTau3MuLibFiles " PythiaDummies/fhsetpara.F"
+macro_append PythiaTau3MuLibFiles " PythiaModified/pytaud.F"
+macro_append PythiaTau3MuLibFiles " PythiaTau3Mu_i_entries.cxx"
+macro_append PythiaTau3MuLibFiles " PythiaTau3Mu_i_load.cxx"
+
+library PythiaTau3Mu_i -suffix=tau3mu $(PythiaTau3MuLibFiles)
+apply_pattern named_component_library library="PythiaTau3Mu_i"
+
+macro_append PythiaTau3Mu_i_shlibflags  "$(HepMC_IO_linkopts)"
+
+#-------------------------------------------------------------------------
+# The PythiaMono Generator
+
+macro PythiaMonoLibFiles ""
+macro_append PythiaMonoLibFiles " PythiaMono.cxx"
+macro_append PythiaMonoLibFiles " Pydat1.cxx"
+macro_append PythiaMonoLibFiles " Pydatr.cxx "
+macro_append PythiaMonoLibFiles " Pydat2.cxx"
+macro_append PythiaMonoLibFiles " Pydat3_62.cxx"
+macro_append PythiaMonoLibFiles " Pyssmt.cxx"
+macro_append PythiaMonoLibFiles " Pysubs.cxx"
+macro_append PythiaMonoLibFiles " Pypars.cxx"
+macro_append PythiaMonoLibFiles " Pymssm.cxx"
+macro_append PythiaMonoLibFiles " Pyint1.cxx"
+macro_append PythiaMonoLibFiles " Pyint2.cxx"
+macro_append PythiaMonoLibFiles " Pyint5.cxx"
+macro_append PythiaMonoLibFiles " Pytcsm.cxx"
+macro_append PythiaMonoLibFiles " upinit_py.F"
+macro_append PythiaMonoLibFiles " upevnt_py.F"
+macro_append PythiaMonoLibFiles " upveto_py.F"
+macro_append PythiaMonoLibFiles " cldcay.F"
+macro_append PythiaMonoLibFiles " gpydat2.F"
+macro_append PythiaMonoLibFiles " gpydatr.F "
+macro_append PythiaMonoLibFiles " gpypars.F"
+macro_append PythiaMonoLibFiles " gpysubs.F"
+macro_append PythiaMonoLibFiles " gpydat1.F"
+macro_append PythiaMonoLibFiles " gpydat3_62.F"
+macro_append PythiaMonoLibFiles " gpymssm.F"
+macro_append PythiaMonoLibFiles " gpyssmt.F"
+macro_append PythiaMonoLibFiles " gpyint1.F"
+macro_append PythiaMonoLibFiles " gpyint2.F"
+macro_append PythiaMonoLibFiles " gpyint5.F"
+macro_append PythiaMonoLibFiles " gpytcsm.F"
+macro_append PythiaMonoLibFiles " initpyblock.F"
+macro_append PythiaMonoLibFiles " openrandom.F"
+macro_append PythiaMonoLibFiles " opdcay.F"
+macro_append PythiaMonoLibFiles " pyr.F"
+macro_append PythiaMonoLibFiles " extproc.F"
+macro_append PythiaMonoLibFiles " gatlastaula_decres_py.F"
+macro_append PythiaMonoLibFiles " atopyt.F"
+macro_append PythiaMonoLibFiles " opensusyfile.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/pyevwt.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/pykcut.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/pytaud.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/pytime.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/sugra.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/visaje.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/ssmssm.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/fhhiggscorr.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/fhsetflags.F"
+macro_append PythiaMonoLibFiles " PythiaDummies/fhsetpara.F"
+macro_append PythiaMonoLibFiles " PythiaModified/pysgwz.F"
+macro_append PythiaMonoLibFiles " PythiaMono_i_entries.cxx"
+macro_append PythiaMonoLibFiles " PythiaMono_i_load.cxx"
+
+library PythiaMono_i  -suffix=mono $(PythiaMonoLibFiles)
+apply_pattern named_component_library library="PythiaMono_i"
+macro_append PythiaMono_i_dependencies " PythiaTau3Mu_i"
+macro_append PythiaMono_iConf_dependencies " PythiaTau3Mu_iConfDbMerge "
+
+macro_append PythiaMono_i_shlibflags  "$(HepMC_IO_linkopts)"
+
+#-------------------------------------------------------------------------
+# The PythiaGS Generator
+
+macro PythiaGSLibFiles ""
+macro_append PythiaGSLibFiles " PythiaGS.cxx"
+macro_append PythiaGSLibFiles " Pydat1.cxx"
+macro_append PythiaGSLibFiles " Pydatr.cxx "
+macro_append PythiaGSLibFiles " Pydat2.cxx"
+macro_append PythiaGSLibFiles " Pydat3_62.cxx"
+macro_append PythiaGSLibFiles " Pyssmt.cxx"
+macro_append PythiaGSLibFiles " Pysubs.cxx"
+macro_append PythiaGSLibFiles " Pypars.cxx"
+macro_append PythiaGSLibFiles " Pymssm.cxx"
+macro_append PythiaGSLibFiles " Pyint1.cxx"
+macro_append PythiaGSLibFiles " Pyint2.cxx"
+macro_append PythiaGSLibFiles " Pyint5.cxx"
+macro_append PythiaGSLibFiles " Pytcsm.cxx"
+macro_append PythiaGSLibFiles " upinit_py.F"
+macro_append PythiaGSLibFiles " upevnt_py.F"
+macro_append PythiaGSLibFiles " upveto_py.F"
+macro_append PythiaGSLibFiles " cldcay.F"
+macro_append PythiaGSLibFiles " gpydat2.F"
+macro_append PythiaGSLibFiles " gpydatr.F "
+macro_append PythiaGSLibFiles " gpypars.F"
+macro_append PythiaGSLibFiles " gpysubs.F"
+macro_append PythiaGSLibFiles " gpydat1.F"
+macro_append PythiaGSLibFiles " gpydat3_62.F"
+macro_append PythiaGSLibFiles " gpymssm.F"
+macro_append PythiaGSLibFiles " gpyssmt.F"
+macro_append PythiaGSLibFiles " gpyint1.F"
+macro_append PythiaGSLibFiles " gpyint2.F"
+macro_append PythiaGSLibFiles " gpyint5.F"
+macro_append PythiaGSLibFiles " gpytcsm.F"
+macro_append PythiaGSLibFiles " initpyblock.F"
+macro_append PythiaGSLibFiles " openrandom.F"
+macro_append PythiaGSLibFiles " opdcay.F"
+macro_append PythiaGSLibFiles " pyr.F"
+macro_append PythiaGSLibFiles " extproc.F"
+macro_append PythiaGSLibFiles " gatlastaula_decres_py.F"
+macro_append PythiaGSLibFiles " atopyt.F"
+macro_append PythiaGSLibFiles " opensusyfile.F"
+macro_append PythiaGSLibFiles " PythiaDummies/pytime.F"
+macro_append PythiaGSLibFiles " PythiaDummies/sugra.F"
+macro_append PythiaGSLibFiles " PythiaDummies/visaje.F"
+macro_append PythiaGSLibFiles " PythiaDummies/ssmssm.F"
+macro_append PythiaGSLibFiles " PythiaDummies/fhhiggscorr.F"
+macro_append PythiaGSLibFiles " PythiaDummies/fhsetflags.F"
+macro_append PythiaGSLibFiles " PythiaDummies/fhsetpara.F"
+macro_append PythiaGSLibFiles " PythiaModified/pytaud.F"
+macro_append PythiaGSLibFiles " PythiaGS_i_entries.cxx"
+macro_append PythiaGSLibFiles " PythiaGS_i_load.cxx"
+macro_append PythiaGSLibFiles " PythiaGravADD/Aeik.c"
+macro_append PythiaGSLibFiles " PythiaGravADD/pyeffevt.F"
+macro_append PythiaGSLibFiles " PythiaGravADD/GravScat.F"
+
+library PythiaGS_i -suffix=gs  $(PythiaGSLibFiles)
+apply_pattern named_component_library library="PythiaGS_i"
+macro_append PythiaGS_i_dependencies " PythiaMono_i"
+macro_append PythiaGS_iConf_dependencies " PythiaMono_iConfDbMerge "
+
+macro_append PythiaGS_i_shlibflags  "$(HepMC_IO_linkopts)"
+# apply_pattern generic_declare_for_link kind=data files="-s=../data *.dat" prefix=share/PythiaExo_i
+
+#-------------------------------------------------------------------------
+# The PythiaLLP Generator
+
+macro PythiaLibFiles ""
+macro_append PythiaLLPLibFiles " PythiaLLP.cxx"
+macro_append PythiaLLPLibFiles " Pydat1.cxx"
+macro_append PythiaLLPLibFiles " Pydatr.cxx"
+macro_append PythiaLLPLibFiles " Pydat2.cxx"
+macro_append PythiaLLPLibFiles " Pydat3_62.cxx"
+macro_append PythiaLLPLibFiles " Pyssmt.cxx"
+macro_append PythiaLLPLibFiles " Pysubs.cxx"
+macro_append PythiaLLPLibFiles " Pypars.cxx"
+macro_append PythiaLLPLibFiles " Pymssm.cxx"
+macro_append PythiaLLPLibFiles " Pyint1.cxx"
+macro_append PythiaLLPLibFiles " Pyint2.cxx"
+macro_append PythiaLLPLibFiles " Pyint5.cxx"
+macro_append PythiaLLPLibFiles " Pytcsm.cxx"
+macro_append PythiaLLPLibFiles " upinit_py.F"
+macro_append PythiaLLPLibFiles " upevnt_py.F"
+macro_append PythiaLLPLibFiles " upveto_py.F"
+macro_append PythiaLLPLibFiles " cldcay.F"
+macro_append PythiaLLPLibFiles " gpydat2.F"
+macro_append PythiaLLPLibFiles " gpydatr.F"
+macro_append PythiaLLPLibFiles " gpypars.F"
+macro_append PythiaLLPLibFiles " gpysubs.F"
+macro_append PythiaLLPLibFiles " gpydat1.F"
+macro_append PythiaLLPLibFiles " gpydat3_62.F"
+macro_append PythiaLLPLibFiles " gpymssm.F"
+macro_append PythiaLLPLibFiles " gpyssmt.F"
+macro_append PythiaLLPLibFiles " gpyint1.F"
+macro_append PythiaLLPLibFiles " gpyint2.F"
+macro_append PythiaLLPLibFiles " gpyint5.F"
+macro_append PythiaLLPLibFiles " gpytcsm.F"
+macro_append PythiaLLPLibFiles " initpyblock.F"
+macro_append PythiaLLPLibFiles " openrandom.F"
+macro_append PythiaLLPLibFiles " opdcay.F"
+macro_append PythiaLLPLibFiles " pyr.F"
+macro_append PythiaLLPLibFiles " extproc.F"
+macro_append PythiaLLPLibFiles " gatlastaula_decres_py.F"
+macro_append PythiaLLPLibFiles " atopyt.F"
+macro_append PythiaLLPLibFiles " opensusyfile.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/pyevwt.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/pykcut.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/pytaud.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/pytime.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/sugra.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/visaje.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/ssmssm.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/fhhiggscorr.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/fhsetflags.F"
+macro_append PythiaLLPLibFiles " PythiaDummies/fhsetpara.F"
+macro_append PythiaLLPLibFiles " PythiaModified/initpyupda.F"
+macro_append PythiaLLPLibFiles " PythiaLLP_i_entries.cxx"
+macro_append PythiaLLPLibFiles " PythiaLLP_i_load.cxx"
+
+library PythiaLLP_i  -suffix=llp $(PythiaLLPLibFiles)
+apply_pattern named_component_library library="PythiaLLP_i"
+macro_append PythiaLLP_i_dependencies " PythiaGS_i"
+macro_append PythiaLLP_iConf_dependencies " PythiaGS_iConfDbMerge "
+
+macro_append PythiaLLP_i_shlibflags  "$(HepMC_IO_linkopts)"
+
+#-----------------------------------------------------------------------------------
+
+# The PythiaResMod Generator
+
+macro PythiaResModLibFiles ""
+macro_append PythiaResModLibFiles " PythiaResMod.cxx"
+macro_append PythiaResModLibFiles " atlasTuneResMod.cxx"
+macro_append PythiaResModLibFiles " setPythiaTuneResMod.cxx"
+macro_append PythiaResModLibFiles " Pydat1.cxx"
+macro_append PythiaResModLibFiles " Pydatr.cxx "
+macro_append PythiaResModLibFiles " Pydat2.cxx"
+macro_append PythiaResModLibFiles " Pydat3_62.cxx"
+macro_append PythiaResModLibFiles " Pyssmt.cxx"
+macro_append PythiaResModLibFiles " Pysubs.cxx"
+macro_append PythiaResModLibFiles " Pypars.cxx"
+macro_append PythiaResModLibFiles " Pymssm.cxx"
+macro_append PythiaResModLibFiles " Pyint1.cxx"
+macro_append PythiaResModLibFiles " Pyint2.cxx"
+macro_append PythiaResModLibFiles " Pyint5.cxx"
+macro_append PythiaResModLibFiles " Pytcsm.cxx"
+macro_append PythiaResModLibFiles " upinit_py.F"
+macro_append PythiaResModLibFiles " upevnt_py.F"
+macro_append PythiaResModLibFiles " upveto_py.F"
+macro_append PythiaResModLibFiles " cldcay.F"
+macro_append PythiaResModLibFiles " gpydat2.F"
+macro_append PythiaResModLibFiles " gpydatr.F "
+macro_append PythiaResModLibFiles " gpypars.F"
+macro_append PythiaResModLibFiles " gpysubs.F"
+macro_append PythiaResModLibFiles " gpydat1.F"
+macro_append PythiaResModLibFiles " gpydat3_62.F"
+macro_append PythiaResModLibFiles " gpymssm.F"
+macro_append PythiaResModLibFiles " gpyssmt.F"
+macro_append PythiaResModLibFiles " gpyint1.F"
+macro_append PythiaResModLibFiles " gpyint2.F"
+macro_append PythiaResModLibFiles " gpyint5.F"
+macro_append PythiaResModLibFiles " gpytcsm.F"
+macro_append PythiaResModLibFiles " initpyblock.F"
+macro_append PythiaResModLibFiles " openrandom.F"
+macro_append PythiaResModLibFiles " opdcay.F"
+macro_append PythiaResModLibFiles " pyr.F"
+macro_append PythiaResModLibFiles " extproc.F"
+macro_append PythiaResModLibFiles " setecm.F"
+macro_append PythiaResModLibFiles " gatlastaula_decres_py.F"
+macro_append PythiaResModLibFiles " atopyt.F"
+macro_append PythiaResModLibFiles " opensusyfile.F"
+macro_append PythiaResModLibFiles " parout.F"
+macro_append PythiaResModLibFiles " special_exo.F"
+macro_append PythiaResModLibFiles " PythiaDummies/pyevwt.F"
+macro_append PythiaResModLibFiles " PythiaDummies/pykcut.F"
+macro_append PythiaResModLibFiles " PythiaDummies/pytaud.F"
+macro_append PythiaResModLibFiles " PythiaDummies/pytime.F"
+macro_append PythiaResModLibFiles " PythiaDummies/sugra.F"
+macro_append PythiaResModLibFiles " PythiaDummies/visaje.F"
+macro_append PythiaResModLibFiles " PythiaDummies/ssmssm.F"
+macro_append PythiaResModLibFiles " PythiaDummies/fhhiggscorr.F"
+macro_append PythiaResModLibFiles " PythiaDummies/fhsetflags.F"
+macro_append PythiaResModLibFiles " PythiaDummies/fhsetpara.F"
+macro_append PythiaResModLibFiles " PythiaModified/pyrhad.F"
+macro_append PythiaResModLibFiles " PythiaModified/pysthad.F"
+macro_append PythiaResModLibFiles " PythiaModified/pysgex.F"
+macro_append PythiaResModLibFiles " PythiaResMod_i_entries.cxx"
+macro_append PythiaResModLibFiles " PythiaResMod_i_load.cxx"
+
+library PythiaResMod_i  -suffix=resmod  $(PythiaResModLibFiles)
+apply_pattern named_component_library library="PythiaResMod_i"
+macro_append PythiaResMod_i_dependencies " PythiaLLP_i"
+macro_append PythiaResMod_iConf_dependencies " PythiaLLP_iConfDbMerge "
+
+macro_append PythiaResMod_i_shlibflags  "$(HepMC_IO_linkopts)"
+#-----------------------------------------------------------------------------------
+
+# The PythiaTopMdiff Generator
+
+macro PythiaTopMdiffLibFiles ""
+macro_append PythiaTopMdiffLibFiles " PythiaTopMdiff.cxx"
+macro_append PythiaTopMdiffLibFiles " atlasTuneTopMdiff.cxx"
+macro_append PythiaTopMdiffLibFiles " setPythiaTuneTopMdiff.cxx"
+macro_append PythiaTopMdiffLibFiles " Pydat1.cxx"
+macro_append PythiaTopMdiffLibFiles " Pydatr.cxx "
+macro_append PythiaTopMdiffLibFiles " Pydat2.cxx"
+macro_append PythiaTopMdiffLibFiles " Pydat3_62.cxx"
+macro_append PythiaTopMdiffLibFiles " Pyssmt.cxx"
+macro_append PythiaTopMdiffLibFiles " Pysubs.cxx"
+macro_append PythiaTopMdiffLibFiles " Pypars.cxx"
+macro_append PythiaTopMdiffLibFiles " Pymssm.cxx"
+macro_append PythiaTopMdiffLibFiles " Pyint1.cxx"
+macro_append PythiaTopMdiffLibFiles " Pyint2.cxx"
+macro_append PythiaTopMdiffLibFiles " Pyint5.cxx"
+macro_append PythiaTopMdiffLibFiles " Pytcsm.cxx"
+macro_append PythiaTopMdiffLibFiles " upinit_py.F"
+macro_append PythiaTopMdiffLibFiles " upevnt_py.F"
+macro_append PythiaTopMdiffLibFiles " upveto_py.F"
+macro_append PythiaTopMdiffLibFiles " cldcay.F"
+macro_append PythiaTopMdiffLibFiles " gpydat2.F"
+macro_append PythiaTopMdiffLibFiles " gpydatr.F "
+macro_append PythiaTopMdiffLibFiles " gpypars.F"
+macro_append PythiaTopMdiffLibFiles " gpysubs.F"
+macro_append PythiaTopMdiffLibFiles " gpydat1.F"
+macro_append PythiaTopMdiffLibFiles " gpydat3_62.F"
+macro_append PythiaTopMdiffLibFiles " gpymssm.F"
+macro_append PythiaTopMdiffLibFiles " gpyssmt.F"
+macro_append PythiaTopMdiffLibFiles " gpyint1.F"
+macro_append PythiaTopMdiffLibFiles " gpyint2.F"
+macro_append PythiaTopMdiffLibFiles " gpyint5.F"
+macro_append PythiaTopMdiffLibFiles " gpytcsm.F"
+macro_append PythiaTopMdiffLibFiles " initpyblock.F"
+macro_append PythiaTopMdiffLibFiles " openrandom.F"
+macro_append PythiaTopMdiffLibFiles " opdcay.F"
+macro_append PythiaTopMdiffLibFiles " pyr.F"
+macro_append PythiaTopMdiffLibFiles " extproc.F"
+macro_append PythiaTopMdiffLibFiles " setecm.F"
+macro_append PythiaTopMdiffLibFiles " gatlastaula_decres_py.F"
+macro_append PythiaTopMdiffLibFiles " atopyt.F"
+macro_append PythiaTopMdiffLibFiles " opensusyfile.F"
+macro_append PythiaTopMdiffLibFiles " parout.F"
+macro_append PythiaTopMdiffLibFiles " special_exo.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/pyevwt.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/pykcut.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/pytaud.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/pytime.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/sugra.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/visaje.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/ssmssm.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/fhhiggscorr.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/fhsetflags.F"
+macro_append PythiaTopMdiffLibFiles " PythiaDummies/fhsetpara.F"
+macro_append PythiaTopMdiffLibFiles " PythiaModified/pyscat.F"
+macro_append PythiaTopMdiffLibFiles " PythiaModified/pyofsh.F"
+macro_append PythiaTopMdiffLibFiles " PythiaTopMdiff_i_entries.cxx"
+macro_append PythiaTopMdiffLibFiles " PythiaTopMdiff_i_load.cxx"
+
+library PythiaTopMdiff_i  -suffix=mdiff  $(PythiaTopMdiffLibFiles)
+apply_pattern named_component_library library="PythiaTopMdiff_i"
+macro_append PythiaTopMdiff_i_dependencies " PythiaResMod_i"
+macro_append PythiaTopMdiff_iConf_dependencies " PythiaResMod_iConfDbMerge "
+
+macro_append PythiaTopMdiff_i_shlibflags  "$(HepMC_IO_linkopts)"
+
+#-----------------------------------------------------------------------------------
+
+apply_pattern declare_joboptions files="*.py"
+
+# Explicitly link the package against HepMCfio:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"

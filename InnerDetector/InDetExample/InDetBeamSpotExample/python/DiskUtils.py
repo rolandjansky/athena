@@ -29,14 +29,14 @@ from collections import namedtuple
 StorageManager = namedtuple('StorageManager', ['name', 'prefix', 'cp', 'ls', 'longls'])
 CastorMgr = StorageManager(name='castor', prefix='root://castoratlas/', cp='xrdcp', ls='nsls %s', longls='nsls -l %s')
 RFIOMgr = StorageManager(name='rfio', prefix='rfio:', cp='rfcp', ls='rfdir %s', longls='rfdir %s')
-EOSMgr = StorageManager(name='eos', prefix='root://eosatlas.cern.ch/', cp='xrdcp', ls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls %s"', longls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls -l %s"')
+EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls %s"', longls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls -l %s"')
 UnixMgr = StorageManager(name='unix', prefix='', cp='cp', ls='ls %s', longls='ls -l %s')
 
 def _rationalise(path):
     """
     Rationalise a path, removing prefix and esuring single leading slash
     """
-    for p in ('root://castoratlas/', 'root://eosatlas.cern.ch/', 'rfio:', 'castor:'):
+    for p in ('root://castoratlas/', 'root://eosatlas/', 'rfio:', 'castor:'):
         if path.startswith(p):
             path = path[len(p):]
             if path.startswith('//'):
@@ -69,13 +69,13 @@ def filelist(files, prefix=None):
 
     `files` specifies the CASTOR/EOS pathname.
     `prefix` specifies the prefix one wants to prepend to the path found.
-             (e.g. prefix='root://castoratlas/' or 'root://eosatlas.cern.ch//')
+             (e.g. prefix='root://castoratlas/' or 'root://eosatlas//')
              if prefix=True it will determin the prefix based on the pathname
 
     ex:
     filelist('/castor/cern.ch/atlas/*')
     filelist('/castor/cern.ch/atl*/foo?[bar]/*.pool.root.?')
-    filelist('/eos/atlas/*', prefix='root://eosatlas.cern.ch/')
+    filelist('/eos/atlas/*', prefix='root://eosatlas/')
     filelist('/castor/cern.ch/atlas/*', prefix=True)
     """
 
@@ -195,7 +195,7 @@ class EOS(Backend):
     NB: when EOS is fuse-mounted on /eos this class is not really necessary.
     """
 
-    def __init__(self, prefix='root://eosatlas.cern.ch/'):
+    def __init__(self, prefix='root://eosatlas/'):
         self.prefix = prefix
 
     def wrap(self, path):

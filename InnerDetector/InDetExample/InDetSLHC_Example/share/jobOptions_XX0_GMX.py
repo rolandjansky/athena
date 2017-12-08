@@ -12,13 +12,13 @@ athenaCommonFlags.EvtMax = 100000
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-simFlags.EventFilter.set_Off()
-simFlags.MagneticField.set_Off()
+SimFlags.EventFilter.set_Off()
+SimFlags.MagneticField.set_Off()
 
 athenaCommonFlags.PoolEvgenInput.set_Off()
 import AthenaCommon.AtlasUnixGeneratorJob
 import ParticleGun as PG
-pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 pg.sampler.pid = 999
 pg.sampler.pos = PG.PosSampler(x=0.0, y=0.0, z=[0.0,0.0], t=0.0)
 import math
@@ -70,10 +70,8 @@ simFlags.UserActionConfig.addConfig('XX0_Tool','ZMax',  3490. * mm)
 
 #AtlasG4Eng.G4Eng.init_Simulation(3)
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()
 
 # start run after the interactive mode 
 

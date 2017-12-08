@@ -48,8 +48,8 @@ class Base {};
 class Foo : public Base {
 public:
   static std::vector<int> dtor_log;
-  Foo() : m_i(0) {}
-  Foo(int i) : m_i(i) {}
+  Foo() : m_i(0), m_d(0.0) {}
+  Foo(int i) : m_i(i), m_d(0.0) {}
   int i() const { return m_i; }
   ~Foo() {
     dtor_log.push_back (m_i);
@@ -61,6 +61,7 @@ public:
   }
 private:
   int m_i;
+  double m_d;
 };
 std::vector<int> Foo::dtor_log;
 class Bar : public Base {};

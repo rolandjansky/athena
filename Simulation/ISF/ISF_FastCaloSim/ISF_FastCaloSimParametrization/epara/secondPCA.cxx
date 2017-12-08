@@ -328,7 +328,7 @@ void secondPCA::do_pca(vector<string> layer, int bin, TreeReader* read_inputTree
  TFile* output=TFile::Open(m_outfilename.c_str(),"UPDATE");
  output->cd(Form("bin%i/pca",bin));
  symCov->Write("symCov");
- //EigenVectors->Write("EigenVectors");
+ EigenVectors->Write("EigenVectors");
  MeanValues  ->Write("MeanValues");
  SigmaValues ->Write("SigmaValues");
  Gauss_means ->Write("Gauss_means");

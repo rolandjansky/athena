@@ -67,21 +67,60 @@ namespace Muon {
   StatusCode MuonTrackExtrapolationTool::initialize()
   {
 
-    ATH_CHECK( m_helper.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
-    if( !m_atlasExtrapolator.empty() ) ATH_CHECK( m_atlasExtrapolator.retrieve() );
-    if( !m_muonExtrapolator.empty() ) ATH_CHECK( m_muonExtrapolator.retrieve() );
-    ATH_CHECK( m_trackingGeometrySvc.retrieve() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    if ( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
+
+    if (m_helper.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_helper); 
+      return StatusCode::FAILURE;
+    }
+
+
+    if (m_printer.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_printer); 
+      return StatusCode::FAILURE;
+    }
+
+    
+    if (m_idHelper.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_idHelper); 
+      return StatusCode::FAILURE;
+    }
+
+    if( !m_atlasExtrapolator.empty() ){
+      
+      if (m_atlasExtrapolator.retrieve().isFailure()){
+	ATH_MSG_ERROR("Could not get " << m_atlasExtrapolator); 
+	return StatusCode::FAILURE;
+      }
+    }
+
+    if( !m_muonExtrapolator.empty() ){
+      
+      if (m_muonExtrapolator.retrieve().isFailure()){
+	ATH_MSG_ERROR("Could not get " << m_muonExtrapolator); 
+	return StatusCode::FAILURE;
+      }
+    }
+
+    if( m_trackingGeometrySvc.retrieve().isFailure() ){
+      ATH_MSG_WARNING(" failed to retrieve geometry Svc " << m_trackingGeometrySvc);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_magFieldSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
+      return StatusCode::FAILURE;
+    }
 
     if( m_cosmics ) ATH_MSG_DEBUG("Running in cosmics mode" );
+
     
     return StatusCode::SUCCESS;
   }
 
   StatusCode MuonTrackExtrapolationTool::finalize()
   {
+    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 

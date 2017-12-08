@@ -1,0 +1,26 @@
+package EmbeddedTrackGenerator
+
+author Andrei Gaponenko <andrei.gaponenko@cern.
+
+use AtlasPolicy         AtlasPolicy-*
+
+use GaudiInterface      GaudiInterface-*     External
+
+use GeneratorModules    GeneratorModules-*   Generators
+
+use PileUpTools         PileUpTools-*        Control
+
+private
+use AtlasCLHEP          AtlasCLHEP-*         External
+use HepPDT              *                    LCG_Interfaces
+use JetEvent            JetEvent-*           Reconstruction/Jet
+use VxVertex            VxVertex-*           Tracking/TrkEvent
+use EventInfo           EventInfo-*          Event
+
+public
+
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+
+library EmbeddedTrackGenerator *.cxx components/*.cxx

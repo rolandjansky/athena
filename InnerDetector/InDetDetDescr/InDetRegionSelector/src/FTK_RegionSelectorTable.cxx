@@ -157,13 +157,14 @@ FTK_RegionSelectorTable::createTable()
 
 #ifdef USE_STOREGATE
   // save new map in StoreGate 
-  if ( detStore()->contains< RegSelSiLUT >(newkey) ) {
+  StatusCode sc = detStore()->contains< RegSelSiLUT >(newkey);
+  if (sc == StatusCode::SUCCESS ) {
     msg(MSG::FATAL) << " RegSelSiLUT " << newkey << " already exists " << endmsg;
   } else {
     // create and store LUT
     // needs to be modifiable so we can enable/disable modules 
     // from the RegSelSvc (probably not for FTK however)
-    StatusCode sc = detStore()->record(rd, newkey, true);
+    sc = detStore()->record(rd, newkey, true);
     if ( sc.isFailure() ) {
       msg(MSG::ERROR) << " could not register " << detName << " RegSelSiLUT" << endmsg;
       return( StatusCode::FAILURE );

@@ -1,0 +1,16 @@
+package Matchig_i
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use Pythia Pythia-* External
+
+private
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+end_private
+
+library Matchig_i *.F
+
+apply_pattern installed_library
+
+apply_pattern declare_joboptions files="*.py"

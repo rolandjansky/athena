@@ -75,27 +75,22 @@ public:
     /// --- Implementation of IROBDataProviderSvc interface ---    
 
     /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector 
-    using ROBDataProviderSvc::addROBData;
     virtual void addROBData(const std::vector<uint32_t>& robIds,
-			    const std::string callerName="UNKNOWN") override;
+			    const std::string callerName="UNKNOWN");
 
     /// Add a given LVL1 ROBFragment to cache 
-    using ROBDataProviderSvc::setNextEvent;
-    virtual void setNextEvent(const std::vector<ROBF>& result) override;
+    virtual void setNextEvent(const std::vector<ROBF>& result);
 
-
-    /// Add all ROBFragments of a RawEvent to cache     
-    virtual void setNextEvent(const RawEvent* re) override;
+    /// Add all ROBFragments of a RawEvent to cache 
+    virtual void setNextEvent(const RawEvent* re);
 
     /// Retrieve ROBFragments for given ROB ids from cache 
-    using ROBDataProviderSvc::getROBData;
     virtual void getROBData(const std::vector<uint32_t>& robIds, 
 			    std::vector<const ROBF*>& robFragments,
-			    const std::string callerName="UNKNOWN") override;
+			    const std::string callerName="UNKNOWN");
  
     /// Retrieve the whole event.
-    using ROBDataProviderSvc::getEvent;
-    virtual const RawEvent* getEvent() override;
+    virtual const RawEvent* getEvent() ;
 
     /// --- Implementation of ITrigROBDataProviderSvc interface ---
 
@@ -157,8 +152,6 @@ protected:
     /// vector of Source ids  to be ignored for the ROB map clear
     std::vector<uint32_t>    m_l1_ROB_ids;
 
-    /// lvl1 id of CTP fragment
-    uint32_t lvl1_id(); 
 private:
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
     /// Reference to StoreGateSvc;

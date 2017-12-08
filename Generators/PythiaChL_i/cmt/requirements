@@ -1,0 +1,43 @@
+package PythiaChL_i
+
+author Ian Hinchliffe
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use AtlasFortranPolicy   AtlasFortranPolicy-*
+use GaudiInterface       GaudiInterface-*          External
+use GeneratorModules     GeneratorModules-*        Generators
+use Pythia_i             Pythia_i-*                Generators
+use Tauola_i             Tauola_i-*                Generators
+
+private
+use AtlasCLHEP           AtlasCLHEP-*              External
+use AtlasHepMC           AtlasHepMC-*              External
+use AthenaKernel         AthenaKernel-*            Control
+use GeneratorUtils       GeneratorUtils-*          Generators
+use TruthUtils           TruthUtils-*              Generators
+end_private
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in asNeeded mode. Until that time, this package
+# explicitly overrides the asNeeded tag
+private
+apply_tag notAsNeeded
+end_private
+
+private
+macro_append  fflags "" Linux "  -fno-automatic "
+end_private
+
+macro PythiaChL_i_LibFiles ""
+macro_append PythiaChL_i_LibFiles " PythiaChL.cxx"
+macro_append PythiaChL_i_LibFiles " pysghg_ChL.f"
+
+apply_pattern dual_use_library files= "$(PythiaChL_i_LibFiles)"
+
+macro_append PythiaChL_i_shlibflags  "$(HepMC_IO_linkopts) "
+
+apply_pattern declare_joboptions files="*.py"
+
+# Link the package explicitly against HepMCfio with CMake:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"

@@ -13,8 +13,7 @@
 #ifndef DBLQ00_ATLN_H
 #define DBLQ00_ATLN_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 
 namespace MuonGM
 {
@@ -24,7 +23,7 @@ class DblQ00Atln {
 public:
     DblQ00Atln(){};
     ~DblQ00Atln();
-    DblQ00Atln(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Atln(IRDBQuery*);
 
     // data members for DblQ00/ATLN fields
     struct ATLN {

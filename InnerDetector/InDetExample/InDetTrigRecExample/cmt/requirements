@@ -1,0 +1,26 @@
+package InDetTrigRecExample
+
+author Patricia Conde Muino
+author Jiri Masik <Jiri.Masik@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+#use AtlasTriggerRunTime            AtlasTriggerRunTime-*
+
+
+apply_pattern declare_python_modules files="*.py"
+
+branches run share
+
+apply_pattern declare_joboptions files="**.py"
+apply_pattern declare_scripts    files="RTT_NoBField_transform.sh"
+# Install run-time files
+apply_pattern declare_runtime extras="../test/InDetTrigRecExample_TestConfiguration.xml ../share/jobOptions_RTT_InDetTrigRecExample.py ../share/jobOptions_RTT_InDetTrigRecExample_doReadBS.py ../share/plotHistos.C ../share/jobOptions_RTT_InDetTrigRecExample_backTracking.py ../share/InDetTrigRecNtupleCreation.py" 
+#RTT
+#macro InDetTrigRecExample_TestConfiguration "../test/InDetTrigRecExample_TestConfiguration.xml" apply_pattern declare_joboptions files="*.py"
+#apply_pattern get_files method=-symlink data="Vmem.py vmem.gp"
+apply_pattern install_xmls
+
+ 
+private
+use TestPolicy TestPolicy-*
+#apply_pattern validate_xml

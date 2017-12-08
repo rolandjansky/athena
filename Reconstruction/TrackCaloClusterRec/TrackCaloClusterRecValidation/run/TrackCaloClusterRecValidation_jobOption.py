@@ -4,18 +4,18 @@
 import getpass
 #FNAME = "XAOD_Wprime.pool.root"
 
-#FNAME = ["root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_1.pool.root",
-	 #"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_2.pool.root",
-	 #"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_3.pool.root",
-	 #"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_4.pool.root",
-	 #"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_5.pool.root",]
+#FNAME = ["root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_1.pool.root",
+	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_2.pool.root",
+	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_3.pool.root",
+	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_4.pool.root",
+	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_WPrime2000_5.pool.root",]
 #name = "WPrime2000"
 
-#FNAME = ["root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_1.pool.root",
-	 ##"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_2.pool.root",
-	 #"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_3.pool.root",
-	 #"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_4.pool.root",
-	 #"root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_5.pool.root",]
+#FNAME = ["root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_1.pool.root",
+	 ##"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_2.pool.root",
+	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_3.pool.root",
+	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_4.pool.root",
+	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_5.pool.root",]
 #name = "JZ5W"
 
 FNAME = ["/afs/cern.ch/work/r/rjansky/TCC3/run/XAOD_WprimedRMatch.pool.root"]

@@ -45,7 +45,7 @@ foreach git ( $files )
       echo "athenaCommonFlags.FilesInput=[" >> $file.py
 
 
-      grep dataset $git | grep -v -e "--" | sed 's|.*<dataset>|     "root://eosatlas.cern.ch/|g' | sed 's|</dataset>|",|g' > /tmp/_files
+      grep dataset $git | grep -v -e "--" | sed 's|.*<dataset>|     "root://eosatlas/|g' | sed 's|</dataset>|",|g' > /tmp/_files
 
       set N = `cat /tmp/_files | wc -l`
 

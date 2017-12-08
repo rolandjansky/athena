@@ -75,6 +75,14 @@ public:
   // Default implementations (usually no need to overwrite)
   // ------------------------------------------------------
 
+  /** Create persistent representation of a transient object.
+      Simply creates a new persistent object and calls transToPers()
+      @param transObj [IN] transient object
+      @param log [IN] output message stream
+      @return the created persistent representation
+  */
+//  virtual Pers_t* createPersistent(const TRANS* transObj, MsgStream &log);
+
   /** Convert transient object to persistent representation. Stores the
       result in the storage vector of the top-level object and returns
       a TP Ref to it.

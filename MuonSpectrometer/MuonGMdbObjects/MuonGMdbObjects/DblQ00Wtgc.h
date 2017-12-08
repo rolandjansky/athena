@@ -13,8 +13,7 @@
 #ifndef DBLQ00_WTGC_H
 #define DBLQ00_WTGC_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 namespace MuonGM
 {
 class DblQ00Wtgc {
@@ -22,7 +21,7 @@ class DblQ00Wtgc {
 public:
     DblQ00Wtgc(){};
     ~DblQ00Wtgc();
-    DblQ00Wtgc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wtgc(IRDBQuery*);
 
     // data members for DblQ00/WTGC fields
     struct WTGC {

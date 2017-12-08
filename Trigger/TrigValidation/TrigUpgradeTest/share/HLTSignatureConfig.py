@@ -37,14 +37,14 @@ def mu8(name):
 
 
 muIM= InputMakerAlg(name="Step1MuInputMaker")
-step1_mu_inputMaker = AlgNode(Alg=muIM, inputProp='Inputs', outputProp='Output')
+step1_mu_inputMaker = AlgNode(Alg=muIM, inputProp='Input', outputProp='Output')
 
 muAlg = muMSRecAlg(name="muMSRecAlg", FileName="msmu.dat")
 step1_mu_recoAlg = AlgNode( Alg=muAlg,inputProp='Input', outputProp='Output')
 
 muHypo = Step1MuHypo(name="Step1MuHypo")
 step1_mu_HypoAlg = HypoAlgNode( Alg=muHypo,inputProp='Input', outputProp='Output')
-nodeSequence_mu = NodeSequence("muNodeSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_mu_HypoAlg, Seed="L1MU")
+nodeSequence_mu = NodeSequence("muNodeSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_mu_HypoAlg, Seed="MU")
 
 def muStep1Sequence():
     return MenuSequence("muStep1Seq", nodeSeqList=[nodeSequence_mu])
@@ -66,7 +66,7 @@ def e8(name):
     return TestHypoTool(name, "et")
 
 elIM= InputMakerAlg(name="Step1ElInputMaker")
-step1_el_inputMaker = AlgNode(Alg=elIM, inputProp='Inputs', outputProp='Output')
+step1_el_inputMaker = AlgNode(Alg=elIM, inputProp='Input', outputProp='Output')
 
 elAlg = CaloClustering(name="CaloClustering", FileName="emclusters.dat")
 step1_el_recoAlg = AlgNode( Alg=elAlg,inputProp='Input', outputProp='Output')
@@ -74,7 +74,7 @@ step1_el_recoAlg = AlgNode( Alg=elAlg,inputProp='Input', outputProp='Output')
 elHypo = Step1ElGamHypo(name="Step1ElHypo")
 step1_el_HypoAlg = HypoAlgNode( Alg=elHypo,inputProp='Input', outputProp='Output')
 
-nodeSequence_el = NodeSequence("elNodeSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_el_HypoAlg, Seed="L1EM")
+nodeSequence_el = NodeSequence("elNodeSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_el_HypoAlg, Seed="EM")
 def elStep1Sequence():
     return MenuSequence("elStep1Seq", nodeSeqList=[nodeSequence_el])
 
@@ -91,8 +91,8 @@ comboAlg = Step1ComboMuEHypo("Step1ComboMuElHypo")
 step1_comb_HypoAlgMu =  HypoAlgNode( Alg=comboAlg,inputProp='Input1', outputProp='Output1')
 step1_comb_HypoAlgEl =  HypoAlgNode( Alg=comboAlg,inputProp='Input2', outputProp='Output2')
 
-nodeSequence_muComb = NodeSequence("CombmuNodeSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_comb_HypoAlgMu, Seed="L1MU")
-nodeSequence_elComb = NodeSequence("CombelNodeSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_comb_HypoAlgEl, Seed="L1EM")
+nodeSequence_muComb = NodeSequence("CombmuNodeSeq1", InputMaker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_comb_HypoAlgMu, Seed="MU")
+nodeSequence_elComb = NodeSequence("CombelNodeSeq1", InputMaker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_comb_HypoAlgEl, Seed="EM")
 
 def combStep1Sequence():
     return MenuSequence("combStep1Seq", nodeSeqList=[nodeSequence_muComb,nodeSequence_elComb])

@@ -13,8 +13,6 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "TrkEventPrimitives/ResidualPull.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 
 // Constructor with parameters:
 TGC_PrepDataToxAOD::TGC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -28,19 +26,7 @@ TGC_PrepDataToxAOD::TGC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
 // Execute method:
 StatusCode TGC_PrepDataToxAOD::execute() 
 {
-  SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_inputContainerName);
-  SG::ReadHandle<MuonSimDataCollection> tgcSdos(m_sdoContainerName);
-  if(!tgcPrds.isPresent()){
-    ATH_MSG_DEBUG("No "<<m_inputContainerName.key()<<" collection");
-    return StatusCode::SUCCESS;
-  }
-  if(!tgcPrds.isValid()){
-    ATH_MSG_WARNING(m_inputContainerName.key()<<" not valid");
-    return StatusCode::FAILURE;
-  }
-  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> trackMeasValCont(m_trackMeasVal);
-  ATH_CHECK(trackMeasValCont.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()));
-  if( !buildCollections(tgcPrds.cptr(),tgcSdos.cptr(),trackMeasValCont.ptr()) ) return StatusCode::FAILURE;
+  if( !buildCollections() ) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 

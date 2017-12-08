@@ -13,8 +13,7 @@
 #ifndef DBLQ00_AWLN_H
 #define DBLQ00_AWLN_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 namespace MuonGM
 {
 class DblQ00Awln {
@@ -22,7 +21,7 @@ class DblQ00Awln {
 public:
     DblQ00Awln(){};
     ~DblQ00Awln();
-    DblQ00Awln(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Awln(IRDBQuery*);
     
     // data members for DblQ00/AWLN fields
     struct AWLN {

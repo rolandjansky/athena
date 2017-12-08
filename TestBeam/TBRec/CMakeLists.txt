@@ -15,7 +15,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloUtils
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CLIDSvc
                           Control/AthContainers
+                          Control/SGTools
                           Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
@@ -67,13 +69,13 @@ atlas_add_library( TBRecLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier EventInfo xAODTracking GaudiKernel LArIdentifier LArRawEvent TBEvent TrkDetDescrUtils TrkParameters TrkTrack CaloRecLib CaloUtilsLib StoreGateLib SGtests LArRawUtilsLib LArCablingLib CaloDetDescrLib TBCaloGeometryLib TBCondRunParLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel AthContainers SGTools GeoPrimitives Identifier EventInfo xAODTracking GaudiKernel LArIdentifier LArRawEvent TBEvent TrkDetDescrUtils TrkParameters TrkTrack CaloRecLib CaloUtilsLib StoreGateLib SGtests LArRawUtilsLib LArCablingLib CaloDetDescrLib TBCaloGeometryLib TBCondRunParLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloDmDetDescr CaloSimEvent CondDBObjects xAODCaloEvent LArG4TBSimEvent Particle PathResolver TrkSurfaces TrkEventPrimitives TrkExInterfaces )
 
 atlas_add_component( TBRec
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel AthContainers StoreGateLib SGtests GeoPrimitives Identifier EventInfo xAODTracking GaudiKernel LArIdentifier LArRawEvent LArRawUtilsLib LArCablingLib TBEvent TrkDetDescrUtils TrkParameters TrkTrack CaloDetDescrLib CaloDmDetDescr CaloSimEvent CondDBObjects xAODCaloEvent LArG4TBSimEvent Particle TBCaloGeometryLib TBCondRunParLib PathResolver TrkSurfaces TrkEventPrimitives TrkExInterfaces TBRecLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel AthContainers SGTools StoreGateLib SGtests GeoPrimitives Identifier EventInfo xAODTracking GaudiKernel LArIdentifier LArRawEvent LArRawUtilsLib LArCablingLib TBEvent TrkDetDescrUtils TrkParameters TrkTrack CaloDetDescrLib CaloDmDetDescr CaloSimEvent CondDBObjects xAODCaloEvent LArG4TBSimEvent Particle TBCaloGeometryLib TBCondRunParLib PathResolver TrkSurfaces TrkEventPrimitives TrkExInterfaces TBRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

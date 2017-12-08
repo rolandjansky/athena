@@ -1,0 +1,31 @@
+package xAODEgammaCnv
+
+author Anthony.Morley@cern.ch
+
+# Base package(s):
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  DataModel                  DataModel-*                     Control
+use  GaudiInterface             GaudiInterface-*                External
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+
+private
+use  AthenaBaseComps		  AthenaBaseComps-*               Control
+use  AthenaKernel                 AthenaKernel-*                  Control
+use  Particle                     Particle-*                      Reconstruction
+use  ParticleEvent                ParticleEvent-*                 PhysicsAnalysis/AnalysisCommon
+use  egammaEvent                  egammaEvent-*                   Reconstruction/egamma
+use  xAODTracking                 xAODTracking-*                  Event/xAOD
+use  xAODTruth                    xAODTruth-*                     Event/xAOD
+use  FourMom                      FourMom-*                       Event 
+
+end_private
+
+# Make a component library:
+library xAODEgammaCnv *.cxx components/*.cxx
+apply_pattern component_library
+
+# Install the additinal files
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"

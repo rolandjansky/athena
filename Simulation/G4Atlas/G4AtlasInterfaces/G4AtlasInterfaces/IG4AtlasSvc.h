@@ -19,8 +19,10 @@ class IG4AtlasSvc : virtual public IService {
  public:
   IG4AtlasSvc() {}
   virtual ~IG4AtlasSvc() {}
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IG4AtlasSvc, 1, 0);
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IG4AtlasSvc( "IG4AtlasSvc" , 1 , 0 ) ;
+    return IID_IG4AtlasSvc ; 
+  }
   
 };
 

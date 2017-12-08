@@ -95,7 +95,7 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 //Radius of Squirrel cage
     double rminInt = (*cage)[0]->getDouble("RINGRMIN")*CLHEP::mm;
 //Thick of U Shape Support
-    std::unique_ptr<IRDBQuery> queryUSP = rdbAccessSvc()->getQuery("IDDetRailUSP",indetVersionKey.tag(), indetVersionKey.node());
+    IRDBQuery* queryUSP = rdbAccessSvc()->getQuery("IDDetRailUSP",indetVersionKey.tag(), indetVersionKey.node());
     if(!queryUSP)
       queryUSP = rdbAccessSvc()->getQuery("IDDetRailUSP","IDDetRailUSP-00");
 
@@ -107,6 +107,7 @@ void SupportRailFactory::create(GeoPhysVol *mother)
     queryUSP->next();
     double xDepthUSP2 = queryUSP->data<double>("IDDETRAILUSP_DATA.XDEPTH");
     queryUSP->finalize();
+    delete queryUSP;
 
     double epsilon = 0.01;  // +Some safety margin
  
@@ -137,7 +138,7 @@ void SupportRailFactory::create(GeoPhysVol *mother)
      double railEBx = (*commonParameters)[0]->getDouble("RAILEBX");
      double railEBy = (*commonParameters)[0]->getDouble("RAILEBY");
  
-     std::unique_ptr<IRDBQuery> querySP = rdbAccessSvc()->getQuery("IDDetRailSP",indetVersionKey.tag(), indetVersionKey.node());
+     IRDBQuery* querySP = rdbAccessSvc()->getQuery("IDDetRailSP",indetVersionKey.tag(), indetVersionKey.node());
      if(!querySP)
        querySP = rdbAccessSvc()->getQuery("IDDetRailSP","IDDetRailSP-00");
      
@@ -155,12 +156,13 @@ void SupportRailFactory::create(GeoPhysVol *mother)
      double railSP3y = querySP->data<double>("IDDETRAILSP_DATA.SP_Y");
 
      querySP->finalize();
+     delete querySP;
 
      double exactPl = (*commonParameters)[0]->getDouble("EXACTPL");
      double gapOfRSF = (*commonParameters)[0]->getDouble("GAPOFRSF");
 
 //Parameters of Barrel Tracker Support Rail  
-     std::unique_ptr<IRDBQuery> querySRBP = rdbAccessSvc()->getQuery("IDDetRailSRBP",indetVersionKey.tag(), indetVersionKey.node());
+     IRDBQuery* querySRBP = rdbAccessSvc()->getQuery("IDDetRailSRBP",indetVersionKey.tag(), indetVersionKey.node());
      if(!querySRBP)
        querySRBP = rdbAccessSvc()->getQuery("IDDetRailSRBP","IDDetRailSRBP-00");
      
@@ -181,12 +183,13 @@ void SupportRailFactory::create(GeoPhysVol *mother)
      double trackerSRBP4y = querySRBP->data<double>("IDDETRAILSRBP_DATA.SRBP_Y");
 
      querySRBP->finalize();
+     delete querySRBP;
 
      double distBottom = (*commonParameters)[0]->getDouble("DISTBOTTOM");
      double distTop    = (*commonParameters)[0]->getDouble("DISTTOP");
 
 //Parameters of Endcap Tracker Support Rail
-     std::unique_ptr<IRDBQuery> querySREP = rdbAccessSvc()->getQuery("IDDetRailSREP",indetVersionKey.tag(), indetVersionKey.node());
+     IRDBQuery* querySREP = rdbAccessSvc()->getQuery("IDDetRailSREP",indetVersionKey.tag(), indetVersionKey.node());
      if(!querySREP)
        querySREP = rdbAccessSvc()->getQuery("IDDetRailSREP","IDDetRailSREP-00");
      
@@ -202,6 +205,7 @@ void SupportRailFactory::create(GeoPhysVol *mother)
      double trackerSREP3x = querySREP->data<double>("IDDETRAILSREP_DATA.SREP_X");
      double trackerSREP3y = querySREP->data<double>("IDDETRAILSREP_DATA.SREP_Y");
      querySREP->finalize();
+     delete querySREP;
 
 //
 // To avoid rail corner outside ID envelope

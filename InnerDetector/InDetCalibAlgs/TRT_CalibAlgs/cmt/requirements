@@ -1,0 +1,52 @@
+package TRT_CalibAlgs
+
+author Wouter Hulsbergen <Wouter.Hulsbergen@cern.ch>
+author Chafik Driouichi <chafik@nbi.dk>
+author Sasa Fratina <sasa.fratina@cern.ch>
+
+use AthenaBaseComps      AthenaBaseComps-*         Control
+
+use StoreGate            StoreGate-*               Control
+use AtlasPolicy          AtlasPolicy-*
+
+use GaudiInterface       GaudiInterface-*          External
+use xAODEventInfo        xAODEventInfo-*           Event/xAOD
+
+use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use TRT_ElectronPidTools TRT_ElectronPidTools-*    InnerDetector/InDetRecTools
+
+private
+
+use xAODTracking                xAODTracking-*          Event/xAOD
+use VxVertex             VxVertex-*                Tracking/TrkEvent
+use DataModel            DataModel-*               Control
+
+use TRT_CalibData        TRT_CalibData-*           InnerDetector/InDetCalibEvent
+use TRT_CalibTools       TRT_CalibTools-*          InnerDetector/InDetCalibTools
+use TRT_ConditionsData   TRT_ConditionsData-*      InnerDetector/InDetConditions
+use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetConditions
+
+use CommissionEvent      CommissionEvent-*      Commission
+
+
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+use TrkParameters        TrkParameters-*           Tracking/TrkEvent
+use TrkFitterInterfaces  TrkFitterInterfaces-*     Tracking/TrkFitter
+use TRT_TrackHoleSearch  TRT_TrackHoleSearch-* 	InnerDetector/InDetRecTools
+
+# add for TRT_StrawStatus
+use Identifier                  Identifier-*                 DetectorDescription
+use InDetIdentifier             InDetIdentifier-*            InnerDetector/InDetDetDescr
+use InDetRawData                InDetRawData-*               InnerDetector/InDetRawEvent
+use InDetPrepRawData            InDetPrepRawData-*           InnerDetector/InDetRecEvent
+use InDetRIO_OnTrack            InDetRIO_OnTrack-*           InnerDetector/InDetRecEvent
+
+use AtlasROOT                   AtlasROOT-*                     External
+
+public
+
+apply_pattern declare_joboptions files="*.py"
+apply_tag ROOTMathLibs
+
+apply_pattern component_library
+library TRT_CalibAlgs *.cxx components/*.cxx

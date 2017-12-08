@@ -121,15 +121,15 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
   outfit->SetBranchAddress("covr", covr);
 
   // Create new LArAutocorrContainer
-  std::unique_ptr<LArAutoCorrComplete> larAutoCorrComplete;
-  std::unique_ptr<LArAutoCorrMC> larAutoCorrMC;
+  LArAutoCorrComplete* larAutoCorrComplete = NULL ;
+  LArAutoCorrMC* larAutoCorrMC = NULL ;
 
   if(m_isComplete) {
-    larAutoCorrComplete = std::make_unique<LArAutoCorrComplete>();
+    larAutoCorrComplete = new LArAutoCorrComplete();
     ATH_CHECK( larAutoCorrComplete->setGroupingType(m_groupingType, msg()) );
     ATH_CHECK( larAutoCorrComplete->initialize() );
   } else {
-    larAutoCorrMC = std::make_unique<LArAutoCorrMC>();
+    larAutoCorrMC = new LArAutoCorrMC();
     ATH_CHECK( larAutoCorrMC->setGroupingType(m_groupingType, msg()) );
     ATH_CHECK( larAutoCorrMC->initialize() );
   } 
@@ -248,10 +248,12 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
   }
 
   if(m_isComplete) {
-     ATH_CHECK( detStore()->record(std::move(larAutoCorrComplete),m_store_key) );
+     ATH_CHECK( detStore()->record(larAutoCorrComplete,m_store_key) );
+     ATH_CHECK( detStore()->symLink(larAutoCorrComplete,(ILArAutoCorr*)larAutoCorrComplete) );
   } else {
+     ATH_CHECK( detStore()->record(larAutoCorrMC,m_store_key) );
+     ATH_CHECK( detStore()->symLink(larAutoCorrMC,(ILArAutoCorr*)larAutoCorrMC) );
      ATH_MSG_INFO ( "Stored container " << larAutoCorrMC->nGains() << "gains, " << larAutoCorrMC->totalNumberOfConditions() << " conditions, key: " << m_store_key );
-     ATH_CHECK( detStore()->record(std::move(larAutoCorrMC),m_store_key) );
   }
 
   return StatusCode::SUCCESS;

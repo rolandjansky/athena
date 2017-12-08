@@ -11,7 +11,7 @@
  *
  * Use like:
  *
- *   int ATH_UNUSED(v);
+ *   int UNUSED(v);
  *
  * Of course, if a variable is really unused, it's better to simply
  * remove it rather than trying to paper over the warning like this.
@@ -26,14 +26,10 @@
 #define CXXUTILS_UNUSED_H
 
 
-// For now, declare both UNUSED and ATH_UNUSED.  ATH_UNUSED is preferred for new code;
-// UNUSED has been found to conflict with some externals.
 #ifdef __GNUC__
 # define UNUSED(v) v __attribute__((unused))
-# define ATH_UNUSED(v) v __attribute__((unused))
 #else
 # define UNUSED(v) v
-# define ATH_UNUSED(v) v
 #endif
 
 

@@ -1,0 +1,28 @@
+package InDetRawData
+
+author Veronique Boisvert <Veronique.Boisvert@cern.ch>
+manager Veronique Boisvert <Veronique.Boisvert@cern.ch>
+
+use AtlasPolicy		AtlasPolicy-*		
+use CLIDSvc		CLIDSvc-*		Control 
+use AthLinks            AthLinks-*              Control
+use AthContainers       AthContainers-*         Control
+use EventContainers	EventContainers-*	Event
+use Identifier		Identifier-*		DetectorDescription
+
+
+apply_pattern installed_library
+library InDetRawData *.cxx
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep 
+# clients of EventInfo from seeing excess dependencies
+private
+use AtlasReflex	     AtlasReflex-*        External -no_auto_imports
+use GaudiInterface        GaudiInterface-*       External
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+apply_pattern lcgdict dict=InDetRawData  selectionfile=selection.xml headerfiles="../InDetRawData/InDetRawDataCLASS_DEF.h"
+
+

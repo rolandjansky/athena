@@ -1,0 +1,10 @@
+package UserAnalysisEvent
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy                 AtlasPolicy-*
+
+use AtlasROOT			AtlasROOT-*			External
+
+include_path none
+

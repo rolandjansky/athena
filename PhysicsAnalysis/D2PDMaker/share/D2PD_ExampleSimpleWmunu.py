@@ -33,6 +33,7 @@ topSequence += D2PDMuonSelector( "MuonSelectorInExampleSimpleWmunuStream",
                             OutputLevel              = INFO,
                             inputCollection          = 'StacoMuonCollection',
                             outputLinkCollection     = 'MyWmunuLooseMuonLinkCollection',
+                            userDataSvc              = 'UserDataInExampleSimpleWmunuStream',
                             minNumberPassed          = 1,
                             etMin                    = 10.0*Units.GeV,
                             etaMin                   = -2.5,
@@ -120,3 +121,9 @@ ExampleSimpleWmunuStream.AddItem( ['INav4MomLinkContainer#MyWmunuNeutrinoLinkCol
 
 
 
+#====================================================================
+# UserDataSvc
+#====================================================================
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataInExampleSimpleWmunuStream")
+svcMgr.UserDataInExampleSimpleWmunuStream.OutputStream = ExampleSimpleWmunuStream.Stream

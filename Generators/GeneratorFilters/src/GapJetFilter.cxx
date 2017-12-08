@@ -153,7 +153,7 @@ GapJetFilter::filterEvent()
   // Get TruthJets
   //
   msg(MSG::DEBUG) << "get truthJet container" << endmsg;
-  const xAOD::JetContainer* truthjetTES = nullptr;
+  const xAOD::JetContainer* truthjetTES;
   sc=m_storeGate->retrieve(truthjetTES, m_jetContainer);
   if( sc.isFailure() || !truthjetTES ) {
     msg(MSG::WARNING)

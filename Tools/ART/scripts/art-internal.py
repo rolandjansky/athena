@@ -4,19 +4,20 @@
 ART-internal - ATLAS Release Tester (internal command).
 
 Usage:
-  art-internal.py job build   [-v -q]  <script_directory> <package> <job_type> <sequence_tag> <index> <out> <nightly_release> <project> <platform> <nightly_tag>
-  art-internal.py job grid    [-v -q --skip-setup]  <script_directory> <package> <job_type> <sequence_tag> <index_type> <index_or_name> <out> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py job build   [-v]  <script_directory> <package> <job_type> <sequence_tag> <index> <out> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py job grid    [-v --skip-setup]  <script_directory> <package> <job_type> <sequence_tag> <index_type> <index_or_name> <out> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py task build  [-v]  <script_directory> <package> <job_type> <sequence_tag> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py task grid   [-v --skip-setup]  <submit_directory> <script_directory> <package> <job_type> <sequence_tag> <nightly_release> <project> <platform> <nightly_tag>
 
 Options:
   --skip-setup      Do not run atlas setup or voms
   -h --help         Show this screen.
-  -q --quiet        Show less information, only warnings and errors
-  -v --verbose      Show more information, debug level
+  -v, --verbose     Show details.
   --version         Show version.
 
 Sub-commands:
-  job               Run a single job, given a particular index
-  copy              Copy outputs to eos area
+  job               Runs a single job, given a particular index
+  task              Runs a single task, consisting of given number of jobs
 
 Arguments:
   index_type        Type of index used (e.g. batch or single)
@@ -36,7 +37,6 @@ Arguments:
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
-import logging
 import os
 import sys
 
@@ -44,45 +44,47 @@ from ART.docopt_dispatch import dispatch
 
 from ART import ArtGrid, ArtBuild
 
-from ART.art_misc import set_log
-
-MODULE = "art.internal"
-
 
 @dispatch.on('job', 'build')
 def job_build(script_directory, package, job_type, sequence_tag, index, out, nightly_release, project, platform, nightly_tag, **kwargs):
-    """Run a single job, given a particular index.
+    """TBD.
 
     Tests are called with the following parameters:
     SCRIPT_DIRECTORY, PACKAGE, TYPE, TEST_NAME
     """
-    set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory).job(package, job_type, sequence_tag, index, out))
 
 
 @dispatch.on('job', 'grid')
 def job_grid(script_directory, package, job_type, sequence_tag, index_type, index_or_name, out, nightly_release, project, platform, nightly_tag, **kwargs):
-    """Run a single job, given a particular index.
+    """TBD.
 
     Tests are called with the following parameters:
     SCRIPT_DIRECTORY, PACKAGE, TYPE, TEST_NAME, NIGHTLY_RELEASE, PROJECT, PLATFORM, NIGHTLY_TAG
     """
-    set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     skip_setup = kwargs['skip_setup']
     exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory, skip_setup).job(package, job_type, sequence_tag, index_type, index_or_name, out))
 
 
-if __name__ == '__main__':
-    if sys.version_info < (2, 7, 0):
-        sys.stderr.write("You need python 2.7 or later to run this script\n")
-        exit(1)
+@dispatch.on('task', 'build')
+def task_build(script_directory, package, job_type, sequence_tag, nightly_release, project, platform, nightly_tag, **kwargs):
+    """TBD."""
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory).task(package, job_type, sequence_tag))
 
+
+@dispatch.on('task', 'grid')
+def task_grid(submit_directory, script_directory, package, job_type, sequence_tag, nightly_release, project, platform, nightly_tag, **kwargs):
+    """TBD."""
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    skip_setup = kwargs['skip_setup']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory, skip_setup, submit_directory).task(package, job_type, sequence_tag))
+
+
+if __name__ == '__main__':
     # NOTE: import should be here, to keep the order of the decorators (module first, art last and unused)
     from art import __version__
-    logging.basicConfig()
-    log = logging.getLogger(MODULE)
-    log.setLevel(logging.INFO)
-    log.info("ART_PATH %s", os.path.dirname(os.path.realpath(sys.argv[0])))
+    print "ART_PATH", os.path.dirname(os.path.realpath(sys.argv[0]))
     dispatch(__doc__, version=os.path.splitext(os.path.basename(__file__))[0] + ' ' + __version__)

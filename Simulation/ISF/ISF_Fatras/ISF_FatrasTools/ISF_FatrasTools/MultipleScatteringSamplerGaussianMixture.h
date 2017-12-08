@@ -34,7 +34,8 @@ namespace iFatras {
      @author Noemi.Calace@cern.ch , Andreas.Salzburger@cern.ch
   */
   
-  class MultipleScatteringSamplerGaussianMixture : public extends<AthAlgTool, IMultipleScatteringSampler> {
+  class MultipleScatteringSamplerGaussianMixture : public AthAlgTool,
+    virtual public IMultipleScatteringSampler {
       
   public:
       /** AlgTool like constructor */

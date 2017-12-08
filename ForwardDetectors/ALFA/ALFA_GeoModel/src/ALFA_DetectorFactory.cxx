@@ -34,12 +34,11 @@
 #include <map>
 #include <string>
 #include <algorithm>
+using namespace std;
 
 #include "ALFA_DetectorTool.h"
 #include "ALFA_DetectorFactory.h"
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
-
-using namespace std;
 
 double ALFA_stagger[10] = {0.0, 0.283, -0.141, 0.141, -0.283, 0.354, -0.071, 0.212, -0.212, 0.071};
 double OD_stagger[3] = {0.0, -0.167, -0.334};

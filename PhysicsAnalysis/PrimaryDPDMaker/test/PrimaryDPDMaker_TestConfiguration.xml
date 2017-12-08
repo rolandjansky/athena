@@ -21,7 +21,7 @@
                <doc>test Reco_trf ESD to DESD production, AMI=q122</doc> 
                <jobTransformJobName>ESDtoDESDq122</jobTransformJobName>
                <jobTransformCmd>
-                 Reco_trf.py maxEvents=100 AMITag=q122 autoConfiguration=everything --omitvalidation=ALL --ignoreerrors=ALL inputESDFile=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-pat/data/ESD/data10_7TeV.00167607.physics_Egamma.merge.ESD.r1774_p327_tid203271_00/ESD.203271._000001.pool.root.1  outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_SGLELFile=myDESD_SGLEL.pool.root outputDESD_MBIASFile=myDESD_MBIAS.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDESD_SGLMUFile=myDESD_SGLMU.pool.root  outputDESD_PHOJETFile=myDESD_PHOJET.pool.root  outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root 
+                 Reco_trf.py maxEvents=100 AMITag=q122 autoConfiguration=everything --omitvalidation=ALL --ignoreerrors=ALL inputESDFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-pat/data/ESD/data10_7TeV.00167607.physics_Egamma.merge.ESD.r1774_p327_tid203271_00/ESD.203271._000001.pool.root.1  outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_SGLELFile=myDESD_SGLEL.pool.root outputDESD_MBIASFile=myDESD_MBIAS.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDESD_SGLMUFile=myDESD_SGLMU.pool.root  outputDESD_PHOJETFile=myDESD_PHOJET.pool.root  outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root 
                </jobTransformCmd>
                <group>RecTrf</group>
                <queue>medium</queue>

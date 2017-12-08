@@ -76,7 +76,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
 
     # Standard event bookkeepers
     inname = "CutBookkeepers"
-    outname = "CutBookkeepers"
+    outname = "FileBookkeepers"
     cutflowtool = BookkeeperTool(outname,
                                  InputCollName = inname,
                                  OutputCollName= outname) 

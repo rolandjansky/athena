@@ -1,18 +1,20 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/MuonEventTPCnv_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/work/s/ssnyder/builds/atlas-work3/build-x86_64-slc6-gcc62-opt/MuonSpectrometer/MuonCnv/MuonEventTPCnv/unitTestRun/../share/MuonEventTPCnv_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/MuonEventTPCnv_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/MuonEventTPCnv_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus027.cern.ch on Fri Nov 24 17:51:21 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Fri Jul  8 01:58:44 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 3742 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 3079 CLIDRegistry entries for module ALL
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -68,7 +70,6 @@ eta_index     7
  DEBUG PixelID::initialize_from_dict 
  DEBUG Wafer range -> 2/1/0/0/0:21/-6:6 | 2/1/0/1/0:37/-6:6 | 2/1/0/2/0:51/-6:6 | 2/1/-2,2/0:2/0:47/0
  DEBUG Pixel range -> 2/1/0/0/0:21/-6:6/0:327/0:191 | 2/1/0/1/0:37/-6:6/0:327/0:143 | 2/1/0/2/0:51/-6:6/0:327/0:143 | 2/1/-2,2/0:2/0:47/0/0:327/0:143
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
 SCT_ID               INFO Initialize from dictionary
  DEBUG (Re)initialize
  AtlasDetectorID::initialize_from_dictionary - OK 
@@ -118,17 +119,17 @@ INFO Initialize from dictionary cout 0
  DEBUG Straw range -> 2/3/-1,1/0:31/0/0/0:14 | 2/3/-1,1/0:31/0/1:4/0:15 | 2/3/-1,1/0:31/0/5:9/0:16 | 2/3/-1,1/0:31/0/10:14/0:17 | 2/3/-1,1/0:31/0/15:17/0:18 | 2/3/-1,1/0:31/0/18/0:17 | 2/3/-1,1/0:31/1/0/0:18 | 2/3/-1,1/0:31/1/1:5/0:19 | 2/3/-1,1/0:31/1/6:10/0:20 | 2/3/-1,1/0:31/1/11:15/0:21 | 2/3/-1,1/0:31/1/16:20/0:22 | 2/3/-1,1/0:31/1/21:22/0:23 | 2/3/-1,1/0:31/1/23/0:22 | 2/3/-1,1/0:31/2/0/0:22 | 2/3/-1,1/0:31/2/1:4/0:23 | 2/3/-1,1/0:31/2/5:9/0:24 | 2/3/-1,1/0:31/2/10:14/0:25 | 2/3/-1,1/0:31/2/15:19/0:26 | 2/3/-1,1/0:31/2/20:24/0:27 | 2/3/-1,1/0:31/2/25:28/0:28 | 2/3/-1,1/0:31/2/29/0:27 | 2/3/-2,2/0:31/0:5/0:15/0:23 | 2/3/-2,2/0:31/6:13/0:7/0:23 | 2/3/-2,2/0:31/14:17/0:15/0:17
  AtlasDetectorID::initialize_from_dictionary - OK 
 CscIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
-CscIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 257
-CscIdHelper          INFO MultiRange built successfully to cscStrip: MultiRange size is 261
+CscIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 255
+CscIdHelper          INFO MultiRange built successfully to cscStrip: MultiRange size is 259
 CscIdHelper          INFO Initializing CSC hash indices ... 
 CscIdHelper          INFO The element hash max is 32
 CscIdHelper          INFO The detector element hash max is 64
 CscIdHelper          INFO The channel hash max is 61440
 CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... 
  AtlasDetectorID::initialize_from_dictionary - OK 
-RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 261
-RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 261
-RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 261
+RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 259
+RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 259
+RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 259
 RpcIdHelper          INFO Initializing RPC hash indices ... 
 RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
@@ -136,15 +137,15 @@ RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ..
  AtlasDetectorID::initialize_from_dictionary - OK 
 TgcIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
 TgcIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 218
-TgcIdHelper          INFO MultiRange built successfully to channel: MultiRange size is 261
+TgcIdHelper          INFO MultiRange built successfully to channel: MultiRange size is 259
 TgcIdHelper          INFO Initializing TGC hash indices ... 
 TgcIdHelper          INFO The element hash max is 1578
 TgcIdHelper          INFO The detector element hash max is 1578
 TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
  AtlasDetectorID::initialize_from_dictionary - OK 
 MdtIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
-MdtIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 261
-MdtIdHelper          INFO MultiRange built successfully to tube: MultiRange size is 261
+MdtIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 259
+MdtIdHelper          INFO MultiRange built successfully to tube: MultiRange size is 259
 MdtIdHelper          INFO Initializing MDT hash indices ... 
 MdtIdHelper          INFO The element hash max is 1188
 MdtIdHelper          INFO The detector element hash max is 2328
@@ -152,13 +153,13 @@ MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ..
  AtlasDetectorID::initialize_from_dictionary - OK 
 sTgcIdHelper         INFO MultiRange built successfully to Technology: MultiRange size is 218
 sTgcIdHelper         INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 253
-sTgcIdHelper         INFO MultiRange built successfully to channel: MultiRange size is 261
+sTgcIdHelper         INFO MultiRange built successfully to channel: MultiRange size is 259
 sTgcIdHelper         INFO Initializing sTGC hash indices ... 
 sTgcIdHelper         INFO The element hash max is 96
 sTgcIdHelper         INFO The detector element hash max is 192
 sTgcIdHelper         INFO Initializing sTGC hash indices for finding neighbors ... 
 MuGM:sTgcReadou...   INFO sTGCname: sTG1-dummy
-MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x63e620
+MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x68d6e0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
@@ -166,14 +167,14 @@ MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO Volume Type: Trd
 MuGM:sTgcReadou...   INFO STS
 MuGM:sTgcReadou...   INFO Found sTGC Detector sTG1-dummy
-MuGM:sTgcReadou...   INFO firstPos: 0
+MuGM:sTgcReadou...   INFO firstPos: 1.6
 MuGM:sTgcReadou...   INFO initDesign:STS layer 0, strip pitch 3.2, nstrips 0
 MuGM:sTgcReadou...   INFO initDesign:STS layer 0, wireGang pitch 1.8, nWireGangs 0
 MuGM:sTgcReadou...   INFO initDesign stationname STS layer 0,pad phi angular width 0, eta pad size 0  Length: 0 sWidth: 0 lWidth: 0 firstPhiPos:0 padEtaMin:0 padEtaMax:0 firstRowPos:0 inputRowPitch:0 thickness:1 sPadWidth: 0 lPadWidth: 0 xFrame: 0 ysFrame: 0 ylFrame: 0 yCutout: 0
  Willing to add sTGC RE with IdFields: iStName, iStEta, iStPhi, imL = 1 2 2 1
  ... using internal indices  [0][5][3][0]
 MuGM:sTgcReadou...   INFO sTGCname: sTG1-dummy
-MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x63e620
+MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x68d6e0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
@@ -181,7 +182,7 @@ MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO Volume Type: Trd
 MuGM:sTgcReadou...   INFO STS
 MuGM:sTgcReadou...   INFO Found sTGC Detector sTG1-dummy
-MuGM:sTgcReadou...   INFO firstPos: 0
+MuGM:sTgcReadou...   INFO firstPos: 1.6
 MuGM:sTgcReadou...   INFO initDesign:STS layer 0, strip pitch 3.2, nstrips 0
 MuGM:sTgcReadou...   INFO initDesign:STS layer 0, wireGang pitch 1.8, nWireGangs 0
 MuGM:sTgcReadou...   INFO initDesign stationname STS layer 0,pad phi angular width 0, eta pad size 0  Length: 0 sWidth: 0 lWidth: 0 firstPhiPos:0 padEtaMin:0 padEtaMax:0 firstRowPos:0 inputRowPitch:0 thickness:1 sPadWidth: 0 lPadWidth: 0 xFrame: 0 ysFrame: 0 ylFrame: 0 yCutout: 0
@@ -189,8 +190,8 @@ MuGM:sTgcReadou...   INFO initDesign stationname STS layer 0,pad phi angular wid
  ... using internal indices  [0][5][5][0]
  AtlasDetectorID::initialize_from_dictionary - OK 
 MmIdHelper           INFO MultiRange built successfully to Technology: MultiRange size is 218
-MmIdHelper           INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 257
-MmIdHelper           INFO MultiRange built successfully to channel: MultiRange size is 261
+MmIdHelper           INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 255
+MmIdHelper           INFO MultiRange built successfully to channel: MultiRange size is 259
 MmIdHelper           INFO Initializing MicroMegas hash indices ... 
 MmIdHelper           INFO The element hash max is 64
 MmIdHelper           INFO The detector element hash max is 128

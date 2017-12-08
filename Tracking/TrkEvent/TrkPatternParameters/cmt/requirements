@@ -1,0 +1,20 @@
+package TrkPatternParameters
+
+manager Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
+author  Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
+
+private 
+
+use AtlasBoost            AtlasBoost-*              External
+use GaudiInterface        GaudiInterface-*          External
+use TrkSurfaces           TrkSurfaces-*             Tracking/TrkDetDescr
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+use TrkEventPrimitives    TrkEventPrimitives-*      Tracking/TrkEvent
+use TrkParametersBase     TrkParametersBase-*       Tracking/TrkEvent
+
+library TrkPatternParameters *.cxx
+apply_pattern installed_library
+

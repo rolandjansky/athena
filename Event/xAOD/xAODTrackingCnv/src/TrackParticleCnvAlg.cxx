@@ -125,13 +125,6 @@ namespace xAODMaker {
     ATH_CHECK( m_TrackCollectionCnvTool->setParticleCreatorTool( &m_particleCreator ) );
     ATH_CHECK( m_RecTrackParticleContainerCnvTool->setParticleCreatorTool( &m_particleCreator ) );
 
-    if (!m_convertTracks) {
-      ATH_CHECK( m_xaodout.assign ("") );
-    }
-    if (!m_convertAODTrackParticles) {
-      ATH_CHECK( m_xaodTrackParticlesout.assign ("") );
-    }
-
     //Automatically set the Aux names
     if(!m_xaodout.name().empty() && m_xauxout.name().empty()){
         m_xauxout = SG::WriteHandle<xAOD::TrackParticleAuxContainer>(m_xaodout.name() + "Aux.");

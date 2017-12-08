@@ -36,8 +36,6 @@ export JOB_LOG_2=${JOB_LOG%%.*}2.${JOB_LOG#*.}
 export JOB_LOG=${JOB_LOG_2}
 source exec_athena_art_trigger_validation.sh
 
-timeout 10m rootcomp.py expert-monitoring-ascend.root expert-monitoring.root | tee rootcompout.log
-echo "art-result: ${PIPESTATUS[0]} RootComp" 
+rootcomp.py expert-monitoring-ascend.root expert-monitoring.root
 
-trigtest_checkcounts.sh expert-monitoring-ascend.root 0 BOTH | tee checkcountout.log
-echo "art-result: ${PIPESTATUS[0]} CheckCounts"
+trigtest_checkcounts.sh expert-monitoring-ascend.root 0 BOTH

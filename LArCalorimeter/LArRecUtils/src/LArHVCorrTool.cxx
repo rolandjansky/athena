@@ -35,7 +35,6 @@ LArHVCorrTool::LArHVCorrTool(const std::string& type,
     m_larhec_id(NULL),
     m_larfcal_id(NULL),	
     m_electrodeID(NULL),
-    m_cablingService("LArCablingService"),
     m_hvtool("LArHVToolMC")
 {
   declareInterface<ILArHVCorrTool>(this);

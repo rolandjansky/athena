@@ -54,13 +54,35 @@ StatusCode VxContainerCnv::initialize()
   
 }//end of initialize method
 
-
 VxContainer_PERS *
-VxContainerCnv::createPersistent( VxContainer* )
-{
-   MsgStream msg( msgSvc(), "VxContainerCnv" );
-   msg << MSG::ERROR << "createPersistent() is obsolete" << endmsg;
-   return nullptr;
+VxContainerCnv::createPersistent( VxContainer *transCont) { 
+//    std::cout<<"WRITING  VxContainer "<<std::endl;
+   m_log.setLevel( m_msgSvc->outputLevel() );
+   updateLog(); // Make m_log indicate the current key 
+   VxContainer_PERS * pVxCont = m_TPConverter.createPersistent( transCont, m_log );
+
+/* 
+ std::cout<<"------------------------------VxVertex related "<<std::endl;
+ std::cout<<" m_vxContainers size:      "<< pVxCont->m_vxContainers.size()<<std::endl;
+ std::cout<<" m_vxCandidates size:      "<< pVxCont->m_vxCandidates.size() <<std::endl;
+ std::cout<<" m_vxTrackAtVertices size: "<< pVxCont->m_vxTrackAtVertices.size()<<std::endl;
+ std::cout<<" m_recVertices size:       "<< pVxCont->m_recVertices.size()<<std::endl;
+ std::cout<<" m_vertices size:          "<< pVxCont->m_vertices.size()<<std::endl;
+ 
+ std::cout<<"------------------------------TrkTrack related "<<std::endl;
+ std::cout<<" m_tracks size:            "<< pVxCont->m_tracks.size()<<std::endl;
+ std::cout<<"------------------------------TrkTrackParameters related "<<std::endl;
+ std::cout<<" m_trackParameters size:   "<< pVxCont->m_trackParameters.size()<<std::endl;
+ std::cout<<" m_perigees size:          "<< pVxCont->m_perigees.size()<<std::endl;
+ std::cout<<" m_measPerigees size:      "<< pVxCont->m_measPerigees.size()<<std::endl;
+ std::cout<<" m_surfaces size:          "<< pVxCont->m_surfaces.size()<<std::endl; 
+ std::cout<<" m_fitQualities size:      "<< pVxCont->m_fitQualities.size()<<std::endl;
+ std::cout<<" m_hepSymMatrices size:    "<< pVxCont->m_hepSymMatrices.size()<<std::endl; 
+ std::cout<<"*************************************** "<<std::endl;
+*/ 
+ 
+ return pVxCont;
+
 }//end of create persistent method
 
 

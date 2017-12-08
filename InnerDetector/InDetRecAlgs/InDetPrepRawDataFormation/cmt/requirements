@@ -1,0 +1,30 @@
+# Silicon Trackers Clusterization Framework package
+# Classes defining the framework for the Pixel and SCT clustering algorithms
+
+package InDetPrepRawDataFormation
+author  Tommaso Lari <Tommaso.Lari@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps      AthenaBaseComps-*      Control
+use GaudiInterface       GaudiInterface-*       External
+use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
+use InDetRawData         InDetRawData-*         InnerDetector/InDetRawEvent
+use Identifier           Identifier-*           DetectorDescription
+use SiClusterizationTool    SiClusterizationTool-*    InnerDetector/InDetRecTools
+use TrigSteeringEvent	TrigSteeringEvent-*	Trigger/TrigEvent
+use IRegionSelector               IRegionSelector-*               DetectorDescription
+use StoreGate		    StoreGate-*               Control
+
+private
+use CxxUtils           CxxUtils-*               Control
+use AtlasDetDescr           AtlasDetDescr-*           DetectorDescription 
+use InDetIdentifier         InDetIdentifier-*         InnerDetector/InDetDetDescr
+use InDetReadoutGeometry    InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use TRT_DriftCircleTool     TRT_DriftCircleTool-*     InnerDetector/InDetRecTools
+use SCT_ConditionsServices  SCT_ConditionsServices-*  InnerDetector/InDetConditions
+use InDetConditionsSummaryService  InDetConditionsSummaryService-* InnerDetector/InDetConditions 
+
+public
+library InDetPrepRawDataFormation *.cxx components/*.cxx
+apply_pattern component_library
+#apply_pattern dual_use_library files="*.cxx"

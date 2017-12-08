@@ -12,8 +12,6 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include <cstddef>
 
-#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
-
 namespace ElectronSelectorHelpers{
   ///@brief return the number of Pixel hits plus dead sensors in the track particle
   std::size_t numberOfPixelHitsAndDeadSensors(const xAOD::TrackParticle *tp);
@@ -29,10 +27,6 @@ namespace ElectronSelectorHelpers{
   //        to innermost layer. If both are off, then return true)
   bool passBLayerRequirement(const xAOD::TrackParticle *tp);
 
-  ///@brief return true if the ambiguity type is one of several that are stored in a bitmask
-  bool passAmbiguity(xAOD::AmbiguityTool::AmbiguityType type, const uint8_t criterion);
-
-  struct ROOT6_NamespaceAutoloadHook{};
 }
 
 #endif

@@ -1,0 +1,8 @@
+package MuGirlPerformanceInterfaces
+
+manager Zvi Tarem <Zvi.Tarem@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External
+
+apply_pattern declare_joboptions files="*.py"

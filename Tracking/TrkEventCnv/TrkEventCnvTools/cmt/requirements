@@ -1,0 +1,27 @@
+package TrkEventCnvTools
+
+author Edward Moyse <edward.moyse@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+use  DataModel                  DataModel-*                     Control
+use  GaudiInterface             GaudiInterface-*                External
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+use  Identifier                 Identifier-*                    DetectorDescription
+use  StoreGate                  StoreGate-*                     Control
+use  TrkPrepRawData             TrkPrepRawData-*                Tracking/TrkEvent
+use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
+use  TrkParametersBase          TrkParametersBase-*             Tracking/TrkEvent
+use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+use  TrkDetDescrUtils           TrkDetDescrUtils-*              Tracking/TrkDetDescr
+
+private
+use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+use  TrkMeasurementBase         TrkMeasurementBase-*            Tracking/TrkEvent
+
+public
+apply_pattern declare_python_modules files=*.py
+library TrkEventCnvTools *.cxx components/*.cxx
+apply_pattern component_library	

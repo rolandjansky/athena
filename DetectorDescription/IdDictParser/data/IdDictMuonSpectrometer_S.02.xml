@@ -2800,28 +2800,6 @@
     <range field="stgcChannel" minvalue="1" maxvalue="64" />
   </region>
 
-  <region group="stgc">
-    <range field="stationName" value="STS" />
-    <range field="stationEta" values="-1 1" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="STGC" />
-    <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
-    <range field="stgcGasGap" minvalue="1" maxvalue="4" />
-    <range field="stgcChannelType" value="sTgcWire" />
-    <range field="stgcChannel" minvalue="1" maxvalue="64" />
-  </region>
-
-  <region group="stgc">
-    <range field="stationName" value="STL" />
-    <range field="stationEta" values="-1 1" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="STGC" />
-    <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
-    <range field="stgcGasGap" minvalue="1" maxvalue="4" />
-    <range field="stgcChannelType" value="sTgcWire" />
-    <range field="stgcChannel" minvalue="1" maxvalue="64" />
-  </region>
-
      <!--  MicroMegas  -->
 
      <!--  MicroMegas Small Sector -->     

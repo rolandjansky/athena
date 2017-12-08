@@ -15,28 +15,29 @@ namespace CoralDB {
 } // this is for better indentation in Emacs
 #endif
 
+using namespace std;
 
 class Connection {
  public:
   Connection();
-  Connection(std::string fromId, std::string fromSlot, std::string toId, std::string toSlot);
+  Connection(string fromId, string fromSlot, string toId, string toSlot);
 
-  std::string fromId() const { return m_fromId; }
-  std::string fromSlot() const { return m_fromSlot; }
-  std::string toId() const { return m_toId; }
-  std::string toSlot() const { return m_toSlot; }
+  string fromId() const { return m_fromId; }
+  string fromSlot() const { return m_fromSlot; }
+  string toId() const { return m_toId; }
+  string toSlot() const { return m_toSlot; }
 
-  void setConnection(std::string fromId, std::string fromSlot, std::string toId, std::string toSlot);
+  void setConnection(string fromId, string fromSlot, string toId, string toSlot);
 
-  void print(std::ostream& out) const;
+  void print(ostream& out) const;
 
   bool operator<(const Connection& b) const;
 
  private:
-  std::string m_fromId;
-  std::string m_fromSlot;
-  std::string m_toId;
-  std::string m_toSlot;
+  string m_fromId;
+  string m_fromSlot;
+  string m_toId;
+  string m_toSlot;
 };
 
 std::ostream& operator<<(std::ostream&, const Connection& c);

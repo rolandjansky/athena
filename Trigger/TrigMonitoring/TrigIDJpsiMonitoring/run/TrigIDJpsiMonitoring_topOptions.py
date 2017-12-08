@@ -37,7 +37,7 @@ ServiceMgr.EventSelector.InputCollections = [ #"/unix/atlas2/paw/mc09_7TeV.10840
                                               #"/unix/atlas2/paw/mc09_7TeV.108407.Pythia_directJpsimu4mu4.digit.ESD.e477_s765_s767_d300_tid130174_00/4.ESD.pool.root",
                                               #"/unix/atlas2/paw/mc09_7TeV.108407.Pythia_directJpsimu4mu4.digit.ESD.e477_s765_s767_d300_tid130174_00/5.ESD.pool.root",
                                               #"/unix/atlas2/paw/mc09_7TeV.108407.Pythia_directJpsimu4mu4.digit.ESD.e477_s765_s767_d300_tid130174_00/6.ESD.pool.root"
-#    "root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/data11_7TeV/AOD/r3365_r3368_p902/data11_7TeV.00190933.Jpsi_JulieKirk.merge.AOD.r3365_r3368_p902_tid735922_00/AOD.735922._000001.pool.root.1"
+#    "root://eosatlas//eos/atlas/atlasdatadisk/data11_7TeV/AOD/r3365_r3368_p902/data11_7TeV.00190933.Jpsi_JulieKirk.merge.AOD.r3365_r3368_p902_tid735922_00/AOD.735922._000001.pool.root.1"
     "/unix/atlas2/paw/mc11_7TeV.108494.Pythia_directJpsimu2p5mu2p5.merge.AOD.e835_a131_s1353_a140_r2900_tid601752_00/AOD.601752._000001.pool.root.1"
 # "/afs/cern.ch/user/p/paw/BugFixing/myESD.pool.root"
 #   "/tmp/ESD.158525._000301.pool.root"

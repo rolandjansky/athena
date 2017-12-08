@@ -28,12 +28,14 @@ namespace Simulation
   VertexBeamCondPositioner::VertexBeamCondPositioner( const std::string& t,
                                                       const std::string& n,
                                                       const IInterface* p )
-    : base_class(t,n,p),
+    : AthAlgTool(t,n,p),
       m_beamCondSvc("BeamCondSvc", n),
       m_rndGenSvc("AtRndmGenSvc", n),
       m_randomEngine(0),
       m_randomEngineName("VERTEX")
   {
+    declareInterface<ILorentzVectorGenerator>(this);
+
     // declare properties for the configuration
     declareProperty( "BeamCondSvc", m_beamCondSvc );
     declareProperty( "RandomSvc", m_rndGenSvc );

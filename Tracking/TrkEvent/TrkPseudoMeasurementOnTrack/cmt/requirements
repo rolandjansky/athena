@@ -1,0 +1,26 @@
+package TrkPseudoMeasurementOnTrack
+
+author Wolfgang Liebig <http://consult.cern.ch/xwho/people/54608>
+
+use AtlasPolicy          AtlasPolicy-* 
+use TrkMeasurementBase   TrkMeasurementBase-*     Tracking/TrkEvent
+#use TrkEventPrimitives   TrkEventPrimitives-*     Tracking/TrkEvent
+use GeoPrimitives           GeoPrimitives-*      DetectorDescription
+use EventPrimitives         EventPrimitives-*    Event
+use TrkSurfaces          TrkSurfaces-*            Tracking/TrkDetDescr
+
+apply_pattern installed_library
+library TrkPseudoMeasurementOnTrack *.cxx
+
+private
+use AtlasReflex          AtlasReflex-*            External -no_auto_imports
+use GaudiInterface       GaudiInterface-*         External
+
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+apply_pattern lcgdict dict=TrkPseudoMeasurementOnTrack selectionfile=selection.xml headerfiles="../TrkPseudoMeasurementOnTrack/TrkPseudoMeasurementOnTrackDict.h"

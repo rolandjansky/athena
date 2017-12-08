@@ -35,15 +35,13 @@ public:
   virtual StatusCode selectStore(size_t /*partitionIndex*/) override { std::abort(); }
   virtual StatusCode clearStore(size_t /*partitionIndex*/) override { std::abort(); }
   virtual StatusCode setNumberOfStores(size_t /*slots*/) override { std::abort(); }
-  virtual DataObjIDColl getNewDataObjects() override { std::abort(); }
-  virtual void addNewDataObjects( DataObjIDColl& /*products*/ ){ std::abort(); }
-  virtual bool exists( const DataObjID& ) override { std::abort(); } 
+  virtual StatusCode getNewDataObjects(DataObjIDColl& /*products*/) override { std::abort(); }
+  virtual bool newDataObjectsPresent() override { std::abort(); }
   virtual size_t allocateStore( int /*evtnumber*/ ) override { std::abort(); }
   virtual StatusCode freeStore( size_t /*partitionIndex*/ ) override { std::abort(); }
   virtual size_t getPartitionNumber(int /*eventnumber*/) const override { std::abort(); }
-  virtual size_t getNumberOfStores() const override { return nslots; }
-  virtual unsigned int freeSlots() override { std::abort(); }
 
+  virtual size_t getNumberOfStores() const override { return nslots; }
 };
 
 
@@ -89,19 +87,6 @@ void test1()
   for (size_t i = 0; i < nslots; i++) {
     EventContext ctx (0, i);
     assert (o.get(ctx)->x == (i+2)*20);
-  }
-
-  size_t i = 0;
-  for (Payload& p : o) {
-    assert (p.x == (i+2)*20);
-    p.x = (i+2)*30;
-    ++i;
-  }
-
-  i = 0;
-  for (const Payload& p : co) {
-    assert (p.x == (i+2)*30);
-    ++i;
   }
 }
 

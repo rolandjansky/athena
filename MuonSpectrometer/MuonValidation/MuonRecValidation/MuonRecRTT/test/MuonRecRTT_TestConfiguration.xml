@@ -21,7 +21,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_Z_with_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/Z/valid2.147407.PowhegPythia8_AZNLO_Zmumu.recon.RDO.e3099_s1982_s1964_r6179_tid05064264_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/Z/valid2.147407.PowhegPythia8_AZNLO_Zmumu.recon.RDO.e3099_s1982_s1964_r6179_tid05064264_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>
@@ -30,7 +30,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_JPsi_with_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/JPsi/valid2.208001.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu4mu4.recon.RDO.e3099_s1982_s1964_r6179_tid05064260_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/JPsi/valid2.208001.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu4mu4.recon.RDO.e3099_s1982_s1964_r6179_tid05064260_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>
@@ -39,7 +39,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_ZPrime_with_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/ZPrime/valid2.167826.Sherpa_CT10_ZmumuMassiveCBPt280_500_CVetoBVeto.recon.RDO.e3099_s1982_s1964_r6179_tid05064229_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/ZPrime/valid2.167826.Sherpa_CT10_ZmumuMassiveCBPt280_500_CVetoBVeto.recon.RDO.e3099_s1982_s1964_r6179_tid05064229_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>
@@ -48,7 +48,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_ttbar_with_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/ttbar/valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s1982_s1964_r6179_tid05064188_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/WithPileup/ttbar/valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s1982_s1964_r6179_tid05064188_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>
@@ -57,7 +57,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_Z_no_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/Z/valid1.147407.PowhegPythia8_AZNLO_Zmumu.recon.RDO.e3099_s2579_r6192_tid05132042_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/Z/valid1.147407.PowhegPythia8_AZNLO_Zmumu.recon.RDO.e3099_s2579_r6192_tid05132042_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>
@@ -66,7 +66,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_JPsi_no_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/JPsi/valid1.208001.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu4mu4.recon.RDO.e3099_s2579_r6192_tid05132040_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/JPsi/valid1.208001.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu4mu4.recon.RDO.e3099_s2579_r6192_tid05132040_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>
@@ -75,7 +75,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_ZPrime_no_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/ZPrime/valid1.167826.Sherpa_CT10_ZmumuMassiveCBPt280_500_CVetoBVeto.recon.RDO.e3099_s2579_r6192_tid05132021_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/ZPrime/valid1.167826.Sherpa_CT10_ZmumuMassiveCBPt280_500_CVetoBVeto.recon.RDO.e3099_s2579_r6192_tid05132021_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>
@@ -84,7 +84,7 @@
 	<chainElement>
 	  <jobTransform userJobId="MuonRecRTT_ttbar_no_pileup">
 	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
-	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas.cern.ch//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/ttbar/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6167_tid05051674_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <jobTransformCmd>Reco_tf.py --maxEvents=5000 --inputRDOFile=root://eosatlas//eos/atlas/user/g/gcree/SamplesForRTT/20150323/NoPileup/ttbar/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6167_tid05051674_00/* --outputAODFile=my.AOD.pool.root --outputNTUP_PHYSVALFile my.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
 	    <group>MuonDataRecTrf</group>	    	    
 	    <queue>long</queue>
 	  </jobTransform>

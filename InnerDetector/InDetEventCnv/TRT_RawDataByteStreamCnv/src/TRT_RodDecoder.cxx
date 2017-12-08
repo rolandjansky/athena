@@ -40,8 +40,6 @@
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 /* -------------------------------------------------------
  * constructor
  * -------------------------------------------------------
@@ -305,7 +303,7 @@ TRT_RodDecoder::handle(const Incident& inc) {
    **/
 
   if ( inc.type() == "BeginRun" ) {
-    const EventInfo* currentEvent = nullptr;
+    const EventInfo* currentEvent;
     StatusCode sc = evtStore()->retrieve(currentEvent);
     if ( sc.isFailure() ) 
        ATH_MSG_ERROR( "Could not get current event" );

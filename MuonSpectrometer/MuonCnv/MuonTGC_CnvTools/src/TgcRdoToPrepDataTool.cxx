@@ -53,6 +53,7 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
     m_nSLRDOs(0), 
     m_nSLPRDs(0), 
     m_is12fold(true),
+    m_rdoContainer("TGCRDO"),
     m_outputCoinKeys{"dummy", "dummy", "dummy" },
     m_outputprepdataKeys{"dummy", "dummy", "dummy", "dummy"}
 {
@@ -67,11 +68,9 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
   declareProperty("useBStoRdoTool", m_useBStoRdoTool = false);
   declareProperty("show_warning_level_invalid_A09_SSW6_hit", m_show_warning_level_invalid_A09_SSW6_hit = false); 
   declareProperty("dropPrdsWithZeroWidth", m_dropPrdsWithZeroWidth = true);
+  declareProperty("RDOContainer", m_rdoContainer);
   declareProperty("outputCoinKey", m_outputCoinKeys);
   declareProperty("prepDataKeys", m_outputprepdataKeys);
-  // DataHandle
-  declareProperty("RDOContainer",   m_rdoContainerKey = std::string("TGCRDO"),"TgcRdoContainer to retrieve");
-
   for(int ibc=0; ibc<NBC+1; ibc++) m_tgcPrepDataContainer[ibc]=0;
   for(int ibc=0; ibc<NBC  ; ibc++) m_tgcCoinDataContainer[ibc]=0;
   for(int ibc=0; ibc<NBC+1; ibc++) m_fullEventDone[ibc]=false;
@@ -139,8 +138,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
     ATH_MSG_INFO("Retrieved Tool " << m_rawDataProviderTool);
   }
   
-  // check if initializing of DataHandle objects success
-  ATH_CHECK( m_rdoContainerKey.initialize() );
+
   
   //try to configure the cabling service
   sc = getCabling();
@@ -313,21 +311,20 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     }
 
     ATH_MSG_DEBUG("Retriving TGC RDO container from the store");
-    auto rdoContainer = SG::makeHandle(m_rdoContainerKey);
-    if(!rdoContainer.isValid()) {
+    if(!m_rdoContainer.isValid()) {
       ATH_MSG_WARNING("No TGC RDO container in StoreGate!");
       return StatusCode::SUCCESS;
     }
 
     ///////////// here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
-    if(rdoContainer->size()==0) { 
+    if(m_rdoContainer->size()==0) { 
       // empty csm container - no tgc rdo in this event
       ATH_MSG_DEBUG("Empty rdo container - no tgc rdo in this event");
       return StatusCode::SUCCESS;
     }
 
     ATH_MSG_DEBUG("Not empty rdo container in this event, the container size is " << 
-		  rdoContainer->size());
+		  m_rdoContainer->size());
   
     // select RDOs to be decoded when seeded mode is used  
     std::vector<const TgcRdo*> rdoCollVec; 
@@ -348,8 +345,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
 
         m_decodedOnlineId.at(onlineId) = true; // The ROB with this onlineId will be decoded only once 
 
-        TgcRdoContainer::const_iterator rdo_container_it   = rdoContainer->begin(); 
-        TgcRdoContainer::const_iterator rdo_container_it_e = rdoContainer->end(); 
+        TgcRdoContainer::const_iterator rdo_container_it   = m_rdoContainer->begin(); 
+        TgcRdoContainer::const_iterator rdo_container_it_e = m_rdoContainer->end(); 
         for(; rdo_container_it!=rdo_container_it_e; rdo_container_it++) { 
           const TgcRdo* rdoColl = *rdo_container_it; 
           if(rdoColl->identify()==onlineId) { 
@@ -383,8 +380,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     } else {
       ATH_MSG_DEBUG("Start loop over rdos - unseeded mode");
     
-      TgcRdoContainer::const_iterator rdoColli   = rdoContainer->begin();
-      TgcRdoContainer::const_iterator rdoColli_e = rdoContainer->end();
+      TgcRdoContainer::const_iterator rdoColli   = m_rdoContainer->begin();
+      TgcRdoContainer::const_iterator rdoColli_e = m_rdoContainer->end();
       for(; rdoColli!=rdoColli_e; rdoColli++) {
         // loop over all elements of the rdo container 
         const TgcRdo* rdoColl = *rdoColli;
@@ -435,13 +432,12 @@ void Muon::TgcRdoToPrepDataTool::printInputRdo()
   IdContext tgcContext = m_tgcHelper->module_context();
 
   /// TGC RDO container --- assuming it is available
-  auto rdoContainer = SG::makeHandle(m_rdoContainerKey);
-  if(!rdoContainer.isValid()) {
+  if(!m_rdoContainer.isValid()) {
     ATH_MSG_WARNING("*** Retrieval of TGC RDO container for debugging purposes failed !");
     return;
   }                                                                
 
-  if(rdoContainer->size()==0) {
+  if(m_rdoContainer->size()==0) {
     ATH_MSG_INFO("*** No TgcRdo collections were found");
     return;
   }
@@ -455,8 +451,8 @@ void Muon::TgcRdoToPrepDataTool::printInputRdo()
   int nOthers = 0;
   int nTgcRawData = 0;
 
-  TgcRdoContainer::const_iterator rdo_container_it   = rdoContainer->begin();
-  TgcRdoContainer::const_iterator rdo_container_it_e = rdoContainer->end();
+  TgcRdoContainer::const_iterator rdo_container_it   = m_rdoContainer->begin();
+  TgcRdoContainer::const_iterator rdo_container_it_e = m_rdoContainer->end();
   for(; rdo_container_it!=rdo_container_it_e; rdo_container_it++) {
     // loop over all elements of the rdo container 
     const TgcRdo* rdoColl = *rdo_container_it;
@@ -2929,7 +2925,7 @@ bool Muon::TgcRdoToPrepDataTool::getPosAndIdStripIn(const MuonGM::TgcReadoutElem
   channelIdIn_tmp = channelIdIn[flag_isL3];
   const MuonGM::TgcReadoutElement* descriptor_is = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_is, channelIdIn_tmp)) {
-    return true;
+    return StatusCode::SUCCESS;
   }
   
   double tmp_r_i[3] = {0., 0., 0.};
@@ -3054,7 +3050,7 @@ bool Muon::TgcRdoToPrepDataTool::getSLIds(const bool isStrip, const TgcRdo::cons
 {
   if(!m_tgcCabling) {
     StatusCode status = getCabling();
-    if(!status.isSuccess()) return false;
+    if(!status.isSuccess()) return status;
   }
 
   bool found = m_tgcCabling->getHighPtIDfromROINumber((*itD)->roi(),

@@ -21,6 +21,9 @@ namespace Trk {
 
 namespace iFatras {
  
+  /** Interface ID for IMultipleScatteringSampler*/  
+  static const InterfaceID IID_IMultipleScatteringSampler("IMultipleScatteringSampler", 1, 0);
+  
   /**@class IMultipleScatteringSampler
      
      Interface class IMultipleScatteringSampler
@@ -34,8 +37,8 @@ namespace iFatras {
     /**Virtual destructor*/
     virtual ~IMultipleScatteringSampler(){}
     
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IMultipleScatteringSampler, 1, 0);
+    /** AlgTool and IAlgTool interface methods */
+    static const InterfaceID& interfaceID() { return IID_IMultipleScatteringSampler; }
     
     virtual double simTheta (const Trk::MaterialProperties& mat,
 			     double momentum,

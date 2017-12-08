@@ -333,7 +333,7 @@ doMonitoring = False
 #TRTCalibTextFile = ""
 numberOfEvents = 250
 # MC09 multimuon Monte Carlo
-inputFiles = [ "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.19711\
+inputFiles = [ "root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.19711\
 7._000005.pool.root.1" ]
 
 Cosmics = False

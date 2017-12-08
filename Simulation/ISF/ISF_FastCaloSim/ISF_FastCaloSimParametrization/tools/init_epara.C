@@ -34,6 +34,17 @@ void init_epara()
  gROOT->LoadMacro("../epara/TFCS1DRegression.cxx+");
  gROOT->LoadMacro("../epara/secondPCA.cxx+");
  
+ /*
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSExtrapolationState.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSTruthState.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSSimulationState.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSParametrizationBase.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSParametrization.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSEnergyParametrization.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSPCAEnergyParametrization.cxx+");
+ gROOT->LoadMacro("../Root/EnergyParametrizationValidation.cxx+");
+ */
+ 
  cout<<"init done"<<endl;
  
 }

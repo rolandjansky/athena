@@ -1,0 +1,28 @@
+package MuonIDEvent
+
+author Ketevi A. Assamagan <Ketevi@bnl.gov>
+author Kyle Cranmer <cranmer@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+use Navigation    	Navigation-*   	Control
+use ParticleEvent	ParticleEvent-*	PhysicsAnalysis/AnalysisCommon
+use JetEvent            JetEvent-*		Reconstruction/Jet
+use muonEvent           muonEvent-*             Reconstruction/MuonIdentification
+
+use CaloGeoHelpers      CaloGeoHelpers-*        Calorimeter
+
+branches MuonIDEvent src doc  
+
+library MuonIDEvent *.cxx
+
+apply_pattern installed_library
+
+private
+use AtlasReflex      AtlasReflex-*      External -no_auto_imports
+
+apply_pattern lcgdict dict=MuonIDEvent selectionfile=selection.xml \
+	headerfiles=" ../MuonIDEvent/MuonIDEventDict.h"
+end_private
+
+

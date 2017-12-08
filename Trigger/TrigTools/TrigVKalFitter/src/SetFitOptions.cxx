@@ -72,7 +72,7 @@ void TrigVKalFitter::VKalVrtSetOptions(long int ntrk)
    //---
    //   Additional change of settings 
    //---
-   long int Index[NTRMAXTRIG];
+   long int Index[m_NTrMaxTrig];
    if(m_PartMassCnst.size() > 0) {
       for(int ic=0; ic<(int)m_PartMassCnst.size(); ic++){ 
          long int NTrk=m_PartMassCnstTrk[ic].size();

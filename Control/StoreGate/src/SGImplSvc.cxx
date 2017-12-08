@@ -1238,7 +1238,6 @@ SGImplSvc::t2pRemove(const void* const pTrans)
 void
 SGImplSvc::msg_update_handler(Property& /*outputLevel*/)
 {
-  setUpMessaging();
   msg().setLevel (outputLevel());
   msgSvc()->setOutputLevel(name(), outputLevel());
 }

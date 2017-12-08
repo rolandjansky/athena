@@ -206,7 +206,7 @@ StatusCode LArRampBuilder::execute()
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
   
-  const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer = nullptr;
+  const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
   
   
   // if using Shape Reco method, retrieve caliWaveContainer (only once !)

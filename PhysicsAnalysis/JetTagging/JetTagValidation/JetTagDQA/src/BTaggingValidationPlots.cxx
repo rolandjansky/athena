@@ -9,12 +9,8 @@ using CLHEP::GeV;
 namespace JetTagDQA{
 
 	BTaggingValidationPlots::BTaggingValidationPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir),
-															 m_sParticleType(sParticleType),m_isJVT_defined(false)
-	{
-	  //std::cout << "m_sParticleType=" << m_sParticleType << std::endl;
-	  if (m_sParticleType=="antiKt4EMTopoJets") { m_isJVT_defined = true; m_jvt_cut = 0.59;};
-	  if (m_sParticleType=="antiKt4EMPFlowJets") {m_isJVT_defined = true; m_jvt_cut = 0.2;};
-	}     
+	m_sParticleType(sParticleType)
+	{}     
 	 
 	void BTaggingValidationPlots::initializePlots(){
 
@@ -451,22 +447,16 @@ namespace JetTagDQA{
 		m_taggers.push_back("IP3D");
 		m_taggers.push_back("IP2D");
 		m_taggers.push_back("SV1");
-		//m_taggers.push_back("SV0");
+		m_taggers.push_back("SV0");
 		m_taggers.push_back("IP3DSV1");
 		m_taggers.push_back("JetFitter");
-		//m_taggers.push_back("JetFitterCombNN");
-		//m_taggers.push_back("MV1");
-		//m_taggers.push_back("MVb");	
-		//m_taggers.push_back("MV1c");
-		//m_taggers.push_back("MV2c00");
+		m_taggers.push_back("JetFitterCombNN");
+		m_taggers.push_back("MV1");
+		m_taggers.push_back("MVb");	
+		m_taggers.push_back("MV1c");
+		m_taggers.push_back("MV2c00");
 		m_taggers.push_back("MV2c10");
-		//m_taggers.push_back("MV2c20");
-		m_taggers.push_back("MV2c10mu");
-		m_taggers.push_back("MV2c10rnn");
-		//To be added later
-		//m_taggers.push_back("DL1");
-		//m_taggers.push_back("DL1mu");
-		//m_taggers.push_back("DL1rnn");
+		m_taggers.push_back("MV2c20");
 
 		m_truthLabels.insert(std::make_pair("b", 5));
 		m_truthLabels.insert(std::make_pair("c", 4));
@@ -496,13 +486,13 @@ namespace JetTagDQA{
 		m_JetFitter_workingPoints.insert(std::make_pair("70", -1.7));
 		m_JetFitter_workingPoints.insert(std::make_pair("80", -3.3));
 		//rel 17 Mc12a jul.12
-		//m_JetFitterCombNN_workingPoints.insert(std::make_pair("50", 2.1));
-		//m_JetFitterCombNN_workingPoints.insert(std::make_pair("70", -0.95));
-		//m_JetFitterCombNN_workingPoints.insert(std::make_pair("80", -2.6));	
+		m_JetFitterCombNN_workingPoints.insert(std::make_pair("50", 2.1));
+		m_JetFitterCombNN_workingPoints.insert(std::make_pair("70", -0.95));
+		m_JetFitterCombNN_workingPoints.insert(std::make_pair("80", -2.6));	
 		//rel 17 Mc12a Nov. 12
-		//m_MV1_workingPoints.insert(std::make_pair("50", 0.992515446));
-		//m_MV1_workingPoints.insert(std::make_pair("70", 0.8119));
-		//m_MV1_workingPoints.insert(std::make_pair("80", 0.39));	
+		m_MV1_workingPoints.insert(std::make_pair("50", 0.992515446));
+		m_MV1_workingPoints.insert(std::make_pair("70", 0.8119));
+		m_MV1_workingPoints.insert(std::make_pair("80", 0.39));	
 		
 	}
 	
@@ -563,7 +553,7 @@ namespace JetTagDQA{
 						std::ostringstream str_tmp("");
 						str_tmp << ip2d_iter->second;
 						std::string name_matched = "IP2D_"+label_iter->first+"_"+ip2d_iter->first+"_matched_pt";
-						TH1* histo_matched = Book1D(name_matched, "p_{T} of matched "+ m_sParticleType +" for IP2D_loglikelihoodRatio > "+ str_tmp.str() + " " + label_iter->first + "-jets; p_{T} (GeV) ;Events", 100, 0., 1000.);
+						TH1* histo_matched = Book1D(name_matched, "p_{T} of matched "+ m_sParticleType +" for IP3D_loglikelihoodRatio > "+ str_tmp.str() + " " + label_iter->first + "-jets; p_{T} (GeV) ;Events", 100, 0., 1000.);
 						m_weight_histos.insert(std::make_pair(name_matched, histo_matched));
 						std::string name_eff = "IP2D_"+label_iter->first+"_"+ip2d_iter->first+"_eff_pt";
 						TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. p_{T} for IP2D_loglikelihoodRatio > " + str_tmp.str()+ " " + label_iter->first + "-jets; p_{T} (GeV) ;efficiency", 100, 0., 1000., 0, 1., false);
@@ -582,7 +572,6 @@ namespace JetTagDQA{
 						m_eff_profiles.insert(std::make_pair(name_eff, profile_eff));
 					}
 				}
-				/*
 				if(*tag_iter == "SV0"){
 					for(std::map<std::string, double>::const_iterator sv0_iter = m_SV0_workingPoints.begin(); sv0_iter != 					   	m_SV0_workingPoints.end(); ++sv0_iter){
 						std::ostringstream str_tmp("");
@@ -594,8 +583,7 @@ namespace JetTagDQA{
 						TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. p_{T} for SV0_loglikelihoodRatio > " + str_tmp.str()+label_iter->first + " " + "-jets; p_{T} (GeV) ;efficiency", 100, 0., 1000., 0.,1., false);
 						m_eff_profiles.insert(std::make_pair(name_eff, profile_eff));
 					}
-				} // SV0
-				*/
+				}
 				if(*tag_iter == "IP3DSV1"){
 					for(std::map<std::string, double>::const_iterator ip3dsv1_iter = m_IP3DSV1_workingPoints.begin(); ip3dsv1_iter != 						m_IP3DSV1_workingPoints.end(); ++ip3dsv1_iter){
 						std::ostringstream str_tmp("");
@@ -607,7 +595,7 @@ namespace JetTagDQA{
 						TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. p_{T} for IP3D+SV1_loglikelihoodRatio > " + str_tmp.str() +" " + label_iter->first + "-jets; p_{T} (GeV) ;efficiency", 100, 0., 1000.,0.,1., false);
 						m_eff_profiles.insert(std::make_pair(name_eff, profile_eff));
 					}
-				} //IP3DSV
+				}
 				if(*tag_iter == "JetFitter"){
 					for(std::map<std::string, double>::const_iterator jetfitter_iter = m_JetFitter_workingPoints.begin(); jetfitter_iter != m_JetFitter_workingPoints.end(); ++jetfitter_iter){
 						std::ostringstream str_tmp("");
@@ -619,8 +607,7 @@ namespace JetTagDQA{
 						TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. p_{T} for JetFitter_loglikelihoodRatio > " + str_tmp.str() +" " + label_iter->first + "-jets; p_{T} (GeV) ;efficiency", 100, 0., 1000.,0.,1., false);
 						m_eff_profiles.insert(std::make_pair(name_eff, profile_eff));
 					}
-				} // JetFitter
-				/*
+				}
 				if(*tag_iter == "JetFitterCombNN"){
 					for(std::map<std::string, double>::const_iterator jetfitter_iter = m_JetFitterCombNN_workingPoints.begin(); jetfitter_iter != m_JetFitterCombNN_workingPoints.end(); ++jetfitter_iter){
 						std::ostringstream str_tmp("");
@@ -632,9 +619,7 @@ namespace JetTagDQA{
 						TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. p_{T} for JetFitterCombNN_loglikelihoodRatio > " + str_tmp.str() +" " + label_iter->first + "-jets; p_{T} (GeV) ;efficiency", 100, 0., 1000.,0.,1., false);
 						m_eff_profiles.insert(std::make_pair(name_eff, profile_eff));
 					}
-				} // JetFitterCombNN
-				*/
-				/*
+				}
 				if(*tag_iter == "MV1"){
 					for(std::map<std::string, double>::const_iterator mv1_iter = m_MV1_workingPoints.begin(); mv1_iter != m_MV1_workingPoints.end(); ++mv1_iter){
 						std::ostringstream str_tmp("");
@@ -646,8 +631,7 @@ namespace JetTagDQA{
 						TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. p_{T} for MV1_weight > " + str_tmp.str() +" " + label_iter->first + "-jets; p_{T} (GeV) ;efficiency", 100, 0., 1000.,0.,1., false);
 						m_eff_profiles.insert(std::make_pair(name_eff, profile_eff));
 					}
-				} // MV1
-				*/
+				}
 			}
 		}
 	}

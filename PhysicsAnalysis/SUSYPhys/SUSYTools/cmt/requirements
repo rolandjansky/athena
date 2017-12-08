@@ -1,0 +1,99 @@
+package SUSYTools
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasPython         AtlasPython-*       External -no_auto_imports
+use AtlasROOT           AtlasROOT-*         External
+
+use GaudiInterface	GaudiInterface-*    External
+
+use xAODCore            xAODCore-*	    Event/xAOD
+use xAODMuon            xAODMuon-*	    Event/xAOD
+use xAODEgamma          xAODEgamma-*	    Event/xAOD
+use xAODEventInfo       xAODEventInfo-*	    Event/xAOD
+use xAODMissingET       xAODMissingET-*	    Event/xAOD
+
+use JetSubStructureUtils	JetSubStructureUtils-*			Reconstruction/Jet
+use JetJvtEfficiency   		JetJvtEfficiency-* 			Reconstruction/Jet
+
+use AsgTools            AsgTools-*	    Control/AthToolSupport
+use xAODJet             xAODJet-*	    Event/xAOD
+use xAODTau             xAODTau-*	    Event/xAOD
+use xAODTracking        xAODTracking-*	    Event/xAOD
+use xAODTruth           xAODTruth-*	    Event/xAOD
+use PATInterfaces 	PATInterfaces-*	    PhysicsAnalysis/AnalysisCommon
+use TrigDecisionTool	TrigDecisionTool-*  Trigger/TrigAnalysis
+use AssociationUtils	AssociationUtils-*  PhysicsAnalysis/AnalysisCommon
+use AtlasReflex		AtlasReflex-*	    External -no-auto-imports
+use MCTruthClassifier	MCTruthClassifier-* PhysicsAnalysis
+use PMGTools            PMGTools-*          PhysicsAnalysis/AnalysisCommon
+
+private
+
+use POOLRootAccess 	POOLRootAccess-*    PhysicsAnalysis
+use xAODRootAccess 	xAODRootAccess-*    Control
+
+use AsgAnalysisInterfaces  AsgAnalysisInterfaces-*    PhysicsAnalysis/Interfaces
+use AtlasBoost			AtlasBoost-*					External
+use JetInterface 		JetInterface-*	    				Reconstruction/Jet
+use JetCPInterfaces 		JetCPInterfaces-*   				Reconstruction/Jet
+use JetCalibTools 		JetCalibTools-*	    				Reconstruction/Jet
+use JetMomentTools		JetMomentTools-*				Reconstruction/Jet
+use JetResolution		JetResolution-*	    				Reconstruction/Jet
+use JetSelectorTools		JetSelectorTools-*				PhysicsAnalysis/JetMissingEtID
+use JetUncertainties		JetUncertainties-*				Reconstruction/Jet
+use ElectronPhotonSelectorTools          ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
+use ElectronEfficiencyCorrection         ElectronEfficiencyCorrection-*         PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonShowerShapeFudgeTool   ElectronPhotonShowerShapeFudgeTool-*   PhysicsAnalysis/ElectronPhotonID
+use PhotonEfficiencyCorrection PhotonEfficiencyCorrection-* 			PhysicsAnalysis/ElectronPhotonID
+use MuonMomentumCorrections     MuonMomentumCorrections-*   			PhysicsAnalysis/MuonID/MuonIDAnalysis
+use MuonEfficiencyCorrections 	MuonEfficiencyCorrections-*			PhysicsAnalysis/MuonID/MuonIDAnalysis
+use MuonSelectorTools         	MuonSelectorTools-*         			PhysicsAnalysis/MuonID
+use TauAnalysisTools 		TauAnalysisTools-* 				PhysicsAnalysis/TauID
+use xAODBTaggingEfficiency 	xAODBTaggingEfficiency-* 			PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration
+use IsolationSelection 		IsolationSelection-* 				PhysicsAnalysis/AnalysisCommon
+use IsolationCorrections 	IsolationCorrections-* 				PhysicsAnalysis/ElectronPhotonID
+use PileupReweighting 		PileupReweighting-* 				PhysicsAnalysis/AnalysisCommon
+use METInterface		METInterface-*	    				Reconstruction/MET
+use TrigConfInterfaces 		TrigConfInterfaces-* 				Trigger/TrigConfiguration
+use TrigConfxAOD		TrigConfxAOD-*					Trigger/TrigConfiguration
+use TriggerMatchingTool 	TriggerMatchingTool-* 				Trigger/TrigAnalysis
+use AthenaBaseComps 		AthenaBaseComps-* 				Control
+use AthAnalysisBaseComps	AthAnalysisBaseComps-*				Control
+use AthContainers		AthContainers-*					Control
+use xAODBase            	xAODBase-*         				Event/xAOD
+use EventPrimitives     	EventPrimitives-*  				Event
+use xAODPrimitives      	xAODPrimitives-*   				Event/xAOD
+use FourMomUtils		FourMomUtils-*	   				Event
+use PathResolver		PathResolver-*	   				Tools
+use xAODTrigMissingET   xAODTrigMissingET-*             Event/xAOD
+
+# added to smother checkreq.py after component_library => dual_use_library migration
+use  GoodRunsLists	       GoodRunsLists-*	  	DataQuality
+use  METUtilities	       METUtilities-*	  	Reconstruction/MET
+use  xAODCaloEvent	       xAODCaloEvent-*	  	Event/xAOD
+use  xAODCutFlow	       xAODCutFlow-*	   	Event/xAOD
+
+# Additions for ApplySUSYTools
+use  AthenaKernel		AthenaKernel-*     Control
+use  xAODBTagging       	xAODBTagging-*     Event/xAOD
+use  Asg_Test 			Asg_Test-* 	   AsgExternal
+# End additions for ApplySUSYTools
+
+end_private
+
+macro_append pp_cppflags "" ASGSeries24 " -DROOTCORE_RELEASE_SERIES=24 "
+macro_append pp_cppflags "" ASGSeries25 " -DROOTCORE_RELEASE_SERIES=25 "
+
+#library SUSYTools ../Root/SUSYObjDef_xAOD.cxx ../Root/SUSYToolsInit.cxx ../Root/Muons.cxx ../Root/Electrons.cxx ../Root/Truth.cxx ../Root/Trigger.cxx ../Root/Taus.cxx ../Root/Photons.cxx ../Root/MET.cxx ../Root/Jets.cxx ../src/SUSYToolsAlg.cxx ../src/ApplySUSYTools.cxx -s=components *.cxx
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_calib files="-s=../data *.*"
+
+apply_pattern lcgdict dict=SUSYTools selectionfile=selection.xml headerfiles="../SUSYTools/SUSYToolsDict.h"
+
+application SUSYToolsTester ../util/SUSYToolsTester.cxx
+macro_append SUSYToolsTester_dependencies SUSYTools
+

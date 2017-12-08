@@ -17,101 +17,22 @@
 #include "SGTools/ClassID_traits.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/StringPool.h"
-#include "AthenaBaseComps/AthService.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IOpaqueAddress.h"
-#include "GaudiKernel/IAlgResourcePool.h"
 #include <iostream>
 #include <cassert>
 
 
 namespace AddressRemappingSvc_test {
-  class xAODFoo {};
+  class Foo {};
 }
-CLASS_DEF (AddressRemappingSvc_test::xAODFoo, 874546632, 0)
+CLASS_DEF (AddressRemappingSvc_test::Foo, 874546632, 0)
 
-using AddressRemappingSvc_test::xAODFoo;
-
-
-class TestAlgorithm
-  : public AthAlgorithm
-{
-public:
-  using AthAlgorithm::AthAlgorithm;
-
-  virtual StatusCode execute() override { std::abort(); }
-
-  virtual const DataObjIDColl& outputDataObjs() const override;
-
-  void addOutputDataObj (const DataObjID& obj);
-
-  DataObjIDColl m_coll;
-};
-
-
-void TestAlgorithm::addOutputDataObj (const DataObjID& obj)
-{
-  m_coll.insert (obj);
-}
-
-
-const DataObjIDColl& TestAlgorithm::outputDataObjs() const
-{
-  return m_coll;
-}
-
-
-class TestAlgResourcePool : public extends<AthService, IAlgResourcePool>
-{
-public:
-  using extends::extends;
-
-  virtual StatusCode initialize() override;
-
-  virtual StatusCode acquireAlgorithm(const std::string& /*name*/,IAlgorithm*& /*algo*/, bool /*blocking*/ = false) override { std::abort(); }
-  virtual StatusCode releaseAlgorithm(const std::string& /*name*/, IAlgorithm*& /*algo*/) override { std::abort(); }
-  virtual std::list<IAlgorithm*> getTopAlgList() override { std::abort(); }
-  virtual StatusCode beginRun() override { std::abort(); }
-  virtual StatusCode endRun()  override { std::abort(); }
-  virtual StatusCode acquireResource(const std::string& /*name*/) override { std::abort(); }
-  virtual StatusCode releaseResource(const std::string& /*name*/) override { std::abort(); }
-
-  virtual std::list<IAlgorithm*> getFlatAlgList() override;
-
-  std::vector<std::unique_ptr<TestAlgorithm> > m_algs;
-};
-
-
-StatusCode TestAlgResourcePool::initialize()
-{
-  m_algs.push_back (std::make_unique<TestAlgorithm>("alg1", &*serviceLocator()));
-  m_algs.push_back (std::make_unique<TestAlgorithm>("alg2", &*serviceLocator()));
-
-  CLID fooclid = ClassID_traits<xAODFoo>::ID();
-  m_algs[0]->addOutputDataObj (DataObjID (fooclid, "StoreGateSvc+fee1"));
-  m_algs[1]->addOutputDataObj (DataObjID (fooclid, "xstore+foo1"));
-  return StatusCode::SUCCESS;
-}
-
-
-  std::list<IAlgorithm*> TestAlgResourcePool::getFlatAlgList()
-{
-  std::list<IAlgorithm*> algs;
-  for (std::unique_ptr<TestAlgorithm>& p : m_algs) {
-    algs.push_back (p.get());
-  }
-  return algs;
-}
-
-
-DECLARE_SERVICE_FACTORY (TestAlgResourcePool)
-
+using AddressRemappingSvc_test::Foo;
 
 class TestAddress
   : public IOpaqueAddress
@@ -136,21 +57,13 @@ struct Addrs
   TestAddress addr1;
   TestAddress addr2;
   TestAddress addr3;
-  TestAddress addr4;
-  TestAddress addr5;
 };
 
 
-// Makes TADs:
-//   Foo/foo1
-//   Foo/foo2 + symlink 321 + aliases foo2.d1, foo2.d2, foo2.d3
-//   Foo/foo3 + foo3.d1, foo3.d2
-//   Foo/fee1
-//   Foo/fee1Aux.
 void fillTADList (IAddressProvider::tadList& tads,
                   Addrs& addrs)
 {
-  CLID fooclid = ClassID_traits<xAODFoo>::ID();
+  CLID fooclid = ClassID_traits<Foo>::ID();
 
   {
     auto tad = std::make_unique<SG::TransientAddress>
@@ -175,30 +88,13 @@ void fillTADList (IAddressProvider::tadList& tads,
     tad->setAlias ("foo3.d2");
     tads.push_back (tad.release());
   }
-
-  {
-    auto tad = std::make_unique<SG::TransientAddress>
-      (fooclid, "fee1", &addrs.addr4, false);
-    tads.push_back (tad.release());
-  }
-
-  {
-    auto tad = std::make_unique<SG::TransientAddress>
-      (ClassID_traits<SG::IConstAuxStore>::ID(),
-       "fee1Aux.", &addrs.addr5, false);
-    tads.push_back (tad.release());
-  }
 }
 
 
-// Requires:
-//  Foo/bar1
-//  Foo/bar2 + symlink 321 + aliases bar2.d1, bar2.d2, bar2.x2
-//  Foo/foo3 + aliases foo3.x1, foo3.d2
 void checkTADList (const IAddressProvider::tadList& tads,
                    const Addrs& addrs)
 {
-  CLID fooclid = ClassID_traits<xAODFoo>::ID();
+  CLID fooclid = ClassID_traits<Foo>::ID();
 
   assert (tads.size() == 3);
   size_t i = 0;
@@ -250,13 +146,13 @@ void test1 (Athena::IInputRename& svc,
   {
     IAddressProvider::tadList tads;
     fillTADList (tads, addrs);
-    assert( prov.loadAddresses (StoreID::EVENT_STORE, tads).isSuccess() );
+    assert( prov.preLoadAddresses (StoreID::EVENT_STORE, tads).isSuccess() );
     checkTADList (tads, addrs);
   }
   {
     IAddressProvider::tadList tads;
     fillTADList (tads, addrs);
-    assert( prov.preLoadAddresses (StoreID::EVENT_STORE, tads).isSuccess() );
+    assert( prov.loadAddresses (StoreID::EVENT_STORE, tads).isSuccess() );
     checkTADList (tads, addrs);
   }
 
@@ -264,7 +160,7 @@ void test1 (Athena::IInputRename& svc,
     (*svc.inputRenameMap());
   assert (r->size() == 5);
 
-  CLID fooclid = ClassID_traits<xAODFoo>::ID();
+  CLID fooclid = ClassID_traits<Foo>::ID();
   SG::StringPool sp;
   Athena::IInputRename::InputRenameMap_t::const_iterator it;
 
@@ -326,5 +222,3 @@ int main()
   test2();
   return 0;
 }
-
-

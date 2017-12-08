@@ -123,7 +123,7 @@ StatusCode LArAutoCorrMaker::execute()
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();  
-  const LArDigitContainer* larDigitContainer = nullptr;
+  const LArDigitContainer* larDigitContainer;
   
   for (;key_it!=key_it_e;key_it++) {   
     ATH_MSG_DEBUG("Reading LArDigitContainer from StoreGate! key=" << *key_it);

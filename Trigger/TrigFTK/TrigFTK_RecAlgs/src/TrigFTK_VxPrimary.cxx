@@ -39,8 +39,8 @@ TrigFTK_VxPrimary::TrigFTK_VxPrimary(const std::string &n, ISvcLocator *pSvcLoc)
     m_useRefittedTracks(false),
     m_getVertexContainer(true),
     m_trackType(ftk::ConvertedTrack),
-    m_vertexContainerName("PrimVertexFTK"),
-    m_vxContainerName("PrimVxFTK"),
+    m_vertexContainerName("HLT_PrimVertexFTK"),
+    m_vxContainerName("HLT_PrimVxFTK"),
     m_useFastVertexTool(false)
 {
   declareProperty("useRawTracks", m_useRawTracks);

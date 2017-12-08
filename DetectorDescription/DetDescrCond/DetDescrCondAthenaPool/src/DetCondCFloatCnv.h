@@ -11,17 +11,24 @@
 #ifndef DETCONDCFLOATCNV_H
 #define DETCONDCFLOATCNV_H
 
-
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPCnvCnv.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "DetDescrConditions/DetCondCFloat.h"
-#include "DetDescrCondTPCnv/DetCondCFloatCnv_p1.h"
+#include "DetDescrCondTPCnv/DetCondCFloat_p1.h"
 
+// the latest persistent representation type of DetCondCFloat
+typedef  DetCondCFloat_p1  DetCondCFloat_PERS;
+typedef  T_AthenaPoolCustomCnv<DetCondCFloat, DetCondCFloat_PERS >   DetCondCFloatCnvBase;
 
-typedef T_AthenaPoolTPCnvCnv<DetCondCFloat,
-                             DetCondCFloatCnv_p1,
-                             T_TPCnvNull<DetCondCFloat> >
-  DetCondCFloatCnv;
+class DetCondCFloatCnv : public DetCondCFloatCnvBase {
+    friend class CnvFactory<DetCondCFloatCnv >;
 
+    virtual StatusCode initialize();
+
+protected:
+    DetCondCFloatCnv (ISvcLocator* svcloc);
+    virtual DetCondCFloat_PERS*   createPersistent (DetCondCFloat* transObj);
+    virtual DetCondCFloat*        createTransient ();
+};
 
 #endif
 

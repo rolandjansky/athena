@@ -21,10 +21,9 @@ if [ $1 == "--skip-setup" ]; then
 fi
 TYPE_OPTION="batch %RNDM:0"
 PATHENA_OPTIONS="--destSE=CERN-PROD_SCRATCHDISK"
-PATHENA_TYPE_OPTIONS=""
 if [ $1 == "--test-name" ]; then
   TYPE_OPTION="single $2"
-  PATHENA_TYPE_OPTIONS="--forceStaged"
+  PATHENA_OPTIONS="--destSE=CERN-PROD_SCRATCHDISK --forceStaged"
   shift
   shift
 fi
@@ -37,6 +36,18 @@ fi
 NFILES=""
 if [ $1 == "--nFiles" ]; then
   NFILES="--nFiles $2"
+  shift
+  shift
+fi
+NEVENTS=""
+if [ $1 == "--nEvents" ]; then
+  NEVENTS="--nEventsPerFile $2"
+  shift
+  shift
+fi
+FILELIST=""
+if [ $1 == "--fileList" ]; then
+  FILELIST="--fileList $2"
   shift
   shift
 fi
@@ -90,7 +101,7 @@ fi
 # NOTE: for art-internal.py the current dir can be used as it is copied there
 cd ${SUBMIT_DIRECTORY}/${PACKAGE}/run
 SUBCOMMAND="./art-internal.py job grid ${SCRIPT_DIRECTORY} ${PACKAGE} ${TYPE} ${SEQUENCE_TAG} ${TYPE_OPTION} %OUT.tar ${NIGHTLY_RELEASE_SHORT} ${PROJECT} ${PLATFORM} ${NIGHTLY_TAG}"
-CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --noBuild --expertOnly_skipScout --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json ${INDS} ${NFILES}"
+CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} --noBuild --expertOnly_skipScout --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json ${INDS} ${NFILES} ${NEVENTS} ${FILELIST}"
 
 #--disableAutoRetry
 #--excludedSite=ANALY_TECHNION-HEP-CREAM

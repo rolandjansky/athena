@@ -111,7 +111,7 @@ def updateTCTCastor(runnumber,trigStream,castordir,nfiles,listlb):
             elif 'castor' in castordir:
                 os.system('time xrdcp root://castoratlas/%s/%s .' % (castordir,filename))
             elif 'eos' in castordir:
-                os.system('time xrdcp root://eosatlas.cern.ch/%s/%s .' % (castordir,filename))
+                os.system('time xrdcp root://eosatlas/%s/%s .' % (castordir,filename))
         os.environ['STAGE_HOST']     = tct_stage_host
         os.environ['STAGE_SVCCLASS'] = tct_stage_svcclass
         os.system('echo STAGE_HOST=$STAGE_HOST STAGE_SVCCLASS=$STAGE_SVCCLASS')
@@ -122,7 +122,7 @@ def updateTCTCastor(runnumber,trigStream,castordir,nfiles,listlb):
             elif 'castor' in castortct:
                 os.system('time xrdcp %s root://castoratlas/%s/%s/physics_%s/' % (filename,castortct,runnumber,trigStream))
             elif 'eos' in castortct:
-                os.system('time xrdcp %s root://eosatlas.cern.ch/%s/%s/physics_%s/' % (filename,castortct,runnumber,trigStream))
+                os.system('time xrdcp %s root://eosatlas/%s/%s/physics_%s/' % (filename,castortct,runnumber,trigStream))
         if not config.dryrun_: os.system('rm -f %s' % (filename))
         nGoodFiles += 1
         if nGoodFiles == nfiles: break # take only the first 10 files
@@ -203,7 +203,7 @@ def copyTCTCastor(jobnum,runnumber,trigStream,nfiles,lb,castordir,usecastortct,r
             elif 'castor' in mycastordir:
                 os.system('time xrdcp root://castoratlas/%s .' % (fullfilename))
             elif 'eos' in mycastordir:
-                os.system('time xrdcp root://eosatlas.cern.ch/%s .' % (fullfilename))
+                os.system('time xrdcp root://eosatlas/%s .' % (fullfilename))
         if not config.dryrun_: 
             if readRDO:
                 os.system('ln -s %s RDO_%d.pool.root' % (filename,idat))

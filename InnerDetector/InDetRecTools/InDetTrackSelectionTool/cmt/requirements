@@ -1,0 +1,34 @@
+package InDetTrackSelectionTool
+## author Michael Clark <michael.ryan.clark@cern.ch>
+
+private
+
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use AtlasROOT              AtlasROOT-*              External
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkTrack"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/VxVertex"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkEventPrimitives"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkRIO_OnTrack"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="InnerDetector/InDetRecEvent/InDetRIO_OnTrack"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkTrackSummary"
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+use GaudiInterface         GaudiInterface-*         External
+use AsgTools        	   AsgTools-*   	     Control/AthToolSupport
+use PATCore         	   PATCore-*         	     PhysicsAnalysis/AnalysisCommon
+use xAODTracking           xAODTracking-*           Event/xAOD
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkExtrapolation/TrkExInterfaces"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkTools/TrkToolInterfaces"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkParameters"
+#use_ifndef pplist="XAOD_ANALYSIS" pkg="MagneticField/MagFieldInterfaces"
+
+
+# Declare the library:
+library InDetTrackSelectionTool *.cxx ../Root/*.cxx components/*.cxx
+apply_pattern component_library
+
+# Install the jobOptions:
+apply_pattern declare_joboptions files=*.py
+

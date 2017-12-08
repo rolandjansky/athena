@@ -18,7 +18,6 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODEgamma
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
    PRIVATE
    Tools/PathResolver
    ${extra_dep} )
@@ -32,7 +31,7 @@ atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib
    ElectronPhotonShowerShapeFudgeTool/*.icc Root/*.cxx
    PUBLIC_HEADERS ElectronPhotonShowerShapeFudgeTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces EgammaAnalysisInterfacesLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -45,6 +44,14 @@ atlas_add_dictionary( ElectronPhotonShowerShapeFudgeToolDict
    ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeToolDict.h
    ElectronPhotonShowerShapeFudgeTool/selection.xml
    LINK_LIBRARIES ElectronPhotonShowerShapeFudgeToolLib )
+
+atlas_add_executable( EPSSFT_convertFF util/convertFF.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
+
+atlas_add_executable( EPSSFT_drawFFs util/drawFFs.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
 
 # Install files from the package:
 atlas_install_data( data/*.conf data/*.root )

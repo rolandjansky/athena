@@ -15,6 +15,8 @@
 #include <vector>
 
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 // the tool to decode a ROB frament
 
 class ITRT_RodDecoder : virtual public IAlgTool
@@ -26,7 +28,7 @@ public:
   static const InterfaceID& interfaceID( ) ;
 
   //! the method to fill the IDC
-  virtual StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
+  virtual StatusCode fillCollection ( const ROBFragment* robFrag,
 				      TRT_RDO_Container* rdoIdc,
 				      std::vector<IdentifierHash>* vecHash = 0 ) = 0;
 

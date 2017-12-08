@@ -11,7 +11,7 @@ MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& 
   AthAlgorithm(name,pSvcLocator)
 {  
   declareProperty("MuonCombinedInDetExtensionTools",m_muonCombinedInDetExtensionTools);
-  declareProperty("usePRDs",m_usePRDs=false);
+  declareProperty("InDetCandidateLocation",m_indetCandidateCollectionName = "InDetCandidates" );
 }
 
 MuonCombinedInDetExtensionAlg::~MuonCombinedInDetExtensionAlg(){}
@@ -21,12 +21,6 @@ StatusCode MuonCombinedInDetExtensionAlg::initialize()
 
   ATH_CHECK(m_muonCombinedInDetExtensionTools.retrieve());
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
-  ATH_CHECK(m_MDT_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_RPC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_TGC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs));
 
   return StatusCode::SUCCESS; 
 }
@@ -40,22 +34,8 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  if(m_usePRDs){
-    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPRDContainer(m_MDT_ContainerName);
-    SG::ReadHandle<Muon::CscPrepDataContainer> cscPRDContainer(m_CSC_ContainerName);
-    SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPRDContainer(m_RPC_ContainerName);
-    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPRDContainer(m_TGC_ContainerName);
-    SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcPRDContainer(m_sTGC_ContainerName);
-    SG::ReadHandle<Muon::MMPrepDataContainer> mmPRDContainer(m_MM_ContainerName);
-
-    for(auto& tool : m_muonCombinedInDetExtensionTools)
-      tool->extendWithPRDs(*indetCandidateCollection,mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),stgcPRDContainer.cptr(),mmPRDContainer.cptr());
-  }
-  else{
-
-    for(auto& tool : m_muonCombinedInDetExtensionTools)
-      tool->extend(*indetCandidateCollection);
-  }
+  for(auto& tool : m_muonCombinedInDetExtensionTools)
+    tool->extend(*indetCandidateCollection);
   
   return StatusCode::SUCCESS;
 }

@@ -263,7 +263,7 @@ double EtaJESCorrection::getEtaCorr(double E_corr, double eta_det) const {
 
 double EtaJESCorrection::getMassCorr(double E_corr, double eta_det) const {
 
-  if (!m_applyMassCorrection) { ATH_MSG_FATAL( "You can't apply the mass correction unless you specify ApplyMassCorrection: true in the configuration file!" ); return 0; }
+  if (!m_applyMassCorrection) { ATH_MSG_FATAL( "You can't apply the mass correction unless you specify ApplyMassCorrection: true in the configuration file!" ); return StatusCode::FAILURE; }
 
   int ieta = getEtaBin(eta_det);
   const double *factors = m_JMSFactors[ieta];

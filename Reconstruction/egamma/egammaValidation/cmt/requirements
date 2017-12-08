@@ -1,0 +1,47 @@
+package egammaValidation
+
+author Marthe Teinturier <Marthe.Teinturier@cern.ch>
+author Frederic Derue <derue@lpnhe.in2p3.fr>
+
+use AtlasPolicy AtlasPolicy-*
+#use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
+
+#private
+#apply_tag ROOTMathLibs
+#apply_tag ROOTGraphicsLibs
+#end_private
+
+#use AthenaMonitoring           AthenaMonitoring-*      Control
+#use CaloEvent                  CaloEvent-*             Calorimeter
+#use GaudiInterface             GaudiInterface-*        External
+#use StoreGate                  StoreGate-*             Control
+#use AtlasROOT                  AtlasROOT-*             External
+#use EventInfo                  EventInfo-*             Event
+
+#use Particle                   Particle-*              Reconstruction
+#use CaloDetDescr               CaloDetDescr-*          Calorimeter
+
+#use egammaEvent                egammaEvent-*           Reconstruction/egamma
+#use egammaInterfaces           egammaInterfaces-*      Reconstruction/egamma
+
+##apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_python_modules files="*.py"
+
+apply_pattern declare_joboptions files="*.py"
+
+apply_pattern declare_scripts files="egammaRTTInit.py"
+
+
+# apply_pattern declare_runtime files="-s=../share *.root *.dat" extras="../test/egammaValidation_TestConfiguration.xml ../share/egammaValidation_hist.C ../share/egammaValidation_ID_hist.C ../share/egammaValidationHistsToPostScript.C ../share/egammaValidationRunMacros.C"
+
+#macro egammaValidation_TestConfiguration "../test/egammaValidation_TestConfiguration.xml"
+#apply_pattern declare_runtime extras="../test/egammaValidation_TestConfiguration.xml"
+
+private
+
+#add validation of RTT xml file
+use TestPolicy TestPolicy-*
+apply_pattern validate_xml
+
+end_private

@@ -1,0 +1,27 @@
+package ExoticsD3PDMaker
+
+use AtlasPolicy                AtlasPolicy-*     
+
+private
+
+use AnalysisTools               AnalysisTools-*         PhysicsAnalysis/AnalysisCommon
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use AthenaKernel                AthenaKernel-*          Control
+use CaloEvent                   CaloEvent-*             Calorimeter
+use GaudiInterface              GaudiInterface-*        External
+use Particle                    Particle-*              Reconstruction
+use egammaEvent                 egammaEvent-*           Reconstruction/egamma
+use TrkTrackSummary             TrkTrackSummary-*       Tracking/TrkEvent
+use muonEvent                   muonEvent-*             Reconstruction/MuonIdentification
+
+end_private
+
+## declare the directories CMT should know about
+branches python share doc src
+
+library ExoticsD3PDMaker *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
+

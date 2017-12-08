@@ -1,0 +1,76 @@
+package RecAthenaPool
+
+author David Rousseau  <rousseau@lal.in2p3.fr>
+author Sebastien Binet <binet@cern.ch>
+
+private
+
+use CLIDSvc		CLIDSvc-*	Control
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use GaudiInterface       GaudiInterface-*           External
+use MissingETEvent       MissingETEvent-*           Reconstruction
+use RecTPCnv		 	 RecTPCnv-*		    		Reconstruction
+use StoreGate            StoreGate-*                Control
+use muonEvent            muonEvent-*                Reconstruction/MuonIdentification
+
+public
+
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasSealCLHEP       AtlasSealCLHEP-*           Database -no_auto_imports
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+
+branches RecAthenaPool src
+
+macro        recAthenaPool_poolCnvTypes ""
+macro_append recAthenaPool_poolCnvTypes "MuonCaloEnergyContainer "
+macro_append recAthenaPool_poolCnvTypes "Rec::MuonSpShowerContainer "
+macro_append recAthenaPool_poolCnvTypes "Analysis::MuonContainer "
+macro_append recAthenaPool_poolCnvTypes "TPCnv::MuonCaloEnergies "
+
+apply_pattern poolcnv typesWithNamespace=$(recAthenaPool_poolCnvTypes) \
+   files="-s=${MissingETEvent_root}/MissingETEvent MissingEtCalo.h MissingEtTruth.h MissingET.h MissingETComposition.h \
+          -s=${muonEvent_root}/muonEvent MuonSpShowerContainer.h MuonCaloEnergyContainer.h MuonContainer.h \
+          -s=${RecAthenaPool_root}/src MuonCaloEnergies.h "
+
+macro_append RecAthenaPoolPoolCnv_shlibflags " $(RecAthenaPool_dict_linkopts)"
+
+#macro        recAthenaPool_poolIoHdlrTypes ""
+## no ElementLink to Rec::MuonSpShowerContainer (yet?)
+##macro_append recAthenaPool_poolIoHdlrTypes "Rec::MuonSpShowerContainer "
+#macro_append recAthenaPool_poolIoHdlrTypes "Analysis::MuonContainer "
+
+#apply_pattern pooliohandler \
+#   typesWithNamespace=$(recAthenaPool_poolIoHdlrTypes) \
+#   handlerFiles="-s=${muonEvent_root}/muonEvent MuonCaloEnergyContainer.h MuonContainer.h"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_15.0.0" \
+   options="RecAthenaPool/RecTPCnv_15.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_15.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_15.0.0"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_15.6.1" \
+   options="RecAthenaPool/RecTPCnv_15.6.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_15.6.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_15.6.1"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_17.0.6" \
+   options="RecAthenaPool/RecTPCnv_17.0.6_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_17.0.6" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_17.0.6"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_18.0.0" \
+   options="RecAthenaPool/RecTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_18.0.0"
+

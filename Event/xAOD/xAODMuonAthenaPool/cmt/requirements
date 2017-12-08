@@ -1,0 +1,34 @@
+package xAODMuonAthenaPool
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Edward Moyse <Edward.Moyse@cern.ch>
+
+
+public
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+private
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+use  AtlasROOT                  AtlasROOT-*                     External
+#use  GaudiInterface             GaudiInterface-*                External
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::MuonContainer \
+                                          xAOD::MuonAuxContainer \
+					  xAOD::SlowMuonContainer \			  
+                                          xAOD::SlowMuonAuxContainer \
+                                          xAOD::MuonSegmentContainer \
+                                          xAOD::MuonSegmentAuxContainer " \
+                      files="-s=${xAODMuon_root}/xAODMuon \
+                             MuonContainer.h \
+                             MuonAuxContainer.h \
+                             SlowMuonContainer.h \
+                             SlowMuonAuxContainer.h \
+                             MuonSegmentContainer.h \
+                             MuonSegmentAuxContainer.h" \
+                      cnv_pfx="xAOD"

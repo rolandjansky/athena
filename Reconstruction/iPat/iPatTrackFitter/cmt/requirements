@@ -1,0 +1,37 @@
+package iPatTrackFitter
+
+########################################################### 
+## track fitting in InnerDetector and/or MuonSpectrometer
+########################################################### 
+
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+
+private
+use EventPrimitives	       EventPrimitives-*	     Event
+use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
+use EventPrimitives	       EventPrimitives-*	     Event
+use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
+use TrkEventPrimitives	       TrkEventPrimitives-*	     Tracking/TrkEvent
+use TrkDetDescrInterfaces      TrkDetDescrInterfaces-*       Tracking/TrkDetDescr
+use TrkExInterfaces	       TrkExInterfaces-*	     Tracking/TrkExtrapolation
+use TrkExUtils		       TrkExUtils-*		     Tracking/TrkExtrapolation
+use TrkMeasurementBase	       TrkMeasurementBase-*	     Tracking/TrkEvent
+use TrkVolumes                 TrkVolumes-*                  Tracking/TrkDetDescr
+use TrkSurfaces		       TrkSurfaces-*		     Tracking/TrkDetDescr
+use TrkiPatFitterUtils	       TrkiPatFitterUtils-*	     Tracking/TrkFitter
+use VxVertex		       VxVertex-*		     Tracking/TrkEvent
+
+public 
+use AtlasPolicy		       AtlasPolicy-*
+use AthenaBaseComps	       AthenaBaseComps-*	     Control
+use GaudiInterface	       GaudiInterface-*		     External
+use iPatInterfaces	       iPatInterfaces-*		     Reconstruction/iPat
+
+library iPatTrackFitter	       TrackFitter.cxx		     \
+			       components/*.cxx
+
+apply_pattern component_library								
+			       
+private
+
+

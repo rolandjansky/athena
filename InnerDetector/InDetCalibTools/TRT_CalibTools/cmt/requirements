@@ -1,0 +1,67 @@
+package TRT_CalibTools
+
+author Jorgen Beck Hansen <Jorgen.Beck.Hansen@cern.ch>
+author Peter Hansen <Peter.Hansen@cern.ch>
+author Chafik Driouichi <Chafik.Driouichi@cern.ch>
+
+
+
+#++#checkreq has inserted the following use statements:
+private
+use  AthenaBaseComps         AthenaBaseComps-*               Control
+use  AtlasROOT               AtlasROOT-*                     External
+use  TRT_ConditionsServices  TRT_ConditionsServices-*        InnerDetector/InDetConditions
+use  TrkToolInterfaces       TrkToolInterfaces-*             Tracking/TrkTools
+use  TrkTrack                TrkTrack-*                      Tracking/TrkEvent
+use  TRT_DriftFunctionTool   TRT_DriftFunctionTool-*         InnerDetector/InDetRecTools
+use  EventPrimitives         EventPrimitives-*               Event
+use xAODTracking                xAODTracking-*          Event/xAOD
+
+end_private
+
+use Identifier               Identifier-*              DetectorDescription
+use TRT_CalibData            TRT_CalibData-*           InnerDetector/InDetCalibEvent
+
+use AtlasPolicy              AtlasPolicy-*   
+use GaudiInterface           GaudiInterface-*          External
+
+
+private
+use EventInfo                EventInfo-*               Event
+use TrkEventPrimitives       TrkEventPrimitives-*      Tracking/TrkEvent
+use TrkParameters            TrkParameters-*           Tracking/TrkEvent
+use TrkPrepRawData           TrkPrepRawData-*          Tracking/TrkEvent
+use TrkRIO_OnTrack           TrkRIO_OnTrack-*          Tracking/TrkEvent
+use InDetRIO_OnTrack         InDetRIO_OnTrack-*        InnerDetector/InDetRecEvent
+use InDetPrepRawData         InDetPrepRawData-*        InnerDetector/InDetRecEvent
+use TrkTrackSummary          TrkTrackSummary-*         Tracking/TrkEvent
+use TrkTrackSummaryTool      TrkTrackSummaryTool-*     Tracking/TrkTools
+use InDetReadoutGeometry     InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use CommissionEvent          CommissionEvent-*         Commission
+use TRT_ConditionsData       TRT_ConditionsData-*      InnerDetector/InDetConditions
+use InDetIdentifier          InDetIdentifier-*         InnerDetector/InDetDetDescr
+use AtlasDetDescr            AtlasDetDescr-*           DetectorDescription
+use AtlasCLHEP               AtlasCLHEP-*              External
+use TRT_DriftFunctionTool    TRT_DriftFunctionTool-*   InnerDetector/InDetRecTools
+use TRT_DriftCircleTool      TRT_DriftCircleTool-*     InnerDetector/InDetRecTools
+
+# Add explicit dependency against InDetRawData to avoid indirect dependency from TRT_DriftCircleTool
+# which creates a component library and cmake (correctly) does not propagate such dependencies. This  
+# is transparent to CMT and checkreq.
+apply_pattern cmake_add_dependency package=InnerDetector/InDetRawEvent/InDetRawData
+
+apply_tag ROOTGraphicsLibs
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
+
+apply_pattern component_library
+library TRT_CalibTools *.cxx components/*.cxx
+
+#### There aren't any job options files
+####apply_pattern declare_joboptions files="*.py"
+
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"

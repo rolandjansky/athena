@@ -19,10 +19,12 @@
 
 // constructor
 iFatras::LayerMaterialProvider::LayerMaterialProvider(const std::string& t, const std::string& n, const IInterface* p)
-: base_class(t,n,p),
+: AthAlgTool(t,n,p),
   m_layerMaterialMap(0), 
   m_layerMaterialMapName("/GLOBAL/TrackingGeo/LayerMaterialV2")
 {
+    declareInterface<Trk::IGeometryProcessor>(this);
+    
     // Name specification from outside
     declareProperty("LayerMaterialMapName", m_layerMaterialMapName);
     

@@ -44,37 +44,37 @@ def setup_batchscript_parallel(config,inputfiles,calibconstants,outputfile,iscal
             maxt0=float(config["DoShift"])
             stept0=(maxt0-mint0)/int(config["MaxParallel"])
             t0shift=mint0+ijob*stept0
-            ostring+=cpcmd + " root://eosatlas.cern.ch/"+outputfile+"_basic_shifted_%.1f.root.bz2 basic.root\n"%t0shift
+            ostring+=cpcmd + " root://eosatlas/"+outputfile+"_basic_shifted_%.1f.root.bz2 basic.root\n"%t0shift
             ostring+="root -b -q  basic.root '%s/graph_points.C(%f,%d)'\n"%(config["Calibdir"],t0shift,oiter+1)
             ostring+="cp -fv gp_* " + config["Batchdir"] + "/temp/.\n"
             if t0shift==0:
                 ostring+="cp -fv shiftres_* " + config["Batchdir"] + "/temp/.\n"
         else:
-            ostring+=cpcmd + "root://eosatlas.cern.ch/" + outputfile+"_basic.root.bz2 basic.root.bz2\n"
+            ostring+=cpcmd + "root://eosatlas/" + outputfile+"_basic.root.bz2 basic.root.bz2\n"
             ostring+="bunzip2 -v basic.root.bz2\n"
             ostring+="ln -sf " + config["Calibdir"] + "/bhadd.cpp\n"
             ostring+="ln -sf " + config["Calibdir"] + "/Makefile\n"
             ostring+="make bhadd\n"
             ostring+="./bhadd dumfile basic.root\n"
-            ostring+=cpcmd + "tracktuple.root root://eosatlas.cern.ch/" + outputfile + "_tracktuple.root\n"
+            ostring+=cpcmd + "tracktuple.root root://eosatlas/" + outputfile + "_tracktuple.root\n"
         return ostring
 
     if iscalib:
         prevcalfile=calfile.strip("%02i"%(oiter+1)) + "%02i"%oiter 
         if caltag == "error_Barrel":
-                ostring         +=      cpcmd + "root://eosatlas.cern.ch/" + calfile + "_tracktuple.root tracktuple.root\n"
+                ostring         +=      cpcmd + "root://eosatlas/" + calfile + "_tracktuple.root tracktuple.root\n"
                 ostring         +=      "ln -sf " + config["Calibdir"] + "/ErrorsOptimization.cpp\n"
                 ostring         +=      "ln -sf " + config["Calibdir"] + "/Makefile\n"
                 ostring         +=      "make ErrorsOptimization\n"
 
         elif caltag == "error_Endcap":
-                ostring         +=      cpcmd + "root://eosatlas.cern.ch/" + calfile + "_tracktuple.root tracktuple.root\n"
+                ostring         +=      cpcmd + "root://eosatlas/" + calfile + "_tracktuple.root tracktuple.root\n"
                 ostring         +=      "ln -sf " + config["Calibdir"] + "/ErrorsOptimization.cpp\n\n"
                 ostring         +=      "ln -sf " + config["Calibdir"] + "/Makefile\n"
                 ostring         +=      "make ErrorsOptimization\n"
         else:
-                ostring         +=      cpcmd + "root://eosatlas.cern.ch/" + calfile + "_basic.root.bz2 merged.root.bz2\n"
-                ostring         +=      cpcmd + "root://eosatlas.cern.ch/" + prevcalfile + "_oldt0s.txt calib_constants_in.txt\n"
+                ostring         +=      cpcmd + "root://eosatlas/" + calfile + "_basic.root.bz2 merged.root.bz2\n"
+                ostring         +=      cpcmd + "root://eosatlas/" + prevcalfile + "_oldt0s.txt calib_constants_in.txt\n"
                 ostring         +=      "bunzip2 -v *.bz2\n"
 
     ifiles=[]
@@ -236,22 +236,22 @@ def setup_batchscript_parallel(config,inputfiles,calibconstants,outputfile,iscal
     else:
         if iscalib:
 	        if not ( (caltag == "error_Barrel")  | (caltag == "error_Endcap")):
-	            ostring+=cpcmd + " calibout.root root://eosatlas.cern.ch/"+outputfile+".root\n"
-	            ostring+=cpcmd + " calibout_rt.txt root://eosatlas.cern.ch/"+outputfile+"_rt.txt\n"
-	            ostring+=cpcmd + " calibout_binrt.txt root://eosatlas.cern.ch/"+outputfile+"_binrt.txt\n"
-	            ostring+=cpcmd + " calibout_t0.txt root://eosatlas.cern.ch/"+outputfile+"_t0.txt\n"
-	            ostring+=cpcmd + " calibout_dict.txt root://eosatlas.cern.ch/"+outputfile+"_dict.txt\n"
-	            ostring+=cpcmd + " calib_constants_out.txt root://eosatlas.cern.ch/"+outputfile+"_const.txt\n"
-	            #ostring+=cpcmd + " log root://eosatlas.cern.ch/"+outputfile+"_log.txt\n"
+	            ostring+=cpcmd + " calibout.root root://eosatlas/"+outputfile+".root\n"
+	            ostring+=cpcmd + " calibout_rt.txt root://eosatlas/"+outputfile+"_rt.txt\n"
+	            ostring+=cpcmd + " calibout_binrt.txt root://eosatlas/"+outputfile+"_binrt.txt\n"
+	            ostring+=cpcmd + " calibout_t0.txt root://eosatlas/"+outputfile+"_t0.txt\n"
+	            ostring+=cpcmd + " calibout_dict.txt root://eosatlas/"+outputfile+"_dict.txt\n"
+	            ostring+=cpcmd + " calib_constants_out.txt root://eosatlas/"+outputfile+"_const.txt\n"
+	            #ostring+=cpcmd + " log root://eosatlas/"+outputfile+"_log.txt\n"
 	            if oiter==-1: ostring+= "cp caliboutput.txt "+config["Batchdir"]+"/input/calibout_start.txt\n"
 	            #ostring+="cp ntuple.pmon.gz "+outputfile+"_pmon.gz\n"
 	        else:
-	                ostring+=cpcmd + " errorsout.root       root://eosatlas.cern.ch/"+outputfile+".root\n"
-	                ostring+=cpcmd + " errors_rt.txt        root://eosatlas.cern.ch/"+outputfile+"_rt.txt\n"
-	                ostring+=cpcmd + " errors_rt.ps         root://eosatlas.cern.ch/"+outputfile+".ps\n"
+	                ostring+=cpcmd + " errorsout.root       root://eosatlas/"+outputfile+".root\n"
+	                ostring+=cpcmd + " errors_rt.txt        root://eosatlas/"+outputfile+"_rt.txt\n"
+	                ostring+=cpcmd + " errors_rt.ps         root://eosatlas/"+outputfile+".ps\n"
         else:
             if float(config["DoShift"])>0:
-                ostring+=cpcmd + " basic.root root://eosatlas.cern.ch/"+outputfile+"_basic_shifted_%.1f.root.bz2\n"%t0shift
+                ostring+=cpcmd + " basic.root root://eosatlas/"+outputfile+"_basic_shifted_%.1f.root.bz2\n"%t0shift
                 ostring+="root -b -q  basic.root '%s/graph_points.C(%f,%d)'\n"%(config["Calibdir"],t0shift,oiter+1)
                 ostring+="cp -fv gp_* " + config["Batchdir"] + "/temp/.\n"
                 if t0shift==0:
@@ -260,14 +260,14 @@ def setup_batchscript_parallel(config,inputfiles,calibconstants,outputfile,iscal
             else:
                 ostring+="./bhadd dumfile basic.root\n"
                 ostring+="bzip2 -v basic.root\n"
-                ostring+=cpcmd + " basic.root.bz2 root://eosatlas.cern.ch/"+outputfile+"_basic.root.bz2\n"
-                ostring+=cpcmd + " dumfile.stat root://eosatlas.cern.ch/"+outputfile+"_basic.stat\n"
+                ostring+=cpcmd + " basic.root.bz2 root://eosatlas/"+outputfile+"_basic.root.bz2\n"
+                ostring+=cpcmd + " dumfile.stat root://eosatlas/"+outputfile+"_basic.stat\n"
                 ostring+="cat TRT_StrawStatusOutput*ewFormat.txt  >> TRT_StrawStatusOutput.txt\n"
                 ostring+="cat TRT_StrawStatusOutput*Voltage_trips.txt  >> TRT_StrawLVStatusOutput.txt\n"
-                ostring+=cpcmd + " TRT_StrawStatusOutput.txt root://eosatlas.cern.ch/"+outputfile+"_TRT_StrawStatusOutput.txt\n"
-                ostring+=cpcmd + " TRT_StrawLVStatusOutput.txt root://eosatlas.cern.ch/"+outputfile+"_TRT_StrawLVStatusOutput.txt\n"
-                ostring+=cpcmd + " tracktuple.root root://eosatlas.cern.ch/"+outputfile+"_tracktuple.root\n"
-                #ostring+=cpcmd + " log root://eosatlas.cern.ch/"+outputfile+"_atlog.txt\n"
+                ostring+=cpcmd + " TRT_StrawStatusOutput.txt root://eosatlas/"+outputfile+"_TRT_StrawStatusOutput.txt\n"
+                ostring+=cpcmd + " TRT_StrawLVStatusOutput.txt root://eosatlas/"+outputfile+"_TRT_StrawLVStatusOutput.txt\n"
+                ostring+=cpcmd + " tracktuple.root root://eosatlas/"+outputfile+"_tracktuple.root\n"
+                #ostring+=cpcmd + " log root://eosatlas/"+outputfile+"_atlog.txt\n"
 
 
         #ostring+="cp monitoring.root "+outputfile+"_monitoring.root\n"
@@ -296,9 +296,9 @@ def setup_batchscript_merge(config,inputfiles,outputfile,mergecmd,oiter):
             ostring+="mv -v "+i.split('.root')[0]+"_tracktuple.root .\n"
             if (oiter==0): ostring+="mv -v "+i.split('.root')[0]+"_TRT_StrawStatusOutput.txt .\n"
         else:
-            ostring+=cpcmd + " root://eosatlas.cern.ch/"+i.split('.root')[0]+"_basic.root.bz2 .\n"
-            ostring+=cpcmd + " root://eosatlas.cern.ch/"+i.split('.root')[0]+"_tracktuple.root .\n"
-            if (oiter==0): ostring+=cpcmd +" root://eosatlas.cern.ch/"+i.split('.root')[0]+"_TRT_StrawStatusOutput.txt .\n"
+            ostring+=cpcmd + " root://eosatlas/"+i.split('.root')[0]+"_basic.root.bz2 .\n"
+            ostring+=cpcmd + " root://eosatlas/"+i.split('.root')[0]+"_tracktuple.root .\n"
+            if (oiter==0): ostring+=cpcmd +" root://eosatlas/"+i.split('.root')[0]+"_TRT_StrawStatusOutput.txt .\n"
 
     if config["UseHist"]:
         #if (oiter>0): ostring+="ln -sf " + config["Batchdir"] + "/input/calibout_%02d.txt precision_constants.txt\n"%(oiter-1)
@@ -329,20 +329,20 @@ def setup_batchscript_merge(config,inputfiles,outputfile,mergecmd,oiter):
 
     if outputfile.find("output")>=0:
         for calarg in ["_all"]:
-            ostring+=cpcmd + " merged_basic.root.part0.bz2 root://eosatlas.cern.ch/" +outputfile+"_basic" + calarg + ".root.bz2\n"
-            ostring+=cpcmd + " merged_basic.root.stat root://eosatlas.cern.ch/" +outputfile+"_basic" + calarg + ".stat\n"
-            ostring+=cpcmd + " merged_tracktuple.root root://eosatlas.cern.ch/" +outputfile+ "_tracktuple.root\n"
-            if (oiter==0): ostring+=cpcmd + " merged_strawstatus root://eosatlas.cern.ch/" +outputfile+ "_TRT_StrawStatusOutput.txt\n"
+            ostring+=cpcmd + " merged_basic.root.part0.bz2 root://eosatlas/" +outputfile+"_basic" + calarg + ".root.bz2\n"
+            ostring+=cpcmd + " merged_basic.root.stat root://eosatlas/" +outputfile+"_basic" + calarg + ".stat\n"
+            ostring+=cpcmd + " merged_tracktuple.root root://eosatlas/" +outputfile+ "_tracktuple.root\n"
+            if (oiter==0): ostring+=cpcmd + " merged_strawstatus root://eosatlas/" +outputfile+ "_TRT_StrawStatusOutput.txt\n"
     else:
-        ostring+=cpcmd + " merged_basic.root.part0.bz2 root://eosatlas.cern.ch/" +outputfile+ "_basic.root.bz2\n"
-        ostring+=cpcmd + " merged_basic.root.stat root://eosatlas.cern.ch/" +outputfile+ "_basic.stat\n"
-        ostring+=cpcmd + " merged_tracktuple.root root://eosatlas.cern.ch/" +outputfile+ "_tracktuple.root\n"
-        if (oiter==0): ostring+=cpcmd + " merged_strawstatus root://eosatlas.cern.ch/" +outputfile+ "_TRT_StrawStatusOutput.txt\n"
-        ostring+=cpcmd + " stat.stat root://eosatlas.cern.ch/" +outputfile+ "_basic.stat\n"
+        ostring+=cpcmd + " merged_basic.root.part0.bz2 root://eosatlas/" +outputfile+ "_basic.root.bz2\n"
+        ostring+=cpcmd + " merged_basic.root.stat root://eosatlas/" +outputfile+ "_basic.stat\n"
+        ostring+=cpcmd + " merged_tracktuple.root root://eosatlas/" +outputfile+ "_tracktuple.root\n"
+        if (oiter==0): ostring+=cpcmd + " merged_strawstatus root://eosatlas/" +outputfile+ "_TRT_StrawStatusOutput.txt\n"
+        ostring+=cpcmd + " stat.stat root://eosatlas/" +outputfile+ "_basic.stat\n"
         
     #copy back outputfile
     if outputfile.find("castor:")>=0:
-        ostring+="xrdcp -f trtcalib.root root://eosatlas.cern.ch/"+outputfile.split(":")[1]+"\n"
+        ostring+="xrdcp -f trtcalib.root root://eosatlas/"+outputfile.split(":")[1]+"\n"
 
     ostring+="ls -al\n"
 
@@ -392,7 +392,7 @@ def setup_batchscript_txt2db(config,calibconstants,pooloutput,dboutput,caltags,c
 
     cpcmd="cp -fv"
     if config["TempOnCastor"]:
-        cpcmd="xrdcp -f root://eosatlas.cern.ch/"
+        cpcmd="xrdcp -f root://eosatlas/"
 
 
     if config["MakePlots"]:
@@ -547,15 +547,15 @@ def setup_batchscript_mkcalin(config,calibconstants,pooloutput,dboutput,caltags,
     
     #copy straw status files for first iteration
     if oiter+1==0:
-        ostring += cpcmd + " root://eosatlas.cern.ch/" + config["TempDir"] + "/trtcalib_%02d_TRT_StrawStatusOutput.txt" % (oiter+1) + " %s/output/TRT_StrawStatusOutput.txt\n"%config["Batchdir"]
+        ostring += cpcmd + " root://eosatlas/" + config["TempDir"] + "/trtcalib_%02d_TRT_StrawStatusOutput.txt" % (oiter+1) + " %s/output/TRT_StrawStatusOutput.txt\n"%config["Batchdir"]
 
     for caltag in couttags:
         if not ( (caltag == "error_Barrel")  | (caltag == "error_Endcap")):
-	        ostring += cpcmd + " root://eosatlas.cern.ch/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_rt.txt .\n" 
-	        ostring += cpcmd + " root://eosatlas.cern.ch/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_t0.txt .\n" 
-	        #ostring += cpcmd + " root://eosatlas.cern.ch/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_const.txt .\n" 
+	        ostring += cpcmd + " root://eosatlas/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_rt.txt .\n" 
+	        ostring += cpcmd + " root://eosatlas/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_t0.txt .\n" 
+	        #ostring += cpcmd + " root://eosatlas/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_const.txt .\n" 
         else:
-                ostring += cpcmd + " root://eosatlas.cern.ch/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_rt.txt .\n"
+                ostring += cpcmd + " root://eosatlas/" + config["TempDir"] + "/trtcalib_%02d_calib" % (oiter+1) + caltag + "_rt.txt .\n"
 
     #append the output files
     if config["DoErrorOptimization"]:
@@ -631,7 +631,7 @@ def setup_batchscript_mkcalin(config,calibconstants,pooloutput,dboutput,caltags,
 
     #copy back files
     ostring+="cp -fv dbconst.txt %s_%02d.txt\n" % (config["CalPrefix"],oiter+1)
-    ostring += cpcmd + "dictconst.txt root://eosatlas.cern.ch/" + config["TempDir"] + "/trtcalib_%02d_oldt0s.txt\n"%(oiter+1) 
+    ostring += cpcmd + "dictconst.txt root://eosatlas/" + config["TempDir"] + "/trtcalib_%02d_oldt0s.txt\n"%(oiter+1) 
     
     return ostring
 

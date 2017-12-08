@@ -339,9 +339,6 @@ else:
 # ----------------------------------------------------------------
 # Setup Views
 # ----------------------------------------------------------------
-viewSeq = AthSequencer("AthViewSeq", Sequential = True)
-topSequence+=viewSeq
-
 if opt.enableViews:
     log.info('Setting up Views...')
     # Make a separate alg pool for the view algs
@@ -357,7 +354,7 @@ if opt.enableViews:
                                         SCTRDOCacheKey       = "SctRDOCache",
                                         PixRDOCacheKey = "PixRDOCache",
                                         OutputLevel=DEBUG)
-    viewSeq += InDetCacheCreatorTrigViews    
+    topSequence += InDetCacheCreatorTrigViews    
     
     # Set of view algs
     allViewAlgs = AthSequencer( "allViewAlgorithms" )
@@ -383,7 +380,7 @@ else:
                                         SpacePointCachePix = "",
                                         SpacePointCacheSCT   = "",
                                         OutputLevel=INFO)
-    viewSeq += InDetCacheCreatorTrigViews    
+    topSequence += InDetCacheCreatorTrigViews    
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------

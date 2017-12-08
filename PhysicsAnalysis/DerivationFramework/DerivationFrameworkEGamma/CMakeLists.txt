@@ -11,7 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
-                          PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
                           PRIVATE
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODCaloEvent
@@ -21,8 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
-                          PhysicsAnalysis/MCTruthClassifier 
-			  Calorimeter/CaloCalibHitRec )
+                          PhysicsAnalysis/MCTruthClassifier )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
@@ -32,14 +32,13 @@ atlas_add_library( DerivationFrameworkEGammaLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkEGamma
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib 
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth )
+                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib ExpressionEvaluationLib MCTruthClassifierLib
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel )
 
 atlas_add_component( DerivationFrameworkEGamma
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools AthenaBaseComps PATCoreLib  EgammaAnalysisInterfacesLib xAODBase 
-		     xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkEGammaLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps PATCoreLib ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkEGammaLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

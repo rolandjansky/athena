@@ -1,0 +1,25 @@
+package ParticleDecayer
+
+author Shawn   McKee       <smckee@umich.edu>
+author Antonio Policicchio <Antonio.Policicchio@cern.ch>
+
+use     AtlasPolicy             AtlasPolicy-*
+use     GeneratorModules        GeneratorModules-*      Generators
+use     AtlasHepMC              AtlasHepMC-*            External
+use	AtlasCLHEP		AtlasCLHEP-*        	External
+use	HepPDT             	v*                    	LCG_Interfaces
+use     AthenaKernel            AthenaKernel-*          Control
+private
+
+use     GeneratorObjects        GeneratorObjects-*      Generators
+use     GaudiInterface          GaudiInterface-*        External
+
+apply_tag notAsNeeded
+
+end_private
+
+library ParticleDecayer *.cxx components/*.cxx
+apply_pattern declare_joboptions files="*.py"
+apply_pattern component_library
+
+

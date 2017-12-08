@@ -13,8 +13,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "ElectronPhotonSelectorTools/IAsgEGammaIsEMSelector.h"
+//#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+//#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "AsgTools/IAsgTool.h"
 #include "GaudiKernel/ToolHandle.h"

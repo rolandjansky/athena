@@ -1,0 +1,25 @@
+package GeneratorObjectsAthenaPool
+
+author  Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+author  Sebastien Binet       <binet@cern.ch>
+
+use AtlasPolicy            AtlasPolicy-*
+use AtlasSealCLHEP         AtlasSealCLHEP-*           Database -no_auto_imports
+use AthenaPoolUtilities    AthenaPoolUtilities-*      Database/AthenaPOOL
+
+private
+use GeneratorObjects       GeneratorObjects-*         Generators
+use GeneratorObjectsTPCnv  GeneratorObjectsTPCnv-*    Generators
+end_private
+
+# apply_pattern declare_runtime
+apply_pattern declare_joboptions files="*.py"
+
+#
+# Create the list of files for which we want to generate a POOL converter
+macro genObjAthenaPoolCnv ""
+macro_append genObjAthenaPoolCnv "-s=${GeneratorObjects_root}/GeneratorObjects"
+macro_append genObjAthenaPoolCnv " HijingEventParams.h"
+macro_append genObjAthenaPoolCnv " McEventCollection.h"
+
+apply_pattern poolcnv files=$(genObjAthenaPoolCnv)

@@ -28,10 +28,10 @@ athenaCommonFlags.FilesInput=[
 #"valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5729_tid01529329_00/AOD.01529329._000036.pool.root.1",
 #"valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5729_tid01529329_00/AOD.01529329._000159.pool.root.1",
 #"data15_13TeV.00270953.physics_Main.merge.AOD.f611_m1463._lb0222._0001.1"
-"root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_13TeV/87/79/AOD.06065951._000001.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_13TeV/db/08/AOD.06065951._000002.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_13TeV/7f/ec/AOD.06065951._000003.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data15_13TeV/e9/4e/AOD.06065951._000004.pool.root.1",
+"root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_13TeV/87/79/AOD.06065951._000001.pool.root.1",
+"root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_13TeV/db/08/AOD.06065951._000002.pool.root.1",
+"root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_13TeV/7f/ec/AOD.06065951._000003.pool.root.1",
+"root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_13TeV/e9/4e/AOD.06065951._000004.pool.root.1",
 ]
 
 #PdgId=15

@@ -1,0 +1,16 @@
+package InDetGeometryValidation
+
+author Chris Hays <hays@physics.ox.ac.uk>
+
+private
+
+use AtlasPolicy    AtlasPolicy-* 
+use TestPolicy                 TestPolicy-*
+
+branches run share
+apply_pattern declare_joboptions files="*.py"
+
+apply_pattern declare_runtime files="*.py"
+apply_pattern install_xmls
+
+apply_pattern athenarun_test name="InDetGeometryValidation" options="../share/*.py"

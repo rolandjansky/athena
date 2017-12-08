@@ -12,7 +12,7 @@
 #include "AthContainers/tools/threading.h"
 typedef AthContainers_detail::upgrade_mutex mutex_t;
 typedef AthContainers_detail::upgrading_lock<mutex_t> upgrading_lock_t;
-typedef std::lock_guard<mutex_t> lock_guard_t;
+typedef SG_STD_OR_BOOST::lock_guard<mutex_t> lock_guard_t;
 mutex_t shapesMutex;
 
 

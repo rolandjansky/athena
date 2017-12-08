@@ -84,7 +84,7 @@ StatusCode TrackSelectionAlg::execute()
   //if this method the decision on which trackcollection and whether to require TRT hits
   //is made from the configuration of the TrackSlectionTool (in jobOptions)
 
-  const TrackCollection* tracks = nullptr;
+  const TrackCollection* tracks;
 
   //retrieving input track collection from Storegate
   StatusCode sc = evtStore()->retrieve(tracks,m_inputTrackCol);
@@ -96,7 +96,7 @@ StatusCode TrackSelectionAlg::execute()
   }
 
   //getting primary vertex collection from Storegate
-  const VxContainer* vertices = nullptr;
+  const VxContainer* vertices;// = new VxContainer; // commented out by Priscilla bug CID30178
   StatusCode scv = evtStore()->retrieve(vertices,"VxPrimaryCandidate");
   if (scv.isFailure()) {
     msg(MSG::ERROR) << "No Collection with name " << "VxPrimaryCandidate" <<" found in StoreGate" << endmsg;

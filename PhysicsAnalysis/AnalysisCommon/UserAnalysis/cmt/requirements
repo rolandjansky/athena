@@ -1,0 +1,63 @@
+package UserAnalysis
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy			AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*              Control
+
+branches run
+
+use GaudiInterface		GaudiInterface-*		External
+use AtlasCLHEP  		AtlasCLHEP-* 		        External
+use AtlasROOT			AtlasROOT-*			External
+
+use StoreGate           	StoreGate-*                     Control
+
+use AnalysisTools		AnalysisTools-*			PhysicsAnalysis/AnalysisCommon
+use UserAnalysisUtils		UserAnalysisUtils-*		PhysicsAnalysis/AnalysisCommon
+
+
+use TrigDecisionTool		TrigDecisionTool-*		Trigger/TrigAnalysis
+use TrigCaloEvent               TrigCaloEvent-*         Trigger/TrigEvent
+use TrigInDetEvent              TrigInDetEvent-*        Trigger/TrigEvent
+use TrigParticle                TrigParticle-*          Trigger/TrigEvent
+use TrigMuonEvent               TrigMuonEvent-*         Trigger/TrigEvent
+use TrigCaloEvent               TrigCaloEvent-*         Trigger/TrigEvent
+
+
+private
+use AthenaKernel                AthenaKernel-*                  Control
+use McParticleEvent		McParticleEvent-*		PhysicsAnalysis/TruthParticleID
+use egammaEvent			egammaEvent-*			Reconstruction/egamma
+use muonEvent			muonEvent-*			Reconstruction/MuonIdentification
+use tauEvent			tauEvent-*			Reconstruction
+use Particle			Particle-*			Reconstruction
+use VxVertex             	VxVertex-*                  	Tracking/TrkEvent
+use MissingETEvent		MissingETEvent-*		Reconstruction
+use CaloEvent			CaloEvent-*			Calorimeter
+use JetEvent			JetEvent-*			Reconstruction/Jet
+
+#use JetTagEvent			JetTagEvent-*	        	PhysicsAnalysis/JetTagging
+use JetTagInfo 			JetTagInfo-*	        	PhysicsAnalysis/JetTagging
+use NavFourMom			NavFourMom-*			Event
+
+use AnalysisTriggerEvent        AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
+use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
+
+use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
+
+end_private
+
+use AtlasAnalysisRunTime 	AtlasAnalysisRunTime-*
+
+library UserAnalysis *.cxx components/*.cxx
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
+apply_pattern component_library
+#apply_pattern declare_scripts files="addAANT" 
+apply_pattern declare_joboptions files="*.py *.C *.sh"

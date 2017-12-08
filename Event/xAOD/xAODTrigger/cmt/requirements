@@ -1,0 +1,32 @@
+package xAODTrigger
+# $Id: requirements 744561 2016-05-03 16:08:19Z krasznaa $
+
+author Lukas Heinrich <Lukas.Heinrich@cern.ch>
+author Gordon Watts <gwatts@uw.edu>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+
+use AthenaKernel            AthenaKernel-*            Control
+use AthContainersInterfaces AthContainersInterfaces-* Control
+use AthContainers           AthContainers-*           Control
+use AthLinks                AthLinks-*                Control
+
+use xAODCore                xAODCore-*                Event/xAOD
+
+library xAODTrigger ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex             AtlasReflex-*             External
+use AtlasROOT               AtlasROOT-*               External
+
+apply_pattern lcgdict dict=xAODTrigger selectionfile=selection.xml \
+                      headerfiles="../xAODTrigger/xAODTriggerDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODTrigger
+

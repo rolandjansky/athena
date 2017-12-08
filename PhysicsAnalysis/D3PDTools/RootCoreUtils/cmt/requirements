@@ -1,0 +1,28 @@
+## automatically generated CMT requirements file
+package RootCoreUtils
+author  cburgard
+
+## for athena policies: this has to be the first use statement
+use  AtlasPolicy AtlasPolicy-*
+use  AtlasROOT                  AtlasROOT-*                     External
+use AtlasBoost AtlasBoost-* External
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics Hist Tree RIO)"
+
+## for gaudi tools, services and objects
+
+## put here your package dependencies...
+
+##
+
+branches Root
+
+# create an installed library, i.e., one where others can inherit from
+macro_append RootCoreUtils_shlibflags " $(Boost_linkopts_regex) "
+library RootCoreUtils ../Root/*.cxx
+apply_pattern installed_library
+
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+end_private

@@ -34,7 +34,7 @@ bool SCT_CalibDefectData::addModule(const Identifier & moduleId, const CalibModu
 
 //----------------------------------------------------------------------
 // Search the maps for a module, returns empty module container if not found
-SCT_CalibDefectData::CalibModuleDefects SCT_CalibDefectData::findModule(const Identifier & moduleId) const
+SCT_CalibDefectData::CalibModuleDefects SCT_CalibDefectData::findModule(const Identifier & moduleId)
 {
   // Create container for the defect data
   SCT_CalibDefectData::CalibModuleDefects ModuleDefects;

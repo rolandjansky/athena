@@ -1,0 +1,31 @@
+package InDetPriVxFinder
+author  Andreas Wildauer <andreas.wildauer@cern.ch>
+
+public
+use AtlasPolicy        AtlasPolicy-*
+use AthenaBaseComps    AthenaBaseComps-*   Control
+use GaudiInterface     GaudiInterface-*    External
+
+private
+use CxxUtils           CxxUtils-*          Control
+use VxVertex           VxVertex-*          Tracking/TrkEvent
+use TrkTrack           TrkTrack-*          Tracking/TrkEvent
+use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
+use InDetBeamSpotService      InDetBeamSpotService-*       InnerDetector/InDetConditions
+use TrkParticleBase    TrkParticleBase-*   Tracking/TrkEvent
+use xAODTracking           xAODTracking-*           Event/xAOD
+use TrkVxEdmCnv		   TrkVxEdmCnv-*	    Tracking/TrkVertexFitter
+use ITrackToVertex         ITrackToVertex-*         Reconstruction/RecoTools
+
+use xAODCore               xAODCore-*               Event/xAOD
+use EventPrimitives        EventPrimitives-*        Event
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
+
+public
+library InDetPriVxFinder *.cxx components/*.cxx
+apply_pattern component_library
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"

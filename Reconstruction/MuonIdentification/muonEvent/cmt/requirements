@@ -1,0 +1,49 @@
+package muonEvent
+
+author Ketevi A. Assamagan  <ketevi@bnl.gov>
+
+public
+
+use AtlasPolicy         AtlasPolicy-*
+use CLIDSvc       	CLIDSvc-*      		Control
+use AthContainers	AthContainers-*		Control
+use AthLinks	        AthLinks-*		Control
+use SGTools             SGTools-*               Control
+
+use AtlasCLHEP          AtlasCLHEP-*            External
+
+use FourMom		FourMom-*		Event
+use NavFourMom    	NavFourMom-*      	Event
+
+use ParticleEvent	ParticleEvent-*  	PhysicsAnalysis/AnalysisCommon
+
+use TrkSegment		TrkSegment-*		Tracking/TrkEvent
+use TrkMaterialOnTrack	TrkMaterialOnTrack-* 	Tracking/TrkEvent
+
+
+use CaloEvent           CaloEvent-* 		Calorimeter
+use CaloIdentifier      CaloIdentifier-*     	Calorimeter       
+
+use Particle		Particle-*		Reconstruction
+
+library muonEvent *.cxx
+
+apply_pattern installed_library
+
+private
+
+use GaudiInterface	GaudiInterface-*	External
+use VxVertex            VxVertex-*           	Tracking/TrkEvent
+use AtlasReflex         AtlasReflex-*      	External -no_auto_imports
+use Navigation          Navigation-*            Control
+
+macro navigables_MuonEvent ""
+macro_append navigables_MuonEvent "Analysis::MuonContainer "
+
+apply_pattern lcgdict dict=muonEvent \
+selectionfile=selection.xml \
+navigables=$(navigables_MuonEvent) \	
+elementLinks="MuonCaloEnergyContainer" \
+headerfiles=" ../muonEvent/muonEventDict.h"
+
+

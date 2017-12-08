@@ -73,7 +73,7 @@ TrigHLTTrackMomentHelpers::hltExecute(const HLT::TriggerElement* inputTE,
   /*** retrieving FTK primary vertices from incoming TE ****/
   const xAOD::VertexContainer* vertexContainer = nullptr;
   
-  auto hltStatus = getFeature(outputTE, vertexContainer, "PrimVertexFTK"); 
+  auto hltStatus = getFeature(outputTE, vertexContainer, "HLT_PrimVertexFTK"); 
   if (hltStatus == HLT::OK) {
         ATH_MSG_DEBUG("Retrieved the FTK primary vertex container at address " << vertexContainer); 
   }

@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "MuonLayerEvent/MuonSystemExtension.h"
-#include "MuonLayerEvent/MuonLayerPrepRawData.h"
 
 static const InterfaceID IID_IMuonLayerSegmentFinderTool("Muon::IMuonLayerSegmentFinderTool",1,0);
 
@@ -25,8 +24,7 @@ namespace Muon {
     static const InterfaceID& interfaceID();
 
     /** @brief Find segments for a given MuonSystemExtension::Intersection */
-    virtual void find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments, 
-		       MuonLayerPrepRawData& layerPrepRawData) const = 0;
+    virtual void find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const = 0;
 
   };
  

@@ -376,7 +376,7 @@ if [ $castor = "yes" ]
       #then xrdfs eosatlas rm $castorloc/$file 
       #fi
       try=0;
-      until (xrdcp -f -s $outdir/$file root://eosatlas.cern.ch/${castorloc}/$file)
+      until (xrdcp -f -s $outdir/$file root://eosatlas/${castorloc}/$file)
       do let try=$try+1
          if [ $try -gt 100 ]
          then echo "All $try tries failed, exiting"

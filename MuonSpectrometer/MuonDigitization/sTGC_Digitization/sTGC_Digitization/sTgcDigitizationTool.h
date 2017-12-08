@@ -158,10 +158,8 @@ private:
   bool  m_produceDeadDigits;
   float m_deadtimeStrip;
   float m_deadtimePad;
-  float m_deadtimeWire;
   float m_readtimeStrip;
   float m_readtimePad;
-  float m_readtimeWire;
   float m_timeWindowOffsetPad;
   float m_timeWindowOffsetStrip;
   float m_timeWindowPad;

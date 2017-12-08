@@ -1,0 +1,42 @@
+package xAODTruth
+# $Id: requirements 761796 2016-07-14 08:06:02Z krasznaa $
+
+author Andy Buckley <andy.buckley@cern.ch>
+author James Catmore <james.catmore@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
+
+public
+
+# Central packages:
+use AtlasPolicy     AtlasPolicy-*
+use AthContainers   AthContainers-*    Control
+use AthLinks        AthLinks-*         Control
+
+# EDM packages:
+use xAODBase        xAODBase-*         Event/xAOD
+use xAODCore        xAODCore-*         Event/xAOD
+use AtlasROOT       AtlasROOT-*        External
+
+# Specify the ROOT components that are necessary for cmake. Transparent to CMT
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics)"
+
+library xAODTruth ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use TruthUtils      TruthUtils-*       Generators
+use AtlasReflex     AtlasReflex-*      External
+
+# Generate a dictionary for the package:
+apply_pattern lcgdict dict=xAODTruth selectionfile=selection.xml \
+                      headerfiles="../xAODTruth/xAODTruthDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODTruth
+
+# Specify the unit test(s) of the package:
+use TestTools       TestTools-*        AtlasTest
+apply_pattern UnitTest_run unit_test=ut_xaodtruth_particle
+

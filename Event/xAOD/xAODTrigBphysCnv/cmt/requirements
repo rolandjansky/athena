@@ -1,0 +1,41 @@
+package xAODTrigBphysCnv
+# $Id:$
+
+author James Walder <jwalder@cern.ch>
+
+
+public
+# Base Gaudi/Athena package(s):
+use AtlasPolicy            AtlasPolicy-*
+use GaudiInterface         GaudiInterface-*         External
+
+# EDM package(s):
+use xAODTrigBphys            xAODTrigBphys-*            Event/xAOD
+
+private
+
+# Base Gaudi/Athena package(s):
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use AthenaKernel           AthenaKernel-*           Control
+#use StoreGate              StoreGate-*              Control
+
+# EDM package(s):
+use TrigParticle	      TrigParticle-*	Trigger/TrigEvent
+
+# Trigger package(s):
+#use TrigDecisionInterface  TrigDecisionInterface-*  Trigger/TrigEvent
+#use TrigConfInterfaces     TrigConfInterfaces-*     Trigger/TrigConfiguration
+#use TrigConfHLTData        TrigConfHLTData-*        Trigger/TrigConfiguration
+#use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+
+end_private
+
+# Declare the library:
+library xAODTrigBphysCnv *.cxx components/*.cxx
+apply_pattern component_library
+
+# Install the additional files:
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions     files="*.py"
+
+

@@ -13,7 +13,7 @@ ROOT.xAOD.Init()
 
 try:
   filename = sys.argv[1]
-except IndexError:  filename = "root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/valid3/24/c7/AOD.05062229._000129.pool.root.1"
+except IndexError:  filename = "root://eosatlas//eos/atlas/atlasdatadisk/rucio/valid3/24/c7/AOD.05062229._000129.pool.root.1"
 
 # Set up ambiguity tool
 tool = ROOT.EGammaAmbiguityTool('tool')

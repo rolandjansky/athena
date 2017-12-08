@@ -44,8 +44,9 @@ namespace HLTTest {
     //    SG::WriteHandleKey<ConstDataVector<TrigRoiDescriptorCollection> > m_recoOutput;
     //SG::WriteHandleKey<ConstDataVector<TestCluster> > m_recoOutput;
 
-    SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs;
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput;
+    SG::ReadHandleKeyArray<DecisionContainer> m_inputs;
+    SG::ReadHandleKey<DecisionContainer> m_input;
+    SG::WriteHandleKey<DecisionContainer> m_recoOutput;
     StringProperty m_linkName; 
     StringProperty m_outputType; 
   }; 

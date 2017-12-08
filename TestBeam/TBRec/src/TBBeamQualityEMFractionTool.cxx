@@ -199,7 +199,7 @@ StatusCode TBBeamQualityEMFractionTool::accept(std::vector<std::string> m_partic
   }  
   
   //Accesing the CaloCellContainer
-  const CaloCellContainer* cellContainer = nullptr;
+  const CaloCellContainer* cellContainer;
   
   sc = m_StoreGate->retrieve(cellContainer);
   if (sc.isFailure()) {

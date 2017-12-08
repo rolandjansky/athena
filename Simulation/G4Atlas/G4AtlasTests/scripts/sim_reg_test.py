@@ -117,7 +117,7 @@ def eoscp(filename,jobname,tag,store_tag,release):
     pathlist=["prod","batch"]#This 2nd option should make the script work on the RTT test instance.
 #    status=0
     for path in pathlist:
-        prefix="root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/"+path+"/rtt"
+        prefix="root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/"+path+"/rtt"
         ##print "postfix: "+postfix
         ##print "middle: "+middle
         ##print "prefix: "+prefix

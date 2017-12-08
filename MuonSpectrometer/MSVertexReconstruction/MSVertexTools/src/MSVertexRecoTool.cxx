@@ -26,6 +26,7 @@ namespace Muon {
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
+  constexpr float c_PI =3.1415927;
   constexpr float sq(float x) { return (x)*(x); }
 
   MSVertexRecoTool::MSVertexRecoTool (const std::string& type, const std::string& name,
@@ -92,9 +93,25 @@ namespace Muon {
     
   StatusCode MSVertexRecoTool::initialize() {
     
-    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
-    ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-    ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
+    if( AthAlgTool::initialize().isFailure() ) {
+      ATH_MSG_ERROR( "Failed to initialize AthAlgTool" );
+      return StatusCode::FAILURE;
+    }
+
+    if(detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER").isFailure()) {
+      ATH_MSG_ERROR( "Failed to retrieve the mdtIdHelper" );
+      return StatusCode::FAILURE;
+    }
+
+    if(detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER").isFailure()) {
+      ATH_MSG_ERROR( "Failed to retrieve the rpcIdHelper" );
+      return StatusCode::FAILURE;
+    }
+
+    if(detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER").isFailure()) {
+      ATH_MSG_ERROR( "Failed to retrieve the tgcIdHelper" );
+      return StatusCode::FAILURE;
+    }
 
     if(m_doSystematics) {
       m_rndmEngine = m_rndmSvc->GetEngine("TrackletKiller");
@@ -104,7 +121,11 @@ namespace Muon {
       }
     }
 
-    ATH_CHECK( m_extrapolator.retrieve() );
+    if(m_extrapolator.retrieve().isFailure()) {
+      ATH_MSG_FATAL( "Extrapolator could not be retrieved" );
+      return StatusCode::FAILURE;
+    }
+    
     ATH_CHECK(m_xAODContainerKey.initialize());
     ATH_CHECK(m_rpcTESKey.initialize());
     ATH_CHECK(m_tgcTESKey.initialize());
@@ -336,17 +357,17 @@ namespace Muon {
           for(int jcl=0; jcl<ncluster; ++jcl) {
               float dEta = trkClu[icl].eta - trkClu0[jcl].eta;
               float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-              while(fabs(dPhi) > M_PI) {
-                  if(dPhi < 0) dPhi += 2*M_PI;
-                  else dPhi -= 2*M_PI;
+              while(fabs(dPhi) > c_PI) {
+                  if(dPhi < 0) dPhi += 2*c_PI;
+                  else dPhi -= 2*c_PI;
               }
-              if(fabs(dEta) < 0.7 && fabs(dPhi) < M_PI/3.) {
+              if(fabs(dEta) < 0.7 && fabs(dPhi) < c_PI/3.) {
                   ntracks++;
                   trkClu[icl].eta = trkClu[icl].eta - dEta/ntracks;
                   trkClu[icl].phi = trkClu[icl].phi - dPhi/ntracks;
-                  while(fabs(trkClu[icl].phi) > M_PI) {
-                      if(trkClu[icl].phi > 0) trkClu[icl].phi -= 2*M_PI;
-                      else trkClu[icl].phi += 2*M_PI;
+                  while(fabs(trkClu[icl].phi) > c_PI) {
+                      if(trkClu[icl].phi > 0) trkClu[icl].phi -= 2*c_PI;
+                      else trkClu[icl].phi += 2*c_PI;
                   }
               }
           }//end jcl loop
@@ -368,12 +389,12 @@ namespace Muon {
                   float dEta = fabs(trkClu[icl].eta - trkClu0[jcl].eta);
                   float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
 
-                  while(fabs(dPhi) > M_PI) {
-                      if(dPhi < 0) dPhi += 2*M_PI;
-                      else dPhi -= 2*M_PI;
+                  while(fabs(dPhi) > c_PI) {
+                      if(dPhi < 0) dPhi += 2*c_PI;
+                      else dPhi -= 2*c_PI;
                   }
 
-                  if(dEta < 0.7 && fabs(dPhi) < M_PI/3.) {
+                  if(dEta < 0.7 && fabs(dPhi) < c_PI/3.) {
                       eta_avg += trkClu0[jcl].eta;
                       cosPhi_avg += cos(trkClu0[jcl].phi);
                       sinPhi_avg += sin(trkClu0[jcl].phi);
@@ -417,11 +438,11 @@ namespace Muon {
       for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
           float dEta = fabs(BestCluster.eta - trkItr->globalPosition().eta());
           float dPhi = BestCluster.phi - trkItr->globalPosition().phi();
-          while(fabs(dPhi) > M_PI) {
-              if(dPhi < 0) dPhi += 2*M_PI;
-              else dPhi -= 2*M_PI;
+          while(fabs(dPhi) > c_PI) {
+              if(dPhi < 0) dPhi += 2*c_PI;
+              else dPhi -= 2*c_PI;
           }
-          if(dEta < 0.7 && fabs(dPhi) < M_PI/3.) BestCluster.tracks.push_back( (*trkItr) );
+          if(dEta < 0.7 && fabs(dPhi) < c_PI/3.) BestCluster.tracks.push_back( (*trkItr) );
           else unusedTracks.push_back( (*trkItr) );
       }
       //return the best cluster and the unused tracklets
@@ -478,9 +499,9 @@ namespace Muon {
     aveR = aveR/(float)tracklets.size();
 
     float avePhi = atan2(aveY,aveX);
-    while(fabs(avePhi) > M_PI) {
-      if(avePhi < 0) avePhi += 2*M_PI;
-      else avePhi -= 2*M_PI;
+    while(fabs(avePhi) > c_PI) {
+      if(avePhi < 0) avePhi += 2*c_PI;
+      else avePhi -= 2*c_PI;
     }
 
     //calculate the two angles (theta & phi)
@@ -1162,8 +1183,8 @@ namespace Muon {
 	    float rpcEta = (*rpcItr)->globalPosition().eta();
 	    float rpcPhi = (*rpcItr)->globalPosition().phi();
 	    float dphi = phi - rpcPhi;
-	    if(dphi > M_PI) dphi -= 2*M_PI;
-	    else if(dphi < -M_PI) dphi += 2*M_PI;
+	    if(dphi > c_PI) dphi -= 2*c_PI;
+	    else if(dphi < -c_PI) dphi += 2*c_PI;
 	    float deta = eta - rpcEta;
 	    float DR = sqrt(sq(deta)+sq(dphi));
 	    if(DR < 0.6) {
@@ -1191,8 +1212,8 @@ namespace Muon {
 	    float tgcEta = (*tgcItr)->globalPosition().eta();
 	    float tgcPhi = (*tgcItr)->globalPosition().phi();
 	    float dphi = phi - tgcPhi;
-	    if(dphi > M_PI) dphi -= 2*M_PI;
-	    else if(dphi < -M_PI) dphi += 2*M_PI;
+	    if(dphi > c_PI) dphi -= 2*c_PI;
+	    else if(dphi < -c_PI) dphi += 2*c_PI;
 	    float deta = eta - tgcEta;
 	    float DR = sqrt(sq(deta)+sq(dphi));
 	    if(DR < 0.6) {
@@ -1230,8 +1251,8 @@ namespace Muon {
       float deta = fabs(MSRecoVx->getPosition().eta() - ChamberCenter.eta());
       if(deta > 0.6) continue;
       float dphi = MSRecoVx->getPosition().phi() - ChamberCenter.phi();
-      if(dphi > M_PI) dphi -= 2*M_PI;
-      else if(dphi < -M_PI) dphi += 2*M_PI;
+      if(dphi > c_PI) dphi -= 2*c_PI;
+      else if(dphi < -c_PI) dphi += 2*c_PI;
       if( fabs(dphi) > 0.6 ) continue;
       int nChHits(0);
       Identifier id = (*mdt)->identify();
@@ -1264,8 +1285,8 @@ namespace Muon {
         float rpcEta = (*rpcItr)->globalPosition().eta();
         float rpcPhi = (*rpcItr)->globalPosition().phi();
         float dphi = MSRecoVx->getPosition().phi() - rpcPhi;
-        if(dphi > M_PI) dphi -= 2*M_PI;
-        else if(dphi < -M_PI) dphi += 2*M_PI;
+        if(dphi > c_PI) dphi -= 2*c_PI;
+        else if(dphi < -c_PI) dphi += 2*c_PI;
         float deta = MSRecoVx->getPosition().eta() - rpcEta;
         float DR = sqrt(sq(deta)+sq(dphi));
         if(DR < 0.6) nrpc++;
@@ -1285,8 +1306,8 @@ namespace Muon {
         float tgcEta = (*tgcItr)->globalPosition().eta();
         float tgcPhi = (*tgcItr)->globalPosition().phi();
         float dphi = MSRecoVx->getPosition().phi() - tgcPhi;
-        if(dphi > M_PI) dphi -= 2*M_PI;
-        else if(dphi < -M_PI) dphi += 2*M_PI;
+        if(dphi > c_PI) dphi -= 2*c_PI;
+        else if(dphi < -c_PI) dphi += 2*c_PI;
         float deta = MSRecoVx->getPosition().eta() - tgcEta;
         float DR = sqrt(sq(deta)+sq(dphi));
         if(DR < 0.6) ntgc++;

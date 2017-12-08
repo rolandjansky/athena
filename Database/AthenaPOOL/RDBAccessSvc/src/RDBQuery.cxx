@@ -21,23 +21,20 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 
-RDBQuery::RDBQuery(RDBAccessSvc* accessSvc
-		   , coral::ISessionProxy* session
-		   , const std::string& nodeName
-		   , const std::string& tagId
-		   , const std::string& connName)
-   : IRDBQuery()
-   , m_query(0)
-   , m_queryCount(0)
-   , m_accessSvc(accessSvc)
-   , m_session(session)
-   , m_nodeName(nodeName)
-   , m_tagId(tagId)
-   , m_connName(connName)
-   , m_size(0)
-   , m_cursor(0)
+RDBQuery::RDBQuery(RDBAccessSvc* accessSvc,
+		   coral::ISessionProxy* session,
+		   const std::string& nodeName,
+		   const std::string& tagId):
+  IRDBQuery(),
+  m_query(0),
+  m_queryCount(0),
+  m_accessSvc(accessSvc),
+  m_session(session),
+  m_nodeName(nodeName),
+  m_tagId(tagId),
+  m_size(0),
+  m_cursor(0)
 {
-  m_accessSvc->connect(m_connName);
 }
 
 RDBQuery::~RDBQuery()
@@ -160,7 +157,6 @@ void RDBQuery::finalize()
       m_accessSvc->msg() << MSG::WARNING << "QUERY Finalize : Exception caught... "  << endmsg;
     }
   }
-  m_accessSvc->disconnect(m_connName);
 }
 
 void RDBQuery::setOrder(const std::string& field)

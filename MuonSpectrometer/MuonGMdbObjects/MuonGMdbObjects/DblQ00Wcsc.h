@@ -13,8 +13,7 @@
 #ifndef DBLQ00_WCSC_H
 #define DBLQ00_WCSC_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 namespace MuonGM
 {
 class DblQ00Wcsc {
@@ -22,7 +21,7 @@ class DblQ00Wcsc {
 public:
     DblQ00Wcsc(){};
     ~DblQ00Wcsc();
-    DblQ00Wcsc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcsc(IRDBQuery*);
 
     // data members for DblQ00/WCSC fields
     struct WCSC {

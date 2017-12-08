@@ -1,0 +1,68 @@
+####To be removed once ROOT 5.32.00 gets patched
+#private
+#macro_remove cppflags "-pedantic"
+#end_private
+
+package MissingETGoodness
+
+author Max Baak <mbaak@cern.ch> 
+
+use AtlasPolicy 	AtlasPolicy-*
+use AtlasROOT   	AtlasROOT-*             External
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use GaudiInterface      GaudiInterface-*        External 
+use StoreGate           StoreGate-*             Control
+use CxxUtils            CxxUtils-*              Control
+use JetEvent		JetEvent-*		Reconstruction/Jet
+use JetUtils	        JetUtils-*	        Reconstruction/Jet
+use Particle		Particle-*		Reconstruction
+use MissingETEvent	MissingETEvent-*	Reconstruction
+use CaloEvent		CaloEvent-*		Calorimeter
+#use CaloInterface       CaloInterface-*         Calorimeter
+#use CaloConditions 	CaloConditions-*        Calorimeter
+use muonEvent	        muonEvent-*		Reconstruction/MuonIdentification
+#use MuTagEvent            MuTagEvent-*             Reconstruction/MuonIdentification
+#use MuTagToolsInterfaces  MuTagToolsInterfaces-*   Reconstruction/MuonIdentification
+###use MuonTimingInfoToolsInterfaces MuonTimingInfoToolsInterfaces-* Reconstruction/MuonIdentification
+
+
+
+private
+use AtlasCLHEP                  AtlasCLHEP-*               External
+use AthenaKernel                AthenaKernel-*             Control
+use EventBookkeeperMetaData     EventBookkeeperMetaData-*  Event
+use xAODEventInfo               xAODEventInfo-*            Event/xAOD
+use FourMomUtils                FourMomUtils-*                  Event
+use GoodRunsLists               GoodRunsLists-*                 DataQuality
+use PrimaryDPDMaker             PrimaryDPDMaker-*               PhysicsAnalysis
+use LArRecEvent                 LArRecEvent-*                   LArCalorimeter
+use TileEvent           TileEvent-*             TileCalorimeter
+end_private
+
+
+## macros
+apply_tag       ROOTBasicLibs
+
+### build libraries
+#apply_pattern dual_use_library files="../Root/*.cxx ../src/*.cxx ../src/components/*.cxx"
+#macro MissingETGoodnessLib_dependencies "metgoodness_root_dictionary"
+
+## Create a named installed library
+library MissingETGoodnessLib "../Root/*.cxx"
+apply_pattern named_installed_library library=MissingETGoodnessLib
+apply_pattern have_root_headers root_headers="TRunRange.h Goodies.h TEasyFormula.h TSelection.h TSelectionSetArchive.h TSelectionSet.h EtmissGoodnessQuality.h NtupleGoodiesFiller.h EtmissGoodnessManager.h EtmissGoodness_Loose_20091117.h EtmissGoodness_Medium_20091117.h EtmissGoodness_Tight_20091117.h EtmissGoodness_Loose_20091217.h EtmissGoodness_Loose_20100115.h EtmissGoodness_Loose_20100217.h EtmissGoodness_Loose_20091117.h EtmissGoodness_Loose_20100408.h EtmissGoodness_Loose_20100415.h EtmissGoodness.h EtmissGoodnessConfig.h ../Root/LinkDef.h" headers_lib="MissingETGoodnessLib"
+
+## Create a component library
+library MissingETGoodness *.cxx components/*.cxx
+macro_append MissingETGoodness_dependencies " MissingETGoodnessLib"
+apply_pattern component_library
+
+## scripts, jobOptions and python modules
+apply_pattern declare_scripts files="../scripts/make*" 
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

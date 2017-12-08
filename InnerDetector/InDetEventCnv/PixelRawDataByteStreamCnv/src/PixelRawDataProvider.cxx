@@ -110,7 +110,6 @@ StatusCode PixelRawDataProvider::execute() {
   if(!ExternalCacheMode) rdoContainer = std::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max()); 
   else{
     SG::UpdateHandle<PixelRDO_Cache> updateh(m_rdoCacheKey);
-    if(!updateh.isValid()) ATH_MSG_FATAL("Failure to retrieve cache " << m_rdoCacheKey.key());
     rdoContainer = std::make_unique<PixelRDO_Container>(updateh.ptr());
     ATH_MSG_DEBUG("Created container " << m_rdoContainerKey.key() << " using external cache " << m_rdoCacheKey.key());
   }

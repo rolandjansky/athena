@@ -31,7 +31,7 @@ class IPixelOfflineCalibSvc;
 
 namespace iFatras {
 
-  class PlanarClusterOnTrackTool: public extends<AthAlgTool, Trk::IRIO_OnTrackCreator, IIncidentListener>
+  class PlanarClusterOnTrackTool: public AthAlgTool, virtual public Trk::IRIO_OnTrackCreator,  virtual public IIncidentListener
   {
     
   public:

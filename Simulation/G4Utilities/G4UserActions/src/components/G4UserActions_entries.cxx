@@ -13,7 +13,6 @@
 #include "G4UserActions/StoppedParticleActionTool.h"
 #include "G4UserActions/FluxRecorderTool.h"
 #include "G4UserActions/ScoringPlaneTool.h"
-#include "../TestActionTool.h"
 
 DECLARE_COMPONENT( G4UA::G4SimTimerTool )
 DECLARE_COMPONENT( G4UA::G4TrackCounterTool )
@@ -30,4 +29,4 @@ DECLARE_COMPONENT( G4UA::ScoringVolumeTrackKillerTool )
 DECLARE_COMPONENT( G4UA::StoppedParticleActionTool )
 DECLARE_COMPONENT( G4UA::FluxRecorderTool )
 DECLARE_COMPONENT( G4UA::ScoringPlaneTool )
-DECLARE_COMPONENT( G4UA::TestActionTool )
+

@@ -95,7 +95,6 @@ template <class DV>
 typename T_AthenaPoolViewVectorCnv<DV>::pers_t*
 T_AthenaPoolViewVectorCnv<DV>::createPersistent( trans_t* trans )
 {
-  AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<DV>::ID());
   pers_t* pers =  new pers_t (*trans);
   pers->setClearOnPersistent();
   return pers;
@@ -112,7 +111,6 @@ template <class DV>
 typename T_AthenaPoolViewVectorCnv<DV>::trans_t*
 T_AthenaPoolViewVectorCnv<DV>::createTransient NO_SANITIZE_UNDEFINED ()
 {
-  AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<DV>::ID());
   // See if we're looking at one of the guids we can handle.
   // FIXME: For old persistent versions, this works by essentially doing
   // a reinterpret_cast from the version on the file to the current version.
@@ -142,7 +140,7 @@ T_AthenaPoolViewVectorCnv<DV>::createTransient NO_SANITIZE_UNDEFINED ()
   for (const pool::Guid& guid : m_guids2) {
     if( this->compareClassGuid( guid ) ) {
       std::unique_ptr<pers2_t> v (this->template poolReadObject< pers2_t >());
-      auto c = std::make_unique<ConstDataVector<trans_t> > (*v);
+      auto c = CxxUtils::make_unique<ConstDataVector<trans_t> > (*v);
       // FIXME: To get rid of this @c const_cast, the converter interfaces
       // need to be changed to allow returning a const pointer
       // all the way back to StoreGate.

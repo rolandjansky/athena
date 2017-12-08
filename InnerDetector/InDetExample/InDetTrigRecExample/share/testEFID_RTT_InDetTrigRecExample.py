@@ -8,7 +8,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 if athenaCommonFlags.FilesInput()==[]:
   athenaCommonFlags.FilesInput=[
-    "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_bjet5200/mc10_14TeV.105568.ttbar_Pythia.digit.RDO.e662_s1107_d459_tid254598_00/RDO.254598._000016.pool.root.1",
+    "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_bjet5200/mc10_14TeV.105568.ttbar_Pythia.digit.RDO.e662_s1107_d459_tid254598_00/RDO.254598._000016.pool.root.1",
     ]
 
 def resetSigs():

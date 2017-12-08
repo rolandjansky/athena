@@ -1,0 +1,41 @@
+package MuonCombinedEvaluationTools
+
+author Rikard.Sandstroem@cern.ch, Wolfgang.Liebig@cern.ch <Rikard.Sandstroem@cern.ch, Wolfgang.Liebig@cern.ch>
+
+public
+
+use AtlasPolicy AtlasPolicy-* 
+
+# apply_pattern declare_python_modules files="*.py"
+apply_pattern component_library
+library MuonCombinedEvaluationTools *.cxx components/*.cxx
+
+private
+use  AthLinks                   AthLinks-*                    Control
+use AthenaBaseComps             AthenaBaseComps-*             Control
+use GaudiInterface              GaudiInterface-*              External
+use TrkDetDescrInterfaces       TrkDetDescrInterfaces-*       Tracking/TrkDetDescr
+use TrkGeometry                 TrkGeometry-*                 Tracking/TrkDetDescr
+use TrkEventPrimitives          TrkEventPrimitives-*          Tracking/TrkEvent
+use TrkMaterialOnTrack          TrkMaterialOnTrack-*          Tracking/TrkEvent
+use TrkMeasurementBase          TrkMeasurementBase-*          Tracking/TrkEvent
+use TrkTrack                    TrkTrack-*                    Tracking/TrkEvent
+use MuonSegment                 MuonSegment-*                 MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use xAODTracking                xAODTracking-*                Event/xAOD
+use xAODMuon                    xAODMuon-*                    Event/xAOD
+use xAODTruth                   xAODTruth-*                   Event/xAOD
+
+use MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*  Reconstruction/MuonIdentification
+use MuonRecHelperTools          MuonRecHelperTools-*          MuonSpectrometer/MuonReconstruction/MuonRecTools
+use TrkFitterInterfaces         TrkFitterInterfaces-*         Tracking/TrkFitter
+
+use MuonCalibEventBase          MuonCalibEventBase-*          MuonSpectrometer/MuonCalib
+use MuonPrepRawData             MuonPrepRawData-*             MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRIO_OnTrack             MuonRIO_OnTrack-*             MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonCalibITools             MuonCalibITools-*       	  MuonSpectrometer/MuonCalib
+use MuonIdHelpers               MuonIdHelpers-*               MuonSpectrometer
+use xAODEventInfo               xAODEventInfo-*               Event/xAOD
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

@@ -1,0 +1,38 @@
+package McParticleTools
+
+author Sebastien Binet <binet@cern.ch>
+
+use AtlasPolicy 	AtlasPolicy-*
+
+private
+use HepPDT   		v*                      LCG_Interfaces
+
+use GaudiInterface	GaudiInterface-*	External
+use AtlasCLHEP		AtlasCLHEP-*		External
+use AtlasBoost		AtlasBoost-*		External
+use AtlasROOT		AtlasROOT-*		External
+use AtlasHepMC		AtlasHepMC-*		External
+
+use SGTools             SGTools-*               Control
+use StoreGate		StoreGate-*		Control
+use AthContainers	AthContainers-*		Control
+use AthenaBaseComps	AthenaBaseComps-*	Control
+
+use EventKernel		EventKernel-*		Event
+
+use GeneratorObjects	GeneratorObjects-*	Generators
+use TruthHelper 	TruthHelper-* 		Generators/GenAnalysisTools 
+
+use McParticleEvent	McParticleEvent-*	PhysicsAnalysis/TruthParticleID
+use McParticleUtils	McParticleUtils-*	PhysicsAnalysis/TruthParticleID
+use McParticleKernel 	McParticleKernel-*	PhysicsAnalysis/TruthParticleID
+
+branches src src/components python
+
+# needed to be able to use the HepMC_IO library
+#macro_append McParticleTools_linkopts " $(HepMC_IO_base_linkopts) "
+
+library McParticleTools *.cxx components/*.cxx
+
+apply_pattern component_library
+end_private

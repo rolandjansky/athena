@@ -1,0 +1,25 @@
+## automatically generated CMT requirements file
+package TrackRecordGenerator
+author  Zach Marshall
+
+use AtlasPolicy 	    AtlasPolicy-*
+use AtlasCLHEP          AtlasCLHEP-*            External
+use AtlasHepMC          AtlasHepMC-*            External
+use GeneratorModules    GeneratorModules-*      Generators
+
+private
+use GaudiInterface      GaudiInterface-*        External
+use TrackRecord         TrackRecord-*           Simulation/G4Sim
+end_private
+
+branches src src/components python
+
+private
+
+# Build the library and export headers
+apply_pattern dual_use_library files=TrackRecordGenerator.cxx
+apply_pattern declare_python_modules files="*.py"
+
+end_private
+
+

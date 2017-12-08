@@ -9,7 +9,6 @@ atlas_subdir( TRT_Digitization )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-			  Control/StoreGate
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/PileUpTools

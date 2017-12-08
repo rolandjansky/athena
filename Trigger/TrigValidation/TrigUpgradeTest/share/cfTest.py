@@ -11,9 +11,10 @@
 #--------------------------------------------------------------
 
 # Configure the scheduler
-from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataFlow( True )
+from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
+svcMgr += ForwardSchedulerSvc()
+svcMgr.ForwardSchedulerSvc.ShowDataFlow=True
+svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
 
 # include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]

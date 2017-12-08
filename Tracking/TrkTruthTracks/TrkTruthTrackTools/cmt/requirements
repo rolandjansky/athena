@@ -1,0 +1,36 @@
+package TrkTruthTrackTools
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+#################################################################
+# public use statements
+public
+use AtlasPolicy                 AtlasPolicy-*
+
+#################################################################
+# private use statements
+private
+use HepPDT                      v*                          LCG_Interfaces
+use AthenaBaseComps             AthenaBaseComps-*           Control
+use GaudiInterface              GaudiInterface-*            External
+use AtlasDetDescr               AtlasDetDescr-*	            DetectorDescription
+use AtlasHepMC                  AtlasHepMC-*                External
+use TrkTruthTrackInterfaces     TrkTruthTrackInterfaces-*   Tracking/TrkTruthTracks
+use TrkToolInterfaces           TrkToolInterfaces-*         Tracking/TrkTools
+use TrkFitterInterfaces         TrkFitterInterfaces-*       Tracking/TrkFitter
+use TrkExInterfaces             TrkExInterfaces-*           Tracking/TrkExtrapolation
+use TrkTrack                    TrkTrack-*                  Tracking/TrkEvent
+use TrkTruthData	        TrkTruthData-*              Tracking/TrkEvent
+use TrkEventUtils               TrkEventUtils-*             Tracking/TrkEvent
+use TrkSurfaces                 TrkSurfaces-*               Tracking/TrkDetDescr
+use TrkPrepRawData              TrkPrepRawData-*            Tracking/TrkEvent
+use TrkRIO_OnTrack              TrkRIO_OnTrack-*            Tracking/TrkEvent
+
+public
+library TrkTruthTrackTools *.cxx components/*.cxx
+apply_pattern component_library 
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

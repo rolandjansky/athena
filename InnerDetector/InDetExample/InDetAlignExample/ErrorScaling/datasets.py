@@ -112,7 +112,7 @@ class EOSDataset(object):
     def __init__(self, path, matchPattern='*', blacklist=[]):
         '''path is castor/eos path with, matchPattern is unix style wildcards (*root for example)'''
         import os, os.path, fnmatch
-        prefix = 'root://eosatlas.cern.ch/'
+        prefix = 'root://eosatlas/'
         #prefix = ''
         datadir = os.path.normpath(path) + '/'  #adds slash and cleans up path if needed
 

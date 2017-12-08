@@ -37,9 +37,9 @@
 #include "GaudiKernel/IHistogramSvc.h"
 #include "AIDA/IHistogram1D.h"
 
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"

@@ -12,7 +12,7 @@
 #include "AsgTools/ToolHandle.h"
 
 // Local include(s):
-#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 
 class testAthenaEgammaCalibTool : public AthAlgorithm {
 

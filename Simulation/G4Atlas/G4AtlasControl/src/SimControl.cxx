@@ -7,6 +7,9 @@
 // Geant4 includes
 #include "G4RunManager.hh"
 
+// FADS includes
+#include "FadsPackageLoader/PackageLoader.h"
+
 // STL includes
 #include <stdexcept>
 
@@ -16,6 +19,17 @@ SimControl::SimControl()
 
 SimControl::~SimControl()
 {
+}
+
+void SimControl::load(const std::string& lib) const
+{
+  FADS::PackageLoader a(lib.c_str());
+}
+
+const MCTruthMenu& SimControl::mcMenu() const
+{
+  static const MCTruthMenu& temp=mctruthMenu;
+  return temp;
 }
 
 void SimControl::initializeG4(bool isMT) const

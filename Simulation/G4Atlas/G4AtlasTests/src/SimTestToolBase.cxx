@@ -10,10 +10,20 @@
 SimTestToolBase::SimTestToolBase(const std::string& type, 
                    const std::string& name,
                    const IInterface* parent) : 
-  base_class(type, name, parent)
+  AthAlgTool(type, name, parent)
 {
   declareProperty("HistPath",  m_path="/truth/");
   declareProperty("McEventKey", m_key="TruthEvent");
+}
+
+StatusCode
+SimTestToolBase::queryInterface(const InterfaceID& riid, void** ppvIf) {
+  if ( riid == ISimTestTool::interfaceID() ) {
+    *ppvIf = (ISimTestTool*)this; 
+    addRef();
+    return StatusCode::SUCCESS;
+  }
+  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 const HepMC::GenParticle * SimTestToolBase::getPrimary() 

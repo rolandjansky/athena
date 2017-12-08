@@ -9,8 +9,6 @@
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-#include "MuonRIO_OnTrack/MMClusterOnTrack.h"
-#include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
 
@@ -70,10 +68,6 @@ void Muon::MuonSegmentKey::calculateKeys( const std::vector< const Trk::Measurem
       m_measKeys.insert(std::make_pair(id,sign));
     }else if( dynamic_cast<const Muon::CscClusterOnTrack*>(*it) ){
       m_measKeys.insert(std::make_pair(id,sign));      
-    }else if( dynamic_cast<const Muon::MMClusterOnTrack*>(*it) ){
-      m_measKeys.insert(std::make_pair(id,sign));
-    }else if( dynamic_cast<const Muon::sTgcClusterOnTrack*>(*it) ){
-      m_measKeys.insert(std::make_pair(id,sign));
     }else{
       m_measKeysTrigger.insert(std::make_pair(id,sign));
     }

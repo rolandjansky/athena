@@ -1,0 +1,35 @@
+package TrackParticleTruthAthenaPool
+
+author Andreas Wildauer <andreas.wildauer@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*          
+use GaudiInterface       GaudiInterface-*       External
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+
+
+
+private
+use StoreGate               StoreGate-*               Control
+use AthenaPoolCnvSvc        AthenaPoolCnvSvc-*        Database/AthenaPOOL
+use ParticleTruth           ParticleTruth-*           Reconstruction
+use TrackParticleTruthTPCnv TrackParticleTruthTPCnv-* Reconstruction
+end_private
+
+apply_pattern poolcnv files="\
+-s=$(ParticleTruth_root)/ParticleTruth TrackParticleTruthCollection.h \
+-s=$(ParticleTruth_root)/ParticleTruth  TrackParticleTruthCollectionContainer.h \
+"
+
+apply_pattern declare_joboptions files="*.py"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="TrackParticleTruthTPCnv_18.0.0" \
+   options="TrackParticleTruthAthenaPool/TrackParticleTruthTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrackParticleTruthTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrackParticleTruthTPCnv_18.0.0"
+

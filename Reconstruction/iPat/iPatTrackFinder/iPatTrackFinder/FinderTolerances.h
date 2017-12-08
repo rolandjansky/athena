@@ -107,6 +107,7 @@ private:
     double				m_minPt;
     double				m_minVertexRegionZ;
     double				m_minVertexZ;
+    double				m_phiSlopeMax;
     std::string                 	m_pixelName;
     int					m_printLevel;
     double				m_vertexZWidth;

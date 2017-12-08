@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="DataBucketBase" />
   <class name="SG::DataProxy" />
   <exclusion>
     <class pattern="*iterator*tuple*long*unsigned*int*"/>

@@ -88,11 +88,6 @@ def _configureReadAthenaPool():
     #from DataModelAthenaPool import DataModelCompatSvc
     svcMgr += CfgMgr.DataModelCompatSvc()
 
-    # Always want AddressRemappingSvc, since that's responsible for suppressing
-    # the read of objects that are produced by a WriteHandle.
-    from SGComps.AddressRemappingSvc import getAddressRemappingSvc
-    getAddressRemappingSvc()
-
     msg.debug( "Configuring Athena for reading POOL files... [DONE]" )
     return
 

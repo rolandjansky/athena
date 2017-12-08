@@ -1,0 +1,44 @@
+package InDetTestPixelLayer
+
+author Lorenzo Feligioni <Lorenzo.Feligioni@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*     External
+use AthenaBaseComps      AthenaBaseComps-*       Control
+
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+
+private
+apply_tag ROOTRooFitLibs
+apply_tag ROOTMathLibs
+
+use GeoPrimitives           GeoPrimitives-*         DetectorDescription
+use InDetConditionsSummaryService InDetConditionsSummaryService* InnerDetector/InDetConditions
+use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use TrkTrack             TrkTrack-*           Tracking/TrkEvent
+use TrkExInterfaces      TrkExInterfaces-*         Tracking/TrkExtrapolation
+use TrkMeasurementBase   TrkMeasurementBase-*      Tracking/TrkEvent
+use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
+use TrkSurfaces 	TrkSurfaces-*             Tracking/TrkDetDescr
+use TrkParticleBase      TrkParticleBase-*         Tracking/TrkEvent
+use AtlasDetDescr        AtlasDetDescr*            DetectorDescription 
+use IdDictDetDescr       IdDictDetDescr*           DetectorDescription 
+use TrkTrackSummary      TrkTrackSummary-*         Tracking/TrkEvent
+end_private
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+public
+
+use TrkParameters        TrkParameters-*      Tracking/TrkEvent
+use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use TrkEventPrimitives   TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkToolInterfaces    TrkToolInterfaces-*    Tracking/TrkTools
+use Identifier           Identifier-*              DetectorDescription
+use GeoPrimitives GeoPrimitives-* DetectorDescription
+
+apply_pattern dual_use_library files="*.cxx"
+
+apply_pattern declare_joboptions files="*.py"
+
+

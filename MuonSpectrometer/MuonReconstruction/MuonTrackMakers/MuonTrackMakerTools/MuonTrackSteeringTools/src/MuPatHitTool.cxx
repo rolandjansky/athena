@@ -59,16 +59,53 @@ namespace Muon {
     
   StatusCode MuPatHitTool::initialize(){
 
-    ATH_CHECK( m_mdtRotCreator.retrieve() );
-    if ( ! m_cscRotCreator.empty() ) ATH_CHECK( m_cscRotCreator.retrieve() );
-    ATH_CHECK( m_compClusterCreator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_pullCalculator.retrieve() );
-    ATH_CHECK( m_propagator.retrieve() );
-    ATH_CHECK( m_incidentSvc.retrieve() );
+    if( m_mdtRotCreator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_mdtRotCreator); 
+      return StatusCode::FAILURE;
+    }
 
+    if ( ! m_cscRotCreator.empty() ) {
+      if( m_cscRotCreator.retrieve().isFailure() ){
+	ATH_MSG_ERROR("Could not get " << m_cscRotCreator); 
+	return StatusCode::FAILURE;
+      }
+    }
+    
+    if( m_compClusterCreator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_compClusterCreator); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_idHelperTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_idHelperTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_helperTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_helperTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_printer.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_printer); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_pullCalculator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_pullCalculator); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_propagator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_propagator); 
+      return StatusCode::FAILURE;
+    }
+
+    // call handle in case of EndEvent
+    if( m_incidentSvc.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Could not get " << m_incidentSvc); 
+      return StatusCode::FAILURE;      
+    }
     m_incidentSvc->addListener( this, std::string("EndEvent"));
     
     // reserve space to store hits

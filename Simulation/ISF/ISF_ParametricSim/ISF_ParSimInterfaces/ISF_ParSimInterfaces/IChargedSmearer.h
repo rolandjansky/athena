@@ -26,6 +26,8 @@ namespace ISF {
 
 namespace iParSim {
      
+  static const InterfaceID IID_IChargedSmearer("IChargedSmearer", 1, 0);
+    
   /** 
    @class IChargedSmearer
 
@@ -41,8 +43,8 @@ namespace iParSim {
        /** Virtual destructor */
        virtual ~IChargedSmearer(){}
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(IChargedSmearer, 1, 0);
+       /** AlgTool interface methods */
+       static const InterfaceID& interfaceID() { return IID_IChargedSmearer; }
 
        /** Return the xAOD::TrackPartilce object - return 0 means efficiency correction killed the particle */
        //virtual const xAOD::TrackParticle* smear(const ISF::ISFParticle& isp) const = 0;

@@ -17,7 +17,6 @@ DerivationFramework::ClusterEnergyPerLayerDecorator::ClusterEnergyPerLayerDecora
 						  const std::string& n,
 						  const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_caloFillRectangularTool("CaloClusterCollectionProcessor"),
   m_tool(0)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);

@@ -10,7 +10,6 @@
 
 NSWSectorRoadFinderAlg::NSWSectorRoadFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_idHelper("Muon::MuonIdHelperTool"),
   m_keysTgc("STGC_Measurements"),
   m_keyMM("MM_Measurements"),
   m_patternLocation("NSWPatternCombinations")

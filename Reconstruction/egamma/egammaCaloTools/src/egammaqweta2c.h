@@ -32,14 +32,14 @@ class egammaqweta2c : public AthAlgTool, virtual public Iegammaqweta2c {
   ~egammaqweta2c();  
   
   /** @brief initialize method*/
-  virtual StatusCode initialize() override;
+  StatusCode initialize();
   /** @brief finalize method*/
-  virtual StatusCode finalize() override;
+  StatusCode finalize();
 
   /** @brief returns corrected width at eta. */
-  virtual float Correct(float eta, float etacell, float width) const override final;
+  float Correct(float eta, float etacell, float width) const override final;
   /** @brief returns method within the cell*/
-  virtual double RelPosition(float eta, float etacell) const override final;
+  double RelPosition(float eta, float etacell) const override final;
 
  private:
 

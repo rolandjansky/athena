@@ -29,7 +29,7 @@ namespace Simulation
   LongBeamspotVertexPositioner::LongBeamspotVertexPositioner( const std::string& t,
                                                               const std::string& n,
                                                               const IInterface* p )
-    : base_class(t,n,p),
+    : AthAlgTool(t,n,p),
       m_L(150.0),// 150.0 mm
       m_beamCondSvc("BeamCondSvc", n),
       m_rndGenSvc("AtRndmGenSvc", n),
@@ -37,6 +37,8 @@ namespace Simulation
       m_randomEngineName("VERTEX"),
       m_timeSmearing(false)
   {
+    declareInterface<ILorentzVectorGenerator>(this);
+
     // declare properties for the configuration
     declareProperty( "LParameter", m_L );
     declareProperty( "BeamCondSvc", m_beamCondSvc );

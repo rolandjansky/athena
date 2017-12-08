@@ -16,8 +16,8 @@ TriggersFiredTest::TriggersFiredTest(const std::string &name, ISvcLocator *pSvcL
   m_first_event(true),
   //m_configHandle( "TrigConf::xAODConfigTool/xAODConfigTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_passed_l1(0),
-  m_passed_hlt(0)
+  passed_l1(0),
+  passed_hlt(0)
 {
     declareProperty("TestList",       m_TestList, "Test list");
 }
@@ -85,8 +85,8 @@ StatusCode TriggersFiredTest::execute()
     
     msg(MSG::INFO) << "TriggersFiredTest::execute" << endmsg;
     
-    m_passed_l1 += m_trigDec->isPassed("L1_.*");
-    m_passed_hlt += m_trigDec->isPassed("HLT_.*");
+		passed_l1 += m_trigDec->isPassed("L1_.*");
+		passed_hlt += m_trigDec->isPassed("HLT_.*");
     
     // Full print of first event
     if (m_first_event){

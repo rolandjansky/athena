@@ -26,7 +26,6 @@
 
 #include "TrigConfInterfaces/ITrigConfigTool.h" 
 #ifdef ASGTOOL_ATHENA
-#include "AthenaBaseComps/AthMessaging.h"
 
 
 #ifndef XAOD_ANALYSIS
@@ -54,10 +53,7 @@ namespace Trig {
   class TrigDecisionTool :
     public asg::AsgMetadataTool,
     virtual Trig::ITrigDecisionTool,
-    public TrigDecisionToolCore
-#ifdef ASGTOOL_ATHENA
-    , public AthMessaging
-#endif   
+    public TrigDecisionToolCore   
   { 
     // constructors, destructor
     ASG_TOOL_INTERFACE(Trig::TrigDecisionTool)

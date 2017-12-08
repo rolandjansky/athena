@@ -13,7 +13,7 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "InDetPrepRawData/PixelCluster.h"
-#include "AthenaKernel/BaseInfo.h"
+#include "SGTools/BaseInfo.h"
 #include <map>
 
 SG_BASE(InDet::PixelCluster, Trk::PrepRawData);

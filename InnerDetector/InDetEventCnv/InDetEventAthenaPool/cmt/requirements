@@ -1,0 +1,61 @@
+package InDetEventAthenaPool
+
+author Andreas Wildauer <Andreas.Wildauer@cern.ch>
+author Davide Costanzo <Davide.Costanzo@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-* 
+use Identifier           Identifier-*           DetectorDescription
+use GeneratorObjectsTPCnv GeneratorObjectsTPCnv-* Generators
+
+private
+
+use CLIDSvc              CLIDSvc-*              Control
+use SGTools              SGTools-*              Control
+use AthContainers        AthContainers-*        Control
+use GaudiInterface 	 GaudiInterface-*       External
+use InDetEventTPCnv      InDetEventTPCnv-*	InnerDetector/InDetEventCnv
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use InDetLowBetaInfo	 InDetLowBetaInfo-*	InnerDetector/InDetRecEvent
+use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
+use InDetRawData         InDetRawData-*         InnerDetector/InDetRawEvent
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use StoreGate 		 StoreGate-*            Control
+use TrkTrack             TrkTrack-*             Tracking/TrkEvent
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+use InDetSimData	 InDetSimData-*		InnerDetector/InDetRawEvent
+use AtlasReflex          AtlasReflex-*          External 
+use AthenaBaseComps      AthenaBaseComps-*      Control
+
+
+# Converters for the rdo containers and hit collections
+apply_pattern poolcnv typesWithNamespace="InDet::PixelGangedClusterAmbiguities" \
+	      	      typesWithNamespace="InDet::InDetLowBetaCandidate" \
+                      files="-s=${InDetRawData_root}/InDetRawData PixelRDO_Container.h SCT_RDO_Container.h TRT_RDO_Container.h \
+                             -s=${InDetPrepRawData_root}/InDetPrepRawData TRT_DriftCircleContainer.h PixelClusterContainer.h SCT_ClusterContainer.h PixelGangedClusterAmbiguities.h \
+                             -s=${InDetEventAthenaPool_root}/src InDetTrack.h \
+			     -s=${InDetSimData_root}/InDetSimData InDetSimDataCollection.h \
+			     -s=${InDetLowBetaInfo_root}/InDetLowBetaInfo InDetLowBetaCandidate.h \
+			     -s=${InDetLowBetaInfo_root}/InDetLowBetaInfo InDetLowBetaContainer.h"
+
+macro_append InDetEventAthenaPoolPoolCnv_shlibflags "$(InDetEventAthenaPool_linkopts)"
+
+macro_append InDetEventAthenaPoolPoolCnvGen_dependencies " InDetEventAthenaPoolCnvDict " 
+apply_pattern lcgdict dict=InDetEventAthenaPoolCnv  selectionfile=selection.xml headerfiles="../InDetEventAthenaPool/InDetEventAthenaPoolCnvDict.h" 
+
+private 
+use AthenaKernel     AthenaKernel-*     Control
+use AthenaPoolCnvSvc AthenaPoolCnvSvc-* Database/AthenaPOOL
+use AtlasSealCLHEP AtlasSealCLHEP-* Database
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern athenarun_test \
+   name="InDetEventTPCnv_16.6.2.1" \
+   options="InDetEventAthenaPool/InDetEventTPCnv_16.6.2.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh InDetEventTPCnv_16.6.2.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh InDetEventTPCnv_16.6.2.1"
+

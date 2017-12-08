@@ -7,7 +7,7 @@ MsgStream* msglog;
 
 #define _LINE_ __LINE__ 
 #define REPORT_AND_RETURN(__message, __ret) { *msglog << MSG::ERROR << "LINE:" <<_LINE_ << " Test failed: " <<  __message << endmsg; return __ret; }
-#define REPORT_AND_STOP(__message) REPORT_AND_RETURN(__message, false) 
+#define REPORT_AND_STOP(__message) REPORT_AND_RETURN(__message, StatusCode::FAILURE) 
 #define ABORT(__message) REPORT_AND_RETURN(__message, -1)
 
 
@@ -18,4 +18,4 @@ MsgStream* msglog;
 
 #define BEGIN_TEST(__name) const std::string TEST_NAME_=__name;		\
   *msglog << MSG::INFO << "LINE:" <<_LINE_ << " Start of the test: " <<  TEST_NAME_ << endmsg 
-#define END_TEST   *msglog << MSG::INFO << "LINE:" <<_LINE_ << " End of the test: " <<  TEST_NAME_ << endmsg; return true
+#define END_TEST   *msglog << MSG::INFO << "LINE:" <<_LINE_ << " End of the test: " <<  TEST_NAME_ << endmsg; return StatusCode::SUCCESS

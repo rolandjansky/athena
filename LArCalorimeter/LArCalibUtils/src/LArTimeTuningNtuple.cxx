@@ -135,7 +135,7 @@ StatusCode LArTimeTuningNtuple::stop(){
   
   if (m_CellTimeOffsetKey.length()>0) {
     
-    LArCellTimeOffset *cellTimeOffset=nullptr;
+    LArCellTimeOffset *cellTimeOffset=new LArCellTimeOffset();
     StatusCode sc=evtStore()->retrieve(cellTimeOffset,m_CellTimeOffsetKey);
     if (sc.isSuccess() && cellTimeOffset->size()>0) {
     

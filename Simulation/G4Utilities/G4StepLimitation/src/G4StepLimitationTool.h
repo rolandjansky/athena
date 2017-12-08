@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date   03-08-2015
  */
-class G4StepLimitationTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>  {
+class G4StepLimitationTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool  {
 public:
   /// Standard constructor
   G4StepLimitationTool( const std::string& type , const std::string& name,

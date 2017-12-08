@@ -1,0 +1,2549 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+ * @file  AthContainers/DataList.icc
+ * @author scott snyder, Paolo Calafiura, Sebastien Binet, etc
+ * @date February 2006; rewritten from earlier version.
+ * @brief An STL list of pointers that by default owns its pointed-to
+ *        elements.
+ *        Implementation file.
+ */
+
+
+#include "AthContainers/tools/CompareAndPrint.h"
+#include "AthContainers/tools/ATHCONTAINERS_ASSERT.h"
+#include <limits>
+
+
+//****************************************************************************
+// VirtBases
+//
+
+ENTER_ROOT_SELECTION_NS
+namespace DataList_detail {
+template <class B1, class B2, class B3> class VirtBases;
+}
+EXIT_ROOT_SELECTION_NS
+
+
+namespace DataList_detail {
+
+/* #define DO_REMOVE_DUPLICATES to activate for debugging purposes (Slow) */
+// Note: this name should be distinct from the corresponding one in DataVector,
+// even though they're in different namespaces.  This due to an apparent
+// Koenig lookup bug in gccxml 0.9.0.
+template <class L>
+void optimizeMeAway_DL(L&, bool){}
+
+/**
+ * @brief Remove duplicates from a @c DataList before deleting elements.
+ * @param b Start of range to scan.
+ * @param e One past end of range to scan.
+ * @param quiet If true, complain if duplicates are found.
+ * @return One past the last unique elements.
+ *
+ * The elements within the range are sorted, then duplicate elements
+ * are moved to the end.  If duplicate elements are found and
+ * @a quiet is @c true, then a complaint will be printed.
+ */
+template <class LIST>
+typename LIST::iterator remove_duplicates(LIST& l, bool quiet=false)
+{
+#ifdef DO_REMOVE_DUPLICATES
+  l.sort();
+  return std::unique(l.begin(), l.end(), DataModel_detail::CompareAndPrint(quiet));
+#else
+  optimizeMeAway_DL(l, quiet);
+  return l.end();
+#endif
+}
+
+
+/**
+ * @brief VirtBases for one class.
+ *
+ * @c DataList\<T> derives from this for the case of
+ * @c T deriving virtually from a single class.
+ * It in turn derives from @c B1.
+ */
+template <class B1>
+struct VirtBases<B1, DataModel_detail::NoBase, DataModel_detail::NoBase>
+  : virtual public DataList<B1>
+{
+  // Make these types available to the derived @c DataList.
+  typedef typename DataList<B1>::PtrList PtrList;
+  typedef typename DataList<B1>::size_type size_type;
+  typedef typename DataList<B1>::difference_type difference_type;
+  typedef typename DataList<B1>::allocator_type allocator_type;
+
+#ifndef __REFLEX__
+  // We're using virtual derivation.
+  static const bool has_virtual = true;
+#endif
+
+
+protected:
+  // Pass this down to base classes.
+  void clearMostDerived()
+  {
+    DataList<B1>::clearMostDerived();
+  }
+
+  // We need these here to prevent ambiguities,
+  // but they shouldn't actually be called.
+  virtual const std::type_info& dl_typeid() const
+  {
+    return typeid(VirtBases);
+  }
+  virtual const DataModel_detail::DVLInfoBase& dvlinfo_v() const
+  {
+    return DataList<B1>::dvlinfo();
+  }
+  virtual void setMostDerived()
+  {
+    std::abort();
+  }
+
+
+private:
+  typedef typename
+  ROOT_SELECTION_NS::
+    DataList_detail::VirtBases<B1,
+                               DataModel_detail::NoBase, 
+                               DataModel_detail::NoBase>::self self;
+};
+
+
+/**
+ * @brief VirtBases for two classes.
+ *
+ * @c DataList\<T> derives from this for the case of
+ * @c T deriving from two classes.
+ * It in turn derives from @c B1 and @c B2.
+ */
+template <class B1, class B2>
+struct VirtBases<B1, B2, DataModel_detail::NoBase>
+  : virtual public DataList<B1>,
+    virtual public DataList<B2>
+{
+  // Check to be sure that @c B1 and @c B2 have the same ultimate base type.
+  typedef ::boost::is_same<typename DataList<B1>::PtrList,
+                           typename DataList<B2>::PtrList> check;
+  BOOST_STATIC_ASSERT (check::value);
+
+  // Make these types available to the derived @c DataList.
+  typedef typename DataList<B1>::PtrList PtrList;
+  typedef typename DataList<B1>::size_type size_type;
+  typedef typename DataList<B1>::difference_type difference_type;
+  typedef typename DataList<B1>::allocator_type allocator_type;
+
+#ifndef __REFLEX__
+  // We're using virtual derivation.
+  static const bool has_virtual = true;
+#endif
+
+
+protected:
+  // Pass this down to base classes.
+  void clearMostDerived()
+  {
+    DataList<B1>::clearMostDerived();
+    DataList<B2>::clearMostDerived();
+  }
+
+  // We need these here to prevent ambiguities,
+  // but they shouldn't actually be called.
+  virtual const std::type_info& dl_typeid() const
+  {
+    return typeid(VirtBases);
+  }
+  virtual const DataModel_detail::DVLInfoBase& dvlinfo_v() const
+  {
+    return DataList<B1>::dvlinfo();
+  }
+  virtual void setMostDerived()
+  {
+    std::abort();
+  }
+
+
+private:
+  typedef typename
+  ROOT_SELECTION_NS::
+    DataList_detail::VirtBases<B1, B2,
+                               DataModel_detail::NoBase>::self self;
+};
+
+
+/**
+ * @brief VirtBases for three classes.
+ *
+ * @c DataList\<T> derives from this for the case of
+ * @c T deriving from three classes.
+ * It in turn derives from @c B1, @c B2, and @c B3.
+ */
+template <class B1, class B2, class B3>
+struct VirtBases
+  : virtual public DataList<B1>,
+    virtual public DataList<B2>,
+    virtual public DataList<B3>
+{
+  // Check to be sure that @c B1, @c B2, and @c B3 have the same
+  // ultimate base type.
+  typedef ::boost::is_same<typename DataList<B1>::PtrList,
+                           typename DataList<B2>::PtrList> check1;
+  typedef ::boost::is_same<typename DataList<B1>::PtrList,
+                           typename DataList<B3>::PtrList> check2;
+  BOOST_STATIC_ASSERT (check1::value);
+  BOOST_STATIC_ASSERT (check2::value);
+
+
+  // Make these types available to the derived @c DataList.
+  typedef typename DataList<B1>::PtrList PtrList;
+  typedef typename DataList<B1>::size_type size_type;
+  typedef typename DataList<B1>::difference_type difference_type;
+  typedef typename DataList<B1>::allocator_type allocator_type;
+
+#ifndef __REFLEX__
+  // We're using virtual derivation.
+  static const bool has_virtual = true;
+#endif
+
+
+protected:
+  // Pass this down to base classes.
+  void clearMostDerived()
+  {
+    DataList<B1>::clearMostDerived();
+    DataList<B2>::clearMostDerived();
+    DataList<B3>::clearMostDerived();
+  }
+
+  // We need these here to prevent ambiguities,
+  // but they shouldn't actually be called.
+  virtual const std::type_info& dl_typeid() const
+  {
+    return typeid(VirtBases);
+  }
+  virtual const DataModel_detail::DVLInfoBase& dvlinfo_v() const
+  {
+    return DataList<B1>::dvlinfo();
+  }
+  virtual void setMostDerived()
+  {
+    std::abort();
+  }
+
+
+private:
+  typedef typename
+  ROOT_SELECTION_NS::DataList_detail::VirtBases<B1, B2, B3>::self
+  self;
+};
+
+
+} // namespace DataList_detail
+
+
+ENTER_ROOT_SELECTION_NS
+namespace DataList_detail {
+
+#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
+
+template <class B1, class B2, class B3>
+class VirtBases
+{
+public:
+  typedef DataList_detail::VirtBases<B1, B2, B3> self;
+
+  ROOT_SELECTION_NS::TEMPLATE_DEFAULTS<
+   ROOT_SELECTION_NS::NODEFAULT,
+    ::DataModel_detail::NoBase,
+    ::DataModel_detail::NoBase> dum1;
+};
+
+#else
+
+template< class B1, class B2, class B3 >
+class VirtBases : KeepFirstTemplateArguments< 1 > {
+
+public:
+   typedef DataList_detail::VirtBases< B1, B2, B3 > self;
+
+};
+
+#endif // ROOT_VERSION
+
+}
+EXIT_ROOT_SELECTION_NS
+
+
+//****************************************************************************
+// Generic (derived) DataList implementation.
+//
+
+
+//=== Constructors, destructors, assignment.
+
+
+/**
+ * @brief Default constructor.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataList will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ *
+ * Note that we do the complete initialization here in the derived class,
+ * using the default constructors for the base classes.  The reason
+ * for this is to be able to deal nicely with the virtual derivation
+ * case.  We can arrange to call the proper base class from here to get
+ * things initialized in the virtual derivation case.  But then anyone
+ * who derives from us must also know to explicitly reference that base
+ * class.  Doing the initialization explicitly here means that other classes
+ * who derive from us need only know about the most derived DataList
+ * class.
+ */
+template <class T, class BASE>
+inline
+DataList<T, BASE>::DataList
+  (SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+{
+  this->m_ownPolicy = ownPolicy;
+  this->m_isMostDerived = true;
+  BASE::clearMostDerived();
+}
+
+
+/**
+ * @brief Sized constructor.
+ * @param n The size of the container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * Note that unlike the standard list constructor, you can't specify
+ * an initial value here.  The container will be initialized with 0's.
+ *
+ * By default, a @c DataList will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ *
+ * Note that we do the complete initialization here in the derived class,
+ * using the default constructors for the base classes.  The reason
+ * for this is to be able to deal nicely with the virtual derivation
+ * case.  We can arrange to call the proper base class from here to get
+ * things initialized in the virtual derivation case.  But then anyone
+ * who derives from us must also know to explicitly reference that base
+ * class.  Doing the initialization explicitly here means that other classes
+ * who derive from us need only know about the most derived DataList
+ * class.
+ */
+template <class T, class BASE>
+inline
+DataList<T, BASE>::DataList
+  (size_type n,
+   SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+{
+  this->m_ownPolicy = ownPolicy;
+  this->m_isMostDerived = true;
+  BASE::clearMostDerived();
+  this->m_pCont.resize (n, (value_type)0);
+}
+
+
+/**
+ * @brief Constructor from iterators.
+ * @param first The start of the range to put in the new container.
+ * @param last The end of the range to put in the new container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataList will own its elements (and take ownership
+ * of the pointers passed to this constructor).
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ *
+ * Note that we do the complete initialization here in the derived class,
+ * using the default constructors for the base classes.  The reason
+ * for this is to be able to deal nicely with the virtual derivation
+ * case.  We can arrange to call the proper base class from here to get
+ * things initialized in the virtual derivation case.  But then anyone
+ * who derives from us must also know to explicitly reference that base
+ * class.  Doing the initialization explicitly here means that other classes
+ * who derive from us need only know about the most derived DataList
+ * class.
+ */
+template <class T, class BASE>
+template <class InputIterator>
+inline
+DataList<T, BASE>::DataList
+  (InputIterator first,
+   InputIterator last,
+   SG::OwnershipPolicy ownPolicy /*= SG::VIEW_ELEMENTS*/)
+{
+  // Make sure that the input iterator can actually be converted
+  // to a T*.  Lets us give a compilation error for this:
+  //   DATALIST_BASE(D, B);
+  //   B* bb[] = ...
+  //   DataList<D> d (bb, bb+1);
+  // which would otherwise compile.
+  typedef typename std::iterator_traits<InputIterator>::value_type ittype;
+  BOOST_STATIC_ASSERT ((::boost::is_convertible<ittype, const T*>::value));
+  
+  this->m_ownPolicy = ownPolicy;
+  this->m_isMostDerived = true;
+  BASE::clearMostDerived();
+  this->m_pCont.assign (first, last);
+}
+
+
+/**
+ * @brief Assignment operator.
+ * @param rhs The DataList from which to assign.
+ * @return This object.
+ *
+ * This is a `shallow' copy; after the completion of this, the DataList
+ * will not own its elements.  Any elements it owned prior to this call
+ * will be released.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T, class BASE>
+inline
+DataList<T, BASE>& DataList<T, BASE>::operator= (const DataList& rhs)
+{
+  if (&rhs != this) {
+    // Ensure we're not being called via a base class.
+    testInsert ("assignment operator");
+    this->clear();                // Release any currently-owned elements.
+    this->m_ownPolicy = SG::VIEW_ELEMENTS;
+    this->m_pCont = rhs.m_pCont;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Assign from iterators.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * Any existing owned elements will be released.
+ * The @c DataList's ownership policy determines whether it will take
+ * ownership of the new elements.
+ */
+template <class T, class BASE>
+template <class InputIterator>
+void DataList<T, BASE>::assign(InputIterator first, InputIterator last)
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("assign");
+  this->clear();                // Release any currently-owned elements.
+  insert(begin(), first, last);
+}
+
+
+//=== Element access.
+
+
+/**
+ * @brief Access the first element in the collection as an rvalue.
+ * @return The first element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a @c const @c T* rather than a reference.
+ */
+template <class T, class BASE>
+inline
+const T* DataList<T, BASE>::front() const
+{
+  return do_cast( this->m_pCont.front() );
+}
+
+
+/**
+ * @brief Access the last element in the collection as an rvalue.
+ * @return The last element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a @c const @c T* rather than a reference.
+ */
+template <class T, class BASE>
+inline
+const T* DataList<T, BASE>::back() const
+{
+  return do_cast( this->m_pCont.back() );
+}
+
+
+/**
+ * @brief Access the first element in the collection as an lvalue.
+ * @return Proxy to the first element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::ElementProxy
+DataList<T, BASE>::front()
+{
+  return ElementProxy( this->m_pCont.begin(), this );
+}
+
+
+/**
+ * @brief Access the last element in the collection as an lvalue.
+ * @return Proxy to the last element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::ElementProxy
+DataList<T, BASE>::back()
+{
+  return ElementProxy( --(this->m_pCont.end()), this );
+}
+
+
+//=== Iterator creation.
+
+
+/**
+ * @brief Return a @c const_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c const_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::const_iterator
+DataList<T, BASE>::begin() const
+{
+  return const_iterator( this->m_pCont.begin() );
+}
+
+
+/**
+ * @brief Return a @c const_iterator pointing past the end
+ *        of the collection.
+ * @return A @c const_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::const_iterator
+DataList<T, BASE>::end() const
+{
+  return const_iterator( this->m_pCont.end() );
+}
+
+
+/**
+ * @brief Return an @c iterator pointing at the beginning
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::iterator
+DataList<T, BASE>::begin()
+{
+  return iterator( this->m_pCont.begin(), this );
+}
+
+
+/**
+ * @brief Return an @c iterator pointing past the end
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::iterator
+DataList<T, BASE>::end()
+{
+  return iterator( this->m_pCont.end(), this );
+}
+
+
+/**
+ * @brief Return a @c const_reverse_iterator pointing past the end
+ *        of the collection.
+ * @return A @c const_reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::const_reverse_iterator
+DataList<T, BASE>::rbegin() const
+{
+  return const_reverse_iterator( end() );
+}
+
+
+/**
+ * @brief Return a @c const_reverse_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c const_reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::const_reverse_iterator
+DataList<T, BASE>::rend() const
+{
+  return const_reverse_iterator( begin() );
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing past the end
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::reverse_iterator
+DataList<T, BASE>::rbegin()
+{
+  return reverse_iterator( iterator( this->m_pCont.end(), this ));
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T, class BASE>
+inline
+typename DataList<T, BASE>::reverse_iterator
+DataList<T, BASE>::rend()
+{
+  return reverse_iterator( iterator( this->m_pCont.begin(), this ));
+}
+
+
+//=== Insertion operations.
+
+
+/**
+ * @brief Add an element to the beginning of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T, class BASE>
+inline
+void DataList<T, BASE>::push_front( value_type pElem )
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("push_front");
+  this->m_pCont.push_front( pElem );
+}
+
+
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T, class BASE>
+inline
+void DataList<T, BASE>::push_back( value_type pElem )
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("push_back");
+  this->m_pCont.push_back( pElem );
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T, class BASE>
+typename DataList<T, BASE>::iterator
+DataList<T, BASE>::insert( iterator position, value_type pElem )
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("insert");
+  return iterator( this->m_pCont.insert( position.base(), pElem ), this );
+}
+
+
+/**
+ * @brief Add a group of new elements to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T, class BASE>
+template <class InputIterator>
+void DataList<T, BASE>::insert( iterator position,
+                                InputIterator first,
+                                InputIterator last )
+{
+  // Make sure that the input iterator can actually be converted
+  // to a T*.  Lets us give a compilation error for this:
+  //   DATALIST_BASE(D, B);
+  //   B* bb[] = ...
+  //   DataList<D> d;
+  //   d.insert (d.begin(), bb, bb+1);
+  // which would otherwise compile.
+  typedef typename std::iterator_traits<InputIterator>::value_type ittype;
+  BOOST_STATIC_ASSERT ((::boost::is_convertible<ittype, const T*>::value));
+
+  // Ensure we're not being called via a base class.
+  testInsert ("insert");
+  this->m_pCont.insert(position.base(), first, last);
+}
+
+
+//=== Erasure operations.
+
+
+/**
+ * @brief Remove element at a given position.
+ * @param position Iterator pointing to the element to be removed.
+ * @return An iterator pointing to the next element (or @c end()).
+ *
+ * If the container owns its elements, then the pointed-to element
+ * will be deleted.
+ */
+template <class T, class BASE>
+typename DataList<T, BASE>::iterator
+DataList<T, BASE>::erase(iterator position)
+{ 
+  return iterator( this->erase_base( position.base() ), this );
+}
+
+
+/**
+ * @brief Remove a range of elements.
+ * @param first Iterator pointing to the first element to be removed.
+ * @param last Iterator pointing one past the last element to be removed.
+ * @return An iterator pointing to the element pointed to by @a last
+ *         prior to erasing (or @c end()).
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class T, class BASE>
+typename DataList<T, BASE>::iterator
+DataList<T, BASE>::erase( iterator first, iterator last )
+{
+  return iterator( this->erase_base( first.base(), last.base() ), this );
+}
+
+//=== Swap and sort.
+
+
+/**
+ * @brief Swap this collection with another.
+ * @param rhs The collection with which to swap.
+ *
+ * Ownership is swapped along with the collection content.
+ *
+ * Note: this method may only be called using the most-derived
+ * @c DataList in the hierarchy.  The @a rhs must also be
+ * referenced using the most-derived @c DataList.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::swap(DataList& rhs)
+{
+  testInsert ("swap");
+  rhs.testInsert ("swap");
+  std::swap(this->m_ownPolicy, rhs.m_ownPolicy);
+  this->m_pCont.swap(rhs.m_pCont);
+}
+
+
+/**
+ * @brief Swap the referents of two @c DataVector iterators.
+ * @param a The first iterator for the swap.
+ * @param b The second iterator for the swap/
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::iter_swap (iterator a, iterator b)
+{
+  ATHCONTAINERS_ASSERT (a.ownPolicy() == b.ownPolicy());
+  a.testInsert ("iter_swap");
+  b.testInsert ("iter_swap");
+  std::iter_swap (a.base(), b.base());
+}
+
+
+/**
+ * @brief Sort the container.
+ *
+ * This just sorts by pointer value, so it's probably not very useful.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::sort()
+{
+  typedef std::less<typename PtrList::value_type> less;
+  this->m_pCont.sort( DataModel_detail::Compwrapper<DataList, less>( less() ) );
+}
+
+
+/**
+ * @brief Sort the container with a user-specified comparison operator.
+ * @param comp Functional to compare two values.
+ */
+template <class T, class BASE>
+template <class COMPARE>
+void DataList<T, BASE>::sort(COMPARE comp)
+{
+  this->m_pCont.sort( DataModel_detail::Compwrapper<DataList, COMPARE>( comp ));
+}
+
+//=== List operations.
+
+/**
+ *  @brief Insert contents of another list.
+ *  @param position Iterator referencing the element to insert before.
+ *  @param l  Source list.
+ *
+ *  The elements of @a l are inserted in constant time in front of
+ *  the element referenced by @a position.  @a l becomes an empty
+ *  list.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::splice( iterator position, DataList& l )
+{
+  if ( this->m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("splice");
+    this->m_pCont.splice( position.base(), l.m_pCont );
+  }
+}
+
+/**
+ *  @brief Insert element from another list.
+ *  @param position  Iterator referencing the element to insert before.
+ *  @param l  Source list.
+ *  @param i  Iterator referencing the element to move.
+ *
+ *  Removes the element in list @a l referenced by @a i and
+ *  inserts it into the current list before @a position.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::splice( iterator position, DataList& l, iterator i )
+{
+  //FIXME
+  if ( this->m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("splice");
+    this->m_pCont.splice( position.base(), l.m_pCont, i.base() );
+  }
+}
+
+
+/**
+ *  @brief  Insert range from another list.
+ *  @param  position  Iterator referencing the element to insert before.
+ *  @param  l  Source list.
+ *  @param  first  Iterator referencing the start of range in @a l.
+ *  @param  last  Iterator referencing the end of range in @a l.
+ *
+ *  Removes elements in the range [@a first, @a last ) and inserts them
+ *  before @a position in constant time.
+ *
+ *  Undefined if @a position is in [@a first, @a last ).
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::splice( iterator position, DataList& l,
+                                iterator first,
+                                iterator last )
+{
+  //FIXME
+  if ( this->m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("splice");
+    this->m_pCont.splice( position.base(), l.m_pCont, 
+                          first.base(), last.base() );
+  }
+}
+
+/**
+ *  @brief  Remove all elements equal to value.
+ *  @param  value  The value to remove.
+ *
+ *  Removes every element in the list equal to @a value.
+ *  Remaining elements stay in list order.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::remove( const value_type& value )
+{
+  //FIXME
+  iterator i = begin();
+  while ( end() != ( i = std::find( i, end(), value ) ) ) {
+    erase(i++);
+  }
+}
+
+/**
+ *  @brief  Remove all elements satisfying a predicate.
+ *  @param  pred  Unary predicate function or object.
+ *
+ *  Removes every element in the list for which the predicate
+ *  returns true.  Remaining elements stay in list order.
+ */
+template <class T, class BASE>
+template<typename PREDICATE>
+void DataList<T, BASE>::remove_if( PREDICATE pred )
+{
+  //FIXME
+  iterator i = begin();
+  while ( end() != ( i = std::find_if( i, end(), pred ) ) ) {
+    erase(i++);
+  }
+}
+
+/**
+ *  @brief  Remove consecutive duplicate elements.
+ *
+ *  For each consecutive set of elements with the same value,
+ *  remove all but the first one.  Remaining elements stay in
+ *  list order.
+ */
+template <class T, class BASE>
+inline
+void DataList<T, BASE>::unique()
+{
+  this->m_pCont.unique();
+}
+
+/**
+ *  @brief  Remove consecutive elements satisfying a predicate.
+ *  @param  BinaryPredicate  Binary predicate function or object.
+ *
+ *  For each consecutive set of elements [first,last) that
+ *  satisfy predicate(first,i) where i is an iterator in
+ *  [first,last), remove all but the first one.  Remaining
+ *  elements stay in list order.
+ */
+template <class T, class BASE>
+template<typename BinaryPredicate>
+inline
+void DataList<T, BASE>::unique( BinaryPredicate p )
+{
+  this->m_pCont.unique(DataModel_detail::Compwrapper<DataList,
+                                                     BinaryPredicate>(p));
+}
+
+/**
+ *  @brief  Merge sorted lists.
+ *  @param  l  Sorted list to merge.
+ *
+ *  Assumes that both @a l and this list are sorted according to
+ *  @c operator<().  Merges elements of @a l into this list in
+ *  sorted order, leaving @a l empty when complete.  Elements in
+ *  this list precede elements in @a l that are equal.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::merge( DataList& l )
+{
+  //FIXME
+  if ( this->m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("merge");
+    // Wrap the default comparison object,
+    // in case someone's overridden operator< for pointers.
+    typedef std::less<typename DataList<T, BASE>::PtrList::value_type> less;
+    this->m_pCont.merge( l.m_pCont, 
+                   DataModel_detail::Compwrapper<DataList, less>( less() ) );
+  }
+}
+
+/**
+ *  @brief  Merge sorted lists according to comparison function.
+ *  @param  l  Sorted list to merge.
+ *  @param COMPARE Comparison function defining sort order (which
+ *  must be strictly weak ordering).
+ *
+ *  Assumes that both @a l and this @c DataList are sorted according to
+ *  COMPARE predicate.  Merges elements of @a l into this list
+ *  in sorted order, leaving @a l empty when complete.  Elements
+ *  in this list precede elements in @a x that are equivalent
+ *  according to StrictWeakOrdering().
+ */
+template <class T, class BASE>
+template<typename COMPARE>
+void DataList<T, BASE>::merge( DataList& l, COMPARE predicate )
+{
+  //FIXME
+  if ( this->m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("merge");
+    this->m_pCont.merge( l.m_pCont,
+                         DataModel_detail::Compwrapper<DataList<T, BASE>,
+                                                       COMPARE>(predicate) );
+  }
+}
+
+/**
+ *  @brief  Reverse the elements in list.
+ *
+ *  Reverse the order of elements in the list in linear time.
+ */
+template <class T, class BASE>
+inline
+void DataList<T, BASE>::reverse()
+{
+  //FIXME
+  this->m_pCont.reverse();
+}
+
+
+//=== Non-standard operations.
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param pos The element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a pos of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.  If the collection owns its elements, then it will
+ * take ownership of @a newElem and release (without deleting)
+ * the element returned through @a oldElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::swapElement(iterator pos,
+                                    value_type newElem,
+                                    reference oldElem)
+{
+  testInsert ("swapElement");
+  oldElem =
+    DataModel_detail::DVLCast<DataList>::cast(*pos.base());
+  *pos.base() = newElem;
+}
+
+
+/**
+ * @brief Return the DV/DL info struct for this class.
+ *
+ * This can be used to make sure that it's instantiated.
+ */
+template <class T, class BASE>
+const DataModel_detail::DVLInfoBase& DataList<T, BASE>::dvlinfo()
+{
+  return s_info;
+}
+
+
+/**
+ * @brief Return the DV/DL info struct for this class.
+ *
+ * This can be used to make sure that it's instantiated.
+ */
+template <class T, class BASE>
+const DataModel_detail::DVLInfoBase& DataList<T, BASE>::dvlinfo_v() const
+{
+  return s_info;
+}
+
+
+//=== Internal operations.
+
+
+/**
+ * @brief Find the most-derived @c DataList class in the hierarchy.
+ * @return The @c type_info for the class for which this method gets run.
+ *
+ * In order to properly type-check insertions, we need to be able to find
+ * the most-derived @c DataList class in the inheritance hierarchy.
+ * That's the purpose of this function.
+ * Every @c DataList defines this virtual method, so when it's
+ * called, the one corresponding to the most-derived @c DataList
+ * gets run.
+ */
+template <class T, class BASE>
+const std::type_info& DataList<T, BASE>::dl_typeid() const
+{
+  return typeid(DataList);
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * This is a no-op for @c DataList.
+ */
+template <class T, class BASE>
+inline
+void DataList<T, BASE>::resortAux (iterator /*beg*/, iterator /*end*/)
+{
+}
+
+
+/**
+ * @brief Test if we can insert; raise an exception if not.
+ * @param op Description of the attempted operation.
+ *
+ * In order to maintain type-safety, we can only allow insertions
+ * using the most-derived instance of @c DataList.  This checks
+ * this by testing the @c m_isMostDerived, which is set by the constructors
+ * to true only for the most-derived instance.
+ * If the test fails, we call to potentially out-of-line code to continue.
+ */
+template <class T, class BASE>
+inline
+void DataList<T, BASE>::testInsert (const char* op)
+{
+  if (ATHCONTAINERS_LIKELY (m_isMostDerived))
+    return;
+  this->testInsertOol (op);
+}
+
+
+/**
+ * @brief Test if we can insert; raise an exception if not.
+ * @param op Description of the attempted operation.
+ *
+ * This continues the test of @c testInsert.  There is one case
+ * where @c m_isMostDerived may not be set correctly.  If this container
+ * was made via copy construction, then all the @c m_isMostDerived flags
+ * will be false.  So we call @c setMostDerived to set the flags correctly
+ * and test again.  If the test fails again, then we raise an exception.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::testInsertOol (const char* op)
+{
+  this->setMostDerived();
+  if (!m_isMostDerived)
+    throw SG::ExcInsertionInBaseClass (op, typeid(DataList), dl_typeid());
+}
+
+
+/**
+ * @brief Clear @c m_isMostDerived for this instance and for all bases.
+ *
+ * Called from the constructor after setting @c m_isMostDerived.
+ */
+template <class T, class BASE>
+inline
+void DataList<T, BASE>::clearMostDerived()
+{
+  this->m_isMostDerived = false;
+  BASE::clearMostDerived();
+}
+
+
+/**
+ * @brief Set @c m_isMostDerived for this instance and clear it for all bases.
+ *
+ * Called from @c testInsert if the test fails.  The flag may not have
+ * been set if this container was made via copy construction, so set
+ * it appropriately now so we can test again.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::setMostDerived()
+{
+  m_isMostDerived = true;
+  BASE::clearMostDerived();
+}
+
+
+/**
+ * @brief Handle element assignment.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ */
+template <class T, class BASE>
+void DataList<T, BASE>::assignElement (typename BaseContainer::iterator pos,
+                                       value_type newElem)
+{
+  testInsert ("assignElement");
+  if (this->m_ownPolicy == SG::OWN_ELEMENTS)
+    delete *pos;
+  *pos = newElem;
+}
+
+
+/**
+ * @brief Handle element assignment from a base pointer.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ */
+template <class T, class BASE>
+void
+DataList<T, BASE>::assignBaseElement (typename BaseContainer::iterator pos,
+                                      typename BaseContainer::value_type newElem)
+{
+  testInsert ("assignBaseElement");
+  if (this->m_ownPolicy == SG::OWN_ELEMENTS)
+    delete *pos;
+  *pos = newElem;
+}
+
+
+/**
+ * @brief Helper to shorten calls to @c DataModel_detail::DVLCast.
+ * @param p The value to convert.
+ * @return The value as a @c const @c T*.
+ *
+ * The conversion will be done with @c static_cast if possible,
+ * with @c dynamic_cast otherwise.
+ */
+template <class T, class BASE>
+inline
+const T*
+DataList<T, BASE>::do_cast (const typename PtrList::value_type p)
+{
+  return DataModel_detail::DVLCast<DataList>::cast (p);
+}
+
+
+/// The DV/DL info struct for this class.
+template <class T, class BASE>
+DataModel_detail::DVLInfo<DataList<T> > DataList<T, BASE>::s_info;
+
+
+//****************************************************************************
+// Specialized (base) DataList implementation.
+//
+
+
+#ifndef __CINT__ // I don't think CINT will be able to read this.
+
+// An abbreviation for the DataList specialization to try to make
+// things a little more readable.
+#define DATALIST DataList<T, DataModel_detail::NoBase>
+
+
+//=== Constructors, destructors, assignment.
+
+/**
+ * @brief Default constructor.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataList will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class T>
+inline
+DATALIST::DataList( SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/ )
+  : m_ownPolicy(ownPolicy)
+{
+  this->m_isMostDerived = true;
+}
+
+
+/**
+ * @brief Sized constructor.
+ * @param n The size of the container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * Note that unlike the standard list constructor, you can't specify
+ * an initial value here.  The container will be initialized with 0's.
+ *
+ * By default, a @c DataList will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class T>
+inline
+DATALIST::DataList( size_type n,
+                    SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/ )
+  : m_ownPolicy(ownPolicy),
+    m_pCont (n, (value_type)0)
+{
+  this->m_isMostDerived = true;
+}
+
+
+/**
+ * @brief Copy constructor.
+ * @param rhs The container from which to copy.
+ *
+ * This is a `shallow' copy; the new container will not own its elements.
+ */
+template <class T>
+inline
+DATALIST::DataList(const DataList& rhs)
+  : m_ownPolicy(SG::VIEW_ELEMENTS),
+    m_pCont(rhs.m_pCont)
+{
+  // Leave m_isMostDerived false here, because we may be being called
+  // from a derived class implicit copy constructor.  The flags will get
+  // set correctly when @c testInsert gets called.
+}
+
+
+/**
+ * @brief Constructor from iterators.
+ * @param first The start of the range to put in the new container.
+ * @param last The end of the range to put in the new container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataList will own its elements (and take ownership
+ * of the pointers passed to this constructor).
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class T>
+template <class InputIterator>
+inline
+DATALIST::DataList( InputIterator first,
+                    InputIterator last,
+                    SG::OwnershipPolicy ownPolicy /*= SG::VIEW_ELEMENTS*/ )
+  : m_ownPolicy(ownPolicy),
+    m_pCont(first, last)
+{
+  this->m_isMostDerived = true;
+}
+
+
+/**
+ * @brief Assignment operator.
+ * @param rhs The DataList from which to assign.
+ * @return This object.
+ *
+ * This is a `shallow' copy; after the completion of this, the @c DataList
+ * will not own its elements.  Any elements it owned prior to this call
+ * will be released.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T>
+inline
+DATALIST& DATALIST::operator= (const DataList& rhs)
+{
+  if (&rhs != this) {
+    // Ensure we're not being called via a base class.
+    testInsert ("assignment operator");
+    clear();                // Release any currently-owned elements.
+    m_ownPolicy = SG::VIEW_ELEMENTS;
+    m_pCont = rhs.m_pCont;
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Assign from iterators.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * Any existing owned elements will be released.
+ * The @c DataList's ownership policy determines whether it will take
+ * ownership of the new elements.
+ */
+template <class T>
+template <class InputIterator>
+void DATALIST::assign( InputIterator first,
+                       InputIterator last )
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("assign");
+  clear();                 // Release any currently-owned elements.
+  insert(begin(), first, last);
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * If this container owns its elements, the contained elements will
+ * be deleted as well.  Before doing this, the destructor will scan
+ * for duplicate pointers (takes @f$n \log n@f$ time); duplicates are only
+ * destroyed once.  Duplicates should, however, be considered an error;
+ * don't rely on this behavior.
+ */
+template <class T>
+DATALIST::~DataList()
+{
+  if (m_ownPolicy == SG::OWN_ELEMENTS) {
+    typename PtrList::iterator new_end =
+      DataList_detail::remove_duplicates(m_pCont);
+    typename PtrList::iterator iter = m_pCont.begin();
+    while (iter != new_end)
+      delete *(iter++);
+    }
+}
+
+
+//=== Size and capacity.
+
+
+/**
+ * @brief Returns the number of elements in the collection.
+ */
+template <class T>
+inline
+typename DATALIST::size_type DATALIST::size() const
+{
+  return m_pCont.size();
+}
+
+
+/**
+ * @brief Returns the @c size() of the largest possible collection.
+ */
+template <class T>
+inline
+typename DATALIST::size_type DATALIST::max_size() const
+{
+  return m_pCont.max_size();
+}
+
+
+/**
+ * @brief Resizes the collection to the specified number of elements.
+ * @param sz The new size of the collection.
+ *
+ * Note that this function differs from the standard in that it does
+ * not allow specifying the value of any inserted elements.
+ * They will always be 0.
+ *
+ * If the container is shrunk, elements will be deleted as with @c erase().
+ */
+template <class T>
+void DATALIST::resize(size_type sz)
+{ 
+  if (sz < size()) {
+    iterator itr = begin();
+    size_type length = 0;
+    for (; itr != end() && length < sz; ++itr, ++length) {
+      // we just want to point at the good element:
+      // the one which will be the new end of the list
+      ;
+    }
+    erase ( itr, end() );
+  } else {
+    m_pCont.insert(m_pCont.end(), sz - m_pCont.size(), 0);
+  }
+} 
+
+
+/**
+ * @brief Returns @c true if the collection is empty.
+ */
+template <class T>
+inline
+bool DATALIST::empty() const
+{
+  return m_pCont.empty();
+}
+
+
+//=== Element access.
+
+
+/**
+ * @brief Access the first element in the collection as an rvalue.
+ * @return The first element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a @c const @c T* rather than a reference.
+ */
+template <class T>
+inline
+const T* DATALIST::front() const
+{
+  return m_pCont.front();
+}
+
+
+/**
+ * @brief Access the last element in the collection as an rvalue.
+ * @return The last element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a @c const @c T* rather than a reference.
+ */
+template <class T>
+inline
+const T* DATALIST::back() const
+{
+  return m_pCont.back();
+}
+
+
+/**
+ * @brief Access the first element in the collection as an lvalue.
+ * @return Proxy to the first element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class T>
+inline
+typename DATALIST::ElementProxy DATALIST::front ()
+{
+  return ElementProxy( m_pCont.begin(), this );
+}
+
+
+/**
+ * @brief Access the last element in the collection as an lvalue.
+ * @return Proxy to the last element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class T>
+inline
+typename DATALIST::ElementProxy DATALIST::back ()
+{
+  return ElementProxy( --m_pCont.end(), this );
+}
+
+
+//=== Iterator creation.
+
+
+/**
+ * @brief Return a @c const_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c const_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T>
+inline
+typename DATALIST::const_iterator DATALIST::begin() const
+{
+  return m_pCont.begin();
+}
+
+
+/**
+ * @brief Return a @c const_iterator pointing past the end
+ *        of the collection.
+ * @return A @c const_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T>
+inline
+typename DATALIST::const_iterator DATALIST::end() const
+{
+  return m_pCont.end();
+}
+
+
+/**
+ * @brief Return an @c iterator pointing at the beginning
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T>
+inline
+typename DATALIST::iterator DATALIST::begin()
+{
+  return iterator( m_pCont.begin(), this );
+}
+
+
+/**
+ * @brief Return an @c iterator pointing past the end
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T>
+inline
+typename DATALIST::iterator DATALIST::end()
+{
+  return iterator( m_pCont.end(), this );
+}
+
+
+/**
+ * @brief Return a @c const_reverse_iterator pointing past the end
+ *        of the collection.
+ * @return A @c const_reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T>
+inline
+typename DATALIST::const_reverse_iterator DATALIST::rbegin() const
+{
+  return const_reverse_iterator( m_pCont.end() );
+}
+
+
+/**
+ * @brief Return a @c const_reverse_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c const_reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a @c const @c T* rather
+ * than a reference.
+ */
+template <class T>
+inline
+typename DATALIST::const_reverse_iterator DATALIST::rend() const
+{
+  return const_reverse_iterator( const_iterator( m_pCont.begin() ) );
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing past the end
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T>
+inline
+typename DATALIST::reverse_iterator DATALIST::rbegin()
+{
+  return reverse_iterator( iterator( m_pCont.end(), this ));
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class T>
+inline
+typename DATALIST::reverse_iterator DATALIST::rend()
+{
+  return reverse_iterator( iterator( m_pCont.begin(), this ));
+}
+
+
+//=== Insertion operations.
+
+
+/**
+ * @brief Add an element to the beginning of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T>
+inline
+void DATALIST::push_front(value_type pElem)
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("push_front");
+  m_pCont.push_front(pElem);
+}
+
+
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T>
+inline
+void DATALIST::push_back(value_type pElem)
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("push_back");
+  m_pCont.push_back(pElem);
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T>
+inline
+typename DATALIST::iterator
+DATALIST::insert( iterator position, value_type pElem )
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("insert");
+  return iterator( m_pCont.insert( position.base(), pElem ), this );
+}
+
+
+/**
+ * @brief Add a group of new elements to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T>
+template <class InputIterator>
+inline
+void
+DATALIST::insert( iterator position, InputIterator first, InputIterator last )
+{
+  // Ensure we're not being called via a base class.
+  testInsert ("insert");
+  m_pCont.insert(position.base(), first, last);
+}
+
+
+//=== Erasure operations.
+
+
+/**
+ * @brief Remove element at a given position.
+ * @param position Iterator pointing to the element to be removed.
+ * @return An iterator pointing to the next element (or @c end()).
+ *
+ * If the container owns its elements, then the pointed-to element
+ * will be deleted.
+ */
+template <class T>
+inline
+typename DATALIST::iterator DATALIST::erase( iterator position )
+{ 
+  return iterator( this->erase_base( position.base() ), this );
+}
+
+
+/**
+ * @brief Remove a range of elements.
+ * @param first Iterator pointing to the first element to be removed.
+ * @param last Iterator pointing one past the last element to be removed.
+ * @return An iterator pointing to the element pointed to by @a last
+ *         prior to erasing (or @c end()).
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class T>
+inline
+typename DATALIST::iterator DATALIST::erase( iterator first, iterator last )
+{
+  return iterator( this->erase_base( first.base(), last.base() ), this );
+}
+
+
+/**
+ * @brief Remove the first element from the collection.
+ *
+ * If the container owns its elements, then the removed element
+ * will be deleted.
+ */
+template <class T>
+void DATALIST::pop_front()
+{
+  if (!m_pCont.empty()) {
+    if (m_ownPolicy == SG::OWN_ELEMENTS)
+      delete m_pCont.front();
+    m_pCont.pop_front();
+  }
+}
+
+
+/**
+ * @brief Remove the last element from the collection.
+ *
+ * If the container owns its elements, then the removed element
+ * will be deleted.
+ */
+template <class T>
+void DATALIST::pop_back()
+{
+  if (!m_pCont.empty()) {
+    if (m_ownPolicy == SG::OWN_ELEMENTS)
+      delete m_pCont.back();
+    m_pCont.pop_back();
+  }
+}
+
+
+/**
+ * @brief Erase all the elements in the collection.
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class T>
+inline
+void DATALIST::clear()
+{
+  erase( begin(), end() );
+}
+
+
+//=== Swap and sort.
+
+
+/**
+ * @brief Swap this collection with another.
+ * @param rhs The collection with which to swap.
+ *
+ * Ownership is swapped along with the collection content.
+ *
+ * Note: this method may only be called using the most-derived
+ * @c DataList in the hierarchy.  The @a rhs must also be
+ * referenced using the most-derived @c DataList.
+ */
+template <class T>
+void DATALIST::swap( DataList& rhs )
+{
+  testInsert ("swap");
+  rhs.testInsert ("swap");
+  std::swap( m_ownPolicy, rhs.m_ownPolicy );
+  m_pCont.swap( rhs.m_pCont );
+}
+
+
+/**
+ * @brief Swap the referents of two @c DataVector iterators.
+ * @param a The first iterator for the swap.
+ * @param b The second iterator for the swap/
+ */
+template <class T>
+void DATALIST::iter_swap (iterator a, iterator b)
+{
+  ATHCONTAINERS_ASSERT (a.ownPolicy() == b.ownPolicy());
+  a.testInsert ("iter_swap");
+  b.testInsert ("iter_swap");
+  std::iter_swap (a.base(), b.base());
+}
+
+
+/**
+ * @brief Sort the container.
+ *
+ * This just sorts by pointer value, so it's probably not very useful.
+ */
+template <class T>
+void DATALIST::sort()
+{
+  m_pCont.sort();
+}
+
+
+/**
+ * @brief Sort the container with a user-specified comparison operator.
+ * @param comp Functional to compare two values.
+ */
+template <class T>
+template <class COMPARE>
+void DATALIST::sort( COMPARE comp )
+{
+  m_pCont.sort( comp );
+}
+
+//=== List operations.
+
+/**
+ *  @brief Insert contents of another list.
+ *  @param position Iterator referencing the element to insert before.
+ *  @param l  Source list.
+ *
+ *  The elements of @a l are inserted in constant time in front of
+ *  the element referenced by @a position.  @a l becomes an empty
+ *  list.
+ */
+template <class T>
+void DATALIST::splice( iterator position, DataList& l )
+{
+  if ( m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("splice");
+    this->m_pCont.splice( position.base(), l.m_pCont );
+  }
+}
+
+/**
+ *  @brief Insert element from another list.
+ *  @param position  Iterator referencing the element to insert before.
+ *  @param l  Source list.
+ *  @param i  Iterator referencing the element to move.
+ *
+ *  Removes the element in list @a l referenced by @a i and
+ *  inserts it into the current list before @a position.
+ */
+template <class T>
+void DATALIST::splice( iterator position, DataList& l, iterator i )
+{
+  //FIXME
+  if ( m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("splice");
+    this->m_pCont.splice( position.base(), l.m_pCont, i.base() );
+  }
+}
+
+
+/**
+ *  @brief  Insert range from another list.
+ *  @param  position  Iterator referencing the element to insert before.
+ *  @param  l  Source list.
+ *  @param  first  Iterator referencing the start of range in @a l.
+ *  @param  last  Iterator referencing the end of range in @a l.
+ *
+ *  Removes elements in the range [@a first, @a last ) and inserts them
+ *  before @a position in constant time.
+ *
+ *  Undefined if @a position is in [@a first, @a last ).
+ */
+template <class T>
+void DATALIST::splice( iterator position, DataList& l,
+                       iterator first,
+                       iterator last )
+{
+  //FIXME
+  if ( m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("splice");
+    this->m_pCont.splice( position.base(), l.m_pCont, 
+                          first.base(), last.base() );
+  }
+}
+
+/**
+ *  @brief  Remove all elements equal to value.
+ *  @param  value  The value to remove.
+ *
+ *  Removes every element in the list equal to @a value.
+ *  Remaining elements stay in list order.
+ */
+template <class T>
+void DATALIST::remove( const value_type& value )
+{
+  //FIXME
+  iterator i = begin();
+  while ( end() != ( i = std::find( i, end(), value ) ) ) {
+    erase(i++);
+  }
+}
+
+/**
+ *  @brief  Remove all elements satisfying a predicate.
+ *  @param  pred  Unary predicate function or object.
+ *
+ *  Removes every element in the list for which the predicate
+ *  returns true.  Remaining elements stay in list order.
+ */
+template <class T>
+template<typename PREDICATE>
+void DATALIST::remove_if( PREDICATE pred )
+{
+  //FIXME
+  iterator i = begin();
+  while ( end() != ( i = std::find_if( i, end(), pred ) ) ) {
+    erase(i++);
+  }
+}
+
+/**
+ *  @brief  Remove consecutive duplicate elements.
+ *
+ *  For each consecutive set of elements with the same value,
+ *  remove all but the first one.  Remaining elements stay in
+ *  list order.
+ */
+template <class T>
+inline
+void DATALIST::unique()
+{
+  this->m_pCont.unique();
+}
+
+/**
+ *  @brief  Remove consecutive elements satisfying a predicate.
+ *  @param  BinaryPredicate  Binary predicate function or object.
+ *
+ *  For each consecutive set of elements [first,last) that
+ *  satisfy predicate(first,i) where i is an iterator in
+ *  [first,last), remove all but the first one.  Remaining
+ *  elements stay in list order.
+ */
+template <class T>
+template<typename BinaryPredicate>
+inline
+void DATALIST::unique( BinaryPredicate p )
+{
+  // Wrap the default comparison object,
+  // in case someone's overridden operator< for pointers.
+  this->m_pCont.unique( DataModel_detail::Compwrapper<DATALIST,
+                                                      BinaryPredicate>(p) );
+}
+
+/**
+ *  @brief  Merge sorted lists.
+ *  @param  l  Sorted list to merge.
+ *
+ *  Assumes that both @a l and this list are sorted according to
+ *  @c operator<().  Merges elements of @a l into this list in
+ *  sorted order, leaving @a l empty when complete.  Elements in
+ *  this list precede elements in @a l that are equal.
+ */
+template <class T>
+void DATALIST::merge( DataList& l )
+{
+  //FIXME
+  if ( m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("merge");
+    // Wrap the default comparison object,
+    // in case someone's overridden operator< for pointers.
+    typedef std::less<typename DATALIST::PtrList::value_type> less;
+    this->m_pCont.merge( l.m_pCont, 
+                         DataModel_detail::Compwrapper<DATALIST, 
+                                                       less>( less() ) );
+  }
+}
+
+/**
+ *  @brief  Merge sorted lists according to comparison function.
+ *  @param  l  Sorted list to merge.
+ *  @param COMPARE Comparison function defining sort order (which
+ *  must be strictly weak ordering).
+ *
+ *  Assumes that both @a l and this @c DataList are sorted according to
+ *  COMPARE predicate.  Merges elements of @a l into this list
+ *  in sorted order, leaving @a l empty when complete.  Elements
+ *  in this list precede elements in @a x that are equivalent
+ *  according to StrictWeakOrdering().
+ */
+template <class T>
+template<typename COMPARE>
+void DATALIST::merge( DataList& l, COMPARE predicate )
+{
+  //FIXME
+  if ( m_ownPolicy == l.m_ownPolicy ) {
+    // Ensure we're not being called via a base class.
+    testInsert ("merge");
+    this->m_pCont.merge( l.m_pCont, 
+                         DataModel_detail::Compwrapper<DATALIST,
+                                                       COMPARE>(predicate) );
+  }
+}
+
+/**
+ *  @brief  Reverse the elements in list.
+ *
+ *  Reverse the order of elements in the list in linear time.
+ */
+template <class T>
+inline
+void DATALIST::reverse()
+{
+  //FIXME
+  this->m_pCont.reverse();
+}
+
+
+//=== Non-standard operations.
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param pos The element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a pos of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.  If the collection owns its elements, then it will
+ * take ownership of @a newElem and release (without deleting)
+ * the element returned through @a oldElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class T>
+void DATALIST::swapElement(iterator pos,
+                           value_type newElem,
+                           reference oldElem)
+{
+  testInsert ("swapElement");
+  oldElem = *pos.base();
+  *pos.base() = newElem;
+}
+
+
+/**
+ * @brief Return the underlying @c std::list of the container.
+ * @return Reference to the @c std::list actually holding the collection.
+ *
+ * Note that @c DataList<T>::stdcont does not necessarily return
+ * a @c std::list<T*> if @c DataList inheritance is being used.
+ */
+template <class T>
+inline
+const typename DATALIST::PtrList& DATALIST::stdcont() const
+{
+  return m_pCont;
+}
+
+
+/**
+ * @brief Return the ownership policy setting for this container.
+ */
+template <class T>
+inline
+SG::OwnershipPolicy DATALIST::ownPolicy() const
+{
+  return m_ownPolicy;
+}
+
+
+/**
+ * @brief Erase all the elements in the collection, and reset
+ *        the ownership mode.
+ * @param ownPolicy The new ownership policy of the container.
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class T>
+void DATALIST::clear (SG::OwnershipPolicy ownPolicy)
+{
+  clear();
+  m_ownPolicy = ownPolicy;
+}
+
+
+/**
+ * @brief Return the DV/DL info struct for this class.
+ *
+ * This can be used to make sure that it's instantiated.
+ */
+template <class T>
+const DataModel_detail::DVLInfoBase& DATALIST::dvlinfo()
+{
+  return s_info;
+}
+
+
+/**
+ * @brief Return the DV/DL info struct for this class.
+ *
+ * This can be used to make sure that it's instantiated.
+ */
+template <class T>
+const DataModel_detail::DVLInfoBase& DATALIST::dvlinfo_v() const
+{
+  return s_info;
+}
+
+
+//=== Internal operations.
+
+
+/**
+ * @brief Handle element assignment.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ */
+template <class T>
+void DATALIST::assignElement (typename BaseContainer::iterator pos,
+                              value_type newElem)
+{
+  testInsert ("assignElement");
+  if (this->m_ownPolicy == SG::OWN_ELEMENTS)
+    delete *pos;
+  *pos = newElem;
+}
+
+
+/**
+ * @brief Handle element assignment from a base pointer.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ */
+template <class T>
+void DATALIST::assignBaseElement (typename BaseContainer::iterator pos,
+                                  typename BaseContainer::value_type newElem)
+{
+  testInsert ("assignBaseElement");
+  if (this->m_ownPolicy == SG::OWN_ELEMENTS)
+    delete *pos;
+  *pos = newElem;
+}
+
+
+/**
+ * @brief Helper for @c erase().  Remove element at a given position.
+ * @param position Iterator pointing to the element to be removed.
+ * @return An iterator pointing to the next element (or @c end()).
+ *
+ * This function factors out common code between @c erase() in the
+ * base and derived @c DataList classes.  It deals with the
+ * @c std::list iterators directly.
+ */
+template <class T>
+typename DATALIST::PtrList::iterator
+DATALIST::erase_base( typename PtrList::iterator position )
+{ 
+  if (m_ownPolicy == SG::OWN_ELEMENTS && position != m_pCont.end())
+    delete *position;
+  return m_pCont.erase( position );
+}
+
+
+/**
+ * @brief Helper for @c erase().  Remove a range of elements.
+ * @param first Iterator pointing to the first element to be removed.
+ * @param last Iterator pointing one past the last element to be removed.
+ * @return An iterator pointing to the element pointed to by @a last
+ *         prior to erasing (or @c end()).
+ *
+ * This function factors out common code between @c erase() in the
+ * base and derived @c DataList classes.  It deals with the
+ * @c std::list iterators directly.
+ */
+template <class T>
+typename DATALIST::PtrList::iterator
+DATALIST::erase_base( typename PtrList::iterator first,
+                      typename PtrList::iterator last )
+{
+  if (first == last) return first;
+  if (m_ownPolicy == SG::OWN_ELEMENTS) {
+    typename PtrList::iterator iter = first;
+    while (iter != last) delete *(iter++);
+  }
+  return m_pCont.erase(first, last);
+}
+
+
+/**
+ * @brief Clear @c m_isMostDerived for this instance and for all bases.
+ *
+ * Called from the constructor after setting @c m_isMostDerived.
+ */
+template <class T>
+inline
+void DATALIST::clearMostDerived()
+{
+  this->m_isMostDerived = false;
+}
+
+
+/**
+ * @brief Set @c m_isMostDerived for this instance and clear it for all bases.
+ *
+ * Called from @c testInsert if the test fails.  The flag may not have
+ * been set if this container was made via copy construction, so set
+ * it appropriately now so we can test again.
+ */
+template <class T>
+void DATALIST::setMostDerived()
+{
+  m_isMostDerived = true;
+}
+
+
+/**
+ * @brief Find the most-derived @c DataList class in the hierarchy.
+ * @return The @c type_info for the class for which this method gets run.
+ *
+ * In order to properly type-check insertions, we need to be able to find
+ * the most-derived @c DataList class in the inheritance hierarchy.
+ * That's the purpose of this function.
+ * Every @c DataList defines this virtual method, so when it's
+ * called, the one corresponding to the most-derived @c DataList
+ * gets run.
+ */
+template <class T>
+const std::type_info&
+DATALIST::dl_typeid() const
+{
+  return typeid( DataList );
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * This is a no-op for @c DataList.
+ */
+template <class T>
+inline
+void DATALIST::resortAux (iterator /*beg*/, iterator /*end*/)
+{
+}
+
+
+/**
+ * @brief Test if we can insert; raise an exception if not.
+ * @param op Description of the attempted operation.
+ *
+ * In order to maintain type-safety, we can only allow insertions
+ * using the most-derived instance of @c DataList.  This checks
+ * this by testing the @c m_isMostDerived, which is set by the constructors
+ * to true only for the most-derived instance.
+ * If the test fails, we call to potentially out-of-line code to continue.
+ */
+template <class T>
+inline
+void DATALIST::testInsert (const char* op)
+{
+  if (ATHCONTAINERS_LIKELY (m_isMostDerived))
+    return;
+  this->testInsertOol (op);
+}
+
+
+/**
+ * @brief Test if we can insert; raise an exception if not.
+ * @param op Description of the attempted operation.
+ *
+ * This continues the test of @c testInsert.  There is one case
+ * where @c m_isMostDerived may not be set correctly.  If this container
+ * was made via copy construction, then all the @c m_isMostDerived flags
+ * will be false.  So we call @c setMostDerived to set the flags correctly
+ * and test again.  If the test fails again, then we raise an exception.
+ */
+template <class T>
+void DATALIST::testInsertOol (const char* op)
+{
+  this->setMostDerived();
+  if (!m_isMostDerived)
+    throw SG::ExcInsertionInBaseClass (op, typeid(DataList), dl_typeid());
+}
+
+
+/// The DV/DL info struct for this class.
+template <class T>
+DataModel_detail::DVLInfo<DataList<T> > DATALIST::s_info;
+
+
+#undef DATALIST
+#endif // not __CINT__
+
+
+//****************************************************************************
+// Free function implementations.
+//
+
+
+/**
+ * @brief  List equality comparison.
+ * @param  a  A @c DataList.
+ * @param  b  A @c DataList of the same type as @a x.
+ * @return  True iff the size and elements of the lists are equal.
+ *
+ * This is an equivalence relation.  It is linear in the size of the
+ * lists.  Lists are considered equivalent if their sizes are equal,
+ * and if corresponding elements compare equal.
+ */
+template <class T>
+bool operator== (const DataList<T>& a, const DataList<T>& b)
+{
+  return a.stdcont() == b.stdcont();
+}
+
+
+/// Based on operator==
+template <class T>
+bool operator!= (const DataList<T>& a, const DataList<T>& b)
+{
+  return a.stdcont() != b.stdcont();
+}
+
+
+/**
+ * @brief  List ordering relation.
+ * @param  a  A @c DataList.
+ * @param  b  A @c DataList of the same type as @a x.
+ * @return  True iff @a x is lexicographically less than @a y.
+ *
+ * This is a total ordering relation.  It is linear in the size of the
+ * lists.  Comparisons are done on the pointer values of the elements.
+ *
+ * See @c std::lexicographical_compare() for how the determination is made.
+ */
+template <class T>
+bool operator< (const DataList<T>& a, const DataList<T>& b)
+{
+  return a.stdcont() < b.stdcont();
+}
+
+
+/// Based on operator<
+template <class T>
+bool operator> (const DataList<T>& a, const DataList<T>& b)
+{
+  return a.stdcont() > b.stdcont();
+}
+
+
+/// Based on operator<
+template <class T>
+bool operator<= (const DataList<T>& a, const DataList<T>& b)
+{
+  return a.stdcont() <= b.stdcont();
+}
+
+
+/// Based on operator<
+template <class T>
+bool operator>= (const DataList<T>& a, const DataList<T>& b)
+{
+  return a.stdcont() >= b.stdcont();
+}
+
+
+/// See @c DataList<T, BASE>::swap().
+template <class T>
+void swap( DataList<T>& a, DataList<T>& b )
+{
+  a.swap (b);
+}
+
+
+/**
+ * @brief Specialization of @c ClassName for @c DataList.
+ *
+ * This overrides the default implementation of @c ClassName
+ * to hide @c DataList's second template parameter.
+ */
+template <class T>
+std::string ClassName<DataList<T> >::name()
+{
+  std::string out = "DataList<";
+  out += ClassName<T>::name();
+  if (out[out.size()-1] == '>')
+    out += ' ';
+  out += '>';
+  return out;
+}
+
+
+// Set up initialization of element type BaseInfo
+namespace DataList_detail {
+#define DVLTYPE DataList
+#include "AthContainers/tools/DVLEltBaseInfo.icc"
+#undef DVLTYPE
+} // namespace DataList_detail
+
+
+// We need to specialize the function that DVLInfo uses to create the container
+// for DataVector.
+/**
+ * @brief Construct a new container.
+ * @param nreserve Number of elements for which to reserve space.
+ *                 (Ignored if not appropriate.)
+ * @param cont[out] Pointer to the constructed container.
+ *                  (Returned via an argument to allow for template
+ *                  argument deduction.)
+ *
+ * Specialization for DataList.
+ */
+template <class T>
+void dvl_makecontainer (size_t /*nreserve*/, DataList<T>*& cont)
+{
+  cont = new DataList<T> (SG::VIEW_ELEMENTS);
+}

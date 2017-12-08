@@ -13,6 +13,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Aszt.h"
+#include "RDBAccessSvc/IRDBQuery.h"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -36,7 +37,7 @@ DblQ00Aszt::DblQ00Aszt() : m_d(NULL)
     m_nObj = 0;
 }
     
-DblQ00Aszt::DblQ00Aszt(std::unique_ptr<IRDBQuery>&& aszt)
+DblQ00Aszt::DblQ00Aszt(IRDBQuery* aszt)
  : m_nObj(0)
 {
   if(aszt) {

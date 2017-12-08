@@ -33,7 +33,7 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "PhotonEfficiencyCorrection/TPhotonEfficiencyCorrectionTool.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "xAODEgamma/Egamma.h"
 

@@ -126,3 +126,9 @@ ExampleSimpleZeeStream.AddItem( ['INav4MomLinkContainer#MyZeeLooseElectronLinkCo
 
 
 
+#====================================================================
+# UserDataSvc, only really needed/used when UserData is computed...
+#====================================================================
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataInExampleSimpleZeeStream")
+svcMgr.UserDataInExampleSimpleZeeStream.OutputStream = ExampleSimpleZeeStream.Stream

@@ -1,0 +1,35 @@
+package InDetTrackHoleSearch
+
+author Martin Siebel <Martin.Siebel@CERN.ch>
+
+private
+
+use AtlasDetDescr	 AtlasDetDescr-*           DetectorDescription
+use Identifier           Identifier-*              DetectorDescription
+use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use InDetConditionsSummaryService InDetConditionsSummaryService* InnerDetector/InDetConditions
+use InDetRecToolInterfaces InDetRecToolInterfaces* InnerDetector/InDetRecTools 
+use TrkEventUtils        TrkEventUtils-*           Tracking/TrkEvent
+use TrkMeasurementBase   TrkMeasurementBase-*      Tracking/TrkEvent
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+use TrkTrackSummary      TrkTrackSummary-*         Tracking/TrkEvent
+use TrkGeometry          TrkGeometry-*             Tracking/TrkDetDescr
+use TrkDetDescrUtils	 TrkDetDescrUtils-*	   Tracking/TrkDetDescr
+use TrkExInterfaces      TrkExInterfaces-*         Tracking/TrkExtrapolation
+use TrkVolumes		 TrkVolumes-*		   Tracking/TrkDetDescr
+public
+
+use AtlasPolicy          AtlasPolicy-*             
+use GaudiInterface       GaudiInterface-*          External
+use AthenaBaseComps      AthenaBaseComps-*         Control
+use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
+use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
+use TrkParameters        TrkParameters-*           Tracking/TrkEvent
+
+apply_pattern component_library
+library InDetTrackHoleSearch *.cxx components/*.cxx
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

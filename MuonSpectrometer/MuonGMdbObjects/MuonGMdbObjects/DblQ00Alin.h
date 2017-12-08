@@ -13,8 +13,7 @@
 #ifndef DBLQ00_ALIN_H
 #define DBLQ00_ALIN_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 namespace MuonGM
 {
 class DblQ00Alin {
@@ -22,7 +21,7 @@ class DblQ00Alin {
 public:
     DblQ00Alin(){};
     ~DblQ00Alin();
-    DblQ00Alin(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Alin(IRDBQuery*);
 
     // data members for DblQ00/ALIN fields
     struct ALIN {

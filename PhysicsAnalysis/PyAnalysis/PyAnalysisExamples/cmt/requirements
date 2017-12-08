@@ -1,0 +1,28 @@
+package PyAnalysisExamples
+
+author Tadashi.Maeno <Tadashi.Maeno@cern.ch>
+
+use AtlasPolicy		AtlasPolicy-*
+use GaudiInterface	GaudiInterface-*	External
+use AtlasPython		AtlasPython-*		External
+use AthenaKernel	AthenaKernel-*		Control
+use CLIDSvc		CLIDSvc-*		Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use egammaEvent		egammaEvent-*		Reconstruction/egamma
+
+private
+use AtlasCLHEP		AtlasCLHEP-*		External
+use PyKernel		PyKernel-*		Control
+use StoreGate		StoreGate-*		Control
+end_private
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions     files="*.py"
+
+private
+
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
+
+apply_pattern lcgdict dict=PyAnalysisExamples selectionfile=selection.xml \
+        headerfiles="../PyAnalysisExamples/PyAnalysisExamplesDict.h"

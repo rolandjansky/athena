@@ -13,7 +13,7 @@
 
 /** Constructor **/
 Barcode::ValidationBarcodeSvc::ValidationBarcodeSvc(const std::string& name,ISvcLocator* svc) :
-  base_class(name,svc),
+  AthService(name,svc),
   m_incidentSvc("IncidentSvc", name),
   m_firstVertex(-200001),
   m_vertexIncrement(-1),
@@ -170,5 +170,23 @@ StatusCode Barcode::ValidationBarcodeSvc::finalize()
 {
   ATH_MSG_VERBOSE ("finalize() ...");
   ATH_MSG_VERBOSE ("finalize() successful");
+  return StatusCode::SUCCESS;
+}
+
+
+/** Query the interfaces. */
+StatusCode Barcode::ValidationBarcodeSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+
+  if ( IID_IBarcodeSvc == riid )
+    {
+      *ppvInterface = (IBarcodeSvc*)this;
+    }
+  else
+    {
+      // Interface is not directly available: try out a base class
+      return Service::queryInterface(riid, ppvInterface);
+    }
+  addRef();
   return StatusCode::SUCCESS;
 }

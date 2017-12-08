@@ -1,0 +1,24 @@
+package BLM_GeoModel
+
+author Bostjan Macek <bostjan.macek@cern.ch>
+
+public
+
+use AtlasPolicy         AtlasPolicy-*
+use AthenaBaseComps	AthenaBaseComps-*    Control
+use AthenaKernel        AthenaKernel-*       Control
+use GeoModelInterfaces  GeoModelInterfaces-* DetectorDescription/GeoModel
+use GeoModelKernel      GeoModelKernel-*     DetectorDescription/GeoModel
+use CLIDSvc		CLIDSvc-*	     Control
+use GaudiInterface      GaudiInterface-*     External
+
+private
+
+use RDBAccessSvc    RDBAccessSvc-*       Database/AthenaPOOL
+use GeoModelUtilities  GeoModelUtilities-* DetectorDescription/GeoModel
+
+public
+
+apply_pattern component_library
+library BLM_GeoModel *.cxx components/*.cxx
+

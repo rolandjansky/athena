@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( AthenaPoolTools
                      src/EventCount.cxx
                      src/MetadataTest.cxx
-                     src/BookkeeperDumper.cxx
                      src/RequireUniqueEvent.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo GaudiKernel xAODCutFlow)

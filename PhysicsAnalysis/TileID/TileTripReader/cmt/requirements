@@ -1,0 +1,51 @@
+package TileTripReader
+
+author Stephen Cole <Stephen.Cole@CERN.CH>
+
+public
+
+use AtlasPolicy                 AtlasPolicy-*
+use AtlasPyROOT                 AtlasPyROOT-*           External
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
+#use UserDataUtils               UserDataUtils-*         PhysicsAnalysis/AnalysisCommon
+
+private
+use PathResolver                PathResolver-*          Tools
+use AtlasROOT                   AtlasROOT-*             External
+use GaudiInterface              GaudiInterface-*        External
+use EventKernel                 EventKernel-*           Event
+use xAODEventInfo                xAODEventInfo-*          Event/xAOD
+use AthenaKernel                AthenaKernel-*          Control
+end_private
+
+## macros  
+apply_tag ROOTMathLibs
+apply_tag ROOTGraphicsLibs
+
+#macro_append ROOT_linkopts " -lPyROOT"
+macro_append TileTripReader_linkopts " -L$(ROOT_home)/lib -lPyROOT"
+
+## declare the directories CMT should know about
+branches TileTripReader share src Root data
+
+
+
+
+# Create a named installed library
+library TileTripReaderLib "../Root/*.cxx"
+apply_pattern named_installed_library library=TileTripReaderLib
+apply_pattern declare_xmls extras="-s=../data *.root"
+
+
+## create a component library
+library TileTripReader *.cxx components/*.cxx
+macro_append TileTripReader_dependencies "TileTripReaderLib"
+apply_pattern component_library
+
+
+apply_pattern declare_joboptions files="*.py"
+
+#use AtlasReflex                 AtlasReflex-*           External     -no_auto_imports
+#apply_pattern lcgdict dict=TileTripReader headerfiles="..\/TileTripReader/TileTriprReaderDict.h"
+

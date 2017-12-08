@@ -14,7 +14,9 @@
 
 TRTParametersOfModulesC::TRTParametersOfModulesC() : m_msg("TRTParametersOfModulesC")
 {
-  m_pParameters = TRTParameters::GetPointer();
+  pParameters = TRTParameters::GetPointer();
+
+  printMessages = pParameters->GetInteger("PrintMessages");
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesC" << endmsg;
 
@@ -30,12 +32,12 @@ TRTParametersOfModulesC::~TRTParametersOfModulesC()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesC" << endmsg;
 
-  delete [] m_xLocalOfHolesC;
-  delete [] m_zLocalOfHolesC;
-  delete [] m_xOfCoolingTubesC;
-  delete [] m_zOfCoolingTubesC;
-  delete [] m_xOfHolesForCoolingTubesC;
-  delete [] m_zOfHolesForCoolingTubesC;
+  delete [] xLocalOfHolesC;
+  delete [] zLocalOfHolesC;
+  delete [] xOfCoolingTubesC;
+  delete [] zOfCoolingTubesC;
+  delete [] xOfHolesForCoolingTubesC;
+  delete [] zOfHolesForCoolingTubesC;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesC done" << endmsg;
 }
@@ -48,12 +50,12 @@ void TRTParametersOfModulesC::DefineParameters()
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesC::DefineParameters" << endmsg;
 
     // Distances between corners of shell C:
-  int numberOfShellCorners = m_pParameters->GetInteger("NumberOfShellCorners");
+  int numberOfShellCorners = pParameters->GetInteger("NumberOfShellCorners");
   double* xOfShellCornersC = new double[numberOfShellCorners];
   double* yOfShellCornersC = new double[numberOfShellCorners];
-  m_pParameters->GetDoubleArray("XOfShellCornersC", numberOfShellCorners,
+  pParameters->GetDoubleArray("XOfShellCornersC", numberOfShellCorners,
     xOfShellCornersC);
-  m_pParameters->GetDoubleArray("YOfShellCornersC", numberOfShellCorners,
+  pParameters->GetDoubleArray("YOfShellCornersC", numberOfShellCorners,
     yOfShellCornersC);
 
   double deltaX12 = xOfShellCornersC[0] - xOfShellCornersC[1];
@@ -77,87 +79,87 @@ void TRTParametersOfModulesC::DefineParameters()
   double side = (distance14 + distance23 + distance24) / 3.;
 
     // Parameters of first trapezoid of shell C:
-  m_baseOfShellTrd1C = distance12;
-  m_heightOfShellTrd1C = std::sqrt(side * side - distance12 * distance12 / 4.);
+  baseOfShellTrd1C = distance12;
+  heightOfShellTrd1C = std::sqrt(side * side - distance12 * distance12 / 4.);
 
     // Parameters of second trapezoid of shell C:
-  m_baseOfShellTrd2C = distance34;
-  m_heightOfShellTrd2C = std::sqrt(side * side - distance34 * distance34 / 4.);
+  baseOfShellTrd2C = distance34;
+  heightOfShellTrd2C = std::sqrt(side * side - distance34 * distance34 / 4.);
 
-  double alpha1 = std::atan(m_heightOfShellTrd1C / (m_baseOfShellTrd1C / 2.));
-  double beta2 = std::atan((m_baseOfShellTrd2C / 2.) / m_heightOfShellTrd2C);
+  double alpha1 = std::atan(heightOfShellTrd1C / (baseOfShellTrd1C / 2.));
+  double beta2 = std::atan((baseOfShellTrd2C / 2.) / heightOfShellTrd2C);
   double gamma = alpha1 + beta2;
 
-  m_xOfShellTrd2C = -m_baseOfShellTrd1C / 2. + (m_heightOfShellTrd2C / 2.) *
+  xOfShellTrd2C = -baseOfShellTrd1C / 2. + (heightOfShellTrd2C / 2.) *
     std::cos(gamma);
-  m_zOfShellTrd2C = -m_heightOfShellTrd1C / 2. + (m_heightOfShellTrd2C / 2.) *
+  zOfShellTrd2C = -heightOfShellTrd1C / 2. + (heightOfShellTrd2C / 2.) *
     std::sin(gamma);
-  m_phiOfShellTrd2C = gamma + M_PI / 2.;
+  phiOfShellTrd2C = gamma + M_PI / 2.;
 
     // Parameters of shell C:
   double xOfMiddlePointOfSide12 = (xOfShellCornersC[0] +
     xOfShellCornersC[1]) / 2.;
   double yOfMiddlePointOfSide12 = (yOfShellCornersC[0] +
     yOfShellCornersC[1]) / 2.;
-  m_x0OfShellC = (xOfMiddlePointOfSide12 + xOfShellCornersC[3]) / 2.;
-  m_y0OfShellC = (yOfMiddlePointOfSide12 + yOfShellCornersC[3]) / 2.;
+  x0OfShellC = (xOfMiddlePointOfSide12 + xOfShellCornersC[3]) / 2.;
+  y0OfShellC = (yOfMiddlePointOfSide12 + yOfShellCornersC[3]) / 2.;
   double phi0 = std::atan((xOfShellCornersC[0] - xOfShellCornersC[1]) /
     (yOfShellCornersC[1] - yOfShellCornersC[0]));
-  m_phi0OfShellC = -M_PI / 2. + phi0;
+  phi0OfShellC = -M_PI / 2. + phi0;
 
     // Parameters of modules C:
-  m_numberOfModulesC = m_pParameters->GetInteger("NumberOfModulesInRing");
-  m_lengthOfModuleC = m_pParameters->GetDouble("LengthOfBarrelVolume");
+  numberOfModulesC = pParameters->GetInteger("NumberOfModulesInRing");
+  lengthOfModuleC = pParameters->GetDouble("LengthOfBarrelVolume");
 
     // Parameters of radiator C:
   double thicknessOfModuleWalls =
-    m_pParameters->GetDouble("ThicknessOfModuleWalls");
-  m_baseOfRadiatorTrd1C = m_baseOfShellTrd1C - thicknessOfModuleWalls *
+    pParameters->GetDouble("ThicknessOfModuleWalls");
+  baseOfRadiatorTrd1C = baseOfShellTrd1C - thicknessOfModuleWalls *
     (2. / std::tan(alpha1) +  1. /  std::sin(alpha1));
-  m_heightOfRadiatorTrd1C = m_baseOfRadiatorTrd1C * std::tan(alpha1) / 2.;
+  heightOfRadiatorTrd1C = baseOfRadiatorTrd1C * std::tan(alpha1) / 2.;
 
-  double alpha2 = std::atan(m_heightOfShellTrd2C / (m_baseOfShellTrd2C / 2.));
+  double alpha2 = std::atan(heightOfShellTrd2C / (baseOfShellTrd2C / 2.));
 
-  m_baseOfRadiatorTrd2C = m_baseOfShellTrd2C - thicknessOfModuleWalls *
+  baseOfRadiatorTrd2C = baseOfShellTrd2C - thicknessOfModuleWalls *
     (2. / std::tan(alpha2) +  1. /  std::sin(alpha2));
-  m_heightOfRadiatorTrd2C = m_baseOfShellTrd2C * std::tan(alpha2) / 2.;
+  heightOfRadiatorTrd2C = baseOfShellTrd2C * std::tan(alpha2) / 2.;
 
-  double xOfRadiatorTrd2InShellTrd2C = (m_baseOfRadiatorTrd2C -
-    m_baseOfShellTrd2C) / 2. + thicknessOfModuleWalls / std::tan(alpha2);
-  double zOfRadiatorTrd2InShellTrd2C = (m_heightOfRadiatorTrd2C -
-    m_heightOfShellTrd2C) / 2. + thicknessOfModuleWalls;
+  double xOfRadiatorTrd2InShellTrd2C = (baseOfRadiatorTrd2C -
+    baseOfShellTrd2C) / 2. + thicknessOfModuleWalls / std::tan(alpha2);
+  double zOfRadiatorTrd2InShellTrd2C = (heightOfRadiatorTrd2C -
+    heightOfShellTrd2C) / 2. + thicknessOfModuleWalls;
 
-  m_xOfRadiatorC = (m_baseOfRadiatorTrd1C - m_baseOfShellTrd1C) / 2. +
+  xOfRadiatorC = (baseOfRadiatorTrd1C - baseOfShellTrd1C) / 2. +
     thicknessOfModuleWalls / std::tan(alpha1);
-  m_zOfRadiatorC = (m_heightOfRadiatorTrd1C - m_heightOfShellTrd1C) / 2. +
+  zOfRadiatorC = (heightOfRadiatorTrd1C - heightOfShellTrd1C) / 2. +
     thicknessOfModuleWalls;
 
   double phi = 3. * M_PI / 2. - gamma;
 
-  m_xOfRadiatorTrd2C = xOfRadiatorTrd2InShellTrd2C * std::cos(phi) +
-    zOfRadiatorTrd2InShellTrd2C * std::sin(phi) + m_xOfShellTrd2C - m_xOfRadiatorC;
-  m_zOfRadiatorTrd2C = zOfRadiatorTrd2InShellTrd2C * std::cos(phi) -
-    xOfRadiatorTrd2InShellTrd2C * std::sin(phi) + m_zOfShellTrd2C - m_zOfRadiatorC;
-  m_phiOfRadiatorTrd2C = m_phiOfShellTrd2C;
+  xOfRadiatorTrd2C = xOfRadiatorTrd2InShellTrd2C * std::cos(phi) +
+    zOfRadiatorTrd2InShellTrd2C * std::sin(phi) + xOfShellTrd2C - xOfRadiatorC;
+  zOfRadiatorTrd2C = zOfRadiatorTrd2InShellTrd2C * std::cos(phi) -
+    xOfRadiatorTrd2InShellTrd2C * std::sin(phi) + zOfShellTrd2C - zOfRadiatorC;
+  phiOfRadiatorTrd2C = phiOfShellTrd2C;
 
     // Parameters of holes C:
-  m_numberOfHolesC = m_pParameters->GetInteger("NumberOfStrawsC");
-  double* xOfHolesC = new double[m_numberOfHolesC];
-  double* yOfHolesC = new double[m_numberOfHolesC];
-  m_pParameters->GetDoubleArray("XOfHolesC", m_numberOfHolesC, xOfHolesC);
-  m_pParameters->GetDoubleArray("YOfHolesC", m_numberOfHolesC, yOfHolesC);
+  numberOfHolesC = pParameters->GetInteger("NumberOfStrawsC");
+  double* xOfHolesC = new double[numberOfHolesC];
+  double* yOfHolesC = new double[numberOfHolesC];
+  pParameters->GetDoubleArray("XOfHolesC", numberOfHolesC, xOfHolesC);
+  pParameters->GetDoubleArray("YOfHolesC", numberOfHolesC, yOfHolesC);
   int i;
   if (xOfHolesC[0] != 0.)
-    for (i = 0; i < m_numberOfHolesC; ++i)
+    for (i = 0; i < numberOfHolesC; ++i)
       xOfHolesC[i] -= xOfHolesC[0];
   if (yOfHolesC[0] != 0.)
-    for (i = 0; i < m_numberOfHolesC; ++i)
+    for (i = 0; i < numberOfHolesC; ++i)
       yOfHolesC[i] -= yOfHolesC[0];
 
-  double xGlobalOfHole1C = m_pParameters->GetDouble("XGlobalOfHole1C");
-  double yGlobalOfHole1C = m_pParameters->GetDouble("YGlobalOfHole1C");
-  double xGlobalOfHole23C = m_pParameters->GetDouble("XGlobalOfHole23C");
-  double yGlobalOfHole23C = m_pParameters->GetDouble("YGlobalOfHole23C");
+  double xGlobalOfHole1C = pParameters->GetDouble("XGlobalOfHole1C");
+  double yGlobalOfHole1C = pParameters->GetDouble("YGlobalOfHole1C");
+  double xGlobalOfHole23C = pParameters->GetDouble("XGlobalOfHole23C");
+  double yGlobalOfHole23C = pParameters->GetDouble("YGlobalOfHole23C");
 
   double startingPhi = CLHEP::Hep3Vector(-xOfHolesC[22],
     yOfHolesC[22], 0.).phi();
@@ -169,13 +171,13 @@ void TRTParametersOfModulesC::DefineParameters()
     globalPhi += M_PI * 2.;
   double deltaPhi = startingPhi - globalPhi;
 
-  double* xGlobalOfHolesC = new double[m_numberOfHolesC];
-  double* yGlobalOfHolesC = new double[m_numberOfHolesC];
+  double* xGlobalOfHolesC = new double[numberOfHolesC];
+  double* yGlobalOfHolesC = new double[numberOfHolesC];
 
   double sinDeltaPhi = std::sin(deltaPhi);
   double cosDeltaPhi = std::cos(deltaPhi);
 
-  for (i = 0; i < m_numberOfHolesC; ++i)
+  for (i = 0; i < numberOfHolesC; ++i)
   {
     xGlobalOfHolesC[i] = -xOfHolesC[i] * cosDeltaPhi +
       yOfHolesC[i] * sinDeltaPhi + xGlobalOfHole1C;
@@ -183,71 +185,71 @@ void TRTParametersOfModulesC::DefineParameters()
       xOfHolesC[i] * sinDeltaPhi + yGlobalOfHole1C;
   }
 
-  m_xLocalOfHolesC = new double[m_numberOfHolesC];
-  m_zLocalOfHolesC = new double[m_numberOfHolesC];
+  xLocalOfHolesC = new double[numberOfHolesC];
+  zLocalOfHolesC = new double[numberOfHolesC];
 
   double sinPhi0 = std::sin(phi0);
   double cosPhi0 = std::cos(phi0);
 
-  for (i = 0; i < m_numberOfHolesC; ++i)
+  for (i = 0; i < numberOfHolesC; ++i)
   {
-    double temporaryX = -yGlobalOfHolesC[i] + m_y0OfShellC;
-    double temporaryZ = xGlobalOfHolesC[i] - m_x0OfShellC;
+    double temporaryX = -yGlobalOfHolesC[i] + y0OfShellC;
+    double temporaryZ = xGlobalOfHolesC[i] - x0OfShellC;
 
-    m_xLocalOfHolesC[i] = temporaryX * cosPhi0 + temporaryZ * sinPhi0 -
-      m_xOfRadiatorC;
-    m_zLocalOfHolesC[i] = temporaryZ * cosPhi0 - temporaryX * sinPhi0 -
-      m_zOfRadiatorC;
+    xLocalOfHolesC[i] = temporaryX * cosPhi0 + temporaryZ * sinPhi0 -
+      xOfRadiatorC;
+    zLocalOfHolesC[i] = temporaryZ * cosPhi0 - temporaryX * sinPhi0 -
+      zOfRadiatorC;
   }
 
     // Parameters of cooling tubes:
-  m_numberOfCoolingTubesC = m_pParameters->GetInteger("NumberOfCoolingTubes");
+  numberOfCoolingTubesC = pParameters->GetInteger("NumberOfCoolingTubes");
   double distanceToCoolingTube =
-    m_pParameters->GetDouble("DistanceToCoolingTube");
+    pParameters->GetDouble("DistanceToCoolingTube");
 
-  m_xOfCoolingTubesC = new double[m_numberOfCoolingTubesC];
-  m_zOfCoolingTubesC = new double[m_numberOfCoolingTubesC];
+  xOfCoolingTubesC = new double[numberOfCoolingTubesC];
+  zOfCoolingTubesC = new double[numberOfCoolingTubesC];
 
-  m_xOfCoolingTubesC[0] = m_baseOfShellTrd1C / 2. - distanceToCoolingTube *
+  xOfCoolingTubesC[0] = baseOfShellTrd1C / 2. - distanceToCoolingTube *
     (1. / std::sin(alpha1) + 1. / std::tan(alpha1));
-  m_zOfCoolingTubesC[0] = -m_heightOfShellTrd1C / 2. + distanceToCoolingTube;
+  zOfCoolingTubesC[0] = -heightOfShellTrd1C / 2. + distanceToCoolingTube;
 
-  double xOfCoolingTubeInShellTrd2C = m_baseOfShellTrd2C / 2. -
+  double xOfCoolingTubeInShellTrd2C = baseOfShellTrd2C / 2. -
     distanceToCoolingTube * (1. / std::sin(alpha2) + 1. / std::tan(alpha2));
-  double zOfCoolingTubeInShellTrd2C = -m_heightOfShellTrd2C / 2. +
+  double zOfCoolingTubeInShellTrd2C = -heightOfShellTrd2C / 2. +
     distanceToCoolingTube;
 
-  m_xOfCoolingTubesC[1] = xOfCoolingTubeInShellTrd2C * std::cos(phi) +
-    zOfCoolingTubeInShellTrd2C * std::sin(phi) + m_xOfShellTrd2C;
-  m_zOfCoolingTubesC[1] = zOfCoolingTubeInShellTrd2C * std::cos(phi) -
-    xOfCoolingTubeInShellTrd2C * std::sin(phi) + m_zOfShellTrd2C;
+  xOfCoolingTubesC[1] = xOfCoolingTubeInShellTrd2C * std::cos(phi) +
+    zOfCoolingTubeInShellTrd2C * std::sin(phi) + xOfShellTrd2C;
+  zOfCoolingTubesC[1] = zOfCoolingTubeInShellTrd2C * std::cos(phi) -
+    xOfCoolingTubeInShellTrd2C * std::sin(phi) + zOfShellTrd2C;
 
-  if (!m_pParameters->GetInteger("ParameterisedStrawsInModulesBC"))
+  if (!pParameters->GetInteger("ParameterisedStrawsInModulesBC"))
   {
-    for (i = 0; i < m_numberOfCoolingTubesC; ++i)
+    for (i = 0; i < numberOfCoolingTubesC; ++i)
     {
-      m_xOfCoolingTubesC[i] -= m_xOfRadiatorC;
-      m_zOfCoolingTubesC[i] -= m_zOfRadiatorC;
+      xOfCoolingTubesC[i] -= xOfRadiatorC;
+      zOfCoolingTubesC[i] -= zOfRadiatorC;
     }
 
-    m_xOfHolesForCoolingTubesC = NULL;
-    m_zOfHolesForCoolingTubesC = NULL;
+    xOfHolesForCoolingTubesC = NULL;
+    zOfHolesForCoolingTubesC = NULL;
   }
   else
   {
-    m_radiusOfHoleForCoolingTubeC =
-      m_pParameters->GetDouble("OuterRadiusOfCoolingTube");
+    radiusOfHoleForCoolingTubeC =
+      pParameters->GetDouble("OuterRadiusOfCoolingTube");
 
-    m_xOfHolesForCoolingTubesC = new double[m_numberOfCoolingTubesC];
-    m_zOfHolesForCoolingTubesC = new double[m_numberOfCoolingTubesC];
+    xOfHolesForCoolingTubesC = new double[numberOfCoolingTubesC];
+    zOfHolesForCoolingTubesC = new double[numberOfCoolingTubesC];
 
-    m_xOfHolesForCoolingTubesC[0] = m_xOfCoolingTubesC[0] - m_xOfRadiatorC;
-    m_zOfHolesForCoolingTubesC[0] = m_zOfCoolingTubesC[0] - m_zOfRadiatorC;
+    xOfHolesForCoolingTubesC[0] = xOfCoolingTubesC[0] - xOfRadiatorC;
+    zOfHolesForCoolingTubesC[0] = zOfCoolingTubesC[0] - zOfRadiatorC;
 
-    m_xOfHolesForCoolingTubesC[1] = m_baseOfRadiatorTrd2C / 2. -
+    xOfHolesForCoolingTubesC[1] = baseOfRadiatorTrd2C / 2. -
       (distanceToCoolingTube - thicknessOfModuleWalls) * (1. / std::sin(alpha2) +
       1. / std::tan(alpha2));
-    m_zOfHolesForCoolingTubesC[1] = -m_heightOfRadiatorTrd2C / 2. +
+    zOfHolesForCoolingTubesC[1] = -heightOfRadiatorTrd2C / 2. +
       distanceToCoolingTube - thicknessOfModuleWalls;
   }
 
@@ -256,7 +258,7 @@ void TRTParametersOfModulesC::DefineParameters()
   delete [] xOfHolesC;
   delete [] yOfHolesC;
 
-  if (m_pParameters->GetInteger("PrintParametersOfModulesC"))
+  if (pParameters->GetInteger("PrintParametersOfModulesC"))
     PrintParameters(xGlobalOfHolesC, yGlobalOfHolesC);
 
   delete [] xGlobalOfHolesC;
@@ -281,61 +283,61 @@ void TRTParametersOfModulesC::PrintParameters(double* xGlobalOfHolesC,
   output << "***** TRTParametersOfModulesC::PrintParameters *****" << std::endl;
 
   output << "Parameters of first trapezoid of shell C:" << std::endl;
-  output << "  baseOfShellTrd1C=" << m_baseOfShellTrd1C << " mm" << std::endl;
-  output << "  heightOfShellTrd1C=" << m_heightOfShellTrd1C << " mm" << std::endl;
+  output << "  baseOfShellTrd1C=" << baseOfShellTrd1C << " mm" << std::endl;
+  output << "  heightOfShellTrd1C=" << heightOfShellTrd1C << " mm" << std::endl;
 
   output << std::endl << "Parameters of second trapezoid of shell C:"
          << std::endl;
-  output << "  baseOfShellTrd2C=" << m_baseOfShellTrd2C << " mm" << std::endl;
-  output << "  heightOfShellTrd2C=" << m_heightOfShellTrd2C << " mm" << std::endl;
-  output << "  xOfShellTrd2C=" << m_xOfShellTrd2C << " mm" << std::endl;
-  output << "  zOfShellTrd2C=" << m_zOfShellTrd2C << " mm" << std::endl;
-  output << "  phiOfShellTrd2C=" << m_phiOfShellTrd2C << " rad" << std::endl;
+  output << "  baseOfShellTrd2C=" << baseOfShellTrd2C << " mm" << std::endl;
+  output << "  heightOfShellTrd2C=" << heightOfShellTrd2C << " mm" << std::endl;
+  output << "  xOfShellTrd2C=" << xOfShellTrd2C << " mm" << std::endl;
+  output << "  zOfShellTrd2C=" << zOfShellTrd2C << " mm" << std::endl;
+  output << "  phiOfShellTrd2C=" << phiOfShellTrd2C << " rad" << std::endl;
 
   output << std::endl << "Parameters of shell C:" << std::endl;
-  output << "  x0OfShellC=" << m_x0OfShellC << " mm" << std::endl;
-  output << "  y0OfShellC=" << m_y0OfShellC << " mm" << std::endl;
-  output << "  phi0OfShellC=" << m_phi0OfShellC << " rad" << std::endl;
+  output << "  x0OfShellC=" << x0OfShellC << " mm" << std::endl;
+  output << "  y0OfShellC=" << y0OfShellC << " mm" << std::endl;
+  output << "  phi0OfShellC=" << phi0OfShellC << " rad" << std::endl;
 
   output << std::endl << "Parameters of modules C:" << std::endl;
-  output << "  numberOfModulesC=" << m_numberOfModulesC << std::endl;
-  output << "  lengthOfModuleC=" << m_lengthOfModuleC << " mm" << std::endl;
+  output << "  numberOfModulesC=" << numberOfModulesC << std::endl;
+  output << "  lengthOfModuleC=" << lengthOfModuleC << " mm" << std::endl;
 
   output << std::endl << "Parameters of first trapezoid of radiator C:"
          << std::endl;
-  output << "  baseOfRadiatorTrd1C=" << m_baseOfRadiatorTrd1C << " mm"
+  output << "  baseOfRadiatorTrd1C=" << baseOfRadiatorTrd1C << " mm"
          << std::endl;
-  output << "  heightOfRadiatorTrd1C=" << m_heightOfRadiatorTrd1C << " mm"
+  output << "  heightOfRadiatorTrd1C=" << heightOfRadiatorTrd1C << " mm"
          << std::endl;
 
   output << std::endl << "Parameters of second trapezoid of radiator C:"
          << std::endl;
-  output << "  baseOfRadiatorTrd2C=" << m_baseOfRadiatorTrd2C << " mm"
+  output << "  baseOfRadiatorTrd2C=" << baseOfRadiatorTrd2C << " mm"
          << std::endl;
-  output << "  heightOfRadiatorTrd2C=" << m_heightOfRadiatorTrd2C << " mm"
+  output << "  heightOfRadiatorTrd2C=" << heightOfRadiatorTrd2C << " mm"
          << std::endl;
-  output << "  xOfRadiatorTrd2C=" << m_xOfRadiatorTrd2C << " mm" << std::endl;
-  output << "  zOfRadiatorTrd2C=" << m_zOfRadiatorTrd2C << " mm" << std::endl;
-  output << "  phiOfRadiatorTrd2C=" << m_phiOfRadiatorTrd2C << " rad"
+  output << "  xOfRadiatorTrd2C=" << xOfRadiatorTrd2C << " mm" << std::endl;
+  output << "  zOfRadiatorTrd2C=" << zOfRadiatorTrd2C << " mm" << std::endl;
+  output << "  phiOfRadiatorTrd2C=" << phiOfRadiatorTrd2C << " rad"
          << std::endl;
 
   output << std::endl << "Parameters of radiator C:" << std::endl;
-  output << "  xOfRadiatorC=" << m_xOfRadiatorC << " mm" << std::endl;
-  output << "  zOfRadiatorC=" << m_zOfRadiatorC << " mm" << std::endl;
+  output << "  xOfRadiatorC=" << xOfRadiatorC << " mm" << std::endl;
+  output << "  zOfRadiatorC=" << zOfRadiatorC << " mm" << std::endl;
 
   output << std::endl << "Parameters of straw holes C:" << std::endl;
-  output << "  numberOfHolesC=" << m_numberOfHolesC << std::endl;
+  output << "  numberOfHolesC=" << numberOfHolesC << std::endl;
   int i;
-  if (m_pParameters->GetInteger("PrintParametersOfModulesC") == 2)
+  if (pParameters->GetInteger("PrintParametersOfModulesC") == 2)
   {
     output << std::endl;
-    for (i = 0; i < m_numberOfHolesC; ++i)
-      output << "  xLocalOfHolesC[" << i << "]=" << m_xLocalOfHolesC[i] << " mm"
+    for (i = 0; i < numberOfHolesC; ++i)
+      output << "  xLocalOfHolesC[" << i << "]=" << xLocalOfHolesC[i] << " mm"
              << std::endl;
 
     output << std::endl;
-    for (i = 0; i < m_numberOfHolesC; ++i)
-      output << "  zLocalOfHolesC[" << i << "]=" << m_zLocalOfHolesC[i] << " mm"
+    for (i = 0; i < numberOfHolesC; ++i)
+      output << "  zLocalOfHolesC[" << i << "]=" << zLocalOfHolesC[i] << " mm"
              << std::endl;
   }
 
@@ -354,32 +356,32 @@ void TRTParametersOfModulesC::PrintParameters(double* xGlobalOfHolesC,
   output << "  yGlobalOfHole793=" << yGlobalOfHolesC[792] << " mm" << std::endl;
 
   output << std::endl << "Parameters of cooling tubes C:" << std::endl;
-  output << "  numberOfCoolingTubesC=" << m_numberOfCoolingTubesC << std::endl
+  output << "  numberOfCoolingTubesC=" << numberOfCoolingTubesC << std::endl
          << std::endl;
 
-  for (i = 0; i < m_numberOfCoolingTubesC; ++i)
-    output << "  xOfCoolingTubesC[" << i << "]=" << m_xOfCoolingTubesC[i] << " mm"
+  for (i = 0; i < numberOfCoolingTubesC; ++i)
+    output << "  xOfCoolingTubesC[" << i << "]=" << xOfCoolingTubesC[i] << " mm"
            << std::endl;
   output << std::endl;
 
-  for (i = 0; i < m_numberOfCoolingTubesC; ++i)
-    output << "  zOfCoolingTubesC[" << i << "]=" << m_zOfCoolingTubesC[i] << " mm"
+  for (i = 0; i < numberOfCoolingTubesC; ++i)
+    output << "  zOfCoolingTubesC[" << i << "]=" << zOfCoolingTubesC[i] << " mm"
            << std::endl;
 
-  if (m_pParameters->GetInteger("ParameterisedStrawsInModulesBC"))
+  if (pParameters->GetInteger("ParameterisedStrawsInModulesBC"))
   {
     output << std::endl << "Parameters of holes in radiator for cooling tubes"
            << " C:" << std::endl;
-    output << "  radiusOfHoleForCoolingTubeC=" << m_radiusOfHoleForCoolingTubeC
+    output << "  radiusOfHoleForCoolingTubeC=" << radiusOfHoleForCoolingTubeC
            << " mm" << std::endl << std::endl;
-    for (i = 0; i < m_numberOfCoolingTubesC; ++i)
+    for (i = 0; i < numberOfCoolingTubesC; ++i)
       output << "  xOfHolesForCoolingTubesC[" << i << "]="
-             << m_xOfHolesForCoolingTubesC[i] << " mm" << std::endl;
+             << xOfHolesForCoolingTubesC[i] << " mm" << std::endl;
     output << std::endl;
 
-    for (i = 0; i < m_numberOfCoolingTubesC; ++i)
+    for (i = 0; i < numberOfCoolingTubesC; ++i)
       output << "  zOfHolesForCoolingTubesC[" << i << "]="
-             << m_zOfHolesForCoolingTubesC[i] << " mm" << std::endl;
+             << zOfHolesForCoolingTubesC[i] << " mm" << std::endl;
   }
 
   output << std::endl;

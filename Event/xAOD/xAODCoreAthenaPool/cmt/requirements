@@ -1,0 +1,35 @@
+package xAODCoreAthenaPool
+# $Id: requirements 769660 2016-08-23 15:51:19Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Core package(s):
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# POOL package(s):
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODCore            xAODCore-*            Event/xAOD
+
+# Declare the POOL converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::AuxInfoBase \
+                                          xAOD::AuxContainerBase \
+                                          xAOD::ShallowAuxContainer \
+                                          xAOD::ShallowAuxInfo" \
+                      files="-s=${xAODCore_root}/xAODCore \
+                             AuxInfoBase.h \
+                             AuxContainerBase.h \
+                             ShallowAuxContainer.h \
+                             ShallowAuxInfo.h" \
+                      cnv_pfx="xAOD"
+

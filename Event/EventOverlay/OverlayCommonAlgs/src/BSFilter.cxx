@@ -138,7 +138,7 @@ StatusCode BSFilter::execute()
     const HLT::HLTResult *hlt_result = 0;
     if(evtStore()->retrieve<HLT::HLTResult>(hlt_result, keyResult).isFailure() || !hlt_result) {
       ATH_MSG_WARNING("Failed to retrieve HLTResult: "<<keyResult );
-      return StatusCode::FAILURE;
+      return false;
     }
     ATH_MSG_INFO("Retrieved HLTResult '"<<keyResult<<"' containing " << hlt_result->getChainResult().size()-1 << " chain(s)" );
     const std::vector<uint32_t>& chainsData = hlt_result->getChainResult();

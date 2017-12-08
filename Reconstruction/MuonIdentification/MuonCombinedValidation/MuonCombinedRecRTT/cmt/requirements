@@ -1,0 +1,21 @@
+package MuonCombinedRecRTT
+
+author Biagio Di Micco <Biagio.Di.Micco@cern.ch>
+
+use AtlasPolicy		AtlasPolicy-*
+use AtlasROOT          	AtlasROOT-*            External
+
+apply_pattern declare_joboptions files="*.py"
+#apply_pattern declare_runtime extras="../test/MuonCombinedRecRTT_TestConfiguration.xml ../share/*.C ../share/*.h ../share/*.py ../scripts/*.py ../ExtraFiles/*.html " 
+                                      
+apply_pattern declare_python_modules files="*.py"
+
+#macro MuonCombinedRecRTT_TestConfiguration "../test/MuonCombinedRecRTT_TestConfiguration.xml"
+
+private
+
+#add validation of RTT xml file
+use TestPolicy TestPolicy-*
+apply_pattern validate_xml
+
+end_private

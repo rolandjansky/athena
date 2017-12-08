@@ -111,7 +111,7 @@ def main():
 
     print "Will try to extract event(s) %s in LB %d of run %d (project tag: %s, stream: %s, format: %s, matching string: \"%s\")" % (args.events, args.lumiblock, args.run, args.projecttag, args.stream, args.fileformat, args.matchingstring)
 
-    filePath = "root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/%s/%s/%08d/" % (args.projecttag, args.stream, args.run)
+    filePath = "root://eosatlas//eos/atlas/atlastier0/rucio/%s/%s/%08d/" % (args.projecttag, args.stream, args.run)
     #print filePath
     cmd = eospath+" ls "+filePath
     if args.verbose:

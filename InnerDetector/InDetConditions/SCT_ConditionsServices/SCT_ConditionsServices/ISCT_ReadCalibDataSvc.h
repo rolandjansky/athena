@@ -58,6 +58,7 @@ class ISCT_ReadCalibDataSvc: virtual public ISCT_ConditionsSvc {
   bool filled() const =0;
   // Report whether the service can fill its data during the initialize phase
   virtual bool canFillDuringInitialize()=0;
+  virtual StatusCode fillCalibDefectData(std::list<std::string>&)=0; //!< Callback for retriving defect data  
 };
 
 inline const InterfaceID& ISCT_ReadCalibDataSvc::interfaceID() {

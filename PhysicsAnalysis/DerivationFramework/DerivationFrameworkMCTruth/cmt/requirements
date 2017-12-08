@@ -1,0 +1,44 @@
+package DerivationFrameworkMCTruth
+author James Catmore <james.catmore@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy                 AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use GaudiInterface              GaudiInterface-*        External
+use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
+use xAODTruth                   xAODTruth-*             Event/xAOD
+use HepPDT                      *                       LCG_Interfaces
+# added by Frank Paige
+use AtlasHepMC                  AtlasHepMC-*            External
+use AtlasFastJet                AtlasFastJet-*          External
+use xAODEventInfo		xAODEventInfo-*		Event/xAOD
+
+private
+use GeneratorObjects            GeneratorObjects-*      Generators
+use AthenaKernel		AthenaKernel-*		Control
+#use EventKernel                 EventKernel-*           Event
+use ExpressionEvaluation        ExpressionEvaluation-*  PhysicsAnalysis/CommonTools
+use  MCTruthClassifier          MCTruthClassifier-*     PhysicsAnalysis 
+
+# added by Frank Paige
+#use McParticleEvent             McParticleEvent-*       PhysicsAnalysis/TruthParticleID
+#use McParticleKernel            McParticleKernel-*      PhysicsAnalysis/TruthParticleID
+#use McParticleUtils             McParticleUtils-*       PhysicsAnalysis/TruthParticleID
+#use TruthHelper                 TruthHelper-*           Generators/GenAnalysisTools
+use AtlasROOT                   AtlasROOT-*             External
+use xAODJet			xAODJet-*		Event/xAOD
+use xAODBase			xAODBase-*		Event/xAOD
+use EventInfo			EventInfo-*		Event
+
+#################################################################
+#
+public
+
+## declare the directories CMT should know about
+branches python share src DerivationFrameworkMCTruth
+
+apply_pattern dual_use_library files= " *.cxx "
+apply_pattern declare_joboptions files=" *.py"
+apply_pattern declare_python_modules files="*.py"
+

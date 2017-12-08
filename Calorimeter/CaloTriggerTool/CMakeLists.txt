@@ -9,6 +9,8 @@ atlas_subdir( CaloTriggerTool )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
+                          Control/CLIDSvc
+                          Control/SGTools
                           Control/StoreGate
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -26,19 +28,19 @@ atlas_add_library( CaloTriggerToolLib
                    src/*.cxx
                    PUBLIC_HEADERS CaloTriggerTool
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel Identifier GaudiKernel TrigT1CaloCalibConditions StoreGateLib SGtests LArToolsLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel SGTools Identifier GaudiKernel TrigT1CaloCalibConditions StoreGateLib SGtests LArToolsLib
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps LArIdentifier )
 
 atlas_add_component( CaloTriggerTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel StoreGateLib SGtests Identifier GaudiKernel TrigT1CaloCalibConditions AthenaBaseComps LArIdentifier LArToolsLib CaloTriggerToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel SGTools StoreGateLib SGtests Identifier GaudiKernel TrigT1CaloCalibConditions AthenaBaseComps LArIdentifier LArToolsLib CaloTriggerToolLib )
 
 atlas_add_dictionary( CaloTriggerToolDict
                       CaloTriggerTool/CaloTriggerToolDict.h
                       CaloTriggerTool/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel StoreGateLib SGtests Identifier GaudiKernel TrigT1CaloCalibConditions AthenaBaseComps LArIdentifier LArToolsLib CaloTriggerToolLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel SGTools StoreGateLib SGtests Identifier GaudiKernel TrigT1CaloCalibConditions AthenaBaseComps LArIdentifier LArToolsLib CaloTriggerToolLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -1,0 +1,22 @@
+package CosmicGenerator
+
+author  SBentvelsen
+author  rmcphers
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasCLHEP          AtlasCLHEP-*            External
+use AthenaKernel        AthenaKernel-*          Control
+
+use GeneratorModules    GeneratorModules-*      Generators
+use AtlasHepMC          AtlasHepMC-*            External
+
+private
+use GaudiInterface      GaudiInterface-*        External
+end_private
+
+public
+# Build the library (and export the headers)
+apply_pattern dual_use_library files="cosmic2.f CosmicGun.cxx CosmicGenerator.cxx"
+
+apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern declare_python_modules files="*.py"

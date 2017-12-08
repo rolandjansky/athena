@@ -18,7 +18,7 @@
 
 /** Constructor **/
 ISF::ConeSimSelector::ConeSimSelector(const std::string& t, const std::string& n, const IInterface* p)
-  : BaseSimulationSelector(t,n,p)
+  : ISimulationSelector(t,n,p)
   , ConeParticleCuts()
   , m_absPDGVector()
   , m_checkRelatives(false)
@@ -29,6 +29,8 @@ ISF::ConeSimSelector::ConeSimSelector(const std::string& t, const std::string& n
   , m_extrapolateToCalo(false)
   , m_extrapolator()
 {
+  declareInterface<ISF::ISimulationSelector>(this);
+
   // cone options
   declareProperty( "ConeCreatorPDGs",
                    m_absPDGVector,

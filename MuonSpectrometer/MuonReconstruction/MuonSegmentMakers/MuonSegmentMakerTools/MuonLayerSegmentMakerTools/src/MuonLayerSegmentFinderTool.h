@@ -23,6 +23,7 @@ namespace Muon {
   class MuonLayerROTs;
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
+  class MuonPrepRawDataCollectionProviderTool;
   class IMuonPRDSelectionTool;
   class IMuonSegmentMaker;
   class IMuonClusterSegmentFinder;
@@ -40,7 +41,7 @@ namespace Muon {
     StatusCode finalize();
 
     /**IMuonLayerSegmentFinderTool interface: find */   
-    void find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments, MuonLayerPrepRawData& layerPrepRawData ) const;
+    void find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const;
 
   private:
     /** find segments from PRD clusters */
@@ -67,6 +68,7 @@ namespace Muon {
     /** tool handles */
     ToolHandle<MuonIdHelperTool>                      m_idHelper; 
     ToolHandle<MuonEDMPrinterTool>                    m_printer; 
+    ToolHandle<MuonPrepRawDataCollectionProviderTool> m_muonPrepRawDataCollectionProviderTool;
     ToolHandle<IMuonPRDSelectionTool>                 m_muonPRDSelectionTool;
     ToolHandle<IMuonSegmentMaker>                     m_segmentMaker;
     ToolHandle<ICscSegmentFinder>                     m_csc2dSegmentFinder;

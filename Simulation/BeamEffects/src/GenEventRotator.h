@@ -38,7 +38,7 @@ namespace Simulation {
       This tool takes a HepMC::GenEvent and applies rotations
       See https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AtlasG4EventFilters for more details.
   */
-  class GenEventRotator : public extends<AthAlgTool, IGenEventManipulator>
+  class GenEventRotator : public AthAlgTool, virtual public IGenEventManipulator
   {
 
   public:

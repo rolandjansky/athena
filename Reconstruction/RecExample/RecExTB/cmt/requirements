@@ -1,0 +1,52 @@
+package RecExTB
+ 
+author  David Rousseau <david.rousseau@cern.ch> 
+
+branches run
+
+use AtlasPolicy		AtlasPolicy-* 
+
+use TestPolicy          TestPolicy-*
+
+#for root tuple
+#use RootHistCnv         v*    
+use AtlasROOT           AtlasROOT-*        External  
+
+#use RDBAccessSvc RDBAccessSvc-* Database/AthenaPOOL
+
+#-----------------------------------------------------
+#for LAr
+#-----------------------------------------------------
+#use ByteStreamCnvSvc  ByteStreamCnvSvc-*  Event
+#use TBCnv             TBCnv-*             TestBeam
+
+#for rebuilding
+#use LArROD LArROD-*	LArCalorimeter
+#use CaloRec CaloRec-* Calorimeter
+#use CaloTBRec CaloTBRec-* Calorimeter/CaloTestBeam
+#use LArTBRec LArTBRec-*  LArCalorimeter/LArTestBeam
+ 
+#---------------------------------------------------------------------
+# The following commands aid in the establishment of the run-time environment
+# and should not be modified.
+
+   
+# Install run-time files
+#apply_pattern install_runtime method=-symlink
+
+#install xml files
+apply_pattern install_xmls
+
+apply_pattern declare_joboptions files="*.py"
+
+apply_pattern declare_runtime files="*.txt *.xml"
+
+
+#automatic testing upon gmake check
+#apply_pattern athenarun_test name="RecExTBTesting" pre_script="../Testing/script_pre_check.sh" options="RecExTB_Combined_2004_jobOptions.py" post_script="../Testing/script_post_check.sh"
+
+#apply_pattern declare_joboptions files="*.txt *.py"
+
+
+
+ 

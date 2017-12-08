@@ -103,12 +103,6 @@ void eflowLayerIntegrator::resetAllClustersIntegralForNewTrack(const eflowTrackC
 
 void eflowLayerIntegrator::addToAllClustersIntegral(const std::vector<double>& clusterIntegral) {
   assert(clusterIntegral.size() == m_allClustersIntegral.size());
-
-  if (clusterIntegral.size() != m_allClustersIntegral.size()){
-    std::cerr << " eflowLayerIntegrator ERROR: cluster integral sizes do not match" << std::endl;
-    return;
-  }
-
   for (int i = 0; i < eflowCalo::nRegions; i++) {
     if (m_allClustersIntegral[i] != eflowTrackCaloPoints::defaultEta()){
       m_allClustersIntegral[i] += clusterIntegral[i];

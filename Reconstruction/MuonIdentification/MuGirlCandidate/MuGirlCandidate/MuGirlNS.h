@@ -164,8 +164,7 @@ namespace MuGirlNS
     #define SPEEDOFLIGHT 0.299792458    //[m/ns]
     #define RPCINVSIGVEL 4.8        //[ns/m]
     #define STEPINBETA 0.01         //The step size in the loop
-//    seems to be unused -> commenting for the moment as it would be wrong
-//    #define TDC2NS 0.78125          //1tdc=0.78125ns; 1tdc=0.1953125ns for BMG!
+    #define TDC2NS 0.78125          //1tdc=0.78125ns
 
     typedef std::vector<const PrepDataList*> PrepDataLists;
     typedef std::vector<RIOList*> RIOLists;

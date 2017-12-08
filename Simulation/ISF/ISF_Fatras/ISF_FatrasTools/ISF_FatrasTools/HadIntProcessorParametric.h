@@ -61,7 +61,8 @@ namespace iFatras {
       
    */
    
-  class HadIntProcessorParametric : public extends<AthAlgTool, iFatras::IHadronicInteractionProcessor> {
+   class HadIntProcessorParametric : virtual public iFatras::IHadronicInteractionProcessor,
+                                     public AthAlgTool {
     public:      
       /**AlgTool constructor for HadIntProcessorParametric*/
       HadIntProcessorParametric(const std::string&,const std::string&,const IInterface*);

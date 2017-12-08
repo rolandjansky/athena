@@ -1,0 +1,29 @@
+package SCT_G4_SD
+
+author Davide Costanzo <DCostanzo@lbl.gov>
+author Pat Ward <Patricia.Ward@cern.ch>
+
+public
+
+use AtlasPolicy          AtlasPolicy-*
+
+private
+
+use AtlasCLHEP           AtlasCLHEP-*        External
+use AtlasDoxygen         AtlasDoxygen-*      Tools
+use G4AtlasTools         G4AtlasTools-*      Simulation/G4Atlas
+use Geant4               Geant4-*            External
+use GaudiInterface       GaudiInterface-*    External
+use InDetSimEvent        InDetSimEvent-*     InnerDetector
+use MCTruth              MCTruth-*           Simulation/G4Sim
+use StoreGate            StoreGate-*         Control
+use CxxUtils             CxxUtils-*          Control
+
+end_private
+
+public
+apply_pattern declare_python_modules files="*.py"
+
+# define link options
+library SCT_G4_SD *.cxx components/*.cxx
+apply_pattern component_library

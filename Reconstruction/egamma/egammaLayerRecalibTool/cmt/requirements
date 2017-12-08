@@ -1,0 +1,41 @@
+#################################################
+package egammaLayerRecalibTool
+
+author Ruggero Turra <ruggero.turra@cern.ch>
+author Bruno Lenzi <Bruno.Lenzi@cern.ch>
+
+
+use AtlasPolicy                AtlasPolicy-*     
+use AtlasROOT                  AtlasROOT-*              External
+
+############################################################
+# For the interface for the athena tool
+use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
+use AsgTools 	     AsgTools-*        Control/AthToolSupport
+use xAODEgamma 	     xAODEgamma-*      Event/xAOD
+use xAODCaloEvent    xAODCaloEvent-*   Event/xAOD
+use xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+
+
+# Add cmake compatibility (doesn't do anything on CMT side of things)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree TreePlayer TMVA XMLIO)"
+
+private
+use PathResolver        PathResolver-*          Tools
+end_private
+# end of it
+############################################################
+
+
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist)"
+
+apply_pattern installed_library
+              library egammaLayerRecalibTool "../Root/*.cxx ../src/*.cxx"
+
+private
+use  PathResolver               PathResolver-*                  Tools
+# macro_append rootBasicLibs " -lPyROOT "  
+
+end_private
+#################################################

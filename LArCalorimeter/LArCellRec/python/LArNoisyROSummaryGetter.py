@@ -42,9 +42,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
                                          CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
-                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs(),
-                                         MNBLooseCut=larNoisyROFlags.MNBLooseCut(),
-                                         MNBTightCut=larNoisyROFlags.MNBTightCut()
+                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs()
                                          )
 
 

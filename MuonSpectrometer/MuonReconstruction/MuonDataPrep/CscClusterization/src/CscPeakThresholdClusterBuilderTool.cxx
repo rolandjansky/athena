@@ -423,7 +423,7 @@ make_clusters(bool measphi, const vector<const CscStripPrepData*>& strips,CscPre
       }
       if ( ! m_pstrip_fitter ) {
         ATH_MSG_WARNING ( "Unable to locate strip fitter" );
-        return 1;
+        return StatusCode::SUCCESS;
       }
       res = m_pstrip_fitter->fit(*pstrip);
       active = res.charge > 0.0; // Allow all the positive charged strips...

@@ -17,10 +17,12 @@
 ISF::GenParticlePositionFilter::GenParticlePositionFilter( const std::string& t,
                                                            const std::string& n,
                                                            const IInterface* p )
-  : base_class(t,n,p),
+  : AthAlgTool(t,n,p),
     m_geoIDSvc("ISF_GeoIDSvc", n),
     m_checkRegion()
 {
+    declareInterface<ISF::IGenParticleFilter>(this);
+
     // the GeoID indentification service
     declareProperty("GeoIDService",
         m_geoIDSvc,

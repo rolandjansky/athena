@@ -16,7 +16,6 @@ GRLTriggerSelectorAlg::GRLTriggerSelectorAlg(const std::string& name, ISvcLocato
  : AthAlgorithm(name, pSvcLocator)
  , m_GoodRunsListSelectorTool("GoodRunsListSelectorTool")
  , m_TriggerRegistryTool("TriggerRegistryTool")
- , m_tdTool("Trig::TrigDecisionTool")
  , m_gcounter(0)
  , m_gaccept(0)
  , m_tcounter(0)

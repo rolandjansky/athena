@@ -1,0 +1,31 @@
+package TrkExInterfaces
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+
+use GaudiInterface        GaudiInterface-*           External
+
+use GeoPrimitives         GeoPrimitives-*            DetectorDescription
+
+use xAODTracking          xAODTracking-*          Event/xAOD
+
+use TrkEventPrimitives    TrkEventPrimitives-*       Tracking/TrkEvent     
+use TrkMaterialOnTrack    TrkMaterialOnTrack-*       Tracking/TrkEvent     
+use TrkParameters         TrkParameters-*            Tracking/TrkEvent
+use TrkParametersBase     TrkParametersBase-*        Tracking/TrkEvent
+use TrkNeutralParameters  TrkNeutralParameters-*     Tracking/TrkEvent
+use TrkExUtils            TrkExUtils-*               Tracking/TrkExtrapolation
+use TrkSurfaces           TrkSurfaces-*              Tracking/TrkDetDescr
+use TrkVolumes            TrkVolumes-*               Tracking/TrkDetDescr
+use TrkDetDescrUtils      TrkDetDescrUtils-*         Tracking/TrkDetDescr
+
+# Declare this package as a metalibrary for cmake so that its clients have
+# access to the libraries and header files of packages that this one depends on
+apply_pattern cmake_add_command command=metalibrary
+
+private
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+#use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+#apply_pattern lcgdict dict=TrkExInterfaces selectionfile=selection.xml headerfiles="../TrkExInterfaces/TrkExInterfacesDict.h"
+end_private

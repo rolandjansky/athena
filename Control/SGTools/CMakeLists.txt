@@ -39,6 +39,13 @@ atlas_add_test( VersionedKey_test
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
 
+atlas_add_test( DataBucket_test
+                SOURCES
+                test/DataBucket_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools
+                EXTRA_PATTERNS "^HistogramPersis.* INFO" )
+
 atlas_add_test( safe_clid_test
                 SOURCES
                 test/safe_clid_test.cxx

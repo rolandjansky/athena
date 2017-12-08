@@ -1,0 +1,24 @@
+package TrkTruthAthenaPool
+
+author  Andrei Gaponenko <agaponenko@lbl.gov>
+
+use AtlasPolicy          AtlasPolicy-*          
+use GaudiInterface       GaudiInterface-*       External
+
+private
+  use StoreGate            StoreGate-*            Control
+  use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
+  use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+
+  use TrkTruthData         TrkTruthData-*         Tracking/TrkEvent
+
+  use TrkTruthTPCnv        TrkTruthTPCnv-*     	Tracking/TrkEventCnv
+
+
+apply_pattern poolcnv files="\
+ -s=$(TrkTruthData_root)/TrkTruthData PRD_MultiTruthCollection.h \
+ -s=$(TrkTruthData_root)/TrkTruthData TrackTruthCollection.h \
+ -s=$(TrkTruthData_root)/TrkTruthData DetailedTrackTruthCollection.h \
+"
+
+##macro_append TrkTruthAthenaPoolPoolCnv_shlibflags "$(TrkTruthAthenaPool_dict_linkopts)" 

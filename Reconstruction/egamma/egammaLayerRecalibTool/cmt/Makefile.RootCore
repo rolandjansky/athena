@@ -1,0 +1,21 @@
+# this makefile also gets parsed by shell scripts
+# therefore it does not support full make syntax and features
+# edit with care
+
+# for full documentation check:
+# https://twiki.cern.ch/twiki/bin/viewauth/Atlas/RootCore#Package_Makefile
+
+PACKAGE          = egammaLayerRecalibTool
+PACKAGE_PRELOAD  = Hist
+PACKAGE_CXXFLAGS = -Wno-shadow -Wall
+PACKAGE_OBJFLAGS =
+PACKAGE_LDFLAGS  =
+PACKAGE_BINFLAGS =
+PACKAGE_LIBFLAGS =
+PACKAGE_DEP      = AsgTools xAODEventInfo xAODEgamma PathResolver PATInterfaces
+PACKAGE_TRYDEP   =
+PACKAGE_CLEAN    =
+PACKAGE_PEDANTIC = 1
+PACKAGE_REFLEX = 1
+
+include $(ROOTCOREDIR)/Makefile-common

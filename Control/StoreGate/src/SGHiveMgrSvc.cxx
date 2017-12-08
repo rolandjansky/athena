@@ -47,7 +47,6 @@ StatusCode HiveMgrSvc::clearStore(size_t slotIndex) {
   if (slotIndex < m_nSlots) {
     rc=m_slots[slotIndex].pEvtStore->clearStore();
     if (rc.isSuccess()) debug() << "cleared store " << slotIndex << endmsg;
-    m_freeSlots++;
   }    
   if (!rc.isSuccess()) error() << "could not clear store " << slotIndex << endmsg;
   return rc;
@@ -66,7 +65,6 @@ StatusCode HiveMgrSvc::setNumberOfStores(size_t slots) {
   } else {
     m_slots.resize(slots);
     m_nSlots = slots;
-    m_freeSlots.store(slots);
     return StatusCode::SUCCESS;
   }
 }
@@ -84,10 +82,6 @@ size_t HiveMgrSvc::getNumberOfStores() const {
  * @return Slot number (npos to indicate an error).
  */
 size_t HiveMgrSvc::allocateStore( int evtNumber ) {
-  if (m_freeSlots == 0) {
-    error() << "No slots available for event number " << evtNumber << endmsg;
-    return std::string::npos;
-  }
   for (size_t index=0; index<m_nSlots; ++index) {
     if( m_slots[index].eventNumber == evtNumber) {
       error() << "Attempt to allocate an event slot for an event that is still active: event number " << evtNumber << endmsg;
@@ -96,7 +90,6 @@ size_t HiveMgrSvc::allocateStore( int evtNumber ) {
       m_slots[index].eventNumber = evtNumber;
       debug() << "Slot " << index 
               << " allocated to event number "<< evtNumber << endmsg;
-      m_freeSlots--;
       return index;
     }
   }
@@ -133,29 +126,13 @@ size_t HiveMgrSvc::getPartitionNumber(int evtNumber) const {
   return std::string::npos;
 }
 
-unsigned int HiveMgrSvc::freeSlots() {
-  return m_freeSlots;
+
+StatusCode HiveMgrSvc::getNewDataObjects(DataObjIDColl& products) {
+  return m_hiveStore->getNewDataObjects(products);
 }
 
-
-DataObjIDColl HiveMgrSvc::getNewDataObjects() {
-  // FIXME: to be removed
-  DataObjIDColl products;
-  m_hiveStore->getNewDataObjects(products).ignore();
-  return products;
-}
-
-void HiveMgrSvc::addNewDataObjects( DataObjIDColl& /*products*/ ){
-  // FIXME
-  error() << "addNewDataObjects(...) not implemented!" << endmsg;
-}
-
-bool HiveMgrSvc::exists( const DataObjID& id) {
-  // this should only get called in error situations, so we
-  // don't care if it's slow
-  std::string key = id.key();
-  key.erase(0,key.find("+")+1);
-  return m_hiveStore->transientContains(id.clid(), id.key());
+bool HiveMgrSvc::newDataObjectsPresent() {
+  return m_hiveStore->newDataObjectsPresent();
 } 
 
 StatusCode HiveMgrSvc::initialize() {
@@ -199,7 +176,6 @@ StatusCode HiveMgrSvc::initialize() {
     }
   }
   
-  m_freeSlots.store( m_nSlots );
   return selectStore(0);
 }
 

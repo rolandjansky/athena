@@ -25,6 +25,7 @@ namespace Muon {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
+    m_muonPrepRawDataCollectionProviderTool("Muon::MuonPrepRawDataCollectionProviderTool/MuonPrepRawDataCollectionProviderTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
@@ -38,6 +39,7 @@ namespace Muon {
 
     declareProperty("MuonIdHelperTool",m_idHelper );
     declareProperty("MuonEDMPrinterTool",m_printer );
+    declareProperty("MuonPrepRawDataCollectionProviderTool",m_muonPrepRawDataCollectionProviderTool );
     declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
     declareProperty("SegmentMaker",m_segmentMaker);
     declareProperty("Csc2DSegmentMaker",m_csc2dSegmentFinder);
@@ -57,6 +59,7 @@ namespace Muon {
 
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_muonPrepRawDataCollectionProviderTool.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_csc2dSegmentFinder.retrieve());
@@ -68,8 +71,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  void MuonLayerSegmentFinderTool::find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments, 
-					 MuonLayerPrepRawData& layerPrepRawData ) const {
+  void MuonLayerSegmentFinderTool::find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
     ATH_MSG_VERBOSE(" Running segment finding in sector " << intersection.layerSurface.sector
                     << " region " << MuonStationIndex::regionName(intersection.layerSurface.regionIndex)
@@ -77,6 +79,14 @@ namespace Muon {
                     << " intersection position: r " << intersection.trackParameters->position().perp() << " z " << intersection.trackParameters->position().z()
                     << " locX " << intersection.trackParameters->parameters()[Trk::locX] << " locY " << intersection.trackParameters->parameters()[Trk::locY]
                     << " phi " << intersection.trackParameters->position().phi() );
+
+    // access data in the detection layer
+    MuonLayerPrepRawData layerPrepRawData;
+    if( !m_muonPrepRawDataCollectionProviderTool->getLayerData( intersection.layerSurface.sector, intersection.layerSurface.regionIndex, intersection.layerSurface.layerIndex,
+                                                                layerPrepRawData ) ){
+      ATH_MSG_WARNING("Failed to get layer data");
+      return;
+    }
 
     // run cluster hit based segment finding on PRDs
     findClusterSegments(intersection,layerPrepRawData,segments);

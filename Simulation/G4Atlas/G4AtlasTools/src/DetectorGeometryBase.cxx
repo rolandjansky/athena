@@ -10,7 +10,7 @@
 #include "G4RotationMatrix.hh"
 
 DetectorGeometryBase::DetectorGeometryBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent),
+  : AthAlgTool(type,name,parent),
     m_subDetTools(this),
     m_notifierSvc("G4GeometryNotifierSvc", name),
     m_theParent(nullptr),
@@ -23,6 +23,7 @@ DetectorGeometryBase::DetectorGeometryBase(const std::string& type, const std::s
     m_offsetY(0.0),
     m_offsetZ(0.0)
 {
+  ATH_MSG_DEBUG( "DetectorGeometryBase Constructor for " << name );
   declareProperty( "GeometryNotifierSvc", m_notifierSvc, "");
   declareProperty( "SubDetectors" , m_subDetTools , "Tool handle array of all subdetector tools" );
   declareProperty( "DetectorName" , m_detectorName , "Detector name (same as the Tool name if not set");
@@ -216,4 +217,16 @@ G4VPhysicalVolume* DetectorGeometryBase::GetWorldVolume()
       ATH_MSG_ERROR("trying to get World from a DetectorTool which World is not!");
       return 0;
     }
+}
+
+StatusCode
+DetectorGeometryBase::queryInterface(const InterfaceID& riid, void** ppvIf)
+{
+  if ( riid == IDetectorGeometryTool::interfaceID() )
+    {
+      *ppvIf = (IDetectorGeometryTool*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+  return AlgTool::queryInterface( riid, ppvIf );
 }

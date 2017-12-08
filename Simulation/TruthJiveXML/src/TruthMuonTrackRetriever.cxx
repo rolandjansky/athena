@@ -28,8 +28,12 @@ namespace JiveXML {
    * @param parent AlgTools parent owning this tool
    **/
    TruthMuonTrackRetriever::TruthMuonTrackRetriever(const std::string& type ,const std::string& name,const IInterface* parent):
-     base_class(type, name, parent),
+     AthAlgTool(type, name, parent),
      typeName("SMTr") {
+     
+     //Declare the interface
+     declareInterface<IDataRetriever>(this);
+
      //Fill the list with the names of track record collections to try
      TrackRecCollNames.push_back("MuonEntryLayer");
      TrackRecCollNames.push_back("MuonEntryRecord");

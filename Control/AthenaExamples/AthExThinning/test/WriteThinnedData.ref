@@ -980,3 +980,4 @@ WriteThinnedData     INFO  ear1: px= 20
 WriteThinnedData     INFO  ear2: px= 100
 WriteThinnedData     INFO [test3] has been performed.
 WriteThinnedData     INFO Finalizing WriteThinnedData...
+WriteThinnedData    DEBUG Calling destructor

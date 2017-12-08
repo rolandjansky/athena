@@ -95,7 +95,7 @@ bool DerivationFramework::EmergingJetsFilterTool::eventPassesFilter() const
   StatusCode sc = evtStore()->retrieve(jets,m_jetSGKey);
   if( sc.isFailure() || !jets ){
     msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
-    return false;
+    return StatusCode::FAILURE;
   } 
   msg(MSG::DEBUG) << "size of Jet container is " << jets->size() << endmsg;
 

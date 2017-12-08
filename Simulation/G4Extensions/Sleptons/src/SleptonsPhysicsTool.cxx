@@ -38,7 +38,7 @@
 //=============================================================================
 SleptonsPhysicsTool::SleptonsPhysicsTool( const std::string& type,
                                           const std::string& name,const IInterface* parent )
-  : base_class ( type, name , parent )
+  : AthAlgTool ( type, name , parent )
   , m_theSElectronMinus(nullptr)
   , m_theSElectronPlus(nullptr)
   , m_theSMuonMinus(nullptr)
@@ -46,6 +46,9 @@ SleptonsPhysicsTool::SleptonsPhysicsTool( const std::string& type,
   , m_theSTauMinus(nullptr)
   , m_theSTauPlus(nullptr)
 {
+  ATH_MSG_DEBUG("SleptonsPhysicsTool "<<type<<" "<<name);
+  declareInterface< IPhysicsOptionTool >( this ) ;
+
   declareProperty("G4SElectronMinusMass",m_G4SElectronMinusMass=100.00*CLHEP::GeV,"G4SElectronMinus Mass");
   declareProperty("G4SElectronMinusWidth",m_G4SElectronMinusWidth=0.0*CLHEP::MeV,"G4SElectronMinus Width");
   declareProperty("G4SElectronMinusCharge",m_G4SElectronMinusCharge=-1.*CLHEP::eplus,"G4SElectronMinus charge");

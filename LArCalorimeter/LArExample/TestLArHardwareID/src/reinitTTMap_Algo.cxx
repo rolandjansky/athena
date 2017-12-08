@@ -331,12 +331,12 @@ StatusCode reinitTTMap_Algo::testStruct(){
     dumpFcal=CxxUtils::make_unique<std::ofstream>(fcalFile.c_str());   
     if (dumpFcal==0) {
       std::cout << "Problem opening FCAL dump file" << std::endl;
-      return StatusCode::SUCCESS;
+      return 1;
     }
     dumpOther=CxxUtils::make_unique<std::ofstream>(otherFile.c_str());   
     if (dumpOther==0) {
       std::cout << "Problem opening other dump file" << std::endl;
-      return StatusCode::SUCCESS;
+      return 1;
     }
   }
   for (; it!=it_e;++it)       {

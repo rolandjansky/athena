@@ -19,6 +19,8 @@ namespace CLHEP {
 
 namespace Simulation {
 
+  static const InterfaceID IID_ILorentzVectorGenerator("ILorentzVectorGenerator", 1, 0);
+
   /**
    @class ILorentzVectorGenerator
 
@@ -32,8 +34,8 @@ namespace Simulation {
        /** Virtual destructor */
        virtual ~ILorentzVectorGenerator(){}
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(ILorentzVectorGenerator, 1, 0);
+       /** AlgTool interface methods */
+       static const InterfaceID& interfaceID() { return IID_ILorentzVectorGenerator; }
 
        /** Returns a HepLorentzVector */
        virtual CLHEP::HepLorentzVector* generate() const = 0;

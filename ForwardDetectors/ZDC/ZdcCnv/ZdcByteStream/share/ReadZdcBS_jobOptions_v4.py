@@ -12,9 +12,9 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # EventStorage Input
 ByteStreamInputSvc =  svcMgr.ByteStreamInputSvc
 
-#ByteStreamInputSvc.FullFileName = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
-#ByteStreamInputSvc.FullFileName = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/standalone/data15_calib.00283741.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data"]
-ByteStreamInputSvc.FullFileName = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/calib/data15_calib.00285911.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data"]
+#ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
+#ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/standalone/data15_calib.00283741.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data"]
+ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/calib/data15_calib.00285911.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data"]
 
 from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.InputFormat = "bytestream"

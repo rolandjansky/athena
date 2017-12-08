@@ -553,7 +553,7 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
 //=========================================================================================================
 {
   // Create wave container using feedthru grouping and initialize
-  auto caliWaveContainer = std::make_unique<LArCaliWaveContainer>();
+  LArCaliWaveContainer* caliWaveContainer = new LArCaliWaveContainer();
   
   ATH_CHECK( caliWaveContainer->setGroupingType(m_groupingType,msg()) );
   ATH_MSG_DEBUG ( "Set groupingType for LArCaliWaveContainer object" );
@@ -652,7 +652,9 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
       } // end of loop DACs     
 
       // intermediate map cleanup (save memory)
-      cell_it->clear();
+      const WaveMap* cmap = &(*cell_it);
+      WaveMap* map = const_cast<WaveMap*>(cmap);
+      map->clear();
 
     } //end loop cells
 
@@ -662,7 +664,7 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
   ATH_MSG_INFO ( "Size of LAr calibration waves container : " << caliWaveContainer->size()  );
  
   // Record in detector store with key (m_keyoutput)
-  ATH_CHECK( detStore()->record(std::move(caliWaveContainer), m_keyoutput) );
+  ATH_CHECK( detStore()->record(caliWaveContainer, m_keyoutput) );
 
   ATH_MSG_INFO ( "LArCaliWaveBuilderXtalk has finished." );
   return StatusCode::SUCCESS;

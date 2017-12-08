@@ -1,21 +1,20 @@
-Thu Nov  2 15:26:27 EDT 2017
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Fri Oct 27 23:56:24 CEST 2017
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/9f528da37a] -- built on [2017-10-27T2337]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/AuxDataTestRead3_jo.py"
-Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5436 configurables from 58 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
+[?1034hPy:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Nov  2 15:26:55 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus012.cern.ch on Fri Oct 27 23:56:38 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,7 +22,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 10025 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 9865 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -32,9 +31,9 @@ MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServi
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-26T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:AuxDataTestRead3_catalog.xml
@@ -42,7 +41,7 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 002B8756-D35C-AD49-BC48-9B39E41FF41A
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A1E1D95D-DA5F-BD4E-8571-642889FAB4C5
 Domain[ROOT_All]     INFO                           auxdata3.root
 RootDatabase.open    INFO auxdata3.root File version:60806
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
@@ -54,21 +53,20 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 auxdata3.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 002B8756-D35C-AD49-BC48-9B39E41FF41A
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A1E1D95D-DA5F-BD4E-8571-642889FAB4C5
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 002B8756-D35C-AD49-BC48-9B39E41FF41A
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A1E1D95D-DA5F-BD4E-8571-642889FAB4C5
 Domain[ROOT_All]     INFO                           auxdata3.root
 RootDatabase.open    INFO auxdata3.root File version:60806
 ApplicationMgr       INFO Application Manager Started successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1397 CLIDRegistry entries for module ALL
-AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
+ClassIDSvc           INFO  getRegistryEntries: read 1452 CLIDRegistry entries for module ALL
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 1
-ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 50 CLIDRegistry entries for module ALL
 aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint 
  anInt1: 1100 aFloat1: 1200.5 pInt: 2 pFloat: 0.01 aB: 1300 dFloat1: 1400.5
   pvInt: []
@@ -1428,7 +1426,7 @@ aB aFloat1 anInt1 dFloat1 pfloat pint pvfloat pvint
 b anInt1: 199980 aFloat1: 199980.5 anEL: bauxvec[0] aB: 200080 dFloat1: 200180
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 auxdata3.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 002B8756-D35C-AD49-BC48-9B39E41FF41A
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A1E1D95D-DA5F-BD4E-8571-642889FAB4C5
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize

@@ -1,0 +1,25 @@
+package ExoticPhysTagTools
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*          External
+use AthenaBaseComps     AthenaBaseComps-*         Control
+use AthenaPoolUtilities AthenaPoolUtilities-*     Database/AthenaPOOL
+use AthenaPoolUtilities	AthenaPoolUtilities-*     Database/AthenaPOOL
+use TagEvent		TagEvent-*		  PhysicsAnalysis/EventTag
+
+
+private
+use AtlasCLHEP		AtlasCLHEP-*	          External
+public
+
+
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+
+
+
+

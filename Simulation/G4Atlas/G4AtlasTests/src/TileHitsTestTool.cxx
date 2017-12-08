@@ -20,11 +20,8 @@ TileHitsTestTool::TileHitsTestTool(const std::string& type, const std::string& n
     m_tile_rz(0), m_tile_etaphi(0), m_tile_energyphi(0), m_tile_energyeta(0),
     m_mbts_side(0), m_mbts_eta(0), m_mbts_phi(0),
     m_mbts_sidetaphi(0),
-    m_etot(0),
-    m_testMBTS(true)
-{
-  declareProperty("TestMBTS",m_testMBTS,"");
-  }
+    m_etot(0)
+{  }
 
 
 StatusCode TileHitsTestTool::initialize() {
@@ -143,20 +140,19 @@ StatusCode TileHitsTestTool::processEvent() {
         }
     }
 
-  if(m_testMBTS) {
-    CHECK(evtStore()->retrieve(hitVec,"MBTSHits"));
+  CHECK(evtStore()->retrieve(hitVec,"MBTSHits"));
 
-    for (TileHitVecConstIterator i_hit=hitVec->begin() ; i_hit!=hitVec->end() ; ++i_hit) {
-      Identifier mbts_id = (*i_hit).identify();
-      double side = m_tileTBID->side(mbts_id); // -1 or +1
-      double ieta = m_tileTBID->eta(mbts_id);  // 0 for inner cell, 1 for outer cell
-      double iphi = m_tileTBID->phi(mbts_id);  // 0-7, cell 0 at phi=0
-      m_mbts_side->Fill(side);
-      m_mbts_eta->Fill(ieta);
-      m_mbts_phi->Fill(iphi);
-      m_mbts_sidetaphi->Fill((ieta+1)*side,iphi);
-    }
+  for (TileHitVecConstIterator i_hit=hitVec->begin() ; i_hit!=hitVec->end() ; ++i_hit) {
+    Identifier mbts_id = (*i_hit).identify();
+    double side = m_tileTBID->side(mbts_id); // -1 or +1
+    double ieta = m_tileTBID->eta(mbts_id);  // 0 for inner cell, 1 for outer cell
+    double iphi = m_tileTBID->phi(mbts_id);  // 0-7, cell 0 at phi=0
+    m_mbts_side->Fill(side);
+    m_mbts_eta->Fill(ieta);
+    m_mbts_phi->Fill(iphi);
+    m_mbts_sidetaphi->Fill((ieta+1)*side,iphi);
   }
+
   // const HepMC::GenParticle *primary = getPrimary();
   // if (primary) {
   //   m_etot_eta->Fill(primary->momentum().eta(),etot);

@@ -146,8 +146,6 @@ namespace Muon {
     , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
     , m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator")
     , m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator")
-    , m_muonAlignHelperTool("Muon::MuonAlignHelperTool")
-    , m_muonAlignRefitTool("Muon::MuonAlignRefitTool")
     , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
     , m_file(0) 
     , m_tree(0)

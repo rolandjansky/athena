@@ -51,10 +51,6 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
       kwargs.setdefault("FirstXing", MDT_FirstXing() ) # this should match the range for the MDT in Digitization/share/MuonDigitization.py
       kwargs.setdefault("LastXing",  MDT_LastXing() )  # this should match the range for the MDT in Digitization/share/MuonDigitization.py
 
-   # Pile-up premixing - do not include pile-up truth
-   if jobproperties.Digitization.PileUpPremixing():
-      kwargs.setdefault("IncludePileUpTruth", False)
-
    return CfgMgr.MdtDigitizationTool(name,**kwargs)
       #return CfgMgr.MDT_PileUpTool(name,**kwargs)
    #else:
@@ -100,3 +96,4 @@ def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     kwargs.setdefault("GetT0FromBD", True) #FIXME should depend on readBS and isRealData variables somehow
     return MdtDigitizationTool(name,**kwargs)
+

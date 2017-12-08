@@ -28,11 +28,7 @@ TrigL2MuonSA::MuFastTrackFitter::MuFastTrackFitter(const std::string& type,
   m_storeGateSvc( "StoreGateSvc", name ),
   m_use_mcLUT(true),
   m_alignmentBarrelLUTSvc(0),
-  m_use_endcapInnerFromBarrel(false),
-  m_sagittaRadiusEstimate("TrigL2MuonSA::SagittaRadiusEstimate"),
-  m_alphaBetaEstimate("TrigL2MuonSA::AlphaBetaEstimate"),
-  m_ptFromRadius("TrigL2MuonSA::PtFromRadius"),
-  m_ptFromAlphaBeta("TrigL2MuonSA::PtFromAlphaBeta")
+  m_use_endcapInnerFromBarrel(false)
 {
   declareInterface<TrigL2MuonSA::MuFastTrackFitter>(this);
 }
@@ -62,11 +58,6 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::initialize()
      ATH_MSG_ERROR("Could not find StoreGateSvc");
       return sc;
    }
-
-   ATH_CHECK( m_sagittaRadiusEstimate.retrieve() );
-   ATH_CHECK( m_alphaBetaEstimate.retrieve() );
-   ATH_CHECK( m_ptFromRadius.retrieve() );
-   ATH_CHECK( m_ptFromAlphaBeta.retrieve() );
    
    // 
    return StatusCode::SUCCESS; 
@@ -108,42 +99,42 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
   }
 
   // Calculation of sagitta and radius
-  // sc = m_sagittaRadiusEstimate.retrieve();
-  // if ( sc.isFailure() ) {
-  //   ATH_MSG_ERROR("Could not retrieve " << m_sagittaRadiusEstimate);
-  //   return sc;
-  // }
-  // ATH_MSG_DEBUG("Retrieved service " << m_sagittaRadiusEstimate);
+  sc = m_sagittaRadiusEstimate.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_sagittaRadiusEstimate);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_sagittaRadiusEstimate);
 
   m_sagittaRadiusEstimate->setMCFlag(m_use_mcLUT, m_alignmentBarrelLUTSvc);
 
   // Calculation of alpha and beta
-  // sc = m_alphaBetaEstimate.retrieve();
-  // if ( sc.isFailure() ) {
-  //   ATH_MSG_ERROR("Could not retrieve " << m_alphaBetaEstimate);
-  //   return sc;
-  // }
-  // ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
+  sc = m_alphaBetaEstimate.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_alphaBetaEstimate);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
 
   m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
 
   // conversion: radius -> pT
-  // sc = m_ptFromRadius.retrieve();
-  // if ( sc.isFailure() ) {
-  //   ATH_MSG_ERROR("Could not retrieve " << m_ptFromRadius);
-  //   return sc;
-  // }
-  // ATH_MSG_DEBUG("Retrieved service " << m_ptFromRadius);
+  sc = m_ptFromRadius.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_ptFromRadius);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_ptFromRadius);
 
   m_ptFromRadius->setMCFlag(m_use_mcLUT, m_ptBarrelLUTSvc);
 
   // conversion: alpha, beta -> pT
-  // sc = m_ptFromAlphaBeta.retrieve();
-  // if ( sc.isFailure() ) {
-  //   ATH_MSG_ERROR("Could not retrieve " << m_ptFromAlphaBeta);
-  //   return sc;
-  // }
-  // ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
+  sc = m_ptFromAlphaBeta.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_ptFromAlphaBeta);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
 
   m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
 

@@ -50,7 +50,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
-#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloCellIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"

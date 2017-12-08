@@ -10,7 +10,7 @@ def getJetSplitterAllTEInstance( ):
 
 def getJetSplitterFTKAllTEInstance( ):
     thejetSplitterFTK = JetSplitterAllTE( name="JetSplitterFTKAllTE" )
-    thejetSplitterFTK.PriVtxKey    = "PrimVertexFTK"
+    thejetSplitterFTK.PriVtxKey    = "HLT_PrimVertexFTK"
     return thejetSplitterFTK
 
 class JetSplitterAllTE (TrigJetSplitterAllTE):

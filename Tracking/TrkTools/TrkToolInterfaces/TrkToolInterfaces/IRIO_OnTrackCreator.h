@@ -40,6 +40,8 @@ namespace Trk {
     virtual ~IRIO_OnTrackCreator() {}
     static const InterfaceID& interfaceID()
     { return IID_IRIO_OnTrackCreator; }    //!< The AlgTool InterfaceID
+    virtual StatusCode initialize()=0;     //!< standard AlgTool method
+    virtual StatusCode finalize()=0;       //!< standard AlgTool method
 
     /** abstract base method for the creation of RIO_OnTrack
         it takes a RIO (PrepRawData) and the given Track Parameter

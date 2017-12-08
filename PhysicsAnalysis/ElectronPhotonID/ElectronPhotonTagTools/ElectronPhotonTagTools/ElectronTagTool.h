@@ -17,14 +17,15 @@ Purpose : build the Electron Tag objects - ElectronTagCollection.h.
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
-#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
+
 #include <map>
 
 class ElectronTagCollection;
@@ -102,7 +103,7 @@ private:
   std::string m_vxCandidate;
 
   /** calib tool */
-  // ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
+  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
   
 };
 

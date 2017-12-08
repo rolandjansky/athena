@@ -130,8 +130,6 @@ void dumbProperties(const AsgElectronEfficiencyCorrectionTool& tool){
 }
 
 
-int main( int argc, char* argv[] ) {
-  xAOD::TReturnCode::enableFailure();
 
 int main( int argc, char* argv[] ) {
   xAOD::TReturnCode::enableFailure();
@@ -356,8 +354,10 @@ int main( int argc, char* argv[] ) {
   if ( isokey!="")   CHECK( myEgCorrections.setProperty("IsoKey", isokey));
   if ( triggerkey!="")   CHECK( myEgCorrections.setProperty("TriggerKey", triggerkey));
   CHECK( myEgCorrections.setProperty("ForceDataType",(int)SimType) );
-  CHECK( myEgCorrections.setProperty("CorrelationModel", "TOTAL" ));
-  myEgCorrections.msg().setLevel(mylevel);
+ // CHECK( myEgCorrections.setProperty("CorrelationModel", "TOTAL" ));
+CHECK( myEgCorrections.setProperty("CorrelationModel", "FULL" ));
+   
+ myEgCorrections.msg().setLevel(mylevel);
   CHECK( myEgCorrections.initialize() );  
   dumbProperties(myEgCorrections);
   double SF = 0; 

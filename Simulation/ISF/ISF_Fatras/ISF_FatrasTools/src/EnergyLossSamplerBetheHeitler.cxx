@@ -20,12 +20,13 @@
 Trk::ParticleMasses iFatras::EnergyLossSamplerBetheHeitler::s_particleMasses;
 
 iFatras::EnergyLossSamplerBetheHeitler::EnergyLossSamplerBetheHeitler( const std::string& type, const std::string& name, const IInterface* parent )
-  :  base_class( type, name, parent ),
+  :  AthAlgTool( type, name, parent ),
      m_rndmGenSvc("AtDSFMTGenSvc", name),
      m_randomEngine(0),
      m_randomEngineName("FatrasRnd"),
      m_scaleFactor(1.0)
 {
+  declareInterface<IEnergyLossSampler>(this);
   // get the property from outside
   declareProperty("ScaleFactor",      m_scaleFactor);
   declareProperty("RandomNumberService"                 , m_rndmGenSvc         , "Random number generator");

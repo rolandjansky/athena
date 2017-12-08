@@ -8,7 +8,7 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/VarHand
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Tue Oct 31 00:10:44 2017
+                                          running on karma on Mon Oct 30 13:24:23 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ClassIDSvc           INFO  getRegistryEntries: read 312 CLIDRegistry entries for module ALL
@@ -31,14 +31,14 @@ test4
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
                     ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: FooSvc
-VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize(bool)): code 0: m_ownedKey->initialize()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize(bool)): code 0: VarHandleKey::initialize()
                     ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot initialize a Read/Write/Update handle with a null key.
-VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize(bool)): code 0: m_ownedKey->initialize()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize(bool)): code 0: VarHandleKey::initialize()
 test5
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
                     ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: FooSvc
-VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize(bool)): code 0: m_ownedKey->initialize()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize(bool)): code 0: VarHandleKey::initialize()
 VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::setState()): code 0: initialize()
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foo
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)):  try using a ReadHandle
@@ -47,7 +47,7 @@ test7
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
                     ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: Cannot locate store: FooSvc
-VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: m_ownedKey->initialize()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: VarHandleKey::initialize()
 VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed
 VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: Attempt to record an object with a null key
 test8
@@ -56,7 +56,7 @@ VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointe
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_fromProxy(SG::DataProxy*, bool) const): Proxy  [293847295/foo] is in an invalid state
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_fromProxy(SG::DataProxy*, bool) const): Request for an invalid object; requested CLID = 293847295, proxy primary ID is 293847296
 test9
-VarHandleBase @0x7ffd401420b0 store=FooSvc, clid=293847295, key=foo----------- ptr@0, proxy@0
+VarHandleBase @0x7ffd10f63660 store=FooSvc, clid=293847295, key=foo----------- ptr@0, proxy@0
 test10
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc

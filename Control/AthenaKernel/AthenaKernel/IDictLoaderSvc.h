@@ -11,8 +11,7 @@
 #ifndef ATHENAKERNEL_IDICTLOADERSVC_H 
 #define ATHENAKERNEL_IDICTLOADERSVC_H 1 
 
-/** @class IDictLoaderSvc
- *  a simple interface to interact with the Reflex
+/** @class IDictLoaderSvc a simple interface to interact with the Reflex
  *  dictionaries and abstract/workaround a few ROOT bugs.
  *  There are 2 methods in this interface:
  *    @c has_type to check if a type is known to the reflex system

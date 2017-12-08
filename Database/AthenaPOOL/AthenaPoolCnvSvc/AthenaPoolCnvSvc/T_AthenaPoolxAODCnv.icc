@@ -54,7 +54,6 @@ T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createObj( IOpaqueAddress* pAddr,
 template <class XAOD, class ... TPCNVS>
 XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistent( XAOD* trans )
 {
-  AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<XAOD>::ID());
   return new XAOD (*trans);
 }
 
@@ -68,7 +67,6 @@ XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistent( XAOD* trans )
 template <class XAOD, class ... TPCNVS>
 XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransient()
 {
-  AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<XAOD>::ID());
   XAOD* c = nullptr;
 
   if ( this->compareClassGuid( m_guid ) ) {

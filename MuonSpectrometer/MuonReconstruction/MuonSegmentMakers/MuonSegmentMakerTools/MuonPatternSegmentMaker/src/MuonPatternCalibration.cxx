@@ -32,7 +32,6 @@ namespace Muon {
     AthAlgTool(t,n,p),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_printer("Muon::MuonEDMPrinterTool"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_log(0),
     m_keyRpc("RPC_Measurements"),

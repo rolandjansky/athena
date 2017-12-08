@@ -100,22 +100,67 @@ namespace Muon {
 
   StatusCode MuonChamberHoleRecoveryTool::initialize()
   {
+    if( AthAlgTool::initialize().isFailure() ) {
+      return StatusCode::SUCCESS;
+    }
 
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
-    ATH_CHECK( m_helperTool.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_extrapolator.retrieve() );
-    ATH_CHECK( m_mdtRotCreator.retrieve() );
+    StoreGateSvc* detStore=0;
+    if ( serviceLocator()->service("DetectorStore", detStore).isFailure() ) {
+      ATH_MSG_ERROR("DetectorStore not found ");
+      return StatusCode::FAILURE;
+    }
+
+    if ( detStore->retrieve( m_detMgr ).isFailure() ) {
+      ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
+      return StatusCode::FAILURE;
+    }
+    
+
+    if(m_helperTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_helperTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if (m_printer.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_printer); 
+      return StatusCode::FAILURE;
+    }
+
+    if ( m_extrapolator.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find refit tool "<<m_extrapolator<<". Exiting.");
+      return StatusCode::FAILURE;
+    }
+
+    if (m_mdtRotCreator.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find refit tool "<<m_mdtRotCreator<<". Exiting.");
+      return StatusCode::FAILURE;
+    }
 
     if( !m_cscRotCreator.empty() ) {
-      ATH_CHECK( m_cscRotCreator.retrieve() );
+      
+      if (m_cscRotCreator.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Could not find refit tool "<<m_cscRotCreator<<". Exiting." );
+	return StatusCode::FAILURE;
+      }
     }else{
       ATH_MSG_INFO("CSC rot creation disabled" );
     }
 
-    ATH_CHECK( m_clusRotCreator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_intersectSvc.retrieve() );
+    if (m_clusRotCreator.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find refit tool "<<m_clusRotCreator<<". Exiting." );
+      return StatusCode::FAILURE;
+    }
+
+    if (m_idHelperTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_idHelperTool); 
+      return StatusCode::FAILURE;
+    }
+
+    // retrieve detector store
+    if (m_intersectSvc.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not get MuonStationIntersectSvc");
+      return StatusCode::FAILURE;
+    }
 
     ATH_CHECK(m_key_mdt.initialize());
     ATH_CHECK(m_key_csc.initialize());
@@ -126,6 +171,7 @@ namespace Muon {
   }
   StatusCode MuonChamberHoleRecoveryTool::finalize()
   {
+    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
   
@@ -806,7 +852,7 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
       }else{
 	exPars = m_extrapolator->extrapolateDirectly(pars,surf,Trk::anyDirection,false,Trk::muon);
 	if( !exPars ) {
-	  ATH_MSG_DEBUG(" Propagation cluster hole failed!! ");
+	  ATH_MSG_WARNING(" Propagation cluster hole failed!! ");
 	  continue;
 	}
 	parsToBeDeleted.push_back(exPars);

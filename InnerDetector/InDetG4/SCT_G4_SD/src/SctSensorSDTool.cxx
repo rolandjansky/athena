@@ -20,6 +20,7 @@
 SctSensorSDTool::SctSensorSDTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SensitiveDetectorBase( type , name , parent ),m_isGmxSensor(false)
 {
+  declareInterface<ISensitiveDetector>(this);
   declareProperty("GmxSensor",m_isGmxSensor);
 }
 

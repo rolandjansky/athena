@@ -1,0 +1,82 @@
+## automatically generated CMT requirements file
+package METUtilities
+author  Teng Jian Khoo
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## for gaudi tools, services and objects
+use GaudiInterface  	GaudiInterface-* 	External
+
+## framework dependencies
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use AtlasROOT		AtlasROOT-*		External
+use PATInterfaces	PATInterfaces-*		PhysicsAnalysis/AnalysisCommon
+
+## put here your package dependencies...
+use METInterface	METInterface-*		Reconstruction/MET
+use xAODJet             xAODJet-*               Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODMissingET	xAODMissingET-*		Event/xAOD
+use xAODEgamma          xAODEgamma-*            Event/xAOD
+use xAODMuon            xAODMuon-*              Event/xAOD
+use xAODTau             xAODTau-*               Event/xAOD
+
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+
+private
+use xAODCore		xAODCore-*		Event/xAOD
+
+use PathResolver	PathResolver-*		Tools
+
+use ElectronPhotonSelectorTools  ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
+use MuonSelectorTools   MuonSelectorTools-*     PhysicsAnalysis/MuonID
+use TauAnalysisTools 	TauAnalysisTools-* 	PhysicsAnalysis/TauID
+
+use FourMomUtils        FourMomUtils-*		Event
+
+# needed for track momentum errors
+use EventPrimitives	EventPrimitives-*	Event
+
+## Algorithm def
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
+##
+
+public
+branches src src/components doc python share METUtilities Root
+
+#library METUtilitiesLib ../Root/METHelper.cxx
+#apply_pattern named_installed_library library=METUtilitiesLib
+
+#todo probably remove when we get files in PathResolver space
+apply_pattern declare_calib files="../data/*.config ../data/*.root"
+
+# needs to be public for linking
+#library METUtilities ../src/*.cxx ../Root/*.cxx -s=components *.cxx
+#apply_pattern component_library
+apply_pattern dual_use_library files="../src/*.cxx ../Root/*.cxx"
+
+private
+
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=METUtilities selectionfile=selection.xml headerfiles="../METUtilities/METUtilitiesDict.h"
+
+# Compile examples but only fully in the analysis releases
+use_if tag=AthAnalysisBase pkg=JetCalibTools ver=JetCalibTools-* root=Reconstruction/Jet
+use_if tag=AthAnalysisBase pkg=xAODBase ver=xAODBase-* root=Event/xAOD
+use_if tag=AthAnalysisBase pkg=POOLRootAccess ver=POOLRootAccess-* root=PhysicsAnalysis
+use_if tag=AthAnalysisBase pkg=StoreGate ver=StoreGate-* root=Control
+
+application example_METMaker_METSystematicsTool ../util/example_METMaker_METSystematicsTool.cxx
+application example_METMaker_advanced ../util/example_METMaker_advanced.cxx
+application example_METMaker_rebuildTrackMET ../util/example_rebuildTrackMET.cxx
+
+macro_append example_METMaker_METSystematicsTool_dependencies " METUtilitiesLib "
+macro_append example_METMaker_advanced_dependencies " METUtilitiesLib "
+macro_append example_METMaker_rebuildTrackMET_dependencies " METUtilitiesLib "
+
+end_private
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"

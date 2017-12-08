@@ -1,0 +1,27 @@
+package BCM_RawDataByteStreamCnv
+
+author Daniel Dobos <Daniel.Dobos@cern.ch>
+
+use AtlasPolicy	    	 AtlasPolicy-*	
+use AthenaBaseComps      AthenaBaseComps-*              Control
+use InDetBCM_RawData     InDetBCM_RawData-*             InnerDetector/InDetRawEvent
+use ByteStreamData       ByteStreamData-*               Event
+
+use GaudiInterface       GaudiInterface-*               External
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* 	Event 
+use DataCollection       DataCollection-*               External
+use AthenaKernel         AthenaKernel-*                 Control
+
+private
+use StoreGate            StoreGate-*                    Control
+
+# Declare the tdaq-common components that are required (only relevent for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
+public
+# create the regular dual_use_lib for the Container converters + helper
+#   classes 
+#apply_pattern dual_use_library files="*.cxx"
+
+apply_pattern component_library 
+library BCM_RawDataByteStreamCnv *.cxx components/*.cxx

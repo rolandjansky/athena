@@ -42,44 +42,32 @@
 // STL includes
 #include <iostream>
 #include "GaudiKernel/ISvcLocator.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AsgTools/MsgStreamMacros.h"
 
 namespace G4UA{
 
   namespace iGeant4 {
 
-    PhysicsValidationUserAction::PhysicsValidationUserAction(const Config& config)
-      : m_config(config)
-      , m_geoIDSvcQuick(nullptr)
+    PhysicsValidationUserAction::PhysicsValidationUserAction(const Config& config):AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"), "PhysicsValidationUserAction"),
+      m_config(config),m_geoIDSvcQuick(0),  
       // branches
-      , m_particles(nullptr)
-      , m_pdg(0)
-      , m_scIn(0)
-      , m_scEnd(0)
-      , m_gen(0)
-      , m_geoID(0)
-      , m_theta(0.)
-      , m_pth(0.)
-      , m_pph(0.)
-      , m_p(0.)
-      , m_eloss(0.)
-      , m_radloss(0.)
-      , m_ionloss(0.)
-      , m_wzOaTr(0), m_thIn(0), m_phIn(0), m_dIn(0)
-      , m_thEnd(0), m_phEnd(0), m_dEnd(0)
-      , m_X0(0), m_L0(0), m_wZ(0), m_dt(0)
+      m_wzOaTr(0), m_thIn(0), m_phIn(0), m_dIn(0),
+      m_thEnd(0), m_phEnd(0), m_dEnd(0),
+      m_X0(0), m_L0(0), m_wZ(0), m_dt(0),
       // more branches
-      , m_interactions(nullptr)
-      , m_process(0), m_pdg_mother(0), m_gen_mother(0), m_nChild(0)
-      , m_vtx_dist(0), m_vtx_theta(0), m_vtx_phi(0), m_vtx_e_diff(0)
-      , m_vtx_p_diff(0), m_vtx_plong_diff(0), m_vtx_pperp_diff(0)
-      , m_p_mother(0), m_radLength(0)
-      , m_volumeOffset(1)
-      , m_minHistoryDepth(0)
-      , m_currentTrack(0)
-      , m_msg("PhysicsValidationUserAction")
+      m_interactions(nullptr),
+      m_process(0), m_pdg_mother(0), m_gen_mother(0), m_nChild(0),
+      m_vtx_dist(0), m_vtx_theta(0), m_vtx_phi(0), m_vtx_e_diff(0),
+      m_vtx_p_diff(0), m_vtx_plong_diff(0), m_vtx_pperp_diff(0),
+      m_p_mother(0), m_radLength(0),
+      m_volumeOffset(1),
+      m_minHistoryDepth(0),
+      m_currentTrack(0)
     {
-      m_msg.get().setLevel(m_config.verboseLevel);
+      if(4<m_config.verboseLevel)
+        {
+          G4cout << "create PhysicsValidationUserAction" << G4endl;
+        }
     }
 
     void PhysicsValidationUserAction::BeginOfEventAction(const G4Event*)
@@ -136,6 +124,8 @@ namespace G4UA{
       }
 
 
+      m_sHelper=SecondaryTracksHelper(G4EventManager::GetEventManager()->GetTrackingManager());
+      
       m_geoIDSvcQuick = &(*m_config.geoIDSvc);
 
       // setup for validation mode
@@ -339,7 +329,7 @@ namespace G4UA{
 	EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 	VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
 	const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
-	::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, eventInfo);
+	::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
 	unsigned int nSec = truth.numberOfChildren();
 	if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
 	  //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;
@@ -539,6 +529,8 @@ namespace G4UA{
 
     void PhysicsValidationUserAction::PreUserTrackingAction(const G4Track*)
     {
+
+      m_sHelper.ResetNrOfSecondaries();
       return;
     }
 

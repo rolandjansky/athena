@@ -169,7 +169,7 @@ void EMTrackMatch::set_parameter(egammaParameters::ParamDef key, double value, b
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMTrackMatch::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMTrackMatch::set_parameter(...)", false);
     }
   }
 
@@ -194,7 +194,7 @@ void EMTrackMatch::set_boolParameter(egammaParameters::ParamDef key, bool value,
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMTrackMatch::set_boolparameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMTrackMatch::set_boolparameter(...)", false);
     }
   }
 }

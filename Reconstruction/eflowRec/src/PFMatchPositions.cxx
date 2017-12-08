@@ -23,6 +23,7 @@ EtaPhi* TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) {
   if (etaphi.getEta() == -999.){
     etaphi = track->etaPhiInLayer(m_endcapLayer);
   }
+  //*m_position = EtaPhi(etaphi);
   m_position = std::make_unique<EtaPhi>(etaphi);
   return m_position.get();
 }
@@ -31,6 +32,8 @@ EtaPhi* TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) {
 /* Cluster position providers */
 
 EtaPhi* ClusterPlainEtaPhiProvider::getPosition(const ICluster* cluster) {
+  //*m_position = eflowEtaPhiPosition(cluster->eta(), cluster->phi());
+  //m_position = std::make_unique<eflowEtaPhiPosition>(cluster->eta(), cluster->phi());
   eflowEtaPhiPosition etaphi(cluster->eta(), cluster->phi());
   m_position = std::make_unique<EtaPhi>(etaphi);
   return m_position.get();
@@ -42,6 +45,7 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
 
   /* Check the status to make sure this function only execute once since it is expensive. */
   if(cluster->calVarianceStatus()) {
+    //*m_position = EtaPhiWithVariance(eflowEtaPhiPosition(cluster->etaMean(), cluster->phiMean()), cluster->etaVariance(), cluster->phiVariance());
     m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(cluster->etaMean(), cluster->phiMean()), cluster->etaVariance(), cluster->phiVariance());
     return m_position.get();
   }
@@ -53,6 +57,7 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
   if (nCells == 0){
     cluster->etaVariance(m_etaPhiLowerLimit);
     cluster->phiVariance(m_etaPhiLowerLimit);
+    //*m_position = EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
     m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
     return m_position.get();
   }
@@ -62,6 +67,7 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
   if (1 == nCells){ 
     cluster->etaVariance(m_etaPhiLowerLimit);
     cluster->phiVariance(m_etaPhiLowerLimit);
+    //*m_position = EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
     m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
     return m_position.get();
   } 
@@ -96,6 +102,7 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
   cluster->phiMean(phiMean);
   cluster->etaVariance(etaVariance);
   cluster->phiVariance(phiVariance);
+  //*m_position = EtaPhiWithVariance(eflowEtaPhiPosition(etaMean, phiMean), cluster->etaVariance(), cluster->phiVariance());
   m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(etaMean, phiMean), cluster->etaVariance(), cluster->phiVariance());
   return m_position.get();
 }

@@ -17,13 +17,16 @@
 
 namespace Simulation
 {
+
   /** Constructor **/
   GenEventValidityChecker::GenEventValidityChecker( const std::string& t,
                                                     const std::string& n,
                                                     const IInterface* p )
-    : base_class(t,n,p),
+    : AthAlgTool(t,n,p),
       m_checkTime(true)
   {
+    declareInterface<IGenEventManipulator>(this);
+
     declareProperty("CheckTime", m_checkTime,
                     "Check the value in time dimension");
   }

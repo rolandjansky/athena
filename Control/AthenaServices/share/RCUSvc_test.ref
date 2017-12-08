@@ -31,6 +31,7 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramDataSvc    DEBUG Property update for OutputLevel : new value = 2
 HistogramDataSvc    DEBUG Service base class initialized successfully
+HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
 HistogramPersis...  DEBUG Service base class initialized successfully
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully

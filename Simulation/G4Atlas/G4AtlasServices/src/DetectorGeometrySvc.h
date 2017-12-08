@@ -22,7 +22,7 @@
 
 class G4VUserDetectorConstruction;
 
-class DetectorGeometrySvc : public extends<AthService, IDetectorGeometrySvc> {
+class DetectorGeometrySvc : public AthService , public virtual IDetectorGeometrySvc {
 public:
   // Standard constructor and destructor
   DetectorGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator );
@@ -31,6 +31,8 @@ public:
   // Gaudi methods
   StatusCode initialize() override final;
   StatusCode finalize() override final;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
+  static const InterfaceID& interfaceID() { return IDetectorGeometrySvc::interfaceID(); }
 
   /// Setup the magnetic field managers for configured volumes
   StatusCode initializeFields() override final;

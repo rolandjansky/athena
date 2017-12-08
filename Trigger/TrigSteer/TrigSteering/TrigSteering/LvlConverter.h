@@ -92,8 +92,7 @@ namespace HLT {
 
 
    /**
-      @class LvlConverter
-      abstract base class for all HLT level converter tools
+      @class LvlConverter abstract base class for all HLT level converter tools
 
       This class implements the methods from the interface that are common to all
       HLT level converter tools: setConfig(..), setConfiguredChains(..),

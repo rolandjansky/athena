@@ -19,9 +19,9 @@ public:
   
   static TRTUtilities* GetPointer()
   {
-    if (!s_pUtilities)
-      s_pUtilities = new TRTUtilities;
-    return s_pUtilities;
+    if (!pUtilities)
+      pUtilities = new TRTUtilities;
+    return pUtilities;
   }
   
   std::string NumberToString(int);
@@ -38,9 +38,11 @@ private:
   
   std::ofstream& GetReference();
 
-  TRTOutputFile* m_pOutputFile;
+  int printMessages;
   
-  static TRTUtilities* s_pUtilities;
+  TRTOutputFile* pOutputFile;
+  
+  static TRTUtilities* pUtilities;
 
   mutable Athena::MsgStreamMember m_msg;
 

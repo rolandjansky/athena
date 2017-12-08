@@ -14,7 +14,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreClearedIncident.h"
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 
 // -------------------------------------------------------

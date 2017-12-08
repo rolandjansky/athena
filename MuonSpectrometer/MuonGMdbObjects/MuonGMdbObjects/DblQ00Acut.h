@@ -13,8 +13,7 @@
 #ifndef DBLQ00_ACUT_H
 #define DBLQ00_ACUT_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 namespace MuonGM
 {
 class DblQ00Acut {
@@ -22,7 +21,7 @@ class DblQ00Acut {
 public:
     DblQ00Acut(){};
     ~DblQ00Acut();
-    DblQ00Acut(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Acut(IRDBQuery*);
 
     // data members for DblQ00/ACUT fields
     struct ACUT {

@@ -1,22 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-
-class TrigMufastHypoMonitoring(GenericMonitoringTool):
-    def __init__ (self, name="TrigMufastHypoMonitoring"):
-        super(TrigMufastHypoMonitoring, self).__init__(name)
-
-        self.HistPath = name  
-        self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #muFast; P_{T} (GeV)", xbins=200, xmin=-100, xmax=100),
-                            defineHistogram('Eta , Phi', type='TH2F', title="Eta vs Phi reconstruction of #muFast; Eta; Phi",xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15),
-                            defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #muFast; Eta",xbins=100, xmin=-3.2, xmax=3.2),
-                            defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #muFast; Phi",xbins=100, xmin=-3.15, xmax=3.15),
-                            defineHistogram('ZatSt, Phi', type='TH2F', title="Z vs Phi reconstructed in MIDDLE station; Z (cm); Phi (rad)",xbins=50, xmin=-1200., xmax=1200., ybins=25, ymin=-3.2, ymax=3.2),
-                            defineHistogram('XatSt , YatSt', type='TH2F', title="Y vs X reconstructed in MIDDLE station; X (cm); Y(cm)",xbins=50, xmin=-1200., xmax=1200., ybins=50, ymin=-1200., ymax=1200.),
-                            defineHistogram('ZatBe', type='TH1F', title="DCA along Z; Z (cm)",xbins=100, xmin=-2100, xmax=2100),
-                            defineHistogram('XatBe', type='TH1F', title="DCA along X; X (cm)",xbins=100, xmin=-1000, xmax=1000) ]
-
 
 class MufastHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MufastHypoValidationMonitoring"):

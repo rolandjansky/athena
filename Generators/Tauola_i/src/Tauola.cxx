@@ -48,8 +48,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-using std::string;
-
 IAtRndmGenSvc* Tauola::p_AtRndmGenSvc;
 std::string	Tauola::tauola_stream = "TAUOLA_INIT";
 

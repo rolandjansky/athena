@@ -19,12 +19,7 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "Identifier/Identifier.h"
 
-#include "xAODTracking/TrackMeasurementValidationContainer.h"
-
-#include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
-
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "xAODTracking/TrackMeasurementValidation.h"
 
 class CSC_PrepDataToxAOD : public AthAlgorithm  {
 
@@ -39,8 +34,6 @@ public:
 
 private:
 
-  SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrds;
-  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_trackMeasVal;
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
 };
 

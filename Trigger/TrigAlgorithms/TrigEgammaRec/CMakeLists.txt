@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEgammaCnv
                           Event/xAOD/xAODEventShape
                           Event/xAOD/xAODTracking
-			  PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/egamma/egammaEvent
                           Trigger/TrigTools/TrigTimeAlgs )
 
@@ -36,13 +36,13 @@ atlas_add_library( TrigEgammaRecLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigEgammaRec
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODEgamma xAODPrimitives GaudiKernel RecoToolInterfaces egammaRecEvent TrigCaloEvent TrigParticle TrigSteeringEvent LumiBlockCompsLib TrigInterfacesLib EgammaAnalysisInterfacesLib TrigTimeAlgsLib
+                   LINK_LIBRARIES xAODEgamma xAODPrimitives GaudiKernel RecoToolInterfaces egammaRecEvent TrigCaloEvent TrigParticle TrigSteeringEvent LumiBlockCompsLib TrigInterfacesLib ElectronPhotonSelectorToolsLib TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent xAODCaloEvent xAODEventShape xAODTracking egammaEvent )
 
 atlas_add_component( TrigEgammaRec
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODPrimitives GaudiKernel LumiBlockCompsLib RecoToolInterfaces egammaRecEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODCaloEvent xAODEventShape xAODTracking EgammaAnalysisInterfacesLib egammaEvent TrigTimeAlgsLib TrigEgammaRecLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODPrimitives GaudiKernel LumiBlockCompsLib RecoToolInterfaces egammaRecEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODCaloEvent xAODEventShape xAODTracking ElectronPhotonSelectorToolsLib egammaEvent TrigTimeAlgsLib TrigEgammaRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

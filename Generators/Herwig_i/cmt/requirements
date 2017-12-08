@@ -1,0 +1,69 @@
+package Herwig_i
+
+author Ian Hinchliffe
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy             AtlasPolicy-*
+use AtlasFortranPolicy      AtlasFortranPolicy-*
+use GeneratorModules        GeneratorModules-* Generators
+use Herwig                  Herwig-*           External
+use Jimmy                   Jimmy-*            External
+use Lhapdf                  Lhapdf-*           External
+use AcerMC_i                AcerMC_i-*         Generators
+use Tauola_i                Tauola_i-*         Generators
+
+private
+use GeneratorFortranCommon  GeneratorFortranCommon-*  Generators
+use AthenaKernel            AthenaKernel-*     Control
+use GaudiInterface          GaudiInterface-*   External
+use AtlasCLHEP              AtlasCLHEP-*       External
+use AtlasHepMC              AtlasHepMC-*       External
+use GeneratorUtils          GeneratorUtils-*   Generators
+use TruthUtils              TruthUtils-*       Generators
+use AlpGen_i                AlpGen_i-*         Generators
+use MadGraph_i              MadGraph_i-*       Generators
+use Charybdis_i             Charybdis_i-*      Generators
+use Lhef_i                  Lhef_i-*           Generators 
+use McAtNlo_i               McAtNlo_i-*        Generators
+end_private
+
+# Set the -DHWVERSION macro for cmake (transparent to CMT)
+apply_pattern cmake_add_command command='add_definitions(-DHWVERSION="${HERWIG_VERSION}")'
+# Explicitly link the package against HepMCfio
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
+
+private
+macro_append  fflags "" Linux "  -fno-automatic "
+apply_tag notAsNeeded
+end_private
+
+## The Herwig Generator using LHAPDF
+macro HerwigLibFiles "Herwig.cxx"
+macro_append HerwigLibFiles " Address*.cxx"
+macro_append HerwigLibFiles " InitHerwigCommonBlocks_65.cxx"
+macro_append HerwigLibFiles " Lhefinfo.cxx wgtacp.cxx"
+macro_append HerwigLibFiles " upevnt_hw.F upinit_hw.F upveto_hw.F atoher_65.F hwpdfinfo.F"
+macro_append HerwigLibFiles " HerwigInterface_65.F herwig_common_block_address_65.F"
+macro_append HerwigLibFiles " glhefinfo.F gwgtacp.F hwgpdg.F hwtpdg.F hwrgen.F"
+macro_append HerwigLibFiles " gatlastaula_decres_hw.F"
+macro_append HerwigLibFiles " hwhepc.F extproc.F topdec.F charybdfix.F"
+macro_append HerwigLibFiles " HerwigDummies/circ*.F HerwigDummies/decadd.F HerwigDummies/eudini.F"
+macro_append HerwigLibFiles " HerwigDummies/fragmt.F HerwigDummies/hvhbvi.F HerwigDummies/ieupdg.F"
+macro_append HerwigLibFiles " HerwigDummies/ipdgeu.F HerwigDummies/qqinit.F HerwigDummies/hwhvvj.F"
+macro_append HerwigLibFiles " HerwigDummies/hwupro.F HerwigDummies/pytime.F HerwigDummies/hwirpv.F HerwigDummies/timel.F"
+macro_append HerwigLibFiles " HerwigModified/hwugup.f HerwigModified/hwhsnm.f HerwigModified/hwdtau.f"
+apply_pattern named_dual_use_library library="Herwig_i" files="$(HerwigLibFiles)"
+# This doesn't work, sadly:
+#apply_pattern named_dual_use_library library="Herwig_i" files="*.cxx *.F HerwigDummies/*.F HerwigModified/*.f"
+macro_append Herwig_i_shlibflags  "$(HepMC_IO_linkopts)"
+macro_append Herwig_i_pp_cppflags '-DHWVERSION=\"$(herwig_native_version)\" '
+
+## The Herwig Generator with RPV 4-body decays
+library HerwigRpv_i -suffix=rpv "HerwigModified/rpv/*.f componentsRpv/*.cxx"
+apply_pattern named_component_library library="HerwigRpv_i"
+macro_append HerwigRpv_i_dependencies " Herwig_iLib"
+macro_append HerwigRpv_iConf_dependencies " Herwig_iConfDbMerge "
+macro_append HerwigRpv_i_shlibflags  "$(HepMC_IO_linkopts)"
+macro_append HerwigRpv_i_pp_cppflags '-DHWVERSION=\"$(herwig_native_version)\" '
+
+apply_pattern declare_joboptions files="*.py"

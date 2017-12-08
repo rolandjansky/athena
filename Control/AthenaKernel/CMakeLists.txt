@@ -115,11 +115,3 @@ atlas_add_test( SlotSpecificObj_test
    SOURCES test/SlotSpecificObj_test.cxx
    LINK_LIBRARIES AthenaKernel TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
-
- atlas_add_test( DataBucket_test
-                SOURCES
-                test/DataBucket_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools 
-                EXTRA_PATTERNS "^HistogramPersis.* INFO" )
-

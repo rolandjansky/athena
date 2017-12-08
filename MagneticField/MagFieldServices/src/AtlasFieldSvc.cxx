@@ -623,6 +623,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( const char* filename )
 
 //
 // read an ASCII field map from istream
+// return 0 if successful
 // convert units m -> mm, and T -> kT
 //
 StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
@@ -645,7 +646,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
     input >> word >> date;
     if ( word != "DATE" ) {
         ATH_MSG_ERROR( myname << ": found '" << word << "' instead of 'DATE'" );
-        return StatusCode::FAILURE;
+        return 1;
     }
     input >> word >> time;
     if ( word != "TIME" ) {
@@ -831,7 +832,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
         izone--; // fortran -> C++
         if ( idzone != m_zone[izone].id() ) {
             ATH_MSG_ERROR( myname << ": zone id " << idzone << " != " << m_zone[izone].id() );
-            return StatusCode(2);
+            return 2;
         }
 
         std::vector<int> data[3];
@@ -839,7 +840,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
         // for field data in 2 bytes
         for ( int j = 0; j < 3; j++ ) { // repeat z, r, phi
             int ierr = read_packed_data( input, data[j] );
-            if ( ierr != 0 ) return StatusCode(ierr);
+            if ( ierr != 0 ) return ierr;
             for ( int k = 0; k < nfzone; k++ ) {
                 // recover sign
                 data[j][k] = ( data[j][k]%2==0 ) ? data[j][k]/2 : -(data[j][k]+1)/2;

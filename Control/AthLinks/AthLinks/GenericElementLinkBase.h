@@ -18,8 +18,8 @@
 
 
 #include "AthLinks/tools/DataProxyHolder.h"
+#include "AthLinks/tools/CachedValue.h"
 #include "AthLinks/tools/selection_ns.h"
-#include "CxxUtils/CachedValue.h"
 #include "CxxUtils/checker_macros.h"
 
 
@@ -463,7 +463,7 @@ private:
   SG::DataProxyHolder m_proxy;  //! Transient
 
   /// Cached element.
-  CxxUtils::CachedValue<ElementType> m_element; //! Transient
+  CachedValue<ElementType> m_element; //! Transient
 
   
   /// Connect to selection rules.

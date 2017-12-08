@@ -88,7 +88,7 @@ namespace JiveXML {
       m_doDigit = true; 
     }
 
-    const CaloCellContainer* cellContainer = nullptr;
+    const CaloCellContainer* cellContainer;
     if (!evtStore()->retrieve(cellContainer,m_sgKey))
       {
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << 

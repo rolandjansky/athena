@@ -26,6 +26,7 @@
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
 
+#include "SimHelpers/StepHelper.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Geant4 includes

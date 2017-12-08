@@ -1,31 +1,29 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/MuonEventAthenaPool_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/MuonSpectrometer/MuonCnv/MuonEventAthenaPool/share/../share/MuonEventAthenaPool_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/MuonEventAthenaPool_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
-JobOptionsSvc        INFO # (3,1): TGCcablingServerSvc.forcedUse = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/MuonEventAthenaPool_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus000.cern.ch on Wed Nov 22 22:09:33 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sun Nov 27 21:30:09 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1844 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4235 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
  AtlasDetectorID::initialize_from_dictionary - OK 
-RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 261
-RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 261
-RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 261
+RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 259
+RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 259
+RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 259
 RpcIdHelper          INFO Initializing RPC hash indices ... 
 RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
 test1

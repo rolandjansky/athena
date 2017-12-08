@@ -59,6 +59,12 @@ class iGeant4:
 
     # let the G4 configuration know that is an ISF run!
     simFlags.ISFRun.set_Value_and_Lock( True)
+    # call the standard G4 config
+    # ADS: these lines must be called somewhere else. Can't have the alg added to the sequence in an unpredictable order 
+    #from AthenaCommon.AlgSequence import AlgSequence
+    #topSequence = AlgSequence()
+    #from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+    #topSequence += PyG4AtlasAlg()
 
 
   def getSimSvc(self):

@@ -1,0 +1,30 @@
+package InDetSimEvent
+author Davide Costanzo <DCostanzo@lbl.gov>
+
+use AtlasPolicy         AtlasPolicy-*
+use HitManagement	HitManagement-*		Simulation
+use GeneratorObjects    GeneratorObjects-*	Generators
+use AtlasDoxygen        AtlasDoxygen-*          Tools
+use AtlasCLHEP          AtlasCLHEP-*            External
+use CLIDSvc	 	CLIDSvc-* 		Control
+use AthAllocators       AthAllocators-*         Control
+
+apply_pattern installed_library
+library InDetSimEvent *.cxx
+
+private 
+use AtlasReflex   	AtlasReflex-*  		External -no_auto_imports
+use StoreGate		StoreGate-*		Control
+use InDetIdentifier	InDetIdentifier-*	InnerDetector/InDetDetDescr
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+
+apply_pattern lcgdict dict=InDetSimEvent selectionfile=selection.xml headerfiles="../InDetSimEvent/InDetSimEventDict.h"
+
+
+

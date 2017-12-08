@@ -13,8 +13,6 @@
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -57,7 +55,6 @@ class MooSegmentFinderAlg : public AthAlgorithm
   /** selection flags for cluster based segment finding */
   bool                m_doTGCClust;
   bool                m_doRPCClust;
-  bool                m_doClusterTruth;
 
   /** storegate location of the MuonPrepDataContainer for all four technologies */
   SG::ReadHandleKey<Muon::TgcPrepDataContainer>         m_keyTgc;
@@ -66,9 +63,6 @@ class MooSegmentFinderAlg : public AthAlgorithm
   SG::ReadHandleKey<Muon::RpcPrepDataContainer>         m_keyRpc;
   SG::ReadHandleKey<Muon::CscPrepDataContainer>         m_keyCsc;
   SG::ReadHandleKey<Muon::MdtPrepDataContainer>         m_keyMdt;
-
-  SG::ReadHandleKey<PRD_MultiTruthCollection> m_tgcTruth{this,"TGCTruth","TGC_TruthMap","TGC PRD Multi-truth Collection"};
-  SG::ReadHandleKey<PRD_MultiTruthCollection> m_rpcTruth{this,"RPCTruth","RPC_TruthMap","RPC PRD Multi-truth Collection"};
   
   SG::WriteHandleKey<MuonPatternCombinationCollection>   m_patternCombiLocation;
   SG::WriteHandleKey<Trk::SegmentCollection>                   m_segmentLocation;

@@ -326,67 +326,67 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 
     // BMG1A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,   1,   6,          1,     4,(i*6)+1,            97,   50,   0, 16-2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   6,          1,     1,(i*6)+4,            99,   48,   2,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,   1,   6,          2,     4,(i*6)+1,            97,   50,   0,   16-2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   6,          2,     1,(i*6)+4,            99,   48,   2,   i+9,         0);
     // BMG2A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,   2,   6,          1,     4,(i*6)+1,            97,   50,   1, 16-2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   6,          1,     1,(i*6)+4,            99,   48,   5,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,   2,   6,          2,     4,(i*6)+1,            97,   50,   1,   16-2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   6,          2,     1,(i*6)+4,            99,   48,   5,   i+9,         0);
     // BMG3A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,   3,   6,          1,     4,(i*6)+1,            97,   50,   2, 16-2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   6,          1,     1,(i*6)+4,            97,   48,   5,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,   3,   6,          2,     4,(i*6)+1,            97,   50,   2,   16-2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   6,          2,     1,(i*6)+4,            97,   48,   5,   i+9,         0);
 
     // BMG1C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,  -1,   6,          1,     4,(i*6)+6,            98,   50,   0,    2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   6,          1,     1,(i*6)+4,           100,   48,   2,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,  -1,   6,          2,     4,(i*6)+6,            98,   50,   0,      2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   6,          2,     1,(i*6)+4,           100,   48,   2,   i+9,         0);
     // BMG2C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,  -2,   6,          1,     4,(i*6)+6,            98,   50,   1,    2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   6,          1,     1,(i*6)+4,           100,   48,   5,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,  -2,   6,          2,     4,(i*6)+6,            98,   50,   1,      2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   6,          2,     1,(i*6)+4,           100,   48,   5,   i+9,         0);
     // BMG3C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,  -3,   6,          1,     4,(i*6)+6,            98,   50,   2,    2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   6,          1,     1,(i*6)+4,            98,   48,   5,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,  -3,   6,          2,     4,(i*6)+6,            98,   50,   2,      2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   6,          2,     1,(i*6)+4,            98,   48,   5,   i+9,         0);
 
     // BMG1A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,   1,   7,          1,     4,(i*6)+6,            97,   51,   0,    2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   7,          1,     1,(i*6)+4,           100,   51,   2,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,   1,   7,          2,     4,(i*6)+6,            97,   51,   0,      2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   7,          2,     1,(i*6)+4,           100,   51,   2,   i+9,         0);
     // BMG2A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,   2,   7,          1,     4,(i*6)+6,            97,   51,   1,    2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   7,          1,     1,(i*6)+4,           100,   50,   2,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,   2,   7,          2,     4,(i*6)+6,            97,   51,   1,      2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   7,          2,     1,(i*6)+4,           100,   50,   2,   i+9,         0);
     // BMG3A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,   3,   7,          1,     4,(i*6)+6,            97,   51,   2,    2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   7,          1,     1,(i*6)+4,           100,   49,   2,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,   3,   7,          2,     4,(i*6)+6,            97,   51,   2,      2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   7,          2,     1,(i*6)+4,           100,   49,   2,   i+9,         0);
 
     // BMG1C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,  -1,   7,          1,     4,(i*6)+1,            98,   51,   0, 16-2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   7,          1,     1,(i*6)+4,           100,   51,   5,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,  -1,   7,          2,     4,(i*6)+1,            98,   51,   0,   16-2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   7,          2,     1,(i*6)+4,           100,   51,   5,   i+9,         0);
     // BMG2C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,  -2,   7,          1,     4,(i*6)+1,            98,   51,   1, 16-2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   7,          1,     1,(i*6)+4,           100,   50,   5,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,  -2,   7,          2,     4,(i*6)+1,            98,   51,   1,   16-2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   7,          2,     1,(i*6)+4,           100,   50,   5,   i+9,         0);
     // BMG3C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
-       m_cablingData->addMezzanine(         60, stationIndex,  -3,   7,          1,     4,(i*6)+1,            98,   51,   2, 16-2*i+1,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   7,          1,     1,(i*6)+4,           100,   49,   5,     i,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,  -3,   7,          2,     4,(i*6)+1,            98,   51,   2,   16-2*i,         0);
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   7,          2,     1,(i*6)+4,           100,   49,   5,   i+9,         0);
   }
   
   // return  sc; 

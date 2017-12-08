@@ -1,0 +1,21 @@
+package AnalysisTriggerEventAthenaPool
+
+author Ketevi A. Assamagan  <ketevi@bnl.gov>
+author Tadashi Maeno        <Tadashi.Maeno@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+use AtlasPolicy		 AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*        External
+use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
+
+
+private
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*      Database/AthenaPOOL
+use AnalysisTriggerEvent AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+use AnalysisTriggerEventTPCnv AnalysisTriggerEventTPCnv-*                 PhysicsAnalysis/AnalysisTrigger
+end_private
+
+apply_pattern poolcnv files="-s=${AnalysisTriggerEvent_root}/AnalysisTriggerEvent \
+                                  CTP_Decision.h \
+				  LVL1_ROI.h"
+

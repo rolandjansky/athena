@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LumiBlock/LumiBlockComps
                           PhysicsAnalysis/AnalysisCommon/PATCore
-                          PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/egamma/egammaInterfaces
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/VxVertex
@@ -58,7 +58,7 @@ atlas_add_component( TrigEgammaHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloUtilsLib AthLinks AthenaBaseComps StoreGateLib SGtests AthenaMonitoringLib xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma GaudiKernel LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib TrkSurfaces VxVertex TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib CaloEvent CxxUtils ITrackToVertex RecoToolInterfaces egammaEvent egammaMVACalibLib TrkCaloExtension TrigCaloRecLib TrigMissingEtEvent TrigNavigationLib DecisionHandlingLib AthViews )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloUtilsLib AthLinks AthenaBaseComps StoreGateLib SGtests AthenaMonitoringLib xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma GaudiKernel LumiBlockCompsLib PATCoreLib ElectronPhotonSelectorToolsLib TrkSurfaces VxVertex TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib CaloEvent CxxUtils ITrackToVertex RecoToolInterfaces egammaEvent egammaMVACalibLib TrkCaloExtension TrigCaloRecLib TrigMissingEtEvent TrigNavigationLib DecisionHandlingLib AthViews )
 
 # Install files from the package:
 atlas_install_headers( TrigEgammaHypo )

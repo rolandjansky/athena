@@ -27,8 +27,11 @@ namespace G4UA
       /// Return the action for current thread.
       virtual G4UserTrackingAction* getTrackingAction() = 0;
 
-      /// Creates the InterfaceID and interfaceID() method
-      DeclareInterfaceID(G4UA::IG4TrackingActionTool, 1, 0);
+      /// Interface declaration
+      static const InterfaceID& interfaceID() {
+        static const InterfaceID iid_IG4TrkTool("G4UA::IG4TrackingActionTool", 1, 0);
+        return iid_IG4TrkTool;
+      }
 
   }; // class IG4TrackingActionTool
 

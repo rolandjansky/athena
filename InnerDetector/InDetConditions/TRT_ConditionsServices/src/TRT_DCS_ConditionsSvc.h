@@ -19,9 +19,6 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "TRT_ConditionsServices/ITRT_HWMappingSvc.h"
 
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
-
 class StoreGateSvc;
 class CondAttrListCollection;
 class TRT_ID;
@@ -90,7 +87,7 @@ class TRT_DCS_ConditionsSvc : public AthService,
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<ITRT_HWMappingSvc> m_mapSvc;
-  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
+  std::string m_EventInfoKey;
   int m_IOVmaxLength;
   bool m_doIOVchecking;
   bool m_FallBackOnCOOLChanNames;
@@ -107,8 +104,6 @@ class TRT_DCS_ConditionsSvc : public AthService,
   /** Counts the number of times getFlag returns each flag */
   int m_numFlagRED;
   int m_numFlagNOINFO;
-
-  
 
   // Other private variables
   int m_currentTimestamp;

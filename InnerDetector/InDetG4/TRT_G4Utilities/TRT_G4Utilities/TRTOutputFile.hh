@@ -18,13 +18,13 @@ public:
   
   static TRTOutputFile* GetPointer()
   {
-    if (!m_pOutputFile)
-      m_pOutputFile = new TRTOutputFile;
-    return m_pOutputFile;
+    if (!pOutputFile)
+      pOutputFile = new TRTOutputFile;
+    return pOutputFile;
     }
   
   std::ofstream& GetReference()
-  {return m_output;}
+  {return output;}
  
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
@@ -34,9 +34,11 @@ private:
   
   int ReadParameter(std::string);
   
-  std::ofstream m_output;
+  int printMessages;
+
+  std::ofstream output;
   
-  static TRTOutputFile* m_pOutputFile;
+  static TRTOutputFile* pOutputFile;
 
   mutable Athena::MsgStreamMember m_msg;
 

@@ -50,7 +50,7 @@
 double langaufun_fast(double* x, double* par);
 //================ Constructor =================================================
 iFatras::HitCreatorSilicon::HitCreatorSilicon(const std::string& t, const std::string& n, const IInterface*  p ) :
-  base_class(t,n,p),
+  AthAlgTool(t,n,p),
   m_incidentSvc("IncidentSvc", n),
   m_hitColl(0),
   m_collectionName("PixelHits"),
@@ -65,6 +65,7 @@ iFatras::HitCreatorSilicon::HitCreatorSilicon(const std::string& t, const std::s
   m_siPathToCharge(500.),
   m_fastEnergyDepositionModel(true)
 {
+    declareInterface<IHitCreator>(this);
     // The Hit Collection Name
     declareProperty("CollectionName",               m_collectionName = "PixelHits");
     // Random number svc 

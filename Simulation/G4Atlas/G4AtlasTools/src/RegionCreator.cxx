@@ -14,9 +14,11 @@
 #include "G4ProductionCuts.hh"
 
 RegionCreator::RegionCreator(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent),m_regionName(name),m_gammaCut(1.*Gaudi::Units::mm),m_electronCut(1.*Gaudi::Units::mm),m_positronCut(1.*Gaudi::Units::mm),
+  : AthAlgTool(type,name,parent),m_regionName(name),m_gammaCut(1.*Gaudi::Units::mm),m_electronCut(1.*Gaudi::Units::mm),m_positronCut(1.*Gaudi::Units::mm),
     m_protonCut(1.*Gaudi::Units::mm)
 {
+  ATH_MSG_INFO( "Region Creator being built: " << name );
+
   // re-initialize m_regionName in order to take the real tool name rather than the path to it
   size_t ipos=m_regionName.find_last_of(".");
   size_t length=m_regionName.size();
@@ -92,4 +94,16 @@ void RegionCreator::Dump()
   ATH_MSG_INFO("      Proton   ="<<m_protonCut);
   ATH_MSG_INFO(" ");
   ATH_MSG_INFO("+----------------------------------------------------+");
+}
+
+StatusCode
+RegionCreator::queryInterface(const InterfaceID& riid, void** ppvIf)
+{
+  if ( riid == IRegionCreator::interfaceID() )
+    {
+      *ppvIf = (IRegionCreator*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+  return AlgTool::queryInterface( riid, ppvIf );
 }

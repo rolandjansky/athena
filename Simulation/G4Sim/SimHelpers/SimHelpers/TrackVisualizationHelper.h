@@ -7,19 +7,19 @@
 
 class TrackVisualizationHelper {
 public:
-  TrackVisualizationHelper():
-    m_trackVisualizationScheme(0),m_visualizeTracks(false) {}
-  virtual ~TrackVisualizationHelper() {;} // Null op
-  virtual bool visualizeTracks() {return m_visualizeTracks;}
-  virtual int  trackVisualizationScheme() {return m_trackVisualizationScheme;}
-  virtual void setTrackVisualizationScheme(int i)
-  {
-    m_trackVisualizationScheme=i;
-  }
-  virtual void setVisualizeTracks(bool t) {m_visualizeTracks=t;}
+	TrackVisualizationHelper():
+		m_trackVisualizationScheme(0),m_visualizeTracks(false) {}
+	virtual ~TrackVisualizationHelper() {;} // Null op
+	virtual bool VisualizeTracks() {return m_visualizeTracks;}
+	virtual int  TrackVisualizationScheme() {return m_trackVisualizationScheme;}
+	virtual void SetTrackVisualizationScheme(int i)
+	{
+		m_trackVisualizationScheme=i;
+	}
+	virtual void SetVisualizeTracks(bool t) {m_visualizeTracks=t;}
 private:
-  int m_trackVisualizationScheme;
-  bool m_visualizeTracks;
+	int m_trackVisualizationScheme;
+	bool m_visualizeTracks;
 };
 
 #endif

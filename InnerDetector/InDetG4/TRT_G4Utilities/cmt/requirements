@@ -1,0 +1,27 @@
+package TRT_G4Utilities
+
+author Davide Costanzo <DCostanzo@lbl.gov>
+
+public
+
+use AthenaKernel        AthenaKernel-*             Control
+use AtlasPolicy         AtlasPolicy-*
+
+private
+use PathResolver        PathResolver-*            Tools
+use AtlasCLHEP          AtlasCLHEP-*               External
+use Geant4              Geant4-*                   External
+end_private
+
+public
+
+# build a installed library
+library TRT_G4Utilities ../src/*.cc
+
+# define link options
+
+apply_pattern installed_library
+apply_pattern install_runtime
+
+apply_pattern declare_runtime extras="TRT_G4Utilities_management.txt \
+                                      TRT_G4Utilities_geometry.txt"

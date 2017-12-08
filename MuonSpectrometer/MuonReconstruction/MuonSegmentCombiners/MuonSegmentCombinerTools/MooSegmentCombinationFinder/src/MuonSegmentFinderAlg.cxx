@@ -36,7 +36,10 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
   m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
   m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
-  m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker")
+  m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
+  m_segmentCollectionKey("MuonSegments"),
+  m_cscPrdsKey("CSC_Clusters"),
+  m_patternCollKey("MuonLayerHoughCombis")
 {  
   //tools
   declareProperty("EDMPrinter", m_printer);
@@ -52,10 +55,12 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("PrintSummary",m_printSummary = false);
   declareProperty("MuonClusterSegmentFinder",m_clusterSegMaker);
   //
+  declareProperty("SegmentCollectionName", m_segmentCollectionKey);
   declareProperty("UseNSWMode",m_useNSWMode = false);
   declareProperty("doTGCClust",m_doTGCClust = false);
   declareProperty("doRPCClust",m_doRPCClust = false);
-  declareProperty("doClusterTruth",m_doClusterTruth=false);
+  declareProperty("CSC_clusterkey", m_cscPrdsKey);
+  declareProperty("MuonLayerHoughCombisKey", m_patternCollKey);
 
 }
 
@@ -121,12 +126,7 @@ StatusCode MuonSegmentFinderAlg::initialize()
 
   ATH_CHECK( m_segmentCollectionKey.initialize() );
   ATH_CHECK( m_cscPrdsKey.initialize() );
-  ATH_CHECK( m_mdtPrdsKey.initialize(m_doTGCClust || m_doRPCClust) );
-  ATH_CHECK( m_rpcPrdsKey.initialize(m_doRPCClust) );
-  ATH_CHECK( m_tgcPrdsKey.initialize(m_doTGCClust) );
   ATH_CHECK( m_patternCollKey.initialize() );
-  ATH_CHECK( m_tgcTruth.initialize(m_doClusterTruth) );
-  ATH_CHECK( m_rpcTruth.initialize(m_doClusterTruth) );
 
 
   return StatusCode::SUCCESS; 
@@ -159,28 +159,7 @@ StatusCode MuonSegmentFinderAlg::execute()
   
   //do cluster based segment finding
   std::vector<const Muon::MuonSegment*>* clustSegs(NULL);
-  if (m_doTGCClust || m_doRPCClust){
-    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey);
-    const Muon::RpcPrepDataContainer* rpcPrdCont=0;
-    const Muon::TgcPrepDataContainer* tgcPrdCont=0;
-    const PRD_MultiTruthCollection* tgcTruthColl=0;
-    const PRD_MultiTruthCollection* rpcTruthColl=0;
-    if(m_doTGCClust){
-      SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey);
-      tgcPrdCont=tgcPrds.cptr();
-    }
-    if(m_doRPCClust){
-      SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey);
-      rpcPrdCont=rpcPrds.cptr();
-    }
-    if(m_doClusterTruth){
-      SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth);
-      SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth);
-      tgcTruthColl=tgcTruth.cptr();
-      rpcTruthColl=rpcTruth.cptr();
-    }
-    clustSegs = m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(),rpcPrdCont,tgcPrdCont,tgcTruthColl,rpcTruthColl);
-  }
+  if (m_doTGCClust || m_doRPCClust) clustSegs = m_clusterSegMaker->getClusterSegments(m_doTGCClust,m_doRPCClust);   
   if (clustSegs) {
     segs.insert(segs.end(),clustSegs->begin(),clustSegs->end());
     delete clustSegs;

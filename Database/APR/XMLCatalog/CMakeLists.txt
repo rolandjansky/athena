@@ -35,13 +35,11 @@ atlas_generate_componentslist( XMLCatalog )
 atlas_add_test( "PFC_Functionality"
                 SOURCES test/XMLFunctionality_test.cxx
                 INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CPPUNIT_INCLUDE_DIRS} 
-                LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CPPUNIT_LIBRARIES} ${CORAL_LIBRARIES} PersistentDataModel AthenaBaseComps XMLCatalog FileCatalog GaudiKernel
-                EXTRA_PATTERNS "fid: " )
+                LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CPPUNIT_LIBRARIES} ${CORAL_LIBRARIES} PersistentDataModel AthenaBaseComps XMLCatalog FileCatalog GaudiKernel )
 
 
 atlas_add_test( "PFC_MetaTest"
                 SOURCES test/XMLmetaTest_test.cxx
                 INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CPPUNIT_INCLUDE_DIRS} 
-                LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CPPUNIT_LIBRARIES} ${CORAL_LIBRARIES} PersistentDataModel AthenaBaseComps XMLCatalog FileCatalog GaudiKernel
-                EXTRA_PATTERNS "guid |^[---0-9A-F]+$" )
+                LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CPPUNIT_LIBRARIES} ${CORAL_LIBRARIES} PersistentDataModel AthenaBaseComps XMLCatalog FileCatalog GaudiKernel )
 

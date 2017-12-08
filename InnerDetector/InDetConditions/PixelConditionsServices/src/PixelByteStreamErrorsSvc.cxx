@@ -296,7 +296,7 @@ void PixelByteStreamErrorsSvc::reset(){
 // retrieve the data from Storegate: for one event, one entry per module with errors
 StatusCode PixelByteStreamErrorsSvc::readData() {
   StatusCode sc(StatusCode::SUCCESS);  
-  const InDetBSErrContainer* errCont = nullptr;
+  const InDetBSErrContainer* errCont;
   sc = m_storeGate->retrieve(errCont,"PixelByteStreamErrs");
   if (sc.isFailure() ){
     ATH_MSG_ERROR("Failed to retrieve BS error container from SG");

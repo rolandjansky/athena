@@ -1,0 +1,34 @@
+package TrkTrackFieldIntegralTools
+
+author Wolfgang Liebig
+
+public
+
+use AtlasPolicy          AtlasPolicy-*             
+
+private
+
+use AthenaBaseComps      AthenaBaseComps-*         Control
+use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
+use GaudiInterface       GaudiInterface-*          External
+use TrkMaterialOnTrack	 TrkMaterialOnTrack-*	   Tracking/TrkEvent
+use TrkMeasurementBase   TrkMeasurementBase-*      Tracking/TrkEvent
+#use TrkParameters        TrkParameters-*           Tracking/TrkEvent
+#use TrkRIO_OnTrack       TrkRIO_OnTrack-*          Tracking/TrkEvent
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+#use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
+# use TrkTrackSummary      TrkTrackSummary-*         Tracking/TrkEvent
+use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
+# use  TrkCompetingRIOsOnTrack    TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
+use TrkGeometry                 TrkGeometry-*                   Tracking/TrkDetDescr
+use TrkDetDescrInterfaces       TrkDetDescrInterfaces-*         Tracking/TrkDetDescr
+
+public
+
+library TrkTrackFieldIntegralTools *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

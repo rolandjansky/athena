@@ -1,0 +1,36 @@
+package SCT_RawDataByteStreamCnv
+
+author Maria Jose Costa Mezquita <Maria.Jose.Costa@cern.ch>
+author Kondo Gnanvo <Kondo.Gnanvo@cern.ch>
+author Shaun Roe <Shaun.Roe@cern.ch>
+author Nick Barlow <nbarlow@mail.cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*         Event
+use InDetRawData         InDetRawData-*                 InnerDetector/InDetRawEvent
+use DataCollection       DataCollection-*               External
+use GaudiInterface       GaudiInterface-*               External
+
+use ByteStreamData       ByteStreamData-*               Event
+private	
+use xAODEventInfo        xAODEventInfo-*                Event/xAOD
+use EventInfo            EventInfo-*			Event
+use AthenaBaseComps      AthenaBaseComps-*              Control
+use Identifier           Identifier-*                   DetectorDescription
+use InDetIdentifier      InDetIdentifier-*              InnerDetector/InDetDetDescr
+
+use SCT_Cabling          SCT_Cabling-*                  InnerDetector/InDetDetDescr
+use StoreGate            StoreGate-*                    Control
+use InDetReadoutGeometry InDetReadoutGeometry-*         InnerDetector/InDetDetDescr
+use SCT_ConditionsServices SCT_ConditionsServices-*     InnerDetector/InDetConditions
+use InDetByteStreamErrors InDetByteStreamErrors-*       InnerDetector/InDetConditions
+end_private
+
+# Declare the tdaq-common components that are required (only relevent for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
+library SCT_RawDataByteStreamCnv *.cxx components/*.cxx
+apply_pattern component_library
+
+

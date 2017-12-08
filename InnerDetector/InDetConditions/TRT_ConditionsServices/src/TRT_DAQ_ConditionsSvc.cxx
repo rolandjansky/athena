@@ -51,6 +51,9 @@ TRT_DAQ_ConditionsSvc::~TRT_DAQ_ConditionsSvc() {}
 /////
 StatusCode TRT_DAQ_ConditionsSvc::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
+  // Retrieve the EventStore and DetectorStore
+  ATH_CHECK(m_evtStore.retrieve());
+  ATH_CHECK(m_detStore.retrieve());
 	
 	//Determine the folder name by seeing which folder is in the detStore
 	const bool option1Exists = m_detStore->contains<CondAttrListCollection>(run1FolderName);

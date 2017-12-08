@@ -62,15 +62,15 @@ T2TauFinal::T2TauFinal(const std::string & name, ISvcLocator* pSvcLocator):
   declareMonitoredVariable("trkAvgDist",m_trkAvgDist);
   declareMonitoredVariable("etOverPtLeadTrk",m_etOverPtLeadTrk);
 
-  declareMonitoredCustomVariable("DeltaRTkClust", new T2TauFinalMonOfDelta(*&m_myTrackColl,*&m_roiDescriptor,1) );
-  declareMonitoredCustomVariable("DeltaEtaTkClust", new T2TauFinalMonOfDelta(*&m_myTrackColl,*&m_roiDescriptor,2) );
-  declareMonitoredCustomVariable("DeltaPhiTkClust", new T2TauFinalMonOfDelta(*&m_myTrackColl,*&m_roiDescriptor,3) );
+  declareMonitoredCustomVariable("DeltaRTkClust", new T2TauFinalMonOfDelta(*&myTrackColl,*&roiDescriptor,1) );
+  declareMonitoredCustomVariable("DeltaEtaTkClust", new T2TauFinalMonOfDelta(*&myTrackColl,*&roiDescriptor,2) );
+  declareMonitoredCustomVariable("DeltaPhiTkClust", new T2TauFinalMonOfDelta(*&myTrackColl,*&roiDescriptor,3) );
   
   declareProperty("updateRoiDescriptor", m_updateRoiDescriptor, "option to update RoiDescriptor after execution");
 
-  m_pTrackColl = 0;
-  m_myTrackColl = 0;
-  m_roiDescriptor = 0;
+  pTrackColl = 0;
+  myTrackColl = 0;
+  roiDescriptor = 0;
  
 }
 
@@ -81,27 +81,31 @@ T2TauFinal::~T2TauFinal(){
 HLT::ErrorCode T2TauFinal::hltInitialize()
 /*-------------------------------------------*/
 {
-  ATH_MSG_DEBUG( "Initialization set of tools"  );
+  if(msgLvl() <= MSG::DEBUG){ msg() << MSG::DEBUG  << "Initialization set of tools" << endmsg;}
   
   ToolHandleArray<IAlgToolTau>::iterator it = m_algTools.begin();
   
   for (; it != m_algTools.end();  ++it) {
     StatusCode sc = it->retrieve();
     if( sc.isFailure() ) {
-      ATH_MSG_ERROR( "Unable to initialize tool " << *it  );
+      msg() << MSG::ERROR << "Unable to initialize tool " << *it << endmsg;
       return HLT::BAD_ALGO_CONFIG ;
     }
-    ATH_MSG_DEBUG( "REGTEST: Created " << *it << " AlgTool"  );
+    if (msgLvl() <= MSG::DEBUG) 
+        msg() << MSG::DEBUG << "REGTEST: Created " << *it << " AlgTool" << endmsg;
     
   }
   
   
-  if( m_updateRoiDescriptor )
-    ATH_MSG_DEBUG( "REGTEST: TrigRoiDescriptor will be updated "  );
-  else
-    ATH_MSG_DEBUG( "REGTEST: TrigRoiDescriptor will NOT be updated "  );
+  if(  msgLvl() <= MSG::DEBUG ) {
+    if( m_updateRoiDescriptor )
+        msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will be updated " << endmsg;
+    else
+        msg() << MSG::DEBUG << "REGTEST: TrigRoiDescriptor will NOT be updated " << endmsg;
+  }
   
-  ATH_MSG_DEBUG( "Initialization completed successfully"  );
+  if ( msgLvl() <= MSG::DEBUG)  
+      msg() << MSG::DEBUG << "Initialization completed successfully" << endmsg;
   
   return HLT::OK;
 }
@@ -111,7 +115,7 @@ HLT::ErrorCode T2TauFinal::hltFinalize()
 /*-------------------------------------------*/
 {
   
-  ATH_MSG_DEBUG( "in finalize()"  );
+  msg() << MSG::DEBUG << "in finalize()" << endmsg;
   return HLT::OK;
 }
 
@@ -135,23 +139,23 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
   m_trkAvgDist = -99;
   m_etOverPtLeadTrk = -99;
   
-  ATH_MSG_DEBUG( "in execute()"  );
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
   
   //--------- 1. get RoI descriptor
-  //const TrigRoiDescriptor* m_roiDescriptor = 0;
-  m_roiDescriptor = 0;
+  //const TrigRoiDescriptor* roiDescriptor = 0;
+  roiDescriptor = 0;
   
-  HLT::ErrorCode hltStatus = getFeature(inputTE, m_roiDescriptor);
+  HLT::ErrorCode hltStatus = getFeature(inputTE, roiDescriptor);
   
-  if ( hltStatus == HLT::OK && m_roiDescriptor !=0 ) {
-    ATH_MSG_DEBUG( "REGTEST: RoI id " 
-                   << m_roiDescriptor->roiId()
-                   << " word " << m_roiDescriptor->roiWord()
-                   << " LVL1 id " << m_roiDescriptor->l1Id()
-                   << " located at  eta=" << m_roiDescriptor->eta() 
-                   << ", phi=" <<  m_roiDescriptor->phi()  );
+  if ( hltStatus == HLT::OK && roiDescriptor !=0 ) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: RoI id " 
+				      << roiDescriptor->roiId()
+				      << " word " << roiDescriptor->roiWord()
+				      << " LVL1 id " << roiDescriptor->l1Id()
+				      << " located at  eta=" << roiDescriptor->eta() 
+				      << ", phi=" <<  roiDescriptor->phi() << endmsg;
   } else {
-    ATH_MSG_ERROR( " No RoI for this Trigger Element! "  );
+    msg() <<  MSG::ERROR << " No RoI for this Trigger Element! " << endmsg;
     return hltStatus;
   }
 
@@ -160,9 +164,11 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
   hltStatus = getFeature(inputTE, pClus ); 
 
   if(hltStatus== HLT::OK) {
-    ATH_MSG_DEBUG( "Got TrigTauCluster"  );
+    if (msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "Got TrigTauCluster" << endmsg;
   }else{
-    ATH_MSG_DEBUG( "REGTEST: No TrigTauCluster is found in RoI! "  );
+    if (msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "REGTEST: No TrigTauCluster is found in RoI! " << endmsg;
   }
     
     
@@ -172,64 +178,71 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
   hltStatus = getFeature(inputTE, pTracksInfo ); 
 
   if(hltStatus== HLT::OK) {
-    ATH_MSG_DEBUG( "Got  TrigTauTracksInfo"  );
+    if (msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "Got  TrigTauTracksInfo" << endmsg;
   }else{
-    ATH_MSG_DEBUG( "REGTEST: No TrigTauTracksInfo is found in RoI! "  );
+    if (msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "REGTEST: No TrigTauTracksInfo is found in RoI! " << endmsg;
   }
     
   //-------- 3. Get vector of tracks 
     
-  //const TrigInDetTrackCollection* m_pTrackColl(0);
-  m_pTrackColl = 0;
+  //const TrigInDetTrackCollection* pTrackColl(0);
+  pTrackColl = 0;
   if( pTracksInfo != 0 ){
-    hltStatus = getFeature(inputTE, m_pTrackColl ); 
+    hltStatus = getFeature(inputTE, pTrackColl ); 
     if(hltStatus== HLT::OK) {
-      ATH_MSG_DEBUG( "Got TrigInDetTrackCollection as well "  );
+      if (msgLvl() <= MSG::DEBUG) 
+	msg() << MSG::DEBUG << "Got TrigInDetTrackCollection as well " << endmsg;
     }else{
-      ATH_MSG_DEBUG( "REGTEST: No TrigInDetTrackCollection is found in RoI but TrigTauTracksInfo exists! "  );
+      if (msgLvl() <= MSG::DEBUG) 
+	msg() << MSG::DEBUG << "REGTEST: No TrigInDetTrackCollection is found in RoI but TrigTauTracksInfo exists! " << endmsg;
     }    
   }
 
-  m_myTrackColl = m_pTrackColl; //Necessary for downcasting object for monitoring.
+  myTrackColl = pTrackColl; //Necessary for downcasting object for monitoring.
 
   //OI: now, let us check if pointer to track is set in the tracksInfo. It is needed for matching tool
   // this is actually really ugly, as collection can be from SiTrack, while Info is from IDSCAN
   // however, if we re-run HYPOs, we would have these set to 0, and therefore matching will not work.. 
   // Is there a nicer way to proceed?
-  if( m_pTrackColl != 0 && pTracksInfo!=0){
+  if( pTrackColl != 0 && pTracksInfo!=0){
     if( pTracksInfo->trackCollection() == 0)
       {
 	TrigTauTracksInfo* ptmp = const_cast< TrigTauTracksInfo*>(pTracksInfo);
-	ptmp->setTrackCollection(m_pTrackColl);
+	ptmp->setTrackCollection(pTrackColl);
       }
   }
 
   if(hltStatus== HLT::OK) {
-    ATH_MSG_DEBUG( "Got TrigInDetTrackCollection "  );
+    if (msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "Got TrigInDetTrackCollection " << endmsg;
   }else{
-    ATH_MSG_DEBUG( "REGTEST: No TrigInDetTrackCollection is found in RoI! "  );
+    if (msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "REGTEST: No TrigInDetTrackCollection is found in RoI! " << endmsg;
   }
 
   //-------- 4. Make new object
   if( pClus== 0 && pTracksInfo == 0 )
     {
-      ATH_MSG_DEBUG( " Nor TrigTauCluster neither  TrigInDetTrackCollection is found in RoI! Wrong configuration!"  );
+      if (msgLvl() <= MSG::DEBUG) 
+	msg() << MSG::DEBUG << " Nor TrigTauCluster neither  TrigInDetTrackCollection is found in RoI! Wrong configuration!" << endmsg;
       return HLT::OK;
     }
   
   TrigTau* pTrigTau = new TrigTau();
-  pTrigTau->setRoiId((int)m_roiDescriptor->roiWord());
+  pTrigTau->setRoiId((int)roiDescriptor->roiWord());
   pTrigTau->setTauCluster(pClus);
-  pTrigTau->setTrackCollection(m_pTrackColl);
+  pTrigTau->setTrackCollection(pTrackColl);
   pTrigTau->setTracksInfo(pTracksInfo);
-  pTrigTau->setEta(m_roiDescriptor->eta()); // to be changed by T2TauEtaPhiTool
-  pTrigTau->setPhi(m_roiDescriptor->phi());
+  pTrigTau->setEta(roiDescriptor->eta()); // to be changed by T2TauEtaPhiTool
+  pTrigTau->setPhi(roiDescriptor->phi());
   
   
   ToolHandleArray<IAlgToolTau>::iterator it = m_algTools.begin();
   for (; it < m_algTools.end(); it++)  {
     if ((*it)->execute(pClus,pTracksInfo, *pTrigTau).isFailure() ) {
-      ATH_MSG_WARNING( "T2TauFinal AlgTool "<<*it<< " returned Failure"  );
+      msg() << MSG::WARNING << "T2TauFinal AlgTool "<<*it<< " returned Failure" << endmsg;
       delete pTrigTau;
       pTrigTau=0;
       return HLT::TOOL_FAILURE;
@@ -239,7 +252,7 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
   
   hltStatus = attachFeature(outputTE, pTrigTau );
   if (hltStatus != HLT::OK ){
-    ATH_MSG_ERROR( "Write of TrigTau into outputTE failed"  );
+    msg() << MSG::ERROR << "Write of TrigTau into outputTE failed" << endmsg;
     pTrigTau=0;
     return hltStatus;
   }
@@ -251,28 +264,35 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
     ///     found objects actually is. 
     ///     Temporarily create an INCORRECT 0 size RoiDescriptor
 
-    ATH_MSG_WARNING( "Creating an RoiDescriptor with NO SIZE !!!! this is not allowed"  );
+    msg() << MSG::WARNING << "Creating an RoiDescriptor with NO SIZE !!!! this is not allowed" << endmsg;
     
-    TrigRoiDescriptor* newRoiDescriptor = new TrigRoiDescriptor( m_roiDescriptor->roiWord(), 
-								 m_roiDescriptor->l1Id(), 
-								 m_roiDescriptor->roiId(),
+    TrigRoiDescriptor* newRoiDescriptor = new TrigRoiDescriptor( roiDescriptor->roiWord(), 
+								 roiDescriptor->l1Id(), 
+								 roiDescriptor->roiId(),
 								 pTrigTau->eta(), pTrigTau->eta(), pTrigTau->eta(), 
 								 pTrigTau->phi(), pTrigTau->phi(), pTrigTau->phi() );
     
-    hltStatus = attachFeature(outputTE, newRoiDescriptor, "T2TauFinal"); 
-    if (hltStatus != HLT::OK ){
-      ATH_MSG_ERROR( "Can not attach new RoI descriptor"  );
-      delete newRoiDescriptor; 
-      return hltStatus;
-    }
-    ATH_MSG_DEBUG( "REGTEST: Recorded an RoiDescriptor " << newRoiDescriptor->roiWord() <<
-                   " eta=" << newRoiDescriptor->eta() <<
-                   ", phi=" <<  newRoiDescriptor->phi()  );
+  hltStatus = attachFeature(outputTE, newRoiDescriptor, "T2TauFinal"); 
+  if (hltStatus != HLT::OK ){
+    msg() << MSG::ERROR << "Can not attach new RoI descriptor" << endmsg;
+   delete newRoiDescriptor; 
+   return hltStatus;
   }
-  ATH_MSG_DEBUG( "REGTEST: TrigTau::pt,eta,phi = " << pTrigTau->pt() <<", " <<
-                 pTrigTau->eta() <<", " << pTrigTau->phi()  );
-  ATH_MSG_DEBUG( "REGTEST: TrigTau::m_nMatchedTracks; = " << pTrigTau->nMatchedTracks()  );
-  ATH_MSG_DEBUG( "REGTEST: TrigTau::simpleEtFlow = " << pTrigTau->simpleEtFlow()  );
+  if(msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG  << "REGTEST: Recorded an RoiDescriptor " << newRoiDescriptor->roiWord() <<
+    " eta=" << newRoiDescriptor->eta() <<
+    ", phi=" <<  newRoiDescriptor->phi() << endmsg;
+  }
+  if(msgLvl() <= MSG::DEBUG){
+    //  msg() << MSG::DEBUG  << "REGTEST: Recorded an RoiDescriptor " << newRoiDescriptor->roiWord() <<
+    //" eta=" << newRoiDescriptor->eta() <<
+    //", phi=" <<  newRoiDescriptor->phi() << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: TrigTau::pt,eta,phi = " << pTrigTau->pt() <<", " <<
+      pTrigTau->eta() <<", " << pTrigTau->phi() << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: TrigTau::m_nMatchedTracks; = " << pTrigTau->nMatchedTracks() << endmsg;
+    //msg() << MSG::DEBUG << "REGTEST: TrigTau::etCalibCluster = " << pTrigTau->etCalibCluster() << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: TrigTau::simpleEtFlow = " << pTrigTau->simpleEtFlow() << endmsg;
+  }
    
   // 
   // Get L1 RoiDescriptor
@@ -300,7 +320,9 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
 
   
   // Reach this point successfully   
-  ATH_MSG_DEBUG( "REGTEST: always accept RoI "  );
+  if (msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "REGTEST: always accept RoI " << endmsg;
+  
     
   return HLT::OK;
 }
@@ -308,10 +330,10 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
 //////////////////////////////////////////////////////////
 double T2TauFinalMonOfDelta::getDeltaR(const TrigInDetTrack* aTrack) const{
 
-  if(!m_roiDescriptor) return -99.0;
+  if(!roiDescriptor) return -99.0;
   
-  float eta0 = m_roiDescriptor->eta();
-  float phi0 = m_roiDescriptor->phi();
+  float eta0 = roiDescriptor->eta();
+  float phi0 = roiDescriptor->phi();
  
   float eta = aTrack->param()->eta();
   float phi = aTrack->param()->phi0();
@@ -327,9 +349,9 @@ double T2TauFinalMonOfDelta::getDeltaR(const TrigInDetTrack* aTrack) const{
 
 double T2TauFinalMonOfDelta::getDeltaEta(const TrigInDetTrack* aTrack) const{
 
-  if(!m_roiDescriptor) return -99.0;
+  if(!roiDescriptor) return -99.0;
 
-  float eta0 = m_roiDescriptor->eta();
+  float eta0 = roiDescriptor->eta();
   float eta = aTrack->param()->eta();
 
   return eta - eta0;
@@ -337,9 +359,9 @@ double T2TauFinalMonOfDelta::getDeltaEta(const TrigInDetTrack* aTrack) const{
 
 double T2TauFinalMonOfDelta::getDeltaPhi(const TrigInDetTrack* aTrack) const{
 
-  if(!m_roiDescriptor) return -99.0;
+  if(!roiDescriptor) return -99.0;
 
-  float phi0 = m_roiDescriptor->phi();
+  float phi0 = roiDescriptor->phi();
   float phi = aTrack->param()->phi0();
   float dPhi = phi-phi0;
   if(dPhi<-M_PI) dPhi+=2.0*M_PI;

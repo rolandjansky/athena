@@ -20,7 +20,8 @@
 // Error checking macro
 #define ORT_CHECK( ARG )                        \
   do {                                          \
-    if(!static_cast<bool>(ARG)) {               \
+    const bool result = ARG;                    \
+    if(!result) {                               \
       ::Error("OverlapRemovalInit",             \
               "Failed to execute: \"%s\"",      \
               #ARG );                           \

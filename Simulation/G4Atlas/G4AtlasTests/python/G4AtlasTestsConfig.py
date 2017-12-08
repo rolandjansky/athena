@@ -40,8 +40,6 @@ def FCALHitsTestTool(name="FCAL", **kwargs):
     #return CfgMgr.FCALHitsTestTool(name, **kwargs)            
     return CfgMgr.LArHitsTestTool(name, **kwargs)             
 def TileHitsTestTool(name="TileHitsTestTool", **kwargs):
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault("TestMBTS", ISF_Flags.UsingGeant4())
     return CfgMgr.TileHitsTestTool(name, **kwargs)            
 def CSCHitsTestTool(name="CSCHitsTestTool", **kwargs):
     kwargs.setdefault("DetectorName", "CSC")

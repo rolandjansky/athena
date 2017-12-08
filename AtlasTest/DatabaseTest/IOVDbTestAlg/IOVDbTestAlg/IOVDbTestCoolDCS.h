@@ -29,9 +29,9 @@ private:
   StoreGateSvc* p_evtstore;
   StoreGateSvc* p_detstore;
   // list folders to be read as AthenaAttributeList
-  std::vector<std::string> m_par_atrlist;   
+  std::vector<std::string> par_atrlist;   
   // list folders to be read as CondAttrListCollection*
-  std::vector<std::string> m_par_atrcollist;
+  std::vector<std::string> par_atrcollist;
 };
 
 #endif // IOVDBTEST_TESTCOOLDCS_H

@@ -25,6 +25,8 @@
 
 namespace iFatras {
   
+  static const InterfaceID IID_IPhysicsValidationTool("IPhysicsValidationTool", 1, 0);
+  
   /** 
       @class IPhysicsValidationTool
       
@@ -40,8 +42,8 @@ namespace iFatras {
     /** Virtual destructor */
     virtual ~IPhysicsValidationTool(){}
     
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IPhysicsValidationTool, 1, 0);
+    /** AlgTool interface methods */
+    static const InterfaceID& interfaceID() { return IID_IPhysicsValidationTool; }
     
     /** ISFParticle info: old transport tool */
     virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 ) const = 0;

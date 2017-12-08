@@ -71,7 +71,7 @@ bool ParallelCallTest::run( size_t nrepeats ) {
 }
 
 
-bool ParallelCallTest::launchTests( size_t nrepeats, const std::vector<ParallelCallTest*>& tests ) {
+bool ParallelCallTest::launchTests( size_t nrepeats, std::initializer_list<ParallelCallTest*> testList ) {
   // Suppress undefined behavior warning resulting from a tbb bug.
   // /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/sw/lcg/releases/LCG_88/tbb/44_20160413/x86_64-slc6-gcc62-dbg/include/tbb/parallel_reduce.h:177:32: runtime error: member call on address 0x2aab14047b40 which does not point to an object of type 'task'
   //0x2aab14047b40: note: object has invalid vptr
@@ -79,10 +79,10 @@ bool ParallelCallTest::launchTests( size_t nrepeats, const std::vector<ParallelC
   // cf. https://github.com/RcppCore/RcppParallel/issues/36
   RedirStderr redir;
 
-  //std::vector<ParallelCallTest*> tests( testList.begin(), testList.end() );
-  return  tbb::parallel_reduce( tbb::blocked_range< std::vector<ParallelCallTest*>::const_iterator >( tests.begin(), tests.end() ),
+  std::vector<ParallelCallTest*> tests( testList.begin(), testList.end() );
+  return  tbb::parallel_reduce( tbb::blocked_range< std::vector<ParallelCallTest*>::iterator >( tests.begin(), tests.end() ),
 				true, // initial value
-				[&]( tbb::blocked_range< std::vector<ParallelCallTest*>::const_iterator > groupOfTests, bool statusSoFar ) -> bool {
+				[&]( tbb::blocked_range< std::vector<ParallelCallTest*>::iterator > groupOfTests, bool statusSoFar ) -> bool {
 				  bool success = true;
 				  for ( auto test : groupOfTests ) {
 				    success = test->run( nrepeats ) and success;
@@ -93,4 +93,3 @@ bool ParallelCallTest::launchTests( size_t nrepeats, const std::vector<ParallelC
 				  return allCallsStatus and thisCallStatus; 
 				} );    
 }
-

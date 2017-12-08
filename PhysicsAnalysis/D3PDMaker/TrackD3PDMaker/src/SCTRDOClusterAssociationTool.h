@@ -16,9 +16,9 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "Identifier/Identifier.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
-#include "AthenaKernel/CLASS_DEF.h"
+#include "CLIDSvc/CLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"

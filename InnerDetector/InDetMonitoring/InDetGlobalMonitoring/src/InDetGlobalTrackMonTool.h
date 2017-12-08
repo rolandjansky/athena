@@ -127,14 +127,14 @@ private:
     unsigned int m_trackMax;
 
     /// Contants for various histogram properties
-    const float m_c_etaRange;
-    const float m_c_etaTrackletsMin;
-    const float m_c_etaTrackletsMax;
-    const float m_c_etaRangeTRT;
+    const float c_etaRange;
+    const float c_etaTrackletsMin;
+    const float c_etaTrackletsMax;
+    const float c_etaRangeTRT;
 
-    const float m_c_range_LB;
+    const float c_range_LB;
 
-    const std::array<std::string,4> m_c_detector_labels;
+    const std::array<std::string,4> c_detector_labels;
 
     ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
     ToolHandle <Trk::ITrackHoleSearchTool> m_holes_search_tool;
@@ -151,20 +151,20 @@ private:
     
     // Gaetano Holes : 
     // SCT Holes : 
-    TH1F * m_sct_holes;
+    TH1F * sct_holes;
     // TRT Holes : 
-    TH1F * m_trt_holes;
+    TH1F * trt_holes;
     // Pixel Holes : 
-    TH1F * m_pixel_holes;
+    TH1F * pixel_holes;
     // Combined Holes : 
-    TH1F * m_comb_holes;
+    TH1F * comb_holes;
     // Silicon  vs TRT holes 
-    TH2F  *m_silicon_vs_trt;
-    TH2F  *m_sct_vs_pixels;
+    TH2F  *silicon_vs_trt;
+    TH2F  *sct_vs_pixels;
     
     // Combined number of holes vs track quality
-    TH2F *m_holes_quality;
-    TProfile *m_holes_quality_profile;
+    TH2F *holes_quality;
+    TProfile *holes_quality_profile;
     
     TH1I * m_Trk_Base;
     ///Distribution of eta vs phi for combined tracks

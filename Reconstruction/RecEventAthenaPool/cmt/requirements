@@ -1,0 +1,28 @@
+package RecEventAthenaPool
+
+author Rolf Seuster <seuster@cern.ch>
+
+private
+
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use GaudiInterface       GaudiInterface-*           External
+use RecEventTPCnv	 RecEventTPCnv-*	    Reconstruction
+use RecEvent	 	 RecEvent-*		    Reconstruction
+#use CLIDSvc              CLIDSvc-*                  Control
+
+public
+
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasSealCLHEP       AtlasSealCLHEP-*           Database -no_auto_imports
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+
+branches RecEventAthenaPool src
+
+macro        recEventAthenaPool_poolCnvTypes ""
+macro_append recEventAthenaPool_poolCnvTypes "RecoTimingObj "
+
+apply_pattern poolcnv typesWithNamespace=$(recEventAthenaPool_poolCnvTypes) \
+   files="-s=${RecEvent_root}/RecEvent RecoTimingObj.h "
+
+macro_append RecEventAthenaPoolPoolCnv_shlibflags " $(RecEventAthenaPool_dict_linkopts)"

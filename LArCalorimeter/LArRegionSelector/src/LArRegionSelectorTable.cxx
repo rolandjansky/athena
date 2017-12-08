@@ -162,7 +162,8 @@ LArRegionSelectorTable::fillMaps()
 
   // check on the first map if job not already done by s.o. else
   std::string larKey = "LArRegionSelectorLUT_EM";
-  if ( detStore()->contains< RegionSelectorLUT >(larKey) ) {
+  StatusCode sc = detStore()->contains< RegionSelectorLUT >(larKey);
+  if (sc == StatusCode::SUCCESS ) {
     ATH_MSG_ERROR ( " RegionSelectorLUT " << larKey 
                     << " already exists => do nothing " );
     return;
@@ -413,7 +414,8 @@ StatusCode
 LArRegionSelectorTable::recordMap(RegionSelectorLUT* larRSlut, std::string larKey) 
 {
   static const bool SETCONST(false);
-  if ( detStore()->contains< RegionSelectorLUT >(larKey) ) {
+  StatusCode sc = detStore()->contains< RegionSelectorLUT >(larKey);
+  if (sc == StatusCode::SUCCESS ) {
     ATH_MSG_ERROR ( " RegionSelectorLUT " << larKey 
                     << " already exists " );
   } else {

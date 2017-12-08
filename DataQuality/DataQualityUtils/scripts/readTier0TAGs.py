@@ -15,11 +15,8 @@ import os, sys
 import argparse
 
 import pathExtract         
-import xmlrpclib
 
-from ROOT import TFile,TChain
-from ROOT import gStyle
-
+from ROOT import *
 
 #gROOT.Reset()
 gStyle.SetPalette(1)
@@ -30,44 +27,26 @@ gStyle.SetOptStat("em")
 parser = argparse.ArgumentParser()
 parser.add_argument('-r','--run',type=int,dest='runNumber',default='267599',help="Run number",action='store')
 parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
-parser.add_argument('-t','--tag',dest='tag',default='',help="DAQ tag: data12_8TeV, data12_calocomm...By default retrieve it via atlasdqm",action='store')
+parser.add_argument('-t','--tag',dest='tag',default='data15_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
 parser.add_argument('-a','--amiTag',dest='amiTag',default='f',help="First letter of AMI tag: x->express / f->bulk",action='store')
 
 parser.print_help()
 
 args = parser.parse_args()
 
-runNumber = args.runNumber
+run = args.runNumber
 stream = args.stream
-if args.tag != "":
-  tag = args.tag
-else: # Try to retrieve the data project tag via atlasdqm
-  if (not os.path.isfile("atlasdqmpass.txt")):
-    print "To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)"
-    print "To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/"
-    print "You can also define by hand the data project tag wit hthe option -t"
-    sys.exit()
-  passfile = open("atlasdqmpass.txt")
-  passwd = passfile.read().strip(); passfile.close()
-  passurl = 'https://%s@atlasdqm.cern.ch'%passwd
-  s = xmlrpclib.ServerProxy(passurl)
-  run_spec = {'stream': 'physics_CosmicCalo', 'proc_ver': 1,'source': 'tier0', 'low_run': runNumber, 'high_run':runNumber}
-  run_info= s.get_run_information(run_spec)
-  if '%d'%runNumber not in run_info.keys() or len(run_info['%d'%runNumber])<2:
-    print "Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option"
-    sys.exit()
-  tag = run_info['%d'%runNumber][1]
-
+tag = args.tag
 amiTag = args.amiTag
 
-listOfFiles = pathExtract.returnEosTagPath(runNumber,stream,amiTag,tag)
+listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
 
 tree = TChain("POOLCollectionTree")
 
 file = {}
 for fileNames in listOfFiles:
   print "Adding %s"%(fileNames)
-  tree.AddFile("root://eosatlas.cern.ch/%s"%(fileNames))
+  tree.AddFile("root://eosatlas/%s"%(fileNames))
 
 entries = tree.GetEntries()
 if entries != 0:

@@ -1,0 +1,39 @@
+package xAODTrigRingerAthenaPool
+
+author joao victor da fonseca pinto <joao.victor.da.fonseca.pinto@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy        AtlasPolicy-*
+
+private
+
+use AthenaKernel            AthenaKernel-*            Control
+use AthContainers           AthContainers-*           Control
+
+private
+
+# Base package(s):
+use GaudiInterface          GaudiInterface-*      External
+
+# POOL package(s):
+use AthenaPoolUtilities    AthenaPoolUtilities-*    Database/AthenaPOOL
+use AthenaPoolCnvSvc       AthenaPoolCnvSvc-*       Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTrigRinger        xAODTrigRinger-*        Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::TrigRingerRingsContainer\
+                                          xAOD::TrigRingerRingsAuxContainer\
+                                          xAOD::TrigRNNOutputContainer\
+                                          xAOD::TrigRNNOutputAuxContainer" \
+                      files="-s=${xAODTrigRinger_root}/xAODTrigRinger\
+                            TrigRingerRingsContainer.h \
+                            TrigRingerRingsAuxContainer.h \
+                            TrigRNNOutputContainer.h \
+                            TrigRNNOutputAuxContainer.h" \
+                      cnv_pfx="xAOD"
+
+

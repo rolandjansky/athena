@@ -43,7 +43,7 @@
 iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     const std::string& n,
     const IInterface*  p ) : 
- base_class(t,n,p),
+ AthAlgTool(t,n,p),
     m_incidentSvc("IncidentSvc", n),
     m_extrapolator(""),
     m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
@@ -67,6 +67,7 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     m_mdtSigmaDriftRadius(0.08),
     m_createAllMdtHits(true)
 {
+    declareInterface<ISimHitCreator>(this);
   //  template for property decalration
     declareProperty("MeasurementTool",              m_measTool);
     declareProperty("MdtSigmaDriftRadius",          m_mdtSigmaDriftRadius);  

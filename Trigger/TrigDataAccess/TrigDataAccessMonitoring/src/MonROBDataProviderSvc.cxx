@@ -50,46 +50,33 @@ MonROBDataProviderSvc::MonROBDataProviderSvc(const std::string& name, ISvcLocato
   declareProperty("HistReceivedROBsPerCall", m_histProp_receivedROBsPerCall,"Number of ROBs received");
   declareProperty("HistTimeROBretrieval", m_histProp_timeROBretrieval,"Timing for ROB retrieval");
   
+  // fill map with generic status codes
+  m_map_GenericStatus[eformat::UNCLASSIFIED]      = "UNCLASSIFIED"; 
+  m_map_GenericStatus[eformat::BCID_CHECK_FAIL]   = "BCID_CHECK_FAIL"; 
+  m_map_GenericStatus[eformat::LVL1ID_CHECK_FAIL] = "LVL1ID_CHECK_FAIL"; 
+  m_map_GenericStatus[eformat::TIMEOUT]           = "TIMEOUT"; 
+  m_map_GenericStatus[eformat::DATA_CORRUPTION]   = "DATA_CORRUPTION"; 
+  m_map_GenericStatus[eformat::INTERNAL_OVERFLOW] = "INTERNAL_OVERFLOW"; 
 
   // fill vector with specific status codes
-  m_vec_SpecificStatus = {
-    "TRIGGER_TYPE_SYNC_ERROR", 
-    "FRAGMENT_SIZE_ERROR", 
-    "DATABLOCK_ERROR", 
-    "CTRL_WORD_ERROR", 
-    "MISSING_BOF", 
-    "MISSING_EOF", 
-    "INVALID_HEADER_MARKER", 
-    "FORMAT_ERROR", 
-    "DUPLICATE_EVENT", 
-    "SEQUENCE_ERROR", 
-    "TRANSMISSION_ERROR", 
-    "TRUNCATION", 
-    "SHORT_FRAGMENT", 
-    "FRAGMENT_LOST", 
-    "FRAGMENT_PENDING", 
-    "ROL_DISABLED", 
-  };
-
-  m_map_GenericStatus =  {
-	{eformat::UNCLASSIFIED,       "UNCLASSIFIED"}, 
-	{eformat::BCID_CHECK_FAIL,    "BCID_CHECK_FAIL"}, 
-	{eformat::LVL1ID_CHECK_FAIL,  "LVL1ID_CHECK_FAIL"}, 
-	{eformat::TIMEOUT,            "TIMEOUT"}, 
-	{eformat::DATA_CORRUPTION,    "DATA_CORRUPTION"}, 
-	{eformat::INTERNAL_OVERFLOW,  "INTERNAL_OVERFLOW"}
-  };
-
+  m_vec_SpecificStatus.reserve(16);
+  m_vec_SpecificStatus.push_back("TRIGGER_TYPE_SYNC_ERROR"); 
+  m_vec_SpecificStatus.push_back("FRAGMENT_SIZE_ERROR"); 
+  m_vec_SpecificStatus.push_back("DATABLOCK_ERROR"); 
+  m_vec_SpecificStatus.push_back("CTRL_WORD_ERROR"); 
+  m_vec_SpecificStatus.push_back("MISSING_BOF"); 
+  m_vec_SpecificStatus.push_back("MISSING_EOF"); 
+  m_vec_SpecificStatus.push_back("INVALID_HEADER_MARKER"); 
+  m_vec_SpecificStatus.push_back("FORMAT_ERROR"); 
+  m_vec_SpecificStatus.push_back("DUPLICATE_EVENT"); 
+  m_vec_SpecificStatus.push_back("SEQUENCE_ERROR"); 
+  m_vec_SpecificStatus.push_back("TRANSMISSION_ERROR"); 
+  m_vec_SpecificStatus.push_back("TRUNCATION"); 
+  m_vec_SpecificStatus.push_back("SHORT_FRAGMENT"); 
+  m_vec_SpecificStatus.push_back("FRAGMENT_LOST"); 
+  m_vec_SpecificStatus.push_back("FRAGMENT_PENDING"); 
+  m_vec_SpecificStatus.push_back("ROL_DISABLED"); 
 } 
-
-const std::string& MonROBDataProviderSvc::genericStatusName( eformat::GenericStatus s ) const {
-  // fill map with generic status codes
-  static std::string unknown = "UNKNOWN";
-  std::map<eformat::GenericStatus, std::string>::const_iterator i = m_map_GenericStatus.find( s );
-  if ( i == m_map_GenericStatus.end() ) 
-    return unknown;
-  return i->second;
-}
 
 // Destructor.
 MonROBDataProviderSvc::~MonROBDataProviderSvc()
@@ -218,7 +205,7 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
       }
     }
     // initialize new ROBDataMonitorStruct
-    p_robMonStruct = new robmonitor::ROBDataMonitorStruct(getEvent()->lvl1_id(), robIds, caller_name);
+    p_robMonStruct = new robmonitor::ROBDataMonitorStruct(m_currentLvl1ID, robIds, caller_name);
   }
 
   // for offline running the requested ROBs should be found in the cache
@@ -231,9 +218,6 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
   uint32_t number_ROB_found(0);
   uint32_t number_ROB_not_found(0);
 
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  const ROBMAP& robmap = m_eventsCache.get(context)->robmap;
-
   for(std::vector<uint32_t>::const_iterator it=robIds.begin(); it!=robIds.end(); ++it){
     uint32_t id = (*it);
     // mask off the module ID for L2 and EF result for Run 1 data
@@ -245,10 +229,9 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
 		(ROBDataProviderSvc::m_maskL2EFModuleID) ) {
       id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
     }
-
     // check if ROB is already in cache
-    ROBDataProviderSvc::ROBMAP::const_iterator map_it = robmap.find(id) ;
-    if(map_it != robmap.end()) { // ROB found in cache
+    ROBDataProviderSvc::ROBMAP::iterator map_it = m_robmap.find(id) ;
+    if(map_it != m_robmap.end()) { // ROB found in cache
       number_ROB_found++;
 
       if(logLevel() <= MSG::DEBUG)
@@ -267,12 +250,12 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
 		    (ROBDataProviderSvc::m_maskL2EFModuleID) ) {
 	  accessed_id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
 	}
-	std::vector<uint32_t>::iterator robAlreadyAccessed_it = find(m_robAlreadyAccessed.get(context)->begin(), m_robAlreadyAccessed.get(context)->end(), accessed_id);
-	if (robAlreadyAccessed_it != m_robAlreadyAccessed.get(context)->end()) {
+	std::vector<uint32_t>::iterator robAlreadyAccessed_it = find(m_robAlreadyAccessed.begin(), m_robAlreadyAccessed.end(), accessed_id);
+	if (robAlreadyAccessed_it != m_robAlreadyAccessed.end()) {
 	  (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::CACHED;    // the ROB was already accessed
 	} else {
 	  (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::RETRIEVED; // first time the ROB is accessed
-	  m_robAlreadyAccessed.get(context)->push_back(accessed_id);
+	  m_robAlreadyAccessed.push_back(accessed_id);
 	}
 	(p_robMonStruct->requested_ROBs)[id].rob_size = ((*map_it).second)->fragment_size_word();
 	if ( (*map_it).second->nstatus() != 0 ) {
@@ -285,7 +268,7 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
 	  //* fill monitoring histogram for ROB generic status
 	  if ( m_hist_genericStatusForROB ) {
 	    if ((*it_status) != 0) m_hist_genericStatusForROB->Fill(eformat::helper::SourceIdentifier((*map_it).second->source_id()).human_detector().c_str(),
-								    genericStatusName(eformat::helper::Status(*it_status).generic()).c_str(),1.);
+								    m_map_GenericStatus[eformat::helper::Status(*it_status).generic()].c_str(),1.);
 	  }
 
 	  //* fill monitoring histogram for ROB specific status
@@ -331,7 +314,7 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
 		<< " ---> Number of ROB Id s requested : " << robIds.size()
 		<< ". Number of ROB Id s found/not found = " << number_ROB_found 
 		<< "/" << number_ROB_not_found
-		<< " for Lvl1 id = "<< getEvent()->lvl1_id()
+		<< " for Lvl1 id = "<< m_currentLvl1ID 
 		<< endmsg;
 
   //* histograms for number of requested/received ROBs
@@ -344,20 +327,18 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
 }
 
 void MonROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result) 
-{   
-  const EventContext context{ Gaudi::Hive::currentContext() };  
-  ROBDataProviderSvc::setNextEvent(context, result);
-  m_robAlreadyAccessed.get(context)->clear();
-  m_robAlreadyAccessed.get(context)->resize( m_eventsCache.get(context)->robmap.size() );
+{ 
+  ROBDataProviderSvc::setNextEvent(result);
+  m_robAlreadyAccessed.clear();
+  m_robAlreadyAccessed.resize( m_robmap.size() );
   return; 
 }
 
 void MonROBDataProviderSvc::setNextEvent(const RawEvent* re) 
 { 
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  ROBDataProviderSvc::setNextEvent(context, re);
-  m_robAlreadyAccessed.get(context)->clear();
-  m_robAlreadyAccessed.get(context)->resize( m_eventsCache.get(context)->robmap.size() );
+  ROBDataProviderSvc::setNextEvent(re);
+  m_robAlreadyAccessed.clear();
+  m_robAlreadyAccessed.resize( m_robmap.size() );
   return ;
 }
 
@@ -462,7 +443,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
   m_hist_genericStatusForROB = new TH2F ("GenericStatusForROBsFromSubDetectors",
 					 "GenericStatusForROBsFromSubDetectors;;",
 					 n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet,
-					 m_map_GenericStatus.size(), 0., (float) m_map_GenericStatus.size());
+					 m_map_GenericStatus.size(),0., (float) m_map_GenericStatus.size());
   if (m_hist_genericStatusForROB) {
     uint32_t n_tmp_bin = 1;
     for (uint16_t i=0; i<256; i++) {

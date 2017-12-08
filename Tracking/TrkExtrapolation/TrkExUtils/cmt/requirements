@@ -1,0 +1,32 @@
+package TrkExUtils
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+################## public dependencies ##############################
+public
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*          External
+use GeoPrimitives         GeoPrimitives-*           DetectorDescription
+use EventPrimitives       EventPrimitives-*         Event
+use TrkEventPrimitives    TrkEventPrimitives-*      Tracking/TrkEvent
+use TrkParameters         TrkParameters-*           Tracking/TrkEvent
+use TrkNeutralParameters  TrkNeutralParameters-*    Tracking/TrkEvent
+use TrkSurfaces           TrkSurfaces-*             Tracking/TrkDetDescr
+use TrkGeometry           TrkGeometry-*             Tracking/TrkDetDescr 
+use TrkMaterialOnTrack    TrkMaterialOnTrack-*      Tracking/TrkEvent 
+use TrkDetDescrUtils	  TrkDetDescrUtils-*        Tracking/TrkDetDescr
+################## private dependencies ##############################
+private
+use TrkPatternParameters  TrkPatternParameters-*    Tracking/TrkEvent
+
+public
+library TrkExUtils *.cxx
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+macro DOXYGEN_INLINE_INHERITED_MEMB "YES"

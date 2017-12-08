@@ -1,0 +1,34 @@
+package TrkAlignEvent
+author Robert Harrington
+
+public
+use AtlasPolicy               AtlasPolicy-*
+use AtlasBoost                AtlasBoost-*               External
+use GaudiInterface            GaudiInterface-*           External
+use DataModel                 DataModel-*                Control      
+use AthenaBaseComps           AthenaBaseComps-*          Control
+
+use Identifier                Identifier-*               DetectorDescription
+use TrkEventPrimitives        TrkEventPrimitives-*       Tracking/TrkEvent
+use TrkTrack           	      TrkTrack-*                 Tracking/TrkEvent
+use VxVertex                  VxVertex-*                 Tracking/TrkEvent
+use xAODTracking              xAODTracking-*         	 Event/xAOD
+
+private
+use TrkDetElementBase	      TrkDetElementBase-*        Tracking/TrkDetDescr
+
+use TrkMeasurementBase        TrkMeasurementBase-*       Tracking/TrkEvent
+use TrkParameters             TrkParameters-*            Tracking/TrkEvent
+use TrkRIO_OnTrack     	      TrkRIO_OnTrack-*           Tracking/TrkEvent
+use TrkCompetingRIOsOnTrack   TrkCompetingRIOsOnTrack-*  Tracking/TrkEvent     
+use TrkMaterialOnTrack        TrkMaterialOnTrack-*       Tracking/TrkEvent
+use TrkSurfaces               TrkSurfaces-*              Tracking/TrkDetDescr
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+public
+library TrkAlignEvent *.cxx -s=components *.cxx
+apply_pattern installed_library
+

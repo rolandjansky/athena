@@ -83,7 +83,6 @@ private:
   
   /**declaration histo summary*/
   TH2F_LW* m_summary;
-  TH2F_LW* m_summaryGain;
   
   
   /** Define the monitoring histograms used for each partitions of the LArCalorimeter*/

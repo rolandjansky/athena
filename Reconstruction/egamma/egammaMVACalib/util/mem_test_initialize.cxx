@@ -4,12 +4,10 @@
 
 #include "egammaMVACalib/egammaMVATool.h"
 
-
 int main()
 {
   egammaMVATool myMVATool("myMVATool");
   myMVATool.setProperty("folder", "egammaMVACalib/online/v3");
   myMVATool.initialize();
-
   return 0;
 }

@@ -68,7 +68,8 @@ namespace iFatras {
     @author Andreas.Salzburger@cern.ch
     */
 
-  class G4HadIntProcessor : public extends<AthAlgTool, iFatras::IHadronicInteractionProcessor> {
+  class G4HadIntProcessor : virtual public iFatras::IHadronicInteractionProcessor,
+                            public AthAlgTool {
     public:      
       /** AlgTool constructor for G4HadIntProcessor*/
       G4HadIntProcessor(const std::string&,const std::string&,const IInterface*);

@@ -1,0 +1,28 @@
+package TRT_ToT_Tools
+author  Jean-Francois Marchand <jean-francois.marchand@cern.ch>
+
+
+use AtlasPolicy          AtlasPolicy-*
+
+use GaudiInterface		GaudiInterface-*		External
+use AthenaBaseComps             AthenaBaseComps-*               Control
+use TrkEventPrimitives		TrkEventPrimitives-*		Tracking/TrkEvent
+use TrkTrack			TrkTrack-*			Tracking/TrkEvent
+#for track refit
+use TrkParameters       	TrkParameters-*         	Tracking/TrkEvent
+use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetConditions
+
+private 
+use AtlasROOT			AtlasROOT-*			External
+use StoreGate			StoreGate-*			Control
+use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack 	   	InDetRIO_OnTrack-*     	 	InnerDetector/InDetRecEvent
+use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use xAODEventInfo               xAODEventInfo-*               Event/xAOD
+use AtlasCORAL           AtlasCORAL-*              External
+use AthenaPoolUtilities     AthenaPoolUtilities-*  Database/AthenaPOOL
+end_private
+
+library TRT_ToT_Tools *.cxx -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.txt *.py"

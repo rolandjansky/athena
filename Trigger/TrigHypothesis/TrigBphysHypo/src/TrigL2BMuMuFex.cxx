@@ -50,7 +50,6 @@
 /*--------------------------------------------------------------------------------*/
 TrigL2BMuMuFex::TrigL2BMuMuFex(const std::string & name, ISvcLocator* pSvcLocator):
 HLT::ComboAlgo(name, pSvcLocator),
-m_bphysHelperTool("TrigBphysHelperUtilsTool"),
 m_muon1(0),
 m_muon2(0),
 m_L2vertFitter("TrigL2VertexFitter",this),

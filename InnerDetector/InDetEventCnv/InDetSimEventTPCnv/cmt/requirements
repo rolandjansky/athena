@@ -1,0 +1,44 @@
+package InDetSimEventTPCnv
+
+author  Andreas Wildauer <Andreas.Wildauer@cern.ch>
+author  Edward Moyse <edward.moyse@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  GaudiInterface             GaudiInterface-*                External
+use  GeneratorObjectsTPCnv      GeneratorObjectsTPCnv-*         Generators
+use  InDetSimEvent              InDetSimEvent-*                 InnerDetector
+
+private
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
+use  Identifier                 Identifier-*                    DetectorDescription
+use  StoreGate                  StoreGate-*                     Control
+end_private
+
+public
+
+#apply_pattern tpcnv_library
+library InDetSimEventTPCnv  *.cxx \
+   InDetHits/*.cxx  
+apply_pattern installed_library
+
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep 
+# clients of EventInfo from seeing excess dependencies
+private
+use AtlasReflex        AtlasReflex-*        External -no_auto_imports
+
+# Pattern to build the dict lib. User should create a single heade
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+apply_pattern lcgdict dict=InDetSimEventTPCnv  selectionfile=selection.xml headerfiles="../InDetSimEventTPCnv/InDetSimEventTPCnvDict.h"
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=SiHitCnv_p1
+apply_pattern UnitTest_run unit_test=SiHitCollectionCnv_p2
+apply_pattern UnitTest_run unit_test=TRT_HitCnv_p1
+apply_pattern UnitTest_run unit_test=TRT_HitCollectionCnv_p2
+apply_pattern UnitTest_run unit_test=TRT_HitCollectionCnv_p3

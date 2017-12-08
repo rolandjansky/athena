@@ -58,8 +58,6 @@ private:
   StatusCode updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                               const xAOD::CutBookkeeperContainer* otherCont );
 
-  StatusCode copyContainerToOutput(const std::string& outname);
-
   /// Fill Cutflow information
   StatusCode addCutFlow();
  

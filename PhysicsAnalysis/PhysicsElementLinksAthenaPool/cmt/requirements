@@ -1,0 +1,32 @@
+package PhysicsElementLinksAthenaPool
+author Serban Protopopescu <serban@bnl.gov>
+author Sebastien Binet     <binet@cern.ch>
+
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+
+private
+use  ParticleEventAthenaPool    ParticleEventAthenaPool-*       PhysicsAnalysis/AnalysisCommon
+use  PhysicsElementLinks        PhysicsElementLinks-*           PhysicsAnalysis
+end_private
+
+
+#
+# List of containers for which we want to generate an AthenaPool converter
+#
+macro PEvtAthenaPool_poolcnv "-s=${PhysicsElementLinks_root}/PhysicsElementLinks "
+macro_append PEvtAthenaPool_poolcnv " JetLinks.h "
+macro_append PEvtAthenaPool_poolcnv " TauJetLinks.h "
+macro_append PEvtAthenaPool_poolcnv " MuonLinks.h "
+macro_append PEvtAthenaPool_poolcnv " ElectronLinks.h "
+macro_append PEvtAthenaPool_poolcnv " PhotonLinks.h "
+macro_append PEvtAthenaPool_poolcnv " TruthParticleLinks.h "
+macro_append PEvtAthenaPool_poolcnv " TrackLinks.h "
+
+apply_pattern poolcnv files=${PEvtAthenaPool_poolcnv}
+
+
+
+

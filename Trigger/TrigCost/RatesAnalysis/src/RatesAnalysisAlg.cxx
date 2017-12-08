@@ -17,7 +17,6 @@
 RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAnalysisAlgorithm( name, pSvcLocator ),
   m_enhancedBiasRatesTool("EnhancedBiasWeighter/EnhancedBiasRatesTool"),
-  m_tdt("Trig::TrigDecisionTool"),
   m_targetMu(0.),
   m_targetBunches(0.),
   m_targetLumi(0.),

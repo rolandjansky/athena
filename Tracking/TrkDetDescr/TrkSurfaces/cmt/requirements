@@ -1,0 +1,44 @@
+package TrkSurfaces
+
+author <Andreas.Salzburger@cern.ch> 
+
+# public dependencies
+public
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*           External  
+use AthContainers        AthContainers-*            Control
+use SGTools              SGTools-*                  Control
+use Identifier           Identifier-*               DetectorDescription
+use TrkDetDescrUtils     TrkDetDescrUtils-*         Tracking/TrkDetDescr
+use TrkDetElementBase    TrkDetElementBase-*        Tracking/TrkDetDescr
+use TrkParametersBase    TrkParametersBase-*        Tracking/TrkEvent     
+use TrkEventPrimitives   TrkEventPrimitives-*       Tracking/TrkEvent
+use GeoPrimitives        GeoPrimitives-*            DetectorDescription
+use EventPrimitives      EventPrimitives-*          Event
+
+private 
+use CxxUtils            CxxUtils-*                  Control
+
+public
+
+library TrkSurfaces *.cxx
+apply_pattern installed_library
+
+# uncomment this line if you do want to build in float precision
+# apply_tag  use_trkdetdescr_floatprecision 
+
+macro_append TrkDetDescrFloatPrecision " -DTRKDETDESCR_USEFLOATPRECISON "
+ 
+macro_append  use_pp_cppflags                "" \
+              use_trkdetdescr_floatprecision $(TrkDetDescrFloatPrecision)
+
+private
+
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=TrkSurfaces selectionfile=selection.xml headerfiles="../TrkSurfaces/TrkSurfacesDict.h"

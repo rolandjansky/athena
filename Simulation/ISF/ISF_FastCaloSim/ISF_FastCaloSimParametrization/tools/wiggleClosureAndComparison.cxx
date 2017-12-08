@@ -43,7 +43,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
   geo->LoadGeometryFromFile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSim/ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
   geo->LoadFCalGeometryFromFiles("FCal1-electrodes.sorted.HV.09Nov2007.dat","FCal2-electrodes.sorted.HV.April2011.dat","FCal3-electrodes.sorted.HV.09Nov2007.dat");
   
-  //TFile *originalFile = TFile::Open("root://eosatlas.cern.ch//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
+  //TFile *originalFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
   TFile *originalFile = TFile::Open("/eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2864_r7736.w0_162706_matched_output.root/user.fladias.8834798._000001.matched_output.root");
   
   TFile *PCAfile = TFile::Open("firstPCA_pions_flavia.root");

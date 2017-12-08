@@ -1,0 +1,37 @@
+package InDetTrackSelectorTool
+
+author Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
+
+private
+
+use AthContainers          AthContainers-*          Control
+use AtlasCLHEP             AtlasCLHEP-*             External
+use AtlasROOT              AtlasROOT-*              External
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
+use TrkTrack               TrkTrack-*               Tracking/TrkEvent
+use TrkTrackSummary        TrkTrackSummary-*        Tracking/TrkEvent
+use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
+use TrkExInterfaces        TrkExInterfaces-*        Tracking/TrkExtrapolation
+use VxVertex               VxVertex-*               Tracking/TrkEvent
+use InDetBeamSpotService   InDetBeamSpotService-*   InnerDetector/InDetConditions
+use TrkRIO_OnTrack         TrkRIO_OnTrack-*         Tracking/TrkEvent
+use InDetRIO_OnTrack       InDetRIO_OnTrack-*       InnerDetector/InDetRecEvent
+use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetConditions
+use MagFieldInterfaces     MagFieldInterfaces-*     MagneticField
+use GeoPrimitives          GeoPrimitives-*          DetectorDescription
+use EventPrimitives        EventPrimitives-*        Event
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+use GaudiInterface         GaudiInterface-*         External
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use TrkEventPrimitives     TrkEventPrimitives-*     Tracking/TrkEvent
+use TrkToolInterfaces      TrkToolInterfaces-*      Tracking/TrkTools
+use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use TrkParameters          TrkParameters-*          Tracking/TrkEvent
+use xAODTracking           xAODTracking-*           Event/xAOD
+
+library InDetTrackSelectorTool *.cxx -s=components *.cxx
+apply_pattern component_library
+macro DOXYGEN_IMAGE_PATH "../doc/images"

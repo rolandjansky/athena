@@ -68,7 +68,7 @@ CscRawDataCollectionCnv_p1::persToTrans(const CscRawDataCollection_p1* persColl,
 void
 CscRawDataCollectionCnv_p1::transToPers(const CscRawDataCollection* /*transColl*/, CscRawDataCollection_p1* /*persColl*/, MsgStream &/*log*/) 
 {
-   throw GaudiException("Writing to CscRawDataCollection_p1 is not supported ", "CscRawDataCollectionCnv_p1::transToPers(...)", StatusCode::FAILURE);
+    throw GaudiException("Writing to CscRawDataCollection_p1 is not supported ", "CscRawDataCollectionCnv_p1::transToPers(...)", false);
 }
 
 

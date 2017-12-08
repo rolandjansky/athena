@@ -1,0 +1,17 @@
+package PhysicsD3PDMaker
+
+use AtlasPolicy             AtlasPolicy-*
+
+private
+
+use GaudiInterface          GaudiInterface-*       External
+use AthenaBaseComps         AthenaBaseComps-*      Control
+use xAODEgamma              xAODEgamma-*           Event/xAOD
+use xAODMuon                xAODMuon-*             Event/xAOD
+
+## default is to make component library
+library PhysicsD3PDMaker *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"

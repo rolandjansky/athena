@@ -44,7 +44,7 @@ Trk::ParticleMasses iFatras::HadIntProcessorParametric::s_particleMasses;
 
 // constructor
 iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string& t, const std::string& n, const IInterface* p) :
-  base_class(t,n,p),
+  AthAlgTool(t,n,p),
   m_minimumHadOutEnergy(200.*CLHEP::MeV),
   m_childMomParam(5.),
   m_cutChain(false),
@@ -74,6 +74,7 @@ iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string&
   m_hadIntMotherEta(0.),
   m_hadIntChildren(0)
 {
+      declareInterface<IHadronicInteractionProcessor>(this);
       // property setting
       declareProperty("MinimumHadronicOutEnergy"            , m_minimumHadOutEnergy);
       declareProperty("HadronicChildMomParam"               , m_childMomParam);
@@ -692,12 +693,7 @@ bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time, cons
   // push onto ParticleStack
 
   if (processSecondaries && ispVec.size() ) {
-       for (unsigned int ic=0; ic<ispVec.size(); ic++) {
- 	        if (!ispVec[ic]->getTruthBinding()) {
- 	                ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
- 	        }
- 	        m_particleBroker->push(ispVec[ic], parent);
-       }
+    for (unsigned int ic=0; ic<ispVec.size(); ic++) m_particleBroker->push(ispVec[ic], parent);
   }
 
   return true;
@@ -730,13 +726,8 @@ bool iFatras::HadIntProcessorParametric::recordHadState(double time, double p,
   
   // push onto ParticleStack
   if (ispVec.size() ) {
-	for (unsigned int ic=0; ic<ispVec.size(); ic++) {
-	        if (!ispVec[ic]->getTruthBinding()) {
-	                ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
-	        }
-	        m_particleBroker->push(ispVec[ic], parent);
-        }  
-}
+    for (unsigned int ic=0; ic<ispVec.size(); ic++) m_particleBroker->push(ispVec[ic], parent);
+  }
   
   return true;
 }

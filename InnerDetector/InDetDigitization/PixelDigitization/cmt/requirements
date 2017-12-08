@@ -1,0 +1,66 @@
+# Pixel Digitization package
+# Classes for the Pixel digitization (simulated digits from hits)
+
+package PixelDigitization
+author Davide Costanzo <DCostanzo@lbl.gov>
+
+#
+# general packages
+#
+use AtlasPolicy             AtlasPolicy-*
+use GaudiInterface          GaudiInterface-*          External
+
+#
+# job options and python files
+#
+#apply_pattern declare_joboptions files="PixelDigiTool_jobOptions.py"
+apply_pattern declare_joboptions files="PixelDigitization_jobOptions.py PixelDigiTool_jobOptions.py"
+
+apply_pattern declare_python_modules files="*.py"
+
+apply_pattern declare_runtime files="3DFEI3-3E-problist-1um_v1.txt 3DFEI4-2E-problist-1um_v0.txt Bichsel_*.dat"
+
+branches PixelDigitization src src/components share python
+
+#
+# library def
+#
+library PixelDigitization     *.cxx \
+			      components/*.cxx
+
+apply_pattern component_library
+
+#
+# Doxygen
+#
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+private
+use  AtlasHepMC               AtlasHepMC-*            External
+use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
+use  GeneratorObjects         GeneratorObjects-*      Generators
+use  InDetIdentifier          InDetIdentifier-*       InnerDetector/InDetDetDescr
+use  StoreGate                StoreGate-*             Control 
+use HitManagement	    HitManagement-*	      Simulation
+use  InDetSimData             InDetSimData-*          InnerDetector/InDetRawEvent
+use PileUpTools             PileUpTools-*             Control
+use AtlasROOT		    AtlasROOT-*		External
+
+use PixelConditionsTools    PixelConditionsTools-*    InnerDetector/InDetConditions
+
+use  AtlasCLHEP               AtlasCLHEP-*            External
+use  InDetSimEvent            InDetSimEvent-*         InnerDetector
+use SiDigitization          SiDigitization-*          InnerDetector/InDetDigitization
+use InDetReadoutGeometry    InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use InDetRawData            InDetRawData-*            InnerDetector/InDetRawEvent
+use AthenaKernel            AthenaKernel-*            Control
+use CommissionEvent         CommissionEvent-*         Commission
+use SiPropertiesSvc	    SiPropertiesSvc-*	      InnerDetector/InDetConditions
+use  PixelCabling             PixelCabling-*          InnerDetector/InDetDetDescr
+use  Identifier               Identifier-*            DetectorDescription
+use  InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
+use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
+use  PathResolver               PathResolver-*                  Tools
+use  AthenaBaseComps          AthenaBaseComps-*       Control
+use  CxxUtils                 CxxUtils-*              Control 

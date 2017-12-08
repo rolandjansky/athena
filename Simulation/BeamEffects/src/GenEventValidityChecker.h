@@ -21,7 +21,7 @@ namespace Simulation {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class GenEventValidityChecker : public extends<AthAlgTool, IGenEventManipulator> {
+  class GenEventValidityChecker : public AthAlgTool, virtual public IGenEventManipulator {
 
     public:
       /** Constructor with parameters */

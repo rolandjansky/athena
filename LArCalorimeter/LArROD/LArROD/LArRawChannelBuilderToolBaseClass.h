@@ -47,12 +47,12 @@ class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
     {
       m_parent=myParent; 
       if ( m_isSC ) {
-           ToolHandle<LArSuperCellCablingTool> lscct("LArSuperCellCablingTool");
+           ToolHandle<LArSuperCellCablingTool> lscct;
            CHECK( lscct.retrieve() );
            LArSuperCellCablingTool* plscct = &(*lscct);
            m_larCablingSvc = (LArCablingBase*) plscct;
       } else {
-           ToolHandle<LArCablingService> lcS("LArCablingService");
+           ToolHandle<LArCablingService> lcS;
            CHECK( lcS.retrieve() );
            LArCablingService* plcS = &(*lcS);
            m_larCablingSvc = (LArCablingBase*)plcS;

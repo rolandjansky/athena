@@ -14,7 +14,7 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include <iostream>
 #include <vector>
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "AsgTools/AsgMessaging.h"
 #include "AsgTools/AnaToolHandle.h"

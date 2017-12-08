@@ -60,7 +60,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   m_trtId(nullptr),
   m_TRTdetMgr(nullptr),
   m_minTRThits(5),
-  m_HTcalc(*(new HTcalculator(*this))),
+  HTcalc(*(new HTcalculator(*this))),
   m_TRTdEdxTool("TRT_ToT_dEdx"),
   m_LocalOccTool(),
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",n)
@@ -82,7 +82,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
 
 InDet::TRT_ElectronPidToolRun2::~TRT_ElectronPidToolRun2()
 {
-  delete &m_HTcalc;
+  delete &HTcalc;
 }
 
 /*****************************************************************************\
@@ -357,8 +357,8 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
     // Then call pHT functions with these values:
     // ------------------------------------------
-    double pHTel = m_HTcalc.getProbHT( pTrk, Trk::electron, TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
-    double pHTpi = m_HTcalc.getProbHT( pTrk, Trk::pion,     TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
+    double pHTel = HTcalc.getProbHT( pTrk, Trk::electron, TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
+    double pHTpi = HTcalc.getProbHT( pTrk, Trk::pion,     TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
 
     if (pHTel > 0.999 || pHTpi > 0.999 || pHTel < 0.001 || pHTpi < 0.001) {
       ATH_MSG_DEBUG("  pHT outside allowed range!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << StrawLayer << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local);
@@ -407,8 +407,8 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   prob_El_ToT = m_TRTdEdxTool->getTest( dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
   
   // Limit the probability values the upper and lower limits that are given/trusted for each part:
-  double limProbHT = m_HTcalc.Limit(prob_El_HT); 
-  double limProbToT = m_HTcalc.Limit(prob_El_ToT); 
+  double limProbHT = HTcalc.Limit(prob_El_HT); 
+  double limProbToT = HTcalc.Limit(prob_El_ToT); 
   
   // Calculate the combined probability, assuming no correlations (none are expected).
   prob_El_Comb = (limProbHT * limProbToT ) / ( (limProbHT * limProbToT) + ( (1.0-limProbHT) * (1.0-limProbToT)) );
@@ -439,7 +439,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::update( IOVSVC_CALLBACK_ARGS_P(I,keys
 
   const DataHandle<CondAttrListVec> channel_values;
   if (StatusCode::SUCCESS == detStore()->retrieve(channel_values, "/TRT/Calib/PID_vector" )){
-        sc = m_HTcalc.ReadVectorDB(        channel_values  );
+        sc = HTcalc.ReadVectorDB(        channel_values  );
   } else {
         ATH_MSG_ERROR ("Problem reading condDB object. HT Calculator.");
   }
@@ -503,12 +503,12 @@ double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk:
     ATH_MSG_ERROR("TRT geometry fail. Returning default value.");
     return 0.5;
   }
-  //return m_HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
+  //return HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
   // FIXME
-  return 1.0;//m_HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
+  return 1.0;//HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
 }
 
 
 double InDet::TRT_ElectronPidToolRun2::probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ){
-   return m_HTcalc.getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy );
+   return HTcalc.getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy );
 }

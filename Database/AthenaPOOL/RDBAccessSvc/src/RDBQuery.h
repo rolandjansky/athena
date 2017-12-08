@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RDBACCESSSVC_RDBQUERY_H
-#define RDBACCESSSVC_RDBQUERY_H
+#ifndef _RDBQUERY_H_
+#define _RDBQUERY_H_
 
 #include "RDBAccessSvc/IRDBQuery.h"
 #include <memory>
@@ -29,11 +29,10 @@ class RDBAccessSvc;
 class RDBQuery final : public IRDBQuery
 {
  public:
-  RDBQuery(RDBAccessSvc* accessSvc
-	   , coral::ISessionProxy* session
-	   , const std::string& nodeName
-	   , const std::string& tagId
-	   , const std::string& connName);
+  RDBQuery(RDBAccessSvc* _accessSvc,
+	   coral::ISessionProxy* _session,
+	   const std::string& nodeName,
+	   const std::string& tagId);
 
   virtual ~RDBQuery() override;
   
@@ -54,7 +53,6 @@ class RDBQuery final : public IRDBQuery
   coral::ISessionProxy*    m_session;
   std::string              m_nodeName;
   std::string              m_tagId;
-  std::string              m_connName;
   long                     m_size;
   std::vector<std::string> m_fields;
   coral::ICursor*          m_cursor;

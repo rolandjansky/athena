@@ -16,8 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigMuonBackExtrapolator
                           Trigger/TrigTools/TrigMuonRoITools
-			  Trigger/TrigSteer/DecisionHandling
-			  Control/AthViews
                           PRIVATE
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
@@ -37,7 +35,7 @@ atlas_add_component( TrigMuonHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon MuonIdHelpersLib MuonRecHelperToolsLib TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib DecisionHandling AthViews xAODMuon xAODTracking GaudiKernel MuonSegment MuonSegmentMakerUtils TrigConfHLTData TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon MuonIdHelpersLib MuonRecHelperToolsLib TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib xAODMuon xAODTracking GaudiKernel MuonSegment MuonSegmentMakerUtils TrigConfHLTData TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
 atlas_install_headers( TrigMuonHypo )

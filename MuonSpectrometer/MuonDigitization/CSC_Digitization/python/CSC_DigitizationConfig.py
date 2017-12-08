@@ -48,8 +48,6 @@ def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
     kwargs.setdefault("DriftVelocity", 39)
     kwargs.setdefault("ElectronEnergy", 66) # eV
 
-    # Pile-up premixing - do not include pile-up truth
-    if jobproperties.Digitization.PileUpPremixing():
-        kwargs.setdefault("IncludePileUpTruth", False)
-
     return CfgMgr.CscDigitizationTool(name, **kwargs)
+
+

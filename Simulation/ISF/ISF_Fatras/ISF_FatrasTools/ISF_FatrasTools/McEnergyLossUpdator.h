@@ -37,7 +37,8 @@ namespace iFatras{
       @author Tom.Atkinson@cern.ch, Andreas.Salzburger@cern.ch
    */
 
-  class McEnergyLossUpdator : public extends<AthAlgTool, Trk::IEnergyLossUpdator> {
+ class McEnergyLossUpdator : public AthAlgTool, 
+                             virtual public Trk::IEnergyLossUpdator {
 
   public:
 

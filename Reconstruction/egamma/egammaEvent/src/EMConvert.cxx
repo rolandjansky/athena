@@ -253,7 +253,7 @@ void EMConvert::set_parameter(egammaParameters::ParamDef key, double value, bool
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMConvert::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMConvert::set_parameter(...)", false);
     }
   }
 }
@@ -277,7 +277,7 @@ void EMConvert::set_parameterBool(egammaParameters::ParamDef key, bool value, bo
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMConvert::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMConvert::set_parameter(...)", false);
     }
   }
 }
@@ -301,7 +301,7 @@ void EMConvert::set_parameterInt(egammaParameters::ParamDef key, int value, bool
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMConvert::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMConvert::set_parameter(...)", false);
     }
   }
 }
@@ -695,7 +695,7 @@ void EMConvert::fillVxDetails(const Trk::VxCandidate* vxCand, int trkAuthor)
     fillVxTracks(vxCand, trkAuthor);
     fillVertex(vxCand);
   } else {
-    throw GaudiException("Parameters not saved, no VxCandidate", "EMConvert::fillDetails(...)", StatusCode::FAILURE);
+    throw GaudiException("Parameters not saved, no VxCandidate", "EMConvert::fillDetails(...)", false);
   }
 }
 

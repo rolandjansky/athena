@@ -67,18 +67,15 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
   void setCallerName(const std::string);
 
   //declare ROBdata // inherited from base class
-  using ROBDataProviderSvc::addROBData;
   void addROBData(const std::vector<uint32_t>& robIds,
 		  const std::string callerName="UNKNOWN");
 
   /// Retrieve ROBFragments for given ROB ids from cache 
-  using ROBDataProviderSvc::getROBData;
   void getROBData(const std::vector<uint32_t>& robIds, 
 		  std::vector<const ROBF*>& robFragments,
 		  const std::string callerName="UNKNOWN");
  
   /// Add a given LVL1 ROBFragment to cache 
-  using ROBDataProviderSvc::setNextEvent;
   void setNextEvent(const std::vector<ROBF>& result);
 
   /// Add all ROBFragments of a RawEvent to cache 

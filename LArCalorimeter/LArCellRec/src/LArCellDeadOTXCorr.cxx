@@ -118,7 +118,6 @@ LArCellDeadOTXCorr::LArCellDeadOTXCorr(
 		const std::string& name, 
 		const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_cablingService("LArCablingService"),
     m_caloMgr(nullptr),
     m_lvl1Helper(nullptr),
     m_calo_id(nullptr),

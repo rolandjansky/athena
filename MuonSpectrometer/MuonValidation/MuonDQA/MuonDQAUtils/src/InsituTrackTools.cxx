@@ -206,7 +206,7 @@ namespace Muon {
     StatusCode sc = StatusCode::SUCCESS;
 	
     //const ParticleJetContainer* jetTES;
-    const JetCollection* jetTES = nullptr;  //ESD Key
+    const JetCollection* jetTES;  //ESD Key
 
     sc=m_storeGate->retrieve( jetTES, m_ConeJetContainerName);
     if( sc.isFailure()  ||  !jetTES ) 

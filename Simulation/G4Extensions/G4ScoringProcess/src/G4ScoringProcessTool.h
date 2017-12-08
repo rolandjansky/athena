@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date   20-10-2015
  */
-class G4ScoringProcessTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>  {
+class G4ScoringProcessTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool  {
 public:
   /// Standard constructor
   G4ScoringProcessTool( const std::string& type , const std::string& name,

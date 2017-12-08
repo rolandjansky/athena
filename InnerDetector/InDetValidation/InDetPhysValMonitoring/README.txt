@@ -102,7 +102,7 @@ athena $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/PhysVa
     To enable the InDetPhysValMonitoring histograms, add "--valid True --validationFlags doInDet --outputNTUP_PHYSVALFile physval.root"
     to the transform You would run without the additional validation histograms. For example: 
 
-    Reco_tf.py   --maxEvents 25 --valid True --inputRDOFile root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000270.pool.root.1 root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000757.pool.root.1 --preExec "from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doMinBias.set_Value_and_Lock(True)"  --outputNTUP_PHYSVALFile physval.root --outputAODFile physval.AOD.root --validationFlags doInDet
+    Reco_tf.py   --maxEvents 25 --valid True --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000270.pool.root.1 root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000757.pool.root.1 --preExec "from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doMinBias.set_Value_and_Lock(True)"  --outputNTUP_PHYSVALFile physval.root --outputAODFile physval.AOD.root --validationFlags doInDet
 
     This will run on a minimum bias RDO, decorate the xAODTrackParticles, create
     an xAOD physval.AOD.root and the validation histograms physval.root

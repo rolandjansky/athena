@@ -1,0 +1,29 @@
+package TrkResidualPullCalculator
+
+author Wolfgang Liebig <-->
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+
+apply_pattern component_library
+library TrkResidualPullCalculator *.cxx components/*.cxx
+
+private
+use GaudiInterface          GaudiInterface-*            External
+use AthenaBaseComps         AthenaBaseComps-*           Control
+use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools
+use TrkEventPrimitives      TrkEventPrimitives-*        Tracking/TrkEvent
+use TrkParameters           TrkParameters-*             Tracking/TrkEvent
+use TrkRIO_OnTrack          TrkRIO_OnTrack-*            Tracking/TrkEvent
+use TrkMeasurementBase      TrkMeasurementBase-*        Tracking/TrkEvent
+use TrkEventUtils           TrkEventUtils-*             Tracking/TrkEvent
+use AtlasDetDescr           AtlasDetDescr-*             DetectorDescription
+use EventPrimitives EventPrimitives-* Event
+use AtlasEigen          AtlasEigen-*   External
+use TrkTrack            TrkTrack-*     Tracking/TrkEvent
+
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

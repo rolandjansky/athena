@@ -33,7 +33,7 @@ if 'doStandalone' in dir():
     muonRecFlags.doStandalone = False
 
 # Set input file
-athenaCommonFlags.FilesInput.set_Value_and_Lock(["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1"])
+athenaCommonFlags.FilesInput.set_Value_and_Lock(["root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1"])
 
 include ("MuonRecExample/MuonRec_myTopOptions.py")
 

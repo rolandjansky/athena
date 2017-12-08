@@ -18,7 +18,7 @@
 using namespace SG;
 using namespace std;
 
-thread_local HiveEventSlot* StoreGateSvc::s_pSlot = nullptr;
+__thread HiveEventSlot* s_pSlot(0);
 
 
 /// Standard Constructor
@@ -28,10 +28,8 @@ StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) :
   m_pPPSHandle("ProxyProviderSvc", name),
   m_incSvc("IncidentSvc", name),
   m_activeStoreSvc("ActiveStoreSvc", name),
-  m_storeID (StoreID::findStoreID(name))
+  m_pIOVSvc(nullptr)
 {
-  
-
   //our properties
   //properties of SGImplSvc
   declareProperty("Dump", m_DumpStore=false, "Dump contents at EndEvent");
@@ -52,6 +50,16 @@ StoreGateSvc::setDefaultStore(SGImplSvc* pStore) {
   if (m_defaultStore) m_defaultStore->release();
   m_defaultStore = pStore;
   if (m_defaultStore) m_defaultStore->addRef();  
+}
+
+bool
+StoreGateSvc::isHiveStore() const {
+  return ((m_defaultStore->store()->storeID() == StoreID::EVENT_STORE) &&  (0 != s_pSlot));
+}
+
+SGImplSvc* 
+StoreGateSvc::currentStore() const {
+  return isHiveStore() ? s_pSlot->pEvtStore : m_defaultStore;
 }
 
 
@@ -409,9 +417,12 @@ StoreGateSvc::typeless_overwrite( const CLID& id,
 void 
 StoreGateSvc::setStoreID(StoreID::type id)
 {
-  m_storeID = id;
-  // FIXME: should broadcast this to all instances.
   _SGVOIDCALL(setStoreID,(id));
+}
+StoreID::type 
+StoreGateSvc::storeID() const
+{
+  _SGXCALL(storeID,(),StoreID::UNKNOWN);
 }
 
 void
@@ -501,7 +512,12 @@ StoreGateSvc::loadEventProxies() {
 StatusCode 
 StoreGateSvc::clearStore(bool forceRemove)
 {
-  StatusCode sc = currentStore()->clearStore(forceRemove);
+  StatusCode sc;
+  if (isHiveStore()) { 
+    if (0 != s_pSlot->pEvtStore) {
+      sc = s_pSlot->pEvtStore->clearStore(forceRemove);
+    }
+  } else sc = m_defaultStore->clearStore(forceRemove);
 
   // Send a notification that the store was cleared.
   if (sc.isSuccess()) {

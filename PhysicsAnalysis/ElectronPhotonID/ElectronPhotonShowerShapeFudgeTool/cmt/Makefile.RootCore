@@ -1,0 +1,11 @@
+PACKAGE          = ElectronPhotonShowerShapeFudgeTool
+PACKAGE_PRELOAD  = 
+PACKAGE_CXXFLAGS = 
+PACKAGE_LDFLAGS  = 
+PACKAGE_BINFLAGS = 
+PACKAGE_DEP      = AsgTools  xAODEgamma  PATInterfaces PathResolver
+PACKAGE_PEDANTIC = 1
+PACKAGE_REFLEX   = 1
+PACKAGE_NOOPT    = 0
+PACKAGE_NOCC     = 0
+include $(ROOTCOREDIR)/Makefile-common

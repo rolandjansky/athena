@@ -141,11 +141,14 @@ namespace SG {
     StatusCode pRange(const CLID& id, SG::ConstProxyIterator& f,
 		      SG::ConstProxyIterator& e) const;
 
+    /// Return a list of all valid proxies in the store:
+    StatusCode proxyList(std::list<DataProxy*>& pList) const;
+
 
     /// set IPageAccessControlSvc ptr in T2PMap
     void setPac(IPageAccessControlSvc* pac) { m_t2p.setPac(pac); }
     /// request an access control report, i.e. a list of proxies that have not been accessed since monitored
-    std::vector<const DataProxy*> pacReport() const { return m_t2p.pacReport();}
+    std::vector<DataProxy*> pacReport() const { return m_t2p.pacReport();}
 
     /// methods to query the T2PMap:
     StatusCode t2pRegister(const void* const pTrans, DataProxy* const pPers);

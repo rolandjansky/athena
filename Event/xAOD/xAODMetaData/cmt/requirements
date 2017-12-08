@@ -1,0 +1,29 @@
+package xAODMetaData
+# $Id: requirements 761521 2016-07-13 07:27:10Z krasznaa $
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+use AtlasPolicy   AtlasPolicy-*
+
+use AthContainers AthContainers-* Control
+use xAODCore      xAODCore-*      Event/xAOD
+
+# Generate an installed library from the code:
+library xAODMetaData ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+
+# Generate a dictionary for the package:
+apply_pattern lcgdict dict=xAODMetaData selectionfile=selection.xml \
+                      headerfiles="../xAODMetaData/xAODMetaDataDict.h"
+
+# Build the unit test(s) of the package:
+use TestTools     TestTools-*     AtlasTest
+apply_pattern UnitTest_run unit_test=ut_xAODFileMetaData_MetaDataType
+
+apply_pattern do_genCLIDDB library=xAODMetaData

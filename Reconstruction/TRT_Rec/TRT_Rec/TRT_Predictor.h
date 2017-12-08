@@ -88,6 +88,7 @@ private:
     int						m_intersectedLayers;
     const Trk::TrackSurfaceIntersection*	m_intersection;
     double					m_phiHalfWidth;
+    double					m_phiWidth;
     std::vector<TRT_Prediction*>		m_predictions;
     double					m_qOverP;
     double					m_rWidth;

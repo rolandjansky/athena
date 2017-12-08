@@ -61,7 +61,7 @@ function (larconditions_run_test testName)
                   @ONLY )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/larconditions_${testName}.sh
-                  ENVIRONMENT ATLAS_REFERENCE_TAG=LArConditionsTest/LArConditionsTest-01-00-07
+                  ENVIRONMENT ATLAS_REFERENCE_TAG=LArConditionsTest/LArConditionsTest-01-00-06
                   PROPERTIES TIMEOUT 1200
                   EXTRA_PATTERNS "Data source lookup|Resolved path|Failed to connect to service|Release number|Sorting algorithm|Failed to connect|Failure while attempting to connect|Reading file|^CORAL/|being retired|^Domain|INFO GeoModelSvc|locate catalog|Cache alignment|COOL_DISABLE|Failed to get ContainerHandle|^RalSessionMgr Info|^RelationalDatabase Info"
                    )

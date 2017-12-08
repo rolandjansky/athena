@@ -21,15 +21,6 @@
 #include <iostream>
 
 
-namespace SG {
-class VarHandleBase
-{
-public:
-  void setOwner_test (VarHandleKey& key) { key.setOwningHandle (this); }
-};
-}
-
-
 void test1()
 {
   std::cout << "test1\n";
@@ -100,11 +91,6 @@ void test1()
   assert (k5.key() == "ccc");
   assert (k5.initialize(false).isSuccess());
   assert (k5.key() == "");
-
-  assert (k5.owningHandle() == nullptr);
-  SG::VarHandleBase base;
-  base.setOwner_test (k5);
-  assert (k5.owningHandle() == &base);
 }
 
 

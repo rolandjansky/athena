@@ -32,7 +32,6 @@ LArHitEMap::LArHitEMap(void):
   m_larem_id(0),
   m_larhec_id(0),
   m_larfcal_id(0),
-  m_cablingService("LArCablingService"),
   m_initialized(false)
 {
         m_ncellem=0;

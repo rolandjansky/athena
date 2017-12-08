@@ -15,11 +15,11 @@
 
 class IUserLimitsTool : virtual public IAlgTool {
  public:
-
   virtual ~IUserLimitsTool() {}
-
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IUserLimitsTool, 1, 0);
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IUserLimitsTool( "IUserLimitsTool" , 1 , 0 ) ;
+    return IID_IUserLimitsTool ;
+  }
 
 };
 

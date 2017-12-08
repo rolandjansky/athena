@@ -31,7 +31,7 @@ fi
 
 testdir=$ATLAS_REFERENCE_DATA
 if [ "$testdir" = "" ]; then
-    testdir="root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd"
+    testdir="root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd"
 fi
 
 arc_test_make_slim.py $testdir/ntuple.0.root ntuple_slim.0.root 100

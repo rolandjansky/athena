@@ -10,92 +10,107 @@
 #include "G4TouchableHistory.hh"
 #include "G4VProcess.hh"
 
-namespace G4StepHelper {
-G4ThreeVector preStepPosition(const G4Step* theStep)
+StepHelper::StepHelper():m_theStep(0)
 {
-  assert (theStep!=nullptr);
-  return theStep->GetPreStepPoint()->GetPosition();
 }
-G4ThreeVector postStepPosition(const G4Step* theStep)
+StepHelper::StepHelper(const G4Step* s):m_theStep(s)
 {
-  assert (theStep!=nullptr);
-  return theStep->GetPostStepPoint()->GetPosition();
 }
-std::string particleName(const G4Step* theStep)
+void StepHelper::SetStep(const G4Step* s)
 {
-  assert (theStep!=nullptr);
-  return theStep->GetTrack()->GetDefinition()->GetParticleName();
+	m_theStep=s;
 }
-int particlePDGCode(const G4Step* theStep)
+G4ThreeVector StepHelper::PreStepPosition() const
 {
-  assert (theStep!=nullptr);
-  return theStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+	assert (m_theStep!=0);
+	return m_theStep->GetPreStepPoint()->GetPosition();
 }
-double depositedEnergy(const G4Step* theStep)
+G4ThreeVector StepHelper::PostStepPosition() const
 {
-  assert (theStep!=nullptr);
-  return theStep->GetTotalEnergyDeposit();
+	assert (m_theStep!=0);
+	return m_theStep->GetPostStepPoint()->GetPosition();
 }
-G4LogicalVolume* getPreStepLogicalVolume(const G4Step* theStep, int iLevel)
+std::string StepHelper::ParticleName() const
 {
-  return getPreStepPhysicalVolume(theStep, iLevel)->GetLogicalVolume();
+	assert (m_theStep!=0);
+	return m_theStep->GetTrack()->GetDefinition()->GetParticleName();
 }
-std::string getPreStepLogicalVolumeName(const G4Step* theStep, int iLevel)
+int StepHelper::ParticlePDGCode() const
 {
-  return getPreStepLogicalVolume(theStep, iLevel)->GetName();
+	assert (m_theStep!=0);
+	return m_theStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 }
-G4VPhysicalVolume* getPreStepPhysicalVolume(const G4Step* theStep, int iLevel)
+double StepHelper::DepositedEnergy() const
 {
-  const G4TouchableHistory *history
-    = static_cast<const G4TouchableHistory*>(theStep->GetPreStepPoint()->GetTouchable());
-  if (iLevel<=0)
-    {
-      return history->GetVolume(std::abs(iLevel));
-    }
-  const int nLev=history->GetHistoryDepth();
-  return history->GetVolume(nLev-iLevel);
+	assert (m_theStep!=0);
+	return m_theStep->GetTotalEnergyDeposit();
 }
-G4LogicalVolume* getPostStepLogicalVolume(const G4Step* theStep, int iLevel)
+G4LogicalVolume* StepHelper::GetPreStepLogicalVolume(int iLevel) const
 {
-  return getPostStepPhysicalVolume(theStep, iLevel)->GetLogicalVolume();
+	return GetPreStepPhysicalVolume(iLevel)->GetLogicalVolume();
 }
-std::string getPostStepLogicalVolumeName(const G4Step* theStep, int iLevel)
+std::string StepHelper::GetPreStepLogicalVolumeName(int iLevel) const
 {
-  return getPostStepLogicalVolume(theStep, iLevel)->GetName();
+	return GetPreStepLogicalVolume(iLevel)->GetName();
 }
-G4VPhysicalVolume* getPostStepPhysicalVolume(const G4Step* theStep, int iLevel)
+G4VPhysicalVolume* StepHelper::GetPreStepPhysicalVolume(int iLevel) const
 {
-  const G4TouchableHistory *history
-    = static_cast<const G4TouchableHistory*>(theStep->GetPostStepPoint()->GetTouchable());
-  if (iLevel<=0)
-    {
-      return history->GetVolume(std::abs(iLevel));
-    }
-  const int nLev=history->GetHistoryDepth();
-  return history->GetVolume(nLev-iLevel);
+	G4TouchableHistory *history=(G4TouchableHistory *)
+					m_theStep->GetPreStepPoint()->GetTouchable();
+	if (iLevel<=0)
+	{
+		return history->GetVolume(abs(iLevel));
+	}
+	else
+	{
+		int nLev=history->GetHistoryDepth();
+		return history->GetVolume(nLev-iLevel);
+	}
 }
-int preStepBranchDepth(const G4Step* theStep)
+G4LogicalVolume* StepHelper::GetPostStepLogicalVolume(int iLevel) const
 {
-  return static_cast<const G4TouchableHistory*>(theStep->GetPreStepPoint()->
-          GetTouchable())->GetHistoryDepth();
+	return GetPostStepPhysicalVolume(iLevel)->GetLogicalVolume();
 }
-int postStepBranchDepth(const G4Step* theStep)
+std::string StepHelper::GetPostStepLogicalVolumeName(int iLevel) const
 {
-  return static_cast<const G4TouchableHistory*>(theStep->GetPostStepPoint()->
-          GetTouchable())->GetHistoryDepth();
+	return GetPostStepLogicalVolume(iLevel)->GetName();
 }
-const G4VProcess* getProcess(const G4Step* theStep)
+G4VPhysicalVolume* StepHelper::GetPostStepPhysicalVolume(int iLevel) const
 {
-  return theStep->GetPostStepPoint()->GetProcessDefinedStep();
+	G4TouchableHistory *history=(G4TouchableHistory *)
+					m_theStep->GetPostStepPoint()->GetTouchable();
+	if (iLevel<=0)
+	{
+		return history->GetVolume(abs(iLevel));
+	}
+	else
+	{
+		int nLev=history->GetHistoryDepth();
+		return history->GetVolume(nLev-iLevel);
+	}
+}
+int StepHelper::PreStepBranchDepth() const
+{
+	return ((G4TouchableHistory *)m_theStep->GetPreStepPoint()->
+				GetTouchable())->GetHistoryDepth();
+}
+int StepHelper::PostStepBranchDepth() const
+{
+	return ((G4TouchableHistory *)m_theStep->GetPostStepPoint()->
+				GetTouchable())->GetHistoryDepth();
+}
+const G4VProcess* StepHelper::GetProcess() const
+{
+	return m_theStep->GetPostStepPoint()->GetProcessDefinedStep();
 }
 
-std::string getProcessName(const G4Step* theStep)
+std::string StepHelper::GetProcessName() const
 {
-  return getProcess(theStep)->GetProcessName();
+	return GetProcess()->GetProcessName();
 }
 
-G4int getProcessSubType(const G4Step* theStep)
+G4int StepHelper::GetProcessSubType() const
 {
-  return getProcess(theStep)->GetProcessSubType();
+	return GetProcess()->GetProcessSubType();
 }
-}
+

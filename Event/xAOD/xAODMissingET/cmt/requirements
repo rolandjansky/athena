@@ -1,0 +1,42 @@
+package xAODMissingET
+author  Peter Loch <loch_AT_physics.arizona.edu>
+
+public
+
+# Central package(s):
+use AtlasPolicy   AtlasPolicy-*
+use AthContainers AthContainers-* Control
+use AthLinks      AthLinks-*      Control
+
+# EDM package(s):
+use xAODBase      xAODBase-*      Event/xAOD
+use xAODCore      xAODCore-*      Event/xAOD
+use xAODJet       xAODJet-*       Event/xAOD
+
+use AtlasROOT     AtlasROOT-*     External
+
+# Utility packages 
+use AtlasBoost	   AtlasBoost-*		External
+
+library xAODMissingET ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+
+use xAODCaloEvent xAODCaloEvent-* Event/xAOD
+use xAODTracking  xAODTracking-*  Event/xAOD
+use xAODPFlow     xAODPFlow-*     Event/xAOD
+use xAODTruth	  xAODTruth-*  	  Event/xAOD
+
+apply_pattern lcgdict dict=xAODMissingET selectionfile=selection.xml \
+                      headerfiles="../xAODMissingET/xAODMissingETDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
+
+use TestTools TestTools-* AtlasTest
+
+apply_pattern UnitTest_run unit_test=../test/edm
+
+macro_append DOXYGEN_INPUT ../xAODMissingET/versions
+macro DOXYGEN_USE_MATHJAX "" Doxygen "USE_MATHJAX = YES"

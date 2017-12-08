@@ -472,6 +472,23 @@ StatusCode DataStore::tRange(ConstStoreIterator& tf,
   return StatusCode::SUCCESS;
 }
 //---------------------------------------------------------------//
+// Build a list of proxies that are in the Store:
+StatusCode DataStore::proxyList(std::list<DataProxy*>& plist) const
+{
+  ConstProxyIterator pf, pe;
+  ConstStoreIterator sf, se;
+  (tRange(sf, se)).ignore();
+  for (; sf!=se; sf++) 
+  {
+    (pRange(sf->first, pf, pe)).ignore();
+    for (; pf!=pe; pf++) {
+      // FIXME : Check validity of proxy.
+      plist.push_back(pf->second);
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+//---------------------------------------------------------------//
 // locate Persistent Representation of a Transient Object
 //
 DataProxy* DataStore::locatePersistent(const void* const pTransient) const

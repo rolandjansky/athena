@@ -1,24 +1,23 @@
-Thu Nov  2 15:55:29 EDT 2017
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Fri Oct 27 23:17:38 CEST 2017
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/9f528da37a] -- built on [2017-10-27T2310]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/CondReader_jo.py"
 Py:Athena            INFO including file "AthenaPoolCnvSvc/AthenaPool_jobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5436 configurables from 58 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  sss-rel_0
+[?1034hEventInfoMgtInit: Got release version  Athena-22.0.0
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Nov  2 15:55:58 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus012.cern.ch on Fri Oct 27 23:18:20 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -26,37 +25,38 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 9012 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3160 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 719 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-26T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
-PoolSvc              INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
-PoolSvc              INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
-PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolFileCatalog.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbSvc             INFO Read from meta data only for folder /TagInfo
 IOVDbSvc             INFO Initialised with 2 connections and 3 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
-ClassIDSvc           INFO  getRegistryEntries: read 837 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1233 CLIDRegistry entries for module ALL
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
@@ -66,8 +66,8 @@ CondInputLoader      INFO Adding base classes:
   + ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')  ->
   + ('DMTest::S2','ConditionStore+/DMTest/S2')  -> DMTest::S1 (243020043)
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
-    + ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')
     + ('DMTest::S1','ConditionStore+/DMTest/S2')
+    + ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')
     + ('DMTest::S2','ConditionStore+/DMTest/S2')
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
@@ -81,23 +81,23 @@ EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
-ClassIDSvc           INFO  getRegistryEntries: read 109 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 114 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO                           condtest.pool.root
 RootDatabase.open    INFO condtest.pool.root File version:60806
-ClassIDSvc           INFO  getRegistryEntries: read 711 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 35 CLIDRegistry entries for module ALL
 DMTest::CondRea...   INFO Event 0 LBN 0
 DMTest::CondRea...   INFO   xint xint (int) : 10
 DMTest::CondRea...   INFO   scond 1000
 DMTest::CondRea...   INFO   s2 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 CondInputLoader      INFO   CondObj ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList') is still valid at [0,1,t:0,l:0,b:4294967295]
@@ -125,7 +125,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events pr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO                           condtest.pool.root
 RootDatabase.open    INFO condtest.pool.root File version:60806
 DMTest::CondRea...   INFO Event 4 LBN 2
@@ -134,7 +134,7 @@ DMTest::CondRea...   INFO   scond 3000
 DMTest::CondRea...   INFO   s2 100
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
 CondInputLoader      INFO   CondObj ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList') is still valid at [0,5,t:0,l:2,b:4294967295]
@@ -162,7 +162,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events pr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO                           condtest.pool.root
 RootDatabase.open    INFO condtest.pool.root File version:60806
 DMTest::CondRea...   INFO Event 8 LBN 4
@@ -171,7 +171,7 @@ DMTest::CondRea...   INFO   scond 5000
 DMTest::CondRea...   INFO   s2 200
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
 CondInputLoader      INFO   CondObj ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList') is still valid at [0,9,t:0,l:4,b:4294967295]
@@ -199,7 +199,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO                           condtest.pool.root
 RootDatabase.open    INFO condtest.pool.root File version:60806
 DMTest::CondRea...   INFO Event 12 LBN 6
@@ -208,7 +208,7 @@ DMTest::CondRea...   INFO   scond 7000
 DMTest::CondRea...   INFO   s2 300
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
 CondInputLoader      INFO   CondObj ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList') is still valid at [0,13,t:0,l:6,b:4294967295]
@@ -236,7 +236,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO                           condtest.pool.root
 RootDatabase.open    INFO condtest.pool.root File version:60806
 DMTest::CondRea...   INFO Event 16 LBN 8
@@ -245,7 +245,7 @@ DMTest::CondRea...   INFO   scond 9000
 DMTest::CondRea...   INFO   s2 400
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 condtest.pool.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E1465CDF-45D8-6E46-9567-FD16A39DA219
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
 CondInputLoader      INFO   CondObj ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList') is still valid at [0,17,t:0,l:8,b:4294967295]

@@ -24,43 +24,56 @@ class AODFix_base(object):
     def latestAODFixVersion():
         """ Must override this member function in derived classes
         """
-        return []
+        return ""
 
-    @staticmethod
-    def excludeFromMetadata():
-        """ Override if you want to remove something from metadata to be written
-        """
-        return []
-
-    def __init__(self, prevVersion = "", isMC = False, force = False):
+    def __init__(self, prevVersion = "", isMC = False, metadataOnly = False, force = False):
         """ The default constructor. It implements the default behavior of setting
         up the latest AODFix to run. Only needs to be overriden if doing something
         more complicated.
         """
         self.isMC = isMC
-        self.prevAODFix = prevVersion if not force else 'none' # if forcing, ignore old AODFix
-        self.newAODFix = "-".join(self.latestAODFixVersion())
-        logAODFix.debug( "latestAODFixVersion() = " +  self.newAODFix)
+        self.prevAODFix = prevVersion
+        self.newAODFix = self.latestAODFixVersion()
+        logAODFix.debug( "latestAODFixVersion() = " +  self.latestAODFixVersion())
         logAODFix.debug( "prevVersion = " +  prevVersion)
         logAODFix.debug( "force = " +  str(force))
-        if self.newAODFix == "":
+        logAODFix.debug( "metadataOnly = " +  str(metadataOnly))
+        if self.latestAODFixVersion() == "":
             # the AODFix is empty: do nothing
             self.doAODFix = False
+            self.addMetadata = False
         elif not force:
             if prevVersion == self.latestAODFixVersion():
                 self.doAODFix = False
+                self.addMetadata = False
+            elif metadataOnly:
+                self.doAODFix = False
+                self.addMetadata = True
             else:
                 self.doAODFix = True
+                self.addMetadata = True
 
         else:  # force running
-            self.doAODFix = True
+            if prevVersion == self.latestAODFixVersion():
+                if metadataOnly:
+                    self.doAODFix = False
+                    self.addMetadata = False
+                else:
+                    self.doAODFix = True
+                    self.addMetadata = False
+            elif metadataOnly:    # this takes precedence
+                self.doAODFix = False
+                self.addMetadata = True
+            else:
+                self.doAODFix = True
+                self.addMetadata = True
 
         if self.doAODFix:
             logAODFix.info("AODFix with version %s scheduled" % self.newAODFix)
 
     def addMetaData(self):
         '''standard function to apply metadata, can overload if necessary for complicated scenarios.'''
-        if self.doAODFix:
+        if self.addMetadata:
             logAODFix.debug("in addMetaData")
 
             from RecExConfig.RecFlags import rec

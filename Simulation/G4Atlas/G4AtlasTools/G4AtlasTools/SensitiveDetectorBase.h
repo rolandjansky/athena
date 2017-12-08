@@ -37,7 +37,7 @@ class G4VSensitiveDetector;
 /// for preparing and post-processing output collections at the beginning or
 /// end of an Athena event.
 ///
-class SensitiveDetectorBase : public extends<AthAlgTool, ISensitiveDetector>
+class SensitiveDetectorBase : virtual public ISensitiveDetector, public AthAlgTool
 {
 
  public:
@@ -64,6 +64,9 @@ class SensitiveDetectorBase : public extends<AthAlgTool, ISensitiveDetector>
   /** Store the output collection in SG at this point.
       If we are using a WriteHandle, then this can be empty! */
   virtual StatusCode Gather() override { return StatusCode::SUCCESS; }
+
+  /** Query interface method to make athena happy */
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  protected:
 

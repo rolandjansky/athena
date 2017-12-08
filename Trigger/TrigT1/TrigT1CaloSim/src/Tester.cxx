@@ -917,7 +917,7 @@ std::vector<unsigned int>* LVL1::Tester::extractRoIWords(){
 }
 /** dump the cells belonging to an RoI. */
 void LVL1::Tester::dumpROICells(){
-  const t_EmTauROICollection* ROIs = nullptr;
+  const t_EmTauROICollection* ROIs;
   StatusCode sc1 = evtStore()->retrieve(ROIs,
 					 m_EmTauROILocation);
 

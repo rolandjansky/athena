@@ -1,0 +1,43 @@
+package InDetAmbiTrackSelectionTool
+
+author Markus Elsing, Thijs Cornelissen
+
+private
+
+use StoreGate                   StoreGate-*                     Control 
+use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use StoreGate                   StoreGate-*                     Control
+use DataModel                   DataModel-*                     Control
+use TrkMeasurementBase          TrkMeasurementBase-*            Tracking/TrkEvent
+use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-*   Tracking/TrkEvent
+use TrkPrepRawData              TrkPrepRawData-*                Tracking/TrkEvent
+use TrkSurfaces                 TrkSurfaces-*                   Tracking/TrkDetDescr
+use TrkTrackSummary             TrkTrackSummary-*               Tracking/TrkEvent
+use TrkDetElementBase           TrkDetElementBase-*             Tracking/TrkDetDescr
+use InDetPrepRawData            InDetPrepRawData-*              InnerDetector/InDetRecEvent
+use InDetRecToolInterfaces      InDetRecToolInterfaces-*        InnerDetector/InDetRecTools
+use PixelGeoModel               PixelGeoModel-*                 InnerDetector/InDetDetDescr
+use AtlasROOT                   AtlasROOT-*                     External
+use TrkCaloClusterROI           TrkCaloClusterROI-*             Tracking/TrkEvent
+
+
+public
+
+use AtlasPolicy           AtlasPolicy-* 
+use GaudiInterface        GaudiInterface-*          External
+use AthenaBaseComps       AthenaBaseComps-*         Control
+use TrkToolInterfaces     TrkToolInterfaces-*       Tracking/TrkTools
+use TrkValInterfaces      TrkValInterfaces-*        Tracking/TrkValidation
+use TrkTrack              TrkTrack-*                Tracking/TrkEvent
+use TrkRIO_OnTrack        TrkRIO_OnTrack-*          Tracking/TrkEvent
+use TrkParameters         TrkParameters-*           Tracking/TrkEvent
+
+
+apply_pattern component_library
+library InDetAmbiTrackSelectionTool *.cxx components/*.cxx
+
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

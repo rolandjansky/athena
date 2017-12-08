@@ -1,0 +1,113 @@
+package Pythia_i
+
+author Ian Hinchliffe
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+use GaudiInterface      GaudiInterface-*      External
+use GeneratorModules    GeneratorModules-*    Generators
+use Pythia              Pythia-*              External
+use Lhapdf              Lhapdf-*              External
+use Lhef_i              Lhef_i-*              Generators
+use AcerMC_i            AcerMC_i-*            Generators
+use Tauola_i            Tauola_i-*            Generators
+
+private
+use GeneratorFortranCommon GeneratorFortranCommon-*    Generators
+use AtlasCLHEP          AtlasCLHEP-*          External
+use AtlasHepMC          AtlasHepMC-*          External
+use AtlasBoost          AtlasBoost-*          External
+use AthenaKernel        AthenaKernel-*        Control
+use AlpGen_i            AlpGen_i-*            Generators
+use MadGraph_i          MadGraph_i-*          Generators
+use ExoGraviton_i       ExoGraviton_i-*       Generators
+use GeneratorUtils      GeneratorUtils-*      Generators
+use TruthUtils          TruthUtils-*          Generators
+use PythiaBc_i          PythiaBc_i-*          Generators
+use PathResolver        PathResolver-*        Tools
+end_private
+
+private
+macro_append  fflags "" Linux "  -fno-automatic "
+apply_tag notAsNeeded
+end_private
+
+# Added for cmake compatibility
+apply_pattern cmake_add_command command='add_definitions(-DPY6VERSION="${PYTHIA6_VERSION}")'
+
+#-------------------------------------------------------------------------
+# The Pythia Generator
+
+macro PythiaLibFiles ""
+macro_append PythiaLibFiles " setPythiaTune.cxx"
+macro_append PythiaLibFiles " atlasTune.cxx"
+macro_append PythiaLibFiles " Pythia.cxx"
+macro_append PythiaLibFiles " Lhefinfo.cxx"
+macro_append PythiaLibFiles " Pydat1.cxx"
+macro_append PythiaLibFiles " Pydatr.cxx"
+macro_append PythiaLibFiles " Pydat2.cxx"
+macro_append PythiaLibFiles " Pydat3_62.cxx"
+macro_append PythiaLibFiles " Pyssmt.cxx"
+macro_append PythiaLibFiles " Pysubs.cxx"
+macro_append PythiaLibFiles " Pypars.cxx"
+macro_append PythiaLibFiles " Pymssm.cxx"
+macro_append PythiaLibFiles " Pypued.cxx"
+macro_append PythiaLibFiles " Pypevwt.cxx"
+macro_append PythiaLibFiles " Pymsrv.cxx"
+macro_append PythiaLibFiles " Pyint1.cxx"
+macro_append PythiaLibFiles " Pyint2.cxx"
+macro_append PythiaLibFiles " Pyint5.cxx"
+macro_append PythiaLibFiles " Pytcsm.cxx"
+macro_append PythiaLibFiles " getaddr.cxx"
+macro_append PythiaLibFiles " upinit_py.F"
+macro_append PythiaLibFiles " upevnt_py.F"
+macro_append PythiaLibFiles " upveto_py.F"
+macro_append PythiaLibFiles " cldcay.F"
+macro_append PythiaLibFiles " glhefinfo.F"
+macro_append PythiaLibFiles " gpydat2.F"
+macro_append PythiaLibFiles " gpydatr.F"
+macro_append PythiaLibFiles " gpypars.F"
+macro_append PythiaLibFiles " gpysubs.F"
+macro_append PythiaLibFiles " gpydat1.F"
+macro_append PythiaLibFiles " gpydat3_62.F"
+macro_append PythiaLibFiles " gpymssm.F"
+macro_append PythiaLibFiles " gpypued.F"
+macro_append PythiaLibFiles " gpypevwt.F"
+macro_append PythiaLibFiles " gpymsrv.F"
+macro_append PythiaLibFiles " gpyssmt.F"
+macro_append PythiaLibFiles " gpyint1.F"
+macro_append PythiaLibFiles " gpyint2.F"
+macro_append PythiaLibFiles " gpyint5.F"
+macro_append PythiaLibFiles " gpytcsm.F"
+macro_append PythiaLibFiles " initpyblock.F"
+macro_append PythiaLibFiles " openrandom.F"
+macro_append PythiaLibFiles " opdcay.F"
+macro_append PythiaLibFiles " pyr.F"
+macro_append PythiaLibFiles " extproc.F"
+macro_append PythiaLibFiles " gatlastaula_decres_py.F"
+macro_append PythiaLibFiles " atopyt.F"
+macro_append PythiaLibFiles " opensusyfile.F"
+macro_append PythiaLibFiles " addParticle.F"
+macro_append PythiaLibFiles " parout.F"
+macro_append PythiaLibFiles " setecm.F"
+macro_append PythiaLibFiles " PythiaDummies/pyevwt.F"
+macro_append PythiaLibFiles " PythiaDummies/pykcut.F"
+macro_append PythiaLibFiles " PythiaDummies/pytaud.F"
+macro_append PythiaLibFiles " PythiaDummies/pytime.F"
+macro_append PythiaLibFiles " PythiaDummies/sugra.F"
+macro_append PythiaLibFiles " PythiaDummies/visaje.F"
+macro_append PythiaLibFiles " PythiaDummies/ssmssm.F"
+macro_append PythiaLibFiles " PythiaDummies/fhhiggscorr.F"
+macro_append PythiaLibFiles " PythiaDummies/fhsetflags.F"
+macro_append PythiaLibFiles " PythiaDummies/fhsetpara.F"
+
+apply_pattern named_dual_use_library library="Pythia_i" files=$(PythiaLibFiles)
+macro_append  Pythia_i_shlibflags  " $(HepMC_IO_linkopts) "
+
+macro_append Pythia_i_cppflags '-DPY6VERSION=\"$(pythia_native_version)\" '
+
+apply_pattern declare_joboptions files="*.py"
+
+# Link the package explicitly against HepMCfio:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"

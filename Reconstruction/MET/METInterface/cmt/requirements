@@ -1,0 +1,26 @@
+## automatically generated CMT requirements file
+package METInterface
+author  TJ Khoo
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## framework dependencies
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use PATInterfaces	PATInterfaces-*		PhysicsAnalysis/AnalysisCommon
+
+## EDM
+use xAODBase		xAODBase-*		Event/xAOD
+use xAODMissingET	xAODMissingET-*		Event/xAOD
+use xAODJet		xAODJet-*		Event/xAOD
+use xAODEventInfo	xAODEventInfo-*		Event/xAOD
+##
+
+branches METInterface doc
+
+# Declare this package as a cmake metalibrary so that the libraries and header files from
+# packages it depends on are available to its clients. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary
+
+use AtlasReflex    AtlasReflex-*    External
+apply_pattern lcgdict dict=METInterface selectionfile=selection.xml headerfiles="../METInterface/METInterfaceDict.h"

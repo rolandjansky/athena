@@ -38,11 +38,14 @@
 //=============================================================================
 CharginosPhysicsTool::CharginosPhysicsTool( const std::string& type,
                                             const std::string& name, const IInterface* parent )
-  : base_class ( type, name , parent )
+  : AthAlgTool ( type, name , parent )
   , m_theCharginoMinus(nullptr)
   , m_theCharginoPlus(nullptr)
   , m_theNeutralino(nullptr)
 {
+  ATH_MSG_DEBUG("CharginosPhysicsTool "<<type<<" "<<name);
+  declareInterface< IPhysicsOptionTool >( this ) ;
+
   declareProperty("CharginoPlusMass",m_CharginoPlusMass= 101.0*CLHEP::GeV,"CharginoPlus Mass");
   declareProperty("CharginoPlusWidth",m_CharginoPlusWidth=0.0*CLHEP::MeV,"CharginoPlus Width");
   declareProperty("CharginoPlusCharge",m_CharginoPlusCharge=+1.*CLHEP::eplus,"CharginoPlus charge");

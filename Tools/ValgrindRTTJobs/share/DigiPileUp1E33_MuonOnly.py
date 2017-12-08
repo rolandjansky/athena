@@ -10,7 +10,7 @@
 #--------------------------------------------------------------
 from AthenaCommon.AthenaCommonFlags import jobproperties
 jobproperties.AthenaCommonFlags.EvtMax=5
-jobproperties.AthenaCommonFlags.PoolHitsInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1"]
+jobproperties.AthenaCommonFlags.PoolHitsInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1"]
 jobproperties.AthenaCommonFlags.PoolRDOOutput="DigitizationOutput.pool.root"
 
 #--------------------------------------------------------------
@@ -32,20 +32,20 @@ digitizationFlags.finalBunchCrossing = 32 #default
 digitizationFlags.IOVDbGlobalTag = 'OFLCOND-SDR-BS7T-05-14'
 digitizationFlags.overrideMetadata = ['SimLayout', 'PhysicsList']
 
-digitizationFlags.LowPtMinBiasInputCols = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._000382.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._001308.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._001883.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._001944.pool.root.1"]
+digitizationFlags.LowPtMinBiasInputCols = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._000382.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._001308.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._001883.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._001944.pool.root.1"]
 
-digitizationFlags.HighPtMinBiasInputCols = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._001496.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._002374.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._007836.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._009288.pool.root.1"]
+digitizationFlags.HighPtMinBiasInputCols = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._001496.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._002374.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._007836.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._009288.pool.root.1"]
     
-digitizationFlags.cavernInputCols = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._001423.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._001891.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._002585.pool.root.1",
-"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._003578.pool.root.1"]
+digitizationFlags.cavernInputCols = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._001423.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._001891.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._002585.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1268_s1269_s1259/HITS.475989._003578.pool.root.1"]
 
 #--------------------------------------------------------------
 # Global flags. Like eg the DD version:

@@ -13,11 +13,11 @@ void AGDDDetector::SetAddressAndPosition(AGDDDetectorPositioner *p)
 	
 std::vector<AGDDDetectorPositioner*>& AGDDDetector::GetDetectorPositioners() 
 {
-	return m_detectorPositions;
+	return detectorPositions;
 }
 		
 void AGDDDetector::AddDetectorPosition(AGDDDetectorPositioner* p) 
 {
-	m_detectorPositions.push_back(p);
+	detectorPositions.push_back(p);
 }
 

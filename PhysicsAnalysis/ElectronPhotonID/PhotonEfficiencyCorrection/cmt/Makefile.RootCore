@@ -1,0 +1,12 @@
+# Author: Michael Pitt
+# PhotonEfficiencyCorrection RootCore stand-alone makefile
+
+PACKAGE          = PhotonEfficiencyCorrection
+PACKAGE_PRELOAD  = Tree TreePlayer XMLParser XMLIO
+PACKAGE_CXXFLAGS = -I/usr/include/libxml2 -g
+PACKAGE_BINFLAGS = -lxml2
+#PACKAGE_LDFLAGS  = -lxml2 -L$(ROOTSYS)/lib/root -L$(ROOTSYS)/lib -lXMLIO -lXMLParser -lz
+PACKAGE_DEP      = AsgTools Asg_Boost xAODEgamma xAODEventInfo PATCore PATInterfaces PathResolver ElectronEfficiencyCorrection
+PACKAGE_PEDANTIC = 1
+PACKAGE_REFLEX   = 1
+include $(ROOTCOREDIR)/Makefile-common

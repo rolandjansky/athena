@@ -1,0 +1,34 @@
+package MuonCombinedEvent
+
+author Carlo Schiavi <carlo.schiavi@ge.infn.it>
+author Andrea Coccaro <andrea.coccaro@ge.infn.it>
+
+use AtlasPolicy         AtlasPolicy-*
+use Identifier          Identifier-*            DetectorDescription
+use xAODMuon            xAODMuon-*              Event/xAOD
+use DataModel           DataModel-*             Control
+use CLIDSvc             CLIDSvc-*               Control
+use AthLinks            AthLinks-*              Control
+use xAODTracking        xAODTracking-*          Event/xAOD
+use TrkParameters       TrkParameters-*         Tracking/TrkEvent
+use MuidEvent		MuidEvent-*		Reconstruction/MuonIdentification
+use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
+use muonEvent         muonEvent-*             Reconstruction/MuonIdentification
+use TrkMaterialOnTrack  TrkMaterialOnTrack-*    Tracking/TrkEvent
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+
+
+private
+
+use TrkTrack            TrkTrack-*              Tracking/TrkEvent
+use MuonSegment         MuonSegment-*           MuonSpectrometer/MuonReconstruction/MuonRecEvent
+
+public
+
+library MuonCombinedEvent *.cxx
+apply_pattern installed_library
+
+private
+
+use GaudiInterface      GaudiInterface-*        External
+

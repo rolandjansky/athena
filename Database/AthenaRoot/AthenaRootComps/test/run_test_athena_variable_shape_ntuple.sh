@@ -6,7 +6,7 @@ function check_disappearing_branches()
 echo "::: retrieve reference ascii file..."
 reffile=ref.data.merged.ascii
 /bin/rm -f $reffile > /dev/null
-#refdir=root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/
+#refdir=root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/
 #refdir=${PWD}/../test/
 #cp $refdir/$reffile $reffile || return 1
 get_files -scripts $reffile

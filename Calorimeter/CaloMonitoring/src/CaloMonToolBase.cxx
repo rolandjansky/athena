@@ -83,7 +83,7 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
     }
   }
 
-  const xAOD::EventInfo* eventInfo = nullptr;
+  const xAOD::EventInfo* eventInfo;
   sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Event info not found !" );

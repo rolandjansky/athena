@@ -10,16 +10,7 @@ void ATLAS_LABEL(double x,double y);
 void epara_validation_plots()
 {
  
-  string descr,samplename;
-  
-  //samplename="pions"; descr="#scale[0.9]{#splitline{Pions 50 GeV}{0.2 < |#eta| < 0.25}}";
-  //samplename="s2865";   descr="#scale[0.9]{#splitline{Electrons 65 GeV}{0.2 < |#eta| < 0.25}}";
-  //samplename="photons"; descr="#scale[0.9]{#splitline{Photons 50 GeV}{0.2 < |#eta| < 0.25}}";
-  //samplename="photons0809"; descr="#scale[0.9]{#splitline{Photons 50 GeV}{0.2 < |#eta| < 0.25}}";
-  //samplename="pionplus0809"; descr="#scale[0.9]{#splitline{Pions+ 50 GeV}{0.2 < |#eta| < 0.25}}";
-  samplename="pionminus0809"; descr="#scale[0.9]{#splitline{Pions- 50 GeV}{0.2 < |#eta| < 0.25}}";
-  
-  int col_para=2;
+  string samplename="photons";
   
   //string dirname ="/afs/cern.ch/user/s/schaarsc/public/fastcalo/epara_storage";
   string dirname ="../../../../../../epara_storage";
@@ -43,19 +34,18 @@ void epara_validation_plots()
   vector<string> title;
   for(unsigned int l=0;l<layer.size()-1;l++)
   {
-   cout<<"layer "<<layer[l]<<endl;
    name.push_back(layer[l].c_str());
-   title.push_back(Form("Energy fraction in Layer %i",layerNr[l]));
+   title.push_back(Form("E fraction in Layer %i",layerNr[l]));
   }
-  name.push_back("Total energy");  title.push_back("total E [MeV]");
+  name.push_back("totalE");  title.push_back("total E [MeV]");
   
   TFile* file=TFile::Open(Form("eparavalidation/%s/validation.root",samplename.c_str()));
 
   int use_autozoom=1;
-  int one_canvas=1;
-  
+
   for(unsigned int l=0;l<layer.size();l++)
   {
+   int one_canvas=0;
    double min,max,rmin,rmax;
    TH1D* h_output_lin;
    TH1D* h_input_lin;
@@ -71,33 +61,25 @@ void epara_validation_plots()
    }
    
    //linear:
-   double kolmo=-1;double chi2=-1;
-   double ymax=1000;
-   
-   kolmo=h_input_lin->KolmogorovTest(h_output_lin);
-   chi2= h_input_lin->Chi2Test(h_output_lin,"UW");
-   h_input_lin->SetMarkerSize(1.1);
-   h_output_lin->SetMarkerSize(1.1);
-   h_input_lin->SetMarkerStyle(24);
-   
+   double kolmo=h_input_lin->KolmogorovTest(h_output_lin);
+   double chi2=h_input_lin->Chi2Test(h_output_lin,"UW");
+   h_input_lin->SetMarkerSize(1.0);
    h_input_lin->SetLineWidth(1);
    h_output_lin->SetLineWidth(1);
-   h_output_lin->SetFillColor(col_para);
-   h_output_lin->SetLineColor(col_para);
-   h_output_lin->SetMarkerColor(col_para);
+   h_output_lin->SetFillColor(7);
    h_output_lin->Scale(h_input_lin->Integral()/h_output_lin->Integral());
-   h_input_lin->GetXaxis()->SetNdivisions(506,kTRUE);
+   h_input_lin->GetXaxis()->SetNdivisions(504,kFALSE);
    double ymax=h_input_lin->GetBinContent(h_input_lin->GetMaximumBin());
    h_input_lin->GetYaxis()->SetRangeUser(0,ymax*1.4);
-   h_input_lin->GetYaxis()->SetTitle("a.u.");
+   h_input_lin->GetYaxis()->SetTitle("Linear");
    h_input_lin->GetXaxis()->SetTitle(title[l].c_str());
    
    //log:
    TH1D* h_output_log=(TH1D*)h_output_lin->Clone("h_output_log");
    TH1D* h_input_log=(TH1D*)h_input_lin->Clone("h_input_log");
    h_input_log->GetYaxis()->SetRangeUser(0.1,ymax*5.0);
-   h_input_log->GetYaxis()->SetTitle("a.u.");
-   
+   h_input_log->GetYaxis()->SetTitle("Log");
+      
    //cumulative:
    TH1D* h_output_cumul=(TH1D*)get_cumul(h_output_lin); h_output_cumul->SetName("h_output_cumul");
    TH1D* h_input_cumul =(TH1D*)get_cumul(h_input_lin);  h_input_cumul->SetName("h_input_cumul");
@@ -105,7 +87,7 @@ void epara_validation_plots()
    h_output_cumul->Scale(1.0/sf);
    h_input_cumul->Scale(1.0/sf);
    h_input_cumul->GetYaxis()->SetRangeUser(0,1.2);
-   h_input_cumul->GetYaxis()->SetTitle("a.u. cumulative");
+   h_input_cumul->GetYaxis()->SetTitle("Cumulative");
    
    if(one_canvas)
    {
@@ -113,26 +95,26 @@ void epara_validation_plots()
     can->Divide(3,1);
     can->cd(1);
     h_input_lin->Draw("e");
-    h_output_lin->Draw("esame");
+    h_output_lin->Draw("histsame");
     h_input_lin->Draw("esame");
     
     TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
     leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
-    leg->AddEntry(h_output_lin,"Parametrisation","lpe");
+    leg->AddEntry(h_output_lin,"Parametrisation","f");
     leg->AddEntry(h_input_lin,"G4 Input","lpe");
     leg->Draw();
     
     can->cd(2);
     h_input_log->Draw("e");
-    h_output_log->Draw("esame");
+    h_output_log->Draw("histsame");
     h_input_log->Draw("esame");
     can->cd(2)->SetLogy();
 
     can->cd(3);
     h_input_cumul->Draw("e");
-    h_output_cumul->Draw("esame");
+    h_output_cumul->Draw("histsame");
     h_input_cumul->Draw("esame");
     
     can->cd(1)->RedrawAxis();
@@ -141,47 +123,45 @@ void epara_validation_plots()
     can->Print(Form("eparavalidation/%s/%s.pdf",samplename.c_str(),name[l].c_str()));
     delete can;
    } //one_canvas
-   
-   
-   if(!one_canvas)
+   else
    {
    	TCanvas* can_lin=new TCanvas(Form("can_lin_%s",layer[l].c_str()),Form("can_lin_%s",layer[l].c_str()),0,0,800,600);
-   	
-   	h_input_lin ->Draw("e");
-    h_output_lin->Draw("esame");
+    h_input_lin ->Draw("e");
+    h_output_lin->Draw("histsame");
     h_input_lin ->Draw("esame");
-    
-    TLegend* leg1=new TLegend(0.65,0.82,0.99,0.93);
-    leg1->SetBorderSize(0);
-    leg1->SetFillStyle(0);
-    leg1->SetHeader(Form("#bf{KS: %.2f, Chi2: %.2f}",kolmo,chi2));
-    leg1->AddEntry(h_output_lin,"#bf{Parametrisation}","lpe");
-    leg1->AddEntry(h_input_lin,"#bf{G4 Input}","lpe");
-    leg1->Draw();
-    TLatex* la1=new TLatex(0.2,0.5,descr.c_str());    la1->SetNDC();    la1->Draw();
-    ATLAS_LABEL(0.2,0.9);
-    Prelim_LABEL(0.2,0.85);
-    
+    {
+     TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
+     leg->SetBorderSize(0);
+     leg->SetFillStyle(0);
+     leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
+     leg->AddEntry(h_output_lin,"Parametrisation","f");
+     leg->AddEntry(h_input_lin,"G4 Input","lpe");
+     leg->Draw();
+     TLatex* la=new TLatex(0.2,0.5,"#splitline{Photons 50 GeV}{0.2 < |#eta| < 0.25}");
+     la->SetNDC();
+     la->Draw();
+     ATLAS_LABEL(0.2,0.9);
+    }
    	can_lin->RedrawAxis();
     can_lin->Print(Form("eparavalidation/%s/%s_lin.pdf",samplename.c_str(),name[l].c_str()));
     
     TCanvas* can_log=new TCanvas("can_log","can_log",0,0,800,600);
     h_input_log ->Draw("e");
-    h_output_log->Draw("esame");
+    h_output_log->Draw("histsame");
     h_input_log ->Draw("esame");
     can_log->SetLogy();
-    TLegend* leg2=new TLegend(0.65,0.82,0.99,0.93);
-    leg2->SetBorderSize(0);
-    leg2->SetFillStyle(0);
-    leg2->SetHeader(Form("#bf{KS: %.2f, Chi2: %.2f}",kolmo,chi2));
-    leg2->AddEntry(h_output_log,"#bf{Parametrisation}","lpe");
-    leg2->AddEntry(h_input_log,"#bf{G4 Input}","lpe");
-    leg2->Draw();
-   	TLatex* la2=new TLatex(0.2,0.5,descr.c_str());    la2->SetNDC();    la2->Draw();
-    can_log->RedrawAxis();
+    {
+     TLegend* leg=new TLegend(0.65,0.82,0.99,0.93);
+     leg->SetBorderSize(0);
+     leg->SetFillStyle(0);
+     leg->SetHeader(Form("KS: %.2f, Chi2: %.2f",kolmo,chi2));
+     leg->AddEntry(h_output_lin,"Parametrisation","f");
+     leg->AddEntry(h_input_lin,"G4 Input","lpe");
+     leg->Draw();
+    }
+   	can_log->RedrawAxis();
     can_log->Print(Form("eparavalidation/%s/%s_log.pdf",samplename.c_str(),name[l].c_str()));
    	
-   	/*
    	TCanvas* can_cum=new TCanvas("can_cum","can_cum",0,0,800,600);
     h_input_cumul ->Draw("e");
     h_output_cumul->Draw("histsame");
@@ -197,7 +177,7 @@ void epara_validation_plots()
     }
    	can_cum->RedrawAxis();
     can_cum->Print(Form("eparavalidation/%s/%s_cum.pdf",samplename.c_str(),name[l].c_str()));
-    */
+    
    } //separate canvases
    
   } //for layer
@@ -222,7 +202,7 @@ void ATLAS_LABEL(double x,double y)
   l.SetNDC();
   l.SetTextFont(72);
   l.SetTextColor(1);
-  l.DrawLatex(x,y,"ATLAS #bf{#it{#scale[0.9]{Simulation}}}");
+  l.DrawLatex(x,y,"ATLAS #bf{#it{Simulation}}");
 }
 
 void Prelim_LABEL(double x,double y) 
@@ -231,7 +211,7 @@ void Prelim_LABEL(double x,double y)
   l.SetNDC();
   l.SetTextFont(72);
   l.SetTextColor(1);
-  l.DrawLatex(x,y,"#bf{#it{#scale[0.9]{Preliminary}}}");
+  l.DrawLatex(x,y,"#bf{#it{Preliminary}}");
 }
 
 void photon()

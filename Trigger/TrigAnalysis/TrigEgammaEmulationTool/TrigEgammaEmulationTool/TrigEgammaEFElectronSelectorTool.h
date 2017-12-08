@@ -8,8 +8,8 @@
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
 #include "AsgTools/AsgTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
 // ******* For track isolation ********************************************
 //#include "xAODPrimitives/IsolationType.h"

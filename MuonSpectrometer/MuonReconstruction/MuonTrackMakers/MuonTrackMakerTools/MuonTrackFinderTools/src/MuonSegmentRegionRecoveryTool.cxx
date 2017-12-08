@@ -109,31 +109,90 @@ namespace Muon {
   StatusCode MuonSegmentRegionRecoveryTool::initialize()
   {
 
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
-    ATH_CHECK( m_helperTool.retrieve() );
-    ATH_CHECK( m_intersectSvc.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_seededSegmentFinder.retrieve() );
+    if ( AthAlgTool::initialize().isFailure() ) {
+      return StatusCode::FAILURE;
+    }
+
+    StoreGateSvc* detStore=0;
+    if ( serviceLocator()->service("DetectorStore", detStore).isFailure() ) {
+      ATH_MSG_ERROR("DetectorStore not found ");
+      return StatusCode::FAILURE;
+    }
+   
+    if ( detStore->retrieve( m_detMgr ).isFailure() ) {
+      ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
+      return StatusCode::FAILURE;
+    }
+
+    if (m_helperTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_helperTool);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_intersectSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_intersectSvc);
+      return StatusCode::FAILURE;
+    }
+
+    if (m_printer.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_printer);
+      return StatusCode::FAILURE;
+    }
+    
+    if( m_seededSegmentFinder.retrieve().isFailure() ){
+      ATH_MSG_ERROR(" failed to retrieve " << m_seededSegmentFinder);
+      return StatusCode::FAILURE;
+    }
 
     if( !m_trackSegmentMatchingTool.empty() ){
-      ATH_CHECK( m_trackSegmentMatchingTool.retrieve() );
-      ATH_MSG_INFO("Using matching tool " << m_trackSegmentMatchingTool );
+      if( m_trackSegmentMatchingTool.retrieve().isFailure() ){
+	ATH_MSG_ERROR(" failed to retrieve " << m_trackSegmentMatchingTool);
+	return StatusCode::FAILURE;
+      }else{
+	ATH_MSG_INFO("Using matching tool " << m_trackSegmentMatchingTool );
+      }
     }else{
       ATH_MSG_DEBUG("No matching tool selected " );
     }
 
-    ATH_CHECK( m_chamberHoleRecoveryTool.retrieve() );
-    ATH_CHECK( m_extrapolator.retrieve() );
-    ATH_CHECK( m_fitter.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_hitSummaryTool.retrieve() );
-    ATH_CHECK( m_regionSelector.retrieve() );
+    if( m_chamberHoleRecoveryTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR(" could not retrieve " << m_chamberHoleRecoveryTool);
+      return StatusCode::FAILURE;      
+    }
+    
+    if (m_extrapolator.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find extrapolator "<<m_extrapolator<<". Exiting.");
+      return StatusCode::FAILURE;
+    }
 
+
+    if (m_fitter.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find rot creator tool "<<m_fitter<<". Exiting.");
+      return StatusCode::FAILURE;
+    }
+
+
+    if (m_idHelperTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not find "<<m_idHelperTool<<". Exiting.");
+      return StatusCode::FAILURE;
+    }      
+    
+    if (m_hitSummaryTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not find "<<m_hitSummaryTool<<". Exiting.");
+      return StatusCode::FAILURE;
+    }      
+    
+    if (m_regionSelector.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not find "<<m_regionSelector<<". Exiting.");
+      return StatusCode::FAILURE;
+    }
+  
     return StatusCode::SUCCESS;
   }
   
   StatusCode MuonSegmentRegionRecoveryTool::finalize()
   {
+    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 

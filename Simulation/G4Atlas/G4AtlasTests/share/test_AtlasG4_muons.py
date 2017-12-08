@@ -59,12 +59,10 @@ job.ParticleGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 ## Release GeoModel memory once sim is configured
 simFlags.ReleaseGeoModel = False
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 
 ## Add the G4 sim to the alg sequence after the generator
-from AthenaCommon.CfgGetter import getAlgorithm
-job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+job += PyG4AtlasAlg()
 
 
 ## User algorithms
@@ -94,7 +92,6 @@ job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EMECHitsTestTool", chec
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("FCALHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("HECHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileHitsTestTool", checkType=True)] 
-job.G4TestAlg.SimTestTools["TileHitsTestTool"].TestMBTS=True
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MDTHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("RPCHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]

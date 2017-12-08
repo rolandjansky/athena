@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           TileCalorimeter/TileIdentifier
                           PRIVATE
-                          AtlasTest/TestTools
                           Calorimeter/CaloCellCorrection
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent

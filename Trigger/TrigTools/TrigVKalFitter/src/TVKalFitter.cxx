@@ -83,9 +83,9 @@ TrigVKalFitter:: TrigVKalFitter(const std::string& type,
    declareProperty("IterationNumber",      m_IterationNumber);
    declareProperty("IterationPrecision",   m_IterationPrecision);
    declareProperty("VertexForConstraint",  m_VertexForConstraint);
-   declareProperty("CovVrtForConstraint",  m_CovVrtForConstraintProp);
-   declareProperty("InputParticleMasses",  m_MassInputParticlesProp);
-   declareProperty("ApproximateVertex",    m_ApproximateVertexProp);
+   declareProperty("CovVrtForConstraint",  mp_CovVrtForConstraint);
+   declareProperty("InputParticleMasses",  mp_MassInputParticles);
+   declareProperty("ApproximateVertex",    mp_ApproximateVertex);
    declareProperty("ZeroChgTracks",        m_TrackCharge);
    declareProperty("AtlasMagFieldSvc",     m_magFieldAthenaSvc, "Name of existing mag.field service. If wrong or non-existing - fixed filed is used");  
    //
@@ -114,19 +114,19 @@ TrigVKalFitter::~TrigVKalFitter(){
 
 StatusCode
 TrigVKalFitter::initialize() {
-   const std::vector< double > &  prop = m_CovVrtForConstraintProp.value();
+   const std::vector< double > &  prop = mp_CovVrtForConstraint.value();
    m_CovVrtForConstraint.clear();
    for( unsigned int i=0; i<prop.size(); i++) {
       m_CovVrtForConstraint.push_back(prop[i]);
    }
 
-   const std::vector< double > &  prop2 = m_MassInputParticlesProp.value();
+   const std::vector< double > &  prop2 = mp_MassInputParticles.value();
    m_MassInputParticles.clear();
    for( unsigned int i=0; i<prop2.size(); i++) {
       m_MassInputParticles.push_back(prop2[i]);
    }
 
-   const std::vector< double > &  prop3 = m_ApproximateVertexProp.value();
+   const std::vector< double > &  prop3 = mp_ApproximateVertex.value();
    m_ApproximateVertex.clear();
    for( unsigned int i=0; i<prop3.size(); i++) {
       m_ApproximateVertex.push_back(prop3[i]);
@@ -426,7 +426,7 @@ StatusCode TrigVKalFitter::VKalGetTrkCov(const long int iTrk,const long int NTrk
    if(!m_FitStatus) return StatusCode::FAILURE;
 
    int i,j,ik,jk;
-   double ErrMtx[ (3*NTRMAXTRIG+3)*(3*NTRMAXTRIG+4)/2 ];
+   double ErrMtx[ (3*m_NTrMaxTrig+3)*(3*m_NTrMaxTrig+4)/2 ];
    double CovMtxOld[6][6];
    double CovMtx   [6][6];
    long int vkNTrk = NTrk;
@@ -532,8 +532,8 @@ StatusCode TrigVKalFitter::VKalGetMassError( std::vector<int> ListOfTracks , dou
    if(!m_FitStatus) return StatusCode::FAILURE;
    if((int) ListOfTracks.size() != m_FitStatus) return StatusCode::FAILURE;
 
-   double Deriv[ 3*NTRMAXTRIG+3 ];
-   long int Tist[NTRMAXTRIG];
+   double Deriv[ 3*m_NTrMaxTrig+3 ];
+   long int Tist[m_NTrMaxTrig];
  
    for (int i=0; i<(int)ListOfTracks.size();i++){
       Tist[i]=0;

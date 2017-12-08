@@ -13,6 +13,8 @@
 #include "eflowRec/IPFBaseTool.h"
 #include "eflowRec/IPFClusterCollectionTool.h"
 
+#include <cassert>
+
 class eflowCaloObjectContainer;
 
 class PFMomentCalculatorTool : public extends<AthAlgTool, IPFBaseTool> {

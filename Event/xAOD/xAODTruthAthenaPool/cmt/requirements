@@ -1,0 +1,47 @@
+package xAODTruthAthenaPool
+# $Id: requirements 770571 2016-08-29 11:37:46Z krasznaa $
+
+author Andy Buckley <Andy.Buckley@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Basic package(s):
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTruth           xAODTruth-*           Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::TruthParticleContainer \
+                                          xAOD::TruthParticleAuxContainer \
+                                          xAOD::TruthVertexContainer \
+                                          xAOD::TruthVertexAuxContainer \
+                                          xAOD::TruthEventContainer \
+                                          xAOD::TruthEventAuxContainer \
+                                          xAOD::TruthPileupEventContainer \
+                                          xAOD::TruthPileupEventAuxContainer \
+                                          xAOD::TruthMetaDataContainer \
+                                          xAOD::TruthMetaDataAuxContainer" \
+                      files="-s=${xAODTruth_root}/xAODTruth \
+                             TruthParticleContainer.h \
+                             TruthParticleAuxContainer.h \
+                             TruthVertexContainer.h \
+                             TruthVertexAuxContainer.h \
+                             TruthEventContainer.h \
+                             TruthEventAuxContainer.h \
+                             TruthPileupEventContainer.h \
+                             TruthPileupEventAuxContainer.h \
+                             TruthMetaDataContainer.h \
+                             TruthMetaDataAuxContainer.h" \
+                      cnv_pfx="xAOD"
+

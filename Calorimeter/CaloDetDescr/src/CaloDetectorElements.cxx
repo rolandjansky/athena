@@ -9,6 +9,7 @@
 #include "LArReadoutGeometry/HECDetectorRegion.h"
 
 #include "CaloGeoHelpers/CaloPhiRange.h"
+#include "boost/foreach.hpp"
 
 
 namespace {
@@ -762,7 +763,7 @@ CaloSuperCellDetectorElement::updateBE
   double rzsum = 0;
   double drzsum = 0;
 
-  for (const CaloDetDescrElement* fromelt : fromelts) {
+  BOOST_FOREACH (const CaloDetDescrElement* fromelt, fromelts) {
     double rz, rz_raw, drz;
     if (is_barrel) {
       rz = fromelt->r();
@@ -896,7 +897,7 @@ CaloSuperCellDetectorElement::updateFCAL
   // offline cells.  Warning: the fcal supercells are asymmetric;
   // this isn't the same as the COG!
 
-  for (const CaloDetDescrElement* fromelt : fromelts) {
+  BOOST_FOREACH (const CaloDetDescrElement* fromelt, fromelts) {
     x_raw_min = std::min (x_raw_min,
                           (double)fromelt->x_raw() - fromelt->dx()/2);
     x_raw_max = std::max (x_raw_max,

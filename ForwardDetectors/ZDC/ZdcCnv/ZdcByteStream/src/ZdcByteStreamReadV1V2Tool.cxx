@@ -607,7 +607,7 @@ std::vector<uint16_t> ZdcByteStreamReadV1V2Tool::getPpmAdcSamplesR3_(
 
 StatusCode ZdcByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
     int inData){
-  StatusCode sc;
+  bool error = false;
   if (m_subBlockHeader.seqNum() == 63) { // Error block
     ATH_MSG_DEBUG("Error PPM subblock");
     //TODO: errorTool
@@ -634,11 +634,11 @@ StatusCode ZdcByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
     
     } else{
       ATH_MSG_WARNING("Error decoding Ppm word (run1)");
-      sc = StatusCode::FAILURE;
+      error = true;
     }
  
   }
-  return sc;
+  return !error;
 }
 
 StatusCode ZdcByteStreamReadV1V2Tool::processPpmBlockR4V1_() {

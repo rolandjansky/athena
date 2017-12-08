@@ -1,0 +1,39 @@
+package xAODTrackingAthenaPool
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author Edward Moyse <Edward.Moyse@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+use AtlasROOT           AtlasROOT-*           External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# POOL package(s):
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTracking       xAODTracking-*       Event/xAOD
+use xAODTruth          xAODTruth-*          Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::TrackParticleContainer xAOD::TrackParticleAuxContainer \
+                                          xAOD::NeutralParticleContainer xAOD::NeutralParticleAuxContainer \
+                                          xAOD::VertexContainer xAOD::VertexAuxContainer \
+                                          xAOD::SCTRawHitValidationContainer xAOD::SCTRawHitValidationAuxContainer \
+                                          xAOD::TrackMeasurementValidationContainer xAOD::TrackMeasurementValidationAuxContainer \
+                                          xAOD::TrackStateValidationContainer xAOD::TrackStateValidationAuxContainer "\
+                      files="-s=${xAODTracking_root}/xAODTracking \
+                        TrackParticleContainer.h TrackParticleAuxContainer.h \
+                        NeutralParticleContainer.h NeutralParticleAuxContainer.h \
+                        VertexContainer.h VertexAuxContainer.h \
+                        SCTRawHitValidationContainer.h SCTRawHitValidationAuxContainer.h \
+                        TrackMeasurementValidationContainer.h TrackMeasurementValidationAuxContainer.h \
+                        TrackStateValidationContainer.h  TrackStateValidationAuxContainer.h" \
+                      cnv_pfx="xAOD"

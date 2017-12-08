@@ -4,7 +4,6 @@
 
 
 #include "LUCID_RawDataByteStreamCnv/LUCID_RodDecoder.h"
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 LUCID_RodDecoder::LUCID_RodDecoder() {}
 LUCID_RodDecoder::~LUCID_RodDecoder() {}

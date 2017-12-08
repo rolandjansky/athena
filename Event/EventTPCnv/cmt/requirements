@@ -1,0 +1,55 @@
+package EventTPCnv
+
+author RD Schaffer <R.D.Schaffer@cern.ch>
+author Kyle Cranmer <cranmer@cern.ch>
+author Marcin.Nowak@cern.ch
+
+use AtlasPolicy          AtlasPolicy-* 
+use AtlasReflex          AtlasReflex-*              External
+
+use EventInfo            EventInfo-*                Event
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+
+
+private
+use GaudiInterface       GaudiInterface-*           External
+use CxxUtils             CxxUtils-*                 Control
+use AthenaKernel         AthenaKernel-*             Control
+end_private
+
+
+library EventTPCnv *.cxx
+apply_pattern tpcnv_library
+
+apply_pattern lcgdict dict=EventTPCnv  selectionfile=selection.xml headerfiles="../EventTPCnv/EventTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_EventTPCnv  selectionfile=OLD_selection.xml headerfiles="../EventTPCnv/EventTPCnvDict.h"
+
+
+private
+use TestTools       TestTools-*         AtlasTest
+
+apply_pattern UnitTest_run unit_test=EventIDCnv_p1
+apply_pattern UnitTest_run unit_test=EventIDCnv_p2
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p1
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p2
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p3
+apply_pattern UnitTest_run unit_test=EventInfoCnv_p4
+apply_pattern UnitTest_run unit_test=EventStreamInfoCnv_p1
+apply_pattern UnitTest_run unit_test=EventStreamInfoCnv_p2
+apply_pattern UnitTest_run unit_test=EventStreamInfoCnv_p3
+apply_pattern UnitTest_run unit_test=EventTypeCnv_p1
+apply_pattern UnitTest_run unit_test=EventTypeCnv_p2
+apply_pattern UnitTest_run unit_test=EventTypeCnv_p3
+apply_pattern UnitTest_run unit_test=MergedEventInfoCnv_p1
+apply_pattern UnitTest_run unit_test=MergedEventInfoCnv_p2
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p1
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p2
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p3
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p4
+apply_pattern UnitTest_run unit_test=PileUpEventInfoCnv_p5
+apply_pattern UnitTest_run unit_test=TriggerInfoCnv_p1
+apply_pattern UnitTest_run unit_test=TriggerInfoCnv_p2
+apply_pattern UnitTest_run unit_test=TriggerInfoCnv_p3
+apply_pattern UnitTest_run unit_test=AtlasMcWeight
+apply_pattern UnitTest_run unit_test=vectorize
+

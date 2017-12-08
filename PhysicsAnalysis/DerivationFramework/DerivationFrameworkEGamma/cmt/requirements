@@ -1,0 +1,35 @@
+package DerivationFrameworkEGamma
+author James Catmore <james.catmore@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy                 AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAnalysis/DerivationFramework
+use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
+use AsgTools                    AsgTools-*              Control/AthToolSupport
+use ElectronPhotonShowerShapeFudgeTool ElectronPhotonShowerShapeFudgeTool-* PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
+
+private
+use xAODBase                    xAODBase-*              Event/xAOD
+use xAODCaloEvent               xAODCaloEvent-*         Event/xAOD
+use xAODEgamma                  xAODEgamma-*            Event/xAOD
+use xAODMuon                    xAODMuon-*              Event/xAOD
+use xAODTruth                   xAODTruth-*             Event/xAOD
+use xAODMissingET               xAODMissingET-*         Event/xAOD
+use GaudiInterface              GaudiInterface-*        External
+use ExpressionEvaluation        ExpressionEvaluation-*  PhysicsAnalysis/CommonTools
+use AtlasROOT                   AtlasROOT-*           	External
+use MCTruthClassifier           MCTruthClassifier-*     PhysicsAnalysis
+################################################################
+#
+public
+
+## declare the directories CMT should know about
+branches python share src
+
+apply_pattern dual_use_library files= " *.cxx "
+apply_pattern declare_joboptions files=" *.py"
+apply_pattern declare_python_modules files="*.py"
+apply_tag ROOTMathLibs

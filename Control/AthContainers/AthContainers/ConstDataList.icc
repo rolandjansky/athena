@@ -1,0 +1,781 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: ConstDataList.icc 610620 2014-08-06 21:15:52Z ssnyder $
+/**
+ * @file AthContainers/ConstDataList.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2011
+ * @brief @c DataList adapter that acts like it holds const pointers.
+ */
+
+
+//=== Constructors, destructors, assignment.
+
+
+/**
+ * @brief Default constructor.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataList will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class DL>
+inline
+ConstDataList<DL>::ConstDataList
+  (SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+    : DL (ownPolicy)
+{
+}
+
+
+/**
+ * @brief Sized constructor.
+ * @param n The size of the container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * Note that unlike the standard list constructor, you can't specify
+ * an initial value here.  The container will be initialized with 0's.
+ *
+ * By default, a @c DataList will own its elements.
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class DL>
+inline
+ConstDataList<DL>::ConstDataList
+  (size_type n,
+   SG::OwnershipPolicy ownPolicy /*= SG::OWN_ELEMENTS*/)
+  : DL (n, ownPolicy)
+{
+}
+
+
+/**
+ * @brief Constructor from iterators.
+ * @param first The start of the range to put in the new container.
+ * @param last The end of the range to put in the new container.
+ * @param ownPolicy The ownership mode for the container.
+ *
+ * By default, a @c DataList will own its elements (and take ownership
+ * of the pointers passed to this constructor).
+ * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+ */
+template <class DL>
+template <class InputIterator>
+inline
+ConstDataList<DL>::ConstDataList
+  (InputIterator first,
+   InputIterator last,
+   SG::OwnershipPolicy ownPolicy /*= SG::VIEW_ELEMENTS*/)
+  : DL (ownPolicy)
+{
+  while (first != last)
+    push_back (*first++);
+}
+
+
+/**
+ * @brief Assignment operator.
+ * @param rhs The DataList from which to assign.
+ * @return This object.
+ *
+ * This is a `shallow' copy; after the completion of this, the @c DataList
+ * will not own its elements.  Any elements it owned prior to this call
+ * will be released.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DL>
+inline
+ConstDataList<DL>&
+ConstDataList<DL>::operator= (const ConstDataList& rhs) 
+{
+  *static_cast<DL*>(this) = rhs;
+  return *this;
+}
+
+
+/**
+ * @brief Assign from iterators.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * Any existing owned elements will be released.
+ * The @c DataList's ownership policy determines whether it will take
+ * ownership of the new elements.
+ */
+template <class DL>
+template <class InputIterator>
+inline
+void ConstDataList<DL>::assign(InputIterator first, InputIterator last)
+{
+  clear();
+  while (first != last)
+    push_back (*first++);
+}
+
+
+//=== Element access.
+
+
+/**
+ * @brief Access the first element in the collection as an lvalue.
+ * @return Proxy to the first element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::ElementProxy
+ConstDataList<DL>::front ()
+{
+  return to_element_proxy (this->m_pCont.begin());
+}
+
+
+/**
+ * @brief Access the last element in the collection as an lvalue.
+ * @return Proxy to the last element in the collection.
+ *
+ * No checking is done to ensure that the container is not empty.
+ * Note that we return a proxy object rather than a reference;
+ * the proxy will handle deleting an owned element if it's assigned to.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::ElementProxy
+ConstDataList<DL>::back ()
+{
+  typename DL::BaseContainer::iterator it = this->m_pCont.end();
+  --it;
+  return to_element_proxy (it);
+}
+
+
+//=== Iterator creation.
+
+
+/**
+ * @brief Return an @c iterator pointing at the beginning
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::iterator
+ConstDataList<DL>::begin()
+{
+  return to_my_iterator (DL::begin());
+}
+
+
+/**
+ * @brief Return an @c iterator pointing past the end
+ *        of the collection.
+ * @return An @c iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::iterator
+ConstDataList<DL>::end()
+{
+  return to_my_iterator (DL::end());
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing past the end
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::reverse_iterator
+ConstDataList<DL>::rbegin()
+{
+  return reverse_iterator (to_my_iterator (DL::end()));
+}
+
+
+/**
+ * @brief Return a @c reverse_iterator pointing at the beginning
+ *        of the collection.
+ * @return A @c reverse_iterator.
+ *
+ * Note that dereferencing the iterator will yield a proxy rather
+ * than a reference; the proxy will handle deleting an owned element
+ * if it's assigned to.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::reverse_iterator
+ConstDataList<DL>::rend()
+{
+  return reverse_iterator (to_my_iterator (DL::begin()));
+}
+
+
+//=== Insertion operations.
+
+
+/**
+ * @brief Add an element at the beginning of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::push_front(value_type pElem)
+{
+  DL::push_front (const_cast<typename DL::value_type> (pElem));
+}
+
+
+/**
+ * @brief Add an element to the end of the collection.
+ * @param pElem The element to add to the collection.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::push_back(value_type pElem)
+{
+  DL::push_back (const_cast<typename DL::value_type> (pElem));
+}
+
+
+/**
+ * @brief Add a new element to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param pElem The element to add to the collection.
+ * @return An iterator that points to the inserted data.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::iterator
+ConstDataList<DL>::insert(iterator position, value_type pElem)
+{
+  return to_my_iterator
+    (DL::insert (to_base_iterator (position), 
+                 const_cast<typename DL::value_type> (pElem)));
+}
+
+
+/**
+ * @brief Add a group of new elements to the collection.
+ * @param position Iterator before which the element will be added.
+ * @param first The start of the range to put in the container.
+ * @param last The end of the range to put in the container.
+ *
+ * The container's ownership policy will determine if it takes ownership
+ * of the new element.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DL>
+template <class InputIterator>
+inline
+void
+ConstDataList<DL>::insert(iterator position, InputIterator first, InputIterator last)
+{
+  typename DL::iterator it = to_base_iterator (position);
+  while (first != last) {
+    DL::insert (it, const_cast<typename DL::value_type> (*first));
+    ++first;
+  }
+}
+
+
+//=== Erasure operations.
+
+
+/**
+ * @brief Remove element at a given position.
+ * @param position Iterator pointing to the element to be removed.
+ * @return An iterator pointing to the next element (or @c end()).
+ *
+ * If the container owns its elements, then the pointed-to element
+ * will be deleted.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::iterator
+ConstDataList<DL>::erase(iterator position)
+{
+  return to_my_iterator (DL::erase (to_base_iterator (position)));
+}
+
+/**
+ * @brief Remove a range of elements.
+ * @param first Iterator pointing to the first element to be removed.
+ * @param last Iterator pointing one past the last element to be removed.
+ * @return An iterator pointing to the element pointed to by @a last
+ *         prior to erasing (or @c end()).
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::iterator
+ConstDataList<DL>::erase(iterator first, iterator last)
+{
+  return to_my_iterator
+    (DL::erase (to_base_iterator (first),
+                to_base_iterator (last)));
+}
+
+
+//=== Swap and sort.
+
+
+/**
+ * @brief Swap this collection with another.
+ * @param rhs The collection with which to swap.
+ *
+ * Ownership is swapped along with the collection content.
+ *
+ * Note: this method may only be called using the most-derived
+ * @c DataList in the hierarchy.  The @a rhs must also be
+ * referenced using the most-derived @c DataList.
+ */
+template <class DL>
+inline
+void ConstDataList<DL>::swap(ConstDataList& rhs)
+{
+  DL::swap (rhs);
+}
+
+
+/**
+ * @brief Swap the referents of two @c DataVector iterators.
+ * @param a The first iterator for the swap.
+ * @param b The second iterator for the swap/
+ */
+template <class DL>
+inline
+void ConstDataList<DL>::iter_swap (iterator a, iterator b)
+{
+  DL::iter_swap (to_base_iterator (a),
+                 to_base_iterator (b));
+}
+
+
+//=== List operations.
+
+
+/**
+ *  @brief Insert contents of another list.
+ *  @param position Iterator referencing the element to insert before.
+ *  @param l  Source list.
+ *
+ *  The elements of @a l are inserted in constant time in front of
+ *  the element referenced by @a position.  @a l becomes an empty
+ *  list.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::splice( iterator position, ConstDataList& l )
+{
+  DL::splice (to_base_iterator (position), l);
+}
+
+
+/**
+ *  @brief  Remove all elements equal to value.
+ *  @param  value  The value to remove.
+ *
+ *  Removes every element in the list equal to @a value.
+ *  Remaining elements stay in list order.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::remove( const value_type& value )
+{
+  DL::remove (const_cast<typename DL::value_type> (value));
+}
+
+
+/**
+ *  @brief Insert element from another list.
+ *  @param position  Iterator referencing the element to insert before.
+ *  @param l  Source list.
+ *  @param i  Iterator referencing the element to move.
+ *
+ *  Removes the element in list @a l referenced by @a i and
+ *  inserts it into the current list before @a position.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::splice( iterator position, ConstDataList& l, iterator i )
+{
+  DL::splice (to_base_iterator(position), l, to_base_iterator(i));
+}
+
+
+/**
+ *  @brief  Insert range from another list.
+ *  @param  position  Iterator referencing the element to insert before.
+ *  @param  l  Source list.
+ *  @param  first  Iterator referencing the start of range in @a l.
+ *  @param  last  Iterator referencing the end of range in @a l.
+ *
+ *  Removes elements in the range [@a first, @a last ) and inserts them
+ *  before @a position in constant time.
+ *
+ *  Undefined if @a position is in [@a first, @a last ).
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::splice( iterator position,
+                           ConstDataList& l,
+                           iterator first,
+                           iterator last )
+{
+  DL::splice (to_base_iterator(position),
+              l,
+              to_base_iterator(first),
+              to_base_iterator(last));
+}
+
+
+/**
+ *  @brief  Merge sorted lists.
+ *  @param  l  Sorted list to merge.
+ *
+ *  Assumes that both @a l and this list are sorted according to
+ *  operator<().  Merges elements of @a l into this list in
+ *  sorted order, leaving @a l empty when complete.  Elements in
+ *  this list precede elements in @a l that are equal.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::merge( ConstDataList& l )
+{
+  DL::merge (l);
+}
+
+
+/**
+ *  @brief  Merge sorted lists according to comparison function.
+ *  @param  l  Sorted list to merge.
+ *  @param predicate Comparison function defining a sort order (which
+ *  must be strictly weak ordering).
+ *
+ *  Assumes that both @a l and this @c DataList are sorted according to
+ *  COMPARE predicate.  Merges elements of @a l into this list
+ *  in sorted order, leaving @a l empty when complete.  Elements
+ *  in this list precede elements in @a x that are equivalent
+ *  according to StrictWeakOrdering().
+ */
+template <class DL>
+template<typename COMPARE>
+inline
+void
+ConstDataList<DL>::merge( ConstDataList& l, COMPARE predicate )
+{
+  DL::merge (l, predicate);
+}
+
+
+//=== Non-standard operations.
+
+
+/**
+ * @brief Swap one element out of the container.
+ * @param pos The element in the container to swap.
+ * @param newElem New element to put in the container.
+ *                May be 0.
+ * @param oldElem Reference to receive the element removed from the
+ *                container.
+ *
+ * Reference @a oldElem is initialized with element @a pos of the
+ * collection (no bounds checking).  Then element @a index is set
+ * to @c newElem.  If the collection owns its elements, then it will
+ * take ownership of @a newElem and release (without deleting)
+ * the element returned through @a oldElem.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataList in the hierarchy.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::swapElement (iterator pos,
+                                value_type newElem,
+                                reference oldElem)
+{
+  DL::swapElement (to_base_iterator(pos),
+                   const_cast<typename DL::value_type>(newElem), 
+                   const_cast<typename DL::reference>(oldElem));
+}
+
+
+/**
+ * @brief Return a pointer to this object, as a const @c DataVector.
+ */
+template <class DL>
+inline
+const DL*
+ConstDataList<DL>::asDataList() const
+{
+  return static_cast<const DL*>(this);
+}
+
+
+/**
+ * @brief Reset indices / reorder aux data after elements have been permuted.
+ * @param beg Start of the range of elements to process.
+ * @param end End of the range of elements to process.
+ *
+ * This is a no-op for @c ConstDataList.
+ */
+template <class DL>
+inline
+void ConstDataList<DL>::resortAux (iterator /*beg*/, iterator /*end*/)
+{
+}
+
+
+//=== Relational operators.
+
+
+/**
+ * @brief  List ordering relation.
+ * @param  a  A @c ConstDataList.
+ * @param  b  A @c ConstDataList of the same type as @a x.
+ * @return  True iff @a x is lexicographically less than @a y.
+ *
+ * This is a total ordering relation.  It is linear in the size of the
+ * lists.  Comparisons are done on the pointer values of the elements.
+ *
+ * See @c std::lexicographical_compare() for how the determination is made.
+ */
+template <class DL>
+inline
+bool ConstDataList<DL>::operator< (const ConstDataList& b) const
+{
+  return static_cast<const DL&>(*this) < static_cast<const DL&>(b);
+}
+
+
+/// Based on operator<
+template <class DL>
+inline
+bool ConstDataList<DL>::operator> (const ConstDataList& b) const
+{
+  return static_cast<const DL&>(*this) > static_cast<const DL&>(b);
+}
+
+
+/// Based on operator<
+template <class DL>
+inline
+bool ConstDataList<DL>::operator<= (const ConstDataList& b) const
+{
+  return static_cast<const DL&>(*this) <= static_cast<const DL&>(b);
+}
+
+
+/// Based on operator<
+template <class DL>
+inline
+bool ConstDataList<DL>::operator>= (const ConstDataList& b) const
+{
+  return static_cast<const DL&>(*this) >= static_cast<const DL&>(b);
+}
+
+
+/**
+ * @brief  List equality comparison.
+ * @param  a  A @c ConstDataList.
+ * @param  b  A @c ConstDataList of the same type as @a x.
+ * @return  True iff the size and elements of the lists are equal.
+ *
+ * This is an equivalence relation.  It is linear in the size of the
+ * lists.  Lists are considered equivalent if their sizes are equal,
+ * and if corresponding elements compare equal.
+ */
+template <class DL>
+inline
+bool ConstDataList<DL>::operator== (const ConstDataList& b) const
+{
+  return static_cast<const DL&>(*this) == static_cast<const DL&>(b);
+}
+
+
+/// Based on operator==
+template <class DL>
+inline
+bool ConstDataList<DL>::operator!= (const ConstDataList& b) const
+{
+  return static_cast<const DL&>(*this) != static_cast<const DL&>(b);
+}
+
+
+//=== Private helpers.
+
+
+/**
+ * @brief Handle element assignment.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::assignElement (typename BaseContainer::iterator pos,
+                                  value_type newElem)
+{
+  DL::assignElement (pos, const_cast<typename DL::value_type> (newElem));
+}
+
+
+/**
+ * @brief Handle element assignment from a base pointer.
+ * @param pos Position in the container to assign.
+ * @param newElem The new element to assign.
+ *
+ * The old element is freed if this container owns elements.
+ * Auxiliary data are copied if appropriate.
+ */
+template <class DL>
+inline
+void
+ConstDataList<DL>::assignBaseElement (typename BaseContainer::iterator pos,
+                                      typename BaseContainer::value_type newElem)
+{
+  DL::assignBaseElement (pos, newElem);
+}
+
+
+/**
+ * @brief Convert a @c ConstDataVector::iterator to an iterator
+ *        of the base @c DataVector.
+ * @param it The @c ConstDataVector::iterator to convert.
+ */
+template <class DL>
+inline
+typename DL::iterator
+ConstDataList<DL>::to_base_iterator (iterator it)
+{
+  return typename DL::iterator (it.base(), it.container());
+}
+
+
+/**
+ * @brief Convert an iterator of the base @c DataList to
+ *        a @c ConstDataList::iterator.
+ * @param it The base @c DataList iterator to convert.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::iterator
+ConstDataList<DL>::to_my_iterator (typename DL::iterator it)
+{
+  return iterator (it.base(), this);
+}
+
+
+/**
+ * @brief Convert an iterator of the base @c vector
+ *        an @c ElementProxy for the @c ConstDataVector.
+ * @param it The base @c vector iterator to convert.
+ */
+template <class DL>
+inline
+typename ConstDataList<DL>::ElementProxy
+ConstDataList<DL>::to_element_proxy (typename BaseContainer::iterator i)
+{
+  return ElementProxy (i, this);
+}
+
+
+/// Out-of-line functions.
+
+
+/// See <code>DataList<T, BASE>::swap()</code>.
+template <class T>
+inline
+void swap( ConstDataList<T>& a, ConstDataList<T>& b )
+{
+  a.swap(b);
+}
+
+
+//=== Other helper classes.
+
+
+/**
+ * @brief Constructor from a payload object.
+ * @param data Object to hold in the bucket.
+ */
+namespace SG {
+template <class DL>
+DVLConstDataListBucket<DL>::DVLConstDataListBucket
+  (ConstDataList<DL>* data)
+  : DVLDataBucket<DL> (const_cast<DL*> (data->asDataList()))
+{
+}
+
+
+#if __cplusplus > 201100
+/**
+ * @brief Constructor from a payload object.
+ * @param data Object to hold in the bucket.
+ */
+template <class DL>
+DVLConstDataListBucket<DL>::DVLConstDataListBucket
+  (std::unique_ptr<ConstDataList<DL> > data)
+  : DVLDataBucket<DL> (std::unique_ptr<DL> (const_cast<DL*> (data.release()->asDataList())))
+{
+}
+#endif
+
+
+} // namespace SG

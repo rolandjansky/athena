@@ -17,11 +17,12 @@
 #include <limits>
 
 PhysicsListToolBase::PhysicsListToolBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent)
+  : AthAlgTool(type,name,parent)
   , m_phys_option(this)
   , m_phys_decay(this)
   , m_physicsList(nullptr)
 {
+  declareInterface<IPhysicsListTool>(this);
   declareProperty("PhysicsList"     , m_physicsListName = "FTFP_BERT", "Name for physics list");
   declareProperty("NeutronTimeCut"  , m_neutronTimeCut = 0,            "Time cut for neutron killer");
   declareProperty("NeutronEnergyCut", m_neutronEnergyCut = 0,          "Energy cut for neutron killer");

@@ -122,8 +122,6 @@ simFlags.MagneticField.set_On()
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 # SGInputLoader is a module in SGComps that will do a typeless StoreGate read
 # of data on disk, to preload it in the Whiteboard for other Alorithms to use.
 # It uses the same syntax as Algorithmic dependency declarations.
@@ -135,9 +133,10 @@ topSeq.SGInputLoader.Load = [('McEventCollection','StoreGateSvc+GEN_EVENT')]
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
-## Add the G4 sim to the alg sequence
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+# Add the (python) G4 simulation service.
+# This will kickstart a lot of simulation setup.
+from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
+svcMgr += PyG4AtlasSvc()
 
 # Explicitly specify the data-flow dependencies of G4AtlasAlg and StreamHITS.
 # This is done like this because currently our VarHandles do not live in the

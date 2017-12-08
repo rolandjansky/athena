@@ -1,0 +1,39 @@
+package InDetV0Finder
+
+author Evelina Bouhova-Thacker <e.bouhova@cern.ch>
+
+# general athena dependecies
+use AthenaBaseComps    AthenaBaseComps-*    Control
+use AtlasPolicy        AtlasPolicy-*
+use GaudiInterface     GaudiInterface-*    External
+use HepPDT             v*                  LCG_Interfaces
+use DataModel          DataModel-*         Control
+
+use InDetConversionFinderTools  InDetConversionFinderTools-* InnerDetector/InDetRecTools
+use ITrackToVertex              ITrackToVertex-*             Reconstruction/RecoTools
+
+private
+use AtlasCLHEP         AtlasCLHEP-*        External
+
+use TrkExInterfaces         TrkExInterfaces-*        Tracking/TrkExtrapolation
+use TrkToolInterfaces       TrkToolInterfaces-*      Tracking/TrkTools
+use AtlasROOT               AtlasROOT-*              External
+use xAODTracking            xAODTracking-*           Event/xAOD
+use InDetBeamSpotService    InDetBeamSpotService-*   InnerDetector/InDetConditions
+
+# dependencies on other vertexing packages
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
+use TrkV0Fitter               TrkV0Fitter-*                Tracking/TrkVertexFitter
+use TrkVKalVrtFitter          TrkVKalVrtFitter-*           Tracking/TrkVertexFitter
+use TrkVertexAnalysisUtils    TrkVertexAnalysisUtils-*     Tracking/TrkVertexFitter
+
+
+public
+library InDetV0Finder *.cxx components/*.cxx
+apply_pattern component_library
+# apply_pattern dual_use_library files="*.cxx"
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

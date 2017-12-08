@@ -1,0 +1,36 @@
+package Rivet_i
+  
+author James Monk <jmonk@cern.ch>
+author Andy Buckley <andy.buckley@cern.ch>
+
+use AtlasPolicy       AtlasPolicy-*
+use GaudiInterface    GaudiInterface-*    External
+use AthenaBaseComps   AthenaBaseComps-*   Control
+use Rivet             Rivet-*             External
+   
+private
+use GeneratorObjects  GeneratorObjects-*  Generators
+use AthenaKernel      AthenaKernel-*      Control
+use AtlasHepMC        AtlasHepMC-*        External
+use AtlasBoost        AtlasBoost-*        External
+use AtlasROOT         AtlasROOT-*         External
+use YODA              YODA-*              External
+use PathResolver      PathResolver-*      Tools
+use AtlasFastJet      AtlasFastJet-*      External
+end_private
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix)"
+
+private
+macro_append fflags "" Linux ""
+end_private
+
+private
+apply_tag notAsNeeded
+end_private
+
+## Athena stuff
+apply_pattern named_dual_use_library library="Rivet_i" files="*.cxx"
+apply_pattern declare_joboptions files="*.py"
+

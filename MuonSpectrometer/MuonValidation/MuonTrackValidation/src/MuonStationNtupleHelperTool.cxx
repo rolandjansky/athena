@@ -19,7 +19,6 @@ Muon::MuonStationNtupleHelperTool::MuonStationNtupleHelperTool(const std::string
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_muonIdHelperTool("Muon::MuonIdHelperTool"),
   m_mdtSectorIx(0),
   m_mdtStationIx(0),
   m_rpcSectorIx(0),

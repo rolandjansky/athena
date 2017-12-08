@@ -2,7 +2,7 @@
 # Current date and time is 2013-09-24 14:14:37.154312
 #
 # These unique identifiers were extracted from:
-# root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data
+# root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data
 #
 svcMgr.ROBDataProviderSvc.RobRosMapping = {
 #

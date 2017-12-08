@@ -1,0 +1,26 @@
+package JetSubStructureUtils
+
+author Miles Wu
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  xAODJet                    xAODJet-*                       Event/xAOD
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  JetEDM                     JetEDM-*                        Reconstruction/Jet
+use  AtlasFastJet               AtlasFastJet-*                  External
+use  AtlasFastJetContrib        AtlasFastJetContrib-*           External
+use	 AtlasShowerDeconstruction	AtlasShowerDeconstruction-*			External
+use  MuonSelectorTools          MuonSelectorTools-*             PhysicsAnalysis/MuonID
+
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  PathResolver               PathResolver-*                  Tools
+end_private
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix RooFit)"
+
+library JetSubStructureUtils ../Root/*.cxx
+apply_pattern installed_library
+# Specify the pattern for JetSubStructureUtils/data/*.config files to be accessed via JetSubStructureUtils/data/someFile.config
+apply_pattern declare_calib files="-s=../data *.*"

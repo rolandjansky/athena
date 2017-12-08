@@ -1,0 +1,41 @@
+package JetSelectorTools
+
+author Karsten Koeneke <karsten.koeneke@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy                 AtlasPolicy-*
+
+use AtlasPyROOT                 AtlasPyROOT-*           External
+use AtlasROOT                   AtlasROOT-*             External
+use AsgTools                    AsgTools-*              Control/AthToolSupport
+use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
+use xAODJet                     xAODJet-*               Event/xAOD
+use JetInterface                JetInterface-*          Reconstruction/Jet
+
+private
+use GaudiInterface              GaudiInterface-*        External
+end_private
+
+## declare the directories CMT should know about
+branches JetSelectorTools python share src Root
+
+# Create a named installed library
+library JetSelectorToolsLib *.cxx ../Root/*.cxx
+apply_pattern named_installed_library library=JetSelectorToolsLib
+
+## create a component library
+library JetSelectorTools *.cxx components/*.cxx
+macro_append JetSelectorTools_dependencies " JetSelectorToolsLib"
+apply_pattern component_library
+
+## install our python modules
+apply_pattern declare_python_modules files="*.py"
+
+## install our job options files
+apply_pattern declare_joboptions files="*.py"
+
+# Generate dictionaries
+private
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=JetSelectorTools selectionfile=selection.xml headerfiles="../JetSelectorTools/JetSelectorToolsDict.h"
+

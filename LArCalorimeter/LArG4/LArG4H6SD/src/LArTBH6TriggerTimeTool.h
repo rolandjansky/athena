@@ -12,7 +12,8 @@
 #include "StoreGate/ReadHandle.h"
 #include "LArSimEvent/LArHitContainer.h"
 
-class LArTBH6TriggerTimeTool : public extends<AthAlgTool, ITriggerTime, IIncidentListener>
+class LArTBH6TriggerTimeTool :public ITriggerTime, public AthAlgTool,
+virtual public IIncidentListener
 {
 
 public:

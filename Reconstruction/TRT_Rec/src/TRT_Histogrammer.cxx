@@ -35,14 +35,9 @@ TRT_Histogrammer::TRT_Histogrammer(const std::string&	type,
         m_wbin0				(0.0010),	// basic bin width in deltaPhi (1 mrad)
         m_wbinPt			(0.3),          // low pt bin width increase term
 	m_fit				(0),
-	m_hMaxPt			(0),
-	m_iCorrMax			(0),
-	m_inversePt			(0.),
 	m_numLayers			(0),
 	m_numTrHits			(0),
-	m_pBelowMuonTrThreshold		(true),
-	m_roadData			(nullptr),
-	m_scaleFactor			(0.)
+	m_pBelowMuonTrThreshold		(true)
 {
     declareInterface<ITRT_Histogrammer>(this);
     declareProperty("muonTrThreshold",		m_muonTrThreshold);

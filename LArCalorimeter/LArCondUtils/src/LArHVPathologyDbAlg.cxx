@@ -52,7 +52,6 @@ LArHVPathologyDbAlg::LArHVPathologyDbAlg(const std::string& name, ISvcLocator* p
   , m_regSvc("IOVRegistrationSvc",name)
   , m_pathologyTool("LArHVPathologyDbTool")
   , m_mode(0)
-  , m_cablingService("LArCablingService")
   , m_larem_id(0)
   , m_larhec_id(0)
   , m_larfcal_id(0)

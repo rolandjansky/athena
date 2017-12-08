@@ -498,6 +498,9 @@ Splitter7            INFO in finalize()
 Splitter48           INFO in finalize()
 Triggered            INFO in finalize()
 DefaultCollMeta     DEBUG In finalize 
+Splitter1           DEBUG Calling destructor
+Splitter3           DEBUG Calling destructor
+DefaultCollMeta     DEBUG Calling destructor
 ItemListSvc         DEBUG STREAM Bad has (1) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
 ItemListSvc         DEBUG STREAM Others has (4) items
@@ -520,4 +523,4 @@ ItemListSvc         DEBUG    - EventStreamInfo_Stream3
 ItemListSvc         DEBUG  --> Overlap with Others (3) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (4) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (4) items
-name: "SplittableCollection.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 13  ptr: 0x11e90080  [o] [u]
+name: "SplittableCollection.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 13  ptr: 0x14ddad80  [o] [u]

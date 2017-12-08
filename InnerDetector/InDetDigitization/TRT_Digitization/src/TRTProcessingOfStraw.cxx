@@ -286,12 +286,12 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
                                           hitCollConstIter e,
 					  TRTDigit& outdigit,
-                                          bool & alreadyPrintedPDGcodeWarning,
-                                          double cosmicEventPhase, // const ComTime* m_ComTime,
+                                          bool & m_alreadyPrintedPDGcodeWarning,
+                                          double m_cosmicEventPhase, // const ComTime* m_ComTime,
                                           int strawGasType,
 					  bool emulationArflag,
 					  bool emulationKrflag,
-                                          unsigned short & particleFlag )
+                                          unsigned short & m_particleFlag )
 {
 
   //////////////////////////////////////////////////////////
@@ -370,11 +370,11 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 
           const double energyDeposit = (*theHit)->GetEnergyDeposit(); // keV (see comment below)
 
-          // particleFlag
+          // m_particleFlag
           if (energyDeposit<30.0) {
-            particleFlagSetBit(1, particleFlag); // mostly TR
+            particleFlagSetBit(1, m_particleFlag); // mostly TR
           } else {
-            particleFlagSetBit(2, particleFlag); // mostly brem.
+            particleFlagSetBit(2, m_particleFlag); // mostly brem.
           }
 
           // Apply radiator efficiency "fudge factor" to ignore some TR photons (assuming they are over produced in the sim. step.
@@ -436,36 +436,36 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
                  (static_cast<int>(abs(particleEncoding)/100000) == 100) &&
                  (static_cast<int>((abs(particleEncoding))-10000000)/100>10)) )
         {
-          particleFlagSetBit(15, particleFlag); // HIP
+          particleFlagSetBit(15, m_particleFlag); // HIP
 	  m_clusterlist.push_back(
              cluster((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
              );
         }
       else { // It's not a photon, monopole or Qball with charge > 10, so we proceed with regular ionization using the PAI model
 
-          // particleFlag for charged particles
+          // m_particleFlag for charged particles
           if (abs(particleEncoding)==11) {
-            if (particleEncoding== 11) particleFlagSetBit(3, particleFlag); // any electron
-            if (particleEncoding==-11) particleFlagSetBit(4, particleFlag); // any positron
-            if (particleEncoding== 11 && (*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV ) particleFlagSetBit(5, particleFlag); // hard electron
-            if (particleEncoding==-11 && (*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV ) particleFlagSetBit(6, particleFlag); // hard positron
+            if (particleEncoding== 11) particleFlagSetBit(3, m_particleFlag); // any electron
+            if (particleEncoding==-11) particleFlagSetBit(4, m_particleFlag); // any positron
+            if (particleEncoding== 11 && (*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV ) particleFlagSetBit(5, m_particleFlag); // hard electron
+            if (particleEncoding==-11 && (*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV ) particleFlagSetBit(6, m_particleFlag); // hard positron
            }
           else if (abs(particleEncoding)==13) {
-              particleFlagSetBit(7, particleFlag); // muon
-              if ((*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV) particleFlagSetBit(8, particleFlag); // hard muon
+              particleFlagSetBit(7, m_particleFlag); // muon
+              if ((*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV) particleFlagSetBit(8, m_particleFlag); // hard muon
             }
           else if (abs(particleEncoding)==211)  {
-              particleFlagSetBit( 9, particleFlag); // pion
-              if ((*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV) particleFlagSetBit(10, particleFlag); // hard pion
+              particleFlagSetBit( 9, m_particleFlag); // pion
+              if ((*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV) particleFlagSetBit(10, m_particleFlag); // hard pion
             }
           else if (abs(particleEncoding)==321)  {
-              particleFlagSetBit(11, particleFlag); // kaon
+              particleFlagSetBit(11, m_particleFlag); // kaon
             }
           else if (abs(particleEncoding)==2212) {
-              particleFlagSetBit(12, particleFlag); // proton
+              particleFlagSetBit(12, m_particleFlag); // proton
             }
           else {
-              particleFlagSetBit(13, particleFlag); // other charged particle
+              particleFlagSetBit(13, m_particleFlag); // other charged particle
             }
 
 	  // Lookup mass and charge from the PDG info in CLHEP HepPDT:
@@ -511,13 +511,13 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 		  particleCharge = (particleEncoding>0 ? 1. : -1.) * static_cast<double>(Z);
 		  particleMass = fabs( Z*Mp+(A-Z)*Mn );
 
-		  if (!alreadyPrintedPDGcodeWarning)
+		  if (!m_alreadyPrintedPDGcodeWarning)
 		    {
 		      ATH_MSG_WARNING ( "Data for sim. particle with pdgcode "<<particleEncoding
                                       <<" could not be retrieved from PartPropSvc (unexpected ion)."
                                       <<" Calculating mass and charge from pdg code. "
                                       <<" The result is: Charge = "<<particleCharge<<" Mass = "<<particleMass<<"MeV" );
-		      alreadyPrintedPDGcodeWarning = true;
+		      m_alreadyPrintedPDGcodeWarning = true;
 		    }
 		}
 	    }
@@ -564,7 +564,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 
   m_depositList.clear();
   // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, strawGasType );
-  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType );
+  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_cosmicEventPhase, strawGasType );
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -604,7 +604,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 					       const std::vector<cluster>& clusters,
 					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 					       Amg::Vector3D TRThitGlobalPos,
-					       double cosmicEventPhase, // was const ComTime* m_ComTime,
+					       double m_cosmicEventPhase, // was const ComTime* m_ComTime,
                                                int strawGasType)
 {
 
@@ -764,7 +764,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       if ( m_settings->doCosmicTimingPit() )
         { // make (x,y) dependent? i.e: + f(x,y).
           // clusterTime = clusterTime - m_time_y_eq_zero + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
-          clusterTime = clusterTime + cosmicEventPhase + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
+          clusterTime = clusterTime + m_cosmicEventPhase + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
           // yes it is a '+' now. Ask Alex Alonso.
         }
 
@@ -868,7 +868,7 @@ Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedH
 
 //________________________________________________________________________________
 /*
- particleFlag in an unsigned short that can be set to record
+ m_particleFlag in an unsigned short that can be set to record
  the presence of up to 16 different G4hit particle types/energies.
  This can be queried in the TRTDigitizationTool class for
  studies at the Digitization level. e.g. HIP and PID studies.

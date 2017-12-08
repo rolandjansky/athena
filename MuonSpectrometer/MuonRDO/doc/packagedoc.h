@@ -8,7 +8,7 @@
 
 This package contains the Muon 'Raw Data Objects' or RDOs. These are the objects representing the Muon bytestream
 
-There are four raw objects, representing the six Muon technologies. There are containers.
+There are four raw objects, representing the four Muon technologies. There are containers.
 At the top we have four IdentifiableContainers:
     - CscRawDataContainer
     - MdtCsmContainer
@@ -28,8 +28,6 @@ Finally, there are the raw data objects:
     - MdtAmtHit
     - RpcCoinMatrix
     - TgcRawData
-    - sTGC_RawData
-    - MM_RawData
 
 @author Ketevi A. Assamagan <ketevi@bnl.gov>
 @author Edward.Moyse@cern.ch

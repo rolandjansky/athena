@@ -652,19 +652,24 @@ LArConditionsContainer<T>::applyCorrections()
 
     m_correctionsApplied = true;
     
-    std::deque<const Subset*> subsetsWithCorrections;
+    std::deque<Subset*> subsetsWithCorrections;
 
     //Loop over all underlying subsets
-    for (const Subset* subset : static_cast<MultChanCollection&>(*this)) {
-      if (subset->correctionVecSize()>0) { //Have corrections
-	if (subset->nConditions()==0) //Have only corrections -> apply at the end
-	  subsetsWithCorrections.push_back(subset);
+    typename MultChanCollection::const_iterator its=MultChanCollection::begin();
+    typename MultChanCollection::const_iterator its_e=MultChanCollection::end();
+    for(;its!=its_e;++its) {
+      if ((*its)->correctionVecSize()>0) { //Have corrections
+	if ((*its)->nConditions()==0) //Have only corrections -> apply at the end
+	  subsetsWithCorrections.push_back(*its);
 	else //Corrections in regular subsets are applied first
-	  subsetsWithCorrections.push_front(subset);
+	  subsetsWithCorrections.push_front(*its);
       }
     }
 
-    for (const Subset* subset : subsetsWithCorrections) {
+    typename std::deque<Subset*>::const_iterator it=subsetsWithCorrections.begin();
+    typename std::deque<Subset*>::const_iterator it_e=subsetsWithCorrections.end();
+    for (;it!=it_e;++it) {
+      Subset* subset=*it;
       const int gain=subset->gain();
       //std::cout << "Applying Corrections found in channel " << subset->channel() << std::endl;
       GainMapIterator mapIt  = m_cached.find(gain);

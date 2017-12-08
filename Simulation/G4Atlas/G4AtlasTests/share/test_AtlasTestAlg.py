@@ -38,10 +38,8 @@ job += pg
 
 include("G4AtlasApps/fragment.SimCopyWeights.py")
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
-from AthenaCommon.CfgGetter import getAlgorithm
-job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+job += PyG4AtlasAlg()
 from G4AtlasTests.G4AtlasTestsConf import AtlasTestAlg
 job += AtlasTestAlg()
 

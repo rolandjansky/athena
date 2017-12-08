@@ -50,9 +50,9 @@ void TestFCalIdentifiers(TString sampling="Sampling_0"){
   
   
   
-  //TFile *inputFile = TFile::Open("root://eosatlas.cern.ch//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
+  //TFile *inputFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
   
-  //  TFile *inputFile = TFile::Open("root://eosatlas.cern.ch//eos/atlas/user/z/zhubacek/FastCaloSim/NTUP_110216/ISF_HitAnalysis_Zach1_merged.root");
+  //  TFile *inputFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/NTUP_110216/ISF_HitAnalysis_Zach1_merged.root");
 	
 	TFile *inputFile = TFile::Open("/eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2864_r7736.w0_162706_matched_output.root/user.fladias.8834798._000001.matched_output.root");
 	//TFile *inputFile = TFile::Open("/eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2865_r7736.w0_162706_matched_output.root");

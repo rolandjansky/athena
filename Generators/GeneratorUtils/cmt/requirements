@@ -1,0 +1,15 @@
+package GeneratorUtils
+
+author Andy Buckley
+author Ian Hinchliffe
+author Siva Subramania
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasBoost          AtlasBoost-*          External
+
+apply_pattern declare_joboptions files="*.py"
+
+private
+use TestTools      TestTools-*         AtlasTest
+apply_pattern UnitTest_run unit_test=StringParse
+end_private

@@ -12,8 +12,7 @@
 #ifndef MCPARTICLEALGS_MCAODFILTER_H 
 #define MCPARTICLEALGS_MCAODFILTER_H 
 
-/** \class McAodFilter
- *  This is an Algorithm which exercises the use of 
+/** \class McAodFilter is an Algorithm which exercises the use of 
  *  McVtxFilterTool and TruthParticleCnvTool.
  *  It does more or less the same job of SpclMCAodBuilder but has a slightly 
  *  different philosophy : where SpclMCAodBuilder takes a new McEventCollection

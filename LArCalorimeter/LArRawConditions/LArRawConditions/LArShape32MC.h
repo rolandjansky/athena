@@ -8,7 +8,6 @@
 #include "LArElecCalib/ILArShape.h" 
 #include "LArRawConditions/LArShapeP1.h"
 #include "LArRawConditions/LArConditionsContainer.h"
-#include "AthenaKernel/BaseInfo.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
@@ -63,5 +62,4 @@ class LArShape32MC: public ILArShape,
 
 
 CLASS_DEF( LArShape32MC,107446859,1)
-SG_BASE(LArShape32MC, ILArShape);
 #endif 

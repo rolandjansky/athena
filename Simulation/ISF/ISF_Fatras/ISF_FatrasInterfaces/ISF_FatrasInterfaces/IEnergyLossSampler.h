@@ -28,6 +28,9 @@ namespace Trk {
 
 namespace iFatras {
 
+  /** Interface ID for IEnergyLossSampler*/  
+  static const InterfaceID IID_IEnergyLossSampler("IEnergyLossSampler", 1, 0);
+  
   /**@class IEnergyLossSampler
      
      Interface class IEnergyLossSampler
@@ -41,8 +44,8 @@ namespace iFatras {
     /**Virtual destructor*/
     virtual ~IEnergyLossSampler(){}
     
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IEnergyLossSampler, 1, 0);
+    /** AlgTool and IAlgTool interface methods */
+    static const InterfaceID& interfaceID() { return IID_IEnergyLossSampler; }
     
     /** dEdX calculation when providing MaterialProperties,
 	a momentum, and a ParicleHypothesis. 

@@ -58,7 +58,7 @@ bool DerivationFramework::SkimmingToolExample::eventPassesFilter() const
      StatusCode sc = evtStore()->retrieve(muons,m_muonSGKey);	
      if (sc.isFailure()) {
 	ATH_MSG_FATAL("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
-	return false;
+	return StatusCode::FAILURE;
      } 
      
      // Loop over muons, count up and set decision

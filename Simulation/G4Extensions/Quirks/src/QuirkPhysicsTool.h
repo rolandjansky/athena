@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date   15-05-2015
  */
-class QuirksPhysicsTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>  {
+class QuirksPhysicsTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool  {
 public:
   /// Standard constructor
   QuirksPhysicsTool( const std::string& type , const std::string& name,

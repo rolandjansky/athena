@@ -1,0 +1,17 @@
+package BCM_ZeroSuppression
+author B. Demirkoz <demirkoz@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
+# BCM Raw data 
+use InDetBCM_RawData    InDetBCM_RawData-*     InnerDetector/InDetRawEvent
+
+library BCM_ZeroSuppression *.cxx -s=components *.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+
+
+

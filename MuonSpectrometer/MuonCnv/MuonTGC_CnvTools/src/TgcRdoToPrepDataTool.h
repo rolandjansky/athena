@@ -383,8 +383,8 @@ namespace Muon
       /** Flag to distinguish 12-fold cabling and 8-fold cabling */
       bool m_is12fold;
 
-      SG::ReadHandleKey<TgcRdoContainer> m_rdoContainerKey;//"TGCRDO"
 
+      SG::ReadHandle<TgcRdoContainer> m_rdoContainer;//"TGCRDO"
       SG::WriteHandleKeyArray<Muon::TgcCoinDataContainer> m_outputCoinKeys;
       SG::WriteHandleKeyArray<TgcPrepDataContainer> m_outputprepdataKeys;
 

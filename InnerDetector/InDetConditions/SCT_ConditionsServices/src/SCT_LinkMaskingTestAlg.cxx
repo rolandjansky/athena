@@ -12,32 +12,38 @@
  **/
 
 #include "SCT_LinkMaskingTestAlg.h"
+#include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 
 //Athena includes
 #include "Identifier/Identifier.h"
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 
-SCT_LinkMaskingTestAlg::SCT_LinkMaskingTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator),
-  m_linkMaskingSvc("SCT_LinkMaskingSvc", name) {
-  declareProperty("LinkMaskingSvc", m_linkMaskingSvc);
+//local includes
+#include "SCT_LinkMaskingSvc.h"
+
+SCT_LinkMaskingTestAlg::SCT_LinkMaskingTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
+  AthAlgorithm( name, pSvcLocator ),
+  m_linkMaskingSvc("SCT_LinkMaskingSvc", name)
+{
+  declareProperty("LinkMaskingSvc",                   m_linkMaskingSvc);
 }
 
-SCT_LinkMaskingTestAlg::~SCT_LinkMaskingTestAlg() { 
-  ATH_MSG_INFO("Calling destructor");
+SCT_LinkMaskingTestAlg::~SCT_LinkMaskingTestAlg()
+{ 
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
-StatusCode SCT_LinkMaskingTestAlg::initialize() {
-  ATH_MSG_INFO("Calling initialize");
+StatusCode SCT_LinkMaskingTestAlg::initialize(){
+  StatusCode sc(StatusCode::SUCCESS);
+  msg(MSG::INFO)<< "Calling initialize" << endmsg;
   
   // Retrieve link masking service
   if (m_linkMaskingSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve the link masking service");
+    msg(MSG::ERROR)<<"Could not retrieve the link masking service"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -45,18 +51,18 @@ StatusCode SCT_LinkMaskingTestAlg::initialize() {
 }
 
 //Execute
-StatusCode SCT_LinkMaskingTestAlg::execute() {
+StatusCode SCT_LinkMaskingTestAlg::execute(){
 
-  ATH_MSG_INFO("Wafer 167772160 is " << (m_linkMaskingSvc->isGood(Identifier{167772160}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167773184 is " << (m_linkMaskingSvc->isGood(Identifier{167773184}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167786496 is " << (m_linkMaskingSvc->isGood(Identifier{167786496}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167787520 is " << (m_linkMaskingSvc->isGood(Identifier{167787520}) ? "not masked" : "masked"));
+  msg(MSG::INFO) << "Wafer 167786496 is " << (m_linkMaskingSvc->isGood(Identifier(167786496)) ? "not masked":"masked") << endmsg;
+  msg(MSG::INFO) << "Wafer 167787520 is " << (m_linkMaskingSvc->isGood(Identifier(167787520)) ? "not masked":"masked") << endmsg;
 
   return StatusCode::SUCCESS;
 }
 
+
 //Finalize
-StatusCode SCT_LinkMaskingTestAlg::finalize() {
-  ATH_MSG_INFO("Calling finalize");
-  return StatusCode::SUCCESS;
+StatusCode SCT_LinkMaskingTestAlg::finalize(){
+  StatusCode sc(StatusCode::SUCCESS);
+  msg(MSG::INFO)<< "Calling finalize" << endmsg;
+  return sc;
 }

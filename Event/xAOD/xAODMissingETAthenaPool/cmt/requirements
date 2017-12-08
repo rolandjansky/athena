@@ -1,0 +1,40 @@
+package xAODMissingETAthenaPool
+
+author Peter Loch <loch_AT_physics.arizona.edu>
+author Teng Jian Khoo <Teng.Jian.Khoo@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+use GaudiInterface      GaudiInterface-*      External
+use AthenaKernel	AthenaKernel-*	      Control
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+
+# EDM package(s):
+use xAODMissingET       xAODMissingET-*       Event/xAOD
+use AthContainers	AthContainers-*	      Control
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::MissingETContainer \
+                                          xAOD::MissingETAuxContainer \
+                                          xAOD::MissingETComponentMap \
+                                          xAOD::MissingETAuxComponentMap \
+                                          xAOD::MissingETAssociationMap \
+                                          xAOD::MissingETAuxAssociationMap" \
+                      files="-s=${xAODMissingET_root}/xAODMissingET \
+                             MissingETContainer.h \
+                             MissingETAuxContainer.h \
+                             MissingETComponentMap.h \
+                             MissingETAuxComponentMap.h \
+                             MissingETAssociationMap.h \
+                             MissingETAuxAssociationMap.h" \
+                      cnv_pfx="xAOD"

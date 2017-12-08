@@ -82,8 +82,8 @@ void LArGeo::LArDetectorConstructionTBEC::getSimulationParameters()
   m_eta_cell = 12;
   m_phi_cell = 16;
 
-  StoreGateSvc* detStore = nullptr;
-  const LArGeoTBGeometricOptions  *largeotbgeometricoptions = nullptr;
+  StoreGateSvc* detStore;
+  const LArGeoTBGeometricOptions  *largeotbgeometricoptions;
   
   StatusCode status;
   ISvcLocator* svcLocator = Gaudi::svcLocator(); 

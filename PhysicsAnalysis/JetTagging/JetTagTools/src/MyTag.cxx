@@ -258,7 +258,7 @@ namespace Analysis {
       CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
       std::vector<std::string> inputVars = calib.inputVars;
       std::string str = calib.str;
-      TTree* tree = (TTree*)calib.obj;
+      TTree* tree = calib.obj!=0 ? (TTree*) calib.obj->Clone() : 0;
 
       if      (str=="" and tree!=0) {	m_useEgammaMethodMV2=true;        }
       else if (str!="" and tree==0) {	m_useEgammaMethodMV2=false;       }
@@ -318,6 +318,7 @@ namespace Analysis {
 
 	if (tree) {
 	  bdt = new MVAUtils:: BDT(tree);
+	  delete tree;//<- Crash at finalization if w/o this
 	}
 	else {
 	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");

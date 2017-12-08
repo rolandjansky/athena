@@ -196,7 +196,7 @@ bool InDet::TRT_DriftCircleTool::passValidityGate(unsigned int word, float lowGa
 // Trk::TRT_DriftCircles collection production
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const bool getTRTBadChannel)
+InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const bool m_getTRTBadChannel)
 {
 
   //Initialise a new TRT_DriftCircleCollection
@@ -208,10 +208,10 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
   }
 
   float mu = -10;
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-  if (eventInfo.isValid()) {
+  SG::ReadHandle<xAOD::EventInfo> m_eventInfo(m_eventInfoKey);
+  if (m_eventInfo.isValid()) {
 
-                mu = (float)           eventInfo->averageInteractionsPerCrossing();
+                mu = (float)           m_eventInfo->averageInteractionsPerCrossing();
       }
 
   DataVector<TRT_RDORawData>::const_iterator r,rb=rdo->begin(),re=rdo->end(); 
@@ -273,12 +273,12 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       //
       //Get straw status
 
-      int strawstat=1;
+      int m_strawstat=1;
 
       if(m_useConditionsStatus){
          if((m_ConditionsSummary->getStatus(id) != TRTCond::StrawStatus::Good)
             || (m_ConditionsSummary->getStatusPermanent(id))) {
-          strawstat = 0;
+          m_strawstat = 0;
         }
       }
       
@@ -348,7 +348,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 
       //if(Mode<1) dvi.push_back(id);  //we do not need the rdo list 
       
-     if(!getTRTBadChannel){
+     if(!m_getTRTBadChannel){
 
 
         Amg::MatrixX* errmat = new Amg::MatrixX(1,1);
@@ -395,7 +395,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
         }
 
         ATH_MSG_VERBOSE(" Reject from neighboring BC = " << reject_from_neighboring_BC);
-        if(strawstat && (!reject_from_neighboring_BC)){
+        if(m_strawstat && (!reject_from_neighboring_BC)){
 
            Amg::MatrixX* errmat = new Amg::MatrixX(1,1);
            (*errmat)(0,0) = error*error;

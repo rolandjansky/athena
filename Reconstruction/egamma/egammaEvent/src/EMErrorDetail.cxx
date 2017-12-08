@@ -92,7 +92,7 @@ void EMErrorDetail::set_parameterInt(egammaParameters::ParamDef key, int value, 
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMErrorDetail::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMErrorDetail::set_parameter(...)", false);
     }
   }
 }
@@ -119,7 +119,7 @@ void EMErrorDetail::set_parameter(egammaParameters::ParamDef key, double value, 
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMErrorDetail::set_parameter(...)", StatusCode::FAILURE);
+      throw GaudiException("parameter not saved", "EMErrorDetail::set_parameter(...)", false);
     }
   }
 

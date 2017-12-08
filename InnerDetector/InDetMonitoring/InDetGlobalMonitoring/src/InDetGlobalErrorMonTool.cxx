@@ -41,9 +41,9 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   m_totalModulesMapPixel(nullptr),
   m_totalModulesMapSCT(nullptr),
   m_totalModulesMapSi(nullptr),
-  m_c_nBinsEta( 200 ),
-  m_c_rangeEta( 2.5 ),
-  m_c_nBinsPhi( 200 )
+  c_nBinsEta( 200 ),
+  c_rangeEta( 2.5 ),
+  c_nBinsPhi( 200 )
 {
 }
 
@@ -80,36 +80,36 @@ StatusCode InDetGlobalErrorMonTool::bookHistogramsRecurrent()
     if ( newRunFlag() )
     {
       m_disabledModulesMapPixel = new TH2F( "disabledModulesMapPixel", "Map of disabled modules for Pixel", 
-					    m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					    m_c_nBinsPhi, -M_PI, M_PI );
+					    c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					    c_nBinsPhi, -M_PI, M_PI );
       
       m_disabledModulesMapSCT   = new TH2F( "disabledModulesMapSCT", "Map of disabled modules for SCT", 
-					    m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					    m_c_nBinsPhi, -M_PI, M_PI );
+					    c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					    c_nBinsPhi, -M_PI, M_PI );
        
       m_badModulesMapPixel = new TH2F( "badModulesMapPixel", "Map of bad modules for Pixel", 
-					 m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					 m_c_nBinsPhi, -M_PI, M_PI );
+					 c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					 c_nBinsPhi, -M_PI, M_PI );
       
       m_errorModulesMapPixel = new TH2F( "errorModulesMapPixel", "Map of modules in error for Pixel", 
-					 m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					 m_c_nBinsPhi, -M_PI, M_PI );
+					 c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					 c_nBinsPhi, -M_PI, M_PI );
       
      m_errorModulesMapSCT   = new TH2F( "errorModulesMapSCT", "Map of bad modules for SCT", 
-					 m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					 m_c_nBinsPhi, -M_PI, M_PI );
+					 c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					 c_nBinsPhi, -M_PI, M_PI );
       
       m_totalModulesMapPixel = new TH2F( "totalModulesMapPixel", "Map of all bad and disabled modules for Pixel", 
-					 m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					 m_c_nBinsPhi, -M_PI, M_PI );
+					 c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					 c_nBinsPhi, -M_PI, M_PI );
       
       m_totalModulesMapSCT   = new TH2F( "totalModulesMapSCT", "Map of all bad and disabled modules for SCT", 
-					 m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					 m_c_nBinsPhi, -M_PI, M_PI );
+					 c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					 c_nBinsPhi, -M_PI, M_PI );
 
       m_totalModulesMapSi   = new TH2F( "totalModulesMapSi", "Map of all bad and disabled modules for Pixel and SCT", 
-					 m_c_nBinsEta, -m_c_rangeEta, m_c_rangeEta, 
-					 m_c_nBinsPhi, -M_PI, M_PI );
+					 c_nBinsEta, -c_rangeEta, c_rangeEta, 
+					 c_nBinsPhi, -M_PI, M_PI );
       
       status &= monGr_shift.regHist( m_disabledModulesMapPixel ).isSuccess();
       status &= monGr_shift.regHist( m_errorModulesMapPixel ).isSuccess();
@@ -202,8 +202,8 @@ void InDetGlobalErrorMonTool::FillModule( moduleGeo_t module, TH2F * histo )
   unsigned int highY = 0;
   double area = 0.;
   
-  double widthEta = 2. * m_c_rangeEta / m_c_nBinsEta;
-  double widthPhi = 2. * M_PI / m_c_nBinsPhi;
+  double widthEta = 2. * c_rangeEta / c_nBinsEta;
+  double widthPhi = 2. * M_PI / c_nBinsPhi;
   double edgesEta[200], centerEta[200], 
     edgesPhi[200], centerPhi[200];
   
@@ -212,25 +212,25 @@ void InDetGlobalErrorMonTool::FillModule( moduleGeo_t module, TH2F * histo )
   histo->GetYaxis()->GetLowEdge(edgesPhi);
   histo->GetYaxis()->GetCenter(centerPhi);
   
-  for ( unsigned int i = 0; i < m_c_nBinsEta; i++ )
+  for ( unsigned int i = 0; i < c_nBinsEta; i++ )
     if ( edgesEta[i] + widthEta > module.first.first )
       {
 	lowX = i;
 	break;
       }
-  for ( unsigned int i = lowX; i < m_c_nBinsEta; i++ )
+  for ( unsigned int i = lowX; i < c_nBinsEta; i++ )
     if ( edgesEta[i] > module.first.second )
       {
 	highX = i;
 	break;
       }
-  for ( unsigned int i = 0; i < m_c_nBinsPhi; i++ )
+  for ( unsigned int i = 0; i < c_nBinsPhi; i++ )
     if ( edgesPhi[i] + widthPhi > module.second.first )
       {
 	lowY = i;
 	break;
       }
-  for ( unsigned int i = lowY; i < m_c_nBinsPhi; i++ )
+  for ( unsigned int i = lowY; i < c_nBinsPhi; i++ )
     if ( edgesPhi[i] > module.second.second )
       {
 	highY = i;

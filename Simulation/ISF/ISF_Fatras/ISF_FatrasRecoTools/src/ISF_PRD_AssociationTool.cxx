@@ -16,8 +16,9 @@
 iFatras::ISF_PRD_AssociationTool::ISF_PRD_AssociationTool(const std::string& t,
 							  const std::string& n,
 							  const IInterface*  p ) :
-  base_class(t,n,p)
+  AthAlgTool(t,n,p)
 {
+  declareInterface<IPRD_AssociationTool>(this);
 }
 
 iFatras::ISF_PRD_AssociationTool::~ISF_PRD_AssociationTool() {}

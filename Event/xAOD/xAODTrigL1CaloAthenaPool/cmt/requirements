@@ -1,0 +1,116 @@
+package xAODTrigL1CaloAthenaPool
+
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+author John Morris <john.morris@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+use AtlasROOT           AtlasROOT-*           External
+
+# POOL package(s):
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTrigL1Calo       xAODTrigL1Calo-*       Event/xAOD
+
+# Declare the pool converter(s):
+
+apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
+                                          xAOD::JEMHitsAuxContainer \
+                                          xAOD::JEMEtSumsContainer \
+                                          xAOD::JEMEtSumsAuxContainer \
+                                          xAOD::JEMRoIContainer \
+                                          xAOD::JEMRoIAuxContainer\
+                                          xAOD::CPMHitsContainer \
+                                          xAOD::CPMHitsAuxContainer \ 
+                                          xAOD::CPMTowerContainer \
+                                          xAOD::CPMTowerAuxContainer \
+                                          xAOD::CPMRoIContainer \
+                                          xAOD::CPMRoIAuxContainer \ 
+                                          xAOD::CMMCPHitsContainer \
+                                          xAOD::CMMCPHitsAuxContainer \ 
+                                          xAOD::CMMEtSumsContainer \
+                                          xAOD::CMMEtSumsAuxContainer \  
+                                          xAOD::CMMJetHitsContainer \
+                                          xAOD::CMMJetHitsAuxContainer \ 
+                                          xAOD::CMMRoI \
+                                          xAOD::CMMRoIAuxInfo \
+                                          xAOD::JetElementContainer \
+                                          xAOD::JetElementAuxContainer \   
+                                          xAOD::RODHeaderContainer \
+                                          xAOD::RODHeaderAuxContainer \  
+                                          xAOD::TriggerTowerContainer \
+                                          xAOD::TriggerTowerAuxContainer \
+                                          xAOD::CMXCPHitsContainer \
+                                          xAOD::CMXCPHitsAuxContainer  \  
+                                          xAOD::CMXCPTobContainer \
+                                          xAOD::CMXCPTobAuxContainer \  
+                                          xAOD::CMXJetHitsContainer \
+                                          xAOD::CMXJetHitsAuxContainer  \  
+                                          xAOD::CMXJetTobContainer \
+                                          xAOD::CMXJetTobAuxContainer \   
+                                          xAOD::CMXEtSumsContainer \
+                                          xAOD::CMXEtSumsAuxContainer \ 
+                                          xAOD::CMXRoIContainer \
+                                          xAOD::CMXRoIAuxContainer \
+                                          xAOD::CPMTobRoIContainer \
+                                          xAOD::CPMTobRoIAuxContainer \   
+                                          xAOD::JEMTobRoIContainer \
+                                          xAOD::JEMTobRoIAuxContainer \  
+                                          xAOD::L1TopoRawDataContainer \
+                                          xAOD::L1TopoRawDataAuxContainer " \
+                      files="-s=${xAODTrigL1Calo_root}/xAODTrigL1Calo \
+                             JEMHitsContainer.h \
+                             JEMHitsAuxContainer.h \
+                             JEMEtSumsContainer.h \
+                             JEMEtSumsAuxContainer.h \
+                             JEMRoIContainer.h \
+                             JEMRoIAuxContainer.h \
+                             CPMHitsContainer.h \
+                             CPMHitsAuxContainer.h \
+                             CPMTowerContainer.h \
+                             CPMTowerAuxContainer.h \
+                             CPMRoIContainer.h \
+                             CPMRoIAuxContainer.h \  
+                             CMMCPHitsContainer.h \
+                             CMMCPHitsAuxContainer.h \ 
+                             CMMEtSumsContainer.h \
+                             CMMEtSumsAuxContainer.h \ 
+                             CMMJetHitsContainer.h \
+                             CMMJetHitsAuxContainer.h \ 
+                             CMMRoI.h \
+                             CMMRoIAuxInfo.h \ 
+                             JetElementContainer.h \
+                             JetElementAuxContainer.h \ 
+                             RODHeaderContainer.h \
+                             RODHeaderAuxContainer.h \ 
+                             TriggerTowerContainer.h \
+                             TriggerTowerAuxContainer.h \
+                             CMXCPHitsContainer.h \
+                             CMXCPHitsAuxContainer.h \  
+                             CMXCPTobContainer.h \
+                             CMXCPTobAuxContainer.h \  
+                             CMXJetHitsContainer.h \
+                             CMXJetHitsAuxContainer.h \  
+                             CMXJetTobContainer.h \
+                             CMXJetTobAuxContainer.h \ 
+                             CMXEtSumsContainer.h \
+                             CMXEtSumsAuxContainer.h \  
+                             CMXRoIContainer.h \
+                             CMXRoIAuxContainer.h \                               
+                             CPMTobRoIContainer.h \
+                             CPMTobRoIAuxContainer.h \ 
+                             JEMTobRoIContainer.h \
+                             JEMTobRoIAuxContainer.h \  
+                             L1TopoRawDataContainer.h \
+                             L1TopoRawDataAuxContainer.h " \
+                      cnv_pfx="xAOD"

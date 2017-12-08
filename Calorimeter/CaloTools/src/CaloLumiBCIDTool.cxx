@@ -15,7 +15,6 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
 				  const std::string& name, 
 				  const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_cablingService("LArCablingService"),
     m_larmcsym("LArMCSymTool"),
     m_OFCTool("LArOFCTool"),
     m_lumiTool("LuminosityTool"),
@@ -100,19 +99,16 @@ StatusCode CaloLumiBCIDTool::initialize() {
                                   dynamic_cast<ICaloLumiBCIDTool*>(this),
                                   m_dd_ofc,m_keyOFC,true) );
     ATH_MSG_INFO( "Registered callback for key: " << m_keyOFC  );
-    m_OFCTool.disable();
   }
 
 // get LumiTool
   if (m_isMC) {
     ATH_CHECK( m_bunchCrossingTool.retrieve() );
     ATH_MSG_DEBUG(" -- bunch crossing Tool retrieved");
-    m_lumiTool.disable();
   
   } else {
     ATH_CHECK( m_lumiTool.retrieve() );
     ATH_MSG_DEBUG(" -- Lumi Tool retrieved");
-    m_bunchCrossingTool.disable();
   }
 
  //

@@ -1,0 +1,27 @@
+package PanTauAnalysis
+
+author Robindra Prabhu <prabhu@physik.uni-bonn.de>
+
+
+##############
+public
+
+branches run
+
+use AtlasPolicy			AtlasPolicy-*
+# use AtlasAnalysisRunTime 	AtlasAnalysisRunTime-*
+
+
+#############
+public
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+

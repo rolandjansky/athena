@@ -27,8 +27,11 @@ namespace G4UA
       /// @brief Return the action for current thread.
       virtual G4UserStackingAction* getStackingAction() = 0;
 
-      /// Creates the InterfaceID and interfaceID() method
-      DeclareInterfaceID(G4UA::IG4StackingActionTool, 1, 0);
+      /// Interface declaration
+      static const InterfaceID& interfaceID() {
+        static const InterfaceID iid_IStepTool("G4UA::IG4StackingActionTool", 1, 0);
+        return iid_IStepTool;
+      }
 
   }; // class IG4StackingActionTool
 

@@ -161,6 +161,7 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   /* Cache the original number of eflowCaloObjects */
   const int nCaloObj = m_eflowCaloObjectContainer->size();
 
+  std::vector<eflowRecTrack*>::iterator endEfRecTrack = m_tracksToRecover.end();
   /* loop tracks in m_tracksToRecover and do matching */
   for (auto thisEfRecTrack : m_tracksToRecover){
  

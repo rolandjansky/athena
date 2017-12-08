@@ -264,7 +264,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   sc = m_extrapolator.retrieve();
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not find extrapolator tool. Exiting.");
-    return StatusCode::FAILURE;
+    return 0;
   } else {
     ATH_MSG_INFO("Extrapolator tool booked ");
   }

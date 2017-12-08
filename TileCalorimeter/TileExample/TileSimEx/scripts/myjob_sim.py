@@ -190,8 +190,6 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg")
 
@@ -206,17 +204,24 @@ simFlags.PhysicsList.set_Value('PHYSICSLIST')
 
 ## Use verbose G4 tracking
 if 'VerboseTracking' in dir():
-    simFlags.G4Commands+= ['/tracking/verbose 1']
+    def use_verbose_tracking():
+        from G4AtlasApps import AtlasG4Eng
+        AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
+    simFlags.InitFunctions.add_function("postInit", use_verbose_tracking)
 
 ## Set non-standard range cut
 if 'RangeCut' in dir():
-    svcMgr.ToolSvc['PhysicsListToolBase'].GeneralCut=RangeCut
+    def set_general_range_cut():
+        from G4AtlasApps import AtlasG4Eng
+        physics = AtlasG4Eng.G4Eng.Dict.get('physics')
+        physics.Value_gen_cut = RangeCut
+    simFlags.InitFunctions.add_function('preInitPhysics',set_general_range_cut)
 
 #--- Final step -----------------------------------------------
 
 ## Populate alg sequence
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()
 
 # uncomment and modify any of options below to have non-standard simulation 
 from AthenaCommon.AppMgr import ToolSvc

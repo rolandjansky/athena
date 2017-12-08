@@ -72,12 +72,12 @@ jobproperties.Global.DetDescrVersion = "ATLAS-H6-2004-00"
 
 #--- Simulation flags -----------------------------------------
 #from G4AtlasApps.tbLArH6_flags import *
-from G4AtlasApps.SimFlags import simFlags
-simFlags.load_atlas_flags()
-#simFlags.import_JobProperties('G4AtlasApps.tbLArH6_flags')
+from G4AtlasApps.SimFlags import jobproperties
+jobproperties.SimFlags.load_atlas_flags()
+#SimFlags.import_JobProperties('G4AtlasApps.tbLArH6_flags')
 # Choose H6 2004 (Emec/HEC/FCAL) testbeam layout
-simFlags.SimLayout='tb_LArH6_2004'
-simFlags.load_tbLArH6_flags()
+jobproperties.SimFlags.SimLayout='tb_LArH6_2004'
+jobproperties.SimFlags.load_tbLArH6_flags()
 
 #--- Conditions global  tag ------
 from AthenaCommon.GlobalFlags import globalflags
@@ -89,35 +89,35 @@ include.block ( "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py" )
 #include("LArDetDescr/LArDetDescr_H6_joboptions.py")
 
 # Set the cryostat and table at their (0,0) position:
-simFlags.LArTB_H1CryoXPos.set_Value_and_Lock(XCryo)
-simFlags.LArTB_H1TableYPos.set_Value_and_Lock(YTable)
-simFlags.LArTB_H1XSmear.set_Value_and_Lock(Xsmear)
-simFlags.LArTB_H1YSmear.set_Value_and_Lock(Ysmear)
-simFlags.LArTB_H6Hec.set_Value_and_Lock(True)
-simFlags.LArTB_H6Emec.set_Value_and_Lock(True)
-simFlags.LArTB_H6Fcal.set_Value_and_Lock(True)
-simFlags.LArTB_H6Coldnose.set_Value_and_Lock(True)
-simFlags.LArTB_H6Run1.set_Value_and_Lock(False)
+jobproperties.SimFlags.LArTB_H1CryoXPos.set_Value_and_Lock(XCryo)
+jobproperties.SimFlags.LArTB_H1TableYPos.set_Value_and_Lock(YTable)
+jobproperties.SimFlags.LArTB_H1XSmear.set_Value_and_Lock(Xsmear)
+jobproperties.SimFlags.LArTB_H1YSmear.set_Value_and_Lock(Ysmear)
+jobproperties.SimFlags.LArTB_H6Hec.set_Value_and_Lock(True)
+jobproperties.SimFlags.LArTB_H6Emec.set_Value_and_Lock(True)
+jobproperties.SimFlags.LArTB_H6Fcal.set_Value_and_Lock(True)
+jobproperties.SimFlags.LArTB_H6Coldnose.set_Value_and_Lock(True)
+jobproperties.SimFlags.LArTB_H6Run1.set_Value_and_Lock(False)
 if doFilter:
-   simFlags.LArTB_H6Step.set_Value_and_Lock(True)
+   jobproperties.SimFlags.LArTB_H6Step.set_Value_and_Lock(True)
 else:
-   simFlags.LArTB_H6Step.set_Value_and_Lock(False)
+   jobproperties.SimFlags.LArTB_H6Step.set_Value_and_Lock(False)
 if doBirk:
-   simFlags.DoLArBirk.set_Value_and_Lock(True)
+   jobproperties.SimFlags.DoLArBirk.set_Value_and_Lock(True)
 else:   
-   simFlags.DoLArBirk.set_Value_and_Lock(False)
+   jobproperties.SimFlags.DoLArBirk.set_Value_and_Lock(False)
 
 
 # Uncomment for calibration run
-simFlags.CalibrationRun='LAr'
+jobproperties.SimFlags.CalibrationRun='LAr'
 
-simFlags.EventFilter.set_Off()
+jobproperties.SimFlags.EventFilter.set_Off()
 
 #--- Generator flags ------------------------------------------
 from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
 ServiceMgr += AtRanluxGenSvc()
 ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE "+ GSeed1 + " " + GSeed2]
-simFlags.RandomSeedOffset.set_Value_and_Lock(G4seed)
+jobproperties.SimFlags.RandomSeedOffset.set_Value_and_Lock(G4seed)
 
 # Energy is in Mev!!!
 if SingleRun:
@@ -127,7 +127,7 @@ if SingleRun:
       print "Wrong energy literal: ",BeamE," using 100 GeV !!!"
       Energy=100000.
 
-simFlags.PhysicsList.set_Value_and_Lock(PhysicsList)
+jobproperties.SimFlags.PhysicsList.set_Value_and_Lock(PhysicsList)
 
 
 #---  Output printout level ----------------------------------- 
@@ -152,13 +152,11 @@ else:
 #NTupleSvc.Output = [ "FILE1 DATAFILE='Ntuple.root' OPT='NEW'" ]
 
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 #==============================================================
 # Job configuration
 #==============================================================
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()
 
 # Adding TB specific output
 from AthenaCommon import CfgMgr

@@ -27,14 +27,8 @@ using HepGeom::Point3D;
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::SegmentDriftCircleAssValidation::SegmentDriftCircleAssValidation (const std::string& name,ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name,pSvcLocator),
-  m_nprint            (0),
-  m_particleDataTable (nullptr),
-  m_tcut              (0.),
-  m_events            (0),
-  m_ncircles          (0),
-  m_nqsegments        (0)
+InDet::SegmentDriftCircleAssValidation::SegmentDriftCircleAssValidation
+(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)
 {
 
   // SegmentDriftCircleAssValidation steering parameters

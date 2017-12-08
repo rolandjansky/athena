@@ -17,7 +17,7 @@ class VolumeBuilder;
 typedef std::map< std::string, VolumeBuilder*,std::less<std::string> > BuilderMap;
 
 /// @todo NEEDS DOCUMENTATION
-class Geo2G4Svc: public extends<AthService, IGeo2G4Svc, IIncidentListener>
+class Geo2G4Svc: virtual public IGeo2G4Svc, virtual public IIncidentListener, public AthService
 {
 public:
   Geo2G4Svc(const std::string& , ISvcLocator *);
@@ -25,6 +25,7 @@ public:
   /// AthService methods
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
+  virtual StatusCode queryInterface(const InterfaceID& , void** ppvInterface ) override final;
   /// IIncidentListener methods -  FIXME does this service actually need to listen for Incidents?
   virtual void handle(const Incident&) override final;
   /// Geo2G4SvcBase methods

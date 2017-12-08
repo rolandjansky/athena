@@ -7,7 +7,7 @@
 
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
 
-#include "AthenaKernel/CLASS_DEF.h"
+#include "CLIDSvc/CLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"

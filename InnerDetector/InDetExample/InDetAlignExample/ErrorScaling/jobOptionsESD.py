@@ -16,7 +16,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #else:
 #  athenaCommonFlags.FilesInput = ["rfio:/castor/cern.ch/grid/atlas/DAQ/2011/00180481/calibration_IDTracks/data11_7TeV.00180481.calibration_IDTracks.daq.RAW._lb0000._SFO-10._0002.data"]
 
-#athenaCommonFlags.FilesInput = [ 'root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/mc10_7TeV/DESD_MBIAS/e574_s932_s946_r2094/mc10_7TeV.105001.pythia_minbias.recon.DESD_MBIAS.e574_s932_s946_r2094_tid280668_00/DESD_MBIAS.280668._016228.pool.root.1']
+#athenaCommonFlags.FilesInput = [ 'root://eosatlas//eos/atlas/atlasdatadisk/mc10_7TeV/DESD_MBIAS/e574_s932_s946_r2094/mc10_7TeV.105001.pythia_minbias.recon.DESD_MBIAS.e574_s932_s946_r2094_tid280668_00/DESD_MBIAS.280668._016228.pool.root.1']
 
 #if doReadBS:
 import os

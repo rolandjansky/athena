@@ -30,7 +30,7 @@
 
 /** Constructor */
 DetDescrDBEnvelopeSvc::DetDescrDBEnvelopeSvc(const std::string& name, ISvcLocator* svc) :
-  base_class(name,svc),
+  AthService(name,svc),
   m_dbAccess(0),
   m_geoModel(0),
   m_atlasNode("ATLAS"),
@@ -292,4 +292,17 @@ StatusCode DetDescrDBEnvelopeSvc::fallbackRZBoundary( FallbackDoubleVector &r,
   return StatusCode::SUCCESS;
 }
 
+
+/** Query the interfaces. */
+StatusCode DetDescrDBEnvelopeSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+
+ if ( IID_IEnvelopeDefSvc == riid ) 
+    *ppvInterface = (IEnvelopeDefSvc*)this;
+ else  {
+   // Interface is not directly available: try out a base class
+   return Service::queryInterface(riid, ppvInterface);
+ }
+ addRef();
+ return StatusCode::SUCCESS;
+}
 

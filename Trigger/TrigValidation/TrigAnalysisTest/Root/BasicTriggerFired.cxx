@@ -32,9 +32,9 @@ namespace TrigAnalysisTest {
   // Init counters and get ready to run.
   //
   BasicTriggerFired::BasicTriggerFired()
-    : m_passed_l1(0),
-      m_passed_hlt(0),
-      m_first_call(true)
+    : _passed_l1(0),
+      _passed_hlt(0),
+      _first_call(true)
   {
   }
 
@@ -43,21 +43,21 @@ namespace TrigAnalysisTest {
 
     // Did we pass a trigger level?
     if (trigDecTool.isPassed("L1_.*"))
-      m_passed_l1++;
+      _passed_l1++;
     if (trigDecTool.isPassed("HLT_.*"))
-      m_passed_hlt++;
+      _passed_hlt++;
 
     // Dump for debugging the test
-    if (m_first_call) {
+    if (_first_call) {
       dumpTriggerInfo(trigDecTool);
-      m_first_call = false;
+      _first_call = false;
     }
     auto chainGroups = trigDecTool.getChainGroup(".*");
     for(auto &trig : chainGroups->getListOfTriggers()) {
-      if(!m_trigger_counts.count(trig))
-        m_trigger_counts[trig] = 0;
-      if(trigDecTool.isPassed(trig))
-        m_trigger_counts[trig] += 1;
+      if(!trigger_counts.count(trig))
+				trigger_counts[trig] = 0;
+			if(trigDecTool.isPassed(trig))
+				trigger_counts[trig] += 1;
     }
   }
 
@@ -65,14 +65,14 @@ namespace TrigAnalysisTest {
   int BasicTriggerFired::finalize()
   {
     // Dump for debugging.
-    cout << "L1 triggers passed: " << m_passed_l1 << endl;
-    cout << "HLT triggers passed; " << m_passed_hlt << endl;
+    cout << "L1 triggers passed: " << _passed_l1 << endl;
+    cout << "HLT triggers passed; " << _passed_hlt << endl;
     cout << "START SUMMARY: BasicTriggerFired" << endl;
-		for (auto it = m_trigger_counts.begin(); it!=m_trigger_counts.end(); it++)
+		for (auto it = trigger_counts.begin(); it!=trigger_counts.end(); it++)
 			cout << (*it).first << "\t" << (*it).second <<endl;
     cout << "END SUMMARY  : BasicTriggerFired" << endl;
 
     // Good run if we found a trigger!
-    return (m_passed_l1 > 0 && m_passed_hlt > 0) ? 0 : 1;
+    return (_passed_l1 > 0 && _passed_hlt > 0) ? 0 : 1;
   }
 }

@@ -116,7 +116,7 @@ StatusCode AFP_TDLocReco::execute()
 
 	m_eventNum = 0;
 	m_iRunNum  = 0;
-	const EventInfo* eventInfo = nullptr;
+	const EventInfo* eventInfo;
 	sc = m_storeGate->retrieve( eventInfo );
 	if (sc.isFailure())
 	{

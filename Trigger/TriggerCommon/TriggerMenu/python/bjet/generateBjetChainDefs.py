@@ -258,7 +258,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     # secondary vertexing
     theVxSecondary = TrigVxSecondaryCombo_EF()
     theVxSecondaryFTK = TrigVxSecondaryCombo_EF("TrigVxSecondaryComboFTK_EF")
-    theVxSecondaryFTK.PriVtxKey="PrimVertexFTK"
+    theVxSecondaryFTK.PriVtxKey="HLT_PrimVertexFTK"
     #--------------------
 
     # bjet fex

@@ -20,7 +20,7 @@
  *  @author Andrea Dell'Acqua
  *  @date   2014-10-01
  */
-class AddPhysicsDecayTool : public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>
+class AddPhysicsDecayTool : public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool
 {
 public:
   /// Standard constructor

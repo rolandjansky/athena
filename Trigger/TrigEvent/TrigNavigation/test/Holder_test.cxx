@@ -39,7 +39,7 @@ DECLARE_CONVERTER_FACTORY (TestBContainerSerCnv)
 DECLARE_CONVERTER_FACTORY (TestAuxBSerCnv)
 
 template<class HTYPE> 
-bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder,
+StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder,
                 IConversionSvc* cnvsvc = nullptr) {
   BEGIN_TEST("Registration");
   IHolder* iholder = full->clone("", name, idx);
@@ -55,7 +55,7 @@ bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename 
   END_TEST;
 }
 
-bool getUniqueKeyBeforeReg() {
+StatusCode getUniqueKeyBeforeReg() {
   BEGIN_TEST( "use of unique key without sync to SG" );
   auto h = new HolderImp<TestBContainer, TestBContainer >();
   h->prepare(msglog, pStore,0);
@@ -65,46 +65,46 @@ bool getUniqueKeyBeforeReg() {
 }
 
 //*****************************************************************************
-bool creation() {
+StatusCode creation() {
   BEGIN_TEST( "Creation of the holders Container <-> Container" );
   Holder<TestBContainer >* cc(0);
 
-  if ( !reg( new HolderImp<TestBContainer, TestBContainer >() , "creation0", 0, 0, cc) ) REPORT_AND_STOP( "reg creation0" );
+  if (  reg( new HolderImp<TestBContainer, TestBContainer >() , "creation0", 0, 0, cc).isFailure() ) REPORT_AND_STOP( "reg creation0" );
 
   REPORT_AND_CONTINUE( "Creation of the holders Object <-> Container" );
   Holder<TestA>* oc(0); 
-  if ( !reg(new HolderImp<TestA, TestAContainer >(), "creation1", 1, 0, oc) ) REPORT_AND_STOP("reg creation1") ;
+  if ( reg(new HolderImp<TestA, TestAContainer >(), "creation1", 1, 0, oc).isFailure() ) REPORT_AND_STOP("reg creation1") ;
 
 
   //////////////////////////////////////////////////////////////////
   REPORT_AND_CONTINUE( "Creation of the holders Container <-> Container with details" );
   ITypeProxy* deco = HLT::TypeMaps::proxies()[ClassID_traits<TestAuxB>::ID()]->clone();
   Holder<TestBContainer >* cc_dec(0) ; 
-  if ( !reg(new HolderImp<TestBContainer, TestBContainer >(), "creation2", 2, deco, cc_dec) ) REPORT_AND_STOP("reg creation2") ;
+  if ( reg(new HolderImp<TestBContainer, TestBContainer >(), "creation2", 2, deco, cc_dec).isFailure() ) REPORT_AND_STOP("reg creation2") ;
 
 
   REPORT_AND_CONTINUE( "Creation of the holders Object <-> Container" );
   Holder<TestA>* oc_dec(0); 
-  if ( !reg(new HolderImp<TestA, TestAContainer >(), "creation3", 3, deco, oc_dec) ) REPORT_AND_STOP("reg creation3") ;
+  if ( reg(new HolderImp<TestA, TestAContainer >(), "creation3", 3, deco, oc_dec).isFailure() ) REPORT_AND_STOP("reg creation3") ;
 
   Holder<TestBContainerView >* cc_view(0);  
-  if (  !reg( new HolderImp<TestBContainerView, TestBContainerView >() , "creation4", 0, 0, cc_view) ) REPORT_AND_STOP( "reg creation4" );
+  if (  reg( new HolderImp<TestBContainerView, TestBContainerView >() , "creation4", 0, 0, cc_view).isFailure() ) REPORT_AND_STOP( "reg creation4" );
   
   //  REPORT_AND_CONTINUE( "Creation of the holders ViewObject <-> ViewContainer" );
   //  Holder<TestB >* cc_view_obj(0);
-  //  if (  !reg( new HolderImp<TestB, TestBContainerView >() , "creation0", 0, 0, cc_view_obj) ) REPORT_AND_STOP( "reg creation5" );
+  //  if (  reg( new HolderImp<TestB, TestBContainerView >() , "creation0", 0, 0, cc_view_obj).isFailure() ) REPORT_AND_STOP( "reg creation5" );
   END_TEST;
 }
 
 //*****************************************************************************
-bool add_operation(bool wihtAux) {
+StatusCode add_operation(bool wihtAux) {
   BEGIN_TEST ( "Simple test of Container <-> Container holder (add)" );
   ITypeProxy* deco(0);
   if (wihtAux)
     deco = HLT::TypeMaps::proxies()[ClassID_traits<TestAuxB>::ID()]->clone();
 
   Holder<TestBContainer>* cch(0);
-  if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "TestB", 11, deco, cch) ) REPORT_AND_STOP("It should have failed before");
+  if ( reg( new HolderImp<TestBContainer, TestBContainer>(), "TestB", 11, deco, cch).isFailure() ) REPORT_AND_STOP("It should have failed before");
 
   TestBContainer* dav0 = new TestBContainer;;
   dav0->push_back(new TestB(6));
@@ -161,7 +161,7 @@ bool add_operation(bool wihtAux) {
 
   REPORT_AND_CONTINUE( "END Simple test of Object <-> Container holder -add-" );
   Holder<TestA>* och(0); 
-  if ( !reg(new HolderImp<TestA, TestAContainer >(), "TestA", 12, deco, och) ) REPORT_AND_STOP("reg TestA") ;
+  if ( reg(new HolderImp<TestA, TestAContainer >(), "TestA", 12, deco, och).isFailure() ) REPORT_AND_STOP("reg TestA") ;
 
   TestA* an = new TestA(235);
   HLT::TriggerElement::ObjectIndex coord = och->add(an, true); 
@@ -178,10 +178,10 @@ bool add_operation(bool wihtAux) {
 }
 
 //*****************************************************************************
-bool contains_operations() {
+StatusCode contains_operations() {
   BEGIN_TEST("Operations");
   Holder<TestBContainer>* cch(0);
-  if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "TestB", 11, 0, cch) ) REPORT_AND_STOP("It should have failed before");
+  if ( reg( new HolderImp<TestBContainer, TestBContainer>(), "TestB", 11, 0, cch).isFailure() ) REPORT_AND_STOP("It should have failed before");
   TestB* b0 = new TestB(67);
   TestBContainer * t = new TestBContainer();
   t->push_back( new TestB(9) );
@@ -202,10 +202,10 @@ bool contains_operations() {
 }
 
 //*****************************************************************************
-bool serialization() {
+StatusCode serialization() {
   BEGIN_TEST("serialization");
   Holder<TestBContainer>* cch(0);
-  if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "blu", 2, 0, cch) ) REPORT_AND_STOP("It should have failed before");
+  if ( reg( new HolderImp<TestBContainer, TestBContainer>(), "blu", 2, 0, cch).isFailure() ) REPORT_AND_STOP("It should have failed before");
   IHolder * realH = cch;
   std::vector<uint32_t>  blob;
   
@@ -231,7 +231,7 @@ bool serialization() {
 
 
 //*****************************************************************************
-bool externalCollection() {
+StatusCode externalCollection() {
   BEGIN_TEST("externalCollection");
 
   TestBContainer* dav = new TestBContainer;
@@ -251,7 +251,7 @@ bool externalCollection() {
 
 //*****************************************************************************
 
-bool serialize_xAOD() {
+StatusCode serialize_xAOD() {
   BEGIN_TEST("serialize_xAOD");
   pStore->clearStore().ignore();
   auto cont = std::make_unique<TestBContainer>();
@@ -280,8 +280,8 @@ bool serialize_xAOD() {
     ABORT ("TrigSerializeCnvSvc");
 
   Holder<TestBContainer>* cch(0);
-  if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "testb", 2, 0, cch,
-            serializer.get()) )
+  if ( reg( new HolderImp<TestBContainer, TestBContainer>(), "testb", 2, 0, cch,
+            serializer.get()).isFailure() )
     REPORT_AND_STOP("It should have failed before");
   IHolder * realH = cch;
   std::vector<uint32_t>  blob;
@@ -294,8 +294,8 @@ bool serialize_xAOD() {
   cch = nullptr;
 
   pStore->clearStore().ignore();
-  if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "testb", 2, 0, cch,
-             serializer.get()) )
+  if ( reg( new HolderImp<TestBContainer, TestBContainer>(), "testb", 2, 0, cch,
+            serializer.get()).isFailure() )
     REPORT_AND_STOP("It should have failed before");
   //IHolder * realH = cch;
 
@@ -367,7 +367,7 @@ int main() {
     ABORT( "ERROR no SG available" );
   }
 
-  if ( !creation() ) 
+  if ( creation().isFailure() ) 
     ABORT("Holders creation failed");
 
   *msglog << MSG::DEBUG << pStore->dump();
@@ -377,32 +377,32 @@ int main() {
 
 
   pStore->clearStore().ignore();
-  if ( !add_operation(false) )
+  if ( add_operation(false).isFailure() )
     ABORT("Failed add_operation w/o Aux");
 
   pStore->clearStore().ignore();
   *msglog << MSG::DEBUG << "Holders with decorations "  << endmsg;
-  if ( !add_operation(true) )
+  if ( add_operation(true).isFailure() )
     ABORT("Failed add_operation with Aux");
 
   pStore->clearStore().ignore();
   *msglog << MSG::DEBUG << "Contains and co. methods "  << endmsg;
-  if ( !contains_operations() )
+  if ( contains_operations().isFailure() )
     ABORT("Failed contains_operations");
 
 
   *msglog << MSG::DEBUG << "Serialization "  << endmsg;
-  if ( !serialization() )
+  if ( serialization().isFailure() )
     ABORT("Failed serialization");
 
   *msglog << MSG::DEBUG << "Unique key "  << endmsg;
-  if ( !getUniqueKeyBeforeReg() ) 
+  if ( getUniqueKeyBeforeReg().isFailure() ) 
     ABORT("UniqueKey failed");
 
-  if ( !externalCollection() ) 
+  if ( externalCollection().isFailure() ) 
     ABORT("Sync to an external collection failed");
 
-  if ( !serialize_xAOD() )
+  if ( serialize_xAOD().isFailure() )
     ABORT("Failed serialize_xAOD");
 
   REPORT_AND_CONTINUE( "END all went fine" );

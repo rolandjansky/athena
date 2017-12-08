@@ -64,12 +64,12 @@ runArgs.maxEvents = 100 #-1
 
 # Input data
 #runArgs.inputESDFile = ['myESD.pool.root']
-runArgs.inputESDFile = ['root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267638/data15_13TeV.00267638.express_express.recon.ESD.x342/data15_13TeV.00267638.express_express.recon.ESD.x342._lb0523._SFO-3._0001.1']
-#runArgs.inputESDFile = ['root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00266904/data15_13TeV.00266904.physics_Main.recon.DESD_ZMUMU.f594_m1440_f594/data15_13TeV.00266904.physics_Main.recon.DESD_ZMUMU.f594_m1440_f594._0003.1']
-#runArgs.inputESDFile = ['root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00266904/data15_13TeV.00266904.physics_Main.recon.ESD.f594/data15_13TeV.00266904.physics_Main.recon.ESD.f594._lb0522._SFO-3._0001.1']
-#runArgs.inputESDFile = ['root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00266904/data15_13TeV.00266904.express_express.recon.ESD.x339/data15_13TeV.00266904.express_express.recon.ESD.x339._lb0605._SFO-4._0001.1']
-#runArgs.inputESDFile = ['root://eosatlas.cern.ch//eos/atlas/user/b/btong/data/216432_muons/ESD.01566165._000054.pool.root.1']
-#runArgs.inputESDFile = ['root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00266919/data15_13TeV.00266919.physics_Main.merge.DRAW_ZMUMU.f594_m1440/data15_13TeV.00266919.physics_Main.merge.DRAW_ZMUMU.f594_m1440._0002.1']
+runArgs.inputESDFile = ['root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267638/data15_13TeV.00267638.express_express.recon.ESD.x342/data15_13TeV.00267638.express_express.recon.ESD.x342._lb0523._SFO-3._0001.1']
+#runArgs.inputESDFile = ['root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00266904/data15_13TeV.00266904.physics_Main.recon.DESD_ZMUMU.f594_m1440_f594/data15_13TeV.00266904.physics_Main.recon.DESD_ZMUMU.f594_m1440_f594._0003.1']
+#runArgs.inputESDFile = ['root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00266904/data15_13TeV.00266904.physics_Main.recon.ESD.f594/data15_13TeV.00266904.physics_Main.recon.ESD.f594._lb0522._SFO-3._0001.1']
+#runArgs.inputESDFile = ['root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00266904/data15_13TeV.00266904.express_express.recon.ESD.x339/data15_13TeV.00266904.express_express.recon.ESD.x339._lb0605._SFO-4._0001.1']
+#runArgs.inputESDFile = ['root://eosatlas//eos/atlas/user/b/btong/data/216432_muons/ESD.01566165._000054.pool.root.1']
+#runArgs.inputESDFile = ['root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00266919/data15_13TeV.00266919.physics_Main.merge.DRAW_ZMUMU.f594_m1440/data15_13TeV.00266919.physics_Main.merge.DRAW_ZMUMU.f594_m1440._0002.1']
 runArgs.inputESDFileType = 'ESD'
 #runArgs.inputESDFileNentries = 131L
 

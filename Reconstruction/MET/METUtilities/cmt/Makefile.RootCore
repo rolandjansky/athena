@@ -1,0 +1,25 @@
+# this makefile also gets parsed by shell scripts
+# therefore it does not support full make syntax and features
+# edit with care
+
+# for full documentation check:
+# https://twiki.cern.ch/twiki/bin/viewauth/Atlas/RootCore#Package_Makefile
+
+PACKAGE          = METUtilities
+PACKAGE_PRELOAD  = 
+PACKAGE_CXXFLAGS = 
+PACKAGE_OBJFLAGS = 
+PACKAGE_LDFLAGS  = 
+PACKAGE_BINFLAGS = -lboost_unit_test_framework
+PACKAGE_LIBFLAGS = 
+PACKAGE_DEP      = Asg_Boost AsgTools xAODBase xAODTracking xAODMissingET xAODEgamma xAODTruth xAODJet xAODMuon xAODTau xAODPFlow METInterface xAODEventInfo PATInterfaces PathResolver InDetTrackSelectionTool JetCalibTools JetInterface xAODEventShape FourMomUtils xAODCore
+
+PACKAGE_TRYDEP   = 
+PACKAGE_CLEAN    = 
+PACKAGE_NOGRID   = 
+PACKAGE_PEDANTIC = 1
+PACKAGE_NOOPT    = 0
+PACKAGE_NOCC     = 0
+PACKAGE_REFLEX   = 1
+
+include $(ROOTCOREDIR)/Makefile-common

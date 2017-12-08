@@ -22,8 +22,11 @@ class IPhysicsListTool : virtual public IAlgTool
 public:
   IPhysicsListTool() {}
   virtual ~IPhysicsListTool() {}
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IPhysicsListTool, 1, 0);
+  static const InterfaceID& interfaceID()
+  {
+    static const InterfaceID IID_IPhysicsListTool( "IPhysicsListTool" , 1 , 0 ) ;
+    return IID_IPhysicsListTool ;
+  }
 
   /** Build the physics list.  This method should be called when G4 is ready
       for the initialization of the physics list */

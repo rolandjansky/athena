@@ -28,17 +28,19 @@ class egammaqweta1c : public AthAlgTool, virtual public Iegammaqweta1c {
 		const std::string& name,
 		const IInterface* parent);
   /** @brief Destructor*/
-  virtual ~egammaqweta1c();  
+  ~egammaqweta1c();  
   
   /** @brief initialize method*/
-  virtual StatusCode initialize() override;
+  StatusCode initialize();
   /** @brief finalize method*/
-  virtual StatusCode finalize() override;
+  StatusCode finalize();
 
   /** @brief returns corrected width at eta*/
-  virtual float Correct(float eta, float etacell, float width) const override final;
+  float Correct(float eta, float etacell, float width) const override final;
   /** @brief returns relative position within the cell*/
-  virtual double RelPosition(float eta, float etacell) const override final;
+  double RelPosition(float eta, float etacell) const override final;
+ private:
+
 };
 
 #endif

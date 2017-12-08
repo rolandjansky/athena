@@ -31,7 +31,7 @@ def get_file_list( DATAPATH ) :
         new_paths = [ path+'/'+directory for path in paths ]
         paths = new_paths
     # for path in paths : print "PathExpander         INFO Found file at '{0}'".format( path )
-    #return [ 'root://eosatlas.cern.ch//'+path for path in paths ]
+    #return [ 'root://eosatlas//'+path for path in paths ]
     return paths
   return sorted( glob(DATAPATH + '*') )
 
@@ -50,7 +50,7 @@ def main():
   last_run_files = get_file_list(runs[-1] + "/*/")
   subset = []
   for i in range(0,opts.nfiles):
-    subset.append('root://eosatlas.cern.ch//' + last_run_files[i])
+    subset.append('root://eosatlas//' + last_run_files[i])
   print subset 
 
   trigCmd = "athenaHLT.py -f \"" + str(subset) + "\" -c \"" + opts.modifiers + "\" TriggerRelease/runHLT_standalone.py"

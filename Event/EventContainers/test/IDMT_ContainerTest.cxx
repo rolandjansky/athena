@@ -4,6 +4,7 @@
 
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
+#include "src/IdentifiableCacheBase.cxx"
 #include "EventContainers/IdentifiableContainerMT.h" 
 #include "EventContainers/SelectAllObjectMT.h" 
 #include "ID_ContainerTest.h" 
@@ -549,11 +550,11 @@ int ID_ContainerTest::execute(){
 
     auto containerOnline = new MyCollectionContainer(cache);
     if(containerOnline->fetchOrCreate(IdentifierHash(0)).isFailure()){
-      std::cout << "Error in FetchOrCreate " << std::endl; std::abort();
+         cout << "Error in FetchOrCreate " << endl; std::abort();
 
     }
     if(containerOnline->addCollection(new MyCollection(MyID(10)), IdentifierHash(10)).isFailure()){
-        std::cout << "Error in addCollection cache link " << std::endl; std::abort();
+         cout << "Error in addCollection cache link " << endl; std::abort();
     }
 //	if (sc.isFailure())
 //            std::cout << "error:addCollection->" << p->identifyHash() << std::endl;
@@ -561,12 +562,12 @@ int ID_ContainerTest::execute(){
     std::vector<IdentifierHash> IDCshouldContain = { IdentifierHash(0), IdentifierHash(10) };
     assert(cache->ids().size() == 3);
     if(cache->ids() != cacheshouldcontain){
-        std::cout << __FILE__ << " cache does not contain correct elements" << std::endl;
+        std::cout << __FILE__ << " cache does not contain correct elements" << endl;
         std::abort();
     }
     assert(containerOnline->GetAllCurrentHashs().size() == 2);
     if(containerOnline->GetAllCurrentHashs() != IDCshouldContain){
-        std::cout << __FILE__ << " IDC does not contain correct elements" << std::endl;
+        std::cout << __FILE__ << " IDC does not contain correct elements" << endl;
         std::abort();
     }
 
@@ -576,10 +577,10 @@ int ID_ContainerTest::execute(){
        auto end = containerOnline->end();
        while(be!=end){
 	  if(IDCshouldContain[l] != be.hashId()) {
-             std::cout << __FILE__ << " IDC does not contain correct elements " << __LINE__ << std::endl;
-             std::cout << "should be " << cacheshouldcontain[l]  << " is " << be.hashId() << std::endl; std::abort();
+             std::cout << __FILE__ << " IDC does not contain correct elements " << __LINE__ << endl;
+             std::cout << "should be " << cacheshouldcontain[l]  << " is " << be.hashId() << endl; std::abort();
           }else{
-              std::cout << "Correctly contains " << cacheshouldcontain[l].value() << std::endl;
+             std::cout << "Correctly contains " << cacheshouldcontain[l].value() << endl;
           }
 //          for(int f=0;f<l;f++) be->add(new MyDigit(l));
           ++be; ++l;
@@ -593,7 +594,7 @@ int ID_ContainerTest::execute(){
        digit_const_iterator it2 = select.end();  
        size_t count = 0;
        for( ; it1!=it2; ++it1) count++;
-       std::cout << "count is " << count << " should be 20 " << std::endl;
+       cout << "count is " << count << " should be 20 " << endl;
        if(count !=20) std::abort();
     }
 
@@ -601,7 +602,7 @@ int ID_ContainerTest::execute(){
 
     delete cache;
     delete containerOnline;
-    std::cout << "MyDigits left undeleted " << MyDigit::s_total << std::endl;    
+    cout << "MyDigits left undeleted " << MyDigit::s_total << endl;    
 }
     return 0;
 

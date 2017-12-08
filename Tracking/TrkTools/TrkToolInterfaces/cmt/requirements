@@ -1,0 +1,26 @@
+package TrkToolInterfaces
+
+author Wolfgang.Liebig <Wolfgang.Liebig@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use DataModel      	DataModel-* 	      Control
+use AthLinks            AthLinks-*            Control
+use TrkEventPrimitives  TrkEventPrimitives-*  Tracking/TrkEvent
+use GaudiInterface      GaudiInterface-*      External
+use TrkTrack            TrkTrack-*            Tracking/TrkEvent
+use TrkParameters       TrkParameters-*       Tracking/TrkEvent
+use TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-* Tracking/TrkEvent
+use TrkParticleBase     TrkParticleBase-*     Tracking/TrkEvent
+use TrkTrackSummary     TrkTrackSummary-*     Tracking/TrkEvent
+use TrkEventUtils       TrkEventUtils-*       Tracking/TrkEvent
+use TrkSegment          TrkSegment-*          Tracking/TrkEvent
+use xAODTracking        xAODTracking-*        Event/xAOD
+use xAODTruth           xAODTruth-*           Event/xAOD
+use EventPrimitives     EventPrimitives-*     Event
+use TrkSurfaces         TrkSurfaces-*         Tracking/TrkDetDescr
+use AthContainers       AthContainers-*      Control
+use TrkMaterialOnTrack  TrkMaterialOnTrack-* Tracking/TrkEvent
+
+# Define this package as a metalibrary for cmake so that clients have access to the libraries
+# and headerfiles of packages that this one depends on. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary

@@ -12,7 +12,7 @@
 
 
 #include "SGTools/TestStore.h"
-#include "AthenaKernel/DataBucketBase.h"
+#include "SGTools/DataBucketBase.h"
 #include <iostream>
 #include <algorithm>
 

@@ -13,9 +13,14 @@
 #include "ISF_Interfaces/IParticleHelper.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 
+//#include "ISF_Geant4Interfaces/IPhysicsValidationUserAction.h"
+
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+
+// Atlas G4 Helpers
+#include "SimHelpers/SecondaryTracksHelper.h"
 
 #ifndef MAXCHILDREN
 #define MAXCHILDREN 40
@@ -35,18 +40,18 @@ namespace ISF {
 #include "G4UserRunAction.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4UserTrackingAction.hh"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA{
   namespace iGeant4 {
-    class PhysicsValidationUserAction: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction, public G4UserTrackingAction
+    class PhysicsValidationUserAction: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction, public G4UserTrackingAction, public AthMessaging
     {
 
     public:
 
       struct Config
       {
-        MSG::Level verboseLevel=MSG::INFO;
+        unsigned int verboseLevel=0;
 	bool validationOutput = true;
 	std::string validationStream="ISFG4SimKernel";
 	ServiceHandle<ITHistSvc> thistSvc=ServiceHandle<ITHistSvc>("THistSvc", "PhysicsValidationUserAction");
@@ -79,7 +84,9 @@ namespace G4UA{
     private:
 
       Config m_config;
-
+      
+      SecondaryTracksHelper m_sHelper;
+      
       /** access to the central ISF GeoID serice*/
       ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead
       
@@ -133,10 +140,6 @@ namespace G4UA{
       mutable int m_currentTrack;
       std::map<int, int> m_trackGenMap;
       
-      /// Log a message using the Athena controlled logging system
-      MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-      bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-      mutable Athena::MsgStreamMember m_msg;
     }; // class PhysicsValidationUserAction
 
   } // namespace iGeant4

@@ -97,7 +97,14 @@ class AlgNode():
         return "Alg::%s  [%s] -> [%s]"%(self.name,' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
- 
+ ## class TestRecoAlgNode(AlgNode):
+ ##    def __init__(self, Alg, inputProp, outputProp):
+ ##        ## self.outputProp='Output'
+ ##        ## self.inputProp='Input'
+ ##        self.name = "R_"+ name
+ ##        AlgNode.__init__(self, name, Alg, inputProp, outputProp)
+
+
 class HypoAlgNode(AlgNode):
     def __init__(self, Alg, inputProp, outputProp):
         AlgNode.__init__(self, Alg, inputProp, outputProp)
@@ -115,11 +122,16 @@ class HypoAlgNode(AlgNode):
             return self.setPar('HypoTools',hypotool)        
 
 
-
+from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
 class SequenceFilterNode(AlgNode):
-    def __init__(self, Alg, inputProp, outputProp):
+    def __init__(self, name):
+        Alg= HLTTest__TestRoRSeqFilter(name, OutputLevel = 2)
+        inputProp='Inputs'
+        outputProp='Outputs'
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
-        
+        if "Step1" in self.name: # so that we see events running through, will be gone once L1 emulation is included
+            self.Alg.AlwaysPass = True   
+  
     def addDefaultOutput(self):
         return #do nothing    
        
@@ -130,56 +142,14 @@ class SequenceFilterNode(AlgNode):
         return self.getPar("Chains")
 
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
-class TestRoRSequenceFilterNode(SequenceFilterNode):       
-    def __init__(self, name):
-        Alg= HLTTest__TestRoRSeqFilter(name, OutputLevel = 2)
-        inputProp='Inputs'
-        outputProp='Outputs'
-        SequenceFilterNode.__init__(self,  Alg, inputProp, outputProp)
-        if "Step1" in self.name: # so that we see events running through, will be gone once L1 emulation is included
-            self.Alg.AlwaysPass = True   
-  
-   
-
-from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-class RoRSequenceFilterNode(SequenceFilterNode):
-    def __init__(self, name):
-        Alg= RoRSeqFilter(name, OutputLevel = 2)
-        inputProp='Input'
-        outputProp='Output'
-        SequenceFilterNode.__init__(self,  Alg, inputProp, outputProp)
-        
-
 
 
 #### Here functions to create the CF tree from CF configuration objects
 
+#from TrigUpgradeTest.HLTCFConfig import *
+#include("TrigUpgradeTest/HLTSignatureConfig.py")
 
-from AthenaCommon.AlgSequence import dumpSequence
-def create_step_reco_node(name, seq_list, dump=0):
-    print "Create reco step %s with %d sequences"%(name, len(seq_list))
-    stepCF = parOR(name+"_reco")
-    for seq in seq_list:        
-        step_seq = create_CFSequence(seq)             
-        stepCF += step_seq
-    
-    if dump: dumpSequence (stepCF, indent=0)        
-    return stepCF
-
-
-def create_step_filter_node(name, seq_list, dump=0):
-    print "Create filter step %s with %d filters"%(name, len(seq_list))
-    stepCF = parOR(name+"_filter")
-    for seq in seq_list:
-        filterAlg=seq.filter.Alg                    
-        print "Add  %s to filter node %s"%(filterAlg.name(),name)
-        stepCF += filterAlg
-    
-    if dump: dumpSequence (stepCF, indent=0)        
-    return stepCF
-
-
+import re
 def create_CFSequence(CFseq):   
     print "\n * Create CFSequence %s"%(CFseq.name)
     filterAlg=CFseq.filter.Alg
@@ -191,14 +161,9 @@ def create_CFSequence(CFseq):
 
     algos=list(set(algos))
 
-    step_seq = create_step_sequence( CFseq.name, filterAlg=filterAlg, rest=algos)       
+    step_seq = stepSeq( CFseq.name, filterAlg=filterAlg, rest=algos)       
     return step_seq
 
-def create_step_sequence(name, filterAlg, rest):
-    """ elementary HLT step sequencer, filterAlg is gating, rest is anything that needs to happe within the step """
-    stepReco = parOR(name+"_reco", rest)
-    stepAnd = seqAND(name, [ filterAlg, stepReco ])
-    return stepAnd
   
 
 def find_stepCF_algs(step_list):
@@ -210,115 +175,25 @@ def find_stepCF_algs(step_list):
         for seq in step.menuSeq.nodeSeqList:
             step_algs.extend(seq.algs )
             step_algs.append(seq.hypo)
+        #print step_algs
         algos.extend(step_algs)
     return algos        
             
 
-
-
-
-#######################################
-def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
-
-    testRoR=False
-    from TrigUpgradeTest.MenuComponents import CFSequence
-    #loop over chains to configure
-    count_steps=0
-    for nstep in range(0, NSTEPS):
-        stepCF_name =  "Step%i"%(nstep+1)
-        CFseq_list = []
-
-        for chain in chains:
-            chain_step_name= "%s:%s"%(stepCF_name, chain.name)
-            print "\n*******Filling step %s for chain  %s"%(stepCF_name, chain.name)
-      
-            chain_step=chain.steps[count_steps]
-            sequenceHypoTool=chain_step.sequenceHypoTool
-            for st in sequenceHypoTool:
-                sequence=st.sequence
-                hypotool=st.hypotool
-                cfseq_name= sequence.name
-
-                print "Going through sequence %s with threshold %s"%(sequence.name, hypotool)
-                #define sequence input
-                if count_steps == 0: # seeding
-                    previous_sequence="".join(chain.group_seed)
-                    print "Chain group seed : %s"%(previous_sequence)
-                    sequence_input = chain.group_seed
-                else:
-                    # from previous step
-                    previous_sequence=chain.steps[count_steps-1].sequence
-                    sequence_input=previous_sequence.outputs
-
-                # add hypotools
-                for nodeSeq in sequence.nodeSeqList:
-                    hypoAlg= nodeSeq.hypo                
-                    print "Adding %s to %s"%(hypotool,hypoAlg.algname)
-                    hypoAlg.addHypoTool(hypotool)
-
-
-                #### FILTER
-                # one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
-                # if the previous hypo has more than one output, try to get all of them
-                # one filter per previous sequence: 1 input/previous seq, 1 output/next seq 
-                filter_name="Filter_%s%s"%(stepCF_name,previous_sequence)
-                filter_out=["%s_from%s_out"%(filter_name,i) for i in sequence_input]
-                filter_already_exists=False
-                findFilter= [cfseq.filter for cfseq in CFseq_list if filter_name in cfseq.filter.algname]        
-                if len(findFilter):
-                    print "Filter %s already exists"%(filter_name)
-                    filter_already_exists=True
-                    sfilter=findFilter[0]
-                    print "Adding chain %s to %s"%(chain.name,sfilter.algname)
-                    sfilter.setChains(chain.name)
-                    continue
-                else:
-                    if (testRoR):
-                        sfilter = TestRoRSequenceFilterNode(name=filter_name)
-                    else:
-                        sfilter = RoRSequenceFilterNode(name=filter_name)
-                    for o in filter_out: sfilter.setOutput(o)            
-                    for i in sequence_input: sfilter.setInput(i)
-                    sfilter.setChains(chain.name)
-                    print "Filter Done: %s"%(sfilter)
-                    
-                #loop over NodeSequences of this sequence to add inputs to InputMaker
-                for nodeSeq in sequence.nodeSeqList:
-                    seed=nodeSeq.seed                    
-                    input_maker_input= [inp for inp in sfilter.getOutputList() if ("from"+seed) in inp]
-                    print "Adding %d inputs (from %s) to InputMaker %s from Filter %s"%(len(input_maker_input), seed, nodeSeq.inputMaker.algname, sfilter.algname)
-                    for i in input_maker_input: nodeSeq.inputMaker.setInput(i)                
-                                    
-                CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)    
-                print CF_seq
-                CFseq_list.append(CF_seq)
-           
-            #end of sequence/threshold
-                
-        #end of loop over chains for this step, now implement CF:
-        print "\n******** Create CF Tree %s with AthSequencers",stepCF_name
-        #first make the filter step
-        stepFilter = create_step_filter_node(stepCF_name, CFseq_list, dump=0)
-        HLTAllStepsSeq += stepFilter
-        
-        stepCF = create_step_reco_node(stepCF_name, CFseq_list, dump=0)
-        HLTAllStepsSeq += stepCF
-        
-        print "Now Draw..."
-        stepCF_DataFlow_to_dot(stepCF_name, CFseq_list)
-        stepCF_ControlFlow_to_dot(stepCF)
-
-       
-        print "Added stepCF %s to the root"%stepCF_name     
-        count_steps+=1
-        print "************* End of step %s"%stepCF_name
-        # end of steps
-
-    #stepCF_ControlFlow_to_dot(HLTAllStepsSeq)
-    dumpSequence (HLTAllStepsSeq, indent=0)
-    return
-#####
+from AthenaCommon.AlgSequence import dumpSequence
+def create_StepCF(name, seq_list, dump=0):
+    print "There are %d steps in this CFStep %s"%(len(seq_list), name)
+    stepCF = parOR(name)
+    for seq in seq_list:        
+        step_seq = create_CFSequence(seq)             
+        print "Add this step %s to %s"%(seq.name,name)
+        stepCF += step_seq
     
+    if dump: dumpSequence (stepCF, indent=0)
+        
+    return stepCF
+
+
 
 ###### Here some graphical methods
 
@@ -341,7 +216,7 @@ def stepCF_ControlFlow_to_dot(stepCF):
                 o.append( ("%s[color=%s, shape=circle, width=.5, fixedsize=true ,style=filled]\n"%(c.name(),_seqColor(c)), indent) )
             else:
                 o.append( ("%s[fillcolor=%s,style=filled]\n"%(c.name(),algColor(c.name())), indent) )
-            o.append( ("%s -> %s\n"%(seq.name(), c.name()), indent))
+            o.append( ("%s -> %s"%(seq.name(), c.name()), indent))
             o.extend( _dump (c, indent+1) )
         return o
 
@@ -401,11 +276,14 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
 
     for cfseq in cfseq_list:
-        print cfseq.name
         file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))
         for inp in cfseq.filter.getInputList():
             file.write(addConnection(name, cfseq.filter.algname, inp))
-           
+        for seq in cfseq.menuSeq.nodeSeqList:
+            for inp in seq.inputMaker.getInputList():
+                file.write(addConnection(cfseq.filter.algname,seq.inputMaker.algname,inp))
+
+        #        file.write('%s -> %s [label=%s]'%(name,cfseq.filter.algname,cfseq.filter.inputs[0]))
         file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.name)\
                     +'     node [color=white style=filled]\n'\
                     +'     style=filled\n'\
@@ -414,7 +292,8 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
                     +'     label = %s\n'%(cfseq.name))
 
         cfseq_algs = []
-        cfseq_algs.append(cfseq.filter)       
+        cfseq_algs.append(cfseq.filter)
+        #        cfseq_algs.append(cfseq.hypo)
 
         for seq in cfseq.menuSeq.nodeSeqList:
             cfseq_algs.append(seq.inputMaker)
@@ -426,6 +305,7 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs.append(seq.hypo)
  
             file.write("    %s[color=%s]\n"%(seq.hypo.algname, algColor(seq.hypo.algname)))
+        #file.write("    %s[color=%s]\n"%(cfseq.hypo.algname, algColor(cfseq.hypo.algname)))
         file.write('  }\n')              
         file.write(findConnections(cfseq_algs))
         file.write('\n')    
@@ -442,13 +322,11 @@ def findConnections(alg_list):
                 continue
             dataIntersection = list(set(nodeA.getOutputList()) & set(nodeB.getInputList()))
             if len(dataIntersection) > 0:
-                for line in dataIntersection:
-                    lineconnect+=addConnection(nodeA.algname,nodeB.algname, line)
-                    print 'Data connections between %s and %s: %s'%(nodeA.algname, nodeB.algname, line)
+                lineconnect+=addConnection(nodeA.algname,nodeB.algname, dataIntersection[0])
+                print 'Data connections between %s and %s: %s'%(nodeA.algname, nodeB.algname, dataIntersection)
     return lineconnect
 
 def addConnection(nodeA, nodeB, label):
     line = "    %s -> %s [label=%s]\n"%(nodeA,nodeB,label)
-    # print line
     return line
 

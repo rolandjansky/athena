@@ -87,9 +87,9 @@ StatusCode iFatras::FatrasSimSvc::simulate(const ISF::ISFParticle& isp)
       return StatusCode::SUCCESS;
   }
   /** Process Particle from particle broker */
-  ISF::ISFParticle* newIsp = (isp.nextGeoID()==AtlasDetDescr::fAtlasID || isp.nextGeoID()==AtlasDetDescr::fAtlasForward) ? m_IDsimulationTool->process(isp) : m_simulationTool->process(isp);
+  ISF::ISFParticle* newIsp = (isp.nextGeoID()==AtlasDetDescr::fAtlasID) ? m_IDsimulationTool->process(isp) : m_simulationTool->process(isp);
   ATH_MSG_VERBOSE( m_screenOutputPrefix << "Simulation created : " << ( newIsp ? "" : "no") << " new particle");
-
+  
   if (newIsp) {
     // new particle into the stack
     m_particleBroker->push(newIsp, &isp);

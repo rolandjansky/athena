@@ -7,7 +7,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as af
 af.FilesInput = [
 "/afs/cern.ch/user/y/yuraic/test_CaloMonitoring/test_CaloMon/myAOD_JetTauEtmiss_0.AOD.pool.root"
 #"/afs/cern.ch/user/y/yuraic/testarea/test_lumi/data/data12_8TeV.00211670.express_express.merge.ESD.r4065_p1278_tid01070414_00/ESD.01070414._000034.pool.root.1"
-#"root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/data12_8TeV/ESD/r4065/data12_8TeV.00204955.express_express.recon.ESD.r4065_tid01034439_00/ESD.01034439._000461.pool.root.1"
+#"root://eosatlas//eos/atlas/atlasdatadisk/data12_8TeV/ESD/r4065/data12_8TeV.00204955.express_express.recon.ESD.r4065_tid01034439_00/ESD.01034439._000461.pool.root.1"
 ]
 
 af.EvtMax=150 # number of event to process

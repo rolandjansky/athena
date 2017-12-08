@@ -30,6 +30,8 @@ namespace ISF {
   class ISFParticle;
   class TruthBinding;
  
+  static const InterfaceID IID_IParticleHelper("IParticleHelper", 1, 0);
+   
   /**
    @class IParticleHelper
        
@@ -47,8 +49,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IParticleHelper(){}
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(IParticleHelper, 1, 0);
+       /** AlgTool interface methods */
+       static const InterfaceID& interfaceID() { return IID_IParticleHelper; }
 
        /** Create a new particle */
        virtual ISFParticle* createParticle(double x, double y, double z,

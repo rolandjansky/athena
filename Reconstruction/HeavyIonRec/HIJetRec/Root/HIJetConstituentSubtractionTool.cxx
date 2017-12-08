@@ -35,12 +35,12 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
   if(EventShapeKey().compare("")==0) 
   {
     ATH_MSG_INFO("No HIEventShape specified, skipping tool.");
-    return 0;
+    return StatusCode::FAILURE;
   }
   if(evtStore()->retrieve(shape,EventShapeKey()).isFailure())
   {
     ATH_MSG_ERROR("Could not retrieve input HIEventShape " << EventShapeKey() );
-    return 0;
+    return StatusCode::FAILURE;
   }
 
   const HIEventShapeIndex* es_index=HIEventShapeMap::getIndex(EventShapeKey());
@@ -56,7 +56,7 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
   if(m_modulator_tool->getShape(eshape).isFailure())
   {
     ATH_MSG_ERROR("Could not retrieve output shape w/ modulator tool");
-    return 0;
+    return StatusCode::FAILURE;
   }
   
   //check to see if unsubtracted moment has been stored

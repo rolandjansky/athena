@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 788319 2016-12-07 01:04:30Z christos $
 ################################################################################
 # Package: IsolationCorrections
 ################################################################################
@@ -30,8 +31,8 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )
-find_package( Boost )
 
+# Component(s) in the package:
 atlas_add_library( IsolationCorrectionsLib
    IsolationCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS IsolationCorrections

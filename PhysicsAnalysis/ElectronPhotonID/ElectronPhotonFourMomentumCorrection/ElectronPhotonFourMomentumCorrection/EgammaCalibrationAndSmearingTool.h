@@ -13,10 +13,10 @@
 #include <array>
 #include <memory>
 
-#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/AsgMessaging.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "xAODEgamma/Electron.h"
@@ -144,7 +144,6 @@ private:
   egEnergyCorr::Resolution::resolutionType m_TResolutionType;
   int m_use_AFII;
   PATCore::ParticleDataType::DataType m_simulation = PATCore::ParticleDataType::Full;
-  int m_RandomRunNumber;
   //flags duplicated from the underlying ROOT tool
   int m_useLayerCorrection;
   int m_usePSCorrection;

@@ -13,11 +13,15 @@
 #include "GaudiKernel/ToolHandle.h" // For tool handle array
 #include "G4AtlasInterfaces/IFastSimulation.h" // Thing we have a handle on
 
-class FastSimulationMasterTool : public extends<AthAlgTool , IFastSimulationMasterTool> {
+class FastSimulationMasterTool : public AthAlgTool , public virtual IFastSimulationMasterTool {
  public:
   // Standard constructor and destructor
   FastSimulationMasterTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~FastSimulationMasterTool() {}
+
+  // Gaudi methods
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
+  static const InterfaceID& interfaceID() { return IFastSimulationMasterTool::interfaceID(); }
 
   // Base class methods
   StatusCode initializeFastSims() override final; ///!< Base class method to initialize all the fast simulation models

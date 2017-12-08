@@ -23,8 +23,11 @@ class IFieldManagerTool : virtual public IAlgTool
 {
   public:
 
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IFieldManagerTool, 1, 0);
+    /// Gaudi interface ID
+    static const InterfaceID& interfaceID() {
+      static const InterfaceID IID_IFieldManagerTool("IFieldManagerTool", 1, 0);
+      return IID_IFieldManagerTool;
+    }
 
     /// Initialize a field manager, field, and stepper
     virtual StatusCode initializeField() = 0;

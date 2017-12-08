@@ -10,16 +10,20 @@
 
 
 
-TRTUtilities* TRTUtilities::s_pUtilities = NULL;
+TRTUtilities* TRTUtilities::pUtilities = NULL;
 
 
   // Called by GetPointer
 
 TRTUtilities::TRTUtilities() : m_msg("TRTUtilities")
 {
+  TRTParameters* pParameters = TRTParameters::GetPointer();
+
+  printMessages = pParameters->GetInteger("PrintMessages");
+
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTUtilities" << endmsg;
 
-  m_pOutputFile = NULL;
+  pOutputFile = NULL;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTUtilities done" << endmsg;
 }
@@ -31,7 +35,7 @@ TRTUtilities::~TRTUtilities()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTUtilities" << endmsg;
 
-  s_pUtilities = NULL;
+  pUtilities = NULL;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTUtilities done" << endmsg;
 }
@@ -41,10 +45,10 @@ TRTUtilities::~TRTUtilities()
 
 std::ofstream& TRTUtilities::GetReference()
 {
-  if (!m_pOutputFile)
-    m_pOutputFile = TRTOutputFile::GetPointer();
+  if (!pOutputFile)
+    pOutputFile = TRTOutputFile::GetPointer();
 
-  return m_pOutputFile->GetReference();
+  return pOutputFile->GetReference();
 }
 
 

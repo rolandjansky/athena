@@ -34,7 +34,9 @@ namespace Simulation {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class VertexPositionFromFile : public extends<AthAlgTool, ILorentzVectorGenerator> {
+  class VertexPositionFromFile : public AthAlgTool,
+                                 virtual public ILorentzVectorGenerator
+  {
 
     public:
       /** Constructor with parameters */

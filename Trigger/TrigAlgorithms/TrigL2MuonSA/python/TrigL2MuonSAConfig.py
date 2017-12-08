@@ -15,6 +15,7 @@ theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
 theTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
 ptFromAlphaBeta      = TrigL2MuonSA__PtFromAlphaBeta()
 
+
 ToolSvc += theDataPreparator
 ToolSvc += thePatternFinder
 ToolSvc += theStationFitter
@@ -128,26 +129,15 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
 
         # adding Geometry Services
-
-        # Monitoring system used by Run-2
-        # Histograms for monitored variables
-        #validation = TrigL2MuonSAValidationMonitoring()
-        #online     = TrigL2MuonSAOnlineMonitoring()
-        #cosmic     = TrigL2MuonSACosmicMonitoring()
-        #time       = TrigTimeHistToolConfig('TimeHisto')
-
-        #self.AthenaMonTools = [ validation, online, cosmic, time ]
-
-	# Setup MonTool for monitored variables in AthenaMonitoring package 
-        # defined which histogram are created at TrigL2MuonSAMonitoring.py
         
-        try:
-            TriggerFlags.enableMonitoring = ["Validation"]
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                self.MonTool = TrigL2MuonSAMonitoring()
-        except AttributeError:
-            self.MonTool = ""
-            print name, ' Monitoring Tool failed'
+        # Histograms for monitored variables
+        validation = TrigL2MuonSAValidationMonitoring()
+        online     = TrigL2MuonSAOnlineMonitoring()
+        cosmic     = TrigL2MuonSACosmicMonitoring()
+
+        time       = TrigTimeHistToolConfig('TimeHisto')
+
+        self.AthenaMonTools = [ validation, online, cosmic, time ]
 
         def setDefaults(cls,handle):
             if hasattr(handle,'BackExtrapolator'):

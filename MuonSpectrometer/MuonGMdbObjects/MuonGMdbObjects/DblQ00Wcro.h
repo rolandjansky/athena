@@ -13,8 +13,7 @@
 #ifndef DBLQ00_WCRO_H
 #define DBLQ00_WCRO_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 namespace MuonGM
 {
 class DblQ00Wcro {
@@ -22,7 +21,7 @@ class DblQ00Wcro {
 public:
     DblQ00Wcro(){};
     ~DblQ00Wcro();
-    DblQ00Wcro(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcro(IRDBQuery*);
     
     // data members for DblQ00/WCRO fields
     struct WCRO {

@@ -48,11 +48,6 @@ EGammaAmbiguityTool::EGammaAmbiguityTool(std::string myname) :
   declareProperty("maxEoverPCut", m_maxEoverPCut = 10,"Maximum EoverP , more that this is ambiguous");
   declareProperty("minPCut",      m_minPtCut = 2000 ,  "Minimum Pt, less than that is ambiguous");
   declareProperty("maxDeltaR_innermost",      m_maxDeltaR_innermost = 40 ,  "Maximum value for Rconv - RfirstHit for Si+Si conversions where both tracks have innermost hits");
-  declareProperty("ElectronContainerName", m_electronContainerName = "Electrons",
-		  "Electron container name");
-  declareProperty("PhotonContainerName", m_photonContainerName = "Photons",
-		  "Photon container name");
-  declareProperty("AcceptAmbiguous", m_acceptAmbiguous = true,"When used as a selector accept the ambiguous as default");
 
 }
 
@@ -162,7 +157,7 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
 
   if( track_ep > m_maxEoverPCut) {
     ATH_MSG_DEBUG("Returning Ambiguous due to E over P");
-    type=xAOD::AmbiguityTool::ambiguousTrackHighEoverP;
+    type=xAOD::AmbiguityTool::ambiguousTrackLowEoverP;
     return xAOD::EgammaParameters::AuthorAmbiguous;
   }
 
@@ -267,7 +262,7 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) c
 }
 
 /** Accept or reject egamma object based on ambiguity resolution */
-bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma) const{
+bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma, bool acceptAmbiguous ) const{
   unsigned int author = ambiguityResolve(egamma);
 
   if (author == xAOD::EgammaParameters::AuthorFwdElectron ||
@@ -275,7 +270,7 @@ bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma) const{
     return true;
   }
 
-  if (m_acceptAmbiguous && author == xAOD::EgammaParameters::AuthorAmbiguous){
+  if (acceptAmbiguous && author == xAOD::EgammaParameters::AuthorAmbiguous){
     return true;
   }
 

@@ -18,6 +18,9 @@ namespace ISF {
   // forward declarations
   class ISFParticle;
 
+
+  static const InterfaceID IID_ITrkExtrapolator("ITrkExtrapolator", 1, 0);
+   
   /**
    @class ITrkExtrapolator
       
@@ -35,8 +38,8 @@ namespace ISF {
       /** virtual destructor */
       ~ITrkExtrapolator() { ; }
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(ITrkExtrapolator, 1, 0);
+      /** AlgTool interface methods */
+      static const InterfaceID& interfaceID() { return IID_ITrkExtrapolator; }
       
       /** Extrapolate the given ISFParticle */
       virtual ISF::ISFParticle* extrapolate( const ISF::ISFParticle &particle ) const = 0;

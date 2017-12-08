@@ -9,4 +9,3 @@ SG::ExcNullWriteHandle: Attempt to dereference write handle before record: FooSv
 SG::ExcNullReadHandle: Dereference of read handle failed: FooSvc+foo[123]
 SG::ExcNullUpdateHandle: Dereference of update handle failed: FooSvc+foo[123]
 SG::ExcUpdatedObjectFailure: updatedObject failed: FooSvc+foo[123]
-SG::ExcNonConstHandleKey: Attempt to get non-const VarHandleKey from non-owning VarHandle: FooSvc+foo[123]

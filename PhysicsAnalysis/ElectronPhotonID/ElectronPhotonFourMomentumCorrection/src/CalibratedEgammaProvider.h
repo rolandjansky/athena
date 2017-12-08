@@ -15,7 +15,8 @@
 #include "AsgTools/ToolHandle.h"
 
 // Local include(s):
-#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
+
 #include "xAODCore/ShallowCopy.h"
 
 #include "xAODEgamma/ElectronContainer.h" 

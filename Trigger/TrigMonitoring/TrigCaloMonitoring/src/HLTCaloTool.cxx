@@ -24,7 +24,6 @@
 HLTCaloTool::HLTCaloTool(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent),
  m_tcrAlgTools(this),
  m_onlineHelper(NULL),
- m_cablingSvc("LArCablingService"),
  m_tileID(NULL)
 {
 	declareProperty ("TCRTools", m_tcrAlgTools);

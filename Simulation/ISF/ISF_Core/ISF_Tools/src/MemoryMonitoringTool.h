@@ -34,7 +34,8 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class MemoryMonitoringTool : public extends<AthAlgTool, IMonitoringTool> {
+  class MemoryMonitoringTool : public AthAlgTool,
+                               public IMonitoringTool {
       
     public: 
      /** Constructor with parameters */

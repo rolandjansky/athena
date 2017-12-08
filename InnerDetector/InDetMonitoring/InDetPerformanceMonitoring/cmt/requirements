@@ -1,0 +1,97 @@
+package InDetPerformanceMonitoring
+
+author Tobias Golling <TFGolling@lbl.gov>
+
+# General
+use AtlasPolicy AtlasPolicy-*
+
+private
+apply_tag ROOTMathLibs
+apply_tag ROOTGraphicsLibs
+
+# InDet packages which may be needed
+use InDetIdentifier 		InDetIdentifier-* 		InnerDetector/InDetDetDescr
+use InDetPrepRawData 		InDetPrepRawData-* 		InnerDetector/InDetRecEvent
+use IdDictDetDescr  		IdDictDetDescr-*     		DetectorDescription
+
+# Muons - for IDPerfMonZmumu by Jike Wang
+use GaudiInterface              GaudiInterface-*                External
+
+#packages needed for offline monitoring
+#use TrkExUtils             	TrkExUtils-*                 	Tracking/TrkExtrapolation
+use TrkV0Vertex 	       	TrkV0Vertex-*	       		Tracking/TrkEvent
+use TrkParameters         	TrkParameters-*   		Tracking/TrkEvent
+use TrkEventPrimitives 		TrkEventPrimitives-* 		Tracking/TrkEvent
+
+use  EventPrimitives            EventPrimitives-*               Event
+
+
+
+#packages needed for IDPerfMonZmumu
+use TrkTruthData        TrkTruthData-*          Tracking/TrkEvent
+
+# for electron monitoring by Sara Strandberg
+#use JetEvent              	JetEvent-*             		Reconstruction/Jet
+#use JetTagEvent             	JetTagEvent-*           	PhysicsAnalysis/JetTagging
+
+
+# for  E over P monitoring
+use egammaInterfaces       	egammaInterfaces-*          	Reconstruction/egamma
+use TrigDecisionTool       	TrigDecisionTool-*     	    	Trigger/TrigAnalysis
+use TrkTrackSummary        	TrkTrackSummary-*         	Tracking/TrkEvent
+
+# for Kshort monitoring by Jed Biesiada
+use TrkVertexAnalysisUtils   	TrkVertexAnalysisUtils-*  	Tracking/TrkVertexFitter
+
+use AtlasHepMC            AtlasHepMC-*        External
+use EventInfo             EventInfo-*         Event
+
+public
+use AtlasROOT         		AtlasROOT-* 			  External
+use AthenaMonitoring  		AthenaMonitoring-* 		  Control
+use GaudiInterface    		GaudiInterface-* 		  External
+use StoreGate         		StoreGate-* 			  Control
+use AtlasCLHEP        		AtlasCLHEP-* 			  External
+use LWHists   			LWHists-*   			  Tools
+use AthenaKernel        	AthenaKernel-*   	  	  Control
+use AthenaBaseComps       	AthenaBaseComps-*  		  Control
+
+# Tracking packages for Track histograms
+use TrkTrack 			TrkTrack-* 			Tracking/TrkEvent
+use TrkParameters         	TrkParameters-*         	Tracking/TrkEvent
+
+use TrkParticleBase      	TrkParticleBase-*      		Tracking/TrkEvent
+#use VxVertex                 	VxVertex-*                	Tracking/TrkEvent
+use ITrackToVertex              ITrackToVertex-*                Reconstruction/RecoTools
+
+use egammaEvent                 egammaEvent-*                   Reconstruction/egamma
+#use muonEvent                   muonEvent-*                     Reconstruction/MuonIdentification
+
+#Other InDet Packages
+use InDetReadoutGeometry 	InDetReadoutGeometry-* 		InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack 		InDetRIO_OnTrack-* 		InnerDetector/InDetRecEvent
+#use InDetRawData 		InDetRawData-* 			InnerDetector/InDetRawEvent
+#use TRT_ConditionsServices 	TRT_ConditionsServices-* 	InnerDetector/InDetConditions
+
+use GeneratorObjects	GeneratorObjects-*	Generators/
+
+
+#xAOD packages
+use xAODEgamma            	xAODEgamma-*             Event/xAOD
+use xAODMuon		  	xAODMuon-*       	 Event/xAOD
+use xAODJet		  	xAODJet-*       	 Event/xAOD
+
+
+use xAODTracking		xAODTracking-*		 Event/xAOD
+use xAODTruth		  	xAODTruth-*		 Event/xAOD
+use xAODCaloEvent 	  	xAODCaloEvent-*		 Event/xAOD
+use xAODMissingET         	xAODMissingET-*          Event/xAOD
+
+use JetInterface     		JetInterface-*           Reconstruction/Jet
+
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*	PhysicsAnalysis/ElectronPhotonID
+#use IsolationSelection		IsolationSelection-*		PhysicsAnalysis/AnalysisCommon
+
+apply_pattern dual_use_library files=*.cxx
+apply_pattern declare_joboptions files="*.txt *.py" #InDetPerformanceMonitoring/*.py"
+#apply_pattern declare_python_modules files = "InDetPerformanceMonitoring/*.py *.py"

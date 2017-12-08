@@ -13,6 +13,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Wlbi.h"
+#include "RDBAccessSvc/IRDBQuery.h"
 #include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
@@ -33,7 +34,7 @@
 namespace MuonGM
 {
 
-DblQ00Wlbi::DblQ00Wlbi(std::unique_ptr<IRDBQuery>&& wlbi)
+DblQ00Wlbi::DblQ00Wlbi(IRDBQuery* wlbi)
  : m_nObj(0)
 {
   if(wlbi) {

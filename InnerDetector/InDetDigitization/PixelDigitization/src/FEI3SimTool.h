@@ -21,8 +21,10 @@ class FEI3SimTool:public FrontEndSimTool {
   private:
     FEI3SimTool();
 
-    std::vector<bool> m_HitDuplication;
-    std::vector<int>  m_SmallHitToT;
+    std::vector<bool> m_BarrelHitDuplication;
+    std::vector<bool> m_EndcapHitDuplication;
+    std::vector<int>  m_BarrelSmallHitToT;
+    std::vector<int>  m_EndcapSmallHitToT;
 
     int m_timingTune;
 

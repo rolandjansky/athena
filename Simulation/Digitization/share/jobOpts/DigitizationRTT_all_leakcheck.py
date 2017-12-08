@@ -17,7 +17,7 @@ memtrack.ignore( 'StoreGateSvc::setupProxy' )
 #--------------------------------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax = 25
-athenaCommonFlags.PoolHitsInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1"]
+athenaCommonFlags.PoolHitsInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1"]
 athenaCommonFlags.PoolRDOOutput="DigitizationOutput.pool.root"
 
 #--------------------------------------------------------------

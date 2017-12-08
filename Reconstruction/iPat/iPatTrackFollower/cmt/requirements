@@ -1,0 +1,51 @@
+package iPatTrackFollower
+
+######################################################################## 
+## follow tracks through inner detector (i.e. associate material & hits)
+## TrackFollower AlgTool and related classes
+######################################################################## 
+
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+author			Roger Clifft <Roger.Clifft@cern.ch>
+
+private
+use GeoPrimitives		  GeoPrimitives-*		 DetectorDescription
+use InDetConditionsSummaryService InDetConditionsSummaryService* InnerDetector/InDetConditions
+use InDetIdentifier		  InDetIdentifier-*		 InnerDetector/InDetDetDescr
+use InDetReadoutGeometry	  InDetReadoutGeometry-*	 InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack		  InDetRIO_OnTrack-*		 InnerDetector/InDetRecEvent
+use StoreGate			  StoreGate-*			 Control
+use TrkEventPrimitives		  TrkEventPrimitives-*		 Tracking/TrkEvent
+use TrkExInterfaces		  TrkExInterfaces-*		 Tracking/TrkExtrapolation
+use TrkExUtils			  TrkExUtils-*			 Tracking/TrkExtrapolation
+use TrkSurfaces			  TrkSurfaces-*			 Tracking/TrkDetDescr
+use TrkToolInterfaces		  TrkToolInterfaces-*		 Tracking/TrkTools
+
+public
+use AtlasPolicy			  AtlasPolicy-*
+use AthenaBaseComps		  AthenaBaseComps-*		 Control
+use GaudiInterface		  GaudiInterface-*		 External
+use InDetPrepRawData		  InDetPrepRawData-*		 InnerDetector/InDetRecEvent
+use TrkParameters		  TrkParameters-*		 Tracking/TrkEvent
+use iPatGeometry		  iPatGeometry-*		 Reconstruction/iPat
+use iPatInterfaces		  iPatInterfaces-*		 Reconstruction/iPat
+use iPatTrack			  iPatTrack-*			 Reconstruction/iPat
+
+library iPatTrackFollower      LayerAssociation.cxx	     \
+			       LayerPrediction.cxx	     \
+			       LayerPredictor.cxx	     \
+			       SiClusterProperties.cxx	     \
+			       SiliconClusterMap.cxx	     \
+			       SiliconLayerAssociator.cxx    \
+			       TrackBuilder.cxx		     \
+			       TrackFollower.cxx	     \
+			       components/*.cxx
+
+apply_pattern component_library	
+			       
+
+
+
+
+			  
+

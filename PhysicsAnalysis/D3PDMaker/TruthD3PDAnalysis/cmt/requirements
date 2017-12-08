@@ -1,0 +1,43 @@
+package TruthD3PDAnalysis
+
+author Georges Aad  <aad@cern.ch>
+
+use AtlasPolicy               AtlasPolicy-*     
+use GaudiInterface            GaudiInterface-*           External
+use AthenaBaseComps           AthenaBaseComps-*          Control
+use McParticleKernel          McParticleKernel-*         PhysicsAnalysis/TruthParticleID
+use D3PDMakerUtils            D3PDMakerUtils-*           PhysicsAnalysis/D3PDMaker
+
+private
+use AtlasHepMC                AtlasHepMC-*               External
+use AtlasBoost                AtlasBoost-*               External
+use HepPDT                    *                          LCG_Interfaces
+
+use AthenaKernel              AthenaKernel-*             Control
+use StoreGate                 StoreGate-*                Control
+use EventKernel               EventKernel-*              Event
+
+use GeneratorObjects          GeneratorObjects-*         Generators
+use TruthHelper               TruthHelper-*              Generators/GenAnalysisTools
+use Particle                  Particle-*                 Reconstruction
+use ParticleTruth             ParticleTruth-*            Reconstruction
+use TrkParticleBase           TrkParticleBase-*          Tracking/TrkEvent
+use McParticleEvent           McParticleEvent-*          PhysicsAnalysis/TruthParticleID
+
+use xAODJet          xAODJet-*            Event/xAOD
+use xAODEgamma       xAODEgamma-*         Event/xAOD
+use xAODMuon         xAODMuon-*           Event/xAOD
+use VxVertex         VxVertex-*           Tracking/TrkEvent
+
+use ParticleJetTools          ParticleJetTools-*         PhysicsAnalysis/AnalysisCommon
+use MCTruthClassifier         MCTruthClassifier-*        PhysicsAnalysis
+
+# Needed in 17.2, but not in 17.X.
+# Can remove once support for 17.2 is over.
+macro_append TruthD3PDAnalysis_use_linkopts " -lMCTruthClassifierLib "
+
+end_private
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_python_modules files=*.py

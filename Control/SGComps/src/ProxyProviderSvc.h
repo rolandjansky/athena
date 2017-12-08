@@ -22,7 +22,6 @@
 #include <list>
 #include <string>
 #include <algorithm>
-#include <vector>
 
 // framework includes
 #include "AthenaBaseComps/AthService.h"
@@ -104,15 +103,10 @@ private:
   /// the handler for m_providerNames
   void providerNamesPropertyHandler( Property& theProp );
   
-  StatusCode doPreLoadProxies(IProxyRegistry& storeToModify);
-
   /// the providers we know about. WE DON'T OWN THEM
   std::list<IAddressProvider*> m_providers; 
   /// Persistency Service
   IConversionSvc* m_pDataLoader;   
-
-  /// List of pending stores on which to run preLoadProxies().
-  std::vector<IProxyRegistry*> m_pendingLoad;
 };
 
 

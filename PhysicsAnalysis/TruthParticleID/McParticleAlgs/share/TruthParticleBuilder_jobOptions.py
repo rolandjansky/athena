@@ -32,8 +32,8 @@ from McParticleAlgs.JobOptCfg import McAodBuilder,createMcAodBuilder,PileUpClass
 # xAODTruthCnvAlg will also try to rebuild TruthEvents.
 if (objKeyStore.isInInput( "xAOD::TruthEventContainer", "TruthEvents" ) and
       not objKeyStore.isInInput( "xAODTruthParticleLinkVector", "xAODTruthLinks" ) ):
-    from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__RedoTruthLinksAlg
-    job += xAODMaker__RedoTruthLinksAlg("GEN_AOD2xAOD_links")
+    from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+    job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD_links", OnlyRedoLinks = True)
 
 if (objKeyStore.isInInput( "McEventCollection", "TruthEvent" ) and 
     not objKeyStore.isInInput( "McEventCollection", "GEN_AOD" )):

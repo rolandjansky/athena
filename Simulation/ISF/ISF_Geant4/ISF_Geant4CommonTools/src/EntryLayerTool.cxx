@@ -18,7 +18,7 @@
 
 /** Constructor **/
 ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, const IInterface* p) :
-  base_class(t,n,p),
+  AthAlgTool(t,n,p),
   m_incidentSvc("IncidentSvc",n),
   m_geoIDSvc("GeoIDSvc",n),
   m_geoIDSvcQuick(0),
@@ -29,6 +29,8 @@ ISF::EntryLayerTool::EntryLayerTool(const std::string& t, const std::string& n, 
   m_SGName(),
   m_volumeName()
 {
+  declareInterface<ISF::IEntryLayerTool>(this);
+
   // geometry identification service
   declareProperty( "GeoIDSvc",
                    m_geoIDSvc,

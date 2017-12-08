@@ -10,7 +10,7 @@
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "PATInterfaces/SystematicsTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
 
 testAthenaElectronAlg::testAthenaElectronAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),  

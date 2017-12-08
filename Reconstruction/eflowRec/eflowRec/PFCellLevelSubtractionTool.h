@@ -16,6 +16,7 @@
 #include "xAODTracking/TrackParticle.h"
 
 #include <vector>
+#include <cassert>
 
 class eflowCaloObjectContainer;
 class eflowRecTrackContainer;

@@ -26,7 +26,7 @@ namespace G4UA
   StatusCode LArGeoH62004SteppingActionTool::initialize()
   {
     //FIXME Old-style configuration - to be removed
-    const LArGeoTB2004Options *largeoTB2004Options = nullptr;
+    const LArGeoTB2004Options *largeoTB2004Options;
     if(detStore()->retrieve(largeoTB2004Options, "LArGeoTB2004Options").isFailure())
       {
         ATH_MSG_WARNING ( "Can't access LArGeoTB2004Options, using default values" );

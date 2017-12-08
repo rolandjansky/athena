@@ -50,7 +50,8 @@ namespace iFatras {
    @author Andreas.Salzburger -at- cern.ch 
    */
       
-  class HitCreatorTRT : public extends<AthAlgTool, IHitCreator, IIncidentListener>
+  class HitCreatorTRT : public AthAlgTool, virtual public IHitCreator,
+            virtual public IIncidentListener
   {
     public:
 

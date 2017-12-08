@@ -1,0 +1,26 @@
+package TRT_DetElementsRoadTool_xk
+
+author Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
+
+
+private
+
+use EventInfo              EventInfo-*              Event
+use TrkExInterfaces        TrkExInterfaces-*        Tracking/TrkExtrapolation
+use AthenaPoolUtilities    AthenaPoolUtilities-*    Database/AthenaPOOL
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use GaudiInterface         GaudiInterface-*         External 
+use MagFieldInterfaces *   MagneticField
+use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use InDetReadoutGeometry   InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
+use TrkGeometry            TrkGeometry-*            Tracking/TrkDetDescr
+
+library TRT_DetElementsRoadTool_xk *.cxx components/*.cxx 
+apply_pattern component_library
+
+

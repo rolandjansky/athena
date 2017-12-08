@@ -12,6 +12,7 @@ SimpleFastKillerTool::SimpleFastKillerTool(const std::string& type, const std::s
   : FastSimulationBase(type,name,parent)
 {
   m_regionNames = { "BeampipeFwdCut" };
+  declareInterface<IFastSimulation>(this);
 }
 
 G4VFastSimulationModel* SimpleFastKillerTool::makeFastSimModel()

@@ -90,7 +90,7 @@ bool RT_Relation_DigiTool::initializeTube(){
     m_rt[0]->set_name(file.c_str());
     if (!rt_file.good()) {
       ATH_MSG_FATAL("Could not open RT relation file " << m_rt[0]->name() );
-      return false;
+      return StatusCode::FAILURE;
     }
     else {
       ATH_MSG_DEBUG("RT relation file " << m_rt[0]->name() << " opened" );

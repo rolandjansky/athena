@@ -7,7 +7,7 @@
 #======================================================================  
 
 # Set up the reading of the input ESD or xAOD:
-FNAME = 'root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267638/data15_13TeV.00267638.express_express.recon.ESD.x342/data15_13TeV.00267638.express_express.recon.ESD.x342._lb0523._SFO-3._0001.1'
+FNAME = 'root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00267638/data15_13TeV.00267638.express_express.recon.ESD.x342/data15_13TeV.00267638.express_express.recon.ESD.x342._lb0523._SFO-3._0001.1'
 include( "AthenaPython/iread_file.py" )
 # import AthenaPoolCnvSvc.ReadAthenaPool
 # ServiceMgr.EventSelector.InputCollections = [ FNAME ]

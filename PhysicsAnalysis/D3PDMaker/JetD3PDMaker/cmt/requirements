@@ -1,0 +1,46 @@
+package JetD3PDMaker
+
+use AtlasPolicy               AtlasPolicy-*     
+use TrigCaloEvent             TrigCaloEvent-*        Trigger/TrigEvent
+
+
+private
+use GaudiInterface            GaudiInterface-*       External
+use AtlasBoost                AtlasBoost-*           External
+use SGTools                   SGTools-*              Control
+use AthenaKernel              AthenaKernel-*         Control
+use AthenaBaseComps           AthenaBaseComps-*      Control
+use Navigation                Navigation-*           Control
+use FourMomUtils	      FourMomUtils-*	     Event
+use EventKernel		      EventKernel-*	     Event
+use Particle                  Particle-*             Reconstruction
+use CaloEvent		      CaloEvent-*	     Calorimeter
+use CaloGeoHelpers            CaloGeoHelpers-*       Calorimeter
+
+use StoreGate                  StoreGate-*             Control
+use Identifier                 Identifier-*            DetectorDescription
+
+#use CaloConditions             CaloConditions-*        Calorimeter
+#use CaloDetDescr               CaloDetDescr-*          Calorimeter
+use CaloIdentifier             CaloIdentifier-*        Calorimeter
+#use CaloInterface	       CaloInterface-*	       Calorimeter
+use TileEvent                  TileEvent-*             TileCalorimeter
+use TileIdentifier             TileIdentifier-*        TileCalorimeter
+use TileConditions             TileConditions-*        TileCalorimeter
+
+use JetEvent		      JetEvent-*	     Reconstruction/Jet
+#use JetUtils		      JetUtils-*	     Reconstruction/Jet
+#use JetInterface              JetInterface-*         Reconstruction/Jet
+use VxVertex                  VxVertex-*             Tracking/TrkEvent
+use AnalysisTriggerEvent      AnalysisTriggerEvent-* PhysicsAnalysis/AnalysisTrigger
+use JetTagInfo	      	      JetTagInfo-*	     PhysicsAnalysis/JetTagging
+use JetTagEvent	      	      JetTagEvent-*	     PhysicsAnalysis/JetTagging
+use D3PDMakerUtils            D3PDMakerUtils-*       PhysicsAnalysis/D3PDMaker
+use D3PDMakerInterfaces       D3PDMakerInterfaces-*  PhysicsAnalysis/D3PDMaker
+use TriggerD3PDMaker          TriggerD3PDMaker-*     PhysicsAnalysis/D3PDMaker
+end_private
+
+library JetD3PDMaker *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"

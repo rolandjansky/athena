@@ -1,0 +1,25 @@
+package TrkV0Vertex
+
+author  Evelina Bouhova-Thacker <e.bouhova@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  DataModel                  DataModel-*                     Control
+use  EventKernel                EventKernel-*                   Event
+use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+private
+end_private
+
+library TrkV0Vertex *.cxx
+apply_pattern installed_library
+
+# persistency
+apply_pattern lcgdict dict=TrkV0Vertex selectionfile=selection.xml headerfiles="../TrkV0Vertex/V0VertexDict.h" \
+elementLinks="V0Container" headerfiles="../TrkV0Vertex/V0VertexDict.h"
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

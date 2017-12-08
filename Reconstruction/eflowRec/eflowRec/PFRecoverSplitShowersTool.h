@@ -11,6 +11,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "eflowRec/IPFSubtractionTool.h"
 
+#include <cassert>
+
 class eflowCaloObjectContainer;
 class eflowRecCluster;
 class eflowRecTrack;

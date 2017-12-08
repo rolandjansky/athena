@@ -85,7 +85,7 @@ StatusCode TrigTileMuToNtuple::execute()
    StatusCode sc;
 
    // step1: read  from TDS
-   const TileMuContainer*  mutags_cont = nullptr;
+   const TileMuContainer*  mutags_cont;
    sc=evtStore()->retrieve(mutags_cont, m_TileMuContainer);
    if(sc == StatusCode::FAILURE) {
      ATH_MSG_ERROR("cannot retrieve TileMuContainer in TDS");

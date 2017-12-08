@@ -1,0 +1,18 @@
+package EventPTCnv
+
+
+author    Alexandre Vaniachine <vaniachine@anl.gov>
+
+use AtlasPolicy          AtlasPolicy-*
+use EventTPCnv           EventTPCnv-*           Event
+
+library EventPTCnv  *.cxx
+apply_pattern installed_library
+#apply_pattern tpcnv_library
+
+private
+use AtlasReflex          AtlasReflex-*          External
+
+apply_pattern lcgdict dict=EventPTCnv  selectionfile=selection.xml headerfiles="../EventPTCnv/EventPTCnvDict.h"
+
+end_private

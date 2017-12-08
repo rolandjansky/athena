@@ -63,7 +63,7 @@ def addeos(filename):
    argv=pwd.split('/')
    postfix='/'.join(argv[-4:])
    middle='/'.join(argv[-8:-5])
-   prefix="root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod"
+   prefix="root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod"
    path=prefix+'/'+middle+'/'+postfix+'/'+filename
    return path
 

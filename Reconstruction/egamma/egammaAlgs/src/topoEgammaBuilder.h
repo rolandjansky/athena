@@ -27,7 +27,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
-#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h" 
 
 class egammaRec;

@@ -9,10 +9,8 @@ namespace G4UA{
   
   namespace iGeant4{
     
-    PhysicsValidationUserActionTool::PhysicsValidationUserActionTool(const std::string& type, const std::string& name,const IInterface* parent)
-      : ActionToolBase<PhysicsValidationUserAction>(type, name, parent)
-      , m_config()
-    {
+    PhysicsValidationUserActionTool::PhysicsValidationUserActionTool(const std::string& type, const std::string& name,const IInterface* parent):
+      ActionToolBase<PhysicsValidationUserAction>(type, name, parent), m_config(){
       
       
       declareProperty( "ValidationOutput",
@@ -39,15 +37,10 @@ namespace G4UA{
       
     }
     
-    std::unique_ptr<PhysicsValidationUserAction>  PhysicsValidationUserActionTool::makeAction()
-    {
+    std::unique_ptr<PhysicsValidationUserAction>  PhysicsValidationUserActionTool::makeAction(){
       ATH_MSG_DEBUG("makeAction");
-      if(msgLvl(MSG::VERBOSE))      { m_config.verboseLevel = MSG::VERBOSE; }
-      else if(msgLvl(MSG::DEBUG))   { m_config.verboseLevel = MSG::DEBUG;   }
-      else if(msgLvl(MSG::INFO))    { m_config.verboseLevel = MSG::INFO;    }
-      else if(msgLvl(MSG::WARNING)) { m_config.verboseLevel = MSG::WARNING; }
-      else if(msgLvl(MSG::ERROR))   { m_config.verboseLevel = MSG::ERROR;   }
-      else if(msgLvl(MSG::FATAL))   { m_config.verboseLevel = MSG::FATAL;   }
+      if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
+      else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
       auto action = CxxUtils::make_unique<PhysicsValidationUserAction>(m_config);
       return std::move(action);
     }

@@ -108,7 +108,7 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-  const LArAccumulatedDigitContainer* container = nullptr;
+  const LArAccumulatedDigitContainer* container;
   
   //Outermost loop goes over all gains (different containers).
   for (;key_it!=key_it_e;key_it++) {
@@ -160,21 +160,37 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
 
 StatusCode LArPedestalAutoCorrBuilder::stop() {
 
-  std::unique_ptr<LArAutoCorrComplete> larAutoCorrComplete;
-  std::unique_ptr<LArPedestalComplete> larPedestalComplete;
+  LArAutoCorrComplete* larAutoCorrComplete = NULL;
+  LArPedestalComplete* larPedestalComplete = NULL;
 
   if (m_doAutoCorr) { 
     //Book and initialize LArAutoCorrComplete object
-    larAutoCorrComplete = std::make_unique<LArAutoCorrComplete>();
-    ATH_CHECK( larAutoCorrComplete->setGroupingType(m_groupingType,msg()) );
-    ATH_CHECK( larAutoCorrComplete->initialize() );
+    larAutoCorrComplete = new LArAutoCorrComplete();
+    StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endmsg;
+      return sc;
+    }
+    sc=larAutoCorrComplete->initialize(); 
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endmsg;
+      return sc;
+    }
   }
 
   if (m_doPedestal) {
     //Book and initialize LArPedestalComplete object
-    larPedestalComplete = std::make_unique<LArPedestalComplete>();
-    ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
-    ATH_CHECK( larPedestalComplete->initialize() );
+    larPedestalComplete = new LArPedestalComplete();
+    StatusCode sc=larPedestalComplete->setGroupingType(m_groupingType,msg());
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed to set groupingType for LArPedestalComplete object" << endmsg;
+      return sc;
+    }
+    sc=larPedestalComplete->initialize(); 
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed initialize LArPedestalComplete object" << endmsg;
+      return sc;
+    }
   }
     
   //For the log output further down
@@ -231,13 +247,43 @@ StatusCode LArPedestalAutoCorrBuilder::stop() {
   msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
     
   if (larPedestalComplete) {
-    ATH_CHECK( detStore()->record(std::move(larPedestalComplete),m_pedContName) );
-  }
+    // Record LArPedestalComplete
+    StatusCode sc = detStore()->record(larPedestalComplete,m_pedContName);
+    if (sc != StatusCode::SUCCESS) {
+      msg(MSG::ERROR)	 << " Cannot store LArPedestalComplete in TDS " << endmsg;
+      delete larPedestalComplete;
+      delete larAutoCorrComplete;
+      return sc;
+    }
+    else
+      msg(MSG::INFO) << "Recorded LArPedestalComplete object with key " << m_pedContName << endmsg;
+    
+    // Make symlink
+    sc = detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
+    if (sc != StatusCode::SUCCESS) {
+      msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
+      return sc;
+    }
+  } // end if LArPedestal
 
 
   if (larAutoCorrComplete) {
-    ATH_CHECK( detStore()->record(std::move(larAutoCorrComplete),m_acContName) );
-  }
+    StatusCode sc = detStore()->record(larAutoCorrComplete,m_acContName);
+    if (sc != StatusCode::SUCCESS) { 
+      msg(MSG::ERROR)  << " Cannot store LArAutoCorrComplete in TDS "<< endmsg;
+      delete larAutoCorrComplete;
+      return sc;
+    }
+    else
+      msg(MSG::INFO) << "Recorded LArAutCorrComplete object with key " << m_acContName << endmsg;
+
+    // Make symlink
+    sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
+    if (sc != StatusCode::SUCCESS)  {
+      msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
+      return sc;
+    }
+  } // end if have AutoCorr
 
   return StatusCode::SUCCESS;
 }

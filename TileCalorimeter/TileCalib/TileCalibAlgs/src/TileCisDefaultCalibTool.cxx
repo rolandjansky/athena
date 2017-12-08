@@ -43,7 +43,6 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   , m_tileHWID(0)
   , m_cabling(0)
   , m_cablingSvc("TileCablingSvc", name)
-  , m_beamPrv("TileBeamInfoProvider")
   , m_stuckBitsProbs("")
   , m_scanMap(0)
   , m_scanMapRMS(0)

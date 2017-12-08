@@ -59,15 +59,6 @@ LArBarrelCalculator::LArBarrelCalculator(const std::string& name, ISvcLocator* p
   , m_dstep(.2*CLHEP::mm)
   , m_birksLaw(nullptr)
   , m_doHV(false)
-  , m_etaMaxBarrel(0)
-  , m_zMinBarrel(0)
-  , m_zMaxBarrel(0)
-  , m_rMinAccordion(0)
-  , m_rMaxAccordion(0)
-  , m_ThickAbs(0)
-  , m_ThickEle(0)
-  , m_NCellTot(0)
-  , m_NCellMax(0)
   , m_testbeam(false)
 {
   ATH_MSG_DEBUG("LArBarrelCalculator: Beginning construction ");

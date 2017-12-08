@@ -160,11 +160,9 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.TGC_on():
             StreamRDO_ItemList+=["TgcRdoContainer#*"]
         if DetFlags.writeRDOPool.sTGC_on():
-            StreamRDO_ItemList+=["sTgcDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
-            StreamRDO_ItemList+=["Muon::STGC_RawDataContainer#*"]
+            StreamRDO_ItemList+=["sTgcDigitContainer#*"]
         if DetFlags.writeRDOPool.Micromegas_on():
-            StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
-            StreamRDO_ItemList+=["MM_RawDataContainer#*"]
+            StreamRDO_ItemList+=["MmDigitContainer#*"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():

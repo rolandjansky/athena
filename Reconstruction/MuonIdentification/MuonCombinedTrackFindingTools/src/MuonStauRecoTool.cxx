@@ -157,14 +157,6 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-					 const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-					 const Muon::MMPrepDataContainer* mmPRDs ) {
-    //Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
-    //For now it's just a placeholder though
-    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs) extend(inDetCandidates);
-  }
-
   void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 

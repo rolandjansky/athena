@@ -1,0 +1,46 @@
+package xAODCaloEvent
+
+author Scott Snyder <Scott.Snyder@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Central package(s):
+use AtlasPolicy   AtlasPolicy-*
+use AthContainers AthContainers-* Control
+use AthLinks      AthLinks-*	  Control
+use CxxUtils      CxxUtils-*      Control
+
+# EDM package(s):
+use GeoPrimitives GeoPrimitives-* DetectorDescription
+use xAODBase      xAODBase-*      Event/xAOD
+use xAODCore      xAODCore-*      Event/xAOD
+
+#use CaloEvent     CaloEvent-*	  Calorimeter
+
+use CaloGeoHelpers CaloGeoHelpers-* Calorimeter
+
+use_ifndef pplist="SIMULATIONBASE,XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics)"
+
+library xAODCaloEvent ../Root/*.cxx ../src/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+use AtlasROOT     AtlasROOT-*     External
+use AthLinks      AthLinks-*      Control
+
+apply_pattern lcgdict dict=xAODCaloEvent selectionfile=selection.xml \
+	              headerfiles="../xAODCaloEvent/xAODCaloEventDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+apply_pattern do_genCLIDDB library=xAODCaloEvent
+

@@ -46,6 +46,9 @@
 #include "ParticleEvent/CompositeParticleContainer.h"
 #include "ParticleEvent/CompositeParticle.h"
 
+// Include the UserDataSvc
+#include "AthenaKernel/IUserDataSvc.h"
+
 // Include the filter tool
 #include "D2PDMaker/FilterTool.h"
 #include "AnalysisUtils/KinematicSelector.h"
@@ -144,6 +147,10 @@ private:
 
   /** MCEventCollection */
   const McEventCollection* m_mcEventColl;
+
+
+  /** Get a handle on the UserDataSvc */
+  ServiceHandle<IUserDataSvc> m_userDataSvc;
 
 
   /** Get a handle on the kinematic selector tool */

@@ -1,0 +1,37 @@
+package VxSecVertex
+
+author Giacinto Piacquadio <giacinto.piacquadio@physik.uni-freiburg.de>
+author Christian Weiser
+author Vadim Kostyukhin
+author Kirill Prokofiev
+author Andreas Wildauer
+
+
+use AtlasPolicy AtlasPolicy-*
+use DataModel DataModel-* Control
+
+use CLIDSvc CLIDSvc-* Control
+#use TrkTrack             TrkTrack-*        Tracking/TrkEvent
+use TrkParticleBase      TrkParticleBase-*    Tracking/TrkEvent
+use xAODTracking         xAODTracking-*       Event/xAOD
+use xAODBase             xAODBase-*           Event/xAOD
+
+private 
+
+use VxVertex             VxVertex-*           Tracking/TrkEvent
+use VxJetVertex          VxJetVertex-*        Tracking/TrkEvent
+use TrkParticleBase      TrkParticleBase-*    Tracking/TrkEvent
+
+public
+
+library VxSecVertex *.cxx
+apply_pattern installed_library
+
+private
+# persistency
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=VxSecVertex selectionfile=selection.xml headerfiles="../VxSecVertex/VxSecVertexDict.h"
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

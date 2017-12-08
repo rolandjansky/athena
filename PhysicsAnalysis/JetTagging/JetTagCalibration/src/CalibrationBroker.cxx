@@ -551,21 +551,27 @@ namespace Analysis {
 	      hFullName+="/"; hFullName+=hname;
 	      ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
 	      TObject* hPointer = 0;
+	      TObject* hPointerTree = 0;
 
 	      if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
 		if(p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer).isSuccess()){
 		    if(hPointer) {
-		      ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " << hPointer);
+		      ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " 
+				     << hPointer);
 		      const TString rootClassName=hPointer->ClassName();
 		      if (rootClassName=="TTree") {
-                         ((TTree*)hPointer)->LoadBaskets();
-                         ((TTree*)hPointer)->SetDirectory(0); 
+			((TTree*)hPointer)->LoadBaskets();
+			hPointerTree = static_cast<TTree*>(hPointer)->CloneTree();
+			(*mI).second.first = hPointerTree;
+			hPointer = 0;
+		      } else {
+			(*mI).second.first = hPointer;
 		      }
-                      (*mI).second.first = hPointer;
 		      (*mI).second.second = true;
 		      updateHistoStatusTaggerList(m_folders[i],fname);
 		    } else {
-		      ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " << fname );
+		      ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " 
+				     << fname );
 		    }
 		} else {
 		  ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hFullName << " from COOL");

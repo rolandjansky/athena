@@ -70,7 +70,7 @@ StatusCode TauConversionFinder::eventFinalize() {
     // ------------------------------------------------------------------ 
     //               Retrieving VxCandidates (conversions)
     // ------------------------------------------------------------------   
-    const xAOD::VertexContainer* ConvContainer =  nullptr;
+    const xAOD::VertexContainer* ConvContainer;
 
     sc = evtStore()->retrieve(ConvContainer, m_ConversionCandidatesName);
     if (sc.isFailure() || !ConvContainer) {

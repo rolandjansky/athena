@@ -99,7 +99,6 @@ StatusCode MuonTruthAssociationAlg::execute()
       ElementLink< xAOD::TruthParticleContainer > truthLink = tp->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
       if( truthLink.isValid() ){
 	// loop over truth particles
-	bool foundTruth=false;
 	for( const auto& truthParticle : *muonTruthParticleRecoLink ){
 	  if( truthParticle->status() != 1 ) continue;
 	  ATH_MSG_DEBUG("Adding recoMuonLink for truth muon with barcode " << truthParticle->barcode() << " pt "<< truthParticle->pt());
@@ -107,7 +106,6 @@ StatusCode MuonTruthAssociationAlg::execute()
 	  
 	  if( ((*truthLink)->barcode())%m_barcodeOffset == truthParticle->barcode() ) {
 	    ATH_MSG_VERBOSE(" Got truth link -> creating link with truth particle " << (*truthLink)->barcode() );
-	    foundTruth=true;
 	    muonLink = ElementLink< xAOD::MuonContainer >(muon,*muonTruthParticleLink);
 	    // add the link from xAOD::Muon to TruthParticle in m_muonTruthParticleContainerName
 	    ElementLink< xAOD::TruthParticleContainer > muonTruthLink = ElementLink< xAOD::TruthParticleContainer >(truthParticle, *muonTruthParticleRecoLink);
@@ -284,18 +282,6 @@ StatusCode MuonTruthAssociationAlg::execute()
 	    break;
 	  }
 	}
-	if(!foundTruth){
-	  ATH_MSG_DEBUG("failed to find a status=1 truth particle to match the truth link");
-	  muonTruthParticleLink(*muon)=ElementLink<xAOD::TruthParticleContainer>();
-	  muonTruthParticleOrigin(muonInd)=-99999;
-	  muonTruthParticleType(muonInd)=-99999;
-	  std::vector<unsigned int> nprecHitsPerChamberLayer;
-	  std::vector<unsigned int> nphiHitsPerChamberLayer;
-	  std::vector<unsigned int> ntrigEtaHitsPerChamberLayer;
-	  muonTruthParticleNPrecMatched(muonInd)=nprecHitsPerChamberLayer;
-	  muonTruthParticleNPhiMatched(muonInd)=nphiHitsPerChamberLayer;
-	  muonTruthParticleNTrigEtaMatched(muonInd)=ntrigEtaHitsPerChamberLayer;
-	}
       }
       else{ //no truth link, add a dummy
 	ATH_MSG_VERBOSE(" Reco muon has no truth association");
@@ -312,16 +298,6 @@ StatusCode MuonTruthAssociationAlg::execute()
       }
     }catch ( SG::ExcBadAuxVar& ) {
       ATH_MSG_WARNING("Track particle is missing truthParticleLink variable!");
-      //there should always be a truthParticleLink, but just in case
-      muonTruthParticleLink(*muon)=ElementLink<xAOD::TruthParticleContainer>();
-      muonTruthParticleOrigin(muonInd)=-99999;
-      muonTruthParticleType(muonInd)=-99999;
-      std::vector<unsigned int> nprecHitsPerChamberLayer;
-      std::vector<unsigned int> nphiHitsPerChamberLayer;
-      std::vector<unsigned int> ntrigEtaHitsPerChamberLayer;
-      muonTruthParticleNPrecMatched(muonInd)=nprecHitsPerChamberLayer;
-      muonTruthParticleNPhiMatched(muonInd)=nphiHitsPerChamberLayer;
-      muonTruthParticleNTrigEtaMatched(muonInd)=ntrigEtaHitsPerChamberLayer;
     }
     muonInd++;
   }

@@ -3,6 +3,5 @@
 // #include "../NewRegSelSvc.h"
 
 DECLARE_COMPONENT( RegSelSvc )
-
 // DECLARE_COMPONENT( NewRegSelSvc )
 

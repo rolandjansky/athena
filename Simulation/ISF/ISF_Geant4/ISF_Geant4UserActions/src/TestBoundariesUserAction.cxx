@@ -22,11 +22,7 @@ namespace G4UA{
 
   namespace iGeant4{
     
-    TestBoundariesUserAction::TestBoundariesUserAction()
-      : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"TestBoundariesUserAction")
-      , file(nullptr)
-      , tree(nullptr)
-    {;
+    TestBoundariesUserAction::TestBoundariesUserAction():AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"TestBoundariesUserAction"){;
     }
 
     void TestBoundariesUserAction::BeginOfRunAction(const G4Run*){;

@@ -1,0 +1,22 @@
+package RecoToolInterfaces 
+
+author Sebastian.Fleischmann <Sebastian.Fleischmann@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+use  GaudiInterface             GaudiInterface-*                External
+use  ParticleCaloExtension      ParticleCaloExtension-*         Reconstruction/RecoEvent
+use  TrkCaloExtension           TrkCaloExtension-*              Tracking/TrkEvent
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+# use_ifndef pplist="XAOD_ANALYSIS" pkg="Reconstruction/RecoEvent/ParticleCaloExtension"
+# use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkCaloExtension"
+# use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkTrack"
+use  xAODBase                   xAODBase-*                      Event/xAOD
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODPrimitives             xAODPrimitives-*                Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+
+# Declare this package as a cmake metalibrary so that the libraries and header files from
+# package it depends on are available to its clients. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary

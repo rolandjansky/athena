@@ -18,14 +18,17 @@ namespace Trk {
 
 namespace iFatras {
 
+
+  static const InterfaceID IID_IInputLayerMaterialProvider("IInputLayerMaterialProvider", 1, 0);	
+  
   class IInputLayerMaterialProvider : virtual public IAlgTool {
    
     public:
       /** Virtual destructor */	
       virtual ~IInputLayerMaterialProvider() {}
       
-      /// Creates the InterfaceID and interfaceID() method
-      DeclareInterfaceID(IInputLayerMaterialProvider, 1, 0);
+      /** AlgTool interface methods */
+      static const InterfaceID& interfaceID() { return IID_IInputLayerMaterialProvider; }
        
       /** Action to work on Layers */
       virtual Trk::LayerMaterialProperties * handleMaterial() = 0;

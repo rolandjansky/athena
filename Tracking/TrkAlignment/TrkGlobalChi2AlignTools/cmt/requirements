@@ -1,0 +1,31 @@
+package TrkGlobalChi2AlignTools
+
+author Robert Harrington <roberth@bu.edu>
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  GaudiInterface             GaudiInterface-*                External
+use  TrkAlignInterfaces         TrkAlignInterfaces-*            Tracking/TrkAlignment
+
+private
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AtlasROOT                  AtlasROOT-*                     External
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use  StoreGate                  StoreGate-*                     Control
+use  TrkAlignEvent              TrkAlignEvent-*                 Tracking/TrkAlignment
+use  TrkMeasurementBase         TrkMeasurementBase-*            Tracking/TrkEvent
+use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  TrkMaterialOnTrack         TrkMaterialOnTrack-*            Tracking/TrkEvent
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+public
+apply_tag rootMathLibs
+
+library TrkGlobalChi2AlignTools *.cxx -s=components *.cxx
+apply_pattern component_library 
+apply_pattern declare_python_modules files="*.py"

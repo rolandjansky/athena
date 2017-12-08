@@ -101,15 +101,15 @@ StatusCode egammaStripsShape::initialize()
 
   // Create egammaqweta1c Tool
   if(m_egammaqweta1c.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Unable to retrieve "<<m_egammaqweta1c);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaqweta1c);
+    return StatusCode::SUCCESS;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaqweta1c << " retrieved"); 
   
   // Create egammaEnergyPositionAllSamples Tool
   if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
+    return StatusCode::SUCCESS;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 

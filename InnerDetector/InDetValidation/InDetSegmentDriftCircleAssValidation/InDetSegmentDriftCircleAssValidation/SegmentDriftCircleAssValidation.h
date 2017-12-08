@@ -58,6 +58,7 @@ namespace InDet {
       // Protected data 
       ///////////////////////////////////////////////////////////////////
 
+      int                                           m_outputlevel           ;
       int                                           m_nprint                ;
       SG::ReadHandleKey<Trk::SegmentCollection>     m_origtrackKey{ this, "OrigTracksLocation", "TRTSegments", "TRT Segments collection name" };
       const HepPDT::ParticleDataTable*              m_particleDataTable     ;

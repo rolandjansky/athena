@@ -1,0 +1,31 @@
+package xAODHIEventAthenaPool
+# $Id: requirements 693658 2015-09-08 10:00:53Z krasznaa $
+
+author Anne Sickles <sickles@illinois.edu>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+use AthenaKernel        AthenaKernel-*        Control
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
+
+# EDM package(s):
+use AthContainers       AthContainers-*       Control
+use xAODHIEvent         xAODHIEvent-*         Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::HIEventShapeContainer \
+                                          xAOD::HIEventShapeAuxContainer" \
+                      files="-s=${xAODHIEvent_root}/xAODHIEvent \
+                             HIEventShapeContainer.h \
+                             HIEventShapeAuxContainer.h" \
+                      cnv_pfx="xAOD"

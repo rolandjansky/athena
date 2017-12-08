@@ -53,7 +53,6 @@ StatusCode LArHVScaleRetriever::initialize()
 
   if( m_isMC ) {
     ATH_CHECK( m_keyHVScaleCorr.initialize() );
-    m_ilarhvcorrtool.disable();
   }else {
     CHECK( m_ilarhvcorrtool.retrieve() ) ;  
   }

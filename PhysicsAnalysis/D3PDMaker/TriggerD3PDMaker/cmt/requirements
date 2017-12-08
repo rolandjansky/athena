@@ -1,0 +1,45 @@
+package TriggerD3PDMaker
+
+# Generic Gaudi/Athena packages:
+use AtlasPolicy                AtlasPolicy-*     
+use AtlasBoost                 AtlasBoost-*             External
+use GaudiInterface             GaudiInterface-*         External
+use AthenaKernel               AthenaKernel-*           Control
+use CxxUtils                   CxxUtils-*               Control
+use AthenaBaseComps            AthenaBaseComps-*        Control
+
+# EDM packages:
+use EventKernel                EventKernel-*            Event
+use FourMomUtils               FourMomUtils-*           Event
+use TrigSteeringEvent          TrigSteeringEvent-*      Trigger/TrigEvent
+
+# Trigger packages:
+use TrigObjectMatching         TrigObjectMatching-*     Trigger/TrigAnalysis
+use TrigDecisionTool           TrigDecisionTool-*       Trigger/TrigAnalysis
+
+# D3PDMaker packages:
+use D3PDMakerInterfaces        D3PDMakerInterfaces-*    PhysicsAnalysis/D3PDMaker
+use D3PDMakerUtils             D3PDMakerUtils-*         PhysicsAnalysis/D3PDMaker
+
+private
+use StoreGate                  StoreGate-*              Control
+use SGTools                    SGTools-*                Control
+use xAODTrigger                xAODTrigger-*            Event/xAOD
+use TrigT1Interfaces           TrigT1Interfaces-*       Trigger/TrigT1
+use TrigT1Result               TrigT1Result-*           Trigger/TrigT1
+use TrigConfInterfaces         TrigConfInterfaces-*     Trigger/TrigConfiguration
+use TrigConfigSvc              TrigConfigSvc-*          Trigger/TrigConfiguration
+use TrigConfL1Data             TrigConfL1Data-*         Trigger/TrigConfiguration
+use TrigConfHLTData            TrigConfHLTData-*        Trigger/TrigConfiguration
+use TrigAnalysisInterfaces     TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+use TriggerMenuNtuple          TriggerMenuNtuple-*      Trigger/TrigAnalysis
+use TriggerMenuAnalysis        TriggerMenuAnalysis-*    Trigger/TrigAnalysis
+use TrigMonitoringEvent        TrigMonitoringEvent-*    Trigger/TrigEvent
+use AnalysisTriggerEvent       AnalysisTriggerEvent-*   PhysicsAnalysis/AnalysisTrigger
+end_private
+
+#library TriggerD3PDMaker *.cxx components/*.cxx
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"

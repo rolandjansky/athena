@@ -34,10 +34,6 @@ namespace JetTagDQA{
 		// Reco only information
 		std::string m_sParticleType;
 
-		//JVT jet flag 
-		bool m_isJVT_defined;
-		float m_jvt_cut;
-
 		TH1* m_truthLabel = nullptr;
 //		TH1* m_GAFinalHadronLabel;
 //		TH1* m_GAInitialHadronLabel;

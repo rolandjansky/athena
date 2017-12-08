@@ -23,6 +23,7 @@ LArG4H62004FCALSDTool::LArG4H62004FCALSDTool(const std::string& type, const std:
   declareProperty( "FCAL1Volumes" , m_fcal1Volumes );
   declareProperty( "FCAL2Volumes" , m_fcal2Volumes );
   declareProperty( "FCALColdVolumes" , m_fcalColdVolumes );
+  declareInterface<ISensitiveDetector>(this);
 }
 
 StatusCode LArG4H62004FCALSDTool::initializeCalculators()

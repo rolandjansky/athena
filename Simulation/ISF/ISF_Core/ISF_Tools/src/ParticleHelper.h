@@ -37,7 +37,7 @@ namespace ISF {
   
       @author Andreas.Salzburger -at- cern.ch
      */
-  class ParticleHelper : public extends<AthAlgTool, IParticleHelper> {
+  class ParticleHelper : public AthAlgTool, virtual public IParticleHelper { 
       
     public: 
       //** Constructor with parameters */

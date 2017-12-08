@@ -41,7 +41,7 @@ namespace Simulation {
       based on:
       https://svnweb.cern.ch/trac/atlasoff/browser/Simulation/G4Atlas/G4AtlasUtilities/trunk/src/BeamEffectTransformation.cxx
   */
-  class GenEventBeamEffectBooster : public extends<AthAlgTool, IGenEventManipulator>
+  class GenEventBeamEffectBooster : public AthAlgTool, virtual public IGenEventManipulator
   {
 
   public:

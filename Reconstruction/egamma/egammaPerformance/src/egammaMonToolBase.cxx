@@ -187,7 +187,7 @@ StatusCode egammaMonToolBase::fillHistograms()
 //GYS. In the case the event is flagged bad due to LAr noise or LAr data error this is true
 bool egammaMonToolBase::hasBadLar()
 {
-  const xAOD::EventInfo* event_info = nullptr;
+  const xAOD::EventInfo* event_info;
   StatusCode sc = m_storeGate->retrieve( event_info );
   if (sc.isFailure()) {
     ATH_MSG_WARNING("Could not get LAr event info!");

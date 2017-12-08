@@ -1,0 +1,31 @@
+## automatically generated CMT requirements file
+package xAODParticleEventAthenaPool
+author  kkoeneke
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+private
+## for gaudi tools, services and objects
+#use GaudiInterface 	GaudiInterface-* 	External
+use AthContainers       AthContainers-*       Control
+use AthenaKernel        AthenaKernel-*        Control
+
+# POOL package(s):
+use AthenaPoolUtilities   AthenaPoolUtilities-*  Database/AthenaPOOL
+
+# EDM package(s):
+use xAODParticleEvent          xAODParticleEvent-*          Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::ParticleContainer \
+                                          xAOD::ParticleAuxContainer \
+                                          xAOD::CompositeParticleContainer \
+                                          xAOD::CompositeParticleAuxContainer" \
+                      files="-s=${xAODParticleEvent_root}/xAODParticleEvent \
+                             ParticleContainer.h \
+                             ParticleAuxContainer.h \
+                             CompositeParticleContainer.h \
+                             CompositeParticleAuxContainer.h" \
+                      cnv_pfx="xAOD"
+end_private

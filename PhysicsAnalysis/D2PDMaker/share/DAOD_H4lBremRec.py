@@ -273,7 +273,7 @@ if D2PDFlags.WriteDAOD_H4lBremRecStream.inputIsSimulation:
                                       inputAssociateToCollection = "TruthLeptonFromBosonLinkCollection",
                                       deltaRMax                  = 0.2,
                                       userDataPrefix             = "lep_deltaR02MatchTruth_",
-                                      writeUserData              = False
+                                      writeUserData              = True
                                       )
 
     pass #End: if D2PDFlags.WriteDAOD_H4lBremRecStream.inputIsSimulation
@@ -1242,6 +1242,17 @@ H4lBremRecStream.AddItem( ['INav4MomAssocs#*'] )
 # Also write out the user data
 H4lBremRecStream.AddItem( ['UserDataStore#*'] )
 
+
+
+#====================================================================
+# UserDataSvc
+#====================================================================
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+if not hasattr(svcMgr, 'UserDataSvc'):
+    from AthenaCommon import CfgMgr
+    svcMgr += CfgMgr.UserDataSvc()
+    pass
+#svcMgr.UserDataSvc.CreateStoreAtBegin = True
 
 
 #====================================================================

@@ -1,0 +1,11 @@
+package InDetCondServices
+
+author Grant Gorfine <Grant.Gorfine@cern.ch>
+
+use AtlasPolicy AtlasPolicy-* 
+use GaudiInterface   GaudiInterface-*  External
+use AthenaKernel     AthenaKernel-*    Control
+use GeoPrimitives    GeoPrimitives-*   DetectorDescription
+
+# Declare a metalibrary for the CMake build:
+apply_pattern cmake_add_command command=metalibrary

@@ -1,0 +1,22 @@
+package TRT_DriftFunctionTool
+
+author Peter Hansen <phansen@nbi.dk>
+
+public
+use GaudiInterface       GaudiInterface-*       External
+use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps      AthenaBaseComps-*      Control
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+
+private
+use GeoModelInterfaces   GeoModelInterfaces-*   DetectorDescription/GeoModel
+use GeoModelUtilities    GeoModelUtilities-*    DetectorDescription/GeoModel
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use EventInfo	         EventInfo-*		Event
+use TRT_ConditionsServices  TRT_ConditionsServices-*  InnerDetector/InDetConditions
+use AtlasCLHEP           AtlasCLHEP-*           External
+
+public
+apply_pattern component_library
+library TRT_DriftFunctionTool *.cxx components/*.cxx
+

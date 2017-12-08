@@ -67,7 +67,7 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
   std::vector<std::string>::const_iterator cont_it=m_inputContainers.begin();
   std::vector<std::string>::const_iterator cont_it_e=m_inputContainers.end();
   for(;cont_it!=cont_it_e;cont_it++) {
-    const CALIBDIGITCONTAINER* inputContainer = nullptr;
+    const CALIBDIGITCONTAINER* inputContainer;
     logstr << MSG::DEBUG << "About to retrieve CALIBDIGITCONTAINER with key " << *cont_it << endmsg;
     sc=evtStore()->retrieve(inputContainer,*cont_it);
     if (sc.isFailure()) {

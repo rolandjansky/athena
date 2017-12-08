@@ -12,6 +12,7 @@
 ZDC_PixelSDTool::ZDC_PixelSDTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SensitiveDetectorBase(type,name,parent)
 {
+  declareInterface<ISensitiveDetector>(this);
 }
 
 

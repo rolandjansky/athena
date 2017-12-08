@@ -1,0 +1,41 @@
+package InDetTrigRawDataProvider
+author Jiri Masik
+
+use  AtlasPolicy          AtlasPolicy-* 
+use  GaudiInterface        GaudiInterface-*           External
+use  AthenaBaseComps       AthenaBaseComps-*          Control
+
+#
+use InDetRawData          InDetRawData-*             InnerDetector/InDetRawEvent
+use InDetTrigToolInterfaces  InDetTrigToolInterfaces-* InnerDetector/InDetTrigRecTools
+
+library InDetTrigRawDataProvider *.cxx  components/*.cxx
+apply_pattern component_library
+
+#apply_pattern dual_use_library files=*.cxx 
+
+private
+use AthenaKernel          AthenaKernel-*    Control
+use StoreGate             StoreGate-*       Control
+use TrigSteeringEvent     TrigSteeringEvent-*        Trigger/TrigEvent
+
+use InDetIdentifier       InDetIdentifier-*          InnerDetector/InDetDetDescr
+use PixelCabling          PixelCabling-*             InnerDetector/InDetDetDescr
+use SCT_Cabling           SCT_Cabling-*              InnerDetector/InDetDetDescr
+use TRT_Cabling           TRT_Cabling-*              InnerDetector/InDetDetDescr
+use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*     Event
+use IRegionSelector               IRegionSelector-*               DetectorDescription
+
+use  PixelRawDataByteStreamCnv PixelRawDataByteStreamCnv-*     InnerDetector/InDetEventCnv
+use  SCT_RawDataByteStreamCnv  SCT_RawDataByteStreamCnv-*     InnerDetector/InDetEventCnv
+use  TRT_RawDataByteStreamCnv  TRT_RawDataByteStreamCnv-*     InnerDetector/InDetEventCnv
+
+#
+
+end_private
+
+
+
+
+
+  

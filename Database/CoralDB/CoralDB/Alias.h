@@ -15,19 +15,20 @@ namespace CoralDB {
 } // this is for better indentation in Emacs
 #endif
 
+using namespace std;
 
 class Alias {
-  std::string m_alias;
-  std::string m_convention;
-  std::string m_id;
+  string m_alias;
+  string m_convention;
+  string m_id;
 
  public:
   Alias();
-  Alias(const std::string& alias, const std::string& convention, const std::string& id);
+  Alias(const string& alias, const string& convention, const string& id);
 
-  std::string alias() const { return m_alias; }
-  std::string convention() const { return m_convention; }
-  std::string id() const { return m_id; }
+  string alias() const { return m_alias; }
+  string convention() const { return m_convention; }
+  string id() const { return m_id; }
 };
 
 std::ostream& operator<<(std::ostream&, const Alias& c);

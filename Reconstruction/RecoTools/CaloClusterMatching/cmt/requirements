@@ -1,0 +1,31 @@
+## automatically generated CMT requirements file
+package CaloClusterMatching
+author  khoo
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## for gaudi tools, services and objects
+use GaudiInterface 	GaudiInterface-* 	External
+
+## put here your package dependencies...
+use xAODCaloEvent	xAODCaloEvent-*		Event/xAOD
+use AsgTools		AsgTools-*		Control/AthToolSupport
+
+##
+private
+use xAODCore		xAODCore-*		Event/xAOD
+use AthenaBaseComps	AthenaBaseComps-*	Control
+use CxxUtils            CxxUtils-*              Control
+
+end_private
+
+
+branches src src/components doc python share CaloClusterMatching
+
+## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
+library CaloClusterMatching *.cxx ../Root/*.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"

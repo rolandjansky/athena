@@ -29,52 +29,54 @@ class TRTParametersOfModulesB
     void DefineParameters();
     void PrintParameters(double*, double*) const;
 
-    double m_baseOfShellTrd1B;
-    double m_heightOfShellTrd1B;
+    int printMessages;
 
-    double m_baseOfShellTrd2B;
-    double m_heightOfShellTrd2B;
+    double baseOfShellTrd1B;
+    double heightOfShellTrd1B;
 
-    double m_xOfShellTrd2B;
-    double m_zOfShellTrd2B;
-    double m_phiOfShellTrd2B;
+    double baseOfShellTrd2B;
+    double heightOfShellTrd2B;
 
-    double m_x0OfShellB;
-    double m_y0OfShellB;
-    double m_phi0OfShellB;
+    double xOfShellTrd2B;
+    double zOfShellTrd2B;
+    double phiOfShellTrd2B;
 
-    int m_numberOfModulesB;
-    double m_lengthOfModuleB;
+    double x0OfShellB;
+    double y0OfShellB;
+    double phi0OfShellB;
 
-    double m_baseOfRadiatorTrd1B;
-    double m_heightOfRadiatorTrd1B;
+    int numberOfModulesB;
+    double lengthOfModuleB;
 
-    double m_baseOfRadiatorTrd2B;
-    double m_heightOfRadiatorTrd2B;
+    double baseOfRadiatorTrd1B;
+    double heightOfRadiatorTrd1B;
 
-    double m_xOfRadiatorTrd2B;
-    double m_zOfRadiatorTrd2B;
-    double m_phiOfRadiatorTrd2B;
+    double baseOfRadiatorTrd2B;
+    double heightOfRadiatorTrd2B;
 
-    double m_xOfRadiatorB;
-    double m_zOfRadiatorB;
+    double xOfRadiatorTrd2B;
+    double zOfRadiatorTrd2B;
+    double phiOfRadiatorTrd2B;
 
-    int m_numberOfHolesB;
+    double xOfRadiatorB;
+    double zOfRadiatorB;
 
-    double* m_xLocalOfHolesB;
-    double* m_zLocalOfHolesB;
+    int numberOfHolesB;
 
-    int m_numberOfCoolingTubesB;
+    double* xLocalOfHolesB;
+    double* zLocalOfHolesB;
 
-    double* m_xOfCoolingTubesB;
-    double* m_zOfCoolingTubesB;
+    int numberOfCoolingTubesB;
 
-    double m_radiusOfHoleForCoolingTubeB;
+    double* xOfCoolingTubesB;
+    double* zOfCoolingTubesB;
 
-    double* m_xOfHolesForCoolingTubesB;
-    double* m_zOfHolesForCoolingTubesB;
+    double radiusOfHoleForCoolingTubeB;
 
-    TRTParameters* m_pParameters;
+    double* xOfHolesForCoolingTubesB;
+    double* zOfHolesForCoolingTubesB;
+
+    TRTParameters* pParameters;
 
     mutable Athena::MsgStreamMember m_msg;
 

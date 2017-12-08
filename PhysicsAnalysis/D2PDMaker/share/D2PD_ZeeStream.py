@@ -296,6 +296,7 @@ if D2PDFlags.WriteD2AOD_ZEEStream.CreateControlPlots :
 from UserDataUtils.UserDataUtilsConf import UserDataCalcJetQualityTool
 ToolSvc += UserDataCalcJetQualityTool( "UserDataCalcJetQualityToolInZeeStream",
                                        OutputLevel            = INFO,
+                                       userDataSvc            = "UserDataInZeeStream",
                                        userDataPrefix         = "jet_",
                                        userDataJetQualityName = "isGoodUglyBad"
                                        )
@@ -304,14 +305,15 @@ ToolSvc += UserDataCalcJetQualityTool( "UserDataCalcJetQualityToolInZeeStream",
 from D2PDMaker.D2PDMakerConf import D2PDJetSelector
 topSequence += D2PDJetSelector( "JetMetCleaningSelectorInZeeStream",
                                 OutputLevel          = INFO,
+                                userDataSvc          = "UserDataInZeeStream",
                                 inputCollection      = 'AntiKt4TopoJets',
                                 outputLinkCollection = 'EMScalePt10BadJetCollection',
-                                #userDataCalcToolList = [ ToolSvc.UserDataCalcJetQualityToolInZeeStream ],
+                                userDataCalcToolList = [ ToolSvc.UserDataCalcJetQualityToolInZeeStream ],
                                 minNumberPassed      = 1,
                                 useJetSignalState    = PyAthena.P4SignalState.JETEMSCALE,
                                 jetSignalStatePtMin  = 10.0*Units.GeV,
-                                #userDataNameList     = [ "jet_isGoodUglyBad" ],
-                                #userDataMinCutList   = [ 3.5 ] # good=1, ugly=2, bad=4 (combinations add up)
+                                userDataNameList     = [ "jet_isGoodUglyBad" ],
+                                userDataMinCutList   = [ 3.5 ] # good=1, ugly=2, bad=4 (combinations add up)
                                 )
 algsToBookkeep.append( "JetMetCleaningSelectorInZeeStream" )
 
@@ -450,6 +452,7 @@ if inputIsSimulation :
                                                  OutputLevel                = INFO,
                                                  mcTruthClassifier          = ElectronMCTruthClassifierInZeeStream,
                                                  inputAssociateToCollection = "SpclMC",
+                                                 userDataSvc                = "UserDataInZeeStream",
                                                  userDataPrefix             = "el_mcTruthClassifier_",
                                                  writeUserData              = True
                                                  )
@@ -460,8 +463,9 @@ if inputIsSimulation :
                                       OutputLevel                = INFO,
                                       inputAssociateToCollection = "TruthElectronFromZBosonLinkCollection",
                                       deltaRMax                  = 0.1,
+                                      userDataSvc                = "UserDataInZeeStream",
                                       userDataPrefix             = "el_deltaRMatchTruth_",
-                                      writeUserData              = False
+                                      writeUserData              = True
                                       )
 
     # Now, do a match to status code 1 electrons
@@ -469,8 +473,9 @@ if inputIsSimulation :
                                       OutputLevel                = INFO,
                                       inputAssociateToCollection = "TruthElectronStatusCode1FromZBosonLinkCollection",
                                       deltaRMax                  = 0.1,
+                                      userDataSvc                = "UserDataInZeeStream",
                                       userDataPrefix             = "el_deltaRMatchTruth_sc1_",
-                                      writeUserData              = False
+                                      writeUserData              = True
                                       )
 
     # Now, do a match to status code 3 electrons
@@ -478,8 +483,9 @@ if inputIsSimulation :
                                       OutputLevel                = INFO,
                                       inputAssociateToCollection = "TruthElectronStatusCode3FromZBosonLinkCollection",
                                       deltaRMax                  = 0.1,
+                                      userDataSvc                = "UserDataInZeeStream",
                                       userDataPrefix             = "el_deltaRMatchTruth_sc3_",
-                                      writeUserData              = False
+                                      writeUserData              = True
                                       )
 
     
@@ -1189,6 +1195,16 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc( "ZeeStreamTHistSvc",
                         Output = [ "%s DATAFILE='%s' OPT='SHARE'" % ( streamName, fileName ) ]
                         )
+
+
+
+#====================================================================
+# UserDataSvc, only really needed/used when UserData is computed...
+#====================================================================
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc( "UserDataInZeeStream",
+                           OutputLevel  = FATAL )
+#OutputStream = ZeeStream.Stream  ) # Without this, the UserData will not be saved in the output file
 
 
 

@@ -1,0 +1,90 @@
+package AnalysisTest
+
+author Tadashi Maeno       <Tadashi.Maeno@cern.ch>
+author Sebastien Binet     <binet@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External
+use TestTools             *                       AtlasTest 
+
+use StoreGate             StoreGate-*             Control
+use SGTools               SGTools-*               Control
+use AthContainers         AthContainers-*         Control
+use AthenaBaseComps       AthenaBaseComps-*       Control
+
+use NavFourMom            NavFourMom-*            Event
+
+use Particle              Particle-*              Reconstruction
+use tauEvent              tauEvent-*              Reconstruction
+use egammaEvent           egammaEvent-*           Reconstruction/egamma
+use VxVertex              VxVertex-*              Tracking/TrkEvent
+
+use muonEvent             muonEvent-*             Reconstruction/MuonIdentification
+
+use McParticleEvent       McParticleEvent-*       PhysicsAnalysis/TruthParticleID
+
+private
+use AtlasCLHEP            *   External
+use AtlasHepMC            *   External
+use AthenaBaseComps       AthenaBaseComps-* Control
+use AthenaKernel          AthenaKernel-*    Control
+
+use EventKernel           *   Event
+use FourMom               *   Event
+use GeneratorObjects      *   Generators
+use JetEvent              *   Reconstruction/Jet
+
+use AnalysisTriggerEvent  *   PhysicsAnalysis/AnalysisTrigger
+use AnalysisAssociation   *   PhysicsAnalysis/AnalysisCommon
+end_private
+
+branches AnalysisTest src src/components share test
+
+library AnalysisTest *.cxx components/*.cxx
+
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+
+# this doesn't work and prevents CppUnit tests to link
+#macro_remove use_linkopts $(CppUnit_linkopts)
+
+################## Testing suite part ##################
+private
+
+use TestPolicy     TestPolicy-*
+use TestTools      TestTools-*        AtlasTest 
+use AtlasCppUnit   AtlasCppUnit-*     External -no_auto_imports
+
+#
+# AnalysisUtils and McParticleUtils tests
+#
+use AnalysisUtils   AnalysisUtils-*   PhysicsAnalysis/AnalysisCommon
+use McParticleUtils McParticleUtils-* PhysicsAnalysis/TruthParticleID
+
+apply_pattern CppUnit name=cppUnit_filterRangeTest files="-s=${AnalysisTest_root}/test FilterRangeTest_CppUnit.cxx"
+
+apply_pattern CppUnit name=cppUnit_decayParserTest files="-s=${AnalysisTest_root}/test DecayParserTest_CppUnit.cxx"
+
+apply_pattern CppUnit name=cppUnit_momentumFilterTest files="-s=${AnalysisTest_root}/test MomentumFilterTest_CppUnit.cxx"
+
+apply_pattern CppUnit name=cppUnit_pdgIdFilterTest files="-s=${AnalysisTest_root}/test PdgIdFilterTest_CppUnit.cxx"
+
+apply_pattern CppUnit name=cppUnit_categoryIdFilterTest files="-s=${AnalysisTest_root}/test CategoryIdFilterTest_CppUnit.cxx"
+
+apply_pattern CppUnit name=cppUnit_mcVtxFilterTest files="-s=${AnalysisTest_root}/test McVtxFilterTest_CppUnit.cxx"
+
+apply_pattern CppUnit name=cppUnit_chargeFilterTest files="-s=${AnalysisTest_root}/test ChargeFilterTest_CppUnit.cxx"
+
+#
+# AnalysisAssociation tests
+#
+use AnalysisAssociation AnalysisAssociation-* PhysicsAnalysis/AnalysisCommon
+
+apply_pattern CppUnit name=cppUnit_assocFilterTest files="-s=${AnalysisTest_root}/test AssocFilterTest_CppUnit.cxx"
+
+apply_pattern CppUnit name=cppUnit_iparticleAssocFilterTest files="-s=${AnalysisTest_root}/test IParticleAssocFilterTest_CppUnit.cxx"
+
+
+end_private
+########################################################

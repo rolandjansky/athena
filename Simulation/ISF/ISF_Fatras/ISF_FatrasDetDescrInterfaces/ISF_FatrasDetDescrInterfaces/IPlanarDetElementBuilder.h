@@ -19,6 +19,9 @@ namespace iFatras {
 
   class PlanarDetElement;
   
+  /** Interface ID for IPlanarDetElementBuilder*/  
+  static const InterfaceID IID_IPlanarDetElementBuilder("IPlanarDetElementBuilder", 1, 0);
+  
   /** @class IPlanarDetElementBuilder
       
       Interface class IPlanarDetElementBuilder
@@ -32,8 +35,8 @@ namespace iFatras {
     /**Virtual destructor*/
     virtual ~IPlanarDetElementBuilder(){}
     
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IPlanarDetElementBuilder, 1, 0);
+    /** AlgTool and IAlgTool interface methods */
+    static const InterfaceID& interfaceID() { return IID_IPlanarDetElementBuilder; }
     
     virtual const std::vector< const PlanarDetElement* >* PlanarDetElements() const = 0; 
 

@@ -1,0 +1,34 @@
+package PATCore
+
+author Karsten Koeneke <karsten.koeneke@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy                 AtlasPolicy-*
+
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
+use  GaudiInterface             GaudiInterface-*                External
+use  AthContainers              AthContainers-*                 Control
+
+## macros   
+apply_tag       ROOTBasicLibs
+apply_tag       ROOTMathLibs
+
+## declare the directories CMT should know about
+branches python share Root
+
+
+# Create a named installed library
+library PATCoreLib "../Root/*.cxx"
+apply_pattern named_installed_library library=PATCoreLib
+
+## install our python modules
+apply_pattern declare_python_modules files="*.py"
+
+## install our job options files
+apply_pattern declare_joboptions files="*.py"
+
+## For reflex dictionary generation
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=PATCore selectionfile=selection.xml headerfiles="..\/PATCore/PATCoreDict.h"

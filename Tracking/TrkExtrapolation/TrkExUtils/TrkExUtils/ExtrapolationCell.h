@@ -460,7 +460,7 @@ namespace Trk {
        if (cssf != lssf)
            extrapolationSteps.push_back(ExtrapolationStep<T>());
        // fill the parameters, the surface and add the mode
-       extrapolationSteps[extrapolationSteps.size()-1].parameters = parameters;
+       extrapolationSteps[extrapolationSteps.size()-1].parameters = parameters->clone();
        extrapolationSteps[extrapolationSteps.size()-1].surface    = cssf;
        extrapolationSteps[extrapolationSteps.size()-1].stepConfiguration.addMode(fillMode);
     }

@@ -702,67 +702,67 @@ inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArCaliPulse
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArDetCellParamsComplete*& data_object) {
-  const ILArDetCellParams* abstract_object = nullptr;
+  const ILArDetCellParams* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArDetCellParamsComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArPhysCaliTdiffComplete*& data_object) {
-  const ILArPhysCaliTdiff* abstract_object = nullptr;
+  const ILArPhysCaliTdiff* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArPhysCaliTdiffComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArTdriftComplete*& data_object) {
-  const ILArTdrift* abstract_object = nullptr;
+  const ILArTdrift* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArTdriftComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArMphysOverMcalComplete*& data_object) {
-  const ILArMphysOverMcal* abstract_object = nullptr;
+  const ILArMphysOverMcal* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArMphysOverMcalComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArRinjComplete*& data_object) {
-  const ILArRinj* abstract_object = nullptr;
+  const ILArRinj* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArRinjComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArTshaperComplete*& data_object) {
-  const ILArTshaper* abstract_object = nullptr;
+  const ILArTshaper* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArTshaperComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArEMEC_CphiComplete*& data_object) {
-  const ILArEMEC_Cphi* abstract_object = nullptr;
+  const ILArEMEC_Cphi* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArEMEC_CphiComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArEMEC_HValphaComplete*& data_object) {
-  const ILArEMEC_HValpha* abstract_object = nullptr;
+  const ILArEMEC_HValpha* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArEMEC_HValphaComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArEMEC_HVbetaComplete*& data_object) {
-  const ILArEMEC_HVbeta* abstract_object = nullptr;
+  const ILArEMEC_HVbeta* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArEMEC_HVbetaComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArCableLengthComplete*& data_object) {
-  const ILArCableLength* abstract_object = nullptr;
+  const ILArCableLength* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArCableLengthComplete*>(abstract_object) ;
   return sc ;
 }
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArCableAttenuationComplete*& data_object) {
-  const ILArCableAttenuation* abstract_object = nullptr;
+  const ILArCableAttenuation* abstract_object ;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArCableAttenuationComplete*>(abstract_object) ;
   return sc ;

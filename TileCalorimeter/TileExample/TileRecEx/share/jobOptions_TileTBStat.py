@@ -180,7 +180,7 @@ def FindFile(path, runinput, filter):
             good=True
         if good:
             if (path.startswith('/eos/')):
-                fullname.append('root://eosatlas.cern.ch/' + path + '/' + file_name)
+                fullname.append('root://eosatlas/' + path + '/' + file_name)
             else:
                 fullname.append(path + '/' + file_name)
         else:

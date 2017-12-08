@@ -147,32 +147,83 @@ namespace Muon {
 
     ATH_MSG_INFO( "Initializing MuonRefitTool" );
 
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
-    if( !m_alignErrorTool.empty() ) ATH_CHECK(m_alignErrorTool.retrieve());
-    ATH_CHECK( m_extrapolator.retrieve() );
-    ATH_CHECK( m_trackFitter.retrieve() );
+    if( AthAlgTool::initialize().isFailure() ){
+      ATH_MSG_ERROR("Unable to initialize AthAlgTool");
+      return StatusCode::FAILURE;
+    }
 
+    if ( m_printer.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Unable to retrieve" << m_printer);
+      return StatusCode::FAILURE;
+    }
+
+    if ( m_helper.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Unable to retrieve" << m_helper);
+      return StatusCode::FAILURE;
+    }
+
+    if ( m_idHelper.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Unable to retrieve" << m_idHelper);
+      return StatusCode::FAILURE;
+    }
+
+    if( !m_alignErrorTool.empty() ) CHECK(m_alignErrorTool.retrieve());
+
+    if ( m_extrapolator.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Unable to retrieve" << m_extrapolator);
+      return StatusCode::FAILURE;
+    }
+
+    if ( m_trackFitter.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Unable to retrieve" << m_trackFitter);
+      return StatusCode::FAILURE;
+    }
     ATH_MSG_INFO("Retrieved " << m_trackFitter );
 
-    ATH_CHECK( m_mdtRotCreator.retrieve() );
-    if( ! m_cscRotCreator.empty() ) ATH_CHECK( m_cscRotCreator.retrieve() );
-    if( ! m_triggerRotCreator.empty() ) ATH_CHECK( m_triggerRotCreator.retrieve() );
-    if( !m_compClusterCreator.empty() ) ATH_CHECK( m_compClusterCreator.retrieve() );
 
+    if (m_mdtRotCreator.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Could not find refit tool "<<m_mdtRotCreator<<". Exiting.");
+      return StatusCode::FAILURE;
+    }
+
+
+    if( ! m_cscRotCreator.empty() ) {
+      if (m_cscRotCreator.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Could not find refit tool "<<m_cscRotCreator<<". Exiting.");
+	return StatusCode::FAILURE;
+      } 
+    }
+
+    if( ! m_triggerRotCreator.empty() ) {
+      if (m_triggerRotCreator.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Could not find refit tool "<<m_triggerRotCreator<<". Exiting.");
+	return StatusCode::FAILURE;
+      } 
+    }
+
+    if( !m_compClusterCreator.empty() ) {
+      if (m_compClusterCreator.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Could not find refit tool "<<m_compClusterCreator<<". Exiting.");
+	return StatusCode::FAILURE;
+      } 
+    }
+    
     if( !m_t0Fitter.empty() ){
-      ATH_CHECK( m_t0Fitter.retrieve() );
+      if ( m_t0Fitter.retrieve().isFailure() ) {
+	ATH_MSG_ERROR ("Unable to retrieve" << m_t0Fitter);
+	return StatusCode::FAILURE;
+      }
       ATH_MSG_INFO("Retrieved " << m_t0Fitter );
       m_finder.setFitter(m_t0Fitter->getFitter());
     }
-
     m_finder.debugLevel(m_finderDebugLevel);
     m_finder.setRecoverMDT(false);
     m_finderCleaning.debugLevel(m_finderDebugLevel);
 
-    ATH_CHECK( m_muonEntryTrackExtrapolator.retrieve() );
-
+    if ( m_muonEntryTrackExtrapolator.retrieve().isFailure() ) {
+      ATH_MSG_ERROR ("Unable to retrieve" << m_muonEntryTrackExtrapolator);
+      return StatusCode::FAILURE;
+    }
     MuonDriftCircleErrorStrategyInput bits;
     MuonDriftCircleErrorStrategy strategy(bits);
     strategy.setParameter(MuonDriftCircleErrorStrategy::BroadError,false);
@@ -261,6 +312,11 @@ namespace Muon {
 		    << "Good                       " << scaleUp*m_ngoodUpdates << endmsg
 		    << "Failed updates             "  << scaleUp*m_failedUpdates);
   
+    if( AthAlgTool::finalize().isFailure() ){
+      ATH_MSG_ERROR("Unable to finalize AthAlgTool");
+      return StatusCode::FAILURE;
+    }
+
     return StatusCode::SUCCESS;
   }
 

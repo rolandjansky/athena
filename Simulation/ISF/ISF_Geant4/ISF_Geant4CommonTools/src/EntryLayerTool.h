@@ -42,7 +42,9 @@ namespace ISF {
       @author Elmar.Ritsch -at- cern.ch
   */
 
-  class EntryLayerTool : public extends<AthAlgTool, ISF::IEntryLayerTool, IIncidentListener> {
+  class EntryLayerTool : public AthAlgTool,
+                         public ISF::IEntryLayerTool,
+                         virtual public IIncidentListener {
 
   public:
     /** Constructor with parameters */

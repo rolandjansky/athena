@@ -30,11 +30,9 @@ atlas_add_library( RegionSelectorLib
 
 atlas_add_component( RegionSelector
                      src/components/*.cxx
-                     LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver RegionSelectorLib  )
+                     LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities RegSelLUT PathResolver RegionSelectorLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-
-
 

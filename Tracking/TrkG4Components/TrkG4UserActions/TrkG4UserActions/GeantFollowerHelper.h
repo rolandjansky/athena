@@ -25,7 +25,7 @@ namespace Trk {
 
   class IExtrapolator;
     
-  class GeantFollowerHelper : public extends<AthAlgTool, IGeantFollowerHelper>  {
+  class GeantFollowerHelper : public AthAlgTool, virtual public IGeantFollowerHelper {
 
     public:
       // constructor, destructor

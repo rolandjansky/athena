@@ -30,9 +30,9 @@ InDetGlobalMotherTrigMonTool::InDetGlobalMotherTrigMonTool(
     const std::string & name,
     const IInterface* parent)
   : InDetGlobalMotherMonTool(type, name, parent),
-    m_doTrigger(true)
+    doTrigger(true)
 {
-  declareProperty("doTrigger",m_doTrigger);
+  declareProperty("doTrigger",doTrigger);
 }
 
 StatusCode InDetGlobalMotherTrigMonTool::initialize(){
@@ -56,7 +56,7 @@ StatusCode InDetGlobalMotherTrigMonTool::initialize(){
 StatusCode InDetGlobalMotherTrigMonTool::CheckTriggers()
 {
     m_activeMenuItems.clear();
-    const EventInfo * evtInfo = nullptr;
+    const EventInfo * evtInfo;
     if ( evtStore()->contains<EventInfo>("ByteStreamEventInfo") ){
 	evtStore()->retrieve(evtInfo, "ByteStreamEventInfo");
 	if ( evtInfo->trigger_info() == 0) // Trigger info not available, will not do trigger aware plots

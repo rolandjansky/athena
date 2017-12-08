@@ -1,0 +1,30 @@
+package xAODTrigBphys
+# $Id:$
+
+author James walder <jwalder@cern.ch>
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+
+#use AthContainersInterfaces AthContainersInterfaces-* Control
+use AthContainers           AthContainers-*           Control
+#use DataModel               DataModel-*               Control
+use AthLinks                AthLinks-*                Control
+use xAODTracking            xAODTracking-*            Event/xAOD
+use xAODCore                xAODCore-*                Event/xAOD
+
+library xAODTrigBphys ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex             AtlasReflex-*             External
+use AtlasROOT               AtlasROOT-*               External
+use AthLinks                AthLinks-*                Control
+
+apply_pattern lcgdict dict=xAODTrigBphys selectionfile=selection.xml \
+                      headerfiles="../xAODTrigBphys/xAODTrigBphysDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODTrigBphys

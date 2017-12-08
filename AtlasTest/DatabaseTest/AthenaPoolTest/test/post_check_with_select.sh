@@ -71,9 +71,7 @@ select=$2
 		egrep -a -v 'Service already offline' |\
 		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc|entering handle' |\
 		    # Must remove excess print for CaloShowerContainer
-		egrep -a -v 'CaloShowerContainer' |\
-                    # Destructor can be called at different times.
-		egrep -a -v 'DEBUG Calling destructor'
+		egrep -a -v 'CaloShowerContainer'
 
 	    else 
 #	    echo " post.sh> Now comparing output with reference"

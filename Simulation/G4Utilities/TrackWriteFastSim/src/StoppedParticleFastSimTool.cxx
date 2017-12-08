@@ -9,6 +9,7 @@ StoppedParticleFastSimTool::StoppedParticleFastSimTool(const std::string& type, 
   : FastSimulationBase(type,name,parent),
     m_trackFastSimSDTool("TrackFastSimSDTool")
 {
+  declareInterface<IFastSimulation>(this);
 }
 
 StatusCode StoppedParticleFastSimTool::initialize()

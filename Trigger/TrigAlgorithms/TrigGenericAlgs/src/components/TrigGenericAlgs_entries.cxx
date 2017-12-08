@@ -15,7 +15,6 @@
 #include "../AcceptAnyInput.h"
 #include "../TrigRoiUpdater.h"
 #include "../MergeTopoStarts.h"
-#include "../AcceptL1TopoMonitor.h"
 
 
 DECLARE_COMPONENT( DummyFEX )
@@ -35,4 +34,4 @@ DECLARE_COMPONENT( AcceptAnyInput )
 DECLARE_COMPONENT( PESA::SeededSuperRoiAllTEAlgo )
 DECLARE_COMPONENT( PESA::TrigRoiUpdater )
 DECLARE_COMPONENT( MergeTopoStarts )
-DECLARE_COMPONENT( AcceptL1TopoMonitor )
+

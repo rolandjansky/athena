@@ -24,7 +24,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-			  PhysicsAnalysis/MuonID/MuonSelectorTools
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Tools/LWHists
                           Tracking/TrkEvent/TrkEventPrimitives )

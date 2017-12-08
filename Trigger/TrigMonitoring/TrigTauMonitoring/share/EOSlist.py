@@ -17,7 +17,7 @@ if(len(sys.argv)>1):
         fileNumber = count_files
         count_files = count_files + 1
         print 'fileNumber',fileNumber
-        files += ['root://eosatlas.cern.ch/%s/%s' % (dsName,i) ]
+        files += ['root://eosatlas/%s/%s' % (dsName,i) ]
     print files
     f = open('fileList.sh', 'w')
     f.write('athena.py  -c "jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(-1);fileList=')

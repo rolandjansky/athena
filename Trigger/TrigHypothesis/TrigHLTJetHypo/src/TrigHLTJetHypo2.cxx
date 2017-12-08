@@ -367,9 +367,9 @@ HLT::ErrorCode TrigHLTJetHypo2::checkJets(const xAOD::JetContainer* outJets){
      monitorLeadingJet(*leading_jet);
    }
 
-   if(m_dumpJets){ 
+   //if(m_dumpJets){ //FIXME
      writeDebug(pass, helper.passedJets(), helper.failedJets());
-   }
+   //}
 
    bumpCounters(pass, helper.passedJets().size());
  }

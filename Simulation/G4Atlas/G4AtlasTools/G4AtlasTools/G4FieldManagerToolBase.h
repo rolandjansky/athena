@@ -26,7 +26,7 @@ class G4MagIntegratorStepper;
  *  @author Andrea Dell'Acqua
  *  @date   2015-11-17
  */
-class G4FieldManagerToolBase : public extends<AthAlgTool, IFieldManagerTool>
+class G4FieldManagerToolBase : public AthAlgTool, virtual public IFieldManagerTool
 {
 
   public:

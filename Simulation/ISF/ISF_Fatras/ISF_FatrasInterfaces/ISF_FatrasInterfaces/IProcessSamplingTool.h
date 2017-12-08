@@ -27,6 +27,8 @@ namespace ISF {
 
 namespace iFatras {
   
+  static const InterfaceID IID_IProcessSamplingTool("IProcessSamplingTool", 1, 0);
+    
   /** 
    @class IProcessSamplingTool
 
@@ -42,8 +44,8 @@ namespace iFatras {
        /** Virtual destructor */
        virtual ~IProcessSamplingTool(){}
 
-       /// Creates the InterfaceID and interfaceID() method
-       DeclareInterfaceID(IProcessSamplingTool, 1, 0);
+       /** AlgTool interface methods */
+       static const InterfaceID& interfaceID() { return IID_IProcessSamplingTool; }
 
        /** Process, path limit */
        virtual Trk::PathLimit sampleProcess(double momentum, double charge, Trk::ParticleHypothesis pHypothesis) const=0;

@@ -34,7 +34,7 @@ ServiceMgr.MultipleEventLoopMgr.ToBeReinitialized = ["StoreGateSvc", "DetectorSt
 # I/O stuff
 #
 ServiceMgr.EventSelector.InputCollections = [     
-    "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.005008.CavernInput.merge.HITS.e4_e607_s951_s952_tid170551_00/HITS.170551._000011.pool.root.1" ]
+    "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.005008.CavernInput.merge.HITS.e4_e607_s951_s952_tid170551_00/HITS.170551._000011.pool.root.1" ]
 
 # Set up for seeking.
 ServiceMgr.EventSelector.CollectionType = "SeekableROOT"

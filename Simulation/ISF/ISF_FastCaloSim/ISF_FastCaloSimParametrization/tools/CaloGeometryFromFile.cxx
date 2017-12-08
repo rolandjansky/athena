@@ -5,7 +5,7 @@
 #include "CaloGeometryFromFile.h"
 #include <TTree.h>
 #include <TFile.h>
-#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
 #include <fstream>
 #include <sstream>
 #include <TGraph.h>

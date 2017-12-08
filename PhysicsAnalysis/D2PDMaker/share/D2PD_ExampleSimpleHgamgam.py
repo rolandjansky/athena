@@ -41,6 +41,7 @@ topSequence += D2PDPhotonSelector( "PhotonSelectorInExampleSimpleHgamgamStream",
                               OutputLevel                      = INFO,
                               inputCollection                  = 'PhotonAODCollection',
                               outputLinkCollection             = 'MyHgamgamLoosePhotonLinkCollection',
+                              userDataSvc                      = 'UserDataInExampleSimpleHgamgamStream',
                               minNumberPassed                  = 1,
                               photonIsEM                       = egammaPID.PhotonLoose,
                               photonAcceptAuthorList           = [ egammaParameters.AuthorPhoton, egammaParameters.AuthorRConv ],
@@ -119,3 +120,9 @@ ExampleSimpleHgamgamStream.AddItem( ['INav4MomLinkContainer#MyHgamgamLoosePhoton
 
 
 
+#====================================================================
+# UserDataSvc
+#====================================================================
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataInExampleSimpleHgamgamStream")
+svcMgr.UserDataInExampleSimpleHgamgamStream.OutputStream = ExampleSimpleHgamgamStream.Stream

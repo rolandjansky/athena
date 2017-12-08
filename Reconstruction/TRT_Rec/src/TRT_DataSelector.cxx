@@ -36,10 +36,6 @@ TRT_DataSelector::TRT_DataSelector (const std::string&	type,
 	m_debug			(false),
 	m_driftCircleContainer	(0),
 	m_log			(0),
-	m_selectedLayers        (0),
-        m_selectedStraws	(0),
-	m_selectedTrLayers	(0),
-	m_trtHelper		(nullptr),
 	m_verbose		(false)
 {
     declareInterface<ITRT_DataSelector>(this);

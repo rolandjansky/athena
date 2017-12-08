@@ -1,0 +1,47 @@
+package tauEvent
+
+author Noel Dawe <Noel%DOT%Dawe%AT%cern%DOT%ch>
+author Thomas Burgess <tburgess-at-cern-ch>
+author Lukasz Janyst <ljanyst@cern.ch>
+
+use AtlasPolicy    AtlasPolicy-* 
+use GaudiInterface GaudiInterface-*     External
+use EventKernel	   EventKernel-*	    Event
+use FourMom        FourMom-*            Event
+use Particle       Particle-*           Reconstruction
+use CaloEvent      CaloEvent-*          Calorimeter
+use CaloIdentifier CaloIdentifier-*             Calorimeter
+use ParticleEvent  ParticleEvent-*      PhysicsAnalysis/AnalysisCommon
+use AtlasCLHEP     AtlasCLHEP-*         External
+use SGTools        SGTools-*            Control
+use AthLinks       AthLinks-*           Control
+use Navigation	   Navigation-*         Control 
+use FourMom        FourMom-*            Event
+use NavFourMom     NavFourMom-*         Event
+use VxVertex       VxVertex-*           Tracking/TrkEvent
+use JetEvent       JetEvent-*           Reconstruction/Jet
+
+library tauEvent *.cxx
+
+apply_pattern installed_library
+
+private 
+use AtlasReflex    AtlasReflex-*        External -no_auto_imports
+use AtlasROOT      AtlasROOT-*          External
+
+apply_pattern lcgdict dict=tauEvent \
+                      selectionfile=selection.xml \
+                      headerfiles="../tauEvent/tauEventDict.h" \
+                      elementLinks="Analysis::TauJetContainer  Analysis::TauDetailsContainer"
+
+macro_append tauEventDict_shlibflags 
+
+# Split the enums off into a separate dictionary,
+# so that we can get them from python without having to load all the EDM
+# classes.
+apply_pattern lcgdict dict=tauEnums \
+                      selectionfile=selectionEnums.xml \
+                      headerfiles="../tauEvent/tauEnumsDict.h"
+      
+# remove use_linkopts
+macro tauEnumsDict_shlibflags "$(componentshr_linkopts) $(Reflex_linkopts) $(tauEvent_extra_shlibflags)"

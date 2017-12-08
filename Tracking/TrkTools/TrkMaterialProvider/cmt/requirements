@@ -1,0 +1,44 @@
+package TrkMaterialProvider
+
+author Massimiliano Bellomo <massimiliano.bellomo@cern.ch>
+
+private
+
+use AtlasCLHEP          AtlasCLHEP-*         External
+use GaudiInterface      GaudiInterface-*     External
+use TrkMaterialOnTrack  TrkMaterialOnTrack-* Tracking/TrkEvent
+use TrkEventUtils       TrkEventUtils-*      Tracking/TrkEvent     
+use EventPrimitives     EventPrimitives-*    Event
+use AtlasDetDescr       AtlasDetDescr-*      DetectorDescription
+use Identifier          Identifier-*         DetectorDescription 
+use MagFieldInterfaces          MagFieldInterfaces-*            MagneticField
+use muonEvent           muonEvent-*          Reconstruction/MuonIdentification
+
+use MuidEvent           MuidEvent-*          Reconstruction/MuonIdentification
+use MuidInterfaces      MuidInterfaces-*     Reconstruction/MuonIdentification
+use MuidInterfaces      MuidInterfaces-*     Reconstruction/MuonIdentification
+use RecoToolInterfaces  RecoToolInterfaces-* Reconstruction/RecoTools
+
+end_private
+
+public
+
+use AtlasPolicy         AtlasPolicy-* 
+use AthenaBaseComps     AthenaBaseComps-*    Control
+use TrkTrack            TrkTrack-*           Tracking/TrkEvent
+use TrkGeometry         TrkGeometry-*        Tracking/TrkDetDescr
+use TrkToolInterfaces   TrkToolInterfaces-*  Tracking/TrkTools
+use TrkParameters       TrkParameters-*      Tracking/TrkEvent
+use TrkSurfaces         TrkSurfaces-*        Tracking/TrkDetDescr
+use TrkDetDescrInterfaces TrkDetDescrInterfaces-* Tracking/TrkDetDescr
+use TrkExInterfaces     TrkExInterfaces-*    Tracking/TrkExtrapolation
+
+library	TrkMaterialProvider	TrkMaterialProviderTool.cxx \
+				components/*.cxx
+
+apply_pattern component_library
+			
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

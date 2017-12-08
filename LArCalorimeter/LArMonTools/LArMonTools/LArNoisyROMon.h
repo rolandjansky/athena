@@ -5,7 +5,7 @@
 /**
  * @class LArNoisyROMon
  * @author Laurent Duflot <duflot at lal.in2p3.fr>
- * 2017 : major upgrade/rewriting by B.Trocme (LPSC Grenoble)
+ *
  */
 
 #ifndef LArNoisyROMon_h
@@ -15,19 +15,15 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TTree.h"
 
-#include "Identifier/HWIdentifier.h"
-#include "LArIdentifier/LArOnlineID.h"
 
 #include <string>
-#include <array>
 
 class TH1I_LW;
 class TH1F_LW;
-class TH2I_LW;
 class TH2F_LW;
 class LWHist2D;
 class LWHist1D;
-//class LArOnlineID;
+class LArOnlineID;
 class LArOnlineIDStrHelper;
 
 class LArNoisyROMon: public ManagedMonitorToolBase
@@ -45,8 +41,6 @@ public:
   StatusCode fillHistograms();
   StatusCode checkHists(bool fromFinalize);
   StatusCode procHistograms();
-
-  size_t partitionNumber(const HWIdentifier);
   
 private:
   
@@ -82,13 +76,12 @@ private:
     TH1F_LW* h_SaturatedNoisyEventFrac=nullptr;
     TH1F_LW* h_MNBTightEventFrac=nullptr;
     TH1F_LW* h_MNBLooseEventFrac=nullptr;
-    //    TH1F_LW* h_NoisyWEventFrac=nullptr;
+    TH1F_LW* h_NoisyWEventFrac=nullptr;
     TH1F_LW* h_NoisyEventTimeVetoFrac=nullptr;
     TH1F_LW* h_SaturatedNoisyEventTimeVetoFrac=nullptr;
     TH1F_LW* h_MNBTightEventTimeVetoFrac=nullptr;
     TH1F_LW* h_MNBLooseEventTimeVetoFrac=nullptr;
-    //    TH1F_LW* h_NoisyWEventTimeVetoFrac=nullptr;
-    TH2I_LW* h_MNBKnownFEB=nullptr;
+    TH1F_LW* h_NoisyWEventTimeVetoFrac=nullptr;
     TH1I_LW* h_NoisyEventTrigger=nullptr;
     TH1I_LW* h_NoisyEventTriggerL1=nullptr;
     
@@ -104,24 +97,44 @@ private:
     TH1I_LW* h_SaturatedNoisyEvent=nullptr;
     TH1I_LW* h_MNBTightEvent=nullptr;
     TH1I_LW* h_MNBLooseEvent=nullptr;
-    //    TH1I_LW* h_NoisyWEvent=nullptr;
+    TH1I_LW* h_NoisyWEvent=nullptr;
     TH1I_LW* h_NoisyEventTimeVeto=nullptr;
     TH1I_LW* h_SaturatedNoisyEventTimeVeto=nullptr;
     TH1I_LW* h_MNBTightEventTimeVeto=nullptr;
     TH1I_LW* h_MNBLooseEventTimeVeto=nullptr;
-    //TH1I_LW* h_NoisyWEventTimeVeto=nullptr;
+    TH1I_LW* h_NoisyWEventTimeVeto=nullptr;
   };
 
   TH1I_LW* m_h_NoisyFEB=nullptr;
+  TH1F_LW* m_h_NoisyEventFrac=nullptr;
+  TH1F_LW* m_h_NoisyEventTimeVetoFrac=nullptr;
+  TH1I_LW* m_h_MNBTightFEB=nullptr;
+  TH1F_LW* m_h_MNBTightEventFrac=nullptr;
+  TH1F_LW* m_h_MNBTightEventTimeVetoFrac=nullptr;
+  TH1I_LW* m_h_MNBLooseFEB=nullptr;
+  TH1F_LW* m_h_MNBLooseEventFrac=nullptr;
+  TH1F_LW* m_h_MNBLooseEventTimeVetoFrac=nullptr;
+  TH1I_LW* m_h_CandidateMNBTightFEB=nullptr;
+  TH1I_LW* m_h_CandidateMNBLooseFEB=nullptr;
+  TH1F_LW* m_h_SaturatedTightFrac=nullptr;
+  TH1I_LW* m_h_NoisyEvent=nullptr;
+  TH1I_LW* m_h_NoisyEventTimeVeto=nullptr;
+  TH1I_LW* m_h_MNBTightEvent=nullptr;
+  TH1I_LW* m_h_MNBTightEventTimeVeto=nullptr;
+  TH1I_LW* m_h_MNBLooseEvent=nullptr;
+  TH1I_LW* m_h_MNBLooseEventTimeVeto=nullptr;
+  TH1I_LW* m_h_SaturatedTight=nullptr;
+  TH1I_LW* m_h_SaturatedTightTimeVeto=nullptr;
+  TH1F_LW* m_h_SaturatedTightTimeVetoFrac=nullptr;
   TH1I_LW* m_h_LBN=nullptr;
 
   
   void bookPartitionHistos(partitionHistos&, const std::string& name, MonGroup& group, MonGroup& groupfrac, MonGroup& groupfracbin);
-  void copyHisto(LWHist2D* from,LWHist2D* to);
-  void copyHisto(LWHist1D* from,LWHist1D* to);
+  void CopyHisto(LWHist2D* from,LWHist2D* to);
+  void CopyHisto(LWHist1D* from,LWHist1D* to);
   
   // divide num by denom and store in to, assuming num is a subset of denom
-  void divideHisto(LWHist1D* to,LWHist1D* num,LWHist1D* denom);
+  void Divide(LWHist1D* to,LWHist1D* num,LWHist1D* denom);
   
   // fill histogram of triggers
   void fillTriggerHisto(partitionHistos& partition, uint8_t triggerbits, uint8_t L1triggerbits);
@@ -130,9 +143,7 @@ private:
   bool m_doTrigger;
   unsigned int m_eventCounter;
 
-  //  partitionHistos m_BarrelA, m_BarrelC, m_EMECA, m_EMECC;
-  std::vector<partitionHistos> m_partHistos;
-
+  partitionHistos m_BarrelA, m_BarrelC, m_EMECA, m_EMECC;
 
   const LArOnlineID* m_LArOnlineIDHelper;
   LArOnlineIDStrHelper* m_strHelper;
@@ -140,9 +151,6 @@ private:
 
   
   std::string m_NoisyFEBDefStr;
-  std::string m_MNBTightFEBDefStr;
-  std::string m_MNBLooseFEBDefStr;
-  std::vector<unsigned int> m_knownMNBFEBs;
   unsigned int m_BadFEBCut;
 
   std::vector<std::string> m_EF_NoiseBurst_Triggers;
@@ -152,23 +160,5 @@ private:
   std::string m_inputKey;
 };
 
-inline size_t LArNoisyROMon::partitionNumber(const HWIdentifier hwid) {
-
-  int pn=m_LArOnlineIDHelper->pos_neg(hwid);
-  if (m_LArOnlineIDHelper->isEMECchannel(hwid)) {
-    if (pn) 
-      return 0; //positive EMECA side
-    else
-      return 3; //negative EMECC side
-  }
-  if (m_LArOnlineIDHelper->isEMBchannel(hwid)) {
-    if (pn) 
-      return 1; //positive EMBA side
-    else
-      return 2; //negative EMBC side
-  }
-
-  return 4;//Anything else
-}
 
 #endif

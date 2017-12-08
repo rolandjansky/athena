@@ -20,7 +20,7 @@ function run_test() {
     chkfile=d3pd.ascii
     /bin/rm -f $reffile > /dev/null
     /bin/rm -f $chkfile > /dev/null
-    refdir=root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/
+    refdir=root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/
     # Depending on the LCG version, we may get the xrdcp binary either from
     # LCG or from the system installation.  If the latter, then we need to be
     # sure we don't have the LCG libraries on LD_LIBRARY_PATH or xrdcp

@@ -337,49 +337,4 @@ void throwExcUpdatedObjectFailure (CLID clid,
 }
 
 
-//****************************************************************************
-
-
-/// Helper: format exception error string.
-std::string excNonConstHandleKey_format (CLID clid,
-                                         const std::string& sgkey,
-                                         const std::string& storename)
-  
-{
-  std::ostringstream os;
-  os << "SG::ExcNonConstHandleKey: "
-     << "Attempt to get non-const VarHandleKey from non-owning VarHandle: "
-     << storename << "+" << sgkey << "[" << clid << "]";
-  return os.str();
-}
-
-
-/**
- * @brief Constructor.
- * @param clid CLID from the key.
- * @param sgkey StoreGate key from the key.
- * @param storename Store name from the key.
- */
-ExcNonConstHandleKey::ExcNonConstHandleKey (CLID clid,
-                                            const std::string& sgkey,
-                                            const std::string& storename)
-  : std::runtime_error (excNonConstHandleKey_format (clid, sgkey, storename))
-{
-}
-
-
-/**
- * @brief Throw a SG::ExcNonConstHandleKey exception.
- * @param clid CLID from the key.
- * @param sgkey StoreGate key from the key.
- * @param storename Store name from the key.
- */
-void throwExcNonConstHandleKey (CLID clid,
-                                const std::string& sgkey,
-                                const std::string& storename)
-{
-  throw ExcNonConstHandleKey (clid, sgkey, storename);
-}
-
-
 } // namespace SG

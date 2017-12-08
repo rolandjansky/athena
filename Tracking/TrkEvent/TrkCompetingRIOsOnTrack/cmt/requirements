@@ -1,0 +1,27 @@
+package TrkCompetingRIOsOnTrack
+
+author Sebastian Fleischmann <sebastian.fleischmann@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-* 
+#use AtlasCLHEP            AtlasCLHEP-*           External
+
+use TrkMeasurementBase    TrkMeasurementBase-* Tracking/TrkEvent
+use TrkEventPrimitives    TrkEventPrimitives-* Tracking/TrkEvent
+use EventPrimitives      EventPrimitives-*         Event 
+use GeoPrimitives        GeoPrimitives-*           DetectorDescription 
+
+apply_pattern installed_library
+library TrkCompetingRIOsOnTrack *.cxx
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+private
+use AtlasReflex   AtlasReflex-*   	External -no_auto_imports
+use TrkRIO_OnTrack TrkRIO_OnTrack-*     Tracking/TrkEvent
+use AtlasBoost     AtlasBoost-*        External
+#use AtlasCLHEP            AtlasCLHEP-*           External
+
+
+apply_pattern lcgdict dict=TrkCompetingRIOsOnTrack selectionfile=selection.xml headerfiles="../TrkCompetingRIOsOnTrack/TrkCompetingRIOsOnTrackDict.h"

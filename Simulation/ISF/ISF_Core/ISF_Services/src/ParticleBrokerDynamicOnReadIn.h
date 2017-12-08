@@ -55,7 +55,7 @@ namespace ISF {
   
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
      */
-  class ParticleBrokerDynamicOnReadIn : public extends<AthService, IParticleBroker> {
+  class ParticleBrokerDynamicOnReadIn : public AthService, virtual public IParticleBroker { 
     public: 
       
       //** Constructor with parameters */
@@ -93,6 +93,10 @@ namespace ISF {
 
       /** Register an array of SimulationSelectors */
       StatusCode registerSimSelector(SimSelectorToolArray &simSelectorTools, AtlasDetDescr::AtlasRegion geoID);
+
+      /** Query the interfaces. **/
+      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  
 
     private:
       /** Default constructor */

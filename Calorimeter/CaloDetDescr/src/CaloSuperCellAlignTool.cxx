@@ -22,6 +22,7 @@
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
+#include "boost/foreach.hpp"
 
 
 namespace {
@@ -32,7 +33,7 @@ int descr_index (const CaloDetDescriptor* desc,
 {
   if (desc->is_tile()) {
     int i= 0;
-    for (const CaloDetDescriptor* d : mgr->tile_descriptors_range()) {
+    BOOST_FOREACH(const CaloDetDescriptor* d,mgr->tile_descriptors_range()) {
       if (d == desc) return mgr->calo_descriptors_size() + i;
       ++i;
     }
@@ -52,7 +53,7 @@ const CaloDetDescriptor* get_descriptor (Identifier reg_id,
     return mgr->get_descriptor (reg_id);
   }
 
-  for (const CaloDetDescriptor* d : mgr->tile_descriptors_range()) {
+  BOOST_FOREACH (const CaloDetDescriptor* d, mgr->tile_descriptors_range()) {
     if (d->identify() == reg_id) return d;
   }
   return 0;
@@ -184,7 +185,7 @@ CaloSuperCellAlignTool::updateElements (CaloSuperCellDetDescrManager* mgr,
   // For each supercell, we make a list of the corresponding cells.
   // Then we pass that list to the supercell's @c update method.
 
-  for (CaloDetDescrElement* elt : mgr->element_range()) {
+  BOOST_FOREACH (CaloDetDescrElement* elt, mgr->element_range()) {
     if (!elt) continue;
     CaloSuperCellDetectorElement* selt =
       dynamic_cast<CaloSuperCellDetectorElement*> (elt);
@@ -199,7 +200,7 @@ CaloSuperCellAlignTool::updateElements (CaloSuperCellDetDescrManager* mgr,
 
     std::vector<const CaloDetDescrElement*> fromelts;
     fromelts.reserve (ids.size());
-    for (Identifier id : ids) {
+    BOOST_FOREACH (Identifier id, ids) {
       // For tile tower sums, exclude D-layer cells
       // (they have a different size).
       if (cell_idhelper->sub_calo(id) == CaloCell_Base_ID::TILE &&
@@ -251,7 +252,7 @@ CaloSuperCellAlignTool::updateDescriptors (CaloSuperCellDetDescrManager* mgr,
   std::vector<DescrMinMax> descr_minmax (maxdesc);
 
   // Loop over cells and record range limits for each descriptor.
-  for (CaloDetDescrElement* elt : mgr->element_range()) {
+  BOOST_FOREACH (CaloDetDescrElement* elt, mgr->element_range()) {
     if (!elt) continue;
     CaloDetDescriptor* desc = const_cast<CaloDetDescriptor*>(elt->descriptor());
     int ndx = descr_index (desc, mgr);
@@ -268,11 +269,11 @@ CaloSuperCellAlignTool::updateDescriptors (CaloSuperCellDetDescrManager* mgr,
 
   // Loop over each descriptor and update.
   size_t i = 0;
-  for (CaloDetDescriptor* desc : mgr->calo_descriptors_range()) {
+  BOOST_FOREACH (CaloDetDescriptor* desc, mgr->calo_descriptors_range()) {
     updateDescriptor (desc, descr_minmax[i], cellmgr);
     ++i;
   }
-  for (CaloDetDescriptor* desc : mgr->tile_descriptors_range()) {
+  BOOST_FOREACH (CaloDetDescriptor* desc, mgr->tile_descriptors_range()) {
     updateDescriptor (desc, descr_minmax[i], cellmgr);
     ++i;
   }

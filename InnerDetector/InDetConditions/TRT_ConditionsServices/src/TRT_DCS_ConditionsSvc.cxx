@@ -10,10 +10,11 @@
 #include "TRT_DCS_ConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "StoreGate/ReadHandle.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -56,6 +57,7 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
   declareProperty( "HV_WarningValueLow",  m_HVWarnValHi = 2000. );
   declareProperty( "HV_WarningValueHigh", m_HVWarnValLo = 1000. );
   declareProperty( "HWMapSvc", m_mapSvc );
+  declareProperty( "EventInfoKey", m_EventInfoKey = "EventInfo" );
   declareProperty( "DoIOVChecking", m_doIOVchecking = false );
   declareProperty( "IOVmaxLength", m_IOVmaxLength = 86400 /* 24 hours */ );
   declareProperty( "FallBackOnCOOLChanNames", m_FallBackOnCOOLChanNames = false );
@@ -89,9 +91,6 @@ StatusCode TRT_DCS_ConditionsSvc::initialize() {
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to retrieve " << m_detStore << endmsg;
   }
-
-  // initialize DataHandle keys
-  ATH_CHECK(m_EventInfoKey.initialize());
 
   // Get the TRT Identifier Helper.
   sc = m_detStore->retrieve( m_TRT_ID_Helper, "TRT_ID" );
@@ -402,15 +401,18 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 
     // Get the current event timestamp
     m_currentTimestamp = 0;
-    SG::ReadHandle<xAOD::EventInfo> evtInfo(m_EventInfoKey);
-
-    if (not evtInfo.isValid()) {
-      ATH_MSG_WARNING( "Couldn't get " << m_EventInfoKey.key()
+    const EventInfo* evtInfo;
+    sc = m_evtStore->retrieve(evtInfo,m_EventInfoKey);
+    if ( sc.isFailure() || !evtInfo ) {
+      ATH_MSG_WARNING( "Couldn't get " << m_EventInfoKey
 		       << " from StoreGate." );
       return;
     }
-
-    m_currentTimestamp = evtInfo->timeStamp();
+    if ( !evtInfo->event_ID() ) {
+      ATH_MSG_WARNING( m_EventInfoKey << " object has no EventID object." );
+      return;
+    }
+    m_currentTimestamp = evtInfo->event_ID()->time_stamp();
     if (m_VeryVerbose) ATH_MSG_VERBOSE( "Event timestamp: " << m_currentTimestamp );
 
     // Monitoring Histograms

@@ -1,0 +1,28 @@
+package MuonPtCalibNtupleMaker
+
+author Giacomo Artoni <Giacomo.Artoni@cern.ch>
+
+public
+use  AtlasPolicy         AtlasPolicy-*         
+use  AtlasROOT           AtlasROOT-*           External
+use  AthenaBaseComps     AthenaBaseComps-*     Control
+use  xAODMuon            xAODMuon-*            Event/xAOD
+use  xAODEventInfo       xAODEventInfo-*       Event/xAOD
+use  xAODTracking        xAODTracking-*        Event/xAOD
+use  MuonSelectorTools   MuonSelectorTools-*   PhysicsAnalysis/MuonID
+use  AsgAnalysisInterfaces AsgAnalysisInterfaces-* PhysicsAnalysis/Interfaces
+use  GoodRunsLists       GoodRunsLists-*       DataQuality
+use  TrigDecisionTool    TrigDecisionTool-*    Trigger/TrigAnalysis
+use  TrigMuonMatching    TrigMuonMatching-*    Trigger/TrigAnalysis
+use  AtlasCLHEP          AtlasCLHEP-*          External
+use  xAODTruth           xAODTruth-*           Event/xAOD
+
+private                                       
+use  GaudiInterface      GaudiInterface-*      External
+end_private
+
+public
+library MuonPtCalibNtupleMaker *.cxx -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_joboptions files="../share/*.py"
+apply_pattern declare_python_modules files="*.py"

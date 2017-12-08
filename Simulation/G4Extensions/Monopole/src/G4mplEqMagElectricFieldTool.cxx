@@ -14,8 +14,10 @@
 //=============================================================================
 G4mplEqMagElectricFieldTool::G4mplEqMagElectricFieldTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
-  : base_class ( type, nam , parent )
+  : AthAlgTool ( type, nam , parent )
 {
+  ATH_MSG_DEBUG("G4mplEqMagElectricFieldTool "<<type<<" "<<nam);
+  declareInterface< IEquationOfMotionTool >( this ) ;
 }
 
 G4Mag_EqRhs* G4mplEqMagElectricFieldTool::makeEquationOfMotion(G4MagneticField *emField) const

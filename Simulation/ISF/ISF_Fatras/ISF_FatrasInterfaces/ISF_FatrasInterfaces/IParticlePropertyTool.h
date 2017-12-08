@@ -19,6 +19,7 @@
 namespace iFatras
 {
     
+  static const InterfaceID  IID_IParticlePropertyTool("IParticlePropertyTool", 1, 0);
   /** 
       @class IParticlePropertyTool
       
@@ -35,8 +36,9 @@ namespace iFatras
     /** Virtual destructor */
     virtual ~IParticlePropertyTool(){}
     
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IParticlePropertyTool, 1, 0);
+    /** AlgTool interface methods */
+    static const InterfaceID& interfaceID()
+          { return IID_IParticlePropertyTool; }
 
     virtual std::vector<std::pair<int,std::string> >
     listOfParticles() const=0;

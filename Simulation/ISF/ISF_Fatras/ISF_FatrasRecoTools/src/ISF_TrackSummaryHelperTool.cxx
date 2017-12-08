@@ -21,12 +21,13 @@
 iFatras::ISF_TrackSummaryHelperTool::ISF_TrackSummaryHelperTool(const std::string& t,
 								const std::string& n,
 								const IInterface*  p ):
-  base_class(t,n,p),
+  AthAlgTool(t,n,p),
   m_pixelId(0),
   m_sctId(0),
   m_assoTool("iFatras::ISF_PRD_AssociationTool"), 
   m_doSharedHits(false)
 {
+  declareInterface<ITrackSummaryHelperTool>(this);
   declareProperty("AssoTool",            m_assoTool);
   declareProperty("DoSharedHits",        m_doSharedHits);
   declareProperty("usePixel",            m_usePixel = true);

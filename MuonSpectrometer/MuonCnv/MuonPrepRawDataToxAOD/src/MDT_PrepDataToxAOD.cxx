@@ -11,8 +11,6 @@
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 
 // Constructor with parameters:
 MDT_PrepDataToxAOD::MDT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -30,19 +28,7 @@ StatusCode MDT_PrepDataToxAOD::initialize() {
 // Execute method:
 StatusCode MDT_PrepDataToxAOD::execute()
 {
-  SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_inputContainerName);
-  SG::ReadHandle<MuonSimDataCollection> mdtSdos(m_sdoContainerName);
-  if(!mdtPrds.isPresent()){
-    ATH_MSG_DEBUG("No "<<m_inputContainerName.key()<<" collection");
-    return StatusCode::SUCCESS;
-  }
-  if(!mdtPrds.isValid()){
-    ATH_MSG_WARNING(m_inputContainerName.key()<<" not valid");
-    return StatusCode::FAILURE;
-  }
-  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> trackMeasValCont(m_trackMeasVal);
-  ATH_CHECK(trackMeasValCont.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()));
-  if( !buildCollections(mdtPrds.cptr(),mdtSdos.cptr(),trackMeasValCont.ptr()) ) return StatusCode::FAILURE;
+  if( !buildCollections() ) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 

@@ -13,8 +13,7 @@
 
 /**
  * Common definitions for the @c PerfMon packages
- * @class PerfMon::State
- * factorizes the different states (and their name)
+ * @class PerfMon::State factorizes the different states (and their name)
  * of the Gaudi finite state machine. At least those PerfMon is interested in.
  */
 

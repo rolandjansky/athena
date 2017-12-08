@@ -12,7 +12,7 @@
 
 namespace iGeant4 {
 
-  class G4RunManagerHelper: public extends<AthAlgTool, ISF::IG4RunManagerHelper> {
+  class G4RunManagerHelper: virtual public ISF::IG4RunManagerHelper,  public AthAlgTool {
 
   public:
     G4RunManagerHelper(const std::string& type,

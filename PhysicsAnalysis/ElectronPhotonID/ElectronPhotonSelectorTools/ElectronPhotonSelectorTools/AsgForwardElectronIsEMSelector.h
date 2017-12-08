@@ -24,10 +24,9 @@
 #include "AsgTools/AsgTool.h"
 
 // Include the interfaces
-#include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
-
+#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
+// Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
-
 #include <string>
 
 namespace Root{
@@ -60,18 +59,34 @@ class AsgForwardElectronIsEMSelector : public asg::AsgTool,
   /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
 
+  /** Accept with generic interface */
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
+    return accept(&part);
+  }
 
   /** Accept with Egamma objects */
   virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
 
+  /** Accept with Egamma objects */
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const {
+    return accept(&part);
+  }
 
   /** Accept with Photon objects */
   virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
 
+  /** Accept with Photon objects */
+  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const {
+    return accept(&part);
+  }
 
   /** Accept with Electron objects */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
 
+  /** Accept with Electron objects */
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const{
+    return accept(&part);
+  }
 
   /** The value of the isem **/
   virtual unsigned int IsemValue() const ;

@@ -44,7 +44,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/TestBeamSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/TestBeamSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_TestBeamSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -87,7 +87,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/Atlas2010GeomSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/Atlas2010GeomSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_Atlas2010GeomSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -130,7 +130,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/Atlas2011GeomSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/Atlas2011GeomSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_Atlas2011GeomSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -173,7 +173,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/Atlas2012GeomSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/Atlas2012GeomSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_Atlas2012GeomSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -216,7 +216,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/TTbarSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/TTbarSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_TTbarSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -299,7 +299,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/FtfpBertAtlTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/FtfpBertAtlTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_FtfpBertAtlTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -344,7 +344,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/NeutronCutTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/NeutronCutTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_NeutronCutTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -387,7 +387,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/QgsBicTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/QgsBicTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_QgsBicTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -430,7 +430,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/HeavyIonSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/HeavyIonSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_HeavyIonSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -473,7 +473,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CavernBg_EVNT2TR.EVNT.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CavernBg_EVNT2TR.EVNT.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.EVNT.pool.root_CavernBg_EVNT2TR.EVNT.pool.root.diffPool</keepFilePattern>
               </test>
@@ -535,7 +535,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CavernBg_TR2HITS.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CavernBg_TR2HITS.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_CavernBg_TR2HITS.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -579,7 +579,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/FrozenShowerFCalOnly.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/FrozenShowerFCalOnly.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_FrozenShowerFCalOnly.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -622,7 +622,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CosmicSimTR.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CosmicSimTR.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_CosmicSimTR.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -665,7 +665,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/LucidSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/LucidSimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_LucidSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -709,7 +709,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/AFPSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/AFPSimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_AFPSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -752,7 +752,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/ALFASimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/ALFASimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_ALFASimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -814,7 +814,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/ZDCSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/ZDCSimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_ZDCSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -899,7 +899,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/NSWSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/NSWSimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_NSWSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -1183,7 +1183,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/AtlasG4_minbias.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/AtlasG4_minbias.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_AtlasG4_minbias.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -1417,7 +1417,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/WriteCalHitsTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/WriteCalHitsTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_WriteCalHitsTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -1580,7 +1580,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CosmicSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CosmicSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_CosmicSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -1594,7 +1594,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CosmicSim.TR.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/21.0.X/CosmicSim.TR.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.TR.pool.root_CosmicSim.TR.pool.root.diffPool</keepFilePattern>
               </test>

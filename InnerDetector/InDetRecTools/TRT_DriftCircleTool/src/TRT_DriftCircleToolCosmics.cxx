@@ -276,12 +276,12 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
       //
       //Get straw status
-      int strawstat=1;
+      int m_strawstat=1;
 
       if(m_useConditionsStatus){
          if((m_ConditionsSummary->getStatus(id) != TRTCond::StrawStatus::Good)
             || (m_ConditionsSummary->getStatusPermanent(id))) {
-            strawstat = 0;
+            m_strawstat = 0;
          }
       }
 
@@ -349,7 +349,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
                 tdc->setHashAndIndex(rio->identifyHash(), rio->size());
                 rio->push_back(tdc);
            }else{
-             if(strawstat){
+             if(m_strawstat){
                 tdc->setHashAndIndex(rio->identifyHash(), rio->size());
                 rio->push_back(tdc);
 	     } else {

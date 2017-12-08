@@ -17,6 +17,7 @@
 // Framework includes
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
@@ -30,7 +31,8 @@ class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
 class AthService : 
-  public ::Service
+  public ::Service, 
+  public ::AthMessaging
 { 
  protected:
   friend class SvcFactory<AthService>;
@@ -39,6 +41,9 @@ class AthService :
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
+
+  // fwd compat w/ gaudi-21
+  using ::AthMessaging::msg;
 
   // Copy constructor: 
 
@@ -63,17 +68,6 @@ class AthService :
   virtual StatusCode queryInterface( const InterfaceID& riid, 
                                      void** ppvInterface );
 
-  // forward to CommonMessaging
-  inline MsgStream& msg() const {
-    return msgStream();
-  }
-  inline MsgStream& msg(const MSG::Level lvl) const {
-    return msgStream(lvl);
-  }
-  inline bool msgLvl(const MSG::Level lvl) const {
-    return msgLevel(lvl);
-  }
-
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
@@ -87,6 +81,9 @@ class AthService :
   /////////////////////////////////////////////////////////////////// 
  protected: 
 
+  /// callback for output level property 
+  void msg_update_handler(Property& outputLevel);
+
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
@@ -96,6 +93,9 @@ class AthService :
   AthService();
   AthService (const AthService&);
   AthService& operator= (const AthService&);
+
+  /// need to cache output level during initialize
+  int m_ol;
 
 }; 
 

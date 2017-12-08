@@ -11,8 +11,8 @@
 
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
 
-#include "AthLinks/ElementLink.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/ElementLink.h"
+#include "DataModel/DataVector.h"
 
 namespace JiveXML {
   

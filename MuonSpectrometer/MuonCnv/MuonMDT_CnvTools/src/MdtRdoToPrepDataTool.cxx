@@ -12,7 +12,6 @@
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MdtRDO_Decoder.h"
 
@@ -45,16 +44,14 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings() ),
   m_calibHit( 0 ),
   m_invSpeed(1./299.792458),
-  //m_mdtPrepDataContainer("MDT_DriftCircles"),
+  m_mdtPrepDataContainer("MDT_DriftCircles"),
+  m_rdoContainer("MDTCSM"),
   m_calibratePrepData(true),
   m_rawDataProviderTool("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool"),
   m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder"),
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_fullEventDone(false),
-  m_BMEpresent(false),
-  m_BMGpresent(false),
-  m_BMEid(-1),
-  m_BMGid(-1)
+  m_BMEpresent(false)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
@@ -62,6 +59,8 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   declareProperty ("RawDataProviderTool",      m_rawDataProviderTool);
   
   //  template for property decalration
+  declareProperty("OutputCollection",    m_mdtPrepDataContainer);
+  declareProperty("RDOContainer",        m_rdoContainer);
   declareProperty("CalibratePrepData",   m_calibratePrepData = true );
   declareProperty("DecodeData",          m_decodeData = true ); 
   declareProperty("SortPrepData",        m_sortPrepData = false );
@@ -80,9 +79,6 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   declareProperty("TimeWindowSetting",      m_mdtCalibSvcSettings->windowSetting = 2 );
   declareProperty("DoTofCorrection",        m_mdtCalibSvcSettings->doTof  = true );
   declareProperty("DoPropagationCorrection",m_mdtCalibSvcSettings->doProp = false );
-  // DataHandle
-  declareProperty("RDOContainer",	m_rdoContainerKey = std::string("MDTCSM"),"MdtCsmContainer to retrieve");
-  declareProperty("OutputCollection",	m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),"Muon::MdtPrepDataContainer to record");
 }
 
 
@@ -93,6 +89,9 @@ Muon::MdtRdoToPrepDataTool::~MdtRdoToPrepDataTool()
 
 StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 {  
+ 
+    // ATH_MSG_INFO("EJWM - initialize!");
+ 
   if (StatusCode::SUCCESS != serviceLocator()->service("MuonMDT_CablingSvc", m_mdtCabling)) {
     ATH_MSG_ERROR(" Can't get MuonMDT_CablingSvc ");
     return StatusCode::FAILURE;
@@ -150,32 +149,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 
   // check if the layout includes elevator chambers
   m_BMEpresent = m_mdtHelper->stationNameIndex("BME") != -1;
-  if(m_BMEpresent){
-    ATH_MSG_INFO("Processing configuration for layouts with BME chambers.");
-    m_BMEid = m_mdtHelper->stationNameIndex("BME");
-  }
-  m_BMGpresent = m_mdtHelper->stationNameIndex("BMG") != -1;
-  if(m_BMGpresent){
-    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_BMGid = m_mdtHelper->stationNameIndex("BMG");
-    for(int phi=6; phi<8; phi++) { // phi sectors
-      for(int eta=1; eta<4; eta++) { // eta sectors
-        for(int side=-1; side<2; side+=2) { // side
-          if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
-          for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
-            const MdtReadoutElement* mdtRE =
-                  dynamic_cast<const MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
-            if(mdtRE) initDeadChannels(mdtRE);
-          }
-        }
-      }
-    }
-  }
-
-  // check if initializing of DataHandle objects success
-  ATH_CHECK( m_rdoContainerKey.initialize() ); 
-
-  ATH_CHECK( m_mdtPrepDataContainerKey.initialize() );
+  if(m_BMEpresent) ATH_MSG_DEBUG("Processing configuration for layouts with BME chambers.");
 
   return StatusCode::SUCCESS;
 }
@@ -188,22 +162,23 @@ StatusCode Muon::MdtRdoToPrepDataTool::finalize()
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds )
 {    
+  // ATH_MSG_INFO("EJWM - decode!"+robIds.size());
+
   const std::vector<IdentifierHash>& chamberHashInRobs = m_mdtCabling->getChamberHashVec(robIds);
   return decode(robIds,chamberHashInRobs);
 }
 
 Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer() {
-  if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
+  // ATH_MSG_INFO("setupMdtPrepDataContainer");
+
+  if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainer.name())){
     m_fullEventDone=false;
+    StatusCode status = m_mdtPrepDataContainer.record(std::make_unique<Muon::MdtPrepDataContainer>(m_mdtHelper->module_hash_max()));
+    if (status.isFailure() || !m_mdtPrepDataContainer.isValid() ) 	{
+      ATH_MSG_FATAL("Could not record container of MDT PrepData Container at " << m_mdtPrepDataContainer.name());
 
-    SG::WriteHandle< Muon::MdtPrepDataContainer >handle(m_mdtPrepDataContainerKey);
-    StatusCode status = handle.record(std::make_unique<Muon::MdtPrepDataContainer>(m_mdtHelper->module_hash_max()));
-
-    if (status.isFailure() || !handle.isValid() ) 	{
-      ATH_MSG_FATAL("Could not record container of MDT PrepData Container at " << m_mdtPrepDataContainerKey.key());	
       return FAILED;
     }
-    m_mdtPrepDataContainer = handle.ptr();
     return ADDED;
   }
   return ALREADYCONTAINED;
@@ -211,17 +186,15 @@ Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDa
 
 
 const MdtCsmContainer* Muon::MdtRdoToPrepDataTool::getRdoContainer() {
-  auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey); 
-  if(rdoContainerHandle.isValid()) {
-    ATH_MSG_DEBUG("MdtgetRdoContainer success");
-    return rdoContainerHandle.cptr();  
-  }
+  if(m_rdoContainer.isValid()) return m_rdoContainer.cptr();  
   ATH_MSG_WARNING("Retrieval of Mdt RDO container failed !");
   return nullptr;
 }
 
 StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs )
 {
+  // ATH_MSG_INFO("EJWM - decode");
+	
   // setup output container
   SetupMdtPrepDataContainerStatus containerRecordStatus = setupMdtPrepDataContainer();
   if( containerRecordStatus == FAILED ){
@@ -246,6 +219,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
 }//end decode
 
 void Muon::MdtRdoToPrepDataTool::processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect ){
+  
   // get RDO container
   const MdtCsmContainer* rdoContainer = getRdoContainer();
   if(!rdoContainer) {
@@ -299,9 +273,8 @@ void Muon::MdtRdoToPrepDataTool::sortMdtPrdCollection( const Muon::MdtPrepDataCo
 bool Muon::MdtRdoToPrepDataTool::handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect ) {
   
   // if in prep data the chamber already exists ... do nothing
-  if( m_mdtPrepDataContainer->indexFind(hash) != m_mdtPrepDataContainer->end() ){
-    return true;
-  }
+  if( m_mdtPrepDataContainer->indexFind(hash) != m_mdtPrepDataContainer->end() ) return true;
+  
   IdentifierHash rdoHash = hash; // before BMEs were installed, RDOs were indexed by offline hashes (same as PRD)
   if (m_BMEpresent) { // after BMEs were installed, the RDOs are indexed by the detectorElement hash of a multilayer
     Identifier elementId;
@@ -323,7 +296,7 @@ bool Muon::MdtRdoToPrepDataTool::handlePRDHash( IdentifierHash hash, const MdtCs
     
     // for BMEs there are 2 CSMs per chamber, registered with the hashes of the 2 multilayers
     // we've processed only one now, now time for the second
-    if (m_mdtHelper->stationName(elementId) == m_BMEid) {
+    if (m_mdtHelper->stationName(elementId) == 53) {
       multilayerId = m_mdtHelper->multilayerID(elementId, 2); //second multilayer
       m_mdtHelper->get_detectorElement_hash(multilayerId, multilayerHash);
       rdoHash = multilayerHash;
@@ -412,14 +385,14 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
 void Muon::MdtRdoToPrepDataTool::printInputRdo()
 {
 
-  ATH_MSG_DEBUG("******************************************************************************************");
-  ATH_MSG_DEBUG("***************** Listing MdtCsmContainer collections content ********************************");
+  ATH_MSG_INFO("******************************************************************************************");
+  ATH_MSG_INFO("***************** Listing MdtCsmContainer collections content ********************************");
 
   const MdtCsmContainer* rdoContainer = getRdoContainer();
 
-  if (rdoContainer->size()==0) ATH_MSG_DEBUG("MdtCsmContainer is Empty");
+  if (rdoContainer->size()==0) ATH_MSG_INFO("MdtCsmContainer is Empty");
 
-  ATH_MSG_DEBUG("-----------------------------------------------------------------------------");
+  ATH_MSG_INFO("-----------------------------------------------------------------------------");
 
   MdtCsmContainer::const_iterator it = rdoContainer->begin();
 
@@ -435,10 +408,10 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
     uint16_t mrodid = mdtColl->MrodId();
     uint16_t csmid  = mdtColl->CsmId();
 
-    ATH_MSG_DEBUG("**** MdtCsm with online Id: subdetector: " << MSG::hex 
+    ATH_MSG_INFO("**** MdtCsm with online Id: subdetector: " << MSG::hex 
                  << subdet << MSG::dec << "  mrod: " << MSG::hex << mrodid 
                  << MSG::dec << "  csmid: " << MSG::hex << csmid << MSG::dec);
-    ATH_MSG_DEBUG("  number of mdt hits: " << mdtColl->size());
+    ATH_MSG_INFO("  number of mdt hits: " << mdtColl->size());
   
     // loop on the hits of the CSM
     MdtCsm::const_iterator it_amt = mdtColl->begin();
@@ -453,7 +426,7 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
       uint16_t coarse=amtHit->coarse();
       uint16_t width=amtHit->width();
       
-      ATH_MSG_DEBUG(">> AmtHit in tdc: " << MSG::hex << tdcId << MSG::dec
+      ATH_MSG_INFO(">> AmtHit in tdc: " << MSG::hex << tdcId << MSG::dec
                    << "  channel: " << MSG::hex << channelId << MSG::dec
                    << "  fine time: " << fine
                    << "  coarse time: " << coarse
@@ -463,7 +436,7 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
 
   }
 
-  ATH_MSG_DEBUG("*** Event Summary: csm collections:" << ncsm << "  amt hits: " << namt);
+  ATH_MSG_INFO("*** Event Summary: csm collections:" << ncsm << "  amt hits: " << namt);
 
   return;
 }
@@ -471,13 +444,13 @@ void Muon::MdtRdoToPrepDataTool::printInputRdo()
 void Muon::MdtRdoToPrepDataTool::printPrepData(  )
 {
   // Dump info about PRDs
-  ATH_MSG_DEBUG("******************************************************************************************");
-  ATH_MSG_DEBUG("***************** Listing MdtPrepData collections content ********************************");
+  ATH_MSG_INFO("******************************************************************************************");
+  ATH_MSG_INFO("***************** Listing MdtPrepData collections content ********************************");
   
-  if (m_mdtPrepDataContainer->size() <= 0) ATH_MSG_DEBUG("No MdtPrepRawData collections found");
+  if (m_mdtPrepDataContainer->size() <= 0) ATH_MSG_INFO("No MdtPrepRawData collections found");
   int ncoll = 0;
   int nhits = 0;
-  ATH_MSG_DEBUG("--------------------------------------------------------------------------------------------");
+  ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
   for (IdentifiableContainer<Muon::MdtPrepDataCollection>::const_iterator mdtColli = m_mdtPrepDataContainer->begin();
        mdtColli!=m_mdtPrepDataContainer->end(); ++mdtColli)
     {
@@ -486,24 +459,24 @@ void Muon::MdtRdoToPrepDataTool::printPrepData(  )
       int nhitcoll = 0;
       if ( mdtColl->size() > 0 ) 
         {            
-          ATH_MSG_DEBUG("PrepData Collection ID "<<m_idHelper->toString(mdtColl->identify()));
+          ATH_MSG_INFO("PrepData Collection ID "<<m_idHelper->toString(mdtColl->identify()));
           MdtPrepDataCollection::const_iterator it_mdtPrepData;
           for (it_mdtPrepData=mdtColl->begin(); it_mdtPrepData != mdtColl->end(); it_mdtPrepData++) {
             nhitcoll++;
             nhits++;
-            ATH_MSG_DEBUG(" in this coll. "<<nhitcoll<<" prepData id = "
+            ATH_MSG_INFO(" in this coll. "<<nhitcoll<<" prepData id = "
                          <<m_idHelper->toString((*it_mdtPrepData)->identify())
                          <<" tdc/adc ="<<(*it_mdtPrepData)->tdc()<<"/"<< (*it_mdtPrepData)->adc());
           }
           ncoll++;
-          ATH_MSG_DEBUG("*** Collection "<<ncoll<<" Summary: N. hits = "<<nhitcoll);
-          ATH_MSG_DEBUG("--------------------------------------------------------------------------------------------");
+          ATH_MSG_INFO("*** Collection "<<ncoll<<" Summary: N. hits = "<<nhitcoll);
+          ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
         }
     }
-  ATH_MSG_DEBUG("*** Event  Summary: "
+  ATH_MSG_INFO("*** Event  Summary: "
                <<ncoll <<" Collections / "
                <<nhits<<" hits  ");
-  ATH_MSG_DEBUG("--------------------------------------------------------------------------------------------");
+  ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
   
 }
 
@@ -562,7 +535,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsm(const MdtCsm *rdoColl, std::ve
 
   if ( m_mdtPrepDataContainer->indexFind(mdtHashId) != m_mdtPrepDataContainer->end() ) {
     // for elevator chambers there are 2 CSMs to be filled in the same collection
-    if ( m_mdtHelper->stationName(elementId) == m_BMEid && m_BMEpresent) {
+    if ( m_mdtHelper->stationName(elementId) == 53 ) {
       driftCircleColl = const_cast<MdtPrepDataCollection*>(&(**m_mdtPrepDataContainer->indexFind(mdtHashId)));
       ATH_MSG_DEBUG("In ProcessCSM - collection already contained in IDC, but BME! Taking it.");
     } 
@@ -618,16 +591,6 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsm(const MdtCsm *rdoColl, std::ve
     // Do something with it
     Identifier     channelId   = newDigit->identify();
     Identifier     parentId    = m_mdtHelper->parentID(channelId);
-    if( m_mdtHelper->stationName(parentId) == m_BMGid && m_BMGpresent) {
-      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
-      if( myIt != m_DeadChannels.end() ){
-        if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
-          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_mdtHelper->show_to_string(channelId) );
-          delete newDigit;
-          continue;
-        }
-      }
-    }
 
     // check if the module ID of this channel is different from the CSM one
     // If it's the first case, create the additional collection
@@ -833,18 +796,6 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
     // make an Identifier
     Identifier channelId = newDigit->identify();
     //IdentifierHash channelHash = newDigit->identifyHash();
-
-    if( m_mdtHelper->stationName(channelId) == m_BMGid && m_BMGpresent) {
-      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
-      if( myIt != m_DeadChannels.end() ){
-        if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
-          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_mdtHelper->show_to_string(channelId) );
-          delete newDigit;
-          continue;
-        }
-      }
-    }
-
     // get tube params
     int tube = m_mdtHelper->tube(channelId);
     int layer = m_mdtHelper->tubeLayer(channelId);
@@ -885,7 +836,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
         }
       } //end --   if(!m_discardSecondaryHitTwin){
       else{
-        ATH_MSG_DEBUG(" TWIN TUBES: discarding secondary(non-twin) hit in a twin tube as flag m_discardSecondaryHitTwin is set to true");
+        ATH_MSG_INFO(" TWIN TUBES: discarding secondary(non-twin) hit in a twin tube as flag m_discardSecondaryHitTwin is set to true");
       }
     }
   }// end for-loop over rdoColl  
@@ -1058,7 +1009,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
 	    
           ATH_MSG_DEBUG(" global pos center tube  x = " << gpos_centertube.x() << " y = " << gpos_centertube.y() << " z = " << gpos_centertube.z());
           ATH_MSG_DEBUG(" local pos center tube w/ TWIN INFO  x = " << locpos_centertube.x() << " y = " << locpos_centertube.y() << " z = " << locpos_centertube.z());
-          ATH_MSG_DEBUG(" global pos w/ TWIN INFO  x = " << gpos_twin.x() << " y = " << gpos_twin.y() << " z = " << gpos_twin.z());
+          ATH_MSG_DEBUG(" global pos w/ TWIN INFO x = " << gpos_twin.x() << " y = " << gpos_twin.y() << " z = " << gpos_twin.z());
 	    
           twin_newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
           driftCircleColl->push_back(twin_newPrepData);
@@ -1467,41 +1418,3 @@ MdtDriftCircleStatus MdtRdoToPrepDataTool::getMdtTwinPosition(const MdtDigit * d
   return MdtStatusDriftTime;
 }
 
-void MdtRdoToPrepDataTool::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl) {
-  PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
-  int nGrandchildren = cv->getNChildVols();
-  if(nGrandchildren <= 0) return;
-
-  Identifier detElId = mydetEl->identify();
-
-  int name = m_mdtHelper->stationName(detElId);
-  int eta = m_mdtHelper->stationEta(detElId);
-  int phi = m_mdtHelper->stationPhi(detElId);
-  int ml = m_mdtHelper->multilayer(detElId);
-  std::vector<Identifier> deadTubes;
-
-  for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
-    for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      bool tubefound = false;
-      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
-        if( tubegeo == tube && layergeo == layer ) {
-          tubefound=true;
-          break;
-        }
-        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
-      }
-      if(!tubefound) {
-        Identifier deadTubeId = m_mdtHelper->channelID( name, eta, phi, ml, layer, tube );
-        deadTubes.push_back( deadTubeId );
-        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
-                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
-                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
-      }
-    }
-  }
-  std::sort(deadTubes.begin(), deadTubes.end());
-  m_DeadChannels[detElId] = deadTubes;
-  return;
-}

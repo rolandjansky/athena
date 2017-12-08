@@ -23,8 +23,7 @@ class AmdcsimrecAthenaSvc;
 class AmdcDbSvc;
 class AmdcDbRecordset;
 class IRDBRecordset;
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBQuery;
 
 template <class TYPE> class SvcFactory;
 
@@ -68,7 +67,7 @@ public:
 				  const std::string& parentTag,
 				  const std::string& parentNode,
 				  const std::string& connName);
-  std::unique_ptr<IRDBQuery> getQuery(const std::string& node,
+  virtual IRDBQuery* getQuery(const std::string& node,
 			      const std::string& tag,
 			      const std::string& tag2node,
 			      const std::string& connName);

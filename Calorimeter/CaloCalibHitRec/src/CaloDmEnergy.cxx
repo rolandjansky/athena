@@ -100,7 +100,7 @@ CaloDmEnergy::CaloDmEnergy(const CaloDmDescrManager *dmMgr):
   m_CalibrationContainerNamesDM.push_back("LArCalibrationHitDeadMaterial");
   m_CalibrationContainerNamesDM.push_back("TileCalibrationDMHitCnt");
   m_nclusters = 0;
-  initialize().ignore();
+  initialize();
 }
 
 
@@ -122,7 +122,7 @@ CaloDmEnergy::~CaloDmEnergy()
 /* ****************************************************************************
 CaloDmEnergy::initialize()
 **************************************************************************** */
-StatusCode CaloDmEnergy::initialize()
+int CaloDmEnergy::initialize()
 {
   MsgStream log(Athena::getMessageSvc(), "CaloDmEnergy");
 

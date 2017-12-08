@@ -1,0 +1,46 @@
+package D3PDMakerCoreComps
+
+use AtlasPolicy                AtlasPolicy-*     
+
+
+private
+use GaudiInterface             GaudiInterface-*        External
+use AtlasBoost                 AtlasBoost-*            External
+use AtlasROOT                  AtlasROOT-*             External
+use RootUtils                  RootUtils-*             Control
+use AthenaKernel               AthenaKernel-*          Control
+use AthContainers              AthContainers-*         Control
+use SGTools                    SGTools-*               Control
+use Navigation                 Navigation-*            Control
+use AthenaBaseComps            AthenaBaseComps-*       Control
+use AthenaPoolCnvSvc           AthenaPoolCnvSvc-*      Database/AthenaPOOL
+use ParticleEvent              ParticleEvent-*         PhysicsAnalysis/AnalysisCommon
+use D3PDMakerInterfaces        D3PDMakerInterfaces-*   PhysicsAnalysis/D3PDMaker
+use D3PDMakerUtils             D3PDMakerUtils-*        PhysicsAnalysis/D3PDMaker
+
+# Temporary, until THistSvc init bug is fixed.
+use AtlasROOT                  AtlasROOT-*             External
+end_private
+
+
+library D3PDMakerCoreComps *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_python_modules files="*.py"
+
+
+private
+use TestPolicy      TestPolicy-*
+document athenarun_launcher StackedDict_utest -group=check \
+    athenarun_exe="python" \
+    athenarun_pre="'source ../cmt/setup.sh'" \
+    athenarun_opt="../test/StackedDict_t.py" \
+    athenarun_out="' >& StackedDict_t.log'" \
+    athenarun_post="'../test/post_check.sh StackedDict_t '"
+
+document athenarun_launcher flagTestLOD_utest -group=check \
+    athenarun_exe="python" \
+    athenarun_pre="'source ../cmt/setup.sh'" \
+    athenarun_opt="../test/flagTestLOD_t.py" \
+    athenarun_out="' >& flagTestLOD_t.log'" \
+    athenarun_post="'../test/post_check.sh flagTestLOD_t '"

@@ -1,0 +1,15 @@
+package BoostAfterburner
+author Aaron Angerami <angerami@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-*
+use AthenaBaseComps  AthenaBaseComps-*     Control
+
+private
+use GaudiInterface   GaudiInterface-*      External
+use GeneratorObjects GeneratorObjects-*    Generators
+use AtlasCLHEP       AtlasCLHEP-*          External
+end_private
+
+apply_pattern dual_use_library files=" *.cxx "
+apply_pattern declare_joboptions files="*.py"
+

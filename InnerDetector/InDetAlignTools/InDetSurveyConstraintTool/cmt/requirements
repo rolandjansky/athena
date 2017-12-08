@@ -1,0 +1,27 @@
+package InDetSurveyConstraintTool
+author  Tobias Golling <TFGolling@lbl.gov>
+
+private
+use InDetAlignGenTools   InDetAlignGenTools-*       InnerDetector/InDetAlignTools
+use InDetReadoutGeometry InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
+use DetDescrConditions   DetDescrConditions-*       DetectorDescription/DetDescrCond
+use AtlasDetDescr        AtlasDetDescr-*            DetectorDescription
+use InDetIdentifier      InDetIdentifier-*          InnerDetector/InDetDetDescr
+use AtlasAIDA            AtlasAIDA-*                External
+use AthenaKernel         AthenaKernel-*             Control
+use RegistrationServices RegistrationServices-*     Database
+
+
+public
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*           External
+use Identifier           Identifier-*               DetectorDescription
+use AthenaBaseComps      AthenaBaseComps-*          Control
+use EventPrimitives      EventPrimitives-*          Event 
+use GeoPrimitives        GeoPrimitives-*            DetectorDescription
+
+
+library InDetSurveyConstraintTool *.cxx -s=components *.cxx
+apply_pattern component_library
+
+####apply_pattern declare_joboptions files="*.txt *.py"

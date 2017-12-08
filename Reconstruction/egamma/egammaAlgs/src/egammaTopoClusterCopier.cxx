@@ -177,7 +177,7 @@ StatusCode egammaTopoClusterCopier::checkEMFraction (const xAOD::CaloCluster *cl
   //
   emFrac = emfrac;
   //Could re
-  return StatusCode(pass_after_correction);
+  return pass_after_correction ;
 }
   
 

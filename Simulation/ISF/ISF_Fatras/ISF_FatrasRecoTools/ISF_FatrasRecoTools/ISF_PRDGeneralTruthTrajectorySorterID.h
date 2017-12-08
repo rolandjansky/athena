@@ -10,7 +10,7 @@
 
 
 namespace iFatras {
-  class ISF_PRDGeneralTruthTrajectorySorterID : public extends<AthAlgTool, Trk::IPRD_TruthTrajectoryManipulator> {
+    class ISF_PRDGeneralTruthTrajectorySorterID : public AthAlgTool, virtual public Trk::IPRD_TruthTrajectoryManipulator {
 
     public:
         //** Constructor with parameters */

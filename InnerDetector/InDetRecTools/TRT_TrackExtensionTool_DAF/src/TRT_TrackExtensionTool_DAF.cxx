@@ -57,14 +57,14 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
 (const std::string& t,const std::string& n,const IInterface* p)
         : AthAlgTool(t,n,p),
 	    m_trtcontainer(nullptr),
-            m_jo_trtcontainername("TRT_DriftCircles"),
-            m_jo_roadwidth(10.),
-            m_jo_simpleExtension(true),
-            m_jo_maxGroupDistance(5.),
-            m_jo_minGroupDistance(1.),
+            mjo_trtcontainername("TRT_DriftCircles"),
+            mjo_roadwidth(10.),
+            mjo_simpleExtension(true),
+            mjo_maxGroupDistance(5.),
+            mjo_minGroupDistance(1.),
             m_siliconTrkParams(nullptr),
             m_compROTcreator("InDet::CompetingTRT_DriftCirclesOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool"),
-            m_jo_annealingFactor(81.),
+            mjo_annealingFactor(81.),
             m_roadtool("InDet::TRT_DetElementsRoadMaker_xk/TRT_DetElementsRoadMaker"),
             m_propagator("Trk::RungeKuttaPropagator/Propagator"),
             m_fieldServiceHandle("AtlasFieldSvc",n),
@@ -80,12 +80,12 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
     declareProperty("PropagatorTool",           m_propagator,           "Propagator tool");
     declareProperty("CompetingDriftCircleTool", m_compROTcreator,       "Tool for the creation of CompetingTRT_DriftCirclesOnTrack");
     declareProperty("RoadTool",                 m_roadtool,             "TRT Road Tool for the search of Detector Elements");
-    declareProperty("TRT_DriftCircleContainer", m_jo_trtcontainername,   "Name of the container of TRT measurements (TRT_DriftCircles)");
-    declareProperty("InitialAnnealingFactor",   m_jo_annealingFactor,    "Annealing factor (temperature) used to calculate the initial assignment probabilities of a group of competing TRT measurements. Should be choosen identical to the first entry of the annealing schedule of the Deterministic Annealing Filter");
-    declareProperty("SimpleElementWiseExtension", m_jo_simpleExtension,  "Do simple element wise extension or do sophisticated grouping of measurements?");
-    declareProperty("RoadWidth",                m_jo_roadwidth,          "Width of the road of measurements (the RoadTool uses its own road width!)");
-    declareProperty("MaxGroupDistance",         m_jo_maxGroupDistance,   "Maximum distance of measurement groups in sophisticated grouping");
-//    declareProperty("MinGroupDistance", m_jo_minGroupDistance);
+    declareProperty("TRT_DriftCircleContainer", mjo_trtcontainername,   "Name of the container of TRT measurements (TRT_DriftCircles)");
+    declareProperty("InitialAnnealingFactor",   mjo_annealingFactor,    "Annealing factor (temperature) used to calculate the initial assignment probabilities of a group of competing TRT measurements. Should be choosen identical to the first entry of the annealing schedule of the Deterministic Annealing Filter");
+    declareProperty("SimpleElementWiseExtension", mjo_simpleExtension,  "Do simple element wise extension or do sophisticated grouping of measurements?");
+    declareProperty("RoadWidth",                mjo_roadwidth,          "Width of the road of measurements (the RoadTool uses its own road width!)");
+    declareProperty("MaxGroupDistance",         mjo_maxGroupDistance,   "Maximum distance of measurement groups in sophisticated grouping");
+//    declareProperty("MinGroupDistance", mjo_minGroupDistance);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -282,7 +282,7 @@ void InDet::TRT_TrackExtensionTool_DAF::newEvent() {
     // -----------
     // get the container with TRT RIOs
     m_trtcontainer = 0;
-    StatusCode sc = evtStore()->retrieve(m_trtcontainer, m_jo_trtcontainername);
+    StatusCode sc = evtStore()->retrieve(m_trtcontainer, mjo_trtcontainername);
     if(sc.isFailure()) {
         ATH_MSG_DEBUG("Could not get TRT_DriftCircleContainer");
     }
@@ -409,7 +409,7 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
 
     ATH_MSG_DEBUG("Barrel Road starts at index "<< beginBarrelRoad << ",  second Encap Road at "<< beginSecondEndcapRoad << " with a total of "<< m_detectorElements.size()<< " detElements" );
 
-    if (m_jo_simpleExtension) {
+    if (mjo_simpleExtension) {
         ATH_MSG_DEBUG("run the simpleExtension" );
         // -----------------
         // build the complete extension element-wise:
@@ -475,8 +475,8 @@ std::vector<const Trk::MeasurementBase*>& InDet::TRT_TrackExtensionTool_DAF::ext
 StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginIndex, int endIndex) const {
 
 
-    const double squaredMaxBarrelRIOdistance = m_jo_roadwidth * m_jo_roadwidth;
-    const double squaredMaxEndcapRIOdistance = m_jo_roadwidth * m_jo_roadwidth;
+    const double squaredMaxBarrelRIOdistance = mjo_roadwidth * mjo_roadwidth;
+    const double squaredMaxEndcapRIOdistance = mjo_roadwidth * mjo_roadwidth;
 
     // -----------------------
     // get all the RIOs on the detElements
@@ -514,7 +514,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
         }
         if ( (RIOlist.size() > 0) && createCompROT ) {
             ATH_MSG_DEBUG("try to create CompetingTRT_DriftCirclesOnTrackTool with " << RIOlist.size() << " RIOs" );
-            const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(m_propagatedTrackParameters[index-1]), m_jo_annealingFactor);
+            const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(m_propagatedTrackParameters[index-1]), mjo_annealingFactor);
             if (!compROT) {
                 ATH_MSG_WARNING("current CompetingTRT_DriftCirclesOnTrack could not be created:");
                 ATH_MSG_WARNING("   the RIOs on this detElement will be skipped!");
@@ -581,7 +581,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
     } // end for (loop over detElements)
     if ( RIOlist.size() > 0 ) {
         ATH_MSG_DEBUG("try to create CompetingTRT_DriftCirclesOnTrackTool with " << RIOlist.size() << " RIOs" );
-        const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(m_propagatedTrackParameters[endIndex]), m_jo_annealingFactor);
+        const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(RIOlist, *(m_propagatedTrackParameters[endIndex]), mjo_annealingFactor);
         if (!compROT) {
             ATH_MSG_WARNING("current CompetingTRT_DriftCirclesOnTrack could not be created:");
             ATH_MSG_WARNING("   the RIOs on this detElement will be skipped!");
@@ -601,9 +601,9 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
 StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex, int endIndex) const {
 
 
-    //double squaredMaxGroupDistance = m_jo_maxGroupDistance * m_jo_maxGroupDistance;
+    //double squaredMaxGroupDistance = mjo_maxGroupDistance * mjo_maxGroupDistance;
     // the pre-cut for RIOs (use twice the real road width):
-    const double squaredMaxRIOdistanceFromTrackOnDetElement = m_jo_roadwidth*m_jo_roadwidth*16;
+    const double squaredMaxRIOdistanceFromTrackOnDetElement = mjo_roadwidth*mjo_roadwidth*16;
 
     // -------------------
     // loop over the road elements and extract the global positions
@@ -644,12 +644,12 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
         // ignore z coordinate (along the straw)
         (*Pos)[Amg::z]=0.;
 
-        //if ( ((posX-lastPosX)*(posX-lastPosX) + (posY-lastPosY)*(posY-lastPosY)) > m_jo_maxGroupDistance * m_jo_maxGroupDistance ) {
+        //if ( ((posX-lastPosX)*(posX-lastPosX) + (posY-lastPosY)*(posY-lastPosY)) > mjo_maxGroupDistance * mjo_maxGroupDistance ) {
         double distance = ((*Pos) - (*lastPos)).norm();
         ATH_MSG_VERBOSE("global position: ("<< Pos->x() <<", "<< Pos->y() << ") -> distance to previous: "<< distance );
-        if ( distance > m_jo_maxGroupDistance ) {
+        if ( distance > mjo_maxGroupDistance ) {
             // distance between the global positions is too large: include more points
-            int numberOfPoints = int(distance / m_jo_maxGroupDistance);
+            int numberOfPoints = int(distance / mjo_maxGroupDistance);
             Amg::Vector3D diffVector = (*Pos) - (*lastPos);
             for (int i=1; i<=numberOfPoints; i++) {
                 Amg::Vector3D* newPos = new Amg::Vector3D( (*lastPos) + ((i / double(numberOfPoints+1)) * diffVector) );
@@ -659,7 +659,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
                 //detElementIndex.push_back( index );
             }
         }
-        if (distance < m_jo_minGroupDistance){
+        if (distance < mjo_minGroupDistance){
             // ignore this global position
             detElementGlobPosIndex[index] = trackGlobalPos.size()-1;
             ATH_MSG_VERBOSE("ignore this global position");
@@ -783,7 +783,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
             //double distToSecant = (strawGlobPos - (*(trackGlobalPos[groupIndex]))).perp( ((*(trackGlobalPos[groupIndex]))- (*(trackGlobalPos[groupIndex+1]))) );
             double distToSecant = sqrt(perp2(strawGlobPos - (*(trackGlobalPos[groupIndex])),  ((*(trackGlobalPos[groupIndex]))- (*(trackGlobalPos[groupIndex+1]))) ) );
             ATH_MSG_VERBOSE(" belongs to group "<< groupIndex <<", distance to secant: "<< distToSecant );
-            if (distToSecant > m_jo_roadwidth ) {
+            if (distToSecant > mjo_roadwidth ) {
                 // ignore the current RIO
                 ATH_MSG_DEBUG("RIO too far from road: ignore" );
                 continue;
@@ -848,8 +848,8 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
         }
         ATH_MSG_DEBUG("try to create CompetingTRT_DriftCirclesOnTrackTool with " << groupedRIOs[groupIndex]->size() << " RIOs" );
 
-        //const InDet::CompetingTRT_DriftCirclesOnTrack* compROT = m_compROTcreator->createCompetingROT(*groupedRIOs[groupIndex], *TrkPar, m_jo_annealingFactor);
-        const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(*groupedRIOs[groupIndex], *TrkPar, m_jo_annealingFactor);
+        //const InDet::CompetingTRT_DriftCirclesOnTrack* compROT = m_compROTcreator->createCompetingROT(*groupedRIOs[groupIndex], *TrkPar, mjo_annealingFactor);
+        const Trk::MeasurementBase* compROT = m_compROTcreator->createCompetingROT(*groupedRIOs[groupIndex], *TrkPar, mjo_annealingFactor);
         if (!compROT) {
             ATH_MSG_WARNING("current CompetingTRT_DriftCirclesOnTrack could not be created:");
             ATH_MSG_WARNING("   this group of RIOs will skipped!");

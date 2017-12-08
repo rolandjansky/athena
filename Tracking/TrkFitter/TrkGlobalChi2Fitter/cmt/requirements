@@ -1,0 +1,53 @@
+package TrkGlobalChi2Fitter
+
+author Thijs Cornelissen <thijs.cornelissen@cern.ch>
+
+public
+use AtlasPolicy           AtlasPolicy-*
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use GaudiInterface        GaudiInterface-* 	       External
+use TrkFitterInterfaces   TrkFitterInterfaces-*     Tracking/TrkFitter
+use TrkEventPrimitives    TrkEventPrimitives-*         Tracking/TrkEvent
+use TrkFitterUtils        TrkFitterUtils-*             Tracking/TrkFitter
+use TrkMaterialOnTrack    TrkMaterialOnTrack-*       Tracking/TrkEvent
+use TrkParameters         TrkParameters-*           Tracking/TrkEvent
+
+use AtlasROOT           AtlasROOT-*             External
+use AtlasCLHEP            AtlasCLHEP-*              External
+
+
+private
+use TrkTrack              TrkTrack-*                Tracking/TrkEvent
+use TrkSurfaces           TrkSurfaces-*             Tracking/TrkDetDescr
+use TrkExInterfaces       TrkExInterfaces-*         Tracking/TrkExtrapolation
+use TrkToolInterfaces     TrkToolInterfaces-*       Tracking/TrkTools
+use TrkDetDescrInterfaces TrkDetDescrInterfaces-*   Tracking/TrkDetDescr
+use TrkMeasurementBase    TrkMeasurementBase-*      Tracking/TrkEvent
+use TrkRIO_OnTrack        TrkRIO_OnTrack-*          Tracking/TrkEvent
+use TrkPrepRawData        TrkPrepRawData-*          Tracking/TrkEvent
+use TrkToolInterfaces     TrkToolInterfaces-*       Tracking/TrkTools
+use TrkDetDescrInterfaces TrkDetDescrInterfaces-*      Tracking/TrkDetDescr
+use TrkGeometry           TrkGeometry-*                Tracking/TrkDetDescr
+use TrkExUtils            TrkExUtils-*                 Tracking/TrkExtrapolation
+use IdDictDetDescr        IdDictDetDescr-*        DetectorDescription
+use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
+use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
+use TrkSegment            TrkSegment-*            Tracking/TrkEvent
+use TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-* Tracking/TrkEvent
+use TrkVertexOnTrack      TrkVertexOnTrack-*      Tracking/TrkEvent
+use TrkAlgebraUtils            TrkAlgebraUtils-*             Tracking/TrkAlignment
+use MagFieldInterfaces    MagFieldInterfaces-*    MagneticField
+use EventPrimitives EventPrimitives-* Event
+#use TrkTruthData       TrkTruthData-*       Tracking/TrkEvent
+
+apply_tag ROOTMathLibs
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+public
+library TrkGlobalChi2Fitter *.cxx components/*.cxx
+apply_pattern component_library
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"

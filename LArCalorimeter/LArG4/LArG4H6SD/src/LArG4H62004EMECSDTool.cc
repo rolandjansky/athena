@@ -15,6 +15,7 @@ LArG4H62004EMECSDTool::LArG4H62004EMECSDTool(const std::string& type, const std:
   , m_calculator("EMECPosInnerWheel_ECOR_GADJCalculator", name)
   , m_emecSD(nullptr)
 {
+  declareInterface<ISensitiveDetector>(this);
   declareProperty("Calculator", m_calculator);
 }
 

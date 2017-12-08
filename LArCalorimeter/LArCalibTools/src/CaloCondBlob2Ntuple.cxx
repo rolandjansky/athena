@@ -62,7 +62,7 @@ StatusCode CaloCondBlob2Ntuple::stop () {
     return StatusCode::SUCCESS;
   }
 
-  std::unique_ptr<const CaloCondBlobFlt> condBlob (CaloCondBlobFlt::getInstance(blob));
+  const CaloCondBlobFlt* condBlob=CaloCondBlobFlt::getInstance(blob);
   ATH_MSG_INFO("Database folder has values for " << condBlob->getNChans() << " channels and " << condBlob->getNGains() << " gains.");
   
 

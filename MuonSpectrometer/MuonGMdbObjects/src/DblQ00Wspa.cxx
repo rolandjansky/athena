@@ -13,6 +13,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Wspa.h"
+#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 //#include <stdio>
@@ -30,7 +31,7 @@
 namespace MuonGM
 {
 
-DblQ00Wspa::DblQ00Wspa(std::unique_ptr<IRDBQuery>&& wspa)
+DblQ00Wspa::DblQ00Wspa(IRDBQuery* wspa)
  : m_nObj(0)
 {
   if(wspa) {

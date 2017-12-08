@@ -19,7 +19,7 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "Identifier/Identifier.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "Particle/TrackParticleContainer.h"
 

@@ -19,8 +19,10 @@ class IFastSimulationMasterTool : virtual public IAlgTool {
  public:
   IFastSimulationMasterTool() {}
   virtual ~IFastSimulationMasterTool() {}
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IFastSimulationMasterTool, 1, 0);
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IFastSimulationMasterTool( "IFastSimulationMasterTool" , 1 , 0 ) ;
+    return IID_IFastSimulationMasterTool ;
+  }
   /** Method for initializing the fast simulation models of each tool.
    Not done in the athena-level initialize() function, as this may
    need to happen once per thread in a multi-threaded environment. */

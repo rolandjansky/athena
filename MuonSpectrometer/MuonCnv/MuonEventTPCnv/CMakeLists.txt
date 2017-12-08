@@ -24,7 +24,6 @@ atlas_depends_on_subdirs(
    MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
    MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
    MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData
-   MuonSpectrometer/MuonRDO
    MuonSpectrometer/MuonSimData
    Tracking/TrkDetDescr/TrkSurfaces
    Tracking/TrkEvent/TrkRIO_OnTrack
@@ -63,12 +62,12 @@ atlas_add_tpcnv_library( MuonEventTPCnv
    MuonEventTPCnv/MuonTrigCoinData/*.h src/MuonTrigCoinData/*.cxx
    MuonEventTPCnv/MuonSegment/*.h src/MuonSegment/*.cxx
    MuonEventTPCnv/MuonChamberT0s/*.h src/MuonChamberT0s/*.cxx
-   MuonEventTPCnv/MuonDigitContainer/*.h src/MuonDigitContainer/*.cxx src/MuonRDO/*.cxx
+   MuonEventTPCnv/MuonDigitContainer/*.h src/MuonDigitContainer/*.cxx
    PUBLIC_HEADERS MuonEventTPCnv
    LINK_LIBRARIES AthAllocators AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib
    AthenaPoolUtilities Identifier GaudiKernel GeneratorObjectsTPCnv
    MuonDigitContainer MuonChamberT0s MuonCompetingRIOsOnTrack MuonPrepRawData
-   MuonRIO_OnTrack MuonSegment MuonTrigCoinData MuonSimData MuonRDO TrkSurfaces
+   MuonRIO_OnTrack MuonSegment MuonTrigCoinData MuonSimData TrkSurfaces
    TrkRIO_OnTrack TrkEventTPCnv
    PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils StoreGateLib GeoPrimitives
    EventPrimitives MuonReadoutGeometry MuonIdHelpersLib TrkEventPrimitives
@@ -117,7 +116,6 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       MM_DigitContainerCnv_p2_test
       STGC_DigitCnv_p1_test
       STGC_DigitContainerCnv_p1_test
-      STGC_RawDataContainerCnv_p1_test
       )
 
    atlas_add_test( ${name}

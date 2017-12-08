@@ -13,22 +13,16 @@ namespace EgammaSelectors {
   //----------------------------------------------------------
   //This is the internal part , We need to  map string to latest reccomendations
   const std::map<std::string,std::string> LHPointToConfFile={
-    // default tunes, recommended for rel 21
-    {"VeryLooseLHElectron","ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"},
-    {"LooseLHElectron"    ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"},
-    {"LooseBLLHElectron"  ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"},
-    {"MediumLHElectron"   ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"},
-    {"TightLHElectron"    ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"},
-    // legacy rel 20p7 tunes, to allow usage in rel 20p7 derivations
-    {"VeryLooseLHElectron_Rel20p7","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"},
-    {"VeryLooseLHNod0Electron_Rel20p7", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth_NoD0.conf"},
-    {"LooseLHElectron_Rel20p7","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf"},
-    {"LooseLHNod0Electron_Rel20p7", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth_NoD0.conf"},
-    {"LooseBLLHElectron_Rel20p7","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf"},
-    {"LooseBLLHNod0Electron_Rel20p7", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth_NoD0.conf"},
-    {"MediumLHElectron_Rel20p7","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"},
-    {"MediumLHNod0Electron_Rel20p7", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth_NoD0.conf"},
-    {"TightLHElectron_Rel20p7","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"},
+    {"VeryLooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"},
+    {"VeryLooseLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth_NoD0.conf"},
+    {"LooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf"},
+    {"LooseLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth_NoD0.conf"},
+    {"LooseBLLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf"},
+    {"LooseBLLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth_NoD0.conf"},
+    {"MediumLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"},
+    {"MediumLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth_NoD0.conf"},
+    {"TightLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"},
+    {"TightLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth_NoD0.conf"}
   };
   const std::map<std::string,std::string> PhotonCutPointToConfFile={
     {"LoosePhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"},
@@ -48,8 +42,8 @@ namespace EgammaSelectors {
   //----------------------------------------------------------
   //Map enums to masks , needed for photons
   const std::map<std::string,unsigned int> PhotonCutPointToMask={{"LoosePhoton",egammaPID::PhotonLoose},
-                                                                 {"MediumPhoton",egammaPID::PhotonMedium},
-                                                                 {"TightPhoton",egammaPID::PhotonTight},
+								   {"MediumPhoton",egammaPID::PhotonMedium},
+								   {"TightPhoton",egammaPID::PhotonTight},
   };
 }
 ////////////////////////////////////////////

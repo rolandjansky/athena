@@ -14,6 +14,7 @@
 ALFA_SensitiveDetectorTool::ALFA_SensitiveDetectorTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SensitiveDetectorBase(type,name,parent)
 {
+  declareInterface<ISensitiveDetector>(this);
   // m_volumeNames = { "ALFA::logALFA_FiberU" , "ALFA::logALFA_FiberV" , "ALFA::logOD_FiberActive" ,
   //                   "ALFA::B7L1_GVS" , "ALFA::A7L1_GVS" , "ALFA::A7R1_GVS" , "ALFA::B7R1_GVS" };
   // for (unsigned int i=0;i<64;++i){

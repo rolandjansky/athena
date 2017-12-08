@@ -38,7 +38,7 @@ atlas_depends_on_subdirs(
    Event/EventPrimitives
    Event/FourMomUtils
    Event/xAOD/xAODCore
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
    Tools/PathResolver
@@ -63,7 +63,7 @@ if( NOT XAOD_STANDALONE )
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel AthenaBaseComps METInterface xAODEgamma
       xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib
-      EgammaAnalysisInterfacesLib TauAnalysisToolsLib METUtilitiesLib  )
+      ElectronPhotonSelectorToolsLib TauAnalysisToolsLib METUtilitiesLib  )
 endif()
 
 atlas_add_dictionary( METUtilitiesDict

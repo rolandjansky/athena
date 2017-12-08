@@ -30,7 +30,8 @@ namespace iFatras
       @author Joerg.Mechnich@cern.ch
   */
   
-  class G4ParticlePropertyTool : public extends<AthAlgTool, IParticlePropertyTool>
+  class G4ParticlePropertyTool : public AthAlgTool,
+                                 virtual public IParticlePropertyTool
   {
   public:
     /**Constructor */

@@ -1,0 +1,28 @@
+package AODSelect
+
+author Karsten Koeneke <karsten.koeneke@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy                 AtlasPolicy-*
+
+#use EventKernel                 EventKernel-*           Event
+
+
+private
+end_private
+
+## create a shared library
+#library AODSelect *.cxx components/*.cxx
+
+## install the C++ modules
+#apply_pattern component_library
+
+
+## install our python modules
+apply_pattern declare_python_modules files="*.py"
+
+## install our job options files
+apply_pattern declare_joboptions files="*.py"
+
+## Declare script files (makes them available right after asetup)
+apply_pattern declare_scripts files="PrintAODSelect.py"

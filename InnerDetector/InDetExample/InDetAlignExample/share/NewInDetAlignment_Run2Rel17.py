@@ -67,7 +67,7 @@ else:
     else:
         #inputFileDir='/afs/cern.ch/user/m/mdanning/eos/atlas/user/s/shuli/Alignment_DATA/data12_8TeV.00200863.physics_Muons.recon.DESD_ZMUMU.r4644_p1559_r4644_tid01296318_00/DESD_ZMUMU.01296318._000001.pool.root.1'
         oldFileDefault=True
-        inputFileDir='root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.197117._000005.pool.root.1'
+        inputFileDir='root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.197117._000005.pool.root.1'
     print  "Config: !!Note!! You have not specified an inputFileDir -- Default sample is chosen!"
 
 if 'doMonitoring' in dir():

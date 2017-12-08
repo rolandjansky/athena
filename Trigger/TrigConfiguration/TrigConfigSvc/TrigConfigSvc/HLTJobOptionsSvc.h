@@ -36,6 +36,8 @@ namespace TrigConf {
    class HLTJobOptionsSvc : public extends2<ConfigSvcBase, IProperty, IJobOptionsSvc>
    {
    public:
+
+      using AthService::AthMessaging::msg;
       
       // Constructor and destructor
       HLTJobOptionsSvc( const std::string& name, ISvcLocator* pSvcLocator );

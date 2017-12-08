@@ -1,0 +1,71 @@
+package SCT_Monitoring
+
+author Shaun Roe <shaun.roe@cern.ch>
+
+private
+# General
+use EventInfo         			EventInfo-*             Event
+use xAODEventInfo                        xAODEventInfo-*        Event/xAOD
+use DataModel         			DataModel-*             Control
+use AthenaKernel                AthenaKernel-*          Control
+
+# InDet packages which may be needed
+use InDetRawData                InDetRawData-*          InnerDetector/InDetRawEvent
+use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDescr
+use InDetRIO_OnTrack            InDetRIO_OnTrack-*      InnerDetector/InDetRecEvent
+
+use Identifier                  Identifier-*            DetectorDescription
+use TrkParameters               TrkParameters-*         Tracking/TrkEvent
+
+# The following for TRT time
+use CommissionEvent             CommissionEvent-*       Commission 
+
+#Tracking packages for Track histograms
+use TrkSpacePoint               TrkSpacePoint-*         Tracking/TrkEvent
+use TrkRIO_OnTrack              TrkRIO_OnTrack-*        Tracking/TrkEvent
+use TrkEventUtils               TrkEventUtils-*         Tracking/TrkEvent
+use TrkMeasurementBase          TrkMeasurementBase-*    Tracking/TrkEvent
+use TrkSurfaces                 TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkTrackSummary             TrkTrackSummary-*       Tracking/TrkEvent
+
+#packages needed for offline monitoring
+
+use PathResolver                PathResolver-*          Tools
+
+#for LorentzMonTool
+#use Particle                    Particle-*              Reconstruction
+#use VxVertex                    VxVertex-*              Tracking/TrkEvent
+#use xAODTracking                xAODTracking-*          Event/xAOD
+
+#packages needed for Ratio noise monitoring
+use LWHists                     LWHists-*               Tools
+
+public
+use AtlasPolicy                 AtlasPolicy-*
+use AtlasROOT                   AtlasROOT-*             External
+use InDetPrepRawData            InDetPrepRawData-*      InnerDetector/InDetRecEvent
+use InDetReadoutGeometry        InDetReadoutGeometry-*  InnerDetector/InDetDetDescr
+
+#use AtlasBoost                  AtlasBoost-*            External
+use GaudiInterface              GaudiInterface-*        External
+
+use AthenaMonitoring            AthenaMonitoring-*      Control
+use TrigDecisionTool            TrigDecisionTool-*      Trigger/TrigAnalysis
+use TrigAnalysisInterfaces      TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+
+use MagFieldInterfaces  MagFieldInterfaces-*    MagneticField
+
+#Tracking packages for Track histograms
+use TrkTrack                    TrkTrack-*              Tracking/TrkEvent
+use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
+use ITrackToVertex              ITrackToVertex-*        Reconstruction/RecoTools
+
+use SCT_ConditionsServices          SCT_ConditionsServices-*           InnerDetector/InDetConditions
+use InDetConditionsSummaryService   InDetConditionsSummaryService-*    InnerDetector/InDetConditions
+
+#library SCT_TBMonitoring *.cxx components/*.cxx
+library SCT_Monitoring *.cxx components/*.cxx
+apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern component_library
+apply_pattern declare_runtime files="-s=../share *.dat"
+#apply_pattern declare_runtime

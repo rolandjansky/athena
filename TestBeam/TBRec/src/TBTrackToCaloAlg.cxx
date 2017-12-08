@@ -461,7 +461,7 @@ void TBTrackToCaloAlg::CompareImpactWithCluster()
 
   // loop on clusters
   
-  const CaloClusterContainer* cluster_container = nullptr;
+  const CaloClusterContainer* cluster_container;
   sc1=evtStore()->retrieve(cluster_container,m_cluster_container);
   
   const ImpactInCaloCollection* impact_collection;

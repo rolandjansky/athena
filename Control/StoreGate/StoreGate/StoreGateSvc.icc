@@ -15,39 +15,22 @@
 /// macro to help writing the function calls.
 /// first looks if there is a hive slot defined, otherwise forwards to the "serial" implementation
 #define _SGXCALL(FUN,ARGS,ONERR)                                        \
-  SGImplSvc* impl = this->currentStore();                               \
-  if (impl) {                                                           \
-    return impl->FUN ARGS;                                              \
-  }                                                                     \
-  return ONERR;
-
+  if (!m_defaultStore) return ONERR;                                    \
+  if (isHiveStore()) {                                                  \
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
+    return (0 != pSlot->pEvtStore) ?                                    \
+      pSlot->pEvtStore->FUN ARGS : ONERR;                               \
+  } else {                                                              \
+    return m_defaultStore->FUN ARGS; }
 
 /// macro to help writing the function calls
 #define _SGVOIDCALL(FUN,ARGS)                                           \
-  SGImplSvc* impl = this->currentStore();                               \
-  if (impl) {                                                           \
-    impl->FUN ARGS;                                                     \
-  }
-
-
-inline
-StoreID::type 
-StoreGateSvc::storeID() const
-{
-  return m_storeID;
-}
-
-
-inline
-SGImplSvc*
-StoreGateSvc::currentStore() const {
-  if (m_storeID == StoreID::EVENT_STORE) {
-    SG::HiveEventSlot* slot = s_pSlot;
-    if (slot) return slot->pEvtStore;
-  }
-  return m_defaultStore;
-}
-
+  if (!m_defaultStore) return;                                          \
+  if (isHiveStore()) {                                                  \
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
+    if (0 != pSlot->pEvtStore) pSlot->pEvtStore->FUN ARGS;              \
+  } else {                                                              \
+    m_defaultStore->FUN ARGS; }
 
 inline
 SG::DataProxy* 
@@ -483,22 +466,28 @@ StoreGateSvc::retrievePrivateCopy (const std::string& key) {
 template <typename T>
 std::unique_ptr<T> 
 StoreGateSvc::readUniquePrivateCopy (const std::string& key) {
-  SGImplSvc* impl = this->currentStore();
-  if (impl) {
-    return impl->readUniquePrivateCopy<T>(key);
-  }
-  return std::unique_ptr<T>();
+  if (isHiveStore()) {                                                  
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              
+    return (0 != pSlot->pEvtStore) ?                                    
+      pSlot->pEvtStore->readUniquePrivateCopy<T>(key) :
+      std::unique_ptr<T>{};                     
+  } else { 
+    return m_defaultStore->readUniquePrivateCopy<T>(key);
+  } 
 }
 
 
 template <typename T>
 std::unique_ptr<T> 
 StoreGateSvc::retrieveUniquePrivateCopy (const std::string& key) {
-  SGImplSvc* impl = this->currentStore();
-  if (impl) {
-    return impl->retrieveUniquePrivateCopy<T>(key);
-  }
-  return std::unique_ptr<T>();
+  if (isHiveStore()) {                                                  
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              
+    return (0 != pSlot->pEvtStore) ?                                    
+      pSlot->pEvtStore->retrieveUniquePrivateCopy<T>(key) :
+      std::unique_ptr<T>{};                     
+  } else { 
+    return m_defaultStore->retrieveUniquePrivateCopy<T>(key);
+  } 
 }
 
 //////////////////////////////////////////////////////////////////

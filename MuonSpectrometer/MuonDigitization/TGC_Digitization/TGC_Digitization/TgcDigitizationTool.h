@@ -106,9 +106,5 @@ private:
   std::string m_inputHitCollectionName; // name of the input objects
   std::string m_outputDigitCollectionName; // name of the output digits
   std::string m_outputSDO_CollectionName; // name of the output SDOs
-
-  //pileup truth veto
-  bool m_includePileUpTruth;
-  IntegerProperty m_vetoThisBarcode;
 };
 #endif // MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H

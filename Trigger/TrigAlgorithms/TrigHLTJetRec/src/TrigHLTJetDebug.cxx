@@ -43,7 +43,7 @@ HLT::ErrorCode TrigHLTJetDebug::hltExecute(const HLT::TriggerElement* inputTE, b
 
   // Get the EventShape directly from StoreGate
 
-  const xAOD::EventShape* pEventShape = nullptr;
+  const xAOD::EventShape* pEventShape;
   StatusCode sc;
   
   sc = m_storeGate-> retrieve(pEventShape, m_eventShapeSGKey);

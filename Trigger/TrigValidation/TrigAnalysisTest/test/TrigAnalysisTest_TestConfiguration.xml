@@ -2,7 +2,7 @@
 <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
 <!-- NB validate this file here before committing to svn:
  python /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigAnalysisTest_TestConfiguration.xml
- RTT: for single file use: jp.AthenaCommonFlags.FilesInput=['root://eosatlas.cern.ch/eos/atlas/...
+ RTT: for single file use: jp.AthenaCommonFlags.FilesInput=['root://eosatlas/eos/atlas/...
  and for multiple files use: dsName="/eos/atlas/...";fileRange=[1,2]
  -->
 <unifiedTestConfiguration>
@@ -703,7 +703,7 @@
                 </doc>
                 <displayName>RDOtoAOD_MC_pp_v7_bphysics_1000</displayName>
                 <commandLineFlags>
-                    RunningRTT=TRUE;menu='MC_pp_v7';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
+                    RunningRTT=TRUE;menu='MC_pp_v7';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
                 </commandLineFlags>
                 <options>testAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TrigAnalysisTest</package>
@@ -719,7 +719,7 @@
                 </doc>
                 <displayName>RDOtoAOD_MC_pp_v7_BphysExo_1000</displayName>
                 <commandLineFlags>
-                    RunningRTT=TRUE;menu='MC_pp_v7';sliceName='mubphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.recon.RDO.e3802_s2608_s2183_r6790/RDO.05594910._000008.pool.root.1']
+                    RunningRTT=TRUE;menu='MC_pp_v7';sliceName='mubphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.recon.RDO.e3802_s2608_s2183_r6790/RDO.05594910._000008.pool.root.1']
                 </commandLineFlags>
                 <options>testAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TrigAnalysisTest</package>

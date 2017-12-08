@@ -1,0 +1,51 @@
+package tauRec
+
+author S. Rajagopalan <srinir@bnl.gov>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AtlasROOT                  AtlasROOT-*                     External
+use  GaudiInterface             GaudiInterface-*                External
+#use  JetMomentTools             JetMomentTools-*                Reconstruction/Jet
+use  ParticleEvent              ParticleEvent-*                 PhysicsAnalysis/AnalysisCommon
+use  tauRecTools		tauRecTools-*			Reconstruction
+
+private
+#use  CaloEvent                  CaloEvent-*                     Calorimeter
+#use  CaloInterface              CaloInterface-*                 Calorimeter
+#use  CaloUtils                  CaloUtils-*                     Calorimeter
+use  tauEvent                   tauEvent-*                      Reconstruction
+#use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
+#use  AnalysisUtils              AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
+#use  AtlasCLHEP                 AtlasCLHEP-*                    External
+#use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+#use  CaloIdentifier             CaloIdentifier-*                Calorimeter
+#use  FourMom                    FourMom-*                       Event
+#use  FourMomUtils               FourMomUtils-*                  Event
+#use  JetEvent                   JetEvent-*                      Reconstruction/Jet
+#use  xAODTau                    xAODTau-*                       Event/xAOD
+#use  xAODPFlow                  xAODPFlow-*                     Event/xAOD
+#use  xAODJet                    xAODJet-*                       Event/xAOD
+#use  xAODTracking               xAODTracking-*                  Event/xAOD
+end_private
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS TMVA)"
+
+ 
+public
+
+#macro_append tauRec_shlibflags "-L$(ROOTSYS)/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lpthread -rdynamic"
+#macro_append ROOT_linkopts " -lTMVA"
+
+apply_pattern dual_use_library files="*.cxx *.c"
+
+apply_pattern declare_joboptions files="*.txt *.py"
+
+apply_pattern declare_runtime files="*.root *.dat *.xml" 
+
+apply_pattern declare_python_modules files="*.py"
+
+apply_tag ROOTTMVALibs 

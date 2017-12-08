@@ -7,7 +7,6 @@
 
 #include "AthenaKernel/ICondContMaker.h"
 #include "AthenaKernel/CondContFactory.h"
-#include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "GaudiKernel/DataObjID.h"
 
@@ -21,13 +20,10 @@ namespace CondContainer {
       CondContFactory::Instance().regMaker( ClassID_traits<T>::ID() , this );
     }
     
-    virtual
-    SG::DataObjectSharedPtr<DataObject>
-    Create(const CLID& clid, const std::string& key)  const {
+    virtual CondContBase* Create(const CLID& clid, const std::string& key)  const {
       DataObjID id(clid,key);
       
-      return SG::DataObjectSharedPtr<DataObject>
-        (SG::asStorable (new CondCont<T>(id)));
+      return new CondCont<T>(id);
     }
   };
 }

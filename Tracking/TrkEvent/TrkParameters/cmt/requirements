@@ -1,0 +1,31 @@
+package TrkParameters
+
+manager Edward Moyse <Edward.Moyse@cern.ch>
+manager Andreas Salzburger < Andreas.Salzburger@cern.ch >
+
+# public dependencies
+use AtlasPolicy         AtlasPolicy-*
+# use CLIDSvc             CLIDSvc-*                Control
+# use DataModel           DataModel-*              Control
+use TrkParametersBase   TrkParametersBase-*      Tracking/TrkEvent
+use TrkSurfaces         TrkSurfaces-*            Tracking/TrkDetDescr
+
+# private dependencies
+private
+# use GaudiInterface      GaudiInterface-*         External  
+
+public
+library TrkParameters *.cxx
+apply_pattern installed_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=TrkParameters selectionfile=selection.xml headerfiles="../TrkParameters/TrkParametersDict.h"
+
+
+ 

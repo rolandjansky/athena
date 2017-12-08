@@ -26,9 +26,6 @@
 namespace SG {
 
 
-class VarHandleBase;
-
-
 /**
  * @brief A property holding a SG store/key/clid from which a VarHandle is made.
  *
@@ -132,31 +129,10 @@ public:
   /**
    * @brief Return handle to the referenced store.
    */
-  const ServiceHandle<IProxyDict>& storeHandle() const;
-
-
-  /**
-   * @brief Return the VarHandle that owns this key, if any.
-   *
-   * This should only be non-null for keys that are created automatically
-   * by a VarHandle when it is _not_ created from a VarHandleKey.
-   * This should always be null for keys that are created explicitly.
-   */
-  VarHandleBase* owningHandle();
-
-
-  /**
-   * @brief Does this key reference the primary event store?
-   */
-  bool isEventStore() const;
+  ServiceHandle<IProxyDict> storeHandle() const;
 
 
 private:
-  /// Set the owning handle.  Only callable from VarHandleBase.
-  friend class VarHandleBase;
-  void setOwningHandle (VarHandleBase* handle);
-
-
   /// Don't allow calling these.
   virtual void setKey(const DataObjID& key) const override final;
   virtual void updateKey(const std::string& key) const override final;
@@ -188,13 +164,7 @@ private:
   ServiceHandle<IProxyDict> m_storeHandle;
 
   /// StoreGate key, that doesn't include the storename
-  std::string m_sgKey;
-
-  /// Cache test for whether we're referencing the event store.
-  bool m_isEventStore = false;
-
-  /// Handle that owns this key, or nullptr if it is not owned.
-  VarHandleBase* m_owningHandle = nullptr;
+  std::string m_sgKey {""};
 };
 
 
@@ -203,9 +173,6 @@ private:
 namespace std {
   ostream& operator<<(ostream& s, const SG::VarHandleKey& m);
 }
-
-
-#include "StoreGate/VarHandleKey.icc"
 
 
 #endif // not STOREGATE_VARHANDLEKEY_H

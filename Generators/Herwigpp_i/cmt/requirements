@@ -1,0 +1,40 @@
+package Herwigpp_i
+
+author Andy Buckley <andy.buckley@cern.ch>
+
+use AtlasPolicy       AtlasPolicy-*
+use GeneratorModules  GeneratorModules-*  Generators
+use ThePEG            ThePEG-*            External
+
+private
+use GaudiInterface    GaudiInterface-*    External
+use Herwigpp          Herwigpp-*          External
+use AtlasBoost        AtlasBoost-*        External
+use EventInfo         EventInfo-*         Event
+use PathResolver      PathResolver-*      Tools
+end_private
+
+library Herwigpp_i *.cxx -s=components *.cxx
+apply_pattern component_library
+
+# Add the macro definitions for cmake (transparent to CMT)
+apply_pattern cmake_add_command command='add_definitions(-DHWVERSION=\"${HERWIGPP_VERSION}\")'
+
+macro Herwigpp_i_linkopts "$(Herwigpp_linkopts) "
+macro_append Herwigpp_i_pp_cppflags '-DHWVERSION=\"$(Herwigpp_version)\" '
+macro_append Herwigpp_i_pp_cppflags '-DHWREPODIR=\"$(Herwigpp_repodir)\" '
+macro_append Herwigpp_i_pp_cppflags '-DHWMODULEDIR=\"$(Herwigpp_moduledir)\" '
+macro_append Herwigpp_i_pp_cppflags '-DTHEPEGMODULEDIR=\"$(ThePEG_moduledir)\" '
+#macro_append Herwigpp_i_pp_cppflags '-DLCGTAG=\"$(LCG_ext_system)\" '
+#macro_append Herwigpp_i_pp_cppflags "-pedantic-errors"
+
+## This cryptic instruction seems to have the effect of making the NEEDED
+## sections in the built library behave properly rather than whatever broken
+## thing CMT does by default! Yuck!
+private
+apply_tag notAsNeeded
+end_private
+
+# Install files from the package:
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"

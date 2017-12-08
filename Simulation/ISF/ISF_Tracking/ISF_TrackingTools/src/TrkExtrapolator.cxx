@@ -21,7 +21,7 @@
 
 /** Constructor **/
 ISF::TrkExtrapolator::TrkExtrapolator(const std::string& t, const std::string& n, const IInterface* p)
-  : base_class(t,n,p),
+  : AthAlgTool(t,n,p),
     m_trackingGeometry(0),
     m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",n),
     m_trackingGeometryName("AtlasTrackingGeometry"),
@@ -30,6 +30,8 @@ ISF::TrkExtrapolator::TrkExtrapolator(const std::string& t, const std::string& n
     m_trackingVolume(0),
     m_pdgToParticleHypothesis(new Trk::PdgToParticleHypothesis())
 {
+  declareInterface<ISF::ITrkExtrapolator>(this);
+
    declareProperty( "TrackingGeometrySvc", 
          m_trackingGeometrySvc,
          "TrackingGeometrySvc used for track extrapolation" );

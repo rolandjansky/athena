@@ -1,0 +1,30 @@
+package xAODPFlowAthenaPool
+# $Id: requirements 574865 2013-12-10 15:40:41Z krasznaa $
+
+author Michel Janus <janus@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# Base package(s):
+#use GaudiInterface      GaudiInterface-*      External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODPFlow          xAODPFlow-*          Event/xAOD
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::PFOContainer \
+                                          xAOD::PFOAuxContainer" \
+                      files="-s=${xAODPFlow_root}/xAODPFlow \
+                             PFOContainer.h \
+                             PFOAuxContainer.h" \
+                      cnv_pfx="xAOD"

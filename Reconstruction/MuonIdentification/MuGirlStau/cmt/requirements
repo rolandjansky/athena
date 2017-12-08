@@ -1,0 +1,79 @@
+package MuGirlStau
+
+author shikma bressler <sshikma@tx.technion.ac.il>
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
+public
+use  AtlasBoost                 AtlasBoost-*                    External                   
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AtlasROOT                  AtlasROOT-*                     External
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  CaloEvent                  CaloEvent-*                     Calorimeter
+use  DataModel                  DataModel-*                     Control
+use  GaudiInterface             GaudiInterface-*                External
+use  MuGirlInterfaces           MuGirlInterfaces-*              Reconstruction/MuonIdentification
+use  MuonRecToolInterfaces      MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
+use  MuonRIO_OnTrack            MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  MuonSegment                MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  SGTools			SGTools-*			Control
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
+use  EventInfo                  EventInfo-*                     Event
+
+
+private
+use  CxxUtils                   CxxUtils-*                      Control
+use  StoreGate                  StoreGate-*                     Control
+use  AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-*  Simulation/Tools
+use  EventInfoMgt               EventInfoMgt-*                  Event
+use  Identifier                 Identifier-*                    DetectorDescription
+use  MdtCalibData               MdtCalibData-*                  MuonSpectrometer/MuonCalib/MdtCalib
+use  MdtCalibSvc                MdtCalibSvc-*                   MuonSpectrometer/MuonCalib/MdtCalib
+use  PathResolver               PathResolver-*                  Tools
+use  RecoToolInterfaces         RecoToolInterfaces-*            Reconstruction/RecoTools
+use  ParticleCaloExtension 		ParticleCaloExtension-* 		Reconstruction/RecoEvent
+use  xAODTracking               xAODTracking-*                	Event/xAOD
+
+end_private
+
+# Specify the required ROOT components for cmake (transparent for CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics)"
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_runtime files="calo_calibration.data mdt_calibration.data rpc_calibration.data"
+#apply_pattern component_library
+#apply_pattern installed_library
+#library MuGirlStau *.cxx components/*.cxx
+
+apply_pattern dual_use_library files="*.cxx components/*.cxx"
+
+
+
+### dict generation ###
+private
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
+ 
+apply_pattern lcgdict dict=iMuGirlStau \
+ selectionfile=selection.xml \
+ headerfiles="../MuGirlStau/MuGirlStauDict.h" \
+ dataLinks="MuGirlNS::StauContainer" \
+ elementLinks="StauCollection"
+
+ 
+end_private
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

@@ -1,0 +1,91 @@
+package TileD3PDMaker 
+author Marco van Woerden <mvanwoer@cern.ch>
+
+use AtlasPolicy                AtlasPolicy-*
+use AtlasAnalysisRunTime       AtlasAnalysisRunTime-*
+
+private
+
+# CONTROL
+use AthenaBaseComps            AthenaBaseComps-*            Control
+#use SGTools                    SGTools-*                    Control
+use StoreGate                  StoreGate-*                  Control
+use AthContainers              AthContainers-*              Control
+
+# DATABASE
+use RDBAccessSvc               RDBAccessSvc-*               Database/AthenaPOOL
+use CoraCool                   CoraCool-*                   Database -no_auto_imports
+use CoolConvUtilities          CoolConvUtilities-*          Database -no_auto_imports
+
+# DETECTOR DESCRIPTION
+# use GeoPrimitives              GeoPrimitives-*              DetectorDescription
+#use GeoModelKernel             GeoModelKernel-*             DetectorDescription/GeoModel
+use GeoModelInterfaces         GeoModelInterfaces-*         DetectorDescription/GeoModel
+use GeoModelUtilities          GeoModelUtilities-*          DetectorDescription/GeoModel
+
+# EXTERNAL
+use AtlasHepMC                 AtlasHepMC-*                 External
+#use AtlasCLHEP                 AtlasCLHEP-*                 External
+use AtlasROOT                  AtlasROOT-*                  External
+use GaudiInterface             GaudiInterface-*             External
+
+# EVENT 
+#use EventKernel                EventKernel-*                Event
+#use FourMomUtils               FourMomUtils-*               Event
+use EventInfo                  EventInfo-*                  Event
+
+use GeneratorObjects           GeneratorObjects-*           Generators
+
+# RECONSTRUCTION
+use RecoToolInterfaces         RecoToolInterfaces-*         Reconstruction/RecoTools
+#use TrackToCalo                TrackToCalo-*                Reconstruction/RecoTools
+use TrackToVertex              TrackToVertex-*              Reconstruction/RecoTools
+#use ITrackToVertex             ITrackToVertex-*             Reconstruction/RecoTools
+
+
+# DETECTOR DESCRIPTION
+use Identifier                 Identifier-*                 DetectorDescription
+#use CaloDetDescr               CaloDetDescr-*               Calorimeter
+use CaloGeoHelpers             CaloGeoHelpers-*             Calorimeter
+#use CaloIdentifier             CaloIdentifier-*             Calorimeter
+use CaloEvent                  CaloEvent-*                  Calorimeter
+#use CaloInterface              CaloInterface-*              Calorimeter
+#use CaloUtils                  CaloUtils-*                  Calorimeter
+#use CaloTrackingGeometry       CaloTrackingGeometry-*       Calorimeter
+
+use TileEvent                  TileEvent-*                  TileCalorimeter
+use TileIdentifier             TileIdentifier-*             TileCalorimeter
+#use TileConditions             TileConditions-*             TileCalorimeter
+#use TileDetDescr	       TileDetDescr-*	            TileCalorimeter
+
+# TRACKING
+#use TrkCaloExtension           TrkCaloExtension-*           Tracking/TrkEvent
+use TrkParameters              TrkParameters-*              Tracking/TrkEvent
+#use TrkEventPrimitives         TrkEventPrimitives-*         Tracking/TrkEvent
+use VxVertex                   VxVertex-*                   Tracking/TrkEvent
+use TrkParametersIdentificationHelpers   TrkParametersIdentificationHelpers-*  Tracking/TrkEvent
+
+# PHYSICS ANALYSIS
+use D3PDMakerUtils             D3PDMakerUtils-*             PhysicsAnalysis/D3PDMaker
+
+# TRIGGER
+use TrigMuonEvent              TrigMuonEvent-*              Trigger/TrigEvent
+use TrigInDetEvent             TrigInDetEvent-*             Trigger/TrigEvent
+
+# xAOD tools
+use xAODEventInfo              xAODEventInfo-*              Event/xAOD
+use xAODMissingET              xAODMissingET-*              Event/xAOD
+use xAODTrigger                xAODTrigger-*                Event/xAOD
+use xAODCaloEvent              xAODCaloEvent-*              Event/xAOD
+use xAODMuon                   xAODMuon-*                   Event/xAOD
+use xAODTracking               xAODTracking-*               Event/xAOD
+use xAODPrimitives             xAODPrimitives-*             Event/xAOD
+
+
+end_private
+
+
+library TileD3PDMaker *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"

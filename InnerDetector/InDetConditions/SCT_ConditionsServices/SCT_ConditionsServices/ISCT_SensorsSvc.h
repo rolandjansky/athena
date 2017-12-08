@@ -21,8 +21,6 @@
 
 //fwd declarations
 
-class SCT_SensorCondData;
-
 /**
  * @class ISCT_SensorsSvc
  * Base class to give a Vdep, crystal orientation and Mfr from conditions for each sensor in a module
@@ -35,8 +33,7 @@ class ISCT_SensorsSvc: virtual public IInterface {
 
   ///Fill vector with sensors info
   virtual void getSensorsData(std::vector<std::string>& userVector)=0;
-  virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber) const=0;
-  virtual std::string getManufacturer(unsigned int truncatedSerialNumber)=0;
+  virtual std::string getManufacturer(unsigned int i)=0;
   virtual void printManufacturers()=0;
 };
 

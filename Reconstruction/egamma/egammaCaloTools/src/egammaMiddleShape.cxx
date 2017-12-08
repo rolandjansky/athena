@@ -66,15 +66,15 @@ StatusCode egammaMiddleShape::initialize()
 
   // Create egammaqweta2c Tool
   if(m_egammaqweta2c.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Unable to retrieve "<<m_egammaqweta2c);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaqweta2c);
+    return StatusCode::SUCCESS;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaqweta2c << " retrieved"); 
 
   // Create egammaEnergyPositionAllSamples Tool
   if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
+    return StatusCode::SUCCESS;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 

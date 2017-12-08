@@ -1,0 +1,33 @@
+package TrkSegment
+
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  DataModel                  DataModel-*                     Control
+use  Identifier                 Identifier-*                    DetectorDescription
+use  TrkMeasurementBase         TrkMeasurementBase-*            Tracking/TrkEvent
+private
+use  AthLinks                   AthLinks-*                      Control
+use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
+use  GaudiInterface             GaudiInterface-*                External
+use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
+use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+end_private
+
+
+apply_pattern installed_library
+library TrkSegment *.cxx
+
+private
+
+# The following lines generate the dictionary
+apply_pattern lcgdict dict=TrkSegment selectionfile=selection.xml \
+     headerfiles="../TrkSegment/TrkSegmentDict.h" 
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+end_private

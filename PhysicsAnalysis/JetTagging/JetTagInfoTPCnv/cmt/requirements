@@ -1,0 +1,37 @@
+package JetTagInfoTPCnv
+
+author Laurent Vacavant
+
+use AtlasPolicy			AtlasPolicy-*
+
+use AtlasReflex          AtlasReflex-*           External
+
+use GaudiInterface		GaudiInterface-*		External
+use EventPrimitives             EventPrimitives-*               Event
+use AthenaPoolCnvSvc     	AthenaPoolCnvSvc-*     		Database/AthenaPOOL
+use DataModelAthenaPool  	DataModelAthenaPool-*     	Control
+
+use TrkEventTPCnv TrkEventTPCnv-* Tracking/TrkEventCnv
+
+use JetTagInfo * PhysicsAnalysis/JetTagging
+use JetEventTPCnv * Reconstruction/Jet
+use JetTagEvent * PhysicsAnalysis/JetTagging
+use egammaEvent * Reconstruction/egamma
+use MuonIDEvent MuonIDEvent-* PhysicsAnalysis/MuonID
+use AthenaPoolUtilities * Database/AthenaPOOL
+use JetEvent * Reconstruction/Jet
+use VxVertex * Tracking/TrkEvent
+use Particle * Reconstruction
+
+private
+use CxxUtils CxxUtils-* Control
+end_private
+
+
+library JetTagInfoTPCnv *.cxx
+apply_pattern installed_library
+
+apply_pattern lcgdict dict=JetTagInfoTPCnv selectionfile=selection.xml headerfiles="../JetTagInfoTPCnv/JetTagInfoTPCnvDict.h"
+# ARA dict still needed for ext converters.
+apply_pattern lcgdict dict=ARA_JetTagInfoTPCnv selectionfile=ARA_selection.xml headerfiles="../JetTagInfoTPCnv/JetTagInfoTPCnvDict.h"
+

@@ -1,0 +1,18 @@
+#############################################
+package MonteCarloReactUtils
+
+author Marc Hohlfeld <marc.hohlfeld@cern.ch>
+
+
+use AtlasPolicy                 AtlasPolicy-*
+
+use AtlasROOT                   AtlasROOT-*                     External
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist)"
+
+library MonteCarloReactUtils *.cxx
+
+
+apply_pattern installed_library
+####################################################

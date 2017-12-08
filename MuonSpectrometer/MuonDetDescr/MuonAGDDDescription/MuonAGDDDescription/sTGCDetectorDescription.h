@@ -29,7 +29,6 @@ struct sTGCReadoutParameters {
     std::vector<double> firstPadH;
     std::vector<int> firstPadRow;
     std::vector<int> nWires;
-    std::vector<double> wireCutout;
     std::vector<double> firstWire;
     int wireGroupWidth;
     int nStrips;
@@ -50,19 +49,19 @@ public:
     sTGCDetectorDescription(std::string s);
     void Register();
 	
-        virtual void SetXYZ(std::vector<double> v) override
+	void SetXYZ(std::vector<double> v) 
 	{
-                small_x(v[0]);
-		large_x(v[1]);
-		y(v[2]);
-		z(v[3]);
+		_small_x=v[0];
+		_large_x=v[1];
+		_y=v[2];
+		_z=v[3];
 		_yCutout=v[4];
 	}
 	
-	double sWidth() {return small_x();}
-	double lWidth() {return large_x();}
-	double Length() {return y();}
-	double Tck()    {return z();}
+	double sWidth() {return _small_x;}
+	double lWidth() {return _large_x;}
+	double Length() {return _y;}
+	double Tck()    {return _z;}
 
 	void yCutout(double y) {_yCutout=y;}
 	double yCutout() {return _yCutout;}

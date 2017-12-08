@@ -1,0 +1,26 @@
+package  EventTagTPCnv
+
+author Marcin.Nowak@cern.ch
+
+use AtlasPolicy		AtlasPolicy-* 
+
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*      Database/AthenaPOOL
+
+use TagEvent            TagEvent-*         		PhysicsAnalysis/EventTag
+
+
+library EventTagTPCnv *.cxx
+apply_pattern tpcnv_library
+
+# 
+# Create a dictionary for the persistent representation 
+# of transient classes
+#
+private
+use AthenaKernel        AthenaKernel-*          Control
+use AtlasReflex         AtlasReflex-*		    External
+
+apply_pattern lcgdict dict=EventTagTPCnv  selectionfile=selection.xml \
+	headerfiles="../EventTagTPCnv/EventTagTPCnvDict.h"
+
+end_private

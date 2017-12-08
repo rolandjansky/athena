@@ -15,12 +15,14 @@
 
 /** Constructor **/
 ISF::TruthAssocSimSelector::TruthAssocSimSelector(const std::string& t, const std::string& n, const IInterface* p)
-  : BaseSimulationSelector(t,n,p)
+  : ISimulationSelector(t,n,p)
   , m_relativesVec()
   , m_relatives()
   , m_relationProp(0)
   , m_relation(HepMC::parents)
 {
+  declareInterface<ISF::ISimulationSelector>(this);
+
   declareProperty( "RelativesPDGCode",
                    m_relativesVec,
                    "Only ISFParticles which have specified 'Relation' to the given PDGCode are selected." );

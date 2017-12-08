@@ -17,7 +17,7 @@
 
 /** Constructor */
 ISF::AFIIEnvelopeDefSvc::AFIIEnvelopeDefSvc(const std::string& name, ISvcLocator* svc) :
-  base_class(name,svc),
+  AthService(name,svc),
   m_isfEnvDefSvc("ISF_ISFEnvelopeDefSvc", name),
   m_tolerance(1e-4),
   m_idMaxExtentZ(3550.),
@@ -139,6 +139,19 @@ const RZPairVector &ISF::AFIIEnvelopeDefSvc::getRPositiveZBoundary( AtlasDetDesc
   else                                               return m_isfEnvDefSvc->getRPositiveZBoundary( region );
 }
 
+
+/** Query the interfaces. */
+StatusCode ISF::AFIIEnvelopeDefSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+
+ if ( IID_IEnvelopeDefSvc == riid ) 
+    *ppvInterface = (IEnvelopeDefSvc*)this;
+ else  {
+   // Interface is not directly available: try out a base class
+   return Service::queryInterface(riid, ppvInterface);
+ }
+ addRef();
+ return StatusCode::SUCCESS;
+}
 
 /** return boundary with shifted z values */
 RZPairVector ISF::AFIIEnvelopeDefSvc::getShiftedBoundary( AtlasDetDescr::AtlasRegion region,

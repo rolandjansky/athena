@@ -9,9 +9,6 @@
 #include <iostream>
 
 
-using namespace std;
-
-
 namespace CoralDB {
 #if 0
 } // this is for better indentation in Emacs

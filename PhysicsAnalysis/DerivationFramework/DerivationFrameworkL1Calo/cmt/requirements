@@ -1,0 +1,29 @@
+package DerivationFrameworkL1Calo
+author James Catmore <james.catmore@cern.ch>
+author John Morris <john.morris@cern.ch>
+author Ben Allen <benjamin.william.allen@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy                 AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAnalysis/DerivationFramework
+
+
+private
+use GaudiInterface              GaudiInterface-*        External
+use AtlasROOT                   AtlasROOT-*           	External
+use xAODTrigL1Calo              xAODTrigL1Calo-*        Event/xAOD
+################################################################
+#
+public
+
+## declare the directories CMT should know about
+branches python share src
+
+apply_pattern dual_use_library files= " *.cxx "
+apply_pattern declare_joboptions files=" *.py"
+apply_pattern declare_python_modules files="*.py"
+apply_tag ROOTMathLibs
+
+

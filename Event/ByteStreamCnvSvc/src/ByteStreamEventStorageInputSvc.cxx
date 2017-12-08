@@ -40,8 +40,11 @@
 ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string& name,
 		ISvcLocator* svcloc) : ByteStreamInputSvc(name, svcloc),
 	//m_totalEventCounter(0),
+	m_re(0),
+        m_eventStatus(0),
 	m_reader(0),
         m_evtInFile(0),
+        m_eventOffset(0),
 	m_sgSvc("StoreGateSvc", name),
 	m_mdSvc("StoreGateSvc/InputMetaDataStore", name),
 	m_incidentSvc("IncidentSvc", name),
@@ -63,8 +66,8 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
 }
 //------------------------------------------------------------------------------
 ByteStreamEventStorageInputSvc::~ByteStreamEventStorageInputSvc() {
-  
-  delete m_reader; m_reader = 0;
+   delete m_re; m_re = 0;
+   delete m_reader; m_reader = 0;
 }
 //------------------------------------------------------------------------------
 StatusCode ByteStreamEventStorageInputSvc::initialize() {
@@ -123,8 +126,7 @@ StatusCode ByteStreamEventStorageInputSvc::stop() {
 //------------------------------------------------------------------------------
 StatusCode ByteStreamEventStorageInputSvc::finalize() {
    // delete the old event
-  //   releaseCurrentEvent(); // destruction of service obj will clear it
-  
+   releaseCurrentEvent();
    if (!m_sgSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release StoreGateSvc");
    }
@@ -244,17 +246,13 @@ bool ByteStreamEventStorageInputSvc::loadMetadata()
 }
 
 const RawEvent* ByteStreamEventStorageInputSvc::previousEvent() {
-
-  std::lock_guard<std::mutex> lock( m_readerMutex );
-  const EventContext context{ Gaudi::Hive::currentContext() };
-
   // Load data buffer from file
   char *buf;
   unsigned int eventSize;
   if (readerReady()) {
     //get current event position (cast to long long until native tdaq implementation)
     m_evtInFile--;
-    m_evtFileOffset = m_evtOffsets.at(m_evtInFile);
+    m_eventOffset = m_evtOffsets.at(m_evtInFile);
     DRError ecode = m_reader->getData(eventSize,&buf,m_evtOffsets.at(m_evtInFile -1));
     if (DRWAIT == ecode && m_wait > 0) {
       do {
@@ -265,7 +263,7 @@ const RawEvent* ByteStreamEventStorageInputSvc::previousEvent() {
           ATH_MSG_ERROR("System Error while running sleep");
           return 0;
         }
-      } while(m_reader->getData(eventSize,&buf,m_evtFileOffset) == DRWAIT);
+      } while(m_reader->getData(eventSize,&buf,m_eventOffset) == DRWAIT);
     } else if (DROK != ecode) {
       ATH_MSG_ERROR("Error reading next event");
       throw ByteStreamExceptions::readError();
@@ -277,42 +275,36 @@ const RawEvent* ByteStreamEventStorageInputSvc::previousEvent() {
     return 0;
   }
 
-  EventCache* cache = m_eventsCache.get(context);
   // initialize before building RawEvent
-  releaseEvent( cache );
+  releaseCurrentEvent();
  
   // Use buffer to build FullEventFragment
   try {
-    buildFragment( cache, buf, eventSize, true);
+    buildFragment(buf,eventSize,true);
   }
   catch (...) {
     // rethrow any exceptions
     throw;
   }
 
-  if ( cache->rawEvent == 0 ) {
+  if (m_re==0) {
     ATH_MSG_ERROR("Failure to build fragment");
     return 0;
   }
 
   // Set it for the data provider
-  m_robProvider->setNextEvent(context, cache->rawEvent);
-  m_robProvider->setEventStatus(context, cache->eventStatus);
+  m_robProvider->setNextEvent(m_re);
+  m_robProvider->setEventStatus(m_eventStatus);
 
   // dump
   if (m_dump) {
-    DumpFrags::dump( cache->rawEvent );
+    DumpFrags::dump(m_re);
   }
-  ATH_MSG_DEBUG( "switched to previous event in slot " << context );
-  return( cache->rawEvent );
-  
+  return(m_re);
 }
 //------------------------------------------------------------------------------
 // Read the next event.
 const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
-
-  std::lock_guard<std::mutex> lock( m_readerMutex );
-  const EventContext context{ Gaudi::Hive::currentContext() };
 
   // Load data buffer from file
   char *buf;
@@ -320,22 +312,20 @@ const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
   if (readerReady()) {
     DRError ecode;
     // Check if have moved back from high water mark
-    m_evtInFile ++; // increment iterator
+    m_evtInFile++; // increment iterator
     if (m_evtInFile+1 > m_evtOffsets.size()) { 
       //get current event position (cast to long long until native tdaq implementation)
       ATH_MSG_DEBUG("nextEvent _above_ high water mark");
-      m_evtFileOffset = (long long)m_reader->getPosition();
-      m_evtOffsets.push_back(m_evtFileOffset);
+      m_eventOffset = (long long)m_reader->getPosition();
+      m_evtOffsets.push_back(m_eventOffset);
       ecode = m_reader->getData(eventSize,&buf);
     }
-
     else {
       // Load from previous offset
       ATH_MSG_DEBUG("nextEvent below high water mark");
-      m_evtFileOffset = m_evtOffsets.at( m_evtInFile-1 );
-      ecode = m_reader->getData( eventSize, &buf, m_evtFileOffset );
+      m_eventOffset = m_evtOffsets.at(m_evtInFile-1);
+      ecode = m_reader->getData(eventSize,&buf,m_eventOffset);
     }
-
     if (DRWAIT == ecode && m_wait > 0) {
       do {
         // wait for n seconds
@@ -345,7 +335,7 @@ const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
           ATH_MSG_ERROR("System Error while running sleep");
           return 0;
         }
-      } while(m_reader->getData( eventSize, &buf ) == DRWAIT);
+      } while(m_reader->getData(eventSize,&buf) == DRWAIT);
     } else if (DROK != ecode) {
       ATH_MSG_ERROR("Error reading next event");
       throw ByteStreamExceptions::readError();
@@ -356,67 +346,58 @@ const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
     ATH_MSG_ERROR("DataReader not ready. Need to getBlockIterator first");
     return 0;
   }
-  EventCache* cache = m_eventsCache.get(context);
 
   // initialize before building RawEvent
-  releaseEvent( cache );
+  releaseCurrentEvent();
  
   // Use buffer to build FullEventFragment
   try {
-    buildFragment( cache,  buf, eventSize, true );
+    buildFragment(buf,eventSize,true);
   }
   catch (...) {
     // rethrow any exceptions
     throw;
   }
 
-  if ( cache->rawEvent == 0 ) {
+  if (m_re==0) {
     ATH_MSG_ERROR("Failure to build fragment");
     return 0;
   }
 
-  
   // Set it for the data provider
-  m_robProvider->setNextEvent( context, cache->rawEvent );
-  m_robProvider->setEventStatus( context, cache->eventStatus );
+  m_robProvider->setNextEvent(m_re);
+  m_robProvider->setEventStatus(m_eventStatus);
 
   //++m_totalEventCounter;
 
   // dump
   if (m_dump) {
-    DumpFrags::dump( cache->rawEvent );
+    DumpFrags::dump(m_re);
   }
-  ATH_MSG_DEBUG( "switched to next event in slot " << context );
-  return( cache->rawEvent );
+  return(m_re);
 }
 
-void ByteStreamEventStorageInputSvc::validateEvent() {
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  m_eventsCache.get(context)->eventStatus = validateEvent( m_eventsCache.get(context)->rawEvent );
-}
-
-unsigned ByteStreamEventStorageInputSvc::validateEvent( const RawEvent* rawEvent ) const
+void ByteStreamEventStorageInputSvc::validateEvent()
 {
-  unsigned int status = 0;
   if (m_valEvent) {
     // check validity
     std::vector<eformat::FragmentProblem> p;
-    rawEvent->problems(p);
+    m_re->problems(p);
     if (!p.empty()) {
-      status += 0x01000000;
+      m_eventStatus += 0x01000000;
       // bad event
       ATH_MSG_WARNING("Failed to create FullEventFragment");
       for (std::vector<eformat::FragmentProblem>::const_iterator i = p.begin(), iEnd = p.end();
 	        i != iEnd; i++) {
         ATH_MSG_WARNING(eformat::helper::FragmentProblemDictionary.string(*i));
       }
-      //      releaseCurrentEvent();
+      releaseCurrentEvent();
       throw ByteStreamExceptions::badFragmentData();
     }
-    if ( !ROBFragmentCheck( rawEvent ) ) {
-      status += 0x02000000;
+    if (!ROBFragmentCheck()) {
+      m_eventStatus += 0x02000000;
       // bad event
-      //      releaseCurrentEvent();
+      releaseCurrentEvent();
       ATH_MSG_ERROR("Skipping bad event");
       throw ByteStreamExceptions::badFragmentData();
     }
@@ -424,10 +405,9 @@ unsigned ByteStreamEventStorageInputSvc::validateEvent( const RawEvent* rawEvent
   else {
     ATH_MSG_DEBUG("Processing event without validating.");
   }
-  return status;
 }
 
-void ByteStreamEventStorageInputSvc::buildFragment(EventCache* cache, void* data, uint32_t eventSize, bool validate) const
+void ByteStreamEventStorageInputSvc::buildFragment(void* data, uint32_t eventSize, bool validate)
 {
   OFFLINE_FRAGMENTS_NAMESPACE::DataType* fragment = reinterpret_cast<OFFLINE_FRAGMENTS_NAMESPACE::DataType*>(data);
   if (validate) {
@@ -462,7 +442,7 @@ void ByteStreamEventStorageInputSvc::buildFragment(EventCache* cache, void* data
       } catch (eformat::Issue& ex) {
         // bad event
         ATH_MSG_WARNING(ex.what());
-	//        releaseCurrentEvent();
+        releaseCurrentEvent();
         ATH_MSG_ERROR("Skipping bad event");
         throw ByteStreamExceptions::badFragment();
       }
@@ -475,15 +455,15 @@ void ByteStreamEventStorageInputSvc::buildFragment(EventCache* cache, void* data
   } 
   // This is a FullEventFragment
   // make a new FEFrag in memory from it
-  cache->eventStatus = 0;
+  m_eventStatus = 0;
   if (fragment[5] > 0) {
-    cache->eventStatus += eformat::helper::Status(fragment[6]).specific();
-    cache->eventStatus += (eformat::helper::Status(fragment[6]).generic() & 0x000000ff) << 16;
+    m_eventStatus += eformat::helper::Status(fragment[6]).specific();
+    m_eventStatus += (eformat::helper::Status(fragment[6]).generic() & 0x000000ff) << 16;
   }
 
   // This is a FullEventFragment
   // make a new RawEvent in memory from it
-  cache->rawEvent = new RawEvent(fragment);
+  m_re = new RawEvent(fragment);
   ATH_MSG_DEBUG("Made an FullEventFragment from ES " << fragment);
 
 }
@@ -494,14 +474,14 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
   // get file GUID
   m_fileGUID = m_reader->GUID();
   // reader returns -1 when end of the file is reached
-  if (m_evtFileOffset != -1) {
+  if (m_eventOffset != -1) {
     ATH_MSG_DEBUG("ByteStream File GUID:" << m_fileGUID);
-    ATH_MSG_DEBUG("ByteStream Event Position in File: " << m_evtFileOffset);
+    ATH_MSG_DEBUG("ByteStream Event Position in File: " << m_eventOffset);
     // Created data header element with BS provenance information
     Token* token = new Token();
     token->setDb(m_fileGUID);
     token->setTechnology(0x00001000);
-    token->setOid(Token::OID_t(0LL, m_evtFileOffset));
+    token->setOid(Token::OID_t(0LL, m_eventOffset));
     DataHeaderElement Dhe(ClassID_traits<DataHeader>::ID(), "StreamRAW", token);
     // Create data header itself
     DataHeader* Dh = new DataHeader();
@@ -553,15 +533,14 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
 }
 
 //__________________________________________________________________________
-void ByteStreamEventStorageInputSvc::releaseEvent( EventCache* cache)
+void ByteStreamEventStorageInputSvc::releaseCurrentEvent()
 {
    // cleanup parts of previous event and re-init them
-   if ( cache->rawEvent ) {
+   if (m_re) {
       OFFLINE_FRAGMENTS_NAMESPACE::PointerType fragment = 0;
-      cache->rawEvent->start(fragment);
+      m_re->start(fragment);
       delete [] fragment; fragment = 0;
-      delete cache->rawEvent; cache->rawEvent = 0;
-      cache->eventStatus = 0;
+      delete m_re; m_re = 0;
    }
 }
 
@@ -641,14 +620,14 @@ bool ByteStreamEventStorageInputSvc::readerReady()
    return (!eofFlag)&&moreEvent;
 }
 //__________________________________________________________________________
-bool ByteStreamEventStorageInputSvc::ROBFragmentCheck( const RawEvent* re ) const
+bool ByteStreamEventStorageInputSvc::ROBFragmentCheck()
 {
    bool allOK = true;
-   uint32_t total = re->nchildren(), lastId = 0;
+   uint32_t total = m_re->nchildren(), lastId = 0;
    std::vector<eformat::FragmentProblem> p;
    for (size_t i = 0; i<total; ++i) {
      OFFLINE_FRAGMENTS_NAMESPACE::PointerType fp;
-     re->child(fp, i);
+     m_re->child(fp, i);
      OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment f(fp);
      lastId = f.source_id();
      p.clear();
@@ -664,22 +643,15 @@ bool ByteStreamEventStorageInputSvc::ROBFragmentCheck( const RawEvent* re ) cons
    return allOK;
 }
 //__________________________________________________________________________
-void ByteStreamEventStorageInputSvc::setEvent(void* data, unsigned int eventStatus) {
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  return setEvent( context, data, eventStatus );
-}
-
-void ByteStreamEventStorageInputSvc::setEvent( const EventContext& context, void* data, unsigned int eventStatus )
+void ByteStreamEventStorageInputSvc::setEvent(void* data, unsigned int eventStatus)
 {
-  EventCache* cache = m_eventsCache.get( context );
-  releaseEvent( cache );
+   releaseCurrentEvent();
    OFFLINE_FRAGMENTS_NAMESPACE::DataType* fragment = reinterpret_cast<OFFLINE_FRAGMENTS_NAMESPACE::DataType*>(data);
-   cache->rawEvent = new RawEvent(fragment);
-   cache->eventStatus = eventStatus;
+   m_re = new RawEvent(fragment);
+   m_eventStatus = eventStatus;
    // Set it for the data provider
-   m_robProvider->setNextEvent(context, cache->rawEvent );
-   m_robProvider->setEventStatus(context, cache->eventStatus );
-
+   m_robProvider->setNextEvent(m_re);
+   m_robProvider->setEventStatus(m_eventStatus);
    // Build a DH for use by other components
    StatusCode rec_sg = generateDataHeader();
    if (rec_sg != StatusCode::SUCCESS) {
@@ -688,13 +660,11 @@ void ByteStreamEventStorageInputSvc::setEvent( const EventContext& context, void
 }
 //__________________________________________________________________________
 const RawEvent* ByteStreamEventStorageInputSvc::currentEvent() const {
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  return m_eventsCache.get(context)->rawEvent;
+   return(m_re);
 }
 //__________________________________________________________________________
 unsigned int ByteStreamEventStorageInputSvc::currentEventStatus() const {
-  const EventContext context{ Gaudi::Hive::currentContext() };
-  return m_eventsCache.get(context)->eventStatus;
+   return(m_eventStatus);
 }
 //________________________________________________________________________________
 StatusCode ByteStreamEventStorageInputSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
@@ -706,9 +676,4 @@ StatusCode ByteStreamEventStorageInputSvc::queryInterface(const InterfaceID& rii
    }
    addRef();
    return(StatusCode::SUCCESS);
-}
-
-ByteStreamEventStorageInputSvc::EventCache::~EventCache() {
-  delete rawEvent;
-  rawEvent = 0;
 }

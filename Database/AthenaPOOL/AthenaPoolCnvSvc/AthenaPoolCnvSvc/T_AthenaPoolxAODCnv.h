@@ -20,10 +20,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "AthenaPoolCnvSvc/TPCnvList.h"
 #include "AthenaPoolCnvSvc/exceptions.h"
-#include "AthenaPoolCnvSvc/debug.h"
 #include "AthContainers/AuxVectorBase.h"
 #include "AthenaKernel/ClassName.h"
-#include "AthenaKernel/ClassID_traits.h"
 
 
 /**

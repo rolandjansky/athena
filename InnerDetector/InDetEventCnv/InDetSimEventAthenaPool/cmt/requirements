@@ -1,0 +1,42 @@
+package InDetSimEventAthenaPool
+
+author Andreas Wildauer <Andreas.Wildauer@cern.ch>
+author Davide Costanzo <Davide.Costanzo@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+
+private
+
+use GaudiInterface       GaudiInterface-*       External
+use InDetSimEventTPCnv   InDetSimEventTPCnv-*   InnerDetector/InDetEventCnv
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+use InDetSimEvent        InDetSimEvent-*        InnerDetector
+use AtlasReflex          AtlasReflex-*          External
+
+
+# Converters for the rdo containers and hit collections
+apply_pattern poolcnv files="-s=${InDetSimEvent_root}/InDetSimEvent SiHitCollection.h TRTUncompressedHitCollection.h"
+
+macro_append InDetSimEventAthenaPoolPoolCnvGen_dependencies " InDetSimEventAthenaPoolCnvDict "
+apply_pattern lcgdict dict=InDetSimEventAthenaPoolCnv  selectionfile=selection.xml headerfiles="../InDetSimEventAthenaPool/InDetSimEventAthenaPoolCnvDict.h"
+
+macro_append InDetSimEventAthenaPoolPoolCnv_shlibflags "$(InDetEventAthenaPool_linkopts)"
+
+apply_pattern declare_joboptions files="*.py"
+
+
+private
+use AthenaPoolCnvSvc AthenaPoolCnvSvc-* Database/AthenaPOOL
+use AtlasSealCLHEP AtlasSealCLHEP-* Database
+end_private
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="InDetSimEventTPCnv_HITS" \
+   options="InDetSimEventAthenaPool/InDetSimEventTPCnv_HITS_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh InDetSimEventTPCnv_HITS" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh InDetSimEventTPCnv_HITS"

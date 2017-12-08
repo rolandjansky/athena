@@ -21,9 +21,6 @@ alg = xAODMaker__EventInfoCnvAlg()
 alg.xAODKey = ""
 topSequence += alg
 
-#from AthenaPoolTools.AthenaPoolToolsConf import BookkeeperDumper
-#topSequence += BookkeeperDumper( OutputLevel = INFO)
-
 from AthenaPoolTools.AthenaPoolToolsConf import EventCount
 topSequence += EventCount( OutputLevel = INFO,
                            Dump        = True )

@@ -1,0 +1,25 @@
+package EventCommonAlgs
+
+author  Sebastien Binet <binet@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+use GaudiInterface 	GaudiInterface-* 	External
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
+private
+use AtlasBoost		AtlasBoost-*		External
+use NavFourMom		NavFourMom-*		Event
+use FourMomUtils	FourMomUtils-*		Event
+
+end_private
+
+branches EventCommonAlgs src src/components doc python share
+
+## default is to make a component library
+library EventCommonAlgs *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+

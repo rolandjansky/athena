@@ -27,6 +27,7 @@ AthAlgTool::AthAlgTool( const std::string& type,
 			const std::string& name, 
 			const IInterface* parent ) : 
   ::AlgTool      ( type, name, parent ),
+  ::AthMessaging ( msgSvc(),     name ),
   m_evtStore     ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore     ( "StoreGateSvc/DetectorStore", name ),
   m_userStore    ( "UserDataSvc/UserDataSvc", name ),
@@ -38,7 +39,10 @@ AthAlgTool::AthAlgTool( const std::string& type,
 
   auto props = getProperties();
   for( Property* prop : props ) {
-    if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
+    if( prop->name() == "OutputLevel" ) {
+      prop->declareUpdateHandler
+        (&AthAlgTool::msg_update_handler, this);
+    } else if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
       prop->declareUpdateHandler
         (&AthAlgTool::extraDeps_update_handler, this);
     }
@@ -64,6 +68,7 @@ AthAlgTool::AthAlgTool( const std::string& type,
 ///////////////
 AthAlgTool::~AthAlgTool()
 { 
+  ATH_MSG_DEBUG ("Calling destructor");
 }
 
 
@@ -157,9 +162,9 @@ AthAlgTool::msg_update_handler( Property& outputLevel )
    // type at one point, to be able to fall back on something.
    IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
    if( iprop ) {
-     msgStream().setLevel( static_cast<MSG::Level> (iprop->value()) );
+      this->setLevel( static_cast<MSG::Level> (iprop->value()) );
    } else {
-     msgStream().setLevel( msgLevel() );
+      this->setLevel( msgLevel() );
    }
 }
 

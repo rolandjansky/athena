@@ -34,7 +34,6 @@ LArCellMerger::LArCellMerger(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_cablingService("LArCablingService"),
    m_rawChannelContainerName("LArRawChannels_digits"),
    m_calo_id(nullptr),
    m_evt(0),

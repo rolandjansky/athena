@@ -20,8 +20,7 @@
 // AthenaKernel includes
 
 
-/** @class IIoSvc
- *  is a registry of file handles, storing their name
+/** @class IIoSvc is a registry of file handles, storing their name
  *  and openmode.
  */
 class IIoSvc

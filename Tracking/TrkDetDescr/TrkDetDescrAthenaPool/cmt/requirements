@@ -1,0 +1,25 @@
+package TrkDetDescrAthenaPool
+
+#######################################
+# this package defines the POOL converters for the data classes in 
+# TrkDetDescr 
+#######################################
+
+author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-* 
+
+private
+
+use TrkDetDescrTPCnv      TrkDetDescrTPCnv-*         Tracking/TrkDetDescr
+use TrkGeometry           TrkGeometry-*              Tracking/TrkDetDescr
+use GaudiInterface        GaudiInterface-*           External
+use AthenaPoolUtilities   AthenaPoolUtilities-*      Database/AthenaPOOL
+
+#use AthenaPoolCnvSvc      AthenaPoolCnvSvc-00-*      Database/AthenaPOOL
+
+apply_pattern poolcnv files="-s=${TrkGeometry_root}/TrkGeometry MaterialStepCollection.h LayerMaterialMap.h ElementTable.h"
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"

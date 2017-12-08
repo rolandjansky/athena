@@ -17,7 +17,7 @@
 #include "TTree.h"
 
 // Local include(s):
-#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 
 class DumpAllSystematics : public AthAlgorithm {
 

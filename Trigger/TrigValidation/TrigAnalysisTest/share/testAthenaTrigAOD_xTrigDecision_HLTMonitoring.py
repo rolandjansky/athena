@@ -10,7 +10,7 @@ theApp.EvtMax = 250
 import AthenaPoolCnvSvc.ReadAthenaPool
  
 if not ('fileList' in dir()):
-    fileList=['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_0/20.7.X.Y-VAL/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root']
+    fileList=['root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_0/20.7.X.Y-VAL/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root']
 
 # allow this to work in RTT
 if not fileList == []:

@@ -1,0 +1,24 @@
+package TrkCaloCluster_OnTrack
+author Anthony Morley <a.morley@cern.ch>
+
+use AtlasPolicy                AtlasPolicy-*     
+
+#use TrkEventPrimitives         TrkEventPrimitives-*       Tracking/TrkEvent
+use EventPrimitives         EventPrimitives-*    Event  
+use GeoPrimitives           GeoPrimitives-*      DetectorDescription
+use TrkMeasurementBase         TrkMeasurementBase-*       Tracking/TrkEvent
+#use CLIDSvc                    CLIDSvc-*                  Control
+#use DataModel                  DataModel-*                Control
+
+library TrkCaloCluster_OnTrack *.cxx
+apply_pattern installed_library
+
+
+private 
+use TrkMaterialOnTrack         TrkMaterialOnTrack-*       Tracking/TrkEvent
+use TrkSurfaces                TrkSurfaces-*              Tracking/TrkDetDescr
+#use AtlasReflex                AtlasReflex-*              External 
+use GaudiInterface             GaudiInterface-*           External
+
+
+#apply_pattern lcgdict dict=TrkCaloCluster_OnTrack selectionfile=selection.xml headerfiles="../TrkCaloCluster_OnTrack/TrkCaloCluster_OnTrackDict.h"

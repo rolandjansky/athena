@@ -1,0 +1,26 @@
+package EventBookkeeperMetaData
+
+author David Cote <david.cote@cern.ch>
+
+use AtlasPolicy     AtlasPolicy-*     
+use DataModel       DataModel-*        Control
+use CLIDSvc         CLIDSvc-*          Control
+use GaudiInterface  GaudiInterface-*   External
+
+library EventBookkeeperMetaData *.cxx
+apply_pattern installed_library 
+
+private 
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+apply_pattern lcgdict dict=EventBookkeeperMetaData \
+selectionfile=selection.xml \
+headerfiles="../EventBookkeeperMetaData/EventBookkeeperMetaDataDict.h" 
+end_private
+

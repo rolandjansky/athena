@@ -1,0 +1,32 @@
+package TRT_Cabling
+
+author Paul T. Keener <paul.keener@cern.ch>
+
+public
+
+use AtlasPolicy 	 AtlasPolicy-*
+use DataCollection	 DataCollection-*	External
+use GaudiInterface	 GaudiInterface-*	External
+
+
+private
+
+use AthenaBaseComps      AthenaBaseComps-*		Control
+use Identifier		 Identifier-*		DetectorDescription
+use InDetIdentifier 	 InDetIdentifier-* 	InnerDetector/InDetDetDescr
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use PathResolver         PathResolver-*         Tools
+
+end_private
+
+
+apply_pattern component_library 
+library TRT_Cabling *.cxx components/*.cxx
+
+apply_pattern declare_runtime files="*.dat"
+
+#apply_pattern declare_joboptions files="*.py"
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"

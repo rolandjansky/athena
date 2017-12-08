@@ -1,0 +1,31 @@
+package TrkDistributedKalmanFilter
+
+author Dmitry Emeliyanov <D.Emeliyanov@rl.ac.uk>
+
+use AtlasPolicy 	AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*   Control
+use GaudiInterface      GaudiInterface-* 	External
+use TrkFitterUtils      TrkFitterUtils-*        Tracking/TrkFitter
+use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkFitterInterfaces         TrkFitterInterfaces-*           Tracking/TrkFitter
+use MagFieldInterfaces  MagFieldInterfaces-*         MagneticField 
+
+apply_pattern dual_use_library files="*.cxx"
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+
+private
+
+use AtlasDetDescr       AtlasDetDescr-*         DetectorDescription
+use StoreGate           StoreGate-*             Control
+use TrkEventUtils       TrkEventUtils-*         Tracking/TrkEvent  
+use TrkPrepRawData      TrkPrepRawData-*        Tracking/TrkEvent
+use TrkRIO_OnTrack      TrkRIO_OnTrack-*        Tracking/TrkEvent
+use TrkMeasurementBase  TrkMeasurementBase-*    Tracking/TrkEvent
+use TrkDetElementBase   TrkDetElementBase-*     Tracking/TrkDetDescr
+use TrkSurfaces         TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkTrack            TrkTrack-*              Tracking/TrkEvent
+use TrkParameters	TrkParameters-* 	Tracking/TrkEvent
+use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
+use TrkExInterfaces     TrkExInterfaces-*       Tracking/TrkExtrapolation

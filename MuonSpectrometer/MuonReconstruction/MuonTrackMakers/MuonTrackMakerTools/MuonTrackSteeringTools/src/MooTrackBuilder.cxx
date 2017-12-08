@@ -105,25 +105,106 @@ namespace Muon {
   
   StatusCode MooTrackBuilder::initialize() {
 
-    ATH_CHECK( m_fitter.retrieve() );
-    ATH_CHECK( m_slFitter.retrieve() );
-    if( !m_tofTool.empty() ) ATH_CHECK( m_tofTool.retrieve() );
-    ATH_CHECK(m_magFieldSvc.retrieve() );
-    if( !m_errorOptimisationTool.empty() ) ATH_CHECK( m_errorOptimisationTool.retrieve() );
-    ATH_CHECK( m_candidateHandler.retrieve() );
-    ATH_CHECK( m_candidateMatchingTool.retrieve() );
-    if( !m_hitRecoverTool.empty() ) ATH_CHECK( m_hitRecoverTool.retrieve() );
-    ATH_CHECK( m_muonChamberHoleRecoverTool.retrieve() );
-    ATH_CHECK( m_trackExtrapolationTool.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_trackToSegmentTool.retrieve() );
-    ATH_CHECK( m_seededSegmentFinder.retrieve() );
-    ATH_CHECK( m_mdtRotCreator.retrieve() );
-    ATH_CHECK( m_compRotCreator.retrieve() );
-    ATH_CHECK( m_propagator.retrieve() );
-    ATH_CHECK( m_pullCalculator.retrieve() );
+    if ( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
+ 
+    if( m_fitter.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_fitter); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_slFitter.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_slFitter); 
+      return StatusCode::FAILURE;
+    }
+
+    if( !m_tofTool.empty() ){
+      if( m_tofTool.retrieve().isFailure() ){
+        ATH_MSG_ERROR("Could not get " << m_tofTool); 
+        return StatusCode::FAILURE;
+      }
+    }
+    
+    if (m_magFieldSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
+      return StatusCode::FAILURE;
+    }
+
+    if( !m_errorOptimisationTool.empty() ){
+      if( m_errorOptimisationTool.retrieve().isFailure() ){
+        ATH_MSG_ERROR("Could not get " << m_errorOptimisationTool); 
+        return StatusCode::FAILURE;
+      }
+    }
+ 
+    if( m_candidateHandler.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_candidateHandler); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_candidateMatchingTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_candidateMatchingTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( !m_hitRecoverTool.empty() && m_hitRecoverTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_hitRecoverTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_muonChamberHoleRecoverTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_muonChamberHoleRecoverTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_trackExtrapolationTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_trackExtrapolationTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_idHelper.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_idHelper); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_helper.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_helper); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_printer.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_printer); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_trackToSegmentTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_trackToSegmentTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_seededSegmentFinder.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_seededSegmentFinder); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_mdtRotCreator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_mdtRotCreator); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_compRotCreator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_compRotCreator); 
+      return StatusCode::FAILURE;
+    }
+        
+    if( m_propagator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_propagator); 
+      return StatusCode::FAILURE;
+    }
+
+    if( m_pullCalculator.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_pullCalculator); 
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }

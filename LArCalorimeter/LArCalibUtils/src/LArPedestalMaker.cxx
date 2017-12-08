@@ -147,7 +147,7 @@ StatusCode LArPedestalMaker::stop()
   } 
   
   // Create the LArPedestalComplete object
-  auto larPedestalComplete = std::make_unique<LArPedestalComplete>();
+  LArPedestalComplete* larPedestalComplete = new LArPedestalComplete();
 
   ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
   ATH_CHECK( larPedestalComplete->initialize() );
@@ -203,7 +203,8 @@ StatusCode LArPedestalMaker::stop()
  ATH_MSG_INFO ( " Summary : Number of FCAL      cells side A or C (connected+unconnected):  1792 " );
  
  // Record LArPedestalComplete
- ATH_CHECK( detStore()->record(std::move(larPedestalComplete),m_keyoutput) );
+ ATH_CHECK( detStore()->record(larPedestalComplete,m_keyoutput) );
+ ATH_CHECK( detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete) );
  
  ATH_MSG_INFO ( ">>> End of finalize" );
  return StatusCode::SUCCESS;

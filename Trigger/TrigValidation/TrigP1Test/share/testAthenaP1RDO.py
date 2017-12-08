@@ -15,7 +15,7 @@ elif not acf.EvtMax.is_locked():
 if not ('doRates' in dir()):
     doRates =True 
 
-#xrdcp root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/
+#xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/
 #use this to test on enhanced bias
 #PoolRDOInput=["root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/trig-daq/validation/test_data/EnhBias7TeV.e468s624s633d238/user09.EdwardSarkisyan-Grinbaum.EnhBias7TeV1555OfflS31.digit.RDO.e468s624s633d238.RDO._00001.pool.root"]
 #OFLCONDVersion = "OFLCOND-DR-BS7T-ANom-00"
@@ -36,8 +36,8 @@ def getEosDirectoryList(path,fileRange):
         print 'fileNumber',fileNumber
         if fileNumber.isdigit():
           if  int(fileNumber) > fileRange[0]-1 and int(fileNumber) <fileRange[1]+1 :
-            collection = 'root://eosatlas.cern.ch/'+path+i
-            files += ["root://eosatlas.cern.ch/%s/%s" % (path,i) ]
+            collection = 'root://eosatlas/'+path+i
+            files += ["root://eosatlas/%s/%s" % (path,i) ]
     print files 
     return files 
 

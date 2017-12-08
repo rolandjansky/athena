@@ -1,0 +1,18 @@
+package MuGirlPerformance
+
+author Silvia Behar <Silvia.Behar.Harpaz@cern.ch>
+author Shlomit Tarem <Shlomit.Tarem@cern.ch>
+author Zvi Tarem <Zvi.Tarem@cern.ch>
+author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+
+private
+use TestPolicy TestPolicy-*
+apply_pattern validate_xml
+public 
+use AtlasPolicy             *
+#use AtlasROOT               * External
+
+
+#macro MuGirlPerformance_TestConfiguration "../test/MuGirlPerformance_TestConfiguration.xml"
+#apply_pattern declare_runtime extras="../test/MuGirlPerformance_TestConfiguration.xml ../share/*.C  ../share/*.h"
+apply_pattern declare_joboptions files="*.py"

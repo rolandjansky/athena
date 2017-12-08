@@ -112,14 +112,14 @@ def eoscp(package,filename,jobname,nightly,tag,store_tag,release):
     ##            print release
     #postfix='/'.join(argv[-3:])
     
-    postfix="x86_64-slc6-gcc62-opt/Athena/"+package
+    postfix="x86_64-slc6-gcc49-opt/offline/"+package
     #middle='/'.join(argv[-6:-5])
     #middle=argv[-5]
     middle=nightly
     pathlist=["prod","batch"]#This 2nd option should make the script work on the RTT test instance.
 #    status=0
     for path in pathlist:
-        prefix="root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/"+path+"/rtt"
+        prefix="root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/"+path+"/rtt"
         #print "postfix: "+postfix
         #print "middle: "+middle
         #print "prefix: "+prefix
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     pwdmon=''
     prepath='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_0/'
     #TODO: make postpath configurable
-    postpath='/build/x86_64-slc6-gcc62-opt/Athena/'
+    postpath='/build/x86_64-slc6-gcc49-opt/offline/'
     currel='NOREL'
     if sys.argv[6] == 'current' or sys.argv[2] == 'current' :
       curdir=os.getcwd()
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     #establish path to reference release, rel num is just dummy at this stage  
     pwdref=''
     prepath='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_0/'
-    postpath='/build/x86_64-slc6-gcc62-opt/Athena/'
+    postpath='/build/x86_64-slc6-gcc49-opt/offline/'
     relref=sys.argv[2]
     if sys.argv[2] == 'current' : 
       relref=currel

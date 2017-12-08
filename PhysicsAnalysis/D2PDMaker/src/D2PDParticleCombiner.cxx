@@ -66,6 +66,7 @@ D2PDParticleCombiner::D2PDParticleCombiner(const std::string& name,
                                            ISvcLocator* pSvcLocator) :
   AthFilterAlgorithm ( name,     pSvcLocator ),
   m_mcEventColl(0),
+  m_userDataSvc( "UserDataSvc", name ),
   m_kinSelectorTool( "KinematicSelector/KinematicSelectorForD2PDParticleCombiner", this ),
   m_filterTool(nullptr),
   m_selectionTools(this),
@@ -148,6 +149,7 @@ D2PDParticleCombiner::D2PDParticleCombiner(const std::string& name,
   declareProperty("outputAssociationContainerList", m_outAssoCollKeys,
                   "List of the names of the output association maps (INav4MomAssocs)" );
 
+  declareProperty("userDataSvc",             m_userDataSvc, "The UserData service" );
   declareProperty("userDataCalcToolList",    m_userDataCalcTools, "List of UserDataCalcTools to be used" );
 
   declareProperty("dumpStoreGate", m_dumpStoreGate=false, "Flag to dump StoreGate content after each event" );
@@ -247,6 +249,7 @@ StatusCode D2PDParticleCombiner::initialize()
       ATH_MSG_INFO ( " using associationToolList             = " << m_associationTools );
       ATH_MSG_INFO ( " using outputAssociationContainerList  = " << m_outAssoCollKeys );
 
+      ATH_MSG_INFO ( " using userDataSvc                     = " << m_userDataSvc );
       ATH_MSG_INFO ( " using userDataCalcToolList            = " << m_userDataCalcTools );
 
       ATH_MSG_INFO ( " using dumpStoreGate                   = " << m_dumpStoreGate );
@@ -259,6 +262,9 @@ StatusCode D2PDParticleCombiner::initialize()
 
   // get the FilterTool 
   ATH_CHECK( toolSvc()->retrieveTool("FilterTool", m_filterTool) );
+
+  // Get the UserData service
+  ATH_CHECK( m_userDataSvc.retrieve() );
 
   // Get all the ISelector tools
   ATH_CHECK( m_selectionTools.retrieve() );

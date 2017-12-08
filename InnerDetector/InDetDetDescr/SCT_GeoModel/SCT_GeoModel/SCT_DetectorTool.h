@@ -37,7 +37,7 @@ public:
   virtual StatusCode registerCallback() override final;
 
   // Callback function itself
-  virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
 	
 
 private:

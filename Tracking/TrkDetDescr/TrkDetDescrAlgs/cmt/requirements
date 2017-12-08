@@ -1,0 +1,40 @@
+package TrkDetDescrAlgs
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+#################################################################
+# public use statements
+public
+use AtlasPolicy              AtlasPolicy-*
+use AthenaBaseComps          AthenaBaseComps-*           Control
+use AtlasROOT                AtlasROOT-*                 External
+use GaudiInterface           GaudiInterface-*            External
+use GeoPrimitives            GeoPrimitives-*             DetectorDescription
+use TrkDetDescrUtils         TrkDetDescrUtils-*          Tracking/TrkDetDescr
+
+
+#################################################################
+# private use statements
+private
+use TrkDetDescrInterfaces    TrkDetDescrInterfaces-*     Tracking/TrkDetDescr
+use TrkVolumes               TrkVolumes-*                Tracking/TrkDetDescr
+use TrkGeometry              TrkGeometry-*               Tracking/TrkDetDescr
+use TrkNeutralParameters     TrkNeutralParameters-*      Tracking/TrkEvent
+use TrkExInterfaces          TrkExInterfaces-*           Tracking/TrkExtrapolation
+
+public
+library TrkDetDescrAlgs *.cxx components/*.cxx
+apply_pattern component_library 
+
+# uncomment this line if you do want to build the memory monitoring lines
+apply_tag  use_trkdetdescr_memmon
+
+macro_append TrkDetDescrMemMonMacro "-DTRKDETDESCR_MEMUSAGE"
+
+macro_append  use_pp_cppflags                "" \
+              use_trkdetdescr_memmon $(TrkDetDescrMemMonMacro)
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

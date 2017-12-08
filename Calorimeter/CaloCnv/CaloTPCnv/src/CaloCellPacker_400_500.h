@@ -28,7 +28,7 @@
 #include "CaloEvent/CaloCompactCellContainer.h"
 class CaloCellContainer;
 class CaloCell;
-class CaloCellPacker_400_500_test;
+struct CaloCellPacker_400_500_test;
 
 /**
  * @brief Calo cell packer/unpacker v400/500.
@@ -475,7 +475,7 @@ private:
                         uint16_t provenance) const;
   //@}
 
-  friend class CaloCellPacker_400_500_test;
+  friend struct CaloCellPacker_400_500_test;
 };
 
 

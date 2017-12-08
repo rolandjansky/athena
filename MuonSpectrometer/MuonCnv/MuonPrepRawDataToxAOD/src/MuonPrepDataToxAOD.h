@@ -12,8 +12,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
 #include <string>
 
 #include "xAODTracking/TrackMeasurementValidation.h"
@@ -40,19 +38,12 @@ public:
     AthAlgorithm(name,pSvcLocator),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {  
-    m_inputContainerName = inputName;
-    m_sdoContainerName = sdoName;
-    m_trackMeasVal=inputName;
+    declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticle"); 
+    declareProperty("InputContainerName", m_inputContainerName = inputName); 
+    declareProperty("SdoContainerName",   m_sdoContainerName = sdoName); 
   }
 
-  StatusCode initialize() { 
-    ATH_CHECK(m_idHelper.retrieve()); 
-    ATH_CHECK(m_inputContainerName.initialize());
-    ATH_CHECK(m_sdoContainerName.initialize());
-    m_trackMeasVal=m_trackMeasVal.key()+"_TrackMeasVal";
-    ATH_CHECK(m_trackMeasVal.initialize());
-    return StatusCode::SUCCESS; 
-  }
+  StatusCode initialize() { ATH_CHECK(m_idHelper.retrieve()); return StatusCode::SUCCESS; }
 
   StatusCode finalize()  { return StatusCode::SUCCESS; }
 
@@ -67,7 +58,24 @@ public:
   }
 
   // get the work done
-  bool buildCollections(const PRDCOL* prds, const SDOCOL* sdoCollection, xAOD::TrackMeasurementValidationContainer* xaod) {
+  bool buildCollections() {
+    const PRDCOL* prds = 0;     
+    if( evtStore()->retrieve(prds,m_inputContainerName).isFailure() ) {
+      ATH_MSG_ERROR("Cannot retrieve RpcPrepDataContainer " << m_inputContainerName);
+      return false;
+    }
+
+    // Create the xAOD container and its auxiliary store:
+    xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
+    CHECK( evtStore()->record( xaod, m_inputContainerName ) );
+    xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
+    CHECK( evtStore()->record( aux, m_inputContainerName + "Aux." ) );
+    xaod->setStore( aux );
+	
+    const SDOCOL* sdoCollection = 0;
+    //if(evtStore()->contains<SdoCollectionType>(m_sdoContainerName)) // for some reason this does not compile as it is not picking up the template type correctly..
+    if(evtStore()->template contains<SDOCOL>(m_sdoContainerName)) // MK : this should compile instead of lign above
+    ATH_CHECK(evtStore()->retrieve(sdoCollection,m_sdoContainerName));
 
     typename PRDCOL::const_iterator it = prds->begin();
     typename PRDCOL::const_iterator it_end = prds->end();
@@ -155,9 +163,9 @@ public:
 
 
 protected:
-  SG::ReadHandleKey<PRDCOL> m_inputContainerName{this,"InputContainerName","InputContainer","Input PRD Container"};
-  SG::ReadHandleKey<SDOCOL> m_sdoContainerName{this,"SdoContainerName","SDOContainer","Input SDO Container"};
-  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_trackMeasVal;
+  std::string m_muonTruthParticleContainerName;
+  std::string m_inputContainerName;
+  std::string m_sdoContainerName;
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
 };
 

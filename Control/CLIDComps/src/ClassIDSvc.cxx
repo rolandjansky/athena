@@ -35,8 +35,8 @@ namespace {
 // HACK LIFTED FROM AthenaBaseComps/AthMsgStreamMacros.h to remove dep loop
 #define ATH_MSG_LVL(lvl, x) \
    do {                                      \
-     if (msgLevel(lvl)) {                    \
-       msgStream(lvl) << x  << endmsg;	     \
+     if (msg().level() <= lvl) {		     \
+       msg() << lvl << x  << endmsg;		     \
      }                                       \
    } while (0)
  
@@ -48,8 +48,9 @@ namespace {
 
 #define ATH_CONST_MSG_VERBOSE(x)                  \
   do {                                            \
-    if (msgLevel(MSG::VERBOSE)) {                 \
-      verbose() << x << endmsg;                   \
+    if (msg().level() < MSG::VERBOSE) {           \
+      MsgStream log (msgSvc(), name());           \
+      log << MSG::VERBOSE << x << endmsg;         \
     }                                             \
   } while (0)
 
@@ -188,19 +189,22 @@ void
 ClassIDSvc::dump() const
 {
   lock_t lock (m_mutex);
-  info() << "dump: in memory" << endmsg;
+  MsgStream log (msgSvc(), name());
+  log << MSG::INFO << "dump: in memory" << endmsg;
 
   for (CLID clid : sortedIDs()) {
     const std::string& typeName = m_clidMap.find (clid)->second.first;
-    info() << "CLID: "<< clid
-           << " - type name: " << typeName;
-    Athena::PackageInfo pinfo;
-    if (getPackageInfoForIDInternal (clid, pinfo).isSuccess()) {
-      info() << "- Package "<< pinfo; 
+    log << MSG::INFO 
+        << "CLID: "<< clid
+        << " - type name: " << typeName;
+    Athena::PackageInfo info;
+    if (getPackageInfoForIDInternal (clid, info).isSuccess()) {
+      log << MSG::INFO 
+          << "- Package "<< info; 
     }
-    info() << '\n';
+    log << MSG::INFO << '\n';
   }
-  info() << "------------------------------" << endmsg;
+  log << "------------------------------" << endmsg;
 }
 
 
@@ -238,8 +242,8 @@ ClassIDSvc::finalize()
   if (m_outputFileName != "NULL") {
     ofstream outfile( m_outputFileName.c_str());
     if ( !outfile ) {
-      error() << "unable to open output CLIDDB file: " 
-              << m_outputFileName << endmsg;
+      msg() << MSG::ERROR << "unable to open output CLIDDB file: " 
+	    << m_outputFileName << endmsg;
       return StatusCode::RECOVERABLE;
     } else {
       //    ostream_iterator< pair<CLID, string> > os(outfile, ':');
@@ -298,7 +302,8 @@ void ClassIDSvc::handle(const Incident &inc)
 ClassIDSvc::ClassIDSvc(const std::string& name,ISvcLocator* svc)
   : Service(name,svc),
     m_outputFileName("NULL"),
-    m_clidDBPath(System::getEnv("DATAPATH"))
+    m_clidDBPath(System::getEnv("DATAPATH")),
+    m_msg (msgSvc(), name)
 {
   // Property Default values
   m_DBFiles.push_back("clid.db");
@@ -397,9 +402,10 @@ ClassIDSvc::fillDB() {
     } else {
       std::list<DirSearchPath::path> paths(m_clidDBPath.find_all(clidDBFileName));
       if (paths.empty()) {
-        warning() << "Could not resolve clid DB path " << clidDBFileName 
-                  << " using DATAPATH [" << System::getEnv("DATAPATH") 
-                  << "] ----- SKIPPING" << endmsg;
+	msg() << MSG::WARNING 
+	      << "Could not resolve clid DB path " << clidDBFileName 
+	      << " using DATAPATH [" << System::getEnv("DATAPATH") 
+	      << "] ----- SKIPPING" << endmsg;
       } else {
 	std::list<DirSearchPath::path>::const_iterator p(paths.begin()), pe(paths.end());
 	while (p!=pe) allOK &= processCLIDDB((*p++).c_str());
@@ -421,7 +427,7 @@ ClassIDSvc::processCLIDDB(const char* fileName)
   bool allOK(true);
   ifstream ifile(fileName);
   if (!ifile) {
-    warning() << "processCLIDDB: unable to open " << fileName <<endmsg;
+    msg() << MSG::WARNING << "processCLIDDB: unable to open " << fileName <<endmsg;
   } else {
     unsigned int newEntries(0);
     string line;
@@ -448,8 +454,8 @@ ClassIDSvc::processCLIDDB(const char* fileName)
 #endif
 	  //	  cout << "id " << id << endl;
 	} catch (boost::bad_lexical_cast e) { 
-	  error() << "processCLIDDB: Can't cast ["  
-                  << massTok << "] to long (clid)" << endmsg;
+	  msg() << MSG::ERROR << "processCLIDDB: Can't cast ["  
+		<< massTok << "] to long (clid)" << endmsg;
 	  allOK=false;
 	  break;
 	}
@@ -488,8 +494,8 @@ ClassIDSvc::processCLIDDB(const char* fileName)
       }
     } //while records
     if (!allOK) {
-      error() << "processCLIDDB: processing record " << line 
-              << " 	from CLIDDB file: " << fileName << endmsg;
+      msg() << MSG::ERROR << "processCLIDDB: processing record " << line 
+	    << " 	from CLIDDB file: " << fileName << endmsg;
     } else {
       ATH_MSG_DEBUG( "processCLIDDB: read " << newEntries << 
 		     " entries from CLIDDB file: " << fileName);
@@ -558,17 +564,18 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
   //first the id->name map
   string knownName("_____++++");
   if (getTypeNameOfIDInternal(id, knownName).isSuccess() && procName != knownName) {
-    fatal() << "uncheckedSetTypePackageForID: " << info <<
+    msg() << MSG::FATAL << "uncheckedSetTypePackageForID: " << info <<
       " can not set type name <" << procName << "> for CLID " <<
       id << ": Known name for this ID <" << knownName << '>';
     Athena::PackageInfo existInfo;
     if (getPackageInfoForIDInternal(id, existInfo).isSuccess()) {
-      fatal() << " It was set by " << existInfo;
+      msg() << MSG::FATAL 
+	    << " It was set by " << existInfo;
     }
-    fatal() << endmsg;
+    msg() << MSG::ERROR << endmsg;
     sc = StatusCode::FAILURE;
   } else if (procName == knownName) {
-    if (msgLevel(MSG::VERBOSE)) {
+    if (msg().level() <= MSG::VERBOSE) {
       ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: type name <" << procName <<
                       "> already set for CLID " << id);
       Athena::PackageInfo existInfo;
@@ -582,17 +589,18 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
   //now the name->id map
   CLID knownID(0);
   if (getIDOfTypeNameInternal(procName, knownID).isSuccess() && id != knownID) {
-    error() << "uncheckedSetTypePackageForID: " << info << 
+    msg() << MSG::ERROR << "uncheckedSetTypePackageForID: " << info << 
       " can not set CLID <" << id << "> for type name " <<
       procName << ": Known CLID for this name <" << knownID << '>' ;
     Athena::PackageInfo existInfo;
     if (getPackageInfoForIDInternal(knownID, existInfo).isSuccess()) {
-      error() << " It was set by " << existInfo; 
+      msg() << MSG::ERROR 
+	    << " It was set by " << existInfo; 
     }
-    error() << endmsg;
+    msg() << MSG::ERROR << endmsg;
     sc = StatusCode::FAILURE;
   } else if (id == knownID) {
-    if (msgLevel(MSG::VERBOSE)) {
+    if (msg().level() <= MSG::VERBOSE) {
       ATH_MSG_VERBOSE( "uncheckedSetTypePackageForID: CLID <" << id <<
                        "> already set for type name " << procName );
       Athena::PackageInfo existInfo;

@@ -257,6 +257,7 @@ StatusCode TileCalibHitCntNtup::initialize() {
 StatusCode TileCalibHitCntNtup::StoreCNT(const CaloCalibrationHitContainer* ActiveHitCnt,
                                          const CaloCalibrationHitContainer* InactiveHitCnt,
                                          const CaloCalibrationHitContainer* dmHitCnt) {
+  StatusCode sc;
 
   m_act_nchan = m_inact_nchan = m_dm_nchan = 0;
 
@@ -500,13 +501,13 @@ StatusCode TileCalibHitCntNtup::StoreCNT(const CaloCalibrationHitContainer* Acti
     ATH_MSG_WARNING("TileCalibHitDeadMaterial not exists for this event");
   }
 
-  if (m_ntuplePtr->Fill()==0) {
+  sc = m_ntuplePtr->Fill();
+  if (!sc) {
     ATH_MSG_ERROR("StoreCNT(): Unable to Fill Cnt Ntuple");
-    return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO("StoreCNT() completed successfully");
-    return StatusCode::SUCCESS;
   }
+  return sc;
 }
 
 /**

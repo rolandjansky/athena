@@ -259,11 +259,11 @@ HLT::ErrorCode TrigHLTJetHemisphereRec::hltExecute(const HLT::TriggerElement* in
 							m_Phem_probe[2] += m_jetP[m_ip[1]][2];
 						}
 
-						double P_trial = m_Phem_probe[0]*m_Phem_probe[0]+
+						double m_P_trial = m_Phem_probe[0]*m_Phem_probe[0]+
 						m_Phem_probe[1]*m_Phem_probe[1]+m_Phem_probe[2]*m_Phem_probe[2];
 
-						if(P_trial > m_P_max){
-							m_P_max = P_trial;
+						if(m_P_trial > m_P_max){
+							m_P_max = m_P_trial;
 							m_ip_max[0] = m_ip[0];
 							m_ip_max[1] = m_ip[1];
 							m_jp_max[0] = m_jp[0];

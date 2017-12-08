@@ -52,44 +52,44 @@ void runDetailedShapeGOOD(){
   if(ismatched)
   { 
     //inputfile="/afs/cern.ch/work/c/conti/private/ISF_FastCaloSimParametrization/INPUT/user.zmarshal.8071918._000001.matched_output.root"; 
-    //inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/00/24/user.zmarshal.7814824._000001.matched_output.root"; //v1_w2_160301
-    //inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/4d/19/user.zmarshal.7805067._000001.matched_output.root"; //v0_w2_160229
-    // GOOD : inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/78/74/user.zmarshal.8071918._000001.matched_output.root"; //w0_160406_5mmMerge
-    //inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/44/b4/user.zmarshal.8071920._000001.matched_output.root"; //w0_160406_1mmMerge
+    //inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/00/24/user.zmarshal.7814824._000001.matched_output.root"; //v1_w2_160301
+    //inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/4d/19/user.zmarshal.7805067._000001.matched_output.root"; //v0_w2_160229
+    // GOOD : inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/78/74/user.zmarshal.8071918._000001.matched_output.root"; //w0_160406_5mmMerge
+    //inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/44/b4/user.zmarshal.8071920._000001.matched_output.root"; //w0_160406_1mmMerge
 
     // Dataset 1 - optimized merging scheme
     TChain* mychain=new TChain("FCS_ParametrizationInput");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/88/05/user.fladias.8834798._000001.matched_output.root");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/cb/ec/user.fladias.8834798._000002.matched_output.root");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/d6/d5/user.fladias.8834798._000003.matched_output.root");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/b0/a6/user.fladias.8834798._000004.matched_output.root");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/6f/4f/user.fladias.8834798._000005.matched_output.root");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/5d/6c/user.fladias.8834798._000006.matched_output.root");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/e8/71/user.fladias.8834798._000007.matched_output.root");
-    mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/15/9f/user.fladias.8834798._000008.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/88/05/user.fladias.8834798._000001.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/cb/ec/user.fladias.8834798._000002.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/d6/d5/user.fladias.8834798._000003.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/b0/a6/user.fladias.8834798._000004.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/6f/4f/user.fladias.8834798._000005.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/5d/6c/user.fladias.8834798._000006.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/e8/71/user.fladias.8834798._000007.matched_output.root");
+    mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/15/9f/user.fladias.8834798._000008.matched_output.root");
 
     // Dataset 2 - 1mm merging scheme
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/76/8c/user.fladias.8834800._000001.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/25/5c/user.fladias.8834800._000002.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/7c/11/user.fladias.8834800._000003.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/4e/1f/user.fladias.8834800._000004.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/ca/6b/user.fladias.8834800._000005.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/68/51/user.fladias.8834800._000006.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/4d/ea/user.fladias.8834800._000007.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/ed/d9/user.fladias.8834800._000008.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/f7/0e/user.fladias.8834800._000009.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/6e/67/user.fladias.8834800._000010.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/4a/f5/user.fladias.8834800._000011.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/70/a8/user.fladias.8834800._000012.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/96/61/user.fladias.8834800._000013.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/d6/f0/user.fladias.8834800._000014.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/8d/eb/user.fladias.8834800._000015.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/60/f3/user.fladias.8834800._000016.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/07/71/user.fladias.8834800._000017.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/a1/b6/user.fladias.8834800._000018.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/12/2b/user.fladias.8834800._000019.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/0b/bc/user.fladias.8834800._000020.matched_output.root");
-    //mychain->Add("root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/13/43/user.fladias.8834800._000021.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/76/8c/user.fladias.8834800._000001.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/25/5c/user.fladias.8834800._000002.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/7c/11/user.fladias.8834800._000003.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/4e/1f/user.fladias.8834800._000004.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/ca/6b/user.fladias.8834800._000005.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/68/51/user.fladias.8834800._000006.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/4d/ea/user.fladias.8834800._000007.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/ed/d9/user.fladias.8834800._000008.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/f7/0e/user.fladias.8834800._000009.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/6e/67/user.fladias.8834800._000010.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/4a/f5/user.fladias.8834800._000011.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/70/a8/user.fladias.8834800._000012.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/96/61/user.fladias.8834800._000013.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/d6/f0/user.fladias.8834800._000014.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/8d/eb/user.fladias.8834800._000015.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/60/f3/user.fladias.8834800._000016.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/07/71/user.fladias.8834800._000017.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/a1/b6/user.fladias.8834800._000018.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/12/2b/user.fladias.8834800._000019.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/0b/bc/user.fladias.8834800._000020.matched_output.root");
+    //mychain->Add("root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/fladias/13/43/user.fladias.8834800._000021.matched_output.root");
 
     // whih eta slice to consider 
     etaslice.push_back(0.20);

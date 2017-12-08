@@ -55,7 +55,7 @@ struct MyUnitTestConfig : public EL::UnitTestConfig
   {
     static std::string date = RCU::Shell::exec_read ("date +%Y%m%d-%H%M");
     RCU_ASSERT (!date.empty());
-    std::string path = "root://eosatlas.cern.ch//eos/atlas/user/k/krumnack/el_ut-" + date + "/" + name;
+    std::string path = "root://eosatlas//eos/atlas/user/k/krumnack/el_ut-" + date + "/" + name;
     return std::unique_ptr<SH::DiskWriterXRD>
       (new SH::DiskWriterXRD (path));
    }

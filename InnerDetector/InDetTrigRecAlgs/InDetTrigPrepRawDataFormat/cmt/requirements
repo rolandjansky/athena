@@ -1,0 +1,42 @@
+package InDetTrigPrepRawDataFormat
+
+author Patricia Conde Muino <Patricia.Conde.Muino>
+author Jiri Masik <Jiri.Masik@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
+use GaudiInterface       GaudiInterface-*       External
+use TrigInterfaces       TrigInterfaces-*       Trigger/TrigSteer
+use Identifier           Identifier-*           DetectorDescription
+
+
+#apply_pattern dual_use_library files=*.cxx 
+library InDetTrigPrepRawDataFormat "*.cxx components/*.cxx"
+apply_pattern component_library
+
+apply_pattern declare_python_modules files ="*.py"
+
+include_path none
+
+private
+use InDetTrigToolInterfaces  InDetTrigToolInterfaces-* InnerDetector/InDetTrigRecTools
+use EventContainers      EventContainers-*      Event
+use AtlasDetDescr        AtlasDetDescr-*        DetectorDescription
+use SiClusterizationTool SiClusterizationTool-* InnerDetector/InDetRecTools
+use InDetRawData         InDetRawData-*         InnerDetector/InDetRawEvent
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use TRT_DriftCircleTool  TRT_DriftCircleTool-*  InnerDetector/InDetRecTools
+use InDetConditionsSummaryService  InDetConditionsSummaryService-* InnerDetector/InDetConditions 
+use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
+use SCT_ConditionsServices SCT_ConditionsServices-* InnerDetector/InDetConditions
+use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetConditions
+
+use IRegionSelector               IRegionSelector-*               DetectorDescription
+use TrigTimeAlgs        TrigTimeAlgs-*          Trigger/TrigTools
+#use TRT_ConditionsAlgs  TRT_ConditionsAlgs-*    InnerDetector/InDetConditions
+use TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
+use StoreGate            StoreGate-*            Control
+use AthenaKernel         AthenaKernel-*         Control
+
+use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*     Event

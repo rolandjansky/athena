@@ -1,0 +1,94 @@
+package AtlasDoxygen
+
+#------------------------------------------------------
+#  All settings defined by this package should be selectively valued 
+# only when the Doxygen tag is active
+#
+#  This tag is activated only when gmake doxygen is run. And this is actually
+# triggered by the special target_xxx tag associated with the constituent.
+#  The tag associated with the constistuent is named target_doxygen<package> just
+# because the constituent has this name.
+#  This specific tag is therefore associated with the generic Doxygen tag so as
+# to have a generic format in this requirements
+#
+# Also the script Doxygen.sh actually used to drive doxygen makes use of the generic tag
+# to perform additional queries.
+#
+#------------------------------------------------------
+
+use LCG_Settings *
+use LCG_Configuration *
+
+path_remove DOTFONTPATH "" Linux&Doxygen "AtlasDoxygen"
+path_prepend DOTFONTPATH "" Linux&Doxygen "$(AtlasDoxygen_root)/fonts/ttf"
+
+# Must be specified for default tag, similar to AtlasDoxygen_export_paths, for kit building
+macro AtlasDoxygen_native_version "$(doxygen_config_version)"
+path_remove PATH "" Doxygen "/doxygen/"
+path_prepend PATH "" Doxygen "$(LCG_external)/doxygen/$(AtlasDoxygen_native_version)/$(LCG_system)/bin"
+
+macro graphviz_native_version "" Doxygen "$(graphviz_config_version)"
+path_remove PATH "" Doxygen "/graphviz/"
+path_prepend PATH "" Doxygen "$(LCG_external)/graphviz/$(graphviz_native_version)/$(LCG_system)/bin"
+
+include_path none
+
+#
+# The DOXYGEN_HTML_MAPPING macro receives a space-separated list of address mappings each of the form:
+#    <file-base>@<URL-base>
+#
+#  At generation time, all absolute paths used in outputs will be filtered and converted to URLs
+#    (Relative paths don't need to be translated)
+# This mechanism is generally useful when TAG-based mechanisms are active.
+#
+
+macro_append DOXYGEN_HTML_MAPPING "" \
+   Doxygen&local   "$(LOCAL_BUILD_AREA)/atlas/software/builds/@http://cern.ch/atlas-computing/links/buildDirectory" \
+   Doxygen&nightly "$(NICOS_LOCAL_BUILD_AREA)/atnight/localbuilds/nightlies/projects/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/dev" \
+   Doxygen&nightlyBUG "$(NICOS_LOCAL_BUILD_AREA)/atnight/localbuilds/nightlies/projects/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/bugfix" \
+   Doxygen&nightlyAFS "/afs/cern.ch/atlas/software/builds/nightlies/dev/@http://cern.ch/atlas-computing/links/buildDirectory/nightlies/dev" \
+   Doxygen         "/afs/cern.ch/atlas/software/builds/@http://cern.ch/atlas-computing/links/buildDirectory"  
+
+#
+# The DOXYGEN_STRIP_FROM_PATH macro receives the partial pathname to strip from the file paths shown in 
+# each package's files.html.
+
+macro_append DOXYGEN_STRIP_FROM_PATH "" \
+   Doxygen&local   "/afs/cern.ch/atlas/software/builds/" \
+   Doxygen&nightly "/afs/cern.ch/atlas/software/builds/nightlies/dev/"
+
+#
+# The DOXYGEN_COMMON_OUTPUT_DIRECTORY macro describes a common output directory. If it's not defined,
+# Then the common convention is used:
+#
+# with_installarea:
+#    <cmtpath>/InstallArea/doc/<package>/html
+# without_installarea:
+#    <package_root>/doc/html
+# DOXYGEN_OUTPUT should be set in the shell if you want another location
+
+macro DOXYGEN_COMMON_OUTPUT_DIRECTORY "" Doxygen ${DOXYGEN_OUTPUT}
+
+#
+# The following macros are directly expanded into the Doxyfile
+#
+macro DOXYGEN_INPUT            "" Doxygen "../src ../Root ../$(package) ../doc ../share ../python ../cmt/fragments"
+macro DOXYGEN_FILE_PATTERNS    "" Doxygen "*.cxx *.h *.py *.mk *.icc"
+macro DOXYGEN_EXCLUDE          "" Doxygen ""
+macro DOXYGEN_EXCLUDE_PATTERNS "" Doxygen ""
+macro DOXYGEN_EXAMPLE_PATH     "" Doxygen "../doc ../cmt ../share"
+macro DOXYGEN_EXAMPLE_PATTERNS "" Doxygen "*.cxx *.html requirements *.py"
+macro DOXYGEN_SORT_MEMBER_DOCS "" Doxygen "NO"
+macro DOXYGEN_INLINE_INHERITED_MEMB "" Doxygen "YES"
+macro DOXYGEN_IMAGE_PATH       ""
+macro DOXYGEN_UML_LOOK         "" Doxygen "YES"
+macro DOXYGEN_QT_AUTOBRIEF     "" Doxygen "YES" 
+macro DOXYGEN_JAVADOC_AUTOBRIEF "" Doxygen "YES"
+
+
+
+# Now you can use cmt doxygen -tag=<tag1,tag2,...>
+action doxygen "python ${AtlasDoxygen_root}/cmt/doxygen.py  $(cmt_args)"
+
+
+macro AtlasDoxygen_export_paths "$(LCG_external)/doxygen/$(doxygen_config_version)/$(LCG_system)/bin"

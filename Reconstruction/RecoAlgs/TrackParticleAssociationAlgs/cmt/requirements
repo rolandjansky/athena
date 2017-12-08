@@ -1,0 +1,31 @@
+package TrackParticleAssociationAlgs
+
+author Niels van Eldik
+
+private
+
+use AthenaBaseComps     AthenaBaseComps-*    Control
+use GaudiInterface      GaudiInterface-*     External
+use xAODTracking        xAODTracking-*       Event/xAOD
+use xAODCaloEvent       xAODCaloEvent-*      Event/xAOD
+use xAODAssociations    xAODAssociations-*   Event/xAOD
+use RecoToolInterfaces  RecoToolInterfaces-* Reconstruction/RecoTools
+use TrkToolInterfaces   TrkToolInterfaces-*  Tracking/TrkTools
+use TrackToCalo         TrackToCalo-*        Reconstruction/RecoTools
+use CaloUtils           CaloUtils-*          Calorimeter
+
+end_private
+
+public
+
+use AtlasPolicy AtlasPolicy-* 
+
+apply_pattern component_library
+library TrackParticleAssociationAlgs *.cxx components/*.cxx                   
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+
+

@@ -1,0 +1,26 @@
+package TrkEventPrimitives
+
+manager Andreas Salzburger < Andreas.Salzburger@cern.ch >
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*        External  
+use EventPrimitives      EventPrimitives-*       Event
+use GeoPrimitives        GeoPrimitives-*         DetectorDescription
+
+apply_pattern installed_library
+library TrkEventPrimitives *.cxx
+
+private
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+
+apply_pattern lcgdict dict=TrkEventPrimitives selectionfile=selection.xml headerfiles="../TrkEventPrimitives/TrkEventPrimitivesDict.h"

@@ -1,0 +1,46 @@
+## automatically generated CMT requirements file
+package PhotonEfficiencyCorrection
+author  kkoeneke
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## for gaudi tools, services and objects
+use AtlasPyROOT                 AtlasPyROOT-*           External
+use AtlasROOT                   AtlasROOT-*             External
+use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
+use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
+use AsgTools                    AsgTools-*              Control/AthToolSupport
+use xAODEgamma                  xAODEgamma-*            Event/xAOD
+use AtlasBoost                  AtlasBoost-*            External
+use  ElectronEfficiencyCorrection               ElectronEfficiencyCorrection-*                  PhysicsAnalysis/ElectronPhotonID
+
+## put here your package dependencies...
+private
+use  GaudiInterface             GaudiInterface-*                External
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use  PathResolver               PathResolver-*                  Tools
+use  xAODCore                   xAODCore-*                      Event/xAOD
+end_private
+##
+
+## declare the directories CMT should know about
+#branches PhotonEfficiencyCorrection python share src src/components Root data
+
+# Create a dual-use library (this is instead of library)
+apply_pattern dual_use_library files="*.cxx ../scr/*.cxx ../Root/*.cxx"
+
+## install our python modules
+apply_pattern declare_python_modules files="*.py"
+
+## install our root files
+#apply_pattern declare_calib files="../data/*.root"
+apply_pattern declare_calib files="-s=../data *.*"
+
+## install our job options files
+apply_pattern declare_joboptions files="*.py"
+
+## For reflex dictionary generation
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=PhotonEfficiencyCorrection selectionfile=selection.xml headerfiles="..\/PhotonEfficiencyCorrection/PhotonEfficiencyCorrectionDict.h"

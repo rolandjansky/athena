@@ -118,6 +118,8 @@ StatusCode LArAlignDbAlg::createCondObjects()
     return StatusCode::SUCCESS;
   }
 
+  DetCondKeyTrans* transforms = new DetCondKeyTrans();
+
   // Read input file, construct relevant transforms
   std::ifstream infile;
   infile.open(m_inpFile.value().c_str());
@@ -126,8 +128,6 @@ StatusCode LArAlignDbAlg::createCondObjects()
     ATH_MSG_ERROR( "Unable to open " << m_inpFile << " for reading"  );
     return StatusCode::FAILURE;
   }
-
-  auto transforms = std::make_unique<DetCondKeyTrans>();
 
   char commentSign = '#';
   std::string commentLine;
@@ -148,7 +148,7 @@ StatusCode LArAlignDbAlg::createCondObjects()
   }
   infile.close();
 
-  ATH_CHECK( detStore()->record(std::move(transforms),LAR_ALIGN) );
+  ATH_CHECK( detStore()->record(transforms,LAR_ALIGN) );
   ATH_MSG_DEBUG( " Recorded LAr/Align "  );
   
   return StatusCode::SUCCESS;

@@ -1,0 +1,32 @@
+package xAODTrigL1Calo
+
+author John Morris <john.morris@cern.ch>
+
+public
+
+# Central package(s):
+use AtlasPolicy   AtlasPolicy-*
+use AthContainers AthContainers-* Control
+use AthLinks      AthLinks-*	  Control
+use CxxUtils      CxxUtils-*      Control
+
+# EDM package(s):
+use xAODBase      xAODBase-*      Event/xAOD
+use xAODCore      xAODCore-*      Event/xAOD
+
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics)"
+
+library xAODTrigL1Calo ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex   AtlasReflex-*   External
+use AtlasROOT     AtlasROOT-*     External
+use AthLinks      AthLinks-*      Control
+
+apply_pattern lcgdict dict=xAODTrigL1Calo selectionfile=selection.xml \
+	              headerfiles="../xAODTrigL1Calo/xAODTrigL1CaloDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
+                      
+apply_pattern do_genCLIDDB library=xAODTrigL1Calo                     

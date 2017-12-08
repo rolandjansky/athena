@@ -4,14 +4,25 @@
 
 #include "FEI3SimTool.h"
 
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
+
+#include "SiDigitization/SiHelper.h"
+#include "InDetReadoutGeometry/SiReadoutCellId.h"
+
+#include "CLHEP/Random/RandFlat.h"
+
 FEI3SimTool::FEI3SimTool( const std::string& type, const std::string& name,const IInterface* parent):
   FrontEndSimTool(type,name,parent),
-  m_HitDuplication({false,false,false,false,false,false,false}),
-  m_SmallHitToT({7,7,7,7,7,7,7}),
+  m_BarrelHitDuplication({false,false,false,false,false,false,false}),
+  m_EndcapHitDuplication({false,false,false,false,false,false,false}),
+  m_BarrelSmallHitToT({7,7,7,7,7,7,7}),
+  m_EndcapSmallHitToT({7,7,7,7,7,7,7}),
   m_timingTune(2015)
 {
-  declareProperty("HitDuplication", m_HitDuplication);
-  declareProperty("SmallHitToT",    m_SmallHitToT);
+  declareProperty("BarrelHitDuplication", m_BarrelHitDuplication);
+  declareProperty("EndcapHitDuplication", m_EndcapHitDuplication);
+  declareProperty("BarrelSmallHitToT",    m_BarrelSmallHitToT);
+  declareProperty("EndcapSmallHitToT",    m_EndcapSmallHitToT);
 	declareProperty("TimingTune",           m_timingTune, "Version of the timing calibration");	
 }
 
@@ -40,22 +51,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
   int moduleIndex = pixelId->eta_module(chargedDiodes.element()->identify());
 
-  if (abs(barrel_ec)!=m_BarrelEC) { return; }
-
-  // Add cross-talk
-  CrossTalk(m_CrossTalk.at(layerIndex), chargedDiodes);
-
-  // Add thermal noise
-  ThermalNoise(m_ThermalNoise.at(layerIndex), chargedDiodes);
-
-  // Add random noise
-  RandomNoise(chargedDiodes);
-
-  // Add random diabled pixels
-  RandomDisable(chargedDiodes);
-
+  // Merge ganged pixel
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
-    // Merge ganged pixel
     InDetDD::SiCellId cellID     = chargedDiodes.element()->cellIdFromIdentifier(chargedDiodes.getId((*i_chargedDiode).first));
     InDetDD::SiCellId gangedCell = chargedDiodes.element()->gangedCell(cellID);
     Identifier gangedID          = chargedDiodes.element()->identifierFromCellId(gangedCell);
@@ -84,13 +81,12 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     }
   }
 
-
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
 
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    // Apply analog threshold, timing simulation
+    // Apply analogu threshold, timing simulation
     double th0  = m_pixelCalibSvc->getThreshold(diodeID);
     double ith0 = m_pixelCalibSvc->getTimeWalk(diodeID);
 
@@ -114,7 +110,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (charge<m_Analogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && charge<m_BarrelAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec!=0 && charge<m_EndcapAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // charge to ToT conversion
     double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
@@ -123,9 +120,11 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     if (nToT<1) { nToT=1; }
 
-    if (nToT<=m_ToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && nToT<=m_BarrelToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec!=0 && nToT<=m_EndcapToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
-    if (nToT>=m_Latency.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && nToT>=m_BarrelLatency.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec!=0 && nToT>=m_EndcapLatency.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
@@ -149,14 +148,19 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     }
 
     // Duplication mechanism for FEI3 small hits :
-    if (m_HitDuplication.at(layerIndex)) {
-      if (nToT<=m_SmallHitToT.at(layerIndex) && bunch>0 && bunch<=m_timeBCN) {
+    if (barrel_ec==0 && m_BarrelHitDuplication.at(layerIndex)) {
+      if (nToT<=m_BarrelSmallHitToT.at(layerIndex) && bunch>0 && bunch<=m_timeBCN) {
+        Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch-1,0,bunch-1);
+        rdoCollection.push_back(p_rdo);
+      }
+    }
+    if (barrel_ec!=0 && m_EndcapHitDuplication.at(layerIndex)) {
+      if (nToT<=m_EndcapSmallHitToT.at(layerIndex) && bunch>0 && bunch<=m_timeBCN) {
         Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch-1,0,bunch-1);
         rdoCollection.push_back(p_rdo);
       }
     }
   }
-
   return;
 }
 

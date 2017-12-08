@@ -12,6 +12,8 @@
 #include "GaudiKernel/IInterface.h"
 
 
+using namespace std;
+
 namespace MuonCalib {
 
    

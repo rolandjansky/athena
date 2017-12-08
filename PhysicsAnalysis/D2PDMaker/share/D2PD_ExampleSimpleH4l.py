@@ -213,3 +213,9 @@ ExampleH4lStream.AddItem( ['CompositeParticleContainer#MyH4lLooseHiggs4muBosonCo
 
 
 
+#====================================================================
+# UserDataSvc
+#====================================================================
+from AthenaServices.TheUserDataSvc import TheUserDataSvc
+svcMgr += TheUserDataSvc("UserDataInExampleH4lStream")
+svcMgr.UserDataInExampleH4lStream.OutputStream = ExampleH4lStream.Stream

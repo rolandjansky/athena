@@ -87,9 +87,13 @@ namespace xAODMaker {
     SG::WriteHandleKey<xAODTruthParticleLinkVector> m_truthLinkContainerKey{
       this, "TruthLinks", "xAODTruthLinks", "Output xAODTruthLinks container"};
 
+    // if only redoing links 
+    SG::ReadHandleKey<xAOD::TruthEventContainer> m_linksOnlyTruthEventContainerKey{
+      this, "linksOnlyTruthEventContainerName", "TruthEvents", "Input TruthEvents container"};
+
     /// Pile-up options
-    Gaudi::Property<bool> m_doAllPileUp{this, "WriteAllPileUpTruth", false};
-    Gaudi::Property<bool> m_doInTimePileUp{this, "WriteInTimePileUpTruth", false};
+    bool m_doAllPileUp;
+    bool m_doInTimePileUp;
 
     /// Connection to the metadata store
     ServiceHandle< StoreGateSvc > m_metaStore;
@@ -101,8 +105,11 @@ namespace xAODMaker {
     /// Set for tracking the mc channels for which we already added meta data 
     std::unordered_set<uint32_t> m_existingMetaDataChan;
 
+    // to only redo links
+    bool m_onlyRedoLinks;
+
     /// option to disable writing of metadata (e.g. if running a filter on xAOD in generators)
-    Gaudi::Property<bool> m_writeMetaData{this, "WriteTruthMetaData", true};
+    bool m_writeMetaData;
 
   }; // class xAODTruthCnvAlg
 

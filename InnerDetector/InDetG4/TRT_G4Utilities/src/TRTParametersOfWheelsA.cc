@@ -14,13 +14,15 @@
 
 TRTParametersOfWheelsA::TRTParametersOfWheelsA() : m_msg("TRTParametersOfWheelsA")
 {
-  m_pParameters = TRTParameters::GetPointer();
+  pParameters = TRTParameters::GetPointer();
+
+  printMessages = pParameters->GetInteger("PrintMessages");
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsA" << endmsg;
 
   DefineParameters();
 
-  if (m_pParameters->GetInteger("PrintParametersOfWheelsA"))
+  if (pParameters->GetInteger("PrintParametersOfWheelsA"))
     PrintParameters();
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsA done" << endmsg;
@@ -33,11 +35,11 @@ TRTParametersOfWheelsA::~TRTParametersOfWheelsA()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfWheelsA" << endmsg;
 
-  delete [] m_positionsOfWheelsA;
-  delete [] m_positionsOfStrawPlanesA;
-  delete [] m_rotationAnglesOfStrawPlanesA;
-  delete [] m_positionsOfMainRadiatorsA;
-  delete [] m_positionsOfThinRadiatorsA;
+  delete [] positionsOfWheelsA;
+  delete [] positionsOfStrawPlanesA;
+  delete [] rotationAnglesOfStrawPlanesA;
+  delete [] positionsOfMainRadiatorsA;
+  delete [] positionsOfThinRadiatorsA;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfWheelsA done" << endmsg;
 }
@@ -50,82 +52,82 @@ void TRTParametersOfWheelsA::DefineParameters()
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsA::DefineParameters" << endmsg;
 
     // Parameters of wheels A:
-  m_numberOfWheelsA = m_pParameters->GetInteger("NumberOfWheelsA");
-  m_distanceBetweenWheelsA =  m_pParameters->GetDouble("DistanceBetweenWheelsAC");
-  m_positionsOfWheelsA = new double[m_numberOfWheelsA];
-  m_positionsOfWheelsA[0] = m_pParameters->GetDouble("GlobalPositionOfFirstWheelA");
+  numberOfWheelsA = pParameters->GetInteger("NumberOfWheelsA");
+  distanceBetweenWheelsA =  pParameters->GetDouble("DistanceBetweenWheelsAC");
+  positionsOfWheelsA = new double[numberOfWheelsA];
+  positionsOfWheelsA[0] = pParameters->GetDouble("GlobalPositionOfFirstWheelA");
   int i;
-  for (i = 1; i < m_numberOfWheelsA; ++i)
-    m_positionsOfWheelsA[i] = m_positionsOfWheelsA[i - 1] + m_distanceBetweenWheelsA;
+  for (i = 1; i < numberOfWheelsA; ++i)
+    positionsOfWheelsA[i] = positionsOfWheelsA[i - 1] + distanceBetweenWheelsA;
 
     // Parameters of wheel A:
-  m_innerRadiusOfWheelA = m_pParameters->GetDouble("InnerRadiusOfWheelsAB");
-  m_outerRadiusOfWheelA = m_pParameters->GetDouble("OuterRadiusOfWheelsAB");
-  m_lengthOfWheelA = m_pParameters->GetDouble("LengthOfWheelsAC");
+  innerRadiusOfWheelA = pParameters->GetDouble("InnerRadiusOfWheelsAB");
+  outerRadiusOfWheelA = pParameters->GetDouble("OuterRadiusOfWheelsAB");
+  lengthOfWheelA = pParameters->GetDouble("LengthOfWheelsAC");
 
     // Parameters of inner support A:
-  m_innerRadiusOfInnerSupportA = m_innerRadiusOfWheelA;
-  m_outerRadiusOfInnerSupportA = m_innerRadiusOfWheelA +
-    m_pParameters->GetDouble("ThicknessOfInnerSupportsAB");
-  m_lengthOfInnerSupportA = m_lengthOfWheelA;
+  innerRadiusOfInnerSupportA = innerRadiusOfWheelA;
+  outerRadiusOfInnerSupportA = innerRadiusOfWheelA +
+    pParameters->GetDouble("ThicknessOfInnerSupportsAB");
+  lengthOfInnerSupportA = lengthOfWheelA;
 
     // Parameters of outer support A:
-  m_innerRadiusOfOuterSupportA = m_outerRadiusOfWheelA -
-    m_pParameters->GetDouble("ThicknessOfOuterSupportsAB");
-  m_outerRadiusOfOuterSupportA = m_outerRadiusOfWheelA;
-  m_lengthOfOuterSupportA = m_lengthOfWheelA;
+  innerRadiusOfOuterSupportA = outerRadiusOfWheelA -
+    pParameters->GetDouble("ThicknessOfOuterSupportsAB");
+  outerRadiusOfOuterSupportA = outerRadiusOfWheelA;
+  lengthOfOuterSupportA = lengthOfWheelA;
 
     // Parameters of straw planes A:
-  m_numberOfStrawPlanesA =
-    m_pParameters->GetInteger("NumberOfStrawPlanesAC");
-  m_numberOfStrawsInPlaneA =
-    m_pParameters->GetInteger("NumberOfStrawsInPlanesAB");
-  m_positionsOfStrawPlanesA = new double[m_numberOfStrawPlanesA];
-  m_rotationAnglesOfStrawPlanesA = new double[m_numberOfStrawPlanesA];
-  m_pParameters->GetDoubleArray("PositionsOfStrawPlanesAC", m_numberOfStrawPlanesA,
-    m_positionsOfStrawPlanesA);
-  m_pParameters->GetDoubleArray("RotationsOfStrawPlanes", m_numberOfStrawPlanesA,
-    m_rotationAnglesOfStrawPlanesA);
-  double deltaPhiForStraws = 360. / (double) m_numberOfStrawsInPlaneA;
-  for (i = 0; i < m_numberOfStrawPlanesA; ++i)
+  numberOfStrawPlanesA =
+    pParameters->GetInteger("NumberOfStrawPlanesAC");
+  numberOfStrawsInPlaneA =
+    pParameters->GetInteger("NumberOfStrawsInPlanesAB");
+  positionsOfStrawPlanesA = new double[numberOfStrawPlanesA];
+  rotationAnglesOfStrawPlanesA = new double[numberOfStrawPlanesA];
+  pParameters->GetDoubleArray("PositionsOfStrawPlanesAC", numberOfStrawPlanesA,
+    positionsOfStrawPlanesA);
+  pParameters->GetDoubleArray("RotationsOfStrawPlanes", numberOfStrawPlanesA,
+    rotationAnglesOfStrawPlanesA);
+  double deltaPhiForStraws = 360. / (double) numberOfStrawsInPlaneA;
+  for (i = 0; i < numberOfStrawPlanesA; ++i)
   {
-    m_positionsOfStrawPlanesA[i] = m_positionsOfStrawPlanesA[i] -
-      m_lengthOfWheelA / 2.;
-    m_rotationAnglesOfStrawPlanesA[i] = m_rotationAnglesOfStrawPlanesA[i] *
+    positionsOfStrawPlanesA[i] = positionsOfStrawPlanesA[i] -
+      lengthOfWheelA / 2.;
+    rotationAnglesOfStrawPlanesA[i] = rotationAnglesOfStrawPlanesA[i] *
       deltaPhiForStraws;
   }
 
     // Parameters of main radiator A:
-  m_innerRadiusOfMainRadiatorA = m_outerRadiusOfInnerSupportA;
-  m_outerRadiusOfMainRadiatorA = m_innerRadiusOfOuterSupportA -
-    m_pParameters->GetDouble("GapBetweenRadiatorAndOuterSupport");
-  m_lengthOfMainRadiatorA = m_pParameters->GetDouble("LengthOfMainRadiatorsAC");
+  innerRadiusOfMainRadiatorA = outerRadiusOfInnerSupportA;
+  outerRadiusOfMainRadiatorA = innerRadiusOfOuterSupportA -
+    pParameters->GetDouble("GapBetweenRadiatorAndOuterSupport");
+  lengthOfMainRadiatorA = pParameters->GetDouble("LengthOfMainRadiatorsAC");
 
     // Parameters of thin radiator A:
-  m_innerRadiusOfThinRadiatorA = m_innerRadiusOfMainRadiatorA;
-  m_outerRadiusOfThinRadiatorA = m_outerRadiusOfMainRadiatorA;
-  m_lengthOfThinRadiatorA = m_pParameters->GetDouble("LengthOfThinRadiatorsAC");
+  innerRadiusOfThinRadiatorA = innerRadiusOfMainRadiatorA;
+  outerRadiusOfThinRadiatorA = outerRadiusOfMainRadiatorA;
+  lengthOfThinRadiatorA = pParameters->GetDouble("LengthOfThinRadiatorsAC");
 
     // Parameters of main and thin radiators A:
-  m_numberOfMainRadiatorsA = m_pParameters->GetInteger("NumberOfMainRadiatorsAC");
-  m_numberOfThinRadiatorsA = m_pParameters->GetInteger("NumberOfThinRadiatorsAC");
-  double outerRadiusOfStraw = m_pParameters->GetDouble("OuterRadiusOfStraw");
-  m_positionsOfMainRadiatorsA = new double[m_numberOfMainRadiatorsA];
-  m_positionsOfThinRadiatorsA = new double[m_numberOfThinRadiatorsA];
+  numberOfMainRadiatorsA = pParameters->GetInteger("NumberOfMainRadiatorsAC");
+  numberOfThinRadiatorsA = pParameters->GetInteger("NumberOfThinRadiatorsAC");
+  double outerRadiusOfStraw = pParameters->GetDouble("OuterRadiusOfStraw");
+  positionsOfMainRadiatorsA = new double[numberOfMainRadiatorsA];
+  positionsOfThinRadiatorsA = new double[numberOfThinRadiatorsA];
   int j = 0, k = 0;
-  for (i = 1; i <= m_numberOfStrawPlanesA; ++i)
+  for (i = 1; i <= numberOfStrawPlanesA; ++i)
   {
     if (i % 4 == 1)
-      m_positionsOfThinRadiatorsA[j++] = m_positionsOfStrawPlanesA[i - 1] -
-        outerRadiusOfStraw - m_lengthOfThinRadiatorA / 2.;
+      positionsOfThinRadiatorsA[j++] = positionsOfStrawPlanesA[i - 1] -
+        outerRadiusOfStraw - lengthOfThinRadiatorA / 2.;
     if (i % 4 == 0)
     {
-      m_positionsOfThinRadiatorsA[j++] = m_positionsOfStrawPlanesA[i - 1] +
-        outerRadiusOfStraw + m_lengthOfThinRadiatorA / 2.;
+      positionsOfThinRadiatorsA[j++] = positionsOfStrawPlanesA[i - 1] +
+        outerRadiusOfStraw + lengthOfThinRadiatorA / 2.;
       continue;
     }
-    m_positionsOfMainRadiatorsA[k++] = m_positionsOfStrawPlanesA[i - 1] +
-      outerRadiusOfStraw + m_lengthOfMainRadiatorA / 2.;
+    positionsOfMainRadiatorsA[k++] = positionsOfStrawPlanesA[i - 1] +
+      outerRadiusOfStraw + lengthOfMainRadiatorA / 2.;
   }
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsA::DefineParameters done" << endmsg;
@@ -147,59 +149,59 @@ void TRTParametersOfWheelsA::PrintParameters() const
   output << "***** TRTParametersOfWheelsA::PrintParameters *****" << std::endl;
 
   output << "Parameters of wheels A:" << std::endl;
-  output << "  numberOfWheelsA=" << m_numberOfWheelsA << std::endl;
-  output << "  distanceBetweenWheelsA=" << m_distanceBetweenWheelsA << " mm"
+  output << "  numberOfWheelsA=" << numberOfWheelsA << std::endl;
+  output << "  distanceBetweenWheelsA=" << distanceBetweenWheelsA << " mm"
          << std::endl << std::endl;
   int i;
-  for (i = 0; i < m_numberOfWheelsA; ++i)
-    output << "  positionsOfWheelsA[" << i << "]=" << m_positionsOfWheelsA[i]
+  for (i = 0; i < numberOfWheelsA; ++i)
+    output << "  positionsOfWheelsA[" << i << "]=" << positionsOfWheelsA[i]
            << " mm" << std::endl;
 
   output << std::endl << "Parameters of wheel A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfWheelA, m_outerRadiusOfWheelA,
-    m_lengthOfWheelA);
+  pUtilities->PrintTubeParameters(innerRadiusOfWheelA, outerRadiusOfWheelA,
+    lengthOfWheelA);
 
   output << std::endl << "Parameters of inner support A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfInnerSupportA,
-    m_outerRadiusOfInnerSupportA, m_lengthOfInnerSupportA);
+  pUtilities->PrintTubeParameters(innerRadiusOfInnerSupportA,
+    outerRadiusOfInnerSupportA, lengthOfInnerSupportA);
 
   output << std::endl << "Parameters of outer support A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfOuterSupportA,
-    m_outerRadiusOfOuterSupportA, m_lengthOfOuterSupportA);
+  pUtilities->PrintTubeParameters(innerRadiusOfOuterSupportA,
+    outerRadiusOfOuterSupportA, lengthOfOuterSupportA);
 
   output << std::endl << "Parameters of main radiators A:" << std::endl;
-  output << "  numberOfMainRadiatorsA=" << m_numberOfMainRadiatorsA << std::endl
+  output << "  numberOfMainRadiatorsA=" << numberOfMainRadiatorsA << std::endl
          << std::endl;
-  for (i = 0; i < m_numberOfMainRadiatorsA; ++i)
+  for (i = 0; i < numberOfMainRadiatorsA; ++i)
     output << "  positionsOfMainRadiatorsA[" << i << "]="
-           << m_positionsOfMainRadiatorsA[i] << " mm" << std::endl;
+           << positionsOfMainRadiatorsA[i] << " mm" << std::endl;
 
   output << std::endl << "Parameters of main radiator A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfMainRadiatorA,
-    m_outerRadiusOfMainRadiatorA, m_lengthOfMainRadiatorA);
+  pUtilities->PrintTubeParameters(innerRadiusOfMainRadiatorA,
+    outerRadiusOfMainRadiatorA, lengthOfMainRadiatorA);
 
   output << std::endl << "Parameters of thin radiators A:" << std::endl;
-  output << "  numberOfThinRadiatorsA=" << m_numberOfThinRadiatorsA << std::endl
+  output << "  numberOfThinRadiatorsA=" << numberOfThinRadiatorsA << std::endl
          << std::endl;
-  for (i = 0; i < m_numberOfThinRadiatorsA; ++i)
+  for (i = 0; i < numberOfThinRadiatorsA; ++i)
     output << "  positionsOfThinRadiatorsA[" << i << "]="
-           << m_positionsOfThinRadiatorsA[i] << " mm" << std::endl;
+           << positionsOfThinRadiatorsA[i] << " mm" << std::endl;
 
   output << std::endl << "Parameters of thin radiator A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfThinRadiatorA,
-    m_outerRadiusOfThinRadiatorA, m_lengthOfThinRadiatorA);
+  pUtilities->PrintTubeParameters(innerRadiusOfThinRadiatorA,
+    outerRadiusOfThinRadiatorA, lengthOfThinRadiatorA);
 
   output << std::endl << "Parameters of straw planes A:" << std::endl;
-  output << "  numberOfStrawPlanesA=" << m_numberOfStrawPlanesA << std::endl;
-  output << "  numberOfStrawsInPlaneA=" << m_numberOfStrawsInPlaneA << std::endl
+  output << "  numberOfStrawPlanesA=" << numberOfStrawPlanesA << std::endl;
+  output << "  numberOfStrawsInPlaneA=" << numberOfStrawsInPlaneA << std::endl
          << std::endl;
-  for (i = 0; i < m_numberOfStrawPlanesA; ++i)
+  for (i = 0; i < numberOfStrawPlanesA; ++i)
     output << "  positionsOfStrawPlanesA[" << i << "]="
-           << m_positionsOfStrawPlanesA[i] << " mm" << std::endl;
+           << positionsOfStrawPlanesA[i] << " mm" << std::endl;
   output << std::endl;
-  for (i = 0; i < m_numberOfStrawPlanesA; ++i)
+  for (i = 0; i < numberOfStrawPlanesA; ++i)
     output << "  rotationAnglesOfStrawPlanesA[" << i << "]="
-           << m_rotationAnglesOfStrawPlanesA[i] << " deg" << std::endl;
+           << rotationAnglesOfStrawPlanesA[i] << " deg" << std::endl;
 
   output << std::endl;
 

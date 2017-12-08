@@ -1,0 +1,20 @@
+package IDC_OverlayBase
+
+author Andrei Gaponenko <agaponenko@lbl.gov>
+
+use AtlasPolicy 	AtlasPolicy-*
+
+use Identifier		Identifier-*		DetectorDescription
+use DataModel		DataModel-*		Control
+use AthenaBaseComps	AthenaBaseComps-*	Control
+
+use OverlayAlgBase	OverlayAlgBase-*	Event/EventOverlay
+
+# For cmake, declare this package as having a metalibrary, which causes all the headers and 
+# libraries it depends upon to be available to clients of this package. This is only necessary
+# if the following "apply_pattern" and "library" lines are commented out
+apply_pattern cmake_add_command command=metalibrary
+
+# apply_pattern installed_library
+# 
+# library IDC_OverlayBase *.cxx

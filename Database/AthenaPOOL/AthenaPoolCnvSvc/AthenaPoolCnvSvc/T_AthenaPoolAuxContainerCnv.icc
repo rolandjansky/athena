@@ -32,7 +32,6 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::T_AthenaPoolAuxContainerCnv( I
 template <class AUXSTORE, class ... TPCNVS>
 AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistent( AUXSTORE* trans )
 {
-  AthenaPoolCnvSvc::debugCreatePersistent (ClassID_traits<AUXSTORE>::ID());
   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
@@ -46,7 +45,6 @@ AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistent( AU
 template <class AUXSTORE, class ... TPCNVS>
 AUXSTORE* T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createTransient()
 {
-  AthenaPoolCnvSvc::debugCreateTransient (ClassID_traits<AUXSTORE>::ID());
   if ( this->compareClassGuid( m_guid ) ) {
     // It's the latest version, read it directly:
     return this->template poolReadObject< AUXSTORE >();

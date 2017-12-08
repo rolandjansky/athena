@@ -7,7 +7,7 @@
 
 //#include "GaudiKernel/ToolHandle.h"
 //#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include <vector>
 #include <map>

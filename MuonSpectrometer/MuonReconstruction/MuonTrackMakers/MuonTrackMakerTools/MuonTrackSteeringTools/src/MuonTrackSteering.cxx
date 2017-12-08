@@ -98,29 +98,96 @@ namespace Muon {
   
   StatusCode MuonTrackSteering::initialize() {
 
-    ATH_CHECK( m_helper.retrieve() );
-    ATH_CHECK (m_printer.retrieve() );
-    ATH_CHECK( m_candidateTool.retrieve() );
-    ATH_CHECK( m_candidateMatchingTool.retrieve() );
-    ATH_CHECK( m_trackBTool.retrieve() );
-    ATH_CHECK( m_mooBTool.retrieve() );
-    ATH_CHECK( m_trackRefineTool.retrieve() );
-    ATH_CHECK( decodeStrategyVector( m_stringStrategies ) );
-    if( m_outputSingleStationTracks ){
-      ATH_CHECK( m_segmentFitter.retrieve() );
-      ATH_MSG_INFO("Single station track enabled ");
-    }
-    ATH_CHECK( m_muonHoleRecoverTool.retrieve() );
-    if( !m_trackSelector.empty() ){
-      ATH_CHECK( m_trackSelector.retrieve() );
-      ATH_MSG_INFO("Track selection enabled: " << m_trackSelector );
-    }
-    if( !m_segmentMerger.empty() ){
-      ATH_CHECK( m_segmentMerger.retrieve() );
-      ATH_MSG_INFO("Segment merging enabled: " << m_segmentMerger);
+    StatusCode result = m_helper.retrieve();
+    if (result.isSuccess()){
+      ATH_MSG_DEBUG("Retrieved " << m_helper);
+    }else{
+      ATH_MSG_ERROR("Could not get " << m_helper);
+      return result;
     }
 
-    return StatusCode::SUCCESS;
+    if (m_printer.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_printer);
+      return StatusCode::FAILURE;
+    }
+
+    result = m_candidateTool.retrieve();
+    if (result.isSuccess()){
+      ATH_MSG_DEBUG("Retrieved " << m_candidateTool );
+    } else {
+      ATH_MSG_ERROR("Could not get " << m_candidateTool );
+      return result;
+    }
+
+    if( m_candidateMatchingTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_candidateMatchingTool); 
+      return StatusCode::FAILURE;
+    }
+
+    result = m_trackBTool.retrieve();
+    if (result.isSuccess()){
+      ATH_MSG_DEBUG("Retrieved " << m_trackBTool );
+    } else {
+      ATH_MSG_ERROR("Could not get " << m_trackBTool );
+      return result;
+    }
+
+    result = m_mooBTool.retrieve();
+    if (result.isSuccess()){
+      ATH_MSG_DEBUG("Retrieved " << m_mooBTool );
+    } else {
+      ATH_MSG_ERROR("Could not get " << m_mooBTool );
+      return result;
+    }
+
+    result = m_trackRefineTool.retrieve();
+    if (result.isSuccess()){
+      ATH_MSG_DEBUG("Retrieved " << m_trackRefineTool );
+    } else {
+      ATH_MSG_ERROR("Could not get " << m_trackRefineTool );
+      return result;
+    }
+    
+    result = decodeStrategyVector( m_stringStrategies );
+    if (result.isSuccess()){
+      ATH_MSG_DEBUG("Succeeded in decoding string strategies" );
+    } else {
+      ATH_MSG_ERROR("Failed to decode string strategies" );
+    }
+
+    if( m_outputSingleStationTracks ){
+      if( m_segmentFitter.retrieve().isFailure() ){
+        ATH_MSG_ERROR("Could not get " << m_segmentFitter); 
+        return StatusCode::FAILURE;
+      }else{
+        ATH_MSG_INFO("Single station track enabled "); 
+      }
+    }
+
+    if( m_muonHoleRecoverTool.retrieve().isFailure() ){
+      ATH_MSG_ERROR("Could not get " << m_muonHoleRecoverTool); 
+      return StatusCode::FAILURE;
+    }
+
+    if( !m_trackSelector.empty() ){
+      if( m_trackSelector.retrieve().isFailure() ){
+        ATH_MSG_ERROR("Could not get " << m_trackSelector); 
+        return StatusCode::FAILURE;
+      }else{
+        ATH_MSG_INFO("Track selection enabled: " << m_trackSelector ); 
+      }
+    }
+
+    if( !m_segmentMerger.empty() ){
+      if( m_segmentMerger.retrieve().isFailure() ){
+        ATH_MSG_ERROR("Could not get " << m_segmentMerger); 
+        return StatusCode::FAILURE; 
+      }else{
+        ATH_MSG_INFO("Segment merging enabled: " << m_segmentMerger); 
+      }
+    }
+
+    return result;
   }
   
   //-----------------------------------------------------------------------------------------------------------

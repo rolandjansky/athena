@@ -1,0 +1,26 @@
+package PixelG4_SD
+author Davide Costanzo <DCostanzo@lbl.gov>
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+
+private
+
+use AtlasDoxygen          AtlasDoxygen-*          Tools
+use AtlasCLHEP            AtlasCLHEP-*            External
+use GaudiInterface        GaudiInterface-*        External
+use Geant4                Geant4-*                External
+use G4AtlasTools          G4AtlasTools-*          Simulation/G4Atlas
+use InDetSimEvent         InDetSimEvent-*         InnerDetector
+use MCTruth               MCTruth-*               Simulation/G4Sim
+use StoreGate             StoreGate-*             Control
+use CxxUtils              CxxUtils-*              Control
+end_private
+
+public
+apply_pattern declare_python_modules files="*.py"
+
+# define link options
+library PixelG4_SD *.cxx components/*.cxx
+apply_pattern component_library

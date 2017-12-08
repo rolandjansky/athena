@@ -1,0 +1,11 @@
+package EventContainers
+
+use AtlasPolicy    AtlasPolicy-*
+use GaudiInterface GaudiInterface-* External
+use Identifier     Identifier-*        DetectorDescription
+
+private
+
+use CLIDSvc        CLIDSvc-*           Control
+application testIdCont ID_ContainerTest.cxx
+macro_append testIdCont_dependencies           " install_includes"

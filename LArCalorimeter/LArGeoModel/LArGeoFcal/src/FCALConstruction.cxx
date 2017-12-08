@@ -299,7 +299,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	  unsigned fieldY(7); //std::string fieldY("LARFCALELECTRODES_DATA.Y");
 	  unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
-	  std::unique_ptr<IRDBQuery> query;
+          IRDBQuery* query(0);
           if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
           if (!geoModel)  throw std::runtime_error("Error, no geoModel");
           DecodeVersionKey larVersionKey(geoModel, "LAr");
@@ -340,7 +340,11 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	  }
 
 	  m_absPhysical1 = modPhysical;
-	  query->finalize();
+         if(query) {
+           query->finalize();
+           delete query;
+         }
+
       } 
   }  // if (F1)
   if (F2) 
@@ -439,7 +443,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	unsigned fieldY(7); //std::string fieldY("LARFCALELECTRODES_DATA.Y");
 	unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
-	std::unique_ptr<IRDBQuery> query;
+        IRDBQuery* query(0);
         if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
         if (!geoModel)  throw std::runtime_error("Error, no geoModel");
         DecodeVersionKey larVersionKey(geoModel, "LAr"); 
@@ -452,7 +456,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
         query->execute();
         if(query->size()==0)
           throw std::runtime_error("Error, unable to fetch fcal electrodes from the database!");
-	
+
         while(query->next()) {
 
           if(myGroup!=query->data<int>(fieldModNumber)) continue;
@@ -480,7 +484,11 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	}
 
 	m_absPhysical2 = modPhysical;
-	query->finalize();
+        if(query) {
+           query->finalize();
+           delete query;
+        }
+
       }
   } // if (F2)
 
@@ -608,7 +616,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	unsigned fieldY(7); //std::string fieldY("LARFCALELECTRODES_DATA.Y");
 	unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
-	std::unique_ptr<IRDBQuery> query;
+        IRDBQuery* query(0);
         if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
         if (!geoModel)  throw std::runtime_error("Error, no geoModel");
         DecodeVersionKey larVersionKey(geoModel, "LAr"); 
@@ -648,7 +656,11 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	}
 
 	m_absPhysical3 = modPhysical;
-	query->finalize();
+        if(query) {
+           query->finalize();
+           delete query;
+        }
+
       }
     } // if (F3)
   

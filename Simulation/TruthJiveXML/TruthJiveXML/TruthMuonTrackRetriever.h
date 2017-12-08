@@ -35,7 +35,7 @@ namespace JiveXML{
    *
    */
 
-  class TruthMuonTrackRetriever : public extends<AthAlgTool, IDataRetriever> {
+  class TruthMuonTrackRetriever : virtual public IDataRetriever, public AthAlgTool {
 
   public:
   

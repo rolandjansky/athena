@@ -13,7 +13,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // ISF includes
-#include "BaseSimulationSelector.h"
+#include "ISF_Interfaces/ISimulationSelector.h"
 #include "ISF_Event/SimSvcID.h"
 
 namespace ISF
@@ -29,7 +29,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class HistorySimSelector final : public BaseSimulationSelector
+  class HistorySimSelector : public ISimulationSelector
   {
 
   public:
@@ -40,14 +40,14 @@ namespace ISF
     ~HistorySimSelector();
 
     // Athena algtool's Hooks
-    virtual StatusCode  initialize() override;
-    virtual StatusCode  finalize() override;
+    virtual StatusCode  initialize() override final;
+    virtual StatusCode  finalize() override final;
 
     /** called at the beginning of each athena event */
-    virtual void beginEvent() override;
+    virtual void beginEvent() override final;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
-    virtual bool passSelectorCuts(const ISFParticle& particle) const override;
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
 
   private:
     /** will check given particles if they were previously simulated by

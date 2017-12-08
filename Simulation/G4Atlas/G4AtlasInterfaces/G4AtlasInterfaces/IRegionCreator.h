@@ -21,8 +21,10 @@
 class IRegionCreator : virtual public IAlgTool {
  public:
   virtual ~IRegionCreator() {}
-  /// Creates the InterfaceID and interfaceID() method
-  DeclareInterfaceID(IRegionCreator, 1, 0);
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IRegionCreator( "IRegionCreator" , 1 , 0 ) ;
+    return IID_IRegionCreator ; 
+  }
 
   virtual void Dump() = 0;
   

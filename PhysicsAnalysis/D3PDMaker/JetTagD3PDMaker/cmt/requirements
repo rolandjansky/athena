@@ -1,0 +1,58 @@
+package JetTagD3PDMaker
+
+author Georges Aad  <aad@cern.ch>
+
+
+use AtlasPolicy			AtlasPolicy-*     
+
+
+private
+
+use GaudiInterface         	GaudiInterface-*		External
+use AtlasBoost			AtlasBoost-*			External
+use AtlasHepMC             	AtlasHepMC-*            	External
+
+use AthenaKernel               	AthenaKernel-*          	Control
+use AthContainers               AthContainers-*             	Control
+use AthenaBaseComps 		AthenaBaseComps-* 		Control
+use CLIDSvc			CLIDSvc-*			Control
+#use StoreGate                   StoreGate-*             	Control
+use SGTools                     SGTools-*               	Control
+
+#use AtlasDetDescr		AtlasDetDescr-*	 		DetectorDescription
+use GeneratorObjects       	GeneratorObjects-*      	Generators
+use EventKernel			EventKernel-*  			Event
+use EventPrimitives             EventPrimitives-*               Event
+use Particle                   	Particle-*              	Reconstruction
+
+use JetEvent                   	JetEvent-*               	Reconstruction/Jet
+use JetTagEvent                	JetTagEvent-*            	PhysicsAnalysis/JetTagging
+use JetTagInfo			JetTagInfo-* 		 	PhysicsAnalysis/JetTagging
+use TrkParticleBase 		TrkParticleBase-*	 	Tracking/TrkEvent
+use VxJetVertex 		VxJetVertex-* 			Tracking/TrkEvent
+use VxSecVertex			VxSecVertex-* 			Tracking/TrkEvent
+use VxVertex			VxVertex-*    			Tracking/TrkEvent
+use TrkVertexFitterInterfaces 	TrkVertexFitterInterfaces-* 	Tracking/TrkVertexFitter
+use egammaEvent			egammaEvent-* 			Reconstruction/egamma
+use muonEvent			muonEvent-*   			Reconstruction/MuonIdentification
+use MuonIDEvent 		MuonIDEvent-* 			PhysicsAnalysis/MuonID
+use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions 
+
+use D3PDMakerUtils             	D3PDMakerUtils-*        	PhysicsAnalysis/D3PDMaker
+
+use McParticleEvent             McParticleEvent-*               PhysicsAnalysis/TruthParticleID
+
+
+end_private
+
+
+library JetTagD3PDMaker *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
+
+
+

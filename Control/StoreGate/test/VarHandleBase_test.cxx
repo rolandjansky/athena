@@ -67,7 +67,6 @@ void test1()
   assert (h1.storeHandle().name() == "StoreGateSvc");
   assert (h1.mode() == Gaudi::DataHandle::Reader);
   assert (h1.m_store == nullptr);
-  assert (h1.vhKey().owningHandle() == &h1);
 
   TestHandle h2 (1234, "foo", Gaudi::DataHandle::Writer, "FooSvc");
   assert (h2.clid() == 1234);
@@ -75,10 +74,6 @@ void test1()
   assert (h2.name() == "foo");
   assert (h2.storeHandle().name() == "FooSvc");
   assert (h2.mode() == Gaudi::DataHandle::Writer);
-
-  assert (h2.vhKey().clid() == 1234);
-  assert (h2.vhKey().key() == "foo");
-  assert (h2.vhKey().owningHandle() == &h2);
 
   SGTest::TestStore dumstore2;
   EventContext ctx3;
@@ -94,7 +89,6 @@ void test1()
   assert (h3.storeHandle().name() == "StoreGateSvc");
   assert (h3.mode() == Gaudi::DataHandle::Updater);
   assert (h3.m_store == &dumstore2);
-  EXPECT_EXCEPTION (SG::ExcNonConstHandleKey, h3.vhKey());
 
   {
     SG::VarHandleKey k4 (1234, "asd", Gaudi::DataHandle::Updater, "BazSvc");
@@ -111,7 +105,6 @@ void test1()
   assert (h5.storeHandle().name() == "StoreGateSvc");
   assert (h5.mode() == Gaudi::DataHandle::Updater);
   assert (h5.m_store == &dumstore);
-  assert (k3.owningHandle() == nullptr);
 
   SG::VarHandleKey k6 (1234, "asd", Gaudi::DataHandle::Updater,
                        "OtherStore");

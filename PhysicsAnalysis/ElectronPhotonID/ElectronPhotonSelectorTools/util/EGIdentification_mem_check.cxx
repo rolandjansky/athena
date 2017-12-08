@@ -11,20 +11,28 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 
 */
 
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
-#include "AsgTools/AnaToolHandle.h"
-#include "AsgTools/MessageCheck.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+
+#include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "CxxUtils/make_unique.h"
+
 
 int main(){
-  using namespace asg::msgUserCode;
-  ANA_CHECK_SET_TYPE (int);
 
-  asg::AnaToolHandle<IAsgElectronLikelihoodTool> MediumLH("AsgElectronLikelihoodTool/MediumLH");
-  ANA_CHECK(MediumLH.setProperty("WorkingPoint", "MediumLHElectron"));
-  ANA_CHECK(MediumLH.initialize());
+  /*std::unique_ptr<AsgElectronIsEMSelector> electronMediumIsEMSelector = CxxUtils::make_unique<AsgElectronIsEMSelector> ("electronMediumIsEMSelector");
+    electronMediumIsEMSelector->setProperty("WorkingPoint", "MediumElectron");
+    electronMediumIsEMSelector->initialize();
+  */
+
+  std::unique_ptr<AsgElectronLikelihoodTool> MediumLH = CxxUtils::make_unique<AsgElectronLikelihoodTool> ("MediumLH");
+  MediumLH->setProperty("WorkingPoint", "MediumLHElectron");
+  MediumLH->initialize();
 
   return 0;
 }

@@ -25,7 +25,7 @@ namespace Trk {
 }
 
 namespace iFatras {
-  class ISF_TrackSummaryHelperTool : public extends<AthAlgTool, Trk::ITrackSummaryHelperTool> {
+  class ISF_TrackSummaryHelperTool :  virtual public Trk::ITrackSummaryHelperTool, public AthAlgTool   {
   public:
     /** constructor */
     ISF_TrackSummaryHelperTool(const std::string&,const std::string&,const IInterface*);

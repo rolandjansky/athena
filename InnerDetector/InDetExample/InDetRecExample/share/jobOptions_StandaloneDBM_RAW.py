@@ -11,7 +11,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if hasattr(runArgs, "inputBSFile"):
   athenaCommonFlags.FilesInput = runArgs.inputBSFile
 else:
-  athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_7TeV.00154817.physics_MinBias.merge.RAW/data10_7TeV.00154817.physics_MinBias.merge.RAW._lb0100._0001.1"]
+  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_7TeV.00154817.physics_MinBias.merge.RAW/data10_7TeV.00154817.physics_MinBias.merge.RAW._lb0100._0001.1"]
   #athenaCommonFlags.FilesInput = ["/afs/cern.ch/work/m/mdiamond/public/data15_cos.00253010.physics_Main.merge.RAW._lb0878._SFO-ALL._0001.1"]
   #athenaCommonFlags.FilesInput = ["/tmp/mdiamond/data15_cos.00251873.physics_IDCosmic.merge.RAW._lb0002._SFO-ALL._0001.1", "/tmp/mdiamond/data15_cos.00251873.physics_IDCosmic.merge.RAW._lb0003._SFO-ALL._0001.1", "/tmp/mdiamond/data15_cos.00251873.physics_IDCosmic.merge.RAW._lb0004._SFO-ALL._0001.1", "/tmp/mdiamond/data15_cos.00251873.physics_IDCosmic.merge.RAW._lb0005._SFO-ALL._0001.1"]
   

@@ -23,7 +23,7 @@ class PyBasicFdrTests (PyAthenaTestCase):
         installRefFiles( ['pyathena_pyfdr_aodtodpd_rel140100.ref'] )
 
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pyfdr_aodtodpd_rel140100.pool')
@@ -69,7 +69,7 @@ class PyBasicFdrTests (PyAthenaTestCase):
 
         installRefFiles( ['pyathena_pyfdr_truthslimming_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = workDir('pyathena_pyfdr_truthslimming_rel140100.pool')

@@ -6,21 +6,12 @@ __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import fnmatch
 import inspect
-import json
-import logging
 import os
-import re
+import sys
 import yaml
-
-try:
-    import scandir as scan
-except ImportError:
-    import os as scan
 
 from art_misc import is_exe, run_command
 from art_header import ArtHeader
-
-MODULE = "art.base"
 
 
 class ArtBase(object):
@@ -60,44 +51,36 @@ class ArtBase(object):
 
     def validate(self, script_directory):
         """TBD."""
-        log = logging.getLogger(MODULE)
         directories = self.get_test_directories(script_directory.rstrip("/"))
-
-        found_test = False
         for directory in directories.itervalues():
             files = self.get_files(directory)
             for fname in files:
                 test_name = os.path.join(directory, fname)
-                found_test = True
-                log.debug(test_name)
+                print test_name
                 if not is_exe(test_name):
-                    log.error("%s is not executable.", test_name)
+                    print "ERROR: ", test_name, "is not executable."
                 ArtHeader(test_name).validate()
-
-        if not found_test:
-            log.warning('No scripts found in %s directory', directories.values()[0])
-            return 0
-
-        log.info("Scripts in %s directory are validated", script_directory)
         return 0
 
     def included(self, script_directory, job_type, index_type, nightly_release, project, platform):
         """TBD."""
-        log = logging.getLogger(MODULE)
         directories = self.get_test_directories(script_directory.rstrip("/"))
         for directory in directories.itervalues():
             files = self.get_files(directory, job_type, index_type)
             for fname in files:
                 test_name = os.path.join(directory, fname)
                 if self.is_included(test_name, nightly_release, project, platform):
-                    log.info("%s %s", test_name, ArtHeader(test_name).get(ArtHeader.ART_INCLUDE))
+                    print test_name, ArtHeader(test_name).get('art-include')
         return 0
 
     def download(self, input_file):
         """TBD."""
         return self.get_input(input_file)
 
-    def diff_pool(self, file_name, ref_file):
+    #
+    # Default implementations
+    #
+    def compare_ref(self, file_name, ref_file, entries=-1):
         """TBD."""
         import PyUtils.PoolFile as PF
 
@@ -108,68 +91,25 @@ class ArtBase(object):
         print stat
         del df
 
-        return stat
-
-    def diff_root(self, file_name, ref_file, entries=-1):
-        """TBD."""
-        log = logging.getLogger(MODULE)
-
         # diff-root
         (code, out, err) = run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings --entries " + str(entries))
         if code != 0:
-            log.error("Error: %d", code)
-            print(err)
+            print "Error:", code
+            print "StdErr:", err
 
-        log.info(out)
-        return code
-
-    #
-    # Default implementations
-    #
-    def compare_ref(self, file_name, ref_file, entries=-1):
-        """TBD."""
-        result = 0
-        result |= self.diff_pool(file_name, ref_file)
-
-        result |= self.diff_root(file_name, ref_file, entries)
-        return result
+        print out
+        sys.stdout.flush()
+        return err
 
     #
     # Protected Methods
     #
-    def get_art_results(self, output):
-        """
-        Extract art-results.
-
-        find all
-        'art-result: x' or 'art-result: x name' or 'art-result: [x]'
-        and append them to result list
-        """
-        result = []
-        for line in output.splitlines():
-            match = re.search(r"art-result: (\d+)\s*(.*)", line)
-            if match:
-                item = json.loads(match.group(1))
-                name = match.group(2)
-                result.append({'name': name, 'result': item})
-            else:
-                match = re.search(r"art-result: (\[.*\])", line)
-                if match:
-                    array = json.loads(match.group(1))
-                    for item in array:
-                        result.append({'name': '', 'result': item})
-
-        return result
-
     def get_config(self):
-        """Retrieve dictionary of ART configuration file, or None if file does not exist."""
-        try:
-            config_file = open("art-configuration.yml", "r")
-            config = yaml.load(config_file)
-            config_file.close()
-            return config
-        except IOError:
-            return None
+        """Retrieve dictionary of ART configuration file."""
+        config_file = open("art-configuration.yml", "r")
+        config = yaml.load(config_file)
+        config_file.close()
+        return config
 
     def get_files(self, directory, job_type=None, index_type="all", nightly_release=None, project=None, platform=None):
         """
@@ -193,7 +133,7 @@ class ArtBase(object):
                 test_name = os.path.join(directory, fname)
 
                 # is not of correct type
-                if job_type is not None and ArtHeader(test_name).get(ArtHeader.ART_TYPE) != job_type:
+                if job_type is not None and ArtHeader(test_name).get('art-type') != job_type:
                     continue
 
                 # is not included in nightly_release, project, platform
@@ -201,11 +141,11 @@ class ArtBase(object):
                     continue
 
                 # batch and does specify art-input
-                if index_type == "batch" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is not None:
+                if index_type == "batch" and ArtHeader(test_name).get('art-input') is not None:
                     continue
 
                 # single and does not specify art-input
-                if index_type == "single" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is None:
+                if index_type == "single" and ArtHeader(test_name).get('art-input') is None:
                     continue
 
                 result.append(fname)
@@ -214,7 +154,7 @@ class ArtBase(object):
 
     def get_type(self, directory, test_name):
         """Return the 'job_type' of a test."""
-        return ArtHeader(os.path.join(directory, test_name)).get(ArtHeader.ART_TYPE)
+        return ArtHeader(os.path.join(directory, test_name)).get('art-type')
 
     def get_test_directories(self, directory):
         """
@@ -223,7 +163,7 @@ class ArtBase(object):
         A dictionary key=<package>, value=<directory> is returned
         """
         result = {}
-        for root, dirs, files in scan.walk(directory):
+        for root, dirs, files in os.walk(directory):
             if root.endswith('/test'):
                 package = os.path.basename(os.path.dirname(root))
                 result[package] = root
@@ -237,7 +177,7 @@ class ArtBase(object):
 
     def is_included(self, test_name, nightly_release, project, platform):
         """Return true if a match is found for test_name in nightly_release, project, platform."""
-        patterns = ArtHeader(test_name).get(ArtHeader.ART_INCLUDE)
+        patterns = ArtHeader(test_name).get('art-include')
 
         for pattern in patterns:
             nightly_release_pattern = "*"

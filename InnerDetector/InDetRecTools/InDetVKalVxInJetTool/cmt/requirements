@@ -1,0 +1,40 @@
+package InDetVKalVxInJetTool
+
+author Vadim Kostyukhin <Vadim.Kostyukhin@cern.ch>
+
+private
+
+use AtlasROOT         AtlasROOT-*       External
+#
+use TrkParticleBase        TrkParticleBase-*       Tracking/TrkEvent
+use TrkTrackSummary        TrkTrackSummary-*       Tracking/TrkEvent
+use TrkNeutralParameters   TrkNeutralParameters-*  Tracking/TrkEvent
+use TrkToolInterfaces      TrkToolInterfaces-*     Tracking/TrkTools
+use AnalysisUtils          AnalysisUtils-*         PhysicsAnalysis/AnalysisCommon
+use VxSecVertex            VxSecVertex-*           Tracking/TrkEvent
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
+use TrkParticleCreator     TrkParticleCreator-*    Tracking/TrkTools
+use xAODTracking           xAODTracking-*          Event/xAOD
+use GeoPrimitives          GeoPrimitives-*         DetectorDescription
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+use AtlasBoost             AtlasBoost-*            External
+use AthenaBaseComps        AthenaBaseComps-*       Control
+use GaudiInterface         GaudiInterface-*        External
+use AtlasROOT              AtlasROOT-*             External
+use InDetRecToolInterfaces InDetRecToolInterfaces-*  InnerDetector/InDetRecTools
+use Particle               Particle-*              Reconstruction
+use xAODTracking           xAODTracking-*          Event/xAOD
+use TrkVKalVrtFitter       TrkVKalVrtFitter-*      Tracking/TrkVertexFitter
+#use InDetMaterialRejTool   InDetMaterialRejTool-*  InnerDetector/InDetRecTools
+
+
+
+
+library InDetVKalVxInJetTool  *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_python_modules files="*.py"
+

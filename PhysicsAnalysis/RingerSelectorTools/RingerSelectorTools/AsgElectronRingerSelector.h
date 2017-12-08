@@ -18,7 +18,7 @@
 #include "PATCore/TResult.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 
 // xAOD includes:
 #include "xAODCaloRings/CaloRingsContainer.h" // needed for caloRingsReader_t

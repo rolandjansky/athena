@@ -167,7 +167,6 @@ def PixelFastDigitizationToolSplitNoMergePU(name="PixelFastDigitizationToolSplit
     kwargs.setdefault("PixelClusterContainerName", "PixelFast_PU_Clusters")
     kwargs.setdefault("TruthNamePixel", "PRD_MultiTruthPixel_PU")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    kwargs.setdefault("PixelClusterAmbiguitiesMapName", "PixelClusterAmbiguitiesMapPU")
     return commonPixelFastDigitizationConfig(name, **kwargs)
 
 ######################################################################################

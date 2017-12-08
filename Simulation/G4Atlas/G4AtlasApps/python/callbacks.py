@@ -35,16 +35,12 @@ def do_recursive_geometry_test():
 
 # Add a truth catch for LLP decay processes
 def add_LLP_truth_strategies():
-    print "ERROR add_LLP_truth_strategies is obsolete"
-    print "Please request a replacement configuration"
-    import sys
-    sys.exit(1)
-    ## from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-    ## astrategy=PyG4Atlas.MCTruthStrg('G4TruthStrategies', 'LLP','IDET::IDET',1)
-    ## astrategy.add_Volumes('CALO::CALO',1)
-    ## astrategy.add_Volumes('BeamPipe::BeamPipe',1)
-    ## mcTruthMenu=PyG4Atlas.G4AtlasEngine.menu_MCTruth()
-    ## mcTruthMenu.add_McTruthStrategy(astrategy)
+    from G4AtlasApps import AtlasG4Eng,PyG4Atlas
+    astrategy=PyG4Atlas.MCTruthStrg('G4TruthStrategies', 'LLP','IDET::IDET',1)
+    astrategy.add_Volumes('CALO::CALO',1)
+    astrategy.add_Volumes('BeamPipe::BeamPipe',1)
+    mcTruthMenu=PyG4Atlas.G4AtlasEngine.menu_MCTruth()
+    mcTruthMenu.add_McTruthStrategy(astrategy)
 
 def add_EnergyConservationTest():
     from G4AtlasApps.SimFlags import simFlags

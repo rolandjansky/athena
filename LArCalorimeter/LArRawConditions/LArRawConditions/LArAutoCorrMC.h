@@ -9,7 +9,6 @@
 
 #include "LArRawConditions/LArAutoCorrComplete.h"
 #include "LArElecCalib/ILArMCSymTool.h"
-#include "AthenaKernel/BaseInfo.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
@@ -50,5 +49,4 @@ class LArAutoCorrMC: public LArAutoCorrComplete {
 
 
 CLASS_DEF( LArAutoCorrMC, 217258659,1)
-SG_BASE(LArAutoCorrMC, LArAutoCorrComplete);
 #endif 

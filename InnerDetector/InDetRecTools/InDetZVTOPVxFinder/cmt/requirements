@@ -1,0 +1,35 @@
+package InDetZVTOPVxFinder
+
+author Tatjana Lenz <tatjana.lenz@cern.ch>
+
+public
+
+use AthenaBaseComps           AthenaBaseComps-*              Control
+use AtlasPolicy		      AtlasPolicy-* 
+use GaudiInterface	      GaudiInterface-*		     External
+use InDetRecToolInterfaces    InDetRecToolInterfaces-*	     InnerDetector/InDetRecTools
+use VxVertex		      VxVertex-*		     Tracking/TrkEvent
+use TrkTrack		      TrkTrack-*		     Tracking/TrkEvent
+use Particle		      Particle-*		     Reconstruction
+use TrkParticleBase	      TrkParticleBase-*        	     Tracking/TrkEvent
+use TrkParameters	      TrkParameters-*                Tracking/TrkEvent
+use xAODTracking              xAODTracking-*                  Event/xAOD
+private
+
+apply_pattern component_library
+library InDetZVTOPVxFinder *.cxx components/*.cxx
+
+private
+use AtlasCLHEP				AtlasCLHEP-*					External
+use DataModel				DataModel-*					Control
+use InDetBeamSpotService		InDetBeamSpotService-*				InnerDetector/InDetConditions
+use TrkExInterfaces			TrkExInterfaces-*				Tracking/TrkExtrapolation
+use TrkSurfaces				TrkSurfaces-*					Tracking/TrkDetDescr
+use TrkVertexFitterInterfaces	        TrkVertexFitterInterfaces-*  	                Tracking/TrkVertexFitter
+use VxSecVertex				VxSecVertex-*					Tracking/TrkEvent
+use EventPrimitives                     EventPrimitives-*                               Event
+#use TrkVxEdmCnv                         TrkVxEdmCnv-*                                   Tracking/TrkVertexFitter
+
+##macro cppdebugflags '$(cppdebugflags_s)'
+##macro_remove componentshr_linkopts "-Wl,-s"
+

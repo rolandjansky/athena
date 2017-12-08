@@ -26,16 +26,7 @@ SiliconLayerAssociator::SiliconLayerAssociator(const std::string&	type,
 					       const IInterface*	parent)
     :   AthAlgTool		(type, name, parent),
 	m_pixelConditions	("PixelConditionsSummarySvc",name),
-	m_sctConditions		("SCT_ConditionsSummarySvc",name),
-	m_clusterMap		(nullptr),
-	m_cosPhi		(0.),
-	m_cosStereo		(0.),
-	m_rPhiWidth		(0.),
-	m_rStereoWidth		(0.),
-	m_rZWidth		(0.),
-	m_referenceAssociation	(nullptr),
-	m_sinPhi		(0.),
-	m_sinStereo		(0.)
+	m_sctConditions		("SCT_ConditionsSummarySvc",name)
 {
     declareInterface<ISiliconLayerAssociator>(this);
     declareProperty("PixelConditionsSvc",	m_pixelConditions);

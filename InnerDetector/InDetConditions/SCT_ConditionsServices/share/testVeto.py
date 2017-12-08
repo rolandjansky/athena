@@ -8,7 +8,9 @@ from GaudiSvc.GaudiSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
+#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
+#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 
@@ -67,26 +69,17 @@ job = AlgSequence()
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
+'''
+DBname='<dbConnection>oracle://DEVDB10;schema=ATLAS_SCT_COMMCOND_DEV;dbname=ROE2;user=ATLAS_SCT_COMMCOND_DEV</dbConnection>'
+
+IOVDbSvc.Folders += [ DBname +' /SCT/Manual/BadModules']
+'''
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
 ServiceMgr +=SCT_ModuleVetoSvc()
 
 SCT_ModuleVeto=ServiceMgr.SCT_ModuleVetoSvc
-
-### Use COOL database for SCT_ModuleVetoSvc
-useDB = True # False
-if useDB:
-    SCT_ModuleVeto.BadModuleIdentifiers=["database"]
-    from IOVSvc.IOVSvcConf import CondSvc
-    ServiceMgr += CondSvc()
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoCondAlg
-    condSeq += SCT_ModuleVetoCondAlg( "SCT_ModuleVetoCondAlg" )
-    conddb.addFolderWithTag("SCT_OFL", "/SCT/Manual/BadModules", "SCTManualBadModules-000-00", className="AthenaAttributeList")
-else:
-    SCT_ModuleVeto.BadModuleIdentifiers=["1", "2"]
-
+SCT_ModuleVeto.BadModuleIdentifiers=["1","2"]
 SCT_ModuleVetoSvc.OutputLevel=DEBUG
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoTestAlg
@@ -98,5 +91,4 @@ import AthenaCommon.AtlasUnixGeneratorJob
 
 
 ServiceMgr.EventSelector.RunNumber  = 300000 # MC16c 2017 run number
-ServiceMgr.EventSelector.InitialTimeStamp  = 1500000000 # MC16c 2017 time stamp
 theApp.EvtMax                   = 1

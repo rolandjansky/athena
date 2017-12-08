@@ -74,7 +74,8 @@ namespace iFatras {
       @author Andreas.Salzburger@cern.ch, Carsten.Magass@cern.ch
    */
    
-  class McMaterialEffectsUpdator : public extends<AthAlgTool, Trk::ITimedMatEffUpdator> {
+   class McMaterialEffectsUpdator : public AthAlgTool,
+                                    virtual public Trk::ITimedMatEffUpdator {
     public:      
       /**AlgTool constructor for McMaterialEffectsUpdator*/
       McMaterialEffectsUpdator(const std::string&,const std::string&,const IInterface*);

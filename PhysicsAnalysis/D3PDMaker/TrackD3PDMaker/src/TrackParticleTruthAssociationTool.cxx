@@ -53,7 +53,7 @@ const HepMC::GenParticle* TrackParticleTruthAssociationTool::get (const Rec::Tra
     return 0;
   }
   // -- TrackParticleTruth:
-  const TrackParticleTruthCollection* tm = nullptr;
+  const TrackParticleTruthCollection* tm;
   sc = evtStore()->retrieve(tm, m_TruthMap);
   if(sc.isFailure() || !tm) {
     return 0;

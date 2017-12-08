@@ -23,7 +23,7 @@ if not 'FileNameVec' in dir():
                 if InputDirectory.startswith("/castor") :
                     fullname.append('root://castoratlas/' + InputDirectory + '/' + temp[0])
                 elif InputDirectory.startswith("/eos") :
-                    fullname.append('root://eosatlas.cern.ch/' + InputDirectory + '/' + temp[0])
+                    fullname.append('root://eosatlas/' + InputDirectory + '/' + temp[0])
                 else:
                     fullname.append(InputDirectory + '/' + temp[0])
         FileNameVec = fullname

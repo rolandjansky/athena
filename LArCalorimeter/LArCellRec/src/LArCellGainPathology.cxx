@@ -41,7 +41,6 @@ LArCellGainPathology::LArCellGainPathology(
 			     const std::string& name, 
 			     const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_cablingService("LArCablingService"),
     m_calo_id(nullptr),
     m_onlineID(nullptr)
 { 

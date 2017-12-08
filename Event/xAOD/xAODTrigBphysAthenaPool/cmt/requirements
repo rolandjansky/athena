@@ -1,0 +1,29 @@
+package xAODTrigBphysAthenaPool
+
+# Change!
+author Gordon Watts <gwatts@uw.edu>
+
+public
+
+# Base package(s):
+use AtlasPolicy        AtlasPolicy-*
+
+private
+
+# Base package(s):
+#use GaudiInterface      GaudiInterface-*      External
+use AthContainers       AthContainers-*       Control
+use AthenaKernel        AthenaKernel-*        Control
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODTrigBphys         xAODTrigBphys-*         Event/xAOD
+
+# Declare the pool converter(s): (add extra ones onto the string with line continuations)
+apply_pattern poolcnv typesWithNamespace="xAOD::TrigBphys" \
+                      files="-s=${xAODTrigBphys_root}/xAODTrigBphys \
+                             TrigBphysContainer.h \
+                             TrigBphysAuxContainer.h" \
+                      cnv_pfx="xAOD"

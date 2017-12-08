@@ -42,7 +42,6 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_isLaserCalib(false),
   m_tileHWID(nullptr),
   m_cabling(nullptr),
-  m_tileToolEmscale("TileCondToolEmscale"),
   m_tileBadChanTool("TileBadChanTool"),
   m_beamInfo(nullptr),
   m_stuckBitsProbs(""),

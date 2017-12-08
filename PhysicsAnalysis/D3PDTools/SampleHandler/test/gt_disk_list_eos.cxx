@@ -32,7 +32,7 @@ using namespace SH;
 
 TEST (MANUAL_DiskListEOSTest, all)
 {
-  DiskListEOS list1 ("/eos/atlas/user/k/krumnack", "root://eosatlas.cern.ch//eos/atlas/user/k/krumnack");
+  DiskListEOS list1 ("/eos/atlas/user/k/krumnack", "root://eosatlas//eos/atlas/user/k/krumnack");
   bool valid = true;
   while ((valid = list1.next()) && list1.fileName() != "EventLoop-UnitTest") {};
   ASSERT_TRUE (valid);

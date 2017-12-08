@@ -72,7 +72,7 @@ StatusCode TrkTrackDetailedTruthAssociationTool::reset(const Trk::Track& track){
     return invalidate(StatusCode::SUCCESS);
   }
   // -- TrkTrackDetailedTruth:
-  const DetailedTrackTruthCollection* tm = nullptr;
+  const DetailedTrackTruthCollection* tm;
   sc = evtStore()->retrieve(tm, m_TruthMap);
   if(sc.isFailure() || !tm) {
     REPORT_MESSAGE (MSG::WARNING) << "Could not retrieve: " << m_TruthMap;

@@ -22,7 +22,7 @@
 #include "ElectronPhotonShowerShapeFudgeTool/FudgeMCTool.h"
 #endif
 #include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
-#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include "TEnv.h"
 
 class ElectronPhotonShowerShapeFudgeTool : public asg::AsgTool, virtual public  IElectronPhotonShowerShapeFudgeTool

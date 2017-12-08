@@ -33,6 +33,8 @@ from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 ElectronPidTools()
 PhotonPidTools()
+from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+lumiTool = LuminosityToolOnline()
 
 # Following tools have TrigEgamma factories
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
@@ -95,6 +97,7 @@ TrigElectronPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigElectronPI
         ToolSvc.AsgElectronLHTightSelector],
     electronLHselectorResultNames= ["LHVLoose","LHLoose","LHMedium","LHTight"],
     UseLuminosityTool = True,
+    LuminosityTool = lumiTool
 )
 
 TrigElectronCaloPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigElectronCaloPIDBuilder",
@@ -105,6 +108,7 @@ TrigElectronCaloPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigElectr
     electronLHselectorResultNames= ["LHCaloVLoose","LHCaloLoose","LHCaloMedium","LHCaloTight"],
     LHValueName = "LHCaloValue",
     UseLuminosityTool = True,
+    LuminosityTool = lumiTool
 )
 
 TrigPhotonPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigPhotonPIDBuilder",

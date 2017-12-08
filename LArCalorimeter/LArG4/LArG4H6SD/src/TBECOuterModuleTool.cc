@@ -31,6 +31,7 @@ TBECOuterModuleTool::TBECOuterModuleTool(const std::string& type, const std::str
   , m_chcollSD(nullptr)
   , m_roptSD(nullptr)
 {
+  declareInterface<ISensitiveDetector>(this);
   declareProperty("EMECPosOuterWheel_ECOR_GADJCalculator", m_emecoutergadjcalc);
   declareProperty("EMECPosOuterWheel_ECOR_GADJ_OLDCalculator", m_emecoutergadjoldcalc);
   declareProperty("EMECPosOuterWheel_ECOR_GADJ_ECalculator", m_emecoutergadjecalc);

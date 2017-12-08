@@ -33,7 +33,7 @@ public:
     : m_s (name), m_get(get), m_attach(attach) {}
   
 
-  bool execute(TriggerElement* output ) {
+  StatusCode execute(TriggerElement* output ) {
     MsgStream log(Athena::getMessageSvc(), "RoICache_test:"+m_s);
     MsgStream *msglog = &log;
     BEGIN_TEST("One algorithm test "+m_s);
@@ -173,12 +173,12 @@ int main() {
 			   hns->attachFeature(te, a, Navigation::ObjectCreatedByNew, key, "made_by_calo");	     	  
 			   return StatusCode::SUCCESS;
 			 });
-  if( !calo.execute(clusterA) ) ABORT("");
-  if( !calo.execute(clusterB) ) ABORT("");  
-  if( !calo.execute(clusterC) ) ABORT("");
-  if( !calo.execute(clusterD) ) ABORT("");
+  if( calo.execute(clusterA).isFailure() ) ABORT("");
+  if( calo.execute(clusterB).isFailure() ) ABORT("");  
+  if( calo.execute(clusterC).isFailure() ) ABORT("");
+  if( calo.execute(clusterD).isFailure() ) ABORT("");
 
-  if( !calo.execute(clusterA1) ) ABORT("");
+  if( calo.execute(clusterA1).isFailure() ) ABORT("");
 
   REPORT_AND_CONTINUE("Executed calo on clusters");
     
@@ -199,8 +199,8 @@ int main() {
 			      return StatusCode::SUCCESS; 
 			    }
 			    );
-  if( !caloaux.execute(clusterC) ) ABORT("");
-  if( !caloaux.execute(clusterD) ) ABORT("");
+  if( caloaux.execute(clusterC).isFailure() ) ABORT("");
+  if( caloaux.execute(clusterD).isFailure() ) ABORT("");
 
 
 
@@ -223,12 +223,12 @@ int main() {
 			    hns->attachFeature(te, a, Navigation::ObjectCreatedByNew, key, "made_by_calo2");	     	  
 			    return StatusCode::SUCCESS;
 			  });
-  if( !calo2.execute(clusterD) )    ABORT("");
-  if( !calo2.execute(clusterC) )    ABORT("");
-  if( !calo2.execute(clusterB) )    ABORT("");
-  if( !calo2.execute(clusterA) )    ABORT("");
+  if( calo2.execute(clusterD).isFailure() )    ABORT("");
+  if( calo2.execute(clusterC).isFailure() )    ABORT("");
+  if( calo2.execute(clusterB).isFailure() )    ABORT("");
+  if( calo2.execute(clusterA).isFailure() )    ABORT("");
 
-  if( !calo2.execute(clusterA1) )    ABORT("");
+  if( calo2.execute(clusterA1).isFailure() )    ABORT("");
 
   REPORT_AND_CONTINUE("Executed c2 on clusters");
 
@@ -262,11 +262,11 @@ int main() {
 			  hns->attachFeature(te, a, Navigation::ObjectCreatedByNew, key, "made_by_trk");	     	  
 			  return StatusCode::SUCCESS;
 			});
-  if( !trk.execute(trackB) )  ABORT("");
-  if( !trk.execute(trackD) )  ABORT("");
-  if( !trk.execute(trackC) )  ABORT("");
-  if( !trk.execute(trackA) )  ABORT("");
-  if( !trk.execute(trackA1) ) ABORT("");
+  if( trk.execute(trackB).isFailure() )  ABORT("");
+  if( trk.execute(trackD).isFailure() )  ABORT("");
+  if( trk.execute(trackC).isFailure() )  ABORT("");
+  if( trk.execute(trackA).isFailure() )  ABORT("");
+  if( trk.execute(trackA1).isFailure() ) ABORT("");
 
 
 
@@ -310,11 +310,11 @@ int main() {
 			      hns->attachFeature(te, a, Navigation::ObjectCreatedByNew, key, "made_by_ma");	     	  
 			      return StatusCode::SUCCESS;
 			});
-  if( !matcher.execute(eleA) ) ABORT("");
-  if( !matcher.execute(eleB) ) ABORT("");
-  if( !matcher.execute(eleC) ) ABORT("");
-  if( !matcher.execute(eleD) ) ABORT("");
-  if( !matcher.execute(eleA1) ) ABORT("");
+  if( matcher.execute(eleA).isFailure() ) ABORT("");
+  if( matcher.execute(eleB).isFailure() ) ABORT("");
+  if( matcher.execute(eleC).isFailure() ) ABORT("");
+  if( matcher.execute(eleD).isFailure() ) ABORT("");
+  if( matcher.execute(eleA1).isFailure() ) ABORT("");
   REPORT_AND_CONTINUE("Executed ma on electron TEs");
   
 
@@ -350,9 +350,9 @@ int main() {
 			     [](TriggerElement* ) -> StatusCode {
 			       return StatusCode::SUCCESS;
 			     });
-  if ( !overlap.execute(ovCA1) ) ABORT("");
-  if ( !overlap.execute(ovDA1) ) ABORT("");
-  if ( !overlap.execute(ovAA1) ) ABORT("");
+  if ( overlap.execute(ovCA1).isFailure() ) ABORT("");
+  if ( overlap.execute(ovDA1).isFailure() ) ABORT("");
+  if ( overlap.execute(ovAA1).isFailure() ) ABORT("");
 
 
   REPORT_AND_CONTINUE("Executed on topo TEs");

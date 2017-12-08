@@ -1,0 +1,27 @@
+package TRT_G4_SD
+
+author Davide Costanzo <DCostanzo@lbl.gov>
+
+public
+
+use  AtlasPolicy           AtlasPolicy-*
+
+private
+use AtlasDoxygen          AtlasDoxygen-*          Tools
+use AthenaKernel          AthenaKernel-*          Control
+use CxxUtils              CxxUtils-*              Control
+use GaudiInterface        GaudiInterface-*        External
+use Geant4                Geant4-*                External
+use G4AtlasTools          G4AtlasTools-*          Simulation/G4Atlas
+use InDetSimEvent         InDetSimEvent-*         InnerDetector
+use MCTruth               MCTruth-*               Simulation/G4Sim
+use StoreGate             StoreGate-*             Control
+use TRT_G4Utilities       TRT_G4Utilities-*       InnerDetector/InDetG4
+end_private
+
+# build a installed library
+public
+apply_pattern declare_python_modules files="*.py"
+
+library TRT_G4_SD *.cxx components/*.cxx
+apply_pattern component_library

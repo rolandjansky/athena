@@ -1,0 +1,51 @@
+package JetEventTPCnv
+
+author Rolf Seuster  <seuster@cern.ch>
+
+use AtlasPolicy          AtlasPolicy-*
+use AtlasBoost           AtlasBoost-*               External
+
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use DataModelAthenaPool  DataModelAthenaPool-*      Control
+#use CLIDSvc              CLIDSvc-*                  Control
+
+
+use EventCommonTPCnv     EventCommonTPCnv-*         Event
+
+use JetEvent             JetEvent-*                 Reconstruction/Jet
+
+
+#use ParticleEvent        ParticleEvent-*            PhysicsAnalysis/AnalysisCommon
+use ParticleEventTPCnv   ParticleEventTPCnv-*       PhysicsAnalysis/AnalysisCommon
+
+private
+use AthenaKernel	 AthenaKernel-* 	    Control
+use AtlasReflex          AtlasReflex-*              External
+use AthAllocators        AthAllocators-*            Control
+use egammaEvent          egammaEvent-*              Reconstruction/egamma
+use MuonIDEvent          MuonIDEvent-*              PhysicsAnalysis/MuonID
+#use JetTagEvent          JetTagEvent-*              PhysicsAnalysis/JetTagging
+use VxVertex             VxVertex-*                 Tracking/TrkEvent
+
+public
+
+branches JetEventTPCnv src
+
+#library JetEventTPCnv -x=JetMomentMap_p1 -x=JetMomentMapCnv_p1 *.cxx
+library JetEventTPCnv *.cxx
+apply_pattern tpcnv_library
+
+# private
+# macro cppdebugflags '$(cppdebugflags_s)'
+# macro_remove componentshr_linkopts "-Wl,-s"
+
+
+# 
+# Create a dictionary for the persistent representation 
+# of transient classes
+private
+apply_pattern lcgdict dict=JetEventTPCnv selectionfile=selection.xml  headerfiles="../JetEventTPCnv/JetEventTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_JetEventTPCnv selectionfile=OLD_selection.xml  headerfiles="../JetEventTPCnv/JetEventTPCnvDict.h"
+end_private
+

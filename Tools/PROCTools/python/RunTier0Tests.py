@@ -436,7 +436,7 @@ def main():
     r2aMode = options.r2a_flag
     trigRun2Config = options.trigRun2Config_flag    
 
-#        tct_ESD = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
+#        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
 
 ########### Is TriggerFlags.run2Config defined properly?
     if trigRun2Config != "2016" and trigRun2Config != "2017":

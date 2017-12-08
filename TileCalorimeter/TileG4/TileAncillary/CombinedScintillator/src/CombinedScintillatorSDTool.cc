@@ -16,6 +16,7 @@ CombinedScintillatorSDTool::CombinedScintillatorSDTool(const std::string& type, 
                                                        const IInterface* parent)
     : SensitiveDetectorBase(type, name, parent)
 {
+  declareInterface<ISensitiveDetector>(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -1,0 +1,77 @@
+package InDetEventTPCnv
+
+author  Andreas Wildauer <Andreas.Wildauer@cern.ch>
+author  Edward Moyse <edward.moyse@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+use  AthAllocators              AthAllocators-*                 Control
+use  AthLinks                   AthLinks-*                      Control
+use  DataModelAthenaPool        DataModelAthenaPool-*           Control
+use  GaudiInterface             GaudiInterface-*                External
+use  Identifier                 Identifier-*                    DetectorDescription
+use  InDetCompetingRIOsOnTrack  InDetCompetingRIOsOnTrack-*     InnerDetector/InDetRecEvent
+use  InDetIdentifier            InDetIdentifier-*               InnerDetector/InDetDetDescr
+use  InDetLowBetaInfo           InDetLowBetaInfo-*              InnerDetector/InDetRecEvent
+use  InDetPrepRawData           InDetPrepRawData-*              InnerDetector/InDetRecEvent
+use  InDetRIO_OnTrack           InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
+use  StoreGate                  StoreGate-*                     Control
+use  TrkEventCnvTools           TrkEventCnvTools-*              Tracking/TrkEventCnv
+use  TrkEventTPCnv              TrkEventTPCnv-*                 Tracking/TrkEventCnv
+private
+use  CxxUtils                   CxxUtils-*                      Control
+use  SGTools                    SGTools-*                       Control
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaKernel               AthenaKernel-*                  Control
+use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
+use  EventPrimitives            EventPrimitives-*               Event
+use  IdDictParser               IdDictParser-*                  DetectorDescription
+use  InDetReadoutGeometry       InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
+use  TrkMeasurementBase         TrkMeasurementBase-*            Tracking/TrkEvent
+use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
+use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+end_private
+
+public
+
+apply_pattern tpcnv_library
+library InDetEventTPCnv  *.cxx \
+   InDetRIO_OnTrack/*.cxx \
+   InDetPrepRawData/*.cxx  \
+   InDetCompetingRIOsOnTrack/*.cxx \
+   InDetLowBetaInfo/*.cxx  
+
+# The following use is to get the lcgdict pattern.
+# This is "hidden" behind "private" and "no_auto_imports" to keep 
+# clients of EventInfo from seeing excess dependencies
+private
+use AtlasReflex        AtlasReflex-*        External -no_auto_imports
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See EventInfoDict
+apply_pattern lcgdict dict=InDetEventTPCnv  selectionfile=selection.xml headerfiles="../InDetEventTPCnv/InDetEventTPCnvDict.h"
+
+private
+use TestTools      TestTools-*         AtlasTest 
+
+apply_pattern UnitTest_run unit_test=SiWidthCnv_p1
+apply_pattern UnitTest_run unit_test=SiWidthCnv_p2
+apply_pattern UnitTest_run unit_test=PixelClusterCnv_p1
+apply_pattern UnitTest_run unit_test=PixelClusterCnv_p2
+apply_pattern UnitTest_run unit_test=PixelClusterCnv_p3
+apply_pattern UnitTest_run unit_test=PixelClusterContainerCnv_p1
+apply_pattern UnitTest_run unit_test=PixelClusterContainerCnv_p2
+apply_pattern UnitTest_run unit_test=PixelClusterContainerCnv_p3
+apply_pattern UnitTest_run unit_test=SCT_ClusterContainerCnv_p2
+apply_pattern UnitTest_run unit_test=SCT_ClusterContainerCnv_p3
+apply_pattern UnitTest_run unit_test=TRT_DriftCircleContainerCnv_p2
+apply_pattern UnitTest_run unit_test=SCT_ClusterCnv_p1
+apply_pattern UnitTest_run unit_test=SCT_ClusterCnv_p2
+apply_pattern UnitTest_run unit_test=SCT_ClusterCnv_p3
+apply_pattern UnitTest_run unit_test=TRT_DriftCircleCnv_p1
+apply_pattern UnitTest_run unit_test=TRT_DriftCircleCnv_p2
+apply_pattern UnitTest_run unit_test=PixelGangedClusterAmbiguitiesCnv_p1
+apply_pattern UnitTest_run unit_test=InDetLowBetaCandidateCnv_p1

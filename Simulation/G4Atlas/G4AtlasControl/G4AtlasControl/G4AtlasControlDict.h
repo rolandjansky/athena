@@ -3,3 +3,4 @@
 */
 
 #include "G4AtlasControl/SimControl.h"
+#include "G4AtlasControl/MCTruthMenu.h"

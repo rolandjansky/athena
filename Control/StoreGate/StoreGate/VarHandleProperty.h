@@ -27,7 +27,7 @@ template<>
   class Property<SG::VarHandleBase&> : public SG::VarHandleKeyProperty {
 public:
     Property(const std::string& name, SG::VarHandleBase& value) : 
-    SG::VarHandleKeyProperty(name, value.vhKey()) {}
+    SG::VarHandleKeyProperty(name, value) {}
     virtual ~Property() {}
 };
 
@@ -35,7 +35,7 @@ template<typename T>
   class Property<SG::ReadHandle<T>&> : public SG::VarHandleKeyProperty {
 public:
     Property(const std::string& name, SG::ReadHandle<T>& value) : 
-    SG::VarHandleKeyProperty(name, value.vhKey()) {}
+    SG::VarHandleKeyProperty(name, value) {}
     virtual ~Property() {}
 };
 
@@ -43,7 +43,7 @@ template<typename T>
   class Property<SG::WriteHandle<T>&> : public SG::VarHandleKeyProperty {
 public:
     Property(const std::string& name, SG::WriteHandle<T>& value) : 
-    SG::VarHandleKeyProperty(name, value.vhKey()) {}
+    SG::VarHandleKeyProperty(name, value) {}
     virtual ~Property() {}
 };
 
@@ -51,7 +51,7 @@ template<typename T>
   class Property<SG::UpdateHandle<T>&> : public SG::VarHandleKeyProperty {
 public:
     Property(const std::string& name, SG::UpdateHandle<T>& value) : 
-    SG::VarHandleKeyProperty(name, value.vhKey()) {}
+    SG::VarHandleKeyProperty(name, value) {}
     virtual ~Property() {}
 };
 
@@ -60,7 +60,7 @@ template<typename T>
   class Property<SG::ReadCondHandle<T>&> : public SG::VarHandleKeyProperty {
 public:
     Property(const std::string& name, SG::ReadCondHandle<T>& value) : 
-    SG::VarHandleKeyProperty(name, value.vhKey()) {}
+    SG::VarHandleKeyProperty(name, value) {}
     virtual ~Property() {}
 };
 

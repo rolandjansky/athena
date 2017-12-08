@@ -41,75 +41,75 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
 
     log<<MSG::INFO<<"Start retriving dbObjects with tag = <"<<geoTag<<"> node <"<<geoNode<<">"<<endmsg;
     // here putting RDB data in private "objects" form
-    std::unique_ptr<IRDBQuery> dbdata;
+    IRDBQuery* dbdata;
     dbdata = m_pRDBAccess->getQuery("ATYP",geoTag,geoNode);
-    m_dhatyp = new DblQ00Atyp(std::move(dbdata));
-
+    m_dhatyp = new DblQ00Atyp(dbdata);
+    delete dbdata;
     m_atyp = m_dhatyp->data();
     dbdata = m_pRDBAccess->getQuery("ASMP",geoTag,geoNode);
-    m_dhasmp = new DblQ00Asmp(std::move(dbdata));
-
+    m_dhasmp = new DblQ00Asmp(dbdata);
+    delete dbdata;
     m_asmp = m_dhasmp->data();
     dbdata = m_pRDBAccess->getQuery("ALMN",geoTag,geoNode);
-    m_dhalmn = new DblQ00Almn(std::move(dbdata));
-
+    m_dhalmn = new DblQ00Almn(dbdata);
+    delete dbdata;
     m_almn = m_dhalmn->data();
     dbdata = m_pRDBAccess->getQuery("APTP",geoTag,geoNode);
-    m_dhaptp = new DblQ00Aptp(std::move(dbdata));
-
+    m_dhaptp = new DblQ00Aptp(dbdata);
+    delete dbdata;
     m_aptp = m_dhaptp->data();
     dbdata = m_pRDBAccess->getQuery("ACUT",geoTag,geoNode);
-    m_dhacut = new DblQ00Acut(std::move(dbdata));
-
+    m_dhacut = new DblQ00Acut(dbdata);
+    delete dbdata;
     m_acut = m_dhacut->data();
     dbdata = m_pRDBAccess->getQuery("ALIN",geoTag,geoNode);
-    m_dhalin = new DblQ00Alin(std::move(dbdata));
-
+    m_dhalin = new DblQ00Alin(dbdata);
+    delete dbdata;
     m_alin = m_dhalin->data();
     dbdata = m_pRDBAccess->getQuery("DBAM",geoTag,geoNode);
-    m_dhdbam = new DblQ00Dbam(std::move(dbdata));
-    
+    m_dhdbam = new DblQ00Dbam(dbdata);
+    delete dbdata;
     m_dbam = m_dhdbam->data();
     dbdata = m_pRDBAccess->getQuery("AWLN",geoTag,geoNode);
-    m_dhwrpc = new DblQ00Awln(std::move(dbdata));
-    
+    m_dhwrpc = new DblQ00Awln(dbdata);
+    delete dbdata;
     m_wrpc= m_dhwrpc->data();
     dbdata = m_pRDBAccess->getQuery("ATLN",geoTag,geoNode);
-    m_dhwtgc = new DblQ00Atln(std::move(dbdata));
-    
+    m_dhwtgc = new DblQ00Atln(dbdata);
+    delete dbdata;
     m_wtgc= m_dhwtgc->data();
     dbdata = m_pRDBAccess->getQuery("WMDT",geoTag,geoNode);
-    m_dhwmdt = new DblQ00Wmdt(std::move(dbdata));
-    
+    m_dhwmdt = new DblQ00Wmdt(dbdata);
+    delete dbdata;
     m_wmdt= m_dhwmdt->data();
     dbdata = m_pRDBAccess->getQuery("WCSC",geoTag,geoNode);
-    m_dhwcsc = new DblQ00Wcsc(std::move(dbdata));
-    
+    m_dhwcsc = new DblQ00Wcsc(dbdata);
+    delete dbdata;
     m_wcsc= m_dhwcsc->data();
     dbdata = m_pRDBAccess->getQuery("WRPC",geoTag,geoNode);
-    m_dhwrpcall = new DblQ00Wrpc(std::move(dbdata));
-    
+    m_dhwrpcall = new DblQ00Wrpc(dbdata);
+    delete dbdata;
     m_wrpcall= m_dhwrpcall->data();
     dbdata = m_pRDBAccess->getQuery("WTGC",geoTag,geoNode);
-    m_dhwtgcall = new DblQ00Wtgc(std::move(dbdata));
-    
+    m_dhwtgcall = new DblQ00Wtgc(dbdata);
+    delete dbdata;
     m_wtgcall= m_dhwtgcall->data();
     dbdata = m_pRDBAccess->getQuery("WSPA",geoTag,geoNode);
-    m_dhwspa = new DblQ00Wspa(std::move(dbdata));
-    
+    m_dhwspa = new DblQ00Wspa(dbdata);
+    delete dbdata;
     m_wspa= m_dhwspa->data();
     dbdata = m_pRDBAccess->getQuery("WDED",geoTag,geoNode);
-    m_dhwded = new DblQ00Wded(std::move(dbdata));
-    
+    m_dhwded = new DblQ00Wded(dbdata);
+    delete dbdata;
     m_wded= m_dhwded->data();
     dbdata = m_pRDBAccess->getQuery("WSUP",geoTag,geoNode);
-    m_dhwsup = new DblQ00Wsup(std::move(dbdata));
-    
+    m_dhwsup = new DblQ00Wsup(dbdata);
+    delete dbdata;
     m_wsup= m_dhwsup->data();
     // Mdt AsBuilt parameters
     dbdata = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
     log<<MSG::INFO<<"After getQuery XtomoData"<<endmsg;    
-    m_dhxtomo = new DblQ00Xtomo(std::move(dbdata));
+    m_dhxtomo = new DblQ00Xtomo(dbdata);
     log<<MSG::INFO<<"After new DblQ00Xtomo"<<endmsg;  
     m_xtomo = m_dhxtomo->data();
     log<<MSG::INFO<<"After m_dhxtomo.data()"<<endmsg; 
@@ -129,17 +129,17 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     if (m_dhaszt==0 || m_dhaszt->size()==0) {
       log<<MSG::INFO<<"No Ascii aszt input found: looking for A-lines in ORACLE"<<endmsg;
       dbdata = m_pRDBAccess->getQuery("ASZT",geoTag,geoNode);
-      if (!dbdata) {
+      if (dbdata == 0) {
 	m_dhaszt = new DblQ00Aszt();
 	log<<MSG::INFO<<"No ASZT table in Oracle"<<endmsg;
       }
       else 
       {
 	  log<<MSG::INFO<<"ASZT table found in Oracle"<<endmsg;
-	  m_dhaszt = new DblQ00Aszt(std::move(dbdata));
+	  m_dhaszt = new DblQ00Aszt(dbdata);
 	  log<<MSG::INFO<<"ASZT size is "<<m_dhaszt->size()<<endmsg;
       }
-      
+      delete dbdata;
     }
     else log<<MSG::INFO<<"ASZT table in Oracle, if any, will not be read"<<endmsg;
     m_aszt= m_dhaszt->data();
@@ -166,15 +166,15 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     if (m_dhiacsc==0 || m_dhiacsc->size()==0) {
       log<<MSG::INFO<<"No Ascii iacsc input found: looking for A-lines in ORACLE"<<endmsg;
       dbdata = m_pRDBAccess->getQuery("ISZT",geoTag,geoNode);    
-      if (!dbdata) {
+      if (dbdata == 0) {
 	m_dhiacsc = new DblQ00IAcsc();
 	log<<MSG::INFO<<"No ISZT table in Oracle"<<endmsg;
       }
       else {
 	log<<MSG::INFO<<"ISZT table found in Oracle"<<endmsg;
-	m_dhiacsc = new DblQ00IAcsc(std::move(dbdata));
+	m_dhiacsc = new DblQ00IAcsc(dbdata);
       }
-      
+      delete dbdata;
     }
     else log<<MSG::INFO<<"ISZT table in Oracle, if any, will not be read"<<endmsg;
     m_iacsc= m_dhiacsc->data();
@@ -191,20 +191,20 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     if (geoTag != "ATLAS-00")
     {
         dbdata = m_pRDBAccess->getQuery("WCHV",geoTag,geoNode);
-        m_dhwchv = new DblQ00Wchv(std::move(dbdata));
-	
+        m_dhwchv = new DblQ00Wchv(dbdata);
+	delete dbdata;
         m_wchv= m_dhwchv->data();
         dbdata = m_pRDBAccess->getQuery("WCRO",geoTag,geoNode);
-        m_dhwcro = new DblQ00Wcro(std::move(dbdata));
-	
+        m_dhwcro = new DblQ00Wcro(dbdata);
+	delete dbdata;
         m_wcro= m_dhwcro->data();
         dbdata = m_pRDBAccess->getQuery("WCMI",geoTag,geoNode);
-        m_dhwcmi = new DblQ00Wcmi(std::move(dbdata));
-	
+        m_dhwcmi = new DblQ00Wcmi(dbdata);
+	delete dbdata;
         m_wcmi= m_dhwcmi->data();
         dbdata = m_pRDBAccess->getQuery("WLBI",geoTag,geoNode);
-        m_dhwlbi = new DblQ00Wlbi(std::move(dbdata));
-	
+        m_dhwlbi = new DblQ00Wlbi(dbdata);
+	delete dbdata;
         m_wlbi= m_dhwlbi->data();
     } else {
         m_dhwchv = NULL;

@@ -1,0 +1,29 @@
+## automatically generated CMT requirements file
+package xAODCutFlowAthenaPool
+author  kkoeneke
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+private
+## for gaudi tools, services and objects
+#use GaudiInterface 	GaudiInterface-* 	External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# POOL package(s):
+use AthenaPoolUtilities   AthenaPoolUtilities-*  Database/AthenaPOOL
+
+# EDM package(s):
+use xAODCutFlow           xAODCutFlow-*          Event/xAOD
+
+
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::CutBookkeeperContainer \
+                                          xAOD::CutBookkeeperAuxContainer" \
+                      files="-s=${xAODCutFlow_root}/xAODCutFlow \
+                             CutBookkeeperContainer.h \
+                             CutBookkeeperAuxContainer.h" \
+                      cnv_pfx="xAOD"
+end_private

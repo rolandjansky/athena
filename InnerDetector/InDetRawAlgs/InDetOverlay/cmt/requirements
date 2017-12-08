@@ -1,0 +1,25 @@
+package InDetOverlay
+
+author Andrei Gaponenko <agaponenko@lbl.gov>
+
+public
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+use IDC_OverlayBase     IDC_OverlayBase-*       Event/EventOverlay
+use InDetRawData        InDetRawData-*          InnerDetector/InDetRawEvent
+
+
+private
+use CxxUtils            CxxUtils-*              Control
+use GeneratorObjects    GeneratorObjects-*      Generators
+use InDetIdentifier     InDetIdentifier-*       InnerDetector/InDetDetDescr
+use InDetSimData        InDetSimData-*          InnerDetector/InDetRawEvent
+use StoreGate           StoreGate-*             Control
+end_private
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
+
+library InDetOverlay *.cxx components/*.cxx
+
