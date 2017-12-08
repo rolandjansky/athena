@@ -164,7 +164,7 @@ TBAlgoSequencer::execute()
       algoCounter++;
     }
   // this is the trick - catch it before the framework terminates the job!  
-  return SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //////////////
