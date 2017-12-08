@@ -19,7 +19,9 @@
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
-  : egammaBaseTool(type, name, parent)
+  : egammaBaseTool(type, name, parent),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
+
 {
   //
   // constructor
