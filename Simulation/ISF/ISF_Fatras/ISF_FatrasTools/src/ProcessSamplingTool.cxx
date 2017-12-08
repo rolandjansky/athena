@@ -35,7 +35,7 @@
 iFatras::ProcessSamplingTool::ProcessSamplingTool( const std::string& t,
                                       const std::string& n,
                                       const IInterface*  p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_rndGenSvc("AtDSFMTGenSvc", n),
     m_randomEngine(0),
     m_randomEngineName("FatrasRnd"),
@@ -47,7 +47,6 @@ iFatras::ProcessSamplingTool::ProcessSamplingTool( const std::string& t,
     m_validationMode(false),
     m_validationTool("")
 {
-  declareInterface<IProcessSamplingTool>(this);
   // service handles
   declareProperty( "RandomNumberService"                , m_rndGenSvc                );
   // hadronic interactions
@@ -320,7 +319,13 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
 			       ISF::fKillsPrimary );
   m_truthRecordSvc->registerTruthIncident( truth);
 
-  //  
+  //Make sure the conversion products get a chance to have correct truth info before pushing into the particle broker
+  for (unsigned int i=0; i<childVector.size(); i++) {
+     if (!childVector[i]->getTruthBinding()) {
+         childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+     }
+  }
+ 
   return childVector;
 }
 
@@ -385,7 +390,13 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
 			       ISF::fKillsPrimary );
   m_truthRecordSvc->registerTruthIncident( truth);
 
-  //
+  //Make sure the conversion products get a chance to have correct truth info before pushing into the particle broker
+  for (unsigned int i=0; i<childVector.size(); i++) {
+      if (!childVector[i]->getTruthBinding()) {
+          childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+      }
+  }
+
   return childVector; 
   
 }

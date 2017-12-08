@@ -28,11 +28,23 @@ StatusCode RoRSeqFilter::initialize()
     CHECK( m_inputKeys.size() == m_outputKeys.size() );
   }
 
-  for ( auto key: m_inputKeys ) {
-    renounce( key );
-  }
+  // for ( auto key: m_inputKeys ) {
+  //   renounce( key );
+  // }
   CHECK( m_inputKeys.initialize() );
   CHECK( m_outputKeys.initialize() );
+
+  renounceArray(m_inputKeys);
+  renounceArray(m_outputKeys);
+
+  ATH_MSG_DEBUG("Will consume implicit ReadDH:" );
+  for (auto& input: m_inputKeys){  
+    ATH_MSG_DEBUG(" - "<<input.key());
+  }
+  ATH_MSG_DEBUG("Will produce implicit WriteDH: ");
+  for (auto& output: m_outputKeys){  
+    ATH_MSG_DEBUG(" - "<<output.key());
+  }
 
   
   CHECK( not m_chainsProperty.empty() );
@@ -43,6 +55,8 @@ StatusCode RoRSeqFilter::initialize()
   for ( const HLT::Identifier& id: m_chains )
     ATH_MSG_DEBUG( "Configured to require chain " << id );
   
+  ATH_MSG_DEBUG( "mergeInputs is "<<m_mergeInputs);
+
   return StatusCode::SUCCESS;
 }
 
@@ -78,7 +92,7 @@ StatusCode RoRSeqFilter::execute() {
       
       passCounter += copyPassing( *inputHandle, *output );
 
-      ATH_MSG_DEBUG( "Recording " << outputIndex << " " <<  m_outputKeys[ outputIndex ].key() );
+      ATH_MSG_DEBUG( "Recording output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
   
       CHECK( outputHandles[outputIndex].record( std::move( output ) ) );
 

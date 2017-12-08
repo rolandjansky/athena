@@ -125,14 +125,16 @@ namespace Muon
     double m_invSpeed;
 
     /// MdtPrepRawData containers
-    SG::WriteHandle<Muon::MdtPrepDataContainer> m_mdtPrepDataContainer;
-    SG::ReadHandle< MdtCsmContainer>            m_rdoContainer;//MDTCSM
+    Muon::MdtPrepDataContainer* m_mdtPrepDataContainer;
+    SG::WriteHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepDataContainerKey;
+
+    SG::ReadHandleKey< MdtCsmContainer>         m_rdoContainerKey;//MDTCSM
 
         
     /** member variables for algorithm properties: */
     bool m_calibratePrepData; //!< toggle on/off calibration of MdtPrepData
     bool m_decodeData; //!< toggle on/off the decoding of MDT RDO into MdtPrepData
-	bool m_sortPrepData; //!< Toggle on/off the sorting of the MdtPrepData
+    bool m_sortPrepData; //!< Toggle on/off the sorting of the MdtPrepData
 
     bool m_useBStoRdoTool;
 
@@ -148,6 +150,9 @@ namespace Muon
     bool m_fullEventDone;
 
     bool m_BMEpresent;
+    bool m_BMGpresent;
+    int m_BMEid;
+    int m_BMGid;
 
     // + TWIN TUBE
     bool   m_useTwin;
@@ -159,6 +164,10 @@ namespace Muon
     int m_twin_chamber[2][3][36];
     int m_secondaryHit_twin_chamber[2][3][36];
     // - TWIN TUBE
+
+    std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
+    void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
+
   }; 
 } // end of namespace
 

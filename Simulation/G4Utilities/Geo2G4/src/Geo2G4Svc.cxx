@@ -8,7 +8,7 @@
 void InitializeBuilders();
 
 Geo2G4Svc::Geo2G4Svc(const std::string& name, ISvcLocator* svcLocator)
-  : AthService(name,svcLocator)
+  : base_class(name,svcLocator)
   , m_defaultBuilder(nullptr)
   , m_getTopTransform(true)
 {
@@ -47,17 +47,6 @@ StatusCode Geo2G4Svc::finalize()
   ATH_MSG_VERBOSE ("Finalizing the Geo2G4Svc.");
 
   return StatusCode::SUCCESS;
-}
-
-StatusCode Geo2G4Svc::queryInterface(const InterfaceID& riid, void**ppvInt)
-{
-  const InterfaceID& iid=IGeo2G4Svc::interfaceID();
-  if (riid==iid)
-    {
-      *ppvInt=dynamic_cast<IGeo2G4Svc*>(this);
-      return StatusCode::SUCCESS;
-    }
-  return AthService::queryInterface(riid,ppvInt);
 }
 
 void Geo2G4Svc::handle(const Incident& )

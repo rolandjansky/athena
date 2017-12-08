@@ -249,11 +249,12 @@ class AlgFactory(object):
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
             'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
+            'do_substructure': "'True'", # "'%s'" % (self.fex_params.do_substructure),
             'output_collection_label': "'%s'" % (self.fex_params.fex_label),
             'rclus': self.fex_params.rclus,
             'ptfrac': self.fex_params.ptfrac,
         }
-        print 'after kwds' #Nima!
+
         return [Alg(factory, (), kwds)]
    
     #HI

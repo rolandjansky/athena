@@ -259,6 +259,12 @@ def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
     return CfgMgr.DetectorGeometrySvc(name, **kwargs)
 
 def getG4AtlasSvc(name="G4AtlasSvc", **kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+        is_hive = True
+    else:
+        is_hive = False
+    kwargs.setdefault("isMT", is_hive)
     kwargs.setdefault("DetectorGeometrySvc", 'DetectorGeometrySvc')
     return CfgMgr.G4AtlasSvc(name, **kwargs)
 

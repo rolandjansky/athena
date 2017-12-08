@@ -25,11 +25,12 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
    PRIVATE
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking
-	 Event/xAOD/xAODMetaData
+   Event/xAOD/xAODMetaData
    Reconstruction/egamma/egammaLayerRecalibTool
    Reconstruction/egamma/egammaMVACalib
    Event/xAOD/xAODTruth
@@ -38,6 +39,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
@@ -45,7 +47,7 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    PUBLIC_HEADERS ElectronPhotonFourMomentumCorrection
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
-   xAODEventInfo PATInterfaces PATCoreLib egammaMVACalibLib xAODTruth
+   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreLib egammaMVACalibLib xAODTruth
    PRIVATE_LINK_LIBRARIES xAODTracking xAODMetaData egammaLayerRecalibTool
    PathResolver )
 

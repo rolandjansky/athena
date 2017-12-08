@@ -9,13 +9,14 @@ atlas_subdir( TRT_CalibTools )
 atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           GaudiKernel
+                          Event/xAOD/xAODEventInfo
                           InnerDetector/InDetCalibEvent/TRT_CalibData
                           InnerDetector/InDetRawEvent/InDetRawData
                           PRIVATE
                           Commission/CommissionEvent
                           Control/AthenaBaseComps
+                          Control/StoreGate
                           DetectorDescription/AtlasDetDescr
-                          Event/EventInfo
                           Event/EventPrimitives
                           Event/xAOD/xAODTracking
                           InnerDetector/InDetConditions/TRT_ConditionsData
@@ -44,7 +45,7 @@ atlas_add_component( TRT_CalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} Identifier GaudiKernel InDetRawData CommissionEvent AthenaBaseComps AtlasDetDescr EventInfo EventPrimitives xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} Identifier GaudiKernel InDetRawData CommissionEvent AthenaBaseComps StoreGateLib AtlasDetDescr EventPrimitives xAODEventInfo xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_CalibTools )

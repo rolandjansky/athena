@@ -16,6 +16,7 @@
 
 #include <deque>
 #include <vector>
+#include <map>
 
 // forward declarations
 class IdentifierHash;

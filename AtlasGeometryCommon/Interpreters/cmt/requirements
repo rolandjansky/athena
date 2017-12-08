@@ -1,5 +1,0 @@
-package Interpreters
-
-use	AtlasPolicy	AtlasPolicy-*
-
-apply_pattern declare_scripts files="physh totalphysh athenash.py"

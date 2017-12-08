@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Aptp.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -31,7 +30,7 @@
 namespace MuonGM
 {
 
-DblQ00Aptp::DblQ00Aptp(IRDBQuery* aptp)
+DblQ00Aptp::DblQ00Aptp(std::unique_ptr<IRDBQuery>&& aptp)
  : m_nObj(0)
 {
   if(aptp) {

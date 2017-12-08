@@ -39,7 +39,7 @@ public:
   bool addModule( const Identifier & moduleId, const CalibModuleDefects & defects );
  
   /// Search the map for a module
-  CalibModuleDefects findModule( const Identifier & moduleId );
+  CalibModuleDefects findModule( const Identifier & moduleId ) const;
   
   /// Print the map - might be useful
   std::string str();
@@ -65,5 +65,8 @@ private:
 };
 
 CLASS_DEF( SCT_CalibDefectData , 103608210, 1 )
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( SCT_CalibDefectData , 1073500 );
 
 #endif // SCT_CALIBDEFECTDATA_H

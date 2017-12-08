@@ -72,13 +72,13 @@ namespace JiveXML {
     if ( !evtStore()->retrieve(cellContainerMBTS,m_sgKeyMBTS))
     {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
-      return false;
+      return StatusCode::FAILURE;
     }
 
     if (m_mbts) {
       DataMap data = getMBTSData(cellContainerMBTS);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKeyMBTS, &data).isFailure()) {
-        return false;
+        return StatusCode::FAILURE;
       } else {
        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MBTS retrieved" << endmsg;
       }

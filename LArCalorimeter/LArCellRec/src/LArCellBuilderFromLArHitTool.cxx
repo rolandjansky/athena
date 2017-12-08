@@ -344,7 +344,7 @@ LArCellBuilderFromLArHitTool::handle(const Incident& /* inc*/ )
   if (m_WithMap) 
   {    
     ATH_MSG_VERBOSE (" initialize internal cell collection ");
-    if (this->initializeCellPermamentCollection()!=SUCCESS)
+    if (!this->initializeCellPermamentCollection().isSuccess())
     {
       ATH_MSG_FATAL ("Making of cell permament collection failed");
       return;

@@ -246,7 +246,7 @@ void
 TestLArMaterial::print_Layers()
 {
   
-  Amg::Transform3D* htrans = new Amg::Transform3D();
+  Amg::Transform3D htrans;
   double hphi;
   std::vector<double> radius;  
   std::vector<double> depth;
@@ -264,7 +264,7 @@ TestLArMaterial::print_Layers()
     std::cout << "Vol " << i << " is " << m_lar_names->alignVolName(alvol) 
 	      <<" and is made of ";
 
-    result = m_surfbuild->get_cylinder_surface (alvol,htrans,hphi,radius,depth,hlength );
+    result = m_surfbuild->get_cylinder_surface (alvol,&htrans,hphi,radius,depth,hlength );
     if (result) {
       std::cout << radius.size() << " cylindrical layers " << std::endl;
       for ( unsigned int i = 0; i<radius.size(); i++ ) {
@@ -275,7 +275,7 @@ TestLArMaterial::print_Layers()
     }
     else {
 
-      result = m_surfbuild->get_disk_surface (alvol,htrans,hphi,z,depth,rmin,rmax );
+      result = m_surfbuild->get_disk_surface (alvol,&htrans,hphi,z,depth,rmin,rmax );
       if (result) {
 	std::cout << z.size() << " disk layers " << std::endl;
 	for ( unsigned int i = 0; i<z.size(); i++ ) {

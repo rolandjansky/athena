@@ -42,6 +42,7 @@ struct BadFebEntryMerger {
 LArBadChanTool::LArBadChanTool(const std::string& type, const std::string& name, 
 			       const IInterface* parent) :
 	AthAlgTool( type, name, parent), 
+        m_cablingService("LArCablingService"),
 	m_updatedFromDB( false),
 	m_updatedFebsFromDB( false),
 	m_ready( false),

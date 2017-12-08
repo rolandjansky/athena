@@ -50,8 +50,6 @@ ThreadPoolSvc                                      INFO no thread init tools att
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
 AvalancheSchedulerSvc                              INFO Start checking the actionsQueue
-PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
-PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                              INFO Found 10 algorithms
 AvalancheSchedulerSvc                              INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg
@@ -94,10 +92,12 @@ AvalancheSchedulerSvc                              INFO Data Dependencies for Al
       none
 AvalancheSchedulerSvc                              INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
    o ('EventInfo','StoreGateSvc+McEventInfo')    required by Algorithm: 
-       * xAODTestWriteCVec
-       * xAODTestWriteCInfo
-       * xAODTestWriteSymlinks
        * xAODTestAlg
+       * xAODTestWriteSymlinks
+       * xAODTestWriteCInfo
+       * xAODTestWriteCVec
+PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
+PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                              INFO Concurrency level information:
 AvalancheSchedulerSvc                              INFO  o Number of events in flight: 1
 AvalancheSchedulerSvc                              INFO  o TBB thread pool size:  'ThreadPoolSize':1

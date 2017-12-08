@@ -18,8 +18,8 @@
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/ClassID.h"
 #include "AthenaKernel/getMessageSvc.h" /*Athena::IMessageSvcHolder*/
+#include "AthenaKernel/IRegisterTransient.h"
 #include "SGTools/TransientAddress.h"
-#include "SGTools/IRegisterTransient.h"
 #include "SGTools/exceptions.h"
 #include "CxxUtils/checker_macros.h"
 

@@ -61,7 +61,7 @@ StatusCode ORToolBoxTestAlg::execute()
   applySelection(*taus);
   // Jets
   const xAOD::JetContainer* jets = 0;
-  ATH_CHECK( evtStore()->retrieve(jets, "AntiKt4LCTopoJets") );
+  ATH_CHECK( evtStore()->retrieve(jets, "AntiKt4EMTopoJets") );
   applySelection(*jets);
   // Photons
   const xAOD::PhotonContainer* photons = 0;

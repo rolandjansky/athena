@@ -547,7 +547,8 @@ std::vector<uint16_t> PpmByteStreamReadV1V2Tool::getPpmAdcSamplesR3_(
 
 StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
     int inData){
-  bool error = false;
+
+  StatusCode sc;
   if (m_subBlockHeader.seqNum() == 63) { // Error block
     ATH_MSG_DEBUG("Error PPM subblock");
     //TODO: errorTool
@@ -574,11 +575,11 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_(uint32_t word,
     
     } else{
       ATH_MSG_WARNING("Error decoding Ppm word (run1)");
-      error = true;
+      sc = StatusCode::FAILURE;
     }
  
   }
-  return !error;
+  return sc;
 }
 
 StatusCode PpmByteStreamReadV1V2Tool::processPpmBlockR4V1_() {

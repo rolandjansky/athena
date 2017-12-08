@@ -80,8 +80,9 @@ StatusCode egammaTrkRefitterTool::initialize()
   if (m_ITrackFitter.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_ITrackFitter);
     return StatusCode::FAILURE;
-  } else 
+  } else {
     ATH_MSG_INFO("Retrieved tool " << m_ITrackFitter);
+  }
 
   //linearized track factory
   if (m_linFactory.retrieve().isFailure()){
@@ -98,13 +99,16 @@ StatusCode egammaTrkRefitterTool::initialize()
   }
   ATH_MSG_INFO("Retrieved " << m_extrapolator);
 
-  // configure Atlas extrapolator
-  if (m_CCOTBuilder.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_CCOTBuilder );
-    return StatusCode::FAILURE;
+  // configure calo cluster on track builder (only if used)
+  if (m_useClusterPosition) {
+    if (m_CCOTBuilder.retrieve().isFailure()) {
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_CCOTBuilder );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Retrieved " << m_CCOTBuilder);
+  } else {
+    m_CCOTBuilder.disable();
   }
-  ATH_MSG_INFO("Retrieved " << m_CCOTBuilder);
-
 
 
 

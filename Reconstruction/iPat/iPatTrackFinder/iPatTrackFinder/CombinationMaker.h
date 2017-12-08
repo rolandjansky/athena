@@ -107,10 +107,7 @@ private:
     double				m_middleTolerance;
     unsigned				m_numberOfSearches;
     bool				m_pixelInterchange;
-    bool				m_pixelSelect;
-    int					m_printLevel;
     double				m_radialSpread;
-    bool				m_sctSelect;
     search_order::const_iterator	m_search;
     search_order::const_iterator	m_searchEnd;
     search_order			m_searchOrder;
@@ -135,7 +132,6 @@ private:
     point_iterator                      m_vEnd;
     double				m_iPhiMax;
     double				m_mPhiMax;
-    double				m_mPhiTolerance;
     double				m_vPhiTolerance;
     // keep some statistics
     int					m_outerCombinations;

@@ -23,10 +23,8 @@ class IEquationOfMotionTool : virtual public IAlgTool
 public:
   IEquationOfMotionTool() {}
   virtual ~IEquationOfMotionTool() {}
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID_IEquationOfMotionTool( "IEquationOfMotionTool" , 1 , 0 ) ;
-    return IID_IEquationOfMotionTool ;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IEquationOfMotionTool, 1, 0);
 
   // Method needed to create G4Mag_EqRhs
   virtual G4Mag_EqRhs* makeEquationOfMotion(G4MagneticField *emField) const = 0 ;

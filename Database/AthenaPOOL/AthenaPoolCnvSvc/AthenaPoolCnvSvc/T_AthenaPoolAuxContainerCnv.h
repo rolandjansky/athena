@@ -20,8 +20,10 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "AthenaPoolCnvSvc/TPCnvList.h"
 #include "AthenaPoolCnvSvc/exceptions.h"
+#include "AthenaPoolCnvSvc/debug.h"
 #include "AthContainers/tools/copyThinned.h"
 #include "AthenaKernel/IThinningSvc.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 
 /**

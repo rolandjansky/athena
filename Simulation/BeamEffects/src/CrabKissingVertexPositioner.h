@@ -40,9 +40,7 @@ namespace Simulation
 
       @author John.Chapman -at- cern.ch, Elmar.Ritsch -at- cern.ch, Daniele.Ruini -at- poltechnique.edu
      */
-  class CrabKissingVertexPositioner : public AthAlgTool,
-                                      virtual public ILorentzVectorGenerator
-  {
+  class CrabKissingVertexPositioner : public extends<AthAlgTool, ILorentzVectorGenerator> {
 
     public:
 

@@ -70,6 +70,9 @@
 #include "MdtCalibData/MdtTubeCalibContainer.h"
 #include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
+static constexpr unsigned int crazyParticleBarcode(
+    std::numeric_limits<int32_t>::max());
+// Barcodes at the HepMC level are int
 
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
@@ -81,6 +84,9 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_digiTool("MDT_Response_DigiTool", this)
   , m_inv_c_light(1./(CLHEP::c_light))
   , m_thpcMDT(0)
+  , m_vetoThisBarcode(crazyParticleBarcode) 
+  , m_BMGpresent(false)
+  , m_BMGid(-1)
   , m_mergeSvc(0)
   , m_inputObjectName("")
   , m_outputObjectName("")
@@ -106,7 +112,8 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   declareProperty("GetT0FromBD",         m_t0_from_DB          =  false );
   //TDC electronics
   declareProperty("OffsetTDC",           m_offsetTDC           =  800.,       "TDC offset");
-  declareProperty("ns2TDC",              m_ns2TDC              =  0.78125,  "Conversion factor TDC/ns");
+  declareProperty("ns2TDCAMT",           m_ns2TDCAMT           =  0.78125,  "Conversion factor TDC/ns for AMT chips");
+  declareProperty("ns2TDCHPTDC",         m_ns2TDCHPTDC         =  0.1953125,"Conversion factor TDC/ns for HPTDC chips");
   declareProperty("ResolutionTDC",       m_resTDC              =  0.5,      "TDC resolution");
   declareProperty("SignalSpeed",         m_signalSpeed         =  299.792458, "Light speed" );
   //Object names		          
@@ -142,6 +149,9 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   //Cosmics
   declareProperty("UseOffSet1",          m_useOffSet1          =  true);
   declareProperty("UseOffSet2",          m_useOffSet2          =  true);
+  //Truth
+  declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
+  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 
@@ -161,7 +171,8 @@ StatusCode MdtDigitizationTool::initialize() {
   if (!m_UseDeadChamberSvc) ATH_MSG_INFO ( "MaskedStations         " << m_maskedStations      );
   ATH_MSG_INFO ( "GetT0FromDB            " << m_t0_from_DB          );
   ATH_MSG_INFO ( "OffsetTDC              " << m_offsetTDC           );
-  ATH_MSG_INFO ( "ns2TDC                 " << m_ns2TDC              );
+  ATH_MSG_INFO ( "ns2TDCAMT              " << m_ns2TDCAMT           );
+  ATH_MSG_INFO ( "ns2TDCHPTDC            " << m_ns2TDCHPTDC         );
   ATH_MSG_INFO ( "ResolutionTDC          " << m_resTDC              );
   ATH_MSG_INFO ( "SignalSpeed            " << m_signalSpeed         );
   ATH_MSG_INFO ( "InputObjectName        " << m_inputObjectName     );
@@ -190,6 +201,8 @@ StatusCode MdtDigitizationTool::initialize() {
     ATH_MSG_INFO ( "UseCosmicsOffSet1      " << m_useOffSet1          );
     ATH_MSG_INFO ( "UseCosmicsOffSet2      " << m_useOffSet2          );
   }
+  ATH_MSG_INFO ( "IncludePileUpTruth     " << m_includePileUpTruth    );
+  ATH_MSG_INFO ( "ParticleBarcodeVet     " << m_vetoThisBarcode       );
 
 
   // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager  
@@ -310,6 +323,12 @@ StatusCode MdtDigitizationTool::initialize() {
   }
   else {
     ATH_MSG_DEBUG("Using JobOptions for masking dead/missing chambers");
+  }
+
+  m_BMGpresent = m_idHelper->stationNameIndex("BMG") != -1;
+  if(m_BMGpresent){
+    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+    m_BMGid = m_idHelper->stationNameIndex("BMG");
   }
   
   return StatusCode::SUCCESS;
@@ -588,7 +607,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
   
   if (0 == element) { 
     ATH_MSG_ERROR( "MuonGeoManager does not return valid element for given id!" );
-    return StatusCode::FAILURE;
+    return false;
   } 
   else {
     distRO = element->tubeFrame_localROPos(multilayer,layer,tube).z();
@@ -958,7 +977,7 @@ bool MdtDigitizationTool::createDigits(){
     }
     if(digitCollection==NULL) {
       ATH_MSG_ERROR( "Trying to use NULL pointer digitCollection" );
-      return StatusCode::FAILURE;
+      return false;
     }
       
     
@@ -1019,9 +1038,9 @@ bool MdtDigitizationTool::createDigits(){
 	  }
 	}
       }
-      
-      int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal);
-      int adc = digitizeTime(it->adc);
+      bool isHPTDC = ( m_idHelper->stationName(idDigit) == m_BMGid && m_BMGpresent) ? true : false;
+      int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal, isHPTDC);
+      int adc = digitizeTime(it->adc, isHPTDC);
       ATH_MSG_DEBUG( " >> Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime
 		     << " driftRadius " << driftRadius << " TDC " << tdc << " ADC " << adc << " mask bit " << insideMask );
 
@@ -1030,7 +1049,13 @@ bool MdtDigitizationTool::createDigits(){
       
       float localZPos = (float) hit.localPosition().z();
       ATH_MSG_VERBOSE( " createDigits() phit-" << &phit << " hit-" << hit.print() << "    localZPos = " << localZPos ); 
-    
+
+      //Do not store pile-up truth information
+      if (!m_includePileUpTruth &&
+          ((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) {
+        continue;
+      }
+
       //Create the Deposit for MuonSimData
       MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), MuonMCData((float)driftRadius,localZPos));
 
@@ -1083,9 +1108,9 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
   return digitCollection;
 }
 
-int MdtDigitizationTool::digitizeTime(double time) const {
+int MdtDigitizationTool::digitizeTime(double time, bool isHPTDC) const {
   int    tdcCount;
-  double tmpCount = time/m_ns2TDC;
+  double tmpCount = isHPTDC ? time/m_ns2TDCHPTDC : time/m_ns2TDCAMT;
   double rand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, tmpCount, m_resTDC);
   tdcCount = static_cast<long>(rand);
   

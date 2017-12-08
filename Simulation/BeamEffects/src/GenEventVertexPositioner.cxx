@@ -20,16 +20,13 @@
 
 namespace Simulation
 {
-
   /** Constructor **/
   GenEventVertexPositioner::GenEventVertexPositioner( const std::string& t,
                                                       const std::string& n,
                                                       const IInterface* p )
-    : AthAlgTool(t,n,p),
-      m_vertexShifters(this)
+    : base_class(t,n,p)
+    , m_vertexShifters(this)
   {
-    declareInterface<IGenEventManipulator>(this);
-
     declareProperty("VertexShifters", m_vertexShifters);
   }
 

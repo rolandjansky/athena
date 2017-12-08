@@ -134,8 +134,7 @@ void MergeGenericMuonSimHitCollTool::processGenericMuonSimHitColl(const GenericM
 {
   for (GenericMuonSimHitCollection::const_iterator simhitIter = inputCollection->begin(); simhitIter != inputCollection->end(); ++simhitIter) {
     const int idHit = simhitIter->GenericId();
-    GenericMuonSimHit* copyHit = new GenericMuonSimHit(idHit, simhitIter->globalTime()+timeOfBCID, simhitIter->globalpreTime()+timeOfBCID, simhitIter->globalPosition(), simhitIter->localPosition(), simhitIter->globalPrePosition(),simhitIter->localPrePosition(), simhitIter->particleEncoding(),simhitIter->kineticEnergy(), simhitIter->globalDirection(),simhitIter->depositEnergy(), simhitIter->StepLength(),simhitIter->trackNumber() );
-    outputCollection->push_back(*copyHit);
+    outputCollection->Emplace(idHit, simhitIter->globalTime()+timeOfBCID, simhitIter->globalpreTime()+timeOfBCID, simhitIter->globalPosition(), simhitIter->localPosition(), simhitIter->globalPrePosition(),simhitIter->localPrePosition(), simhitIter->particleEncoding(),simhitIter->kineticEnergy(), simhitIter->globalDirection(),simhitIter->depositEnergy(), simhitIter->StepLength(),simhitIter->trackNumber() );
   }
   return;
 }

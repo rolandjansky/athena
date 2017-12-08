@@ -115,10 +115,13 @@ private:
   //RpcPadIdHash* m_padHashIdHelper;
  
   /// RpcPrepData containers
-  SG::WriteHandle<Muon::RpcPrepDataContainer> m_rpcPrepDataContainer;
+  Muon::RpcPrepDataContainer* m_rpcPrepDataContainer;
+  SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepDataContainerKey;
   /// RpcCoinData containers
-  SG::WriteHandle<Muon::RpcCoinDataContainer> m_rpcCoinDataContainer;
-  SG::ReadHandle<RpcPadContainer>             m_rdoContainer;
+  Muon::RpcCoinDataContainer* m_rpcCoinDataContainer;
+  SG::WriteHandleKey<Muon::RpcCoinDataContainer> m_rpcCoinDataContainerKey;
+  
+  SG::ReadHandleKey<RpcPadContainer>             m_rdoContainerKey;
 
   /// RPC cabling Svc
   const IRPCcablingSvc *m_rpcCabling;

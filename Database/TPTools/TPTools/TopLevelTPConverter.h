@@ -44,7 +44,7 @@ public:
   // ----  Methods to be implement in the derived converter:
 
   // this declaration is repeated here for clarity 
-  /// @copydoc TopLevelExtTPConverter::setPStorage()
+  /// @copydoc TopLevelTPCnvBaseP::setPStorage()
   virtual void	setPStorage( TL_PERS* persObj) = 0;
 
   /** Constructor. 

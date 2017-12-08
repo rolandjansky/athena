@@ -345,7 +345,7 @@ std::string AmdcDb::getChildTag(const std::string& /*childNode*/  ,
 			        const std::string& /*parentNode*/ ,
 			        const std::string& /*connName*/   )
 { std::cout << " AmdcDb::getChildTag Not implemented " << std::endl ; std::string ToBeReturned = "Not Implemented"; return ToBeReturned; }
-IRDBQuery* AmdcDb::getQuery(const std::string& /*node*/     ,
+std::unique_ptr<IRDBQuery> AmdcDb::getQuery(const std::string& /*node*/     ,
                             const std::string& /*tag*/      ,
                             const std::string& /*tag2node*/ ,
                             const std::string& /*connName*/ ){ std::cout << " AmdcDb::getQuery Not implemented " << std::endl ; return 0; }

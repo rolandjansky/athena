@@ -41,7 +41,7 @@ StatusCode LArRampCorr::stop()
 { 
   ATH_MSG_INFO ( "in stop." );
   
- LArRampComplete* larRampCorr =new LArRampComplete();
+  auto larRampCorr = std::make_unique<LArRampComplete>();
  ATH_CHECK( larRampCorr->setGroupingType(m_groupingType,msg()) );
  ATH_CHECK( larRampCorr->initialize() );
 
@@ -92,8 +92,7 @@ StatusCode LArRampCorr::stop()
    larRampCorr->insertCorrection(chid,ramp,iGain);
  }
 
- ATH_CHECK( detStore()->record(larRampCorr,m_keyoutput) );
- ATH_CHECK( detStore()->symLink(larRampCorr, (ILArRamp*)larRampCorr) );
+ ATH_CHECK( detStore()->record(std::move(larRampCorr),m_keyoutput) );
  ATH_MSG_INFO ( "LArRampCorr has finished." );
  
  return StatusCode::SUCCESS;

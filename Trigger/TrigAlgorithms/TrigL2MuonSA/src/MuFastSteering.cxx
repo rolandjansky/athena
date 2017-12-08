@@ -23,6 +23,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 using namespace SG;
 // --------------------------------------------------------------------------------
@@ -47,10 +48,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
-    m_roiCollection("L1MURoIs"),		//ReadHandle L1MuRoIs to read in
-    m_muFeContainer("MuonFeature"),		//WriteHandle MuonFeature to record
-    m_muFeDeContainer("MuonFeatureDetails"),    //WriteHandle MuonFeatureDetails to record
-    m_jobOptionsSvc(0), m_trigCompositeContainer(0)
+    m_jobOptionsSvc(0) 
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
   declareProperty("PatternFinder",     m_patternFinder,     "pattern finder");
@@ -97,29 +95,13 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
 
   declareProperty("UseEndcapInnerFromBarrel",m_use_endcapInnerFromBarrel = false);
 
-  declareMonitoredVariable("InnMdtHits", m_inner_mdt_hits);
-  declareMonitoredVariable("MidMdtHits", m_middle_mdt_hits);
-  declareMonitoredVariable("OutMdtHits", m_outer_mdt_hits);
-  declareMonitoredStdContainer("FitResiduals", m_fit_residuals);
-  declareMonitoredVariable("Efficiency", m_efficiency);
-  declareMonitoredVariable("SagInv", m_sag_inverse);
-  declareMonitoredVariable("Address", m_address);
-  declareMonitoredVariable("AbsPt", m_absolute_pt);
-  declareMonitoredVariable("Sagitta", m_sagitta);
-  declareMonitoredVariable("TrackPt", m_track_pt);
-  declareMonitoredStdContainer("ResInner", m_res_inner);
-  declareMonitoredStdContainer("ResMiddle", m_res_middle);
-  declareMonitoredStdContainer("ResOuter", m_res_outer);
-  declareMonitoredStdContainer("TrackEta", m_track_eta);
-  declareMonitoredStdContainer("TrackPhi", m_track_phi);
-  declareMonitoredStdContainer("FailedRoIEta", m_failed_eta);
-  declareMonitoredStdContainer("FailedRoIPhi", m_failed_phi);
-
   //adding a part of DataHandle for AthenaMT
-  declareProperty("MuRoIs", m_roiCollectionKey = std::string("L1MURoIs"), "L1MuRoIs to read in"); 
-  declareProperty("MuonFeature",m_muFeContainerKey = std::string("MuonFeature"),"MuonFeature to record");	
-  declareProperty("MuonFeatureDetails",m_muFeDeContainerKey = std::string("MuonFeatureDetails"),"MuonFeatureDetails to record");
-
+  declareProperty("MuRoIs", m_roiCollectionKey = std::string("MURoIs"), "MuRoIs to read in"); 
+  declareProperty("RecMuonRoI", m_recRoiCollectionKey = std::string("RecMuonRoI"), "RecMuonRoI to read in"); 
+  declareProperty("MuFastDecisions",m_muFastContainerKey = std::string("xAOD::L2StandAloneMuonContainer"),"xAOD::L2StandAloneMuonContainer to record");	
+  declareProperty("MuFastComposite",m_muCompositeContainerKey = std::string("xAOD::TrigCompositeContainer"),"xAOD::TrigCompositeContainer to record");	
+  declareProperty("MuFastForID",m_muIdContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for ID to record");
+  declareProperty("MuFastForMS",m_muMsContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for MS to record");
 }
 
 // --------------------------------------------------------------------------------
@@ -176,8 +158,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   
   // 
   if (m_patternFinder.retrieve().isFailure()) {
-   
-ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
+   ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -239,7 +220,6 @@ ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
     ATH_MSG_ERROR("Failed to set MC flag to StationFitter");
     return HLT::ERROR;
   }
-
   sc = m_trackFitter->setMCFlag(m_use_mcLUT);
   if (!sc.isSuccess()) {
     ATH_MSG_ERROR("Failed to set MC flag to TrackFitter");
@@ -289,19 +269,37 @@ ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
 
   //adding a part of DataHandle for AThenaMT
   if (m_roiCollectionKey.initialize().isFailure() ) { 
-    ATH_MSG_ERROR("ReadHandleKey for L1MURoIs initialize Failure!");
+    ATH_MSG_ERROR("ReadHandleKey for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key()  << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;   
   }
-  if (m_muFeContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for MuonFeature initialize Failure!");
+  if (m_recRoiCollectionKey.initialize().isFailure() ) { 
+    ATH_MSG_ERROR("ReadHandleKey for DataVector<LVL1::RecMuonRoI> key:" << m_recRoiCollectionKey.key() << " initialize Failure!");
+    return HLT::BAD_JOB_SETUP;   
+  }
+  if (m_muFastContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("WriteHandleKey for xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  } 
+  if (m_muCompositeContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("WriteHandleKey for xAOD::TrigCompositeContainer key:" << m_muCompositeContainerKey.key() << " initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  } 
+  if (m_muIdContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   }
-  if (m_muFeDeContainerKey.initialize().isFailure() ) {
-    ATH_MSG_ERROR("WriteHandleKey for MuonFeatureDetails initialize Failure!");
+
+  if (m_muMsContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("WriteHandleKey for TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   }
-  
-  ATH_MSG_DEBUG("initialize success");
+  if (not m_monTool.name().empty()) {
+    if ( !m_monTool.retrieve() ) {
+      ATH_MSG_ERROR("Cannot retrieve MonitoredTool");
+      return HLT::BAD_JOB_SETUP;
+    }
+  } 
+
   return HLT::OK;
 }
 
@@ -328,94 +326,317 @@ HLT::ErrorCode MuFastSteering::hltEndRun() {
    return HLT::OK;
 }
 
-//adding a part of DataHandel for AthenaMT
-StatusCode MuFastSteering::execute() {
+HLT::ErrorCode MuFastSteering::hltFinalize() {
+  ATH_MSG_DEBUG("hltFinalize()");
+  return HLT::OK;
+}
 
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+const LVL1::RecMuonRoI* matchingRecRoI( uint32_t roiWord,
+		      			const DataVector<LVL1::RecMuonRoI>& collection ) 
+{
+  for ( auto recRoI: collection ) {
+    if ( recRoI->roiWord() == roiWord ){
+      return recRoI;
+    } 
+  } 
+  return nullptr;         
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode MuFastSteering::execute()
+{
   ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() start");
 
-  //ReadHandle:L1MURoIs to read in 
+  // retrieve with ReadHandle
   auto roiCollectionHandle = SG::makeHandle( m_roiCollectionKey );
   const TrigRoiDescriptorCollection *roiCollection = roiCollectionHandle.cptr();
   if (!roiCollectionHandle.isValid()){
-    ATH_MSG_ERROR("ReadHandle for L1MURoIs isn't Valid");
+    ATH_MSG_ERROR("ReadHandle for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key() << " isn't Valid");
     return StatusCode::FAILURE;
-  }
-  const TrigRoiDescriptor* roiDescriptor = 0;
-  TrigRoiDescriptorCollection::const_iterator roiIn = roiCollection->begin();
-  TrigRoiDescriptorCollection::const_iterator roiEn = roiCollection->end(); 
-  for(; roiIn != roiEn; ++roiIn){
-	roiDescriptor = *roiIn;
-	float roieta = roiDescriptor->eta();
-        float roiphi = roiDescriptor->phi();
-        ATH_MSG_DEBUG("L1MURoIs eta/phi = " << roieta << "/" << roiphi);
-  }
-  ATH_MSG_DEBUG("ReadHandle for L1MURoIs success");
+  } 
 
-  //WriteHandle:MuonFeature to record
-  SG::WriteHandle<MuonFeature> muFeContainerHandle(m_muFeContainerKey);
-  muFeContainerHandle = std::make_unique<MuonFeature>();
-  if(!muFeContainerHandle.isValid()){
-        ATH_MSG_ERROR("ReadHandle for MuonFeature isn't Valid");
-        return StatusCode::FAILURE;
-  }
-//  ATH_MSG_DEBUG("muFeContainer Pt/Alpha/Beta= " << muFeContainerHandle->Pt() << "/" << muFeContainerHandle->Alpha() << "/" << muFeContainerHandle->Beta());
-  ATH_MSG_DEBUG("WriteHandle for MuonFeature success");
+  auto recRoiCollectionHandle = SG::makeHandle( m_recRoiCollectionKey );
+  const DataVector<LVL1::RecMuonRoI> *recRoiCollection = recRoiCollectionHandle.cptr();
+  if (!recRoiCollectionHandle.isValid()){
+    ATH_MSG_ERROR("ReadHandle for DataVector<LVL1::RecMuonRoI> key:" << m_recRoiCollectionKey.key() << " isn't Valid");
+    return StatusCode::FAILURE;
+  }  
 
-  //Test Value defined
-  float muFeDePt = 1.52;
-  float muFeDeAlpha = 1.23;
-  float muFeDeBeta = -1.15;
-  m_muFeDeTestValue.setPt(muFeDePt);
-  m_muFeDeTestValue.setAlpha(muFeDeAlpha);
-  m_muFeDeTestValue.setBeta(muFeDeBeta);
-  
-  //WriteHandle:MuonFeatureDetails to record
-  SG::WriteHandle<MuonFeatureDetails> muFeDeContainerHandle(m_muFeDeContainerKey);
-  muFeDeContainerHandle = std::make_unique<MuonFeatureDetails>(m_muFeDeTestValue);
-  if(!muFeDeContainerHandle.isValid()){
-        ATH_MSG_ERROR("ReadHandle for MuonFeatureDetails isn't Valid");
-        return StatusCode::FAILURE;
+  DataVector<const TrigRoiDescriptor> *internalRoI = new DataVector<const TrigRoiDescriptor>;
+  internalRoI->clear();
+  TrigRoiDescriptorCollection::const_iterator p_roids = roiCollection->begin();
+  TrigRoiDescriptorCollection::const_iterator p_roidsEn = roiCollection->end();
+
+  for(; p_roids != p_roidsEn; ++p_roids ) {
+    internalRoI->push_back(*p_roids);    
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
   }
-  ATH_MSG_DEBUG("muFeDeContainer Pt/Alpha/Beta= " << muFeDeContainerHandle->Pt() << "/" << muFeDeContainerHandle->Alpha() << "/" << muFeDeContainerHandle->Beta());
-  ATH_MSG_DEBUG("WriteHandle for MuonFeatureDetails success");
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI->size());
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " DONE");
+
+  DataVector<LVL1::RecMuonRoI>::const_iterator p_roi = recRoiCollection->begin();
+  DataVector<LVL1::RecMuonRoI>::const_iterator p_roiEn = recRoiCollection->end();
+
+  // make RecMURoIs maching with MURoIs
+  DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
+  recRoIVector->clear();
+  for (size_t size=0; size<roiCollection->size(); size++){
+    const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(size)->roiWord(),  *recRoiCollection );
+    CHECK( recRoI != nullptr );
+    recRoIVector->push_back(recRoI);
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector->size());
+  }
+  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " DONE");
+
+  // record data objects with WriteHandle
+  SG::WriteHandle<xAOD::L2StandAloneMuonContainer> muFastContainer (m_muFastContainerKey);
+  ATH_CHECK(muFastContainer.record(std::make_unique<xAOD::L2StandAloneMuonContainer>(), std::make_unique<xAOD::L2StandAloneMuonAuxContainer>()));
+
+  SG::WriteHandle<xAOD::TrigCompositeContainer> muCompositeContainer (m_muCompositeContainerKey);
+  ATH_CHECK(muCompositeContainer.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()));
+
+  SG::WriteHandle<TrigRoiDescriptorCollection> muIdContainer (m_muIdContainerKey);
+  ATH_CHECK(muIdContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
+
+  SG::WriteHandle<TrigRoiDescriptorCollection> muMsContainer(m_muMsContainerKey);
+  ATH_CHECK(muMsContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
+
+  // to StatusCode findMuonSignature()
+  ATH_CHECK(findMuonSignature(*internalRoI, *recRoIVector, 
+			      *muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer));	  
+
+  // DEBUG TEST: Recorded data objects
+  ATH_MSG_DEBUG("Recorded data objects"); 
+  ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " size = " << muFastContainer->size());
+  xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*muFastContainer).begin();
+  xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*muFastContainer).end();
+  for (;p_muon != p_muonEn; ++p_muon) {
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt() << " GeV");
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
+  }
+
+  ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " size = " << muIdContainer->size());
+  TrigRoiDescriptorCollection::const_iterator p_muonID = muIdContainer->begin();
+  TrigRoiDescriptorCollection::const_iterator p_muonIDEn = muIdContainer->end();
+  for(; p_muonID != p_muonIDEn; ++p_muonID ) {
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " eta/phi = " << (*p_muonID)->eta() << "/" << (*p_muonID)->phi());
+  }  
+
+  ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " size = " << muMsContainer->size());
+  TrigRoiDescriptorCollection::const_iterator p_muonMS = muMsContainer->begin();
+  TrigRoiDescriptorCollection::const_iterator p_muonMSEn = muMsContainer->end();
+  for(; p_muonMS != p_muonMSEn; ++p_muonMS ) {
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " eta/phi = " << (*p_muonMS)->eta() << "/" << (*p_muonMS)->phi());
+  }
+
+  ATH_MSG_DEBUG("REGTEST: Recorded data objects DONE");
 
   ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() success");
   return StatusCode::SUCCESS;
 }
 
-HLT::ErrorCode MuFastSteering::hltFinalize() {
-  ATH_MSG_DEBUG("hltFinalize()");
-   return HLT::OK;
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/, 
+                                          HLT::TriggerElement* outputTE)
+{
+  ATH_MSG_DEBUG("hltExecute called");
+
+  std::vector< const TrigRoiDescriptor*> roids;
+  std::vector< const TrigRoiDescriptor*>::const_iterator p_roids;
+  HLT::ErrorCode hec2 = getFeatures(outputTE, roids);	
+ 
+  std::vector<const LVL1::RecMuonRoI*> muonRoIs;
+  std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi;
+  HLT::ErrorCode hec = getFeatures(outputTE, muonRoIs);	
+
+  if (hec != HLT::OK && hec2 != HLT::OK) {
+    ATH_MSG_ERROR("Could not find input TE");
+    return hec2;
+  }
+ 
+  bool ActiveState = outputTE->getActiveState();
+
+  DataVector<const TrigRoiDescriptor> *internalRoI = new DataVector<const TrigRoiDescriptor>;
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size: " << roids.size());
+
+  DataVector<const LVL1::RecMuonRoI> *internalRecRoI = new DataVector<const LVL1::RecMuonRoI>;
+  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << muonRoIs.size());
+
+  p_roi = muonRoIs.begin();
+  for ( p_roids=roids.begin(); p_roids!=roids.end(); ++p_roids) {
+    internalRoI->push_back(*p_roids);
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
+     internalRecRoI->push_back(*p_roi);
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
+
+    p_roi++;
+  }
+  ATH_MSG_DEBUG("REGTEST: DONE");
+
+  // define objects to record output data
+  // for xAOD::L2StandAloneMuonContainer
+  DataVector<xAOD::L2StandAloneMuon> *outputTracks = new DataVector<xAOD::L2StandAloneMuon>();
+  outputTracks->clear();
+  xAOD::L2StandAloneMuonAuxContainer aux;
+  outputTracks->setStore( &aux );
+  
+  // for xAOD::TrigCompositeContainer
+  DataVector<xAOD::TrigComposite> *outputComposite = new DataVector<xAOD::TrigComposite>();
+  outputComposite->clear();
+  xAOD::TrigCompositeAuxContainer auxComp;
+  outputComposite->setStore( &auxComp );
+
+  // for TrigRoiDescriptor for ID
+  TrigRoiDescriptorCollection *outputID = new TrigRoiDescriptorCollection();
+  outputID->clear();
+
+  // for TrigRoiDescriptor for MS
+  TrigRoiDescriptorCollection *outputMS = new TrigRoiDescriptorCollection();
+  outputMS->clear();
+  
+  // to StatusCode findMuonSignature()
+  StatusCode sc = findMuonSignature(*internalRoI, *internalRecRoI, 
+				    *outputTracks, *outputID, *outputMS, *outputComposite);	
+  
+  HLT::ErrorCode code = HLT::OK;
+  // in case of findMuonSignature failed
+  if (sc != StatusCode::SUCCESS) {
+    delete outputTracks;
+    outputTE -> setActiveState(ActiveState);
+    code = attachFeature(outputTE, new xAOD::L2StandAloneMuonContainer(SG::VIEW_ELEMENTS), "MuonL2SAInfo");
+    if (code != HLT::OK) {
+      return code;
+    }
+    delete outputID;
+    code = attachFeature(outputTE, new TrigRoiDescriptorCollection(SG::VIEW_ELEMENTS), "forID");
+    if (code != HLT::OK) {
+      return code;
+    }
+    delete outputMS;
+    code = attachFeature(outputTE, new TrigRoiDescriptorCollection(SG::VIEW_ELEMENTS), "forMS");
+    if (code != HLT::OK) {
+      return code;
+    }   
+    return HLT::ERROR;
+  }
+
+  // in case of findMuonSignature success
+  if (outputTracks->empty()) {
+    delete outputTracks;
+    ActiveState = false;
+    outputTE -> setActiveState(ActiveState);
+    code = attachFeature(outputTE, new xAOD::L2StandAloneMuonContainer(SG::VIEW_ELEMENTS), "MuonL2SAInfo");
+  } else {
+    ActiveState = true;
+    outputTE -> setActiveState(ActiveState);
+    for (size_t size=0; size<outputTracks->size(); size++){
+     outputTracks->at(size)->setTeId( outputTE->getId() );		
+     ATH_MSG_DEBUG("outputTE(" << size << ") = " << outputTracks->at(size)->teId());
+    }
+    code = attachFeature(outputTE, outputTracks, "MuonL2SAInfo");
+    if ( code != HLT::OK ) { 
+      ATH_MSG_ERROR("Record of MuonL2SAInfo failed");
+      ActiveState = false;
+      return false;
+    }
+    ATH_MSG_DEBUG("Recorded xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key());
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuoonContainer key:" << m_muFastContainerKey.key() << " size = " << outputTracks->size());
+    xAOD::L2StandAloneMuonContainer::const_iterator p_muon = (*outputTracks).begin();
+    xAOD::L2StandAloneMuonContainer::const_iterator p_muonEn = (*outputTracks).end();
+    for (;p_muon != p_muonEn; ++p_muon) {
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " pt = " << (*p_muon)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " eta/phi = " << (*p_muon)->eta() << "/" << (*p_muon)->phi());  
+    }
+  }
+
+  if (outputID->empty()) {
+    delete outputID;
+    //ActiveState = false;
+    //outputTE -> setActiveState(ActiveState);
+    //code = attachFeature(outputTE, new TrigRoiDescriptorCollection(SG::VIEW_ELEMENTS), "forID");
+  } else {
+    ActiveState = true;
+    outputTE -> setActiveState(ActiveState);
+    code = attachFeature(outputTE, outputID, "forID");
+    if ( code != HLT::OK ) { 
+      ATH_MSG_ERROR("Record of TrigRoiInfo for ID failed");
+      ActiveState = false;
+      return false;
+    }
+    ATH_MSG_DEBUG("Recorded TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key());
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " size = " << outputID->size());
+    TrigRoiDescriptorCollection::const_iterator p_muonID = outputID->begin();
+    TrigRoiDescriptorCollection::const_iterator p_muonIDEn = outputID->end();
+    for(; p_muonID != p_muonIDEn; ++p_muonID ) {
+      ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muIdContainerKey.key() << " eta/phi = " << (*p_muonID)->eta() << "/" << (*p_muonID)->phi());
+    }  
+  }
+
+  if (outputMS->empty()) {
+    delete outputMS;
+    //ActiveState = false;
+    //outputTE -> setActiveState(ActiveState);
+    //code = attachFeature(outputTE, new TrigRoiDescriptorCollection(SG::VIEW_ELEMENTS), "forMS");
+  } else {
+    ActiveState = true;
+    outputTE -> setActiveState(ActiveState);
+    code = attachFeature(outputTE, outputMS, "forMS");
+    if ( code != HLT::OK ) { 
+      ATH_MSG_ERROR("Record of TrigRoiInfo for MS failed");
+      ActiveState = false;
+      return false;
+    }
+    ATH_MSG_DEBUG("Recorded TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key());
+    ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " size = " << outputMS->size());
+    TrigRoiDescriptorCollection::const_iterator p_muonMS = outputMS->begin();
+    TrigRoiDescriptorCollection::const_iterator p_muonMSEn = outputMS->end();
+    for(; p_muonMS != p_muonMSEn; ++p_muonMS ) {
+      ATH_MSG_DEBUG("REGTEST: TrigRoiDescriptorCollection key:" << m_muMsContainerKey.key() << " eta/phi = " << (*p_muonMS)->eta() << "/" << (*p_muonMS)->phi());
+    }  
+  }
+
+  if (outputComposite->empty()) {
+    delete outputComposite;
+  } else {
+    ActiveState = true;
+    outputTE -> setActiveState(ActiveState);
+    code = attachFeature(outputTE, outputComposite, "MuonCalibrationStream");
+    ATH_MSG_DEBUG("Recorded a xAOD::TrigCompositeContainer");
+    if ( code != HLT::OK ) { 
+      ATH_MSG_ERROR("Record of MuonCalibrationStream in TriggerElement failed");
+      ActiveState = false;
+      return false;
+    }
+  }
+  return HLT::OK;
 }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE, 
-                                          HLT::TriggerElement* outputTE)
-{
-  StatusCode sc = StatusCode::SUCCESS;
-  // Initialize monitored variables;
-  m_inner_mdt_hits  = -1;
-  m_middle_mdt_hits = -1;
-  m_outer_mdt_hits  = -1;
-  
-  m_fit_residuals.clear();
-  m_res_inner.clear();
-  m_res_middle.clear();
-  m_res_outer.clear();
-  
-  m_efficiency  = 0;
-  m_sag_inverse = 9999.;
-  m_sagitta     = 9999.;
-  m_address     = 9999;
-  m_absolute_pt = 9999.;
+StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roids,
+                                             const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
+				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
+					     TrigRoiDescriptorCollection& 		outputID,
+					     TrigRoiDescriptorCollection&		outputMS,
+					     DataVector<xAOD::TrigComposite>&          	outputComposite)
 
-  m_track_pt    = 9999.;  
-  m_track_eta.clear();
-  m_track_phi.clear();
-  m_failed_eta.clear();
-  m_failed_phi.clear();
+{
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature start");
+
+  StatusCode sc = StatusCode::SUCCESS;
 
   if (m_timerSvc) {
     for (unsigned int i_timer=0; i_timer<m_timers.size(); i_timer++) {
@@ -423,51 +644,48 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       m_timers[i_timer]->pause();
     }
   }
-  clearEvent();
- 
+
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << roids.size() << " (argument)"); 
+  ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << muonRoIs.size() << " (argument)"); 
+
   if (m_timerSvc) m_timers[ITIMER_TOTAL_PROCESSING]->resume();
   if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->resume();
-  
-  ATH_MSG_DEBUG("hltExecute called");
-  
-  std::vector<const TrigRoiDescriptor*> roids;
-  std::vector<const TrigRoiDescriptor*>::const_iterator p_roids;
-  HLT::ErrorCode hec2 = getFeatures(inputTE, roids);
-  
-  std::vector<const LVL1::RecMuonRoI*> muonRoIs;
-  std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi;
-  HLT::ErrorCode hec = getFeatures(inputTE, muonRoIs);
 
-  if (hec != HLT::OK && hec2 != HLT::OK) {
-    ATH_MSG_ERROR("Could not find input TE");
-    return hec2;
-  }
-  
-  ATH_MSG_DEBUG("RecMuonRoI size: " << muonRoIs.size());
-  ATH_MSG_DEBUG("RoIdescriptor size: " << roids.size());
+  m_currentStage = 1;
 
+  DataVector<const TrigRoiDescriptor>::const_iterator p_roids;
+  DataVector<const LVL1::RecMuonRoI>::const_iterator p_roi;
+
+  // muonRoIs = RecMURoIs, roids = MURoIs 
   p_roids = roids.begin();
-  for (p_roi=muonRoIs.begin(); p_roi!=muonRoIs.end(); ++p_roi) {
+  for (p_roi=(muonRoIs).begin(); p_roi!=(muonRoIs).end(); ++p_roi) {
 
-    double roiEta = (*p_roi)->eta();
-    double roiPhi = (*p_roi)->phi();
+    double roiEta = (*p_roids)->eta();
+    double roiPhi = (*p_roids)->phi();
+    double roiZed = (*p_roids)->zed();
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << roiEta << "(" << (*p_roids)->etaPlus() << ")" << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << roiPhi << "(" << (*p_roids)->phiPlus() << ")" << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << roiZed << "(" << (*p_roids)->zedPlus() << ")" << " (argument)");
 
-    ATH_MSG_DEBUG("RoI eta/phi=" << roiEta << "/" << roiPhi);
-    
+    double recroiEta = (*p_roi)->eta();
+    double recroiPhi = (*p_roi)->phi();
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << recroiEta << "/" << recroiPhi << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " ID = " << (*p_roi)->sectorID() << " (argument)");
+    ATH_MSG_DEBUG("REGTEST: DONE");
+
     std::vector<TrigL2MuonSA::TrackPattern> trackPatterns;
     m_mdtHits_normal.clear();
     m_mdtHits_overlap.clear();
     m_cscHits.clear();
-    
     m_rpcFitResult.Clear();
     m_tgcFitResult.Clear();
 
     m_muonRoad.Clear();
-    
 
+    ATH_MSG_DEBUG("Start an algorithm of MuonSA");
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
       ATH_MSG_DEBUG("Barrel");
-     
+   
       m_muonRoad.setScales(m_scaleRoadBarrelInner,
                            m_scaleRoadBarrelMiddle,
                            m_scaleRoadBarrelOuter);      
@@ -487,9 +705,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 	ATH_MSG_WARNING("Data preparation failed");
 	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
-	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-	return HLT::OK;
+	updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                     trackPatterns, outputTracks, outputID, outputMS);
+	return StatusCode::SUCCESS;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
 
@@ -497,9 +716,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
         ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
 	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
-	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::UNKNOWN);
+	updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                     trackPatterns, outputTracks, outputID, outputMS);
+	return StatusCode::FAILURE;
       } 
 
       // Pattern finding
@@ -509,9 +729,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                          trackPatterns);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Pattern finder failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-         return HLT::OK;
+        updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                     trackPatterns, outputTracks, outputID, outputMS);
+	return StatusCode::SUCCESS;
       }
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->pause();
 
@@ -522,23 +743,25 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                             trackPatterns);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-         return HLT::OK;
+        updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                     trackPatterns, outputTracks, outputID, outputMS);
+ 	return StatusCode::SUCCESS;
       }
       if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
 
       // Track fitting
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->resume();      
       sc = m_trackFitter->findTracks(*p_roi,
-                                     m_rpcFitResult,
-                                     trackPatterns);
+                                      m_rpcFitResult,
+                                      trackPatterns);
                                      
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Track fitter failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-         return HLT::OK;
+        updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                     trackPatterns, outputTracks, outputID, outputMS);
+	return StatusCode::SUCCESS;
       }
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->pause();      
 
@@ -559,11 +782,12 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                          m_cscHits);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
-	TrigL2MuonSA::TrackPattern trackPattern;
+ 	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
-	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-	return HLT::OK;
+	updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                     trackPatterns, outputTracks, outputID, outputMS);
+	return StatusCode::SUCCESS;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
 
@@ -576,9 +800,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Pattern finder failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-         return HLT::OK;
+        updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                     trackPatterns, outputTracks, outputID, outputMS);
+	return StatusCode::SUCCESS;
       }
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->pause();
       
@@ -599,9 +824,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-         return HLT::OK;
+        updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+		     trackPatterns, outputTracks, outputID, outputMS);
+	return StatusCode::SUCCESS;
       }
 
       if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
@@ -615,13 +841,14 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Track fitter failed");
-         updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-         return HLT::OK;
+        updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                     m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+		     trackPatterns, outputTracks, outputID, outputMS);
+  	return StatusCode::SUCCESS;
       }
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->pause();      
     }
-    
+ 
     // fix if eta is strange
     for (unsigned int i=0 ;i<trackPatterns.size(); i++) {
        TrigL2MuonSA::TrackPattern track = trackPatterns[i]; 
@@ -642,9 +869,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Track extrapolator failed");
-       updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-       return HLT::OK;
+      updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                   m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                   trackPatterns, outputTracks, outputID, outputMS);
+       return StatusCode::SUCCESS;
     }
     if (m_timerSvc) m_timers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
     
@@ -652,20 +880,22 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
     sc = updateMonitor(*p_roi, m_mdtHits_normal, trackPatterns);
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Failed to update monitoring variables");
-       updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
-       return HLT::OK;
+      updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                   m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
+                   trackPatterns, outputTracks, outputID, outputMS);
+       return StatusCode::SUCCESS;
     }
 
     // Update output trigger element
-    updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                   m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
+    updateOutput(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+                 m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+                 trackPatterns, outputTracks, outputID, outputMS);
             
-
     // call the calibration streamer 
     if (m_doCalStream && trackPatterns.size()>0 ) { 
       TrigL2MuonSA::TrackPattern tp = trackPatterns[0];
-      if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->resume();                                                    
+      if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->resume();
+
       //      m_calStreamer->setInstanceName(this->name());
       
       bool updateTriggerElement = false;
@@ -686,42 +916,30 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
         
         if ( updateTriggerElement ) {
           
-          ATH_MSG_INFO("Updating the trigger element");
-          ATH_MSG_INFO(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
+          ATH_MSG_DEBUG("Updating the trigger element");
+          ATH_MSG_DEBUG(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
 	  // create the TrigCompositeContainer to store the calibration buffer
-	  m_trigCompositeContainer = new xAOD::TrigCompositeContainer();
-	  xAOD::TrigCompositeAuxContainer aux;
-	  m_trigCompositeContainer->setStore(&aux);
+	  // at StatusCode execute() and hltExecute().
 
 	  // add the trigcomposite object to the container
 	  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
-	  m_trigCompositeContainer->push_back(tc);
+	  outputComposite.push_back(tc);
 
-	  ATH_MSG_DEBUG("The size of the TrigCompositeContainer is: " << m_trigCompositeContainer->size() );
+	  ATH_MSG_DEBUG("The size of the TrigCompositeContainer is: " << outputComposite.size() );
 	  	  
 	  // set the detail of the trigcomposite object
 	  //	  xAOD::TrigComposite* tc = m_trigCompositeContainer->at(0);
 	  tc->setDetail("MuonCalibrationStream", *(m_calStreamer->getLocalBuffer()) );
-	  
-	  outputTE->setActiveState(true);
-	  HLT::ErrorCode status = attachFeature( outputTE, m_trigCompositeContainer, "MuonCalibrationStream" );
-	  if( status != HLT::OK ) {
-	    ATH_MSG_ERROR("Record of MuonCalibrationStream in TriggerElement failed");
-	    outputTE->setActiveState(false);
-	    return false;
-	  }
 	  
 	  m_calStreamer->clearLocalBuffer();
 
         }
 	// test: set to false the active state if no buffer size limit reached
 	else {
-	  outputTE->setActiveState(false);
 	}
       } 
     }
-
-       
+      
     p_roids++;    
     if (p_roids==roids.end()) break; 
   }
@@ -737,10 +955,10 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
      }
   }
 
-  //  m_timerSvc->print();
-
-  return HLT::OK;
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature success");
+  return StatusCode::SUCCESS;
 }
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -751,19 +969,20 @@ void MuFastSteering::clearEvent()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     outputTE,
-                                    const HLT::TriggerElement*               inputTE, 
-                                    const LVL1::RecMuonRoI*                  roi,
-                                    const TrigRoiDescriptor*                 roids,
-                                    const TrigL2MuonSA::MuonRoad&            muonRoad,
-                                    const TrigL2MuonSA::MdtRegion&           mdtRegion,
-                                    const TrigL2MuonSA::RpcHits&             rpcHits,
-                                    const TrigL2MuonSA::TgcHits&             tgcHits,
-                                    const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
-                                    const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
-                                    const TrigL2MuonSA::MdtHits&             mdtHits,
-                                    const TrigL2MuonSA::CscHits&             cscHits,
-                                    std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
+bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
+                                  const TrigRoiDescriptor*                 roids,
+                                  const TrigL2MuonSA::MuonRoad&            muonRoad,
+                                  const TrigL2MuonSA::MdtRegion&           mdtRegion,
+                                  const TrigL2MuonSA::RpcHits&             rpcHits,
+                                  const TrigL2MuonSA::TgcHits&             tgcHits,
+                                  const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
+                                  const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
+                                  const TrigL2MuonSA::MdtHits&             mdtHits,
+                                  const TrigL2MuonSA::CscHits&             cscHits,
+                                  std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
+				  DataVector<xAOD::L2StandAloneMuon>&	   outputTracks,
+				  TrigRoiDescriptorCollection&  	   outputID,
+				  TrigRoiDescriptorCollection&   	   outputMS)
 {
   const float ZERO_LIMIT = 1.e-5;
 
@@ -800,15 +1019,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int endcapinner = 3;
   int bee = 8;
   int bme = 9;
-  // int bmg = 10;
 
-  std::string muonCollKey = "MuonL2SAInfo";
-  
-  xAOD::L2StandAloneMuonContainer *muonColl = new xAOD::L2StandAloneMuonContainer();
-  xAOD::L2StandAloneMuonAuxContainer aux;
-  muonColl->setStore( &aux );
-
-  
   if( trackPatterns.size() > 0 ) {
     
     const TrigL2MuonSA::TrackPattern& pattern = trackPatterns[0]; 
@@ -827,7 +1038,6 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
       bme = xAOD::L2MuonParameters::Chamber::BME;
       endcapinner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
-      // bmg  = xAOD::L2MuonParameters::Chamber::Backup;
     }
 
     ATH_MSG_DEBUG("pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size());
@@ -919,7 +1129,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     /// Set L2 muon algorithm ID
     muonSA->setAlgoId( L2MuonAlgoMap(name()) );
     /// Set input TE ID
-    muonSA->setTeId( inputTE->getId() );
+    //muonSA->setTeId( inputTE->getId() );	// move to hltExecute()	
     /// Set level-1 ID
     muonSA->setLvl1Id( pTriggerInfo->extendedLevel1ID() );
     /// Set lumi block
@@ -1133,9 +1343,9 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       // Not stored outer position for the moment as the phi is not available
 
     }
-  
-    muonColl->push_back(muonSA);
 
+    outputTracks.push_back(muonSA);
+//-----------------------------------------------------------------------------------------------------------------------------------------
     // -------
     // store TrigRoiDescriptor
     if (fabs(muonSA->pt()) > ZERO_LIMIT ) {
@@ -1148,6 +1358,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                                                                  pattern.phiMS,
                                                                  pattern.phiMS,
                                                                  pattern.phiMS);
+
       ATH_MSG_DEBUG("...TrigRoiDescriptor for MS "
 		    << "pattern.etaMap/pattern.phiMS="
 		    << pattern.etaMap << "/" << pattern.phiMS);
@@ -1180,43 +1391,25 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                                                                  pattern.phiVtx,
                                                                  pattern.phiVtx - phiHalfWidth,
                                                                  pattern.phiVtx + phiHalfWidth);
+      
       ATH_MSG_DEBUG("...TrigRoiDescriptor for ID "
 		    << "pattern.etaVtx/pattern.phiVtx="
 		    << pattern.etaVtx << "/" << pattern.phiVtx);
       ATH_MSG_DEBUG("old RoI:        " << *roids);
       ATH_MSG_DEBUG("updated ID RoI: " << *IDroiDescriptor);      
 
-      HLT::ErrorCode attached;
-
-      // attach roi descriptor for TrigMoore
-      attached = attachFeature(outputTE, MSroiDescriptor, "forMS");
-
-      if ( attached!=HLT::OK) {
-
-        ATH_MSG_WARNING ("Could not attach the roi descriptor for TrigMoore.");
-
-      } else {
-
-	ATH_MSG_DEBUG("Recorded an RoiDescriptor for TrigMoore:"
+      ATH_MSG_DEBUG("will Record an RoiDescriptor for TrigMoore:"
 		      << " phi=" << MSroiDescriptor->phi()
 		      << ",  eta=" << MSroiDescriptor->eta());
-      }
 
-      // attach roi descriptor for ID
-      attached = attachFeature(outputTE, IDroiDescriptor, "forID");
-
-      if ( attached!=HLT::OK) {
-
-        ATH_MSG_WARNING("Could not attach the roi descriptor for Inner Detector.");
-
-      } else {
-
-	ATH_MSG_DEBUG("Recorded an RoiDescriptor for Inner Detector:"
+      ATH_MSG_DEBUG("will Record an RoiDescriptor for Inner Detector:"
 		      << " phi=" << IDroiDescriptor->phi()
 		      << ",  eta=" << IDroiDescriptor->eta());
 
-      }
-    } else { // pt = 0.
+      outputID.push_back(IDroiDescriptor);
+      outputMS.push_back(MSroiDescriptor);
+ 
+   } else { // pt = 0.
       
       TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
                                                                  roids->roiId(),
@@ -1226,43 +1419,30 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                                                                  roids->phi(),
                                                                  HLT::wrapPhi(roids->phi() - HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt),
                                                                  HLT::wrapPhi(roids->phi() + HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt));
-      ATH_MSG_DEBUG("...TrigRoiDescriptor for ID (zero pT) ");
 
-      HLT::ErrorCode attached;
-
-      // attach roi descriptor for ID
-      attached = attachFeature(outputTE, IDroiDescriptor, "forID");
-
-      if ( attached!=HLT::OK) {
-
-        ATH_MSG_WARNING ("Could not attach the roi descriptor for Inner Detector.");
-
-      } else {
-
-	ATH_MSG_DEBUG ("Recorded an RoiDescriptor for Inner Detector in case with zero pT:"
+      ATH_MSG_DEBUG ("will Record an RoiDescriptor for Inner Detector in case with zero pT:"
 		       << " phi=" << IDroiDescriptor->phi()
 		       << ", phi min=" << IDroiDescriptor->phiMinus()
 		       << ", phi max=" << IDroiDescriptor->phiPlus()
 		       << ", eta=" << IDroiDescriptor->eta()
 		       << ", eta min=" << IDroiDescriptor->etaMinus()
 		       << ", eta max=" << IDroiDescriptor->etaPlus());
-      }
+
+      outputID.push_back(IDroiDescriptor);
     }
   }
 
-  if (muonColl != 0 && muonColl->size() > 0) {
-    outputTE->setActiveState(true);
-    HLT::ErrorCode status = attachFeature( outputTE, muonColl, muonCollKey );
-    if( status != HLT::OK ) {
-      ATH_MSG_ERROR("Record of L2StandAloneMuon in TriggerElement failed");
-      outputTE->setActiveState(false);
-      delete muonColl;
-      return false;
+  if (outputTracks.size() > 0) {
+    ATH_MSG_DEBUG ("will Record xAOD::L2StandAloneMuonContainer");
+
+    ATH_MSG_DEBUG("At findMuonSignature outputTracks size = " << outputTracks.size());
+    xAOD::L2StandAloneMuonContainer::const_iterator p_muonOut = outputTracks.begin();
+    xAOD::L2StandAloneMuonContainer::const_iterator p_muonOutEn = outputTracks.end();
+    for (; p_muonOut != p_muonOutEn ; ++p_muonOut ){
+      ATH_MSG_DEBUG("At findMuonSignature outputTracks pt = " << (*p_muonOut)->pt() << " GeV");
+      ATH_MSG_DEBUG("At findMuonSignature outputTracks eta/phi = " << (*p_muonOut)->eta() << "/" << (*p_muonOut)->phi());
     }
   }
-
-  outputTE->setActiveState(true);
-  
   return true;
 }
 
@@ -1466,11 +1646,52 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
                                          const TrigL2MuonSA::MdtHits&             mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
 {
-  const float ZERO_LIMIT = 1e-5;
+  using namespace Monitored;
+  // initialize monitored variable
+  auto inner_mdt_hits 	= MonitoredScalar::declare("InnMdtHits", -1);
+  auto middle_mdt_hits 	= MonitoredScalar::declare("MidMdtHits", -1);
+  auto outer_mdt_hits 	= MonitoredScalar::declare("OutMdtHits", -1);
+
+  auto efficiency 	= MonitoredScalar::declare("Efficiency", 0);
+  auto sag_inverse 	= MonitoredScalar::declare("SagInv", 9999.);
+  auto address 		= MonitoredScalar::declare("Address", 9999.);
+  auto absolute_pt 	= MonitoredScalar::declare("AbsPt", 9999.);
+  auto sagitta	 	= MonitoredScalar::declare("Sagitta", 9999.);
+  auto track_pt 	= MonitoredScalar::declare("TrackPt", 9999.);
+
+  std::vector<float> t_eta, t_phi;
+  std::vector<float> f_eta, f_phi;
+  std::vector<float> r_inner, r_middle, r_outer;
+  std::vector<float> f_residuals;
+
+  t_eta.clear();
+  t_phi.clear();
+  f_eta.clear();
+  f_phi.clear();
+  r_inner.clear();
+  r_middle.clear();
+  r_outer.clear();
+  f_residuals.clear();
+
+  auto track_eta	= MonitoredCollection::declare("TrackEta", t_eta);
+  auto track_phi	= MonitoredCollection::declare("TrackPhi", t_phi);
+  auto failed_eta	= MonitoredCollection::declare("FailedRoIEta", f_eta);
+  auto failed_phi	= MonitoredCollection::declare("FailedRoIPhi", f_phi);
+  auto res_inner	= MonitoredCollection::declare("ResInner", r_inner);
+  auto res_middle	= MonitoredCollection::declare("ResMiddle", r_middle);
+  auto res_outer	= MonitoredCollection::declare("ResOuter", r_outer);
+  auto fit_residuals	= MonitoredCollection::declare("FitResiduals", f_residuals);
+
+  auto monitorIt	= MonitoredScope::declare(m_monTool, inner_mdt_hits, middle_mdt_hits, outer_mdt_hits, 
+					          efficiency, sag_inverse, address, absolute_pt, sagitta, track_pt,
+					          track_eta, track_phi, failed_eta, failed_phi, 
+						  res_inner, res_middle, res_outer, fit_residuals);
   
+  const float ZERO_LIMIT = 1e-5;
+
   if( trackPatterns.size() > 0 ) {
 
-    m_efficiency  = 1;
+    efficiency  = 1;
   
     const TrigL2MuonSA::TrackPattern& pattern = trackPatterns[0]; 
     float norm = 10.;
@@ -1487,42 +1708,42 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
       
       if (st=='I') {
         count_inner++;
-        m_res_inner.push_back(mdtHits[i_hit].Residual/norm);
-        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
+        r_inner.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) f_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
       
       if (st=='M') {
         count_middle++;
-        m_res_middle.push_back(mdtHits[i_hit].Residual/norm);
-        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
+        r_middle.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) f_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
       
       if (st=='O') {
         count_outer++;
-        m_res_outer.push_back(mdtHits[i_hit].Residual/norm);
-        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
+        r_outer.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) f_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
     }
     
-    m_inner_mdt_hits  = count_inner;
-    m_middle_mdt_hits = count_middle;
-    m_outer_mdt_hits  = count_outer;
+    inner_mdt_hits  = count_inner;
+    middle_mdt_hits = count_middle;
+    outer_mdt_hits  = count_outer;
     
-    m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
-    m_absolute_pt = fabs(m_track_pt);
+    track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
+    absolute_pt = fabs(track_pt);
 
     if ( fabs(pattern.etaMap) > ZERO_LIMIT || fabs(pattern.phiMS) > ZERO_LIMIT ) {
-      m_track_eta.push_back(pattern.etaMap);
-      m_track_phi.push_back(pattern.phiMS);
+      t_eta.push_back(pattern.etaMap);
+      t_phi.push_back(pattern.phiMS);
     }
     if ( fabs(pattern.pt ) < ZERO_LIMIT){
-      m_failed_eta.push_back(roi->eta());
-      m_failed_phi.push_back(roi->phi());
+      f_eta.push_back(roi->eta());
+      f_phi.push_back(roi->phi());
     }
 
-    m_sagitta     = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? pattern.barrelSagitta: 9999.;
-    m_sag_inverse = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? 1./pattern.barrelSagitta: 9999.;
-    m_address     = pattern.s_address;
+    sagitta     = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? pattern.barrelSagitta: 9999.;
+    sag_inverse = (fabs(pattern.barrelSagitta) > ZERO_LIMIT)? 1./pattern.barrelSagitta: 9999.;
+    address     = pattern.s_address;
   }
 
   return StatusCode::SUCCESS;
@@ -1592,7 +1813,7 @@ void MuFastSteering::handle(const Incident& incident) {
 	ATH_MSG_ERROR("Failed to open the connection to the circular buffer");
       }
       else {
-	ATH_MSG_INFO("Opened the connection to the circular buffer");
+	ATH_MSG_DEBUG("Opened the connection to the circular buffer");
       }
     }
   }

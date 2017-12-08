@@ -21,6 +21,7 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternCalibration.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
@@ -65,9 +66,14 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder;
 
 
-  SG::WriteHandleKey<Trk::SegmentCollection> m_segmentCollectionKey;
-  SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrdsKey;
-  SG::ReadHandleKey<MuonPatternCombinationCollection> m_patternCollKey;
+  SG::WriteHandleKey<Trk::SegmentCollection> m_segmentCollectionKey{this,"SegmentCollectionName","MuonSegments","Muon Segments"};
+  SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrdsKey{this,"CSC_clusterkey","CSC_Clusters","CSC PRDs"};
+  SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrdsKey{this,"MDT_PRDs","MDT_DriftCircles","MDT PRDs"};
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrdsKey{this,"RPC_PRDs","RPC_Measurements","RPC PRDs"};
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrdsKey{this,"TGC_PRDs","TGC_Measurements","TGC PRDs"};
+  SG::ReadHandleKey<MuonPatternCombinationCollection> m_patternCollKey{this,"MuonLayerHoughCombisKey","MuonLayerHoughCombis","Hough combinations"};
+  SG::ReadHandleKey<PRD_MultiTruthCollection> m_tgcTruth{this,"TGCTruth","TGC_TruthMap","TGC PRD Multi-truth Collection"};
+  SG::ReadHandleKey<PRD_MultiTruthCollection> m_rpcTruth{this,"RPCTruth","RPC_TruthMap","RPC PRD Multi-truth Collection"};
 
   void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs );
   void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
@@ -78,6 +84,7 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   /** selection flags for cluster based segment finding */
   bool                m_doTGCClust;
   bool                m_doRPCClust;
+  bool                m_doClusterTruth;
 };
 
 

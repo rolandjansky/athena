@@ -39,6 +39,7 @@ ZdcRecV3::ZdcRecV3(const std::string& name, ISvcLocator* pSvcLocator) :
 	m_eventCount(0),
 	m_complainContain(1),
 	m_complainRetrieve(1),
+        m_ChannelTool("ZdcRecChannelToolV2"),
 	m_zdcTool("ZDC::ZdcAnalysisTool/ZdcAnalysisTool")
 {
 	declareProperty("OwnPolicy",m_ownPolicy) ;

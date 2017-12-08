@@ -14,13 +14,11 @@
 
 /** Constructor **/
 ISF::HistorySimSelector::HistorySimSelector(const std::string& t, const std::string& n, const IInterface* p)
-  : ISimulationSelector(t,n,p)
+  : BaseSimulationSelector(t,n,p)
   , m_prevSimSvcHandle("UnspecifiedSimulationService", n)
   , m_prevSimSvcID(ISF::fUndefinedSimID)
   , m_checkSameGeoID(false)
 {
-  declareInterface<ISF::ISimulationSelector>(this);
-
   declareProperty( "PrevSimSvc",
                    m_prevSimSvcHandle,
                    "Check if particle was recently simulated by the given SimSvc." );

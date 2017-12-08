@@ -9,7 +9,6 @@
 
 
 #include "MuonGMdbObjects/DblQ00Xtomo.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 
 namespace MuonGM
@@ -19,7 +18,7 @@ DblQ00Xtomo::DblQ00Xtomo() : m_nObj(0)
    m_d = NULL;
 }
     
-DblQ00Xtomo::DblQ00Xtomo(IRDBQuery* xtomo)
+DblQ00Xtomo::DblQ00Xtomo(std::unique_ptr<IRDBQuery>&& xtomo)
  : m_nObj(0)
 {
   std::cout << "In DblQ00Xtomo(data)" << std::endl;
