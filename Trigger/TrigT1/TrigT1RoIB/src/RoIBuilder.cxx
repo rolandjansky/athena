@@ -49,14 +49,6 @@ namespace ROIB {
       ATH_MSG_INFO( "Initialisation for RoIBuilder algorithm." );
       ATH_MSG_INFO( " Version: " << PACKAGE_VERSION );
       ATH_MSG_INFO( "========================================" );
-
-      if ( m_doCalo ) { 
-	CHECK( m_caloEMTauLocation.empty() );
-	CHECK( m_caloJetEnergyLocation.empty() );
-      }
-      if ( m_doMuon ) 
-	CHECK( m_muctpiSLinkLocation.key().empty() );
-
       // Print system info
       if( ! m_doCalo ) {
 	ATH_MSG_WARNING( "Inputs from LVL1 Calo systems switched off" );
@@ -64,10 +56,29 @@ namespace ROIB {
       if( ! m_doMuon ) {
 	ATH_MSG_WARNING("Inputs from LVL1 Muon systems switched off" );
       }
-      CHECK( m_ctpSLinkLocation.initialize() );
-      CHECK( m_muctpiSLinkLocation.initialize() );
+
+      CHECK( m_eventInfoKey.initialize() );
+
+      if ( m_doCalo ) { 
+	CHECK( not m_caloEMTauLocation.empty() );
+	CHECK( not m_caloJetEnergyLocation.empty() );
+      } else {
+	renounceArray( m_caloEMTauLocation );
+	renounceArray( m_caloJetEnergyLocation );
+      }	
       CHECK( m_caloEMTauLocation.initialize() );
       CHECK( m_caloJetEnergyLocation.initialize() );
+	
+
+      if ( m_doMuon ) {
+	CHECK( not m_muctpiSLinkLocation.key().empty() );
+      } else {
+	renounce( m_muctpiSLinkLocation );
+
+      }
+      CHECK( m_muctpiSLinkLocation.initialize() );
+
+      CHECK( m_ctpSLinkLocation.initialize() );
       CHECK( m_roibRDOLocation.initialize() );
 
       return StatusCode::SUCCESS;
@@ -97,9 +108,11 @@ namespace ROIB {
       //
 
       auto eventInfoHandle = SG::makeHandle( m_eventInfoKey );
-      const EventInfo* thisEvent = eventInfoHandle.cptr();
-      // we will not reach execution if the EventInfo object is not present, not worth checking
-      const int evtNum = thisEvent->event_ID()->event_number();
+      ATH_MSG_INFO (" StoreGate content before  \n"
+      		    << evtStore()->dump());
+      CHECK( eventInfoHandle.isValid() );
+      const xAOD::EventInfo* thisEvent = eventInfoHandle.cptr();
+      const int evtNum = thisEvent->extendedLevel1ID();
       ATH_MSG_VERBOSE( "Event number is: " << evtNum );
 
 
@@ -121,9 +134,10 @@ namespace ROIB {
 
       // Try to retrieve CTP result from StoreGate:
       bool ctp_simulation_error = false;
+      auto ctpSlinkHandle = SG::makeHandle( m_ctpSLinkLocation );      
+      CHECK( ctpSlinkHandle.isValid() );
+      const LVL1CTP::CTPSLink* ctp_slink = ctpSlinkHandle.cptr();
 
-      const LVL1CTP::CTPSLink* ctp_slink = SG::makeHandle( m_ctpSLinkLocation ).cptr();
-      
       // test for consistency
       if ( ctp_slink->getCTPToRoIBWords().empty() ) {
 	ctp_simulation_error = true;
@@ -212,7 +226,9 @@ namespace ROIB {
 
          // get slink from storegate
          if( m_doCalo ) {
+	   ATH_MSG_INFO("Reading " <<  m_caloEMTauLocation[slink].key() );
 	   auto handle = SG::makeHandle( m_caloEMTauLocation[slink] );
+	   CHECK( handle.isValid() );
 	   emtau_slink  = handle.cptr();	   
 
 	   unsigned int icnt = 0;
@@ -275,6 +291,7 @@ namespace ROIB {
          // get slink from storegate
          if( m_doCalo ) {
 	   auto handle = SG::makeHandle( m_caloJetEnergyLocation[slink] );
+	   CHECK( handle.isValid() );
 	   jetenergy_slink = handle.cptr();
 	   
 	   ATH_MSG_VERBOSE( "Retrieved JetEnergy Slink from TES with key: "
@@ -335,6 +352,7 @@ namespace ROIB {
       // get slink from storegate
       if( m_doMuon ) {
 	auto handle = SG::makeHandle( m_muctpiSLinkLocation );
+	CHECK( handle.isValid() );
 	muctpi_slink = handle.cptr();
 	ATH_MSG_VERBOSE( "Retrieved MuCTPI result from TES with key: "
 			 << m_muctpiSLinkLocation );

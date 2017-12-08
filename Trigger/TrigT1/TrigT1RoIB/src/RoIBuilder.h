@@ -9,7 +9,8 @@
 
 #include <string>
 
-#include "EventInfo/EventInfo.h"
+
+#include "xAODEventInfo/EventInfo.h"
 #include "TrigT1Interfaces/CTPSLink.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
@@ -54,7 +55,7 @@ namespace ROIB {
 
      typedef DataVector< LVL1CTP::SlinkWord> SlinkWordDV;
 
-     SG::ReadHandleKey<EventInfo> m_eventInfoKey{ this, "EventInfo", "EventInfo", "Event info object "};
+     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfoKey", "EventInfo", "Event info object "};
 
      SG::ReadHandleKeyArray< SlinkWordDV > m_caloEMTauLocation{ this,   "CaloEMTauLocation", 
 	 { "CaloTriggerDataLocation_EmTauSlink0", "CaloTriggerDataLocation_EmTauSlink1", "CaloTriggerDataLocation_EmTauSlink2", "CaloTriggerDataLocation_EmTauSlink3"  }, 
