@@ -123,8 +123,13 @@ namespace Muon {
     SG::WriteHandle<xAOD::TrackParticleContainer> container(m_TPContainer);
     //record TrackParticle container in StoreGate
 
-    ATH_CHECK( container.record (std::make_unique<xAOD::TrackParticleContainer>(),
-                           std::make_unique<xAOD::TrackParticleAuxContainer>()) );
+    // the record method in release 21.3 does not automatically set the aux store while in master it does
+    auto tmp_con = std::make_unique<xAOD::TrackParticleContainer>();
+    auto tmp_aux = std::make_unique<xAOD::TrackParticleAuxContainer>();
+    tmp_con->setStore(tmp_aux.get());
+
+    ATH_CHECK( container.record (std::move(tmp_con) ,
+                           std::move(tmp_aux) ) );
 
    //sort the MDT hits into chambers & MLs
     std::vector<std::vector<const Muon::MdtPrepData*> > SortedMdt;
