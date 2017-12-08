@@ -265,7 +265,14 @@ StatusCode PixelPrepDataToxAOD::execute()
       //  Also get the energy deposited by each true particle per readout element   
       if(m_writeSDOs) {
 	SG::ReadHandle<InDetSimDataCollection> sdoCollection(m_SDOcontainer_key);
-	sdo_tracks = addSDOInformation(xprd, prd, *sdoCollection);
+	if ( sdoCollection.isValid() )
+	{
+	    sdo_tracks = addSDOInformation(xprd, prd, *sdoCollection);
+	}
+	else if ( m_firstEventWarnings )
+	{
+	    ATH_MSG_WARNING("SDO information requested, but SDO collection not available!");
+	}
       }
     
       // Now Get the most detailed truth from the SiHits
@@ -282,7 +289,7 @@ StatusCode PixelPrepDataToxAOD::execute()
 
 	if (m_writeNNinformation) {
 	  if (!m_writeSDOs)
-	    ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
+	      ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
 	  addNNTruthInfo(xprd, prd, matched_hits);
 	}
       }
