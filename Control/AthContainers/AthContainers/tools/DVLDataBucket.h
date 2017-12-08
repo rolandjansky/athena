@@ -142,7 +142,7 @@ public:
 private:
   typedef std::pair<DataModel_detail::DVLInfoBase*, void*> ent_t;
   typedef std::vector<ent_t> vec_t;
-  mutable vec_t m_copies;
+  vec_t m_copies;
 
   /// The std::type_info for the class of object we're holding.
   /// May be different from that of the base @c DataVector in the case
