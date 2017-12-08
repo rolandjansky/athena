@@ -53,7 +53,7 @@ int JetCaloQualityTool::modifyJet( xAOD::Jet& jet ) const
     jet.setAttribute<float>( calc->name(), results[i] );
   }
   
-   return StatusCode::SUCCESS;
+  return 1;
 }
 
 

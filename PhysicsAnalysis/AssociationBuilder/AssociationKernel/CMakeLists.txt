@@ -8,7 +8,7 @@ atlas_subdir( AssociationKernel )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthLinks
                           Event/EventKernel
                           Event/NavFourMom
                           GaudiKernel )
@@ -17,5 +17,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( AssociationKernel
                    src/*.cxx
                    PUBLIC_HEADERS AssociationKernel
-                   LINK_LIBRARIES AthenaBaseComps DataModel EventKernel NavFourMom GaudiKernel )
+                   LINK_LIBRARIES AthenaBaseComps AthLinks EventKernel NavFourMom GaudiKernel )
 

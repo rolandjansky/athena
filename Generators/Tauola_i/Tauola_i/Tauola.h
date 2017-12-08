@@ -15,9 +15,6 @@
 #include "Tauola_i/TauDetails.h"
 #include "Tauola_i/UserGamprt.h"
 
-/// @todo Not in header!
-using std::string;
-
 /// @todo Make private -- this is currently 100% global!
 typedef std::vector<std::string> CommandVector;
 

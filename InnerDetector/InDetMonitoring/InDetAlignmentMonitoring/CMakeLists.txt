@@ -13,7 +13,7 @@ atlas_depends_on_subdirs(
    Commission/CommissionEvent
    Control/AthenaBaseComps
    Control/AthenaMonitoring
-   Control/DataModel
+   Control/AthContainers
    DetectorDescription/AtlasDetDescr
    DetectorDescription/Identifier
    Event/EventPrimitives
@@ -55,7 +55,7 @@ atlas_add_component( InDetAlignmentMonitoring
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
-   GaudiKernel CommissionEvent AthenaBaseComps AthenaMonitoringLib DataModel
+   GaudiKernel CommissionEvent AthenaBaseComps AthenaMonitoringLib AthContainers
    AtlasDetDescr Identifier EventPrimitives xAODEventInfo xAODTracking
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry
    InDetPrepRawData InDetRIO_OnTrack Particle LWHists TrkGeometry TrkSurfaces

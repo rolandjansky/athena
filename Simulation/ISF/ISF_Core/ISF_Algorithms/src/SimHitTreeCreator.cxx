@@ -75,7 +75,7 @@ ISF::SimHitTreeCreator::~SimHitTreeCreator()
 /** framework methods */
 StatusCode ISF::SimHitTreeCreator::initialize() {
   // retrieve the histogram service
-  ATH_CHECK( m_thistSvc.retrieve().isSuccess() );
+  ATH_CHECK( m_thistSvc.retrieve() );
 
   ATH_CHECK(this->createSimHitsTree());
 

@@ -36,26 +36,27 @@ class BAuxVec
 public:
   using DataVector<BAux>::setStore;
   using DataVector<BAux>::getStore;
-  virtual void setStore( SG::IAuxStore* store ) { DataVector<BAux>::setStore(store); }
-  virtual SG::IAuxStore* getStore() const { return DataVector<BAux>::getStore(); }
-  virtual SG::IAuxStoreHolder::AuxStoreType getStoreType() const { return SG::IAuxStoreHolder::AST_ContainerStore; }
-  virtual const void* getIOData (SG::auxid_t auxid) const
+  virtual void setStore( SG::IAuxStore* store ) override { DataVector<BAux>::setStore(store); }
+  virtual SG::IAuxStore* getStore() override { return DataVector<BAux>::getStore(); }
+  virtual const SG::IAuxStore* getStore() const override { return DataVector<BAux>::getStore(); }
+  virtual SG::IAuxStoreHolder::AuxStoreType getStoreType() const override { return SG::IAuxStoreHolder::AST_ContainerStore; }
+  virtual const void* getIOData (SG::auxid_t auxid) const override
   {
-    IAuxStoreIO* s = dynamic_cast<SG::IAuxStoreIO*>(getStore());
+    const IAuxStoreIO* s = dynamic_cast<const SG::IAuxStoreIO*>(getStore());
     if (s) return s->getIOData(auxid);
     return 0;
   }
-  virtual const std::type_info* getIOType (SG::auxid_t auxid) const 
+  virtual const std::type_info* getIOType (SG::auxid_t auxid) const  override
   {
-    IAuxStoreIO* s = dynamic_cast<SG::IAuxStoreIO*>(getStore());
+    const IAuxStoreIO* s = dynamic_cast<const SG::IAuxStoreIO*>(getStore());
     if (s) return s->getIOType(auxid);
     return 0;
   }
-  virtual const SG::auxid_set_t& getDynamicAuxIDs() const 
+  virtual const SG::auxid_set_t& getDynamicAuxIDs() const override
   {
-    IAuxStoreIO* s = dynamic_cast<SG::IAuxStoreIO*>(getStore());
+    const IAuxStoreIO* s = dynamic_cast<const SG::IAuxStoreIO*>(getStore());
     if (s) return s->getDynamicAuxIDs();
-    static SG::auxid_set_t dum;
+    static const SG::auxid_set_t dum;
     return dum;
   }
 };

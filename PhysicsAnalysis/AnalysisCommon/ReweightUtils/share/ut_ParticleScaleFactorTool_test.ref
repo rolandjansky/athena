@@ -1,15 +1,7 @@
-ToolSvc.tool1       DEBUG Detected scale factor h
-ToolSvc.tool1       DEBUG   Parameter blah
-ToolSvc.tool2       DEBUG Detected scale factor h
-ToolSvc.tool2       DEBUG   Parameter pt/GeV
-ToolSvc.tool3       DEBUG Detected scale factor h
-ToolSvc.tool3       DEBUG   Parameter pt/GeV
-ToolSvc.tool3       DEBUG Detected scale factor h2
-ToolSvc.tool3       DEBUG Combining Electron: f(pt / GeV,eta) = 2*f(pt / GeV)*f(eta)/[f(pt / GeV)+f(eta)]
-ToolSvc.tool3       DEBUG   Parameter eta
-ToolSvc.tool4       DEBUG Detected systematic mySyst__1up
-ToolSvc.tool4       DEBUG Detected scale factor h
-ToolSvc.tool4       DEBUG   Parameter pt/GeV
+ToolSvc.tool1       DEBUG Property update for OutputLevel : new value = 1
+ToolSvc.tool2       DEBUG Property update for OutputLevel : new value = 1
+ToolSvc.tool3       DEBUG Property update for OutputLevel : new value = 1
+ToolSvc.tool4       DEBUG Property update for OutputLevel : new value = 1
 3
 4
 4.44444

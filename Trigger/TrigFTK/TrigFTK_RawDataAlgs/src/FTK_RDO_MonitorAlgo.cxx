@@ -18,6 +18,8 @@
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 
+#include "TrigFTKSim/ftk_dcap.h"
+
 
 #include "TrkSurfaces/Surface.h"
 
@@ -56,7 +58,11 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   m_minphi(-10.),
   m_maxphi(10.),
   m_minMatches(6),
-  m_reverseIBLlocx(false)
+  m_reverseIBLlocx(false),
+  m_max_tower(64),
+  m_Nlayers(12),
+  m_getHashFromTrack(true),
+  m_getHashFromConstants(false)
 {
   declareProperty("RDO_CollectionName",m_ftk_raw_trackcollection_Name, "Collection name of RDO");
   declareProperty("offlineTracksName",m_offlineTracksName," offline tracks collection name");
@@ -70,6 +76,13 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   declareProperty("maxphi", m_maxphi,"Maximum phi for offline track");
   declareProperty("minMatches", m_minMatches,"Minimum number of matched hits");
   declareProperty("reverseIBLlocx",m_reverseIBLlocx,"reverse direction of IBL locx from FTK");
+  declareProperty("ConstantsDir",m_ConstantsDir="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK","directory for constants");
+  declareProperty("PatternsVersion",m_PatternsVersion="ftk.64tower.2016.mc16.v2","Patterns Version");
+  declareProperty("Ntowers",m_max_tower,"No. FTK Towers");
+  declareProperty("Nlayers",m_Nlayers,"No. FTK layers in the SectorsFile");
+  declareProperty("GetHashFromTrack",m_getHashFromTrack," Get HashID From Track");
+  declareProperty("GetHashFromConstants",m_getHashFromConstants," Get HashID From Constants");
+
 }
 
 FTK_RDO_MonitorAlgo::~FTK_RDO_MonitorAlgo()
@@ -140,8 +153,40 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   if ( m_reverseIBLlocx ) 
     ATH_MSG_INFO("reversing direction of IBL locx");
 
+  ATH_MSG_INFO("ConstantsDir: "<<m_ConstantsDir);
+  ATH_MSG_INFO("PatternsVersion: "<<m_PatternsVersion);
+  ATH_MSG_INFO("Ntowers= " << m_max_tower);
+  ATH_MSG_INFO("Nlayers= "<<m_Nlayers);
 
-  return StatusCode::SUCCESS; 
+  if (m_getHashFromTrack && m_getHashFromConstants) {
+    ATH_MSG_INFO("getting HashID from Track and Constants and comparing the two");
+  } else if (m_getHashFromTrack) {
+    ATH_MSG_INFO("getting HashID from Track");
+  } else if (m_getHashFromConstants) {
+    ATH_MSG_INFO("getting HashID from Constants");
+  } else {
+    ATH_MSG_INFO("getting HashID from Track");
+    m_getHashFromTrack=true;
+  }
+    
+
+  StatusCode ret=StatusCode::SUCCESS;
+  if (m_getHashFromConstants) {
+    m_moduleFromSector.resize(m_max_tower);
+    for (unsigned int itower=0; itower<m_max_tower; itower++) {
+            
+      m_moduleFromSector[itower] = new sectormap();
+      unsigned int returnCode = (this)->readModuleIds(itower, *(m_moduleFromSector[itower]));
+
+      if (returnCode) {
+	ATH_MSG_WARNING("Error " << returnCode << " loading constants for tower " << itower);
+	ret=StatusCode::FAILURE;
+	break;
+      } 
+
+    }
+  }
+  return ret; 
 }
 
 
@@ -294,8 +339,14 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 StatusCode FTK_RDO_MonitorAlgo::finalize() {
   MsgStream athlog(msgSvc(), name());
   ATH_MSG_INFO("finalize()" );
-
+  
+  if (m_getHashFromConstants) {
+    for (unsigned int it=0; it<m_max_tower; it++) {
+      delete(m_moduleFromSector[it]);
+    }
+  }
   return StatusCode::SUCCESS;
+
 }
 
 
@@ -483,8 +534,6 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
   unsigned int sctMaxHash = m_sctId->wafer_hash_max();
   
   
-  FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
-  FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
   
   
   //    const FTK_RawTrack* highPtTrack = nullptr;
@@ -493,51 +542,82 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
   std::vector<unsigned int>  missingPixLayer(4);
   std::vector<unsigned int> missingSctLayer(8);
 
-
   
+  FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
+  FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
   for ( int itr=0; pTrack!= pLastTrack; pTrack++, itr++) {
     
           
 	    
-	    /*
-	    float ftkTrkPt=1.e10;
-	    if (fabs((*pTrack)->getInvPt()) >= 1e-9) ftkTrkPt=1./(*pTrack)->getInvPt();
-	    float ftkTrkTheta = std::atan2(1.0,(*pTrack)->getCotTh());
-	    float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
-	      ATH_MSG_VERBOSE( itr << ": pT: " << ftkTrkPt  << " eta: " << ftkTrkEta << " phi: " <<  (*pTrack)->getPhi() << " d0: " << (*pTrack)->getD0() <<
-	    " z0: " << (*pTrack)->getZ0()<< " cot " << (*pTrack)->getCotTh() << " theta " << ftkTrkTheta << " invPt " << (*pTrack)->getInvPt() <<
-	    " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size()<< " barCode: "<<(*pTrack)->getBarcode()  );
-	    ATH_MSG_VERBOSE( "     SectorID " << (*pTrack)->getSectorID()   <<   "  RoadID "  << (*pTrack)->getRoadID() << " LayerMap " << (*pTrack)->getLayerMap());
-	    */
+	    
+     
+       float ftkTrkPt=1.e10;
+       if (fabs((*pTrack)->getInvPt()) >= 1e-9) ftkTrkPt=1./(*pTrack)->getInvPt();
+       float ftkTrkTheta = std::atan2(1.0,(*pTrack)->getCotTh());
+       float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
+       ATH_MSG_VERBOSE( itr << ": pT: " << ftkTrkPt  << " eta: " << ftkTrkEta << " phi: " <<  (*pTrack)->getPhi() << " d0: " << (*pTrack)->getD0() <<
+       " z0: " << (*pTrack)->getZ0()<< " cot " << (*pTrack)->getCotTh() << " theta " << ftkTrkTheta << " invPt " << (*pTrack)->getInvPt() <<
+       " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size()<< " barCode: "<<(*pTrack)->getBarcode()  );
+       ATH_MSG_VERBOSE( " Tower " << (*pTrack)->getTower() << "     SectorID " << (*pTrack)->getSectorID()   <<   "  RoadID "  << (*pTrack)->getRoadID() << " LayerMap " << (*pTrack)->getLayerMap());
     
-    unsigned int iPlane = 0;
+    
+    unsigned int sector = (*pTrack)->getSectorID();
+    unsigned int tower = (*pTrack)->getTower();
 
+    unsigned int iPlane=0;
+    if (m_Nlayers==8) iPlane=1;
 
-
-    for( unsigned int i = 0; i < (*pTrack)->getPixelClusters().size(); ++i,iPlane++){
+    for( ; iPlane < (*pTrack)->getPixelClusters().size(); iPlane++){
       
       
-      if ((*pTrack)->isMissingPixelLayer(i))  {
+      if ((*pTrack)->isMissingPixelLayer(iPlane))  {
 	//	  ATH_MSG_VERBOSE(" Missing Pixel Layer " <<  i);
-	if (i<4)missingPixLayer[i]++;
+	if (iPlane<4)missingPixLayer[iPlane]++;
 	continue;
       }
-      /* 
-	 ATH_MSG_VERBOSE(" FTK_RawPixelCluster " << i <<
-	 " Row Coord= " << (*pTrack)->getPixelClusters()[i].getRowCoord() <<
-	 " Row Width= " << (*pTrack)->getPixelClusters()[i].getRowWidth() <<
-	 " Col Coord= " << (*pTrack)->getPixelClusters()[i].getColCoord() <<
-	 " Col Width= " << (*pTrack)->getPixelClusters()[i].getColWidth() <<
-	 " Hash ID= 0x" << std::hex << (*pTrack)->getPixelClusters()[i].getModuleID() 
-	 << std::dec << " Barcode= "   << (*pTrack)->getPixelClusters()[i].getBarcode() 
-	 );
-      */
+      
+
+            
+      ATH_MSG_VERBOSE(" FTK_RawPixelCluster " << iPlane << 
+			    " Row Coord= " << (*pTrack)->getPixelClusters()[iPlane].getRowCoord() <<
+			    " Row Width= " << (*pTrack)->getPixelClusters()[iPlane].getRowWidth() <<
+			    " Col Coord= " << (*pTrack)->getPixelClusters()[iPlane].getColCoord() <<
+			    " Col Width= " << (*pTrack)->getPixelClusters()[iPlane].getColWidth() <<
+			    " Hash ID= 0x" << std::hex << (*pTrack)->getPixelClusters()[iPlane].getModuleID() 		      
+			    << std::dec << " Barcode= "   << (*pTrack)->getPixelClusters()[iPlane].getBarcode() 
+			    );
       
       
+      IdentifierHash hash=0xffffffff;
+
+      if (m_getHashFromTrack) hash = (*pTrack)->getPixelClusters()[iPlane].getModuleID();
       
+      if (m_getHashFromConstants) {
       
-      IdentifierHash hash = (*pTrack)->getPixelClusters()[i].getModuleID();
+	IdentifierHash hashfromConstants = this->getHash(tower, sector, iPlane);
+	if (hashfromConstants > pixMaxHash) {
+	  if ((*m_moduleFromSector[tower]).size()>0)ATH_MSG_WARNING(" invalid pixel HashID 0x" << std::hex << hash << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	} else {
+	
+	  if (m_getHashFromTrack) { 
+	    if (hashfromConstants != hash) {
+	    
+	      ATH_MSG_WARNING(" Pixel HashID missmatch: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	      unsigned int track_tower=tower, track_sector=sector, track_plane=iPlane;
+	      bool found = this->findHash(hash, false, track_tower, track_sector, track_plane);
+	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hash)));
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hashfromConstants)));
+	      
+	    } else {
+	      ATH_MSG_VERBOSE(" Pixel HashID successful match: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	    }
+	  }
+	}	    
+	if (!m_getHashFromTrack)hash =  hashfromConstants;
+      }
       
+
       if (hash<pixMaxHash) {
 	//	ATH_MSG_DEBUG(" Adding to pixList[ "<<hash<<" ] track " << itr);
 	if (!pixList[hash]) pixList[hash]= new std::vector<unsigned int>;
@@ -545,22 +625,64 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
       }
       
     }
-    for( unsigned int isct = 0; isct < (*pTrack)->getSCTClusters().size(); ++isct){
-      
+    std::vector<unsigned int> sctplane;
+    if (m_Nlayers==8) {
+      sctplane={0,2,4,5,6};
+    } else {
+      sctplane={0,1,2,3,4,5,6,7};
+    }
+
+
+    for(auto isct:sctplane){
+      iPlane = isct+4;
       if ((*pTrack)->isMissingSCTLayer(isct)) {
 	//	  ATH_MSG_VERBOSE(" Missing SCT Layer" << isct);
 	if (isct<8)missingSctLayer[isct]++;
 	continue;
       }
       
-      /* ATH_MSG_VERBOSE(" FTK_RawSCT_Cluster " << isct <<
-	 " Hit Coord= " << (*pTrack)->getSCTClusters()[isct].getHitCoord() <<
-	 " Hit Width= " << (*pTrack)->getSCTClusters()[isct].getHitWidth() <<
-	 " Module ID= " << (*pTrack)->getSCTClusters()[isct].getModuleID() <<
-	 " Barcode= "   << (*pTrack)->getSCTClusters()[isct].getBarcode() );
-      */
       
-      IdentifierHash hash = (*pTrack)->getSCTClusters()[isct].getModuleID();
+      
+      ATH_MSG_VERBOSE(" FTK_RawSCT_Cluster " << isct << " FTK plane " << iPlane <<
+		      " Hit Coord= " << (*pTrack)->getSCTClusters()[isct].getHitCoord() <<
+		      " Hit Width= " << (*pTrack)->getSCTClusters()[isct].getHitWidth() <<
+		      " Module ID= " << (*pTrack)->getSCTClusters()[isct].getModuleID() <<
+		      " Barcode= "   << (*pTrack)->getSCTClusters()[isct].getBarcode() );
+      
+      
+
+      IdentifierHash hash=0xffffffff;
+
+      if (m_getHashFromTrack) hash = (*pTrack)->getSCTClusters()[isct].getModuleID();
+      
+      if (m_getHashFromConstants) {
+        IdentifierHash hashfromConstants = this->getHash(tower, sector, iPlane);
+	if (hashfromConstants > sctMaxHash) {
+	  if ((*m_moduleFromSector[tower]).size()>0)ATH_MSG_WARNING(" invalid SCT HashID 0x" << std::hex << hash << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	} else {
+	  
+	  if (m_getHashFromTrack) {
+	    if (hashfromConstants != hash) {
+	    
+	      ATH_MSG_WARNING(" SCT HashID missmatch: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+
+	      unsigned int track_tower, track_sector, track_plane;
+
+	      bool found = this->findHash(hash, true, track_tower, track_sector, track_plane);
+		
+	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hash)));
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hashfromConstants)));
+
+	    
+	    } else {
+	      ATH_MSG_VERBOSE(" SCT HashID successful match: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	    }
+	  }
+	}
+	if (!m_getHashFromTrack) hash =  hashfromConstants;
+      }
+
       
       if (hash<sctMaxHash) {
 	//	ATH_MSG_DEBUG(" Adding to sctList[ "<<hash<<" ] track " << itr);
@@ -569,6 +691,7 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
 	  sctList[hash]->push_back(itr);
       }
     
+
     }
   } // end loop over tracks
   
@@ -1008,3 +1131,136 @@ double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float ra
   return centre.xPhi();
 }
   
+
+bool FTK_RDO_MonitorAlgo::findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane) {
+  int i = (int) hash;
+  sector=tower=plane=0xffffffff;
+  bool found=false;
+
+  //  for (unsigned int itower = 0; itower < m_moduleFromSector.size(); itower++) {
+  sectormap* map = m_moduleFromSector[tower];
+  if (map) {   
+    //      for ( unsigned int isector=0; isector < map->size();isector++) {
+    if ((*map)[sector].size() > 0) {
+      auto first= (*map)[sector].begin();
+      if (isSCT) first+=4;
+      auto last = (*map)[sector].end();
+      if (!isSCT) last -=8;
+
+      auto p = std::find(first, last, i);
+      if ( p!= last ) {
+	plane = std::distance(first, p);
+
+      }
+    }
+  }
+
+  return found;
+}
+	
+unsigned int FTK_RDO_MonitorAlgo::getHash(unsigned int tower, unsigned int sector,  unsigned int plane) {
+  unsigned int hash =  0xffffffff;
+  if (plane >= 12) {
+    ATH_MSG_ERROR("getHash: Invalid plane " << plane);
+    return hash;
+  }
+  if (m_moduleFromSector[tower]==nullptr) return hash;
+  if ((*m_moduleFromSector[tower]).size() <= sector) return hash;
+  if (plane >=(*m_moduleFromSector[tower])[sector].size()) return hash;
+  return (unsigned int)(*m_moduleFromSector[tower])[sector][plane];
+}
+
+
+int FTK_RDO_MonitorAlgo::readModuleIds(unsigned int itower, sectormap& hashID) {
+   int nSector8L,nPlane8L;
+   // define which 8L plane goes to which 12L plane
+   vector<int> const remapPlanes={1,2,3, 4,6,8,9,10, 0,5,7,11};
+   enum {
+      ERROR_PATTFILE=1,
+      ERROR_CONNFILE=2
+   };
+
+
+   std::stringstream ssPat, ssCon;
+   ssPat << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".patt.bz2";
+   
+   std::string pattfilename=ssPat.str();
+   ATH_MSG_DEBUG("Sectors file: "<<pattfilename);
+   const char * cpattfilename = pattfilename.c_str();
+   ftk_dcap::istream *patt_8L=ftk_dcap::open_for_read(cpattfilename);
+   if(!patt_8L) {
+     ATH_MSG_WARNING("readSectorDefinition failed to open file "<<cpattfilename
+		     <<" for reading, skipping");
+     return ERROR_PATTFILE;
+   }
+   ssCon << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".conn";
+   std::string connfilename=ssCon.str();
+   ATH_MSG_DEBUG("Connections file: "<<connfilename);
+   const char * charconnfilename = connfilename.c_str();
+   ifstream conn(charconnfilename);
+   if (!conn) {
+     ATH_MSG_WARNING("readSectorDefinition failed to open file "<<charconnfilename
+		     <<" for reading, skipping");
+
+     delete(patt_8L);
+     return ERROR_CONNFILE;
+   }
+
+   (*patt_8L)>>nSector8L>>nPlane8L;
+   // check errors here
+   //   (*patt_8L).fail(), nSector8L>0, 0<nPlane8L<remapPlanes.size()
+   int lastSector8=-1;
+   int lastSector12=-1;
+   int error=0;
+   while(!((*patt_8L).eof()||conn.eof())) {
+      int iSectorPatt,iSectorConn;
+      (*patt_8L)>>iSectorPatt;
+      conn>>iSectorConn;
+      if((*patt_8L).fail()||conn.fail()) {
+         // end
+         break;
+      }
+      if((iSectorPatt!=lastSector8+1)||
+         (iSectorPatt!=iSectorConn)||
+         (iSectorPatt<0)||(iSectorPatt>=nSector8L)) {
+         error=ERROR_PATTFILE;
+         // file is corrupted
+         break;
+      }
+      vector<int> moduleData(remapPlanes.size());
+      // read 8L module IDs
+      for(int k=0;k<nPlane8L;k++) {
+         (*patt_8L)>>moduleData[remapPlanes[k]];
+      }
+      int dummy;
+      // skip dummy entries
+      (*patt_8L)>>dummy;
+      (*patt_8L)>>dummy;
+      // read connection data and store 12L module data
+
+      int n12;
+      conn>>n12;
+      for(int i=0;i<n12;i++) {
+         int sector12;
+         conn>>dummy>>sector12;
+         if(lastSector12+1!=sector12) {
+            error=ERROR_CONNFILE;
+            break;
+         }
+         for(unsigned int k=nPlane8L;k<remapPlanes.size();k++) {
+            conn>>moduleData[remapPlanes[k]];
+         }
+         hashID.push_back(moduleData);
+         lastSector12=sector12;
+      }
+      if(error) break;
+
+      lastSector8=iSectorPatt;
+   }
+
+     
+
+   delete(patt_8L);
+
+   return error;
+}

@@ -66,12 +66,11 @@ void throw_dv_test_err (const char* file, int line, const char* what)
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/exceptions.h"
 #include "TestTools/random.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <vector>
 #include <iostream>
 
-
-Athena_test::RNG stlrand;
 
 
 //*************************************************************************
@@ -255,7 +254,7 @@ public:
     return AuxStoreInternal::getData (auxid, size, capacity);
   }
 
-  mutable std::vector<SG::auxid_t> m_gets;
+  mutable std::vector<SG::auxid_t> m_gets ATLAS_THREAD_SAFE;
 };
 
 
@@ -890,6 +889,7 @@ void test_resort_aux1()
 {
   //typedef typename CONT::base_type BASE;
   typedef T BASE;
+  Athena_test::RNG stlrand;
   stlrand.seed = 1;
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");

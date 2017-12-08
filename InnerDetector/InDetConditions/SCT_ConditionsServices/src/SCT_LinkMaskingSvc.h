@@ -14,19 +14,21 @@
 // STL includes
 #include <string>
 #include <set>
-#include <list>
-#include <utility>
+#include <vector>
+#include <mutex>
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
-#include "StoreGate/DataHandle.h"
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
@@ -68,7 +70,7 @@ public:
   virtual StatusCode                    fillData() { return StatusCode::FAILURE; }
   
   /**Fill data from an IOVDbSvc callback*/
-  virtual StatusCode                    fillData(int& i, std::list<std::string>& l);
+  virtual StatusCode                    fillData(int& /*i*/, std::list<std::string>& /*l*/) { return StatusCode::SUCCESS; };
   
   /**Are the data available?*/
   virtual bool                          filled() const;
@@ -77,17 +79,24 @@ public:
   virtual bool                          canFillDuringInitialize() { return false; }
   
 private:
-  std::set<Identifier>                     m_maskedLinkIds;                 //!< Set of masked link identifiers 
-  bool                                     m_filled;                        //!< Had the data been filled?
-  ServiceHandle<StoreGateSvc>              m_detStore;                      //!< Handle on the detector store
-  const DataHandle<CondAttrListCollection> m_dataLink;                      //!< Handle for link info from DB
-  const SCT_ID*                            m_sctHelper;                     //!< ID helper for SCT
+  SCT_ModuleVetoCondData                   m_data;      //!< Set of masked link identifiers
+  ServiceHandle<StoreGateSvc>              m_detStore;  //!< Handle on the detector store
+  const SCT_ID*                            m_sctHelper; //!< ID helper for SCT
 
-  /** Retreive a given folder from the DB*/
-  StatusCode                            retrieveFolder(const DataHandle<CondAttrListCollection> &pDataVec, const std::string & folderName);
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cache;
+  // Pointer of SCT_ModuleVetoCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ModuleVetoCondData> m_condData;
+  // ReadCondHandleKey
+  SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey;
+  // Provides SCT_ModuleVetoCondData pointer
+  const SCT_ModuleVetoCondData* getCondData(const EventContext& ctx) const;
+  
 };
 
-inline const InterfaceID& SCT_LinkMaskingSvc::interfaceID(){
+inline const InterfaceID& SCT_LinkMaskingSvc::interfaceID() {
   return ISCT_ConditionsSvc::interfaceID(); 
 }
 

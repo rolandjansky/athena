@@ -177,10 +177,14 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     CLHEP::Hep3Vector flex_pos(0.,0.,0.);
     //    GeoTransform* flex_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,fabs(flex_rot)),flex_pos));
     const GeoMaterial* flex_material = m_mat_mgr->getMaterial(flexMatName);
-    if(flex_material==0) m_gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading material"<<flexMatName<<endmsg;
-    
+    if(flex_material==0)
+    {
+      m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading material "<<flexMatName<<__FILE__<< ":"<< __LINE__<<endmsg;
+      exit(EXIT_FAILURE);
+    } else{
     flex_logVolA = new GeoLogVol("Flex",flex_shapeA,flex_material);
     flex_logVolC = new GeoLogVol("Flex",flex_shapeC,flex_material);
+    }
   }
   else {
     
@@ -201,10 +205,14 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     m_gmt_mgr->msg(MSG::DEBUG)<<"IFlex material : "<<m_section<<" "<<IflexMatName<<endmsg;
     const GeoMaterial* Iflex_material = m_mat_mgr->getMaterial(IflexMatName);
     
-    if(Iflex_material==0) m_gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading IFlex material"<<endmsg;
-    
+    if(Iflex_material==0)
+    {
+      m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading material "<<IflexMatName<<__FILE__<< ":"<< __LINE__<<endmsg;
+      exit(EXIT_FAILURE);
+    } else{
     flex_logVolA = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
     flex_logVolC = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
+    }
   }
 
   GeoPhysVol * flexPhysVolA = new GeoPhysVol(flex_logVolA);

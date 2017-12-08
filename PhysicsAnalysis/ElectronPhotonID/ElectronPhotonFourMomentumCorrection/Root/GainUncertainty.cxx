@@ -16,10 +16,8 @@ namespace egGain {
 
 //--------------------------------------
 
-  GainUncertainty::GainUncertainty() : asg::AsgMessaging("GainUncertainty") {
-
-    const std::string filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/gain_uncertainty_specialRun.root");
-
+  GainUncertainty::GainUncertainty(std::string filename) : asg::AsgMessaging("GainUncertainty") {
+    
     ATH_MSG_INFO("opening file " << filename);
     m_gainFile = CxxUtils::make_unique<TFile>(filename.c_str());
 
@@ -34,7 +32,7 @@ namespace egGain {
      sprintf(name,"gain_Impact_unco_%d",i);
      if (not (m_gain_Impact_unco[i]= (TH1D*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram5");
     }
-
+    
   }
 
 //----------------------------------------------
@@ -62,7 +60,10 @@ namespace egGain {
        else if (aeta<1.80) ibin=3;
        else if (aeta<2.50) ibin=4;
        if (ibin<0) return 0.;
-
+       
+       //Protection needed as the histograms stops at 1 TeV
+       if(et_input>999999.) et_input = 999999.;
+       
 //       std::cout << " --- in  GainUncertainty::getUncertainty " << etaCalo_input << " " << et_input << " " << ptype << " ibin " << ibin << std::endl;
 
        double impact=0.;

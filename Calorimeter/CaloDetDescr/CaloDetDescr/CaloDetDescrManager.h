@@ -1,3 +1,4 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -196,34 +197,42 @@ class CaloDetDescrManager_Base
   /** @brief get element by its identifier
       @param cellId [IN] element identifier
    */
-  CaloDetDescrElement* get_element(const Identifier& cellId) const;
+  const CaloDetDescrElement* get_element(const Identifier& cellId) const;
+  /** @brief get element by its identifier, non-const version.
+      @param cellId [IN] element identifier
+   */
+  CaloDetDescrElement* get_element_nonconst(const Identifier& cellId);
   /** @brief get element by hash identifier
       @param caloCellHash [IN] hash identifier for the element
    */
-  CaloDetDescrElement* get_element(const IdentifierHash& caloCellHash) const;
+  const CaloDetDescrElement* get_element(const IdentifierHash& caloCellHash) const;
+  /** @brief get element by hash identifier, non-const version.
+      @param caloCellHash [IN] hash identifier for the element
+   */
+  CaloDetDescrElement* get_element_nonconst(const IdentifierHash& caloCellHash);
   /** @brief get element by subcalo and hash identifier
       @param subCalo [IN] subsystem
       @param subCaloCellHash [IN] sub calo hash
    */
-  CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
-				    const IdentifierHash& subCaloCellHash) const;
+  const CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
+                                          const IdentifierHash& subCaloCellHash) const;
   /** @brief LAr only! get element by subcalo, sampling, barrel flag, eta, phi.  This is slower for FCAL
    */
-  CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
-				    int sampling_or_module, 
-				    bool barrel,
-				    double eta, double phi) const;
+  const CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
+                                          int sampling_or_module, 
+                                          bool barrel,
+                                          double eta, double phi) const;
   /** @brief LAr only! get element by sample, eta phi.  This is slower for FCAL
    */
-  CaloDetDescrElement* get_element (CaloCell_ID::CaloSample sample,
-				    double eta, 
-				    double phi) const;
+  const CaloDetDescrElement* get_element (CaloCell_ID::CaloSample sample,
+                                          double eta, 
+                                          double phi) const;
 
   /** @brief Get element from raw quantities (to build real fixed size clusters)
    */
-  CaloDetDescrElement* get_element_raw (CaloCell_ID::CaloSample sample,
-					double eta, 
-					double phi) const;
+  const CaloDetDescrElement* get_element_raw (CaloCell_ID::CaloSample sample,
+                                              double eta, 
+                                              double phi) const;
 
   /** @brief the only client is CaloCellList class 
    */
@@ -302,23 +311,26 @@ class CaloDetDescrManager_Base
 
   /** @brief get descriptor by region identifier
    */
-  CaloDetDescriptor* get_descriptor (const Identifier& regionId) const;
+  const CaloDetDescriptor* get_descriptor (const Identifier& regionId) const;
+  /** @brief get descriptor by region identifier, non-const version.
+   */
+  CaloDetDescriptor* get_descriptor_nonconst (const Identifier& regionId);
   /** @brief get descriptor by subcalo, sampling, barrel flag, eta, phi
    */
-  CaloDetDescriptor* get_descriptor(CaloCell_ID::SUBCALO subCalo,
-				 int sampling_or_module, 
-				 bool barrel,
-				 double eta, 
-				 double phi) const;
+  const CaloDetDescriptor* get_descriptor(CaloCell_ID::SUBCALO subCalo,
+                                          int sampling_or_module, 
+                                          bool barrel,
+                                          double eta, 
+                                          double phi) const;
   /** @brief get descriptor by sample, eta and phi
    */
-  CaloDetDescriptor* get_descriptor (CaloCell_ID::CaloSample sample,
-				     double eta, double phi) const;
+  const CaloDetDescriptor* get_descriptor (CaloCell_ID::CaloSample sample,
+                                           double eta, double phi) const;
 
   /** @brief get descriptor by sample, eta and phi raw
    */
-  CaloDetDescriptor* get_descriptor_raw (CaloCell_ID::CaloSample sample, 
-                                     double eta, double phi) const;
+  const CaloDetDescriptor* get_descriptor_raw (CaloCell_ID::CaloSample sample, 
+                                               double eta, double phi) const;
 
 
   /** @brief first tile descriptor (they are in separate vector)
@@ -396,15 +408,15 @@ private:
 
   /** @brief LArFCAl  private methode to get element
    */
-  CaloDetDescrElement* get_element_FCAL (const CaloDetDescriptor* reg,
-                                    double eta, 
-                                    double phi) const;
+  const CaloDetDescrElement* get_element_FCAL (const CaloDetDescriptor* reg,
+                                               double eta, 
+                                               double phi) const;
 
   /** @brief LArFCAl  private methode to get element from raw eta,phi
    */
-  CaloDetDescrElement* get_element_FCAL_raw (const CaloDetDescriptor* reg,
-                                    double eta,
-                                    double phi) const;
+  const CaloDetDescrElement* get_element_FCAL_raw (const CaloDetDescriptor* reg,
+                                                   double eta,
+                                                   double phi) const;
 
 
 };
@@ -467,7 +479,7 @@ private:
 CLASS_DEF( CaloSuperCellDetDescrManager , 241807251 , 1 )
 
 
-inline  CaloDetDescrElement*			
+inline  const CaloDetDescrElement*			
 CaloDetDescrManager_Base::get_element (const IdentifierHash& caloCellHash) const
 {
   if ( caloCellHash < m_element_vec.size() ) 
@@ -475,6 +487,13 @@ CaloDetDescrManager_Base::get_element (const IdentifierHash& caloCellHash) const
   else return 0 ;
 }
                        
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+inline CaloDetDescrElement*			
+CaloDetDescrManager_Base::get_element_nonconst (const IdentifierHash& caloCellHash)
+{
+  if ( caloCellHash < m_element_vec.size() ) 
+    return m_element_vec[caloCellHash] ;
+  else return 0 ;
+}
+                       
 
 #endif // CALODETDESCR_CALODETDESCRMANAGER_H

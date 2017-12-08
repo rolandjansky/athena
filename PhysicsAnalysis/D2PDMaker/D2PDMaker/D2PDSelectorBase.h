@@ -71,7 +71,7 @@
 // The needed ElementLink stuff
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h" 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Include official tools
 #include "AnalysisUtils/ISelector.h"

@@ -153,7 +153,7 @@ namespace CP {
     CP::SystematicSet m_affectingSys;
 
     /// Currently applied systematics
-   CP::SystematicSet* m_appliedSystematics;
+    CP::SystematicSet* m_appliedSystematics;
  
     /// Decorator
     std::string m_sf_decoration_name;

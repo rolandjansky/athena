@@ -19,8 +19,8 @@
 #include "xAODTau/TauJetContainer.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
 
 using std::string;
@@ -299,7 +299,7 @@ namespace met {
   bool METMakerAlg::accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(*el);
+    return m_elecSelLHTool->accept(el);
   }
 
   bool METMakerAlg::accept(const xAOD::Photon* ph)

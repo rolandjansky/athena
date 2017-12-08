@@ -11,14 +11,14 @@
 #include <string>
 #include <mutex>
 
-class CondContBase;
+class DataObject;
 
 namespace CondContainer {
   class CondContFactory {
   public:
     static CondContFactory& Instance();
     void regMaker(const CLID& clid, ICondContMaker* maker);
-    CondContBase* Create(const CLID& clid, const std::string& key) const;
+    SG::DataObjectSharedPtr<DataObject> Create(const CLID& clid, const std::string& key) const;
     
   private:
     CondContFactory(){}

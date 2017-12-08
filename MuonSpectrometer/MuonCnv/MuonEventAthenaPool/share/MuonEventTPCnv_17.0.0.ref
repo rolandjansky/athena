@@ -200,6 +200,8 @@ DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 a
 DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
+GeoModelSvc.Pix...WARNING ToolHandle InDetDD::BCM_Builder/InDetDD::BCM_Builder  unused but not disabled
+GeoModelSvc.Pix...WARNING ToolHandle InDetDD::BLM_Builder/InDetDD::BLM_Builder  unused but not disabled
 GeoModelSvc.Muo...   INFO Initializing ...
 ToolSvc.MGM_Ali...   INFO Initilalizing
 ToolSvc.MGM_Ali...   INFO In initialize ---- # of folders registered is 0

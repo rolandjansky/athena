@@ -146,8 +146,14 @@ namespace xAOD {
    //          Implementation of the SG::IAuxStoreHolder functions
    //
 
-   SG::IAuxStore* AuxInfoBase::getStore() const {
+   SG::IAuxStore* AuxInfoBase::getStore()
+   {
+      return m_store;
+   }
 
+
+   const SG::IAuxStore* AuxInfoBase::getStore() const
+   {
       return m_store;
    }
 

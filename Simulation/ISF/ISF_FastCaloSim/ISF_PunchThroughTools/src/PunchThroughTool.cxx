@@ -525,7 +525,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
       if (!par)
         {
           ATH_MSG_ERROR("[ punchthrough ] something went wrong while creating punch-through particles");
-          return StatusCode::FAILURE;
+          return 0;
         }
 
       // get the energy of the particle which was just created

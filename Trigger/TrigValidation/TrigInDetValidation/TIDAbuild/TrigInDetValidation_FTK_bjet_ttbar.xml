@@ -1,7 +1,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_bjet_ttbar'>
             <doc>Bjetslice, ttbar, FTK chains</doc>
             <displayName>BjetSlice, ttbar, FYK chains</displayName>
-	    <commandLineFlags>EventMax=500;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=500;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
