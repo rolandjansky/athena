@@ -221,7 +221,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       AUXDATA(xprd,float,splitProbability2)  =  prd->splitProbability2(); 
 
       // Need to add something to Add the NN splitting information
-      if(m_writeNNinformation)addNNInformation( xprd,  prd, 7, 7);
+      if(m_writeNNinformation) addNNInformation( xprd,  prd, 7, 7);
       
       // Add information for each contributing hit
       if(m_writeRDOinformation) {
@@ -279,23 +279,30 @@ StatusCode PixelPrepDataToxAOD::execute()
       // Note that this could get really slow if there are a lot of hits and clusters
       if (m_need_sihits) {
 	SG::ReadHandle<SiHitCollection> sihitCollection(m_sihitContainer_key);
-	const std::vector<SiHit> matched_hits = findAllHitsCompatibleWithCluster(prd, *sihitCollection, sdo_tracks);
-	  
-	if (m_writeSiHits) {
-	  if (!m_writeSDOs)
-	    ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
-	  addSiHitInformation(xprd, prd, matched_hits); 
+	if ( sihitCollection.isValid() )
+	{
+	    const std::vector<SiHit> matched_hits = findAllHitsCompatibleWithCluster(prd, *sihitCollection, sdo_tracks);
+	    
+	    if (m_writeSiHits) {
+		if (!m_writeSDOs)
+		    ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
+		addSiHitInformation(xprd, prd, matched_hits); 
+	    }
+	    
+	    if (m_writeNNinformation) {
+		if (!m_writeSDOs)
+		    ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
+		addNNTruthInfo(xprd, prd, matched_hits);
+	    }
 	}
-
-	if (m_writeNNinformation) {
-	  if (!m_writeSDOs)
-	      ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
-	  addNNTruthInfo(xprd, prd, matched_hits);
+	else if ( m_firstEventWarnings )
+	{
+	    ATH_MSG_WARNING("SiHit information requested, but SiHit collection not available!");
 	}
       }
     }
   }
-
+  
   for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ ) {
       AUXDATA(*clusItr,char,broken) = false;
   }
