@@ -173,7 +173,8 @@ HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
   
   // For now, just try to retrieve the lumi tool
   if (m_lumiBlockMuTool.retrieve().isFailure()) {
-      ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
+      ATH_MSG_FATAL("Unable to retrieve Luminosity Tool");
+      return HLT::ERROR;
   } else {
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
   }
