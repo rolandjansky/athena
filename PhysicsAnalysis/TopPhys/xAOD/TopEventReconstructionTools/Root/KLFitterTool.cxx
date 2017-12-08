@@ -73,7 +73,7 @@ namespace top{
     // 4) create an instance of the likelihood for ttZ -> trilepton channel and customize it according to your needs
     KLFitter::LikelihoodTTZTrilepton * myLikelihood_TTZ  = new KLFitter::LikelihoodTTZTrilepton{};
 
-    // 4) create an instance of the likelihood for ttZ -> trilepton channel and customize it according to your needs
+    // 4) create an instance of the likelihood for ttbar -> allhadronic channel and customize it according to your needs
     KLFitter::LikelihoodTopAllHadronic * myLikelihood_AllHadronic  = new KLFitter::LikelihoodTopAllHadronic{};
 
     // 4.a) SetleptonType
