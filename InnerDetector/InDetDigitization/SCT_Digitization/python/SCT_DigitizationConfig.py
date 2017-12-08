@@ -158,16 +158,16 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     sctGainCondAlg = "SCT_ReadCalibChipGainCondAlg"
     if not conddb.folderRequested(sctGainFolder):
         conddb.addFolderSplitMC("SCT", sctGainFolder, sctGainFolder, className="CondAttrListCollection")
-        if not hasattr(condSeq, sctGainCondAlg):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
-            condSeq += SCT_ReadCalibChipGainCondAlg(name=sctGainCondAlg, ReadKey=sctGainFolder)
+    if not hasattr(condSeq, sctGainCondAlg):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
+        condSeq += SCT_ReadCalibChipGainCondAlg(name=sctGainCondAlg, ReadKey=sctGainFolder)
     sctNoiseFolder = "/SCT/DAQ/Calibration/ChipNoise"
     sctNoiseCondAlg = "SCT_ReadCalibChipNoiseCondAlg"
     if not conddb.folderRequested(sctNoiseFolder):
         conddb.addFolderSplitMC("SCT", sctNoiseFolder, sctNoiseFolder, className="CondAttrListCollection")
-        if not hasattr(condSeq, sctNoiseCondAlg):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
-            condSeq += SCT_ReadCalibChipNoiseCondAlg(name=sctNoiseCondAlg, ReadKey=sctNoiseFolder)
+    if not hasattr(condSeq, sctNoiseCondAlg):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
+        condSeq += SCT_ReadCalibChipNoiseCondAlg(name=sctNoiseCondAlg, ReadKey=sctNoiseFolder)
     from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "InDetSCT_ReadCalibChipDataSvc"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataSvc
