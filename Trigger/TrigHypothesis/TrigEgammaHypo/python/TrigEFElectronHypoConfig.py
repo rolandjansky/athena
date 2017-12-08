@@ -43,8 +43,6 @@ class TrigEFElectronHypoBase (TrigEFElectronHypo):
         
         #Load Tool Service
         from AthenaCommon.AppMgr import ToolSvc
-        from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-        ToolSvc += LuminosityToolOnline()
 #-----------------------------------------------------------------------
 # --- Following classes to be used with TriggerMenu
 # --- Rely on TM to configure 
