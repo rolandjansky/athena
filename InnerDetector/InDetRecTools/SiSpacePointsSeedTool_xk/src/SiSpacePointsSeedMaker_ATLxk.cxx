@@ -1870,7 +1870,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds ()
 
     float w = (*l).first ;
     s       = (*l).second;
-    if(!m_skipIBLcut && l!=lf && s->spacepoint0()->radius() < 43. && w > -200.)
+    if(!m_skipIBLcut && l!=lf && s->spacepoint0()->radius() < 43. && w > -200.) continue;
     if(!s->setQuality(w)) continue;
     
     if(i_seede!=l_seeds.end()) {
