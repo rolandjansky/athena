@@ -1196,12 +1196,11 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			m_totalEvents++;
 			m_evtLumiBlock++;
 			if (!trtBCIDCollection.isValid()) {
-				ATH_MSG_ERROR("Could not find BCID collection " << m_TRT_BCIDCollectionKey.key() <<
-				              " in store");
-				return StatusCode::FAILURE;
+				ATH_MSG_INFO("Could not find BCID collection " << m_TRT_BCIDCollectionKey.key() <<
+				             " in store");
 			}
 
-			ATH_CHECK( fillTRTRDOs(*rdoContainer, *trtBCIDCollection, *xAODEventInfo) );
+			ATH_CHECK( fillTRTRDOs(*rdoContainer, *xAODEventInfo, trtBCIDCollection.ptr()) );
 		}
 	} else {
 		m_totalEvents++;
@@ -1222,8 +1221,8 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 		}
 		// NOTE: failing to retrieve ComTime from store for some reason
 		if (!comTimeObject.isValid()) {
-			ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() <<
-			              " in store");
+			ATH_MSG_INFO("Could not find com time object " << m_comTimeObjectKey.key() <<
+			             " in store");
 		}
 		if (m_passEventBurst) {
 			ATH_CHECK( fillTRTTracks(*trackCollection, *trigDecision, comTimeObject.ptr()) );
@@ -1829,8 +1828,8 @@ StatusCode TRT_Monitoring_Tool::checkEventBurst(const TRT_RDO_Container& rdoCont
 //Now Fill the TRT RDO Histograms
 //----------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContainer,
-                                            const InDetTimeCollection& trtBCIDCollection,
-                                            const xAOD::EventInfo& eventInfo) {
+                                            const xAOD::EventInfo& eventInfo,
+                                            const InDetTimeCollection* trtBCIDCollection) {
 //----------------------------------------------------------------------------------//
 	ATH_MSG_DEBUG("Filling TRT RDO Histograms");
 	TRT_RDO_Container::const_iterator RDO_CollectionBegin = rdoContainer.begin();
@@ -1866,23 +1865,25 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 	int goodid_status = 0;
 	int prev_bcid = 0;
 
-	InDetTimeCollection::const_iterator itrt_bcid = trtBCIDCollection.begin();
+	if (trtBCIDCollection) {
+		InDetTimeCollection::const_iterator itrt_bcid = trtBCIDCollection->begin();
 
-	while (goodid_status == 0 && itrt_bcid != trtBCIDCollection.end()) {
-		if (!(*itrt_bcid)) continue;
+		while (goodid_status == 0 && itrt_bcid != trtBCIDCollection->end()) {
+			if (!(*itrt_bcid)) continue;
 
-		const unsigned int trt_bcid = (*itrt_bcid)->second;
+			const unsigned int trt_bcid = (*itrt_bcid)->second;
 
-		if (itrt_bcid > trtBCIDCollection.begin() && prev_bcid - trt_bcid == 0) {
-			goodid_status = 1;
-		} else if (itrt_bcid > trtBCIDCollection.begin() && prev_bcid - trt_bcid != 0) {
-			ATH_MSG_WARNING("TRT BCID is not consistent.  TRT RODID is " <<
-			                std::hex << (*itrt_bcid)->first << " trt bcid from ROD is " <<
-			                std::hex << trt_bcid);
+			if (itrt_bcid > trtBCIDCollection->begin() && prev_bcid - trt_bcid == 0) {
+				goodid_status = 1;
+			} else if (itrt_bcid > trtBCIDCollection->begin() && prev_bcid - trt_bcid != 0) {
+				ATH_MSG_WARNING("TRT BCID is not consistent.  TRT RODID is " <<
+				                std::hex << (*itrt_bcid)->first << " trt bcid from ROD is " <<
+				                std::hex << trt_bcid);
+			}
+
+			prev_bcid = trt_bcid;
+			++itrt_bcid;
 		}
-
-		prev_bcid = trt_bcid;
-		++itrt_bcid;
 	}
 
 	// Test out the TRT_StrawStatusSummarySvc.

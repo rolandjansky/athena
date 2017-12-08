@@ -94,8 +94,8 @@ private:
 	StatusCode bookTRTEfficiency(bool isNewLumiBlock, bool isNewRun);
 	StatusCode checkEventBurst(const TRT_RDO_Container& rdoContainer);
 	StatusCode fillTRTRDOs(const TRT_RDO_Container& rdoContainer,
-	                       const InDetTimeCollection& trtBCIDCollection,
-	                       const xAOD::EventInfo& eventInfo);
+	                       const xAOD::EventInfo& eventInfo,
+	                       const InDetTimeCollection* trtBCIDCollection);
 	// ComTime might be missing from file, have to use const pointer
 	StatusCode fillTRTTracks(const TrackCollection& trackCollection,
 	                         const xAOD::TrigDecision& trigDecision,
