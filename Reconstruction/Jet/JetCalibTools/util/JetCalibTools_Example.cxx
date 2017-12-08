@@ -137,10 +137,12 @@ int main(int argc, char* argv[]){
 #ifdef XAOD_STANDALONE
   RETURN_CHECK( APP_NAME, xAOD::Init() );
   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
+  RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
 #else // Athena "Store" is the same StoreGate used by the TEvent
   POOL::TEvent event( POOL::TEvent::kClassAccess );
+  CHECK_WITH_CONTEXT( event.readFrom( ifile.get() ), APP_NAME, 1 );
 #endif
-  RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+ 
 
   //----------------------------------
   // Initialization of JetCalibTools
@@ -149,17 +151,17 @@ int main(int argc, char* argv[]){
 
   // Call the constructor
   JetCalibrationTool jetCalibrationTool(name_JetCalibTools.c_str());
-  RETURN_CHECK(APP_NAME,
-               jetCalibrationTool.setProperty("JetCollection",
-                                              jetColl.c_str()));
-  RETURN_CHECK(APP_NAME,
-               jetCalibrationTool.setProperty("CalibSequence",
-                                              calibSeq.c_str()));
-  RETURN_CHECK(APP_NAME,
-               jetCalibrationTool.setProperty("ConfigFile",
-                                              jetCalibConfig.c_str()));
-  RETURN_CHECK(APP_NAME,
-               jetCalibrationTool.setProperty("IsData",isCollision));
+  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("JetCollection",jetColl.c_str()),
+                      APP_NAME, 1 );
+
+  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("CalibSequence",calibSeq.c_str()),
+                      APP_NAME, 1 );
+
+  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("ConfigFile",jetCalibConfig.c_str()),
+                      APP_NAME, 1 );
+
+  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("IsData",isCollision),
+                      APP_NAME, 1 );
 
   // Initialize the tool
   if(!(jetCalibrationTool.initialize().isSuccess())){
@@ -185,15 +187,14 @@ int main(int argc, char* argv[]){
 
     // Retrieve jet container
     const xAOD::JetContainer* jets = 0;
-    RETURN_CHECK( APP_NAME, event.retrieve( jets, jetColl + "Jets" ) );
+    CHECK_WITH_CONTEXT( event.retrieve( jets, jetColl + "Jets" ), APP_NAME, 1 );
 
     // Shallow copy 
     auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
 
     // Iterate over the shallow copy
     for( xAOD::Jet* jet : *( jets_shallowCopy.first ) ) {
-       RETURN_CHECK( APP_NAME,
-                     jetCalibrationTool.applyCalibration( *jet ) );
+       CHECK_WITH_CONTEXT( jetCalibrationTool.applyCalibration( *jet ), APP_NAME, 1 );
       // Do something
     }
     delete jets_shallowCopy.first;
