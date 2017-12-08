@@ -151,6 +151,7 @@ namespace CP {
       bool m_noWeightsMode;
       
       bool m_varyRunNumber;
+      bool m_useRunDependentPrescaleWeight;
 
       ToolHandle<IWeightTool> m_weightTool;
       ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
