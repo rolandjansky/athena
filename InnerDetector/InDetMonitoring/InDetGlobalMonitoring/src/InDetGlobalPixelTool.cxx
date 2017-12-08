@@ -84,7 +84,7 @@ StatusCode InDetGlobalPixelTool::bookHistograms()
   m_Pixel_track_pull_phi = new TH1F("m_Pixel_track_pull_phi","Pixel pull LocX",500,-5,5);
   status &= regHist(m_Pixel_track_pull_phi, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_res_eta = new TH1F("m_Pixel_track_res_eta","Pixel Residual LocY",500,-5,5);
-  status &= regHist(m_Pixel_track_res_eta,"InDetGlobal/Pixel",  run );
+  status &= regHist(m_Pixel_track_res_eta,"InDetGlobal/Pixel",  run ).isSuccess();
   m_Pixel_track_pull_eta = new TH1F("m_Pixel_track_pull_eta","Pixel Pull LocY",500,-5,5);
   status &= regHist(m_Pixel_track_pull_eta,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();   
   m_Pixel_track_ecA_cluster_occupancy = new TH2F("m_Pixel_track_ecA_cluster_occupancy","Pixel cluster occupancy in ECA",3,0,3,48,0,48);
