@@ -1258,11 +1258,9 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
   double RChSum = 0.;
 
   const int nchMax = 48; // number of channels per drawer
-  //int igain[nchMax];
   int ntot_ch[nchMax];
   double ech_tot[nchMax];
   double ech_int[nchMax];
-  //int over_gain[nchMax];
 
     ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
     IdContext drawer_context = m_tileHWID->drawer_context();
