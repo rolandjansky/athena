@@ -33,7 +33,6 @@ namespace Muon {
     declareProperty("Extrapolator",m_extrapolator );
     declareProperty("ParticleCaloExtensionTool",m_caloExtensionTool );    
     declareProperty("MuonIdHelperTool",m_idHelper );    
-    declareProperty("MuonSystemExtensionCollectionName",m_containerName ="MuonSystemExtensionCollection" );    
 
   }
 
@@ -259,28 +258,6 @@ namespace Muon {
      MuonSystemExtension* theExtension = new MuonSystemExtension( std::unique_ptr<const Trk::TrackParameters>(caloExtension->muonEntryLayerIntersection()->clone()), 
                                                    std::move(intersections) );
     
-    // now add the extension to the output collection so we are not causing any leaks
-    MuonSystemExtensionCollection* collection = 0;
-    if( !evtStore()->contains<MuonSystemExtensionCollection>(m_containerName) ){
-      collection = new MuonSystemExtensionCollection();
-      if( evtStore()->record( collection, m_containerName).isFailure() ) {
-        ATH_MSG_WARNING( "Failed to record output collection, will leak the ParticleCaloExtension");
-        delete collection;
-        collection = 0;
-      }
-    }else{
-      if(evtStore()->retrieve(collection,m_containerName).isFailure()) {
-        ATH_MSG_WARNING( "Unable to retrieve " << m_containerName << " will leak the ParticleCaloExtension" );
-        collection = 0;
-      }
-    }
-    if( !collection ){
-      ATH_MSG_WARNING( "No CaloExtension Collection, failing extension to avoid memory leak");
-      delete theExtension;
-      theExtension = 0;
-      return false;
-    }
-    collection->push_back(theExtension);
     muonSystemExtention = theExtension;
     return true;
   }

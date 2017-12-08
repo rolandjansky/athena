@@ -17,6 +17,10 @@ namespace Trk {
   class ITrackSelectorTool;
 }
 
+namespace Muon {
+  class IMuonSystemExtensionTool;
+}
+
 class MuonCombinedInDetCandidateAlg : public AthAlgorithm
 {
  public:
@@ -36,6 +40,7 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm
   ToolHandle <Trk::ITrackSelectorTool> m_trackSelector;
   ToolHandle <Trk::ITrackSelectorTool> m_forwardTrackSelector;
   ToolHandle <Trk::ITrackSelectorTool> m_currentTrackSelector;
+  ToolHandle <Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool;
 
   void create(const xAOD::TrackParticleContainer& indetTrackParticles,
 	      InDetCandidateCollection& outputContainer,

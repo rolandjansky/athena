@@ -3,7 +3,6 @@
 */
 
 #include "MuonStauRecoTool.h"
-#include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
@@ -61,7 +60,6 @@ namespace MuonCombined {
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-    m_muonSystemExtentionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
@@ -84,7 +82,6 @@ namespace MuonCombined {
     declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
     declareProperty("MuonEDMHelperTool",m_edmHelper );    
-    declareProperty("MuonSystemExtensionTool",m_muonSystemExtentionTool );    
     declareProperty("MuonSegmentMaker",m_segmentMaker );    
     declareProperty("MuonSegmentMakerT0Fit",m_segmentMakerT0Fit );    
     declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
@@ -129,7 +126,6 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());    
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
-    ATH_CHECK(m_muonSystemExtentionTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_segmentMakerT0Fit.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
@@ -217,8 +213,7 @@ namespace MuonCombined {
     if( truthMatchingCounter ) truthMatchingCounter->fillTruth();
 
     // get intersections which precision layers in the muon system 
-    const Muon::MuonSystemExtension* muonSystemExtension = 0;
-    m_muonSystemExtentionTool->muonSystemExtension( indetTrackParticle, muonSystemExtension );
+    const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
 
     // summary for selected ID track
     if( m_doSummary || msgLvl(MSG::DEBUG) ){
