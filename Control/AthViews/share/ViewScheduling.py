@@ -38,8 +38,8 @@ job = AlgSequence()
 makeViewSequence += CfgMgr.AthViews__ViewSubgraphAlg("make_alg")
 makeViewSequence.make_alg.ViewBaseName = "view"
 makeViewSequence.make_alg.ViewNumber = 10
-makeViewSequence.make_alg.AlgPoolName = "allViewAlgorithms" #TODO Rename variable
-#makeViewSequence.make_alg.AlgorithmNameSequence = [] #Indicates scheduler should be used
+makeViewSequence.make_alg.ViewNodeName = "allViewAlgorithms"
+makeViewSequence.make_alg.Scheduler = AlgScheduler.getScheduler()
 
 # View algorithms
 ViewTest = CfgMgr.AthViews__ViewTestAlg("view_test")

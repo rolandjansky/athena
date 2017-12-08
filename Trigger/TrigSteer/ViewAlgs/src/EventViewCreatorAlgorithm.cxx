@@ -26,6 +26,7 @@ StatusCode EventViewCreatorAlgorithm::initialize()
   CHECK( m_inViewRoIs.initialize() );
   renounce( m_inViewDecisions );
   CHECK( m_inViewDecisions.initialize() );
+  CHECK( m_scheduler.retrieve() );
 
   //  CHECK( m_viewAlgorithmsPool.retrieve() );
 
@@ -98,9 +99,10 @@ StatusCode EventViewCreatorAlgorithm::execute()
   }
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
   // Run the views
-  CHECK( ViewHelper::runInViews( contexts,				// Vector containing views
-				 m_viewAlgorithmNames,			// Algorithms to run in each view
-				 serviceLocator()->service( m_algPoolName ) ) );	// Service to retrieve algorithms by name
+  CHECK( ViewHelper::ScheduleContexts( contexts,           // Vector containing views
+				 m_viewNodeName,           // CF node to attach views to
+                                 ctx,                      // Source context
+				 m_scheduler.get() ) );
   
   // store views
   auto viewsHandle = SG::makeHandle( m_viewsKey );

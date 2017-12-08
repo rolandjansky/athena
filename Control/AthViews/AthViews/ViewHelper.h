@@ -131,14 +131,15 @@ namespace ViewHelper
 
   //Function to attach a set of views to a graph node
   inline StatusCode ScheduleViews( std::vector< SG::View* > const& ViewVector, std::string const& NodeName,
-      EventContext const& InputContext, SmartIF< IService > & SchedulerIF )
+      EventContext const& InputContext, IScheduler * Scheduler )
   {
     //Retrieve the scheduler
-    SmartIF< IScheduler > scheduler( SchedulerIF );
-    if ( !scheduler )
+    if ( !Scheduler )
     {
       return StatusCode::FAILURE;
     }
+
+    unsigned int conditionsRun = InputContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
 
     if ( ViewVector.size() )
     {
@@ -146,11 +147,10 @@ namespace ViewHelper
       {
         //Make a context with the view attached
         EventContext * viewContext = new EventContext( InputContext );
-        unsigned int conditionsRun = InputContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
         viewContext->setExtension( Atlas::ExtendedEventContext( view, conditionsRun ) );
 
         //Attach the view to the named node
-        StatusCode sc = scheduler->scheduleEventView( &InputContext, NodeName, viewContext );
+        StatusCode sc = Scheduler->scheduleEventView( &InputContext, NodeName, viewContext );
         if ( !sc.isSuccess() )
         {
           return StatusCode::FAILURE;
@@ -160,7 +160,37 @@ namespace ViewHelper
     else
     {
       //Disable the node if no views
-      scheduler->scheduleEventView( &InputContext, NodeName, 0 );
+      return Scheduler->scheduleEventView( &InputContext, NodeName, 0 );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  //Function to attach a set of views to a graph node
+  inline StatusCode ScheduleContexts( std::vector< EventContext > const& ContextVector, std::string const& NodeName,
+      EventContext const& InputContext, IScheduler * Scheduler )
+  {
+    if ( !Scheduler )
+    {
+      return StatusCode::FAILURE;
+    }
+
+    if ( ContextVector.size() )
+    {
+      for ( EventContext viewContext : ContextVector )
+      {
+        //Attach the view context to the named node
+        StatusCode sc = Scheduler->scheduleEventView( &InputContext, NodeName, &viewContext );
+        if ( !sc.isSuccess() )
+        {
+          return StatusCode::FAILURE;
+        }
+      }
+    }
+    else
+    {
+      //Disable the node if no views
+      return Scheduler->scheduleEventView( &InputContext, NodeName, 0 );
     }
 
     return StatusCode::SUCCESS;
@@ -170,6 +200,7 @@ namespace ViewHelper
   // useful when contexts neeed to be made anyways for the purpose of filling the handles
   // to avoid confusion it start from small run
   inline StatusCode runInViews( std::vector<EventContext>& contexts, const std::vector< std::string >& algorithms, SmartIF< IService > & algPool) {
+
     if ( contexts.empty() )
     return StatusCode::SUCCESS;
 

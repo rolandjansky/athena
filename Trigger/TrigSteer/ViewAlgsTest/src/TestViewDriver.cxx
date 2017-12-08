@@ -17,32 +17,17 @@
 enum RoIsInView { BareRoIDescriptor = 0, CollectionWithOneElement = 1, CollectionWithAllElements = 2, SuperRoI=3 };
 
 TestViewDriver::TestViewDriver( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthAlgorithm( name, pSvcLocator ),
-    m_roisContainer( "RoIsContainer" ),
-    m_roisViewOutput( "RoIsViewOutput" ),
-    m_clustersViewInput( "ClustersViewInput" ),
-    m_views( "Views" ),
-    //    m_outputClusterContainer( "OutputClusters" ),
-    m_viewAlgorithmsPool( "AlgResourcePool/ViewAlgPool", name ) {
+  : AthAlgorithm( name, pSvcLocator ) {
    
-  declareProperty( "RoIsContainer", m_roisContainer, "Input RoIs" );
-  declareProperty( "RoIsViewOutput", m_roisViewOutput, "Name of the collection that will be placed in each view" );
-  declareProperty( "ClustersViewInput", m_clustersViewInput );
-  declareProperty( "Views", m_views, "Name of the generated view" );
-  //  declareProperty( "OutputClusterContainer", m_outputClusterContainer, "Output collection for clusters" );
-  declareProperty( "ViewAlgorithmsPool", m_viewAlgorithmsPool );
-  declareProperty( "ViewAlgorithmNames", m_viewAlgorithmNames, "Names of algorithms to run in the views" );
-  declareProperty( "RoITypeInViews", m_roITypeInViews = 1, "0 - place TrigRoiDesciptor in views, 1 - place Collections wiht single RoI, 2 - place entrie collection in the view, 3 - place SuperRoI in single view " );
 }
 
 StatusCode TestViewDriver::initialize( ) {
-  CHECK( m_viewAlgorithmsPool.retrieve( ) );
+  CHECK( m_scheduler.retrieve( ) );
   CHECK( m_roisContainer.initialize( ) );
   CHECK( m_roisViewOutput.initialize( ) );
   m_clustersViewInputHandle.assign( m_clustersViewInput );
   CHECK( m_clustersViewInputHandle.initialize( ) );
   CHECK( m_views.initialize( ) );
-  //  CHECK( m_outputClusterContainer.initialize( ) );
   return StatusCode::SUCCESS;
 }
 
@@ -73,9 +58,10 @@ StatusCode TestViewDriver::execute( ) {
 
 
   // Run the views
-  CHECK( ViewHelper::runInViews( contexts,
-				 m_viewAlgorithmNames,				  // Algorithms to run in each view
-				 serviceLocator( )->service( "ViewAlgPool" ) ) );  //FIXME this should realy be service handle, else we do costly retrival each execution, needs api change of ViewHelper
+  CHECK( ViewHelper::ScheduleContexts( contexts,
+				 m_viewNodeName,
+                                 getContext(),
+				 m_scheduler.get() ) );
 
   ATH_MSG_DEBUG( "Execution in " << viewVector->size( ) << " Views performed" );
   

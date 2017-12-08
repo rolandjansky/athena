@@ -17,7 +17,10 @@
 ## basic job configuration
 import AthenaCommon.AtlasUnixStandardJob
 
-
+# Configure the scheduler
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -105,18 +108,14 @@ if ( testViewAlgorithm ):
   viewAlg.RoIsContainer = "InViewRoI"
   allViewAlgorithms += viewAlg
 
-  # The pool to retrieve the view algorithm from
-  from GaudiHive.GaudiHiveConf import AlgResourcePool
-  viewAlgPoolName = "ViewAlgPool"
-  svcMgr += AlgResourcePool( viewAlgPoolName )
-  svcMgr.ViewAlgPool.TopAlg = [ viewAlgName ]
-
   # The algorithm to launch the views
   from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
   runInViews = TestViewDriver( "runInViews" )
   connectAlgorithmsIO ( producer=(caloFakeRoI, "OutputRoIs"), consumer=(runInViews, "RoIsContainer") ) 
   runInViews.OutputLevel = DEBUG
-  runInViews.ViewAlgorithmNames = [ viewAlgName ]
+  runInViews.ViewNodeName = "allViewAlgorithms"
+  runInViews.RoIsViewOutput = "InViewRoI"
+  runInViews.Scheduler = AlgScheduler.getScheduler()
   topSequence += runInViews
   topSequence += allViewAlgorithms
 

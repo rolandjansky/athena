@@ -16,6 +16,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthContainers/ConstDataVector.h"
+#include "GaudiKernel/IScheduler.h"
 
 namespace AthViews {
 
@@ -60,6 +61,7 @@ class RoiCollectionToViews
   /// Containers
   
   // vars
+  ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_trigRoIs { this, "InputRoICollection", "input_rois", "Collection of RoIs to split into views" };
   SG::WriteHandleKey< std::vector< SG::View* > > m_w_views { this, "AllViews", "all_views", "Output view collection" };
   SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_viewRoIs { this, "OutputRoICollection", "output_rois", "RoI collection to use inside views" };

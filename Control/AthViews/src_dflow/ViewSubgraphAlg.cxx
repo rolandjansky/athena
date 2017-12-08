@@ -22,29 +22,8 @@ namespace AthViews {
 ////////////////
 ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_w_views( "all_views" ),
-  m_w_int( "view_start" ),
-  m_algorithmNameSequence( std::vector< std::string >() ),
-  m_algPoolName( "" ),
-  m_viewBaseName( "" ),
-  m_viewNumber( 0 )
+  ::AthAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
-
-  declareProperty( "ViewStart", m_w_int, "A number to start off the view" );
-  
-  declareProperty( "AllViews", m_w_views, "All views" );
-
-  declareProperty( "ViewBaseName", m_viewBaseName, "Name to use for all views - number will be appended" );
-
-  declareProperty( "ViewNumber", m_viewNumber, "Total number of views to make" );
-
-  declareProperty( "AlgorithmNameSequence", m_algorithmNameSequence, "Names of algorithms to run in the views" );
-
-  declareProperty( "AlgPoolName", m_algPoolName, "Name for the algorithm pool service to use with the views" );
 }
 
 // Destructor
@@ -61,6 +40,7 @@ StatusCode ViewSubgraphAlg::initialize()
 
   CHECK( m_w_int.initialize() );
   CHECK( m_w_views.initialize() );
+  CHECK( m_scheduler.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -101,20 +81,20 @@ StatusCode ViewSubgraphAlg::execute()
   if ( m_algorithmNameSequence.size() )
   {
     //Run the algorithms in views
-    ATH_MSG_WARNING( "This method of EventView scheduling (specifying algorithm names) is DEPRECIATED" );
+    ATH_MSG_WARNING( "This method of EventView scheduling (specifying algorithm names) is DEPRECATED" );
     ATH_MSG_WARNING( "Please use the scheduler EventView handling by specifying a CF node name" );
-    CHECK( ViewHelper::RunViews( viewVector, //View vector
-          m_algorithmNameSequence, //Algorithms to run in each view
-          ctx, //Context to attach the views to
-          serviceLocator()->service( m_algPoolName ) ) );	//Service to retrieve algorithms by name
+    CHECK( ViewHelper::RunViews( viewVector,              //View vector
+          m_algorithmNameSequence,                        //Algorithms to run in each view
+          ctx,                                            //Context to attach the views to
+          serviceLocator()->service( m_algPoolName ) ) ); //Service to retrieve algorithms by name
   }
   else
   {
     //Schedule the algorithms in views
     CHECK( ViewHelper::ScheduleViews( viewVector, //View vector
-          m_algPoolName, //Name of node to attach views to (member re-use, sorry)
-          ctx, //Context to attach the views to
-          serviceLocator()->service( "AvalancheSchedulerSvc" ) ) ); //Scheduler
+          m_viewNodeName,                         //Name of node to attach views to
+          ctx,                                    //Context to attach the views to
+          m_scheduler.get() ) );
   }
 
   //Store the collection of views

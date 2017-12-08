@@ -41,6 +41,7 @@ StatusCode RoiCollectionToViews::initialize()
   CHECK( m_trigRoIs.initialize() );
   CHECK( m_viewRoIs.initialize() );
   CHECK( m_w_views.initialize() );
+  CHECK( m_scheduler.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -93,14 +94,14 @@ StatusCode RoiCollectionToViews::execute()
   //Run the algorithms in views
   if ( m_algorithmNameSequence.empty() )
   {
-    CHECK( ViewHelper::ScheduleViews( viewVector,           //View vector
-            m_viewNodeName,                                 //CF node to attach views to
-            ctx,                                            //Context to attach the views to
-            serviceLocator()->service( m_algPoolName ) ) ); //Service to retrieve algorithms by name
+    CHECK( ViewHelper::ScheduleViews( viewVector, //View vector
+            m_viewNodeName,                       //CF node to attach views to
+            ctx,                                  //Context to attach the views to
+            m_scheduler.get() ) );                //Scheduler
   }
   else
   {
-    ATH_MSG_WARNING( "This method of EventView scheduling (specifying algorithm names) is DEPRECIATED" );
+    ATH_MSG_WARNING( "This method of EventView scheduling (specifying algorithm names) is DEPRECATED" );
     ATH_MSG_WARNING( "Please use the scheduler EventView handling by specifying a CF node name" );
     CHECK( ViewHelper::RunViews( viewVector,                //View vector
             m_algorithmNameSequence,                        //CF node to attach views to
