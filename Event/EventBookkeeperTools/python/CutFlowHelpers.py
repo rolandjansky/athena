@@ -75,15 +75,17 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
 
     # Standard event bookkeepers
+    print "BLARG 1"
     inname = "CutBookkeepers"
     outname = "CutBookkeepers"
-    cutflowtool = BookkeeperTool(outname,
+    cutflowtool = BookkeeperTool(outname+"Tool",
                                  InputCollName = inname,
                                  OutputCollName= outname) 
     svcMgr.ToolSvc += cutflowtool
+    print "BLARG 2",inname,outname
 
     # Add tool to MetaDataSvc
-    #svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+    svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
     # Add pdf sum of weights counts if appropriate
     from AthenaCommon.GlobalFlags  import globalflags
@@ -99,7 +101,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         svcMgr.ToolSvc += pdfweighttool
 
         # Add tool to MetaDataSvc
-        #svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
+        svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
 
     # Check if we have a sequence given
     if not seq :
