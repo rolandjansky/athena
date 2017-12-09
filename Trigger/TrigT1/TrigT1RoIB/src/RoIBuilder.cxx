@@ -112,7 +112,9 @@ namespace ROIB {
       		    << evtStore()->dump());
       CHECK( eventInfoHandle.isValid() );
       const xAOD::EventInfo* thisEvent = eventInfoHandle.cptr();
-      const int evtNum = thisEvent->extendedLevel1ID();
+      // Note we are loosing preciosn here as we cast from 64 to 32 bits integer
+      // but this is constraint imposed by: Trigger/TrigT1/TrigT1Result/TrigT1Result/Header.h
+      const int evtNum = static_cast<int>(thisEvent->eventNumber());
       ATH_MSG_VERBOSE( "Event number is: " << evtNum );
 
 

@@ -9,10 +9,6 @@ class DefaultRoIBuilder(ROIB__RoIBuilder):
     
     def __init__(self, name = "DefaultRoIBuilder"):
         super( DefaultRoIBuilder, self ).__init__( name )
-
-        self.OutputLevel=DEBUG
-
-    def setDefaults(self, handle):
         self.CaloEMTauLocation = [ "CaloTriggerDataLocation/EmTauSlink0", 
                                    "CaloTriggerDataLocation/EmTauSlink1", 
                                    "CaloTriggerDataLocation/EmTauSlink2", 
@@ -20,6 +16,10 @@ class DefaultRoIBuilder(ROIB__RoIBuilder):
 
         self.CaloJetEnergyLocation = [ "CaloTriggerDataLocation/JEPSlink0", 
                                        "CaloTriggerDataLocation/JEPSlink0" ]
+
+        self.OutputLevel=DEBUG
+
+    def setDefaults(self, handle):
 
         pass
 
