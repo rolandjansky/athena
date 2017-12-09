@@ -38,7 +38,6 @@
 #include "LArCalibTools/LArMinBias2Ntuple.h"
 #include "LArCalibTools/LArDSPConfig2Ntuple.h"
 //#include "LArCalibTools/LArSFcalFromFcalFromStdNtuple.h"
-#include "LArCalibTools/LArPulseShape.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
  
@@ -108,7 +107,6 @@ DECLARE_ALGORITHM_FACTORY( LArFillDSPConfig )
 DECLARE_ALGORITHM_FACTORY( LArDSPConfig2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArMinBias2Ntuple )
 //DECLARE_ALGORITHM_FACTORY( LArSFcalFromFcalFromStdNtuple )
-DECLARE_ALGORITHM_FACTORY( LArPulseShape )
 
 
 
@@ -167,5 +165,4 @@ DECLARE_FACTORY_ENTRIES( LArCalibTools ) {
   DECLARE_ALGORITHM ( LArDSPConfig2Ntuple )
   DECLARE_ALGORITHM( LArMinBias2Ntuple)
 //  DECLARE_ALGORITHM( LArSFcalFromFcalFromStdNtuple )
-  DECLARE_ALGORITHM( LArPulseShape )
 }
