@@ -747,6 +747,85 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
   }
 }
 
+int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const {
+  int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
+  int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
+  int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
+  return reg;
+}
+
+int AsgElectronEfficiencyCorrectionTool::currentUncorrSystRegion(const double cluster_eta, const double et) const {
+  int etabin=0;
+  int reg = 0; 
+  bool found = false;
+  float cluster_eta_electron = 0;
+  std::map<float, std::vector<float> >::const_iterator itr_ptBEGIN = m_pteta_bins.begin();
+  std::map<float, std::vector<float> >::const_iterator itr_ptEND = m_pteta_bins.end();
+  // Consider using std::map::lower_bound, returns the iterator to the first element that is greater-or-equal to a pt
+  for (; itr_ptBEGIN != itr_ptEND; ++itr_ptBEGIN) {
+    std::map<float, std::vector<float> >::const_iterator itr_ptBEGINplusOne = itr_ptBEGIN;
+    itr_ptBEGINplusOne++;
+    //Find the pt bin : Larger or equal from the current and (the next one is the last or the next one is larger).
+    if ( et >= itr_ptBEGIN->first 
+	 && (itr_ptBEGINplusOne == itr_ptEND || et <itr_ptBEGINplusOne->first)) {
+      if ((itr_ptBEGIN->second).at(0) >= 0) {
+	cluster_eta_electron = fabs(cluster_eta);
+      }else {
+	cluster_eta_electron = (cluster_eta);
+      };
+      for (unsigned int etab = 0; etab <((itr_ptBEGIN->second).size()); ++etab) {
+	unsigned int etabnext=etab+1;
+	//Find the eta bin : Larger or equal from the current and (the next one is the last or the next one is larger).
+	if ((cluster_eta_electron) >= (itr_ptBEGIN->second).at(etab) && 
+	    (etabnext==itr_ptBEGIN->second.size() || cluster_eta_electron < itr_ptBEGIN->second.at(etabnext) ) ) {
+	  found = true;
+	  break;
+	}
+	//We did not find it. Increment eta and continue looking
+	etabin++;       
+      }
+    }
+    if (found) {
+      break;
+    }
+    //Add the full size of the "passed" eta row
+    reg += (itr_ptBEGIN->second).size();
+  }
+  if(!found){
+    ATH_MSG_WARNING("No index for the uncorrelated systematic was found, returning the maximum index");
+    return m_nCorrSyst;
+  }
+  reg = reg + etabin;
+  return reg;
+}
+
+int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::Electron &inputObject) const{
+  int currentSystRegion=-999;
+  double cluster_eta(-9999.9);
+  double et(0.0);
+
+  et = inputObject.pt();
+  const xAOD::CaloCluster *cluster = inputObject.caloCluster();
+  if (cluster) {
+    cluster_eta = cluster->etaBE(2);
+  }
+  switch(m_correlation_model){
+  case  correlationModel::SIMPLIFIED:{
+    currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);
+    break;
+    }
+  case correlationModel::FULL:{
+    currentSystRegion = currentUncorrSystRegion( cluster_eta, et);
+    break;
+    }
+  default:{
+    //not there for the other models
+      break;
+    }
+  }
+  return currentSystRegion;
+}
+
 //===============================================================================
 // Map Key Feature
 //===============================================================================

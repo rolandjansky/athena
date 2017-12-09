@@ -36,7 +36,9 @@ int main( int argc, char* argv[] ) {
     xAOD::TReturnCode::enableFailure();
     MSGHELPERS::getMsgStream().msg().setLevel(MSG::INFO); 
 
-    //Parse input from Command line 
+    /*
+     * Parse the input from the command line
+     */
     std::string fileName{};
     std::string mapfileName{};
     std::string idkey{};
@@ -105,25 +107,28 @@ int main( int argc, char* argv[] ) {
         return 0;
     }
 
-    // Initialise the analysis application
+    // Initialize the xAOD application 
     const char* APP_NAME = argv[0];
     MSG::Level mylevel=static_cast<MSG::Level>(inputlevel);
     MSGHELPERS::getMsgStream().msg().setName(APP_NAME);     
     MSGHELPERS::getMsgStream().msg().setLevel(mylevel); 
     CHECK( xAOD::Init( APP_NAME ) );
 
-    //create and then retrieve the dummy electrons   
-    std::pair<double,double> pt_eta{pt,eta};
-    xAOD::TStore* store=getElectrons({pt_eta},runno);
+    /*
+     * create and then retrieve the dummy electrons (in this case is 1)
+     * This also setups the store,so for done before the tool init
+     * it really is a pseudo "reconstruction"
+     */
+
+    std::vector< std::pair<double,double>> pt_eta{{pt,eta}}; 
+    xAOD::TStore* store=getElectrons(pt_eta,runno);
     if(!store){
         MSG_ERROR("could not create the electrons ");
     } 
     const xAOD::ElectronContainer* electrons(nullptr);
-    std::cout<<store->contains<xAOD::ElectronContainer>("MyElectrons");
     CHECK(store->retrieve(electrons,"MyElectrons").isSuccess());
-    xAOD::Electron el= *(electrons->at(0));
 
-    //Do the test 
+    //Configure the tool based on the inputs
     AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
     if (fileName!=""){ 
         std::vector<std::string> inputFiles{fileName} ;
@@ -146,48 +151,74 @@ int main( int argc, char* argv[] ) {
     }
     CHECK( ElEffCorrectionTool.setProperty("ForceDataType",(int)SimType) );
     CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
-    CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "FULL" )); 
+    CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", model )); 
     CHECK( ElEffCorrectionTool.initialize());  
     dumbProperties(ElEffCorrectionTool);
-    double SF = 0; 
-    std::vector<double> unc;
-    // Get a list of systematics
-    CP::SystematicSet recSysts = ElEffCorrectionTool.recommendedSystematics();
 
-    if(ElEffCorrectionTool.getEfficiencyScaleFactor(el,SF) != CP::CorrectionCode::Ok){
-        MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-    }
-    MSG_INFO("SF  "<< SF );
+    /*
+     * Set up the systematic variations
+     * 2 cases one for "continuous" one for "toys"
+     */
 
-    // Loop over systematics
-    double total2_up =0 ; 
-    double total2_down =0 ;
-    for(const auto& sys : recSysts){
-        double systematic = 0; 
-
-        // Configure the tool for this systematic
-        CHECK( ElEffCorrectionTool.applySystematicVariation({sys}) );
-
-        if(ElEffCorrectionTool.getEfficiencyScaleFactor(el,systematic) == CP::CorrectionCode::Ok){
-            MSG_INFO( ElEffCorrectionTool.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<systematic-SF );  
-            unc.push_back(systematic);
-
+    bool isToys = model.find("TOY") != std::string::npos ? true :false;
+    /*
+     * Potentiallly we can make this part more clever, for now since it is an
+     * util I did not tried to optimise too much.
+     */
+    if(!isToys){
+        /*
+         * Split the variation in up and down
+         * Do it before any loop
+         * This is obviously more of a sanity check
+         * as they are currently symmetric so is mainly
+         * about inspecting them both 
+         */
+        CP::SystematicSet systs = ElEffCorrectionTool.recommendedSystematics();  
+        std::vector<CP::SystematicVariation> positiveVar{};
+        std::vector<CP::SystematicVariation> negativeVar{};
+        for(const auto& sys : systs){
             float param =sys.parameter() ;    
-            if(param>0) {
-                total2_up += (SF-systematic)*(SF-systematic) ;  
+            if(param<0) {
+                negativeVar.push_back(sys);  
             }
             else{
-                total2_down+= (SF-systematic)*(SF-systematic) ;  
-            }
-        }else{
-            MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
+                positiveVar.push_back(sys) ;  
+            }   
         }
+        //Helper function as a lamda
+        auto totalSyst = [&ElEffCorrectionTool] (xAOD::Electron el, const std::vector<CP::SystematicVariation>& variations, 
+                const double nominal, double&result ){
+            double total2{} ; 
+            double systematic{}; 
+            for(const auto& sys : variations){
+                if(ElEffCorrectionTool.applySystematicVariation({sys})!=CP::SystematicCode::Ok ||
+                        ElEffCorrectionTool.getEfficiencyScaleFactor(el,systematic) != CP::CorrectionCode::Ok){   
+                    MSG_ERROR("Error in setting/getting " << sys.name());
+                    return CP::CorrectionCode::Error;    
+                }
+                MSG_INFO( ElEffCorrectionTool.appliedSystematics().name().c_str()
+                        << " Result " << systematic<< " Value  "<<systematic-nominal );  
+                total2 += (nominal-systematic)*(nominal-systematic) ;  
+            }
+            result=std::sqrt(total2);
+            return CP::CorrectionCode::Ok;
+        };
+        //Loop over electrons , here it is one    
+        xAOD::Electron el= *(electrons->at(0));
+        //Do the work
+        double nominalSF{};
+        CHECK(ElEffCorrectionTool.getEfficiencyScaleFactor(el,nominalSF) == CP::CorrectionCode::Ok);
+        double totalNeg{};
+        double totalPos{};
+        CHECK(totalSyst(el,negativeVar,nominalSF,totalNeg));
+        CHECK(totalSyst(el,positiveVar,nominalSF,totalPos));
+        MSG_INFO( "Electron pt/eta index : " << ElEffCorrectionTool.systUncorrVariationIndex(el) );
+        MSG_INFO("===> SF  : "<< nominalSF << " + " << totalPos << " - " <<totalNeg );
     }
-    double total_up = sqrt(total2_up);
-    double total_down = -sqrt(total2_down); 
+    else{
 
-    MSG_INFO( "total up " << total_up  <<" total down " << total_down  );
-    MSG_INFO( "Index " << ElEffCorrectionTool.systUncorrVariationIndex(el) );
+
+    }
 
     /*
     //==================================================================================
