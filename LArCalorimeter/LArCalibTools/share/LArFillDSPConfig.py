@@ -1,5 +1,3 @@
-if not 'LowMu' in dir():
-   LowMu=False
 
 if not 'OutputSqliteFile' in dir():
    OutputSqliteFile="dspconfig.db"
@@ -26,7 +24,7 @@ svcMgr.IOVDbSvc.DBInstance=""
 
 from LArCalibTools.LArCalibToolsConf import LArFillDSPConfig
 
-topSequence+=LArFillDSPConfig(Foldername=DSPConfigFolder,isLowMu=LowMu)
+topSequence+=LArFillDSPConfig(Foldername=DSPConfigFolder)
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 theOutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg","dummy.pool.root",["AthenaAttributeList#"+DSPConfigFolder,],["",],True)
