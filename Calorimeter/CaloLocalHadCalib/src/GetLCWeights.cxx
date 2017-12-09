@@ -413,13 +413,13 @@ StatusCode GetLCWeights::execute()
     
     double eC=999; 
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eC)) {
-      ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT");
       return StatusCode::FAILURE;      
     }
     if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
       double emFrac=-999; 
       if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)){
-	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM" <<endmsg;
+	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM");
 	return StatusCode::FAILURE;
       }
       if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
@@ -490,14 +490,14 @@ StatusCode GetLCWeights::execute()
       double eng = pClus->e();
       double eCalib=-999;  
       if (!pClus->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eCalib)) {
-	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endmsg;
+	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT");
 	return StatusCode::FAILURE;
       }
       if ( eng > 0 && eCalib > 0 ) {
 	if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
 	  double emFrac=-999;
 	  if (!pClus->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)) {
-	    ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM" <<endmsg;
+	    ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM");
 	    return StatusCode::FAILURE;
 	  }
 	  if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
@@ -666,7 +666,7 @@ void GetLCWeights::mapparse() {
       }
     }
     if ( theSampling == CaloSampling::Unknown ) {
-      msg(MSG::ERROR) "Calorimeter sampling " << dimname
+      msg(MSG::ERROR) << "Calorimeter sampling " << dimname
           << " is not a valid Calorimeter sampling name and will be ignored! "
           << "Valid names are: ";
       for (unsigned int jsamp = 0;jsamp< CaloSampling::Unknown; jsamp++) {

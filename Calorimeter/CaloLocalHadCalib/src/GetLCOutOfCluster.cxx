@@ -295,13 +295,13 @@ StatusCode GetLCOutOfCluster::execute()
     const xAOD::CaloCluster * theCluster = (*clusIter);      
     double eC=999; 
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eC)) {
-      ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT" );
       return StatusCode::FAILURE;      
     }
     if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
       double emFrac=-999; 
       if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)){
-	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM" <<endmsg;
+	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM" );
 	return StatusCode::FAILURE;
       }
       if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
@@ -326,7 +326,7 @@ StatusCode GetLCOutOfCluster::execute()
       if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
 	double emFrac=-999; 
 	if (!pClus->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)){
-	  ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM" <<endmsg;
+	  ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM");
 	  return StatusCode::FAILURE;
 	}
 	if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
