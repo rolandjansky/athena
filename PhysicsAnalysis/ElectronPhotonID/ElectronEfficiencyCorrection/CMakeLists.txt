@@ -70,13 +70,6 @@ atlas_add_executable( EgEfficiencyCorr_mem_check
 # AnalysisBase-only utilities:
 if( XAOD_STANDALONE )
 
-   atlas_add_executable( EgEfficiencyCorr_testCorrelationModels
-      util/testCorrelationModels.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
-      xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces
-      ElectronEfficiencyCorrectionLib )
-
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorr
       util/testEgEfficiencyCorr.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -84,7 +77,8 @@ if( XAOD_STANDALONE )
       xAODCore ElectronEfficiencyCorrectionLib )
 
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile
-      util/testEgEfficiencyCorrWithoutFile.cxx
+	   util/testEgEfficiencyCorrWithoutFile.cxx util/CreateDummyEl.cxx
+	   util/EGToolProperties.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces
@@ -95,7 +89,6 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore ElectronPhotonSelectorToolsLib ElectronEfficiencyCorrectionLib )
-
 
 endif()
 
