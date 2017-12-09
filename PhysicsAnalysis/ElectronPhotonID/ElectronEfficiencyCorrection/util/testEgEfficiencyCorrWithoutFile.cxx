@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <string>
-
+#include <numeric>
 // ROOT include(s):
 #include <TFile.h>
 #include <TString.h>
@@ -159,8 +159,11 @@ int main( int argc, char* argv[] ) {
      * Set up the systematic variations
      * 2 cases one for "continuous" one for "toys"
      */
-
     bool isToys = model.find("TOY") != std::string::npos ? true :false;
+    double nominalSF{};
+    double totalNeg{};
+    double totalPos{}; 
+    CP::SystematicSet systs = ElEffCorrectionTool.recommendedSystematics();  
     /*
      * Potentiallly we can make this part more clever, for now since it is an
      * util I did not tried to optimise too much.
@@ -173,7 +176,6 @@ int main( int argc, char* argv[] ) {
          * as they are currently symmetric so is mainly
          * about inspecting them both 
          */
-        CP::SystematicSet systs = ElEffCorrectionTool.recommendedSystematics();  
         std::vector<CP::SystematicVariation> positiveVar{};
         std::vector<CP::SystematicVariation> negativeVar{};
         for(const auto& sys : systs){
@@ -196,8 +198,8 @@ int main( int argc, char* argv[] ) {
                     MSG_ERROR("Error in setting/getting " << sys.name());
                     return CP::CorrectionCode::Error;    
                 }
-                MSG_INFO( ElEffCorrectionTool.appliedSystematics().name().c_str()
-                        << " Result " << systematic<< " Value  "<<systematic-nominal );  
+                MSG_INFO( ElEffCorrectionTool.appliedSystematics().name()
+                        << " Result : " << systematic<< " Value :  "<<systematic-nominal );  
                 total2 += (nominal-systematic)*(nominal-systematic) ;  
             }
             result=std::sqrt(total2);
@@ -205,66 +207,56 @@ int main( int argc, char* argv[] ) {
         };
         //Loop over electrons , here it is one    
         xAOD::Electron el= *(electrons->at(0));
-        //Do the work
-        double nominalSF{};
+        MSG_INFO( "Electron pt/eta index : " << ElEffCorrectionTool.systUncorrVariationIndex(el) );
+        //Do the work 
         CHECK(ElEffCorrectionTool.getEfficiencyScaleFactor(el,nominalSF) == CP::CorrectionCode::Ok);
-        double totalNeg{};
-        double totalPos{};
         CHECK(totalSyst(el,negativeVar,nominalSF,totalNeg));
         CHECK(totalSyst(el,positiveVar,nominalSF,totalPos));
-        MSG_INFO( "Electron pt/eta index : " << ElEffCorrectionTool.systUncorrVariationIndex(el) );
-        MSG_INFO("===> SF  : "<< nominalSF << " + " << totalPos << " - " <<totalNeg );
-    }
+   }
     else{
+        CP::MakeSystematicsVector sysVec;
+        sysVec.addGroup("toys");
+        sysVec.setToys(ElEffCorrectionTool.getNumberOfToys());
+        sysVec.calc(systs);
+        std::vector<CP::SystematicSet> toys=sysVec.result("toys");
+        std::vector<double> toysVal{};
+        toysVal.reserve(toys.size());
 
-
+        //Do the work
+        xAOD::Electron el= *(electrons->at(0));
+        MSG_INFO( "Electron pt/eta index : " << ElEffCorrectionTool.systUncorrVariationIndex(el) );
+        for (const auto& sys : toys){
+            double systematic{};
+            CHECK(ElEffCorrectionTool.applySystematicVariation(sys)==CP::SystematicCode::Ok &&
+                ElEffCorrectionTool.getEfficiencyScaleFactor(el,systematic) == CP::CorrectionCode::Ok); 
+            MSG_INFO( ElEffCorrectionTool.appliedSystematics().name() << " toy Result : " <<systematic)
+            toysVal.push_back(systematic);
+        }
+         /*
+         *  B. P. Welford 1962  
+         *  Donald KnutArt of Computer Programming, Vol 2, page
+         *  232, 3rd edition
+         */
+        //1st element,initilize 
+        double meanK{toysVal[0]}; //current mean
+        double meanK_1{toysVal[0]};//next mean
+        double s{0};
+        size_t k{1};
+        const size_t N=toysVal.size();
+        //subsequent ones 
+        for (size_t i=1; i!=N;++i){            
+            const double x{toysVal[i]};
+            const double invk {(1.0/(++k))};   
+            meanK_1= meanK + (x-meanK)*invk;
+            s+=(x-meanK_1)*(x-meanK);
+            meanK=meanK_1;
+        }
+        const double variance= s/(N-1);
+        nominalSF=meanK;
+        totalNeg=sqrt(variance);
+        totalPos=sqrt(variance);
     }
-
-    /*
-    //==================================================================================
-    //Test the TOYS
-    //TOYS
-    MSG::Level mylevelToy=MSG::INFO;//MSG::FATAL;
-    AsgElectronEfficiencyCorrectionTool ElEffCorrectionToolToys ("ElEffCorrectionToolToys");
-    if (fileName!="")   CHECK( ElEffCorrectionToolToys.setProperty("CorrectionFileNameList",inputFiles) );
-    if (mapfileName!="") CHECK( ElEffCorrectionToolToys.setProperty("MapFilePath", mapfileName));
-
-    // set the keys of interest for correction files
-    if ( recokey!="")  CHECK( ElEffCorrectionToolToys.setProperty("RecoKey", recokey));
-    MSG_INFO("using mapfile :" << recokey);
-    if ( idkey!="")   CHECK( ElEffCorrectionToolToys.setProperty("IdKey", idkey));
-    if ( isokey!="")   CHECK( ElEffCorrectionToolToys.setProperty("IsoKey", isokey));
-    if ( triggerkey!="")   CHECK( ElEffCorrectionToolToys.setProperty("TriggerKey", triggerkey));
-
-    CHECK( ElEffCorrectionToolToys.setProperty("ForceDataType",(int)SimType) );
-    CHECK( ElEffCorrectionToolToys.setProperty("CorrelationModel", "MCTOYS" ));
-    ElEffCorrectionToolToys.msg().setLevel(mylevelToy);
-    CHECK( ElEffCorrectionToolToys.initialize() );
-    dumbProperties(ElEffCorrectionToolToys);
-    double SFToys = 0; 
-    if(ElEffCorrectionToolToys.getEfficiencyScaleFactor(*el,SFToys) == CP::CorrectionCode::Ok){
-    MSG_INFO("SF  Toys central "<< SF );
-    }
-    std::vector<double> uncToys;
-    CP::SystematicSet recSystsToys = ElEffCorrectionToolToys.recommendedSystematics();
-    //std::vector<CP::SystematicSet> sysListToys;
-    CP::MakeSystematicsVector sysListToys;
-    sysListToys.addGroup("toys");
-    sysListToys.setToys(  ElEffCorrectionToolToys.getNumberOfToys( )   );
-    sysListToys.calc(recSystsToys);
-    std::vector<CP::SystematicSet> sysListToys2=sysListToys.result("toys");
-
-    /// DO TOY LOOP
-    for(const auto& sysToys : sysListToys2){
-    double systematicToys = 0; 
-    CHECK( ElEffCorrectionToolToys.applySystematicVariation(sysToys) );    
-    if(ElEffCorrectionToolToys.getEfficiencyScaleFactor(*el,systematicToys) == CP::CorrectionCode::Ok){
-    MSG_INFO("SFToys value "<< systematicToys );
-    }
-    uncToys.push_back(systematicToys);
-    }
-
-*/
+    MSG_INFO("===> " <<model << " : SF = "<< nominalSF << " + " << totalPos << " - " <<totalNeg );
     return 0;
 }
 
