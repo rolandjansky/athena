@@ -105,11 +105,14 @@ TString findFilePath(const TString& fileName, const TString& path)
         pathToGet = fileName;
     else if (fileExists(path+(path.EndsWith("/")?"":"/")+fileName))
         pathToGet = path+(path.EndsWith("/")?"":"/")+fileName;
-
-    // Next, try PathResolver
+    
+    // Next, try PathResolver with the default path (most users should be in this case)
     if (pathToGet == "")
         pathToGet = TString(PathResolverFindCalibFile(Form("JetUncertainties/%s",fileName.Data())).c_str());
 
+    // Third, try PathResolver, but without specifying the path. This is to allow the tool to read files residing in other packages
+    if (pathToGet == "")
+        pathToGet = TString(PathResolverFindCalibFile(fileName.Data()).c_str());    
     
     // Try backup locations now
     if (pathToGet == "")
