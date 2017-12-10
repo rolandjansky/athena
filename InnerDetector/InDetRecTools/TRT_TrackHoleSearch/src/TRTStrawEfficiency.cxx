@@ -1,4 +1,4 @@
-/*
+3/*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -37,21 +37,21 @@
 
 #include "TTree.h"
 
-#include "VxVertex/VxContainer.h" // added by dan 
+#include "VxVertex/VxContainer.h" // added by dan
 
 
 TRTStrawEfficiency::TRTStrawEfficiency(const std::string& name, ISvcLocator* pSvcLocator)
     :   AthAlgorithm(name, pSvcLocator),
-        m_trt_hole_finder("TRTTrackHoleSearchTool"),
-        m_hist_svc("THistSvc", name),
-        m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
-        m_tree(0),
-        m_TRT_ID(0),
-        m_updator("Trk::KalmanUpdator/TrkKalmanUpdator"),
-        m_trigDec( "Trig::ITrigDecisionTool/TrigDecisionTool"),
-        m_num_events(0),
-        m_num_tracks(0),
-        m_num_preselected_tracks(0),
+	m_trt_hole_finder("TRTTrackHoleSearchTool"),
+	m_hist_svc("THistSvc", name),
+	m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
+	m_tree(0),
+	m_TRT_ID(0),
+	m_updator("Trk::KalmanUpdator/TrkKalmanUpdator"),
+	m_trigDec( "Trig::ITrigDecisionTool/TrigDecisionTool"),
+	m_num_events(0),
+	m_num_tracks(0),
+	m_num_preselected_tracks(0),
 	m_event_number(0),
 	m_run_number(0),
 	m_lumi_block(0),
@@ -74,7 +74,7 @@ TRTStrawEfficiency::TRTStrawEfficiency(const std::string& name, ISvcLocator* pSv
     declareProperty("max_abs_d0",               m_max_abs_d0 =          600*CLHEP::mm );
     declareProperty("max_abs_z0",               m_max_abs_z0 =          600*CLHEP::mm );
     declareProperty("min_pT",                   m_min_pT =              1.0*CLHEP::GeV );
-    declareProperty("min_p",                    m_min_p =               2.0*CLHEP::GeV ); // added by dan 
+    declareProperty("min_p",                    m_min_p =               2.0*CLHEP::GeV ); // added by dan
     declareProperty("max_abs_eta",              m_max_abs_eta =         2.5 );
     declareProperty("min_pixel_hits",           m_min_pixel_hits =      0 );
     declareProperty("min_sct_hits",             m_min_sct_hits =        2 );
@@ -95,7 +95,7 @@ TRTStrawEfficiency::TRTStrawEfficiency(const std::string& name, ISvcLocator* pSv
 StatusCode TRTStrawEfficiency::initialize()
 {
     ATH_MSG_DEBUG( "TRTStrawEfficiency::initialize()" );
-    
+
     // retrieve TRTTrackHoleSearchTool
     if ( m_trt_hole_finder.retrieve().isFailure() )
     {
@@ -194,7 +194,7 @@ StatusCode TRTStrawEfficiency::execute()
         return StatusCode::FAILURE;
     }
     const EventID& event_id = *(event_info->event_ID());
-    
+
     ATH_MSG_DEBUG( "run_number = " << m_run_number << ", lumi_block = " << m_lumi_block << ", event_number = " << m_event_number );
 
     // loop over tracks
@@ -205,7 +205,7 @@ StatusCode TRTStrawEfficiency::execute()
 
         // clear branches
         clear_branches();
-        
+
         m_event_number = event_id.event_number();
         m_run_number = event_id.run_number();
         m_lumi_block = event_id.lumi_block();
@@ -245,7 +245,7 @@ StatusCode TRTStrawEfficiency::execute()
             ATH_MSG_ERROR( "  This track has null track states on surface." );
             continue;
         }
-        
+
         // count hits
         for(DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track_states->begin();
             it != track_states->end(); it++ )
@@ -288,7 +288,7 @@ StatusCode TRTStrawEfficiency::execute()
             if((*it)->type(Trk::TrackStateOnSurface::Measurement))
                 fill_hit_data(**it);
         }
-        
+
         const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack(**track);
         if(!holes)
         {
@@ -322,19 +322,19 @@ StatusCode TRTStrawEfficiency::execute()
             delete holes;
         }
 
-	//------- added by dan -------
+  //------- added by dan -------
 
-	const VxContainer* vxContainer(0);
-	
-	StatusCode sc = evtStore()->retrieve( vxContainer, m_vertexCollectionName);
-	if (vxContainer) {
-	  m_n_primary_vertex = vxContainer->size() - 1;
-	}
-	else {
-	  ATH_MSG_ERROR("  Failed to retrieve VxContainer: " << m_vertexCollectionName);
-	  return sc;
-	}
-	//-----------------------------
+  const VxContainer* vxContainer(0);
+
+  StatusCode sc = evtStore()->retrieve( vxContainer, m_vertexCollectionName);
+  if (vxContainer) {
+    m_n_primary_vertex = vxContainer->size() - 1;
+  }
+  else {
+    ATH_MSG_ERROR("  Failed to retrieve VxContainer: " << m_vertexCollectionName);
+    return sc;
+  }
+  //-----------------------------
 
 
         m_tree->Fill();
@@ -427,13 +427,13 @@ void TRTStrawEfficiency::make_branches()
     m_tree->Branch("hole_det", &m_hole_det);
 
     // ---- branches added by dan ------
-    m_tree->Branch("n_primary_vertex", &m_n_primary_vertex, "n_primary_vertex/I"); 
-    m_tree->Branch("hit_tube_hit", &m_hit_tube_hit); 
+    m_tree->Branch("n_primary_vertex", &m_n_primary_vertex, "n_primary_vertex/I");
+    m_tree->Branch("hit_tube_hit", &m_hit_tube_hit);
     m_tree->Branch("n_tube_hits", &m_n_tube_hits, "n_tube_hits/I");
     // -------------------------------
 }
 
-    
+
 //____________________________________________________________________________
 void TRTStrawEfficiency::clear_branches()
 {
@@ -512,7 +512,7 @@ int TRTStrawEfficiency::fill_hit_data(const Trk::TrackStateOnSurface& hit)
     m_hit_center_x.push_back( track_parameters->associatedSurface().center().x() );
     m_hit_center_y.push_back( track_parameters->associatedSurface().center().y() );
     m_hit_center_z.push_back( track_parameters->associatedSurface().center().z() );
-    
+
     Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
 
     int det = 0;
@@ -534,7 +534,7 @@ int TRTStrawEfficiency::fill_hit_data(const Trk::TrackStateOnSurface& hit)
     int pad = -1;
     if(det == 3) m_TRTStrawNeighbourSvc->getPad(id, pad);
     m_hit_pad.push_back(pad);
-    
+
     m_hit_locR.push_back( det == 3 ? track_parameters->parameters()[Trk::locR] : -1 );
 
     const Trk::MeasurementBase* measurement = hit.measurementOnTrack();
@@ -565,11 +565,11 @@ int TRTStrawEfficiency::fill_hit_data(const Trk::TrackStateOnSurface& hit)
     // ------- added by dan -------
     int is_tube_hit = -1;
     if (measurement && (det == 3) ) {
-      is_tube_hit = ((measurement->localCovariance())(Trk::locX,Trk::locX) > 1.0)? 1 : 0; 
+      is_tube_hit = ((measurement->localCovariance())(Trk::locX,Trk::locX) > 1.0)? 1 : 0;
       if (is_tube_hit) m_n_tube_hits++;
     }
 
-    m_hit_tube_hit.push_back( (det == 3)&&(measurement != 0) ? is_tube_hit : -1); 
+    m_hit_tube_hit.push_back( (det == 3)&&(measurement != 0) ? is_tube_hit : -1);
 
     // ----------------------------
 
@@ -595,7 +595,7 @@ int TRTStrawEfficiency::fill_hole_data(const Trk::TrackStateOnSurface& hole)
     m_hole_center_x.push_back( track_parameters->associatedSurface().center().x() );
     m_hole_center_y.push_back( track_parameters->associatedSurface().center().y() );
     m_hole_center_z.push_back( track_parameters->associatedSurface().center().z() );
-    
+
     Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
 
     int det = 0;
@@ -625,7 +625,7 @@ int TRTStrawEfficiency::fill_hole_data(const Trk::TrackStateOnSurface& hole)
     //const Trk::MeasuredTrackParameters* meas = dynamic_cast< const Trk::MeasuredTrackParameters* >(track_parameters);
     //if(meas)
     //{
-      
+
     const AmgSymMatrix(5)* merr = track_parameters->covariance();
     if(merr){
       locR_error = Amg::error(*merr,Trk::locR);
@@ -635,13 +635,13 @@ int TRTStrawEfficiency::fill_hole_data(const Trk::TrackStateOnSurface& hole)
         ATH_MSG_ERROR("Track parameters have no covariance attached.");
       }
     m_hole_locR_error.push_back( det == 3 ? locR_error : 0.0 );
-    
+
     /*
-    ATH_MSG_DEBUG("hole trk x = " << track_parameters->position().x() << 
+    ATH_MSG_DEBUG("hole trk x = " << track_parameters->position().x() <<
             ", surf x = " << track_parameters->associatedSurface()->center().x());
-    ATH_MSG_DEBUG("hole trk y = " << track_parameters->position().y() << 
+    ATH_MSG_DEBUG("hole trk y = " << track_parameters->position().y() <<
             ", surf y = " << track_parameters->associatedSurface()->center().y());
-    ATH_MSG_DEBUG("hole trk z = " << track_parameters->position().z() << 
+    ATH_MSG_DEBUG("hole trk z = " << track_parameters->position().z() <<
             ", surf z = " << track_parameters->associatedSurface()->center().z());
     */
 

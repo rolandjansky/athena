@@ -20,8 +20,8 @@
 
 namespace Trk
 {
-    class ITrackHoleSearchTool;
-    class TrackStateOnSurface;
+	class ITrackHoleSearchTool;
+	class TrackStateOnSurface;
 }
 
 class ITHistSvc;
@@ -32,109 +32,109 @@ class TTree;
 
 class TRTStrawEfficiency : public AthAlgorithm
 {
-    public:
-        TRTStrawEfficiency(const std::string& name, ISvcLocator* pSvcLocator);
+ public:
+	TRTStrawEfficiency(const std::string& name, ISvcLocator* pSvcLocator);
 
-        StatusCode initialize();
-        StatusCode finalize();
-        StatusCode execute();                
+	StatusCode initialize();
+	StatusCode finalize();
+	StatusCode execute();
 
-    private:
-        // configurables
-        //----------------------------------
-        ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder;
-        std::string m_track_collection;
-        float m_max_abs_d0;
-        float m_max_abs_z0;
-        float m_min_pT;
+ private:
+	// configurables
+	//----------------------------------
+	ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder;
+	std::string m_track_collection;
+	float m_max_abs_d0;
+	float m_max_abs_z0;
+	float m_min_pT;
 	float m_min_p;		/* added by dan */
-        float m_max_abs_eta;
-        int m_min_pixel_hits;
-        int m_min_sct_hits;
-        int m_min_trt_hits;
-        ServiceHandle<ITHistSvc> m_hist_svc;
-        ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
-        std::string m_tree_name;
-        std::string m_stream_name;
-        std::string m_event_info_key;
-        std::string m_required_trigger;
+	float m_max_abs_eta;
+	int m_min_pixel_hits;
+	int m_min_sct_hits;
+	int m_min_trt_hits;
+	ServiceHandle<ITHistSvc> m_hist_svc;
+	ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
+	std::string m_tree_name;
+	std::string m_stream_name;
+	std::string m_event_info_key;
+	std::string m_required_trigger;
 	std::string m_vertexCollectionName; /* added by dan */
-       
-        // private data
-        //----------------------------------
-        TTree* m_tree;
-        const TRT_ID* m_TRT_ID;
-        ToolHandle<Trk::IUpdator> m_updator;
-        ToolHandle<Trig::ITrigDecisionTool> m_trigDec;
-        
-        unsigned int m_num_events;
-        unsigned int m_num_tracks;
-        unsigned int m_num_preselected_tracks;
 
-        // ntuple branches
-        unsigned int m_event_number;
-        unsigned int m_run_number;
-        unsigned int m_lumi_block;
-        float m_track_pt;
-        float m_track_eta;
-        float m_track_phi;
-        float m_track_d0;
-        float m_track_z0;
-        int m_n_pixel_hits;
-        int m_n_sct_hits;
-        int m_n_trt_hits;
-        std::vector<int> m_hit_bec;
-        std::vector<int> m_hit_phi;
-        std::vector<int> m_hit_layer;
-        std::vector<int> m_hit_strawlayer;
-        std::vector<int> m_hit_straw;
-        std::vector<int> m_hit_chip;
-        std::vector<int> m_hit_pad;
-        std::vector<float> m_hit_x;
-        std::vector<float> m_hit_y;
-        std::vector<float> m_hit_z;
-        std::vector<float> m_hit_center_x;
-        std::vector<float> m_hit_center_y;
-        std::vector<float> m_hit_center_z;
-        std::vector<float> m_hit_R;
-        std::vector<float> m_hit_locR;
-        std::vector<int> m_hit_HL;
-        std::vector<int> m_hit_det;
-        std::vector<float> m_hit_ub_locR;
-        std::vector<float> m_hit_ub_x;
-        std::vector<float> m_hit_ub_y;
-        std::vector<float> m_hit_ub_z;
-        int m_n_pixel_holes;
-        int m_n_sct_holes;
-        int m_n_trt_holes;
-        std::vector<int> m_hole_bec;
-        std::vector<int> m_hole_phi;
-        std::vector<int> m_hole_layer;
-        std::vector<int> m_hole_strawlayer;
-        std::vector<int> m_hole_straw;
-        std::vector<int> m_hole_chip;
-        std::vector<int> m_hole_pad;
-        std::vector<float> m_hole_x;
-        std::vector<float> m_hole_y;
-        std::vector<float> m_hole_z;
-        std::vector<float> m_hole_center_x;
-        std::vector<float> m_hole_center_y;
-        std::vector<float> m_hole_center_z;
-        std::vector<float> m_hole_locR;
-        std::vector<float> m_hole_locR_error;
-        std::vector<int> m_hole_det;
+	// private data
+	//----------------------------------
+	TTree* m_tree;
+	const TRT_ID* m_TRT_ID;
+	ToolHandle<Trk::IUpdator> m_updator;
+	ToolHandle<Trig::ITrigDecisionTool> m_trigDec;
+
+	unsigned int m_num_events;
+	unsigned int m_num_tracks;
+	unsigned int m_num_preselected_tracks;
+
+	// ntuple branches
+	unsigned int m_event_number;
+	unsigned int m_run_number;
+	unsigned int m_lumi_block;
+	float m_track_pt;
+	float m_track_eta;
+	float m_track_phi;
+	float m_track_d0;
+	float m_track_z0;
+	int m_n_pixel_hits;
+	int m_n_sct_hits;
+	int m_n_trt_hits;
+	std::vector<int> m_hit_bec;
+	std::vector<int> m_hit_phi;
+	std::vector<int> m_hit_layer;
+	std::vector<int> m_hit_strawlayer;
+	std::vector<int> m_hit_straw;
+	std::vector<int> m_hit_chip;
+	std::vector<int> m_hit_pad;
+	std::vector<float> m_hit_x;
+	std::vector<float> m_hit_y;
+	std::vector<float> m_hit_z;
+	std::vector<float> m_hit_center_x;
+	std::vector<float> m_hit_center_y;
+	std::vector<float> m_hit_center_z;
+	std::vector<float> m_hit_R;
+	std::vector<float> m_hit_locR;
+	std::vector<int> m_hit_HL;
+	std::vector<int> m_hit_det;
+	std::vector<float> m_hit_ub_locR;
+	std::vector<float> m_hit_ub_x;
+	std::vector<float> m_hit_ub_y;
+	std::vector<float> m_hit_ub_z;
+	int m_n_pixel_holes;
+	int m_n_sct_holes;
+	int m_n_trt_holes;
+	std::vector<int> m_hole_bec;
+	std::vector<int> m_hole_phi;
+	std::vector<int> m_hole_layer;
+	std::vector<int> m_hole_strawlayer;
+	std::vector<int> m_hole_straw;
+	std::vector<int> m_hole_chip;
+	std::vector<int> m_hole_pad;
+	std::vector<float> m_hole_x;
+	std::vector<float> m_hole_y;
+	std::vector<float> m_hole_z;
+	std::vector<float> m_hole_center_x;
+	std::vector<float> m_hole_center_y;
+	std::vector<float> m_hole_center_z;
+	std::vector<float> m_hole_locR;
+	std::vector<float> m_hole_locR_error;
+	std::vector<int> m_hole_det;
 
 	//---- branches added by dan -------
-	std::vector<int> m_hit_tube_hit; 
-	int m_n_primary_vertex;	
+	std::vector<int> m_hit_tube_hit;
+	int m_n_primary_vertex;
 	int m_n_tube_hits;
 
-        // private methods
-        //----------------------------------
-        void make_branches();
-        void clear_branches();
-        int fill_hit_data(const Trk::TrackStateOnSurface& hit);
-        int fill_hole_data(const Trk::TrackStateOnSurface& hole);
+	// private methods
+	//----------------------------------
+	void make_branches();
+	void clear_branches();
+	int fill_hit_data(const Trk::TrackStateOnSurface& hit);
+	int fill_hole_data(const Trk::TrackStateOnSurface& hole);
 };
 
 #endif // TRT_TrackHoleSearch_TRTStrawEfficiency_h
