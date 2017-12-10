@@ -56,7 +56,7 @@ HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   m_variableMapFile(""),
   m_lwnn(nullptr),
   m_input_builder(nullptr),
-  m_tag_threshold(INFINITY),
+  m_tag_threshold(1000000000.),
   m_output_value_name(""),
   m_decoration_name(""),
   m_decorator("")
@@ -149,7 +149,7 @@ int HbbTaggerDNN::keep(const xAOD::Jet& jet) const {
 double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
 
   // build the jet properties into a map
-  if (m_input_builder->n_subjets(jet) < 2) return -INFINITY;
+  if (m_input_builder->n_subjets(jet) < 2) return -1000000000.;
   InputMapBuilder::VMap inputs = m_input_builder->get_map(jet);
   auto nn_output = m_lwnn->compute(inputs);
   return nn_output.at(m_output_value_name);

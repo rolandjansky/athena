@@ -162,6 +162,7 @@ StatusCode SmoothedTopTagger::initialize(){
     dec_name = m_decorationName+"_Cut_tau32";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
     m_dec_tau32cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    break;
   }
   case Tau32Split23:{
     m_accept.addCut( "PassTau32"    , "Tau32Jet < Tau32Cut"  );
@@ -173,6 +174,7 @@ StatusCode SmoothedTopTagger::initialize(){
     dec_name = m_decorationName+"_Cut_split23";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on split23" );
     m_dec_split23cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    break;
   }
   case QwTau32:{
     m_accept.addCut( "PassQw"       , "QwJet > QwCut" );
@@ -184,6 +186,7 @@ StatusCode SmoothedTopTagger::initialize(){
     dec_name = m_decorationName+"_Cut_tau32";
     ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on tau32" );
     m_dec_tau32cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    break;
   }
   default: break;
   }
@@ -252,6 +255,7 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
       if( (0<=tau32) && (tau32 < cut_var2) )
         m_accept.setCutResult("PassTau32",true);
 
+      break;
     }
     case Tau32Split23:{
       if(m_decorate) {
@@ -271,6 +275,7 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
       if( ( acc_s23(jet)/1000.> cut_var2) )
         m_accept.setCutResult("PassSplit23",true);
 
+      break;
     }
     case QwTau32:{
       if(m_decorate) {
@@ -289,6 +294,8 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
 
       if( (0<=tau32) && (tau32 < cut_var2) )
         m_accept.setCutResult("PassTau32",true);
+      
+      break;
     }
     default:
       break;

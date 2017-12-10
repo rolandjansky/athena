@@ -38,7 +38,7 @@ protected:
   std::unique_ptr<InputMapBuilder> m_input_builder;
 
   // threshold to cut on for keep()
-  // default is INFINITY (i.e. tag no jets)
+  // default 1000000000 - but the user must set this to use the tool sensibly
   double m_tag_threshold;
 
   // internal stuff to keep track of the output node for the NN
