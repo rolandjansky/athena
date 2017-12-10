@@ -10,6 +10,7 @@
   <class name="LArNoisyROSummary_p2" id="C33CED2C-2101-4B0C-9BCB-739B004639F4"/>
   <class name="LArNoisyROSummary_p3" id="7801CF21-F2F2-4E87-9B87-744F31A37D1B"/>
   <class name="LArNoisyROSummary_p4" id="8F9E9A44-699E-4056-96CC-555ADA1179D4"/>
+  <class name="LArNoisyROSummary_p5" id="4AE11DAE-F40C-4B90-B105-0A7BA5D29C1D"/>
   <class name="std::pair<unsigned int, std::vector<int> >" />
   <class name="std::vector<std::pair<unsigned int, std::vector<int> > >" />
 
