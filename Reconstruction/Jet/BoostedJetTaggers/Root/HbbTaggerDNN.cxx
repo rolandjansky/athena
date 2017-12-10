@@ -2,6 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// nn stuff
+#include "lwtnn/LightweightGraph.hh"
+#include "lwtnn/parse_json.hh"
+#include "lwtnn/Exceptions.hh"
+#include "lwtnn/lightweight_nn_streamers.hh"
+
 #include "BoostedJetTaggers/HbbTaggerDNN.h"
 
 // utilities
@@ -9,12 +15,6 @@
 
 // EDM stuff
 #include <xAODJet/JetContainer.h>
-
-// nn stuff
-#include "lwtnn/LightweightGraph.hh"
-#include "lwtnn/parse_json.hh"
-#include "lwtnn/Exceptions.hh"
-#include "lwtnn/lightweight_nn_streamers.hh"
 
 // to parse the input file
 #include <boost/property_tree/ptree.hpp>
