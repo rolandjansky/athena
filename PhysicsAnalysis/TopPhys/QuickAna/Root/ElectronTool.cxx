@@ -381,7 +381,7 @@ namespace ana
     const int effDataType = m_isAF2? 3 : 1;
 
     // Calib file directory
-    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/map0.txt";
+    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/map0.txt";
 
     // Initialize the AsgElectronEfficiencyCorrectionTool for reco
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_efficiencyTool_reco, AsgElectronEfficiencyCorrectionTool) );

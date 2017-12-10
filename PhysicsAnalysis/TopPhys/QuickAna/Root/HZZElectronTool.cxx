@@ -51,20 +51,20 @@ namespace ana
   {
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_selectionTool, AsgElectronLikelihoodTool));
     ATH_CHECK (m_selectionTool.setProperty("primaryVertexContainer", "PrimaryVertices"));
-    std::string config = "ElectronPhotonSelectorTools/offline/mc15_20160512/";
+    std::string config = "ElectronPhotonSelectorTools/offline/mc16_20170828/";
     if(m_selection == "VLooseLLH") {
-      config += "ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf";
+      config += "ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf";
     }
     else if(m_selection == "LooseLLH") {
-      config += "ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf";
+      config += "ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf";
     }
     else if(m_selection == "LooseAndBLayerLLH") {
-      config += "ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf";
+      config += "ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf";
     }
     else if(m_selection == "MediumLLH")
-      config += "ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf";
+      config += "ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf";
     else if(m_selection == "TightLLH")
-      config += "ElectronLikelihoodTightOfflineConfig2016_Smooth.conf";
+      config += "ElectronLikelihoodTightOfflineConfig2017_Smooth.conf";
     else ATH_MSG_ERROR( "Unsupported electron ID: " << m_selection );
     ATH_CHECK (m_selectionTool.setProperty ("ConfigFile", config));
     ATH_CHECK( m_selectionTool.initialize() );
