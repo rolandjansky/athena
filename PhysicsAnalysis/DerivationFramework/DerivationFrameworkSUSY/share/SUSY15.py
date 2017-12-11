@@ -14,6 +14,8 @@ if DerivationFrameworkIsMonteCarlo:
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY15Stream.StreamName
@@ -207,6 +209,10 @@ SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY15)
+
+#==============================================================================
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
 #
@@ -247,8 +253,14 @@ SUSY15SlimmingHelper.SmartCollections = [
                                          "Muons",
                                          "TauJets",
                                          "MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+
                                          "AntiKt4EMTopoJets",
+"AntiKt4EMPFlowJets",
+
                                          "BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+
                                          "InDetTrackParticles",
                                          "PrimaryVertices"
                                          ]
@@ -287,7 +299,8 @@ SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True # Added /CO
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY15SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY15SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   

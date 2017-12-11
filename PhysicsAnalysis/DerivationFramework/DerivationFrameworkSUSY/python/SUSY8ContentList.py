@@ -2,10 +2,12 @@
 
 SUSY8SmartContent = [
         "AntiKt4EMTopoJets",
+        "AntiKt4EMPFlowJets",
         "Electrons",
         "Muons",
         "Photons",
         "MET_Reference_AntiKt4EMTopo",
+        "MET_Reference_AntiKt4EMPFlow",
         "PrimaryVertices"
 ]
 	

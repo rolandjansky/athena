@@ -13,6 +13,8 @@ if DerivationFrameworkIsMonteCarlo:
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY14Stream.StreamName
@@ -196,6 +198,10 @@ SeqSUSY14 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY14)
+
+#==============================================================================
 OutputJets["SUSY14"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
 # now part of MCTruthCommon
@@ -233,7 +239,13 @@ SeqSUSY14 += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY14SlimmingHelper = SlimmingHelper("SUSY14SlimmingHelper")
-SUSY14SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","TauJets","AntiKt4EMTopoJets","MET_Reference_AntiKt4EMTopo","BTagging_AntiKt4EMTopo", "InDetTrackParticles", "PrimaryVertices", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+SUSY14SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","TauJets","AntiKt4EMTopoJets",
+"AntiKt4EMPFlowJets",
+"MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+"BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+ "InDetTrackParticles", "PrimaryVertices", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY14SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY14SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
@@ -266,7 +278,8 @@ SUSY14SlimmingHelper.IncludeBJetTriggerContent   = False
 #addJetOutputs(SUSY14SlimmingHelper,["LargeR", "SUSY14"], [], ["CamKt12LCTopoJets","AntiKt10LCTopoJets","AntiKt10TruthJets","CamKt12TruthWZJets","CamKt12TruthJets","AntiKt10TruthWZJets"])
 
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-SUSY14SlimmingHelper.AppendToDictionary = {'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
+SUSY14SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
