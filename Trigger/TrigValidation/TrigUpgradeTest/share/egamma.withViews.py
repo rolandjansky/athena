@@ -32,8 +32,10 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 AthViewSeq = None
 if viewTest:
-  allViewAlgorithms = topSequence.allViewAlgorithms
+  allViewAlgorithms = topSequence.AthViewSeq.allViewAlgorithms
   AthViewSeq = topSequence.AthViewSeq
+  print( dir( AthViewSeq.viewMaker ) )
+  AthViewSeq.viewMaker.Enable = False
 
 from InDetRecExample.InDetKeys import InDetKeys
 

@@ -339,14 +339,14 @@ else:
 # ----------------------------------------------------------------
 # Setup Views
 # ----------------------------------------------------------------
-viewSeq = AthSequencer("AthViewSeq", Sequential = True)
-topSequence+=viewSeq
+viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
+topSequence += viewSeq
 
 if opt.enableViews:
     log.info('Setting up Views...')
     # Make a separate alg pool for the view algs
-    from GaudiHive.GaudiHiveConf import AlgResourcePool
-    svcMgr += AlgResourcePool('ViewAlgPool')
+    from GaudiHive.GaudiHiveConf import AlgResourcePool #BEN
+    svcMgr += AlgResourcePool('ViewAlgPool') #BEN
     #Create IdentifiableCaches
     from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
     InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
@@ -358,22 +358,15 @@ if opt.enableViews:
                                         PixRDOCacheKey = "PixRDOCache",
                                         OutputLevel=DEBUG)
     viewSeq += InDetCacheCreatorTrigViews    
+
+    # View maker alg
+    viewSeq += CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
     
     # Set of view algs
-    allViewAlgs = AthSequencer( "allViewAlgorithms" )
-    allViewAlgs.ModeOR = False
-    allViewAlgs.Sequential = True
-    allViewAlgs.StopOverride = False
-    topSequence += allViewAlgs
+    viewSeq += AthSequencer("allViewAlgorithms", Sequential=False, ModeOR=False, StopOverride=False)
     
-    # Filter to stop view algs from running on whole event
-    allViewAlgs += CfgMgr.AthPrescaler( "alwaysFail" )
-    allViewAlgs.alwaysFail.PercentPass = 0.0
-
     # dummy alg that just says you're running in a view
-    # allViewAlgs += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
-    # svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
-    # viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
+    # viewSeq.allViewAlgorithms += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
 else:
     #This is to workaround the problem CondHandle bug, this can be removed once a proper solution is made
     from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
