@@ -2310,10 +2310,10 @@ class L2EFChain_mu(L2EFChainDef):
 
     if "inTimeRoI" not in self.chainPart['addInfo']:
       self.TErenamingDict = {
-        'L2_mu_step0_MG': mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_L1x',  self.L2InputTE ),
-        'EF_mu_step1':    mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
-        'EF_mu_step2':    mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly',  self.chainPartNameNoMult),
-        'EF_mu_step3':    mergeRemovingOverlap('EF_l2muonSA_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
+        'L2_mu_step0_oot': mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_L1x',  self.L2InputTE ),
+        'EF_mu_step1':     mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
+        'EF_mu_step2':     mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly',  self.chainPartNameNoMult),
+        'EF_mu_step3':     mergeRemovingOverlap('EF_l2muonSA_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
       }
     else:
       self.TErenamingDict = {
