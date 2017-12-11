@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTruthData
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
-                          Control/DataModel
+                          Control/AthLinks
                           Control/StoreGate
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetTruth/InDetTruthInterfaces
@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrigTruthAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel InDetSimData TrkTruthData TrigInterfacesLib DataModel StoreGateLib SGtests InDetPrepRawData Particle ParticleTruth TrkTrack TrkToolInterfaces TrigParticle )
+                     LINK_LIBRARIES GaudiKernel InDetSimData TrkTruthData TrigInterfacesLib AthLinks StoreGateLib SGtests InDetPrepRawData Particle ParticleTruth TrkTrack TrkToolInterfaces TrigParticle )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigTruthAlgs )
