@@ -34,7 +34,7 @@ ViewMergeAlg::ViewMergeAlg( const std::string& name,
   // 
   //declareProperty( "Property", m_nProperty );
 
-  //declareProperty( "IntsFromViews", m_r_ints, "Data flow of ints" );
+  //declareProperty( "IntsFromViews", m_r_ints, "Data flow of ints" ); //This is not guaranteed to be created if there are no views
 
   declareProperty( "MergedInts", m_w_ints, "Data flow of ints" );
 
