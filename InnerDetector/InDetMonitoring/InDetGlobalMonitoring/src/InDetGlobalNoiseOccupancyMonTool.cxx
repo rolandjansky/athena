@@ -162,13 +162,13 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::bookHistogramsRecurrent()
 	//--- ID histograms---------------------
 	status &= registerHist( monGr_shift,  m_SCT_TRT_NO =
 				       TH2F_LW::create("m_SCT_TRT_NO","TRT noise occupancy vs SCT noise occupancy",
-						       m_sct_nBins,0,m_sctMax, m_trt_nBins,0,m_trtMax));
+						       m_sct_nBins,0,m_sctMax, m_trt_nBins,0,m_trtMax)).isSuccess();
 	status &= registerHist( monGr_shift,  m_SCT_PIX_NO =
 				       TH2F_LW::create("m_SCT_PIX_NO","Pixel noise occupancy vs SCT noise occupancy",
-						       m_sct_nBins, 0, m_sctMax, m_pixel_nBins, 0, m_pixelMax));
+						       m_sct_nBins, 0, m_sctMax, m_pixel_nBins, 0, m_pixelMax)).isSuccess();
 	status &= registerHist( monGr_shift,  m_PIX_TRT_NO = 
 				       TH2F_LW::create("m_PIX_TRT_NO","TRT noise occupancy vs Pixel noise occupancy",
-						       m_pixel_nBins, 0, m_pixelMax, m_trt_nBins, 0, m_trtMax));
+						       m_pixel_nBins, 0, m_pixelMax, m_trt_nBins, 0, m_trtMax)).isSuccess();
 
 	/*
 	 * combined NO histos using correlation coefficient
@@ -178,103 +178,103 @@ StatusCode InDetGlobalNoiseOccupancyMonTool::bookHistogramsRecurrent()
 	status &= registerHist( monGr_shift,  m_TRT_SCTvTRT_PIX_10evt =
 				       TH2F_LW::create("m_TRT_SCTvTRT_PIX_10evt",
 						       "TRT,SCT, PIX combined "
-						       "occupancy",100,-1,1,100,-1,1));
+						       "occupancy",100,-1,1,100,-1,1)).isSuccess();
 	status &= registerHist( monGr_shift,  m_TRT_SCTvSCT_PIX_10evt =
 				       TH2F_LW::create("m_TRT_SCTvSCT_PIX_10evt",
 						       "TRT,SCT, PIX combined "
-						       "occupancy",100,-1,1,100,-1,1));
+						       "occupancy",100,-1,1,100,-1,1)).isSuccess();
 	status &= registerHist( monGr_shift,  m_TRT_PIXvSCT_PIX_10evt =
 				       TH2F_LW::create("m_TRT_PIXvSCT_PIX_10evt",
 						       "TRT,SCT, PIX combined "
-						       "occupancy",100,-1,1,100,-1,1));
+						       "occupancy",100,-1,1,100,-1,1)).isSuccess();
 	  
 	//---Pixel debug histograms
 	status &= registerHist( monGr_shift,  m_PIX_NO_evt = 
 				       TProfile_LW::create("m_PIX_NO_evt","PIX noise "
 						    "occupancy vs bin of 10 events",m_checkRate/10,
-						    0,m_checkRate));
+						    0,m_checkRate)).isSuccess();
 	status &= registerHist( monGr_exp,  m_PIX_NO =
 				     TH1F_LW::create("m_PIX_NO","PIX noise occupancy",
-						     m_pixel_nBins,0,m_pixelMax));
+						     m_pixel_nBins,0,m_pixelMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_PIX_NO_B =
 				     TH1F_LW::create("m_PIX_NO_B","PIX noise occupancy (B)",
-						     m_pixel_nBins,0,m_pixelMax));
+						     m_pixel_nBins,0,m_pixelMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_PIX_NO_ECA =
 				     TH1F_LW::create("m_PIX_NO_ECA","PIX noise occupancy (ECA)",
-						     m_pixel_nBins,0,m_pixelMax));
+						     m_pixel_nBins,0,m_pixelMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_PIX_NO_ECC =
 				     TH1F_LW::create("m_PIX_NO_ECC","PIX noise occupancy (ECC)",
-						     m_pixel_nBins,0,m_pixelMax));
+						     m_pixel_nBins,0,m_pixelMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_PIX_NO_nseg = 
 				     TH2F_LW::create("m_PIX_NO_nseg","PIX noise occupancy "
 						     "vs number of PIX segments",500,0,500,
-						     150,0,m_pixelMax));
+						     150,0,m_pixelMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_PIX_NO_ntrk = 
 				     TH2F_LW::create("m_PIX_NO_ntrk","PIX noise occupancy "
 						     "vs number of combinedtracks",500,0,500,
-						     200,0,m_pixelMax));
+						     200,0,m_pixelMax)).isSuccess();
 	//---SCT debug histograms
 	status &= registerHist( monGr_shift,  m_SCT_NO_evt = 
 				       TProfile_LW::create("m_SCT_NO_evt","SCT noise "
 						    "occupancy vs bin of 10 events",m_checkRate/10,
-						    0,m_checkRate));
+						    0,m_checkRate)).isSuccess();
 	status &= registerHist( monGr_exp,  m_SCT_NO =
 				     TH1F_LW::create("m_SCT_NO","SCT noise occupancy",
-						     100,0,m_sctMax));
+						     100,0,m_sctMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_SCT_NO_B =
 				     TH1F_LW::create("m_SCT_NO_B","SCT noise occupancy (B)",
-						     100,0,m_sctMax));
+						     100,0,m_sctMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_SCT_NO_ECA =
 				     TH1F_LW::create("m_SCT_NO_ECA","SCT noise occupancy (ECA)",
-						     100,0,m_sctMax));
+						     100,0,m_sctMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_SCT_NO_ECC =
 				     TH1F_LW::create("m_SCT_NO_ECC","SCT noise occupancy (ECC)",
-						     100,0,m_sctMax));
+						     100,0,m_sctMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_SCT_NO_nseg = 
 				     TH2F_LW::create("m_SCT_NO_nseg","SCT noise occupancy "
 						     "vs number of SCT segments"
-						     ,50,0,50,150,0,m_sctMax));
+						     ,50,0,50,150,0,m_sctMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_SCT_NO_ntrk =
 				     TH2F_LW::create("m_SCT_NO_ntrk", "SCT noise occupancy "
 						     "vs number of combined tracks",
-						     100,0,100,200,0,m_sctMax));
+						     100,0,100,200,0,m_sctMax)).isSuccess();
 	  
 	//---TRT debug histograms
 	status &= registerHist( monGr_shift,  m_TRT_NO_evt =
 				       TProfile_LW::create("m_TRT_NO_evt","TRT noise "
 						    "occupancy vs bin of 10 events",
-						    m_checkRate/10,0,m_checkRate));
+						    m_checkRate/10,0,m_checkRate)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_NO =
 				     TH1F_LW::create("m_TRT_NO","TRT noise occupancy",100,
-						     0,m_trtMax));
+						     0,m_trtMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_NO_BC_phi=
 				     TProfile_LW::create("m_TRT_NO_BC_phi","TRT noise occupancy in phi sectors (Barrel C)",32,
-						  -0.5,31.5,0,m_trtMax));
+						  -0.5,31.5,0,m_trtMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_NO_BA_phi=
 				     TProfile_LW::create("m_TRT_NO_BA_phi","TRT noise occupancy in phi sectors (Barrel A)",32,
-						  -0.5,31.5,0,m_trtMax));
+						  -0.5,31.5,0,m_trtMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_NO_ECA_phi=
 				     TProfile_LW::create("m_TRT_NO_ECA_phi","TRT noise occupancy in phi sectors (ECA)",32,
-						  -0.5,31.5,0,m_trtMax));
+						  -0.5,31.5,0,m_trtMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_NO_ECC_phi=
 				     TProfile_LW::create("m_TRT_NO_ECC_phi","TRT noise occupancy in phi sectors (ECC)",32,
-						  -0.5,31.5,0,m_trtMax));
+						  -0.5,31.5,0,m_trtMax)).isSuccess();
     
 	status &= registerHist( monGr_exp,  m_TRT_HL_NO_evt =
 				     TProfile_LW::create("m_TRT_HL_NO_evt","TRT HL noise "
 						  "occupancy vs event number",
-						  m_checkRate,0,m_checkRate));
+						  m_checkRate,0,m_checkRate)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_HL_NO =
 				     TH1F_LW::create("m_TRT_HL_NO","TRT HL noise occupancy",
-						     100,0,m_trtMax));
+						     100,0,m_trtMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_NO_nseg =
 				     TH2F_LW::create("m_TRT_NO_nseg","TRT noise occupancy "
 						     "vs number of TRT segments",500,0,500,
-						     150,0,m_trtMax));
+						     150,0,m_trtMax)).isSuccess();
 	status &= registerHist( monGr_exp,  m_TRT_NO_ntrk = 
 				     TH2F_LW::create("m_TRT_NO_ntrk","TRT noise occupancy "
 						     "vs number of combined tracks",					 
-						     500,0,500,200,0,m_trtMax));
+						     500,0,500,200,0,m_trtMax)).isSuccess();
 	  
 	// To be moved to conditions data?
 	m_nStraws = 0.;
