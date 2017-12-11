@@ -74,14 +74,6 @@ class DumpUnassociatedHits(JobProperty):
     pass
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DumpUnassociatedHits)
 
-class DumpLArCollisionTime(JobProperty):
-    """dump LAr collision time """
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = True
-    pass
-jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DumpLArCollisionTime)
-
 class DumpTruthInfo(JobProperty):
     """dump truth in fo """
     statusOn = True
