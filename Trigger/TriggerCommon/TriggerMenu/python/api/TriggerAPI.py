@@ -8,7 +8,7 @@ from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 class TriggerAPI:
-    centralPickleFile = "/afs/cern.ch/user/j/jmontejo/public/TriggerInfo.pickle" #FIXME
+    centralPickleFile = "/afs/cern.ch/user/t/trigmenu/public/TriggerAPI/TriggerInfo.pickle"
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = {}
     privatedbQueries = {}
