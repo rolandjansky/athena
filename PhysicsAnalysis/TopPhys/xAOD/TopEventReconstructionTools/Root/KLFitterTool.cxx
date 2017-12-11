@@ -131,6 +131,9 @@ namespace top{
     else if (m_config->KLFitterJetSelectionMode() == "kLeadingSix") {
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingSix;
     }
+    else if (m_config->KLFitterJetSelectionMode() == "kLeadingSeven") {
+      m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingSeven;
+    }
     else if (m_config->KLFitterJetSelectionMode() == "kBtagPriorityFourJets") {
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityFourJets;
     }
@@ -140,15 +143,18 @@ namespace top{
     else if (m_config->KLFitterJetSelectionMode() == "kBtagPrioritySixJets") {
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPrioritySixJets;
     }
+    else if (m_config->KLFitterJetSelectionMode() == "kBtagPrioritySevenJets") {
+      m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPrioritySevenJets;
+    }
     else {
-      ATH_MSG_ERROR("Please supply a valid JetSelectionMode : kLeadingFour , kLeadingFive , kLeadingSix, kBtagPriorityFourJets , kBtagPriorityFiveJets kBtagPrioritySixJets" );
+      ATH_MSG_ERROR("Please supply a valid JetSelectionMode : kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets" );
       return StatusCode::FAILURE;      
     }
     
-    if(m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSix && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySixJets){
+    if(m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSix && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySixJets && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSeven && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySevenJets){
       if(m_LHType == "ttH" || m_LHType == "ttbar_AllHadronic"){
 
-	ATH_MSG_ERROR("You want to run the ttH or ttbar_AllHadronic Likelihood, you need to use either : kLeadingSix or kBtagPrioritySixJets" );
+	ATH_MSG_ERROR("You want to run the ttH or ttbar_AllHadronic Likelihood, you need to use either : kLeadingSix , kBtagPrioritySixJets , kLeadingSeven , kBtagPrioritySevenJets" );
 	return StatusCode::FAILURE;
 	
       }
@@ -702,6 +708,9 @@ namespace top{
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSix) {
       setJetskLeadingSix( event , inputParticles );
     }
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSeven) {
+      setJetskLeadingSeven( event , inputParticles );
+    }
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFourJets) {
       setJetskBtagPriorityFourJets( event , inputParticles );
     }
@@ -710,6 +719,9 @@ namespace top{
     }     
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySixJets) {
       setJetskBtagPrioritySixJets( event , inputParticles );
+    }
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySevenJets) {
+      setJetskBtagPrioritySevenJets( event , inputParticles );
     }
 
 
@@ -728,6 +740,11 @@ namespace top{
   void KLFitterTool::setJetskLeadingSix(const top::Event& event,KLFitter::Particles* inputParticles)
   {
     setJetskLeadingX(event, inputParticles, 6);
+  }
+
+  void KLFitterTool::setJetskLeadingSeven(const top::Event& event,KLFitter::Particles* inputParticles)
+  {
+    setJetskLeadingX(event, inputParticles, 7);
   }
 
   void KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, int njets)
@@ -765,6 +782,11 @@ namespace top{
   void KLFitterTool::setJetskBtagPrioritySixJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
     setJetskBtagPriority( event , inputParticles , 6 );
+  }
+  
+  void KLFitterTool::setJetskBtagPrioritySevenJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  {
+    setJetskBtagPriority( event , inputParticles , 7 );
   }
   
   void KLFitterTool::setJetskBtagPriority(const top::Event& event,KLFitter::Particles* inputParticles,const unsigned int maxJets)

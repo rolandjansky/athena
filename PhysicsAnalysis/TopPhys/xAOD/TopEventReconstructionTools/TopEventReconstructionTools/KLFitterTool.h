@@ -50,7 +50,7 @@ namespace top{
   
   /// Some additional enums
   namespace KLFitterJetSelection{
-    enum JetSelectionMode{ kLeadingFour , kLeadingFive , kLeadingSix, kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets};
+    enum JetSelectionMode{ kLeadingFour , kLeadingFive , kLeadingSix, kLeadingSeven, kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets};
   }
         
 
@@ -76,6 +76,7 @@ namespace top{
       void setJetskLeadingFour(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskLeadingFive(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskLeadingSix(const top::Event&,KLFitter::Particles* inputParticles);
+      void setJetskLeadingSeven(const top::Event&,KLFitter::Particles* inputParticles);
 
       void setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, int);
 
@@ -83,6 +84,7 @@ namespace top{
       void setJetskBtagPriorityFourJets(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskBtagPriorityFiveJets(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskBtagPrioritySixJets(const top::Event&,KLFitter::Particles* inputParticles);
+      void setJetskBtagPrioritySevenJets(const top::Event&,KLFitter::Particles* inputParticles);
 
       void setJetskBtagPriority(const top::Event&,KLFitter::Particles* inputParticles,const unsigned int maxJets);
       
