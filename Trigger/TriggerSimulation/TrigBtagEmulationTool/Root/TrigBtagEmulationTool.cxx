@@ -128,6 +128,7 @@ std::vector< BaseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::
     input = hasSeparation ? input.substr( input.find("_") + 1 , input.length() - input.find("_") -1 ) : "";
 
     if (subString == "L1") continue;
+    else if (subString.find("JJ")!=std::string::npos) output.push_back( new TrigBtagEmulationChainJetIngredient_L1_JJ("EMUL_L1_" + subString) ); 
     else output.push_back( new TrigBtagEmulationChainJetIngredient_L1("EMUL_L1_" + subString) );
     output.at( output.size() - 1)->initialize();
   }
@@ -169,8 +170,10 @@ std::vector< BaseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::
   }
 
   std::vector< TrigBtagEmulationChainJetIngredient_HLT* > triggers_HLT;
-  for (unsigned int i(0); i<outputHLT_string.size(); i++)
-    triggers_HLT.push_back( new TrigBtagEmulationChainJetIngredient_HLT( outputHLT_string.at(i) ) );
+  for (unsigned int i(0); i<outputHLT_string.size(); i++) {
+    if (outputHLT_string.at(i).find("gsc")!=std::string::npos) triggers_HLT.push_back( new TrigBtagEmulationChainJetIngredient_GSC( outputHLT_string.at(i) ) );
+    else triggers_HLT.push_back( new TrigBtagEmulationChainJetIngredient_HLT( outputHLT_string.at(i) ) );
+  }
   for (unsigned int i(0); i<triggers_HLT.size(); i++)
     triggers_HLT.at(i)->initialize();
   
@@ -816,10 +819,13 @@ StatusCode TrigBtagEmulationTool::addEmulatedChain(const std::vector<std::string
 //!==========================================================================        
 
 StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
+#ifdef XAOD_STANDALONE
+  const char* inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
+  if ( std::string( inputFileFolder ).find( "atlas-nightlies.cern.ch")!=std::string::npos )
+    inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
+#else
   const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
-  // If WorkDir_DIR not defined means we are using ROOTCORE  
-  if( strlen(inputFileFolder) == 0 ) 
-    inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
+#endif
 
   std::string nameFile_2015 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2015Menu.txt",inputFileFolder);
   std::string nameFile_2016 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2016Menu.txt",inputFileFolder);

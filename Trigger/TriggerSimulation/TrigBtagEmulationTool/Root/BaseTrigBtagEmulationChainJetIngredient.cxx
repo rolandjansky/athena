@@ -134,6 +134,9 @@ void TrigBtagEmulationChainJetIngredient_L1::initialize() {
     else if (subString.find("J")!=std::string::npos) this->setPT( subString );
   }
 
+  // For L1Topo HT triggers we must manually set the multeplicity to 0
+  if( m_triggerName.find("_HT")!=std::string::npos ) m_min_mult = 0;
+
   for (unsigned int i = 0; i < m_features.size(); i++) {
     if (m_features.at(i) == nullptr) continue;
     m_features.at(i)->setCuts(m_min_pt,m_min_eta,m_max_eta);
@@ -159,7 +162,7 @@ TriggerFeature* TrigBtagEmulationChainJetIngredient_L1::setHT(std::string& input
   else return new TriggerFeatureHt("L1","HT",m_ht);
 }
 TriggerFeature* TrigBtagEmulationChainJetIngredient_L1::setINVM(std::string& input) { 
-  m_max_eta=49; 
+  m_max_eta=4.9; 
 
   int min_invm = 0;
   this->extract(input,"MJJ-",min_invm);
@@ -411,7 +414,7 @@ void TrigBtagEmulationChainJetIngredient_GSC::initialize() {
     std::string subString = delimiter.empty() ? input : input.substr( 0,input.find( delimiter.c_str() ) ) ;
     input = delimiter.empty() ? "" : input.substr( subString.length() + 1 , input.length() - subString.length() - 1);
     
-    if (subString.find("mv2c10")!=std::string::npos) this->setBTAG( subString );
+    if (subString.find("b")!=std::string::npos) this->setBTAG( subString );
     else if (subString.find("ht")!=std::string::npos) m_features.push_back( this->setHT( subString ) );
     else if (subString.find("eta")!=std::string::npos) this->setEta( subString );
     else if (subString.find("j")!=std::string::npos) this->setPT( subString );

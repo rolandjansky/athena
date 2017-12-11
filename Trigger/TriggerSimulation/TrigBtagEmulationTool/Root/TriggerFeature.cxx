@@ -156,10 +156,13 @@ TriggerFeatureInvm::~TriggerFeatureInvm() {}
 float TriggerFeatureInvm::getCut() const {return m_min_invm;}
 
 void TriggerFeatureInvm::initLUTs() {
+#ifdef XAOD_STANDALONE
+  const char* inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
+  if ( std::string( inputFileFolder ).find( "atlas-nightlies.cern.ch")!=std::string::npos )
+    inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
+#else
   const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
-  // If WorkDir_DIR not defined means we are using ROOTCORE
-  if( strlen(inputFileFolder) == 0 )
-    inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
+#endif
 
   // *** cosh ( Deta )
   std::string nameFile_LUTcosh = Form("%s/data/TrigBtagEmulationTool/LUT_Hyperbolic.txt",inputFileFolder);
