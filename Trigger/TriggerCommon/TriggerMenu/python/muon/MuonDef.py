@@ -2284,36 +2284,40 @@ class L2EFChain_mu(L2EFChainDef):
     if "inTimeRoI" not in self.chainPart['addInfo']:
       from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
       Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
-      self.L2sequenceList += [[ '', [Roimaker], 'L2_mu_step0_oot']]
-      self.L2sequenceList += [[ 'L2_mu_step0_oot', [theL2StandAloneAlg], 'L2_mu_step1_LateMu']]
+      self.L2sequenceList += [[ '', [Roimaker], 'L2_mu_step0']]
+      self.L2sequenceList += [[ 'L2_mu_step0', [theL2StandAloneAlg], 'L2_mu_step1']]
     else:
-      self.L2sequenceList += [[ self.L2InputTE, [theL2StandAloneAlg], 'L2_mu_step1_LateMu']]
+      self.L2sequenceList += [[ self.L2InputTE, [theL2StandAloneAlg], 'L2_mu_step1']]
 
-    self.L2sequenceList += [[ 'L2_mu_step1_LateMu', [theL2StandAloneHypo], 'L2_mu_hypo1_LateMu']]
-    self.EFsequenceList += [[ 'L2_mu_hypo1_LateMu' , trkfast+trkprec, 'EF_mu_step1']]
+    self.L2sequenceList += [[ 'L2_mu_step1' , [theL2StandAloneHypo], 'L2_mu_hypo1']]
+    self.EFsequenceList += [[ 'L2_mu_hypo1' , trkfast+trkprec, 'EF_mu_step1']]
     self.EFsequenceList += [[ 'EF_mu_step1' , [theEFAlg], 'EF_mu_step2']]
-    self.EFsequenceList += [[ 'EF_mu_step2'  , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
+    self.EFsequenceList += [[ 'EF_mu_step2' , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
 
     if "inTimeRoI" not in self.chainPart['addInfo']:
-      self.L2signatureList += [ [['L2_mu_step0_oot']] ]
+      self.L2signatureList += [ [['L2_mu_step0']] ]
 
-    self.L2signatureList += [ [['L2_mu_step1_LateMu']] ]
-    self.L2signatureList += [ [['L2_mu_hypo1_LateMu']] ]
+    self.L2signatureList += [ [['L2_mu_step1']] ]
+    self.L2signatureList += [ [['L2_mu_hypo1']] ]
     self.EFsignatureList += [ [['EF_mu_step1']] ]
     self.EFsignatureList += [ [['EF_mu_step2']] ]
     self.EFsignatureList += [ [['EF_mu_step3']] ]
 
     if "inTimeRoI" not in self.chainPart['addInfo']:
       self.TErenamingDict = {
-        'L2_mu_step0_oot': mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_L1x',  self.L2InputTE ),
-        'EF_mu_step1':     mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
-        'EF_mu_step2':     mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly',  self.chainPartNameNoMult),
-        'EF_mu_step3':     mergeRemovingOverlap('EF_l2muonSA_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
+        'L2_mu_step0':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       "TrigMuRoIMGonly_L1x"+self.L2InputTE ),
+        'L2_mu_step1':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       L2AlgName+"_L1x"+self.L2InputTE ),
+        'L2_mu_hypo1':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       L2AlgName+"_"+muFastThresh+"_L1x"+self.L2InputTE ),
+        'EF_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.chainPartNameNoMult),
+        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
       }
     else:
       self.TErenamingDict = {
-        'EF_mu_step1':  mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_inTimeRoI_',  '2b' + self.L2InputTE ),
-        'EF_mu_step2':  mergeRemovingOverlap('EF_l2muonSA_SuperEF_MGOnly_inTimeRoI',  self.chainPartNameNoMult),
-        'EF_mu_step3':  mergeRemovingOverlap('EF_l2muonSA_SuperEFHypo_MGOnly_inTimeRoI',  self.chainPartNameNoMult)
+        'L2_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     L2AlgName+"_L1x"+self.L2InputTE ),
+        'L2_mu_hypo1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     L2AlgName+"_"+muFastThresh+"_L1x"+self.L2InputTE ),
+        'EF_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     self.chainPartNameNoMult),
+        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly_inTimeRoI',  self.chainPartNameNoMult)
       }
 
