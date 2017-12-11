@@ -25,14 +25,32 @@
 ///    ASG_CHECK( someFunction() );
 /// </code>
 ///
+/// or for functions that do not return a StatusCode:
+///
+/// <code>
+///    ASG_CHECK( someFunction(), -1 );
+/// </code>
+///
 /// The macro may only be used inside of member functions of dual-use tools.
 ///
-#define ASG_CHECK( EXP )                                       \
+#define ASG_CHECK(...)  \
+   BOOST_PP_OVERLOAD(ASG_CHECK_, __VA_ARGS__)(__VA_ARGS__)
+
+#define ASG_CHECK_1( EXP )                                     \
    do {                                                        \
-      const StatusCode sc__ = EXP;                             \
+      const StatusCode sc__(EXP);                              \
       if( ! sc__.isSuccess() ) {                               \
          ATH_MSG_ERROR( "Failed to call \"" << #EXP << "\"" ); \
          return sc__;                                          \
+      }                                                        \
+   } while( 0 )
+
+#define ASG_CHECK_2( EXP, RET )                                \
+   do {                                                        \
+      const StatusCode sc__(EXP);                              \
+      if( ! sc__.isSuccess() ) {                               \
+         ATH_MSG_ERROR( "Failed to call \"" << #EXP << "\"" ); \
+         return RET;                                           \
       }                                                        \
    } while( 0 )
 
@@ -47,7 +65,7 @@
 ///
 #define ASG_CHECK_SA( SOURCE, EXP )                                     \
    do {                                                                 \
-      const StatusCode sc__ = EXP;                                      \
+      const StatusCode sc__(EXP);                                       \
       if( ! sc__.isSuccess() ) {                                        \
          static MsgStream msg( SOURCE );                                \
          msg << MSGSTREAM_REPORT_PREFIX << MSG::ERROR                   \
@@ -58,7 +76,7 @@
 
 /// In standalone mode use the ASG specific macro as a replacement for ATH_CHECK
 #ifdef ASGTOOL_STANDALONE
-#   define ATH_CHECK( EXP ) ASG_CHECK( EXP )
+#   define ATH_CHECK ASG_CHECK
 #endif
 
 #endif // ASGTOOLS_CHECK_H
