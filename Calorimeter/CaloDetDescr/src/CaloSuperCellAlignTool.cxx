@@ -126,7 +126,10 @@ StatusCode CaloSuperCellAlignTool::align(IOVSVC_CALLBACK_ARGS)
   CHECK( detStore()->retrieve (scmgr, m_scMgrKey) );
   CHECK( detStore()->retrieve (mgr,   m_mgrKey) );
 
-  CHECK( doUpdate ((CaloSuperCellDetDescrManager*)scmgr, mgr) );
+  // FIXME: This tool changes the content of the (const) CaloSuperCellDetDescrManager
+  // recorded in the detector store.  Need to get rid of this for MT.
+  // This should go away with the new scheme for dealing with alignments.
+  CHECK( doUpdate (const_cast<CaloSuperCellDetDescrManager*>(scmgr), mgr) );
   return StatusCode::SUCCESS;
 }
 
@@ -184,7 +187,7 @@ CaloSuperCellAlignTool::updateElements (CaloSuperCellDetDescrManager* mgr,
   // For each supercell, we make a list of the corresponding cells.
   // Then we pass that list to the supercell's @c update method.
 
-  for (CaloDetDescrElement* elt : mgr->element_range()) {
+  for (CaloDetDescrElement* elt : mgr->element_range_nonconst()) {
     if (!elt) continue;
     CaloSuperCellDetectorElement* selt =
       dynamic_cast<CaloSuperCellDetectorElement*> (elt);
@@ -251,7 +254,7 @@ CaloSuperCellAlignTool::updateDescriptors (CaloSuperCellDetDescrManager* mgr,
   std::vector<DescrMinMax> descr_minmax (maxdesc);
 
   // Loop over cells and record range limits for each descriptor.
-  for (CaloDetDescrElement* elt : mgr->element_range()) {
+  for (const CaloDetDescrElement* elt : mgr->element_range()) {
     if (!elt) continue;
     CaloDetDescriptor* desc = const_cast<CaloDetDescriptor*>(elt->descriptor());
     int ndx = descr_index (desc, mgr);
@@ -268,11 +271,11 @@ CaloSuperCellAlignTool::updateDescriptors (CaloSuperCellDetDescrManager* mgr,
 
   // Loop over each descriptor and update.
   size_t i = 0;
-  for (CaloDetDescriptor* desc : mgr->calo_descriptors_range()) {
+  for (CaloDetDescriptor* desc : mgr->calo_descriptors_range_nonconst()) {
     updateDescriptor (desc, descr_minmax[i], cellmgr);
     ++i;
   }
-  for (CaloDetDescriptor* desc : mgr->tile_descriptors_range()) {
+  for (CaloDetDescriptor* desc : mgr->tile_descriptors_range_nonconst()) {
     updateDescriptor (desc, descr_minmax[i], cellmgr);
     ++i;
   }
