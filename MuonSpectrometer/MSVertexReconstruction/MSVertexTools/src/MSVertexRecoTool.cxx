@@ -121,8 +121,12 @@ namespace Muon {
   StatusCode MSVertexRecoTool::findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices) {
  
     SG::WriteHandle<xAOD::VertexContainer> xAODVxContainer(m_xAODContainerKey);
-    ATH_CHECK( xAODVxContainer.record (std::make_unique<xAOD::VertexContainer>(),
-                           std::make_unique<xAOD::VertexAuxContainer>()) );
+    // the record method in release 21.3 does not automatically set the aux store while in master it does
+    auto tmp_con = std::make_unique<xAOD::VertexContainer>();
+    auto tmp_aux = std::make_unique<xAOD::VertexAuxContainer>();
+    tmp_con->setStore(tmp_aux.get());
+    ATH_CHECK( xAODVxContainer.record (std::move(tmp_con),
+                           std::move(tmp_aux)) );
 
 
     //if there are fewer than 3 tracks, vertexing not possible
