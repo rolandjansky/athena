@@ -20,6 +20,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "TSystem.h"
 #include "fstream"
 
@@ -819,17 +821,9 @@ StatusCode TrigBtagEmulationTool::addEmulatedChain(const std::vector<std::string
 //!==========================================================================        
 
 StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
-#ifdef XAOD_STANDALONE
-  const char* inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
-  if ( std::string( inputFileFolder ).find( "atlas-nightlies.cern.ch")!=std::string::npos )
-    inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
-#else
-  const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
-#endif
-
-  std::string nameFile_2015 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2015Menu.txt",inputFileFolder);
-  std::string nameFile_2016 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2016Menu.txt",inputFileFolder);
-  std::string nameFile_2017 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2017Menu.txt",inputFileFolder);
+  const std::string nameFile_2015 = PathResolverFindDataFile( "TrigBtagEmulationTool/triggerChains_2015Menu.txt" );
+  const std::string nameFile_2016 = PathResolverFindDataFile( "TrigBtagEmulationTool/triggerChains_2016Menu.txt" );
+  const std::string nameFile_2017 = PathResolverFindDataFile( "TrigBtagEmulationTool/triggerChains_2017Menu.txt" );
 
   // *** 2015 Chains
   std::ifstream file2015; file2015.open( nameFile_2015.c_str() );

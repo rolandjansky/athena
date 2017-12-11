@@ -52,6 +52,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Trigger/TrigAnalysis/TrigDecisionTool
 			  Trigger/TrigConfiguration/TrigConfHLTData
 			  Trigger/TrigEvent/TrigSteeringEvent
+			  Tools/PathResolver
 			  ${extra_include_public_dirs}
 			  PRIVATE
 			  Event/EventPrimitives
@@ -70,7 +71,7 @@ if ( XAOD_STANDALONE )
                       TrigBtagEmulationTool/*.h Root/*.cxx
                       PUBLIC_HEADERS TrigBtagEmulationTool
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} PATCoreLib AsgTools xAODBTagging xAODEventInfo xAODJet ParticleJetToolsLib xAODTracking xAODTrigger TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent EventPrimitives ${extra_include_public_libs} ${extra_include_private_libs} )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} PATCoreLib AsgTools xAODBTagging xAODEventInfo xAODJet ParticleJetToolsLib xAODTracking xAODTrigger TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent EventPrimitives PathResolver ${extra_include_public_libs} ${extra_include_private_libs} )
 
    atlas_install_headers( TrigBtagEmulationTool )
 
@@ -85,7 +86,7 @@ else()
                         Root/*.cxx
                         src/*.cxx src/components/*.cxx
                         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                        LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} PATCoreLib AsgTools xAODBTagging xAODEventInfo xAODJet ParticleJetToolsLib xAODTracking xAODTrigger TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent EventPrimitives ${extra_include_public_libs} ${extra_include_private_libs} )
+                        LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} PATCoreLib AsgTools xAODBTagging xAODEventInfo xAODJet ParticleJetToolsLib xAODTracking xAODTrigger TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent EventPrimitives PathResolver ${extra_include_public_libs} ${extra_include_private_libs} )
 endif()
 
 
