@@ -59,19 +59,22 @@ namespace ROIB {
      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfoKey", "EventInfo", "Event info object "};
 
      SG::ReadHandleKeyArray< SlinkWordDV > m_caloEMTauLocation{ this,   "CaloEMTauLocation", 
-	 { LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"0", LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"1", LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"2", LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"3"  }, 
+	 { LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"0", 
+	   LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"1", 
+	   LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"2", 
+	   LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"3"  }, 
 	 "StoreGate location of EmTau inputs" };
+
      SG::ReadHandleKeyArray< SlinkWordDV > m_caloJetEnergyLocation{ this, "CaloJetEnergyLocation", 
-	 { LVL1::TrigT1CaloDefs::jepSlinkLocation+"0", LVL1::TrigT1CaloDefs::jepSlinkLocation+"0" },
+	 { LVL1::TrigT1CaloDefs::jepSlinkLocation+"0", 
+	   LVL1::TrigT1CaloDefs::jepSlinkLocation+"1" },
 	 "StoreGate location of JetEnergy inputs" };
 
      SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muctpiSLinkLocation{ this, "MuCTPISLinkLocation",
 									  LVL1MUCTPI::DEFAULT_MuonRoIBLocation,
 									  "StoreGate location of MuCTPI inputs" };
      
-     SG::WriteHandleKey<RoIBResult> m_roibRDOLocation{ this, "RoIBRDOLocation",  
-	 ROIB::DEFAULT_RoIBRDOLocation,
-	 "StoreGate location of RoIB RDO" };
+     SG::WriteHandleKey<RoIBResult> m_roibRDOLocation{ this, "RoIBRDOLocation", ROIB::DEFAULT_RoIBRDOLocation,  "StoreGate location of RoIB RDO" };
 
    }; // class RoIBuilder
 

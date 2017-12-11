@@ -1,7 +1,6 @@
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Constants import DEBUG
+
 from TrigT1RoIB.TrigT1RoIBConf import ROIB__RoIBuilder
 
 class DefaultRoIBuilder(ROIB__RoIBuilder):
@@ -10,7 +9,6 @@ class DefaultRoIBuilder(ROIB__RoIBuilder):
     def __init__(self, name = "DefaultRoIBuilder"):
         super( DefaultRoIBuilder, self ).__init__( name )
 
-        self.OutputLevel=DEBUG
 
     def setDefaults(self, handle):
 

@@ -108,11 +108,9 @@ namespace ROIB {
       //
 
       auto eventInfoHandle = SG::makeHandle( m_eventInfoKey );
-      ATH_MSG_INFO (" StoreGate content before  \n"
-      		    << evtStore()->dump());
       CHECK( eventInfoHandle.isValid() );
       const xAOD::EventInfo* thisEvent = eventInfoHandle.cptr();
-      // Note we are loosing preciosn here as we cast from 64 to 32 bits integer
+      // Note we are loosing precision here as we cast from 64 to 32 bits integer
       // but this is constraint imposed by: Trigger/TrigT1/TrigT1Result/TrigT1Result/Header.h
       const int evtNum = static_cast<int>(thisEvent->eventNumber());
       ATH_MSG_VERBOSE( "Event number is: " << evtNum );
@@ -134,7 +132,6 @@ namespace ROIB {
       // create data element
       std::vector< unsigned int > ctp_rdo_data;
 
-      // Try to retrieve CTP result from StoreGate:
       bool ctp_simulation_error = false;
       auto ctpSlinkHandle = SG::makeHandle( m_ctpSLinkLocation );      
       CHECK( ctpSlinkHandle.isValid() );
@@ -145,7 +142,7 @@ namespace ROIB {
 	ctp_simulation_error = true;
 	REPORT_MESSAGE( MSG::WARNING )
 	  << "CTP size is zero. No header, trailer, data element";
-	//} else if( ctp_slink->getDataElements().size() != LVL1CTP::CTPSLink::wordsPerCTPSLink ) {
+
       } else if( ctp_slink->getDataElements().size() != ctp_slink->getNumWordsPerCTPSLink() ) {
 	ctp_simulation_error = true;
 	REPORT_MESSAGE( MSG::WARNING )
@@ -193,7 +190,7 @@ namespace ROIB {
             }
          }
 
-         // perpare trailer
+         // prepare trailer
          ctp_rdo_trailer = ctp_slink->getTrailer();
       }
 
@@ -226,9 +223,8 @@ namespace ROIB {
          bool emtau_simulation_error = false;
          const DataVector< LVL1CTP::SlinkWord >* emtau_slink = 0;
 
-         // get slink from storegate
          if( m_doCalo ) {
-	   ATH_MSG_INFO("Reading " <<  m_caloEMTauLocation[slink].key() );
+	   ATH_MSG_VERBOSE("Reading " <<  m_caloEMTauLocation[slink].key() );
 	   auto handle = SG::makeHandle( m_caloEMTauLocation[slink] );
 	   CHECK( handle.isValid() );
 	   emtau_slink  = handle.cptr();	   
@@ -247,8 +243,7 @@ namespace ROIB {
 	       EMTauRoI emtau_roi( ( *itr )->word() );
 	       emtau_rdo_data.push_back( emtau_roi );
 	       ATH_MSG_DEBUG( "EmTau RoI  = " << MSG::hex << std::setw( 8 )
-			      << emtau_roi.roIWord() );
-	       
+			      << emtau_roi.roIWord() );	       
 	     }
 	   }
          
@@ -290,7 +285,6 @@ namespace ROIB {
          bool jetenergy_simulation_error = false;
          const DataVector< LVL1CTP::SlinkWord >* jetenergy_slink = 0;
 
-         // get slink from storegate
          if( m_doCalo ) {
 	   auto handle = SG::makeHandle( m_caloJetEnergyLocation[slink] );
 	   CHECK( handle.isValid() );
@@ -322,7 +316,7 @@ namespace ROIB {
 
 
 
-         // Now wrap up the jetenergy triggers:
+         // Now wrap up the jet energy triggers:
          Trailer jetenergy_rdo_trailer( 0, 0 );
          if( !jetenergy_simulation_error ) {
             jetenergy_rdo_trailer.setNumDataWords( jetenergy_rdo_data.size() );
@@ -351,7 +345,6 @@ namespace ROIB {
       bool muctpi_simulation_error = false;
       const L1MUINT::MuCTPIToRoIBSLink* muctpi_slink = 0;
 
-      // get slink from storegate
       if( m_doMuon ) {
 	auto handle = SG::makeHandle( m_muctpiSLinkLocation );
 	CHECK( handle.isValid() );
@@ -412,11 +405,8 @@ namespace ROIB {
       //
       auto roibHandle = SG::makeHandle( m_roibRDOLocation );
       CHECK( roibHandle.record( std::move( roib_rdo_result ) ) );
-      // no owerwite possible now
+      // no owerwrite possible with DataHandles
 
-      //
-      // Return happily:
-      //
       return StatusCode::SUCCESS;
    }
 
