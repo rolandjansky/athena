@@ -166,36 +166,6 @@ namespace ViewHelper
     return StatusCode::SUCCESS;
   }
 
-  //Function to attach a set of views to a graph node
-  inline StatusCode ScheduleContexts( std::vector< EventContext > const& ContextVector, std::string const& NodeName,
-      EventContext const& InputContext, IScheduler * Scheduler )
-  {
-    if ( !Scheduler )
-    {
-      return StatusCode::FAILURE;
-    }
-
-    if ( ContextVector.size() )
-    {
-      for ( EventContext viewContext : ContextVector )
-      {
-        //Attach the view context to the named node
-        StatusCode sc = Scheduler->scheduleEventView( &InputContext, NodeName, &viewContext );
-        if ( !sc.isSuccess() )
-        {
-          return StatusCode::FAILURE;
-        }
-      }
-    }
-    else
-    {
-      //Disable the node if no views
-      return Scheduler->scheduleEventView( &InputContext, NodeName, 0 );
-    }
-
-    return StatusCode::SUCCESS;
-  }
-
   // a variant of RunViews accepting ready to use contexts
   // useful when contexts neeed to be made anyways for the purpose of filling the handles
   // to avoid confusion it start from small run

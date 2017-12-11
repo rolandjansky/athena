@@ -18,7 +18,6 @@ enum RoIsInView { BareRoIDescriptor = 0, CollectionWithOneElement = 1, Collectio
 
 TestViewDriver::TestViewDriver( const std::string& name, ISvcLocator* pSvcLocator )
   : AthAlgorithm( name, pSvcLocator ) {
-   
 }
 
 StatusCode TestViewDriver::initialize( ) {
@@ -41,13 +40,13 @@ StatusCode TestViewDriver::execute( ) {
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {
 
-    contexts.push_back( getContext( ) );    
+    contexts.push_back( getContext( ) );
     viewVector->push_back( ViewHelper::makeView( name( )+"_view", viewCounter++ ) );
     contexts.back( ).setExtension( Atlas::ExtendedEventContext( viewVector->back( ),
                                                                 conditionsRun));
 
-    
-    auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );    
+
+    auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );
     oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
     oneRoIColl->push_back( roi );
     auto handle = SG::makeHandle( m_roisViewOutput, contexts.back( ) );
@@ -58,10 +57,10 @@ StatusCode TestViewDriver::execute( ) {
 
 
   // Run the views
-  CHECK( ViewHelper::ScheduleContexts( contexts,
-				 m_viewNodeName,
-                                 getContext(),
-				 m_scheduler.get() ) );
+  CHECK( ViewHelper::ScheduleViews( *viewVector,
+                                    m_viewNodeName,
+                                    getContext(),
+                                    m_scheduler.get() ) );
 
   ATH_MSG_DEBUG( "Execution in " << viewVector->size( ) << " Views performed" );
   
@@ -80,7 +79,7 @@ StatusCode TestViewDriver::execute( ) {
     for ( auto cluster: *handle.get( ) ) {
       ATH_MSG_DEBUG( "Cluster of ET " << TestEDM::getClusterEt( cluster ) );
       //outputClusterContainer->push_back(cluster);  // FIXME this is not as simple, we need some trick to do copy
-    }    
+    }
   }
 
   // for now we are not outputting

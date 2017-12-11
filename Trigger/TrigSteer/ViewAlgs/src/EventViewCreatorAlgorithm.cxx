@@ -98,11 +98,10 @@ StatusCode EventViewCreatorAlgorithm::execute()
 
   }
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  // Run the views
-  CHECK( ViewHelper::ScheduleContexts( contexts,           // Vector containing views
-				 m_viewNodeName,           // CF node to attach views to
-                                 ctx,                      // Source context
-				 m_scheduler.get() ) );
+  CHECK( ViewHelper::ScheduleViews( *viewVector,           // Vector containing views
+         m_viewNodeName,                                   // CF node to attach views to
+         ctx,                                              // Source context
+         m_scheduler.get() ) );
   
   // store views
   auto viewsHandle = SG::makeHandle( m_viewsKey );
