@@ -79,7 +79,7 @@ class TriggerPeriodData:
     }
     
     grlroot = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
-    y2017grlpath = grlroot+"data17_13TeV/20171103/data17_13TeV.periodAllYear_DetStatus-v96-pro21-12_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
+    y2017grlpath = grlroot+"data17_13TeV/20171130/data17_13TeV.periodAllYear_DetStatus-v97-pro21-13_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
     y2016grlpath = grlroot+"data16_13TeV/20170605/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
     y2015grlpath = grlroot+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
     def __init__(self, period):
