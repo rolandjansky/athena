@@ -68,9 +68,6 @@ namespace Muon {
     /** sector mapping helper */
     MuonSectorMapping m_sectorMapping;
 
-    /** collection cache name */
-    std::string m_containerName;
-
   };
 }
 

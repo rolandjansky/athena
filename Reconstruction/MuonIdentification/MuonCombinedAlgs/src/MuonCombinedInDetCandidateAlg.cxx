@@ -6,6 +6,8 @@
 #include "MuonCombinedInDetCandidateAlg.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 //#include "MuonCombinedToolInterfaces/IInDetCandidateTool.h"
+#include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
+#include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
 using namespace MuonCombined;
@@ -13,12 +15,14 @@ using namespace MuonCombined;
 MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_doSiliconForwardMuons(false),
-  m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool")
+  m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool"),
+  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool")
 {  
   declareProperty("TrackSelector", m_trackSelector);
   declareProperty("InDetForwardTrackSelector", m_forwardTrackSelector);
   declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = {"InDetTrackParticles"});
   declareProperty("ForwardParticleLocation",m_indetForwardTrackParticleLocation = "InDetForwardTrackParticles");
+  declareProperty("MuonSystemExtensionTool",m_muonSystemExtensionTool );
   declareProperty("InDetCandidateLocation", m_candidateCollectionName = "InDetCandidates");
   declareProperty("DoSiliconAssocForwardMuons", m_doSiliconForwardMuons = false);
 }
@@ -28,6 +32,7 @@ MuonCombinedInDetCandidateAlg::~MuonCombinedInDetCandidateAlg(){}
 StatusCode MuonCombinedInDetCandidateAlg::initialize()
 {
   ATH_CHECK(m_trackSelector.retrieve());
+  ATH_CHECK(m_muonSystemExtensionTool.retrieve());
   ATH_CHECK(m_indetTrackParticleLocation.initialize());
   ATH_CHECK(m_indetForwardTrackParticleLocation.initialize());
   ATH_CHECK(m_candidateCollectionName.initialize());
@@ -111,6 +116,11 @@ void MuonCombinedInDetCandidateAlg::create( const xAOD::TrackParticleContainer& 
     InDetCandidate* candidate = new InDetCandidate(link);
     if (flagCandidateAsSiAssociated)
       candidate->setSiliconAssociated(true);
+    else{ //Si-associated candidates don't need these
+      const Muon::MuonSystemExtension* muonSystemExtension = 0;
+      m_muonSystemExtensionTool->muonSystemExtension( candidate->indetTrackParticle(), muonSystemExtension );
+      candidate->setExtension(muonSystemExtension);
+    }
     ++ntracks;
     outputContainer.push_back(candidate);
   }
