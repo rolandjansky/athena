@@ -5,8 +5,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #ifndef Jet_Manager_H
 #define Jet_Manager_H
 
-#include "TrigBtagEmulationTool/feature.h"
-#include "TrigBtagEmulationTool/baseTrigBtagEmulationChainJetIngredient.h"
+#include "TrigBtagEmulationTool/TriggerFeature.h"
+#include "TrigBtagEmulationTool/BaseTrigBtagEmulationChainJetIngredient.h"
 
 // EDM
 #include "xAODEventInfo/EventInfo.h"
@@ -24,24 +24,33 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 
-#ifndef XAOD_STANDALONE
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
+
+// If running Standalone
+#ifdef XAOD_STANDALONE
+#include "TrigConfxAOD/xAODConfigTool.h"
+// If using Analysis Release
+#elif defined( XAOD_ANALYSIS )
+#include "StoreGate/StoreGateSvc.h"
+// If using Athena
+#else
+#include "StoreGate/StoreGateSvc.h"
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
-#include "StoreGate/StoreGateSvc.h"
-#else
-#include "TrigConfxAOD/xAODConfigTool.h"
 #endif
 
-#include "TrigDecisionTool/TrigDecisionTool.h"
+
+
 
 namespace Trig {
 
-  class jetManager {
+  class JetManager {
   public:
-    jetManager(ToolHandle<Trig::TrigDecisionTool>&,std::string,std::string,std::string);
-    jetManager(const jetManager&);
-    ~jetManager();
+    JetManager(ToolHandle<Trig::TrigDecisionTool>&,std::string,std::string,std::string);
+    JetManager(const JetManager&);
+    ~JetManager();
 
     void setKeys(std::string,std::string,std::string);
 
@@ -59,8 +68,8 @@ namespace Trig {
     StatusCode retagOffline();
     StatusCode retagOnline();
 
-    jetManager& operator+=(const jetManager&);
-    jetManager& merge(const std::vector<const xAOD::Jet*>&, double minPt = 0, double maxPt = 0);
+    JetManager& operator+=(const JetManager&);
+    JetManager& merge(const std::vector<const xAOD::Jet*>&, double minPt = 0, double maxPt = 0);
 
   private:
     bool clear();
@@ -96,7 +105,7 @@ namespace Trig {
   private:
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
-#ifndef XAOD_STANDALONE
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
   public:
     static ToolHandle< Analysis::IBTagTool >* m_bTagTool;
     static ToolHandle< Analysis::IBTagTrackAssociation >* m_bTagTrackAssocTool;

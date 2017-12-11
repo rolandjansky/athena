@@ -21,294 +21,185 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "TSystem.h"
+#include "fstream"
 
 // FrameWork includes
-#ifndef XAOD_STANDALONE
-#include "GaudiKernel/Property.h"
-#else
+
+#ifdef XAOD_STANDALONE
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include <AsgTools/MessageCheck.h>
+
+#elif !defined( XAOD_ANALYSIS )
+#include "GaudiKernel/Property.h"
 #endif
 
-#include "fstream"
 
 using namespace Trig;
 
 //**********************************************************************
 
 TrigBtagEmulationChain::TrigBtagEmulationChain(const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec) 
-  : m_trigDec(trigDec), 
-    m_jetCount(0), 
-    m_bjetCount(0) {
+  : m_name( chainDefinition.size() != 0 ? chainDefinition.at(0) : "NoTriggerName" ),
+    m_trigDec(trigDec),
+    m_correctlyConfigured(true),
+    m_autoConfigured(false) {
+
+  // Parser if only trigger name is specified, w/o sub-triggers
+  std::vector< std::string > m_chains( chainDefinition.begin(),chainDefinition.end() );
+
+  // Automatic Parser
+  if (m_chains.size() == 1) {
+    m_autoConfigured = true;
+
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > triggerSubComponents;
+    if ( !parseChainName( chainDefinition.at(0), triggerSubComponents ) ) 
+      m_correctlyConfigured = false;
+
+    for (unsigned int i=0; i<triggerSubComponents.size(); i++)
+      addDecisionIngredient( triggerSubComponents.at(i) );
+
+    return;
+  }
 
   // Prepare loop on ingredients
-  std::vector<std::string>::const_iterator name=chainDefinition.begin(), nameEnd=chainDefinition.end();
-
-  // Extract first entry = name
-  m_name = *name;
-  name++;
-
-  // Extract basic configuration info fron name (configuration and tagger)
-  if(m_name.find("split") != std::string::npos ) {
-    m_bjetConfig = "SPLIT";
-  } else {
-    m_bjetConfig = "NONSPLIT";
-  }
-
-  if(m_name.find("mv2c10") != std::string::npos) 
-    m_bjetTagger = "MV2c10";
-  else if(m_name.find("mv2c20") != std::string::npos) 
-    m_bjetTagger = "MV2c20";
-  else 
-    m_bjetTagger = "COMB";
+  std::vector<std::string>::const_iterator name=m_chains.begin();
   
-
   // Loop on ingredents
-  for( ; name!=nameEnd; name++) {
+  for( ; name!=m_chains.end(); name++) {
+    if (name == m_chains.begin()) continue;
 
-    // Handle emulated L1
-    if(name->find("EMUL_L1")!=std::string::npos) {
-      float min_pt  = 0.;
-      float min_eta = 0.0;
-      float max_eta = 3.1;
-      unsigned int min_mult = 1;
-      float min_ht = 0;
-      unsigned int topEt = 0;
-      float min_invm = 0;
-      bool isJJ = false;
-      bool isCF = false;
-
-      // Loop on tokens
-      std::istringstream sname(*name);
-      std::string token;
-      while(std::getline(sname, token, '_')) {
-	// Loop on subtokens
-	if(token.find("J")!=std::string::npos) {
-	  std::istringstream ssname(token);
-	  std::string stoken;
-
-	  if (token.find("HT")!=std::string::npos) {
-	    std::getline(ssname, stoken, '-');
-	    std::istringstream s_ht(stoken.substr(stoken.find("HT")+2,stoken.length()-stoken.find("HT")-2));
-	    s_ht >> min_ht;
-	  }
-
-	  while(std::getline(ssname, stoken, '.')) {
-
-	    if (stoken.find("MJJ")!=std::string::npos) {
-	      // Change eta so that the whole range is considered in the computation
-	      max_eta = 4.9;
-	      std::istringstream s_min_invm(stoken.substr(stoken.find("MJJ-")+4,stoken.length()-stoken.find("MJJ-")-4));
-	      s_min_invm >> min_invm;
-	      if (stoken.find("-CF")!=std::string::npos) isCF = true;
-	    }
-	    else if (stoken.find("JJ")!=std::string::npos) {
-	      std::istringstream s_min_pt(stoken.substr(stoken.find("JJ-")+3,stoken.length()-stoken.find("JJ-")-3));
-	      s_min_pt >> min_pt;
-	      isJJ = true;
-	    }
-	    // pt and mult for L1
-	    else if(stoken.find("J")!=std::string::npos) {
-              // Jxxx                                                                                                                                            
-              if(stoken.find("s")==std::string::npos) {
-		std::istringstream s_min_pt(stoken.substr(stoken.find("J")+1,stoken.length()-stoken.find("J")-1));
-                s_min_pt >> min_pt;
-              } else {
-		std::istringstream s_topEt(stoken.substr(stoken.find("s")+1,stoken.length()-stoken.find("s")-1));
-		std::istringstream s_min_pt(stoken.substr(stoken.find("J")+1,stoken.find("s")-stoken.find("J")-1));
-                s_topEt >> topEt;
-                s_min_pt >> min_pt;
-              }
-              // xxxJ                                                                                                                                            
-              if(stoken.find("J")>0) {
-		std::istringstream s_min_mult(stoken.substr(0,stoken.find("J")));
-                s_min_mult >> min_mult;
-              }
-            }
-	    
-	    // eta for L1
-	    else if(stoken.find("ETA")!=std::string::npos) {
-	      std::istringstream s_min_eta(stoken.substr(0,stoken.find("E")));
-	      s_min_eta >> min_eta; min_eta /= 10.0;
-	      std::istringstream s_max_eta(stoken.substr(stoken.find("A")+1,stoken.length()-stoken.find("A")-1));
-	      s_max_eta >> max_eta; max_eta /= 10.0;
-	    }
-
-	  }
-	}
-      }
-      if (isJJ) addL1JJJetIngredient(sname.str(),min_pt, min_eta, max_eta, min_mult, min_ht,topEt,min_invm,isCF);
-      else addL1JetIngredient(sname.str(),min_pt, min_eta, max_eta, min_mult, min_ht,topEt,min_invm,isCF);
-    }
-    // Handle emulated HLT
-    else if(name->find("EMUL_HLT")!=std::string::npos) {
-      float min_pt = 0.;
-      float min_eta=0.0;
-      float max_eta=3.2;
-      float min_weight = -1000;
-      float anti_weight = 1000;
-      unsigned int min_mult=1;
-      float min_ht = 0;
-      float min_gsc = 0;
-      float min_invm = 0;
-      bool bjet=false;
-
-      // Loop on tokens
-      std::istringstream sname(*name);
-      std::string token;
-      while(std::getline(sname, token, '_')) {
-	if(token.find("ht")!=std::string::npos) {
-	  std::istringstream s_min_ht(token.substr(token.find("ht")+2,token.length()-token.find("ht")-2));
-	  s_min_ht >> min_ht;
-	}
-
-	if (token.find("gsc")!=std::string::npos) {
-	  std::istringstream s_min_gsc(token.substr(token.find("gsc")+3,token.length()-token.find("gsc")-3));
-          s_min_gsc >> min_gsc;
-        }
-	
-	if (token.find("invm")!=std::string::npos) {
-	  std::istringstream s_min_invm(token.substr(token.find("invm")+4,token.length()-token.find("invm")-4));
-	  s_min_invm >> min_invm;
-	}
-
-	// pt and mult for HLT
-	if(token.find("j")!=std::string::npos) {
-	  std::istringstream s_min_pt(token.substr(token.find("j")+1,token.length()-token.find("j")-1));
-	  s_min_pt >> min_pt;
-	  if(token.find("j")>0) {
-	    std::istringstream s_min_mult(token.substr(0,token.find("j")));
-	    s_min_mult >> min_mult;
-	  }
-	}
-	// eta for HLT
-	if(token.find("eta")!=std::string::npos) {
-	  std::istringstream s_min_eta(token.substr(0,token.find("e")));
-	  s_min_eta >> min_eta; min_eta /= 100.0;
-	  std::istringstream s_max_eta(token.substr(token.find("a")+1,token.length()-token.find("a")-1));
-	  s_max_eta >> max_eta; max_eta /= 100.0;
-	}
-	// weight for HLT
-	if(token.find("b")!=std::string::npos) {
-	  bjet=true;
-	  double theWeight = -1000;
-
-	  if(token.find("bcombloose")!=std::string::npos) theWeight=0.25;
-	  else if(token.find("bcombmedium")!=std::string::npos) theWeight=1.25;
-          else if(token.find("bcombtight")!=std::string::npos) theWeight=2.65;
-	  else if(token.find("bloose")!=std::string::npos) theWeight=0.25;
-	  else if(token.find("bmedium")!=std::string::npos) theWeight=1.25;
-	  else if(token.find("btight")!=std::string::npos) theWeight=2.65;
-	  else if(token.find("mv2c2040")!=std::string::npos) theWeight=0.75;
-	  else if(token.find("mv2c2050")!=std::string::npos) theWeight=0.5;
-	  else if(token.find("mv2c2060")!=std::string::npos) theWeight=-0.0224729;
-	  else if(token.find("mv2c2070")!=std::string::npos) theWeight=-0.509032;
-	  else if(token.find("mv2c2077")!=std::string::npos) theWeight=-0.764668;
-	  else if(token.find("mv2c2085")!=std::string::npos) theWeight=-0.938441;
-	  // mv2c10 cuts: https://indico.cern.ch/event/642743/contributions/2612294/attachments/1468496/2271441/BJetTrigTuning_TGM31May2017.pdf 
-	  else if(token.find("mv2c1040")!=std::string::npos) theWeight=0.978;
-          else if(token.find("mv2c1050")!=std::string::npos) theWeight=0.948;
-          else if(token.find("mv2c1060")!=std::string::npos) theWeight=0.846;
-          else if(token.find("mv2c1070")!=std::string::npos) theWeight=0.58;
-          else if(token.find("mv2c1077")!=std::string::npos) theWeight=0.162;
-          else if(token.find("mv2c1085")!=std::string::npos) theWeight=-0.494;
-
-	  if (token.find("ANTI")==std::string::npos) min_weight = theWeight;
-	  else if (theWeight != -1000) anti_weight = theWeight;
-	}
-
-      }
-      // Converting numbers to MeV
-      if(!bjet) addHLTJetIngredient(sname.str(),min_pt*1000.0, min_eta, max_eta, min_mult, min_ht*1000, min_gsc*1000, min_invm*1000); //TODO Use GeV
-      else addHLTBjetIngredient(sname.str(),min_pt*1000.0, min_eta, max_eta, m_bjetTagger, min_weight, min_mult, min_ht*1000, min_gsc*1000, anti_weight, min_invm*1000); 
-    }
     // Handle already available L1 or HLT decision
-    else if((name->find("L1_")!=std::string::npos) || (name->find("HLT_")!=std::string::npos)) {
+    if( name->find("EMUL_")==std::string::npos )
       addDecisionIngredient(*name);
-    }
-
+    // Handle emulated L1
+    else if ( name->find("-JJ")!=std::string::npos )
+      addDecisionIngredient( new TrigBtagEmulationChainJetIngredient_L1_JJ(*name) );
+    else if ( name->find("EMUL_L1")!=std::string::npos ) 
+      addDecisionIngredient( new TrigBtagEmulationChainJetIngredient_L1(*name) );
+    // Handle emulated HLT
+    else if ( name->find("gsc")!=std::string::npos )
+      addDecisionIngredient( new TrigBtagEmulationChainJetIngredient_GSC(*name) );
+    else if ( name->find("EMUL_HLT")!=std::string::npos )
+      addDecisionIngredient( new TrigBtagEmulationChainJetIngredient_HLT(*name) );
+    // Handle not recognized cases
+    else 
+      m_correctlyConfigured = false;
   }
+
+  for (unsigned int i = 0; i < m_ingredientsJet.size(); i++)
+    m_ingredientsJet.at(i)->initialize();
 }
 
 void TrigBtagEmulationChain::addDecisionIngredient(std::string decision) { m_ingredientsDecision.push_back(decision); }
+void TrigBtagEmulationChain::addDecisionIngredient(BaseTrigBtagEmulationChainJetIngredient* decision) { m_ingredientsJet.push_back( decision ); }
 
-void TrigBtagEmulationChain::addL1JetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm, bool isCF) {
-  TrigBtagEmulationChainJetIngredient_L1 *ing = new TrigBtagEmulationChainJetIngredient_L1(triggerName,min_pt,min_eta,max_eta,min_mult);
+bool TrigBtagEmulationChain::parseChainName( std::string triggerName, std::vector< BaseTrigBtagEmulationChainJetIngredient* >& trigger_subComponents) {
+  std::vector< std::string > parsedTriggers;
 
-  feature_ht *ht_feat;
-  if (topEt == 0) ht_feat = new feature_ht("L1","HT",min_ht);
-  else ht_feat = new feature_ht_top("L1","HT",min_ht,topEt);
-  ht_feat->setCuts(min_pt,min_eta,max_eta);
+  if ( triggerName.find("_AND_")!=std::string::npos ) {
+    std::string trigger_AND_trigA = triggerName.substr( 0,triggerName.find("_AND_") );
+    std::string trigger_AND_trigB = "HLT_" + triggerName.substr( triggerName.find("_AND_") + 5, triggerName.length() - triggerName.find("_AND_") - 5 );
+    parsedTriggers.push_back( trigger_AND_trigA );
+    parsedTriggers.push_back( trigger_AND_trigB );
+  } else parsedTriggers.push_back( triggerName );
 
-  feature_invm *invm_feat;
-  if (!isCF) invm_feat = new feature_invm("L1","MJJ",min_invm);
-  else invm_feat = new feature_invm_CF("L1","MJJ",min_invm);
-  invm_feat->setCuts(min_pt,min_eta,max_eta);
-  if (min_invm != 0) ing->addFeature( "MJJ",invm_feat );
+  for (unsigned int i(0); i<parsedTriggers.size(); i++) {
+    triggerName = parsedTriggers.at(i);
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > tmp_trigger_subComponents;
 
-  if (min_ht != 0) ing->addFeature( "HT", ht_feat );
-  m_ingredientsL1Jet.push_back(ing);
+    if (triggerName.find("HLT_")!=std::string::npos) tmp_trigger_subComponents = processHLTtrigger( triggerName );
+    else if (triggerName.find("L1_")!=std::string::npos) tmp_trigger_subComponents = processL1trigger( triggerName );
+    else m_correctlyConfigured = false;
+
+    trigger_subComponents.insert( trigger_subComponents.end(), tmp_trigger_subComponents.begin(), tmp_trigger_subComponents.end());
+  }
+
+  return true;
 }
 
-void TrigBtagEmulationChain::addL1JJJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF) {
-  TrigBtagEmulationChainJetIngredient_L1_JJ *ing = new TrigBtagEmulationChainJetIngredient_L1_JJ(triggerName,min_pt,min_eta,max_eta,min_mult);
+std::vector< BaseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::processL1trigger (std::string input) {
+  std::vector< BaseTrigBtagEmulationChainJetIngredient* > output;
+
+  while ( !input.empty() ) {
+    std::string subString = "";
+
+    bool hasSeparation = input.find("_") != std::string::npos;
+    subString = hasSeparation ? input.substr( 0,input.find("_") ) : input;
+    input = hasSeparation ? input.substr( input.find("_") + 1 , input.length() - input.find("_") -1 ) : "";
+
+    if (subString == "L1") continue;
+    else output.push_back( new TrigBtagEmulationChainJetIngredient_L1("EMUL_L1_" + subString) );
+    output.at( output.size() - 1)->initialize();
+  }
+
+  return output;
+}
+std::vector< BaseTrigBtagEmulationChainJetIngredient* > TrigBtagEmulationChain::processHLTtrigger (std::string input) {
+  std::vector< BaseTrigBtagEmulationChainJetIngredient* > output;
+
+  std::string L1component  = "";
+  std::string HLTcomponent = "";
+  if (input.find("L1") != std::string::npos) {
+    L1component  = input.substr( input.find("L1") , input.length() - input.find("L1") );
+    HLTcomponent = input.substr( 0 , input.find("L1") - 1);
+    L1component.replace( L1component.find("L1") + 2, 0 ,"_" );
+  }
+
+  // Deal with L1 Components
+  if ( !L1component.empty() ) {
+    std::vector< BaseTrigBtagEmulationChainJetIngredient* > trigger_L1 = processL1trigger( L1component );
+    output.insert( output.end(), trigger_L1.begin(), trigger_L1.end() );
+  }
+
+  // Deal with HLT components
+  std::vector< std::string > outputHLT_string;
+  if ( !L1component.empty() ) input = HLTcomponent;
+
+  while ( !input.empty() ) {
+    std::string subString = "";
+
+    bool hasSeparation = input.find("_")!=std::string::npos;
+    subString = hasSeparation ? input.substr( 0,input.find("_") ) : input;
+    input = hasSeparation ? input.substr( input.find("_") + 1 , input.length() - input.find("_") -1 ) : "";
+
+    if (subString == "HLT") continue;
+    else if (outputHLT_string.size() == 0) outputHLT_string.push_back( "EMUL_HLT_" + subString );
+    else if (subString.find("j") != std::string::npos) outputHLT_string.push_back( "EMUL_HLT_" + subString );
+    else outputHLT_string.at(outputHLT_string.size() - 1) +=  "_"+subString;
+  }
+
+  std::vector< TrigBtagEmulationChainJetIngredient_HLT* > triggers_HLT;
+  for (unsigned int i(0); i<outputHLT_string.size(); i++)
+    triggers_HLT.push_back( new TrigBtagEmulationChainJetIngredient_HLT( outputHLT_string.at(i) ) );
+  for (unsigned int i(0); i<triggers_HLT.size(); i++)
+    triggers_HLT.at(i)->initialize();
   
-  feature_ht *ht_feat;
-  if (topEt == 0) ht_feat = new feature_ht("L1","HT",min_ht);
-  else ht_feat = new feature_ht_top("L1","HT",min_ht,topEt);
-  ht_feat->setCuts(min_pt,min_eta,max_eta);
-
-  feature_invm *invm_feat;
-  if (!isCF) invm_feat = new feature_invm("L1","MJJ",min_invm);
-  else invm_feat = new feature_invm_CF("L1","MJJ",min_invm);
-  invm_feat->setCuts(min_pt,min_eta,max_eta);
-  if (min_invm != 0) ing->addFeature( "MJJ",invm_feat );
-
-  if (min_ht != 0) ing->addFeature( "HT", ht_feat );
-  m_ingredientsL1Jet.push_back(ing);
+  // Deal with overlapping HLT triggers
+  for (unsigned int i(0); i<triggers_HLT.size(); i++)
+    for (unsigned int j(i+1); j<triggers_HLT.size(); j++) {
+      if (triggers_HLT.at(i)->contains( triggers_HLT.at(j) ) ) triggers_HLT.at(i)->addJetsMulteplicity(triggers_HLT.at(j));
+      else if (triggers_HLT.at(j)->contains( triggers_HLT.at(i) ) ) triggers_HLT.at(j)->addJetsMulteplicity(triggers_HLT.at(i));
+      else if (triggers_HLT.at(i)->overlaps( triggers_HLT.at(j) ) ) m_correctlyConfigured = false;
+    }
+ 
+  output.insert( output.end(), triggers_HLT.begin(), triggers_HLT.end() );
+  return output;
 }
 
-void TrigBtagEmulationChain::addHLTJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, float min_gsc, float min_invm) {
-  TrigBtagEmulationChainJetIngredient_HLT *ing = nullptr;
-  if (min_gsc == 0) ing = new TrigBtagEmulationChainJetIngredient_HLT(triggerName,min_pt,min_eta,max_eta,min_mult);
-  else ing = new TrigBtagEmulationChainJetIngredient_GSC(triggerName,min_pt,min_gsc,min_eta,max_eta,min_mult);
+std::string TrigBtagEmulationChain::getName() const { return m_name; }
+bool TrigBtagEmulationChain::isCorrectlyConfigured() const { return m_correctlyConfigured; } 
+bool TrigBtagEmulationChain::isAutoConfigured() const { return m_autoConfigured; }
 
-  feature_ht *ht_feat = new feature_ht("HLT","HT",min_ht);
-  ht_feat->setCuts(min_pt,min_eta,max_eta);
-  if (min_ht != 0) ing->addFeature( "HT", ht_feat);
-
-  feature_invm *invm_feat = new feature_invm("HLT","INVM",min_invm);
-  invm_feat->setCuts(min_pt,min_eta,max_eta);
-  if (min_invm != 0) ing->addFeature( "INVM",invm_feat );
-
-  m_ingredientsHLTJet.push_back(ing);
-}
-
-void TrigBtagEmulationChain::addHLTBjetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta,std::string tagger, float min_weight, unsigned int min_mult, float min_ht, float min_gsc, float anti_weight, float min_invm) {
-  TrigBtagEmulationChainJetIngredient_HLT *ing = nullptr;
-  if (min_gsc == 0) ing = new TrigBtagEmulationChainJetIngredient_HLT(triggerName,min_pt,min_eta,max_eta,min_mult);
-  else ing = new TrigBtagEmulationChainJetIngredient_GSC(triggerName,min_pt,min_gsc,min_eta,max_eta,min_mult);
-
-  if (min_weight != -1000) ing->addFeature("BTAG",new feature_btag( tagger.c_str(),min_weight) );
-  if (anti_weight != 1000) ing->addFeature("ANTI-BTAG",new feature_antibtag( tagger.c_str(),anti_weight) );
-
-  feature_ht *ht_feat = new feature_ht("HLT","HT",min_ht);
-  ht_feat->setCuts(min_pt,min_eta,max_eta);
-  if (min_ht != 0) ing->addFeature( "HT", ht_feat);
-
-  feature_invm *invm_feat = new feature_invm("HLT","INVM",min_invm);
-  invm_feat->setCuts(min_pt,min_eta,max_eta);
-  if (min_invm != 0) ing->addFeature( "INVM",invm_feat );
-
-  m_ingredientsHLTJet.push_back(ing);
+std::vector< std::string > TrigBtagEmulationChain::retrieveAutoConfiguration() const {
+  std::vector< std::string > output( m_ingredientsDecision.begin(),m_ingredientsDecision.end() );
+  for (unsigned int i=0; i<m_ingredientsJet.size(); i++)
+    output.push_back( m_ingredientsJet.at(i)->getName() );
+  return output;
 }
 
 void TrigBtagEmulationChain::evaluate() {
-  for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-    m_ingredientsL1Jet.at(index)->evaluate();
-  
-  for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-    m_ingredientsHLTJet.at(index)->evaluate();
+  for (unsigned int index(0); index<m_ingredientsJet.size(); index++)
+    m_ingredientsJet.at(index)->evaluate();
 }
 
 bool TrigBtagEmulationChain::isPassed() {
@@ -316,59 +207,32 @@ bool TrigBtagEmulationChain::isPassed() {
   for(dec=m_ingredientsDecision.begin(); dec!=decEnd; dec++)
     if(!m_trigDec->isPassed(*dec)) return false;
 
-  for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-    if ( !m_ingredientsL1Jet.at(index)->isPassed() ) return false;
-
-  for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-    if ( !m_ingredientsHLTJet.at(index)->isPassed() ) return false;
+  for (unsigned int index(0); index<m_ingredientsJet.size(); index++)
+    if ( !m_ingredientsJet.at(index)->isPassed() ) return false;
 
   return true;
 }
 
 void TrigBtagEmulationChain::Print() {
   std::cout<<std::endl<<"### TRIGGER EMULATION ###"<<std::endl;
-  std::cout<<"###     L1"<<std::endl;
-  for (unsigned int i=0; i<m_ingredientsL1Jet.size();i++)
-    m_ingredientsL1Jet.at(i)->Print();
-  std::cout<<"###     HLT"<<std::endl;
-  for (unsigned int i=0; i<m_ingredientsHLTJet.size();i++)
-    m_ingredientsHLTJet.at(i)->Print();
+  for (unsigned int i=0; i<m_ingredientsJet.size();i++)
+    m_ingredientsJet.at(i)->Print();
 }
 
 bool TrigBtagEmulationChain::hasFeature(std::string feature) {
-  for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-    if ( m_ingredientsL1Jet.at(index)->hasFeature(feature) ) return true;
-  
-  for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-    if ( m_ingredientsHLTJet.at(index)->hasFeature(feature) ) return true;
-  
+  for (unsigned int index(0); index<m_ingredientsJet.size(); index++)
+    if ( m_ingredientsJet.at(index)->hasFeature(feature) ) return true;
   return false;
 }
 
 void TrigBtagEmulationChain::clear() {
-  for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-    m_ingredientsL1Jet.at(index)->clear();
-
-  for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-    m_ingredientsHLTJet.at(index)->clear();
+  for (unsigned int index(0); index<m_ingredientsJet.size(); index++)
+    m_ingredientsJet.at(index)->clear();
 }
 
-std::string TrigBtagEmulationChain::name() {return m_name;}
-
-/// Configuration accessors                                                                                                                                         
-bool TrigBtagEmulationChain::isSplit() {return (m_bjetConfig=="SPLIT");}
-bool TrigBtagEmulationChain::isIP3DSV1() {return (m_bjetTagger=="IP3DSV1");}
-bool TrigBtagEmulationChain::isCOMB() {return (m_bjetTagger=="COMB");}
-bool TrigBtagEmulationChain::isMV2c20() {return (m_bjetTagger=="MV2c20");}
-std::string TrigBtagEmulationChain::tagger() {return m_bjetTagger;}
-
 bool TrigBtagEmulationChain::addJet(std::string item,std::vector< struct TrigBtagEmulationJet >& jets) {
-  for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-    if (m_ingredientsL1Jet.at(index)->needsJet(item)) m_ingredientsL1Jet.at(index)->addJet(item,jets);
-
-  for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-    if (m_ingredientsHLTJet.at(index)->needsJet(item)) m_ingredientsHLTJet.at(index)->addJet(item,jets);
-
+  for (unsigned int index(0); index<m_ingredientsJet.size(); index++)
+    if (m_ingredientsJet.at(index)->needsJet(item)) m_ingredientsJet.at(index)->addJet(item,jets);
   return true;
 }
 
@@ -392,16 +256,14 @@ bool TrigBtagEmulationTool::checkTriggerChain(const std::vector<std::string>& to
 TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
   : AsgTool(name),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-#ifndef XAOD_STANDALONE
+#ifdef XAOD_STANDALONE
+#elif defined( XAOD_ANALYSIS )
     m_storeGate("StoreGateSvc", name),
-    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-    m_dsSvc("TrigConf::DSConfigSvc/DSConfigSvc", name),
+#else
+    m_storeGate("StoreGateSvc", name),
     m_bTagTool("Analysis::BTagTool"),
     m_bTagTrackAssocTool("Analysis::BTagTrackAssociation"),
     m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
-#else
-    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc"),
-    m_dsSvc("TrigConf::DSConfigSvc/DSConfigSvc"),
 #endif
     m_previousEvent(0),
     m_manager_ef(nullptr),
@@ -415,7 +277,7 @@ TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
     m_gscTrigger(false)
 {
 
-#ifndef XAOD_STANDALONE
+#if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
   declareProperty("BTagTool",            m_bTagTool);
   declareProperty("BTagTrackAssocTool",  m_bTagTrackAssocTool);
   declareProperty("BTagSecVertexing",    m_bTagSecVtxTool);
@@ -458,7 +320,7 @@ TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
 
   declareProperty("Verbosity",            m_verbosity=0);
 
-#ifdef XAOD_STANDALONE
+#if defined( XAOD_STANDALONE )
   declareProperty("TrigDecisionToolName", m_TrigDecToolName = "Trig::TrigDecisionTool/TrigDecisionTool");
   declareProperty("xAODConfigToolName"  , m_xAODConfToolName = "TrigConf::xAODConfigTool");
 #endif
@@ -472,24 +334,15 @@ StatusCode TrigBtagEmulationTool::initialize() {
 
   // RETRIEVE SERVICES
   // Retrieve StoreGate service
-  
   StatusCode sc;
 
-#ifndef XAOD_STANDALONE
+#if !defined( XAOD_STANDALONE )
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR( "Could not retrieve StoreGateSvc!" );
     return sc;
   }
 
-  // Retrieve the trigger configuration service
-  sc = m_configSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Could not retrieve Trigger configuration!" );
-    return sc;
-  }
-
-  std::cout<<"Retrieving TrigDecisionTool"<<std::endl;
   // Retrieve TrigDecisionTool
   sc = m_trigDec.retrieve();
   if ( sc.isFailure() ) {
@@ -513,16 +366,17 @@ StatusCode TrigBtagEmulationTool::initialize() {
       ToolHandle< TrigConf::ITrigConfigTool > trigConfigHandle( m_trigConfigTool );
       
       m_trigDec = new Trig::TrigDecisionTool( m_TrigDecToolName.c_str() );
-      ANA_CHECK(m_trigDec->setProperty( "ConfigTool", trigConfigHandle ) );
-      ANA_CHECK(m_trigDec->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
-      ANA_CHECK(m_trigDec->initialize() );
+      ANA_CHECK( m_trigDec->setProperty( "ConfigTool", trigConfigHandle ) );
+      ANA_CHECK( m_trigDec->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
+      ANA_CHECK( m_trigDec->initialize() );
     }
 
 #endif
 
 
-#ifndef XAOD_STANDALONE
+#if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
   // RETRIEVE OFFLINE TOOLS
+
   // Retrieve the offline track association tool
   if (!m_bTagTrackAssocTool.empty()) {
     if (m_bTagTrackAssocTool.retrieve().isFailure()) {
@@ -532,33 +386,23 @@ StatusCode TrigBtagEmulationTool::initialize() {
       ATH_MSG_INFO( "Retrieved tool " << m_bTagTrackAssocTool );
   } else
     ATH_MSG_DEBUG( "No track association tool to retrieve" );
+
   // Retrieve the bTagSecVtxTool
   if (m_bTagSecVtxTool.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Failed to locate tool " << m_bTagSecVtxTool );
     return StatusCode::FAILURE;
   } else
     ATH_MSG_INFO( "Retrieved tool " << m_bTagSecVtxTool );
+
   // Retrieve the main BTagTool
   if (m_bTagTool.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Failed to locate tool " << m_bTagTool );
     return StatusCode::FAILURE;
   } else
     ATH_MSG_INFO( "Retrieved tool " << m_bTagTool );
+
 #endif
 
-  // CREATE EMULATED CHAINS
-  for (auto definition : m_emulatedChainDefinitions) {
-    checkTriggerChain(definition);
-
-    TrigBtagEmulationChain chain(TrigBtagEmulationChain(definition,m_trigDec));
-    m_emulatedChains.insert(std::make_pair(chain.name(),chain));
-  }
-
-#ifndef XAOD_STANDALONE
-  jetManager::m_bTagTool = &m_bTagTool;
-  jetManager::m_bTagTrackAssocTool = &m_bTagTrackAssocTool;
-  jetManager::m_bTagSecVtxTool = &m_bTagSecVtxTool;
-#endif
 
   // Autoconfiguration of Trigger Menu
   if (this->initTriggerChainsMenu().isFailure() )
@@ -574,6 +418,50 @@ StatusCode TrigBtagEmulationTool::initialize() {
       ATH_MSG_INFO( Form( "For full list of trigger chains automatically loaded look here : '%s'","https://twiki.cern.ch/twiki/bin/view/Atlas/TrigBjetEmulation") );
       this->addEmulatedChain( m_autoconfiguredMenu );
     }
+
+  // CREATE EMULATED CHAINS
+  for (auto definition : m_emulatedChainDefinitions) {
+    checkTriggerChain(definition);
+
+    std::vector< std::string > chainDefinition( definition.begin(), definition.end() );
+    // Check if trigger is already stored as a lower-unprescaled trigger
+    if (chainDefinition.size() == 1) {
+      std::string triggerSubComponents = "";
+      if ( m_2015Menu.find( chainDefinition.at(0) ) != m_2015Menu.end() )
+	triggerSubComponents = m_2015Menu.at( chainDefinition.at(0) );
+      else if ( m_2016Menu.find( chainDefinition.at(0) ) != m_2016Menu.end() )
+	triggerSubComponents = m_2016Menu.at( chainDefinition.at(0) );
+      else if ( m_2017Menu.find( chainDefinition.at(0) ) != m_2017Menu.end() )
+	triggerSubComponents = m_2017Menu.at( chainDefinition.at(0) );
+
+      std::istringstream sname( triggerSubComponents );
+      std::string token;
+      while(std::getline( sname , token, ','))
+	chainDefinition.push_back( Form("EMUL_%s",token.c_str()) );
+    }
+
+    TrigBtagEmulationChain chain(TrigBtagEmulationChain(chainDefinition,m_trigDec));
+
+    if ( chain.isAutoConfigured() ) {
+      ATH_MSG_INFO( "AUTOMATIC PARSER has been activated for trigger chain : " << chain.getName() );
+      std::vector< std::string > subChains = chain.retrieveAutoConfiguration();
+      ATH_MSG_INFO("This trigger has been configured as the logical AND of the folowing triggers : ");
+      for (unsigned int i=0; i<subChains.size(); i++) 
+	ATH_MSG_INFO( "  -- " << subChains.at(i) );
+    }
+    if ( !chain.isCorrectlyConfigured() ) {
+      ATH_MSG_FATAL("NOT correct Configuration for Trigger Chain : " << chain.getName() << ".");
+      return StatusCode::FAILURE;
+    }
+
+    m_emulatedChains.insert(std::make_pair(chain.getName(),chain));
+  }
+
+#if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
+  JetManager::m_bTagTool = &m_bTagTool;
+  JetManager::m_bTagTrackAssocTool = &m_bTagTrackAssocTool;
+  JetManager::m_bTagSecVtxTool = &m_bTagSecVtxTool;
+#endif
 
   return sc;
 }
@@ -649,15 +537,15 @@ StatusCode TrigBtagEmulationTool::execute() {
   StatusCode sc = StatusCode::SUCCESS;
 
   // jet Menagers
-  m_manager_ef = new Trig::jetManager(m_trigDec,m_input_chain,m_input_jetName,m_input_btagName);
+  m_manager_ef = new Trig::JetManager(m_trigDec,m_input_chain,m_input_jetName,m_input_btagName);
   m_manager_ef->setKeys(m_input_jetKey,m_input_pvKey,m_input_tpKey);
-  m_manager_split = new Trig::jetManager(m_trigDec,m_input_chainSplit,m_input_jetNameSplit,m_input_btagName);
+  m_manager_split = new Trig::JetManager(m_trigDec,m_input_chainSplit,m_input_jetNameSplit,m_input_btagName);
   m_manager_split->setKeys(m_input_jetKeySplit,m_input_pvKeySplit,m_input_tpKeySplit);
-  m_manager_gsc = new  Trig::jetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName); 
+  m_manager_gsc = new  Trig::JetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName); 
   m_manager_gsc->setKeys(m_input_jetKey_GSC,m_input_pvKey_GSC,m_input_tpKey_GSC);
-  m_manager_ef_gsc = new Trig::jetManager(m_trigDec,"HLT_j15_boffperf",m_input_JetName_GSC,m_input_btagName);
+  m_manager_ef_gsc = new Trig::JetManager(m_trigDec,"HLT_j15_boffperf",m_input_JetName_GSC,m_input_btagName);
   m_manager_ef_gsc->setKeys(m_input_jetKey,m_input_pvKey,m_input_tpKey);
-  m_manager_split_gsc = new Trig::jetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName);
+  m_manager_split_gsc = new Trig::JetManager(m_trigDec,m_input_chainGSC,m_input_JetName_GSC,m_input_btagName);
   m_manager_split_gsc->setKeys(m_input_jetKeySplit,m_input_pvKeySplit,m_input_tpKeySplit);
   
   // GET EF JETS
@@ -900,25 +788,38 @@ StatusCode TrigBtagEmulationTool::finalize() {
 
 
 //!==========================================================================
-void TrigBtagEmulationTool::addEmulatedChain(const std::vector<std::string>& chainDescription) {
-
+StatusCode TrigBtagEmulationTool::addEmulatedChain(const std::vector<std::string>& chainDescription) {
   // check if gsc chains are present in the emulation
   checkTriggerChain(chainDescription);
 
   // Create chain and add it to the list
   TrigBtagEmulationChain chain(TrigBtagEmulationChain(chainDescription,m_trigDec));
-  m_emulatedChains.insert(std::make_pair(chain.name(),chain));
+  // Check it has been auto configured
 
+  if ( chain.isAutoConfigured() ) {
+    ATH_MSG_INFO( "AUTOMATIC PARSER has been activated for trigger chain : " << chain.getName() );
+    std::vector< std::string > subChains = chain.retrieveAutoConfiguration();
+    ATH_MSG_INFO("This trigger has been configured as the logical AND of the folowing triggers : ");
+    for (unsigned int i=0; i<subChains.size(); i++)
+      ATH_MSG_INFO( "  -- " << subChains.at(i) );
+  }
+  // Check it has been conrrectyle configured
+  if ( !chain.isCorrectlyConfigured() ) {
+    ATH_MSG_FATAL("NOT correct Configuration for Trigger Chain : " << chain.getName() << "." );
+    return StatusCode::FAILURE;
+  }
+
+  m_emulatedChains.insert(std::make_pair(chain.getName(),chain));
+  return StatusCode::SUCCESS;
 }
 
 //!==========================================================================        
 
 StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
-#ifdef XAOD_STANDALONE
-  const char* inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
-#else
   const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
-#endif
+  // If WorkDir_DIR not defined means we are using ROOTCORE  
+  if( strlen(inputFileFolder) == 0 ) 
+    inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
 
   std::string nameFile_2015 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2015Menu.txt",inputFileFolder);
   std::string nameFile_2016 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2016Menu.txt",inputFileFolder);
@@ -1017,7 +918,11 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
 bool TrigBtagEmulationTool::isPassed(const std::string &chain) {
   // CHECK IF THE TOOK HAS ALREADY BEEN EXECUTED FOR THIS EVENT
   const xAOD::EventInfo* eventInfo = 0;
+#ifndef XAOD_STANDALONE
   CHECK( evtStore()->retrieve( eventInfo,"EventInfo" ));
+#else
+  ANA_CHECK( evtStore()->retrieve( eventInfo,"EventInfo" )); 
+#endif
 
   bool isMC = false;
   if( eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) )
@@ -1028,7 +933,11 @@ bool TrigBtagEmulationTool::isPassed(const std::string &chain) {
   else eventID = eventInfo->eventNumber();
 
   if ( eventID != m_previousEvent)
-    this->execute();
+#ifndef XAOD_STANDALONE
+    CHECK( this->execute() );
+#else
+    ANA_CHECK( this->execute() );
+#endif
   m_previousEvent = eventID;
 
   // CHECK IF CHAIN IS DEFINED AND RETURN RESULT
