@@ -25,7 +25,6 @@
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 
 //Local includes
-#include "EGToolProperties.h"
 #include "Messaging.h"
 #include "CreateDummyEl.h"
 //
@@ -119,14 +118,14 @@ int main( int argc, char* argv[] ) {
      * This also setups the store,so for done before the tool init
      * it really is a pseudo "reconstruction"
      */
-
+    static  xAOD::TEvent event( xAOD::TEvent::kClassAccess );  
+    static xAOD::TStore store;   
+    
     std::vector< std::pair<double,double>> pt_eta{{pt,eta}}; 
-    xAOD::TStore* store=getElectrons(pt_eta,runno);
-    if(!store){
-        MSG_ERROR("could not create the electrons ");
-    } 
+    CHECK(getElectrons(pt_eta,runno,store).isSuccess());
+    
     const xAOD::ElectronContainer* electrons(nullptr);
-    CHECK(store->retrieve(electrons,"MyElectrons").isSuccess());
+    CHECK(store.retrieve(electrons,"MyElectrons").isSuccess());
 
     //Configure the tool based on the inputs
     AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
@@ -153,7 +152,7 @@ int main( int argc, char* argv[] ) {
     CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
     CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", model )); 
     CHECK( ElEffCorrectionTool.initialize());  
-    dumbProperties(ElEffCorrectionTool);
+    asg::ToolStore::dumpToolConfig();
 
     /*
      * Set up the systematic variations
