@@ -167,15 +167,14 @@ StatusCode ISF::FastCaloSimSvcPU::finalize()
 StatusCode ISF::FastCaloSimSvcPU::setupEvent()
 { 
   ATH_MSG_INFO ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU setupEvent");
-  //std::cout<< "now doing FastCaloSimSvcPU setupEvent"<<std::endl;
    
   if(!m_caloCellHack)
   {
     
     //FINAL OUTPUT CONTAINER:
-    ATH_MSG_INFO(m_screenOutputPrefix<<"Creating output CaloCellContainer");
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<"Creating output CaloCellContainer");
     m_theContainer = new CaloCellContainer(static_cast<SG::OwnershipPolicy>(m_ownPolicy));
-    ATH_MSG_INFO(m_screenOutputPrefix<<"CaloCellContainer address: "<<m_theContainer);
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<"CaloCellContainer address: "<<m_theContainer);
     StatusCode sc=StatusCode::SUCCESS;
     sc=evtStore()->record(m_theContainer,m_caloCellsOutputName);
     if(sc.isFailure())
@@ -186,19 +185,16 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     
     //->PU Development:
     //initialize the pu cell containers:
-    ATH_MSG_INFO(m_screenOutputPrefix<<" initialize the pu cell containers");
-    //std::cout<<" initialize the pu cell containers"<<std::endl;
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<" initialize the pu cell containers");
     
     for(unsigned int i=0;i<m_puEnergyWeights_lar_em.size();i++)
     {
      CaloCellContainer* cont=new CaloCellContainer(static_cast<SG::OwnershipPolicy>(m_ownPolicy));
-     ATH_MSG_INFO(m_screenOutputPrefix<<" push back "<<i<<" cont "<<cont);
-     //std::cout<<" push back "<<i<<" cont "<<cont<<std::endl;
+     ATH_MSG_VERBOSE(m_screenOutputPrefix<<" push back "<<i<<" cont "<<cont);
      m_puCellContainer.push_back(cont);
     }
     
-    ATH_MSG_INFO(m_screenOutputPrefix<<" SIZE puEnergyWeights "<<m_puEnergyWeights_lar_em.size()<<" SIZE m_puCellContainer "<<m_puCellContainer.size());
-    //std::cout<<" SIZE puEnergyWeights "<<m_puEnergyWeights_lar_em.size()<<" SIZE m_puCellContainer "<<m_puCellContainer.size()<<std::endl;
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<" SIZE puEnergyWeights "<<m_puEnergyWeights_lar_em.size()<<" SIZE m_puCellContainer "<<m_puCellContainer.size());
     
     /*
     for(unsigned int i=0;i<m_puCellContainer.size();i++)
@@ -211,8 +207,7 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     }
     */
     
-    ATH_MSG_INFO(m_screenOutputPrefix<<" done with the pu cell containers");
-    //std::cout<<" done with the pu cell containers"<<std::endl;
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<" done with the pu cell containers");
     //<-
     
     // also symLink as INavigable4MomentumCollection!
@@ -242,22 +237,19 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
   }
   
   // loop on setup tools
-  ATH_MSG_INFO( m_screenOutputPrefix << "now doing loop on setup tools" ); 
-  //std::cout<< "now doing loop on setup tools"<<std::endl;
+  ATH_MSG_VERBOSE( m_screenOutputPrefix << "now doing loop on setup tools" );
 
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_setup.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_setup.end();
   for (;itrTool!=endTool;++itrTool)
   {
-    ATH_MSG_INFO( m_screenOutputPrefix << "now call FastCaloSimSvcPU setup tool " << itrTool->name() );   
-    //std::cout<<"now call FastCaloSimSvcPU setup tool " << itrTool->name()<<std::endl;
+    ATH_MSG_VERBOSE( m_screenOutputPrefix << "now call FastCaloSimSvcPU setup tool " << itrTool->name() );   
     
     std::string chronoName=this->name()+"_"+ itrTool->name();
     
     if (m_chrono) m_chrono -> chronoStart( chronoName);
     
-    ATH_MSG_INFO( m_screenOutputPrefix << "FastCaloSimSvcPU do tool "<<itrTool->name()<<" on m_Container");
-    //std::cout<<"FastCaloSimSvcPU do tool "<<itrTool->name()<<" on m_Container"<<std::endl;
+    ATH_MSG_VERBOSE( m_screenOutputPrefix << "FastCaloSimSvcPU do tool "<<itrTool->name()<<" on m_Container");
     
     StatusCode sc = (*itrTool)->process(m_theContainer);
     if(sc.isFailure())
@@ -268,10 +260,8 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     
     for(unsigned int i=0;i<m_puCellContainer.size();i++)
     {    
-     ATH_MSG_INFO(m_screenOutputPrefix<<"FastCaloSimSvcPU do tool "<<itrTool->name()<<" on container index "<<i);
-     //std::cout<<"FastCaloSimSvcPU do tool "<<itrTool->name()<<" on container index "<<i<<" adress "<<m_puCellContainer[i]<<std::endl;
+     ATH_MSG_VERBOSE(m_screenOutputPrefix<<"FastCaloSimSvcPU do tool "<<itrTool->name()<<" on container index "<<i);
      StatusCode sc = (*itrTool)->process(m_puCellContainer[i]);
-     //std::cout<<" done process FastCaloSimSvcPU do tool "<<itrTool->name()<<" on container index "<<i<<std::endl;
      if(sc.isFailure())
      {
       ATH_MSG_ERROR( m_screenOutputPrefix << "Error executing tool " << itrTool->name() );
@@ -286,15 +276,14 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
     }
   } //for tools
   
-  ATH_MSG_INFO( m_screenOutputPrefix << "now doing loop on simulate tools" ); 
-  //std::cout<<"now doing loop on simulate tools"<<std::endl;
+  ATH_MSG_VERBOSE( m_screenOutputPrefix << "now doing loop on simulate tools" ); 
   
   // loop on simulate tools
   itrTool=m_caloCellMakerTools_simulate.begin();
   endTool=m_caloCellMakerTools_simulate.end();
   for (;itrTool!=endTool;++itrTool)
   {
-  	ATH_MSG_INFO( m_screenOutputPrefix << "now call simulate tool "<<itrTool->name() ); 
+  	ATH_MSG_VERBOSE( m_screenOutputPrefix << "now call simulate tool "<<itrTool->name() ); 
     FastShowerCellBuilderTool* fcs=dynamic_cast< FastShowerCellBuilderTool* >(&(*(*itrTool)));
     if(fcs)
     {
@@ -312,8 +301,7 @@ StatusCode ISF::FastCaloSimSvcPU::setupEvent()
 StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
 {
  
- ATH_MSG_INFO ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU releaseEvent");
- //std::cout<<"now doing FastCaloSimSvcPU releaseEvent"<<std::endl;
+ ATH_MSG_VERBOSE ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU releaseEvent");
  
  // the return value
  //StatusCode sc = StatusCode::SUCCESS;
@@ -323,7 +311,7 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
  //for that, loop over each cell, and apply the weights
  if(!m_batchProcessMcTruth)
  {
-  ATH_MSG_INFO(m_screenOutputPrefix<<" iterate on the cell containers");
+  ATH_MSG_VERBOSE(m_screenOutputPrefix<<" iterate on the cell containers");
   
   //see http://acode-browser2.usatlas.bnl.gov/lxr-rel20/source/atlas/Calorimeter/CaloCellCorrection/src/CaloCellEnergyRescaler.cxx
   CaloCellContainer::iterator it  =m_theContainer->begin();
@@ -331,13 +319,13 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
   int mycounter=0;
   for(;it!=it_e;++it)
   {
-   mycounter++; if(mycounter<10) std::cout<<" mycounter "<<mycounter<<std::endl;
+    mycounter++; if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<" mycounter "<<mycounter);
    
    CaloCell* theCell=(*it);
    const unsigned int hash_id=theCell->caloDDE()->calo_hash();
    const Identifier cell_id=theCell->ID();
    
-   if(mycounter<10) std::cout<<" hash="<<hash_id<<" initial ENERGY "<<theCell->energy()<<" ID "<<cell_id<<std::endl;
+   if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<" hash="<<hash_id<<" initial ENERGY "<<theCell->energy()<<" ID "<<cell_id);
    //detID->show(cell_id);
    	
    double energy=0.0;
@@ -348,49 +336,47 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
     if(detID->is_tile(cell_id)==1)
     {
      weight=m_puEnergyWeights_tile[i];
-     if(mycounter<10) std::cout<<"Cell is in Tile."<<std::endl;
+     if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<"Cell is in Tile.");
     }
     if(detID->is_lar_hec(cell_id)==1)
     {
      weight=m_puEnergyWeights_lar_hec[i];
-     if(mycounter<10) std::cout<<"Cell is in LAr HEC."<<std::endl;
+     if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<"Cell is in LAr HEC.");
     }
     if(detID->is_lar_em(cell_id)==1 && !(larID->sampling(cell_id)==0 && fabs(theCell->eta())<1.5))
     {
      weight=m_puEnergyWeights_lar_em[i];
-     if(mycounter<10) std::cout<<"Cell is in LAr EM."<<std::endl;
+     if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<"Cell is in LAr EM.");
     }
     if(detID->is_lar_em(cell_id)==1 && larID->sampling(cell_id)==0 && fabs(theCell->eta())<1.5)
     {
      weight=m_puEnergyWeights_lar_bapre[i];
-     if(mycounter<10) std::cout<<"Cell is in Barrel Presampler."<<std::endl;
+     if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<"Cell is in Barrel Presampler.");
     }
 
-    if(mycounter<10) std::cout<<" pu loop. i= "<<i<<" m_puCellContainer[i] "<<m_puCellContainer[i]<<std::endl;
+    if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<" pu loop. i= "<<i<<" m_puCellContainer[i] "<<m_puCellContainer[i]);
     
     CaloCell* theCell_pu=(CaloCell*)((m_puCellContainer[i])->findCell(hash_id));
     
-    if(mycounter<10) std::cout<<" theCell_pu "<<theCell_pu<<" energy "<<theCell_pu->energy()<<" weight "<<weight<<std::endl;
+    if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<" theCell_pu "<<theCell_pu<<" energy "<<theCell_pu->energy()<<" weight "<<weight);
     
     energy+=theCell_pu->energy()*weight;
     
-    if(mycounter<10) std::cout<<" energy after reweighting = "<<energy<<std::endl;
+    if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<" energy after reweighting = "<<energy);
    }
    
-   if(mycounter<10) std::cout<<" after pu weight loop. setting outgoing energy="<<energy<<std::endl;
+   if(mycounter<10) ATH_MSG_VERBOSE(m_screenOutputPrefix<<" after pu weight loop. setting outgoing energy="<<energy);
 	 theCell->setEnergy(energy);
   
   }//end loop over cells
   
-  ATH_MSG_INFO(m_screenOutputPrefix<<" done iterating on the cell containers");
-  //std::cout<<" done iterating on the cell containers"<<std::endl;
+  ATH_MSG_VERBOSE(m_screenOutputPrefix<<" done iterating on the cell containers");
   
   for(unsigned int i=0;i<m_puCellContainer.size();i++)
    delete m_puCellContainer[i];
   m_puCellContainer.clear();
   
-  ATH_MSG_INFO(m_screenOutputPrefix<<" puCellContainer cleared");
-  //std::cout<<"puCellContainer cleared"<<std::endl;
+  ATH_MSG_VERBOSE(m_screenOutputPrefix<<" puCellContainer cleared");
   
  } //!batchProcess
   
@@ -447,7 +433,7 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
  endTool=m_caloCellMakerTools_release.end();
  for (;itrTool!=endTool;++itrTool)
  {
-  ATH_MSG_INFO( m_screenOutputPrefix << "Calling FastCaloSimSvcPU release tool " << itrTool->name() );   
+  ATH_MSG_VERBOSE( m_screenOutputPrefix << "Calling FastCaloSimSvcPU release tool " << itrTool->name() );   
   std::string chronoName=this->name()+"_"+ itrTool->name();
   if(m_chrono) m_chrono -> chronoStart( chronoName);
   
@@ -471,7 +457,7 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
   }
   */
   
-  ATH_MSG_INFO(m_screenOutputPrefix<<" looks like it worked (release)");
+  ATH_MSG_VERBOSE(m_screenOutputPrefix<<" looks like it worked (release)");
   
   if(m_chrono)
   {
@@ -490,8 +476,7 @@ StatusCode ISF::FastCaloSimSvcPU::releaseEvent()
 StatusCode ISF::FastCaloSimSvcPU::simulate(const ISF::ISFParticle& isfp)
 {
  
- ATH_MSG_INFO(m_screenOutputPrefix<<" now doing FastCaloSimSvcPU simulate for bcid="<<isfp.getBCID());
- //std::cout<<" now doing FastCaloSimSvcPU simulate for bcid="<<isfp.getBCID()<<std::endl;
+ ATH_MSG_VERBOSE(m_screenOutputPrefix<<" now doing FastCaloSimSvcPU simulate for bcid="<<isfp.getBCID());
  
   // read the particle's barcode
   Barcode::ParticleBarcode bc = isfp.barcode();
@@ -521,17 +506,17 @@ StatusCode ISF::FastCaloSimSvcPU::simulate(const ISF::ISFParticle& isfp)
   // (a.) batch process mode, ignore the incoming particle for now
   if( m_batchProcessMcTruth)
   {
-    ATH_MSG_INFO(m_screenOutputPrefix<<"particle is ignored now, will run Calo simulation using ID McTruth at the end of the event");
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<"particle is ignored now, will run Calo simulation using ID McTruth at the end of the event");
     return StatusCode::SUCCESS;
   }
   // (b.) throw away particles with undefined Barcode if m_simulateUndefinedBCs==False
   else if( (!m_simulateUndefinedBCs) && (bc == Barcode::fUndefinedBarcode))
   {
-    ATH_MSG_INFO(m_screenOutputPrefix<<"particle has undefined barcode, will not simulate it");
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<"particle has undefined barcode, will not simulate it");
     return StatusCode::SUCCESS;
   }
   // (c.) individual particle processing
-  ATH_MSG_INFO(m_screenOutputPrefix<<"particle is simulated individually");
+  ATH_MSG_VERBOSE(m_screenOutputPrefix<<"particle is simulated individually");
   return processOneParticle( isfp);
   
 }
@@ -540,8 +525,7 @@ StatusCode ISF::FastCaloSimSvcPU::simulate(const ISF::ISFParticle& isfp)
 StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& isfp)
 {
   
-  ATH_MSG_INFO ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU processOneParticle. Simulating pdgid = "<< isfp.pdgCode());
-  //std::cout<<"now doing FastCaloSimSvcPU processOneParticle. Simulating pdgid = "<< isfp.pdgCode()<<std::endl;
+  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "now doing FastCaloSimSvcPU processOneParticle. Simulating pdgid = "<< isfp.pdgCode());
   
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_simulate.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_simulate.end();
@@ -551,7 +535,7 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
   //->PU Development:
   //extract the BCID from the ISFParticle:
   int bcid=isfp.getBCID();
-  ATH_MSG_INFO(m_screenOutputPrefix<<" BCID from the ISF Particle "<<bcid);
+  ATH_MSG_VERBOSE(m_screenOutputPrefix<<" BCID from the ISF Particle "<<bcid);
   if(bcid>(int)m_puEnergyWeights_lar_em.size() || bcid==0)
   {
    ATH_MSG_FATAL( m_screenOutputPrefix<<" BCID="<<bcid<<" not valid");
@@ -581,7 +565,7 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
     if (m_chrono) m_chrono->chronoStart( chronoName);
     
     //->PU Development:
-    ATH_MSG_INFO(m_screenOutputPrefix<<" now call fcs->process_particle with [bcid-1]="<<bcid-1<<" for pdgid "<<isfp.pdgCode());
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<" now call fcs->process_particle with [bcid-1]="<<bcid-1<<" for pdgid "<<isfp.pdgCode());
     if(fcs->process_particle(m_puCellContainer[bcid-1],hitVector,isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure())
     {
      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " in bcid "<<bcid<<" failed" );   
