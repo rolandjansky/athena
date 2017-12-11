@@ -14,7 +14,7 @@
 #ifndef ISF_FATRASEVENT_PLANARCLUSTERCONTAINER_H
 #define ISF_FATRASEVENT_PLANARCLUSTERCONTAINER_H
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkPrepRawData/PrepRawDataContainer.h"
 #include "ISF_FatrasEvent/PlanarClusterCollection.h"
 #include "AthLinks/DeclareIndexingPolicy.h"
