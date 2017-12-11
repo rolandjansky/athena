@@ -1,3 +1,4 @@
+// this is c++ file -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -14,6 +15,12 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
+
+#include "TrkTrack/TrackCollection.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 #include <string>
 #include <vector>
@@ -43,7 +50,6 @@ class TRTStrawEfficiency : public AthAlgorithm
 	// configurables
 	//----------------------------------
 	ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder;
-	std::string m_track_collection;
 	float m_max_abs_d0;
 	float m_max_abs_z0;
 	float m_min_pT;
@@ -56,9 +62,7 @@ class TRTStrawEfficiency : public AthAlgorithm
 	ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 	std::string m_tree_name;
 	std::string m_stream_name;
-	std::string m_event_info_key;
 	std::string m_required_trigger;
-	std::string m_vertexCollectionName; /* added by dan */
 
 	// private data
 	//----------------------------------
@@ -66,6 +70,11 @@ class TRTStrawEfficiency : public AthAlgorithm
 	const TRT_ID* m_TRT_ID;
 	ToolHandle<Trk::IUpdator> m_updator;
 	ToolHandle<Trig::ITrigDecisionTool> m_trigDec;
+
+	// Data handles
+	SG::ReadHandleKey<TrackCollection> m_tracksKey{this, "track_collection", "CombinedInDetTracks", "Tracks container key"};
+	SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "event_info_key", "EventInfo", "Event info key"};
+	SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey{this, "VertexContainerName", "PrimaryVertices", "Vertex container key"};
 
 	unsigned int m_num_events;
 	unsigned int m_num_tracks;
