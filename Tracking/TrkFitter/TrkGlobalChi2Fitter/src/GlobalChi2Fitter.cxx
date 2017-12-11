@@ -1480,7 +1480,7 @@ namespace Trk {
       if (rot && m_DetID->is_mdt(rot->identify()) && triggersurf1) {
         seenmdt = true;
       }
-      if (rot && (m_DetID->is_tgc(rot->identify()) || m_DetID->is_rpc(rot->identify()))) {
+      if (rot && (m_DetID->is_tgc(rot->identify()) || m_DetID->is_rpc(rot->identify()) || m_DetID->is_stgc(rot->identify())   )) {
         bool measphi = true;
         Amg::Vector3D measdir = surf->transform().rotation().col(0);
         double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
@@ -2500,6 +2500,16 @@ namespace Trk {
               string2 = "CSC hit";
             }
             hittype = TrackState::CSC;
+          }else if (m_DetID->is_mm(hitid)) {
+            if (msgLvl(MSG::DEBUG)) {
+              string2 = "MM hit";
+            }
+            hittype = TrackState::MM;
+          }else if (m_DetID->is_stgc(hitid)) {
+            if (msgLvl(MSG::DEBUG)) {
+              string2 = "STGC hit";
+            }
+            hittype = TrackState::STGC;
           }
         }
         if (rotated) {
@@ -2535,7 +2545,7 @@ namespace Trk {
             errors[1] = sqrt(covmat(1, 1));
           }
         }
-        if (hittype == TrackState::RPC || hittype == TrackState::TGC || hittype == TrackState::CSC) {
+        if (hittype == TrackState::RPC || hittype == TrackState::TGC || hittype == TrackState::CSC || hittype == TrackState::STGC) {
           const Surface *surf = &measbase2->associatedSurface();
           Amg::Vector3D measdir = surf->transform().rotation().col(0);
           double dotprod1 = measdir.dot(Amg::Vector3D(0, 0, 1));
@@ -3308,7 +3318,7 @@ public:
           }
         }
         if (meastype == TrackState::RPC || meastype == TrackState::CSC || meastype == TrackState::TGC ||
-            meastype == TrackState::MDT) {
+            meastype == TrackState::MDT || meastype == TrackState::MM || meastype == TrackState::STGC) {
           if (!firstmuonhit) {
             firstmuonhit = states[i]->measurement();
             // index_firstmuonhit=i;
@@ -3894,7 +3904,7 @@ public:
           GXFMaterialEffects *meff = matstates[layerno]->materialEffects();
           if (meff->sigmaDeltaPhi() > .4 || (meff->sigmaDeltaPhi() == 0 && meff->sigmaDeltaE() <= 0)) {
             if (meff->sigmaDeltaPhi() > .4) {
-              msg(MSG::WARNING) << "Material state with excessive scattering, skipping it" << endmsg;
+              msg(MSG::DEBUG) << "Material state with excessive scattering, skipping it" << endmsg;
             }
             if (meff->sigmaDeltaPhi() == 0) {
               msg(MSG::WARNING) << "Material state with zero scattering, skipping it" << endmsg;

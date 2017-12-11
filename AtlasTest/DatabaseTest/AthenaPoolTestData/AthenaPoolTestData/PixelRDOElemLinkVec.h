@@ -25,8 +25,8 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "InDetRawData/PixelRDO_Container.h"
-#include "DataModel/ElementLink.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthLinks/ElementLink.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>

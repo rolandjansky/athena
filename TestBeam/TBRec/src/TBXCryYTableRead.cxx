@@ -52,7 +52,7 @@ StatusCode TBXCryYTableRead::execute()
 
   StatusCode sc;
   // Retrieve Event Info from file
-  const TBEventInfo* theEventInfo;
+  const TBEventInfo* theEventInfo = nullptr;
   sc = evtStore()->retrieve(theEventInfo,"TBEventInfo");
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR

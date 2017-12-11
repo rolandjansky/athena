@@ -83,9 +83,12 @@ public:
   ~thread_specific_ptr() { delete m_ptr; }
   thread_specific_ptr (const thread_specific_ptr&) = delete;
   thread_specific_ptr& operator= (const thread_specific_ptr&) = delete;
-  T* get() const { return m_ptr; }
-  T* operator->() const { return m_ptr; }
-  T& operator*() const { return *m_ptr; }
+  T* get() { return m_ptr; }
+  T* operator->() { return m_ptr; }
+  T& operator*() { return *m_ptr; }
+  const T* get() const { return m_ptr; }
+  const T* operator->() const { return m_ptr; }
+  const T& operator*() const { return *m_ptr; }
   void reset (T* new_value=0) { delete m_ptr; m_ptr = new_value; }
   T* release() { T* ret = m_ptr; m_ptr = 0; return ret; }
 

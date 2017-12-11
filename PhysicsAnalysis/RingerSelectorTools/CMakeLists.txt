@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTracking
                           PhysicsAnalysis/AnalysisCommon/PATCore
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+                          PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
                           PRIVATE
                           Control/AthContainers
                           Event/xAOD/xAODBase
@@ -35,19 +35,19 @@ atlas_add_library( RingerSelectorToolsLib
                    Root/tools/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaKernel CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib ElectronPhotonSelectorToolsLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaKernel CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib
                    PRIVATE_LINK_LIBRARIES AthContainers xAODBase GaudiKernel PathResolver TrkTrackSummary )
 
 atlas_add_component( RingerSelectorTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaKernel CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib ElectronPhotonSelectorToolsLib AthContainers xAODBase GaudiKernel PathResolver TrkTrackSummary RingerSelectorToolsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaKernel CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib AthContainers xAODBase GaudiKernel PathResolver TrkTrackSummary RingerSelectorToolsLib )
 
 atlas_add_dictionary( RingerSelectorToolsDict
                       RingerSelectorTools/RingerSelectorToolsDict.h
                       RingerSelectorTools/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaKernel CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib ElectronPhotonSelectorToolsLib AthContainers xAODBase GaudiKernel PathResolver TrkTrackSummary RingerSelectorToolsLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaKernel CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib AthContainers xAODBase GaudiKernel PathResolver TrkTrackSummary RingerSelectorToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

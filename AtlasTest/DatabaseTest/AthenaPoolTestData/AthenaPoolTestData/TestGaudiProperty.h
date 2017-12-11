@@ -60,6 +60,6 @@ private:
 // Output stream.
 std::ostream& operator<<(std::ostream& lhs, const TestGaudiProperty& rhs);
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TestGaudiProperty, 241994533, 1 )
 #endif

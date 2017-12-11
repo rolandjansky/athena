@@ -5,9 +5,6 @@
 
    <class name="AtlasRoot::egammaEnergyCorrectionTool" />
 
-   <variable pattern="EgammaCalibPeriodRunNumbersExample::*"/>
-   <class name="EgammaCalibPeriodRunNumbersExample::ROOT6_NamespaceAutoloadHook" /> 
-
    <namespace name="egEnergyCorr" />
    <enum pattern="egEnergyCorr::*"/>
    <class name="egEnergyCorr::ROOT6_OpenNamespaceWorkaround" />

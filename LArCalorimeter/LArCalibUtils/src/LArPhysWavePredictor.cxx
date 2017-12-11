@@ -155,6 +155,9 @@ struct FileCloser
   FileCloser (FILE* the_f): f (the_f) {}
   ~FileCloser() { if (f) fclose(f); }
   FILE* f;
+
+  FileCloser (const FileCloser&) = delete;
+  FileCloser& operator= (const FileCloser&) = delete;
 };
 } // anonymous namespace
 

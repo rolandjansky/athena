@@ -161,7 +161,7 @@ StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,ke
   for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) log << MSG::DEBUG << *keyIt << " ";
    if( m_debug )  log << MSG::DEBUG << endmsg;
   
-  const CondAttrListCollection * atrc;
+  const CondAttrListCollection * atrc = nullptr;
   log << MSG::INFO << "Try to read from folder <"<< m_FolderName <<">"<<endmsg;
 
   sc=m_detStore->retrieve(atrc,m_FolderName);

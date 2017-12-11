@@ -101,7 +101,7 @@ public:
       assert(rSG.record(new SG::Foo(2), "pFoo2").isSuccess());
       rSG.commitNewDataObjects();
       assert( rSG.newDataObjectsPresent() );
-      rSG.getNewDataObjects(products).ignore();    
+      rSG.getNewDataObjects(products).ignore();
       assert( 2 == products.size() );
       assert (products.count (DataObjID (81010,"pFoo1")) == 1);
       //we have emptied newdataobject array with call to newDataObjects

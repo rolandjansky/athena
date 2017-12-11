@@ -27,36 +27,27 @@ namespace ISFTesting {
 std::string mockInputConverterName = "ISFTesting::MockInputConverter/MyTestInputConverter";
 
 // Athena Service to mock an InputConverter
-class MockInputConverter : public AthService,
-                           public ISF::IInputConverter {
+  class MockInputConverter : public extends<AthService, ISF::IInputConverter> {
 
 public:
   MockInputConverter(const std::string& name, ISvcLocator* svc)
-    : AthService(name,svc)
+    : base_class(name,svc)
   { };
 
   virtual ~MockInputConverter() { };
 
-  // needed to resolve ambiguity when assigning instance to SmartIF
-  static const InterfaceID& interfaceID() { return IID_IInputConverter; }
-
   StatusCode  initialize() { return StatusCode::SUCCESS;}
   StatusCode  finalize() { return StatusCode::SUCCESS;}
-
-  // needed to make this AthService implementation work with Athena
-  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) {
-      if (IID_IInputConverter != riid) {
-        // Interface is not directly available: try out a base class
-        return AthService::queryInterface(riid, ppvInterface);
-      }
-      *ppvInterface = (IInputConverter*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-  }
 
   MOCK_CONST_METHOD3(convert, StatusCode(const McEventCollection&,
                                          ISF::ISFParticleContainer&,
                                          bool));
+  MOCK_CONST_METHOD3(convertHepMCToG4Event, StatusCode(McEventCollection&,
+                                                       G4Event*&,
+                                                       bool));
+  MOCK_CONST_METHOD2(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
+                                              HepMC::GenEvent*));
+
 }; // MockInputConverter class
 
 DECLARE_SERVICE_FACTORY( MockInputConverter )

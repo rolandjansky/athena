@@ -10,7 +10,6 @@
 LArG4H6BeamSDTool::LArG4H6BeamSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : SensitiveDetectorBase(type,name,parent)
 {
-  declareInterface<ISensitiveDetector>(this);
 }
 
 G4VSensitiveDetector* LArG4H6BeamSDTool::makeSD()

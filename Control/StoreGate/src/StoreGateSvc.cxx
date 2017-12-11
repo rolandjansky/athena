@@ -18,7 +18,7 @@
 using namespace SG;
 using namespace std;
 
-__thread HiveEventSlot* s_pSlot(0);
+thread_local HiveEventSlot* StoreGateSvc::s_pSlot = nullptr;
 
 
 /// Standard Constructor
@@ -28,8 +28,10 @@ StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) :
   m_pPPSHandle("ProxyProviderSvc", name),
   m_incSvc("IncidentSvc", name),
   m_activeStoreSvc("ActiveStoreSvc", name),
-  m_pIOVSvc(nullptr)
+  m_storeID (StoreID::findStoreID(name))
 {
+  
+
   //our properties
   //properties of SGImplSvc
   declareProperty("Dump", m_DumpStore=false, "Dump contents at EndEvent");
@@ -50,16 +52,6 @@ StoreGateSvc::setDefaultStore(SGImplSvc* pStore) {
   if (m_defaultStore) m_defaultStore->release();
   m_defaultStore = pStore;
   if (m_defaultStore) m_defaultStore->addRef();  
-}
-
-bool
-StoreGateSvc::isHiveStore() const {
-  return ((m_defaultStore->store()->storeID() == StoreID::EVENT_STORE) &&  (0 != s_pSlot));
-}
-
-SGImplSvc* 
-StoreGateSvc::currentStore() const {
-  return isHiveStore() ? s_pSlot->pEvtStore : m_defaultStore;
 }
 
 
@@ -141,8 +133,8 @@ StatusCode StoreGateSvc::initialize()    {
   // Initialize service:
   CHECK( Service::initialize() );
 
-  msg() << MSG::VERBOSE << "Initializing " << name() 
-        << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() << "Initializing " << name() 
+            << " - package version " << PACKAGE_VERSION << endmsg;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
   // retrieve the job options svc (TODO: the code below relies heavily on
@@ -218,7 +210,7 @@ StatusCode StoreGateSvc::initialize()    {
 
 /// Service start
 StatusCode StoreGateSvc::stop()    {
-  msg() << MSG::VERBOSE << "Stop " << name() << endmsg;
+  verbose() << "Stop " << name() << endmsg;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -227,7 +219,7 @@ StatusCode StoreGateSvc::stop()    {
     if (!pISM)
       return StatusCode::FAILURE;
     pISM->setPriority(name(), pISM->getPriority(name())+1).ignore();
-    msg() << MSG::VERBOSE << "stop: setting service priority to " << pISM->getPriority(name()) 
+    verbose() << "stop: setting service priority to " << pISM->getPriority(name()) 
           << " so that event stores get finalized and cleared before other stores" <<endmsg;
   }
   return StatusCode::SUCCESS;
@@ -241,9 +233,8 @@ void StoreGateSvc::handle(const Incident &inc) {
 IIOVSvc* StoreGateSvc::getIIOVSvc() {
   // Get hold of the IOVSvc
   if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
-    msg() << MSG::WARNING
-          << "Could not locate IOVSvc "
-          << endmsg;
+    warning() << "Could not locate IOVSvc "
+              << endmsg;
   }
   return m_pIOVSvc;
 }
@@ -251,7 +242,7 @@ IIOVSvc* StoreGateSvc::getIIOVSvc() {
 StatusCode
 StoreGateSvc::finalize() {
   CHECK( Service::finalize() );
-  msg() << MSG::VERBOSE << "Finalizing " << name() 
+  verbose() << "Finalizing " << name() 
         << " - package version " << PACKAGE_VERSION << endmsg;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!
@@ -417,12 +408,9 @@ StoreGateSvc::typeless_overwrite( const CLID& id,
 void 
 StoreGateSvc::setStoreID(StoreID::type id)
 {
+  m_storeID = id;
+  // FIXME: should broadcast this to all instances.
   _SGVOIDCALL(setStoreID,(id));
-}
-StoreID::type 
-StoreGateSvc::storeID() const
-{
-  _SGXCALL(storeID,(),StoreID::UNKNOWN);
 }
 
 void
@@ -512,12 +500,7 @@ StoreGateSvc::loadEventProxies() {
 StatusCode 
 StoreGateSvc::clearStore(bool forceRemove)
 {
-  StatusCode sc;
-  if (isHiveStore()) { 
-    if (0 != s_pSlot->pEvtStore) {
-      sc = s_pSlot->pEvtStore->clearStore(forceRemove);
-    }
-  } else sc = m_defaultStore->clearStore(forceRemove);
+  StatusCode sc = currentStore()->clearStore(forceRemove);
 
   // Send a notification that the store was cleared.
   if (sc.isSuccess()) {

@@ -357,7 +357,7 @@ StatusCode MetaDataSvc::io_reinit() {
    ATH_MSG_INFO("Dumping OutputMetaDataStore: " << m_outputDataStore->dump());
    for (ToolHandleArray<IAlgTool>::iterator iter = m_metaDataTools.begin(),
 		   last = m_metaDataTools.end(); iter != last; iter++) {
-      ATH_MSG_INFO("Attched MetadDataTool: " << (*iter)->name());
+      ATH_MSG_INFO("Attached MetadDataTool: " << (*iter)->name());
    }
    return(StatusCode::SUCCESS);
 }

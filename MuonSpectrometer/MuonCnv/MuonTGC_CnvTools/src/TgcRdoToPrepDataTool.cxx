@@ -2929,7 +2929,7 @@ bool Muon::TgcRdoToPrepDataTool::getPosAndIdStripIn(const MuonGM::TgcReadoutElem
   channelIdIn_tmp = channelIdIn[flag_isL3];
   const MuonGM::TgcReadoutElement* descriptor_is = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_is, channelIdIn_tmp)) {
-    return StatusCode::SUCCESS;
+    return true;
   }
   
   double tmp_r_i[3] = {0., 0., 0.};
@@ -3054,7 +3054,7 @@ bool Muon::TgcRdoToPrepDataTool::getSLIds(const bool isStrip, const TgcRdo::cons
 {
   if(!m_tgcCabling) {
     StatusCode status = getCabling();
-    if(!status.isSuccess()) return status;
+    if(!status.isSuccess()) return false;
   }
 
   bool found = m_tgcCabling->getHighPtIDfromROINumber((*itD)->roi(),

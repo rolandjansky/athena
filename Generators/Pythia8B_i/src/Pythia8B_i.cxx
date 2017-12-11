@@ -138,7 +138,7 @@ StatusCode Pythia8B_i::genuserInitialize(){
         m_speciesCount[*iit] = 0;
     }
     
-    return SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -388,7 +388,7 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     
     //HepMC::GenEvent *evtCopy = new HepMC::GenEvent(*evt);
     
-    return SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 
@@ -474,7 +474,7 @@ StatusCode Pythia8B_i::genFinalize(){
     std::cout << "" << std::endl;
     std::cout << "MetaData: cross-section (nb)= " << finalXS << std::endl;
     
-    return SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

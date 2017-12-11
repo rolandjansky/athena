@@ -47,10 +47,10 @@ void AGDDsTGC::CreateVolume()
 	
 	MuonGM::sTGCComponent *stgc_comp=new MuonGM::sTGCComponent;
 	stgc_comp->name=tech;
-	stgc_comp->dx1=_small_x;
-	stgc_comp->dx2=_large_x;
-	stgc_comp->dy=_y;
-	stgc_comp->subType=sType;
+	stgc_comp->dx1=small_x();
+	stgc_comp->dx2=large_x();
+	stgc_comp->dy=y();
+	stgc_comp->subType=subType();
 	stgc_comp->yCutout=_yCutout;
 	
 	MuonGM::sTGC *cham=new MuonGM::sTGC(stgc_comp);

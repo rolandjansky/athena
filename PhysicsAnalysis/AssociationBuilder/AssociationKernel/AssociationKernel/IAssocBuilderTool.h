@@ -21,7 +21,7 @@
 #include "GaudiKernel/IProperty.h"
 
 // DataModel includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // EventKernel includes
 #include "EventKernel/INavigable4Momentum.h"

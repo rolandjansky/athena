@@ -11,7 +11,8 @@
 #ifndef STOREGATETESTS_PAYLOAD_H
 #define STOREGATETESTS_PAYLOAD_H
 
-/** @class SgTests::PayLoad is a very simple class to exercize the basic
+/** @class SgTests::PayLoad
+ *  is a very simple class to exercize the basic
  *  features of the @c StoreGateSvc class: publishing and retrieving data
  *  between various algorithm. The main goal is to monitor the performances of
  *  these key functionalities.

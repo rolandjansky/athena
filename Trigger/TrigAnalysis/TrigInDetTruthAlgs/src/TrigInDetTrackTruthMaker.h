@@ -50,8 +50,6 @@ class KineHepMcmap;
 class GenParticle;
 
 
-using namespace std;
-
 /** @class TrigInDetTrackTruthMaker
  *  This is TrigInDetTrackTruthMaker */
 class TrigInDetTrackTruthMaker : public AthAlgorithm

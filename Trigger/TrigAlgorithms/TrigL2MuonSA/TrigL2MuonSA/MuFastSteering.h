@@ -33,7 +33,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 //using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
@@ -83,10 +83,10 @@ class MuFastSteering : public HLT::FexAlgo,
   /** this function can be called from both execute() and hltExecute() **/
   StatusCode findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roi, 
 			       const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
-                               xAOD::L2StandAloneMuonContainer* 		outputTracks,
-			       TrigRoiDescriptorCollection*	 		outputID,
-			       TrigRoiDescriptorCollection*	 		outputMS,
-			       xAOD::TrigCompositeContainer*			outputComposite);
+                               DataVector<xAOD::L2StandAloneMuon>& 		outputTracks,
+			       TrigRoiDescriptorCollection&	 		outputID,
+			       TrigRoiDescriptorCollection&	 		outputMS,
+			       DataVector<xAOD::TrigComposite>&			outputComposite);
 
   int L2MuonAlgoMap(const std::string& name);
   
@@ -116,9 +116,9 @@ class MuFastSteering : public HLT::FexAlgo,
 		    const TrigL2MuonSA::MdtHits&             mdtHits,
 		    const TrigL2MuonSA::CscHits&             cscHits,
 		    std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns,
-                    xAOD::L2StandAloneMuonContainer*         outputTracks,
-		    TrigRoiDescriptorCollection*  	     outoutID,
-		    TrigRoiDescriptorCollection*	     outputMS);
+                    DataVector<xAOD::L2StandAloneMuon>&      outputTracks,
+		    TrigRoiDescriptorCollection&  	     outoutID,
+		    TrigRoiDescriptorCollection&	     outputMS);
   /**
      Update monitoring variables
   */
@@ -216,27 +216,11 @@ class MuFastSteering : public HLT::FexAlgo,
   //WriteHandle <TrigRoiDescriptor> for MS
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey;
 
+  // Monitor system
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
   unsigned int m_countTotalRoI;
   int m_currentStage;  // The last stage reached during the processing of a given RoI
-
-  // Cuts and settings
-  float m_inner_mdt_hits;
-  float m_middle_mdt_hits;
-  float m_outer_mdt_hits;  
-  std::vector<float> m_fit_residuals;
-  std::vector<float> m_res_inner;
-  std::vector<float> m_res_middle;
-  std::vector<float> m_res_outer;
-  float m_efficiency;
-  float m_sag_inverse;
-  float m_sagitta;
-  float m_address;
-  float m_absolute_pt;
-  float m_track_pt;
-  std::vector<float> m_track_eta;
-  std::vector<float> m_track_phi;
-  std::vector<float> m_failed_eta;
-  std::vector<float> m_failed_phi;
 
   ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);

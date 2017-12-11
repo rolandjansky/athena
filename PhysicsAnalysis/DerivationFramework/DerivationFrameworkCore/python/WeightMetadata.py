@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from ReweightUtils.ReweightUtilsConf import * 
+
 
 def addWeights(seq, pdfMap = {'CT14nlo':20}, pref = ""):
 
   from AthenaCommon.AppMgr import ToolSvc
-  from ReweightUtils.ReweightUtilsConf import * 
 
   #Load standard generator event weight
   mcEventWeightNom = McEventWeight(name = pref+"mcWNom")
@@ -52,8 +53,6 @@ def addWeightsHist(stream, seq, svcMgr, CfgMgr, ToolSvc, derivName, fileName, pd
   svcMgr.THistSvc.Output += ["METADATA DATAFILE='%s' OPT='SHARE'" % (fileName) ]
   svcMgr.THistSvc.PrintAll = True
   stream.OtherAlgs += svcMgr.THistSvc 
-
-  from ReweightUtils.ReweightUtilsConf import * 
 
   #Load standard generator event weight
   mcEventWeightNom = McEventWeight(name = derivName+"_mcEventWeightNom")

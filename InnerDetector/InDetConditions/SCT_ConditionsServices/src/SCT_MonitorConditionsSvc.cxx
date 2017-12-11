@@ -69,7 +69,7 @@ SCT_MonitorConditionsSvc::~SCT_MonitorConditionsSvc()
 StatusCode
 SCT_MonitorConditionsSvc::initialize() {
   if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) {
-    ATH_MSG_ERROR("SCT helper failed to retrieve");
+    ATH_MSG_FATAL("SCT helper failed to retrieve");
     return StatusCode::FAILURE;
   }
 

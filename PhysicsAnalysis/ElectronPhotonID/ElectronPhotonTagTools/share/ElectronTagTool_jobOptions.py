@@ -95,6 +95,7 @@ ElectronTagTool = ConfiguredElectronTagTool(
      FixedCutTightIsolation          = FixedCutTightIsoTool      
      )
 
-ElectronTagTool.EgammaCalibrationAndSmearingTool.ESModel =  "es2015PRE"
+# ElectronTagTool.EgammaCalibrationAndSmearingTool.randomRunNumber = 308047
+# ElectronTagTool.EgammaCalibrationAndSmearingTool.ESModel =  "es2016data_mc15c"
 
-ToolSvc += ElectronTagTool
+# ToolSvc += ElectronTagTool

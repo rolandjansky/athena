@@ -35,23 +35,20 @@ namespace Trk
       TrkAmbiguitySolver(const std::string& name, ISvcLocator* pSvcLocator);
       ~TrkAmbiguitySolver(void);
       
-      StatusCode	      initialize(void);
-      StatusCode	      execute(void);
-      StatusCode	      finalize(void);
+      StatusCode	      initialize(void) override;
+      StatusCode	      execute(void) override;
+      StatusCode	      finalize(void) override;
 
     private:
       //!<where to find tracks (set in jobOptions and can be multiple collections)  
-      std::vector<std::string>   m_tracksLocation;
-      std::string       m_resolvedTracksLocation;//!<where to save the resolved tracks
-      std::string       m_ambiProcessorName;
-      std::string       m_ambiProcessorInstance;
+      SG::ReadHandleKeyArray<TrackCollection> m_tracksLocation;
+      SG::WriteHandleKey<TrackCollection> m_resolvedTracksLocation;//!<where to save the resolved tracks
         
       /** decides whether ambi processing actually occurs 
 	  (if not, the tracks are just resaved). 
 	  Default=false.*/
       bool              m_resolveTracks; 
-      ConstDataVector<TrackCollection>   m_oldTracks;
-      TrackCollection * m_tracks;
+
       
       /**Number of tracks input. Useful for debugging*/
       long int          m_trackInCount; 
@@ -62,15 +59,14 @@ namespace Trk
       ToolHandle<ITrackAmbiguityProcessorTool> m_ambiTool;
 
       /** get tracks */
-      StatusCode        getTracks();
+      StatusCode        getTracks(ConstDataVector<TrackCollection> &oldTracks);
 
       /** Save the processed tracks. If ambiguity process has not been called then they will 
 	  still be the original converted tracks */
-      void saveTracks() const;
       
       /** Eventually this will use the TrkAmbiguityProcessorTool to resolve the track ambiguities.
 	  At the moment it just saves a new vector of converted tracks. */
-      void resolveTracks();
+      void resolveTracks(std::unique_ptr<TrackCollection>&,  ConstDataVector<TrackCollection>&);
 };
 
 }

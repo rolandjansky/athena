@@ -29,6 +29,7 @@ struct sTGCReadoutParameters {
     std::vector<double> firstPadH;
     std::vector<int> firstPadRow;
     std::vector<int> nWires;
+    std::vector<double> wireCutout;
     std::vector<double> firstWire;
     int wireGroupWidth;
     int nStrips;
@@ -49,31 +50,31 @@ public:
     sTGCDetectorDescription(std::string s);
     void Register();
 	
-	void SetXYZ(std::vector<double> v) 
+        virtual void SetXYZ(std::vector<double> v) override
 	{
-		_small_x=v[0];
-		_large_x=v[1];
-		_y=v[2];
-		_z=v[3];
+                small_x(v[0]);
+		large_x(v[1]);
+		y(v[2]);
+		z(v[3]);
 		_yCutout=v[4];
 	}
 	
-	double sWidth() {return _small_x;}
-	double lWidth() {return _large_x;}
-	double Length() {return _y;}
-	double Tck()    {return _z;}
+	double sWidth() const {return small_x();}
+	double lWidth() const {return large_x();}
+	double Length() const {return y();}
+	double Tck()    const {return z();}
 
 	void yCutout(double y) {_yCutout=y;}
-	double yCutout() {return _yCutout;}
+	double yCutout() const {return _yCutout;}
 	
 	void xFrame(double y) {_xFrame=y;}
-	double xFrame() {return _xFrame;}
+	double xFrame() const {return _xFrame;}
 	
 	void ysFrame(double y) {_ysFrame=y;}
-	double ysFrame() {return _ysFrame;}
+	double ysFrame() const {return _ysFrame;}
 	
 	void ylFrame(double y) {_ylFrame=y;}
-	double ylFrame() {return _ylFrame;}
+	double ylFrame() const {return _ylFrame;}
 
 	sTGCReadoutParameters roParameters;
 	

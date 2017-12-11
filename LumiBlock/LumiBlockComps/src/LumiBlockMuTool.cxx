@@ -52,7 +52,7 @@ LumiBlockMuTool::actualInteractionsPerCrossing() {
 
   // Get eventInfo object
   const EventInfo* eventInfo;
-  CHECK(evtStore()->retrieve(eventInfo));
+  CHECK(evtStore()->retrieve(eventInfo), 0);
 
   // Take value from DB?     
   if (m_useDB) {
@@ -96,7 +96,7 @@ LumiBlockMuTool::averageInteractionsPerCrossing() {
 
   // Otherwise get from EventInfo
   const EventInfo* eventInfo;
-  CHECK(evtStore()->retrieve(eventInfo));
+  CHECK(evtStore()->retrieve(eventInfo), 0);
 
   // Read MC data from LB number?
   if (eventInfo->event_type()->test(EventType::IS_SIMULATION)) {

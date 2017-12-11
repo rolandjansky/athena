@@ -36,9 +36,7 @@ namespace Barcode {
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
 
-  class LegacyBarcodeSvc : public AthService,
-                           public IBarcodeSvc,
-                           virtual public IIncidentListener {
+  class LegacyBarcodeSvc : public extends<AthService, IBarcodeSvc, IIncidentListener> {
   public:
 
     /** Constructor with parameters */
@@ -50,9 +48,6 @@ namespace Barcode {
     /** Athena algorithm's interface methods */
     StatusCode  initialize();
     StatusCode  finalize();
-
-    /** Query the interfaces. **/
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
     /** Incident to reset the barcodes at the beginning of the event */
     void handle(const Incident& inc);

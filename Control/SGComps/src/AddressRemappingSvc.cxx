@@ -16,6 +16,7 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IAlgManager.h"
 
+#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IRCUSvc.h"
@@ -471,10 +472,23 @@ void AddressRemappingSvc::initDeletes()
       // Need to ignore SGInputLoader; it'll have output deps
       // on everything being read.
       if (alg->name() == "SGInputLoader") continue;
+
       for (const DataObjID& dobj : alg->outputDataObjs()) {
         static const std::string pref = "StoreGateSvc+";
         if (dobj.key().substr (0, pref.size()) == pref) {
-          m_deletes.emplace (dobj.key().substr (pref.size()), dobj.clid());
+          std::string key = dobj.key().substr (pref.size());
+          m_deletes.emplace (key, dobj.clid());
+
+          // If this looks like an xAOD type, then also make an entry
+          // for an aux store.  Don't want to try to rely on BaseInfo here,
+          // as we may not have loaded the proper libraries yet.
+          // Second line of the test is to handle the tests in DataModelTest.
+          if (dobj.fullKey().find ("xAOD") != std::string::npos ||
+              dobj.fullKey().find ("cinfo") != std::string::npos)
+          {
+            m_deletes.emplace (key + "Aux.",
+                               ClassID_traits<SG::IConstAuxStore>::ID());
+          }
         }
       }
     }
@@ -486,11 +500,9 @@ bool AddressRemappingSvc::isDeleted (const SG::TransientAddress& tad) const
   std::string key = tad.name();
   for (auto p : boost::make_iterator_range (m_deletes.equal_range (key))) {
     CLID clid = p.second;
-    if (tad.transientID (clid)) return true;
-  }
-
-  if (key.size() > 4 && key.substr (key.size()-4, 4) == "Aux.") {
-    if (m_deletes.count (key.substr (0, key.size()-4)) > 0) return true;
+    if (tad.transientID (clid)) {
+      return true;
+    }
   }
   return false;
 }

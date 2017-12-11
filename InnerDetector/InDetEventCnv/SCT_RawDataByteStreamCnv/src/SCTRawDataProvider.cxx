@@ -150,7 +150,7 @@ StatusCode SCTRawDataProvider::execute()
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
   if (m_rawDataTool->convert(listOfRobf, *rdoInterface, bsErrContainer.ptr()).isFailure()) {
-    ATH_MSG_ERROR("BS conversion into RDOs failed");
+    ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
   if(dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());
   

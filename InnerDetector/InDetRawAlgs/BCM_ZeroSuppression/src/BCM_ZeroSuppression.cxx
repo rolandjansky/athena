@@ -39,11 +39,8 @@ StatusCode BCM_ZeroSuppression::initialize() {
 StatusCode BCM_ZeroSuppression::execute() {
   msg(MSG::DEBUG) << "execute()" << endmsg;
 
-  StatusCode sc;
-
   //  Check for BCM RDO
-  sc=evtStore()->contains<BCM_RDO_Container>(m_bcmContainerName);
-  if( sc.isFailure() ) {
+  if( !evtStore()->contains<BCM_RDO_Container>(m_bcmContainerName) ) {
     msg(MSG::DEBUG) << m_bcmContainerName << " not found" << endmsg;
     return StatusCode::SUCCESS;
   }
@@ -54,7 +51,7 @@ StatusCode BCM_ZeroSuppression::execute() {
   
   // Retrieve BCM RDO
   m_bcmRDO = 0;
-  sc=evtStore()->retrieve( m_bcmRDO,  m_bcmContainerName);
+  StatusCode sc=evtStore()->retrieve( m_bcmRDO,  m_bcmContainerName);
   if( sc.isFailure() || !m_bcmRDO ) {
     // There is a warning from StoreGate anyways at this point. 
     return StatusCode::SUCCESS;

@@ -77,7 +77,7 @@ public:
 /// but it was released because it was added to a container.
 /// (And therefore we should recreate the private store if the
 /// object is later removed.)
-SG::AuxElementData* AuxElement::s_privatePlaceholder =
+SG::AuxElementData* const AuxElement::s_privatePlaceholder =
   reinterpret_cast<SG::AuxElementData*>(1);
 
 
@@ -249,7 +249,7 @@ const SG::auxid_set_t& AuxElement::getAuxIDs() const
     return m_privateData->getConstStore()->getAuxIDs();
   if (container())
     return container()->getAuxIDs();
-  static SG::auxid_set_t null_set;
+  static const SG::auxid_set_t null_set;
   return null_set;
 }
 
