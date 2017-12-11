@@ -411,7 +411,7 @@ namespace ROIB {
       // Put RoIB RDO object into SG:
       //
       auto roibHandle = SG::makeHandle( m_roibRDOLocation );
-      roibHandle.record( std::move( roib_rdo_result ) );
+      CHECK( roibHandle.record( std::move( roib_rdo_result ) ) );
       // no owerwite possible now
 
       //
