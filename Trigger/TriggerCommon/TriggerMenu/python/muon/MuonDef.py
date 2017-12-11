@@ -2285,25 +2285,20 @@ class L2EFChain_mu(L2EFChainDef):
       from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
       Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
       self.L2sequenceList += [[ '', [Roimaker], 'L2_mu_step0_oot']]
-      self.L2sequenceList += [[ 'L2_mu_step0_oot', [theL2StandAloneAlg], 'L2_mu_step1_oot']]
-      self.L2sequenceList += [[ 'L2_mu_step1_oot', [theL2StandAloneHypo], 'L2_mu_hypo1_oot']]
-      self.EFsequenceList += [[ 'L2_mu_hypo1_oot' , trkfast+trkprec, 'EF_mu_step1']]
+      self.L2sequenceList += [[ 'L2_mu_step0_oot', [theL2StandAloneAlg], 'L2_mu_step1_LateMu']]
     else:
-      self.L2sequenceList += [[ self.L2InputTE, [theL2StandAloneAlg], 'L2_mu_step1_it']]
-      self.L2sequenceList += [[ 'L2_mu_step1_it', [theL2StandAloneHypo], 'L2_mu_hypo1_it']]
-      self.EFsequenceList += [[ 'L2_mu_hypo1_it' , trkfast+trkprec, 'EF_mu_step1']]
+      self.L2sequenceList += [[ self.L2InputTE, [theL2StandAloneAlg], 'L2_mu_step1_LateMu']]
 
+    self.L2sequenceList += [[ 'L2_mu_step1_LateMu', [theL2StandAloneHypo], 'L2_mu_hypo1_LateMu']]
+    self.EFsequenceList += [[ 'L2_mu_hypo1_LateMu' , trkfast+trkprec, 'EF_mu_step1']]
     self.EFsequenceList += [[ 'EF_mu_step1' , [theEFAlg], 'EF_mu_step2']]
     self.EFsequenceList += [[ 'EF_mu_step2'  , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
 
     if "inTimeRoI" not in self.chainPart['addInfo']:
       self.L2signatureList += [ [['L2_mu_step0_oot']] ]
-      self.L2signatureList += [ [['L2_mu_step1_oot']] ]
-      self.L2signatureList += [ [['L2_mu_hypo1_oot']] ]
-    else:
-      self.L2signatureList += [ [['L2_mu_step1_it']] ]
-      self.L2signatureList += [ [['L2_mu_hypo1_it']] ]
 
+    self.L2signatureList += [ [['L2_mu_step1_LateMu']] ]
+    self.L2signatureList += [ [['L2_mu_hypo1_LateMu']] ]
     self.EFsignatureList += [ [['EF_mu_step1']] ]
     self.EFsignatureList += [ [['EF_mu_step2']] ]
     self.EFsignatureList += [ [['EF_mu_step3']] ]
