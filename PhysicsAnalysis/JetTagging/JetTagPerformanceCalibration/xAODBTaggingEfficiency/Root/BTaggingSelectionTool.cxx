@@ -63,18 +63,19 @@ StatusCode BTaggingSelectionTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // The tool supports only Akt4TopoEM, Akt4PV0Track and Akt2PV0Track jets, and VR track jets (AntiKtVR30Rmax4Rmin02TrackJets)
+  // The tool supports only these taggers and jet collections:
   if ("DL1"!=m_taggerName&&
-	      "DL1mu"!=m_taggerName&&
-	      "DL1rnn"!=m_taggerName&&
-	      "MV2c10"!=m_taggerName&&
-	      "MV2c10mu"!=m_taggerName&&
-	      "MV2c10rnn"!=m_taggerName&&
-	      "MV2cl100_MV2c100"!=m_taggerName){
+        "DL1mu"!=m_taggerName&&
+        "DL1rnn"!=m_taggerName&&
+        "MV2c10"!=m_taggerName&&
+        "MV2c10mu"!=m_taggerName&&
+        "MV2c10rnn"!=m_taggerName&&
+        "MV2cl100_MV2c100"!=m_taggerName){
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName );
     return StatusCode::FAILURE;
   }
   if ("AntiKt4EMTopoJets"  != m_jetAuthor &&
+      "AntiKt4EMPFlowJets" != m_jetAuthor &&
       "AntiKt2PV0TrackJets"!= m_jetAuthor &&
       "AntiKt4PV0TrackJets"!= m_jetAuthor &&
       "AntiKtVR30Rmax4Rmin02TrackJets" !=m_jetAuthor
@@ -85,8 +86,9 @@ StatusCode BTaggingSelectionTool::initialize() {
 
   // Change the minPt cut if the user didn't touch it
   if (20000==m_minPt){// is it still the default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor || "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor) m_minPt=10000 ;
-    if ("AntiKt4PV0TrackJets"== m_jetAuthor) m_minPt= 7000 ;
+    if ("AntiKt2PV0TrackJets"== m_jetAuthor){ m_minPt=10000; }
+    if ("AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor){ m_minPt= 7000; }
+    if ("AntiKt4PV0TrackJets"== m_jetAuthor){ m_minPt= 7000; }
   }
   // Change the maxRangePt cut if the user didn't touch it
   if (1000000==m_maxRangePt){// is it still the default value
@@ -95,13 +97,7 @@ StatusCode BTaggingSelectionTool::initialize() {
   }
 
   // Operating point reading
-  TString cutname = m_OP;
- if("DL1"    ==m_taggerName){ m_fraction = 0.08; }
- if("DL1mu"  ==m_taggerName){ m_fraction = 0.08; }
- if("DL1rnn" ==m_taggerName){ m_fraction = 0.03; }
-
- if(m_OP == "CTag_Loose"){ m_fraction = 0.08; }
- if(m_OP == "CTag_Tight"){ m_fraction = 0.02; }
+    TString cutname = m_OP;
 
   if ("Continuous"==cutname(0,10)){  // For continuous tagging load all flat-cut WPs
     //100% efficiency => MVXWP=-infinity
@@ -146,6 +142,29 @@ StatusCode BTaggingSelectionTool::initialize() {
       m_constcut = (TVector*) m_inf->Get(cutname);
       if (m_constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
     }
+  }
+
+  //retrive the "fraction" used in the DL1 log likelihood from the CDI, if its not there, use the hard coded values
+  // (backwards compatibility)
+  if(m_taggerName.find("DL1") != string::npos){
+
+    TString fraction_data_name = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/fraction";
+    TVector *fraction_data = (TVector*) m_inf->Get(fraction_data_name);
+
+    if(fraction_data!=nullptr){
+      m_fraction = fraction_data[0](0);
+    }else{
+      if("DL1"    ==m_taggerName){ m_fraction = 0.08; }
+      if("DL1mu"  ==m_taggerName){ m_fraction = 0.08; }
+      if("DL1rnn" ==m_taggerName){ m_fraction = 0.03; }
+
+      if(m_OP == "CTag_Loose" && "DL1"    ==m_taggerName ){ m_fraction = 0.25; }
+      if(m_OP == "CTag_Tight" && "DL1"    ==m_taggerName ){ m_fraction = 0.18; }
+      if(m_OP == "CTag_Loose" && "DL1rnn" ==m_taggerName ){ m_fraction = 0.08; }
+      if(m_OP == "CTag_Tight" && "DL1rnn" ==m_taggerName ){ m_fraction = 0.02; }
+    }
+
+    delete fraction_data;
   }
 
   m_inf->Close();
@@ -427,18 +446,23 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
     return m_accept;
    };
 
-   float weight = -1;
+
+   double tagger_weight(-100);
 
    bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
 
-   if (valid_input){ weight = log( pb/(m_fraction*pc+(1.-m_fraction)*pu) ); }
+   if( !valid_input || getTaggerWeight(pb, pc, pu, tagger_weight)!=CorrectionCode::Ok){
+      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      return m_accept;
+   }
 
-   if ( !valid_input ||  weight < cutvalue ){
+   if ( tagger_weight < cutvalue ){
      return m_accept;
    }
+
+   //if you made it here, the jet is tagged
    m_accept.setCutResult( "WorkingPoint", true );
 
-   // Return the result:
    return m_accept;
  }
 
