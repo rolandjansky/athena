@@ -7,7 +7,7 @@
 
 StgcRdoToStgcPrepData::StgcRdoToStgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_decoderTool ("Muon::StgcRdoToStgcPrepDataTool/StgcRdoToStgcPrepDataTool"),
+m_decoderTool ("Muon::STGC_RawDataToPrepDataTool/STGC_RawDataToPrepDataTool"),
 m_prdContainer("sTGC_Measurements")
 {
   declareProperty("OutputCollection",   m_prdContainer);
