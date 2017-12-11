@@ -75,6 +75,9 @@ namespace Muon {
       ATH_MSG_ERROR("Failed to initialize " << m_truthSummaryTool );
       return StatusCode::FAILURE;
     }
+    else{
+      m_truthSummaryTool.disable();
+    }
     if( detStore()->retrieve( m_detMgr ).isFailure() || !m_detMgr ){
       ATH_MSG_ERROR("Failed to initialize detector manager" );
       return StatusCode::FAILURE;

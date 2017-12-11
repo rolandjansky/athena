@@ -59,7 +59,6 @@ namespace Muon {
       m_intersectSvc("MuonStationIntersectSvc",name()),
       m_extrapolator("Trk::Extrapolator/MuonExtrapolator"),
       m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_tubeRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtTubeHitOnTrackCreator"),
       m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
       m_clusRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
@@ -79,7 +78,6 @@ namespace Muon {
     declareProperty("MuonStationIntersectSvc", m_intersectSvc);
     declareProperty("Extrapolator",            m_extrapolator);
     declareProperty("MdtRotCreator",           m_mdtRotCreator);
-    declareProperty("TubeRotCreator",          m_tubeRotCreator);
     declareProperty("CscRotCreator",           m_cscRotCreator);
     declareProperty("ClusterRotCreator",          m_clusRotCreator);
     declareProperty("PullCalculator",          m_pullCalculator);
@@ -114,6 +112,7 @@ namespace Muon {
     }
 
     ATH_CHECK( m_clusRotCreator.retrieve() );
+    ATH_CHECK( m_pullCalculator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_intersectSvc.retrieve() );
 
