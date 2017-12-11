@@ -20,7 +20,7 @@
     </TEST>
 
     <TEST name="FullG4_LongLived_ZPrime_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4_LongLived' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+        <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4_LongLived' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
       <timelimit>120</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
@@ -213,7 +213,7 @@
             <jobTransform userJobId="FullG4_LongLived_ZPrime_1sim">
               <doc>Test detector functionality for ISF G4 using ttbar</doc>
               <jobTransformJobName>FullG4_LongLived_ZPrime_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4_LongLived' --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 10</jobTransformCmd>
+              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4_LongLived' --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 10</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
 
@@ -264,7 +264,7 @@
             <jobTransform userJobId="G4_MC15_ZPrime_QuasiStable_1sim">
               <doc>Test detector functionality for ISF G4 using ttbar</doc>
               <jobTransformJobName>G4_MC15_ZPrime_QuasiStable_1sim</jobTransformJobName>
-              <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1 EVNT.04607198._000001.pool.root.1; Sim_tf.py --inputEVNTFile="EVNT.04607198._000001.pool.root.1" --DataRunNumber="222525" --conditionsTag="OFLCOND-RUN12-SDR-20" --geometryVersion="ATLAS-R2-2015-03-01-00_VALIDATION" --maxEvents="10" --outputHITSFile="Hits.pool.root" --physicsList="FTFP_BERT" --postInclude="PyJobTransforms/UseFrontier.py" --preInclude EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py --randomSeed="8" --simulator="MC12G4_longLived" --truthStrategy MC15 --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <jobTransformCmd>xrdcp root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1 EVNT.04607198._000001.pool.root.1; Sim_tf.py --inputEVNTFile="EVNT.04607198._000001.pool.root.1" --DataRunNumber="222525" --conditionsTag="OFLCOND-RUN12-SDR-20" --geometryVersion="ATLAS-R2-2015-03-01-00_VALIDATION" --maxEvents="10" --outputHITSFile="Hits.pool.root" --physicsList="FTFP_BERT" --postInclude="PyJobTransforms/UseFrontier.py" --preInclude EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py --randomSeed="8" --simulator="MC12G4_longLived" --truthStrategy MC15 --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
 

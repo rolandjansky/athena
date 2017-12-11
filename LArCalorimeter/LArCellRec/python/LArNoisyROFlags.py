@@ -25,6 +25,20 @@ class BadFEBCut(JobProperty):
     StoredValue=5
     pass
 
+class MNBLooseCut(JobProperty):
+    #Number of channels to declare MNB-Loose
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=5
+    pass
+
+class MNBTightCut(JobProperty):
+    #Number of channels to declare MNB-Loose
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=17
+    pass
+
 class KnownMNBFEBs(JobProperty):
     #Number of bad febs per partition 
     statusOn=True
@@ -51,6 +65,8 @@ jobproperties.add_Container(LArNoisyROFlags)
 jobproperties.LArNoisyROFlags.add_JobProperty(CellQualityCut)
 jobproperties.LArNoisyROFlags.add_JobProperty(BadChanPerFEB)
 jobproperties.LArNoisyROFlags.add_JobProperty(BadFEBCut)
+jobproperties.LArNoisyROFlags.add_JobProperty(MNBLooseCut)
+jobproperties.LArNoisyROFlags.add_JobProperty(MNBTightCut)
 jobproperties.LArNoisyROFlags.add_JobProperty(KnownMNBFEBs)
 
 larNoisyROFlags = jobproperties.LArNoisyROFlags

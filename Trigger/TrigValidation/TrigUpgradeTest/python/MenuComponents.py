@@ -18,10 +18,10 @@ class NodeSequence():
             Alg.setInput(alg_input) 
             alg_input = Alg.getOutput()
         self.hypo.setInput(Alg.getOutput())
-        print "connect: %s"%self
+        print "connect NodeSequence %s"%self.name
             
     def __str__(self):
-        return "NodeSequence %s with \n Seed::%s \n InputMaker::%s  \n %s \n Hypo::%s"%(self.name, self.seed, self.inputMaker, ', \n'.join(map(str, self.algs)), self.hypo)
+        return "NodeSequence::%s with \n Seed::%s \n InputMaker::%s  \n %s \n Hypo::%s"%(self.name, self.seed, self.inputMaker, ', \n'.join(map(str, self.algs)), self.hypo)
 
 class MenuSequence():
     def __init__(self, name, nodeSeqList):
@@ -29,17 +29,17 @@ class MenuSequence():
         self.nodeSeqList=nodeSeqList
 
     def __str__(self):
-        return "MenuSequence::%s \n  %s"%(self.name,',\n '.join(map(str, self.nodeSeqList)))
+        return "MenuSequence::%s \n %s"%(self.name,',\n '.join(map(str, self.nodeSeqList)))
 
 
-class CFSeq:
+class CFSequence():
     def __init__(self, name, FilterAlg, MenuSequence):
         self.name = name        
         self.filter = FilterAlg
         self.menuSeq = MenuSequence
 
     def __str__(self):
-        return "--- CFSeq %s ---\n + Filter: %s \n +  %s \n "%(self.name,\
+        return "--- CFSequence %s ---\n + Filter: %s \n +  %s \n "%(self.name,\
             self.filter, \
             self.menuSeq)
 
@@ -52,16 +52,16 @@ class CFSeq:
         return algs
         
 
-class SequenceThreshold:
-    def __init__(self, Sequence, Threshold):
+class SequenceHypoTool:
+    def __init__(self, Sequence, HypoTool):
         self.sequence = Sequence
-        self.threshold = Threshold
+        self.hypotool = HypoTool
         
 
 class ChainStep:
-     def __init__(self, name,  SequenceThresholds=[]):
+     def __init__(self, name,  SequenceHypoTools=[]):
         self.name = name        
-        self.sequenceThresholds = SequenceThresholds
+        self.sequenceHypoTool = SequenceHypoTools
 
 
 class Chain:

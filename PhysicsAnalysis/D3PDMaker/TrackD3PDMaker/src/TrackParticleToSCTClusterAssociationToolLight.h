@@ -6,7 +6,7 @@
 #define TRACKD3PD_TRACKPARTICLETOSCTCLUSTERASSOCIATIONTOOLLIGHT_H
 
 #include "D3PDMakerUtils/MultiAssociationTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"

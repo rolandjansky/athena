@@ -28,7 +28,7 @@ namespace Simulation
   CrabKissingVertexPositioner::CrabKissingVertexPositioner( const std::string& t,
                                                             const std::string& n,
                                                             const IInterface* p )
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_beamCondSvc("BeamCondSvc", n),
       m_rndGenSvc("AtRndmGenSvc", n),
       m_randomEngine(0),
@@ -42,8 +42,6 @@ namespace Simulation
       m_alphaX(295e-6),
       m_thetaX(295e-6)
   {
-    declareInterface<ILorentzVectorGenerator>(this);
-
     // declare properties for the configuration
     declareProperty( "BeamCondSvc"  , m_beamCondSvc,      ""                                                );
     declareProperty( "RandomSvc"    , m_rndGenSvc,        ""                                                );

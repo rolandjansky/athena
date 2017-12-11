@@ -226,7 +226,7 @@ class athenaLogFileReport(logFileReport):
         # takes the next group of non-whitespace characters as the service, then
         # then matches from the list of known levels, then finally, ignores any last
         # pieces of whitespace prefix and takes the rest of the line as the message
-        self._regExp = re.compile(r'(?P<service>[^\s]+)\s+(?P<level>' + '|'.join(stdLogLevels) + r')\s+(?P<message>.*)')
+        self._regExp = re.compile(r'(?P<service>[^\s]+\w)\s+(?P<level>' + '|'.join(stdLogLevels) + r')\s+(?P<message>.*)')
 
         self._metaPat = re.compile(r"MetaData:\s+(.*?)\s*=\s*(.*)$")
         self._metaData = {}
@@ -410,7 +410,7 @@ class athenaLogFileReport(logFileReport):
         firstLevel = stdLogLevels[floor]
         firstName = floor
         for lvl, count in self._levelCounter.iteritems():
-            if (count > 0 and stdLogLevels.get(lvl, 0) >= floor and
+            if (count > 0 and stdLogLevels.get(lvl, 0) >= stdLogLevels[floor] and
                 (firstError == None or self._errorDetails[lvl][0]['firstLine'] < firstLine)):
                 firstLine = self._errorDetails[lvl][0]['firstLine']
                 firstLevel = stdLogLevels[lvl]

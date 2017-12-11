@@ -24,6 +24,9 @@ public :
 					const PixelChargeInterpolationParameters &model);
 	
 	virtual ~PixelChargeInterpolationHistograms();
+        
+        PixelChargeInterpolationHistograms (const PixelChargeInterpolationHistograms&) = delete;
+        PixelChargeInterpolationHistograms& operator = (const PixelChargeInterpolationHistograms&) = delete;
 	
 	int Fill(int DetType, double GeVTrkPt,
 		double TrkEta, double DeltaCol, double reseta, double OmegaEta,

@@ -18,7 +18,8 @@
 // Forward declaration
 class MsgStream;
 
-
+/** @class  ITPCnvBase
+*/
 class ITPCnvBase
 { 
 

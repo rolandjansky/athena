@@ -4,8 +4,8 @@ from glob import glob
 #_cbntfiles = glob('/tmp/binet/data/mini*.root*')
 #_cbntfiles = glob('/tmp/binet/data/ntuple*.root*')
 _cbntfiles = [
-    'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root',
-    'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.1.root',
+    'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root',
+    'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.1.root',
     ]
 import AthenaRootComps.ReadAthenaRoot
 svcMgr.EventSelector.InputCollections = _cbntfiles

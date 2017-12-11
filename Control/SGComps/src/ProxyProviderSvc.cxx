@@ -58,6 +58,12 @@ ProxyProviderSvc::initialize()
     return StatusCode::FAILURE;
   }
 
+  // Take care of any pending preLoadProxies requests.
+  for (IProxyRegistry* reg : m_pendingLoad) {
+    CHECK( doPreLoadProxies (*reg) );
+  }
+  m_pendingLoad.clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -80,10 +86,8 @@ void setProviderOnList (ProxyProviderSvc::TAdList& tList,
 } // anonymous namespace
 
 
-///IProxyProvider interface
-/// add proxies (before Begin Event)
 StatusCode 
-ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
+ProxyProviderSvc::doPreLoadProxies(IProxyRegistry& store)
 {
   if (m_providers.empty()) return StatusCode::SUCCESS;
 
@@ -95,6 +99,24 @@ ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
   }
   ATH_CHECK( addAddresses (store, tList) );
   return StatusCode::SUCCESS;
+}
+
+
+///IProxyProvider interface
+/// add proxies (before Begin Event)
+StatusCode 
+ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
+{
+  // Due to initialization loops, it's possible for this to be called
+  // before the service is fully initialized.  In that case, we may
+  // skip calling some of the providers.  So we haven't been fully initialized,
+  // don't do anything now; rather, remember the store, and call
+  // preLoadProxies again for it at the end of initialize().
+  if (FSMState() == Gaudi::StateMachine::OFFLINE) {
+    m_pendingLoad.push_back (&store);
+    return StatusCode::SUCCESS;
+  }
+  return doPreLoadProxies (store);
 }
 
 

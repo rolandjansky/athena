@@ -27,6 +27,25 @@
 
 #include "TClass.h"
 
+
+namespace
+{
+  struct DataObjIDSorter {
+    bool operator()( const DataObjID* a, const DataObjID* b ) { return a->fullKey() < b->fullKey(); }
+  };
+
+  // Sort a DataObjIDColl in a well-defined, reproducible manner.
+  // Used for making debugging dumps.
+  std::vector<const DataObjID*> sortedDataObjIDColl( const DataObjIDColl& coll )
+  {
+    std::vector<const DataObjID*> v;
+    v.reserve( coll.size() );
+    for ( const DataObjID& id : coll ) v.push_back( &id );
+    std::sort( v.begin(), v.end(), DataObjIDSorter() );
+    return v;
+  }
+}
+
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -184,13 +203,13 @@ CondInputLoader::initialize()
   StatusCode sc(StatusCode::SUCCESS);
   std::ostringstream str;
   str << "Will create WriteCondHandle dependencies for the following DataObjects:";
-  for (auto &e : m_load) {
-    str << "\n    + " << e;
-    if (e.key() == "") {
+  for (auto &e : sortedDataObjIDColl(m_load)) {
+    str << "\n    + " << *e;
+    if (e->key() == "") {
       sc = StatusCode::FAILURE;
       str << "   ERROR: empty key is not allowed!";
     } else {
-      SG::VarHandleKey vhk(e.clid(),e.key(),Gaudi::DataHandle::Writer,
+      SG::VarHandleKey vhk(e->clid(),e->key(),Gaudi::DataHandle::Writer,
                            StoreID::storeName(StoreID::CONDITION_STORE));
       if (m_condSvc->regHandle(this, vhk).isFailure()) {
         ATH_MSG_ERROR("Unable to register WriteCondHandle " << vhk.fullKey());
@@ -239,7 +258,7 @@ CondInputLoader::start()
         ATH_MSG_WARNING("unable to convert clid " << ditr->clid() << " to a classname."
                         << "This is a BAD sign, but will try to continue");
       }
-      CondContBase* cb = 
+      SG::DataObjectSharedPtr<DataObject> cb = 
         CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
       if (cb == 0) {
         // try to force a load of libraries using ROOT
@@ -255,7 +274,7 @@ CondInputLoader::start()
       } else {
         ATH_MSG_INFO("created CondCont<" << tp << "> with key '"
                      << ditr->key() << "'");
-        if (m_condStore->record(cb, vhk.key()).isFailure()) {
+        if (m_condStore->recordObject(cb, vhk.key(), true, false) == nullptr) {
           ATH_MSG_ERROR("while creating a CondContBase for " 
                         << vhk.fullKey());
           fail = true;

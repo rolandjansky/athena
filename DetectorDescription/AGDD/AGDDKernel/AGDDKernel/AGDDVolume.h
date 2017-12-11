@@ -14,37 +14,37 @@ class AGDDVolume {
 public:
 	AGDDVolume(std::string s, bool v=false);
 	virtual ~AGDDVolume() {}
-	std::string GetName() {return name;}
-	void SetMaterial(std::string n) {material=n;}
+	std::string GetName() {return m_name;}
+	void SetMaterial(std::string n) {m_material=n;}
 	virtual void CreateSolid() {}
 	virtual void CreateVolume() {}
 	void AddDaughter(AGDDPositioner* v) ;
-	AGDDPositioner* GetDaughter(int i) {return theDaughters[i];}
-	int NrOfDaughter() {return theDaughters.size();}
-	bool HasParent() {return (theParents.size());}
-	void AddParent(AGDDVolume *v) {theParents.push_back(v);}
-	void *GetVolume() {return theVolume;}
-	void *GetSolid() {return theSolid;}
-	void SetSolid(void *p) {theSolid=p;}
-	void SetVolume(void *p) {theVolume=p;}
-	void SetColor(std::string c) {color=c;}
+	AGDDPositioner* GetDaughter(int i) {return m_theDaughters[i];}
+	int NrOfDaughter() {return m_theDaughters.size();}
+	bool HasParent() {return (m_theParents.size());}
+	void AddParent(AGDDVolume *v) {m_theParents.push_back(v);}
+	void *GetVolume() {return m_theVolume;}
+	void *GetSolid() {return m_theSolid;}
+	void SetSolid(void *p) {m_theSolid=p;}
+	void SetVolume(void *p) {m_theVolume=p;}
+	void SetColor(std::string c) {m_color=c;}
 	void IsSensitiveVolume(bool v); 
-	bool IsSensitiveVolume() {return isSensitive;}
-	std::string GetColor() {return color;}
-	std::string GetMaterial() {return material;}
+	bool IsSensitiveVolume() {return m_isSensitive;}
+	std::string GetColor() {return m_color;}
+	std::string GetMaterial() {return m_material;}
 protected:
  
-	std::string name;
-	std::string material;
-	std::vector<AGDDPositioner*> theDaughters;
-	std::vector<AGDDVolume*> theParents;
+	std::string m_name;
+	std::string m_material;
+	std::vector<AGDDPositioner*> m_theDaughters;
+	std::vector<AGDDVolume*> m_theParents;
 	
-	std::string color;
+	std::string m_color;
 	
-	void* theSolid;
-	void* theVolume;
+	void* m_theSolid;
+	void* m_theVolume;
 
-	bool isSensitive;
+	bool m_isSensitive;
 };
 
 #endif

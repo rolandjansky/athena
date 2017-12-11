@@ -207,11 +207,11 @@ StatusCode McEventSelector::queryInterface(const InterfaceID& riid,
   if ( riid == IEvtSelector::interfaceID() )  {
     *ppvIf = (IEvtSelector*)this;
     addRef();
-    return SUCCESS;
+    return StatusCode::SUCCESS;
   } else if (riid == IEvtSelectorSeek::interfaceID() ) {
     *ppvIf = dynamic_cast<IEvtSelectorSeek*>(this);
     addRef();
-    return SUCCESS;
+    return StatusCode::SUCCESS;
   }
   return AthService::queryInterface( riid, ppvIf );
 }

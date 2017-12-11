@@ -135,7 +135,7 @@ bool MuonCalibDbCalibrationSource::StoreT0Chamber(const int & chamber, const std
   f<<chamber<<m_site_name<<m_head_id;
   if (!m_inserter->StartT0Chamber(sid))	{
     log<< MSG::WARNING <<"Cannot insert chamber "<<chamber<<endmsg;
-    return StatusCode::SUCCESS;
+    return true;
   }
   for(std::map<TubeId, coral::AttributeList>::const_iterator it=rows.begin(); it!=rows.end(); it++) {
     if(!m_inserter->AppendT0(it->second["P4"].data<float>() + m_t0_offset, it->second["VALIDFLAG"].data<short>(), it->second["ADC_1"].data<float>())) {
@@ -144,7 +144,7 @@ bool MuonCalibDbCalibrationSource::StoreT0Chamber(const int & chamber, const std
     }
   }
   m_inserter->StoreT0Chamber(sid, f.str(), m_creation_flags);
-  return StatusCode::SUCCESS;
+  return true;
 }
 
 bool MuonCalibDbCalibrationSource::StoreRtChamber(const int & chamber, const std::map<int, SamplePoint> & points) {
@@ -171,7 +171,7 @@ bool MuonCalibDbCalibrationSource::StoreRtChamber(const int & chamber, const std
   } else {
     m_inserter->StoreRtChamber(sid, points, f.str(), m_creation_flags);
   }
-  return StatusCode::SUCCESS;
+  return true;
 }
 	
 bool MuonCalibDbCalibrationSource::insert_calibration( bool store_t0, bool store_rt) {

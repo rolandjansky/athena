@@ -96,7 +96,7 @@ int main( int argc, char* argv[] ) {
 
    // Create the tool
    std::unique_ptr<CP::IEgammaCalibrationAndSmearingTool> tool(new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool"));
-   asg::setProperty(tool.get(), "ESModel", "es2016data_mc15c");
+   asg::setProperty(tool.get(), "ESModel", "es2017_R21_PRE");
    asg::setProperty(tool.get(), "randomRunNumber", 123456);
    RETURN_CHECK(APP_NAME, tool->initialize());
 

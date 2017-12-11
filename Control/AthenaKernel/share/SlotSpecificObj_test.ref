@@ -1,14 +1,15 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/SlotSpecificObj_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/SlotSpecificObj_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/bld2/work/cmsg/src/Control/AthenaKernel/share/../share/SlotSpecificObj_test.txt
 JobOptionsSvc        INFO # (1,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO Job options successfully read in from ../share/SlotSpecificObj_test.txt
+MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Jul  6 15:46:33 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r1)
+                                          running on zeus on Thu Nov  9 09:47:34 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ServiceManager      DEBUG Initializing service AppMgrRunable
@@ -23,9 +24,9 @@ AlgExecStateSvc     DEBUG Service base class initialized successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramDataSvc    DEBUG Service base class initialized successfully
-HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
 HistogramPersis...  DEBUG Service base class initialized successfully
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
+TestWhiteBoard      DEBUG Service base class initialized successfully

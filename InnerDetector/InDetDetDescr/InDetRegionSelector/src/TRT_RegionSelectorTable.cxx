@@ -235,8 +235,7 @@ TRT_RegionSelectorTable::createTable()
 
 #ifdef USE_STOREGATE
   std::string newtrtKey = "TRTRegSelSiLUT";
-  sc = detStore()->contains< RegSelSiLUT >(newtrtKey);
-  if (sc == StatusCode::SUCCESS ) {
+  if ( detStore()->contains< RegSelSiLUT >(newtrtKey) ) {
     msg(MSG::FATAL) << " TRTRegSelSiLUT " << newtrtKey << " already exists " << endmsg;
   } else {
     // create and store LUT

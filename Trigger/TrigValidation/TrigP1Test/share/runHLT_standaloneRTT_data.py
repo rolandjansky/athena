@@ -25,7 +25,7 @@ def getEosDirectoryList(path,lbRange,sfoRange):
 
         if lumiBlock.isdigit() and sfoNumber.isdigit():
             if int(lumiBlock) > lbRange[0]-1 and int(lumiBlock) < lbRange[1]+1 and int(sfoNumber) > sfoRange[0]-1 and int(sfoNumber) <sfoRange[1]+1:  
-                (status,output) = commands.getstatusoutput("xrdcp -s root://eosatlas/%s/%s %s/." % (path,i,pool) )
+                (status,output) = commands.getstatusoutput("xrdcp -s root://eosatlas.cern.ch/%s/%s %s/." % (path,i,pool) )
                 print i, status
                 if status == 0:
                     file += ["%s/%s" % (pool,i) ]

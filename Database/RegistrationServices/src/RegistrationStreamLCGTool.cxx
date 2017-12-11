@@ -765,7 +765,7 @@ RegistrationStreamLCGTool::addMetadata()
 
    // If no entry contains * as a key, take the list
    if ( std::find(m_cmdKeys.begin(),m_cmdKeys.end(),"*") == m_cmdKeys.end() ) {
-      const CollectionMetadataContainer* cmdbeg;
+      const CollectionMetadataContainer* cmdbeg = nullptr;
       //const DataHandle<CollectionMetadata> cmdend;
       std::vector<std::string>::iterator cmd_it = m_cmdKeys.begin();
    

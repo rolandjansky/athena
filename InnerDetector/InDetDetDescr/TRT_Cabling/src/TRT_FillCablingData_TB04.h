@@ -100,9 +100,9 @@ private:
   std::vector<std::vector<IdentifierHash> *> m_collID;
 
   // Private version of number of straws in each layer
-  std::vector< std::vector<int> > ncol;
+  std::vector< std::vector<int> > m_ncol;
 
-  int StrawsByModule[3];
+  int m_StrawsByModule[3];
 
 };
 

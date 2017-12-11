@@ -35,6 +35,7 @@ TileTBOldNtupleRead::TileTBOldNtupleRead(std::string name, ISvcLocator* pSvcLoca
   : AthAlgorithm(name, pSvcLocator)
   , m_tileHWID(0)
   , m_cabling(0)
+  , m_beamInfo("TileBeamInfoProvider")
   , m_trigType(0)
   , m_file(0)
   , m_ntuple(0)

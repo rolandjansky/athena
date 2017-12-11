@@ -147,4 +147,48 @@ const T* SlotSpecificObj<T>::operator-> () const
 }
 
   
+/**
+ * @brief Begin iterator.
+ */
+template <class T>
+inline
+typename SlotSpecificObj<T>::iterator SlotSpecificObj<T>::begin()
+{
+  return m_slots.begin();
+}
+
+
+/**
+ * @brief Const begin iterator.
+ */
+template <class T>
+inline
+typename SlotSpecificObj<T>::const_iterator SlotSpecificObj<T>::begin() const
+{
+  return m_slots.begin();
+}
+
+
+/**
+ * @brief End iterator.
+ */
+template <class T>
+inline
+typename SlotSpecificObj<T>::iterator SlotSpecificObj<T>::end()
+{
+  return m_slots.end();
+}
+
+
+/**
+ * @brief Const end iterator.
+ */
+template <class T>
+inline
+typename SlotSpecificObj<T>::const_iterator SlotSpecificObj<T>::end() const
+{
+  return m_slots.end();
+}
+
+
 } // namespace SG

@@ -16,9 +16,9 @@
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "Identifier/Identifier.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/PixelRDO_Container.h"

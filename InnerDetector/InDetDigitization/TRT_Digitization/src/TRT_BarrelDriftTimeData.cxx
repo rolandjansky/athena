@@ -24,7 +24,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int st
   // The data made available by Peter Cwetanski by detailed gas simulations //
   ////////////////////////////////////////////////////////////////////////////
 
-  strawGas = strawGasType;
+  m_strawGas = strawGasType;
 
   //----------------------------//
   // Data for no external field //
@@ -39,7 +39,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int st
       throw;
   }
 
-  if (strawGas==0) {
+  if (m_strawGas==0) {
 
       //----------------------------//
       // Data for no external field // Xenon
@@ -133,7 +133,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int st
       m_tabdists_maxfield.push_back( 1983.5*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(45.2038*CLHEP::nanosecond );
       m_tabdists_maxfield.push_back( 2000.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(45.7089*CLHEP::nanosecond ); //extrapolated
 
-    } else if (strawGas==1) {
+    } else if (m_strawGas==1) {
 
       //------------------------------------------//
       // Data for no external field (Kr)          //
@@ -231,7 +231,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int st
       m_tabdists_maxfield.push_back(1985.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(37.0448*CLHEP::nanosecond);
       m_tabdists_maxfield.push_back(2000.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(37.9298*CLHEP::nanosecond); //extrapolated
 
-    } else if (strawGas==2) {
+    } else if (m_strawGas==2) {
 
       //----------------------------//
       // Data for no external field // Argon
@@ -327,7 +327,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int st
 
     } else {
       std::cout << "FATAL TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData strawGas ("
-                << strawGas << ") must be 0(Xe), 1(Kr) or 2(Ar). The job will die now :(" << std::endl;
+                << m_strawGas << ") must be 0(Xe), 1(Kr) or 2(Ar). The job will die now :(" << std::endl;
       throw;
     }
 

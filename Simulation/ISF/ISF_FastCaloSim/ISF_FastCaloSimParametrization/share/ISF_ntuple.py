@@ -16,7 +16,7 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 #athenaCommonFlags.FilesInput = glob( "ESD_*root" )
 #athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_fulldet.ESD.pool.root"]
 #athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_z0150_fulldet.ESD.pool.root"]
-athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/ForMichael/ESD_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.pool.root"]
+athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/user/z/zhubacek/FastCaloSim/ForMichael/ESD_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.pool.root"]
 
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 

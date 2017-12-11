@@ -21,8 +21,6 @@
 class StoreGateSvc;
 class LUCID_RodDecoder;
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 class LUCID_ByteStreamRawDataCnv: public AthAlgorithm {
 
  public:
@@ -34,7 +32,7 @@ class LUCID_ByteStreamRawDataCnv: public AthAlgorithm {
   StatusCode execute();
   StatusCode finalize();
 
-  StatusCode fillContainer(std::vector<const ROBFragment*>); 
+  StatusCode fillContainer(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>); 
   
 private:
   

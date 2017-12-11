@@ -17,9 +17,6 @@
 // SubDetectorEnvelopes includes
 #include "SubDetectorEnvelopes/RZPair.h"
 
-// interface definition
-static const InterfaceID IID_IEnvelopeDefSvc("IEnvelopeDefSvc", 1, 0);
-
 class IEnvelopeDefSvc : virtual public IInterface {
   /**
    @class IEnvelopeDefSvc
@@ -32,11 +29,11 @@ class IEnvelopeDefSvc : virtual public IInterface {
    */
 
   public:
+    // interface definition
+    DeclareInterfaceID(IEnvelopeDefSvc, 1, 0);
+
     /** virtual distructor */
     virtual ~IEnvelopeDefSvc() {};
-
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_IEnvelopeDefSvc; }
 
     /** return a vector of (r,z) pairs, defining the respective envelope */
     virtual const RZPairVector &getRZBoundary( AtlasDetDescr::AtlasRegion region ) const = 0;

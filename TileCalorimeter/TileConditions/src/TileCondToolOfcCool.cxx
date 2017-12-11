@@ -25,7 +25,7 @@ const InterfaceID& TileCondToolOfcCool::interfaceID() {
 TileCondToolOfcCool::TileCondToolOfcCool(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_pryOfcCool("TileCondProxyCool_TileCalibDrawerOfc_/TileCondProxyDefault_OfcCool", this)
+    , m_pryOfcCool("TileCondProxyCool<TileCalibDrawerOfc>/TileCondProxyDefault_OfcCool", this)
     , m_weights(0)
     , m_NPhases(0)
     , m_NFields(0)

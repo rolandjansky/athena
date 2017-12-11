@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 790746 2016-12-21 14:00:25Z ludovica $
 ################################################################################
 # Package: ElectronPhotonSelectorTools
 ################################################################################
@@ -22,12 +21,14 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODTracking
   Reconstruction/MVAUtils
   PhysicsAnalysis/AnalysisCommon/PATCore
+  PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
   PRIVATE
   Control/CxxUtils
   Event/FourMomUtils
   Event/xAOD/xAODHIEvent
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODCore
+  Event/xAOD/xAODEventInfo
   Tools/PathResolver
   ${extra_dep} )
 
@@ -39,9 +40,9 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   ElectronPhotonSelectorTools/*.h Root/*.cxx
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES AsgTools xAODEgamma xAODTracking xAODHIEvent PATCoreLib
+  LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking xAODHIEvent PATCoreLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils FourMomUtils
-  xAODCaloEvent xAODCore PathResolver MVAUtils )
+  xAODCaloEvent xAODCore xAODEventInfo PathResolver MVAUtils )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonSelectorTools
@@ -71,10 +72,10 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODEgamma CxxUtils AsgTools
       xAODRootAccess ElectronPhotonSelectorToolsLib )
 
-   atlas_add_executable( EGIdentification_testEMAmbiguityResolver
-      util/testEMAmbiguityResolver.cxx
+   atlas_add_executable( EGIdentification_testEGChargeIDSelector
+      util/testEGChargeIDSelector.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess 
       ElectronPhotonSelectorToolsLib )
 
    atlas_add_executable( EGIdentification_testEGChargeIDSelector

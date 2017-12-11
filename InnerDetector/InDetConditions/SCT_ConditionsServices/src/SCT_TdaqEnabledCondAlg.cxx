@@ -179,7 +179,7 @@ bool SCT_TdaqEnabledCondAlg::unfilledRun() const {
     if (noDataExpected) ATH_MSG_INFO("This run occurred before the /TDAQ/EnabledResources/ATLAS/SCT/Robins folder was filled in COOL; assuming the SCT is all ok.");
     return noDataExpected;
   }
-  ATH_MSG_ERROR("The event information could not be retrieved in this service");
+  ATH_MSG_WARNING("The event information could not be retrieved in this service");
   return false; //this means the service will attempt to access the folder and fill it, even though the run number is unknown
 }
 

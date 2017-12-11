@@ -123,8 +123,6 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
     {
       totalLength+=devLgFwdSvc[i];
 
-      double tubeLength=(i==0)?(deltaJunction+zpos0-zMin+hermJunction):(2.*(deltaJunction+hermJunction));
-
       double initHalfLength = lgFwdSvc[i]*.5;
       zpos += initHalfLength;
       double corHalfLength = initHalfLength-deltaJunction;
@@ -132,7 +130,8 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
       double theta = asin(corHalfLength/radius);
 
       if(i==0){
-	double zposTrans=(i==0)?(zMin+tubeLength*.5-zpos0):(zpos-corHalfLength-tubeLength*.5);
+        double tubeLength=deltaJunction+zpos0-zMin+hermJunction;
+        double zposTrans=zMin+tubeLength*.5-zpos0;
 	const GeoTube* tubeShape = new GeoTube(0., rmaxCable, tubeLength*.5);
 	HepGeom::Transform3D trfA =  HepGeom::TranslateZ3D(zpos0+zposTrans-zMiddle);
 	gblShapeCableA = addShape(gblShapeCableA, tubeShape, trfA );

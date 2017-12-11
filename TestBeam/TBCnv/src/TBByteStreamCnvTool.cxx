@@ -230,7 +230,7 @@ StatusCode TBByteStreamCnvTool::BuildRODBlock(std::vector<uint32_t> *theRodBlock
   StatusCode sc;
 
   // TBTDCRaw part of the block : 
-  const TBTDC* tbtdc;
+  const TBTDC* tbtdc = nullptr;
   std::string tbtdc_Key("TBTDC");
   sc=evtStore()->retrieve(tbtdc,tbtdc_Key);
   if (sc!=StatusCode::SUCCESS)

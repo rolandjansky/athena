@@ -30,7 +30,7 @@ int main()
   std::cout << "the path for AOD from yesterday's ATN is: " << s_nightly_aod_yesterday << std::endl;
   // use this file if the ATN test upstream was not successful
   // it is also used for ROOTCORE_RELEASE_SERIES = 23
-  TString s_ref_file = "root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_xAODmadeWithAtlasAnalysis207XVAL151124_forATNAnalysisBase.root";
+  TString s_ref_file = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_xAODmadeWithAtlasAnalysis207XVAL151124_forATNAnalysisBase.root";
   
   std::cout << "check if the ATN output file exists..." << std::endl;
   Long_t id,size,flags,modtime;
