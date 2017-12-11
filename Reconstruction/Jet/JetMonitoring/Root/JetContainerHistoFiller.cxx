@@ -37,12 +37,12 @@ int JetContainerHistoFiller::fillHistos(){
   ATH_MSG_DEBUG ("Filling hists " << name() << "..." << m_jetContainerName);
 
   const xAOD::EventInfo* evtInfo;
-  CHECK(evtStore()->retrieve( evtInfo ));
+  CHECK(evtStore()->retrieve( evtInfo ), 1);
 
   //LAr event veto: skip events rejected by LAr
   if(evtInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){
     ATH_MSG_DEBUG("SKIP for LAR error");
-    return StatusCode::SUCCESS;
+    return 1;
   }
   
   const xAOD::JetContainer* jCont = 0;
