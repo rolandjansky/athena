@@ -46,9 +46,19 @@ namespace asg
 
   TEST (ToolHandleTest, nonempty_tool)
   {
+#ifndef ASGTOOL_ATHENA
+    // This never worked properly in Athena --- in that case the ToolHandle
+    // ctor matches the signature:
+    // ToolHandle( const IInterface* parent = nullptr, bool createIf = true )
+    // Previously, the ToolHandle would get initialized with the
+    // default type name; that's why empty() (which tests the type+name field,
+    // not the pointer) was returning false.   But with gaudi v30, the
+    // ToolHandle gets initialized with an empty type+name, so empty()
+    // returns true.
     std::unique_ptr<IUnitTestTool1> tool (new UnitTestTool1 ("test"));
     ToolHandle<IUnitTestTool1> handle (tool.get());
     ASSERT_FALSE (handle.empty());
+#endif
   }
 
 
