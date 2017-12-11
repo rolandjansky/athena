@@ -44,6 +44,8 @@
 
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 
+#include "StoreGate/ReadHandle.h"
+
 #include <vector>
 #include <cassert>
 #include <iostream>
@@ -70,7 +72,6 @@ Muon::MuonTrackSummaryHelperTool::MuonTrackSummaryHelperTool(
   declareProperty("CalculateCloseHits", m_calculateCloseHits = false );
   declareProperty("RoadWidth",           m_roadWidth = 135.,"width used to calculate hits within the road (mm)"); 
   declareProperty("Extrapolator",    m_extrapolator);
-  declareProperty("MdtPrepDataContainer", m_mdtKey="MDT_DriftCircles");
   declareProperty("HoleOnTrackTool", m_muonTgTool);	
   declareProperty("TrackingGeometryName", m_trackingGeometryName);
 }
@@ -163,6 +164,9 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
   } else {
     msg (MSG::VERBOSE) << "Hole search turned off, so MuonHolesOnTrackTool not loaded" << endmsg;        
   }
+
+  ATH_CHECK(m_mdtKey.initialize());
+
   //      }else{ 
   //        msg << MSG::FATAL << "MuonTGRecTools library doesn't seem to be loaded." << endmsg;
   //      	return StatusCode::FAILURE;
@@ -731,13 +735,18 @@ bool Muon::MuonTrackSummaryHelperTool::isFirstProjection( const Identifier& id )
 
 const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdCollection( const Identifier& chId ) const {
 
-  if(!evtStore()->contains<const Muon::MdtPrepDataContainer>(m_mdtKey) ) return 0;
+  SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrdContainer(m_mdtKey);
 
-  const Muon::MdtPrepDataContainer* mdtPrdContainer = 0;
-  if( evtStore()->retrieve(mdtPrdContainer,m_mdtKey).isFailure()) {
+  if(!mdtPrdContainer.isValid()){
     ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_mdtKey);
     return 0;
   }
+
+  if(!mdtPrdContainer.isPresent()){
+    ATH_MSG_DEBUG("No MDT PRD container available");
+    return 0;
+  }
+
   IdentifierHash hash_id;
   m_idHelperTool->mdtIdHelper().get_module_hash(chId,hash_id );
 
