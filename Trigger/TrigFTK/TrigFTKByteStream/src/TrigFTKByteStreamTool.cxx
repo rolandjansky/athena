@@ -20,7 +20,8 @@ static const InterfaceID IID_ITrigFTKByteStreamTool("TrigFTKByteStreamTool", 1, 
 
 //------------------------------------------------------------------------------
 FTK::TrigFTKByteStreamTool::TrigFTKByteStreamTool( const std::string& type, const std::string& name, const IInterface* parent )
-   :  AthAlgTool(type,name,parent)
+  :  AthAlgTool(type,name,parent),
+     m_decoder("FTK::FTKByteStreamDecoderEncoderTool")
 {
   declareInterface< FTK::TrigFTKByteStreamTool  >( this );
 }
@@ -40,6 +41,14 @@ const InterfaceID& FTK::TrigFTKByteStreamTool::interfaceID( )
 StatusCode FTK::TrigFTKByteStreamTool::initialize()
 {
    ATH_MSG_DEBUG( "TrigFTKByteStreamTool has been loaded");
+   if (m_decoder.retrieve().isFailure()){
+     ATH_MSG_ERROR("could not retrieve " << m_decoder);
+     return StatusCode::FAILURE;
+   }
+   else {
+     ATH_MSG_DEBUG(m_decoder.name() << " retrieved successfully");
+   }
+
    return AlgTool::initialize();
 }
 
@@ -68,8 +77,9 @@ StatusCode FTK::TrigFTKByteStreamTool::convert( const FTK_RawTrackContainer* con
   FullEventAssembler<SrcIdMap>::RODDATA* theROD = m_fea.getRodData( ftkROBID() );
   std::vector<uint32_t>& payload = *theROD ;
   
-  CHECK(FTKByteStreamDecoderEncoder::encode(container, payload, msg()));
-    
+  //  CHECK(FTKByteStreamDecoderEncoder::encode(container, payload, msg()));
+  m_decoder->encode(container, payload);
+
   m_fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
@@ -103,7 +113,7 @@ StatusCode FTK::TrigFTKByteStreamTool::convert(IROBDataProviderSvc& dataProvider
     const uint32_t nData  = (*rob)->rod_ndata();
     const size_t sourceID = (*rob)->rod_source_id();
     ATH_MSG_DEBUG ( "[convert to FTK_RawTrackContainer] Reading fragment of size " << nData
-		    << " from source " << std::hex << sourceID );
+		    << " from source " << std::hex << sourceID << std::dec);
 
     if ( nData == 0 ) {
       ATH_MSG_DEBUG( "[convert to FTK_RawTrackContainer] empty data payload" );      
@@ -118,7 +128,7 @@ StatusCode FTK::TrigFTKByteStreamTool::convert(IROBDataProviderSvc& dataProvider
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData = 0;
     (*rob)->rod_data(rodData);
 
-    uint32_t nTracks = nData / 22; //22: TrackBlobSize, FTKByteStreamDecoderEncoder.h
+    uint32_t nTracks = nData / FTKByteStreamDecoderEncoder::TrackBlobSize;
     
     // sanity check about the sizes
     // if ( nData == nTracks * FTKByteStreamDecoderEncoder::TrackBlobSize + 1) {
@@ -128,7 +138,11 @@ StatusCode FTK::TrigFTKByteStreamTool::convert(IROBDataProviderSvc& dataProvider
     //   return StatusCode::FAILURE;
     // }
 
-    CHECK( FTKByteStreamDecoderEncoder::decode(nTracks, rodData, result, msg()));    
+
+    StatusCode scdc = m_decoder->decode(nTracks, rodData, result);    
+    if (scdc.isFailure()){
+      ATH_MSG_WARNING("problem in decoding the rob fragment");
+    }
   }
   return StatusCode::SUCCESS;
 }
