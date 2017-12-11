@@ -232,9 +232,9 @@ LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell,
     StatusCode sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName);
 
     if(sc.isFailure()  ||  !caloCellContainer) {
-      ATH_MSG_ERROR( "the CaloCellContainer " << m_caloCellContainerName 
+      ATH_MSG_WARNING( "the CaloCellContainer " << m_caloCellContainerName 
                      << "was not found in TDS" );
-      return 1;
+      return -9999.;
     }    
   }
 
