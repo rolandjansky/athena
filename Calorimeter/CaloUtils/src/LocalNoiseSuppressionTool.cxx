@@ -234,7 +234,7 @@ LocalNoiseSuppressionTool::getTestStatistic( const CaloCell* theCell,
     if(sc.isFailure()  ||  !caloCellContainer) {
       ATH_MSG_ERROR( "the CaloCellContainer " << m_caloCellContainerName 
                      << "was not found in TDS" );
-      return StatusCode::SUCCESS;
+      return 1;
     }    
   }
 

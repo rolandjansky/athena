@@ -105,7 +105,7 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
     ATH_MSG_VERBOSE("#BTAG# No Jet container " << m_JetCollectionName << " in store, no re-tagging");
   }
   
-  return 1;
+  return StatusCode::SUCCESS;
 
 }
 

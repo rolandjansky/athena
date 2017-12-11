@@ -316,7 +316,7 @@ StatusCode CaloTowerVecMon::checkTimeGran(bool isNewEventsBlock, bool isNewLumiB
     }
   }
 
-  return isNewTimeGran;
+  return StatusCode(isNewTimeGran);
 }
 
 void CaloTowerVecMon::bookTwrPreHists(const Interval_t theinterval){
