@@ -39,7 +39,7 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize()
 
   if((m_etaBins.size() != m_nThresholds) && (m_etBins.size() != m_nThresholds)){
     msg() << MSG::ERROR << "Eta/Et list dont match with the number of thesholds found" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   ///Initialize all discriminators
@@ -51,7 +51,7 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize()
                                               */m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
     }catch(std::bad_alloc xa){
       msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endmsg;
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
   }///Loop over discriminators
   

@@ -98,6 +98,6 @@ StatusCode T2TauEtFlowTool::execute(const TrigTauCluster *pTrigTauCluster,
     ATH_MSG_WARNING( " No track neither cluster information is present" );
     
 
-  return true;
+  return StatusCode::SUCCESS;
 }
 
