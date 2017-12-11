@@ -90,9 +90,10 @@ void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & 
   for ( size_t i=0; i<numConstit; i++ ) {
     if (jet.rawConstituent(i)->type()==xAOD::Type::ParticleFlow){
       const xAOD::PFO* constit = static_cast<const xAOD::PFO*>(jet.rawConstituent(i));
-      eTot += constit->eEM();
-      if (0 == constit->charge()){
-
+      if ( fabs(constit->charge())>FLT_MIN ){
+	eTot += constit->track(0)->e()));
+      } else {
+	eTot += constit->eEM();
 	FillESamplingPFO(PreSamplerB);
 	FillESamplingPFO(EMB1);
 	FillESamplingPFO(EMB2);
