@@ -31,7 +31,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
