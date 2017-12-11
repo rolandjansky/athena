@@ -345,7 +345,7 @@ class EgammaFexBuilder(object):
                 log.debug('Superclusters for electron')
 
         log.debug('Electron preciserec')
-        if 'gsf' in chain_part:
+        if 'gsf' in chain_part['addInfo']:
             log.debug('Electron gsf rec')
             return self._egamma_rec_gsf
         if 'isoInfo' in chain_part:
