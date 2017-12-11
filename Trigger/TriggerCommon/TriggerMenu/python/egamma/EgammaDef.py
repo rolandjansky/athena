@@ -345,12 +345,14 @@ class EgammaFexBuilder(object):
                 log.debug('Superclusters for electron')
 
         log.debug('Electron preciserec')
+        if 'gsf' in chain_part:
+            log.debug('Electron gsf rec')
+            return self._egamma_rec_gsf
         if 'isoInfo' in chain_part:
             iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
             if len(iso)>0:
                 log.debug('Electron calo isolation %s',iso[0])
                 do_caloiso = True
-    
         if do_caloiso:
             if do_superclusters:
                 log.debug('SuperClusters Electron calo + track isolation')
@@ -366,6 +368,8 @@ class EgammaFexBuilder(object):
                 log.debug('Electron default rec')
                 return self._egamma_rec
 
+            log.debug('Electron default rec')
+            return self._egamma_rec_gsf
 
     def _get_photonrec(self,chainDict):
         chain_part = chainDict['chainParts']
