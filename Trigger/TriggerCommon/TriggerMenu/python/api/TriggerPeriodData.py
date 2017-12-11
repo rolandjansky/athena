@@ -76,6 +76,10 @@ class TriggerPeriodData:
         'K4':(339205,339205,15216),
         'K5':(339346,339849,20614),
         'K6':(339957,340453,15750),
+        'N' :(341257,341649,16018),
+        'N1':(341257,341294,1957),
+        'N4':(341419,341649,1590),
+        'N2':(341312,341312,16018),
     }
     
     grlroot = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
@@ -139,6 +143,8 @@ class TriggerPeriodData:
                 ranges.append( self.periodMap2017['I'] )
             if period & TriggerPeriod.y2017periodK     :
                 ranges.append( self.periodMap2017['K'] )
+            if period & TriggerPeriod.y2017periodN     :
+                ranges.append( self.periodMap2017['N'] )
             for run in self.grl.keys()[:]:
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 
