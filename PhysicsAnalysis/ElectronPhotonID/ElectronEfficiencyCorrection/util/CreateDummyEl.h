@@ -11,7 +11,9 @@
 #ifdef ROOTCORE
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
+#include "AsgTools/StatusCode.h"
 #endif // ROOTCORE
 
-xAOD::TStore* getElectrons(const std::vector<std::pair<double,double> >& pt_eta, int runNumber);
+StatusCode getElectrons(const std::vector<std::pair<double,double> >& pt_eta, int runNumber,
+        xAOD::TStore& store);
 #endif

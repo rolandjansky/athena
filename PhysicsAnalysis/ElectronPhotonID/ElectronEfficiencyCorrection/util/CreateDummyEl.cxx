@@ -56,12 +56,10 @@ namespace{
  * The idea here is basically to record everything to the Store in the order reco would do.
  * Then an analysis code should see the collections needed
  */
-xAOD::TStore* getElectrons (const std::vector<std::pair<double,double>>& pt_eta, int runNumber){
+StatusCode getElectrons (const std::vector<std::pair<double,double>>& pt_eta, int runNumber,xAOD::TStore& store ){
     //This is what we will return back
     
-    static  xAOD::TEvent event( xAOD::TEvent::kClassAccess );  
-    static xAOD::TStore store;   
-    //create the EventInfo
+   //create the EventInfo
     std::unique_ptr<xAOD::EventInfo> eventInfo=std::make_unique<xAOD::EventInfo>();
     eventInfo->makePrivateStore();
     eventInfo->setEventNumber(363636);
@@ -70,7 +68,7 @@ xAOD::TStore* getElectrons (const std::vector<std::pair<double,double>>& pt_eta,
     randomrunnumber(*eventInfo)= runNumber;
     if(!store.record(std::move(eventInfo), "EventInfo").isSuccess()){
         MSG_ERROR("Could not record EventInfo");
-        return nullptr;   
+        return StatusCode::FAILURE;   
     }
     
     size_t numel=pt_eta.size();
@@ -91,7 +89,7 @@ xAOD::TStore* getElectrons (const std::vector<std::pair<double,double>>& pt_eta,
    if(!store.record( std::move(clusters), "MyClusters" ).isSuccess() ||
             !store.record( std::move(clAux), "MyClustersAux.").isSuccess()){
         MSG_ERROR("Could not record clusters");
-        return nullptr;
+        return StatusCode::FAILURE;   
     }
    //Create all electrons  one per cluster
     std::vector< ElementLink< xAOD::CaloClusterContainer > > links{};
@@ -115,8 +113,8 @@ xAOD::TStore* getElectrons (const std::vector<std::pair<double,double>>& pt_eta,
     if(!store.record( std::move(electrons), "MyElectrons" ).isSuccess() || 
             !store.record( std::move(electronsAux), "MyElectronAux.").isSuccess()){
         MSG_ERROR("Could not record Electrons");
-        return nullptr;
+        return StatusCode::FAILURE;   
     }   
 
-    return &store;
+    return StatusCode::SUCCESS;
 }

@@ -78,7 +78,6 @@ if( XAOD_STANDALONE )
 
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile
 	   util/testEgEfficiencyCorrWithoutFile.cxx util/CreateDummyEl.cxx
-	   util/EGToolProperties.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces
