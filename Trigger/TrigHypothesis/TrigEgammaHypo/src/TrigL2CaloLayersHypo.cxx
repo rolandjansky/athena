@@ -68,12 +68,12 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltInitialize()
 
   if ( m_EnergyFracCut.size() != 4 ) {
     msg() << MSG::ERROR << " EnergyFracCut size is " <<  m_EnergyFracCut.size() << " but needs 4" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
   if ( m_EnergyAbsCut.size() != 4 ) {
     msg() << MSG::ERROR << " EnergyAbsCut size is " <<  m_EnergyAbsCut.size() << " but needs 4" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
   return HLT::OK;

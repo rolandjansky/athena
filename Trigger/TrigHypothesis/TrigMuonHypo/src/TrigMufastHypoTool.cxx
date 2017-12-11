@@ -191,7 +191,7 @@ StatusCode TrigMufastHypoTool::decide(TrigMufastHypoTool::MuonClusterInfo& input
                  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
                  << " so hypothesis is " << (result?"true":"false"));
   
-   return result;
+   return StatusCode(result);
 }
 
 // --------------------------------------------------------------------------------
