@@ -352,6 +352,15 @@ public:
 
 
   /**
+   * @brief Handle START transition.
+   *
+   * We override this in order to make sure that conditions handle keys
+   * can cache a pointer to the conditions container.
+   */
+  virtual StatusCode sysStart() override;
+
+
+  /**
    * @brief Return this algorithm's input handles.
    *
    * We override this to include handle instances from key arrays

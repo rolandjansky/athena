@@ -36,7 +36,7 @@ namespace FCS_Param
   FCS_StepInfoSDTool::FCS_StepInfoSDTool(const std::string& type, const std::string& name,
                              const IInterface* parent)
     : SensitiveDetectorBase(type, name, parent)
-    , m_hitCollName("EventSteps")
+    , m_hitCollName("MergedEventSteps")
     , m_bpsmodcalc("EMBPresamplerCalculator", name)
     , m_embcalc("EMBCalculator", name)
     , m_emepiwcalc("EMECPosInnerWheelCalculator", name)

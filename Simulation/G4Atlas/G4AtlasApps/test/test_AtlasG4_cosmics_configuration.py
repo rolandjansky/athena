@@ -24,7 +24,7 @@ class TestAtlasG4Cosmics(unittest.TestCase):
             '--CosmicFilterVolume', 'Calo',
             '--CosmicFilterVolume2', 'NONE',
             '--CosmicPtSlice', 'NONE',
-            '--outputEVNT_COSMICSTRFile', 'test.TR.pool.root',
+            '--outputEVNT_TRFile', 'test.TR.pool.root',
             '--beamType', 'cosmics',
             # would otherwise fail due to missing HITS file:
             '--outputFileValidation', 'False',

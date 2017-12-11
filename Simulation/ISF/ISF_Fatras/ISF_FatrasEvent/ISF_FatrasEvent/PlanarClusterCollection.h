@@ -14,7 +14,7 @@
 #ifndef ISF_FATRASEVENT_PLANARCLUSTERCOLLECTION_H
 #define ISF_FATRASEVENT_PLANARCLUSTERCOLLECTION_H
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkPrepRawData/PrepRawDataCollection.h"
 #include "ISF_FatrasEvent/PlanarCluster.h"
 

@@ -108,10 +108,10 @@ void TrigL2MuonSA::TgcRoadDefiner::setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
-                                              const TrigL2MuonSA::TgcHits& tgcHits,
-                                              TrigL2MuonSA::MuonRoad&      muonRoad,
-                                              TrigL2MuonSA::TgcFitResult&  tgcFitResult)
+StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
+                                                    const TrigL2MuonSA::TgcHits& tgcHits,
+                                                    TrigL2MuonSA::MuonRoad&      muonRoad,
+                                                    TrigL2MuonSA::TgcFitResult&  tgcFitResult)
 {
   const int N_STATION = 10;
 
@@ -143,7 +143,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     // Split digits to Strip/Wire points.
     if( ! prepareTgcPoints(tgcHits) ) {
       ATH_MSG_ERROR("Preparation of Tgc points failed");
-      return false;
+      return StatusCode::FAILURE;
     }
     
 
@@ -433,7 +433,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
   muonRoad.MDT_sector_overlap = sector_overlap;
   
   //
-  return true;
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------

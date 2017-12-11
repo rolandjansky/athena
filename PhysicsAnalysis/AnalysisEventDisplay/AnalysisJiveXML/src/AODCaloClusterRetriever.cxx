@@ -21,7 +21,7 @@ namespace JiveXML {
    **/
   AODCaloClusterRetriever::AODCaloClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Cluster"){
+    m_typeName("Cluster"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -133,7 +133,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(ccc->size());
     DataVect eta; eta.reserve(ccc->size());
@@ -219,14 +219,14 @@ namespace JiveXML {
 
     }
     // Start with mandatory entries
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["et"] = et;
-    m_DataMap[tagCells] = cells;
-    m_DataMap["numCells"] = numCells;
-    m_DataMap["id"] = idVec;
-    m_DataMap["emfrac"] = emfracVec; // not in Atlantis yet ! Could be used in legoplot
-    m_DataMap["label"] = labelVec; // not in Atlantis yet ! 
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["et"] = et;
+    DataMap[tagCells] = cells;
+    DataMap["numCells"] = numCells;
+    DataMap["id"] = idVec;
+    DataMap["emfrac"] = emfracVec; // not in Atlantis yet ! Could be used in legoplot
+    DataMap["label"] = labelVec; // not in Atlantis yet ! 
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -235,7 +235,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

@@ -14,7 +14,7 @@
 
 #include "EventKernel/I4Momentum.h"
 #include "Navigation/INavigable.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Navigation/IAthenaBarCode.h"
 
 class INavigable4Momentum : public virtual IAthenaBarCode, public virtual INavigable, public virtual I4Momentum

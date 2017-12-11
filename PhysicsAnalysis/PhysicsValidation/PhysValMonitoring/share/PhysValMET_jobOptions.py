@@ -14,11 +14,14 @@ jvtTool = CfgMgr.JetVertexTaggerTool('JVTTool')
 ToolSvc += jvtTool
 tool1.JVTTool = jvtTool
 
-mettoolTopo = CfgMgr.met__METMaker('METMaker_AntiKt4Topo')
+mettoolTopo = CfgMgr.met__METMaker('METMaker_AntiKt4Topo',
+                                   JetSelection="Default",
+                                   DoPFlow=False)
 ToolSvc += mettoolTopo
 tool1.METMakerTopo = mettoolTopo
 
 mettoolPFlow = CfgMgr.met__METMaker('METMaker_AntiKt4PFlow',
+                                    JetSelection="PFlow",
                                     DoPFlow=True)
 ToolSvc += mettoolPFlow
 tool1.METMakerPFlow = mettoolPFlow

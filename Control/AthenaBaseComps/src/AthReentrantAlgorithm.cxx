@@ -175,6 +175,33 @@ StatusCode AthReentrantAlgorithm::sysInitialize()
   return StatusCode::SUCCESS;
 }
 
+
+/**
+ * @brief Handle START transition.
+ *
+ * We override this in order to make sure that conditions handle keys
+ * can cache a pointer to the conditions container.
+ */
+StatusCode AthReentrantAlgorithm::sysStart()
+{
+  ATH_CHECK( ReEntAlgorithm::sysStart() );
+
+  // Call start() on all input handles.
+  // This allows CondHandleKeys to cache pointers to their conditions containers.
+  // (CondInputLoader makes the containers that it creates during start(),
+  // so initialize() is too early for this.)
+  for (Gaudi::DataHandle* h : inputHandles()) {
+    if (h->isCondition()) {
+      if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
+        ATH_CHECK( k->start() );
+      }
+    }
+  }
+  
+  return StatusCode::SUCCESS;
+}
+
+
 void AthReentrantAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
   vh.renounce();
 }
