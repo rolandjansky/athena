@@ -57,7 +57,7 @@ namespace DerivationFramework {
     const xAOD::TruthParticleContainer* truthPC = 0;
     if (evtStore()->retrieve(truthPC,m_mcName).isFailure()) {
       ATH_MSG_DEBUG("WARNING could not retrieve TruthParticleContainer " <<m_mcName);
-      return -1;
+      return StatusCode::FAILURE;
     }
     
     //Identify SUSY hard proc
