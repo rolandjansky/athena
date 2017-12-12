@@ -680,7 +680,7 @@ public:
 
 
   /// Type for an initialization function.
-  typedef const BaseInfoBase& init_func_t();
+  typedef void init_func_t (BaseInfoBase* bib);
 
 
 #ifndef __REFLEX__
@@ -723,16 +723,6 @@ private:
    * Returns 0 if no @c BaseInfoBase instance is available.
    */
   static BaseInfoBase* find1 (const std::type_info& tinfo);
-
-
-  /**
-   * @brief Find the @c BaseInfoBase instance for @c tinfo.
-   * @param tinfo The @c std::type_info of the class
-   *              for which we want information.
-   *
-   * Returns 0 if no @c BaseInfoBase instance is available.
-   */
-  static BaseInfoBase* find_nc (const std::type_info& tinfo);
 
 
   /// Pointer to internal state.
