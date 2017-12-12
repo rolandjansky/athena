@@ -35,8 +35,7 @@ StatusCode MuonCreatorAlg::initialize()
   ATH_CHECK(m_muonCreatorTool.retrieve());
   ATH_CHECK(m_muonCollectionName.initialize());
   ATH_CHECK(m_slowMuonCollectionName.initialize());
-  if(m_doSA) m_indetCandidateCollectionName="";
-  else ATH_CHECK(m_indetCandidateCollectionName.initialize());
+  ATH_CHECK(m_indetCandidateCollectionName.initialize(!m_doSA));
   ATH_CHECK(m_muonCandidateCollectionName.initialize(!m_buildSlowMuon));
   m_segTrkContainerName = "Trk"+m_segContainerName.key();
   m_segContainerName = "xaod"+m_segContainerName.key();
