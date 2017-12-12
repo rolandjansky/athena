@@ -18,11 +18,6 @@
 // Include STL stuff
 #include <string>
 
-// Read Handle Key
-#include "StoreGate/ReadHandleKey.h"
-// Event Info
-#include "xAODEventInfo/EventInfo.h"
-
 // Forward declarations
 class ISCT_DCSConditionsSvc;
 class StatusCode;
@@ -43,7 +38,6 @@ public:
     StatusCode finalize();   //!< Gaudi finaliser
     
 private:
-    SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey;  //!< Current event
     ServiceHandle<ISCT_DCSConditionsSvc> m_DCSConditionsSvc;
    };
 
