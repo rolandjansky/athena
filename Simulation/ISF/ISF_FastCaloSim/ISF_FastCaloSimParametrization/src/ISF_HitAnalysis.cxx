@@ -119,10 +119,17 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_g4hit_cellidentifier(0)
    , m_g4hit_samplingfraction(0)
    , m_g4hit_sampling(0)
-     //   , m_matched_cells(0)
+   // , m_matched_cells(0)
+   // , m_oneeventcells(0)
+   , m_total_cell_e(0)
+   , m_total_hit_e(0)
+   , m_total_g4hit_e(0)
+   , m_final_cell_energy(0)
+   , m_final_hit_energy(0)
+   , m_final_g4hit_energy(0)
    , m_tree(0)
    , m_ntupleFileName("/ntuples/file1")
-   , m_ntupleDirName("ISF_HitAnalysis")
+   , m_ntupleDirName("ISF_HitAnalysis_2")
    , m_ntupleTreeName("CaloHitAna")
    , m_metadataTreeName("MetaData")
    , m_geoFileName("ISF_Geometry")
@@ -218,6 +225,16 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
   declareProperty("MetaDataSim", m_MC_SIM_PARAM );
   declareProperty("MetaDataDigi", m_MC_DIGI_PARAM );
+
+  declareProperty("SaveAllBranches", m_saveAllBranches = false);
+  declareProperty("DoAllCells", m_doAllCells = false);
+  declareProperty("DoLayers", m_doLayers = true);
+  declareProperty("DoLayerSums", m_doLayerSums = true);
+  declareProperty("DoG4Hits", m_doG4Hits = false);
+  declareProperty("TimingCut", m_TimingCut = 999999);
+
+
+
 
   m_surfacelist.resize(0);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerB);
@@ -485,8 +502,10 @@ StatusCode ISF_HitAnalysis::initialize()
  //#########################
 
  //
- m_tree = new TTree( TString(m_ntupleTreeName), "CaloHitAna" );
- std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
+ // m_tree = new TTree( TString(m_ntupleTreeName), "CaloHitAna" );
+ m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
+ // std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
+ std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
  sc = m_thistSvc->regTree(fullNtupleName, m_tree);
  if (sc.isFailure() || !m_tree )
  {
@@ -498,22 +517,99 @@ StatusCode ISF_HitAnalysis::initialize()
  if (m_tree)
  {
   ATH_MSG_INFO("Successfull registered TTree: " << fullNtupleName);
-  //this actually creates the vector itself! And only if it succeeds! Note that the result is not checked! And the code is probably leaking memory in the end
-  m_tree->Branch("HitX",                 &m_hit_x);
-  m_tree->Branch("HitY",                 &m_hit_y);
-  m_tree->Branch("HitZ",                 &m_hit_z);
-  m_tree->Branch("HitE",                 &m_hit_energy);
-  m_tree->Branch("HitT",                 &m_hit_time);
-  m_tree->Branch("HitIdentifier",        &m_hit_identifier);
-  m_tree->Branch("HitCellIdentifier",    &m_hit_cellidentifier);
-  m_tree->Branch("HitIsLArBarrel",       &m_islarbarrel);
-  m_tree->Branch("HitIsLArEndCap",       &m_islarendcap);
-  m_tree->Branch("HitIsHEC",             &m_islarhec);
-  m_tree->Branch("HitIsFCAL",            &m_islarfcal);
-  m_tree->Branch("HitIsTile",            &m_istile);
-  m_tree->Branch("HitSampling",          &m_hit_sampling);
-  m_tree->Branch("HitSamplingFraction",  &m_hit_samplingfraction);
+  //initialize the variables before creating the branches
+  m_hit_x = new std::vector<float>;
+  m_hit_y = new std::vector<float>;
+  m_hit_z = new std::vector<float>;
+  m_hit_energy = new std::vector<float>;
+  m_hit_time = new std::vector<float>;
+  m_hit_identifier = new std::vector<Long64_t>;
+  m_hit_cellidentifier = new std::vector<Long64_t>;
+  m_islarbarrel = new std::vector<bool>;
+  m_islarendcap = new std::vector<bool>;
+  m_islarhec = new std::vector<bool>;
+  m_islarfcal = new std::vector<bool>;
+  m_istile = new std::vector<bool>;
+  m_hit_sampling = new std::vector<int>;
+  m_hit_samplingfraction = new std::vector<float>;
 
+  m_truth_energy = new std::vector<float>;
+  m_truth_px = new std::vector<float>;
+  m_truth_py = new std::vector<float>;
+  m_truth_pz = new std::vector<float>;
+  m_truth_pdg = new std::vector<int>;
+  m_truth_barcode = new std::vector<int>;
+  m_truth_vtxbarcode = new std::vector<int>;
+
+  m_cell_identifier = new std::vector<Long64_t>;
+  m_cell_energy = new std::vector<float>;
+  m_cell_sampling = new std::vector<int>;
+
+  m_g4hit_energy = new std::vector<float>;
+  m_g4hit_time = new std::vector<float>;
+  m_g4hit_identifier = new std::vector<Long64_t>;
+  m_g4hit_cellidentifier = new std::vector<Long64_t>;
+  m_g4hit_samplingfraction = new std::vector<float>;
+  m_g4hit_sampling = new std::vector<int>;
+
+  m_total_cell_e = 0;
+  m_total_hit_e = 0;
+  m_total_g4hit_e = 0;
+
+  m_final_cell_energy = new std::vector<Float_t>;
+  m_final_hit_energy = new std::vector<Float_t>;
+  m_final_g4hit_energy = new std::vector<Float_t>;
+
+  m_newTTC_entrance_eta = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_phi = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_r = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_z = new std::vector<std::vector<float> >;
+  m_newTTC_back_eta = new std::vector<std::vector<float> >;
+  m_newTTC_back_phi = new std::vector<std::vector<float> >;
+  m_newTTC_back_r = new std::vector<std::vector<float> >;
+  m_newTTC_back_z = new std::vector<std::vector<float> >;
+  m_newTTC_mid_eta = new std::vector<std::vector<float> >;
+  m_newTTC_mid_phi = new std::vector<std::vector<float> >;
+  m_newTTC_mid_r = new std::vector<std::vector<float> >;
+  m_newTTC_mid_z = new std::vector<std::vector<float> >;
+  m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
+  m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
+  m_newTTC_IDCaloBoundary_r = new std::vector<float>;
+  m_newTTC_IDCaloBoundary_z = new std::vector<float>;
+  m_newTTC_Angle3D = new std::vector<float>;
+  m_newTTC_AngleEta = new std::vector<float>;
+
+  if(m_saveAllBranches){
+    m_tree->Branch("HitX",                 &m_hit_x);
+    m_tree->Branch("HitY",                 &m_hit_y);
+    m_tree->Branch("HitZ",                 &m_hit_z);
+    m_tree->Branch("HitE",                 &m_hit_energy);
+    m_tree->Branch("HitT",                 &m_hit_time);
+    m_tree->Branch("HitIdentifier",        &m_hit_identifier);
+    m_tree->Branch("HitCellIdentifier",    &m_hit_cellidentifier);
+    m_tree->Branch("HitIsLArBarrel",       &m_islarbarrel);
+    m_tree->Branch("HitIsLArEndCap",       &m_islarendcap);
+    m_tree->Branch("HitIsHEC",             &m_islarhec);
+    m_tree->Branch("HitIsFCAL",            &m_islarfcal);
+    m_tree->Branch("HitIsTile",            &m_istile);
+    m_tree->Branch("HitSampling",          &m_hit_sampling);
+    m_tree->Branch("HitSamplingFraction",  &m_hit_samplingfraction);
+
+    m_tree->Branch("CellIdentifier",       &m_cell_identifier);
+    m_tree->Branch("CellE",                &m_cell_energy);
+    m_tree->Branch("CellSampling",         &m_cell_sampling);
+
+    m_tree->Branch("G4HitE",               &m_g4hit_energy);
+    m_tree->Branch("G4HitT",               &m_g4hit_time);
+    m_tree->Branch("G4HitIdentifier",      &m_g4hit_identifier);
+    m_tree->Branch("G4HitCellIdentifier",  &m_g4hit_cellidentifier);
+    m_tree->Branch("G4HitSamplingFraction",&m_g4hit_samplingfraction);
+    m_tree->Branch("G4HitSampling",        &m_g4hit_sampling);
+  }
+  //And this looks like will fail since ROOT has no idea what the object is...
+  //m_tree->Branch("MatchedCells", &m_matched_cells);
+
+  //CaloHitAna output variables
   m_tree->Branch("TruthE",               &m_truth_energy);
   m_tree->Branch("TruthPx",              &m_truth_px);
   m_tree->Branch("TruthPy",              &m_truth_py);
@@ -522,18 +618,33 @@ StatusCode ISF_HitAnalysis::initialize()
   m_tree->Branch("TruthBarcode",         &m_truth_barcode);
   m_tree->Branch("TruthVtxBarcode",      &m_truth_vtxbarcode);
 
-  m_tree->Branch("CellIdentifier",       &m_cell_identifier);
-  m_tree->Branch("CellE",                &m_cell_energy);
-  m_tree->Branch("CellSampling",         &m_cell_sampling);
+  m_oneeventcells = new FCS_matchedcellvector;
+  if(m_doAllCells){
+    m_tree->Branch("AllCells", &m_oneeventcells);
+  }
 
-  m_tree->Branch("G4HitE",               &m_g4hit_energy);
-  m_tree->Branch("G4HitT",               &m_g4hit_time);
-  m_tree->Branch("G4HitIdentifier",      &m_g4hit_identifier);
-  m_tree->Branch("G4HitCellIdentifier",  &m_g4hit_cellidentifier);
-  m_tree->Branch("G4HitSamplingFraction",&m_g4hit_samplingfraction);
-  m_tree->Branch("G4HitSampling",        &m_g4hit_sampling);
-  //And this looks like will fail since ROOT has no idea what the object is...
-  //m_tree->Branch("MatchedCells", &m_matched_cells);
+  //write cells per layer
+  if(m_doLayers){
+    for (Int_t i = 0; i < MAX_LAYER; i++)
+    {
+      TString branchname = "Sampling_";
+      branchname += i;
+      m_layercells[i] = new FCS_matchedcellvector;
+      m_tree->Branch(branchname, &m_layercells[i]);
+    }
+  }
+
+  if(m_doLayerSums){
+    //write also energies per layer:
+    m_tree->Branch("cell_energy", &m_final_cell_energy);
+    m_tree->Branch("hit_energy",  &m_final_hit_energy);
+    m_tree->Branch("g4hit_energy", &m_final_g4hit_energy);
+
+    //This is a duplicate of cell_energy[25]
+    m_tree->Branch("total_cell_energy", &m_total_cell_e);
+    m_tree->Branch("total_hit_energy",  &m_total_hit_e);
+    m_tree->Branch("total_g4hit_energy", &m_total_g4hit_e);
+  }
 
   //#########################
   /*
@@ -573,16 +684,46 @@ StatusCode ISF_HitAnalysis::initialize()
 
   //#########################
   //m_tree->Print();
-  if (!m_hit_x || !m_hit_y || !m_hit_z || !m_hit_energy || !m_hit_time || !m_hit_identifier || !m_hit_cellidentifier || !m_islarbarrel || !m_islarendcap || !m_islarfcal || !m_islarhec || !m_istile || !m_hit_sampling || !m_hit_samplingfraction || !m_truth_energy || !m_truth_px || !m_truth_py || !m_truth_pz || !m_truth_pdg || !m_truth_barcode || !m_truth_vtxbarcode)
+  // if(m_saveAllBranches){
+    if (!m_hit_x || !m_hit_y || !m_hit_z || !m_hit_energy || !m_hit_time || !m_hit_identifier || !m_hit_cellidentifier || !m_islarbarrel || !m_islarendcap || !m_islarfcal || !m_islarhec || !m_istile || !m_hit_sampling || !m_hit_samplingfraction) 
+    {
+     ATH_MSG_ERROR("Unable to create TTree branch correctly - (hit)");
+     return StatusCode::FAILURE;
+    }
+  // }
+  if(!m_truth_energy || !m_truth_px || !m_truth_py || !m_truth_pz || !m_truth_pdg || !m_truth_barcode || !m_truth_vtxbarcode)
   {
-   ATH_MSG_ERROR("Unable to create TTree branch correctly");
-   return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Unable to create TTree branch correctly - (truth)");
+    return StatusCode::FAILURE;
   }
-  if (!m_cell_identifier || !m_cell_energy || !m_cell_sampling || !m_g4hit_energy || !m_g4hit_time || !m_g4hit_identifier || !m_g4hit_cellidentifier || !m_g4hit_samplingfraction || !m_g4hit_sampling )
-  {
-   ATH_MSG_ERROR("Unable to create TTree branch correctly (cell or g4hit)");
-   return StatusCode::FAILURE;
+  // if(m_saveAllBranches){
+    if (!m_cell_identifier || !m_cell_energy || !m_cell_sampling || !m_g4hit_energy || !m_g4hit_time || !m_g4hit_identifier || !m_g4hit_cellidentifier || !m_g4hit_samplingfraction || !m_g4hit_sampling )
+    {
+      ATH_MSG_ERROR("Unable to create TTree branch correctly (cell or g4hit)");
+      return StatusCode::FAILURE;
+    }
+  // }
+  // if(m_doAllCells){
+    if(!m_oneeventcells)
+    {
+      ATH_MSG_ERROR("Unable to create TTree branch correctly (all cells)");
+      return StatusCode::FAILURE;
+    }
+  // }
+  if(m_doLayers){
+    if(!m_layercells)
+    {
+      ATH_MSG_ERROR("Unable to create TTree branch correctly (layer cells)");
+      return StatusCode::FAILURE;
+    }
   }
+  // if(m_doLayerSums){
+  //   if(!m_final_hit_energy || !m_final_g4hit_energy || !m_final_cell_energy || !m_total_hit_e || !m_total_cell_e || !m_total_g4hit_e)
+  //   {
+  //     ATH_MSG_ERROR("Unable to create TTree branch correctly (layer sums)");
+  //     return StatusCode::FAILURE;
+  //   }
+  // }
   /*
   if (!m_TTC_back_eta || !m_TTC_back_phi || !m_TTC_back_r || !m_TTC_back_z || !m_TTC_entrance_eta || !m_TTC_entrance_phi || !m_TTC_entrance_r || !m_TTC_entrance_z || !m_TTC_IDCaloBoundary_eta || !m_TTC_IDCaloBoundary_phi || !m_TTC_IDCaloBoundary_r || !m_TTC_IDCaloBoundary_z || !m_TTC_Angle3D || !m_TTC_AngleEta)
   {
@@ -750,6 +891,23 @@ StatusCode ISF_HitAnalysis::execute()
  m_g4hit_samplingfraction->clear();
  //which fails for this one!!
  //m_matched_cells->clear();
+ std::map<Long64_t, FCS_cell> cells; //read all objects and collect them by identifier (Long64_t)
+ std::map<Long64_t, std::vector<FCS_g4hit> > g4hits;
+ std::map<Long64_t, std::vector<FCS_hit> > hits;
+
+ cells.clear();
+ g4hits.clear();
+ hits.clear();
+
+ FCS_cell   one_cell; //note that this is not extra safe if I don't have a clear method!
+ FCS_g4hit  one_g4hit;
+ FCS_hit    one_hit;
+ FCS_matchedcell one_matchedcell;
+
+ m_oneeventcells->m_vector.clear();
+ m_final_g4hit_energy->clear();
+ m_final_hit_energy->clear();
+ m_final_cell_energy->clear();
 
  //##########################
  /*
@@ -1199,6 +1357,344 @@ StatusCode ISF_HitAnalysis::execute()
   ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from TileHitVec");
  }
 
+
+  // CaloHitAna
+  ATH_MSG_DEBUG("CaloHitAna begin!");
+
+  //cells
+  for (unsigned int cell_i = 0; cell_i < m_cell_identifier->size(); cell_i++)
+  {
+    if (cells.find((*m_cell_identifier)[cell_i]) == cells.end()) //doesn't exist
+    {
+      one_cell.cell_identifier = (*m_cell_identifier)[cell_i];
+      one_cell.sampling = (*m_cell_sampling)[cell_i];
+      one_cell.energy = (*m_cell_energy)[cell_i];
+      one_cell.center_x = 0.0; //for now
+      one_cell.center_y = 0.0;
+      one_cell.center_z = 0.0;
+      cells.insert(std::pair<Long64_t, FCS_cell>(one_cell.cell_identifier, one_cell));
+    }
+    else
+    {
+      //there shouldn't be a cell with the same identifier in this event
+      ATH_MSG_DEBUG("ISF_HitAnalysis: Same cell???? ERROR");
+    }
+  }
+
+  // g4 hits
+  if(m_doG4Hits){
+    for (unsigned int g4hit_i = 0; g4hit_i < m_g4hit_identifier->size(); g4hit_i++)
+    {
+      if ((*m_g4hit_sampling)[g4hit_i] >= 0 && (*m_g4hit_sampling)[g4hit_i] <= 25 && (*m_g4hit_time)[g4hit_i] > m_TimingCut)
+      {
+        ATH_MSG_DEBUG("Ignoring G4hit, time too large: " << g4hit_i << " time: " << (*m_g4hit_time)[g4hit_i]);
+        continue;
+      }
+
+      if (g4hits.find((*m_g4hit_cellidentifier)[g4hit_i]) == g4hits.end())
+      {
+        //this G4 hit doesn't exist yet
+        one_g4hit.identifier = (*m_g4hit_identifier)[g4hit_i];
+        one_g4hit.cell_identifier = (*m_g4hit_cellidentifier)[g4hit_i];
+        one_g4hit.sampling = (*m_g4hit_sampling)[g4hit_i];
+        one_g4hit.hit_time = (*m_g4hit_time)[g4hit_i];
+        //one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i];
+        //scale the hit energy with the sampling fraction
+        if (one_g4hit.sampling >= 12 && one_g4hit.sampling <= 20)
+        { //tile
+          //std::cout <<"Tile: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
+          if ((*m_g4hit_samplingfraction)[g4hit_i])
+          {
+            one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] * (*m_g4hit_samplingfraction)[g4hit_i];
+            //std::cout <<"TileE: "<<one_g4hit.hit_energy<<std::endl;
+          }
+          else one_g4hit.hit_energy = 0.;
+        }
+        else
+        {
+          //std::cout <<"LAr: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
+          one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] / (*m_g4hit_samplingfraction)[g4hit_i];
+        }
+        //one_g4hit.hit_sampfrac = (*m_g4hit_samplingfraction)[g4hit_i];
+        //new g4hit -> insert vector with 1 element
+        g4hits.insert(std::pair<Long64_t, std::vector<FCS_g4hit> >(one_g4hit.cell_identifier, std::vector<FCS_g4hit>(1, one_g4hit)));
+      }
+      else
+      {
+        //G4 hit exists in this identifier -> push_back new to the vector                                                                                       //FCS_g4hit one_g4hit;
+        one_g4hit.identifier = (*m_g4hit_identifier)[g4hit_i];
+        one_g4hit.cell_identifier = (*m_g4hit_cellidentifier)[g4hit_i];
+        one_g4hit.sampling = (*m_g4hit_sampling)[g4hit_i];
+        one_g4hit.hit_time = (*m_g4hit_time)[g4hit_i];
+        if (one_g4hit.sampling >= 12 && one_g4hit.sampling <= 20)
+        { //tile
+          //std::cout <<"Tile2: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
+          if ((*m_g4hit_samplingfraction)[g4hit_i])
+          {
+            one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] * (*m_g4hit_samplingfraction)[g4hit_i];
+            //std::cout <<"TileE2: "<<one_g4hit.hit_energy<<std::endl;
+          }
+          else one_g4hit.hit_energy = 0.;
+        }
+        else
+        {
+          //std::cout <<"LAr2: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
+          one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] / (*m_g4hit_samplingfraction)[g4hit_i];
+        }
+        //one_g4hit.hit_sampfrac = (*m_g4hit_samplingfraction)[g4hit_i];
+        g4hits[(*m_g4hit_cellidentifier)[g4hit_i]].push_back(one_g4hit);
+      }
+    }
+  }
+
+  //hits
+  for (unsigned int hit_i = 0; hit_i < m_hit_identifier->size(); hit_i++)
+  {
+    if ((*m_hit_sampling)[hit_i] >= 0 && (*m_hit_sampling)[hit_i] <= 25 && (*m_hit_time)[hit_i] > m_TimingCut)
+    {
+      // if (m_Debug > 1)
+        ATH_MSG_DEBUG("Ignoring FCS hit, time too large: " << hit_i << " time: " << (*m_hit_time)[hit_i]);
+      continue;
+    }
+    if (hits.find((*m_hit_cellidentifier)[hit_i]) == hits.end())
+    {
+      //Detailed hit doesn't exist yet
+      one_hit.identifier = (*m_hit_identifier)[hit_i];
+      one_hit.cell_identifier = (*m_hit_cellidentifier)[hit_i];
+      one_hit.sampling = (*m_hit_sampling)[hit_i];
+
+      if (one_hit.sampling >= 12 && one_hit.sampling <= 20)
+      { //tile
+        if ((*m_hit_samplingfraction)[hit_i])
+        {
+          one_hit.hit_energy = (*m_hit_energy)[hit_i] * (*m_hit_samplingfraction)[hit_i];
+        }
+        else one_hit.hit_energy = 0.;
+      }
+      else
+      {
+        one_hit.hit_energy = (*m_hit_energy)[hit_i] / (*m_hit_samplingfraction)[hit_i];
+      }
+      //one_hit.hit_sampfrac = (*m_hit_samplingfraction)[hit_i];
+      one_hit.hit_time = (*m_hit_time)[hit_i];
+      one_hit.hit_x = (*m_hit_x)[hit_i];
+      one_hit.hit_y = (*m_hit_y)[hit_i];
+      one_hit.hit_z = (*m_hit_z)[hit_i];
+      hits.insert(std::pair<Long64_t, std::vector<FCS_hit> >(one_hit.cell_identifier, std::vector<FCS_hit>(1, one_hit)));
+    }
+    else
+    {
+      //Detailed hit exists in this identifier -> push_back new to the vector
+      one_hit.identifier = (*m_hit_identifier)[hit_i];
+      one_hit.cell_identifier = (*m_hit_cellidentifier)[hit_i];
+      one_hit.sampling = (*m_hit_sampling)[hit_i];
+      //one_hit.hit_energy = (*m_hit_energy)[hit_i];
+      if (one_hit.sampling >= 12 && one_hit.sampling <= 20)
+      { //tile
+        if ((*m_hit_samplingfraction)[hit_i])
+        {
+          one_hit.hit_energy = (*m_hit_energy)[hit_i] * (*m_hit_samplingfraction)[hit_i];
+        }
+        else one_hit.hit_energy = 0.;
+      }
+      else
+      {
+        one_hit.hit_energy = (*m_hit_energy)[hit_i] / (*m_hit_samplingfraction)[hit_i];
+      }
+      //one_hit.hit_sampfrac = (*m_hit_samplingfraction)[hit_i];
+      one_hit.hit_time = (*m_hit_time)[hit_i];
+      one_hit.hit_x = (*m_hit_x)[hit_i];
+      one_hit.hit_y = (*m_hit_y)[hit_i];
+      one_hit.hit_z = (*m_hit_z)[hit_i];
+      hits[(*m_hit_cellidentifier)[hit_i]].push_back(one_hit);
+    }
+  }
+
+  //Start matching:
+  Int_t iindex = 0;
+  for (std::map<Long64_t, FCS_cell>::iterator it = cells.begin(); it != cells.end(); )
+  {
+    iindex++;
+    // std::cout <<iindex<<std::endl;
+    one_matchedcell.clear(); //maybe not completely necessery, as we're not pushing_back into vectors
+    //set the cell part
+    one_matchedcell.cell = it->second;
+    //now look for FCS detailed hits in this cell
+    std::map<Long64_t, std::vector<FCS_hit> >::iterator it2 = hits.find(it->first);
+    if (it2 != hits.end())
+    {
+      //std::cout <<"FCS hits found in this cell"<<std::endl;
+      one_matchedcell.hit = it2->second;
+      hits.erase(it2); //remove it
+    }
+    else
+    {
+      //no hit found for this cell
+      one_matchedcell.hit.clear(); //important!
+    }
+    //now look for G4hits in this cell
+    std::map<Long64_t, std::vector<FCS_g4hit> >::iterator it3 = g4hits.find(it->first);
+    if (it3 != g4hits.end())
+    {
+      //std::cout <<"G4 hits found in this cell"<<std::endl;
+      one_matchedcell.g4hit = it3->second;
+      g4hits.erase(it3);
+    }
+    else
+    {
+      //no g4hit found for this cell
+      one_matchedcell.g4hit.clear();//important!
+    }
+    //std::cout <<"Erase cell"<<std::endl;
+    cells.erase(it++);
+    //std::cout <<"Insert matched object"<<std::endl;
+    //push_back matched cell for event jentry
+    m_oneeventcells->push_back(one_matchedcell);
+    //std::cout <<"Go next"<<std::endl;
+
+  }
+
+  //ok, cells should be empty, what about hits and g4hits?
+  //There could be G4hits/FCS hits for which we don't have a cell ->create a dummy empty cell with 0 energy, take the cell identifier from the hit
+  ATH_MSG_DEBUG("ISF_HitAnalysis Check after cells: " << cells.size() << " " << g4hits.size() << " " << hits.size());
+
+  for (std::map<Long64_t, std::vector<FCS_hit> >::iterator it = hits.begin(); it != hits.end();)
+  {
+    one_matchedcell.clear();
+    one_matchedcell.cell.cell_identifier = it->first;
+    //std::cout <<"This hit didn't exist in cell: "<<it->first<<std::endl;
+    if (it->second.size())
+    {
+      one_matchedcell.cell.sampling = (it->second)[0].sampling;
+    }
+    else
+    {
+      one_matchedcell.cell.sampling = -1; //
+      //ok, but you really shouldn't be here
+      ATH_MSG_DEBUG("ERROR: You shouldn't really be here");
+    }
+    one_matchedcell.cell.energy = 0.;
+    one_matchedcell.cell.center_x = 0.0;
+    one_matchedcell.cell.center_y = 0.0;
+    one_matchedcell.cell.center_z = 0.0;
+    one_matchedcell.hit = it->second;
+    std::map<Long64_t, std::vector<FCS_g4hit> >::iterator it3 = g4hits.find(it->first);
+    if (it3 != g4hits.end())
+    {
+      one_matchedcell.g4hit = it3->second;
+      g4hits.erase(it3);
+    }
+    else
+    {
+      //no g4hit found for this cell
+      one_matchedcell.g4hit.clear(); //important!
+    }
+    hits.erase(it++);
+    m_oneeventcells->push_back(one_matchedcell);
+
+  }
+
+  //ok, hits should be empty, what about g4hits?
+  ATH_MSG_DEBUG("ISF_HitAnalysis Check after hits: " << cells.size() << " " << g4hits.size() << " " << hits.size());
+  for (std::map<Long64_t, std::vector<FCS_g4hit> >::iterator it = g4hits.begin(); it != g4hits.end();)
+  {
+    one_matchedcell.clear(); //maybe not so important
+    one_matchedcell.cell.cell_identifier = it->first;
+    if (it->second.size())
+    {
+      one_matchedcell.cell.sampling = (it->second)[0].sampling;
+    }
+    else
+    {
+      one_matchedcell.cell.sampling = -1; //
+      //not really
+      ATH_MSG_DEBUG("ERROR: You shouldn't really be here");
+    }
+    one_matchedcell.cell.energy = 0.;
+    one_matchedcell.cell.center_x = 0.0;
+    one_matchedcell.cell.center_y = 0.0;
+    one_matchedcell.cell.center_z = 0.0;
+    one_matchedcell.g4hit = it->second;
+    one_matchedcell.hit.clear(); //important!!
+    g4hits.erase(it++);
+    m_oneeventcells->push_back(one_matchedcell);
+  }
+
+  //Can fill the output tree already here:
+  m_total_cell_e  = 0;
+  m_total_hit_e   = 0;
+  m_total_g4hit_e = 0;
+
+  for (int j = 0; j < MAX_LAYER - 1; j++)
+  {
+    m_layercells[j]->m_vector = m_oneeventcells->GetLayer(j);
+  }
+
+  //this is for invalid cells
+  m_layercells[MAX_LAYER - 1]->m_vector = m_oneeventcells->GetLayer(-1);
+  for (int i = 0; i < MAX_LAYER; i++)
+  {
+    m_final_cell_energy->push_back(0.0); //zero for each event!
+    m_final_hit_energy->push_back(0.0);
+    m_final_g4hit_energy->push_back(0.0);
+
+    for (unsigned int cellindex = 0; cellindex < m_layercells[i]->size(); cellindex++)
+    {
+      if (i != MAX_LAYER - 1)
+      {
+        m_final_cell_energy->at(i) += m_layercells[i]->m_vector.at(cellindex).cell.energy;
+        m_total_cell_e += m_layercells[i]->m_vector.at(cellindex).cell.energy;
+      }
+      else
+      {
+        //don't add the energy in the invalid layer to the total energy (if there is any (shouldn't)
+        m_final_cell_energy->at(i) += m_layercells[i]->m_vector.at(cellindex).cell.energy; //this should be here anyway
+      }
+
+      //sum energy of all FCS detailed hits in this layer/cell
+      for (unsigned int j = 0; j < m_layercells[i]->m_vector.at(cellindex).hit.size(); j++)
+      {
+        if (i != MAX_LAYER - 1)
+        {
+          m_total_hit_e += m_layercells[i]->m_vector.at(cellindex).hit[j].hit_energy;
+          m_final_hit_energy->at(i) += m_layercells[i]->m_vector.at(cellindex).hit[j].hit_energy;
+        }
+        else
+        {
+          //again, don't add invalid layer energy to the sum
+          m_final_hit_energy->at(i) += m_layercells[i]->m_vector.at(cellindex).hit[j].hit_energy;
+        }
+      }
+
+      //sum energy of all G4 hits in this layer/cell
+      for (unsigned int j = 0; j < m_layercells[i]->m_vector.at(cellindex).g4hit.size(); j++)
+      {
+        if (i != MAX_LAYER - 1)
+        {
+          m_total_g4hit_e += m_layercells[i]->m_vector.at(cellindex).g4hit[j].hit_energy;
+          m_final_g4hit_energy->at(i) += m_layercells[i]->m_vector.at(cellindex).g4hit[j].hit_energy;
+        }
+        else
+        {
+          //don't add invalied layer energy to the sum
+          m_final_g4hit_energy->at(i) += m_layercells[i]->m_vector.at(cellindex).g4hit[j].hit_energy;
+        }
+      }
+    }
+  }
+
+  // push_back for total energy
+  m_final_cell_energy->push_back(0.0); 
+  m_final_hit_energy->push_back(0.0);
+  m_final_g4hit_energy->push_back(0.0);
+
+  m_final_cell_energy->at(MAX_LAYER)  = m_total_cell_e;
+  m_final_hit_energy->at(MAX_LAYER)   = m_total_hit_e;
+  m_final_g4hit_energy->at(MAX_LAYER) = m_total_g4hit_e;
+
+
+
+
  //Fill the tree and finish
  if (m_tree) m_tree->Fill();
 
@@ -1483,238 +1979,238 @@ void ISF_HitAnalysis::extrapolate_to_ID(const HepMC::GenParticle* part,std::vect
 */
 
 //UPDATED
-bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int sample,int subpos)
-{
-  m_layerCaloOK[sample][subpos]=false;
-  m_letaCalo[sample][subpos]=m_eta_calo_surf;
-  m_lphiCalo[sample][subpos]=m_phi_calo_surf;
-  m_lrCalo[sample][subpos] = rpos(sample,m_eta_calo_surf,subpos);
-  m_lzCalo[sample][subpos] = zpos(sample,m_eta_calo_surf,subpos);
-  double distsamp =deta(sample,m_eta_calo_surf);
-  double lrzpos =rzpos(sample,m_eta_calo_surf,subpos);
-  //double hitdist=0;
-  bool best_found=false;
-  double best_target=0;
+// bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int sample,int subpos)
+// {
+//   m_layerCaloOK[sample][subpos]=false;
+//   m_letaCalo[sample][subpos]=m_eta_calo_surf;
+//   m_lphiCalo[sample][subpos]=m_phi_calo_surf;
+//   m_lrCalo[sample][subpos] = rpos(sample,m_eta_calo_surf,subpos);
+//   m_lzCalo[sample][subpos] = zpos(sample,m_eta_calo_surf,subpos);
+//   double distsamp =deta(sample,m_eta_calo_surf);
+//   double lrzpos =rzpos(sample,m_eta_calo_surf,subpos);
+//   //double hitdist=0;
+//   bool best_found=false;
+//   double best_target=0;
 
-  std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-  while ( it!= hitVector->end() && it->detID != (3000+sample) ) { it++;}
-  //while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
+//   std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+//   while ( it!= hitVector->end() && it->detID != (3000+sample) ) { it++;}
+//   //while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
 
-  if (it!=hitVector->end()) {
-    Amg::Vector3D hitPos1 = (*it).trackParms->position();
-    int sid1=(*it).detID;
-    int sid2=-1;
-    Amg::Vector3D hitPos;
-    Amg::Vector3D hitPos2;
+//   if (it!=hitVector->end()) {
+//     Amg::Vector3D hitPos1 = (*it).trackParms->position();
+//     int sid1=(*it).detID;
+//     int sid2=-1;
+//     Amg::Vector3D hitPos;
+//     Amg::Vector3D hitPos2;
 
-    std::vector<Trk::HitInfo>::iterator itnext = it;
-    ++itnext;
-    if(itnext!=hitVector->end()) {
-      hitPos2 = (*itnext).trackParms->position();
-      sid2=(*itnext).detID;
-      double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
-      double t;
-      if(isCaloBarrel(sample)) {
-        double r=rpos(sample,eta_avg,subpos);
-        double r1=hitPos1.perp();
-        double r2=hitPos2.perp();
-        t=(r-r1)/(r2-r1);
-        best_target=r;
-      } else {
-        double z=zpos(sample,eta_avg,subpos);
-        double z1=hitPos1[Amg::z];
-        double z2=hitPos2[Amg::z];
-        t=(z-z1)/(z2-z1);
-        best_target=z;
-      }
-      hitPos=t*hitPos2+(1-t)*hitPos1;
-    } else {
-      hitPos=hitPos1;
-      hitPos2=hitPos1;
-    }
-    double etaCalo = hitPos.eta();
-    double phiCalo = hitPos.phi();
-    m_letaCalo[sample][subpos]=etaCalo;
-    m_lphiCalo[sample][subpos]=phiCalo;
-    m_lrCalo[sample][subpos] = hitPos.perp();
-    m_lzCalo[sample][subpos] = hitPos[Amg::z];
-    //hitdist=hitPos.mag();
-    m_layerCaloOK[sample][subpos]=true;
-    lrzpos=rzpos(sample,etaCalo,subpos);
-    distsamp=deta(sample,etaCalo);
-    best_found=true;
-    ATH_MSG_DEBUG(" extrapol with layer hit: id="<<sid1<<" -> "<<sid2<<
-                  " target r/z="<<best_target<<
-                  " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
-                  " re="<<m_lrCalo[sample][subpos]<<" ze="<<m_lzCalo[sample][subpos]
-                  );
-  }
-  if(!best_found) {
-    it = hitVector->begin();
-    double best_dist=0.5;
-    bool best_inside=false;
-    int best_id1,best_id2;
-    Amg::Vector3D best_hitPos=(*it).trackParms->position();
-    while (it < hitVector->end()-1 ) {
-      Amg::Vector3D hitPos1 = (*it).trackParms->position();
-      int sid1=(*it).detID;
-      it++;
-      Amg::Vector3D hitPos2 = (*it).trackParms->position();
-      int sid2=(*it).detID;
-      double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
-      double t;
-      double tmp_target=0;
-      if(isCaloBarrel(sample)) {
-        double r=rpos(sample,eta_avg,subpos);
-        double r1=hitPos1.perp();
-        double r2=hitPos2.perp();
-        t=(r-r1)/(r2-r1);
-        tmp_target=r;
-      } else {
-        double z=zpos(sample,eta_avg,subpos);
-        double z1=hitPos1[Amg::z];
-        double z2=hitPos2[Amg::z];
-        t=(z-z1)/(z2-z1);
-        tmp_target=z;
-      }
-      Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
-      double dist=TMath::Min(TMath::Abs(t-0),TMath::Abs(t-1));
-      bool inside=false;
-      if(t>=0 && t<=1) inside=true;
-      if(!best_found || inside) {
-        if(!best_inside || dist<best_dist) {
-          best_dist=dist;
-          best_hitPos=hitPos;
-          best_inside=inside;
-          best_found=true;
-          best_id1=sid1;
-          best_id2=sid2;
-          best_target=tmp_target;
-        }
-      } else {
-        if(!best_inside && dist<best_dist) {
-          best_dist=dist;
-          best_hitPos=hitPos;
-          best_inside=inside;
-          best_found=true;
-          best_id1=sid1;
-          best_id2=sid2;
-          best_target=tmp_target;
-        }
-      }
-      ATH_MSG_VERBOSE(" extrapol without layer hit: id="<<sid1<<" -> "<<sid2<<" dist="<<dist<<" mindist="<<best_dist<<
-                    " t="<<t<<" best_inside="<<best_inside<<" target r/z="<<tmp_target<<
-                    " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
-                    " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]<<
-                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
-                    );
-      if(best_found) {
-        m_letaCalo[sample][subpos]=best_hitPos.eta();
-        m_lphiCalo[sample][subpos]=best_hitPos.phi();
-        m_lrCalo[sample][subpos] = best_hitPos.perp();
-        m_lzCalo[sample][subpos] = best_hitPos[Amg::z];
-        //hitdist=best_hitPos.mag();
-        lrzpos=rzpos(sample,m_letaCalo[sample][subpos],subpos);
-        distsamp=deta(sample,m_letaCalo[sample][subpos]);
-        m_layerCaloOK[sample][subpos]=true;
-      }
-    }
-    if(best_found) {
-      ATH_MSG_DEBUG(" extrapol without layer hit: id="<<best_id1<<" -> "<<best_id2<<" mindist="<<best_dist<<
-                    " best_inside="<<best_inside<<" target r/z="<<best_target<<
-                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
-                    );
-    }
-  }
+//     std::vector<Trk::HitInfo>::iterator itnext = it;
+//     ++itnext;
+//     if(itnext!=hitVector->end()) {
+//       hitPos2 = (*itnext).trackParms->position();
+//       sid2=(*itnext).detID;
+//       double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
+//       double t;
+//       if(isCaloBarrel(sample)) {
+//         double r=rpos(sample,eta_avg,subpos);
+//         double r1=hitPos1.perp();
+//         double r2=hitPos2.perp();
+//         t=(r-r1)/(r2-r1);
+//         best_target=r;
+//       } else {
+//         double z=zpos(sample,eta_avg,subpos);
+//         double z1=hitPos1[Amg::z];
+//         double z2=hitPos2[Amg::z];
+//         t=(z-z1)/(z2-z1);
+//         best_target=z;
+//       }
+//       hitPos=t*hitPos2+(1-t)*hitPos1;
+//     } else {
+//       hitPos=hitPos1;
+//       hitPos2=hitPos1;
+//     }
+//     double etaCalo = hitPos.eta();
+//     double phiCalo = hitPos.phi();
+//     m_letaCalo[sample][subpos]=etaCalo;
+//     m_lphiCalo[sample][subpos]=phiCalo;
+//     m_lrCalo[sample][subpos] = hitPos.perp();
+//     m_lzCalo[sample][subpos] = hitPos[Amg::z];
+//     //hitdist=hitPos.mag();
+//     m_layerCaloOK[sample][subpos]=true;
+//     lrzpos=rzpos(sample,etaCalo,subpos);
+//     distsamp=deta(sample,etaCalo);
+//     best_found=true;
+//     ATH_MSG_DEBUG(" extrapol with layer hit: id="<<sid1<<" -> "<<sid2<<
+//                   " target r/z="<<best_target<<
+//                   " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+//                   " re="<<m_lrCalo[sample][subpos]<<" ze="<<m_lzCalo[sample][subpos]
+//                   );
+//   }
+//   if(!best_found) {
+//     it = hitVector->begin();
+//     double best_dist=0.5;
+//     bool best_inside=false;
+//     int best_id1,best_id2;
+//     Amg::Vector3D best_hitPos=(*it).trackParms->position();
+//     while (it < hitVector->end()-1 ) {
+//       Amg::Vector3D hitPos1 = (*it).trackParms->position();
+//       int sid1=(*it).detID;
+//       it++;
+//       Amg::Vector3D hitPos2 = (*it).trackParms->position();
+//       int sid2=(*it).detID;
+//       double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
+//       double t;
+//       double tmp_target=0;
+//       if(isCaloBarrel(sample)) {
+//         double r=rpos(sample,eta_avg,subpos);
+//         double r1=hitPos1.perp();
+//         double r2=hitPos2.perp();
+//         t=(r-r1)/(r2-r1);
+//         tmp_target=r;
+//       } else {
+//         double z=zpos(sample,eta_avg,subpos);
+//         double z1=hitPos1[Amg::z];
+//         double z2=hitPos2[Amg::z];
+//         t=(z-z1)/(z2-z1);
+//         tmp_target=z;
+//       }
+//       Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
+//       double dist=TMath::Min(TMath::Abs(t-0),TMath::Abs(t-1));
+//       bool inside=false;
+//       if(t>=0 && t<=1) inside=true;
+//       if(!best_found || inside) {
+//         if(!best_inside || dist<best_dist) {
+//           best_dist=dist;
+//           best_hitPos=hitPos;
+//           best_inside=inside;
+//           best_found=true;
+//           best_id1=sid1;
+//           best_id2=sid2;
+//           best_target=tmp_target;
+//         }
+//       } else {
+//         if(!best_inside && dist<best_dist) {
+//           best_dist=dist;
+//           best_hitPos=hitPos;
+//           best_inside=inside;
+//           best_found=true;
+//           best_id1=sid1;
+//           best_id2=sid2;
+//           best_target=tmp_target;
+//         }
+//       }
+//       ATH_MSG_VERBOSE(" extrapol without layer hit: id="<<sid1<<" -> "<<sid2<<" dist="<<dist<<" mindist="<<best_dist<<
+//                     " t="<<t<<" best_inside="<<best_inside<<" target r/z="<<tmp_target<<
+//                     " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+//                     " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]<<
+//                     " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+//                     );
+//       if(best_found) {
+//         m_letaCalo[sample][subpos]=best_hitPos.eta();
+//         m_lphiCalo[sample][subpos]=best_hitPos.phi();
+//         m_lrCalo[sample][subpos] = best_hitPos.perp();
+//         m_lzCalo[sample][subpos] = best_hitPos[Amg::z];
+//         //hitdist=best_hitPos.mag();
+//         lrzpos=rzpos(sample,m_letaCalo[sample][subpos],subpos);
+//         distsamp=deta(sample,m_letaCalo[sample][subpos]);
+//         m_layerCaloOK[sample][subpos]=true;
+//       }
+//     }
+//     if(best_found) {
+//       ATH_MSG_DEBUG(" extrapol without layer hit: id="<<best_id1<<" -> "<<best_id2<<" mindist="<<best_dist<<
+//                     " best_inside="<<best_inside<<" target r/z="<<best_target<<
+//                     " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+//                     );
+//     }
+//   }
 
-  if(isCaloBarrel(sample)) lrzpos*=cosh(m_letaCalo[sample][subpos]);
-   else                    lrzpos= fabs(lrzpos/tanh(m_letaCalo[sample][subpos]));
+//   if(isCaloBarrel(sample)) lrzpos*=cosh(m_letaCalo[sample][subpos]);
+//    else                    lrzpos= fabs(lrzpos/tanh(m_letaCalo[sample][subpos]));
 
-  m_dCalo[sample][subpos]=lrzpos;
-  m_distetaCaloBorder[sample][subpos]=distsamp;
+//   m_dCalo[sample][subpos]=lrzpos;
+//   m_distetaCaloBorder[sample][subpos]=distsamp;
 
-  return m_layerCaloOK[sample][subpos];
-} //get_calo_etaphi
+//   return m_layerCaloOK[sample][subpos];
+// } //get_calo_etaphi
 
-//UPDATED
-bool ISF_HitAnalysis::rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom)
-{
-  bool best_found=false;
-  double best_dist=10000;
-  bool best_inside=false;
-  int best_id1,best_id2;
+// //UPDATED
+// bool ISF_HitAnalysis::rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom)
+// {
+//   bool best_found=false;
+//   double best_dist=10000;
+//   bool best_inside=false;
+//   int best_id1,best_id2;
 
-  std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-  Amg::Vector3D best_hitPos=(*it).trackParms->position();
-  for(int rz=0;rz<=1;++rz) {
-    it = hitVector->begin();
-    while (it < hitVector->end()-1 ) {
-      Amg::Vector3D hitPos1 = (*it).trackParms->position();
-      Amg::Vector3D hitMom1 = (*it).trackParms->momentum();
-      int sid1=(*it).detID;
-      it++;
-      Amg::Vector3D hitPos2 = (*it).trackParms->position();
-      Amg::Vector3D hitMom2 = (*it).trackParms->momentum();
-      int sid2=(*it).detID;
+//   std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+//   Amg::Vector3D best_hitPos=(*it).trackParms->position();
+//   for(int rz=0;rz<=1;++rz) {
+//     it = hitVector->begin();
+//     while (it < hitVector->end()-1 ) {
+//       Amg::Vector3D hitPos1 = (*it).trackParms->position();
+//       Amg::Vector3D hitMom1 = (*it).trackParms->momentum();
+//       int sid1=(*it).detID;
+//       it++;
+//       Amg::Vector3D hitPos2 = (*it).trackParms->position();
+//       Amg::Vector3D hitMom2 = (*it).trackParms->momentum();
+//       int sid2=(*it).detID;
 
-      double t;
-      if(rz==1) {
-        double r=cylR;
-        double r1=hitPos1.perp();
-        double r2=hitPos2.perp();
-        t=(r-r1)/(r2-r1);
-      } else {
-        double z=cylZ;
-        double z1=hitPos1[Amg::z];
-        double z2=hitPos2[Amg::z];
-        t=(z-z1)/(z2-z1);
-      }
-      Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
+//       double t;
+//       if(rz==1) {
+//         double r=cylR;
+//         double r1=hitPos1.perp();
+//         double r2=hitPos2.perp();
+//         t=(r-r1)/(r2-r1);
+//       } else {
+//         double z=cylZ;
+//         double z1=hitPos1[Amg::z];
+//         double z2=hitPos2[Amg::z];
+//         t=(z-z1)/(z2-z1);
+//       }
+//       Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
 
-      double dist=hitPos.mag();
-      bool inside=false;
-      if(t>=-0.001 && t<=1.001) inside=true;
+//       double dist=hitPos.mag();
+//       bool inside=false;
+//       if(t>=-0.001 && t<=1.001) inside=true;
 
-      if(!best_found || inside) {
-        if(!best_inside || dist<best_dist) {
-          best_dist=dist;
-          best_hitPos=hitPos;
-          best_inside=inside;
-          best_found=true;
-          best_id1=sid1;
-          best_id2=sid2;
-          mom=t*hitMom2+(1-t)*hitMom1;
-        }
-      } else {
-        if(!best_inside && dist<best_dist) {
-          best_dist=dist;
-          best_hitPos=hitPos;
-          best_inside=inside;
-          best_found=true;
-          best_id1=sid1;
-          best_id2=sid2;
-          mom=t*hitMom2+(1-t)*hitMom1;
-        }
-      }
-      ATH_MSG_DEBUG(" extrapol without layer hit: id="<<sid1<<" -> "<<sid2<<" dist="<<dist<<" bestdist="<<best_dist<<
-                    " t="<<t<<" inside="<<inside<<" best_inside="<<best_inside<<
-                    " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
-                    " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]<<
-                    " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
-                    );
-    }
-  }
+//       if(!best_found || inside) {
+//         if(!best_inside || dist<best_dist) {
+//           best_dist=dist;
+//           best_hitPos=hitPos;
+//           best_inside=inside;
+//           best_found=true;
+//           best_id1=sid1;
+//           best_id2=sid2;
+//           mom=t*hitMom2+(1-t)*hitMom1;
+//         }
+//       } else {
+//         if(!best_inside && dist<best_dist) {
+//           best_dist=dist;
+//           best_hitPos=hitPos;
+//           best_inside=inside;
+//           best_found=true;
+//           best_id1=sid1;
+//           best_id2=sid2;
+//           mom=t*hitMom2+(1-t)*hitMom1;
+//         }
+//       }
+//       ATH_MSG_DEBUG(" extrapol without layer hit: id="<<sid1<<" -> "<<sid2<<" dist="<<dist<<" bestdist="<<best_dist<<
+//                     " t="<<t<<" inside="<<inside<<" best_inside="<<best_inside<<
+//                     " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
+//                     " re="<<hitPos.perp()<<" ze="<<hitPos[Amg::z]<<
+//                     " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+//                     );
+//     }
+//   }
 
-  if(best_found) {
-    ATH_MSG_DEBUG(" extrapol to r="<<cylR<<" z="<<cylZ<<": id="<<best_id1<<" -> "<<best_id2<<" dist="<<best_dist<<
-                  " best_inside="<<best_inside<<
-                  " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
-                  );
-  }
-  pos=best_hitPos;
+//   if(best_found) {
+//     ATH_MSG_DEBUG(" extrapol to r="<<cylR<<" z="<<cylZ<<": id="<<best_id1<<" -> "<<best_id2<<" dist="<<best_dist<<
+//                   " best_inside="<<best_inside<<
+//                   " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
+//                   );
+//   }
+//   pos=best_hitPos;
 
-  return best_found;
-} //rz_cylinder_get_calo_etaphi
+//   return best_found;
+// } //rz_cylinder_get_calo_etaphi
 
 //UPDATED
 /*
@@ -1874,81 +2370,81 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, Calo
 */
 
 //UPDATED
-bool ISF_HitAnalysis::get_calo_surface(std::vector<Trk::HitInfo>* hitVector)
-{
-  ATH_MSG_DEBUG("Start get_calo_surface()");
-  m_sample_calo_surf=CaloCell_ID_FCS::noSample;
-  m_eta_calo_surf=-999;
-  m_phi_calo_surf=-999;
-  m_d_calo_surf=0;
-  double min_calo_surf_dist=1000;
+// bool ISF_HitAnalysis::get_calo_surface(std::vector<Trk::HitInfo>* hitVector)
+// {
+//   ATH_MSG_DEBUG("Start get_calo_surface()");
+//   m_sample_calo_surf=CaloCell_ID_FCS::noSample;
+//   m_eta_calo_surf=-999;
+//   m_phi_calo_surf=-999;
+//   m_d_calo_surf=0;
+//   double min_calo_surf_dist=1000;
 
-  for(unsigned int i=0;i<m_surfacelist.size();++i) {
-    CaloCell_ID_FCS::CaloSample sample=m_surfacelist[i];
-    std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-    while (it != hitVector->end() && it->detID != (3000+sample) )  { it++;}
-    if(it==hitVector->end()) continue;
-    Amg::Vector3D hitPos = (*it).trackParms->position();
+//   for(unsigned int i=0;i<m_surfacelist.size();++i) {
+//     CaloCell_ID_FCS::CaloSample sample=m_surfacelist[i];
+//     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+//     while (it != hitVector->end() && it->detID != (3000+sample) )  { it++;}
+//     if(it==hitVector->end()) continue;
+//     Amg::Vector3D hitPos = (*it).trackParms->position();
 
-    //double offset = 0.;
-    double etaCalo = hitPos.eta();
+//     //double offset = 0.;
+//     double etaCalo = hitPos.eta();
 
-     ATH_MSG_DEBUG("test: entrance to calo surface : sample="<<sample<<" eta="<<etaCalo);
+//      ATH_MSG_DEBUG("test: entrance to calo surface : sample="<<sample<<" eta="<<etaCalo);
 
-    if (fabs(etaCalo)<900) {
-      double phiCalo = hitPos.phi();
-      double distsamp =deta(sample,etaCalo);
+//     if (fabs(etaCalo)<900) {
+//       double phiCalo = hitPos.phi();
+//       double distsamp =deta(sample,etaCalo);
 
-      ATH_MSG_DEBUG(" phi="<<phiCalo<<" dist="<<distsamp);
-      if(distsamp<min_calo_surf_dist && min_calo_surf_dist>=0)
-      {
-        //hitVector is ordered in r, so if first surface was hit, keep it
-        m_eta_calo_surf=etaCalo;
-        m_phi_calo_surf=phiCalo;
-        min_calo_surf_dist=distsamp;
-        m_sample_calo_surf=sample;
-        m_d_calo_surf=rzent(sample,etaCalo);
-        ATH_MSG_DEBUG(" r/z="<<m_d_calo_surf);
-        if(isCaloBarrel(sample)) m_d_calo_surf*=cosh(etaCalo);
-        else                    m_d_calo_surf= fabs(m_d_calo_surf/tanh(etaCalo));
-        ATH_MSG_DEBUG(" d="<<m_d_calo_surf);
-        if(distsamp<0)
-        {
-          break;
-        }
-      }
-    }
-    else
-    {
-     ATH_MSG_DEBUG(": eta > 900, not using this");
-    }
-  }
+//       ATH_MSG_DEBUG(" phi="<<phiCalo<<" dist="<<distsamp);
+//       if(distsamp<min_calo_surf_dist && min_calo_surf_dist>=0)
+//       {
+//         //hitVector is ordered in r, so if first surface was hit, keep it
+//         m_eta_calo_surf=etaCalo;
+//         m_phi_calo_surf=phiCalo;
+//         min_calo_surf_dist=distsamp;
+//         m_sample_calo_surf=sample;
+//         m_d_calo_surf=rzent(sample,etaCalo);
+//         ATH_MSG_DEBUG(" r/z="<<m_d_calo_surf);
+//         if(isCaloBarrel(sample)) m_d_calo_surf*=cosh(etaCalo);
+//         else                    m_d_calo_surf= fabs(m_d_calo_surf/tanh(etaCalo));
+//         ATH_MSG_DEBUG(" d="<<m_d_calo_surf);
+//         if(distsamp<0)
+//         {
+//           break;
+//         }
+//       }
+//     }
+//     else
+//     {
+//      ATH_MSG_DEBUG(": eta > 900, not using this");
+//     }
+//   }
 
-  if(m_sample_calo_surf==CaloCell_ID_FCS::noSample) {
-    // first intersection with sensitive calo layer
-    std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-    while ( it < hitVector->end() && (*it).detID != 3 ) { it++;}   // to be updated
-    if (it==hitVector->end())   {  // no calo intersection, abort
-      return false;
-    }
-    Amg::Vector3D surface_hitPos = (*it).trackParms->position();
-    m_eta_calo_surf=surface_hitPos.eta();
-    m_phi_calo_surf=surface_hitPos.phi();
-    m_d_calo_surf=surface_hitPos.mag();
+//   if(m_sample_calo_surf==CaloCell_ID_FCS::noSample) {
+//     // first intersection with sensitive calo layer
+//     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
+//     while ( it < hitVector->end() && (*it).detID != 3 ) { it++;}   // to be updated
+//     if (it==hitVector->end())   {  // no calo intersection, abort
+//       return false;
+//     }
+//     Amg::Vector3D surface_hitPos = (*it).trackParms->position();
+//     m_eta_calo_surf=surface_hitPos.eta();
+//     m_phi_calo_surf=surface_hitPos.phi();
+//     m_d_calo_surf=surface_hitPos.mag();
 
-    double pT=(*it).trackParms->momentum().perp();
-    if(TMath::Abs(m_eta_calo_surf)>4.9 || pT<500 || (TMath::Abs(m_eta_calo_surf)>4 && pT<1000) ) {
-      ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
-    } else {
-      ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
-    }
-  } else {
-    ATH_MSG_DEBUG("entrance to calo surface : sample="<<m_sample_calo_surf<<" eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" deta="<<min_calo_surf_dist<<" dsurf="<<m_d_calo_surf);
-  }
+//     double pT=(*it).trackParms->momentum().perp();
+//     if(TMath::Abs(m_eta_calo_surf)>4.9 || pT<500 || (TMath::Abs(m_eta_calo_surf)>4 && pT<1000) ) {
+//       ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
+//     } else {
+//       ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
+//     }
+//   } else {
+//     ATH_MSG_DEBUG("entrance to calo surface : sample="<<m_sample_calo_surf<<" eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" deta="<<min_calo_surf_dist<<" dsurf="<<m_d_calo_surf);
+//   }
 
-  ATH_MSG_DEBUG("End get_calo_surface()");
-  return true;
-}
+//   ATH_MSG_DEBUG("End get_calo_surface()");
+//   return true;
+// }
 
 
 
