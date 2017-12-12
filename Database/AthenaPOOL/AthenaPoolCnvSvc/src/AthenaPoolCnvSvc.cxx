@@ -838,8 +838,8 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (par[0] == "SHM") {
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
-      token->setAuxString("[PNAME=" + par[1] + "]");
-      RootType classDesc = RootType::ByName(par[1]);
+      token->setAuxString("[PNAME=" + par[2] + "]");
+      RootType classDesc = RootType::ByName(par[2]);
       token->setClassID(pool::DbReflex::guid(classDesc));
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       Token addressToken;
@@ -873,7 +873,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (token == nullptr) {
       return(StatusCode::RECOVERABLE);
    }
-   refpAddress = new TokenAddress(POOL_StorageType, clid, "", "", 0, token);
+   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], ip[0], token);
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
