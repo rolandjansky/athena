@@ -47,7 +47,6 @@ namespace Gaudi {
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
-#include "AthenaKernel/IUserDataSvc.h"
 
 // Forward declaration
 
@@ -111,10 +110,6 @@ class AthAlgorithm
    */
   ServiceHandle<StoreGateSvc>& detStore() const;
 
-  /** @brief The standard @c UserDataSvc 
-   * Returns (kind of) a pointer to the @c UserDataSvc
-   */
-  ServiceHandle<IUserDataSvc>& userStore() const;
 
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
@@ -435,10 +430,6 @@ public:
   /// Pointer to StoreGate (detector store by default)
   mutable StoreGateSvc_t m_detStore;
 
-  typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
-  /// Pointer to IUserDataSvc
-  mutable UserDataSvc_t m_userStore;
-
   /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
   /// to add symlinks.  Empty if no symlinks were found.
   DataObjIDColl m_extendedExtraObjects;
@@ -461,9 +452,5 @@ ServiceHandle<StoreGateSvc>& AthAlgorithm::evtStore() const
 inline
 ServiceHandle<StoreGateSvc>& AthAlgorithm::detStore() const 
 { return m_detStore; }
-
-inline
-ServiceHandle<IUserDataSvc>& AthAlgorithm::userStore() const 
-{ return m_userStore; }
 
 #endif //> !ATHENABASECOMPS_ATHALGORITHM_H

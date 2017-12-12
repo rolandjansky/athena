@@ -57,7 +57,6 @@ namespace Gaudi {
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
-#include "AthenaKernel/IUserDataSvc.h"
 
 /**
  * @brief An algorithm that can be simultaneously executed in multiple threads.
@@ -150,10 +149,6 @@ class AthReentrantAlgorithm
    */
   ServiceHandle<StoreGateSvc>& detStore() const;
 
-  /** @brief The standard @c UserDataSvc 
-   * Returns (kind of) a pointer to the @c UserDataSvc
-   */
-  ServiceHandle<IUserDataSvc>& userStore() const;
 
 #ifndef REENTRANT_GAUDI
   /**
@@ -478,10 +473,6 @@ public:
   /// Pointer to StoreGate (detector store by default)
   mutable StoreGateSvc_t m_detStore;
 
-  typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
-  /// Pointer to IUserDataSvc
-  mutable UserDataSvc_t m_userStore;
-
   /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
   /// to add symlinks.  Empty if no symlinks were found.
   DataObjIDColl m_extendedExtraObjects;
@@ -504,9 +495,5 @@ ServiceHandle<StoreGateSvc>& AthReentrantAlgorithm::evtStore() const
 inline
 ServiceHandle<StoreGateSvc>& AthReentrantAlgorithm::detStore() const 
 { return m_detStore; }
-
-inline
-ServiceHandle<IUserDataSvc>& AthReentrantAlgorithm::userStore() const 
-{ return m_userStore; }
 
 #endif //> !ATHENABASECOMPS_ATHREENTRANTALGORITHM_H

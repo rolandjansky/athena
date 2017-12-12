@@ -33,7 +33,6 @@ AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name,
   ::ReEntAlgorithm   ( name, pSvcLocator, version ),
   m_evtStore    ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore    ( "StoreGateSvc/DetectorStore", name ),
-  m_userStore   ( "UserDataSvc/UserDataSvc", name ),
   m_varHandleArraysDeclared (false)
 {
   //
@@ -61,11 +60,6 @@ AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name,
                    m_detStore = StoreGateSvc_t ("StoreGateSvc/DetectorStore", name),
                    "Handle to a StoreGateSvc/DetectorStore instance: it will be used to "
                    "retrieve data during the course of the job" );
-
-  declareProperty( "UserStore",
-                   m_userStore = UserDataSvc_t ("UserDataSvc/UserDataSvc", name),
-                   "Handle to a UserDataSvc/UserDataSvc instance: it will be used to "
-                   "retrieve user data during the course of the job" );
 
   // Set up to run AthAlgorithmDHUpdate in sysInitialize before
   // merging depedency lists.  This extends the output dependency
