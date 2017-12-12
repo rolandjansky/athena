@@ -812,13 +812,23 @@ namespace xAOD {
 	/// if only EM
 	double emfrac = 1.;
 	if(onlyEM){
-	  double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
+	  double eEM  = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
+	  double eTot = cl->p4(CaloCluster::State::UNCALIBRATED).E();
 	  for (int i = 0; i < 28; i++) {
 	    double es = cl->eSample((CaloSampling::CaloSample)i);
 	    if (es != 0) ATH_MSG_DEBUG("Energy in sampling " << i << " = " << es);
 	  }
-	  emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
-	  topoCoreSCem += emfrac*cl->p4(CaloCluster::State::UNCALIBRATED).Et();
+	  // a special case where we force emFrac = 1 but still want to subtract TG3 contrib
+	  // since it was subtracted from the raw sum
+	  if (eTot < eEM) 
+	    topoCoreSCem += (cl->p4(CaloCluster::State::UNCALIBRATED).Et()-ettg3);
+	  // the Normal case : emFrac < 1, no need to subtract TG3 since
+	  // emfrac * pT = eEM / eTot * eTot / cosh(eta) = transverse EM contrib only,
+	  // the TG3 subtraction is done via the eTot cancellation...
+	  else {
+	    emfrac = eEM / eTot;
+	    topoCoreSCem += emfrac*cl->p4(CaloCluster::State::UNCALIBRATED).Et();
+	  }
 	}
 	ATH_MSG_DEBUG("ET(TG3) " << ettg3 << " emFrac = " << emfrac); 
 
