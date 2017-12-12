@@ -102,6 +102,7 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
 
   using namespace Monitored;
 
+  // defined Monitoring variables
   auto fex_pt	= MonitoredScalar::declare("Pt", -9999.);
   auto ptFL	= MonitoredScalar::declare("PtFL", -9999.);
   auto Strategy	= MonitoredScalar::declare("StrategyFlag", 0);
@@ -218,6 +219,7 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
   return StatusCode(result);
 }
 
+// from TrigmuCombHypoTool 
 StatusCode TrigmuCombHypoTool::decide(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& hypoToolInput) const
 {
   ATH_MSG_DEBUG("Applying selection of single << " << m_decisionId.numeric());
