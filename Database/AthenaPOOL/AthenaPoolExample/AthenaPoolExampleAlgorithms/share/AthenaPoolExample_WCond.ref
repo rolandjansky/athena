@@ -1,4 +1,4 @@
-Mon Oct 30 16:31:52 CET 2017
+Wed Dec  6 21:53:55 CET 2017
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5436 configurables from 58 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5437 configurables from 60 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus012.cern.ch on Mon Oct 30 16:32:00 2017
+                                          running on lxplus020.cern.ch on Wed Dec  6 21:54:03 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -33,8 +33,8 @@ PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-29T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-05T2302/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus020.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -49,6 +49,7 @@ ReadData             INFO in initialize()
 MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
@@ -120,10 +121,6 @@ MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
-EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 ReadData            DEBUG input handles: 0
@@ -132,7 +129,7 @@ ReadData            DEBUG Data Deps for ReadData
 WriteCond           DEBUG Property update for OutputLevel : new value = 2
 WriteCond            INFO in initialize()
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
-ClassIDSvc           INFO  getRegistryEntries: read 3486 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3478 CLIDRegistry entries for module ALL
 WriteCond           DEBUG input handles: 0
 WriteCond           DEBUG output handles: 0
 WriteCond           DEBUG Data Deps for WriteCond
@@ -140,6 +137,7 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
@@ -220,6 +218,7 @@ POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of 
 AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
+AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
 CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
@@ -260,7 +259,7 @@ ReadData             INFO Hit x = 20.4945 y = 63.5816 z = 48.1358 detector = Dum
 ReadData             INFO Hit x = 23.7045 y = 57.9027 z = 46.3159 detector = DummyHitDetector
 ReadData             INFO Hit x = 26.9145 y = 52.2238 z = 44.9265 detector = DummyHitDetector
 ReadData             INFO Hit x = 30.1245 y = 46.5449 z = 43.831 detector = DummyHitDetector
-ClassIDSvc           INFO  getRegistryEntries: read 19 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
 WriteCond           DEBUG in execute()
 WriteCond            INFO Hit x = 1.2345 y = 97.655 z = 226.672 detector = DummyHitDetector
 WriteCond            INFO Hit x = 4.4445 y = 91.9761 z = 94.7318 detector = DummyHitDetector
@@ -1165,9 +1164,6 @@ SimplePoolFile4...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 O
 Stream1              INFO Written 1 objects to output stream
 Stream1              INFO Objects NOT registered in IOV database
 ReadData             INFO in finalize()
-Stream1             DEBUG Calling destructor
-ReadData            DEBUG Calling destructor
-WriteCond           DEBUG Calling destructor
 IncidentProcAlg2     INFO Finalize
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
@@ -1180,9 +1176,9 @@ commitOutput         INFO Time User   : Tot=    0 [us]                          
 fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #=  2
 cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #=  2
 cRepR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #=  3
-cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.152(+- 1.22)/    0/   10 [ms] #= 66
-cObj_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.794(+-  4.1)/    0/   30 [ms] #= 63
-ChronoStatSvc        INFO Time User   : Tot= 0.95  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.303(+- 1.71)/    0/   10 [ms] #= 66
+cObj_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.794(+-  3.7)/    0/   20 [ms] #= 63
+ChronoStatSvc        INFO Time User   : Tot= 0.97  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

@@ -8,8 +8,7 @@ atlas_subdir( ISF_FatrasEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthLinks
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
                           DetectorDescription/Identifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
@@ -26,6 +25,6 @@ atlas_add_library( ISF_FatrasEvent
                    src/*.cxx
                    PUBLIC_HEADERS ISF_FatrasEvent
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks DataModel SGTools Identifier InDetPrepRawData ISF_FatrasDetDescrModel TrkPrepRawData TrkRIO_OnTrack EventContainers
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthenaKernel Identifier InDetPrepRawData ISF_FatrasDetDescrModel TrkPrepRawData TrkRIO_OnTrack EventContainers
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

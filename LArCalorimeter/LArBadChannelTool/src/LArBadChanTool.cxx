@@ -414,7 +414,7 @@ bool LArBadChanTool::readFromDB( const DataHandle<CondAttrListCollection> collec
 bool LArBadChanTool::readBadFebsFromDB() 
 {
 
-  ATH_CHECK( detStore()->retrieve( m_DBBadFebColl, m_DBBadFebFolder) );
+  ATH_CHECK( detStore()->retrieve( m_DBBadFebColl, m_DBBadFebFolder), false );
   ATH_MSG_INFO ( "Retrieved folder " << m_DBBadFebFolder );
 
   if (!m_DBBadFebColl.isValid()){

@@ -57,7 +57,7 @@ namespace xAOD {
 
       if(m_trkselTool.retrieve().isFailure()){
 	ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
-	return 0.;
+	return StatusCode::FAILURE;
       }
 
     /** square cone */

@@ -50,7 +50,7 @@ public:
     sTGCDetectorDescription(std::string s);
     void Register();
 	
-        virtual void SetXYZ(std::vector<double> v) override
+        virtual void SetXYZ(const std::vector<double>& v) override
 	{
                 small_x(v[0]);
 		large_x(v[1]);
@@ -59,22 +59,22 @@ public:
 		_yCutout=v[4];
 	}
 	
-	double sWidth() {return small_x();}
-	double lWidth() {return large_x();}
-	double Length() {return y();}
-	double Tck()    {return z();}
+	double sWidth() const {return small_x();}
+	double lWidth() const {return large_x();}
+	double Length() const {return y();}
+	double Tck()    const {return z();}
 
 	void yCutout(double y) {_yCutout=y;}
-	double yCutout() {return _yCutout;}
+	double yCutout() const {return _yCutout;}
 	
 	void xFrame(double y) {_xFrame=y;}
-	double xFrame() {return _xFrame;}
+	double xFrame() const {return _xFrame;}
 	
 	void ysFrame(double y) {_ysFrame=y;}
-	double ysFrame() {return _ysFrame;}
+	double ysFrame() const {return _ysFrame;}
 	
 	void ylFrame(double y) {_ylFrame=y;}
-	double ylFrame() {return _ylFrame;}
+	double ylFrame() const {return _ylFrame;}
 
 	sTGCReadoutParameters roParameters;
 	

@@ -57,8 +57,8 @@ StatusCode Algtooltest::test1()
 {
   REPORT_ERROR (StatusCode (StatusCode::FAILURE)) << "foomsg";
   REPORT_MESSAGE (MSG::INFO) << "some info";
-  CHECK_CODE( StatusCode (StatusCode::SUCCESS), 123 );
-  CHECK_CODE( StatusCode (StatusCode::RECOVERABLE), 123 );
+  CHECK_CODE( StatusCode (StatusCode::SUCCESS), StatusCode(123) );
+  CHECK_CODE( StatusCode (StatusCode::RECOVERABLE), StatusCode(123) );
   return StatusCode (StatusCode::SUCCESS);
 }
 
@@ -151,8 +151,8 @@ StatusCode test1e()
 
 StatusCode test1f()
 {
-  CHECK_CODE_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg", 123 );
-  CHECK_CODE_WITH_CONTEXT( StatusCode (StatusCode::RECOVERABLE), "alg", 123 );
+  CHECK_CODE_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg", StatusCode(123) );
+  CHECK_CODE_WITH_CONTEXT( StatusCode (StatusCode::RECOVERABLE), "alg", StatusCode(123) );
   return StatusCode (StatusCode::SUCCESS);
 }
 

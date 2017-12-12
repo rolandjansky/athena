@@ -342,7 +342,7 @@ TrigMuSuperEF::hltInitialize()
       msg() << MSG::INFO << "Retrieved " << m_muonCombinedTool << endmsg;
     }else{
       msg() << MSG::FATAL << "Could not get " << m_muonCombinedTool << endmsg;
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
     if (doTiming()) setCombinedTimers(this, m_TMEF_CBTimers);
   }
@@ -353,7 +353,7 @@ TrigMuSuperEF::hltInitialize()
   }
   else{
     msg() << MSG::FATAL << "Could not get " << m_TrackToTrackParticleConvTool << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
   // retrieve the tool for making xAOD muons
@@ -362,7 +362,7 @@ TrigMuSuperEF::hltInitialize()
   }
   else {
     msg() << MSG::FATAL << "Could not get " << m_muonCreatorTool << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
   if(m_doInsideOut ){
@@ -371,7 +371,7 @@ TrigMuSuperEF::hltInitialize()
     }
     else {
       msg() << MSG::FATAL << "Could not get " << m_stauCreatorTool << endmsg;
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
   }
   

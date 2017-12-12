@@ -293,7 +293,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
       if ( 0xF0000000 & m_error ) m_algorithmError++;
       if( m_error ) {
         ATH_MSG_DEBUG("Monitoring error found");
-	return StatusCode::SUCCESS;
+        return HLT::ERROR;
       }
 
       // Iterate over all cells

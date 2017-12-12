@@ -40,6 +40,8 @@
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 /* -------------------------------------------------------
  * constructor
  * -------------------------------------------------------

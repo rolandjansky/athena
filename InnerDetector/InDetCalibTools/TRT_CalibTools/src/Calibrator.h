@@ -53,29 +53,29 @@ public:
   /** the number of graph points */ int npoints;
   /** the minimum t-value*/ float mintime;
 private:
-  /** the histogram name*/ string chname;
-  /** the histogram title*/ string chtit;
+  /** the histogram name*/ string m_chname;
+  /** the histogram title*/ string m_chtit;
   /***/ enum  bintype {LOW, GOOD, HIGH, EMPTY};
-  /***/ bintype* btype;
-  /***/ float *rightsig;
-  /***/ float *leftsig;
-  /***/ float *maxval;
-  /***/ float *leftval;
-  /***/ float *rightval;
-  /***/ float mean;  
-  /***/ float mindistance;
-  /***/ int *maxbin;
-  /***/ int ipoint;
-  /***/ float t;
-  /***/ float d;
-  /***/ float et;
-  /***/ float ed;
-  /***/ float *tv;
-  /***/ float *dv;
-  /***/ float *etv;
-  /***/ float *edv;
+  /***/ bintype* m_btype;
+  /***/ float *m_rightsig;
+  /***/ float *m_leftsig;
+  /***/ float *m_maxval;
+  /***/ float *m_leftval;
+  /***/ float *m_rightval;
+  /***/ float m_mean;  
+  /***/ float m_mindistance;
+  /***/ int *m_maxbin;
+  /***/ int m_ipoint;
+  /***/ float m_t;
+  /***/ float m_d;
+  /***/ float m_et;
+  /***/ float m_ed;
+  /***/ float *m_tv;
+  /***/ float *m_dv;
+  /***/ float *m_etv;
+  /***/ float *m_edv;
 //  /***/ float width;
-  /***/ TF1* ff;
+  /***/ TF1* m_ff;
 };
 
 /**
@@ -149,7 +149,7 @@ class caldata{
   /**flag indicating if any calibration has been made*/ bool calflag;
   /**flag indicating if an R-t calibration has been made*/ bool rtflag;
   /**flag indicating if a t0 calibration has been made*/ bool t0flag;
-  /**the 1D time residual histogram (100 bins)*/ float* treshist;
+  /**the 1D time residual histogram (100 bins)*/ float* m_treshist;
   /**the 1D residual histogram (100 bins)*/ float* reshist;
   /**the 2D rt histogram (20x32 bins)*/ float* rthist;
   /**the rt graph*/ RtGraph* rtgraph;
@@ -360,36 +360,36 @@ public:
 
 private:
 
-  /**The name of the Calibrator instance*/ string name;
-  /**The direction to do the R-t binning*/ string rtbinning;
-  /**minimum number of hits in a sub-module required to do an R-t calibration*/ int minrtstat;
-  /**minimum number of hits in a sub-module required to do a t0 calibration*/ int mint0stat;
-  /**the t0 shift*/ float t0shift;
-  /**number of r-bins in the 2D rt histogram*/ int nbinsr;
-  /**number of t-bins in the 2D rt histogram*/ int nbinst;
-  /**number of bins in the 1D time residual histogram*/ int nbinstres;
-  /**number of bins in the 1D residual histogram*/ int nbinsres;
-  /**lower limit of r in 2D rt histogram*/ float minr;
-  /**upper limit of r in 2D rt histogram*/ float maxr;
-  /**lower limit of t in 2D rt histogram*/ float mint;
-  /**upper limit of t in 2D rt histogram*/ float maxt;
-  /**lower limit of 1D time residual histogram*/ float mintres;
-  /**upper limit of 1D time residual histogram*/ float maxtres;
-  /**lower limit of 1D residual histogram*/ float minres;
-  /**upper limit of 1D residual histogram*/ float maxres;
-  /**...*/ std::map<std::string,TDirectory*> hdirs;
-  /**...*/ std::map<std::string,TH1F*> resHists;
-  /**...*/ std::map<std::string,TH1F*> tresHists;
-  /**...*/ std::map<std::string,TH2F*> rtHists;
-  //  /**...*/ std::map<std::string,RtGraph*> rtgraphs;
-  /**...*/ int ntreshits;
-  /**...*/ int nreshits;
-  /**...*/ int nrthits;
-  /**...*/ int nhits;
+  /**The name of the Calibrator instance*/ string m_name;
+  /**The direction to do the R-t binning*/ string m_rtbinning;
+  /**minimum number of hits in a sub-module required to do an R-t calibration*/ int m_minrtstat;
+  /**minimum number of hits in a sub-module required to do a t0 calibration*/ int m_mint0stat;
+  /**the t0 shift*/ float m_t0shift;
+  /**number of r-bins in the 2D rt histogram*/ int m_nbinsr;
+  /**number of t-bins in the 2D rt histogram*/ int m_nbinst;
+  /**number of bins in the 1D time residual histogram*/ int m_nbinstres;
+  /**number of bins in the 1D residual histogram*/ int m_nbinsres;
+  /**lower limit of r in 2D rt histogram*/ float m_minr;
+  /**upper limit of r in 2D rt histogram*/ float m_maxr;
+  /**lower limit of t in 2D rt histogram*/ float m_mint;
+  /**upper limit of t in 2D rt histogram*/ float m_maxt;
+  /**lower limit of 1D time residual histogram*/ float m_mintres;
+  /**upper limit of 1D time residual histogram*/ float m_maxtres;
+  /**lower limit of 1D residual histogram*/ float m_minres;
+  /**upper limit of 1D residual histogram*/ float m_maxres;
+  /**...*/ std::map<std::string,TDirectory*> m_hdirs;
+  /**...*/ std::map<std::string,TH1F*> m_resHists;
+  /**...*/ std::map<std::string,TH1F*> m_tresHists;
+  /**...*/ std::map<std::string,TH2F*> m_rtHists;
+  //  /**...*/ std::map<std::string,RtGraph*> m_rtgraphs;
+  /**...*/ int m_ntreshits;
+  /**...*/ int m_nreshits;
+  /**...*/ int m_nrthits;
+  /**...*/ int m_nhits;
 
 
 
-  /**true if the rt relation is Dines'*/ bool isdines;
+  /**true if the rt relation is Dines'*/ bool m_isdines;
 
 };
 

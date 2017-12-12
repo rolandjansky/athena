@@ -758,12 +758,10 @@ bool TRT_ToT_dEdx::isData() const {
   } else {
    
     SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-    StatusCode sc;
-    if (eventInfo.isValid()){
-      sc =StatusCode::SUCCESS;
-    }else{ 
-      sc = StatusCode::FAILURE;}
-    ATH_CHECK(sc);
+    if (!eventInfo.isValid()){
+      REPORT_MESSAGE(MSG::FATAL) << "Cannot retrieve EventInfo";
+      return false;
+    }
 
     // check if data or MC 
     m_isData = true;
@@ -786,14 +784,11 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
 
   // Event information 
   SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-  StatusCode sc;
-  if (eventInfo.isValid()){
-    sc =StatusCode::SUCCESS;
-  }else{
-    sc = StatusCode::FAILURE;}
-  ATH_CHECK(sc);
+  if (!eventInfo.isValid()){
+    REPORT_MESSAGE(MSG::FATAL) << "Cannot retrieve EventInfo";
+    return 0;
+  }
 
-  
   //    Average interactions per crossing for the current BCID
   double mu = -1.;
   mu = eventInfo->averageInteractionsPerCrossing();

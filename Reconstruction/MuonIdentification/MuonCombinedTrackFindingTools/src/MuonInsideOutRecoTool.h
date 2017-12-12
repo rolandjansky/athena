@@ -21,7 +21,6 @@ namespace Muon {
   struct MuonLayerPrepRawData;
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class IMuonSystemExtensionTool;
   class IMuonLayerSegmentFinderTool;
   class IMuonLayerSegmentMatchingTool;
   class IMuonLayerAmbiguitySolverTool;
@@ -91,7 +90,6 @@ namespace MuonCombined {
     /** tool handles */
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper; 
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 
-    ToolHandle<Muon::IMuonSystemExtensionTool>       m_muonSystemExtentionTool;
     ToolHandle<Muon::IMuonLayerSegmentFinderTool>    m_segmentFinder;
     ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool;
     ToolHandle<Muon::IMuonLayerAmbiguitySolverTool>  m_ambiguityResolver;

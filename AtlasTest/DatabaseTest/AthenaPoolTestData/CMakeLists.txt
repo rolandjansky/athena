@@ -7,9 +7,9 @@ atlas_subdir( AthenaPoolTestData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthLinks
+                          Control/AthContainers
                           GaudiKernel
                           InnerDetector/InDetRawEvent/InDetRawData )
 
@@ -33,12 +33,12 @@ atlas_add_library( AthenaPoolTestData
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} DataModel SGTools GaudiKernel InDetRawData
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel AthLinks AthContainers GaudiKernel InDetRawData
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( AthenaPoolTestDataDict
                       AthenaPoolTestData/AthenaPoolTestDataDict.h
                       AthenaPoolTestData/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModel SGTools GaudiKernel InDetRawData AthenaPoolTestData )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthLinks AthContainers GaudiKernel InDetRawData AthenaPoolTestData )
 

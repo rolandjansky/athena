@@ -159,7 +159,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleKey.
@@ -184,7 +184,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleBase.
@@ -304,6 +304,15 @@ public:
    * See comments on updateVHKA.
    */
   virtual StatusCode sysInitialize() override;
+
+
+  /**
+   * @brief Handle START transition.
+   *
+   * We override this in order to make sure that conditions handle keys
+   * can cache a pointer to the conditions container.
+   */
+  virtual StatusCode sysStart() override;
 
 
   /**

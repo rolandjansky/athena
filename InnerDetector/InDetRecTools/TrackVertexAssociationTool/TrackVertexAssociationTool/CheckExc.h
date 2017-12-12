@@ -15,7 +15,7 @@
 /// circumstances.
 #define CHECK_EXC(ARG)                                                        \
   do {                                                                        \
-    const bool result = ARG;                                                  \
+    const bool result = static_cast<bool>(ARG);                               \
     if (!result) {                                                            \
       std::ostringstream os;                                                  \
       os << "Failed to execute: \"" << #ARG << "\"";                          \

@@ -7,7 +7,7 @@
  * @author Frank Winklmeier
  * @brief Bit scanning functions
  *
- * Fast helper functions to count number of leading/traling zeros.
+ * Fast helper functions to count number of leading/trailing zeros.
  * Supports 32 and 64 bit input types.
  *
  * Inspired by boost/multiprecision/detail/bitscan.hpp

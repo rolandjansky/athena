@@ -21,6 +21,7 @@
 #include "AthContainers/tools/foreach.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/checker_macros.h"
 #ifndef ATHCONTAINERS_NO_THREADS
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/shared_lock_guard.hpp"
@@ -393,8 +394,8 @@ public:
     return true;
   }
 
-  static SG::auxid_t lastid;
-  static SG::AuxDataOption lastopt;
+  static SG::auxid_t lastid ATLAS_THREAD_SAFE;
+  static SG::AuxDataOption lastopt ATLAS_THREAD_SAFE;
 };
 
 
@@ -478,7 +479,7 @@ double test_code (SG::auxid_t auxid, const AuxVectorData_test& b)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
 

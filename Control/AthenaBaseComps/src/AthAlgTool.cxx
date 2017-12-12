@@ -88,6 +88,32 @@ StatusCode AthAlgTool::sysInitialize()
 
 
 /**
+ * @brief Handle START transition.
+ *
+ * We override this in order to make sure that conditions handle keys
+ * can cache a pointer to the conditions container.
+ */
+StatusCode AthAlgTool::sysStart()
+{
+  ATH_CHECK( AlgTool::sysStart() );
+
+  // Call start() on all input handles.
+  // This allows CondHandleKeys to cache pointers to their conditions containers.
+  // (CondInputLoader makes the containers that it creates during start(),
+  // so initialize() is too early for this.)
+  for (Gaudi::DataHandle* h : inputHandles()) {
+    if (h->isCondition()) {
+      if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
+        ATH_CHECK( k->start() );
+      }
+    }
+  }
+  
+  return StatusCode::SUCCESS;
+}
+
+
+/**
  * @brief Return this tool's input handles.
  *
  * We override this to include handle instances from key arrays

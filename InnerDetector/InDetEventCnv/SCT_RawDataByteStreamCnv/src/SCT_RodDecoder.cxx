@@ -904,7 +904,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
 
 
   SCT_RDO_Collection* col = nullptr;
-  ATH_CHECK(rdoIdc.naughtyRetrieve(idCollHash, col));//Returns null if not present
+  ATH_CHECK(rdoIdc.naughtyRetrieve(idCollHash, col), 0);//Returns null if not present
 
   if(!col){
     ATH_MSG_DEBUG(" Collection ID = " << idCollHash << " does not exist, create it ");

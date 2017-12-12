@@ -29,7 +29,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloLocalHadCalib/CaloLocalHadCoeffHelper.h"

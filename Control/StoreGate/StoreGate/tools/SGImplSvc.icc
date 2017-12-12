@@ -31,8 +31,8 @@
 // HACK LIFTED FROM AthenaBaseComps/AthMsgStreamMacros.h to remove dep loop
 #define SG_MSG_LVL(lvl, x)                      \
   do {                                          \
-    if (msg().level() <= lvl) {                 \
-      msg() << lvl << x  << endmsg;             \
+    if (msgLevel(lvl)) {                        \
+      msgStream(lvl) << x  << endmsg;           \
     }                                           \
   } while (0)
  
@@ -82,7 +82,7 @@ SG::WPtr<T>
 SGImplSvc::create(const TKEY& key, ARGS... constructorArgs) {
   T* pT = new T(constructorArgs...);
   if(!(this->record(pT, key).isSuccess())) {
-    msg() << MSG::ERROR << "create: problem recording created object @" 
+    error() << "create: problem recording created object @" 
           << pT << " using key " << key << endmsg;
     pT=0; //record will take care of deleting pT even if it fails
   }
@@ -276,7 +276,7 @@ StatusCode SGImplSvc::setAlias(const T* pObject, const AKEY& aKey)
   SG::DataProxy* dp(0);
   dp = proxy(pObject);
   if (0 == dp) {
-    msg() << MSG::ERROR << "setAlias: problem setting alias "
+    error() << "setAlias: problem setting alias "
           << aliasKey << '\n'
           << "DataObject does not exist, record before setting alias."
           << endmsg;
@@ -285,7 +285,7 @@ StatusCode SGImplSvc::setAlias(const T* pObject, const AKEY& aKey)
 
   StatusCode sc = addAlias(aliasKey, dp);
   if (sc.isFailure()) {
-    msg() << MSG::ERROR << "setAlias: problem setting alias " 
+    error() << "setAlias: problem setting alias " 
           << aliasKey << '\n'
           << "DataObject does not exist, record before setting alias."
           << endmsg;
@@ -308,7 +308,7 @@ StatusCode SGImplSvc::setAlias(const T* /*pObject*/,
   SG::DataProxy* dp(0); 
   dp = proxy(ClassID_traits<T>::ID(), key);
   if (0 == dp) {
-    msg() << MSG::ERROR << "setAlias: problem setting alias " 
+    error() << "setAlias: problem setting alias " 
           << std::string(aKey) << '\n'
           << "DataObject does not exist, record before setting alias."
           << endmsg;
@@ -317,7 +317,7 @@ StatusCode SGImplSvc::setAlias(const T* /*pObject*/,
 
   StatusCode sc = addAlias(aKey, dp);
   if (sc.isFailure()) {
-    msg() << MSG::ERROR << "setAlias: problem setting alias " 
+    error() << "setAlias: problem setting alias " 
           << (std::string)aKey << '\n'
           << "DataObject does not exist, record before setting alias."
           << endmsg;
@@ -465,7 +465,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle)
   StatusCode sc = handle.setState(dp);
 
   if (sc.isFailure()) {
-    msg() << MSG::WARNING 
+    warning() 
           << "retrieve(default): No valid proxy for default object \n" 
           << " of type "  << ClassID_traits<T>::typeName() << "(CLID " 
           << ClassID_traits<T>::ID() << ')' << endmsg;
@@ -494,7 +494,7 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle)
   StatusCode sc = handle.setState(dp);
 
   if (sc.isFailure()) {
-    msg() << MSG::WARNING 
+    warning() 
           << "retrieve(default): No valid proxy for default object " 
           << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
           << ClassID_traits<T>::ID() << ")\n Try to use a const DataHandle " 
@@ -529,7 +529,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle,
   StatusCode sc = handle.setState(dp);
 
   if (sc.isFailure()) {
-    msg() << MSG::WARNING 
+    warning() 
           << "retrieve(const): No valid proxy for object " << key  << ' ' 
           << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
           << ClassID_traits<T>::ID() << ')' << endmsg;
@@ -1012,7 +1012,7 @@ SGImplSvc::regHandle(const DataHandle<H>& handle, const TKEY& key) {
 #endif
   // bind the handle to the key, creates an invalid DataProxy
   if (bind(handle,key).isFailure()) {
-    msg() << MSG::ERROR << "regHandle: could not bind handle to " << tname
+    error() << "regHandle: could not bind handle to " << tname
           << " to key: " << key << endmsg;
     return StatusCode::FAILURE;
   }
@@ -1021,7 +1021,7 @@ SGImplSvc::regHandle(const DataHandle<H>& handle, const TKEY& key) {
   SG::DataProxy* dp = proxy(id,key,false); //specify "false" to disambiguate on MAC
 
   if ( dp == 0 ) {
-    msg() << MSG::ERROR << "could not get proxy for handle " << fullname
+    error() << "could not get proxy for handle " << fullname
           <<  endmsg;
     return StatusCode::FAILURE;
   }
@@ -1047,7 +1047,7 @@ SGImplSvc::regHandle( DataHandle<H>& /*handle*/,
   (m_pCLIDSvc->getTypeNameOfID(id, tname)).ignore();
 
   std::string fullname = tname + "[" + key + "]";
-  msg() << MSG::ERROR << "regHandle(): DataHandle must be const: " << fullname 
+  error() << "regHandle(): DataHandle must be const: " << fullname 
         << endmsg;
 
   return StatusCode::FAILURE;
@@ -1068,7 +1068,7 @@ SGImplSvc::regFcn(StatusCode (T::*/*updFcn*/)(IOVSVC_CALLBACK_ARGS),
 
   std::string fullname = tname + "[" + key + "]";
 
-  msg() << MSG::ERROR << "regFcn(): DataHandle must be const: " << fullname 
+  error() << "regFcn(): DataHandle must be const: " << fullname 
         << endmsg;
 
   return StatusCode::FAILURE;
@@ -1091,7 +1091,7 @@ SGImplSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
 
   // bind the handle to the key, creates an invalid DataProxy
   if (bind(handle,key).isFailure()) {
-    msg() << MSG::ERROR << "regFcn: could not bind handle to " << tname
+    error() << "regFcn: could not bind handle to " << tname
           << " to key: " << key << endmsg;
     return StatusCode::FAILURE;
   }
@@ -1100,7 +1100,7 @@ SGImplSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
   SG::DataProxy* dp = proxy(id, std::string(key));
 
   if ( dp == 0 ) {
-    msg() << MSG::ERROR << "could not get proxy for handle " << fullname 
+    error() << "could not get proxy for handle " << fullname 
           <<  endmsg;
     return StatusCode::FAILURE;
   }

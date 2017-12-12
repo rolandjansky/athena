@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkMaterialOnTrack
                           Tracking/TrkEvent/TrkParameters
+			  MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
                           PRIVATE
                           GaudiKernel
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
@@ -33,6 +34,6 @@ atlas_add_library( MuonCombinedEvent
                    src/*.cxx
                    PUBLIC_HEADERS MuonCombinedEvent
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks DataModel SGTools GeoPrimitives Identifier xAODMuon xAODTracking MuidEvent muonEvent TrkEventPrimitives TrkMaterialOnTrack TrkParameters
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks DataModel SGTools GeoPrimitives Identifier xAODMuon xAODTracking MuidEvent muonEvent TrkEventPrimitives TrkMaterialOnTrack TrkParameters MuonLayerEvent
                    PRIVATE_LINK_LIBRARIES GaudiKernel MuonSegment TrkTrack )
 

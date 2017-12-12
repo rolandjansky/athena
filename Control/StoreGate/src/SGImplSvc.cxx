@@ -112,7 +112,6 @@ SGImplSvc::SGImplSvc(const string& name,ISvcLocator* svc)
     m_storeLoaded(false),
     m_remap_impl (new SG::RemapImpl),
     m_arena (name),
-    m_msg(msgSvc(), name),
     m_slotNumber(-1),
     m_numSlots(1)
 {
@@ -143,8 +142,8 @@ SGImplSvc::~SGImplSvc()  {
 /// Service initialization
 StatusCode SGImplSvc::initialize()    {
 
-  msg() << MSG::VERBOSE <<  "Initializing " << name() 
-        << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() <<  "Initializing " << name() 
+            << " - package version " << PACKAGE_VERSION << endmsg;
 
   CHECK( Service::initialize() );
 
@@ -164,9 +163,8 @@ StatusCode SGImplSvc::initialize()    {
   }
   // set up the incident service:
   if (!(m_pIncSvc.retrieve()).isSuccess()) {
-    msg() << MSG::ERROR 
-          << "Could not locate IncidentSvc "
-          << endmsg;
+    error() << "Could not locate IncidentSvc "
+            << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -180,16 +178,14 @@ StatusCode SGImplSvc::initialize()    {
   // cache pointer to Persistency Service
   if (!(service("EventPersistencySvc", m_pDataLoader, CREATEIF)).isSuccess()) {
     m_pDataLoader = 0;
-    msg() << MSG::ERROR
-          << "Could not get pointer to Persistency Service"
-          << endmsg;
+    error() << "Could not get pointer to Persistency Service"
+            << endmsg;
     return StatusCode::FAILURE;;
   }
 
   if (!(service("ClassIDSvc", m_pCLIDSvc, CREATEIF)).isSuccess()) {
-    msg() << MSG::ERROR
-          << "Could not get pointer to ClassID Service"
-          << endmsg;
+    error() << "Could not get pointer to ClassID Service"
+            << endmsg;
     return StatusCode::FAILURE;;
   }
 
@@ -207,9 +203,8 @@ StatusCode SGImplSvc::initialize()    {
   // Get hold of History Service
   if (m_ActivateHistory &&
       !(service("HistorySvc", m_pHistorySvc, CREATEIF)).isSuccess()) {
-    msg() << MSG::ERROR
-          << "Could not locate History Service"
-          << endmsg;
+    error() << "Could not locate History Service"
+            << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -218,15 +213,13 @@ StatusCode SGImplSvc::initialize()    {
 /// Service start
 StatusCode SGImplSvc::start()    {
 
-  msg() << MSG::VERBOSE << "Start " << name() << endmsg;
+  verbose() << "Start " << name() << endmsg;
   /*
   // This will need regFcn clients to be updated first.
-  if ( 0 == m_pPPS || (m_pPPS->preLoadProxies(*m_pStore)).isFailure() )
-  {
-  msg() << MSG::DEBUG
-  << " Failed to preLoad proxies"
-  << endmsg;
-  return StatusCode::FAILURE;
+  if ( 0 == m_pPPS || (m_pPPS->preLoadProxies(*m_pStore)).isFailure() ) {
+     debug() << " Failed to preLoad proxies"
+             << endmsg;
+     return StatusCode::FAILURE;
   }
   */
 
@@ -235,7 +228,7 @@ StatusCode SGImplSvc::start()    {
 /// Service stop
 StatusCode SGImplSvc::stop()    {
 
-  msg() << MSG::VERBOSE << "Stop " << name() << endmsg;
+  verbose() << "Stop " << name() << endmsg;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -244,8 +237,8 @@ StatusCode SGImplSvc::stop()    {
     if (!pISM)
       return StatusCode::FAILURE;
     pISM->setPriority(name(), pISM->getPriority(name())+1).ignore();
-    msg() << MSG::VERBOSE << "stop: setting service priority to " << pISM->getPriority(name()) 
-          << " so that event stores get finalized and cleared before other stores" <<endmsg;
+    verbose() << "stop: setting service priority to " << pISM->getPriority(name()) 
+              << " so that event stores get finalized and cleared before other stores" <<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -254,9 +247,8 @@ StatusCode SGImplSvc::stop()    {
 IIOVSvc* SGImplSvc::getIIOVSvc() {
   // Get hold of the IOVSvc
   if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
-    msg() << MSG::WARNING
-          << "Could not locate IOVSvc "
-          << endmsg;
+    warning() << "Could not locate IOVSvc "
+              << endmsg;
   }
   return m_pIOVSvc;
 }
@@ -267,9 +259,8 @@ void SGImplSvc::handle(const Incident &inc) {
   if (inc.type() == "EndEvent") { 
     if (m_DumpStore) {
       SG_MSG_DEBUG("Dumping StoreGate Contents");
-      msg() << MSG::INFO 
-            << '\n' << dump() << endl 
-            << endmsg;
+      info() << '\n' << dump() << endl 
+             << endmsg;
     }
   }
 }
@@ -304,11 +295,10 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
     for (auto& p : m_newBoundHandles)
       p.second.clear();
     assert(m_pStore);
-    MsgStream* pmlog( msgLvl(MSG::VERBOSE) ? &msg() : 0);
-    msg() << MSG::DEBUG << "Clearing store with forceRemove="
-          << forceRemove << endmsg;
+    debug() << "Clearing store with forceRemove="
+            << forceRemove << endmsg;
     bool hard_reset = (m_numSlots > 1);
-    m_pStore->clearStore(forceRemove, hard_reset, pmlog);
+    m_pStore->clearStore(forceRemove, hard_reset, &msgStream(MSG::DEBUG));
     m_storeLoaded=false;  //FIXME hack needed by loadEventProxies
   }
   {
@@ -322,8 +312,8 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
 //////////////////////////////////////////////////////////////
 /// Service finalization
 StatusCode SGImplSvc::finalize()    {
-  msg() << MSG::VERBOSE << "Finalizing " << name() 
-        << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Finalizing " << name() 
+            << " - package version " << PACKAGE_VERSION << endmsg ;
   
   // Incident service may not work in finalize.
   // Clear this, so that we won't try to send an incident from clearStore.
@@ -350,8 +340,8 @@ StatusCode SGImplSvc::finalize()    {
 //////////////////////////////////////////////////////////////
 /// Service reinitialization
 StatusCode SGImplSvc::reinitialize()    {
-  msg() << MSG::VERBOSE << "Reinitializing " << name() 
-        << " - package version " << PACKAGE_VERSION << endmsg ;
+  verbose() << "Reinitializing " << name() 
+            << " - package version " << PACKAGE_VERSION << endmsg ;
   const bool FORCEREMOVE(true);
   clearStore(FORCEREMOVE).ignore();
   //not in v20r2p2! return Service::reinitialize();
@@ -407,10 +397,9 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
 
   if (dataID == 0)
     {
-      msg() << MSG::WARNING
-            << "recordAddress: Invalid Class ID found in IOpaqueAddress @" 
-            << pAddress << ". IOA will not be recorded"
-            << endmsg;
+      warning() << "recordAddress: Invalid Class ID found in IOpaqueAddress @" 
+                << pAddress << ". IOA will not be recorded"
+                << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -423,11 +412,11 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
     if (dp && dp->provider()) {
       std::string clidTypeName; 
       m_pCLIDSvc->getTypeNameOfID(dataID, clidTypeName).ignore();
-      msg() << MSG::WARNING
-            << "recordAddress: failed for key="<< skey << ", type "  << clidTypeName
-            << " (CLID " << dataID << ')' 
-            << "\n there is already a persistent version of this object. Will not record a duplicate! "
-            << endmsg;
+      warning() << "recordAddress: failed for key="<< skey << ", type "
+                << clidTypeName
+                << " (CLID " << dataID << ')' 
+                << "\n there is already a persistent version of this object. Will not record a duplicate! "
+                << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -459,12 +448,11 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
     {
       string errType;
       m_pCLIDSvc->getTypeNameOfID(dataID, errType).ignore();
-      msg() << MSG::WARNING
-            << "recordAddress: preexisting proxy @" << dp
-            << " with non-NULL IOA found for key " 
-            << skey << " type " << errType << " (" << dataID << "). \n"
-            << "Cannot record IOpaqueAddress @" << pAddress
-            << endmsg;
+      warning() << "recordAddress: preexisting proxy @" << dp
+                << " with non-NULL IOA found for key " 
+                << skey << " type " << errType << " (" << dataID << "). \n"
+                << "Cannot record IOpaqueAddress @" << pAddress
+                << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -502,12 +490,12 @@ DataProxy* SGImplSvc::setupProxy(const CLID& dataID,
     if (0 != dp->object())
       {
         // Case 0: duplicated proxy               
-        msg() << MSG::WARNING << " setupProxy:: error setting up proxy for key " 
-              << gK << " and clid " << dataID
-              << "\n Pre-existing valid DataProxy @"<< dp 
-              << " found in Store for key " <<  dp->object()->name()
-              << " with clid " << dp->object()->clID()
-              << endmsg;
+        warning() << " setupProxy:: error setting up proxy for key " 
+                  << gK << " and clid " << dataID
+                  << "\n Pre-existing valid DataProxy @"<< dp 
+                  << " found in Store for key " <<  dp->object()->name()
+                  << " with clid " << dp->object()->clID()
+                  << endmsg;
         recycle(pDObj);      // commit this object to trash
         dp = 0;
       } else {
@@ -521,9 +509,8 @@ DataProxy* SGImplSvc::setupProxy(const CLID& dataID,
                        TransientAddress(dataID, gK),
                        !allowMods, resetOnly);
     if (!(m_pStore->addToStore(dataID, dp).isSuccess())) {
-      msg() << MSG::WARNING
-            << " setupProxy:: could not addToStore proxy @" << dp
-            << endmsg;
+      warning() << " setupProxy:: could not addToStore proxy @" << dp
+                << endmsg;
       recycle(pDObj);      // commit this object to trash
       delete dp;
       dp = 0;
@@ -620,9 +607,8 @@ StatusCode
 SGImplSvc::addSymLink(const CLID& linkid, DataProxy* dp)
 { 
   if (0 == dp) {
-    msg() << MSG::WARNING
-          << "addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object"
-          << endmsg;
+    warning() << "addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object"
+              << endmsg;
     return StatusCode::FAILURE;
   } 
   StatusCode sc = m_pStore->addSymLink(linkid, dp); 
@@ -644,9 +630,8 @@ StatusCode
 SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)
 {
   if (0 == proxy) {
-    msg() << MSG::WARNING
-          << "addAlias: no target DataProxy given, Cannot alias to a non-existing object" 
-          << endmsg;
+    warning() << "addAlias: no target DataProxy given, Cannot alias to a non-existing object" 
+              << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -771,11 +756,10 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
           CLID clid = proxy->clID();
           std::string clidTypeName; 
           m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
-          msg() << MSG::WARNING
-                << "SGImplSvc::recordObject: addAlias fails for object "
-                << clid << "[" << clidTypeName << "] " << proxy->name()
-                << " and new key " << key
-                << endmsg;
+          warning() << "SGImplSvc::recordObject: addAlias fails for object "
+                    << clid << "[" << clidTypeName << "] " << proxy->name()
+                    << " and new key " << key
+                    << endmsg;
           
           proxy = nullptr;
         }
@@ -792,11 +776,10 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
           CLID newclid = obj->clID();
           std::string newclidTypeName; 
           m_pCLIDSvc->getTypeNameOfID(newclid, newclidTypeName).ignore();
-          msg() << MSG::ERROR
-                << "SGImplSvc::recordObject: addSymLink fails for object "
-                << clid << "[" << clidTypeName << "] " << proxy->name()
-                << " and new clid " << newclid << "[" << newclidTypeName << "]"
-                << endmsg;
+          error() << "SGImplSvc::recordObject: addSymLink fails for object "
+                  << clid << "[" << clidTypeName << "] " << proxy->name()
+                  << " and new clid " << newclid << "[" << newclidTypeName << "]"
+                  << endmsg;
           proxy = nullptr;
         }
       }
@@ -808,12 +791,11 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
         CLID newclid = obj->clID();
         std::string newclidTypeName; 
         m_pCLIDSvc->getTypeNameOfID(newclid, newclidTypeName).ignore();
-        msg() << MSG::ERROR
-              << "SGImplSvc::recordObject: existing object found with "
-              << clid << "[" << clidTypeName << "] " << proxy->name()
-              << " but neither clid " << newclid << "[" << newclidTypeName << "]"
-              << " nor key " << key << " match."
-              << endmsg;
+        error() << "SGImplSvc::recordObject: existing object found with "
+                << clid << "[" << clidTypeName << "] " << proxy->name()
+                << " but neither clid " << newclid << "[" << newclidTypeName << "]"
+                << " nor key " << key << " match."
+                << endmsg;
         proxy = nullptr;
       }
 
@@ -1070,11 +1052,10 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
       //so it will remain accessible
       if (!SG::VersionedKey::isVersionedKey(pTAName)) {
         if (!(this->addAlias(primaryVK.rawVersionKey(), dp)).isSuccess()) {
-          msg() << MSG::WARNING
-                << "record_impl: Could not setup alias key " 
-                << primaryVK.rawVersionKey() 
-                << " for unversioned object " << pTAName
-                << endmsg;      
+          warning() << "record_impl: Could not setup alias key " 
+                    << primaryVK.rawVersionKey() 
+                    << " for unversioned object " << pTAName
+                    << endmsg;      
           return nullptr;
         }
       }
@@ -1097,12 +1078,11 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
     if (dp && dp->provider()) {
       std::string clidTypeName; 
       m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
-      msg() << MSG::WARNING
-            << "record_impl: you are recording an object with key "
-            << rawKey << ", type "  << clidTypeName
-            << " (CLID " << clid << ')' 
-            << "\n There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated."
-            << endmsg;
+      warning() << "record_impl: you are recording an object with key "
+                << rawKey << ", type "  << clidTypeName
+                << " (CLID " << clid << ')' 
+                << "\n There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated."
+                << endmsg;
     }
   }
   //now check whether raw_ptr has already been recorded
@@ -1111,13 +1091,13 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
   if (0 != dp) {
     std::string clidTypeName; 
     m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
-    msg() << MSG::WARNING
-          << "record_impl: failed for key="<< rawKey << ", type "  << clidTypeName
-          << " (CLID " << clid << ')' 
-          << "\n object @" << raw_ptr 
-          << " already in store with key="<< dp->name()
-          << ". Will not record a duplicate! "
-          << endmsg;
+    warning() << "record_impl: failed for key="<< rawKey << ", type "
+              << clidTypeName
+              << " (CLID " << clid << ')' 
+              << "\n object @" << raw_ptr 
+              << " already in store with key="<< dp->name()
+              << ". Will not record a duplicate! "
+              << endmsg;
     if (pDObj != dp->object()) {
       DataBucketBase* pDBB(dynamic_cast<DataBucketBase*>(pDObj));
       if (!pDBB) std::abort();
@@ -1133,12 +1113,12 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
   if ( 0 == dp ) {
     std::string clidTypeName; 
     m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
-    msg() << MSG::WARNING
-          << "record_impl: Problem setting up the proxy for object @" <<raw_ptr 
-          << "\n recorded with key " << rawKey 
-          << " of type "  << clidTypeName
-          << " (CLID " << clid << ") in DataObject @" << pDObj
-          << endmsg;
+    warning() << "record_impl: Problem setting up the proxy for object @"
+              << raw_ptr 
+              << "\n recorded with key " << rawKey 
+              << " of type "  << clidTypeName
+              << " (CLID " << clid << ") in DataObject @" << pDObj
+              << endmsg;
 
     return nullptr;
   }
@@ -1147,12 +1127,11 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
   if ( !(this->t2pRegister( raw_ptr, dp )).isSuccess() ) {
     std::string clidTypeName; 
     m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
-    msg() << MSG::WARNING
-          << "record_impl: can not add to t2p map object @" <<raw_ptr 
-          << "\n with key " << rawKey 
-          << " of type "  << clidTypeName
-          << " (CLID " << clid << ')' 
-          << endmsg;
+    warning() << "record_impl: can not add to t2p map object @" <<raw_ptr 
+              << "\n with key " << rawKey 
+              << " of type "  << clidTypeName
+              << " (CLID " << clid << ')' 
+              << endmsg;
     return nullptr;
   }
 
@@ -1166,12 +1145,11 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
   if (isVKey) {
     SG::VersionedKey vk(rawKey);
     if (!(this->addAlias(vk.key(), dp)).isSuccess()) {
-      msg() << MSG::WARNING
-            << "record_impl: Could not setup alias key " << vk.key() 
-            << " for VersionedKey " << rawKey
-            << ". Generic access to this object with clid" << clid 
-            << " will not work"
-            << endmsg;      
+      warning() << "record_impl: Could not setup alias key " << vk.key() 
+                << " for VersionedKey " << rawKey
+                << ". Generic access to this object with clid" << clid 
+                << " will not work"
+                << endmsg;      
     }
   }
 
@@ -1239,7 +1217,7 @@ void
 SGImplSvc::msg_update_handler(Property& /*outputLevel*/)
 {
   setUpMessaging();
-  msg().setLevel (outputLevel());
+  updateMsgStreamOutputLevel( outputLevel() );
   msgSvc()->setOutputLevel(name(), outputLevel());
 }
 
@@ -1259,9 +1237,8 @@ StatusCode SGImplSvc::setConst(const void* pObject)
 
   if (0 == dp)
     {
-      msg() << MSG::WARNING
-            << "setConst: NO Proxy for the dobj you want to set const"
-            << endmsg;
+      warning() << "setConst: NO Proxy for the dobj you want to set const"
+                << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -1300,11 +1277,11 @@ bool SGImplSvc::bindHandleToProxy(const CLID& id, const string& key,
   if (0 == dp) return false;
 
   if (! dp->bindHandle(ir) ) {
-    msg() << MSG::FATAL << "DataHandle at " << hex << ir << dec 
-          << " already bound to DataProxy with key " << ir->key() 
-          << ". Cannot bind to proxy " << dp->name() << " as well\n"
-          << "        You have probably registered multiple callbacks via regFcn with the same DataHandle using different keys (DataProxies)\n"
-          << endmsg;
+    fatal() << "DataHandle at " << hex << ir << dec 
+            << " already bound to DataProxy with key " << ir->key() 
+            << ". Cannot bind to proxy " << dp->name() << " as well\n"
+            << "        You have probably registered multiple callbacks via regFcn with the same DataHandle using different keys (DataProxies)\n"
+            << endmsg;
     return false;
   }
     
@@ -1516,7 +1493,7 @@ DataObject* SGImplSvc::typeless_readPrivateCopy(const CLID& clid,
       }
       //replace the "transient" proxy where it was
       if (store()->addToStore(clid, p).isFailure()) {
-        msg() << MSG::ERROR << "SGImplSvc::typeless_readPrivateCopy: "
+        error() << "SGImplSvc::typeless_readPrivateCopy: "
               << "could not re-record proxy in store: "
               << clid << "/" << key << endmsg;
       }
@@ -1531,9 +1508,9 @@ DataObject* SGImplSvc::typeless_readPrivateCopy(const CLID& clid,
   if (0 == pObj) {
     string errType;
     m_pCLIDSvc->getTypeNameOfID(clid, errType).ignore();
-    msg() << MSG::WARNING << "SGImplSvc::typeless_readPrivateCopy: "
-          << "did not find object of type "
-          << errType << " with key " << key << endmsg;
+    warning() << "SGImplSvc::typeless_readPrivateCopy: "
+              << "did not find object of type "
+              << errType << " with key " << key << endmsg;
   }
   return pObj;
 }
@@ -1568,11 +1545,11 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
             this->t2pRegister( SG::DataProxy_cast( dp, bases[i] ), dp ).ignore();
         }
         else {
-          msg() << MSG::WARNING
-                << "record_impl: Doing auto-symlinks for object with CLID " << clid
-                << " and SG key " << key 
-                << ": Proxy already set for base CLID " << bases[i]
-                << "; not making auto-symlink." << endmsg;
+          warning() << "record_impl: Doing auto-symlinks for object with CLID "
+                    << clid
+                    << " and SG key " << key 
+                    << ": Proxy already set for base CLID " << bases[i]
+                    << "; not making auto-symlink." << endmsg;
         }
       }
     }
@@ -1581,22 +1558,22 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
     {
       BOOST_FOREACH(CLID copy_clid, bib->get_copy_conversions()) {
         if (m_pStore->addSymLink (copy_clid, dp).isFailure()) {
-          msg() << MSG::WARNING
-                << "record_impl: Doing auto-symlinks for object with CLID " << clid
-                << " and SG key " << key 
-                << ": Proxy already set for copy-conversion CLID " << copy_clid
-                << "; not making auto-symlink." << endmsg;
+          warning() << "record_impl: Doing auto-symlinks for object with CLID "
+                    << clid
+                    << " and SG key " << key 
+                    << ": Proxy already set for copy-conversion CLID "
+                    << copy_clid
+                    << "; not making auto-symlink." << endmsg;
         }
       }
     }
   }
   else {
     if (warn_nobib) {
-      msg() << MSG::WARNING
-            << "record_impl: Could not find suitable SG::BaseInfoBase for CLID ["
-            << clid << "] (" << key << ") !\t"
-            << "No auto-symlink established !"
-            << endmsg;
+      warning() << "record_impl: Could not find suitable SG::BaseInfoBase for CLID ["
+                << clid << "] (" << key << ") !\t"
+                << "No auto-symlink established !"
+                << endmsg;
     }
   }
 }
@@ -1620,10 +1597,9 @@ SGImplSvc::commitNewDataObjects() {
   lock_t lock (m_mutex);
   tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,true);
   for (auto obj : s_newObjs) {
-    if (msg().level() <= MSG::VERBOSE) {
-      msg() << MSG::VERBOSE
-            << "committing dataObj \"" << obj << "\""
-            << endmsg;
+    if (msgLevel(MSG::VERBOSE)) {
+      verbose() << "committing dataObj \"" << obj << "\""
+                << endmsg;
     }
     m_newDataObjects.insert( obj );
   }

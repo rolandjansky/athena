@@ -59,7 +59,7 @@ bool DerivationFramework::HVJetMETFilterTool::eventPassesFilter() const
      //     met = (*metContainer)[m_metTerm];
      if( sc.isFailure()  ||  !metContainer ) {
        msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
-       return StatusCode::FAILURE;
+       return false;
      } 
      msg(MSG::DEBUG)<<"size of  MET container is "<<metContainer->size()<<endmsg;
 
@@ -68,7 +68,7 @@ bool DerivationFramework::HVJetMETFilterTool::eventPassesFilter() const
        met = (*metContainer)[m_metTerm];
        if (!met) {
 	 msg(MSG::WARNING) << "Cannot retrieve MissingET term " << m_metTerm << " in " << m_metSGKey << endmsg;
-	 return StatusCode::FAILURE;
+	 return false;
        }
  
        // double MET = metContainer->at(0)->met();

@@ -747,9 +747,7 @@ namespace MissingEtDQA {
       }
       ConstDataVector<JetContainer> metJets(SG::VIEW_ELEMENTS);
       for(const auto& jet : *jets) {
-    	if(Accept(jet)) {
-    	  metJets.push_back(jet);
-    	}
+	    metJets.push_back(jet);
       }
       //Overlap Removal
       ConstDataVector<JetContainer> metJetsOR(SG::VIEW_ELEMENTS);
@@ -911,7 +909,7 @@ namespace MissingEtDQA {
       }
 
       // Jets
-      if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, metMap, false).isFailure() ) {
+      if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, metMap, true).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build jet and soft terms.");
       }
       MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
@@ -1196,13 +1194,15 @@ namespace MissingEtDQA {
     	}
       }
 
-      // For rebuilt MET add only jets with pT>20e3
+      // For rebuilt MET add only jets with pT>20e3 and JVT cut
       TLorentzVector jetReb_tlv;
       double sum_jetReb = 0;
-      for(jetc_itr = metJetsOR.begin(); jetc_itr != metJetsOR.end(); ++jetc_itr ) {
-    	if((*jetc_itr)->pt() > 20e3) {
-    	  jetReb_tlv += (*jetc_itr)->p4();
-    	  sum_jetReb += (*jetc_itr)->pt();
+      double JvtCut = 0.59;
+      if (type == "AntiKt4EMPFlow") JvtCut = 0.2;
+      for(const auto jet : metJetsOR) {
+    	if(Accept(jet, JvtCut)) {
+    	  jetReb_tlv += jet->p4();
+    	  sum_jetReb += jet->pt();
     	}
       }
 
@@ -1406,7 +1406,7 @@ namespace MissingEtDQA {
   bool PhysValMET::Accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(*el);
+    return m_elecSelLHTool->accept(el);
   }
 
   bool PhysValMET::Accept(const xAOD::Photon* ph)
@@ -1418,10 +1418,10 @@ namespace MissingEtDQA {
   bool PhysValMET::Accept(const xAOD::TauJet* tau)
   { return m_tauSelTool->accept( *tau ); }
 
-  bool PhysValMET::Accept(const xAOD::Jet* jet)
+  bool PhysValMET::Accept(const xAOD::Jet* jet, double JvtCut)
   {
-    if( jet->pt()<0e3) return false;
-    return (jet->eta() < 2.4 || jet->pt() > 50e3 || m_jvtTool->updateJvt(*jet) > 0.64);
+    if( jet->pt()<20e3) return false;
+    return (fabs(jet->eta()) > 2.4 || jet->pt() > 60e3 || m_jvtTool->updateJvt(*jet) > JvtCut);
   }
 
   /////////////////////////////////////////////////////////////////// 

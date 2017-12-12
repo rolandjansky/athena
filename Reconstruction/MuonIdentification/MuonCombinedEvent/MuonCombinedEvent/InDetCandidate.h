@@ -10,6 +10,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthLinks/ElementLink.h"
+#include "MuonLayerEvent/MuonSystemExtension.h"
 
 namespace MuonCombined {
 
@@ -19,13 +20,13 @@ namespace MuonCombined {
     
   public:
     /** constructor taking a xAOD::TrackParicle&
-	Users should ensure that the lifetime of the idTrack object is longer that the InDetCandidate
+	Users should ensure that the lifetime of the idTrack object is longer than the InDetCandidate
 	as it internally caches a pointer to it. 
      */
     InDetCandidate(const xAOD::TrackParticle& idTrack);
 
     /** constructor taking an ElementLink to a xAOD::TrackParicle&
-	Users should ensure that the element link is valid and the lifetime of the idTrack object is longer that the InDetCandidate
+	Users should ensure that the element link is valid and the lifetime of the idTrack object is longer than the InDetCandidate
 	as it internally caches a pointer to it. 
      */
     InDetCandidate( const ElementLink<xAOD::TrackParticleContainer>& idTrackLink );
@@ -51,6 +52,12 @@ namespace MuonCombined {
     /** access of a given type tag */
     const TagBase*                     lastCombinedDataTag( TagBase::Type type ) const;
     
+    //access MuonSystemExtension
+    const Muon::MuonSystemExtension* getExtension() const;
+
+    //set MuonSystemExtension, taking ownership
+    void setExtension(const Muon::MuonSystemExtension* extension);
+
     /** Returns true if this candidate was formed from a special far forward InDet track.*/
     bool isSiliconAssociated() const;
     
@@ -72,6 +79,8 @@ namespace MuonCombined {
     
     /** Was this created using a special far forward indet track*/
     bool m_siAssociated;
+
+    const Muon::MuonSystemExtension* m_extension;
     
   };
 
@@ -106,6 +115,10 @@ namespace MuonCombined {
   inline bool InDetCandidate::isSiliconAssociated() const { return m_siAssociated; }
   
   inline void InDetCandidate::setSiliconAssociated( bool value ) { m_siAssociated=value; }
+
+  inline void InDetCandidate::setExtension(const Muon::MuonSystemExtension* extension) { m_extension=extension;}
+
+  inline const Muon::MuonSystemExtension* InDetCandidate::getExtension() const { return m_extension;}
 }
 
 

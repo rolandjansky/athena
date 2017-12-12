@@ -100,7 +100,6 @@ StatusCode DeltaRAssociationTool::initialize()
   ATH_MSG_DEBUG ( "==> initialize " << name() << "..." );
   ATH_MSG_DEBUG ( " using inputAssociateToCollection      = " << m_matchToCollKey );
   ATH_MSG_DEBUG ( " using userDataPrefix                  = " << m_userDataPrefix );
-  ATH_MSG_DEBUG ( " using writeUserData                   = " << m_writeUserData );
   ATH_MSG_DEBUG ( " using userDataMatchDeltaRName         = " << m_userDataMatchDeltaRName );
   ATH_MSG_DEBUG ( " using storeOnlyBestMatch              = " << m_storeOnlyBestMatch );
   ATH_MSG_DEBUG ( " using useMatchFromCaloClusterPosition = " << m_useMatchFromCaloClusterPosition );
@@ -111,6 +110,10 @@ StatusCode DeltaRAssociationTool::initialize()
   ATH_MSG_DEBUG ( " using doSpecialMuElFSRMatch           = " << m_doFsr );
 
   // Do some sanity checks on the user configuration
+  if (m_writeUserData) {
+    ATH_MSG_WARNING ("Writing to UserData requested, but UserDataSvc is obsolete.");
+  }
+
   if ( m_matchToCollKey.empty() )
     {
       ATH_MSG_ERROR ( "Empty inputAssociateToCollection! Please configure it properly!"
@@ -377,18 +380,6 @@ StatusCode DeltaRAssociationTool::calculateAssociations( const INavigable4Moment
                 } // End: if ( thisMatchLink.isValid() )
             }
         } // End: Loop over all sorted pairs
-
-
-      
-      
-
-      // Now, save the result to UserData, if wanted
-      if ( m_writeUserData )
-        {
-          ATH_CHECK ( userStore()->record( *object,
-                                           m_userDataMatchDeltaRName,
-                                           *m_resultVecDeltaR ) );
-        } // End: if ( m_writeUserData )
     } // End: if ( object != NULL )
 
   return StatusCode::SUCCESS;

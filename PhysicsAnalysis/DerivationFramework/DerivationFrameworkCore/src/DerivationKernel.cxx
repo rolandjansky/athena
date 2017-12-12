@@ -19,9 +19,8 @@
 #include <fstream>
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 #include "GaudiKernel/Chrono.h"
 
 #include "StoreGate/StoreGateSvc.h"             // Storegate stuff

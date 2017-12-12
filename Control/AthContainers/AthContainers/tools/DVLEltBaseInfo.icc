@@ -124,10 +124,10 @@ const SG::BaseInfoBase& RegisterDVLEltBaseInit<T>::doinit()
 // during global initialization.
 //
 template <class T> struct DVLEltBaseInit {
-  static RegisterDVLEltBaseInit<T> s_regbase;
+  static const RegisterDVLEltBaseInit<T> s_regbase;
 };
 #ifndef __APPLE__
-template <class T> RegisterDVLEltBaseInit<T> DVLEltBaseInit<T>::s_regbase;
+template <class T> const RegisterDVLEltBaseInit<T> DVLEltBaseInit<T>::s_regbase;
 #endif
 
 #undef DVLPASTE

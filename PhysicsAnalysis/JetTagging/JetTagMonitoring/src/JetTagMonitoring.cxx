@@ -647,7 +647,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
   const xAOD::VertexContainer* vxContainer(0);
   // const DataHandle<VxContainer> vxContainer;
-  bool foundPrimaryVtx = evtStore()->retrieve(vxContainer, m_primaryVertexName);
+  StatusCode foundPrimaryVtx = evtStore()->retrieve(vxContainer, m_primaryVertexName);
 
   if (!foundPrimaryVtx) {
     ATH_MSG_WARNING("Unable to retrieve \"" << m_primaryVertexName << "\" from StoreGate");

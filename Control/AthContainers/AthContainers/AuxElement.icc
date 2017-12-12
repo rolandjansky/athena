@@ -493,7 +493,7 @@ AuxElement::Accessor<T>::getDataArray (AuxVectorData& container) const
 template <class T>
 inline
 bool
-AuxElement::Accessor<T>::isAvailableWritable (const AuxElement& e) const
+AuxElement::Accessor<T>::isAvailableWritable (AuxElement& e) const
 {
   return e.container() && e.container()->isAvailableWritable (this->m_auxid);
 }
@@ -799,7 +799,7 @@ bool AuxElement::isAvailable (const std::string& name,
  */
 template <class T>
 bool AuxElement::isAvailableWritable (const std::string& name,
-                                      const std::string& clsname /*= ""*/) const
+                                      const std::string& clsname /*= ""*/)
 {
   return Accessor<T>(name, clsname).isAvailableWritable(*this);
 }

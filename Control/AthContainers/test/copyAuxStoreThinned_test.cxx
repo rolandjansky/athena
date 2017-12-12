@@ -34,19 +34,22 @@ class AuxStoreTest
 public:
   AuxStoreTest() {}
   void suppress (SG::auxid_t auxid)
-  { m_suppressed.insert (auxid); }
-
-  virtual const SG::auxid_set_t& getSelectedAuxIDs() const
   {
+    m_suppressed.insert (auxid);
     m_selected = getAuxIDs();
     ATHCONTAINERS_FOREACH(SG::auxid_t auxid, m_suppressed)
       m_selected.erase (auxid);
+  }
+
+  virtual const SG::auxid_set_t& getSelectedAuxIDs() const
+  {
+    if (m_suppressed.empty()) return getAuxIDs();
     return m_selected;
   }
 
 private:
   SG::auxid_set_t m_suppressed;
-  mutable SG::auxid_set_t m_selected;
+  SG::auxid_set_t m_selected;
 };
 
 

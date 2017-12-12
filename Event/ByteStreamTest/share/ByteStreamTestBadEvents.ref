@@ -1,5 +1,4 @@
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
-EventSelector        INFO reinitialization...
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
 ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
 ByteStreamInputSvcWARNING MaxBadEvents property has been moved to EventSelector, please use svgMgr.EventSelector.MaxBadEvents instead

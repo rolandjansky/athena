@@ -16,7 +16,8 @@ class AGDDDetector {
 public:
         AGDDDetector(std::string s):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_name(s) {}
         AGDDDetector(std::string s,std::string t):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_detectorType(t),m_name(s) {}
-	virtual void SetXYZ(std::vector<double> v) 
+        virtual ~AGDDDetector() {}
+	virtual void SetXYZ(const std::vector<double>& v) 
 	{
 		m_small_x=v[0];
 		m_large_x=v[1];
@@ -29,17 +30,17 @@ public:
 	void y(double yval) {m_y=yval;}
 	void z(double zval) {m_z=zval;}
         void subType(std::string s) {m_sType=s;}
-	double small_x() {return m_small_x;}
-	double large_x() {return m_large_x;}
-	double y() {return m_y;}
-	double z() {return m_z;}
-	std::string subType() {return m_sType;}
+	double small_x() const {return m_small_x;}
+	double large_x() const {return m_large_x;}
+	double y() const {return m_y;}
+	double z() const {return m_z;}
+	const std::string& subType() const {return m_sType;}
 	std::string tech;
 	
-	std::string GetName() {return m_name;}
+	const std::string& GetName() const {return m_name;}
 	
-	std::string DetectorType() {return m_detectorType;}
-	std::string DetectorID() {return m_detectorID;}
+	const std::string& DetectorType() const {return m_detectorType;}
+	const std::string& DetectorID() const {return m_detectorID;}
 	
 	void SetAddressAndPosition(AGDDDetectorPositioner*) ;
 	

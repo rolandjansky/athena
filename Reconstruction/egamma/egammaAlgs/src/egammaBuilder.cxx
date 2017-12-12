@@ -155,6 +155,7 @@ StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder(){
   // retrieve EMTrackMatchBuilder tool
   //
   if (!m_doTrackMatching) {
+    m_trackMatchBuilder.disable();
     return StatusCode::SUCCESS;
   }
 
@@ -180,6 +181,7 @@ StatusCode egammaBuilder::RetrieveEMConversionBuilder(){
   //
   
   if (!m_doConversions) {
+    m_conversionBuilder.disable();
     return StatusCode::SUCCESS;
   }
 
