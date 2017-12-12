@@ -537,7 +537,9 @@ FTKPatternBySectorForestReader::FTKPatternBySectorForestReader(FTKRootFileChain 
 
 bool FTKPatternBySectorForestReader::CheckConsistency
 (FTKSSMap *ssMap,int tower,int hwmodeid) const {
-   Warning("CheckConsistency")<<"not implemented\n";
+   if(ssMap &&(tower>=0) &&(hwmodeid>=0)) {
+      Warning("CheckConsistency")<<"not implemented\n";
+   }
    return true;
 }
 
