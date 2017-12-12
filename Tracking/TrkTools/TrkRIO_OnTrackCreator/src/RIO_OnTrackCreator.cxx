@@ -111,6 +111,12 @@ StatusCode Trk::RIO_OnTrackCreator::initialize()
       m_doTRT = false;
     }
   }
+  else{
+    m_TRT_Cor.disable();
+    m_PixClusCor.disable();
+    m_SctClusCor.disable();
+  }
+
   
   if (m_mode == "all" || m_mode == "muon") {
 
@@ -127,6 +133,10 @@ StatusCode Trk::RIO_OnTrackCreator::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_MuonClusterCor << endmsg;
     }
+  }
+  else{
+    m_MuonClusterCor.disable();
+    m_MuonDriftCircleCor.disable();
   }
   
   // Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
