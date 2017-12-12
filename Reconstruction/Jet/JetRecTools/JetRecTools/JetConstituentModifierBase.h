@@ -35,7 +35,8 @@ public:
     ATH_MSG_ERROR("This is the JetConstituentModifierBase class, no corrections implemented!");
     return StatusCode::FAILURE;
   }
-  int execute() const;
+
+  int execute() const override final;
 
 protected:
   // Define four-momentum setters that will handle type-specific operations
