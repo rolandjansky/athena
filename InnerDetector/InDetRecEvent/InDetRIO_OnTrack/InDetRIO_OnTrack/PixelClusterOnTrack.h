@@ -16,7 +16,7 @@
 
 // for ElementLink to IdentifiableContainer PixelClusterContainer
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 class FakeTrackBuilder;
 namespace Trk {
