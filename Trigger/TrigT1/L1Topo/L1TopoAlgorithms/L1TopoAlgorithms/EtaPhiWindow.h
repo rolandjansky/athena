@@ -17,7 +17,7 @@ namespace TCS {
 /**
    @brief Select TOBs that fall in a given eta/phi region
 
-   @param NumberLeading number of TOBs being checked. Use '0' to consider full input collection
+   @param MaxTob number of TOBs being checked. Use '0' to consider full input collection
    @param MinET minimun ET above which TOBs are considered
    @param EtaMin min eta, signed integer in units of 0.1
    @param EtaMax max eta
@@ -37,7 +37,7 @@ public:
                                const std::vector<TCS::TOBArray *> &output,
                                Decision &decison);
 private:
-    parType_t      p_NumberLeading = { 0 };
+    parType_t      p_MaxTob = { 0 };
     parType_t      p_MinET = { 0 };
     parType_t      p_EtaMin = { 0 };
     parType_t      p_EtaMax = { 0 };
