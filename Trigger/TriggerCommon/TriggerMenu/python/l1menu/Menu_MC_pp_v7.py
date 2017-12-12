@@ -919,6 +919,7 @@ def defineMenu():
         #item with FTK trigger type, for FTK commissioning
         'L1_MU6_FTK',
         'L1_MU20_FTK',
+        'L1_MU21_FTK',
         'L1_TAU12IM_FTK', 
         'L1_TAU20IM_FTK',
         'L1_MU20_TAU12IM_FTK', 
@@ -1647,6 +1648,7 @@ def defineMenu():
         
         'L1_MU6_FTK'                           : 499,
         'L1_MU20_FTK'                          : 500,
+        'L1_MU21_FTK'                          : 497,
         'L1_TAU12IM_FTK'                       : 501,
         'L1_TAU20IM_FTK'                       : 86,
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK': 502,

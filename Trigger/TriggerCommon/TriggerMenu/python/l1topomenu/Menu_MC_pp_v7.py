@@ -199,7 +199,7 @@ def defineMenu():
 #        TopoOutput( algoname='2INVM999-2MU6ab',                             module=1, fpga=1, clock=1, firstbit=13 ),
         TopoOutput( algoname='8INVM15-2MU6ab',                              module=1, fpga=1, clock=1, firstbit=13 ), #v6
         TopoOutput( algoname='0INVM9-EM7ab-EMab',                           module=0, fpga=0, clock=0, firstbit=8 ), #v6
-        TopoOutput( algoname='0DR04-EM7ab-CJ15ab',                          module=0, fpga=1, clock=0, firstbit=0 ), #v6
+        TopoOutput( algoname='0DR04-EM7ab-CJ15ab',                          module=0, fpga=0, clock=1, firstbit=4 ), #v6
 #        TopoOutput( algoname='4INVM8-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), 
         TopoOutput( algoname='2INVM8-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), #v6
 # ATR-15197        TopoOutput( algoname='2INVM9-2MU4ab',                               module=1, fpga=1, clock=1, firstbit=14 ), #v6
