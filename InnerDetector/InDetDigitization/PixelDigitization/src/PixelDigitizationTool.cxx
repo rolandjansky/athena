@@ -155,7 +155,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
 StatusCode PixelDigitizationTool::digitizeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
-  SiChargedDiodeCollection  *chargedDiodes = new SiChargedDiodeCollection;
+  std::unique_ptr<SiChargedDiodeCollection> chargedDiodes =  std::make_unique<SiChargedDiodeCollection>();
   std::vector<std::pair<double,double> > trfHitRecord; trfHitRecord.clear(); 
   std::vector<double> initialConditions; initialConditions.clear();
 
@@ -272,7 +272,6 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
       }
     }
   }
-  delete chargedDiodes;
   ATH_MSG_DEBUG("non-hits processed");
 
   return StatusCode::SUCCESS;
@@ -283,7 +282,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 //=======================================
 // Convert a SiTotalCharge to a InDetSimData, and store it. (this needs working...)
 //-----------------------------------------------------------------------------------------------
-void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
+void PixelDigitizationTool::addSDO(std::unique_ptr<SiChargedDiodeCollection>& collection) {
 
   typedef SiTotalCharge::list_t list_t;
 
