@@ -17,6 +17,7 @@
 #include "KLFitter/LikelihoodTTHLeptonJets.h"
 #include "KLFitter/LikelihoodTopLeptonJets_JetAngles.h"
 #include "KLFitter/LikelihoodTTZTrilepton.h"
+#include "KLFitter/LikelihoodTopAllHadronic.h"
 #include "KLFitter/BoostedLikelihoodTopLeptonJets.h"
 #include "KLFitter/PhysicsConstants.h"
 #include "KLFitter/LikelihoodBase.h"
@@ -112,6 +113,13 @@ namespace top{
       KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType m_leptonTypeKLFitterEnum_JetAngles;
       KLFitter::LikelihoodTTZTrilepton::LeptonType m_leptonTypeKLFitterEnum_TTZ;
       KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType m_leptonTypeKLFitterEnum_BoostedLJets;
+
+      std::unique_ptr<KLFitter::LikelihoodTopLeptonJets> m_myLikelihood;
+      std::unique_ptr<KLFitter::LikelihoodTTHLeptonJets> m_myLikelihood_TTH;
+      std::unique_ptr<KLFitter::LikelihoodTopLeptonJets_JetAngles> m_myLikelihood_JetAngles;
+      std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> m_myLikelihood_TTZ;
+      std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> m_myLikelihood_AllHadronic;
+      std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> m_myLikelihood_BoostedLJets;
 
       top::KLFitterJetSelection::JetSelectionMode m_jetSelectionModeKLFitterEnum;     
       KLFitter::LikelihoodBase::BtaggingMethod m_bTaggingMethodKLFitterEnum;

@@ -11,7 +11,6 @@
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
 #include "PathResolver/PathResolver.h"
-#include "KLFitter/LikelihoodTopAllHadronic.h"
 
 #include <algorithm>
 
@@ -62,22 +61,22 @@ namespace top{
     }    
     
     // 4) create an instance of the likelihood for ttbar->l+jets channel and customize it according to your needs
-    KLFitter::LikelihoodTopLeptonJets * myLikelihood     = new KLFitter::LikelihoodTopLeptonJets{}; 
+    m_myLikelihood     = std::unique_ptr<KLFitter::LikelihoodTopLeptonJets> ( new KLFitter::LikelihoodTopLeptonJets{} ); 
  
     // 4) create an instance of the likelihood for ttH -> l+jets channel and customize it according to your needs
-    KLFitter::LikelihoodTTHLeptonJets * myLikelihood_TTH = new KLFitter::LikelihoodTTHLeptonJets{};
+    m_myLikelihood_TTH = std::unique_ptr<KLFitter::LikelihoodTTHLeptonJets> ( new KLFitter::LikelihoodTTHLeptonJets{} );
 
     // 4) create an instance of the likelihood for ttbar->l+jets channel using jet angles channel and customize it according to your needs
-    KLFitter::LikelihoodTopLeptonJets_JetAngles * myLikelihood_JetAngles = new KLFitter::LikelihoodTopLeptonJets_JetAngles{};
+    m_myLikelihood_JetAngles = std::unique_ptr<KLFitter::LikelihoodTopLeptonJets_JetAngles> ( new KLFitter::LikelihoodTopLeptonJets_JetAngles{} );
 
     // 4) create an instance of the likelihood for ttZ -> trilepton channel and customize it according to your needs
-    KLFitter::LikelihoodTTZTrilepton * myLikelihood_TTZ  = new KLFitter::LikelihoodTTZTrilepton{};
+    m_myLikelihood_TTZ  = std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> ( new KLFitter::LikelihoodTTZTrilepton{} );
 
     // 4) create an instance of the likelihood for ttbar -> allhadronic channel and customize it according to your needs
-    KLFitter::LikelihoodTopAllHadronic * myLikelihood_AllHadronic  = new KLFitter::LikelihoodTopAllHadronic{};
+    m_myLikelihood_AllHadronic  = std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> ( new KLFitter::LikelihoodTopAllHadronic{} );
 
     // 4) create an instance of the likelihood for ttbar -> boosted ljets and customize it according to your needs
-    KLFitter::BoostedLikelihoodTopLeptonJets * myLikelihood_BoostedLJets  = new KLFitter::BoostedLikelihoodTopLeptonJets{};
+    m_myLikelihood_BoostedLJets  = std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> ( new KLFitter::BoostedLikelihoodTopLeptonJets{} );
 
     // 4.a) SetleptonType
     if (m_LHType != "ttbar_AllHadronic"){ // no lepton type for all hadronic
@@ -122,11 +121,11 @@ namespace top{
         return StatusCode::FAILURE;
       }
           
-      myLikelihood     -> SetLeptonType( m_leptonTypeKLFitterEnum ); 
-      myLikelihood_TTH -> SetLeptonType( m_leptonTypeKLFitterEnum_TTH );
-      myLikelihood_JetAngles -> SetLeptonType( m_leptonTypeKLFitterEnum_JetAngles );
-      myLikelihood_TTZ -> SetLeptonType( m_leptonTypeKLFitterEnum_TTZ );
-      myLikelihood_BoostedLJets -> SetLeptonType( m_leptonTypeKLFitterEnum_BoostedLJets );
+      m_myLikelihood     -> SetLeptonType( m_leptonTypeKLFitterEnum ); 
+      m_myLikelihood_TTH -> SetLeptonType( m_leptonTypeKLFitterEnum_TTH );
+      m_myLikelihood_JetAngles -> SetLeptonType( m_leptonTypeKLFitterEnum_JetAngles );
+      m_myLikelihood_TTZ -> SetLeptonType( m_leptonTypeKLFitterEnum_TTZ );
+      m_myLikelihood_BoostedLJets -> SetLeptonType( m_leptonTypeKLFitterEnum_BoostedLJets );
 
     }
     // 4.b) Jet Selection Mode
@@ -203,47 +202,47 @@ namespace top{
       ATH_MSG_ERROR("Please supply a valid BTaggingMethod : kNotag,kVetoNoFit,kVetoNoFitLight,kVetoNoFitBoth,kWorkingPoint,kVeto,kVetoLight or kVetoBoth" );
       return StatusCode::FAILURE;
     }
-    myLikelihood             -> SetBTagging( m_bTaggingMethodKLFitterEnum );
-    myLikelihood_TTH         -> SetBTagging( m_bTaggingMethodKLFitterEnum );
-    myLikelihood_JetAngles   -> SetBTagging( m_bTaggingMethodKLFitterEnum );
-    myLikelihood_TTZ         -> SetBTagging( m_bTaggingMethodKLFitterEnum );
-    myLikelihood_AllHadronic -> SetBTagging( m_bTaggingMethodKLFitterEnum );
-    myLikelihood_BoostedLJets-> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    m_myLikelihood             -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    m_myLikelihood_TTH         -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    m_myLikelihood_JetAngles   -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    m_myLikelihood_TTZ         -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    m_myLikelihood_AllHadronic -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    m_myLikelihood_BoostedLJets-> SetBTagging( m_bTaggingMethodKLFitterEnum );
     // 4.d) SetTopMass
-    myLikelihood             -> PhysicsConstants()->SetMassTop( m_massTop ); 
-    myLikelihood_TTH         -> PhysicsConstants()->SetMassTop( m_massTop );
-    myLikelihood_JetAngles   -> PhysicsConstants()->SetMassTop( m_massTop );
-    myLikelihood_TTZ         -> PhysicsConstants()->SetMassTop( m_massTop );
-    myLikelihood_AllHadronic -> PhysicsConstants()->SetMassTop( m_massTop );
-    myLikelihood_BoostedLJets-> PhysicsConstants()->SetMassTop( m_massTop );
+    m_myLikelihood             -> PhysicsConstants()->SetMassTop( m_massTop ); 
+    m_myLikelihood_TTH         -> PhysicsConstants()->SetMassTop( m_massTop );
+    m_myLikelihood_JetAngles   -> PhysicsConstants()->SetMassTop( m_massTop );
+    m_myLikelihood_TTZ         -> PhysicsConstants()->SetMassTop( m_massTop );
+    m_myLikelihood_AllHadronic -> PhysicsConstants()->SetMassTop( m_massTop );
+    m_myLikelihood_BoostedLJets-> PhysicsConstants()->SetMassTop( m_massTop );
     // 4.e) TopMassFixed
-    myLikelihood             -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() ); 
-    myLikelihood_TTH         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    myLikelihood_JetAngles   -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    myLikelihood_TTZ         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    myLikelihood_AllHadronic -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    myLikelihood_BoostedLJets-> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    m_myLikelihood             -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() ); 
+    m_myLikelihood_TTH         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    m_myLikelihood_JetAngles   -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    m_myLikelihood_TTZ         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    m_myLikelihood_AllHadronic -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    m_myLikelihood_BoostedLJets-> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
 
     // 5) tell the fitter which likelihood to use
     if(m_LHType == "ttbar")
-      m_myFitter->SetLikelihood(myLikelihood);  
+      m_myFitter->SetLikelihood(m_myLikelihood.get());  
     else if (m_LHType == "ttH")
-      m_myFitter->SetLikelihood(myLikelihood_TTH);
+      m_myFitter->SetLikelihood(m_myLikelihood_TTH.get());
     else if (m_LHType == "ttbar_JetAngles")
-      m_myFitter->SetLikelihood(myLikelihood_JetAngles);
+      m_myFitter->SetLikelihood(m_myLikelihood_JetAngles.get());
     else if (m_LHType == "ttZTrilepton" && (m_leptonType == "kTriElectron" || m_leptonType == "kTriMuon")) {
       // For ttZ->trilepton, we can have difficult combinations of leptons in the
       // final state (3x same flavour, or mixed case). The latter is trivial, for
       // which we can default back to the ljets likelihood. So we distinguish here:
       //  - kTriMuon, kTriElectron: dedicated TTZ->trilepton likelihood,
       //  - kMuon, kElectron: standard ttbar->l+jets likelihood.
-      m_myFitter->SetLikelihood(myLikelihood_TTZ);
+      m_myFitter->SetLikelihood(m_myLikelihood_TTZ.get());
     } else if (m_LHType == "ttZTrilepton") {
-      m_myFitter->SetLikelihood(myLikelihood);
+      m_myFitter->SetLikelihood(m_myLikelihood.get());
     } else if (m_LHType == "ttbar_AllHadronic"){
-      m_myFitter->SetLikelihood(myLikelihood_AllHadronic);
+      m_myFitter->SetLikelihood(m_myLikelihood_AllHadronic.get());
     } else if (m_LHType == "ttbar_BoostedLJets"){
-      m_myFitter->SetLikelihood(myLikelihood_BoostedLJets);
+      m_myFitter->SetLikelihood(m_myLikelihood_BoostedLJets.get());
     }
 
     else{
