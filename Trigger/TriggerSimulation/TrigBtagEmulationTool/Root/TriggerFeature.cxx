@@ -3,6 +3,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBtagEmulationTool/TriggerFeature.h"
+#include "PathResolver/PathResolver.h"
 #include "algorithm"
 
 #include "fstream"
@@ -156,15 +157,9 @@ TriggerFeatureInvm::~TriggerFeatureInvm() {}
 float TriggerFeatureInvm::getCut() const {return m_min_invm;}
 
 void TriggerFeatureInvm::initLUTs() {
-  const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
-  // If WorkDir_DIR not defined means we are using ROOTCORE
-  if( strlen(inputFileFolder) == 0 )
-    inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
+  const std::string nameFile_LUTcosh = PathResolverFindDataFile( "TrigBtagEmulationTool/LUT_Hyperbolic.txt" );
 
-  // *** cosh ( Deta )
-  std::string nameFile_LUTcosh = Form("%s/data/TrigBtagEmulationTool/LUT_Hyperbolic.txt",inputFileFolder);
-
-  std::ifstream fileLUTcosh; fileLUTcosh.open(nameFile_LUTcosh);
+  std::ifstream fileLUTcosh; fileLUTcosh.open(nameFile_LUTcosh.c_str());
   if ( !fileLUTcosh ) return;
   while ( !fileLUTcosh.eof() )
     {
@@ -181,9 +176,9 @@ void TriggerFeatureInvm::initLUTs() {
   fileLUTcosh.close();
 
   // *** cos ( Dphi )
-  std::string nameFile_LUTcos = Form("%s/data/TrigBtagEmulationTool/LUT_Trigo.txt",inputFileFolder);
+  const std::string nameFile_LUTcos = PathResolverFindDataFile( "TrigBtagEmulationTool/LUT_Trigo.txt" );
 
-  std::ifstream fileLUTcos; fileLUTcos.open(nameFile_LUTcos);
+  std::ifstream fileLUTcos; fileLUTcos.open(nameFile_LUTcos.c_str());
   if ( !fileLUTcos ) return;
   while ( !fileLUTcos.eof() )
     {
