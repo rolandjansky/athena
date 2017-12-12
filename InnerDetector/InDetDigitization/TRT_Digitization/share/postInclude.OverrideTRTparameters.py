@@ -1,5 +1,4 @@
 #########################################################
-#                                                  v14  #
 #                                                       #
 # TRT_Digitization/postInclude.OverrideTRTparameters.py #
 #                                                       #
@@ -84,22 +83,19 @@ trt.Override_trEfficiencyBarrelKrypton = 0.49
 trt.Override_trEfficiencyEndCapAKrypton = 0.68
 trt.Override_trEfficiencyEndCapBKrypton = 0.68
 
-# T0, Old defaults = 7.0, 0.0
-# T0, New defaults = 1.0, 0.0
-# Note: if you change this from the default then you need to
-#       set ToolSvc.InDetTRT_DriftFunctionTool.MCTuningShift
-trt.Override_overallT0Shift            = 1.0
-trt.Override_overallT0ShiftShortBarrel = 0.0
-
 # Noise, defaults = 0(since July 2017), 0.02
 trt.Override_noiseInUnhitStraws = 0
 trt.Override_averageNoiseLevel  = 0.02
 
-# HL delta shift w.r.t m_overallT0Shift (steps of 0.78125 ns) (HT middle-bit fraction tune)
+# HL shift (steps of 0.78125 ns) (HT middle-bit fraction tune)
 # KyungEon.Choi@cern.ch https://indico.cern.ch/event/389682/contribution/5/material/slides/0.pdf
 trt.Override_htT0shiftBarShort  = -6
 trt.Override_htT0shiftBarLong   = -6
 trt.Override_htT0shiftECAwheels = -6
 trt.Override_htT0shiftECBwheels = -6
 
+# LL shift (steps of 0.78125 ns) (Christophe Roland Argon shaping tuning)
+# Note: if you change this from the default then you need to
+#       set ToolSvc.InDetTRT_DriftFunctionTool.MCTuningShift
+# Add these after the final Ar tune 
 ## EOF
