@@ -82,11 +82,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
-   //bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
-   // bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
-   // bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
-   // bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);
-
    IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
    const static int MAX_LAYER = 25;
@@ -140,8 +135,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<Long64_t>* m_g4hit_cellidentifier;
    std::vector<float>*       m_g4hit_samplingfraction;
    std::vector<int>*         m_g4hit_sampling;
-   //Ok, this won't work, ROOT won't let me save a custom object which it doesn't know about
-   //std::vector<zh_matchedcell>* m_matched_cells;
 
    //CaloHitAna variables
    FCS_matchedcellvector* m_oneeventcells; //these are all matched cells in a single event
@@ -158,7 +151,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
 
    TTree * m_tree;
    std::string m_ntupleFileName;
-   std::string m_ntupleDirName;
    std::string m_ntupleTreeName;
    std::string m_metadataTreeName;
    std::string m_geoFileName;
