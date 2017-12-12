@@ -122,7 +122,10 @@ namespace top{
 
     }
     // 4.b) Jet Selection Mode
-    if (m_config->KLFitterJetSelectionMode() == "kLeadingFour" ){
+    if (m_config->KLFitterJetSelectionMode() == "kLeadingThree" ){
+      m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingThree;
+    }
+    else if (m_config->KLFitterJetSelectionMode() == "kLeadingFour" ){
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingFour;
     }
     else if (m_config->KLFitterJetSelectionMode() == "kLeadingFive") {
@@ -133,6 +136,9 @@ namespace top{
     }
     else if (m_config->KLFitterJetSelectionMode() == "kLeadingSeven") {
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingSeven;
+    }
+    else if (m_config->KLFitterJetSelectionMode() == "kBtagPriorityThreeJets") {
+      m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityThreeJets;
     }
     else if (m_config->KLFitterJetSelectionMode() == "kBtagPriorityFourJets") {
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityFourJets;
@@ -699,6 +705,9 @@ namespace top{
 
   void KLFitterTool::setJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingThree) {
+      setJetskLeadingThree( event , inputParticles );
+    }
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFour) {
       setJetskLeadingFour( event , inputParticles );
     }
@@ -710,6 +719,9 @@ namespace top{
     }
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSeven) {
       setJetskLeadingSeven( event , inputParticles );
+    }
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityThreeJets) {
+      setJetskBtagPriorityThreeJets( event , inputParticles );
     }
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFourJets) {
       setJetskBtagPriorityFourJets( event , inputParticles );
@@ -727,6 +739,11 @@ namespace top{
 
   }
   
+  void KLFitterTool::setJetskLeadingThree(const top::Event& event,KLFitter::Particles* inputParticles)
+  {
+    setJetskLeadingX(event, inputParticles, 3);
+  }
+
   void KLFitterTool::setJetskLeadingFour(const top::Event& event,KLFitter::Particles* inputParticles)
   {
     setJetskLeadingX(event, inputParticles, 4);
@@ -768,6 +785,11 @@ namespace top{
     }
   }
 
+  
+  void KLFitterTool::setJetskBtagPriorityThreeJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  {
+    setJetskBtagPriority( event , inputParticles , 3 );
+  }
   
   void KLFitterTool::setJetskBtagPriorityFourJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
