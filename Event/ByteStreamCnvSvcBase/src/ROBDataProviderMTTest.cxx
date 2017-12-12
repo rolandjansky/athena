@@ -60,7 +60,17 @@ StatusCode ROBDataProviderMTTest::execute_r( const EventContext& context ) const
 		       <<  rob->rod_lvl1_id() << " in Event header " << lvl1ID );      
     }
   }
-  
+  size_t count = 0;
+  m_robDataProvider->processCachedROBs( context, 
+					[&]( const IROBDataProviderSvc::ROBF* ){ count++; } );
+  ATH_MSG_DEBUG( "Size of the cache " << count );
+
+  m_robDataProvider->processCachedROBs( context, 
+					[&]( const IROBDataProviderSvc::ROBF* rob ){ 
+					  if ( 1120005 == rob->rob_source_id() ) 
+					    ATH_MSG_DEBUG( "rob in the cache " << rob->rob_source_id() ); } 
+					);
+
   return StatusCode::SUCCESS;
 }
 

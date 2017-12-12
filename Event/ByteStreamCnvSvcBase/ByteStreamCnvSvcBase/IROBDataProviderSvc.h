@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <functional>
 
 // Declaration of the interface ID ( interface id, major version, minor version)
 //static const InterfaceID IID_IROBDataProviderSvc("IROBDataProviderSvc", 1 , 0);
@@ -81,42 +82,30 @@ public:
      return 0;
    }
    
-  // additional interface for online use
-  /// Return vector with all ROBFragments stored in the cache 
-  // TB this name seems to be missleading, would getCachedROBs be better?
-  virtual void getAllROBData(const EventContext& /*context*/, std::vector<const ROBF*>&) {
-    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );
-  }
+   /// @brief Interface to access cache of ROBs (it is a full event in case of offline)
+   /// In online implementation the cache will contain only a subset of ROBs. 
+   /// This method allows read access to the cache. 
+   /// @warning in case the cache is updated in the meantime the iteration is guaranteed to be safe 
+   /// but may not give access to all the ROBs available n the very moment
+   /// Example of counting: size_t counter = 0; svc->processCahcedROBs(ctx, [&](const ROBF*){ counter ++; })
+   /// Example of printout: svc->processCahcedROBs(ctx, [&](const ROBF* rob){ log() << MSG::DEBUG << "ROB " << rob->source_id() << endmsg; })
+   virtual void processCachedROBs(const EventContext& /*context*/, 
+				  const std::function< void(const ROBF* )>& /*fn*/ ) const {
+     throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
+   }
   
-  /// Dump the internal ROB cache
-  // TB given the getAllROBData is available isn't this only a convenience function? 
-  // i.e.: the implementation would be: svc->getCachedROBs(ctx,robs); .. print what is needed 
-  virtual std::string dumpROBcache(const EventContext& /*context*/) const {
-    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );      
-    return "";
-  }
-  
-  /// Return size of ROBFragments cache 
-  virtual int sizeROBCache(const EventContext& /*context*/) {
-    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );
-    return 0;
-  };
-
   /// Check if complete event data are already in cache
-  virtual bool isEventComplete(const EventContext& /*context*/) {
+  virtual bool isEventComplete(const EventContext& /*context*/) const {
     throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );      
   } 
-
-  /// Collect all data for an event from the ROS and put them into the cache
-  /// Return value: number of ROBs which were retrieved to complete the event
-  /// Optinonally the name of the caller of this method can be specified for monitoring
+  
+  /// @brief Collect all data for an event from the ROS and put them into the cache
+  /// @return value: number of ROBs which were retrieved to complete the event
+  /// Optionally the name of the caller of this method can be specified for monitoring
   virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string callerName="UNKNOWN") {
     throw std::runtime_error(std::string(callerName + " is using unimplemented ") + __FUNCTION__ );
     return 0;
   }
-
-
-
 
 };
 
