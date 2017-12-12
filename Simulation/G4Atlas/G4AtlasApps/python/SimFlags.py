@@ -462,6 +462,16 @@ class RandomSvc(JobProperty):
     allowedTypes=['str']
     StoredValue = 'AtDSFMTGenSvc' #'AtRndmGenSvc' #'AtRanluxGenSvc' #
 
+class RandomSvcMT(JobProperty):
+    """
+    Name of the AthenaMT random number service to use.
+    This is hopefully just temporary for backwards compatibility.
+    Clients that haven't migrated to the MT-friendly AthRNGSvc can
+    continue to use the old flag and seed mechanism.
+    """
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue = 'AthRNGSvc'
 
 class SeedsG4(JobProperty):
     """
