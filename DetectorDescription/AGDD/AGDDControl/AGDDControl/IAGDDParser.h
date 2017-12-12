@@ -10,8 +10,8 @@
 
 class IAGDDParser {
 public:
-	IAGDDParser():fileName("") {}
-	IAGDDParser(std::string s):fileName(s) {}
+	IAGDDParser():m_fileName("") {}
+	IAGDDParser(std::string s):m_fileName(s) {}
 	virtual ~IAGDDParser() {;}
 	virtual bool ParseFile(std::string)=0;
 	virtual bool ParseFileAndNavigate(std::string)=0;
@@ -19,7 +19,7 @@ public:
 	virtual bool ParseStringAndNavigate(std::string)=0;
 	virtual void navigateTree()=0;
 protected:
-	std::string fileName;
+	std::string m_fileName;
 };
 
 #endif
