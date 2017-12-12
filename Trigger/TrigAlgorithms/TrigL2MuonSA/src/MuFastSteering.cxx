@@ -324,7 +324,6 @@ HLT::ErrorCode MuFastSteering::hltFinalize() {
 HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE, 
                                           HLT::TriggerElement* outputTE)
 {
-  StatusCode sc = StatusCode::SUCCESS;
   // Initialize monitored variables;
   m_inner_mdt_hits  = -1;
   m_middle_mdt_hits = -1;
@@ -380,6 +379,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
   p_roids = roids.begin();
   for (p_roi=muonRoIs.begin(); p_roi!=muonRoIs.end(); ++p_roi) {
 
+    StatusCode sc = StatusCode::SUCCESS;
     double roiEta = (*p_roi)->eta();
     double roiPhi = (*p_roi)->phi();
 
