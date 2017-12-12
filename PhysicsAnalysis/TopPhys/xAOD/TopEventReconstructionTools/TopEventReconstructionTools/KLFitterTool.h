@@ -121,6 +121,8 @@ namespace top{
       std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> m_myLikelihood_AllHadronic;
       std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> m_myLikelihood_BoostedLJets;
 
+      std::unique_ptr<KLFitter::DetectorAtlas_8TeV> m_myDetector;
+
       top::KLFitterJetSelection::JetSelectionMode m_jetSelectionModeKLFitterEnum;     
       KLFitter::LikelihoodBase::BtaggingMethod m_bTaggingMethodKLFitterEnum;
       

@@ -52,31 +52,31 @@ namespace top{
     
     // 2) create an instance of the detector, which holds the information on the resolutions (transfer functions);
     // it takes as an argument the folder which contains the parameter files for the transfer functions
-    KLFitter::DetectorBase * myDetector = new KLFitter::DetectorAtlas_8TeV( transferFunctionAbsPath );
+    m_myDetector = std::make_unique<KLFitter::DetectorAtlas_8TeV>( transferFunctionAbsPath );
     
     // 3) tell the fitter which detector to use
-    if (!m_myFitter->SetDetector(myDetector)) {
+    if (!m_myFitter->SetDetector(m_myDetector.get())) {
       ATH_MSG_ERROR( "ERROR setting detector to fitter" );
       return StatusCode::FAILURE;
     }    
     
     // 4) create an instance of the likelihood for ttbar->l+jets channel and customize it according to your needs
-    m_myLikelihood     = std::unique_ptr<KLFitter::LikelihoodTopLeptonJets> ( new KLFitter::LikelihoodTopLeptonJets{} ); 
+    m_myLikelihood = std::make_unique<KLFitter::LikelihoodTopLeptonJets>(); 
  
     // 4) create an instance of the likelihood for ttH -> l+jets channel and customize it according to your needs
-    m_myLikelihood_TTH = std::unique_ptr<KLFitter::LikelihoodTTHLeptonJets> ( new KLFitter::LikelihoodTTHLeptonJets{} );
+    m_myLikelihood_TTH = std::make_unique<KLFitter::LikelihoodTTHLeptonJets>();
 
     // 4) create an instance of the likelihood for ttbar->l+jets channel using jet angles channel and customize it according to your needs
-    m_myLikelihood_JetAngles = std::unique_ptr<KLFitter::LikelihoodTopLeptonJets_JetAngles> ( new KLFitter::LikelihoodTopLeptonJets_JetAngles{} );
+    m_myLikelihood_JetAngles = std::make_unique<KLFitter::LikelihoodTopLeptonJets_JetAngles>();
 
     // 4) create an instance of the likelihood for ttZ -> trilepton channel and customize it according to your needs
-    m_myLikelihood_TTZ  = std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> ( new KLFitter::LikelihoodTTZTrilepton{} );
+    m_myLikelihood_TTZ  = std::make_unique<KLFitter::LikelihoodTTZTrilepton>();
 
     // 4) create an instance of the likelihood for ttbar -> allhadronic channel and customize it according to your needs
-    m_myLikelihood_AllHadronic  = std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> ( new KLFitter::LikelihoodTopAllHadronic{} );
+    m_myLikelihood_AllHadronic  = std::make_unique<KLFitter::LikelihoodTopAllHadronic>();
 
     // 4) create an instance of the likelihood for ttbar -> boosted ljets and customize it according to your needs
-    m_myLikelihood_BoostedLJets  = std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> ( new KLFitter::BoostedLikelihoodTopLeptonJets{} );
+    m_myLikelihood_BoostedLJets  = std::make_unique<KLFitter::BoostedLikelihoodTopLeptonJets>();
 
     // 4.a) SetleptonType
     if (m_LHType != "ttbar_AllHadronic"){ // no lepton type for all hadronic
