@@ -607,10 +607,17 @@ namespace xAOD {
       float dPhi = Phi_mpi_pi(cl->phi()-phi);
       float dEta = cl->eta()-eta;
       float dr=sqrt(dPhi*dPhi+ dEta*dEta);
-      
+
+      bool printed = false;
       for (unsigned int i = 0; i < coneSizes.size(); i++) {
 	if (dr < coneSizes[i]) {
-	  ATH_MSG_DEBUG("Adding topo " << cl << " dR = " << dr << " et of a topo clust et = " << et << " (calibrated " << cl->pt() << ", tilegap et = " << tilegap3_et << ")");
+	  // lower printouts...
+	  if (!printed) {
+	    ATH_MSG_DEBUG("Adding topo " << cl << " dR = " << dr
+			  << " et of a topo clust et (TG3 subtracted) = " << et
+			  << " (calibrated " << cl->pt() << ", tilegap et = " << tilegap3_et << ")");
+	    printed = true;
+	  }
 	  result.etcones[i] += et;
 	}
       }
@@ -734,18 +741,19 @@ namespace xAOD {
       ATH_MSG_DEBUG("Including " << topoCore << " in the core transverse energy of the fwd electron");
     } else {
       BOOST_FOREACH (const CaloCluster* cl, clusts) {
-	ATH_MSG_DEBUG("cl: eta " << cl->eta() << " phi " << cl->phi() 
-		      << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() 
-		      << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
-		      << " cal E " << cl->e());
 	/// check distance
 	float dPhi = Phi_mpi_pi(cl->phi()-phi);
 	if(dEtaMax_core>0 && fabs(dPhi) > dPhiMax_core) continue;
 	float dEta = cl->eta()-eta;
 	if(dPhiMax_core>0 && fabs(dEta) > dEtaMax_core) continue;
 	if(dR2Max_core>0 && dPhi*dPhi+dEta*dEta > dR2Max_core) continue;
-	ATH_MSG_DEBUG("dist: dPhi " << dPhi << " dEta " << dEta << " dR2 " << dPhi*dPhi+dEta*dEta);
 	
+	ATH_MSG_DEBUG("dist: dPhi " << dPhi << " dEta " << dEta << " dR2 " << dPhi*dPhi+dEta*dEta);
+	ATH_MSG_DEBUG("cl: eta " << cl->eta() << " phi " << cl->phi() 
+		      << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() 
+		      << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
+		      << " cal E " << cl->e());
+
 	/// get enenrgy
 	float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
 	if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
@@ -754,50 +762,65 @@ namespace xAOD {
 	double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
 	et -= ettg3;
 	if (fabs(ettg3) > 1) 
-	  ATH_MSG_DEBUG("After TG3 removal, pt = " << et);
+	  ATH_MSG_DEBUG("After TG3 removal, pt = " << et << " where I removed " << ettg3);
 	
 	/// if only EM
 	double emfrac = 1.;
 	if(onlyEM){
 	  double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
 	  emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
+	  et = (et+ettg3)*emfrac;
 	}
-	et *= emfrac;
 	
 	/// add to the core
 	topoCore += et;
 	ATH_MSG_DEBUG("adding in core et: " << et << " (em frac = " << emfrac << " dR = " << sqrt(dPhi*dPhi+dEta*dEta) << ") total " << topoCore);
       }
     }
+    ATH_MSG_DEBUG("Done with the normal correction");
 
-    double topoCoreSC(0.);
+    double topoCoreSC   = 0;
     double test         = 0;
     double topoCoreSCem = 0;
     if (egObj && egObj->caloCluster()->clusterSize() == CaloCluster::ClusterSize::SuperCluster) {
+      ATH_MSG_DEBUG("Now trying the SC-based one");
       const std::vector<const CaloCluster*> assocClus = EgammaHelpers::getAssociatedTopoClusters(egObj->caloCluster());
+      ATH_MSG_DEBUG("got all assoc clusters");
       for (unsigned int ic = 0; ic < assocClus.size(); ic++) {
 	const CaloCluster* cl = assocClus.at(ic);
+	// to "fix" the far-away-satellite bug (pre mc16d and reprocessing, MR 7195)
+	double dRsat = egObj->caloCluster()->p4().DeltaR(cl->p4(CaloCluster::State::UNCALIBRATED));
+	if (dRsat > 0.2) {
+	  ATH_MSG_DEBUG("Very far away satellite, dR = " << dRsat << ", rejecting it for core");
+	  continue;
+	}
 	test       += cl->pt();
 	topoCoreSC += cl->p4(CaloCluster::State::UNCALIBRATED).Et();
+	ATH_MSG_DEBUG("Added to all cl (not only em,a check) " << cl->p4(CaloCluster::State::UNCALIBRATED).Et());
 	ATH_MSG_DEBUG("Adding topo " << ic << " ptr = " << cl << " contrib, pt = " << cl->pt()
 		      << " uncal pt = " << cl->p4(CaloCluster::State::UNCALIBRATED).Et()
 		      << " eta,phi = " << cl->eta() << " " << cl->phi()
 		      << " uncal eta,phi = " << cl->p4(CaloCluster::State::UNCALIBRATED).Eta()
 		      << " " << cl->p4(CaloCluster::State::UNCALIBRATED).Phi()
-		      << " nCells = " << cluster_size(cl)
+		      //<< " nCells = " << cluster_size(cl) // cannot work on AOD since do not have all cells
                       );
 	
 	/// remove TileGap3
 	double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
-	topoCoreSCem -= ettg3;
+	topoCoreSC -= ettg3;
 
 	/// if only EM
 	double emfrac = 1.;
 	if(onlyEM){
 	  double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
+	  for (int i = 0; i < 28; i++) {
+	    double es = cl->eSample((CaloSampling::CaloSample)i);
+	    if (es != 0) ATH_MSG_DEBUG("Energy in sampling " << i << " = " << es);
+	  }
 	  emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
+	  topoCoreSCem += emfrac*cl->p4(CaloCluster::State::UNCALIBRATED).Et();
 	}
-	topoCoreSCem += emfrac*cl->p4(CaloCluster::State::UNCALIBRATED).Et();
+	ATH_MSG_DEBUG("ET(TG3) " << ettg3 << " emFrac = " << emfrac); 
 
 	//auto itc = assocClus.at(ic)->begin();
 	//for (; itc != assocClus.at(ic)->end(); itc++)
@@ -820,7 +843,7 @@ namespace xAOD {
 
     }
 
-    ATH_MSG_DEBUG("core energy, std = " << topoCore << " topo-assoc (full) = " << topoCoreSC << " topo-assoc (only em, no tg3) = " << topoCoreSCem);
+    ATH_MSG_DEBUG("core energy, std = " << topoCore << " topo-assoc (full but no tg3) = " << topoCoreSC << " topo-assoc (only em, no tg3) = " << topoCoreSCem);
         
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
     corecorr[Iso::coreEnergy] = topoCore;
