@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawUtils
                           LArCalorimeter/LArRecConditions
                           LArCalorimeter/LArRecUtils
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           TestBeam/TBEvent
                           PRIVATE
                           Calorimeter/CaloDetDescr
@@ -44,7 +44,7 @@ atlas_add_component( LArCalibUtils
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${TBB_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRawUtilsLib LArRecConditions LArRecUtilsLib LArToolsLib TBEvent CaloDetDescrLib AthenaPoolUtilities xAODEventInfo LArBadChannelToolLib LArCOOLConditions LArSimEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${TBB_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRawUtilsLib LArRecConditions LArRecUtilsLib LArCablingLib TBEvent CaloDetDescrLib AthenaPoolUtilities xAODEventInfo LArBadChannelToolLib LArCOOLConditions LArSimEvent )
 
 # Install files from the package:
 atlas_install_headers( LArCalibUtils )

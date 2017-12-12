@@ -35,45 +35,49 @@ public:
   /** constructor */
   LArCablingBase( const std::string& type, const std::string& name, const IInterface* parent ) ;
 
-  ~LArCablingBase();
+  virtual ~LArCablingBase();
   
-  StatusCode finalize( );
+  virtual StatusCode finalize( ) override;
 
 
   /**
    * create a HWIdentifier from an Identifier (not inline)<br>
    * 
    */
-  HWIdentifier createSignalChannelID(const Identifier & id);
+  HWIdentifier createSignalChannelID(const Identifier & id) const;
 
 
   /**
    * create a HWIdentifier from an Identifier (from hash) (inline)<br>
    * 
    */
-  HWIdentifier createSignalChannelIDFromHash(const IdentifierHash & id_hash);
+  HWIdentifier createSignalChannelIDFromHash(const IdentifierHash & id_hash) const;
 
   /**
    * create an Identifier from a HWIdentifier (inline) <br>
    * 
    */
-  Identifier cnvToIdentifier(const HWIdentifier & sid); 
+  Identifier cnvToIdentifier(const HWIdentifier & sid) const; 
 
   /**
    * create an Identifier from a HWIdentifier (from hash) (inline) <br>
    */
-  Identifier cnvToIdentifierFromHash(const IdentifierHash & sid_hash); 
+  Identifier cnvToIdentifierFromHash(const IdentifierHash & sid_hash) const; 
     
   /** 
-   * Test wether a HWIdentifier is connected of not (by online hash) (inline) <br>
+   * Test whether a HWIdentifier is connected of not (by online hash) (inline) <br>
    */
-  bool isOnlineConnectedFromHash(const IdentifierHash & sid_hash ); 
+  bool isOnlineConnectedFromHash(const IdentifierHash & sid_hash ) const;
  
   /** 
-   * Test wether a HWIdentifier is connected of not (inline)<br>
+   * Test whether a HWIdentifier is connected of not (inline)<br>
    */
-  bool isOnlineConnected(const HWIdentifier & sid );
+  bool isOnlineConnected(const HWIdentifier & sid ) const;
 
+  /**
+   * return Calibration slot and channel numbers 
+   */
+  virtual const std::vector<HWIdentifier>& calibSlotLine(const HWIdentifier & id) = 0;
 
 protected:
 
@@ -90,52 +94,51 @@ protected:
   ///Invalid default instance of HWIdentifier
   const HWIdentifier m_hwidEmpty;
    
+  bool readOnlOffMap();
+
 private:
   std::vector<Identifier>  m_onlHashToOffline;
   std::vector<HWIdentifier> m_oflHashToOnline;
     
-  bool readOnlOffMap();
    
 };
  
   //Inline methods:
 
-inline bool LArCablingBase::isOnlineConnectedFromHash(const IdentifierHash & sid_hash ) {
-  if (m_onOffValid || readOnlOffMap()) 
-    if (sid_hash <m_onlHashToOffline.size())
-      return (m_idEmpty!=m_onlHashToOffline[sid_hash]);
+inline bool LArCablingBase::isOnlineConnectedFromHash(const IdentifierHash & sid_hash ) const {
+  if (!m_onOffValid) std::abort();
+  if (sid_hash <m_onlHashToOffline.size())
+    return (m_idEmpty!=m_onlHashToOffline[sid_hash]);
   
   return false;
 }
 
 
-inline HWIdentifier LArCablingBase::createSignalChannelIDFromHash(const IdentifierHash & id_hash) {
-  if (m_onOffValid || readOnlOffMap()) 
-    return m_oflHashToOnline[id_hash];
-  else 
-    return m_hwidEmpty;
+inline HWIdentifier LArCablingBase::createSignalChannelIDFromHash(const IdentifierHash & id_hash) const {
+  if (!m_onOffValid) std::abort();
+  return m_oflHashToOnline[id_hash];
 }
 
 
-inline Identifier LArCablingBase::cnvToIdentifierFromHash(const IdentifierHash & sid_hash) {
-  if (m_onOffValid || readOnlOffMap()) 
-    if (sid_hash <m_onlHashToOffline.size())
-      return m_onlHashToOffline[sid_hash];
+inline Identifier LArCablingBase::cnvToIdentifierFromHash(const IdentifierHash & sid_hash) const {
+  if (!m_onOffValid) std::abort();
+  if (sid_hash <m_onlHashToOffline.size())
+    return m_onlHashToOffline[sid_hash];
   
   return m_idEmpty;
 }  
 
-inline Identifier LArCablingBase::cnvToIdentifier(const HWIdentifier & sid) {
+inline Identifier LArCablingBase::cnvToIdentifier(const HWIdentifier & sid) const {
   const IdentifierHash sid_hash=m_onlineId->channel_Hash(sid);
   return this->cnvToIdentifierFromHash(sid_hash); 
  }
 
-inline bool LArCablingBase::isOnlineConnected(const HWIdentifier & sid ) {
+inline bool LArCablingBase::isOnlineConnected(const HWIdentifier & sid ) const {
   const IdentifierHash sid_hash=m_onlineId->channel_Hash(sid);
   return this->isOnlineConnectedFromHash(sid_hash);
 }  
 
-inline HWIdentifier LArCablingBase::createSignalChannelID(const Identifier & id) {
+inline HWIdentifier LArCablingBase::createSignalChannelID(const Identifier & id) const {
   const IdentifierHash id_hash=m_caloId->calo_cell_hash(id);
   return this->createSignalChannelIDFromHash(id_hash);
 }

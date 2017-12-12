@@ -8,6 +8,7 @@ atlas_subdir( LArCabling )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
+                          Calorimeter/CaloDetDescr
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate

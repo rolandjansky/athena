@@ -21,9 +21,9 @@
 
 static const InterfaceID IID_LArWFParamTool("LArWFParamTool", 1 , 0); 
 
-class LArCablingSvc;
-class LArOnlineID;
-class LArEM_ID;
+class LArCablingBase;
+class LArOnlineID_Base;
+class LArEM_Base_ID;
 
 class LArWFParamTool : public AthAlgTool
 {
@@ -90,9 +90,9 @@ private:
   };
 
 
-  ToolHandle<LArCablingService> m_larCablingSvc;
-  const LArEM_ID* m_emId;
-  const LArOnlineID* m_onlineHelper;
+  LArCablingBase* m_larCablingSvc;
+  const LArEM_Base_ID* m_emId;
+  const LArOnlineID_Base* m_onlineHelper;
 
   LArWaveHelper m_wHelper;
 
@@ -110,6 +110,7 @@ private:
   bool m_ShiftToStart;
   bool m_SubtractBaseline;
   bool m_UseOmegaScanHelper;
+  bool m_isSC;
   std::vector<int> m_TtailMin;
   std::vector<int> m_TtailMax;
   std::vector<int> m_DeltaTtail; 
