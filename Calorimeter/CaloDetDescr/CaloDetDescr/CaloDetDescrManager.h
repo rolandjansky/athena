@@ -218,17 +218,17 @@ class CaloDetDescrManager_Base
   /** @brief get element by hash identifier
       @param caloCellHash [IN] hash identifier for the element
    */
-  const CaloDetDescrElement* get_element(const IdentifierHash& caloCellHash) const;
+  const CaloDetDescrElement* get_element(IdentifierHash caloCellHash) const;
   /** @brief get element by hash identifier, non-const version.
       @param caloCellHash [IN] hash identifier for the element
    */
-  CaloDetDescrElement* get_element_nonconst(const IdentifierHash& caloCellHash);
+  CaloDetDescrElement* get_element_nonconst(IdentifierHash caloCellHash);
   /** @brief get element by subcalo and hash identifier
       @param subCalo [IN] subsystem
       @param subCaloCellHash [IN] sub calo hash
    */
   const CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
-                                          const IdentifierHash& subCaloCellHash) const;
+                                          IdentifierHash subCaloCellHash) const;
   /** @brief LAr only! get element by subcalo, sampling, barrel flag, eta, phi.  This is slower for FCAL
    */
   const CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
@@ -509,7 +509,7 @@ CLASS_DEF( CaloSuperCellDetDescrManager , 241807251 , 1 )
 
 
 inline  const CaloDetDescrElement*			
-CaloDetDescrManager_Base::get_element (const IdentifierHash& caloCellHash) const
+CaloDetDescrManager_Base::get_element (IdentifierHash caloCellHash) const
 {
   if ( caloCellHash < m_element_vec.size() ) 
     return m_element_vec[caloCellHash] ;
@@ -517,7 +517,7 @@ CaloDetDescrManager_Base::get_element (const IdentifierHash& caloCellHash) const
 }
                        
 inline CaloDetDescrElement*			
-CaloDetDescrManager_Base::get_element_nonconst (const IdentifierHash& caloCellHash)
+CaloDetDescrManager_Base::get_element_nonconst (IdentifierHash caloCellHash)
 {
   if ( caloCellHash < m_element_vec.size() ) 
     return m_element_vec[caloCellHash] ;
