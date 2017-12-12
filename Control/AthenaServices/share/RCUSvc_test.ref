@@ -1,42 +1,31 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/RCUSvc_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/RCUSvc_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/work/t4/src/Control/AthenaServices/share/../share/RCUSvc_test.txt
 JobOptionsSvc        INFO # (4,1): MessageSvc.OutputLevel = 2
-JobOptionsSvc        INFO # (6,1): RCUSvc.HiveWhiteBoardSvc = "TestWhiteBoard"
+JobOptionsSvc        INFO # (6,1): Athena::RCUSvc.HiveWhiteBoardSvc = "TestWhiteBoard"
 JobOptionsSvc        INFO Job options successfully read in from ../share/RCUSvc_test.txt
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Wed Aug 31 23:21:11 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
+                                          running on zeus on Tue Dec 12 00:36:26 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ServiceManager      DEBUG Initializing service AppMgrRunable
-AppMgrRunable       DEBUG Property update for OutputLevel : new value = 2
 AppMgrRunable       DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service EventLoopMgr
-EventLoopMgr        DEBUG Property update for OutputLevel : new value = 2
 EventLoopMgr        DEBUG Service base class initialized successfully
-IncidentSvc         DEBUG Property update for OutputLevel : new value = 2
 IncidentSvc         DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
-AlgExecStateSvc     DEBUG Property update for OutputLevel : new value = 2
-AlgExecStateSvc     DEBUG Service base class initialized successfully
-EventDataSvc        DEBUG Property update for OutputLevel : new value = 2
 EventDataSvc        DEBUG Service base class initialized successfully
-EventPersistenc...  DEBUG Property update for OutputLevel : new value = 2
 EventPersistenc...  DEBUG Service base class initialized successfully
+AlgExecStateSvc     DEBUG Service base class initialized successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramDataSvc    DEBUG Property update for OutputLevel : new value = 2
 HistogramDataSvc    DEBUG Service base class initialized successfully
 HistogramPersis...  DEBUG Service base class initialized successfully
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-RCUSvc              DEBUG Property update for OutputLevel : new value = 2
-TestWhiteBoard      DEBUG Property update for OutputLevel : new value = 2
-IncidentSvc         DEBUG Adding [EndEvent] listener 'RCUSvc' with priority 0
+IncidentSvc         DEBUG Adding [EndEvent] listener 'Athena::RCUSvc' with priority 0
 test1
 test2
