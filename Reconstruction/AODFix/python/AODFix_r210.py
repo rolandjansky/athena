@@ -49,9 +49,17 @@ class AODFix_r210(AODFix_base):
                 self.egammaStrips_postSystemRec(topSequence)
                 pass
 
+            ###JB
+            if "elIso" not in oldMetadataList:
+                #print 'JB '
+                self.elIso_postSystemRec(topSequence)
+                #print 'JB scheduled'
+                pass
+
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
                 pass
+
 
             # Reset all of the ElementLinks. To be safe.
             from AthenaCommon import CfgMgr
@@ -131,4 +139,6 @@ class AODFix_r210(AODFix_base):
         pass
         
 
-                
+    def elIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
+        isoAODFixGetter("Electrons")        
