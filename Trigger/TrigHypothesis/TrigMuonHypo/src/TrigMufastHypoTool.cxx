@@ -13,9 +13,6 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigMuonHypo/TrigMufastHypoTool.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -116,7 +113,7 @@ StatusCode TrigMufastHypoTool::decide(TrigMufastHypoTool::MuonClusterInfo& input
    if(m_acceptAll) {
       result = true;
       ATH_MSG_DEBUG("Accept property is set: taking all the events");
-      return StatusCode::SUCCESS;
+      return StatusCode(result);
    } else {
       result = false;
       ATH_MSG_DEBUG("Accept property not set: applying selection!");

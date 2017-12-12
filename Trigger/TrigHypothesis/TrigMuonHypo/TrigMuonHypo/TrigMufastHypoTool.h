@@ -6,9 +6,9 @@
 #define TRIGMUFASTHYPO_TRIGMUFASTHYPOTOOL_H 1
 
 #include <string>
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 

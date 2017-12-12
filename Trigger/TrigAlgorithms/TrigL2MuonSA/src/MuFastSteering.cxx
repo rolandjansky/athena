@@ -1152,6 +1152,8 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
     muonSA->setRoiEta( roi->eta() );
     /// Set RoIp phi
     muonSA->setRoiPhi( roi->phi() );
+    /// Set RoI word
+    muonSA->setRoIWord( roi->roiWord() );
 
     /// Set size of storages to be reserved
     muonSA->setRpcHitsCapacity( m_esd_rpc_size );
