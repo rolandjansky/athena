@@ -431,7 +431,7 @@ StatusCode TileDigitsMaker::execute() {
   /* step2: Set up  Digits container */
   TileDigitsContainer* pDigitsContainer;
   pDigitsContainer = new TileDigitsContainer(true);
-  TileDigitsContainer* pDigitsContainer_DigiHSTruth;
+  TileDigitsContainer* pDigitsContainer_DigiHSTruth = nullptr;
   if(m_doDigiTruth){
     pDigitsContainer_DigiHSTruth = new TileDigitsContainer(true);
   }
@@ -566,8 +566,8 @@ StatusCode TileDigitsMaker::execute() {
       ntot_ch[ich] = 0;
       double * pDigitSamplesHi = m_drawerBufferHi[ich];
       double * pDigitSamplesLo = m_drawerBufferLo[ich];
-      double * pDigitSamplesHi_DigiHSTruth;
-      double * pDigitSamplesLo_DigiHSTruth;
+      double * pDigitSamplesHi_DigiHSTruth = nullptr;
+      double * pDigitSamplesLo_DigiHSTruth = nullptr;
       if(m_doDigiTruth){
         pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
         pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
@@ -873,8 +873,8 @@ StatusCode TileDigitsMaker::execute() {
 
       double * pDigitSamplesHi = m_drawerBufferHi[ich];
       double * pDigitSamplesLo = m_drawerBufferLo[ich];
-      double * pDigitSamplesHi_DigiHSTruth;
-      double * pDigitSamplesLo_DigiHSTruth;
+      double * pDigitSamplesHi_DigiHSTruth = nullptr;
+      double * pDigitSamplesLo_DigiHSTruth = nullptr;
 			if(m_doDigiTruth) pDigitSamplesHi_DigiHSTruth = m_drawerBufferHi_DigiHSTruth[ich];
 			if(m_doDigiTruth) pDigitSamplesLo_DigiHSTruth = m_drawerBufferLo_DigiHSTruth[ich];
 
@@ -888,7 +888,7 @@ StatusCode TileDigitsMaker::execute() {
       for (int js = 0; js < m_nSamples; ++js) {
 
         digitsBuffer[js] = pDigitSamplesHi[js] + pedSimHi;
-        if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = pDigitSamplesHi_DigiHSTruth[js] + pedSimHi;
+        if(m_doDigiTruth && pDigitSamplesHi_DigiHSTruth != nullptr) digitsBuffer_DigiHSTruth[js] = pDigitSamplesHi_DigiHSTruth[js] + pedSimHi;
 
         double noiseHi(0.0);
         // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
@@ -921,7 +921,7 @@ StatusCode TileDigitsMaker::execute() {
 
         if (m_calibRun) { //Calculate also low gain
           digitsBufferLo[js] = pDigitSamplesLo[js] + pedSimLo;
-          if(m_doDigiTruth) digitsBufferLo_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
+          if(m_doDigiTruth && pDigitSamplesLo_DigiHSTruth != nullptr) digitsBufferLo_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
           double noiseLo(0.0);
           // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
           if (coherNoiseLo) {
@@ -960,7 +960,7 @@ StatusCode TileDigitsMaker::execute() {
           // reset all samples in digitsBuffer[] to Low Gain values
           for (js = 0; js < m_nSamples; ++js) {
             digitsBuffer[js] = pDigitSamplesLo[js] + pedSimLo;
-            if(m_doDigiTruth) digitsBuffer_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
+            if(m_doDigiTruth && pDigitSamplesLo_DigiHSTruth != nullptr) digitsBuffer_DigiHSTruth[js] = pDigitSamplesLo_DigiHSTruth[js] + pedSimLo;
             double noiseLo(0.0);
             // Full noise pattern, including coherent noise has priority over normal noise //F Spano'
             if (coherNoiseLo) {
@@ -1048,7 +1048,7 @@ StatusCode TileDigitsMaker::execute() {
         }
         TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
         pDigitsContainer->push_back(pDigits);
-        if(m_doDigiTruth){
+        if(m_doDigiTruth && pDigitsContainer_DigiHSTruth != nullptr){
           TileDigits* pDigits_DigiHSTruth = new TileDigits(adc_id, digitsBuffer_DigiHSTruth);
           pDigitsContainer_DigiHSTruth->push_back(pDigits_DigiHSTruth);
         }
@@ -1062,7 +1062,7 @@ StatusCode TileDigitsMaker::execute() {
         }
         TileDigits* pDigitsLo = new TileDigits(adc_id_lo, digitsBufferLo);
         pDigitsContainer->push_back(pDigitsLo);
-        if(m_doDigiTruth){
+        if(m_doDigiTruth && pDigitsContainer_DigiHSTruth != nullptr){
           TileDigits* pDigitsLo_DigiHSTruth = new TileDigits(adc_id_lo, digitsBufferLo_DigiHSTruth);
           pDigitsContainer_DigiHSTruth->push_back(pDigitsLo_DigiHSTruth);
         }
@@ -1142,7 +1142,7 @@ StatusCode TileDigitsMaker::execute() {
 
           TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
           pDigitsContainer->push_back(pDigits);
-          if(m_doDigiTruth){
+          if(m_doDigiTruth && pDigitsContainer_DigiHSTruth != nullptr){
             TileDigits* pDigits_DigiHSTruth = new TileDigits(adc_id, digitsBuffer_DigiHSTruth);
             pDigitsContainer_DigiHSTruth->push_back(pDigits_DigiHSTruth);
           }
@@ -1232,7 +1232,7 @@ StatusCode TileDigitsMaker::execute() {
 
   // step3: register the Digit container in the TES
   ATH_CHECK( evtStore()->record(pDigitsContainer, m_digitsContainer, false) );
-  if(m_doDigiTruth){
+  if(m_doDigiTruth && pDigitsContainer_DigiHSTruth != nullptr){
     ATH_CHECK( evtStore()->record(pDigitsContainer_DigiHSTruth, m_digitsContainer_DigiHSTruth, false) );
   }
 
