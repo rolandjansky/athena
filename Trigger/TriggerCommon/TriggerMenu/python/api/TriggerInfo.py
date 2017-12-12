@@ -10,14 +10,19 @@ class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
         Stores a list of TriggerChain objects and the functions to skim them
     '''
-    def __init__(self,period):
+    def __init__(self,period, customGRL):
         self.triggerChains = []
         self.period = period
 
         from TriggerDataAccess import getHLTlist
-        HLTlist = getHLTlist(period)
+        HLTlist = getHLTlist(period, customGRL)
         for hlt, l1, ps in HLTlist:
             self.triggerChains.append( TriggerChain(hlt, l1, ps))
+
+    @classmethod
+    def testCustomGRL(cls, grl):
+        from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
+        return TriggerPeriodData.testCustomGRL(grl)
 
     def reparse(self):
         self.triggerChains = [ TriggerChain(t.name, t.l1seed, t.prescale) for t in self.triggerChains ]
