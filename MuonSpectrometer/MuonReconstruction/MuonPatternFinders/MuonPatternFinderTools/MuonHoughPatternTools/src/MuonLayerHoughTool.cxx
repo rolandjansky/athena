@@ -53,7 +53,7 @@ namespace Muon {
     declareProperty("ExtrapolationDistance",m_extrapolationDistance = 1500. );
     declareProperty("MuonTruthParticlesKey", m_MuonTruthParticlesKey);
     declareProperty("MuonTruthSegmentsKey", m_MuonTruthSegmentsKey);
-    declareProperty("AddSectors", m_addSectors = true);
+    declareProperty("AddSectors", m_addSectors = false);
   }
 
   MuonLayerHoughTool::~MuonLayerHoughTool()
