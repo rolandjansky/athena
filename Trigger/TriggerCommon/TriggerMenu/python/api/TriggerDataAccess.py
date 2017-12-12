@@ -256,13 +256,14 @@ def getChainsWithL1seed(connection, smk):
 
 
 
-def getHLTlist_fromDB(period):
+def getHLTlist_fromDB(period, customGRL):
     ''' Return a list of (HLT chain, L1 seed, average prescale ) for a given period
         The average prescale is an approximation weighting the PS by number of lumiblocks.
         *** Don't use this number in analysis!!! ***
     '''
     
-    triggerPeriod = TriggerPeriodData( period ).grl
+    triggerPeriod = TriggerPeriodData( period, customGRL ).grl
+    if not triggerPeriod: return []
     runsWithReadyForPhysics = getReadyForPhysicsInRange(triggerPeriod)
     keys = getKeys( runsWithReadyForPhysics)
     
@@ -308,14 +309,14 @@ def getHLTlist_fromTM(period):
         
     return hltList
 
-def getHLTlist(period):
+def getHLTlist(period, customGRL):
     ''' Return a list of (HLT chain, L1 seed, average prescale ) for a given period
         The average prescale is an approximation weighting the PS by number of lumiblocks.
         *** Don't use this number in analysis!!! ***
         For "future" periods, the average prescale is 1 for items flagged as primary in TM and 1e10 for non-primaries
     '''
     if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
-        hltlist = getHLTlist_fromDB(period)
+        hltlist = getHLTlist_fromDB(period, customGRL)
     else:
         hltlist = getHLTlist_fromTM(period)
     
