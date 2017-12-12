@@ -76,6 +76,9 @@ namespace top{
     // 4) create an instance of the likelihood for ttbar -> allhadronic channel and customize it according to your needs
     KLFitter::LikelihoodTopAllHadronic * myLikelihood_AllHadronic  = new KLFitter::LikelihoodTopAllHadronic{};
 
+    // 4) create an instance of the likelihood for ttbar -> boosted ljets and customize it according to your needs
+    KLFitter::BoostedLikelihoodTopLeptonJets * myLikelihood_BoostedLJets  = new KLFitter::BoostedLikelihoodTopLeptonJets{};
+
     // 4.a) SetleptonType
     if (m_LHType != "ttbar_AllHadronic"){ // no lepton type for all hadronic
       if (m_leptonType == "kElectron") {
@@ -83,12 +86,14 @@ namespace top{
         m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron;
         m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron;
         m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron;
+        m_leptonTypeKLFitterEnum_BoostedLJets = KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kElectron;
       }
       else if (m_leptonType == "kMuon") {
         m_leptonTypeKLFitterEnum = KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon;
         m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon;
         m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon;
         m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon;
+        m_leptonTypeKLFitterEnum_BoostedLJets = KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kMuon;
       } 
       else if (m_leptonType == "kTriElectron") {
         if (m_LHType != "ttZTrilepton") {
@@ -99,6 +104,7 @@ namespace top{
         m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron;
         m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron;
         m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron;
+        m_leptonTypeKLFitterEnum_BoostedLJets = KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kElectron;
       }
       else if (m_leptonType == "kTriMuon") {
         if (m_LHType != "ttZTrilepton") {
@@ -109,6 +115,7 @@ namespace top{
         m_leptonTypeKLFitterEnum_TTH = KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon;
         m_leptonTypeKLFitterEnum_JetAngles = KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon;
         m_leptonTypeKLFitterEnum_TTZ = KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon;
+        m_leptonTypeKLFitterEnum_BoostedLJets = KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kMuon;
       }
       else {
         ATH_MSG_ERROR(" Please supply a valid LeptonType : kElectron or kMuon");
@@ -119,6 +126,7 @@ namespace top{
       myLikelihood_TTH -> SetLeptonType( m_leptonTypeKLFitterEnum_TTH );
       myLikelihood_JetAngles -> SetLeptonType( m_leptonTypeKLFitterEnum_JetAngles );
       myLikelihood_TTZ -> SetLeptonType( m_leptonTypeKLFitterEnum_TTZ );
+      myLikelihood_BoostedLJets -> SetLeptonType( m_leptonTypeKLFitterEnum_BoostedLJets );
 
     }
     // 4.b) Jet Selection Mode
@@ -200,18 +208,21 @@ namespace top{
     myLikelihood_JetAngles   -> SetBTagging( m_bTaggingMethodKLFitterEnum );
     myLikelihood_TTZ         -> SetBTagging( m_bTaggingMethodKLFitterEnum );
     myLikelihood_AllHadronic -> SetBTagging( m_bTaggingMethodKLFitterEnum );
+    myLikelihood_BoostedLJets-> SetBTagging( m_bTaggingMethodKLFitterEnum );
     // 4.d) SetTopMass
     myLikelihood             -> PhysicsConstants()->SetMassTop( m_massTop ); 
     myLikelihood_TTH         -> PhysicsConstants()->SetMassTop( m_massTop );
     myLikelihood_JetAngles   -> PhysicsConstants()->SetMassTop( m_massTop );
     myLikelihood_TTZ         -> PhysicsConstants()->SetMassTop( m_massTop );
     myLikelihood_AllHadronic -> PhysicsConstants()->SetMassTop( m_massTop );
+    myLikelihood_BoostedLJets-> PhysicsConstants()->SetMassTop( m_massTop );
     // 4.e) TopMassFixed
     myLikelihood             -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() ); 
     myLikelihood_TTH         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
     myLikelihood_JetAngles   -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
     myLikelihood_TTZ         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
     myLikelihood_AllHadronic -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    myLikelihood_BoostedLJets-> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
 
     // 5) tell the fitter which likelihood to use
     if(m_LHType == "ttbar")
@@ -231,6 +242,8 @@ namespace top{
       m_myFitter->SetLikelihood(myLikelihood);
     } else if (m_LHType == "ttbar_AllHadronic"){
       m_myFitter->SetLikelihood(myLikelihood_AllHadronic);
+    } else if (m_LHType == "ttbar_BoostedLJets"){
+      m_myFitter->SetLikelihood(myLikelihood_BoostedLJets);
     }
 
     else{
@@ -375,6 +388,19 @@ namespace top{
         }
       }
     }
+    if(m_LHType == "ttbar_BoostedLJets"){
+
+      if (m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kElectron) {
+	TLorentzVector el;
+	el.SetPtEtaPhiE( event.m_electrons.at(0)->pt()/1.e3 ,  event.m_electrons.at(0)->eta() , event.m_electrons.at(0)->phi(),  event.m_electrons.at(0)->e() / 1.e3);
+	myParticles->AddParticle(&el, event.m_electrons.at(0)->caloCluster()->etaBE(2) , KLFitter::Particles::kElectron);
+      }
+      if (m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kMuon) {
+	TLorentzVector mu;
+	mu.SetPtEtaPhiE( event.m_muons.at(0)->pt()/1.e3 ,  event.m_muons.at(0)->eta() , event.m_muons.at(0)->phi(),  event.m_muons.at(0)->e() / 1.e3);
+	myParticles->AddParticle(&mu, mu.Eta(), KLFitter::Particles::kMuon);
+      }
+    }
 
     // set the jets, depending on the Jet Selection Mode
     setJets(event, myParticles); 
@@ -430,7 +456,7 @@ namespace top{
       KLFitter::Particles ** myPermutedParticles = m_myFitter->Likelihood()->PParticlesPermuted();
       
 
-      if (m_LHType == "ttbar" || m_LHType == "ttH" || m_LHType == "ttbar_JetAngles" || m_LHType == "ttZTrilepton"){
+      if (m_LHType == "ttbar" || m_LHType == "ttH" || m_LHType == "ttbar_JetAngles" || m_LHType == "ttZTrilepton" || m_LHType == "ttbar_BoostedLJets"){
 
         result->setModel_bhad_pt( myModelParticles->Parton(0)->Pt() );
         result->setModel_bhad_eta( myModelParticles->Parton(0)->Eta() );
@@ -450,31 +476,36 @@ namespace top{
         result->setModel_lq1_E( myModelParticles->Parton(2)->E() );
         result->setModel_lq1_jetIndex( (*myPermutedParticles)->JetIndex(2) );
 
-        result->setModel_lq2_pt( myModelParticles->Parton(3)->Pt() );
-        result->setModel_lq2_eta( myModelParticles->Parton(3)->Eta() );
-        result->setModel_lq2_phi( myModelParticles->Parton(3)->Phi() );
-        result->setModel_lq2_E( myModelParticles->Parton(3)->E() );
-        result->setModel_lq2_jetIndex( (*myPermutedParticles)->JetIndex(3) ); 
+        // boosted likelihood has only one light jet
+        if (m_LHType != "ttbar_BoostedLJets"){
 
-        if(m_LHType == "ttH"){
+          result->setModel_lq2_pt( myModelParticles->Parton(3)->Pt() );
+          result->setModel_lq2_eta( myModelParticles->Parton(3)->Eta() );
+          result->setModel_lq2_phi( myModelParticles->Parton(3)->Phi() );
+          result->setModel_lq2_E( myModelParticles->Parton(3)->E() );
+          result->setModel_lq2_jetIndex( (*myPermutedParticles)->JetIndex(3) ); 
 
-	  result->setModel_Higgs_b1_pt( myModelParticles->Parton(4)->Pt() );
-	  result->setModel_Higgs_b1_eta( myModelParticles->Parton(4)->Eta() );
-	  result->setModel_Higgs_b1_phi( myModelParticles->Parton(4)->Phi() );
-	  result->setModel_Higgs_b1_E( myModelParticles->Parton(4)->E() );
-	  result->setModel_Higgs_b1_jetIndex( (*myPermutedParticles)->JetIndex(4) );
+          if(m_LHType == "ttH"){
 
-	  result->setModel_Higgs_b2_pt( myModelParticles->Parton(5)->Pt() );
-	  result->setModel_Higgs_b2_eta( myModelParticles->Parton(5)->Eta() );
-	  result->setModel_Higgs_b2_phi( myModelParticles->Parton(5)->Phi() );
-	  result->setModel_Higgs_b2_E( myModelParticles->Parton(5)->E() );
-	  result->setModel_Higgs_b2_jetIndex( (*myPermutedParticles)->JetIndex(5) );
+	    result->setModel_Higgs_b1_pt( myModelParticles->Parton(4)->Pt() );
+	    result->setModel_Higgs_b1_eta( myModelParticles->Parton(4)->Eta() );
+	    result->setModel_Higgs_b1_phi( myModelParticles->Parton(4)->Phi() );
+	    result->setModel_Higgs_b1_E( myModelParticles->Parton(4)->E() );
+	    result->setModel_Higgs_b1_jetIndex( (*myPermutedParticles)->JetIndex(4) );
 
-        } 
+	    result->setModel_Higgs_b2_pt( myModelParticles->Parton(5)->Pt() );
+	    result->setModel_Higgs_b2_eta( myModelParticles->Parton(5)->Eta() );
+	    result->setModel_Higgs_b2_phi( myModelParticles->Parton(5)->Phi() );
+	    result->setModel_Higgs_b2_E( myModelParticles->Parton(5)->E() );
+	    result->setModel_Higgs_b2_jetIndex( (*myPermutedParticles)->JetIndex(5) );
+
+          } 
+        }
         
         if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron || 
             m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron ||
             m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron ||
+            m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kElectron ||
             m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron) {
           result->setModel_lep_pt( myModelParticles->Electron(0)->Pt() );
           result->setModel_lep_eta( myModelParticles->Electron(0)->Eta() );
@@ -501,6 +532,7 @@ namespace top{
         if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon || 
             m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon || 
             m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon ||
+            m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kMuon ||
             m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon) {
           result->setModel_lep_pt( myModelParticles->Muon(0)->Pt() );
           result->setModel_lep_eta( myModelParticles->Muon(0)->Eta() );
