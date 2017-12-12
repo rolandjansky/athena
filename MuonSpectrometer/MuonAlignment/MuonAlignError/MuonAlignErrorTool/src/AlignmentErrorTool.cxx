@@ -61,6 +61,7 @@ StatusCode AlignmentErrorTool::initialize() {
   ATH_MSG_INFO("*****************************************");
   ATH_MSG_INFO("AlignmentErrorTool::initialize()");
 
+  ATH_CHECK( m_idTool.retrieve() );
   ATH_CHECK( m_idHelper.retrieve() );
 
   // MAP DEVIATION INITIALIZATION
