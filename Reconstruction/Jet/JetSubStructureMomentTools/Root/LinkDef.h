@@ -23,6 +23,9 @@
 #include "JetSubStructureMomentTools/KtMassDropTool.h"
 #include "JetSubStructureMomentTools/QwTool.h"
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
+#include "JetSubStructureMomentTools/HEPTopTaggerMomentsTool.h"
+#include "JetSubStructureMomentTools/IVariableRPseudoJetCalTool.h"
+#include "JetSubStructureMomentTools/VariableRPseudoJetCalTool.h"
 
 #ifdef __CINT__
 
@@ -52,5 +55,8 @@
 #pragma link C++ class SubjetMakerTool+;
 #pragma link C++ class SubjetRecorderTool+;
 #pragma link C++ class VolatilityTool+;
+#pragma link C++ class HEPTopTaggerMomentsTool+;
+#pragma link C++ class IVariableRPseudoJetCalTool+;
+#pragma link C++ class VariableRPseudoJetCalTool+;
 
 #endif
