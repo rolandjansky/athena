@@ -15,6 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "LArElecCalib/ILArAutoCorrTotalTool.h"
 
 //-----------------------------------------------------------------------
@@ -42,7 +43,9 @@ class LArAutoCorrToolToDB : public AthAlgorithm
   StatusCode finalize();
   
  private:
-  const LArOnlineID * m_onlineHelper;
+  const LArOnlineID_Base* m_onlineHelper;
+  
+  bool m_isSC;
 
   ToolHandle<ILArAutoCorrTotalTool> m_autocorrTool;
 

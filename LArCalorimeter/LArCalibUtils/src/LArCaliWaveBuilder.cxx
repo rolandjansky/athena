@@ -5,6 +5,7 @@
 #include "LArCalibUtils/LArCaliWaveBuilder.h"
 
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
@@ -13,7 +14,8 @@
 
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 
 #include <fstream>
 
@@ -26,7 +28,7 @@ LArCaliWaveBuilder::LArCaliWaveBuilder(const std::string& name, ISvcLocator* pSv
  : AthAlgorithm(name, pSvcLocator),
    m_groupingType("ExtendedFeedThrough"), // SubDetector, Single, FeedThrough
    m_onlineID(0),
-   m_cablingSvc("LArCablingService"),
+   m_cablingSvc(0),
    m_event_counter(0)
 {
  declareProperty("UseAccumulatedDigits",   m_useAccumulatedDigits=true);
@@ -43,6 +45,7 @@ LArCaliWaveBuilder::LArCaliWaveBuilder(const std::string& name, ISvcLocator* pSv
  declareProperty("RecAllCells",            m_recAll=false);
  declareProperty("UsePattern",             m_usePatt=-1);
  declareProperty("NumPattern",             m_numPatt=16); // fix me - is it possible to get from outside ?
+ declareProperty("isSC",                   m_isSC=false);
 
 
  //m_dt=25*ns/m_NStep;
@@ -67,14 +70,14 @@ StatusCode LArCaliWaveBuilder::initialize()
   //FIXME probably useless because m_wave isn't written anywhere
   StatusCode sc=m_waves.setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArCaliWave intermediate object" << endreq;
+    msg(MSG::ERROR) << "Failed to set groupingType for LArCaliWave intermediate object" << endmsg;
     return sc;
   }
 
-  msg(MSG::INFO) << "Initialize intermediate Wave object" << endreq;
+  msg(MSG::INFO) << "Initialize intermediate Wave object" << endmsg;
   sc=m_waves.initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArCaliWave intermediate object" << endreq;
+    msg(MSG::ERROR) << "Failed initialize LArCaliWave intermediate object" << endmsg;
     return sc;
   }
 
@@ -83,30 +86,69 @@ StatusCode LArCaliWaveBuilder::initialize()
 
 
   if (m_checkEmptyPhases)
-    msg(MSG::INFO) << "Empty phases check selected." << endreq;  
+    msg(MSG::INFO) << "Empty phases check selected." << endmsg;  
 
   //Get pedestal from DetStore
   if (m_pedSub) {
-    msg(MSG::INFO) << "Pedestal subtraction selected." << endreq;  
+    msg(MSG::INFO) << "Pedestal subtraction selected." << endmsg;  
     sc=detStore()->regHandle(m_larPedestal,"Pedestal");
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register data handle for LArPedestal object!" << endreq;
+      msg(MSG::ERROR) << "Cannot register data handle for LArPedestal object!" << endmsg;
       return sc;
     }
   }
+  
   //Get Online helper from DetStore
-  sc=detStore()->retrieve(m_onlineID);
+  /*sc=detStore()->retrieve(m_onlineID);
   if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve LArOnlineID!" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve LArOnlineID!" << endmsg;
       return sc;
+  }*/
+
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineID = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+    
+    ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else m_cablingSvc = (LArCablingBase*)&(*tool);
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineID = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+    
+    ToolHandle<LArCablingService> tool("LArCablingService");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else m_cablingSvc = (LArCablingBase*)&(*tool);
   }
 
 
-  sc=m_cablingSvc.retrieve();
+  /*sc=m_cablingSvc.retrieve();
   if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve LArCablingService!" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve LArCablingService!" << endmsg;
       return sc;
-  }
+  }*/
 
 
   return StatusCode::SUCCESS;
@@ -125,11 +167,11 @@ StatusCode LArCaliWaveBuilder::execute()
 
 // if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 ) 
  if ( m_event_counter < 1000 || m_event_counter%100==0 ) 
-    msg(MSG::INFO) << "Processing event " << m_event_counter << endreq;
+    msg(MSG::INFO) << "Processing event " << m_event_counter << endmsg;
  m_event_counter++ ;
  
  if (m_keylist.size()==0) {
-   msg(MSG::ERROR) << "Key list is empty! No containers to process!" << endreq;
+   msg(MSG::ERROR) << "Key list is empty! No containers to process!" << endmsg;
    return StatusCode::FAILURE;
  } 
 
@@ -154,7 +196,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
  
    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
    if (sc.isFailure()) {
-     msg(MSG::WARNING) << "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
+     msg(MSG::WARNING) << "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it << endmsg;
      continue; // Try next container
    }
 
@@ -163,13 +205,13 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
    if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
      sc=evtStore()->retrieve(febErrSum);
      if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endreq;
+       msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endmsg;
        return sc;
      }
    }
    else
      if (m_event_counter==1)
-       msg(MSG::WARNING) << "No FebErrorSummaryObject found! Feb errors not checked!" << endreq;
+       msg(MSG::WARNING) << "No FebErrorSummaryObject found! Feb errors not checked!" << endmsg;
  
    HWIdentifier  lastFailedFEB(0);
    LArAccumulatedCalibDigitContainer::const_iterator it=larAccumulatedCalibDigitContainer->begin();
@@ -186,10 +228,10 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
    for (;it!=it_end; ++it) { // Loop over all cells
 
      if ( (!m_recAll) && (!(*it)->isPulsed()) ) {
-        msg(MSG::DEBUG) << "Non pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) << endreq; 
+        msg(MSG::DEBUG) << "Non pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) << endmsg; 
         continue; // Check if cell is pulsed
      }
-     msg(MSG::DEBUG) << "Pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) << endreq; 
+     msg(MSG::DEBUG) << "Pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) << endmsg; 
      HWIdentifier chid=(*it)->hardwareID();
      HWIdentifier febid=m_onlineID->feb_Id(chid);
      if (febErrSum) {
@@ -198,7 +240,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 	 if (febid!=lastFailedFEB) {
 	   lastFailedFEB=febid;
 	   msg(MSG::ERROR) << "Event " << m_event_counter << " Feb " <<  m_onlineID->channel_name(febid) 
-	       << " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." << endreq;
+	       << " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." << endmsg;
 	 }
 	 continue;
        }
@@ -206,7 +248,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      CaloGain::CaloGain gain=(*it)->gain();
 
      if (gain<0 || gain>CaloGain::LARNGAIN) {
-       msg(MSG::ERROR) << "Found not-matching gain number ("<< (int)gain <<")" << endreq;
+       msg(MSG::ERROR) << "Found not-matching gain number ("<< (int)gain <<")" << endmsg;
        return StatusCode::FAILURE;
      }
      
@@ -232,7 +274,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      int index;
      for(int iLine=1;iLine<5;iLine++){
        if((*it)->isPulsed(iLine)){
-	 msg(MSG::DEBUG) <<"GR: line pulsed true, line="<<iLine<<endreq;
+	 msg(MSG::DEBUG) <<"GR: line pulsed true, line="<<iLine<<endmsg;
 	 dacPulsed=(dacPulsed | (0x1 << (15+iLine)));
        }
      }
@@ -273,7 +315,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
  
    sc = evtStore()->retrieve(larCalibDigitContainer,*key_it);
    if (sc.isFailure()) {
-     msg(MSG::WARNING) << "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
+     msg(MSG::WARNING) << "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it << endmsg;
      continue; // Try next container
    }
 
@@ -281,7 +323,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
    LArCalibDigitContainer::const_iterator it_end=larCalibDigitContainer->end();
 
    if (it == it_end) {
-      msg(MSG::INFO) << "LArCalibDigitContainer with key=" << *key_it << " is empty " << endreq;
+      msg(MSG::INFO) << "LArCalibDigitContainer with key=" << *key_it << " is empty " << endmsg;
       continue; // at this event LArCalibDigitContainer is empty, do not even try to loop on it...
    }
    
@@ -296,7 +338,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
      CaloGain::CaloGain gain=(*it)->gain();
 
      if (gain<0 || gain>CaloGain::LARNGAIN) {
-       msg(MSG::ERROR) << "Found not-matching gain number ("<< (int)gain <<")" << endreq;
+       msg(MSG::ERROR) << "Found not-matching gain number ("<< (int)gain <<")" << endmsg;
        return StatusCode::FAILURE;
      }
 
@@ -333,14 +375,14 @@ StatusCode LArCaliWaveBuilder::stop()
   
     StatusCode sc=caliWaveContainer->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to set groupingType for LArCaliWaveContainer object" << endreq;
+      msg(MSG::ERROR) << "Failed to set groupingType for LArCaliWaveContainer object" << endmsg;
       return sc;
     }
 
-    msg(MSG::INFO) << "Initialize final Wave object" << endreq;
+    msg(MSG::INFO) << "Initialize final Wave object" << endmsg;
     sc=caliWaveContainer->initialize(); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed initialize LArCaliWaveContainer object" << endreq;
+      msg(MSG::ERROR) << "Failed initialize LArCaliWaveContainer object" << endmsg;
       return sc;
     }
     
@@ -371,15 +413,15 @@ StatusCode LArCaliWaveBuilder::stop()
 	    const HWIdentifier hwId = cell_it.channelId();
 	    if ((!m_recAll) && (!m_cablingSvc->isOnlineConnected(hwId))) {
                
-                //msg(MSG::INFO) << "Skipping disconnected channel: "<<MSG::hex<<hwId<<MSG::dec << endreq;
+                //msg(MSG::INFO) << "Skipping disconnected channel: "<<MSG::hex<<hwId<<MSG::dec << endmsg;
                continue; //Ignore disconnected channels
             }
 	      
 	    const WaveMap& waveMap = (*cell_it);
 	    if (waveMap.size()==0) {
 	      msg(MSG::INFO) << "Empty accumulated wave. Last id: " << MSG::hex 
-		//<< lastId << " " << emId->show_to_string(lastId) << endreq;
-		  << lastId << " this id: "<<hwId<<MSG::dec << endreq;
+		//<< lastId << " " << emId->show_to_string(lastId) << endmsg;
+		  << lastId << " this id: "<<hwId<<MSG::dec << endmsg;
 	      continue;
 	    }
 
@@ -402,7 +444,7 @@ StatusCode LArCaliWaveBuilder::stop()
 		  for (unsigned i=0;i<thisTriggers.size();++i) {
 		    if (thisTriggers[i]==0) {
 		      msg(MSG::FATAL) << "Empty phase found in channel 0x" << MSG::hex << chid << MSG::dec 
-				      << "., aborting reconstruction. Sorry." << endreq;
+				      << "., aborting reconstruction. Sorry." << endmsg;
 		      return StatusCode::FAILURE;
 		    }
 		  }
@@ -415,14 +457,14 @@ StatusCode LArCaliWaveBuilder::stop()
 			float pedestal = m_larPedestal->pedestal(chid,gain);
 			if (pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
 			  ATH_MSG_DEBUG("No pedestal(s) found for channel 0x" << MSG::hex << chid << MSG::dec);
-			  msg(MSG::INFO)  << "Using fake (baseline) pedestal subtraction..." << endreq;  
+			  msg(MSG::INFO)  << "Using fake (baseline) pedestal subtraction..." << endmsg;  
 			  pedAve = wHelper.getBaseline(thisWave,m_baseline) ;
 			} else {
 			    pedAve = pedestal;
 			}
 		    } else {
 		      ATH_MSG_DEBUG("No pedestal(s) found for channel 0x" << MSG::hex << chid << MSG::dec);
-		      msg(MSG::INFO)  << "Using fake (baseline) pedestal subtraction..." << endreq;  
+		      msg(MSG::INFO)  << "Using fake (baseline) pedestal subtraction..." << endmsg;  
 		      pedAve = wHelper.getBaseline(thisWave,m_baseline) ;	
 		    }
 		    ATH_MSG_DEBUG("Pedestal for channel 0x" << MSG::hex << chid << MSG::dec << " is = " << pedAve << " ADC");
@@ -430,7 +472,7 @@ StatusCode LArCaliWaveBuilder::stop()
 
 		double waveMax = thisWave.getSample( wHelper.getMax(thisWave) ) ;
 		if ( (!m_recAll) && m_ADCsatur>0 && waveMax>=m_ADCsatur ) { 
-		    msg(MSG::INFO) << "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" << endreq ;
+		    msg(MSG::INFO) << "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" << endmsg ;
 		    continue ;
 		} else {
 
@@ -456,20 +498,20 @@ StatusCode LArCaliWaveBuilder::stop()
 
     } //end loop over m_keyList
 
-    //msg(MSG::INFO) << " Summary : Number of cells with a CaliWave  reconstructed : " << caliWaveContainer->totalNumberOfConditions()  << endreq;
-    msg(MSG::INFO) << " Summary : Number of cells with a CaliWave  reconstructed : " << NCaliWave  << endreq;    
-    msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endreq;
-    msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endreq;
-    msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endreq;
-    msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endreq;
-    msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endreq;
+    //msg(MSG::INFO) << " Summary : Number of cells with a CaliWave  reconstructed : " << caliWaveContainer->totalNumberOfConditions()  << endmsg;
+    msg(MSG::INFO) << " Summary : Number of cells with a CaliWave  reconstructed : " << NCaliWave  << endmsg;    
+    msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endmsg;
+    msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endmsg;
+    msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endmsg;
+    msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endmsg;
+    msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
  
     // Record in detector store with key (m_keyoutput)
     if (StatusCode::SUCCESS!=detStore()->record(caliWaveContainer, m_keyoutput)) {
-	msg(MSG::ERROR) << "Cannot record caliWaveContainer with key '" << m_keyoutput << "' to StoreGate!" << endreq;
+	msg(MSG::ERROR) << "Cannot record caliWaveContainer with key '" << m_keyoutput << "' to StoreGate!" << endmsg;
 	return StatusCode::FAILURE;
     }
 
-    msg(MSG::INFO) << "LArCaliWaveBuilder has finished." << endreq;
+    msg(MSG::INFO) << "LArCaliWaveBuilder has finished." << endmsg;
     return StatusCode::SUCCESS;
 }

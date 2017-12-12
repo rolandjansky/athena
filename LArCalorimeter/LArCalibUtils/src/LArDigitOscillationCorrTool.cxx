@@ -109,9 +109,9 @@ StatusCode LArDigitOscillationCorrTool::calculateEventPhase(const LArDigitContai
 	ATH_MSG_DEBUG ( "No pedestal RMS found for this cell. Exiting ...." );
 	return StatusCode::FAILURE;
       }
-      //    log << MSG::DEBUG << "Retriving channelPhase " << endreq;
+      //    log << MSG::DEBUG << "Retriving channelPhase " << endmsg;
       const double& DBchannelPhase=larH6Oscillations->channelPhase(chid);
-      //     log << MSG::DEBUG << "Retriving channelAmplitude " << endreq;
+      //     log << MSG::DEBUG << "Retriving channelAmplitude " << endmsg;
       const double& DBchannelAmplitude=larH6Oscillations->channelAmplitude(chid);
       
       if( DBpedestalRMS > 0 && DBchannelAmplitude>0 ) { 
