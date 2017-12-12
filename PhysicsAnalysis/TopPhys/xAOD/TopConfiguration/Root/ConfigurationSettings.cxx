@@ -287,7 +287,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
     registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
-    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic", "ttbar");
+    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
     registerParameter("KLFitterSaveAllPermutations","Save All permutations to the output file (False will save only the best)","False");
 
