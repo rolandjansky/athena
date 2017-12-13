@@ -386,9 +386,9 @@ std::vector<int> dqm_algorithms::tools::GetBinRange(const TH1 *h, const std::map
    * The nested ternaries prevent this happening by decrementing the bin number returned by TAxis::FindBin by 1.
    */
   const int xlow    = (xmin == notFound) ? 1                 : xAxis->FindBin(xmin);
-  const int xhigh   = (xmax == notFound) ? xAxis->GetNbins() : (xAxis->GetBinLowEdge(xAxis->FindBin(xmax))== xmax) ? (xAxis->FindBin(xmax)-1) : xAxis->FindBin(xmax)
+  const int xhigh   = (xmax == notFound) ? xAxis->GetNbins() : (xAxis->GetBinLowEdge(xAxis->FindBin(xmax))== xmax) ? (xAxis->FindBin(xmax)-1) : xAxis->FindBin(xmax);
   const int ylow    = (ymin == notFound) ? 1                 : yAxis->FindBin(ymin);
-  const int yhigh   = (ymax == notFound) ? yAxis->GetNbins() : (yAxis->GetBinLowEdge(yAxis->FindBin(ymax))== ymax) ? (yAxis->FindBin(ymax)-1) : yAxis->FindBin(ymax)
+  const int yhigh   = (ymax == notFound) ? yAxis->GetNbins() : (yAxis->GetBinLowEdge(yAxis->FindBin(ymax))== ymax) ? (yAxis->FindBin(ymax)-1) : yAxis->FindBin(ymax);
 
                                                                                                                                                              
   if (xlow>xhigh) {
