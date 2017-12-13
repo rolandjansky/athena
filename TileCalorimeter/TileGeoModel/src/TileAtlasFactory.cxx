@@ -54,6 +54,7 @@ TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
                                    TileDetDescrManager *manager,
                                    bool addPlates,
                                    int ushape,
+                                   int glue,
                                    MsgStream *log,
 				   bool fullGeo)
   : m_detectorStore(pDetStore)
@@ -61,6 +62,7 @@ TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
   , m_log(log) 
   , m_addPlatesToCellVolume(addPlates)
   , m_Ushape(ushape)
+  , m_Glue(glue)
   , m_testbeamGeometry(false)
   , m_verbose(log->level()<=MSG::VERBOSE) 
   , m_fullGeo(fullGeo)
@@ -114,7 +116,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_Glue,m_log);
 
   double DzSaddleSupport = 0, RadiusSaddle = 0;
   if (dbManager->BoolSaddle())

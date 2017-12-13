@@ -90,7 +90,8 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
   m_ticl = access->getRecordsetPtr("TICL",m_tag,m_node);
   m_n_ticl = m_ticl->size();
 
-  m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
+//  m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
+  m_tileSwitches = access->getRecordsetPtr("TileSwitches","TileSwitches-06"); // New version of TileSwitches table containing Glue, Ushape and AddPlates flags
   m_n_tileSwitches = m_tileSwitches->size();
   (*log) << MSG::INFO << "TileDddbManager: n_tileSwitches = " << m_n_tileSwitches << endmsg;
 
@@ -1750,7 +1751,7 @@ bool TileDddbManager::addPlatesToCell() const
     {
       if ((*m_tileSwitches)[0]->isFieldNull("ADDPLATESTOCELL"))
         {
-          // std::cerr << "\nTileDddbManager   WARNING TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE\n\n";
+          std::cerr << "\nTileDddbManager   WARNING TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE\n\n";
           return true;
         }
       else
@@ -1772,7 +1773,7 @@ int TileDddbManager::Ushape() const
         try {
           if ((*m_tileSwitches)[0]->isFieldNull("USHAPE"))
             {
-              // std::cerr << "\nTileDddbManager   WARNING TileSwitches(USHAPE) is EMPTY, returning Ushape= 0\n\n";
+              std::cerr << "\nTileDddbManager   WARNING TileSwitches(USHAPE) is EMPTY, returning Ushape= 0\n\n";
               return 0;
             }
           else
@@ -1797,7 +1798,7 @@ bool TileDddbManager::glue() const
     {
       if ((*m_tileSwitches)[0]->isFieldNull("GLUE"))
         {
-          // std::cerr << "\nTileDddbManager   WARNING TileSwitches(GLUE) is EMPTY, returning TRUE\n\n";
+          std::cerr << "\nTileDddbManager   WARNING TileSwitches(GLUE) is EMPTY, returning TRUE\n\n";
           return true;
         }
       else

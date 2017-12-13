@@ -37,6 +37,7 @@ class TileGeoSectionBuilder
   TileGeoSectionBuilder(DataHandle<StoredMaterialManager> & matManager,
                         TileDddbManager* pDbManager,
                         int ushape,
+                        int glue,
                         MsgStream * log);
 
   /** Destructor */
@@ -185,6 +186,7 @@ class TileGeoSectionBuilder
   MsgStream *                           m_log;
 
   int          m_Ushape;
+  int          m_Glue;
   double       m_barrelPeriodThickness;
   double       m_barrelGlue;
   double       m_extendedPeriodThickness;
@@ -194,6 +196,9 @@ class TileGeoSectionBuilder
 
   GeoMaterial* m_matLArServices;
   GeoMaterial* m_matIronHalfDens;
+
+  /** Makes iron layer a little bit wider to obtain same sampling fraction for simulation without a glue*/
+  double       m_AdditionalIronLayer;
 
   void checktransfunc(double absorber, double period, int np, double center);
   void printdouble(const char * name, double val);
