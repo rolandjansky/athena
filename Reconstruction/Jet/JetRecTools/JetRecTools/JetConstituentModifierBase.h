@@ -62,7 +62,7 @@ protected:
   // The user must explicitly set what sort of object they modify
   // Define as a basic integer type because Gaudi
   // doesn't support arbitrary property types
-  unsigned int m_inputType=xAOD::Type::Other;
+  int m_inputType=xAOD::Type::Other;
 
   bool m_applyToChargedPFO=true;
   bool m_applyToNeutralPFO=true;
