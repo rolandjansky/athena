@@ -18,15 +18,15 @@ typedef std::pair<MMDetectorDescription*,AGDDDetectorPositioner*> AGDDPositioned
 class MMDetectorHelper {
 public:
 	MMDetectorHelper();
-	MicromegasIterator MM_begin() {return MicromegasList.begin();}
-	MicromegasIterator MM_end()   {return MicromegasList.end();}
+	MicromegasIterator MM_begin() {return m_MicromegasList.begin();}
+	MicromegasIterator MM_end()   {return m_MicromegasList.end();}
 	
 	MMDetectorDescription* Get_MMDetectorType(std::string type);
 	MMDetectorDescription* Get_MMDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 	AGDDPositionedDetector Get_MMPositionedDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 
 private:
-	MicromegasMap MicromegasList;
+	MicromegasMap m_MicromegasList;
 
 };
 

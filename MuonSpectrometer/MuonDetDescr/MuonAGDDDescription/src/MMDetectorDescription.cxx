@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-MMDetectorDescription* MMDetectorDescription::current=0;
+MMDetectorDescription* MMDetectorDescription::s_current=0;
 
 
 MMDetectorDescription::MMDetectorDescription(std::string s): 
@@ -26,7 +26,7 @@ void MMDetectorDescription::Register()
 void MMDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 {
 		//std::cout<<"This is AGDDMicromegas::SetDetectorAddress "<<GetName()<<" "<<
-		//sType;
+		//m_sType;
 		p->ID.detectorType="Micromegas";
 		p->theDetector=this;
 		std::stringstream stringone;
