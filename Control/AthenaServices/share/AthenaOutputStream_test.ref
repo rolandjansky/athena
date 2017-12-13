@@ -2,24 +2,21 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/AthenaOutputStream_test.txt
-JobOptionsSvc        INFO # =======> /home/leggett/work/v30r0.msg/src/Control/AthenaServices/share/../share/AthenaOutputStream_test.txt
+JobOptionsSvc        INFO # =======> /users/cranshaw/transitions7/athena/Control/AthenaServices/share/../share/AthenaOutputStream_test.txt
 JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (6,1): StoreGateSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (8,1): AthenaOutputStream.OutputLevel = 1
 JobOptionsSvc        INFO # (10,1): AthenaOutputStream.ItemList = ["Bar#uno", "Bar#due", "Bar#tre", "8101#*", "Fee#quattro", "Fee!#cinque", "13#*"]
 JobOptionsSvc        INFO # (15,1): AthenaOutputStream.AcceptAlgs = ["AthenaOutputStream", "aSFQS"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/AthenaOutputStream_test.txt
-MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on zeus.lbl.gov on Fri Dec  1 12:14:33 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
+                                          running on atlas2.hep.anl.gov on Wed Dec 13 08:05:50 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ServiceManager      DEBUG Initializing service AppMgrRunable
 AppMgrRunable       DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service EventLoopMgr
 EventLoopMgr        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
@@ -35,7 +32,9 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ClassIDSvc          DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
-ClassIDSvc           INFO  getRegistryEntries: read 917 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 919 CLIDRegistry entries for module ALL
+ClassIDSvc          DEBUG processCLIDDB: read 1485 entries from CLIDDB file: /users/cranshaw/transitions7/build/x86_64-slc6-gcc62-opt/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 1485 entries from CLIDDB file: /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-10T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/clid.db
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
 StoreGateSvc_Impl   DEBUG Service base class initialized successfully
@@ -71,9 +70,7 @@ MetaDataStore_Impl  DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'MetaDataStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'MetaDataStore' with priority 100
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-DataModelCompatSvc  DEBUG Property update for OutputLevel : new value = -777138672
 DataModelCompatSvc  DEBUG FILE:LINE (StatusCode DataModelCompatSvc::initialize()): running
-DataModelCompatSvcVERBOSE ServiceLocatorHelper::service: found service IncidentSvc
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'DataModelCompatSvc' with priority 0
 IoComponentMgr      DEBUG --> initialize()
 IoComponentMgr      DEBUG Service base class initialized successfully
@@ -86,12 +83,10 @@ IoComponentMgr      DEBUG --> io_hasitem()
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc        DEBUG HOSTNAME zeus has no domain - try hostname --fqdn
-DBReplicaSvc        DEBUG HOSTNAME from fqdn: zeus.lbl.gov
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(proxyurl=http://msquid01-ib.nersc.gov:3128)(proxyurl=http://msquid02-ib.nersc.gov:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /bld1/leggett/build/v30r0.msg/build/install/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-10T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
 DBReplicaSvc        DEBUG Candidate server ATLF (priority -2300)
-DBReplicaSvc         INFO Total of 1 servers found for host zeus.lbl.gov [ATLF ]
+DBReplicaSvc         INFO Total of 1 servers found for host atlas2.hep.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -137,23 +132,23 @@ AthenaOutputStream  DEBUG Registering all Tools in ToolHandleArray HelperTools
 AthenaOutputStream  DEBUG Adding private ToolHandle tool AthenaOutputStream.AthenaOutputStreamTool (AthenaOutputStreamTool)
 AthenaOutputStream  DEBUG Data Deps for AthenaOutputStream
 ClassIDSvc           INFO  getRegistryEntries: read 929 CLIDRegistry entries for module ALL
-StoreGateSvc_Impl   DEBUG Recorded object @0x3737610 with key uno of type Foo(CLID 8101)
- in DataObject @0x3737550
+StoreGateSvc_Impl   DEBUG Recorded object @0x41c8a10 with key uno of type Foo(CLID 8101)
+ in DataObject @0x41c87a0
  object modifiable when retrieved
-StoreGateSvc_Impl   DEBUG Recorded object @0x2bdb430 with key due of type Foo(CLID 8101)
- in DataObject @0x37d19d0
+StoreGateSvc_Impl   DEBUG Recorded object @0x383dec0 with key due of type Foo(CLID 8101)
+ in DataObject @0x383d8e0
  object modifiable when retrieved
-StoreGateSvc_Impl   DEBUG Recorded object @0x2c1e1e0 with key uno of type Bar(CLID 8107)
- in DataObject @0x37d20e0
+StoreGateSvc_Impl   DEBUG Recorded object @0x383dfa0 with key uno of type Bar(CLID 8107)
+ in DataObject @0x36d3220
  object modifiable when retrieved
-StoreGateSvc_Impl   DEBUG Recorded object @0x37d1760 with key due of type Bar(CLID 8107)
- in DataObject @0x2c36d30
+StoreGateSvc_Impl   DEBUG Recorded object @0x365d950 with key due of type Bar(CLID 8107)
+ in DataObject @0x36d2770
  object modifiable when retrieved
-StoreGateSvc_Impl   DEBUG Recorded object @0x37367c0 with key quattro of type Bar(CLID 8107)
- in DataObject @0x3737060
+StoreGateSvc_Impl   DEBUG Recorded object @0x41c8d90 with key quattro of type Bar(CLID 8107)
+ in DataObject @0x383dab0
  object modifiable when retrieved
-StoreGateSvc_Impl   DEBUG Recorded object @0x3737e00 with key cinque of type Bar(CLID 8107)
- in DataObject @0x37383f0
+StoreGateSvc_Impl   DEBUG Recorded object @0x41c8c50 with key cinque of type Bar(CLID 8107)
+ in DataObject @0x425eeb0
  object modifiable when retrieved
 AthenaOutputStr...WARNING add: can not find clid 13 in clid db
 AthenaOutputStream  DEBUG addItemObjects(13,"*") called
