@@ -38,7 +38,7 @@ class TrigMufastHypoAlg
   private:
  
     TrigMufastHypoAlg(); 
-    ToolHandleArray<TrigMufastHypoTool> m_hypoTools;
+    ToolHandleArray<TrigMufastHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"}; 
 
     SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey;
 

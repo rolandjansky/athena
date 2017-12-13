@@ -39,7 +39,7 @@ class TrigmuCombHypoAlg
   private:
  
     TrigmuCombHypoAlg(); 
-    ToolHandleArray<TrigmuCombHypoTool> m_hypoTools;
+    ToolHandleArray<TrigmuCombHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"}; 
 
     SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey;
 
