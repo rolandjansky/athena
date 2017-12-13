@@ -14,7 +14,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include <list>
+#include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -111,26 +111,26 @@ protected:
 
     // keep state information from the last fit for access through global interface
     mutable int					m_iterations;
-    mutable std::list<FitMeasurement*>*		m_measurements;
+    mutable std::vector<FitMeasurement*>*	m_measurements;
     mutable FitParameters*			m_parameters;
     
 private:
     // add MeasurementSet
-    void	addMeasurements (std::list<FitMeasurement*>&			measurements,
+    void	addMeasurements (std::vector<FitMeasurement*>&			measurements,
 				 const MeasurementSet&				measurementSet,
 				 const FitParameters&				parameters) const;
     
     // add TrackStateOnSurfaces (true means material already allocated on trackTSOS)
-    bool	addMeasurements (std::list<FitMeasurement*>&			measurements,
+    bool	addMeasurements (std::vector<FitMeasurement*>&			measurements,
 				 const FitParameters&				parameters,
 				 ParticleHypothesis			   	particleHypothesis,
 				 const DataVector<const TrackStateOnSurface>&	trackTSOS) const;
 
     // initialize measurement list (= re-use in case of global fit)
-    std::list<FitMeasurement*>*&	measurementList (void) const;
+    std::vector<FitMeasurement*>*&	measurementList (void) const;
 
     // perform fit
-    Track*	performFit(std::list<FitMeasurement*>*			measurements,
+    Track*	performFit(std::vector<FitMeasurement*>*	        measurements,
 			   FitParameters*				parameters,
 			   const ParticleHypothesis			particleHypothesis,
 			   const TrackInfo&				trackInfo,
