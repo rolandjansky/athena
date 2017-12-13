@@ -22,6 +22,14 @@ atlas_depends_on_subdirs(
 
 find_package( ROOT COMPONENTS Core RIO Hist Tree PyROOT )
 
+<<<<<<< HEAD
+=======
+# Generate a dictionary:
+atlas_add_root_dictionary( PFlowUtilsLib PFlowUtilsDictSource
+                           ROOT_HEADERS PFlowUtils/*.h Root/LinkDef.h
+                           EXTERNAL_PACKAGES ROOT )
+
+>>>>>>> generate ROOT dictionary/library
 # Component(s) in the package:
 atlas_add_library( PFlowUtilsLib
    PFlowUtils/*.h Root/*.h Root/*.cxx ${PFlowUtilsDictSource}
@@ -37,9 +45,16 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 atlas_add_dictionary( PFlowUtilsDict
+<<<<<<< HEAD
    PFlowUtils/PFlowUtilsDict.h PFlowUtils/selection.xml
    LINK_LIBRARIES PFlowUtilsLib )
 
+=======
+   PFlowUtils/PFlowUtilsDict.h
+   PFlowUtils/selection.xml
+   LINK_LIBRARIES PFlowUtilsLib )
+		      
+>>>>>>> generate ROOT dictionary/library
 # Install files from the package:
 atlas_install_headers( PFlowUtils )
 atlas_install_python_modules( python/*.py )
