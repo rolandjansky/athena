@@ -745,9 +745,13 @@ namespace MissingEtDQA {
     	ATH_MSG_ERROR ( "Failed to retrieve Jet container: " << name_jet << ". Exiting." );
     	return StatusCode::FAILURE;
       }
+      for(auto jet : *jets) {
+	float newjvt = m_jvtTool->updateJvt(*jet); 
+	jet->auxdecor<float>("NewJvt") = newjvt;
+      }
       ConstDataVector<JetContainer> metJets(SG::VIEW_ELEMENTS);
       for(const auto& jet : *jets) {
-	    metJets.push_back(jet);
+	metJets.push_back(jet);
       }
       //Overlap Removal
       ConstDataVector<JetContainer> metJetsOR(SG::VIEW_ELEMENTS);
