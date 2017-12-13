@@ -17,6 +17,8 @@
 #include "KLFitter/LikelihoodTTHLeptonJets.h"
 #include "KLFitter/LikelihoodTopLeptonJets_JetAngles.h"
 #include "KLFitter/LikelihoodTTZTrilepton.h"
+#include "KLFitter/LikelihoodTopAllHadronic.h"
+#include "KLFitter/BoostedLikelihoodTopLeptonJets.h"
 #include "KLFitter/PhysicsConstants.h"
 #include "KLFitter/LikelihoodBase.h"
 #include "KLFitter/DetectorAtlas_8TeV.h"
@@ -50,7 +52,7 @@ namespace top{
   
   /// Some additional enums
   namespace KLFitterJetSelection{
-    enum JetSelectionMode{ kLeadingFour , kLeadingFive , kLeadingSix, kLeadingSeven, kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets};
+    enum JetSelectionMode{ kLeadingThree ,  kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets};
   }
         
 
@@ -73,6 +75,7 @@ namespace top{
       
       // set jets depending on selection mode 
       void setJets(const top::Event&,KLFitter::Particles* inputParticles);
+      void setJetskLeadingThree(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskLeadingFour(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskLeadingFive(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskLeadingSix(const top::Event&,KLFitter::Particles* inputParticles);
@@ -81,6 +84,7 @@ namespace top{
       void setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, int);
 
 
+      void setJetskBtagPriorityThreeJets(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskBtagPriorityFourJets(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskBtagPriorityFiveJets(const top::Event&,KLFitter::Particles* inputParticles);
       void setJetskBtagPrioritySixJets(const top::Event&,KLFitter::Particles* inputParticles);
@@ -108,6 +112,16 @@ namespace top{
       KLFitter::LikelihoodTTHLeptonJets::LeptonType m_leptonTypeKLFitterEnum_TTH;
       KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType m_leptonTypeKLFitterEnum_JetAngles;
       KLFitter::LikelihoodTTZTrilepton::LeptonType m_leptonTypeKLFitterEnum_TTZ;
+      KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType m_leptonTypeKLFitterEnum_BoostedLJets;
+
+      std::unique_ptr<KLFitter::LikelihoodTopLeptonJets> m_myLikelihood;
+      std::unique_ptr<KLFitter::LikelihoodTTHLeptonJets> m_myLikelihood_TTH;
+      std::unique_ptr<KLFitter::LikelihoodTopLeptonJets_JetAngles> m_myLikelihood_JetAngles;
+      std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> m_myLikelihood_TTZ;
+      std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> m_myLikelihood_AllHadronic;
+      std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> m_myLikelihood_BoostedLJets;
+
+      std::unique_ptr<KLFitter::DetectorAtlas_8TeV> m_myDetector;
 
       top::KLFitterJetSelection::JetSelectionMode m_jetSelectionModeKLFitterEnum;     
       KLFitter::LikelihoodBase::BtaggingMethod m_bTaggingMethodKLFitterEnum;
