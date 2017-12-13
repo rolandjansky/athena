@@ -85,42 +85,6 @@ struct FCS_matchedcellvector //this is the matched structure for the whole event
   inline float scalingfactor(){float cellsum=0.; float hitsum=0.; for (unsigned int i=0; i<m_vector.size(); i++){cellsum+=m_vector[i].cell.energy;for (unsigned int j=0; j<m_vector[i].hit.size(); j++){hitsum+=m_vector[i].hit[j].hit_energy;};}; return cellsum/hitsum;}; //doesn't check for 0!
 };
 
-struct FCS_truth : public TLorentzVector 
-{
-  std::vector<double> TTC_entrance_eta;
-  std::vector<double> TTC_entrance_phi;
-  std::vector<double> TTC_entrance_r;
-  std::vector<double> TTC_entrance_z;
-  std::vector<double> TTC_back_eta;
-  std::vector<double> TTC_back_phi;
-  std::vector<double> TTC_back_r;
-  std::vector<double> TTC_back_z;
-  double TTC_IDCaloBoundary_eta;
-  double TTC_IDCaloBoundary_phi;
-  double TTC_IDCaloBoundary_r;
-  double TTC_IDCaloBoundary_z;
-  double TTC_Angle3D;
-  double TTC_AngleEta;
-  int barcode;
-  int vtxbarcode;
-  int pdgid;
-  ClassDef (FCS_truth, 1)
-};
-
-
-#ifdef __CINT__
-#pragma link C++ struct FCS_cell+;
-#pragma link C++ struct FCS_hit+;
-#pragma link C++ struct FCS_g4hit+;
-#pragma link C++ struct std::vector<FCS_hit>+;
-#pragma link C++ struct std::vector<FCS_g4hit>+;
-#pragma link C++ struct FCS_matchedcell+;
-#pragma link C++ struct std::vector<FCS_matchedcell>+;
-#pragma link C++ struct FCS_matchedcellvector+;
-#pragma link C++ class std::vector<Float_t>+;
-#pragma link C++ struct FCS_truth+;
-#pragma link C++ struct std::vector<FCS_truth>+;
-#endif
 
 #endif
 
