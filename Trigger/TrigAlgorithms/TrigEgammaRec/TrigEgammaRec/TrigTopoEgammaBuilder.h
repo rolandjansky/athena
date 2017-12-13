@@ -2,173 +2,171 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAREC_TRIGTOPOEGAMMABUILDER_H
-#define EGAMMAREC_TRIGTOPOEGAMMABUILDER_H
+#ifndef TRIGTOPOEGAMMABUILDER_H
+#define TRIGTOPOEGAMMABUILDER_H
+
+//
+//PACKAGE: Trigger/TrigAlgorithms/TrigEgammaRec
+//AUTHORS: Alessandro.Tricoli@cern.ch, Phillip.Urquijo@cern.ch, Cibran.Santamarina.Rios@cern.ch, Teresa.Fonseca.Martin@cern.ch
+//AUTHORS (xAOD): Ryan.White@cern.ch, Dmitry.Maximov@cern.ch, Fernando.Monticelli@cern.ch
+
 /**
   @class TrigTopoEgammaBuilder
 
-  Conversion of offline  Reconstruction/egamma/egammaRec/egammaRec/topoEgammaBuilder to use in trigger
+  Modification of TrigEgammaRec to build e/y trigger candidates using superclusters
   
-          top-Algorithm which creates an egammaObjectCollection.
-          It retrieves data objects from TDS, and calls the subalgorithms to
-	  make the pieces in egamma classs. The subclass should inherit from
-	  TrigTopoEgammaBuilder, and implement the method build(egamma*)
 
-         It is seeded from the electromagnetic (EM) calorimeters and starts from clusters reconstructed in the calorimeters by the SlidingWindowFinder (https://twiki.cern.ch/twiki/bin/view/Atlas/SlidingWindowClustering#Sliding_Window_Clustering). For each cluster, with ET(seed)>3GeV in the cluster container the best inner detector track is searched for within a given E/p range. The complexity of the extrapolation (coordinate systems, etc) is hidden in ExtrapolateToCaloTool. It then builds identification variables
-      - The electromagnetic shower shape variables are calculated in the EMShowerBuilder tool with respect to these hot cells;
-      - Some variables combining inner detector and electromagnetic calorimeter information, like E/p, are build;
-      - In order to minimize amount of fakes, in particular in jets, pre-selection cuts are applied in egammaSelectSETool;
-      - Discriminating variables are build and used in the EMPIDBuilder tool based on shower shapes in the electromagnetic calorimeter and information from the inner detector;
-      - Possible matching to a conversion object is done through the tool EMConversionBuilder;
-      - Bremsstrahlung recovery information is obtained through the tools EMBremsstrahlungBuilder and EMTrkRefitter;
-      - the 4-momentum is build in EMFourMomBuilder.
-      - apply photon recovery
-      - apply photon post-processing to recalculate correctly
-        information for these recovered photons
 */
-
-// INCLUDE HEADER FILES:
-#include <vector>
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/Algorithm.h"
 #include "TrigInterfaces/FexAlgo.h"
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
+// egammaRec 
+#include "egammaRecEvent/egammaRec.h"
+#include "egammaRecEvent/egammaRecContainer.h"
 
+// xAOD
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
+#include "xAODEgamma/EgammaFwd.h"
+
+//#include "xAODEgamma/Electron.h"
+//#include "xAODEgamma/Photon.h"
+
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODEgamma/EgammaContainer.h"
 
-class IegammaBaseTool;
+#include "egammaInterfaces/IegammaBaseTool.h"
+#include "egammaInterfaces/IEMTrackMatchBuilder.h"
+#include "egammaInterfaces/IEMConversionBuilder.h"
+#include "egammaInterfaces/IEMShowerBuilder.h"
+#include "egammaInterfaces/IEMBremCollectionBuilder.h"
+#include "egammaInterfaces/IEMFourMomBuilder.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h" 
+
+#include "xAODPrimitives/IsolationType.h"
+#include "RecoToolInterfaces/IsolationCommon.h"
 class IEGammaAmbiguityTool;
-class IEMTrackMatchBuilder;
-class IEMConversionBuilder;
-//class IEMBremCollectionBuilder;
-//class IEMVertexBuilder;
-
-class egammaRec;
-class StoreGateSvc;
 
 //Supercluster tools.
 class IegammaTopoClusterCopier;
 class IelectronSuperClusterBuilder;
 class IphotonSuperClusterBuilder;
 
-class TrigTopoEgammaBuilder : public HLT::FexAlgo
-{
- public:
+namespace xAOD {
+    class ITrackIsolationTool;
+    class ICaloCellIsolationTool;
+    class ICaloTopoClusterIsolationTool;
+}
+/** 
+ *
+ * \class TrigTopoEgammaBuilder
+ * \brief A modification of TrigEgammaRec to make use of superclusters at HLT
+ */
 
-  /** @brief Default constructor*/
+class TrigTopoEgammaBuilder: public HLT::FexAlgo {
+
+public:
+
+  //Invokes base class constructor.
   TrigTopoEgammaBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
-  /** @brief Destructor*/
+  // destructor
   ~TrigTopoEgammaBuilder();
 
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
-  HLT::ErrorCode hltExecute( const HLT::TriggerElement* inputTE,
+  HLT::ErrorCode hltExecute( const HLT::TriggerElement* inputTE, 
                              HLT::TriggerElement* outputTE );
 
- private:
+  HLT::ErrorCode hltStart();
+  HLT::ErrorCode hltEndRun();
 
-  /** @brief Vector of tools for dressing electrons and photons **/
-  ToolHandleArray<IegammaBaseTool> m_egammaTools;
+private:
 
-  /** @brief Vector of tools for dressing ONLY electrons **/
-  ToolHandleArray<IegammaBaseTool> m_electronTools;
+  // Timers
+  TrigTimer *m_timerTotal;
+  TrigTimer *m_timerTool1, *m_timerTool2, *m_timerTool3, *m_timerTool4, *m_timerTool5;
+  TrigTimer *m_timerIsoTool1, *m_timerIsoTool2, *m_timerIsoTool3;
+  TrigTimer *m_timerPIDTool1, *m_timerPIDTool2, *m_timerPIDTool3;
+  // Container names for persistency 
+  std::string m_electronContainerName;
+  std::string m_photonContainerName;
+  // Cluster Container names for slw and topo
+  std::string m_slwClusterContName;
+  std::string m_topoClusterContName;
 
-  /** @brief Vector of tools for dressing ONLY photons **/
-  ToolHandleArray<IegammaBaseTool> m_photonTools;
+  ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder;
+  ToolHandle<IEMConversionBuilder> m_conversionBuilder;
+  ToolHandle<IEMShowerBuilder> m_showerBuilder;  // trigger specific
+  ToolHandle<IEMFourMomBuilder> m_fourMomBuilder; // trigger specific
+  ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool;
+  
+  /** @brief Tool for decorating electron PID isEM and LH */
+  ToolHandle<IegammaBaseTool> m_electronPIDBuilder;
+  
+  /** @brief Tool for decorating electron PID Calo LH */
+  ToolHandle<IegammaBaseTool> m_electronCaloPIDBuilder;
 
-  /** @brief Retrieve each tool in the given vector **/
-  StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
+  /** @brief Tool for decorating photon PID isEM for tight */
+  ToolHandle<IegammaBaseTool> m_photonPIDBuilder;
+ 
+  /** @brief Tool for tracking isolation calculation */
+  ToolHandle<xAOD::ITrackIsolationTool> m_trackIsolationTool;
+  
+   /** @brief Tool for cell isolation calculation */
+  ToolHandle<xAOD::ICaloCellIsolationTool> m_caloCellIsolationTool;
+  
+  /** @brief Tool for topo isolation calculation */
+  ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_topoIsolationTool;
+  
+  /** Luminosity Tool */
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; 
+  // booleans to run specific parts of offline reconstruction
+  bool m_doConversions;
+  bool m_doTrackMatching;
+  bool m_doTrackIsolation;
+  bool m_doCaloCellIsolation;
+  bool m_doTopoIsolation;
+  bool m_useBremAssoc;
+  
+  // Allows delete
+  EgammaRecContainer *m_eg_container; 
+  // needed for monitoring to work
+  xAOD::ElectronContainer* m_electron_container;
+  xAOD::PhotonContainer* m_photon_container;
 
-  /** Given an egammaRec object, a pointer to the electron container and the author,
-   * create and dress an electron, pushing it back to the container and
-   * calling the relevant tools **/
 
-  bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
-		   const unsigned int author, const uint8_t type);
+  //Now for isolation
+  /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
+  std::vector<std::vector<double> > m_egisoInts;
+  struct IsoHelp {
+      std::vector<std::string> isoNames;
+      std::vector<xAOD::Iso::IsolationType> isoTypes;
+      std::vector<SG::AuxElement::Decorator<float>*> isoDeco;
+  };
+  struct CaloIsoHelp {
+      IsoHelp help;
+      xAOD::CaloCorrection CorrList;
+  };
+  std::map<std::string,CaloIsoHelp> m_egCaloIso;
+  struct TrackIsoHelp {
+      IsoHelp help;
+      xAOD::TrackCorrection CorrList;
+  };
+  std::map<std::string,TrackIsoHelp> m_egTrackIso;
 
-  /** Given an egammaRec object, a pointer to the photon container and the author,
-   * create and dress a photon, pushing it back to the container and
-   * calling the relevant tools **/
-  bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
-		 const unsigned int author, uint8_t type);
+  // Get a name from the input integer corresponding to the enums
+  std::pair<std::string,std::string> decodeEnum(int);
 
+  //Monitoring vectors
+  std::vector<float> m_lhval;
+  std::vector<float> m_lhcaloval;
 
-  /** @brief Do the final ambiguity **/
-  StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer,
-			      xAOD::PhotonContainer *photonContainer);
-
-  /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-  StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool,
-                      xAOD::ElectronContainer *electronContainer = 0,
-                      xAOD::PhotonContainer *photonContainer = 0);
-
-  /** @brief  Supercluster-specific stuff **/
-  StatusCode RetrieveElectronSuperClusterBuilder();
-  StatusCode RetrievePhotonSuperClusterBuilder();
-  StatusCode RetrieveEGammaTopoClusterCopier();
-  /** @brief retrieve EMAmbiguityTool **/
-  StatusCode RetrieveAmbiguityTool();
-  /** @brief retrieve EMTrackMatchBuilder **/
-  StatusCode RetrieveEMTrackMatchBuilder();
-  /** @brief retrieve EMConversionBuilder **/
-  StatusCode RetrieveEMConversionBuilder();
-//  /** @brief retrieve 4-mom builder **/
-//  StatusCode RetrieveBremCollectionBuilder();
-//  /** @brief retrieve BremVertexBuilder **/
-//  StatusCode RetrieveVertexBuilder();
-  /** @brief Name of the electron output collection*/
-  std::string  m_electronOutputName;
-  /** @brief Name of the photon output collection */
-  std::string  m_photonOutputName;
-  /** @brief Name of the topo cluster input collection */
-  std::string  m_inputTopoClusterContainerName;
-
-  /** @brief Name of the TrackParticle input collection */
-  std::string  m_inputTrackParticleContainerName;
-  /** @brief Name of the Vertex input collection */
-  std::string  m_inputVertexContainerName;
-
-  //
-  // The tools
-  //
-  /** @brief ToolHandles for the Topo tools*/
-  ToolHandle<IegammaTopoClusterCopier>      m_egammaTopoClusterCopier;
-  ToolHandle<IelectronSuperClusterBuilder>  m_electronSuperClusterBuilder;
-  ToolHandle<IphotonSuperClusterBuilder>  m_photonSuperClusterBuilder;
-  /** @brief Tool to resolve electron/photon ambiguity */
-  ToolHandle<IEGammaAmbiguityTool>             m_ambiguityTool;
-  /** @brief Tool to perform track matching*/
-  ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
-  /** @brief Tool to retrieve the conversions*/
-  ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
-//  /** @brief Pointer to the BremCollectionBuilder tool*/
-//  ToolHandle<IEMBremCollectionBuilder>         m_BremCollectionBuilderTool;
-//  /** @brief Pointer to the VertexBuilder*/
-//  ToolHandle<IEMVertexBuilder>                 m_vertexBuilder;
-  //
-  // All booleans
-  //
-//  /** @brief Boolean to do Brem collection building */
-//  bool         m_doBremCollection;
-//  /** @brief Boolean to do Vertex collection building */
-//  bool         m_doVertexCollection;
-  /** @brief private member flag to do the TrackMatching (and conversion building)*/
-  bool         m_doTrackMatching;
-  /** @brief private member flag to do the conversion building and matching */
-  bool         m_doConversions;
-  //
-  // Other properties.
-  //
-  // others:
-  IChronoStatSvc* m_timingProfile;
+  // Methods to dump reconstruction info for debugging 
+  void PrintElectron(xAOD::Electron *); 
+  void PrintPhoton(xAOD::Photon *); 
 };
-
-#endif
+#endif // TRIGEGAMMAREC_H
