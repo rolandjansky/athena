@@ -68,7 +68,7 @@ class TriggerAPI:
             if not ibin: continue
             subperiod = 2**i
             cls._loadTriggerPeriod(subperiod, reparse)
-            subperiodset = set( cls.dbQueries[subperiod]._getLowestUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction) )
+            subperiodset = set( cls.dbQueries[(subperiod,cls.customGRL)]._getLowestUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction) )
             lowset |= subperiodset
         return list(lowset)
     
