@@ -34,6 +34,7 @@
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
+#include <bitset>
 
 //================================================================
 namespace Overlay {
@@ -119,32 +120,6 @@ namespace Overlay {
 	copy_coll->push_back (newData );
       }
   }
-  //================================================================
-  namespace {   // helper functions for SCT merging
-    typedef SCT3_RawData  SCT_RDO_TYPE;
-
-    typedef std::multimap<int, const SCT_RDO_TYPE*> StripMap;
-
-    void fillStripMap(StripMap *sm, const InDetRawDataCollection<SCT_RDORawData> &rdo_coll, const std::string& collectionName, InDetOverlay *parent) {
-      for(InDetRawDataCollection<SCT_RDORawData>::const_iterator i=rdo_coll.begin(); i!=rdo_coll.end(); ++i) {
-        const SCT_RDO_TYPE *rdo = dynamic_cast<const SCT_RDO_TYPE*>(&**i);
-        if(!rdo) {
-          std::ostringstream os;
-          os<<"mergeCollection<SCT_RDORawData>(): wrong datum format for the '"<<collectionName<<"' collection. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay.   For the supplied datum  typeid(datum).name() = "<<typeid(**i).name();
-          throw std::runtime_error(os.str());
-        }
-
-        int stripBegin = parent->get_sct_id()->strip(rdo->identify());
-        int stripEnd = stripBegin + rdo->getGroupSize();
-        for(int strip = stripBegin; strip < stripEnd; ++strip) {
-          sm->insert(std::make_pair(strip, rdo));
-        }
-      }
-    }
-  } // namespace - helper functions for SCT merging
-
-
-  //================
 
   template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *mc_coll,
                                       InDetRawDataCollection<SCT_RDORawData> *data_coll,
@@ -208,71 +183,89 @@ namespace Overlay {
     data.setIdentifier(idColl);
     data_coll->swap(data);
 
-    // Expand encoded RDOs into individual hit strips.
-    // Each strip number is linked to the original RDO.
-    StripMap sm;
-    fillStripMap(&sm, mc, "MC", parent);
-    fillStripMap(&sm, data, "data", parent);
-
-    // collect all the hits
-    StripMap::const_iterator p=sm.begin();
-    while(p!= sm.end()) {
-
-      // We have a strip.  compute the group, collect all contributing RDOs.
-      const int firstStrip = p->first;
-
-      // Get all strips for the current RDO
-      std::set<const SCT_RDO_TYPE*> origRDOs;
-      origRDOs.insert(p->second);
-      int currentStrip = firstStrip;
-      while(++p != sm.end()) {
-
-        // The following condition forces the "condensed" mode, with
-        // one RDO representing a group of adjacent hit strips.  It
-        // looks like SCT_RodDecoder switches between "expanded" and
-        // "condensed" modes based on the input byte stream; but here
-        // we don't have information to do this.  So follow the
-        // digitization code and hardcode the "condensed" mode.
-        // NB: change currentStrip+2 to currentStrip+1 if want to
-        // switch to the expanded mode.
-        if(p->first < currentStrip + 2) {
-          origRDOs.insert(p->second);
-          currentStrip = p->first;
+    // Strip hit timing information for Next, Current, Previous and Any BCs
+    // Prepare one more strip to create the last one. The additional strip has not hits.
+    std::bitset<InDetOverlay::NumberOfStrips+1> stripInfo[InDetOverlay::NumberOfBitSets];
+    // Process MC and data in the wafer
+    for (unsigned source=InDetOverlay::MCSource; source<InDetOverlay::NumberOfSources; source++) {
+      InDetRawDataCollection<SCT_RDORawData>::const_iterator rdo;
+      InDetRawDataCollection<SCT_RDORawData>::const_iterator rdoEnd;
+      if (source==InDetOverlay::MCSource) { // MC
+        rdo = mc.begin();
+        rdoEnd = mc.end();
+      } else if (source==InDetOverlay::DataSource) { // Data
+        rdo = data.begin();
+        rdoEnd = data.end();
+      } else {
+        parent->msg(MSG::WARNING) << "Invalid source " << source << " in mergeCollectionsNew for SCT" << endmsg;
+        continue;
+      }
+      // Loop over all RDOs in the wafer
+      for (; rdo!=rdoEnd; rdo++) {
+        const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*rdo);
+        if (!rdo3) {
+          std::ostringstream os;
+          os<<"mergeCollectionNew<SCT_RDORawData>(): wrong datum format. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay."
+            <<"For the supplied datum  typeid(datum).name() = "<<typeid(**rdo).name();
+          throw std::runtime_error(os.str());
         }
-        else {
-          break;
+        int strip = parent->get_sct_id()->strip(rdo3->identify());
+        int stripEnd = strip + rdo3->getGroupSize();
+        int timeBin = rdo3->getTimeBin();
+        for (; strip<stripEnd and strip<InDetOverlay::NumberOfStrips; strip++) {
+          // Fill timing information for each strips, loop over 3 BCs
+          for (unsigned int bc=InDetOverlay::NextBC; bc<InDetOverlay::NumberOfBCs; bc++) {
+            if (timeBin & (1 << bc)) stripInfo[bc].set(strip);
+          }
         }
       }
-
-      // We've got info on all strips for the current RDO here.
-      // Create one.
-      const int groupSize = 1 + currentStrip - firstStrip;
-
+    }
+    // Get OR for AnyBC, loop over 3 BCs
+    for (unsigned int bc=InDetOverlay::NextBC; bc<InDetOverlay::NumberOfBCs; bc++) {
+      stripInfo[InDetOverlay::AnyBC] |= stripInfo[bc];
+    }
+    // Check if we need to use Expanded mode by checking if there is at least one hit in Next BC or Previous BC
+    bool anyNextBCHits = stripInfo[InDetOverlay::NextBC].any();
+    bool anyPreivousBCHits = stripInfo[InDetOverlay::PreviousBC].any();
+    bool isExpandedMode = (anyNextBCHits or anyPreivousBCHits);
+    // No error information is recorded because this information is not filled in data and no errors are assumed in MC.
+    const int ERRORS = 0;
+    const std::vector<int> errvec{};
+    if (isExpandedMode) {
+      // Expanded mode (record strip one by one)
+      const int groupSize = 1;
       int tbin = 0;
-      int ERRORS = 0;
-      std::vector<int> errvec;
-
-      for(std::set<const SCT_RDO_TYPE*>::const_iterator origRdoIter = origRDOs.begin(); origRdoIter!=origRDOs.end(); ++origRdoIter) {
-        tbin |= (*origRdoIter)->getTimeBin();
-
-        if((*origRdoIter)->FirstHitError()) {
-          ERRORS |= 0x10;
+      for (unsigned int strip=0; strip<InDetOverlay::NumberOfStrips; strip++) {
+        if (stripInfo[InDetOverlay::AnyBC][strip]) {
+          tbin = 0;
+          for (unsigned int bc=InDetOverlay::NextBC; bc<InDetOverlay::NumberOfBCs; bc++) {
+            if (stripInfo[bc][strip]) {
+              tbin |= (1 << bc);
+            }
+          }
+          unsigned int SCT_Word = (groupSize | (strip << 11) | (tbin <<22) | (ERRORS << 25));
+          Identifier rdoId = parent->get_sct_id()->strip_id(idColl, strip) ;
+          out_coll->push_back(new SCT3_RawData(rdoId, SCT_Word, &errvec));
         }
-        if((*origRdoIter)->SecondHitError()) {
-          ERRORS |= 0x20;
-        }
-
-        std::vector<int> origRdoErrorVec((*origRdoIter)->getErrorCondensedHit());
-        errvec.insert(errvec.end(), origRdoErrorVec.begin(), origRdoErrorVec.end());
       }
-
-      unsigned int SCT_Word = (groupSize | (firstStrip << 11) | (tbin <<22) | (ERRORS << 25)) ;
-      Identifier rdoId = parent->get_sct_id()->strip_id(idColl, firstStrip) ;
-      SCT3_RawData *mergedRDO = new SCT3_RawData(rdoId, SCT_Word, &errvec);
-
-      out_coll->push_back(mergedRDO);
-
-    } // "collect all strips" loop over sm
+    } else {
+      // We can record consecutive hits into one RDO if all hits have timeBin of 010.
+      unsigned int groupSize = 0;
+      const int tbin = (1 << InDetOverlay::CurrentBC);
+      for (unsigned int strip=0; strip<InDetOverlay::NumberOfStrips+1; strip++) { // Loop over one more strip to create the last one if any
+        if (stripInfo[InDetOverlay::AnyBC][strip]) {
+          groupSize++;
+        } else {
+          if (groupSize>0) {
+            unsigned int firstStrip = strip - groupSize;
+            unsigned int SCT_Word = (groupSize | (firstStrip << 11) | (tbin <<22) | (ERRORS << 25));
+            Identifier rdoId = parent->get_sct_id()->strip_id(idColl, firstStrip) ;
+            out_coll->push_back(new SCT3_RawData(rdoId, SCT_Word, &errvec));
+            groupSize = 0;
+          }
+        }
+      }
+    }
 
   } // mergeCollectionsNew()
 
