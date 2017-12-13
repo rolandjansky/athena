@@ -45,6 +45,7 @@ namespace FCS_Param {
 
     // Merging properties
     double            m_maxRadius=25.;                //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+    double            m_maxRadiusFine=1.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
     double            m_maxRadiusLAr=25.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
     double            m_maxRadiusHEC=100.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
     double            m_maxRadiusFCAL=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink

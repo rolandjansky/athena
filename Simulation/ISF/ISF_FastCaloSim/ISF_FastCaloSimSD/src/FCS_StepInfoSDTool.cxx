@@ -92,6 +92,7 @@ namespace FCS_Param
     declareProperty("shorten_lar_step",m_config.shorten_lar_step, "");
 
     declareProperty("maxRadius",m_config.m_maxRadius, "");
+    declareProperty("maxRadiusFine",m_config.m_maxRadiusFine, "");
     declareProperty("maxRadiusLAr",m_config.m_maxRadiusLAr, "");
     declareProperty("maxRadiusHEC",m_config.m_maxRadiusHEC, "");
     declareProperty("maxRadiusFCAL",m_config.m_maxRadiusFCAL, "");
