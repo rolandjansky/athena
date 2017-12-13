@@ -184,7 +184,7 @@ namespace Overlay {
     data_coll->swap(data);
 
     // Strip hit timing information for Next, Current, Previous and Any BCs
-    // Prepare one more strip to create the last one. The additional strip has not hits.
+    // Prepare one more strip to create the last one. The additional strip has no hits.
     std::bitset<InDetOverlay::NumberOfStrips+1> stripInfo[InDetOverlay::NumberOfBitSets];
     // Process MC and data in the wafer
     for (unsigned source=InDetOverlay::MCSource; source<InDetOverlay::NumberOfSources; source++) {
