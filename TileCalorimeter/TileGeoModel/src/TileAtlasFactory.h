@@ -26,7 +26,7 @@ public:
   
   /** Constructor */
   TileAtlasFactory(StoreGateSvc *pDetStore, TileDetDescrManager *manager, 
-                   bool addPlates, int Ushape, MsgStream *log, bool fullGeo);
+                   bool addPlates, int Ushape, int glue, MsgStream *log, bool fullGeo);
   
   /** Destructor */
   ~TileAtlasFactory();
@@ -62,6 +62,11 @@ private:
 
   /** U-shape version used */
   int                        m_Ushape;
+
+  /** 0: glue layer is removed and replaced by air, 
+      1: simulation with glue, 
+      2: glue is replaced by air + width of iron is modified in order to get the same sampling fraction      */
+  int                        m_Glue;
 
   /** Flag for using test beam geometry */
   bool                       m_testbeamGeometry; 

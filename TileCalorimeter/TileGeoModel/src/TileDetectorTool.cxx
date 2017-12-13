@@ -34,6 +34,7 @@ TileDetectorTool::TileDetectorTool(const std::string& type,
   m_testBeam(false),
   m_addPlates(true),
   m_Ushape(-1),
+  m_Glue(-1),
   m_not_locked(true),
   m_useNewFactory(true),
   m_geometryConfig("FULL"),
@@ -44,6 +45,7 @@ TileDetectorTool::TileDetectorTool(const std::string& type,
   declareProperty("UseNewFactory", m_useNewFactory);
   declareProperty("GeometryConfig",m_geometryConfig);
   declareProperty("Ushape",m_Ushape);
+  declareProperty("Glue",m_Glue);
 }
 
 TileDetectorTool::~TileDetectorTool()
@@ -116,23 +118,36 @@ StatusCode TileDetectorTool::create()
            log << MSG::INFO << " U-shape parameter from jobOptions is: " << m_Ushape << endmsg;
        }
     }
+
+    int GlueDB = dbManager->glue();
+    if (m_Glue < 0) {
+       m_Glue = GlueDB;
+       log << MSG::INFO << " Glue parameter from database is: " << m_Glue << endmsg;
+    } else {
+       if (m_Glue != GlueDB) {
+           log << MSG::WARNING << " Overriding Glue value from DB by value from jobOptions, using " 
+               << m_Glue << " instead of " << GlueDB << endmsg;
+       } else {
+           log << MSG::INFO << " Glue parameter from jobOptions is: " << m_Glue << endmsg;
+       }
+    }
     m_not_locked = false;
     
     m_addPlates = dbManager->addPlatesToCell();
     GeoPhysVol *world=&*theExpt->getPhysVol();
     if(m_testBeam)
     {
-      TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,&log);
+      TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,m_Glue,&log);
       theTileTBFactory.create(world);
     }
     else if (m_useNewFactory)
     {
-      TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,&log,m_geometryConfig=="FULL");
+      TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,m_Glue,&log,m_geometryConfig=="FULL");
       theTileFactory.create(world);
     }
     else
     {
-      TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,&log);
+      TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_Ushape,m_Glue,&log);
       theTileFactory.create(world);
     }
 
