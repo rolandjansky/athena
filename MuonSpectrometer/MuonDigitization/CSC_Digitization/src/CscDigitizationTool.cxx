@@ -87,6 +87,8 @@ StatusCode CscDigitizationTool::initialize() {
 
   ATH_MSG_INFO ( "Retrieved Active Store Service." );
 
+  ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
+  
   // initialize transient detector store and MuonDetDescrManager
   if ( detStore()->retrieve(m_geoMgr).isFailure() ) {
     ATH_MSG_FATAL ( "Could not retrieve MuonDetectorManager!" );
@@ -214,8 +216,6 @@ StatusCode CscDigitizationTool::digitize() {
 
 StatusCode CscDigitizationTool::processAllSubEvents() {
 
-  StatusCode status;
-
   ATH_MSG_DEBUG ( "in processAllSubEvents()" );
 
   // clean up the digit container
@@ -232,14 +232,8 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
   if (m_isPileUp) return StatusCode::SUCCESS;
 
   // create and record the SDO container in StoreGate
-  std::string sdoKey = "CSC_SDO";
-  CscSimDataCollection* sdoContainer = new CscSimDataCollection();
-  status = evtStore()->record(sdoContainer,sdoKey);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record CSC SDO collection in StoreGate" );
-    return status;
-  } else
-    ATH_MSG_DEBUG ( "CscSDOCollection recorded in StoreGate." );
+  SG::WriteHandle<CscSimDataCollection> CSCSimDataCollectionWriteHandle(m_cscSimDataCollectionWriteHandleKey);
+  ATH_CHECK(CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
 
   //merging of the hit collection in getNextEvent method    
 
@@ -247,11 +241,11 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
     StatusCode sc = getNextEvent();
     if (StatusCode::FAILURE == sc) {
       ATH_MSG_INFO ( "There are no CSC hits in this event" );      
-      return status; // there are no hits in this event
+      return sc; // there are no hits in this event
     }
   }
 
-  return CoreDigitization(sdoContainer);
+  return CoreDigitization(CSCSimDataCollectionWriteHandle.ptr());
 
 }
 
@@ -730,16 +724,10 @@ StatusCode CscDigitizationTool::mergeEvent() {
   ATH_MSG_DEBUG ( "in mergeEvent()" );
 
   // create and record the SDO container in StoreGate
-  std::string sdoKey = "CSC_SDO";
-  CscSimDataCollection *sdoCollection = new CscSimDataCollection();
-  if ( (evtStore()->record(sdoCollection,sdoKey)).isFailure() )  {
-    ATH_MSG_ERROR ( "Unable to record CSC SDO collection in StoreGate" );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG ( "CscSDOCollection recorded in StoreGate." );
+  SG::WriteHandle<CscSimDataCollection> CSCSimDataCollectionWriteHandle(m_cscSimDataCollectionWriteHandleKey);
+  ATH_CHECK(CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
 
-
-  if ( CoreDigitization(sdoCollection).isFailure() ) { // 
+  if ( CoreDigitization(CSCSimDataCollectionWriteHandle.ptr()).isFailure() ) { // 
     ATH_MSG_ERROR ("mergeEvent() got failure from CoreDigitization()");
     return StatusCode::FAILURE;
   }
