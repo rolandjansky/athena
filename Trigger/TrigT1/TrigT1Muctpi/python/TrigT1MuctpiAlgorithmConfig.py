@@ -32,7 +32,7 @@ if not hasattr( topSequence, "CBNT_AthenaAware" ):
   from CBNT_Athena.CBNT_AthenaConf import *
   from CBNT_Utils.CBNT_UtilsConf import *
   CBNT_AthenaAware = CBNT_AthenaAware()
-@  CBNT_AthenaAware.OutputLevel = 2
+#  CBNT_AthenaAware.OutputLevel = 2
   topSequence += CBNT_AthenaAware
 
 if not "CBNTAA_EventInfo" in topSequence.CBNT_AthenaAware.Members :
