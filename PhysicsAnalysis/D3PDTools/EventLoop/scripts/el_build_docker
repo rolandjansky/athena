@@ -13,6 +13,7 @@ parser.add_argument ("image_name",help="name of the image to create")
 parser.add_argument ("--release",dest="release",help="release image to use")
 parser.add_argument ("--setup-file",dest="setup_file",help="setup file to use")
 parser.add_argument ("--docker-file",dest="docker_file",help="docker file to use")
+parser.add_argument ("--verbose",dest="verbose",action="store_true",help="enable debugging output")
 args = parser.parse_args()
 
 # a bit of a hacky way to determine the location of our build directory
@@ -60,9 +61,11 @@ shutil.copyfile (package_filters, os.path.join (data_dir, "package_filters.txt")
 command = ["docker", "build", "-t", args.image_name,
            "-f", os.path.join (data_dir, "Dockerfile")]
 if args.release :
-    command += ["--build-arg", "RELEASE=", args.release]
+    command += ["--build-arg", "RELEASE=" + args.release]
     pass
 command += [source_dir]
+if args.verbose :
+    print "calling:", command
 subprocess.call (command)
 
 # cleanup
