@@ -890,7 +890,7 @@ void VP1CaloCellController::displayLArDigits(
 		std::vector<short> samples,
 		std::vector<std::string>& msg)
 {
-	messageDebug("VP1CaloCellController::displayLArDigits()...");
+	message("VP1CaloCellController::displayLArDigits()... not be ported to 'master' yet, because of failing dependencies (LCG's Qwt has to be ported to Qt5, still)");
 
 	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 /*
