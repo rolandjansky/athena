@@ -8,7 +8,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-allViewAlgorithms = AthSequencer("allViewAlgorithms", Sequential=False, ModeOR=False, StopOverride=False)
 
 # provide a minimal menu information
 topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
@@ -85,7 +84,7 @@ if TriggerFlags.doMuon:
   filterL1RoIsAlg.OutputLevel = DEBUG
 
   # view creator
-  l2MuViewNode = AthSequencer("allViewAlgorithms", Sequential=False, ModeOR=False, StopOverride=False)
+  l2MuViewNode = AthSequencer("l2MuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
   from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
   l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
   l2MuViewsMaker.ViewFallThrough = True
