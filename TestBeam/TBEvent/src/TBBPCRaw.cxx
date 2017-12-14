@@ -3,7 +3,7 @@
 */
 
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "TBEvent/TBBeamDetector.h"
 #include "TBEvent/TBADCRaw.h"
