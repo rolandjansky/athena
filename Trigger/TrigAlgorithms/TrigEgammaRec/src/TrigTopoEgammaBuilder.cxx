@@ -11,6 +11,7 @@ AUTHORS:  Teresa Fonseca Martin and Cibran Santamarina Rios
           Phillip Urquijo
           Alessandro Tricoli
           Ryan Mackenzie White (xAOD)
+	  Dmitriy Maximov, Fernando Monticelli (SuperClusters)
 
 CREATED:  Nov 2017
 MODIFIED: Dec 2017
@@ -84,12 +85,12 @@ class ISvcLocator;
 
 
 // Template class for monitoring
-// namespace {
-//     template <class DEST,class SRC>
-//         inline DEST** my_mon(SRC** ptr) {
-//             return (DEST**)(ptr);
-//         }
-// }
+namespace {
+    template <class DEST,class SRC>
+        inline DEST** my_pp_cast(SRC** ptr) {
+            return (DEST**)(ptr);
+        }
+}
 /////////////////////////////////////////////////////////////////
 
 //  CONSTRUCTOR:
@@ -150,6 +151,80 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
     typedef const DataVector<xAOD::Electron> xAODElectronDV_type;
     typedef const DataVector<xAOD::Photon> xAODPhotonDV_type;
      // Showershape monitoring accesible from xAOD::Egamma (common to Electron / Photon)  
+    declareMonitoredCollection("El_E237",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_e237);
+    declareMonitoredCollection("El_E277",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_e277);
+    declareMonitoredCollection("El_EtHad1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_ethad1);
+    declareMonitoredCollection("El_WEta1",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_weta1);
+    declareMonitoredCollection("El_WEta2",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_weta2);
+    declareMonitoredCollection("El_F1",	 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_f1);
+    declareMonitoredCollection("El_Emax2",*my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_e2tsts1);
+    declareMonitoredCollection("El_Emins1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_emins1);
+    declareMonitoredCollection("El_Emax", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_emaxs1);
+    declareMonitoredCollection("El_DEmaxs1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getDEmaxs1);
+    declareMonitoredCollection("El_wtots1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_wtots1);
+    declareMonitoredCollection("El_Fracs1", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getShowerShape_fracs1);
+    
+    declareMonitoredCollection("El_EtCluster37",	*my_pp_cast<xAODElectronDV_type>(&m_electron_container), &getEtCluster37); 
+    declareMonitoredCollection("El_EtCone20",	*my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getIsolation_etcone20);
+    declareMonitoredCollection("El_PtCone20",	*my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getIsolation_etcone20);
+    declareMonitoredCollection("El_Eta",	        *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCluster_eta);
+    declareMonitoredCollection("El_Phi",	        *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCluster_phi);
+    declareMonitoredCollection("El_ClusterEt",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCluster_et);
+    declareMonitoredCollection("El_EnergyBE0",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE0);
+    declareMonitoredCollection("El_EnergyBE1",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE1);
+    declareMonitoredCollection("El_EnergyBE2",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE2);
+    declareMonitoredCollection("El_EnergyBE3",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEnergyBE3);
+    declareMonitoredCollection("El_Eaccordion",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getEaccordion);
+    declareMonitoredCollection("El_E0Eaccordion",     *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getE0Eaccordion);
+    
+    declareMonitoredCollection("Ph_e237",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_e237);
+    declareMonitoredCollection("Ph_e277",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_e277);
+    declareMonitoredCollection("Ph_ethad1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_ethad1);
+    declareMonitoredCollection("Ph_weta1",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_weta1);
+    declareMonitoredCollection("Ph_weta2",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_weta2);
+    declareMonitoredCollection("Ph_f1",	 *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_f1);
+    declareMonitoredCollection("Ph_Emax2",*my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_e2tsts1);
+    declareMonitoredCollection("Ph_Emins1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_emins1);
+    declareMonitoredCollection("Ph_Emax", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_emaxs1);
+    declareMonitoredCollection("Ph_wtots1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_wtots1);
+    declareMonitoredCollection("Ph_fracs1", *my_pp_cast <xAODPhotonDV_type>(&m_photon_container), &getShowerShape_fracs1);
+
+    declareMonitoredCollection("Ph_EtCluster37",	*my_pp_cast<xAODElectronDV_type>(&m_photon_container), &getEtCluster37); 
+    declareMonitoredCollection("Ph_EtCone20",	*my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getIsolation_etcone20);
+    declareMonitoredCollection("Ph_Eta",	        *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getCluster_eta);
+    declareMonitoredCollection("Ph_Phi",	        *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getCluster_phi);
+    declareMonitoredCollection("Ph_ClusterEt",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getCluster_et);
+    declareMonitoredCollection("Ph_EnergyBE0",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE0);
+    declareMonitoredCollection("Ph_EnergyBE1",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE1);
+    declareMonitoredCollection("Ph_EnergyBE2",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE2);
+    declareMonitoredCollection("Ph_EnergyBE3",     *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEnergyBE3);
+    declareMonitoredCollection("Ph_Eaccordion",    *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getEaccordion);
+    declareMonitoredCollection("Ph_E0Eaccordion",  *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getE0Eaccordion);
+    
+    //Track-related monitoring accesible from xAOD::Electron
+    declareMonitoredCollection("nBLayerHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfInnermostPixelLayerHits);
+    declareMonitoredCollection("expectBLayerHit",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_expectInnermostPixelLayerHit);
+    declareMonitoredCollection("nPixelHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfPixelHits);
+    declareMonitoredCollection("nSCTHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfSCTHits);
+    declareMonitoredCollection("nBLayerOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfInnermostPixelLayerOutliers);
+    declareMonitoredCollection("nPixelOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfPixelOutliers);
+    declareMonitoredCollection("nSCTOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfSCTOutliers);
+    declareMonitoredCollection("nTRTHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTHits);
+    declareMonitoredCollection("nTRTHitsHighTh",         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTHighThresholdHits);
+    declareMonitoredCollection("nTRTHitsHighThOutliers", *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTHighThresholdOutliers);
+    declareMonitoredCollection("nTRTHitsOutliers",       *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTOutliers);
+    declareMonitoredCollection("TrackPt",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrack_pt);
+    declareMonitoredCollection("d0",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrack_d0);
+    declareMonitoredCollection("z0",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrack_z0);
+    declareMonitoredCollection("dEta",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCaloTrackMatch_deltaEta2);
+    declareMonitoredCollection("dPhi",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCaloTrackMatch_deltaPhi2);
+    declareMonitoredCollection("dPhiRescaled",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getCaloTrackMatch_deltaPhiRescaled2);
+    declareMonitoredCollection("rTRT",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &rTRT);
+    declareMonitoredCollection("SigmaD0",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getSigmaD0);
+    declareMonitoredCollection("D0sig",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getD0sig);
+
+    declareMonitoredStdContainer("LHValue", m_lhval);
+    declareMonitoredStdContainer("LHCaloValue", m_lhcaloval);
 
     //Vertex-related monitoring for Photons
     //TBD
