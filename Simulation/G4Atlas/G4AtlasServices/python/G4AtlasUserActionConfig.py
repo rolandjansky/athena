@@ -10,8 +10,8 @@ def getDefaultRunActions():
     defaultUA=[]
     #if not  simFlags.ISFRun:
     #    defaultUA+=['G4UA::G4SimTimerTool']
-    if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['G4UA::StoppedParticleActionTool']
+    #if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
+    #    defaultUA+=['G4UA::StoppedParticleActionTool']
     return defaultUA
 
 # begin of event
@@ -19,18 +19,18 @@ def getDefaultEventActions():
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-    if not simFlags.ISFRun:
-        defaultUA+=['G4UA::G4SimTimerTool']
-    defaultUA+=['G4UA::G4TrackCounterTool']
-    if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() == 'Read':
-        defaultUA+=['G4UA::HitWrapperTool']
-    if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-        defaultUA+=['G4UA::CosmicPerigeeActionTool']
-    if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['G4UA::StoppedParticleActionTool']
-        defaultUA+=['G4UA::G4CosmicFilterTool']
-    if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.ISFRun:
-        defaultUA+=['G4UA::G4CosmicFilterTool']
+    #if not simFlags.ISFRun:
+    #    defaultUA+=['G4UA::G4SimTimerTool']
+    #defaultUA+=['G4UA::G4TrackCounterTool']
+    #if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() == 'Read':
+    #    defaultUA+=['G4UA::HitWrapperTool']
+    #if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
+    #    defaultUA+=['G4UA::CosmicPerigeeActionTool']
+    #if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
+        #defaultUA+=['G4UA::StoppedParticleActionTool']
+        #defaultUA+=['G4UA::G4CosmicFilterTool']
+    #if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.ISFRun:
+    #    defaultUA+=['G4UA::G4CosmicFilterTool']
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
         defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     return defaultUA
@@ -40,19 +40,19 @@ def getDefaultSteppingActions():
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-    if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-        defaultUA+=['G4UA::CosmicPerigeeActionTool']
+    #if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
+    #    defaultUA+=['G4UA::CosmicPerigeeActionTool']
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
         defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
-    if simFlags.PhysicsList == 'QGSP_BERT_HP':
-        defaultUA+=['G4UA::PhotonKillerTool']
+    #if simFlags.PhysicsList == 'QGSP_BERT_HP':
+    #    defaultUA+=['G4UA::PhotonKillerTool']
     return defaultUA
 
 # tracking
 def getDefaultTrackingActions():
     from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    defaultUA+=['G4UA::G4TrackCounterTool']
+    #defaultUA+=['G4UA::G4TrackCounterTool']
     return defaultUA
 
 # Stacking Classification
@@ -60,14 +60,50 @@ def getDefaultStackingActions():
     defaultUA=[]
     return defaultUA
 
+def flag_on(name):
+    from G4AtlasApps.SimFlags import simFlags
+    return hasattr(simFlags, name) and getattr(simFlags, name).statusOn
+
+def flag_off(name):
+    from G4AtlasApps.SimFlags import simFlags
+    return hasattr(simFlags, name) and not getattr(simFlags, name).statusOn
+
 # New function for all user action types
 def getDefaultActions():
     from G4AtlasApps.SimFlags import simFlags
+    #import AthenaCommon.BeamFlags.jobproperties as beamProps
+    from AthenaCommon.BeamFlags import jobproperties as beamProps
+
     actions = []
+
+    # System stacking action
     actions += ['G4UA::AthenaStackingActionTool']
+
+    # Some truth handling actions (and timing)
     if not simFlags.ISFRun:
         actions += ['G4UA::AthenaTrackingActionTool',
-                    'G4UA::MCTruthSteppingActionTool']
+                    'G4UA::MCTruthSteppingActionTool',
+                    'G4UA::G4SimTimerTool',
+                    ]
+    # Track counter
+    actions += ['G4UA::G4TrackCounterTool']
+    # Cosmic Perigee action
+    if beamProps.Beam.beamType() == 'cosmics' and flag_off('CavernBG'):
+        actions += ['G4UA::CosmicPerigeeActionTool']
+    # Stopped particle action
+    if flag_on('StoppedParticleFile'):
+        actions += ['G4UA::StoppedParticleActionTool']
+    # Hit wrapper action
+    if flag_on('CavernBG') and simFlags.CavernBG.get_Value() == 'Read':
+        actions += ['G4UA::HitWrapperTool']
+    # Cosmic filter
+    if flag_on('StoppedParticleFile') or (
+       beamProps.Beam.beamType() == 'cosmics' and not simFlags.ISFRun):
+        actions += ['G4UA::G4CosmicFilterTool']
+    # Photon killer
+    if simFlags.PhysicsList == 'QGSP_BERT_HP':
+        actions += ['G4UA::PhotonKillerTool']
+
     return actions
 
 def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
@@ -91,7 +127,8 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
     kwargs.setdefault('StackingActionTools', getDefaultStackingActions())
 
     # new user action tools
-    kwargs.setdefault('UserActionTools', getDefaultActions())
+    kwargs.setdefault('UserActionTools',
+                      getDefaultActions() + optActions['General'])
 
     # placeholder for more advanced config, if needed
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
@@ -104,6 +141,7 @@ def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     tracking = getDefaultTrackingActions() + optActions['Tracking']
     stepping = getDefaultSteppingActions() + optActions['Step']
     stacking = getDefaultStackingActions()
+    generalActions = getDefaultActions() + optActions['General']
 
     # FIXME: ADS these actions are not yet migrated to Hive
     #if simFlags.SimLayout.get_Value()=='tb_LArH6_2004':
@@ -123,7 +161,7 @@ def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     kwargs.setdefault('StackingActionTools', stacking)
 
     # New user action tools
-    kwargs.setdefault('UserActionTools', getDefaultActions())
+    kwargs.setdefault('UserActionTools', generalActions)
 
     # placeholder for more advanced config, if needed
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
@@ -149,6 +187,7 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
         getDefaultSteppingActions() + optActions['Step'] +
         TrackProcessorUserAction + PhysicsValidationUserAction)
     stacking = getDefaultStackingActions()
+    generalActions = getDefaultActions() + optActions['General']
 
     kwargs.setdefault('RunActionTools', run)
     kwargs.setdefault('EventActionTools', event)
@@ -157,7 +196,7 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
     kwargs.setdefault('StackingActionTools', stacking)
 
     # New user action tools
-    kwargs.setdefault('UserActionTools', getDefaultActions())
+    kwargs.setdefault('UserActionTools', generalActions)
 
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
 
