@@ -29,7 +29,6 @@ AthAlgTool::AthAlgTool( const std::string& type,
   ::AlgTool      ( type, name, parent ),
   m_evtStore     ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore     ( "StoreGateSvc/DetectorStore", name ),
-  m_userStore    ( "UserDataSvc/UserDataSvc", name ),
   m_varHandleArraysDeclared (false)
 {
   //
@@ -53,11 +52,6 @@ AthAlgTool::AthAlgTool( const std::string& type,
                    m_detStore = StoreGateSvc_t ("StoreGateSvc/DetectorStore", name),
                    "Handle to a StoreGateSvc/DetectorStore instance: it will be used to "
                    "retrieve data during the course of the job" );
-
-  declareProperty( "UserStore",
-                   m_userStore = UserDataSvc_t ("UserDataSvc/UserDataSvc", name),
-                   "Handle to a UserDataSvc/UserDataSvc instance: it will be used to "
-                   "retrieve user data during the course of the job" );
 }
 
 // Destructor
@@ -83,6 +77,32 @@ StatusCode AthAlgTool::sysInitialize()
   }
   m_varHandleArraysDeclared = true;
 
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Handle START transition.
+ *
+ * We override this in order to make sure that conditions handle keys
+ * can cache a pointer to the conditions container.
+ */
+StatusCode AthAlgTool::sysStart()
+{
+  ATH_CHECK( AlgTool::sysStart() );
+
+  // Call start() on all input handles.
+  // This allows CondHandleKeys to cache pointers to their conditions containers.
+  // (CondInputLoader makes the containers that it creates during start(),
+  // so initialize() is too early for this.)
+  for (Gaudi::DataHandle* h : inputHandles()) {
+    if (h->isCondition()) {
+      if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
+        ATH_CHECK( k->start() );
+      }
+    }
+  }
+  
   return StatusCode::SUCCESS;
 }
 

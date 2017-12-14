@@ -21,7 +21,7 @@
 
 // for ElementLink to IdentifiableContainer PixelClusterContainer
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace Trk {
   class Surface;

@@ -418,7 +418,7 @@ StatusCode IDPerfMonKshort::fillHistograms()
   if(evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)){
     if ( evtStore()->retrieve(PrimVxContainer,m_VxPrimContainerName).isFailure()) {
       ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
-      return false;
+      return StatusCode::FAILURE;
     }
     else
       ATH_MSG_DEBUG("Successfully retrieved collection with name "<<m_VxPrimContainerName);
@@ -433,7 +433,7 @@ const xAOD::VertexContainer* SecVxContainer(0);
  if(evtStore()->contains<xAOD::VertexContainer>(m_VxContainerName)){
    if (evtStore()->retrieve(SecVxContainer,m_VxContainerName).isFailure()) {
      ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxContainerName<<" found in StoreGate");
-     return false;
+     return StatusCode::FAILURE;
    }
    else
      ATH_MSG_DEBUG("Successfully retrieved collection with name "<<m_VxContainerName);

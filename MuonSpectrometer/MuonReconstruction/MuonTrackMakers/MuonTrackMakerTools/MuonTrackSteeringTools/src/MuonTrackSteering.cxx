@@ -103,6 +103,7 @@ namespace Muon {
     ATH_CHECK( m_candidateTool.retrieve() );
     ATH_CHECK( m_candidateMatchingTool.retrieve() );
     ATH_CHECK( m_trackBTool.retrieve() );
+    ATH_CHECK( m_ambiTool.retrieve() );
     ATH_CHECK( m_mooBTool.retrieve() );
     ATH_CHECK( m_trackRefineTool.retrieve() );
     ATH_CHECK( decodeStrategyVector( m_stringStrategies ) );

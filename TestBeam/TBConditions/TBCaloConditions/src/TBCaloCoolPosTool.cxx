@@ -81,7 +81,7 @@ bool TBCaloCoolPosTool::initHandles()
       ATH_MSG_DEBUG ("in initHandles()" );
 
       const EventInfo* evtInfo = nullptr;
-      ATH_CHECK( evtStore()->retrieve(evtInfo) );
+      ATH_CHECK( evtStore()->retrieve(evtInfo), false );
 
       int run = evtInfo->event_ID()->run_number(); 
 

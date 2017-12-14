@@ -22,7 +22,7 @@
 #include "MuonPrepRawData/TgcPrepData.h"
 // needed classes
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 typedef ElementLink<Muon::TgcPrepDataContainer> ElementLinkToIDC_TGC_Container;
 

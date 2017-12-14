@@ -16,6 +16,9 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include "StoreGate/ReadHandleKey.h"
+
 #include <vector>
 #include <bitset>
 
@@ -115,7 +118,7 @@ private:
 	double m_roadWidth;
 	
 	/** storegate key of MdtPrepDataContainer */
-	std::string m_mdtKey;
+	SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtKey{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
 
         //std::string m_holeOnTrackToolName;
         mutable const Trk::TrackingGeometry* m_trackingGeometry;

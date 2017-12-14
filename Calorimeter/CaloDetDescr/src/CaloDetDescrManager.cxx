@@ -71,8 +71,8 @@ void CaloDetDescrManager_Base::initialize ()
   for(int i = 0; i < nb; i++) {
     m_cell_id->calo_cell_hash_range(i,m_subCalo_min[i],m_subCalo_max[i]);
 
-    m_subCalo_begin[i] = m_element_vec.begin() + m_subCalo_min[i];
-    m_subCalo_end[i]   = m_element_vec.begin() + m_subCalo_max[i];
+    m_subCalo_begin[i] = calo_element_const_iterator(m_element_vec.begin()) + m_subCalo_min[i];
+    m_subCalo_end[i]   = calo_element_const_iterator(m_element_vec.begin()) + m_subCalo_max[i];
   }
 }
 
@@ -126,6 +126,13 @@ CaloDetDescrManager_Base::element_range() const
                              m_element_vec.end());
 }
     
+CaloDetDescrManager_Base::calo_nonconst_element_range
+CaloDetDescrManager_Base::element_range_nonconst()
+{
+  return calo_nonconst_element_range (m_element_vec.begin(), 
+                                      m_element_vec.end());
+}
+    
 CaloDetDescrManager_Base::calo_element_const_iterator
 CaloDetDescrManager_Base::element_begin(CaloCell_ID::SUBCALO subCalo) const
 {
@@ -164,7 +171,7 @@ CaloDetDescrManager_Base::get_element_nonconst(const Identifier& cellId)
 
 const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
-                                       const IdentifierHash& subCaloCellHash) const
+                                       IdentifierHash subCaloCellHash) const
 {
   // meaningless interface for Tiles, will only work for LAr
 
@@ -527,6 +534,12 @@ CaloDetDescrManager_Base::calo_descriptors_range() const
   return calo_descr_range (m_descr_vec.begin(), m_descr_vec.end());
 }
 
+CaloDetDescrManager_Base::calo_nonconst_descr_range
+CaloDetDescrManager_Base::calo_descriptors_range_nonconst()
+{
+  return calo_nonconst_descr_range (m_descr_vec.begin(), m_descr_vec.end());
+}
+
 CaloDetDescrManager_Base::calo_descr_const_iterator
 CaloDetDescrManager_Base::tile_descriptors_begin() const
 {
@@ -550,6 +563,13 @@ CaloDetDescrManager_Base::tile_descriptors_range() const
 {
   return calo_descr_range (m_tile_descr_vec.begin(),
                            m_tile_descr_vec.end());
+}
+ 
+CaloDetDescrManager_Base::calo_nonconst_descr_range
+CaloDetDescrManager_Base::tile_descriptors_range_nonconst()
+{
+  return calo_nonconst_descr_range (m_tile_descr_vec.begin(),
+                                    m_tile_descr_vec.end());
 }
  
 const CaloDetDescriptor*

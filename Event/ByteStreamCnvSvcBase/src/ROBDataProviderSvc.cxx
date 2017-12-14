@@ -396,6 +396,16 @@ uint32_t ROBDataProviderSvc::getEventStatus() {
 uint32_t ROBDataProviderSvc::getEventStatus( const EventContext& context ) {
   return m_eventsCache.get( context )->eventStatus;
 }
+
+void ROBDataProviderSvc::processCachedROBs(const EventContext& context, 
+					   const std::function< void(const ROBF* )>& fn ) const {
+  for ( const auto&  el : m_eventsCache.get( context )->robmap ) {
+    fn( el.second );
+  }
+}
+
+
+
 /** - filter ROB with Sub Detector Id and Status Code
 */
 bool ROBDataProviderSvc::filterRobWithStatus(const ROBF* rob) {
@@ -442,3 +452,4 @@ ROBDataProviderSvc::EventCache::~EventCache() {
   delete event;
   ROBDataProviderSvc::robmapClear( robmap );
 }
+

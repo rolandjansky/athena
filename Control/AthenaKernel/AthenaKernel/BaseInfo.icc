@@ -517,7 +517,8 @@ struct RegisterBaseInit
 template <class T>
 RegisterBaseInit<T>::RegisterBaseInit()
 {
-  BaseInfoBase::addInit(&typeid(T), BaseInfo<T>::baseinfo);
+  BaseInfoBase::addInit(&typeid(T),
+                        [] (BaseInfoBase*) { BaseInfo<T>::baseinfo(); });
 }
 #endif
 
@@ -547,7 +548,7 @@ struct RegisterAddBaseInit
   RegisterAddBaseInit();
 
   /// Init callback: add the new base to the BIB.
-  static const BaseInfoBase& doinit();
+  static void doinit (BaseInfoBase* bib);
 };
 
 
@@ -556,7 +557,7 @@ struct RegisterAddBaseInit
  * @brief Init callback: add the new base to the BIB.
  */
 template <class D, class B>
-const BaseInfoBase& RegisterAddBaseInit<D, B>::doinit()
+void RegisterAddBaseInit<D, B>::doinit (BaseInfoBase* bib)
 {
   // B may either be the actual base class we want,
   // or Virtual<BB>. Unwrap a surrounding Virtual<> if needed.
@@ -564,7 +565,6 @@ const BaseInfoBase& RegisterAddBaseInit<D, B>::doinit()
   bool is_virtual = BaseType<B>::is_virtual::value;
 
   // Look up the BIB.
-  SG::BaseInfoBase* bib = SG::BaseInfoBase::find_nc (typeid(D));
   if (!bib)
     bib = &BaseInfo<D>::instance();
   if (bib) {
@@ -572,7 +572,6 @@ const BaseInfoBase& RegisterAddBaseInit<D, B>::doinit()
     SG::BaseInfoImpl<D>& impl = *static_cast<SG::BaseInfoImpl<D>*> (bib);
     impl.template add_base<base_type> (is_virtual);
   }
-  return *bib;
 }
 
 
@@ -610,7 +609,7 @@ struct RegisterAddCopyConversionInit
   RegisterAddCopyConversionInit();
 
   /// Init callback: xxx
-  static const BaseInfoBase& doinit();
+  static void doinit (BaseInfoBase* bib);
 };
 
 
@@ -619,10 +618,9 @@ struct RegisterAddCopyConversionInit
  * @brief Init callback: add the new conversion to the BIB.
  */
 template <class T, class C>
-const BaseInfoBase& RegisterAddCopyConversionInit<T, C>::doinit()
+void RegisterAddCopyConversionInit<T, C>::doinit (BaseInfoBase* bib)
 {
   // Look up the BIB.
-  SG::BaseInfoBase* bib = SG::BaseInfoBase::find_nc (typeid(T));
   if (!bib)
     bib = &BaseInfo<T>::instance();
   if (bib) {
@@ -630,7 +628,6 @@ const BaseInfoBase& RegisterAddCopyConversionInit<T, C>::doinit()
     bib->add_copy_conversion (typeid(target_type),
                               new C);
   }
-  return *bib;
 }
 
 

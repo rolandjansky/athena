@@ -31,7 +31,6 @@ namespace Muon {
 
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class IMuonSystemExtensionTool;
   class IMuonSegmentMaker;
   class IMuonLayerSegmentMatchingTool;
   class IMuonLayerAmbiguitySolverTool;
@@ -237,7 +236,6 @@ namespace MuonCombined {
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper; 
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 
     ToolHandle<Muon::MuonEDMHelperTool>              m_edmHelper; 
-    ToolHandle<Muon::IMuonSystemExtensionTool>       m_muonSystemExtentionTool;
     ToolHandle<Muon::IMuonSegmentMaker>              m_segmentMaker;
     ToolHandle<Muon::IMuonSegmentMaker>              m_segmentMakerT0Fit;
     ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool;

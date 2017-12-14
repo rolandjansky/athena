@@ -1,42 +1,34 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/DataPool_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work5/Control/DataModel/run/../share/DataPool_test.txt)
-JobOptionsSvc        INFO # (5,1): ApplicationMgr.DLLs += ["StoreGate"]
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/AthAllocators/share/../share/DataPool_test.txt
 JobOptionsSvc        INFO # (6,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (8,1): ApplicationMgr.ExtSvc += ["IncidentSvc", "ChronoStatSvc", "AuditorSvc"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/DataPool_test.txt
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v1r3p3)
-                                          running on lxplus446.cern.ch on Mon Apr 22 17:38:11 2013
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
+                                          running on lxplus020.cern.ch on Mon Dec 11 13:11:58 2017
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : StoreGate
 ApplicationMgr       INFO Application Manager Configured successfully
-ServiceManager      DEBUG Initializing service IncidentSvc
 IncidentSvc         DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service ChronoStatSvc
 ChronoStatSvc       DEBUG Service base class initialized successfully
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
-ServiceManager      DEBUG Initializing service AuditorSvc
 AuditorSvc          DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service AppMgrRunable
 AppMgrRunable       DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service EventLoopMgr
 EventLoopMgr        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
 EventDataSvc        DEBUG Service base class initialized successfully
 EventPersistenc...  DEBUG Service base class initialized successfully
+AlgExecStateSvc     DEBUG Service base class initialized successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramDataSvc    DEBUG Service base class initialized successfully
-HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
 HistogramPersis...  DEBUG Service base class initialized successfully
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
  *** DataPool test in progress: 
-IncidentSvc         DEBUG Adding [BeginEvent] listener '<unknown>' with priority 100
  **** DataPool test successfully completed **** 
 ChronoStatSvc        INFO Time User   : Tot=    0 [us]                                             #=  1

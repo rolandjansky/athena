@@ -29,7 +29,8 @@ namespace SG {
  * @brief Constructor.
  * @param clid The class ID for the referenced object.
  * @param sgkey The StoreGate key for the object.
- * @param a Mode: read/write/update.
+ * @param a: read/write/update.
+ * @param isCond True if this is a CondHandleKey.
  *
  * The provided key may actually start with the name of the store,
  * separated by a "+":  "MyStore+Obj".  If no "+" is present,
@@ -43,8 +44,9 @@ namespace SG {
 VarHandleKey::VarHandleKey (CLID clid,
                             const std::string& sgkey,
                             Gaudi::DataHandle::Mode a,
-                            const std::string& storeName /*= "StoreGateSvc"*/)
-  : Gaudi::DataHandle (DataObjID (clid, sgkey), a),
+                            const std::string& storeName /*= "StoreGateSvc"*/,
+                            bool isCond /*= false*/)
+  : Gaudi::DataHandle (DataObjID (clid, sgkey), isCond, a),
     m_storeHandle (storeName, "VarHandleKey")
 {
   parseKey (sgkey, storeName);
@@ -108,7 +110,7 @@ StatusCode VarHandleKey::assign (const std::string& sgkey)
 StatusCode VarHandleKey::initialize (bool used /*= true*/)
 {
   if (!used) {
-    Gaudi::DataHandle::updateKey (m_storeHandle.name() + ":");
+    Gaudi::DataHandle::updateKey (m_storeHandle.name() + storeSeparator);
     m_sgKey = "";
     return StatusCode::SUCCESS;
   }

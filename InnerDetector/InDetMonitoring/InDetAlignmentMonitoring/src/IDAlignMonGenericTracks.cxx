@@ -1781,7 +1781,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       StatusCode sc = evtStore()->retrieve(vxContainer, m_VxPrimContainerName);
       if (sc.isFailure()) {
 	ATH_MSG_DEBUG("Could not retrieve primary vertex info: " << m_VxPrimContainerName);
-	return false;
+	return StatusCode::FAILURE;
       }
       if(vxContainer) {
 	ATH_MSG_VERBOSE("Nb of reco primary vertex for coll "

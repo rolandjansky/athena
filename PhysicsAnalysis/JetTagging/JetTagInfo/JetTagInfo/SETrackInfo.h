@@ -5,7 +5,7 @@
 #ifndef JETTAGINFO_SETRACKINFO
 #define JETTAGINFO_SETRACKINFO
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "egammaEvent/egamma.h"
 #include "egammaEvent/Electron.h"
 #include "egammaEvent/ElectronContainer.h"

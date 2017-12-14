@@ -196,7 +196,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
 
  if ((m_data.retrieve()).isFailure()) {
      msg() << MSG::ERROR << "Could not get m_data" << endmsg;
-     return StatusCode::FAILURE;
+     return HLT::TOOL_FAILURE;
  }
  
  return HLT::OK;

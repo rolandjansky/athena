@@ -325,17 +325,17 @@ int JetCalibrationTool::modify(xAOD::JetContainer& jets) const {
   //Grab necessary event info for pile up correction and store it in a JetEventInfo class object
   ATH_MSG_VERBOSE("Modifying jet collection.");
   JetEventInfo jetEventInfo;
-  ATH_CHECK( initializeEvent(jetEventInfo) );
+  ATH_CHECK( initializeEvent(jetEventInfo), 1 );
   xAOD::JetContainer::iterator jet_itr = jets.begin();
   xAOD::JetContainer::iterator jet_end = jets.end(); 
   for ( ; jet_itr != jet_end; ++jet_itr )
-    ATH_CHECK( calibrateImpl(**jet_itr,jetEventInfo) );
+    ATH_CHECK( calibrateImpl(**jet_itr,jetEventInfo), 1 );
  return 0;
 }
 
 int JetCalibrationTool::modifyJet(xAOD::Jet& jet) const {
   ATH_MSG_VERBOSE("Modifying jet.");
-  ATH_CHECK( applyCalibration(jet) );
+  ATH_CHECK( applyCalibration(jet), 1 );
   return 0;
 }
 

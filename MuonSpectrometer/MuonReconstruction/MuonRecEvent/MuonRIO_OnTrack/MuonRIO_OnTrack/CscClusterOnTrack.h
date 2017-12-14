@@ -25,7 +25,7 @@
 // needed classes
 
 #include "MuonPrepRawData/CscPrepDataContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 typedef ElementLink<Muon::CscPrepDataContainer> ElementLinkToIDC_CSC_Container;
 

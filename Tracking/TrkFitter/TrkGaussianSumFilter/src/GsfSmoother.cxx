@@ -49,17 +49,17 @@ StatusCode Trk::GsfSmoother::initialize()
   
   // Retrieve an instance of the component merger
   if ( m_merger.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not retrieve the component merger tool... Exiting!");
+    msg(MSG::FATAL) << "Could not retrieve the component merger tool... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Request an instance of the state combiner
   if ( m_combiner.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not retrieve an instance of the multi component state combiner... Exiting!");
+    msg(MSG::FATAL) << "Could not retrieve an instance of the multi component state combiner... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
   
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -68,7 +68,7 @@ StatusCode Trk::GsfSmoother::initialize()
 StatusCode Trk::GsfSmoother::finalize()
 {
 
-  ATH_MSG_INFO("Finalisation of " << name() << " was successful");
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -80,7 +80,7 @@ StatusCode Trk::GsfSmoother::configureTools(const ToolHandle<IMultiStateExtrapol
   m_extrapolator = extrapolator;
   m_updator      = measurementUpdator;
 
-  ATH_MSG_INFO("Configuration of " << name() << " was successful");
+  msg(MSG::INFO) << "Configuration of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -91,32 +91,33 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
                                                 const Trk::CaloCluster_OnTrack * ccot ) const
 {
 
-  ATH_MSG_VERBOSE("This is the GSF Smoother!");
+  if (m_outputlevel<0)
+    msg(MSG::VERBOSE) << "This is the GSF Smoother!" << endmsg;
 
   // Check that extrapolator and updator are instansiated
   if (!m_updator) {
-    ATH_MSG_ERROR("The measurement updator is not configured... Exiting!");
+    msg(MSG::ERROR) << "The measurement updator is not configured... Exiting!" << endmsg;
     return 0;
   }
 
   if (!m_extrapolator) {
-    ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
+    msg(MSG::ERROR) << "The extrapolator is not configured... Exiting!" << endmsg;
     return 0;
   }
 
   // Check that the forward trajectory is filled
   if ( forwardTrajectory.empty() ){
-    ATH_MSG_ERROR("Attempting to smooth an empty forward trajectory... Exiting!");
+    msg(MSG::ERROR) << "Attempting to smooth an empty forward trajectory... Exiting!" << endmsg;
     return 0;
   }
   
   if (m_outputlevel<0){
   
     if ( particleHypothesis == Trk::nonInteracting )
-      ATH_MSG_VERBOSE("Material effects are switched off in the Gsf Smoother");
+      msg(MSG::VERBOSE) << "Material effects are switched off in the Gsf Smoother" << endmsg;
   
     else
-      ATH_MSG_VERBOSE("Material effects are switched on in the Gsf Smoother (type): " << particleHypothesis);
+      msg(MSG::VERBOSE) << "Material effects are switched on in the Gsf Smoother (type): " << particleHypothesis << endmsg;
 
   }
     
@@ -139,7 +140,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
   const Trk::MultiComponentStateOnSurface* smootherPredictionMultiStateOnSurface = dynamic_cast<const Trk::MultiComponentStateOnSurface*>(smootherPredictionStateOnSurface);
 
   if (!smootherPredictionMultiStateOnSurface) {
-    ATH_MSG_DEBUG("GSF smoother has a single component state as starting point");
+    msg(MSG::DEBUG) << "GSF smoother has a single component state as starting point" << endmsg;
 
     // Build new multi-component state
     Trk::ComponentParameters smootherPredictionComponent(smootherPredictionStateOnSurface->trackParameters(), 1.);
@@ -159,7 +160,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
   const Trk::MeasurementBase* firstSmootherMeasurementOnTrack = smootherPredictionStateOnSurface->measurementOnTrack()->clone();
 
   if ( !firstSmootherMeasurementOnTrack ){
-    ATH_MSG_WARNING("Initial state on surface in smoother does not have an associated MeasurementBase object... returning 0");
+    msg(MSG::WARNING) << "Initial state on surface in smoother does not have an associated MeasurementBase object... returning 0" << endmsg;
     return 0;
   }
 
@@ -172,7 +173,8 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
     if (!smootherPredictionMultiStateOnSurface)
       delete smootherPredictionMultiState;
 
-    ATH_MSG_DEBUG("First GSF smoothing update failed... Exiting!");
+    if (m_outputlevel<=0)
+      msg(MSG::DEBUG) << "First GSF smoothing update failed... Exiting!" << endmsg;
     return 0;
   }
 
@@ -207,7 +209,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
   // =============================================================================================================================
 
   if ( !firstSmoothedState->isMeasured() ){
-    ATH_MSG_WARNING("Updated state is not measured. Rejecting smoothed state... returning 0");
+    msg(MSG::WARNING) << "Updated state is not measured. Rejecting smoothed state... returning 0" << endmsg;
     return 0;
   }
 
@@ -218,7 +220,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
     std::unique_ptr<const Trk::MultiComponentState> (firstSmoothedState->cloneWithScaledError( 15., 5., 15., 5., 15. ));
 
   if ( !smoothedStateWithScaledError ){
-    ATH_MSG_WARNING("Covariance scaling could not be performed... returning 0");
+    msg(MSG::WARNING) << "Covariance scaling could not be performed... returning 0" << endmsg;
     return 0;
   }
 
@@ -227,7 +229,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
     std::unique_ptr<const Trk::MultiComponentState> (m_updator->update(*smoothedStateWithScaledError, *firstSmootherMeasurementOnTrack));
 
   if ( !updatedState ){
-    ATH_MSG_WARNING("Smoother prediction could not be determined... returning 0");
+    msg(MSG::WARNING) << "Smoother prediction could not be determined... returning 0" << endmsg;
     return 0;
   }
 
@@ -251,7 +253,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
     const Trk::MeasurementBase* measurement_in = (*trackStateOnSurface)->measurementOnTrack();
 
     if ( !measurement_in ){
-      ATH_MSG_WARNING("MeasurementBase object could not be extracted from a measurement... continuing");
+      msg(MSG::WARNING) << "MeasurementBase object could not be extracted from a measurement... continuing" << endmsg;
       continue;
     }
 
@@ -308,11 +310,11 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
         varQoverP = (*measuredCov)(Trk::qOverP,Trk::qOverP);
       }
 
-      ATH_MSG_DEBUG("Finishing extrapolation parameters:\t" 
+      msg(MSG::DEBUG) << "Finishing extrapolation parameters:\t" 
             << combinedState->parameters()[Trk::phi] << "\t"
             << combinedState->parameters()[Trk::theta] << "\t" 
             << combinedState->parameters()[Trk::qOverP] << "\t"
-            << varQoverP);
+            << varQoverP << endmsg;
     }
     
       // Original measurement was flagged as  an outlier
@@ -334,7 +336,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
     updatedState = std::unique_ptr<const Trk::MultiComponentState> (m_updator->update( *extrapolatedState, *measurement, fitQuality ) );
 
     if (!updatedState) {
-      ATH_MSG_WARNING("Could not update the multi-component state... rejecting track!");
+      msg(MSG::WARNING) << "Could not update the multi-component state... rejecting track!" << endmsg;
       return 0;
     }
 
@@ -351,12 +353,12 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
         varQoverP = (*measuredCov)(Trk::qOverP,Trk::qOverP);
       }
 
-      ATH_MSG_DEBUG("Update finished parameters:\t\t" 
+      msg(MSG::DEBUG) << "Update finished parameters:\t\t" 
             << combinedState->parameters()[Trk::phi] << "\t"
             << combinedState->parameters()[Trk::theta] << "\t" 
             << combinedState->parameters()[Trk::qOverP] << "\t"
-            << varQoverP);
-      ATH_MSG_DEBUG("-----------------------------------------------------------------------------");
+            << varQoverP << endmsg;
+      msg(MSG::DEBUG) << "-----------------------------------------------------------------------------" << endmsg;
     }
     
     /* =============================================================
@@ -388,7 +390,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
       //   delete forwardsMultiState;
       
       if (!combinedState2) {
-        ATH_MSG_WARNING("Could not combine state from forward fit with smoother state... rejecting track!");
+        msg(MSG::WARNING) << "Could not combine state from forward fit with smoother state... rejecting track!" << endmsg;
         // delete updatedState;
         // delete measurement;
         // delete smoothedTrajectory;
@@ -465,7 +467,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
     const AmgSymMatrix(5)* forwardMeasuredCov = forwardsComponent->first->covariance();
 
     if ( !forwardMeasuredCov )
-      ATH_MSG_DEBUG("No measurement associated with forwards component... continuing for now");
+      msg(MSG::DEBUG) << "No measurement associated with forwards component... continuing for now" << endmsg;
 
     /* ====================================================
        Loop over all components in the smoother multi-state
@@ -479,13 +481,13 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
       const AmgSymMatrix(5)* smootherMeasuredCov = smootherComponent->first->covariance();
 
       if ( !smootherMeasuredCov && !forwardMeasuredCov ){
-        ATH_MSG_WARNING("Cannot combine two components both without associated errors... returning 0");
+        msg(MSG::WARNING) << "Cannot combine two components both without associated errors... returning 0" << endmsg;
         return 0;
       }
 
       if ( !forwardMeasuredCov ){
         if (m_outputlevel<=0) 
-          ATH_MSG_DEBUG("Forwards state without error matrix... using smoother state only");
+          msg(MSG::DEBUG) << "Forwards state without error matrix... using smoother state only" << endmsg;
         Trk::ComponentParameters smootherComponentOnly( smootherComponent->first->clone(), smootherComponent->second );
         combinedMultiState->push_back( smootherComponentOnly );
         continue;
@@ -493,7 +495,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
 
       if ( !smootherMeasuredCov ){
         if (m_outputlevel<=0) 
-          ATH_MSG_DEBUG("Smoother state withour error matrix... using forwards state only");
+          msg(MSG::DEBUG) << "Smoother state withour error matrix... using forwards state only" << endmsg;
         Trk::ComponentParameters forwardComponentOnly( forwardsComponent->first->clone(), forwardsComponent->second );
         combinedMultiState->push_back( forwardComponentOnly );
         continue;
@@ -504,7 +506,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
       const AmgSymMatrix(5) K = *forwardMeasuredCov * summedCovariance.inverse();
 
       //if (matrixInversionError) {
-      //  ATH_MSG_WARNING("Matrix inversion failed... Exiting!");
+      //  msg(MSG::WARNING) << "Matrix inversion failed... Exiting!" << endmsg;
       //  return 0;
       //}
 
@@ -525,7 +527,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
       const AmgSymMatrix(5) invertedSummedCovariance = summedCovariance.inverse();
 
       //if ( matrixInversionError ){
-      //  ATH_MSG_WARNING("Matrix inversion failed... exiting");
+      //  msg(MSG::WARNING) << "Matrix inversion failed... exiting" << endmsg;
       //  return 0;
       //}
 
@@ -557,7 +559,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
     delete mergedState;
 
   if (m_outputlevel<0) 
-    ATH_MSG_VERBOSE("Size of combined state from smoother: " << renormalisedMergedState->size());
+    msg(MSG::VERBOSE) << "Size of combined state from smoother: " << renormalisedMergedState->size() << endmsg;
 
   return renormalisedMergedState;
 

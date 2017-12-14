@@ -389,13 +389,13 @@ private:
     BOOST_PP_OVERLOAD(CHECK_WITH_CONTEXT_, __VA_ARGS__)(__VA_ARGS__)
 
 #define CHECK_WITH_CONTEXT_2(EXP, CONTEXT_NAME) do {       \
-    StatusCode sc__ = (EXP);                               \
+    StatusCode sc__(EXP);                                  \
     if (! sc__.isSuccess())                                \
       CHECK_FAILED(EXP, CONTEXT_NAME, sc__, sc__);         \
   } while (0)
 
 #define CHECK_WITH_CONTEXT_3(EXP, CONTEXT_NAME, RET) do {  \
-    StatusCode sc__ = (EXP);                               \
+    StatusCode sc__(EXP);                                  \
     if (! sc__.isSuccess())                                \
       CHECK_FAILED(EXP, CONTEXT_NAME, sc__, RET);          \
   } while (0)

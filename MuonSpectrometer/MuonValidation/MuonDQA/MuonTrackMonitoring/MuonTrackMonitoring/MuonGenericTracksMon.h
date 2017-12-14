@@ -40,7 +40,6 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h" 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonancePairingTool.h"
@@ -149,7 +148,6 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   //ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls
   //ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
   //ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
-  ToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool;
   // MCP muon quality tool
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   // MCP T&P helpers

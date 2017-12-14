@@ -67,12 +67,10 @@
 #include "../SCT_ElectricFieldTool.h"
 
 #include "../SCT_RODVetoSvc.h"
+#include "../SCT_RODVetoTestWriteAlg.h"
 #include "../SCT_RODVetoTestAlg.h"
 
 //specific to rod veto testing:
-
-DECLARE_COMPONENT( SCT_RODVetoTestAlg )
-DECLARE_COMPONENT( SCT_RODVetoSvc )
 
 DECLARE_COMPONENT( SCT_ModuleVetoCondAlg )
 DECLARE_COMPONENT( SCT_ModuleVetoTestAlg )
@@ -102,6 +100,8 @@ DECLARE_COMPONENT( SCT_SensorsCondAlg )
 DECLARE_COMPONENT( SCT_SensorsTestAlg )
 DECLARE_COMPONENT( SCT_TdaqEnabledCondAlg )
 DECLARE_COMPONENT( SCT_TdaqEnabledTestAlg )
+DECLARE_COMPONENT( SCT_RODVetoTestWriteAlg )
+DECLARE_COMPONENT( SCT_RODVetoTestAlg )
 
 DECLARE_COMPONENT( SCT_ConditionsSummarySvc )
 DECLARE_COMPONENT( SCT_CachedSummarySvc )
@@ -122,7 +122,7 @@ DECLARE_COMPONENT( SCT_SensorsSvc )
 DECLARE_COMPONENT( SCT_MajorityConditionsSvc )
 DECLARE_COMPONENT( SCT_ChargeTrappingSvc )
 DECLARE_COMPONENT( SCT_RadDamageSummarySvc )
-
+DECLARE_COMPONENT( SCT_RODVetoSvc )
 
 DECLARE_COMPONENT( SCT_ReadoutTool )
 DECLARE_COMPONENT( SCT_ElectricFieldTool )
