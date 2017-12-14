@@ -38,12 +38,12 @@
 
 //____________________________________________________________________________
 TRTTrackHoleSearchTool::TRTTrackHoleSearchTool(const std::string& type, const std::string& name, const IInterface* parent)
-	:   AthAlgTool(type, name, parent),
-	    m_extrapolator("Trk::Extrapolator"),
-	    m_conditions_svc("TRT_ConditionsSummarySvc", name),
-	    m_has_been_called(false),
-	    m_TRT_ID(0),
-	    m_trt_outer_surf(0)
+	: AthAlgTool(type, name, parent),
+	  m_extrapolator("Trk::Extrapolator"),
+	  m_conditions_svc("TRT_ConditionsSummarySvc", name),
+	  m_has_been_called(false),
+	  m_TRT_ID(0),
+	  m_trt_outer_surf(0)
 {
 	declareInterface<ITrackHoleSearchTool>(this);
 
@@ -68,22 +68,13 @@ StatusCode TRTTrackHoleSearchTool::initialize() {
 	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::initialize()" );
 
 	// retrieve extrapolator
-	if ( m_extrapolator.retrieve().isFailure() ) {
-		ATH_MSG_FATAL( "Failed to retrieve the extrapolator." );
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK(m_extrapolator.retrieve());
 
 	// retrieve TRT_ID
-	if( detStore()->retrieve(m_TRT_ID, "TRT_ID").isFailure() ) {
-		ATH_MSG_FATAL( "Failed to retrieve TRT_ID." );
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK(detStore()->retrieve(m_TRT_ID, "TRT_ID"));
 
 	// retrieve ConditionsSummarySvc
-	if( m_conditions_svc.retrieve().isFailure() ) {
-		ATH_MSG_FATAL( "Failed to retrieve ConditionsSummarySvc." );
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK(m_conditions_svc.retrieve());
 
 	m_trt_outer_surf = new Trk::CylinderSurface(new Amg::Transform3D, m_outer_radius, m_max_z);
 	// note: HepGeom::Translate3D is deleted by Trk::Surface destructor
@@ -123,12 +114,12 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 
 	// write out list of bad straws for debugging purposes.
 	// only dump log on first call of this function.
-	if(m_do_dump_bad_straw_log && !m_has_been_called && m_use_conditions_svc) {
+	if (m_do_dump_bad_straw_log && !m_has_been_called && m_use_conditions_svc) {
 		dump_bad_straw_log();
 	}
 	m_has_been_called = true;
 
-	if( track.perigeeParameters() ) {
+	if (track.perigeeParameters()) {
 		ATH_MSG_VERBOSE( "  This track has perigee: \n"
 		                 << "    pT =  " << track.perigeeParameters()->pT()/CLHEP::GeV << " CLHEP::GeV\n"
 		                 << "    eta = " << track.perigeeParameters()->eta() << "\n"
@@ -139,34 +130,34 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 
 	// get TrackStateOnSurfaces
 	const DataVector<const Trk::TrackStateOnSurface>* track_states = track.trackStateOnSurfaces();
-	if(track_states) {
+	if (track_states) {
 		ATH_MSG_DEBUG( "  This track has " << track_states->size() << " track states on surface." );
 	} else {
-		ATH_MSG_ERROR( "  This track has null track states on surface. Returning 0." );
+		ATH_MSG_WARNING( "  This track has null track states on surface. Returning 0." );
 		return 0;
 	}
 
-	if(track_states->size() < 2) {
+	if (track_states->size() < 2) {
 		ATH_MSG_WARNING( "  Fewer than 2 TrackStatesOnSurface. Returning 0." );
 		return 0;
 	}
 
 	// set beginning point of extrapolation
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator beginning_track_state;
-	if(m_begin_at_first_trt_hit) {
+	if (m_begin_at_first_trt_hit) {
 		// begin at first TRT hit
 		beginning_track_state = find_first_trt_hit(*track_states);
 	} else {
 		// begin at last Si hit
 		beginning_track_state = find_last_hit_before_trt(*track_states);
-		if(beginning_track_state == track_states->end()) {
+		if (beginning_track_state == track_states->end()) {
 			ATH_MSG_WARNING( "  beginning_track_state == track_states->end().  There must be no Si hits.\n"
 			                 << "  Will try to begin at the first TRT hit." );
 			beginning_track_state = find_first_trt_hit(*track_states);
 		}
 	}
 
-	if(beginning_track_state == track_states->end()) {
+	if (beginning_track_state == track_states->end()) {
 		ATH_MSG_WARNING( "  beginning_track_state == track_states->end(). No where to extrapolate to. Returning 0." );
 		return 0;
 	}
@@ -177,13 +168,10 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator track_state = beginning_track_state;
 	const Trk::TrackParameters* start_parameters = (*track_state)->trackParameters();
 	++track_state;
-	if (!start_parameters) {
-		ATH_MSG_VERBOSE("No start parameters");
-	}
 	// loop over TrackStateOnSurfaces (destination surfaces for extrapolation)
-	for(; track_state != track_states->end(); ++track_state) {
+	for (; track_state != track_states->end(); ++track_state) {
 		// skip track states that are not measurements
-		if(!(*track_state)->type(Trk::TrackStateOnSurface::Measurement)) {
+		if (!(*track_state)->type(Trk::TrackStateOnSurface::Measurement)) {
 			ATH_MSG_VERBOSE( "    TrackStateOnSurface is not of type Trk::TrackStateOnSurface::Measurement." );
 			continue;
 		}
@@ -198,14 +186,17 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 			                 << end_parameters->position().eta() << ", "
 			                 << end_parameters->position().phi() << ")");
 		} else {
-			ATH_MSG_ERROR( "    TrackStateOnSurface has no TrackParameters." );
+			ATH_MSG_WARNING( "    TrackStateOnSurface has no TrackParameters." );
 			continue;
 		}
 
 		const Trk::Surface& end_surf = end_parameters->associatedSurface();
-
-		extrapolateBetweenHits(start_parameters, end_surf, holes, partHyp);
-		start_parameters = end_parameters;
+		if (!start_parameters) {
+			start_parameters = end_parameters;
+		} else {		 
+			extrapolateBetweenHits(start_parameters, end_surf, holes, partHyp);
+			start_parameters = end_parameters;
+		}
 	} // end loop over TrackStateOnSurfaces
 
 	if( !m_end_at_last_trt_hit ) {
@@ -279,31 +270,37 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 			
 			// get id
 			Identifier id = surf.associatedDetectorElementIdentifier();
+
 			// check that the surface is a TRT straw
 			if(!m_TRT_ID->is_trt(id)) {
 				ATH_MSG_DEBUG("extrapolateBetweenHits: surf is not a TRT straw.  Skipping.");
 				continue;
 			}
+
 			// check that we are not still on the previous id
 			if(id == previous_id) {
 				ATH_MSG_DEBUG("extrapolateBetweenHits: id == previous_id");
 				continue;
 			}
+
 			// check that we haven't hit the destination surface
 			if(id == end_id) {
 				ATH_MSG_DEBUG("extrapolateBetweenHits: id == end_id");
 				continue;
 			}
+
 			// ignore id 0xffffffff from m_trt_outer_surf
 			if(id == 0xffffffff) {
 				ATH_MSG_DEBUG("extrapolateBetweenHits: id == 0xffffffff. Skipping.");
 				continue;
 			}
+
 			// don't count bad straws as holes
 			if( (m_use_conditions_svc)&&(!m_conditions_svc->isGood(id)) ) {
 				ATH_MSG_DEBUG("extrapolateBetweenHits: ConditionsSvc says this straw is bad. Skipping.");
 				continue;
 			}
+
 			// check fiducial |locR| by sigma
 			const float locR = (*step)->parameters()[Trk::locR];
 			if(m_locR_sigma_cut > 0.0) {
