@@ -993,7 +993,7 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
   std::map<unsigned int, unsigned int> moduleIDMap;
   std::vector<std::string> prodIDs;
   
-  CoralDB::CoralDB* db = new CoralDB::CoralDB(m_connectionString, coral::ReadOnly, coral::Info, true);
+   auto db = std::make_unique<CoralDB::CoralDB>(CoralDB::CoralDB(m_connectionString, coral::ReadOnly, coral::Info, true)); 
    if(!isIBL){
 
      db->setObjectDictionaryTag("PIXEL");
@@ -1151,8 +1151,6 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
     return StatusCode::FAILURE;
   }
   
-  delete db;
-
   return StatusCode::SUCCESS;
 }
 
