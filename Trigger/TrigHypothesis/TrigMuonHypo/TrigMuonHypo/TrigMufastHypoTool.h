@@ -71,8 +71,8 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     std::vector<float> m_ptThresholds;
     BooleanProperty m_acceptAll;
     BooleanProperty m_selectPV;
-    float m_Z_PV;
-    float m_R_PV;
+    float m_ZPV;
+    float m_RPV;
     
     float m_ptThresholdForECWeakBRegionA;
     float m_ptThresholdForECWeakBRegionB;
