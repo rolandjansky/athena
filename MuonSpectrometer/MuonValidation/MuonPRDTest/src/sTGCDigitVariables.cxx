@@ -30,7 +30,7 @@ StatusCode sTGCDigitVariables::fillVariables()
   
   // get truth information container of digitization
   const MuonSimDataCollection* nsw_sTgcSdoContainer = nullptr;
-  // CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "sTGC_SDO") );
+  CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "sTGC_SDO") );
   
   const sTgcDigitContainer* nsw_sTgcDigitContainer = nullptr;
   CHECK( m_evtStore->retrieve(nsw_sTgcDigitContainer, "sTGC_DIGITS") );
