@@ -271,6 +271,13 @@ from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_e
 theFTF = TrigFastTrackFinder_eGamma()
 theFTF.OutputLevel = DEBUG
 
+# BIG THING
+# This is a workaround for the fact that L2CaloClusters is produced in the first set of views, but consumed in the second
+# Since the state of the first view algs is unknown outside those view slots, the scheduler declares a stall
+# The data is actually there through view linking, but the scheduler doesn't know about that
+# Instead we have claimed to have made the data locally - this is a HACK
+theFTF.ExtraOutputs=[('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloClusters')]
+
 from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
 from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 
@@ -311,6 +318,7 @@ l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"
 l2ElectronViewsMaker.ViewFallThrough = True
 
+
 theTrackParticleCreatorAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
 for idAlg in IDSequence:
   if idAlg.properties().has_key("RoIs"):
@@ -336,7 +344,7 @@ for t in theElectronHypo.HypoTools:
   t.OutputLevel = VERBOSE
 # topSequence += theElectronHypo
 # InDetCacheCreatorTrigViews,
-electronSequence = seqAND("electronSequence", [InDetCacheCreatorTrigViews, l2ElectronViewsMaker, electronInViewAlgs, theElectronHypo ] )
+electronSequence = seqAND("electronSequence", [ InDetCacheCreatorTrigViews, l2ElectronViewsMaker, electronInViewAlgs, theElectronHypo ] )
 
 electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.ElectronDecisions )    
 egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ electronSequence,  electronDecisionsDumper ] )
