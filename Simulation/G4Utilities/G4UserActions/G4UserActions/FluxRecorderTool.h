@@ -8,13 +8,12 @@
 #include "G4AtlasInterfaces/IG4RunActionTool.h"
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "G4UserActions/FluxRecorder.h"
 
 namespace G4UA
 {
 
-  /// 	
   /// @class FluxRecorderTool
   /// @brief Tool which manages the FluxRecorder action.
   ///
@@ -22,29 +21,20 @@ namespace G4UA
   ///
   /// @author Andrea Di Simone
   ///
-  class FluxRecorderTool : public ActionToolBase<FluxRecorder>,
-                           public IG4RunActionTool, public IG4EventActionTool,
-                           public IG4SteppingActionTool
+  class FluxRecorderTool : public UserActionToolBase<FluxRecorder>
   {
 
     public:
 
-      /// standard tool ctor
-      FluxRecorderTool(const std::string& type, const std::string& name,const IInterface* parent);
-      /// retrieves the run action
-      virtual G4UserRunAction* getRunAction() override final
-      { return static_cast<G4UserRunAction*>( getAction() ); }
-      /// retrieves the event action
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
-      /// retrieves the stepping action
-      virtual G4UserSteppingAction* getSteppingAction() override final
-      { return static_cast<G4UserSteppingAction*>( getAction() ); }
+      /// Standard tool ctor
+      FluxRecorderTool(const std::string& type, const std::string& name,
+                       const IInterface* parent);
 
     protected:
 
       /// create action for this thread
-      virtual std::unique_ptr<FluxRecorder> makeAction() override final;
+      virtual std::unique_ptr<FluxRecorder>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
   }; // class FluxRecorderTool
 

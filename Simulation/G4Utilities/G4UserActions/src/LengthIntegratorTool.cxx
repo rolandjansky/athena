@@ -13,11 +13,9 @@ namespace G4UA
   LengthIntegratorTool::LengthIntegratorTool(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
-    : ActionToolBase<LengthIntegrator>(type, name, parent),
+    : UserActionToolBase<LengthIntegrator>(type, name, parent),
       m_hSvc("THistSvc", name)
   {
-    declareInterface<IG4EventActionTool>(this);
-    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("HistoSvc", m_hSvc);
   }
 
@@ -37,10 +35,13 @@ namespace G4UA
   // Create the action on request
   //---------------------------------------------------------------------------
   std::unique_ptr<LengthIntegrator>
-  LengthIntegratorTool::makeAction()
+  LengthIntegratorTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<LengthIntegrator>( m_hSvc.name() );
+    ATH_MSG_DEBUG("Making a LengthIntegrator action");
+    auto action = std::make_unique<LengthIntegrator>( m_hSvc.name() );
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 }
