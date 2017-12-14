@@ -71,9 +71,6 @@ DecisionSvc          INFO Inserting stream: Coll1and7 with no Algs
 DecisionSvc          INFO Inserting stream: Coll348 with no Algs
 DecisionSvc          INFO Inserting stream: CollTrig with no Algs
 DecisionSvc          INFO Inserting stream: CollBad with no Algs
-ToolSvc.copyTool    DEBUG handle() saw BeginTagFile incident for PFN:SplittableCollection.root
-ToolSvc.copyTool    DEBUG Found Input CollectionMetadata
-ToolSvc.copyTool     INFO CollectionMetadata copied to MetaDataStore for PFN:SplittableCollection.root
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1
@@ -468,6 +465,12 @@ Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
+Found 4 proxies for ClassID 167728019 (EventStreamInfo): 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x28044cd0 --- key: Others
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x27230ad0 --- key: Stream1
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x279175c0 --- key: Stream2
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x27ec9950 --- key: Stream3
+Found 1 proxy for ClassID 1296887519 (CollectionMetadataContainer): 
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream2              INFO Records written: 8
 Stream1              INFO Records written: 8

@@ -23,7 +23,6 @@ class StoreGateSvc;
  *  @brief This class provides an example for reading in file meta data objects from Pool.
  **/
 class InputCollectionMetadataCopy : public AthAlgTool, 
-                                    virtual public IMetaDataTool, 
                                     virtual public IIncidentListener 
 {
 public: 
