@@ -33,7 +33,7 @@ using MuonGM::MYSQL;
 AGDDsTGC::AGDDsTGC(std::string s):
     sTGCDetectorDescription(s),AGDDVolume(s,true)
 {
-    current=this;
+    s_current=this;
     Register();
 }
 
@@ -51,7 +51,7 @@ void AGDDsTGC::CreateVolume()
 	stgc_comp->dx2=large_x();
 	stgc_comp->dy=y();
 	stgc_comp->subType=subType();
-	stgc_comp->yCutout=_yCutout;
+	stgc_comp->yCutout=yCutout();
 	
 	MuonGM::sTGC *cham=new MuonGM::sTGC(stgc_comp);
 	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);
