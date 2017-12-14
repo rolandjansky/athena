@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+import ROOT
+
+parser = argparse.ArgumentParser(description="basic setup script",usage="usage: %prog [options] shell")
+parser.add_argument ("image_name",help="name of the image to create")
+parser.add_argument ("--release",dest="release",help="release image to use")
+parser.add_argument ("--setup-file",dest="setup_file",help="setup file to use")
+parser.add_argument ("--docker-file",dest="docker_file",help="docker file to use")
+args = parser.parse_args()
+
+# a bit of a hacky way to determine the location of our build directory
+build_dir = None
+for dir in os.getenv("DATAPATH").split (":") :
+    test_dir = os.path.dirname (os.path.dirname (dir))
+    if os.path.exists (os.path.join (test_dir, "CMakeCache.txt")) :
+        build_dir = test_dir
+        break
+    pass
+
+# find source directory and package_filters.txt file from CMakeCache.txt
+source_dir = None
+package_filters = None
+for line in open(os.path.join (build_dir, "CMakeCache.txt"), 'r'):
+    if re.search ("^PROJECT_SOURCE_DIR:", line, re.IGNORECASE):
+        source_dir = line[line.find("=")+1:-1]
+        pass
+    elif re.search ("^ATLAS_PACKAGE_FILTER_FILE:", line, re.IGNORECASE):
+        package_filters = line[line.find("=")+1:-1]
+        pass
+    pass
+
+if not args.docker_file :
+    args.docker_file = ROOT.PathResolver.find_file("EventLoop/Dockerfile", "DATAPATH")
+    pass
+
+if not args.setup_file :
+    args.setup_file = ROOT.PathResolver.find_file("EventLoop/docker_analysis_setup.sh", "DATAPATH")
+    pass
+
+print "build image " + args.image_name + " from " + source_dir
+
+# this directory is used to put all my local files into
+data_dir = os.path.join (source_dir, "el_docker_data")
+if os.path.isdir (data_dir) :
+    shutil.rmtree (data_dir)
+    pass
+os.mkdir (data_dir)
+shutil.copyfile (args.setup_file, os.path.join (data_dir, "setup.sh"))
+shutil.copyfile (args.docker_file, os.path.join (data_dir, "Dockerfile"))
+shutil.copyfile (package_filters, os.path.join (data_dir, "package_filters.txt"))
+
+# create docker image
+command = ["docker", "build", "-t", args.image_name,
+           "-f", os.path.join (data_dir, "Dockerfile")]
+if args.release :
+    command += ["--build-arg", "RELEASE=", args.release]
+    pass
+command += [source_dir]
+subprocess.call (command)
+
+# cleanup
+shutil.rmtree (data_dir)
