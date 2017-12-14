@@ -4,27 +4,44 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-AthViewSeq = topSequence.AthViewSeq
 
 isData = False
 if globalflags.InputFormat.is_bytestream():
   isData = True
 
-InDetCacheCreatorTrigViews = AthViewSeq.InDetCacheCreatorTrigViews
-allViewAlgorithms = None
+# ----------------------------------------------------------------
+# Setup Views
+# ----------------------------------------------------------------
+viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
+topSequence += viewSeq
 
-if viewTest:
-  allViewAlgorithms = AthViewSeq.allViewAlgorithms
+#Create IdentifiableCaches
+from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+                                     Pixel_ClusterKey = "PixelTrigClustersCache",
+                                     SCT_ClusterKey   = "SCT_ClustersCache",
+                                     SpacePointCachePix = "PixelSpacePointCache",
+                                     SpacePointCacheSCT   = "SctSpacePointCache",
+                                     SCTRDOCacheKey       = "SctRDOCache",
+                                     PixRDOCacheKey = "PixRDOCache",
+                                     OutputLevel=DEBUG)
+viewSeq += InDetCacheCreatorTrigViews
 
-  viewMaker = AthViewSeq.viewMaker
-  viewMaker.ViewBaseName = "testView"
-  viewMaker.InputRoICollection = "EMRoIs"
-  viewMaker.ViewNodeName = allViewAlgorithms.name()
-  viewMaker.OutputRoICollection = "EMViewRoIs"
-  viewMaker.ViewFallThrough = True
+# View maker alg
+viewNodeName = "allViewAlgorithms"
+viewMaker = CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
+viewMaker.ViewBaseName = "testView"
+viewMaker.InputRoICollection = "EMRoIs"
+viewMaker.ViewNodeName = viewNodeName
+viewMaker.OutputRoICollection = "EMViewRoIs"
+viewMaker.ViewFallThrough = True
+viewSeq += viewMaker
+
+# Set of view algs
+allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, StopOverride=False)
+viewSeq += allViewAlgorithms
 
 
 from InDetRecExample.InDetKeys import InDetKeys
@@ -80,15 +97,10 @@ if TriggerFlags.doID:
                                                      ProviderTool = InDetPixelRawDataProviderTool,
                                                      OutputLevel = INFO)
     
-    if ( viewTest ):
-      allViewAlgorithms += InDetPixelRawDataProvider
-      allViewAlgorithms.InDetPixelRawDataProvider.isRoI_Seeded = True
-      allViewAlgorithms.InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
-      allViewAlgorithms.InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
-    else:
-      topSequence += InDetPixelRawDataProvider
-      topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
-      topSequence.InDetPixelRawDataProvider.RoIs = "EMRoIs"
+    allViewAlgorithms += InDetPixelRawDataProvider
+    allViewAlgorithms.InDetPixelRawDataProvider.isRoI_Seeded = True
+    allViewAlgorithms.InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetPixelRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.PixRDOCacheKey
     
     
     if (InDetFlags.doPrintConfigurables()):
@@ -115,15 +127,10 @@ if TriggerFlags.doID:
                                                 ProviderTool = InDetSCTRawDataProviderTool,
                                                 OutputLevel = INFO)
     
-    if ( viewTest ):
-      allViewAlgorithms += InDetSCTRawDataProvider
-      allViewAlgorithms.InDetSCTRawDataProvider.isRoI_Seeded = True
-      allViewAlgorithms.InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
-      allViewAlgorithms.InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
-    else:
-      topSequence += InDetSCTRawDataProvider
-      topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
-      topSequence.InDetSCTRawDataProvider.RoIs = "EMRoIs"
+    allViewAlgorithms += InDetSCTRawDataProvider
+    allViewAlgorithms.InDetSCTRawDataProvider.isRoI_Seeded = True
+    allViewAlgorithms.InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
     
     
     #TRT
@@ -152,14 +159,9 @@ if TriggerFlags.doID:
                                                  RDOKey       = "TRT_RDOs",
                                                   ProviderTool = InDetTRTRawDataProviderTool)
     
-    if ( viewTest ):
-      allViewAlgorithms += InDetTRTRawDataProvider
-      allViewAlgorithms.InDetTRTRawDataProvider.isRoI_Seeded = True
-      allViewAlgorithms.InDetTRTRawDataProvider.RoIs = "EMViewRoIs"
-    else:
-      topSequence += InDetTRTRawDataProvider
-      topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
-      topSequence.InDetTRTRawDataProvider.RoIs = "EMRoIs"
+    allViewAlgorithms += InDetTRTRawDataProvider
+    allViewAlgorithms.InDetTRTRawDataProvider.isRoI_Seeded = True
+    allViewAlgorithms.InDetTRTRawDataProvider.RoIs = "EMViewRoIs"
   
   
   #Pixel clusterisation
@@ -194,15 +196,10 @@ if TriggerFlags.doID:
                                                         DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
                                                         ClustersName            = "PixelTrigClusters", OutputLevel = INFO)
-  if ( viewTest ):
-    allViewAlgorithms += InDetPixelClusterization
-    allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
-    allViewAlgorithms.InDetPixelClusterization.RoIs = "EMViewRoIs"
-    allViewAlgorithms.InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey 
-  else:
-    topSequence += InDetPixelClusterization
-    topSequence.InDetPixelClusterization.isRoI_Seeded = True
-    topSequence.InDetPixelClusterization.RoIs = "EMRoIs"
+  allViewAlgorithms += InDetPixelClusterization
+  allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
+  allViewAlgorithms.InDetPixelClusterization.RoIs = "EMViewRoIs"
+  allViewAlgorithms.InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey 
   
   
   
@@ -226,15 +223,10 @@ if TriggerFlags.doID:
                                                       conditionsService       = InDetSCT_ConditionsSummarySvc,
                                                       FlaggedConditionService = InDetSCT_FlaggedConditionSvc, OutputLevel = INFO)
   
-  if ( viewTest ):
-    allViewAlgorithms += InDetSCT_Clusterization
-    allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
-    allViewAlgorithms.InDetSCT_Clusterization.RoIs = "EMViewRoIs"
-    allViewAlgorithms.InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey 
-  else:
-    topSequence += InDetSCT_Clusterization
-    topSequence.InDetSCT_Clusterization.isRoI_Seeded = True
-    topSequence.InDetSCT_Clusterization.RoIs = "EMRoIs"
+  allViewAlgorithms += InDetSCT_Clusterization
+  allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
+  allViewAlgorithms.InDetSCT_Clusterization.RoIs = "EMViewRoIs"
+  allViewAlgorithms.InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey 
   
   
   #Space points and FTF
@@ -260,17 +252,12 @@ if TriggerFlags.doID:
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
   theFTF = TrigFastTrackFinder_eGamma()
   
-  if ( viewTest ):
-    allViewAlgorithms += InDetSiTrackerSpacePointFinder
-    allViewAlgorithms += theFTF
-    allViewAlgorithms.TrigFastTrackFinder_eGamma.isRoI_Seeded = True
-    allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-    InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT
-    InDetSiTrackerSpacePointFinder.SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix
-  else:
-    topSequence += InDetSiTrackerSpacePointFinder
-    theFTF.RoIs = "EMRoIs"
-    topSequence += theFTF
+  allViewAlgorithms += InDetSiTrackerSpacePointFinder
+  allViewAlgorithms += theFTF
+  allViewAlgorithms.TrigFastTrackFinder_eGamma.isRoI_Seeded = True
+  allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
+  InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT
+  InDetSiTrackerSpacePointFinder.SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix
 
 if TriggerFlags.doCalo:
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
@@ -280,10 +267,6 @@ if TriggerFlags.doCalo:
   algo.OutputLevel=VERBOSE
   #TopHLTSeq += algo
 
-  if ( viewTest ):
-    algo.RoIs="EMViewRoIs"
-    allViewAlgorithms += algo
-  else:
-    algo.RoIs="EMRoIs"
-    topSequence += algo
+  algo.RoIs="EMViewRoIs"
+  allViewAlgorithms += algo
 

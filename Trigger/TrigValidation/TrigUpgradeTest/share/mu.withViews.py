@@ -6,11 +6,9 @@
   
 include("TrigUpgradeTest/testHLT_MT.py") 
 
-viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-if viewTest:
-  allViewAlgorithms = topSequence.allViewAlgorithms
+allViewAlgorithms = AthSequencer("allViewAlgorithms", Sequential=False, ModeOR=False, StopOverride=False)
 
 # provide a minimal menu information
 topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
@@ -86,81 +84,62 @@ if TriggerFlags.doMuon:
   filterL1RoIsAlg.Chains = testChains
   filterL1RoIsAlg.OutputLevel = DEBUG
 
-  # set up MuFastSteering
+  # view creator
+  l2MuViewNode = AthSequencer("allViewAlgorithms", Sequential=False, ModeOR=False, StopOverride=False)
   from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-  from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
-  muFastAlg = TrigL2MuonSAConfig("Muon")
-  muFastAlg.OutputLevel = DEBUG
+  l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
+  l2MuViewsMaker.ViewFallThrough = True
+  l2MuViewsMaker.Decisions = "MURoIDecisions"
+  l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
+  l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+  l2MuViewsMaker.Views = "MUViewRoIs"
+  l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
 
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
-  if viewTest:
-    allViewAlgorithms += muFastAlg
-    svcMgr.ViewAlgPool.TopAlg += [ muFastAlg.getName() ]
-    l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
-    l2MuViewsMaker.ViewFallThrough = True
- 
-    l2MuViewsMaker.Decisions = "MURoIDecisions"
-    l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
-    l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
-    l2MuViewsMaker.Views = "MUViewRoIs"
- 
-    l2MuViewsMaker.AlgorithmNameSequence = [ muFastAlg.getName() ]
-
-    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
-    muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
-    muFastAlg.MuFastComposite = "MuFastAlg_Composite"
-    muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
-    muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
-
-  else:
-    muFastAlg.MuRoIs = "MURoIs"
-    muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
-    muFastAlg.MuFastComposite = "MuFastAlg_Composite"
-    muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
-    muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
+  # set up MuFastSteering
+  from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
+  muFastAlg = TrigL2MuonSAConfig("Muon")
+  muFastAlg.OutputLevel = DEBUG
+  muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
+  muFastAlg.RecMuonRoI = "RecMURoIs"
+  muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
+  muFastAlg.MuFastComposite = "MuFastAlg_Composite"
+  muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
+  muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
+  l2MuViewNode += muFastAlg
 
   # set up MuFastHypo
-  if viewTest:
-    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
-    trigMufastHypo = TrigMufastHypoConfig("L2MufastHypoAlg")
-    trigMufastHypo.OutputLevel = DEBUG
+  from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
+  trigMufastHypo = TrigMufastHypoConfig("L2MufastHypoAlg")
+  trigMufastHypo.OutputLevel = DEBUG
+  trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
+  trigMufastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
+  trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
+  trigMufastHypo.Decisions = "L2MuonFastDecisions"
+  trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
 
-    trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
-    trigMufastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
-    trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
-    trigMufastHypo.Decisions = "L2MuonFastDecisions"
-    trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
+  trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
 
-    trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
-
-    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
-    muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2MuViewsMaker, trigMufastHypo, muFastDecisionsDumper])
-
-  else:
-    pass 
+  muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
+  muFastStep = seqAND("muFastStep", [filterL1RoIsAlg, l2MuViewsMaker, l2MuViewNode, trigMufastHypo, muFastDecisionsDumper])
 
   # CF construction
-  if viewTest:
-    step0 = parOR("step0", [ muFastStep ] )
+  step0 = parOR("step0", [ muFastStep ] )
 
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.L1Decision = "HLTChains" 
-    summary.FinalDecisions = ["L2MuonFastDecisions"]
-    summary.OutputLevel = DEBUG 
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+  from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+  summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+  summary.L1Decision = "HLTChains" 
+  summary.FinalDecisions = ["L2MuonFastDecisions"]
+  summary.OutputLevel = DEBUG 
+  HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.L1Decision = "HLTChains" 
-    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+  mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+  mon.L1Decision = "HLTChains" 
+  mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ] 
+  mon.HLTSummary = "MonitoringSummary" 
+  mon.OutputLevel = DEBUG 
+  hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
 
-    topSequence += hltTop   
-  else:
-    topSequence += muFastAlg
+  topSequence += hltTop   
 
