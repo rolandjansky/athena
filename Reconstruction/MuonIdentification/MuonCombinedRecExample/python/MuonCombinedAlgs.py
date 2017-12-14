@@ -71,6 +71,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("MuonCandidateLocation","")
     kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("BuildSlowMuon",1)
+    kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     return MuonCreatorAlg(name,**kwargs)
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):
