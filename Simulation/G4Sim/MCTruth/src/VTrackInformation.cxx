@@ -4,18 +4,18 @@
 
 #include "MCTruth/VTrackInformation.h"
 
-VTrackInformation::VTrackInformation(TrackClassification tc):classify(tc),thePrimaryParticle(0)
+VTrackInformation::VTrackInformation(TrackClassification tc):m_classify(tc),m_thePrimaryParticle(0)
 {
 }
 
 const HepMC::GenParticle* VTrackInformation::GetPrimaryHepMCParticle() const
 {
-  return thePrimaryParticle;
+  return m_thePrimaryParticle;
 }
 
 void VTrackInformation::SetPrimaryHepMCParticle(const HepMC::GenParticle* p)
 {
-  thePrimaryParticle=p;
+  m_thePrimaryParticle=p;
 }
 
 

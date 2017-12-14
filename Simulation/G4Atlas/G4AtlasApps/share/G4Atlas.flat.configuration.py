@@ -8,6 +8,7 @@ simFlags.RandomSeedList.useDefaultSeeds()
 from G4AtlasApps.SimFlags import simFlags
 if "atlas_flags" not in simFlags.extra_flags:
     simFlags.load_atlas_flags()
+from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType() == "cosmics" and "cosmics_flags" not in simFlags.extra_flags:
     simFlags.load_cosmics_flags()
 

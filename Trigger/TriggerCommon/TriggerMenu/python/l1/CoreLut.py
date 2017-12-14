@@ -81,13 +81,13 @@ class CoreLut(object):
     @staticmethod
     def getLutAndBit(tip):
         tip = int(tip)
-        if tip>=0 tip<300:
+        if tip>=0 and tip<300:
             lut = tip/15
             bit = tip % 15
-        elif tip>=300 tip<504:
+        elif tip>=300 and tip<504:
             lut = (tip-300)/12 + 20
             bit = (tip-300) % 12
-        elif tip>=504 tip<512:
+        elif tip>=504 and tip<512:
             lut = 37
             bit = tip-504
         else:

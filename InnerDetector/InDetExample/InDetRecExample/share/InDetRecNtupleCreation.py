@@ -418,7 +418,26 @@ if InDetFlags.doStandardPlots():
 #        print InDetStandardPerformanceDBM
         
     InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceAll ]
-    
+        
+  #monitoring truth-/pseudo-tracks in particular
+    if InDetFlags.doPseudoTracking() :
+      InDetStandardPerformancePseudoTracks = InDetStandardPerformance (name               = "InDetStandardPerformancePseudoTracks",
+                                                                       tracksName         = InDetKeys.PseudoTracks(),
+                                                                       tracksTruthName    = InDetKeys.PseudoTracksTruth(),
+                                                                       SummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                                       HoleSearch         = InDetHoleSearchTool,
+                                                                       useTrackSelection  = False,
+                                                                       HistDirectoryName  = "PseudoTracksTracks",
+                                                                       TruthToTrackTool   = TruthToTrackTool,
+                                                                       doUpgrade          = InDetFlags.doSLHC(),
+                                                                       DoTruth            = InDetFlags.doTruth())
+      if InDetFlags.doSplitReco() :
+        InDetStandardPerformancePseudoTracks.TruthParticleContainerName = "TruthEvent_PU"
+      ToolSvc += InDetStandardPerformancePseudoTracks
+      if (InDetFlags.doPrintConfigurables()):
+        print    InDetStandardPerformancePseudoTracks
+      InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformancePseudoTracks ]
+
     # selected tracks passing good quality cuts
     if not (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()):
       InDetStandardPerformanceGood = InDetStandardPerformance (name                = "InDetStandardPerformanceGood",
@@ -530,6 +549,15 @@ if InDetFlags.doPhysValMon():
     print InDetPhysValMonTool
 #    if InDetFlags.doDBM():
 #      print InDetPhysValMonToolDBM
+#monitoring pile-up particles separately if splitReco is used (fast chain)
+  if InDetFlags.doSplitReco():
+    InDetPhysValMonToolPU = InDetPhysValMonitoringTool (useTrackSelection   = True,
+                                                        TrackSelectionTool   = InDetTrackSelectorTool,
+                                                        TruthParticleContainerName = "SpclMCPU")
+    ToolSvc += InDetPhysValMonToolPU
+    InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonToolPU]
+    if (InDetFlags.doPrintConfigurables()):
+      print InDetPhysValMonToolPU	
 
   # --- Setup the output histogram file(s)
   if not hasattr(ServiceMgr, 'THistSvc'):

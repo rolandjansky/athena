@@ -32,20 +32,20 @@ namespace ISF {
   class ITruthSvc;
 
   /** @class BaseSimulationSvc
-  
+
       Concrete base class for all simulation services.
 
-      It facilitates the use of event store and detector store, provides record and retrieve 
+      It facilitates the use of event store and detector store, provides record and retrieve
       methods and initializes the ChronoStatSvc.
-      
+
       It implements a dummy callback from the detector Store after the GeoModelSvc has initialized
       the detector geometry.
-  
+
       @author Michael.Duehrssen -at- cern.ch, Andreas.Salzburger -at- cern.ch, Elmar.Ritsch -at- cern.ch
      */
   class BaseSimulationSvc : public extends<AthService, ISimulationSvc> {
-    public: 
-      
+    public:
+
       //** Constructor with parameters */
       BaseSimulationSvc( const std::string& name, ISvcLocator* pSvcLocator):
         base_class(name,pSvcLocator),
@@ -67,20 +67,20 @@ namespace ISF {
                          "Handle to a StoreGateSvc instance: it will be used to retrieve data during the course of the job" );
         declareProperty( "DetStore",
                          m_detStore = StoreGateSvc_t ("StoreGateSvc/DetectorStore", name),
-                         "Handle to a StoreGateSvc/DetectorStore instance: it will be used to retrieve data during the course of the job" );                        
+                         "Handle to a StoreGateSvc/DetectorStore instance: it will be used to retrieve data during the course of the job" );
         // refine the screen output for debugging
         declareProperty("ScreenOutputPrefix",   m_screenOutputPrefix);
         // Service handling
         declareProperty("ChronoStatService",    m_chronoSvcName     );
-        
+
       };
-      
+
       /** Destructor */
-      virtual ~BaseSimulationSvc() {}; 
-                  
+      virtual ~BaseSimulationSvc() {};
+
       /** Gaudi sysInitialize() methods */
       StatusCode sysInitialize()
-      { 
+      {
         if ( AthService::sysInitialize().isFailure() ) {
             ATH_MSG_FATAL( m_screenOutputPrefix << " Cannot initialize AthService! Abort.");
             return StatusCode::FAILURE;
@@ -89,20 +89,20 @@ namespace ISF {
           ATH_MSG_FATAL( m_screenOutputPrefix << " Cannot retrieve ChronoStatSvc! Abort.");
           return StatusCode::FAILURE;
         }
-        
-        return StatusCode::SUCCESS; 
-      }      
+
+        return StatusCode::SUCCESS;
+      }
 
       /** Callback after geometry has been built - dummy implementation */
-      virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS) 
+      virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS)
       {
-         ATH_MSG_VERBOSE( m_screenOutputPrefix << " Callback recieved after geometry setup.");  
-         return StatusCode::SUCCESS; 
+         ATH_MSG_VERBOSE( m_screenOutputPrefix << " Callback recieved after geometry setup.");
+         return StatusCode::SUCCESS;
       }
 
       /** Return the simulation service descriptor */
       std::string& simSvcDescriptor() { return m_simDescr; }
-                                 
+
       /** Setup Event chain - in case of a begin-of event action is needed */
       StatusCode setupEvent()
       { return StatusCode::SUCCESS; }
@@ -151,7 +151,7 @@ namespace ISF {
       }
 
       typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-      
+
       /** @brief The standard @c StoreGateSvc (event store)
        * Returns (kind of) a pointer to the @c StoreGateSvc
        */
@@ -171,9 +171,9 @@ namespace ISF {
                ATH_MSG_DEBUG(m_screenOutputPrefix << "Successfully retrieved " << thandle);
                return StatusCode::SUCCESS;
       }
-      
+
       /** templated Tool retrieval - gives unique handling & look and feel */
-      template <class T> 
+      template <class T>
       StatusCode retrieveTools(ToolHandleArray<T>& thandleArray){
          if (!thandleArray.empty() && thandleArray.retrieve().isFailure()){
                ATH_MSG_FATAL( m_screenOutputPrefix << "Cannot retrieve " << thandleArray << ". Abort.");
@@ -182,7 +182,7 @@ namespace ISF {
                ATH_MSG_DEBUG(m_screenOutputPrefix << "Successfully retrieved " << thandleArray);
         return StatusCode::SUCCESS;
       }
-      
+
       /** templated record collection method, will create a new one if not existing */
       template<class T>
       StatusCode recordCollection( T*& coll, const std::string& collName) const{
@@ -192,7 +192,7 @@ namespace ISF {
          if (evtStore()->record( coll, collName).isFailure()){
              ATH_MSG_FATAL( m_screenOutputPrefix << "Cannot record collection " <<  collName << ". Abort." );
              return StatusCode::FAILURE;
-         } else 
+         } else
              ATH_MSG_DEBUG(m_screenOutputPrefix << "Successfully recorded collection " << collName);
         return StatusCode::SUCCESS;
       }
@@ -201,34 +201,34 @@ namespace ISF {
       template<class T>
       StatusCode retrieveCollection(T*& coll, const std::string& collName, bool forceBreak=true) const {
           // check for existence in the soft case
-          if (!forceBreak && !evtStore()->contains<T>(collName)) { 
-              coll = 0; 
+          if (!forceBreak && !evtStore()->contains<T>(collName)) {
+              coll = 0;
               ATH_MSG_DEBUG(m_screenOutputPrefix << "Collection does not exists (not required). Ignore.");
               return StatusCode::SUCCESS;
-          } 
+          }
           if ( evtStore()->retrieve(coll, collName).isFailure()){
               ATH_MSG_FATAL( m_screenOutputPrefix << "Cannot retireve collection " <<  collName << ". Abort." );
               return StatusCode::FAILURE;
-         } else  
+         } else
               ATH_MSG_DEBUG(m_screenOutputPrefix << "Successfully retrieved collection " << collName);
-          return StatusCode::SUCCESS;     
+          return StatusCode::SUCCESS;
        }
 
-    private:     
+    private:
       /** Default constructor */
       BaseSimulationSvc();
-      
+
       /// Pointer to StoreGate (event store by default)
       mutable StoreGateSvc_t m_evtStore;
 
       /// Pointer to StoreGate (detector store by default)
       mutable StoreGateSvc_t m_detStore;
-      
 
-    protected:  
+
+    protected:
       /** The simulator service descriptor */
       std::string       m_simDescr;
-      
+
       /** Screen output refinement - can be changed by declareProperty() */
       std::string       m_screenOutputPrefix;
 
@@ -236,17 +236,17 @@ namespace ISF {
       std::string       m_chronoSvcName;
 
       /** The timing service for general usage */
-      IChronoStatSvc*   m_chrono; 
+      IChronoStatSvc*   m_chrono;
 
       /** The particle service used to push particles into the simulation */
       IParticleBroker*  m_particleBroker;
-      
-  }; 
-  
-  
+
+  };
+
+
    /** Simulation Call --- hand over to the particleProcessor if it exists */
    inline StatusCode BaseSimulationSvc::simulate(const ISFParticle& /*isp*/)
-   { 
+   {
        return StatusCode::SUCCESS;
    }
 }
