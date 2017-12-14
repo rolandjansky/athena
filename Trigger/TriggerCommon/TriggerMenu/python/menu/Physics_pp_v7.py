@@ -4119,6 +4119,8 @@ def setupMenu():
         ['noalg_L1Topo',                  'L1_Topo',             [], ['L1Topo'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
         ['noalg_larcells_L1LAR-EM',                'L1_LAR-EM',           [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
         ['noalg_larcells_L1LAR-J',                 'L1_LAR-J',            [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
+        ['noalg_larcells_L1LAR-ZEE_LAR-EM',        'L1_LAR-ZEE_LAR-EM',   [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1],
+        ['noalg_larcells_L1LAR-ZEE',               'L1_LAR-ZEE',          [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1],
         ['noalg_L1Calo_EMPTY',            'L1_Calo_EMPTY',       [], ['L1Calo'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
       
         ['noalg_l1calo_L1J75',         'L1_J75', [], ['L1Calo'], ["RATE:SeededStreamers", "BW:Other"], -1],
@@ -4235,6 +4237,8 @@ def setupMenu():
 	["noalg_l1topo_L1DR-TAU20ITAU12I-J25",          	"L1_DR-TAU20ITAU12I-J25",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 	["noalg_l1topo_L1LAR-EM",          			"L1_LAR-EM",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 	["noalg_l1topo_L1LAR-J",          			"L1_LAR-J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+        ['noalg_l1topo_L1LAR-ZEE',                              'L1_LAR-ZEE',          [], ['L1Topo'],     ["RATE:L1TopoStreamers", "BW:Other"], -1],
+        ['noalg_l1topo_L1LAR-ZEE_LAR-EM',                       'L1_LAR-ZEE_LAR-EM',   [], ['L1Topo'],     ["RATE:L1TopoStreamers", "BW:Other"], -1],
 	["noalg_l1topo_L1MU6_MJJ-200",          		"L1_MU6_MJJ-200",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 	["noalg_l1topo_L13J20_4J20.0ETA49_MJJ-400",         	"L1_3J20_4J20.0ETA49_MJJ-400",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 	["noalg_l1topo_L13J20_4J20.0ETA49_MJJ-700",          	"L1_3J20_4J20.0ETA49_MJJ-700",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
