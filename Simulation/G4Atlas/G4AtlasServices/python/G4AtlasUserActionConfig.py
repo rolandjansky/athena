@@ -78,15 +78,15 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
 
     from G4AtlasApps.SimFlags import simFlags
 
-    optionalActions = simFlags.OptionalUserActionList
+    optActions = simFlags.OptionalUserActionList.get_Value()
     kwargs.setdefault('RunActionTools',
-        getDefaultRunActions() + optionalActions.get_Value()['Run'])
+                      getDefaultRunActions() + optActions['Run'])
     kwargs.setdefault('EventActionTools',
-        getDefaultEventActions() + optionalActions.get_Value()['Event'])
+                      getDefaultEventActions() + optActions['Event'])
     kwargs.setdefault('SteppingActionTools',
-        getDefaultSteppingActions() + optionalActions.get_Value()['Step'])
+                      getDefaultSteppingActions() + optActions['Step'])
     kwargs.setdefault('TrackingActionTools',
-        getDefaultTrackingActions() + optionalActions.get_Value()['Tracking'])
+                      getDefaultTrackingActions() + optActions['Tracking'])
     # no optional actions for stacking
     kwargs.setdefault('StackingActionTools', getDefaultStackingActions())
 
@@ -98,11 +98,11 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
 
 def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    optionalActions = simFlags.OptionalUserActionList
-    run = getDefaultRunActions() + optionalActions.get_Value()['Run']
-    event = getDefaultEventActions() + optionalActions.get_Value()['Event']
-    tracking = getDefaultTrackingActions() + optionalActions.get_Value()['Tracking']
-    stepping = getDefaultSteppingActions() + optionalActions.get_Value()['Step']
+    optActions = simFlags.OptionalUserActionList.get_Value()
+    run = getDefaultRunActions() + optActions['Run']
+    event = getDefaultEventActions() + optActions['Event']
+    tracking = getDefaultTrackingActions() + optActions['Tracking']
+    stepping = getDefaultSteppingActions() + optActions['Step']
     stacking = getDefaultStackingActions()
 
     # FIXME: ADS these actions are not yet migrated to Hive
@@ -134,16 +134,20 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
     MCTruthUserAction = kwargs.pop('MCTruthUserAction',['ISFMCTruthUserActionTool'])
 
     from G4AtlasApps.SimFlags import simFlags
-    optionalActions = simFlags.OptionalUserActionList
-    run = (getDefaultRunActions() + optionalActions.get_Value()['Run'] +
-           PhysicsValidationUserAction)
-    event = (getDefaultEventActions() + optionalActions.get_Value()['Event'] +
-             TrackProcessorUserAction + PhysicsValidationUserAction)
-    tracking = (TrackProcessorUserAction + MCTruthUserAction +
-                getDefaultTrackingActions() + optionalActions.get_Value()['Tracking'] +
-                PhysicsValidationUserAction)
-    stepping = (getDefaultSteppingActions() + optionalActions.get_Value()['Step'] +
-                TrackProcessorUserAction + PhysicsValidationUserAction)
+    optActions = simFlags.OptionalUserActionList.get_Value()
+    run = (
+        getDefaultRunActions() + optActions['Run'] +
+        PhysicsValidationUserAction)
+    event = (
+        getDefaultEventActions() + optActions['Event'] +
+        TrackProcessorUserAction + PhysicsValidationUserAction)
+    tracking = (
+        TrackProcessorUserAction + MCTruthUserAction +
+        getDefaultTrackingActions() + optActions['Tracking'] +
+        PhysicsValidationUserAction)
+    stepping = (
+        getDefaultSteppingActions() + optActions['Step'] +
+        TrackProcessorUserAction + PhysicsValidationUserAction)
     stacking = getDefaultStackingActions()
 
     kwargs.setdefault('RunActionTools', run)
