@@ -137,6 +137,7 @@ int JetConstituentModSequence::execute() const {
     }
   }
 
+#ifndef XAOD_STANDALONE
   if(!m_trigger) {
     ATH_CHECK( evtStore()->setConst(modifiedCont) );
     if(m_inputType == xAOD::Type::ParticleFlow) {
@@ -144,6 +145,7 @@ int JetConstituentModSequence::execute() const {
       ATH_CHECK( evtStore()->setConst(neutralCopy) );
     }
   }
+#endif
 
   //To prevent memory leak when modified PFO are not recorded to event store
   if(m_inputType == xAOD::Type::ParticleFlow && m_trigger) delete modifiedCont;
