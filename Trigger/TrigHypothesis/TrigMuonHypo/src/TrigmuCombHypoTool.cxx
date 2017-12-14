@@ -113,7 +113,7 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
 
   auto monitorIt = MonitoredScope::declare(m_monTool, fexPt, ptFL, Strategy, 
 					   idEta, idPhi, idZ0, idA0);
-
+  // flag to pass or not
   bool result = false;
 
   if(m_acceptAll) {
