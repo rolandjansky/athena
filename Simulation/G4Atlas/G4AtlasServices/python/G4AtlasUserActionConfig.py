@@ -6,31 +6,13 @@ from AthenaCommon import CfgGetter,CfgMgr,Logging
 
 # actions to be run at begin/end of run
 def getDefaultRunActions():
-    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    #if not  simFlags.ISFRun:
-    #    defaultUA+=['G4UA::G4SimTimerTool']
-    #if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-    #    defaultUA+=['G4UA::StoppedParticleActionTool']
     return defaultUA
 
 # begin of event
 def getDefaultEventActions():
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-    #if not simFlags.ISFRun:
-    #    defaultUA+=['G4UA::G4SimTimerTool']
-    #defaultUA+=['G4UA::G4TrackCounterTool']
-    #if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() == 'Read':
-    #    defaultUA+=['G4UA::HitWrapperTool']
-    #if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-    #    defaultUA+=['G4UA::CosmicPerigeeActionTool']
-    #if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        #defaultUA+=['G4UA::StoppedParticleActionTool']
-        #defaultUA+=['G4UA::G4CosmicFilterTool']
-    #if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.ISFRun:
-    #    defaultUA+=['G4UA::G4CosmicFilterTool']
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
         defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     return defaultUA
@@ -38,21 +20,14 @@ def getDefaultEventActions():
 # stepping
 def getDefaultSteppingActions():
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-    #if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-    #    defaultUA+=['G4UA::CosmicPerigeeActionTool']
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
         defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
-    #if simFlags.PhysicsList == 'QGSP_BERT_HP':
-    #    defaultUA+=['G4UA::PhotonKillerTool']
     return defaultUA
 
 # tracking
 def getDefaultTrackingActions():
-    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    #defaultUA+=['G4UA::G4TrackCounterTool']
     return defaultUA
 
 # Stacking Classification
@@ -71,7 +46,6 @@ def flag_off(name):
 # New function for all user action types
 def getDefaultActions():
     from G4AtlasApps.SimFlags import simFlags
-    #import AthenaCommon.BeamFlags.jobproperties as beamProps
     from AthenaCommon.BeamFlags import jobproperties as beamProps
 
     actions = []
