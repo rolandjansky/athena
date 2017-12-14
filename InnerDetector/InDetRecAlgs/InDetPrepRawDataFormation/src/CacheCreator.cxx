@@ -23,9 +23,9 @@ namespace InDet{
     m_PIXclusterContainerCacheKey(""),
     m_PIXSpacePointCacheKey(""),
     m_SCTSpacePointCacheKey(""),
+
     m_SCTRDOCacheKey(""), m_PixRDOCacheKey(""),
-    m_disableTRT(false), m_condKey("SCT_MonitorConditionsCondData"),
-    m_condKey2("SCT_TdaqEnabledCondData")
+    m_disableTRT(false)
     {
         declareProperty("TRT_DriftCircleKey", m_rioContainerCacheKey);
         declareProperty("SCT_ClusterKey"    , m_SCTclusterContainerCacheKey);
@@ -34,8 +34,6 @@ namespace InDet{
         declareProperty("SpacePointCacheSCT"  , m_SCTSpacePointCacheKey);
         declareProperty("SCTRDOCacheKey", m_SCTRDOCacheKey);
         declareProperty("disableTRT"  , m_disableTRT);
-        declareProperty("Condkey", m_condKey);
-        declareProperty("Condkey2", m_condKey2);
         declareProperty("PixRDOCacheKey", m_PixRDOCacheKey);
     }
 
@@ -50,6 +48,8 @@ namespace InDet{
         ATH_CHECK( m_PixRDOCacheKey.initialize(!m_PixRDOCacheKey.key().empty()) );
         ATH_CHECK( m_condKey.initialize() );
         ATH_CHECK( m_condKey2.initialize() );
+	ATH_CHECK( m_condKey3.initialize() );
+	ATH_CHECK( m_condKey4.initialize() );
         if(!m_disableTRT) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
         ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
         ATH_CHECK(detStore()->retrieve(m_pix_idHelper, "PixelID"));
