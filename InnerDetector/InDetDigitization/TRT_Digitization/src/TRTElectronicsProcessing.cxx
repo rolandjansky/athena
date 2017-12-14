@@ -62,10 +62,6 @@ void TRTElectronicsProcessing::Initialize() {
   m_totalNumberOfBins = m_numberOfPreZeroBins + m_numberOfPostZeroBins; //assigning to int
   m_timeInterval += m_binWidth * static_cast<double>(m_numberOfPreZeroBins); //assigning to double
 
-  //TK: why dont we use these? [fixme?]
-  //AJB: Yes, what a mess!
-  //  int numberOfBinsInEncodingBin = m_settings->numberOfBinsInEncodingBin();
-  //  m_encodingBinWidth = m_binWidth * (double) numberOfBinsInEncodingBin;
   m_minDiscriminatorWidthInBinWidths =     static_cast<int>(m_settings->minDiscriminatorWidth()     / m_binWidth + 0.5);
   m_discriminatorSettlingTimeInBinWidths = static_cast<int>(m_settings->discriminatorSettlingTime() / m_binWidth + 0.5);
   m_discriminatorDeadTimeInBinWidths =     static_cast<int>(m_settings->discriminatorDeadTime()     / m_binWidth + 0.5);
@@ -81,7 +77,6 @@ void TRTElectronicsProcessing::Initialize() {
   m_lowThresholdEC[2]  = m_settings->lowThresholdEC(2);
 
   TabulateSignalShape();
-
   //for (int j=0; j<3; j++) { for (int i=0; i<m_numberOfPostZeroBins; i++) std::cout << "AJBLT " << j << " " << m_lowThresholdSignalShape[j][i] << std::endl; }
   //for (int j=0; j<3; j++) { for (int i=0; i<m_numberOfPostZeroBins; i++) std::cout << "AJBHT " << j << " " << m_highThresholdSignalShape[j][i] << std::endl; }
 
@@ -104,11 +99,9 @@ void TRTElectronicsProcessing::Initialize() {
 //___________________________________________________________________________
 void TRTElectronicsProcessing::TabulateSignalShape() {
 
-  // Fixme: This assumes 0.78125 ns bin spacing and m_numberOfPostZeroBins=160 bins!
-  // So we need to hard-code the processing to reflect that this is not a parameter!
-
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() begin" << endmsg;
 
+  // We have 160 bins each 0.78125 ns
   // These arrays are cut and paste from the output of TRT_Digitization/share/signalShapes.cpp
 
   const double pXeLT[160] = {
@@ -259,7 +252,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
     highthreshold = highthreshold*CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, high_threshold_fluctuation );
   }
 
-  //Null out arrays: (AJB m_totalNumberOfBins=160(125ns))
+  //Null out arrays: m_totalNumberOfBins=160(125ns)
   for (int i(0); i < m_totalNumberOfBins; ++i) {
     m_energyDistribution[i] = 0.;
     m_lowThresholdSignal[i] = 0.;
@@ -267,7 +260,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
     m_lowThresholdDiscriminator[i] = 0;
     m_highThresholdDiscriminator[i] = 0;
   }
-  // Fill cluster energies into relevant time bins
+  // Fill cluster energies into relevant time bins: m_energyDistribution[m_totalNumberOfBins] * 1.0e6 eV
   // With pileup, m_timeInterval=125ns and signal event starting at 50 ns.
   const unsigned int numberOfDeposits(deposits.size());
   for (unsigned int i(0); i < numberOfDeposits; ++i) {
@@ -277,42 +270,26 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
       m_energyDistribution[index] += deposits[i].energy();
     }
   }
-  //std::cout << "AJB before shaping ";
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout << m_energyDistribution[i]*1.0e6 << " "; // (eV)
-  //std::cout << std::endl;
 
   // Signal shaping; 4 different shaping functions for: LT, HT, Argon, Xenon
+  // Fills m_lowThresholdSignal[m_totalNumberOfBins] and m_highThresholdSignal[m_totalNumberOfBins]
   SignalShaping(strawGasType);
-  //std::cout << "AJB after shaping ";
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_lowThresholdSignal[i]*1.0e6 << " "; // (eV); or m_highThresholdSignal[i]
-  //std::cout << std::endl;
 
   // Add noise; LT only
   // (though both LT and HT also get fluctuations elsewhere which gives similar effect to noise).
   if ( m_pElectronicsNoise && noiseamplitude>0 ) {
     m_pElectronicsNoise->addElectronicsNoise(m_lowThresholdSignal,noiseamplitude); // LT signal only
-    //std::cout << "AJB after adding noise ";
-    //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_lowThresholdSignal[i]*1.0e6 << " "; // (eV); or m_highThresholdSignal[i]
-    //std::cout << std::endl;
   }
 
   // Discriminator response (in what fine time bins are the thresholds exceeded)
+  // Fills m_lowThresholdDiscriminator[m_totalNumberOfBins] and m_highThresholdDiscriminator[m_totalNumberOfBins]
   DiscriminatorResponse(lowthreshold,highthreshold);
-  //std::cout << "AJB after discriminator " << strawGasType << getRegion(hitID) << std::endl;
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout << m_lowThresholdDiscriminator[i]; // or m_highThresholdDiscriminator[i]
-  //std::cout << std::endl;
 
   // Apply an independent LT T0 shift to m_lowThresholdDiscriminator[]
   LTt0Shift(hitID,strawGasType);
-  //std::cout << "AJB after discriminator LT T0 shift " << strawGasType << getRegion(hitID) << std::endl;
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout << m_lowThresholdDiscriminator[i];
-  //std::cout << std::endl;
 
   // Apply an independent HT T0 shift to m_highThresholdDiscriminator[]
   HTt0Shift(hitID);
-  //std::cout << "AJB after discriminator HT T0 shift " << strawGasType << getRegion(hitID) << std::endl;
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highThresholdDiscriminator[i];
-  //std::cout << std::endl;
 
   // Finally turn the fine discriminator response arrays into an output digit;
   // for RDO reduction, zero: msb, and first 4 unused bits, first and third HT bits, last 4 LT bits
@@ -574,7 +551,7 @@ double TRTElectronicsProcessing::getHighThreshold ( int hitID, int strawGasType 
 //___________________________________________________________________________
 void TRTElectronicsProcessing::HTt0Shift(int hitID) {
 
-  // Apply a (small)timing shift to m_highThresholdDiscriminator[]
+  // Apply a timing shift to m_highThresholdDiscriminator[]
   // t0Shift tuning is provided by the parameters:
   // htT0shiftBarShort, htT0shiftBarLong, htT0shiftECAwheels and m_htT0shiftECBwheels
 
@@ -620,7 +597,7 @@ void TRTElectronicsProcessing::HTt0Shift(int hitID) {
 //_____________________________________________________________________________
 void TRTElectronicsProcessing::LTt0Shift( int hitID, int strawGasType ) {
 
-  // Apply a (small)timing shift to m_lowThresholdDiscriminator[]
+  // Apply a timing shift to m_lowThresholdDiscriminator[]
   // t0Shift tuning is provided by the parameters:
   // ltT0shiftBarShort, ltT0shiftBarLong, ltT0shiftECAwheels and m_ltT0shiftECBwheels
 

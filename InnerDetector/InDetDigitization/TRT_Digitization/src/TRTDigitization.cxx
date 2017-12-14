@@ -25,18 +25,14 @@ StatusCode TRTDigitization::initialize() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG ( "Retrieved TRT Digitization Tool." );
-
   return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // Execute method:
 //----------------------------------------------------------------------
-
 StatusCode TRTDigitization::execute() {
-
   ATH_MSG_DEBUG ( "execute()" );
-
   return m_digTool->processAllSubEvents();
 }
 
@@ -44,8 +40,6 @@ StatusCode TRTDigitization::execute() {
 // Finalize method:                                                     //
 //----------------------------------------------------------------------//
 StatusCode TRTDigitization::finalize() {
-  
   ATH_MSG_DEBUG ( "finalize()" );
-
   return StatusCode::SUCCESS;
 }
