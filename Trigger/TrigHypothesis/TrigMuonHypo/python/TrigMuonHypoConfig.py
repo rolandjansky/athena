@@ -718,14 +718,14 @@ class TrigmuCombHypoConfig(TrigmuCombHypoAlg):
                 tool.PtBins = [-10000.,10000.]
                 tool.PtThresholds = [ -1. * GeV ]
                 tool.ApplyStrategyDependentCuts = True
-                tool.Apply_pik_Cuts = False
+                tool.ApplyPikCuts = False
             else:
                 raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % threshold)
 
         if (tight == True): 
-            tool.Apply_pik_Cuts        = True
-            tool.MaxPtToApply_pik      = 25.
-            tool.MaxChi2ID_pik         = 3.5
+            tool.ApplyPikCuts        = True
+            tool.MaxPtToApplyPik      = 25.
+            tool.MaxChi2IDPik         = 3.5
 
         return threshold
 

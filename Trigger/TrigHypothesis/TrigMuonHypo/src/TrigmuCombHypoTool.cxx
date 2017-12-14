@@ -22,21 +22,21 @@ TrigmuCombHypoTool::TrigmuCombHypoTool(const std::string& type,
    : AthAlgTool( type, name, parent ),
      m_decisionId( HLT::Identifier::fromToolName( name ) ) 
 {
-   std::vector<float> def_bins;
-   def_bins.push_back(0);
-   def_bins.push_back(2.5);
-   std::vector<float> def_thrs;
-   def_thrs.push_back(5.83 * CLHEP::GeV);
+   std::vector<float> defBins;
+   defBins.push_back(0);
+   defBins.push_back(2.5);
+   std::vector<float> defThrs;
+   defThrs.push_back(5.83 * CLHEP::GeV);
 
-   declareProperty("PtBins", m_ptBins = def_bins);
-   declareProperty("PtThresholds", m_ptThresholds = def_thrs);
+   declareProperty("PtBins", m_ptBins = defBins);
+   declareProperty("PtThresholds", m_ptThresholds = defThrs);
 
    declareProperty("AcceptAll", m_acceptAll = false);
 
    // Enable pi/K decay rejection
-   declareProperty("Apply_pik_Cuts",        m_pik_cuts = false);
-   declareProperty("MaxPtToApply_pik",      m_maxPtToApply_pik = 25.);
-   declareProperty("MaxChi2ID_pik",         m_chi2MaxID = 3.5);
+   declareProperty("ApplyPikCuts",        m_pikCuts = false);
+   declareProperty("MaxPtToApplyPik",      m_maxPtToApplyPik = 25.);
+   declareProperty("MaxChi2IDPik",         m_chi2MaxID = 3.5);
 
    // strategy dependent pT cuts
    //0: Std
@@ -47,12 +47,12 @@ TrigmuCombHypoTool::TrigmuCombHypoTool(const std::string& type,
    declareProperty("ApplyStrategyDependentCuts", m_strategydependent = false);
    declareProperty("StrategyDependentPtCuts",    m_strategyDependentPtCuts);
 
-   std::vector<double> def_strategyDependentPtCuts;
-   def_strategyDependentPtCuts.push_back(0.0);     //strategy 1 (in GeV) (if<0 do not apply the standard signature cut)
-   def_strategyDependentPtCuts.push_back(0.0);     //strategy 2 (in GeV) 
-   def_strategyDependentPtCuts.push_back(0.0);     //strategy 3 (in GeV)
-   def_strategyDependentPtCuts.push_back(-3.0);    //strategy 4 (in GeV)
-   m_strategyDependentPtCuts.set(def_strategyDependentPtCuts);
+   std::vector<double> defStrategyDependentPtCuts;
+   defStrategyDependentPtCuts.push_back(0.0);     //strategy 1 (in GeV) (if<0 do not apply the standard signature cut)
+   defStrategyDependentPtCuts.push_back(0.0);     //strategy 2 (in GeV) 
+   defStrategyDependentPtCuts.push_back(0.0);     //strategy 3 (in GeV)
+   defStrategyDependentPtCuts.push_back(-3.0);    //strategy 4 (in GeV)
+   m_strategyDependentPtCuts.set(defStrategyDependentPtCuts);
 
    m_bins = 0;
 }
@@ -103,16 +103,16 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
   using namespace Monitored;
 
   // defined Monitoring variables
-  auto fex_pt	= MonitoredScalar::declare("Pt", -9999.);
+  auto fexPt	= MonitoredScalar::declare("Pt", -9999.);
   auto ptFL	= MonitoredScalar::declare("PtFL", -9999.);
   auto Strategy	= MonitoredScalar::declare("StrategyFlag", 0);
-  auto id_eta 	= MonitoredScalar::declare("Eta", -9999.);
-  auto id_phi 	= MonitoredScalar::declare("Phi", -9999.);
-  auto id_Z0 	= MonitoredScalar::declare("Z0", -9999.);
-  auto id_A0 	= MonitoredScalar::declare("A0", -9999.);
+  auto idEta 	= MonitoredScalar::declare("Eta", -9999.);
+  auto idPhi 	= MonitoredScalar::declare("Phi", -9999.);
+  auto idZ0 	= MonitoredScalar::declare("Z0", -9999.);
+  auto idA0 	= MonitoredScalar::declare("A0", -9999.);
 
-  auto monitorIt = MonitoredScope::declare(m_monTool, fex_pt, ptFL, Strategy, 
-					   id_eta, id_phi, id_Z0, id_A0);
+  auto monitorIt = MonitoredScope::declare(m_monTool, fexPt, ptFL, Strategy, 
+					   idEta, idPhi, idZ0, idA0);
 
   bool result = false;
 
@@ -133,17 +133,17 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
      return StatusCode::FAILURE;
   }
 
-  auto pt_value = pMuon->pt() * pMuon->charge() / CLHEP::GeV;
+  auto ptValue = pMuon->pt() * pMuon->charge() / CLHEP::GeV;
 
-  fex_pt    = pt_value;
-  ptFL      = pt_value;
-  id_eta    = pMuon->eta();
-  id_phi    = pMuon->phi();
+  fexPt    = ptValue;
+  ptFL      = ptValue;
+  idEta    = pMuon->eta();
+  idPhi    = pMuon->phi();
   int usealgo      = pMuon->strategy();
-  float ptres_comb = pMuon->sigmaPt() / CLHEP::GeV;
+  float ptresComb = pMuon->sigmaPt() / CLHEP::GeV;
   Strategy  = usealgo;
   ATH_MSG_DEBUG("combined muon pt (GeV)/ sigma_pt (GeV)/ eta / phi / usedalgo: " 
-              << fex_pt << " (GeV) / " << ptres_comb << " (GeV) / " << id_eta << " / " << id_phi 
+              << fexPt << " (GeV) / " << ptresComb << " (GeV) / " << idEta << " / " << idPhi 
               << " / " << usealgo);
 
   if (pMuon->pt() == 0) {
@@ -166,12 +166,12 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
      return StatusCode(result);
   }
 
-  id_A0     = pMuon->idTrack()->d0();
-  id_Z0     = pMuon->idTrack()->z0();
+  idA0     = pMuon->idTrack()->d0();
+  idZ0     = pMuon->idTrack()->z0();
 
   //Get the Pt cut for that eta bin
-  float threshold = (id_eta != -9999) ? 0 : 99999999;
-  float absEta = fabs(id_eta);
+  float threshold = (idEta != -9999) ? 0 : 99999999;
+  float absEta = fabs(idEta);
   for (std::vector<float>::size_type i = 0; i < m_bins; ++i) {
      if (absEta > m_ptBins[i] && absEta < m_ptBins[i + 1]) threshold = m_ptThresholds[i];
   }
@@ -180,40 +180,40 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
   // convert units since Muonfeature is in GeV
 
   //Kpi rejection
-  bool pik_cut = true;
-  if (m_pik_cuts && (fabsf(fex_pt) < m_maxPtToApply_pik)) {
-     if (pMuon->idTrack()->chiSquared() > m_chi2MaxID) pik_cut = false;
+  bool pikCut = true;
+  if (m_pikCuts && (fabsf(fexPt) < m_maxPtToApplyPik)) {
+     if (pMuon->idTrack()->chiSquared() > m_chi2MaxID) pikCut = false;
   }
 
   //Std Pt cut
-  bool std_cut = true;
-  if (fabsf(fex_pt) <= (threshold / CLHEP::GeV)) std_cut = false;
-  ATH_MSG_DEBUG("REGTEST muon pt is " << fex_pt
+  bool stdCut = true;
+  if (fabsf(fexPt) <= (threshold / CLHEP::GeV)) stdCut = false;
+  ATH_MSG_DEBUG("REGTEST muon pt is " << fexPt
              << " GeV and threshold cut is " << threshold / CLHEP::GeV
-             << " GeV and pik_cut is " << (pik_cut ? "true" : "false"));
+             << " GeV and pik_cut is " << (pikCut ? "true" : "false"));
 
   //Strategy dependent Pt cuts
-  bool sdp_cut = true;
+  bool sdpCut = true;
   if (m_strategydependent && usealgo > 0) {
      if (usealgo >= 1 && usealgo <= 4) {
         double tmpcut = m_strategyDependentPtCuts.value()[usealgo - 1];
-        if (std::abs(fex_pt) <= std::abs(tmpcut)) sdp_cut = false;
-        if (tmpcut < 0) std_cut = true; //Do not apply std Pt cut
-        ATH_MSG_DEBUG("REGTEST muon pt is " << fex_pt << " GeV"
+        if (std::abs(fexPt) <= std::abs(tmpcut)) sdpCut = false;
+        if (tmpcut < 0) stdCut = true; //Do not apply std Pt cut
+        ATH_MSG_DEBUG("REGTEST muon pt is " << fexPt << " GeV"
                    << " and threshold for strategy dependent cut is " << tmpcut
-                   << " GeV and strategy dependent / std cuts are " << (sdp_cut ? "true" : "false") << " / " << (std_cut ? "true" : "false"));
+                   << " GeV and strategy dependent / std cuts are " << (sdpCut ? "true" : "false") << " / " << (stdCut ? "true" : "false"));
      } else {
         ATH_MSG_DEBUG("usealgo out of range, is: " << usealgo << " while should be in [1, 4]");
      }
   }
 
-  result = std_cut && pik_cut && sdp_cut;
+  result = stdCut && pikCut && sdpCut;
 
   if (result) ptFL = -9999.;
 
-  ATH_MSG_DEBUG("REGTEST muon passed pt threshold: " << (std_cut ? "true" : "false")
-             << " and pik_cut is " << (pik_cut ? "true" : "false")
-             << " and strategy dependent cuts is " << (sdp_cut ? "true" : "false")
+  ATH_MSG_DEBUG("REGTEST muon passed pt threshold: " << (stdCut ? "true" : "false")
+             << " and pik_cut is " << (pikCut ? "true" : "false")
+             << " and strategy dependent cuts is " << (sdpCut ? "true" : "false")
              << " so hypothesis is " << (result ? "true" : "false"));
 
   return StatusCode(result);

@@ -66,8 +66,8 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
     BooleanProperty m_acceptAll;
    
     // pi/K rejections flags
-    BooleanProperty m_pik_cuts;
-    DoubleProperty  m_maxPtToApply_pik;
+    BooleanProperty m_pikCuts;
+    DoubleProperty  m_maxPtToApplyPik;
     DoubleProperty  m_chi2MaxID;
    
     // Apply strategy dependent pT cuts (B/T/S = 0 fields, L1 seeded, ...)
