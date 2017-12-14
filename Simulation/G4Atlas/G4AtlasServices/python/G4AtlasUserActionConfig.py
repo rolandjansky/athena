@@ -21,7 +21,6 @@ def getDefaultEventActions():
     defaultUA=[]
     if not simFlags.ISFRun:
         defaultUA+=['G4UA::G4SimTimerTool']
-        defaultUA+=['G4UA::MCTruthSteppingActionTool']
     defaultUA+=['G4UA::G4TrackCounterTool']
     if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() == 'Read':
         defaultUA+=['G4UA::HitWrapperTool']
@@ -41,8 +40,6 @@ def getDefaultSteppingActions():
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-    if not simFlags.ISFRun:
-        defaultUA+=['G4UA::MCTruthSteppingActionTool']
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
         defaultUA+=['G4UA::CosmicPerigeeActionTool']
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
@@ -69,7 +66,8 @@ def getDefaultActions():
     actions = []
     actions += ['G4UA::AthenaStackingActionTool']
     if not simFlags.ISFRun:
-        actions += ['G4UA::AthenaTrackingActionTool']
+        actions += ['G4UA::AthenaTrackingActionTool',
+                    'G4UA::MCTruthSteppingActionTool']
     return actions
 
 def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
