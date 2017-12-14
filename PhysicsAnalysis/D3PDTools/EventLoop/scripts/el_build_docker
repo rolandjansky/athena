@@ -28,12 +28,16 @@ for dir in os.getenv("DATAPATH").split (":") :
 # find source directory and package_filters.txt file from CMakeCache.txt
 source_dir = None
 package_filters = None
+project_name = None
 for line in open(os.path.join (build_dir, "CMakeCache.txt"), 'r'):
     if re.search ("^PROJECT_SOURCE_DIR:", line, re.IGNORECASE):
         source_dir = line[line.find("=")+1:-1]
         pass
     elif re.search ("^ATLAS_PACKAGE_FILTER_FILE:", line, re.IGNORECASE):
         package_filters = line[line.find("=")+1:-1]
+        pass
+    elif re.search ("^CMAKE_PROJECT_NAME:", line, re.IGNORECASE):
+        project_name = line[line.find("=")+1:-1]
         pass
     pass
 
@@ -59,13 +63,17 @@ shutil.copyfile (package_filters, os.path.join (data_dir, "package_filters.txt")
 
 # create docker image
 command = ["docker", "build", "-t", args.image_name,
-           "-f", os.path.join (data_dir, "Dockerfile")]
+           "-f", os.path.join (data_dir, "Dockerfile"),
+           "--build-arg", "PROJECT_NAME=" + project_name]
 if args.release :
     command += ["--build-arg", "RELEASE=" + args.release]
     pass
 command += [source_dir]
+
+# make the image
 if args.verbose :
     print "calling:", command
+    pass
 subprocess.call (command)
 
 # cleanup
