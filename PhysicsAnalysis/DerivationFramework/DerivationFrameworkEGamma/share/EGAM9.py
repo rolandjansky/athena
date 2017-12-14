@@ -12,10 +12,19 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.EGAM9ExtraContent import *
 
 
 #====================================================================
-# SKIMMING TOOLS
+# SET UP STREAM (to be done early in the game to set up thinning Svc
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EGAM9Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM9Stream )
+EGAM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+
+
+#====================================================================
+# SET UP SKIMMING
 #====================================================================
 
 # SELECTION FOR BACKGROUND ESTIMATES
@@ -85,7 +94,7 @@ print "EGAM9 skimming tool:", EGAM9_SkimmingTool
 
 
 #====================================================================
-# DECORATION TOOLS
+# SET UP AUGMENTATIONS
 #====================================================================
 
 
@@ -113,12 +122,17 @@ EGAM9_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
 ToolSvc += EGAM9_MaxCellDecoratorTool
 
 
-#================
-# THINNING
-#================
+#====================================================================
+# SET UP THINNING
+#====================================================================
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EGAM9ThinningHelper = ThinningHelper( "EGAM9ThinningHelper" )
+EGAM9ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
+if globalflags.DataSource()!='geant4':
+    ExtraContainersTrigger += ExtraContainersTriggerDataOnly
+EGAM9ThinningHelper.AppendToStream( EGAM9Stream, ExtraContainersTrigger )
+
 thinningTools=[]
-
-
 
 
 # Truth thinning
@@ -131,7 +145,7 @@ truth_expression = '(' + truth_cond_WZH + ' ||  ' + truth_cond_lep +' || '+truth
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EGAM9TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EGAM9TruthThinningTool",
-                                                                   ThinningService         = "EGAM9ThinningSvc",
+                                                                   ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
                                                                    ParticleSelectionString = truth_expression,
                                                                    PreserveDescendants     = False,
                                                                    PreserveGeneratorDescendants     = True,
@@ -186,11 +200,8 @@ theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["egammaClusters"],
 
 
 #====================================================================
-# SET UP STREAM
+# SET UP STREAM SELECTION
 #====================================================================
-streamName = derivationFlags.WriteDAOD_EGAM9Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM9Stream )
-EGAM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Only events that pass the filters listed below are written out.
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters
@@ -198,18 +209,10 @@ EGAM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EGAM9Stream.AcceptAlgs(["EGAM9Kernel"])
 
 
-#Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EGAM9ThinningSvc", outStreams=[evtStream] )
-
 #====================================================================
-# CONTENT LIST
+# SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkEGamma.EGAM9ExtraContent import *
 
 # Keep only electrons and photons
 EGAM9SlimmingHelper = SlimmingHelper("EGAM9SlimmingHelper")
@@ -227,9 +230,6 @@ EGAM9SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM9SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM9SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM9SlimmingHelper.AllVariables += ExtraContainersPhotons
-EGAM9SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM9SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM9SlimmingHelper.ExtraVariables += ExtraContentAllTruth
