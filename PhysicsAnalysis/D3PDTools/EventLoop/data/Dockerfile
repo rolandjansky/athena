@@ -20,7 +20,7 @@ RUN source /home/atlas/release_setup.sh && \
     cmake -DATLAS_PACKAGE_FILTER_FILE=../source/el_docker_data/package_filters.txt ../source/ && \
     cmake --build . && \
     cpack && \
-    sudo rpm -i --prefix=/home/atlas/install /home/atlas/build/*.rpm
+    sudo rpm -i /home/atlas/build/*.rpm
 
 FROM ${RELEASE}
 
@@ -28,7 +28,7 @@ ARG PROJECT_NAME
 
 ENV PROJECT_NAME ${PROJECT_NAME}
 
-COPY --from=builder /home/atlas/install/${PROJECT_NAME} /home/atlas/install/${PROJECT_NAME}
+COPY --from=builder /usr/${PROJECT_NAME} /usr/${PROJECT_NAME}
 COPY --from=builder /home/atlas/source/el_docker_data/setup.sh /home/atlas/setup.sh
 
 # Set up the environment setup script:
