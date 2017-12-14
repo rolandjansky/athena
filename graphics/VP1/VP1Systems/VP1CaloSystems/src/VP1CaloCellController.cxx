@@ -886,9 +886,9 @@ void VP1CaloCellController::EnableDigitsCheckbox(bool enable)
 }
 
 void VP1CaloCellController::displayLArDigits(
-		int n_samples,
-		std::vector<short> samples,
-		std::vector<std::string>& msg)
+		int /* n_samples */,
+		std::vector<short> /* samples */,
+		std::vector<std::string>& /* msg */)
 {
 	message("VP1CaloCellController::displayLArDigits()... not be ported to 'master' yet, because of failing dependencies (LCG's Qwt has to be ported to Qt5, still)");
 
