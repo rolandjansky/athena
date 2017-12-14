@@ -35,7 +35,6 @@ public:
 
 private:
   //
-
 }; // class FTKDump
 
 #endif // FTK_DUMP_EXAMPLE_H

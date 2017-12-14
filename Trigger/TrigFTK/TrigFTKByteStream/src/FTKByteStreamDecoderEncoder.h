@@ -77,8 +77,8 @@ namespace FTK {
 
     void unpackMonitoring(OFFLINE_FRAGMENTS_NAMESPACE::PointerType &rodData);
 
-    bool m_encodeHeader;
-    bool m_encodeTrailer;
+    bool m_doHeader;
+    bool m_doTrailer;
   };
 
 }

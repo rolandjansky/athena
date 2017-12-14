@@ -36,10 +36,12 @@ namespace FTK {
 								   const std::string& type, 
 								   const IInterface* parent) 
     : AthAlgTool(toolname, type, parent),
-      m_encodeHeader(false),
-      m_encodeTrailer(false)
+      m_doHeader(false),
+      m_doTrailer(false)
   {
     declareInterface< FTK::FTKByteStreamDecoderEncoderTool  >( this );
+    declareProperty("doHeader", m_doHeader);
+    declareProperty("doTrailer", m_doTrailer);
   }
 
   const InterfaceID& FTKByteStreamDecoderEncoderTool::interfaceID( )
@@ -241,7 +243,7 @@ namespace FTK {
   
     payload.reserve(TrackParamsBlobSize * container->size() );
   
-    if (m_encodeHeader){
+    if (m_doHeader){
       packHeader(payload);
     }
     
@@ -249,19 +251,23 @@ namespace FTK {
 	  track != container->end(); ++track ) {
       packTrack(*track, payload);
     }
-    
-    packTrailer(payload);
+
+    if (m_doTrailer){
+      packTrailer(payload);
+    }
     
     return StatusCode::SUCCESS;
   
   }  
 
 
-
   StatusCode FTKByteStreamDecoderEncoderTool::decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
+    
 
     ATH_MSG_DEBUG("rodData: " << rodData);
-    //    unpackHeader(rodData);
+    if (m_doHeader){
+      unpackHeader(rodData);
+    }
     ATH_MSG_DEBUG("rodData: " << rodData);
     result->reserve(result->size() + nTracks);
     for ( size_t i = 0; i < nTracks; ++i ) {
@@ -269,8 +275,11 @@ namespace FTK {
       rodData += TrackBlobSize;
       result->push_back(track);
     }
-  
-    unpackTrailer(rodData);
+
+    if (m_doTrailer){
+      unpackTrailer(rodData);
+    }
+    
     return StatusCode::SUCCESS;
   }
 

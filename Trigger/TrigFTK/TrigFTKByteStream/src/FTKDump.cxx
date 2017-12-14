@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "FTKDump.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "AthenaKernel/errorcheck.h"
