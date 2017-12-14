@@ -1,3 +1,0 @@
-[submodule "athena-misc"]
-	path = athena-misc
-	url = ssh://git@gitlab.cern.ch:7999/jmasik/athena-misc.git
