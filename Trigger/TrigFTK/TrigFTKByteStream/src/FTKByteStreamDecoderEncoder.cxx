@@ -263,8 +263,8 @@ namespace FTK {
 
   StatusCode FTKByteStreamDecoderEncoderTool::decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
     
-
     ATH_MSG_DEBUG("rodData: " << rodData);
+
     if (m_doHeader){
       unpackHeader(rodData);
     }
