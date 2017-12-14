@@ -26,7 +26,7 @@ class Templates:
 
 #---- Minimal joboptions -------
 
-theApp.EvtMax=10                                         #says how many events to run over. Set to -1 for all events
+theApp.EvtMax=10                                         #how many events to run over. Set to -1 for all events.
 jps.AthenaCommonFlags.FilesInput = ["%(inFile)s"]   #insert your list of input files here (do this before next lines)
 
 #Now choose your read mode (POOL, xAOD, or TTree):
@@ -41,8 +41,7 @@ import AthenaRootComps.ReadAthenaxAODHybrid               #FAST xAOD reading!
 #import AthenaRootComps.ReadAthenaRoot                    #read a flat TTree, very fast, but no EDM objects
 #svcMgr.EventSelector.TupleName="MyTree"                  #You usually must specify the name of the tree (default: CollectionTree)
 
-algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-algseq += CfgMgr.%(klass)s()                                 #adds an instance of your alg to it
+athAlgSeq += CfgMgr.%(klass)s()                           #adds an instance of your alg to the main alg sequence
 
 #-------------------------------
 
