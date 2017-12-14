@@ -169,4 +169,4 @@ private:
   void PrintElectron(xAOD::Electron *); 
   void PrintPhoton(xAOD::Photon *); 
 };
-#endif // TRIGEGAMMAREC_H
+#endif // 
