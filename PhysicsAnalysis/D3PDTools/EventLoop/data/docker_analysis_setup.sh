@@ -6,7 +6,7 @@
 source /home/atlas/analysis_release_setup.sh
 
 # Set up the analysis base installation:
-source /home/atlas/install/*/*/InstallArea/*/setup.sh
+source /home/atlas/install/${PROJECT_NAME}/*/InstallArea/*/setup.sh
 echo "Configured analysis setup from from: /home/atlas/install"
 
 # Set up the prompt:

@@ -24,7 +24,11 @@ RUN source /home/atlas/release_setup.sh && \
 
 FROM ${RELEASE}
 
-COPY --from=builder /home/atlas/install /home/atlas/install
+ARG PROJECT_NAME
+
+ENV PROJECT_NAME ${PROJECT_NAME}
+
+COPY --from=builder /home/atlas/install/${PROJECT_NAME} /home/atlas/install/${PROJECT_NAME}
 COPY --from=builder /home/atlas/source/el_docker_data/setup.sh /home/atlas/setup.sh
 
 # Set up the environment setup script:
