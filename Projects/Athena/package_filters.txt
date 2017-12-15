@@ -53,3 +53,6 @@
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 - Trigger/TrigFTK/FTKStandaloneMonitoring
+
+# obsolete packages to be removed in a second step
+- Tracking/TrkTools/TrkSegmentConverter
