@@ -46,7 +46,7 @@ def flag_off(name):
 # New function for all user action types
 def getDefaultActions():
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties as beamProps
+    from AthenaCommon.BeamFlags import beamFlags
 
     actions = []
 
@@ -62,7 +62,7 @@ def getDefaultActions():
     # Track counter
     actions += ['G4UA::G4TrackCounterTool']
     # Cosmic Perigee action
-    if beamProps.Beam.beamType() == 'cosmics' and flag_off('CavernBG'):
+    if beamFlags.beamType() == 'cosmics' and flag_off('CavernBG'):
         actions += ['G4UA::CosmicPerigeeActionTool']
     # Stopped particle action
     if flag_on('StoppedParticleFile'):
@@ -72,7 +72,7 @@ def getDefaultActions():
         actions += ['G4UA::HitWrapperTool']
     # Cosmic filter
     if flag_on('StoppedParticleFile') or (
-       beamProps.Beam.beamType() == 'cosmics' and not simFlags.ISFRun):
+       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
         actions += ['G4UA::G4CosmicFilterTool']
     # Photon killer
     if simFlags.PhysicsList == 'QGSP_BERT_HP':
