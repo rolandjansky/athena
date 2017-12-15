@@ -14,7 +14,7 @@
 
 // Gaudi/Athena include(s):
 #include "FourMom/P4IPtCotThPhiM.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Navigation/NavigableTerminalNode.h"
 #include "EventKernel/INavigable4Momentum.h"
 

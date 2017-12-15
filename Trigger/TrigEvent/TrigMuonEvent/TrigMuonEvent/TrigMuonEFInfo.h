@@ -12,7 +12,7 @@
 #include <string>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Forward declaration(s):
 class MsgStream;
