@@ -57,10 +57,6 @@ Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string
     m_segmentCombinationCleaner("Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool"),
     m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool"),
     m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
-    m_csc2dLocation("Csc2dSegmentCombinations"),
-    m_csc4dLocation("Csc4dSegmentCombinations"),
-    m_mdtSegmentCombinationLocation("MdtSegmentCombinations"),
-    m_curvedCombinationLocation("CurvedSegmentCombinations"),
     m_nevents(0),
     m_ncsc2SegmentCombinations(0),
     m_ncsc4SegmentCombinations(0),
@@ -92,10 +88,6 @@ Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string
     declareProperty("DoSegmentCombinations", m_doSegmentCombinations = true );
     declareProperty("DoSegmentCombinationCleaning", m_doSegmentCombinationCleaning = true );
 
-    declareProperty("Csc2dSegmentCombinationLocation",  m_csc2dLocation  );
-    declareProperty("Csc4dSegmentCombinationLocation",  m_csc4dLocation  );
-    declareProperty("MdtSegmentCombinationLocation",    m_mdtSegmentCombinationLocation);
-    declareProperty("CurvedSegmentCombinationLocation", m_curvedCombinationLocation);
     declareProperty("CloneSegments",                    m_cloneSegments = false );
   }
 
@@ -139,6 +131,10 @@ Muon::MooSegmentCombinationFinder::initialize()
         ATH_MSG_FATAL("Could not get " << m_csc4dSegmentFinder); 
         return StatusCode::FAILURE;
       }
+    }
+    else{
+      m_csc2dSegmentFinder.disable();
+      m_csc4dSegmentFinder.disable();
     }
 
     if( m_doMdtSegments ){
@@ -192,11 +188,6 @@ Muon::MooSegmentCombinationFinder::initialize()
       m_curvedSegmentCombiner.disable();
       m_segmentCombinationCleaner.disable();
     }
-
-    ATH_CHECK( m_csc2dLocation.initialize() );
-    ATH_CHECK( m_csc4dLocation.initialize() );
-    ATH_CHECK( m_mdtSegmentCombinationLocation.initialize() );
-    ATH_CHECK( m_curvedCombinationLocation.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -379,16 +370,18 @@ Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const MdtPrep
 
     // clean up intermediate steps
     if( csc2dSegmentCombinations ) 
-      postProcess( csc2dSegmentCombinations,  m_csc2dLocation );
+      postProcess( csc2dSegmentCombinations );
 
     if( csc4dSegmentCombinations && finalSegmentCombinations != csc4dSegmentCombinations ) 
-      postProcess( csc4dSegmentCombinations,  m_csc4dLocation );
+      postProcess( csc4dSegmentCombinations );
 
     if( mdtSegmentCombinations && finalSegmentCombinations != mdtSegmentCombinations ) 
-      postProcess( mdtSegmentCombinations,    m_mdtSegmentCombinationLocation );
+      postProcess( mdtSegmentCombinations );
 
     if( curvedSegmentCombinations && finalSegmentCombinations != curvedSegmentCombinations )
-      postProcess( curvedSegmentCombinations, m_curvedCombinationLocation );
+      postProcess( curvedSegmentCombinations );
+
+    m_segmentPatternMap.clear();
     
     Muon::IMooSegmentCombinationFinder::Output* output = new Muon::IMooSegmentCombinationFinder::Output();
     output->patternCombinations = patternCombinations;
@@ -398,19 +391,15 @@ Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const MdtPrep
   }
 
 void 
-Muon::MooSegmentCombinationFinder::postProcess(  MuonSegmentCombinationCollection* col, SG::WriteHandleKey<MuonSegmentCombinationCollection> &colLocation ) {
-
-  if( !col ) col = new MuonSegmentCombinationCollection();
-  
-  SG::WriteHandle<MuonSegmentCombinationCollection> handle(colLocation);
-  if( handle.record(std::unique_ptr<MuonSegmentCombinationCollection> (col)).isSuccess() ){
-    ATH_MSG_VERBOSE("stored MuonSegmentCombinationCollection " << col->size() 
-			   << " at " << colLocation.key());
-  }else{
-    ATH_MSG_ERROR("Failed to store MuonSegmentCombinationCollection at " << colLocation.key());
+Muon::MooSegmentCombinationFinder::postProcess(  MuonSegmentCombinationCollection* col){
+  MuonSegmentCombinationCollection::const_iterator cit = col->begin();
+  MuonSegmentCombinationCollection::const_iterator cit_end = col->end();
+  for(; cit!=cit_end;++cit ){
+    m_segmentPatternMap.erase(*cit);
   }
+  delete col;
+  return;
 }
-
 
 void 
 Muon::MooSegmentCombinationFinder::printStage( std::string stageTag) const {

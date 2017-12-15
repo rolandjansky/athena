@@ -24,7 +24,6 @@
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "Identifier/Identifier.h"
-#include "StoreGate/WriteHandleKey.h"
 #include <map>
 
 
@@ -83,7 +82,7 @@ namespace Muon
       void printSummary( std::string stageTag, const Trk::SegmentCollection* col ) const;
 
       /** helper functions to write out intermediate results */
-      void postProcess(  MuonSegmentCombinationCollection* col, SG::WriteHandleKey<MuonSegmentCombinationCollection> &colLocation );
+      void postProcess(  MuonSegmentCombinationCollection* col);
 
       /** extract a segment collection from a segment combination collection */
       void extractSegmentCollection( const MuonSegmentCombinationCollection& combiCol, Trk::SegmentCollection& segments  ) const;
@@ -126,10 +125,6 @@ namespace Muon
       ToolHandle<IMuonSegmentOverlapRemovalTool>     m_overlapRemovalTool;    
       ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector;    
 
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_csc2dLocation;
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_csc4dLocation;
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_mdtSegmentCombinationLocation;
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_curvedCombinationLocation;
       MuonSegmentCombPatternCombAssociationMap m_segmentPatternMap;
       bool m_cloneSegments;
 
