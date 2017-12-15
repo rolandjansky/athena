@@ -134,6 +134,8 @@ namespace TrigCostRootAnalysis {
     static Int_t _upgradeMergeTOBOverlap = kFALSE;
     static Int_t _doExponentialMu = kFALSE;
     static Int_t _invertHighMuRunVeto = kFALSE;
+    static Int_t _ignoreGRL = kFALSE;
+    static Int_t _ignorePSGreaterThanOne = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -433,6 +435,12 @@ namespace TrigCostRootAnalysis {
         {
           "doExponentialMu", no_argument, &_doExponentialMu, 1
         },
+        {
+          "ignoreGRL", no_argument, &_ignoreGRL, 1
+        },  
+        {
+          "ignorePSGreaterThanOne", no_argument, &_ignorePSGreaterThanOne, 1
+        }, 
         {
           "invertHighMuRunVeto", no_argument, &_invertHighMuRunVeto, 1
         }, // Hidden option
@@ -782,6 +790,9 @@ namespace TrigCostRootAnalysis {
             "--noLBRescaling\t\t\t\t\tFlag to prevent the rescaling of the effective time per LB in EB runs based on the events processed and the known run size."
                     << std::endl;
           std::cout <<
+            "--ignoreGRL\t\t\t\tFlag to switch off the exclusion of LB which fail the good run lists in ehnaced bias runs."
+                    << std::endl;
+          std::cout <<
             "--patternsMonitor patt1 patt2 ...\t\tPatterns to match in names when running. Regex currently NOT supported. Partial matched allowed. Only entries which match will be analysed."
                     << std::endl;
           std::cout <<
@@ -828,6 +839,9 @@ namespace TrigCostRootAnalysis {
                     << std::endl;
           std::cout <<
             "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales."
+                    << std::endl;
+          std::cout <<
+            "--ignorePSGreaterThanOne\t\t\t\t\tAll prescales greater than 1 will be set to -1."
                     << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." <<
             std::endl;
@@ -1815,6 +1829,8 @@ namespace TrigCostRootAnalysis {
     set(kDoExponentialMu, _doExponentialMu, "DoExponentialMu");
     set(kInvertHighMuRunVeto, _invertHighMuRunVeto, "InvertHighMuRunVeto");
     set(kUseOnlyTheseBCIDs, _useOnlyTheseBCIDs, "UseOnlyTheseBCIDs");
+    set(kIgnoreGRL, _ignoreGRL, "IgnoreGRL");
+    set(kIgnorePSGreaterThanOne, _ignorePSGreaterThanOne, "IgnorePSGreaterThanOne");
 
     std::stringstream _multiRunss(_multiRun); // Comma separated
     std::string _tempStr;
@@ -2019,15 +2035,10 @@ namespace TrigCostRootAnalysis {
     set(kVersionString, _version, "Version");
 
     // Different variables to save
+    for (int i = 0; i <= 90; ++i) {
+      set(ConfKey_t(kVarSteeringTimeCPUType + 8192 + i), std::string("Rack" + intToString(i)) );
+    }
     set(kVarTime, "Time");
-    set(kVarSteeringTimeCPUType1, "SteeringTimeCPUType1");
-    set(kVarSteeringTimeCPUType2, "SteeringTimeCPUType2");
-    set(kVarSteeringTimeCPUType3, "SteeringTimeCPUType3");
-    set(kVarSteeringTimeCPUType4, "SteeringTimeCPUType4");
-    set(kVarEventsCPUType1, "EventsCPUType1");
-    set(kVarEventsCPUType2, "EventsCPUType2");
-    set(kVarEventsCPUType3, "EventsCPUType3");
-    set(kVarEventsCPUType4, "EventsCPUType4");
     set(kVarRerunTime, "RerunTime");
     set(kVarPassTime, "PassTime");
     set(kVarTimeExec, "TimeExec");

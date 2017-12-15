@@ -1003,6 +1003,13 @@ StatusCode ISF_HitAnalysis::execute()
 
      float phi_MID;
 
+     std::vector<float> eta_vec_MID;
+                 std::vector<float> phi_vec_MID;
+                 std::vector<float> r_vec_MID;
+                 std::vector<float> z_vec_MID;
+
+     float phi_MID;
+
      for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample)
                  {
                         ATH_MSG_DEBUG("sample "<<sample);

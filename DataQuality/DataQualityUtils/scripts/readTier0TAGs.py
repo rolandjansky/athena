@@ -20,7 +20,6 @@ import xmlrpclib
 from ROOT import TFile,TChain
 from ROOT import gStyle
 
-
 #gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")

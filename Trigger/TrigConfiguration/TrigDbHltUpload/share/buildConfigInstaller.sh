@@ -8,7 +8,9 @@ echo "Self Extracting Menu TriggerDB Installer"
 echo ""
 
 export TMPDIR=\`mktemp -d /tmp/selfextract.XXXXXX\`
-export TRIGGER_EXP_CORAL_PATH=/afs/cern.ch/user/a/attrgcnf/.expertauth 
+unset TRIGGER_EXP_CORAL_PATH 
+export TRIGGER_EXP_CORAL_PATH_RUN2=/afs/cern.ch/user/a/attrgcnf/.dbauth/menuexperts
+
 ARCHIVE=\`awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 
 tail -n+\$ARCHIVE \$0 | tar xz -C \$TMPDIR
@@ -41,10 +43,11 @@ fi
 
 _JAVA_OPTIONS="-Xms250m -Xmx1400m"
 TTJAR=\${TRIGGERTOOL:-/afs/cern.ch/user/a/attrgcnf/TriggerTool/TriggerTool-new.jar}
+TTSH=\${TRIGGERTOOL:-/afs/cern.ch/user/a/attrgcnf/TriggerTool/run_TriggerTool.sh}
 DB=\${TRIGGERDB:-TRIGGERDBREPR}
 NAME=\${CONFIGNAME:-USEXML}
 
-CMD="java -jar \$TTJAR -db \$DB -up -l1  \$TARGET/lvl1Menu.xml -hlt \$TARGET/hltMenu.xml -l2s \$TARGET/l2setup.xml -efs \$TARGET/efsetup.xml \$p1ConfigTT -rel $2 -o \$TARGET/$1-\$TIME-UploadTT.log -n \$NAME"
+CMD="\$TTSH -db \$DB -up -l1  \$TARGET/lvl1Menu.xml -hlt \$TARGET/hltMenu.xml -l1topo \$TARGET/l1topoMenu.xml -efs \$TARGET/efsetup.xml \$p1ConfigTT -rel $2 -o \$TARGET/$1-\$TIME-UploadTT.log -n \$NAME"
 echo \$CMD
 
 echo ""
@@ -69,7 +72,7 @@ fi
 
 ARCHIVE=./payload_$1.tar.gz
 
-tar zcf $ARCHIVE -C setup/$1 ./lvl1Menu.xml ./hltMenu.xml ./l2setup.xml ./efsetup.xml
+tar zcf $ARCHIVE -C setup/$1 ./LVL1config.dtd ./lvl1Menu.xml ./hltMenu.xml ./l1topoMenu.xml ./efsetup.xml
 
 SELFEXTRACTFILE=selfextract-$1-`date +%F-%H-%M-%S`.bsx
 

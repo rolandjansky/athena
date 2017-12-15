@@ -173,6 +173,9 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   bool m_ExecAllVariables;
   /** @brief boolean to calculate less important variables*/
   bool m_ExecOtherVariables;
+  /** @brief boolean to use cluster cells or all cells */
+  bool m_UseCellsFromCluster;
+
   // Calo variables
   const CaloDetDescrManager* m_calo_dd;
 
@@ -181,7 +184,7 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   double m_dphi;
 
   enum { STRIP_ARRAY_SIZE = 40 };
-  enum { DOUBLE_STRIP_ARRAY_SIZE = 80 };
+  enum { BIG_STRIP_ARRAY_SIZE = STRIP_ARRAY_SIZE*3 };
   /** @brief array of cell energies*/
   double m_enecell[STRIP_ARRAY_SIZE]; 
   /** @brief array of cell eta*/

@@ -32,7 +32,5 @@ node* addnode( node* np, const std::string& name, TObject* td, node::TYPE t ) {
   np_->name( name );
   np_->type( t );
   
-  np->push_back( np_ );
-
   return np_;
 }   

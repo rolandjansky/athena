@@ -958,7 +958,7 @@ StatusCode TRT_DriftFunctionTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
               citr!=atrlistcol->end();++citr) {
 
 	    //get Barrel (1) or Endcap (2)
-	   channel = abs(citr->first);
+	   channel = citr->first;
 
 	   if ((channel == 1) || (channel == 2)) {
              const coral::AttributeList& atrlist = citr->second;
@@ -990,7 +990,7 @@ StatusCode TRT_DriftFunctionTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
 	 for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
               citr!=atrlistcol->end();++citr) {
 	      
-	   channel = abs(citr->first);
+	   channel = citr->first;
 
 	   if (channel == 1) {
              const coral::AttributeList& atrlist = citr->second;

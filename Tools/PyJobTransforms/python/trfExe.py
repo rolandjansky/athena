@@ -1250,7 +1250,17 @@ class athenaExecutor(scriptExecutor):
                         AtlasSetupDirectory = os.environ['AtlasSetup'],
                         asetupStatus        = asetup
                     )
-                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi'
+                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi '
+                    #check for TestArea if it exists then source setup.sh, used for local patches areas
+                    print >>wrapper, '#Need to check and source for  TestArea/build/cfgdir/setup.sh  '
+                    print >>wrapper, 'if [ ${TestArea} ]; then '
+                    print >>wrapper, '    cfgdir=`/bin/ls ${TestArea}/build/ | grep gcc` '
+                    print >>wrapper, '    if [ ${?} == "0" ]; then ' 
+                    print >>wrapper, '        echo "${TestArea}/build/${cfgdir} exist , will source setup.sh " '
+                    print >>wrapper, '        source ${TestArea}/build/${cfgdir}/setup.sh '
+                    print >>wrapper, '    fi '
+                    print >>wrapper, 'fi '
+
                 if dbsetup:
                     dbroot = path.dirname(dbsetup)
                     dbversion = path.basename(dbroot)

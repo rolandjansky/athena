@@ -222,6 +222,8 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
       VarEtTower += term;
     }
     VarEtTower *= 1.0/m_ntowers;
+    // Set a minimum value to avoid FPEs
+    if (VarEtTower < 1.0e6) VarEtTower = 1.0e6;
     ptmin_final = EtTowerTrimMean + m_nsigma*sqrt(VarEtTower);
     
     // find binning that gives largest sumEt from bins above threshold

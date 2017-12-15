@@ -79,7 +79,6 @@ def readPsFile(fname):
             
         return items
 
-    import xml.dom.minidom as dom
     import xml.etree.cElementTree as et
     
     xdoc   = et.parse(fname)

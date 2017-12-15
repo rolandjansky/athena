@@ -51,8 +51,10 @@ namespace TrigCostRootAnalysis {
     // We can only do this if all of our chains have the same L1 seed
     for (const auto _item : m_items) {
       if (_item->getLower().size() != 1) {
-        Error("RatesCPSGroup::calculateCPSFactor", "Cannot factor out CPS for %s, there is not exactly one L1 seed",
-              getName().c_str());
+        Error("RatesCPSGroup::calculateCPSFactor", "Cannot factor out CPS for %s, there is not exactly one L1 seed. ASSUMING THE L1 SEED TO BE %s",
+              getName().c_str(), (*_item->getLowerStart())->getName().c_str() );
+        ChainItemSetIt_t _it = _item->getLowerStart(); // Leaving m_l1 as a nullprt here causes a bad de-reference later 
+        if (m_l1 == nullptr) m_l1 = (*_it);
         return;
       }
       ChainItemSetIt_t _it = _item->getLowerStart(); // We know there is only one
