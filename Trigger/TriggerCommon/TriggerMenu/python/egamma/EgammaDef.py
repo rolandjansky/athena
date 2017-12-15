@@ -369,7 +369,7 @@ class EgammaFexBuilder(object):
                 return self._egamma_rec
 
             log.debug('Electron default rec')
-            return self._egamma_rec_gsf
+            return self._egamma_rec
 
     def _get_photonrec(self,chainDict):
         chain_part = chainDict['chainParts']
