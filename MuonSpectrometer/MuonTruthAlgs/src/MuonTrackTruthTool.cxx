@@ -8,7 +8,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
-#include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 #include "TrkTruthData/TruthTrajectory.h"
@@ -46,13 +45,11 @@ namespace Muon {
   {
     declareInterface<IMuonTrackTruthTool>(this);
 
-    declareProperty("CSC_SDO_Container",          m_CSC_SimDataMapName = "CSC_SDO" );
     declareProperty("DoSummary",                  m_doSummary = false );
     declareProperty("ManipulateBarCode",          m_manipulateBarCode = false );
     declareProperty("MinHits",                    m_minHits = 4 );
     declareProperty("MatchAllParticles",          m_matchAllParticles = true );
     declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
-    m_simDataMapNames = { "MDT_SDO", "RPC_SDO", "TGC_SDO", "STGC_SDO", "MM_SDO" };
   }
 
 
@@ -65,6 +62,11 @@ namespace Muon {
     ATH_CHECK(m_idHelperTool.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthTrajectoryBuilder.retrieve());
+
+    ATH_CHECK(m_mcEventColl.initialize());
+    ATH_CHECK(m_muonSimData.initialize());
+    ATH_CHECK(m_cscSimData.initialize());
+    ATH_CHECK(m_trackRecord.initialize());
 
     // add muons 
     if( m_pdgsToBeConsidered.value().empty() ){
@@ -158,24 +160,29 @@ namespace Muon {
     
     clear();
 
-    const TrackRecordCollection* truthTrackCol = getTruthTrackCollection();
-    if( !truthTrackCol ) {
+    SG::ReadHandle<TrackRecordCollection> truthTrackCol(m_trackRecord);
+    if(!truthTrackCol.isValid()){
       ATH_MSG_WARNING(" failed to retrieve TrackRecordCollection ");
       return m_truthTree;
     }
-
+    if(!truthTrackCol.isPresent()){
+      ATH_MSG_WARNING("failed to retrieve TrackRecordCollection");
+      return m_truthTree;
+    }
     if( truthTrackCol->empty() ) {
       ATH_MSG_WARNING(" TrackRecordCollection is empty ");
       return m_truthTree;
     }
 
-    const McEventCollection* mcEventCollection = 0;
-    std::string mcLocation = "TruthEvent";
+    SG::ReadHandle<McEventCollection> mcEventCollection(m_mcEventColl);
     const HepMC::GenEvent*    genEvent = 0;
-    if ( evtStore()->contains<McEventCollection>(mcLocation) ) {
-      if( evtStore()->retrieve(mcEventCollection,mcLocation ).isSuccess() ){
+    if(!mcEventCollection.isValid()){
+      ATH_MSG_WARNING("MC event collection not valid");
+    }
+    else{
+      if ( mcEventCollection.isPresent()){
 	if( !mcEventCollection->empty() ) {
-	  ATH_MSG_VERBOSE( "McEventCollection retrieved at location " << mcLocation << " size " << mcEventCollection->size());
+	  ATH_MSG_VERBOSE( "McEventCollection retrieved at location " << m_mcEventColl.key() << " size " << mcEventCollection->size());
 	  if( mcEventCollection->size() == 1 ) genEvent = mcEventCollection ->front();
 	}
       }
@@ -265,10 +272,21 @@ namespace Muon {
     }
     
     // add sim data collections
-    for( const auto& name : m_simDataMapNames ){
-      addSimDataToTree(name);
+    for(SG::ReadHandle<MuonSimDataCollection>& simDataMap : m_muonSimData.makeHandles()){
+      if(!simDataMap.isValid()){
+	ATH_MSG_WARNING(simDataMap.key()<<" not valid");
+	continue;
+      }
+      if(!simDataMap.isPresent()) continue;
+      addSimDataToTree(simDataMap.cptr());
     }
-    addCscSimDataToTree(m_CSC_SimDataMapName);
+    SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
+    if(!cscSimDataMap.isValid()){
+      ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");
+    }
+    else{
+      if(cscSimDataMap.isPresent()) addCscSimDataToTree(cscSimDataMap.cptr());
+    }
 
     unsigned int ngood(0);
     std::vector<int> badBarcodes;
@@ -329,15 +347,7 @@ namespace Muon {
   }
 
 
-  void MuonTrackTruthTool::addSimDataToTree( const std::string& name ) const {
-
-    if( !evtStore()->contains<MuonSimDataCollection>(name) ) return;
-
-    const MuonSimDataCollection* simDataCol = retrieveTruthCollection( name );
-    if( !simDataCol) {
-      ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: " << name );
-      return;
-    }
+  void MuonTrackTruthTool::addSimDataToTree( const MuonSimDataCollection* simDataCol ) const {
 
     // loop over sim collection and check whether identifiers are on track
     MuonSimDataCollection::const_iterator it = simDataCol->begin();
@@ -417,15 +427,7 @@ namespace Muon {
     }    
   }
 
-  void MuonTrackTruthTool::addCscSimDataToTree( const std::string& name ) const {
-
-    if( !evtStore()->contains<CscSimDataCollection>(name) ) return;
-
-    const CscSimDataCollection* simDataCol = retrieveCscTruthCollection( name );
-    if( !simDataCol) {
-      ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: " << name);
-      return;
-    }
+  void MuonTrackTruthTool::addCscSimDataToTree( const CscSimDataCollection* simDataCol ) const {
 
     // loop over sim collection and check whether identifiers are on track
     CscSimDataCollection::const_iterator it = simDataCol->begin();
@@ -462,46 +464,6 @@ namespace Muon {
         eit->second.cscHits.insert(*it);
       }
     }    
-  }
-
-
-  const TrackRecordCollection* MuonTrackTruthTool::getTruthTrackCollection() const {
-    
-    const TrackRecordCollection* truthCollection = 0;
-    std::vector<std::string> locations = { "MuonEntryLayerFilter" };
-    for( const auto& location : locations ){
-      if ( evtStore()->contains<TrackRecordCollection>(location) && evtStore()->retrieve(truthCollection,location ).isSuccess() && !truthCollection->empty() ) {
-        ATH_MSG_VERBOSE("TrackRecordCollection retrieved at location " << location);
-        return truthCollection;
-      }
-      ATH_MSG_VERBOSE("location " << location << " discarded");
-    }
-    return truthCollection;
-  }
-  
-  const MuonSimDataCollection* MuonTrackTruthTool::retrieveTruthCollection( std::string colName ) const {
-    // Retrieve SDO map for this event
-    if(!evtStore()->contains<MuonSimDataCollection>(colName)) return 0;
-
-    const MuonSimDataCollection* truthCol(0);
-    if(!evtStore()->retrieve(truthCol, colName).isSuccess()) {
-      ATH_MSG_VERBOSE("Could NOT find the MuonSimDataMap map key = "<< colName);
-    }	else {
-      ATH_MSG_VERBOSE("Retrieved MuonSimDataCollection for key = " << colName);
-    }
-    return truthCol;
-  }
-
-  const CscSimDataCollection* MuonTrackTruthTool::retrieveCscTruthCollection( std::string colName ) const {
-    // Retrieve SDO map for this event
-    if(!evtStore()->contains<CscSimDataCollection>(colName)) return 0;
-    const CscSimDataCollection* truthCol(0);
-    if(!evtStore()->retrieve(truthCol, colName).isSuccess()) {
-      ATH_MSG_VERBOSE("Could NOT find the CscSimDataMap map key = "<< colName);
-    }	else {
-      ATH_MSG_VERBOSE("Retrieved CscSimDataCollection for key = " << colName);
-    }
-    return truthCol;
   }
 
   MuonTrackTruth MuonTrackTruthTool::getTruth( const Muon::MuonSegment& segment ) const {
