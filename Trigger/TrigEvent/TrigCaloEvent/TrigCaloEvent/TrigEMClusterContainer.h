@@ -23,8 +23,8 @@ DATE:		October 17th, 2005
 ******************************************************/
 // includes section
 #include "TrigCaloEvent/TrigEMCluster.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** Container from TrigEMCluster type objects.
 	See TrigEMCluster and T2CaloEgamma
