@@ -112,23 +112,23 @@ HLT::ErrorCode T2CaloMissingET::hltInitialize(){
 
   if(toolSvc()->retrieveTool("LArCablingService",m_cablingSvc).isFailure()) {
     *m_log << MSG::FATAL << "Could not get LArCablingService" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   StoreGateSvc* detStore = 0;
   if (service( "DetectorStore", detStore ).isFailure()) {
     *m_log << MSG::FATAL << "Unable to locate DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }	
 
   if (detStore->retrieve(m_LArOnlineID, "LArOnlineID").isFailure()) {
     *m_log << MSG::FATAL << "Could not get LArOnlineID helper!" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   if (detStore->retrieve(m_CaloCell_ID, "CaloCell_ID").isFailure()) {
     *m_log << MSG::FATAL << "Could not get CaloCell_ID helper!" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   return HLT::OK;
@@ -315,7 +315,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
         if (ichannel>127) {
           (*m_log) << MSG::ERROR 
 		   << "not connected channel found for this FEB: " << (*feb_it)->getFebId() << endmsg;
-          return StatusCode::RECOVERABLE;
+          return HLT::ERROR;
         }
       } while(!offChId.is_valid());
 
@@ -342,7 +342,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 	break;
       default:
 	(*m_log) << MSG::FATAL << "Unknown subdetector!" << endmsg;
-	return StatusCode::FAILURE;
+	return HLT::ERROR;
       }
 
       // check that the sample value is sensible

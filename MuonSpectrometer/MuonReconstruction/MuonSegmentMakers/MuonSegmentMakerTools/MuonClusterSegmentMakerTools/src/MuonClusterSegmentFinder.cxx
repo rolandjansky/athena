@@ -70,11 +70,6 @@ namespace Muon {
 
   StatusCode MuonClusterSegmentFinder::finalize() {
 
-    if( m_clusterTool.retrieve().isFailure() ){
-      ATH_MSG_FATAL("Could not get " << m_clusterTool);
-      return StatusCode::FAILURE;
-    }
-
     if( m_doNtuple ){
       TDirectory* cdir = gDirectory;
       m_file->cd();
@@ -94,6 +89,7 @@ namespace Muon {
     ATH_CHECK(m_layerHashProvider.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
+    ATH_CHECK(m_clusterTool.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
     ATH_CHECK(m_trackToSegmentTool.retrieve());
     ATH_CHECK(m_slTrackFitter.retrieve());

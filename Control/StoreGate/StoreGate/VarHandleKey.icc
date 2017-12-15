@@ -54,4 +54,20 @@ bool VarHandleKey::isEventStore() const
 }
 
 
+/**
+ * @brief Called by the owning algorithm during the START transition.
+ *
+ * AthAlgorithm and friends will call this during START.  This allows
+ * for extra initialization that we can't do during initialize(), such
+ * as retrieving a conditions container from the store.
+ *
+ * The default implementation is a no-op.
+ */
+inline
+StatusCode VarHandleKey::start()
+{
+  return StatusCode::SUCCESS;
+}
+
+
 } // namespace SG

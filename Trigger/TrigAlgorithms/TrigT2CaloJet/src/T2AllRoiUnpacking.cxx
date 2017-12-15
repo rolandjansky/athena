@@ -228,10 +228,10 @@ HLT::ErrorCode T2AllRoiUnpacking::processTriggerElement(const HLT::TriggerElemen
     if(logStream.level() <= MSG::DEBUG)
       logStream<<MSG::DEBUG
 	       <<" Failure of addCells. Empty grid, or some missing cells! "<<endmsg;
-    return StatusCode::FAILURE;
+    return HLT::ERROR;
   } // end if(isFailure)
   m_processedRegions.push_back(l2Roi);
-  return StatusCode::SUCCESS;
+  return HLT::OK;
 }
 //----------------------------------------------------------
 bool T2AllRoiUnpacking::initializeTimers(){

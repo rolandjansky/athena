@@ -7,13 +7,15 @@
 
 #include <vector>
 
-DOMNode* XMLHandler::currentElement=0;
-bool XMLHandler::printFlag=false;
+using namespace xercesc;
 
-XMLHandler::XMLHandler(std::string n):name(n) 
+DOMNode* XMLHandler::s_currentElement=0;
+bool XMLHandler::s_printFlag=false;
+
+XMLHandler::XMLHandler(std::string n):m_name(n) 
 {
 //    std::cout<< " creating new handler "<<n<<std::endl;
-	stopLoop=false;
+	m_stopLoop=false;
 	RegisterToStore();
 }
 
@@ -24,11 +26,11 @@ void XMLHandler::RegisterToStore()
 
 void XMLHandler::StopLoop(bool v)
 {
-	stopLoop=v;
+	m_stopLoop=v;
 }
 bool XMLHandler::IsLoopToBeStopped()
 {
-	return stopLoop;
+	return m_stopLoop;
 }
 bool XMLHandler::isAttribute(const std::string name) const
 {
@@ -40,8 +42,8 @@ std::string XMLHandler::getAttribute(const std::string name, bool& isPresent) co
 {
 	std::string retValue="";
 	isPresent=false;
-	if (currentElement->hasAttributes()) {
-		DOMNamedNodeMap *pAttributes = currentElement->getAttributes();
+	if (s_currentElement->hasAttributes()) {
+		DOMNamedNodeMap *pAttributes = s_currentElement->getAttributes();
 		DOMAttr *pAttributeNode = (DOMAttr*) pAttributes->getNamedItem(XMLString::transcode(name.c_str()));
 		if (pAttributeNode) {
 

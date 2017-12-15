@@ -25,23 +25,23 @@ StatusCode DefaultAGDDTool::construct()
 	ATH_MSG_INFO(" Name = "<<name());
 	
 	ATH_MSG_INFO(" trying to parse files ");
-	controller->ParseFiles();
+	m_controller->ParseFiles();
 	
 	if (m_printSections) 
 	{
 		ATH_MSG_INFO(" \tPrinting all Sections");
-		controller->PrintSections();
+		m_controller->PrintSections();
 	}
 	
 	if (!m_defaultDetector.empty())
     {
 		ATH_MSG_INFO(" setting default detector to "<<m_defaultDetector);
-	   	controller->UseGeoModelDetector(m_defaultDetector);
+	   	m_controller->UseGeoModelDetector(m_defaultDetector);
 	}
 	
-	controller->BuildAll();
+	m_controller->BuildAll();
 	
-	controller->Clean();
+	m_controller->Clean();
 	
 	return StatusCode::SUCCESS;
 }

@@ -21,7 +21,7 @@ TCS::EtaPhiWindow::EtaPhiWindow(const std::string & name) : DecisionAlg(name)
 {
     defineParameter("InputWidth", 3);
     defineParameter("NumResultBits", 1);
-    defineParameter("NumberLeading", 0);
+    defineParameter("MaxTob", 0);
     defineParameter("MinET",1);
     defineParameter("EtaMin",  0);
     defineParameter("EtaMax",  5);
@@ -38,12 +38,12 @@ TCS::StatusCode
 TCS::EtaPhiWindow::initialize()
 {
     parType_t inputWidth = parameter("InputWidth").value();
-    p_NumberLeading = parameter("NumberLeading").value();
-    if(p_NumberLeading>inputWidth) {
-        TRG_MSG_DEBUG("NumberLeading ("<<p_NumberLeading<<")"
+    p_MaxTob = parameter("MaxTob").value();
+    if(p_MaxTob>inputWidth) {
+        TRG_MSG_DEBUG("MaxTob ("<<p_MaxTob<<")"
                       <<" is larger than InputWidth ("<<inputWidth<<")"
                       <<" : restricting to InputWidth");
-        p_NumberLeading = inputWidth;
+        p_MaxTob = inputWidth;
     }
     p_MinET = parameter("MinET").value();
     p_EtaMin = parameter("EtaMin").value();
@@ -51,7 +51,7 @@ TCS::EtaPhiWindow::initialize()
     p_PhiMin = parameter("PhiMin").value();
     p_PhiMax = parameter("PhiMax").value();
 
-    TRG_MSG_INFO("NumberLeading : "<<p_NumberLeading);
+    TRG_MSG_INFO("MaxTob : "<<p_MaxTob);
     TRG_MSG_INFO("MinET    : "<<p_MinET);
     TRG_MSG_INFO("EtaMin   : "<<p_EtaMin);
     TRG_MSG_INFO("EtaMax   : "<<p_EtaMax);
@@ -70,7 +70,7 @@ TCS::EtaPhiWindow::processBitCorrect(const std::vector<TCS::TOBArray const *> &i
 {
     if(input.size() == 1) {
         TRG_MSG_DEBUG("input size     : "<<input[0]->size());
-        const unsigned int nLeading = p_NumberLeading;
+        const unsigned int nLeading = p_MaxTob;
         bool accept{false};
         for(TOBArray::const_iterator tob1 = input[0]->begin();
             tob1 != input[0]->end();
@@ -104,7 +104,7 @@ TCS::EtaPhiWindow::process(const std::vector<TCS::TOBArray const *> &input,
 {
     if(input.size() == 1) {
         TRG_MSG_DEBUG("input size     : "<<input[0]->size());
-        const unsigned int nLeading = p_NumberLeading;
+        const unsigned int nLeading = p_MaxTob;
         bool accept{false};
         for(TOBArray::const_iterator tob1 = input[0]->begin();
             tob1 != input[0]->end();

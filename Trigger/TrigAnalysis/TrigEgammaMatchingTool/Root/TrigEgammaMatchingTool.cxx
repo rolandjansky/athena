@@ -152,11 +152,15 @@ namespace Trig {
             }
         }
         else if(xAOD::EgammaHelpers::isPhoton(eg)){
+	    std::string key = "egamma_Photons";
+	    if(boost::contains(trigger,"icaloloose") || boost::contains(trigger,"icalovloose") || boost::contains(trigger,"icalotight")) key = "egamma_Iso_Photons";
+	    //key="";
+
             const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (eg);
 #ifdef XAOD_ANALYSIS
-            const auto vec = fc.containerFeature<xAOD::PhotonContainer>("egamma_Photons");
+            const auto vec = fc.containerFeature<xAOD::PhotonContainer>(key);
 #else
-            const auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons");
+            const auto vec = fc.get<xAOD::PhotonContainer>(key);
 #endif // XAOD_ANALYSIS
             for(const auto feat : vec){
                 const xAOD::PhotonContainer *cont = feat.cptr();
@@ -184,11 +188,15 @@ namespace Trig {
         ATH_MSG_DEBUG("Match HLT Photon");
         // Get the container of online electrons associated to passed items
         auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
+	std::string key = "egamma_Photons";
+	if(boost::contains(trigger,"iloose") || boost::contains(trigger,"ivloose") || boost::contains(trigger,"itight")) key = "egamma_Iso_Photons";
+	key="";
+
 
 #ifdef XAOD_ANALYSIS
-        const auto vec = fc.containerFeature<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
+        const auto vec = fc.containerFeature<xAOD::PhotonContainer>(key,TrigDefs::alsoDeactivateTEs);
 #else
-        const auto vec = fc.get<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
+        const auto vec = fc.get<xAOD::PhotonContainer>(key,TrigDefs::alsoDeactivateTEs);
 #endif // XAOD_ANALYSIS
         ATH_MSG_DEBUG("EF FC Size " << vec.size());
         double deltaR=0.; 

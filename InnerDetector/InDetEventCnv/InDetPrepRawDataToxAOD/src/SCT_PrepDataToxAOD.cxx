@@ -96,39 +96,31 @@ StatusCode SCT_PrepDataToxAOD::execute()
 {     
   // the cluster ambiguity map
   if ( m_writeRDOinformation ) {
-    SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainer);
-    if(!evtStore()->contains<SCT_RDO_Container>(m_rdoContainer.key())){
-      if (m_firstEventWarnings) {
-	ATH_MSG_WARNING("RDO ASSOC: No SCT RDO container in StoreGate");
+      SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainer);
+      if( rdoContainer.isValid() )
+      {	
+	  // get all the RIO_Collections in the container
+	  for(const auto& collection: *rdoContainer ){
+	      
+	      //get all the RDOs in the collection
+	      for (const auto& rdo : *collection) {
+		  
+		  if ( !rdo) {
+		      ATH_MSG_WARNING( "Null SCT RDO. Skipping it");
+		      continue;
+		  }
+		  
+		  Identifier rdoId = rdo->identify();
+		  
+		  m_IDtoRAWDataMap.insert( std::pair< Identifier, const SCT_RDORawData*>( rdoId, rdo ) );      
+	      } // collection
+	  } // Have container;
       }
-    }
-    else {
-      if(not rdoContainer.isValid()) {
-        ATH_MSG_WARNING( "Failed to retrieve SCT RDO container" );
+      else if ( m_firstEventWarnings )
+      {
+	  ATH_MSG_WARNING( "Failed to retrieve SCT RDO container" );
       }
-    }
-  
-    if ( &*rdoContainer != 0){
-
-      // get all the RIO_Collections in the container
-      
-      for(const auto& collection: *rdoContainer ){
-
-        //get all the RDOs in the collection
-        for (const auto& rdo : *collection) {
-
-          if ( !rdo) {
-            ATH_MSG_WARNING( "Null SCT RDO. Skipping it");
-            continue;
-          }
-
-          Identifier rdoId = rdo->identify();
-	  
-          m_IDtoRAWDataMap.insert( std::pair< Identifier, const SCT_RDORawData*>( rdoId, rdo ) );      
-        } // collection
-      } // container
-    } // Have container;
-  }   
+  }
   ATH_MSG_DEBUG("Size of RDO map is "<<m_IDtoRAWDataMap.size());
 
   // Mandatory. This is needed and required if this algorithm is scheduled.

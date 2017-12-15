@@ -13,7 +13,7 @@ namespace SG {
                                   const std::string& dbKey,
                                   Gaudi::DataHandle::Mode mode ) :
     VarHandleKey(ClassID_traits<T>::ID(), key, mode,
-                 StoreID::storeName(StoreID::CONDITION_STORE)),
+                 StoreID::storeName(StoreID::CONDITION_STORE), true),
     m_cs(StoreID::storeName(StoreID::CONDITION_STORE),"CondHandleKey"),
     m_dbKey(dbKey)
   {
@@ -93,7 +93,7 @@ namespace SG {
 
   }
 
-  //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
   template <class T>
   StoreGateSvc* 
@@ -107,6 +107,30 @@ namespace SG {
     }
 
     return m_cs.get();
+  }
+
+
+//---------------------------------------------------------------------------
+
+
+  /**
+   * @brief Called by the owning algorithm during the START transition.
+   *
+   * AthAlgorithm and friends will call this during START.  This allows
+   * for extra initialization that we can't do during initialize(), such
+   * as retrieving a conditions container from the store.
+   */
+  template <class T>
+  StatusCode CondHandleKey<T>::start()
+  {
+    if (m_isInit && m_cc == nullptr && mode() == DataHandle::Reader) {
+      // Try again to retrieve the conditions container from the store.
+      // If this is a conditions object that is read by CondInputLoader,
+      // then we will not have found this during initialize(),
+      // as CondInputLoader only records the object during start().
+      m_cc = m_cs->tryRetrieve< CondCont<T> > (SG::VarHandleKey::key());
+    }
+    return StatusCode::SUCCESS;
   }
 
 

@@ -50,7 +50,7 @@ public:
     sTGCDetectorDescription(std::string s);
     void Register();
 	
-        virtual void SetXYZ(std::vector<double> v) override
+        virtual void SetXYZ(const std::vector<double>& v) override
 	{
                 small_x(v[0]);
 		large_x(v[1]);

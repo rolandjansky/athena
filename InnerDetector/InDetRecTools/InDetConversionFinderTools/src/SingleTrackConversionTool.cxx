@@ -13,7 +13,7 @@
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"

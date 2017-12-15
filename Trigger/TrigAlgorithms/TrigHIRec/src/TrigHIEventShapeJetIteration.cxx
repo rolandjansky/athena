@@ -40,18 +40,18 @@ int TrigHIEventShapeJetIteration::execute() const
   const xAOD::HIEventShapeContainer* input_shape=0;
   ATH_MSG_DEBUG("In " << (name() ).c_str() << ": ");
   ATH_MSG_DEBUG("Retrieving event shape: " << m_input_event_shape_key.c_str() << " ... in TrigHIEventShapeJetIteration");
-  CHECK(evtStore()->retrieve(input_shape,m_input_event_shape_key));
+  CHECK(evtStore()->retrieve(input_shape,m_input_event_shape_key), 1);
 
   const xAOD::JetContainer* theJets=0;
   ATH_MSG_DEBUG("Retrieving seeds: " << m_seed_key.c_str() << " ... in TrigHIEventShapeJetIteration");
-  CHECK(evtStore()->retrieve(theJets,m_seed_key));
+  CHECK(evtStore()->retrieve(theJets,m_seed_key), 1);
 
 
    //shallow copy shares unaltered auxilliary data with the original container.
   ATH_MSG_DEBUG("Recording shallow copy of event shape: " << m_output_event_shape_key.c_str() << " ... in TrigHIEventShapeJetIteration");
   auto shape_copy=xAOD::shallowCopyContainer(*input_shape);
-  CHECK(evtStore()->record(shape_copy.first,m_output_event_shape_key));
-  CHECK(evtStore()->record(shape_copy.second,m_output_event_shape_key + "Aux."));  
+  CHECK(evtStore()->record(shape_copy.first,m_output_event_shape_key), 1);
+  CHECK(evtStore()->record(shape_copy.second,m_output_event_shape_key + "Aux."), 1);
   xAOD::HIEventShapeContainer* output_shape=shape_copy.first;
 
   std::string unaltered_input_event_shape_key = "TrigHIEventShape";
@@ -60,7 +60,7 @@ int TrigHIEventShapeJetIteration::execute() const
   if(es_index==nullptr)
   {
     ATH_MSG(ERROR) << "No HIEventShapeIndex w/ name " << m_input_event_shape_key << endmsg;
-    return StatusCode::FAILURE;
+    return 1;
   }
   if(!m_isInit)
   {

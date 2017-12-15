@@ -17,7 +17,7 @@ public:
         AGDDDetector(std::string s):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_name(s) {}
         AGDDDetector(std::string s,std::string t):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_detectorType(t),m_name(s) {}
         virtual ~AGDDDetector() {}
-	virtual void SetXYZ(std::vector<double> v) 
+	virtual void SetXYZ(const std::vector<double>& v) 
 	{
 		m_small_x=v[0];
 		m_large_x=v[1];

@@ -168,7 +168,7 @@ StatusCode LArTimePhysPrediction::stop()
     {
       ATH_MSG_ERROR
         ( "CaloDetDescrManager is not initialized, module unusable!" );
-      return false;
+      return StatusCode::FAILURE;
     }
     
   //const CaloCell_ID* m_caloCID = m_caloDDM->getCaloCell_ID();

@@ -16,7 +16,6 @@ atlas_depends_on_subdirs(
    Control/AthContainers
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CLIDSvc
    Control/SGTools
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolCnvSvc

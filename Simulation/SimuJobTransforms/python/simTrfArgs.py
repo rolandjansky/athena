@@ -132,21 +132,16 @@ def addCosmicsTrfArgs(parser):
                         type=argFactory(argString),
                         help='Cosmic Pt Slice', group='Cosmics')
 
-## Add arguments used by simulation jobs which may write out TrackRecord files
+## Add arguments used by simulation jobs which may read in or write out TrackRecord files
 def addTrackRecordArgs(parser):
     parser.defineArgGroup('TrackRecords', 'TrackRecord related options')
-    parser.add_argument('--inputEVNT_COSMICSFile', nargs='+',
+    parser.add_argument('--inputEVNT_TRFile', nargs='+',
                         type=argFactory(argPOOLFile, io='input'),
-                        help='Input Track Record file - sometimes used in Cosmic ray simulation jobs.', group='TrackRecords')
-    parser.add_argument('--outputEVNT_COSMICSTRFile', nargs='+',
+                        help='Input Track Record file - sometimes used in Cosmic ray or cavern background simulation jobs.', group='TrackRecords')
+    parser.add_argument('--outputEVNT_TRFile', nargs='+',
                         type=argFactory(argPOOLFile, io='output', type='evnt'),
-                        help='Output Track Record file - sometimes used in Cosmic ray simulation jobs.', group='TrackRecords')
-    parser.add_argument('--inputEVNT_CAVERNFile', nargs='+',
-                        type=argFactory(argPOOLFile, io='input'),
-                        help='Input Track Record file - sometimes used in Cavern Background simulation jobs.', group='TrackRecords')
-    parser.add_argument('--outputEVNT_CAVERNTRFile', nargs='+',
-                        type=argFactory(argPOOLFile, io='output', type='evnt'),
-                        help='Output Track Record file - sometimes used in Cavern Background simulation jobs.', group='TrackRecords')
+                        help='Output Track Record file - sometimes used in Cosmic ray or cavern background simulation jobs.', group='TrackRecords')
+
 
 ## Add arguments used only by ISF-based simulation jobs
 def addSim_tfArgs(parser):

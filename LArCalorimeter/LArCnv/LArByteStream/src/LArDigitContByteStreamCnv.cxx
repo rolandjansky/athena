@@ -175,11 +175,7 @@ LArDigitContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   }
   
   LArDigitContainer* DigitContainer=0;
-  sc=m_storeGate->fromStorable(pObj, DigitContainer ); 
-  if (sc==StatusCode::FAILURE)
-    {(*m_log) << MSG::ERROR << "StoreGateSvc::fromStorable failed!" << endmsg;
-     return sc;
-    }
+  ATH_CHECK( m_storeGate->fromStorable(pObj, DigitContainer) );
   if(!DigitContainer){
      (*m_log) << MSG::ERROR << "Cannot get LArDigitContainer for DataObject. Key=" << pObj->registry()->name() << endmsg ;
      return StatusCode::FAILURE;    

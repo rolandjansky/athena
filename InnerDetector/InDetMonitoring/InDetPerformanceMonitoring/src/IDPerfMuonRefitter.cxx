@@ -70,7 +70,7 @@ StatusCode IDPerfMuonRefitter::initialize()
 
   if ( pxServiceLocator != NULL ) {
     StatusCode xSC = PerfMonServices::InitialiseServices( pxServiceLocator );
-    if ( xSC == !StatusCode::SUCCESS )
+    if ( !xSC.isSuccess() )
     {
       ATH_MSG_FATAL("Problem Initializing PerfMonServices");
     }

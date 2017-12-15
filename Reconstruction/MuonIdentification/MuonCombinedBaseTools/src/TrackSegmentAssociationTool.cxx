@@ -7,7 +7,6 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h" // this tool is not correctly interfaced
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
@@ -21,15 +20,13 @@ namespace Muon {
                                                                  const IInterface* p):
     AthAlgTool(t,n,p),
     m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
   
     declareInterface<TrackSegmentAssociationTool>(this);
     //  declareInterface<ITrackSegmentAssociationTool>(this);
 
     declareProperty("MuonEDMHelperTool",m_helper);
-    declareProperty("MuonIdHelperTool",m_idHelper);
     declareProperty("MuonEDMPrinterTool",m_printer);
     declareProperty("MuonSegmentLocation",m_segmentLocation="MuonSegments");
     declareProperty("StauSegmentLocation",m_stauSegmentLocation="StauSegments");
@@ -43,6 +40,7 @@ namespace Muon {
 
   StatusCode TrackSegmentAssociationTool::initialize() {
     ATH_CHECK(m_helper.retrieve());
+    ATH_CHECK(m_printer.retrieve());
     return StatusCode::SUCCESS;
   }
 
