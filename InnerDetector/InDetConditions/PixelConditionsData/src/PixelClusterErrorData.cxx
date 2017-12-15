@@ -236,8 +236,10 @@ void PixelClusterErrorData::Load(std::string file){
   m_ibletaerror.clear();
 
   float value;
-  nb = std::min(nb, nmax);
-  ne = std::min(ne, nmax);
+  if(nb<0) nb=0;
+  else if(nb>nmax) nb=nmax;
+  if(ne<0) ne=0;
+  else if(ne>nmax) ne=nmax;
   for(int ib=0; ib<nb && !infile.eof(); ib++){
     infile >> value;
     m_barrelphierror.push_back(value);
