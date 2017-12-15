@@ -3,7 +3,6 @@
 */
 
 #include "G4UserActions/G4SimTimerTool.h"
-#include "CxxUtils/make_unique.h"
 
 namespace G4UA
 {
@@ -54,7 +53,7 @@ namespace G4UA
   G4SimTimerTool::makeAction()
   {
     ATH_MSG_DEBUG("Making a G4SimTimer action");
-    return CxxUtils::make_unique<G4SimTimer>();
+    return std::make_unique<G4SimTimer>();
   }
 
 }

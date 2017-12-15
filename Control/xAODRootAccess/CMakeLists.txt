@@ -74,7 +74,9 @@ macro( _add_test name )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
-_add_test( ut_xaodrootaccess_metadata_test )
+if( NOT SIMULATIONBASE )
+   _add_test( ut_xaodrootaccess_metadata_test )
+endif()
 _add_test( ut_xaodrootaccess_remap_test )
 _add_test( ut_xaodrootaccess_slimming_test )
 _add_test( ut_xaodrootaccess_stats_test )

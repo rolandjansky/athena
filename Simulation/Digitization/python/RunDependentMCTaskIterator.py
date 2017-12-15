@@ -9,7 +9,7 @@
 
 import itertools
 
-def getRunLumiInfoFragment(jobnumber,task,maxEvents):
+def getRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEventNumbers=False):
     """Calculate the specific configuration of the current job in the digi
     task. Try to make each fragment utilize the same amount of CPU and
     Cache resources.  Exploits the fact that the task when sorted by
@@ -30,7 +30,12 @@ def getRunLumiInfoFragment(jobnumber,task,maxEvents):
         hi_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu'],reverse=True),hiMaxEvents)
     if loMaxEvents > 0:
         lo_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu']),loMaxEvents)        
-    return sorted(sum([hi_mu_frag,lo_mu_frag],[]),key=lambda job: job['run'])
+    
+    fragment=sorted(sum([hi_mu_frag,lo_mu_frag],[]),key=lambda job: job['run'])
+    if sequentialEventNumbers:
+        return defineSequentialEventNumbers(jobnumber,fragment,maxEvents)
+    else:
+        return fragment
 
 def getFragment(jobnumber,task,maxEvents):
     """ Calculate the specific configuration of the current job in the digi task.
@@ -106,3 +111,23 @@ class taskIterator(object):
             if self.current.get('force_new',False): to_do = 0
         raise StopIteration
 #
+
+def defineSequentialEventNumbers(jobnumber,fragment,maxEvents):
+    """ Calculate sequential event numbers for the defined getFragment.
+    """
+    new_frag = []
+    evt_nbr = jobnumber * maxEvents
+    for t in fragment:
+        for i in range(t['evts']):
+            evt_nbr += 1
+            new_frag.append({
+                'run': t['run'],
+                'lb': t['lb'],
+                'starttstamp': t['starttstamp'],
+                'dt': t['dt'],
+                'evts': 1,
+                'evt_nbr': evt_nbr,
+                'mu': t['mu'],
+                'force_new': t['force_new']
+            })
+    return new_frag
