@@ -10,11 +10,11 @@ atlas_depends_on_subdirs( PUBLIC
                           AsgTools
                           TopEvent
                           TopEventSelectionTools
-                          TopAnalysis
-			  KLFitter )
+                          TopAnalysis )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO Math MathMore MathCore Graf Minuit Minuit2 )
+find_package( KLFitter REQUIRED )
 
 # Custom definitions needed for this package:
 add_definitions( -g )
@@ -35,9 +35,9 @@ atlas_add_library( TopEventReconstructionTools Root/*.cxx Root/*.h Root/*.icc
                                   TopEvent
                                   TopEventSelectionTools
                                   TopAnalysis
-				  KLFitter
+                                  ${KLFITTER_LIBRARIES}
                                   ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${KLFITTER_INCLUDE_DIRS} )
 
 # Install data files from the package:
 atlas_install_data( share/* )
@@ -51,7 +51,7 @@ atlas_add_executable( topreco_test_mt2
                                      TopEvent
                                      TopEventSelectionTools
                                      TopAnalysis
-				     KLFitter
+                                     ${KLFITTER_LIBRARIES}
                                      ${ROOT_LIBRARIES}
                                      TopEventReconstructionTools )
 
