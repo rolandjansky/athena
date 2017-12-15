@@ -123,7 +123,7 @@ void ConcurrentBitset::emptyGarbage()
  * @brief Expand the container: out-of-line portion.
  * @param new_nbits The desired new size of the container.
  */
-void ConcurrentBitset::expand_ool (bit_t new_nbits)
+void ConcurrentBitset::expandOol (bit_t new_nbits)
 {
   // Need to take out the lock.
   lock_t lock (m_mutex);

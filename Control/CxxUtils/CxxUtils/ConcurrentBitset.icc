@@ -59,6 +59,7 @@ ConcurrentBitset::bit_t ConcurrentBitset::size() const
  *
  * Returns false if @c bit is beyond the end of the set.
  */
+inline
 bool ConcurrentBitset::test (bit_t bit) const
 {
   return (*m_impl).test (bit);
@@ -71,6 +72,7 @@ bool ConcurrentBitset::test (bit_t bit) const
  *
  * Returns 0 if @c bit is beyond the end of the set.
  */
+inline
 size_t ConcurrentBitset::count (bit_t bit) const
 {
   return test (bit);
@@ -802,7 +804,7 @@ void ConcurrentBitset::expand (bit_t new_nbits)
   // Check the size of the container.
   // Call the out-of-line portion if we actually need to expand.
   if (new_nbits > (*m_impl).nbits()) {
-    expand_ool (new_nbits);
+    expandOol (new_nbits);
   }
 }
 
@@ -858,6 +860,7 @@ ConcurrentBitset::Impl::Impl (const Impl& other, bit_t nbits /*= 0*/)
  * filled with zeros.  If @c other is larger than this container, then the
  * remainder will be ignored.
  */
+inline
 void ConcurrentBitset::Impl::assign (const Impl& other)
 {
   // Copy, then clear the remainder.

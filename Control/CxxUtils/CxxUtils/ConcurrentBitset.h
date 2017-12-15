@@ -809,7 +809,7 @@ private:
    * @brief Expand the container: out-of-line portion.
    * @param new_nbits The desired new size of the container.
    */
-  void expand_ool (bit_t new_nbits);
+  void expandOol (bit_t new_nbits);
 
 
   /**
