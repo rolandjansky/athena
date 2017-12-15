@@ -12,6 +12,8 @@
 #include "xAODCore/ShallowCopy.h"
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+
 namespace DerivationFramework {
 
   JetAugmentationTool::JetAugmentationTool(const std::string& t,
@@ -40,7 +42,10 @@ namespace DerivationFramework {
     dec_originphi(0),
     dec_originm(0),
     m_jetPtAssociationTool(""),
-    m_decorateptassociation(false)
+    m_decorateptassociation(false),
+    dec_AssociatedNtracks(0),
+    m_decoratentracks(false),
+    m_trkSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this) //
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");
@@ -106,13 +111,32 @@ namespace DerivationFramework {
     }
 
     // This tool creates the GhostTruthAssociation decorations recommended for truth matching //
-    if(!m_jetPtAssociationTool.empty()) {
-      CHECK(m_jetPtAssociationTool.retrieve());
-      ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments Link and Fraction");
-      m_decorateptassociation = true;
-      dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>("GhostTruthAssociationFraction");
-      dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
+    if(!m_jetPtAssociationTool.empty()) 
+      {
+	CHECK(m_jetPtAssociationTool.retrieve());
+	ATH_MSG_INFO("Augmenting jets with GhostTruthAssociation moments Link and Fraction");
+	m_decorateptassociation = true;
+	dec_GhostTruthAssociationFraction = new SG::AuxElement::Decorator<float>("GhostTruthAssociationFraction");
+	dec_GhostTruthAssociationLink     = new SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
     }
+    
+    // Here it for ntracks decoration
+    dec_AssociatedNtracks = new SG::AuxElement::Decorator<int>("NtracksTest");
+    dec_AssociatedNtracks_noCut = new SG::AuxElement::Decorator<int>("NtracksTest_noCut");
+    dec_minPtTracks = new SG::AuxElement::Decorator<float>("minPtTracks");
+    dec_dTrkPv = new SG::AuxElement::Decorator<vector<float>>("dTrkPv");
+    dec_count = new SG::AuxElement::Decorator<vector<int>>("count");
+
+
+    // set up InDet selection tool
+    if(!m_trkSelectionTool.empty()) {
+      //assert( ASG_MAKE_ANA_TOOL( m_trkSelectionTool,  InDet::InDetTrackSelectionTool ) );
+      assert( m_trkSelectionTool.retrieve() );
+      assert( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
+      //m_trkSelectionTool.CutLevel = "LoosePrimary";
+      m_decoratentracks = true;
+    }
+
 
     if(!m_jetOriginCorrectionTool.empty()) {
       CHECK(m_jetOriginCorrectionTool.retrieve());
@@ -152,10 +176,16 @@ namespace DerivationFramework {
       delete dec_tracksumpt;
     }
 
-    if(m_decorateptassociation){
+    if(m_decorateptassociation)
+      {
       delete dec_GhostTruthAssociationFraction;
       delete dec_GhostTruthAssociationLink;
     }
+    
+    if(m_decoratentracks)
+      {
+	delete dec_AssociatedNtracks;
+      }
     
     if(m_decorateorigincorrection){
       delete dec_origincorrection;
@@ -220,6 +250,7 @@ namespace DerivationFramework {
       }
     }
 
+
     // loop over the copies
     for(const auto& jet : *jets_copy) {
       // get the original jet so we can decorate it
@@ -273,6 +304,82 @@ namespace DerivationFramework {
         (*dec_GhostTruthAssociationLink)(jet_orig) = jet->getAttribute< ElementLink<xAOD::JetContainer> >("GhostTruthAssociationLink");
         ATH_MSG_VERBOSE("GhostTruthAssociationLink: " << (*dec_GhostTruthAssociationLink)(jet_orig) );
       }
+
+      if(m_decoratentracks)
+	{
+	  ATH_MSG_INFO("Test Decorate QG ");
+	  std::vector<const xAOD::IParticle*> jettracks;
+	  jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks);
+	  //(*dec_AssociatedNtracks)(jet_orig) = jettracks.size();
+
+	  int nTracksCount = 0;
+	  bool invalidJet = false;
+
+	  const xAOD::Vertex *pv = 0;
+	  const xAOD::VertexContainer* vxCont = 0;
+	  if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
+	    ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+	    nTracksCount = -1;
+	    invalidJet = true;
+	  }
+	  else if(vxCont->empty()){
+	    ATH_MSG_WARNING("Event has no primary vertices!");
+	    nTracksCount = -1;
+	    invalidJet = true;
+	  }
+	  else{
+	    for(const auto& vx : *vxCont){
+	      // take the first vertex in the list that is a primary vertex
+	      if(vx->vertexType()==xAOD::VxType::PriVtx){
+		pv = vx;
+		break;
+	      }
+	    }
+	  }
+
+	  float minPtTracks = 10000000;
+	  float dTrkPv_value = -1.;
+	  vector<float> dTrkPv;
+	  vector<int> count;
+
+	  for (size_t i = 0; i < jettracks.size(); i++) {
+
+	    dTrkPv_value = -1;
+	    if(invalidJet) continue;
+
+	    const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
+
+	    if(trk->pt()<minPtTracks) minPtTracks = trk->pt();
+
+	    // only count tracks with selections
+	    // 1) pt>500 MeV
+	    // 2) accepted track from InDetTrackSelectionTool with CutLevel==Loose
+	    // 3) associated to primary vertex OR within 3mm of the primary vertex
+	    bool accept = (trk->pt()>500 &&
+			   m_trkSelectionTool->accept(*trk) &&
+			   (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
+			   );	    
+
+	    if(trk->pt()>500 && m_trkSelectionTool->accept(*trk)){
+	      if(!trk->vertex()) dTrkPv_value = fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()));
+	      if(trk->vertex()==pv) dTrkPv_value = 0.;
+	      dTrkPv.push_back(dTrkPv_value);
+	    }
+
+	    if (!accept) continue;
+	
+	    count.push_back(1);
+	    nTracksCount++;
+
+	  }// end loop over jettracks
+
+	  (*dec_AssociatedNtracks)(jet_orig) = nTracksCount;
+	  (*dec_AssociatedNtracks_noCut)(jet_orig) = jettracks.size();
+	  (*dec_minPtTracks)(jet_orig) = minPtTracks;
+	  (*dec_dTrkPv)(jet_orig) = dTrkPv;
+	  (*dec_count)(jet_orig) = count;
+
+	}
     }
 
     return StatusCode::SUCCESS;
