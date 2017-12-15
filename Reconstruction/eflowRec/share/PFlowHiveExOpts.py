@@ -18,7 +18,6 @@ DetFlags.detdescr.ID_setOn()
 if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
-include('RecExCond/AllDet_detDescr.py')
 
 #---------------------------------------------------------------------------------#
 # MT-specific code
