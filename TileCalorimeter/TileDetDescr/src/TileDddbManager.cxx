@@ -90,8 +90,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
   m_ticl = access->getRecordsetPtr("TICL",m_tag,m_node);
   m_n_ticl = m_ticl->size();
 
-//  m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
-  m_tileSwitches = access->getRecordsetPtr("TileSwitches","TileSwitches-06"); // New version of TileSwitches table containing Glue, Ushape and AddPlates flags
+  m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
   m_n_tileSwitches = m_tileSwitches->size();
   (*log) << MSG::INFO << "TileDddbManager: n_tileSwitches = " << m_n_tileSwitches << endmsg;
 
@@ -1792,14 +1791,14 @@ int TileDddbManager::Ushape() const
     }
 }
 
-bool TileDddbManager::glue() const
+int TileDddbManager::glue() const
 {
   if (m_tileSwitches)
     {
       if ((*m_tileSwitches)[0]->isFieldNull("GLUE"))
         {
-          std::cerr << "\nTileDddbManager   WARNING TileSwitches(GLUE) is EMPTY, returning TRUE\n\n";
-          return true;
+          std::cerr << "\nTileDddbManager   WARNING TileSwitches(GLUE) is EMPTY, returning 1\n\n";
+          return 1;
         }
       else
 	{
@@ -1808,8 +1807,8 @@ bool TileDddbManager::glue() const
     }
   else
     {
-      std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning glue= TRUE\n\n";
-      return true;
+      std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning glue= 1\n\n";
+      return 1;
     }
 }
 
