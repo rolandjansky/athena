@@ -627,43 +627,43 @@ class PixelMainMon : public ManagedMonitorToolBase {
     moduleDcsDataHolder (const moduleDcsDataHolder&) = delete;
     moduleDcsDataHolder& operator = (const moduleDcsDataHolder&) = delete;
     ~moduleDcsDataHolder() {
-    for (auto lbmap : *m_tempModule) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_tempInlet) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_tempOutlet) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_hv_voltage) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_lv_voltage) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_hv_current) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_lv_current) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_fsm_state) {
-      delete lbmap.second;
-    }
-    for (auto lbmap : *m_fsm_status) {
-      delete lbmap.second;
-    }
-    delete m_tempModule;
-    delete m_tempInlet;
-    delete m_tempOutlet;
-    delete m_hv_voltage;
-    delete m_lv_voltage;
-    delete m_hv_current;
-    delete m_lv_current;
-    delete m_fsm_state;
-    delete m_fsm_status;
-    delete m_moduleMap;
+      for (auto lbmap : *m_tempModule) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_tempInlet) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_tempOutlet) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_hv_voltage) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_lv_voltage) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_hv_current) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_lv_current) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_fsm_state) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_fsm_status) {
+        delete lbmap.second;
+      }
+      delete m_tempModule;
+      delete m_tempInlet;
+      delete m_tempOutlet;
+      delete m_hv_voltage;
+      delete m_lv_voltage;
+      delete m_hv_current;
+      delete m_lv_current;
+      delete m_fsm_state;
+      delete m_fsm_status;
+      delete m_moduleMap;
     };
     // <module number, <LB, value> >
     std::map<int, std::map<int, float>*>* m_tempModule;
