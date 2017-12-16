@@ -445,10 +445,13 @@ EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 # the next line is not needed because we save all variables for electrons, including the prompt lepton decorations
 # EGAM1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
+EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
 
 if globalflags.DataSource()=='geant4':
     EGAM1SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTruth
+else:
+    EGAM1SlimmingHelper.ExtraVariables += ExtraContainersTriggerDataOnly
 
 for tool in EGAM1_ClusterEnergyPerLayerDecorators:
     EGAM1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )

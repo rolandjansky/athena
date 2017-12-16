@@ -290,10 +290,13 @@ if DoCellReweighting:
 # Extra variables
 EGAM3SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM3SlimmingHelper.AllVariables = ExtraContainersPhotons
+EGAM3SlimmingHelper.AllVariables += ExtraContainersTrigger
 
 if globalflags.DataSource()=='geant4':
     EGAM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM3SlimmingHelper.AllVariables += ExtraContainersTruth
+else:
+    EGAM3SlimmingHelper.ExtraVariables += ExtraContainersTriggerDataOnly
 
 for tool in EGAM3_ClusterEnergyPerLayerDecorators:
     EGAM3SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )

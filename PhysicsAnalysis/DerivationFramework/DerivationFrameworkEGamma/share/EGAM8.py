@@ -286,10 +286,13 @@ EGAM8SlimmingHelper.IncludeMuonTriggerContent = True
 # Extra variables
 EGAM8SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM8SlimmingHelper.AllVariables = ExtraContainersElectrons
+EGAM8SlimmingHelper.AllVariables += ExtraContainersTrigger
 
 if globalflags.DataSource()=='geant4':
     EGAM8SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM8SlimmingHelper.AllVariables += ExtraContainersTruth
+else:
+    EGAM8SlimmingHelper.ExtraVariables += ExtraContainersTriggerDataOnly
 
 for tool in EGAM8_ClusterEnergyPerLayerDecorators:
     EGAM8SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )

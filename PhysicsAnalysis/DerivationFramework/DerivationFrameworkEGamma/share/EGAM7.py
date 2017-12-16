@@ -276,10 +276,13 @@ EGAM7SlimmingHelper.IncludeEGammaTriggerContent = True
 # Extra variables
 EGAM7SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM7SlimmingHelper.AllVariables = ExtraContainersElectrons
+EGAM7SlimmingHelper.AllVariables += ExtraContainersTrigger
 
 if globalflags.DataSource()=='geant4':
     EGAM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM7SlimmingHelper.AllVariables += ExtraContainersTruth
+else:
+    EGAM7SlimmingHelper.ExtraVariables += ExtraContainersTriggerDataOnly
 
 for tool in EGAM7_ClusterEnergyPerLayerDecorators:
     EGAM7SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
