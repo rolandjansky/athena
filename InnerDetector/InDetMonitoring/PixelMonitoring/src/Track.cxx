@@ -182,8 +182,9 @@ StatusCode PixelMainMon::fillTrackMon(void) {
       if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
         surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
       } else {  // holes, perigee
-        if (trkParameters) surfaceID = trkParameters->associatedSurface().associatedDetectorElementIdentifier();
-	else {
+        if (trkParameters) {
+          surfaceID = trkParameters->associatedSurface().associatedDetectorElementIdentifier();
+        } else {
           ATH_MSG_INFO("pointer of TSOS to track parameters or associated surface is null");
           continue;
         }
@@ -221,9 +222,10 @@ StatusCode PixelMainMon::fillTrackMon(void) {
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) {
         if (m_tsos_hitmap) m_tsos_hitmap->fill(surfaceID, m_pixelid);
         if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 1.0);
-      } else continue;
-      //
-      // working only with real hits (not outliers or holes) from now on 
+      } else {
+        continue;
+        // working only with real hits (not outliers or holes) from now on
+      }
 
       const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(mesb->associatedSurface().associatedDetectorElement());
       const InDet::SiClusterOnTrack *clus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesb);
