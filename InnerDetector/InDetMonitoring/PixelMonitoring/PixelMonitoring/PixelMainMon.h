@@ -206,7 +206,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::string m_Pixel_SpacePointsName;
   std::string m_Pixel_SiClustersName;
   std::string m_TracksName;
-  std::string m_error_summary;
 
   std::string m_histTitleExt;
 
@@ -267,8 +266,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_isNewRun;
   bool m_isNewLumiBlock;
   bool m_newLowStatInterval;
-
-  double m_occupancy_cut;
 
   int m_ClusPerEventArray_disksA[48][3];
   int m_ClusPerEventArray_disksC[48][3];
@@ -585,7 +582,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile2D_LW* m_hist_LB_staveID_thermalFigureMerit;
 
   std::vector<std::string> m_atrcollist;
-  std::map<std::string, std::vector<std::string> > m_elementsMap;
   int m_currentLumiBlockNumber;
 
   class dcsDataHolder {
