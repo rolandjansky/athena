@@ -3,7 +3,6 @@
 from Limits import CaloLimits as CL
 IsolationOff = CL.IsolationOff
 
-from Lvl1MenuUtil import log
 from copy import deepcopy
 
 class ThresholdValue:

@@ -69,7 +69,7 @@ class TrigMultiTrkFex_trkPhi (TrigMultiTrkFexPy):
         self.nTrkCharge = 0
         self.nTrkMassMin = [840.]  
         self.nTrkMassMax = [1240.] 
-        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -98,7 +98,7 @@ class TrigMultiTrkFex_trkPhiX (TrigMultiTrkFexPy):
         self.nTrk = 3
         self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkCharge = 1
-        self.ptTrkMin = [3750., 3750., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = [840.]   # phi window
         self.diTrkMassMax = [1240.]
         self.diTrkCharge = 0
@@ -130,7 +130,7 @@ class TrigMultiTrkFex_trkPhiXTight (TrigMultiTrkFexPy):
         self.nTrkCharge = 1
         self.nTrkMassMin = [1500.]
         self.nTrkMassMax = [2500.] 
-        self.ptTrkMin = [3750., 3750., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = [840.]   # phi window
         self.diTrkMassMax = [1240.]
         self.diTrkCharge = 0
@@ -164,7 +164,7 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.nTrkMassMin = [0.]
         self.nTrkMassMax = [2900.] # cut away J/psi
         self.nTrkCharge = -1
-        self.ptTrkMin = [3750., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = []   # no sub-resonances
         self.diTrkMassMax = []
         # muons are not matched to tracks, but still require to be present in TE
@@ -313,7 +313,7 @@ class TrigMultiTrkFex_DiMu (TrigMultiTrkFexPy):
         self.nTrkCharge = 0
         self.nTrkMassMin = [100.]
         self.nTrkMassMax = [15000.] 
-        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for 2mu passing L1
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for 2mu passing L1
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -369,7 +369,7 @@ class TrigMultiTrkFex_Vtx2 (TrigMultiTrkFexPy):
         self.nTrkCharge = -1
         self.nTrkMassMin = [0.]  
         self.nTrkMassMax = [1e+8] # should be safe at LHC, no? 
-        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for 2mu passing L1
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for 2mu passing L1
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -392,7 +392,7 @@ class TrigMultiTrkFex_Vtx3 (TrigMultiTrkFexPy):
     def __init__(self, name = "TrigMultiTrkFex_Vtx3"):
         super( TrigMultiTrkFex_Vtx3, self ).__init__( name )
         self.nTrk = 3
-        self.ptTrkMin = [3750., 3750., 3750. ] # set minimal pt of tracks for 3mu passing L1
+        self.ptTrkMin = [3600., 3600., 3600. ] # set minimal pt of tracks for 3mu passing L1
 
 #############################################################################
 class TrigMultiTrkFex_Jpsi (TrigMultiTrkFexPy):

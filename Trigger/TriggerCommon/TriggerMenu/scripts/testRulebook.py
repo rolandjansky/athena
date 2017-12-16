@@ -2,10 +2,10 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys, os, commands
+import os, commands
 import TriggerClasses
 import logging
-from operator import itemgetter, attrgetter
+from operator import attrgetter
 import xml.etree.cElementTree as ET
 
 def checkFormat(file_path, trigger_rules = {}):
@@ -36,7 +36,7 @@ def checkFormat(file_path, trigger_rules = {}):
         logging.error("Failed to read %s lines: \n" % len(badlines))
         for line in badlines:
             logging.error("%s\n" % line.strip())
-        lgogging.error("Found %s duplicate entries: \n" % len(duplicates))
+        logging.error("Found %s duplicate entries: \n" % len(duplicates))
         for dup in duplicates:
             logging.error("%s\n" % dup.strip())
             

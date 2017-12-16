@@ -2,10 +2,8 @@
 
 """ MinBias slice specific flags  """
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
-from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = 'M. Backes'
 __version__=""
@@ -21,9 +19,6 @@ class signatures(JobProperty):
     StoredValue   = [
         ]
 
-
-    
-    
 _flags.append(signatures)
 
 # create container

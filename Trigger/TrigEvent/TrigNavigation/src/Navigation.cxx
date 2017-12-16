@@ -57,27 +57,20 @@ Navigation::~Navigation() {
  *
  *****************************************************************************/
 StatusCode Navigation::initialize() {
-  // message log
-  delete m_log;
-  m_log = new MsgStream(msgSvc(), name() );
 
  // get StoreGate
   StatusCode sc = m_storeGateHandle.retrieve();
   if(sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Unable to get pointer to StoreGate Service: "
-             << m_storeGateHandle << endreq;
+    ATH_MSG_FATAL("Unable to get pointer to StoreGate Service: " << m_storeGateHandle);
     return StatusCode::FAILURE;
   }
   m_storeGate = m_storeGateHandle.operator->();
 
   StatusCode scnv = m_serializerServiceHandle.retrieve();
   if (scnv.isFailure()){
-    *m_log << MSG::FATAL << "Navigation::initialize() cannot get TrigSerializeCnvSvc"
-           << endreq;
+    ATH_MSG_FATAL("Navigation::initialize() cannot get TrigSerializeCnvSvc");
   } else {
-    if (m_log->level() <= MSG::DEBUG )
-      *m_log << MSG::DEBUG << "Navigation::initialize() got TrigSerializeCnvSvc"
-             << endreq;
+    ATH_MSG_DEBUG("Navigation::initialize() got TrigSerializeCnvSvc");
   }
   m_serializerSvc = m_serializerServiceHandle.operator->();
 
@@ -88,14 +81,12 @@ StatusCode Navigation::initialize() {
 
   // payload def
   if ( classKey2CLIDKey(m_classesToPayloadProperty,  m_classesToPayload).isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to decode property ClassesToPayload: "
-             << m_classesToPayloadProperty << endreq;
+    ATH_MSG_FATAL("failed to decode property ClassesToPayload: " << m_classesToPayloadProperty);
     return  StatusCode::FAILURE;
   }
 
   if ( classKey2CLIDKey(m_classesToPayloadProperty_DSonly,  m_classesToPayload_DSonly).isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to decode property ClassesToPayload: " 
-	     << m_classesToPayloadProperty_DSonly << endreq;
+    ATH_MSG_FATAL("failed to decode property ClassesToPayload: " << m_classesToPayloadProperty_DSonly);
     
     return  StatusCode::FAILURE;
   }
@@ -105,25 +96,24 @@ StatusCode Navigation::initialize() {
     CLID cl = m_classesToPayload.at(icl).first;
     StatusCode stmp = m_serializerSvc->addConverter(cl);
     if (stmp.isFailure())
-      *m_log << MSG::WARNING << "Initialization of a converter for CLID=" << cl << " failed" << endreq;
+      ATH_MSG_WARNING("Initialization of a converter for CLID=" << cl << " failed");
   }
 
 
   // preregistration def
   if ( classKey2CLIDKey(m_classesToPreregisterProperty,  m_classesToPreregister).isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to decode property ClassesToPreregister: "
-             << m_classesToPreregisterProperty << endreq;
+    ATH_MSG_FATAL("failed to decode property ClassesToPreregister: " << m_classesToPreregisterProperty);
     return  StatusCode::FAILURE;
   }
 
   // print out registered holders
   HLT::TypeMaps::CLIDtoHolderMap::const_iterator holderIt;
-  if (m_log->level() <= MSG::VERBOSE ) {
+  if (msgLvl(MSG::VERBOSE) ) {
     for ( holderIt = HLT::TypeMaps::holders().begin(); holderIt != HLT::TypeMaps::holders().end(); ++holderIt ) {
       if(!holderIt->second){
-	(*m_log) << MSG::FATAL << "static type information not intialized. Holder is null pointer" << endreq;
+        ATH_MSG_FATAL("static type information not intialized. Holder is null pointer");
       }
-      (*m_log) << MSG::VERBOSE << *(holderIt->second) << endreq;
+      ATH_MSG_VERBOSE(*(holderIt->second));
     }
   }
 
@@ -132,17 +122,14 @@ StatusCode Navigation::initialize() {
   for ( dlIt = m_dlls.begin(); dlIt != m_dlls.end(); ++dlIt ) {
     System::ImageHandle handle = 0;
     if ( System::loadDynamicLib( *dlIt, &handle)  != 1 ) {
-      (*m_log) << MSG::WARNING << "failed to load " << *dlIt << endreq;
+      ATH_MSG_WARNING("failed to load " << *dlIt);
     } else {
-      if (m_log->level() <= MSG::DEBUG )
-        (*m_log) << MSG::DEBUG << "forcibly loaded library " << *dlIt << endreq;
+        ATH_MSG_DEBUG("forcibly loaded library " << *dlIt);
     }
   }
 
   // translate Class names into CLID numbers
-  if (m_log->level() <= MSG::DEBUG )
-    (*m_log) << MSG::DEBUG << " successfully initialized Navigation "
-             << endreq;
+  ATH_MSG_DEBUG(" successfully initialized Navigation ");
 
   return StatusCode::SUCCESS;
 }
@@ -168,14 +155,11 @@ Navigation::classKey2CLIDKey(const std::vector<std::string> property,
     }
 
     if ( m_clidSvc->getIDOfTypeName(type, clid).isFailure() ) {
-      (*m_log) << MSG::FATAL << "Unable to get CLID for class: " << *it
-               << " check property" << endreq;
+      ATH_MSG_FATAL("Unable to get CLID for class: " << *it << " check property");
       return StatusCode::FAILURE;
     }
 
-    if (m_log->level() <= MSG::DEBUG )
-      (*m_log) << MSG::DEBUG << "Recognized CLID : " << type << " and key: " << key
-               << endreq;
+      ATH_MSG_DEBUG("Recognized CLID : " << type << " and key: " << key);
 
     decoded.push_back(std::make_pair(clid, key));
   }
@@ -183,8 +167,7 @@ Navigation::classKey2CLIDKey(const std::vector<std::string> property,
 }
 
 StatusCode Navigation::finalize() {
-  if (m_log->level() <= MSG::DEBUG )
-    *m_log << MSG::DEBUG << "Navigation finalize" << endreq;
+    ATH_MSG_DEBUG("Navigation finalize");
   return StatusCode::SUCCESS;
 }
 

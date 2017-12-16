@@ -76,16 +76,6 @@
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
-        
-        <TEST name="AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK" type="script" suite="tt_25">
-            <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --run AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --conf TriggerTest.conf</options_atn>
-            <timelimit>60</timelimit>
-            <author>Trigger Validation</author>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
 
         <TEST name="AthenaTrigRDO_MC_pp_v7" type="script" suite="tt_26">
             <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v7 --run AthenaTrigRDO_MC_pp_v7 --conf TriggerTest.conf</options_atn>
