@@ -43,14 +43,14 @@ namespace TrigConf {
    TrigConf::TriggerItemNode*
    parse(const std::string& logic,
          const std::vector<std::string>& conditions,
-         const std::vector<TrigConf::TriggerThreshold*>& thrs) throw (std::logic_error);
+         const std::vector<TrigConf::TriggerThreshold*>& thrs);
 
    // returns position of corresponding ')' parenthesis
    // 
    // opening parenthisis is at pos (or before)
    std::string::size_type
    findClosingBracket(std::string::size_type pos,
-                      const std::string& logic) throw (std::logic_error);
+                      const std::string& logic);
    
    // builds an TriggerItemNode(OBJ), set's the TriggerThreshold, multiplicity, and InternalTrigger (if applicable)
    //
@@ -59,7 +59,7 @@ namespace TrigConf {
    TrigConf::TriggerItemNode*
    buildObjNode(uint32_t condIdx,
                 const std::vector<std::string>& conditions, 
-                const std::vector<TrigConf::TriggerThreshold*>& thrs) throw (std::logic_error);
+                const std::vector<TrigConf::TriggerThreshold*>& thrs);
 
    std::string insertParenthesis(const std::string& givenlogic);
 
