@@ -25,6 +25,7 @@ MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& 
   declareProperty("MuonSystemExtensionTool",m_muonSystemExtensionTool );
   declareProperty("InDetCandidateLocation", m_candidateCollectionName = "InDetCandidates");
   declareProperty("DoSiliconAssocForwardMuons", m_doSiliconForwardMuons = false);
+  declareProperty("ExtensionPtThreshold",m_extThreshold=2500);
 }
 
 MuonCombinedInDetCandidateAlg::~MuonCombinedInDetCandidateAlg(){}
@@ -115,8 +116,8 @@ void MuonCombinedInDetCandidateAlg::create( const xAOD::TrackParticleContainer& 
     }
     InDetCandidate* candidate = new InDetCandidate(link);
     if (flagCandidateAsSiAssociated)
-      candidate->setSiliconAssociated(true);
-    else{ //Si-associated candidates don't need these
+      candidate->setSiliconAssociated(true);  //Si-associated candidates don't need these
+    else if(tp->pt()>m_extThreshold){ //MuGirl only operates on ID tracks with pt at least this high
       const Muon::MuonSystemExtension* muonSystemExtension = 0;
       m_muonSystemExtensionTool->muonSystemExtension( candidate->indetTrackParticle(), muonSystemExtension );
       candidate->setExtension(muonSystemExtension);
