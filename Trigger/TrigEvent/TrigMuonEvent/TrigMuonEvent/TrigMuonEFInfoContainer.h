@@ -18,10 +18,10 @@
 ********************************************************************/
  
 // INCLUDE HEADER FILES:
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigMuonEFInfoContainer : public DataVector<TrigMuonEFInfo> 
 {

@@ -20,8 +20,8 @@
 #ifndef TRIGMUONEVENT_TILEMUFEATURE_H
 #define TRIGMUONEVENT_TILEMUFEATURE_H
  
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 #include <vector>
 #include <string>
