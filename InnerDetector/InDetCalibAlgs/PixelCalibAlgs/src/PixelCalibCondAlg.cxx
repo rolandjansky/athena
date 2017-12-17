@@ -79,7 +79,7 @@ StatusCode PixelCalibCondAlg::execute()
     const float* const2 = readCdo->find(key);
     if (const2) {
       ATH_MSG_INFO("Found constants with old-style Identifier key");
-      writeCdo->SetConstants(constants);
+      writeCdo->SetConstants(const2);
     }
     else {
       ATH_MSG_ERROR("Could not get the constants!");
