@@ -286,7 +286,7 @@ namespace CP {
 
     TrackCollection IsolationCloseByCorrectionTool::getAssociatedTracks(const xAOD::IParticle* P) const {
         if (P->type() == xAOD::Type::Muon) {
-            return TrackCollection { getTrackParticle(P, true) };
+            return TrackCollection { getTrackParticle(P) };
         } else if (P->type() == xAOD::Type::TrackParticle) {
             return TrackCollection { getTrackParticle(P) };
         } else if (isEgamma(P)) {
@@ -625,17 +625,17 @@ namespace CP {
         } else if (particle->type() == xAOD::Type::ObjectType::Electron) {
             const xAOD::Electron* El = dynamic_cast<const xAOD::Electron*>(particle);
             const xAOD::TrackParticle* T = xAOD::EgammaHelpers::getOriginalTrackParticle(El);
-            if (T == nullptr) {
+            if (T == nullptr && !force_id) {
                 ATH_MSG_WARNING("Could not find the Original InDet track of the electron. Use the GSF track instead");
                 return El->trackParticle();
-            } else if (!force_id) return T;
+            } else return T;
         } else if (particle->type() == xAOD::Type::ObjectType::Muon) {
             const xAOD::Muon* Mu = dynamic_cast<const xAOD::Muon*>(particle);
             const xAOD::TrackParticle* T = Mu->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
-            if (T == nullptr) {
+            if (T == nullptr && !force_id) {
                 ATH_MSG_DEBUG("The muon has no InDet track. Return the next primary track");
                 return Mu->primaryTrackParticle();
-            } else if (!force_id) return T;
+            } else return T;
         }
         ATH_MSG_DEBUG("Could not find an associated track to the particle "<<particleName(particle)<<" with pt: "<<particle->pt()/1.e3<<" GeV, eta: "<<particle->eta()<<", phi: "<<particle->phi() );
         return nullptr;
