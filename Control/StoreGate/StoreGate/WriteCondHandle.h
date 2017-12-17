@@ -9,7 +9,6 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/VarHandleBase.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,7 +22,7 @@
 namespace SG {
 
   template <typename T>
-  class WriteCondHandle : public SG::VarHandleBase {
+  class WriteCondHandle {
 
   public: 
     typedef T*               pointer_type; // FIXME: better handling of
@@ -35,9 +34,12 @@ namespace SG {
     WriteCondHandle(const WriteCondHandleKey<T>& key);
     WriteCondHandle(const WriteCondHandleKey<T>& key, const EventContext& ctx);
     
-    virtual ~WriteCondHandle() override {};   
+    ~WriteCondHandle() {};   
 
-    virtual bool isValid() override;
+    const std::string& key() const { return m_hkey.key(); }
+    const DataObjID& fullKey() const { return m_hkey.fullKey(); }
+
+    bool isValid();
     bool isValid(const EventIDBase& t) const;
 
     StatusCode record(const EventIDRange& range, T* t);
@@ -68,7 +70,6 @@ namespace SG {
   template <typename T>
   WriteCondHandle<T>::WriteCondHandle( const SG::WriteCondHandleKey<T>& key,
                                        const EventContext& ctx) :
-    SG::VarHandleBase( key, &ctx ),
     m_eid(ctx.eventID()),
     m_cc( key.getCC() ),
     m_cs( key.getCS() ),
@@ -129,7 +130,7 @@ namespace SG {
   template <typename T>
   void
   WriteCondHandle<T>::updateStore() {
-    m_cs->addedNewTransObject( fullKey().clid(), fullKey().key() );
+    m_cs->addedNewTransObject( m_hkey.fullKey().clid(), m_hkey.fullKey().key() );
   }
 
 
