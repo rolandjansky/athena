@@ -50,10 +50,6 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
 
 #include "JetInterface/IJetTrackSelector.h"
 #include "JetRec/JetModifierBase.h"
@@ -100,7 +96,7 @@ public:
                   std::string scale) const;
 
   // Local method to return the HS vertex - that of type PriVtx
-  const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
+  const xAOD::Vertex* findHSVertex() const;
 
 private:  // data
 

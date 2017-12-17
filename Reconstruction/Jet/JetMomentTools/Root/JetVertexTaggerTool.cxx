@@ -12,6 +12,8 @@
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "PathResolver/PathResolver.h"
 
+#include "xAODTracking/VertexContainer.h"
+
 using std::string;
 using xAOD::JetFourMom_t;
 
@@ -68,21 +70,8 @@ StatusCode JetVertexTaggerTool::initialize() {
 
 int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
-  // Get the vertices container
-  const xAOD::VertexContainer* vertices = NULL;
-  if ( evtStore()->retrieve(vertices,m_verticesName).isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: " << m_verticesName);
-    return 1;
-  }
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer from evtStore: " << m_verticesName);
-    
-
-  if (vertices->size() == 0 ) { 
-    ATH_MSG_WARNING("There are no vertices in the container. Exiting"); 
-    return 2;
-  }
-
-  const xAOD::Vertex* HSvertex = findHSVertex(vertices);
+  const xAOD::Vertex* HSvertex = findHSVertex();
+  if(!HSvertex) return 1;
 
   for(xAOD::Jet * jet : jetCont) 
     {      
@@ -153,8 +142,22 @@ StatusCode JetVertexTaggerTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContainer*& vertices) const
+const xAOD::Vertex* JetVertexTaggerTool::findHSVertex() const
 {
+
+  // Get the vertices container
+  const xAOD::VertexContainer* vertices = NULL;
+  if ( evtStore()->retrieve(vertices,m_verticesName).isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: " << m_verticesName);
+    return nullptr;
+  }
+  ATH_MSG_DEBUG("Successfully retrieved VertexContainer from evtStore: " << m_verticesName);
+
+  if (vertices->size() == 0 ) {
+    ATH_MSG_WARNING("There are no vertices in the container. Exiting");
+    return nullptr;
+  }
+
   for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex ) {
     if(vertices->at(iVertex)->vertexType() == xAOD::VxType::PriVtx) {
       
