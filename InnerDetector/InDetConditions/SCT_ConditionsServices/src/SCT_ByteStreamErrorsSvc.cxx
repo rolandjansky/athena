@@ -35,29 +35,29 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_storeGate{"StoreGateSvc", name},
   m_detStore{"DetectorStore", name},
   m_cabling{"SCT_CablingSvc", name},
-  m_config("InDetSCT_ConfigurationConditionsSvc",name),
-  m_filled(false) ,
-  m_lookForSGErrContainer(true),
+  m_config{"InDetSCT_ConfigurationConditionsSvc", name},
+  m_filled{false},
+  m_lookForSGErrContainer{true},
   m_tempMaskedChips{},
-  m_isRODSimulatedData(false),
-  m_numRODsHVon(0),
-  m_numRODsTotal(0),
-  m_condensedMode(true),
-  m_rodFailureFraction(0.1),
+  m_isRODSimulatedData{false},
+  m_numRODsHVon{0},
+  m_numRODsTotal{0},
+  m_condensedMode{true},
+  m_rodFailureFraction{0.1},
   m_pManager{nullptr}
 {
-  declareProperty("EventStore",m_storeGate);
-  declareProperty("DetectorStore",m_detStore);
-  declareProperty("ContainerName",m_bsErrContainerName=std::string("SCT_ByteStreamErrs"));
-  declareProperty("CablingService",m_cabling);
-  declareProperty("ConfigService",m_config);
-  declareProperty("useDCSfromBS",m_useDCSfromBS=false);
-  declareProperty("UseRXRedundancyInfo",m_useRXredundancy=true);
-  declareProperty("disableRODs",m_disableRODs=false);
-  declareProperty("RODFailureFraction",m_rodFailureFraction=0.1);
-  declareProperty("RandomNumberSeed",m_randomSeed=1); // The seed of random numbers for ROD disabling
+  declareProperty("EventStore", m_storeGate);
+  declareProperty("DetectorStore", m_detStore);
+  declareProperty("ContainerName", m_bsErrContainerName=std::string{"SCT_ByteStreamErrs"});
+  declareProperty("CablingService", m_cabling);
+  declareProperty("ConfigService", m_config);
+  declareProperty("useDCSfromBS", m_useDCSfromBS=false);
+  declareProperty("UseRXRedundancyInfo", m_useRXredundancy=true);
+  declareProperty("disableRODs", m_disableRODs=false);
+  declareProperty("RODFailureFraction", m_rodFailureFraction=0.1);
+  declareProperty("RandomNumberSeed", m_randomSeed=1); // The seed of random numbers for ROD disabling
 
-  for(int errorType=0; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
+  for (int errorType{0}; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
     m_bsErrors[errorType].clear();
     m_numBsErrors[errorType] = 0;
   }
@@ -65,40 +65,42 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
 
 /** Initialize */
 StatusCode 
-SCT_ByteStreamErrorsSvc::initialize(){
-  StatusCode sc(StatusCode::SUCCESS);
+SCT_ByteStreamErrorsSvc::initialize() {
+  StatusCode sc{StatusCode::SUCCESS};
 
-  for(int errorType=0; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
+  for (int errorType{0}; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
     m_bsErrors[errorType].clear();
   }
 
   m_isRODSimulatedData=false;
 
-  IIncidentSvc* incsvc;
+  IIncidentSvc* incsvc{nullptr};
   sc = service("IncidentSvc", incsvc);
-  int priority = 100;
-  if( sc.isSuccess() ) {
+  int priority{100};
+  if (sc.isSuccess()) {
     incsvc->addListener( this, "BeginEvent", priority);
   }
  
   /** Get a StoreGateSvc */
   if (m_storeGate.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_storeGate << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve service " << m_storeGate);
     return StatusCode::SUCCESS;
   } 
-  else
-    msg(MSG::INFO) << "Retrieved service " << m_storeGate << endmsg;
+  else {
+    ATH_MSG_INFO("Retrieved service " << m_storeGate);
+  }
   /**  Get a detector store */
   if (m_detStore.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_detStore << endmsg;
+    ATH_MSG_FATAL("Failed to retrieve service " << m_detStore);
     return StatusCode::SUCCESS;
   }
-  else
-    msg(MSG::INFO) << "Retrieved service " << m_detStore << endmsg ;
+  else {
+    ATH_MSG_INFO("Retrieved service " << m_detStore);
+  }
  
-  sc = m_detStore->retrieve(m_sct_id,"SCT_ID") ;
+  sc = m_detStore->retrieve(m_sct_id, "SCT_ID") ;
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve SCT ID helper!"  << endmsg;
+    ATH_MSG_FATAL("Cannot retrieve SCT ID helper!");
     return StatusCode::SUCCESS;
   } 
 
@@ -106,14 +108,14 @@ SCT_ByteStreamErrorsSvc::initialize(){
 
   sc = m_config.retrieve() ;
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve ConfigurationConditionsSvc!"  << endmsg;
+    ATH_MSG_FATAL("Cannot retrieve ConfigurationConditionsSvc!");
     return StatusCode::SUCCESS;
   } 
   
-  if (m_disableRODs || m_useRXredundancy) {
+  if (m_disableRODs or m_useRXredundancy) {
     sc = m_cabling.retrieve() ;
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Cannot retrieve cabling!"  << endmsg;
+      ATH_MSG_FATAL("Cannot retrieve cabling!");
       return StatusCode::SUCCESS;
     } 
   }
@@ -129,7 +131,7 @@ SCT_ByteStreamErrorsSvc::initialize(){
 
 /** Finalize */
 StatusCode
-SCT_ByteStreamErrorsSvc::finalize(){
+SCT_ByteStreamErrorsSvc::finalize() {
   return StatusCode::SUCCESS;
 }
 
@@ -150,7 +152,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     m_numRODsTotal=0;
     if (m_disableRODs) disableRODs();
     // Set all RODs as not decoded
-    for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
+    for (auto& rodDecodeStatus: m_rodDecodeStatuses) {
       rodDecodeStatus.second = false;
     }
     m_firstTempMaskedChips.clear();
@@ -170,14 +172,14 @@ SCT_ByteStreamErrorsSvc::disableRODs() {
 
   /* generate secret number: */
 
-  for ( int irod = 0; irod < int(m_rodFailureFraction*listOfRODs.size()); ++irod){
-    uint32_t RODindex = rand() % (listOfRODs.size());
+  for (int irod{0}; irod < int(m_rodFailureFraction*listOfRODs.size()); ++irod) {
+    uint32_t RODindex{static_cast<uint32_t>(rand() % listOfRODs.size())};
   
     if (RODindex < listOfRODs.size()) {
       std::vector<IdentifierHash> listOfHashes;
       m_cabling->getHashesForRod(listOfHashes,listOfRODs.at(RODindex));
-      std::vector<IdentifierHash>::iterator hashIt = listOfHashes.begin();
-      std::vector<IdentifierHash>::iterator hashEnd = listOfHashes.end();
+      std::vector<IdentifierHash>::iterator hashIt{listOfHashes.begin()};
+      std::vector<IdentifierHash>::iterator hashEnd{listOfHashes.end()};
       for (; hashIt != hashEnd; ++hashIt) {
         addError(*hashIt,SCT_ByteStreamErrors::MaskedROD);
       }
@@ -216,7 +218,7 @@ SCT_ByteStreamErrorsSvc::setCondensedReadout(bool isCondensed) {
 
 bool
 SCT_ByteStreamErrorsSvc::HVisOn() {
-  if (m_numRODsTotal > 0 && ( ((float)m_numRODsHVon / (float)m_numRODsTotal) > 0.5 ) )
+  if ((m_numRODsTotal > 0) and ( ((float)m_numRODsHVon / (float)m_numRODsTotal) > 0.5 ) )
     return true;
   else
     return false;
@@ -254,23 +256,21 @@ SCT_ByteStreamErrorsSvc::canReportAbout(InDetConditions::Hierarchy h) {
  * result in bad hits or no hits for that event */
  
 bool 
-SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
+SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash& elementIdHash) {
   
   if (!m_filled) {
-    StatusCode sc = fillData();
+    StatusCode sc{fillData()};
     if (sc.isFailure()) {
-      msg(MSG::ERROR)<<"Failed to read BS errors from SG container "
-                     <<m_bsErrContainerName.key()
-                     <<endmsg;
+      ATH_MSG_ERROR("Failed to read BS errors from SG container " << m_bsErrContainerName.key());
       return true;
     }
   }
   
-  if (m_useDCSfromBS && (! HVisOn() ) ) return false;
+  if (m_useDCSfromBS and (not HVisOn())) return false;
 
   if (m_isRODSimulatedData) return false;
   
-  bool result(true);
+  bool result{true};
   
   result = (std::find(m_bsErrors[SCT_ByteStreamErrors::TimeOutError].begin(),
                       m_bsErrors[SCT_ByteStreamErrors::TimeOutError].end(),
@@ -305,34 +305,34 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   if (!result) return result;
 
   // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 
-  const Identifier wafer_id(m_sct_id->wafer_id(elementIdHash));
-  const Identifier module_id(m_sct_id->module_id(wafer_id));
-  unsigned int badChips(m_config->badChips(module_id));
-  unsigned int tempMaskedChips2(tempMaskedChips(module_id));
-  const int side(m_sct_id->side(wafer_id));
-  short id(side==0 ? 0 : 6);
-  bool allChipsBad(true);
-  for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; (errType<=SCT_ByteStreamErrors::ABCDError_Chip5) and allChipsBad; errType++) {
-    bool issueABCDError = (std::find(m_bsErrors[errType].begin(), m_bsErrors[errType].end(), elementIdHash)!=m_bsErrors[errType].end());
-    bool isBadChip = ((badChips >> (id)) & 0x1);
-    bool isTempMaskedChip = ((tempMaskedChips2 >> (id)) & 0x1);
+  const Identifier wafer_id{m_sct_id->wafer_id(elementIdHash)};
+  const Identifier module_id{m_sct_id->module_id(wafer_id)};
+  unsigned int badChips{m_config->badChips(module_id)};
+  unsigned int tempMaskedChips2{tempMaskedChips(module_id)};
+  const int side{m_sct_id->side(wafer_id)};
+  short id{static_cast<short>(side==0 ? 0 : 6)};
+  bool allChipsBad{true};
+  for (int errType{SCT_ByteStreamErrors::ABCDError_Chip0}; (errType<=SCT_ByteStreamErrors::ABCDError_Chip5) and allChipsBad; errType++) {
+    bool issueABCDError{(std::find(m_bsErrors[errType].begin(), m_bsErrors[errType].end(), elementIdHash)!=m_bsErrors[errType].end())};
+    bool isBadChip{((badChips >> (id)) & 0x1)};
+    bool isTempMaskedChip{((tempMaskedChips2 >> (id)) & 0x1)};
     id++;
     allChipsBad = (issueABCDError or isBadChip or isTempMaskedChip);
-    if(not allChipsBad) break;
+    if (not allChipsBad) break;
   }
-  if(allChipsBad) return false;
+  if (allChipsBad) return false;
   
   return result;
 }
 
 bool 
-SCT_ByteStreamErrorsSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
+SCT_ByteStreamErrorsSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   if (not canReportAbout(h)) return true;
   
   if (m_isRODSimulatedData) return false;
 
   if (h==InDetConditions::SCT_SIDE) {
-    const IdentifierHash elementIdHash = m_sct_id->wafer_hash(elementId);
+    const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
     return isGood(elementIdHash);
   }
   if (h==InDetConditions::SCT_CHIP) {
@@ -431,7 +431,7 @@ SCT_ByteStreamErrorsSvc::getChip(const Identifier& stripId) const {
 void 
 SCT_ByteStreamErrorsSvc::resetSets() {
 
-  for(int errType=0; errType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errType++) {
+  for (int errType{0}; errType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errType++) {
     m_bsErrors[errType].clear();
   }
 
@@ -449,12 +449,12 @@ const std::set<IdentifierHash>*
 SCT_ByteStreamErrorsSvc::getErrorSet(int errorType) {
 
   if (!m_filled) {
-    StatusCode sc = fillData();
-    if (sc.isFailure()) msg(MSG::ERROR) << "Failed to fill from SG container " 
-                                        <<m_bsErrContainerName.key()
-                                        <<endmsg;
+    StatusCode sc{fillData()};
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Failed to fill from SG container " << m_bsErrContainerName.key());
+    }
   }
-  if(errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
+  if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     return &(m_bsErrors[errorType]);
   }
   return 0;
@@ -471,24 +471,23 @@ StatusCode
 SCT_ByteStreamErrorsSvc::fillData() {
 
   if (m_lookForSGErrContainer) {
-    SG::ReadHandle<InDetBSErrContainer> errCont(m_bsErrContainerName);
+    SG::ReadHandle<InDetBSErrContainer> errCont{m_bsErrContainerName};
 
     /** When running over ESD files without BSErr container stored, don't 
      * want to flood the user with error messages.  Should just have a bunch
      * of empty sets, and keep quiet.
      */
-    bool gotErrors = m_storeGate->contains<InDetBSErrContainer>(m_bsErrContainerName.key());
+    bool gotErrors{m_storeGate->contains<InDetBSErrContainer>(m_bsErrContainerName.key())};
     if ((not gotErrors) or (not errCont.isValid())) {
-      msg(MSG::INFO) <<"Failed to retrieve BS error container "
-                     << m_bsErrContainerName.key()
-                     <<" from StoreGate.  "
-                     <<"This is expected if you are reading an ESD file "
-                     <<"which doesn't have the ByteStreamErrors container stored, "
-                     <<"such as an MC ESD file, or a real data ESD file produced "
-                     <<"with a release older than 14.5.0.  "
-                     <<"Otherwise, you might have a problem.  "
-                     <<"This message won't be printed again."
-                     <<endmsg;
+      ATH_MSG_INFO("Failed to retrieve BS error container "
+                   << m_bsErrContainerName.key()
+                   << " from StoreGate.  "
+                   << "This is expected if you are reading an ESD file "
+                   << "which doesn't have the ByteStreamErrors container stored, "
+                   << "such as an MC ESD file, or a real data ESD file produced "
+                   << "with a release older than 14.5.0.  "
+                   << "Otherwise, you might have a problem.  "
+                   << "This message won't be printed again.");
       
       m_lookForSGErrContainer = false;
       m_filled = true;
@@ -498,25 +497,25 @@ SCT_ByteStreamErrorsSvc::fillData() {
     /** OK, so we found the StoreGate container, now lets iterate
      * over it to populate the sets of errors owned by this Svc.
      */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"size of error container is "<<errCont->size()<<endmsg;
+    ATH_MSG_DEBUG("size of error container is "<<errCont->size());
     for (const auto* elt : *errCont) {
       addError(elt->first,elt->second);
       if (m_useRXredundancy) {
-        Identifier wafer_id = m_sct_id->wafer_id(elt->first);
-        Identifier module_id = m_sct_id->module_id(wafer_id);
-        std::pair<bool, bool> badLinks = m_config->badLinks(module_id);
-        int side = m_sct_id->side(m_sct_id->wafer_id(elt->first));
-        bool result = (side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second);
+        Identifier wafer_id{m_sct_id->wafer_id(elt->first)};
+        Identifier module_id{m_sct_id->module_id(wafer_id)};
+        std::pair<bool, bool> badLinks{m_config->badLinks(module_id)};
+        int side{m_sct_id->side(m_sct_id->wafer_id(elt->first))};
+        bool result{(side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
         if (result) {
           /// error in a module using RX redundancy - add an error for the other link as well!!
           if (side==0) {
-            IdentifierHash otherSide = IdentifierHash(elt->first  + 1);
+            IdentifierHash otherSide{IdentifierHash(elt->first  + 1)};
             addError(otherSide,elt->second);
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Adding error to side 1 for module with RX redundancy"<<otherSide<<endmsg;
+            ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy" << otherSide);
           } else if (side==1) {
-            IdentifierHash otherSide = IdentifierHash(elt->first  - 1);
+            IdentifierHash otherSide{IdentifierHash(elt->first  - 1)};
             addError(otherSide,elt->second);
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Adding error to side 0 for module with RX redundancy"<<otherSide<<endmsg;
+            ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy" << otherSide);
           }
         }
       }
@@ -546,7 +545,7 @@ SCT_ByteStreamErrorsSvc::filled() const{
 
 void 
 SCT_ByteStreamErrorsSvc::addError(IdentifierHash id, int errorType) {
-  if(errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
+  if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     m_bsErrors[errorType].insert(id);
   }
 }
@@ -563,7 +562,7 @@ SCT_ByteStreamErrorsSvc::addError(IdentifierHash id, int errorType) {
 
 void 
 SCT_ByteStreamErrorsSvc::addErrorCount(int errorType) {
-  if(errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
+  if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     m_numBsErrors[errorType]++;
   }
 }
@@ -590,14 +589,14 @@ SCT_ByteStreamErrorsSvc::isRODSimulatedData() {
 
 void 
 SCT_ByteStreamErrorsSvc::resetCounts() {
-  for(int errorType=0; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
+  for (int errorType{0}; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
     m_numBsErrors[errorType] = 0;
   }
 }
 
 int 
 SCT_ByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
-  if(errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
+  if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     return m_numBsErrors[errorType];
   }
   return 0;
@@ -606,8 +605,8 @@ SCT_ByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
 void
 SCT_ByteStreamErrorsSvc::setDecodedROD(const boost::uint32_t rodId) {
   // If the rodId is found, set the ROD as decoded.
-  auto rodDecodeStatus = m_rodDecodeStatuses.find(rodId);
-  if(rodDecodeStatus!=m_rodDecodeStatuses.end()) {
+  auto rodDecodeStatus{m_rodDecodeStatuses.find(rodId)};
+  if (rodDecodeStatus!=m_rodDecodeStatuses.end()) {
     rodDecodeStatus->second = true;
   }
 }
@@ -616,8 +615,8 @@ std::vector<boost::uint32_t>
 SCT_ByteStreamErrorsSvc::getRODOuts() const {
   std::vector<boost::uint32_t> rodOuts;
   // Create a vector of undecoded RODs as ROD outs
-  for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
-    if(not rodDecodeStatus.second) {
+  for (auto& rodDecodeStatus: m_rodDecodeStatuses) {
+    if (not rodDecodeStatus.second) {
       rodOuts.push_back(rodDecodeStatus.first);
     }
   }
@@ -625,19 +624,19 @@ SCT_ByteStreamErrorsSvc::getRODOuts() const {
 }
 
 void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip) {
-  if(not hashId.is_valid()) {
+  if (not hashId.is_valid()) {
     ATH_MSG_INFO("setFirstTempMaskedChip hashId " << hashId << " is invalid.");
     return;
   }
-  if(firstTempMaskedChip==0) {
+  if (firstTempMaskedChip==0) {
     ATH_MSG_WARNING("setFirstTempMaskedChip: firstTempMaskedChip should be greater than 0. firstTempMaskedChip is " << firstTempMaskedChip);
     return;
   }
 
   //// 1. set m_firstTempMaskedChips for this wafer
   std::pair<std::map<IdentifierHash, unsigned int>::const_iterator, bool>
-    ret(m_firstTempMaskedChips.insert(std::make_pair(hashId, firstTempMaskedChip)));
-  if(not ret.second) {
+    ret{m_firstTempMaskedChips.insert(std::make_pair(hashId, firstTempMaskedChip))};
+  if (not ret.second) {
     ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << 
                     " firstTempMaskedChip is " << ret.first->second << 
                     " and you are trying to put " << firstTempMaskedChip);
@@ -647,37 +646,37 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   //// 2. set m_tempMaskedChips for this module
   
   // wafer hash -> wafer id -> module id -> wafer hash on side-0, wafer hash on side-1
-  const Identifier wafId(m_sct_id->wafer_id(hashId));
-  const Identifier moduleId(m_sct_id->module_id(wafId));
+  const Identifier wafId{m_sct_id->wafer_id(hashId)};
+  const Identifier moduleId{m_sct_id->module_id(wafId)};
   
   // Side 0
   IdentifierHash hash_side0;
   m_sct_id->get_hash(moduleId, hash_side0, &m_cntx_sct);
-  int firstTempMaskedChip_side0(getFirstTempMaskedChip(hash_side0));
+  unsigned int firstTempMaskedChip_side0{getFirstTempMaskedChip(hash_side0)};
   
   // Side 1
   IdentifierHash hash_side1;
   m_sct_id->get_other_side(hash_side0, hash_side1);
-  int firstTempMaskedChip_side1(getFirstTempMaskedChip(hash_side1));
+  unsigned int firstTempMaskedChip_side1{getFirstTempMaskedChip(hash_side1)};
   
   // There should be at least one masked chip
-  if(firstTempMaskedChip_side0==0 and firstTempMaskedChip_side1==0) {
+  if (firstTempMaskedChip_side0==0 and firstTempMaskedChip_side1==0) {
     ATH_MSG_WARNING("setFirstTempMaskedChip: There should be at least one masked chip. Something is wrong.");
     return;
   }
   
-  int type(0);
+  int type{0};
   // Check if Rx redundancy is used or not in this module
   std::pair<bool, bool> badLinks{m_config->badLinks(moduleId)};
-  if(badLinks.first xor badLinks.second) {
+  if (badLinks.first xor badLinks.second) {
     // Rx redundancy is used in this module.
-    if(badLinks.first and not badLinks.second) {
+    if (badLinks.first and not badLinks.second) {
       // link-1 is broken
       type = 1;
-    } else if(badLinks.second and not badLinks.first) {
+    } else if (badLinks.second and not badLinks.first) {
       // link-0 is broken
       type = 2;
-    } else if(badLinks.first and badLinks.second) {
+    } else if (badLinks.first and badLinks.second) {
       // both link-0 and link-1 are working
       ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
       return;
@@ -688,8 +687,8 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     }
   }
 
-  if(type==1 or type==2) {
-    if(firstTempMaskedChip_side0>0 and
+  if (type==1 or type==2) {
+    if (firstTempMaskedChip_side0>0 and
        firstTempMaskedChip_side1>0 and
        firstTempMaskedChip_side0!=firstTempMaskedChip_side1) {
       ATH_MSG_WARNING("setFirstTempMaskedChip: Rx redundancy is used. " <<
@@ -705,13 +704,13 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   // modified0 and modified1 functions of SCT_ReadoutTool.cxx and
   // Table 3.8 of CERN-THESIS-2008-001 https://cds.cern.ch/record/1078223
   // However, there are two exceptions of the exceptions.
-  unsigned long long fullSerialNumber(m_cabling->getSerialNumberFromHash(hashId).to_ulonglong());
-  if(// Readout through link-0
+  unsigned long long fullSerialNumber{m_cabling->getSerialNumberFromHash(hashId).to_ulonglong()};
+  if (// Readout through link-0
      fullSerialNumber==20220170200183 or // hash=4662 bec=0 layer=2 eta= 6 phi=39
      fullSerialNumber==20220330200606 or // hash=5032 bec=0 layer=3 eta=-2 phi= 7
      fullSerialNumber==20220330200693    // hash=5554 bec=0 layer=3 eta=-5 phi=29
      ) {
-    if(type!=1) ATH_MSG_WARNING("Link-0 is broken but modified module readingout link-0, inconsistent");
+    if (type!=1) ATH_MSG_WARNING("Link-0 is broken but modified module readingout link-0, inconsistent");
     type = 3;
 
     // An exception:
@@ -719,7 +718,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     // This module is a modified one. However, it is not using modified configuration.
     // Readout sequence is 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11.
   }
-  if(// Readout through link-1
+  if (// Readout through link-1
      fullSerialNumber==20220170200653 or // hash=2786 bec=0 layer=1 eta= 4 phi= 1
      fullSerialNumber==20220330200117 or // hash=5516 bec=0 layer=3 eta= 1 phi=27
      fullSerialNumber==20220330200209 or // hash=5062 bec=0 layer=3 eta= 2 phi= 8
@@ -727,7 +726,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
      fullSerialNumber==20220330200637 or // hash=4184 bec=0 layer=2 eta=-6 phi=20
      fullSerialNumber==20220330200701    // hash=4136 bec=0 layer=2 eta=-6 phi=18
      ) {
-    if(type!=2) ATH_MSG_WARNING("Link-1 is broken but modified module readingout link-1, inconsistent");
+    if (type!=2) ATH_MSG_WARNING("Link-1 is broken but modified module readingout link-1, inconsistent");
     type = 4;
 
     // Another exception:
@@ -736,7 +735,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     // Readout sequence is 6, 7, 8, 9, 10, 11, 1, 2, 3, 4, 5.
   }
 
-  static const int chipOrder[5][12] = {
+  static const int chipOrder[5][12]{
     // type=0 not prepared for both link-0 and link-1 are working
     {},
     // type=1 link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
@@ -749,8 +748,8 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     {6, 7, 8, 9, 10, 11, 1, 2, 3,  4,  5,  0}
   };
 
-  unsigned int tempMaskedChips2(0);
-  if(type==0) {
+  unsigned int tempMaskedChips2{0};
+  if (type==0) {
     // both link-0 and link-1 are working
 
     // Chips 0-5 are on side 0 and chips 6-11 are on side 1.
@@ -763,36 +762,36 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     // side 1 via link-0. If the first masked chip value on side 1 (0) is 
     // between 1 to 6 (7 to 12), it indicates the module is a special one.  
     // In that case, information is swapped.
-    if((6<firstTempMaskedChip_side0 and firstTempMaskedChip_side0<=12) or
-       (0<firstTempMaskedChip_side1 and firstTempMaskedChip_side1<= 6)) {
-      int swapFirstTempMaskedChip_side0(firstTempMaskedChip_side0);
+    if ((6<firstTempMaskedChip_side0 and firstTempMaskedChip_side0<=12) or
+        (0<firstTempMaskedChip_side1 and firstTempMaskedChip_side1<= 6)) {
+      unsigned int swapFirstTempMaskedChip_side0{firstTempMaskedChip_side0};
       firstTempMaskedChip_side0 = firstTempMaskedChip_side1;
       firstTempMaskedChip_side1 = swapFirstTempMaskedChip_side0;
     }
 
-    if(firstTempMaskedChip_side0>0) {
-      for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
+    if (firstTempMaskedChip_side0>0) {
+      for (unsigned int iChip{firstTempMaskedChip_side0-1}; iChip<6; iChip++) {
         tempMaskedChips2 |= (1<<iChip);
         addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
       }
     }
-    if(firstTempMaskedChip_side1>6) {
-      for(int iChip(firstTempMaskedChip_side1-1); iChip<12; iChip++) {
+    if (firstTempMaskedChip_side1>6) {
+      for (unsigned int iChip{firstTempMaskedChip_side1-1}; iChip<12; iChip++) {
         tempMaskedChips2 |= (1<<iChip);
         addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
   } else {
     // type=1, 2, 3, 4: cases using Rx redundancy
-    if(firstTempMaskedChip>0) {
-      bool toBeMasked(false);
-      for(int iChip(0); iChip<12; iChip++) {
-        int jChip(chipOrder[type][iChip]);
-        if(jChip==static_cast<int>(firstTempMaskedChip-1)) toBeMasked = true;
-        if(toBeMasked) {
+    if (firstTempMaskedChip>0) {
+      bool toBeMasked{false};
+      for (int iChip{0}; iChip<12; iChip++) {
+        int jChip{chipOrder[type][iChip]};
+        if (jChip==static_cast<int>(firstTempMaskedChip-1)) toBeMasked = true;
+        if (toBeMasked) {
           tempMaskedChips2 |= (1<<jChip);
-          if(jChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip);
-          else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6);
+          if (jChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip);
+          else         addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6);
         }
       }
     }
@@ -813,30 +812,30 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
-  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips.find(hashId));
-  if(it!=m_firstTempMaskedChips.end()) return it->second;
+  std::map<IdentifierHash, unsigned int>::const_iterator it{m_firstTempMaskedChips.find(hashId)};
+  if (it!=m_firstTempMaskedChips.end()) return it->second;
   return 0;
 }
 
-unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleId) const {
-  std::map<Identifier, unsigned int>::const_iterator it(m_tempMaskedChips.find(moduleId));
-  if(it!=m_tempMaskedChips.end()) return it->second;
+unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier& moduleId) const {
+  std::map<Identifier, unsigned int>::const_iterator it{m_tempMaskedChips.find(moduleId)};
+  if (it!=m_tempMaskedChips.end()) return it->second;
   return 0;
 }
 
-unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId) const {
-  unsigned int abcdErrorChips2(0);
-  int chip(0);
+unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier& moduleId) const {
+  unsigned int abcdErrorChips2{0};
+  int chip{0};
 
   // Side 0
   IdentifierHash hash_side0;
   m_sct_id->get_hash(moduleId, hash_side0, &m_cntx_sct);
-  if(std::find(m_bsErrors[SCT_ByteStreamErrors::ABCDError].begin(),
+  if (std::find(m_bsErrors[SCT_ByteStreamErrors::ABCDError].begin(),
                m_bsErrors[SCT_ByteStreamErrors::ABCDError].end(),
                hash_side0)
      !=m_bsErrors[SCT_ByteStreamErrors::ABCDError].end()) {
-    for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
-      if(std::find(m_bsErrors[errType].begin(), m_bsErrors[errType].end(), hash_side0)!=m_bsErrors[errType].end()) {
+    for (int errType{SCT_ByteStreamErrors::ABCDError_Chip0}; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
+      if (std::find(m_bsErrors[errType].begin(), m_bsErrors[errType].end(), hash_side0)!=m_bsErrors[errType].end()) {
         abcdErrorChips2 |= (1 << chip);
       }
       chip++;
@@ -848,12 +847,12 @@ unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId
   // Side 1
   IdentifierHash hash_side1;
   m_sct_id->get_other_side(hash_side0, hash_side1);
-  if(std::find(m_bsErrors[SCT_ByteStreamErrors::ABCDError].begin(),
+  if (std::find(m_bsErrors[SCT_ByteStreamErrors::ABCDError].begin(),
                m_bsErrors[SCT_ByteStreamErrors::ABCDError].end(),
                hash_side1)
      !=m_bsErrors[SCT_ByteStreamErrors::ABCDError].end()) {
-    for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
-      if(std::find(m_bsErrors[errType].begin(), m_bsErrors[errType].end(), hash_side1)!=m_bsErrors[errType].end()) {
+    for (int errType{SCT_ByteStreamErrors::ABCDError_Chip0}; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
+      if (std::find(m_bsErrors[errType].begin(), m_bsErrors[errType].end(), hash_side1)!=m_bsErrors[errType].end()) {
         abcdErrorChips2 |= (1 << chip);
       }
       chip++;
