@@ -120,16 +120,16 @@ float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
       
 //**********************************************************************
 
-float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string sjvt, std::string scale) const {
+float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet) const {
   string sjvfcorr = m_jvfCorrName;
-  string srpt = sjvt + "Rpt";
-  JetFourMom_t p4old = jet.jetP4(scale);
-  float ptold = p4old.pt();
-  float ptnew = jet.pt();
   float jvfcorr = jet.getAttribute<float>(sjvfcorr);
-  float rptold = jet.getAttribute<float>(srpt);
-  //float jvtold = jet.getAttribute<float>(sjvt);
-  float rptnew = rptold*ptold/ptnew;
+  std::vector<float> sumpttrkpt500 = jet.getAttribute<std::vector<float> >(m_sumPtTrkName);
+  const xAOD::Vertex* HSvertex = findHSVertex();
+  if(!HSvertex) {
+    ATH_MSG_ERROR("No hard scatter vertex found. Returning JVT=-1");
+    return -1.;
+  }
+  const float rptnew = sumpttrkpt500[HSvertex->index()]/jet.pt();
   return evaluateJvt(rptnew, jvfcorr);
 }
 
