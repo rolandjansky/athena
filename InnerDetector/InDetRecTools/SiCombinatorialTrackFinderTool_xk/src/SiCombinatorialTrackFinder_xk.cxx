@@ -614,7 +614,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 
   // List cluster preparation
   //
-  std::list<const InDet::SiCluster*> Cl; 
+  std::vector<const InDet::SiCluster*> Cl; 
   bool TWO     = false;
 
   if     (Sp.size() > 1) {
@@ -875,7 +875,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
-(const std::list<const Trk::SpacePoint*>& Sp,std::list<const InDet::SiCluster*>& Sc)
+(const std::list<const Trk::SpacePoint*>& Sp,std::vector<const InDet::SiCluster*>& Sc)
 {
   std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
 
@@ -896,7 +896,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 
   //  Detector elments test
   //
-  std::list<const InDet::SiCluster*>::iterator c = Sc.begin(),cn,ce = Sc.end();
+  std::vector<const InDet::SiCluster*>::iterator c = Sc.begin(),cn,ce = Sc.end();
   
   for(; c!=ce; ++c) {
 

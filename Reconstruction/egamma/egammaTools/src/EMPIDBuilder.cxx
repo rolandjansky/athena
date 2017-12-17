@@ -19,7 +19,9 @@
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
-  : egammaBaseTool(type, name, parent)
+  : egammaBaseTool(type, name, parent),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
+
 {
   //
   // constructor
@@ -117,7 +119,8 @@ StatusCode EMPIDBuilder::initialize()
   if (m_UselumiBlockMuTool) {
     // retrieve the lumi tool
     if (m_lumiBlockMuTool.retrieve().isFailure()) {
-      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
+      ATH_MSG_FATAL("Unable to retrieve Luminosity Tool");
+      return StatusCode::FAILURE;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }
@@ -174,7 +177,7 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
     //negative mu means the default behaviour --> retrieve the one in xAOD 
     double mu = -99.;
     double avg_mu = -99.;
-    if(m_UselumiBlockMuTool && m_lumiBlockMuTool){ //
+    if(m_UselumiBlockMuTool){ //
       mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
       avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
       ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);

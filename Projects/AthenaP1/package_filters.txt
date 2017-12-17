@@ -17,31 +17,6 @@
 # Temporary VP1 compilation issues 
 - graphics/VP1/.*
 
-# Some analysis packages that are not part of Athena
-- AsgExternal/Asg_Test
-- PhysicsAnalysis/D3PDTools/EventLoop
-- PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
-- PhysicsAnalysis/AnalysisCommon/PMGTools
-- PhysicsAnalysis/D3PDTools/EventLoop
-- PhysicsAnalysis/D3PDTools/EventLoopAlgs
-- PhysicsAnalysis/D3PDTools/EventLoopGrid
-- PhysicsAnalysis/D3PDTools/MultiDraw
-- PhysicsAnalysis/D3PDTools/SampleHandler
-- PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
-- PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
-- PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
-- PhysicsAnalysis/JetPhys/SemileptonicCorr
-- PhysicsAnalysis/SUSYPhys/SUSYTools
-- PhysicsAnalysis/TauID/DiTauMassTools
-- PhysicsAnalysis/TauID/TauCorrUncert
-- PhysicsAnalysis/TopPhys/QuickAna
-- PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
-- Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
-- Reconstruction/Jet/JetJvtEfficiency
-- Reconstruction/Jet/JetReclustering
-- Trigger/TrigAnalysis/TrigMuonEfficiency
-- Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
-
 # Remove simulation packages except those required for EDM, etc.
 - Calorimeter/CaloG4Sim
 - ForwardDetectors/AFP/AFP_G4_SD
@@ -60,6 +35,7 @@
 + Generators/HepMCWeightSvc
 + Generators/McAsciiEventSelector
 + Generators/TruthUtils
++ Generators/GenInterfaces
 - Generators/.*
 - InnerDetector/InDetDigitization/.*
 - InnerDetector/InDetG4/.*
@@ -109,6 +85,7 @@
 + Simulation/ISF/ISF_Fatras/ISF_FatrasTools
 + Simulation/ISF/ISF_Fatras/ISF_FatrasToolsID
 + Simulation/ISF/ISF_Fatras/ISF_FatrasToolsMS
++ Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimParametrization
 + Simulation/TruthJiveXML
 - Simulation/.*
 - TestBeam/TBDetDescrCnv

@@ -1,7 +1,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_tau_tautau'>
             <doc>Tau slice FTK tautau sample</doc>
             <displayName>TauSlice FTK tautau sample</displayName>
-	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=5000;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
