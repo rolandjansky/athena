@@ -5,10 +5,10 @@
 #ifndef TRIGCALOEVENT_TRIGRNNOUTPUTCONTAINER_H 
 #define TRIGCALOEVENT_TRIGRNNOUTPUTCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigCaloEvent/TrigRNNOutput.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigRNNOutputContainer : public DataVector<TrigRNNOutput> { 
 };
