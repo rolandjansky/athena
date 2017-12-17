@@ -8,7 +8,7 @@
 #include "TrigCaloEventTPCnv/TrigRNNOutput_p1.h"
 #include "TrigCaloEventTPCnv/TrigRNNOutputCnv_p1.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 
 void TrigRNNOutputCnv_p1::transToPers(const TrigRNNOutput *trans, 
