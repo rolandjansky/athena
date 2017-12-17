@@ -5,7 +5,7 @@
 #ifndef TBEVENT_TBTDC_H
 #define TBEVENT_TBTDC_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /* Author: Walter Lampl, Remi Lafaye */
 /* Contains information from the TDC 
