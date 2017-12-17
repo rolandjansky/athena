@@ -659,11 +659,13 @@ class RecordFlux(JobProperty):
 class OptionalUserActionList(JobProperty):
     """Configuration for Optional UserActions
       The name of the action must be a name retrievable through the ConfigurableFactory"""
-
     statusOn = True
     allowedTypes = ['dict']
-    # not allowing stacking actions to be modified this way
-    StoredValue = {'Run':[], 'Event':[], 'Tracking':[], 'Step':['G4UA::LooperKillerTool']}
+    # not allowing stacking actions to be modified this way.
+    # 'General' refers to new common-interface tools.
+    # FIXME: why do we add the LoopKillerTool here???
+    StoredValue = {'Run':[], 'Event':[], 'Tracking':[], 'Step':[],
+                   'General':['G4UA::LooperKillerTool']}
     def addAction(self,actionTool,roles=[]):
         #Add the action to the end of the list of actions for each role.
         for role in roles:

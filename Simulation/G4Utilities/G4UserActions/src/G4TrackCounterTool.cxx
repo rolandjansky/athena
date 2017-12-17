@@ -13,10 +13,8 @@ namespace G4UA
   G4TrackCounterTool::
   G4TrackCounterTool(const std::string& type, const std::string& name,
                      const IInterface* parent)
-    : ActionToolBaseReport<G4TrackCounter>(type, name, parent)
+    : UserActionToolBase<G4TrackCounter>(type, name, parent)
   {
-    declareInterface<IG4EventActionTool>(this);
-    declareInterface<IG4TrackingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
@@ -35,13 +33,16 @@ namespace G4UA
   {
     ATH_MSG_DEBUG( "Finalizing " << name() );
 
-    mergeReports();
+    // Accumulate the results across threads
+    G4TrackCounter::Report report;
+    m_actions.accumulate(report, &G4TrackCounter::getReport,
+                         &G4TrackCounter::Report::merge);
 
     // Report the totals
-    ATH_MSG_INFO("nEvents          " << m_report.nEvents);
-    ATH_MSG_INFO("nPrimaryTracks   " << m_report.nPrimaryTracks);
-    ATH_MSG_INFO("nSecondaryTracks " << m_report.nSecondaryTracks);
-    ATH_MSG_INFO("n50MeVTracks     " << m_report.n50MeVTracks);
+    ATH_MSG_INFO("nEvents          " << report.nEvents);
+    ATH_MSG_INFO("nPrimaryTracks   " << report.nPrimaryTracks);
+    ATH_MSG_INFO("nSecondaryTracks " << report.nSecondaryTracks);
+    ATH_MSG_INFO("n50MeVTracks     " << report.n50MeVTracks);
 
     return StatusCode::SUCCESS;
   }
@@ -50,10 +51,13 @@ namespace G4UA
   // Create the action on request
   //---------------------------------------------------------------------------
   std::unique_ptr<G4TrackCounter>
-  G4TrackCounterTool::makeAction()
+  G4TrackCounterTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Making a G4TrackCounter action");
-    return std::make_unique<G4TrackCounter>();
+    auto action = std::make_unique<G4TrackCounter>();
+    actionList.eventActions.push_back( action.get() );
+    actionList.trackingActions.push_back( action.get() );
+    return action;
   }
 
 }
