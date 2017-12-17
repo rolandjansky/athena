@@ -286,7 +286,7 @@ namespace CP {
 
     TrackCollection IsolationCloseByCorrectionTool::getAssociatedTracks(const xAOD::IParticle* P) const {
         if (P->type() == xAOD::Type::Muon) {
-            return TrackCollection { getTrackParticle(P) };
+            return TrackCollection { getTrackParticle(P,true) };
         } else if (P->type() == xAOD::Type::TrackParticle) {
             return TrackCollection { getTrackParticle(P) };
         } else if (isEgamma(P)) {
