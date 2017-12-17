@@ -42,9 +42,10 @@ void MMDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 		p->ID.detectorAddress=stringone.str();
 }
 
-MM_Technology* MMDetectorDescription::GetTechnology()
+MuonGM::MM_Technology* MMDetectorDescription::GetTechnology()
 {
    AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();    
-   MM_Technology* t = dynamic_cast<MM_Technology*>(ds->GetTechnology(GetName()));
+   MuonGM::MM_Technology* t =
+     dynamic_cast<MuonGM::MM_Technology*>(ds->GetTechnology(GetName()));
    return t;
 }
