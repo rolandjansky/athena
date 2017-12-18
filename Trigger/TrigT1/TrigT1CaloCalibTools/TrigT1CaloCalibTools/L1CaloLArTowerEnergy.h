@@ -54,12 +54,12 @@ public:
   virtual StatusCode finalize();
 
   bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection);
-  float EtLArg(const Identifier& TTid);
-  bool hasMissingFEB(const Identifier& TTid);
+  float EtLArg(const Identifier& TTid) const;
+  bool hasMissingFEB(const Identifier& TTid) const;
 
 protected:
   void reset();
-  double IDeta(const Identifier& TTid);
+  double IDeta(const Identifier& TTid) const;
 
 private:
 

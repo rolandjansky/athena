@@ -72,30 +72,30 @@ namespace LVL1
       virtual StatusCode finalize();
       /** Returns a vector of LVL1::ModuleEnergy objects */
       virtual void moduleSums(const xAOD::JetElementContainer* jetelements,
-                              DataVector<ModuleEnergy>* modules, int slice = -1) ;
+                              DataVector<ModuleEnergy>* modules, int slice = -1) const;
       virtual void moduleSums(const xAOD::JetElementMap_t* jemap,
-                              DataVector<ModuleEnergy>* modules, int slice = -1) ;
+                              DataVector<ModuleEnergy>* modules, int slice = -1) const;
       /** Returns a vector of LVL1::CrateEnergy objects */
       virtual void crateSums(const DataVector<ModuleEnergy>* modules,
-                             DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) const;
       virtual void crateSums(const DataVector<EnergyCMXData>* modules,
-                             DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) const;
       /** Directly obtain LVL1::CrateEnergy objects */
       virtual void crateSums(const xAOD::JetElementContainer* jetelements,
-                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) const;
       virtual void crateSums(const xAOD::JetElementMap_t* jemap,
-                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) const;
       /** Returns a LVL1::SystemEnergy object */
-      virtual SystemEnergy systemSums(const DataVector<CrateEnergy>* crates) ;
+      virtual SystemEnergy systemSums(const DataVector<CrateEnergy>* crates) const;
       /** Directly obtain a LVL1::SystemEnergy object */
-      virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
-      virtual SystemEnergy systemSums(const xAOD::JetElementMap_t* jemap, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
+      virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) const;
+      virtual SystemEnergy systemSums(const xAOD::JetElementMap_t* jemap, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) const;
             
     private:
 
       /** Return a map of JetElements */
       void mapJetElements(const xAOD::JetElementContainer* jetelements,
-                          xAOD::JetElementMap_t* m_jeContainer);
+                          xAOD::JetElementMap_t* m_jeContainer) const;
       /** Fill masked out JetElements map */
       void fillMaskedOutMap();
       
