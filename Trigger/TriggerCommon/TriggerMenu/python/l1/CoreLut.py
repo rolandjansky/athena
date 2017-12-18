@@ -105,14 +105,9 @@ class CoreLut(object):
     @staticmethod
     def isOnOneLut(connector, phase, listOfCableBits):
 
-        occupiedLuts = set([ getLutAndBit(connector,2*b + phase)[0] for b in listOfCableBits])
+        occupiedLuts = set([ CoreLut.getLutAndBit(connector,2*b + phase)[0] for b in listOfCableBits])
 
         if len(occupiedLuts)>1:
             raise RuntimeError("logic stretches over more than one LUT")
-
-
-
-
-        
 
 coreLut = CoreLut()
