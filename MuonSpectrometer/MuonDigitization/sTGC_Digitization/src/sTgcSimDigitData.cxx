@@ -20,12 +20,6 @@ sTgcSimDigitData::sTgcSimDigitData(const MuonSimData& hit, const sTgcDigit& digi
 {
 }
 
-//sTgcSimDigitData::sTgcSimDigitData(std::vector<GenericMuonSimHit> hitColl, std::vector<sTgcDigit> digitColl) {
-//
-//    m_sTGCHitColl.addHitCollection(hitColl);
-//    m_sTGCDigitColl.addDigitCollection(digitColl);
-//}
-
 // Destructor
 sTgcSimDigitData::~sTgcSimDigitData() {}
 
