@@ -168,6 +168,11 @@ Muon::MooSegmentCombinationFinder::initialize()
 	return StatusCode::FAILURE;
       }
     }
+    else{
+      m_houghPatternFinder.disable();
+      m_patternSegmentMaker.disable();
+      m_overlapRemovalTool.disable();
+    }
 
     
     if (m_segmentSelector.retrieve().isFailure()){
@@ -188,6 +193,13 @@ Muon::MooSegmentCombinationFinder::initialize()
 	  return StatusCode::FAILURE;
 	}
       }
+      else{
+	m_segmentCombinationCleaner.disable();
+      }
+    }
+    else{
+      m_curvedSegmentCombiner.disable();
+      m_segmentCombinationCleaner.disable();
     }
 
     ATH_CHECK( m_csc2dLocation.initialize() );

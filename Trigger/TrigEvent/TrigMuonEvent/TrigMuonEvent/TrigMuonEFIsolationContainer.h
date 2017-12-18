@@ -15,9 +15,9 @@
  */
 
 // athena / gaudi includes
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 
 // local includes
 #include "TrigMuonEvent/TrigMuonEFIsolation.h"

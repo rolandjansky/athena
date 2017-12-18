@@ -46,7 +46,6 @@ namespace Gaudi {
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
 #include "StoreGate/VarHandleKeyArrayProperty.h"
-#include "AthenaKernel/IUserDataSvc.h"
 
 
 class AthAlgTool : 
@@ -82,10 +81,6 @@ public:
    */
   ServiceHandle<StoreGateSvc>& detStore() const;
 
-  /** @brief The standard @c UserDataSvc 
-   * Returns (kind of) a pointer to the @c UserDataSvc
-   */
-  ServiceHandle<IUserDataSvc>& userStore() const;
 
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
@@ -379,10 +374,6 @@ private:
   /// Pointer to StoreGate (detector store by default)
   mutable StoreGateSvc_t m_detStore;
 
-  typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
-  /// Pointer to IUserDataSvc
-  mutable UserDataSvc_t m_userStore;
-
   bool m_varHandleArraysDeclared;
 }; 
 
@@ -397,9 +388,5 @@ ServiceHandle<StoreGateSvc>& AthAlgTool::evtStore() const
 inline
 ServiceHandle<StoreGateSvc>& AthAlgTool::detStore() const 
 { return m_detStore; }
-
-inline
-ServiceHandle<IUserDataSvc>& AthAlgTool::userStore() const 
-{ return m_userStore; }
 
 #endif //> ATHENABASECOMPS_ATHALGTOOL_H

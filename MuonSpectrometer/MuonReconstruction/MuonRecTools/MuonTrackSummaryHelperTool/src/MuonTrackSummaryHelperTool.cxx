@@ -130,6 +130,9 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
       return StatusCode::FAILURE;
     }
   }
+  else{
+    m_extrapolator.disable();
+  }
 
   if( m_idHelperTool.retrieve().isFailure() ){
     ATH_MSG_ERROR("Could not get " << m_idHelperTool);      
@@ -163,6 +166,7 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
     }   
   } else {
     msg (MSG::VERBOSE) << "Hole search turned off, so MuonHolesOnTrackTool not loaded" << endmsg;        
+    m_muonTgTool.disable();
   }
 
   ATH_CHECK(m_mdtKey.initialize());

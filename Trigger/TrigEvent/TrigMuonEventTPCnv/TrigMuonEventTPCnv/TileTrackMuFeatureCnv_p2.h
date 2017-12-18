@@ -25,7 +25,7 @@
 #include "TrigMuonEventTPCnv/TileTrackMuFeature_p2.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 

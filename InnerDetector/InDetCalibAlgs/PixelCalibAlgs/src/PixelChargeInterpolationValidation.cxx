@@ -586,7 +586,7 @@ void PixelChargeInterpolationValidation::WriteErrorsFile(std::string name){
 			}
 	parameters->Print(name.c_str());
 
-
+        delete parameters;
 	delete[] values;
 }
 

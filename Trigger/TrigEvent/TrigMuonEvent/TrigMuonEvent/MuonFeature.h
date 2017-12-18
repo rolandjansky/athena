@@ -12,8 +12,8 @@
 #include <map>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 // Forward declaration(s):
 class MsgStream;

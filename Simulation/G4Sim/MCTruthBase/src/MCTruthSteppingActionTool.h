@@ -9,9 +9,7 @@
 #include "MCTruthSteppingAction.h"
 
 // Infrastructure includes
-#include "G4AtlasTools/ActionToolBase.h"
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // STL includes
 #include <string>
@@ -25,9 +23,7 @@ namespace G4UA
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class MCTruthSteppingActionTool : public ActionToolBase<MCTruthSteppingAction>,
-                                    public IG4EventActionTool,
-                                    public IG4SteppingActionTool
+  class MCTruthSteppingActionTool : public UserActionToolBase<MCTruthSteppingAction>
   {
 
     public:
@@ -39,18 +35,13 @@ namespace G4UA
       /// Initialize the tool
       virtual StatusCode initialize() override final;
 
-      /// Retrieve the begin-event action
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
+    protected:
 
-      /// Retrieve the stepping action
-      virtual G4UserSteppingAction* getSteppingAction() override final
-      { return static_cast<G4UserSteppingAction*>( getAction() ); }
+      /// Setup the user action for current thread
+      virtual std::unique_ptr<MCTruthSteppingAction>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
     private:
-
-      /// Create an action for the current thread
-      virtual std::unique_ptr<MCTruthSteppingAction> makeAction() override final;
 
       /// Map of volume name to output collection name
       std::map<std::string, std::string> m_volumeCollectionMap;

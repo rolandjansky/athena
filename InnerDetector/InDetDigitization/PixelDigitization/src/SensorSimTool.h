@@ -77,9 +77,6 @@ class SensorSimTool:public AthAlgTool,virtual public IAlgTool {
     ServiceHandle<IAtRndmGenSvc>    m_rndmSvc;
     std::string 		                m_rndmEngineName;
     CLHEP::HepRandomEngine         *m_rndmEngine;	
-
-  private:
-    const InDetDD::SiDetectorElement *m_module;   
 };
 
 

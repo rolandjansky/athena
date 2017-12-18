@@ -1215,9 +1215,8 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			return StatusCode::FAILURE;
 		}
 		if (!trigDecision.isValid()) {
-			ATH_MSG_ERROR("Could not find trigger decision object " << m_trigDecisionKey.key() <<
+			ATH_MSG_INFO("Could not find trigger decision object " << m_trigDecisionKey.key() <<
 			              " in store");
-			return StatusCode::FAILURE;
 		}
 		// NOTE: failing to retrieve ComTime from store for some reason
 		if (!comTimeObject.isValid()) {
@@ -1225,7 +1224,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			             " in store");
 		}
 		if (m_passEventBurst) {
-			ATH_CHECK( fillTRTTracks(*trackCollection, *trigDecision, comTimeObject.ptr()) );
+			ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision.ptr(), comTimeObject.ptr()) );
 		}
 	}
 
@@ -2392,7 +2391,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 //Fill the TRT Track level histograms
 //----------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollection,
-                                              const xAOD::TrigDecision& trigDecision,
+                                              const xAOD::TrigDecision* trigDecision,
                                               const ComTime* comTimeObject) {
 //----------------------------------------------------------------------------------//
 	ATH_MSG_VERBOSE("Filling TRT Tracks Histos");
@@ -3268,11 +3267,11 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 				m_hEvtPhase->Fill(timeCor);
 			}
 
-			if (m_doShift) {
+			if (m_doShift && trigDecision) {
 				std::vector<int> trigid;
 				trigid.clear(); // Trigger ID
 				// get bits for trigger after veto
-				std::vector<unsigned int> level1TAV = trigDecision.tav();
+				std::vector<unsigned int> level1TAV = trigDecision->tav();
 
 				for (unsigned int j = 0; j < 8 && j < level1TAV.size(); ++j) {
 					for (unsigned int i = 0; i < 32; ++i) {

@@ -23,7 +23,7 @@ DATE:		October 17th, 2005
 ******************************************************/
 // includes section
 #include "TrigCaloEvent/TrigCaloCluster.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrigCaloEvent/RingerRingsContainer.h"
 
 /** Class with calibrated variables for egamma clustering.

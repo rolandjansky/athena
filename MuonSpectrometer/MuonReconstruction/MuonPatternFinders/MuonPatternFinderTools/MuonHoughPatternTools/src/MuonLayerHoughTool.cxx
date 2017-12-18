@@ -53,7 +53,7 @@ namespace Muon {
     declareProperty("ExtrapolationDistance",m_extrapolationDistance = 1500. );
     declareProperty("MuonTruthParticlesKey", m_MuonTruthParticlesKey);
     declareProperty("MuonTruthSegmentsKey", m_MuonTruthSegmentsKey);
-    declareProperty("AddSectors", m_addSectors = true);
+    declareProperty("AddSectors", m_addSectors = false);
   }
 
   MuonLayerHoughTool::~MuonLayerHoughTool()
@@ -74,6 +74,9 @@ namespace Muon {
     if( m_doTruth && !m_truthSummaryTool.empty() && m_truthSummaryTool.retrieve().isFailure()){
       ATH_MSG_ERROR("Failed to initialize " << m_truthSummaryTool );
       return StatusCode::FAILURE;
+    }
+    else{
+      m_truthSummaryTool.disable();
     }
     if( detStore()->retrieve( m_detMgr ).isFailure() || !m_detMgr ){
       ATH_MSG_ERROR("Failed to initialize detector manager" );

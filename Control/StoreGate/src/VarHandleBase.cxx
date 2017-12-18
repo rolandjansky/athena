@@ -146,13 +146,15 @@ namespace SG {
       m_storeWasSet(false),
       m_key (&key)
   {
-    if (key.storeHandle().get() == nullptr)
+    if (key.storeHandle().get() == nullptr) {
       throw SG::ExcUninitKey (key.clid(), key.key(),
                               key.storeHandle().name());
+    }
     
-    if (setStoreFromHandle(ctx).isFailure())
+    if (!setStoreFromHandle(ctx)) {
       throw SG::ExcHandleInitError (key.clid(), key.key(),
                                     key.storeHandle().name());
+    }
   }
 
 
@@ -310,7 +312,9 @@ namespace SG {
     std::cerr << ", key=" <<this->key() << ")...\n";
 #endif
 
-    resetProxy();
+    if (m_ownedKey) {
+      resetProxy();
+    }
     m_ptr = 0;
   }
 
@@ -951,16 +955,20 @@ namespace SG {
    * @brief Initialize the store pointer from the store handle.
    *        Also checks that the key is valid.
    * @param ctx The current event context, or nullptr.
+   *
+   * Returns true on success.
    */
-  StatusCode VarHandleBase::setStoreFromHandle (const EventContext* ctx)
+  bool VarHandleBase::setStoreFromHandle (const EventContext* ctx)
   {
     if (m_ownedKey) {
-      CHECK( m_ownedKey->initialize() );
+      if (m_ownedKey->initialize().isFailure()) {
+        return false;
+      }
     }
     m_store = storeFromHandle (ctx);
     m_storeWasSet = (ctx && m_store ==
                      ctx->getExtension<Atlas::ExtendedEventContext>()->proxy());
-    return StatusCode::SUCCESS;
+    return true;
   }
 
 

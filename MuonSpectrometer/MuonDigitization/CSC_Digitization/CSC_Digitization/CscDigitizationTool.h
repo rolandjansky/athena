@@ -99,6 +99,8 @@ public: //possibly these should be private?
   
   ToolHandle<ICscCalibTool> m_pcalib;
 
+  SG::WriteHandleKey<CscSimDataCollection> m_cscSimDataCollectionWriteHandleKey{this,"CSCSimDataCollectionOutputName","CSC_SDO","WriteHandleKey for Output CscSimDataCollection"};
+  
   CscDigitContainer         * m_container;
 
   const MuonGM::MuonDetectorManager * m_geoMgr;

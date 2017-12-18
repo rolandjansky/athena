@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # Component(s) in the package:
 atlas_add_library( RegSelSvcTestLib
+                   NO_PUBLIC_HEADERS
                    src/*.cxx
                    PRIVATE_LINK_LIBRARIES SGTools IRegionSelector Identifier GaudiKernel StoreGateLib SGtests AthenaBaseComps AthenaPoolUtilities RegSelLUT PathResolver TrigSteeringEvent )
 

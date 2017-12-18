@@ -15,8 +15,8 @@
  */
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/ElementLink.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthLinks/ElementLink.h"
 #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 
 class TrigMuonEFInfoTrack;

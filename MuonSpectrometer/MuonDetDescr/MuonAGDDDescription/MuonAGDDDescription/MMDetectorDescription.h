@@ -11,8 +11,6 @@
 #include <vector>
 #include <iostream>
 
-using MuonGM::MM_Technology;
-
 struct MMReadoutParameters {
     double stripPitch;
     double gasThickness;
@@ -30,35 +28,35 @@ public:
 	MMDetectorDescription(std::string s);
 	void Register();
 
-	static MMDetectorDescription* GetCurrent() {return current;}
+	static MMDetectorDescription* GetCurrent() {return s_current;}
 	
 	double sWidth() const {return small_x();}
 	double lWidth() const {return large_x();}
 	double Length() const {return y();}
 	double Tck()    const {return z();}
 
-	void xFrame(double y) {_xFrame=y;}
-	double xFrame() const {return _xFrame;}
+	void xFrame(double y) {m_xFrame=y;}
+	double xFrame() const {return m_xFrame;}
 
-	void ysFrame(double y) {_ysFrame=y;}
-	double ysFrame() const {return _ysFrame;}
+	void ysFrame(double y) {m_ysFrame=y;}
+	double ysFrame() const {return m_ysFrame;}
 
-	void ylFrame(double y) {_ylFrame=y;}
-	double ylFrame() const {return _ylFrame;}
-	
-	MM_Technology* GetTechnology();
+	void ylFrame(double y) {m_ylFrame=y;}
+	double ylFrame() const {return m_ylFrame;}
+
+        MuonGM::MM_Technology* GetTechnology();
 
 	MMReadoutParameters roParameters;
 	
 	MMReadoutParameters& GetReadoutParameters() {return roParameters;}
 
 protected:
-	double _xFrame;
-	double _ysFrame;
-	double _ylFrame;
+	double m_xFrame;
+	double m_ysFrame;
+	double m_ylFrame;
 
 	void SetDetectorAddress(AGDDDetectorPositioner*);
-	static MMDetectorDescription* current;
+	static MMDetectorDescription* s_current;
 };
 
 #endif

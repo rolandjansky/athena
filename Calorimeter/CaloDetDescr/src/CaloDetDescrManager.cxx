@@ -171,7 +171,7 @@ CaloDetDescrManager_Base::get_element_nonconst(const Identifier& cellId)
 
 const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
-                                       const IdentifierHash& subCaloCellHash) const
+                                       IdentifierHash subCaloCellHash) const
 {
   // meaningless interface for Tiles, will only work for LAr
 

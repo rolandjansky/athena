@@ -88,9 +88,8 @@ private:
 
   /** Time shift from straw endpoints in global system */
   double calculateTimeShiftFromStrawEnds( const Amg::Vector3D& strawend1_globalcoord,
-				     const Amg::Vector3D& strawend2_globalcoord,
-				     const int strawID,
-				     const bool& shortbarrel = false) ; //Note: Changed from const due to message service hick ups
+				          const Amg::Vector3D& strawend2_globalcoord,
+				          const int strawID) ;
   /**
    * Calculate the distance along the wire the signal travels before reaching
    * the electronics. Both the direct and reflected signal. The signal starts
@@ -123,7 +122,7 @@ private:
 
   /** Cached distances */
   std::vector<double> m_directDistsForEndCapWheels;
-  /** Cached distances */ 
+  /** Cached distances */
   std::vector<double> m_reflectedDistsForEndCapWheels;
   /** Cached distances */
   std::vector< std::vector<double> > m_directDistsForBarrelLayers;

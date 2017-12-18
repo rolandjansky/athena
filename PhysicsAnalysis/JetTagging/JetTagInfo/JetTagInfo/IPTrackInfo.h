@@ -5,7 +5,7 @@
 #ifndef JETTAGINFO_IPTRACKINFO
 #define JETTAGINFO_IPTRACKINFO
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "JetTagInfo/TrackGrade.h"
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"

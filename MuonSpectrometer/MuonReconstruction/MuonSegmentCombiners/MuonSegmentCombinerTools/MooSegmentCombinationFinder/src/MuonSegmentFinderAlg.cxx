@@ -138,14 +138,12 @@ StatusCode MuonSegmentFinderAlg::execute()
   // vector to hold segments
   std::vector<const Muon::MuonSegment*> segs;
 
-  //check for the Muon Layer Hough storegate container
-  if( evtStore()->contains<MuonPatternCombinationCollection>("MuonLayerHoughCombis") ) {
-    
-    SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey);
-    if(!patternColl.isValid()) {
-      ATH_MSG_FATAL( "Could not to retrieve the PatternCombinations from StoreGate" );
-      return StatusCode::FAILURE;
-    }
+  SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey);
+  if(!patternColl.isValid()) {
+    ATH_MSG_FATAL( "Could not to retrieve the PatternCombinations from StoreGate" );
+    return StatusCode::FAILURE;
+  }
+  if(patternColl.isPresent()){ //pretty sure this is always the case, but can't hurt to check
     ATH_MSG_DEBUG ( "Processing the pattern collections with  " << patternColl->size() << " Collections " );
 
     for(MuonPatternCombinationCollection::const_iterator patt=patternColl->begin(); patt!=patternColl->end(); ++patt) {
@@ -155,8 +153,11 @@ StatusCode MuonSegmentFinderAlg::execute()
       createSegmentsFromClusters( *patt, segs );
     }//end loop on pattern combinations
 
-  }//end SG container check
-  
+  }
+  else{
+    ATH_MSG_DEBUG("no pattern collection, moving on ...");
+  }
+
   //do cluster based segment finding
   std::vector<const Muon::MuonSegment*>* clustSegs(NULL);
   if (m_doTGCClust || m_doRPCClust){

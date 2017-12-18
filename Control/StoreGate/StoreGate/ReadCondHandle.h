@@ -10,7 +10,6 @@
 #include "AthenaKernel/IOVEntryT.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 
-#include "StoreGate/VarHandleBase.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
@@ -28,7 +27,7 @@
 namespace SG {
 
   template <typename T>
-  class ReadCondHandle : public SG::VarHandleBase {
+  class ReadCondHandle {
 
   public: 
     typedef T*               pointer_type; // FIXME: better handling of
@@ -41,8 +40,11 @@ namespace SG {
     ReadCondHandle(const SG::ReadCondHandleKey<T>& key, 
                    const EventContext& ctx);
     
-    virtual ~ReadCondHandle() override {};
+    ~ReadCondHandle() {};
     
+    const std::string& key() const { return m_hkey.key(); }
+    const DataObjID& fullKey() const { return m_hkey.fullKey(); }
+
     const_pointer_type retrieve();
     const_pointer_type retrieve( const EventIDBase& t);
 
@@ -50,7 +52,7 @@ namespace SG {
     const_pointer_type  operator*()   { return  retrieve(); }   
 
     
-    virtual bool isValid() override;
+    bool isValid();
     bool isValid(const EventIDBase& t) const ;
 
     bool range(EventIDRange& r);
@@ -84,7 +86,6 @@ namespace SG {
   template <typename T>
   ReadCondHandle<T>::ReadCondHandle(const SG::ReadCondHandleKey<T>& key,
                                     const EventContext& ctx):
-    SG::VarHandleBase( key, &ctx ),
     m_eid( ctx.eventID() ),
     m_cc( key.getCC() ),
     m_hkey(key),
@@ -109,10 +110,10 @@ namespace SG {
     if (m_cc == 0) {
       // try to retrieve it
       CondContBase *cb(nullptr);
-      if (m_cs->retrieve(cb, SG::VarHandleBase::key()).isFailure()) {
+      if (m_cs->retrieve(cb, m_hkey.key()).isFailure()) {
         MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
         msg << MSG::ERROR
-            << "can't retrieve " << SG::VarHandleBase::fullKey() 
+            << "can't retrieve " << m_hkey.fullKey() 
             << " via base class" << endmsg;
         throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
       } else {
@@ -120,7 +121,7 @@ namespace SG {
         if (m_cc == 0) {
           MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
           msg << MSG::ERROR
-              << "can't dcast CondContBase to " << SG::VarHandleBase::fullKey() 
+              << "can't dcast CondContBase to " << m_hkey.fullKey() 
               << endmsg;
           throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
         }
@@ -157,7 +158,7 @@ namespace SG {
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
       msg << MSG::ERROR 
           << "ReadCondHandle: could not find current EventTime " 
-          << m_eid  << " for key " << objKey() << "\n"
+          << m_eid  << " for key " << m_hkey.objKey() << "\n"
           << ost.str()
           << endmsg;
       m_obj = nullptr;
@@ -206,7 +207,7 @@ namespace SG {
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
       msg << MSG::ERROR 
           << "ReadCondHandle::retrieve() could not find EventTime " 
-          << eid  << " for key " << objKey() << "\n"
+          << eid  << " for key " << m_hkey.objKey() << "\n"
           << ost.str()
           << endmsg;
       return nullptr;

@@ -17,7 +17,8 @@
 #ifndef CXXUTILS_BITSCAN_H
 #define CXXUTILS_BITSCAN_H
 
-#include <stdint.h>
+#include <climits>
+#include <cstdint>
 #include <type_traits>
 
 namespace CxxUtils {
@@ -48,6 +49,17 @@ namespace CxxUtils {
       for (n = 0; (x & msb) == 0; ++n, x <<= 1);
       return n;
     }    
+
+    template <typename T>
+    inline unsigned popcount_portable(T x) {
+      static_assert(std::is_integral<T>::value, "An integer type is required.");
+      unsigned n = 0;
+      while (x != 0) {
+        n += (x&1);
+        x >>= 1;
+      }
+      return n;
+    }    
   }
 
   /**
@@ -72,6 +84,14 @@ namespace CxxUtils {
 #endif
   }
 
+  inline unsigned count_trailing_zeros(unsigned long long x) {
+#if defined (__GNUC__) || defined(__clang__)
+    return (x!=0 ? __builtin_ctzll(x) : 0);
+#else
+    return detail::ctz_portable(x);
+#endif
+  }
+
   /**
    * Count number of leading zeros
    *
@@ -80,7 +100,7 @@ namespace CxxUtils {
    */
   inline unsigned count_leading_zeros(unsigned x) {
 #if defined (__GNUC__) || defined(__clang__)
-    return (x!=0 ? __builtin_clz(x) : sizeof(x)*8);
+    return (x!=0 ? __builtin_clz(x) : sizeof(x)*CHAR_BIT);
 #else
     return detail::clz_portable(x);
 #endif
@@ -88,9 +108,48 @@ namespace CxxUtils {
 
   inline unsigned count_leading_zeros(unsigned long x) {
 #if defined (__GNUC__) || defined(__clang__)
-    return (x!=0 ? __builtin_clzl(x) : sizeof(x)*8);
+    return (x!=0 ? __builtin_clzl(x) : sizeof(x)*CHAR_BIT);
 #else
     return detail::clz_portable(x);
+#endif
+  }
+
+  inline unsigned count_leading_zeros(unsigned long long x) {
+#if defined (__GNUC__) || defined(__clang__)
+    return (x!=0 ? __builtin_clzll(x) : sizeof(x)*CHAR_BIT);
+#else
+    return detail::clz_portable(x);
+#endif
+  }
+
+
+  /**
+   * Count number of set bits.
+   *
+   * @param x Number to check
+   * @return Number of bits set in x.
+   */
+  inline unsigned count_ones(unsigned x) {
+#if defined (__GNUC__) || defined(__clang__)
+    return __builtin_popcount(x);
+#else
+    return detail::popcount_portable(x);
+#endif
+  }
+
+  inline unsigned count_ones(unsigned long x) {
+#if defined (__GNUC__) || defined(__clang__)
+    return __builtin_popcountl(x);
+#else
+    return detail::popcount_portable(x);
+#endif
+  }
+
+  inline unsigned count_ones(unsigned long long x) {
+#if defined (__GNUC__) || defined(__clang__)
+    return __builtin_popcountll(x);
+#else
+    return detail::popcount_portable(x);
 #endif
   }
 }

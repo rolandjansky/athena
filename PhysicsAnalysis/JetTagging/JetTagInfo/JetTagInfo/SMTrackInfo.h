@@ -5,7 +5,7 @@
 #ifndef JETTAGINFO_SMTRACKINFO
 #define JETTAGINFO_SMTRACKINFO
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "muonEvent/Muon.h"
 #include "muonEvent/MuonContainer.h"
 #include <iostream>

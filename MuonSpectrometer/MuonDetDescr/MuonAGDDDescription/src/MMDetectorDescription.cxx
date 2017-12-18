@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-MMDetectorDescription* MMDetectorDescription::current=0;
+MMDetectorDescription* MMDetectorDescription::s_current=0;
 
 
 MMDetectorDescription::MMDetectorDescription(std::string s): 
@@ -26,7 +26,7 @@ void MMDetectorDescription::Register()
 void MMDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 {
 		//std::cout<<"This is AGDDMicromegas::SetDetectorAddress "<<GetName()<<" "<<
-		//sType;
+		//m_sType;
 		p->ID.detectorType="Micromegas";
 		p->theDetector=this;
 		std::stringstream stringone;
@@ -42,9 +42,10 @@ void MMDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 		p->ID.detectorAddress=stringone.str();
 }
 
-MM_Technology* MMDetectorDescription::GetTechnology()
+MuonGM::MM_Technology* MMDetectorDescription::GetTechnology()
 {
    AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();    
-   MM_Technology* t = dynamic_cast<MM_Technology*>(ds->GetTechnology(GetName()));
+   MuonGM::MM_Technology* t =
+     dynamic_cast<MuonGM::MM_Technology*>(ds->GetTechnology(GetName()));
    return t;
 }

@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/RCUSvc_test.txt
-JobOptionsSvc        INFO # =======> /users/cranshaw/transitions7/athena/Control/AthenaServices/share/../share/RCUSvc_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/AthenaServices/share/../share/RCUSvc_test.txt
 JobOptionsSvc        INFO # (4,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (6,1): Athena::RCUSvc.HiveWhiteBoardSvc = "TestWhiteBoard"
 JobOptionsSvc        INFO Job options successfully read in from ../share/RCUSvc_test.txt
@@ -9,7 +9,7 @@ ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
-                                          running on atlas2.hep.anl.gov on Wed Dec 13 08:35:31 2017
+                                          running on lxplus020.cern.ch on Mon Dec 11 13:21:55 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AppMgrRunable       DEBUG Service base class initialized successfully
@@ -29,3 +29,4 @@ ApplicationMgr Ready
 IncidentSvc         DEBUG Adding [EndEvent] listener 'Athena::RCUSvc' with priority 0
 test1
 test2
+

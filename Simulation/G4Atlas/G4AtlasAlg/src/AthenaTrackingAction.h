@@ -21,7 +21,7 @@ namespace G4UA
     public:
 
       /// Constructor
-    AthenaTrackingAction(MSG::Level lvl, int secondarySavingLevel, int subDetVolLevel);
+      AthenaTrackingAction(MSG::Level lvl, int secondarySavingLevel, int subDetVolLevel);
 
       /// @brief Called before tracking a new particle.
       ///

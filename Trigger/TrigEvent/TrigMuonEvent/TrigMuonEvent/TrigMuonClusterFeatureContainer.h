@@ -7,9 +7,9 @@
 #ifndef TRIG_TRIGMUONCLUSTERFEATURECONTAINER
 #define TRIG_TRIGMUONCLUSTERFEATURECONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigMuonEvent/TrigMuonClusterFeature.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigMuonClusterFeatureContainer : public DataVector<TrigMuonClusterFeature> { }; 
 

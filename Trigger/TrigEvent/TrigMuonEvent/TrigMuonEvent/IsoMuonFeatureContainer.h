@@ -7,9 +7,9 @@
 #ifndef TRIG_ISOMUONFEATURECONTAINER
 #define TRIG_ISOMUONFEATURECONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigMuonEvent/IsoMuonFeature.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class IsoMuonFeatureContainer : public DataVector<IsoMuonFeature> { }; 
 

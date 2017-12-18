@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <functional>
 
 // Declaration of the interface ID ( interface id, major version, minor version)
 //static const InterfaceID IID_IROBDataProviderSvc("IROBDataProviderSvc", 1 , 0);
@@ -23,7 +24,8 @@
 class IROBDataProviderSvc : virtual public IInterface {
 
 public:
-   typedef std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> VROBFRAG;
+  typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
+  typedef std::vector<const ROBF*> VROBFRAG;
 
    /// Retrieve interface ID
   //   static const InterfaceID& interfaceID() { return IID_IROBDataProviderSvc; }
@@ -33,7 +35,7 @@ public:
    virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") = 0 ;
 
    /// Add a given LVL1/LVL2 ROBFragment to cache
-   virtual void setNextEvent(const std::vector<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>& result) = 0 ;
+   virtual void setNextEvent(const std::vector<ROBF>& result) = 0 ;
 
 
    /// Add all ROBFragments of a RawEvent to cache
@@ -58,16 +60,16 @@ public:
 
    // variants for MT, it has an implementation for now in order not to require change in all implementations yet, they will all become pure virtual methods
    virtual void addROBData(const EventContext& /*context*/, const std::vector<uint32_t>& /*robIds*/, const std::string callerName="UNKNOWN") { 
-     throw std::runtime_error( std::string( "Unimplemented ") + __FUNCTION__ + callerName) ; 
+     throw std::runtime_error( std::string( callerName+" is using unimplemented ") + __FUNCTION__ ) ; 
    }
-   virtual void setNextEvent(const EventContext& /*context*/, const std::vector<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>& /*result*/) {
+   virtual void setNextEvent(const EventContext& /*context*/, const std::vector<ROBF>& /*result*/) {
      throw std::runtime_error( std::string("Unimplemented ") + __FUNCTION__ ); 
    }
    virtual void setNextEvent( const EventContext& /*context*/, const RawEvent* /*re*/) {
      throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
    }
    virtual void getROBData(const EventContext& /*context*/, const std::vector<uint32_t>& /*robIds*/, VROBFRAG& /*robFragments*/, const std::string callerName="UNKNOWN") { 
-     throw std::runtime_error( std::string( "Unimplemented ") + __FUNCTION__ + callerName) ; 
+     throw std::runtime_error( std::string( callerName+" is using unimplemented ") + __FUNCTION__ ) ; 
    }
    virtual const RawEvent* getEvent(const EventContext& /*context*/) {
      throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
@@ -79,6 +81,32 @@ public:
      throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
      return 0;
    }
+   
+   /// @brief Interface to access cache of ROBs (it is a full event in case of offline)
+   /// In online implementation the cache will contain only a subset of ROBs. 
+   /// This method allows read access to the cache. 
+   /// @warning in case the cache is updated in the meantime the iteration is guaranteed to be safe 
+   /// but may not give access to all the ROBs available n the very moment
+   /// Example of counting: size_t counter = 0; svc->processCahcedROBs(ctx, [&](const ROBF*){ counter ++; })
+   /// Example of printout: svc->processCahcedROBs(ctx, [&](const ROBF* rob){ log() << MSG::DEBUG << "ROB " << rob->source_id() << endmsg; })
+   virtual void processCachedROBs(const EventContext& /*context*/, 
+				  const std::function< void(const ROBF* )>& /*fn*/ ) const {
+     throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ ); 
+   }
+  
+  /// Check if complete event data are already in cache
+  virtual bool isEventComplete(const EventContext& /*context*/) const {
+    throw std::runtime_error(std::string("Unimplemented ") + __FUNCTION__ );      
+  } 
+  
+  /// @brief Collect all data for an event from the ROS and put them into the cache
+  /// @return value: number of ROBs which were retrieved to complete the event
+  /// Optionally the name of the caller of this method can be specified for monitoring
+  virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string callerName="UNKNOWN") {
+    throw std::runtime_error(std::string(callerName + " is using unimplemented ") + __FUNCTION__ );
+    return 0;
+  }
+
 };
 
 #endif

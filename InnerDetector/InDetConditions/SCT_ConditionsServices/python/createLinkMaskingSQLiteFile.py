@@ -2,6 +2,7 @@
 
 # Taken from InnerDetector/InDetRecTools/TRT_ElectronPidTools/DatabaseTools/WritePyCoolAll.py
 # https://twiki.cern.ch/twiki/bin/view/Atlas/ConditionsSimpleExample
+# Usage: python createLinkMaskingSQLiteFile.py
 
 import sys
 from PyCool import cool

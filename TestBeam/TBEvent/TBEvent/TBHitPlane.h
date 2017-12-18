@@ -9,7 +9,7 @@
 This class is used to store hit information from BPC & MWPC for one plane. The modivation was to create a track object using both BPC data & MWPC data but given that the MWPC is plane specific (zx plane and yx plane) we have to make a linear fit on each plane with the correct hit objects.
 */
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TBEvent/TBBeamDetector.h"
 
 class TBHitPlane 
