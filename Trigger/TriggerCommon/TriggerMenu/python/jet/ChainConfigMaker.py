@@ -309,7 +309,7 @@ def _get_data_scouting(parts):
 
     if len(vals) != 1:
         msg = '%s error setting data scouting flag ' % (err_hdr)
-        
+
     data_scouting = vals.pop()
     _update_cache('data_souting', data_scouting)
     return data_scouting
@@ -330,7 +330,7 @@ def _get_hypo_type(parts):
                                    tla_flag,
                                    dimass_deta_flag,
                                    jetmass_flag), None) for part in parts]
-    
+
     if not htypes or None in htypes:
         part = parts[htypes.index(None)]
         msg = '%s: cannot determine hypo type '\
@@ -377,11 +377,20 @@ def _get_run_hypo(parts):
     if x: return x
 
     vals = set(['perf' not in p['addInfo'] for p in parts])
+
+    is_perf = False
+    for p in parts:
+        if 'perf' in p['addInfo']:
+            is_perf = True
+
     if len(vals) != 1:
         msg = '%s: cannot determine run_hypo ' %  err_hdr
         raise RuntimeError(msg)
         
     data_scouting_flag = bool(_get_data_scouting(parts))
+    if data_scouting_flag and not is_perf:
+        data_scouting_flag = False
+
     run_hypo =  vals.pop() and not data_scouting_flag
     _update_cache('run_hypo', run_hypo)
 
@@ -767,7 +776,7 @@ def _get_hypo_params(parts):
         'HLThypo2_singlemass': _setup_singlemass_vars,
         'HLThypo2_tla': _setup_tla_vars,
         'HLThypo2_ht': _setup_ht_vars,}.get(hypo_type, None)
-    
+
     if hypo_setup_fn is None:
         msg = '%s: unknown hypo type (JetDef bug) %s' % (
             err_hdr,
