@@ -12,7 +12,6 @@
 
 
 #include "CxxUtils/ClassName.h"
-#include "boost/foreach.hpp"
 #include <cassert>
 
 
@@ -261,7 +260,7 @@ std::string ClassName::fullName() const
     name = "const " + name;
   if (m_targs.size() > 0) {
     name += '<';
-    BOOST_FOREACH (const ClassName& cn, m_targs) {
+    for (const ClassName& cn : m_targs) {
       if (name[name.size()-1] != '<')
         name += ',';
       name += cn.fullName();
@@ -355,9 +354,9 @@ void ClassName::subst (const match_t& matches)
     }
   }
 
-  BOOST_FOREACH (ClassName& c, m_namespace)
+  for (ClassName& c : m_namespace)
     c.subst (matches);
-  BOOST_FOREACH (ClassName& c, m_targs)
+  for (ClassName& c : m_targs)
     c.subst (matches);
 }
 
