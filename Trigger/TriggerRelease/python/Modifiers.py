@@ -1319,7 +1319,19 @@ class fpeAuditor(_modifier):
         theApp.AuditServices = True
         theApp.AuditTools = True
         svcMgr.AuditorSvc += CfgMgr.FPEAuditor()    
-        
+
+class athMemAuditor(_modifier):
+    """
+    Turn on AthMemoryAuditor
+    """
+    def postSetup(self):
+        from AthenaCommon import CfgMgr
+        theApp.AuditAlgorithms = True
+        theApp.AuditServices = True
+        theApp.AuditTools = True
+        svcMgr.AuditorSvc += CfgMgr.AthMemoryAuditor(MaxStacktracesPerAlg=20,
+                                      DefaultStacktraceDepth=50,
+                                      StacktraceDepthPerAlg=["Stream1 100"])
 class detailedTiming(_modifier):
     """
     Add detailed timing information
