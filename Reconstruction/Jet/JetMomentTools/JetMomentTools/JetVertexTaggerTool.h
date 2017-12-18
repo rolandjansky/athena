@@ -50,10 +50,6 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
 
 #include "JetInterface/IJetTrackSelector.h"
 #include "JetRec/JetModifierBase.h"
@@ -96,11 +92,10 @@ public:
   //   sjvt - name of the existing JVT moment (and prefix for RpT and JVFcorr).
   //   scale - name of the jet scale holding the original pT
   // The new value for JVT is returned.
-  float updateJvt(const xAOD::Jet& jet, std::string sjvt,
-                  std::string scale) const;
+  float updateJvt(const xAOD::Jet& jet) const;
 
   // Local method to return the HS vertex - that of type PriVtx
-  const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
+  const xAOD::Vertex* findHSVertex() const;
 
 private:  // data
 
