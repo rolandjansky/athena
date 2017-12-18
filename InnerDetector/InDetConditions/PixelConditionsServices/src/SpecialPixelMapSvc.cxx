@@ -1095,8 +1095,7 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
           tmpstr = filename.substr(offset,20);
         }
         catch(std::exception &ex) {
-          ATH_MSG_ERROR( "Cound not get string" );
-          std::cout<<"exception caught: " << ex.what()<<std::endl;
+          ATH_MSG_ERROR( "Cound not get string, exception caught: " << ex.what() );
         }
 	std::istringstream ss(tmpstr);
 	char c;
