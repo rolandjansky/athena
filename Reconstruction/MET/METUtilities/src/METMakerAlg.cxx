@@ -18,7 +18,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
