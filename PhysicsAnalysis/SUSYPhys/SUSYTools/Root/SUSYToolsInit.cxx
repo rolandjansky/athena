@@ -221,7 +221,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   std::string fatjetcoll(m_fatJets); 
   if (fatjetcoll.size()>3) fatjetcoll = fatjetcoll.substr(0,fatjetcoll.size()-4); //remove (new) suffix
   if (!m_jetFatCalibTool.isUserConfigured() && ""!=m_fatJets) {
-    toolName = "JetFatCalibTool_" + jetname;
+    toolName = "JetFatCalibTool_" + m_fatJets;
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
@@ -563,6 +563,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING(" These may be used for loose electron CRs but no scale factors are provided.");
       ATH_MSG_WARNING(" ****************************************************************************");
     }
+    else if (m_eleId == "VeryLooseLLH_Rel20p7" || m_eleId == "LooseLLH_Rel20p7" || m_eleId == "LooseAndBLayerLLH_Rel20p7" || m_eleId == "MediumLLH_Rel20p7" || m_eleId == "TightLLH_Rel20p7") {
+      ATH_MSG_WARNING(" ****************************************************************************");
+      ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as baseline electron ID");
+      ATH_MSG_WARNING(" The Rel20.7 working point will not be supported and being obsoleted.");
+      ATH_MSG_WARNING(" ****************************************************************************");
+    }
     ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
     ATH_CHECK( m_elecSelLikelihood.retrieve() );
   }
@@ -576,6 +582,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleIdBaseline);
       return StatusCode::FAILURE;
     }
+    else if (m_eleIdBaseline == "VeryLooseLLH_Rel20p7" || m_eleIdBaseline == "LooseLLH_Rel20p7" || m_eleIdBaseline == "LooseAndBLayerLLH_Rel20p7" || m_eleIdBaseline == "MediumLLH_Rel20p7" || m_eleIdBaseline == "TightLLH_Rel20p7") {
+      ATH_MSG_WARNING(" ****************************************************************************");
+      ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as baseline electron ID");
+      ATH_MSG_WARNING(" The Rel20.7 working point will not be supported and being obsoleted.");
+      ATH_MSG_WARNING(" ****************************************************************************");
+    }
+    ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
     ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("WorkingPoint", EG_WP(m_eleIdBaseline)) );
     ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
   }
