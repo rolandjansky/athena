@@ -110,17 +110,17 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
 # NOTE: this is commented out until we figure out why the tool can't
 # find jet collections.
 #
-#FTAG2Seq += CfgMgr.BTagVertexAugmenter()
-#for jc in OutputJets["FTAG2"]:
-#    if 'Truth' in jc:
-#        continue
-#    FTAG2Seq += CfgMgr.BTagTrackAugmenter(
-#        "BTagTrackAugmenter_" + jc,
-#        OutputLevel=INFO,
-#        JetCollectionName = jc,
-#        TrackToVertexIPEstimator = FTAG2IPETool,
-#        SaveTrackVectors = True,
-#    )
+FTAG2Seq += CfgMgr.BTagVertexAugmenter()
+for jc in ["AntiKt4EMTopoJets"]:
+    if 'Truth' in jc:
+        continue
+    FTAG2Seq += CfgMgr.BTagTrackAugmenter(
+        "BTagTrackAugmenter_" + jc,
+        OutputLevel=INFO,
+        JetCollectionName = jc,
+        TrackToVertexIPEstimator = FTAG2IPETool,
+        SaveTrackVectors = True,
+    )
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
