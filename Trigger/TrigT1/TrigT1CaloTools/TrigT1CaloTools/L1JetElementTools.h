@@ -51,11 +51,11 @@ namespace LVL1
       virtual StatusCode finalize  ();
 
       /** Fill DataVector of JetElements from user-supplied TriggerTowers */
-      virtual void makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements);
-      virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, xAOD::JetElementMap_t* map);
+      virtual void makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements) const;
+      virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, xAOD::JetElementMap_t* map) const;
 
       // @DEPRICATED(amazurov)
-      virtual void makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements);
+      virtual void makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements) const;
             
     private:
 
