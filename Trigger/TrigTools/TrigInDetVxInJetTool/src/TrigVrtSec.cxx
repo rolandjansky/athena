@@ -344,7 +344,6 @@ double TrigInDetVxInJetTool::FitCommonVrt(std::vector<const Track*>          & L
                                           std::vector<double>                & ErrorMatrix,
                                           CLHEP::HepLorentzVector            & Momentum,
                                           std::vector< std::vector<double> > & TrkAtVrt)
-  const
 {
 
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called " <<ListSecondTracks.size()<< endmsg;

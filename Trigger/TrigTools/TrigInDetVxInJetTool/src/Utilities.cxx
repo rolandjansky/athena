@@ -232,7 +232,6 @@ void TrigInDetVxInJetTool::RemoveEntryInList(std::vector<const TrigInDetTrack*>&
 
 StatusCode TrigInDetVxInJetTool::VKalVrtFitFastBase(const std::vector<const TrigInDetTrack*>& listPart,
                                                     Amg::Vector3D  & FitVertex)
-  const
 {  
   return m_fitSvc->VKalVrtFitFast(listPart,FitVertex);    /* Fast crude estimation */
 }
@@ -244,7 +243,7 @@ StatusCode TrigInDetVxInJetTool::VKalVrtFitBase(const std::vector<const TrigInDe
                                                 std::vector<double>&                       ErrorMatrix,
                                                 std::vector<double>&                       Chi2PerTrk,
                                                 std::vector< std::vector<double> >&        TrkAtVrt,
-                                                double& Chi2 ) const
+                                                double& Chi2 )
 {
   return m_fitSvc->VKalVrtFit( listPart, Vertex, Momentum, Charge,
                                ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
