@@ -466,6 +466,14 @@ class doWriteESD(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
+
+class doWriteDPD(JobProperty):
+    """ If True writes out DPD file
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 #
 class doWriteBS(JobProperty):
     """ If True writes out RDO bytestream file
@@ -484,6 +492,7 @@ class doWriteRDO(JobProperty):
         jobproperties.Rec.__dict__.get('doESD').set_Value(False)
         jobproperties._log.info('RecExCommon_flags::doWriteRDO : all algorithms are off')
         jobproperties.Rec.__dict__.get('doWriteESD').set_Value(False)
+        jobproperties.Rec.__dict__.get('doWriteDPD').set_Value(False)
         jobproperties.Rec.__dict__.get('doAOD').set_Value(False)
         jobproperties.Rec.__dict__.get('doWriteAOD').set_Value(False)
         jobproperties.Rec.__dict__.get('doWriteTAG').set_Value(False)
@@ -1015,7 +1024,7 @@ doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuff
 doDumpTDS, doDumpTES, doFloatingPointException, abortOnUncheckedStatusCode, abortOnErrorMessage, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
-doWriteAOD, doWritexAOD, doWriteESD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \
+doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \
 readESD, doDetStatus, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
