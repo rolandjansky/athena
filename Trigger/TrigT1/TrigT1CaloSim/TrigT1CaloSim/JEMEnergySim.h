@@ -58,8 +58,6 @@
 
    JEMEnergySim( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~JEMEnergySim();
-
 
    //------------------------------------------------------
    // Methods used by Athena to run the algorithm
