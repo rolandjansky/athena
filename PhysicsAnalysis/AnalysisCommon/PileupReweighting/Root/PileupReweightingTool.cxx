@@ -49,6 +49,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
    declareProperty("UseMultiPeriods",m_useMultiPeriods=true,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
+   declareProperty("UseRunDependentPrescaleWeight",m_useRunDependentPrescaleWeight=false,"If true, prescale weights in the getCombinedWeight method with Trigger string are determined with the specific random run number");
    declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
@@ -229,7 +230,6 @@ StatusCode PileupReweightingTool::initialize() {
             m_noWeightsMode=true; //will stop the prw weight being decorated in apply method
             if(m_upTool) m_upTool->UsePeriodConfig("MC16");
             if(m_downTool) m_downTool->UsePeriodConfig("MC16");
-            return StatusCode::SUCCESS;
          }
       }
    
@@ -475,7 +475,7 @@ float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo
    //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod
    unsigned int randomRunNum = (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")) ? eventInfo.auxdataConst<unsigned int>(m_prefix+"RandomRunNumber") : getRandomRunNumber( eventInfo, mu_dependent );
    if(!mu_dependent) out *= m_activeTool->GetPrescaleWeight(randomRunNum, trigger);
-   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/, m_useRunDependentPrescaleWeight /*run-dependent*/ );
    return out;
 }
 
