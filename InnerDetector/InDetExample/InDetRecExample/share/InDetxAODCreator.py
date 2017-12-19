@@ -154,6 +154,34 @@ if InDetFlags.doTrackSegmentsPixelPrdAssociation() and InDetFlags.doParticleCrea
  #xAODPixelPrdAssociationTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODPixelPrdAssociationTrackParticleCnvAlg
 
+if InDetFlags.doTrackSegmentsPixelFourLayer() and InDetFlags.doParticleCreation():
+ xAODPixelFourLayerTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(InDetKeys.xAODPixelFourLayerTrackParticleContainer())
+ xAODPixelFourLayerTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODPixelFourLayerTrackParticleContainer()
+ xAODPixelFourLayerTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODPixelFourLayerTrackParticleContainer()
+ xAODPixelFourLayerTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
+ xAODPixelFourLayerTrackParticleCnvAlg.TrackContainerName = InDetKeys.PixelFourLayerTracks()
+ xAODPixelFourLayerTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.PixelFourLayerTracksTruth()
+ xAODPixelFourLayerTrackParticleCnvAlg.ConvertTrackParticles = False
+ xAODPixelFourLayerTrackParticleCnvAlg.ConvertTracks = True
+ xAODPixelFourLayerTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
+ xAODPixelFourLayerTrackParticleCnvAlg.PrintIDSummaryInfo = True
+ #xAODPixelFourLayerTrackParticleCnvAlg.OutputLevel = VERBOSE
+ topSequence += xAODPixelFourLayerTrackParticleCnvAlg
+
+if InDetFlags.doTrackSegmentsPixelThreeLayer() and InDetFlags.doParticleCreation():
+ xAODPixelThreeLayerTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(InDetKeys.xAODPixelThreeLayerTrackParticleContainer())
+ xAODPixelThreeLayerTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODPixelThreeLayerTrackParticleContainer()
+ xAODPixelThreeLayerTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODPixelThreeLayerTrackParticleContainer()
+ xAODPixelThreeLayerTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
+ xAODPixelThreeLayerTrackParticleCnvAlg.TrackContainerName = InDetKeys.PixelThreeLayerTracks()
+ xAODPixelThreeLayerTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.PixelThreeLayerTracksTruth()
+ xAODPixelThreeLayerTrackParticleCnvAlg.ConvertTrackParticles = False
+ xAODPixelThreeLayerTrackParticleCnvAlg.ConvertTracks = True
+ xAODPixelThreeLayerTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
+ xAODPixelThreeLayerTrackParticleCnvAlg.PrintIDSummaryInfo = True
+ #xAODPixelThreeLayerTrackParticleCnvAlg.OutputLevel = VERBOSE
+ topSequence += xAODPixelThreeLayerTrackParticleCnvAlg
+
 if InDetFlags.doTrackSegmentsSCT() and InDetFlags.doParticleCreation():
  xAODSCTTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(InDetKeys.xAODSCTTrackParticleContainer())
  xAODSCTTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODSCTTrackParticleContainer()
