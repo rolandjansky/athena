@@ -118,27 +118,9 @@ if 'Y' in dir():
     simFlags.Y=Y
 
 
-# uncomment this for simulation with calibration hits
-#simFlags.CalibrationRun = 'Tile'
-
-# uncomment and modify any of options below to have non-standard simulation
-from TileSimUtils.TileSimInfoConfigurator import TileSimInfoConfigurator
-tileSimInfoConfigurator=TileSimInfoConfigurator()
-# tileSimInfoConfigurator.DeltaTHit = [ 1. ]
-# tileSimInfoConfigurator.TimeCut = 200.5
-# tileSimInfoConfigurator.TileTB = True
-# tileSimInfoConfigurator.PlateToCell = True
-# tileSimInfoConfigurator.DoExpAtt = False
-# tileSimInfoConfigurator.DoTileRow = False
-# tileSimInfoConfigurator.DoTOFCorrection = True
-# Birks' law
-if 'DoBirk' in dir():
-    tileSimInfoConfigurator.DoBirk = DoBirk
-# U-shape
-if 'TileUshape' in dir():
-    tileSimInfoConfigurator.Ushape = TileUshape
-
-print tileSimInfoConfigurator
+# set this flag for simulation with calibration hits
+if 'CalibrationRun' in dir():
+    simFlags.CalibrationRun = 'Tile'
 
 # avoid reading CaloTTMap from COOL
 include.block ( "CaloConditions/CaloConditions_jobOptions.py" )
@@ -174,12 +156,16 @@ if not 'PID' in dir():
     PID=11
 if not 'E' in dir():
     E=100000
+if not 'Xbeam' in dir():
+    Xbeam=-27500
 if not 'Ybeam' in dir():
     Ybeam=[-20,20]
 if not 'Zbeam' in dir():
     Zbeam=[-20,20]
+if not 'Tbeam' in dir():
+    Tbeam=[-31250,-23750]
 pg.sampler.pid = PID
-pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=[-25000,-17500])
+pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=Tbeam)
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
 
 topSeq += pg
@@ -224,6 +210,22 @@ if 'RangeCut' in dir():
 ## Populate alg sequence
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+
+# uncomment and modify any of options below to have non-standard simulation 
+from AthenaCommon.AppMgr import ToolSvc
+SD = ToolSvc.SensitiveDetectorMasterTool.SensitiveDetectors[0]
+SD.TileTB=True
+# SD.DeltaTHit = [ 50. ]
+# SD.TimeCut = 200.5
+# SD.PlateToCell = True
+# SD.DoTileRow = False
+# SD.DoTOFCorrection = True
+# Birks' law
+if 'DoBirk' in dir():
+    SD.DoBirk = DoBirk
+if 'TileUshape' in dir():
+    SD.Ushape=TileUshape
+print SD
 
 ## VP1 algorithm for visualization
 if 'VP1' in dir():

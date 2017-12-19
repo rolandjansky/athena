@@ -31,5 +31,3 @@ macro texpatlinkopts "" WIN32 " $(cmt_installarea_linkopts) $(Expat_linkopts) "
 
 application texpat texpat.cxx DOMNode.cxx ExpatCoreParser.cxx 
 macro texpat_dependencies XMLCoreParser
-
-

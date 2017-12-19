@@ -3,7 +3,6 @@
 */
 
 #include "G4UserActions/PhotonKillerTool.h"
-#include "CxxUtils/make_unique.h"
 
 namespace G4UA
 {
@@ -21,7 +20,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   std::unique_ptr<PhotonKiller> PhotonKillerTool::makeAction(){
     ATH_MSG_DEBUG("Making a PhotonKiller action");
-    return CxxUtils::make_unique<PhotonKiller>();
+    return std::make_unique<PhotonKiller>();
   }
 
 } // namespace G4UA

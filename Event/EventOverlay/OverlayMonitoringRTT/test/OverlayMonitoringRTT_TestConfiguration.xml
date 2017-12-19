@@ -132,7 +132,7 @@
               </chainElement>
               <chainElement>
                 <!-- Regression Test on ESDs -->
-                <jobTransform userJobId="MC12_2011_Legacy_ESD_Reg">
+                <jobTransform userJobId="MC12_2016_Legacy_ESD_Reg">
                   <doc>Regression test for Reco_tf"</doc>
                   <jobTransformJobName>MC15_2016_Legacy_ESD_Reg</jobTransformJobName>
                   <jobTransformCmd>
@@ -361,7 +361,7 @@
               <doc></doc>
               <jobTransformJobName>MC_Legacy_OverlayPool_tf</jobTransformJobName>
               <jobTransformCmd>
-		OverlayPool_tf.py --inputHITSFile /afs/cern.ch/work/t/tkharlam/public/mc15_13TeV.422011.ParticleGun_single_mu_Pt100.simul.HITS.e4459_s2726/HITS.06623162._000064.pool.root.1 --inputRDO_BKGFile /afs/cern.ch/work/t/tkharlam/public/user.tkharlam.mc15_13TeV.159000.ParticleGenerator_nu_E50.RDO_EXT0/user.tkharlam.10837893.EXT0._000906.RDO.pool.root --outputRDOFile MC_plus_MC.RDO.pool.root --AddCaloDigi True --maxEvents 10 --skipEvents 2  --digiSeedOffset1 511 --digiSeedOffset2 727 --conditionsTag OFLCOND-RUN12-SDR-31 --triggerConfig 'OverlayPool=default' --postExec 'ServiceMgr.TGCcablingServerSvc.forcedUse=True;' --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True);'
+		Reco_tf.py --inputHITSFile /afs/cern.ch/work/t/tkharlam/public/overlay_RTT/mc16_13TeV.424000.ParticleGun_single_mu_Pt100.simul.HITS.e3580_s3126/HITS.11330296._000376.pool.root.1 --inputRDO_BKGFile /afs/cern.ch/work/t/tkharlam/public/overlay_RTT/user.tkharlam.PileupPremixing.r21.0.22.159000.ParticleGenerator_nu_E50.pileup.mc16a_caseA_EXT0/user.tkharlam.11805093.EXT0._000346.RDO.pool.root --outputRDOFile MC_plus_MC.RDO.pool.root --maxEvents 20 --skipEvents 10  --digiSeedOffset1 511 --digiSeedOffset2 727 --conditionsTag OFLCOND-MC16-SDR-14 --geometryVersion ATLAS-R2-2016-01-00-01 --triggerConfig 'OverlayPool=NONE' --postExec 'ServiceMgr.TGCcablingServerSvc.forcedUse=True' --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' --steering="doOverlay"
               </jobTransformCmd>
               <group>Overlay_JobTransforms</group>
               <queue>long</queue>
