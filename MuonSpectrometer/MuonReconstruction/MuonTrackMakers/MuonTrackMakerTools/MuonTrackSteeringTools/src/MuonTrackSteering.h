@@ -175,7 +175,6 @@ namespace Muon {
     bool m_outputSingleStationTracks;
     bool m_combinedSLOverlaps;
     bool m_doSummary;
-    bool m_writeMergedSegments;
     bool m_useTightMatching;
     bool m_onlyMDTSeeding;
     int m_segThreshold;
