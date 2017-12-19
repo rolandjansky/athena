@@ -60,6 +60,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_findtracks  = 0                  ;
   m_qualityCut  = 9.3                ;
   m_fieldService = 0                 ; 
+  m_passThroughExtension = false     ;
   declareInterface<ISiCombinatorialTrackFinder>(this);
 
   declareProperty("SCTManagerLocation"   ,m_sctm               );
@@ -77,6 +78,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
+  declareProperty("PassThroughExtension" ,m_passThroughExtension);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -650,6 +652,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 
   // Track finding
   //
+  if(m_passThroughExtension) return true;
   if(pixseed) {      // Strategy for pixel seeds
     
     if(!m_trajectory.forwardExtension (false,itmax)) return false;
