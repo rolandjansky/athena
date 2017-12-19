@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-"""TBD."""
+"""Class for (local) build submits."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
@@ -20,22 +20,27 @@ from parallelScheduler import ParallelScheduler
 MODULE = "art.build"
 
 
-def run_job(art_directory, sequence_tag, script_directory, package, job_type, index, test_name, nightly_release, project, platform, nightly_tag):
-    """TBD."""
-    log = logging.getLogger(MODULE)
+def run_job(art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name):
+    """
+    Job to be run by parallel or serial scheduler.
 
-    log.info("job started %s %s %s %s %s %d %s %s %s %s %s", art_directory, sequence_tag, script_directory, package, job_type, index, test_name, nightly_release, project, platform, nightly_tag)
-    (exit_code, out, err) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "job", "build", script_directory, package, job_type, sequence_tag, str(index), "out", nightly_release, project, platform, nightly_tag)))
-    log.info("job ended %s %s %s %s %s %d %s %s %s %s %s", art_directory, sequence_tag, script_directory, package, job_type, index, test_name, nightly_release, project, platform, nightly_tag)
+    Needs to be defined outside a class.
+    Names of arguments are important, see call to scheduler.
+    """
+    # <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
+    log = logging.getLogger(MODULE)
+    log.info("job started %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
+    (exit_code, out, err) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "build", "job", script_directory, sequence_tag, package, "out", job_type, str(job_index))))
+    log.info("job ended %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
 
     return (test_name, exit_code, out, err)
 
 
 class ArtBuild(ArtBase):
-    """TBD."""
+    """Class for (local) build submits."""
 
     def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory, max_jobs=0, ci=False):
-        """TBD."""
+        """Keep arguments."""
         super(ArtBuild, self).__init__(art_directory)
         log = logging.getLogger(MODULE)
         log.debug("ArtBuild %s %s %d", art_directory, script_directory, max_jobs)
@@ -49,7 +54,7 @@ class ArtBuild(ArtBase):
         self.ci = ci
 
     def task_list(self, job_type, sequence_tag):
-        """TBD."""
+        """Run a list of packages for given job_type with sequence_tag."""
         log = logging.getLogger(MODULE)
         log.debug("task_list %s %s", job_type, sequence_tag)
         test_directories = self.get_test_directories(self.script_directory)
@@ -64,8 +69,11 @@ class ArtBuild(ArtBase):
             for job_result in job_results:
                 test_name = job_result[0]
                 status[package][test_name]['exit_code'] = job_result[1]
-                status[package][test_name]['out'] = job_result[2]
-                status[package][test_name]['err'] = job_result[3]
+                # Removed, seem to give empty lines
+                # status[package][test_name]['out'] = job_result[2]
+                # status[package][test_name]['err'] = job_result[3]
+                fname = os.path.join(test_directory, test_name)
+                status[package][test_name]['description'] = ArtHeader(fname).get(ArtHeader.ART_DESCRIPTION)
                 status[package][test_name]['test_directory'] = test_directory
 
                 # gather results
@@ -73,9 +81,9 @@ class ArtBuild(ArtBase):
                 log.debug("Looking for results for test %s", test_name)
                 with open(os.path.join(sequence_tag, package, os.path.splitext(test_name)[0], 'stdout.txt'), 'r') as f:
                     output = f.read()
-                    result = self.get_art_results(output)
+                    result = ArtBase.get_art_results(output)
 
-                status[package][job_result[0]]['result'] = result
+                status[package][test_name]['result'] = result
 
         mkdir_p(sequence_tag)
         with open(os.path.join(sequence_tag, "status.json"), 'w') as outfile:
@@ -84,7 +92,7 @@ class ArtBuild(ArtBase):
         return 0
 
     def task(self, package, job_type, sequence_tag):
-        """TBD."""
+        """Run tests of a single package."""
         log = logging.getLogger(MODULE)
         log.debug("task %s %s %s", package, job_type, sequence_tag)
         test_directories = self.get_test_directories(self.script_directory)
@@ -111,24 +119,32 @@ class ArtBuild(ArtBase):
                 log.warning("job skipped, file not executable: %s", fname)
 
             if schedule_test:
-                scheduler.add_task(task_name="t" + str(index), dependencies=[], description="d", target_function=run_job, function_kwargs={'art_directory': self.art_directory, 'sequence_tag': sequence_tag, 'script_directory': self.script_directory, 'package': package, 'job_type': job_type, 'index': index, 'test_name': test_name, 'nightly_release': self.nightly_release, 'project': self.project, 'platform': self.platform, 'nightly_tag': self.nightly_tag})
+                scheduler.add_task(task_name="t" + str(index), dependencies=[], description="d", target_function=run_job, function_kwargs={'art_directory': self.art_directory, 'sequence_tag': sequence_tag, 'script_directory': self.script_directory, 'package': package, 'job_type': job_type, 'job_index': index, 'test_name': test_name})
             index += 1
 
         result = scheduler.run()
         return result
 
-    def job(self, package, job_type, sequence_tag, index, out):
-        """TBD."""
+    def job(self, sequence_tag, package, out, job_type, job_index):
+        """Run a single test."""
         log = logging.getLogger(MODULE)
-        log.debug("job %s %s %s %d %s", package, job_type, sequence_tag, index, out)
+        log.debug("ArtBuild job %s %s %s %d %s", package, job_type, sequence_tag, job_index, out)
         test_directories = self.get_test_directories(self.script_directory)
         test_directory = os.path.abspath(test_directories[package])
-        test_name = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform)[int(index)]
+        test_name = self.get_files(test_directory, job_type, "all", self.nightly_release, self.project, self.platform)[int(job_index)]
 
         work_directory = os.path.join(sequence_tag, package, os.path.splitext(test_name)[0])
         mkdir_p(work_directory)
 
-        (exit_code, output, err) = run_command(' '.join((os.path.join(test_directory, test_name), '.', package, job_type, test_name, self.nightly_release, self.project, self.platform, self.nightly_tag)), dir=work_directory)
+        # Tests are called with arguments: PACKAGE TEST_NAME SCRIPT_DIRECTORY TYPE
+        script_directory = '.'
+        env = os.environ.copy()
+        env['ArtScriptDirectory'] = script_directory
+        env['ArtPackage'] = package
+        env['ArtJobType'] = job_type
+        env['ArtJobName'] = test_name
+        cmd = ' '.join((os.path.join(test_directory, test_name), package, test_name, script_directory, job_type))
+        (exit_code, output, err) = run_command(cmd, dir=work_directory, env=env)
 
         with open(os.path.join(work_directory, "stdout.txt"), "w") as text_file:
             text_file.write(output)

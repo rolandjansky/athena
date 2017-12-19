@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-"""TBD."""
+"""Base class for grid and (local) build submits."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
@@ -10,56 +10,57 @@ import json
 import logging
 import os
 import re
-import yaml
 
 try:
     import scandir as scan
 except ImportError:
     import os as scan
 
-from art_misc import is_exe, run_command
+from art_configuration import ArtConfiguration
+# from art_diff import ArtDiff
 from art_header import ArtHeader
+from art_misc import is_exe, run_command
 
 MODULE = "art.base"
 
 
 class ArtBase(object):
-    """TBD."""
+    """Base class for grid and (local) build submits."""
 
     def __init__(self, art_directory):
-        """TBD."""
+        """Keep arguments."""
         self.art_directory = art_directory
 
     def task_list(self, job_type, sequence_tag):
-        """TBD."""
+        """Default implementation."""
         self.not_implemented()
 
     def task(self, package, job_type, sequence_tag):
-        """TBD."""
+        """Default implementation."""
         self.not_implemented()
 
     def job(self, package, job_type, sequence_tag, index, out):
-        """TBD."""
+        """Default implementation."""
         self.not_implemented()
 
     def compare(self, package, test_name, days, file_names):
-        """TBD."""
+        """Default implementation."""
         self.not_implemented()
 
     def list(self, package, job_type, json_format=False):
-        """TBD."""
+        """Default implementation."""
         self.not_implemented()
 
     def log(self, package, test_name):
-        """TBD."""
+        """Default implementation."""
         self.not_implemented()
 
     def output(self, package, test_name, file_name):
-        """TBD."""
+        """Default implementation."""
         self.not_implemented()
 
     def validate(self, script_directory):
-        """TBD."""
+        """Validate all tests in given script_directory."""
         log = logging.getLogger(MODULE)
         directories = self.get_test_directories(script_directory.rstrip("/"))
 
@@ -82,7 +83,7 @@ class ArtBase(object):
         return 0
 
     def included(self, script_directory, job_type, index_type, nightly_release, project, platform):
-        """TBD."""
+        """Print all included tests for these arguments."""
         log = logging.getLogger(MODULE)
         directories = self.get_test_directories(script_directory.rstrip("/"))
         for directory in directories.itervalues():
@@ -93,51 +94,45 @@ class ArtBase(object):
                     log.info("%s %s", test_name, ArtHeader(test_name).get(ArtHeader.ART_INCLUDE))
         return 0
 
-    def download(self, input_file):
-        """TBD."""
-        return self.get_input(input_file)
-
-    def diff_pool(self, file_name, ref_file):
-        """TBD."""
-        import PyUtils.PoolFile as PF
-
-        # diff-pool
-        df = PF.DiffFiles(refFileName=ref_file, chkFileName=file_name, ignoreList=['RecoTimingObj_p1_RAWtoESD_timings', 'RecoTimingObj_p1_ESDtoAOD_timings'])
-        df.printSummary()
-        stat = df.status()
-        print stat
-        del df
-
-        return stat
-
-    def diff_root(self, file_name, ref_file, entries=-1):
-        """TBD."""
+    def config(self, package, nightly_release, project, platform, config):
+        """Show configuration."""
         log = logging.getLogger(MODULE)
+        config = ArtConfiguration(config)
+        keys = config.keys(nightly_release, project, platform, package)
+        for key in keys:
+            log.info("%s %s", key, config.get(nightly_release, project, platform, package, key))
+        return 0
 
-        # diff-root
-        (code, out, err) = run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings --entries " + str(entries))
-        if code != 0:
-            log.error("Error: %d", code)
-            print(err)
-
-        log.info(out)
-        return code
+    def download(self, input_file):
+        """Download input_file from RUCIO."""
+        return self.get_input(input_file)
 
     #
     # Default implementations
     #
-    def compare_ref(self, file_name, ref_file, entries=-1):
+    def compare_ref(self, path, ref_path, entries=-1):
         """TBD."""
         result = 0
-        result |= self.diff_pool(file_name, ref_file)
 
-        result |= self.diff_root(file_name, ref_file, entries)
+        (exit_code, out, err) = run_command(' '.join(("art-diff.py", "--diff-type=diff-pool", path, ref_path)))
+        if exit_code != 0:
+            result |= exit_code
+            print err
+        print out
+
+        (exit_code, out, err) = run_command(' '.join(("art-diff.py", "--diff-type=diff-root", "--entries=" + str(entries), path, ref_path)))
+        if exit_code != 0:
+            result |= exit_code
+            print err
+        print out
+
         return result
 
     #
     # Protected Methods
     #
-    def get_art_results(self, output):
+    @staticmethod
+    def get_art_results(output):
         """
         Extract art-results.
 
@@ -160,16 +155,6 @@ class ArtBase(object):
                         result.append({'name': '', 'result': item})
 
         return result
-
-    def get_config(self):
-        """Retrieve dictionary of ART configuration file, or None if file does not exist."""
-        try:
-            config_file = open("art-configuration.yml", "r")
-            config = yaml.load(config_file)
-            config_file.close()
-            return config
-        except IOError:
-            return None
 
     def get_files(self, directory, job_type=None, index_type="all", nightly_release=None, project=None, platform=None):
         """
@@ -224,6 +209,8 @@ class ArtBase(object):
         """
         result = {}
         for root, dirs, files in scan.walk(directory):
+            # exclude some directories
+            dirs[:] = [d for d in dirs if not d.endswith('_test.dir')]
             if root.endswith('/test'):
                 package = os.path.basename(os.path.dirname(root))
                 result[package] = root
@@ -274,5 +261,5 @@ class ArtBase(object):
     # Private Methods
     #
     def not_implemented(self):
-        """TBD."""
+        """Default Not Implemented Method."""
         raise NotImplementedError("Class %s doesn't implement method: %s(...)" % (self.__class__.__name__, inspect.stack()[1][3]))
