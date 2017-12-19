@@ -19,8 +19,8 @@
 #include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/assign/list_of.hpp>
-#include "SGTools/CLASS_DEF.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/ClassName.h"
 
 
 #include "DataVector_test.icc"

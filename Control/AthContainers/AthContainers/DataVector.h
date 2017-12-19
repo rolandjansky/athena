@@ -572,7 +572,7 @@
 #  define SG_VIRTUAL(X) X
 # endif // not SG_VIRTUAL
 #else
-# include "SGTools/BaseInfo.h"
+# include "AthenaKernel/BaseInfo.h"
 #endif
 
 
@@ -3363,7 +3363,7 @@ namespace SG {
  * @brief Metafunction to find the proper @c DataBucket class for @c T.
  *
  * Specialize this for @c DataVector.
- * See SGTools/StorableConversions.h for an explanation.
+ * See AthenaKernel/StorableConversions.h for an explanation.
  */
 template <class T, class U>
 struct DataBucketTrait<DataVector<T>, U>

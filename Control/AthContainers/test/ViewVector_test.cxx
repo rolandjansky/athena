@@ -19,9 +19,9 @@
 #include "AthContainers/ViewVector.h"
 #include "AthContainers/ConstDataVector.h"
 #include "AthContainers/DataVector.h"
-#include "SGTools/BaseInfo.h"
 #include "SGTools/TestStore.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
 #include "CxxUtils/checker_macros.h"
 #include <iostream>
