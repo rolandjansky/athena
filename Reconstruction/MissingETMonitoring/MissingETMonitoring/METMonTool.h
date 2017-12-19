@@ -13,7 +13,9 @@
 
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "GaudiKernel/ITHistSvc.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+
+//#include "GaudiKernel/ITHistSvc.h"
 #include "JetInterface/IJetSelector.h"
 #include <string>
 #include <vector>
@@ -64,6 +66,9 @@ class METMonTool : public ManagedMonitorToolBase
     StatusCode procHistograms( );
 
   protected:
+
+    ToolHandle<GenericMOnitoringTool> m_genTool{ this, "GenTool",  "", "Generic monitoring tool" };
+
   
     std::string m_suffix;
     
@@ -149,7 +154,7 @@ class METMonTool : public ManagedMonitorToolBase
 
     ToolHandle<IJetSelector> m_selTool; /// used only if m_selType == FromTool
 
-    ITHistSvc * m_thistSvc;   
+    //ITHistSvc * m_thistSvc;   // TB ServiceHandle? 
   private:
 
     float m_Pi;
