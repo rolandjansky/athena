@@ -13,13 +13,10 @@
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "xAODTruth/TruthParticleContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
-
-class StoreGate;
-class StoreGateSvc;
-
+#include "StoreGate/ReadHandleKey.h"
 
 class MuonPerformanceAlg : public AthAlgorithm {
  public:
@@ -48,7 +45,7 @@ class MuonPerformanceAlg : public AthAlgorithm {
   std::ofstream  m_fileOutput;  
 
   // Containers
-  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsNameKey;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsNameKey{this,"MuonContainerName","Muons","muon container"};
   unsigned int                    m_nevents;
   std::vector<std::string>        m_hitCutString;
   std::vector<int>                m_ntruth;
@@ -64,9 +61,8 @@ class MuonPerformanceAlg : public AthAlgorithm {
   std::vector<int>                m_nreco5;
   std::vector<int>                m_nreco10;
 
-  ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
-  //StoreGateSvc*       m_storeGate;
-  const xAOD::EventInfo*    m_eventInfo; 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","MCEventInfo","event info"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthMuons{this,"TruthMuons","MuonTruthParticles","truth muons"};
 
   int m_runNumber;
   int m_eventNumber;
