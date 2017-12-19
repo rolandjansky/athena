@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 
 #ifndef AFP_GEOMETRY_H
 #define AFP_GEOMETRY_H 1
@@ -21,11 +17,6 @@
 #include <vector>
 #include <string>
 
-enum eStationElement { ESE_RPOT, ESE_SID, ESE_TOF};
-enum eSIDTransformType { ESTT_SUPPORT, ESTT_PLATE, ESTT_SENSOR, ESTT_VACUUMSENSOR, ESTT_SENSORLOCAL, ESTT_SENSORGLOBAL };
-enum eAFPStation { EAS_UNKNOWN=-1, EAS_AFP00=0, EAS_AFP01=1, EAS_AFP02=2, EAS_AFP03=3 };
-
-
 class AFP_Geometry
 {
 
@@ -41,17 +32,21 @@ public:
 public:
 	void GetCfgParams(PAFP_CONFIGURATION pCfgParams) const { *pCfgParams=m_CfgParams; }
 	HepGeom::Transform3D GetStationTransform(const char* pszStationName); //in world
-	HepGeom::Transform3D GetStationElementTransform(const char* pszStationName, eStationElement eElement); //in station
+	HepGeom::Transform3D GetStationElementTransform(const char* pszStationName, eStationElement eElement, const int nPlateID=-1); //in station
 
 public:
 	//SID detector
-	int GetSIDPlatesCnt() const { return m_CfgParams.sidcfg.fLayerCount; }
-	HepGeom::Transform3D GetSIDTransform(const eSIDTransformType eType, const char* pszStationName, const int nPlateIndex); // in station
+	int GetSIDPlatesCnt(const eAFPStation eStation) { return m_CfgParams.sidcfg[eStation].fLayerCount; }
+	HepGeom::Transform3D GetSIDTransform(const eSIDTransformType eType, const char* pszStationName, const int nPlateID); // in station
 	StatusCode GetPointInSIDSensorLocalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& GlobalPoint, HepGeom::Point3D<double>& LocalPoint);
 	StatusCode GetPointInSIDSensorGlobalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& LocalPoint, HepGeom::Point3D<double>& GlobalPoint);
-
-private:
 	eAFPStation ParseStationName(const char* pszStationName);
+
+	//TOF detector
+	void SetupLBarsDims(const eAFPStation eStation);
+	void GetPixelLocalPosition(const eAFPStation eStation, const int nPixelID, double* pfX1Pos, double* pfX2Pos);
+	int GetPixelRow(const int nPixelID) { return (nPixelID-(nPixelID%10))/10; }
+	int GetPixelColumn(const int nPixelID) { return nPixelID%10; }
 
 };
 
