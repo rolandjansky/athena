@@ -13,21 +13,23 @@ namespace G4UA
   CosmicPerigeeActionTool::CosmicPerigeeActionTool(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface* parent)
-    : ActionToolBase<CosmicPerigeeAction>(type, name, parent)
+    : UserActionToolBase<CosmicPerigeeAction>(type, name, parent)
   {
-    declareInterface<IG4SteppingActionTool>(this);
-    declareInterface<IG4EventActionTool>(this);
-    declareInterface<IG4TrackingActionTool>(this);
     declareProperty("pMinPrimary", m_config.pMinPrimary);
   }
 
   //---------------------------------------------------------------------------
   // Create the action on request
   //---------------------------------------------------------------------------
-  std::unique_ptr<CosmicPerigeeAction> CosmicPerigeeActionTool::makeAction()
+  std::unique_ptr<CosmicPerigeeAction>
+  CosmicPerigeeActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<CosmicPerigeeAction>(m_config);
+    ATH_MSG_DEBUG("Creating CosmicPerigeeAction");
+    auto action = std::make_unique<CosmicPerigeeAction>(m_config);
+    actionList.eventActions.push_back( action.get() );
+    actionList.trackingActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 }

@@ -11,8 +11,6 @@
 #include <vector>
 #include <iostream>
 
-using MuonGM::MM_Technology;
-
 struct MMReadoutParameters {
     double stripPitch;
     double gasThickness;
@@ -46,7 +44,7 @@ public:
 	void ylFrame(double y) {m_ylFrame=y;}
 	double ylFrame() const {return m_ylFrame;}
 
-	MM_Technology* GetTechnology();
+        MuonGM::MM_Technology* GetTechnology();
 
 	MMReadoutParameters roParameters;
 	

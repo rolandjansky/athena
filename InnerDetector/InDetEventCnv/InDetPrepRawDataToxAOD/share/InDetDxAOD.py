@@ -30,6 +30,9 @@ dumpBytestreamErrors=InDetDxAODFlags.DumpByteStreamErrors() #True
 # Unassociated hits decorations
 dumpUnassociatedHits= InDetDxAODFlags.DumpUnassociatedHits() #True
 
+# Add LArCollisionTime augmentation tool
+dumpLArCollisionTime=InDetDxAODFlags.DumpLArCollisionTime() #True
+
 # Force to do not dump truth info if set to False
 #  (otherwise determined by autoconf below)
 dumpTruthInfo=InDetDxAODFlags.DumpTruthInfo() # True
@@ -480,6 +483,25 @@ if dumpUnassociatedHits:
     if (printIdTrkDxAODConf):
         print unassociatedHitsDecorator
         print unassociatedHitsDecorator.properties()
+
+# Add LArCollisionTime augmentation tool
+if dumpLArCollisionTime:
+    from LArCellRec.LArCollisionTimeGetter import LArCollisionTimeGetter
+    from RecExConfig.ObjKeyStore           import cfgKeyStore
+    # We can only do this if we have the cell container.
+    if cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo'):
+        LArCollisionTimeGetter (IDDerivationSequence)
+
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__LArCollisionTimeDecorator
+        lArCollisionTimeDecorator = DerivationFramework__LArCollisionTimeDecorator (name ='lArCollisionTimeDecorator',
+                                                                                    ContainerName = "EventInfo",
+                                                                                    DecorationPrefix = prefixName+"LArCollTime_",
+                                                                                    OutputLevel =INFO)
+        ToolSvc += lArCollisionTimeDecorator
+        augmentationTools+=[lArCollisionTimeDecorator]
+        if (printIdTrkDxAODConf):
+            print lArCollisionTimeDecorator
+            print lArCollisionTimeDecorator.properties()
 
 # Add decoration with truth parameters if running on simulation
 if isIdTrkDxAODSimulation:

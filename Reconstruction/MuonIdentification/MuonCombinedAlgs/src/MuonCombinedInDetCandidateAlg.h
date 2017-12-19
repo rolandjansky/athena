@@ -33,6 +33,8 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm
 
  private:
   bool m_doSiliconForwardMuons;
+
+  float m_extThreshold;
   
   SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
   SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_indetForwardTrackParticleLocation;

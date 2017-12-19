@@ -24,6 +24,7 @@
 #include "AthLinks/ElementLink.h"
 #include "CxxUtils/unused.h"
 #include "boost/preprocessor/stringize.hpp"
+#include <atomic>
 
 
 /**
@@ -305,7 +306,8 @@ struct ClassID_traits< ViewVector<DV> >
   static const CLID& ID() {
     if (s_clid == CLID_NULL)
       SG::throwExcMissingViewVectorCLID (typeid(ViewVector<DV>));
-    return s_clid;
+    static const CLID clid = s_clid;
+    return clid;
   }
   static const char* typeNameString() {
     if (s_name == nullptr)
@@ -334,14 +336,14 @@ struct ClassID_traits< ViewVector<DV> >
     return true;
   }
 private:
-  static CLID s_clid;
-  static const char* s_name;
+  static std::atomic<CLID> s_clid;
+  static std::atomic<const char*> s_name;
 };
 
 template <class DV>
-CLID ClassID_traits< ViewVector<DV> >::s_clid = CLID_NULL;
+std::atomic<CLID> ClassID_traits< ViewVector<DV> >::s_clid { CLID_NULL };
 template <class DV>
-const char* ClassID_traits< ViewVector<DV> >::s_name = nullptr;
+std::atomic<const char*> ClassID_traits< ViewVector<DV> >::s_name { nullptr };
 #endif // not XAOD_STANDALONE
 
 

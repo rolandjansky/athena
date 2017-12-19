@@ -16,7 +16,8 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 #athenaCommonFlags.FilesInput = glob( "ESD_*root" )
 #athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_fulldet.ESD.pool.root"]
 #athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_z0150_fulldet.ESD.pool.root"]
-athenaCommonFlags.FilesInput = ["root://eosatlas.cern.ch//eos/atlas/user/z/zhubacek/FastCaloSim/ForMichael/ESD_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.pool.root"]
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/ForMichael/ESD_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.pool.root"]
+athenaCommonFlags.FilesInput = ["/afs/cern.ch/work/a/ahasib/public/photon.50GeV.ESD.pool.root"]
 
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 
@@ -56,7 +57,13 @@ ISF_HitAnalysis.CaloBoundaryZ = 3549.5 #before: 3475.0
 ISF_HitAnalysis.CaloMargin=100 #=10cm
 ISF_HitAnalysis.NTruthParticles = 1 # Copy only one truth particle to the ntuples for now
 #ISF_HitAnalysis.OutputLevel = WARNING
-ISF_HitAnalysis.OutputLevel = ERROR
+ISF_HitAnalysis.SaveAllBranches = False
+ISF_HitAnalysis.DoAllCells = False
+ISF_HitAnalysis.DoLayers = True
+ISF_HitAnalysis.DoLayerSums = True
+ISF_HitAnalysis.DoG4Hits = False
+ISF_HitAnalysis.TimingCut = 999999
+ISF_HitAnalysis.OutputLevel = DEBUG
 
 #############################
 ##### NEW TRACKING SETUP ####

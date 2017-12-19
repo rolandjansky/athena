@@ -7,9 +7,9 @@ atlas_subdir( TBEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthLinks
+                          Control/AthContainers
                           GaudiKernel
                           LArCalorimeter/LArRawEvent )
 
@@ -24,12 +24,12 @@ atlas_add_library( TBEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} DataModel SGTools GaudiKernel LArRawEvent
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthLinks AthContainers AthenaKernel GaudiKernel LArRawEvent
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( TBEventDict
                       TBEvent/TBEventDict.h
                       TBEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModel SGTools GaudiKernel LArRawEvent TBEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthContainers GaudiKernel LArRawEvent TBEvent )
 

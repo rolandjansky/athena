@@ -20,7 +20,7 @@ DATE:		January 14th, 2009
 // for printing out
 #include <iostream>
 #include "GaudiKernel/MsgStream.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /** Number of EM Samples */
 const int NUMEMSAMP = 4;
