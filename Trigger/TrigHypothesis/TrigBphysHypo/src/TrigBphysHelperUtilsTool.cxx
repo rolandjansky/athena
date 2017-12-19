@@ -409,7 +409,8 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
     xAOD::Vertex * vx(0);
     if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
-    
+    TLorentzVector tracks_p;
+
     if (!vx){
         if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endmsg;
         
@@ -419,7 +420,9 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         result->setFitx        (-9999);
         result->setFity        (-9999);
         result->setFitz        (-9999);
-        
+        result->setEta         (-9999);
+        result->setPhi         (-9999);
+    
     } else {
         std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
@@ -429,12 +432,17 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
             invariantMass = -9999.;
         } // if
         
+        for (unsigned int i_track =0; i_track < vx->nTrackParticles(); i_track++)
+            tracks_p = vx->trackParticle(i_track)->p4() + tracks_p;
+
         result->setFitmass     (invariantMass);
         result->setFitchi2     (vx->chiSquared());
         result->setFitndof     (vx->numberDoF());
         result->setFitx        (vx->x());
         result->setFity        (vx->y());
         result->setFitz        (vx->z());
+        result->setEta         (tracks_p.Eta());
+        result->setPhi         (tracks_p.Phi()); 
         
         delete vx; vx = 0;
     } // if vx
@@ -477,7 +485,8 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
     xAOD::Vertex * vx(0);
     if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
-    
+    TLorentzVector tracks_p;
+
     if (!vx){
         if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endmsg;
         
@@ -487,7 +496,9 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         result->setFitx        (-9999);
         result->setFity        (-9999);
         result->setFitz        (-9999);
-        
+        result->setEta         (-9999);
+        result->setPhi         (-9999);
+
     } else {
         std::vector<int> trkIndices(trks.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
@@ -497,13 +508,18 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
             invariantMass = -9999.;
         } // if
         
+        for (unsigned int i_track =0; i_track < vx->nTrackParticles(); i_track++)
+            tracks_p = vx->trackParticle(i_track)->p4() + tracks_p;
+
         result->setFitmass     (invariantMass);
         result->setFitchi2     (vx->chiSquared());
         result->setFitndof     (vx->numberDoF());
         result->setFitx        (vx->x());
         result->setFity        (vx->y());
         result->setFitz        (vx->z());
-        
+        result->setEta         (tracks_p.Eta());
+        result->setPhi         (tracks_p.Phi());
+
         delete vx; vx = 0;
     } // if vx
     if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG <<
