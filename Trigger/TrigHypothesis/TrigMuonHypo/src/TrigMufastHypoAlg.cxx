@@ -10,9 +10,6 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/TrigMufastHypoAlg.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 using namespace TrigCompositeUtils; 
 
 // --------------------------------------------------------------------------------
@@ -27,7 +24,6 @@ TrigMufastHypoAlg::TrigMufastHypoAlg( const std::string& name,
    declareProperty("RoIs", m_roiKey = std::string("RoIs"), "TrigRoiDescriptor RoIs to read in");
    declareProperty("Decisions", m_decisionsKey = std::string("TrigMufastHypoAlgDesicions"), "Decisions");
    declareProperty("L1Decisions", m_previousDecisionsKey = std::string("L1Decisions"), "Key for L1 decisions per RoI");
-   declareProperty("HypoTools", m_hypoTools, "Hypo Tools");
 } 
 
 TrigMufastHypoAlg::~TrigMufastHypoAlg() 
@@ -134,7 +130,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
         ATH_MSG_ERROR("ReadHandle for TrigRoiDescriptorCollection key:" << m_roiKey.key() << " isn't Valid");
         return StatusCode::FAILURE;
       } else {
-        d->setObjectLink( "feature", element );
+        d->setObjectLink( "roi", element );
         ATH_MSG_DEBUG("REGTEST: " << m_roiKey.key() << " eta/phi = " << (*element)->eta() << "/" << (*element)->phi());
       }
     }
