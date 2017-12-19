@@ -109,6 +109,20 @@ if InDetFlags.doTrackSegmentsPixelPrdAssociation():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
    
+if InDetFlags.doTrackSegmentsPixelFourLayer():
+  if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList+=["TrackCollection#"+InDetKeys.PixelFourLayerTracks()]
+  if InDetFlags.doTruth():
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelFourLayerTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelFourLayerTracks()+'DetailedTruth']   
+   
+if InDetFlags.doTrackSegmentsPixelThreeLayer():
+  if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList+=["TrackCollection#"+InDetKeys.PixelThreeLayerTracks()]
+  if InDetFlags.doTruth():
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelThreeLayerTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelThreeLayerTracks()+'DetailedTruth']   
+   
 # Add TRT Segments (only if standalone is off).
 # -----------------
 if not InDetFlags.doTRTStandalone():
@@ -170,6 +184,12 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsPixelPrdAssociation():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelFourLayer():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelFourLayerTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelFourLayerTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelThreeLayer():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsSCT():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSCTTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSCTTrackParticleContainer()+'Aux.' + excludedAuxData]
