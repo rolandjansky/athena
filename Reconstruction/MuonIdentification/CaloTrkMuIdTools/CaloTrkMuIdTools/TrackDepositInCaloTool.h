@@ -146,10 +146,12 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     */
     StatusCode bookHistos();
 
-    const CaloCell* getClosestCellLAr(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const;
+    const CaloCell* getClosestCellLAr(const Trk::TrackParameters* par, const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) const;
     const CaloCell* getClosestCellTile(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const;
-    std::vector<const CaloCell*>* getCaloCellsForLayer(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, const Trk::TrackParameters* parExit) const;
-    std::vector<const CaloCell*>* getCaloCellsForTile(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, const Trk::TrackParameters* parExit) const;
+    std::vector<const CaloCell*>* getCaloCellsForLayer(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, 
+						       const Trk::TrackParameters* parExit, const CaloCellContainer* caloCellCont) const;
+    std::vector<const CaloCell*>* getCaloCellsForTile(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, 
+						      const Trk::TrackParameters* parExit, const CaloCellContainer* caloCellCont) const;
 
     const Trk::TrackParameters* extrapolateToEntranceOfLayer(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const;
 	  const Trk::TrackParameters* extrapolateToExitOfLayer(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const;
@@ -174,9 +176,8 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
     
     // Members
-    mutable const CaloCellContainer*    m_cellContainer;                       //!< CaloCell container.
+    const CaloCellContainer*    m_cellContainer;                       //!< CaloCell container.
 
-    std::string     m_cellContainerName;                                       //!< CaloCell container key.
     bool            m_doExtr;                                                  //!< Flag to perform extrapolations using m_extrapolator
     bool            m_doHist;                                                  //!< Flag to write histograms to track performance
     bool            m_debugMode;                                               //!< Flag to run in specialized debug mode

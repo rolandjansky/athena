@@ -48,7 +48,6 @@ private:
   mutable int       m_cnt_warn;
 
   std::vector<std::string>  m_fileNames;
-  std::string               m_caloClusterContainerName;
 
   ToolHandle<ITrackEnergyInCaloTool>  m_trkEnergyInCalo;
 };
