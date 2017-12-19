@@ -90,7 +90,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
 void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
     plot()->setDetail(m_detailedHists);
     // Detail for tools needs to be reset for every call in Analysis
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setDetail(m_detailedHists); 
     }
 }
@@ -101,14 +101,14 @@ void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
 
 void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
     plot()->setTP(m_tp);
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setTP(m_tp);
     }
 }
 
 void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
     plot()->setEmulation(m_doEmulation);
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setEmulation(m_doEmulation);
         ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
         tool->setEmulationTool(m_emulationTool);
@@ -175,7 +175,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
 
     // propagate the emulation tool for all tools
     if( m_doEmulation ){
-      for( const auto& tool : m_tools) {
+      for( auto& tool : m_tools) {
         ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );
         tool->setEmulationTool(m_emulationTool);  
       }
@@ -201,7 +201,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
 
 StatusCode TrigEgammaAnalysisBaseTool::book() {
     StatusCode sc = StatusCode::FAILURE;
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setPlotTool(m_plot);
     }
 
@@ -247,7 +247,7 @@ StatusCode TrigEgammaAnalysisBaseTool::finalize() {
 
     ATH_MSG_VERBOSE( "Finalizing tool " << name() );
     StatusCode sc;
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         try {
             ATH_MSG_DEBUG("child Finalize " << tool->name());
             sc = tool->childFinalize();
