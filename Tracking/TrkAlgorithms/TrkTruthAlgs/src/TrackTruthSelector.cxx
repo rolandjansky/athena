@@ -62,8 +62,8 @@ StatusCode TrackTruthSelector::execute() {
 
   fillOutput(out,detailed);
 
-  ATH_CHECK(wh_output.record(std::make_unique<TrackTruthCollection>(*out)));
-  
+  ATH_CHECK(wh_output.record(std::unique_ptr<TrackTruthCollection>(out)));
+
   return StatusCode::SUCCESS;
 
 }
