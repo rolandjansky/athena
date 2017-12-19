@@ -14,7 +14,7 @@
 #include "TrigConfHLTData/HLTUtils.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 
-// Trigger daata
+// Trigger data
 #include "TrigMonitoringEvent/TrigMonConfigCollection.h"
 #include "TrigMonitoringEvent/TrigMonEventCollection.h"
 #include "TrigNavigation/Navigation.h"
@@ -502,7 +502,7 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
   }
 
   for(TrigMonConfigCollection::const_iterator it = configCol->begin(); it != configCol->end(); ++it) {
-    TrigMonConfig *ptr = *it;
+    const TrigMonConfig *ptr = *it;
     if(!ptr) continue;
 
     // Have we already saved this config?
@@ -515,7 +515,8 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
     //
     const std::vector<uint32_t> &ids = ptr->getVarId();
     if(!std::count(ids.begin(), ids.end(), appId)) {
-      ptr->add<TrigConfVar>(TrigConfVar(appName, appId));
+      // FIXME: const_cast changing SG
+      const_cast<TrigMonConfig*>(ptr)->add<TrigConfVar>(TrigConfVar(appName, appId));
       if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Attaching App Name map to Config " << appName << " = " << appId << endmsg;
     }
 
@@ -568,14 +569,16 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
   std::vector<uint32_t>    &vals = globalConfig->getVarId();
 
   for(TrigMonEventCollection::const_iterator it = eventCol->begin(); it != eventCol->end(); ++it) {
-    TrigMonEvent *ptr = *it;
+    const TrigMonEvent *ptr = *it;
     if(!ptr) continue;
 
     // Add my HLT node
-    ptr->addWord(appId); //Backward compatability
+    // FIXME: const_cast changing SG
+    const_cast<TrigMonEvent*>(ptr)->addWord(appId); //Backward compatability
 
     if(fill_size) {
-      ptr->addVar(Trig::kEventBufferSize, float(eventCol->size()));
+      // FIXME: const_cast changing SG
+      const_cast<TrigMonEvent*>(ptr)->addVar(Trig::kEventBufferSize, float(eventCol->size()));
       fill_size = false;
     }
     
@@ -604,7 +607,8 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
         log() << MSG::INFO << "Reading lumi length" << endmsg;
         m_readLumiBlock.updateLumiBlocks( ptr->getRun() );
       }
-      ptr->addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
+      // FIXME: const-cast changing SG
+      const_cast<TrigMonEvent*>(ptr)->addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
       if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Decorating Event:" << ptr->getEvent() << "  LB:"<< ptr->getLumi()<<" with LB Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endmsg;
       std::string msg = m_readLumiBlock.infos();
       if (msg.size()) log() << MSG::INFO << msg;
