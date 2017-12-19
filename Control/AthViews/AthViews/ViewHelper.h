@@ -36,7 +36,7 @@ namespace ViewHelper
   //Function to create a vector of views, each populated with one data object
   template< typename T >
   inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
-                                     SG::WriteHandleKey< T > & PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool allowFallThrough=true )
+                                     SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool const allowFallThrough=true )
   {
     //Make a WriteHandle to use
     SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
@@ -72,8 +72,8 @@ namespace ViewHelper
 
   //Function to add data to existing views
   template< typename T >
-  inline StatusCode Populate( std::vector< SG::View* > & ViewVector,
-                              SG::WriteHandleKey< T > & PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData )
+  inline StatusCode Populate( std::vector< SG::View* > const& ViewVector,
+                              SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData )
   {
     //Make a WriteHandle to use
     SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
@@ -178,7 +178,7 @@ namespace ViewHelper
   // a variant of RunViews accepting ready to use contexts
   // useful when contexts neeed to be made anyways for the purpose of filling the handles
   // to avoid confusion it start from small run
-  inline StatusCode runInViews( std::vector<EventContext>& contexts, const std::vector< std::string >& algorithms, SmartIF< IService > & algPool) {
+  inline StatusCode runInViews( std::vector<EventContext> & contexts, const std::vector< std::string >& algorithms, SmartIF< IService > & algPool) {
 
     if ( contexts.empty() )
     return StatusCode::SUCCESS;
@@ -198,7 +198,7 @@ namespace ViewHelper
 
   //Function merging view data into a single collection
   template< typename T >
-  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< T > & QueryKey, EventContext const& SourceContext, T & OutputData )
+  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< T > const& QueryKey, EventContext const& SourceContext, T & OutputData )
   {
     //Make a ReadHandle to use
     SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
@@ -224,7 +224,7 @@ namespace ViewHelper
 
   //Function merging view data into a single collection - overload for datavectors because aux stores are annoying
   template< typename T >
-  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< DataVector< T > > & QueryKey, EventContext const& SourceContext, DataVector< T > & OutputData )
+  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< DataVector< T > > const& QueryKey, EventContext const& SourceContext, DataVector< T > & OutputData )
   {
     //Make a ReadHandle to use
     SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
@@ -261,7 +261,7 @@ namespace ViewHelper
   /**
    * @arg unique_index - gets appended to the view name if >= 0
    */
-  inline SG::View* makeView( const std::string& common_name, int unique_index=-1, bool allowFallThrough = true) {
+  inline SG::View* makeView( const std::string& common_name, int const unique_index=-1, bool const allowFallThrough = true) {
     return  (( unique_index == -1 ) ?
     new SG::View( common_name, allowFallThrough ) :
     new SG::View( common_name+ " "+std::to_string(unique_index), allowFallThrough ) );
