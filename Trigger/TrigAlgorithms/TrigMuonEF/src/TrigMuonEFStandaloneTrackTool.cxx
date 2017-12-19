@@ -1767,10 +1767,11 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 
 
       const Trk::Track* trk = *itTrk;
-      // create track particle
+      // create track particle - this is needed because later on we use the track particle container (m_spectrometerTrackParticles)
+      // for the extrapolation of the muons
       const ElementLink<TrackCollection> trackLink(*m_spectrometerTracks, nTrack);
-      xAOD::TrackParticle* trackparticle = m_TrackToTrackParticleConvTool->createParticle( trackLink, m_spectrometerTrackParticles, 0, xAOD::muon);
-      if(trackparticle) ATH_MSG_VERBOSE("Trackparticle successfully created");
+      m_TrackToTrackParticleConvTool->createParticle( trackLink, m_spectrometerTrackParticles, 0, xAOD::muon);
+
 
       ATH_MSG_DEBUG("REGTEST MuonEF - track " << nTrack
 		    << " has Author " << trk->info().dumpInfo());
