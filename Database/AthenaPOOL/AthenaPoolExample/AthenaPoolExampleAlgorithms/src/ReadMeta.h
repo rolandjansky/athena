@@ -35,6 +35,16 @@ public:
    StatusCode initialize();
    StatusCode finalize();
 
+   /// Function called when a new input file is opened
+   virtual StatusCode beginInputFile();
+
+   /// Function called when the currently open input file got completely
+   /// processed
+   virtual StatusCode endInputFile() {return StatusCode::SUCCESS;}
+
+   /// Function called when the tool should write out its metadata
+   virtual StatusCode metaDataStop() {return StatusCode::SUCCESS;}
+
    /// Incident service handle listening for BeginInputFile and EndInputFile.
    void handle(const Incident& incident);
 
