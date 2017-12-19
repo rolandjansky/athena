@@ -95,7 +95,7 @@ HLT::ErrorCode MufastOTRHypo::hltFinalize(){
 
 
 std::pair<unsigned int, int> 
-MufastOTRHypo::getRoIFeature(uint32_t roiWord) const {
+MufastOTRHypo::getRoIFeature(uint32_t roiWord) {
  
     int BCID_diff = 0;
     unsigned int sysID = 0;
