@@ -45,11 +45,11 @@ BPHY10JpsiFinder = Analysis__JpsiFinder(
     muAndTrack                  = False,
     TrackAndTrack               = False,
     assumeDiMuons               = True, 
-    invMassUpper                = 3600.0,
+    invMassUpper                = 4000.0,
     invMassLower                = 2600.0,
-    Chi2Cut                     = 30.,
-    oppChargesOnly	            = True,
-    combOnly		    = True,
+    Chi2Cut                     = 200.,
+    oppChargesOnly	        = True,
+    combOnly		        = True,
     atLeastOneComb              = False,
     useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
     muonCollectionKey           = "Muons",
@@ -94,8 +94,8 @@ BPHY10_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY10JpsiCandidates",
   VtxMassHypo           = 3096.916,
-  MassMin               = 2000.0,
-  MassMax               = 3600.0,
+  MassMin               = 2600.0,
+  MassMax               = 4000.0,
   Chi2Max               = 200,
   DoVertexType =1)
 
@@ -123,11 +123,11 @@ BPHY10BdJpsiKst = Analysis__JpsiPlus2Tracks(
     kaonkaonHypothesis	    = False,
     pionpionHypothesis      = False,
     kaonpionHypothesis      = True,
-    trkThresholdPt          = 700.0,
+    trkThresholdPt          = 500.0,
     trkMaxEta		    = 3.0,
-    BThresholdPt            = 9000.,
-    BMassUpper		    = 5600.0,
-    BMassLower              = 4900.0,
+    BThresholdPt            = 5000.,
+    BMassLower              = 4300.0,
+    BMassUpper		    = 6300.0,
     JpsiContainerKey	    = "BPHY10JpsiCandidates",
     TrackParticleCollection = "InDetTrackParticles",
     #MuonsUsedInJpsi	    = "Muons", #Don't remove all muons, just those in J/psi candidate (see the following cut)
@@ -137,14 +137,14 @@ BPHY10BdJpsiKst = Analysis__JpsiPlus2Tracks(
     UseMassConstraint	    = True,
     #DiTrackMassUpper        = 1500.,
     #DiTrackMassLower        = 500.,
-    Chi2Cut                 = 5.0,
-    DiTrackPt               = 1000.,
-    TrkQuadrupletMassUpper  = 6000.0,
-    TrkQuadrupletMassLower  = 4500.0,
+    Chi2Cut                 = 200.0,
+    DiTrackPt               = 500.,
+    TrkQuadrupletMassLower  = 4300.0,
+    TrkQuadrupletMassUpper  = 6300.0,
     #FinalDiTrackMassUpper   = 1000.,
     #FinalDiTrackMassLower   = 800.,
     #TrkDeltaZ               = 20., #Normally, this cut should not be used since it is lifetime-dependent
-    FinalDiTrackPt          = 1800.
+    FinalDiTrackPt          = 500.
     )
 
 ToolSvc += BPHY10BdJpsiKst
@@ -167,8 +167,7 @@ ToolSvc += BPHY10BdKstSelectAndWrite
 print      BPHY10BdKstSelectAndWrite
 
 ## b/ augment and select Bd->JpsiKst candidates
-# We set just one mass hypothesis (K pi). The other hypothesis (pi K) should be considered
-# at the analysis stage
+#  set mass hypothesis (K pi)
 BPHY10_Select_Bd2JpsiKst = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY10_Select_Bd2JpsiKst",
     HypothesisName             = "Bd",
@@ -181,6 +180,21 @@ BPHY10_Select_Bd2JpsiKst = DerivationFramework__Select_onia2mumu(
 
 ToolSvc += BPHY10_Select_Bd2JpsiKst
 print      BPHY10_Select_Bd2JpsiKst
+
+## c/ augment and select Bdbar->JpsiKstbar candidates
+# set mass hypothesis (pi K)
+BPHY10_Select_Bd2JpsiKstbar = DerivationFramework__Select_onia2mumu(
+    name                       = "BPHY10_Select_Bd2JpsiKstbar",
+    HypothesisName             = "Bdbar",
+    InputVtxContainerName      = "BdJpsiKstCandidates",
+    TrkMasses                  = [105.658, 105.658, 139.570, 493.677],
+    VtxMassHypo                = 5279.6,
+    MassMin                    = 100.0,      #no mass cuts here
+    MassMax                    = 100000.0,   #no mass cuts here
+    Chi2Max                    = 200)
+
+ToolSvc += BPHY10_Select_Bd2JpsiKstbar
+print      BPHY10_Select_Bd2JpsiKstbar
 
 
 ## 7/ call the V0Finder if a Jpsi has been found
@@ -221,16 +235,19 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY10JpsiKshort            = DerivationFramework__JpsiPlusV0Cascade(
     name                    = "BPHY10JpsiKshort",
     #OutputLevel             = DEBUG,
+    HypothesisName          = "Bd",
     TrkVertexFitterTool     = JpsiV0VertexFit,
     V0Hypothesis            = 310,
     JpsiMassLowerCut        = 2800.,
-    JpsiMassUpperCut        = 3400.,
+    JpsiMassUpperCut        = 4000.,
     V0MassLowerCut          = 400.,
     V0MassUpperCut          = 600.,
-    MassLowerCut            = 4500.,
-    MassUpperCut            = 6000.,
+    MassLowerCut            = 4300.,
+    MassUpperCut            = 6300.,
+    RefitPV                 = True,
+    RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiKshortCascadeSV1", "JpsiKshortCascadeSV2" ] ,
+    CascadeVertexCollections= ["JpsiKshortCascadeSV2", "JpsiKshortCascadeSV1"],
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiKshort
@@ -241,16 +258,19 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY10JpsiLambda            = DerivationFramework__JpsiPlusV0Cascade(
     name                    = "BPHY10JpsiLambda",
     #OutputLevel             = DEBUG,
+    HypothesisName          = "Lambda_b",
     TrkVertexFitterTool     = JpsiV0VertexFit,
     V0Hypothesis            = 3122,
     JpsiMassLowerCut        = 2800.,
-    JpsiMassUpperCut        = 3400.,
+    JpsiMassUpperCut        = 4000.,
     V0MassLowerCut          = 1050.,
     V0MassUpperCut          = 1250.,
-    MassLowerCut            = 4000.,
-    MassUpperCut            = 6000.,
+    MassLowerCut            = 4600.,
+    MassUpperCut            = 6600.,
+    RefitPV                 = True,
+    RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiLambdaCascadeSV1", "JpsiLambdaCascadeSV2" ], 
+    CascadeVertexCollections= ["JpsiLambdaCascadeSV2", "JpsiLambdaCascadeSV1"],
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambda
@@ -260,17 +280,20 @@ print BPHY10JpsiLambda
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__JpsiPlusV0Cascade
 BPHY10JpsiLambdabar         = DerivationFramework__JpsiPlusV0Cascade(
     name                    = "BPHY10JpsiLambdabar",
+    HypothesisName          = "Lambda_bbar",
     #OutputLevel             = DEBUG,
     TrkVertexFitterTool     = JpsiV0VertexFit,
     V0Hypothesis            = -3122,
     JpsiMassLowerCut        = 2800.,
-    JpsiMassUpperCut        = 3400.,
+    JpsiMassUpperCut        = 4000.,
     V0MassLowerCut          = 1050.,
     V0MassUpperCut          = 1250.,
-    MassLowerCut            = 4000.,
-    MassUpperCut            = 6000.,
+    MassLowerCut            = 4600.,
+    MassUpperCut            = 6600.,
+    RefitPV                 = True,
+    RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiLambdabarCascadeSV1", "JpsiLambdabarCascadeSV2" ], 
+    CascadeVertexCollections= ["JpsiLambdabarCascadeSV2", "JpsiLambdabarCascadeSV1"],
     V0Vertices              = "RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambdabar
@@ -359,7 +382,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY10Kernel",
     AugmentationTools = [BPHY10JpsiSelectAndWrite,  BPHY10_Select_Jpsi2mumu,
-                         BPHY10BdKstSelectAndWrite, BPHY10_Select_Bd2JpsiKst,
+                         BPHY10BdKstSelectAndWrite, BPHY10_Select_Bd2JpsiKst, BPHY10_Select_Bd2JpsiKstbar,
                          BPHY10_Reco_V0Finder, BPHY10JpsiKshort, BPHY10JpsiLambda, BPHY10JpsiLambdabar,
                          BPHY10_AugOriginalCounts],
     #Only skim if not MC

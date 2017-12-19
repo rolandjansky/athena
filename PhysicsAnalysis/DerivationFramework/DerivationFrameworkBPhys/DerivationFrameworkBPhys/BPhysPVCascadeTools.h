@@ -6,7 +6,7 @@
 #define DERIVATIONFRAMEWORK_PVCASCADETOOLS_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "xAODBPhys/BPhysHelper.h"
+#include "xAODBPhys/BPhysHypoHelper.h"
 #include "DerivationFrameworkBPhys/CascadeTools.h"
 #include <vector>
 
@@ -47,6 +47,8 @@ namespace DerivationFramework {
                            const ServiceHandle<IBeamCondSvc> *beamSpotSvc);
          
        
+       void ProcessVertex(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::BPhysHypoHelper &vtx, xAOD::BPhysHelper::pv_type pvtype, double mass) const;
+    
        static void FillBPhysHelperNULL(xAOD::BPhysHelper &vtx, const xAOD::VertexContainer* PvContainer,
            xAOD::BPhysHelper::pv_type pvtype);
        

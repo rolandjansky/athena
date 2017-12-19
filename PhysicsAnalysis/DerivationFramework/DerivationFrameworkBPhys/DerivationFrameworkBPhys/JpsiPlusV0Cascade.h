@@ -12,6 +12,7 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
+#include "xAODBPhys/BPhysHypoHelper.h"
 #include <vector>
 
 
@@ -70,6 +71,7 @@ namespace DerivationFramework {
 
         bool        m_refitPV;
         std::string m_refPVContainerName;
+        std::string m_hypoName;               //!< name of the mass hypothesis. E.g. Jpis, Upsi, etc. Will be used as a prefix for decorations
         //This parameter will allow us to optimize the number of PVs under consideration as the probability
         //of a useful primary vertex drops significantly the higher you go
         int         m_PV_max;

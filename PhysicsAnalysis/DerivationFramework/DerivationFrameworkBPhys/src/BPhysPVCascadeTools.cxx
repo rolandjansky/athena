@@ -36,8 +36,7 @@ void DerivationFramework::BPhysPVCascadeTools::FillBPhysHelper(std::vector<TLore
 
   // cout << "BPhysPVCascadeTools::FillBPhysHelper for pvtype = " << pvtype << endl;
   // cout << "lxy " << m_cascadeTools->lxy(mom, vtx.vtx(), PV) << " error " << m_cascadeTools->lxyError(mom, cov, vtx.vtx(), PV) << endl;
-
-  
+ 
   // set variables calculated from PV
   BPHYS_CHECK( vtx.setLxy    ( m_cascadeTools->lxy       (mom, vtx.vtx(), PV), pvtype ) );
   BPHYS_CHECK( vtx.setLxyErr ( m_cascadeTools->lxyError  (mom, cov, vtx.vtx(), PV), pvtype ) );
@@ -48,6 +47,28 @@ void DerivationFramework::BPhysPVCascadeTools::FillBPhysHelper(std::vector<TLore
   BPHYS_CHECK( vtx.setZ0     ( m_cascadeTools->a0z       (mom, vtx.vtx(), PV), pvtype ) );
   BPHYS_CHECK( vtx.setZ0Err  ( m_cascadeTools->a0zError  (mom, cov, vtx.vtx(), PV), pvtype ) );
   BPHYS_CHECK( vtx.setRefitPVStatus  ( refitCode, pvtype ) );
+
+}
+
+void DerivationFramework::BPhysPVCascadeTools::ProcessVertex(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::BPhysHypoHelper &vtx,
+							xAOD::BPhysHelper::pv_type pvtype, double mass) const {
+
+  const xAOD::Vertex* pv = vtx.pv(pvtype);
+  if (pv) {
+    // decorate the vertex.
+    vtx.setTau( m_cascadeTools->tau(mom, vtx.vtx(), pv), pvtype, xAOD::BPhysHypoHelper::TAU_INV_MASS );
+    vtx.setTauErr( m_cascadeTools->tauError(mom, cov, vtx.vtx(), pv), pvtype, xAOD::BPhysHypoHelper::TAU_INV_MASS );
+    // Proper decay time assuming constant mass hypothesis
+    vtx.setTau( m_cascadeTools->tau(mom, vtx.vtx(), pv, mass), pvtype, xAOD::BPhysHypoHelper::TAU_CONST_MASS );
+    vtx.setTauErr( m_cascadeTools->tauError(mom, cov, vtx.vtx(), pv, mass), pvtype, xAOD::BPhysHypoHelper::TAU_CONST_MASS );
+    //enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0, PV_MIN_Z0_BA};
+  } else {
+    const float errConst = -9999999.;
+    BPHYS_CHECK( vtx.setTau( errConst, pvtype, xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+    BPHYS_CHECK( vtx.setTauErr( errConst, pvtype, xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+    BPHYS_CHECK( vtx.setTau(errConst, pvtype, xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+    BPHYS_CHECK( vtx.setTauErr( errConst, pvtype, xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+  }
 
 }
 

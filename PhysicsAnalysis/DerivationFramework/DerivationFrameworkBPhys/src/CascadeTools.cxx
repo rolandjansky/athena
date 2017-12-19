@@ -518,14 +518,18 @@ Amg::Vector3D CascadeTools::Momentum(const std::vector<TLorentzVector> &particle
 
 double CascadeTools::massProbability(double V0Mass, double mass, double massErr) const
 {
-  double chi2 = (V0Mass - mass)*(V0Mass - mass)/(massErr*massErr);
-  int ndf = 1;
-  Genfun::CumulativeChiSquare myCumulativeChiSquare(ndf);
-  if (chi2 > 0.) {
-    double achi2prob = 1.-myCumulativeChiSquare(chi2);
-    return achi2prob;
+  if(massErr > 0.) {
+    double chi2 = (V0Mass - mass)*(V0Mass - mass)/(massErr*massErr);
+    int ndf = 1;
+    Genfun::CumulativeChiSquare myCumulativeChiSquare(ndf);
+    if (chi2 > 0.) {
+      double achi2prob = 1.-myCumulativeChiSquare(chi2);
+      return achi2prob;
+    } else {
+      ATH_MSG_DEBUG("chi2 <= 0");
+      return -1.;
+    }
   } else {
-    ATH_MSG_DEBUG("chi2 <= 0");
     return -1.;
   }
 }

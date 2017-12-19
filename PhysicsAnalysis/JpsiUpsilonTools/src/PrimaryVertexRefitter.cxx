@@ -5,8 +5,8 @@
 // ****************************************************************************
 // ----------------------------------------------------------------------------
 // PrimaryVertexRefitter
-// James Catmore <James.Catmore@cern.ch> 
-// Evelina Bouhova-Thacker <e.bouhova@cern.ch> 
+// James Catmore <James.Catmore@cern.ch>
+// Evelina Bouhova-Thacker <e.bouhova@cern.ch>
 // Returns a refitted primary vertex having removed requested tracks
 // ----------------------------------------------------------------------------
 // ****************************************************************************
@@ -18,13 +18,13 @@
 #include "xAODTracking/TrackParticle.h"
 
 namespace Analysis {
- 
+
 StatusCode PrimaryVertexRefitter::initialize() {
 
   CHECK( m_trackToVertexIPEstimator.retrieve() );
 
   ATH_MSG_INFO("Initialize successful");
-  
+
   return StatusCode::SUCCESS;
 
 }
@@ -42,7 +42,7 @@ PrimaryVertexRefitter::PrimaryVertexRefitter(const std::string& t, const std::st
    m_lastExitCode(0)
 {
   declareInterface<PrimaryVertexRefitter>(this);
-  declareProperty("MinimumNumberOfTracksInVertex", m_ntrk_min);              
+  declareProperty("MinimumNumberOfTracksInVertex", m_ntrk_min);
   declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);
 
 }
@@ -111,14 +111,17 @@ const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* verte
     m_lastExitCode = 3;
     return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
   }
+  ATH_MSG_DEBUG("number of tracks in PV " << vertex->nTrackParticles() << " number of tracks to exclude " << tps.size());
 
   const xAOD::Vertex* reducedVertex(0);
   const xAOD::Vertex* tmpVert = vertex;
   std::vector <const xAOD::TrackParticle*>::const_iterator pb = tps.begin();
   std::vector <const xAOD::TrackParticle*>::const_iterator pe = tps.end();
+  ATH_MSG_DEBUG("original vertex " << vertex->x() << ", " << vertex->y() << ", " << vertex->z());
   for (;pb!=pe;++pb) {
     const xAOD::TrackParticle* tp = (*pb);
     reducedVertex = m_trackToVertexIPEstimator->getUnbiasedVertex(tp,tmpVert);
+    ATH_MSG_DEBUG("reduced vertex " << reducedVertex->x() << ", " << reducedVertex->y() << ", " << reducedVertex->z());
     if (tmpVert != vertex) delete tmpVert;
     if (reducedVertex == 0) {
       ATH_MSG_DEBUG("Refit failed: returning original vertex");
@@ -134,6 +137,7 @@ const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* verte
     }
   }
   m_lastExitCode = 1;
+  ATH_MSG_DEBUG("returning vertex " << reducedVertex->x() << ", " << reducedVertex->y() << ", " << reducedVertex->z());
   return reducedVertex;
 }
 
