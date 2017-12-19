@@ -260,6 +260,7 @@ GetReference( std::string& groupName, std::string& name )
 std::string 
 SplitReference(std::string refPath, std::string refName )
 {
+  std::cout << "here" << std::endl;
   //Split comma sepated inputs into individual file names
   std::string delimiter = ",";
   std::vector<std::string> refFileList;
@@ -273,7 +274,7 @@ SplitReference(std::string refPath, std::string refName )
   refFileList.push_back(refPath);
 
   //Try to open each file in the list
-  for(int i=0; i<refFileList.size(); i++){
+  for(std::size_t i=0; i<refFileList.size(); i++){
     std::string fileName=refFileList.at(i)+refName;
     size_t first = fileName.find_first_not_of(" ");
     fileName.erase(0, first);
@@ -339,9 +340,9 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
-  if(node->GetAttribute("location")!=""){
-    fileName = SplitReference(node->GetAttribute("location"), fileName);
-  }
+  //if(node->GetAttribute("location")!=""){
+  fileName = SplitReference(node->GetAttribute("location"), fileName);
+  //}
   std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
@@ -508,9 +509,9 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
 	    std::string algRefFile( refConfig.GetStringAttribute(thisRefID,"file") );
-	    if(refConfig.GetStringAttribute(thisRefID,"location")!=""){
-	      algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
-	    }
+	    //if(refConfig.GetStringAttribute(thisRefID,"location")!=""){
+	    algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+	    //}
 	    if( algRefFile != "" ) {
 	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
 	      if ( ! infile.get() ) {
@@ -864,6 +865,7 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string objPath("");
       std::string absObjPath("");
       
+      refFile = SplitReference( refConfig.GetStringAttribute(refID,"location"), refFile);
       //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
       std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);
@@ -878,7 +880,7 @@ Visit( const MiniConfigTreeNode* node ) const
         refPathForSearch += "/dummyName";
         basedir = ChangeInputDir( infile.get(), refPathForSearch );
         if( basedir == 0 ) {
-          std::cerr << "Cannot find \"" << refPath << "\" in file\n";
+          std::cerr << "Cannot find 882 \"" << refPath << "\" in file\n";
           continue;
         }
       }
@@ -897,7 +899,7 @@ Visit( const MiniConfigTreeNode* node ) const
       
       dir = ChangeInputDir( basedir, histNode->GetPathName() );
       if( dir == 0 ) {
-        std::cerr << "Cannot find \"" << absObjPath << "\" in file\n";
+        std::cerr << "Cannot find 901\"" << absObjPath << "\" in file\n";
         continue;
       }
       
