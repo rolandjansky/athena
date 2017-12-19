@@ -565,7 +565,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     else if (m_eleId == "VeryLooseLLH_Rel20p7" || m_eleId == "LooseLLH_Rel20p7" || m_eleId == "LooseAndBLayerLLH_Rel20p7" || m_eleId == "MediumLLH_Rel20p7" || m_eleId == "TightLLH_Rel20p7") {
       ATH_MSG_WARNING(" ****************************************************************************");
-      ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as baseline electron ID");
+      ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as signal electron ID");
       ATH_MSG_WARNING(" The Rel20.7 working point will not be supported and being obsoleted.");
       ATH_MSG_WARNING(" ****************************************************************************");
     }
