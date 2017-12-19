@@ -21,5 +21,4 @@ import MuonRecExample.MuonRecStandaloneFlags
 # configure flags so that only Muon Standalone reco is run
 import MuonRecExample.MuonRecStandaloneOnlySetup
 
-from MuonAlignGenTools.MuonAlignmentFlags import MuonAlignmentFlags as mualign
-muonRecFlags.useAlignmentCorrections = mualign.useOpticalAlignment()
+muonRecFlags.useAlignmentCorrections = True
