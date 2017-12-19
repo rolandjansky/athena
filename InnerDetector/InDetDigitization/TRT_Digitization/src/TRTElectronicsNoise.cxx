@@ -14,7 +14,7 @@
 #include "TRTDigSettings.h"
 
 #include <cmath>
-#include <cstdlib> //Always include this when including cmath!
+#include <cstdlib>
 
 //_____________________________________________________________________________
 TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
@@ -27,22 +27,18 @@ TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
 
   //Need to initialize the signal shaping first as it is used in tabulateNoiseSignalShape()!
   this->InitializeNoiseShaping();
-
   m_pHRengine = atRndmGenSvc->GetEngine("TRT_ElectronicsNoise");
-
   m_fractionOfSlowNoise = m_settings->slowPeriodicNoisePulseFraction();
-
   this->tabulateNoiseSignalShape();
-
   this->reinitElectronicsNoise(200);
-
   const double slowPeriod(m_settings->slowPeriodicNoisePulseDistance());
-  //Must be rounded to nearest multiple of binwidth... (fixme - from options)
 
+  //Must be rounded to nearest multiple of binwidth... (fixme - from options)
   const double binwidth(m_settings->timeInterval()/m_settings->numberOfBins());
   m_nbins_periodic = static_cast<int>(slowPeriod/binwidth + 0.5);
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor done"   << endmsg;
+
 }
 
 //_____________________________________________________________________________
@@ -62,8 +58,7 @@ void TRTElectronicsNoise::getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxL
   reinitElectronicsNoise(500);
   unsigned int index         = m_noiseSignalShape.size();
   unsigned int nbinsinperiod = m_settings->numberOfBins();
-  unsigned int maxindex      =
-    m_cachedFastNoiseAfterSignalShaping.size() - nbinsinperiod;
+  unsigned int maxindex      = m_cachedFastNoiseAfterSignalShaping.size() - nbinsinperiod;
 
   for (unsigned int i = 0; i < nsamplings; ++i) {
     maxLTOverNoiseAmp[i] = getMax(index, index, nbinsinperiod );
@@ -80,6 +75,7 @@ double TRTElectronicsNoise::getMax(unsigned int firstbinslowsignal,
 				   unsigned int firstbinfastsignal,
 				   const unsigned int& binsinwindow )
 {
+
   // This method assumes that firstbinslowsignal + binsinwindow doesn't
   // exceed the cached array sizes (and same for fastsignal).
 
@@ -90,8 +86,7 @@ double TRTElectronicsNoise::getMax(unsigned int firstbinslowsignal,
     double totalsig =
       m_cachedFastNoiseAfterSignalShaping[firstbinfastsignal++] +
       m_cachedSlowNoiseAfterSignalShaping[firstbinslowsignal++];
-    if ( max<totalsig )
-      max = totalsig;
+    if ( max<totalsig ) max = totalsig;
   };
 
   return max;
@@ -123,11 +118,9 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
   unsigned int binindex;
 
   //### Fast signal:
-
   double fractionOfFastNoise = 1.0-m_fractionOfSlowNoise;
 
   //### First we produce the noise as it is BEFORE signal shaping:
-
   for (unsigned int i(0); i < nbins; ++i) {
     m_tmpArray[i] = 0.;
     m_cachedFastNoiseAfterSignalShaping[i] = 0.;
@@ -136,8 +129,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
   timeOfNextPulse = 0.5 * fastPeriod;
   while ( true ) {
     binindex = static_cast<unsigned int>(timeOfNextPulse*invbinwidth);
-    if (binindex >= nbins)
-      break;
+    if (binindex >= nbins) break;
     m_tmpArray[binindex] += CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 0., 1.);
     timeOfNextPulse += fastPeriod;
   };
@@ -145,8 +137,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
   //### Then (Anatolis) signal shaping:
   for (unsigned int i(0); i < nbins; ++i) {
     unsigned int limit(i+m_noiseSignalShape.size());
-    if ( limit > nbins )
-      limit = nbins;
+    if ( limit > nbins ) limit = nbins;
     for (unsigned int j(i); j < limit; ++j) {
       m_cachedFastNoiseAfterSignalShaping[j] +=
 	m_tmpArray[i] * m_noiseSignalShape[j-i] * fractionOfFastNoise;
@@ -154,19 +145,16 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
   };
 
   //### Slow periodic signal
-
   for (unsigned int i(0); i < nbins; ++i) {
     m_tmpArray[i] = 0.;
     m_cachedSlowNoiseAfterSignalShaping[i] = 0.;
   }
 
   //### First we produce the noise as it is BEFORE signal shaping:
-
   timeOfNextPulse = 0.5 * slowPeriod;
   while (true) {
     binindex = static_cast<unsigned int>(timeOfNextPulse*invbinwidth);
-    if (binindex >= nbins)
-      break;
+    if (binindex >= nbins) break;
     m_tmpArray[binindex] += CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 0., 1.);
     timeOfNextPulse += slowPeriod;
   };
@@ -174,8 +162,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
   //### Then (Anatolis) signal shaping:
   for (unsigned int i(0); i < nbins; ++i) {
     unsigned int limit(i+m_noiseSignalShape.size());
-    if (limit > nbins)
-      limit = nbins;
+    if (limit > nbins) limit = nbins;
     for (unsigned int j(i); j < limit; ++j) {
       m_cachedSlowNoiseAfterSignalShaping[j] +=
 	m_tmpArray[i] * m_noiseSignalShape[j-i] *
@@ -202,8 +189,7 @@ void TRTElectronicsNoise::tabulateNoiseSignalShape() {
   //Cut of trailing zeroes:
   unsigned int noiseshapebins(m_noiseSignalShape.size()-1);
   for ( ;noiseshapebins>0;--noiseshapebins) {
-    if (m_noiseSignalShape.at(noiseshapebins-1)>0.001*shapemax)
-      break;
+    if (m_noiseSignalShape.at(noiseshapebins-1)>0.001*shapemax) break;
   }
   m_noiseSignalShape.resize(noiseshapebins);
 
@@ -299,11 +285,9 @@ double TRTElectronicsNoise::NoiseShape(const double& time) const {
   //convert to nanoseconds:
   const double time_ns(time/CLHEP::nanosecond);
 
-  if ( time_ns<0 || time_ns > 32 )
-    return 0;
+  if ( time_ns<0 || time_ns > 32 ) return 0;
 
-  double tmp = 0;
-
+  double tmp(0);
   for (unsigned int i(6); i>=4; --i) {
     if (time_ns<15.5)
       tmp = (tmp + m_noisepars1[i])*time_ns;

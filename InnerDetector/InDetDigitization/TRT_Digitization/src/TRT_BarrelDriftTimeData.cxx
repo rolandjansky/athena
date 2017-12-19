@@ -417,4 +417,3 @@ double TRT_BarrelDriftTimeData::DriftTimeAtMaxField(const double& dist) const {
 //______________________________________________________________________________
 // Diffusion code has been remove (June 2015), only represents a spread of a few ns.
 // That is much smaller than the signal shaping width.
-

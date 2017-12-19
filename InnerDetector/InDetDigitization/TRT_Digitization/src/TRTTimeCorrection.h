@@ -17,11 +17,9 @@ namespace InDetDD {
 
 class TRTDigSettings;
 class TRT_ID;
-
 class ITRT_CalDbSvc;
 
 #include "GeoPrimitives/GeoPrimitives.h"
-
 
 /**
  * Time correction
@@ -129,7 +127,7 @@ private:
   /** Cached distances */
   std::vector< std::vector<double> > m_reflectedDistsForBarrelLayers;
 
-  //TODO/FIXME: substitute these with use of hitidhelper:
+  //Substitute these with use of hitidhelper?:
   const unsigned int m_subdetectorMask;
   const unsigned int m_right5Bits;
   const unsigned int m_shift5Bits;

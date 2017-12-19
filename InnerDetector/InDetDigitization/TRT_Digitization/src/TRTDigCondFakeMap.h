@@ -22,12 +22,11 @@ public:
 		     ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 		     const TRT_ID* trt_id,
 		     int UseGasMix,
-		     ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
+		     ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
  		   );
 
 protected:
 
-  /// Sasha: first argument was changed: "const unsigned int& hitid" -> "Identifier& TRT_Identifier"
   void setStrawStateInfo(Identifier& TRT_Identifier,
 			  const double& strawlength,
 			  double& noiselevel,
