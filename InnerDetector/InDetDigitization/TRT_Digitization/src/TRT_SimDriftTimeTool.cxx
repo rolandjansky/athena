@@ -13,15 +13,11 @@
 ////////////////////////////////////
 
 #include "TRT_SimDriftTimeTool.h"
-
 #include "TRT_BarrelDriftTimeData.h"
 #include "TRT_ScaledDriftTimeData.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 TRT_SimDriftTimeTool::TRT_SimDriftTimeTool( const std::string& type,

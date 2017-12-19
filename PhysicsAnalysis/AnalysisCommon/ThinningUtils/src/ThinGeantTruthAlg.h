@@ -24,10 +24,10 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 class ThinGeantTruthAlg
-: public ::AthAlgorithm
+  : public ::AthAlgorithm
 {
 public:
-    
+  
     /// Constructor with parameters:
     ThinGeantTruthAlg( const std::string& name, ISvcLocator* pSvcLocator );
     
@@ -73,6 +73,7 @@ private:
     std::string m_muonsKey;
     std::string m_electronsKey;
     std::string m_photonsKey;   
+    std::string m_egammaTruthKey;
  
     /// Counters
     unsigned long m_nEventsProcessed;

@@ -63,17 +63,17 @@ void TRTDigSettings::defineVariables() {
   //The ranges of allowed values are pretty wide. If parameters are outside we will assume something is wrong.
 
   //doubles:
-  defineNewVariable("ionisationPotential",&m_ionisationPotential,"Ionisation potential","eV",CLHEP::eV,1.0,50.0);
-  defineNewVariable("ionisationPotentialArgon",&m_ionisationPotentialArgon,"Ionisation potential Argon","eV",CLHEP::eV,1.0,50.0);
+  defineNewVariable("ionisationPotential",       &m_ionisationPotential,       "Ionisation potential",        "eV",CLHEP::eV,1.0,50.0);
+  defineNewVariable("ionisationPotentialArgon",  &m_ionisationPotentialArgon,  "Ionisation potential Argon",  "eV",CLHEP::eV,1.0,50.0);
   defineNewVariable("ionisationPotentialKrypton",&m_ionisationPotentialKrypton,"Ionisation potential Krypton","eV",CLHEP::eV,1.0,50.0);
-  defineNewVariable("smearingFactor",&m_smearingFactor,"Cluster energy smearing factor","",1,0.1,1.0);
-  defineNewVariable("smearingFactorArgon",&m_smearingFactorArgon,"Cluster energy smearing factor Argon","",1,0.1,1.0);
-  defineNewVariable("smearingFactorKrypton",&m_smearingFactorKrypton,"Cluster energy smearing factor Krypton","",1,0.1,1.0);
-  defineNewVariable("timeInterval",&m_timeInterval,"Time interval covered by each digit","ns",CLHEP::ns,1,200);
-  defineNewVariable("minDiscriminatorWidth",&m_minDiscriminatorWidth,"Minimum discriminator time over threshold","ns",CLHEP::ns,0.5,20.0);
-  defineNewVariable("discriminatorSettlingTime",&m_discriminatorSettlingTime,"Discriminator settling time","ns",CLHEP::ns,0.5,20.0);
-  defineNewVariable("discriminatorDeadTime",&m_discriminatorDeadTime,"Discriminator dead time","ns",CLHEP::ns,0.5,20.0);
-  defineNewVariable("TrtRangeCutProperty",&m_trtRangeCutProperty,"Electrons range cut in TRT xenon simulation","mm",CLHEP::mm,0.05,30.00);
+  defineNewVariable("smearingFactor",            &m_smearingFactor,            "Cluster energy smearing factor","",        1,0.1,1.0);
+  defineNewVariable("smearingFactorArgon",       &m_smearingFactorArgon,       "Cluster energy smearing factor Argon","",  1,0.1,1.0);
+  defineNewVariable("smearingFactorKrypton",     &m_smearingFactorKrypton,     "Cluster energy smearing factor Krypton","",1,0.1,1.0);
+  defineNewVariable("timeInterval",              &m_timeInterval,              "Time interval covered by each digit","ns",CLHEP::ns,1,200);
+  defineNewVariable("minDiscriminatorWidth",     &m_minDiscriminatorWidth,     "Minimum discriminator time over threshold","ns",CLHEP::ns,0.5,20.0);
+  defineNewVariable("discriminatorSettlingTime", &m_discriminatorSettlingTime, "Discriminator settling time",              "ns",CLHEP::ns,0.5,20.0);
+  defineNewVariable("discriminatorDeadTime",     &m_discriminatorDeadTime,     "Discriminator dead time",                  "ns",CLHEP::ns,0.5,20.0);
+  defineNewVariable("TrtRangeCutProperty",       &m_trtRangeCutProperty,       "Electrons range cut in TRT xenon simulation","mm",CLHEP::mm,0.05,30.00);
 
   // LT Bar
   defineNewVariable("lowThresholdBar",       &m_lowThresholdBar,       "Low Threshold Barrel",         "eV",CLHEP::eV,50.0,500.0);
@@ -103,7 +103,6 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("strawLengthBarrel",&m_strawLengthBarrel,"Long barrel straw length","mm",CLHEP::mm,1400.0,1450.0); // 1425.5
   defineNewVariable("innerRadiusEndcap",&m_innerRadiusEndcap,"Inner radius of the endcap straws","mm",CLHEP::mm,600.0,640.0); // 621.18
   defineNewVariable("outerRadiusEndcap",&m_outerRadiusEndcap,"Outer radius of the endcap straws","mm",CLHEP::mm,1060.0,1070.0); // 1067
-
   defineNewVariable("innerRadiusOfStraw",&m_innerRadiusOfStraw,"Inner radius of straw","mm",CLHEP::mm,1.0,3.0); // 2.0 mm
   defineNewVariable("outerRadiusOfWire",&m_outerRadiusOfWire,"Outer radius of wire","micrometer",CLHEP::micrometer,5.0,40.0); // 0.0155 mm
   defineNewVariable("lengthOfDeadRegion",&m_lengthOfDeadRegion,"Length of dead region at straw ends","mm",CLHEP::mm,1.0,3.0);
@@ -159,10 +158,12 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("isOverlay",&m_isOverlay,"Flag set for overlay jobs");
 
   //ints:
-  defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 shift in 0.78125 ns steps, short barrel straws",-32,32);
-  defineNewIntVariable("htT0shiftBarLong",  &m_htT0shiftBarLong,  "HT T0 shift in 0.78125 ns steps, long barrel straws", -32,32);
-  defineNewIntVariable("htT0shiftECAwheels",&m_htT0shiftECAwheels,"HT T0 shift in 0.78125 ns steps, A type wheels",      -32,32);
-  defineNewIntVariable("htT0shiftECBwheels",&m_htT0shiftECBwheels,"HT T0 shift in 0.78125 ns steps, B type wheels",      -32,32);
+
+  // Time shifts
+  defineNewIntVariable("htT0shiftBarShort",   &m_htT0shiftBarShort,   "HT T0 shift in 0.78125 ns steps, short barrel straws",-32,32);
+  defineNewIntVariable("htT0shiftBarLong",    &m_htT0shiftBarLong,    "HT T0 shift in 0.78125 ns steps, long barrel straws", -32,32);
+  defineNewIntVariable("htT0shiftECAwheels",  &m_htT0shiftECAwheels,  "HT T0 shift in 0.78125 ns steps, A type wheels",      -32,32);
+  defineNewIntVariable("htT0shiftECBwheels",  &m_htT0shiftECBwheels,  "HT T0 shift in 0.78125 ns steps, B type wheels",      -32,32);
 
   defineNewIntVariable("ltT0shiftBarShortXe", &m_ltT0shiftBarShortXe, "LT T0 shift in 0.78125 ns steps, short barrel straws, Xe",-32,32);
   defineNewIntVariable("ltT0shiftBarShortKr", &m_ltT0shiftBarShortKr, "LT T0 shift in 0.78125 ns steps, short barrel straws, Kr",-32,32);
@@ -186,13 +187,11 @@ void TRTDigSettings::defineVariables() {
 void TRTDigSettings::print(const std::string& front) const {
 
   std::cout << front << "======= Printing TRT Digitization Settings ======="<<std::endl;
-  //std::cout << front <<std::endl;
 
   std::map <std::string,doubleparameter>::const_iterator itd = m_doubleparMap.begin();
   std::map <std::string,doubleparameter>::const_iterator itdE = m_doubleparMap.end();
 
   for (;itd!=itdE;++itd) {
-    //std::cout << front << std::endl;
     std::cout << front << itd->second.description<<": "<<(*(itd->second.directvaraddress))/itd->second.unit<<" "<<itd->second.unitname <<std::endl;
   };
 
@@ -200,7 +199,6 @@ void TRTDigSettings::print(const std::string& front) const {
   std::map <std::string,intboolparameter>::const_iterator itibE = m_intboolparMap.end();
 
   for (;itib!=itibE;++itib) {
-    //std::cout << front << std::endl;
     if (itib->second.directvaraddress_int) {
       //int
       std::cout << front << itib->second.description<<": "<<*(itib->second.directvaraddress_int)<<std::endl;
@@ -214,7 +212,6 @@ void TRTDigSettings::print(const std::string& front) const {
     }
   }
 
-  //std::cout << front <<std::endl;
   std::cout << front << "==============================================="<<std::endl;
 
   return;
@@ -519,10 +516,10 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_outerRadiusOfWire  = 0.0155*CLHEP::mm;
   m_lengthOfDeadRegion =    3.0*CLHEP::mm;
   m_attenuationLength  =   400.*CLHEP::cm;
-  m_maxVertexDisplacement = 0.0;           // units!?
-  m_timeOffsetCalcVertexX = 0.0*CLHEP::cm; // units!?
-  m_timeOffsetCalcVertexY = 0.0*CLHEP::cm; // units!?
-  m_timeOffsetCalcVertexZ = 0.0*CLHEP::cm; // units!?
+  m_maxVertexDisplacement = 0.0;
+  m_timeOffsetCalcVertexX = 0.0*CLHEP::cm;
+  m_timeOffsetCalcVertexY = 0.0*CLHEP::cm;
+  m_timeOffsetCalcVertexZ = 0.0*CLHEP::cm;
 
   // (Xenon)
   // HT fine-tune on 2011 data tagged as 00-11-07
@@ -591,12 +588,11 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_relativeHighThresholdFluctuation = 0.05;
 
   // Clusters
-  // Note: smearingFactor is a possible candidate for tuning drift time accuracy
   m_smearingFactor        = 0.4;
   m_smearingFactorArgon   = 0.4;
   m_smearingFactorKrypton = 0.4;
   m_ionisationPotential        = 26.0*CLHEP::eV;
-  m_ionisationPotentialArgon   = 28.3*CLHEP::eV; // according to thesis of Peter Cwetanski (TABLE 4-I)
+  m_ionisationPotentialArgon   = 28.3*CLHEP::eV;
   m_ionisationPotentialKrypton = 28.3*CLHEP::eV;
 
 }

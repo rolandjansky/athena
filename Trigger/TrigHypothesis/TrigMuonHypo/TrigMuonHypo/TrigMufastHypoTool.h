@@ -6,9 +6,9 @@
 #define TRIGMUFASTHYPO_TRIGMUFASTHYPOTOOL_H 1
 
 #include <string>
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
@@ -71,8 +71,8 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     std::vector<float> m_ptThresholds;
     BooleanProperty m_acceptAll;
     BooleanProperty m_selectPV;
-    float m_Z_PV;
-    float m_R_PV;
+    float m_ZPV;
+    float m_RPV;
     
     float m_ptThresholdForECWeakBRegionA;
     float m_ptThresholdForECWeakBRegionB;
