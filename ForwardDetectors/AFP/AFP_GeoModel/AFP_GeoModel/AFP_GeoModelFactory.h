@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef AFP_GeoModelFactory_h
 #define AFP_GeoModelFactory_h 1
 
@@ -10,6 +6,8 @@
 #include "AFP_Geometry/AFP_Geometry.h"
 #include <string>
 #include <map>
+
+#define SLIMCUT (0.01*CLHEP::mm)
 
 typedef struct _AFP_BPMCOOLPARAMS {
     float fBpmMRRX, fBpmMRRY; //BPMR.6R1.B1 (231.535 m from IP)
@@ -48,8 +46,8 @@ private:
     AFP_GeoModelFactory(const AFP_GeoModelFactory &right);
 
     // The manager:
-    AFP_GeoModelManager       *detectorManager;
-    StoreGateSvc             *detectorStore;
+	AFP_GeoModelManager *detectorManager;
+	StoreGateSvc *detectorStore;
 
 private:
     //common auxiliary map of solid shapes
@@ -57,37 +55,22 @@ private:
     AFP_CONFIGURATION m_CfgParams;
     AFP_Geometry* m_pGeometry;
 
-    //Hamburg pipe part
-    GeoShape* GetSolidShortHamburgPipe();
-    GeoShape* GetSolidLongHamburgPipe();
-    void AddShortHamburgPipe(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-    void AddLongHamburgPipe(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-    void AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-
-    //Thin plate for window angle study
-    GeoShape* GetSolidShortWindowPlates();
-    GeoShape* GetSolidLongWindowPlates();
-    void AddShortWindowPlates(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-    void AddLongWindowPlates(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-
-    //Si detector part
-    GeoShape* CreateSolidSIDPlate();
-    GeoShape* CreateSolidSIDSupport();
-    GeoShape* CreateSolidSIDCooling();
-    GeoShape* CreateSolidSIDVacuumLayer();
-    void AddSiDetector(GeoPhysVol* pPhysMotherVol, const char* pszStationName);
+	//Si detector part
+	GeoShape* CreateSolidSIDPlate(/*eAFPStation eStation*/);
+	void AddSiDetector(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+	void AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
 
     //TOF part
     GeoOpticalSurface* m_pOpticalSurface;
     GeoOpticalSurface* m_pReflectionOptSurface;
     void InitializeTDParameters();
     StatusCode AddTimingDetector(const char* pszStationName, GeoOpticalPhysVol* pPhysMotherVol, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
-    void AddLQBarSegment(const char* pszStationName, const int nQuarticID, const int nLQBarID,AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
-    void AddSepRadLBar(const char* pszStationName, const int nQuarticID, const int nQLBarID,AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
-    HepGeom::Vector3D<double> GetBarShift(AFP_LQBARDIMENSIONS& LQBarDims, eLQBarType eSpecType=ELBT_UNDEFINED);
-    void AddHorizontalArm(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& PartialTransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
-    void AddSensor(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D &TransInMotherVolume);
-    void GetLQBarDimensions(const int nRowID, const int nColID, PAFP_LQBARDIMENSIONS pLQBarDims);
+	void AddLQBarSegment(const char* pszStationName, const int nQuarticID, const int nLQBarID,AFPTOF_LBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+	void AddSepRadLBar(const char* pszStationName, const int nQuarticID, const int nBarID, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+	HepGeom::Vector3D<double> GetBarShift(AFPTOF_LBARDIMENSIONS& LQBarDims, eLBarType eSpecType=ELBT_UNDEFINED);
+	void AddHorizontalArm(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFPTOF_LBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& PartialTransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+	void AddSensor(const char* pszStationName, const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D &TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+	void GetLQBarDimensions(const int nRowID, const int nColID, PAFPTOF_LBARDIMENSIONS pLQBarDims);
 };
 
 // Class AFP_GeoModelFactory

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef AFP_GeoModelManager_h
 #define AFP_GeoModelManager_h 1
 #include "GeoModelKernel/GeoVPhysVol.h"
