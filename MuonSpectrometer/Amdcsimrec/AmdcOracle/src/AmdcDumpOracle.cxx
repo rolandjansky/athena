@@ -87,7 +87,7 @@ StatusCode AmdcDumpOracle::initialize(){
 //  Do something now if possible
     if ( m_IRDBAccessSvcWithUpdateUpdatedSvcDONE ){
       ATH_MSG_INFO( "m_IRDBAccessSvcWithUpdateUpdatedSvcDONE found true in initialize " ) ;
-      StatusCode sc = DoIt() ;
+      sc = DoIt() ;
       if ( sc.isFailure() ) {
         ATH_MSG_FATAL( "DoIt failed" ) ; 
         return StatusCode::FAILURE;
