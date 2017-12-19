@@ -26,14 +26,13 @@ using namespace std;
 namespace SG {
 class Foo {
 public:
-  Foo() : m_i(0), m_d(0.0) {}
-  Foo(int i) : m_i(i), m_d(0.0) {}
+  Foo() : m_i(0) {}
+  Foo(int i) : m_i(i) {}
   int i() const { return m_i; }
   ~Foo() {
   }
 private:
   int m_i;
-  double m_d;
 };
 }
 
@@ -102,7 +101,7 @@ public:
       assert(rSG.record(new SG::Foo(2), "pFoo2").isSuccess());
       rSG.commitNewDataObjects();
       assert( rSG.newDataObjectsPresent() );
-      rSG.getNewDataObjects(products).ignore();    
+      rSG.getNewDataObjects(products).ignore();
       assert( 2 == products.size() );
       assert (products.count (DataObjID (81010,"pFoo1")) == 1);
       //we have emptied newdataobject array with call to newDataObjects

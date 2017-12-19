@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GeometryMap_h_
-#define _GeometryMap_h_
+#ifndef GEOMODELKERNEL_GEOMETRYMAP_H
+#define GEOMODELKERNEL_GEOMETRYMAP_H
 #include <string>
 #include "GeoModelKernel/GeoVPhysVol.h"
 

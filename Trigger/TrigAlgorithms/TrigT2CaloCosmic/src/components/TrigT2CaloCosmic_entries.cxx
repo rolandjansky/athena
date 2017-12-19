@@ -6,11 +6,11 @@
 //#include "TrigT2CaloCosmic/CosmicEmEnFex.h"
 #include "TrigT2CaloCosmic/CosmicHadEnFex.h"
 
-DECLARE_ALGORITHM_FACTORY( T2CaloCosmic )
-//DECLARE_ALGORITHM_FACTORY( T2CaloCosmicSamp1 )
-DECLARE_TOOL_FACTORY( CosmicSamp2Fex )
-//DECLARE_TOOL_FACTORY( CosmicSamp1Fex )
-//DECLARE_TOOL_FACTORY( CosmicEmEnFex )
-DECLARE_TOOL_FACTORY( CosmicHadEnFex )
-//DECLARE_TOOL_FACTORY( T2CaloCosmicMon )
+DECLARE_COMPONENT( T2CaloCosmic )
+//DECLARE_COMPONENT( T2CaloCosmicSamp1 )
+DECLARE_COMPONENT( CosmicSamp2Fex )
+//DECLARE_COMPONENT( CosmicSamp1Fex )
+//DECLARE_COMPONENT( CosmicEmEnFex )
+DECLARE_COMPONENT( CosmicHadEnFex )
+//DECLARE_COMPONENT( T2CaloCosmicMon )
 

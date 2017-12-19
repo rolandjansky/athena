@@ -4,9 +4,9 @@
 #include "TrigL2LongLivedParticles/TrigJetSplitter.h"
 #include "TrigL2LongLivedParticles/TrigBHremoval.h"
 
-DECLARE_ALGORITHM_FACTORY( MuonCluster )
-DECLARE_ALGORITHM_FACTORY( MuonClusterIsolation )
-DECLARE_ALGORITHM_FACTORY( TrigMuonJetFex )
-DECLARE_ALGORITHM_FACTORY( TrigJetSplitter )
-DECLARE_ALGORITHM_FACTORY( TrigBHremoval )
+DECLARE_COMPONENT( MuonCluster )
+DECLARE_COMPONENT( MuonClusterIsolation )
+DECLARE_COMPONENT( TrigMuonJetFex )
+DECLARE_COMPONENT( TrigJetSplitter )
+DECLARE_COMPONENT( TrigBHremoval )
 

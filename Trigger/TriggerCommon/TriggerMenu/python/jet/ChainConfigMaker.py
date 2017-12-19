@@ -316,6 +316,42 @@ def _get_scan_type(parts):
     
     return scan_type
 
+def _get_trk_option(parts):
+
+    x = cache.get('trkopt')
+    if x: return x
+
+
+    vals = set([part['trkopt'] for part in parts])
+    if len(vals) != 1:
+        msg = '%s: cannot determine if trkopt ' %  err_hdr
+        raise RuntimeError(msg)
+
+    
+    trkopt = vals.pop()
+    trk_options = ('notrk', 'ftk', 'ftkrefit')
+
+    if trkopt not in trk_options:
+        msg = '%s unknown track option %s allowed: %s' % (err_hdr,
+                                                      trkopt,
+                                                      str(trk_options))
+
+    if 'ftk' in trkopt:
+        scan_type = _get_scan_type(parts)
+        if scan_type != 'FS':
+            msg = '%s: ftk tracking switched on for scan type %s' % (
+                err_hdr, scan_type)
+            raise RuntimeError(msg)
+        data_type = _get_data_type(parts)
+        if data_type != 'tc':
+            msg = '%s: ftk tracking switched on for data type %s' % (
+                err_hdr, data_type)
+            raise RuntimeError(msg)
+
+    _update_cache('trkopt', trkopt)
+    
+    return trkopt
+
 
 def _get_fex_alg_name(parts):
 
@@ -639,6 +675,7 @@ def chainConfigMaker(d):
     md.data_type = _get_data_type(parts)
     md.fex_params = _get_fex_params(parts)
     md.scan_type = _get_scan_type(parts)
+    md.trkopt = _get_trk_option(parts)
 
     if do_recl:
         md.second_fex_params = _get_recl_params(parts)

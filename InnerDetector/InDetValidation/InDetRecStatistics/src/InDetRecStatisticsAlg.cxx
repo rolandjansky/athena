@@ -83,38 +83,49 @@ static const char *s_linestr2 = "...............................................
 //static const int s_ERRORVALUE = -999999;
 
 InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), 
-  m_truthToTrack             ("Trk::TruthToTrack"),
-  m_trkSummaryTool           ("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
-  m_assoTool("Trk::PRD_AssociationTool"),
-  m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
-  m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-  m_McTrackCollection_key    ("TruthEvent"),
-  m_trackSelectorTool("InDet::InDetDetailedTrackSelectorTool"),
-  m_doSharedHits             (true),
-  m_UseTrackSummary          (true),
-  m_printSecondary           (false),
-  m_minPt                    (1000),
-  m_maxEta                   (2.7),
-  m_maxEtaBarrel             (0.8),
-  m_maxEtaTransition         (1.6),
-  m_maxEtaEndcap             (2.5),
-  m_fakeTrackCut             (0.9),
-  m_fakeTrackCut2            (0.7),
-  m_matchTrackCut            (0.5),
-  m_maxRStartPrimary         (  25.0*CLHEP::mm),
-  m_maxRStartSecondary       ( 360.0*CLHEP::mm),
-  m_maxZStartPrimary         ( 200.0*CLHEP::mm),
-  m_maxZStartSecondary       (2000.0*CLHEP::mm),
-  m_minREndPrimary           ( 400.0*CLHEP::mm),
-  m_minREndSecondary         (1000.0*CLHEP::mm), 
-  m_minZEndPrimary           (2300.0*CLHEP::mm),
+  AthAlgorithm(name, pSvcLocator),
+  m_particleDataTable          (nullptr),
+  m_trtID                      (nullptr),
+  m_idDictMgr                  (nullptr),
+  m_truthToTrack               ("Trk::TruthToTrack"),
+  m_trkSummaryTool             ("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
+  m_assoTool                   ("Trk::PRD_AssociationTool"),
+  m_updatorHandle              ("Trk::KalmanUpdator/TrkKalmanUpdator"),
+  m_updator                    (nullptr),
+  m_residualPullCalculator     ("Trk::ResidualPullCalculator/ResidualPullCalculator"),
+  m_McTrackCollection_key      ("TruthEvent"),
+  m_trackSelectorTool          ("InDet::InDetDetailedTrackSelectorTool"),
+  m_doSharedHits               (true),
+  m_UseTrackSummary            (true),
+  m_printSecondary             (false),
+  m_minPt                      (1000),
+  m_maxEta                     (2.7),
+  m_maxEtaBarrel               (0.8),
+  m_maxEtaTransition           (1.6),
+  m_maxEtaEndcap               (2.5),
+  m_fakeTrackCut               (0.9),
+  m_fakeTrackCut2              (0.7),
+  m_matchTrackCut              (0.5),
+  m_maxRStartPrimary           (  25.0*CLHEP::mm),
+  m_maxRStartSecondary         ( 360.0*CLHEP::mm),
+  m_maxZStartPrimary           ( 200.0*CLHEP::mm),
+  m_maxZStartSecondary         (2000.0*CLHEP::mm),
+  m_minREndPrimary             ( 400.0*CLHEP::mm),
+  m_minREndSecondary           (1000.0*CLHEP::mm), 
+  m_minZEndPrimary             (2300.0*CLHEP::mm),
   //m_maxZIndet                (),
-  m_minZEndSecondary         (3200.0*CLHEP::mm),
-  m_useTrackSelection        (false),
-  m_doTruth                  (true),
-  m_minEtaDBM (2.5),
-  m_maxEtaDBM (10.0)
+  m_minZEndSecondary           (3200.0*CLHEP::mm),
+  m_useTrackSelection          (false),
+  m_doTruth                    (true),
+  m_minEtaDBM                  (2.5),
+  m_maxEtaDBM                  (10.0),
+  m_isUnbiased                 (0),
+  m_rec_tracks_without_perigee (0),
+  m_unknown_hits               (0),
+  m_events_processed           (0),
+  m_rec_tracks_processed       (0),
+  m_gen_tracks_processed       (0),
+  m_spacepoints_processed      (0)
 {  
   // m_RecTrackCollection_keys.push_back(std::string("Tracks"));
   // m_TrackTruthCollection_keys.push_back(std::string("TrackTruthCollection"));
@@ -651,14 +662,36 @@ selectGenSignal  (const McEventCollection* SimTracks,
   return;
 }
 
+namespace {
+    class StreamState
+    {
+    public:
+      StreamState(std::ostream& out)
+           : m_out(out), m_fmt(out.flags())
+       {
+       }
+
+       ~StreamState()
+       {
+	   m_out.flags(m_fmt);
+       }
+
+    private:
+       std::ostream& m_out;
+       std::ios_base::fmtflags m_fmt;
+    };
+}
+
+
 void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   ATH_MSG_INFO(" ********** Beginning InDetRecStatistics Statistics Table ***********");
   ATH_MSG_INFO("For documentation see https://twiki.cern.ch/twiki/bin/view/Atlas/InDetRecStatistics");
-  ATH_MSG_INFO("(or for guarenteed latest version: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/InnerDetector/InDetValidation/InDetRecStatistics/doc/mainpage.h?&view=markup )");
+  ATH_MSG_INFO("(or for guaranteed latest version: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/InnerDetector/InDetValidation/InDetRecStatistics/doc/mainpage.h?&view=markup )");
   ATH_MSG_INFO(" ********************************************************************");
   //  if(msgSvc.outputLevel() >= MSG::INFO){
+  StreamState restore_precision (std::cout);
   std::cout << MSG::INFO 
-	    <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) 
+	    << std::setiosflags(std::ios::fixed | std::ios::showpoint)  
 	    << std::setw(7) << std::setprecision(2)
 	    << s_linestr << std::endl
 	    << "Summary" << std::endl 

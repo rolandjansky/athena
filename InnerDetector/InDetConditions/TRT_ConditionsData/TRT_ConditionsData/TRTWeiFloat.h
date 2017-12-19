@@ -18,9 +18,7 @@
 #include <map>
 #include <algorithm>
 #include "DetDescrConditions/DetCondFloat.h"
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 class Identifier;
 

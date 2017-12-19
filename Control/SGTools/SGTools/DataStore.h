@@ -42,21 +42,28 @@ namespace SG {
   /**
    * @brief Hold DataProxy instances associated with a store.
    *
-   * We have two ways of looking up a proxy.
+   * We hold proxies in several ways, for efficiency.
    *
-   * First, the proxy is stored by CLID/key in m_storeMap.  This is a map
-   * indexed by CLID; the values are maps indexed by key.
+   * First, all proxies that we manage are entered in the m_proxies vector.
+   * A given proxy appears only once in this list.
    *
    * Second, m_keyMap stores proxies indexed by the hashed CLID/key.
+   * A proxy may be entered here multiple times in the case of symlinks
+   * or alias; however, the entry corresponding to what proxy->sgkey()
+   * returns is called the `primary' entry.  The mapped value  is actually
+   * an int/DataProxy* pair.  For the primary entry, the integer is the
+   * index of the proxy in m_proxies; for other entries, it is -1.
    *
-   * A proxy may be entered multiple times in the maps if there are
-   * symlinks or aliases.
+   * Third, proxies are stored by CLID/key in m_storeMap.  This is a map
+   * indexed by CLID; the values are maps indexed by key.  A proxy may again
+   * be stored several times in this map in the case of symlinks/aliases.
    *
    * A proxy may be given to the store that has the hashed key set,
    * but not the CLID/key.  This is referred to as a `dummy' proxy.
    * This can happen when we read a link to an object that's not
    * described in the event's DataHeader.  In this case, the proxy
-   * is entered only in the second map, m_keyMap.  If we later look
+   * is entered in m_proxies and m_keyMap, but not in m_storeMap.
+   * If we later look
    * for a proxy by CLID/key and don't find it, we also look in m_keyMap
    * to see if a dummy proxy has been entered there.  If so, that point
    * we fill in the CLID/key fields of the proxy and also enter
@@ -134,14 +141,11 @@ namespace SG {
     StatusCode pRange(const CLID& id, SG::ConstProxyIterator& f,
 		      SG::ConstProxyIterator& e) const;
 
-    /// Return a list of all valid proxies in the store:
-    StatusCode proxyList(std::list<DataProxy*>& pList) const;
-
 
     /// set IPageAccessControlSvc ptr in T2PMap
     void setPac(IPageAccessControlSvc* pac) { m_t2p.setPac(pac); }
     /// request an access control report, i.e. a list of proxies that have not been accessed since monitored
-    std::vector<DataProxy*> pacReport() const { return m_t2p.pacReport();}
+    std::vector<const DataProxy*> pacReport() const { return m_t2p.pacReport();}
 
     /// methods to query the T2PMap:
     StatusCode t2pRegister(const void* const pTrans, DataProxy* const pPers);
@@ -155,14 +159,21 @@ namespace SG {
 	      bool includeAlias, bool onlyValid);
 
   private:
-
     /// The string pool associated with this store.
     IProxyDict& m_pool;
 
+    /// All proxies managed by this store.  Every proxy appears exactly
+    /// once in this list.
+    std::vector<DataProxy*> m_proxies;
+
+    /// Maps locating proxies by clid/key.
     StoreMap m_storeMap;
 
     /// Map of hashed sgkey -> DataProxy.
-    typedef std::unordered_map<sgkey_t, DataProxy*> KeyMap_t;
+    /// For the primary entry, the integer is in the index of this proxy
+    /// in m_proxies; otherwise, it is -1.
+    typedef std::pair<int, DataProxy*> KeyPayload_t;
+    typedef std::unordered_map<sgkey_t, KeyPayload_t> KeyMap_t;
     KeyMap_t m_keyMap;
 
     StoreID::type m_storeID;

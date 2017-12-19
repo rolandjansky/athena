@@ -25,7 +25,7 @@ using namespace std;
 
 ProxyProviderSvc::ProxyProviderSvc(const std::string& name, 
                                    ISvcLocator* svcLoc): 
-  AthService(name, svcLoc),
+  base_class(name, svcLoc),
   m_pDataLoader(0)
 {
   declareProperty("ProviderNames", m_providerNames,
@@ -58,6 +58,12 @@ ProxyProviderSvc::initialize()
     return StatusCode::FAILURE;
   }
 
+  // Take care of any pending preLoadProxies requests.
+  for (IProxyRegistry* reg : m_pendingLoad) {
+    CHECK( doPreLoadProxies (*reg) );
+  }
+  m_pendingLoad.clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -80,11 +86,11 @@ void setProviderOnList (ProxyProviderSvc::TAdList& tList,
 } // anonymous namespace
 
 
-///IProxyProvider interface
-/// add proxies (before Begin Event)
 StatusCode 
-ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
+ProxyProviderSvc::doPreLoadProxies(IProxyRegistry& store)
 {
+  if (m_providers.empty()) return StatusCode::SUCCESS;
+
   StoreID::type storeID = store.storeID();
   TAdList tList;
   for (IAddressProvider* provider : m_providers) {
@@ -97,10 +103,30 @@ ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
 
 
 ///IProxyProvider interface
+/// add proxies (before Begin Event)
+StatusCode 
+ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
+{
+  // Due to initialization loops, it's possible for this to be called
+  // before the service is fully initialized.  In that case, we may
+  // skip calling some of the providers.  So we haven't been fully initialized,
+  // don't do anything now; rather, remember the store, and call
+  // preLoadProxies again for it at the end of initialize().
+  if (FSMState() == Gaudi::StateMachine::OFFLINE) {
+    m_pendingLoad.push_back (&store);
+    return StatusCode::SUCCESS;
+  }
+  return doPreLoadProxies (store);
+}
+
+
+///IProxyProvider interface
 ///add proxies to the store to modify
 StatusCode 
 ProxyProviderSvc::loadProxies(IProxyRegistry& store)
 {
+  if (m_providers.empty()) return StatusCode::SUCCESS;
+
   StoreID::type storeID = store.storeID();
   TAdList tList;
   for (IAddressProvider* provider : m_providers) {
@@ -130,12 +156,11 @@ StatusCode ProxyProviderSvc::addAddresses(IProxyRegistry& store,
       if (proxy->provider() == 0) {
         proxy->setProvider(tad->provider(), store.storeID());
       }
-      delete tad;
-      tad = nullptr;
     }
     else {
-      if ( 0 == addAddress(store, tad) ) return StatusCode::FAILURE;
+      if ( 0 == addAddress(store, std::move(*tad)) ) return StatusCode::FAILURE;
     }
+    delete tad;
   }
   
   return StatusCode::SUCCESS;
@@ -145,43 +170,44 @@ StatusCode ProxyProviderSvc::addAddresses(IProxyRegistry& store,
 ///create a new Proxy, overriding CLID and/or key
 SG::DataProxy*
 ProxyProviderSvc::addAddress(IProxyRegistry& store, 
-			     SG::TransientAddress* tAddr) 
+			     SG::TransientAddress&& tAddr) 
 {  
   //HACK! The proxies for all object those key starts with "HLTAutoKey" will be deleted at the end of each event (resetOnly=false)
   //hence avoiding the proxy explosion observed with trigger object for releases <= 14.1.0
-  bool resetOnly(tAddr->name().substr(0,10) != std::string("HLTAutoKey"));
+  bool resetOnly(tAddr.name().substr(0,10) != std::string("HLTAutoKey"));
   // std::cout << "PPS:addAdress: proxy for key " << tAddr->name() << " has resetOnly " << resetOnly << std::endl;
-  SG::DataProxy* dp = new SG::DataProxy(tAddr, m_pDataLoader, true, resetOnly );
+  SG::DataProxy* dp = new SG::DataProxy(std::move(tAddr),
+                                        m_pDataLoader, true, resetOnly );
   //  store.addToStore(tAddr->clID(),dp);
   //  ATH_MSG_VERBOSE("created proxy for " << tAddr->clID() << "/" << tAddr->name() << "using " << m_pDataLoader->repSvcType());
 
   bool addedProxy(false);
   // loop over all the transient CLIDs:
-  SG::TransientAddress::TransientClidSet tClid = tAddr->transientID();
+  SG::TransientAddress::TransientClidSet tClid = dp->transientID();
   for (CLID clid : tClid) {
     addedProxy |= (store.addToStore(clid, dp)).isSuccess();
   }
 
   if (addedProxy) {
     // loop over all alias'
-    for (const std::string& alias : tAddr->alias()) {
+    for (const std::string& alias : dp->alias()) {
       (store.addAlias(alias, dp)).ignore();
     }
     
     // Add any other allowable conversions.
-    const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (tAddr->clID());
+    const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (dp->clID());
     if (bi) {
       for (CLID clid : bi->get_bases()) {
         if (std::find (tClid.begin(), tClid.end(), clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
-          tAddr->setTransientID (clid);
+          dp->setTransientID (clid);
         }
       }
 
       for (CLID clid : bi->get_copy_conversions()) {
         if (std::find (tClid.begin(), tClid.end(), clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
-          tAddr->setTransientID (clid);
+          dp->setTransientID (clid);
         }
       }
     }
@@ -192,31 +218,27 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
   return dp;
 }
 
-///get the default proxy from Provider
+/// Use a provider to create a proxy for ID/KEY.
+/// If successful, the new proxy will be added to DATASTORE
+/// and returned; otherwise, return null.
 SG::DataProxy* 
 ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
 				IProxyRegistry& store)
 {
-
-  SG::DataProxy *dp;
-  if ( (dp=store.proxy(id,key)) != 0 ) return dp;
-
-  if ( store.storeID() != StoreID::SIMPLE_STORE ) {
+  if ( !m_providers.empty() && store.storeID() != StoreID::SIMPLE_STORE ) {
     const EventContext& ctx = contextFromStore (store);
-    SG::TransientAddress* pTAd = new SG::TransientAddress(id, key);
+    SG::TransientAddress pTAd (id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
     for (; iProvider != iEnd; iProvider++) {
-      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd,ctx)).isSuccess() ) 
+      if ( ((*iProvider)->updateAddress(store.storeID(),&pTAd,ctx)).isSuccess() ) 
 	{
-	  pTAd->setProvider(*iProvider, store.storeID());
-	  return this->addAddress(store,pTAd);
+	  pTAd.setProvider(*iProvider, store.storeID());
+	  return this->addAddress(store,std::move(pTAd));
 	}
     }  
-    delete pTAd; pTAd=0;
   }  
   
-  return 0;
-
+  return nullptr;
 }
 
 /**
@@ -236,24 +258,6 @@ const EventContext& ProxyProviderSvc::contextFromStore (IProxyRegistry& ds) cons
   }
   static const EventContext emptyContext;
   return emptyContext;
-}
-
-
-/// Gaudi Service boilerplate
-/// Gaudi_cast...
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-ProxyProviderSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( IProxyProviderSvc::interfaceID().versionMatch(riid) )    {
-    *ppvInterface = (IProxyProviderSvc*)this;
-  }
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }
 
 

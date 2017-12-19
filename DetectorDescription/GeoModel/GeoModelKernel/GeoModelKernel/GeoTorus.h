@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoTorus_h
-#define GeoTorus_h 1
+#ifndef GEOMODELKERNEL_GEOTORUS_H
+#define GEOMODELKERNEL_GEOTORUS_H
 
 #include "GeoModelKernel/GeoShape.h"
 

@@ -94,22 +94,22 @@ StatusCode TRT_SimDriftTimeTool::initialize()
 
       // Tabulate mean drifttimes at no and max field.
       // Fill different tables for Xe, Kr and Ar-based gas mixtures
-      std::vector<double> _m_table_of_dist2meanDT_at_noField;
-      std::vector<double> _m_table_of_dist2meanDT_at_maxField;
+      std::vector<double> table_of_dist2meanDT_at_noField;
+      std::vector<double> table_of_dist2meanDT_at_maxField;
 
-      _m_table_of_dist2meanDT_at_noField.resize(m_nTabulatedDistances);
-      _m_table_of_dist2meanDT_at_maxField.resize(m_nTabulatedDistances);
+      table_of_dist2meanDT_at_noField.resize(m_nTabulatedDistances);
+      table_of_dist2meanDT_at_maxField.resize(m_nTabulatedDistances);
 
       for (unsigned int distIndex = 0; distIndex < m_nTabulatedDistances; distIndex++)
         {
           double distance = ((m_maxDistance-m_minDistance)*distIndex)/(m_nTabulatedDistances-1.0)+m_minDistance;
           if (distIndex == m_nTabulatedDistances-1) distance = m_maxDistance;//to avoid a numerical mistake.
-          _m_table_of_dist2meanDT_at_noField[distIndex]  = pDTData[i]->DriftTimeAtNoField(distance);
-          _m_table_of_dist2meanDT_at_maxField[distIndex] = pDTData[i]->DriftTimeAtMaxField(distance);
+          table_of_dist2meanDT_at_noField[distIndex]  = pDTData[i]->DriftTimeAtNoField(distance);
+          table_of_dist2meanDT_at_maxField[distIndex] = pDTData[i]->DriftTimeAtMaxField(distance);
         }
 
-      m_table_of_dist2meanDT_at_noField.push_back(_m_table_of_dist2meanDT_at_noField);
-      m_table_of_dist2meanDT_at_maxField.push_back(_m_table_of_dist2meanDT_at_maxField);
+      m_table_of_dist2meanDT_at_noField.push_back(table_of_dist2meanDT_at_noField);
+      m_table_of_dist2meanDT_at_maxField.push_back(table_of_dist2meanDT_at_maxField);
 
     }
 

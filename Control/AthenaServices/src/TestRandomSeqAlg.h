@@ -12,7 +12,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 class IAtRndmGenSvc;
 namespace CLHEP { class HepRandomEngine; }
-template <class ConcreteAlgorithm> class AlgFactory;
 /** @class TestRandomSegAlg
    * @brief a trivial algorithm to test the sequence of random numbers
    * produced by an IAtRndmGenSvc
@@ -23,6 +22,7 @@ template <class ConcreteAlgorithm> class AlgFactory;
 class TestRandomSeqAlg : public AthAlgorithm {
 
 public:
+  TestRandomSeqAlg(const std::string& name, ISvcLocator* pSvcLocator);
   /// \name implement IAlgorithm
   //@{
   virtual StatusCode initialize();
@@ -36,8 +36,6 @@ private:
   StringProperty m_streamName;
   /// number of random numbers to shoot (and print)
   IntegerProperty           m_noOfNo;
-  friend class AlgFactory<TestRandomSeqAlg>;
-  TestRandomSeqAlg(const std::string& name, ISvcLocator* pSvcLocator);
   CLHEP::HepRandomEngine* m_pEng;
 };
 

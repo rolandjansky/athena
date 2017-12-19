@@ -92,6 +92,7 @@ objects = [
 'xAOD::TrigElectronAuxContainer_v1',
 'xAOD::JetContainer_v1',
 'xAOD::JetTrigAuxContainer_v1',
+'xAOD::JetTrigAuxContainer_v2',
 'xAOD::TrigDecision_v1',
 'xAOD::TrigDecisionAuxInfo_v1',
 'xAOD::TrigConfKeys_v1',

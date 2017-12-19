@@ -15,6 +15,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <atomic>
 #include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/assign/list_of.hpp>
@@ -38,7 +39,7 @@ using boost::assign::list_of;
 //************************************************************************
 
 struct AbsFluff {
-  static int s_alive;
+  static std::atomic<int> s_alive;
   AbsFluff() { ++s_alive; }
   virtual ~AbsFluff() {
     std::cout << " ----> Destructor of AbsFluff called for " << this 
@@ -48,7 +49,7 @@ struct AbsFluff {
   virtual void cfoo() const = 0;
 };
 
-int AbsFluff::s_alive = 0;
+std::atomic<int> AbsFluff::s_alive;
 
 struct DerivedFluff : public AbsFluff {
   int m_int;
@@ -362,14 +363,14 @@ void test2_myassert()
 void test2_check_indices()
 {
   DataVector<BB> vbb;
-  typename DataVector<BB>::PtrVector& pbb =
+  typename DataVector<BB>::PtrVector& pbb ATLAS_THREAD_SAFE =
     const_cast<typename DataVector<BB>::PtrVector&> (vbb.stdcont());
   pbb.push_back (new BB(1));
   pbb.push_back (new BB(2));
   CHECK_INDICES(vbb);
 
   DataVector<BAux> vba;
-  typename DataVector<BAux>::PtrVector& pba =
+  typename DataVector<BAux>::PtrVector& pba ATLAS_THREAD_SAFE =
     const_cast<typename DataVector<BAux>::PtrVector&> (vba.stdcont());
   pba.push_back (new BAux(1));
   pba.push_back (new BAux(2));
@@ -869,6 +870,28 @@ void test_insertmove()
 }
 
 
+class VBase
+  : public DataVector<int>
+{
+public:
+  VBase (SG::OwnershipPolicy ownPolicy, float f)
+    : DataVector<int> (ownPolicy), m_f(f)
+  {
+  }
+
+  float m_f;
+};
+
+
+// Test forwarding ctor of ConstDataVector.
+void test_constctor()
+{
+  std::cout << "test_constctor\n";
+  ConstDataVector<VBase> vb (SG::OWN_ELEMENTS, 1.5);
+  assert (vb.asDataVector()->m_f == 1.5);
+}
+
+
 int main()
 {
   test1();
@@ -880,6 +903,7 @@ int main()
   test_auxdata();
   test_emptysort();
   test_insertmove();
+  test_constctor();
   return 0;
 }
 

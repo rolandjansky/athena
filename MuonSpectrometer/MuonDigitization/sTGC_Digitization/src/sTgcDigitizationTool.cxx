@@ -19,6 +19,7 @@
 //sTGC digitization includes
 #include "sTGC_Digitization/sTgcDigitizationTool.h"
 #include "sTGC_Digitization/sTgcDigitMaker.h"
+#include "sTGC_Digitization/sTgcVMMSim.h"
 
 //Gaudi - Core
 #include "GaudiKernel/MsgStream.h"
@@ -89,9 +90,14 @@ typedef struct {
 } structReadoutElement;
 typedef std::map<Identifier,std::pair<structReadoutElement, std::vector<tempDigitType> > > tempDigitCollectionType; // map<ReadoutElementID, pair< read or not,  all DigitObject with the identical ReadoutElementId but at different time>>; for the int(read or not) : 0 --> do not read this strip, 1 --> turned on by neighborOn mode; 2 --> this channel has signal over threshold
 typedef std::map<IdentifierHash, tempDigitCollectionType> tempDigitContainerType; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
+typedef std::map<GenericMuonSimHit*, int> tempHitEventMap; // use IdentifierHashId, similar structure as the <sTgcDigitCollection>
 
 inline bool sort_EarlyToLate(tempDigitType a, tempDigitType b){
   return a.first < b.first;
+}
+
+inline bool sort_digitsEarlyToLate(sTgcDigit a, sTgcDigit b){
+  return a.time() < b.time();
 }
 
 /*******************************************************************************/
@@ -123,13 +129,18 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
 	m_produceDeadDigits(0),
     m_deadtimeStrip(50.),
     m_deadtimePad(5.),
+    m_deadtimeWire(5.),
+    m_readtimeStrip(6.25),
+    m_readtimePad(6.25),
+    m_readtimeWire(6.25),
     m_timeWindowOffsetPad(0),
     m_timeWindowOffsetStrip(0),
     m_timeWindowPad(30.),
     m_timeWindowStrip(30.),
     m_bunchCrossingTime(0),
     m_timeJitterElectronicsStrip(0),
-    m_timeJitterElectronicsPad(0)
+    m_timeJitterElectronicsPad(0),
+    m_hitTimeMergeThreshold(0)
 
     //m_file(0),
     //m_SimHitOrg(0),
@@ -171,7 +182,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_MSG_INFO ( "MCStore                " << m_sgSvc               );
   ATH_MSG_INFO ( "InputObjectName        " << m_inputHitCollectionName );
   ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionName );
-  ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  );
+  //ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  ); //Skip SDO to bypass Trigger Tool error
 
   // initialize transient event store 
   if(m_sgSvc.retrieve().isFailure()) { 
@@ -250,6 +261,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   m_readoutThreshold = 0.05; 
   m_neighborOnThreshold = 0.01;
   m_saturation = 1.75; // = 3500. / 2000.;
+  m_hitTimeMergeThreshold = 1; //1ns = resolution of peak finding descriminator
   //m_ADC = 0.00171; // = m_saturation / (TMath::Power(2, 10));
   //m_ADC = 0.02734; // = m_saturation / (TMath::Power(2, 6));
   //m_deadtimeStrip = 50.; // 50ns deadtime of electronics after peak found (for strip readout) 
@@ -292,31 +304,17 @@ StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 }
 /*******************************************************************************/
 
-#ifdef ATHENA_20_20
-StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
-						  PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						  PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-#else
 StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
 						  SubEventIterator bSubEvents,
 						  SubEventIterator eSubEvents) {
-#endif
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in processBunchXing()" );
   if(!m_thpcsTGC) {
     m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
   }
-#ifdef ATHENA_20_20
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
-#else
   SubEventIterator iEvt = bSubEvents;
-#endif
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
-#ifdef ATHENA_20_20
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-#else
     StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-#endif
     PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
     ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
                      << " bunch crossing : " << bunchXing );
@@ -453,6 +451,7 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   }
   ATH_MSG_DEBUG("sTgcDigitContainer recorded in StoreGate.");
   
+  /*** Skip SDO to bypass an error in Trigger tool
   // create and record the SDO container in StoreGate
   m_sdoContainer = new MuonSimDataCollection();
   status = m_sgSvc->record(m_sdoContainer, m_outputSDO_CollectionName);
@@ -462,7 +461,8 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   } else {
     ATH_MSG_DEBUG("sTgcSDOCollection recorded in StoreGate.");
   }
-  
+  ***/
+
   m_digitInfoCollection = new sTgcDigitInfoCollection();
 
   status = m_sgSvc->record(m_digitInfoCollection, m_outputDigitInfoCollectionName);
@@ -539,60 +539,92 @@ StatusCode sTgcDigitizationTool::doDigitization() {
     
   TimedHitCollection<GenericMuonSimHit>::const_iterator i, e; 
 
-  //int hash_max = m_idHelper->detectorElement_hash_max(); 
+  // Collections of digits by digit type associated with a detector element
+  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedPadDigits;
+  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedStripDigits;
+  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedWireDigits;
+  
+  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > outputDigits;
 
-  tempDigitContainerType tempDigitContainer;
-
-  sTgcDigitCollection* digitCollection = 0;
+  sTgcDigitCollection* digitCollection = 0;  //output digits
 
   m_digitInfoCollection->clear();
 
   ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
 
   IdContext tgcContext = m_idHelper->module_context();
+  
+  float earliestEventTime = 9999;
 
   // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
-  while(m_thpcsTGC->nextDetectorElement(i, e)) {    
-	  std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> > merged_SimHit;
-	  // merge hits
+  while(m_thpcsTGC->nextDetectorElement(i, e)) {
+//	  std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> > merged_SimHit;
+      std::map< const GenericMuonSimHit*, int > SimHits;  //std::map container to associate if this hit came from the signal (0) or pileup (!0) simEvent
 	  int nhits = 0;
-	  while(i != e){
+      ATH_MSG_VERBOSE("Next Detector Element");
+	  while(i != e){ //loop through the hits on this Detector Element
+          ATH_MSG_VERBOSE("Looping over hit " << nhits+1 << " on this Detector Element." );
+          
+          nhits++;
 		  TimedHitPtr<GenericMuonSimHit> phit = *i++;
 		  const GenericMuonSimHit& hit = *phit;
-
+          ATH_MSG_VERBOSE("Hit Particle ID : " << hit.particleEncoding() );
+          float eventTime = phit.eventTime(); 
+          if(eventTime < earliestEventTime) earliestEventTime = eventTime;
 		  // 50MeV cut on kineticEnergy of the particle
-		  if(hit.kineticEnergy()<50.) continue;
-		  nhits++;
-
+		  if(hit.kineticEnergy()<50.) {
+              ATH_MSG_VERBOSE("Hit with Kinetic Energy of " << hit.kineticEnergy() << " less than 50.  Skip this hit." );
+              continue;
+          }
+          if(eventTime != 0){
+             msg(MSG::DEBUG) << "Updated hit global time to include off set of " << eventTime << " ns from OOT bunch." << endmsg;
+          }
+          else {
+              msg(MSG::DEBUG) << "This hit came from the in time bunch." << endmsg;
+          }
 		  sTgcSimIdToOfflineId simToOffline(*m_idHelper);
 		  const int idHit = hit.GenericId();
+          ATH_MSG_VERBOSE("Hit ID " << idHit );
 		  Identifier layid = simToOffline.convert(idHit);
-
-		  std::string stationName= m_idHelper->stationNameString(m_idHelper->stationName(layid));
+          ATH_MSG_VERBOSE("Layer ID[" << layid.getString() << "]");
+          int eventId = phit.eventId();
+          std::string stationName= m_idHelper->stationNameString(m_idHelper->stationName(layid));
 		  int isSmall = stationName[2] == 'S';
-		  int multiPlet = m_idHelper->multilayer(layid);
+//		  int multiPlet = m_idHelper->multilayer(layid);
 		  int gasGap = m_idHelper->gasGap(layid);
+          ATH_MSG_VERBOSE("Gas Gap " << gasGap );
 
-		  const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);
+		  const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);  //retreiving the sTGC this hit is located in
 		  if( !detEL ){
 			msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid)  << endmsg;
 			continue;
 		  }
 
-		  // project the hit position to wire surface (along the incident angle)
-		  Amg::Vector3D HPOS(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
-
-		  const Amg::Vector3D GLOBAL_ORIG(0., 0., 0.);
+          
+          // project the hit position to wire surface (along the incident angle)
+          ATH_MSG_VERBOSE("Projecting hit to Wire Surface" );
+          Amg::Vector3D HPOS(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());  //Global position of the hit
+          const Amg::Vector3D GLOBAL_ORIG(0., 0., 0.);
 		  const Amg::Vector3D GLOBAL_Z(0., 0., 1.);
 		  const Amg::Vector3D GLODIRE(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
 
-		  int surfHash_wire =  detEL->surfaceHash(gasGap, 2);
-		  const Trk::PlaneSurface&  SURF_WIRE = detEL->surface(surfHash_wire);
+          ATH_MSG_VERBOSE("Global Z " << GLOBAL_Z );
+          ATH_MSG_VERBOSE("Global Direction " << GLODIRE );
+          ATH_MSG_VERBOSE("Global Position " << HPOS );
+          
+          int surfHash_wire =  detEL->surfaceHash(gasGap, 2);
+          ATH_MSG_VERBOSE("Surface Hash for wire plane" << surfHash_wire );
+		  const Trk::PlaneSurface&  SURF_WIRE = detEL->surface(surfHash_wire);  //Plane of the wire surface in this gasGap
+          ATH_MSG_VERBOSE("Wire Surface Defined " << SURF_WIRE.center() );
 
 		  Amg::Vector3D LOCAL_Z = SURF_WIRE.transform().inverse()*GLOBAL_Z - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
 		  Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
 
-		  Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;
+		  Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;  //Position of the hit on the wire plane in local coordinates
+          
+          ATH_MSG_VERBOSE("Local Z " << LOCAL_Z );
+          ATH_MSG_VERBOSE("Local Direction " << LOCDIRE );
+          ATH_MSG_VERBOSE("Local Position " << LPOS );
 
 		  double e = 1e-5;
 
@@ -611,67 +643,40 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 		  if(X_s && Y_s && Z_1)
 			  scale = -LPOS.z() / LOCDIRE.z();
 		  else
-			  msg(MSG::ERROR) << " Wrong scale! " << endmsg;
+			  ATH_MSG_ERROR(" Wrong scale! ");
 
-		  Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;
-		  Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;
-
-		  // check the strip id this hit is pointing to
-		  int surfHash_strip = detEL->surfaceHash(gasGap, 1);
-		  const Trk::PlaneSurface&  SURF_STRIP = detEL->surface(surfHash_strip);
-		  Amg::Vector3D hitOnSurface_strip = SURF_STRIP.transform().inverse()*G_HITONSURFACE_WIRE;
-		  Amg::Vector2D POSONSURF_STRIP(hitOnSurface_strip.x(),hitOnSurface_strip.y());
-
-		  Identifier STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, 1, true);// find the a strip id
-		  bool insideBounds = SURF_STRIP.insideBounds(POSONSURF_STRIP);
-		  if(!insideBounds) {
-                    ATH_MSG_DEBUG( "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(STRIP_ID) << "; local position x = "<< POSONSURF_STRIP.x() << "  y = "<<POSONSURF_STRIP.y() );
-                    continue;
-		  }
-
-		  int stripNumber = detEL->stripNumber(POSONSURF_STRIP, STRIP_ID);
-		  if( stripNumber == -1 ){
-			msg(MSG::ERROR) <<"Failed to obtain strip number " << m_idHelper->print_to_string(STRIP_ID) << endmsg;
-			msg(MSG::ERROR) <<" pos " << POSONSURF_STRIP << endmsg;
-		  }
-		  bool isValid = 0;
-		  STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, stripNumber, true, &isValid);
-		  if(!isValid)
-			  continue;
-
-
-		  std::pair<std::pair<double, Amg::Vector3D>, const GenericMuonSimHit* >& entry = merged_SimHit[STRIP_ID];
-		  if(entry.first.first<0) entry.first.first = 0;
-		  entry.first.first += hit.depositEnergy();
-		  entry.first.second = hitOnSurface_strip;
-		  if(!entry.second) {
-		  	int eventId = phit.eventId();
-			  m_hitSourceVec.push_back(eventId);
-			  entry.second = &hit;
-		  }
-
+		  Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;  //Hit on the wire surface attached to the closest wire in local coordinates
+		  Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;  //The hit on the wire in Global coordinates
+          
+          ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
+          ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
+          
+          GenericMuonSimHit* wireHit = new GenericMuonSimHit(idHit, (hit.globalTime() + eventTime), eventTime, G_HITONSURFACE_WIRE, HITONSURFACE_WIRE, hit.globalPrePosition(), hit.localPrePosition(), hit.particleEncoding(), hit.kineticEnergy(), hit.globalDirection(), hit.depositEnergy(), hit.StepLength(), hit.trackNumber() );
+          SimHits[wireHit] = eventId;  //Associate the sub event the hit came from
+          ATH_MSG_VERBOSE("Put hit number " << nhits << " into the map with eventID " << eventId );
 	  } // end of while(i != e)
 
-	  // end of merge hits
- 
-	  ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization next element");
+    
+	  ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
     
     // Loop over the hits:
     int hitNum = 0;
-    typedef std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> >::iterator it_mergedSimHit; 
-
-    for(it_mergedSimHit it_SimHit = merged_SimHit.begin(); it_SimHit!=merged_SimHit.end(); it_SimHit++ ) {
+    typedef std::map< const GenericMuonSimHit*, int >::iterator it_SimHits;
+ 
+        ATH_MSG_VERBOSE("Digitizing " << SimHits.size() << " hits.");
+        
+    for(it_SimHits it_SimHit = SimHits.begin(); it_SimHit!=SimHits.end(); it_SimHit++ ) {
     	hitNum++;
-    	double depositEnergy = it_SimHit->second.first.first;
+    	double depositEnergy = it_SimHit->first->depositEnergy();
     	if(depositEnergy<0) {
     		msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endmsg;
     		continue;
     	}
-    	const GenericMuonSimHit temp_hit = *((it_SimHit->second).second);
+    	const GenericMuonSimHit temp_hit = *(it_SimHit->first);
 
     	const GenericMuonSimHit hit(temp_hit.GenericId(), temp_hit.globalTime(), temp_hit.globalpreTime(),
     			temp_hit.globalPosition(),
-				it_SimHit->second.first.second,
+				temp_hit.localPosition(),
 				temp_hit.globalPrePosition(),
 				temp_hit.localPrePosition(),
 				temp_hit.particleEncoding(),
@@ -688,11 +693,12 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
 		sTgcDigitCollection* digiHits = 0;
 
-		digiHits = m_digitizer->executeDigi(&hit, globalHitTime);
+		digiHits = m_digitizer->executeDigi(&hit, globalHitTime);  //Create all the digits for this particular Sim Hit
 		if(!digiHits)
 			continue;
 
 		sTgcDigitCollection::const_iterator it_digiHits;
+        ATH_MSG_VERBOSE("Hit produced " << digiHits->size() << " digits." );
 		for(it_digiHits=digiHits->begin(); it_digiHits!=digiHits->end(); ++it_digiHits) {
 			/*
 			   NOTE:
@@ -702,7 +708,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			   in a loop of its own!
 			*/
 			// make new sTgcDigit
-			Identifier newDigitId = (*it_digiHits)->identify();
+			Identifier newDigitId = (*it_digiHits)->identify(); //This Identifier should be sufficient to determine which RE the digit is from
 			float newTime = (*it_digiHits)->time();
 			int newChannelType = m_idHelper->channelType((*it_digiHits)->identify());
 
@@ -730,214 +736,335 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
 			bool isDead = 0;
 			bool isPileup = 0;
-			if(m_hitSourceVec[hitNum-1]!= 0)
+            ATH_MSG_VERBOSE("SimHits map second: " << it_SimHit->second << " newTime: " << newTime);
+			if(it_SimHit->second!= 0)  //hit not from the main signal subevent
 				  isPileup = 1;
+                  
+            sTgcDigit* newDigit = new sTgcDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  //Create the digit with updated time and BCTag
+			IdentifierHash coll_hash;  //Hash defining the detector element
+            ATH_MSG_VERBOSE("Unmerged Digit") ;
+            ATH_MSG_VERBOSE(" BC tag = "    << newDigit->bcTag()) ;
+			ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
+			ATH_MSG_VERBOSE(" charge = "    << newDigit->charge()) ;
 
-			IdentifierHash coll_hash;
-
+//
 			m_idHelper->get_detectorElement_hash(elemId, coll_hash);
-
-			std::vector<tempDigitType>& newTempDigit = tempDigitContainer[coll_hash][newDigitId].second;
-			tempDigitContainer[coll_hash][newDigitId].first.readLevel = 0;
-			tempDigitContainer[coll_hash][newDigitId].first.deadtimeStart = -999999.;
-			tempDigitContainer[coll_hash][newDigitId].first.neighborOnTime = -999999.;
-
-			MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.localPosition().x(), hit.localPosition().y()));
-			structDigitType newStructDigit = {newBcTag, newCharge, newChannelType, deposit, 1e6 * hit.depositEnergy(), 0, isDead, isPileup};
-			newTempDigit.push_back(std::make_pair(newTime, newStructDigit));
-	
+            if(newChannelType == 0){ //Pad Digit
+                unmergedPadDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+            }
+            else if(newChannelType == 1){ //Strip Digit
+                unmergedStripDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+            }
+            else if(newChannelType == 2){ //Wire Digit
+                unmergedWireDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+            }
+            delete newDigit;
 		} // end of loop digiHits
 		delete digiHits;
 		digiHits = 0;
     }// end of loop(merged_SimHit)
-    merged_SimHit.clear();
-    m_hitSourceVec.clear();
+    SimHits.clear();
   }//while(m_thpcsTGC->nextDetectorElement(i, e))
+  
+       /*********************
+       * Process Pad Digits *
+       *********************/
+        /*Comments from Jesse Heilman, Apr 12, 2017:
+        * Handing Pad digits is fairly striaghtforward: loop over the digits, merge any that are within the allowed
+        * time window, sort the digits by time and then determine if any digits fall in the deadtime window of 
+        * previous digits.  This can be done in one pass because there is no interaction between pads.
+        */
+   ATH_MSG_VERBOSE("Processing Pad Digits");
+   int nPadDigits = 0;
+   for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
+   for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
+       std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
+       
+       /*******************
+       * Merge Pad Digits *
+       *******************/       
+   
+       std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
+       std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+       e--;  //decrement e to be the last element and not the beyond the last element iterator
+       
+       while( i!=e ) { 
+           sTgcDigit digit1 = (*i);
+           sTgcDigit digit2 = (*(i+1));
+           if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
+               ATH_MSG_VERBOSE("Merging Digits on REID[" << it_REID->first.getString() << "]");
+               ATH_MSG_VERBOSE("digit1: " << digit1.time() << ", " << digit1.charge());
+               ATH_MSG_VERBOSE("digit2: " << digit2.time() << ", " << digit2.charge());
+               bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
+               i->set_isPileup(mergedIsPileup);
+               it_REID->second.erase (i+1); //remove the later time digit
+               e = it_REID->second.end();  //update the end iterator
+               e--; //decrement e to be the last element and not the beyond the last element iterator
+               ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
+           }
+           else ++i; //There was not a hit to merge: move onto the next one
+       }
+       ATH_MSG_VERBOSE("Merging complete for Pad REID[" << it_REID->first.getString() << "]");
+       ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
+       /*************************
+       * Calculate Pad deadtime *
+       **************************/
+       ATH_MSG_VERBOSE("Calculating deadtime for Pad REID[" << it_REID->first.getString() << "]");
+       
+       float vmmStartTime = (*(it_REID->second.begin())).time();
+       
+       sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+       theVMM->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+       theVMM->initialReport();
+       
+       bool vmmControl = true;
+       
+       
+       while(vmmControl)
+       {
+           ATH_MSG_VERBOSE("Tick on Pad REID[" << it_REID->first.getString() << "]");
+           vmmControl = theVMM->tick(); //advance the clock.  returns false if no more digits in 
+           ATH_MSG_VERBOSE("Tick returned " << vmmControl);
+           if(vmmControl) {
+               ATH_MSG_VERBOSE("Tock on Pad REID[" << it_REID->first.getString() << "]");
+               theVMM->tock(); //update readout status
+               sTgcDigit* flushedDigit = theVMM->flush(); // Flush the digit buffer
+               if(flushedDigit) {
+                   outputDigits[it_DETEL->first][it_REID->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
+                   nPadDigits++;
+                   ATH_MSG_VERBOSE("Flushed Digit") ;
+                   ATH_MSG_VERBOSE(" BC tag = "    << flushedDigit->bcTag()) ;
+                   ATH_MSG_VERBOSE(" digitTime = " << flushedDigit->time()) ;
+                   ATH_MSG_VERBOSE(" charge = "    << flushedDigit->charge()) ;
 
-  //after looping all the hit in a single event, add noise factor, simulation VMM "neighborOn" mode and cut at a threshold for each readout element, remove the readout elements do not pass the threshold
+                }
+               else ATH_MSG_VERBOSE("No digit for this timestep on Pad REID[" << it_REID->first.getString() << "]");
+           }
+       }
+   }
+   }
+   ATH_MSG_VERBOSE("There are " << nPadDigits << " flushed pad digits in this event.");
+   
+       /***********************
+       * Process Strip Digits *
+       ***********************/
+
+       /*Comments from Jesse Heilman, Apr 12, 2017:
+        * Handing Strip digits is a particular challenge due to the NeighborOn functionality of the strip Readout.
+        * This means that the deadtime for strips can not just happen simply from whenever a strip goes over the 
+        * threshold, as happens in the Pads (where the threshold is any charge).  When a strip goes over threshold
+        * in NeighborOn mode, it triggers the readout of its neighboring strips at the same time.  If these strips
+        * then go over threshold, they trigger their neighbors and so on until a neighbor does not cross the 
+        * threshold.  Practically this means that we must loop over all the strip digits, keeping track of their
+        * readout triggers and propogating these triggers to neighboring strips before we can assign deadtime windows
+        * and decide which digits to keep.
+        */
+   ATH_MSG_VERBOSE("Processing Strip Digits");
+   std::map< IdentifierHash, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
+   int nStripDigits = 0;
+    for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
+    for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
+       std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
+       
+       /*******************
+       * Merge Strip Digits *
+       *******************/       
+   
+       std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
+       std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+       e--;
+       
+       while( i!=e ) { 
+           sTgcDigit digit1 = (*i);
+           sTgcDigit digit2 = (*(i+1));
+           if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
+               ATH_MSG_VERBOSE("Merging Digits on REID[" << it_REID->first.getString() << "]");
+               float mergedCharge = digit1.charge() + digit2.charge();
+               bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
+               i->set_charge(mergedCharge);
+               i->set_isPileup(mergedIsPileup);
+               it_REID->second.erase (i+1); //remove the later time digit
+               e = it_REID->second.end();  //update the end iterator
+               e--; //decrement e to be the last element and not the beyond the last element iterator
+               ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
+           }
+           else ++i; //There was not a hit to merge: move onto the next one
+       }
+       ATH_MSG_VERBOSE("Merging complete for Strip REID[" << it_REID->first.getString() << "]");
+       ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
+//       float vmmStartTime = (*(it_REID->second.begin())).time();
+       vmmArray[it_DETEL->first][it_REID->first].first = true;
+       vmmArray[it_DETEL->first][it_REID->first].second = new sTgcVMMSim(it_REID->second, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1);  // object to simulate the VMM response
+       vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
+    }
+    }
+   for(std::map< IdentifierHash, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > >::iterator it_DETEL = vmmArray.begin(); it_DETEL != vmmArray.end(); ++it_DETEL) {
+   bool vmmTerminateSignal = false; // when all channels are done processing this will flip true
+   while(true){
+       vmmTerminateSignal = false;
+       for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM ticks
+          ATH_MSG_VERBOSE("Strip REID[" << it_VMM->first.getString() << "]");
+          if (it_VMM->second.first) it_VMM->second.first = it_VMM->second.second->tick();  // returns true if there are still digits to process as well as advances the clock
+          vmmTerminateSignal = (vmmTerminateSignal || it_VMM->second.first);  // record the presence of at least one channel with digits to process
+       }
+       vmmTerminateSignal = !vmmTerminateSignal; // flip the signal bit so it terminates if all channels reported false
+       if(vmmTerminateSignal) {
+           ATH_MSG_VERBOSE("No more digits to process.  Breaking VMM Loop.");
+           break; //Break the Loop if there are no more digits to process
+       }
+       for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM tocks
+          bool thresholdCrossed = false;
+          if (it_VMM->second.first) {
+              ATH_MSG_VERBOSE("Strip REID[" << it_VMM->first.getString() << "]");
+              thresholdCrossed = it_VMM->second.second->tock();  // returns true if an overthreshold digit was in the buffer
+          }
+          
+          if(thresholdCrossed) {  // If a strip crosses threshold activate neighbor channels
+              Identifier parentId = m_idHelper->parentID(it_VMM->first);
+              int multiPlet = m_idHelper->multilayer(it_VMM->first);
+              int gasGap = m_idHelper->gasGap(it_VMM->first);
+              int channelType = m_idHelper->channelType(it_VMM->first);
+              int stripNumber = m_idHelper->channel(it_VMM->first);
+              
+              bool isValid = false;
+              // Alexandre Laurier 2017-11-17: This block can create issues.
+              // We need to make sure we dont try to add out of range neighbors to the most extreme strips, ie first and last
+              // Currently, we only check to not add strip # 0
+              Identifier neighborPlusId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
+              if(isValid && it_DETEL->second.count(neighborPlusId) == 1) //The neighbor strip exists and has had a vmm made for it
+              {
+                  ATH_MSG_VERBOSE("Neighbor Trigger on REID[" << neighborPlusId.getString() << "]");
+                  it_DETEL->second[neighborPlusId].second->neighborTrigger();
+                  
+              }
+              if (stripNumber!=1){
+                Identifier neighborMinusId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
+                if(isValid && it_DETEL->second.count(neighborMinusId) == 1) //The neighbor strip exists and has had a vmm made for it
+                {
+                    ATH_MSG_VERBOSE("Neighbor Trigger on REID[" << neighborMinusId.getString() << "]");
+                    it_DETEL->second[neighborMinusId].second->neighborTrigger();
+                  
+                }
+              }
+          }
+       }
+       
+       for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM flushes
+          sTgcDigit* flushedDigit = it_VMM->second.second->flush();  //Readout the digit buffer
+          if(flushedDigit) {
+              outputDigits[it_DETEL->first][it_VMM->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
+              nStripDigits++;
+          }
+          else ATH_MSG_VERBOSE("No digit for this timestep on Strip REID[" << it_VMM->first.getString() << "]");
+       }
+   }
+   }
+   ATH_MSG_VERBOSE("There are " << nStripDigits << " flushed strip digits in this event.");
+   
+   /**********************************
+    * WIRE DIGIT CODE SHOULD GO HERE *
+    *********************************/
+   /*** Comment by Chav Chhiv Chau, October 25 2017
+    * First implementation of wire response is simple.
+    * - When a wire is fired, a digit is recorded for the corresponding
+    *   wiregroup. The response implemented is similar to that for pad.
+    * TODO: a wiregroup digit should be the sum of currents read by wires
+    *       part of that wiregroup
+    */
+   
+   int nWGDigits = 0;
+   for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedWireDigits.begin(); it_DETEL!= unmergedWireDigits.end(); ++it_DETEL) {
+     // loop on digits of same wiregroup
+     for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {
+         sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
+
+         /*************************
+         * Merge wiregroup Digits *
+         *************************/
+         // No merging is done, just removing subsequent digits close in time
+         // to the first digit. TODO: Have to be updated
+
+         std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
+         std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+         e--;  //decrement e to be the last element and not the beyond the last element iterator
+
+         while( i!=e ) {
+             sTgcDigit digit1 = (*i);
+             sTgcDigit digit2 = (*(i+1));
+             if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
+                 ATH_MSG_VERBOSE("Merging Digits on REID[" << it_REID->first.getString() << "]");
+                 ATH_MSG_VERBOSE("digit1: " << digit1.time() << ", " << digit1.charge());
+                 ATH_MSG_VERBOSE("digit2: " << digit2.time() << ", " << digit2.charge());
+                 bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
+                 i->set_isPileup(mergedIsPileup);
+                 it_REID->second.erase (i+1); //remove the later time digit
+                 e = it_REID->second.end();  //update the end iterator
+                 e--; //decrement e to be the last element and not the beyond the last element iterator
+                 ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
+             }
+             else ++i; //There was not a hit to merge: move onto the next one
+         }
+         ATH_MSG_VERBOSE("Merging complete for Wiregroup REID[" << it_REID->first.getString() << "]");
+         ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
+         /*******************************
+         * Calculate wiregroup deadtime *
+         *******************************/
+         ATH_MSG_VERBOSE("Calculating deadtime for wiregroup REID[" << it_REID->first.getString() << "]");
+
+         float vmmStartTime = (*(it_REID->second.begin())).time();
+
+         sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+         theVMM->setMessageLevel(msgLevel());
+         theVMM->initialReport();
+
+         bool vmmControl = true;
+
+
+         while(vmmControl)
+         {
+             ATH_MSG_VERBOSE("Tick on wiregroup REID[" << it_REID->first.getString() << "]");
+             vmmControl = theVMM->tick(); //advance the clock.  returns false if no more digits in
+             ATH_MSG_VERBOSE("Tick returned " << vmmControl);
+             if(vmmControl) {
+                 ATH_MSG_VERBOSE("Tock on wiregroup REID[" << it_REID->first.getString() << "]");
+                 theVMM->tock(); //update readout status
+                 sTgcDigit* flushedDigit = theVMM->flush(); // Flush the digit buffer
+                 if(flushedDigit) {
+                     outputDigits[it_DETEL->first][it_REID->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
+                     nWGDigits++;
+                     ATH_MSG_VERBOSE("Flushed wiregroup digit") ;
+                     ATH_MSG_VERBOSE(" BC tag = "    << flushedDigit->bcTag()) ;
+                     ATH_MSG_VERBOSE(" digitTime = " << flushedDigit->time()) ;
+                     ATH_MSG_VERBOSE(" charge = "    << flushedDigit->charge()) ;
+
+                  }
+                 else ATH_MSG_VERBOSE("No digit for this timestep on wiregroup REID[" << it_REID->first.getString() << "]");
+             }
+         }
+     }
+   }
+   ATH_MSG_VERBOSE("There are " << nWGDigits << " flushed wiregroup digits in this event.");
+   
+   /*************************************************
+    * Output the digits to the StoreGate collection *
+    ************************************************/
   m_activeStore->setStore(&*m_sgSvc);
 
-  for(tempDigitContainerType::iterator it_coll = tempDigitContainer.begin(); it_coll != tempDigitContainer.end(); ++it_coll){
-	  for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
-		  Identifier newDigitId = it_REID->first;
-
-		  sort(it_REID->second.second.begin(), it_REID->second.second.end(), sort_EarlyToLate);
-
-		  // apply electronics deadtime
-		  for(std::vector<tempDigitType>::iterator it_digit = it_REID->second.second.begin(); it_digit != it_REID->second.second.end(); ++it_digit){
-			  if(it_digit->second.channelType!=1) { //Pads and wires
-				  if( m_deadtimeON && (it_digit->first - it_REID->second.first.deadtimeStart) > m_deadtimePad ) { //If not dead
-					  if(it_REID->second.first.readLevel<2) {
-						  it_REID->second.first.readLevel = 2;
-					  }
-					  it_digit->second.keep = 2;
-					  it_REID->second.first.deadtimeStart = it_digit->first;
-				  }
-				  else if(!m_deadtimeON){
-					  if(it_REID->second.first.readLevel<2) {
-						  it_REID->second.first.readLevel = 2;
-					  }
-					  it_digit->second.keep = 2;
-				  }
-				  else{ //is dead
-				  	if(m_deadtimeON)
-				  		it_digit->second.isDead = 1;
-				  	if(m_produceDeadDigits){ //keep dead digits for de-bugging
-					  if(it_REID->second.first.readLevel<2) {
-						  it_REID->second.first.readLevel = 2;
-					  }
-					  it_digit->second.keep = 2;
-				  	}
-				  }
-			  } // end of pad/wire
-			  else { //strips
-			  	//Check if the charge is above threshold and if the strip is dead due to a previous hit
-			  	bool mainThreshold = it_digit->second.charge > m_readoutThreshold ? 1 : 0;
-			  	bool neighborThreshold = 0;
-			  	if(!mainThreshold)
-			  		neighborThreshold = it_digit->second.charge > m_neighborOnThreshold ? 1 : 0;
-			  	bool isDead = 0;
-			  	if(m_deadtimeON){
-					double hitTimeDiff = it_digit->first - it_REID->second.first.deadtimeStart;
-			  		isDead = hitTimeDiff < m_deadtimeStrip ? 1 : 0;
-			  		//ATH_MSG_INFO("Hit time: " << it_digit->first << " deadtimeStart: " << it_REID->second.first.deadtimeStart << " time difference: " << hitTimeDiff << " is pileup? " << it_digit->second.isPileup << " is dead? " << isDead);
-			  	}
-
-				  Identifier parentId = m_idHelper->parentID(newDigitId);
-				  int multiPlet = m_idHelper->multilayer(newDigitId);
-				  int gasGap = m_idHelper->gasGap(newDigitId);
-				  int channelType = it_digit->second.channelType;
-				  int stripNumber = m_idHelper->channel(newDigitId);
-
-			  	// ----------------->1: ABOVE MAIN THRESHOLD AND NOT DEAD<-----------------
-			  	if(mainThreshold && !isDead){
-					  it_digit->second.keep = 2;
-					  it_REID->second.first.deadtimeStart = it_digit->first;
-					  if(it_REID->second.first.readLevel<2)
-						  it_REID->second.first.readLevel = 2;
-
-					  //set the read level of the neighboring channels to 1
-					  bool isValid = false;
-					  Identifier neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
-					  if(isValid){
-						  tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
-						  if(it_neighborREID != it_coll->second.end()) {
-							  if(it_neighborREID->second.first.readLevel<1) {
-								  it_neighborREID->second.first.readLevel = 1;
-								  it_neighborREID->second.first.neighborOnTime = it_digit->first;
-							  }
-						  }
-					  }
-					  isValid = false;
-					  neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
-					  if(isValid){
-						  tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
-						  if(it_neighborREID != it_coll->second.end()) {
-							  if(it_neighborREID->second.first.readLevel<1) {
-								  it_neighborREID->second.first.readLevel = 1;
-								  it_neighborREID->second.first.neighborOnTime = it_digit->first;
-							  }
-						  }
-					  }
-			  	}
-
-			  	// ----------------->2: ABOVE NEIGHBOR THRESHOLD AND NOT DEAD<-----------------
-			  	if(neighborThreshold && !mainThreshold && !isDead){
-				  it_digit->second.keep = 1;
-				  //Check if this strip was turned on by a previous digit, if so this digit will be read out so we set the deadtime to the time of neighboring hit
-				  if(it_REID->second.first.readLevel > 1)
-					  it_REID->second.first.deadtimeStart = it_REID->second.first.neighborOnTime;
-			  	}
-			  	// If we want to keep dead digits for de-bugging then there are 2 more cases
-			  	// ----------------->3: ABOVE MAIN THRESHOLD AND DEAD<-----------------
-			  	if(mainThreshold && isDead && m_produceDeadDigits){
-			  		it_digit->second.isDead = 1;
-			  		it_digit->second.keep = 2;
-			  		if(it_REID->second.first.readLevel<2)
-			  			it_REID->second.first.readLevel = 2;
-
-			  		//set the read level of the neighboring channels to 1
-			  		bool isValid = false;
-			  		Identifier neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber+1, true, &isValid);
-			  		if(isValid){
-			  			tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
-						if(it_neighborREID != it_coll->second.end()) {
-							if(it_neighborREID->second.first.readLevel<1) {
-								it_neighborREID->second.first.readLevel = 1;
-							}
-						}
-			  		}
-			  		isValid = false;
-			  		neighborId = m_idHelper->channelID(parentId, multiPlet, gasGap, channelType, stripNumber-1, true, &isValid);
-			  		if(isValid){
-			  			tempDigitCollectionType::iterator it_neighborREID = it_coll->second.find(neighborId);
-			  			if(it_neighborREID != it_coll->second.end()) {
-			  				if(it_neighborREID->second.first.readLevel<1) {
-			  					it_neighborREID->second.first.readLevel = 1;
-			  				}
-			  			}
-			  		}
-			  	}
-			  	// ----------------->4: ABOVE NEIGHBOR THRESHOLD AND DEAD<-----------------
-			  	if(neighborThreshold && !mainThreshold && isDead && m_produceDeadDigits){
-			  		it_digit->second.isDead = 1;
-			  		it_digit->second.keep = 1;
-			  	}
-			  }
-		  } // end of loop all signals(at different time) of the same ReadoutElementID
-	  } // end of loop for all the ReadoutElementID
-  } // end of loop tempDigitContainer(hash_max)
-
-  for(tempDigitContainerType::iterator it_coll = tempDigitContainer.begin(); it_coll != tempDigitContainer.end(); ++it_coll){
+  for(std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_coll = outputDigits.begin(); it_coll != outputDigits.end(); ++it_coll){
 	  IdentifierHash coll = it_coll->first;
 	  msg(MSG::VERBOSE) << "coll = "<< coll << endmsg;
 	  digitCollection = new sTgcDigitCollection(it_coll->second.begin()->first, coll);
 
-	  for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
-		  int readLevel = it_REID->second.first.readLevel;
-			float neighborOnTime = it_REID->second.first.neighborOnTime;
-			if(!readLevel)
-				continue;
-
-			Identifier newDigitId = it_REID->first;
-
-			std::vector<MuonSimData::Deposit> deposits;
-
-			for(std::vector<tempDigitType>::iterator it_digit = it_REID->second.second.begin(); it_digit != it_REID->second.second.end(); ++it_digit){
-					int kept = it_digit->second.keep;
-					bool isDead = it_digit->second.isDead;
-					bool isPileup = it_digit->second.isPileup;
-					if(!kept)
-						continue;
-					else if(readLevel==2 && kept<2)
-						continue;
-					else if(readLevel==1 && kept==1) {
-						if(std::abs(it_digit->first - neighborOnTime)>m_timeJitterElectronicsStrip*3.)
-							continue; // 3 sigma ~ 99.7%
-					}
-
-					float newDigitTime = it_digit->first;
-					uint16_t newBcTag = it_digit->second.bcTag;
-					float newCharge  = it_digit->second.charge;
-					int newChannelType = it_digit->second.channelType;
-					MuonSimData::Deposit newDep = it_digit->second.Dep;
-
-					if(newChannelType!=1){
-						digitCollection->push_back(new sTgcDigit(newDigitId, newBcTag, newDigitTime, -1));
-						m_digitInfoCollection->push_back(new sTgcDigitInfo(newDigitId, newBcTag, newDigitTime, -1, isDead, isPileup));
-					}
-					else {
-						if(newCharge>m_saturation) newCharge = m_saturation;
-						digitCollection->push_back(new sTgcDigit(newDigitId, newBcTag, newDigitTime, newCharge));
-						m_digitInfoCollection->push_back(new sTgcDigitInfo(newDigitId, newBcTag, newDigitTime, newCharge, isDead, isPileup));
-					}
-
-					deposits.push_back(newDep);
+	  for(std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
+			for(std::vector< sTgcDigit >::iterator it_digit = it_REID->second.begin(); it_digit != it_REID->second.end(); ++it_digit){
+                        sTgcDigit* finalDigit = new sTgcDigit(it_digit->identify(), it_digit->bcTag(), it_digit->time(), it_digit->charge(), it_digit->isDead(), it_digit->isPileup());
+						digitCollection->push_back(finalDigit);
+                        ATH_MSG_VERBOSE("Final Digit") ;
+                        ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
+                        ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
+                        ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
 			} // end of loop for all the digit object of the same ReadoutElementID
-
-		  //Record the SDO collection in StoreGate
-		  m_sdoContainer->insert ( std::make_pair ( newDigitId, MuonSimData(deposits, it_REID->second.second.begin()->second.Edep) ) );
-		  deposits.clear();
 
 	  } // end of loop for all the ReadoutElementID
 
@@ -945,21 +1072,24 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 		  ATH_MSG_VERBOSE("push the collection to m_digitcontainer : HashId = " << digitCollection->identifierHash() );
 		  if(m_digitContainer->addCollection(digitCollection, digitCollection->identifierHash()).isFailure())
 			  ATH_MSG_WARNING("Failed to add collection with hash " << digitCollection->identifierHash());
+              
+              ATH_MSG_VERBOSE("Collection added to m_digitcontainer : HashId = " << digitCollection->identifierHash() << " of size " << digitCollection->size());
 
 		  for(sTgcDigitCollection::iterator it_stgcDigit_final = digitCollection->begin(); it_stgcDigit_final != digitCollection->end(); ++it_stgcDigit_final) {
-			  ATH_MSG_VERBOSE("push to StoreGate : Digit Id= " << m_idHelper->show_to_string((*it_stgcDigit_final)->identify())
-					  << " BC tag = "    << (*it_stgcDigit_final)->bcTag()
-					  << " digitTime = " << (*it_stgcDigit_final)->time()
-					  << " charge_6bit = "    << (*it_stgcDigit_final)->charge_6bit()
-					  << " charge_10bit = "    << (*it_stgcDigit_final)->charge_10bit()
-					  << " channelType = " << m_idHelper->channelType((*it_stgcDigit_final)->identify())) ;
+//			  ATH_MSG_VERBOSE("push to StoreGate : Digit Id= " << ((*it_stgcDigit_final)->identify()).getString()) ;
+              ATH_MSG_VERBOSE(" BC tag = "    << (*it_stgcDigit_final)->bcTag()) ;
+			  ATH_MSG_VERBOSE(" digitTime = " << (*it_stgcDigit_final)->time()) ;
+			  ATH_MSG_VERBOSE(" charge_6bit = "    << (*it_stgcDigit_final)->charge_6bit()) ;
+			  ATH_MSG_VERBOSE(" charge_10bit = "    << (*it_stgcDigit_final)->charge_10bit()) ;
+//			  ATH_MSG_VERBOSE(" channelType = " << m_idHelper->channelType((*it_stgcDigit_final)->identify())) ;
+                      
 		  }
 	  }
 	  else {
 		  delete digitCollection;
 		  digitCollection = 0;
 	  }
-  } // end of loop tempDigitContainer(hash_max)
+  } 
 
   return StatusCode::SUCCESS;
 }
@@ -1011,6 +1141,26 @@ void sTgcDigitizationTool::readDeadtimeConfig()
 	  		  ATH_MSG_INFO("m_deadtimePad = " << value);
 	  		  continue;
 	  	  }
+		  if(var.compare("deadtimeWire") == 0){
+			  m_deadtimeWire = value;
+			  ATH_MSG_INFO("m_deadtimeWire = " << value);
+			  continue;
+		  }
+          if(var.compare("readtimePad") == 0){
+	  		  m_readtimePad = value;
+	  		  ATH_MSG_INFO("m_readtimePad = " << value);
+	  		  continue;
+	  	  }
+          if(var.compare("readtimeStrip") == 0){
+	  		  m_readtimeStrip = value;
+	  		  ATH_MSG_INFO("m_readtimeStrip = " << value);
+	  		  continue;
+	  	  }
+	  if(var.compare("readtimeWire") == 0){
+			  m_readtimeWire = value;
+			  ATH_MSG_INFO("m_readtimeWire = " << value);
+			  continue;
+		  }
 	  	  ATH_MSG_WARNING("Unknown value encountered reading deadtime.config");
   }
 
@@ -1019,30 +1169,40 @@ void sTgcDigitizationTool::readDeadtimeConfig()
 }
 
 /*******************************************************************************/
-uint16_t sTgcDigitizationTool::bcTagging(const float digitTime, const int channelType) const {
+uint16_t sTgcDigitizationTool::bcTagging(const float digitTime, const int /*channelType*/) const {
 
   uint16_t bctag = 0;
 
-  double offset, window;
-  if(channelType == 1) { //strips 
-    offset = m_timeWindowOffsetStrip;
-    window = m_timeWindowStrip;
-  }
-  else { // wire gangs or pads
-    offset = m_timeWindowOffsetPad;
-    window = m_timeWindowPad;
-  }
+//  double offset, window;
+//  if(channelType == 1) { //strips 
+//    offset = m_timeWindowOffsetStrip;
+//    window = m_timeWindowStrip;
+//  }
+//  else { // wire gangs or pads
+//    offset = m_timeWindowOffsetPad;
+//    window = m_timeWindowPad;
+//  }
 
-  if(-m_bunchCrossingTime+offset < digitTime && digitTime < -m_bunchCrossingTime+offset+window) {
-    bctag = (bctag | 0x1);
-  }
-  if(                     offset < digitTime && digitTime <                      offset+window) {
-    bctag = (bctag | 0x2);
-  }
-  if(+m_bunchCrossingTime+offset < digitTime && digitTime < +m_bunchCrossingTime+offset+window) {
-    bctag = (bctag | 0x4);
-  }
+//  if(-m_bunchCrossingTime+offset < digitTime && digitTime < -m_bunchCrossingTime+offset+window) {
+//    bctag = (bctag | 0x1);
+//  }
+//  if(                     offset < digitTime && digitTime <                      offset+window) {
+//    bctag = (bctag | 0x2);
+//  }
+//  if(+m_bunchCrossingTime+offset < digitTime && digitTime < +m_bunchCrossingTime+offset+window) {
+//    bctag = (bctag | 0x4);
+//  }
+
+   int bunchInteger;  //Define the absolute distance from t0 in units of BX
+   if(digitTime > 0) bunchInteger = (int)(abs(digitTime/25.0));  //absolute bunch for future bunches
+   else bunchInteger = (int)(abs(digitTime/25.0)) + 1; //The absolute bunch for negative time needs to be shifted by 1 as there is no negative zero bunch
+   bctag = (bctag | bunchInteger);  //Store bitwise the abs(BX).  This should be equivalent to regular variable assignment
+   if(digitTime < 0) bctag = ~bctag;  //If from a PREVIOUS BX, apply bitwise negation
 
   return bctag;
 }
 
+int sTgcDigitizationTool::humanBC(uint16_t bctag) {
+    if(bctag << 15 == 1) return ~bctag;
+    else return bctag;
+}

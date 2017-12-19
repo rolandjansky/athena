@@ -93,10 +93,10 @@ void TRTElectronicsProcessing::Initialize() {
   m_lowThresholdDiscriminator  = new int[m_totalNumberOfBins];
   m_highThresholdDiscriminator = new int[m_totalNumberOfBins];
 
-  m_maskA  = 0x03FC0000;
-  m_maskB  = 0x0001FE00;
-  m_maskC  = 0x000000FF;
-  m_maskHT = 0x04020100;
+  // m_maskA  = 0x03FC0000;
+  // m_maskB  = 0x0001FE00;
+  // m_maskC  = 0x000000FF;
+  // m_maskHT = 0x04020100;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Initialize() done" << endmsg;
 }
@@ -298,14 +298,20 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 
   // Discriminator response (in what fine time bins are the thresholds exceeded)
   DiscriminatorResponse(lowthreshold,highthreshold);
-  //std::cout << "AJB after discriminator ";
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_lowhThresholdDiscriminator[i] << " "; // or m_highThresholdDiscriminator[i]
+  //std::cout << "AJB after discriminator " << strawGasType << getRegion(hitID) << std::endl;
+  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout << m_lowThresholdDiscriminator[i]; // or m_highThresholdDiscriminator[i]
+  //std::cout << std::endl;
+
+  // Apply an independent LT T0 shift to m_lowThresholdDiscriminator[]
+  LTt0Shift(hitID,strawGasType);
+  //std::cout << "AJB after discriminator LT T0 shift " << strawGasType << getRegion(hitID) << std::endl;
+  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout << m_lowThresholdDiscriminator[i];
   //std::cout << std::endl;
 
   // Apply an independent HT T0 shift to m_highThresholdDiscriminator[]
-  HTdeltaShift(hitID);
-  //std::cout << "AJB after discriminator HT delta T0 shift";
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highhThresholdDiscriminator[i] << " ";
+  HTt0Shift(hitID);
+  //std::cout << "AJB after discriminator HT T0 shift " << strawGasType << getRegion(hitID) << std::endl;
+  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highThresholdDiscriminator[i];
   //std::cout << std::endl;
 
   // Finally turn the fine discriminator response arrays into an output digit;
@@ -519,70 +525,9 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
 }
 
 //_____________________________________________________________________________
-double TRTElectronicsProcessing::getHighThreshold ( int hitID, int strawGasType ) {
-
-  const int mask(0x0000001F);
-  const int word_shift(5);
-  int layerID, ringID, wheelID;
-  double highthreshold(0.);
-
-  if ( !(hitID & 0x00200000) ) { // barrel
-
-    hitID >>= word_shift;
-    layerID = hitID & mask;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    ringID = hitID & mask;
-    highthreshold = ( (layerID < 9) && (ringID == 0) ) ? m_settings->highThresholdBarShort(strawGasType) : m_settings->highThresholdBarLong(strawGasType) ;
-
-  } else { // endcap
-
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    wheelID = hitID & mask;
-    highthreshold = wheelID < 8 ?  m_settings->highThresholdECAwheels(strawGasType) : m_settings->highThresholdECBwheels(strawGasType);
-
-  }
-
-  return highthreshold;
-
-}
-
-//_____________________________________________________________________________
-int TRTElectronicsProcessing::getHTdeltaT0Shift(int hitID) {
-
-  const int mask(0x0000001F);
-  const int word_shift(5);
-  int layerID, ringID, wheelID;
-  int deltaT0Shift(0);
-
-  if ( !(hitID & 0x00200000) ) { // barrel
-
-    hitID >>= word_shift;
-    layerID = hitID & mask;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    ringID = hitID & mask;
-    deltaT0Shift = ( (layerID < 9) && (ringID == 0) ) ? m_settings->htT0shiftBarShort() : m_settings->htT0shiftBarLong() ;
-
-  } else { // endcap
-
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    wheelID = hitID & mask;
-    deltaT0Shift = wheelID < 8 ?  m_settings->htT0shiftECAwheels() : m_settings->htT0shiftECBwheels();
-
-  }
-
-  return deltaT0Shift;
-
-}
-
-//_____________________________________________________________________________
 unsigned int TRTElectronicsProcessing::getRegion(int hitID) {
-// 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+
+  // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
   const int mask(0x0000001F);
   const int word_shift(5);
   int layerID, ringID, wheelID;
@@ -611,41 +556,108 @@ unsigned int TRTElectronicsProcessing::getRegion(int hitID) {
 
 }
 
+//_____________________________________________________________________________
+double TRTElectronicsProcessing::getHighThreshold ( int hitID, int strawGasType ) {
+  double highthreshold(0.);
+  switch ( getRegion(hitID) ) {
+    case 1: highthreshold = m_settings->highThresholdBarShort(strawGasType);  break;
+    case 2: highthreshold = m_settings->highThresholdBarLong(strawGasType);   break;
+    case 3: highthreshold = m_settings->highThresholdECAwheels(strawGasType); break;
+    case 4: highthreshold = m_settings->highThresholdECBwheels(strawGasType); break;
+    default:
+      if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+      break;
+  }
+  return highthreshold;
+}
+
 //___________________________________________________________________________
-void TRTElectronicsProcessing::HTdeltaShift(int hitID) {
+void TRTElectronicsProcessing::HTt0Shift(int hitID) {
 
-  // Apply a (small)timing shift to m_highThresholdDiscriminator[] w.r.t the overall T0.
-  // Tuning is provided by the parameters: htT0shiftBarShort, htT0shiftBarLong,
-  // htT0shiftECAwheels and m_htT0shiftECBwheels which are fetched with getHTdeltaT0Shift(hitID).
+  // Apply a (small)timing shift to m_highThresholdDiscriminator[]
+  // t0Shift tuning is provided by the parameters:
+  // htT0shiftBarShort, htT0shiftBarLong, htT0shiftECAwheels and m_htT0shiftECBwheels
 
-  int j = getHTdeltaT0Shift(hitID);
-  if (!j) return; // skip this process if there is no shift
+  int t0Shift(0); // in 0.78125 ns steps
+  switch ( getRegion(hitID) ) {
+    case 1: t0Shift = m_settings->htT0shiftBarShort();  break;
+    case 2: t0Shift = m_settings->htT0shiftBarLong();   break;
+    case 3: t0Shift = m_settings->htT0shiftECAwheels(); break;
+    case 4: t0Shift = m_settings->htT0shiftECBwheels(); break;
+    default:
+      if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+      break;
+  }
+
+  if (!t0Shift) return; // skip this process if there is no shift
 
   unsigned int vsum=0;
   for (int i=0; i<m_totalNumberOfBins; ++i) { vsum += m_highThresholdDiscriminator[i]; }
   if (!vsum) return; // skip this process if there are no HT bits
 
-  if (j<0) { // for negative shifts
+  if (t0Shift<0) { // for negative shifts
 
       for (int i=0; i<m_totalNumberOfBins; ++i) {
-        if (i-j>=m_totalNumberOfBins) break;
-        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-j];
+        if (i-t0Shift>=m_totalNumberOfBins) break;
+        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-t0Shift];
       }
-      for (int i=m_totalNumberOfBins+j; i<m_totalNumberOfBins; ++i) if (i>=0) m_highThresholdDiscriminator[i]=0; // the last j bins are set to zero
+      for (int i=m_totalNumberOfBins+t0Shift; i<m_totalNumberOfBins; ++i) if (i>=0) m_highThresholdDiscriminator[i]=0; // the last t0Shift bins are set to zero
 
   } else {  // for positive shifts
 
       for (int i=m_totalNumberOfBins-1; i>0; --i) {
-        if (i-j<0) break;
-        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-j];
+        if (i-t0Shift<0) break;
+        m_highThresholdDiscriminator[i]=m_highThresholdDiscriminator[i-t0Shift];
       }
-      for (int i=0; i<j; ++i) if (i<m_totalNumberOfBins) m_highThresholdDiscriminator[i]=0; // the first j bins are set to zero
+      for (int i=0; i<t0Shift; ++i) if (i<m_totalNumberOfBins) m_highThresholdDiscriminator[i]=0; // the first t0Shift bins are set to zero
 
   }
 
-  //std::cout << "AJB " << getRegion(hitID) << " ";
-  //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highThresholdDiscriminator[i];
-  //std::cout << std::endl;
+  return;
+
+}
+
+//_____________________________________________________________________________
+void TRTElectronicsProcessing::LTt0Shift( int hitID, int strawGasType ) {
+
+  // Apply a (small)timing shift to m_lowThresholdDiscriminator[]
+  // t0Shift tuning is provided by the parameters:
+  // ltT0shiftBarShort, ltT0shiftBarLong, ltT0shiftECAwheels and m_ltT0shiftECBwheels
+
+  int t0Shift(0); // in 0.78125 ns steps
+  switch ( getRegion(hitID) ) {
+    case 1: t0Shift = m_settings->ltT0shiftBarShort(strawGasType);  break;
+    case 2: t0Shift = m_settings->ltT0shiftBarLong(strawGasType);   break;
+    case 3: t0Shift = m_settings->ltT0shiftECAwheels(strawGasType); break;
+    case 4: t0Shift = m_settings->ltT0shiftECBwheels(strawGasType); break;
+    default:
+      if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+      break;
+  }
+
+  if (!t0Shift) return; // skip this process if there is no shift
+
+  unsigned int vsum=0;
+  for (int i=0; i<m_totalNumberOfBins; ++i) { vsum += m_lowThresholdDiscriminator[i]; }
+  if (!vsum) return; // skip this process if there are no LT bits
+
+  if (t0Shift<0) { // for negative shifts
+
+      for (int i=0; i<m_totalNumberOfBins; ++i) {
+        if (i-t0Shift>=m_totalNumberOfBins) break;
+        m_lowThresholdDiscriminator[i]=m_lowThresholdDiscriminator[i-t0Shift];
+      }
+      for (int i=m_totalNumberOfBins+t0Shift; i<m_totalNumberOfBins; ++i) if (i>=0) m_lowThresholdDiscriminator[i]=0; // the last t0Shift bins are set to zero
+
+  } else {  // for positive shifts
+
+      for (int i=m_totalNumberOfBins-1; i>0; --i) {
+        if (i-t0Shift<0) break;
+        m_lowThresholdDiscriminator[i]=m_lowThresholdDiscriminator[i-t0Shift];
+      }
+      for (int i=0; i<t0Shift; ++i) if (i<m_totalNumberOfBins) m_lowThresholdDiscriminator[i]=0; // the first t0Shift bins are set to zero
+
+  }
 
   return;
 

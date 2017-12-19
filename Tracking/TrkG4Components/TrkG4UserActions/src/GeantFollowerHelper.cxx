@@ -22,7 +22,7 @@
 
 // constructor
 Trk::GeantFollowerHelper::GeantFollowerHelper(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_extrapolator(""),
   m_extrapolateDirectly(true),
   m_extrapolateIncrementally(true),
@@ -35,7 +35,6 @@ Trk::GeantFollowerHelper::GeantFollowerHelper(const std::string& t, const std::s
   m_t_x{}, m_t_y{}, m_t_z{}, m_t_theta{},m_t_eta{},m_t_phi{}, m_t_p{}, m_t_charge{}, m_t_pdg{},
   m_g4_steps{}
 {
-   declareInterface<IGeantFollowerHelper>(this);
    // properties
    declareProperty("Extrapolator",                   m_extrapolator);
    declareProperty("ExtrapolateDirectly",            m_extrapolateDirectly);

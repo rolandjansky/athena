@@ -19,6 +19,9 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "TRT_ConditionsServices/ITRT_HWMappingSvc.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
 class StoreGateSvc;
 class CondAttrListCollection;
 class TRT_ID;
@@ -87,7 +90,7 @@ class TRT_DCS_ConditionsSvc : public AthService,
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<ITRT_HWMappingSvc> m_mapSvc;
-  std::string m_EventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
   int m_IOVmaxLength;
   bool m_doIOVchecking;
   bool m_FallBackOnCOOLChanNames;
@@ -105,20 +108,22 @@ class TRT_DCS_ConditionsSvc : public AthService,
   int m_numFlagRED;
   int m_numFlagNOINFO;
 
+  
+
   // Other private variables
   int m_currentTimestamp;
 
   // Monitoring histograms
   bool m_doMonitoring;
-  TH1D* h_Barrel_nRED;
-  TH1D* h_EndcapA_nRED;
-  TH1D* h_EndcapC_nRED;
-  TH1D* h_Barrel_nNOINFO;
-  TH1D* h_EndcapA_nNOINFO;
-  TH1D* h_EndcapC_nNOINFO;
-  TH1D* h_Barrel_HVvalAvg; // don't forget to divide by nEvts at end!
-  TH1D* h_EndcapA_HVvalAvg; // don't forget to divide by nEvts at end!
-  TH1D* h_EndcapC_HVvalAvg; // don't forget to divide by nEvts at end!
+  TH1D* m_h_Barrel_nRED;
+  TH1D* m_h_EndcapA_nRED;
+  TH1D* m_h_EndcapC_nRED;
+  TH1D* m_h_Barrel_nNOINFO;
+  TH1D* m_h_EndcapA_nNOINFO;
+  TH1D* m_h_EndcapC_nNOINFO;
+  TH1D* m_h_Barrel_HVvalAvg; // don't forget to divide by nEvts at end!
+  TH1D* m_h_EndcapA_HVvalAvg; // don't forget to divide by nEvts at end!
+  TH1D* m_h_EndcapC_HVvalAvg; // don't forget to divide by nEvts at end!
   int m_nEvts;
 };
 

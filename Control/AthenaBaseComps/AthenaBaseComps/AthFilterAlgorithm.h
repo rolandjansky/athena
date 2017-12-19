@@ -51,7 +51,7 @@ class AthFilterAlgorithm
   virtual StatusCode sysInitialize();
   
   /// Set the filter passed flag to the specified state
-  virtual void setFilterPassed( bool state );
+  virtual void setFilterPassed( bool state ) const;
 
   /// @brief helper method to ease the setting of this filter's description
   /// in derived classes

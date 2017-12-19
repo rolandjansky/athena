@@ -82,8 +82,10 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoSvc
 ServiceMgr += SCT_RODVetoSvc()
-SCT_RODVeto=ServiceMgr.SCT_RODVetoSvc
-SCT_RODVeto.BadRODIdentifiers=[0x240100,0x240030] # Need to update the method to specify ROD identifiers
+
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoTestWriteAlg
+job+= SCT_RODVetoTestWriteAlg()
+job.SCT_RODVetoTestWriteAlg.BadRODIdentifiers = [0x240100, 0x240030]
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoTestAlg
 job+= SCT_RODVetoTestAlg()

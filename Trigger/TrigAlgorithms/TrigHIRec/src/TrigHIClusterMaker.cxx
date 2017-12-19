@@ -333,10 +333,10 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
   // Attaching the outputTE
   // ------------------------
 
-  bool status = CaloClusterStoreHelper::finalizeClusters( store(), cl_container,
-                                                        m_output_key, msg());
+  StatusCode status = CaloClusterStoreHelper::finalizeClusters( store(), cl_container,
+                                                                m_output_key, msg());
 
-  if ( !status ) {  
+  if ( status.isFailure() ) {
     msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << m_output_key << "> failed" << endmsg;
     return HLT::ERROR;
   } else {
@@ -346,9 +346,7 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
 
   // Build the "uses" relation for the outputTE to the cell container
   std::string aliasKey = "HIClusters";
-  status = reAttachFeature(outputTE, cl_container, aliasKey, m_output_key );
-
-  if (status != (bool)HLT::OK) {
+  if ( reAttachFeature(outputTE, cl_container, aliasKey, m_output_key ) != HLT::OK ) {
     msg() << MSG::ERROR << "Write of Cluster Container into outputTE failed" << endmsg;
     return HLT::ERROR;
   } 
@@ -364,8 +362,7 @@ HLT::ErrorCode TrigHIClusterMaker::hltExecute(const HLT::TriggerElement* inputTE
     msg() << MSG::WARNING << "cannot get CaloClusterCellLinkContainer (not return FAILURE) " << endmsg;
   }
   else {
-    status = reAttachFeature(outputTE, pCaloCellLinkContainer, aliasKey, m_output_key+"_Link" );
-    if (status != (bool)HLT::OK) {
+    if ( reAttachFeature(outputTE, pCaloCellLinkContainer, aliasKey, m_output_key+"_Link" ) != HLT::OK ) {
       msg() << MSG::ERROR << "Write of RoI CellLink Container into outputTE failed" << endmsg;
     }
     else msg() << MSG::DEBUG << "Writing succesfully the CellLink Container with aliasKey" << aliasKey << endmsg;

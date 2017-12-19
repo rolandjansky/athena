@@ -42,8 +42,7 @@ static string   testTypeID = "A2222222-B111-C111-D111-E22134511121";
 
 TestDriver::TestDriver()
 {
-   DbPrint::setMsgVerbosity(coral::Debug);
-   DbPrint::setMsgVerbosity(coral::Verbose);
+   pool::DbPrintLvl::setLevel( pool::DbPrintLvl::Info );
 }
 
 TestDriver::~TestDriver()

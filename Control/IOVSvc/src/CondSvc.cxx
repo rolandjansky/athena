@@ -5,6 +5,9 @@
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/SvcFactory.h"
+#include "AthenaKernel/StoreID.h"
+#include "SGTools/BaseInfo.h"
+
 
 //---------------------------------------------------------------------------
 
@@ -43,23 +46,23 @@ CondSvc::initialize() {
 }
 //---------------------------------------------------------------------------
 
-void
-CondSvc::dump() const {
+// void
+// CondSvc::dump() const {
 
-  std::ostringstream ost;
-  dump(ost);
+//   std::ostringstream ost;
+//   dump(ost);
 
-  info() << ost.str() << endmsg;
+//   info() << ost.str() << endmsg;
 
-}
+// }
 
 
 //---------------------------------------------------------------------------
 
 void
-CondSvc::dump(std::ostringstream& ost) const {
+CondSvc::dump(std::ostream& ost) const {
 
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   ost << "CondSvc::dump()";
 
@@ -121,13 +124,21 @@ CondSvc::stop() {
 //---------------------------------------------------------------------------
 
 StatusCode 
-CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh, 
-                   const std::string& key) {
+CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh) {
 
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
+  return regHandle_i(alg, dh);
 
-  ATH_MSG_DEBUG( "regHandle: alg: " << alg->name() << "  id: " << dh.fullKey()
-                 << "  dBkey: " << key );
+}
+
+//---------------------------------------------------------------------------
+
+// separate implementation to avoid the use of a recursive mutex
+StatusCode 
+CondSvc::regHandle_i(IAlgorithm* alg, const Gaudi::DataHandle& dh) {
+
+  ATH_MSG_DEBUG( "regHandle: alg: " << alg->name() << "  id: "
+                 << dh.fullKey() );
 
   if (dh.mode() != Gaudi::DataHandle::Writer) {
     info() << dh.fullKey() << " is a ReadHandle. no need to register"
@@ -149,7 +160,7 @@ CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh,
     // FIXME : so why is it a set<IAlgorithm*> ??
   }
 
-  m_keyMap[key] = dh.fullKey();
+  //  m_keyMap[key] = dh.fullKey();
   m_condAlgs.insert(alg);
 
   m_condIDs.emplace( dh.fullKey() );
@@ -168,7 +179,25 @@ CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh,
     m_algMap[alg] = DataObjIDColl { dh.fullKey() };
   }
 
-  return StatusCode::SUCCESS;
+  StatusCode sc(StatusCode::SUCCESS);
+
+  CLID clid = dh.fullKey().clid();
+  const SG::BaseInfoBase* bib = SG::BaseInfoBase::find( clid );
+  if ( bib ) {
+    for (CLID clid2 : bib->get_bases()) {
+      if (clid2 != clid) {
+        SG::VarHandleKey vhk(clid2,dh.objKey(),Gaudi::DataHandle::Writer,
+                             StoreID::storeName(StoreID::CONDITION_STORE));
+        if (regHandle_i(alg, vhk).isFailure()) {
+          sc = StatusCode::FAILURE;
+        }
+      }
+    }
+  }
+  
+
+
+  return sc;
 
 }
 
@@ -176,9 +205,9 @@ CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh,
 
 bool
 CondSvc::getInvalidIDs(const EventContext& ctx, DataObjIDColl& invalidIDs) {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
-  EventIDBase now(ctx.eventID().run_number(), ctx.eventID().event_number());
+  EventIDBase now(ctx.eventID());
 
   std::ostringstream ost;
   ost << "getInvalidIDS " << ctx.eventID() 
@@ -213,7 +242,7 @@ CondSvc::getInvalidIDs(const EventContext& ctx, DataObjIDColl& invalidIDs) {
 bool
 CondSvc::getIDValidity(const EventContext& ctx, DataObjIDColl& validIDs,
                        DataObjIDColl& invalidIDs) {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
@@ -252,7 +281,7 @@ CondSvc::getIDValidity(const EventContext& ctx, DataObjIDColl& validIDs,
 
 bool
 CondSvc::getValidIDs(const EventContext& ctx, DataObjIDColl& validIDs) {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
@@ -288,15 +317,27 @@ CondSvc::getValidIDs(const EventContext& ctx, DataObjIDColl& validIDs) {
 
 bool
 CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
-  std::lock_guard<std::mutex> lock(m_lock);
+  std::lock_guard<mutex_t> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
-  CondContBase *cib;
-  if (m_sgs->retrieve(cib, id.key()).isSuccess()) {
-    return cib->valid(now);
+  // FIXME: this is ugly, but we need to strip out the name of the store.
+  std::string sk = id.key();
+  if (sk.find(StoreID::storeName(StoreID::CONDITION_STORE)) == 0) {
+    sk.erase(0,15);
   }
 
+  if (m_sgs->contains<CondContBase>( sk ) ) {
+    CondContBase *cib;
+    if (m_sgs->retrieve(cib, sk).isSuccess()) {
+      ATH_MSG_DEBUG("CondSvc::isValidID:  now: " << ctx.eventID() << "  id : " 
+                    << id << ": T");
+      return cib->valid(now);
+    }
+  }
+
+  ATH_MSG_DEBUG("CondSvc::isValidID:  now: " << ctx.eventID() << "  id: " 
+                << id << " : F");
   return false;
 
 }
@@ -311,6 +352,17 @@ CondSvc::isRegistered(const DataObjID& id) const {
 }
 
 //---------------------------------------------------------------------------
+
+
+bool
+CondSvc::isRegistered(IAlgorithm* ialg) const {
+
+  return (m_condAlgs.find(ialg) != m_condAlgs.end());
+
+}
+
+//---------------------------------------------------------------------------
+
 
 const DataObjIDColl&
 CondSvc::conditionIDs() const {

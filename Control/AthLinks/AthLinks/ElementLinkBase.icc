@@ -30,7 +30,7 @@ bool ElementLinkBase::isDefaultIndex() const
 inline
 bool ElementLinkBase::hasCachedElement() const
 {
-  return m_element != 0;
+  return m_element.get() != 0;
 }
 
 
@@ -141,7 +141,7 @@ void ElementLinkBase::reset ()
 {
   m_proxy.clear();
   m_persKey = 0;
-  m_element = 0;
+  clearCachedElement();
   m_persIndex = INVALID;
 }
 
@@ -160,7 +160,7 @@ inline
 bool ElementLinkBase::toTransient (IProxyDict* sg /*= 0*/)
 {
   m_proxy.toTransient (m_persKey, sg);
-  m_element = 0;
+  clearCachedElement();
   return true;
 }
 
@@ -183,7 +183,7 @@ bool ElementLinkBase::toPersistent()
   if (isDefault()) return true;
   if (m_proxy.isDefault() || isDefaultIndex()) return false;
   if (m_proxy.toPersistent (m_persKey, m_persIndex))
-    m_element = 0;
+    clearCachedElement();
   return true;
 }
 
@@ -214,8 +214,7 @@ bool ElementLinkBase::thin()
 inline
 ElementLinkBase::ElementLinkBase()
   : m_persKey (0),
-    m_persIndex (INVALID),
-    m_element (0)
+    m_persIndex (INVALID)
 {
 }
 
@@ -234,8 +233,7 @@ ElementLinkBase::ElementLinkBase (const ID_type& dataID,
                                   CLID link_clid,
                                   index_type elemID,
                                   IProxyDict* sg)
-  : m_persIndex (elemID),
-    m_element (0)
+  : m_persIndex (elemID)
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
 }
@@ -256,8 +254,7 @@ ElementLinkBase::ElementLinkBase (sgkey_t key,
                                   index_type elemID,
                                   IProxyDict* sg)
   : m_persKey (key),
-    m_persIndex (elemID),
-    m_element (0)
+    m_persIndex (elemID)
 {
   m_proxy.toIdentifiedObject (key, link_clid, sg);
 }
@@ -328,8 +325,7 @@ ElementLinkBase::ElementLinkBase (const_pointer_t obj,
                                   CLID link_clid,
                                   index_type elemID,
                                   IProxyDict* sg)
-  : m_persIndex (elemID),
-    m_element (0)
+  : m_persIndex (elemID)
 {
   m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
 }
@@ -348,8 +344,7 @@ ElementLinkBase::ElementLinkBase (const ElementLinkBase& other,
                                   index_type elemID)
   : m_persKey (other.m_persKey),
     m_persIndex (elemID),
-    m_proxy (other.m_proxy),
-    m_element()
+    m_proxy (other.m_proxy)
 {
 }
 
@@ -378,9 +373,9 @@ ElementLinkBase::ElementLinkBase (const ElementLinkBase& other,
   typedef typename TO_TRAITS::IndexingPolicy       ToIndexingPolicy;
   typedef typename FromIndexingPolicy::ElementType FromElementType;
   typedef typename ToIndexingPolicy::ElementType   ToElementType;
-  FromElementType from_elt = reinterpret_cast<FromElementType>(other.m_element);
+  FromElementType from_elt = reinterpret_cast<FromElementType>(other.m_element.get());
   ToElementType to_elt = from_elt;
-  m_element = to_elt;
+  storeCachedElement (to_elt);
 }
 
 
@@ -458,7 +453,7 @@ bool ElementLinkBase::toIndexedElement (const_pointer_t obj,
   if (m_proxy.isDefault() && isDefaultIndex() && !hasCachedElement()) {
     m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
     m_persIndex = elemID;
-    //m_element= 0;  // Redundant --- must be 0 due to above test.
+    //clearCachedElement();  // Redundant --- must be 0 due to above test.
     return true;
   }
   return false;
@@ -484,7 +479,7 @@ void ElementLinkBase::resetWithKeyAndIndex (const ID_type& dataID,
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
   m_persIndex = elemID;
-  m_element = 0;
+  clearCachedElement();
 }
 
 
@@ -508,7 +503,7 @@ void ElementLinkBase::resetWithKeyAndIndex (sgkey_t key,
   m_persKey = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);
   m_persIndex = elemID;
-  m_element = 0;
+  clearCachedElement();
 }
 
 
@@ -535,13 +530,35 @@ ElementLinkBase::storedIndex() const
 
 
 /**
- * @brief Set the cached element stored in the link.
+ * @brief Clear the currently-cached element.
+ */
+inline
+void ElementLinkBase::clearCachedElement()
+{
+  storeCachedElement (nullptr);
+}
+
+
+/**
+ * @brief Set the cached element stored in the link,
+ *        assuming the cached element is null.
  * @param elt New value for the cached element.
  */
 inline
 void ElementLinkBase::setCachedElement (ElementType elt) const
 {
-  m_element = elt;
+  m_element.set (elt);
+}
+
+
+/**
+ * @brief Set the cached element stored in the link.
+ * @param elt New value for the cached element.
+ */
+inline
+void ElementLinkBase::storeCachedElement (ElementType elt)
+{
+  m_element.store (elt);
 }
 
 
@@ -556,8 +573,8 @@ template <class T>
 inline
 bool ElementLinkBase::getCachedElement (const T* & elt) const
 {
-  if (m_element) {
-    elt = reinterpret_cast<const T*> (&m_element);
+  if (m_element.get()) {
+    elt = reinterpret_cast<const T*> (m_element.ptr());
     return true;
   }
   return false;
@@ -572,4 +589,5 @@ const SG::DataProxyHolder& ElementLinkBase::proxyHolder() const
 {
   return m_proxy;
 }
+
 

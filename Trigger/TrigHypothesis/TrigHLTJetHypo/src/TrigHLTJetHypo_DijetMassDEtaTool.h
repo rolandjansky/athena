@@ -18,7 +18,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
 class TrigHLTJetHypo_DijetMassDEtaTool : virtual public ITrigHLTJetHypoTool,
-  private TrigHLTJetHypoTool {
+  public TrigHLTJetHypoTool {
 
  public:
 

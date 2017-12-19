@@ -1,5 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
 #include "JetCalibTools/JetCalibrationTool.h"
 
 #include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
@@ -7,17 +5,9 @@
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
 
-DECLARE_TOOL_FACTORY( JetCalibrationTool )
-DECLARE_TOOL_FACTORY( JetPileupCorrection )
-DECLARE_TOOL_FACTORY( ResidualOffsetCorrection )
-DECLARE_TOOL_FACTORY( EtaJESCorrection )
-DECLARE_TOOL_FACTORY( InsituDataCorrection )
+DECLARE_COMPONENT( JetCalibrationTool )
+DECLARE_COMPONENT( JetPileupCorrection )
+DECLARE_COMPONENT( ResidualOffsetCorrection )
+DECLARE_COMPONENT( EtaJESCorrection )
+DECLARE_COMPONENT( InsituDataCorrection )
 
-DECLARE_FACTORY_ENTRIES( JetCalibTools )
-{
-  DECLARE_TOOL( JetCalibrationTool );
-  DECLARE_TOOL( JetPileupCorrection );
-  DECLARE_TOOL( ResidualOffsetCorrection );
-  DECLARE_TOOL( EtaJESCorrection );
-  DECLARE_TOOL( InsituDataCorrection );
-}

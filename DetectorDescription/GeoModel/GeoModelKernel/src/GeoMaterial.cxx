@@ -2,26 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//## begin module%1.5%.codegen_version preserve=yes
-//   Read the documentation to learn more about C++ code generator
-//   versioning.
-//## end module%1.5%.codegen_version
-
-//## begin module%3CD878BB0006.cm preserve=no
-//	  %X% %Q% %Z% %W%
-//## end module%3CD878BB0006.cm
-
-//## begin module%3CD878BB0006.cp preserve=no
-//## end module%3CD878BB0006.cp
-
-//## Module: GeoMaterial%3CD878BB0006; Pseudo Package body
-//## Source file: /home/atlas/GEO/GeoModelKernel/GeoMaterial.cxx
-
-//## begin module%3CD878BB0006.additionalIncludes preserve=no
-//## end module%3CD878BB0006.additionalIncludes
-
-//## begin module%3CD878BB0006.includes preserve=yes
-
+#include "GeoModelKernel/GeoMaterial.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <stdexcept>
 #include <cmath>
@@ -30,12 +11,6 @@
 #include <iostream>
 #include <algorithm>
 #include <iterator>
-
-//## end module%3CD878BB0006.includes
-
-// GeoMaterial
-#include "GeoModelKernel/GeoMaterial.h"
-//## begin module%3CD878BB0006.additionalDeclarations preserve=yes
 
 // These constants are the ionization potentials, indexed by atomic     
 // number.  They have been obtained from      
@@ -237,51 +212,30 @@ const double
   CLHEP::eV
 };
 
-
-//## end module%3CD878BB0006.additionalDeclarations
-
-
-// Class GeoMaterial 
-
-//## begin GeoMaterial::s_lastID%3CD8833A01EB.attr preserve=no  private: static unsigned int {U} 0
 unsigned int GeoMaterial::s_lastID = 0;
-//## end GeoMaterial::s_lastID%3CD8833A01EB.attr
 
-GeoMaterial::GeoMaterial (const std::string &Name, double Density):
-  //## begin GeoMaterial::GeoMaterial%3CDA10C001E4.hasinit preserve=no
-  m_name(Name),
-  m_density(Density),
-  m_iD(s_lastID++),
-  m_radLength(0),
-  m_intLength(0),
-  m_dedDxConst(0),
-  m_deDxI0(0),
-  m_locked(false)
-  //## end GeoMaterial::GeoMaterial%3CDA10C001E4.hasinit
-  //## begin GeoMaterial::GeoMaterial%3CDA10C001E4.initialization preserve=yes
-  //## end GeoMaterial::GeoMaterial%3CDA10C001E4.initialization
+GeoMaterial::GeoMaterial (const std::string &Name, double Density)
+   : m_name(Name)
+   , m_density(Density)
+   , m_iD(s_lastID++)
+   , m_radLength(0)
+   , m_intLength(0)
+   , m_dedDxConst(0)
+   , m_deDxI0(0)
+   , m_locked(false)
 {
-  //## begin GeoMaterial::GeoMaterial%3CDA10C001E4.body preserve=yes
-  //## end GeoMaterial::GeoMaterial%3CDA10C001E4.body
 }
-
 
 GeoMaterial::~GeoMaterial()
 {
-  //## begin GeoMaterial::~GeoMaterial%3CD878BB0006_dest.body preserve=yes
   for (size_t i = 0; i < m_element.size (); i++)
     {
       m_element[i]->unref ();
     }
-  //## end GeoMaterial::~GeoMaterial%3CD878BB0006_dest.body
 }
 
-
-
-//## Other Operations (implementation)
 void GeoMaterial::add (GeoElement* element, double fraction)
 {
-  //## begin GeoMaterial::add%3CDA0E1D02A2.body preserve=yes
   // You can only add materials until you call "lock"...     
   if (!m_locked)
     {
@@ -300,12 +254,10 @@ void GeoMaterial::add (GeoElement* element, double fraction)
     {
       throw std::out_of_range ("Element added after material locked");
     }
-  //## end GeoMaterial::add%3CDA0E1D02A2.body
 }
 
 void GeoMaterial::add (GeoMaterial* material, double fraction)
 {
-  //## begin GeoMaterial::add%3CDA0E2003E7.body preserve=yes
   if (!m_locked)
     {
       for (size_t e = 0; e < material->getNumElements (); e++)
@@ -317,12 +269,10 @@ void GeoMaterial::add (GeoMaterial* material, double fraction)
     {
       throw std::out_of_range ("Material added after material locked");
     }
-  //## end GeoMaterial::add%3CDA0E2003E7.body
 }
 
 void GeoMaterial::lock ()
 {
-  //## begin GeoMaterial::lock%3CDA0E250362.body preserve=yes
   if(m_locked) return;
 
   m_locked = true;
@@ -393,31 +343,24 @@ void GeoMaterial::lock ()
   m_deDxI0    = dEDxI0 ;
   m_intLength = NILinv ? 1.0 / NILinv : 0;
   m_radLength = radInv ? 1.0 / radInv : 0;
-  //## end GeoMaterial::lock%3CDA0E250362.body
 }
 
 double GeoMaterial::getDeDxConstant () const
 {
-  //## begin GeoMaterial::getDeDxConstant%3CDA0E3F026F.body preserve=yes
   if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
   return m_dedDxConst;
-  //## end GeoMaterial::getDeDxConstant%3CDA0E3F026F.body
 }
 
 double GeoMaterial::getDeDxI0 () const
 {
-  //## begin GeoMaterial::getDeDxI0%3CDA0E4A021B.body preserve=yes
   if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
   return m_deDxI0;
-  //## end GeoMaterial::getDeDxI0%3CDA0E4A021B.body
 }
 
 double GeoMaterial::getDeDxMin () const
 {
-  //## begin GeoMaterial::getDeDxMin%3CDA0E5801D5.body preserve=yes
-
   //------------------------------------------------------------//     
   static const double ConstToMin = 11.528;	//     
   //------------------------------------------------------------//     
@@ -432,59 +375,39 @@ double GeoMaterial::getDeDxMin () const
 
   return m_dedDxConst * ConstToMin;
 
-
-  //## end GeoMaterial::getDeDxMin%3CDA0E5801D5.body
 }
 
 double GeoMaterial::getRadLength () const
 {
-  //## begin GeoMaterial::getRadLength%3CDAF57E03B0.body preserve=yes
   if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
   return m_radLength;
-  //## end GeoMaterial::getRadLength%3CDAF57E03B0.body
 }
 
 double GeoMaterial::getIntLength () const
 {
-  //## begin GeoMaterial::getIntLength%3CDAF58501C6.body preserve=yes
   if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
   return m_intLength;
-
-  //## end GeoMaterial::getIntLength%3CDAF58501C6.body
 }
 
 unsigned int GeoMaterial::getNumElements () const
 {
-  //## begin GeoMaterial::getNumElements%3CDA103F00DA.body preserve=yes
   if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
   return m_element.size ();
-  //## end GeoMaterial::getNumElements%3CDA103F00DA.body
 }
 
 const GeoElement* GeoMaterial::getElement (unsigned int i) const
 {
-  //## begin GeoMaterial::getElement%3CDA104F0304.body preserve=yes
   if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
   return m_element[i];
-  //## end GeoMaterial::getElement%3CDA104F0304.body
 }
 
 double GeoMaterial::getFraction (int i) const
 {
-  //## begin GeoMaterial::getFraction%3CDB2237001D.body preserve=yes
   if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
   return m_fraction[i];
-  //## end GeoMaterial::getFraction%3CDB2237001D.body
 }
-
-// Additional Declarations
-  //## begin GeoMaterial%3CD878BB0006.declarations preserve=yes
-  //## end GeoMaterial%3CD878BB0006.declarations
-
-//## begin module%3CD878BB0006.epilog preserve=yes
-//## end module%3CD878BB0006.epilog

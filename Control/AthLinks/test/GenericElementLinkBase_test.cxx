@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file AthLinks/test/GeneicElementLinkBase_test.cxx
+ * @file AthLinks/test/GenericElementLinkBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2014
  * @brief Regression tests for GenericElementLinkBase
@@ -15,10 +15,11 @@
 #include "AthLinks/GenericElementLinkBase.h"
 #include "AthLinks/exceptions.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/CLASS_DEF.h"
 #include "AthLinks/tools/MapIndexingPolicy.h"
 #include "AthLinks/tools/SetIndexingPolicy.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include <map>
 #include <iostream>
 #include <cstdlib>
@@ -159,7 +160,7 @@ typedef ElementLinkBaseT_test<SG::MapIndexingPolicy<StrMap> >
   ElementLinkBase_test;
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
 
@@ -384,7 +385,7 @@ void test1()
 
 
 // toTransient, toPersistent
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
 
@@ -438,7 +439,7 @@ void test2()
 
 
 // default store setting
-void test3()
+void test3 (SGTest::TestStore& store)
 {
   std::cout << "test3\n";
   TestStore store2;
@@ -449,7 +450,7 @@ void test3()
 
 
 // Converting constructor
-void test4()
+void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
 
@@ -506,14 +507,14 @@ void test4()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   initTestStore();
 
-  test1();
-  test2();
-  test3();
-  test4();
+  test1 (store);
+  test2 (store);
+  test3 (store);
+  test4 (store);
   return 0;
 }

@@ -490,7 +490,9 @@ std::vector<double> LArWaveHelper::polyfit(const LArWave& theWave,unsigned iFirs
 
 
 
-std::vector<LArWave> LArWaveHelper::linearMasterWave(const std::vector<LArWave*>& vWaves,const std::vector<double> vAmpli) const
+std::vector<LArWave>
+LArWaveHelper::linearMasterWave(const std::vector<const LArWave*>& vWaves,
+                                const std::vector<double> vAmpli) const
 {
   std::vector<LArWave> MWandDAC0 ;
   unsigned nWaves = vWaves.size() ;

@@ -12,7 +12,6 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTools
 // INCLUDE HEADER FILES:
 #include "EMFourMomBuilder.h"
 #include "FourMom/ErrorMatrixEEtaPhiM.h"
-#include "egammaInterfaces/IFourMomCombiner.h"
 
 //NEW xAOD INCLUDES.
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -25,10 +24,9 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTools
 #include "EventPrimitives/EventPrimitives.h"
 #include "FourMom/EigenP5Jacobiand0z0PhiThetaqOverP2d0z0PhiEtaP.h"
 #include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
-#include "CxxUtils/make_unique.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 //  END OF HEADER FILES INCLUDE
-using CLHEP::GeV;
 
 namespace {
 const float el_mass=0.510998;        
@@ -41,33 +39,10 @@ const float ph_mass=0.0;
 EMFourMomBuilder::EMFourMomBuilder(const std::string& type,
                                  const std::string& name,
                                  const IInterface* parent)
-  : egammaBaseTool(type, name, parent),
-    //m_tmp_dataType(ParticleDataType::Full),
-    m_FourMomCombiner("FourMomCombiner")
+  : egammaBaseTool(type, name, parent)
 {
   // declare interface
   declareInterface<IEMFourMomBuilder>(this);
-
-  // The following properties are specified at run-time
-  // (declared in jobOptions file)
-  
-  // Use E-p combination.
-  declareProperty("UseCombination",
-		  m_useCombination = false,
-		  "Use the E-p combination");
- 
-  declareProperty("m_FourMomCombiner",
-		  m_FourMomCombiner,
-		  "Tool for performing E-p combination");		  
-
-
-  // 
-  declareProperty("ResolutionConfiguration",
-		  m_ResolutionConfiguration = "run2_pre",
-		  "Resolution Configuration");
-  
-
-
 }
 // =============================================================
 // DESTRUCTOR:
@@ -79,8 +54,13 @@ EMFourMomBuilder::~EMFourMomBuilder(){
 StatusCode EMFourMomBuilder::initialize(){
 
   ATH_MSG_DEBUG(" Initializing EMFourMomBuilder");
-  m_eg_resol=CxxUtils::make_unique<eg_resolution>(m_ResolutionConfiguration); 
+  m_eg_resol=std::make_unique<eg_resolution>(m_ResolutionConfiguration); 
   m_eg_resol->msg().setLevel(this->msg().level());
+  if (m_useCombination) {
+    ATH_CHECK(m_FourMomCombiner.retrieve());
+  } else{
+    m_FourMomCombiner.disable();
+  }
   return StatusCode::SUCCESS;
 }
 

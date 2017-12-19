@@ -16,6 +16,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IRegistry.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
@@ -142,10 +143,17 @@ StatusCode EventInfoByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*&
 
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
+
+  // Did the cast work?
   if (!pRE_Addr) {
     log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
     return StatusCode::FAILURE;
   }
+  // Did it provide a valid EventContext?
+  if (!(Gaudi::Hive::currentContext().valid())) {
+    log << MSG::INFO << " EventContext not valid " << endmsg;
+  }
+               
   log << MSG::DEBUG << " Creating Objects" << endmsg;
 
   // get RawEvent

@@ -19,7 +19,7 @@ namespace InDetDD{ class SCT_DetectorManager;}
 class SCT_ClusterContainerCnv_p2 : public T_AthenaPoolTPCnvBase<InDet::SCT_ClusterContainer, InDet::SCT_ClusterContainer_p2>
 {
  public:
-  SCT_ClusterContainerCnv_p2() : m_sctId{nullptr}, m_storeGate{nullptr}, m_isInitialized(0)  {};
+  SCT_ClusterContainerCnv_p2() : m_sctId{nullptr}, m_storeGate{nullptr}, m_sctMgr{nullptr}, m_isInitialized{false} {};
   
   virtual void	persToTrans(const InDet::SCT_ClusterContainer_p2* persCont,
 			    InDet::SCT_ClusterContainer* transCont,

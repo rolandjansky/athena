@@ -212,7 +212,10 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
   // eEM is the result of the previous step and the current e/eEM ratio
   // should be multiplied with the existing HAD_WEIGHT moment
   double new_weight (1);
-  theCluster->retrieveMoment(xAOD::CaloCluster::HAD_WEIGHT,new_weight);
+  if (!theCluster->retrieveMoment(xAOD::CaloCluster::HAD_WEIGHT,new_weight)) {
+    ATH_MSG_ERROR("Cannot retrieve HAD_WEIGHT cluster moment." );
+    return StatusCode::FAILURE;
+  }
 
   if ( eEM > 0 || eEM < 0 ) {
     new_weight *= theCluster->e()/eEM;

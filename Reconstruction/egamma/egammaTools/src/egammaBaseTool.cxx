@@ -47,7 +47,8 @@ StatusCode egammaBaseTool::execute(xAOD::Egamma* eg)
 }
 
 // ====================================================================================
-StatusCode egammaBaseTool::contExecute()
+StatusCode egammaBaseTool::contExecute(xAOD::ElectronContainer* /*electronContainer*/, 
+				       xAOD::PhotonContainer* /*photonContainer*/)
 {
   //
   // execute method for photon post processing

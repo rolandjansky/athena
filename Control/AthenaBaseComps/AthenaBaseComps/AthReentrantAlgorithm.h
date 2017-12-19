@@ -23,11 +23,13 @@
 namespace SG {
   class VarHandleKey;
   class VarHandleKeyArray;
+  class VarHandleBase;
 }
 namespace Gaudi {
   namespace Parsers {
     StatusCode parse(SG::VarHandleKey& v, const std::string& s);
     StatusCode parse(SG::VarHandleKeyArray& v, const std::string& s);
+    StatusCode parse(SG::VarHandleBase& v, const std::string& s);
   }
 }
 
@@ -46,15 +48,15 @@ namespace Gaudi {
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthMemMacros.h"
-#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/HandleClassifier.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
 #include "StoreGate/VarHandleKeyProperty.h"
 #include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "StoreGate/VarHandleKey.h"
+#include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
-#include "AthenaKernel/IUserDataSvc.h"
 
 /**
  * @brief An algorithm that can be simultaneously executed in multiple threads.
@@ -110,23 +112,19 @@ namespace Gaudi {
 
 
 class AthReentrantAlgorithm
-  : public ::ReEntAlgorithm,
-    public ::AthMessaging
+  : public ::ReEntAlgorithm
 { 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
-
   // Copy constructor: 
 
   /// Constructor with parameters: 
   AthReentrantAlgorithm(const std::string& name, 
-               ISvcLocator* pSvcLocator,
-               const std::string& version=PACKAGE_VERSION);
+                        ISvcLocator* pSvcLocator,
+                        const std::string& version=PACKAGE_VERSION);
 
   /// Destructor: 
   virtual ~AthReentrantAlgorithm() override; 
@@ -151,10 +149,6 @@ class AthReentrantAlgorithm
    */
   ServiceHandle<StoreGateSvc>& detStore() const;
 
-  /** @brief The standard @c UserDataSvc 
-   * Returns (kind of) a pointer to the @c UserDataSvc
-   */
-  ServiceHandle<IUserDataSvc>& userStore() const;
 
 #ifndef REENTRANT_GAUDI
   /**
@@ -189,10 +183,8 @@ public:
 
   template <class T>
   Property& declareProperty(Gaudi::Property<T> &t) {
-    return AthReentrantAlgorithm::declareGaudiProperty(t, 
-                                              std::is_base_of<SG::VarHandleKey, T>(),
-                                              std::is_base_of<SG::VarHandleKeyArray, T>()
-                                              );
+    typedef typename SG::HandleClassifier<T>::type htype;
+    return AthReentrantAlgorithm::declareGaudiProperty(t, htype());
   }
 
 private:
@@ -202,10 +194,9 @@ private:
    */
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
-                                 std::true_type, std::false_type) {
-
+                                 const SG::VarHandleKeyType&)
+  {
     return *AthReentrantAlgorithm::declareProperty(hndl.name(), hndl.value(), hndl.documentation());
-
   }
 
   /**
@@ -214,26 +205,23 @@ private:
    */
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
-                                 std::false_type, std::true_type) {
-
+                                 const SG::VarHandleKeyArrayType&)
+  {
     return *AthReentrantAlgorithm::declareProperty(hndl.name(), hndl.value(), hndl.documentation());
-
   }
 
   /**
-   * @brief Error: can't be both a VarHandleKey and VarHandleKeyArray
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleBase>
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::true_type, std::true_type) {
-      ATH_MSG_ERROR("AthReentrantAlgorith::declareGaudiProperty: " << t 
-                    << " cannot be both a VarHandleKey and VarHandleKeyArray. "
-                    << "This should not happen!");
-      throw std::runtime_error("AthReentrantAlgorith::declareGaudiProperty: cannot be both a VarHandleKey and VarHandleKeyArray (this should not happen)!");
-    return Algorithm::declareProperty(t);
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 const SG::VarHandleType&)
+  {
+    return *AthReentrantAlgorithm::declareProperty(hndl.name(), hndl.value(), 
+                                          hndl.documentation());
+
   }
-
-
 
   /**
    * @brief specialization for handling everything that's not a
@@ -241,7 +229,7 @@ private:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type, std::false_type) {
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, const SG::NotHandleType&) {
     return Algorithm::declareProperty(t);
   }
 
@@ -264,8 +252,7 @@ public:
   Property* declareProperty(const std::string& name,
                             SG::VarHandleKey& hndl,
                             const std::string& doc,
-                            std::true_type,
-                            std::false_type)
+                            const SG::VarHandleKeyType&)
   {
     this->declare(hndl);
     hndl.setOwner(this);
@@ -273,13 +260,36 @@ public:
     return Algorithm::declareProperty(name,hndl,doc);
   }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documentation string for the property.
+   *
+   * This is the version for types that derive from @c SG::VarHandleBase.
+   * The property value object is put on the input and output lists as
+   * appropriate; then we forward to the base class.
+   */
+  Property* declareProperty(const std::string& name,
+                            SG::VarHandleBase& hndl,
+                            const std::string& doc,
+                            const SG::VarHandleType&)
+  {
+    this->declare(hndl.vhKey());
+    hndl.vhKey().setOwner(this);
+
+    return Algorithm::declareProperty(name,hndl,doc);
+  }
+
+  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   Property* declareProperty(const std::string& name,
                             SG::VarHandleKeyArray& hndArr,
                             const std::string& doc,
-                            std::false_type,
-                            std::true_type)
+                            const SG::VarHandleKeyArrayType&)
   {
 
     m_vhka.push_back(&hndArr);
@@ -344,9 +354,7 @@ public:
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc,
-                            std::false_type,
-                            std::false_type
-                            ) 
+                            const SG::NotHandleType&)
   {
     return Algorithm::declareProperty(name, property, doc);
   }
@@ -359,20 +367,15 @@ public:
    * @param doc Documentation string for the property.
    *
    * This dispatches to either the generic @c declareProperty or the one
-   * for VarHandle/Key, depending on whether or not @c property
-   * derives from @c SG::VarHandleKey or @c SG::VarHandleKeyArray.
+   * for VarHandle/Key/KeyArray.
    */
   template <class T>
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc="none")
   {
-
-    return declareProperty (name, property, doc,
-                            std::is_base_of<SG::VarHandleKey, T>(),
-                            std::is_base_of<SG::VarHandleKeyArray,T>()
-    );
-
+    typedef typename SG::HandleClassifier<T>::type htype;
+    return declareProperty (name, property, doc, htype());
   }
 
 
@@ -384,6 +387,15 @@ public:
    * See comments on updateVHKA.
    */
   virtual StatusCode sysInitialize() override;
+
+
+  /**
+   * @brief Handle START transition.
+   *
+   * We override this in order to make sure that conditions handle keys
+   * can cache a pointer to the conditions container.
+   */
+  virtual StatusCode sysStart() override;
 
 
   /**
@@ -414,6 +426,17 @@ public:
    */
   virtual const DataObjIDColl& extraOutputDeps() const override;
 
+
+  // forward to CommonMessaging
+  inline MsgStream& msg() const {
+    return msgStream();
+  }
+  inline MsgStream& msg(const MSG::Level lvl) const {
+    return msgStream(lvl);
+  }
+  inline bool msgLvl(const MSG::Level lvl) const {
+    return msgLevel(lvl);
+  }
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -450,10 +473,6 @@ public:
   /// Pointer to StoreGate (detector store by default)
   mutable StoreGateSvc_t m_detStore;
 
-  typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
-  /// Pointer to IUserDataSvc
-  mutable UserDataSvc_t m_userStore;
-
   /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
   /// to add symlinks.  Empty if no symlinks were found.
   DataObjIDColl m_extendedExtraObjects;
@@ -476,9 +495,5 @@ ServiceHandle<StoreGateSvc>& AthReentrantAlgorithm::evtStore() const
 inline
 ServiceHandle<StoreGateSvc>& AthReentrantAlgorithm::detStore() const 
 { return m_detStore; }
-
-inline
-ServiceHandle<IUserDataSvc>& AthReentrantAlgorithm::userStore() const 
-{ return m_userStore; }
 
 #endif //> !ATHENABASECOMPS_ATHREENTRANTALGORITHM_H

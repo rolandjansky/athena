@@ -1,9 +1,3 @@
-// $Id: xAODTriggerCnv_entries.cxx 757801 2016-06-27 10:02:38Z okuprash $
-
-// Gaudi/Athena include(s):
-#include "GaudiKernel/DeclareFactoryEntries.h"
-
-// Local include(s):
 #ifndef XAOD_ANALYSIS
 #include "../MuonRoICnvTool.h"
 #include "../MuonRoICnvAlg.h"
@@ -30,51 +24,27 @@
 #include "xAODTriggerCnv/TriggerMenuMetaDataTool.h"
 
 #ifndef XAOD_ANALYSIS
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, MuonRoICnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, MuonRoICnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, JetRoICnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, JetRoICnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EmTauRoICnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, EmTauRoICnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, EnergySumRoICnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, EnergySumRoICnvAlg )
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, JetEtRoICnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, JetEtRoICnvAlg )
+DECLARE_COMPONENT( xAODMaker::MuonRoICnvTool )
+DECLARE_COMPONENT( xAODMaker::MuonRoICnvAlg )
+DECLARE_COMPONENT( xAODMaker::JetRoICnvTool )
+DECLARE_COMPONENT( xAODMaker::JetRoICnvAlg )
+DECLARE_COMPONENT( xAODMaker::EmTauRoICnvTool )
+DECLARE_COMPONENT( xAODMaker::EmTauRoICnvAlg )
+DECLARE_COMPONENT( xAODMaker::EnergySumRoICnvTool )
+DECLARE_COMPONENT( xAODMaker::EnergySumRoICnvAlg )
+DECLARE_COMPONENT( xAODMaker::JetEtRoICnvTool )
+DECLARE_COMPONENT( xAODMaker::JetEtRoICnvAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigDecisionCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigDecisionCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigDecisionCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigDecisionCnvAlg )
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, BunchConfCnvAlg )
+DECLARE_COMPONENT( xAODMaker::BunchConfCnvAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigNavigationCnvTool )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigNavigationCnvAlg )
+DECLARE_COMPONENT( xAODMaker::TrigNavigationCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigNavigationCnvAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigPassBitsCnvTool )
+DECLARE_COMPONENT( xAODMaker::TrigPassBitsCnvTool )
 #endif
 
-DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TriggerMenuMetaDataTool )
+DECLARE_COMPONENT( xAODMaker::TriggerMenuMetaDataTool )
 
-DECLARE_FACTORY_ENTRIES( xAODAnalysisTriggerCnv ) {
-#ifndef XAOD_ANALYSIS
-   DECLARE_NAMESPACE_TOOL( xAODMaker, MuonRoICnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, MuonRoICnvAlg )
-   DECLARE_NAMESPACE_TOOL( xAODMaker, JetRoICnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, JetRoICnvAlg )
-   DECLARE_NAMESPACE_TOOL( xAODMaker, EmTauRoICnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, EmTauRoICnvAlg )
-   DECLARE_NAMESPACE_TOOL( xAODMaker, EnergySumRoICnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, EnergySumRoICnvAlg )
-   DECLARE_NAMESPACE_TOOL( xAODMaker, JetEtRoICnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, JetEtRoICnvAlg )
-
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigDecisionCnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigDecisionCnvAlg )
-
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, BunchConfCnvAlg )
-
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigNavigationCnvTool )
-   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigNavigationCnvAlg )
-#endif
-   DECLARE_NAMESPACE_TOOL( xAODMaker, TriggerMenuMetaDataTool )
-
-}

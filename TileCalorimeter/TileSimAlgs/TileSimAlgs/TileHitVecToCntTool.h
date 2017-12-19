@@ -45,7 +45,7 @@ class TileID;
 class TileTBID;
 class TileHit;
 class TileInfo;
-class TileHitContainer;
+class TileHitNonConstContainer;
 class TileDetDescrManager;
 class PileUpMergeSvc;
 class ITriggerTime;
@@ -94,8 +94,8 @@ class TileHitVecToCntTool: public PileUpToolBase {
     void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot);
     void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot);
     double applyPhotoStatistics(double energy, Identifier pmt_id);    //!< Method to apply photostatistics effect
-    void findAndMergeE1(const TileHitCollection* const_coll, int frag_id);
-    void findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id);
+    void findAndMergeE1(TileHitCollection* coll, int frag_id);
+    void findAndMergeMBTS(TileHitCollection* coll, int frag_id);
 
     std::vector<std::string> m_hitVectorNames;  //!< vector with the names of TileHitVectors to use
     std::string m_hitContainer;                 //!< name of the TileHitCointainer
@@ -125,7 +125,7 @@ class TileHitVecToCntTool: public PileUpToolBase {
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc;     //!< Random number generator engine to use
 
     std::vector<TileHit*> m_allHits;           //!< vector for all TileHits
-    TileHitContainer* m_hits;                   //!< pointer to hits container
+    TileHitNonConstContainer* m_hits;          //!< pointer to hits container
 
     bool m_doChecks;                             //!< initial value of do_checks flag in TileID helper
     bool m_doChecksTB;                          //!< initial value of do_checks flag in TileTBID helper

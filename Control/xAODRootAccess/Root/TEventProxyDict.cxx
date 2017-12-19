@@ -200,7 +200,7 @@ namespace xAOD {
       TReturnCode::kSuccess;
 #else
    /// Helper variable for returning a successful status code
-   static const unsigned long STATUSCODE_SUCCESS = StatusCode::SUCCESS;
+   static const StatusCode STATUSCODE_SUCCESS = StatusCode::SUCCESS;
 #endif // XAOD_STANDALONE
 
    SG::DataProxy* TEvent::proxy( const void* const pTransient ) const {
@@ -359,7 +359,12 @@ namespace xAOD {
 
       BranchInfo bi;
       bi.m_proxy.reset( proxy );
-      m_branches.insert( std::make_pair( proxy->sgkey(),
+      m_branches.insert( std::make_pair(
+#ifdef XAOD_STANDALONE
+                                         0,
+#else
+                                         proxy->sgkey(),
+#endif // XAOD_STANDALONE
                                          std::move( bi ) ) );
 
       // Return gracefully:

@@ -1,8 +1,7 @@
-// This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
  * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
  */
-// $Id$
+//
 /**
  * @file AthenaKernel/CondCont.h
  * @author Vakho, Charles, Scott
@@ -20,6 +19,7 @@
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/DataObjID.h"
+#include "boost/preprocessor/facilities/overload.hpp"
 
 #include <iostream>
 #include <set>
@@ -226,19 +226,23 @@ SG_BASE(D, B)
  * by IOV time.
  *
  * This object is recorded in the conditions store, so it must have a CLID
- * (the @c CondCont object, not @c T).
- *
- * It is possible for one conditions object to derive from another.
- * For the case of class @c D deriving from @c B, use the macro
+ * (the @c CondCont object, not @c T).  This CLID should be declared
+ * using the  @c CONDCONT_DEF macro:
  *
  *@code
- *  CONDCONT_BASE(D, B);
+ *  CONDCONT_DEF(TYPE, CLID);
  @endcode
  *
- * before any references to @c CondCont<D>.
- * (At the moment, you will also need SG_BASE(D, B); but this should be
- * temporary.)
- * This is implemented by having @c CondCont<D> derive from @c CondCont<B>.
+ * It is possible for one conditions object to derive from another.
+ * If @c TYPE derives from @c BASE, then declare this with a third
+ * argument to @c CONDCONT_DEF:
+ *
+ *@code
+ *  CONDCONT_DEF(TYPE, CLID, BASE);
+ @endcode
+ *
+ * before any references to @c CondCont<TYPE>.
+ * This is implemented by having @c CondCont<TYPE> derive from @c CondCont<BASE>.
  * In that case, the mappings will be stored only in the most-derived class.
  */
 template <typename T>
@@ -403,12 +407,13 @@ protected:
                                   EventIDRange* r) const override;
 
 
-private:
+public:
 
   /// Helper to ensure that the inheritance information for this class
   /// gets initialized.
   static void registerBaseInit();
 
+private:
 
   /// Mutex used to protect the container.
   typedef std::mutex mutex_t;
@@ -431,6 +436,28 @@ private:
 
 #include "AthenaKernel/CondCont.icc"
 
+#include "AthenaKernel/CondContMaker.h"
+
+#define CONCATUNF_(x,y) x##y
+#define CONCATUNF(x,y) CONCATUNF_(x,y)
+#define UNIQUEVARNAME CONCATUNF(CONCATUNF(REGCCM_,__COUNTER__),__LINE__)
+
+
+/// Declare a conditions container along with its CLID.
+// For a conditions container not deriving from another, do
+//    CONDCONT_DEF(TYPE, CLID);
+//
+// For a conditions container with a payload deriving from BASE, do
+//    CONDCONT_DEF(TYPE, CLID, BASE);
+//
+#define CONDCONT_DEF_2(T, CLID)    \
+  CLASS_DEF( CondCont<T>, CLID, 1) \
+  static CondContainer::CondContMaker<T> maker_ ## CLID {}
+#define CONDCONT_DEF_3(T, CLID, BASE)            \
+  CONDCONT_BASE(T, BASE);                        \
+  CONDCONT_DEF_2(T, CLID)
+#define CONDCONT_DEF(...)  \
+  BOOST_PP_OVERLOAD(CONDCONT_DEF_, __VA_ARGS__)(__VA_ARGS__)
 
 #endif // not ATHENAKERNEL_CONDCONT_H
 

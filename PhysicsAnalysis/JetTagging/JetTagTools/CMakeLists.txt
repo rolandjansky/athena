@@ -25,6 +25,7 @@ atlas_depends_on_subdirs(
     Reconstruction/egamma/egammaMVACalib
     Reconstruction/MVAUtils
     Tracking/TrkEvent/TrkParameters
+    InnerDetector/InDetRecTools/InDetSVWithMuonTool
 
     PRIVATE
     Control/AthenaKernel
@@ -78,7 +79,7 @@ atlas_add_library( JetTagToolsLib
     src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
     src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
     src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
-    src/MV1Tag.cxx src/MV1cTag.cxx src/MV2Tag.cxx
+    src/MV1Tag.cxx src/MV2Tag.cxx
     src/MyTag.cxx
     src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
     src/MultiSVTag.cxx src/JetVertexCharge.cxx src/SoftMuonTag.cxx

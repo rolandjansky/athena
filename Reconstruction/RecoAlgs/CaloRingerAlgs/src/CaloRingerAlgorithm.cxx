@@ -10,7 +10,6 @@
 #include "AthContainers/AuxElement.h"
 
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloRingerTools/ICaloRingerInputReader.h"
 
 // xAOD includes:
 #include "xAODBase/IParticle.h"
@@ -26,10 +25,6 @@ CaloRingerAlgorithm::CaloRingerAlgorithm( const std::string& name,
   //
   // Property declaration
   //
-
-  // the input reader tools collection
-  declareProperty("inputReaderTools", m_inputReaders ,
-      "Sequence of reader tools to execute." );
 
 }
 

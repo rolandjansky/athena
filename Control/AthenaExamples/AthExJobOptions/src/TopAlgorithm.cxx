@@ -110,6 +110,9 @@ StatusCode TopAlgorithm::initialize()
    } else {
      ATH_MSG_INFO ("Empty public tool is empty (OK)");
    }
+
+   ATH_CHECK( m_publicTool.retrieve() );
+
    return StatusCode::SUCCESS;
 }
 

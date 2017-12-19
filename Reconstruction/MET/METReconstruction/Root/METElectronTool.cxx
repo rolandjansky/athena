@@ -114,7 +114,7 @@ namespace met {
     const CaloClusterContainer* tcCont(0);
     if( evtStore()->retrieve(tcCont, m_tcCont_key).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve topocluster container for overlap removal");
-      return StatusCode::SUCCESS;
+      return true;
     }
     ATH_MSG_DEBUG("Successfully retrieved topocluster collection");    
 

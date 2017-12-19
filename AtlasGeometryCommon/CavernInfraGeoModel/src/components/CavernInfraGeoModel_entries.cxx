@@ -1,3 +1,3 @@
 #include "../CavernInfraDetectorTool.h"
 
-DECLARE_TOOL_FACTORY(CavernInfraDetectorTool)
+DECLARE_COMPONENT( CavernInfraDetectorTool )

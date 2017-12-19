@@ -2,7 +2,7 @@
 #
 # Job options file for Geant4 Simulation
 #
-# Standalone TileCal Testbeam in 2000-2003 
+# Standalone TileCal Testbeam in 2000-2003
 #
 #==============================================================
 
@@ -13,7 +13,7 @@ topSeq = AlgSequence()
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
 
-#---  Output printout level ----------------------------------- 
+#---  Output printout level -----------------------------------
 #output threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 if not 'OutputLevel' in dir():
     OutputLevel = 3
@@ -38,7 +38,7 @@ athenaCommonFlags.EvtMax=EvtMax
 #--- Detector flags -------------------------------------------
 from AthenaCommon.DetFlags import DetFlags
 
-# - Select detectors 
+# - Select detectors
 DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
@@ -118,27 +118,9 @@ if 'Y' in dir():
     simFlags.Y=Y
 
 
-# uncomment this for simulation with calibration hits
-#simFlags.CalibrationRun = 'Tile'
-
-# uncomment and modify any of options below to have non-standard simulation 
-from TileSimUtils.TileSimInfoConfigurator import TileSimInfoConfigurator
-tileSimInfoConfigurator=TileSimInfoConfigurator()
-# tileSimInfoConfigurator.DeltaTHit = [ 1. ]
-# tileSimInfoConfigurator.TimeCut = 200.5
-# tileSimInfoConfigurator.TileTB = True
-# tileSimInfoConfigurator.PlateToCell = True
-# tileSimInfoConfigurator.DoExpAtt = False
-# tileSimInfoConfigurator.DoTileRow = False
-# tileSimInfoConfigurator.DoTOFCorrection = True
-# Birks' law
-if 'DoBirk' in dir():
-    tileSimInfoConfigurator.DoBirk = DoBirk
-# U-shape
-if 'TileUshape' in dir():
-    tileSimInfoConfigurator.Ushape = TileUshape
-
-print tileSimInfoConfigurator
+# set this flag for simulation with calibration hits
+if 'CalibrationRun' in dir():
+    simFlags.CalibrationRun = 'Tile'
 
 # avoid reading CaloTTMap from COOL
 include.block ( "CaloConditions/CaloConditions_jobOptions.py" )
@@ -174,12 +156,16 @@ if not 'PID' in dir():
     PID=11
 if not 'E' in dir():
     E=100000
+if not 'Xbeam' in dir():
+    Xbeam=-27500
 if not 'Ybeam' in dir():
     Ybeam=[-20,20]
 if not 'Zbeam' in dir():
     Zbeam=[-20,20]
+if not 'Tbeam' in dir():
+    Tbeam=[-31250,-23750]
 pg.sampler.pid = PID
-pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=[-25000,-17500])
+pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=Tbeam)
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
 
 topSeq += pg
@@ -193,6 +179,8 @@ except:
     except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
+
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 try:
     from AthenaCommon.CfgGetter import getAlgorithm
@@ -211,24 +199,33 @@ except:
 
 ## Use verbose G4 tracking
 if 'VerboseTracking' in dir():
-    def use_verbose_tracking():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
-    simFlags.InitFunctions.add_function("postInit", use_verbose_tracking)
+    simFlags.G4Commands+= ['/tracking/verbose 1']
 
 ## Set non-standard range cut
 if 'RangeCut' in dir():
-    def set_general_range_cut():
-        from G4AtlasApps import AtlasG4Eng
-        physics = AtlasG4Eng.G4Eng.Dict.get('physics')
-        physics.Value_gen_cut = RangeCut
-    simFlags.InitFunctions.add_function('preInitPhysics',set_general_range_cut)
+    svcMgr.ToolSvc['PhysicsListToolBase'].GeneralCut=RangeCut
 
 #--- Final step -----------------------------------------------
 
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+
+# uncomment and modify any of options below to have non-standard simulation 
+from AthenaCommon.AppMgr import ToolSvc
+SD = ToolSvc.SensitiveDetectorMasterTool.SensitiveDetectors[0]
+SD.TileTB=True
+# SD.DeltaTHit = [ 50. ]
+# SD.TimeCut = 200.5
+# SD.PlateToCell = True
+# SD.DoTileRow = False
+# SD.DoTOFCorrection = True
+# Birks' law
+if 'DoBirk' in dir():
+    SD.DoBirk = DoBirk
+if 'TileUshape' in dir():
+    SD.Ushape=TileUshape
+print SD
 
 ## VP1 algorithm for visualization
 if 'VP1' in dir():

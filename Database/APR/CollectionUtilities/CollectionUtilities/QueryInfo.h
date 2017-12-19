@@ -8,8 +8,6 @@
 #include "CollectionUtilities/ArgQual.h"
 #include "CollectionUtilities/CmdLineArgs2.h"
 
-#include "TrigCollQuery/TrigCollQuery.h"
-
 /**********************************************************
 
 QueryInfo is an concretization of a CmdLineArgs2
@@ -46,9 +44,6 @@ namespace pool
   private:
      std::vector<std::string>   m_queries;
      std::string                m_queryOptions;
-
-     TrigCollQuery              queryRemapper;
-
    };
 
   

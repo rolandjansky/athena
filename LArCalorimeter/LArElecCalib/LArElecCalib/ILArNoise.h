@@ -48,7 +48,5 @@ CLASS_DEF( ILArNoise, 8125,1)
 //ConditionsContainer clid for athenaMT"
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<ILArNoise> , 148605725 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<ILArNoise>, CondContBase );
 
 #endif 

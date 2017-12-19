@@ -34,11 +34,11 @@ public:
   // destructor 
   ~PixelRodDecoder(); 
 
-  StatusCode initialize();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode finalize() override;
 
-  StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
-			std::vector<IdentifierHash>* vecHash = NULL);
+  StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, 
+			std::vector<IdentifierHash>* vecHash = NULL) override;
 
   inline void setDet( const eformat::SubDetector det );
   bool m_is_ibl_present;

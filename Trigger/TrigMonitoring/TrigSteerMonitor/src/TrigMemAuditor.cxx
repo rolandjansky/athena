@@ -48,7 +48,7 @@ void  TrigMemAuditor::afterExecute(INamedInterface *a, const StatusCode &sc)
    TrigMemInfo.virtdelta   = TrigMemInfo.virtsize - m_VirtSizeMap[a->name()];
    
    // extract status code
-   TrigMemInfo.statuscode  = (unsigned long)sc;
+   TrigMemInfo.statuscode  = sc.getCode();
 
    // inform tools about memory usage
    for(int i = 0; i != nClientCount; i++)

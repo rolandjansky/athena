@@ -175,7 +175,7 @@ PyAthena::callPyMethod( PyObject* self,
   }
   
   if ( PyInt_Check( r ) ) {
-    StatusCode sc = PyInt_AS_LONG( r );
+    StatusCode sc(PyInt_AS_LONG( r ));
     Py_DECREF( r );
     return sc;
   }
@@ -207,7 +207,7 @@ PyAthena::callPyMethod( PyObject* self,
   }
 
   if ( PyLong_Check (c) ) { 
-    StatusCode sc = PyLong_AsLong (c);
+    StatusCode sc(PyLong_AsLong (c));
     Py_DECREF (c);
     return sc;
   } 

@@ -731,7 +731,7 @@ bool TileJetMonTool::isGoodEvent() {
 
   ATH_MSG_DEBUG("TileJetMonTool::isGoodEvent()....");
   const EventInfo* eventInfo(NULL);
-  CHECK(evtStore()->retrieve(eventInfo));
+  CHECK(evtStore()->retrieve(eventInfo), false);
   if (eventInfo->errorState(EventInfo::LAr) == EventInfo::Error) return(false);
   if (eventInfo->errorState(EventInfo::Tile) == EventInfo::Error) return(false);
 

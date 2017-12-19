@@ -2,19 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoSimplePolygonBrep_h
-#define GeoSimplePolygonBrep_h 1
+#ifndef GEOMODELKERNEL_GEOSIMPLEPOLYGONBREP_H
+#define GEOMODELKERNEL_GEOSIMPLEPOLYGONBREP_H
+
+/**
+ * @class: GeoSimplePolygonBrep
+ *
+ * @brief This shape represents a BREP solid consisting
+ *      of two equivalent polygonial faces perpendicular to Z axis.
+ *      The polygones are described by array of (x,y) vertices,
+ *      The solid is considered valid if the number of polygon vertices >=3 
+ *
+ *      Constructor parameter is a half length along Z axis
+ */
 
 #include <vector>
 #include "GeoModelKernel/GeoShape.h"
-
-// Class: GeoSimplePolygonBrep
-//	This shape represents a BREP solid consisting
-//      of two equivalent polygonial faces perpendicular to Z axis.
-//      The polygones are described by array of (x,y) vertices,
-//      The solid is considered valid if the number of polygon vertices >=3 
-//
-//      Constructor parameter is a half length along Z axis
 
 
 class GeoSimplePolygonBrep : public GeoShape

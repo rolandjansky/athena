@@ -45,7 +45,7 @@ StatusCode MuonAGDDTool::construct()
 {
 	MuonAGDDToolHelper theHelper;
 		
-	controller->UseGeoModelDetector("Muon");
+	m_controller->UseGeoModelDetector("Muon");
 	
 	if (!m_locked)
 	{
@@ -58,10 +58,10 @@ StatusCode MuonAGDDTool::construct()
 	if (!m_readAGDD)
 	{
 		ATH_MSG_INFO(" trying to parse files ");
-		controller->ParseFiles();
+		m_controller->ParseFiles();
 		
-		controller->BuildAll();
-		controller->Clean();
+		m_controller->BuildAll();
+		m_controller->Clean();
 
 		return StatusCode::SUCCESS;
 	}
@@ -70,12 +70,12 @@ StatusCode MuonAGDDTool::construct()
 	
 	std::string AGDDfile=theHelper.GetAGDD(m_dumpAGDD);
 	
-	controller->ParseString(AGDDfile);
+	m_controller->ParseString(AGDDfile);
 	
 	if (m_printSections)
 	{	
 		ATH_MSG_INFO("\t Printing all sections");
-		controller->PrintSections();
+		m_controller->PrintSections();
 	}
 	
 	
@@ -84,10 +84,10 @@ StatusCode MuonAGDDTool::construct()
 	{
 		ATH_MSG_INFO("\t\t----- "<<m_structuresFromFlags[i]<<" "<<ALIAS(m_structuresFromFlags[i]));
 		if (!m_buildNSW && m_structuresFromFlags[i]=="NewSmallWheel") continue;
-		controller->GetBuilder()->BuildFromVolume(m_structuresFromFlags[i]);
+		m_controller->GetBuilder()->BuildFromVolume(m_structuresFromFlags[i]);
 	}
 
-	controller->Clean();
+	m_controller->Clean();
 
 	return StatusCode::SUCCESS;
 }

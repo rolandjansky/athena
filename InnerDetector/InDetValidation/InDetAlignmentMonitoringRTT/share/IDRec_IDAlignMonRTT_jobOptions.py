@@ -158,7 +158,7 @@ else:
   
 if not doReadBS:
   ServiceMgr.PoolSvc.AttemptCatalogPatch=True
-  ServiceMgr.EventSelector.InputCollections  = ["root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1" ]
+  ServiceMgr.EventSelector.InputCollections  = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1" ]
     
 #--------------------------------------------------------------
 

@@ -113,7 +113,7 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
 	
 	// Event information
 	const xAOD::EventInfo* eventInfo = 0; 
-	ATH_CHECK( evtStore()->retrieve( eventInfo) );
+	ATH_CHECK( evtStore()->retrieve( eventInfo), -9999. );
 
 	// check if data or MC
 	if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION ) ){

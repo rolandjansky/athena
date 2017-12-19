@@ -3,6 +3,7 @@
 */
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 #include "CTPUnpackingTool.h"
 
 using namespace HLT;

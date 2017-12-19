@@ -6,6 +6,7 @@
 #define TRT_DRIFTCIRCLE_H
 
 // driftCircle.h
+// This local copy is only for development/debugging purposes
 // Adapted from TRT_DriftCircle.h
 // For basic tuning and development tests.
 // 13/10/2012 Andrew.Beddall@cern.ch

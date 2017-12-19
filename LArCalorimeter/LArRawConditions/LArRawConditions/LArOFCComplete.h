@@ -100,7 +100,9 @@ class LArOFCComplete: public ILArOFC,
   mutable cache_t m_cache;
  };
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArOFCComplete, 101879462, 1) 
+CONDCONT_DEF( LArOFCComplete , 144694594 , ILArOFC );
 
 inline
 LArOFCComplete::CONTAINER::ConstReference

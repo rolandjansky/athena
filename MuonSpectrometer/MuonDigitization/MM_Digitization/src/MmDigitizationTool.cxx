@@ -196,18 +196,20 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
   // crosstalk of neighbor strips, it's 6%
   declareProperty("crossTalk2",		     m_crossTalk2 = 0.0); 
   declareProperty("qThresholdForTrigger",    m_qThresholdForTrigger = 1.0); 
-  declareProperty("GasFileName",             m_gasFileName = "ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito  
+  declareProperty("GasFileName",             m_gasFileName = "MM_Digitization/ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito  
   // Constants vars for the ElectronicsResponse
   declareProperty("alpha",                   m_alpha = 2.5);
   declareProperty("RC",                      m_RC = 20.);
-  declareProperty("electronicsThreshold",    m_electronicsThreshold = 2500.0); // at gain=5000 in StripResponse
+  declareProperty("electronicsThreshold",    m_electronicsThreshold = 1250.0); // at gain=5000 in StripResponse
   //  declareProperty("electronicsThreshold",    m_electronicsThreshold = 0.000811174);
-  declareProperty("StripDeadTime",           m_stripdeadtime = 0.0);    
-  //  declareProperty("StripDeadTime",           m_stripdeadtime = 270.0); // default value ?
-  declareProperty("ARTDeadTime",             m_ARTdeadtime   = 0.0);    
-  //  declareProperty("ARTDeadTime",             m_ARTdeadtime   = 40.0);  // default value ?
+  // declareProperty("StripDeadTime",           m_stripdeadtime = 0.0);    
+   // declareProperty("StripDeadTime",           m_stripdeadtime = 270.0); // default value ?
+   declareProperty("StripDeadTime",           m_stripdeadtime = 3000.0); // default value ?
+  // declareProperty("ARTDeadTime",             m_ARTdeadtime   = 0.0);    
+   // declareProperty("ARTDeadTime",             m_ARTdeadtime   = 40.0);  // default value ?
+   declareProperty("ARTDeadTime",             m_ARTdeadtime   = 3000.0);  // default value ?
 
-  declareProperty("SaveInternalHistos",  m_saveInternalHistos = false   );
+  declareProperty("SaveInternalHistos",  m_saveInternalHistos = true   );
   declareProperty("ValidationSetup",     m_validationSetup = false   );
   declareProperty("EnergyThreshold",     m_energyThreshold = 50., "Minimal energy to produce a PRD"  );
 
@@ -429,6 +431,7 @@ StatusCode MmDigitizationTool::initialize() {
   m_ClusterLength = new TH1I("m_ClusterLength", "m_ClusterLength", 100, 0., 100.);
   m_gasGap = new TH1I("m_gasGap", "m_gasGap", 100, 0., 100.);
   m_gasGapDir = new TH1I("m_gasGapDir", "m_gasGapDir", 20, -10., 10.);
+
  
   // m_thpcMM->reserve(20000);
  
@@ -458,32 +461,18 @@ StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-#ifdef ATHENA_20_20
-StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
-						PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-#else
   StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
 						  SubEventIterator bSubEvents,
 						  SubEventIterator eSubEvents) {
-#endif
 
   ATH_MSG_DEBUG ( "MmDigitizationTool::in processBunchXing()"  << bunchXing );
   
-#ifdef ATHENA_20_20
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
-#else
   SubEventIterator iEvt = bSubEvents;
-#endif
  
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
 
-#ifdef ATHENA_20_20
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-#else
     StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-#endif
 
     ATH_MSG_INFO( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
                   << " bunch crossing : " << bunchXing );
@@ -1093,20 +1082,30 @@ StatusCode MmDigitizationTool::doDigitization() {
     MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponse->ApplyDeadTimeART(ElectronicsTriggerOutput));    
     //go to MM_DigitContainer
 
+    MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponse->ApplyARTTiming(ElectronicsTriggerOutputAppliedARTDeadTime,38.,0.));    
+    //go to MM_DigitContainer
+
+
+
+    // Test output
+
+    // MmElectronicsToolTriggerOutput ThresholdFastest(m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicThresholdOutput, chMax, stationEta));
+    MmElectronicsToolTriggerOutput PeakFastest(     m_ElectronicsResponse->GetTheFastestSignalInVMM(ElectronicOutput, chMax, stationEta));
+
     MmDigit*  newDigit = new MmDigit(StripdigitOutputAllhits.DigitId(), 
      // --- We had ElectronicsOutput here, instead of StripResponse Output because but it's no longer useful
-				     ElectronicOutput.stripTime(), 
+             ElectronicOutput.stripTime(), 
 				     ElectronicOutput.stripPos(), 
 				     ElectronicOutput.stripCharge(), 
      // ---------------------
-				     ElectronicOutput.stripTime(),
+             ElectronicOutput.stripTime(),
 				     ElectronicOutput.stripPos(),
 				     ElectronicOutput.stripCharge(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.chipTime(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.NumberOfStripsPos(),    
-				     ElectronicsTriggerOutputAppliedARTDeadTime.chipCharge(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.VMMid(),
-				     ElectronicsTriggerOutputAppliedARTDeadTime.MMFEVMMid());
+				     ElectronicsTriggerOutputAppliedARTTiming.chipTime(),
+				     ElectronicsTriggerOutputAppliedARTTiming.NumberOfStripsPos(),    
+				     ElectronicsTriggerOutputAppliedARTTiming.chipCharge(),
+				     ElectronicsTriggerOutputAppliedARTTiming.VMMid(),
+				     ElectronicsTriggerOutputAppliedARTTiming.MMFEVMMid());
     // The collections should use the detector element hashes not the module hashes to be consistent with the PRD granularity. 
       IdentifierHash detIdhash ;
       // set RE hash id 

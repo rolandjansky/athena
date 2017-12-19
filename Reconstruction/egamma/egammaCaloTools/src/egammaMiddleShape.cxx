@@ -29,8 +29,6 @@ egammaMiddleShape::egammaMiddleShape(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_cluster(0),
     m_cellContainer(0),
-    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
-    m_egammaqweta2c("egammaqweta2c/egammaqweta2c"),
     m_eallsamples(0),
     m_width(0),
     m_poscs2(0),
@@ -47,21 +45,6 @@ egammaMiddleShape::egammaMiddleShape(const std::string& type,
 { 
   // declare Interface
   declareInterface<IegammaMiddleShape>(this);
-
-  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
-
-  declareProperty("egammaqweta2cTool",m_egammaqweta2c);
-
-  // calculate quantities based on information in a region around the cluster. 
-  declareProperty("Neta",m_neta =7.0,
-		  "Number of eta cells in each sampling in which to calculated shower shapes");
-
-  declareProperty("Nphi",m_nphi=7.0,
-		  "Number of phi cell in each sampling in which to calculated shower shapes");
-  
-  // Calculate some less important variables
-  declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
-		  "Calculate some less important variables");  
 
   InitVariables();
 }
@@ -83,15 +66,15 @@ StatusCode egammaMiddleShape::initialize()
 
   // Create egammaqweta2c Tool
   if(m_egammaqweta2c.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaqweta2c);
-    return StatusCode::SUCCESS;
+    ATH_MSG_FATAL("Unable to retrieve "<<m_egammaqweta2c);
+    return StatusCode::FAILURE;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaqweta2c << " retrieved"); 
 
   // Create egammaEnergyPositionAllSamples Tool
   if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-    return StatusCode::SUCCESS;
+    ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
+    return StatusCode::FAILURE;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 

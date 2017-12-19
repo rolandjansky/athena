@@ -4,14 +4,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBuilder.h 500598 2012-05-14 15:39:58Z krasznaa $
 #ifndef TRIGT1ROIB_ROIBUILDER_H
 #define TRIGT1ROIB_ROIBUILDER_H
 
-// STL include(s):
 #include <string>
 
-// Athena/Gaudi include(s):
+
+#include "xAODEventInfo/EventInfo.h"
+#include "TrigT1Interfaces/CTPSLink.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
+#include "TrigT1Interfaces/SlinkWord.h"
+#include "TrigT1Result/RoIBResult.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 //! namespace for RoIBuilder related classes
@@ -33,25 +40,41 @@ namespace ROIB {
    class RoIBuilder : public AthAlgorithm {
 
    public:
-      /// Standard Gaudi algorithm constructor
       RoIBuilder( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-      // standard algorithm methods:
       virtual StatusCode initialize();
       virtual StatusCode execute();
       virtual StatusCode finalize();
 
    private:
-      // Properties:
-      bool m_doCalo; //!< property, see @link RoIBuilder::RoIBuilder @endlink
-      bool m_doMuon; //!< property, see @link RoIBuilder::RoIBuilder @endlink
+     Gaudi::Property<bool> m_doCalo{ this, "DoCalo", true, "Use inputs from Calo system" }; 
+     Gaudi::Property<bool> m_doMuon{ this, "DoMuon", true, "Use inputs from Muon system" }; 
 
       // String members containing locations of objects in SG:
-      std::string m_ctpSLinkLocation;      //!< property, see @link RoIBuilder::RoIBuilder @endlink
-      std::string m_caloEMTauLocation;     //!< property, see @link RoIBuilder::RoIBuilder @endlink
-      std::string m_caloJetEnergyLocation; //!< property, see @link RoIBuilder::RoIBuilder @endlink
-      std::string m_muctpiSLinkLocation;   //!< property, see @link RoIBuilder::RoIBuilder @endlink
-      std::string m_roibRDOLocation;       //!< property, see @link RoIBuilder::RoIBuilder @endlink
+     SG::ReadHandleKey<LVL1CTP::CTPSLink> m_ctpSLinkLocation{ this, "CTPSLinkLocation", 
+	 LVL1CTP::DEFAULT_CTPSLinkLocation, "StoreGate location of CTP RoI"};
+
+     typedef DataVector< LVL1CTP::SlinkWord> SlinkWordDV;
+
+     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfoKey", "EventInfo", "Event info object "};
+
+     SG::ReadHandleKeyArray< SlinkWordDV > m_caloEMTauLocation{ this,   "CaloEMTauLocation", 
+	 { LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"0", 
+	   LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"1", 
+	   LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"2", 
+	   LVL1::TrigT1CaloDefs::EmTauSlinkLocation+"3"  }, 
+	 "StoreGate location of EmTau inputs" };
+
+     SG::ReadHandleKeyArray< SlinkWordDV > m_caloJetEnergyLocation{ this, "CaloJetEnergyLocation", 
+	 { LVL1::TrigT1CaloDefs::jepSlinkLocation+"0", 
+	   LVL1::TrigT1CaloDefs::jepSlinkLocation+"1" },
+	 "StoreGate location of JetEnergy inputs" };
+
+     SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muctpiSLinkLocation{ this, "MuCTPISLinkLocation",
+									  LVL1MUCTPI::DEFAULT_MuonRoIBLocation,
+									  "StoreGate location of MuCTPI inputs" };
+     
+     SG::WriteHandleKey<RoIBResult> m_roibRDOLocation{ this, "RoIBRDOLocation", ROIB::DEFAULT_RoIBRDOLocation,  "StoreGate location of RoIB RDO" };
 
    }; // class RoIBuilder
 

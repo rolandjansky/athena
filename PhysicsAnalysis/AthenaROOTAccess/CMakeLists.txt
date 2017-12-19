@@ -29,18 +29,21 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( ROOT COMPONENTS PyROOT Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
+atlas_generate_reflex_dictionary( dict_cpp AthenaROOTAccess
+   HEADER  ${CMAKE_CURRENT_SOURCE_DIR}/AthenaROOTAccess/AthenaROOTAccessDict.h
+   SELECTION ${CMAKE_CURRENT_SOURCE_DIR}/AthenaROOTAccess/selection.xml
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+)
+
 atlas_add_library( AthenaROOTAccess
-                   src/*.cxx
+                   src/*.cxx ${dict_cpp}
                    PUBLIC_HEADERS AthenaROOTAccess
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaKernel SGTools GaudiKernel RootUtilsPyROOT AthenaPoolCnvSvcLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthAllocators AthContainers AthContainersRoot AthLinks RootUtils PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking )
 
-atlas_add_dictionary( AthenaROOTAccessDict
-                      AthenaROOTAccess/AthenaROOTAccessDict.h
-                      AthenaROOTAccess/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools GaudiKernel TestTools AthAllocators AthContainers AthContainersRoot AthLinks RootUtils RootUtilsPyROOT AthenaPoolCnvSvcLib PersistentDataModel PersistentDataModelTPCnv xAODHIEvent xAODMuon xAODTracking AthenaROOTAccess )
+add_dependencies( AthenaROOTAccess AthenaROOTAccessDictGen )
+
 
 atlas_add_dictionary( AthenaROOTAccessTestDict
                       AthenaROOTAccess/AthenaROOTAccessTestDict.h
@@ -63,4 +66,3 @@ atlas_add_test( DataBucketVoid_test
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

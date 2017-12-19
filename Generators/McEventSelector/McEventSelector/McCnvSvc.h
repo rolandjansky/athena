@@ -23,6 +23,14 @@ class McCnvSvc : public ConversionSvc	{
   /// Allow the factory class access to the constructor
   friend class SvcFactory<McCnvSvc>;
 public:
+  /**@name: Object implementation     */
+  //@{
+  /// Standard Constructor
+  McCnvSvc(const std::string& name, ISvcLocator* svc);
+
+  /// Standard Destructor
+  virtual ~McCnvSvc();
+  
   /**@name McCnvSvc overrides     */
   //@{
   /// Initialize the service.
@@ -35,15 +43,6 @@ public:
   /// storage type
   static long storageType() ;
   virtual long repSvcType() const;
-
-protected:
-  /**@name: Object implementation     */
-  //@{
-  /// Standard Constructor
-  McCnvSvc(const std::string& name, ISvcLocator* svc);
-
-  /// Standard Destructor
-  virtual ~McCnvSvc();
 };
 
 #endif // MCEVENTSELECTOR_MCCNVSVC_H

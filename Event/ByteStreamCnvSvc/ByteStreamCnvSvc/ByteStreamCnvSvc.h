@@ -13,9 +13,6 @@
 class ByteStreamOutputSvc;
 class FullEventAssemblerBase;
 
-/// Abstract factory to create the service
-template <class TYPE> class SvcFactory;
-
 /** @class ByteStreamCnvSvc
     @brief Gaudi COnversion Service class for ByteStream Persistency
 
@@ -31,10 +28,14 @@ template <class TYPE> class SvcFactory;
 */
 
 class ByteStreamCnvSvc : public ByteStreamCnvSvcBase/*, virtual public IService*/ {
-   /// Allow the factory class access to the constructor
-   friend class SvcFactory<ByteStreamCnvSvc>;
 
 public:
+   /// Standard Constructor
+   ByteStreamCnvSvc(const std::string& name, ISvcLocator* svc);
+
+   /// Standard Destructor
+   virtual ~ByteStreamCnvSvc();
+
    /// Gaudi Service Interface method implementations:
    virtual StatusCode initialize();
    virtual StatusCode finalize();
@@ -50,12 +51,6 @@ public:
    template <class T> StatusCode getFullEventAssembler(T*&t, std::string nm);
 
 protected:
-   /// Standard Constructor
-   ByteStreamCnvSvc(const std::string& name, ISvcLocator* svc);
-
-   /// Standard Destructor
-   virtual ~ByteStreamCnvSvc();
-
    /// Write the FEA to RawEvent.
    void writeFEA();
 

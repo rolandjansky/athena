@@ -196,7 +196,7 @@ namespace Analysis {
       }
       return StatusCode::SUCCESS;*/
 
-    return StatusCode::SUCCESS;
+    return 0;
   }
 
 } // namespace

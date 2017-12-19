@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "DerivationFrameworkTau/TauSelectionWrapper.h"
 #include "DerivationFrameworkTau/TauTruthMatchingWrapper.h"
 #include "DerivationFrameworkTau/TauPVRefitTool.h"
@@ -7,16 +6,9 @@
 
 using namespace DerivationFramework;
 
-DECLARE_TOOL_FACTORY( TauSelectionWrapper )
-DECLARE_TOOL_FACTORY( TauTruthMatchingWrapper )
-DECLARE_TOOL_FACTORY( TauPVRefitTool )
-DECLARE_TOOL_FACTORY( TauPVTrkSelectionTool )
-DECLARE_TOOL_FACTORY( TauOverlappingElectronLLHDecoratorWrapper )
+DECLARE_COMPONENT( TauSelectionWrapper )
+DECLARE_COMPONENT( TauTruthMatchingWrapper )
+DECLARE_COMPONENT( TauPVRefitTool )
+DECLARE_COMPONENT( TauPVTrkSelectionTool )
+DECLARE_COMPONENT( TauOverlappingElectronLLHDecoratorWrapper )
 
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkTau ) {
-   DECLARE_TOOL( TauSelectionWrapper )
-   DECLARE_TOOL( TauTruthMatchingWrapper )
-   DECLARE_TOOL( TauPVRefitTool )
-   DECLARE_TOOL( TauPVTrkSelectionTool )
-   DECLARE_TOOL( TauOverlappingElectronLLHDecoratorWrapper )
-}

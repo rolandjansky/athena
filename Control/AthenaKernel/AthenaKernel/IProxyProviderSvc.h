@@ -33,13 +33,17 @@ class IOpaqueAddress;
 
 class IProxyProviderSvc : virtual public IService {
 public:
+  DeclareInterfaceID (IProxyProviderSvc,1,0);
+
   /// add proxies to the store before Begin Event:
   virtual StatusCode preLoadProxies(IProxyRegistry& dataStore) = 0;
 
   ///add new proxies to store every Event:
   virtual StatusCode loadProxies(IProxyRegistry& dataStore) = 0;
 
-  ///get the default proxy for a given CLID/Key"
+  /// Use a provider to create a proxy for ID/KEY.
+  /// If successful, the new proxy will be added to DATASTORE
+  /// and returned; otherwise, return null.
   virtual SG::DataProxy* retrieveProxy(const CLID& id, 
 				       const std::string& key,
 				       IProxyRegistry& dataStore) = 0;
@@ -48,15 +52,8 @@ public:
   ///add a provider to the set of known ones. PROVIDER IS OWNED BY THE CLIENT
   virtual void addProvider(IAddressProvider* aProvider) = 0;
 
-  static const InterfaceID& interfaceID();
   virtual ~IProxyProviderSvc() {}
 };
 
-inline
-const InterfaceID&
-IProxyProviderSvc::interfaceID() {
-  static const InterfaceID ID("IProxyProviderSvc", 0 , 0);
-  return ID;
-}
 
 #endif // ATHENAKERNEL_IPROXYPROVIDERSVC_H

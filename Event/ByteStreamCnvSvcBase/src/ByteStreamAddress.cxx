@@ -30,7 +30,7 @@ extern long ByteStream_StorageType;
 /// Standard Constructor
 ByteStreamAddress::ByteStreamAddress(const CLID& clid,
 		const std::string& fname , const std::string& cname, int p1, int p2)
-	: GenericAddress(ByteStream_StorageType, clid, fname, cname, p1, p2) {
+	: GenericAddress(ByteStream_StorageType, clid, fname, cname, p1, p2), m_eid(0,0) {
 }
 
 ByteStreamAddress::ByteStreamAddress(const CLID& clid)

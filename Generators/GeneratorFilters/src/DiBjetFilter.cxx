@@ -125,9 +125,7 @@ StatusCode DiBjetFilter::filterEvent() {
 
   int bJetCounter = 0; 
   double weight = 1;
-  McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
-    const HepMC::GenEvent* genEvt = (*itr);
+  for (const HepMC::GenEvent* genEvt : *events()) {
     weight = genEvt->weights().front();
     HepMC::GenEvent::particle_const_iterator pitr;
     std::vector< HepMC::GenEvent::particle_const_iterator > bHadrons;
@@ -157,8 +155,7 @@ StatusCode DiBjetFilter::filterEvent() {
       && m_ranNumGen->Uniform() < (1.0 / m_LightJetSuppressionFactor ) 
       && passLeadJetCut ){
     /* Modify event weight to account for light jet prescale */
-    for (itr = events()->begin(); itr!=events()->end(); ++itr) {
-      HepMC::GenEvent* genEvt = (*itr);
+    for (HepMC::GenEvent* genEvt : *events()) {
       genEvt->weights().front() *= m_LightJetSuppressionFactor;
     }
     pass = true;

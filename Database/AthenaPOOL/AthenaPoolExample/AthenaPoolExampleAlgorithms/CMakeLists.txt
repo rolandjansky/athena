@@ -56,7 +56,7 @@ function( _add_test testName toExecute )
       list( APPEND _options EXTRA_PATTERNS ${ARG_EXTRA_PATTERNS} )
    endif()
 
-   list( APPEND _options ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolExampleAlgorithms/AthenaPoolExampleAlgorithms-01-00-00" )
+   list( APPEND _options ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolExampleAlgorithms/AthenaPoolExampleAlgorithms-01-00-03" )
 
    # Set up the test:
    atlas_add_test( ${testName}
@@ -76,7 +76,7 @@ endfunction( _add_test )
 # Write 'Hits', with multistreamand TAGs
 _add_test( AthenaPoolExample_Write 
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
-   EXTRA_PATTERNS "RootCollection Debug File|found catalog guid|from the catalog"
+   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog"
    PRE_EXEC test/pre_check.sh )
 # Append to existing file
 _add_test( AthenaPoolExample_Append
@@ -85,7 +85,7 @@ _add_test( AthenaPoolExample_Append
 # Read 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWrite
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-   EXTRA_PATTERNS "RootCollection Debug File|found catalog guid|from the catalog"
+   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Append_ctest )
 # Read all output
 _add_test( AthenaPoolExample_Read
@@ -120,12 +120,12 @@ _add_test( AthenaPoolExample_ReWriteAgain
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Copy_ctest )
 _add_test( AthenaPoolExample_ReWriteNext
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteNextJobOptions.py"
-   EXTRA_PATTERNS "RootCollection Debug File|found catalog guid|from the catalog"
+   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteAgain_ctest )
 # Read via TAGs and use query to filter events
 _add_test( AthenaPoolExample_Filter
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_FilterJobOptions.py"
-   EXTRA_PATTERNS "RootCollection Debug File|found catalog guid|from the catalog"
+   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteNext_ctest )
 _add_test( AthenaPoolExample_RFilter
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RFilterJobOptions.py"
@@ -133,7 +133,7 @@ _add_test( AthenaPoolExample_RFilter
 # Read all (including bad files, skipped for now expected failure)
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
-   EXTRA_PATTERNS "Deaccess DbContainer|Database being retired|BYTES_READ"
+   EXTRA_PATTERNS "Deaccess DbContainer|Database being retired|BYTES_READ|endTransaction|Bytes:"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RFilter_ctest )
 
 # Concatenate jobs write 'Hits' and 'Tracks' to different streams
@@ -150,7 +150,7 @@ _add_test( AthenaPoolExample_ReadConcat
 # Read ByteStream and write to APR/POOL
 _add_test( AthenaPoolExample_RWBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWBsJobOptions.py"
-   EXTRA_PATTERNS "BSF:|Picked valid file:|RootCollection Debug File|found catalog guid|from the catalog"
+   EXTRA_PATTERNS "BSF:|Picked valid file:|RootCollection DEBUG File|found catalog guid|from the catalog"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadConcat_ctest )
 _add_test( AthenaPoolExample_ReadBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
@@ -198,16 +198,17 @@ _add_test( AthenaPoolExample_AMeta
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WMeta_ctest )
 _add_test( AthenaPoolExample_RMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AMeta_ctest )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AMeta_ctest
+   EXTRA_PATTERNS "Bytes:" )
 
 # Testing APR/POOL 'fast' merge
 _add_test( AthenaPoolExample_WriteFast
    "athena.py  AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteFastJobOptions.py"
-   EXTRA_PATTERNS "RootCollection Debug File|found catalog guid|from the catalog"
+   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RMeta_ctest )
 _add_test( AthenaPoolExample_AppendFast
    "athena.py  AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendFastJobOptions.py"
-   EXTRA_PATTERNS "RootCollection Debug File|found catalog guid|from the catalog|DbContainer|Reading Shape|Reading Assoc|Reading Param|Adding Assoc|Adding Shape|#Elements|->ClassID:|Pushing back ref|Building shape|DataHeader|No objects passing|EventInfo|Info Token|Class:unsigned int|EventStreamInfo|Class:Token|Info unsigned int"
+   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog|DbContainer|Reading Shape|Reading Assoc|Reading Param|Adding Assoc|Adding Shape|#Elements|->ClassID:|Pushing back ref|Building shape|DataHeader|No objects passing|EventInfo|INFO Token|Class:unsigned int|EventStreamInfo|Class:Token|INFO unsigned int"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WriteFast_ctest )
 #_add_test( AthenaPoolExample_ReWriteFast
 #   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"

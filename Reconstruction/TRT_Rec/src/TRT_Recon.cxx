@@ -58,7 +58,10 @@ TRT_Recon::TRT_Recon(const std::string&	type,
 	m_trackBremLike			(0),
 	m_trackCount			(0),
 	m_trackTrRich			(0),
-	m_trackVeto			(0)
+	m_trackVeto			(0),
+	m_bremLike			(false),
+	m_rMax				(0.),
+	m_rPhiMax			(0.)
 {
     declareInterface<ITRT_Recon>(this);
     declareProperty("TRT_DataSelector",			m_dataSelector);

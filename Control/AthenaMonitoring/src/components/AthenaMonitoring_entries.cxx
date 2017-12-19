@@ -8,26 +8,14 @@
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_ALGORITHM_FACTORY(AthenaMon)
-DECLARE_ALGORITHM_FACTORY(AthenaMonManager)
-DECLARE_TOOL_FACTORY(ManagedMonitorToolTest)
-DECLARE_TOOL_FACTORY(DQAtlasReadyFilterTool)
-DECLARE_TOOL_FACTORY(DQFilledBunchFilterTool)
-DECLARE_TOOL_FACTORY(DQDummyFilterTool)
-DECLARE_TOOL_FACTORY(DQBadLBFilterTool)
-DECLARE_TOOL_FACTORY(TriggerTranslatorToolSimple)
-DECLARE_TOOL_FACTORY(GenericMonitoringTool)
+DECLARE_COMPONENT( AthenaMon )
+DECLARE_COMPONENT( AthenaMonManager )
+DECLARE_COMPONENT( ManagedMonitorToolTest )
+DECLARE_COMPONENT( DQAtlasReadyFilterTool )
+DECLARE_COMPONENT( DQFilledBunchFilterTool )
+DECLARE_COMPONENT( DQDummyFilterTool )
+DECLARE_COMPONENT( DQBadLBFilterTool )
+DECLARE_COMPONENT( TriggerTranslatorToolSimple )
+DECLARE_COMPONENT( GenericMonitoringTool )
 
-DECLARE_FACTORY_ENTRIES(AthenaMonitoring) {
-  DECLARE_ALGORITHM(AthenaMon)
-  DECLARE_ALGORITHM(AthenaMonManager)
-  DECLARE_ALGTOOL(ManagedMonitorToolTest)
-  DECLARE_ALGTOOL(DQAtlasReadyFilterTool)
-  DECLARE_ALGTOOL(DQFilledBunchFilterTool)
-  DECLARE_ALGTOOL(DQDummyFilterTool)
-  DECLARE_ALGTOOL(DQBadLBFilterTool)
-  DECLARE_ALGTOOL(TriggerTranslatorToolSimple)
-  DECLARE_ALGTOOL(GenericMonitoringTool)
-}

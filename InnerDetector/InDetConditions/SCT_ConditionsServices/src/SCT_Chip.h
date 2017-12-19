@@ -72,8 +72,8 @@ private:
 
   /** Enum describing the bits in the chip configuration*/
   enum {RO_BIT   = 0, CAL_BIT = 2, TR_BIT  = 4,  EDGE_BIT   = 6,  MASK_BIT = 7,
-	ACC_BIT  = 8, IN_BIT  = 9, OUT_BIT = 10, MASTER_BIT = 11, END_BIT  = 12,
-	FEED_BIT = 13};
+        ACC_BIT  = 8, IN_BIT  = 9, OUT_BIT = 10, MASTER_BIT = 11, END_BIT  = 12,
+        FEED_BIT = 13};
 
   short                     m_id;          //!< Chip Id
   std::bitset<nBitsConfig>  m_config;      //!< Chip configuration mask
@@ -88,10 +88,10 @@ private:
 /** Output stream for printing chip information*/
 inline std::ostream& operator<<(std::ostream& output, const SCT_Chip& chip) {
   output << "Chip " << std::setw(2) << chip.m_id << ":\t" 
-	 << (chip.m_master ? "MASTER" : "SLAVE") << (chip.m_end ? " END" : "") 
-	 << ", IN PORT = " << chip.m_in << ", OUT PORT = " << chip.m_out << "\n"
-	 << "Config = " << chip.m_config << "\n"
-	 << "Mask   = " << chip.m_mask;
+         << (chip.m_master ? "MASTER" : "SLAVE") << (chip.m_end ? " END" : "") 
+         << ", IN PORT = " << chip.m_in << ", OUT PORT = " << chip.m_out << "\n"
+         << "Config = " << chip.m_config << "\n"
+         << "Mask   = " << chip.m_mask;
   return output;
 }
 

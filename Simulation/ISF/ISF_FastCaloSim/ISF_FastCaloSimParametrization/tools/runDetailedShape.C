@@ -42,10 +42,10 @@ void runDetailedShape(){
 
   if(ismatched){ 
   //inputfile="/afs/cern.ch/work/c/conti/private/ISF_FastCaloSimParametrization/INPUT/user.zmarshal.8071918._000001.matched_output.root"; 
-    inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/00/24/user.zmarshal.7814824._000001.matched_output.root"; //v1_w2_160301
-    inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/4d/19/user.zmarshal.7805067._000001.matched_output.root"; //v0_w2_160229
-    inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/78/74/user.zmarshal.8071918._000001.matched_output.root"; //w0_160406_5mmMerge
-    inputfile="root://eosatlas//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/44/b4/user.zmarshal.8071920._000001.matched_output.root"; //w0_160406_1mmMerge
+    inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/00/24/user.zmarshal.7814824._000001.matched_output.root"; //v1_w2_160301
+    inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/4d/19/user.zmarshal.7805067._000001.matched_output.root"; //v0_w2_160229
+    inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/78/74/user.zmarshal.8071918._000001.matched_output.root"; //w0_160406_5mmMerge
+    inputfile="root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/soft-simul/rucio/user/zmarshal/44/b4/user.zmarshal.8071920._000001.matched_output.root"; //w0_160406_1mmMerge
   }
 
 

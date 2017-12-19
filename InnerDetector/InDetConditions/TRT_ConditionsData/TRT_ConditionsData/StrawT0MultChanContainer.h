@@ -16,6 +16,7 @@
 
 #include "TRT_ConditionsData/StrawT0Container.h"
 #include "TRT_ConditionsData/MultChanContainer.h"
+#include "AthenaKernel/CondCont.h"
 
 namespace TRTCond 
 {
@@ -78,9 +79,11 @@ namespace TRTCond
     for(dauit = this->begin() ; dauit != this->end(); ++dauit) 
       (*dauit)->setPackingLimits( t0min,t0max,t0errmin,t0errmax ) ;
   }
-  
 }
 
+
 CLASS_DEF(TRTCond::StrawT0MultChanContainer,1178829403,1)
+CONDCONT_DEF(TRTCond::StrawT0MultChanContainer,182150756);
+
 
 #endif

@@ -65,5 +65,7 @@ class ILArMCSymTool;
 };
 
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArShapeMC,119125774,1)
+CONDCONT_DEF( LArShapeMC, 106594226, ILArShape );
 #endif 

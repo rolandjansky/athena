@@ -11,17 +11,19 @@ namespace G4UA
   PhotonKillerTool::PhotonKillerTool(const std::string& type,
                                      const std::string& name,
                                      const IInterface* parent)
-    : ActionToolBase<PhotonKiller>(type, name, parent)
+    : UserActionToolBase<PhotonKiller>(type, name, parent)
   {
-    declareInterface<IG4SteppingActionTool>(this);
-    declareInterface<IG4TrackingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
-  std::unique_ptr<PhotonKiller> PhotonKillerTool::makeAction()
+  std::unique_ptr<PhotonKiller>
+  PhotonKillerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Making a PhotonKiller action");
-    return std::make_unique<PhotonKiller>();
+    auto action = std::make_unique<PhotonKiller>();
+    actionList.trackingActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

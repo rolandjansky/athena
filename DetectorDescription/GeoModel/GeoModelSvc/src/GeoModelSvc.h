@@ -42,8 +42,6 @@ public:
 
     virtual StatusCode clear();
 
-protected:
-
     friend class SvcFactory<GeoModelSvc>;
 
     // Standard Constructor
@@ -51,6 +49,9 @@ protected:
 
     // Standard Destructor
     virtual ~GeoModelSvc();
+
+
+protected:
 
     //     StatusCode append( IGeoModelTool* pddTool, 
     // 		       std::vector<IGeoModelTool*>* theTools ); 

@@ -35,12 +35,8 @@ private:
   //  static const float s_errorcode;
 
 };
-
-CLASS_DEF( LArMphysOverMcalSC ,125003343 , 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArMphysOverMcalSC> , 3164993 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArMphysOverMcalSC>, CondContBase );
+CLASS_DEF( LArMphysOverMcalSC ,125003343 , 1 )
+CONDCONT_DEF( LArMphysOverMcalSC, 3164993, ILArMphysOverMcal );
 
 #endif 

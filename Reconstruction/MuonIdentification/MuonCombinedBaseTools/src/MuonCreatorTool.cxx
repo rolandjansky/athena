@@ -148,6 +148,7 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
+    ATH_CHECK(m_caloExtTool.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
@@ -187,7 +188,7 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Creating xAOD::Muons from: " << numIdCan << " indet candidates and " << numMuCan << " muon candidates ");
     
     // Add RPC timing information to all MS tracks
-    if( m_fillTimingInformation  ) 
+    if( m_fillTimingInformation && muonCandidates ) 
       for (auto candidate : *muonCandidates) 
 	if(candidate->muonSpectrometerTrackLink().isValid())
 	  addRpcTiming(**(candidate->muonSpectrometerTrackLink()));    
@@ -201,7 +202,7 @@ namespace MuonCombined {
     else selectStaus(inDetCandidates, resolvedInDetCandidates);    
 
     if( inDetCandidates ) ATH_MSG_DEBUG("InDetCandidates : overlap removal " << inDetCandidates->size() << " in, " <<resolvedInDetCandidates.size() <<" out");
-    if( muonCandidates  ) ATH_MSG_DEBUG("MuonCandidates  : overlap removal " << muonCandidates->size() << " in, " <<resolvedMuonCandidates.size() <<" out");
+    if( !m_buildStauContainer && muonCandidates  ) ATH_MSG_DEBUG("MuonCandidates  : overlap removal " << muonCandidates->size() << " in, " <<resolvedMuonCandidates.size() <<" out");
 
     // Create a container for resolved candidates (always of type VIEW_ELEMENTS)
     for( auto can : resolvedInDetCandidates ) {
@@ -460,20 +461,20 @@ namespace MuonCombined {
             ATH_MSG_DEBUG("MuonCreatorTool MuGirlLowBetaTag combined");
     
             // Create the xAOD object:
-            xAOD::SlowMuon* slowMuon = 0;
             if( outputData.slowMuonContainer ) {
-              slowMuon = new xAOD::SlowMuon();
+              xAOD::SlowMuon* slowMuon = new xAOD::SlowMuon();
               outputData.slowMuonContainer->push_back( slowMuon );
-            }
-            addMuGirlLowBeta(*muon,muGirlLowBetaTag,slowMuon, outputData ); // CHECK to see what variables are created here.
+            
+	      addMuGirlLowBeta(*muon,muGirlLowBetaTag,slowMuon, outputData ); // CHECK to see what variables are created here.
 
-            ATH_MSG_DEBUG("slowMuon muonContainer size "<<outputData.muonContainer->size());
-            ElementLink<xAOD::MuonContainer> muonLink(*outputData.muonContainer,outputData.muonContainer->size()-1);
-            if( slowMuon && muonLink.isValid() ) {
+	      ATH_MSG_DEBUG("slowMuon muonContainer size "<<outputData.muonContainer->size());
+	      ElementLink<xAOD::MuonContainer> muonLink(*outputData.muonContainer,outputData.muonContainer->size()-1);
+	      if( slowMuon && muonLink.isValid() ) {
 
-              ATH_MSG_DEBUG("slowMuon muonLink valid");
-              slowMuon->setMuonLink(muonLink);
-            }
+		ATH_MSG_DEBUG("slowMuon muonLink valid");
+		slowMuon->setMuonLink(muonLink);
+	      }
+	    }
           }          
         }
       }else{

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "ISF_FatrasTools/TransportTool.h"
 #include "ISF_FatrasTools/TransportEngine.h"
 #include "ISF_FatrasTools/McMaterialEffectsUpdator.h"
@@ -14,22 +13,17 @@
 #include "ISF_FatrasTools/MultipleScatteringSamplerGaussianMixture.h"
 #include "ISF_FatrasTools/MultipleScatteringSamplerGeneralMixture.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , TransportTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , TransportEngine )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , McMaterialEffectsUpdator )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , McMaterialEffectsEngine )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , HadIntProcessorParametric )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , McEnergyLossUpdator )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , EnergyLossSamplerBetheHeitler )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , PhotonConversionTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , MultipleScatteringSamplerGaussianMixture )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , MultipleScatteringSamplerGeneralMixture )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , MultipleScatteringSamplerHighland )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , ProcessSamplingTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , PhysicsValidationTool )
-
-DECLARE_FACTORY_ENTRIES( ISF_FatrasTools ) {
-  DECLARE_NAMESPACE_TOOL( iFatras ,  TransportTool )
-  DECLARE_NAMESPACE_TOOL( iFatras ,  TransportEngine )
-}
+DECLARE_COMPONENT( iFatras::TransportTool )
+DECLARE_COMPONENT( iFatras::TransportEngine )
+DECLARE_COMPONENT( iFatras::McMaterialEffectsUpdator )
+DECLARE_COMPONENT( iFatras::McMaterialEffectsEngine )
+DECLARE_COMPONENT( iFatras::HadIntProcessorParametric )
+DECLARE_COMPONENT( iFatras::McEnergyLossUpdator )
+DECLARE_COMPONENT( iFatras::EnergyLossSamplerBetheHeitler )
+DECLARE_COMPONENT( iFatras::PhotonConversionTool )
+DECLARE_COMPONENT( iFatras::MultipleScatteringSamplerGaussianMixture )
+DECLARE_COMPONENT( iFatras::MultipleScatteringSamplerGeneralMixture )
+DECLARE_COMPONENT( iFatras::MultipleScatteringSamplerHighland )
+DECLARE_COMPONENT( iFatras::ProcessSamplingTool )
+DECLARE_COMPONENT( iFatras::PhysicsValidationTool )
 

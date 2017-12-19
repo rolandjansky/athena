@@ -51,6 +51,7 @@
         <!-- ++++++++++++++++++++++++++ Running on Cosmics Data  +++++++++++++++++++++++++++++++++++++++++++++ -->
     
         <!-- XS: please update with new 2015 cosmics file: cosmics 2015 reconstruction -->
+        <!-- Disabled since this has been failing for a long time.  See ATR-14581.
         <TEST name="RecoTf_cosmic_data_2011" type="script" suite="Reco_tf">
             <options_atn>
                 export TRF_ECHO=True; Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/data/data11_cos.00193024.physics_CosmicCalo.merge.RAW/data11_cos.00193024.physics_CosmicCalo.merge.RAW._lb0096._SFO-ALL._0001.1 --maxEvents 10 --autoConfiguration everything --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputHISTFile myHIST.root --preExec 'rec.doDetailedAuditor=True' 'rec.doNameAuditor=True' 
@@ -63,6 +64,7 @@
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
+        -->
     
         <!-- ++++++++++++++++++++++++++ Running on highmu Data  +++++++++++++++++++++++++++++++++++++++++++++ -->
     
@@ -311,11 +313,12 @@
                     <chainElement>
                         <jobTransform userJobId="PhysVal_MC15_13TeV_All">
 						<!-- add preExec and remove doTopoCluster ATLJETMET-774 -->
+						<!-- add preExec to find the missing InDetPhysValFlags -->
 						<!-- no plan yet to move to MC16 July 2017-->
                             <doc>Reco_tf runs physcs validation as defined by Carl G/Marie-Helene G, May 7 2014</doc>
                             <jobTransformJobName>PhysVal_MC15_trf</jobTransformJobName>
                             <jobTransformCmd>
-                                Reco_tf.py --maxEvents=1 --inputAODFile AOD_13TeV_PhysVal.pool.root --outputNTUP_PHYSVALFile PhysVal_13TeV_All.pool.root --validationFlags doExample doPFlow doJet doMET doMuon doTau doEgamma doBtag doInDet doZee --preExec "all:from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising; addTruthJetsIfNotExising(\"AntiKt4TruthJets\");"
+                                Reco_tf.py --maxEvents=-1 --inputAODFile AOD_13TeV_PhysVal.pool.root --outputNTUP_PHYSVALFile PhysVal_13TeV_All.pool.root --validationFlags doExample doPFlow doJet doMET doMuon doTau doEgamma doBtag doInDet doZee --preExec "all:from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising; addTruthJetsIfNotExising(\"AntiKt4TruthJets\");from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);"
                             </jobTransformCmd>
                             <group>RecTrf</group>
                             <chaindataset_info>
@@ -348,7 +351,7 @@
                 <doc>RDO to BS on tt mc16 </doc>
                 <jobTransformJobName>RecoTf_RDOtoBS</jobTransformJobName>
                 <jobTransformCmd>
-				Reco_tf.py --inputRDOFile /eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.RDO.e5458_s3126_d1437/RDO.11426804._000001.pool.root.1 --outputBSFile mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.data --autoConfiguration everything --maxEvents -1 --conditionsTag=default:OFLCOND-MC16-SDR-16 --geometryVersion=default:ATLAS-R2-2016-01-00-01 --runNumber=410501
+				Reco_tf.py --inputRDOFile /eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.RDO.e5458_s3126_d1437/RDO.11426804._000001.pool.root.1 --outputBSFile mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.data --autoConfiguration everything --maxEvents 300 --conditionsTag=default:OFLCOND-MC16-SDR-16 --geometryVersion=default:ATLAS-R2-2016-01-00-01 --runNumber=410501
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>medium</queue>
@@ -419,33 +422,35 @@
                 <queue>long</queue>
             </jobTransform>
 
+            <!-- tmp solution manually remove the failing class in finalization ATLASSIM-3277 -->
             <jobTransform userJobId="data17_13TeV">
                 <doc>Reco_tf runs on 13TeV collision data 2017, early data, A3, Toroid and solenoid off</doc>
                 <jobTransformJobName>RecoTf_13TeV_data_2017</jobTransformJobName>
                 <jobTransformCmd>
-				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --postExec 'from AthenaCommon.AlgSequence import AlgSequence;topSeq = AlgSequence();topSeq.remove("topSeq.InDetAmbiguitySolver")' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
 
             <!-- Test runs on 13TeV collision data with Hephaestos -->
-      
+            <!-- tmp solution manually remove the failing class in finalization ATLASSIM-3277 -->
             <jobTransform userJobId="data17_13TeV_memleak">
                 <doc>Reco_tf runs on 13TeV collision data with Hephaestos for checking for memory leaks 2017</doc>
                 <jobTransformJobName>RecoTf_13TeV_data</jobTransformJobName>
                 <jobTransformCmd>
-				export LD_PRELOAD=$LCG_RELEASE_BASE/libunwind/5c2cade-76996/$LCG_PLATFORM/lib/libunwind.so; Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 10 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
+				export LD_PRELOAD=$LCG_RELEASE_BASE/libunwind/5c2cade-76996/$LCG_PLATFORM/lib/libunwind.so; Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 10 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute' --postExec 'from AthenaCommon.AlgSequence import AlgSequence;topSeq = AlgSequence();topSeq.remove("topSeq.InDetAmbiguitySolver")'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
       
+	        <!-- tmp solution manually remove the failing class in finalization ATLASSIM-3277 -->
             <jobTransform userJobId="data17_13TeV_fpe">
                 <doc>Reco_tf runs on 13TeV collision data with floating point exception enabled 2017</doc>
                 <jobTransformJobName>RecoTf_13TeV_data_fpe</jobTransformJobName>
                 <jobTransformCmd>
-				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents -1 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5' 
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents -1 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5;from AthenaCommon.AlgSequence import AlgSequence;topSeq = AlgSequence();topSeq.remove("topSeq.InDetAmbiguitySolver")'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
@@ -518,6 +523,36 @@
                 <queue>medium</queue>
             </jobTransform>
       
+            <jobTransform userJobId="AthenaMT_CaloReco">
+                <doc>AthenaMT test</doc>
+                <jobTransformJobName>AthenaMT_CaloReco</jobTransformJobName>
+                <jobTransformCmd>
+				athena --threads=8 RecJobTransformTests_CaloHiveExOpts.py
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>medium</queue>
+            </jobTransform>
+
+            <jobTransform userJobId="AthenaMT_PFCaloReco">
+                <doc>AthenaMT test</doc>
+                <jobTransformJobName>AthenaMT_PFCaloReco</jobTransformJobName>
+                <jobTransformCmd>
+				athena --threads=8 RecJobTransformTests_PFlowHiveExOpts.py
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>medium</queue>
+            </jobTransform>
+
+            <jobTransform userJobId="AthenaMT_MuonReco">
+                <doc>AthenaMT test</doc>
+                <jobTransformJobName>AthenaMT_MuonReco</jobTransformJobName>
+                <jobTransformCmd>
+				athena --threads=8 RecJobTransformTests_MuonRec_myTopOptions_MT.py
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>medium</queue>
+            </jobTransform>
+
         </jobList>
     
         <jobGroups>

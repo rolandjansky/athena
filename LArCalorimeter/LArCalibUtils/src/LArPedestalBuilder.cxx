@@ -82,8 +82,6 @@ StatusCode LArPedestalBuilder::initialize()
 StatusCode LArPedestalBuilder::execute()
 //---------------------------------------------------------------------------
 {
-
-  StatusCode sc;
   ++m_event_counter;
   if (m_keylist.size()==0) {
     msg(MSG::ERROR) << "Key list is empty! No containers processed!" << endmsg;
@@ -93,11 +91,7 @@ StatusCode LArPedestalBuilder::execute()
   
   const LArFebErrorSummary* febErrSum=NULL;
   if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
-    sc=evtStore()->retrieve(febErrSum);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endmsg;
-      return sc;
-    }
+    ATH_CHECK( evtStore()->retrieve(febErrSum) );
   }
   else
     if (m_event_counter==1)
@@ -114,7 +108,7 @@ StatusCode LArPedestalBuilder::execute()
   //Outermost loop goes over all gains (different containers).
   for (;key_it!=key_it_e;key_it++) {
     
-    sc= evtStore()->retrieve(container,*key_it);
+    StatusCode sc= evtStore()->retrieve(container,*key_it);
     if (sc.isFailure() || !container) {
       ATH_MSG_DEBUG("Cannot read LArAccumulatedDigitContainer from StoreGate! key=" << *key_it);
       return StatusCode::SUCCESS; 
@@ -161,18 +155,10 @@ StatusCode LArPedestalBuilder::execute()
 
  StatusCode LArPedestalBuilder::stop() {
   // Create the LArPedestalComplete object
-  LArPedestalComplete* larPedestalComplete = new LArPedestalComplete();
+  auto larPedestalComplete = std::make_unique<LArPedestalComplete>();
   // Initialize LArPedestalComplete 
-  StatusCode sc=larPedestalComplete->setGroupingType(m_groupingType,msg());
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArPedestalComplete object" << endmsg;
-    return sc;
-  }
-  sc=larPedestalComplete->initialize(); 
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArPedestalComplete object" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( larPedestalComplete->initialize() );
 
 
   int n_zero,n_min, n_max, n_cur;
@@ -182,8 +168,8 @@ StatusCode LArPedestalBuilder::execute()
   for (unsigned k=0;k<(int)CaloGain::LARNGAIN;k++) {
     CaloGain::CaloGain gain=(CaloGain::CaloGain)k;
     //Loop over cells
-    ACCU::ConstConditionsMapIterator cell_it=m_accu.begin(gain);
-    ACCU::ConstConditionsMapIterator cell_it_e=m_accu.end(gain);
+    ACCU::ConditionsMapIterator cell_it=m_accu.begin(gain);
+    ACCU::ConditionsMapIterator cell_it_e=m_accu.end(gain);
     if (cell_it==cell_it_e) continue; //No data for this gain
     for (;cell_it!=cell_it_e;cell_it++) {
       const LArAccumulatedDigit& dg=*cell_it;
@@ -215,21 +201,7 @@ StatusCode LArPedestalBuilder::execute()
   msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
     
   // Record LArPedestalComplete
-  sc = detStore()->record(larPedestalComplete,m_pedContName);
-  if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR)	 << " Cannot store LArPedestalComplete in TDS " << endmsg;
-    delete larPedestalComplete;
-    return sc;
-  }
-  else
-    msg(MSG::INFO) << "Recorded LArPedestalComplete object with key " << m_pedContName << endmsg;
-    
-  // Make symlink
-  sc = detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
-  if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
-    return sc;
-  }
+  ATH_CHECK( detStore()->record(std::move(larPedestalComplete),m_pedContName) );
   
   return StatusCode::SUCCESS;
 }

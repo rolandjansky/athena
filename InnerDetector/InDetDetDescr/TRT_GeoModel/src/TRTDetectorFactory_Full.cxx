@@ -63,7 +63,7 @@ using namespace GeoXF;
 /////////////////////////////////// Constructor //////////////////////////////////
 //
 TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,
-						 ServiceHandle<ITRT_StrawStatusSummarySvc> m_summarySvc, // added for Argon
+						 ServiceHandle<ITRT_StrawStatusSummarySvc> summarySvc, // added for Argon
 						 bool useOldActiveGasMixture,
 						 bool DC2CompatibleBarrelCoordinates,
 						 int overridedigversion,
@@ -83,7 +83,7 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
     m_doArgon(doArgon),
     m_doKrypton(doKrypton)
 { 
-m_sumSvc=m_summarySvc;
+  m_sumSvc=summarySvc;
 }
 //////////////////////////////////////////////////////////////////////////////////
 

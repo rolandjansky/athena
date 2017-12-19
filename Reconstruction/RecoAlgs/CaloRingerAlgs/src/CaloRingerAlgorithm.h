@@ -13,9 +13,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "CaloRingerTools/ICaloRingerInputReader.h"
+
 namespace Ringer {
 
-class ICaloRingerInputReader;
 
 /**
  *  @class CaloRingerAlgorithm
@@ -63,7 +64,8 @@ class CaloRingerAlgorithm : public ::AthAlgorithm
     /** 
      * @brief Tools for building CaloRings 
      **/
-    ToolHandleArray< Ringer::ICaloRingerInputReader > m_inputReaders;
+    PublicToolHandleArray< Ringer::ICaloRingerInputReader > m_inputReaders {this,
+	"inputReaderTools", {}, "Sequence of reader tools to execute."};
     /// @}
 
 }; 

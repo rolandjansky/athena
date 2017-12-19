@@ -38,13 +38,9 @@
 #include <map>
 #include <algorithm>
 #include "Identifier/Identifier.h"
-
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "AthenaKernel/CondCont.h"
-#include "SGTools/BaseInfo.h"
 
 class DetCondCFloat {
  public:
@@ -74,8 +70,7 @@ class DetCondCFloat {
 };
 
 CLASS_DEF(DetCondCFloat,247459965,1)
-CLASS_DEF( CondCont<DetCondCFloat> , 85257013 , 1 )
-SG_BASE( CondCont<DetCondCFloat>, CondContBase );
+CONDCONT_DEF( DetCondCFloat , 85257013 );
 
 // inline functions for DetCondCFloat
 

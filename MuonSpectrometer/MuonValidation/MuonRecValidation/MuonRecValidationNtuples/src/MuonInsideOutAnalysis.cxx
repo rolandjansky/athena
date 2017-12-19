@@ -15,7 +15,7 @@
 namespace Muon {
 
   MuonInsideOutAnalysis::MuonInsideOutAnalysis( TDirectory* dir ) {
-    plots.book(dir,"");
+    m_plots.book(dir,"");
   }
 
   void MuonInsideOutAnalysis::analyse( TTree& tree ){
@@ -83,16 +83,16 @@ namespace Muon {
           
           // first select track type, first deal with the case the track is a stau
           if( std::abs((*ntuple.trackParticleBlock.truth.pdg)[i]) == 1000015 ) {
-            if( matchingStrategy == SameTrack )         trackPlots = &plots.stau;
-            else if( matchingStrategy == NotSameTrack ) trackPlots = &plots.rest;
+            if( matchingStrategy == SameTrack )         trackPlots = &m_plots.stau;
+            else if( matchingStrategy == NotSameTrack ) trackPlots = &m_plots.rest;
             else continue;
           }else if( std::abs((*ntuple.trackParticleBlock.truth.pdg)[i]) == 13 ) {
-            if( matchingStrategy == SameTrack )         trackPlots = &plots.muon;
-            else if( matchingStrategy == NotSameTrack ) trackPlots = &plots.rest;
+            if( matchingStrategy == SameTrack )         trackPlots = &m_plots.muon;
+            else if( matchingStrategy == NotSameTrack ) trackPlots = &m_plots.rest;
             else continue;
           }else{
             // track is not a muon
-            if( matchingStrategy == All ) trackPlots = &plots.rest;
+            if( matchingStrategy == All ) trackPlots = &m_plots.rest;
             else continue;
           }
           

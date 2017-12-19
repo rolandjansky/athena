@@ -3,21 +3,19 @@
 */
 
 // Dear emacs, this is -*-c++-*-
-
 #ifndef __EGammaAmbiguityTool__
 #define __EGammaAmbiguityTool__
 
 /**
    @class EGammaAmbiguityTool
    @brief Electron / photon ambiguity resolution. Dual-use version
-
-   @author Bruno Lenzi
+   @authors Bruno Lenzi, Anastopoulos Christos, Ludovica Apperio Bella
    @date   May 2015
 */
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "xAODEgamma/EgammaContainerFwd.h"
 
 class EGammaAmbiguityTool : public asg::AsgTool,
@@ -48,32 +46,37 @@ public:
                                         const xAOD::TrackParticle* tp, xAOD::AmbiguityTool::AmbiguityType& type) const;
 
   /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
-      Needed because of cliets
-      implementation calls method above
-   */
+      Needed because of existing client usage (i.e Trigger). Implementation calls method above
+  */
   virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
                                         const xAOD::Vertex* vx,
                                         const xAOD::TrackParticle* tp) const;
 
-
-  /** Redo the ambiguity resolution of central electrons and photons and return
-    * AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
-    * or the author of the object if no overlapping object is found **/
+  /** Access the ambiguity resolution of central electrons and photons and return
+   * AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
+   * or the author of the object if no overlapping object is found **/
   unsigned int ambiguityResolve(const xAOD::Egamma& egamma) const;
 
   /** Accept or reject egamma object based on ambiguity resolution 
     * (e.g. if object is a photon and ambiguity return value is electron -> reject) 
     **/
-  bool accept( const xAOD::Egamma& egamma, bool acceptAmbiguous = true ) const;
+  bool accept( const xAOD::Egamma& egamma) const;
+
+  /** Accept or reject egamma object (passed via pointer) based on ambiguity resolution 
+    * (e.g. if object is a photon and ambiguity return value is electron -> reject) 
+    **/
+  bool accept( const xAOD::Egamma* egamma) const{
+    return accept(*egamma);
+  }
   
   /** Return true if track has innermost pixel hit 
-    * or next-to-innermost in case innermost is not expected
-    * or at least m_MinNoPixHits pixel hits in case next-to-innermost is not expected
-    **/
+   * or next-to-innermost in case innermost is not expected
+   * or at least m_MinNoPixHits pixel hits in case next-to-innermost is not expected
+   **/
   bool hasInnermostPixelHit(const xAOD::TrackParticle& tp) const;
-
+  
   /** Return the number of tracks with "innermost pixel hits" (see above) 
-    * in the given vertex **/
+   * in the given vertex **/
   size_t nTrkWithInnermostPixelHits(const xAOD::Vertex& vx) const;
   
   /** Return true if the given TrackParticle is part of the vertex **/
@@ -81,7 +84,7 @@ public:
   
   /** Return true if the vertex passes the requirement on Rconv - RfirstHit **/
   bool passDeltaR_innermost(const xAOD::Vertex& vx) const;
-
+  
 private:
 
   /** @brief Minimum number of silicon hits to be an electron and not a photon */
@@ -98,7 +101,8 @@ private:
   std::string m_electronContainerName;
   /** @brief Photon container name */
   std::string m_photonContainerName;
-  
+  /** @When used as a selector reject/accpet ambiguous cases */
+  bool m_acceptAmbiguous;  
 }; // End: class definition
 
 #endif

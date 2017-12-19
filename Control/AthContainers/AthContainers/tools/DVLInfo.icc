@@ -16,6 +16,7 @@
 
 
 #include "AthContainers/OwnershipPolicy.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <list>
 #include <cassert>
@@ -365,7 +366,7 @@ void* dvl_convert (const T& src,
   typename T::const_iterator it = src.begin();
   typename T::const_iterator end = src.end();
   for (; it != end; ++it) {
-    Elt* elt = const_cast<Elt*> (*it);
+    Elt* elt ATLAS_THREAD_SAFE = const_cast<Elt*> (*it);
     targ_info.push (newcont, castfn (elt));
   }
 
@@ -467,7 +468,7 @@ void dvl_update (const T& src,
   typename T::const_iterator it = src.begin();
   typename T::const_iterator end = src.end();
   for (; it != end; ++it) {
-    Elt* elt = const_cast<Elt*> (*it);
+    Elt* elt ATLAS_THREAD_SAFE = const_cast<Elt*> (*it);
     targ_info->push (target, castfn (elt));
   }
 }

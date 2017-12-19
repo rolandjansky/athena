@@ -9,7 +9,9 @@
 
 //////////////////////////////////
 // constructor
-SCT_DCSFloatCondData::SCT_DCSFloatCondData() {
+SCT_DCSFloatCondData::SCT_DCSFloatCondData():
+  m_channelValues{}
+{
 }
 
 //////////////////////////////////

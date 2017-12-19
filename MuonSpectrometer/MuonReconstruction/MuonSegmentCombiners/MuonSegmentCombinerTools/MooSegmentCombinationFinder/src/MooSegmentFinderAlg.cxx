@@ -40,7 +40,7 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
 
   declareProperty("doTGCClust",m_doTGCClust = false);
   declareProperty("doRPCClust",m_doRPCClust = false);
-
+  declareProperty("doClusterTruth",m_doClusterTruth=false);
 
   declareProperty("CscPrepDataContainer", m_keyCsc);
   declareProperty("MdtPrepDataContainer", m_keyMdt);
@@ -89,6 +89,9 @@ StatusCode MooSegmentFinderAlg::initialize()
   ATH_CHECK( m_keyTgcNextBC.initialize(m_useTgcNextBC) );
   ATH_CHECK( m_keyTgc.initialize(m_useTgc) );
 
+  ATH_CHECK( m_tgcTruth.initialize(m_doClusterTruth) );
+  ATH_CHECK( m_rpcTruth.initialize(m_doClusterTruth) );
+
   ATH_CHECK( m_patternCombiLocation.initialize() );
   ATH_CHECK( m_segmentLocation.initialize() );
   ATH_CHECK( m_segmentCombiLocation.initialize() );
@@ -119,8 +122,18 @@ StatusCode MooSegmentFinderAlg::execute()
 
   //do cluster based segment finding
   std::vector<const Muon::MuonSegment*>* segs(NULL);
-  if (m_doTGCClust || m_doRPCClust) segs = m_clusterSegMaker->getClusterSegments(m_doTGCClust,m_doRPCClust);
-
+  if (m_doTGCClust || m_doRPCClust){
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_keyMdt);
+    const PRD_MultiTruthCollection* tgcTruthColl=0;
+    const PRD_MultiTruthCollection* rpcTruthColl=0;
+    if(m_doClusterTruth){
+      SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth);
+      SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth);
+      tgcTruthColl=tgcTruth.cptr();
+      rpcTruthColl=rpcTruth.cptr();
+    }
+    segs = m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(), m_doTGCClust ? &tgcCols : 0, m_doRPCClust ? &rpcCols : 0, tgcTruthColl, rpcTruthColl);
+  }
   MuonSegmentCombinationCollection* segmentCombinations = output ? const_cast<MuonSegmentCombinationCollection*>(output->segmentCombinations) : 0;
   if( !segmentCombinations ) segmentCombinations = new MuonSegmentCombinationCollection();
 

@@ -215,7 +215,7 @@ StatusCode G4HitMerger::execute()
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
+      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
 
       // make new hit container
       TileHitVector *new_collection = new TileHitVector();
@@ -265,7 +265,7 @@ StatusCode G4HitMerger::execute()
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
+      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
       // make new hit container
       TRTUncompressedHitCollection *new_collection = new TRTUncompressedHitCollection();
       if( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) )
@@ -316,7 +316,7 @@ StatusCode G4HitMerger::execute()
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
+      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
       // make new hit container
       CSCSimHitCollection *new_collection = new CSCSimHitCollection();
       if( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) )
@@ -368,7 +368,7 @@ StatusCode G4HitMerger::execute()
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
+      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
       // make new hit container
       RPCSimHitCollection *new_collection = new RPCSimHitCollection();
       if( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) )
@@ -417,7 +417,7 @@ StatusCode G4HitMerger::execute()
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
+      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
       // make new hit container
       MDTSimHitCollection *new_collection = new MDTSimHitCollection();
       if( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) )
@@ -467,7 +467,7 @@ StatusCode G4HitMerger::execute()
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
+      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
       // make new hit container
       TGCSimHitCollection *new_collection = new TGCSimHitCollection();
       if( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) )
@@ -520,7 +520,7 @@ StatusCode G4HitMerger::execute()
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
+      CHECK( m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
       // make new hit container
       SiHitCollection *new_collection = new SiHitCollection();
       if( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) )

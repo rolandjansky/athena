@@ -28,8 +28,6 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-using namespace MuonGM;
-
 class PileUpMergeSvc;
 
 // Author: Ketevi A. Assamagan
@@ -101,9 +99,11 @@ public: //possibly these should be private?
   
   ToolHandle<ICscCalibTool> m_pcalib;
 
+  SG::WriteHandleKey<CscSimDataCollection> m_cscSimDataCollectionWriteHandleKey{this,"CSCSimDataCollectionOutputName","CSC_SDO","WriteHandleKey for Output CscSimDataCollection"};
+  
   CscDigitContainer         * m_container;
 
-  const MuonDetectorManager * m_geoMgr;
+  const MuonGM::MuonDetectorManager * m_geoMgr;
   CSC_Digitizer             * m_cscDigitizer;
 
   const CscIdHelper         * m_cscIdHelper;
@@ -115,6 +115,9 @@ public: //possibly these should be private?
   //pile-up
   TimedHitCollection<CSCSimHit>* m_thpcCSC; // the hits
   std::list<CSCSimHitCollection*> m_cscHitCollList; // only for pileup events..
+  //pileup truth veto
+  bool m_includePileUpTruth;
+  IntegerProperty m_vetoThisBarcode;
 
   double m_timeWindowLowerOffset;
   double m_timeWindowUpperOffset;

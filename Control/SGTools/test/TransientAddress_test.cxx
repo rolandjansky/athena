@@ -50,6 +50,11 @@ class TestProvider
   : public IAddressProvider
 {
 public:
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
+  { std::abort(); }
+
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
 				   SG::TransientAddress* /*pTAd*/,
                                    const EventContext& /*ctx*/) override
@@ -180,8 +185,126 @@ void test1()
 }
 
 
+// Testing move.
+void test2()
+{
+  std::cout << "test2\n";
+
+  TestAddress ad1(1);
+  SG::TransientAddress tad1 (123, "key", &ad1);
+  TestProvider tp;
+  tad1.setProvider (&tp, StoreID::SPARE_STORE);
+  tad1.setSGKey (876);
+  tad1.setTransientID (124);
+  tad1.setAlias ("key2");
+
+  assert (tad1.name() == "key");
+  assert (tad1.clID() == 123);
+  assert (tad1.address() == &ad1);
+  assert (tad1.storeID() == StoreID::SPARE_STORE);
+  assert (tad1.sgkey() == 876);
+  assert (tad1.transientID().size() == 2);
+  assert (tad1.transientID (123));
+  assert (tad1.transientID (124));
+  assert (tad1.alias() == std::set<std::string> {"key2"});
+  assert (tad1.clearAddress());
+  assert (ad1.m_ref == 1);
+
+  SG::TransientAddress tad2 (std::move (tad1));
+  assert (tad2.name() == "key");
+  assert (tad2.clID() == 123);
+  assert (tad2.address() == &ad1);
+  assert (tad2.storeID() == StoreID::SPARE_STORE);
+  assert (tad2.sgkey() == 876);
+  assert (tad2.transientID().size() == 2);
+  assert (tad2.transientID (123));
+  assert (tad2.transientID (124));
+  assert (tad2.alias() == std::set<std::string> {"key2"});
+  assert (tad2.clearAddress());
+  assert (ad1.m_ref == 1);
+
+  assert (tad1.address() == nullptr);
+  assert (tad1.transientID().empty());
+  assert (tad1.alias().empty());
+
+  tad2.clearAddress (false);
+  tad1 = std::move (tad2);
+  assert (tad1.name() == "key");
+  assert (tad1.clID() == 123);
+  assert (tad1.address() == &ad1);
+  assert (tad1.storeID() == StoreID::SPARE_STORE);
+  assert (tad1.sgkey() == 876);
+  assert (tad1.transientID().size() == 2);
+  assert (tad1.transientID (123));
+  assert (tad1.transientID (124));
+  assert (tad1.alias() == std::set<std::string> {"key2"});
+  assert (!tad1.clearAddress());
+  assert (ad1.m_ref == 1);
+
+  assert (tad2.address() == nullptr);
+  assert (tad2.transientID().empty());
+  assert (tad2.alias().empty());
+}
+
+
+// Testing copy/assignment.
+void test3()
+{
+  std::cout << "test3\n";
+
+  TestAddress ad1(1);
+  SG::TransientAddress tad1 (123, "key", &ad1);
+  TestProvider tp;
+  tad1.setProvider (&tp, StoreID::SPARE_STORE);
+  tad1.setSGKey (876);
+  tad1.setTransientID (124);
+  tad1.setAlias ("key2");
+
+  assert (tad1.name() == "key");
+  assert (tad1.clID() == 123);
+  assert (tad1.address() == &ad1);
+  assert (tad1.storeID() == StoreID::SPARE_STORE);
+  assert (tad1.sgkey() == 876);
+  assert (tad1.transientID().size() == 2);
+  assert (tad1.transientID (123));
+  assert (tad1.transientID (124));
+  assert (tad1.alias() == std::set<std::string> {"key2"});
+  assert (tad1.clearAddress());
+  assert (ad1.m_ref == 1);
+
+  SG::TransientAddress tad2 (tad1);
+  assert (tad2.name() == "key");
+  assert (tad2.clID() == 123);
+  assert (tad2.address() == &ad1);
+  assert (tad2.storeID() == StoreID::SPARE_STORE);
+  assert (tad2.sgkey() == 876);
+  assert (tad2.transientID().size() == 2);
+  assert (tad2.transientID (123));
+  assert (tad2.transientID (124));
+  assert (tad2.alias() == std::set<std::string> {"key2"});
+  assert (tad2.clearAddress());
+  assert (ad1.m_ref == 2);
+
+  SG::TransientAddress tad3;
+  tad3 = tad1;
+  assert (tad3.name() == "key");
+  assert (tad3.clID() == 123);
+  assert (tad3.address() == &ad1);
+  assert (tad3.storeID() == StoreID::SPARE_STORE);
+  assert (tad3.sgkey() == 876);
+  assert (tad3.transientID().size() == 2);
+  assert (tad3.transientID (123));
+  assert (tad3.transientID (124));
+  assert (tad3.alias() == std::set<std::string> {"key2"});
+  assert (tad3.clearAddress());
+  assert (ad1.m_ref == 3);
+}
+
+
 int main()
 {
   test1();
+  test2();
+  test3();
   return 0;
 }

@@ -36,6 +36,7 @@
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileConditions/TileInfo.h"
 #include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileHitNonConstContainer.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCablingSvc.h"
 
@@ -316,7 +317,7 @@ StatusCode TileHitVecToCntTool::createContainers() {
   ATH_MSG_VERBOSE("TileHitVecToCntTool createContainers started");
 
   if (m_pileUp) {
-    m_hits = new TileHitContainer(true, SG::VIEW_ELEMENTS);
+    m_hits = new TileHitNonConstContainer(SG::VIEW_ELEMENTS);
     std::vector<TileHit *>::iterator iHit = m_allHits.begin();
     std::vector<TileHit *>::iterator lastHit = m_allHits.end();
     for (; iHit != lastHit; ++iHit) {
@@ -324,7 +325,7 @@ StatusCode TileHitVecToCntTool::createContainers() {
       pHit->setZero();
     }
   } else {
-    m_hits = new TileHitContainer(true, SG::OWN_ELEMENTS);
+    m_hits = new TileHitNonConstContainer(SG::OWN_ELEMENTS);
   }
 
   // disable checks for TileID and remember previous state
@@ -873,15 +874,12 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   if (m_run2) {
     // Merge MBTS and E1 where it is needed.
 
-    TileHitContainer::const_iterator collIt = m_hits->begin();
-    TileHitContainer::const_iterator endcollIt = m_hits->end();
-
-    for (; collIt != endcollIt; ++collIt) {
-      int frag_id = (*collIt)->identify();
+    for (std::unique_ptr<TileHitCollection>& coll : *m_hits ) {
+      int frag_id = coll->identify();
       IdentifierHash frag_hash = m_fragHashFunc(frag_id);
       if (m_E1merged[frag_hash])
-        findAndMergeE1((*collIt), frag_id);
-      else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt), frag_id);
+        findAndMergeE1(coll.get(), frag_id);
+      else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS(coll.get(), frag_id);
     }
   }
 
@@ -889,24 +887,16 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //loop over all hits in TileHitContainer and take energy deposited in certain period of time
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
 
-  TileHitContainer::const_iterator collIt = m_hits->begin();
-  TileHitContainer::const_iterator endcoll = m_hits->end();
-
-  for (; collIt != endcoll; ++collIt) {
-    const TileHitCollection* coll = *collIt;
-    TileHitCollection::const_iterator hitItr = coll->begin();
-    TileHitCollection::const_iterator hitEnd = coll->end();
-    for (; hitItr != hitEnd; hitItr++) {
-
+  for (std::unique_ptr<TileHitCollection>& coll : *m_hits ) {
+    for (TileHit* pHit : *coll) {
       double ehit = 0.0;
-      TileHit *pHit = (*hitItr);
       int hitsize = pHit->size();
       for (int i = 0; i < hitsize; ++i) {
         double thit = pHit->time(i);
         if (fabs(thit) < m_photoStatisticsWindow) ehit += pHit->energy(i);
       }
 
-      Identifier pmt_id = (*hitItr)->pmt_ID();
+      Identifier pmt_id = pHit->pmt_ID();
       //HWIdentifier channel_id = (*hitItr)->pmt_HWID();
       // for gap/crack scintillators
       if (m_tileID->sample(pmt_id) == 3) {
@@ -919,7 +909,13 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   }
 
   /* Register the set of TileHits to the event store. */
-  CHECK(evtStore()->record(m_hits, m_hitContainer, false));
+  auto hits = std::make_unique<TileHitContainer>
+                 (false, m_pileUp ? SG::VIEW_ELEMENTS : SG::OWN_ELEMENTS);
+  size_t hashId = 0;
+  for (std::unique_ptr<TileHitCollection>& coll : *m_hits ) {
+    CHECK(hits->addCollection (coll.release(), hashId++));
+  }
+  CHECK(evtStore()->record(std::move(hits), m_hitContainer, false));
 
   ATH_MSG_DEBUG("TileHit container registered to the TES with name" << m_hitContainer);
 
@@ -1023,9 +1019,8 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
 }
 
 
-void TileHitVecToCntTool::findAndMergeE1(const TileHitCollection* const_coll, int frag_id) {
+void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id) {
   int module = frag_id & 0x3F;
-  TileHitCollection* coll = const_cast<TileHitCollection*>(const_coll);
 
   TileHitCollection::iterator hitIt = coll->begin();
   TileHitCollection::iterator endHitIt = coll->end();
@@ -1077,9 +1072,8 @@ void TileHitVecToCntTool::findAndMergeE1(const TileHitCollection* const_coll, in
 }
 
 
-void TileHitVecToCntTool::findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id) {
+void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id) {
   int module = frag_id & 0x3F;
-  TileHitCollection* coll = const_cast<TileHitCollection*>(const_coll);
 
   TileHitCollection::iterator hitIt = coll->begin();
   TileHitCollection::iterator endHitIt = coll->end();

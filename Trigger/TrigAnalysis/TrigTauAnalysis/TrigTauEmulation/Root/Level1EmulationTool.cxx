@@ -398,7 +398,7 @@ namespace TrigTauEmul {
     }
 
     MY_MSG_DEBUG("executing " << chain_name);
-    ATH_CHECK(m_name_parser->execute(chain_name));
+    ATH_CHECK(m_name_parser->execute(chain_name), false);
     for (auto it: m_name_parser->get_items()) {
       MY_MSG_DEBUG(it.first << " " << m_counters[it.first] << " " << it.second);
       if (m_counters[it.first] < it.second) {

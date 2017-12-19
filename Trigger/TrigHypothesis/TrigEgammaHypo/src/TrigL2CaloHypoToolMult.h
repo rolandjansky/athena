@@ -32,9 +32,9 @@ class TrigL2CaloHypoToolMult : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
 
   virtual StatusCode decide( std::vector<ITrigL2CaloHypoTool::ClusterInfo>& input )  const override;
 
-  virtual bool decide( const ITrigL2CaloHypoTool::ClusterInfo& ) const { 
-    CHECK( StatusCode::FAILURE );  // this method should never be called
-    return StatusCode::FAILURE;
+  virtual bool decide( const ITrigL2CaloHypoTool::ClusterInfo& ) const override { 
+    REPORT_MESSAGE(MSG::ERROR) << "this method should never be called";
+    return false;
   }
 
  private:

@@ -13,9 +13,9 @@
 #undef NDEBUG
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/exceptions.h"
-#include "SGTools/CLASS_DEF.h"
 #include "SGTools/StringPool.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/errorcheck.h"
 #include <iostream>
 #include <cassert>
@@ -55,7 +55,7 @@ void* foocast (SG::DataProxy*)
 }
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
 
@@ -152,7 +152,7 @@ void test1()
 
 
 // toPersistent / toTransient
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
 
@@ -234,7 +234,7 @@ void test2()
 
 
 // alt store
-void test3()
+void test3 (SGTest::TestStore& store)
 {
   std::cout << "test3\n";
 
@@ -246,7 +246,7 @@ void test3()
 
 
 // equality
-void test4()
+void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
 
@@ -269,7 +269,7 @@ void test4()
 
 
 // other
-void test5()
+void test5 (SGTest::TestStore& store)
 {
   std::cout << "test5\n";
 
@@ -282,7 +282,7 @@ void test5()
 
 
 // thinning
-void test6()
+void test6 (SGTest::TestStore& store)
 {
   std::cout << "test6\n";
   TestThinningSvc svc;
@@ -326,7 +326,7 @@ void test6()
 
 
 // converting ctor
-void test7()
+void test7 (SGTest::TestStore& store)
 {
   std::cout << "test7\n";
 
@@ -364,7 +364,7 @@ void test7()
 SG::DataProxyHolder::InputRenameRCU_t inputRenameMap(1);
 
 
-void initInputRename()
+void initInputRename ATLAS_NOT_THREAD_SAFE ()
 {
   SG::StringPool sp;
   auto m = std::make_unique<SG::DataProxyHolder::InputRenameMap_t>();
@@ -376,19 +376,19 @@ void initInputRename()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   errorcheck::ReportMessage::hideErrorLocus(true);
   Athena::getMessageSvcQuiet = true;
   SGTest::initTestStore();
   initInputRename();
 
-  test1();
-  test2();
-  test3();
-  test4();
-  test5();
-  test6();
-  test7();
+  test1 (store);
+  test2 (store);
+  test3 (store);
+  test4 (store);
+  test5 (store);
+  test6 (store);
+  test7 (store);
   return 0;
 }

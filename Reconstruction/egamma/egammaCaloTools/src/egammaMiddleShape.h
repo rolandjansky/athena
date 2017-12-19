@@ -76,12 +76,19 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
   /** @brief Cell container*/
   const CaloCellContainer* m_cellContainer;
   /** @brief tool to calculate sum of energy in all samples */
-  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples;
-  /** Tool to calculate correction for the eta width modulation in middle sampling */
-  ToolHandle<Iegammaqweta2c>  m_egammaqweta2c;
+  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
+      "egammaEnergyPositionAllSamplesTool", 
+      "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
 
-  double m_neta;
-  double m_nphi;
+  /** Tool to calculate correction for the eta width modulation in middle sampling */
+  ToolHandle<Iegammaqweta2c>  m_egammaqweta2c {this,
+      "egammaqweta2cTool", "egammaqweta2c/egammaqweta2c"};
+
+  Gaudi::Property<double> m_neta {this, "Neta", 7.0,
+      "Number of eta cells in each sampling in which to calculated shower shapes"};
+
+  Gaudi::Property<double> m_nphi {this, "Nphi", 7.0,
+      "Number of phi cell in each sampling in which to calculated shower shapes"};
 
   /** @brief energy in all samplings*/
   double m_eallsamples;
@@ -109,7 +116,10 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
   //double m_phigranularity;  
 
   /** @brief boolean to calculate less important variables*/
-  bool m_ExecOtherVariables;
+  Gaudi::Property<bool> m_ExecOtherVariables {this,
+      "ExecOtherVariables", true,
+      "Calculate some less important variables"}
+;
   /** @brief (eta,phi) around which estimate the shower shapes */
   double m_eta;
   double m_phi;

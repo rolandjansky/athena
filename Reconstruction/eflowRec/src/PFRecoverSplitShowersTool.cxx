@@ -161,7 +161,6 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   /* Cache the original number of eflowCaloObjects */
   const int nCaloObj = m_eflowCaloObjectContainer->size();
 
-  std::vector<eflowRecTrack*>::iterator endEfRecTrack = m_tracksToRecover.end();
   /* loop tracks in m_tracksToRecover and do matching */
   for (auto thisEfRecTrack : m_tracksToRecover){
  
@@ -178,6 +177,11 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
     }
     /* Get list of matched clusters */
     std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, m_clustersToConsider, -1);
+
+    if (msgLvl(MSG::DEBUG)){
+      for (auto thisEFRecCluster : matchedClusters) ATH_MSG_DEBUG("Have matched cluster with e, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
+    }
+
     if (matchedClusters.empty()) { continue; }
 
     m_nTrackClusterMatches += matchedClusters.size();

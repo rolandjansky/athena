@@ -261,25 +261,25 @@ public:
 
   int& ityp1()
   {
-    static Accessor<int> acc ("anInt");
+    static const Accessor<int> acc ("anInt");
     return acc (*this);
   }
 
   int ityp1() const
   {
-    static Accessor<int> acc ("anInt");
+    static const Accessor<int> acc ("anInt");
     return acc (*this);
   }
 
   float& ftyp1()
   {
-    static Accessor<float> acc ("aFloat");
+    static const Accessor<float> acc ("aFloat");
     return acc (*this);
   }
 
   float ftyp1() const
   {
-    static Accessor<float> acc ("aFloat");
+    static const Accessor<float> acc ("aFloat");
     return acc (*this);
   }
 

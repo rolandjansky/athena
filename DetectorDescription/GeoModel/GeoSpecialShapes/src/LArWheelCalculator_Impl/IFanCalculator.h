@@ -5,21 +5,38 @@
 #ifndef __LArWheelCalculator_Impl_IFanCalculator_H__
 #define __LArWheelCalculator_Impl_IFanCalculator_H__
 
-// This is an interface of distance calculation to parts of the LAr endcap.
 
 #include "CLHEP/Vector/ThreeVector.h"
 
-namespace LArWheelCalculator_Impl {
-  class IFanCalculator {
-    public:
-	virtual ~IFanCalculator() {};
-  // geometry methods:
+namespace LArWheelCalculator_Impl
+{
 
-	virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const = 0;
-	virtual int PhiGapNumberForWheel(int i) const = 0;
-	virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const = 0;
+  /// @class IFanCalculator
+  /// Abstract interface for fan calculator classes that handle distance
+  /// calculation to parts of the LAr endcap.
+  ///
+  class IFanCalculator
+  {
+
+    public:
+
+      /// Virtual destructor
+      virtual ~IFanCalculator() {};
+
+      /// @name Geometry methods
+      /// @{
+
+      virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p,
+                                             int & out_fan_number) const = 0;
+
+      virtual int PhiGapNumberForWheel(int i) const = 0;
+
+      virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const = 0;
+
+      /// @}
 
   };
 
 }
+
 #endif // __LArWheelCalculator_Impl_IFanCalculator_H__

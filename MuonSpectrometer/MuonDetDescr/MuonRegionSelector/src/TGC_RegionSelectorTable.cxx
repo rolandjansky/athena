@@ -18,8 +18,6 @@
 #include <fstream>
 #include <string>
 
-using namespace std;
-
 
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
 
@@ -44,6 +42,7 @@ using namespace std;
 #include <vector>
 #include <fstream>
 
+using namespace std;
 
 
 

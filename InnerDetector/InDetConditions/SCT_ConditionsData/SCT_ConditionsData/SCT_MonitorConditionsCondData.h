@@ -15,7 +15,7 @@
 #include <string>
 
 // Include Athena stuff
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class SCT_MonitorConditionsCondData {
 public:
@@ -44,9 +44,7 @@ private:
 CLASS_DEF( SCT_MonitorConditionsCondData , 153824898 , 1 )
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<SCT_MonitorConditionsCondData> , 30296880 , 1 )
+CONDCONT_DEF( SCT_MonitorConditionsCondData, 30296880 );
 
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<SCT_MonitorConditionsCondData>, CondContBase );
 
 #endif // SCT_MONITORCONDITIONSCONDDATA_H

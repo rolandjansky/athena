@@ -17,12 +17,13 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 //
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaKernel/IIOVDbSvc.h" 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
@@ -31,6 +32,7 @@
 #include <list>
 #include <string>
 #include <map>
+#include <mutex>
 
 class SCT_ID;
 
@@ -80,11 +82,10 @@ public:
 private:
   //Declare Storegate container
   ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<IIOVDbSvc> m_IOVDbSvc; //!< Handle on the IOVDb service
   // list folders to be read as CondAttrListCollection*
   StringArrayProperty m_par_atrcollist;
   bool m_dataFilled;
-  int m_status;
+  //  int m_status;
   //DataHandle for callback
   const DataHandle<CondAttrListCollection> m_DCSData_HV;
   const DataHandle<CondAttrListCollection> m_DCSData_MT;
@@ -92,28 +93,33 @@ private:
   //Key for DataHandle
   BooleanProperty m_readAllDBFolders;
   BooleanProperty m_returnHVTemp;
-  BooleanProperty m_dropFolder; 
   float m_barrel_correction;
   float m_ecInner_correction;
   float m_ecOuter_correction;
-  float m_hvLowLimit;
-  float m_hvUpLimit;
-  std::unique_ptr<SCT_DCSStatCondData> m_pBadModules;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesHV;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp0;
-  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp1;
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheState;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheHV;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheTemp0;
+  // Pointer of SCT_DCSStatCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSStatCondData> m_pBadModules;
+  // Pointers of SCT_DCSFloatCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesHV;
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesTemp0;
+  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
   const SCT_ID* m_pHelper;
   Identifier m_moduleId;
   Identifier m_waferId;
   std::string m_folderPrefix;
-  std::string m_chanstatCut;
-  bool m_useHV;
-  float m_useHVLowLimit;
-  float  m_useHVUpLimit;
-  std::string m_useHVChanCut;
   static const Identifier s_invalidId;
   static const float s_defaultHV;
   static const float s_defaultTemperature;
+  const SCT_DCSStatCondData* getCondDataState(const EventContext& ctx) const;
+  const SCT_DCSFloatCondData* getCondDataHV(const EventContext& ctx) const;
+  const SCT_DCSFloatCondData* getCondDataTemp0(const EventContext& ctx) const;
 };
 
 #endif // SCT_DCSConditionsSvc_h 

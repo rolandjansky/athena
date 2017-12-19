@@ -12,7 +12,6 @@
 #ifndef EFLOWCELLINTEGRATION_H_
 #define EFLOWCELLINTEGRATION_H_
 
-#include <cassert>
 #include <stdexcept>
 #include <iostream>
 
@@ -21,7 +20,6 @@
 #include "eflowRec/eflowUtil.h"
 #include "eflowRec/eflowLookupExp.h"
 #include "eflowRec/LegendreWeights.h"
-
 
 /* Enum used as template argument to switch between std::exp and the lookup-table based version */
 enum Exp_t {stdExp = 0, lookupExp};
@@ -74,9 +72,14 @@ private:
 
     double I = 0.0;
     double x;
-    for (int i = 0; i < nOrder; i++) {
-      x = rangeCenter + roots[i] * rangeHalfWidth;
-      I += weights[i] * m_integrand->evaluate(x);
+    if(m_integrand){
+      for (int i = 0; i < nOrder; i++) {
+	x = rangeCenter + roots[i] * rangeHalfWidth;
+	I += weights[i] * m_integrand->evaluate(x);
+      }
+    }
+    else{
+      std::cerr << "eflowCellIntergrator::DoGaussLegendreIntegration ERROR : Invalid pointer to IntegrandType and cannot perform integration" << std::endl;
     }
     if (I < 0. || rangeHalfWidth < 0.) std::cerr << "eflowCellIntergrator::DoGaussLegendreIntegration WARNING: I = " << I << "\trange = " << range.print() << std::endl;
 

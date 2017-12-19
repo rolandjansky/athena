@@ -162,18 +162,14 @@ StatusCode TBDetDescrLoader::execute() {
   case 2: // read always
 
     ATH_MSG_DEBUG( "Action: read TBDetDescr from StoreGate" );
-
-    const TBElementContainer* pContainer;
-    sc = evtStore()->retrieve(pContainer,m_TBElementContainer);
-    if (sc.isSuccess()){
+    {
+      const TBElementContainer* pContainer = nullptr;
+      ATH_CHECK( evtStore()->retrieve(pContainer,m_TBElementContainer) );
       m_TBDDM->initialize(pContainer);
       m_TBDDM->print(msg());
-    } else {
-      ATH_MSG_FATAL( "Can't retrieve TBElementContainer" );
-      return StatusCode::FAILURE;
     }
     break;
-    
+      
   default:
     break;
 

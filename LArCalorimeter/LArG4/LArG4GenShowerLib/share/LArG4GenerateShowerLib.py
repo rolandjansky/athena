@@ -71,8 +71,9 @@ simFlags.LArParameterization = 0
 # get service manager
 from AthenaCommon.AppMgr import ServiceMgr
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 from random import randint
 simFlags.RandomSeedOffset = randint(1,443921180)
 
@@ -81,7 +82,8 @@ simFlags.RandomSeedOffset = randint(1,443921180)
 from G4AtlasApps.SimFlags import simFlags
 simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool',['Event','Run','Step'])
 
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("LArG4GenShowerLib")

@@ -3,7 +3,6 @@
 */
 
 #include "MuonInsideOutRecoTool.h"
-#include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
@@ -18,6 +17,11 @@
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "MuonSegment/MuonSegment.h"
+#include "MuonLayerEvent/MuonLayerPrepRawData.h"
+#include "MuonIdHelpers/MuonStationIndexHelpers.h"
+
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 #include "MuonCombinedEvent/MuGirlTag.h"
 #include "xAODTracking/Vertex.h"
@@ -29,21 +33,20 @@ namespace MuonCombined {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_muonSystemExtentionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool"),
     m_segmentFinder("Muon::MuonLayerSegmentFinderTool/MuonLayerSegmentFinderTool"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
     m_ambiguityResolver("Muon::MuonLayerAmbiguitySolverTool/MuonLayerAmbiguitySolverTool"),
     m_candidateTrackBuilder("Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"),
     m_recoValidationTool(""),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor")
+    m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_layerHashProvider("Muon::MuonLayerHashProviderTool")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<MuonInsideOutRecoTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("MuonSystemExtensionTool",m_muonSystemExtentionTool );    
     declareProperty("MuonLayerSegmentFinderTool",m_segmentFinder );    
     declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
     declareProperty("MuonLayerAmbiguitySolverTool",m_ambiguityResolver );    
@@ -65,7 +68,6 @@ namespace MuonCombined {
 
     ATH_CHECK(m_idHelper.retrieve());    
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_muonSystemExtentionTool.retrieve());
     ATH_CHECK(m_segmentFinder.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
     ATH_CHECK(m_ambiguityResolver.retrieve());
@@ -78,16 +80,25 @@ namespace MuonCombined {
   }
 
   void MuonInsideOutRecoTool::extend( const InDetCandidateCollection& inDetCandidates ) {
+    ATH_MSG_WARNING("This version is deprecated, please use extendWithPRDs for MuGirl");
+    extendWithPRDs(inDetCandidates,0,0,0,0,0,0);
+  }
+
+  void MuonInsideOutRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
+					      const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
+					      const Muon::MMPrepDataContainer* mmPRDs ) {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
     InDetCandidateCollection::const_iterator it_end = inDetCandidates.end();
     for( ; it!=it_end;++it ){
-      handleCandidate( **it );
+      handleCandidate( **it,mdtPRDs,cscPRDs,rpcPRDs,tgcPRDs,stgcPRDs,mmPRDs );
     }
   }
 
-  void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) {
+  void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
+					       const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
+					       const Muon::MMPrepDataContainer* mmPRDs ) {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -99,8 +110,7 @@ namespace MuonCombined {
     
     
     // get intersections which precision layers in the muon system 
-    const Muon::MuonSystemExtension* muonSystemExtension = 0;
-    m_muonSystemExtentionTool->muonSystemExtension( indetTrackParticle, muonSystemExtension );
+    const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
     if( !muonSystemExtension ) {
       //ATH_MSG_DEBUG("No MuonSystemExtension, aborting ");
       return;
@@ -122,7 +132,12 @@ namespace MuonCombined {
       std::vector< std::shared_ptr<const Muon::MuonSegment> > segments;
       
       // find segments for intersection
-      m_segmentFinder->find( *it, segments );
+      Muon::MuonLayerPrepRawData layerPrepRawData;
+      if(!getLayerData( (*it).layerSurface.sector, (*it).layerSurface.regionIndex, (*it).layerSurface.layerIndex,layerPrepRawData,mdtPRDs,cscPRDs,rpcPRDs,tgcPRDs,stgcPRDs,mmPRDs )){
+	ATH_MSG_WARNING("Failed to get layer data");
+	continue;
+      }
+      m_segmentFinder->find( *it, segments, layerPrepRawData );
       if( segments.empty() ) continue;
 
       // fill validation content
@@ -245,6 +260,77 @@ namespace MuonCombined {
 
     // add tag to IndetCandidate
     const_cast<InDetCandidate&>(indetCandidate).addTag(*tag);
+  }
+
+  bool MuonInsideOutRecoTool::getLayerData( int sector, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
+					    Muon::MuonStationIndex::LayerIndex layerIndex, Muon::MuonLayerPrepRawData& layerPrepRawData, const Muon::MdtPrepDataContainer* mdtPRDs, 
+					    const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, 
+					    const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
+
+    // get technologies in the given layer
+    Muon::MuonStationIndex::StIndex stIndex = Muon::MuonStationIndex::toStationIndex( regionIndex, layerIndex );
+    std::vector<Muon::MuonStationIndex::TechnologyIndex> technologiesInStation = Muon::MuonStationIndexHelpers::technologiesInStation( stIndex );
+    std::string techString;
+    for( auto tech : technologiesInStation ) techString += " " + Muon::MuonStationIndex::technologyName(tech);
+    ATH_MSG_DEBUG("getLayerData: sector " << sector << " " << Muon::MuonStationIndex::regionName(regionIndex) << " " << Muon::MuonStationIndex::layerName(layerIndex)
+                  << " technologies " << techString);
+  
+    bool isok = true;
+    // loop over technologies and get data
+    for( std::vector<Muon::MuonStationIndex::TechnologyIndex>::iterator it=technologiesInStation.begin();it!=technologiesInStation.end();++it ){
+
+      // get collections, keep track of failures
+      if(*it == Muon::MuonStationIndex::MDT)       isok = !getLayerDataTech<Muon::MdtPrepDataCollection>(sector,*it,regionIndex,layerIndex,mdtPRDs,layerPrepRawData.mdts)    ? false : isok;
+      else if(*it == Muon::MuonStationIndex::RPC)  isok = !getLayerDataTech<Muon::RpcPrepDataCollection>(sector,*it,regionIndex,layerIndex,rpcPRDs,layerPrepRawData.rpcs)    ? false : isok;
+      else if(*it == Muon::MuonStationIndex::TGC)  isok = !getLayerDataTech<Muon::TgcPrepDataCollection>(sector,*it,regionIndex,layerIndex,tgcPRDs,layerPrepRawData.tgcs)    ? false : isok;
+      else if(*it == Muon::MuonStationIndex::CSCI) isok = !getLayerDataTech<Muon::CscPrepDataCollection>(sector,*it,regionIndex,layerIndex,cscPRDs,layerPrepRawData.cscs)    ? false : isok;
+      else if(*it == Muon::MuonStationIndex::STGC) isok = !getLayerDataTech<Muon::sTgcPrepDataCollection>(sector,*it,regionIndex,layerIndex,stgcPRDs,layerPrepRawData.stgcs) ? false : isok;
+      else if(*it == Muon::MuonStationIndex::MM)   isok = !getLayerDataTech<Muon::MMPrepDataCollection>(sector,*it,regionIndex,layerIndex,mmPRDs,layerPrepRawData.mms)       ? false : isok;
+    }
+
+    if( msgLvl(MSG::DEBUG) ){
+      msg(MSG::DEBUG) << " Got data: sector " << sector << " " << Muon::MuonStationIndex::regionName(regionIndex)
+                      << " " << Muon::MuonStationIndex::layerName(layerIndex);
+      if( !layerPrepRawData.mdts.empty() )  msg(MSG::DEBUG) << " MDTs " << layerPrepRawData.mdts.size();
+      if( !layerPrepRawData.rpcs.empty() )  msg(MSG::DEBUG) << " RPCs "  << layerPrepRawData.rpcs.size();
+      if( !layerPrepRawData.tgcs.empty() )  msg(MSG::DEBUG) << " TGCs "  << layerPrepRawData.tgcs.size();
+      if( !layerPrepRawData.cscs.empty() )  msg(MSG::DEBUG) << " CSCs "  << layerPrepRawData.cscs.size();
+      if( !layerPrepRawData.stgcs.empty() ) msg(MSG::DEBUG) << " STGCs "  << layerPrepRawData.stgcs.size();
+      if( !layerPrepRawData.mms.empty() )   msg(MSG::DEBUG) << " MMs "  << layerPrepRawData.mms.size();
+      msg(MSG::DEBUG) << endmsg;
+    }
+    return isok;
+ }
+
+  template<class COL>
+  bool MuonInsideOutRecoTool::getLayerDataTech( int sector, Muon::MuonStationIndex::TechnologyIndex technology, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
+						Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output ) {
+
+    if(!input) return true;
+    typedef Muon::MuonPrepDataContainer< COL > ContainerType;
+    // get technologies in the given layer
+    unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex, layerIndex );
+
+    // get hashes
+    const Muon::MuonLayerHashProviderTool::HashVec& hashes = m_layerHashProvider->getHashes( sector, technology, sectorLayerHash );
+
+    // skip empty inputs
+    if( hashes.empty() ) return true;
+
+    // loop over hashes
+    for( Muon::MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
+
+      // skip if not found
+      typename ContainerType::const_iterator colIt;
+      colIt=input->indexFind(*it);
+      if( colIt == input->end() ) {
+	continue;
+      }
+      ATH_MSG_VERBOSE("  adding " << m_idHelper->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
+      // else add
+      output.push_back(*colIt);
+    }
+    return true;
   }
 }
  

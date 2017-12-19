@@ -3,7 +3,6 @@
 */
 
 #include "TrigTRTHTHCounter.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "InDetIdentifier/TRT_ID.h"
@@ -92,20 +91,20 @@ HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
   // Get storegate svc
   if(m_detStore.retrieve().isFailure()) {
     ATH_MSG_FATAL ( "Failed to connect to " << m_detStore.typeAndName());
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO ( "Retrieved service " << m_detStore.typeAndName());
   
   if(m_storeGate.retrieve().isFailure()) {
     ATH_MSG_FATAL ( "Failed to connect to " << m_storeGate.typeAndName());
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO ( "Retrieved service " << m_storeGate.typeAndName());
 
   // Get a TRT identifier helper
   if( m_detStore->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
     ATH_MSG_ERROR ( "Failed to retrieve " << m_trtHelper); // fatal?
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO ( "Retrieved service " << m_trtHelper);
 

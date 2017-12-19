@@ -2,5 +2,5 @@
 #include "TrigHLTMonitoring/HLTMonTool.h"
 
 
-DECLARE_TOOL_FACTORY(HLTMonTool )
+DECLARE_COMPONENT( HLTMonTool )
 

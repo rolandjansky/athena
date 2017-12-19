@@ -26,250 +26,250 @@ class PixelNtupleTracks {
 		Int_t           fCurrent; //!current Tree number in a TChain
 
 		// Declaration of leaf types
-		Int_t           RunNumber;
-		Int_t           EventNumber;
-		Int_t           TrackID;
-		Int_t           IterationIndex;
-		Int_t           nHits;
-		Int_t           TrackStatesUnbiased;
-		Float_t         RecD0;
-		Float_t         RecZ0;
-		Float_t         RecPhi0;
+		//Int_t           RunNumber;
+		//Int_t           EventNumber;
+		//Int_t           TrackID;
+		//Int_t           IterationIndex;
+		//Int_t           nHits;
+		//Int_t           TrackStatesUnbiased;
+		//Float_t         RecD0;
+		//Float_t         RecZ0;
+		//Float_t         RecPhi0;
 		Float_t         RecTheta;
-		Float_t         RecEta;
+		//Float_t         RecEta;
 		Float_t         RecQoverP;
-		Float_t         RecErrD0;
-		Float_t         RecErrZ0;
-		Float_t         RecErrPhi0;
-		Float_t         RecErrTheta;
-		Float_t         RecErrQoverP;
-		Float_t         Chi2overNdof;
-		Int_t           Ndof;
-		Int_t           nHoles;
-		std::vector<int>     *HoleDetectorType;
-		std::vector<float>   *pullLocX;
-		std::vector<float>   *pullLocY;
-		std::vector<float>   *residualLocX;
-		std::vector<float>   *residualLocY;
-		std::vector<int>     *DetectorType;
-		std::vector<int>     *outlierFlag;
-		Int_t           FitterStatusCode;
+		//Float_t         RecErrD0;
+		//Float_t         RecErrZ0;
+		//Float_t         RecErrPhi0;
+		//Float_t         RecErrTheta;
+		//Float_t         RecErrQoverP;
+		//Float_t         Chi2overNdof;
+		//Int_t           Ndof;
+		//Int_t           nHoles;
+		//std::vector<int>     *HoleDetectorType;
+		//std::vector<float>   *pullLocX;
+		//std::vector<float>   *pullLocY;
+		//std::vector<float>   *residualLocX;
+		//std::vector<float>   *residualLocY;
+		//std::vector<int>     *DetectorType;
+		//std::vector<int>     *outlierFlag;
+		//Int_t           FitterStatusCode;
 		Int_t           nPixelHits;
 		Int_t           nSCTHits;
 		Int_t           nTRTHits;
-		Int_t           nMDTHits;
-		Int_t           nCSCHits;
-		Int_t           nRPCHits;
-		Int_t           nTGCHits;
+		//Int_t           nMDTHits;
+		//Int_t           nCSCHits;
+		//Int_t           nRPCHits;
+		//Int_t           nTGCHits;
 		std::vector<float>   *PixPullPhi;
 		std::vector<float>   *PixPullEta;
 		std::vector<float>   *PixResPhi;
 		std::vector<float>   *PixResEta;
 		std::vector<int>     *PixDetType;
-		std::vector<int>     *PixHasGanged;
-		std::vector<int>     *PixIsFake;
-		std::vector<int>     *PixToT;
+		//std::vector<int>     *PixHasGanged;
+		//std::vector<int>     *PixIsFake;
+		//std::vector<int>     *PixToT;
 		std::vector<float>   *PixCharge;
 		std::vector<float>   *PixTLorPhi;
-		std::vector<float>   *PixTLorEta;
+		//std::vector<float>   *PixTLorEta;
 		std::vector<float>   *PixBiasVolt;
-		std::vector<float>   *PixDepVolt;
+		//std::vector<float>   *PixDepVolt;
 		std::vector<float>   *PixDigResPhi;
 		std::vector<float>   *PixDigResEta;
 		std::vector<float>   *PixErrPhi;
 		std::vector<float>   *PixErrEta;
-		std::vector<float>   *PixLocX;
-		std::vector<float>   *PixLocY;
+		//std::vector<float>   *PixLocX;
+		//std::vector<float>   *PixLocY;
 		std::vector<int>     *PixEtaModule;
 		std::vector<int>     *PixPhiModule;
-		std::vector<float>   *PixGloX;
-		std::vector<float>   *PixGloY;
-		std::vector<float>   *PixGloZ;
-		std::vector<float>   *PixEta;
-		std::vector<float>   *PixFirstRow;
-		std::vector<float>   *PixFirstCol;
+		//std::vector<float>   *PixGloX;
+		//std::vector<float>   *PixGloY;
+		//std::vector<float>   *PixGloZ;
+		//std::vector<float>   *PixEta;
+		//std::vector<float>   *PixFirstRow;
+		//std::vector<float>   *PixFirstCol;
 		std::vector<int>     *PixDeltaRow;
 		std::vector<int>     *PixDeltaCol;
-		std::vector<float>   *PixDeltaPhi;
-		std::vector<float>   *PixDeltaEta;
+		//std::vector<float>   *PixDeltaPhi;
+		//std::vector<float>   *PixDeltaEta;
 		std::vector<float>   *PixOmegaPhi;
 		std::vector<float>   *PixOmegaEta;
 		std::vector<float>   *PixTrkAngle;
 		std::vector<float>   *PixTrkEta;
 		std::vector<float>   *PixTrkPt;
-		std::vector<float>   *PixTrkQ;
-		std::vector<float>   *PixHoleGloX;
-		std::vector<float>   *PixHoleGloY;
-		std::vector<float>   *PixHoleGloZ;
-		std::vector<float>   *PixHoleLocX;
-		std::vector<float>   *PixHoleLocY;
-		std::vector<int>     *PixHoleEtaModule;
-		std::vector<int>     *PixHolePhiModule;
-		std::vector<float>   *PixHoleLayer;
-		std::vector<float>   *PixHoleECBarrel;
-		std::vector<int>     *PixHoleClNearstSize;
-		std::vector<float>   *PixHoleLocXClNearst;
-		std::vector<float>   *PixHoleLocYClNearst;
-		std::vector<float>   *PixHoleClRowClNearst;
-		std::vector<float>   *PixHoleClColClNearst;
-		std::vector<float>   *PixHoleGloZNearst;
-		std::vector<float>   *PixHoleDeltaRowNearst;
-		std::vector<float>   *PixHoleDeltaColNearst;
-		std::vector<float>   *SCTPull;
-		std::vector<float>   *SCTRes;
-		std::vector<int>     *SctDetType;
-		std::vector<float>   *SctTLorPhi;
-		std::vector<float>   *SctTLorEta;
-		std::vector<float>   *SctEta;
-		std::vector<float>   *SctDeltaPhi;
-		std::vector<float>   *SctTrkAngle;
-		std::vector<float>   *SctTrkQ;
-		std::vector<float>   *TRTPull;
-		std::vector<float>   *TRTRes;
-		std::vector<float>   *HitX;
-		std::vector<float>   *HitY;
-		std::vector<float>   *HitZ;
-		std::vector<float>   *HitRadius;
-		std::vector<float>   *HitPhi;
-		std::vector<float>   *HitLocal1;
-		std::vector<float>   *HitLocal2;
-		std::vector<float>   *HitSurfaceX;
-		std::vector<float>   *HitSurfaceY;
-		std::vector<float>   *HitSurfaceZ;
-		std::vector<float>   *HitSurfaceRadius;
-		std::vector<float>   *HitSurfacePhi;
-		std::vector<float>   *HitSurfaceTheta;
-		std::vector<float>   *TrackX;
-		std::vector<float>   *TrackY;
-		std::vector<float>   *TrackZ;
-		std::vector<float>   *TrackMomentumX;
-		std::vector<float>   *TrackMomentumY;
-		std::vector<float>   *TrackMomentumZ;
-		std::vector<float>   *TrackLocal1;
-		std::vector<float>   *TrackLocal2;
+		//std::vector<float>   *PixTrkQ;
+		//std::vector<float>   *PixHoleGloX;
+		//std::vector<float>   *PixHoleGloY;
+		//std::vector<float>   *PixHoleGloZ;
+		//std::vector<float>   *PixHoleLocX;
+		//std::vector<float>   *PixHoleLocY;
+		//std::vector<int>     *PixHoleEtaModule;
+		//std::vector<int>     *PixHolePhiModule;
+		//std::vector<float>   *PixHoleLayer;
+		//std::vector<float>   *PixHoleECBarrel;
+		//std::vector<int>     *PixHoleClNearstSize;
+		//std::vector<float>   *PixHoleLocXClNearst;
+		//std::vector<float>   *PixHoleLocYClNearst;
+		//std::vector<float>   *PixHoleClRowClNearst;
+		//std::vector<float>   *PixHoleClColClNearst;
+		//std::vector<float>   *PixHoleGloZNearst;
+		//std::vector<float>   *PixHoleDeltaRowNearst;
+		//std::vector<float>   *PixHoleDeltaColNearst;
+		//std::vector<float>   *SCTPull;
+		//std::vector<float>   *SCTRes;
+		//std::vector<int>     *SctDetType;
+		//std::vector<float>   *SctTLorPhi;
+		//std::vector<float>   *SctTLorEta;
+		//std::vector<float>   *SctEta;
+		//std::vector<float>   *SctDeltaPhi;
+		//std::vector<float>   *SctTrkAngle;
+		//std::vector<float>   *SctTrkQ;
+		//std::vector<float>   *TRTPull;
+		//std::vector<float>   *TRTRes;
+		//std::vector<float>   *HitX;
+		//std::vector<float>   *HitY;
+		//std::vector<float>   *HitZ;
+		//std::vector<float>   *HitRadius;
+		//std::vector<float>   *HitPhi;
+		//std::vector<float>   *HitLocal1;
+		//std::vector<float>   *HitLocal2;
+		//std::vector<float>   *HitSurfaceX;
+		//std::vector<float>   *HitSurfaceY;
+		//std::vector<float>   *HitSurfaceZ;
+		//std::vector<float>   *HitSurfaceRadius;
+		//std::vector<float>   *HitSurfacePhi;
+		//std::vector<float>   *HitSurfaceTheta;
+		//std::vector<float>   *TrackX;
+		//std::vector<float>   *TrackY;
+		//std::vector<float>   *TrackZ;
+		//std::vector<float>   *TrackMomentumX;
+		//std::vector<float>   *TrackMomentumY;
+		//std::vector<float>   *TrackMomentumZ;
+		//std::vector<float>   *TrackLocal1;
+		//std::vector<float>   *TrackLocal2;
 
 		// List of branches
-		TBranch        *b_run_number;   //!
-		TBranch        *b_event_number;   //!
-		TBranch        *b_ID_of_track_in_event;   //!
-		TBranch        *b_Iteration_of_a_track;   //!
-		TBranch        *b_Number_of_measurements_on_track;   //!
-		TBranch        *b_are_track_states_unbiased;   //!
-		TBranch        *b_Reconstructed_d0;   //!
-		TBranch        *b_Reconstructed_z0;   //!
-		TBranch        *b_Reconstructed_phi0;   //!
+		//TBranch        *b_run_number;   //!
+		//TBranch        *b_event_number;   //!
+		//TBranch        *b_ID_of_track_in_event;   //!
+		//TBranch        *b_Iteration_of_a_track;   //!
+		//TBranch        *b_Number_of_measurements_on_track;   //!
+		//TBranch        *b_are_track_states_unbiased;   //!
+		//TBranch        *b_Reconstructed_d0;   //!
+		//TBranch        *b_Reconstructed_z0;   //!
+		//TBranch        *b_Reconstructed_phi0;   //!
 		TBranch        *b_Reconstructed_theta;   //!
-		TBranch        *b_Reconstructed_eta;   //!
+		//TBranch        *b_Reconstructed_eta;   //!
 		TBranch        *b_Reconstructed_Q_over_p;   //!
-		TBranch        *b_err_d0;   //!
-		TBranch        *b_err_z0;   //!
-		TBranch        *b_err_phi0;   //!
-		TBranch        *b_err_theta;   //!
-		TBranch        *b_err_Q_over_p;   //!
-		TBranch        *b_Reco_Chi2_over_Ndof;   //!
-		TBranch        *b_Reco_Ndof;   //!
-		TBranch        *b_Number_of_holes_on_track;   //!
-		TBranch        *b_HoleDetectorType;   //!
-		TBranch        *b_pullLocX;   //!
-		TBranch        *b_pullLocY;   //!
-		TBranch        *b_residualLocX;   //!
-		TBranch        *b_residualLocY;   //!
-		TBranch        *b_DetectorType;   //!
-		TBranch        *b_outlierFlag;   //!
-		TBranch        *b_FitterStatusCode;   //!
+		//TBranch        *b_err_d0;   //!
+		//TBranch        *b_err_z0;   //!
+		//TBranch        *b_err_phi0;   //!
+		//TBranch        *b_err_theta;   //!
+		//TBranch        *b_err_Q_over_p;   //!
+		//TBranch        *b_Reco_Chi2_over_Ndof;   //!
+		//TBranch        *b_Reco_Ndof;   //!
+		//TBranch        *b_Number_of_holes_on_track;   //!
+		//TBranch        *b_HoleDetectorType;   //!
+		//TBranch        *b_pullLocX;   //!
+		//TBranch        *b_pullLocY;   //!
+		//TBranch        *b_residualLocX;   //!
+		//TBranch        *b_residualLocY;   //!
+		//TBranch        *b_DetectorType;   //!
+		//TBranch        *b_outlierFlag;   //!
+		//TBranch        *b_FitterStatusCode;   //!
 		TBranch        *b_number_Pixel_measurements;   //!
 		TBranch        *b_number_SCT_measurements;   //!
 		TBranch        *b_number_TRT_measurements;   //!
-		TBranch        *b_number_MDT_measurements;   //!
-		TBranch        *b_number_CSC_measurements;   //!
-		TBranch        *b_number_RPC_measurements;   //!
-		TBranch        *b_number_TGC_measurements;   //!
+		//TBranch        *b_number_MDT_measurements;   //!
+		//TBranch        *b_number_CSC_measurements;   //!
+		//TBranch        *b_number_RPC_measurements;   //!
+		//TBranch        *b_number_TGC_measurements;   //!
 		TBranch        *b_PixPullPhi;   //!
 		TBranch        *b_PixPullEta;   //!
 		TBranch        *b_PixResPhi;   //!
 		TBranch        *b_PixResEta;   //!
 		TBranch        *b_PixDetType;   //!
-		TBranch        *b_PixHasGanged;   //!
-		TBranch        *b_PixIsFake;   //!
-		TBranch        *b_PixToT;   //!
+		//TBranch        *b_PixHasGanged;   //!
+		//TBranch        *b_PixIsFake;   //!
+		//TBranch        *b_PixToT;   //!
 		TBranch        *b_PixCharge;   //!
 		TBranch        *b_PixTLorPhi;   //!
-		TBranch        *b_PixTLorEta;   //!
+		//TBranch        *b_PixTLorEta;   //!
 		TBranch        *b_PixBiasVolt;   //!
-		TBranch        *b_PixDepVolt;   //!
+		//TBranch        *b_PixDepVolt;   //!
 		TBranch        *b_PixDigResPhi;   //!
 		TBranch        *b_PixDigResEta;   //!
 		TBranch        *b_PixErrPhi;   //!
 		TBranch        *b_PixErrEta;   //!
-		TBranch        *b_PixLocX;   //!
-		TBranch        *b_PixLocY;   //!
+		//TBranch        *b_PixLocX;   //!
+		//TBranch        *b_PixLocY;   //!
 		TBranch        *b_PixEtaModule;   //!
 		TBranch        *b_PixPhiModule;   //!
-		TBranch        *b_PixGloX;   //!
-		TBranch        *b_PixGloY;   //!
-		TBranch        *b_PixGloZ;   //!
-		TBranch        *b_PixEta;   //!
-		TBranch        *b_PixFirstRow;   //!
-		TBranch        *b_PixFirstCol;   //!
+		//TBranch        *b_PixGloX;   //!
+		//TBranch        *b_PixGloY;   //!
+		//TBranch        *b_PixGloZ;   //!
+		//TBranch        *b_PixEta;   //!
+		//TBranch        *b_PixFirstRow;   //!
+		//TBranch        *b_PixFirstCol;   //!
 		TBranch        *b_PixDeltaRow;   //!
 		TBranch        *b_PixDeltaCol;   //!
-		TBranch        *b_PixDeltaPhi;   //!
-		TBranch        *b_PixDeltaEta;   //!
+		//TBranch        *b_PixDeltaPhi;   //!
+		//TBranch        *b_PixDeltaEta;   //!
 		TBranch        *b_PixOmegaPhi;   //!
 		TBranch        *b_PixOmegaEta;   //!
 		TBranch        *b_PixTrkAngle;   //!
 		TBranch        *b_PixTrkEta;   //!
 		TBranch        *b_PixTrkPt;   //!
-		TBranch        *b_PixTrkQ;   //!
-		TBranch        *b_PixHoleGloX;   //!
-		TBranch        *b_PixHoleGloY;   //!
-		TBranch        *b_PixHoleGloZ;   //!
-		TBranch        *b_PixHoleLocX;   //!
-		TBranch        *b_PixHoleLocY;   //!
-		TBranch        *b_PixHoleEtaModule;   //!
-		TBranch        *b_PixHolePhiModule;   //!
-		TBranch        *b_PixHoleLayer;   //!
-		TBranch        *b_PixHoleECBarrel;   //!
-		TBranch        *b_PixHoleClNearstSize;   //!
-		TBranch        *b_PixHoleLocXClNearst;   //!
-		TBranch        *b_PixHoleLocYClNearst;   //!
-		TBranch        *b_PixHoleClRowClNearst;   //!
-		TBranch        *b_PixHoleClColClNearst;   //!
-		TBranch        *b_PixHoleGloZNearst;   //!
-		TBranch        *b_PixHoleDeltaRowNearst;   //!
-		TBranch        *b_PixHoleDeltaColNearst;   //!
-		TBranch        *b_SCTPull;   //!
-		TBranch        *b_SCTRes;   //!
-		TBranch        *b_SctDetType;   //!
-		TBranch        *b_SctTLorPhi;   //!
-		TBranch        *b_SctTLorEta;   //!
-		TBranch        *b_SctEta;   //!
-		TBranch        *b_SctDeltaPhi;   //!
-		TBranch        *b_SctTrkAngle;   //!
-		TBranch        *b_SctTrkQ;   //!
-		TBranch        *b_TRTPull;   //!
-		TBranch        *b_TRTRes;   //!
-		TBranch        *b_HitX;   //!
-		TBranch        *b_HitY;   //!
-		TBranch        *b_HitZ;   //!
-		TBranch        *b_HitRadius;   //!
-		TBranch        *b_HitPhi;   //!
-		TBranch        *b_HitLocal1;   //!
-		TBranch        *b_HitLocal2;   //!
-		TBranch        *b_HitSurfaceX;   //!
-		TBranch        *b_HitSurfaceY;   //!
-		TBranch        *b_HitSurfaceZ;   //!
-		TBranch        *b_HitSurfaceRadius;   //!
-		TBranch        *b_HitSurfacePhi;   //!
-		TBranch        *b_HitSurfaceTheta;   //!
-		TBranch        *b_TrackX;   //!
-		TBranch        *b_TrackY;   //!
-		TBranch        *b_TrackZ;   //!
-		TBranch        *b_TrackMomentumX;   //!
-		TBranch        *b_TrackMomentumY;   //!
-		TBranch        *b_TrackMomentumZ;   //!
-		TBranch        *b_TrackLocal1;   //!
-		TBranch        *b_TrackLocal2;   //!
+		//TBranch        *b_PixTrkQ;   //!
+		//TBranch        *b_PixHoleGloX;   //!
+		//TBranch        *b_PixHoleGloY;   //!
+		//TBranch        *b_PixHoleGloZ;   //!
+		//TBranch        *b_PixHoleLocX;   //!
+		//TBranch        *b_PixHoleLocY;   //!
+		//TBranch        *b_PixHoleEtaModule;   //!
+		//TBranch        *b_PixHolePhiModule;   //!
+		//TBranch        *b_PixHoleLayer;   //!
+		//TBranch        *b_PixHoleECBarrel;   //!
+		//TBranch        *b_PixHoleClNearstSize;   //!
+		//TBranch        *b_PixHoleLocXClNearst;   //!
+		//TBranch        *b_PixHoleLocYClNearst;   //!
+		//TBranch        *b_PixHoleClRowClNearst;   //!
+		//TBranch        *b_PixHoleClColClNearst;   //!
+		//TBranch        *b_PixHoleGloZNearst;   //!
+		//TBranch        *b_PixHoleDeltaRowNearst;   //!
+		//TBranch        *b_PixHoleDeltaColNearst;   //!
+		//TBranch        *b_SCTPull;   //!
+		//TBranch        *b_SCTRes;   //!
+		//TBranch        *b_SctDetType;   //!
+		//TBranch        *b_SctTLorPhi;   //!
+		//TBranch        *b_SctTLorEta;   //!
+		//TBranch        *b_SctEta;   //!
+		//TBranch        *b_SctDeltaPhi;   //!
+		//TBranch        *b_SctTrkAngle;   //!
+		//TBranch        *b_SctTrkQ;   //!
+		//TBranch        *b_TRTPull;   //!
+		//TBranch        *b_TRTRes;   //!
+		//TBranch        *b_HitX;   //!
+		//TBranch        *b_HitY;   //!
+		//TBranch        *b_HitZ;   //!
+		//TBranch        *b_HitRadius;   //!
+		//TBranch        *b_HitPhi;   //!
+		//TBranch        *b_HitLocal1;   //!
+		//TBranch        *b_HitLocal2;   //!
+		//TBranch        *b_HitSurfaceX;   //!
+		//TBranch        *b_HitSurfaceY;   //!
+		//TBranch        *b_HitSurfaceZ;   //!
+		//TBranch        *b_HitSurfaceRadius;   //!
+		//TBranch        *b_HitSurfacePhi;   //!
+		//TBranch        *b_HitSurfaceTheta;   //!
+		//TBranch        *b_TrackX;   //!
+		//TBranch        *b_TrackY;   //!
+		//TBranch        *b_TrackZ;   //!
+		//TBranch        *b_TrackMomentumX;   //!
+		//TBranch        *b_TrackMomentumY;   //!
+		//TBranch        *b_TrackMomentumZ;   //!
+		//TBranch        *b_TrackLocal1;   //!
+		//TBranch        *b_TrackLocal2;   //!
 
 		PixelNtupleTracks(std::string input,std::string collection);
 		virtual ~PixelNtupleTracks();
@@ -402,99 +402,127 @@ void PixelNtupleTracks::Init(TTree *tree)
    // (once per file to be processed).
 
    // Set object pointer
-   HoleDetectorType = 0;
-   pullLocX = 0;
-   pullLocY = 0;
-   residualLocX = 0;
-   residualLocY = 0;
-   DetectorType = 0;
-   outlierFlag = 0;
+   //HoleDetectorType = 0;
+   //pullLocX = 0;
+   //pullLocY = 0;
+   //residualLocX = 0;
+   //residualLocY = 0;
+   //DetectorType = 0;
+   //outlierFlag = 0;
    PixPullPhi = 0;
    PixPullEta = 0;
    PixResPhi = 0;
    PixResEta = 0;
    PixDetType = 0;
-   PixHasGanged = 0;
-   PixIsFake = 0;
-   PixToT = 0;
-	 PixCharge = 0;
+   //PixHasGanged = 0;
+   //PixIsFake = 0;
+   //PixToT = 0;
+   PixCharge = 0;
    PixTLorPhi = 0;
-   PixTLorEta = 0;
+   //PixTLorEta = 0;
    PixBiasVolt = 0;
-   PixDepVolt = 0;
+   //PixDepVolt = 0;
    PixDigResPhi = 0;
    PixDigResEta = 0;
    PixErrPhi = 0;
    PixErrEta = 0;
-   PixLocX = 0;
-   PixLocY = 0;
+   //PixLocX = 0;
+   //PixLocY = 0;
    PixEtaModule = 0;
    PixPhiModule = 0;
-   PixGloX = 0;
-   PixGloY = 0;
-   PixGloZ = 0;
-   PixEta = 0;
-   PixFirstRow = 0;
-   PixFirstCol = 0;
+   //PixGloX = 0;
+   //PixGloY = 0;
+   //PixGloZ = 0;
+   //PixEta = 0;
+   //PixFirstRow = 0;
+   //PixFirstCol = 0;
    PixDeltaRow = 0;
    PixDeltaCol = 0;
-   PixDeltaPhi = 0;
-   PixDeltaEta = 0;
+   //PixDeltaPhi = 0;
+   //PixDeltaEta = 0;
    PixOmegaPhi = 0;
    PixOmegaEta = 0;
    PixTrkAngle = 0;
    PixTrkEta = 0;
    PixTrkPt = 0;
-   PixTrkQ = 0;
-   PixHoleGloX = 0;
-   PixHoleGloY = 0;
-   PixHoleGloZ = 0;
-   PixHoleLocX = 0;
-   PixHoleLocY = 0;
-   PixHoleEtaModule = 0;
-   PixHolePhiModule = 0;
-   PixHoleLayer = 0;
-   PixHoleECBarrel = 0;
-   PixHoleClNearstSize = 0;
-   PixHoleLocXClNearst = 0;
-   PixHoleLocYClNearst = 0;
-   PixHoleClRowClNearst = 0;
-   PixHoleClColClNearst = 0;
-   PixHoleGloZNearst = 0;
-   PixHoleDeltaRowNearst = 0;
-   PixHoleDeltaColNearst = 0;
-   SCTPull = 0;
-   SCTRes = 0;
-   SctDetType = 0;
-   SctTLorPhi = 0;
-   SctTLorEta = 0;
-   SctEta = 0;
-   SctDeltaPhi = 0;
-   SctTrkAngle = 0;
-   SctTrkQ = 0;
-   TRTPull = 0;
-   TRTRes = 0;
-   HitX = 0;
-   HitY = 0;
-   HitZ = 0;
-   HitRadius = 0;
-   HitPhi = 0;
-   HitLocal1 = 0;
-   HitLocal2 = 0;
-   HitSurfaceX = 0;
-   HitSurfaceY = 0;
-   HitSurfaceZ = 0;
-   HitSurfaceRadius = 0;
-   HitSurfacePhi = 0;
-   HitSurfaceTheta = 0;
-   TrackX = 0;
-   TrackY = 0;
-   TrackZ = 0;
-   TrackMomentumX = 0;
-   TrackMomentumY = 0;
-   TrackMomentumZ = 0;
-   TrackLocal1 = 0;
-   TrackLocal2 = 0;
+   //PixTrkQ = 0;
+   //PixHoleGloX = 0;
+   //PixHoleGloY = 0;
+   //PixHoleGloZ = 0;
+   //PixHoleLocX = 0;
+   //PixHoleLocY = 0;
+   //PixHoleEtaModule = 0;
+   //PixHolePhiModule = 0;
+   //PixHoleLayer = 0;
+   //PixHoleECBarrel = 0;
+   //PixHoleClNearstSize = 0;
+   //PixHoleLocXClNearst = 0;
+   //PixHoleLocYClNearst = 0;
+   //PixHoleClRowClNearst = 0;
+   //PixHoleClColClNearst = 0;
+   //PixHoleGloZNearst = 0;
+   //PixHoleDeltaRowNearst = 0;
+   //PixHoleDeltaColNearst = 0;
+   //SCTPull = 0;
+   //SCTRes = 0;
+   //SctDetType = 0;
+   //SctTLorPhi = 0;
+   //SctTLorEta = 0;
+   //SctEta = 0;
+   //SctDeltaPhi = 0;
+   //SctTrkAngle = 0;
+   //SctTrkQ = 0;
+   //TRTPull = 0;
+   //TRTRes = 0;
+   //HitX = 0;
+   //HitY = 0;
+   //HitZ = 0;
+   //HitRadius = 0;
+   //HitPhi = 0;
+   //HitLocal1 = 0;
+   //HitLocal2 = 0;
+   //HitSurfaceX = 0;
+   //HitSurfaceY = 0;
+   //HitSurfaceZ = 0;
+   //HitSurfaceRadius = 0;
+   //HitSurfacePhi = 0;
+   //HitSurfaceTheta = 0;
+   //TrackX = 0;
+   //TrackY = 0;
+   //TrackZ = 0;
+   //TrackMomentumX = 0;
+   //TrackMomentumY = 0;
+   //TrackMomentumZ = 0;
+   //TrackLocal1 = 0;
+   //TrackLocal2 = 0;
+   
+   b_Reconstructed_theta = nullptr;
+   b_Reconstructed_Q_over_p = nullptr;
+   b_number_Pixel_measurements = nullptr;
+   b_number_SCT_measurements = nullptr;
+   b_number_TRT_measurements = nullptr;
+   b_PixPullPhi = nullptr;
+   b_PixPullEta = nullptr;
+   b_PixResPhi = nullptr;
+   b_PixResEta = nullptr;
+   b_PixDetType = nullptr;
+   b_PixCharge = nullptr;
+   b_PixTLorPhi = nullptr;
+   b_PixBiasVolt = nullptr;
+   b_PixDigResPhi = nullptr;
+   b_PixDigResEta = nullptr;
+   b_PixErrPhi = nullptr;
+   b_PixErrEta = nullptr;
+   b_PixEtaModule = nullptr;
+   b_PixPhiModule = nullptr;
+   b_PixDeltaRow = nullptr;
+   b_PixDeltaCol = nullptr;
+   b_PixOmegaPhi = nullptr;
+   b_PixOmegaEta = nullptr;
+   b_PixTrkAngle = nullptr;
+   b_PixTrkEta = nullptr;
+   b_PixTrkPt = nullptr;
+
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;

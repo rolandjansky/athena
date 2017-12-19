@@ -45,10 +45,9 @@ atlas_add_test( GraphView64 SCRIPT test/test_graph_view.sh
 
 atlas_add_test( merge SCRIPT test/test_merge.sh)
 
-#not working at the moment
-#atlas_add_test( IDRunMC     SCRIPT test/test_id_run_mc.sh
-#                PROPERTIES TIMEOUT 500 
-#              )
+atlas_add_test( IDRunMC     SCRIPT test/test_id_run_mc.sh
+                PROPERTIES TIMEOUT 500 
+              )
 
 atlas_add_test( IDRunData     SCRIPT test/test_id_run_data.sh
                 PROPERTIES TIMEOUT 500 
@@ -74,6 +73,7 @@ atlas_add_test( idCaloRunData   SCRIPT test/test_id_calo_run_data.sh
               )
 
 atlas_add_test( EmuL1Decoding SCRIPT test/test_emu_l1_decoding.sh)
+atlas_add_test( EmuStepProcessing SCRIPT test/test_emu_step_processing.sh)
 
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )

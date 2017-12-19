@@ -2,15 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GEOPERFUTILS_H_
-#define _GEOPERFUTILS_H_
+#ifndef GEOMODELKERNEL_GEOPERFUTILS_H
+#define GEOMODELKERNEL_GEOPERFUTILS_H
 
-// This is a collection of performance utilities used to 
-// benchmark the GeoModel.  Currently it includes a routine
-// to fetch the current memory consumption in kilobytes and
-// a routine to fetch the current CPU consumption in jiffies.
-//
-// Joe Boudreau March 2005.
+/**
+ * @class GeoPerfUtils
+ *
+ * @brief This is a collection of performance utilities used to 
+ * benchmark the GeoModel.  Currently it includes a routine
+ * to fetch the current memory consumption in kilobytes and
+ * a routine to fetch the current CPU consumption in jiffies.
+ *
+ * Joe Boudreau March 2005.
+ */
 
 class GeoPerfUtils {
 

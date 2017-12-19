@@ -22,21 +22,12 @@ class IProxyDict;
 
 class IHiveStore : virtual public INamedInterface {
 public:
+  DeclareInterfaceID (INamedInterface, 2, 0);
   virtual ~IHiveStore() {}
 
   virtual IProxyDict* hiveProxyDict() = 0;
-
-
-  /// Gaudi boilerplate
-  static const InterfaceID& interfaceID();
 };
 
-inline
-const InterfaceID& 
-IHiveStore::interfaceID() {
-  static const InterfaceID IID("IHiveStore", 1, 0);
-  return IID;
-}
 #endif // ATHENAKERNEL_IHIVESTORE_H
 
 

@@ -23,7 +23,7 @@ namespace JiveXML {
    **/
   CompositeParticleRetriever::CompositeParticleRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("CompositeParticle"){
+    m_typeName("CompositeParticle"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -88,7 +88,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(cpcont->size());
     DataVect eta; eta.reserve(cpcont->size());
@@ -119,7 +119,7 @@ namespace JiveXML {
     CompositeParticleContainer::const_iterator compPartItrE = cpcont->end();
 
     std::string typeLabel = "n_a"; // same as in TruthParticleRetriever
-    int m_pdgId = 0;
+    int pdgId2 = 0;
     for (; compPartItr != compPartItrE; ++compPartItr) {
       phi.push_back(DataType((*compPartItr)->phi()));
       eta.push_back(DataType((*compPartItr)->eta()));
@@ -133,50 +133,50 @@ namespace JiveXML {
       charge.push_back( DataType( (*compPartItr)->charge() ));
       dataType.push_back( DataType( (*compPartItr)->dataType() ));
       typeLabel = "n_a";
-      m_pdgId = (*compPartItr)->pdgId();
-      pdgId.push_back( DataType( m_pdgId ));
-      if( abs(m_pdgId) == 11) typeLabel = "EV_Electron";
-      if( abs(m_pdgId) == 12) typeLabel = "EV_NeutrinoElectron";
-      if( abs(m_pdgId) == 13) typeLabel = "EV_Muon";
-      if( abs(m_pdgId) == 14) typeLabel = "EV_NeutrinoMuon";
-      if( abs(m_pdgId) == 15) typeLabel = "EV_Tau";
-      if( abs(m_pdgId) == 16) typeLabel = "EV_NeutrinoTau";
-      if( abs(m_pdgId) == 6) typeLabel = "EV_Top";  
-      if( abs(m_pdgId) == 5) typeLabel = "EV_Bottom";
-      if( abs(m_pdgId) == 22) typeLabel = "EV_Photon";
-      if( abs(m_pdgId) == 23) typeLabel = "EV_Z0";
-      if( m_pdgId == 24) typeLabel = "EV_Wplus";
-      if( m_pdgId == -24) typeLabel = "EV_Wminus";
+      pdgId2 = (*compPartItr)->pdgId();
+      pdgId.push_back( DataType( pdgId2 ));
+      if( abs(pdgId2) == 11) typeLabel = "EV_Electron";
+      if( abs(pdgId2) == 12) typeLabel = "EV_NeutrinoElectron";
+      if( abs(pdgId2) == 13) typeLabel = "EV_Muon";
+      if( abs(pdgId2) == 14) typeLabel = "EV_NeutrinoMuon";
+      if( abs(pdgId2) == 15) typeLabel = "EV_Tau";
+      if( abs(pdgId2) == 16) typeLabel = "EV_NeutrinoTau";
+      if( abs(pdgId2) == 6) typeLabel = "EV_Top";  
+      if( abs(pdgId2) == 5) typeLabel = "EV_Bottom";
+      if( abs(pdgId2) == 22) typeLabel = "EV_Photon";
+      if( abs(pdgId2) == 23) typeLabel = "EV_Z0";
+      if( pdgId2 == 24) typeLabel = "EV_Wplus";
+      if( pdgId2 == -24) typeLabel = "EV_Wminus";
       typeEV.push_back( DataType( typeLabel ));
       label.push_back( DataType( "none" ) );
 
-//    childID.push_back( DataType( "none" ) ); // placholders
+//    childID.push_back( DataType( "none" ) ); // placeholders
 //    motherID.push_back( DataType( "none" ) );
     }
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["et"] = et;
-    m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
-    m_DataMap["pdgId"] = pdgId;
-    m_DataMap["typeEV"] = typeEV;
-    m_DataMap["charge"] = charge;
-    m_DataMap["dataType"] = dataType;
-    m_DataMap["label"] = label;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["et"] = et;
+    DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["px"] = px;
+    DataMap["py"] = py;
+    DataMap["pz"] = pz;
+    DataMap["pdgId"] = pdgId;
+    DataMap["typeEV"] = typeEV;
+    DataMap["charge"] = charge;
+    DataMap["dataType"] = dataType;
+    DataMap["label"] = label;
     
-//    m_DataMap["childID"] = childID;
-//    m_DataMap["motherID"] = motherID;
+//    DataMap["childID"] = childID;
+//    DataMap["motherID"] = motherID;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

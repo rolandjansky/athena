@@ -147,7 +147,7 @@ StatusCode LArPedestalMaker::stop()
   } 
   
   // Create the LArPedestalComplete object
-  LArPedestalComplete* larPedestalComplete = new LArPedestalComplete();
+  auto larPedestalComplete = std::make_unique<LArPedestalComplete>();
 
   ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
   ATH_CHECK( larPedestalComplete->initialize() );
@@ -156,8 +156,8 @@ StatusCode LArPedestalMaker::stop()
  for (int gain=0;gain<(int)CaloGain::LARNGAIN;gain++) {
    //log << MSG::INFO << "Gain " << gain << ", m_pedestal size for this gain = " <<  m_pedestal[gain].size() << endmsg;
 
-   LARPEDMAP::ConstConditionsMapIterator cell_it=m_pedestal.begin(gain);
-   LARPEDMAP::ConstConditionsMapIterator cell_it_e=m_pedestal.end(gain);
+   LARPEDMAP::ConditionsMapIterator cell_it=m_pedestal.begin(gain);
+   LARPEDMAP::ConditionsMapIterator cell_it_e=m_pedestal.end(gain);
 
    //Inner loop goes over the cells.
    int n_zero,n_min, n_max, n_cur;
@@ -203,8 +203,7 @@ StatusCode LArPedestalMaker::stop()
  ATH_MSG_INFO ( " Summary : Number of FCAL      cells side A or C (connected+unconnected):  1792 " );
  
  // Record LArPedestalComplete
- ATH_CHECK( detStore()->record(larPedestalComplete,m_keyoutput) );
- ATH_CHECK( detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete) );
+ ATH_CHECK( detStore()->record(std::move(larPedestalComplete),m_keyoutput) );
  
  ATH_MSG_INFO ( ">>> End of finalize" );
  return StatusCode::SUCCESS;

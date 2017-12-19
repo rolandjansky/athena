@@ -16,13 +16,14 @@ using namespace std;
 
 //----------------------------------------------------------------------
 //constructor
-SCT_CalibDefectData::SCT_CalibDefectData()
+SCT_CalibDefectData::SCT_CalibDefectData():
+  m_defectMap{}
 {}
 
 //----------------------------------------------------------------------
 //destructor
 SCT_CalibDefectData::~SCT_CalibDefectData()
-{ }
+{}
 
 //----------------------------------------------------------------------
 // Add map entries of defects on module
@@ -33,7 +34,7 @@ bool SCT_CalibDefectData::addModule(const Identifier & moduleId, const CalibModu
 
 //----------------------------------------------------------------------
 // Search the maps for a module, returns empty module container if not found
-SCT_CalibDefectData::CalibModuleDefects SCT_CalibDefectData::findModule(const Identifier & moduleId)
+SCT_CalibDefectData::CalibModuleDefects SCT_CalibDefectData::findModule(const Identifier & moduleId) const
 {
   // Create container for the defect data
   SCT_CalibDefectData::CalibModuleDefects ModuleDefects;

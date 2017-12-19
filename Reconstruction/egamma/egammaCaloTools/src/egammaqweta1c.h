@@ -16,6 +16,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/Iegammaqweta1c.h"
 
+// Why is this an alg-tool and not just a free-standing function?
+// a header needs to be made public for trigger use in that case.
+
 class egammaqweta1c : public AthAlgTool, virtual public Iegammaqweta1c {
 
  public:
@@ -25,21 +28,17 @@ class egammaqweta1c : public AthAlgTool, virtual public Iegammaqweta1c {
 		const std::string& name,
 		const IInterface* parent);
   /** @brief Destructor*/
-  ~egammaqweta1c();  
+  virtual ~egammaqweta1c();  
   
   /** @brief initialize method*/
-  StatusCode initialize();
-  /** @brief execute method*/
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
   /** @brief finalize method*/
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /** @brief returns corrected width at eta*/
-  float Correct(float eta, float etacell, float width);
+  virtual float Correct(float eta, float etacell, float width) const override final;
   /** @brief returns relative position within the cell*/
-  double RelPosition(float eta, float etacell);
- private:
-
+  virtual double RelPosition(float eta, float etacell) const override final;
 };
 
 #endif

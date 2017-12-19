@@ -38,22 +38,22 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_MM::PRDCollHandle_MM(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::MM,cd,key), d(new Imp) //,
+  : PRDCollHandleBase(PRDDetType::MM,cd,key), m_d(new Imp) //,
   // m_highLightMasked(false), m_highLightADCBelow(-1), m_projection(PRDCollHandle_MM::NONE)
 {
-  d->theclass = this;
-  d->minHitsPerStation = 0;//If the intention is no cut, then put to 0 instead of 1.
-  d->allowedADCValues = VP1Interval();
-  d->excludeMaskedHits = true;
-  d->onlyShowActive = true;
-  d->projectionsEnabled = false;
-  d->appropriateprojection = 0;//none
+  m_d->theclass = this;
+  m_d->minHitsPerStation = 0;//If the intention is no cut, then put to 0 instead of 1.
+  m_d->allowedADCValues = VP1Interval();
+  m_d->excludeMaskedHits = true;
+  m_d->onlyShowActive = true;
+  m_d->projectionsEnabled = false;
+  m_d->appropriateprojection = 0;//none
 }
 
 //____________________________________________________________________
 PRDCollHandle_MM::~PRDCollHandle_MM()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -75,18 +75,18 @@ void PRDCollHandle_MM::postLoadInitialisation()
   std::vector<PRDHandleBase*>::iterator it(getPrdHandles().begin()),itE(getPrdHandles().end());
   std::map<const MuonGM::MuonStation*,unsigned>::iterator itStation;
   for (;it!=itE;++it) {
-    itStation = d->mm2stationcounter.find(static_cast<PRDHandle_MM*>(*it)->mm()->detectorElement()->parentMuonStation());
-    if (itStation!=d->mm2stationcounter.end())
+    itStation = m_d->mm2stationcounter.find(static_cast<PRDHandle_MM*>(*it)->mm()->detectorElement()->parentMuonStation());
+    if (itStation!=m_d->mm2stationcounter.end())
       ++(itStation->second);
     else
-      d->mm2stationcounter[static_cast<PRDHandle_MM*>(*it)->mm()->detectorElement()->parentMuonStation()]=1;
+      m_d->mm2stationcounter[static_cast<PRDHandle_MM*>(*it)->mm()->detectorElement()->parentMuonStation()]=1;
   }
 }
 
 //____________________________________________________________________
 void PRDCollHandle_MM::eraseEventDataSpecific()
 {
-  d->mm2stationcounter.clear();
+  m_d->mm2stationcounter.clear();
 }
 
 //____________________________________________________________________
@@ -96,25 +96,25 @@ bool PRDCollHandle_MM::cut(PRDHandleBase*handlebase)
   PRDHandle_MM * handle = static_cast<PRDHandle_MM*>(handlebase);
   assert(handle);
 
-  // if (d->excludeMaskedHits) {
+  // if (m_d->excludeMaskedHits) {
   //   // messageVerbose(QString("Handle status = ")+handle->driftCircleStatus()+QString(", GUI: ")+common()->controller()->mdt_cutMdtDriftCircleStatus() );
   //   if(!(handle->driftCircleStatus()==common()->controller()->mdt_cutMdtDriftCircleStatus()))
   //     return false;
   // }
 
-  // if (!d->allowedADCValues.isAllR()) {
-  //   if (!d->allowedADCValues.contains(handle->ADC()))
+  // if (!m_d->allowedADCValues.isAllR()) {
+  //   if (!m_d->allowedADCValues.contains(handle->ADC()))
   //     return false;
   // }
 
-  if (d->minHitsPerStation) {
-    assert(d->mm2stationcounter.find(handle->mm()->detectorElement()->parentMuonStation())!=d->mm2stationcounter.end());
-    if (d->mm2stationcounter[handle->mm()->detectorElement()->parentMuonStation()]<d->minHitsPerStation)
+  if (m_d->minHitsPerStation) {
+    assert(m_d->mm2stationcounter.find(handle->mm()->detectorElement()->parentMuonStation())!=m_d->mm2stationcounter.end());
+    if (m_d->mm2stationcounter[handle->mm()->detectorElement()->parentMuonStation()]<m_d->minHitsPerStation)
       return false;
   }
 
   // messageVerbose("PRDCollHandle_MM::cut: ");
-  if (d->onlyShowActive) {
+  if (m_d->onlyShowActive) {
     if (!common()->touchedMuonChamberHelper()->isTouchedByTrack(handle->parentMuonChamberPV()))
       return false;
   }
@@ -157,10 +157,10 @@ void PRDCollHandle_MM::setMinNHitsPerStation(unsigned minnhits)
 {
   if (minnhits==1)
     minnhits = 0;//Since 0 and 1 gives same result, we map all 1's to 0's to avoid unnecessary cut rechecks.
-  if (d->minHitsPerStation==minnhits)
+  if (m_d->minHitsPerStation==minnhits)
     return;
-  bool cut_relaxed = minnhits < d->minHitsPerStation;
-  d->minHitsPerStation=minnhits;
+  bool cut_relaxed = minnhits < m_d->minHitsPerStation;
+  m_d->minHitsPerStation=minnhits;
   if (cut_relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else
@@ -170,10 +170,10 @@ void PRDCollHandle_MM::setMinNHitsPerStation(unsigned minnhits)
 // //____________________________________________________________________
 // void PRDCollHandle_MM::setAllowedADCValues(VP1Interval newinterval)
 // {
-//   if (d->allowedADCValues==newinterval)
+//   if (m_d->allowedADCValues==newinterval)
 //     return;
-//   VP1Interval old(d->allowedADCValues);
-//   d->allowedADCValues = newinterval;
+//   VP1Interval old(m_d->allowedADCValues);
+//   m_d->allowedADCValues = newinterval;
 //   if (newinterval.contains(old)) {
 //     recheckCutStatusOfAllNotVisibleHandles();//cut relaxed
 //   } else {
@@ -187,10 +187,10 @@ void PRDCollHandle_MM::setMinNHitsPerStation(unsigned minnhits)
 // //____________________________________________________________________
 // void PRDCollHandle_MM::setExcludeMaskedHits(bool b)
 // {
-//   if (d->excludeMaskedHits==b)
+//   if (m_d->excludeMaskedHits==b)
 //     return;
 //   bool cut_relaxed = !b;
-//   d->excludeMaskedHits=b;
+//   m_d->excludeMaskedHits=b;
 //   if (cut_relaxed)
 //     recheckCutStatusOfAllNotVisibleHandles();
 //   else
@@ -201,9 +201,9 @@ void PRDCollHandle_MM::setMinNHitsPerStation(unsigned minnhits)
 // void PRDCollHandle_MM::setStatus(QString b)
 // {
 //   // messageVerbose(QString("SetStatus: ")+b);
-//   if (d->status==b)
+//   if (m_d->status==b)
 //     return;
-//   d->status=b;
+//   m_d->status=b;
 //   recheckCutStatusOfAllHandles();
 // }
 
@@ -251,29 +251,29 @@ void PRDCollHandle_MM::setMinNHitsPerStation(unsigned minnhits)
 // //____________________________________________________________________
 // void PRDCollHandle_MM::setEnableProjections( bool b )
 // {
-//   if (d->projectionsEnabled==b)
+//   if (m_d->projectionsEnabled==b)
 //     return;
-//   d->projectionsEnabled=b;
-//   d->updateProjectionFlag();
+//   m_d->projectionsEnabled=b;
+//   m_d->updateProjectionFlag();
 // }
 // 
 // //____________________________________________________________________
 // void PRDCollHandle_MM::setAppropriateProjection( int i ) {
-//   if (d->appropriateprojection==i)
+//   if (m_d->appropriateprojection==i)
 //     return;
-//   d->appropriateprojection=i;
-//   d->updateProjectionFlag();
+//   m_d->appropriateprojection=i;
+//   m_d->updateProjectionFlag();
 // }
 
 //____________________________________________________________________
 void PRDCollHandle_MM::setLimitToActiveChambers(bool l)
 {
-  messageVerbose("PRDCollHandle_MM::setLimitToActiveChambers => "+str(l)+" current="+str(d->onlyShowActive));
+  messageVerbose("PRDCollHandle_MM::setLimitToActiveChambers => "+str(l)+" current="+str(m_d->onlyShowActive));
 
-  if (d->onlyShowActive==l)
+  if (m_d->onlyShowActive==l)
     return;
-  bool cut_relaxed=(d->onlyShowActive);
-  d->onlyShowActive=l;
+  bool cut_relaxed=(m_d->onlyShowActive);
+  m_d->onlyShowActive=l;
   if (cut_relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else

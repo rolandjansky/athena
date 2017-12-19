@@ -49,13 +49,13 @@ StatusCode CondAlgY::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_cs->regHandle(this, m_wch1, m_wch1.dbKey()).isFailure()) {
+  if (m_cs->regHandle(this, m_wch1).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wch1.fullKey() 
                   << " with CondSvc");
     return StatusCode::FAILURE;
   }
 
-  if (m_cs->regHandle(this, m_wch2, m_wch2.dbKey()).isFailure()) {
+  if (m_cs->regHandle(this, m_wch2).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wch2.fullKey() 
                   << " with CondSvc");
     return StatusCode::FAILURE;

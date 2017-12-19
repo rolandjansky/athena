@@ -108,7 +108,7 @@ TrackSysCommonData * AssociatedObjectHandleBase::common() const
 
 //____________________________________________________________________
 AssociatedObjectHandleBase::AssociatedObjectHandleBase(TrackHandleBase*th)
-  : d(new Imp),m_trackHandle(th), m_visible(false), m_pickStyle(UNPICKABLE/*better default?*/)
+  : m_d(new Imp),m_trackHandle(th), m_visible(false), m_pickStyle(UNPICKABLE/*better default?*/)
 {
   ++Imp::nascobjs;
 }
@@ -116,11 +116,11 @@ AssociatedObjectHandleBase::AssociatedObjectHandleBase(TrackHandleBase*th)
 //____________________________________________________________________
 AssociatedObjectHandleBase::~AssociatedObjectHandleBase()
 {
-  if (d->attachhandle&&m_visible&&d->sep_simple&&d->sep_detailed) {
-    d->attachhandle->detachNodes(d->sep_simple,d->sep_detailed);
+  if (m_d->attachhandle&&m_visible&&m_d->sep_simple&&m_d->sep_detailed) {
+    m_d->attachhandle->detachNodes(m_d->sep_simple,m_d->sep_detailed);
   }
-  d->ensureShapesErased(this );
-  delete d;
+  m_d->ensureShapesErased(this );
+  delete m_d;
   --Imp::nascobjs;
 
 }
@@ -173,10 +173,10 @@ void AssociatedObjectHandleBase::setVisible( bool b )
     return;
   m_visible=b;
   if (b) {
-    d->ensureShapesBuild(this);
-    d->attach(this);
+    m_d->ensureShapesBuild(this);
+    m_d->attach(this);
   } else {
-    d->detach();
+    m_d->detach();
   }
 }
 
@@ -186,23 +186,23 @@ void AssociatedObjectHandleBase::update3DObjects()
   VP1Msg::messageVerbose("AssociatedObjectHandleBase update3DObjects.");
   
   if (m_visible) {
-    d->detach();
-    d->ensureShapesErased(this);
-    d->ensureShapesBuild(this);
-    d->attach(this);
+    m_d->detach();
+    m_d->ensureShapesErased(this);
+    m_d->ensureShapesBuild(this);
+    m_d->attach(this);
   } else {
-    d->ensureShapesErased(this);
+    m_d->ensureShapesErased(this);
   }
 }
 
 //____________________________________________________________________
 SoSeparator* AssociatedObjectHandleBase::shapeSimple() const
 {
-  return d->sep_simple;
+  return m_d->sep_simple;
 }
 
 //____________________________________________________________________
 SoSeparator* AssociatedObjectHandleBase::shapeDetailed() const
 {
-  return d->sep_detailed;
+  return m_d->sep_detailed;
 }

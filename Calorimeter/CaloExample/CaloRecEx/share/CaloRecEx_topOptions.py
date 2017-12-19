@@ -45,7 +45,12 @@ rec.doEgamma = False
 
 jp.AthenaCommonFlags.EvtMax=5
 
+
 include ("RecExCond/RecExCommon_flags.py")
+
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 # Flags that are defined in python are best set here
 # switch off ID and muons

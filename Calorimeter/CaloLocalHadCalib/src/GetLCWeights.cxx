@@ -34,11 +34,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "AthenaKernel/errorcheck.h"
-//#include "GaudiKernel/ISvcLocator.h"
-//#include "GaudiKernel/StatusCode.h"
-//#include "GaudiKernel/MsgStream.h"
 
-//#include "StoreGate/StoreGateSvc.h" 
 #include "TFile.h"
 #include "TProfile2D.h"
 #include "TString.h"
@@ -182,36 +178,36 @@ StatusCode GetLCWeights::initialize()
 
 
   if ( m_NormalizationType == "Lin" ) {
-    msg(MSG::INFO) << "Using weighting proportional to E_calib" << endmsg;
+    ATH_MSG_INFO( "Using weighting proportional to E_calib" );
     m_NormalizationTypeNumber = GetLCDefs::LIN;
   }
   else if ( m_NormalizationType == "Log" ) {
-    msg(MSG::INFO) << "Using weighting proportional to log(E_calib)" << endmsg;
+    ATH_MSG_INFO( "Using weighting proportional to log(E_calib)" );
     m_NormalizationTypeNumber = GetLCDefs::LOG;
   }
   else if ( m_NormalizationType == "NClus" ) {
-    msg(MSG::INFO) << "Using weighting proportional to 1/N_Clus_E_calib>0" << endmsg;
+    ATH_MSG_INFO( "Using weighting proportional to 1/N_Clus_E_calib>0" );
     m_NormalizationTypeNumber = GetLCDefs::NCLUS;
   }
   else {
-    msg(MSG::INFO) << "Using constant weighting" << endmsg;
+    ATH_MSG_INFO( "Using constant weighting" );
     m_NormalizationTypeNumber = GetLCDefs::CONST;
   }
 
   if ( m_ClassificationType == "None" ) {
-    msg(MSG::INFO) << "Expecting single particle input" << endmsg;
+    ATH_MSG_INFO( "Expecting single particle input" );
     m_ClassificationTypeNumber = GetLCDefs::NONE;
   }
   else if ( m_ClassificationType == "ParticleID_EM" ) {
-    msg(MSG::INFO) << "Expecting ParticleID simulation as input -- use EM type clusters only" << endmsg;
+    ATH_MSG_INFO( "Expecting ParticleID simulation as input -- use EM type clusters only" );
     m_ClassificationTypeNumber = GetLCDefs::PARTICLEID_EM;
   }
   else if ( m_ClassificationType == "ParticleID_HAD" ) {
-    msg(MSG::INFO) << "Expecting ParticleID simulation as input -- use HAD type clusters only" << endmsg;
+    ATH_MSG_INFO( "Expecting ParticleID simulation as input -- use HAD type clusters only" );
     m_ClassificationTypeNumber = GetLCDefs::PARTICLEID_HAD;
   }
   else {
-    msg(MSG::WARNING) << " unknown classification type " << m_ClassificationType << " given! Using None instead" << endmsg;
+    ATH_MSG_WARNING( " unknown classification type " << m_ClassificationType << " given! Using None instead" );
     m_ClassificationTypeNumber = GetLCDefs::NONE;
   }
 
@@ -224,7 +220,7 @@ StatusCode GetLCWeights::initialize()
       }
     }
     if ( theSampling == CaloSampling::Unknown ) {
-      msg(MSG::ERROR) << "Calorimeter sampling " 
+      ATH_MSG_ERROR( "Calorimeter sampling " 
 	  << m_dimensions[isamp][0].title() 
           << " is not a valid Calorimeter sampling name and will be ignored! "
           << "Valid names are: ";
@@ -235,7 +231,7 @@ StatusCode GetLCWeights::initialize()
 	else 
 	  msg() << ".";
       }
-      msg() << endmsg;
+      msg() );
     }
     else {
       m_isampmap[theSampling].resize(4,-1);
@@ -268,9 +264,7 @@ StatusCode GetLCWeights::initialize()
 	  iweight = idim;
       }
       if ( ilogE < 0 || ilogrho < 0 || iweight < 0 ) {
-	msg(MSG::FATAL)
-	    << " Mandatory dimension log10E, log10rho or weight missing ..."
-	    << endmsg;
+	ATH_MSG_FATAL( " Mandatory dimension log10E, log10rho or weight missing ..." );
 	return StatusCode::FAILURE;
       }
       int nside = (iside>=0?m_dimensions[isamp][iside].bins():1);
@@ -348,7 +342,7 @@ StatusCode GetLCWeights::initialize()
 
 StatusCode GetLCWeights::finalize()
 {
-  msg(MSG::INFO) << "Writing out histograms" << endmsg;
+  ATH_MSG_INFO( "Writing out histograms" );
   m_outputFile->cd();
   for(unsigned int i=0;i<m_weight.size();i++) {
     for(unsigned int j=0;j<m_weight[i].size();j++) {
@@ -369,8 +363,8 @@ StatusCode GetLCWeights::execute()
   StatusCode sc = evtStore()->retrieve(cc,m_clusterCollName);
 
   if(sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Could not retrieve ClusterContainer " 
-	<< m_clusterCollName << " from StoreGate" << endmsg;
+    ATH_MSG_ERROR( "Could not retrieve ClusterContainer " 
+	<< m_clusterCollName << " from StoreGate" );
     return sc;
   }
 
@@ -380,13 +374,13 @@ StatusCode GetLCWeights::execute()
   for (iter=m_CalibrationHitContainerNames.begin();
        iter!=m_CalibrationHitContainerNames.end();iter++) {
     if ( !evtStore()->contains<CaloCalibrationHitContainer>(*iter)) {
-      msg(MSG::ERROR) << "SG does not contain calibration hit container " << *iter << endmsg;
+      ATH_MSG_ERROR( "SG does not contain calibration hit container " << *iter );
       return StatusCode::FAILURE;
     }
     else {
       sc = evtStore()->retrieve(cchc,*iter);
       if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Cannot retrieve calibration hit container " << *iter << endmsg;
+	ATH_MSG_ERROR( "Cannot retrieve calibration hit container " << *iter );
 	return sc;
       } 
       else
@@ -419,13 +413,13 @@ StatusCode GetLCWeights::execute()
     
     double eC=999; 
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eC)) {
-      msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT");
       return StatusCode::FAILURE;      
     }
     if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
       double emFrac=-999; 
       if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)){
-	msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_FAC_EM" <<endmsg;
+	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM");
 	return StatusCode::FAILURE;
       }
       if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
@@ -496,14 +490,14 @@ StatusCode GetLCWeights::execute()
       double eng = pClus->e();
       double eCalib=-999;  
       if (!pClus->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eCalib)) {
-	msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endmsg;
+	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT");
 	return StatusCode::FAILURE;
       }
       if ( eng > 0 && eCalib > 0 ) {
 	if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
 	  double emFrac=-999;
 	  if (!pClus->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)) {
-	    msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_FAC_EM" <<endmsg;
+	    ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM");
 	    return StatusCode::FAILURE;
 	  }
 	  if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
@@ -532,9 +526,9 @@ StatusCode GetLCWeights::execute()
 	      isideCell = (int)(nside*(((pCell->eta()<0?-1.0:1.0) - hd.lowEdge())
 				       /(hd.highEdge()-hd.lowEdge())));
 	      if ( isideCell < 0 || isideCell > nside-1 ) {
-		msg(MSG::WARNING) << " Side index out of bounds " <<
+		ATH_MSG_WARNING( " Side index out of bounds " <<
 		  isideCell << " not in [0," << nside-1 << "] for "
-		    << "Sampl=" << caloSample << endmsg; 
+		    << "Sampl=" << caloSample ); 
 		isideCell = -1;
 	      }
 	    }
@@ -544,9 +538,9 @@ StatusCode GetLCWeights::execute()
 	      ietaCell = (int)(neta*((fabs(pCell->eta()) - hd.lowEdge())
 				     /(hd.highEdge()-hd.lowEdge())));
 	      if ( ietaCell < 0 || ietaCell > neta-1 ) {
-		msg(MSG::WARNING) << " Eta index out of bounds " <<
+		ATH_MSG_WARNING( " Eta index out of bounds " <<
 		  ietaCell << " not in [0," << neta-1 << "] for "
-		    << "Sampl=" << caloSample << endmsg; 
+		    << "Sampl=" << caloSample ); 
 		ietaCell = -1;
 	      }
 	    }
@@ -556,9 +550,9 @@ StatusCode GetLCWeights::execute()
 	      iphiCell = (int)(nphi*((pCell->phi() - hd.lowEdge())
 				     /(hd.highEdge()-hd.lowEdge())));
 	      if ( iphiCell < 0 || iphiCell > nphi-1 ) {
-		msg(MSG::WARNING) << " Phi index out of bounds " <<
+		ATH_MSG_WARNING( " Phi index out of bounds " <<
 		  iphiCell << " not in [0," << nphi-1 << "] for "
-		    << "Sampl=" << caloSample << endmsg; 
+		    << "Sampl=" << caloSample ); 
 		iphiCell = -1;
 	      }
 	    }
@@ -569,12 +563,12 @@ StatusCode GetLCWeights::execute()
 		myHashId = m_calo_id->subcalo_cell_hash(myId,otherSubDet);
 		unsigned int iW = iphiCell*neta*nside+ietaCell*nside+isideCell;
 		if ( iW >= m_weight[caloSample].size() ) {
-		  msg(MSG::WARNING) << " Index out of bounds " <<
+		  ATH_MSG_WARNING( " Index out of bounds " <<
 		    iW << " > " << m_weight[caloSample].size()-1 << " for "
 		      << "Sampl=" << caloSample
 		      << ", iphi=" << iphiCell 
 		      << ", ieta=" << ietaCell 
-		      << ", iside=" << isideCell << endmsg;
+		      << ", iside=" << isideCell );
 		}
 		else {
 		  ClusWeight * theList = cellVector[otherSubDet][(unsigned int)myHashId];

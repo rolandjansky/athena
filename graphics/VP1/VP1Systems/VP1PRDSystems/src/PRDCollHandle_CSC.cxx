@@ -31,17 +31,17 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_CSC::PRDCollHandle_CSC(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::CSC,cd,key), d(new Imp), m_project(false)
+  : PRDCollHandleBase(PRDDetType::CSC,cd,key), m_d(new Imp), m_project(false)
 {
-  d->muondetmgr = 0;
-  d->idhelper = 0;
-  d->attempted_detmgrload = false;
+  m_d->muondetmgr = 0;
+  m_d->idhelper = 0;
+  m_d->attempted_detmgrload = false;
 }
 
 //____________________________________________________________________
 PRDCollHandle_CSC::~PRDCollHandle_CSC()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

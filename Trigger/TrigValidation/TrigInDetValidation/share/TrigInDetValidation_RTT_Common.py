@@ -14,10 +14,14 @@ def importRTTdatasets(jobID):
     for job in root.iter(namespace + 'athena'):
         if job.get('userJobId') == jobID:
             for dataset in job.findall(namespace + 'dataset'):
-                eosDataset = "root://eosatlas/" + dataset.text
+                eosDataset = "root://eosatlas.cern.ch/" + dataset.text
                 datasetList.append(eosDataset)
     return datasetList
 #--------------------------------------------------------------------------------------------------
+
+if 'ARTConfig' in dir(): 
+   from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+   athenaCommonFlags.FilesInput=ARTConfig
 
 if 'XMLDataSet' in dir() and XMLDataSet!="":
    print XMLDataSet
@@ -157,16 +161,13 @@ if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
     getattr(TriggerRelease.Modifiers,'enableCostForCAF')().preSetup()
 
 #
-if 'use_new_tm' in dir() and use_new_tm:
-  if 'triggerMenuVersion' in dir():
-    TriggerFlags.triggerMenuSetup = triggerMenuVersion
-  else:
-    TriggerFlags.triggerMenuSetup = 'Physics_pp_v6'
-  TriggerFlags.doHLT=True
-  from TriggerMenu.menu.GenerateMenu import GenerateMenu
+if 'triggerMenuVersion' in dir():
+  TriggerFlags.triggerMenuSetup = triggerMenuVersion
 else:
-  TriggerFlags.triggerMenuSetup = 'MC_pp_v4_no_prescale'
-  from TriggerMenuPython.GenerateMenu import GenerateMenu
+  TriggerFlags.triggerMenuSetup = 'MC_pp_v7'
+
+TriggerFlags.doHLT=True
+from TriggerMenu.menu.GenerateMenu import GenerateMenu
 
 TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False

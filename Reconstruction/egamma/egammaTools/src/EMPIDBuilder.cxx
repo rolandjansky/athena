@@ -7,11 +7,7 @@
 
 #include "EMPIDBuilder.h"
 #include "xAODEgamma/Egamma.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "PATCore/IAsgSelectionTool.h"
-#include "LumiBlockComps/LumiBlockMuTool.h"
+//#include "LumiBlockComps/LumiBlockMuTool.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
 
@@ -27,35 +23,6 @@ EMPIDBuilder::EMPIDBuilder(const std::string& type,
 
   // declare interface
   declareInterface<IegammaBaseTool>(this);
-
-  declareProperty("electronIsEMselectors", m_electronIsEMselectors,
-    "The selectors that we need to apply to the Electron object");
-  declareProperty("electronIsEMselectorResultNames", m_electronIsEMselectorResultNames,
-    "The selector result names");
-
-  declareProperty("electronLHselectors", m_electronLHselectors,
-    "The selectors that we need to apply to the LH electron object");
-  declareProperty("electronLHselectorResultNames", m_electronLHselectorResultNames,
-    "The selector result names");
-
-  declareProperty("genericIsEMselectors", m_genericIsEMselectors,
-    "The selectors that we need to apply to the generic object");
-  declareProperty("genericIsEMselectorResultNames", m_genericIsEMselectorResultNames,
-    "The selector result names");
-
-  declareProperty("photonIsEMselectors", m_photonIsEMselectors,
-    "The selectors that we need to apply to the pothon object");
-  declareProperty("photonIsEMselectorResultNames", m_photonIsEMselectorResultNames,
-    "The selector result names");
-
-  declareProperty("LHValueName", m_LHValueName="LHValue",
-    "The LH Value name");
-
-  /** Luminosity tool */
-  declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
-  //** Flag *//
-  declareProperty("UseLuminosityTool", m_UselumiBlockMuTool = false, 
-		  "Use Luminosity Tool instead of value stored in xAOD");
 
 }
 
@@ -117,10 +84,13 @@ StatusCode EMPIDBuilder::initialize()
   if (m_UselumiBlockMuTool) {
     // retrieve the lumi tool
     if (m_lumiBlockMuTool.retrieve().isFailure()) {
-      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
+      ATH_MSG_FATAL("Unable to retrieve Luminosity Tool");
+      return StatusCode::FAILURE;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }
+  } else {
+    m_lumiBlockMuTool.disable();
   }
   return StatusCode::SUCCESS;
 }
@@ -174,7 +144,7 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
     //negative mu means the default behaviour --> retrieve the one in xAOD 
     double mu = -99.;
     double avg_mu = -99.;
-    if(m_UselumiBlockMuTool && m_lumiBlockMuTool){ //
+    if(m_UselumiBlockMuTool){ //
       mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
       avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
       ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);

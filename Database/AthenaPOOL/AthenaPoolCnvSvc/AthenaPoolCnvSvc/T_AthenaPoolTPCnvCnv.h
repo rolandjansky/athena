@@ -20,7 +20,9 @@
 #include "AthenaPoolCnvSvc/TPCnvList.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "AthenaPoolCnvSvc/exceptions.h"
-#include "SGTools/ClassName.h"
+#include "AthenaPoolCnvSvc/debug.h"
+#include "AthenaKernel/ClassName.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 
 /**

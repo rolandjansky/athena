@@ -3,7 +3,7 @@
 ##############################
 if not 'INPUT' in dir():
     INPUT = [ # a "reference" file from FCT
-        'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
         '/AllBasicSamples.AOD.pool.root'
         ]
     #INPUT = ['AOD.pool.root']

@@ -54,5 +54,7 @@ class LArPedestalComplete: public ILArPedestal,
 
 };
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArPedestalComplete, 134294113,1)
+CONDCONT_DEF( LArPedestalComplete, 43865217, ILArPedestal );
 #endif 

@@ -78,7 +78,7 @@ StatusCode tauMonTool::bookHistograms()
         // We wish retrieve twice won'nt invite problem.
 	m_Trigged = false ; 
 	if ( m_doTrigger ) {
-                m_Trigged = m_trigDecTool.retrieve();
+        if ( m_trigDecTool.retrieve().isSuccess() ) m_Trigged = true;
 		if ( m_Trigged ) {
 			//--------------------
 			// create trigger folder and trigger summary histogram

@@ -19,6 +19,7 @@
 
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
+#include "CxxUtils/CachedPointer.h"
 #include "AthenaKernel/sgkey_t.h"
 #include <cstdlib>
 #include <stdint.h>
@@ -427,10 +428,22 @@ protected:
 
 
   /**
+   * @brief Set the cached element stored in the link,
+   *        assuming the cached element is null.
+   * @param elt New value for the cached element.
+   *
+   * This method will set the current cached element if it is
+   * currently unset.  If it has previously been assigned, then this
+   * method will do nothing.
+   */
+  void setCachedElement (ElementType elt) const;
+
+
+  /**
    * @brief Set the cached element stored in the link.
    * @param elt New value for the cached element.
    */
-  void setCachedElement (ElementType elt) const;
+  void storeCachedElement (ElementType elt);
 
 
   /**
@@ -454,6 +467,9 @@ private:
   /// For regression testing.
   friend class ElementLinkBase_test;
 
+  /// Clear the currently-cached element.
+  void clearCachedElement();
+
   /// The hashed key for this link.
   SG::sgkey_t m_persKey;
 
@@ -463,8 +479,7 @@ private:
   /// SG proxy for this link.
   SG::DataProxyHolder m_proxy;  //! Transient
 
-  /// Cached copy of the element to which this link refers.
-  mutable ElementType m_element;  //! Transient
+  CxxUtils::CachedPointer  m_element;    //! Transient
 };
 
 

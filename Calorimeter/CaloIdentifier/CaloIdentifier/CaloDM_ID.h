@@ -110,14 +110,14 @@ public:
   virtual ~CaloDM_ID();
 
   /** build a region identifier valid for both LAr and Tiles  */
-  Identifier region_id  ( int pos_neg_z, int dmat, int sampling, int region )  const throw(CaloID_Exception);
+  Identifier region_id  ( int pos_neg_z, int dmat, int sampling, int region )  const;
 
   /** build a region identifier valid for both LAr and Tiles  */
   Identifier region_id  (const Identifier& zoneId ) const;
 
   /** build a zone identifier valid for both LAr and Tiles  */
   Identifier  zone_id   	(int pos_neg_z, int dat, int sampling, int region,
-				 int eta,       int phi )  const throw(CaloID_Exception);
+				 int eta,       int phi )  const;
 				 
   /** build a zone identifier valid for both LAr and Tiles  */
   Identifier  zone_id   	(const Identifier& regionId,
@@ -378,7 +378,7 @@ CLASS_DEF( CaloDM_ID , 167756483 , 1 )
 
      
 //----------------------------------------------------------------------------
-inline Identifier CaloDM_ID::region_id (int pos_neg_z, int dmat, int sampling, int region)  const throw(CaloID_Exception)
+inline Identifier CaloDM_ID::region_id (int pos_neg_z, int dmat, int sampling, int region)  const
 {
     Identifier result(0);
     // Pack fields independently
@@ -419,7 +419,7 @@ CaloDM_ID::region_id   ( const Identifier& zoneId ) const
 
 //----------------------------------------------------------------------------
 inline Identifier CaloDM_ID::zone_id   ( int pos_neg_z, int dmat, int sampling, int region,
-					 int eta,       int phi )  const throw(CaloID_Exception)
+					 int eta,       int phi )  const
 {  
     Identifier result(0);
     // Pack fields independently

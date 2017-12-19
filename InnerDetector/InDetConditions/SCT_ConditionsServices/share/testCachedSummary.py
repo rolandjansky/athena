@@ -21,7 +21,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-globalflags.DataSource="geant4"
+globalflags.DataSource="data"
 print globalflags
 
 #--------------------------------------------------------------
@@ -66,20 +66,30 @@ job = AlgSequence()
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
+IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 IOVDbSvc.OutputLevel = 3
 
 #ToolSvc = ServiceMgr.ToolSvc
 
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Module")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/MUR")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/ROD")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Geog")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/RODMUR")
-conddb.addFolder('',"<db>COOLONL_TDAQ/COMP200</db> /TDAQ/EnabledResources/ATLAS/SCT/Robins")
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
+conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins", className="CondAttrListCollection")
+from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+condSeq += SCT_TdaqEnabledCondAlg(name="SCT_TdaqEnabledCondAlg")
 
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Chip", "/SCT/DAQ/Config/Chip", className="CondAttrListVec")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Module", "/SCT/DAQ/Config/Module", className="CondAttrListVec")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR", className="CondAttrListVec") # Also for cabling
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
+condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
+                                    ReadKeyChannel = "/SCT/DAQ/Config/Chip",
+                                    ReadKeyModule = "/SCT/DAQ/Config/Module",
+                                    ReadKeyMur = "/SCT/DAQ/Config/MUR")
+
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog") # Needed for cabling
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR") # Needed for cabling
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD") # Needed for cabling
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
 ServiceMgr +=SCT_ModuleVetoSvc()

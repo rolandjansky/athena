@@ -29,14 +29,14 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #ToolSvc += TMEFCaloIsolationTool
 
-from egammaRec.Factories import ToolFactory, AlgFactory, getPropertyValue
+from egammaRec.Factories import PublicToolFactory, AlgFactory, getPropertyValue
 
 from egammaCaloTools.egammaCaloToolsFactories import CaloFillRectangularCluster
 
 from AthenaCommon.GlobalFlags import globalflags
 isMC = not globalflags.DataSource()=='data'
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
-IsoCorrectionTool = ToolFactory(ICT,
+IsoCorrectionTool = PublicToolFactory(ICT,
                                 name = "NewLeakageCorrTool",
                                 IsMC = isMC)
 
@@ -45,7 +45,7 @@ pfoTool = RetrievePFOTool();
 ToolSvc += pfoTool
 
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
-PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
+PFlowObjectsInConeTool = PublicToolFactory(xAOD__PFlowObjectsInConeTool,
                                      name = "PFlowObjectsInConeTool",
                                      RetrievePFOTool = pfoTool)
 
@@ -54,11 +54,11 @@ from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__Track
 
 # tool to collect topo clusters in cone
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
-CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
+CaloClustersInConeTool = PublicToolFactory(xAOD__CaloClustersInConeTool,
                                      CaloClusterLocation = "CaloCalTopoClusters")
 
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
-TrigCaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
+TrigCaloFillRectangularCluster = PublicToolFactory( Cccc.CaloFillRectangularCluster,
           name = "trigMuon_CaloFillRectangularCluster",
           eta_size = 5,
           phi_size = 7,
@@ -494,7 +494,7 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
         self.RequireCombinedMuon = True
         self.applyPileupCorrection = False
 
-        CaloTopoIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloTopoClusterIsolationTool",
+        CaloTopoIsolationTool = PublicToolFactory(xAOD__CaloIsolationTool,name = "CaloTopoClusterIsolationTool",
                                             doEnergyDensityCorrection = self.applyPileupCorrection,
                                             saveOnlyRequestedCorrections = True,
                                             IsoLeakCorrectionTool          = IsoCorrectionTool,
@@ -523,7 +523,7 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=False)
@@ -558,7 +558,7 @@ class TrigMuonEFMSTrackIsolationConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=False)
@@ -593,7 +593,7 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_VarIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_VarIsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=True,
@@ -648,7 +648,7 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_AnnulusIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_AnnulusIsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=True,
                                                  annulusSize=0.1,

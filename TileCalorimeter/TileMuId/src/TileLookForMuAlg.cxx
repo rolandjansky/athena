@@ -32,10 +32,10 @@ TileLookForMuAlg::TileLookForMuAlg(const std::string& name,
 {
   declareProperty("CellsNames", m_cellContainer);
   declareProperty("TileMuTagsOutputName", m_tileTagContainer);
-  declareProperty("LowerTresh0MeV", m_loThrA);
-  declareProperty("LowerTresh1MeV", m_loThrBC);
-  declareProperty("LowerTresh2MeV", m_loThrD);
-  declareProperty("LowerTreshScinMeV", m_loThrITC);
+  declareProperty("LowerTresh0MeV", m_loThrA=80.0);
+  declareProperty("LowerTresh1MeV", m_loThrBC=80.0);
+  declareProperty("LowerTresh2MeV", m_loThrD=80.0);
+  declareProperty("LowerTreshScinMeV", m_loThrITC=160.0);
   declareProperty("UpperTresh2MeV", m_hiThrD);
   declareProperty("UpperTresh1MeV", m_hiThrBC);
   declareProperty("UpperTresh0MeV", m_hiThrA);

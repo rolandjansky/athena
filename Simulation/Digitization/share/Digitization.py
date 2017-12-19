@@ -28,6 +28,10 @@ if jobproperties.Beam.beamType == "cosmics" :
 globalflags.DataSource = 'geant4'
 globalflags.InputFormat = 'pool'
 
+# This is for loading conditions in AthenaMT
+from IOVDbSvc.CondDB import conddb
+
+
 #--------------------------------------------------------------
 # Set Detector flags for this run
 #--------------------------------------------------------------

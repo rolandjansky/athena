@@ -13,14 +13,14 @@ namespace InDetDD {
 
 
 TRT_EndcapDescriptor::TRT_EndcapDescriptor():
-  _nStraws(0),
-  _strawPitch(0),
-  _startPhi(0),
-  _strawLength(0),
-  _innerRadius(0),
+  m_nStraws(0),
+  m_strawPitch(0),
+  m_startPhi(0),
+  m_strawLength(0),
+  m_innerRadius(0),
   m_innerTubeRadius(2*CLHEP::mm),  // FIXME: Hardwired for now!!
-  _f(NULL),
-  _o(0),
+  m_f(NULL),
+  m_o(0),
   m_bounds(0)
 {
 
@@ -35,36 +35,36 @@ TRT_EndcapDescriptor::~TRT_EndcapDescriptor()
 
 
 void TRT_EndcapDescriptor::setStrawTransformField(const GeoXF::Function *xf, size_t offsetInto) {
-  _f=xf;
-  _o=offsetInto;
+  m_f=xf;
+  m_o=offsetInto;
 }
 
 
 
 unsigned int  &TRT_EndcapDescriptor::nStraws() {
-  return _nStraws;
+  return m_nStraws;
 }
 
 double & TRT_EndcapDescriptor::strawPitch() {
-  return _strawPitch;
+  return m_strawPitch;
 }
 
 double & TRT_EndcapDescriptor::startPhi() {
-  return _startPhi;
+  return m_startPhi;
 }
   
 double & TRT_EndcapDescriptor::strawLength() {
-  return _strawLength;
+  return m_strawLength;
 }
   
 double &  TRT_EndcapDescriptor::innerRadius() {
-  return _innerRadius;
+  return m_innerRadius;
 }
 
 const Trk::SurfaceBounds & 
 TRT_EndcapDescriptor::strawBounds() const
 {
-  if (!m_bounds) m_bounds = new Trk::CylinderBounds(m_innerTubeRadius, 0.5*_strawLength);
+  if (!m_bounds) m_bounds = new Trk::CylinderBounds(m_innerTubeRadius, 0.5*m_strawLength);
   return *m_bounds;
 }
 

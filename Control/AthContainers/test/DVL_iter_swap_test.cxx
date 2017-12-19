@@ -63,6 +63,7 @@ void throw_test_err (const char* file, int line, const char* what)
 #include "AthContainers/tools/DVL_iter_swap.h"
 #include "AthContainers/tools/DVLIterator.h"
 #include "AthContainers/exceptions.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <cassert>
 
@@ -115,8 +116,8 @@ struct Cont1
 
   SG::OwnershipPolicy m_ownPolicy;
   bool m_can_insert;
-  static X1* m_x1;
-  static X1* m_x2;
+  static X1* m_x1 ATLAS_THREAD_SAFE;
+  static X1* m_x2 ATLAS_THREAD_SAFE;
 };
 
 

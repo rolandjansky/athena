@@ -421,6 +421,10 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
     VP1ExtraPolatorName='VP1Extrapolator';
     VP1Extrapolator = AtlasExtrapolator(name=VP1ExtraPolatorName)
 
+    from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
+    ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=INFO)
+    ToolSvc += ExtrapolationEngine
+
     # Previous config from SetupFitters.py
     # from TrkExTools.TrkExToolsConf import Trk__Extrapolator as Extrapolator
     # VP1Extrapolator = Extrapolator(name='VP1Extrapolator',
@@ -429,7 +433,6 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
     #                                Propagators = [ VP1Propagator ] )
 
     ToolSvc += VP1Extrapolator
-    print VP1Extrapolator
     #We should append to variable instead:
     os.putenv("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS","Trk::Extrapolator/"+VP1ExtraPolatorName)
 

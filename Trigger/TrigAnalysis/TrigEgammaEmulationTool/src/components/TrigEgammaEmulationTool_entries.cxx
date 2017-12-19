@@ -11,16 +11,16 @@
 #include "../TrigEgammaEmulationToolTest.h"
 #include "../TrigEgammaEmulationToolAlg.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEmulationTool)   
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaSelectorBaseTool)   
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL1SelectorTool)   
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2SelectorTool) 
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2ElectronSelectorTool) 
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2CaloSelectorTool) 
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2CaloRingerSelectorTool) 
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFCaloSelectorTool)   
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFElectronSelectorTool)   
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFPhotonSelectorTool)   
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig,TrigEgammaEmulationToolTest) 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig,TrigEgammaEmulationToolAlg) 
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationTool )   
+DECLARE_COMPONENT( Trig::TrigEgammaSelectorBaseTool )   
+DECLARE_COMPONENT( Trig::TrigEgammaL1SelectorTool )   
+DECLARE_COMPONENT( Trig::TrigEgammaL2SelectorTool ) 
+DECLARE_COMPONENT( Trig::TrigEgammaL2ElectronSelectorTool ) 
+DECLARE_COMPONENT( Trig::TrigEgammaL2CaloSelectorTool ) 
+DECLARE_COMPONENT( Trig::TrigEgammaL2CaloRingerSelectorTool ) 
+DECLARE_COMPONENT( Trig::TrigEgammaEFCaloSelectorTool )   
+DECLARE_COMPONENT( Trig::TrigEgammaEFElectronSelectorTool )   
+DECLARE_COMPONENT( Trig::TrigEgammaEFPhotonSelectorTool )   
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolTest ) 
+DECLARE_COMPONENT( Trig::TrigEgammaEmulationToolAlg ) 
 

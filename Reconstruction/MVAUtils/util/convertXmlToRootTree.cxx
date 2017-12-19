@@ -138,8 +138,8 @@ int main(int argc, char** argv){
   bool isRegression = ((AnalysisType != "Regression") ? false : true);
   bool isMulti = ((AnalysisType == "Multiclass") ? true : false);
   TString varList;
-  vector<float*> m_vars;
-  vector<float> m_var_avgerage;
+  vector<float*> vars;
+  vector<float> var_avgerage;
 
 
   cout << "Boosted Decision Tree for " << AnalysisType << endl;
@@ -159,23 +159,23 @@ int main(int argc, char** argv){
     }
     
     float average_value = (itvar->min+itvar->max)/2 ;
-    m_var_avgerage.push_back(average_value);
-    m_vars.push_back(new float(average_value));
+    var_avgerage.push_back(average_value);
+    vars.push_back(new float(average_value));
     if (infoType == "variable"){
       varList+=varDefinition+",";
-      reader->AddVariable(varDefinition, m_vars.back());
+      reader->AddVariable(varDefinition, vars.back());
       cout << "Add variable: " << varDefinition << " " << type << endl;
     }
     else if (infoType == "spectator"){
-      reader->AddSpectator(varDefinition, m_vars.back());
+      reader->AddSpectator(varDefinition, vars.back());
       cout << "Add spectator: " << varDefinition << " " << type << endl;
     }
     else // should never happen
       {
 	cerr <<"Unknown type from parser "<< infoType.Data()<<endl;
 	//throw std::runtime_error("Unknown type from parser");
-	//	delete m_vars.back();
-	m_vars.pop_back();
+	//	delete vars.back();
+	vars.pop_back();
 	return 0;
       }
   }
@@ -190,20 +190,20 @@ int main(int argc, char** argv){
   cout << "UseYesNoLeaf? " << useYesNoLeaf << endl;
   cout << "Gradient Boost? " << isGrad << endl;
   MVAUtils::BDT* bdt = new MVAUtils::BDT( method_bdt, isRegression || isGrad, useYesNoLeaf);
-  bdt->SetPointers(m_vars);
+  bdt->SetPointers(vars);
 
 
   cout << endl << "Testing MVA produced from TMVA::Reader " << endl;
 
   cout << "MVAUtils::BDT : "
-       << (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(m_vars) : bdt->GetClassification())
+       << (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(vars) : bdt->GetClassification())
        << " , TMVA::Reader : "
        << (isRegression ? reader->EvaluateRegression(0, "BDTG") : isMulti ? reader->EvaluateMulticlass("BDTG")[NClass-1] : reader->EvaluateMVA("BDTG"))
        << endl;
 
-  for(uint i = 0; i != m_vars.size(); ++i) *m_vars[i] = 0;
+  for(uint i = 0; i != vars.size(); ++i) *vars[i] = 0;
   cout << "MVAUtils::BDT : "
-       << (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(m_vars,NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(m_vars) : bdt->GetClassification())
+       << (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(vars,NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(vars) : bdt->GetClassification())
        << " , TMVA::Reader : "
        << (isRegression ? reader->EvaluateRegression(0, "BDTG") : isMulti ? reader->EvaluateMulticlass("BDTG")[NClass-1] : reader->EvaluateMVA("BDTG"))
        << endl;
@@ -230,16 +230,16 @@ int main(int argc, char** argv){
   }
   
   bdt = new MVAUtils::BDT(bdt_tree);
-  bdt->SetPointers(m_vars);
+  bdt->SetPointers(vars);
   cout << bdt->GetResponse() << endl;
   cout << "MVAUtils::BDT : "
-       << (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(m_vars) : bdt->GetClassification())
+       << (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(vars) : bdt->GetClassification())
        << " , TMVA::Reader : "
        << (isRegression ? reader->EvaluateRegression(0, "BDTG") : isMulti ? reader->EvaluateMulticlass("BDTG")[NClass-1] : reader->EvaluateMVA("BDTG"))
        << endl;
-  for(uint i = 0; i != m_vars.size(); ++i) *m_vars[i] = m_var_avgerage[i]; 
+  for(uint i = 0; i != vars.size(); ++i) *vars[i] = var_avgerage[i]; 
   cout << "MVAUtils::BDT : "
-       << (isRegression && !isGrad ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(m_vars) : bdt->GetClassification())
+       << (isRegression && !isGrad ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(vars) : bdt->GetClassification())
        << " , TMVA::Reader : "
        << (isRegression ? reader->EvaluateRegression(0, "BDTG") : isMulti ? reader->EvaluateMulticlass("BDTG")[NClass-1] : reader->EvaluateMVA("BDTG"))
        << endl;
@@ -247,8 +247,8 @@ int main(int argc, char** argv){
   cout << "Checking over many random events" << endl;
   int n_events=0;
   for(int i = 0; i != 100; ++i){
-    for(uint i = 0; i != m_vars.size(); ++i) *m_vars[i] = (1+(rand.Rndm()-0.5)/5)*m_var_avgerage[i];
-    float mva = (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(m_vars,NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(m_vars) : bdt->GetClassification());
+    for(uint i = 0; i != vars.size(); ++i) *vars[i] = (1+(rand.Rndm()-0.5)/5)*var_avgerage[i];
+    float mva = (isRegression ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(vars,NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(vars) : bdt->GetClassification());
     float tmva = (isRegression ? reader->EvaluateRegression(0, "BDTG") : isMulti ? reader->EvaluateMulticlass("BDTG")[NClass-1] : reader->EvaluateMVA("BDTG"));
     if( (tmva-mva)/mva > 0.00001 ){
       cout << "MVAUtils::BDT : " << mva << " , TMVA::Reader : " << tmva << endl;

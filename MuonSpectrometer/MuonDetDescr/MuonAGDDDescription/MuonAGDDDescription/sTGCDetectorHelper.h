@@ -18,15 +18,15 @@ typedef std::pair<sTGCDetectorDescription*,AGDDDetectorPositioner*> AGDDPosition
 class sTGCDetectorHelper {
 public:
 	sTGCDetectorHelper();
-	sTGCIterator sTGC_begin() {return sTGCList.begin();}
-	sTGCIterator sTGC_end()   {return sTGCList.end();}
+	sTGCIterator sTGC_begin() {return m_sTGCList.begin();}
+	sTGCIterator sTGC_end()   {return m_sTGCList.end();}
 	
 	sTGCDetectorDescription* Get_sTGCDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 	sTGCDetectorDescription* Get_sTGCDetectorType(std::string type);
 	AGDDPositionedDetector Get_sTGCPositionedDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 	
 private:
-	sTGCMap sTGCList;
+	sTGCMap m_sTGCList;
 
 };
 

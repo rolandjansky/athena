@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/AtRanlux_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/k/krasznaa/ATLAS/sw/projects/cmake/source/Control/RngComps/share/../share/AtRanlux_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/RngComps/share/../share/AtRanlux_test.txt
 JobOptionsSvc        INFO # (5,1): ApplicationMgr.DLLs += ["AthenaServices"]
 JobOptionsSvc        INFO # (6,1): ApplicationMgr.ExtSvc += ["AtRanluxGenSvc", "AtRanluxGenSvc/AtRanluxGenSvc2", "AtRanluxGenSvc/AtRanluxGenSvc3"]
 JobOptionsSvc        INFO # (7,1): ApplicationMgr.ExtSvcCreates = 0
@@ -20,36 +20,27 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/AtRanlu
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r0)
-                                          running on pcadp02.cern.ch on Fri Mar 11 13:10:51 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
+                                          running on lxplus020.cern.ch on Mon Dec 11 13:31:06 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ServiceManager      DEBUG Initializing service IncidentSvc
-IncidentSvc         DEBUG Property update for OutputLevel : new value = 2
 IncidentSvc         DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service AppMgrRunable
-AppMgrRunable       DEBUG Property update for OutputLevel : new value = 2
 AppMgrRunable       DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service EventLoopMgr
-EventLoopMgr        DEBUG Property update for OutputLevel : new value = 2
 EventLoopMgr        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
-EventDataSvc        DEBUG Property update for OutputLevel : new value = 2
 EventDataSvc        DEBUG Service base class initialized successfully
-EventPersistenc...  DEBUG Property update for OutputLevel : new value = 2
 EventPersistenc...  DEBUG Service base class initialized successfully
+AlgExecStateSvc     DEBUG Service base class initialized successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramDataSvc    DEBUG Property update for OutputLevel : new value = 2
 HistogramDataSvc    DEBUG Service base class initialized successfully
-HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
 HistogramPersis...  DEBUG Service base class initialized successfully
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 AtRanluxGenSvc      DEBUG Property update for OutputLevel : new value = 1
-AtRanluxGenSvc       INFO Initializing AtRanluxGenSvc - package version RngComps-00-00-11
+AtRanluxGenSvc       INFO Initializing AtRanluxGenSvc - package version RngComps-00-00-00
  INITIALISING RANDOM NUMBER STREAMS. 
 IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRanluxGenSvc' with priority 100
 IncidentSvc         DEBUG Adding [AfterReseedIncident] listener 'AtRanluxGenSvc' with priority 100
@@ -155,7 +146,7 @@ Final status of PITHIA engine
 AtRanluxGenSvc       INFO  FINALISING 
 AtRanluxGenSvc      DEBUG  wrote seeds to test_AtRanluxGenSvc.out
 AtRanluxGenSvc2     DEBUG Property update for OutputLevel : new value = 1
-AtRanluxGenSvc2      INFO Initializing AtRanluxGenSvc2 - package version RngComps-00-00-11
+AtRanluxGenSvc2      INFO Initializing AtRanluxGenSvc2 - package version RngComps-00-00-00
  INITIALISING RANDOM NUMBER STREAMS. 
 IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRanluxGenSvc2' with priority 100
 IncidentSvc         DEBUG Adding [AfterReseedIncident] listener 'AtRanluxGenSvc2' with priority 100
@@ -188,8 +179,7 @@ Final status of PITHIA engine for AtRanluxGenSvc2
 ----------------------------------------
 AtRanluxGenSvc2      INFO  FINALISING 
 AtRanluxGenSvc2     DEBUG  wrote seeds to test2_AtRanluxGenSvc.out
-AtRanluxGenSvc3     DEBUG Property update for OutputLevel : new value = 2
-AtRanluxGenSvc3      INFO Initializing AtRanluxGenSvc3 - package version RngComps-00-00-11
+AtRanluxGenSvc3      INFO Initializing AtRanluxGenSvc3 - package version RngComps-00-00-00
  INITIALISING RANDOM NUMBER STREAMS. 
 IncidentSvc         DEBUG Adding [EndEvent] listener 'AtRanluxGenSvc3' with priority 100
 IncidentSvc         DEBUG Adding [AfterReseedIncident] listener 'AtRanluxGenSvc3' with priority 100

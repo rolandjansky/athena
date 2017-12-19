@@ -68,7 +68,7 @@ namespace PESA
     } else {
       msg(MSG::ERROR) << "No connection to incidentSvc used for cleanup" 
                       << endmsg;
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
 
     return HLT::OK;

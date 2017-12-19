@@ -25,11 +25,6 @@
 
 namespace Simulation {
 
-    /** using typedefs to make code more readable for (#run,#event) -> (x,y,z) mapping */
-    typedef std::pair< int, int >                    RunEventPair;
-    typedef std::vector< double >                    XYZCoordinates;
-    typedef std::map< RunEventPair, XYZCoordinates>  EventCoordinatesMap;
-
   /** @class VertexPositionFromFile
 
       Returns a VertexShift based on what is given in the input file.
@@ -39,8 +34,7 @@ namespace Simulation {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class VertexPositionFromFile : public AthAlgTool,
-                                 virtual public ILorentzVectorGenerator {
+  class VertexPositionFromFile : public extends<AthAlgTool, ILorentzVectorGenerator> {
 
     public:
       /** Constructor with parameters */
@@ -57,6 +51,12 @@ namespace Simulation {
       CLHEP::HepLorentzVector *generate() const override final;
 
     private:
+
+      /** using typedefs to make code more readable for (#run,#event) -> (x,y,z) mapping */
+      typedef std::pair< int, int >                    RunEventPair;
+      typedef std::vector< double >                    XYZCoordinates;
+      typedef std::map< RunEventPair, XYZCoordinates>  EventCoordinatesMap;
+
       /** read-in and cache vertex positions from file */
       StatusCode  readVertexPosFile();
       /** read-in and cache run/event number overrides locally for vertex positioning */
@@ -65,6 +65,7 @@ namespace Simulation {
       /** set vertex position by file */
       std::string                     m_vertexPositionFile;        //!< Name of file containing vertex position overrides
       EventCoordinatesMap             m_vertexPositionMap;         //!< vertex position for (#run,#event) pairs
+
       /** run and event number overrides according to file
           (to be used optionally in combination with 'set vertex by file') */
       std::string                     m_runEventNumbersFile;       //!< Name of file containing event info overrides for pos overrides

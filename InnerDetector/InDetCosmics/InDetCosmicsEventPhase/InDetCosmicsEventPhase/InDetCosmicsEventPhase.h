@@ -5,9 +5,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrkTrack/Track.h"
-#include "TrkSegment/TrackSegment.h"
+#include "TrkTrack/TrackCollection.h"
 #include "InDetCosmicsEventPhase/IInDetCosmicsEventPhaseTool.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "CommissionEvent/ComTime.h"
 #include <string>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -33,15 +35,15 @@ namespace InDet
       StatusCode beginRun();
       StatusCode execute();
       StatusCode finalize();
-      void storePhase();
+      StatusCode storePhase();
       
     private:
-      std::vector<std::string> m_inputtracksnames;
-      std::string m_inputsegmentsname;
-      
-      int m_event;
-      double m_phase;
-      
+      int 	m_event;
+      double	m_phase;
+
+      SG::ReadHandleKeyArray<TrackCollection>	m_readKey_tracks 	{this, "InputTracksNames"	,{"Tracks"}, "Tracks to extract event phase" };
+      SG::WriteHandleKey<ComTime> 		m_writeKey_TRTPhase	{this, "EventPhaseName"		,"TRT_Phase", "TRT Event Phase name to store" };
+
       ServiceHandle<ITRT_CalDbSvc>       m_trtconddbsvc ;//!< TRT Calibration DB tool
       ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //<! Track summary tool
       ToolHandle<InDet::IInDetCosmicsEventPhaseTool> m_eventPhaseTool; //<! Cosmics Event Phase tool

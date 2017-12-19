@@ -22,55 +22,34 @@
 #include "MuonTPTools/DiMuonTPTreeTool.h"
 #include "MuonTPTools/MuonTPVertexHelper.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_TOOL_FACTORY(MuonTPTool)
-DECLARE_TOOL_FACTORY(MuonTPExtrapolationTool)
-DECLARE_TOOL_FACTORY(IDTrackIsolationDecoratorTool)
-DECLARE_TOOL_FACTORY(IDTrackCaloDepositsDecoratorTool)
-DECLARE_TOOL_FACTORY(BadMuonVetoHelperTool)
-DECLARE_TOOL_FACTORY(MuonTPTrigUtils)
-DECLARE_TOOL_FACTORY(MuonTPVertexHelper)
+DECLARE_COMPONENT( MuonTPTool )
+DECLARE_COMPONENT( MuonTPExtrapolationTool )
+DECLARE_COMPONENT( IDTrackIsolationDecoratorTool )
+DECLARE_COMPONENT( IDTrackCaloDepositsDecoratorTool )
+DECLARE_COMPONENT( BadMuonVetoHelperTool )
+DECLARE_COMPONENT( MuonTPTrigUtils )
+DECLARE_COMPONENT( MuonTPVertexHelper )
 
-// DECLARE_TOOL_FACTORY(MuonTPSelectionTool)
-DECLARE_TOOL_FACTORY(DiMuonTPSelectionTool)
-DECLARE_TOOL_FACTORY(HighPtSingleMuonSelectionTool)
+// DECLARE_COMPONENT( MuonTPSelectionTool )
+DECLARE_COMPONENT( DiMuonTPSelectionTool )
+DECLARE_COMPONENT( HighPtSingleMuonSelectionTool )
 
-// DECLARE_TOOL_FACTORY(MuonTPEfficiencyTool)
-DECLARE_TOOL_FACTORY(MuonRecoTPEfficiencyTool)
-DECLARE_TOOL_FACTORY(MuonTrigTPEfficiencyTool)
-DECLARE_TOOL_FACTORY(MuonIsolTPEfficiencyTool)
+// DECLARE_COMPONENT( MuonTPEfficiencyTool )
+DECLARE_COMPONENT( MuonRecoTPEfficiencyTool )
+DECLARE_COMPONENT( MuonTrigTPEfficiencyTool )
+DECLARE_COMPONENT( MuonIsolTPEfficiencyTool )
 
-// DECLARE_TOOL_FACTORY(MuonTPPlotTool)
-DECLARE_TOOL_FACTORY(DiMuonTPPlotTool)
-// DECLARE_TOOL_FACTORY(JPsiMuonTPPlotTool)
+// DECLARE_COMPONENT( MuonTPPlotTool )
+DECLARE_COMPONENT( DiMuonTPPlotTool )
+// DECLARE_COMPONENT( JPsiMuonTPPlotTool )
 
-// DECLARE_TOOL_FACTORY(MuonTPTreeTool)
-DECLARE_TOOL_FACTORY(DiMuonTPTreeTool)
+// DECLARE_COMPONENT( MuonTPTreeTool )
+DECLARE_COMPONENT( DiMuonTPTreeTool )
 
-DECLARE_FACTORY_ENTRIES(MuonTPTools) {
-  DECLARE_TOOL(MuonTPTool)
-  DECLARE_TOOL(MuonTPVertexHelper)
-  DECLARE_TOOL(MuonTPExtrapolationTool)
-  DECLARE_TOOL(IDTrackIsolationDecoratorTool)
-  DECLARE_TOOL(IDTrackCaloDepositsDecoratorTool)
-  DECLARE_TOOL(BadMuonVetoHelperTool)
-  DECLARE_TOOL(MuonTPTrigUtils)
   
-//   DECLARE_TOOL(MuonTPSelectionTool)
-  DECLARE_TOOL(DiMuonTPSelectionTool)
-  DECLARE_TOOL(HighPtSingleMuonSelectionTool)
   
-//   DECLARE_TOOL(MuonTPEfficiencyTool)
-  DECLARE_TOOL(MuonRecoTPEfficiencyTool)
-  DECLARE_TOOL(MuonTrigTPEfficiencyTool)
-  DECLARE_TOOL(MuonIsolTPEfficiencyTool)
   
-//   DECLARE_TOOL(MuonTPPlotTool)
-  DECLARE_TOOL(DiMuonTPPlotTool)
   
-//   DECLARE_TOOL(MuonTPTreeTool)
-  DECLARE_TOOL(DiMuonTPTreeTool)
   
-}
 

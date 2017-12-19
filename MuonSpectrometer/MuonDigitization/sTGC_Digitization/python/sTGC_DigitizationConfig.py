@@ -29,7 +29,7 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", "sTGC_SDO")
-    kwargs.setdefault("doToFCorrection", False)
+    kwargs.setdefault("doToFCorrection", True)
      
     return CfgMgr.sTgcDigitizationTool(name,**kwargs)
 

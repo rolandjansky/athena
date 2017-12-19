@@ -21,6 +21,12 @@ rec.doCalo=True
 rec.doEgamma = False
 
 
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['FieldAndGeo']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
+
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 

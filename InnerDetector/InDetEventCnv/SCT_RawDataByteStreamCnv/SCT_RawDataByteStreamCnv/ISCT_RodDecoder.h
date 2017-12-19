@@ -41,7 +41,7 @@ class ISCT_RodDecoder : virtual public IAlgTool {
    *  with the RDO built by the makeRDO(..) method
    **/
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&,
-                                    SCT_RDO_Container&,
+                                    ISCT_RDO_Container&,
                                     InDetBSErrContainer* errs,
                                     std::vector<IdentifierHash>* vec=0) = 0;
 };

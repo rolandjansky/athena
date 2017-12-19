@@ -117,7 +117,7 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
   unsigned robDebug = 0;
 
   for(ROBDataMonitorCollection::const_iterator it = robcol->begin(); it != robcol->end(); ++it) {
-    robmonitor::ROBDataMonitorStruct *rob = *it;
+    const robmonitor::ROBDataMonitorStruct *rob = *it;
     if(!rob) {
       ATH_MSG_DEBUG("Null ROBDataMonitorStruct pointer" );
       continue;
@@ -192,9 +192,9 @@ for(unsigned int i = 0; i < m_config->size<TrigConfSeq>(); ++i) {
     }
 
     // iterator over requested robs
-    std::map<const uint32_t, robmonitor::ROBDataStruct>::iterator rob_it = rob->requested_ROBs.begin();
+    std::map<const uint32_t, robmonitor::ROBDataStruct>::const_iterator rob_it = rob->requested_ROBs.begin();
     for(; rob_it != rob->requested_ROBs.end(); ++rob_it) {
-      robmonitor::ROBDataStruct &data = rob_it->second;
+      const robmonitor::ROBDataStruct &data = rob_it->second;
       
       // create rob data class
       TrigMonROBData::History myhist = TrigMonROBData::kUNCLASSIFIED;
@@ -321,7 +321,7 @@ namespace Tmp
 
 //---------------------------------------------------------------------------------------
 void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data, 
-            robmonitor::ROBDataMonitorStruct &rob) const
+                                    const robmonitor::ROBDataMonitorStruct &rob) const
 {
   //
   // Check consistency between between two input structures
@@ -359,7 +359,7 @@ void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data,
   //
   std::map<TrigMonROBData::History, Tmp::RobSum> sum_robs;
 
-  std::map<const uint32_t, robmonitor::ROBDataStruct>::iterator it = rob.requested_ROBs.begin();
+  std::map<const uint32_t, robmonitor::ROBDataStruct>::const_iterator it = rob.requested_ROBs.begin();
   for(; it != rob.requested_ROBs.end(); ++it) {
     const robmonitor::ROBDataStruct &robData = it->second;
       

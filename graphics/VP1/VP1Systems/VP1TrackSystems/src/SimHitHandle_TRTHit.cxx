@@ -40,7 +40,7 @@ public:
 
 //____________________________________________________________________
 SimHitHandle_TRTHit::SimHitHandle_TRTHit(const TRTUncompressedHit* h)
-  : SimHitHandleBase(), d(new Imp(h))
+  : SimHitHandleBase(), m_d(new Imp(h))
 {
   if (!h)
     VP1Msg::message("SimHitHandle_TRTHit constructor ERROR: Received null hit pointer");
@@ -49,7 +49,7 @@ SimHitHandle_TRTHit::SimHitHandle_TRTHit(const TRTUncompressedHit* h)
 //____________________________________________________________________
 SimHitHandle_TRTHit::~SimHitHandle_TRTHit()
 {
-  delete d;
+  delete m_d;
 }
 
 
@@ -68,13 +68,13 @@ Amg::Vector3D SimHitHandle_TRTHit::momentumDirection() const
 double SimHitHandle_TRTHit::actualMomentum() const
 {
   bool ok;
-  double mass = VP1ParticleData::particleMass(d->thehit->GetParticleEncoding(),ok);
+  double mass = VP1ParticleData::particleMass(m_d->thehit->GetParticleEncoding(),ok);
   if (!ok) {
     VP1Msg::message("SimHitHandle_TRTHit constructor WARNING: Could not determine mass for pdg code "
 		    +QString::number(pdg())+". Assuming charged pion mass.");
     mass = 139.57019*CLHEP::MeV;//Charged pion mass
   }
-  const double ekin = d->thehit->GetKineticEnergy()*CLHEP::MeV;
+  const double ekin = m_d->thehit->GetKineticEnergy()*CLHEP::MeV;
   const double gamma = 1.0 + ekin/mass;
   double betasq = 1.0-1.0/(gamma*gamma);
   if (betasq<=0.0)
@@ -132,44 +132,44 @@ bool SimHitHandle_TRTHit::Imp::ensureDetElemInit() const
 //____________________________________________________________________
 Amg::Vector3D SimHitHandle_TRTHit::posStart() const
 {
-  if (!d->ensureDetElemInit())
+  if (!m_d->ensureDetElemInit())
     return Amg::Vector3D(0,0,0);
-  return Amg::CLHEPTransformToEigen(d->detelem->getAbsoluteTransform(d->strawID)) * Amg::Vector3D(d->thehit->GetPreStepX(),d->thehit->GetPreStepY(),d->thehit->GetPreStepZ());
+  return Amg::CLHEPTransformToEigen(m_d->detelem->getAbsoluteTransform(m_d->strawID)) * Amg::Vector3D(m_d->thehit->GetPreStepX(),m_d->thehit->GetPreStepY(),m_d->thehit->GetPreStepZ());
 }
 
 //____________________________________________________________________
 Amg::Vector3D SimHitHandle_TRTHit::posEnd() const
 {
-  if (!d->ensureDetElemInit())
+  if (!m_d->ensureDetElemInit())
     return Amg::Vector3D(0,0,0);
-  return Amg::CLHEPTransformToEigen(d->detelem->getAbsoluteTransform(d->strawID)) * Amg::Vector3D(d->thehit->GetPostStepX(),d->thehit->GetPostStepY(),d->thehit->GetPostStepZ());
+  return Amg::CLHEPTransformToEigen(m_d->detelem->getAbsoluteTransform(m_d->strawID)) * Amg::Vector3D(m_d->thehit->GetPostStepX(),m_d->thehit->GetPostStepY(),m_d->thehit->GetPostStepZ());
 }
 
 //____________________________________________________________________
 double SimHitHandle_TRTHit::hitTime() const
 {
-  return d->thehit->GetGlobalTime();
+  return m_d->thehit->GetGlobalTime();
 }
 
 //____________________________________________________________________
 const HepMcParticleLink& SimHitHandle_TRTHit::particleLink() const
 {
-  return d->thehit->particleLink();
+  return m_d->thehit->particleLink();
 }
 
 //____________________________________________________________________
 int SimHitHandle_TRTHit::actualPDGCodeFromSimHit() const
 {
-  return d->thehit->GetParticleEncoding();
+  return m_d->thehit->GetParticleEncoding();
 }
 
 //____________________________________________________________________
 Trk::TrackParameters * SimHitHandle_TRTHit::createTrackParameters() const
 {
-  if (!d->ensureDetElemInit())
+  if (!m_d->ensureDetElemInit())
     return 0;
   const Trk::StraightLineSurface * surf
-    = dynamic_cast<const Trk::StraightLineSurface *>( &(d->detelem->strawSurface(d->strawID)));
+    = dynamic_cast<const Trk::StraightLineSurface *>( &(m_d->detelem->strawSurface(m_d->strawID)));
   if (!surf) {
     VP1Msg::message("SimHitHandle_TRTHit::createTrackParameters ERROR: could not get Trk::StraightLineSurface");
     return 0;
@@ -178,14 +178,14 @@ Trk::TrackParameters * SimHitHandle_TRTHit::createTrackParameters() const
   double c;
   if ( !hasCharge() ) {
     bool ok;
-    c = VP1ParticleData::particleCharge(d->thehit->GetParticleEncoding(),ok);
+    c = VP1ParticleData::particleCharge(m_d->thehit->GetParticleEncoding(),ok);
     if (!ok) {
       VP1Msg::message("SimHitHandle_TRTHit::createTrackParameters ERROR: Could not find particle charge (pdg="
-		      +QString::number(d->thehit->GetParticleEncoding())+"). Assuming charge=+1.");
+		      +QString::number(m_d->thehit->GetParticleEncoding())+"). Assuming charge=+1.");
       c = +1.0;
     } else {
       if (VP1Msg::verbose())
-	VP1Msg::messageVerbose("Looked up particle charge for trt simhit with pdg code "+VP1Msg::str(d->thehit->GetParticleEncoding())+": "+VP1Msg::str(c));
+	VP1Msg::messageVerbose("Looked up particle charge for trt simhit with pdg code "+VP1Msg::str(m_d->thehit->GetParticleEncoding())+": "+VP1Msg::str(c));
     }
     const_cast<SimHitHandle_TRTHit*>(this)->setCharge(c);
   } else {

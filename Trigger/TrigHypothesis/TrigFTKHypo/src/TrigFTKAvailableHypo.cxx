@@ -9,7 +9,6 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "GaudiKernel/IssueSeverity.h"
 
 //---------------------------------------------------------------------------------
 

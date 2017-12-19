@@ -2,7 +2,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/IOVSvcTool_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/run/../share/IOVSvcTool_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/share/../share/IOVSvcTool_test.txt
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "IOVSvc"]
 JobOptionsSvc        INFO # (3,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
@@ -10,66 +10,51 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/IOVSvcT
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
-                                          running on lxplus026.cern.ch on Sun Apr 10 21:59:19 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
+                                          running on lxplus020.cern.ch on Mon Dec 11 13:23:13 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, IOVSvc
 ApplicationMgr       INFO Application Manager Configured successfully
-ServiceManager      DEBUG Initializing service IncidentSvc
 IncidentSvc         DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service DetectorStore
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-37
 DetectorStore       DEBUG Service base class initialized successfully
-IncidentSvc         DEBUG Adding [EndEvent] listener 'DetectorStore' with priority 100
-IncidentSvc         DEBUG Adding [BeginEvent] listener 'DetectorStore' with priority 100
+DetectorStore       DEBUG trying to create store SGImplSvc/DetectorStore_Impl
+DetectorStore_Impl  DEBUG Service base class initialized successfully
 EventPersistenc...  DEBUG Service base class initialized successfully
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
 ClassIDSvc          DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
-ClassIDSvc           INFO  getRegistryEntries: read 853 CLIDRegistry entries for module ALL
-ClassIDSvc          DEBUG processCLIDDB: read 1314 entries from CLIDDB file: /afs/cern.ch/user/s/ssnyder/atlas-work3/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1314 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasOffline/rel_0/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1287 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasAnalysis/rel_0/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1122 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasSimulation/rel_0/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1270 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasTrigger/rel_0/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1199 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasReconstruction/rel_0/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1096 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasEvent/rel_0/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 261 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_0/InstallArea/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 100 entries from CLIDDB file: /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_0/InstallArea/share/clid.db
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
-ServiceManager      DEBUG Initializing service AppMgrRunable
+ClassIDSvc           INFO  getRegistryEntries: read 1114 CLIDRegistry entries for module ALL
+ClassIDSvc          DEBUG processCLIDDB: read 1485 entries from CLIDDB file: /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-slc6-gcc62-opt/x86_64-slc6-gcc62-opt/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 1485 entries from CLIDDB file: /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-10T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/clid.db
+IncidentSvc         DEBUG Adding [EndEvent] listener 'DetectorStore' with priority 100
+IncidentSvc         DEBUG Adding [BeginEvent] listener 'DetectorStore' with priority 100
 AppMgrRunable       DEBUG Service base class initialized successfully
-ServiceManager      DEBUG Initializing service EventLoopMgr
 EventLoopMgr        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
 EventDataSvc        DEBUG Service base class initialized successfully
+AlgExecStateSvc     DEBUG Service base class initialized successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramDataSvc    DEBUG Service base class initialized successfully
-HistogramPersis...  DEBUG  'CnvServices':[ 'RootHistSvc' ]
 HistogramPersis...  DEBUG Service base class initialized successfully
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc             DEBUG Service base class initialized successfully
-IOVSvc              DEBUG Initializing IOVSvc version IOVSvc-00-07-38
-IOVSvc              DEBUG AthService initialized
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-37
 StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'StoreGateSvc' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'StoreGateSvc' with priority 100
-ConditionStore       INFO Initializing ConditionStore - package version StoreGate-03-06-37
 ConditionStore      DEBUG Service base class initialized successfully
+ConditionStore      DEBUG trying to create store SGImplSvc/ConditionStore_Impl
+ConditionStore_...  DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'ConditionStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ConditionStore' with priority 100
-IOVSvcTool          DEBUG Initializing IOVSvcTool version IOVSvc-00-07-38
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ToolSvc.IOVSvcTool' with priority 100
 IncidentSvc         DEBUG Adding [BeginRun] listener 'ToolSvc.IOVSvcTool' with priority 100
 IOVSvcTool           INFO IOVRanges will be checked at every Event
 IncidentSvc         DEBUG Adding [CheckIOV] listener 'ToolSvc.IOVSvcTool' with priority 100
 IncidentSvc         DEBUG Adding [ReloadProxies] listener 'ToolSvc.IOVSvcTool' with priority 100
-IOVSvcTool          DEBUG Tool initialized
-ClassIDSvc           INFO  getRegistryEntries: read 343 CLIDRegistry entries for module ALL
-IOVSvcTool          DEBUG registering proxy [Dooo:6666/old] at 0x19768a0
-IOVSvcTool          DEBUG replace proxy [Dooo:6666/old] @0x19768a0 with [Dooo:6666/new] @0x18c4a10
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+IOVSvcTool          DEBUG replace proxy [Dooo:6666/old] @0x2801b60 with [Dooo:6666/new] @0x2819910
 *** IOVSvcTool_test OK ***

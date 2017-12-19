@@ -30,15 +30,17 @@ include("InDetRecExample/InDetRecConditionsAccess.py")
 viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+AthViewSeq = None
 if viewTest:
   allViewAlgorithms = topSequence.allViewAlgorithms
+  AthViewSeq = topSequence.AthViewSeq
 
 from InDetRecExample.InDetKeys import InDetKeys
 
 # provide a minimal menu information
-
-topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
+if globalflags.InputFormat.is_bytestream():
+   topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
+   topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 testChains = ["HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut", "HLT_2e3_etcut", "HLT_e3e5_etcut"]
 
 
@@ -63,7 +65,7 @@ if viewTest:
   allViewAlgorithms += theFastCaloAlgo
   svcMgr.ViewAlgPool.TopAlg += [ theFastCaloAlgo.getName() ]
   l2CaloViewsMaker = EventViewCreatorAlgorithm("l2CaloViewsMaker", OutputLevel=DEBUG)
-  
+  l2CaloViewsMaker.ViewFallThrough = True
   l2CaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
   l2CaloViewsMaker.RoIsLink = "initialRoI" # -||-
   l2CaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
@@ -97,7 +99,7 @@ else:
   topSequence += theFastCaloAlgo
 
 
-
+InDetCacheCreatorTrigViews = topSequence.AthViewSeq.InDetCacheCreatorTrigViews
 
 #Pixel
 
@@ -117,7 +119,9 @@ from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawData
 InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
                                                  RDOKey       = InDetKeys.PixelRDOs(),
                                                  ProviderTool = InDetPixelRawDataProviderTool,
-                                                 isRoI_Seeded = True )
+                                                 RDOCacheKey  = InDetCacheCreatorTrigViews.PixRDOCacheKey,
+                                                 isRoI_Seeded = True,
+                                                 OutputLevel = INFO )
 
 #SCT
 from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
@@ -139,7 +143,7 @@ InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProv
                                              ProviderTool = InDetSCTRawDataProviderTool,
                                              isRoI_Seeded = True )
 
-
+InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
 
 #TRT
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
@@ -205,6 +209,9 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       ClustersName            = "PixelTrigClusters",
                                                       isRoI_Seeded            = True)
 
+if viewTest:
+   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey
+
 #
 # --- SCT_ClusteringTool (public)
 #
@@ -226,7 +233,8 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc, 
                                                     isRoI_Seeded            = True )
 
-
+if viewTest:
+   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey
 
 #Space points and FTF
 
@@ -244,8 +252,11 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
                                                                   SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
-                                                                  ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
-
+                                                                  ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
+                                                                  OutputLevel=DEBUG)
+if viewTest:
+   InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT
+   InDetSiTrackerSpacePointFinder.SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix
 
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 theFTF = TrigFastTrackFinder_eGamma()
@@ -286,7 +297,7 @@ if viewTest:
   l2ElectronViewsMaker.RoIsLink = "roi" # -||-
   l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
   l2ElectronViewsMaker.Views = "EMElectronViews"
-
+  l2ElectronViewsMaker.ViewFallThrough = True
 
   theTrackParticleCreatorAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
   for idAlg in IDSequence:

@@ -9,7 +9,7 @@
 #the rel20 no pileup
 #FNAME = "valid1:valid1.147407.PowhegPythia8_AZNLO_Zmumu.recon.AOD.e3099_s1982_s1964_r6008/"
 
-#FNAME = "root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking//DxAOD/data14_cos/data14_cos.00239908.physics_IDCosmic.recon.DAOD_Pix_Sct.x269_p002/InDetDxAOD_1.pool.root"
+#FNAME = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/perf-idtracking//DxAOD/data14_cos/data14_cos.00239908.physics_IDCosmic.recon.DAOD_Pix_Sct.x269_p002/InDetDxAOD_1.pool.root"
 FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r6630/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.AOD.e3601_s2576_s2132_r6630_tid05348608_00/AOD.05348608._000313.pool.root.1"
 
 import AthenaPoolCnvSvc.ReadAthenaPool

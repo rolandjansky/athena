@@ -79,6 +79,18 @@ PixelDetectorTool::~PixelDetectorTool()
   delete m_athenaComps;
 }
 
+
+StatusCode PixelDetectorTool::initialize()
+{
+  if (!m_bcmTool.empty()) {
+    ATH_CHECK( m_bcmTool.retrieve() );
+  }
+  if (!m_blmTool.empty()) {
+    ATH_CHECK( m_blmTool.retrieve() );
+  }
+  return StatusCode::SUCCESS;
+}
+
 /**
  ** Create the Detector Node corresponding to this tool
  **/

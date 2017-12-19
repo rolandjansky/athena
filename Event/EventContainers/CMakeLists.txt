@@ -22,9 +22,11 @@ atlas_add_library( EventContainers
 
 atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
-                LINK_LIBRARIES Identifier GaudiKernel SGTools
+                LINK_LIBRARIES Identifier GaudiKernel SGTools EventContainers
+                EXTRA_PATTERNS "elapsed"
                )
 atlas_add_test( IdMTCont SOURCES test/IDMT_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
-                LINK_LIBRARIES Identifier GaudiKernel SGTools
+                LINK_LIBRARIES Identifier GaudiKernel SGTools EventContainers
+                EXTRA_PATTERNS "elapsed"
                )

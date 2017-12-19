@@ -6,10 +6,9 @@
 
 @page egammaTools_page egammaTools Package
 
-This package contains electron and photon reconstruction and identification tools.
-These tools are called by main algorithms located in the egammaRec package.
+This package contains electron and photon reconstruction and identification tools. These tools are called by main algorithms located in the egammaRec package.
 
-Following tools are used by egammaBuilder for the reconstruction of isolated high-pT electrons and photons :
+Following tools are used by egammaBuilder for the reconstruction of isolated high-pT electrons and photons (THE LIST IS OUT OF DATE) :
 
 egammaSwTool : creation of the cluster
 

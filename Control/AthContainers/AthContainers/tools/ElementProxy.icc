@@ -133,7 +133,18 @@ typename DVL::value_type const ElementProxy<DVL>::operator-> () const
  */
 template <class DVL>
 inline
-DVL* ElementProxy<DVL>::container() const
+DVL* ElementProxy<DVL>::container()
+{
+  return m_container;
+}
+
+
+/**
+ * @brief Return the container holding the element that this object proxies.
+ */
+template <class DVL>
+inline
+const DVL* ElementProxy<DVL>::container() const
 {
   return m_container;
 }

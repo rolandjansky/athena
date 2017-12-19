@@ -1,3 +1,4 @@
 #include "../LArDetectorToolTBEC.h"
 
-DECLARE_TOOL_FACTORY(LArDetectorToolTBEC)
+DECLARE_COMPONENT( LArDetectorToolTBEC )
+

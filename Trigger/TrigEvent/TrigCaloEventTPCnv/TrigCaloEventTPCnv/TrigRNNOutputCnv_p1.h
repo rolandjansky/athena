@@ -24,7 +24,7 @@
 
 #include "TrigCaloEventTPCnv/TrigRNNOutputConverterBase.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 #include "TrigCaloEvent/TrigEMCluster.h"
 #include "TrigCaloEvent/TrigEMClusterContainer.h"

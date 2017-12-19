@@ -361,7 +361,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
   //LOOP OVER ALL TRIGGER CHAINS
   for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
 
-    ATH_MSG_DEBUG("Starting chain " << itmap->first);  
+    ATH_MSG_DEBUG("Starting chain " << itmap->first << " => " << itmap->second);
 
     std::string histdirmuztp="HLT/MuonMon/MuZTP/"+itmap->second;
     double ptcut=999999.;

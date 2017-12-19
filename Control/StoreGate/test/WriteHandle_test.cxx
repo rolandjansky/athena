@@ -23,6 +23,7 @@
 #include "TestTools/expect_exception.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainers/DataVector.h"
+#include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "CxxUtils/unused.h"
@@ -548,6 +549,12 @@ void test9()
   const DataVector<MyObj>* vo =
     h7.put (std::make_unique<const DataVector<MyObj> >());
   assert (vo->empty());
+
+  SG::WriteHandle<DataVector<MyObj> > h8 ("foo8");
+  assert (h8.setProxyDict (&testStore).isSuccess());
+  const DataVector<MyObj>* vco =
+    h8.put (std::make_unique<ConstDataVector<DataVector<MyObj> > >());
+  assert (vco->empty());
 }
 
 

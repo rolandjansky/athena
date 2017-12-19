@@ -108,8 +108,6 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("outerRadiusOfWire",&m_outerRadiusOfWire,"Outer radius of wire","micrometer",CLHEP::micrometer,5.0,40.0); // 0.0155 mm
   defineNewVariable("lengthOfDeadRegion",&m_lengthOfDeadRegion,"Length of dead region at straw ends","mm",CLHEP::mm,1.0,3.0);
   defineNewVariable("signalPropagationSpeed",&m_signalPropagationSpeed,"Speed of signal propagation along wire","c",CLHEP::c_light,0.1,1.0);
-  defineNewVariable("overallT0Shift",&m_overallT0Shift,"Overall shift of all electronics T0's to get correct effects of pileup, noise, etc.","ns",CLHEP::ns,-5000.0,5000.0);
-  defineNewVariable("overallT0ShiftShortBarrel",&m_overallT0ShiftShortBarrel,"Overall shift of electronics T0's in the short barrel straws.","ns",CLHEP::ns,-5000.0,5000.0);
   defineNewVariable("distanceToTimeFactor",&m_distanceToTimeFactor,"Fudge factor changing assumed particle propagation speed in time corr. calculations","",1.0,0.1,10.0);
   defineNewVariable("maxVertexDisplacement",&m_maxVertexDisplacement,"Maximum vertex displacement","cm",CLHEP::cm,0.0,50.0);
   defineNewVariable("timeOffsetCalcVertexX",&m_timeOffsetCalcVertexX,"X coord. of point where particles are assumed to originate from for time-shift","m",CLHEP::m,-150.0,150.0);
@@ -161,10 +159,23 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("isOverlay",&m_isOverlay,"Flag set for overlay jobs");
 
   //ints:
-  defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 delta shift in 0.78125 ns steps, short barrel straws",-32,32);
-  defineNewIntVariable("htT0shiftBarLong",  &m_htT0shiftBarLong,  "HT T0 delta shift in 0.78125 ns steps, long barrel straws", -32,32);
-  defineNewIntVariable("htT0shiftECAwheels",&m_htT0shiftECAwheels,"HT T0 delta shift in 0.78125 ns steps, A type wheels",      -32,32);
-  defineNewIntVariable("htT0shiftECBwheels",&m_htT0shiftECBwheels,"HT T0 delta shift in 0.78125 ns steps, B type wheels",      -32,32);
+  defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 shift in 0.78125 ns steps, short barrel straws",-32,32);
+  defineNewIntVariable("htT0shiftBarLong",  &m_htT0shiftBarLong,  "HT T0 shift in 0.78125 ns steps, long barrel straws", -32,32);
+  defineNewIntVariable("htT0shiftECAwheels",&m_htT0shiftECAwheels,"HT T0 shift in 0.78125 ns steps, A type wheels",      -32,32);
+  defineNewIntVariable("htT0shiftECBwheels",&m_htT0shiftECBwheels,"HT T0 shift in 0.78125 ns steps, B type wheels",      -32,32);
+
+  defineNewIntVariable("ltT0shiftBarShortXe", &m_ltT0shiftBarShortXe, "LT T0 shift in 0.78125 ns steps, short barrel straws, Xe",-32,32);
+  defineNewIntVariable("ltT0shiftBarShortKr", &m_ltT0shiftBarShortKr, "LT T0 shift in 0.78125 ns steps, short barrel straws, Kr",-32,32);
+  defineNewIntVariable("ltT0shiftBarShortAr", &m_ltT0shiftBarShortAr, "LT T0 shift in 0.78125 ns steps, short barrel straws, Ar",-32,32);
+  defineNewIntVariable("ltT0shiftBarLongXe",  &m_ltT0shiftBarLongXe,  "LT T0 shift in 0.78125 ns steps, long barrel straws, Xe", -32,32);
+  defineNewIntVariable("ltT0shiftBarLongKr",  &m_ltT0shiftBarLongKr,  "LT T0 shift in 0.78125 ns steps, long barrel straws, Kr", -32,32);
+  defineNewIntVariable("ltT0shiftBarLongAr",  &m_ltT0shiftBarLongAr,  "LT T0 shift in 0.78125 ns steps, long barrel straws, Ar", -32,32);
+  defineNewIntVariable("ltT0shiftECAwheelsXe",&m_ltT0shiftECAwheelsXe,"LT T0 shift in 0.78125 ns steps, A type wheels, Xe",      -32,32);
+  defineNewIntVariable("ltT0shiftECAwheelsKr",&m_ltT0shiftECAwheelsKr,"LT T0 shift in 0.78125 ns steps, A type wheels, Kr",      -32,32);
+  defineNewIntVariable("ltT0shiftECAwheelsAr",&m_ltT0shiftECAwheelsAr,"LT T0 shift in 0.78125 ns steps, A type wheels, Ar",      -32,32);
+  defineNewIntVariable("ltT0shiftECBwheelsXe",&m_ltT0shiftECBwheelsXe,"LT T0 shift in 0.78125 ns steps, B type wheels, Xe",      -32,32);
+  defineNewIntVariable("ltT0shiftECBwheelsKr",&m_ltT0shiftECBwheelsKr,"LT T0 shift in 0.78125 ns steps, B type wheels, Kr",      -32,32);
+  defineNewIntVariable("ltT0shiftECBwheelsAr",&m_ltT0shiftECBwheelsAr,"LT T0 shift in 0.78125 ns steps, B type wheels, Ar",      -32,32);
 
 }
 
@@ -212,19 +223,19 @@ void TRTDigSettings::print(const std::string& front) const {
 
 //---------------------------------------------------------------------
 
-StatusCode TRTDigSettings::DigSettingsFromCondDB(int m_dig_vers_from_condDB) {
+StatusCode TRTDigSettings::DigSettingsFromCondDB(int dig_vers_from_condDB) {
 
   /////////////////////////////////////////////////////////////////////////////////////
   // This function is called during TRTDigitizationTool::lateInitialize(). It can be //
   // used to reset parameters according to the value of TRT_Dig_Vers in the condDB   //
   // /TRT/Cond/DigVers.                                                              //
   // At the moment DigSettingsFromCondDB() has no effect.                            //
-  // At the time of writing (October 2013) m_dig_vers_from_condDB==12                //
+  // At the time of writing (October 2013) dig_vers_from_condDB==12                //
   // which is now the same settings (2012/2013 re-tune) that are applied as default. //
   /////////////////////////////////////////////////////////////////////////////////////
 
-  // std::cout << "digversion fron condDB: " << m_dig_vers_from_condDB << std::endl;
-  if (m_dig_vers_from_condDB==12) {
+  // std::cout << "digversion fron condDB: " << dig_vers_from_condDB << std::endl;
+  if (dig_vers_from_condDB==12) {
     // the settings are default now
   } else {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Error in settings / condDB" << endmsg;
@@ -474,9 +485,6 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // Fred: It would seem to me that the timing base for both low and high hits could
   //       be slightly different for the A & C sides and it would be wise to allow
   //       for the possibility in the code [FIXME].
-  // We need to tune the T0shift separately the endcap and the barrel [FIXME].
-  m_overallT0ShiftShortBarrel = 0.0*CLHEP::ns;
-  m_overallT0Shift            = 1.0*CLHEP::ns;
   m_minDiscriminatorWidth     = 1.1*CLHEP::ns;
   m_discriminatorSettlingTime = 1.1*CLHEP::ns;
   m_discriminatorDeadTime     = 6.0*CLHEP::ns;
@@ -484,10 +492,24 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
 
   // HT middle-bit fraction tune; KyungEon.Choi@cern.ch
   // https://indico.cern.ch/event/389682/contribution/5/material/slides/0.pdf
-  m_htT0shiftBarShort  = -6; // This is a delta shift w.r.t m_overallT0Shift (steps of 0.78125 ns).
+  m_htT0shiftBarShort  = -6; // Timing shift applied just before discrimination (steps of 0.78125 ns).
   m_htT0shiftBarLong   = -6; // It affects only HL threshold timing. The purpose is to
   m_htT0shiftECAwheels = -6; // tune the middle HT bit fraction so that HT probability
   m_htT0shiftECBwheels = -6; // can be based on the middle bit only at high occupancy.
+
+  // LT timimg shift in steps of 0.78125 ns.
+  m_ltT0shiftBarShortXe=0;
+  m_ltT0shiftBarShortKr=0;
+  m_ltT0shiftBarShortAr=0;
+  m_ltT0shiftBarLongXe=0;
+  m_ltT0shiftBarLongKr=0;
+  m_ltT0shiftBarLongAr=0;
+  m_ltT0shiftECAwheelsXe=0;
+  m_ltT0shiftECAwheelsKr=0;
+  m_ltT0shiftECAwheelsAr=0;
+  m_ltT0shiftECBwheelsXe=0;
+  m_ltT0shiftECBwheelsKr=0;
+  m_ltT0shiftECBwheelsAr=0;
 
   // length
   m_strawLengthBarrel  = 1425.5*CLHEP::mm;

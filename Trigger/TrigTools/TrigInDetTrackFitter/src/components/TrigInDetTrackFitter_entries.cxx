@@ -9,13 +9,13 @@
 #include "TrigInDetTrackFitter/TrigL2FastExtrapolationTool.h"
 
 
-DECLARE_TOOL_FACTORY(TrigInDetTrackFitter)
-DECLARE_TOOL_FACTORY(TrigInDetBremDetectionTool)
-DECLARE_TOOL_FACTORY(TrigDkfTrackMakerTool)
-DECLARE_TOOL_FACTORY(TrigL2ResidualCalculator)
-DECLARE_TOOL_FACTORY(TrigInDetOfflineTrackFitter)
-DECLARE_TOOL_FACTORY(TrigInDetCombinedTrackFitter)
-DECLARE_TOOL_FACTORY(TrigL2HighPtTrackFitter)
-DECLARE_TOOL_FACTORY(TrigL2LowPtTrackFitter)
-DECLARE_TOOL_FACTORY(TrigL2FastExtrapolationTool)
+DECLARE_COMPONENT( TrigInDetTrackFitter )
+DECLARE_COMPONENT( TrigInDetBremDetectionTool )
+DECLARE_COMPONENT( TrigDkfTrackMakerTool )
+DECLARE_COMPONENT( TrigL2ResidualCalculator )
+DECLARE_COMPONENT( TrigInDetOfflineTrackFitter )
+DECLARE_COMPONENT( TrigInDetCombinedTrackFitter )
+DECLARE_COMPONENT( TrigL2HighPtTrackFitter )
+DECLARE_COMPONENT( TrigL2LowPtTrackFitter )
+DECLARE_COMPONENT( TrigL2FastExtrapolationTool )
 

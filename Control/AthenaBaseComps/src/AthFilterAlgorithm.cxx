@@ -11,6 +11,7 @@
 
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // STL includes
 
@@ -96,11 +97,27 @@ AthFilterAlgorithm::sysInitialize()
 
 /// Set the filter passed flag to the specified state
 void
-AthFilterAlgorithm::setFilterPassed( bool state )
+AthFilterAlgorithm::setFilterPassed( bool state ) const
 {
   AthAlgorithm::setFilterPassed(state);
 
   if (state) {
+/*
+    double evtWeight=1.0;
+
+    const xAOD::EventInfo* evtInfo = 0;
+    StatusCode sc = evtStore()->retrieve(evtInfo);
+    if ( sc.isFailure() || NULL == evtInfo ) {
+      ATH_MSG_WARNING("Could not retrieve EventInfo from StoreGate  ");
+      evtWeight=-1000.;
+    } else {
+      // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
+      if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) {
+        evtWeight = evtInfo->mcEventWeight();
+      }
+    }
+    m_cutFlowSvc->addEvent(m_cutID,evtWeight);
+*/
     m_cutFlowSvc->addEvent(m_cutID);
   }
 }

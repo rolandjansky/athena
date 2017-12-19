@@ -120,25 +120,25 @@ class TRT_StrawStatusSummarySvc: public AthService,
   std::vector<double> m_ltvaluevector;
   std::vector<double> m_htvaluevector;
   ServiceHandle<IToolSvc> m_toolsvc; 
-  std::string par_strawstatuscontainerkey;
-  std::string par_strawstatuspermanentcontainerkey;
-  std::string par_strawstatusHTcontainerkey;
+  std::string m_par_strawstatuscontainerkey;
+  std::string m_par_strawstatuspermanentcontainerkey;
+  std::string m_par_strawstatusHTcontainerkey;
 
-  std::string par_stattextfile;           //input text file
+  std::string m_par_stattextfile;           //input text file
 
-  //std::string par_strawstatuspermanentcontainerkey;
-  std::string par_stattextfilepermanent;           //input text file: permanent
-  std::string par_stattextfileHT;           //input text file
+  //std::string m_par_strawstatuspermanentcontainerkey;
+  std::string m_par_stattextfilepermanent;           //input text file: permanent
+  std::string m_par_stattextfileHT;           //input text file
 
-  std::string par_statstream;            //output stream
+  std::string m_par_statstream;            //output stream
   std::string m_inputFile;
   const TRT_ID* m_trtid;
   const InDetDD::TRT_DetectorManager* m_trtDetMgr; // TRT detector manager (to get ID helper)
   TRTCond::StrawStatusMultChanContainer m_deadstraws ;
   
-  bool strawstatuscontainerexists;
-  bool strawstatuspermanentcontainerexists;
-  bool strawstatusHTcontainerexists;
+  bool m_strawstatuscontainerexists;
+  bool m_strawstatuspermanentcontainerexists;
+  bool m_strawstatusHTcontainerexists;
 
 
   const DataHandle<TRTCond::StrawStatusMultChanContainer> m_strawstatuscontainer ; //Same name as in getStrawStatusContainer!

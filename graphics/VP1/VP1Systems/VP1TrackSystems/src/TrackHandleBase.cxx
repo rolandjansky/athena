@@ -194,7 +194,7 @@ void TrackHandleBase::Imp::ensureLoadPathInfo()
 
 //____________________________________________________________________
 TrackHandleBase::TrackHandleBase(TrackCollHandleBase*ch)
-  : d(new Imp(this)), m_visible(false), m_collhandle(ch), m_currentmaterial(0)
+  : m_d(new Imp(this)), m_visible(false), m_collhandle(ch), m_currentmaterial(0)
 {
   assert(m_collhandle);
   ++Imp::ntrackhandles;
@@ -203,37 +203,37 @@ TrackHandleBase::TrackHandleBase(TrackCollHandleBase*ch)
 //____________________________________________________________________
 TrackHandleBase::~TrackHandleBase()
 {
-  if (d->extraRepresentation)
-    common()->unregisterTrack(d->extraRepresentation);
+  if (m_d->extraRepresentation)
+    common()->unregisterTrack(m_d->extraRepresentation);
 
   //Fixme: if visible, should we call detach first?
-  foreach(AssociatedObjectHandleBase*ao,d->associatedObjects)
+  foreach(AssociatedObjectHandleBase*ao,m_d->associatedObjects)
     delete ao;
 
   //Delete points the following way since we might use same points for raw and propagated.
-  if (d->points_propagated != d->points_raw)
-    delete d->points_propagated;
-  delete d->points_raw;
-  if (d->points_propagated_id_projections != d->points_raw_id_projections)
-    delete d->points_propagated_id_projections;
-  delete d->points_raw_id_projections;
-  if (d->points_propagated_muon_projections != d->points_raw_muon_projections)
-    delete d->points_propagated_muon_projections;
-  delete d->points_raw_muon_projections;
+  if (m_d->points_propagated != m_d->points_raw)
+    delete m_d->points_propagated;
+  delete m_d->points_raw;
+  if (m_d->points_propagated_id_projections != m_d->points_raw_id_projections)
+    delete m_d->points_propagated_id_projections;
+  delete m_d->points_raw_id_projections;
+  if (m_d->points_propagated_muon_projections != m_d->points_raw_muon_projections)
+    delete m_d->points_propagated_muon_projections;
+  delete m_d->points_raw_muon_projections;
 
   clearLine();
   if (m_currentmaterial)
     m_currentmaterial->unref();
-  if (d->randommaterial)
-    d->randommaterial->unref();
-  if (d->label_sep)
-    d->label_sep->unref();
+  if (m_d->randommaterial)
+    m_d->randommaterial->unref();
+  if (m_d->label_sep)
+    m_d->label_sep->unref();
 
-  std::map<std::pair<int,double>,AssocObjAttachmentHandle *>::iterator it,itE(d->attachmentHandles.end());
-  for (it = d->attachmentHandles.begin();it!=itE;++it)
+  std::map<std::pair<int,double>,AssocObjAttachmentHandle *>::iterator it,itE(m_d->attachmentHandles.end());
+  for (it = m_d->attachmentHandles.begin();it!=itE;++it)
     delete it->second;
 
-  delete d;
+  delete m_d;
   --Imp::ntrackhandles;
 }
 
@@ -252,11 +252,11 @@ TrackSysCommonData * TrackHandleBase::common() const
 //____________________________________________________________________
 void TrackHandleBase::updateShapes_TSOSWithMeasurements()
 {  
-  if (!d->tsos_ascobjs)
+  if (!m_d->tsos_ascobjs)
     return;
   std::vector<AscObj_TSOS*>::iterator
-    it(d->tsos_ascobjs->begin()),
-    itE(d->tsos_ascobjs->end());
+    it(m_d->tsos_ascobjs->begin()),
+    itE(m_d->tsos_ascobjs->end());
   for (;it!=itE;++it)
     if ((*it)->hasMeasurement())
     (*it)->update3DObjects();
@@ -265,11 +265,11 @@ void TrackHandleBase::updateShapes_TSOSWithMeasurements()
 //____________________________________________________________________
 void TrackHandleBase::updateShapes_TSOSWithErrors()
 {
-  if (!d->tsos_ascobjs)
+  if (!m_d->tsos_ascobjs)
     return;
   std::vector<AscObj_TSOS*>::iterator
-    it(d->tsos_ascobjs->begin()),
-    itE(d->tsos_ascobjs->end());
+    it(m_d->tsos_ascobjs->begin()),
+    itE(m_d->tsos_ascobjs->end());
   for (;it!=itE;++it)
     if ((*it)->hasError())
     (*it)->update3DObjects();
@@ -278,11 +278,11 @@ void TrackHandleBase::updateShapes_TSOSWithErrors()
 //____________________________________________________________________
 void TrackHandleBase::updateShapes_TSOSWithMaterialEffects()
 {
-  if (!d->tsos_ascobjs)
+  if (!m_d->tsos_ascobjs)
     return;
   std::vector<AscObj_TSOS*>::iterator
-    it(d->tsos_ascobjs->begin()),
-    itE(d->tsos_ascobjs->end());
+    it(m_d->tsos_ascobjs->begin()),
+    itE(m_d->tsos_ascobjs->end());
   for (;it!=itE;++it)
     if ((*it)->hasMaterialEffect())
     (*it)->update3DObjects();
@@ -291,13 +291,13 @@ void TrackHandleBase::updateShapes_TSOSWithMaterialEffects()
 //____________________________________________________________________
 TrackCommonFlags::TSOSPartsFlags TrackHandleBase::shownTSOSParts() const
 {
-  return d->shownTSOSParts;//fixme: inline?
+  return m_d->shownTSOSParts;//fixme: inline?
 }
 
 //____________________________________________________________________
 TrackCommonFlags::TSOSPartsFlags TrackHandleBase::customColouredTSOSParts() const
 {
-  return d->customColouredTSOSParts;//fixme: inline?
+  return m_d->customColouredTSOSParts;//fixme: inline?
 }
 
 //____________________________________________________________________
@@ -305,22 +305,22 @@ void TrackHandleBase::setShownTSOSParts(TrackCommonFlags::TSOSPartsFlags f)
 {
   VP1Msg::messageDebug(QString("TrackHandleBase::setShownTSOSParts to ")+QString::number(f) );
 
-  if (d->shownTSOSParts==f)
+  if (m_d->shownTSOSParts==f)
     return;
   //Figure out changed bits:
-  TrackCommonFlags::TSOSPartsFlags change(d->shownTSOSParts ^ f);//^ is XOR
-  d->shownTSOSParts=f;
-  if (!d->tsos_ascobjs&&(d->shownTSOSParts==TrackCommonFlags::TSOS_NoObjects||!visible()))
+  TrackCommonFlags::TSOSPartsFlags change(m_d->shownTSOSParts ^ f);//^ is XOR
+  m_d->shownTSOSParts=f;
+  if (!m_d->tsos_ascobjs&&(m_d->shownTSOSParts==TrackCommonFlags::TSOS_NoObjects||!visible()))
     return;
 
-  d->ensureInitTSOSs();
+  m_d->ensureInitTSOSs();
   //Loop over all TSOS objects. Those with changed parts needs shape
   //and visibility update:
-  std::vector<AscObj_TSOS*>::iterator it(d->tsos_ascobjs->begin()), itE(d->tsos_ascobjs->end());
+  std::vector<AscObj_TSOS*>::iterator it(m_d->tsos_ascobjs->begin()), itE(m_d->tsos_ascobjs->end());
   for (;it!=itE;++it) {
     if (!((*it)->parts()&change))
       continue;
-    const bool vis = (*it)->parts() & d->shownTSOSParts;
+    const bool vis = (*it)->parts() & m_d->shownTSOSParts;
     if (vis==(*it)->visible()) {
       //Just update shape:
       (*it)->update3DObjects();
@@ -342,22 +342,22 @@ void TrackHandleBase::setShownTSOSParts(TrackCommonFlags::TSOSPartsFlags f)
 //____________________________________________________________________
 void TrackHandleBase::setCustomColouredTSOSParts(TrackCommonFlags::TSOSPartsFlags f)
 {
-  if (d->customColouredTSOSParts==f)
+  if (m_d->customColouredTSOSParts==f)
     return;
   //Figure out changed bits:
-  TrackCommonFlags::TSOSPartsFlags change(d->customColouredTSOSParts ^ f);//^ is XOR
-  d->customColouredTSOSParts=f;
+  TrackCommonFlags::TSOSPartsFlags change(m_d->customColouredTSOSParts ^ f);//^ is XOR
+  m_d->customColouredTSOSParts=f;
 
-  if (!d->tsos_ascobjs||d->shownTSOSParts==TrackCommonFlags::TSOS_NoObjects)
+  if (!m_d->tsos_ascobjs||m_d->shownTSOSParts==TrackCommonFlags::TSOS_NoObjects)
     return;
 
-  TrackCommonFlags::TSOSPartsFlags changedShownParts(change & d->shownTSOSParts);
+  TrackCommonFlags::TSOSPartsFlags changedShownParts(change & m_d->shownTSOSParts);
 
   if (!changedShownParts)
     return;
 
-  //redundant  d->ensureInitTSOSs();
-  std::vector<AscObj_TSOS*>::iterator it(d->tsos_ascobjs->begin()), itE(d->tsos_ascobjs->end());
+  //redundant  m_d->ensureInitTSOSs();
+  std::vector<AscObj_TSOS*>::iterator it(m_d->tsos_ascobjs->begin()), itE(m_d->tsos_ascobjs->end());
   for (;it!=itE;++it) {
     if ((*it)->parts()&changedShownParts)
       (*it)->update3DObjects();
@@ -431,32 +431,32 @@ void TrackHandleBase::setVisible(bool vis)
       for (std::set<GeoPVConstLink>::iterator it=touchedMuonChambers().begin(); it!=touchedMuonChambers().end(); ++it)
         common()->touchedMuonChamberHelper()->incrementNumberOfObjectsForPV(*it);
     }
-    if (!d->line)
-      d->rebuild3DObjects();//The call to rebuild also fixes attached state.
+    if (!m_d->line)
+      m_d->rebuild3DObjects();//The call to rebuild also fixes attached state.
     else
-      d->attach3DObjects();
+      m_d->attach3DObjects();
   } else {
     m_collhandle->decrementNShownHandles();
     if (!touchedMuonChambers().empty()) {
       for (std::set<GeoPVConstLink>::iterator it=touchedMuonChambers().begin(); it!=touchedMuonChambers().end(); ++it)
         common()->touchedMuonChamberHelper()->decrementNumberOfObjectsForPV(*it);
     }
-    d->detach3DObjects();
+    m_d->detach3DObjects();
   }
 
   bool initTSOS(false);
-  if (!d->tsos_ascobjs&&vis&&d->shownTSOSParts!=TrackCommonFlags::TSOS_NoObjects) {
-    d->ensureInitTSOSs();
+  if (!m_d->tsos_ascobjs&&vis&&m_d->shownTSOSParts!=TrackCommonFlags::TSOS_NoObjects) {
+    m_d->ensureInitTSOSs();
     initTSOS = true;
   }
 
-  if (!initTSOS && d->tsos_ascobjs) {
+  if (!initTSOS && m_d->tsos_ascobjs) {
     std::vector<AscObj_TSOS*>::iterator
-      it(d->tsos_ascobjs->begin()),
-      itE(d->tsos_ascobjs->end());
-    if (d->shownTSOSParts!=TrackCommonFlags::TSOS_NoObjects) {
+      it(m_d->tsos_ascobjs->begin()),
+      itE(m_d->tsos_ascobjs->end());
+    if (m_d->shownTSOSParts!=TrackCommonFlags::TSOS_NoObjects) {
       for (;it!=itE;++it) {
-        if ((*it)->visible()!=((*it)->parts() & d->shownTSOSParts))
+        if ((*it)->visible()!=((*it)->parts() & m_d->shownTSOSParts))
           (*it)->toggleVisible();
       }
     } else {
@@ -469,8 +469,8 @@ void TrackHandleBase::setVisible(bool vis)
 
   visibleStateChanged();
 
-  std::map<std::pair<int,double>,AssocObjAttachmentHandle *>::iterator it,itE(d->attachmentHandles.end());
-  for (it = d->attachmentHandles.begin();it!=itE;++it)
+  std::map<std::pair<int,double>,AssocObjAttachmentHandle *>::iterator it,itE(m_d->attachmentHandles.end());
+  for (it = m_d->attachmentHandles.begin();it!=itE;++it)
     it->second->trackVisibilityChanged();
 
   //Label
@@ -482,34 +482,34 @@ void TrackHandleBase::update3DObjects( bool invalidatePropagatedPoints, float ma
 {
   VP1Msg::messageVerbose(QString("TrackHandleBase::update3DObject with maxR set to ")+QString::number(maxR) );
   if (maxR>0.0) {    
-    d->tempMaxPropRadius=maxR;
+    m_d->tempMaxPropRadius=maxR;
   }
   if ( invalidatePropagatedPoints) {
-    if (d->points_propagated != d->points_raw) {
-      delete d->points_propagated;d->points_propagated = 0;
+    if (m_d->points_propagated != m_d->points_raw) {
+      delete m_d->points_propagated;m_d->points_propagated = 0;
     }
-    delete d->points_raw;d->points_raw = 0;   
-    if (d->points_propagated_id_projections) { delete d->points_propagated_id_projections; d->points_propagated_id_projections = 0; }
-    if (d->points_propagated_muon_projections) { delete d->points_propagated_muon_projections; d->points_propagated_muon_projections = 0; }
+    delete m_d->points_raw;m_d->points_raw = 0;   
+    if (m_d->points_propagated_id_projections) { delete m_d->points_propagated_id_projections; m_d->points_propagated_id_projections = 0; }
+    if (m_d->points_propagated_muon_projections) { delete m_d->points_propagated_muon_projections; m_d->points_propagated_muon_projections = 0; }
   }
   if (m_visible) {
-    d->rebuild3DObjects();
+    m_d->rebuild3DObjects();
   } else {    
     //Simply clear the present 3D objects. They will only be recreated if/when the track becomes visible again.
     clearLine();
   }
-  d->tempMaxPropRadius=0.0;
+  m_d->tempMaxPropRadius=0.0;
 }
 
 //____________________________________________________________________
 void TrackHandleBase::updateInDetProjections()
 {
   //Invalidate points of indet projections if already calculated:
-  if (d->points_raw_id_projections!=d->points_propagated_id_projections)
-    delete d->points_propagated_id_projections;
-  delete d->points_raw_id_projections;
-  d->points_raw_id_projections = 0;
-  d->points_propagated_id_projections = 0;
+  if (m_d->points_raw_id_projections!=m_d->points_propagated_id_projections)
+    delete m_d->points_propagated_id_projections;
+  delete m_d->points_raw_id_projections;
+  m_d->points_raw_id_projections = 0;
+  m_d->points_propagated_id_projections = 0;
   //Rebuild 3D objects:
   update3DObjects();
 }
@@ -518,11 +518,11 @@ void TrackHandleBase::updateInDetProjections()
 void TrackHandleBase::updateMuonProjections()
 {
   //Invalidate points of indet projections if already calculated:
-  if (d->points_raw_muon_projections!=d->points_propagated_muon_projections)
-    delete d->points_propagated_muon_projections;
-  delete d->points_raw_muon_projections;
-  d->points_raw_muon_projections = 0;
-  d->points_propagated_muon_projections = 0;
+  if (m_d->points_raw_muon_projections!=m_d->points_propagated_muon_projections)
+    delete m_d->points_propagated_muon_projections;
+  delete m_d->points_raw_muon_projections;
+  m_d->points_raw_muon_projections = 0;
+  m_d->points_propagated_muon_projections = 0;
   //Rebuild 3D objects:
   update3DObjects();
 }
@@ -614,18 +614,18 @@ void TrackHandleBase::Imp::addPathsToSoLineSetAndSoVertexProperty(const Amg::Set
 //____________________________________________________________________
 void TrackHandleBase::clearLine()
 {
-  if (d->line) {
-    common()->unregisterTrack(d->line);
-    d->line->unref();
-    d->line=0;
+  if (m_d->line) {
+    common()->unregisterTrack(m_d->line);
+    m_d->line->unref();
+    m_d->line=0;
   }
 }
 
 //____________________________________________________________________
 void TrackHandleBase::registerTrack()
 {
-  if (d->line)
-    common()->registerTrack(d->line,this);
+  if (m_d->line)
+    common()->registerTrack(m_d->line,this);
 }
 
 
@@ -936,14 +936,14 @@ void TrackHandleBase::updateMaterial()
     return;//We have no material cached and is thus not attached either.
   if (m_visible) {
     //See if the material changed. If it did, detach, update the material, attach again.
-    SoMaterial * newmat = d->determineMaterial();
+    SoMaterial * newmat = m_d->determineMaterial();
     newmat->ref();
     if (newmat!=m_currentmaterial) {
-      d->detach3DObjects();
+      m_d->detach3DObjects();
       m_currentmaterial->unref();
       m_currentmaterial = newmat;
-      d->attach3DObjects();
-      d->materialChanged();
+      m_d->attach3DObjects();
+      m_d->materialChanged();
     } else {
       newmat->unref();
     }
@@ -951,7 +951,7 @@ void TrackHandleBase::updateMaterial()
     //Just clear material.
     m_currentmaterial->unref();
     m_currentmaterial = 0;
-    d->materialChanged();
+    m_d->materialChanged();
   }
 }
 
@@ -1246,18 +1246,18 @@ void TrackHandleBase::Imp::ensureInitPointsProjections_Muon( bool raw )
 //____________________________________________________________________
 void TrackHandleBase::registerTouchedMuonChamber( const GeoPVConstLink& chamberPV ) const
 {
-  d->touchedmuonchambers.insert(chamberPV);
+  m_d->touchedmuonchambers.insert(chamberPV);
 }
 
 //____________________________________________________________________
 const std::set<GeoPVConstLink>& TrackHandleBase::touchedMuonChambers() const
 {
-  if (!d->inittouchedchambers) {
+  if (!m_d->inittouchedchambers) {
     if (VP1JobConfigInfo::hasMuonGeometry())
       ensureTouchedMuonChambersInitialised();
-    d->inittouchedchambers=true;
+    m_d->inittouchedchambers=true;
   }
-  return d->touchedmuonchambers;
+  return m_d->touchedmuonchambers;
 }
 
 //____________________________________________________________________
@@ -1366,7 +1366,7 @@ SoMaterial * TrackHandleBase::Imp::determineMaterial()
 //____________________________________________________________________
 void TrackHandleBase::rerandomiseRandomMaterial()
 {
-  if ( !d->randommaterial )//We will anyway rerandomize it when we need it
+  if ( !m_d->randommaterial )//We will anyway rerandomize it when we need it
     return;
 
   double r2 = 0.3*0.3;
@@ -1393,13 +1393,13 @@ void TrackHandleBase::rerandomiseRandomMaterial()
       r2 *= 0.99;//To avoid problem in case we add too many forbidden spheres.
       if (i>1000) {
         //Just a safety
-        d->theclass->collHandle()->systemBase()->message("TrackHandleBase::rerandomiseRandomMaterial Warning: Random colour could"
+        m_d->theclass->collHandle()->systemBase()->message("TrackHandleBase::rerandomiseRandomMaterial Warning: Random colour could"
           " not be selected such as to satisfy all separation criterias");
         break;
       }
     }
   }
-  VP1MaterialButton::setMaterialParameters(d->randommaterial,r,g,b,
+  VP1MaterialButton::setMaterialParameters(m_d->randommaterial,r,g,b,
     collHandle()->collMaterialBrightness(),
     collHandle()->collMaterialTransparency());
 }
@@ -1407,11 +1407,11 @@ void TrackHandleBase::rerandomiseRandomMaterial()
 //____________________________________________________________________
 void TrackHandleBase::updateRandomColourTransparencyAndBrightness()
 {
-  if ( !d->randommaterial )//We will anyway set up correctly when needed.
+  if ( !m_d->randommaterial )//We will anyway set up correctly when needed.
     return;
   float r,g,b;
-  d->randommaterial->diffuseColor[0].getValue(r,g,b);
-  VP1MaterialButton::setMaterialParameters(d->randommaterial,r,g,b,
+  m_d->randommaterial->diffuseColor[0].getValue(r,g,b);
+  VP1MaterialButton::setMaterialParameters(m_d->randommaterial,r,g,b,
     collHandle()->collMaterialBrightness(),
     collHandle()->collMaterialTransparency());
 }
@@ -1421,18 +1421,18 @@ void TrackHandleBase::updateRandomColourTransparencyAndBrightness()
 void TrackHandleBase::registerAssocObject(AssociatedObjectHandleBase* ao)
 {
   if (VP1Msg::verbose()) {
-    if (d->associatedObjects.contains(ao)) {
-      d->theclass->collHandle()->systemBase()->message("TrackHandleBase::registerAssocObject ERROR: object already registered!");
+    if (m_d->associatedObjects.contains(ao)) {
+      m_d->theclass->collHandle()->systemBase()->message("TrackHandleBase::registerAssocObject ERROR: object already registered!");
       return;
     }
   }
   //Assume ownership of this associated object:
   if (!ao) {
-    d->theclass->collHandle()->systemBase()->message("TrackHandleBase::registerAssocObject ERROR: object is null!");
+    m_d->theclass->collHandle()->systemBase()->message("TrackHandleBase::registerAssocObject ERROR: object is null!");
     return;
   }
 
-  d->associatedObjects << ao;
+  m_d->associatedObjects << ao;
 }
 
 
@@ -1440,12 +1440,12 @@ void TrackHandleBase::registerAssocObject(AssociatedObjectHandleBase* ao)
 AssocObjAttachmentHandle * TrackHandleBase::getAttachmentHandle(int regionIndex, const double&crossoverval)
 {
   std::map<std::pair<int,double>,AssocObjAttachmentHandle *>::iterator
-    it = d->attachmentHandles.find(std::make_pair(regionIndex,crossoverval));
-  if (it!=d->attachmentHandles.end())
+    it = m_d->attachmentHandles.find(std::make_pair(regionIndex,crossoverval));
+  if (it!=m_d->attachmentHandles.end())
     return it->second;
   AssocObjAttachmentHandle *attachHandle
     = new AssocObjAttachmentHandle(common()->trackLODManager()->getLODHandle(regionIndex,crossoverval),this);
-  d->attachmentHandles[std::make_pair(regionIndex,crossoverval)] = attachHandle;
+  m_d->attachmentHandles[std::make_pair(regionIndex,crossoverval)] = attachHandle;
   return attachHandle;
 }
 
@@ -1481,27 +1481,27 @@ double TrackHandleBase::calculateCharge() const
 //____________________________________________________________________
 double TrackHandleBase::charge() const
 {
-  if (d->chargeinit)
-    return d->charge;
-  d->chargeinit = true;
-  d->charge = calculateCharge();
-  return d->charge;
+  if (m_d->chargeinit)
+    return m_d->charge;
+  m_d->chargeinit = true;
+  m_d->charge = calculateCharge();
+  return m_d->charge;
 }
 
 //____________________________________________________________________
 double TrackHandleBase::mass() const
 {
-  if (d->massinit)
-    return d->mass;
-  d->massinit = true;
+  if (m_d->massinit)
+    return m_d->mass;
+  m_d->massinit = true;
   int pdg = pdgCode();
   if (pdg) {
     bool ok;
     double m = VP1ParticleData::particleMass(pdg,ok);
     if (ok)
-      d->mass = m;
+      m_d->mass = m;
   }
-  return d->mass;
+  return m_d->mass;
 }
 
 //____________________________________________________________________
@@ -1560,10 +1560,10 @@ QStringList TrackHandleBase::baseInfo() const
 //____________________________________________________________________
 const Amg::Vector3D * TrackHandleBase::startPoint() const
 {
-  d->ensureLoadPathInfo();
-  if (d->pathInfo_TrkTrack) {
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_iter = d->pathInfo_TrkTrack->trackStateOnSurfaces()->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = d->pathInfo_TrkTrack->trackStateOnSurfaces()->end();
+  m_d->ensureLoadPathInfo();
+  if (m_d->pathInfo_TrkTrack) {
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_iter = m_d->pathInfo_TrkTrack->trackStateOnSurfaces()->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = m_d->pathInfo_TrkTrack->trackStateOnSurfaces()->end();
     for (; tsos_iter != tsos_end; ++tsos_iter) {
       if (common()->trackSanityHelper()->isSafe(*tsos_iter)) {
         const Trk::TrackParameters* trackParam = (*tsos_iter)->trackParameters();
@@ -1571,8 +1571,8 @@ const Amg::Vector3D * TrackHandleBase::startPoint() const
           return &(trackParam->position());
       }
     }
-  } else if (d->pathInfo_Points&&!d->pathInfo_Points->empty()) {
-    return &(d->pathInfo_Points->at(0));
+  } else if (m_d->pathInfo_Points&&!m_d->pathInfo_Points->empty()) {
+    return &(m_d->pathInfo_Points->at(0));
   }
   return 0;
 }
@@ -1580,10 +1580,10 @@ const Amg::Vector3D * TrackHandleBase::startPoint() const
 //____________________________________________________________________
 const Amg::Vector3D * TrackHandleBase::endPoint() const
 {
-  d->ensureLoadPathInfo();
-  if (d->pathInfo_TrkTrack) {
-    DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator tsos_iter = d->pathInfo_TrkTrack->trackStateOnSurfaces()->rend();
-    DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator tsos_end = d->pathInfo_TrkTrack->trackStateOnSurfaces()->rbegin();
+  m_d->ensureLoadPathInfo();
+  if (m_d->pathInfo_TrkTrack) {
+    DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator tsos_iter = m_d->pathInfo_TrkTrack->trackStateOnSurfaces()->rend();
+    DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator tsos_end = m_d->pathInfo_TrkTrack->trackStateOnSurfaces()->rbegin();
     for (; tsos_iter != tsos_end; ++tsos_iter) {
       if (common()->trackSanityHelper()->isSafe(*tsos_iter)) {
         const Trk::TrackParameters* trackParam = (*tsos_iter)->trackParameters();
@@ -1591,8 +1591,8 @@ const Amg::Vector3D * TrackHandleBase::endPoint() const
           return &(trackParam->position());
       }
     }
-  } else if (d->pathInfo_Points&&!d->pathInfo_Points->empty()) {
-    return &(d->pathInfo_Points->back());
+  } else if (m_d->pathInfo_Points&&!m_d->pathInfo_Points->empty()) {
+    return &(m_d->pathInfo_Points->back());
   }
   return 0;
 }
@@ -1608,13 +1608,13 @@ bool TrackHandleBase::isIDTrack() const
 //____________________________________________________________________
 QList<AssociatedObjectHandleBase*> TrackHandleBase::getAllAscObjHandles() const
 {
-  return d->associatedObjects;
+  return m_d->associatedObjects;
 }
 
 std::vector< Amg::Vector3D > * TrackHandleBase::hackGetPointsPropagated()
 {
-  d->ensureInitPointsPropagated();
-  return d->points_propagated;
+  m_d->ensureInitPointsPropagated();
+  return m_d->points_propagated;
 }
 
 //____________________________________________________________________
@@ -1663,18 +1663,18 @@ SoMaterial * AssocObjAttachmentHandle::Imp::dummymaterial = 0;
 //____________________________________________________________________
 void AssocObjAttachmentHandle::trackVisibilityChanged()
 {
-  bool b = d->trackhandle->visible();
-  if (b&&!d->trackhandle->currentMaterial())
+  bool b = m_d->trackhandle->visible();
+  if (b&&!m_d->trackhandle->currentMaterial())
     VP1Msg::message("ERROR: track is visible but has not current material!!");
   if (b)
-    d->ensureAttached();
+    m_d->ensureAttached();
   else
-    d->ensureDetached();
+    m_d->ensureDetached();
 }
 
 //____________________________________________________________________
 AssocObjAttachmentHandle::AssocObjAttachmentHandle(TrackLODHandle * tlh,TrackHandleBase * th)
-  : d ( new Imp(tlh,th) )
+  : m_d ( new Imp(tlh,th) )
 {
   if (!tlh)
     VP1Msg::message("AssocObjAttachmentHandle ERROR: constructed with null LOD handle!");
@@ -1688,8 +1688,8 @@ AssocObjAttachmentHandle::AssocObjAttachmentHandle(TrackLODHandle * tlh,TrackHan
 AssocObjAttachmentHandle::~AssocObjAttachmentHandle()
 {
   if (VP1Msg::verbose()) {
-    if ((d->septrack_detailed && d->pickStyleChildIdx != d->septrack_detailed->findChild(Imp::pickStyle))
-    ||(d->septrack_simple&&d->pickStyleChildIdx != d->septrack_simple->findChild(Imp::pickStyle))) {
+    if ((m_d->septrack_detailed && m_d->pickStyleChildIdx != m_d->septrack_detailed->findChild(Imp::pickStyle))
+    ||(m_d->septrack_simple&&m_d->pickStyleChildIdx != m_d->septrack_simple->findChild(Imp::pickStyle))) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::setPickableStateOfNodes detected wrong pickStyleChildIdx");
       return;
     }
@@ -1703,35 +1703,35 @@ AssocObjAttachmentHandle::~AssocObjAttachmentHandle()
     }
   }
 
-  if (d->septrack_simple)
-    d->septrack_simple->unref();
-  if (d->septrack_detailed)
-    d->septrack_detailed->unref();
-  if (d->trackmat)
-    d->trackmat->unref();
-  delete d;
+  if (m_d->septrack_simple)
+    m_d->septrack_simple->unref();
+  if (m_d->septrack_detailed)
+    m_d->septrack_detailed->unref();
+  if (m_d->trackmat)
+    m_d->trackmat->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
 void AssocObjAttachmentHandle::trackMaterialChanged()
 {
-  SoMaterial * m = d->trackhandle->currentMaterial();
-  if (d->trackmat==m)
+  SoMaterial * m = m_d->trackhandle->currentMaterial();
+  if (m_d->trackmat==m)
     return;
   if (!m) {
-    if (d->trackhandle->visible())
+    if (m_d->trackhandle->visible())
       VP1Msg::message("ERROR: track is visible but has no current material!!");
     m = Imp::dummymaterial;
   }
   m->ref();
-  if (d->trackmat) {
-    if ( d->septrack_simple && d->septrack_simple->findChild(d->trackmat) > -1 )
-      d->septrack_simple->replaceChild(d->trackmat,m);
-    if ( d->septrack_detailed && d->septrack_detailed->findChild(d->trackmat) > -1 )
-      d->septrack_detailed->replaceChild(d->trackmat,m);
-    d->trackmat->unref();
+  if (m_d->trackmat) {
+    if ( m_d->septrack_simple && m_d->septrack_simple->findChild(m_d->trackmat) > -1 )
+      m_d->septrack_simple->replaceChild(m_d->trackmat,m);
+    if ( m_d->septrack_detailed && m_d->septrack_detailed->findChild(m_d->trackmat) > -1 )
+      m_d->septrack_detailed->replaceChild(m_d->trackmat,m);
+    m_d->trackmat->unref();
   }
-  d->trackmat = m;
+  m_d->trackmat = m;
 }
 
 //____________________________________________________________________
@@ -1759,52 +1759,52 @@ void AssocObjAttachmentHandle::Imp::ensureInit()
 //____________________________________________________________________
 void AssocObjAttachmentHandle::attachNodes( SoNode*simple, SoNode*detailed, bool unpickable )
 {
-  if (!d->trackhandle->visible())
+  if (!m_d->trackhandle->visible())
     return;
-  d->ensureInit();
-  if (!d->trackmat) {
-    SoMaterial * m = d->trackhandle->currentMaterial();
+  m_d->ensureInit();
+  if (!m_d->trackmat) {
+    SoMaterial * m = m_d->trackhandle->currentMaterial();
     if (!m)
       m = Imp::dummymaterial;//For now we attach a dummy material.
-    d->trackmat=m;
+    m_d->trackmat=m;
     m->ref();
-    d->septrack_simple->addChild(m);
-    d->septrack_detailed->addChild(m);
+    m_d->septrack_simple->addChild(m);
+    m_d->septrack_detailed->addChild(m);
   }
 
   if (VP1Msg::verbose()) {
-    if (d->pickStyleChildIdx != d->septrack_detailed->findChild(Imp::pickStyle)
-    ||d->pickStyleChildIdx != d->septrack_simple->findChild(Imp::pickStyle)) {
+    if (m_d->pickStyleChildIdx != m_d->septrack_detailed->findChild(Imp::pickStyle)
+    ||m_d->pickStyleChildIdx != m_d->septrack_simple->findChild(Imp::pickStyle)) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::attachNodes detected wrong pickStyleChildIdx");
       return;
     }
-    if (d->septrack_simple->findChild(simple)>-1||d->septrack_detailed->findChild(detailed)>-1) {
+    if (m_d->septrack_simple->findChild(simple)>-1||m_d->septrack_detailed->findChild(detailed)>-1) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::attachNodes Already attached!");
       return;
     }
   }
   if (unpickable) {
-    if (d->pickStyleChildIdx==-1) {
-      d->pickStyleChildIdx = d->septrack_simple->getNumChildren();
-      d->septrack_simple->addChild(Imp::pickStyle);
-      d->septrack_detailed->addChild(Imp::pickStyle);
+    if (m_d->pickStyleChildIdx==-1) {
+      m_d->pickStyleChildIdx = m_d->septrack_simple->getNumChildren();
+      m_d->septrack_simple->addChild(Imp::pickStyle);
+      m_d->septrack_detailed->addChild(Imp::pickStyle);
     }
-    d->septrack_simple->addChild(simple);
-    d->septrack_detailed->addChild(detailed);
+    m_d->septrack_simple->addChild(simple);
+    m_d->septrack_detailed->addChild(detailed);
   } else {
-    if (d->pickStyleChildIdx>-1) {
-      d->septrack_simple->insertChild(simple,d->pickStyleChildIdx);
-      d->septrack_detailed->insertChild(detailed,d->pickStyleChildIdx);
-      ++(d->pickStyleChildIdx);
+    if (m_d->pickStyleChildIdx>-1) {
+      m_d->septrack_simple->insertChild(simple,m_d->pickStyleChildIdx);
+      m_d->septrack_detailed->insertChild(detailed,m_d->pickStyleChildIdx);
+      ++(m_d->pickStyleChildIdx);
     } else {
-      d->septrack_simple->addChild(simple);
-      d->septrack_detailed->addChild(detailed);
+      m_d->septrack_simple->addChild(simple);
+      m_d->septrack_detailed->addChild(detailed);
     }
   }
 
   //Should we update the overall attachment status?:
-  if (d->trackhandle->visible() && d->septrack_simple->getNumChildren() == 2 + (d->pickStyleChildIdx==-1?0:1)) {
-    d->ensureAttached();
+  if (m_d->trackhandle->visible() && m_d->septrack_simple->getNumChildren() == 2 + (m_d->pickStyleChildIdx==-1?0:1)) {
+    m_d->ensureAttached();
   }
 }
 
@@ -1819,22 +1819,22 @@ void AssocObjAttachmentHandle::setPickableStateOfNodes( SoNode*simple, SoNode*de
       return;
     }
   }
-  d->ensureInit();
-  int isimple = d->septrack_simple->findChild(simple);
+  m_d->ensureInit();
+  int isimple = m_d->septrack_simple->findChild(simple);
   if (VP1Msg::verbose()) {
-    if (d->septrack_simple->getNumChildren()!=d->septrack_detailed->getNumChildren()) {
+    if (m_d->septrack_simple->getNumChildren()!=m_d->septrack_detailed->getNumChildren()) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::setPickableStateOfNodes septrack_simple->getNumChildren()"
-        "!=d->septrack_detailed->getNumChildren().");
+        "!=m_d->septrack_detailed->getNumChildren().");
       return;
     }
-    int idetailed = d->septrack_detailed->findChild(detailed);
+    int idetailed = m_d->septrack_detailed->findChild(detailed);
     if (idetailed!=isimple) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::setPickableStateOfNodes"
         " called with simple and detailed nodes that are not at same child idx!");
       return;
     }
-    if (d->pickStyleChildIdx != d->septrack_detailed->findChild(Imp::pickStyle)
-    ||d->pickStyleChildIdx != d->septrack_simple->findChild(Imp::pickStyle)) {
+    if (m_d->pickStyleChildIdx != m_d->septrack_detailed->findChild(Imp::pickStyle)
+    ||m_d->pickStyleChildIdx != m_d->septrack_simple->findChild(Imp::pickStyle)) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::setPickableStateOfNodes detected wrong pickStyleChildIdx");
       return;
     }
@@ -1845,7 +1845,7 @@ void AssocObjAttachmentHandle::setPickableStateOfNodes( SoNode*simple, SoNode*de
     attachNodes(simple, detailed, unpickable);
     return;
   }
-  if (unpickable == (d->pickStyleChildIdx>-1&&isimple>d->pickStyleChildIdx)) {
+  if (unpickable == (m_d->pickStyleChildIdx>-1&&isimple>m_d->pickStyleChildIdx)) {
     VP1Msg::messageDebug("WARNING: AssocObjAttachmentHandle::setPickableStateOfNodes"
       " already in correct state.");
     return;
@@ -1854,37 +1854,37 @@ void AssocObjAttachmentHandle::setPickableStateOfNodes( SoNode*simple, SoNode*de
   simple->ref();//To avoid deletion upon removeChild calls.
   detailed->ref();
   if (unpickable) {
-    d->septrack_simple->removeChild(simple);
-    d->septrack_detailed->removeChild(detailed);
-    if (d->pickStyleChildIdx==-1) {
-      d->pickStyleChildIdx = d->septrack_simple->getNumChildren();
-      d->septrack_simple->addChild(Imp::pickStyle);
-      d->septrack_detailed->addChild(Imp::pickStyle);
+    m_d->septrack_simple->removeChild(simple);
+    m_d->septrack_detailed->removeChild(detailed);
+    if (m_d->pickStyleChildIdx==-1) {
+      m_d->pickStyleChildIdx = m_d->septrack_simple->getNumChildren();
+      m_d->septrack_simple->addChild(Imp::pickStyle);
+      m_d->septrack_detailed->addChild(Imp::pickStyle);
     } else {
-      --(d->pickStyleChildIdx);
+      --(m_d->pickStyleChildIdx);
     }
-    d->septrack_simple->addChild(simple);
-    d->septrack_detailed->addChild(detailed);
+    m_d->septrack_simple->addChild(simple);
+    m_d->septrack_detailed->addChild(detailed);
   } else {
-    if (d->pickStyleChildIdx==-1) {
+    if (m_d->pickStyleChildIdx==-1) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::setPickableStateOfNodes Inconsistent logic");
       simple->unref();
       detailed->unref();
       return;
     }
-    if (d->pickStyleChildIdx==isimple-1&&isimple==d->septrack_simple->getNumChildren()-1) {
+    if (m_d->pickStyleChildIdx==isimple-1&&isimple==m_d->septrack_simple->getNumChildren()-1) {
       //pickStyle object no longer needed:
       VP1Msg::messageVerbose("AssocObjAttachmentHandle::setPickableStateOfNodes detaching pickstyle");
-      d->septrack_simple->removeChild(Imp::pickStyle);
-      d->septrack_detailed->removeChild(Imp::pickStyle);
-      d->pickStyleChildIdx = -1;
+      m_d->septrack_simple->removeChild(Imp::pickStyle);
+      m_d->septrack_detailed->removeChild(Imp::pickStyle);
+      m_d->pickStyleChildIdx = -1;
     } else {
       //Move children left of the pickstyle object.
-      d->septrack_simple->removeChild(simple);
-      d->septrack_detailed->removeChild(detailed);
-      d->septrack_simple->insertChild(simple,d->pickStyleChildIdx);
-      d->septrack_detailed->insertChild(detailed,d->pickStyleChildIdx);
-      ++(d->pickStyleChildIdx);
+      m_d->septrack_simple->removeChild(simple);
+      m_d->septrack_detailed->removeChild(detailed);
+      m_d->septrack_simple->insertChild(simple,m_d->pickStyleChildIdx);
+      m_d->septrack_detailed->insertChild(detailed,m_d->pickStyleChildIdx);
+      ++(m_d->pickStyleChildIdx);
     }
   }
   simple->unref();
@@ -1894,25 +1894,25 @@ void AssocObjAttachmentHandle::setPickableStateOfNodes( SoNode*simple, SoNode*de
 //____________________________________________________________________
 void AssocObjAttachmentHandle::detachNodes( SoNode*simple, SoNode*detailed )
 {
-  if (!d->trackmat)
+  if (!m_d->trackmat)
     return;
-  int isimple = d->septrack_simple->findChild(simple);
+  int isimple = m_d->septrack_simple->findChild(simple);
   if (VP1Msg::verbose()) {
-    if (!d->septrack_simple) {
+    if (!m_d->septrack_simple) {
       //       VP1Msg::message("ERROR: AssocObjAttachmentHandle::detachNodes Not initialised previously!.");
-      d->ensureInit();
+      m_d->ensureInit();
     }
     if (!simple||!detailed) {
       VP1Msg::messageVerbose("AssocObjAttachmentHandle::detach ERROR: Called with null pointers!");
       return;
     }
-    if (d->septrack_simple->getNumChildren()!=d->septrack_detailed->getNumChildren()) {
+    if (m_d->septrack_simple->getNumChildren()!=m_d->septrack_detailed->getNumChildren()) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::detachNodes septrack_simple->getNumChildren()"
-        "!=d->septrack_detailed->getNumChildren().");
+        "!=m_d->septrack_detailed->getNumChildren().");
       return;
     }
-    if (d->pickStyleChildIdx != d->septrack_detailed->findChild(Imp::pickStyle)
-    ||d->pickStyleChildIdx != d->septrack_simple->findChild(Imp::pickStyle)) {
+    if (m_d->pickStyleChildIdx != m_d->septrack_detailed->findChild(Imp::pickStyle)
+    ||m_d->pickStyleChildIdx != m_d->septrack_simple->findChild(Imp::pickStyle)) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::detachNodes detected wrong pickStyleChildIdx");
       return;
     }
@@ -1920,36 +1920,36 @@ void AssocObjAttachmentHandle::detachNodes( SoNode*simple, SoNode*detailed )
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::detachNodes Not previously attached!");
       return;
     }
-    if (d->septrack_detailed->findChild(detailed)!=isimple) {
+    if (m_d->septrack_detailed->findChild(detailed)!=isimple) {
       VP1Msg::message("ERROR: AssocObjAttachmentHandle::setPickableStateOfNodes"
         " called with simple and detailed nodes that are not at same child idx!");
       return;
     }
   }
-  d->septrack_simple->removeChild(simple);
-  d->septrack_detailed->removeChild(detailed);
-  if ( d->pickStyleChildIdx!=-1
-    && isimple>d->pickStyleChildIdx
-  && d->pickStyleChildIdx==d->septrack_simple->getNumChildren()-1 ) {
+  m_d->septrack_simple->removeChild(simple);
+  m_d->septrack_detailed->removeChild(detailed);
+  if ( m_d->pickStyleChildIdx!=-1
+    && isimple>m_d->pickStyleChildIdx
+  && m_d->pickStyleChildIdx==m_d->septrack_simple->getNumChildren()-1 ) {
     VP1Msg::messageVerbose("AssocObjAttachmentHandle::detachNodes detaching pickstyle");
-    d->septrack_simple->removeChild(Imp::pickStyle);
-    d->septrack_detailed->removeChild(Imp::pickStyle);
-    d->pickStyleChildIdx = -1;
+    m_d->septrack_simple->removeChild(Imp::pickStyle);
+    m_d->septrack_detailed->removeChild(Imp::pickStyle);
+    m_d->pickStyleChildIdx = -1;
   }
 
   //Should we update the overall attachment status?:
-  if (d->trackhandle->visible() && d->septrack_simple->getNumChildren() == 1 + (d->pickStyleChildIdx==-1?0:1))
-    d->ensureDetached();
+  if (m_d->trackhandle->visible() && m_d->septrack_simple->getNumChildren() == 1 + (m_d->pickStyleChildIdx==-1?0:1))
+    m_d->ensureDetached();
 }
 
 //____________________________________________________________________
 QList<AssociatedObjectHandleBase*> TrackHandleBase::getVisibleMeasurements() const
 {
   QList<AssociatedObjectHandleBase*> l;
-  if (!d->tsos_ascobjs) return l;
+  if (!m_d->tsos_ascobjs) return l;
   std::vector<AscObj_TSOS*>::iterator
-    it(d->tsos_ascobjs->begin()),
-    itE(d->tsos_ascobjs->end());
+    it(m_d->tsos_ascobjs->begin()),
+    itE(m_d->tsos_ascobjs->end());
   for (;it!=itE;++it)
     if ((*it)->hasMeasurement()&&(*it)->visible())
     l << (*it);
@@ -1959,20 +1959,20 @@ QList<AssociatedObjectHandleBase*> TrackHandleBase::getVisibleMeasurements() con
 void TrackHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) {
   VP1Msg::messageVerbose("TrackHandleBase::fillObjectBrowser");
 
-  assert(d->m_objBrowseTree==0);
-  d->m_objBrowseTree = new QTreeWidgetItem();
+  assert(m_d->m_objBrowseTree==0);
+  m_d->m_objBrowseTree = new QTreeWidgetItem();
 
   QString l = shortInfo();
-  d->m_objBrowseTree->setText(0, type()+QString(QString::number(listOfItems.size())) );
-  d->m_objBrowseTree->setText(1, l );    
+  m_d->m_objBrowseTree->setText(0, type()+QString(QString::number(listOfItems.size())) );
+  m_d->m_objBrowseTree->setText(1, l );    
 
   if (!visible()) {
-    d->m_objBrowseTree->setFlags(0); // not selectable, not enabled
+    m_d->m_objBrowseTree->setFlags(0); // not selectable, not enabled
   }
   listOfItems << browserTreeItem();
 }
 
-QTreeWidgetItem* TrackHandleBase::browserTreeItem() const {return d->m_objBrowseTree;}
+QTreeWidgetItem* TrackHandleBase::browserTreeItem() const {return m_d->m_objBrowseTree;}
 
 //____________________________________________________________________
 void TrackHandleBase::visibleStateChanged()

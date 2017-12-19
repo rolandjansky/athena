@@ -46,10 +46,10 @@ class TgcRoadDefiner: public AthAlgTool
   virtual StatusCode initialize();
   virtual StatusCode finalize  ();
 
-  bool defineRoad(const LVL1::RecMuonRoI*      p_roi,
-		  const TrigL2MuonSA::TgcHits& tgcHits,
-		  TrigL2MuonSA::MuonRoad&      muonRoad,
-		  TrigL2MuonSA::TgcFitResult&  tgcFitResult);
+  StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
+                        const TrigL2MuonSA::TgcHits& tgcHits,
+                        TrigL2MuonSA::MuonRoad&      muonRoad,
+                        TrigL2MuonSA::TgcFitResult&  tgcFitResult);
 
   void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);

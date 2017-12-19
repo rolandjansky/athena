@@ -72,10 +72,10 @@ public:
 			double highthreshold = -1.0
 		      );
 
-  double getHighThreshold ( int hitID, int strawGasType);
-  int getHTdeltaT0Shift   ( int hitID );
+  double getHighThreshold ( int hitID, int strawGasType );
   unsigned int getRegion  ( int hitID );
-  void HTdeltaShift       ( int hitID );
+  void LTt0Shift          ( int hitID, int strawGasType );
+  void HTt0Shift          ( int hitID );
 
 private:
   //NB copy-constructor and assignment operator declared, but not defined.
@@ -150,10 +150,10 @@ private:
   std::vector<double> m_lowThresholdSignalShape[3];
   std::vector<double> m_highThresholdSignalShape[3];
 
-  unsigned int m_maskA;   /**< mask - ever used? */
-  unsigned int m_maskB;   /**< mask - ever used? */
-  unsigned int m_maskC;   /**< mask - ever used? */
-  unsigned int m_maskHT;  /**< mask - ever used? */
+  // unsigned int m_maskA;   /**< mask - ever used? */
+  // unsigned int m_maskB;   /**< mask - ever used? */
+  // unsigned int m_maskC;   /**< mask - ever used? */
+  // unsigned int m_maskHT;  /**< mask - ever used? */
 
   // Deposit energy in timed bins before shaping.
   double* m_energyDistribution;

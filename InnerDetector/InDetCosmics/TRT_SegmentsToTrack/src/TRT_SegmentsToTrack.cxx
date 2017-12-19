@@ -50,6 +50,9 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 
 
 
@@ -63,21 +66,14 @@ InDet::TRT_SegmentsToTrack::TRT_SegmentsToTrack(const std::string& name, ISvcLoc
   m_nTracksFake(0),
   m_noiseratio(0.),
   m_events(0),
-  m_truthCollectionTRT(nullptr),
   m_n_combined_fit(0)
 {
-  declareProperty("InputSegmentsCollection", m_inputSegmentCollectionName  = "TrackSegments");  
-  declareProperty("OutputTrackCollection",   m_outputTrackCollectionName   =  "SegmentTracks");
   declareProperty("TrackFitter",             m_trackFitter);
   declareProperty("ExtrapolationTool",       m_extrapolator);
-  declareProperty("PRDTruthCollectionTRT",   m_multiTruthCollectionTRTName = "PRD_MultiTruthTRT"); 
   declareProperty("NoiseCut",                m_noiseCut                    = -1.);
   declareProperty("MinNHit",                 m_minTRTHits                  =  1);
   declareProperty("MaterialEffects",         m_materialEffects             = false);
   declareProperty("OutlierRemoval",          m_outlierRemoval              = false);
-  declareProperty("BarrelSegments",          m_barrelSegments              = "TRTBarrelSegments");
-  declareProperty("EndcapSegments",          m_endcapSegments              = "TRTEndcapSegments");
-  declareProperty("BarrelEndcapTracks",      m_BECCollectionName           = "TRT_Barrel_EC");
   declareProperty("CombineSegments",         m_combineSegments             = false);
   //to be deleted
   declareProperty("InputSCTCollection",m_dummy);
@@ -102,6 +98,14 @@ StatusCode InDet::TRT_SegmentsToTrack::initialize()
   m_events=0;
   m_noiseratio=0.;
 
+  // Initialize handle keys
+  ATH_CHECK(m_inputSegmentCollectionName.initialize());
+  ATH_CHECK(m_multiTruthCollectionTRTName.initialize());
+  ATH_CHECK(m_barrelSegments.initialize());
+  ATH_CHECK(m_endcapSegments.initialize());
+  ATH_CHECK(m_outputTrackCollectionName.initialize());
+  ATH_CHECK(m_BECCollectionName.initialize());
+
   //--------- Set up fitter -------------
   CHECK( m_trackFitter.retrieve());
 
@@ -115,48 +119,26 @@ StatusCode InDet::TRT_SegmentsToTrack::initialize()
 
 StatusCode InDet::TRT_SegmentsToTrack::finalize()
 {
+  ATH_MSG_INFO("Summary of" << m_events << " Events");
+  ATH_MSG_INFO("Found Real Tracks : " << m_nTracksReal);
+  ATH_MSG_INFO("Found Fake Tracks : " << m_nTracksFake);
 
-  ATH_MSG_INFO( "Summary of"<<m_events<<" Events");
-  
-  if(m_truthCollectionTRT){
-    ATH_MSG_INFO( "Found Real Tracks : "<<m_nTracksReal);
-    ATH_MSG_INFO( "Found Fake Tracks : "<<m_nTracksFake);
-  }else{
-    ATH_MSG_INFO( "Found Tracks : "<<m_nTracksFake);
+  if(m_nTracksReal>0) {
+    ATH_MSG_INFO("Average noise percentage " << m_noiseratio/double(m_nTracksReal));
   }
 
-
-  if(m_nTracksReal>0)
-    ATH_MSG_INFO( "Average noise percentage " << m_noiseratio/double(m_nTracksReal));
-
-  std::map<int,int>::iterator mit;
-  
-  if(m_truthCollectionTRT){
-    for(mit=m_MapReal.begin();mit!=m_MapReal.end();++mit){
-      int key=(*mit).first;
-      int val=(*mit).second;
-      
-      ATH_MSG_INFO(" Real tracks with "<<key<<" hits: "<<val);
-    }
+  for (const auto& mitr : m_MapReal) {
+    ATH_MSG_INFO("Real tracks with " << mitr.first << " hits: " << mitr.second);
   }
-
-  for(mit=m_MapFake.begin();mit!=m_MapFake.end();++mit){
-    int key=(*mit).first;
-    int val=(*mit).second;
-    
-    if(m_truthCollectionTRT)
-      ATH_MSG_INFO("Fake tracks with "<<key<<" hits: "<<val);
-    else
-      ATH_MSG_INFO(" Tracks with "<<key<<" hits: "<<val);
+  for (const auto& mitr : m_MapFake) {
+    ATH_MSG_INFO("Fake tracks with " << mitr.first << " hits: " << mitr.second);
   }
-
 
   if(m_combineSegments){
     ATH_MSG_INFO("Number of combined Barrel+Endcap tracks: "<<m_n_combined_fit);
   }
 
   ATH_MSG_INFO(name() << " finalize() successful ");
-
 
   return StatusCode::SUCCESS;
 }
@@ -175,28 +157,28 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
   if( m_combineSegments)
     combineSegments();
 
-
-
   // input TrackSegment Collection
-  const Trk::SegmentCollection *inputSegments   = 0;
+
+  SG::ReadHandle<Trk::SegmentCollection> inputSegments(m_inputSegmentCollectionName);
+  if (!inputSegments.isValid()) {
+    ATH_MSG_ERROR("Could not open: " <<m_inputSegmentCollectionName.key());
+    sc =  StatusCode::FAILURE;
+    return sc;
+  }
 
 
   //output collections for fitted tracks
-  TrackCollection *outputTrackCollection   = new TrackCollection();
-
-  CHECK(evtStore()->retrieve(inputSegments, m_inputSegmentCollectionName));
-
+  
+  SG::WriteHandle<TrackCollection> outputTrackCollection(m_outputTrackCollectionName);
+  ATH_CHECK(outputTrackCollection.record(std::make_unique<TrackCollection>()));
 
   //try to get truth information
 
-  if(evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruthCollectionTRTName)){
+  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName);
 
-    sc = evtStore()->retrieve(m_truthCollectionTRT, m_multiTruthCollectionTRTName);
-    if(sc.isFailure()){
-      ATH_MSG_INFO("Could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName);
-      sc=StatusCode::SUCCESS; // not having truth information is not a failure
-      m_truthCollectionTRT=0;
-    }
+  if (!truthCollectionTRT.isValid()){
+    ATH_MSG_INFO("Could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName.key());
+    sc=StatusCode::SUCCESS; // not having truth information is not a failure
   }
 
 
@@ -400,10 +382,10 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
     } //end of if: (*iseg)->numberOfMeasurementBases()>0
   } //end of loop over segments
 
-  sc = evtStore()->record(outputTrackCollection, m_outputTrackCollectionName);
-  if(sc.isFailure()){
-    ATH_MSG_ERROR("Could not write track collection " << m_outputTrackCollectionName);
-    return sc;
+  if (!outputTrackCollection.isValid()) {
+    ATH_MSG_ERROR("Could not write track collection " << m_outputTrackCollectionName.key());
+    return StatusCode::FAILURE;
+    //return sc;
   }
 
   return sc;
@@ -414,8 +396,10 @@ int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* drif
   int numBarcodes = 0;
   typedef PRD_MultiTruthCollection::const_iterator iter;
 
-  if(!m_truthCollectionTRT) return 0;
-  std::pair<iter,iter> range = m_truthCollectionTRT->equal_range(driftcircle->identify());
+  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName);
+
+  if(!truthCollectionTRT.isValid()) return 0;
+  std::pair<iter,iter> range = truthCollectionTRT->equal_range(driftcircle->identify());
   for(iter i = range.first; i != range.second; i++){
     numBarcodes++;
   }
@@ -593,25 +577,22 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
   // - get from barrel segment r-phi dependence and z dependence from endcap segment fit
 
 
-
-
-
-  const Trk::SegmentCollection *BarrelSegments   = 0;
-  const Trk::SegmentCollection *EndcapSegments   = 0;
+  SG::ReadHandle<Trk::SegmentCollection> BarrelSegments(m_barrelSegments);
+  SG::ReadHandle<Trk::SegmentCollection> EndcapSegments(m_endcapSegments);
 
   StatusCode sc;
 
-  TrackCollection *outputCombiCollection   = new TrackCollection();
+  SG::WriteHandle<TrackCollection> outputCombiCollection(m_BECCollectionName);
+  sc = outputCombiCollection.record(std::make_unique<TrackCollection>());
+  if (sc.isFailure()) return;
 
-  sc = evtStore()->retrieve(BarrelSegments, m_barrelSegments);
-  if(sc.isFailure()){
-    ATH_MSG_FATAL("Could not open barrel segments collection : " <<   m_barrelSegments);
+  if (!BarrelSegments.isValid()){
+    ATH_MSG_FATAL("Could not open barrel segments collection : " <<   m_barrelSegments.key());
     return;
   }
 
-  sc = evtStore()->retrieve(EndcapSegments, m_endcapSegments);
-  if(sc.isFailure()){
-    ATH_MSG_FATAL("Could not open endcap segments collection : " <<   m_endcapSegments);
+  if (!EndcapSegments.isValid()) {
+    ATH_MSG_FATAL("Could not open endcap segments collection : " <<   m_endcapSegments.key());
     return;
   }
 
@@ -934,8 +915,8 @@ double InDet::TRT_SegmentsToTrack::getNoiseProbability(const Trk::Track *track)
       }
     }
   }
-  sc = evtStore()->record(outputCombiCollection, m_BECCollectionName);
-  if(sc.isFailure()){
+
+  if (!outputCombiCollection.isValid()) {
     ATH_MSG_ERROR("Could not write track Barrel+EC collection TRT_Barrel_EC");
   }
 }

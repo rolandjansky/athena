@@ -1,26 +1,20 @@
-Thu Jun  9 14:49:42 CEST 2016
+Wed Dec  6 19:42:18 CET 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasTrigger-20.99.0] [x86_64-slc6-gcc49-opt] [20.99.Y-VAL/rel_4] -- built on [2016-06-09 00:45]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/b8b99ab992] -- built on [2017-12-06T1522]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libRootCnvDict.so  is already in StorageSvcDict.so 
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "IOVDbTestAlg/IOVDbTestAlgWriteCoolNoReg.py"
-Py:ConfigurableDb    INFO Read module info for 3388 configurables from 7 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 7 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -D3PD__TrigConfMetadataTool: TrigCostD3PDMaker.TrigCostD3PDMakerConf - ['TriggerD3PDMaker.TriggerD3PDMakerConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 5437 configurables from 59 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on lxplus021.cern.ch on Thu Jun  9 14:49:46 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus020.cern.ch on Wed Dec  6 19:42:26 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -28,98 +22,85 @@ ApplicationMgr                   INFO Updating Gaudi::PluginService::SetDebug(le
 StatusCodeSvc                    INFO initialize
 AthDictLoaderSvc                 INFO in initialize...
 AthDictLoaderSvc                 INFO acquired Dso-registry
-ClassIDSvc                       INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
-ClassIDSvc                       INFO  getRegistryEntries: read 2109 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2398 CLIDRegistry entries for module ALL
 ChronoStatSvc                    INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                      INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                      INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr               INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-14
-AthMasterSeq                     INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-AthAlgSeq                        INFO Member list: IOVDbTestAlg
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 IOVDbTestAlg                    DEBUG Property update for OutputLevel : new value = 2
 IOVDbTestAlg                    DEBUG in initialize()
-StoreGateSvc                     INFO Initializing StoreGateSvc - package version StoreGate-03-06-43
-MetaDataSvc                      INFO Initializing MetaDataSvc - package version AthenaServices-01-60-14
-InputMetaDataStore               INFO Initializing InputMetaDataStore - package version StoreGate-03-06-43
-MetaDataStore                    INFO Initializing MetaDataStore - package version StoreGate-03-06-43
-AthenaPoolCnvSvc                 INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-20
-PoolSvc                          INFO Initializing PoolSvc - package version PoolSvc-00-25-03
+MetaDataSvc                      INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc                 INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc                          INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                          INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                          INFO Frontier compression level set to 5
-DBReplicaSvc                     INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                     INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/20.99.Y-VAL/AtlasCore/rel_4/InstallArea/share/dbreplica.config
-DBReplicaSvc                     INFO Total of 10 servers found for host lxplus021.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                     INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc                     INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-05T2302/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc                     INFO Total of 10 servers found for host lxplus020.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc                          INFO Successfully setup replica sorting algorithm
-PoolSvc                          INFO Re-initializing PoolSvc
+PoolSvc                          INFO Setting up APR FileCatalog and Streams
 PoolSvc                          INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
-XMLFileCatalog Info Connecting to the catalog
-PoolXMLFileCatalog Info Xerces-c initialization Number 0
-ProxyProviderSvc                 INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
-DetectorStore                    INFO Initializing DetectorStore - package version StoreGate-03-06-43
-ToolSvc.CondStream1              INFO Initializing ToolSvc.CondStream1 - package version OutputStreamAthenaPool-00-02-84
+DbSession                        INFO     Open     DbSession    
+Domain[ROOT_All]                 INFO >   Access   DbDomain     READ      [ROOT_All] 
+ToolSvc.CondStream1              INFO Initializing ToolSvc.CondStream1 - package version OutputStreamAthenaPool-00-00-00
 IOVDbTestAlg                    DEBUG input handles: 0
 IOVDbTestAlg                    DEBUG output handles: 0
 IOVDbTestAlg                    DEBUG Data Deps for IOVDbTestAlg
 HistogramPersistencySvc       WARNING Histograms saving not required.
 EventSelector                    INFO  Enter McEventSelector Initialization 
-AthenaEventLoopMgr               INFO Setup EventSelector service EventSelector
-ActiveStoreSvc                   INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-43
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr                   INFO Application Manager Initialized successfully
-InputMetaDataStore               INFO Start InputMetaDataStore
-MetaDataStore                    INFO Start MetaDataStore
-StoreGateSvc                     INFO Start StoreGateSvc
-DetectorStore                    INFO Start DetectorStore
 ApplicationMgr                   INFO Application Manager Started successfully
 EventPersistencySvc              INFO Added successfully Conversion service:McCnvSvc
-AthenaEventLoopMgr               INFO   ===>>>  start of run 1    <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+ClassIDSvc           INFO  getRegistryEntries: read 2303 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,1:0]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,2:5]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #1 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 2 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,3:10]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #1 3 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #1 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 3 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,4:15]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #1 4 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #1 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 4 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [1,5:20]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #1 5 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start of run 2    <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #2 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of run 2    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #2 5 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,1:25]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #2 6 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #2 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #2 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #2 6 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,2:30]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #2 7 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #2 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #2 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #2 7 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,3:35]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #2 8 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #2 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #2 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #2 8 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,4:40]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #2 9 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #2 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #2 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #2 9 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [2,5:45]
 IOVDbTestAlg                    DEBUG Creating condtions objects 
@@ -142,9 +123,9 @@ IOVDbTestAlg                    DEBUG ChanNum 26 Attribute list [xPosition (floa
 IOVDbTestAlg                    DEBUG No range found 
 IOVDbTestAlg                    DEBUG ChanNum 36 Attribute list [xPosition (float) : 55], [id (int) : 37], [name (string) : TestAttrList]
 IOVDbTestAlg                    DEBUG No range found 
-DetectorStore                 WARNING retrieve(const): No valid proxy for object /Simulation/Parameters  of type AthenaAttributeList(CLID 40774348)
+DetectorStore_ImplWARNING retrieve(const): No valid proxy for object /Simulation/Parameters  of type AthenaAttributeList(CLID 40774348)
 IOVDbTestAlg                  WARNING Could not retrieve Simulation parameters
-DetectorStore                 WARNING retrieve(const): No valid proxy for object /Digitization/Parameters  of type AthenaAttributeList(CLID 40774348)
+DetectorStore_ImplWARNING retrieve(const): No valid proxy for object /Digitization/Parameters  of type AthenaAttributeList(CLID 40774348)
 IOVDbTestAlg                  WARNING Could not retrieve Digitization parameters
 IOVDbTestAlg                     INFO Retrieved IOVDbTestMDTEleMapColl 
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  45 channel 1
@@ -157,140 +138,129 @@ IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  115 channel 22
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  125 channel 25
 IOVDbTestAlg                     INFO Found mdt element map run 0 event 0 time  135 channel 28
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #2 10 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start of run 3    <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #3 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #2 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of run 3    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #3 10 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,1:50]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #3 11 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #3 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #3 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #3 11 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,2:55]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #3 12 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #3 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #3 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #3 12 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,3:60]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #3 13 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #3 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #3 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #3 13 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,4:65]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #3 14 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #3 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #3 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #3 14 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [3,5:70]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #3 15 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start of run 4    <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #4 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #3 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of run 4    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #4 15 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,1:75]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #4 16 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #4 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #4 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #4 16 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,2:80]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #4 17 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #4 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #4 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #4 17 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,3:85]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #4 18 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #4 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #4 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #4 18 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,4:90]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #4 19 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #4 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #4 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #4 19 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [4,5:95]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #4 20 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start of run 5    <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #1, run #5 20 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #4 20 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of run 5    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #5 20 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,1:100]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #1, run #5 21 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #2, run #5 21 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #5 21 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #5 21 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,2:105]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #2, run #5 22 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #3, run #5 22 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #5 22 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #5 22 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,3:110]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #3, run #5 23 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #4, run #5 23 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #5 23 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #5 23 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,4:115]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #4, run #5 24 events processed so far  <<<===
-AthenaEventLoopMgr               INFO   ===>>>  start processing event #5, run #5 24 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #5 24 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #5 24 events processed so far  <<<===
 IOVDbTestAlg                    DEBUG  in execute()
 IOVDbTestAlg                    DEBUG Event (run,ev,lb:time): [5,5:120]
 IOVDbTestAlg                    DEBUG Event NOT selected for creating conditions objects 
-AthenaEventLoopMgr               INFO   ===>>>  done processing event #5, run #5 25 events processed so far  <<<===
-DetectorStore                    INFO Stop DetectorStore
-StoreGateSvc                     INFO Stop StoreGateSvc
-StoreGateSvc                     INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
-MetaDataStore                    INFO Stop MetaDataStore
-InputMetaDataStore               INFO Stop InputMetaDataStore
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #5 25 events processed so far  <<<===
+Domain[ROOT_All]                 INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr                   INFO Application Manager Stopped successfully
+IncidentProcAlg1                 INFO Finalize
 IOVDbTestAlg                     INFO in finalize()
 IOVDbTestAlg                    DEBUG Stream out objects directly 
 IOVDbTestAlg                    DEBUG entering streamOutCondObjects 
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 3719DA83-D4C1-404B-9775-A890DB811598
-Domain[ROOT_All] Info                           SimplePoolFile.root
-RootDatabase.open Success SimplePoolFile.root File version:60602
+DbSession                        INFO     Open     DbSession    
+Domain[ROOT_All]                 INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All]                 INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
+Domain[ROOT_All]                 INFO                           SimplePoolFile.root
+RootDatabase.open                INFO SimplePoolFile.root File version:60806
 IOVDbTestAlg                    DEBUG Stream out for pairs:
 IOVDbTestAlg                    DEBUG IOVDbTestMDTEleMap  
 IOVDbTestAlg                    DEBUG IOVDbTestAmdbCorrection  
 IOVDbTestAlg                    DEBUG IOVDbTestMDTEleMapColl  
-ClassIDSvc                       INFO  getRegistryEntries: read 1936 CLIDRegistry entries for module ALL
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info IOVDbTestMDTEleMap [DBDD3779-7E80-463C-9E29-5AAA08432783]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info IOVDbTestAmdbCorrection [C3B137B3-F09E-4B75-B14C-AAA2B64408BB]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info CondMultChanCollImpl [1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
-StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
+StorageSvc                       INFO Building shape according to reflection information using shape ID for:
+StorageSvc                       INFO IOVDbTestMDTEleMap [DBDD3779-7E80-463C-9E29-5AAA08432783]
+StorageSvc                       INFO Building shape according to reflection information using shape ID for:
+StorageSvc                       INFO IOVDbTestAmdbCorrection [C3B137B3-F09E-4B75-B14C-AAA2B64408BB]
+StorageSvc                       INFO Building shape according to reflection information using shape ID for:
+StorageSvc                       INFO CondMultChanCollImpl [1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA]
+StorageSvc                       INFO Building shape according to reflection information using shape ID for:
+StorageSvc                       INFO DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
+StorageSvc                       INFO Building shape according to reflection information using shape ID for:
+StorageSvc                       INFO DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
 IOVDbTestAlg                    DEBUG Streamed out OK 
-AthAlgSeq                        INFO Finalizing AthAlgSeq...
-IOVDbTestAlg                    DEBUG Calling destructor
-AthOutSeq                        INFO Finalizing AthOutSeq...
-AthRegSeq                        INFO Finalizing AthRegSeq...
-AthMasterSeq                     INFO Finalizing AthMasterSeq...
-StoreGateSvc                     INFO Finalizing StoreGateSvc - package version StoreGate-03-06-43
+IncidentProcAlg2                 INFO Finalize
 EventSelector                    INFO finalize
-DetectorStore                    INFO Finalizing DetectorStore - package version StoreGate-03-06-43
-SimplePoolFile.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 3719DA83-D4C1-404B-9775-A890DB811598
-Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
-PoolXMLFileCatalog Info XercesC termination number 0
-PoolSvc                          INFO I/O finalization...
-MetaDataStore                    INFO Finalizing MetaDataStore - package version StoreGate-03-06-43
-InputMetaDataStore               INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-43
+SimplePoolFile.root              INFO Database being retired...
+RootDatabase.close              ERROR Failed to modify file: SimplePoolFile.root Errno=2 No such file or directory
+Domain[ROOT_All]                 INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 795C0883-C7D4-EE41-831A-C29C593891E7
+Domain[ROOT_All]                 INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 AthDictLoaderSvc                 INFO in finalize...
 ToolSvc                          INFO Removing all tools created by ToolSvc
 *****Chrono*****                 INFO ****************************************************************************************************
 *****Chrono*****                 INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                 INFO ****************************************************************************************************
-AthenaSealSvc::dictLoading       INFO Time User   : Tot=   10 [ms]                                             #=  1
-ChronoStatSvc                    INFO Time User   : Tot=0.794  [s]                                             #=  1
+commitOutput                     INFO Time User   : Tot=    0 [us]                                             #=  1
+fRep_ALL                         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #=  4
+cRepR_ALL                        INFO Time User   : Tot=   20 [ms] Ave/Min/Max= 1.33(+-  3.4)/    0/   10 [ms] #= 15
+cRep_ALL                         INFO Time User   : Tot=   70 [ms] Ave/Min/Max= 17.5(+- 10.9)/    0/   30 [ms] #=  4
+ChronoStatSvc                    INFO Time User   : Tot= 0.75  [s]                                             #=  1
 *****Chrono*****                 INFO ****************************************************************************************************
 ChronoStatSvc.finalize()         INFO  Service finalized successfully 
 ApplicationMgr                   INFO Application Manager Finalized successfully
 ApplicationMgr                   INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"
-CORAL/Services/ConnectionService Info Deleting the ConnectionPool

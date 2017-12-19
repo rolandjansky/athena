@@ -21,18 +21,8 @@ public:
   static const  InterfaceID& interfaceID() { return IID_TrigSerializeCnvSvc; }
   virtual StatusCode initialize();
 
-protected:
-  friend class SvcFactory<TrigSerializeCnvSvc>;
-
   TrigSerializeCnvSvc(const std::string &name, ISvcLocator* svc) :
     ConversionSvc(name,svc,storageType()) { }
-
-
-
-  /*
-  TrigSerializeCnvSvc(const std::string &name, ISvcLocator* svc) :
-    IConversionSvc() { }
-  */
 
   virtual ~TrigSerializeCnvSvc() {};
 };

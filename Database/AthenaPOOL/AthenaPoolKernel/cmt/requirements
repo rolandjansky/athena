@@ -1,6 +1,0 @@
-package AthenaPoolKernel
-
-author RD Schaffer <R.D.Schaffer@cern.ch>
-
-use AtlasPolicy    AtlasPolicy-* 
-use GaudiInterface GaudiInterface-* External

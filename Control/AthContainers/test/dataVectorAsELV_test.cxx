@@ -20,6 +20,7 @@
 #include "AthContainers/AuxElement.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -77,7 +78,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
   test1();

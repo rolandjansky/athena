@@ -317,11 +317,10 @@ class SimLayout(JobProperty):
                      'ATLAS-R1-2012-02-00-00', # Used in MC14a
                      'ATLAS-R2-2015-01-01-00', # Used in MC14a
                      'ATLAS-R1-2012-03-00-00', # Used in MC15a
-                     'ATLAS-R2-2015-02-00-00', # Used in MC15a
-                     'ATLAS-R2-2015-02-01-00', # Used in MC15a
                      'ATLAS-R2-2015-03-00-00', # Used in MC15a
                      'ATLAS-R2-2015-03-01-00', # Used in MC15a
                      'ATLAS-R2-2016-00-00-00', # Testing for MC16
+                     'ATLAS-R2-2016-01-00-01', # Final (?) MC16
                      'ATLAS-P2-ITK-03-00-00',  # Phase 2 upgrade testing
                      'ctbh8_combined',
                      'ctbh8_photon',
@@ -641,6 +640,14 @@ class ParticleID(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class RecordStepInfo(JobProperty):
+    """
+    Should FCS_StepInfoCollections be recorded
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class RecordFlux(JobProperty):
     """
     Record flux through the entirety of the detector
@@ -652,11 +659,13 @@ class RecordFlux(JobProperty):
 class OptionalUserActionList(JobProperty):
     """Configuration for Optional UserActions
       The name of the action must be a name retrievable through the ConfigurableFactory"""
-
     statusOn = True
     allowedTypes = ['dict']
-    # not allowing stacking actions to be modified this way
-    StoredValue = {'Run':[], 'Event':[], 'Tracking':[], 'Step':['G4UA::LooperKillerTool']}
+    # not allowing stacking actions to be modified this way.
+    # 'General' refers to new common-interface tools.
+    # FIXME: why do we add the LoopKillerTool here???
+    StoredValue = {'Run':[], 'Event':[], 'Tracking':[], 'Step':[],
+                   'General':['G4UA::LooperKillerTool']}
     def addAction(self,actionTool,roles=[]):
         #Add the action to the end of the list of actions for each role.
         for role in roles:

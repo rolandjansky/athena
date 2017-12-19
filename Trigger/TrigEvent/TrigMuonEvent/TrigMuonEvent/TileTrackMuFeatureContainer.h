@@ -7,9 +7,9 @@
 #ifndef TRIG_TILETRACKMUFEATURECONTAINER
 #define TRIG_TILETRACKMUFEATURECONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigMuonEvent/TileTrackMuFeature.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TileTrackMuFeatureContainer : public DataVector<TileTrackMuFeature> { }; 
 CLASS_DEF( TileTrackMuFeatureContainer , 1294436667, 1)

@@ -16,7 +16,6 @@
 #include "xAODTracking/TrackParticle.h"
 
 #include <vector>
-#include <cassert>
 
 class eflowCaloObjectContainer;
 class eflowRecTrackContainer;
@@ -68,7 +67,7 @@ public:
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool{this,"eflowCellEOverPTool","eflowCellEOverPTool","Energy Flow E/P Values and Shower Paremeters Tool"};
 
   /** Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction */
-  Gaudi::Property<double> m_subtractionSigmaCut{this,"SubtractionSigmaCut",1.2,"Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction"};
+  Gaudi::Property<double> m_subtractionSigmaCut{this,"SubtractionSigmaCut",1.5,"Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction"};
   /** Parameter that controls whether a track, in a track-cluster system, will be processed by the split shower recovery algorithm */
   Gaudi::Property<double> m_consistencySigmaCut{this,"ConsistencySigmaCut",1.0,"Parameter that controls whether a track, in a track-cluster system, will be processed by the split shower recovery algorithm"};
 

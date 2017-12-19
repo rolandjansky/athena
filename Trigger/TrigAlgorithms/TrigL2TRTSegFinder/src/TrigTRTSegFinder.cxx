@@ -7,7 +7,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "GaudiKernel/ListItem.h"
 
 #include "TrigL2TRTSegFinder/TrigTRTSegFinder.h"
@@ -124,7 +123,7 @@ HLT::ErrorCode TrigTRTSegFinder::hltInitialize()
   
   if (m_magFieldSvc.retrieve().isFailure()) {
         msg(MSG::FATAL) << "Could not retrieve Tool " << m_magFieldSvc << ". Exiting."<<endmsg;
-        return StatusCode::FAILURE;
+        return HLT::BAD_JOB_SETUP;
   }
   // Build MagneticFieldProperties 
   m_magFieldProperties = new Trk::MagneticFieldProperties();

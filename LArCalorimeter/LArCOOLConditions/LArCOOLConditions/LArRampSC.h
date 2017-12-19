@@ -29,13 +29,9 @@ class LArRampSC:
   virtual  RampRef_t ADC2DAC(const Identifier&  CellID, int gain) const;
   
 };
-
-CLASS_DEF( LArRampSC , 43028438, 1 )
-//ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<LArRampSC> , 147380444 , 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( CondCont<LArRampSC>, CondContBase );
+CLASS_DEF( LArRampSC , 43028438, 1 )
+CONDCONT_DEF( LArRampSC, 147380444, ILArRamp );
 
 
 #endif 

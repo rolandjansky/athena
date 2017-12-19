@@ -43,5 +43,7 @@ class LArNoiseMC: public LArNoiseComplete {
   
 };
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArNoiseMC, 264452083, 1)
+CONDCONT_DEF( LArNoiseMC, 181236653, ILArNoise );
 #endif 

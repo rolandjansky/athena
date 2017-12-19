@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           GaudiKernel
                           LArCalorimeter/LArElecCalib
+			  LArCalorimeter/LArGeoModel
                           Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
@@ -59,11 +60,12 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TreeReader.h
+                           ISF_FastCaloSimParametrization/FCS_Cell.h
                            Root/LinkDef.h
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
 atlas_add_library( ISF_FastCaloSimParametrizationLib
-                   Root/*.cxx src/CaloGeoGeometry.cxx src/CaloGeometryFromFile.cxx
+                   Root/*.cxx src/CaloGeometryFromCaloDDM.cxx src/CaloGeometryLookup.cxx src/CaloGeometry.cxx
                    ${ISF_FastCaloSimParametrizationLibDictSource}
                    PUBLIC_HEADERS ISF_FastCaloSimParametrization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}

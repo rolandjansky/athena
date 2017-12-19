@@ -1962,7 +1962,7 @@ private:
 
 
   /// The DV/DL info struct for this class.
-  static DataModel_detail::DVLInfo<DataVector<T> > s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
 
 
   typedef typename
@@ -3208,7 +3208,7 @@ private:
 
 
   /// The DV/DL info struct for this class.
-  static DataModel_detail::DVLInfo<DataVector<T> > s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
 
 
   typedef typename
@@ -3353,7 +3353,7 @@ public:
 
 
 #include "AthContainers/tools/DVLDataBucket.h"
-#include "SGTools/DataBucketTraitFwd.h"
+#include "AthenaKernel/DataBucketTraitFwd.h"
 
 
 namespace SG {

@@ -67,7 +67,6 @@ class IIncidentSvc;
 class ITimeKeeper;
 class StoreGateSvc;
 class ISvcLocator;
-template <class TYPE> class SvcFactory;
 
 /** @class AthenaHiveEventLoopMgr
     @brief The default ATLAS batch event loop manager.
@@ -87,8 +86,6 @@ class AthenaHiveEventLoopMgr
             public Athena::TimeoutMaster
 {
 public:
-  /// Creator friend class
-  friend class SvcFactory<AthenaHiveEventLoopMgr>;
   typedef IEvtSelector::Context   EvtContext;
 
 protected:
@@ -165,12 +162,6 @@ protected:
   /// value.
   void setClearStorePolicy(Property& clearStorePolicy);
 
-  /// Standard Constructor
-  AthenaHiveEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
- 
-  /// Standard Destructor
-  virtual ~AthenaHiveEventLoopMgr();
-
   /// Dump out histograms as needed
   virtual StatusCode writeHistograms(bool force=false);
 
@@ -233,6 +224,10 @@ public:
 //***********************************************************//
 
 public:
+  /// Standard Constructor
+  AthenaHiveEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
+  /// Standard Destructor
+  virtual ~AthenaHiveEventLoopMgr();
   /// implementation of IAppMgrUI::initalize
   virtual StatusCode initialize();
   /// implementation of IAppMgrUI::finalize
@@ -274,9 +269,6 @@ private:
   UnsignedIntegerProperty m_writeInterval;
   bool m_writeHists;
 
-  /// a @c std::cout like object
-  mutable MsgStream m_msg;
-
   /// events processed
   unsigned int m_nev;
   unsigned int m_proc;
@@ -284,6 +276,7 @@ private:
   bool m_doEvtHeartbeat;
 
   unsigned int m_flmbi, m_timeStampInt;
+  bool m_showTimeStamp;
 
   // from MinimalEventLoopMgr
 public:

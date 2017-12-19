@@ -1,3 +1,3 @@
 #include "TrigEgammaRec/TrigEgammaRec.h"
 
-DECLARE_ALGORITHM_FACTORY(TrigEgammaRec)
+DECLARE_COMPONENT( TrigEgammaRec )

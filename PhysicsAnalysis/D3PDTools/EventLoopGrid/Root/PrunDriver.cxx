@@ -146,7 +146,7 @@ static bool downloadContainer(const std::string& name,
     std::vector<std::string> datasets;
     for (auto& entry : SH::rucioListDids (name))
     {
-      if (entry.type == "DATASET")
+      if (entry.type == "CONTAINER")
         datasets.push_back (entry.name);
     }
 

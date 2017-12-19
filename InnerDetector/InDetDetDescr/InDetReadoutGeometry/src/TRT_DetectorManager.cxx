@@ -33,9 +33,9 @@ namespace InDetDD {
 
     TRT_DetectorManager::TRT_DetectorManager(StoreGateSvc * detStore)
         :InDetDetectorManager(detStore, "TRT"),
-        _numerology(new TRT_Numerology()),
+        m_numerology(new TRT_Numerology()),
         m_idHelper(NULL),
-        _ownsIdHelper(false),
+        m_ownsIdHelper(false),
         m_gasType(unknown),
         m_digvers(9999),
         m_digversname("ERROR:DIGVERSNOTSET!"),
@@ -55,7 +55,7 @@ namespace InDetDD {
             for (unsigned int mod=0;mod<NMODMAX;mod++) {
                 for (unsigned int phi=0; phi<NPHIMAX;phi++) {
                     for (unsigned int sLay=0;sLay<NSTRAWLAYMAXBR;sLay++) {
-                        barrelArray[ec][mod][phi][sLay]=NULL;
+                        m_barrelArray[ec][mod][phi][sLay]=NULL;
                     }
                 }
             }
@@ -64,35 +64,35 @@ namespace InDetDD {
             for (unsigned int whe=0;whe<NWHEELMAX;whe++) {
                 for (unsigned int sLay=0;sLay<NSTRAWLAYMAXEC;sLay++) {
                     for(unsigned int phi=0;phi<NPHIMAX;phi++) {
-                        endcapArray[ec][whe][sLay][phi]=NULL;
+                        m_endcapArray[ec][whe][sLay][phi]=NULL;
                     }
                 }
             }
         }
-        _barrelXF[0]=_barrelXF[1]=_barrelXF[2]=NULL;
-        _endcapXF[0]=_endcapXF[1]=_endcapXF[2]=NULL;
+        m_barrelXF[0]=m_barrelXF[1]=m_barrelXF[2]=NULL;
+        m_endcapXF[0]=m_endcapXF[1]=m_endcapXF[2]=NULL;
     }
 
 
 
     TRT_Numerology * TRT_DetectorManager::getNumerology() {
-        return _numerology;
+        return m_numerology;
     }
 
     const TRT_Numerology * TRT_DetectorManager::getNumerology() const {
-        return _numerology;
+        return m_numerology;
     }
 
     TRT_DetectorManager::~TRT_DetectorManager()
     {
-        for (size_t i=0;i<volume.size();i++) {
-            volume[i]->unref();
+        for (size_t i=0;i<m_volume.size();i++) {
+            m_volume[i]->unref();
         }
         for (unsigned int ec=0;ec<2;ec++) {
             for (unsigned int mod=0;mod<NMODMAX;mod++) {
                 for (unsigned int phi=0; phi<NPHIMAX;phi++) {
                     for (unsigned int sLay=0;sLay<NSTRAWLAYMAXBR;sLay++) {
-                        delete barrelArray[ec][mod][phi][sLay];
+                        delete m_barrelArray[ec][mod][phi][sLay];
                     }
                 }
             }
@@ -101,15 +101,15 @@ namespace InDetDD {
             for (unsigned int whe=0;whe<NWHEELMAX;whe++) {
                 for (unsigned int sLay=0;sLay<NSTRAWLAYMAXEC;sLay++) {
                     for(unsigned int phi=0;phi<NPHIMAX;phi++) {
-                        delete endcapArray[ec][whe][sLay][phi];
+                        delete m_endcapArray[ec][whe][sLay][phi];
                     }
                 }
             }
         }
-        delete _numerology;
-        if (_ownsIdHelper)    delete m_idHelper;
-        for (int i=0;i<3;i++) delete _barrelXF[i];
-        for (int i=0;i<3;i++) delete _endcapXF[i];
+        delete m_numerology;
+        if (m_ownsIdHelper)    delete m_idHelper;
+        for (int i=0;i<3;i++) delete m_barrelXF[i];
+        for (int i=0;i<3;i++) delete m_endcapXF[i];
 
 
         for (unsigned int i = 0; i < m_alignableTransforms.size(); i++) {
@@ -126,23 +126,23 @@ namespace InDetDD {
 
     unsigned int TRT_DetectorManager::getNumTreeTops() const
     {
-        return volume.size(); 
+        return m_volume.size(); 
     }
 
     PVConstLink TRT_DetectorManager::getTreeTop(unsigned int i) const
     {
-        return volume[i];
+        return m_volume[i];
     }
 
     void  TRT_DetectorManager::addTreeTop(PVLink vol){
         vol->ref();
-        volume.push_back(vol);
+        m_volume.push_back(vol);
     }
 
     // Manage the barrel elements:
     void TRT_DetectorManager::manageBarrelElement(TRT_BarrelElement *barrel) {
 
-        if ( barrelArray
+        if ( m_barrelArray
             [barrel->getCode().isPosZ()]
             [barrel->getCode().getModuleIndex()]
             [barrel->getCode().getPhiIndex()]
@@ -152,7 +152,7 @@ namespace InDetDD {
             if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "manageBarrelElement: Overriding existing element"<<endmsg;
         };
 
-        barrelArray
+        m_barrelArray
             [barrel->getCode().isPosZ()]
             [barrel->getCode().getModuleIndex()]
             [barrel->getCode().getPhiIndex()]
@@ -187,7 +187,7 @@ namespace InDetDD {
   // Manage the endcap elements:
     void TRT_DetectorManager::manageEndcapElement(TRT_EndcapElement *endcap) {
 
-        if ( endcapArray
+        if ( m_endcapArray
             [endcap->getCode().isPosZ()]
             [endcap->getCode().getWheelIndex()]
             [endcap->getCode().getStrawLayerIndex()]
@@ -198,7 +198,7 @@ namespace InDetDD {
                 msg(MSG::DEBUG) << "manageEndcapElement: Overriding existing element"<<endmsg;
         };
 
-        endcapArray
+        m_endcapArray
             [endcap->getCode().isPosZ()]
             [endcap->getCode().getWheelIndex()]
             [endcap->getCode().getStrawLayerIndex()]
@@ -235,7 +235,7 @@ namespace InDetDD {
         if ( positive >= 2 || moduleIndex >= NMODMAX
             || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return 0;
 
-        return barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
+        return m_barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
     }
 
 
@@ -247,7 +247,7 @@ namespace InDetDD {
         if ( positive >= 2 || moduleIndex >= NMODMAX
             || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return 0;
 
-        return barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
+        return m_barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
     }
 
 
@@ -262,7 +262,7 @@ namespace InDetDD {
         if ( positive >= 2 || wheelIndex >= NWHEELMAX
             || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return 0;
 
-        return endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
+        return m_endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
     }
 
 
@@ -274,7 +274,7 @@ namespace InDetDD {
         if ( positive >= 2 || wheelIndex >= NWHEELMAX
             || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return 0;
 
-        return endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
+        return m_endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
     }
 
     const TRT_ID *TRT_DetectorManager::getIdHelper() const {
@@ -284,7 +284,7 @@ namespace InDetDD {
 
     void TRT_DetectorManager::setIdHelper(const TRT_ID *idHelper, bool owns) {
         m_idHelper=idHelper;
-        _ownsIdHelper=owns;
+        m_ownsIdHelper=owns;
     }
 
 
@@ -317,21 +317,21 @@ namespace InDetDD {
 
 
     void TRT_DetectorManager::setBarrelTransformField(size_t i, const GeoXF::Function * f){
-        if (_barrelXF[i]!=f)  delete  _barrelXF[i];
-        _barrelXF[i] = f;
+        if (m_barrelXF[i]!=f)  delete  m_barrelXF[i];
+        m_barrelXF[i] = f;
     }                                      
 
     const GeoXF::Function * TRT_DetectorManager::barrelTransformField(size_t i) const {
-        return _barrelXF[i];
+        return m_barrelXF[i];
     }
 
     void TRT_DetectorManager::setEndcapTransformField(size_t i, const GeoXF::Function *f) {                                      
-        if (_endcapXF[i]!=f) delete  _endcapXF[i];
-        _endcapXF[i]=f;
+        if (m_endcapXF[i]!=f) delete  m_endcapXF[i];
+        m_endcapXF[i]=f;
     }
 
     const GeoXF::Function *TRT_DetectorManager::endcapTransformField(size_t i) const{
-        return _endcapXF[i];
+        return m_endcapXF[i];
     }                           
 
 

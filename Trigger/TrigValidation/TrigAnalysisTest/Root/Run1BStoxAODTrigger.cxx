@@ -38,12 +38,12 @@ namespace TrigAnalysisTest {
   // Init counters and get ready to run.
   //
   Run1BStoxAODTrigger::Run1BStoxAODTrigger()
-    : _passed_l1(0),
-      _passed_hlt(0),
-      _first_call(true)
+    : m_passed_l1(0),
+      m_passed_hlt(0)
+      //m_first_call(true)
   {
-    histFile = new TFile("hist.root", "RECREATE");
-    if (histFile == nullptr || !histFile->IsOpen()) {
+    m_histFile = new TFile("hist.root", "RECREATE");
+    if (m_histFile == nullptr || !m_histFile->IsOpen()) {
       cerr << "unable to open file for writing, exiting" << endl;
       exit(1);
     }
@@ -69,16 +69,16 @@ namespace TrigAnalysisTest {
 
     // Did we pass a trigger level?
     if (trigDecTool.isPassed("L1_.*"))
-      _passed_l1++;
+      m_passed_l1++;
     if (trigDecTool.isPassed("EF_.*"))
-      _passed_hlt++;
+      m_passed_hlt++;
 
     auto chainGroups = trigDecTool.getChainGroup(".*");
     for(auto &trig : chainGroups->getListOfTriggers()) {
-      if(!trigger_counts.count(trig))
-	trigger_counts[trig] = 0;
+      if(!m_trigger_counts.count(trig))
+	m_trigger_counts[trig] = 0;
       if(trigDecTool.isPassed(trig)) {
-	trigger_counts[trig] += 1;
+	m_trigger_counts[trig] += 1;
 	cout << "Trigger passed: " << trig << endl;
       }
     }
@@ -167,18 +167,18 @@ namespace TrigAnalysisTest {
   int Run1BStoxAODTrigger::finalize()
   {
     //athena doesn't store m_all_triggers without this
-    histFile->cd();
+    m_histFile->cd();
 
     // Dump for debugging.
-    cout << "L1 triggers passed: " << _passed_l1 << endl;
-    cout << "EF triggers passed: " << _passed_hlt << endl;
+    cout << "L1 triggers passed: " << m_passed_l1 << endl;
+    cout << "EF triggers passed: " << m_passed_hlt << endl;
     cout << "START SUMMARY: Run1BStoxAODTrigger" << endl;
-    cout << "creating histogram with one bin per trigger, n of bins is " << trigger_counts.size() << endl;
+    cout << "creating histogram with one bin per trigger, n of bins is " << m_trigger_counts.size() << endl;
     // Set the correct binning
-    m_all_triggers->SetBins( trigger_counts.size(), 0.0, trigger_counts.size() );
+    m_all_triggers->SetBins( m_trigger_counts.size(), 0.0, m_trigger_counts.size() );
     cout << "histogram created" << endl;
     int trigger_counter = 0;
-    for (auto it = trigger_counts.begin(); it!=trigger_counts.end(); it++) {
+    for (auto it = m_trigger_counts.begin(); it!=m_trigger_counts.end(); it++) {
       cout << (*it).first << "\t" << (*it).second <<endl;
       trigger_counter++;
       m_all_triggers->GetXaxis()->SetBinLabel( trigger_counter, ((*it).first).c_str() );
@@ -186,8 +186,8 @@ namespace TrigAnalysisTest {
     }
     cout << "END SUMMARY  : Run1BStoxAODTrigger" << endl;
 
-    histFile->Write();
-    histFile->Close();
+    m_histFile->Write();
+    m_histFile->Close();
 
     // our aim here is to test the conversion of variables
     return 0;

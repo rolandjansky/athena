@@ -16,8 +16,9 @@
 #include "AthLinks/exceptions.h"
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
 #include "SGTools/CurrentEventStore.h"
-#include "SGTools/CLASS_DEF.h"
-#include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/getMessageSvc.h" 
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <iostream>
 #include <cstdlib>
@@ -137,6 +138,7 @@ public:
   using ElementLinkBase::storedIndex;
   using ElementLinkBase::toIndexedElement;
   using ElementLinkBase::setCachedElement;
+  using ElementLinkBase::storeCachedElement;
   using ElementLinkBase::setIndex;
   using ElementLinkBase::setStorableObject;
   using ElementLinkBase::resetWithKeyAndIndex;
@@ -151,7 +153,7 @@ public:
 };
 
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
 
@@ -347,7 +349,7 @@ void test1()
   assert (el12.source() == &store);
   assert (el12.storableBase (0, fooclid) == foocont2);
 
-  el12.setCachedElement (elt2);
+  el12.storeCachedElement (elt2);
   assert (el12.hasCachedElement());
   el12.resetWithKeyAndIndex (sgkey, fooclid, index2, 0);
   assert (!el12.hasCachedElement());
@@ -379,7 +381,7 @@ void test1()
 
 
 // toTransient, toPersistent
-void test2()
+void test2 (SGTest::TestStore& store)
 {
   std::cout << "test2\n";
 
@@ -452,7 +454,7 @@ void test2()
 
 
 // default store setting
-void test3()
+void test3 (SGTest::TestStore& store)
 {
   std::cout << "test3\n";
   TestStore store2;
@@ -463,7 +465,7 @@ void test3()
 
 
 // thinning
-void test4()
+void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
 
@@ -487,7 +489,7 @@ void test4()
 
 
 // Converting constructor
-void test5()
+void test5 (SGTest::TestStore& store)
 {
   std::cout << "test5\n";
 
@@ -544,15 +546,15 @@ void test5()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   Athena::getMessageSvcQuiet = true;
   initTestStore();
 
-  test1();
-  test2();
-  test3();
-  test4();
-  test5();
+  test1 (store);
+  test2 (store);
+  test3 (store);
+  test4 (store);
+  test5 (store);
   return 0;
 }

@@ -28,6 +28,12 @@ EventShapeCopier::~EventShapeCopier() {}
 
 StatusCode EventShapeCopier::initialize() {
 
+  // DataHandles
+  ATH_CHECK( m_inputEventShape.initialize() );
+  ATH_CHECK( m_outputEventShape.initialize() );
+  m_outputEventShapeIn = m_outputEventShape.key();
+  ATH_CHECK( m_outputEventShapeIn.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -37,26 +43,44 @@ StatusCode EventShapeCopier::fillEventShape() const {
   
   ATH_MSG_DEBUG("Begin fillEventShape()");
 
-  if ( evtStore()->contains<xAOD::EventShape>(m_outputEventShape) ){
-    ATH_MSG_WARNING( "EventShape with key "<< m_outputEventShape << " already exists. " );
-    return StatusCode::SUCCESS;      
+  // check if not already existing
+  auto handle_inOut = SG::makeHandle (m_outputEventShapeIn);
+  if ( handle_inOut.isValid() ) {
+    ATH_MSG_WARNING( "EventShape with key "<< m_outputEventShapeIn.key() << " already exists. Not overwriting it." );
+    return StatusCode::SUCCESS;
   }
 
   xAOD::EventShape *evs = new xAOD::EventShape();
-  xAOD::EventShapeAuxInfo* aux = new xAOD::EventShapeAuxInfo();
-  evs->setStore( aux );
-  ATH_CHECK( evtStore()->record( aux, m_outputEventShape + "Aux." ) );
-  ATH_CHECK( evtStore()->record( evs, m_outputEventShape ) );
-  ATH_MSG_DEBUG("Created new EventShape container: " << m_outputEventShape);
+  std::unique_ptr<const xAOD::EventShape> evs_ptr(evs);
 
-  return fillEventShape(evs);  
+  xAOD::EventShapeAuxInfo* evsaux = new xAOD::EventShapeAuxInfo();
+  std::unique_ptr<const xAOD::EventShapeAuxInfo> evsaux_ptr( evsaux);
+  evs->setStore( evsaux );
+
+  ATH_CHECK(fillEventShape(evs));  
+
+  SG::WriteHandle<xAOD::EventShape> h_out(m_outputEventShape);
+  if ( ! h_out.put(std::move(evs_ptr), std::move(evsaux_ptr)) ) {
+    ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outputEventShape.key());
+  } else {
+    ATH_MSG_DEBUG("Created new EventShape container: " << m_outputEventShape.key());
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 StatusCode EventShapeCopier::fillEventShape(xAOD::EventShape *evs) const {
   const xAOD::EventShape * inputES;
-  ATH_CHECK( evtStore()->retrieve(inputES, m_inputEventShape) ); 
-  
+
+  SG::ReadHandle<xAOD::EventShape> handle_in( m_inputEventShape );
+  if ( handle_in.isValid() ) {
+    inputES = handle_in.cptr();
+  } else {
+    ATH_MSG_WARNING("Unable to read: " << m_inputEventShape.key());
+    return StatusCode::FAILURE;      
+  }
+
   evs->auxdata<float> ("Density")      = inputES->auxdata<float>( m_eventDensityName ) ;
   evs->auxdata<float> ("DensitySigma") = inputES->auxdata<float>( m_eventDensityName+"Sigma" ) ;
   evs->auxdata<float> ("DensityArea")  = inputES->auxdata<float>( m_eventDensityName+"Area" ) ;

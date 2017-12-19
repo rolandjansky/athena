@@ -79,7 +79,7 @@ private:
   AssociatedObjectHandleBase & operator= ( const AssociatedObjectHandleBase & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   TrackHandleBase* m_trackHandle;
   bool m_visible;
