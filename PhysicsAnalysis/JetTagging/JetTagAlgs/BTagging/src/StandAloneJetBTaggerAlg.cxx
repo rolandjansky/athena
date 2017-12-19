@@ -76,7 +76,6 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
 
   // Return gracefully:
   return StatusCode::SUCCESS;
-
 }
 
 } //// namespace analysis
