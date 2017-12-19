@@ -39,7 +39,6 @@ class  JetBTaggerTool:
   StatusCode execute();
 
   JetBTaggerTool(const std::string & n);
-  //JetBTaggerTool(const std::string&, const IInterface*, const std::string&);
   virtual ~JetBTaggerTool();
   virtual int modify(xAOD::JetContainer& jets) const;
 
@@ -50,10 +49,6 @@ class  JetBTaggerTool:
   Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","",""};
   SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName { this, "BTaggingCollectionName", "", ""} ;
 
-  //std::string m_BTagName;
-  //std::string m_BTagSVName;
-  //std::string m_BTagJFVtxName;
-
   // FIXME: mutable
   mutable ToolHandle< IBTagTool > m_bTagTool; 
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
@@ -63,12 +58,6 @@ class  JetBTaggerTool:
   bool m_PtRescale;
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
-  // Utility functions to be used in case of container overwriting.
-  // Note that they do not need to be defined here, as they can only be called from code in JetBTaggerTool.cxx.
-  template< class CONTAINER, class AUXSTORE >
-    StatusCode overwrite(const std::string& key, bool doCopy = true) const;
-  template< class CONTAINER, class AUXSTORE >
-    StatusCode overwriteImp(const std::string& key, bool doCopy = true) const;
 };
 
 }

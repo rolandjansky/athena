@@ -29,7 +29,6 @@ namespace Analysis
           virtual StatusCode initialize() override;
           virtual StatusCode finalize() override;
 	  virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0) const override; //Kept for TrigBtagFex.cxx
-	  virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, btagcollection_t*) const override;
 	  virtual StatusCode BTagTrackAssociation_exec(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer* btaggingContainer) const override;
 
       private:

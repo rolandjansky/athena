@@ -30,13 +30,8 @@ namespace Analysis
        /** AlgTool interface methods */
        static const InterfaceID& interfaceID() { return IID_IBTagSecVertexing; };
 
-       typedef std::vector<xAOD::Jet* > jetcollection_t;
-       typedef std::vector<xAOD::BTagging* > btagcollection_t;
-
-
        virtual StatusCode initialize() = 0;
        virtual StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*, const xAOD::Vertex* vtx=0) const = 0;
-       virtual StatusCode BTagSecVtx_exec(jetcollection_t* theJets, btagcollection_t*) const = 0;
        virtual StatusCode BTagSecVtx_exec(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const = 0;
        virtual StatusCode finalize() = 0;
       

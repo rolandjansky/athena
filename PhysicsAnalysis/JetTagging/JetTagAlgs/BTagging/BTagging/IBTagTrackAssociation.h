@@ -27,7 +27,6 @@ namespace Analysis
        virtual ~IBTagTrackAssociation(){};
 
        typedef std::vector<xAOD::Jet* > jetcollection_t;
-       typedef std::vector<xAOD::BTagging* > btagcollection_t;
 
        /** AlgTool interface methods */
        static const InterfaceID& interfaceID() { return IID_IBTagTrackAssociation; };
@@ -35,7 +34,6 @@ namespace Analysis
        virtual StatusCode initialize() = 0;
        virtual StatusCode finalize() = 0;
        virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0) const = 0;
-       virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, btagcollection_t*) const = 0;
        virtual StatusCode BTagTrackAssociation_exec(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer* btaggingContainer) const = 0;
 
   };

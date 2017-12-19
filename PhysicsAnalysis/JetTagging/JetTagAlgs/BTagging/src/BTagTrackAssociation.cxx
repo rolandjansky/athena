@@ -293,7 +293,7 @@ namespace Analysis {
 
       // ----- associate tracks
       SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackContainerName (m_TrackContainerName);
-      ATH_MSG_INFO( " retrieve track particle container with key " << m_TrackContainerName.key()  );
+      ATH_MSG_DEBUG( " retrieve track particle container with key " << m_TrackContainerName.key()  );
       if (!h_TrackContainerName.isValid()) {
         ATH_MSG_ERROR( " cannot retrieve track particle container with key " << m_TrackContainerName.key()  );
         return StatusCode::FAILURE;
@@ -305,7 +305,6 @@ namespace Analysis {
 
       for (; tAssocIter!=tAssocEnd; ++tAssocIter) {
           ATH_MSG_VERBOSE("#BTAG# Number of TrackParticles in event: " << (*h_TrackContainerName).size());
-          ATH_MSG_INFO("#BTAG# Number of TrackParticles in event: " << (*h_TrackContainerName).size());
 
           // compute the associations
           std::vector<std::vector<const xAOD::TrackParticle*>*> assocs =
@@ -349,12 +348,12 @@ namespace Analysis {
           } 
           // Retrieve the muon container
           SG::ReadHandle<xAOD::MuonContainer> h_MuonContainerName (m_MuonContainerName);
-          ATH_MSG_INFO( " retrieve muon container with key " << m_MuonContainerName.key()  );
+          ATH_MSG_DEBUG( " retrieve muon container with key " << m_MuonContainerName.key()  );
           if (!h_MuonContainerName.isValid()) {
             ATH_MSG_ERROR( " cannot retrieve muon container with key " << m_MuonContainerName.key()  );
             return StatusCode::FAILURE;
           }
-          ATH_MSG_INFO("#BTAG# Number of Muons in event: " << (*h_MuonContainerName).size());
+          ATH_MSG_DEBUG("#BTAG# Number of Muons in event: " << (*h_MuonContainerName).size());
 
           std::vector<std::vector<const xAOD::Muon*>*> assocs =
               (*muAssocIter)->associateParticlesToJets<std::vector<const xAOD::Muon*>, xAOD::MuonContainer>( jetContainer, &(*h_MuonContainerName), *muAssocNameIter );
@@ -383,126 +382,5 @@ namespace Analysis {
 
    return StatusCode::SUCCESS;
    }
-
-
-
-  StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(jetcollection_t* theJets, btagcollection_t* newBTags) const {
-
-      /* ----------------------------------------------------------------------------------- */
-      /*               Particle to Jet Associations                                          */
-      /* ----------------------------------------------------------------------------------- */
-
-      // new style associations
-      btagcollection_t::iterator btagIter;
-      if ( m_TracksToTagList.size() ) {
-          for (const std::string& trackColName : m_TracksToTagList) {
-              btagIter = newBTags->begin();
-              for (const xAOD::Jet* jet : *theJets) {
-                  std::vector< ElementLink< xAOD::TrackParticleContainer > > tmp;
-                  if (!jet->getAttribute(trackColName, tmp)) {
-                      ATH_MSG_FATAL("Unable to read track collection " + trackColName + " from jets for b-tagging.");
-                      return StatusCode::FAILURE;
-                  }
-                  (*btagIter)->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(trackColName) = tmp;
-                  ++btagIter;
-              }
-          }
-
-          return StatusCode::SUCCESS;
-      }
-
-
-      // ----- associate tracks
-      SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackContainerName (m_TrackContainerName);
-      ATH_MSG_INFO( " retrieve track particle container with key " << m_TrackContainerName.key()  );
-      if (!h_TrackContainerName.isValid()) {
-        ATH_MSG_ERROR( " cannot retrieve track particle container with key " << m_TrackContainerName.key()  );
-        return StatusCode::FAILURE;
-      }
-
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator tAssocIter = m_TrackToJetAssociatorList.begin();
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator tAssocEnd  = m_TrackToJetAssociatorList.end();
-      std::vector< std::string >::const_iterator tAssocNameIter = m_TrackToJetAssocNameList.begin();
-
-      for (; tAssocIter!=tAssocEnd; ++tAssocIter) {
-          ATH_MSG_VERBOSE("#BTAG# Number of TrackParticles in event: " << (*h_TrackContainerName).size());
-          ATH_MSG_INFO("#BTAG# Number of TrackParticles in event: " << (*h_TrackContainerName).size());
-
-          // compute the associations
-          std::vector<std::vector<const xAOD::TrackParticle*>*> assocs =
-              (*tAssocIter)->associateParticlesToJets<std::vector<const xAOD::TrackParticle*>, xAOD::TrackParticleContainer>( theJets, &(*h_TrackContainerName), *tAssocNameIter );
-
-          // then store them in the BTagging objects.
-          unsigned int i = 0;
-          for ( btagIter = newBTags->begin(); btagIter != newBTags->end(); ++btagIter) {
-              std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
-              for (std::vector<const xAOD::TrackParticle*>::const_iterator trkIter = assocs[i]->begin(); trkIter != assocs[i]->end(); ++trkIter) {
-                  ElementLink<xAOD::TrackParticleContainer> EL;
-                  EL.toContainedElement(*h_TrackContainerName, *trkIter);
-                  associationLinks.push_back(EL);
-              }
-              (*btagIter)->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(*tAssocNameIter) = associationLinks;
-              ++i;
-          }
-          ATH_MSG_VERBOSE("#BTAG# stored track-to jet associations under name " << *tAssocNameIter);
-          //delete pointer created in associateParticlesToJets
-          for (i=0; i < assocs.size(); i++) {
-              delete assocs[i];
-          }
-          ++tAssocNameIter;
-      }
-      
-      // // ----- associate muons
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator muAssocIter = m_MuonToJetAssociatorList.begin();
-      ToolHandleArray< Analysis::ParticleToJetAssociator >::const_iterator muAssocEnd  = m_MuonToJetAssociatorList.end();
-      std::vector< std::string >::const_iterator muNameIter = m_MuonContainerNameList.begin();
-      std::vector< std::string >::const_iterator muAssocNameIter = m_MuonToJetAssocNameList.begin();
-
-
-      if (m_MuonToJetAssociatorList.size() == 0) {
-          ATH_MSG_INFO("#BTAG# MuonToJetAssociatorList is empty - revisit config ");
-      }
-      for (; muAssocIter!=muAssocEnd; ++muAssocIter) {
-          //For test only
-          if (m_MuonContainerName.key().compare(*muNameIter) != 0) {
-              ATH_MSG_INFO("#BTAG# Extra muon container - no association - revisit config " << *muNameIter);
-              continue;
-          } 
-          // Retrieve the muon container
-          SG::ReadHandle<xAOD::MuonContainer> h_MuonContainerName (m_MuonContainerName);
-          ATH_MSG_INFO( " retrieve muon container with key " << m_MuonContainerName.key()  );
-          if (!h_MuonContainerName.isValid()) {
-            ATH_MSG_ERROR( " cannot retrieve muon container with key " << m_MuonContainerName.key()  );
-            return StatusCode::FAILURE;
-          }
-          ATH_MSG_INFO("#BTAG# Number of Muons in event: " << (*h_MuonContainerName).size());
-
-          std::vector<std::vector<const xAOD::Muon*>*> assocs =
-              (*muAssocIter)->associateParticlesToJets<std::vector<const xAOD::Muon*>, xAOD::MuonContainer>( theJets, &(*h_MuonContainerName), *muAssocNameIter );
-
-          // then store them in the BTagging objects. 
-          unsigned int i = 0;
-          for ( btagIter = newBTags->begin(); btagIter != newBTags->end(); ++btagIter) {
-              std::vector< ElementLink< xAOD::MuonContainer > > associationLinks;
-              for (std::vector<const xAOD::Muon*>::const_iterator muonIter = assocs[i]->begin(); muonIter != assocs[i]->end(); ++muonIter) {
-                  ElementLink<xAOD::MuonContainer> EL;
-                  EL.toContainedElement(*h_MuonContainerName, *muonIter);
-                  associationLinks.push_back(EL);
-              }
-              (*btagIter)->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(*muAssocNameIter) = associationLinks;
-              ++i;
-          }
-          ATH_MSG_VERBOSE("#BTAG# stored muon-to-jet associations under name " << *muAssocNameIter);
-          //delete pointer created in associateParticlesToJets
-          for (i=0; i < assocs.size(); i++) {
-              delete assocs[i];
-          }
-          ++muNameIter;
-          ++muAssocNameIter;
-      }          
-
-
-      return StatusCode::SUCCESS;
-  }
 
 } // namespace
