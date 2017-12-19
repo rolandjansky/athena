@@ -232,7 +232,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
     ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
-    addSDO(chargedDiodes);
+    addSDO(chargedDiodes.get());
     chargedDiodes->clear();
   }
   delete m_timedHits;
@@ -266,7 +266,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
           CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
           ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
-          addSDO(chargedDiodes);
+          addSDO(chargedDiodes.get());
           chargedDiodes->clear();
         }
       }
@@ -282,7 +282,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 //=======================================
 // Convert a SiTotalCharge to a InDetSimData, and store it. (this needs working...)
 //-----------------------------------------------------------------------------------------------
-void PixelDigitizationTool::addSDO(std::unique_ptr<SiChargedDiodeCollection>& collection) {
+void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
 
   typedef SiTotalCharge::list_t list_t;
 
