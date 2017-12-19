@@ -25,20 +25,8 @@ namespace AthViews {
 ViewMergeAlg::ViewMergeAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_w_ints( "mergedOutput" ),
-  m_r_ints( "dflow_ints" ),
-  m_r_views( "all_views" )
+  m_r_ints( "dflow_ints" )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-
-  //declareProperty( "IntsFromViews", m_r_ints, "Data flow of ints" ); //This is not guaranteed to be created if there are no views
-
-  declareProperty( "MergedInts", m_w_ints, "Data flow of ints" );
-
-  declareProperty( "AllViews", m_r_views, "All views" );
 }
 
 // Destructor
@@ -78,11 +66,11 @@ StatusCode ViewMergeAlg::execute()
 
   //Merge results
   std::vector< int > outputVector;
-  SG::ReadHandle< std::vector< int > > inputHandle( m_r_ints, ctx );
   SG::ReadHandle< std::vector< SG::View* > > inputViews( m_r_views, ctx );
-  CHECK( ViewHelper::MergeViewCollection( *inputViews,	//Vector of views (inside ReadHandle)
-				inputHandle,		//ReadHandle to access the views (the handle itself)
-				outputVector ) );	//Container to merge results into
+  CHECK( ViewHelper::MergeViewCollection( *inputViews,  //Vector of views (inside ReadHandle)
+				m_r_ints,               //ReadHandleKey to access the views
+                                ctx,                    //The context of this algorithm
+				outputVector ) );       //Container to merge results into
 
   //Output the merged data
   SG::WriteHandle< std::vector< int > > outputHandle( m_w_ints, ctx );

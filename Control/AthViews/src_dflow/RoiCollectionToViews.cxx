@@ -84,10 +84,10 @@ StatusCode RoiCollectionToViews::execute()
 
   //Create the views and populate them
   std::vector< SG::View* > viewVector;
-  SG::WriteHandle< ConstDataVector<TrigRoiDescriptorCollection> > outputRoIs( m_viewRoIs, ctx );
   CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName, //Base name for all views to use
           viewVector,                                 //Vector to store views
-          outputRoIs,                                 //A writehandle to use to access the views (the handle itself, not the contents)
+          m_viewRoIs,                                 //A writehandlekey to use to access the views
+          ctx,                                        //The context of this algorithm
           outputRoICollectionVector,                  //Data to initialise each view - one view will be made per entry
           m_viewFallThrough ) );                      //Allow fall through from view to storegate
 

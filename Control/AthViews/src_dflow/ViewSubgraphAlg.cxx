@@ -71,11 +71,11 @@ StatusCode ViewSubgraphAlg::execute()
   }
 
   //Create the views and populate them
-  SG::WriteHandle< int > viewStartHandle( m_w_int, ctx );
-  CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName,	//Base name for all views to use
-					viewVector,	//Vector to store views
-					viewStartHandle,//A writehandle to use to access the views (the handle itself, not the contents)
-					viewData ) );	//Data to initialise each view - one view will be made per entry
+  CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName,   //Base name for all views to use
+					viewVector,     //Vector to store views
+					m_w_int,        //A writehandlekey to use to access the views
+                                        ctx,            //The context of this algorithm
+					viewData ) );   //Data to initialise each view - one view will be made per entry
 
   //Toggle between the two demos
   if ( m_algorithmNameSequence.size() )

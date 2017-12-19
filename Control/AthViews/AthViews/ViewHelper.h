@@ -36,8 +36,11 @@ namespace ViewHelper
   //Function to create a vector of views, each populated with one data object
   template< typename T >
   inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
-                                     SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData, bool allowFallThrough=true )
+                                     SG::WriteHandleKey< T > & PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool allowFallThrough=true )
   {
+    //Make a WriteHandle to use
+    SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
+
     //Loop over all input data
     unsigned int const viewNumber = InputData.size();
     for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
@@ -47,8 +50,8 @@ namespace ViewHelper
       SG::View * outputView = new SG::View( viewName, allowFallThrough );
       ViewVector.push_back( outputView );
 
-      //Attach the handle to the view
-      StatusCode sc = PopulateHandle.setProxyDict( outputView );
+      //Attach a handle to the view
+      StatusCode sc = populateHandle.setProxyDict( outputView );
       if ( !sc.isSuccess() )
       {
         ViewVector.clear();
@@ -56,7 +59,7 @@ namespace ViewHelper
       }
 
       //Populate the view
-      sc = PopulateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
+      sc = populateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
       if ( !sc.isSuccess() )
       {
         ViewVector.clear();
@@ -70,8 +73,11 @@ namespace ViewHelper
   //Function to add data to existing views
   template< typename T >
   inline StatusCode Populate( std::vector< SG::View* > & ViewVector,
-                              SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData )
+                              SG::WriteHandleKey< T > & PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData )
   {
+    //Make a WriteHandle to use
+    SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
+
     //Vector length check
     unsigned int const viewNumber = InputData.size();
     if ( viewNumber != ViewVector.size() ) return StatusCode::FAILURE;
@@ -80,14 +86,14 @@ namespace ViewHelper
     for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
     {
       //Attach the handle to the view
-      StatusCode sc = PopulateHandle.setProxyDict( ViewVector.at( viewIndex ) );
+      StatusCode sc = populateHandle.setProxyDict( ViewVector.at( viewIndex ) );
       if ( !sc.isSuccess() )
       {
         return sc;
       }
 
       //Populate the view
-      sc = PopulateHandle.record( CxxUtils::make_unique< T >( InputData.at( viewIndex ) ) );
+      sc = populateHandle.record( CxxUtils::make_unique< T >( InputData.at( viewIndex ) ) );
       if ( !sc.isSuccess() )
       {
         return sc;
@@ -99,7 +105,7 @@ namespace ViewHelper
 
   //Function to run a set of views with the named algorithms
   inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
-                              EventContext const& InputContext, SmartIF< IService > & AlgPool )
+                              EventContext const& SourceContext, SmartIF< IService > & AlgPool )
   {
     impl::SaveAndRestoreContext restoreContext;
 
@@ -109,14 +115,16 @@ namespace ViewHelper
       return StatusCode::FAILURE;
     }
 
+    //Retrieve existing extended context
+    unsigned int conditionsRun = SourceContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+
     //Create a tbb task for each view
     tbb::task_list allTasks;
     for ( SG::View* inputView : ViewVector )
     {
       //Make a context with the view attached
-      EventContext * viewContext = new EventContext( InputContext );
-      unsigned int conditionsRun = InputContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
-      viewContext->setExtension( Atlas::ExtendedEventContext( inputView,conditionsRun ) );
+      EventContext * viewContext = new EventContext( SourceContext );
+      viewContext->setExtension( Atlas::ExtendedEventContext( inputView, conditionsRun ) );
 
       //Make the task
       tbb::task * viewTask = new( tbb::task::allocate_root() )GraphExecutionTask( AlgorithmNames, viewContext, AlgPool );
@@ -131,7 +139,7 @@ namespace ViewHelper
 
   //Function to attach a set of views to a graph node
   inline StatusCode ScheduleViews( std::vector< SG::View* > const& ViewVector, std::string const& NodeName,
-      EventContext const& InputContext, IScheduler * Scheduler )
+      EventContext const& SourceContext, IScheduler * Scheduler )
   {
     //Retrieve the scheduler
     if ( !Scheduler )
@@ -139,18 +147,19 @@ namespace ViewHelper
       return StatusCode::FAILURE;
     }
 
-    unsigned int conditionsRun = InputContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+    //Retrieve existing extended context
+    unsigned int conditionsRun = SourceContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
 
     if ( ViewVector.size() )
     {
       for ( SG::View* view : ViewVector )
       {
         //Make a context with the view attached
-        EventContext * viewContext = new EventContext( InputContext );
+        EventContext * viewContext = new EventContext( SourceContext );
         viewContext->setExtension( Atlas::ExtendedEventContext( view, conditionsRun ) );
 
         //Attach the view to the named node
-        StatusCode sc = Scheduler->scheduleEventView( &InputContext, NodeName, viewContext );
+        StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, viewContext );
         if ( !sc.isSuccess() )
         {
           return StatusCode::FAILURE;
@@ -160,7 +169,7 @@ namespace ViewHelper
     else
     {
       //Disable the node if no views
-      return Scheduler->scheduleEventView( &InputContext, NodeName, 0 );
+      return Scheduler->scheduleEventView( &SourceContext, NodeName, 0 );
     }
 
     return StatusCode::SUCCESS;
@@ -189,13 +198,16 @@ namespace ViewHelper
 
   //Function merging view data into a single collection
   template< typename T >
-  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< T > & QueryHandle, T & OutputData )
+  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< T > & QueryKey, EventContext const& SourceContext, T & OutputData )
   {
+    //Make a ReadHandle to use
+    SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
+
     //Loop over all views
     for ( SG::View* inputView : ViewVector )
     {
       //Attach the handle to the view
-      StatusCode sc = QueryHandle.setProxyDict( inputView );
+      StatusCode sc = queryHandle.setProxyDict( inputView );
       if ( !sc.isSuccess() )
       {
         OutputData.clear();
@@ -203,7 +215,7 @@ namespace ViewHelper
       }
 
       //Merge the data
-      T inputData = *QueryHandle;
+      T inputData = *queryHandle;
       OutputData.insert( OutputData.end(), inputData.begin(), inputData.end() );
     }
 
@@ -212,13 +224,16 @@ namespace ViewHelper
 
   //Function merging view data into a single collection - overload for datavectors because aux stores are annoying
   template< typename T >
-  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< DataVector< T > > & QueryHandle, DataVector< T > & OutputData )
+  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< DataVector< T > > & QueryKey, EventContext const& SourceContext, DataVector< T > & OutputData )
   {
+    //Make a ReadHandle to use
+    SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
+
     //Loop over all views
     for ( SG::View* inputView : ViewVector )
     {
       //Attach the handle to the view
-      StatusCode sc = QueryHandle.setProxyDict( inputView );
+      StatusCode sc = queryHandle.setProxyDict( inputView );
       if ( !sc.isSuccess() )
       {
         OutputData.clear();
@@ -226,7 +241,7 @@ namespace ViewHelper
       }
 
       //Merge the data
-      for ( const auto inputObject : *QueryHandle.cptr() )
+      for ( const auto inputObject : *queryHandle.cptr() )
       {
         //Relies on non-existant assignment operator in TrigComposite
         T * outputObject = new T();
