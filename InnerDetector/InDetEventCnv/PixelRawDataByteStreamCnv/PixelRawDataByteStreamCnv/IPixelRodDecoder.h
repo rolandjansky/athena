@@ -18,7 +18,7 @@ public:
   // destructor 
   virtual ~IPixelRodDecoder(){}; 
 
-  virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
+  virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, 
 				      std::vector<IdentifierHash>* vecHash = NULL) = 0;
 };
 

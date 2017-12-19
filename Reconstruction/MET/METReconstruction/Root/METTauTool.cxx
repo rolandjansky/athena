@@ -187,7 +187,7 @@ namespace met {
     /////////////////////////////////////////// TO-BE REMOVED!!!
     const CaloClusterContainer* modClusCont(0);
     if(m_useModClus) {
-      ATH_CHECK( evtStore()->retrieve(modClusCont,m_mod_clus_key) );
+      ATH_CHECK( evtStore()->retrieve(modClusCont,m_mod_clus_key), false );
     }
     double sumE_allclus = 0.;
     std::vector<const IParticle*> constit_vec;

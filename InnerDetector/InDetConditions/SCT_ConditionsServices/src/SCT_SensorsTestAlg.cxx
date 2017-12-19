@@ -31,11 +31,10 @@
 
 using namespace std;
 
-SCT_SensorsTestAlg::SCT_SensorsTestAlg( 
-                         const std::string& name, 
-                         ISvcLocator* pSvcLocator ) : 
-                         AthAlgorithm( name, pSvcLocator ), m_SensorsSvc("SCT_SensorsSvc",name){
-                           //nop
+SCT_SensorsTestAlg::SCT_SensorsTestAlg(const std::string& name, 
+                                       ISvcLocator* pSvcLocator ) : 
+  AthAlgorithm( name, pSvcLocator ), m_SensorsSvc("SCT_SensorsSvc",name){
+  //nop
 }
 
 SCT_SensorsTestAlg::~SCT_SensorsTestAlg()

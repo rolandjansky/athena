@@ -19,6 +19,7 @@ SharedWriterTool::SharedWriterTool(const std::string& type
   : AthenaMPToolBase(type,name,parent)
   , m_rankId(0)
   , m_writer(0)
+  , m_sharedRankQueue(nullptr)
   , m_cnvSvc(0)
 {
   m_subprocDirPrefix = "shared_writer_";

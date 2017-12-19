@@ -457,11 +457,10 @@ CollAppendBase::copyData()
       pool::ICollectionCursor& cursor = srcQuery->execute();	 
  
       // Prepare destination collections at the first source iteration
-      if( sCollN == 0 ) {
-	 destDescription = buildDstDesc( m_srcCollections[0]->description(),
+      if( m_evtCounterTotal == 0 ) {
+	 destDescription = buildDstDesc( m_srcCollections[sCollN]->description(),
 					 cursor.currentRow().tokenList(), cursor.currentRow().attributeList(),
                                          m_queryinfo.queryOptions() );
-	 m_destCollections = openDestCollections( destDescription );
       } else {
 	 // Source Collection 2+
          //   build attr list for input collection for check with destination
@@ -491,6 +490,7 @@ CollAppendBase::copyData()
 
       // loop over input collection and copy all rows to all output collections
       while( cursor.next() && (m_numEvents < 0 || m_numEvents > evtCounter) ) {
+	 if (m_destCollections.empty()) m_destCollections = openDestCollections( destDescription );
 	 evtCounter++;
 	 m_evtCounterTotal++;
 	 if( (evtCounter % progressStep) == 0)

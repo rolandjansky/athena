@@ -13,6 +13,8 @@
 #include "CaloRingerTools/ICaloRingerInputReader.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 //CxxUtils for override final  
 #include "CxxUtils/final.h"
@@ -69,21 +71,79 @@ class CaloRingerInputReader : public ::AthAlgTool,
     /** 
      * @brief Tool to build CaloRings.
      **/
-    ToolHandle<ICaloRingsBuilder> m_crBuilder;
-    /** 
-     * @brief the input key to retrieve at StoreGate.
-     **/
-    std::string m_inputKey;
+    PublicToolHandle<ICaloRingsBuilder> m_crBuilder {this,
+	"crBuilder", "", "CaloRingsBuilder Tool"};
     /// @}
 
     /// Tool CaloRingerInputReader props (non configurables):
     /// @{
     /// If CaloRings builder is available
-    bool m_builderAvailable;
+    Gaudi::Property<bool> m_builderAvailable {this, 
+	"builderAvailable", false, "Whether Builder Tool is available."};
     ///  @}
 
-};
+    template<class T> class writeDecorHandles;
 
+    /** @brief helper class to contain write docoration handle keys for selectors */
+    template<class T> class writeDecorHandleKeys {
+    public:
+      void setContName(const std::string &contName) {m_contName = contName;};
+
+      StatusCode addSelector(const std::string &selName);
+
+      friend class writeDecorHandles<T>;
+
+    private:
+      std::vector<SG::WriteDecorHandleKey<T> > m_selKeys;
+      std::vector<SG::WriteDecorHandleKey<T> > m_isEMKeys;
+      std::vector<SG::WriteDecorHandleKey<T> > m_lhoodKeys;
+      std::string m_contName;
+    };
+    
+    /** @brief helper class to contain write decoration handles for selectors*/
+    template<class T> class writeDecorHandles {
+    public:
+      writeDecorHandles(const writeDecorHandleKeys<T>& keys); // constructor
+      
+      SG::WriteDecorHandle<T, char>& sel(size_t i) {return m_sel[i];};
+      SG::WriteDecorHandle<T, unsigned int>& isEM(size_t i) {return m_isEM[i];};
+      SG::WriteDecorHandle<T, float>& lhood(size_t i) {return m_lhood[i];};
+
+    private:
+      std::vector<SG::WriteDecorHandle<T, char> > m_sel;
+      std::vector<SG::WriteDecorHandle<T, unsigned int> > m_isEM;
+      std::vector<SG::WriteDecorHandle<T, float> > m_lhood;
+
+    };
+
+};
+  
+  template<class T> 
+  StatusCode 
+  CaloRingerInputReader::writeDecorHandleKeys<T>::addSelector(const std::string &selName)
+  {
+    m_selKeys.emplace_back(m_contName + "." + selName);
+    ATH_CHECK(m_selKeys.back().initialize());
+    
+    m_isEMKeys.emplace_back(m_contName + "." + selName + "_isEM");
+    ATH_CHECK(m_isEMKeys.back().initialize());
+    
+    m_lhoodKeys.emplace_back(m_contName + "." + selName + "_output");
+    ATH_CHECK(m_lhoodKeys.back().initialize());
+    
+    return StatusCode::SUCCESS;
+  } 
+  
+  template<class T> 
+  CaloRingerInputReader::writeDecorHandles<T>::writeDecorHandles(const writeDecorHandleKeys<T>& keys)
+  {
+    for (size_t i = 0; i < keys.m_selKeys.size(); i++) {
+      m_sel.emplace_back(keys.m_selKeys[i]);
+      m_isEM.emplace_back(keys.m_isEMKeys[i]);
+      m_lhood.emplace_back(keys.m_lhoodKeys[i]);
+    }
+  }
+  
 } // namespace Ringer
 
 #endif // CALORINGERTOOLS_CALORINGERINPUTREADER_H

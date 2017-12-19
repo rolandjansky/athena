@@ -10,9 +10,7 @@
 
 typedef std::vector<CaloAffectedRegionInfo>  CaloAffectedRegionInfoVec;
 
-#ifndef CLIDSVC_CLASSDEF_H
-# include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( CaloAffectedRegionInfoVec , 36372397, 1 )
 
 #endif

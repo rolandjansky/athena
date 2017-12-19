@@ -6,6 +6,6 @@
 #include "TrigOfflineDriftCircleTool/TrigTRT_DCCollByteStreamTool.h"
 
 
-DECLARE_TOOL_FACTORY(TrigTRT_DriftCircleProviderTool)
-DECLARE_TOOL_FACTORY(TrigTRT_DCCollByteStreamTool)
+DECLARE_COMPONENT( TrigTRT_DriftCircleProviderTool )
+DECLARE_COMPONENT( TrigTRT_DCCollByteStreamTool )
 

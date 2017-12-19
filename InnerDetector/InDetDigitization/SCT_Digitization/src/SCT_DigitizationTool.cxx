@@ -138,7 +138,7 @@ namespace {
   {
   public:
     SiDigitizationSurfaceChargeInserter(const InDetDD::SiDetectorElement* sielement,
-					SiChargedDiodeCollection* chargedDiodes)
+                                        SiChargedDiodeCollection* chargedDiodes)
       : m_sielement(sielement),
         m_chargedDiodes(chargedDiodes) {
     }
@@ -373,11 +373,11 @@ void SCT_DigitizationTool::digitizeAllHits() {
     // number of hits in missing mods
 
     ATH_MSG_DEBUG("in digitize elements with hits: ec - layer - eta - phi  "
-		  << m_detID->barrel_ec(m_chargedDiodes->identify()) << " - "
-		  << m_detID->layer_disk(m_chargedDiodes->identify()) << " - "
-		  << m_detID->eta_module(m_chargedDiodes->identify()) << " - "
-		  << m_detID->phi_module(m_chargedDiodes->identify()) << " - "
-		  << " processing hit number " << hitcount);
+                  << m_detID->barrel_ec(m_chargedDiodes->identify()) << " - "
+                  << m_detID->layer_disk(m_chargedDiodes->identify()) << " - "
+                  << m_detID->eta_module(m_chargedDiodes->identify()) << " - "
+                  << m_detID->phi_module(m_chargedDiodes->identify()) << " - "
+                  << " processing hit number " << hitcount);
 
     // Have a flag to check if the module is present or not
     // Generally assume it is:
@@ -392,8 +392,8 @@ void SCT_DigitizationTool::digitizeAllHits() {
     if (!m_chargedDiodes->empty()) {
       StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
       if (sc.isSuccess()) { // error msg is given inside
-	// createAndStoreRDO()
-	addSDO(m_chargedDiodes);
+        // createAndStoreRDO()
+        addSDO(m_chargedDiodes);
       }
     }
 
@@ -416,32 +416,32 @@ void SCT_DigitizationTool::digitizeNonHits() {
     if (!m_processedElements[i]) {
       IdentifierHash idHash{i};
       if (!idHash.is_valid()) {
-	ATH_MSG_ERROR("SCT Detector element id hash is invalid = " << i);
+        ATH_MSG_ERROR("SCT Detector element id hash is invalid = " << i);
       }
 
       const InDetDD::SiDetectorElement* element{m_detMgr->getDetectorElement(idHash)};
       if (element) {
-	ATH_MSG_DEBUG("In digitize of untouched elements: layer - phi - eta  "
-		      << m_detID->layer_disk(element->identify()) << " - "
-		      << m_detID->phi_module(element->identify()) << " - "
-		      << m_detID->eta_module(element->identify()) << " - "
-		      << "size: " << m_processedElements.size());
+        ATH_MSG_DEBUG("In digitize of untouched elements: layer - phi - eta  "
+                      << m_detID->layer_disk(element->identify()) << " - "
+                      << m_detID->phi_module(element->identify()) << " - "
+                      << m_detID->eta_module(element->identify()) << " - "
+                      << "size: " << m_processedElements.size());
 
-	m_chargedDiodes->setDetectorElement(element);
-	ATH_MSG_DEBUG("calling applyProcessorTools() for NON hits");
-	applyProcessorTools(m_chargedDiodes);
+        m_chargedDiodes->setDetectorElement(element);
+        ATH_MSG_DEBUG("calling applyProcessorTools() for NON hits");
+        applyProcessorTools(m_chargedDiodes);
 
-	// Create and store RDO and SDO
-	// Don't create empty ones.
-	if (!m_chargedDiodes->empty()) {
-	  StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
-	  if (sc.isSuccess()) {// error msg is given inside
-	    // createAndStoreRDO()
-	    addSDO(m_chargedDiodes);
-	  }
-	}
+        // Create and store RDO and SDO
+        // Don't create empty ones.
+        if (!m_chargedDiodes->empty()) {
+          StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
+          if (sc.isSuccess()) {// error msg is given inside
+            // createAndStoreRDO()
+            addSDO(m_chargedDiodes);
+          }
+        }
 
-	m_chargedDiodes->clear();
+        m_chargedDiodes->clear();
       }
     }
   }
@@ -485,10 +485,10 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
       return false;
     }
     id = sctID->wafer_id(Barrel,
-			 firstHit->getLayerDisk(),
-			 firstHit->getPhiModule(),
-			 firstHit->getEtaModule(),
-			 firstHit->getSide());
+                         firstHit->getLayerDisk(),
+                         firstHit->getPhiModule(),
+                         firstHit->getEtaModule(),
+                         firstHit->getSide());
   }
 
 
@@ -510,10 +510,10 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
     // skip hits which are more than 10us away
     if (fabs(phit->meanTime()) < 10000. * CLHEP::ns) {
       ATH_MSG_DEBUG("HASH = " << m_detID->wafer_hash(m_detID->wafer_id(phit->getBarrelEndcap(),
-								       phit->getLayerDisk(),
-								       phit->getPhiModule(),
-								       phit->getEtaModule(),
-								       phit->getSide())));
+                                                                       phit->getLayerDisk(),
+                                                                       phit->getPhiModule(),
+                                                                       phit->getEtaModule(),
+                                                                       phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
       m_sct_SurfaceChargesGenerator->setDetectorElement(sielement);
 
@@ -562,12 +562,12 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
   for (; iEvt != eSubEvents; iEvt++) {
     StoreGateSvc& seStore{*iEvt->ptr()->evtStore()};
     ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
-		    << " bunch crossing : " << bunchXing
-		    << " time offset : " << iEvt->time()
-		    << " event number : " <<
-		    iEvt->ptr()->eventNumber()
-		    << " run number : " <<
-		    iEvt->ptr()->runNumber());
+                    << " bunch crossing : " << bunchXing
+                    << " time offset : " << iEvt->time()
+                    << " event number : " <<
+                    iEvt->ptr()->eventNumber()
+                    << " run number : " <<
+                    iEvt->ptr()->runNumber());
     const SiHitCollection* seHitColl{nullptr};
     if (!seStore.retrieve(seHitColl, m_inputObjectName).isSuccess()) {
       ATH_MSG_ERROR("SubEvent SCT SiHitCollection not found in StoreGate " << seStore.name());
@@ -600,17 +600,17 @@ class DigitizeNonHitElementsDebugPrinter
 public:
   DigitizeNonHitElementsDebugPrinter(const SCT_ID* detID) :
     m_detID{detID}, m_msgNo{-1} {
-  }
+    }
 
   std::string msg(const InDetDD::SiDetectorElement* element) {
     std::ostringstream ost;
 
     ost << "Digitized unprocessed elements: layer - phi - eta - side  "
-	<< m_detID->layer_disk(element->identify()) << " - "
-	<< m_detID->phi_module(element->identify()) << " - "
-	<< m_detID->eta_module(element->identify()) << " - "
-	<< m_detID->side(element->identify()) << " - "
-	<< " unprocessed hit number: " << ++m_msgNo << '\n';
+        << m_detID->layer_disk(element->identify()) << " - "
+        << m_detID->phi_module(element->identify()) << " - "
+        << m_detID->eta_module(element->identify()) << " - "
+        << m_detID->side(element->identify()) << " - "
+        << " unprocessed hit number: " << ++m_msgNo << '\n';
 
     return ost.str();
   }
@@ -673,56 +673,56 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
       unsigned int flagmask{static_cast<unsigned int>((*i_chargedDiode).second.flag() & 0xFE)};
 
       if (!flagmask) { // now check it wasn't masked:
-	// create new SCT RDO, using method 1 for mask:
-	// GroupSize=1: need readout id, make use of
-	// SiTrackerDetDescr
-	InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
-	int strip{roCell.strip()};
-	if (strip > 0xffff) { // In upgrade layouts strip can be bigger
-	  // than 4000
-	  ATH_MSG_FATAL("Strip number too big for SCT1 raw data format.");
-	}
-	const Identifier id_readout{m_detID->strip_id(collection->identify(), strip)};
+        // create new SCT RDO, using method 1 for mask:
+        // GroupSize=1: need readout id, make use of
+        // SiTrackerDetDescr
+        InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
+        int strip{roCell.strip()};
+        if (strip > 0xffff) { // In upgrade layouts strip can be bigger
+          // than 4000
+          ATH_MSG_FATAL("Strip number too big for SCT1 raw data format.");
+        }
+        const Identifier id_readout{m_detID->strip_id(collection->identify(), strip)};
 
-	// build word, masks taken from SiTrackerEvent/SCTRawData.cxx
-	const unsigned int strip_rdo{static_cast<unsigned int>((strip & 0xFFFF) << 16)};
+        // build word, masks taken from SiTrackerEvent/SCTRawData.cxx
+        const unsigned int strip_rdo{static_cast<unsigned int>((strip & 0xFFFF) << 16)};
 
-	// user can define what GroupSize is, here 1: TC. Incorrect,
-	// GroupSize >= 1
-	int size{SiHelper::GetStripNum((*i_chargedDiode).second)};
-	unsigned int size_rdo{static_cast<unsigned int>(size & 0xFFFF)};
+        // user can define what GroupSize is, here 1: TC. Incorrect,
+        // GroupSize >= 1
+        int size{SiHelper::GetStripNum((*i_chargedDiode).second)};
+        unsigned int size_rdo{static_cast<unsigned int>(size & 0xFFFF)};
 
-	// TC. Need to check if there are disabled strips in the cluster
-	int cluscounter{0};
-	if (size > 1) {
-	  SiChargedDiodeIterator it2{i_chargedDiode};
-	  ++it2;
-	  for (; it2 != i_chargedDiode_end; ++it2) {
-	    ++cluscounter;
-	    if (cluscounter >= size) {
-	      break;
-	    }
-	    if (it2->second.flag() & 0xDE) {
-	      int tmp{cluscounter};
-	      while ((it2 != i_chargedDiode_end) and (cluscounter < size - 1) and (it2->second.flag() & 0xDE)) {
-		it2++;
-		cluscounter++;
-	      }
-	      if ((it2 != collection->end()) and !(it2->second.flag() & 0xDE)) {
-		SiHelper::ClusterUsed(it2->second, false);
-		SiHelper::SetStripNum(it2->second, size - cluscounter);
-	      }
-	      // groupSize=tmp;
-	      size_rdo = tmp & 0xFFFF;
-	      break;
-	    }
-	  }
-	}
-	unsigned int SCT_Word{strip_rdo | size_rdo};
-	SCT1_RawData* p_rdo{new SCT1_RawData(id_readout, SCT_Word)};
-	if (p_rdo) {
-	  p_rdocoll->push_back(p_rdo);
-	}
+        // TC. Need to check if there are disabled strips in the cluster
+        int cluscounter{0};
+        if (size > 1) {
+          SiChargedDiodeIterator it2{i_chargedDiode};
+          ++it2;
+          for (; it2 != i_chargedDiode_end; ++it2) {
+            ++cluscounter;
+            if (cluscounter >= size) {
+              break;
+            }
+            if (it2->second.flag() & 0xDE) {
+              int tmp{cluscounter};
+              while ((it2 != i_chargedDiode_end) and (cluscounter < size - 1) and (it2->second.flag() & 0xDE)) {
+                it2++;
+                cluscounter++;
+              }
+              if ((it2 != collection->end()) and !(it2->second.flag() & 0xDE)) {
+                SiHelper::ClusterUsed(it2->second, false);
+                SiHelper::SetStripNum(it2->second, size - cluscounter);
+              }
+              // groupSize=tmp;
+              size_rdo = tmp & 0xFFFF;
+              break;
+            }
+          }
+        }
+        unsigned int SCT_Word{strip_rdo | size_rdo};
+        SCT1_RawData* p_rdo{new SCT1_RawData(id_readout, SCT_Word)};
+        if (p_rdo) {
+          p_rdocoll->push_back(p_rdo);
+        }
       }
     }
   } else {
@@ -734,63 +734,63 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
       unsigned int flagmask{static_cast<unsigned int>((*i_chargedDiode).second.flag() & 0xFE)};
 
       if (!flagmask) { // Check it wasn't masked
-	int tbin{SiHelper::GetTimeBin((*i_chargedDiode).second)};
-	// create new SCT RDO
-	InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
-	int strip{roCell.strip()};
-	const InDetDD::SiDetectorDesign& detDesign{collection->design()};
-	const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(detDesign)};
-	int row2D{sctDesign.row(strip)};
-	Identifier id_readout;
-	if (row2D < 0) { // SCT sensors
-	  id_readout = m_detID->strip_id(collection->identify(), strip);
-	} else { // Upgrade sensors
-	  int strip2D{sctDesign.strip(strip)};
-	  id_readout = m_detID->strip_id(collection->identify(), row2D, strip2D);
-	}
+        int tbin{SiHelper::GetTimeBin((*i_chargedDiode).second)};
+        // create new SCT RDO
+        InDetDD::SiReadoutCellId roCell{(*i_chargedDiode).second.getReadoutCell()};
+        int strip{roCell.strip()};
+        const InDetDD::SiDetectorDesign& detDesign{collection->design()};
+        const InDetDD::SCT_ModuleSideDesign& sctDesign{dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(detDesign)};
+        int row2D{sctDesign.row(strip)};
+        Identifier id_readout;
+        if (row2D < 0) { // SCT sensors
+          id_readout = m_detID->strip_id(collection->identify(), strip);
+        } else { // Upgrade sensors
+          int strip2D{sctDesign.strip(strip)};
+          id_readout = m_detID->strip_id(collection->identify(), row2D, strip2D);
+        }
                 
-	// build word (compatible with
-	// SCT_RawDataByteStreamCnv/src/SCT_RodDecoder.cxx)
-	int size{SiHelper::GetStripNum((*i_chargedDiode).second)};
-	int groupSize{size};
+        // build word (compatible with
+        // SCT_RawDataByteStreamCnv/src/SCT_RodDecoder.cxx)
+        int size{SiHelper::GetStripNum((*i_chargedDiode).second)};
+        int groupSize{size};
 
-	// TC. Need to check if there are disabled strips in the cluster
-	int cluscounter{0};
-	if (size > 1) {
-	  SiChargedDiode* diode{i_chargedDiode->second.nextInCluster()};
-	  while (diode) {//check if there is a further strip in the cluster
-	    ++cluscounter;
-	    if (cluscounter >= size) {
-	      ATH_MSG_WARNING("Cluster size reached while neighbouring strips still defined.");
-	      break;
-	    }
-	    if (diode->flag() & 0xDE) {//see if it is disabled/below threshold/disconnected/etc (0xDE corresponds to BT_SET | DISABLED_SET | BADTOT_SET | DISCONNECTED_SET | MASKOFF_SET)
-	      int tmp{cluscounter};
-	      while ((cluscounter < size - 1) and (diode->flag() & 0xDE)) { //check its not the end and still disabled
-		diode = diode->nextInCluster();
-		cluscounter++;
-	      }
-	      if (diode and !(diode->flag() & 0xDE)) {
-		SiHelper::ClusterUsed(*diode, false);
-		SiHelper::SetStripNum(*diode, size - cluscounter);
-	      }
-	      groupSize = tmp;
-	      break;
-	    } 
-	    diode = diode->nextInCluster();                 
-	  }
-	}
-		
-	int stripIn11bits{strip & 0x7ff};
-	if (stripIn11bits != strip) {
-	  ATH_MSG_DEBUG("Strip number " << strip << " doesn't fit into 11 bits - will be truncated");
-	}
+        // TC. Need to check if there are disabled strips in the cluster
+        int cluscounter{0};
+        if (size > 1) {
+          SiChargedDiode* diode{i_chargedDiode->second.nextInCluster()};
+          while (diode) {//check if there is a further strip in the cluster
+            ++cluscounter;
+            if (cluscounter >= size) {
+              ATH_MSG_WARNING("Cluster size reached while neighbouring strips still defined.");
+              break;
+            }
+            if (diode->flag() & 0xDE) {//see if it is disabled/below threshold/disconnected/etc (0xDE corresponds to BT_SET | DISABLED_SET | BADTOT_SET | DISCONNECTED_SET | MASKOFF_SET)
+              int tmp{cluscounter};
+              while ((cluscounter < size - 1) and (diode->flag() & 0xDE)) { //check its not the end and still disabled
+                diode = diode->nextInCluster();
+                cluscounter++;
+              }
+              if (diode and !(diode->flag() & 0xDE)) {
+                SiHelper::ClusterUsed(*diode, false);
+                SiHelper::SetStripNum(*diode, size - cluscounter);
+              }
+              groupSize = tmp;
+              break;
+            }
+            diode = diode->nextInCluster();
+          }
+        }
+
+        int stripIn11bits{strip & 0x7ff};
+        if (stripIn11bits != strip) {
+          ATH_MSG_DEBUG("Strip number " << strip << " doesn't fit into 11 bits - will be truncated");
+        }
                 
-	unsigned int SCT_Word{static_cast<unsigned int>(groupSize | (stripIn11bits << 11) | (tbin << 22) | (ERRORS << 25))};
-	SCT3_RawData *p_rdo{new SCT3_RawData(id_readout, SCT_Word, &dummyvector)};
-	if (p_rdo) {
-	  p_rdocoll->push_back(p_rdo);
-	}
+        unsigned int SCT_Word{static_cast<unsigned int>(groupSize | (stripIn11bits << 11) | (tbin << 22) | (ERRORS << 25))};
+        SCT3_RawData *p_rdo{new SCT3_RawData(id_readout, SCT_Word, &dummyvector)};
+        if (p_rdo) {
+          p_rdocoll->push_back(p_rdo);
+        }
       }
     }
   }
@@ -862,39 +862,39 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
       const HepMcParticleLink& trkLink{i_ListOfCharges->particleLink()};
       const int barcode{trkLink.barcode()};
       if ((barcode == 0) or (barcode == m_vetoThisBarcode)) {
-	continue;
+        continue;
       }
       if (!real_particle_hit) {
-	// Types of SiCharges expected from SCT
-	// Noise:                        barcode==0 &&
-	// processType()==SiCharge::noise
-	// Delta Rays:                   barcode==0 &&
-	// processType()==SiCharge::track
-	// Pile Up Tracks With No Truth: barcode!=0 &&
-	// processType()==SiCharge::cut_track
-	// Tracks With Truth:            barcode!=0 &&
-	// processType()==SiCharge::track
-	if (barcode != 0 and i_ListOfCharges->processType() == SiCharge::track) {
-	  real_particle_hit = true;
-	}
+        // Types of SiCharges expected from SCT
+        // Noise:                        barcode==0 &&
+        // processType()==SiCharge::noise
+        // Delta Rays:                   barcode==0 &&
+        // processType()==SiCharge::track
+        // Pile Up Tracks With No Truth: barcode!=0 &&
+        // processType()==SiCharge::cut_track
+        // Tracks With Truth:            barcode!=0 &&
+        // processType()==SiCharge::track
+        if (barcode != 0 and i_ListOfCharges->processType() == SiCharge::track) {
+          real_particle_hit = true;
+        }
       }
       // check if this track number has been already used.
       std::vector<InDetSimData::Deposit>::reverse_iterator theDeposit{deposits.rend()};  // dummy value
       std::vector<InDetSimData::Deposit>::reverse_iterator depositsR_end{deposits.rend()};
       std::vector<InDetSimData::Deposit>::reverse_iterator i_Deposit{deposits.rbegin()};
       for (; i_Deposit != depositsR_end; ++i_Deposit) {
-	if ((*i_Deposit).first == trkLink) {
-	  theDeposit = i_Deposit;
-	  break;
-	}
+        if ((*i_Deposit).first == trkLink) {
+          theDeposit = i_Deposit;
+          break;
+        }
       }
 
       // if the charge has already hit the Diode add it to the deposit
       if (theDeposit != depositsR_end) {
-	(*theDeposit).second += i_ListOfCharges->charge();
+        (*theDeposit).second += i_ListOfCharges->charge();
       } else { // create a new deposit
-	InDetSimData::Deposit deposit(trkLink, i_ListOfCharges->charge());
-	deposits.push_back(deposit);
+        InDetSimData::Deposit deposit(trkLink, i_ListOfCharges->charge());
+        deposits.push_back(deposit);
       }
     }
 
@@ -908,10 +908,10 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
       int row2D{sctDesign.row(strip)};
       Identifier id_readout;
       if (row2D < 0) { // SCT sensors
-	id_readout = m_detID->strip_id(collection->identify(),strip);
+        id_readout = m_detID->strip_id(collection->identify(),strip);
       } else { // Upgrade sensors
-	int strip2D{sctDesign.strip(strip)};
-	id_readout = m_detID->strip_id(collection->identify(),row2D, strip2D);
+        int strip2D{sctDesign.strip(strip)};
+        id_readout = m_detID->strip_id(collection->identify(),row2D, strip2D);
       }
 
       m_simDataCollMap->insert(std::make_pair(id_readout, InDetSimData(deposits, (*i_chargedDiode).second.flag())));

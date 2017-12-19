@@ -41,8 +41,8 @@ public:
 private:
 
   class Imp;
-  Imp * d;
-  HepMcParticleLink link;
+  Imp * m_d;
+  HepMcParticleLink m_link;
 };
 
 #endif

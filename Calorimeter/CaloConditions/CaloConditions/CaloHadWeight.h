@@ -9,7 +9,7 @@
 #define CALOCONDITIONS_CALOHADWEIGHT_H
 
 
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 #include <vector>
 
 /**

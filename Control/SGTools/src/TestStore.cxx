@@ -12,7 +12,7 @@
 
 
 #include "SGTools/TestStore.h"
-#include "SGTools/DataBucketBase.h"
+#include "AthenaKernel/DataBucketBase.h"
 #include <iostream>
 #include <algorithm>
 
@@ -242,14 +242,13 @@ SG::DataProxy* TestStore::record1 (lock_t&, const void* p, DataObject* obj,
     return dp;
   }
 
-  SG::TransientAddress* tAddr = new SG::TransientAddress(clid, key);
-  SG::DataProxy* dp = new SG::DataProxy(obj, tAddr);
+  SG::DataProxy* dp = new SG::DataProxy(obj, SG::TransientAddress(clid, key));
   dp->setStore (this);
   m_tmap[p] = dp;
 
   m_kmap[sgkey] = dp;
   dp->addRef();
-  tAddr->setSGKey (sgkey);
+  dp->setSGKey (sgkey);
   return dp;
 }
 

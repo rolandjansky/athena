@@ -96,7 +96,7 @@ public:
 };
 
 std::vector<Trk::PlaneSurface>& TrackPropagationHelper::getExtrapolationSurfaces() const {
-  return d->surfaces;
+  return m_d->surfaces;
 }
 
 //____________________________________________________________________
@@ -139,14 +139,14 @@ void TrackPropagationHelper::Imp::movePoint1ToInfiniteCylinderAndPoint2( Amg::Ve
 
   //____________________________________________________________________
 TrackPropagationHelper::TrackPropagationHelper(IVP1System* sys )
-  : VP1HelperClassBase(sys,"TrackPropagationHelper"), d(new Imp(this))
+  : VP1HelperClassBase(sys,"TrackPropagationHelper"), m_d(new Imp(this))
 {
 }
 
   //____________________________________________________________________
 TrackPropagationHelper::~TrackPropagationHelper()
 {
-  delete d;
+  delete m_d;
 }
 
   //____________________________________________________________________
@@ -166,7 +166,7 @@ bool TrackPropagationHelper::makePointsNeutral( std::vector<Amg::Vector3D >& poi
     return false;
   }
   if (npars==1)
-    return d->makePointsNeutral_SinglePar(points,track);
+    return m_d->makePointsNeutral_SinglePar(points,track);
 
   points.reserve(track->trackParameters()->size());
 
@@ -175,14 +175,14 @@ bool TrackPropagationHelper::makePointsNeutral( std::vector<Amg::Vector3D >& poi
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = track->trackStateOnSurfaces()->end();
   bool problems(false);
   for (; tsos_iter != tsos_end; ++tsos_iter) {
-    if (!d->tracksanity->isSafe(*tsos_iter)) {
+    if (!m_d->tracksanity->isSafe(*tsos_iter)) {
       problems = true;
       continue;
     }
     //if ((*tsos_iter)->materialEffectsOnTrack())
     //  continue;
     const Trk::TrackParameters* trackParam = (*tsos_iter)->trackParameters();
-    if (!d->tracksanity->isSafe(trackParam)) {
+    if (!m_d->tracksanity->isSafe(trackParam)) {
       problems = true;
       continue;
     }
@@ -263,7 +263,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
     return false;
   }
   if (npars==1)
-    return d->makePointsCharged_SinglePar(points,track,extrapolator,hypo);
+    return m_d->makePointsCharged_SinglePar(points,track,extrapolator,hypo);
 
   points.reserve(npars);//At least we need this.
 
@@ -274,12 +274,12 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
   const Trk::TrackParameters* trackParam(0);
   bool problems(false);
   for (; tsos_iter != tsos_end; ++tsos_iter) {
-    if (!d->tracksanity->isSafe(*tsos_iter))
+    if (!m_d->tracksanity->isSafe(*tsos_iter))
       continue;
     if ((*tsos_iter)->measurementOnTrack()==0 && ( (*tsos_iter)->materialEffectsOnTrack()&&!useMEOT ) )
       continue;
     trackParam = (*tsos_iter)->trackParameters();
-    if (!d->tracksanity->isSafe(trackParam))
+    if (!m_d->tracksanity->isSafe(trackParam))
       continue;
     if (!prevpar) {
         //first time.
@@ -287,7 +287,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
       points.push_back(prevpar->position());
       continue;
     }
-    if (!d->addPointsBetweenParameters_Charged(points,track,prevpar,trackParam,extrapolator,hypo))
+    if (!m_d->addPointsBetweenParameters_Charged(points,track,prevpar,trackParam,extrapolator,hypo))
       problems = true;
     points.push_back(trackParam->position());
     prevpar = trackParam;
@@ -297,7 +297,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
     messageDebug("WARNING: Problems encountered adding point(s) between track parameters");
 
 // restrict to ID tracks for now.
-  if (volume && trackParam && !d->outsideIDVolume(trackParam->position())) {
+  if (volume && trackParam && !m_d->outsideIDVolume(trackParam->position())) {
     messageVerbose("Extending to Volume");
     //get individual surfaces
 
@@ -317,7 +317,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
         if (trackPar){
           messageVerbose("Extrapolation succeeded");
           
-          if (!d->addPointsBetweenParameters_Charged(points,track,trackParam,trackPar,extrapolator,hypo))
+          if (!m_d->addPointsBetweenParameters_Charged(points,track,trackParam,trackPar,extrapolator,hypo))
             messageDebug("WARNING: Problems encountered adding point(s) between track parameters in extending to Volume");
         }
       }
@@ -421,11 +421,11 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
 }
 
 bool TrackPropagationHelper::showExtrapolationSurfaces() const {
-  return d->showExtrapSurfaces;
+  return m_d->showExtrapSurfaces;
 }
 
 // double TrackPropagationHelper::maxR2ForTracks() const {
-//   return d->maxR2;
+//   return m_d->maxR2;
 // }
 
 

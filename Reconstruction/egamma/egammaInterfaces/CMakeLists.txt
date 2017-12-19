@@ -12,6 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           Reconstruction/egamma/egammaRecEvent
                           GaudiKernel
+                          DetectorDescription/GeoPrimitives
+                          Event/EventPrimitives
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkNeutralParameters
                           Tracking/TrkEvent/TrkParameters )

@@ -17,7 +17,7 @@ public:
   typedef MyBase::ID ID;
   typedef TileRawChannel _TElement;
 
-  TileRawChannelCollection ( ID& id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
+  TileRawChannelCollection ( ID id, SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(id,ownPolicy),
       m_FragGlobalCRC(0),
       m_FragDSPBCID(0xDEAD),
@@ -32,6 +32,10 @@ public:
       m_FragFEChipMask(0xFFFF),
       m_FragRODChipMask(0xFFFF)
     { }
+  // Alternate constructor for use with ConstDataVector.
+  TileRawChannelCollection ( SG::OwnershipPolicy ownPolicy, ID id )
+    : TileRawChannelCollection (id, ownPolicy)
+  { }
   TileRawChannelCollection ( SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS )
     : MyBase(ownPolicy),
       m_FragGlobalCRC(0),

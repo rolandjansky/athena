@@ -40,8 +40,8 @@ Trk::McEventNtupleTool::McEventNtupleTool(
         m_zPosCut(150.),
         m_radiusRes(0.044),
         m_zPosRes(0.221),
-        vtx_tree(nullptr),
-        quark_tree(nullptr),
+        m_vtx_tree(nullptr),
+        m_quark_tree(nullptr),
         m_numTrueVertices{},
         m_true_pri_x{},
         m_true_pri_y{},
@@ -85,26 +85,26 @@ StatusCode Trk::McEventNtupleTool::initialize() {
     }
 
     //registering the mc event tree
-    vtx_tree = new TTree(TString(m_ntupleMcTreeName), "MC output");
+    m_vtx_tree = new TTree(TString(m_ntupleMcTreeName), "MC output");
     std::string fullMcNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleMcTreeName;
-    status = hist_svc->regTree(fullMcNtupleName, vtx_tree);
+    status = hist_svc->regTree(fullMcNtupleName, m_vtx_tree);
     if (status.isFailure()) {
 	   msg(MSG::ERROR) << "Unable to register TTree : " << fullMcNtupleName << endmsg;
 	   return status;
     }
 
     //mc vtx tree
-    vtx_tree->Branch ("vertex_true_pri_x", &m_true_pri_x, "vtx_true_pri_x/F");
-    vtx_tree->Branch ("vertex_true_pri_y", &m_true_pri_y, "vtx_true_pri_y/F");
-    vtx_tree->Branch ("vertex_true_pri_z", &m_true_pri_z, "vtx_true_pri_z/F");
+    m_vtx_tree->Branch ("vertex_true_pri_x", &m_true_pri_x, "vtx_true_pri_x/F");
+    m_vtx_tree->Branch ("vertex_true_pri_y", &m_true_pri_y, "vtx_true_pri_y/F");
+    m_vtx_tree->Branch ("vertex_true_pri_z", &m_true_pri_z, "vtx_true_pri_z/F");
 
     m_true_sec_x = new std::vector<float>();
     m_true_sec_y = new std::vector<float>();
     m_true_sec_z = new std::vector<float>();
 
-    vtx_tree->Branch ("vertex_true_sec_x", &m_true_sec_x);
-    vtx_tree->Branch ("vertex_true_sec_y", &m_true_sec_y);
-    vtx_tree->Branch ("vertex_true_sec_z", &m_true_sec_z);
+    m_vtx_tree->Branch ("vertex_true_sec_x", &m_true_sec_x);
+    m_vtx_tree->Branch ("vertex_true_sec_y", &m_true_sec_y);
+    m_vtx_tree->Branch ("vertex_true_sec_z", &m_true_sec_z);
 
     return StatusCode::SUCCESS;
 }
@@ -214,7 +214,7 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
       }
       m_numTrueVertices = 1 + sec_vtx_ids_vec.size();
 
-      vtx_tree->Fill();
+      m_vtx_tree->Fill();
 
      //clear
      m_true_sec_x->clear();

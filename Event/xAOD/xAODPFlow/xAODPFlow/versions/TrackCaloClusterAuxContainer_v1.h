@@ -53,7 +53,7 @@ namespace xAOD {
  
 } // namespace xAOD
  
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TrackCaloClusterAuxContainer_v1, xAOD::AuxContainerBase ); 
  
 #endif // XAODPFLOW_VERSIONS_TRACKCALOCLUSTERAUXCONTAINER_V1_H

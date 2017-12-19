@@ -36,8 +36,6 @@ DecisionSvc::DecisionSvc(const std::string& name,
 {
   declareProperty("CalcStats",m_calcStats);
 
-  ATH_MSG_DEBUG ("In DecisionSvc::DecisionSvc ");
-
   assert( pSvcLocator );
 }
 
@@ -345,7 +343,7 @@ DecisionSvc::isEventAccepted( const std::string& stream,
       result = false;
       for (auto it = vecAlgs.begin(); it != vecAlgs.end(); it++) {
         bool isE,fp;
-        isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
+        isE = (m_algstateSvc->algExecState(*it,ectx).state() == AlgExecState::State::Done);
         fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
         if (isE && fp) {
 	  result = true;
@@ -368,7 +366,7 @@ DecisionSvc::isEventAccepted( const std::string& stream,
     if ( ! vecAlgs.empty( ) ) {
       for (auto it = vecAlgs.begin(); it != vecAlgs.end(); it++) {
         bool isE,fp;
-        isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
+        isE = (m_algstateSvc->algExecState(*it,ectx).state() == AlgExecState::State::Done);
         fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
         if (!isE || !fp) {
           result = false;
@@ -391,7 +389,7 @@ DecisionSvc::isEventAccepted( const std::string& stream,
     if ( ! vecAlgs.empty( ) ) {
       for (auto it = vecAlgs.begin(); it != vecAlgs.end(); it++) {
         bool isE,fp;
-        isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
+        isE = (m_algstateSvc->algExecState(*it,ectx).state() == AlgExecState::State::Done);
         fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
 	if ( isE && fp ) {
           result = false;

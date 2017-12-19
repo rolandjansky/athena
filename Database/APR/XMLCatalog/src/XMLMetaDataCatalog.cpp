@@ -24,7 +24,7 @@ pool::XMLMetaDataCatalog::XMLMetaDataCatalog(FCImpl* fc) :
       FCMetaImpl(fc),
       AthMessaging( 0, "APR.XMLMetaDataCatalog" )
 {
-   msg().setLevel( FCSystemTools::GetOutputLvl() ); 
+   this->setLevel( FCSystemTools::GetOutputLvl() ); 
    x_fc=static_cast<XMLFileCatalog*>(m_fc);  
    XMLcon = 0;
 }

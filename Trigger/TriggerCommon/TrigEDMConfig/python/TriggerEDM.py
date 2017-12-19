@@ -399,6 +399,8 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig', 'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig',  'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig', 'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTK',             'BS ESD AODFULL AODSLIM',  'Jet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTKRefit',             'BS ESD AODFULL AODSLIM',  'Jet'),
 
     #EF tracking
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_EFIDAux'+RemoveIDVariables,             'BS ESD AODFULL',          'Bjet'),
@@ -432,9 +434,11 @@ TriggerHLTList = [
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTKAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTKAux'+RemoveIDVariables,               'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTKAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTKAux'+RemoveIDVariables,          'BS ESD AODFULL AODSLIM',  'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTKRefitAux'+RemoveIDVariables,         'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTKRefitAux'+RemoveIDVariables,          'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTKRefitAux'+RemoveIDVariables,         'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTKRefitAux'+RemoveIDVariables,          'BS ESD AODFULL AODSLIM',  'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTK_IDTrigAux'+RemoveIDVariables,       'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTK_IDTrigAux'+RemoveIDVariables,        'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrigAux'+RemoveIDVariables,       'BS ESD AODFULL AODSLIM',  'Bjet'),
@@ -588,7 +592,13 @@ TriggerHLTList = [
     #GSC
     ('xAOD::JetContainer#HLT_GSCJet', 						'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
     ('xAOD::JetTrigAuxContainer#HLT_GSCJetAux.', 				'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),    
-    
+   
+    # 2017 wth FTK Calibration
+    ('xAOD::JetContainer#HLT_a4tcemsubjesISFSftk',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesISFSftkAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a4tcemsubjesISFSftkrefit',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesISFSftkrefitAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+ 
     #btagging
     ('xAOD::BTaggingContainer#HLT_HLTBjetFex',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
     ('xAOD::BTaggingTrigAuxContainer#HLT_HLTBjetFexAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),

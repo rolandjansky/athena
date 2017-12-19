@@ -28,6 +28,9 @@ namespace xAOD{
 
 //static const InterfaceID IID_IAsgSelectionTool("IAsgSelectionTool", 1, 0);
 
+// this ought to be deprecated, but we have so many clients, that we
+// are not doing it yet.
+//class [[deprecated("do not use for multi-threaded code")]] IAsgSelectionTool
 class IAsgSelectionTool
   : virtual public asg::IAsgTool
 { 

@@ -33,13 +33,14 @@ class egammaBaseTool : public AthAlgTool, virtual public IegammaBaseTool
   virtual ~egammaBaseTool();
 
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override;
   /** @brief execute method*/
-  virtual StatusCode execute(xAOD::Egamma* eg); 
+  virtual StatusCode execute(xAOD::Egamma* eg) override; 
   /** @brief execute method for methods working on containers*/
-  virtual StatusCode contExecute(); 
+  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
+				 xAOD::PhotonContainer *photonContainer) override; 
  
 };
 

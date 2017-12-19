@@ -39,7 +39,6 @@ class StoreGateSvc;
 class ITriggerTime;
 class IToolSvc;
 
-template <class TYPE> class SvcFactory;
 
 /** @class PileUpMergeSvc
   @brief the preferred mechanism to access information from the different event
@@ -55,7 +54,11 @@ template <class TYPE> class SvcFactory;
 class PileUpMergeSvc : public AthService {
 
 public:
-  friend class SvcFactory<PileUpMergeSvc>;
+  /// Standard Gaudi Constructor
+  PileUpMergeSvc(const std::string& name, ISvcLocator* svc);
+        
+  virtual ~PileUpMergeSvc() {}
+
   virtual StatusCode initialize();
 
   ///generate the types of the timed data objects
@@ -158,12 +161,6 @@ private:
   BooleanProperty m_returnTimedData; 
 
   bool doRefresh(const Range& r, int iXing);
-
-protected:
-  /// Standard Gaudi Constructor
-  PileUpMergeSvc(const std::string& name, ISvcLocator* svc);
-        
-  virtual ~PileUpMergeSvc() {}
 
 };
 #include "PileUpTools/PileUpMergeSvc.icc"

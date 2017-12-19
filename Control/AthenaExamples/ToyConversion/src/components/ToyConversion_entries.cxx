@@ -5,7 +5,7 @@
 typedef ToyConverter<Foo> ToyCnvFoo;
 typedef ToyConverter<Bar> ToyCnvBar;
 
-DECLARE_SERVICE_FACTORY( ToyConversionSvc )
+DECLARE_COMPONENT( ToyConversionSvc )
 DECLARE_CONVERTER_FACTORY( ToyCnvFoo )
 DECLARE_CONVERTER_FACTORY( ToyCnvBar )
 

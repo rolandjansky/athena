@@ -200,7 +200,7 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
     const CaloLocalHadCoeff* data = *h;
     if (!data) {
       ATH_MSG_ERROR("Unable to access conditions object");
-      return CaloRecoStatus::TAGGEDUNKNOWN;
+      return StatusCode(CaloRecoStatus::TAGGEDUNKNOWN);
     }
 
     const CaloLocalHadCoeff::LocalHadDimension *logeDim = data->getArea(0)->getDimension(2);
@@ -288,7 +288,10 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
   // OOC_WEIGHT moment
   if ( eWeightedOrig > 0 || eWeightedOrig < 0 ) { 
     double old_weight(1);
-    theCluster->retrieveMoment(CaloCluster::OOC_WEIGHT,old_weight);
+    if (!theCluster->retrieveMoment(CaloCluster::OOC_WEIGHT,old_weight)) {
+      ATH_MSG_ERROR("Cannot retrieve OOC_WEIGHT cluster moment." );
+      return StatusCode::FAILURE;
+    }
     const double new_weight = old_weight*theCluster->e()/eWeightedOrig;
     theCluster->insertMoment(CaloCluster::OOC_WEIGHT,new_weight); 
   }

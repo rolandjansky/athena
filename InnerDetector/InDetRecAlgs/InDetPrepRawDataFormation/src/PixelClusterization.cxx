@@ -117,6 +117,7 @@ namespace InDet{
       ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max())) );
     }else{
       SG::UpdateHandle<PixelClusterContainerCache> clusterContainercache(m_clusterContainercacheKey);
+      ATH_CHECK(clusterContainercache.isValid());
       ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(clusterContainercache.ptr() )));
     }
 

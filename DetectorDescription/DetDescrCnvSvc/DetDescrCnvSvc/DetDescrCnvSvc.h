@@ -71,7 +71,6 @@ public:
 //      virtual StatusCode updateAddress( SG::TransientAddress* tad );
 
 
-protected:
     /**@name: Object implementation     */
     //@{
     /// Standard Constructor

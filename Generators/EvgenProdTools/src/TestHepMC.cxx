@@ -167,60 +167,60 @@ StatusCode TestHepMC::initialize() {
   }
 
   //open the files and read G4particle_whitelist.txt
-  G4file.open("G4particle_whitelist.txt");
+  m_G4file.open("G4particle_whitelist.txt");
          std::string line;
          int G4pdgID;
         
-         if (!G4file.fail()){
+         if (!m_G4file.fail()){
        
-            while(std::getline(G4file,line)){
+            while(std::getline(m_G4file,line)){
                  std::stringstream ss(line);
                  ss >> G4pdgID;
 
                  m_G4pdgID_tab.push_back(G4pdgID);
                  
             }
-            G4file.close();
+            m_G4file.close();
          }
          else{
           ATH_MSG_WARNING("Failed to open G4particle_whitelist.txt, checking that all particles are known by Genat4 cannot be performed");
          }
 
  //open the files and read G4particle_whitelist.txt
-	 G4file.open(m_paramFile.c_str());
+	 m_G4file.open(m_paramFile.c_str());
 	 //         std::string line;
 	 //         int G4pdgID;
         
-         if (!G4file.fail()){
+         if (!m_G4file.fail()){
 	   ATH_MSG_INFO("extra white list for G4 found " << m_paramFile.c_str());
-            while(std::getline(G4file,line)){
+            while(std::getline(m_G4file,line)){
                  std::stringstream ss(line);
                  ss >> G4pdgID;
 
                  m_G4pdgID_tab.push_back(G4pdgID);
                  
             }
-            G4file.close();
+            m_G4file.close();
          }
          else{
           ATH_MSG_INFO("extra white list for G4 not provided ");
          }
 
  //open the files and read susyParticlePdgid.txt
-  susyFile.open("susyParticlePdgid.txt");
+  m_susyFile.open("susyParticlePdgid.txt");
          string line1;
          int susyPdgID;
         
-         if (!susyFile.fail()){
+         if (!m_susyFile.fail()){
        
-            while(getline(susyFile,line1)){
+            while(getline(m_susyFile,line1)){
                  stringstream ss1(line1);
                  ss1 >> susyPdgID;
 
                  m_SusyPdgID_tab.push_back(susyPdgID);
                  
             }
-            susyFile.close();
+            m_susyFile.close();
          }
          else{
           ATH_MSG_WARNING("Failed to open susyParticlePdgid.txt, listing particles not present in PDTTable");
@@ -287,8 +287,8 @@ StatusCode TestHepMC::execute() {
 
 
     // Check vertices
-    int m_vtxDisplacedstatuscode12CheckRateCnt=0;
-    int m_vtxDisplacedstatuscodenot12CheckRateCnt=0;
+    int vtxDisplacedstatuscode12CheckRateCnt=0;
+    int vtxDisplacedstatuscodenot12CheckRateCnt=0;
     for (HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin(); vitr != evt->vertices_end(); ++vitr ) {
       const HepMC::GenVertex* vtx = *vitr;
       const HepMC::ThreeVector pos = vtx->point3d();
@@ -344,9 +344,9 @@ StatusCode TestHepMC::execute() {
           }
 
           if ((*par)->status()==1 || (*par)->status()==2)
-            m_vtxDisplacedstatuscode12CheckRateCnt += 1;
+            vtxDisplacedstatuscode12CheckRateCnt += 1;
           else
-            m_vtxDisplacedstatuscodenot12CheckRateCnt += 1;
+            vtxDisplacedstatuscodenot12CheckRateCnt += 1;
 
 
        if (m_doHist){
@@ -378,8 +378,8 @@ StatusCode TestHepMC::execute() {
         }
       }
     }
-    if (m_vtxDisplacedstatuscode12CheckRateCnt>0) ++m_vtxDisplacedstatuscode12CheckRate;
-    if (m_vtxDisplacedstatuscodenot12CheckRateCnt>0) ++m_vtxDisplacedstatuscodenot12CheckRate;
+    if (vtxDisplacedstatuscode12CheckRateCnt>0) ++m_vtxDisplacedstatuscode12CheckRate;
+    if (vtxDisplacedstatuscodenot12CheckRateCnt>0) ++m_vtxDisplacedstatuscodenot12CheckRate;
 
     // Check particles
     for (HepMC::GenEvent::particle_const_iterator pitr = evt->particles_begin(); pitr != evt->particles_end(); ++pitr ) {
@@ -449,7 +449,7 @@ StatusCode TestHepMC::execute() {
       int first_dig = ppdgid;
       while(first_dig > 9) first_dig /= 10;
          
-      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus()) && (first_dig != 9) ) {
+      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!m_nonint.operator()(*pitr)) && (!pid.isNucleus()) && (first_dig != 9) ) {
 
            int known_byG4 = 0;
            vector<int>::size_type count =0;

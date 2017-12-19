@@ -108,6 +108,7 @@ StatusCode TrackDepositInCaloTool::initialize() {
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 
+  ATH_CHECK(m_extrapolator.retrieve());
   ATH_CHECK(m_caloExtensionTool.retrieve()   );
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
 }
@@ -907,11 +908,8 @@ double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const
 StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
 
   ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
-  std::vector<CaloDetDescriptor*>::const_iterator it  = m_caloDDM->calo_descriptors_begin();
-  std::vector<CaloDetDescriptor*>::const_iterator itE = m_caloDDM->calo_descriptors_end();
   // Initialize LAr
-  while (it!=itE) {
-    const CaloDetDescriptor* descr = *it;
+  for (const CaloDetDescriptor* descr : m_caloDDM->calo_descriptors_range()) {
     if (descr) {
       CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();      
       ATH_MSG_VERBOSE("Detector Description element for sample " << sample);
@@ -941,14 +939,10 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
     }
     else 
       ATH_MSG_VERBOSE("CaloDetDescriptor was not available!");
-    it++;
   }
   
   ATH_MSG_VERBOSE("Processing tiles... ");
-  it  = m_caloDDM->tile_descriptors_begin();
-  itE = m_caloDDM->tile_descriptors_end();
-  while (it!=itE) {
-    const CaloDetDescriptor* descr = *it;
+  for (const CaloDetDescriptor* descr : m_caloDDM->tile_descriptors_range()) {
     if (descr) {
       ATH_MSG_VERBOSE("Detector Description element for sample " << const_cast<CaloDetDescriptor*>(descr)->getSampling());
       if (!descr->is_tile() ) {
@@ -957,7 +951,6 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
       CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
       if (sample >= 15 && sample <= 17) {
         // --- Skip the TileGap detector elements ---
-        it++;
         continue;
       }
       ATH_MSG_VERBOSE("  this is a cylindrical detector element.");
@@ -971,7 +964,6 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
     }
     else 
       ATH_MSG_VERBOSE("CaloDetDescriptor was not available!");
-    it++;
   }
   return StatusCode::SUCCESS;
 }

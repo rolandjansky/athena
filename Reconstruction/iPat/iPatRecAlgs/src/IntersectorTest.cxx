@@ -451,7 +451,7 @@ IntersectorTest::compareWithPrecise(const Trk::TrackSurfaceIntersection*	interse
 
     // track back again
     const Trk::TrackSurfaceIntersection* backIntersection =
-     	new Trk::TrackSurfaceIntersection(*intersection);
+     	( (intersection) ? new Trk::TrackSurfaceIntersection(*intersection) : nullptr );
 
     // accumulate statistics
     ++m_trackCount;
@@ -517,9 +517,8 @@ IntersectorTest::compareWithPrecise(const Trk::TrackSurfaceIntersection*	interse
     }
 
     // check tracking back
-    backIntersection	= m_intersector->intersectSurface(*m_perigeeSurface,
-							  backIntersection,
-							  qOverP);
+    backIntersection	= (backIntersection ? m_intersector->intersectSurface(*m_perigeeSurface,backIntersection, qOverP) : nullptr);
+
     if (backIntersection)
     {
 	double offset	=

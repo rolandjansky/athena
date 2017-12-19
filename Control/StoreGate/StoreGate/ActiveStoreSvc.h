@@ -13,7 +13,6 @@
 class StoreGateSvc;
 class ISvcLocator;
 
-template <class TYPE> class SvcFactory;
 
 /** @class ActiveStoreSvc
  *  @brief A service that caches a pointer to the currently active store. 
@@ -32,11 +31,11 @@ class ActiveStoreSvc : public IProxyDict,
                        public Service
 {
 public:
-  friend class SvcFactory<ActiveStoreSvc>;
 
   ///returns pointer to the active store as StoreGateSvc
   inline StoreGateSvc* activeStore() const {
-    return p_activeStore;
+    if (p_activeStore) return p_activeStore;
+    return activeStoreOOL();
   }
 
   ///dereference operator to access the active store
@@ -157,17 +156,16 @@ public:
 
   /// not really kosher: should be in IActiveStoreSvc
   static const InterfaceID& interfaceID(); 
-
-private:
-  StoreGateSvc* p_activeStore;    
-  std::string m_storeName; //< property: StoreGate instance name
-
-protected:
-    
+  
   /// Standard Service Constructor. sets active store to default event store
   ActiveStoreSvc(const std::string& name, ISvcLocator* svc);
 
   virtual ~ActiveStoreSvc() override;
+
+private:
+  StoreGateSvc* activeStoreOOL() const;
+  StoreGateSvc* p_activeStore;    
+  std::string m_storeName; //< property: StoreGate instance name
 
 };
 #endif // STOREGATE_ACTIVESTORESVC_H

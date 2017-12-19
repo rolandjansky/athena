@@ -19,7 +19,7 @@ class egammaTrackSlimmer ( Configured ) :
     mlog.info('entering')
  
     try:
-      from egammaRec.egammaRecConf import egammaTrackSlimmer
+      from egammaAlgs.egammaAlgsConf import egammaTrackSlimmer
       theEgammaTrackSlimmer = egammaTrackSlimmer(
         "egammaTrackSlimmer",
         InputElectronContainerName=egammaKeys.outputElectronKey(),

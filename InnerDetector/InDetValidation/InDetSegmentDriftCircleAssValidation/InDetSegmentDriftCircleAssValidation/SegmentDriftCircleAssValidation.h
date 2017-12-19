@@ -19,6 +19,8 @@
 //Drift circle 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 namespace InDet {
 
 
@@ -56,15 +58,11 @@ namespace InDet {
       // Protected data 
       ///////////////////////////////////////////////////////////////////
 
-      int                                           m_outputlevel           ;
       int                                           m_nprint                ;
-      const Trk::SegmentCollection                 *m_origColTracks         ;
-      std::string                                   m_origtracklocation     ;
-      std::vector<const PRD_MultiTruthCollection*>  m_prdCollectionVector   ;
+      SG::ReadHandleKey<Trk::SegmentCollection>     m_origtrackKey{ this, "OrigTracksLocation", "TRTSegments", "TRT Segments collection name" };
       const HepPDT::ParticleDataTable*              m_particleDataTable     ;
-      const TRT_DriftCircleContainer               *m_trtcontainer          ;
-      std::string                                   m_PRDTruthNameTRT       ;
-      std::string                                   m_circlesTRTname        ;
+      SG::ReadHandleKey<PRD_MultiTruthCollection>   m_PRDTruthTRTKey{ this, "TruthNameTRT", "PRD_MultiTruthTRT", "PRD Multitruth collection name" };
+      SG::ReadHandleKey<TRT_DriftCircleContainer>   m_circlesTRTKey{ this, "TRT_DriftCirclesName", "TRT_DriftCircles", "TRT Driftcircle container name" };
       double                                        m_pTmin                 ;
       double                                        m_tcut                  ;
       double                                        m_rapcut                ;
@@ -87,19 +85,19 @@ namespace InDet {
       // Protected methods
       ///////////////////////////////////////////////////////////////////
 
-      void newCirclesEvent         ();
-      void tracksComparison        ();
+      void newCirclesEvent         ( const PRD_MultiTruthCollection* );
+      void tracksComparison        ( const Trk::SegmentCollection*, const PRD_MultiTruthCollection* );
       void efficiencyReconstruction();
       int  QualityTracksSelection  ();
 
-      std::list<int> kine(const InDet::TRT_DriftCircle*);
+      std::list<int> kine(const InDet::TRT_DriftCircle*, const PRD_MultiTruthCollection* prdCollection );
       std::list<PRD_MultiTruthCollection::const_iterator> 
-         kinpart(const InDet::TRT_DriftCircle*);
+         kinpart(const InDet::TRT_DriftCircle*, const PRD_MultiTruthCollection* );
       
       bool isTheSameStrawElement(int,const Trk::PrepRawData*);
 
       std::list<PRD_MultiTruthCollection::const_iterator>                    
-         findTruth (const InDet::TRT_DriftCircle* ,bool& );
+         findTruth (const InDet::TRT_DriftCircle* ,bool&, const PRD_MultiTruthCollection* );
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

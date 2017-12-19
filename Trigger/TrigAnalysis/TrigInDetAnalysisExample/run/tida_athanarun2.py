@@ -6,7 +6,7 @@ include("runs.py")
 
 # if athenaCommonFlags.FilesInput()==[]:
 # FilesInput=[
-#  "root://eosatlas//eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/00304128/data16_13TeV.00304128.physics_Main.merge.AOD.f716_m1620/data16_13TeV.00304128.physics_Main.merge.AOD.f716_m1620._lb1996._0001.1"
+#  "root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/00304128/data16_13TeV.00304128.physics_Main.merge.AOD.f716_m1620/data16_13TeV.00304128.physics_Main.merge.AOD.f716_m1620._lb1996._0001.1"
 #  ]
   
 FilesInput = files

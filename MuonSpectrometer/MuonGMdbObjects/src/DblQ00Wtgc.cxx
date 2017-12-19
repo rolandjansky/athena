@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Wtgc.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -32,7 +31,7 @@
 namespace MuonGM
 {
 
-DblQ00Wtgc::DblQ00Wtgc(IRDBQuery* wtgc)
+DblQ00Wtgc::DblQ00Wtgc(std::unique_ptr<IRDBQuery>&& wtgc)
  : m_nObj(0)
 {
   if(wtgc) {

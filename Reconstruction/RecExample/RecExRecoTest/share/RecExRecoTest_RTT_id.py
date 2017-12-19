@@ -18,6 +18,10 @@ rec.doMuonCombined=False
 rec.doJetMissingETTag=False
 rec.doTau=False
 
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['FieldAndGeo']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 
 # main jobOption

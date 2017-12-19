@@ -7,7 +7,11 @@
 
 #include "TrkEventCnvTools/ITrkEventCnvTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <utility>
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -24,6 +28,11 @@ namespace Trk {
   class TrkDetElementBase;
   class PrepRawData;
 }
+
+
+//class PixelClusterContainer 	;
+//class SCT_ClusterContainer	;
+//class TRT_DriftCircleContainer	;
 
 namespace InDet {
 /**Helper tool uses to convert InDet objects in generic tracking custom convertor TrkEventAthenaPool.
@@ -89,9 +98,11 @@ class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTo
   // added to check TRT existence (SLHC geo check) 
   const IdDictManager * m_idDictMgr;
 
-  std::string m_pixClusContName;                    //!< location of container of pixel clusters
-  std::string m_sctClusContName;                    //!< location of container of sct clusters
-  std::string m_trtDriftCircleContName;             //!< location of container of TRT drift circles
+
+  SG::ReadHandleKey<PixelClusterContainer>	m_pixClusContName	{this, "PixelClusterContainer"		,"PixelClusters"		, "Pixel Cluster container name"};		//!< location of container of pixel clusters
+  SG::ReadHandleKey<SCT_ClusterContainer> 	m_sctClusContName	{this, "SCT_ClusterContainer"		,"SCT_Clusters"			, "SCT Cluster container name"}	;		//!< location of container of sct clusters
+  SG::ReadHandleKey<TRT_DriftCircleContainer> 	m_trtDriftCircleContName{this, "TRT_DriftCircleContainer"	,"TRT_DriftCircleContainer"	, "TRT DriftCircle Container"};	//!< location of container of TRT drift circles
+
 };
 
 

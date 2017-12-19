@@ -19,7 +19,7 @@
 
 #include "xAODCore/AuxContainerBase.h"
 #include "AthContainers/PackedContainer.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 #include <vector>
 
 

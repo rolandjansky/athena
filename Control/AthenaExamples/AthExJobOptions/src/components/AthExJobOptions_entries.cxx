@@ -13,14 +13,14 @@
 typedef ToolSpace::TemplatedTool< double > ToolSpaceTemplatedToolDouble;
 
 
-DECLARE_ALGORITHM_FACTORY( NoopAlgorithm )
-DECLARE_ALGORITHM_FACTORY( TopAlgorithm )
-DECLARE_ALGORITHM_FACTORY( SubAlgorithm )
-DECLARE_ALGORITHM_FACTORY( TestSvcHandleArrayAlg )
-DECLARE_TOOL_FACTORY( ConcreteTool )
-DECLARE_TOOL_FACTORY( ToolUsingTool )
-DECLARE_TOOL_FACTORY( ToolSpaceTemplatedToolDouble )
-DECLARE_TOOL_FACTORY( ExampleEvtLoopPreSelectTool )
-DECLARE_SERVICE_FACTORY( ConcreteSvc )
-DECLARE_SERVICE_FACTORY( AnotherConcreteSvc )
+DECLARE_COMPONENT( NoopAlgorithm )
+DECLARE_COMPONENT( TopAlgorithm )
+DECLARE_COMPONENT( SubAlgorithm )
+DECLARE_COMPONENT( TestSvcHandleArrayAlg )
+DECLARE_COMPONENT( ConcreteTool )
+DECLARE_COMPONENT( ToolUsingTool )
+DECLARE_COMPONENT( ToolSpaceTemplatedToolDouble )
+DECLARE_COMPONENT( ExampleEvtLoopPreSelectTool )
+DECLARE_COMPONENT( ConcreteSvc )
+DECLARE_COMPONENT( AnotherConcreteSvc )
 

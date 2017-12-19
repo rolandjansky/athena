@@ -23,8 +23,6 @@
  
 namespace ISF {
 
-  static const InterfaceID IID_IGeoIDSvc("IGeoIDSvc", 1, 0);
-
   enum InsideType {
     fOutside        = 0,
     fSurface        = 1,
@@ -50,8 +48,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IGeoIDSvc(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IGeoIDSvc; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IGeoIDSvc, 1, 0);
 
        /** Athena algtool's Hooks */
        virtual StatusCode  initialize() = 0;

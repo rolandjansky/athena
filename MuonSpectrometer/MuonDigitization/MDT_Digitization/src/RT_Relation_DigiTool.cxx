@@ -80,22 +80,22 @@ bool RT_Relation_DigiTool::initializeTube(){
 
   m_maxRadius = m_muonGeoMgr->getGenericMdtDescriptor()->innerRadius;
 
-  if (rt.size() < 1) {
+  if (m_rt.size() < 1) {
     std::string inputFile = RT_DATA;
     // Find the full path to inputFile:
     std::string file = PathResolver::find_file (inputFile, "DATAPATH");
     ATH_MSG_DEBUG("Found file " << file );
-    rt.push_back (new Rt_relation);
+    m_rt.push_back (new Rt_relation);
     std::ifstream rt_file(file.c_str());
-    rt[0]->set_name(file.c_str());
+    m_rt[0]->set_name(file.c_str());
     if (!rt_file.good()) {
-      ATH_MSG_FATAL("Could not open RT relation file " << rt[0]->name() );
-      return StatusCode::FAILURE;
+      ATH_MSG_FATAL("Could not open RT relation file " << m_rt[0]->name() );
+      return false;
     }
     else {
-      ATH_MSG_DEBUG("RT relation file " << rt[0]->name() << " opened" );
+      ATH_MSG_DEBUG("RT relation file " << m_rt[0]->name() << " opened" );
     }
-    rt[0]->read_rt(rt_file);
+    m_rt[0]->read_rt(rt_file);
   }
 
   m_maxRadius = m_muonGeoMgr->getGenericMdtDescriptor()->innerRadius;

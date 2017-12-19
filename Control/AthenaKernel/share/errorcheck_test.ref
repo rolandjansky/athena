@@ -1,7 +1,7 @@
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on p05614910w96644.cern.ch on Fri Mar  3 20:09:31 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on pc-tbed-pub-13.cern.ch on Tue Dec  5 15:09:02 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -9,29 +9,31 @@ EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-alg                 ERROR ../test/errorcheck_test.cxx:157 (StatusCode test1()): code 0: foomsg
-alg                  INFO ../test/errorcheck_test.cxx:159 (StatusCode test1()): some message
-alg                  INFO ../test/errorcheck_test.cxx:162 (StatusCode test1()): a... b
-alg                  INFO ../test/errorcheck_test.cxx:166 (StatusCode test1()): foo
-alg                 FATAL ../test/errorcheck_test.cxx:106 (StatusCode test1a()): code 0: StatusCode (StatusCode::FAILURE)
-alg                 ERROR ../test/errorcheck_test.cxx:114 (StatusCode test1b()): code 2: StatusCode (StatusCode::FAILURE)
-alg                 ERROR ../test/errorcheck_test.cxx:122 (StatusCode test1c()): code 2: StatusCode (StatusCode::RECOVERABLE)
-alg                 FATAL ../test/errorcheck_test.cxx:130 (StatusCode test1d()): code 0: StatusCode (StatusCode::FAILURE)
-alg                 FATAL ../test/errorcheck_test.cxx:138 (StatusCode test1e()): code 0: StatusCode (StatusCode::RECOVERABLE)
-alg                 FATAL ../test/errorcheck_test.cxx:146 (StatusCode test1f()): code 123: StatusCode (StatusCode::RECOVERABLE)
-algname             ERROR ../test/errorcheck_test.cxx:38 (StatusCode Algtest::test1()): code 0: foomsg
-algname              INFO ../test/errorcheck_test.cxx:39 (StatusCode Algtest::test1()): some info
-algname             FATAL ../test/errorcheck_test.cxx:41 (StatusCode Algtest::test1()): code 0: StatusCode (StatusCode::FAILURE)
-toolname            ERROR ../test/errorcheck_test.cxx:58 (StatusCode Algtooltest::test1()): code 0: foomsg
-toolname             INFO ../test/errorcheck_test.cxx:59 (StatusCode Algtooltest::test1()): some info
-toolname            FATAL ../test/errorcheck_test.cxx:61 (StatusCode Algtooltest::test1()): code 123: StatusCode (StatusCode::RECOVERABLE)
-servname            ERROR ../test/errorcheck_test.cxx:78 (StatusCode Servtest::test1()): code 0: foomsg
-servname             INFO ../test/errorcheck_test.cxx:79 (StatusCode Servtest::test1()): some info
-servname            ERROR ../test/errorcheck_test.cxx:81 (StatusCode Servtest::test1()): code 2: StatusCode (StatusCode::FAILURE)
-                    ERROR ../test/errorcheck_test.cxx:95 (StatusCode Test::test1()): code 0: foomsg
-                     INFO ../test/errorcheck_test.cxx:96 (StatusCode Test::test1()): some info
-                    FATAL ../test/errorcheck_test.cxx:98 (StatusCode Test::test1()): code 0: StatusCode (StatusCode::RECOVERABLE)
+alg                 ERROR ../errorcheck_test.cxx (StatusCode test1()): code 0: foomsg
+alg                  INFO ../errorcheck_test.cxx (StatusCode test1()): some message
+alg                  INFO ../errorcheck_test.cxx (StatusCode test1()): a... b
+alg                  INFO ../errorcheck_test.cxx (StatusCode test1()): foo
+alg                 FATAL ../errorcheck_test.cxx (StatusCode test1a()): code 0: StatusCode (StatusCode::FAILURE)
+alg                 ERROR ../errorcheck_test.cxx (StatusCode test1b()): code 2: StatusCode (StatusCode::FAILURE)
+alg                 ERROR ../errorcheck_test.cxx (StatusCode test1c()): code 2: StatusCode (StatusCode::RECOVERABLE)
+alg                 FATAL ../errorcheck_test.cxx (StatusCode test1d()): code 0: StatusCode (StatusCode::FAILURE)
+alg                 FATAL ../errorcheck_test.cxx (StatusCode test1e()): code 0: StatusCode (StatusCode::RECOVERABLE)
+alg                 FATAL ../errorcheck_test.cxx (StatusCode test1f()): code 123: StatusCode (StatusCode::RECOVERABLE)
+alg                 FATAL ../errorcheck_test.cxx (int test1g()): code 0: StatusCode (StatusCode::FAILURE)
+algname             ERROR ../errorcheck_test.cxx (StatusCode Algtest::test1()): code 0: foomsg
+algname              INFO ../errorcheck_test.cxx (StatusCode Algtest::test1()): some info
+algname             FATAL ../errorcheck_test.cxx (StatusCode Algtest::test1()): code 0: StatusCode (StatusCode::FAILURE)
+toolname            ERROR ../errorcheck_test.cxx (StatusCode Algtooltest::test1()): code 0: foomsg
+toolname             INFO ../errorcheck_test.cxx (StatusCode Algtooltest::test1()): some info
+toolname            FATAL ../errorcheck_test.cxx (StatusCode Algtooltest::test1()): code 123: StatusCode (StatusCode::RECOVERABLE)
+servname            ERROR ../errorcheck_test.cxx (StatusCode Servtest::test1()): code 0: foomsg
+servname             INFO ../errorcheck_test.cxx (StatusCode Servtest::test1()): some info
+servname            ERROR ../errorcheck_test.cxx (StatusCode Servtest::test1()): code 2: StatusCode (StatusCode::FAILURE)
+                    ERROR ../errorcheck_test.cxx (StatusCode Test::test1()): code 0: foomsg
+                     INFO ../errorcheck_test.cxx (StatusCode Test::test1()): some info
+                    FATAL ../errorcheck_test.cxx (StatusCode Test::test1()): code 0: StatusCode (StatusCode::RECOVERABLE)
+                    FATAL ../errorcheck_test.cxx (int Test::test2()): code 0: StatusCode (StatusCode::FAILURE)
 alg                 ERROR FILE:LINE (StatusCode test1()): code 0: foox
-alg                 ERROR ../test/errorcheck_test.cxx:182 (StatusCode test1()): code 0: fooy
-test2                INFO ../test/errorcheck_test.cxx:198 (void test2(std::vector<int>, const int*, int (*)(), int*)): test2
-test3                INFO ../test/errorcheck_test.cxx:207 (void test3(const std::string&, int)): test3
+alg                 ERROR ../errorcheck_test.cxx (StatusCode test1()): code 0: fooy
+test2                INFO ../errorcheck_test.cxx (void test2(std::vector<int>, const int*, int (*)(), int*)): test2
+test3                INFO ../errorcheck_test.cxx (void test3(const std::string&, int)): test3

@@ -18,14 +18,15 @@ The matching of a track to a cluster is driven by the EMTrackMatchBuilder tool l
 // INCLUDE HEADER FILES:
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
+#include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "TrackMatchSorter.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h" 
 #include "TrkEventPrimitives/PropDirection.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class egammaRec;
-class IEMExtrapolationTools;
 
 namespace Reco  { class ITrackToVertex; }
 
@@ -43,11 +44,11 @@ class EMTrackMatchBuilder : public egammaBaseTool, virtual public IEMTrackMatchB
   ~EMTrackMatchBuilder();
         
   /** @brief Gaudi algorithm hooks*/
-  StatusCode initialize();
+  StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg);
+  virtual StatusCode executeRec(egammaRec* eg) override;
   /** @brief execute method*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC);
+  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) override;
 
 private:
 
@@ -73,43 +74,83 @@ private:
   
   // configuration:
   /** @brief name of TrackParticle container in TDS*/
-  std::string           m_TrackParticlesName; 
+  SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_TrackParticlesKey { this,
+      "TrackParticlesName", "",
+      "Name of the input track particle container"};
+ 
   /** @brief broad cut on deltaEta*/
-  double                m_broadDeltaEta;
+  Gaudi::Property<double> m_broadDeltaEta {this,
+      "broadDeltaEta", 0.1, "Value of broad cut for delta eta"};
+
   /** @brief broad cut on deltaPhi*/
-  double                m_broadDeltaPhi;
+  Gaudi::Property<double> m_broadDeltaPhi {this,
+      "broadDeltaPhi", 0.1, "Value of broad cut for delta phi"};
+
   /** @brief narrow cut on deltaEta*/
-  double                m_narrowDeltaEta;
+  Gaudi::Property<double> m_narrowDeltaEta {this,
+      "narrowDeltaEta", 0.05,
+      "Value of narrow cut for delta eta"};
+
   /** @brief narrow cut on deltaPhiRescale*/
-  double                m_narrowDeltaPhi;
+  Gaudi::Property<double> m_narrowDeltaPhi {this,
+      "narrowDeltaPhi", 0.05,
+      "Value of the narrowd cut for delta phi"};
+
   /** @brief narrow cut on deltaPhi for electrons*/
-  double                m_narrowDeltaPhiBrem;
+  Gaudi::Property<double> m_narrowDeltaPhiBrem {this,
+      "narrowDeltaPhiBrem", 0.1,
+      "Value of the narrow cut for delta phi  Brem"};
+
   /** @brief narrow cut on deltaPhiRescale*/
-  double                m_narrowDeltaPhiRescale;
+  Gaudi::Property<double> m_narrowDeltaPhiRescale {this,
+      "narrowDeltaPhiRescale",  0.05,
+      "Value of the narrow cut for delta phi Rescale"};
+
   /** @brief narrow cut on deltaPhiRescale for electrons*/
-  double                m_narrowDeltaPhiRescaleBrem;
+  Gaudi::Property<double> m_narrowDeltaPhiRescaleBrem {this,
+      "narrowDeltaPhiRescaleBrem", 0.1,
+      "Value of the narrow cut for delta phi Rescale Brem"};
+
   /** @Maximum deltaPhi (Res) allowed for a match */
-  double                m_MaxDeltaPhiRescale;
+  Gaudi::Property<double> m_MaxDeltaPhiRescale {this,
+      "MaxDeltaPhiRescale", 0.25,
+      "Maximum Value of the deltaPhi rescale"};
+
   /** @brief flag to turn on/off use of isCandidateMatch*/
-  bool                  m_useCandidateMatch;
+  Gaudi::Property<bool> m_useCandidateMatch {this,
+      "useCandidateMatch", true,
+      "Boolean to use candidate matching"};
+
   /** @brief flag to either use last measurement hit or perigee */
-  bool                  m_useLastMeasurement;
+  Gaudi::Property<bool> m_useLastMeasurement {this,
+      "useLastMeasurement", false,
+      "Boolean to use last measurement for extrapolation, otherwise use perigee"};
+
   /** @brief Boolean to favor tracks with Pixel hits*/
-  bool                  m_useScoring;
+  Gaudi::Property<bool> m_useScoring {this,
+      "useScoring", true,
+      "Boolean to favor tracks with Pixel hits"};
+
   /** @brief Boolean to use Rescale in the metric*/
-  bool m_UseRescaleMetric;
+  Gaudi::Property<bool> m_UseRescaleMetric {this,
+      "UseRescaleMetric", true, "Use Rescale Metric"};
+
   /** @brief Boolean to do second pass with Rescale*/
-  bool m_SecondPassRescale;
+  Gaudi::Property<bool> m_SecondPassRescale {this,
+      "SecondPassRescale", true, "Do second pass with rescale"};
+
   /** @brief TrackToCalo extrapolation tool. Handles Trk::ParametersBase as input.
       Extrapolation starts from the last measurement of the track. The
       InDetExtrapolator is used, with all proper material effects inside the
       part of the ID that is traversed. Both charged and neutral particles
       are handled. */
-  ToolHandle<IEMExtrapolationTools> m_extrapolationTool;
+  ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
+      "ExtrapolationTool", "EMExtrapolationTools",
+      "Name of the extrapolation tool"};
+
   /** @brief */
-  bool                  m_isCosmics;
-  //int                   m_nSi;
-  //int                   m_nTrt;
+  Gaudi::Property<bool> m_isCosmics {this, 
+      "isCosmics", false, "Boolean for use of cosmics"};
 };
 
 #endif

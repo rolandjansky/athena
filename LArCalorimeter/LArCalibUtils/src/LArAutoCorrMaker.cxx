@@ -123,7 +123,7 @@ StatusCode LArAutoCorrMaker::execute()
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();  
-  const LArDigitContainer* larDigitContainer;
+  const LArDigitContainer* larDigitContainer = nullptr;
   
   for (;key_it!=key_it_e;key_it++) {   
     ATH_MSG_DEBUG("Reading LArDigitContainer from StoreGate! key=" << *key_it);
@@ -210,8 +210,8 @@ StatusCode LArAutoCorrMaker::stop()
   }
 
   for (int gain=0;gain<(int)CaloGain::LARNGAIN;gain++)  {
-      LARACMAP::ConstConditionsMapIterator cell_it=m_autocorr.begin(gain);
-      LARACMAP::ConstConditionsMapIterator cell_it_e=m_autocorr.end(gain);
+      LARACMAP::ConditionsMapIterator cell_it=m_autocorr.begin(gain);
+      LARACMAP::ConditionsMapIterator cell_it_e=m_autocorr.end(gain);
       
       //Inner loop goes over the cells.
       for (;cell_it!=cell_it_e;cell_it++) {

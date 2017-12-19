@@ -90,7 +90,7 @@ StatusCode SCT_RodEncoder::finalize() {
 ///=========================================================================  
 
 void SCT_RodEncoder::fillROD(std::vector<uint32_t>& v32rod, uint32_t robid, 
-			     vRDOs_t& rdoVec) {
+                             vRDOs_t& rdoVec) {
   
   /** retrieve errors from SCT_ByteStreamErrorsSvc */
   
@@ -142,13 +142,13 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& v32rod, uint32_t robid,
       if (v_isDuplicated.at(iRdo2)) continue;
 
       if (rawdata->identify()==rawdata2->identify()) {
-	// Keep RDO with larger cluster size. If cluster sizes are the same, keep the first one.
-	if (rawdata->getGroupSize()>=rawdata2->getGroupSize()) {
-	  v_isDuplicated.at(iRdo2) = true;
-	} else {
-	  v_isDuplicated.at(iRdo)  = true;
-	}
-	break;
+        // Keep RDO with larger cluster size. If cluster sizes are the same, keep the first one.
+        if (rawdata->getGroupSize()>=rawdata2->getGroupSize()) {
+          v_isDuplicated.at(iRdo2) = true;
+        } else {
+          v_isDuplicated.at(iRdo)  = true;
+        }
+        break;
       }
     }
   }
@@ -181,29 +181,29 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& v32rod, uint32_t robid,
       /** Sim rdo could have groupe size > 1 then I need to split 
        * them 2 by 2 to built the condensed BS data */
       else { /** Encoding in condensed BS paired data from groupe size > 1 */
-	int chipFirst{strip1/128};
-	int chipLast{(strip1+groupsize-1)/128};
+        int chipFirst{strip1/128};
+        int chipLast{(strip1+groupsize-1)/128};
 
-	for (int chip{chipFirst}; chip<=chipLast; chip++) {
-	  int tmpGroupsize = 0;
-	  if (chipFirst==chipLast) tmpGroupsize = groupsize; // In case of one chip
-	  else if (chip==chipLast) tmpGroupsize = strip1+groupsize-chip*128; // In case of last chip
-	  else if (chip==chipFirst) tmpGroupsize = (chip+1)*128-strip1; // In case of first chip
-	  else tmpGroupsize = 128; // In case of middle chip
-	  int tmpStrip1{chip==chipFirst ? strip1 : 128*chip};
+        for (int chip{chipFirst}; chip<=chipLast; chip++) {
+          int tmpGroupsize = 0;
+          if (chipFirst==chipLast) tmpGroupsize = groupsize; // In case of one chip
+          else if (chip==chipLast) tmpGroupsize = strip1+groupsize-chip*128; // In case of last chip
+          else if (chip==chipFirst) tmpGroupsize = (chip+1)*128-strip1; // In case of first chip
+          else tmpGroupsize = 128; // In case of middle chip
+          int tmpStrip1{chip==chipFirst ? strip1 : 128*chip};
 
-	  int n_pairedRdo{tmpGroupsize/2};
-	  for (int i =0; i<n_pairedRdo; i++) {
-	    int gSize{2};
-	    int strip2{tmpStrip1+ (2*i)};
-	    encodeData(vtbin, v16data, rawdata, gSize, strip2);
-	  } 
-	  if ((tmpGroupsize != 0) && isOdd(tmpGroupsize)) {/** The last hit from a cluster with odd group size */
-	    int gSize{1};
-	    int strip2{tmpStrip1+ (tmpGroupsize - 1)};
-	    encodeData(vtbin, v16data, rawdata, gSize, strip2);
-	  }  
-	}
+          int n_pairedRdo{tmpGroupsize/2};
+          for (int i =0; i<n_pairedRdo; i++) {
+            int gSize{2};
+            int strip2{tmpStrip1+ (2*i)};
+            encodeData(vtbin, v16data, rawdata, gSize, strip2);
+          } 
+          if ((tmpGroupsize != 0) and isOdd(tmpGroupsize)) {/** The last hit from a cluster with odd group size */
+            int gSize{1};
+            int strip2{tmpStrip1+ (tmpGroupsize - 1)};
+            encodeData(vtbin, v16data, rawdata, gSize, strip2);
+          }  
+        }
 
       }  
       
@@ -227,7 +227,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& v32rod, uint32_t robid,
       
     }  // End of (else) Expanded
   } //end of RDO loop
-  if (!firstInRod && lastTrailer!=0) {
+  if (!firstInRod and lastTrailer!=0) {
     v16data.push_back(lastTrailer);
   }
   /** 16 bits TO 32 bits and pack into 32 bit vectors */

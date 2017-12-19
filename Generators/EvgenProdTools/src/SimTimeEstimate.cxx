@@ -13,7 +13,7 @@ SimTimeEstimate::SimTimeEstimate(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty( "EtaLimit", m_etaMax = 6.0 );
   m_total_Events = 0;
   m_total_Energy = 0.;
-  pidsToSkip = {12, 13, 14, 16};
+  m_pidsToSkip = {12, 13, 14, 16};
 }
 
 StatusCode SimTimeEstimate::execute() 
@@ -22,11 +22,11 @@ StatusCode SimTimeEstimate::execute()
     /// @todo Use C++ for(:)
     for (const auto itr : *(events_const()))
     {
-        eventEnergy = 0.;  
-        particleNumber = 0.;
-        particleIDs.clear();
-        particleEtas.clear();       
-        particleEnergies.clear();       
+        m_eventEnergy = 0.;  
+        m_particleNumber = 0.;
+        m_particleIDs.clear();
+        m_particleEtas.clear();       
+        m_particleEnergies.clear();       
         // Check particles
         for (HepMC::GenEvent::particle_const_iterator pitr = itr->particles_begin(); pitr != itr->particles_end(); ++pitr )
          { 
@@ -38,11 +38,11 @@ StatusCode SimTimeEstimate::execute()
             const HepMC::FourVector pmom = (*pitr)->momentum();
             // Only count particles with finite eta
             if (pmom.perp()==0 || fabs(pmom.eta())>m_etaMax) continue;
-            particleEtas.push_back(pmom.eta());
+            m_particleEtas.push_back(pmom.eta());
             // add  ID of particle to list 
-            particleIDs.push_back(abs((*pitr)->pdg_id()));
+            m_particleIDs.push_back(abs((*pitr)->pdg_id()));
             // add energy per particle to get the distribution:
-            particleEnergies.push_back(pmom.e());
+            m_particleEnergies.push_back(pmom.e());
 
             // Skip muons and neutrinos.  This should eventually be using a common
             //  "is MIP-like" function, but that's a bit tricky as for
@@ -50,15 +50,15 @@ StatusCode SimTimeEstimate::execute()
             //  it decays.  This algorithm will always be a little tricky 
             //  in those cases, but better to *overestimate* the sim time.
             
-            if(std::find(pidsToSkip.begin(), pidsToSkip.end(), abs((*pitr)->pdg_id())) != pidsToSkip.end()) continue; 
+            if(std::find(m_pidsToSkip.begin(), m_pidsToSkip.end(), abs((*pitr)->pdg_id())) != m_pidsToSkip.end()) continue; 
             // Add in the total energy
             m_total_Energy += pmom.e(); 
-            eventEnergy += pmom.e();
-            particleNumber ++; 
+            m_eventEnergy += pmom.e();
+            m_particleNumber ++; 
         } // Loop over particles in the event
         
         //Report characterisitics of each event  
-        ATH_MSG_INFO("==> EVENT INFORMATION | event number: " << m_total_Events << "| event energy: " << eventEnergy); // << " | particleNumber: " << particleNumber << " | particleIDs: " << particleIDs << " | etas: " << particleEtas << " | energies: " << particleEnergies);
+        ATH_MSG_INFO("==> EVENT INFORMATION | event number: " << m_total_Events << "| event energy: " << m_eventEnergy); // << " | m_particleNumber: " << m_particleNumber << " | m_particleIDs: " << m_particleIDs << " | etas: " << m_particleEtas << " | energies: " << m_particleEnergies);
     } // Loop over events in the event collection
     // One more event done!
     m_total_Events++;

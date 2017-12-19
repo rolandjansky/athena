@@ -8,7 +8,7 @@
 // can be written to POOL for ESD/AOD files
 // Richard Hawkings, started 13/12/06
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/MsgStream.h"
 #include "DetDescrConditions/DetStatus.h"

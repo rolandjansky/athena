@@ -1,6 +1,0 @@
-PACKAGE          = IRegionSelector
-PACKAGE_PRELOAD = EG
-PACKAGE_PEDANTIC = 0
-PACKAGE_NOCC=1
-include $(ROOTCOREDIR)/Makefile-common
-

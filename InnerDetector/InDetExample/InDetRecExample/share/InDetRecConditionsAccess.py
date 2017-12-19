@@ -17,6 +17,10 @@ if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
   from IOVDbSvc.CondDB import conddb
 
+# Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
 #
 # --- Load PixelConditionsServices
 #
@@ -146,10 +150,8 @@ if DetFlags.haveRIO.pixel_on():
     else :
         if not conddb.folderRequested('/PIXEL/Pixreco'):
             conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco",className='DetCondCFloat')
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
             from PixelCalibAlgs.PixelCalibAlgsConf import PixelCalibCondAlg
-            condSequence += PixelCalibCondAlg( "PixelCalibCondAlg" )
+            condSeq += PixelCalibCondAlg( "PixelCalibCondAlg" )
         ToolSvc.PixelRecoDbTool.InputSource = 2
 
     if not athenaCommonFlags.isOnline():
@@ -202,27 +204,33 @@ if DetFlags.haveRIO.SCT_on():
     SCTModuleConfigurationPath=SCTConfigurationFolderPath+'Module'
     SCTMurConfigurationPath=SCTConfigurationFolderPath+'MUR'
     if not conddb.folderRequested(SCTChipConfigurationPath):
-        conddb.addFolderSplitMC("SCT",SCTChipConfigurationPath,SCTChipConfigurationPath)
+        conddb.addFolderSplitMC("SCT", SCTChipConfigurationPath, SCTChipConfigurationPath, className="CondAttrListVec")
     if not conddb.folderRequested(SCTModuleConfigurationPath):
-        conddb.addFolderSplitMC("SCT",SCTModuleConfigurationPath,SCTModuleConfigurationPath)
-
+        conddb.addFolderSplitMC("SCT", SCTModuleConfigurationPath, SCTModuleConfigurationPath, className="CondAttrListVec")
     if not conddb.folderRequested(SCTMurConfigurationPath):
-        conddb.addFolderSplitMC("SCT",SCTMurConfigurationPath,SCTMurConfigurationPath)
+        conddb.addFolderSplitMC("SCT", SCTMurConfigurationPath, SCTMurConfigurationPath, className="CondAttrListVec")
+    if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
+        condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
+                                            ReadKeyChannel = SCTChipConfigurationPath,
+                                            ReadKeyModule = SCTModuleConfigurationPath,
+                                            ReadKeyMur = SCTMurConfigurationPath)
 
-    if not conddb.folderRequested('/SCT/DAQ/Calibration/NPtGainDefects'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NPtGainDefects","/SCT/DAQ/Calibration/NPtGainDefects")
-    if not conddb.folderRequested('/SCT/DAQ/Calibration/NoiseOccupancyDefects'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NoiseOccupancyDefects","/SCT/DAQ/Calibration/NoiseOccupancyDefects")
+    sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
+    if not conddb.folderRequested(sctGainDefectFolder):
+        conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
+    sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
+    if not conddb.folderRequested(sctNoiseDefectFolder):
+        conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
 
     if not athenaCommonFlags.isOnline():
         sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
         if not conddb.folderRequested(sctDerivedMonitoringFolder):
             conddb.addFolder("SCT_OFL", sctDerivedMonitoringFolder, className="CondAttrListCollection")
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
-            condSequence += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
-                                                         ReadKey = sctDerivedMonitoringFolder)
+            if not hasattr(condSeq, "SCT_MonitorConditionsCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
+                condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
+                                                        ReadKey = sctDerivedMonitoringFolder)
     
     # Load conditions summary service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
@@ -239,9 +247,13 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ConfigurationConditionsSvc
 
     # Load calibration conditions service
+    if not hasattr(condSeq, "SCT_ReadCalibDataCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
+        condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
+                                            ReadKeyGain = sctGainDefectFolder,
+                                            ReadKeyNoise = sctNoiseDefectFolder)
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc",
-                                                     EventInfoKey = eventInfoKey)
+    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc")
     ServiceMgr += InDetSCT_ReadCalibDataSvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ReadCalibDataSvc
@@ -272,6 +284,7 @@ if DetFlags.haveRIO.SCT_on():
     # Load bytestream errors service (use default instance without "InDet")
     # @TODO find a better to solution to get the correct service for the current job.
     if not hasattr(ServiceMgr, "SCT_ByteStreamErrorsSvc"):
+        include( 'InDetRecExample/InDetRecCabling.py' )
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
         SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc")
         ServiceMgr += SCT_ByteStreamErrorsSvc
@@ -279,16 +292,33 @@ if DetFlags.haveRIO.SCT_on():
         print ServiceMgr.SCT_ByteStreamErrorsSvc
     
     if InDetFlags.useSctDCS():
-        if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-        if not conddb.folderRequested('/SCT/DCS/MODTEMP'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-        if not conddb.folderRequested('/SCT/DCS/HV'):
-            conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
-               
+        sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
+        sctDCSTempFolder = '/SCT/DCS/MODTEMP'
+        sctDCSHVFolder = '/SCT/DCS/HV'
+        if not conddb.folderRequested(sctDCSStateFolder):
+            conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
+        if not conddb.folderRequested(sctDCSTempFolder):
+            conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
+        if not conddb.folderRequested(sctDCSHVFolder):
+            conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
+        if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+            condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                  ReadKey = sctDCSHVFolder)
+        if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+            condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                    ReadKeyHV = sctDCSHVFolder,
+                                                    ReadKeyState = sctDCSStateFolder)
+        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+            condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                    ReadKey = sctDCSTempFolder)
+        
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
-        if InDetFlags.useHVForSctDCS(): InDetSCT_DCSConditionsSvc.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
+        if InDetFlags.useHVForSctDCS():
+            SCT_DCSConditionsStatCondAlg.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
         ServiceMgr += InDetSCT_DCSConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_DCSConditionsSvc
@@ -302,12 +332,11 @@ if DetFlags.haveRIO.SCT_on():
         # Load TdaqEnabled service
         if not conddb.folderRequested(tdaqFolder):
             conddb.addFolder("TDAQ",tdaqFolder,className="CondAttrListCollection")
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
-            condSequence += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
-                                                   ReadKey = tdaqFolder,
-                                                   EventInfoKey = eventInfoKey)
+            if not hasattr(condSeq, "SCT_TdaqEnabledCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+                condSeq += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
+                                                  ReadKey = tdaqFolder,
+                                                  EventInfoKey = eventInfoKey)
 
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
         InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",
@@ -367,22 +396,23 @@ if DetFlags.haveRIO.TRT_on():
     if (globalflags.DataSource() == 'data'): 
         if not conddb.folderRequested('/TRT/Onl/ROD/Compress'):
             conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
+
     # Calibration constants
+    # Block folders if they are to be read in from text files
+    #conddb.blockFolder("/TRT/Calib/RT")
+    #conddb.blockFolder("/TRT/Calib/T0")
+
     if not conddb.folderRequested('/TRT/Calib/RT'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className='TRTCond::RtRelationMultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/T0'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0")
-
-    # --- reenambe new TRT errors      
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className='TRTCond::StrawT0MultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/errors2d'):
-        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d")
-
+        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/slopes'):
-        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes")
+        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
         
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
-#        conddb.addFolder("TRT_OFL","/TRT/Calib/ToTCalib")
 
     if not conddb.folderRequested('/TRT/Calib/HTCalib'):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib")
@@ -393,6 +423,20 @@ if DetFlags.haveRIO.TRT_on():
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
         print InDetTRTCalDbSvc
+
+    # Calibration folder management
+    # Use this for reading folders from text files
+
+    #from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
+    #TRTCondWrite = TRTCondWrite( name = "TRTCondWrite",
+    #                                            CalibInputFile = "dbconst.336630.txt",
+    #                                            CalibOutputFile = "")
+    # use as CalibOutputFile the name calibout_n, where n=0,1,2,3 is the format
+    #
+    #topSequence += TRTCondWrite
+    #if (InDetFlags.doPrintConfigurables()):
+    #   print TRTCondWrite
+
     
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):

@@ -38,8 +38,7 @@ namespace iParSim {
    @author Miha.Muskinja -at- cern.ch 
    */
       
-  class PionSmearer : public AthAlgTool, 
-        virtual public iParSim::IChargedSmearer
+  class PionSmearer : public extends<AthAlgTool, iParSim::IChargedSmearer>
   {
     public:
 

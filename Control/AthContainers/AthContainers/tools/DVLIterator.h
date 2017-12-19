@@ -214,7 +214,7 @@ public:
   /**
    * @brief Constructor.
    * @param it The underlying container iterator.
-   * @param container xxx
+   * @param container The container over which we're iterating.
    */
   iterator (typename BaseContainer::iterator it,
             DVL* container)
@@ -250,7 +250,16 @@ public:
   /**
    * @brief Return the container holding the referenced element.
    */
-  DVL* container() const
+  DVL* container()
+  {
+    return m_container;
+  }
+
+
+  /**
+   * @brief Return the container holding the referenced element.
+   */
+  const DVL* container() const
   {
     return m_container;
   }

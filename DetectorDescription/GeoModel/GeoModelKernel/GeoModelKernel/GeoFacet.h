@@ -2,16 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeoFacet_h
-#define GeoFacet_h 1
+#ifndef GEOMODELKERNEL_GEOFACET_H
+#define GEOMODELKERNEL_GEOFACET_H
 
-// Class: GeoFacet
-//
-// Base class for GeoModel Facets
-// Two implementations exist:
-//   1. GeoTriangularFacet     
-//   2. GeoQuadrangularFacet
-//
+/**
+ * @class: GeoFacet
+ *
+ * @brief Base class for GeoModel Facets
+ * Two implementations exist:
+ *   1. GeoTriangularFacet     
+ *   2. GeoQuadrangularFacet
+ */
 
 #include "GeoModelKernel/RCBase.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -44,7 +45,7 @@ class GeoFacet : public RCBase
   GeoFacetVertexType m_vertexType;
 };
 
-// ** Triangular facet
+// Triangular facet
 class GeoTriangularFacet : public GeoFacet
 {
  public:
@@ -56,7 +57,7 @@ class GeoTriangularFacet : public GeoFacet
   virtual ~GeoTriangularFacet();
 };
 
-// ** Quadrangular facet
+// Quadrangular facet
 class GeoQuadrangularFacet : public GeoFacet
 {
  public:
@@ -69,7 +70,7 @@ class GeoQuadrangularFacet : public GeoFacet
   virtual ~GeoQuadrangularFacet();
 };
 
-// ** Inline methods
+// Inline methods
 inline size_t GeoFacet::getNumberOfVertices() const
 {
   return m_nVertices;

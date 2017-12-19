@@ -7,7 +7,7 @@
 
 #include "TRT_ConditionsData/StrawStatusContainer.h"
 #include "TRT_ConditionsData/MultChanContainer.h"
-
+#include "AthenaKernel/CondCont.h"
 
 namespace TRTCond{
   /// typedef the channels as NestedContainer
@@ -43,9 +43,11 @@ namespace TRTCond{
     private:
     } ;
   
-  
 }
 
+
 CLASS_DEF(TRTCond::StrawStatusMultChanContainer,1112780409,1)
+CONDCONT_DEF(TRTCond::StrawStatusMultChanContainer,1335119793);
+
 
 #endif

@@ -31,8 +31,6 @@ typedef std::pair< const Trk::TrackParameters*, const Trk::Layer* >       Parame
     
 namespace iFatras {
      
-  static const InterfaceID IID_IHitCreator("IHitCreator", 1, 0);
-    
   /** 
    @class IHitCreator
 
@@ -49,8 +47,8 @@ namespace iFatras {
        /** Virtual destructor */
        virtual ~IHitCreator(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IHitCreator; }
+      /// Creates the InterfaceID and interfaceID() method
+      DeclareInterfaceID(IHitCreator, 1, 0);
 
        /** Return nothing - store the HIT in hit collection */
        virtual void createSimHit(const ISF::ISFParticle& isp, const Trk::TrackParameters&, double time  ) const = 0;

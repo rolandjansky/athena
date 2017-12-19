@@ -5,7 +5,6 @@
 #include <algorithm>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
 

@@ -45,6 +45,7 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   , m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0)
+  , m_sdoName("STGCfast_SDO")
   , m_timeWindowOffsetWire(0.)
   , m_timeWindowOffsetStrip(0.)
   , m_timeWindowWire(24.95) // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
@@ -59,6 +60,8 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
   declareProperty("EnergyThreshold", m_energyThreshold = 50, "Minimal energy of incoming particle to produce a PRD"  );
   declareProperty("EnergyDepositThreshold", m_energyDepositThreshold = 0.00052,  "Minimal energy deposit to produce a PRD"  );
   declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
+  declareProperty("SDOname", m_sdoName = "sTGCfast_SDO"  );
+  declareProperty("MergePrds", m_mergePrds = true );
 }
 
 sTgcFastDigitizer::~sTgcFastDigitizer()  {
@@ -67,28 +70,17 @@ sTgcFastDigitizer::~sTgcFastDigitizer()  {
 
 StatusCode sTgcFastDigitizer::initialize() {
 
-  if ( detStore()->retrieve( m_detManager ).isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve MuonDetectorManager");
-    return StatusCode::FAILURE;
-  }
-  if( detStore()->retrieve( m_idHelper ).isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve sTgcIdHelper");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_detManager ) );
+  ATH_CHECK( detStore()->retrieve( m_idHelper ) );
+
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
   if (m_rndmEngine==0) {
     ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE;
   }
-  if( m_idHelperTool.retrieve().isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve " << m_idHelperTool);
-    return StatusCode::FAILURE;
-  }
-
-  if( m_muonClusterCreator.retrieve().isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve " << m_muonClusterCreator);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_muonClusterCreator.retrieve() );
+  ATH_CHECK( m_sdoName.initialize() );
 
   if( !readFileOfTimeJitter() ) return StatusCode::FAILURE; 
 
@@ -165,16 +157,15 @@ StatusCode sTgcFastDigitizer::initialize() {
 StatusCode sTgcFastDigitizer::execute() {
 
 // Create and record the SDO container in StoreGate
-  MuonSimDataCollection* sdoContainer = new MuonSimDataCollection();
-  if (evtStore()->record(sdoContainer,"STGC_SDO").isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record sTgc SDO collection in StoreGate" );
-    return StatusCode::FAILURE;
-  }
+  SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
+  ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
   sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->detectorElement_hash_max());
   
   // as the sTgcPrepDataContainer only allows const accesss, need a local vector as well.
   std::vector<sTgcPrepDataCollection*> localsTgcVec(m_idHelper->detectorElement_hash_max());
+  std::vector<sTgcPrepData*> sTgcprds;
+  std::vector<int> sTgcflag;
 
   const DataHandle< GenericMuonSimHitCollection > collGMSH;
   if ( evtStore()->retrieve( collGMSH,"sTGCSensitiveDetector").isFailure()) {
@@ -190,8 +181,11 @@ StatusCode sTgcFastDigitizer::execute() {
 
   std::map<Identifier,int> hitsPerChannel;
   int nhits = 0;
+  IdentifierHash hashLast = 0;
+
   GenericMuonSimHitCollection::const_iterator itersTgc;
   for (itersTgc=collGMSH->begin();itersTgc!=collGMSH->end();++itersTgc) {
+    std::vector<sTgcPrepData*> sTgc_prdeta;
     const GenericMuonSimHit& hit = *itersTgc;
 
     float globalHitTime = hit.globalpreTime();
@@ -215,6 +209,113 @@ StatusCode sTgcFastDigitizer::execute() {
     
     IdentifierHash hash;
     m_idHelper->get_detectorElement_hash(layid, hash);
+
+    bool lastHit = false;
+    if(itersTgc + 1 ==collGMSH->end()) lastHit = true;
+
+    if(m_mergePrds) {
+     if( (hash != hashLast || lastHit)  && sTgcprds.size()>0 ) {
+       MuonPrepDataCollection<Muon::sTgcPrepData>* col  = localsTgcVec[hashLast];
+      // new collection hash will be made
+      // first store the sTgc eta prds
+      // merge the prds that fire closeby strips
+
+      for (unsigned int i=0; i<sTgcprds.size(); ++i){
+        // skip the merged prds
+        if(sTgcflag[i]==1) continue;
+
+        bool merge = false;
+        unsigned int jmerge = -1;
+        Identifier id_prd = sTgcprds[i]->identify();
+        int strip = m_idHelper->channel(id_prd);
+        int gasGap  = m_idHelper->gasGap(id_prd);
+        int layer   = m_idHelper->multilayer(id_prd);
+        ATH_MSG_VERBOSE("  sTgcprds " <<  sTgcprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
+        for (unsigned int j=i+1; j<sTgcprds.size(); ++j){
+          Identifier id_prdN = sTgcprds[j]->identify();
+          int stripN = m_idHelper->channel(id_prdN);
+          int gasGapN  = m_idHelper->gasGap(id_prdN);
+          int layerN   = m_idHelper->multilayer(id_prdN);
+          if( gasGapN==gasGap && layerN==layer ) {
+            ATH_MSG_VERBOSE(" next sTgcprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
+            if(abs(strip-stripN)<2) {
+              merge = true;
+              jmerge = j;
+              break;
+            }
+          }
+        }
+
+        if(!merge) {
+          ATH_MSG_VERBOSE(" add isolated sTgcprds strip " << strip << " gasGap " << gasGap << " layer " << layer );
+          std::vector<Identifier> rdoList;
+          rdoList.push_back(id_prd);
+          double covX = sTgcprds[i]->localCovariance()(Trk::locX,Trk::locX);
+          Amg::MatrixX* covN = new Amg::MatrixX(1,1);
+          covN->setIdentity();
+          (*covN)(0,0) = covX;
+          sTgcPrepData* prdN = new sTgcPrepData(id_prd, hashLast, sTgcprds[i]->localPosition(), rdoList, covN, sTgcprds[i]->detectorElement(), sTgcprds[i]->getBcBitMap());
+          prdN->setHashAndIndex(col->identifyHash(), col->size());
+          col->push_back(prdN);
+        } else {
+          unsigned int nmerge = 0;
+          std::vector<Identifier> rdoList;
+          std::vector<unsigned int> mergeIndices;
+          std::vector<int> mergeStrips;
+          rdoList.push_back(id_prd);
+          sTgcflag[i] = 1;
+          mergeIndices.push_back(i);
+          mergeStrips.push_back(strip);
+          for (unsigned int k =0; k<mergeStrips.size(); ++k) {
+            for (unsigned int j=jmerge; j<sTgcprds.size(); ++j){
+              Identifier id_prdN = sTgcprds[j]->identify();
+              int stripN = m_idHelper->channel(id_prdN);
+              if( abs(mergeStrips[k]-stripN) == 1 ) {
+                int gasGapN  = m_idHelper->gasGap(id_prdN);
+                int layerN   = m_idHelper->multilayer(id_prdN);
+                if( gasGapN==gasGap && layerN==layer ) {
+                  nmerge++;
+                  rdoList.push_back(id_prdN);
+                  sTgcflag[j] = 1;
+                  mergeIndices.push_back(j);
+                  mergeStrips.push_back(stripN);
+                }
+              }
+            }
+          }
+          ATH_MSG_VERBOSE(" add merged sTgcprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
+
+          // start off from strip in the middle
+          int stripSum = 0;
+          for (unsigned int k =0; k<mergeStrips.size(); ++k) {
+            stripSum += mergeStrips[k];
+          }
+          stripSum = stripSum/mergeStrips.size();
+
+          unsigned int j = jmerge;
+          for (unsigned int k =0; k<mergeStrips.size(); ++k) {
+            if(mergeStrips[k]==stripSum) j = mergeIndices[k];
+            ATH_MSG_VERBOSE(" merged strip nr " << k <<  " strip " << mergeStrips[k] << " index " << mergeIndices[k]);
+          }
+          ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
+
+          double covX = sTgcprds[j]->localCovariance()(Trk::locX, Trk::locX);
+          Amg::MatrixX* covN = new Amg::MatrixX(1,1);
+          covN->setIdentity();
+          (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
+          ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelper->channel(sTgcprds[j]->identify()));
+
+          sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j]->identify(), hashLast, sTgcprds[j]->localPosition(), rdoList, covN, sTgcprds[j]->detectorElement(), sTgcprds[j]->getBcBitMap());
+          prdN->setHashAndIndex(col->identifyHash(), col->size());
+          col->push_back(prdN);
+        }
+      } // end loop sTgcprds[i]
+      // clear vector and delete elements
+      sTgcflag.clear();
+      sTgcprds.clear();
+     }
+    }
+
     MuonPrepDataCollection<Muon::sTgcPrepData>* col  = localsTgcVec[hash];
     if( !col ){
       col = new sTgcPrepDataCollection(hash);
@@ -223,6 +324,8 @@ StatusCode sTgcFastDigitizer::execute() {
 	ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
 	delete col;col=0;
 	continue;
+      } else {
+         ATH_MSG_VERBOSE(" added collection with hash " << (int)hash << " last hash " << (int)hashLast );
       }
       localsTgcVec[hash] = col;
     }
@@ -263,6 +366,7 @@ StatusCode sTgcFastDigitizer::execute() {
       Amg::Transform3D gToL = detEl->absTransform().inverse();
       Amg::Vector3D hpos(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
       Amg::Vector3D lpos = gToL*hpos;
+      // surface local position (that matters)
       Amg::Vector3D slpos = surf.transform().inverse()*hpos;
       
       // propagate sim hit position to surface
@@ -318,6 +422,7 @@ StatusCode sTgcFastDigitizer::execute() {
       slx = hit.localPosition().x();
       sly = hit.localPosition().y();
       slz = hit.localPosition().z();
+      // Local position wrt Det element (NOT to surface)
       dlx = lpos.x();
       dly = lpos.y();
       dlz = lpos.z();
@@ -482,6 +587,11 @@ StatusCode sTgcFastDigitizer::execute() {
 	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(id) );
 	}else{
 	  errX = design->channelWidth(posOnSurf,true)/sqrt(12);
+
+	  // Peter Kluit: inputPhiPitch is in degrees
+	  Amg::Vector3D lposPad(posOnSurf.x(),posOnSurf.y(),0.);
+	  double radius = (surf.transform()*lposPad).perp();
+	  errX = design->inputPhiPitch*M_PI/180.*radius/sqrt(12);
 	}
       }
       
@@ -494,8 +604,17 @@ StatusCode sTgcFastDigitizer::execute() {
 
       //sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,locErrMat,detEl);
       sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,cov,detEl, bctag);
-      prd->setHashAndIndex(col->identifyHash(), col->size());
-      col->push_back(prd);
+
+      if(type!=1 || lastHit || !m_mergePrds) {
+        // always store last hit
+        prd->setHashAndIndex(col->identifyHash(), col->size());
+        col->push_back(prd);
+      } else {
+        // collect the eta prds in a different vector
+        sTgcprds.push_back(prd);
+        sTgcflag.push_back(0);
+      }
+      hashLast = hash;
 
       /// fill final bits of the ntuple
       suresx = posOnSurf.x()-hitOnSurface.x();
@@ -511,6 +630,17 @@ StatusCode sTgcFastDigitizer::execute() {
         ipadphi = m_idHelper->padPhi(id);
       }
 
+      ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
+      ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+
+      ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
+      ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
+
+      ATH_MSG_VERBOSE("Local hit in Det Element frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
+      ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
+
+      ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/errx);
+
 //       const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack( *prd, hit.globalPosition() );
 //       if( rot ){
 // 	res  = rot->localParameters().get(Trk::locX)-hitOnSurface.x();
@@ -524,7 +654,7 @@ StatusCode sTgcFastDigitizer::execute() {
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
       deposits.push_back(deposit);
-      sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
+      h_sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
 
       previousHit = &hit;
 

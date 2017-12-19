@@ -33,21 +33,21 @@ while getopts ":t:b:hcmipa" opt; do
         b)
             BUILDDIR=$OPTARG
             ;;
-	c)
-	    EXE_CMAKE="1"
-	    ;;
-	m)
-	    EXE_MAKE="1"
-	    ;;
-	i)
-	    EXE_INSTALL="1"
-	    ;;
-	p)
-	    EXE_CPACK="1"
-	    ;;
-	a)
-	    NIGHTLY=false
-	    ;;
+        c)
+            EXE_CMAKE="1"
+            ;;
+        m)
+            EXE_MAKE="1"
+            ;;
+        i)
+            EXE_INSTALL="1"
+            ;;
+        p)
+            EXE_CPACK="1"
+            ;;
+        a)
+            NIGHTLY=false
+            ;;
         h)
             usage
             exit 0
@@ -85,7 +85,8 @@ if [ -z "$BUILDDIR" ]; then
 fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
-source $AthSimulationSrcDir/build_env.sh -b $BUILDDIR
+source $AthSimulationSrcDir/build_env.sh -b $BUILDDIR  >& ${BUILDDIR}/build_env.log
+cat ${BUILDDIR}/build_env.log
 
 # create the actual build directory
 mkdir -p ${BUILDDIR}/build/AthSimulation
@@ -97,9 +98,9 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    { time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-        ${AthSimulationSrcDir} 2>&1 | tee cmake_config.log
+        ${AthSimulationSrcDir}; } 2>&1 | tee cmake_config.log
 fi
 
 # for nightly builds we want to get as far as we can
@@ -110,17 +111,23 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    time make -k 2>&1 | tee cmake_build.log
+    # Forcibly remove the merged CLID file from the previous build, to
+    # avoid issues with some library possibly changing the name/CLID
+    # of something during the build. Note that ${platform} is coming from
+    # the build_env.sh script.
+    rm -f ${platform}/share/clid.db
+    # Build the project.
+    { time make -k; } 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time make install/fast \
-	DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
+    { time make install/fast \
+	DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION}; } 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
-    time cpack 2>&1 | tee cmake_cpack.log
+    { time cpack; } 2>&1 | tee cmake_cpack.log
     cp AthSimulation*.rpm ${BUILDDIR}/
 fi

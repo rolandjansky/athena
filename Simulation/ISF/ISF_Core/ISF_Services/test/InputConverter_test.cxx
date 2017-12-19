@@ -414,7 +414,7 @@ TEST_F(InputConverter_test, passesFilters_two_filters) {
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest( &argc, argv );
 
-  // gets stuck forever while trying to finalize boost ***REMOVED*** SGTools:
+  // gets stuck forever while trying to finalize boost inside SGTools:
   //return RUN_ALL_TESTS();
   // skips proper finalization:
   std::quick_exit( RUN_ALL_TESTS() );

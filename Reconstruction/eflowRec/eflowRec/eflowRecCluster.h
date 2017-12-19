@@ -107,7 +107,22 @@ public:
   virtual void phiVariance(double clusterPhiVariance) const { m_clusterPhiVariance = clusterPhiVariance; }
   virtual void setCalVarianceStatus() const { m_calVariance = true; }
 
-  virtual unsigned int nCells() const { return m_efRecCluster->getCluster()->size(); }
+  virtual unsigned int nCells() const {
+    if (m_efRecCluster){
+      const xAOD::CaloCluster* thisCluster = m_efRecCluster->getCluster();
+      if (thisCluster) return thisCluster->size();
+      //Logically if we have no valid pointer to xAOD::CaloCluster, we have no link to any CaloCells
+      else{
+	std::cerr << "eflowMatchCluster ERROR: No valid link to xAOD::CaloCluster" << std::endl;
+	return 0;
+      }
+    }
+    //Logically if we have no valid pointer to eflowRecCluster, we have no link to any CaloCells
+    else {
+      std::cerr << "eflowMatchCluster ERROR: No valid link to eflowRecCluster" << std::endl;
+      return 0;
+    }
+  }
   virtual const std::vector<double>& cellEta() const {
     if (m_cellEta.empty()) {
       initCellPositions();
@@ -124,17 +139,23 @@ public:
 private:
   void initCellPositions() const {
     assert(m_cellEta.empty() && m_cellPhi.empty());
-
-
-    const CaloClusterCellLink* theCellLink = m_efRecCluster->getCluster()->getCellLinks();
-    CaloClusterCellLink::const_iterator itCell = theCellLink->begin();
-    CaloClusterCellLink::const_iterator endCell = theCellLink->end();
     
-    for( ; itCell!=endCell; ++itCell) {
-      const CaloCell* thisCell = *itCell;
-      m_cellEta.push_back(thisCell->eta());
-      m_cellPhi.push_back(thisCell->phi());
+    if (m_efRecCluster){
+      const xAOD::CaloCluster* thisCluster = m_efRecCluster->getCluster();
+      if (thisCluster) {
+      	const CaloClusterCellLink* theCellLink = thisCluster->getCellLinks();
+	CaloClusterCellLink::const_iterator itCell = theCellLink->begin();
+	CaloClusterCellLink::const_iterator endCell = theCellLink->end();
+    
+	for( ; itCell!=endCell; ++itCell) {
+	  const CaloCell* thisCell = *itCell;
+	  m_cellEta.push_back(thisCell->eta());
+	  m_cellPhi.push_back(thisCell->phi());
+	}
+      }
+      else std::cerr << "eflowMatchCluster ERROR: No valid link to xAOD::CaloCluster" << std::endl;
     }
+    else std::cerr << "eflowMatchCluster ERROR: No valid link to eflowRecCluster" << std::endl;
   }
 
   eflowRecCluster* m_efRecCluster;

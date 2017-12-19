@@ -260,8 +260,8 @@ HLT::ErrorCode TrigCaloTopoTowerAlgorithm::hltExecute(const HLT::TriggerElement*
   //Finished saving variable to CaloTopoTowerContainer                                                              
   
   ///////////////////////////////////////////////////////////////
-  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::const_iterator firstITool  = m_ptools.begin();
-  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::const_iterator lastITool   = m_ptools.end();
+  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::iterator firstITool  = m_ptools.begin();
+  ToolHandleArray<ICaloTopoTowerBuilderToolBase>::iterator lastITool   = m_ptools.end();
   StatusCode processStatus = StatusCode::SUCCESS;
   //
   // loop stops only when Failure indicated by one of the tools

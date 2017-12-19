@@ -125,6 +125,8 @@ namespace Muon {
       Identifier id;
       if( !result.second.mdts.matchedHits.empty() ) id = *result.second.mdts.matchedHits.begin();
       if( !result.second.cscs.matchedHits.empty() ) id = *result.second.cscs.matchedHits.begin();
+      if( !result.second.stgcs.matchedHits.empty() ) id = *result.second.stgcs.matchedHits.begin();
+      if( !result.second.mms.matchedHits.empty() ) id = *result.second.mms.matchedHits.begin();
       if( !id.is_valid() ) continue;
 
       Muon::MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(id);

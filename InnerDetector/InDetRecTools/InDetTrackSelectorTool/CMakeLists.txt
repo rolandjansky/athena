@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           InnerDetector/InDetConditions/InDetBeamSpotService
@@ -40,7 +40,7 @@ atlas_add_component( InDetTrackSelectorTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces DataModel GeoPrimitives EventPrimitives TRT_ConditionsServicesLib InDetRIO_OnTrack MagFieldInterfaces TrkSurfaces TrkParticleBase TrkRIO_OnTrack TrkTrack TrkTrackSummary VxVertex TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AthContainers GeoPrimitives EventPrimitives TRT_ConditionsServicesLib InDetRIO_OnTrack MagFieldInterfaces TrkSurfaces TrkParticleBase TrkRIO_OnTrack TrkTrack TrkTrackSummary VxVertex TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackSelectorTool )

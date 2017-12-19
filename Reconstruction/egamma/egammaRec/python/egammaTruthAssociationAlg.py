@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
-from egammaRec import egammaRecConf, egammaKeys
-from egammaRec.Factories import ToolFactory, AlgFactory, FcnWrapper
+from egammaRec import egammaKeys
+from egammaAlgs import egammaAlgsConf
+from egammaRec.Factories import ToolFactory, PublicToolFactory, AlgFactory, FcnWrapper
 from AthenaCommon.BeamFlags import jobproperties
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
@@ -24,18 +25,17 @@ def getSimBarcodeOffset1():
   "Return the simulation barcode offset for G4 particles from metadata + 1"
   return getSimBarcodeOffset() + 1
 
-EMClassifierParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
-                                                      name="EMClassifierParticleCaloExtensionTool",
-                                                      Extrapolator = egammaExtrapolator,
-                                                      OutputContainerName="EGClassifierCaloExtension"
-                                                      )
+EMClassifierParticleCaloExtensionTool =  PublicToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
+                                                            name="EMClassifierParticleCaloExtensionTool",
+                                                            Extrapolator = egammaExtrapolator,
+                                                            OutputContainerName="EGClassifierCaloExtension" )
 
 EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name = 'EMMCTruthClassifier',
                                    ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool,
                                    barcodeG4Shift = FcnWrapper( getSimBarcodeOffset1 )  )
 
 
-egammaTruthAssociationAlg = AlgFactory( egammaRecConf.egammaTruthAssociationAlg,
+egammaTruthAssociationAlg = AlgFactory( egammaAlgsConf.egammaTruthAssociationAlg,
                                         ClusterContainerName = egammaKeys.outputClusterKey(),
                                         ElectronContainerName = egammaKeys.outputElectronKey(),
                                         PhotonContainerName = egammaKeys.outputPhotonKey(),

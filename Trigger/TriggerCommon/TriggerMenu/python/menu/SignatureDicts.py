@@ -131,6 +131,7 @@ JetChainParts = {
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
+    'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
 }
 
 
@@ -157,6 +158,7 @@ JetChainParts_Default = {
     'bConfig'      : [],
     'bMatching'    : [],
     'dataScouting' : '',
+    'trkopt'       : 'notrk',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -713,7 +715,7 @@ CalibChainParts_Default = {
 #==========================================================
 # ---- MonitorDef chains -----
 #==========================================================
-AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow','mistimemonl1bccorr','mistimemonl1bccorrnomu','mistimemoncaltimenomu','mistimemoncaltime','mistimemonj400']
+AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow','mistimemonl1bccorr','mistimemonl1bccorrnomu','mistimemoncaltimenomu','mistimemoncaltime','mistimemonj400','l1topodebug']
 
 # ---- Monitor Chain Dictinary of all allowed Values ----
 MonitorChainParts = {

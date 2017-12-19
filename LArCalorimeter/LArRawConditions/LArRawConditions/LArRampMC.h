@@ -48,6 +48,9 @@ class LArRampMC: public LArRampComplete {
 
 };
 
-
+//ConditionsContainer clid for athenaMT
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArRampMC, 42062668,1)
+CONDCONT_DEF(  LArRampMC, 104173262 );
+
 #endif 

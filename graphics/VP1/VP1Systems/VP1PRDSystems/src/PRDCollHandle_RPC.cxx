@@ -30,17 +30,17 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_RPC::PRDCollHandle_RPC(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::RPC,cd,key), d(new Imp), m_project(false)
+  : PRDCollHandleBase(PRDDetType::RPC,cd,key), m_d(new Imp), m_project(false)
 {
-  d->muondetmgr = 0;
-  d->idhelper = 0;
-  d->attempted_detmgrload = false;
+  m_d->muondetmgr = 0;
+  m_d->idhelper = 0;
+  m_d->attempted_detmgrload = false;
 }
 
 //____________________________________________________________________
 PRDCollHandle_RPC::~PRDCollHandle_RPC()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

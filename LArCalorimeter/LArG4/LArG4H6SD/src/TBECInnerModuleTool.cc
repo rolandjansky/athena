@@ -31,7 +31,6 @@ TBECInnerModuleTool::TBECInnerModuleTool(const std::string& type, const std::str
   , m_chcollSD(nullptr)
   , m_roptSD(nullptr)
 {
-  declareInterface<ISensitiveDetector>(this);
   declareProperty("EMECPosInnerWheel_ECOR_GADJCalculator", m_emecinnergadjcalc);
   declareProperty("EMECPosInnerWheel_ECOR_GADJ_OLDCalculator", m_emecinnergadjoldcalc);
   declareProperty("EMECPosInnerWheel_ECOR_GADJ_ECalculator", m_emecinnergadjecalc);

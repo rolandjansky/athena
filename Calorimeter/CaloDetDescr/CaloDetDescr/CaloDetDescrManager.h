@@ -1,3 +1,4 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -13,13 +14,15 @@
 #ifndef CALODETDESCR_CALODETDESCRMANAGER_H
 #define CALODETDESCR_CALODETDESCRMANAGER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloDetDescr/CaloConstIteratorAdaptor.h"
 #include "boost/range/iterator_range.hpp"
 
 class CaloCell_SuperCell_ID;
 class CaloDetDescrElement;
 class CaloDetDescriptor;
+class CaloCellPacker_400_500_test;
 
 class Identifier;
 class IdentifierHash;
@@ -165,11 +168,19 @@ class CaloDetDescrManager_Base
    */
   const CaloIdManager* getCalo_Mgr() const;
 
+  // Iterator over detector elements.
+  // Value type is `const CaloDetDescrElement*'.
   typedef std::vector <CaloDetDescrElement*> calo_element_vec;
   typedef calo_element_vec::size_type        calo_element_vec_size;
-  typedef calo_element_vec::const_iterator   calo_element_const_iterator;
+  typedef CaloConstIteratorAdaptor<calo_element_vec::const_iterator>
+    calo_element_const_iterator;
   typedef boost::iterator_range<calo_element_const_iterator> calo_element_range;
 
+  // Iterator over non-const detector elements.
+  typedef calo_element_vec::const_iterator   calo_nonconst_element_const_iterator;
+  typedef boost::iterator_range<calo_nonconst_element_const_iterator> calo_nonconst_element_range;
+
+  
   /** @brief total number of elements
    */
   calo_element_vec_size       element_size()  const;
@@ -192,37 +203,49 @@ class CaloDetDescrManager_Base
    */
   calo_element_range element_range(CaloCell_ID::SUBCALO subCalo)   const;
 
+  /** @brief Range over element vector, with non-const elements.
+   */
+  calo_nonconst_element_range element_range_nonconst();
+
   /** @brief get element by its identifier
       @param cellId [IN] element identifier
    */
-  CaloDetDescrElement* get_element(const Identifier& cellId) const;
+  const CaloDetDescrElement* get_element(const Identifier& cellId) const;
+  /** @brief get element by its identifier, non-const version.
+      @param cellId [IN] element identifier
+   */
+  CaloDetDescrElement* get_element_nonconst(const Identifier& cellId);
   /** @brief get element by hash identifier
       @param caloCellHash [IN] hash identifier for the element
    */
-  CaloDetDescrElement* get_element(const IdentifierHash& caloCellHash) const;
+  const CaloDetDescrElement* get_element(IdentifierHash caloCellHash) const;
+  /** @brief get element by hash identifier, non-const version.
+      @param caloCellHash [IN] hash identifier for the element
+   */
+  CaloDetDescrElement* get_element_nonconst(IdentifierHash caloCellHash);
   /** @brief get element by subcalo and hash identifier
       @param subCalo [IN] subsystem
       @param subCaloCellHash [IN] sub calo hash
    */
-  CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
-				    const IdentifierHash& subCaloCellHash) const;
+  const CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
+                                          IdentifierHash subCaloCellHash) const;
   /** @brief LAr only! get element by subcalo, sampling, barrel flag, eta, phi.  This is slower for FCAL
    */
-  CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
-				    int sampling_or_module, 
-				    bool barrel,
-				    double eta, double phi) const;
+  const CaloDetDescrElement* get_element (CaloCell_ID::SUBCALO subCalo,
+                                          int sampling_or_module, 
+                                          bool barrel,
+                                          double eta, double phi) const;
   /** @brief LAr only! get element by sample, eta phi.  This is slower for FCAL
    */
-  CaloDetDescrElement* get_element (CaloCell_ID::CaloSample sample,
-				    double eta, 
-				    double phi) const;
+  const CaloDetDescrElement* get_element (CaloCell_ID::CaloSample sample,
+                                          double eta, 
+                                          double phi) const;
 
   /** @brief Get element from raw quantities (to build real fixed size clusters)
    */
-  CaloDetDescrElement* get_element_raw (CaloCell_ID::CaloSample sample,
-					double eta, 
-					double phi) const;
+  const CaloDetDescrElement* get_element_raw (CaloCell_ID::CaloSample sample,
+                                              double eta, 
+                                              double phi) const;
 
   /** @brief the only client is CaloCellList class 
    */
@@ -281,11 +304,21 @@ class CaloDetDescrManager_Base
 		      int& sampling_or_module,
 		      CaloCell_ID::CaloSample sample) const;   
 
+
+  // Iterator over detector descriptors.
+  // Value type is `const CaloDetDescriptor*'.
   typedef std::vector <CaloDetDescriptor*>   calo_descr_vec;
   typedef calo_descr_vec::size_type	     calo_descr_size;
-  typedef calo_descr_vec::const_iterator     calo_descr_const_iterator;
+  typedef CaloConstIteratorAdaptor<calo_descr_vec::const_iterator>
+    calo_descr_const_iterator;
   typedef boost::iterator_range<calo_descr_const_iterator> calo_descr_range;
     
+
+  // Iterator over non-const detector descriptors.
+  typedef calo_descr_vec::const_iterator   calo_nonconst_descr_const_iterator;
+  typedef boost::iterator_range<calo_nonconst_descr_const_iterator> calo_nonconst_descr_range;
+
+
   /** @brief first descriptor in the vector
    */
   calo_descr_const_iterator	calo_descriptors_begin() const;
@@ -298,26 +331,32 @@ class CaloDetDescrManager_Base
   /** @brief Range over descriptors
    */
   calo_descr_range 		calo_descriptors_range() const;
+  /** @brief Range over descriptors, with non-const elements.
+   */
+  calo_nonconst_descr_range 	calo_descriptors_range_nonconst();
 
   /** @brief get descriptor by region identifier
    */
-  CaloDetDescriptor* get_descriptor (const Identifier& regionId) const;
+  const CaloDetDescriptor* get_descriptor (const Identifier& regionId) const;
+  /** @brief get descriptor by region identifier, non-const version.
+   */
+  CaloDetDescriptor* get_descriptor_nonconst (const Identifier& regionId);
   /** @brief get descriptor by subcalo, sampling, barrel flag, eta, phi
    */
-  CaloDetDescriptor* get_descriptor(CaloCell_ID::SUBCALO subCalo,
-				 int sampling_or_module, 
-				 bool barrel,
-				 double eta, 
-				 double phi) const;
+  const CaloDetDescriptor* get_descriptor(CaloCell_ID::SUBCALO subCalo,
+                                          int sampling_or_module, 
+                                          bool barrel,
+                                          double eta, 
+                                          double phi) const;
   /** @brief get descriptor by sample, eta and phi
    */
-  CaloDetDescriptor* get_descriptor (CaloCell_ID::CaloSample sample,
-				     double eta, double phi) const;
+  const CaloDetDescriptor* get_descriptor (CaloCell_ID::CaloSample sample,
+                                           double eta, double phi) const;
 
   /** @brief get descriptor by sample, eta and phi raw
    */
-  CaloDetDescriptor* get_descriptor_raw (CaloCell_ID::CaloSample sample, 
-                                     double eta, double phi) const;
+  const CaloDetDescriptor* get_descriptor_raw (CaloCell_ID::CaloSample sample, 
+                                               double eta, double phi) const;
 
 
   /** @brief first tile descriptor (they are in separate vector)
@@ -332,6 +371,9 @@ class CaloDetDescrManager_Base
   /** @brief Range over tile descriptors
    */
   calo_descr_range            tile_descriptors_range  () const;
+  /** @brief Range over tile descriptors, with non-const elements.
+   */
+  calo_nonconst_descr_range   tile_descriptors_range_nonconst  ();
 
   /** @brief set calo Cell ID helper
    */
@@ -351,6 +393,13 @@ class CaloDetDescrManager_Base
   void add_tile(CaloDetDescriptor* descr);
 
 private:
+  /**
+   * @brief Helper for CaloCompactCellTool_test.
+   */
+  friend class CaloCellPacker_400_500_test;
+  CaloDetDescrElement* release_element (IdentifierHash hash);
+
+
   /** @brief Calo Cell ID helper
    */
   const CaloCell_Base_ID*    m_cell_id;
@@ -388,15 +437,15 @@ private:
 
   /** @brief LArFCAl  private methode to get element
    */
-  CaloDetDescrElement* get_element_FCAL (const CaloDetDescriptor* reg,
-                                    double eta, 
-                                    double phi) const;
+  const CaloDetDescrElement* get_element_FCAL (const CaloDetDescriptor* reg,
+                                               double eta, 
+                                               double phi) const;
 
   /** @brief LArFCAl  private methode to get element from raw eta,phi
    */
-  CaloDetDescrElement* get_element_FCAL_raw (const CaloDetDescriptor* reg,
-                                    double eta,
-                                    double phi) const;
+  const CaloDetDescrElement* get_element_FCAL_raw (const CaloDetDescriptor* reg,
+                                                   double eta,
+                                                   double phi) const;
 
 
 };
@@ -459,14 +508,21 @@ private:
 CLASS_DEF( CaloSuperCellDetDescrManager , 241807251 , 1 )
 
 
-inline  CaloDetDescrElement*			
-CaloDetDescrManager_Base::get_element (const IdentifierHash& caloCellHash) const
+inline  const CaloDetDescrElement*			
+CaloDetDescrManager_Base::get_element (IdentifierHash caloCellHash) const
 {
   if ( caloCellHash < m_element_vec.size() ) 
     return m_element_vec[caloCellHash] ;
   else return 0 ;
 }
                        
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+inline CaloDetDescrElement*			
+CaloDetDescrManager_Base::get_element_nonconst (IdentifierHash caloCellHash)
+{
+  if ( caloCellHash < m_element_vec.size() ) 
+    return m_element_vec[caloCellHash] ;
+  else return 0 ;
+}
+                       
 
 #endif // CALODETDESCR_CALODETDESCRMANAGER_H

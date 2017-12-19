@@ -1,11 +1,5 @@
 Py:Athena            INFO including file "AthenaPoolMultiTest/ExampleStreamConfig.py"
 PoolSvc              INFO Setting up APR FileCatalog and Streams
-RootCollection Info Opening Collection File SplittableCollection.root in mode: READ
-RootCollection Info File SplittableCollection.root opened
-RootCollection Info Root collection opened, size = 20
-RootCollection Info Opening Collection File SplittableCollection.root in mode: READ
-RootCollection Info File SplittableCollection.root opened
-RootCollection Info Root collection opened, size = 20
 Splitter1           DEBUG Property update for OutputLevel : new value = 2
 Splitter1            INFO in initialize()
 Splitter1           DEBUG input handles: 0
@@ -77,10 +71,6 @@ DecisionSvc          INFO Inserting stream: Coll1and7 with no Algs
 DecisionSvc          INFO Inserting stream: Coll348 with no Algs
 DecisionSvc          INFO Inserting stream: CollTrig with no Algs
 DecisionSvc          INFO Inserting stream: CollBad with no Algs
-RootCollection Info Closing open collection 'SplittableCollection.root'
-RootCollection Info Opening Collection File SplittableCollection.root in mode: READ
-RootCollection Info File SplittableCollection.root opened
-RootCollection Info Root collection opened, size = 20
 ToolSvc.copyTool    DEBUG handle() saw BeginTagFile incident for PFN:SplittableCollection.root
 ToolSvc.copyTool    DEBUG Found Input CollectionMetadata
 ToolSvc.copyTool     INFO CollectionMetadata copied to MetaDataStore for PFN:SplittableCollection.root
@@ -104,16 +94,8 @@ Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_Split1.root in mode: UPDATE
-RootCollection Info File Collection_Split1.root opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
 CollBit1.Regist...   INFO No Primary Key defined
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_SplitTrig.root in mode: UPDATE
-RootCollection Info File Collection_SplitTrig.root opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
 CollTrig.CollTr...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 1 run: 0
@@ -135,10 +117,6 @@ Triggered            INFO EventInfo event: 1 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_Split23.root in mode: UPDATE
-RootCollection Info File Collection_Split23.root opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
 Coll23.Registra...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 2 run: 0
@@ -160,10 +138,6 @@ Triggered            INFO EventInfo event: 2 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_Split348.root in mode: UPDATE
-RootCollection Info File Collection_Split348.root opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
 Coll348.Registr...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 3 run: 0
@@ -185,10 +159,6 @@ Triggered            INFO EventInfo event: 3 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_SplitBar.root in mode: UPDATE
-RootCollection Info File Collection_SplitBar.root opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
 CollBar.Registr...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 4 run: 0
@@ -210,10 +180,6 @@ Triggered            INFO EventInfo event: 4 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_Split456.root in mode: UPDATE
-RootCollection Info File Collection_Split456.root opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
 Coll456.Registr...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 5 run: 0
@@ -254,10 +220,6 @@ Triggered            INFO EventInfo event: 6 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_Split1plus7 in mode: UPDATE
-RootCollection Info File Collection_Split1plus7 opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
 Coll1and7.Regis...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 7 run: 0
@@ -506,41 +468,21 @@ Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
-RootCollection Info Closing open collection 'SplittableCollection.root'
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter1 Cyc=1 N=7 weight^2=7e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter2 Cyc=1 N=8 weight^2=8e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter3 Cyc=1 N=7 weight^2=7e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter456 Cyc=1 N=3 weight^2=3e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter7 Cyc=1 N=1 weight^2=1e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter48 Cyc=1 N=2 weight^2=2e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Triggered Cyc=1 N=20 weight^2=2e+07
-StorageSvc Info EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
+StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream2              INFO Records written: 8
 Stream1              INFO Records written: 8
 Stream3              INFO Records written: 6
 Others               INFO Records written: 2
 Bad                  INFO Records written: 1
 CollBit1.Regist...   INFO Collection Events output: 7
-RootCollection Info Closing open collection 'Collection_Split1.root'
 Coll23.Registra...   INFO Collection Events output: 14
-RootCollection Info Closing open collection 'Collection_Split23.root'
 Coll456.Registr...   INFO Collection Events output: 3
-RootCollection Info Closing open collection 'Collection_Split456.root'
 CollBar.Registr...   INFO Collection Events output: 1
-RootCollection Info Closing open collection 'Collection_SplitBar.root'
 Coll1and7.Regis...   INFO Collection Events output: 1
-RootCollection Info Closing open collection 'Collection_Split1plus7'
 Coll348.Registr...   INFO Collection Events output: 9
-RootCollection Info Closing open collection 'Collection_Split348.root'
 CollTrig.CollTr...   INFO Collection Events output: 20
-RootCollection Info Closing open collection 'Collection_SplitTrig.root'
 CollBad.Registr...   INFO Collection Events output: 0
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RootCollection Info Opening Collection File Collection_SplitBad.root in mode: UPDATE
-RootCollection Info File Collection_SplitBad.root opened
-RootCollection Info Root collection opened, size = 0
-RootCollection::Metadata Info  ****** Created metadata tree in the collection file
-RootCollection Info Closing open collection 'Collection_SplitBad.root'
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
@@ -549,9 +491,6 @@ Splitter7            INFO in finalize()
 Splitter48           INFO in finalize()
 Triggered            INFO in finalize()
 DefaultCollMeta     DEBUG In finalize 
-Splitter1           DEBUG Calling destructor
-Splitter3           DEBUG Calling destructor
-DefaultCollMeta     DEBUG Calling destructor
 ItemListSvc         DEBUG STREAM Bad has (1) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
 ItemListSvc         DEBUG STREAM Others has (4) items
@@ -574,4 +513,3 @@ ItemListSvc         DEBUG    - EventStreamInfo_Stream3
 ItemListSvc         DEBUG  --> Overlap with Others (3) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (4) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (4) items
-name: "SplittableCollection.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 13  ptr: 0x13e6ad00  [o] [u]

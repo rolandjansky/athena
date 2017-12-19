@@ -24,11 +24,13 @@
 
 #include <vector>
 #include <string>
+#include <mutex>
 
 // Forward declarations
 class IClassIDSvc;
 class IProxyDict;
 class IRCUSvc;
+class IAlgResourcePool;
 
 //template <class TYPE> class SvcFactory;
 
@@ -82,6 +84,7 @@ private: // Data
    ServiceHandle<IClassIDSvc> m_clidSvc;
    ServiceHandle<IProxyDict> m_proxyDict;
    ServiceHandle<Athena::IRCUSvc> m_RCUSvc;
+   ServiceHandle<IAlgResourcePool> m_algResourcePool;
 
    /// TypeKeyOverwriteMaps, map for type#key overwrites.
    StringArrayProperty m_overwriteMaps;
@@ -99,6 +102,14 @@ private: // Data
    std::unique_ptr<InputRenameRCU_t> m_inputRenames;
 
    bool m_skipBadRemappings;
+
+   bool m_haveDeletes;
+   std::unordered_multimap<std::string, CLID> m_deletes;
+
+   // FIXME: calling getFlatAlgList() can result in a recursive call!
+   typedef std::recursive_mutex mutex_t;
+   typedef std::lock_guard<mutex_t> lock_t;
+   mutable mutex_t m_mutex;
 
 
 private:
@@ -118,5 +129,7 @@ private:
    StatusCode initInputRenames();
    StatusCode renameTads (IAddressProvider::tadList& tads);
 
+   void initDeletes();
+   bool isDeleted (const SG::TransientAddress& tad) const;
 };
 #endif // !SGCOMPS_ADDRESSREMAPPINGSVC_H

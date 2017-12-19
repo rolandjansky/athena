@@ -109,90 +109,31 @@ namespace Muon {
   StatusCode MuonSegmentRegionRecoveryTool::initialize()
   {
 
-    if ( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
-
-    StoreGateSvc* detStore=0;
-    if ( serviceLocator()->service("DetectorStore", detStore).isFailure() ) {
-      ATH_MSG_ERROR("DetectorStore not found ");
-      return StatusCode::FAILURE;
-    }
-   
-    if ( detStore->retrieve( m_detMgr ).isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-      return StatusCode::FAILURE;
-    }
-
-    if (m_helperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_helperTool);
-      return StatusCode::FAILURE;
-    }
-
-    if (m_intersectSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_intersectSvc);
-      return StatusCode::FAILURE;
-    }
-
-    if (m_printer.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_printer);
-      return StatusCode::FAILURE;
-    }
-    
-    if( m_seededSegmentFinder.retrieve().isFailure() ){
-      ATH_MSG_ERROR(" failed to retrieve " << m_seededSegmentFinder);
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_intersectSvc.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_seededSegmentFinder.retrieve() );
 
     if( !m_trackSegmentMatchingTool.empty() ){
-      if( m_trackSegmentMatchingTool.retrieve().isFailure() ){
-	ATH_MSG_ERROR(" failed to retrieve " << m_trackSegmentMatchingTool);
-	return StatusCode::FAILURE;
-      }else{
-	ATH_MSG_INFO("Using matching tool " << m_trackSegmentMatchingTool );
-      }
+      ATH_CHECK( m_trackSegmentMatchingTool.retrieve() );
+      ATH_MSG_INFO("Using matching tool " << m_trackSegmentMatchingTool );
     }else{
       ATH_MSG_DEBUG("No matching tool selected " );
     }
 
-    if( m_chamberHoleRecoveryTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR(" could not retrieve " << m_chamberHoleRecoveryTool);
-      return StatusCode::FAILURE;      
-    }
-    
-    if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find extrapolator "<<m_extrapolator<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_chamberHoleRecoveryTool.retrieve() );
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_fitter.retrieve() );
+    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_hitSummaryTool.retrieve() );
+    ATH_CHECK( m_regionSelector.retrieve() );
 
-
-    if (m_fitter.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find rot creator tool "<<m_fitter<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
-
-
-    if (m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not find "<<m_idHelperTool<<". Exiting.");
-      return StatusCode::FAILURE;
-    }      
-    
-    if (m_hitSummaryTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not find "<<m_hitSummaryTool<<". Exiting.");
-      return StatusCode::FAILURE;
-    }      
-    
-    if (m_regionSelector.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not find "<<m_regionSelector<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
-  
     return StatusCode::SUCCESS;
   }
   
   StatusCode MuonSegmentRegionRecoveryTool::finalize()
   {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 
@@ -345,6 +286,7 @@ namespace Muon {
     // loop over TSOSs
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+
     for( ; tsit!=tsit_end ; ++tsit ){
 
       const Trk::TrackParameters* pars = (*tsit)->trackParameters();
@@ -392,9 +334,14 @@ namespace Muon {
     phimin -= m_dphi;
     phimax += m_dphi;
 
+    ATH_MSG_DEBUG("Eta range: " << etamin << " " << etamax << " Phi range " << phimin << " " << phimax );
+    if(etamin>etamax){ //something went wrong with the fit and no hits were selected in the loop
+      ATH_MSG_DEBUG("no hits selected, nothing further will be done");
+      return;
+    }
+
     RoiDescriptor roi( etamin, etamax, phimin, phimax );
 
-    ATH_MSG_DEBUG("Eta range: " << etamin << " " << etamax << " Phi range " << phimin << " " << phimax );
     //    addHashes(MDT,etamin,etamax,phimin,phimax,data.mdt,data.mdtTrack);
     //    addHashes(RPC,etamin,etamax,phimin,phimax,data.rpc,data.rpcTrack);
     //    addHashes(TGC,etamin,etamax,phimin,phimax,data.tgc,data.tgcTrack);

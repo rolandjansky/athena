@@ -10,7 +10,6 @@
 //====================================================================
 
 // Framework include files
-#include "POOLCore/strcasecmp.h"
 #include "StorageSvc/DbOption.h"
 #include "RootDomain.h"
 #include "RootDatabase.h"

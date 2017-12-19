@@ -23,7 +23,6 @@
 #include "StoreGate/WriteHandle.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
-#include "PixelProcessorTool.h"
 #include "SensorSimTool.h"
 #include "FrontEndSimTool.h"
 #include "EnergyDepositionTool.h"
@@ -45,7 +44,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:
-    void addSDO(SiChargedDiodeCollection *collection);
+    void addSDO(std::unique_ptr<SiChargedDiodeCollection>& collection);
 
   private:
 
@@ -64,7 +63,6 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     bool              m_onlyHitElements;
 
-    ToolHandleArray<PixelProcessorTool>            m_processorTool;
     ToolHandleArray<SensorSimTool>                 m_chargeTool;
     ToolHandleArray<FrontEndSimTool>               m_fesimTool;
     ToolHandle<EnergyDepositionTool>                     m_energyDepositionTool;

@@ -100,7 +100,7 @@ CaloDmEnergy::CaloDmEnergy(const CaloDmDescrManager *dmMgr):
   m_CalibrationContainerNamesDM.push_back("LArCalibrationHitDeadMaterial");
   m_CalibrationContainerNamesDM.push_back("TileCalibrationDMHitCnt");
   m_nclusters = 0;
-  initialize();
+  initialize().ignore();
 }
 
 
@@ -122,7 +122,7 @@ CaloDmEnergy::~CaloDmEnergy()
 /* ****************************************************************************
 CaloDmEnergy::initialize()
 **************************************************************************** */
-int CaloDmEnergy::initialize()
+StatusCode CaloDmEnergy::initialize()
 {
   MsgStream log(Athena::getMessageSvc(), "CaloDmEnergy");
 
@@ -218,8 +218,8 @@ int CaloDmEnergy::assign2clusters(const std::string &clusterContainerName)
   v_cluster_calib_energy.resize(theClusters->size(), 0.0);
   for(xAOD::CaloClusterContainer::const_iterator ic=theClusters->begin(); ic != theClusters->end(); ic++){
     const xAOD::CaloCluster *cluster =(*ic);
-    double x_moment;
-    cluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, x_moment);
+    double x_moment = 0;
+    (void)cluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, x_moment);
     v_cluster_calib_energy.push_back(x_moment);
   }
 

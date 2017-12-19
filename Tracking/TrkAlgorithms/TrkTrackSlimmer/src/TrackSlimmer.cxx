@@ -8,6 +8,7 @@
 
 #include "TrkTrackSlimmer/TrackSlimmer.h"
 #include "TrkToolInterfaces/ITrackSlimmingTool.h"
+#include "AthContainers/ConstDataVector.h"
 
 //================ Constructor =================================================
 
@@ -97,9 +98,16 @@ StatusCode Trk::TrackSlimmer::execute()
       if (trackLocation.isValid())
         {
           //create container for slimmed tracks
-          std::unique_ptr<TrackCollection>slimmedTracks( m_setPersistificationHints
-                                                            ? (m_ptCut>0 ? new TrackCollection(SG::VIEW_ELEMENTS) : nullptr)
-                                                            : new TrackCollection);
+          std::unique_ptr<ConstDataVector<TrackCollection> >slimmedTracks;
+          if ( m_setPersistificationHints) {
+            if (m_ptCut>0) {
+              slimmedTracks = std::make_unique<ConstDataVector<TrackCollection> >(SG::VIEW_ELEMENTS);
+            }
+            // No output container if m_setPersistificationHints && m_ptCut<=0.
+          }
+          else {
+            slimmedTracks = std::make_unique<ConstDataVector<TrackCollection> >();
+          }
 
           //loop through tracks, slimming them as you go.
           TrackCollection::const_iterator it    = trackLocation->begin();
@@ -125,7 +133,7 @@ StatusCode Trk::TrackSlimmer::execute()
                       ATH_MSG_ERROR("Track slimmer is configured to expect the slimming tool to create slimmed tracks. "
                                     " But the tool returned a nullptr for the one track.");
                     }
-                    else {
+                    else if (slimmedTracks) {
                       slimmedTracks->push_back(slimmed);
                     }
                   }
@@ -140,7 +148,7 @@ StatusCode Trk::TrackSlimmer::execute()
             // info for stats in finalise
             m_numSlimmedTracks+=slimmedTracks->size();
             m_numOriginalTracks+=trackLocation->size();
-            slimmedTracksHandle=std::move(slimmedTracks);
+            slimmedTracksHandle.put (std::move (slimmedTracks));
 
             ATH_MSG_VERBOSE( "Saved "<<slimmedTracksHandle->size()<<" slimmed tracks (to "<<slimmedTracksHandle.name()
                              <<"), from input ("<<trackLocation.name()<<") of "<<trackLocation->size()<<" original tracks (which makes "

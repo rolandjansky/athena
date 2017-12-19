@@ -3,7 +3,6 @@
 */
 
 #include "TrigT2MinBias/TrigCountTrtHits.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInDetEvent/TrigTrtHitCounts.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -73,13 +72,13 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
   // Get storegate svc
   if(m_detStore.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO("Retrieved service " << m_detStore.typeAndName());
 
   if(m_storeGate.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to connect to " << m_storeGate.typeAndName());
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO("Retrieved service " << m_storeGate.typeAndName());
 
@@ -87,14 +86,14 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
   sc = m_detStore->retrieve(m_trtHelper, "TRT_ID");
   if(sc.isFailure()) {
     ATH_MSG_ERROR("Failed to retrieve " << m_trtHelper); // fatal?
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO("Retrieved service " << m_trtHelper);
   
   // Get TrigTRT_DriftCircleProviderTool
   if( m_rawDataTool.retrieve().isFailure() ){
     ATH_MSG_FATAL("Failed to retrieve " << m_rawDataTool);
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO("Retrieved service " << m_rawDataTool);
   

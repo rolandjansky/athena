@@ -29,8 +29,9 @@ else:
      MMdigitization.crossTalk1 = 0.0
      MMdigitization.crossTalk2 = 0.0
      ## Chip/electronics response
-     MMdigitization.alpha = 2.5
-     MMdigitization.RC = 20. 
+     MMdigitization.alpha = 2.5 * 2. # 1->50, 2->
+     MMdigitization.RC =    20. * 2. # 1->50, 2->
      MMdigitization.SaveInternalHistos = True
      MMdigitization.EnergyThreshold = 50
      MMdigitization.OutputLevel = DEBUG
+     MMdigitization.electronicsThreshold = 5000.

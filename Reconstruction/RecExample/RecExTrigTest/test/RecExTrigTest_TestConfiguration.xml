@@ -84,7 +84,7 @@
       <athena userJobId="mc12_esdTrig">
 	<doc>Reco and trigger up to ESD on MC12 ttbar </doc>
 	<displayName>RecExRecoTest_RTT_esdtrigger</displayName>
-	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExTrigTest_RTT_esdtrigger</options>
 	<package>Reconstruction/RecExample/RecExTrigTest</package>
 	<group>RecExTrig</group>
@@ -93,7 +93,7 @@
       
       <athena userJobId="mc12_outputlevel_debugTrig">
 	<doc>Test reco with outputlevel debug</doc>
-	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=DEBUG;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=DEBUG;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExTrigTest_RTT_esdtrigger</options>
 	<group>RecExTrig</group>
 	<queue>medium</queue>
@@ -127,7 +127,7 @@
       
       <athena userJobId="mc12_outputlevel_verboseTrig">
 	<doc>Test reco with outputlevel verbose</doc>
-	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=VERBOSE;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=VERBOSE;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExTrigTest_RTT_esdtrigger</options>
 	<group>RecExTrig</group>
 	<queue>long</queue>
@@ -176,7 +176,7 @@
       <athena userJobId="mc10_esdTrig">
 	<doc>Reco and trigger up to ESD on MC10 ttbar </doc>
 	<displayName>RecExRecoTest_RTT_esdtrigger</displayName>
-	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1"]</commandLineFlags>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExTrigTest_RTT_esdtrigger</options>
 	<package>Reconstruction/RecExample/RecExTrigTest</package>
 	<group>RecExTrig</group>

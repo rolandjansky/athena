@@ -269,9 +269,7 @@ def makeSingleBandPlot (middleGraph, errorGraphs) :
                 #print "adding ", a
                 sumErrorY += a*a
             
-            #print '***REMOVED*** ', sumErrorY     
             sumErrorY = sqrt(sumErrorY)    
-            #print ***REMOVED***, sumErrorY     
             
             if( iPoint < middleGraph.GetN()): 
                 thisBandsGraph.SetPoint(iPoint, dataPointX, 0)

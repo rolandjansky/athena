@@ -55,15 +55,15 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_SpacePoints::PRDCollHandle_SpacePoints(PRDSysCommonData* common,const QString& key)
-  : PRDCollHandleBase(PRDDetType::SpacePoints,common,key), d(new Imp)
+  : PRDCollHandleBase(PRDDetType::SpacePoints,common,key), m_d(new Imp)
 {
-  d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
+  m_d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
 }
 
 //____________________________________________________________________
 PRDCollHandle_SpacePoints::~PRDCollHandle_SpacePoints()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -120,12 +120,12 @@ bool PRDCollHandle_SpacePoints::cut(PRDHandleBase*handlebase)
   PRDHandle_SpacePoint * handle = static_cast<PRDHandle_SpacePoint*>(handlebase);
   assert(handle);
 
-  if (d->indetpartsflags!=PRDCommonFlags::All) {
+  if (m_d->indetpartsflags!=PRDCommonFlags::All) {
     if (handle->isBarrel()) {
-      if (!(handle->isPositiveZ()?(d->indetpartsflags&PRDCommonFlags::BarrelPositive):(d->indetpartsflags&PRDCommonFlags::BarrelNegative)))
+      if (!(handle->isPositiveZ()?(m_d->indetpartsflags&PRDCommonFlags::BarrelPositive):(m_d->indetpartsflags&PRDCommonFlags::BarrelNegative)))
  	return false;
     } else {
-      if (!(handle->isPositiveZ()?(d->indetpartsflags&PRDCommonFlags::EndCapPositive):(d->indetpartsflags&PRDCommonFlags::EndCapNegative)))
+      if (!(handle->isPositiveZ()?(m_d->indetpartsflags&PRDCommonFlags::EndCapPositive):(m_d->indetpartsflags&PRDCommonFlags::EndCapNegative)))
  	return false;
     }
   }
@@ -157,16 +157,16 @@ void PRDCollHandle_SpacePoints::setPartsFlags(PRDCommonFlags::InDetPartsFlags fl
   //PRDCollHandle_TRT::setPartsFlags and and PRDCollHandle_SpacePoints::setPartsFlags
   //Fixme: base decision to recheck on visibility also!
 
-  if (d->indetpartsflags==flags)
+  if (m_d->indetpartsflags==flags)
     return;
 
-  bool barrelPosChanged = (d->indetpartsflags&PRDCommonFlags::BarrelPositive)!=(flags&PRDCommonFlags::BarrelPositive);
-  bool barrelNegChanged = (d->indetpartsflags&PRDCommonFlags::BarrelNegative)!=(flags&PRDCommonFlags::BarrelNegative);
-  bool endcapPosChanged = (d->indetpartsflags&PRDCommonFlags::EndCapPositive)!=(flags&PRDCommonFlags::EndCapPositive);
-  bool endcapNegChanged = (d->indetpartsflags&PRDCommonFlags::EndCapNegative)!=(flags&PRDCommonFlags::EndCapNegative);
+  bool barrelPosChanged = (m_d->indetpartsflags&PRDCommonFlags::BarrelPositive)!=(flags&PRDCommonFlags::BarrelPositive);
+  bool barrelNegChanged = (m_d->indetpartsflags&PRDCommonFlags::BarrelNegative)!=(flags&PRDCommonFlags::BarrelNegative);
+  bool endcapPosChanged = (m_d->indetpartsflags&PRDCommonFlags::EndCapPositive)!=(flags&PRDCommonFlags::EndCapPositive);
+  bool endcapNegChanged = (m_d->indetpartsflags&PRDCommonFlags::EndCapNegative)!=(flags&PRDCommonFlags::EndCapNegative);
   bool barrelChanged = (barrelPosChanged || barrelNegChanged);
   bool endcapChanged = (endcapPosChanged || endcapNegChanged);
-  d->indetpartsflags=flags;
+  m_d->indetpartsflags=flags;
 
   largeChangesBegin();
   std::vector<PRDHandleBase*>::iterator it(getPrdHandles().begin()),itE(getPrdHandles().end());

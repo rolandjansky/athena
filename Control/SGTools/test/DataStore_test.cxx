@@ -29,6 +29,11 @@ class TestProvider
   : public IAddressProvider
 {
 public:
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
+  { std::abort(); }
+
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
 				   SG::TransientAddress* /*pTAd*/,
                                    const EventContext& /*ctx*/) override
@@ -87,7 +92,7 @@ void test_addToStore ATLAS_NOT_THREAD_SAFE ()
   SG::StringPool::sgkey_t sgkey2b = pool.stringToKey ("dp2", 124);
   assert (store.proxy_exact (sgkey2b) == dp2);
   assert (store.proxy_exact (sgkey2a) == 0);
-  assert (dp2->sgkey() == sgkey2a);
+  assert (dp2->sgkey() == sgkey2b);
 }
 
 
@@ -185,7 +190,10 @@ void test_proxy()
   assert (store.proxy (123, "dp1") == dp1);
   assert (store.proxy (123, "") == dp1);
 
-  assert (store.proxy (new SG::TransientAddress (123, "dp1")) == dp1);
+  {
+    SG::TransientAddress ta (123, "dp1");
+    assert (store.proxy (&ta) == dp1);
+  }
 
   assert (store.addAlias ("dp1a", dp1).isSuccess());
   assert (store.addAlias ("dp1b", dp1).isSuccess());
@@ -284,31 +292,6 @@ void test_pRange()
 
   assert (store.pRange (125, pbeg, pend).isFailure());
   assert (pbeg == pend);
-}
-
-
-void test_proxyList()
-{
-  std::cout << "test_proxyList\n";
-
-  SGTest::TestStore pool;
-  SG::DataStore store (pool);
-
-  SG::DataProxy* dp1 = make_proxy (123, "dp1");
-  assert (store.addToStore (123, dp1).isSuccess());
-  assert (store.addSymLink (124, dp1).isSuccess());
-
-  SG::DataProxy* dp2 = make_proxy (123, "dp2");
-  assert (store.addToStore (123, dp2).isSuccess());
-
-  std::list<SG::DataProxy*> pl;
-  assert (store.proxyList (pl).isSuccess());
-  assert (pl.size() == 3);
-
-  std::vector<SG::DataProxy*> pv (pl.begin(), pl.end());
-  assert (pv[0] == dp1);
-  assert (pv[1] == dp2);
-  assert (pv[2] == dp1);
 }
 
 
@@ -527,7 +510,6 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test_typeCount();
   test_tRange();
   test_pRange();
-  test_proxyList();
   test_keys();
   test_removeProxy();
   test_clearStore();

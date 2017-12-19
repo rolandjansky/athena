@@ -1,0 +1,642 @@
+ Collection, Skip = 1000 0
+ Test level =  10
+Container cleanup: user, kernel, elapsed 0 0 17 
+Created vector of coll + digits: user, kernel, elapsed 0 0 501 
+Add colls to container: user, kernel, elapsed 0 0 604 
+Full Size:1000 N Coll:1000
+Iteration over collections: user, kernel, elapsed 0 0 21 
+  Number of Collection  Accessed 1000
+Iteration over collections : user, kernel, elapsed 0 0 12 
+iter, hash id 0 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 13 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 17 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 21 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 25 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 29 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 33 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 37 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 0 0 20 
+  Number of Digits  Accessed 10000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 5 
+ Number of Collections from Random Access 1000
+coll 0x1bb8900
+coll 0x1bc02e0
+coll 0x1bc0900
+coll 0x1bc0f90
+Removed 334 collections. Size 334 removed collections found again 0 tested 334
+Deleted collections 
+Container cleanup: user, kernel, elapsed 0 0 13 
+Created vector of coll + digits: user, kernel, elapsed 0 0 611 
+Add colls to container: user, kernel, elapsed 0 0 709 
+Full Size:1000 N Coll:1000
+Iteration over collections: user, kernel, elapsed 0 0 14 
+  Number of Collection  Accessed 1000
+Iteration over collections : user, kernel, elapsed 0 0 12 
+iter, hash id 0 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 13 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 17 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 21 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 25 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 29 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 33 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 37 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 0 0 20 
+  Number of Digits  Accessed 10000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 5 
+ Number of Collections from Random Access 1000
+coll 0x1bb8900
+coll 0x1bc02e0
+coll 0x1bc0900
+coll 0x1bc0f90
+Removed 334 collections. Size 334 removed collections found again 0 tested 334
+Deleted collections 
+Container cleanup: user, kernel, elapsed 0 0 13 
+Created vector of coll + digits: user, kernel, elapsed 0 0 417 
+Add colls to container: user, kernel, elapsed 0 0 512 
+Full Size:1000 N Coll:1000
+Iteration over collections: user, kernel, elapsed 0 0 13 
+  Number of Collection  Accessed 1000
+Iteration over collections : user, kernel, elapsed 0 0 11 
+iter, hash id 0 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 13 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 17 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 21 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 25 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 29 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 33 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 37 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 0 0 17 
+  Number of Digits  Accessed 10000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 6 
+ Number of Collections from Random Access 1000
+coll 0x1bb8900
+coll 0x1bc02e0
+coll 0x1bc0900
+coll 0x1bc0f90
+Removed 334 collections. Size 334 removed collections found again 0 tested 334
+Deleted collections 
+Container cleanup: user, kernel, elapsed 0 0 13 
+Created vector of coll + digits: user, kernel, elapsed 0 0 416 
+Add colls to container: user, kernel, elapsed 0 0 511 
+Full Size:1000 N Coll:1000
+Iteration over collections: user, kernel, elapsed 0 0 13 
+  Number of Collection  Accessed 1000
+Iteration over collections : user, kernel, elapsed 0 0 12 
+iter, hash id 0 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 13 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 17 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 21 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 25 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 29 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 33 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 37 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 0 0 16 
+  Number of Digits  Accessed 10000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 5 
+ Number of Collections from Random Access 1000
+coll 0x1bb8900
+coll 0x1bc02e0
+coll 0x1bc0900
+coll 0x1bc0f90
+Removed 334 collections. Size 334 removed collections found again 0 tested 334
+Deleted collections 
+Container cleanup: user, kernel, elapsed 0 0 22 
+Created vector of coll + digits: user, kernel, elapsed 0 0 461 
+Add colls to container: user, kernel, elapsed 10000 0 558 
+Full Size:1000 N Coll:1000
+Iteration over collections: user, kernel, elapsed 0 0 13 
+  Number of Collection  Accessed 1000
+Iteration over collections : user, kernel, elapsed 0 0 12 
+iter, hash id 0 1 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 1 5 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 2 9 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 3 13 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 4 17 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 5 21 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 6 25 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 7 29 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 8 33 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+iter, hash id 9 37 
+nd, val 0 0
+nd, val 1 1
+nd, val 2 2
+nd, val 3 3
+nd, val 4 4
+nd, val 5 5
+nd, val 6 6
+nd, val 7 7
+nd, val 8 8
+nd, val 9 9
+Iteration over digits : user, kernel, elapsed 0 0 16 
+  Number of Digits  Accessed 10000
+  TESTING find and lower/upper bound 
+Random access: user, kernel, elapsed 0 0 5 
+ Number of Collections from Random Access 1000
+coll 0x1bb8900
+coll 0x1bc02e0
+coll 0x1bc0900
+coll 0x1bc0f90
+Removed 334 collections. Size 334 removed collections found again 0 tested 334
+Deleted collections 

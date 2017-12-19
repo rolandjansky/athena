@@ -31,7 +31,7 @@ StatusCode LArBadFebCondAlg::initialize() {
   ATH_CHECK( m_BCOutputKey.initialize() );
 
   // Register write handle
-  if (m_condSvc->regHandle(this, m_BCOutputKey, m_BCOutputKey.dbKey()).isFailure()) {
+  if (m_condSvc->regHandle(this, m_BCOutputKey).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_BCOutputKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }

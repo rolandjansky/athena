@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 #include "TBEvent/TBBeamDetector.h"

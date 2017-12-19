@@ -114,6 +114,12 @@ void G4ThreadInitTool::initThread()
 //-----------------------------------------------------------------------------
 void G4ThreadInitTool::terminateThread()
 {
+  ATH_MSG_INFO("terminateThread ==> tbb thread 0x" <<
+               std::hex << pthread_self() << std::dec);
+
+  // Geant4 worker finalization
+  G4RunManager::GetRunManager()->RunTermination();
+
   // Atomic decrement number of initialized threads
   m_nInitThreads--;
 }

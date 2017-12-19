@@ -3,6 +3,7 @@
 */
 #include "MURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 

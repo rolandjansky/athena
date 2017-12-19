@@ -12,7 +12,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #if athenaCommonFlags.FilesInput()==[]:
 #  athenaCommonFlags.FilesInput=[
-#       "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000057.pool.root.1"
+#       "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361036.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e3580_s2726_r7011/RDO.07344311._000057.pool.root.1"
 #       ]
 
 from TriggerMenu import useNewTriggerMenu
@@ -32,7 +32,7 @@ rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 
-(idtrigChainlist, tidaAnalysischains) = minBiasChains(rMC,rID)
+(idtrigChainlist, tidaAnalysischains) = minBiasChains(rID)
 
 def resetSigs():
   TriggerFlags.Slices_all_setOff()

@@ -65,7 +65,7 @@ StatusCode MyMultiInputAlg::execute()
   typedef PileUpMergeSvc::TimedList<ExampleHitContainer>::type ExampleHitContainerList;
   ExampleHitContainerList blist;
 
-  ATH_CHECK( m_mergeSvc->retrieveSubEvtsData("MyHits", blist).isSuccess() );
+  ATH_CHECK( m_mergeSvc->retrieveSubEvtsData("MyHits", blist) );
   ATH_MSG_INFO( blist.size() 
                 << " ExampleHitContainerList with key " << "MyHits"
                 << " found"  );

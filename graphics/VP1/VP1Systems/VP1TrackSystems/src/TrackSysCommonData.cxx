@@ -47,7 +47,7 @@ public:
 
 //____________________________________________________________________
 TrackSysCommonData::TrackSysCommonData(VP1TrackSystem * sys,TrackSystemController * controller)
-  : VP1HelperClassBase(sys,"TrackSysCommonData"), m_textSep(0), d(new Imp),
+  : VP1HelperClassBase(sys,"TrackSysCommonData"), m_textSep(0), m_d(new Imp),
     m_ascObjSelectionManager(0), m_controller(controller), m_lastSelectedTrack(0)
 {
   m_3dsystem = sys;
@@ -98,7 +98,7 @@ TrackSysCommonData::~TrackSysCommonData()
     m_textSep->unref();
     m_textSep = 0;
   }
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -117,7 +117,7 @@ void TrackSysCommonData::clearEventData()
   m_trackLODManager->eraseEventData();
   m_visTrkTracksToMaterialHelper->setNoVisibleObjects();
   m_visTrkSegmentsToMaterialHelper->setNoVisibleObjects();
-  //  d->nodeToTrackHandle.clear(); TrackHandle destructor already ensures that unregister... below is called.
+  //  m_d->nodeToTrackHandle.clear(); TrackHandle destructor already ensures that unregister... below is called.
 }
 
 //____________________________________________________________________
@@ -128,11 +128,11 @@ void TrackSysCommonData::registerTrack(SoNode*node,TrackHandleBase*handle)
       message("registerTrack ERROR: Received null pointer!");
       return;
     }
-    std::map<SoNode*,TrackHandleBase*>::iterator it = d->nodeToTrackHandle.find(node);
-    if (it!=d->nodeToTrackHandle.end())
+    std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.find(node);
+    if (it!=m_d->nodeToTrackHandle.end())
       message("registerTrack ERROR: Node already registered!");
   }
-  d->nodeToTrackHandle[node]=handle;
+  m_d->nodeToTrackHandle[node]=handle;
 }
 
 //____________________________________________________________________
@@ -144,12 +144,12 @@ void TrackSysCommonData::unregisterTrack(SoNode*node)
       return;
     }
   }
-  std::map<SoNode*,TrackHandleBase*>::iterator it = d->nodeToTrackHandle.find(node);
-  if (it==d->nodeToTrackHandle.end()) {
+  std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.find(node);
+  if (it==m_d->nodeToTrackHandle.end()) {
     message("unregisterTrack ERROR: Not previously registered!");
     return;
   }
-  d->nodeToTrackHandle.erase(it);
+  m_d->nodeToTrackHandle.erase(it);
 }
 
 //____________________________________________________________________
@@ -157,8 +157,8 @@ TrackHandleBase* TrackSysCommonData::trackHandle(SoNode*n)
 {
   if (!n)
     return 0;
-  std::map<SoNode*,TrackHandleBase*>::iterator it = d->nodeToTrackHandle.find(n);
-  if (it!=d->nodeToTrackHandle.end())
+  std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.find(n);
+  if (it!=m_d->nodeToTrackHandle.end())
     return it->second;
   return 0;
 }
@@ -168,7 +168,7 @@ SoNode* TrackSysCommonData::node(TrackHandleBase* h)
 {
   if (!h)
     return 0;
-  std::map<SoNode*,TrackHandleBase*>::iterator it = d->nodeToTrackHandle.begin(), itEnd=d->nodeToTrackHandle.end();
+  std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.begin(), itEnd=m_d->nodeToTrackHandle.end();
   for (; it!=itEnd;++it)
     if (it->second==h) return it->first;
   return 0;
@@ -179,7 +179,7 @@ SoNode* TrackSysCommonData::node(QTreeWidgetItem* item)
 {
   if (!item)
     return 0;
-  std::map<SoNode*,TrackHandleBase*>::iterator it = d->nodeToTrackHandle.begin(), itEnd=d->nodeToTrackHandle.end();
+  std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.begin(), itEnd=m_d->nodeToTrackHandle.end();
   for (; it!=itEnd;++it)
     if (it->second->browserTreeItem()==item) return it->first;
   return 0;
@@ -191,9 +191,9 @@ const TrackHandleBase* TrackSysCommonData::getHandle(const Trk::Track* trk)
     messageVerbose("TrackSysCommonData::getHandle(): Received null pointer!");
     return 0;
   }
-//  messageVerbose("TrackSysCommonData::getHandle(): about to loop over this many elements:"+QString::number(d->nodeToTrackHandle.size()));
+//  messageVerbose("TrackSysCommonData::getHandle(): about to loop over this many elements:"+QString::number(m_d->nodeToTrackHandle.size()));
 
-  std::map<SoNode*,TrackHandleBase*>::iterator it = d->nodeToTrackHandle.begin(), itEnd=d->nodeToTrackHandle.end();
+  std::map<SoNode*,TrackHandleBase*>::iterator it = m_d->nodeToTrackHandle.begin(), itEnd=m_d->nodeToTrackHandle.end();
   for (; it!=itEnd;++it){
     const TrackHandle_TrkTrack* trkHandle = dynamic_cast<const TrackHandle_TrkTrack*>(it->second);
     if (trkHandle && trkHandle->trkTrackPointer()==trk) return trkHandle;

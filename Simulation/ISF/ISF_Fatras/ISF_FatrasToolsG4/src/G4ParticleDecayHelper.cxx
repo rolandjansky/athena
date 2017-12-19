@@ -41,7 +41,7 @@ double iFatras::G4ParticleDecayHelper::s_speedOfLightSI =  CLHEP::c_light*CLHEP:
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::G4ParticleDecayHelper::G4ParticleDecayHelper(const std::string& t, const std::string& n, const IInterface* p):    
-   AthAlgTool(t,n,p),
+   base_class(t,n,p),
    m_particleBroker("ISF_ParticleBroker", n),
    m_truthRecordSvc("ISF_TruthRecordSvc", n),
    m_rndmSvc("AtDSFMTGenSvc", n),
@@ -60,8 +60,6 @@ iFatras::G4ParticleDecayHelper::G4ParticleDecayHelper(const std::string& t, cons
    m_nChargedParticles(0),
    m_nNeutralParticles(0)
 {
-  declareInterface<IParticleDecayHelper>(this);
-    
   // ISF: truth and broker service
   declareProperty("ParticleBroker",           m_particleBroker,       "ISF Particle Broker Svc");
   declareProperty("ParticleTruthSvc",         m_truthRecordSvc,       "ISF Particle Truth Svc");
@@ -376,14 +374,21 @@ iFatras::G4ParticleDecayHelper::decayParticle(const ISF::ISFParticle& parent,
     const G4ThreeVector &mom= prod->GetMomentum();
     Amg::Vector3D amgMom( mom.x(), mom.y(), mom.z() );
 
-    // !< @TODO : insert truth binding 
+    ISF::TruthBinding * truthBinding = NULL;
+    if (parent.getTruthBinding()) {
+       ATH_MSG_VERBOSE("Could retrieve TruthBinding from original ISFParticle");
+       truthBinding = new ISF::TruthBinding(*parent.getTruthBinding());
+    }
+    else ATH_MSG_WARNING("Could not retrieve original TruthBinding  from ISFParticle");
     ISF::ISFParticle* childParticle = new ISF::ISFParticle( vertex,
                                                             amgMom,
                                                             prod->GetMass(),
                                                             prod->GetCharge(),
                                                             prod->GetPDGcode(),
                                                             timeStamp, 
-                                                            parent );
+                                                            parent,
+							    Barcode::fUndefinedBarcode,
+							    truthBinding );
 
     children.push_back( childParticle);
   }

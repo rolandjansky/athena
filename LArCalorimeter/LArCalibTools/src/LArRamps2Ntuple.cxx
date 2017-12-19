@@ -5,17 +5,19 @@
 #include "LArCalibTools/LArRamps2Ntuple.h"
 #include "LArRawConditions/LArRawRampContainer.h"
 #include "LArRawConditions/LArRampComplete.h"
-#include "LArRawConditions/LArRampMC.h"
+#include "LArRawConditions/LArRampSym.h"
 
 //#include "CaloIdentifier/CaloIdManager.h"
 
 #include <math.h>
 
-LArRamps2Ntuple::LArRamps2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): LArCond2NtupleBase(name, pSvcLocator)
-{
+LArRamps2Ntuple::LArRamps2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
+  LArCond2NtupleBase(name, pSvcLocator),
+  m_rampKey("LArRamp"){
+
   declareProperty("ContainerKey",   m_contKey,
 		  "List of keys of RawRamp containers");
-  declareProperty("RampKey",   m_rampKey="LArRamp",
+  declareProperty("RampKey",   m_rampKey,
 		  "Key of LArRampComplete or LArRampMC objects");
   declareProperty("NtupleName",     m_ntName  ="RAMPS");
   declareProperty("RawRamp",        m_rawRamp = false); 
@@ -28,6 +30,8 @@ LArRamps2Ntuple::LArRamps2Ntuple(const std::string& name, ISvcLocator* pSvcLocat
 StatusCode LArRamps2Ntuple::initialize() {
   m_ntTitle="Ramps";
   m_ntpath=std::string("/NTUPLES/FILE1/")+m_ntName;
+
+  ATH_CHECK(m_rampKey.initialize());
   return LArCond2NtupleBase::initialize();
 }
 
@@ -90,11 +94,20 @@ StatusCode LArRamps2Ntuple::stop() {
 
  } 
  //end-if m_rawRamp
+
  
- const ILArRamp* ramp=NULL;
- sc=m_detStore->retrieve(ramp,m_rampKey);
- if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::WARNING << "Unable to retrieve ILArRamp with key: "<<m_rampKey << " from DetectorStore" << endmsg;
+ // For compatibility with existing configurations, look in the detector
+ // store first, then in conditions.
+ const ILArRamp* ramp =
+   detStore()->tryConstRetrieve<ILArRamp> (m_rampKey.key());
+ if (!ramp) {
+   SG::ReadCondHandle<ILArRamp> readHandle{m_rampKey};
+   ramp = *readHandle;
+ }
+
+
+ if (ramp==nullptr) {
+   (*m_log) << MSG::WARNING << "Unable to retrieve ILArRamp with key: "<<m_rampKey << " from DetectorStore" << endmsg;
  }
 
  if (!ramp && !hasRawRampContainer) {
@@ -102,6 +115,7 @@ StatusCode LArRamps2Ntuple::stop() {
    return StatusCode::FAILURE;
  }
 
+ /*
  LArConditionsContainer<LArRampP1>* myramp = NULL;
  if(m_applyCorr) {
     const LArRampComplete *rampComplete=NULL;
@@ -124,7 +138,7 @@ StatusCode LArRamps2Ntuple::stop() {
       }
     }
  }
-
+ */
  
  sc=m_nt->addItem("cellIndex",cellIndex,0,2000);
  if (sc!=StatusCode::SUCCESS) {
@@ -449,13 +463,14 @@ StatusCode LArRamps2Ntuple::stop() {
    }//end loop over gains
  }//end if add corrections
 
+ /*
  if(m_applyCorr && myramp) {
     sc = myramp->undoCorrections();
     if (sc!=StatusCode::SUCCESS) {
 	   (*m_log) << MSG::ERROR << "Undo corrections failed" << endmsg;
     }
  }
-
+ */
 
  (*m_log) << MSG::INFO << "LArRamps2Ntuple has finished." << endmsg;
  return StatusCode::SUCCESS;

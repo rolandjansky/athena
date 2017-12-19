@@ -7,9 +7,9 @@
 #ifndef TRIG_COMBINEDMUONFEATURECONTAINER
 #define TRIG_COMBINEDMUONFEATURECONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigMuonEvent/CombinedMuonFeature.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class CombinedMuonFeatureContainer : public DataVector<CombinedMuonFeature> { }; 
 CLASS_DEF( CombinedMuonFeatureContainer , 1078838239 , 1 )

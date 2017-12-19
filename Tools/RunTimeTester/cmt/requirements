@@ -1,8 +1,0 @@
-package RunTimeTester
-author Peter Sherwood <Peter.Sherwood@cern.ch>
-
-use AtlasPolicy AtlasPolicy-*
-apply_pattern declare_joboptions files="*.py"
-apply_pattern declare_runtime extras="../share/RunTimeTester_TestConfiguration.xml ../share/RttLibraryTools.py"
-
-macro RunTimeTester_TestConfiguration "../share/RunTimeTester_TestConfiguration.xml"

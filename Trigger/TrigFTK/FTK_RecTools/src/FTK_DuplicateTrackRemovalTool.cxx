@@ -112,33 +112,33 @@ const FTK_RawTrack* FTK_DuplicateTrackRemovalTool::besttrack(const FTK_RawTrack*
 
 #ifdef FTKDuplicateTrackRemovalUseMap
 void FTK_DuplicateTrackRemovalTool::addtophimap(double trackphi, unsigned int pos){
-	phimap[trackphi].push_back(pos);//add it to the map
+	m_phimap[trackphi].push_back(pos);//add it to the map
 
 	//check that track phi is within -pi to pi
 	if (trackphi<(-CLHEP::pi-0.1)) ATH_MSG_WARNING("FTK track with phi < -pi! "<<trackphi);
 	else if (trackphi>(CLHEP::pi+0.1)) ATH_MSG_WARNING("FTK track with phi > pi! "<<trackphi);
 
 	//add extra copy in case of wraparound
-	if (trackphi>(CLHEP::pi-m_dphi_roughmatch)) phimap[trackphi-CLHEP::twopi].push_back(pos);
-	else if (trackphi<(-CLHEP::pi+m_dphi_roughmatch)) phimap[trackphi+CLHEP::twopi].push_back(pos);
+	if (trackphi>(CLHEP::pi-m_dphi_roughmatch)) m_phimap[trackphi-CLHEP::twopi].push_back(pos);
+	else if (trackphi<(-CLHEP::pi+m_dphi_roughmatch)) m_phimap[trackphi+CLHEP::twopi].push_back(pos);
 }
 void FTK_DuplicateTrackRemovalTool::removefromphimap(double oldtrackphi, unsigned int e){
 
 	//remove the old track from the map
-	auto& vec = phimap[oldtrackphi];
+	auto& vec = m_phimap[oldtrackphi];
 	auto ind = std::find(vec.begin(),vec.end(),e);
 	if (ind==vec.end()) ATH_MSG_WARNING("Wasn't in the map?! "<<oldtrackphi<<" "<<e);
 	else vec.erase(ind);
 
 	//take of removing wraparound entries
 	if (oldtrackphi>(CLHEP::pi-m_dphi_roughmatch)) {
-		vec = phimap[oldtrackphi-CLHEP::twopi];
+		vec = m_phimap[oldtrackphi-CLHEP::twopi];
 		auto ind = std::find(vec.begin(),vec.end(),e);
 		if (ind==vec.end()) ATH_MSG_WARNING("Wasn't in the map?! "<<oldtrackphi<<" "<<e);
 		else vec.erase(ind);
 	}
 	else if (oldtrackphi<(-CLHEP::pi+m_dphi_roughmatch)) {
-		vec = phimap[oldtrackphi+CLHEP::twopi];
+		vec = m_phimap[oldtrackphi+CLHEP::twopi];
 		auto ind = std::find(vec.begin(),vec.end(),e);
 		if (ind==vec.end()) ATH_MSG_WARNING("Wasn't in the map?! "<<oldtrackphi<<" "<<e);
 		else vec.erase(ind);
@@ -154,7 +154,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 #endif
 
 #ifdef FTKDuplicateTrackRemovalUseMap
-	  phimap.clear();
+	  m_phimap.clear();
 	  std::set<unsigned int> trackstokill;
 #endif
 
@@ -171,8 +171,8 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  //search just the range of phi in the map of old tracks near the phi of this new track
 	  //the map goes from -pi-dphi_roughmatch to pi+dphi_roughmatch, to handle wraparound
 	  double trackphi = track->getPhi();
-	  auto lower = phimap.lower_bound(trackphi-m_dphi_roughmatch);
-	  auto upper = phimap.upper_bound(trackphi+m_dphi_roughmatch);
+	  auto lower = m_phimap.lower_bound(trackphi-m_dphi_roughmatch);
+	  auto upper = m_phimap.upper_bound(trackphi+m_dphi_roughmatch);
 	  for (auto it=lower; it!=upper; it++){
 		  for (unsigned int e : it->second) {//these are the indices of the old tracks at each phi value in the phi range
 			  //ATH_MSG_DEBUG("Looking for match of track "<<i<<" with oldtrack "<<e);

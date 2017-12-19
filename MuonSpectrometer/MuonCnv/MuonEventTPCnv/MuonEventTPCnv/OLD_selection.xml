@@ -1,7 +1,6 @@
 <lcgdict>
 
     <class name="TPCnv::MuonMeasurements_tlp1" id="C4979DA5-4193-410B-9476-A51708C01CF7" />  
-    <class name="TPCnv::MuonMeasurements_tlp2" id="87FC613F-390A-4AB0-9BBF-28CE788867D5" />  
    
     <class name="Muon::TgcCoinData_p1" />
     <class name="std::vector<Muon::TgcCoinData_p1>" />

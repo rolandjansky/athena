@@ -10,6 +10,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 namespace SG {
 
@@ -27,6 +28,17 @@ namespace SG {
 
     const std::string& dbKey() const { return m_dbKey; }
     void setDbKey(const std::string& dbKey) { m_dbKey = dbKey; }
+
+
+    /**
+     * @brief Called by the owning algorithm during the START transition.
+     *
+     * AthAlgorithm and friends will call this during START.  This allows
+     * for extra initialization that we can't do during initialize(), such
+     * as retrieving a conditions container from the store.
+     */
+    virtual StatusCode start() override;
+
 
   protected:
     bool isInit() const { return m_isInit; }

@@ -165,25 +165,25 @@ public:
 VP1TrackSystem::VP1TrackSystem(QString name)
   : IVP13DSystemSimple(name,
            "System showing all track-like objects.",
-           "Edward.Moyse@cern.ch, Thomas.Kittelmann@cern.ch"), d(new Imp)
+           "Edward.Moyse@cern.ch, Thomas.Kittelmann@cern.ch"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->sel_tracks = 0;
-  d->common = 0;
-  d->totmomsep = 0;
-  d->totmomline = 0;
-  d->totmomgev = Amg::Vector3D(0,0,0);
-  d->ascObjSelManager = 0;
-  d->selMode = TrackCommonFlags::SINGLEOBJECT;
-  d->lastEmittedUsedIDProjections = InDetProjFlags::NoDet;
+  m_d->theclass = this;
+  m_d->sel_tracks = 0;
+  m_d->common = 0;
+  m_d->totmomsep = 0;
+  m_d->totmomline = 0;
+  m_d->totmomgev = Amg::Vector3D(0,0,0);
+  m_d->ascObjSelManager = 0;
+  m_d->selMode = TrackCommonFlags::SINGLEOBJECT;
+  m_d->lastEmittedUsedIDProjections = InDetProjFlags::NoDet;
   const unsigned n_chamber_t0_sources=2;
-  d->chamberT0s.resize(n_chamber_t0_sources);
+  m_d->chamberT0s.resize(n_chamber_t0_sources);
 }
 
 //____________________________________________________________________
 VP1TrackSystem::~VP1TrackSystem()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -191,11 +191,11 @@ void VP1TrackSystem::systemcreate(StoreGateSvc* /*detstore*/)
 {
   messageVerbose("systemcreate");
   ensureBuildController();
-  d->common->controller()->initTools();
+  m_d->common->controller()->initTools();
 
-  connect(d->common->controller(),SIGNAL(shownTrackPartsChanged(TrackCommonFlags::TrackPartsFlags)),
+  connect(m_d->common->controller(),SIGNAL(shownTrackPartsChanged(TrackCommonFlags::TrackPartsFlags)),
     this,SLOT(possiblyEmitUsedIDProjectionsChanged()));
-  connect(d->common->controller()->collWidget(),SIGNAL(visibleStdCollectionsChanged(const QList<VP1StdCollection*>&)),
+  connect(m_d->common->controller()->collWidget(),SIGNAL(visibleStdCollectionsChanged(const QList<VP1StdCollection*>&)),
     this,SLOT(possiblyEmitUsedIDProjectionsChanged()));
   possiblyEmitUsedIDProjectionsChanged();
 
@@ -205,15 +205,15 @@ void VP1TrackSystem::systemcreate(StoreGateSvc* /*detstore*/)
 void VP1TrackSystem::systemuncreate()
 {
   messageVerbose("systemuncreate");
-  if (d->totmomsep) {
-    d->totmomsep->unref();
-    d->totmomsep=0;
+  if (m_d->totmomsep) {
+    m_d->totmomsep->unref();
+    m_d->totmomsep=0;
   }
-  if (d->totmomline) {
-    d->totmomline->unref();
-    d->totmomline = 0;
+  if (m_d->totmomline) {
+    m_d->totmomline->unref();
+    m_d->totmomline = 0;
   }
-  delete d->common; d->common = 0;
+  delete m_d->common; m_d->common = 0;
 }
 
 //____________________________________________________________________
@@ -221,8 +221,8 @@ QWidget * VP1TrackSystem::buildController()
 {
   messageVerbose("buildController start");
   TrackSystemController * controller = new TrackSystemController(this);
-  d->common = new TrackSysCommonData(this,controller);//Fixme: Do this on-demand in buildeventscenegraph!!
-  controller->setCommonData(d->common);
+  m_d->common = new TrackSysCommonData(this,controller);//Fixme: Do this on-demand in buildeventscenegraph!!
+  controller->setCommonData(m_d->common);
 
   connect(controller,SIGNAL(selectionModeChanged(TrackCommonFlags::SELECTIONMODE)),this,SLOT(updateSelectionMode()));
   updateSelectionMode();
@@ -231,7 +231,7 @@ QWidget * VP1TrackSystem::buildController()
 
   connect(controller,SIGNAL(refit()),this,SLOT(refit()));//temp.
 
-  controller->setNumberOfSelectedPRDsAndTracks(d->selectedPRDs.count(),0);
+  controller->setNumberOfSelectedPRDsAndTracks(m_d->selectedPRDs.count(),0);
 
   messageVerbose("buildController end");
   return controller;
@@ -246,72 +246,72 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   SoComplexity * complexity = new SoComplexity;
   complexity->value.setValue(0.3f);//Fixme: Hardcoded here and elsewhere (fixme: Recheck all complexity values!)
   root->addChild(complexity);
-  root->addChild(d->common->controller()->ascObjDrawStyle());
-  root->addChild(d->common->controller()->ascObjComplexity());//this will be inherited to the tracks
+  root->addChild(m_d->common->controller()->ascObjDrawStyle());
+  root->addChild(m_d->common->controller()->ascObjComplexity());//this will be inherited to the tracks
                                                               // (but giving no effect)
 
-  d->sel_tracks = new SoCooperativeSelection;
-  d->sel_tracks->activePolicy = SoCooperativeSelection::ACTIVE;
-  d->sel_tracks->ref();
-  registerSelectionNode(d->sel_tracks);
-  // d->sel_tracks->addChild(d->common->controller()->trackLightModel());
-  // d->sel_tracks->addChild(d->common->controller()->trackDrawStyle());
+  m_d->sel_tracks = new SoCooperativeSelection;
+  m_d->sel_tracks->activePolicy = SoCooperativeSelection::ACTIVE;
+  m_d->sel_tracks->ref();
+  registerSelectionNode(m_d->sel_tracks);
+  // m_d->sel_tracks->addChild(m_d->common->controller()->trackLightModel());
+  // m_d->sel_tracks->addChild(m_d->common->controller()->trackDrawStyle());
 
-  d->ascObjSelManager = new AscObjSelectionManager (root,this,d->common->controller());
-  d->common->setEventData(d->ascObjSelManager);//commondata assumes ownership of ascObjMgr.
-  d->common->trackLODManager()->setAttachNode(d->ascObjSelManager->getAscObjAttachSep());
+  m_d->ascObjSelManager = new AscObjSelectionManager (root,this,m_d->common->controller());
+  m_d->common->setEventData(m_d->ascObjSelManager);//commondata assumes ownership of ascObjMgr.
+  m_d->common->trackLODManager()->setAttachNode(m_d->ascObjSelManager->getAscObjAttachSep());
 
 // reset last selected trk
-  d->common->setLastSelectedTrack(0);
+  m_d->common->setLastSelectedTrack(0);
   updateSelectionMode();
   
-  if (!d->common->m_textSep) {
+  if (!m_d->common->m_textSep) {
     // FIXME!
     //    std::cout<<"Making new Text sep"<<std::endl;
-    d->common->m_textSep = new SoSeparator;
-    d->common->m_textSep->setName("TextSep");
-    d->common->m_textSep->ref();
+    m_d->common->m_textSep = new SoSeparator;
+    m_d->common->m_textSep->setName("TextSep");
+    m_d->common->m_textSep->ref();
   }
-  root->addChild(d->common->m_textSep);
+  root->addChild(m_d->common->m_textSep);
   
   // Fixme - what if font is missing?
   SoFont *myFont = new SoFont;
   myFont->name.setValue("Arial");
   myFont->size.setValue(12.0);
-  d->common->m_textSep->addChild(myFont);
+  m_d->common->m_textSep->addChild(myFont);
 
   messageVerbose("createCollections start");
   
   //Create collection list based on contents of event store, populate gui and apply states:
-  d->common->controller()->collWidget()->setCollections(d->createCollections());
+  m_d->common->controller()->collWidget()->setCollections(m_d->createCollections());
 
   //Add collections to event scenegraph:
-  foreach (VP1StdCollection* col,d->common->controller()->collWidget()->collections<VP1StdCollection>())
-    d->sel_tracks->addChild(col->collSwitch());
+  foreach (VP1StdCollection* col,m_d->common->controller()->collWidget()->collections<VP1StdCollection>())
+    m_d->sel_tracks->addChild(col->collSwitch());
 
-  root->addChild(d->sel_tracks);
-  if (!d->totmomsep) {
-    d->totmomsep = new SoSeparator;
-    d->totmomsep->ref();
+  root->addChild(m_d->sel_tracks);
+  if (!m_d->totmomsep) {
+    m_d->totmomsep = new SoSeparator;
+    m_d->totmomsep->ref();
   }
-  // d->totmomsep->addChild(d->common->controller()->trackDrawStyle());
-  root->addChild(d->totmomsep);
+  // m_d->totmomsep->addChild(m_d->common->controller()->trackDrawStyle());
+  root->addChild(m_d->totmomsep);
   
   //
   // Loading T0 measurements of muon chambers
   //
   // This will loop over all the T0 measurements found for muon chambers.
-  // And it will store them into the 'd->chamberT0s' vector.
+  // And it will store them into the 'm_d->chamberT0s' vector.
   // TODO! But do we still need it here?? Allow this to be configured?
   //
   std::vector<std::string> key;
   key.push_back("MooreMuonChamberT0s");
   key.push_back("MboyMuonChamberT0s");
-  assert(d->chamberT0s.size()==key.size());
+  assert(m_d->chamberT0s.size()==key.size());
 
-  for (unsigned int i=0; i<d->chamberT0s.size(); i++){
+  for (unsigned int i=0; i<m_d->chamberT0s.size(); i++){
     assert(i<key.size());
-    d->chamberT0s.at(i).clear();
+    m_d->chamberT0s.at(i).clear();
     const Muon::ChamberT0s* chamberT0s(0);
     const MuonGM::MuonDetectorManager * muonDetManager = VP1DetInfo::muonDetMgr();
 
@@ -344,7 +344,7 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
     		  messageDebug( "MDT chamber Info - technology: " + QString::fromStdString(techStr) + " - stName: " +  QString::fromStdString(stationName) + " - stEta: " + QString::number(stEta) + " - stPhi: " + QString::number(stPhi) + " - ml: " + QString::number(ml) );
 
     		  const MuonGM::MuonReadoutElement* muonDetEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(muonDetManager->getMdtReadoutElement (it->first));
-    		  if (muonDetEl) d->chamberT0s[i][muonDetEl->parentStationPV()]=it->second;
+    		  if (muonDetEl) m_d->chamberT0s[i][muonDetEl->parentStationPV()]=it->second;
     	  }
     	  else if (muonDetManager->cscIdHelper()->is_csc(it->first)){
     		  messageDebug("---> getting CSC T0s");
@@ -357,10 +357,10 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
     		  messageDebug( "MDT chamber Info - technology: " + QString::fromStdString(techStr) + " - stName: " +  QString::fromStdString(stationName) + " - stEta: " + QString::number(stEta) + " - stPhi: " + QString::number(stPhi) );
 
     		  const MuonGM::CscReadoutElement* muonDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(muonDetManager->getCscReadoutElement (it->first));
-    		  if (muonDetEl) d->chamberT0s[i][muonDetEl->parentStationPV()]=it->second;
+    		  if (muonDetEl) m_d->chamberT0s[i][muonDetEl->parentStationPV()]=it->second;
     	  }
       }
-      emit muonChamberT0sChanged(d->chamberT0s[i],i);
+      emit muonChamberT0sChanged(m_d->chamberT0s[i],i);
     }
   }
 
@@ -373,25 +373,25 @@ void VP1TrackSystem::systemerase()
 {
   messageVerbose("systemErase begin");
 
-  d->common->controller()->collWidget()->clear();
+  m_d->common->controller()->collWidget()->clear();
   messageVerbose("collWidget cleared");
 
-  if (d->common->controller()->trackObjBrowser()) d->common->controller()->trackObjBrowser()->clear();
+  if (m_d->common->controller()->trackObjBrowser()) m_d->common->controller()->trackObjBrowser()->clear();
 
-  d->common->clearEventData();
-  if (d->sel_tracks) {
-    unregisterSelectionNode(d->sel_tracks);
-    d->sel_tracks->unref();
-    d->sel_tracks=0;
+  m_d->common->clearEventData();
+  if (m_d->sel_tracks) {
+    unregisterSelectionNode(m_d->sel_tracks);
+    m_d->sel_tracks->unref();
+    m_d->sel_tracks=0;
   }
 
-  if (d->totmomsep)
-    d->totmomsep->removeAllChildren();
+  if (m_d->totmomsep)
+    m_d->totmomsep->removeAllChildren();
     
-  if (d->common->m_textSep) // FIXME!
-    d->common->m_textSep->removeAllChildren();
+  if (m_d->common->m_textSep) // FIXME!
+    m_d->common->m_textSep->removeAllChildren();
     
-  d->totmomgev = Amg::Vector3D(0,0,0);
+  m_d->totmomgev = Amg::Vector3D(0,0,0);
 
   if (verbose()) {
     if (AssociatedObjectHandleBase::numberOfInstances()!=0)
@@ -404,15 +404,15 @@ void VP1TrackSystem::systemerase()
         "(ignore this warning if there is more than one track system instance).");
   }
   
-  std::map<const Trk::Track*, SoMaterial*>::iterator itMat = d->vertexMaterialForTrackBases.begin();
-  std::map<const Trk::Track*, SoMaterial*>::iterator itMatEnd = d->vertexMaterialForTrackBases.end();
+  std::map<const Trk::Track*, SoMaterial*>::iterator itMat = m_d->vertexMaterialForTrackBases.begin();
+  std::map<const Trk::Track*, SoMaterial*>::iterator itMatEnd = m_d->vertexMaterialForTrackBases.end();
   for(;itMat!=itMatEnd;++itMat) {
     SoMaterial* curmat = itMat->second;
     curmat->unref();
   }
-  d->vertexMaterialForTrackBases.clear();
-  for (unsigned int i=0;i<d->chamberT0s.size();++i)
-    d->chamberT0s.at(i).clear();
+  m_d->vertexMaterialForTrackBases.clear();
+  for (unsigned int i=0;i<m_d->chamberT0s.size();++i)
+    m_d->chamberT0s.at(i).clear();
 
   messageVerbose("systemErase end");
 }
@@ -426,8 +426,8 @@ QByteArray VP1TrackSystem::saveState()
 
   // Actual state info:
   ensureBuildController();
-  serialise.save(d->common->controller()->saveSettings());
-  serialise.save((VP1CollectionWidget*)d->common->controller()->collWidget());
+  serialise.save(m_d->common->controller()->saveSettings());
+  serialise.save((VP1CollectionWidget*)m_d->common->controller()->collWidget());
 
   serialise.disableUnsavedChecks();//We do the testing in the controller
 
@@ -453,8 +453,8 @@ void VP1TrackSystem::restoreFromState(QByteArray ba)
 
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
-  d->common->controller()->restoreSettings(state.restoreByteArray());
-  state.restore((VP1CollectionWidget*)d->common->controller()->collWidget());
+  m_d->common->controller()->restoreSettings(state.restoreByteArray());
+  state.restore((VP1CollectionWidget*)m_d->common->controller()->collWidget());
 
   state.disableUnrestoredChecks();//We do the testing in the controller
 }
@@ -505,26 +505,26 @@ void VP1TrackSystem::setApplicableIDProjections( InDetProjFlags::InDetProjPartsF
 {
   messageVerbose("Signal received in setApplicableIDProjections slot");
   ensureBuildController();
-  if (!d->common)//After uncreate.
+  if (!m_d->common)//After uncreate.
     return;
   bool changes(false);
-  if (d->common->indetProjHelper_Pixel()->parts() != pixel) {
-    d->common->indetProjHelper_Pixel()->setParts(pixel);
+  if (m_d->common->indetProjHelper_Pixel()->parts() != pixel) {
+    m_d->common->indetProjHelper_Pixel()->setParts(pixel);
     changes = true;
   }
-  if (d->common->indetProjHelper_SCT()->parts() != sct) {
-    d->common->indetProjHelper_SCT()->setParts(sct);
+  if (m_d->common->indetProjHelper_SCT()->parts() != sct) {
+    m_d->common->indetProjHelper_SCT()->setParts(sct);
     changes = true;
   }
-  if (d->common->indetProjHelper_TRT()->parts() != trt) {
-    d->common->indetProjHelper_TRT()->setParts(trt);
+  if (m_d->common->indetProjHelper_TRT()->parts() != trt) {
+    m_d->common->indetProjHelper_TRT()->setParts(trt);
     changes = true;
   }
 
   if (changes) {
     messageVerbose("  => Flags changed.");
-    if (d->common->controller())
-      foreach( TrackCollHandleBase* collhandle, d->common->controller()->collWidget()->collections<TrackCollHandleBase>() )
+    if (m_d->common->controller())
+      foreach( TrackCollHandleBase* collhandle, m_d->common->controller()->collWidget()->collections<TrackCollHandleBase>() )
       collhandle->updateInDetProjectionsOfAllHandles();
   } else {
     messageVerbose("  => Flags unchanged.");
@@ -536,27 +536,27 @@ void VP1TrackSystem::setApplicableIDProjections( InDetProjFlags::InDetProjPartsF
 void VP1TrackSystem::updateSelectionMode()
 {
   messageVerbose("updateSelectionMode start");
-  if (!d->sel_tracks||!d->ascObjSelManager) {
+  if (!m_d->sel_tracks||!m_d->ascObjSelManager) {
     messageVerbose("updateSelectionMode Warning: Ignoring due to null pointers.");
     return;
   }
   deselectAll();
-  d->ascObjSelManager->deselectAll();
-  d->selMode = d->common->controller()->selectionMode();//NB: Don't abort if unchanged (we call this method to init)
-  if (d->selMode==TrackCommonFlags::TRACKFIT) {
+  m_d->ascObjSelManager->deselectAll();
+  m_d->selMode = m_d->common->controller()->selectionMode();//NB: Don't abort if unchanged (we call this method to init)
+  if (m_d->selMode==TrackCommonFlags::TRACKFIT) {
     messageVerbose("updateSelectionMode => TRACKFIT");
-    d->sel_tracks->policy = SoCooperativeSelection::SINGLE;
-    d->ascObjSelManager->setMode(AscObjSelectionManager::SHIFT);
-  } else if (d->selMode==TrackCommonFlags::MULTITRACK) {
+    m_d->sel_tracks->policy = SoCooperativeSelection::SINGLE;
+    m_d->ascObjSelManager->setMode(AscObjSelectionManager::SHIFT);
+  } else if (m_d->selMode==TrackCommonFlags::MULTITRACK) {
     messageVerbose("updateSelectionMode => MULTITRACK");
-    d->sel_tracks->policy = SoCooperativeSelection::TOGGLE;
-    d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
+    m_d->sel_tracks->policy = SoCooperativeSelection::TOGGLE;
+    m_d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
   } else {
-    if (d->selMode!=TrackCommonFlags::SINGLEOBJECT)
+    if (m_d->selMode!=TrackCommonFlags::SINGLEOBJECT)
       message("updateSelectionMode ERROR: Unexpected selection mode flag");
     messageVerbose("updateSelectionMode => SINGLEOBJECT");
-    d->sel_tracks->policy = SoCooperativeSelection::SINGLE;
-    d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
+    m_d->sel_tracks->policy = SoCooperativeSelection::SINGLE;
+    m_d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
   }
   messageVerbose("updateSelectionMode end");
 }
@@ -565,8 +565,8 @@ void VP1TrackSystem::updateSelectionMode()
 void VP1TrackSystem::userPickedNode(SoNode* pickedNode, SoPath* /*pickedPath*/)
 {
   messageVerbose("userPickedNode");
-  if (pickedNode==d->totmomline) {
-    message("Total momentum of selected tracks [GeV]: p = "+str(d->totmomgev)+", m = "+str(d->totmass/CLHEP::GeV));
+  if (pickedNode==m_d->totmomline) {
+    message("Total momentum of selected tracks [GeV]: p = "+str(m_d->totmomgev)+", m = "+str(m_d->totmass/CLHEP::GeV));
     return;
   }
 
@@ -578,26 +578,26 @@ void VP1TrackSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode
 {
   messageVerbose("userSelectedSingleNode");
   AssociatedObjectHandleBase* pickedHandle(0);
-  if (!d->ascObjSelManager->handleUserSelectedSingleNode(sel,node,pickedPath,pickedHandle)) {
-    if (sel==d->sel_tracks) {
+  if (!m_d->ascObjSelManager->handleUserSelectedSingleNode(sel,node,pickedPath,pickedHandle)) {
+    if (sel==m_d->sel_tracks) {
   //Hack to get selections working when representing tracks with tubes:
       if (node->getTypeId().isDerivedFrom(SoCylinder::getClassTypeId())) {
         pickedPath->pop();
         node=pickedPath->getTail();
       }
-      TrackHandleBase * handle = d->common->trackHandle(node);
+      TrackHandleBase * handle = m_d->common->trackHandle(node);
       if (!handle) {
         message("ERROR: Unknown track.");
         return;
       }
       TrackHandle_TrkTrack * handle_trktrack = dynamic_cast<TrackHandle_TrkTrack *>(handle);
-      if (handle_trktrack&&d->selMode==TrackCommonFlags::TRACKFIT) {
+      if (handle_trktrack&&m_d->selMode==TrackCommonFlags::TRACKFIT) {
         messageVerbose("userSelectedSingleNode - find measurements for track fit");
         
         QList<AssociatedObjectHandleBase*> trackmeas = handle_trktrack->getVisibleMeasurements();
         
         if (trackmeas.size()==0) message("In refit mode, but no visible measurements found so can't do anything. Perhaps they're not enabled in 'Details'?");
-        QList<AssociatedObjectHandleBase*> currentsel = d->ascObjSelManager->currentSelection();
+        QList<AssociatedObjectHandleBase*> currentsel = m_d->ascObjSelManager->currentSelection();
   //If at least one of the track measurements is unselected, we
   //select them all. Otherwise we deselect them.
         bool oneunselected(false);
@@ -610,7 +610,7 @@ void VP1TrackSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode
         QList<const Trk::PrepRawData*> prdSet;
         if (oneunselected) {
           messageVerbose("userSelectedSingleNode - selecting " +QString::number(trackmeas.size()) + " measurements.");
-          d->ascObjSelManager->ensureSelected(trackmeas);
+          m_d->ascObjSelManager->ensureSelected(trackmeas);
           
           // Add PRDs. Need to be careful as they might not exist.
           foreach(AssociatedObjectHandleBase* meas,trackmeas) {
@@ -619,18 +619,18 @@ void VP1TrackSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode
           }
         } else {
           messageVerbose("userSelectedSingleNode - deselecting " +QString::number(trackmeas.size()) + " measurements.");
-          d->ascObjSelManager->ensureDeselected(trackmeas);
+          m_d->ascObjSelManager->ensureDeselected(trackmeas);
         }
         setSelectedPRDs(prdSet); // FIXME - maybe I should append/remove from existing list?
         
-        d->sel_tracks->deselectAll();
+        m_d->sel_tracks->deselectAll();
       } else {
-        if (d->common->controller()->printInfoOnSingleSelection()){
+        if (m_d->common->controller()->printInfoOnSingleSelection()){
           message(handle->clicked());
           messageVerbose("Emitting newTrackSelected ");
-          d->common->setLastSelectedTrack(handle);
+          m_d->common->setLastSelectedTrack(handle);
           emit newTrackSelected(*handle);
-          d->common->controller()->setNumberOfSelectedPRDsAndTracks(d->selectedPRDs.count(),1); // FIXME - we can do this more cleanly?
+          m_d->common->controller()->setNumberOfSelectedPRDsAndTracks(m_d->selectedPRDs.count(),1); // FIXME - we can do this more cleanly?
         }
       }
     } else {
@@ -638,7 +638,7 @@ void VP1TrackSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode
       return;
     }
   }
-  if (d->common->controller()->orientAndZoomOnSingleSelection()) {
+  if (m_d->common->controller()->orientAndZoomOnSingleSelection()) {
     if (!pickedHandle||!pickedHandle->initiatesOwnZooms()) {
       std::set<SoCamera*> cameras = getCameraList();
       std::set<SoCamera*>::iterator it,itE = cameras.end();
@@ -652,9 +652,9 @@ void VP1TrackSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode
 void VP1TrackSystem::userClickedOnBgd()
 {
   messageVerbose("userClickedOnBgd");
-  if (d->ascObjSelManager)
-    d->ascObjSelManager->userClickedOnBgd();
-  d->common->setLastSelectedTrack(0);
+  if (m_d->ascObjSelManager)
+    m_d->ascObjSelManager->userClickedOnBgd();
+  m_d->common->setLastSelectedTrack(0);
   QList<const Trk::PrepRawData*> prdSet;
   setSelectedPRDs(prdSet ); // pass in empty collection. FIXME - this should depend on mode?
 }
@@ -706,42 +706,42 @@ unsigned VP1TrackSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& 
 void VP1TrackSystem::updateShownTotMomentum()
 {
   messageVerbose("updateShownTotMomentum");
-  if (!d->common->controller()->showTotMomentumOnMultiTrackSelection()) {
+  if (!m_d->common->controller()->showTotMomentumOnMultiTrackSelection()) {
     //ensure detach:
     messageVerbose("  => detach");
-    if (d->totmomsep&&d->totmomline&&d->totmomsep->findChild(d->totmomline)>-1)
-      d->totmomsep->removeChild(d->totmomline);
+    if (m_d->totmomsep&&m_d->totmomline&&m_d->totmomsep->findChild(m_d->totmomline)>-1)
+      m_d->totmomsep->removeChild(m_d->totmomline);
     return;
   }
   Amg::Vector3D totmom;
   Amg::Vector3D totpos;
   double totmass;
-  unsigned nused = d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass);
+  unsigned nused = m_d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass);
   if (nused==0) {
     //ensure detach:
     messageVerbose("  => detach");
-    if (d->totmomsep&&d->totmomline&&d->totmomsep->findChild(d->totmomline)>-1)
-      d->totmomsep->removeChild(d->totmomline);
+    if (m_d->totmomsep&&m_d->totmomline&&m_d->totmomsep->findChild(m_d->totmomline)>-1)
+      m_d->totmomsep->removeChild(m_d->totmomline);
   } else {
     //ensure correct lineset:
     Amg::Vector3D p2 = totpos+totmom.unit()*1*CLHEP::m;
-    if (!d->totmomline) {
-      d->totmomline = new SoLineSet;
-      d->totmomline->ref();
+    if (!m_d->totmomline) {
+      m_d->totmomline = new SoLineSet;
+      m_d->totmomline->ref();
       SoVertexProperty * vertices = new SoVertexProperty;
-      d->totmomline->vertexProperty = vertices;
-      d->totmomline->numVertices.set1Value(0,2);
+      m_d->totmomline->vertexProperty = vertices;
+      m_d->totmomline->numVertices.set1Value(0,2);
 
     }
-    SoVertexProperty * vertices = static_cast<SoVertexProperty*>(d->totmomline->vertexProperty.getValue());
+    SoVertexProperty * vertices = static_cast<SoVertexProperty*>(m_d->totmomline->vertexProperty.getValue());
     vertices->vertex.set1Value(0,totpos.x(),totpos.y(),totpos.z());
     vertices->vertex.set1Value(1,p2.x(),p2.y(),p2.z());
-    d->totmomgev = totmom / CLHEP::GeV;
-    d->totmass = totmass;
+    m_d->totmomgev = totmom / CLHEP::GeV;
+    m_d->totmass = totmass;
     //ensure attach:
     messageVerbose("  => attach");
-    if (d->totmomsep&&d->totmomline&&d->totmomsep->findChild(d->totmomline)<0)
-      d->totmomsep->addChild(d->totmomline);
+    if (m_d->totmomsep&&m_d->totmomline&&m_d->totmomsep->findChild(m_d->totmomline)<0)
+      m_d->totmomsep->addChild(m_d->totmomline);
     return;
   }
 
@@ -751,16 +751,16 @@ void VP1TrackSystem::updateShownTotMomentum()
 void VP1TrackSystem::userChangedSelection(SoCooperativeSelection* sel, QSet<SoNode*> /*nodes*/, QSet<SoPath*>/*paths*/)
 {
   messageVerbose("userChangedSelection begin");
-  if (sel!=d->sel_tracks)
+  if (sel!=m_d->sel_tracks)
     return;
   messageVerbose("userChangedSelection => sel_tracks!!");
 
 
-  if (d->common->controller()->printTotMomentumOnMultiTrackSelection()) {
+  if (m_d->common->controller()->printTotMomentumOnMultiTrackSelection()) {
     Amg::Vector3D totmom;
     Amg::Vector3D totpos;
     double totmass;
-    if (d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass)>0) {
+    if (m_d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass)>0) {
       Amg::Vector3D totmomgev = totmom;
       totmomgev /= CLHEP::GeV;
       message("Total momentum [GeV] : "+str(totmomgev));//Fixme: Eta/phi/etc...
@@ -787,19 +787,19 @@ InDetProjFlags::DetTypeFlags VP1TrackSystem::Imp::currentUsedIDProjections() con
 //____________________________________________________________________
 void VP1TrackSystem::possiblyEmitUsedIDProjectionsChanged()
 {
-  InDetProjFlags::DetTypeFlags usedidprojs = d->currentUsedIDProjections();
-  if (d->lastEmittedUsedIDProjections == usedidprojs)
+  InDetProjFlags::DetTypeFlags usedidprojs = m_d->currentUsedIDProjections();
+  if (m_d->lastEmittedUsedIDProjections == usedidprojs)
     return;
-  d->lastEmittedUsedIDProjections = usedidprojs;
+  m_d->lastEmittedUsedIDProjections = usedidprojs;
   usedIDProjectionsChanged(usedidprojs);
 }
 
 //____________________________________________________________________
 void VP1TrackSystem::setSelectedPRDs(const QList<const Trk::PrepRawData*>& s)
 {
-  d->selectedPRDs = s;
-  if (d->common&&d->common->controller())
-    d->common->controller()->setNumberOfSelectedPRDsAndTracks(d->selectedPRDs.count(),0);
+  m_d->selectedPRDs = s;
+  if (m_d->common&&m_d->common->controller())
+    m_d->common->controller()->setNumberOfSelectedPRDsAndTracks(m_d->selectedPRDs.count(),0);
 }
 
 //____________________________________________________________________
@@ -807,17 +807,17 @@ void VP1TrackSystem::refit()
 {
   //FIXME: WE NEED A HELPER CLASS!!
 
-  if (!d->common||!d->common->controller()||!d->sel_tracks)//To check that we are actually refreshed
+  if (!m_d->common||!m_d->common->controller()||!m_d->sel_tracks)//To check that we are actually refreshed
     return;
-  messageVerbose("Refit requested with mode="+TrackCommonFlags::toString(d->common->controller()->fitterMode()));
-  const Trk::ITrackFitter* currentFitter = d->common->controller()->trackFitter();
+  messageVerbose("Refit requested with mode="+TrackCommonFlags::toString(m_d->common->controller()->fitterMode()));
+  const Trk::ITrackFitter* currentFitter = m_d->common->controller()->trackFitter();
   if (!currentFitter) {
     message("ERROR - Aborting refit as no fitter available.");
     return;
   }
   
   QList<const Trk::Track*> fittedtracks;
-  switch (d->common->controller()->fitterMode()) {
+  switch (m_d->common->controller()->fitterMode()) {
     case TrackCommonFlags::FROMPRDS: refitFromPRDs(currentFitter, fittedtracks);break;
     case TrackCommonFlags::REFITSINGLETRACK: refitSingleTrack(currentFitter, fittedtracks);break;
     case TrackCommonFlags::EXTENDTRACKWITHPRDS: message("Not yet implemented");break;
@@ -827,19 +827,19 @@ void VP1TrackSystem::refit()
   if (fittedtracks.empty()) return;
   
   TrackCollHandle_RefittedTracks * newtrackcoll =
-    new TrackCollHandle_RefittedTracks(d->common,
-               d->common->controller()->nameOfNewlyFittedCollections(),
+    new TrackCollHandle_RefittedTracks(m_d->common,
+               m_d->common->controller()->nameOfNewlyFittedCollections(),
                fittedtracks);
   newtrackcoll->init();
 
   QList<TrackCollHandleBase*> newcols;
   newcols << newtrackcoll;
 
-  d->common->controller()->collWidget()->addCollections(newcols);
+  m_d->common->controller()->collWidget()->addCollections(newcols);
 
   //Add new collections to event scenegraph and turn them on:
   foreach (TrackCollHandleBase* col,newcols) {
-    d->sel_tracks->addChild(col->collSwitch());
+    m_d->sel_tracks->addChild(col->collSwitch());
     col->setVisible(true);
   }
 }
@@ -849,8 +849,8 @@ void VP1TrackSystem::refitFromPRDs(const Trk::ITrackFitter* /**currentFitter*/, 
   // FIXME (or remove, since no one used this I think - EJWM)
   
   // std::vector<const Trk::PrepRawData*> prdSet;
-  //  prdSet.reserve(d->selectedPRDs.count());
-  //  foreach (const Trk::PrepRawData* prd,d->selectedPRDs)
+  //  prdSet.reserve(m_d->selectedPRDs.count());
+  //  foreach (const Trk::PrepRawData* prd,m_d->selectedPRDs)
   //    prdSet.push_back(prd);
   // 
   //  if (prdSet.size()==0) {
@@ -871,8 +871,8 @@ void VP1TrackSystem::refitFromPRDs(const Trk::ITrackFitter* /**currentFitter*/, 
   //  double stepSize = (maxMom-minMom)/static_cast<double>(numberIterations);
   // 
   //  const Trk::Track* bestTrack=0;
-  //  bool outlier = d->common->controller()->fitterRemoveOutliers();
-  //  Trk::ParticleHypothesis hypo = d->common->controller()->fitterParticleHypthesis();
+  //  bool outlier = m_d->common->controller()->fitterRemoveOutliers();
+  //  Trk::ParticleHypothesis hypo = m_d->common->controller()->fitterParticleHypthesis();
   //  for ( double initialMom = minMom ; initialMom<=maxMom ; initialMom+=stepSize){
   //    globMom.setMag(initialMom);
   //    Trk::Perigee params(*globPos0, globMom, 1.0, Amg::Vector3D(0.0,0.0,0.0));
@@ -919,14 +919,14 @@ void VP1TrackSystem::refitFromPRDs(const Trk::ITrackFitter* /**currentFitter*/, 
 
 void VP1TrackSystem::refitSingleTrack(const Trk::ITrackFitter* currentFitter, QList<const Trk::Track*>& fittedtracks)
 {
-  const TrackHandleBase* handle = d->common->lastSelectedTrackHandle();
+  const TrackHandleBase* handle = m_d->common->lastSelectedTrackHandle();
   const TrackHandle_TrkTrack* trkhandle = dynamic_cast<const TrackHandle_TrkTrack*>(handle);
   if (!trkhandle) return; // shouldn't ever happen
   const Trk::Track* track =trkhandle->trkTrackPointer();
   if (!track) return; // shouldn't ever happen
   
-  bool outlier = d->common->controller()->fitterRemoveOutliers();
-  Trk::ParticleHypothesis hypo = d->common->controller()->fitterParticleHypthesis();
+  bool outlier = m_d->common->controller()->fitterRemoveOutliers();
+  Trk::ParticleHypothesis hypo = m_d->common->controller()->fitterParticleHypthesis();
   
   const Trk::Track* fittedtrk = currentFitter->fit(*track,outlier,hypo);
   
@@ -944,14 +944,14 @@ void VP1TrackSystem::refitSingleTrack(const Trk::ITrackFitter* currentFitter, QL
 
 SoCooperativeSelection * VP1TrackSystem::selTracks()
 {
-  return d->sel_tracks;
+  return m_d->sel_tracks;
 }
 
 void VP1TrackSystem::updateAlignment(){
   messageVerbose("updateAlignment");
   
-  std::vector<double> values = d->common->controller()->alignmentShiftValue();
-  int level = d->common->controller()->alignmentShiftLevel();
+  std::vector<double> values = m_d->common->controller()->alignmentShiftValue();
+  int level = m_d->common->controller()->alignmentShiftLevel();
   
   messageVerbose("updateAlignment called with level="+QString::number(level));
   assert (values.size()==6);
@@ -965,13 +965,13 @@ void VP1TrackSystem::updateAlignment(){
   const Trk::TrkDetElementBase* detEl = 0;  
   
   // Try to find last selected TSOS
-  if (!d->ascObjSelManager) {
+  if (!m_d->ascObjSelManager) {
     // this shouldn't happen!
     message ("No selection manager - giving up.");
     return;
   }
   
-  QList<AssociatedObjectHandleBase*> currentsel = d->ascObjSelManager->currentSelection();
+  QList<AssociatedObjectHandleBase*> currentsel = m_d->ascObjSelManager->currentSelection();
   foreach(AssociatedObjectHandleBase* meas,currentsel) {
     AscObj_TSOS* tsosAsc = dynamic_cast<AscObj_TSOS*>(meas);
     if (tsosAsc){
@@ -1001,7 +1001,7 @@ void VP1TrackSystem::tracksFromVertexChanged(QList< std::pair<const SoMaterial*,
   messageVerbose("VP1TrackSystem::tracksFromVertexChanged. Got a list THIS big! "+QString::number(vertexList.size()));
   
   // firstly, by default option to cut tracks by vertex is disabled, so enable:
-  d->common->controller()->vertexCutsAllowed(true);
+  m_d->common->controller()->vertexCutsAllowed(true);
   
   // do something with vertexList!
   std::pair<const SoMaterial*, QList< const Trk::Track*> > it;
@@ -1011,14 +1011,14 @@ void VP1TrackSystem::tracksFromVertexChanged(QList< std::pair<const SoMaterial*,
 
     const Trk::Track* trk;
     foreach(trk, it.second) {
-      d->vertexMaterialForTrackBases[trk]=mat;
+      m_d->vertexMaterialForTrackBases[trk]=mat;
       mat->ref();
 //      messageVerbose("Adding TrackHandleBase with pointer= "+QString::number((unsigned int)handle)+" for trk="+QString::number((unsigned int)trk));
     }
   }
   
   // update track collections too.
-  foreach(TrackCollHandleBase* coll,  d->common->controller()->collWidget()->collections<TrackCollHandleBase>())
+  foreach(TrackCollHandleBase* coll,  m_d->common->controller()->collWidget()->collections<TrackCollHandleBase>())
     if (coll->allowColourByVertex()) coll->updateMaterialOfAllHandles();  
 }
 
@@ -1026,9 +1026,9 @@ SoMaterial* VP1TrackSystem::materialFromVertex(const TrackHandleBase* trk) const
   
   const TrackHandle_TrkTrack* handle = dynamic_cast<const TrackHandle_TrkTrack*>(trk);
   if (handle) {
-    std::map<const Trk::Track*, SoMaterial*>::const_iterator it = d->vertexMaterialForTrackBases.find(handle->trkTrackPointer());
+    std::map<const Trk::Track*, SoMaterial*>::const_iterator it = m_d->vertexMaterialForTrackBases.find(handle->trkTrackPointer());
 
-    if (it!=d->vertexMaterialForTrackBases.end()){  
+    if (it!=m_d->vertexMaterialForTrackBases.end()){  
       return it->second;
     }
   }

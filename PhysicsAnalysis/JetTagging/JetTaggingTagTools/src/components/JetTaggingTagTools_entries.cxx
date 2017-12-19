@@ -1,12 +1,6 @@
 #include "JetTaggingTagTools/JetTaggingTagTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
  
-DECLARE_TOOL_FACTORY( JetTaggingTagTool )
+DECLARE_COMPONENT( JetTaggingTagTool )
  
-DECLARE_FACTORY_ENTRIES( JetTaggingTagTools ) {
-  DECLARE_TOOL( JetTaggingTagTool )
-}
-
-
 

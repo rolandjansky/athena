@@ -11,7 +11,8 @@ atlas_depends_on_subdirs(
    PRIVATE AtlasTest/TestTools )
 
 # External dependencies:
-find_package( Boost COMPONENTS program_options regex filesystem thread system )
+find_package( Boost COMPONENTS program_options regex filesystem thread system timer )
+find_package( TBB )
 
 # The main library of the package:
 atlas_add_library( CxxUtils
@@ -79,12 +80,29 @@ if( TARGET CxxUtils_bitscan_test_portable )
     PRIVATE "-DTEST_PORTABLE" )
 endif()
 
+if ( IS_DIRECTORY /usr/include/ck )
+  set( CK_LIBRARIES ck )
+  set( CK_INCLUDE /usr/include/ck )
+else()
+  set( CK_LIBRARIES )
+  set( CK_INCLUDE )
+endif()
+atlas_add_test( ConcurrentBitset_test
+  SOURCES test/ConcurrentBitset_test.cxx
+  INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CK_INCLUDE}
+  LINK_LIBRARIES CxxUtils ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${CK_LIBRARIES} )
+if ( IS_DIRECTORY /usr/include/ck )
+  target_compile_definitions(CxxUtils_ConcurrentBitset_test
+    PRIVATE "-DHAVE_CK" )
+endif()
+
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
       fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
-      exctrace1_test exctrace2_test bitscan_test )
+      exctrace1_test exctrace2_test bitscan_test ConcurrentRangeMap_test
+      CachedValue_test CachedPointer_test atomic_fetch_minmax_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LINK_LIBRARIES CxxUtils )

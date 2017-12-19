@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 """
 ISF_SimulationSelectors configurations for ISF
 Elmar Ritsch, 04/02/2013
@@ -10,6 +9,8 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 
+from FastChainPileup.FastChain_jobProperties import FastChain_Flags
+
 ### DefaultSimSelector configurations
 
 def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
@@ -18,6 +19,11 @@ def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
 def getDefaultParticleKillerSelector(name="ISF_DefaultParticleKillerSelector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_ParticleKillerSvc')
     return getDefaultSimSelector(name, **kwargs )
+
+def getPileupParticleKillerSelector(name="ISF_PileupParticleKillerSelector", **kwargs):
+    kwargs.setdefault("PileupBCID"   , [1] ) 
+    kwargs.setdefault("Simulator"   , 'ISF_ParticleKillerSvc')
+    return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs)
 
 def getDefaultGeant4Selector(name="ISF_DefaultGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , 'ISF_Geant4SimSvc')
@@ -74,7 +80,7 @@ def getDefaultParametricSimulationSelector(name="ISF_DefaultParametricSimulation
 ### PileUpSimSelector Configurations
 
 def getPileupSimSelector(name="ISF_PileupSimSelector", **kwargs):
-    return CfgMgr.ISF__PileupSimSelector(name, **kwargs )
+    return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs )
 
 def getFatrasPileupSelector(name="ISF_FatrasPileupSelector", **kwargs):
     kwargs.setdefault("PileupBCID"   , [1] )
@@ -87,7 +93,13 @@ def getFatrasPileupSelector_noHits(name="ISF_FatrasPileupSelector_noHits", **kwa
     return getPileupSimSelector(name, **kwargs )
 
 def getFastCaloSimPileupSelector(name="ISF_FastCaloSimPileupSelector", **kwargs):
+    kwargs.setdefault("PileupBCID"  , FastChain_Flags.FastChainBCID() )
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimPileupSvc')
+    return getPileupSimSelector(name, **kwargs )
+
+def getFastCaloSimPileupOTSelector(name="ISF_FastCaloSimPileupOTSelector", **kwargs):
+    kwargs.setdefault("PileupBCID"   , FastChain_Flags.FastChainBCID() )
+    kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimPileupOTSvc')
     return getPileupSimSelector(name, **kwargs )
 
 ### KinematicSimSelector Configurations
@@ -118,6 +130,12 @@ def getMuonFatrasSelector(name="ISF_MuonFatrasSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_FatrasSimSvc')
     return getMuonSelector(name, **kwargs)
 
+def getMuonFatrasPileupSelector(name="ISF_MuonFatrasPileupSelector", **kwargs):
+    kwargs.setdefault('Simulator'       , 'ISF_FatrasPileupSimSvc')
+    kwargs.setdefault("PileupBCID"      , [1])    
+    kwargs.setdefault('ParticlePDG'     , 13)
+    return getPileupSimSelector(name, **kwargs)
+
 def getWithinEta5FastCaloSimSelector(name="ISF_WithinEta5FastCaloSimSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_FastCaloSimSvc')
     kwargs.setdefault('MinPosEta'       , -5.0 )
@@ -130,6 +148,13 @@ def getEtaGreater5ParticleKillerSimSelector(name="ISF_EtaGreater5ParticleKillerS
     kwargs.setdefault('MaxPosEta'       ,  5.0 )
     kwargs.setdefault('InvertCuts'      , True )
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
+  
+def getEtaGreater5PileupParticleKillerSimSelector(name="ISF_EtaGreater5PileupParticleKillerSimSelector", **kwargs):
+    kwargs.setdefault('Simulator'       , 'ISF_ParticleKillerSvc')
+    kwargs.setdefault('MinPosEta'       , -5.0 )
+    kwargs.setdefault('MaxPosEta'       ,  5.0 )
+    kwargs.setdefault('InvertCuts'      , True )
+    return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs)
 
 ### ConeSimSelector Configurations
 

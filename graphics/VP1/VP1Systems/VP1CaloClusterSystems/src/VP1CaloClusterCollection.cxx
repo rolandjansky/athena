@@ -408,7 +408,7 @@ void VP1CaloClusterCollection::setScale(const QPair<bool,double>& s)
   //   if (verbose())
   //     static_cast<IVP13DSystemSimple *>(systemBase())->warnOnDisabledNotifications();
 
-  material()->touch();//FIXME: This is needed (and nothing else seems to matter). BUT WHY?????? Where is the ***REMOVED***?!?!?
+  material()->touch();//FIXME: This is needed (and nothing else seems to matter). BUT WHY?????? Where is the bug?!?!?
 }
 
 //____________________________________________________________________

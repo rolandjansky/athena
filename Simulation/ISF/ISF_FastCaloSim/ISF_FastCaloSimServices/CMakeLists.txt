@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Calorimeter/CaloInterface
                           Calorimeter/CaloEvent
+                          Calorimeter/CaloDetDescr
                           Control/StoreGate
                           Event/NavFourMom
                           Generators/GeneratorObjects
@@ -26,6 +27,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimParametrization )
+
+
 
 # External dependencies:
 find_package( CLHEP )

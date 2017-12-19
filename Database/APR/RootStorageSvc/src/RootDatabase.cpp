@@ -11,7 +11,6 @@
 //====================================================================
 #include "RootDatabase.h"
 #include "RootTreeContainer.h"
-#include "POOLCore/strcasecmp.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/DbDatabase.h"

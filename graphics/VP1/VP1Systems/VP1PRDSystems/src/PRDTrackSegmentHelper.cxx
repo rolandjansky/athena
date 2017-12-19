@@ -82,47 +82,47 @@ void PRDTrackSegmentHelper::Imp::removeEntryFromVector(std::vector<T*>&v,T*t)
 //____________________________________________________________________
 PRDTrackSegmentHelper::PRDTrackSegmentHelper(std::map< const Trk::PrepRawData *, QList<PRDHandleBase *> >* prd2handles,
 					     IVP1System* sys, QObject * parent)
-  : QObject(parent), VP1HelperClassBase(sys,"PRDTrackSegmentHelper"), d(new Imp)
+  : QObject(parent), VP1HelperClassBase(sys,"PRDTrackSegmentHelper"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->prd2handles = prd2handles;
+  m_d->theclass = this;
+  m_d->prd2handles = prd2handles;
 }
 
 //____________________________________________________________________
 PRDTrackSegmentHelper::~PRDTrackSegmentHelper()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void PRDTrackSegmentHelper::visibleTracksChanged(const std::vector< std::pair<const Trk::Track*, const SoMaterial*> >& tracks)
 {
   //NB: Code here is very similar to code in visibleSegmentsChanged!!
-  messageVerbose("visibleTracksChanged start (old ntracks = "+QString::number(d->tracks2mat.size())
+  messageVerbose("visibleTracksChanged start (old ntracks = "+QString::number(m_d->tracks2mat.size())
 		 +", new ntracks = "+QString::number(tracks.size())+")");
 
   if (tracks.empty()) {
     //Special case #1 - loop over previous track's, remove their pointers from the relevant prd handles + update their materials.
     messageVerbose("special case #1 - new track list is empty");
-    std::map< const Trk::Track*, const SoMaterial* >::iterator it, itE = d->tracks2mat.end();
-    for (it=d->tracks2mat.begin();it!=itE;++it) {
-      d->removeTrackFromPRDs(it->first,false);//measurements
-      d->removeTrackFromPRDs(it->first,true);//outliers
+    std::map< const Trk::Track*, const SoMaterial* >::iterator it, itE = m_d->tracks2mat.end();
+    for (it=m_d->tracks2mat.begin();it!=itE;++it) {
+      m_d->removeTrackFromPRDs(it->first,false);//measurements
+      m_d->removeTrackFromPRDs(it->first,true);//outliers
     }
-    d->tracks2mat.clear();
+    m_d->tracks2mat.clear();
     messageVerbose("visibleTracksChanged end");
     return;
   }
 
-  if (d->tracks2mat.empty()) {
+  if (m_d->tracks2mat.empty()) {
     //special case #2 - no previous tracks, so just loop over incoming
     //tracks, and add their pointers to the relevant prd handles + update their materials.
     messageVerbose("special case #2 - old track list is empty");
     std::vector< std::pair<const Trk::Track*, const SoMaterial*> >::const_iterator it(tracks.begin()), itE(tracks.end());
     for (;it!=itE;++it) {
-      d->tracks2mat.insert(*it);
-      d->addTrackToPRDs(it->first, false );//measurements
-      d->addTrackToPRDs(it->first, true );//outliers
+      m_d->tracks2mat.insert(*it);
+      m_d->addTrackToPRDs(it->first, false );//measurements
+      m_d->addTrackToPRDs(it->first, true );//outliers
     }
     messageVerbose("visibleTracksChanged end");
     return;
@@ -140,12 +140,12 @@ void PRDTrackSegmentHelper::visibleTracksChanged(const std::vector< std::pair<co
   std::set<const Trk::Track*>::const_iterator newtrackssetEnd(newtracksset.end());
 
   // --> Check old tracks versus this set - remove if no match:
-  std::map< const Trk::Track*, const SoMaterial* >::iterator it2, it2E = d->tracks2mat.end();
-  for (it2=d->tracks2mat.begin();it2!=it2E;) {
+  std::map< const Trk::Track*, const SoMaterial* >::iterator it2, it2E = m_d->tracks2mat.end();
+  for (it2=m_d->tracks2mat.begin();it2!=it2E;) {
     if (newtracksset.find(it2->first)==newtrackssetEnd) {
-      d->removeTrackFromPRDs(it2->first,false);//measurements
-      d->removeTrackFromPRDs(it2->first,true);//outliers
-      d->tracks2mat.erase(it2++);//postfix ++ operator must be used as here (due to the erase call)
+      m_d->removeTrackFromPRDs(it2->first,false);//measurements
+      m_d->removeTrackFromPRDs(it2->first,true);//outliers
+      m_d->tracks2mat.erase(it2++);//postfix ++ operator must be used as here (due to the erase call)
     } else {
       it2++;
     }
@@ -155,19 +155,19 @@ void PRDTrackSegmentHelper::visibleTracksChanged(const std::vector< std::pair<co
   // visible we add their pointers to the relevant handles. If just
   // the material changed, we make sure the prd handle updates its
   // material.
-  it2E=d->tracks2mat.end();
+  it2E=m_d->tracks2mat.end();
   for (it=tracks.begin();it!=itE;++it) {
-    it2 = d->tracks2mat.find(it->first);
+    it2 = m_d->tracks2mat.find(it->first);
     if (it2==it2E) {
-      d->tracks2mat[it->first] = it->second;
-      d->addTrackToPRDs(it->first, false );//measurements
-      d->addTrackToPRDs(it->first, true );//outliers
+      m_d->tracks2mat[it->first] = it->second;
+      m_d->addTrackToPRDs(it->first, false );//measurements
+      m_d->addTrackToPRDs(it->first, true );//outliers
     } else {
       //we need to update the track material - but only if it changed of course.
       if (it->second!=it2->second) {
-	d->tracks2mat[it->first] = it->second;
-	d->updateMaterialOfPRDs(it->first, false );//measurements
-	d->updateMaterialOfPRDs(it->first, true );//outliers
+	m_d->tracks2mat[it->first] = it->second;
+	m_d->updateMaterialOfPRDs(it->first, false );//measurements
+	m_d->updateMaterialOfPRDs(it->first, true );//outliers
       }
     }
   }
@@ -179,29 +179,29 @@ void PRDTrackSegmentHelper::visibleTracksChanged(const std::vector< std::pair<co
 void PRDTrackSegmentHelper::visibleSegmentsChanged(const std::vector< std::pair<const Trk::Segment*, const SoMaterial*> >& segments)
 {
   //NB: Code here is very similar to code in visibleTracksChanged!!
-  messageVerbose("visibleSegmentsChanged start (old nsegments = "+QString::number(d->segments2mat.size())
+  messageVerbose("visibleSegmentsChanged start (old nsegments = "+QString::number(m_d->segments2mat.size())
 		 +", new nsegments = "+QString::number(segments.size())+")");
 
   if (segments.empty()) {
     //Special case #1 - loop over previous segment's, remove their pointers from the relevant prd handles + update their materials.
     messageVerbose("special case #1 - new segment list is empty");
-    std::map< const Trk::Segment*, const SoMaterial* >::iterator it, itE = d->segments2mat.end();
-    for (it=d->segments2mat.begin();it!=itE;++it) {
-      d->removeSegmentFromPRDs(it->first);
+    std::map< const Trk::Segment*, const SoMaterial* >::iterator it, itE = m_d->segments2mat.end();
+    for (it=m_d->segments2mat.begin();it!=itE;++it) {
+      m_d->removeSegmentFromPRDs(it->first);
     }
-    d->segments2mat.clear();
+    m_d->segments2mat.clear();
     messageVerbose("visibleSegmentsChanged end");
     return;
   }
 
-  if (d->segments2mat.empty()) {
+  if (m_d->segments2mat.empty()) {
     //special case #2 - no previous segments, so just loop over incoming
     //segments, and add their pointers to the relevant prd handles + update their materials.
     messageVerbose("special case #2 - old segment list is empty");
     std::vector< std::pair<const Trk::Segment*, const SoMaterial*> >::const_iterator it(segments.begin()), itE(segments.end());
     for (;it!=itE;++it) {
-      d->segments2mat.insert(*it);
-      d->addSegmentToPRDs(it->first );
+      m_d->segments2mat.insert(*it);
+      m_d->addSegmentToPRDs(it->first );
     }
     messageVerbose("visibleSegmentsChanged end");
     return;
@@ -219,11 +219,11 @@ void PRDTrackSegmentHelper::visibleSegmentsChanged(const std::vector< std::pair<
   std::set<const Trk::Segment*>::const_iterator newsegmentssetEnd(newsegmentsset.end());
 
   // --> Check old segments versus this set - remove if no match:
-  std::map< const Trk::Segment*, const SoMaterial* >::iterator it2, it2E = d->segments2mat.end();
-  for (it2=d->segments2mat.begin();it2!=it2E;) {
+  std::map< const Trk::Segment*, const SoMaterial* >::iterator it2, it2E = m_d->segments2mat.end();
+  for (it2=m_d->segments2mat.begin();it2!=it2E;) {
     if (newsegmentsset.find(it2->first)==newsegmentssetEnd) {
-      d->removeSegmentFromPRDs(it2->first);
-      d->segments2mat.erase(it2++);//postfix ++ operator must be used as here (due to the erase call)
+      m_d->removeSegmentFromPRDs(it2->first);
+      m_d->segments2mat.erase(it2++);//postfix ++ operator must be used as here (due to the erase call)
     } else {
       it2++;
     }
@@ -233,17 +233,17 @@ void PRDTrackSegmentHelper::visibleSegmentsChanged(const std::vector< std::pair<
   // visible we add their pointers to the relevant handles. If just
   // the material changed, we make sure the prd handle updates its
   // material.
-  it2E=d->segments2mat.end();
+  it2E=m_d->segments2mat.end();
   for (it=segments.begin();it!=itE;++it) {
-    it2 = d->segments2mat.find(it->first);
+    it2 = m_d->segments2mat.find(it->first);
     if (it2==it2E) {
-      d->segments2mat[it->first] = it->second;
-      d->addSegmentToPRDs(it->first);
+      m_d->segments2mat[it->first] = it->second;
+      m_d->addSegmentToPRDs(it->first);
     } else {
       //we need to update the segment material - but only if it changed of course.
       if (it->second!=it2->second) {
-	d->segments2mat[it->first] = it->second;
-	d->updateMaterialOfPRDs(it->first);
+	m_d->segments2mat[it->first] = it->second;
+	m_d->updateMaterialOfPRDs(it->first);
       }
     }
   }
@@ -482,8 +482,8 @@ void PRDTrackSegmentHelper::Imp::updateMaterialOfPRDs(const Trk::Track * trk, bo
 //____________________________________________________________________
 const PRDTrackSegmentHelper::TracksAndSegments * PRDTrackSegmentHelper::tracksAndSegments(const Trk::PrepRawData* prd)
 {
-  std::map< const Trk::PrepRawData*,TracksAndSegments >::iterator itInfo = d->prdsOnTracksAndSegments.find(prd);
-  return itInfo == d->prdsOnTracksAndSegments.end() ? 0 : &(itInfo->second);
+  std::map< const Trk::PrepRawData*,TracksAndSegments >::iterator itInfo = m_d->prdsOnTracksAndSegments.find(prd);
+  return itInfo == m_d->prdsOnTracksAndSegments.end() ? 0 : &(itInfo->second);
 }
 
 
@@ -520,13 +520,13 @@ inline PRDTrackSegmentHelper::TracksAndSegments::TracksAndSegments(const std::ve
 //____________________________________________________________________
 SoMaterial * PRDTrackSegmentHelper::trackMaterial(const Trk::Track* t) const
 {
-  std::map< const Trk::Track*, const SoMaterial* >::const_iterator it = d->tracks2mat.find(t);
-  return it == d->tracks2mat.end() ? 0 : const_cast<SoMaterial *>(it->second);//fixme; const_cast is temporary hack. Remove const from materials!
+  std::map< const Trk::Track*, const SoMaterial* >::const_iterator it = m_d->tracks2mat.find(t);
+  return it == m_d->tracks2mat.end() ? 0 : const_cast<SoMaterial *>(it->second);//fixme; const_cast is temporary hack. Remove const from materials!
 }
 
 //____________________________________________________________________
 SoMaterial * PRDTrackSegmentHelper::segmentMaterial(const Trk::Segment* s) const
 {
-  std::map< const Trk::Segment*, const SoMaterial* >::const_iterator it = d->segments2mat.find(s);
-  return it == d->segments2mat.end() ? 0 : const_cast<SoMaterial *>(it->second);//fixme; const_cast is temporary hack. Remove const from materials!
+  std::map< const Trk::Segment*, const SoMaterial* >::const_iterator it = m_d->segments2mat.find(s);
+  return it == m_d->segments2mat.end() ? 0 : const_cast<SoMaterial *>(it->second);//fixme; const_cast is temporary hack. Remove const from materials!
 }

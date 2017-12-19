@@ -34,7 +34,12 @@ namespace InDet {
     m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
     m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
-    m_magFieldSvc("AtlasFieldSvc", name)
+    m_magFieldSvc("AtlasFieldSvc", name),
+    m_trtId(nullptr),
+    m_finalTracks(nullptr),
+    m_nTrkScoreZero(0),
+    m_nTrkSegUsed(0),
+    m_nTRTTrk(0)
   {
     declareInterface<InDet::ITRT_SegmentToTrackTool>( this );
 
@@ -65,66 +70,38 @@ namespace InDet {
 
   StatusCode TRT_SegmentToTrackTool::initialize() {
 
-    StatusCode sc = AthAlgTool::initialize();
+    ATH_CHECK( AthAlgTool::initialize() );
 
-    msg(MSG::DEBUG) << "Initializing TRT_SegmentToTrackTool" << endmsg;
+    ATH_MSG_DEBUG( "Initializing TRT_SegmentToTrackTool" );
 
     //Get the refitting tool
     //
     if(m_doRefit){
-      if(m_fitterTool.retrieve().isFailure()) {
-	msg(MSG::FATAL) << "Could not get " << m_fitterTool << endmsg; return StatusCode::FAILURE;
-      }
-      else {
-	ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
-      }
+      ATH_CHECK( m_fitterTool.retrieve() );
+      ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
     }
 
-    sc = m_extrapolator.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(  m_extrapolator.retrieve() );
 
     // Get association tool
     //
     if(m_useasso){
-      if(m_assotool.retrieve().isFailure()) {
-	msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endmsg; return StatusCode::FAILURE;
-      }
+      ATH_CHECK( m_assotool.retrieve() );
     }
 
     // Get the scoring tool
     //
-    if(m_scoringTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Could not get "<<m_scoringTool<<endmsg; return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_scoringTool.retrieve() );
 
-    if (m_magFieldSvc.retrieve().isFailure()){
-      msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_magFieldSvc.retrieve() );
 
-    StoreGateSvc* detStore = 0;
-    sc = service( "DetectorStore", detStore );
-    if (sc.isFailure()){
-      msg(MSG::FATAL) << "Could not get DetectorStore"<<endmsg;
-      return sc;
-    }
-
-    sc = detStore->retrieve(m_trtId, "TRT_ID");
-    if (sc.isFailure()){
-      msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(m_trtId, "TRT_ID") );
 
     // Get output print level
     //
-    if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << (*this) << endmsg;
-    }
+    ATH_MSG_DEBUG( *this );
 
-    return sc;
+    return StatusCode::SUCCESS;
 
   }
 
@@ -313,7 +290,7 @@ namespace InDet {
 	// it is always the last one
 	lastsurf = &tS.measurement(it)->associatedSurface();
       
-	// this ***REMOVED*** to find out it is endcap
+	// this is a rubbish way to find out it is endcap
 	if (fabs(tS.measurement(it)->associatedSurface().transform().rotation().col(2).z())<.5) {
 	  // increase counter and keep some information
 	  nendcap++;

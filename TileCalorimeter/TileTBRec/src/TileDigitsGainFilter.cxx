@@ -23,6 +23,7 @@
 #include "TileIdentifier/TileHWID.h"
 
 // Atlas includes
+#include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/errorcheck.h"
 
 //C++ STL includes
@@ -70,7 +71,7 @@ StatusCode TileDigitsGainFilter::initialize() {
 StatusCode TileDigitsGainFilter::execute() {
 
   // Create new container for filtered digits
-  TileDigitsContainer* outputContainer = new TileDigitsContainer(true, SG::VIEW_ELEMENTS);
+  auto outputContainer = std::make_unique<TileDigitsContainer>(false, SG::VIEW_ELEMENTS);
   
 
   const TileDigitsContainer* inputContainer(nullptr);
@@ -80,13 +81,16 @@ StatusCode TileDigitsGainFilter::execute() {
   outputContainer->set_type(inputContainer->get_type());
   outputContainer->set_bsflags(inputContainer->get_bsflags());
 
-  TileDigits* digits[2][48] = {{0}}; // 2 gains and 48 channels
+  const TileDigits* digits[2][48] = {{0}}; // 2 gains and 48 channels
 
-  for (const TileDigitsCollection* digitsCollection : *inputContainer) {
+  TileDigitsContainer::const_iterator collIt = inputContainer->begin();
+  TileDigitsContainer::const_iterator collEnd = inputContainer->end();
+  for (; collIt != collEnd; ++collIt) {
+    const TileDigitsCollection* digitsCollection = *collIt;
 
     memset(digits, 0, sizeof(digits));
 
-    for (TileDigits* tile_digits : *digitsCollection) {
+    for (const TileDigits* tile_digits : *digitsCollection) {
 
       HWIdentifier adcId = tile_digits->adc_HWID();
       int channel = m_tileHWID->channel(adcId);
@@ -94,11 +98,16 @@ StatusCode TileDigitsGainFilter::execute() {
       digits[gain][channel] = tile_digits;
 
     }
+
+    auto outColl = std::make_unique<ConstDataVector<TileDigitsCollection> >
+      (SG::VIEW_ELEMENTS,
+       digitsCollection->identify());
+    outColl->reserve (TileCalibUtils::MAX_CHAN);
     
     for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 
-      TileDigits* loGainDigits = digits[0][channel];
-      TileDigits* hiGainDigits = digits[1][channel];
+      const TileDigits* loGainDigits = digits[0][channel];
+      const TileDigits* hiGainDigits = digits[1][channel];
 
       if (hiGainDigits && loGainDigits) {
         const std::vector<float> digits = hiGainDigits->samples();
@@ -107,24 +116,26 @@ StatusCode TileDigitsGainFilter::execute() {
         
         if (maxDigit  < m_threshold) {
           ATH_MSG_VERBOSE("Save HG: " << (std::string) *hiGainDigits);
-          outputContainer->push_back(hiGainDigits);
+          outColl->push_back(hiGainDigits);
         } else {
           ATH_MSG_VERBOSE("Overflowed HG: " << (std::string) *hiGainDigits);
           ATH_MSG_VERBOSE("Save LG: " << (std::string) *loGainDigits);
-          outputContainer->push_back(loGainDigits);
+          outColl->push_back(loGainDigits);
         }
       } else if (loGainDigits) {
         ATH_MSG_VERBOSE("Save LG (only available): " << (std::string) *loGainDigits);
-        outputContainer->push_back(loGainDigits);
+        outColl->push_back(loGainDigits);
       } else if (hiGainDigits) {
         ATH_MSG_VERBOSE("Save HG (only available): " << (std::string) *hiGainDigits);
-        outputContainer->push_back(hiGainDigits);
+        outColl->push_back(hiGainDigits);
       }
 
     }
+    CHECK( outputContainer->addCollection (outColl.release()->asDataVector(),
+                                           collIt.hashId()) );
   }
 
-  CHECK( evtStore()->record(outputContainer, m_outputContainer, false) );
+  CHECK( evtStore()->record(std::move(outputContainer), m_outputContainer, false) );
 
   return StatusCode::SUCCESS;
 }

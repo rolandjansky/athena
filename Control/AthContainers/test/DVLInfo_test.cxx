@@ -250,11 +250,11 @@ void test_DVLInfo()
   assert (vec->capacity() == 5);
   test_DVLInfo1<mylist> ();
 
-  static DataModel_detail::DVLInfo<myvec> info;
+  static const DataModel_detail::DVLInfo<myvec> info;
   assert (info.base(vec) == 0);
 
   myvec2 vec2 (SG::VIEW_ELEMENTS);
-  static DataModel_detail::DVLInfo<myvec2> info2;
+  static const DataModel_detail::DVLInfo<myvec2> info2;
   assert (info2.base(&vec2) == &vec2);
 }
 
@@ -291,7 +291,7 @@ CLASS_DEF (mylistd, 7428352, 1)
 template <class CONTB, class CONTD, class CONTI>
 void test_dvl_convert1()
 {
-  static DataModel_detail::DVLInfo<CONTB> info;
+  static const DataModel_detail::DVLInfo<CONTB> info;
 
   CONTD contd (SG::VIEW_ELEMENTS);
   for (int i=0; i < 10; i++)

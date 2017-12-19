@@ -128,6 +128,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
+#include "boost/preprocessor/facilities/overload.hpp"
 #include <string>
 #include <atomic>
 
@@ -359,9 +360,9 @@ private:
 /**
  * @brief Internal macro, used when a CHECK macro detects a failure.
  *
- * Output an appropriate error message and return the status object.
+ * Output an appropriate error message and return the given value
  */
-#define CHECK_FAILED(EXP, CONTEXT_NAME, SC) do { \
+#define CHECK_FAILED(EXP, CONTEXT_NAME, SC, RET) do {     \
       errorcheck::ReportMessage (SC.isRecoverable() ?     \
                                    MSG::ERROR :           \
                                    MSG::FATAL,            \
@@ -369,7 +370,7 @@ private:
                                  CONTEXT_NAME,            \
                                  SC) . msgstream()        \
                                    << #EXP;               \
-      return SC;                                          \
+      return RET;                                         \
   } while(0)
 
 
@@ -378,15 +379,25 @@ private:
  *        with an explicitly specified context name.
  * @param EXP The expression to evaluate.
  * @param CONTEXT_NAME The name of the current context.
+ * @param RET (optional) return value different from EXP
  *
  * This macro will evaluate @c EXP, which should return a @c StatusCode.
  * If the status is not successful, then an error message will be produced,
- * and the failing @c StatusCode will be returned to the caller.
+ * and the failing @c StatusCode (or @c RET) will be returned to the caller.
  */
-#define CHECK_WITH_CONTEXT(EXP, CONTEXT_NAME) do {        \
-    StatusCode sc__ = (EXP);                              \
-    if (! sc__.isSuccess())                               \
-      CHECK_FAILED(EXP, CONTEXT_NAME, sc__);              \
+#define CHECK_WITH_CONTEXT(...)  \
+    BOOST_PP_OVERLOAD(CHECK_WITH_CONTEXT_, __VA_ARGS__)(__VA_ARGS__)
+
+#define CHECK_WITH_CONTEXT_2(EXP, CONTEXT_NAME) do {       \
+    StatusCode sc__(EXP);                                  \
+    if (! sc__.isSuccess())                                \
+      CHECK_FAILED(EXP, CONTEXT_NAME, sc__, sc__);         \
+  } while (0)
+
+#define CHECK_WITH_CONTEXT_3(EXP, CONTEXT_NAME, RET) do {  \
+    StatusCode sc__(EXP);                                  \
+    if (! sc__.isSuccess())                                \
+      CHECK_FAILED(EXP, CONTEXT_NAME, sc__, RET);          \
   } while (0)
 
 
@@ -394,12 +405,17 @@ private:
  * @brief Evaluate an expression and check for errors.
  *        @c this must be available to get the context name.
  * @param EXP The expression to evaluate.
+ * @param RET (optional) return value different from EXP
  *
  * This macro will evaluate @c EXP, which should return a @c StatusCode.
  * If the status is not successful, then an error message will be produced,
- * and the failing @c StatusCode will be returned to the caller.
+ * and the failing @c StatusCode (or @c RET) will be returned to the caller.
  */
-#define CHECK(EXP) CHECK_WITH_CONTEXT(EXP, errorcheck::context_name(this))
+#define CHECK(...)  \
+    BOOST_PP_OVERLOAD(CHECK_, __VA_ARGS__)(__VA_ARGS__)
+
+#define CHECK_1(EXP) CHECK_WITH_CONTEXT(EXP, errorcheck::context_name(this))
+#define CHECK_2(EXP, RET) CHECK_WITH_CONTEXT(EXP, errorcheck::context_name(this), RET)
 
 
 /**
@@ -417,7 +433,7 @@ private:
     StatusCode sc__ = (EXP);                                          \
     if (! sc__.isSuccess()) {                                         \
       sc__ = CODE;                                                    \
-      CHECK_FAILED(EXP, CONTEXT_NAME, sc__);                          \
+      CHECK_FAILED(EXP, CONTEXT_NAME, sc__, sc__);                    \
     }                                                                 \
   } while (0)
 

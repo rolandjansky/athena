@@ -193,6 +193,10 @@ DetailedTrackTruthBuilder::findSubDetType(Identifier id) const {
     return SubDetHitStatistics::RPC;
   if (m_idHelper->is_tgc(id))
     return SubDetHitStatistics::TGC;
+  if (m_idHelper->is_stgc(id))
+    return SubDetHitStatistics::STGC;
+  if (m_idHelper->is_mm(id))
+    return SubDetHitStatistics::MM;
   if (m_idHelper->is_csc(id))
     return SubDetHitStatistics::CSC;
 

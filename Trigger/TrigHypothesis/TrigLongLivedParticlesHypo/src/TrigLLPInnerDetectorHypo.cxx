@@ -26,8 +26,6 @@
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
-#include "GaudiKernel/IssueSeverity.h"
-
 //---------------------------------------------------------------------------------
 
 TrigLLPInnerDetectorHypo::TrigLLPInnerDetectorHypo(const std::string& name, ISvcLocator* pSvcLocator)
@@ -113,14 +111,14 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltInitialize() {
   StatusCode sc_pixH = detStore()->retrieve(m_pixHelper, "PixelID");
   if( sc_pixH.isFailure() ){
     ATH_MSG_WARNING( "Could not obtain pix helper!"  );
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else 
     ATH_MSG_INFO( "Successfully initialised pixel helper"  );
 
   StatusCode sc_sctH = detStore()->retrieve(m_sctHelper, "SCT_ID");
   if( sc_sctH.isFailure() ){
     ATH_MSG_WARNING( "Could not obtain sct helper!"  );
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   } else
     ATH_MSG_INFO( "Successfully initialised SCT helper"  );
   

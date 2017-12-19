@@ -47,18 +47,18 @@ public:
 
 //____________________________________________________________________
 TrackLODManager::TrackLODManager(QObject * parent, IVP1System * sys)
-  : QObject(parent), VP1HelperClassBase(sys,"TrackLODManager"), d(new Imp)
+  : QObject(parent), VP1HelperClassBase(sys,"TrackLODManager"), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 TrackLODManager::~TrackLODManager()
 {
-  if (d->attachnode) {
+  if (m_d->attachnode) {
     messageDebug("WARNING: Destructed before event data cleared!");
     eraseEventData();
   }
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -111,11 +111,11 @@ void TrackLODManager::Imp::updateAttachmentForDetailLevel(TrackCommonFlags::DETA
 void TrackLODManager::setDetailLevel(TrackCommonFlags::DETAILLEVEL dl)
 {
   if (verbose())
-    messageVerbose("signal received in setDetailLevel (old = "+TrackCommonFlags::toString(d->detailLevel)+", new = "+TrackCommonFlags::toString(dl));
-  if ( d->detailLevel == dl )
+    messageVerbose("signal received in setDetailLevel (old = "+TrackCommonFlags::toString(m_d->detailLevel)+", new = "+TrackCommonFlags::toString(dl));
+  if ( m_d->detailLevel == dl )
     return;
-  d->detailLevel = dl;
-  d->updateAttachmentForDetailLevel(dl);
+  m_d->detailLevel = dl;
+  m_d->updateAttachmentForDetailLevel(dl);
 }
 
 //____________________________________________________________________
@@ -125,67 +125,67 @@ void TrackLODManager::setAttachNode(SoGroup* an)
     message("setAttachNode ERROR: Received null pointer!");
     return;
   }
-  if (d->attachnode) {
+  if (m_d->attachnode) {
     message("setAttachNode ERROR: Received new attachment group pointer while still having previous one!");
     eraseEventData();
     return;
   }
 
-  d->attachnode = an;
-  d->attachnode->ref();
+  m_d->attachnode = an;
+  m_d->attachnode->ref();
 
-  d->attachsep_simple = new SoSeparator;
-  d->attachsep_simple->ref();
-  d->attachsep_detailed = new SoSeparator;
-  d->attachsep_detailed->ref();
-  d->attachnode_lod = new SoGroup;
-  d->attachnode_lod->ref();
+  m_d->attachsep_simple = new SoSeparator;
+  m_d->attachsep_simple->ref();
+  m_d->attachsep_detailed = new SoSeparator;
+  m_d->attachsep_detailed->ref();
+  m_d->attachnode_lod = new SoGroup;
+  m_d->attachnode_lod->ref();
 
-  d->attachHelper_simple = new VP1ExtraSepLayerHelper(d->attachsep_simple);
-  d->attachHelper_detailed = new VP1ExtraSepLayerHelper(d->attachsep_detailed);
+  m_d->attachHelper_simple = new VP1ExtraSepLayerHelper(m_d->attachsep_simple);
+  m_d->attachHelper_detailed = new VP1ExtraSepLayerHelper(m_d->attachsep_detailed);
 
-  d->updateAttachmentForDetailLevel(d->detailLevel);
+  m_d->updateAttachmentForDetailLevel(m_d->detailLevel);
 }
 
 //____________________________________________________________________
 void TrackLODManager::eraseEventData()
 {
   messageVerbose("eraseEventData start");
-  if (!d->attachnode) {
+  if (!m_d->attachnode) {
     messageDebug("eraseEventData WARNING: - called before attachment node was set!");
     return;
   }
-  d->ensureSimpleDetached();
-  d->ensureDetailedDetached();
-  d->ensureLODDetached();
+  m_d->ensureSimpleDetached();
+  m_d->ensureDetailedDetached();
+  m_d->ensureLODDetached();
 
-  std::map<std::pair<int,double>,TrackLODHandle* >::iterator it, itE(d->id_2_lodhandle.end());
-  for (it = d->id_2_lodhandle.begin(); it!=itE;++it) {
+  std::map<std::pair<int,double>,TrackLODHandle* >::iterator it, itE(m_d->id_2_lodhandle.end());
+  for (it = m_d->id_2_lodhandle.begin(); it!=itE;++it) {
     delete it->second;
   }
-  d->id_2_lodhandle.clear();
+  m_d->id_2_lodhandle.clear();
 
-  if (d->attachnode_lod) {
-    d->attachnode_lod->unref();
-    d->attachnode_lod = 0;
+  if (m_d->attachnode_lod) {
+    m_d->attachnode_lod->unref();
+    m_d->attachnode_lod = 0;
   }
 
-  if (d->attachsep_simple) {
-    delete d->attachHelper_simple;
-    d->attachHelper_simple = 0;
-    d->attachsep_simple->unref();
-    d->attachsep_simple = 0;
+  if (m_d->attachsep_simple) {
+    delete m_d->attachHelper_simple;
+    m_d->attachHelper_simple = 0;
+    m_d->attachsep_simple->unref();
+    m_d->attachsep_simple = 0;
   }
 
-  if (d->attachsep_detailed) {
-    delete d->attachHelper_detailed;
-    d->attachHelper_detailed = 0;
-    d->attachsep_detailed->unref();
-    d->attachsep_detailed = 0;
+  if (m_d->attachsep_detailed) {
+    delete m_d->attachHelper_detailed;
+    m_d->attachHelper_detailed = 0;
+    m_d->attachsep_detailed->unref();
+    m_d->attachsep_detailed = 0;
   }
 
-  d->attachnode->unref();
-  d->attachnode = 0;
+  m_d->attachnode->unref();
+  m_d->attachnode = 0;
   messageVerbose("eraseEventData end");
 
 }
@@ -193,15 +193,15 @@ void TrackLODManager::eraseEventData()
 //____________________________________________________________________
 TrackLODHandle * TrackLODManager::getLODHandle(int regionindex, const double& crossover_value)
 {
-  std::map<std::pair<int,double>,TrackLODHandle* >::iterator it = d->id_2_lodhandle.find(std::make_pair(regionindex,crossover_value));
-  if (it!=d->id_2_lodhandle.end())
+  std::map<std::pair<int,double>,TrackLODHandle* >::iterator it = m_d->id_2_lodhandle.find(std::make_pair(regionindex,crossover_value));
+  if (it!=m_d->id_2_lodhandle.end())
     return it->second;
-  if (!d->attachnode) {
+  if (!m_d->attachnode) {
     message("getTrackLODHandle ERROR: Called before attachment node was set!");
     return 0;
   }
-  TrackLODHandle * lh = new TrackLODHandle(d->attachnode_lod,d->attachHelper_simple,d->attachHelper_detailed,regionindex,crossover_value);
-  d->id_2_lodhandle[std::make_pair(regionindex,crossover_value)] = lh;
+  TrackLODHandle * lh = new TrackLODHandle(m_d->attachnode_lod,m_d->attachHelper_simple,m_d->attachHelper_detailed,regionindex,crossover_value);
+  m_d->id_2_lodhandle[std::make_pair(regionindex,crossover_value)] = lh;
   return lh;
 }
 
@@ -248,7 +248,7 @@ TrackLODHandle::TrackLODHandle(SoGroup* attachgroup_LOD,
 			       VP1ExtraSepLayerHelper * sephelper_simple,
 			       VP1ExtraSepLayerHelper * sephelper_detailed,
 			       int regionindex, const double& crossover_value)
-  : d(new Imp(attachgroup_LOD,sephelper_simple,sephelper_detailed,regionindex,crossover_value))
+  : m_d(new Imp(attachgroup_LOD,sephelper_simple,sephelper_detailed,regionindex,crossover_value))
 {
 //   if (VP1Msg::verbose())
 //     VP1Msg::messageVerbose("TrackLODHandle Constructed with regionIndex = "+QString::number(regionindex)
@@ -260,33 +260,33 @@ TrackLODHandle::TrackLODHandle(SoGroup* attachgroup_LOD,
 //____________________________________________________________________
 TrackLODHandle::~TrackLODHandle()
 {
-  if (d->lod) {
-    if (d->attachGroup_LOD->findChild(d->lod)>-1) {
-      d->attachGroup_LOD->removeChild(d->lod);
-      d->attachHelper_simple->removeNode(d->sep_simple);
-      d->attachHelper_detailed->removeNode(d->sep_detailed);
+  if (m_d->lod) {
+    if (m_d->attachGroup_LOD->findChild(m_d->lod)>-1) {
+      m_d->attachGroup_LOD->removeChild(m_d->lod);
+      m_d->attachHelper_simple->removeNode(m_d->sep_simple);
+      m_d->attachHelper_detailed->removeNode(m_d->sep_detailed);
     }
-    d->lod->unref();
-    d->sep_detailed->unref();
-    d->sep_simple->unref();
+    m_d->lod->unref();
+    m_d->sep_detailed->unref();
+    m_d->sep_simple->unref();
   }
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void TrackLODHandle::addNodes(SoGroup* simple,SoGroup*detailed )
 {
-  if (!d->lod) {
+  if (!m_d->lod) {
 //     if (VP1Msg::verbose())
 //       VP1Msg::messageVerbose( "TrackLODHandle addNodes: Initialising nodes: LOD, sep_detailed and sep_simple.");
-    d->lod = new SoLevelOfDetail;
-    d->sep_detailed = new SoSeparator;
-    d->sep_simple = new SoSeparator;
-    d->lod->ref();
-    d->sep_detailed->ref();
-    d->sep_simple->ref();
-    d->lod->addChild(d->sep_detailed);
-    d->lod->addChild(d->sep_simple);
+    m_d->lod = new SoLevelOfDetail;
+    m_d->sep_detailed = new SoSeparator;
+    m_d->sep_simple = new SoSeparator;
+    m_d->lod->ref();
+    m_d->sep_detailed->ref();
+    m_d->sep_simple->ref();
+    m_d->lod->addChild(m_d->sep_detailed);
+    m_d->lod->addChild(m_d->sep_simple);
   }
 
   if (VP1Msg::verbose()) {
@@ -299,34 +299,34 @@ void TrackLODHandle::addNodes(SoGroup* simple,SoGroup*detailed )
       VP1Msg::messageVerbose("TrackLODHandle ERROR: addNodes received null pointer for simple node");
       return;
     }
-    if (d->sep_detailed->findChild(detailed)>=0) {
+    if (m_d->sep_detailed->findChild(detailed)>=0) {
       VP1Msg::messageVerbose("TrackLODHandle ERROR: addNodes called for detailed node which is already added");
       return;
     }
-    if (d->sep_simple->findChild(simple)>=0) {
+    if (m_d->sep_simple->findChild(simple)>=0) {
       VP1Msg::messageVerbose("TrackLODHandle ERROR: addNodes called for simple node which is already added");
       return;
     }
   }
 
-  d->sep_detailed->addChild(detailed);
-  d->sep_simple->addChild(simple);
+  m_d->sep_detailed->addChild(detailed);
+  m_d->sep_simple->addChild(simple);
 
-  if (d->sep_detailed->getNumChildren()==1) {
+  if (m_d->sep_detailed->getNumChildren()==1) {
     //We went from 0 to 1 children!
-    if (VP1Msg::verbose()&&d->attachGroup_LOD->findChild(d->lod)>=0)
+    if (VP1Msg::verbose()&&m_d->attachGroup_LOD->findChild(m_d->lod)>=0)
       VP1Msg::messageVerbose("TrackLODHandle ERROR: adding lod, but it is already a child!!");
-    d->attachGroup_LOD->addChild(d->lod);
-    d->attachHelper_simple->addNode(d->sep_simple);
-    d->attachHelper_detailed->addNode(d->sep_detailed);
+    m_d->attachGroup_LOD->addChild(m_d->lod);
+    m_d->attachHelper_simple->addNode(m_d->sep_simple);
+    m_d->attachHelper_detailed->addNode(m_d->sep_detailed);
   }
-  d->updateCrossOverField();
+  m_d->updateCrossOverField();
 }
 
 //____________________________________________________________________
 void TrackLODHandle::removeNodes(SoGroup* simple,SoGroup*detailed )
 {
-  if (!d->lod)
+  if (!m_d->lod)
     return;
 
   if (VP1Msg::verbose()) {
@@ -339,26 +339,26 @@ void TrackLODHandle::removeNodes(SoGroup* simple,SoGroup*detailed )
       VP1Msg::messageVerbose("TrackLODHandle ERROR: removeNodes received null pointer for simple node");
       return;
     }
-    if (d->sep_detailed->findChild(detailed)<0) {
+    if (m_d->sep_detailed->findChild(detailed)<0) {
       VP1Msg::messageVerbose("TrackLODHandle ERROR: removeNodes called for detailed node which is not already added");
       return;
     }
-    if (d->sep_simple->findChild(simple)<0) {
+    if (m_d->sep_simple->findChild(simple)<0) {
       VP1Msg::messageVerbose("TrackLODHandle ERROR: removeNodes called for simple node which is not already added");
       return;
     }
   }
-  d->sep_detailed->removeChild(detailed);
-  d->sep_simple->removeChild(simple);
+  m_d->sep_detailed->removeChild(detailed);
+  m_d->sep_simple->removeChild(simple);
 
-  if (d->sep_detailed->getNumChildren()<1) {
+  if (m_d->sep_detailed->getNumChildren()<1) {
     //We went from 1 to 0 children
-    if (VP1Msg::verbose()&&d->attachGroup_LOD->findChild(d->lod)<0)
+    if (VP1Msg::verbose()&&m_d->attachGroup_LOD->findChild(m_d->lod)<0)
       VP1Msg::messageVerbose("TrackLODHandle ERROR: removing child, but node is not currently a child!!");
-    d->attachGroup_LOD->removeChild(d->lod);
-    d->attachHelper_simple->removeNode(d->sep_simple);
-    d->attachHelper_detailed->removeNode(d->sep_detailed);
+    m_d->attachGroup_LOD->removeChild(m_d->lod);
+    m_d->attachHelper_simple->removeNode(m_d->sep_simple);
+    m_d->attachHelper_detailed->removeNode(m_d->sep_detailed);
   } else {
-    d->updateCrossOverField();
+    m_d->updateCrossOverField();
   }
 }

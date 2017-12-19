@@ -4,7 +4,7 @@ __doc__ = "ToolFactories to instantiate all egammaTools with default configurati
 __author__ = "Bruno Lenzi"
 
 import egammaToolsConf
-from egammaRec.Factories import FcnWrapper, ToolFactory, FullNameWrapper
+from egammaRec.Factories import FcnWrapper, ToolFactory, PublicToolFactory, FullNameWrapper
 from egammaRec import egammaKeys
 from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
 from RecExConfig.RecFlags import rec
@@ -49,15 +49,13 @@ egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
                            postInit=[configureClusterCorrections])
 
 from egammaMVACalib import egammaMVACalibConf 
-egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
+egammaMVATool =  PublicToolFactory(egammaMVACalibConf.egammaMVATool,
                               folder=jobproperties.egammaRecFlags.calibMVAVersion())
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
                             OutputTopoSeededClusterContainerName = egammaKeys.outputTopoSeededClusterKey(),
-                            ElectronContainerName = egammaKeys.outputElectronKey(),
-                            PhotonContainerName = egammaKeys.outputPhotonKey(),
-                            ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
+                            ClusterCorrectionTool = egammaSwTool,
                             doSuperCluster = jobproperties.egammaRecFlags.doSuperclusters(),
                             MVACalibTool= egammaMVATool
                             )
@@ -71,15 +69,7 @@ egammaCheckEnergyDepositTool = ToolFactory(egammaToolsConf.egammaCheckEnergyDepo
                                            ThrF3max=0.8)
 
 
-from EMBremCollectionBuilder import egammaBremCollectionBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
-                                       name = 'EMBremCollectionBuilder',
-                                       ExtrapolationTool = EMExtrapolationTools,
-                                       OutputTrackContainerName=egammaKeys.outputTrackKey(),
-                                       ClusterContainerName=egammaKeys.inputClusterKey(),
-                                       DoTruth=rec.doTruth()
-                                       )
 
 
 EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
@@ -90,37 +80,6 @@ from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
 EGammaAmbiguityTool = ToolFactory( ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool )
 
 EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
-
-#Tools for doing superclustering.
-
-egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
-                                       name = 'egammaTopoClusterCopier' ,
-                                       InputTopoCollection=jobproperties.egammaRecFlags.inputTopoClusterCollection(),
-                                       OutputTopoCollection=jobproperties.egammaRecFlags.egammaTopoClusterCollection()
-                                       )
-
-electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
-                                           name = 'electronSuperClusterBuilder',
-                                           ClusterCorrectionTool=egammaSwTool,
-                                           MVACalibTool=egammaMVATool,
-                                           EtThresholdCut=1000, 
-                                           AddCellsWindowEtaCellsBarrel=3,
-                                           AddCellsWindowPhiCellsBarrel=999,
-                                           AddCellsWindowEtaCellsEndcap=5,
-                                           AddCellsWindowPhiCellsEndcap=999
-                                         )
-
-photonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
-                                         name = 'photonSuperClusterBuilder',
-                                         ClusterCorrectionTool=egammaSwTool,
-                                         MVACalibTool= egammaMVATool,
-                                         AddCellsWindowEtaCellsBarrel=3,
-                                         AddCellsWindowPhiCellsBarrel=999,
-                                         AddCellsWindowEtaCellsEndcap=5,
-                                         AddCellsWindowPhiCellsEndcap=999
-                                         )
-
-#End of super clustering
 
 # Electron Selectors
 from EMPIDBuilderBase import EMPIDBuilderElectronBase
@@ -147,4 +106,3 @@ TightForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSele
 from EMShowerBuilder import EMShowerBuilder
 from egammaOQFlagsBuilder import egammaOQFlagsBuilder
 from EMTrackMatchBuilder import EMTrackMatchBuilder
-from EMVertexBuilder import EMVertexBuilder

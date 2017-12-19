@@ -14,7 +14,7 @@
 var messages = new Array();
 
 /******************************************/
-/* ***REMOVED*** class for messages */
+/* A simple Javascript class for messages */
 /******************************************/
 
 function Message(date,text,isImportant){

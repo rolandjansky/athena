@@ -16,6 +16,7 @@
 #include "LArRawEvent/LArCalibDigitContainer.h"
 
 #include "LArRawConditions/LArWaveHelper.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include <fstream>
 
@@ -68,48 +69,52 @@ StatusCode LArAccumulatedCalibDigitContSplitter::execute()
 
 StatusCode LArAccumulatedCalibDigitContSplitter::executeWithAccumulatedDigits()
 {
+  typedef ConstDataVector<LArAccumulatedCalibDigitContainer> ConstAccumContainer;
  const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
- std::vector<LArAccumulatedCalibDigitContainer*> calibDigitCont (m_numLine);
 
- for (unsigned int i=0;i<m_numLine;++i)    
-   calibDigitCont[i]= new LArAccumulatedCalibDigitContainer(SG::VIEW_ELEMENTS);
- 
- std::vector<std::string>::const_iterator key_it=m_keylist.begin();
- std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
+ // First loop over containers to get delayScale.
+ float delayScale = 1*CLHEP::ns;
+ for (const std::string& key : m_keylist) {
+   if (evtStore()->retrieve(larAccumulatedCalibDigitContainer,key).isSuccess()) {
+     if (!larAccumulatedCalibDigitContainer->empty()) {
+       delayScale = larAccumulatedCalibDigitContainer->getDelayScale();
+     }
+   }
+ }
+   
+ std::vector<std::unique_ptr<ConstAccumContainer> > calibDigitCont (m_numLine);
+ for (unsigned int i=0;i<m_numLine;++i) {
+   calibDigitCont[i]= std::make_unique<ConstAccumContainer>(SG::VIEW_ELEMENTS,
+                                                            delayScale);
+ }
 
- for (;key_it!=key_it_e; ++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
-
-   StatusCode sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
+ //Loop over all containers that are to be processed (e.g. different gains)
+ for (const std::string& key : m_keylist) {
+   StatusCode sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,key);
    if (sc.isFailure()) {
-     ATH_MSG_WARNING ( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
+     ATH_MSG_WARNING ( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << key );
      continue; // Try next container
    }
 
-   LArAccumulatedCalibDigitContainer::const_iterator it    =larAccumulatedCalibDigitContainer->begin();
-   LArAccumulatedCalibDigitContainer::const_iterator it_end=larAccumulatedCalibDigitContainer->end();
-   if (it == it_end) {
-     ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty " );
+   if (larAccumulatedCalibDigitContainer->empty()) {
+     ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << key << " is empty " );
      continue; // at this event LArAccumulatedCalibDigitContainer is empty, do not even try to loop on it...
    }
 
-   const float delayScale = larAccumulatedCalibDigitContainer->getDelayScale();
-   for (unsigned int iCont=0;iCont<m_numLine;iCont++) calibDigitCont[iCont]->setDelayScale(delayScale); 
-
-   for (;it!=it_end; ++it) { // Loop over all cells
-
-     //HWIdentifier chid=(*it)->hardwareID(); 
-     CaloGain::CaloGain gain=(*it)->gain();
+   for (const LArAccumulatedCalibDigit* digit : *larAccumulatedCalibDigitContainer) {
+     //HWIdentifier chid=digit->hardwareID(); 
+     CaloGain::CaloGain gain=digit->gain();
 
      if (gain<0 || gain>CaloGain::LARNGAIN) {
        ATH_MSG_ERROR ( "Found not-matching gain number ("<< (int)gain <<")" );
        return StatusCode::FAILURE;
      }
 
-     if ( (!m_recAll) && (!(*it)->isPulsed())  ) continue ; // If not all cells and not pulsed, skip cell
+     if ( (!m_recAll) && (!digit->isPulsed())  ) continue ; // If not all cells and not pulsed, skip cell
      
      for(unsigned int iLine=1;iLine<=m_numLine;++iLine){
-       if((*it)->isPulsed(iLine)){
-	 calibDigitCont[iLine-1]->push_back(*it);
+       if(digit->isPulsed(iLine)){
+	 calibDigitCont[iLine-1]->push_back(digit);
        }
      }
    } //End loop over all cells
@@ -119,7 +124,7 @@ StatusCode LArAccumulatedCalibDigitContSplitter::executeWithAccumulatedDigits()
  // Record splitted containers
  for (unsigned int i=0;i<m_OutputList.size();++i) {
      std::string key = m_OutputList[i];
-     ATH_CHECK( evtStore()->record(calibDigitCont[i],key) );
+     ATH_CHECK( evtStore()->record(std::move(calibDigitCont[i]),key) );
  }
  
  return StatusCode::SUCCESS;

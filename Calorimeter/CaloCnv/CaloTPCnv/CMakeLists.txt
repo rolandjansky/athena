@@ -26,7 +26,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Event/EventKernel
 			  LArCalorimeter/LArRecEvent 
-			  TileCalorimeter/TileEvent )
+			  TileCalorimeter/TileEvent
+                          DetectorDescription/IdDictParser
+                          )
 
 # External dependencies:
 find_package( CLHEP )
@@ -79,8 +81,7 @@ atlas_add_test( CaloCellPackerUtils_test
 
 atlas_add_test( CaloCompactCellTool_test
    SOURCES test/CaloCompactCellTool_test.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier
+   LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier
    AthenaKernel StoreGateLib GaudiKernel LArRecEvent TileEvent TestTools
    IdDictParser CaloTPCnv
    EXTRA_PATTERNS "SGAudSvc +INFO|^lar decode|^HistogramPersis.* INFO|initialize_from_dict|mask/zero|^JobOptionsSvc +INFO|^AtlasDetectorID::"

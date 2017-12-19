@@ -31,6 +31,8 @@ class PixelDetectorTool : public GeoModelTool {
   // Standard Destructor
   virtual ~PixelDetectorTool() override final;
 
+  virtual StatusCode initialize() override final;
+
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 
@@ -38,7 +40,7 @@ class PixelDetectorTool : public GeoModelTool {
   virtual StatusCode registerCallback() override final;
 
   // Callback function itself
-  virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;
 
 private:
   //

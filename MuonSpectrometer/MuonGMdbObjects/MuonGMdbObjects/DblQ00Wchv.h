@@ -13,7 +13,8 @@
 #ifndef DBLQ00_WCHV_H
 #define DBLQ00_WCHV_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 namespace MuonGM
 {
 class DblQ00Wchv {
@@ -21,7 +22,7 @@ class DblQ00Wchv {
 public:
     DblQ00Wchv(){};
     ~DblQ00Wchv();
-    DblQ00Wchv(IRDBQuery*);
+    DblQ00Wchv(std::unique_ptr<IRDBQuery>&&);
     
     // data members for DblQ00/WCHV fields
     struct WCHV {

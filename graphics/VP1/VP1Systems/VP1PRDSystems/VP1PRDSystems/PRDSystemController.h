@@ -159,7 +159,7 @@ signals:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //For verbose output:
   template <class T> static QString toString( const T& t ) { return VP1Controller::toString(t); }//unhide base methods

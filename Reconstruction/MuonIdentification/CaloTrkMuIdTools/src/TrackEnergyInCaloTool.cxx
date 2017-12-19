@@ -759,19 +759,11 @@ std::vector < CaloPair > TrackEnergyInCaloTool::paramInAllSamples(const Trk::Tra
 double TrackEnergyInCaloTool::etamax(const CaloCell_ID::CaloSample sample, const bool isTile) const
 {
   double  etamax = 0; 
-  std::vector <CaloDetDescriptor*>::const_iterator  first; 
-  std::vector <CaloDetDescriptor*>::const_iterator  last; 
-  if(isTile){
-    first = m_calo_dd->tile_descriptors_begin();
-    last = m_calo_dd->tile_descriptors_end();
-  }
-  else{
-    
-    first = m_calo_dd->calo_descriptors_begin();
-    last = m_calo_dd->calo_descriptors_end(); 
-  }
-  for (;first != last; first++) {
-    CaloDetDescriptor* descr = *first;
+
+  for (const CaloDetDescriptor* descr :
+         isTile ? m_calo_dd->tile_descriptors_range()
+                : m_calo_dd->calo_descriptors_range())
+  {
     if (descr) {
       if ( descr->getSampling(0) == sample){ 
 	if( etamax  < descr->calo_eta_max() )  etamax = descr->calo_eta_max();
@@ -788,19 +780,10 @@ double TrackEnergyInCaloTool::etamax(const CaloCell_ID::CaloSample sample, const
 double TrackEnergyInCaloTool::etamin(const CaloCell_ID::CaloSample sample, const bool isTile) const
 {
   double  etamin = 99999.; 
-  std::vector <CaloDetDescriptor*>::const_iterator  first; 
-  std::vector <CaloDetDescriptor*>::const_iterator  last; 
-  if(isTile){
-    first = m_calo_dd->tile_descriptors_begin();
-    last = m_calo_dd->tile_descriptors_end();
-  }
-  else{
-    
-    first = m_calo_dd->calo_descriptors_begin();
-    last = m_calo_dd->calo_descriptors_end(); 
-  }
-  for (;first != last; first++) {
-    CaloDetDescriptor* descr = *first;
+  for (const CaloDetDescriptor* descr :
+         isTile ? m_calo_dd->tile_descriptors_range()
+                : m_calo_dd->calo_descriptors_range())
+  {
     if (descr) {
       if ( descr->getSampling(0) == sample){ 
 	if( etamin  > descr->calo_eta_min() )  etamin = descr->calo_eta_min();

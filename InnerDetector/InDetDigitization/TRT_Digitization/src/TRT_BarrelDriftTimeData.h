@@ -32,7 +32,7 @@ public:
 
 private:
 
-  int strawGas;
+  int m_strawGas;
 
   std::vector<double> m_tabdists_nofield;
   std::vector<double> m_tabdrifttime_nofield;

@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "InDetPhysValMonitoring/InDetPhysValMonitoringTool.h"
 #include "InDetPhysValMonitoring/InDetPhysValLargeD0Tool.h"
 #include "../InDetPhysValTruthDecoratorTool.h"
@@ -16,38 +15,19 @@
 
 #include "../DummyTrackSlimmingTool.h"
 
-DECLARE_ALGORITHM_FACTORY(InDetPhysValDecoratorAlg)
-DECLARE_ALGORITHM_FACTORY(AlgTestHistoDefSvc)
-DECLARE_SERVICE_FACTORY(HistogramDefinitionSvc)
-DECLARE_TOOL_FACTORY(InDetPhysValMonitoringTool)
-DECLARE_TOOL_FACTORY(InDetPhysValLargeD0Tool)
-DECLARE_TOOL_FACTORY(ToolTestMonitoringPlots)
-DECLARE_TOOL_FACTORY(InDetPhysValTruthDecoratorTool)
-DECLARE_TOOL_FACTORY(InDetPhysHitDecoratorTool)
-DECLARE_TOOL_FACTORY(ParameterErrDecoratorTool)
-DECLARE_TOOL_FACTORY(TruthClassDecoratorTool)
-DECLARE_TOOL_FACTORY(TrackTruthSelectionTool)
-DECLARE_TOOL_FACTORY(dRMatchingTool)
-DECLARE_TOOL_FACTORY(TrackSelectionTool)
-DECLARE_TOOL_FACTORY( DummyTrackSlimmingTool)
-DECLARE_TOOL_FACTORY( AthTruthSelectionTool)
-
-DECLARE_FACTORY_ENTRIES(InDetPhysValMonitoring){
-    DECLARE_ALGORITHM( InDetPhysValDecoratorAlg )
-    DECLARE_ALGORITHM( AlgTestHistoDefSvc )
-    DECLARE_SERVICE(HistogramDefinitionSvc)
-    DECLARE_TOOL(InDetPhysValMonitoringTool)
-    DECLARE_TOOL(InDetPhysValLargeD0Tool)
-    DECLARE_TOOL(ToolTestMonitoringPlots)
-    DECLARE_TOOL(InDetPhysValTruthDecoratorTool)
-    DECLARE_TOOL(InDetPhysHitDecoratorTool)
-    DECLARE_TOOL(ParameterErrDecoratorTool)
-    DECLARE_TOOL(TruthClassDecoratorTool)
-    DECLARE_TOOL(TrackTruthSelectionTool)
-    DECLARE_TOOL(dRMatchingTool)
-    DECLARE_TOOL(TrackSelectionTool)
-    DECLARE_TOOL( DummyTrackSlimmingTool)
-    DECLARE_TOOL( AthTruthSelectionTool)
-
-}
+DECLARE_COMPONENT( InDetPhysValDecoratorAlg )
+DECLARE_COMPONENT( AlgTestHistoDefSvc )
+DECLARE_COMPONENT( HistogramDefinitionSvc )
+DECLARE_COMPONENT( InDetPhysValMonitoringTool )
+DECLARE_COMPONENT( InDetPhysValLargeD0Tool )
+DECLARE_COMPONENT( ToolTestMonitoringPlots )
+DECLARE_COMPONENT( InDetPhysValTruthDecoratorTool )
+DECLARE_COMPONENT( InDetPhysHitDecoratorTool )
+DECLARE_COMPONENT( ParameterErrDecoratorTool )
+DECLARE_COMPONENT( TruthClassDecoratorTool )
+DECLARE_COMPONENT( TrackTruthSelectionTool )
+DECLARE_COMPONENT( dRMatchingTool )
+DECLARE_COMPONENT( TrackSelectionTool )
+DECLARE_COMPONENT( DummyTrackSlimmingTool )
+DECLARE_COMPONENT( AthTruthSelectionTool )
 

@@ -526,7 +526,7 @@ public:
        bool includeAlias = false, bool onlyValid = true); 
 
   /// implements IHiveStore interface for compat with Hive
-  virtual ::IProxyDict* hiveProxyDict() {
+  virtual ::IProxyDict* hiveProxyDict() override final {
     return this;
   }
 
@@ -879,27 +879,6 @@ public:
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
-  /** @brief Test the output level
-   *  @param lvl The message level to test against
-   *  @return boolean Indicting if messages at given level will be printed
-   *  @retval true Messages at level "lvl" will be printed
-   */
-  bool 
-  msgLvl (const MSG::Level lvl) const;
-
-  /** The standard message stream.
-   *  Returns a reference to the default message stream
-   *  May not be invoked before sysInitialize() has been invoked.
-   */
-  MsgStream& msg() const;
-
-  /** The standard message stream.
-   *  Returns a reference to the default message stream
-   *  May not be invoked before sysInitialize() has been invoked.
-   */
-  MsgStream& 
-  msg (const MSG::Level lvl) const;
-
   /**
    * @brief Call converter to create an object, with locking.
    * @param cvt The converter to call.
@@ -1102,9 +1081,6 @@ private:
   /// Allocation arena to associate with this store.
   SG::Arena m_arena;
 
-  /// a std::cout like stream with levels to log messages
-  mutable MsgStream m_msg;
-
   ///list of recently added data objects, needed to implement getNewDataObjects
   DataObjIDColl m_newDataObjects;
 #ifndef __CLING__
@@ -1201,21 +1177,5 @@ void SG_dump (SGImplSvc* sg, const char* fname);
 
 
 #include "StoreGate/tools/SGImplSvc.icc"
-
-// inline methods
-inline
-bool 
-SGImplSvc::msgLvl (const MSG::Level lvl) const 
-{ return m_msg.level() <= lvl; }
-
-inline
-MsgStream&
-SGImplSvc::msg() const 
-{ return m_msg; }
-
-inline
-MsgStream&
-SGImplSvc::msg (const MSG::Level lvl) const 
-{ return m_msg << lvl; }
 
 #endif // STOREGATE_SGIMPLSVC_H

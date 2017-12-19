@@ -59,6 +59,8 @@ const SiElementPropertiesTable* SiTrackerSpacePointFinder::s_properties = nullpt
     m_zVertex(0.),
     m_iBeamCondSvc("BeamCondSvc",name),
     m_numberOfEvents(0), m_numberOfPixel(0), m_numberOfSCT(0),
+    m_sctCacheHits(0), m_pixCacheHits(0),
+    m_cachemode(false),
     m_manager(0),
     m_idHelper(nullptr),
     m_idHelperPixel(nullptr),
@@ -172,6 +174,7 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
   ATH_CHECK(m_SpacePointCache_SCTKey.initialize(!m_SpacePointCache_SCTKey.key().empty()));
   ATH_CHECK(m_SpacePointCache_PixKey.initialize(!m_SpacePointCache_PixKey.key().empty()));
+  m_cachemode = !m_SpacePointCache_SCTKey.key().empty() || !m_SpacePointCache_PixKey.key().empty();
 
   ATH_MSG_INFO( "SiTrackerSpacePointFinder::initialized for package version " << PACKAGE_VERSION );
   return StatusCode::SUCCESS;
@@ -185,7 +188,6 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
 
   ++m_numberOfEvents;
   SPFCache r_cache(ctx);
-
   if (! m_overrideBS){
     r_cache.vertex = m_iBeamCondSvc->beamVtx().position();
   } else {
@@ -226,6 +228,9 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
 
   ATH_MSG_DEBUG( "Container '" << spacepointoverlapCollection.name() << "' initialised" );
 
+  int sctCacheCount = 0;
+  int pixCacheCount = 0;
+
   if (m_selectSCTs){
 
     // retrieve SCT cluster container
@@ -252,6 +257,7 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
       IdentifierHash idHash = colNext->identifyHash();
       if(spacePointContainer_SCT->tryFetch(idHash)){
           ATH_MSG_DEBUG("SCT Hash " << idHash << " is already in cache");
+          ++sctCacheCount;
           continue; //Skip if already present in cache
       }
 
@@ -302,6 +308,7 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
 
       if(spacePointContainerPixel->tryFetch(idHash)){
           ATH_MSG_DEBUG("pixel Hash " << idHash << " is already in cache");
+          ++pixCacheCount;
           continue;
       }
       // Create SpacePointCollection
@@ -346,8 +353,17 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
   {
     ATH_MSG_DEBUG( spacepointoverlapCollection->size() <<" overlap space points registered." );
   }
-  m_numberOfPixel += spacePointContainerPixel->numberOfCollections();
-  m_numberOfSCT   += spacePointContainer_SCT->numberOfCollections();
+  if (m_selectPixels) {
+    m_numberOfPixel += spacePointContainerPixel->numberOfCollections();
+  }
+  if (m_selectSCTs) {
+    m_numberOfSCT   += spacePointContainer_SCT->numberOfCollections();
+  }
+  if(m_cachemode)//Prevent unnecessary atomic counting
+  {
+     m_sctCacheHits  += sctCacheCount;
+     m_pixCacheHits  += pixCacheCount;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -358,6 +374,12 @@ StatusCode SiTrackerSpacePointFinder::finalize()
   ATH_MSG_INFO( m_numberOfEvents << " events processed" );
   ATH_MSG_INFO( m_numberOfPixel << " pixel collections processed" );
   ATH_MSG_INFO( m_numberOfSCT << " sct collections processed" );
+  if(m_cachemode){
+    //These are debug messages because they can be indeterminate in an MT environment and it could
+    //lead to confusing log comparisons.
+    ATH_MSG_DEBUG( m_sctCacheHits << " sct cache hits" );
+    ATH_MSG_DEBUG( m_pixCacheHits << " pix cache hits" );
+  }
   if(s_properties){
      delete s_properties; s_properties = nullptr;
   }

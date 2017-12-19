@@ -18,8 +18,8 @@
 #include "TBEvent/TBBeamDetector.h"
 #include "TBEvent/TBTDCRawCont.h"
 #include "TBEvent/TBADCRawCont.h"
-#include "DataModel/ElementLink.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthLinks/ElementLink.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 class TBScintillatorRaw : public TBBeamDetector

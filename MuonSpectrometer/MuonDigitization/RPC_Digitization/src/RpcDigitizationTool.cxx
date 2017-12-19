@@ -62,6 +62,10 @@ using namespace MuonGM;
 #define SIG_VEL 4.8  // ns/m
 static double time_correction(double, double, double);
 
+static constexpr unsigned int crazyParticleBarcode(
+    std::numeric_limits<int32_t>::max());
+// Barcodes at the HepMC level are int
+
 RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
 					 const std::string& name,
 					 const IInterface* pIID)
@@ -70,13 +74,14 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   , m_sdoContainer(0)
   , m_GMmgr(0)
   , m_idHelper(0)
-  , muonHelper(0)
+  , m_muonHelper(0)
   , m_thpcRPC(0)
   , m_rSummarySvc("RPCCondSummarySvc", name)
   , m_cs3Para(0)
   , m_validationSetup(false)
-  , SetPhiOn(false)
-  , SetEtaOn(false)
+  , m_vetoThisBarcode(crazyParticleBarcode) 
+  , m_SetPhiOn(false)
+  , m_SetEtaOn(false)
   , m_mergeSvc(0)
   , m_inputHitCollectionName("RPC_Hits")
   , m_outputDigitCollectionName("RPC_DIGITS")
@@ -144,6 +149,8 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("CutProjectedTracks"        ,  m_CutProjectedTracks     = 100     );
   declareProperty("RPCCondSummarySvc"         ,  m_rSummarySvc                      );
   declareProperty("ValidationSetup"           ,  m_validationSetup        = false   );
+  declareProperty("IncludePileUpTruth"        ,  m_includePileUpTruth     = true    );
+  declareProperty("ParticleBarcodeVeto"       ,  m_vetoThisBarcode = crazyParticleBarcode);
 }
 
 // member function implementation
@@ -186,6 +193,8 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "PanelId_OK_fromlist    " <<  m_PanelId_OK_fromlist      );
   ATH_MSG_DEBUG ( "FileName_GoodPanels    " <<  m_FileName_GoodPanels      );
   ATH_MSG_DEBUG ( "ValidationSetup        " <<  m_validationSetup          );
+  ATH_MSG_DEBUG ( "IncludePileUpTruth     " <<  m_includePileUpTruth       );
+  ATH_MSG_DEBUG ( "ParticleBarcodeVeto    " <<  m_vetoThisBarcode          );
 
 
   if (detStore()->retrieve( m_GMmgr,"Muon" ).isFailure()) {
@@ -229,7 +238,7 @@ StatusCode RpcDigitizationTool::initialize() {
     return result; 
   } 
 
-  bool m_run1 = true;
+  bool run1 = true;
   std::string configVal = "";
   const IGeoModelSvc* geoModel = 0; 
   result = service("GeoModelSvc", geoModel); 
@@ -242,17 +251,17 @@ StatusCode RpcDigitizationTool::initialize() {
 
     IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS"); 
     if(atlasCommonRec->size()==0) { 
-      m_run1 = true; 
+      run1 = true; 
     } else { 
       configVal = (*atlasCommonRec)[0]->getString("CONFIG"); 
       ATH_MSG_INFO( "From DD Database, Configuration is "<< configVal );
       std::string MSgeoVersion = m_GMmgr->geometryVersion().substr(0,4);
       ATH_MSG_INFO( "From DD Database, MuonSpectrometer geometry version is "<< MSgeoVersion );
       if(configVal=="RUN1" || MSgeoVersion=="R.06"){ 
-        m_run1 = true; 
+        run1 = true; 
       } 
       else if(configVal=="RUN2" || MSgeoVersion=="R.07") { 
-        m_run1 = false; 
+        run1 = false; 
       } 
       else { 
         ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal); 
@@ -260,7 +269,7 @@ StatusCode RpcDigitizationTool::initialize() {
       } 
     } 
     // 
-    if (m_run1) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN1 or MuonGeometry = R.06"); 
+    if (run1) ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN1 or MuonGeometry = R.06"); 
     else        ATH_MSG_INFO("From Geometry DB: MuonSpectrometer configuration is: RUN2 or MuonGeometry = R.07"); 
   }
   if (m_ignoreRunDepConfig==false) 
@@ -271,7 +280,7 @@ StatusCode RpcDigitizationTool::initialize() {
       m_RPCInfoFromDb         = false;
       m_kill_deadstrips       = false;
       m_applyEffThreshold     = false;
-      if (m_run1)
+      if (run1)
 	{
 	  //m_BOG_BOF_DoubletR2_OFF = true 
 	  //m_Efficiency_fromCOOL   = true 
@@ -683,15 +692,15 @@ StatusCode RpcDigitizationTool::doDigitization() {
       }
 
       // convert sim id helper to offline id
-      muonHelper = RpcHitIdHelper::GetHelper();
-      std::string stationName = muonHelper->GetStationName(idHit);
-      int         stationEta  = muonHelper->GetZSector    (idHit);
-      int         stationPhi  = muonHelper->GetPhiSector  (idHit);
-      int         doubletR    = muonHelper->GetDoubletR   (idHit);
-      int         doubletZ    = muonHelper->GetDoubletZ   (idHit);
-      int         doubletPhi  = muonHelper->GetDoubletPhi (idHit);
-      int         gasGap      = muonHelper->GetGasGapLayer(idHit);
-      int         measphi     = muonHelper->GetMeasuresPhi(idHit);
+      m_muonHelper = RpcHitIdHelper::GetHelper();
+      std::string stationName = m_muonHelper->GetStationName(idHit);
+      int         stationEta  = m_muonHelper->GetZSector    (idHit);
+      int         stationPhi  = m_muonHelper->GetPhiSector  (idHit);
+      int         doubletR    = m_muonHelper->GetDoubletR   (idHit);
+      int         doubletZ    = m_muonHelper->GetDoubletZ   (idHit);
+      int         doubletPhi  = m_muonHelper->GetDoubletPhi (idHit);
+      int         gasGap      = m_muonHelper->GetGasGapLayer(idHit);
+      int         measphi     = m_muonHelper->GetMeasuresPhi(idHit);
 
       if( measphi!=0 ) continue; //Skip phi strip . To be created after efficiency evaluation
 
@@ -736,7 +745,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
 
       if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat).isFailure()) return StatusCode::FAILURE ;
-      ATH_MSG_DEBUG ( "SetPhiOn " << SetPhiOn << " SetEtaOn " <<  SetEtaOn );
+      ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
 
@@ -792,6 +801,10 @@ StatusCode RpcDigitizationTool::doDigitization() {
 				     MuonMCData((*b),time)); // store tof+strip_propagation+corr.jitter
 	//				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
 
+	//Do not store pile-up truth information
+	if (m_includePileUpTruth ||
+		!((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) {
+
         if( abs(hit.particleEncoding())== 13 || hit.particleEncoding() == 0){
 
           auto channelSimDataMapPos = channelSimDataMap.find(atlasId);
@@ -808,9 +821,10 @@ StatusCode RpcDigitizationTool::doDigitization() {
             ATH_MSG_VERBOSE("adding SDO entry: r " << content.gpos.perp() << " z " << content.gpos.z() );
           }
         }
+	}
 
-	if( imeasphi==0 && SetEtaOn==0) continue ;
-	if( imeasphi==1 && SetPhiOn==0) continue ;
+	if( imeasphi==0 && m_SetEtaOn==0) continue ;
+	if( imeasphi==1 && m_SetPhiOn==0) continue ;
 
 
 	//---------------------------------------------------------------------
@@ -966,7 +980,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	  if (outsideDigitizationWindow)
 	    {
 	      ATH_MSG_VERBOSE ( "hit outside digitization window - do not produce digits" );
-	      ATH_MSG_DEBUG   ( "Hit ouside time window!!" << " hit time (ns) = " << newDigit_time << " timeWindow  = " << m_timeWindowLowerOffset << " / " << m_timeWindowUpperOffset  );
+	      ATH_MSG_DEBUG   ( "Hit outside time window!!" << " hit time (ns) = " << newDigit_time << " timeWindow  = " << m_timeWindowLowerOffset << " / " << m_timeWindowUpperOffset  );
 
 	      continue;
 	    }
@@ -1797,10 +1811,10 @@ StatusCode RpcDigitizationTool::readParameters(){
     ATH_MSG_DEBUG( "Dead Panel Id:" << Id_s1 ) ;
     int Id_rpc = atoi (Id_s1.c_str()) ;
     Identifier rpc = Identifier( Id_rpc )   ;
-    DeadPanel_fromlist.insert(std::make_pair(rpc,1));
+    m_DeadPanel_fromlist.insert(std::make_pair(rpc,1));
   }
 
-  ATH_MSG_INFO( "Number of RPC Dead Panel from list:" << DeadPanel_fromlist.size() ) ;
+  ATH_MSG_INFO( "Number of RPC Dead Panel from list:" << m_DeadPanel_fromlist.size() ) ;
 
 
   std::string Id_s2 ;
@@ -1814,10 +1828,10 @@ StatusCode RpcDigitizationTool::readParameters(){
     ATH_MSG_DEBUG( "Good Panel Id:" << Id_s2 ) ;
     int Id_rpc = atoi (Id_s2.c_str()) ;
     Identifier rpc = Identifier( Id_rpc )   ;
-    GoodPanel_fromlist.insert(std::make_pair(rpc,1));
+    m_GoodPanel_fromlist.insert(std::make_pair(rpc,1));
   }
 
-  ATH_MSG_INFO( "Number of RPC Good Panel from list:" << GoodPanel_fromlist.size() ) ;
+  ATH_MSG_INFO( "Number of RPC Good Panel from list:" << m_GoodPanel_fromlist.size() ) ;
   return StatusCode::SUCCESS;
 
 }
@@ -1850,14 +1864,14 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   //remove feet extension. driven by joboption
   if(m_BOG_BOF_DoubletR2_OFF && (stationName==9||stationName==10) && doubletR == 2){
 
-    SetPhiOn = false ;
-    SetEtaOn = false ;
+    m_SetPhiOn = false ;
+    m_SetEtaOn = false ;
     return StatusCode::SUCCESS;
 
   }
 
-  SetPhiOn = true ;
-  SetEtaOn = true ;
+  m_SetPhiOn = true ;
+  m_SetEtaOn = true ;
 
   if(m_turnON_efficiency==false)return StatusCode::SUCCESS;
 
@@ -1877,7 +1891,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     // BME and BOE 53 and 54 are at indices 7 and 8 
 
     if( index>m_PhiAndEtaEff_A.size() || index>m_OnlyEtaEff_A.size() || index>m_OnlyPhiEff_A.size()) {
-	ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideA " << index <<" stationName = "<<stationName) ;
+      ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideA " << index <<" stationName = "<<stationName) ;
       return StatusCode::FAILURE;
     }
 
@@ -1971,62 +1985,62 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       }
       //if ((1.-FracDeadStripPhi)<PhiPanelEfficiency) 
     if ((maxGeomEff-FracDeadStripPhi)-PhiPanelEfficiency<-0.011) 
-      {
-	  ATH_MSG_DEBUG("Ineff. from dead strips on Phi Panel larger that measured efficiency: deadFrac="<<FracDeadStripPhi<<" Panel Eff="<<PhiPanelEfficiency<<" for Panel "<<m_idHelper->show_to_string(IdPhi));
-	  ATH_MSG_DEBUG("... see the corresponding report among the warnings of RpcDetectorStatusDbTool");
-	//PhiPanelEfficiency = 1.-FracDeadStripPhi;
-	PhiPanelEfficiency = maxGeomEff-FracDeadStripPhi;
-	changing = true;
-      }
+    {
+      ATH_MSG_DEBUG("Ineff. from dead strips on Phi Panel larger that measured efficiency: deadFrac="<<FracDeadStripPhi<<" Panel Eff="<<PhiPanelEfficiency<<" for Panel "<<m_idHelper->show_to_string(IdPhi));
+      ATH_MSG_DEBUG("... see the corresponding report among the warnings of RpcDetectorStatusDbTool");
+      //PhiPanelEfficiency = 1.-FracDeadStripPhi;
+      PhiPanelEfficiency = maxGeomEff-FracDeadStripPhi;
+      changing = true;
+    }
     //if ((1.-FracDeadStripEta*FracDeadStripPhi)<GapEfficiency) 
     if ((maxGeomEff-FracDeadStripEta*FracDeadStripPhi)-GapEfficiency<-0.011) 
-      {
-	  ATH_MSG_DEBUG("Ineff. from dead strips on Eta/Phi Panels larger that measured EtaORPhi efficiency: deadFrac="<<FracDeadStripEta*FracDeadStripPhi<<" EtaORPhi Eff="<<GapEfficiency<<" for GasGap "<<m_idHelper->show_to_string(IdEta));
-	  ATH_MSG_DEBUG("... see the corresponding report among the warnings of RpcDetectorStatusDbTool");
-	//GapEfficiency = 1.-FracDeadStripEta*FracDeadStripPhi;
-	GapEfficiency = maxGeomEff-FracDeadStripEta*FracDeadStripPhi;
-	changing = true;
-      }
+    {
+      ATH_MSG_DEBUG("Ineff. from dead strips on Eta/Phi Panels larger that measured EtaORPhi efficiency: deadFrac="<<FracDeadStripEta*FracDeadStripPhi<<" EtaORPhi Eff="<<GapEfficiency<<" for GasGap "<<m_idHelper->show_to_string(IdEta));
+      ATH_MSG_DEBUG("... see the corresponding report among the warnings of RpcDetectorStatusDbTool");
+      //GapEfficiency = 1.-FracDeadStripEta*FracDeadStripPhi;
+      GapEfficiency = maxGeomEff-FracDeadStripEta*FracDeadStripPhi;
+      changing = true;
+    }
     if (changing) ATH_MSG_DEBUG ("Rinormalized Values from Cool: FracDeadStripEta/Phi "<<FracDeadStripEta<<"/"<<FracDeadStripPhi<<" RPC_ProjectedTracksEta "<<RPC_ProjectedTracksEta<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency<<" gapEff "<<GapEfficiency);
 
     
     //std::cout<<"   m_turnON_clustersize="<<  m_turnON_clustersize<<" effEta/Phi/GG="<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency<<"/"<<GapEfficiency<<std::endl;
 
     /*
-    int stripetadead = 0 ;
-    int stripphidead = 0 ;
+      int stripetadead = 0 ;
+      int stripphidead = 0 ;
 
-    int stripetagood = 0 ;
-    int stripphigood = 0 ;
+      int stripetagood = 0 ;
+      int stripphigood = 0 ;
     */
 
     // if(m_rSummarySvc->RPC_DeadStripList().find( *IdEtaRpcStrip)  != m_rSummarySvc->RPC_DeadStripList().end()) stripetadead = m_rSummarySvc->RPC_DeadStripList().find( *IdEtaRpcStrip)->second; // not used
     // if(m_rSummarySvc->RPC_DeadStripList().find( *IdPhiRpcStrip)  != m_rSummarySvc->RPC_DeadStripList().end()) stripphidead = m_rSummarySvc->RPC_DeadStripList().find( *IdPhiRpcStrip)->second; // not used
 
-    // if( m_PanelId_OFF_fromlist && ( DeadPanel_fromlist.find(IdEta) != DeadPanel_fromlist.end()) )  stripetadead =  DeadPanel_fromlist.find(IdEta)->second; // not used
-    // if( m_PanelId_OFF_fromlist && ( DeadPanel_fromlist.find(IdPhi) != DeadPanel_fromlist.end()) )  stripphidead =  DeadPanel_fromlist.find(IdPhi)->second; // not used
+    // if( m_PanelId_OFF_fromlist && ( m_DeadPanel_fromlist.find(IdEta) != m_DeadPanel_fromlist.end()) )  stripetadead =  m_DeadPanel_fromlist.find(IdEta)->second; // not used
+    // if( m_PanelId_OFF_fromlist && ( m_DeadPanel_fromlist.find(IdPhi) != m_DeadPanel_fromlist.end()) )  stripphidead =  m_DeadPanel_fromlist.find(IdPhi)->second; // not used
 
-    if( m_PanelId_OK_fromlist && ( GoodPanel_fromlist.find(IdEta) != GoodPanel_fromlist.end()) )  stripetagood =  GoodPanel_fromlist.find(IdEta)->second;
-    if( m_PanelId_OK_fromlist && ( GoodPanel_fromlist.find(IdPhi) != GoodPanel_fromlist.end()) )  stripphigood =  GoodPanel_fromlist.find(IdPhi)->second;
+    if( m_PanelId_OK_fromlist && ( m_GoodPanel_fromlist.find(IdEta) != m_GoodPanel_fromlist.end()) )  stripetagood =  m_GoodPanel_fromlist.find(IdEta)->second;
+    if( m_PanelId_OK_fromlist && ( m_GoodPanel_fromlist.find(IdPhi) != m_GoodPanel_fromlist.end()) )  stripphigood =  m_GoodPanel_fromlist.find(IdPhi)->second;
     
 
     //gabriele //..stefania - if there are dead strips renormalize the eff. to the active area  
     if(m_kill_deadstrips){
      if ((FracDeadStripEta>0.0&&FracDeadStripEta<1.0) || (FracDeadStripPhi>0.0&&FracDeadStripPhi<1.0) || (noEntryInDb))
-      {
-	EtaPanelEfficiency= EtaPanelEfficiency/(maxGeomEff-FracDeadStripEta);
-	PhiPanelEfficiency= PhiPanelEfficiency/(maxGeomEff-FracDeadStripPhi);
-	GapEfficiency     = GapEfficiency/(maxGeomEff-FracDeadStripEta*FracDeadStripPhi);
+    {
+      EtaPanelEfficiency= EtaPanelEfficiency/(maxGeomEff-FracDeadStripEta);
+      PhiPanelEfficiency= PhiPanelEfficiency/(maxGeomEff-FracDeadStripPhi);
+      GapEfficiency     = GapEfficiency/(maxGeomEff-FracDeadStripEta*FracDeadStripPhi);
 
-	if (EtaPanelEfficiency>maxGeomEff) EtaPanelEfficiency=maxGeomEff;
-	if (PhiPanelEfficiency>maxGeomEff) PhiPanelEfficiency=maxGeomEff;
-	if (GapEfficiency     >maxGeomEff) GapEfficiency     =maxGeomEff;
+      if (EtaPanelEfficiency>maxGeomEff) EtaPanelEfficiency=maxGeomEff;
+      if (PhiPanelEfficiency>maxGeomEff) PhiPanelEfficiency=maxGeomEff;
+      if (GapEfficiency     >maxGeomEff) GapEfficiency     =maxGeomEff;
 
 
-	if (EtaPanelEfficiency>GapEfficiency) GapEfficiency=EtaPanelEfficiency;
-	if (PhiPanelEfficiency>GapEfficiency) GapEfficiency=PhiPanelEfficiency;
-	ATH_MSG_DEBUG ("Eff Redefined (to correct for deadfrac): FracDeadStripEta/Phi "<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency<<" gapEff "<<GapEfficiency);
-      }
+      if (EtaPanelEfficiency>GapEfficiency) GapEfficiency=EtaPanelEfficiency;
+      if (PhiPanelEfficiency>GapEfficiency) GapEfficiency=PhiPanelEfficiency;
+      ATH_MSG_DEBUG ("Eff Redefined (to correct for deadfrac): FracDeadStripEta/Phi "<<" Eta/PhiPanelEfficiency "<<EtaPanelEfficiency<<"/"<<PhiPanelEfficiency<<" gapEff "<<GapEfficiency);
+    }
     }				    
 
     //values from COOLDB (eventually overwritten later)
@@ -2040,30 +2054,30 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
    
     
     /* // here is where originally dead strips were killed - including the protection (on phi strips) for dead eta panel
-    if(FracDeadStripEta>0.0&&FracDeadStripEta<1.0){
-      OnlyEtaEff=OnlyEtaEff/(1.-FracDeadStripEta);
-      PhiAndEtaEff=PhiAndEtaEff/(1.-FracDeadStripEta);
-    }
-    if(FracDeadStripPhi>0.0&&FracDeadStripPhi<1.0){
-      OnlyPhiEff=OnlyPhiEff/(1.-FracDeadStripPhi);
-      PhiAndEtaEff=PhiAndEtaEff/(1.-FracDeadStripPhi);
-    }
+       if(FracDeadStripEta>0.0&&FracDeadStripEta<1.0){
+       OnlyEtaEff=OnlyEtaEff/(1.-FracDeadStripEta);
+       PhiAndEtaEff=PhiAndEtaEff/(1.-FracDeadStripEta);
+       }
+       if(FracDeadStripPhi>0.0&&FracDeadStripPhi<1.0){
+       OnlyPhiEff=OnlyPhiEff/(1.-FracDeadStripPhi);
+       PhiAndEtaEff=PhiAndEtaEff/(1.-FracDeadStripPhi);
+       }
     */
     
     //  special patch to be true only when m_Efficiency_fromCOOL=true and /RPC/DQMF/ELEMENT_STATUS tag is RPCDQMFElementStatus_2012_Jaunuary_26
     bool applySpecialPatch=false;
     if (m_EfficiencyPatchForBMShighEta && m_Efficiency_fromCOOL)
+    {
+      if (m_idHelper->stationName(*IdEtaRpcStrip)==3) ///// BMS  
       {
-	if (m_idHelper->stationName(*IdEtaRpcStrip)==3) ///// BMS  
-	  {
-	    if (abs(m_idHelper->stationEta(*IdEtaRpcStrip))==6 && m_idHelper->doubletR(*IdEtaRpcStrip)==1 && m_idHelper->doubletZ(*IdEtaRpcStrip)==2 && m_idHelper->doubletPhi(*IdEtaRpcStrip)==1) 
-	      {
-		applySpecialPatch=true;
-		ATH_MSG_WARNING ( "Applying special patch for BMS at |eta|=6 lowPt plane -dbbZ=2 and dbPhi=1 ... will use default eff. for Id "<<m_idHelper->show_to_string(*IdEtaRpcStrip));
-		ATH_MSG_WARNING ( "Applying special patch: THIS HAS TO BE DONE IF /RPC/DQMF/ELEMENT_STATUS tag is RPCDQMFElementStatus_2012_Jaunuary_2") ;
-	      }
-	  }
+        if (abs(m_idHelper->stationEta(*IdEtaRpcStrip))==6 && m_idHelper->doubletR(*IdEtaRpcStrip)==1 && m_idHelper->doubletZ(*IdEtaRpcStrip)==2 && m_idHelper->doubletPhi(*IdEtaRpcStrip)==1) 
+        {
+          applySpecialPatch=true;
+          ATH_MSG_WARNING ( "Applying special patch for BMS at |eta|=6 lowPt plane -dbbZ=2 and dbPhi=1 ... will use default eff. for Id "<<m_idHelper->show_to_string(*IdEtaRpcStrip));
+          ATH_MSG_WARNING ( "Applying special patch: THIS HAS TO BE DONE IF /RPC/DQMF/ELEMENT_STATUS tag is RPCDQMFElementStatus_2012_Jaunuary_2") ;
+        }
       }
+    }
 
     //if projected tracks number too low or inconsistent values get efficiencies from joboption and overwrite previous values
     if(applySpecialPatch || RPC_ProjectedTracksEta<m_CutProjectedTracks || RPC_ProjectedTracksEta>10000000 || EtaPanelEfficiency>1 || EtaPanelEfficiency<0 || PhiPanelEfficiency>1 || PhiPanelEfficiency<0|| GapEfficiency>1 || GapEfficiency<0 || stripetagood == 1 || stripphigood == 1){
@@ -2090,7 +2104,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
 
       if(stationEta<0){
 	if( index>m_PhiAndEtaEff_C.size() || index>m_OnlyEtaEff_C.size() || index>m_OnlyPhiEff_C.size()) {
-	ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideC COOLDB" << index <<" stationName = "<<stationName) ;
+          ATH_MSG_ERROR ( "Index out of array in Detection Efficiency SideC COOLDB" << index <<" stationName = "<<stationName) ;
 	  return StatusCode::FAILURE;
 	}
 	PhiAndEtaEff = m_PhiAndEtaEff_C [index];
@@ -2117,14 +2131,14 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
     /* 
     //if strip dead overwrite previous values
     if(stripetadead==1) {
-      ATH_MSG_DEBUG ( "Dead Strip For Id Eta " <<*IdEtaRpcStrip );
-      PhiAndEtaEff =  0. ;
-      OnlyEtaEff   =  0. ;
+    ATH_MSG_DEBUG ( "Dead Strip For Id Eta " <<*IdEtaRpcStrip );
+    PhiAndEtaEff =  0. ;
+    OnlyEtaEff   =  0. ;
     }
     if(stripphidead==1&&FracDeadStripEta<1) {
-      ATH_MSG_DEBUG ( "Dead Strip For Id Phi " <<*IdEtaRpcStrip );
-      PhiAndEtaEff =  0. ;
-      OnlyPhiEff   =  0. ;
+    ATH_MSG_DEBUG ( "Dead Strip For Id Phi " <<*IdEtaRpcStrip );
+    PhiAndEtaEff =  0. ;
+    OnlyPhiEff   =  0. ;
     }
     //protect againts anomalous values
     if(PhiAndEtaEff>1)PhiAndEtaEff=1.;
@@ -2138,9 +2152,9 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       OnlyEtaEff   = (OnlyEtaEff  /VolEff)*maxGeomEff;
       OnlyPhiEff   = (OnlyPhiEff  /VolEff)*maxGeomEff;
       /*
-      PhiAndEtaEff = PhiAndEtaEff/VolEff;
-      OnlyEtaEff   = OnlyEtaEff  /VolEff;
-      OnlyPhiEff   = OnlyPhiEff  /VolEff;
+        PhiAndEtaEff = PhiAndEtaEff/VolEff;
+        OnlyEtaEff   = OnlyEtaEff  /VolEff;
+        OnlyPhiEff   = OnlyPhiEff  /VolEff;
       */
     }
 
@@ -2186,26 +2200,26 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   float rndmEff = CLHEP::RandFlat::shoot(m_rndmEngine, 1) ;
 
   if(rndmEff < I0){
-    SetPhiOn = true ;
-    SetEtaOn = true ;
+    m_SetPhiOn = true ;
+    m_SetEtaOn = true ;
   }
   else if( ( I0 <= rndmEff ) && ( rndmEff < I1 )  ){
-    SetPhiOn = false  ;
-    SetEtaOn = true	;
+    m_SetPhiOn = false  ;
+    m_SetEtaOn = true	;
   }
   else if( ( I1 <= rndmEff ) && ( rndmEff <= ITot ) ){
-    SetPhiOn = true  ;
-    SetEtaOn = false ;
+    m_SetPhiOn = true  ;
+    m_SetEtaOn = false ;
   }
   else{
-    SetPhiOn = false  ;
-    SetEtaOn = false  ;
+    m_SetPhiOn = false  ;
+    m_SetEtaOn = false  ;
   }
 
 
   // //stefania 
-  // if(stripetadead==1) SetEtaOn=false;
-  // if(stripphidead==1) SetPhiOn=false;
+  // if(stripetadead==1) m_SetEtaOn=false;
+  // if(stripphidead==1) m_SetPhiOn=false;
 
 
   return StatusCode::SUCCESS;
@@ -2636,38 +2650,38 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 
   //Evaluate mean values from COOLDB
 
-  std::vector<float> m_COOLDB_PhiAndEtaEff_A(7,0.0);
-  std::vector<float> m_COOLDB_OnlyPhiEff_A  (7,0.0);
-  std::vector<float> m_COOLDB_OnlyEtaEff_A  (7,0.0);
-  std::vector<int>   m_COOLDB_CountEff_A      (7,0);
+  std::vector<float> COOLDB_PhiAndEtaEff_A(7,0.0);
+  std::vector<float> COOLDB_OnlyPhiEff_A  (7,0.0);
+  std::vector<float> COOLDB_OnlyEtaEff_A  (7,0.0);
+  std::vector<int>   COOLDB_CountEff_A      (7,0);
 
-  std::vector<float> m_COOLDB_PhiAndEtaEff_C(7,0.0);
-  std::vector<float> m_COOLDB_OnlyPhiEff_C  (7,0.0);
-  std::vector<float> m_COOLDB_OnlyEtaEff_C  (7,0.0);
-  std::vector<int>   m_COOLDB_CountEff_C      (7,0);
+  std::vector<float> COOLDB_PhiAndEtaEff_C(7,0.0);
+  std::vector<float> COOLDB_OnlyPhiEff_C  (7,0.0);
+  std::vector<float> COOLDB_OnlyEtaEff_C  (7,0.0);
+  std::vector<int>   COOLDB_CountEff_C      (7,0);
 
-  std::vector<double> m_COOLDB_FracClusterSize1_A   (14,0.0);
-  std::vector<double> m_COOLDB_FracClusterSize2_A   (14,0.0);
-  std::vector<double> m_COOLDB_FracClusterSizeTail_A(14,0.0);
-  std::vector<double> m_COOLDB_MeanClusterSizeTail_A(14,0.0);
-  std::vector<int>    m_COOLDB_CountCS_A               (7,0);
+  std::vector<double> COOLDB_FracClusterSize1_A   (14,0.0);
+  std::vector<double> COOLDB_FracClusterSize2_A   (14,0.0);
+  std::vector<double> COOLDB_FracClusterSizeTail_A(14,0.0);
+  std::vector<double> COOLDB_MeanClusterSizeTail_A(14,0.0);
+  std::vector<int>    COOLDB_CountCS_A               (7,0);
 
-  std::vector<double> m_COOLDB_FracClusterSize1_C   (14,0.0);
-  std::vector<double> m_COOLDB_FracClusterSize2_C   (14,0.0);
-  std::vector<double> m_COOLDB_FracClusterSizeTail_C(14,0.0);
-  std::vector<double> m_COOLDB_MeanClusterSizeTail_C(14,0.0);
-  std::vector<int>    m_COOLDB_CountCS_C               (7,0);
+  std::vector<double> COOLDB_FracClusterSize1_C   (14,0.0);
+  std::vector<double> COOLDB_FracClusterSize2_C   (14,0.0);
+  std::vector<double> COOLDB_FracClusterSizeTail_C(14,0.0);
+  std::vector<double> COOLDB_MeanClusterSizeTail_C(14,0.0);
+  std::vector<int>    COOLDB_CountCS_C               (7,0);
 
-  std::vector<float> m_COOLDB_GapEff_A  (7,0.0);
-  std::vector<float> m_COOLDB_PhiEff_A  (7,0.0);
-  std::vector<float> m_COOLDB_EtaEff_A  (7,0.0);
+  std::vector<float> COOLDB_GapEff_A  (7,0.0);
+  std::vector<float> COOLDB_PhiEff_A  (7,0.0);
+  std::vector<float> COOLDB_EtaEff_A  (7,0.0);
 
-  std::vector<float> m_COOLDB_GapEff_C  (7,0.0);
-  std::vector<float> m_COOLDB_PhiEff_C  (7,0.0);
-  std::vector<float> m_COOLDB_EtaEff_C  (7,0.0);
+  std::vector<float> COOLDB_GapEff_C  (7,0.0);
+  std::vector<float> COOLDB_PhiEff_C  (7,0.0);
+  std::vector<float> COOLDB_EtaEff_C  (7,0.0);
 
-  std::vector<double> m_COOLDB_MeanClusterSize_A(14,0.0);
-  std::vector<double> m_COOLDB_MeanClusterSize_C(14,0.0);
+  std::vector<double> COOLDB_MeanClusterSize_A(14,0.0);
+  std::vector<double> COOLDB_MeanClusterSize_C(14,0.0);
 
 
   int indexSName  = 0;
@@ -2729,19 +2743,19 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		if((ProjectedTracksEta>=m_CutProjectedTracks)&&(ProjectedTracksEta<10000000)&&(ProjectedTracksEta>=m_CutProjectedTracks)&&(efficiencyEta>0)&&(efficiencyEta<=1)&&(efficiencygapEta>0)&&(efficiencygapEta<=1)&&(efficiencyPhi>0)&&(efficiencyPhi<=1)){
 
 		  if( stationEta >=  0){
-		    m_COOLDB_PhiAndEtaEff_A[indexSName] = m_COOLDB_PhiAndEtaEff_A[indexSName]  + efficiencyEta +  efficiencyPhi  -  efficiencygapEta ;
-		    m_COOLDB_GapEff_A      [indexSName] = m_COOLDB_GapEff_A[indexSName]    + efficiencygapEta ;
-		    m_COOLDB_PhiEff_A      [indexSName] = m_COOLDB_PhiEff_A  [indexSName]  +    efficiencyPhi ;
-		    m_COOLDB_EtaEff_A      [indexSName] = m_COOLDB_EtaEff_A  [indexSName]  +    efficiencyEta ;
-		    m_COOLDB_CountEff_A    [indexSName] = m_COOLDB_CountEff_A    [indexSName]  +            1 ;
+		    COOLDB_PhiAndEtaEff_A[indexSName] = COOLDB_PhiAndEtaEff_A[indexSName]  + efficiencyEta +  efficiencyPhi  -  efficiencygapEta ;
+		    COOLDB_GapEff_A      [indexSName] = COOLDB_GapEff_A[indexSName]    + efficiencygapEta ;
+		    COOLDB_PhiEff_A      [indexSName] = COOLDB_PhiEff_A  [indexSName]  +    efficiencyPhi ;
+		    COOLDB_EtaEff_A      [indexSName] = COOLDB_EtaEff_A  [indexSName]  +    efficiencyEta ;
+		    COOLDB_CountEff_A    [indexSName] = COOLDB_CountEff_A    [indexSName]  +            1 ;
 
 		  }
 		  else{
-		    m_COOLDB_PhiAndEtaEff_C[indexSName] = m_COOLDB_PhiAndEtaEff_C[indexSName]  + efficiencyEta +  efficiencyPhi  -  efficiencygapEta ;
-		    m_COOLDB_GapEff_C	 [indexSName] = m_COOLDB_GapEff_C[indexSName]	 + efficiencygapEta ;
-		    m_COOLDB_PhiEff_C	 [indexSName] = m_COOLDB_PhiEff_C  [indexSName]  +    efficiencyPhi ;
-		    m_COOLDB_EtaEff_C	 [indexSName] = m_COOLDB_EtaEff_C  [indexSName]  +    efficiencyEta ;
-		    m_COOLDB_CountEff_C	 [indexSName] = m_COOLDB_CountEff_C    [indexSName]  +  	  1 ;
+		    COOLDB_PhiAndEtaEff_C[indexSName] = COOLDB_PhiAndEtaEff_C[indexSName]  + efficiencyEta +  efficiencyPhi  -  efficiencygapEta ;
+		    COOLDB_GapEff_C	 [indexSName] = COOLDB_GapEff_C[indexSName]	 + efficiencygapEta ;
+		    COOLDB_PhiEff_C	 [indexSName] = COOLDB_PhiEff_C  [indexSName]  +    efficiencyPhi ;
+		    COOLDB_EtaEff_C	 [indexSName] = COOLDB_EtaEff_C  [indexSName]  +    efficiencyEta ;
+		    COOLDB_CountEff_C	 [indexSName] = COOLDB_CountEff_C    [indexSName]  +  	  1 ;
 
 		  }
 		}
@@ -2750,124 +2764,124 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		  if((FracCStailEta>=0)&&(FracCS1Eta>=0)&&(FracCS2Eta>=0)&&(FracCStailEta<=1)&&(FracCS1Eta<=1)&&(FracCS2Eta<=1)&&(FracCStailPhi>=0)&&(FracCS1Phi>=0)&&(FracCS2Phi>=0)&&(FracCStailPhi<=1)&&(FracCS1Phi<=1)&&(FracCS2Phi<=1)){
 		    if( stationEta >=  0){
 
-		      m_COOLDB_FracClusterSize1_A   [indexSName] = m_COOLDB_FracClusterSize1_A   [indexSName] +  FracCS1Eta   ;
-		      m_COOLDB_FracClusterSize2_A   [indexSName] = m_COOLDB_FracClusterSize2_A   [indexSName] +  FracCS2Eta   ;
-		      m_COOLDB_MeanClusterSize_A    [indexSName] = m_COOLDB_MeanClusterSize_A    [indexSName] +  averageCSEta ;
-		      m_COOLDB_CountCS_A	        [indexSName] = m_COOLDB_CountCS_A	     [indexSName] +             1 ;
+		      COOLDB_FracClusterSize1_A   [indexSName] = COOLDB_FracClusterSize1_A   [indexSName] +  FracCS1Eta   ;
+		      COOLDB_FracClusterSize2_A   [indexSName] = COOLDB_FracClusterSize2_A   [indexSName] +  FracCS2Eta   ;
+		      COOLDB_MeanClusterSize_A    [indexSName] = COOLDB_MeanClusterSize_A    [indexSName] +  averageCSEta ;
+		      COOLDB_CountCS_A	        [indexSName] = COOLDB_CountCS_A	     [indexSName] +             1 ;
 
-		      m_COOLDB_FracClusterSize1_A   [indexSName+7] = m_COOLDB_FracClusterSize1_A   [indexSName+7] +  FracCS1Phi   ;
-		      m_COOLDB_FracClusterSize2_A   [indexSName+7] = m_COOLDB_FracClusterSize2_A   [indexSName+7] +  FracCS2Phi   ;
-		      m_COOLDB_MeanClusterSize_A    [indexSName+7] = m_COOLDB_MeanClusterSize_A    [indexSName+7] +  averageCSPhi ;
+		      COOLDB_FracClusterSize1_A   [indexSName+7] = COOLDB_FracClusterSize1_A   [indexSName+7] +  FracCS1Phi   ;
+		      COOLDB_FracClusterSize2_A   [indexSName+7] = COOLDB_FracClusterSize2_A   [indexSName+7] +  FracCS2Phi   ;
+		      COOLDB_MeanClusterSize_A    [indexSName+7] = COOLDB_MeanClusterSize_A    [indexSName+7] +  averageCSPhi ;
 
 		    }
 		    else{
 
-		      m_COOLDB_FracClusterSize1_C   [indexSName] = m_COOLDB_FracClusterSize1_C   [indexSName] +  FracCS1Eta   ;
-		      m_COOLDB_FracClusterSize2_C   [indexSName] = m_COOLDB_FracClusterSize2_C   [indexSName] +  FracCS2Eta   ;
-		      m_COOLDB_MeanClusterSize_C    [indexSName] = m_COOLDB_MeanClusterSize_C    [indexSName] +  averageCSEta ;
-		      m_COOLDB_CountCS_C	        [indexSName] = m_COOLDB_CountCS_C	     [indexSName] +             1 ;
+		      COOLDB_FracClusterSize1_C   [indexSName] = COOLDB_FracClusterSize1_C   [indexSName] +  FracCS1Eta   ;
+		      COOLDB_FracClusterSize2_C   [indexSName] = COOLDB_FracClusterSize2_C   [indexSName] +  FracCS2Eta   ;
+		      COOLDB_MeanClusterSize_C    [indexSName] = COOLDB_MeanClusterSize_C    [indexSName] +  averageCSEta ;
+		      COOLDB_CountCS_C	        [indexSName] = COOLDB_CountCS_C	     [indexSName] +             1 ;
 
-		      m_COOLDB_FracClusterSize1_C   [indexSName+7] = m_COOLDB_FracClusterSize1_C   [indexSName+7] +  FracCS1Phi   ;
-		      m_COOLDB_FracClusterSize2_C   [indexSName+7] = m_COOLDB_FracClusterSize2_C   [indexSName+7] +  FracCS2Phi   ;
-		      m_COOLDB_MeanClusterSize_C    [indexSName+7] = m_COOLDB_MeanClusterSize_C    [indexSName+7] +  averageCSPhi ;
+		      COOLDB_FracClusterSize1_C   [indexSName+7] = COOLDB_FracClusterSize1_C   [indexSName+7] +  FracCS1Phi   ;
+		      COOLDB_FracClusterSize2_C   [indexSName+7] = COOLDB_FracClusterSize2_C   [indexSName+7] +  FracCS2Phi   ;
+		      COOLDB_MeanClusterSize_C    [indexSName+7] = COOLDB_MeanClusterSize_C    [indexSName+7] +  averageCSPhi ;
 
 		    }
 		  }}
 	      }}}}}}}
 
-  for( unsigned int index =  0 ;  index != m_COOLDB_PhiAndEtaEff_A.size() + 1; index++){
-    int Count = m_COOLDB_CountEff_A [index] ;
+  for( unsigned int index =  0 ;  index != COOLDB_PhiAndEtaEff_A.size() + 1; index++){
+    int Count = COOLDB_CountEff_A [index] ;
 
     if(Count){
-      m_COOLDB_PhiAndEtaEff_A[index]          = m_COOLDB_PhiAndEtaEff_A[index]  / Count ;
-      m_COOLDB_GapEff_A      [index]          = m_COOLDB_GapEff_A      [index]  / Count ;
-      m_COOLDB_EtaEff_A      [index]	   = m_COOLDB_EtaEff_A      [index]  / Count ;
-      m_COOLDB_PhiEff_A      [index]	   = m_COOLDB_PhiEff_A      [index]  / Count ;
-      m_COOLDB_OnlyPhiEff_A  [index]          = m_COOLDB_PhiEff_A      [index]  -  m_COOLDB_PhiAndEtaEff_A[index] ;
-      m_COOLDB_OnlyEtaEff_A  [index]          = m_COOLDB_EtaEff_A      [index]  -  m_COOLDB_PhiAndEtaEff_A[index] ;
+      COOLDB_PhiAndEtaEff_A[index]          = COOLDB_PhiAndEtaEff_A[index]  / Count ;
+      COOLDB_GapEff_A      [index]          = COOLDB_GapEff_A      [index]  / Count ;
+      COOLDB_EtaEff_A      [index]	   = COOLDB_EtaEff_A      [index]  / Count ;
+      COOLDB_PhiEff_A      [index]	   = COOLDB_PhiEff_A      [index]  / Count ;
+      COOLDB_OnlyPhiEff_A  [index]          = COOLDB_PhiEff_A      [index]  -  COOLDB_PhiAndEtaEff_A[index] ;
+      COOLDB_OnlyEtaEff_A  [index]          = COOLDB_EtaEff_A      [index]  -  COOLDB_PhiAndEtaEff_A[index] ;
     }
 
-    Count = m_COOLDB_CountEff_C [index] ;
+    Count = COOLDB_CountEff_C [index] ;
     if(Count){
-      m_COOLDB_PhiAndEtaEff_C[index]          = m_COOLDB_PhiAndEtaEff_C[index]  / Count ;
-      m_COOLDB_GapEff_C      [index]          = m_COOLDB_GapEff_C      [index]  / Count ;
-      m_COOLDB_EtaEff_C      [index]	   = m_COOLDB_EtaEff_C      [index]  / Count ;
-      m_COOLDB_PhiEff_C      [index]	   = m_COOLDB_PhiEff_C      [index]  / Count ;
-      m_COOLDB_OnlyPhiEff_C  [index]          = m_COOLDB_PhiEff_C      [index]  -  m_COOLDB_PhiAndEtaEff_C[index] ;
-      m_COOLDB_OnlyEtaEff_C  [index]          = m_COOLDB_EtaEff_C      [index]  -  m_COOLDB_PhiAndEtaEff_C[index] ;
+      COOLDB_PhiAndEtaEff_C[index]          = COOLDB_PhiAndEtaEff_C[index]  / Count ;
+      COOLDB_GapEff_C      [index]          = COOLDB_GapEff_C      [index]  / Count ;
+      COOLDB_EtaEff_C      [index]	   = COOLDB_EtaEff_C      [index]  / Count ;
+      COOLDB_PhiEff_C      [index]	   = COOLDB_PhiEff_C      [index]  / Count ;
+      COOLDB_OnlyPhiEff_C  [index]          = COOLDB_PhiEff_C      [index]  -  COOLDB_PhiAndEtaEff_C[index] ;
+      COOLDB_OnlyEtaEff_C  [index]          = COOLDB_EtaEff_C      [index]  -  COOLDB_PhiAndEtaEff_C[index] ;
     }
 
-    Count =  m_COOLDB_CountCS_A [index] ;
+    Count =  COOLDB_CountCS_A [index] ;
     if(Count){
-      m_COOLDB_FracClusterSize1_A   [index]   = m_COOLDB_FracClusterSize1_A   [index] / Count	 ;
-      m_COOLDB_FracClusterSize2_A   [index]   = m_COOLDB_FracClusterSize2_A   [index] / Count 	 ;
-      m_COOLDB_MeanClusterSize_A    [index]   = m_COOLDB_MeanClusterSize_A    [index] / Count       ;
-      m_COOLDB_MeanClusterSizeTail_A[index]   = m_COOLDB_MeanClusterSize_A[index]  -  m_COOLDB_FracClusterSize1_A   [index] - 2*m_COOLDB_FracClusterSize2_A   [index] ;
-      m_COOLDB_FracClusterSizeTail_A[index]   = 1.  -  m_COOLDB_FracClusterSize1_A   [index] - m_COOLDB_FracClusterSize2_A   [index] ;
-      m_COOLDB_FracClusterSize1_A   [index+7]   = m_COOLDB_FracClusterSize1_A   [index+7] / Count	 ;
-      m_COOLDB_FracClusterSize2_A   [index+7]   = m_COOLDB_FracClusterSize2_A   [index+7] / Count 	 ;
-      m_COOLDB_MeanClusterSize_A    [index+7]   = m_COOLDB_MeanClusterSize_A    [index+7] / Count       ;
-      m_COOLDB_MeanClusterSizeTail_A[index+7]   = m_COOLDB_MeanClusterSize_A[index+7]  -  m_COOLDB_FracClusterSize1_A   [index+7] - 2*m_COOLDB_FracClusterSize2_A   [index+7] ;
-      m_COOLDB_FracClusterSizeTail_A[index+7]   = 1.  -  m_COOLDB_FracClusterSize1_A   [index+7] - m_COOLDB_FracClusterSize2_A   [index+7] ;
+      COOLDB_FracClusterSize1_A   [index]   = COOLDB_FracClusterSize1_A   [index] / Count	 ;
+      COOLDB_FracClusterSize2_A   [index]   = COOLDB_FracClusterSize2_A   [index] / Count 	 ;
+      COOLDB_MeanClusterSize_A    [index]   = COOLDB_MeanClusterSize_A    [index] / Count       ;
+      COOLDB_MeanClusterSizeTail_A[index]   = COOLDB_MeanClusterSize_A[index]  -  COOLDB_FracClusterSize1_A   [index] - 2*COOLDB_FracClusterSize2_A   [index] ;
+      COOLDB_FracClusterSizeTail_A[index]   = 1.  -  COOLDB_FracClusterSize1_A   [index] - COOLDB_FracClusterSize2_A   [index] ;
+      COOLDB_FracClusterSize1_A   [index+7]   = COOLDB_FracClusterSize1_A   [index+7] / Count	 ;
+      COOLDB_FracClusterSize2_A   [index+7]   = COOLDB_FracClusterSize2_A   [index+7] / Count 	 ;
+      COOLDB_MeanClusterSize_A    [index+7]   = COOLDB_MeanClusterSize_A    [index+7] / Count       ;
+      COOLDB_MeanClusterSizeTail_A[index+7]   = COOLDB_MeanClusterSize_A[index+7]  -  COOLDB_FracClusterSize1_A   [index+7] - 2*COOLDB_FracClusterSize2_A   [index+7] ;
+      COOLDB_FracClusterSizeTail_A[index+7]   = 1.  -  COOLDB_FracClusterSize1_A   [index+7] - COOLDB_FracClusterSize2_A   [index+7] ;
     }
 
-    Count =  m_COOLDB_CountCS_C [index] ;
+    Count =  COOLDB_CountCS_C [index] ;
     if(Count){
-      m_COOLDB_FracClusterSize1_C   [index]   = m_COOLDB_FracClusterSize1_C   [index] / Count	 ;
-      m_COOLDB_FracClusterSize2_C   [index]   = m_COOLDB_FracClusterSize2_C   [index] / Count 	 ;
-      m_COOLDB_MeanClusterSize_C    [index]   = m_COOLDB_MeanClusterSize_C    [index] / Count       ;
-      m_COOLDB_MeanClusterSizeTail_C[index]   = m_COOLDB_MeanClusterSize_C[index]  -  m_COOLDB_FracClusterSize1_C   [index] - 2*m_COOLDB_FracClusterSize2_C   [index] ;
-      m_COOLDB_FracClusterSizeTail_C[index]   = 1.  -  m_COOLDB_FracClusterSize1_C   [index] - m_COOLDB_FracClusterSize2_C   [index] ;
-      m_COOLDB_FracClusterSize1_C   [index+7]   = m_COOLDB_FracClusterSize1_C   [index+7] / Count	 ;
-      m_COOLDB_FracClusterSize2_C   [index+7]   = m_COOLDB_FracClusterSize2_C   [index+7] / Count 	 ;
-      m_COOLDB_MeanClusterSize_C    [index+7]   = m_COOLDB_MeanClusterSize_C    [index+7] / Count       ;
-      m_COOLDB_MeanClusterSizeTail_C[index+7]   = m_COOLDB_MeanClusterSize_C[index+7]  -  m_COOLDB_FracClusterSize1_C   [index+7] - 2*m_COOLDB_FracClusterSize2_C   [index+7] ;
-      m_COOLDB_FracClusterSizeTail_C[index+7]   = 1.  -  m_COOLDB_FracClusterSize1_C   [index+7] - m_COOLDB_FracClusterSize2_C   [index+7] ;
+      COOLDB_FracClusterSize1_C   [index]   = COOLDB_FracClusterSize1_C   [index] / Count	 ;
+      COOLDB_FracClusterSize2_C   [index]   = COOLDB_FracClusterSize2_C   [index] / Count 	 ;
+      COOLDB_MeanClusterSize_C    [index]   = COOLDB_MeanClusterSize_C    [index] / Count       ;
+      COOLDB_MeanClusterSizeTail_C[index]   = COOLDB_MeanClusterSize_C[index]  -  COOLDB_FracClusterSize1_C   [index] - 2*COOLDB_FracClusterSize2_C   [index] ;
+      COOLDB_FracClusterSizeTail_C[index]   = 1.  -  COOLDB_FracClusterSize1_C   [index] - COOLDB_FracClusterSize2_C   [index] ;
+      COOLDB_FracClusterSize1_C   [index+7]   = COOLDB_FracClusterSize1_C   [index+7] / Count	 ;
+      COOLDB_FracClusterSize2_C   [index+7]   = COOLDB_FracClusterSize2_C   [index+7] / Count 	 ;
+      COOLDB_MeanClusterSize_C    [index+7]   = COOLDB_MeanClusterSize_C    [index+7] / Count       ;
+      COOLDB_MeanClusterSizeTail_C[index+7]   = COOLDB_MeanClusterSize_C[index+7]  -  COOLDB_FracClusterSize1_C   [index+7] - 2*COOLDB_FracClusterSize2_C   [index+7] ;
+      COOLDB_FracClusterSizeTail_C[index+7]   = 1.  -  COOLDB_FracClusterSize1_C   [index+7] - COOLDB_FracClusterSize2_C   [index+7] ;
     }
 
   }
 
   //Dump average COOL for Joboptions Input
   ATH_MSG_VERBOSE( "Total Number of GasGap and Readout Panel "<<countGasGap<<" "<< 2*countGasGap);
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiAndEtaEff_A=["<<m_COOLDB_PhiAndEtaEff_A[0]<<","<<m_COOLDB_PhiAndEtaEff_A[1]<<","<<m_COOLDB_PhiAndEtaEff_A[2]<<","<<m_COOLDB_PhiAndEtaEff_A[3]<<","<<m_COOLDB_PhiAndEtaEff_A[4]<<","<<m_COOLDB_PhiAndEtaEff_A[5]<<","<< m_COOLDB_PhiAndEtaEff_A[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyPhiEff_A=["<<m_COOLDB_OnlyPhiEff_A[0]<<","<<m_COOLDB_OnlyPhiEff_A[1]<<","<<m_COOLDB_OnlyPhiEff_A[2]<<","<<m_COOLDB_OnlyPhiEff_A[3]<<","<<m_COOLDB_OnlyPhiEff_A[4]<<","<<m_COOLDB_OnlyPhiEff_A[5]<<","<< m_COOLDB_OnlyPhiEff_A[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyEtaEff_A=["<<m_COOLDB_OnlyEtaEff_A[0]<<","<<m_COOLDB_OnlyEtaEff_A[1]<<","<<m_COOLDB_OnlyEtaEff_A[2]<<","<<m_COOLDB_OnlyEtaEff_A[3]<<","<<m_COOLDB_OnlyEtaEff_A[4]<<","<<m_COOLDB_OnlyEtaEff_A[5]<<","<< m_COOLDB_OnlyEtaEff_A[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiAndEtaEff_A=["<<COOLDB_PhiAndEtaEff_A[0]<<","<<COOLDB_PhiAndEtaEff_A[1]<<","<<COOLDB_PhiAndEtaEff_A[2]<<","<<COOLDB_PhiAndEtaEff_A[3]<<","<<COOLDB_PhiAndEtaEff_A[4]<<","<<COOLDB_PhiAndEtaEff_A[5]<<","<< COOLDB_PhiAndEtaEff_A[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyPhiEff_A=["<<COOLDB_OnlyPhiEff_A[0]<<","<<COOLDB_OnlyPhiEff_A[1]<<","<<COOLDB_OnlyPhiEff_A[2]<<","<<COOLDB_OnlyPhiEff_A[3]<<","<<COOLDB_OnlyPhiEff_A[4]<<","<<COOLDB_OnlyPhiEff_A[5]<<","<< COOLDB_OnlyPhiEff_A[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyEtaEff_A=["<<COOLDB_OnlyEtaEff_A[0]<<","<<COOLDB_OnlyEtaEff_A[1]<<","<<COOLDB_OnlyEtaEff_A[2]<<","<<COOLDB_OnlyEtaEff_A[3]<<","<<COOLDB_OnlyEtaEff_A[4]<<","<<COOLDB_OnlyEtaEff_A[5]<<","<< COOLDB_OnlyEtaEff_A[6]<<"]");
   ATH_MSG_VERBOSE( " ");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiAndEtaEff_C=["<<m_COOLDB_PhiAndEtaEff_C[0]<<","<<m_COOLDB_PhiAndEtaEff_C[1]<<","<<m_COOLDB_PhiAndEtaEff_C[2]<<","<<m_COOLDB_PhiAndEtaEff_C[3]<<","<<m_COOLDB_PhiAndEtaEff_C[4]<<","<<m_COOLDB_PhiAndEtaEff_C[5]<<","<< m_COOLDB_PhiAndEtaEff_C[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyPhiEff_C=["<<m_COOLDB_OnlyPhiEff_C[0]<<","<<m_COOLDB_OnlyPhiEff_C[1]<<","<<m_COOLDB_OnlyPhiEff_C[2]<<","<<m_COOLDB_OnlyPhiEff_C[3]<<","<<m_COOLDB_OnlyPhiEff_C[4]<<","<<m_COOLDB_OnlyPhiEff_C[5]<<","<< m_COOLDB_OnlyPhiEff_C[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyEtaEff_C=["<<m_COOLDB_OnlyEtaEff_C[0]<<","<<m_COOLDB_OnlyEtaEff_C[1]<<","<<m_COOLDB_OnlyEtaEff_C[2]<<","<<m_COOLDB_OnlyEtaEff_C[3]<<","<<m_COOLDB_OnlyEtaEff_C[4]<<","<<m_COOLDB_OnlyEtaEff_C[5]<<","<< m_COOLDB_OnlyEtaEff_C[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiAndEtaEff_C=["<<COOLDB_PhiAndEtaEff_C[0]<<","<<COOLDB_PhiAndEtaEff_C[1]<<","<<COOLDB_PhiAndEtaEff_C[2]<<","<<COOLDB_PhiAndEtaEff_C[3]<<","<<COOLDB_PhiAndEtaEff_C[4]<<","<<COOLDB_PhiAndEtaEff_C[5]<<","<< COOLDB_PhiAndEtaEff_C[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyPhiEff_C=["<<COOLDB_OnlyPhiEff_C[0]<<","<<COOLDB_OnlyPhiEff_C[1]<<","<<COOLDB_OnlyPhiEff_C[2]<<","<<COOLDB_OnlyPhiEff_C[3]<<","<<COOLDB_OnlyPhiEff_C[4]<<","<<COOLDB_OnlyPhiEff_C[5]<<","<< COOLDB_OnlyPhiEff_C[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.OnlyEtaEff_C=["<<COOLDB_OnlyEtaEff_C[0]<<","<<COOLDB_OnlyEtaEff_C[1]<<","<<COOLDB_OnlyEtaEff_C[2]<<","<<COOLDB_OnlyEtaEff_C[3]<<","<<COOLDB_OnlyEtaEff_C[4]<<","<<COOLDB_OnlyEtaEff_C[5]<<","<< COOLDB_OnlyEtaEff_C[6]<<"]");
   ATH_MSG_VERBOSE( " ");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize1_A=["<<m_COOLDB_FracClusterSize1_A[0]<<","<<m_COOLDB_FracClusterSize1_A[1]<<","<<m_COOLDB_FracClusterSize1_A[2]<<","<<m_COOLDB_FracClusterSize1_A[3]<<","<<m_COOLDB_FracClusterSize1_A[4]<<","<<m_COOLDB_FracClusterSize1_A[5]<<","<< m_COOLDB_FracClusterSize1_A[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_FracClusterSize1_A[7]<<","<<m_COOLDB_FracClusterSize1_A[8]<<","<<m_COOLDB_FracClusterSize1_A[9]<<","<<m_COOLDB_FracClusterSize1_A[10]<<","<<m_COOLDB_FracClusterSize1_A[11]<<","<<m_COOLDB_FracClusterSize1_A[12]<<","<< m_COOLDB_FracClusterSize1_A[13]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize2_A=["<<m_COOLDB_FracClusterSize2_A[0]<<","<<m_COOLDB_FracClusterSize2_A[1]<<","<<m_COOLDB_FracClusterSize2_A[2]<<","<<m_COOLDB_FracClusterSize2_A[3]<<","<<m_COOLDB_FracClusterSize2_A[4]<<","<<m_COOLDB_FracClusterSize2_A[5]<<","<< m_COOLDB_FracClusterSize2_A[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_FracClusterSize2_A[7]<<","<<m_COOLDB_FracClusterSize2_A[8]<<","<<m_COOLDB_FracClusterSize2_A[9]<<","<<m_COOLDB_FracClusterSize2_A[10]<<","<<m_COOLDB_FracClusterSize2_A[11]<<","<<m_COOLDB_FracClusterSize2_A[12]<<","<< m_COOLDB_FracClusterSize2_A[13]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSizeTail_A=["<<m_COOLDB_FracClusterSizeTail_A[0]<<","<<m_COOLDB_FracClusterSizeTail_A[1]<<","<<m_COOLDB_FracClusterSizeTail_A[2]<<","<<m_COOLDB_FracClusterSizeTail_A[3]<<","<<m_COOLDB_FracClusterSizeTail_A[4]<<","<<m_COOLDB_FracClusterSizeTail_A[5]<<","<< m_COOLDB_FracClusterSizeTail_A[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_FracClusterSizeTail_A[7]<<","<<m_COOLDB_FracClusterSizeTail_A[8]<<","<<m_COOLDB_FracClusterSizeTail_A[9]<<","<<m_COOLDB_FracClusterSizeTail_A[10]<<","<<m_COOLDB_FracClusterSizeTail_A[11]<<","<<m_COOLDB_FracClusterSizeTail_A[12]<<","<< m_COOLDB_FracClusterSizeTail_A[13]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSizeTail_A=["<<m_COOLDB_MeanClusterSizeTail_A[0]<<","<<m_COOLDB_MeanClusterSizeTail_A[1]<<","<<m_COOLDB_MeanClusterSizeTail_A[2]<<","<<m_COOLDB_MeanClusterSizeTail_A[3]<<","<<m_COOLDB_MeanClusterSizeTail_A[4]<<","<<m_COOLDB_MeanClusterSizeTail_A[5]<<","<< m_COOLDB_MeanClusterSizeTail_A[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_MeanClusterSizeTail_A[7]<<","<<m_COOLDB_MeanClusterSizeTail_A[8]<<","<<m_COOLDB_MeanClusterSizeTail_A[9]<<","<<m_COOLDB_MeanClusterSizeTail_A[10]<<","<<m_COOLDB_MeanClusterSizeTail_A[11]<<","<<m_COOLDB_MeanClusterSizeTail_A[12]<<","<< m_COOLDB_MeanClusterSizeTail_A[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize1_A=["<<COOLDB_FracClusterSize1_A[0]<<","<<COOLDB_FracClusterSize1_A[1]<<","<<COOLDB_FracClusterSize1_A[2]<<","<<COOLDB_FracClusterSize1_A[3]<<","<<COOLDB_FracClusterSize1_A[4]<<","<<COOLDB_FracClusterSize1_A[5]<<","<< COOLDB_FracClusterSize1_A[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_FracClusterSize1_A[7]<<","<<COOLDB_FracClusterSize1_A[8]<<","<<COOLDB_FracClusterSize1_A[9]<<","<<COOLDB_FracClusterSize1_A[10]<<","<<COOLDB_FracClusterSize1_A[11]<<","<<COOLDB_FracClusterSize1_A[12]<<","<< COOLDB_FracClusterSize1_A[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize2_A=["<<COOLDB_FracClusterSize2_A[0]<<","<<COOLDB_FracClusterSize2_A[1]<<","<<COOLDB_FracClusterSize2_A[2]<<","<<COOLDB_FracClusterSize2_A[3]<<","<<COOLDB_FracClusterSize2_A[4]<<","<<COOLDB_FracClusterSize2_A[5]<<","<< COOLDB_FracClusterSize2_A[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_FracClusterSize2_A[7]<<","<<COOLDB_FracClusterSize2_A[8]<<","<<COOLDB_FracClusterSize2_A[9]<<","<<COOLDB_FracClusterSize2_A[10]<<","<<COOLDB_FracClusterSize2_A[11]<<","<<COOLDB_FracClusterSize2_A[12]<<","<< COOLDB_FracClusterSize2_A[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSizeTail_A=["<<COOLDB_FracClusterSizeTail_A[0]<<","<<COOLDB_FracClusterSizeTail_A[1]<<","<<COOLDB_FracClusterSizeTail_A[2]<<","<<COOLDB_FracClusterSizeTail_A[3]<<","<<COOLDB_FracClusterSizeTail_A[4]<<","<<COOLDB_FracClusterSizeTail_A[5]<<","<< COOLDB_FracClusterSizeTail_A[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_FracClusterSizeTail_A[7]<<","<<COOLDB_FracClusterSizeTail_A[8]<<","<<COOLDB_FracClusterSizeTail_A[9]<<","<<COOLDB_FracClusterSizeTail_A[10]<<","<<COOLDB_FracClusterSizeTail_A[11]<<","<<COOLDB_FracClusterSizeTail_A[12]<<","<< COOLDB_FracClusterSizeTail_A[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSizeTail_A=["<<COOLDB_MeanClusterSizeTail_A[0]<<","<<COOLDB_MeanClusterSizeTail_A[1]<<","<<COOLDB_MeanClusterSizeTail_A[2]<<","<<COOLDB_MeanClusterSizeTail_A[3]<<","<<COOLDB_MeanClusterSizeTail_A[4]<<","<<COOLDB_MeanClusterSizeTail_A[5]<<","<< COOLDB_MeanClusterSizeTail_A[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_MeanClusterSizeTail_A[7]<<","<<COOLDB_MeanClusterSizeTail_A[8]<<","<<COOLDB_MeanClusterSizeTail_A[9]<<","<<COOLDB_MeanClusterSizeTail_A[10]<<","<<COOLDB_MeanClusterSizeTail_A[11]<<","<<COOLDB_MeanClusterSizeTail_A[12]<<","<< COOLDB_MeanClusterSizeTail_A[13]<<"]");
   ATH_MSG_VERBOSE( " ");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize1_C=["<<m_COOLDB_FracClusterSize1_C[0]<<","<<m_COOLDB_FracClusterSize1_C[1]<<","<<m_COOLDB_FracClusterSize1_C[2]<<","<<m_COOLDB_FracClusterSize1_C[3]<<","<<m_COOLDB_FracClusterSize1_C[4]<<","<<m_COOLDB_FracClusterSize1_C[5]<<","<< m_COOLDB_FracClusterSize1_C[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_FracClusterSize1_C[7]<<","<<m_COOLDB_FracClusterSize1_C[8]<<","<<m_COOLDB_FracClusterSize1_C[9]<<","<<m_COOLDB_FracClusterSize1_C[10]<<","<<m_COOLDB_FracClusterSize1_C[11]<<","<<m_COOLDB_FracClusterSize1_C[12]<<","<< m_COOLDB_FracClusterSize1_C[13]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize2_C=["<<m_COOLDB_FracClusterSize2_C[0]<<","<<m_COOLDB_FracClusterSize2_C[1]<<","<<m_COOLDB_FracClusterSize2_C[2]<<","<<m_COOLDB_FracClusterSize2_C[3]<<","<<m_COOLDB_FracClusterSize2_C[4]<<","<<m_COOLDB_FracClusterSize2_C[5]<<","<< m_COOLDB_FracClusterSize2_C[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_FracClusterSize2_C[7]<<","<<m_COOLDB_FracClusterSize2_C[8]<<","<<m_COOLDB_FracClusterSize2_C[9]<<","<<m_COOLDB_FracClusterSize2_C[10]<<","<<m_COOLDB_FracClusterSize2_C[11]<<","<<m_COOLDB_FracClusterSize2_C[12]<<","<< m_COOLDB_FracClusterSize2_C[13]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSizeTail_C=["<<m_COOLDB_FracClusterSizeTail_C[0]<<","<<m_COOLDB_FracClusterSizeTail_C[1]<<","<<m_COOLDB_FracClusterSizeTail_C[2]<<","<<m_COOLDB_FracClusterSizeTail_C[3]<<","<<m_COOLDB_FracClusterSizeTail_C[4]<<","<<m_COOLDB_FracClusterSizeTail_C[5]<<","<< m_COOLDB_FracClusterSizeTail_C[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_FracClusterSizeTail_C[7]<<","<<m_COOLDB_FracClusterSizeTail_C[8]<<","<<m_COOLDB_FracClusterSizeTail_C[9]<<","<<m_COOLDB_FracClusterSizeTail_C[10]<<","<<m_COOLDB_FracClusterSizeTail_C[11]<<","<<m_COOLDB_FracClusterSizeTail_C[12]<<","<< m_COOLDB_FracClusterSizeTail_C[13]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSizeTail_C=["<<m_COOLDB_MeanClusterSizeTail_C[0]<<","<<m_COOLDB_MeanClusterSizeTail_C[1]<<","<<m_COOLDB_MeanClusterSizeTail_C[2]<<","<<m_COOLDB_MeanClusterSizeTail_C[3]<<","<<m_COOLDB_MeanClusterSizeTail_C[4]<<","<<m_COOLDB_MeanClusterSizeTail_C[5]<<","<< m_COOLDB_MeanClusterSizeTail_C[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_MeanClusterSizeTail_C[7]<<","<<m_COOLDB_MeanClusterSizeTail_C[8]<<","<<m_COOLDB_MeanClusterSizeTail_C[9]<<","<<m_COOLDB_MeanClusterSizeTail_C[10]<<","<<m_COOLDB_MeanClusterSizeTail_C[11]<<","<<m_COOLDB_MeanClusterSizeTail_C[12]<<","<< m_COOLDB_MeanClusterSizeTail_C[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize1_C=["<<COOLDB_FracClusterSize1_C[0]<<","<<COOLDB_FracClusterSize1_C[1]<<","<<COOLDB_FracClusterSize1_C[2]<<","<<COOLDB_FracClusterSize1_C[3]<<","<<COOLDB_FracClusterSize1_C[4]<<","<<COOLDB_FracClusterSize1_C[5]<<","<< COOLDB_FracClusterSize1_C[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_FracClusterSize1_C[7]<<","<<COOLDB_FracClusterSize1_C[8]<<","<<COOLDB_FracClusterSize1_C[9]<<","<<COOLDB_FracClusterSize1_C[10]<<","<<COOLDB_FracClusterSize1_C[11]<<","<<COOLDB_FracClusterSize1_C[12]<<","<< COOLDB_FracClusterSize1_C[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSize2_C=["<<COOLDB_FracClusterSize2_C[0]<<","<<COOLDB_FracClusterSize2_C[1]<<","<<COOLDB_FracClusterSize2_C[2]<<","<<COOLDB_FracClusterSize2_C[3]<<","<<COOLDB_FracClusterSize2_C[4]<<","<<COOLDB_FracClusterSize2_C[5]<<","<< COOLDB_FracClusterSize2_C[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_FracClusterSize2_C[7]<<","<<COOLDB_FracClusterSize2_C[8]<<","<<COOLDB_FracClusterSize2_C[9]<<","<<COOLDB_FracClusterSize2_C[10]<<","<<COOLDB_FracClusterSize2_C[11]<<","<<COOLDB_FracClusterSize2_C[12]<<","<< COOLDB_FracClusterSize2_C[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.FracClusterSizeTail_C=["<<COOLDB_FracClusterSizeTail_C[0]<<","<<COOLDB_FracClusterSizeTail_C[1]<<","<<COOLDB_FracClusterSizeTail_C[2]<<","<<COOLDB_FracClusterSizeTail_C[3]<<","<<COOLDB_FracClusterSizeTail_C[4]<<","<<COOLDB_FracClusterSizeTail_C[5]<<","<< COOLDB_FracClusterSizeTail_C[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_FracClusterSizeTail_C[7]<<","<<COOLDB_FracClusterSizeTail_C[8]<<","<<COOLDB_FracClusterSizeTail_C[9]<<","<<COOLDB_FracClusterSizeTail_C[10]<<","<<COOLDB_FracClusterSizeTail_C[11]<<","<<COOLDB_FracClusterSizeTail_C[12]<<","<< COOLDB_FracClusterSizeTail_C[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSizeTail_C=["<<COOLDB_MeanClusterSizeTail_C[0]<<","<<COOLDB_MeanClusterSizeTail_C[1]<<","<<COOLDB_MeanClusterSizeTail_C[2]<<","<<COOLDB_MeanClusterSizeTail_C[3]<<","<<COOLDB_MeanClusterSizeTail_C[4]<<","<<COOLDB_MeanClusterSizeTail_C[5]<<","<< COOLDB_MeanClusterSizeTail_C[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_MeanClusterSizeTail_C[7]<<","<<COOLDB_MeanClusterSizeTail_C[8]<<","<<COOLDB_MeanClusterSizeTail_C[9]<<","<<COOLDB_MeanClusterSizeTail_C[10]<<","<<COOLDB_MeanClusterSizeTail_C[11]<<","<<COOLDB_MeanClusterSizeTail_C[12]<<","<< COOLDB_MeanClusterSizeTail_C[13]<<"]");
   ATH_MSG_VERBOSE( " ");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.GapEff_A=["<<m_COOLDB_GapEff_A[0]<<","<<m_COOLDB_GapEff_A[1]<<","<<m_COOLDB_GapEff_A[2]<<","<<m_COOLDB_GapEff_A[3]<<","<<m_COOLDB_GapEff_A[4]<<","<<m_COOLDB_GapEff_A[5]<<","<< m_COOLDB_GapEff_A[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiEff_A=["<<m_COOLDB_PhiEff_A[0]<<","<<m_COOLDB_PhiEff_A[1]<<","<<m_COOLDB_PhiEff_A[2]<<","<<m_COOLDB_PhiEff_A[3]<<","<<m_COOLDB_PhiEff_A[4]<<","<<m_COOLDB_PhiEff_A[5]<<","<< m_COOLDB_PhiEff_A[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.EtaEff_A=["<<m_COOLDB_EtaEff_A[0]<<","<<m_COOLDB_EtaEff_A[1]<<","<<m_COOLDB_EtaEff_A[2]<<","<<m_COOLDB_EtaEff_A[3]<<","<<m_COOLDB_EtaEff_A[4]<<","<<m_COOLDB_EtaEff_A[5]<<","<< m_COOLDB_EtaEff_A[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.GapEff_A=["<<COOLDB_GapEff_A[0]<<","<<COOLDB_GapEff_A[1]<<","<<COOLDB_GapEff_A[2]<<","<<COOLDB_GapEff_A[3]<<","<<COOLDB_GapEff_A[4]<<","<<COOLDB_GapEff_A[5]<<","<< COOLDB_GapEff_A[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiEff_A=["<<COOLDB_PhiEff_A[0]<<","<<COOLDB_PhiEff_A[1]<<","<<COOLDB_PhiEff_A[2]<<","<<COOLDB_PhiEff_A[3]<<","<<COOLDB_PhiEff_A[4]<<","<<COOLDB_PhiEff_A[5]<<","<< COOLDB_PhiEff_A[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.EtaEff_A=["<<COOLDB_EtaEff_A[0]<<","<<COOLDB_EtaEff_A[1]<<","<<COOLDB_EtaEff_A[2]<<","<<COOLDB_EtaEff_A[3]<<","<<COOLDB_EtaEff_A[4]<<","<<COOLDB_EtaEff_A[5]<<","<< COOLDB_EtaEff_A[6]<<"]");
   ATH_MSG_VERBOSE( " ");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.GapEff_C=["<<m_COOLDB_GapEff_C[0]<<","<<m_COOLDB_GapEff_C[1]<<","<<m_COOLDB_GapEff_C[2]<<","<<m_COOLDB_GapEff_C[3]<<","<<m_COOLDB_GapEff_C[4]<<","<<m_COOLDB_GapEff_C[5]<<","<< m_COOLDB_GapEff_C[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiEff_C=["<<m_COOLDB_PhiEff_C[0]<<","<<m_COOLDB_PhiEff_C[1]<<","<<m_COOLDB_PhiEff_C[2]<<","<<m_COOLDB_PhiEff_C[3]<<","<<m_COOLDB_PhiEff_C[4]<<","<<m_COOLDB_PhiEff_C[5]<<","<< m_COOLDB_PhiEff_C[6]<<"]");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.EtaEff_C=["<<m_COOLDB_EtaEff_C[0]<<","<<m_COOLDB_EtaEff_C[1]<<","<<m_COOLDB_EtaEff_C[2]<<","<<m_COOLDB_EtaEff_C[3]<<","<<m_COOLDB_EtaEff_C[4]<<","<<m_COOLDB_EtaEff_C[5]<<","<< m_COOLDB_EtaEff_C[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.GapEff_C=["<<COOLDB_GapEff_C[0]<<","<<COOLDB_GapEff_C[1]<<","<<COOLDB_GapEff_C[2]<<","<<COOLDB_GapEff_C[3]<<","<<COOLDB_GapEff_C[4]<<","<<COOLDB_GapEff_C[5]<<","<< COOLDB_GapEff_C[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.PhiEff_C=["<<COOLDB_PhiEff_C[0]<<","<<COOLDB_PhiEff_C[1]<<","<<COOLDB_PhiEff_C[2]<<","<<COOLDB_PhiEff_C[3]<<","<<COOLDB_PhiEff_C[4]<<","<<COOLDB_PhiEff_C[5]<<","<< COOLDB_PhiEff_C[6]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.EtaEff_C=["<<COOLDB_EtaEff_C[0]<<","<<COOLDB_EtaEff_C[1]<<","<<COOLDB_EtaEff_C[2]<<","<<COOLDB_EtaEff_C[3]<<","<<COOLDB_EtaEff_C[4]<<","<<COOLDB_EtaEff_C[5]<<","<< COOLDB_EtaEff_C[6]<<"]");
   ATH_MSG_VERBOSE( " ");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSize_A=["<<m_COOLDB_MeanClusterSize_A[0]<<","<<m_COOLDB_MeanClusterSize_A[1]<<","<<m_COOLDB_MeanClusterSize_A[2]<<","<<m_COOLDB_MeanClusterSize_A[3]<<","<<m_COOLDB_MeanClusterSize_A[4]<<","<<m_COOLDB_MeanClusterSize_A[5]<<","<< m_COOLDB_MeanClusterSize_A[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_MeanClusterSize_A[7]<<","<<m_COOLDB_MeanClusterSize_A[8]<<","<<m_COOLDB_MeanClusterSize_A[9]<<","<<m_COOLDB_MeanClusterSize_A[10]<<","<<m_COOLDB_MeanClusterSize_A[11]<<","<<m_COOLDB_MeanClusterSize_A[12]<<","<< m_COOLDB_MeanClusterSize_A[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSize_A=["<<COOLDB_MeanClusterSize_A[0]<<","<<COOLDB_MeanClusterSize_A[1]<<","<<COOLDB_MeanClusterSize_A[2]<<","<<COOLDB_MeanClusterSize_A[3]<<","<<COOLDB_MeanClusterSize_A[4]<<","<<COOLDB_MeanClusterSize_A[5]<<","<< COOLDB_MeanClusterSize_A[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_MeanClusterSize_A[7]<<","<<COOLDB_MeanClusterSize_A[8]<<","<<COOLDB_MeanClusterSize_A[9]<<","<<COOLDB_MeanClusterSize_A[10]<<","<<COOLDB_MeanClusterSize_A[11]<<","<<COOLDB_MeanClusterSize_A[12]<<","<< COOLDB_MeanClusterSize_A[13]<<"]");
   ATH_MSG_VERBOSE( " ");
-  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSize_C=["<<m_COOLDB_MeanClusterSize_C[0]<<","<<m_COOLDB_MeanClusterSize_C[1]<<","<<m_COOLDB_MeanClusterSize_C[2]<<","<<m_COOLDB_MeanClusterSize_C[3]<<","<<m_COOLDB_MeanClusterSize_C[4]<<","<<m_COOLDB_MeanClusterSize_C[5]<<","<< m_COOLDB_MeanClusterSize_C[6]);
-  ATH_MSG_VERBOSE( ","<<m_COOLDB_MeanClusterSize_C[7]<<","<<m_COOLDB_MeanClusterSize_C[8]<<","<<m_COOLDB_MeanClusterSize_C[9]<<","<<m_COOLDB_MeanClusterSize_C[10]<<","<<m_COOLDB_MeanClusterSize_C[11]<<","<<m_COOLDB_MeanClusterSize_C[12]<<","<< m_COOLDB_MeanClusterSize_C[13]<<"]");
+  ATH_MSG_VERBOSE( "RpcDigitizationTool.MeanClusterSize_C=["<<COOLDB_MeanClusterSize_C[0]<<","<<COOLDB_MeanClusterSize_C[1]<<","<<COOLDB_MeanClusterSize_C[2]<<","<<COOLDB_MeanClusterSize_C[3]<<","<<COOLDB_MeanClusterSize_C[4]<<","<<COOLDB_MeanClusterSize_C[5]<<","<< COOLDB_MeanClusterSize_C[6]);
+  ATH_MSG_VERBOSE( ","<<COOLDB_MeanClusterSize_C[7]<<","<<COOLDB_MeanClusterSize_C[8]<<","<<COOLDB_MeanClusterSize_C[9]<<","<<COOLDB_MeanClusterSize_C[10]<<","<<COOLDB_MeanClusterSize_C[11]<<","<<COOLDB_MeanClusterSize_C[12]<<","<< COOLDB_MeanClusterSize_C[13]<<"]");
 
 
 
@@ -2903,7 +2917,7 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		    ATH_MSG_VERBOSE ( "Dead RPC panel: " <<m_rSummarySvc->RPC_DeadStripListMap().find(atlasId)->second<<" "<<m_rSummarySvc->RPC_ProjectedTracksMap().find(atlasId)->second<<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
 		  }
 
-		  if(DeadPanel_fromlist.find(atlasId)->second == 1){
+		  if(m_DeadPanel_fromlist.find(atlasId)->second == 1){
 		    ATH_MSG_VERBOSE ( atlasId <<" Dead RPC panel from file list: " <<" sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi);
 		  }
 
@@ -2951,43 +2965,43 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 
 		  if(ProjectedTracks<m_CutProjectedTracks  ||  ProjectedTracks>10000000 || efficiency<=0 || efficiency>1 || efficiencygap<=0 || efficiencygap>1 ){
 		    if( stationEta >=  0){
-		      efficiencygap       = m_COOLDB_GapEff_A             [indexSName]  ;
-		      efficiency	      = m_COOLDB_PhiEff_A             [indexSName]  ;
+		      efficiencygap       = COOLDB_GapEff_A             [indexSName]  ;
+		      efficiency	      = COOLDB_PhiEff_A             [indexSName]  ;
 		      if(measphi == 0){
-			efficiency	      = m_COOLDB_EtaEff_A             [indexSName]  ;
+			efficiency	      = COOLDB_EtaEff_A             [indexSName]  ;
 		      }
 		    }
 		    else{
-		      efficiencygap	    = m_COOLDB_GapEff_A 	    [indexSName]  ;
-		      efficiency	    = m_COOLDB_PhiEff_A 	    [indexSName]  ;
+		      efficiencygap	    = COOLDB_GapEff_A 	    [indexSName]  ;
+		      efficiency	    = COOLDB_PhiEff_A 	    [indexSName]  ;
 		      if(measphi == 0){
-			efficiency	    = m_COOLDB_EtaEff_A 	    [indexSName]  ;
+			efficiency	    = COOLDB_EtaEff_A 	    [indexSName]  ;
 		      }
 		    }
 		  }
 		  if(ProjectedTracks<m_CutProjectedTracks ||  ProjectedTracks>10000000 || averageCS>m_CutMaxClusterSize || averageCS<=1 || FracCStail<0 || FracCS1<0 || FracCS2<0  || FracCStail>1 || FracCS1>1 || FracCS2>1){
 		    if( stationEta >=  0){
-		      averageCS	      = m_COOLDB_MeanClusterSize_A    [indexSName+7];
-		      FracCS1	      = m_COOLDB_FracClusterSize1_A   [indexSName+7];
-		      FracCS2	      = m_COOLDB_FracClusterSize2_A   [indexSName+7];
-		      averageCStail       = m_COOLDB_MeanClusterSizeTail_A[indexSName+7];
+		      averageCS	      = COOLDB_MeanClusterSize_A    [indexSName+7];
+		      FracCS1	      = COOLDB_FracClusterSize1_A   [indexSName+7];
+		      FracCS2	      = COOLDB_FracClusterSize2_A   [indexSName+7];
+		      averageCStail       = COOLDB_MeanClusterSizeTail_A[indexSName+7];
 		      if(measphi == 0){
-			averageCS	      = m_COOLDB_MeanClusterSize_A    [indexSName]  ;
-			FracCS1	      = m_COOLDB_FracClusterSize1_A   [indexSName]  ;
-			FracCS2	      = m_COOLDB_FracClusterSize2_A   [indexSName]  ;
-			averageCStail      = m_COOLDB_MeanClusterSizeTail_A[indexSName]  ;
+			averageCS	      = COOLDB_MeanClusterSize_A    [indexSName]  ;
+			FracCS1	      = COOLDB_FracClusterSize1_A   [indexSName]  ;
+			FracCS2	      = COOLDB_FracClusterSize2_A   [indexSName]  ;
+			averageCStail      = COOLDB_MeanClusterSizeTail_A[indexSName]  ;
 		      }
 		    }
 		    else{
-		      averageCS	    = m_COOLDB_MeanClusterSize_A    [indexSName+7];
-		      FracCS1 	    = m_COOLDB_FracClusterSize1_A   [indexSName+7];
-		      FracCS2 	    = m_COOLDB_FracClusterSize2_A   [indexSName+7];
-		      averageCStail	    = m_COOLDB_MeanClusterSizeTail_A[indexSName+7];
+		      averageCS	    = COOLDB_MeanClusterSize_A    [indexSName+7];
+		      FracCS1 	    = COOLDB_FracClusterSize1_A   [indexSName+7];
+		      FracCS2 	    = COOLDB_FracClusterSize2_A   [indexSName+7];
+		      averageCStail	    = COOLDB_MeanClusterSizeTail_A[indexSName+7];
 		      if(measphi == 0){
-			averageCS	    = m_COOLDB_MeanClusterSize_A    [indexSName]  ;
-			FracCS1	    = m_COOLDB_FracClusterSize1_A   [indexSName]  ;
-			FracCS2	    = m_COOLDB_FracClusterSize2_A   [indexSName]  ;
-			averageCStail      = m_COOLDB_MeanClusterSizeTail_A[indexSName]  ;
+			averageCS	    = COOLDB_MeanClusterSize_A    [indexSName]  ;
+			FracCS1	    = COOLDB_FracClusterSize1_A   [indexSName]  ;
+			FracCS2	    = COOLDB_FracClusterSize2_A   [indexSName]  ;
+			averageCStail      = COOLDB_MeanClusterSizeTail_A[indexSName]  ;
 		      }
 		    }
 		  }
@@ -3029,12 +3043,3 @@ double time_correction(double x, double y, double z)
   double speed_of_light = 299.792458;     // mm/ns
   return sqrt(x*x+y*y+z*z)/speed_of_light; //FIXME use CLHEP::c_light
 }
-
-
-
-
-
-
-
-
-

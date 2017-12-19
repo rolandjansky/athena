@@ -27,8 +27,12 @@
   //Constructor
   LArMinBiasAlg:: LArMinBiasAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_larmcsym("LArMCSymTool"),m_datasetID_lowPt(119995),m_datasetID_highPt(119996),
-    m_weight_lowPt(39.8606),m_weight_highPt(0.138128)
+    m_larmcsym("LArMCSymTool"),
+    m_datasetID_lowPt(119995),
+    m_datasetID_highPt(119996),
+    m_weight_lowPt(39.8606),
+    m_weight_highPt(0.138128),
+    m_cablingService("LArCablingService")
   {
      declareProperty("datasetID_lowPt",m_datasetID_lowPt);
      declareProperty("datasetID_highPt",m_datasetID_highPt);

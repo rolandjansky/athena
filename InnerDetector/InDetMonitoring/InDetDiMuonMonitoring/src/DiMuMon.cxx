@@ -321,7 +321,7 @@ StatusCode DiMuMon::fillHistograms()
     double idTrkPt(0),ptSum(0);
     float iso_pt40(0);
     if( !muon->isolation(iso_pt40, xAOD::Iso::ptcone40) ) {
-      return false;
+      return StatusCode::FAILURE;
     }
     else {
       idTrkPt = idTrk->pt();

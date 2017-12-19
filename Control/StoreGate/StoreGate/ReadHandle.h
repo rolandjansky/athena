@@ -264,6 +264,28 @@ ReadHandle<T> makeHandle (const ReadHandleKey<T>& key,
                           const EventContext& ctx);
 
 
+/**
+ * @brief Convenience function to retrieve an object given a @c ReadHandleKey.
+ * @param key The key to retrieve.
+ * @param ctx The event context.
+ *
+ * Returns the object.  Returns nullptr if the key is null or if there's an error.
+ */
+template <class T>
+const T* get (const ReadHandleKey<T>& key);
+
+
+/**
+ * @brief Convenience function to retrieve an object given a @c ReadHandleKey.
+ * @param key The key to retrieve.
+ *
+ * Returns the object.  Returns nullptr if the key is null or if there's an error.
+ */
+template <class T>
+const T* get (const ReadHandleKey<T>& key,
+              const EventContext& ctx);
+
+
 } /* namespace SG */
 
 

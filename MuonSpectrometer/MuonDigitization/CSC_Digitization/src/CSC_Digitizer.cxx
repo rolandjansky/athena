@@ -20,6 +20,8 @@
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
 
+using namespace MuonGM;
+
 // Constructors
 CSC_Digitizer::CSC_Digitizer(CscHitIdHelper * cscHitHelper,
 			     const MuonDetectorManager* muonMgr,
@@ -59,10 +61,10 @@ StatusCode CSC_Digitizer::initialize() {
 
   // initialize random number generators
   //  double average_int = 30;  // average interactions per cm
-  //  m_FlatDist = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);
-  //  m_GaussDist = CLHEP::RandGauss::shoot(m_rndmEngine,0.0,1.0);  
-  //  m_GammaDist = CLHEP::RandGamma::shoot(m_rndmEngine, (1.0+m_Polia), 1.0); 
-  //  m_PoissonDist = CLHEP::RandPoisson::shoot(m_rndmEngine, average_int); 
+  //  m_FlatDist = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);
+  //  m_GaussDist = CLHEP::RandGauss::shoot(rndmEngine,0.0,1.0);  
+  //  m_GammaDist = CLHEP::RandGamma::shoot(rndmEngine, (1.0+m_Polia), 1.0); 
+  //  m_PoissonDist = CLHEP::RandPoisson::shoot(rndmEngine, average_int); 
   
   // initialize the CSC identifier helper
   m_cscIdHelper = m_muonMgr->cscIdHelper();
@@ -114,7 +116,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 					std::vector<IdentifierHash>& hashVec,
 					std::map<IdentifierHash,std::vector<float> >& data_SampleMap,
 					std::map<IdentifierHash,std::vector<float> >& data_SampleMapOddPhase,
-					CLHEP::HepRandomEngine* m_rndmEngine) {
+					CLHEP::HepRandomEngine* rndmEngine) {
   // method to digitize a single hit. Must be called in a loop over hits
   // after a call to the method "StatusCode CSC_Digitize::initialize()" 
   // get the step vector from the begining and end vectors of the G4 step
@@ -234,7 +236,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
       nInter = energyLoss/elecEnergy;
     } else {
       double average_int = 30;  // average interactions per cm
-      double pois = CLHEP::RandPoisson::shoot(m_rndmEngine, average_int);
+      double pois = CLHEP::RandPoisson::shoot(rndmEngine, average_int);
       nInter = int(step*pois/10.0 + 0.5); //  number of interaction according to Poisson
       if (m_debug) std::cout << "[CSC_Digitizer::digitize_hit(NEW)] nInter info from random number pois:step:nInter  "
                              << pois << " " << step << " " << nInter << std::endl;
@@ -254,7 +256,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   for (int i=0; i<nInter; i++) {
     double t = 0.0;
     if (ipart == 1 || ipart == 999) t = step/2.0; // one interaction for photons & geantinos
-    else t = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);                 // for other particles
+    else t = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);                 // for other particles
     xc = startHit.x() + t*stepHit.x();
     yc = startHit.y() + t*stepHit.y();
     zc = startHit.z() + t*stepHit.z();
@@ -282,7 +284,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
     if (outsideWindow(m_bunchTime)) continue; 
     
     // number of electrons in this interaction
-    double flat = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);
+    double flat = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);
     double p = *(m_sprob+m_maxElectron-1) * flat;
     for (int k=0; k < m_maxElectron; k++) {
       if (p <= *(m_sprob+k) ) {
@@ -295,7 +297,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
     // find the charge on the wire in electron-equivalent charge
 
     m_Polia = 0.38;           // parmeter for charge loss:: random gamma function	 
-    double gammaDist = CLHEP::RandGamma::shoot(m_rndmEngine, (1.0+m_Polia), 1.0);
+    double gammaDist = CLHEP::RandGamma::shoot(rndmEngine, (1.0+m_Polia), 1.0);
     wireCharge = qWire(nElectrons,gammaDist);
  
     if (m_debug) {
@@ -405,7 +407,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit, 
 					std::vector<IdentifierHash>& hashVec,
 					std::map<IdentifierHash,std::vector<float> >& data_SampleMap,
-					CLHEP::HepRandomEngine* m_rndmEngine) {
+					CLHEP::HepRandomEngine* rndmEngine) {
   // method to digitize a single hit. Must be called in a loop over hits
   // after a call to the method "StatusCode CSC_Digitize::initialize()" 
   // get the step vector from the begining and end vectors of the G4 step
@@ -531,7 +533,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
     nInter = 1;
   else {
     double average_int = 30;  // average interactions per cm
-    double pois = CLHEP::RandPoisson::shoot(m_rndmEngine, average_int);
+    double pois = CLHEP::RandPoisson::shoot(rndmEngine, average_int);
     nInter = int(step*pois/10.0 + 0.5); //  number of interaction according to Poisson
     if (m_debug) std::cout << "[CSC_Digitizer::digitize_hit(NEW)] nInter info from random number pois:step:nInter  "
 			   << pois << " " << step << " " << nInter << std::endl;
@@ -552,7 +554,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   for (int i=0; i<nInter; i++) {
     double t = 0.0;
     if (ipart == 1 || ipart == 999) t = step/2.0; // one interaction for photons & geantinos
-    else t = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);                 // for other particles
+    else t = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);                 // for other particles
     xc = startHit.x() + t*stepHit.x();
     yc = startHit.y() + t*stepHit.y();
     zc = startHit.z() + t*stepHit.z();
@@ -580,7 +582,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
     if (outsideWindow(m_bunchTime)) continue; 
     
     // number of electrons in this interaction
-    double flat = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);
+    double flat = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);
     double p = *(m_sprob+m_maxElectron-1) * flat;
     for (int k=0; k < m_maxElectron; k++) {
       if (p <= *(m_sprob+k) ) {
@@ -593,7 +595,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
     // find the charge on the wire in electron-equivalent charge
 
     m_Polia = 0.38;           // parmeter for charge loss:: random gamma function	 
-    double gammaDist = CLHEP::RandGamma::shoot(m_rndmEngine, (1.0+m_Polia), 1.0);
+    double gammaDist = CLHEP::RandGamma::shoot(rndmEngine, (1.0+m_Polia), 1.0);
     wireCharge = qWire(nElectrons,gammaDist);
  
     if (m_debug) {
@@ -708,7 +710,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit, 
 					std::vector<IdentifierHash>& hashVec,
 					std::map<IdentifierHash,std::pair<double,double> >& data_map,
-					CLHEP::HepRandomEngine* m_rndmEngine) {
+					CLHEP::HepRandomEngine* rndmEngine) {
   // method to digitize a single hit. Must be called in a loop over hits
   // after a call to the method "StatusCode CSC_Digitize::initialize()" 
   // get the step vector from the begining and end vectors of the G4 step
@@ -836,7 +838,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
     nInter = 1;
   else {
     double average_int = 30;  // average interactions per cm
-    double pois = CLHEP::RandPoisson::shoot(m_rndmEngine, average_int);
+    double pois = CLHEP::RandPoisson::shoot(rndmEngine, average_int);
     nInter = int(step*pois/10.0 + 0.5); //  number of interaction according to Poisson
     if (m_debug)
       std::cout << "[CSC_Digitizer::digitize_hit] nInter info from random number pois:step:nInter  "
@@ -858,7 +860,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   for (int i=0; i<nInter; i++) {
     double t = 0.0;
     if (ipart == 1 || ipart == 999) t = step/2.0; // one interaction for photons & geantinos
-    else t = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);                 // for other particles
+    else t = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);                 // for other particles
     xc = startHit.x() + t*stepHit.x();
     yc = startHit.y() + t*stepHit.y();
     zc = startHit.z() + t*stepHit.z();
@@ -886,7 +888,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
     if (outsideWindow(m_bunchTime)) continue; 
     
     // number of electrons in this interaction
-    double flat = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);
+    double flat = CLHEP::RandFlat::shoot(rndmEngine, 0.0,1.0);
     double p = *(m_sprob+m_maxElectron-1) * flat;
     for (int k=0; k < m_maxElectron; k++) {
       if (p <= *(m_sprob+k) ) {
@@ -898,7 +900,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 
     // find the charge on the wire in electron-equivalent charge
     m_Polia = 0.38;           // parmeter for charge loss:: random gamma function	 
-    double gammaDist = CLHEP::RandGamma::shoot(m_rndmEngine, (1.0+m_Polia), 1.0);
+    double gammaDist = CLHEP::RandGamma::shoot(rndmEngine, (1.0+m_Polia), 1.0);
     wireCharge = qWire(nElectrons,gammaDist);
  
     if (m_debug) {

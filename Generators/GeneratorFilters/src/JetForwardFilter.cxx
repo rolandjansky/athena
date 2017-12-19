@@ -153,9 +153,7 @@ StatusCode JetForwardFilter::filterEvent() {
   if (flagNJets != 0 && flag1stJet != 0 && flag2ndJet != 0 && flagJJ != 0 && flagW != 0) {
     ATH_MSG_DEBUG("Pass filter");
     // If passed then add a weight!
-    McEventCollection::const_iterator itr;
-    for (itr = events()->begin(); itr!=events()->end(); ++itr) {
-      HepMC::GenEvent* genEvt = (*itr);
+    for (HepMC::GenEvent* genEvt : *events()) {
       // Store the inverse of the weighting for conventions sake
       genEvt->weights().push_back(1.0/weighting);
     }

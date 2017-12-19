@@ -1,4 +1,3 @@
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../TrigMuonEFInfoToMuonCnvAlg.h"
 #include "../TrigMuonEFInfoToMuonCnvTool.h"
 #include "../TrigMuonEFInfoCnvTestAlg.h"
@@ -14,36 +13,19 @@
 #include "../MuonFeatureCnvTool.h"
 #include "../MuonFeatureCnvTestAlg.h"
 
-DECLARE_TOOL_FACTORY(TrigMuonEFInfoToMuonCnvTool)
-DECLARE_ALGORITHM_FACTORY(TrigMuonEFInfoCnvTestAlg)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(xAODMaker, TrigMuonEFInfoToMuonCnvAlg)
+DECLARE_COMPONENT( TrigMuonEFInfoToMuonCnvTool )
+DECLARE_COMPONENT( TrigMuonEFInfoCnvTestAlg )
+DECLARE_COMPONENT( xAODMaker::TrigMuonEFInfoToMuonCnvAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY(xAODMaker, IsoMuonFeatureCnvTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(xAODMaker, IsoMuonFeatureContainerCnvTool)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(xAODMaker, IsoMuonFeatureCnvAlg)
+DECLARE_COMPONENT( xAODMaker::IsoMuonFeatureCnvTool )
+DECLARE_COMPONENT( xAODMaker::IsoMuonFeatureContainerCnvTool )
+DECLARE_COMPONENT( xAODMaker::IsoMuonFeatureCnvAlg )
 
-DECLARE_NAMESPACE_TOOL_FACTORY(xAODMaker, CombinedMuonFeatureCnvTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(xAODMaker, CombinedMuonFeatureContainerCnvTool)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(xAODMaker, CombinedMuonFeatureCnvAlg)
+DECLARE_COMPONENT( xAODMaker::CombinedMuonFeatureCnvTool )
+DECLARE_COMPONENT( xAODMaker::CombinedMuonFeatureContainerCnvTool )
+DECLARE_COMPONENT( xAODMaker::CombinedMuonFeatureCnvAlg )
 
-DECLARE_TOOL_FACTORY(MuonFeatureCnvTool)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(xAODMaker, MuonFeatureCnvAlg)
-DECLARE_ALGORITHM_FACTORY(MuonFeatureCnvTestAlg)
+DECLARE_COMPONENT( MuonFeatureCnvTool )
+DECLARE_COMPONENT( xAODMaker::MuonFeatureCnvAlg )
+DECLARE_COMPONENT( MuonFeatureCnvTestAlg )
 
-DECLARE_FACTORY_ENTRIES(xAODTrigMuonCnv)
-{
-   DECLARE_TOOL(TrigMuonEFInfoToMuonCnvTool)
-   DECLARE_NAMESPACE_ALGORITHM(xAODMaker, TrigMuonEFInfoToMuonCnvAlg)
-   DECLARE_ALGORITHM(TrigMuonEFInfoCnvTestAlg)
-
-   DECLARE_NAMESPACE_TOOL(xAODMaker, IsoMuonFeatureCnvTool)
-   DECLARE_NAMESPACE_ALGORITHM(xAODMaker, IsoMuonFeatureCnvAlg)
-   DECLARE_NAMESPACE_TOOL(xAODMaker, IsoMuonFeatureContainerCnvTool)
-   DECLARE_NAMESPACE_TOOL(xAODMaker, CombinedMuonFeatureCnvTool)
-   DECLARE_NAMESPACE_ALGORITHM(xAODMaker, CombinedMuonFeatureCnvAlg)
-   DECLARE_NAMESPACE_TOOL(xAODMaker, CombinedMuonFeatureContainerCnvTool)
-
-   DECLARE_TOOL(MuonFeatureCnvTool)
-   DECLARE_NAMESPACE_ALGORITHM(xAODMaker, MuonFeatureCnvAlg)
-   DECLARE_ALGORITHM(MuonFeatureCnvTestAlg)
-}

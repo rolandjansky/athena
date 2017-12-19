@@ -19,29 +19,26 @@ if athenaCommonFlags.FilesInput()==[]:
   secondSet=True
   if secondSet: 
     athenaCommonFlags.FilesInput=[
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000005.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000006.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000018.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000019.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000030.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000033.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000047.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000048.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000049.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000064.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000069.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000073.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000005.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000006.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000018.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000019.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000030.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000033.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000047.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000048.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000049.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000064.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000069.pool.root.1",       
+      "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_muon/mc10_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e662_s1107_d459_tid285222_00/RDO.285222._000073.pool.root.1",       
     ]
   
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 
-(idtrigChainlist, tidaAnalysischains) = muonChains(rMC,rID)
+(idtrigChainlist, tidaAnalysischains) = muonChains(rID)
 
 
 def resetSigs():

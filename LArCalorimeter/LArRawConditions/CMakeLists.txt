@@ -9,8 +9,7 @@ atlas_subdir( LArRawConditions )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthContainers
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
@@ -30,22 +29,27 @@ atlas_add_library( LArRawConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArRawConditions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier AthenaKernel DataModel SGTools AthenaPoolUtilities Identifier GaudiKernel LArIdentifier StoreGateLib SGtests LArToolsLib LArCablingLib
+                   LINK_LIBRARIES CaloIdentifier AthenaKernel AthContainers SGTools AthenaPoolUtilities Identifier GaudiKernel LArIdentifier StoreGateLib SGtests LArToolsLib LArCablingLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( LArRawConditions1Dict
                       LArRawConditions/LArRawConditionsDict1.h
                       LArRawConditions/selection1.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel DataModel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel AthContainers SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions )
 
 atlas_add_dictionary( LArRawConditions2Dict
                       LArRawConditions/LArRawConditionsDict2.h
                       LArRawConditions/selection2.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel DataModel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel AthContainers SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+
+atlas_add_test( LArConditionsContainerDB_test
+   SOURCES test/LArConditionsContainerDB_test.cxx
+   LINK_LIBRARIES LArRawConditions )
 

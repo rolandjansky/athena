@@ -92,6 +92,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe90_pueta_L1XE60',
         'HLT_xe90_pueta_wEFMu',
         'HLT_xe90_pufit',
+        'HLT_xe90_pufit_L1XE50',
         'HLT_xe90_pufit_L1XE60',
         'HLT_xe90_pufit_wEFMu',
         'HLT_xe90_tc_em',
@@ -119,6 +120,8 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe100_pueta',
         'HLT_xe100_pueta_L1XE80',
         'HLT_xe100_pufit',
+        'HLT_xe100_pufit_L1XE50',
+        'HLT_xe100_pufit_L1XE55',
         'HLT_xe100_pufit_L1XE80',
         'HLT_xe100_wEFMu',
         'HLT_xe100_wEFMu_L1XE50',
@@ -138,6 +141,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe100_pufit_wEFMu_L1XE80',
         'HLT_xe110_pueta_L1XE60',
         'HLT_xe110_pufit_L1XE50',
+        'HLT_xe110_pufit_L1XE55',
         'HLT_xe110_pufit_L1XE60',
         'HLT_xe110_L1XE60',
         'HLT_xe110_mht_L1XE60',
@@ -160,8 +164,10 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe130_mht_L1XE50'        
         ]
     cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
-    cutsEtMinForMultiJets = [150.0*Units.GeV, 50.0*Units.GeV, 50.0*Units.GeV]
+    cutsEtMinForStublet = [90.0*Units.GeV, 40.0*Units.GeV]
+    cutsEtMinForMultiJets = [60.0*Units.GeV, 60.0*Units.GeV]
     jetMetPtMin = 40.0*Units.GeV
+    cutMetHt = 0.0
     cutEtaMax = 3.2
     doLeptonVeto = True
     requireIsolatedTrack = True
@@ -170,7 +176,10 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     leptonPtMax = 20.0*Units.GeV
     leptonEtaMax = 2.5
     cutMetMin = 60.0*Units.GeV  # no cut
+    cutMetMinForStublet = 90.0*Units.GeV  # no cut
+    cutMetMinForMultiJets = 170.0*Units.GeV
     jetMetDphiMin = 1.0
+    preScaleStublet = 10
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_singleJetMetFilterFlags)
 

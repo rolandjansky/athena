@@ -58,6 +58,10 @@ namespace MuonCombined {
                  const CaloCellContainer* caloCellContainer,
                  const xAOD::CaloClusterContainer* caloClusterContainer) override;
 
+    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
+				const Muon::RpcPrepDataContainer* rpdPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs,
+                                const Muon::MMPrepDataContainer* mmPRDs) override;
+
 
   private:
     

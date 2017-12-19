@@ -65,7 +65,7 @@ ActiveStoreSvc::proxy(const CLID& id, const std::string& key) const {
 
 SG::DataProxy* ActiveStoreSvc::proxy_exact (SG::sgkey_t sgkey) const
 {
-  return p_activeStore->proxy_exact (sgkey);
+  return activeStore()->proxy_exact (sgkey);
 }
 
 /// return the list of all current proxies in store
@@ -78,7 +78,7 @@ ActiveStoreSvc::proxies() const {
 /// Raw addition of a proxy to the store.
 StatusCode ActiveStoreSvc::addToStore (CLID id, SG::DataProxy* proxy)
 {
-  return p_activeStore->addToStore (id, proxy);
+  return activeStore()->addToStore (id, proxy);
 }
 
 
@@ -104,7 +104,7 @@ ActiveStoreSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                               bool allowMods,
                               bool returnExisting)
 {
-  return p_activeStore->recordObject (obj, key, allowMods, returnExisting);
+  return activeStore()->recordObject (obj, key, allowMods, returnExisting);
 }
 
 
@@ -115,7 +115,7 @@ ActiveStoreSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
  */
 StatusCode ActiveStoreSvc::updatedObject (CLID id, const std::string& key)
 {
-  return p_activeStore->updatedObject (id, key);
+  return activeStore()->updatedObject (id, key);
 }
 
 
@@ -129,7 +129,7 @@ StatusCode ActiveStoreSvc::updatedObject (CLID id, const std::string& key)
  */
 sgkey_t ActiveStoreSvc::stringToKey (const std::string& str, CLID clid)
 {
-  return p_activeStore->stringToKey (str, clid);
+  return activeStore()->stringToKey (str, clid);
 }
 
 
@@ -142,7 +142,7 @@ sgkey_t ActiveStoreSvc::stringToKey (const std::string& str, CLID clid)
  */
 const std::string* ActiveStoreSvc::keyToString (sgkey_t key) const
 {
-  return p_activeStore->keyToString (key);
+  return activeStore()->keyToString (key);
 }
 
 
@@ -157,7 +157,7 @@ const std::string* ActiveStoreSvc::keyToString (sgkey_t key) const
 const std::string* ActiveStoreSvc::keyToString (sgkey_t key,
                                                 CLID& clid) const
 {
-  return p_activeStore->keyToString (key, clid);
+  return activeStore()->keyToString (key, clid);
 }
 
 
@@ -177,7 +177,7 @@ void ActiveStoreSvc::registerKey (sgkey_t key,
                                   const std::string& str,
                                   CLID clid)
 {
-  return p_activeStore->registerKey (key, str, clid);
+  return activeStore()->registerKey (key, str, clid);
 }
 
 
@@ -202,3 +202,12 @@ StatusCode ActiveStoreSvc::queryInterface(const InterfaceID& riid, void** ppvInt
 }
 
 
+StoreGateSvc* ActiveStoreSvc::activeStoreOOL() const
+{
+  StoreGateSvc* pstore = nullptr;
+  const bool CREATEIF(true);
+  if (service(m_storeName, pstore, CREATEIF).isSuccess()) {
+    return pstore;
+  }
+  return nullptr;
+}

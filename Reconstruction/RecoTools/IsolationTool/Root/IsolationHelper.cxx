@@ -120,7 +120,7 @@ namespace CP {
 
 	bool IsolationHelper::updateIsolation(xAOD::MuonContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, std::vector<xAOD::Iso::IsolationType>& types, xAOD::Iso::IsolationCaloCorrectionBitset corrMask, std::string muonkey, bool recordSG) const {
 		const xAOD::MuonContainer* muons(0);
-		ATH_CHECK( evtStore()->retrieve(muons,muonkey) );
+		ATH_CHECK( evtStore()->retrieve(muons,muonkey), false );
 		std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*muons);
 		copy = shallowcopy.first;
 		copyaux = shallowcopy.second;
@@ -142,8 +142,8 @@ namespace CP {
 			}
 
 			if(recordSG) {
-			ATH_CHECK( evtStore()->record(shallowcopy.first, "IsoFixed_"+muonkey) );
-			ATH_CHECK( evtStore()->record(shallowcopy.second,"IsoFixed_"+muonkey+"Aux.") );
+			ATH_CHECK( evtStore()->record(shallowcopy.first, "IsoFixed_"+muonkey), false );
+			ATH_CHECK( evtStore()->record(shallowcopy.second,"IsoFixed_"+muonkey+"Aux."), false );
 		}
 		return true;
 	}

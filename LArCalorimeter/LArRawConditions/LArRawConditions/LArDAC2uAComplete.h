@@ -49,5 +49,7 @@ class LArDAC2uAComplete: public ILArDAC2uA ,
 };
 
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArDAC2uAComplete, 95178965,1)
+CONDCONT_DEF( LArDAC2uAComplete, 148060277, ILArDAC2uA );
 #endif 

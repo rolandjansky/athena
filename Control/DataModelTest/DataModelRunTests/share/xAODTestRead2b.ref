@@ -1,4 +1,4 @@
-Mon Oct  2 13:02:06 EDT 2017
+Thu Nov  2 15:30:28 EDT 2017
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
@@ -7,7 +7,7 @@ Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead2b_jo.py"
-Py:ConfigurableDb    INFO Read module info for 463 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 # setting LC_ALL to "C"
@@ -15,7 +15,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Mon Oct  2 13:02:44 2017
+                                          running on karma on Thu Nov  2 15:30:56 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,7 +23,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 10065 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10025 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -39,43 +39,31 @@ DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:xAODTestRead2b_catalog.xml
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-PoolSvc              INFO Re-initializing PoolSvc
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-RootCollection Info Opening Collection File xaoddata2b.root in mode: READ
-RootCollection Info File xaoddata2b.root opened
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
-Domain[ROOT_All] Info                           xaoddata2b.root
-RootDatabase.open Info xaoddata2b.root File version:60806
-ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata2b.root"
-ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E7544441-F45C-F14F-82BC-EA8EF0911D5F
+Domain[ROOT_All]     INFO                           xaoddata2b.root
+RootDatabase.open    INFO xaoddata2b.root File version:60806
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-RootCollection Info Opening Collection File xaoddata2b.root in mode: READ
-RootCollection Info File xaoddata2b.root opened
-ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata2b.root"
-ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-xaoddata2b.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
-RootCollection Info Opening Collection File xaoddata2b.root in mode: READ
-RootCollection Info File xaoddata2b.root opened
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
-Domain[ROOT_All] Info                           xaoddata2b.root
-RootDatabase.open Info xaoddata2b.root File version:60806
-ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata2b.root"
-ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+xaoddata2b.root      INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E7544441-F45C-F14F-82BC-EA8EF0911D5F
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E7544441-F45C-F14F-82BC-EA8EF0911D5F
+Domain[ROOT_All]     INFO                           xaoddata2b.root
+RootDatabase.open    INFO xaoddata2b.root File version:60806
 ApplicationMgr       INFO Application Manager Started successfully
 ClassIDSvc           INFO  getRegistryEntries: read 1084 CLIDRegistry entries for module ALL
+AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
@@ -2540,16 +2528,15 @@ ctrig aux items: aFloat anInt anInt10 anInt2 dInt1 dInt100 dInt150 dInt200 dInt2
 scopy_cvecWD 1020: 4001(800100) 4002(800200) 4003(800300) 4004(800400) 4005(800500) 4006(800600) 4007(800700) 4008(800800) 4009(800900) 4010(801000)
 scopy_hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-xaoddata2b.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] B0A4C74F-F13F-0A4F-A41E-63FA593408BB
+xaoddata2b.root      INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E7544441-F45C-F14F-82BC-EA8EF0911D5F
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize
-Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"
-CORAL/Services/ConnectionService Info Deleting the ConnectionPool

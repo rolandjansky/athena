@@ -60,7 +60,7 @@ private:
 
   const Trk::SpacePoint* m_sp;
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

@@ -18,7 +18,7 @@
 #include "HepMC/GenVertex.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"

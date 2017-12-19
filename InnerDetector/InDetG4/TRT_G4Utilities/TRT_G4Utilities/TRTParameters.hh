@@ -18,9 +18,9 @@ public:
   
   static TRTParameters* GetPointer()
   {
-    if (!pParameters)
-      pParameters = new TRTParameters;
-    return pParameters;
+    if (!s_pParameters)
+      s_pParameters = new TRTParameters;
+    return s_pParameters;
   }
   
   int GetInteger(std::string) const;
@@ -40,16 +40,14 @@ private:
   void ReadInputFile(std::string);
   void PrintListOfParameters() const;
   
-  int printMessages;
-  
   std::multimap<std::string, double, std::less<std::string> >
-  multimapOfParameters;
+  m_multimapOfParameters;
   
   typedef
   std::multimap<std::string, double, std::less<std::string> >::const_iterator
   multimapIterator;
   
-  static TRTParameters* pParameters;
+  static TRTParameters* s_pParameters;
 
   mutable Athena::MsgStreamMember m_msg;
 

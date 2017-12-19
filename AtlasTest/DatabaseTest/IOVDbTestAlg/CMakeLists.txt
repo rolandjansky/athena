@@ -26,7 +26,6 @@ atlas_add_component( IOVDbTestAlg
                      src/IOVDbTestAlg.cxx
                      src/IOVDbTestCoolDCS.cxx
                      src/IOVDbTestAlg_entries.cxx
-                     src/IOVDbTestAlg_load.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES} IOVDbTestConditions AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities EventInfo )
 

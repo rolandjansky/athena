@@ -31,7 +31,7 @@
 
 #ifndef TILETRIGGER_H
 #define TILETRIGGER_H
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "Identifier/Identifier.h"
 #include <vector>

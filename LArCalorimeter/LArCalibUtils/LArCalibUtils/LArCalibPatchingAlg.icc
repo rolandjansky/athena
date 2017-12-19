@@ -267,7 +267,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
     } else {
       ATH_MSG_DEBUG ( "Got a phi-average..." );
     }
-    ATH_CHECK( m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel) );
+    ATH_CHECK( m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel), false );
     return true;
   }
   else if (m_patchMethod==FEBAverage) {
@@ -278,7 +278,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
     } else {
       ATH_MSG_DEBUG ( "Got a FEB-average..." );
     }
-    ATH_CHECK( m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel) );
+    ATH_CHECK( m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel), false );
     return true;
   }
   else //failed...

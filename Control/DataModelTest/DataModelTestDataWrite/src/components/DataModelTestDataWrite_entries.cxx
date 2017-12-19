@@ -6,7 +6,6 @@
  * @brief Gaudi algorithm factory declarations.
  */
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../DMTestWrite.h"
 #include "../AuxDataTestWrite.h"
 #include "../xAODTestWrite.h"
@@ -18,14 +17,15 @@
 #include "../HLTResultWriter.h"
 #include "../xAODTestWriteCInfoTool.h"
 
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, DMTestWrite)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, AuxDataTestWrite)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWrite)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteCVec)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteHVec)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteCView)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteCVecConst)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteSymlinks)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, HLTResultWriter)
+DECLARE_COMPONENT( DMTest::DMTestWrite )
+DECLARE_COMPONENT( DMTest::AuxDataTestWrite )
+DECLARE_COMPONENT( DMTest::xAODTestWrite )
+DECLARE_COMPONENT( DMTest::xAODTestWriteCVec )
+DECLARE_COMPONENT( DMTest::xAODTestWriteHVec )
+DECLARE_COMPONENT( DMTest::xAODTestWriteCView )
+DECLARE_COMPONENT( DMTest::xAODTestWriteCVecConst )
+DECLARE_COMPONENT( DMTest::xAODTestWriteSymlinks )
+DECLARE_COMPONENT( DMTest::HLTResultWriter )
 
-DECLARE_NAMESPACE_TOOL_FACTORY(DMTest, xAODTestWriteCInfoTool)
+DECLARE_COMPONENT( DMTest::xAODTestWriteCInfoTool )
+

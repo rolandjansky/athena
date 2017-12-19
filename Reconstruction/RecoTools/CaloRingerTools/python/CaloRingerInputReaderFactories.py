@@ -2,7 +2,7 @@
 
 import CaloRingerToolsConf
 
-from egammaRec.Factories import ToolFactory, FcnWrapper
+from egammaRec.Factories import PublicToolFactory, FcnWrapper
 from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray
 
 from CaloRingerAlgs import CaloRingerKeys
@@ -50,7 +50,7 @@ def getCaloRingerPhotonSelectorsBuilder():
 
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkBuildElectronCaloRings
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkDoElectronIdentification
-CaloRingerElectronsReaderTool = ToolFactory(CaloRingerToolsConf.Ringer__CaloRingerElectronsReader,
+CaloRingerElectronsReaderTool = PublicToolFactory(CaloRingerToolsConf.Ringer__CaloRingerElectronsReader,
                                             name = "CaloRingerElectronsReaderTool",
                                             inputKey = CaloRingerKeys.inputElectronKey(),
                                             crBuilder = FcnWrapper(getElectronCaloRingsBuilder),
@@ -61,7 +61,7 @@ CaloRingerElectronsReaderTool = ToolFactory(CaloRingerToolsConf.Ringer__CaloRing
 
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkBuildPhotonCaloRings
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkDoPhotonIdentification
-CaloRingerPhotonsReaderTool = ToolFactory(CaloRingerToolsConf.Ringer__CaloRingerPhotonsReader,
+CaloRingerPhotonsReaderTool = PublicToolFactory(CaloRingerToolsConf.Ringer__CaloRingerPhotonsReader,
                                           name = "CaloRingerPhotonsReaderTool",
                                           inputKey = CaloRingerKeys.inputPhotonKey(),
                                           crBuilder = FcnWrapper(getPhotonCaloRingsBuilder),

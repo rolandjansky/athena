@@ -32,7 +32,7 @@
 // DataModel
 #include "GaudiKernel/ToolFactory.h"
 #include "AthLinks/ElementLink.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // particles includes
 #include "CLHEP/Vector/LorentzVector.h"

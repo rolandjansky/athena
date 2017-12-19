@@ -23,7 +23,7 @@
 #include "TileEvent/TileLaserPLC.h"
 #include "TileEvent/TileLasCalib.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 /*static const CLID CLID_TileLaser = 2940;*/

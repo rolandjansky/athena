@@ -11,7 +11,10 @@
 /// PROJECTS
 #include "GaudiKernel/MsgStream.h"
 #include "MM_Digitization/ElectronicsResponse.h"
- 
+
+// #include <random>
+#include "TF1.h"
+
 std::vector<float> shaperInputTime;
 std::vector<float> shaperInputCharge;
 // set drift electron's timing and charge via above vector before use function
@@ -40,13 +43,8 @@ ElectronicsResponse::ElectronicsResponse()
   stripdeadtime = get_stripdeadtime();
   ARTdeadtime = get_ARTdeadtime();
 
-//  if(stripObject) delete stripObject;
-//  clearValues();
   alpha = 2.5;
-  //  RC = 80.0;
-  //  RC = 40.0;
-  RC = 10.0;
-  //  RC = 20.0;
+  RC = 20.0;
 
   electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(alpha,alpha)*TMath::Exp(-alpha)) ) ;
   //---------------------------------------------------------
@@ -250,7 +248,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::GetTheFastestSignalInVMM(
   ElectronicsTrigger_VMMid.clear();
   ElectronicsTrigger_MMFEid.clear();
   
-  const int BXtime = 25; // (ns)
+  const int BXtime = 250; // (ns)
   int nstep = (int)(timeWindowUpperOffset-timeWindowLowerOffset)/BXtime;
   if((int)(timeWindowUpperOffset-timeWindowLowerOffset)%BXtime>0 ) nstep += 1;
 
@@ -282,7 +280,6 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::GetTheFastestSignalInVMM(
 	ElectronicsTrigger_stripCharge.push_back(ElectronicsThreshold_stripCharge[theFastestSignal]);
 	ElectronicsTrigger_VMMid.push_back(trigger_VMM_id[theFastestSignal]);
 	ElectronicsTrigger_MMFEid.push_back(trigger_MMFE_VMM_id[theFastestSignal]);
-
       }
     }
   }
@@ -379,6 +376,58 @@ MmDigitToolOutput ElectronicsResponse::ApplyDeadTimeStrip(const MmDigitToolOutpu
   return ElectronicsTriggerOutputAppliedDeadTime;
 }
 
+MmElectronicsToolTriggerOutput ElectronicsResponse::ApplyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset){ 
+
+
+
+  const std::vector<int>  & ElectronicsTrigger_stripPos    = ElectronicsTriggerOutput.NumberOfStripsPos();
+  const std::vector<float> & ElectronicsTrigger_stripTime   = ElectronicsTriggerOutput.chipTime();
+  const std::vector<float> & ElectronicsTrigger_stripCharge = ElectronicsTriggerOutput.chipCharge();
+  const std::vector<int> & ElectronicsTrigger_VMMid = ElectronicsTriggerOutput.VMMid();
+  const std::vector<int> & ElectronicsTrigger_MMFEid = ElectronicsTriggerOutput.MMFEVMMid();
+  std::vector<int>   ElectronicsTriggerAppliedTiming_stripPos;
+  std::vector<float> ElectronicsTriggerAppliedTiming_stripTime;
+  std::vector<float> ElectronicsTriggerAppliedTiming_stripCharge;
+  std::vector<int>   ElectronicsTriggerAppliedTiming_VMMid;
+  std::vector<int>   ElectronicsTriggerAppliedTiming_MMFEid;
+  ElectronicsTriggerAppliedTiming_stripPos.clear();
+  ElectronicsTriggerAppliedTiming_stripTime.clear();
+  ElectronicsTriggerAppliedTiming_stripCharge.clear();
+  ElectronicsTriggerAppliedTiming_VMMid.clear();
+  ElectronicsTriggerAppliedTiming_MMFEid.clear();
+
+
+  // LL
+  //bunchTime = bunchTime + artOffset + jitter;
+
+
+   TF1 gaussianSmearing("f1","gaus",offset-jitter*5,offset+jitter*5);
+   gaussianSmearing.SetParameters(1,offset,jitter);
+
+  for(size_t i = 0; i<ElectronicsTrigger_stripPos.size(); i++){
+    // std::default_random_engine generator;
+    // std::normal_distribution<double> distribution(offset,jitter);
+    // float timingTransformation = distribution(generator);
+
+    ElectronicsTriggerAppliedTiming_stripPos.push_back(ElectronicsTrigger_stripPos[i]);
+    ElectronicsTriggerAppliedTiming_stripTime.push_back(ElectronicsTrigger_stripTime[i] + gaussianSmearing.GetRandom() );
+    ElectronicsTriggerAppliedTiming_stripCharge.push_back(ElectronicsTrigger_stripCharge[i]);
+    ElectronicsTriggerAppliedTiming_VMMid.push_back(ElectronicsTrigger_VMMid[i]);
+    ElectronicsTriggerAppliedTiming_MMFEid.push_back(ElectronicsTrigger_MMFEid[i]);
+
+  }
+
+  MmElectronicsToolTriggerOutput ElectronicsTriggerOutputAppliedTiming(
+    ElectronicsTriggerAppliedTiming_stripPos,
+    ElectronicsTriggerAppliedTiming_stripCharge,
+    ElectronicsTriggerAppliedTiming_stripTime,
+    ElectronicsTriggerAppliedTiming_VMMid,
+    ElectronicsTriggerAppliedTiming_MMFEid );
+
+  return ElectronicsTriggerOutputAppliedTiming;
+}
+
+
 MmElectronicsToolTriggerOutput ElectronicsResponse::ApplyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput){ 
 
   const std::vector<int>  & ElectronicsTrigger_stripPos    = ElectronicsTriggerOutput.NumberOfStripsPos();
@@ -406,7 +455,8 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::ApplyDeadTimeART(const MmEle
     bool DEAD = DeadChannel(id, time, ElectronicsTriggerAppliedDeadtime_VMMid, ElectronicsTriggerAppliedDeadtime_stripTime, deadtime);
     if(!DEAD){
 	ElectronicsTriggerAppliedDeadtime_stripPos.push_back(ElectronicsTrigger_stripPos[i]);
-	ElectronicsTriggerAppliedDeadtime_stripTime.push_back(ElectronicsTrigger_stripTime[i]);
+  ElectronicsTriggerAppliedDeadtime_stripTime.push_back(ElectronicsTrigger_stripTime[i]);
+  // ElectronicsTriggerAppliedDeadtime_stripTime.push_back(0);
 	ElectronicsTriggerAppliedDeadtime_stripCharge.push_back(ElectronicsTrigger_stripCharge[i]);
 	ElectronicsTriggerAppliedDeadtime_VMMid.push_back(ElectronicsTrigger_VMMid[i]);
 	ElectronicsTriggerAppliedDeadtime_MMFEid.push_back(ElectronicsTrigger_MMFEid[i]);

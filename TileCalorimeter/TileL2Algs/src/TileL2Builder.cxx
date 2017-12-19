@@ -65,7 +65,7 @@ TileL2Builder::TileL2Builder(const std::string& type, const std::string& name,
   declareProperty("NoiseThreshold", m_noiseThreshold);       // use channels only above noise cut
   declareProperty("Noise", m_noiseType);            // choose between electronic or total noise
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);      // Name of calibration tool
-  declareProperty("TileCondToolNoiseRawChn", m_tileToolNoiseRawChn);  // Name of tool with noise RMS
+  declareProperty("TileCondToolNoiseRawChn", m_tileToolNoiseRawChn=nullptr);  // Name of tool with noise RMS
   declareProperty("TileBadChanTool", m_tileBadChanTool);      // Name of bad channel tool
 }
 

@@ -17,8 +17,6 @@
 #endif
 
 
-template <class TYPE> class SvcFactory;
-
 /** @class SimplePOSIXTimeKeeperSvc
   * @brief service that implements ITimeKeeper using basic POSIX time api.
   *        Requires user to set the initial time budget.
@@ -54,9 +52,6 @@ public:
   virtual StatusCode queryInterface( const InterfaceID& riid, 
 				     void** ppvInterface );
   //@}
-  
-protected:
-  friend class SvcFactory<SimplePOSIXTimeKeeperSvc>;
   
   // Standard Constructor
   SimplePOSIXTimeKeeperSvc(const std::string& name, ISvcLocator* svc);

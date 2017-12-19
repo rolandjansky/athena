@@ -27,7 +27,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h" 
 
 #include "CaloEvent/CaloCell.h"
@@ -188,24 +187,6 @@ StatusCode GetLCSinglePionsPerf::initialize()
   m_calo_id = m_calo_dd_man->getCaloCell_ID();
 
   ATH_CHECK( detStore()->retrieve(m_id_helper) );
-
-//   // tool services
-//   IToolSvc* p_toolSvc = 0;
-//   sg = service("ToolSvc", p_toolSvc);
-//   if (sg.isFailure()) {
-//     log << MSG::FATAL << " Tool Service not found " << endmsg;
-//     return StatusCode::FAILURE;
-//   }
-//   IAlgTool* algToolPtr;
-//   sg = p_toolSvc->retrieveTool("CaloDepthTool",algToolPtr,this);
-//   if (sg.isFailure()) {
-//     log << MSG::FATAL << " Could not find CaloDepthTool " <<endmsg;
-//     return StatusCode::FAILURE;
-//   }
-//   else {
-//     log << MSG::INFO << " Found CaloDepthTool" << endmsg;
-//     m_caloDepthTool = dynamic_cast<CaloDepthTool*>(algToolPtr); // check for tool type
-//   }
 
 
   m_deta = (m_etamax - m_etamin)/m_netabin;
@@ -805,7 +786,7 @@ int GetLCSinglePionsPerf::fill_reco()
   std::vector<const xAOD::CaloClusterContainer *> clusCollVector;
   for(std::vector<std::string >::iterator it=m_clusterCollNames.begin(); it!=m_clusterCollNames.end(); it++){    
     const DataHandle<xAOD::CaloClusterContainer> pColl;
-    ATH_CHECK( evtStore()->retrieve(pColl, (*it) ) );
+    ATH_CHECK( evtStore()->retrieve(pColl, (*it) ), -1 );
     clusCollVector.push_back(pColl);
   }
 
@@ -998,13 +979,13 @@ int GetLCSinglePionsPerf::fill_moments()
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
   std::vector<std::string>::iterator iter;
   for (iter=m_CalibrationHitContainerNames.begin(); iter!=m_CalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK( evtStore()->retrieve(cchc,*iter) );
+    ATH_CHECK( evtStore()->retrieve(cchc,*iter), -1 );
     v_cchc.push_back(cchc);
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
   for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK(  evtStore()->retrieve(cchc,*iter) );
+    ATH_CHECK(  evtStore()->retrieve(cchc,*iter), -1 );
     v_dmcchc.push_back(cchc);
   }
 
@@ -1228,13 +1209,13 @@ int GetLCSinglePionsPerf::fill_calibhits()
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
   std::vector<std::string>::iterator iter;
   for (iter=m_CalibrationHitContainerNames.begin(); iter!=m_CalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK( evtStore()->retrieve(cchc,*iter) );
+    ATH_CHECK( evtStore()->retrieve(cchc,*iter), -1 );
     v_cchc.push_back(cchc);
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
   for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK( evtStore()->retrieve(cchc,*iter) );
+    ATH_CHECK( evtStore()->retrieve(cchc,*iter), -1 );
     v_dmcchc.push_back(cchc);
   }
 

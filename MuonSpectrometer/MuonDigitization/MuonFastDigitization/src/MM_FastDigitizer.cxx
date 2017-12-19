@@ -56,6 +56,7 @@ using namespace Muon;
   , m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0)
   , m_inputObjectName("MicromegasSensitiveDetector")
+  , m_sdoName("MMfast_SDO")
 {
   declareProperty("InputObjectName", m_inputObjectName  =  "MicromegasSensitiveDetector", "name of the input object");
   declareProperty("RndmEngine",  m_rndmEngineName, "Random engine name");
@@ -64,6 +65,7 @@ using namespace Muon;
   declareProperty("EnergyThreshold", m_energyThreshold = 50, "Minimal energy to produce a PRD"  );
   declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
   declareProperty("MaskMultiplet", m_maskMultiplet = 0,  "0: all, 1: first, 2: second, 3: both"  );
+  declareProperty("SDOname", m_sdoName = "MMfast_SDO"  );
 }
 /*******************************************************************************/ 
 MM_FastDigitizer::~MM_FastDigitizer()  {
@@ -75,17 +77,9 @@ StatusCode MM_FastDigitizer::initialize() {
   // initialize transient event store
   ATH_MSG_DEBUG ( "Retrieved StoreGateSvc." );
 
-  status = service("ActiveStoreSvc", m_activeStore);
-  if ( !status.isSuccess() ) {
-    ATH_MSG_FATAL ( "Could not get active store service" );
-    return status;
-  }
-
-  if( m_muonClusterCreator.retrieve().isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve " << m_muonClusterCreator);
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
+  ATH_CHECK( m_muonClusterCreator.retrieve() );
+  ATH_CHECK( m_sdoName.initialize() );
 
   // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
   StoreGateSvc* detStore=0;
@@ -113,10 +107,7 @@ StatusCode MM_FastDigitizer::initialize() {
     return status;
   }
 
-  if( m_idHelperTool.retrieve().isFailure() ){
-    ATH_MSG_WARNING("Failed to retrieve " << m_idHelperTool);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_idHelperTool.retrieve() );
 
   // check the input object name
   if (m_inputObjectName=="") {
@@ -129,9 +120,7 @@ StatusCode MM_FastDigitizer::initialize() {
 
   // getting our random numbers stream
   ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-  if (!m_rndmSvc.retrieve().isSuccess()){
-    ATH_MSG_ERROR("Could not initialize Random Number Service");
-  }
+  ATH_CHECK( m_rndmSvc.retrieve() );
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
   if (m_rndmEngine==0) {
     ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
@@ -209,19 +198,13 @@ StatusCode MM_FastDigitizer::execute() {
 
 
   // Create and record the SDO container in StoreGate
-  MuonSimDataCollection* sdoContainer = new MuonSimDataCollection();
-  if (evtStore()->record(sdoContainer,"MM_SDO").isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record MM SDO collection in StoreGate" );
-    return StatusCode::FAILURE;
-  }
+  SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
+  ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
   MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelper->detectorElement_hash_max());
   std::string key = "MM_Measurements";
   ATH_MSG_DEBUG(" Done! Total number of MM chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
-  if (evtStore()->record(prdContainer,key).isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record MMPrepData container in StoreGate" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->record(prdContainer,key) );
 
   if( m_maskMultiplet == 3 ) {
     
@@ -335,6 +318,7 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Transform3D gToL = detEl->absTransform().inverse();
     Amg::Vector3D hpos(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
     Amg::Vector3D lpos = gToL*hpos;
+    // surface local from (that matters)
     Amg::Vector3D slpos = surf.transform().inverse()*hpos;
 
     // Get MM_READOUT from MMDetectorDescription
@@ -344,11 +328,13 @@ StatusCode MM_FastDigitizer::execute() {
     MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs((int)m_idHelper->stationEta(layid)), (int)m_idHelper->stationPhi(layid), (int)m_idHelper->multilayer(layid), side);
     MMReadoutParameters roParam = mm->GetReadoutParameters();
 
-    Amg::Vector3D ldir;
-    if ((roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1)==1)
-      ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+    Amg::Vector3D  ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+    Amg::Vector3D  ldirTime;
+    // the stereo angle vector stores the angles in rad. the vector indices are 0,1,2,3 which map to layers 1,2,3,4
+    if ( std::abs( (roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1) ) > 0. )
+      ldirTime = ldir;
     else
-      ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
+      ldirTime = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
 
     double scale;//, scaletop;
 //    double gasgap = 5.;
@@ -358,12 +344,13 @@ StatusCode MM_FastDigitizer::execute() {
 
     Amg::Vector3D hitOnSurface = slpos + scale*ldir;
 //    Amg::Vector3D hitOnTopSurface = slpos + scaletop*ldir;
+    Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
 
     // account for time offset 
     const double vdrift = 0.047;
     double shiftTimeOffset = MMDigitTime*vdrift;
     Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
-    Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/ldir.z())*ldir;
+    Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/ldirTime.z())*ldirTime;
 
     // resolution = -.01/3 * angle + .64/3.
     double resolution;
@@ -516,12 +503,16 @@ StatusCode MM_FastDigitizer::execute() {
     MMPrepData* prd = new MMPrepData( id,hash,posOnSurf,rdoList,cov,detEl);
     prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
     col->push_back(prd);
-    // ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z() 
-    // 		    << " detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z() << " " << m_idHelper->print_to_string(id) );
+    ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
+    ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+    ATH_MSG_VERBOSE(" Calculated truth hitOnSurfaceGlobal: r " << hitOnSurfaceGlobal.perp() << " phi " << hitOnSurfaceGlobal.phi() << " z " << hitOnSurfaceGlobal.z());
+    ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
+    ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
 
-    // ATH_MSG_VERBOSE("Local hit: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z() 
+    ATH_MSG_VERBOSE("Local hit in Det Element Frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
+    ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
     // 		    << " detEl: x " << lpos.x() << " y " << lpos.y() << " z " << lpos.z() << " strip " << stripNumber);
-    ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() 
+    ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " hitOnSurface.x() " << hitOnSurface.x() << " residual " << posOnSurf.x() - hitOnSurface.x()
 		  << " pull " << (posOnSurf.x() - hitOnSurface.x())/resolution );
     err = resolution;
     ich = m_idHelper->channel(id);
@@ -540,7 +531,7 @@ StatusCode MM_FastDigitizer::execute() {
     //Record the SDO collection in StoreGate
     std::vector<MuonSimData::Deposit> deposits;
     deposits.push_back(deposit);
-    sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
+    h_sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
     // OLD CODE ENDS HERE
 
     previousHit = &hit;

@@ -11,7 +11,8 @@
 #ifndef ATHEXTHINNING_WRITETHINNEDDATA_H 
 #define ATHEXTHINNING_WRITETHINNEDDATA_H 
 
-/** @class WriteThinnedData A simple algorithm exercizing the process of 
+/** @class WriteThinnedData 
+ *  A simple algorithm exercizing the process of 
  *  thinning a container.
  *  This algorithm takes as input a @c AthExParticles container from 
  *  @c StoreGateSvc and, using the @c IThinningSvc, removes part of the elements

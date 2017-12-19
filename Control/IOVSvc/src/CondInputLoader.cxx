@@ -12,14 +12,39 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/IClassIDSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
+#include "StoreGate/CondHandleKey.h"
+#include "AthenaKernel/CondContMaker.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "SGTools/BaseInfo.h"
+
+#include "TClass.h"
+
+
+namespace
+{
+  struct DataObjIDSorter {
+    bool operator()( const DataObjID* a, const DataObjID* b ) { return a->fullKey() < b->fullKey(); }
+  };
+
+  // Sort a DataObjIDColl in a well-defined, reproducible manner.
+  // Used for making debugging dumps.
+  std::vector<const DataObjID*> sortedDataObjIDColl( const DataObjIDColl& coll )
+  {
+    std::vector<const DataObjID*> v;
+    v.reserve( coll.size() );
+    for ( const DataObjID& id : coll ) v.push_back( &id );
+    std::sort( v.begin(), v.end(), DataObjIDSorter() );
+    return v;
+  }
+}
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -29,10 +54,11 @@
 ////////////////
 CondInputLoader::CondInputLoader( const std::string& name, 
                                   ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ), m_dump(false),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_condStore("StoreGateSvc/ConditionStore", name),
   m_condSvc("CondSvc",name),
-  m_IOVSvc("IOVSvc",name)
+  m_IOVSvc("IOVSvc",name),
+  m_clidSvc("ClassIDSvc",name)
 
 {
   //
@@ -48,7 +74,6 @@ CondInputLoader::CondInputLoader( const std::string& name,
 
   declareProperty( "Load", m_load); 
   //->declareUpdateHandler(&CondInputLoader::loader, this);
-  declareProperty( "ShowEventDump", m_dump=false);
 }
 
 // Destructor
@@ -65,30 +90,17 @@ CondInputLoader::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  if (!m_condSvc.isValid()) {
-    ATH_MSG_ERROR("could not get the CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-  if (!m_condStore.isValid()) {
-    ATH_MSG_ERROR("could not get the ConditionStore");
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( m_condSvc.retrieve() );
+  ATH_CHECK( m_condStore.retrieve() );
+  ATH_CHECK( m_clidSvc.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
-  if (!ivs.isValid()) {
-    ATH_MSG_FATAL("unable to retrieve IOVSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( ivs.retrieve() );
 
   // Update the SG keys if different from Folder Names
   ServiceHandle<IIOVDbSvc> idb("IOVDbSvc",name());
-  if (!idb.isValid()) {
-    ATH_MSG_FATAL("unable to retrieve IOVDbSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( idb.retrieve() );
 
   std::vector<std::string> keys = idb->getKeyList();
   std::string folderName, tg;
@@ -96,7 +108,7 @@ CondInputLoader::initialize()
   bool retrieved;
   unsigned long long br;
   float rt;
-  DataObjIDColl loadCopy;
+  DataObjIDColl handles_to_load;
 
   std::map<std::string,std::string> folderKeyMap;
   for (auto key : keys) {
@@ -118,9 +130,13 @@ CondInputLoader::initialize()
     // } else {
     //   ATH_MSG_DEBUG(" not remapping folder " << id.key());
     }
-    SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer, 
+    if (id.key() == "") {
+      ATH_MSG_INFO("ignoring blank key for " << id );
+      continue;
+    }
+    SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer,
                          StoreID::storeName(StoreID::CONDITION_STORE));
-    loadCopy.emplace(vhk.fullKey());
+    handles_to_load.emplace(vhk.fullKey());
   }
 
   // for (auto key : keys) {
@@ -130,7 +146,7 @@ CondInputLoader::initialize()
   //       if (id.key() == folderName) {
   //         ATH_MSG_DEBUG("  mapping folder " << folderName << "  to SGkey " << key );
   //         id.updateKey( key );
-  //         loadCopy.insert(id);
+  //         handles_to_load.insert(id);
   //         m_keyFolderMap[key] = folderName;
   //         break;
   //       }
@@ -140,7 +156,40 @@ CondInputLoader::initialize()
   //   }
   // }
 
-  m_load = loadCopy;
+  m_load = handles_to_load;
+  m_handlesToCreate = handles_to_load;
+
+  // Add in all the base classes known to StoreGate, in case a handle
+  // is read via its base class. These will be added to the output deps,
+  // and also registered with the CondSvc, as the scheduler needs this
+  // info.
+
+  std::ostringstream ost;
+  ost << "Adding base classes:";
+  for (auto &e : handles_to_load) {
+    // ignore empty keys
+    if (e.key() == "") continue;
+
+    ost << "\n  + " << e  << "  ->";
+    CLID clid = e.clid();
+    const SG::BaseInfoBase* bib = SG::BaseInfoBase::find( clid );
+    if ( ! bib ) {
+      ost << " no bases";
+    } else {
+      for (CLID clid2 : bib->get_bases()) {
+        if (clid2 != clid) {
+          std::string base("UNKNOWN");
+          m_clidSvc->getTypeNameOfID(clid2,base).ignore();
+          ost << " " << base << " (" << clid2 << ")";
+          SG::VarHandleKey vhk(clid2,e.key(),Gaudi::DataHandle::Writer,
+                               StoreID::storeName(StoreID::CONDITION_STORE));
+          m_load.emplace(vhk.fullKey());
+        }
+      }
+    }
+  }
+  ATH_MSG_INFO(ost.str());
+
 
   // Update the properties, set the ExtraOutputs for Alg deps
   const Property &p = getProperty("Load");
@@ -154,15 +203,15 @@ CondInputLoader::initialize()
   StatusCode sc(StatusCode::SUCCESS);
   std::ostringstream str;
   str << "Will create WriteCondHandle dependencies for the following DataObjects:";
-  for (auto &e : m_load) {
-    str << "\n    + " << e;
-    if (e.key() == "") {
+  for (auto &e : sortedDataObjIDColl(m_load)) {
+    str << "\n    + " << *e;
+    if (e->key() == "") {
       sc = StatusCode::FAILURE;
       str << "   ERROR: empty key is not allowed!";
     } else {
-      SG::VarHandleKey vhk(e.clid(),e.key(),Gaudi::DataHandle::Writer,
+      SG::VarHandleKey vhk(e->clid(),e->key(),Gaudi::DataHandle::Writer,
                            StoreID::storeName(StoreID::CONDITION_STORE));
-      if (m_condSvc->regHandle(this, vhk, e.key()).isFailure()) {
+      if (m_condSvc->regHandle(this, vhk).isFailure()) {
         ATH_MSG_ERROR("Unable to register WriteCondHandle " << vhk.fullKey());
         sc = StatusCode::FAILURE;
       }
@@ -170,7 +219,6 @@ CondInputLoader::initialize()
       m_IOVSvc->ignoreProxy(vhk.fullKey().clid(), vhk.key());
     }
   }
-
   ATH_MSG_INFO(str.str());
 
   return sc;
@@ -188,34 +236,78 @@ CondInputLoader::finalize()
 
 //-----------------------------------------------------------------------------
 
+StatusCode
+CondInputLoader::start()
+{
+  //
+  // now create the CondCont<T>. This has to be done after initialize(), 
+  // as we need to make sure that all Condition Objects have been instantiated
+  // so as to fill the static condition obj registry via REGISTER_CC
+  //
+  // we use a VHK to store the info instead of a DataObjIDColl, as this saves
+  // us the trouble of stripping out the storename from the key later.
+  //
+
+  DataObjIDColl::iterator ditr;
+  bool fail(false);
+  for (ditr = m_handlesToCreate.begin(); ditr != m_handlesToCreate.end(); ++ditr) {
+    SG::VarHandleKey vhk(ditr->clid(),ditr->key(),Gaudi::DataHandle::Writer);
+    if ( ! m_condStore->contains<CondContBase>( vhk.key() ) ){
+      std::string tp("UNKNOWN");
+      if (m_clidSvc->getTypeNameOfID(ditr->clid(),tp).isFailure()) {
+        ATH_MSG_WARNING("unable to convert clid " << ditr->clid() << " to a classname."
+                        << "This is a BAD sign, but will try to continue");
+      }
+      SG::DataObjectSharedPtr<DataObject> cb = 
+        CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+      if (cb == 0) {
+        // try to force a load of libraries using ROOT
+        (void)TClass::GetClass (tp.c_str());
+        cb =
+          CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+      }
+      if (cb == 0) {
+        ATH_MSG_ERROR("failed to create CondCont<" << tp
+                      << "> clid=" << ditr->clid()
+                      << " : no factory found");
+        fail = true;
+      } else {
+        ATH_MSG_INFO("created CondCont<" << tp << "> with key '"
+                     << ditr->key() << "'");
+        if (m_condStore->recordObject(cb, vhk.key(), true, false) == nullptr) {
+          ATH_MSG_ERROR("while creating a CondContBase for " 
+                        << vhk.fullKey());
+          fail = true;
+        } else {
+          m_vhk.push_back(vhk);
+        }
+      }
+    } else {
+      m_vhk.push_back(vhk);
+    }
+  }
+  
+  if (fail && m_abort) {
+    ATH_MSG_FATAL("Unable to setup some of the requested CondCont<T>. "
+                  << "Aborting");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
+
+//-----------------------------------------------------------------------------
+
 StatusCode 
 CondInputLoader::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  if (m_first) {
-    DataObjIDColl::iterator itr;
-    for (itr = m_load.begin(); itr != m_load.end(); ++itr) {
-      SG::VarHandleKey vhk(itr->clid(),itr->key(),Gaudi::DataHandle::Reader);
-      if ( ! m_condStore->contains<CondContBase>( vhk.key() ) ){
-        ATH_MSG_INFO("ConditionStore does not contain a CondCont<> of "
-                     << *itr << "  (key: " << vhk.key() << ") "
-                     << ". Either a ReadCondHandle was not initialized or "
-                     << "no other Algorithm is using this Handle");
-      } else {
-        m_vhk.push_back(vhk);
-      }
-    }
-    m_first = false;
-  }
-
   EventIDBase now;
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
   if (!getContext().valid()) {
     ATH_MSG_WARNING("EventContext not valid! This should not happen!");
-#else
-  if(getContext()==nullptr) {
-#endif
     const xAOD::EventInfo* thisEventInfo;
     if(evtStore()->retrieve(thisEventInfo)!=StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Unable to get Event Info");
@@ -228,19 +320,11 @@ CondInputLoader::execute()
     now.set_time_stamp_ns_offset(thisEventInfo->timeStampNSOffset());
   }
   else {
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
     now.set_run_number(getContext().eventID().run_number());
     now.set_event_number(getContext().eventID().event_number());
     now.set_lumi_block(getContext().eventID().lumi_block());
     now.set_time_stamp(getContext().eventID().time_stamp());
     now.set_time_stamp_ns_offset(getContext().eventID().time_stamp_ns_offset());
-#else
-    now.set_run_number(getContext()->eventID().run_number());
-    now.set_event_number(getContext()->eventID().event_number());
-    now.set_lumi_block(getContext()->eventID().lumi_block());
-    now.set_time_stamp(getContext()->eventID().time_stamp());
-    now.set_time_stamp_ns_offset(getContext()->eventID().time_stamp_ns_offset());
-#endif
   }
 
   EventIDBase now_event = now;
@@ -289,7 +373,7 @@ CondInputLoader::execute()
 
   }
 
-  if (m_dump) {
+  if (m_dumpEvt) {
     ATH_MSG_DEBUG(m_condStore->dump()); 
   }
   

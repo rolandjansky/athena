@@ -119,7 +119,7 @@ HLT::ErrorCode L1InfoHypo::hltExecute(const HLT::TriggerElement* /*unused*/,bool
     {
       if(output_level <= MSG::FATAL)
 	msg() << MSG::FATAL << "Can't get EventInfo object"  << endmsg;
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
   else
     {

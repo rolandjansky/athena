@@ -70,8 +70,6 @@ public:
     virtual double                  getContainmentZ(const G4FastTrack& track, int detectorTag);
     virtual double                  getContainmentR(const G4FastTrack& track, int detectorTag);
 
-protected:
-
     friend class SvcFactory<LArG4ShowerLibSvc>;
 
     LArG4ShowerLibSvc(const std::string& name, ISvcLocator* svc);

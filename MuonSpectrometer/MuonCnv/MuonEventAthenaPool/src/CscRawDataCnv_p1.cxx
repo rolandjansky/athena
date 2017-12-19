@@ -10,7 +10,7 @@
 void
 CscRawDataCnv_p1::transToPers(const CscRawData* /*trans*/, CscRawData_p1* /*pers*/, MsgStream &) 
 {
-   throw GaudiException("Writing to CscRawData_p1 is not supported ", "CscRawDataCnv_p1::transToPers(...)", false);
+  throw GaudiException("Writing to CscRawData_p1 is not supported ", "CscRawDataCnv_p1::transToPers(...)", StatusCode::FAILURE);
 }
 
 void

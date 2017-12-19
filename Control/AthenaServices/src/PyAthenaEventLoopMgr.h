@@ -36,11 +36,12 @@ typedef _object PyObject;
 */
 class PyAthenaEventLoopMgr : public AthenaEventLoopMgr   {
 public:
+  /// Standard Constructor
+  PyAthenaEventLoopMgr( const std::string& name, ISvcLocator* svcLoc );
+  ~PyAthenaEventLoopMgr() {}
+
   /// outside access
   static PyAthenaEventLoopMgr* pointer();
-
-  /// Creator friend class
-  friend class SvcFactory< PyAthenaEventLoopMgr >;
 
   /// actual manager object
   PyObject* setManager( PyObject* );
@@ -55,10 +56,6 @@ protected:
    PyAthenaEventLoopMgr( const PyAthenaEventLoopMgr& ); // Not implemented
    PyAthenaEventLoopMgr& operator = ( const PyAthenaEventLoopMgr& ); // Not implemented
 	
-  /// Standard Constructor
-  PyAthenaEventLoopMgr( const std::string& name, ISvcLocator* svcLoc );
-  ~PyAthenaEventLoopMgr() {}
-
   /// Run the algorithms for the current event
   virtual StatusCode executeAlgorithms(const EventContext&);
 

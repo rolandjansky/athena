@@ -8,7 +8,7 @@
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
 #include "AsgTools/AsgTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 
 #include <vector>
 

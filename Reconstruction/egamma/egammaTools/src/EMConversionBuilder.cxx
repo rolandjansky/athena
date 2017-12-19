@@ -19,69 +19,26 @@ PURPOSE:  subAlgorithm which creates an EMConversion object.
 
 #include "EMConversionBuilder.h"
 #include "ConvVxSorter.h"
-#include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "xAODTracking/VertexContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "egammaRecEvent/egammaRec.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "StoreGate/ReadHandle.h"
 
 //  END OF HEADER FILES INCLUDE
 
 /////////////////////////////////////////////////////////////////
 
-using CLHEP::GeV;
 using namespace xAOD::EgammaParameters;
 
 EMConversionBuilder::EMConversionBuilder(const std::string& type,
 					 const std::string& name,
 					 const IInterface* parent)
-  : egammaBaseTool(type, name, parent),
-    m_extrapolationTool("EMExtrapolationTools")
+  : egammaBaseTool(type, name, parent)
 {
   
   // declare interface
   declareInterface<IEMConversionBuilder>(this);
-  
-  // Name of the input conversion container
-  declareProperty("ConversionContainerName",                 
-		  m_conversionContainerName="PhotonConversionVertices",
-		  "Name of the input conversion container");
-	
-  // Name of the extrapolation tool
-  declareProperty("ExtrapolationTool",
-		  m_extrapolationTool,
-		  "Handle of the extrapolation tool");
-      
-  declareProperty("RejectAllTRTConversions", m_rejectAllTRT = false,
-		  "Ignore all conversion vertices containing exclusively TRT-only tracks");
-    
-  declareProperty("minTRTHits", m_minTRTHits = 0,
-		  "minimum number of TRT hits for TRT-only tracks (both single and double track conversion vertices)");
-  
-  declareProperty("minPt_singleTrack", m_minPt_singleTrack = 0*GeV,
-		  "minimum pT for single-track conversion vertices");
-  
-  declareProperty("minPt_singleTRT", m_minPt_singleTRT = 2*GeV,
-		  "minimum pT for TRT-only single-track conversion vertices");
-  
-  declareProperty("minTRTonlyTrackPt", m_minTRTonlyTrackPt = 0*GeV,
-		  "minimum pT for each track in TRT-only double-track conversion vertices");
-        
-  declareProperty("minSumPt_double", m_minSumPt_double = 0*GeV,
-		  "minimum sum pT for double track conversion vertices");
-
-  declareProperty("minSumPt_doubleTRT", m_minSumPt_doubleTRT = 2*GeV,
-		  "minimum sum pT for double TRT track conversion vertices");
-
-  declareProperty("maxEoverP_singleTrack", m_maxEoverP_singleTrack = 10.,
-      "Maximum E/p for single track conversion vertices");
-
-  declareProperty("maxEoverP_singleTrack_EtSf", m_maxEoverP_singleTrack_EtSf = 0.01,  
-      "Scale maxEoverP_singleTrack by ( 1+sf*Et(cluster)/GeV ) ");
-  
-  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 999.,
-		  "Maximum fraction of tube hits for vertices with TRT tracks"); // for 21.0.X: minTRTPrecisionFraction cut applied InDetTRT_StandaloneScoringTool
-  
 
 }
 
@@ -98,6 +55,8 @@ StatusCode EMConversionBuilder::initialize()
 
   ATH_MSG_DEBUG("Initializing EMConversionBuilder");
 
+  ATH_CHECK(m_conversionContainerKey.initialize());
+
   // the extrapolation tool
   if(m_extrapolationTool.retrieve().isFailure()){
     ATH_MSG_ERROR("Cannot retrieve extrapolationTool " << m_extrapolationTool);
@@ -109,35 +68,20 @@ StatusCode EMConversionBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-// =============================================================
-StatusCode EMConversionBuilder::contExecute(EgammaRecContainer& cont) 
-{
-
-  // retrieve Conversion Container
-  const xAOD::VertexContainer* conversions = 0;
-  if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
-    ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
-    return StatusCode::SUCCESS;
-  }
-  
-  for (egammaRec* egRec : cont){
-    ATH_CHECK(vertexExecute(egRec,conversions));
-  }
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) {
   // retrieve Conversion Container
-  const xAOD::VertexContainer* conversions = 0;
-  if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
-    ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
-    return StatusCode::SUCCESS;
+  
+  SG::ReadHandle<xAOD::VertexContainer> conversions(m_conversionContainerKey); 
+
+  // only for serial running; remove for MT
+  if(!conversions.isValid()){
+    ATH_MSG_ERROR("Could not retrieve Conversion container with key: " << m_conversionContainerKey.key());
+    return StatusCode::FAILURE;
   }
   //reset the vertices
   std::vector< ElementLink< xAOD::VertexContainer > >  vertices;
   egRec->setVertices(vertices);
-  ATH_CHECK(vertexExecute(egRec,conversions));
+  ATH_CHECK(vertexExecute(egRec,conversions.cptr()));
   return StatusCode::SUCCESS;
 }
 

@@ -2,11 +2,14 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # NOTE do NOT run with /bin/bash -x as the output is too big for gitlab-ci
-# arguments: [options] SUBMIT_DIRECTORY SCRIPT_DIRECTORY PACKAGE SEQUENCE_TAG NUMBER_OF_TESTS NIGHTLY_RELEASE PROJECT PLATFORM NIGHTLY_TAG
+# arguments: [options] SUBMIT_DIRECTORY SCRIPT_DIRECTORY PACKAGE SEQUENCE_TAG SPLIT NIGHTLY_RELEASE_SHORT PROJECT PLATFORM NIGHTLY_TAG OUT_FILE
+# env: ART_GRID_OPTIONS
 #
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
 #
-# example: [--skip-setup] tmp /cvmfs/atlas-nightlies.cern.ch/sw/... Tier0ChainTests grid 316236 32 21.0 Athena x86_64-slc6-gcc62-opt 2017-02-26T2119
+# options have to be in-order
+#
+# example: [--skip-setup --test-name TestName --inDS user.tcuhadar.SingleMuon... --nFiles 3 --nEventsPerFile 5] tmp /cvmfs/atlas-nightlies.cern.ch/sw/... Tier0ChainTests grid 316236 3 21.0 Athena x86_64-slc6-gcc62-opt 2017-02-26T2119  user.${USER}.atlas.${NIGHTLY_RELEASE_SHORT}.${PROJECT}.${PLATFORM}.${NIGHTLY_TAG}.${SEQUENCE_TAG}.${PACKAGE}[.${TEST_NUMBER}]
 #set -e
 
 echo "Script executed by $(whoami) on $(date)"
@@ -14,6 +17,27 @@ echo "Script executed by $(whoami) on $(date)"
 SKIP_SETUP=0
 if [ $1 == "--skip-setup" ]; then
   SKIP_SETUP=1
+  shift
+fi
+TYPE_OPTION="batch %RNDM:0"
+PATHENA_OPTIONS="--destSE=CERN-PROD_SCRATCHDISK"
+PATHENA_TYPE_OPTIONS=""
+if [ $1 == "--test-name" ]; then
+  TYPE_OPTION="single $2"
+  PATHENA_TYPE_OPTIONS="--forceStaged"
+  shift
+  shift
+fi
+INDS=""
+if [ $1 == "--inDS" ]; then
+  INDS="--inDS $2"
+  shift
+  shift
+fi
+NFILES=""
+if [ $1 == "--nFiles" ]; then
+  NFILES="--nFiles $2"
+  shift
   shift
 fi
 SUBMIT_DIRECTORY=$1
@@ -26,9 +50,9 @@ TYPE=$1
 shift
 SEQUENCE_TAG=$1
 shift
-NUMBER_OF_TESTS=$1
+SPLIT=$1
 shift
-NIGHTLY_RELEASE=$1
+NIGHTLY_RELEASE_SHORT=$1
 shift
 PROJECT=$1
 shift
@@ -36,9 +60,11 @@ PLATFORM=$1
 shift
 NIGHTLY_TAG=$1
 shift
+OUTFILE=$1
+shift
 
-# change -VAL-Prod and others into -VAL
-NIGHTLY_RELEASE_SHORT=${NIGHTLY_RELEASE/-VAL-*/-VAL}
+# we seem to have to copy the env variables locally
+GRID_OPTIONS=$ART_GRID_OPTIONS
 
 if [ ${SKIP_SETUP} -eq 0 ]; then
     echo "Setting up release: ${PLATFORM} ${NIGHTLY_RELEASE_SHORT} ${NIGHTLY_TAG} ${PROJECT}"
@@ -49,22 +75,28 @@ if [ ${SKIP_SETUP} -eq 0 ]; then
 
     export RUCIO_ACCOUNT=artprod
 
+    lsetup panda "asetup --platform=${PLATFORM} ${NIGHTLY_RELEASE_SHORT},${NIGHTLY_TAG},${PROJECT}"
+
     voms-proxy-init --rfc -noregen -cert ./grid.proxy -voms atlas
 
-    lsetup "panda 0.5.85"
+fi
 
-    lsetup rucio
-
-    asetup --platform=${PLATFORM} ${NIGHTLY_RELEASE_SHORT},${NIGHTLY_TAG},${PROJECT}
-
+if [ ${SPLIT} -eq 0 ]; then
+  SPLIT=""
+else
+  SPLIT="--split ${SPLIT}"
 fi
 
 # NOTE: for art-internal.py the current dir can be used as it is copied there
 cd ${SUBMIT_DIRECTORY}/${PACKAGE}/run
-OUTFILE="user.${USER}.atlas.${NIGHTLY_RELEASE_SHORT}.${PROJECT}.${PLATFORM}.${NIGHTLY_TAG}.${SEQUENCE_TAG}.${PACKAGE}"
-CMD="pathena --excludedSite=ANALY_TECHNION-HEP-CREAM --disableAutoRetry --noBuild --skipScout --trf \"./art-internal.py job grid ${SCRIPT_DIRECTORY} ${PACKAGE} ${TYPE} ${SEQUENCE_TAG} %RNDM:0 %OUT.tar ${NIGHTLY_RELEASE_SHORT} ${PROJECT} ${PLATFORM} ${NIGHTLY_TAG}\" --split ${NUMBER_OF_TESTS} --outDS ${OUTFILE}"
+SUBCOMMAND="./art-internal.py job grid ${SCRIPT_DIRECTORY} ${PACKAGE} ${TYPE} ${SEQUENCE_TAG} ${TYPE_OPTION} %OUT.tar ${NIGHTLY_RELEASE_SHORT} ${PROJECT} ${PLATFORM} ${NIGHTLY_TAG}"
+CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --noBuild --expertOnly_skipScout --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json ${INDS} ${NFILES}"
+
+#--disableAutoRetry
+#--excludedSite=ANALY_TECHNION-HEP-CREAM
 #--site=ANALY_NIKHEF-ELPROD_SHORT,ANALY_NIKHEF-ELPROD"
 #--site=ANALY_FZK,ANALY_BNL,ANALY_RAL"
+
 echo ${CMD}
 
 RESULT=`eval "${CMD}"`

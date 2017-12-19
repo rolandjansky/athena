@@ -35,6 +35,7 @@ TileLaserLinearityCalibTool::TileLaserLinearityCalibTool(const std::string& type
   AthAlgTool(type, name, pParent),
   m_tileHWID (nullptr),
   m_cabling (nullptr),
+  m_tileToolEmscale("TileCondToolEmscale"),
   m_beamInfo (nullptr),
   m_toolRunNo(0),
   m_ADC_problem(0),

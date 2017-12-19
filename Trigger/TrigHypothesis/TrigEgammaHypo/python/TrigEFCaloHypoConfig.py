@@ -12,12 +12,12 @@ from AthenaCommon.SystemOfUnits import GeV
 from TrigEgammaHypo.TrigEgammaPidTools import * 
 
 from egammaTools.egammaToolsFactories import EMFourMomBuilder, EMShowerBuilder 
-TrigEMShowerBuilderTool = EMShowerBuilder(
+TrigEMShowerBuilderTool = EMShowerBuilder.copyPublic(
                 name = "TrigEgammaShowerBuilder",
                 CellsName = "",
                 Print = True,
-                )
-TrigEMFourMomBuilder = EMFourMomBuilder()
+                )()
+TrigEMFourMomBuilder = EMFourMomBuilder.copyPublic("TrigEMFourMomBuilder")()
 
 class TrigEFCaloHypoBase (TrigEFCaloHypo):
     __slots__ = []

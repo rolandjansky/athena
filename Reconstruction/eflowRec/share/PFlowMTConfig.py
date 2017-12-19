@@ -91,7 +91,7 @@ MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
 MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
 MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
 MatchingTool_Recover.MatchCut = 0.2*0.2 # float
-PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool
+PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
 
 PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
 
@@ -159,12 +159,12 @@ PFAlgorithm.BaseToolList = [PFMomentCalculatorTool]
 from eflowRec.eflowRecConf import PFLCCalibTool
 PFLCCalibTool = PFLCCalibTool("PFLCCalibTool")
 
-from eflowRec.eflowLocalHadCal import eflowLocalHadCal
-LocalHadCal = eflowLocalHadCal()
-Calib = LocalHadCal.eflowCaloClusterLocalCalib("PFLCCalibTool")
-CalibOO = LocalHadCal.eflowCaloClusterLocalCalibOO("PFLCCalibTool")
-CalibOOPi0 = LocalHadCal.eflowCaloClusterLocalCalibOOPi0("PFLCCalibTool")
-CalibDM = LocalHadCal.eflowCaloClusterLocalCalibDM("PFLCCalibTool")
+from eflowRec.PFLocalHadCal import PFLocalHadCal
+LocalHadCal = PFLocalHadCal()
+Calib = LocalHadCal.PFCaloClusterLocalCalib("PFLCCalibTool")
+CalibOO = LocalHadCal.PFCaloClusterLocalCalibOO("PFLCCalibTool")
+CalibOOPi0 = LocalHadCal.PFCaloClusterLocalCalibOOPi0("PFLCCalibTool")
+CalibDM = LocalHadCal.PFCaloClusterLocalCalibDM("PFLCCalibTool")
 
 from CaloRec.CaloTopoClusterFlags import jobproperties
 if not (jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib()):

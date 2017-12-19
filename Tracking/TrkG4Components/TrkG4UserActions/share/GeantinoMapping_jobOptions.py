@@ -66,10 +66,10 @@ athenaCommonFlags.PoolHitsOutput = 'Hits.pool.root'
 athenaCommonFlags.EvtMax = 100
 
 #--- Simulation flags -----------------------------------------
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags() # Going to use an ATLAS layout
-SimFlags.SimLayout = myGeo
-SimFlags.EventFilter.set_Off()
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags() # Going to use an ATLAS layout
+simFlags.SimLayout = myGeo
+simFlags.EventFilter.set_Off()
 
 myMinEta = -6.0
 myMaxEta =  6.0
@@ -85,8 +85,8 @@ pg.sampler.pid = 999
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[-6.,6.])
 topSeq += pg
 
-SimFlags.RandomSeedOffset = myRandomOffset
-SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
+simFlags.RandomSeedOffset = myRandomOffset
+simFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
 
 from RngComps.RngCompsConf import AtRndmGenSvc 
 myAtRndmGenSvc = AtRndmGenSvc()
@@ -97,9 +97,6 @@ ServiceMgr += myAtRndmGenSvc
 
 ## add the material step recording action
 SimFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool',['Run','Event','Step'])
-#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','verboseLevel',1)
-#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordELoss',1)
-#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordMSc',1)
 
 ############### The Material hit collection ##################
 
@@ -115,18 +112,14 @@ MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']
 
 ##############################################################
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 # Add the beam effects algorithm
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
-
-from AthenaCommon.CfgGetter import getPublicTool
-ServiceMgr.UserActionSvc.RunActions += [getPublicTool("MaterialStepRecorder")]
-ServiceMgr.UserActionSvc.EventActions += [getPublicTool("MaterialStepRecorder")]
-ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("MaterialStepRecorder")]
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------
 

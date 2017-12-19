@@ -285,7 +285,6 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
   std::vector<TRTElectronicsProcessing::Deposit> deposits;
   int dummyhitid(0);
   TRTDigit digit;
-  std::vector<int> m_highThresholdDiscriminator;
   unsigned int nokdigits(0);
   unsigned int ntries(0);
   while ( nokdigits < m_digitPoolLength ) {
@@ -359,7 +358,7 @@ void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, 
 
 void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect,
 						  const std::set<Identifier>& simhitsIdentifiers,
-						  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc) {
+						  ServiceHandle<ITRT_StrawNeighbourSvc> TRTStrawNeighbourSvc) {
 
   //id helper:
   TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
@@ -373,7 +372,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
 
   for (simhitsIdentifiersIter=simhitsIdentifiers_begin; simhitsIdentifiersIter!=simhitsIdentifiers_end; ++simhitsIdentifiersIter) {
 
-    m_TRTStrawNeighbourSvc->getStrawsFromChip(*simhitsIdentifiersIter,IdsFromChip);
+    TRTStrawNeighbourSvc->getStrawsFromChip(*simhitsIdentifiersIter,IdsFromChip);
     CrossTalkIds.assign(IdsFromChip.begin(),IdsFromChip.end());
 
     //for barrel only - treated exactly equally as id's on the right end

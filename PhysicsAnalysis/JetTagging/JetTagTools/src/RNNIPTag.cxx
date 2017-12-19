@@ -157,6 +157,7 @@ namespace Analysis {
       //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
       m_unbiasIPEstimation(true),
       m_calibrationDirectory("RNNIP"),
+      m_calibrationTool("Analysis::CalibrationBroker"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_trackSelectorTool("Analysis::TrackSelector"),

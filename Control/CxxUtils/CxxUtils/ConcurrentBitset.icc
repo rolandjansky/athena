@@ -1,0 +1,1102 @@
+// $Id$
+/**
+ * @file CxxUtils/ConcurrentBitset.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2017
+ * @brief Variable-sized bitset allowing (mostly) concurrent access.
+ */
+
+
+#include "CxxUtils/AthUnlikelyMacros.h"
+
+
+namespace CxxUtils {
+
+
+//*********************************************************************************
+// Constructors, destructors, assignment.
+
+
+/**
+ * @brief The number of bits that this container can hold.
+ */
+inline
+ConcurrentBitset::bit_t ConcurrentBitset::capacity() const
+{
+  return (*m_impl).nbits();
+}
+
+
+/**
+ * @brief Count the number of 1 bits in the set.
+ */
+inline
+ConcurrentBitset::bit_t ConcurrentBitset::count() const
+{
+  return (*m_impl).count();
+}
+
+
+/**
+ * @brief Count the number of 1 bits in the set.
+ *
+ * Note: If you regard this like a std::bitset, you would expect this to return
+ * the number of bits that the set can hold, while if you regard this like
+ * a set<bit_t>, then you would expect this to return the number of 1 bits.
+ * We follow the latter here.
+ */
+inline
+ConcurrentBitset::bit_t ConcurrentBitset::size() const
+{
+  return (*m_impl).count();
+}
+
+
+/**
+ * @brief Test to see if a bit is set.
+ * @param bit Number of the bit to test.
+ * @return true if the bit is set; false otherwise.
+ *
+ * Returns false if @c bit is beyond the end of the set.
+ */
+inline
+bool ConcurrentBitset::test (bit_t bit) const
+{
+  return (*m_impl).test (bit);
+}
+
+/**
+ * @brief Test to see if a bit is set.
+ * @param bit Number of the bit to test.
+ * @return 1 if the bit is set; 0 otherwise.
+ *
+ * Returns 0 if @c bit is beyond the end of the set.
+ */
+inline
+size_t ConcurrentBitset::count (bit_t bit) const
+{
+  return test (bit);
+}
+
+
+/**
+ * @brief Return true if there are no 1 bits in the set.
+ */
+inline
+bool ConcurrentBitset::empty() const
+{
+  return none();
+}
+
+
+/**
+ * @brief Return true if there are no 1 bits in the set.
+ */
+inline
+bool ConcurrentBitset::none() const
+{
+  return (*m_impl).none();
+}
+
+
+/**
+ * @brief Return true if all bits in the set are 1.
+ */
+inline
+bool ConcurrentBitset::all() const
+{
+  return (*m_impl).all();
+}
+
+
+/**
+ * @brief Return true if there are any 1 bits in the set.
+ */
+inline
+bool ConcurrentBitset::any() const
+{
+  return !none();
+}
+
+
+//*********************************************************************************
+// Single-bit manipulation.
+
+
+/**
+ * @brief Turn on one bit.
+ * @param bit The bit to turn on.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::set (bit_t bit)
+{
+  (*m_impl).set (bit);
+  return *this;
+}
+
+
+/**
+ * @brief Turn off one bit.
+ * @param bit The bit to turn off.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::reset (bit_t bit)
+{
+  (*m_impl).reset (bit);
+  return *this;
+}
+
+
+/**
+ * @brief Turn off one bit.
+ * @param bit The bit to turn off.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::erase (bit_t bit)
+{
+  (*m_impl).reset (bit);
+  return *this;
+}
+
+
+/**
+ * @brief Flip the value of one bit.
+ * @param bit The bit to turn flip.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::flip (bit_t bit)
+{
+  (*m_impl).flip (bit);
+  return *this;
+}
+
+
+/**
+ * @brief Set the value of one bit.
+ * @param bit The bit to turn set.
+ * @param val The value to which to set it.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::set (bit_t bit, bool val)
+{
+  if (val) {
+    (*m_impl).set (bit);
+  }
+  else {
+    (*m_impl).reset (bit);
+  }
+  return *this;
+}
+
+
+//*********************************************************************************
+// Set operations.
+
+
+/**
+ * @brief Clear all bits in the set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::clear()
+{
+  (*m_impl).clear();
+  return *this;
+}
+
+
+/**
+ * @brief Clear all bits in the set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::reset()
+{
+  (*m_impl).clear();
+  return *this;
+}
+
+
+/**
+ * @brief Turn on all bits in the set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::set()
+{
+  (*m_impl).set();
+  return *this;
+}
+
+/**
+ * @brief Flip the state of all bits in the set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::flip()
+{
+  (*m_impl).flip();
+  return *this;
+}
+
+
+/**
+ * @brief AND this set with another set.
+ * @param other The other set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::operator&= (const ConcurrentBitset& other)
+{
+  (*m_impl).operate ([] (std::atomic<Block_t>& a, Block_t v) { a &= v; },
+                     *other.m_impl);
+  return *this;
+}
+
+
+/**
+ * @brief OR this set with another set.
+ * @param other The other set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::operator|= (const ConcurrentBitset& other)
+{
+  (*m_impl).operate ([] (std::atomic<Block_t>& a, Block_t v) { a |= v; },
+                     *other.m_impl);
+  return *this;
+}
+
+  
+/**
+ * @brief XOR this set with another set.
+ * @param other The other set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::operator^= (const ConcurrentBitset& other)
+{
+  (*m_impl).operate ([] (std::atomic<Block_t>& a, Block_t v) { a ^= v; },
+                     *other.m_impl);
+  return *this;
+}
+
+
+/**
+ * @brief Subtract another set from this set.
+ * @param other The other set.
+ *
+ * This is the same as (*this) &= ~other;
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::operator-= (const ConcurrentBitset& other)
+{
+  (*m_impl).operate ([] (std::atomic<Block_t>& a, Block_t v) { a &= ~v; },
+                     *other.m_impl);
+  return *this;
+}
+
+
+/**
+ * @brief Return a new set that is the complement of this set.
+ */
+inline
+ConcurrentBitset ConcurrentBitset::operator~() const
+{
+  ConcurrentBitset b = *this;
+  (*b.m_impl).flip();
+  return b;
+}
+
+
+//*********************************************************************************
+// Comparison.
+
+
+/**
+ * @brief Test two sets for equality.
+ * @param other The other set to test.
+ */
+inline
+bool ConcurrentBitset::operator== (const ConcurrentBitset& other) const
+{
+  return (*m_impl) == (*other.m_impl);
+}
+
+
+/**
+ * @brief Test two sets for inequality.
+ * @param other The other set to test.
+ */
+inline
+bool ConcurrentBitset::operator!= (const ConcurrentBitset& other) const
+{
+  return ! ((*m_impl) == (*other.m_impl));
+}
+
+
+//*********************************************************************************
+// Insert.
+
+
+/**
+ * @brief Set a bit to 1.  Expand the set if needed.
+ * @param bit Number of the bit to set.
+ * @param new_nbits Hint for new size of set, if it needs to be expanded.
+ *
+ * If @c bit is past the end of the container, then the container will be
+ * expanded as needed.
+ *
+ * This operation is incompatible with any other simultaneous writes
+ * to the same set (reads are ok).
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::insert (bit_t bit, bit_t new_nbits /*= 0*/)
+{
+  if (bit >= (*m_impl).nbits()) {
+    if (new_nbits > bit)
+      ;
+    else if (bit < 64)
+      new_nbits = 128;
+    else
+      new_nbits = (bit * 2 + BLOCKSIZE-1) & ~(BLOCKSIZE-1);
+    expand (new_nbits);
+  }
+  set (bit);
+  return *this;
+}
+
+
+/**
+ * @brief Set several bits to 1.  Expand the set if needed.
+ * @param beg Start of range of bits to set.
+ * @param end End of range of bits to set.
+ * @param new_nbits Hint for new size of set, if it needs to be expanded.
+ *
+ * The iteration range should be over something convertible to @c bit_t.
+ * If any bit is past the end of the container, then the container will be
+ * expanded as needed.
+ *
+ * This operation is incompatible with any other simultaneous writes
+ * to the same set (reads are ok).
+ *
+ * Example:
+ *@code
+ *  std::vector<bit_t> bits { 4, 10, 12};
+ *  CxxUtils::ConcurrentBitset bs = ...;
+ *  bs.insert (bits.begin(), bits.end());
+ @endcode
+*/
+template <class ITERATOR,
+          typename = typename std::enable_if<
+            std::is_base_of<
+              typename std::forward_iterator_tag,
+              typename std::iterator_traits<ITERATOR>::iterator_category
+              >::value> >
+inline
+ConcurrentBitset&
+ConcurrentBitset::insert (ITERATOR beg, ITERATOR end, bit_t new_nbits /*= 0*/)
+{
+  for (; beg != end; ++beg) {
+    insert (*beg, new_nbits);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Set several bits to 1.  Expand the set if needed.
+ * @param l List of bits to set.
+ * @param new_nbits Hint for new size of set, if it needs to be expanded.
+ *
+ * If any bit is past the end of the container, then the container will be
+ * expanded as needed.
+ *
+ * This operation is incompatible with any other simultaneous writes
+ * to the same set (reads are ok).
+ *
+ * Example:
+ *@code
+ *  std::vector<bit_t> bits { 4, 10, 12};
+ *  bs.insert ({4, 10, 12});
+ @endcode
+*/
+inline
+ConcurrentBitset&
+ConcurrentBitset::insert (std::initializer_list<bit_t> l, bit_t new_nbits /*= 0*/)
+{
+  auto max_it = std::max_element (l.begin(), l.end());
+  size_t bmax = max_it == l.end() ? 0 : *max_it + 1;
+  if (new_nbits > bmax) new_nbits = bmax;
+  expand (bmax);
+  for (size_t x : l) {
+    set (x);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Turn on bits listed in another set.
+ * @param other Set of bits to turn on.
+ *
+ * This is the same as @c operator|=, except that if the size of @c other is
+ * larger than this set, then this set will be expanded to match @c other.
+ *
+ * This operation is incompatible with any other simultaneous writes
+ * to the same set (reads are ok).
+ */
+inline
+ConcurrentBitset& ConcurrentBitset::insert (const ConcurrentBitset& other)
+{
+  const Impl* otherImpl = other.m_impl;
+  expand (otherImpl->nbits());
+  (*m_impl).operate ([] (std::atomic<Block_t>& a, Block_t v) { a |= v; },
+                     *otherImpl);
+  return *this;
+}
+
+
+//*********************************************************************************
+// Array-like element access.
+
+
+/**
+ * @brief Constructor.
+ * @param impl ConcurrentBitset implementation object.
+ * @param bit Bit number to which this reference refers.
+ */
+inline
+ConcurrentBitset::reference::reference (Impl& impl, bit_t bit)
+  : m_block (impl.block(bit)),
+    m_mask (1UL << (bit&MASK))
+{
+}
+
+
+/**
+ * @brief Set the referenced bit to a given value.
+ * @param val Value to which to set the referenced bit.
+ */
+inline
+ConcurrentBitset::reference&
+ConcurrentBitset::reference::operator= (bool val) noexcept
+{
+  if (val)
+    *m_block |= m_mask;
+  else
+    *m_block &= ~m_mask;
+  return *this;
+}
+
+
+/**
+ * @brief Copy the value of another referenced bit.
+ * @param r The other reference.
+ *
+ * To allow:
+ *@code
+ * ConcurrentBitset& bs1 = ...;
+ * ConcurrentBitset& bs2 = ...;
+ * bs1[1] = bs2[1];
+ @endcode
+*/
+inline
+ConcurrentBitset::reference&
+ConcurrentBitset::reference::operator= (const reference& r) noexcept
+{
+  if (this != &r) {
+    *this = static_cast<bool> (r);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Return the value of the referenced bit.
+ */
+inline
+ConcurrentBitset::reference::operator bool() const noexcept
+{
+  return (*m_block & m_mask) != 0;
+}
+
+
+/**
+ * @brief Return the complement of the value of the referenced bit.
+ */
+inline
+bool ConcurrentBitset::reference::operator~() const noexcept
+{
+  return (*m_block & m_mask) == 0;
+}
+
+
+/**
+ * @brief Invert the referenced bit.
+ */
+inline
+ConcurrentBitset::reference&
+ConcurrentBitset::reference::flip() noexcept
+{
+  *m_block ^= m_mask;
+  return *this;
+}
+
+
+/**
+ * @brief Return the value of one bit.
+ * @param bit The number of the bit to test.
+ */
+inline
+bool ConcurrentBitset::operator[] (bit_t bit) const
+{
+  return (*m_impl).test (bit);
+}
+  
+
+/**
+ * @brief Return a reference to one bit.
+ * @param bit The number of the bit to reference.
+ *
+ * The reference will be invalidated by calls to @c insert() or @c operator=.
+ * Effects are undefined if @c bit is past the end of the set.
+ */
+inline
+ConcurrentBitset::reference ConcurrentBitset::operator[] (bit_t bit)
+{
+  return reference (*m_impl, bit);
+}
+
+
+//*********************************************************************************
+// Iterator operations.
+
+
+/**
+ * @brief Constructor.
+ * @param cache Cached block at the current iteration point, shifted such
+ *              that bit number @c bit has just been shifted off the right.
+ * @param bit Bit number the at which the iterator is currently pointing.
+ * @param data Pointer to the block at which the iterator is currently pointing.
+ * @param end One past the last block of the iteration range.
+ */
+inline
+ConcurrentBitset::const_iterator::const_iterator (Block_t cache,
+                                                  bit_t bit,
+                                                  const std::atomic<Block_t>* data,
+                                                  const std::atomic<Block_t>* end)
+  : m_cache (cache), m_bit (bit), m_data(data), m_end (end)
+{
+}
+
+
+/**
+ * @brief Return the bit number which the iterator is currently referencing.
+ */
+inline
+ConcurrentBitset::bit_t
+ConcurrentBitset::const_iterator::operator*() const
+{
+  return m_bit;
+}
+
+
+/**
+ * @brief Advance the iterator to the next set bit.
+ */
+inline
+ConcurrentBitset::const_iterator&
+ConcurrentBitset::const_iterator::operator++()
+{
+  // Are there any more bits set in this block?
+  Block_t cache = m_cache;
+  if (ATH_LIKELY (cache != 0)) {
+    // Yes --- find the first set bit.
+    // Shift until that bit just falls off the right and adjust
+    // the current position.
+    // We know that @c b will be less than @c BLOCKSIZE
+    // (avoiding undefined behavior), since at least one bit must have
+    // already been shifted off of the cache.
+    int b = CxxUtils::count_trailing_zeros (cache)+1;
+    m_bit += b;
+    m_cache = cache >> b;
+  }
+  else {
+    // No, move to the next block.
+    // Bit number at the start of the next block.
+    unsigned int bit = (m_bit + BLOCKSIZE) & ~MASK;
+
+    // Pointers to the next block, and the end of iteration.
+    const std::atomic<Block_t>* data = m_data + 1;
+    const std::atomic<Block_t>* end = m_end;
+
+    // Iterate until we find a block with at least one bit set.
+    while (data < end) {
+      // Read the current block, tests to see if there are any set bits.
+      cache = *data;
+      if (ATH_UNLIKELY (cache != 0)) {
+        // Found a block with at least one bit set.  Which is the first?
+        int b = CxxUtils::count_trailing_zeros (cache);
+
+        // Adjust the current position.
+        m_bit = bit + b;
+        m_data = data;
+
+        // Shift the bit found off of cache.
+        // Need to to it in two steps, because @c b might be @c BLOCKSIZE-1
+        // (and shifting by @c BLOCKSIZE is undefined).
+        m_cache = (cache>>1) >> b;
+        return *this;
+      }
+
+      // Move to the next block.
+      ++data;
+      bit += BLOCKSIZE;
+    }
+
+    // Reached the end without finding any more bits set.
+    // Mark that we hit the end.
+    m_bit = ~static_cast<bit_t>(0);
+  }
+
+  return *this;
+}
+
+
+/**
+ * @brief Advance the iterator to the next set bit (postincrement).
+ */
+inline
+ConcurrentBitset::const_iterator
+ConcurrentBitset::const_iterator::operator++(int)
+{
+  const_iterator tmp = *this;
+  ++*this;
+  return tmp;
+}
+
+
+/**
+ * @brief Compare two iterators.
+ * @param other The other iterator to compare.
+ */
+inline
+bool ConcurrentBitset::const_iterator::operator== (const const_iterator& other) const
+{
+  return m_bit == other.m_bit;
+}
+
+
+/**
+ * @brief Compare two iterators.
+ * @param other The other iterator to compare.
+ */
+inline
+bool ConcurrentBitset::const_iterator::operator!= (const const_iterator& other) const
+{
+  return m_bit != other.m_bit;
+}
+
+
+/**
+ * @brief Return a begin iterator.
+ */
+inline
+ConcurrentBitset::const_iterator
+ConcurrentBitset::begin() const
+{
+  return (*m_impl).begin();
+}
+
+
+/**
+ * @brief Return an end iterator.
+ */
+inline
+ConcurrentBitset::const_iterator
+ConcurrentBitset::end() const
+{
+  return (*m_impl).end();
+}
+
+
+/**
+ * @brief If bit @c bit is set, return an iterator pointing to it.
+ *        Otherwise, return an end iterator.
+ * @param bit Bit number to test.
+ */
+inline
+ConcurrentBitset::const_iterator
+ConcurrentBitset::find (bit_t bit) const
+{
+  return (*m_impl).find(bit);
+}
+
+
+//*********************************************************************************
+// Implementation.
+
+
+/**
+ * @brief Find number of blocks needed to hold a given number of bits.
+ * @param nbits The number of bits.
+ */
+inline
+ConcurrentBitset::bit_t
+ConcurrentBitset::nBlocks (bit_t nbits)
+{
+  return (nbits+BLOCKSIZE-1) / BLOCKSIZE;
+}
+
+
+/**
+ * @brief Create a new, uninitialized implementation object.
+ * @param nbits Number of bits to allocate.
+ *
+ * This will allocate memory for the Impl object,
+ * but will does not run the constructor.
+ */
+inline
+ConcurrentBitset::Impl*
+ConcurrentBitset::newImpl (bit_t nbits)
+{
+  bit_t nblocks = nBlocks (nbits);
+  // The Impl structure contains one Block_t at the end.
+  return reinterpret_cast<Impl*>(malloc (sizeof(Impl) + (nblocks-1)*sizeof(Block_t)));
+}
+
+
+/**
+ * @brief Expand the container.
+ * @param new_nbits The desired new size of the container.
+ */
+inline
+void ConcurrentBitset::expand (bit_t new_nbits)
+{
+  // Check the size of the container.
+  // Call the out-of-line portion if we actually need to expand.
+  if (new_nbits > (*m_impl).nbits()) {
+    expandOol (new_nbits);
+  }
+}
+
+
+/**
+ * @brief Constructor.
+ * @param nbits Number of bits in the set.
+ */
+inline
+ConcurrentBitset::Impl::Impl (bit_t nbits)
+  : m_nbits (nbits),
+    m_nblocks (nBlocks (nbits))
+{
+  // Start with all bits 0.
+  clear();
+}
+
+
+/**
+ * @brief Copy constructor.
+ * @brief Other object to copy.
+ * @brief Number of bits to use for this container.
+ *
+ * If @c nbits is smaller than the size of @c other, then the size of @c other
+ * will be used instead.
+ */
+inline
+ConcurrentBitset::Impl::Impl (const Impl& other, bit_t nbits /*= 0*/)
+  : m_nbits (std::max (other.m_nbits, nbits)),
+    m_nblocks ((m_nbits+BLOCKSIZE-1) / BLOCKSIZE),
+    m_hwm (static_cast<size_t> (other.m_hwm))
+{
+  // Copy, then clear the remainder.
+  // We don't care about the relative ordering, so to this with relaxed
+  // memory ordering, and add a barrier at the end.
+  for (bit_t i=0; i < other.m_nblocks; i++) {
+    m_data[i].store (other.m_data[i].load(std::memory_order_relaxed),
+                     std::memory_order_relaxed);
+  }
+  for (bit_t i=other.m_nblocks; i < m_nblocks; i++) {
+    m_data[i].store (0, std::memory_order_relaxed);
+  }
+  std::atomic_thread_fence (std::memory_order_seq_cst);
+}
+
+
+/**
+ * @brief Copy from another instance.
+ * @param other Object from which to copy.
+ *
+ * This does not change the size of the container.
+ * If This container is larger than @c other, then the remainder will be
+ * filled with zeros.  If @c other is larger than this container, then the
+ * remainder will be ignored.
+ */
+inline
+void ConcurrentBitset::Impl::assign (const Impl& other)
+{
+  // Copy, then clear the remainder.
+  // We don't care about the relative ordering, so to this with relaxed
+  // memory ordering, and add a barrier at the end.
+  bit_t ncopy = std::min (m_nblocks, other.m_nblocks);
+  for (bit_t i=0; i < ncopy; i++) {
+    m_data[i].store (other.m_data[i].load(std::memory_order_relaxed),
+                     std::memory_order_relaxed);
+  }
+  for (bit_t i=ncopy; i < m_nblocks; i++) {
+    m_data[i].store (0, std::memory_order_relaxed);
+  }
+  std::atomic_thread_fence (std::memory_order_seq_cst);
+
+  // Copy hwm last.  It can only increase, so as long as we're after the barrier,
+  // we should get something that's correct.
+  m_hwm = static_cast<bit_t> (other.m_hwm);
+}
+
+
+/** 
+ * @brief Return the number of bits in the set.
+ */
+inline
+ConcurrentBitset::bit_t ConcurrentBitset::Impl::nbits() const
+{
+  return m_nbits;
+}
+
+
+/**
+ * @brief Test to see if a bit is set.
+ * @param bit Number of the bit to test.
+ * @return true if the bit is set; false otherwise.
+ *
+ * Returns false if @c bit is beyond the end of the set.
+ */
+inline
+bool ConcurrentBitset::Impl::test (bit_t bit) const
+{
+  if (bit >= m_nbits) return false;
+  bit_t pos = bit / BLOCKSIZE;
+  return (m_data[pos] & (1UL<<(bit&MASK))) != 0;
+}
+
+
+/**
+ * @brief Return a pointer to the block containing @c bit.
+ * @param bit Desired bit number.
+ *
+ * Returns nullptr if @c bit is past the end of the set.
+ */
+inline
+std::atomic<ConcurrentBitset::Block_t>*
+ConcurrentBitset::Impl::block (bit_t bit)
+{
+  if (bit >= m_nbits) return nullptr;
+  bit_t pos = bit / BLOCKSIZE;
+  return &m_data[pos];
+}
+
+
+/**
+ * @brief Turn on one bit.
+ * @param bit The bit to turn on.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+void ConcurrentBitset::Impl::set (bit_t bit)
+{
+  if (bit >= m_nbits) return;
+  bit_t pos = bit / BLOCKSIZE;
+  // Update HWM if pos is larger.
+  CxxUtils::atomic_fetch_max (&m_hwm, pos);
+  m_data[pos] |= 1UL<<(bit&MASK);
+}
+
+    
+/**
+ * @brief Turn off one bit.
+ * @param bit The bit to turn off.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+void ConcurrentBitset::Impl::reset (bit_t bit)
+{
+  if (bit >= m_nbits) return;
+  bit_t pos = bit / BLOCKSIZE;
+  m_data[pos] &= ~(1UL<<(bit&MASK));
+}
+
+
+/**
+ * @brief Flip the value of one bit.
+ * @param bit The bit to turn flip.
+ *
+ * Does nothing if @c bit beyond the end of the set.
+ */
+inline
+void ConcurrentBitset::Impl::flip (bit_t bit)
+{
+  if (bit >= m_nbits) return;
+  size_t pos = bit / BLOCKSIZE;
+  // Update HWM if pos is larger.
+  CxxUtils::atomic_fetch_max (&m_hwm, pos);
+  m_data[pos] ^= 1UL<<(bit&MASK);
+}
+
+
+/**
+ * @brief Clear all bits in the set.
+ *
+ * This operation is not necessarily atomic; a simultaneous read may be able
+ * to see the operation partially done.
+ */
+inline
+void ConcurrentBitset::Impl::clear()
+{
+  for (bit_t i=0; i<m_nblocks; i++) {
+    m_data[i].store (0, std::memory_order_relaxed);
+  }
+  std::atomic_thread_fence (std::memory_order_seq_cst);
+  m_hwm = 0;
+}
+
+
+/**
+ * @brief Apply a binary operation.
+ * @param op Operation to apply.
+ * @param other Second set for the operation.
+ *
+ * Each block B in this set is replaced by B OP OTHER, where OTHER is
+ * the corresponding block in the other container.  (If this set
+ * is larger than @c other, then the trailing blocks will be 0.)
+ */
+inline
+void ConcurrentBitset::Impl::operate (operator_t op, const Impl& other)
+{
+  bit_t nblocks = std::min (m_nblocks, other.m_nblocks);
+  bit_t hwm = m_hwm;
+  for (bit_t i = 0; i < nblocks; i++) {
+    op (m_data[i], other.m_data[i]);
+    if (m_data[i]) hwm = i;
+  }
+  for (bit_t i = nblocks; i < m_nblocks; i++) {
+    op (m_data[i], static_cast<Block_t> (0));
+    if (m_data[i]) hwm = i;
+  }
+  CxxUtils::atomic_fetch_max (&m_hwm, hwm);
+}
+
+
+/**
+ * @brief Compare with another set.
+ * @param other Other set with which to compare.
+ */
+inline
+bool ConcurrentBitset::Impl::operator== (const Impl& other) const
+{
+  bit_t ntest = std::min (m_nblocks, other.m_nblocks);
+  for (bit_t i = 0; i < ntest; i++) {
+    if (m_data[i] != other.m_data[i]) return false;
+  }
+
+  for (bit_t i = ntest; i < m_nblocks; i++) {
+    if (m_data[i] != 0) return false;
+  }
+
+  for (bit_t i = ntest; i < other.m_nblocks; i++) {
+    if (other.m_data[i] != 0) return false;
+  }
+
+  return true;
+}
+
+
+/**
+ * @brief Return an iterator referencing the first 1 bit.
+ */
+inline
+ConcurrentBitset::const_iterator
+ConcurrentBitset::Impl::begin() const
+{
+  // Set the iterator to just before the start of the container.
+  // Then use the increment operator to search for the first 1.
+  bit_t offs = m_nblocks ? (static_cast<bit_t>(m_hwm) + 1) : 0;
+  const_iterator it (0,
+                     static_cast<bit_t>(-BLOCKSIZE),
+                     &m_data[0] - 1,
+                     &m_data[0] + offs);
+  ++it;
+  return it;
+}
+
+
+/**
+ * @brief Return the end iterator.
+ */
+inline
+ConcurrentBitset::const_iterator
+ConcurrentBitset::Impl::end() const
+{
+  return const_iterator (0,
+                         ~static_cast<bit_t>(0),
+                         nullptr, nullptr);
+}
+
+
+/**
+ * @brief If bit @c bit is set, return an iterator pointing to it.
+ *        Otherwise, return an end iterator.
+ * @param bit Bit number to test.
+ */
+inline
+ConcurrentBitset::const_iterator
+ConcurrentBitset::Impl::find (bit_t bit) const
+{
+  if (test (bit)) {
+    // The bit's set.
+    // Construct an iterator pointing at this bit.
+    bit_t pos = bit / BLOCKSIZE;
+    const std::atomic<Block_t>* data = m_data + pos;
+    Block_t cache = *data;
+    bit_t offs = bit&MASK;
+    cache >>= 1;
+    if (offs > 0) {
+      cache >>= offs;
+    }
+    return const_iterator (cache, bit, m_data+pos,
+                           &m_data[0] + m_hwm + 1);
+  }
+  return end();
+}
+
+
+} // namespace CxxUtils

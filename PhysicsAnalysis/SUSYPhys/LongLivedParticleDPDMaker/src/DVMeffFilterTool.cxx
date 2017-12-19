@@ -70,7 +70,7 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
      if( sc.isFailure()  ||  !metContainer ) {
        msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
-       return StatusCode::FAILURE;
+       return false;
      } 
      ///     msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endmsg;
 
@@ -82,7 +82,7 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
      if( sc.isFailure()  ||  !jetContainer ) {
        msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
-       return StatusCode::FAILURE;
+       return false;
      }
      for (unsigned int i=0; i< jetContainer->size(); ++i) { 
        const xAOD::Jet* jet = jetContainer->at(i);

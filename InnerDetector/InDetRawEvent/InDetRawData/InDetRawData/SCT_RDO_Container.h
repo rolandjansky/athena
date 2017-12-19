@@ -24,5 +24,10 @@ typedef InDetRawDataContainer<InDetRawDataCollection<SCT_RDORawData> >
 
 CLASS_DEF(SCT_RDO_Container,2541,1)
 
+typedef EventContainers::IdentifiableCache< InDetRawDataCollection<SCT_RDORawData> > SCT_RDO_Cache;
+
+CLASS_DEF( SCT_RDO_Cache , 251205632 , 1 )
+
+typedef EventContainers::IIdentifiableCont<InDetRawDataCollection<SCT_RDORawData>> ISCT_RDO_Container;//Interface only, do not place in storegate
 
 #endif // INDETRAWDATA_SCT_RDO_CONTAINER_H

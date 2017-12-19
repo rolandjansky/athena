@@ -826,7 +826,7 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 	/// This is Soooo isHit, xAOD::TrackParticle::track() is supposed to produce a 
 	/// Trk::Track* in the new code, but an ElementLink<TrackContainer> in the old version
 	/// so to test with the old release use the ElementLink, but this just doesn't
-	/// compile, so give up on this ***REMOVED*** code.   
+	/// compile, so give up on this subpar atlas code.   
 	//   const Trk::TrackSummary*  summary = track->track()->trackSummary();
 	const Trk::TrackSummary*  summary = _track->trackSummary();
 	

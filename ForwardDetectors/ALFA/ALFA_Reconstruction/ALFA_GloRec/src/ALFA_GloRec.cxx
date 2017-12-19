@@ -206,7 +206,7 @@ StatusCode ALFA_GloRec::execute() {
  	//////////////////////////
 	// ... get event info 
 	//////////////////////////
-	const EventInfo* eventInfo;
+	const EventInfo* eventInfo = nullptr;
 	sc = evtStore()->retrieve(eventInfo);
 	if (sc.isFailure())	{
 		msg(MSG::ERROR) << "ALFA_GloRec cannot get event info." << endmsg;

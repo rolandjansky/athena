@@ -6,6 +6,7 @@ from AthenaCommon.SystemOfUnits import GeV
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 import re
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
@@ -444,6 +445,77 @@ class MufastHypoConfig(MufastHypo) :
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
                 print handle.name," eta bins doesn't match the Pt thresholds!"
+
+
+class TrigMufastHypoConfig(TrigMufastHypoAlg) :
+
+    __slots__ = []
+
+    def TrigMufastHypoToolFromName( self, name, nath ):	# nath: name threshold, for example HLT_mu6 etc
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMufastHypoTool( nath )  
+        tool.OutputLevel = DEBUG
+        bname = nath.split('_') 
+
+        if len(bname) == 2: 
+            th = re.findall(r'[0-9]+', bname[1])           
+            threshold = str(th[0]) + 'GeV'
+            TrigMufastHypoConfig().ConfigrationHypoTool( nath, threshold )
+        #if len(bname) == 3:
+        #    th = re.findall(r'[0-9]+', bname[1])           
+        #    threshold = str(th[0]) + 'GeV_' + str(bname[2])
+        #    TrigMufastHypoConfig().ConfigrationHypoTool( nath, threshold )
+        else:
+            print """ Configration ERROR: Can't configure threshold at TrigMufastHypoTool """
+            return tool
+    
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        try:
+            TriggerFlags.enableMonitoring = ["Validation"]
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMufastHypoMonitoring() 
+        except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+    
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += tool
+        return tool
+    
+    def ConfigrationHypoTool( self, nath, threshold ): 
+        
+        tool = TrigMufastHypoTool( nath )  
+    
+        try:
+            tool.AcceptAll = False
+            values = muFastThresholds[threshold]
+            tool.PtBins = values[0]
+            tool.PtThresholds = [ x * GeV for x in values[1] ]
+            if threshold in muFastThresholdsForECWeakBRegion:
+                spThres = muFastThresholdsForECWeakBRegion[threshold]
+                tool.PtThresholdForECWeakBRegionA = spThres[0] * GeV
+                tool.PtThresholdForECWeakBRegionB = spThres[1] * GeV
+            else:
+                print 'TrigMufastHypoConfig: No special thresholds for EC weak Bfield regions for',threshold
+                print 'TrigMufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
+                spThres = values[0][1]
+                if threshold == '2GeV' or threshold == '3GeV':
+                    tool.PtThresholdForECWeakBRegionA = spThres[0] * GeV
+                    tool.PtThresholdForECWeakBRegionB = spThres[0] * GeV
+                else:
+                    tool.PtThresholdForECWeakBRegionA = spThres[1] * GeV
+                    tool.PtThresholdForECWeakBRegionB = spThres[2] * GeV
+                print 'TrigMufastHypoConfig: -> Thresholds for A/B=',tool.PtThresholdForECWeakBRegionA,'/',tool.PtThresholdForECWeakBRegionB
+            
+        except LookupError:
+            if (threshold=='passthrough'):
+                tool.PtBins = [-10000.,10000.]
+                tool.PtThresholds = [ -1. * GeV ]
+            else:
+                raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % threshold)
+        return threshold
+
 
 class MufastStauHypoConfig(MufastStauHypo) :
 
@@ -1663,3 +1735,4 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
         online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()
 	
         self.AthenaMonTools = [ online ]
+

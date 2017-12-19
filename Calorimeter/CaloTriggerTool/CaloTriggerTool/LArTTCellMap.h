@@ -74,7 +74,7 @@ private:
   MsgStream* m_msg ; 
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArTTCellMap,174159653,1)
 
 #endif 

@@ -59,7 +59,7 @@ class T2pMap {
   /// set IPageAccessControlSvc ptr in T2PMap
   void setPac(IPageAccessControlSvc* pac) { m_pac=pac; }
   /// request an access control report, i.e. a list of proxies that have not been accessed since under control;
-  std::vector<DataProxy*> pacReport() const;
+  std::vector<const DataProxy*> pacReport() const;
 
 
  private:

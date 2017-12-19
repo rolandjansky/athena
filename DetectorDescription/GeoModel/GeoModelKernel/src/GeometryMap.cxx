@@ -96,7 +96,7 @@ void GeometryMap::Clockwork::finalize(unsigned int i, PVConstLink v) {
     }
   }
   else {
-    GeoVolumeCursor x(v);
+    GeoVolumeCursor x(v,nullptr);
     while (!x.atEnd()) {
       lV++;
       finalize(i, x.getVolume());

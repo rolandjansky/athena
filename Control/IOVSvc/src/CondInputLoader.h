@@ -49,6 +49,7 @@ class CondInputLoader
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize();
+  virtual StatusCode  start();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
 
@@ -75,15 +76,19 @@ class CondInputLoader
   //  void loader(Property&);
 
   /// Containers
-  DataObjIDColl m_load;
+  DataObjIDColl m_load, m_handlesToCreate;
   std::vector< SG::VarHandleKey > m_vhk;
 
-  bool m_dump;
-  bool m_first { true };
+  Gaudi::Property<bool> m_dumpEvt{ this, "DumpCondStore", false, 
+      "dump the ConditionStore at the end execute"};
+  Gaudi::Property<bool> m_abort {this, "AbortIfInitFails", true, 
+      "Abort execution if unable to create the CondCont<T> in first event"};
+
 
   ServiceHandle<StoreGateSvc> m_condStore;
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<IIOVSvc> m_IOVSvc;
+  ServiceHandle<IClassIDSvc> m_clidSvc;
   
   std::map<std::string,std::string> m_keyFolderMap;
 }; 

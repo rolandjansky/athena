@@ -22,7 +22,9 @@ PixelRawDataProviderTool::PixelRawDataProviderTool
      m_bsErrSvc  ("PixelByteStreamErrorsSvc",name),
      m_robIdSet(),
      m_LVL1Collection(nullptr),
-     m_BCIDCollection(nullptr)
+     m_BCIDCollection(nullptr),
+     m_DecodeErrCount(0),
+     m_LastLvl1ID(0xffffffff)
 {
   declareProperty ("Decoder", m_decoder);
   declareProperty ("ErrorsSvc", m_bsErrSvc);
@@ -69,12 +71,8 @@ StatusCode PixelRawDataProviderTool::finalize()
 // convert method
 
 StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs,
-					    PixelRDO_Container*               rdoIdc )
+					    IPixelRDO_Container*               rdoIdc )
 {
-  static uint32_t LastLvl1ID = 0xffffffff;
-  static int DecodeErrCount = 0;
-
-
   if(vecRobs.size() == 0)
     return StatusCode::SUCCESS;
 
@@ -91,7 +89,7 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
 #endif
 
     //    are we working on a new event ?
-  bool isNewEvent = ((*rob_it)->rod_lvl1_id() != LastLvl1ID);
+  bool isNewEvent = ((*rob_it)->rod_lvl1_id() != m_LastLvl1ID);
   if ( isNewEvent ) {
 
     m_LVL1Collection = new InDetTimeCollection();
@@ -103,7 +101,7 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
     msg(MSG::DEBUG) << " New event, reset the collection set" << endmsg;
 #endif
     // remember last Lvl1ID
-    LastLvl1ID = (*rob_it)->rod_lvl1_id();
+    m_LastLvl1ID = (*rob_it)->rod_lvl1_id();
     // reset list of known robIds
     m_robIdSet.clear();
     // and clean up the identifable container !
@@ -122,11 +120,11 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
     if (isNewEvent) {
 
       unsigned int lvl1id = (*rob_it)->rod_lvl1_id();
-      std::pair<uint32_t, unsigned int>* lvl1Pair = new std::pair<uint32_t, unsigned int>(std::make_pair(robid,lvl1id));
+      std::pair<uint32_t, unsigned int>* lvl1Pair = new std::pair<uint32_t, unsigned int>(robid,lvl1id);
       m_LVL1Collection->push_back(lvl1Pair) ;
     
       unsigned int bcid = (*rob_it)->rod_bc_id();  
-      std::pair<uint32_t, unsigned int>* bcidPair = new std::pair<uint32_t, unsigned int>(std::make_pair(robid,bcid));
+      std::pair<uint32_t, unsigned int>* bcidPair = new std::pair<uint32_t, unsigned int>(robid,bcid);
       m_BCIDCollection->push_back(bcidPair);
       
 #ifdef PIXEL_DEBUG
@@ -152,18 +150,18 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
       StatusCode sc = m_decoder->fillCollection( &**rob_it, rdoIdc);
       if ( sc == StatusCode::FAILURE )
 	{
-	  if ( DecodeErrCount < 100 )
+	  if ( m_DecodeErrCount < 100 )
 	    {
 	      msg(MSG::INFO) << "Problem with Pixel ByteStream Decoding!" 
 		    << endmsg;
-	      DecodeErrCount++;
+	      m_DecodeErrCount++;
 	    }
-	  else if ( 100 == DecodeErrCount )
+	  else if ( 100 == m_DecodeErrCount )
 	    {
 	      msg(MSG::INFO) 
 		    << "Too many Problems with Pixel Decoding messages.  "
 		    << "Turning message off." << endmsg;
-	      DecodeErrCount++;
+	      m_DecodeErrCount++;
 	    }
 	}
     }

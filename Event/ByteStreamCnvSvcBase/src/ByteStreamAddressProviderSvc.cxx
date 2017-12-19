@@ -132,7 +132,7 @@ StatusCode ByteStreamAddressProviderSvc::preLoadAddresses(StoreID::type id, tadL
 //________________________________________________________________________________
 StatusCode ByteStreamAddressProviderSvc::updateAddress(StoreID::type id,
                                                        SG::TransientAddress* tad,
-                                                       const EventContext& /*ctx*/) {
+                                                       const EventContext& ctx) {
    if (id != m_storeID) {
       return(StatusCode::FAILURE);
    }
@@ -180,6 +180,7 @@ StatusCode ByteStreamAddressProviderSvc::updateAddress(StoreID::type id,
       tad->setAddress(addr);
    } else {
       ByteStreamAddress* add = new ByteStreamAddress(clid, nm, "");
+      add->setEventContext(ctx);
       tad->setAddress(add);
    }
    return(StatusCode::SUCCESS);

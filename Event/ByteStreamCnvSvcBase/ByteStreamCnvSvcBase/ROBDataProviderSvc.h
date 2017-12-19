@@ -29,11 +29,11 @@
 #include "ByteStreamData/RawEvent.h"
 #include "eformat/SourceIdentifier.h"
 #include "AthenaBaseComps/AthService.h"
-
+#include "AthenaKernel/SlotSpecificObj.h"
 #include <vector>
 #include <map>
 
-class ROBDataProviderSvc :  public ::AthService, virtual public IROBDataProviderSvc {
+class ROBDataProviderSvc :  public extends<AthService, IROBDataProviderSvc> {
 
 public:
    /// ROB Fragment class
@@ -48,28 +48,46 @@ public:
    virtual StatusCode initialize();
 
    /// Gaudi queryInterface method.
-   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   //   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
    /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector
-   virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN");
+   virtual void addROBData(const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") override;
 
    /// Add a given LVL1/LVL2 ROBFragment to cache
-   virtual void setNextEvent(const std::vector<ROBF>& result);
+   virtual void setNextEvent(const std::vector<ROBF>& result) override;
 
    /// Add all ROBFragments of a RawEvent to cache
-   virtual void setNextEvent(const RawEvent* re);
+   virtual void setNextEvent(const RawEvent* re) override;
 
    /// Retrieve ROBFragments for given ROB ids from cache
-   virtual void getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, const std::string callerName="UNKNOWN");
+   virtual void getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, const std::string callerName="UNKNOWN") override;
 
    /// Retrieve the whole event.
-   virtual const RawEvent* getEvent();
+   virtual const RawEvent* getEvent() override;
 
    /// Store the status for the event.
-   virtual void setEventStatus(uint32_t status);
+   virtual void setEventStatus(uint32_t status) override;
 
    /// Retrieve the status for the event.
-   virtual uint32_t getEventStatus();
+   virtual uint32_t getEventStatus() override;
+
+
+   /// MT variants 
+   virtual void addROBData(const EventContext& context, const std::vector<uint32_t>& robIds, const std::string callerName="UNKNOWN") override;
+   virtual void setNextEvent(const EventContext& context, const std::vector<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>& result) override;
+   virtual void setNextEvent(const EventContext& context, const RawEvent* re) override;
+   virtual void getROBData(const EventContext& context, const std::vector<uint32_t>& robIds, VROBFRAG& robFragments, const std::string callerName="UNKNOWN") override;
+   virtual const RawEvent* getEvent(const EventContext& context) override;
+   virtual void setEventStatus(const EventContext& context, uint32_t status) override;
+   virtual uint32_t getEventStatus(const EventContext& context) override;
+
+   virtual void processCachedROBs(const EventContext& context, 
+				  const std::function< void(const ROBF* )>& fn ) const override;
+
+   virtual bool isEventComplete(const EventContext& /*context*/) const override { return true; }
+   virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string /*callerName*/ ) {  return 0; }
+
+
 
 protected:
    /// vector of ROBFragment class
@@ -77,11 +95,18 @@ protected:
 
    /// map for all the ROB fragments
    typedef std::map<uint32_t, const ROBF*, std::less<uint32_t> > ROBMAP;
-   ROBMAP m_robmap;
 
-   /// lvl1 ID of cached data
-   uint32_t m_currentLvl1ID;
+  struct EventCache {
+    ~EventCache();
+    const RawEvent* event = 0;
+    uint32_t eventStatus = 0;    
+    uint32_t currentLvl1ID = 0;    
+    ROBMAP robmap;
+ 
+  };
+  SG::SlotSpecificObj<EventCache> m_eventsCache;
 
+   /// Remaining attributes are for configuration
    /// vector of Source ids and status words to be ignored for the ROB map
    typedef SimpleProperty< std::vector< std::pair<int, int> > > ArrayPairIntProperty;
    ArrayPairIntProperty  m_filterRobWithStatus; // filter with full ROB SourceID
@@ -98,17 +123,14 @@ protected:
 
    /// Filter out empty ROB fragments which are send by the ROS
    BooleanProperty m_filterEmptyROB;
+   bool m_maskL2EFModuleID = false;    
 
-   /// flag which tells if module IDs from the L2 and EF result should be masked off
-   bool m_maskL2EFModuleID;
+
 
 private: // data
-   const RawEvent* m_event;
-
-   uint32_t m_eventStatus;
 
 private: //
-   void robmapClear();
+  static void robmapClear(ROBMAP& toclear);
 };
 
 #endif

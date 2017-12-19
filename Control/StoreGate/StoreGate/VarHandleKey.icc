@@ -1,0 +1,73 @@
+// $Id$
+/**
+ * @file StoreGate/VarHandleKey.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2017
+ * @brief A property holding a SG store/key/clid from which a VarHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Return handle to the referenced store.
+ */
+inline
+const ServiceHandle<IProxyDict>& VarHandleKey::storeHandle() const
+{
+  return m_storeHandle;
+}
+
+
+/**
+ * @brief Return the VarHandle that owns this key, if any.
+ *
+ * This should only be non-null for keys that are created automatically
+ * by a VarHandle when it is _not_ created from a VarHandleKey.
+ * This should always be null for keys that are created explicitly.
+ */
+inline
+VarHandleBase* VarHandleKey::owningHandle()
+{
+  return m_owningHandle;
+}
+
+
+/**
+ * @brief Set the owning handle.  Only callable from VarHandleBase.
+ */
+inline
+void VarHandleKey::setOwningHandle (VarHandleBase* handle)
+{
+  m_owningHandle = handle;
+}
+
+
+/**
+ * @brief Does this key reference the primary event store?
+ */
+inline
+bool VarHandleKey::isEventStore() const
+{
+  return m_isEventStore;
+}
+
+
+/**
+ * @brief Called by the owning algorithm during the START transition.
+ *
+ * AthAlgorithm and friends will call this during START.  This allows
+ * for extra initialization that we can't do during initialize(), such
+ * as retrieving a conditions container from the store.
+ *
+ * The default implementation is a no-op.
+ */
+inline
+StatusCode VarHandleKey::start()
+{
+  return StatusCode::SUCCESS;
+}
+
+
+} // namespace SG

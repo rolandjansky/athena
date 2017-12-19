@@ -8,7 +8,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #if athenaCommonFlags.FilesInput()==[]:
 #  athenaCommonFlags.FilesInput=[
-#    "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001556.pool.root.1"    
+#    "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001556.pool.root.1"    
 #       ]
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
@@ -23,9 +23,6 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 #  print '***JK This release does not include FTK, will set doFTK=False'
 #  doFTK=False
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
@@ -35,7 +32,7 @@ if 'doFTK' in dir() and doFTK==True:
   TriggerFlags.doFTK=True
   rFTK=True
 
-(idtrigChainlist, tidaAnalysischains) = tauChains(rMC,rID,rFTK)
+(idtrigChainlist, tidaAnalysischains) = tauChains(rID,rFTK)
 
 def resetSigs():
   TriggerFlags.Slices_all_setOff()
@@ -52,9 +49,4 @@ TriggerFlags.doHypo.set_Value_and_Lock(True)
 
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
-
-#if 'doFTK' in dir() and doFTK==True:
-#  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Tau_IDTrig.FTK_Mode=True
-#  topSequence.TrigSteer_HLT.TrigFastTrackFinder_TauCore.FTK_Mode=True
-#  topSequence.TrigSteer_HLT.TrigFastTrackFinder_TauIso.FTK_Mode=True
 

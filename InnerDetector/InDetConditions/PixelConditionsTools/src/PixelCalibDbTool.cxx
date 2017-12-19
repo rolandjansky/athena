@@ -496,10 +496,12 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
 
     if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier "<<pch <<endmsg; 
     if (strlen(pch)>4000) { 
+      fclose(f);
+      f = nullptr;
       msg(MSG::ERROR) << "Length of the string exceed 4000 characters (pch) : " << pch << endmsg;
       return StatusCode::FAILURE;
     }
-    strcpy(header,pch);
+    strncpy(header,pch,250);
     int component, eta;
     unsigned int layer,phi;
     char c;
@@ -525,7 +527,7 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
       char pack[250];
       fgets(pack, 250, f); 
       if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"i "<<i<<" chip data: "<< pack<<endmsg;
-      strcat(header, pack); 
+      strncat(header, pack, 250);
     }
     std::string sdata = header; //strcat(header, " end"); 
     // fill in the database 
@@ -539,6 +541,7 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
   }
   
   fclose(f); 
+  f = nullptr;
   if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Write File to DB with modules "<< k <<endmsg; 
 
   return StatusCode::SUCCESS; 

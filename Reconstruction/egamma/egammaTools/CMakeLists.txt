@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           Control/AthContainers
                           DetectorDescription/Identifier
+                          DetectorDescription/GeoPrimitives
                           Event/EventKernel
                           Event/EventPrimitives
                           Event/FourMom
@@ -37,9 +38,9 @@ atlas_depends_on_subdirs( PRIVATE
                           LArCalorimeter/LArCabling
                           LumiBlock/LumiBlockComps
                           PhysicsAnalysis/AnalysisCommon/PATCore
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-                          Reconstruction/Particle
+                          PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+			  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
+                          Reconstruction/Particle	
                           Reconstruction/ParticleTruth
                           Reconstruction/egamma/egammaInterfaces
                           Reconstruction/egamma/egammaMVACalib
@@ -63,7 +64,7 @@ atlas_add_component( egammaTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel CxxUtils AthContainers SGTools StoreGateLib SGtests Identifier EventKernel EventPrimitives FourMom FourMomUtils NavFourMom xAODCaloEvent  xAODEgamma xAODTracking xAODTruth GaudiKernel InDetConversionFinderToolsLib InDetRecToolInterfaces LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib ElectronPhotonFourMomentumCorrectionLib ElectronPhotonSelectorToolsLib Particle ParticleTruth egammaMVACalibLib egammaRecEvent egammaUtils TrkEventPrimitives TrkMaterialOnTrack TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrack VxVertex TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel CxxUtils AthContainers SGTools StoreGateLib SGtests Identifier EventKernel EventPrimitives FourMom FourMomUtils NavFourMom xAODCaloEvent  xAODEgamma xAODTracking xAODTruth GaudiKernel InDetConversionFinderToolsLib InDetRecToolInterfaces LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib ElectronPhotonFourMomentumCorrectionLib Particle ParticleTruth egammaMVACalibLib egammaRecEvent egammaUtils TrkEventPrimitives TrkMaterialOnTrack TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrack VxVertex TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( egammaTools )

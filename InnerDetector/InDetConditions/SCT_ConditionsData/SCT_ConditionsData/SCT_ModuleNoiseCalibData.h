@@ -19,7 +19,7 @@
 typedef boost::array<SCT_ModuleCalibParameter, SCT_ConditionsServices::N_NOISEOCC> SCT_ModuleNoiseCalibData;
 
 // Class definition
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_ModuleNoiseCalibData , 59343966 , 1 )
 
 #endif // SCT_MODULENOISECALIBDATA_H

@@ -12,14 +12,14 @@
 
 #include "../TTETestAlg.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( TrigTauEmul, Level1EmulationTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( TrigTauEmul, HltEmulationTool )
-DECLARE_TOOL_FACTORY( EmTauSelectionTool )
-DECLARE_TOOL_FACTORY( MuonRoISelectionTool )
-DECLARE_TOOL_FACTORY( JetRoISelectionTool )
-DECLARE_TOOL_FACTORY( EnergySumSelectionTool )
-DECLARE_TOOL_FACTORY( HltTauSelectionTool )
-DECLARE_ALGORITHM_FACTORY( TTETestAlg )
-DECLARE_TOOL_FACTORY( EmTauSelectionTool )
-DECLARE_TOOL_FACTORY( FastTrackSelectionTool )
+DECLARE_COMPONENT( TrigTauEmul::Level1EmulationTool )
+DECLARE_COMPONENT( TrigTauEmul::HltEmulationTool )
+DECLARE_COMPONENT( EmTauSelectionTool )
+DECLARE_COMPONENT( MuonRoISelectionTool )
+DECLARE_COMPONENT( JetRoISelectionTool )
+DECLARE_COMPONENT( EnergySumSelectionTool )
+DECLARE_COMPONENT( HltTauSelectionTool )
+DECLARE_COMPONENT( TTETestAlg )
+DECLARE_COMPONENT( EmTauSelectionTool )
+DECLARE_COMPONENT( FastTrackSelectionTool )
 

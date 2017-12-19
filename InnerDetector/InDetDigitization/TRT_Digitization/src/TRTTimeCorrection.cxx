@@ -24,7 +24,7 @@ TRTTimeCorrection::TRTTimeCorrection(const std::string& name,
 				     const TRTDigSettings* digset,
 				     const InDetDD::TRT_DetectorManager* detmgr,
 				     const TRT_ID* trt_id)
-  : m_settings(digset), m_detmgr(detmgr), m_trt_id(trt_id), 
+  : m_settings(digset), m_detmgr(detmgr), m_trt_id(trt_id),
     m_subdetectorMask(0x00200000), m_right5Bits(0x0000001F),
     m_shift5Bits(5), m_shift10Bits(10), m_shift15Bits(15), m_notInitVal(-999999.0), m_trtcaldbsvc("TRT_CalDbSvc",name), m_msg("TRTTimeCorrection")
 {
@@ -38,7 +38,6 @@ TRTTimeCorrection::~TRTTimeCorrection() {}
 //__________________________________________________________________________________________________________
 void TRTTimeCorrection::Initialize() {
 
-  
   m_signalPropagationSpeed = m_settings->signalPropagationSpeed() ;
   m_lengthDeadRegion = m_settings->lengthOfDeadRegion();
   m_maxVertexDisplacement = m_settings->maxVertexDisplacement();
@@ -48,10 +47,9 @@ void TRTTimeCorrection::Initialize() {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTTimeCorrection::Initialize()" << endmsg;
 
   if ( (m_getT0FromData) && (m_trtcaldbsvc.retrieve().isFailure()) ) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Could not find TRT_CalDbSvc => cannot use t0 of data. Will use overallT0Shift instead "<<endmsg; 
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Could not find TRT_CalDbSvc => cannot use t0 of data." << endmsg;
     m_getT0FromData=false;
   }
-  
 
   const InDetDD::TRT_Numerology *numerology(m_detmgr->getNumerology());
 
@@ -93,27 +91,26 @@ void TRTTimeCorrection::Initialize() {
   //Initialize endcap direct/reflected distances array
   m_directDistsForEndCapWheels.assign(numerology->getNEndcapWheels(),m_notInitVal);
   m_reflectedDistsForEndCapWheels.assign(numerology->getNEndcapWheels(),m_notInitVal);
-  
+
 }
 
 //__________________________________________________________________________________________________________
 double TRTTimeCorrection::TimeShift(const int& strawID) {
-  
+
   //TODO: Use hit id helpers (but resolve efficiency issues first).
-  
+
   double timeshift=0.;
 
-    
   //Layer and phi index are needed for both endcap and barrel:
   const unsigned int iLayer((strawID >> m_shift5Bits) & m_right5Bits);
   const unsigned int iPhi(m_timeShiftPhiSectSymmetry ? 0 : ( (strawID >> m_shift10Bits) & m_right5Bits ));
 
   if (strawID & m_subdetectorMask) {
-    
+
     //===// EndCap //===//
-    
+
     const unsigned int iWheel((strawID >> m_shift15Bits) & m_right5Bits);
-    
+
     //Sanity check:
     if (iPhi>=m_timeShiftForEndCapPlanes.size()||
 	iWheel>=m_timeShiftForEndCapPlanes[iPhi].size()||
@@ -127,22 +124,22 @@ double TRTTimeCorrection::TimeShift(const int& strawID) {
       }
       return 0.0;
     }
-    
+
     timeshift = m_timeShiftForEndCapPlanes[iPhi][iWheel][iLayer];
-    
+
     if (timeshift==m_notInitVal) {
       //We need to initialize
-      timeshift = calculateTimeShift_EndCap(iPhi,iWheel,iLayer,strawID); 
+      timeshift = calculateTimeShift_EndCap(iPhi,iWheel,iLayer,strawID);
       m_timeShiftForEndCapPlanes[iPhi][iWheel][iLayer] = timeshift;
     }
-    
+
   } else {
-    
+
     //===// Barrel //===//
-    
+
     const unsigned int iRing((strawID >> m_shift15Bits) & m_right5Bits);
     const unsigned int iStraw(strawID & m_right5Bits);
-    
+
     //Sanity check:
     if (iPhi>=m_timeShiftForBarrelStraws.size()||
 	iRing>=m_timeShiftForBarrelStraws[iPhi].size()||
@@ -159,17 +156,17 @@ double TRTTimeCorrection::TimeShift(const int& strawID) {
       }
       return 0.0;
     }
-    
+
     timeshift = m_timeShiftForBarrelStraws[iPhi][iRing][iLayer][iStraw];
-    
+
     if (timeshift==m_notInitVal) {
       //We need to initialize
-      timeshift = calculateTimeShift_Barrel(iPhi,iRing,iLayer,iStraw,strawID); 
+      timeshift = calculateTimeShift_Barrel(iPhi,iRing,iLayer,iStraw,strawID);
 	m_timeShiftForBarrelStraws[iPhi][iRing][iLayer][iStraw] = timeshift;
     }
-    
+
   }
-  
+
   return timeshift;
 }
 
@@ -178,8 +175,8 @@ double TRTTimeCorrection::calculateTimeShift_Barrel( const unsigned int& iPhi,
 						     const unsigned int& iRing,
 						     const unsigned int& iLayer,
 						     const unsigned int& iStraw,
-						     const int strawID)  { 
-  
+						     const int strawID)  {
+
   const InDetDD::TRT_BarrelElement * barrel_element(m_detmgr->getBarrelElement(0/*positive*/,
 									       iRing, iPhi, iLayer ));
 
@@ -205,11 +202,7 @@ double TRTTimeCorrection::calculateTimeShift_Barrel( const unsigned int& iPhi,
   strawend1 = barrel_element->strawTransform(iStraw) * strawend1;
   strawend2 = barrel_element->strawTransform(iStraw) * strawend2;
 
-  //We need to figure out if we are in a short barrel straw or not. This
-  //is the easiest (not really that much of a hack if you think about it):
-  bool shortbarrel = barrel_element->strawLength() < 50*CLHEP::cm;
-
-  return calculateTimeShiftFromStrawEnds(strawend1,strawend2,strawID,shortbarrel);
+  return calculateTimeShiftFromStrawEnds(strawend1,strawend2,strawID);
 
 }
 
@@ -244,8 +237,7 @@ double TRTTimeCorrection::calculateTimeShift_EndCap( const unsigned int& iPhi,
 //__________________________________________________________________________________________________________
 double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& strawend1_globalcoord,
 							   const Amg::Vector3D& strawend2_globalcoord,
-							   const int strawID,
-							   const bool& shortbarrel)  { 
+							   const int strawID )  {
 
   //The two (hopefully relevant) extreme points of the vertex region:
   Amg::Vector3D vertexExtension1( m_settings->timeOffsetCalcVertexX(),
@@ -271,21 +263,22 @@ double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& 
 						   <<" the electronics ends. This will give trouble elsewhere!!" << endmsg;
   }
 
-
-  double shift = 0.;
+  double shift = 1.0; // 1 ns (negative) overall shift for the whole TRT detector. Now set in stone.
+                      // Used to be set with overallT0Shift() & overallT0ShiftShortBarrel()
+                      // Note: if you change this then you need to set ToolSvc.InDetTRT_DriftFunctionTool.MCTuningShift
 
   if (m_settings->getT0FromData()) {
-    
     bool identifierOK;
     const Identifier idStraw(getIdentifier(strawID, identifierOK));
-    if (identifierOK)   shift = m_trtcaldbsvc->getT0(idStraw);
-    else { 
-      if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)  << "Attempt to use t0 from data failed: TRTCalDbSvc was not able to supply t0 for straw with identifier: " << idStraw << ". Please set getT0FromData=false in jobOptions and run again" <<   endmsg;  }
-    
-  }  else { shift = m_settings->overallT0Shift() + ( shortbarrel ? m_settings->overallT0ShiftShortBarrel() : 0.0 );  }
-  
+    if (identifierOK) {
+      shift = m_trtcaldbsvc->getT0(idStraw);
+    } else {
+      if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
+         << "Attempt to use t0 from data failed: TRTCalDbSvc was not able to supply t0 for straw with identifier: "
+         << idStraw << ". Please set getT0FromData=false in jobOptions and run again" << endmsg;
+    }
+  }
 
-  
   if (m_settings->electronicsAreAtFarEnd())
     return std::max(mindisttoend1,mindisttoend2) / (m_settings->distanceToTimeFactor() * CLHEP::c_light) - shift;
   else
@@ -298,7 +291,7 @@ void TRTTimeCorrection::PropagationTime(const int& strawID, const double& meanZ,
 					double& propagationTime1, double& propagationTime2) {
 
   double direct_distance, reflect_distance;
-  
+
   if (strawID & m_subdetectorMask) {
 
     //===// EndCap //===//
@@ -394,7 +387,7 @@ void TRTTimeCorrection::calculateSignalDists_EndCap(const unsigned int& iWheel,
 
 //_____________________________________________________________________________
 Identifier TRTTimeCorrection::getIdentifier ( int hitID,
-					      bool & statusok)  
+					      bool & statusok)
 {
   statusok = true;
 

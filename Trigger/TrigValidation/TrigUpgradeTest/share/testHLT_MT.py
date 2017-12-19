@@ -339,6 +339,9 @@ else:
 # ----------------------------------------------------------------
 # Setup Views
 # ----------------------------------------------------------------
+viewSeq = AthSequencer("AthViewSeq", Sequential = True)
+topSequence+=viewSeq
+
 if opt.enableViews:
     log.info('Setting up Views...')
     # Make a separate alg pool for the view algs
@@ -348,8 +351,13 @@ if opt.enableViews:
     from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
     InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
                                         Pixel_ClusterKey = "PixelTrigClustersCache",
-                                        SCT_ClusterKey   = "SCT_ClustersCache", OutputLevel=INFO)
-    topSequence += InDetCacheCreatorTrigViews    
+                                        SCT_ClusterKey   = "SCT_ClustersCache",
+                                        SpacePointCachePix = "PixelSpacePointCache",
+                                        SpacePointCacheSCT   = "SctSpacePointCache",
+                                        SCTRDOCacheKey       = "SctRDOCache",
+                                        PixRDOCacheKey = "PixRDOCache",
+                                        OutputLevel=DEBUG)
+    viewSeq += InDetCacheCreatorTrigViews    
     
     # Set of view algs
     allViewAlgs = AthSequencer( "allViewAlgorithms" )
@@ -366,7 +374,16 @@ if opt.enableViews:
     # allViewAlgs += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
     # svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
     # viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
-
+else:
+    #This is to workaround the problem CondHandle bug, this can be removed once a proper solution is made
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+                                        Pixel_ClusterKey = "",
+                                        SCT_ClusterKey   = "",
+                                        SpacePointCachePix = "",
+                                        SpacePointCacheSCT   = "",
+                                        OutputLevel=INFO)
+    viewSeq += InDetCacheCreatorTrigViews    
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------

@@ -27,7 +27,10 @@
 AthMessaging::AthMessaging (IMessageSvc* msgSvc, 
 			    const std::string& name) :
   m_imsg(msgSvc), m_nm(name)
-{}
+{
+  MsgStream ms (msgSvc, name);
+  m_lvl = ms.level();
+}
 
 // Destructor
 ///////////////
@@ -41,6 +44,11 @@ AthMessaging::~AthMessaging()
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
+
+void AthMessaging::setLevel (MSG::Level lvl)
+{
+  m_lvl = lvl;
+}
 
 /////////////////////////////////////////////////////////////////// 
 // Protected methods: 

@@ -41,12 +41,10 @@ namespace Athena {
 /** @brief Class implementing the GAUDI @c IEvtSelector interface using 
  *         ROOT @c TTree as a backend
  */
-class RootNtupleEventSelector : 
-    virtual public IEvtSelector,
-  virtual public IEvtSelectorSeek,
-  virtual public IAddressProvider,
-  virtual public IIoComponent, virtual public IIncidentListener,
-          public ::AthService
+class RootNtupleEventSelector :
+    public extends<AthService,
+                   IEvtSelector, IEvtSelectorSeek,
+                   IAddressProvider, IIoComponent, IIncidentListener>
 { 
   friend class Athena::RootNtupleEventContext;
 
@@ -66,8 +64,6 @@ class RootNtupleEventSelector :
   // Athena hooks
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface ) override;
   
   virtual void handle(const Incident& incident) override;
 
@@ -138,7 +134,9 @@ class RootNtupleEventSelector :
   /////////////////////////////////////////////////////////////////// 
   // Private methods: 
   /////////////////////////////////////////////////////////////////// 
- private: 
+ private:
+
+  StatusCode endInputFile (RootNtupleEventContext* rctx) const;
 
   /// callback to synchronize the list of input files
   void setupInputCollection( Property& inputCollectionsName );
@@ -149,7 +147,8 @@ class RootNtupleEventSelector :
 
 
   /// helper method to retrieve the correct tuple
-  TTree* fetchNtuple(const std::string& fname) const;
+  TTree* fetchNtuple(const std::string& fname,
+                     const std::string& tupleName) const;
 
   void addMetadataFromDirectoryName(const std::string &metadirname, 
                                     TFile *fileObj, 
@@ -168,9 +167,10 @@ class RootNtupleEventSelector :
   StatusCode do_init_io();
 
   /// helper method to get the collection index (into `m_inputCollectionsName`)
+  /// and tuple index (into `m_tupleNames')
   /// for a given event index `evtidx`.
   /// returns -1 if not found.
-  int find_coll_idx(int evtidx) const;
+  void find_coll_idx(int evtidx, long& coll_idx, long& tuple_idx) const;
 
   /// non-const access to self (b/c ::next() is const)
   RootNtupleEventSelector *self() const
@@ -215,23 +215,26 @@ class RootNtupleEventSelector :
   /// Number of events to skip at the beginning 
   long m_skipEvts;
 
+  /// Names of all trees over which to iterate.
+  std::vector<std::string> m_tupleNames;
+
   /// Number of Events read so far.
   mutable long m_nbrEvts;
   
   /// current event index
   mutable long m_curEvt;
 
-  /// current collection index (into `m_inputCollectionsName`)
-  mutable long m_collIdx;
-
   struct CollMetaData {
     /// number of entries up to this collection
     long min_entries;
     /// number of entries after this collection
     long max_entries;
+    /// number of entries in this collection.
+    long entries;
   };
   /// cache of the number of entries for each collection
-  mutable std::vector<CollMetaData> m_collEvts;
+  /// Indexed like [tuple][collection]
+  mutable std::vector<std::vector<CollMetaData> > m_collEvts;
 
   /// current tree being read
   mutable TTree *m_tuple;
@@ -250,12 +253,6 @@ class RootNtupleEventSelector :
   // FIXME: use some kind of state-machine to couple 
   //   m_needReload and m_fireBIF ?
   mutable bool m_fireBIF;
-
-  typedef std::unordered_map<SG::TransientAddress*, bool> Addrs_t;
-  // the list of transient addresses we "manage" or know about
-  // these addresses are the actual TTree's branch names
-  // for the event data
-  Addrs_t m_rootAddresses;
 
   // the list of transient addresses we "manage" or know about
   // these addresses are the actual TTree's branch names

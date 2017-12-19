@@ -9,7 +9,7 @@
 
 #include <vector>
 #include "LArRawEvent/LArOFIterResults.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class LArOFIterResultsContainer : public std::vector<LArOFIterResults> {
 

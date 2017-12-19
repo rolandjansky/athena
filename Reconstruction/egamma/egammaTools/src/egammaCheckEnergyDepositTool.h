@@ -6,7 +6,6 @@
 #define EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
@@ -38,19 +37,29 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
   /** @brief execute method */
   virtual bool checkFractioninSampling(const xAOD::Egamma* eg);
   virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) ;
-  /** @brief Boolean to apply threshold on maximal fraction of energy reconstructed in each sampling to write egamma objects */
-  bool m_useThrFmax;
-  /** @brief Threshold on maximal fraction of energy reconstructed in presampler */
-  double m_thrF0max;
-  /** @brief Threshold on maximal fraction of energy reconstructed in 1st sampling*/
-  double m_thrF1max;
-  /** @brief Threshold on maximal fraction of energy reconstructed in 2nd sampling */
-  double m_thrF2max;
-
-  /** @brief Threshold on maximal fraction of energy reconstructed in 3rd sampling */
-  double m_thrF3max;
 
  private:
+
+  /** @brief Boolean to apply threshold on maximal fraction of energy reconstructed in each sampling to write egamma objects */
+  Gaudi::Property<bool> m_useThrFmax {this, "UseThrFmax", false,
+      "Boolean to apply threshold on maximal fraction of energy reconstructed in each sampling to write egamma objects"};
+
+  /** @brief Threshold on maximal fraction of energy reconstructed in presampler */
+  Gaudi::Property<double> m_thrF0max {this, "ThrF0max", 0.9,
+      "Threshold on maximal fraction of energy reconstructed in presampler"};
+
+  /** @brief Threshold on maximal fraction of energy reconstructed in 1st sampling*/
+  Gaudi::Property<double> m_thrF1max {this, "ThrF1max", 0.8,
+      "Threshold on maximal fraction of energy reconstructed in 1st sampling"};
+
+  /** @brief Threshold on maximal fraction of energy reconstructed in 2nd sampling */
+  Gaudi::Property<double> m_thrF2max {this, "ThrF2max", 0.98,
+      "Threshold on maximal fraction of energy reconstructed in 2nd sampling"};
+
+  /** @brief Threshold on maximal fraction of energy reconstructed in 3rd sampling */
+  Gaudi::Property<double> m_thrF3max {this, "ThrF3max", 0.65,
+      "Threshold on maximal fraction of energy reconstructed in 3rd sampling"};
+
 
 };
 

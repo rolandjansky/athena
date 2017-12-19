@@ -15,8 +15,8 @@
 #ifndef PARTICLE_TRACKPARTICLECONTAINER_H
 #define PARTICLE_TRACKPARTICLECONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Particle/TrackParticle.h"
 // #include "EventKernel/INavigable4Momentum.h"
 // #include "NavFourMom/INavigable4MomentumCollection.h"

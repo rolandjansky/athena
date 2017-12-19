@@ -21,10 +21,10 @@ inline void Rt_relation::copy(const Rt_relation & rt) {
 	set_rt_format(rt.rt_format());
 	set_number_of_pairs(rt.number_of_pairs());
 
-	for (int k=0; k<nb_pairs; k++) {
-		r_drift[k] = rt.r(k);
-		t_drift[k] = rt.t(k);
-		t_err[k] = rt.error(k);
+	for (int k=0; k<m_nb_pairs; k++) {
+		m_r_drift[k] = rt.r(k);
+		m_t_drift[k] = rt.t(k);
+		m_t_err[k] = rt.error(k);
 	}
 
 	return;
@@ -32,29 +32,29 @@ inline void Rt_relation::copy(const Rt_relation & rt) {
 
 inline double Rt_relation::r(const int & k) const {
 
-	if (k<0 || k>=nb_pairs) {
+	if (k<0 || k>=m_nb_pairs) {
 		std::cerr << "Class Rt_relation, method r: "
 			<< "illegal (r,t) pair number!" << std::endl;
 		return 0.0;
 	}
 
-	return r_drift[k];
+	return m_r_drift[k];
 }
 
 inline double Rt_relation::r(const double & t, const int & option) const {
 
 	int out_of_range=0; // out-of-range flag
 
-	if (nb_pairs == 0) {
+	if (m_nb_pairs == 0) {
 		std::cerr << "Class Rt_relation, method r: "
 			<< "there are no (r,t) pairs!" << std::endl;
 		return 0.0;
 	}
 
-	if (t < t_drift[0]) {
+	if (t < m_t_drift[0]) {
 		out_of_range = -1;
 	}
-	if (t > t_drift[nb_pairs-1]) {
+	if (t > m_t_drift[m_nb_pairs-1]) {
 		out_of_range = 1;
 	}
 
@@ -64,21 +64,21 @@ inline double Rt_relation::r(const double & t, const int & option) const {
 	}
 
 	if (out_of_range == -1) {
-		return r_drift[0];
+		return m_r_drift[0];
 	}
 
 
-	for (int k=1; k<nb_pairs; k++) {
-		if (t>=t_drift[k-1] && t<t_drift[k]) {
-			return (r_drift[k-1]+
-				(r_drift[k]-r_drift[k-1])*(t-t_drift[k-1])/
-					(t_drift[k]-t_drift[k-1]));
+	for (int k=1; k<m_nb_pairs; k++) {
+		if (t>=m_t_drift[k-1] && t<m_t_drift[k]) {
+			return (m_r_drift[k-1]+
+				(m_r_drift[k]-m_r_drift[k-1])*(t-m_t_drift[k-1])/
+					(m_t_drift[k]-m_t_drift[k-1]));
 		}
 	}
 	
 	// Remove last if statement so always have a return, if get here out_of_range = 1
 	//if (out_of_range == 1) {
-	return r_drift[nb_pairs-1];
+	return m_r_drift[m_nb_pairs-1];
 	//}
 
 
@@ -86,13 +86,13 @@ inline double Rt_relation::r(const double & t, const int & option) const {
 
 inline double Rt_relation::t(const int & k) const {
 
-	if (k<0 || k>=nb_pairs) {
+	if (k<0 || k>=m_nb_pairs) {
 		std::cerr << "Class Rt_relation, method t: "
 			<< "illegal (r,t) pair number!" << std::endl;
 		return 0.0;
 	}
 
-	return t_drift[k];
+	return m_t_drift[k];
 
 }
 
@@ -100,15 +100,15 @@ inline double Rt_relation::t(const double & r, const int & option) const {
 
 	int out_of_range=0; // out-of-range flag
 
-	if (nb_pairs == 0) {
+	if (m_nb_pairs == 0) {
 		std::cerr << "Class Rt_relation, method r: "
 			<< "there are no (r,t) pairs!" << std::endl;
 		return 0.0;
 	}
 
-	if (r < r_drift[0]) out_of_range = -1;
+	if (r < m_r_drift[0]) out_of_range = -1;
 	
-	if (r > r_drift[nb_pairs-1]) out_of_range = 1;
+	if (r > m_r_drift[m_nb_pairs-1]) out_of_range = 1;
 	
 
 	if (out_of_range != 0 && option == 1) {
@@ -116,16 +116,16 @@ inline double Rt_relation::t(const double & r, const int & option) const {
 			<< "warning: t out of range!" << std::endl;
 	}
 
-	if (out_of_range == -1) return t_drift[0];
+	if (out_of_range == -1) return m_t_drift[0];
 
-	else if (out_of_range == 1) return t_drift[nb_pairs-1];
+	else if (out_of_range == 1) return m_t_drift[m_nb_pairs-1];
 	
 
-	for (int k=1; k<nb_pairs; k++) {
-		if (r>=r_drift[k-1] && r<r_drift[k]) {
-			return (t_drift[k-1]+
-				(t_drift[k]-t_drift[k-1])*(r-r_drift[k-1])/
-					(r_drift[k]-r_drift[k-1]));
+	for (int k=1; k<m_nb_pairs; k++) {
+		if (r>=m_r_drift[k-1] && r<m_r_drift[k]) {
+			return (m_t_drift[k-1]+
+				(m_t_drift[k]-m_t_drift[k-1])*(r-m_r_drift[k-1])/
+					(m_r_drift[k]-m_r_drift[k-1]));
 		}
 	}
 		
@@ -135,15 +135,15 @@ inline double Rt_relation::t(const double & r, const int & option) const {
 
 inline double Rt_relation::error(const int & k) const {
 
-	if (k<0 || k>=nb_pairs) {
+	if (k<0 || k>=m_nb_pairs) {
 		std::cerr << "Class Rt_relation, method error: "
 			<< "illegal (r,t) pair number!" << std::endl;
 		return 0.0;
 	}
-	if (rt_type == CALIB) {
-		return r_err[k];
+	if (m_rt_type == CALIB) {
+		return m_r_err[k];
 	} else {
-		return t_err[k];
+		return m_t_err[k];
 	}
 }
 
@@ -153,16 +153,16 @@ inline double Rt_relation::error(const double & t, const int & option) const {
 	//double scal; // "time scaling factor"
 	double err; // error
 
-	if (nb_pairs == 0) {
+	if (m_nb_pairs == 0) {
 		std::cerr <<  "Class Rt_relation, method r: "
 			<< "there are no (r,t) pairs!" << std::endl;
 		return 0.0;
 	}
 
-	if (t < t_drift[0]) {
+	if (t < m_t_drift[0]) {
 		out_of_range = -1;
 	}
-	if (t > t_drift[nb_pairs-1]) {
+	if (t > m_t_drift[m_nb_pairs-1]) {
 		out_of_range = 1;
 	}
 
@@ -172,21 +172,21 @@ inline double Rt_relation::error(const double & t, const int & option) const {
 	}
 
 	if (out_of_range == -1) {
-		return r_err[0];
+		return m_r_err[0];
 	}
 
 
-	for (int k=1; k<nb_pairs; k++) {
-		if (t>=t_drift[k-1] && t<t_drift[k]) {
-			err = r_err[k-1]+(r_err[k]-r_err[k-1])*(t-t_drift[k-1])
-						/(t_drift[k]-t_drift[k-1]);
+	for (int k=1; k<m_nb_pairs; k++) {
+		if (t>=m_t_drift[k-1] && t<m_t_drift[k]) {
+			err = m_r_err[k-1]+(m_r_err[k]-m_r_err[k-1])*(t-m_t_drift[k-1])
+						/(m_t_drift[k]-m_t_drift[k-1]);
 			return err;
 		}
 	}
 
-	// rmoving last if statement. If reach here must be out of range so just return (avoids having no return) 
+	// removing last if statement. If reach here must be out of range so just return (avoids having no return) 
 	//if (out_of_range == 1) {
-	return r_err[nb_pairs-1];
+	return m_r_err[m_nb_pairs-1];
 	//}
 
 
@@ -199,16 +199,16 @@ inline double Rt_relation::t_error(const double & t,const int & option) const {
 	double scal; // "time scaling factor"
 	double err; // error
 
-	if (nb_pairs == 0) {
+	if (m_nb_pairs == 0) {
 		std::cerr << "Class Rt_relation, method r: "
 			<< "there are no (r,t) pairs!" << std::endl;
 		return 0.0;
 	}
 
-	if (t < t_drift[0]) {
+	if (t < m_t_drift[0]) {
 		out_of_range = -1;
 	}
-	if (t > t_drift[nb_pairs-1]) {
+	if (t > m_t_drift[m_nb_pairs-1]) {
 		out_of_range = 1;
 	}
 	if (out_of_range != 0 && option == 1) {
@@ -217,26 +217,26 @@ inline double Rt_relation::t_error(const double & t,const int & option) const {
 	}
 
 	if (out_of_range == -1) {
-		return r_err[0]*fabs((t_drift[1]-t_drift[0])/
-						(r_drift[1]-r_drift[0]));
+		return m_r_err[0]*fabs((m_t_drift[1]-m_t_drift[0])/
+						(m_r_drift[1]-m_r_drift[0]));
 	}
 
 
-	for (int k=1; k<nb_pairs; k++) {
-		if (t>=t_drift[k-1] && t<t_drift[k]) {
-			scal = fabs((t_drift[k]-t_drift[k-1])/
-						(r_drift[k]-r_drift[k-1]));
-			err = r_err[k-1]+(r_err[k]-r_err[k-1])*(t-t_drift[k-1])
-						/(t_drift[k]-t_drift[k-1]);
+	for (int k=1; k<m_nb_pairs; k++) {
+		if (t>=m_t_drift[k-1] && t<m_t_drift[k]) {
+			scal = fabs((m_t_drift[k]-m_t_drift[k-1])/
+						(m_r_drift[k]-m_r_drift[k-1]));
+			err = m_r_err[k-1]+(m_r_err[k]-m_r_err[k-1])*(t-m_t_drift[k-1])
+						/(m_t_drift[k]-m_t_drift[k-1]);
 			return scal*err;
 		}
 	}
 
 	// remove this conditional here so always have a return statment. If reach here it is out of range 
 	//if (out_of_range == 1) {
-	return r_err[nb_pairs-1]*
-		fabs((t_drift[nb_pairs-1]-t_drift[nb_pairs-2])/
-		     (r_drift[nb_pairs-2]-r_drift[nb_pairs-1]));
+	return m_r_err[m_nb_pairs-1]*
+		fabs((m_t_drift[m_nb_pairs-1]-m_t_drift[m_nb_pairs-2])/
+		     (m_r_drift[m_nb_pairs-2]-m_r_drift[m_nb_pairs-1]));
 	//}
 
 
@@ -248,16 +248,16 @@ inline double Rt_relation::t_error_garfield(const double & r,
 	int out_of_range=0; // out-of-range flag
 //	double err =0.; // error
 
-	if (nb_pairs == 0) {
+	if (m_nb_pairs == 0) {
 		std::cerr << "Class Rt_relation, method t_error_garfield: "
 			<< "there are no (r,t) pairs!" << std::endl;
 		return 0.0;
 	}
 
-	if (r < r_drift[0]) {
+	if (r < m_r_drift[0]) {
 		out_of_range = -1;
 	}
-	if (r > r_drift[nb_pairs-1]) {
+	if (r > m_r_drift[m_nb_pairs-1]) {
 		out_of_range = 1;
 	}
 
@@ -267,16 +267,16 @@ inline double Rt_relation::t_error_garfield(const double & r,
 	}
 
 	if (out_of_range == -1) {
-		return t_err[0];
+		return m_t_err[0];
 	}
 
 	if (out_of_range == 1) {
-		return t_err[nb_pairs-1];
+		return m_t_err[m_nb_pairs-1];
 	}
 
-	for (int k=1; k<nb_pairs; k++) {
-		if (r>=r_drift[k-1] && r<r_drift[k]) {
-			return (t_err[k-1]+(t_err[k]-t_err[k-1])*(r-r_drift[k-1])/(r_drift[k]-r_drift[k-1]));
+	for (int k=1; k<m_nb_pairs; k++) {
+		if (r>=m_r_drift[k-1] && r<m_r_drift[k]) {
+			return (m_t_err[k-1]+(m_t_err[k]-m_t_err[k-1])*(r-m_r_drift[k-1])/(m_r_drift[k]-m_r_drift[k-1]));
 		}
 	}
 	return 0.0;
@@ -291,7 +291,7 @@ inline void Rt_relation::set_number_of_pairs(const int & n_pairs) {
 		return;
 	}
 
-	nb_pairs = n_pairs;
+	m_nb_pairs = n_pairs;
 	return;
 }
 
@@ -304,22 +304,22 @@ inline void Rt_relation::set_rt_format(const int & rt_format) {
 		return;
 	}
 
-	rt_type = rt_format;
+	m_rt_type = rt_format;
 	return;
 }
 
 inline void Rt_relation::set_r_t(const int & k, const double & r,
 				const double & t, const double & error) {
 
-	if (k<0 || k>=nb_pairs) {
+	if (k<0 || k>=m_nb_pairs) {
 		std::cerr << "Class Rt_relation, method set_r_t: "
 			<< "illegal (r,t) pair number!" << std::endl;
 		return;
 	}
 
-	r_drift[k] = r;
-	t_drift[k] = t;
-	r_err[k] = error;
+	m_r_drift[k] = r;
+	m_t_drift[k] = t;
+	m_r_err[k] = error;
 
 	return;
 }
@@ -335,14 +335,14 @@ inline void Rt_relation::read_rt(std::ifstream& rt_file) {
 	set_number_of_pairs(read_nb_pairs);
 
 // loop over the triples (r,t,error of r) //
-	for (int k=0; k<nb_pairs; ++k) {
-		rt_file >> r_drift[k];
+	for (int k=0; k<m_nb_pairs; ++k) {
+		rt_file >> m_r_drift[k];
 // WARNING! QUICK BUG FIX //
-		rt_file >> t_drift[k];
-		if (rt_type == CALIB) {
-			rt_file >> r_err[k];
+		rt_file >> m_t_drift[k];
+		if (m_rt_type == CALIB) {
+			rt_file >> m_r_err[k];
 		} else {
-			rt_file >> t_err[k];
+			rt_file >> m_t_err[k];
 		}
 
 	}

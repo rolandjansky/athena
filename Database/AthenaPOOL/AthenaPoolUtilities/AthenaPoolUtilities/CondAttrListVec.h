@@ -24,7 +24,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaKernel/IOVRange.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/DataObject.h"
 
 class CondAttrListVec : public DataObject
@@ -116,6 +116,9 @@ class CondAttrListVec : public DataObject
 };
 
 CLASS_DEF( CondAttrListVec , 55403898 , 1)
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( CondAttrListVec, 74272308 );
 
 inline CondAttrListVec::CondAttrListVec(bool runevent) :
   m_minrange(IOVRange(IOVTime(IOVTime::MINRUN, IOVTime::MINEVENT), 

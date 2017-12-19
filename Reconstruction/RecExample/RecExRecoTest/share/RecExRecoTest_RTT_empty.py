@@ -19,6 +19,11 @@ rec.doAOD=False
 rec.doWriteAOD=False # uncomment if do not write AOD
 rec.doWriteTAG=False # uncomment if do not write TAG
 
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['FieldAndGeo']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 

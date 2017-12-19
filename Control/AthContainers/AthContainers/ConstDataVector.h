@@ -174,6 +174,16 @@ public:
 
 
   /**
+   * @brief Constructor with argument forwarding.
+   * @param ownPolicy The ownership mode for the container.
+   *
+   * All arguments are forwarded to the base class constructor.
+   */
+  template <typename... ARGS>
+  explicit ConstDataVector(SG::OwnershipPolicy ownPolicy, ARGS&&... args);
+
+
+  /**
    * @brief Sized constructor.
    * @param n The size of the container.
    * @param ownPolicy The ownership mode for the container.

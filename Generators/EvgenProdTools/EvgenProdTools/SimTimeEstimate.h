@@ -26,12 +26,12 @@ public:
   double      m_etaMax;   //!< Max eta that will be used for simulation
   int         m_total_Events; //!< Number of events that I've seen
   double      m_total_Energy; //!< Amount of energy that I've seen
-  double      eventEnergy; //!< Amount of energy that I've seen in one event
-  std::vector<double>   particleEtas; //!< list holds eta of each particle
-  std::vector<double>   particleEnergies; //!< list holds energy of each particle
-  std::vector<int> particleIDs; //!< list holds all the particle IDs for one event
-  int         particleNumber; //!< Number of particles in one event
-  std::vector<int> pidsToSkip; // !< PIDs of particles which should not be taken into account 
+  double      m_eventEnergy; //!< Amount of energy that I've seen in one event
+  std::vector<double>   m_particleEtas; //!< list holds eta of each particle
+  std::vector<double>   m_particleEnergies; //!< list holds energy of each particle
+  std::vector<int> m_particleIDs; //!< list holds all the particle IDs for one event
+  int         m_particleNumber; //!< Number of particles in one event
+  std::vector<int> m_pidsToSkip; // !< PIDs of particles which should not be taken into account 
   
 };
 

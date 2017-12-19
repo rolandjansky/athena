@@ -68,27 +68,22 @@
 // The AthenaBarCode, used to check if two particles are identical
 #include "Navigation/IAthenaBarCode.h"
 
-// Include the UserDataSvc
-#include "AthenaKernel/IUserDataSvc.h"
-
 // The needed ElementLink stuff
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h" 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Include official tools
 #include "AnalysisUtils/ISelector.h"
 #include "AnalysisUtils/KinematicSelector.h"
 #include "AnalysisUtils/KinematicSelectorCore.h"
 #include "AssociationKernel/IAssociationTool.h"
-#include "PATCore/IUserDataCalcTool.h"
 
 #include "PATCore/IAthSelectorTool.h"
 #include "PATCore/TAccept.h"
 
 // Include the filter tool
 #include "D2PDMaker/FilterTool.h"
-#include "D2PDMaker/UserDataHelperTool.h"
 
 //#include "tauEvent/TauJet.h"
 
@@ -144,16 +139,8 @@ public:
 
   // The derived classes can use these protected variables  
 protected:
-  /** Get a handle on the UserDataSvc */
-  ServiceHandle<IUserDataSvc> m_userDataSvc;
-
-
   /** Get a handle on the kinematic selector tool */
   ToolHandle<KinematicSelector> m_kinSelectorTool;
-
-
-  /** Get a handle on the UserDataHelperTool */
-  ToolHandle<UserDataHelperTool> m_userDataHelperTool;
 
 
   /** Get a handle on the filter tool */
@@ -170,10 +157,6 @@ protected:
 
   /** Get a handle on the AssociationTools; an array of tools */
   ToolHandleArray<IAssociationTool> m_associationTools;
-
-
-  /** Get a handle on the UserDataCalcTools; an array of tools */
-  ToolHandleArray<IUserDataCalcTool> m_userDataCalcTools;
 
 
 protected:
@@ -215,23 +198,6 @@ protected:
 
   /** List of the maximum number of associations an object has to have to pass this selection */
   std::vector< int > m_assoMaxCutList;
-
-
-  /** Calculates the UserData, even if the input collection is a link collection.
-      This is needed because when the input is a link collection, the original object container
-      may not have the UserData calculated for each object. One thus gets an inhomogeneous
-      container. This should only be used if the user really knows what s/he is doing! */
-  bool m_forceExecuteUserData;
-
-  /** List of the UserData names to be used for selections */
-  std::vector< std::string > m_userDataNameList;
-
-  /** List of lower selection cuts for UserData */
-  std::vector< double > m_userDataMinCutList;
-
-  /** List of upper selection cuts for UserData */
-  std::vector< double > m_userDataMaxCutList;
-
 
 
 private:
@@ -435,12 +401,6 @@ private:
 
   /// Index of where in the internal cutflow the cut is bookkept
   unsigned int m_idxAssociationTools;
-
-  /// do user data tools cuts
-  bool m_doUserDataTools;
-
-  /// Index of where in the internal cutflow the cut is bookkept
-  unsigned int m_idxUserDataTools;
 
   /// Index of where in the internal cutflow the final count is bookkept
   unsigned int m_idxFinal;

@@ -20,6 +20,9 @@
 #ifndef LARRAMPS2NTUPLE_H
 #define LARRAMPS2NTUPLE_H
 #include "LArCalibTools/LArCond2NtupleBase.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArElecCalib/ILArRamp.h"
+#include "LArRawConditions/LArRampSym.h"
 
 class LArRamps2Ntuple : public LArCond2NtupleBase 
 {
@@ -38,9 +41,10 @@ class LArRamps2Ntuple : public LArCond2NtupleBase
   bool m_applyCorr;
   bool m_addCorrUndo;
   std::vector<std::string> m_contKey;
-  std::string m_rampKey;
+  SG::ReadCondHandleKey<ILArRamp> m_rampKey;
   std::string m_ntName;
   bool m_isMC;
+
 };
 
 #endif

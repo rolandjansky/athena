@@ -40,6 +40,8 @@
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 /* -------------------------------------------------------
  * constructor
  * -------------------------------------------------------
@@ -303,7 +305,7 @@ TRT_RodDecoder::handle(const Incident& inc) {
    **/
 
   if ( inc.type() == "BeginRun" ) {
-    const EventInfo* currentEvent;
+    const EventInfo* currentEvent = nullptr;
     StatusCode sc = evtStore()->retrieve(currentEvent);
     if ( sc.isFailure() ) 
        ATH_MSG_ERROR( "Could not get current event" );
@@ -585,18 +587,6 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 	 sc=StatusCode::RECOVERABLE;
       }
       
-      /** N.B. don't think the trigger uses this word any more,
-       * and passing around IssueSeverity seems to cause 
-       * a small memory leak...
-       {
-       char c_errorWord[10];
-       sprintf( c_errorWord, "%d", errorWord );
-       
-       sc = STATUSCODE( StatusCode::RECOVERABLE, IssueSeverity::DEBUG,
-       c_errorWord );
-       }
-       
-      */
     }
 
   //  ATH_MSG_INFO( "out of fillCollection: robid = " << MSG::hex << robid << MSG::dec );

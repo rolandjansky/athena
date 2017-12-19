@@ -73,7 +73,7 @@ namespace {//anonymous namespace introduces file-scoped functions
     std::sscanf(arguments.c_str(), "p0 %50e p1 %50e p2 %50e",p0,p1,p2);
   }
   //folder to retrieve for threshold parameters
-  const std::string chipFolderName("/SCT/DAQ/Config/Chip"); //CoraCool folder in the DB
+  const std::string chipFolderName("/SCT/DAQ/Configuration/Chip"); //CoraCool folder in the DB
 }//namespace
 //c'tor
 SCT_ConditionsParameterSvc::SCT_ConditionsParameterSvc( const std::string& name, ISvcLocator* pSvcLocator ):

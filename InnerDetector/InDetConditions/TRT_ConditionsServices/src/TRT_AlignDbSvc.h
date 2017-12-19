@@ -157,12 +157,12 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   const InDetDD::TRT_DetectorManager* m_trtman; //!< detector manager
   std::string m_alignroot;               //!< root alignment folder
   std::string m_alignString;               //!< alignment string searched for
-  std::string par_alitextfile;           //!< input text file
+  std::string m_par_alitextfile;         //!< input text file
   std::vector<std::string> m_alignobjs;  //!< folder names
   std::vector<int> m_alignchans;         //!< channels
   const DataHandle<AlignableTransformContainer> m_aligncontainerhandle;
   ToolHandle<IAthenaOutputStreamTool> m_streamer; //!< OutputStreamTool
-  mutable std::vector<Amg::Transform3D*> amgTransformCache;
+  mutable std::vector<Amg::Transform3D*> m_amgTransformCache;
 
   std::string m_alignDBprefix;  // Not very elegant hack to make more modular for DB modifications
 

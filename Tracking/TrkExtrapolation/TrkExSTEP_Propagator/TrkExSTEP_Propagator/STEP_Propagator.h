@@ -534,7 +534,7 @@ namespace Trk {
     // caches
     mutable std::vector<std::pair<int,std::pair<double,double> > > m_currentDist;
     unsigned int m_maxCurrentDist;
-    mutable double P[45];
+    mutable double m_P[45];
 
     //secondary interactions
     mutable double                         m_timeIn;

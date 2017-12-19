@@ -28,7 +28,6 @@
 
 #include "SGTools/CLIDRegistry.h"
 
-template <class TYPE> class SvcFactory;
 
 /** @class ClassIDSvc 
  * @brief a service to manage and verify CLID assignments in athena.
@@ -104,9 +103,6 @@ public:
   void handle(const Incident &inc) override;
 
   
-protected:
-  friend class SvcFactory<ClassIDSvc>;
-
   // Standard Constructor
   ClassIDSvc(const std::string& name, ISvcLocator* svc);
         
@@ -114,9 +110,6 @@ protected:
   virtual ~ClassIDSvc() {};
 
 private:
-  MsgStream& msg() { return m_msg; }
-  const MsgStream& msg() const { return m_msg; }
-
   // Return all registered IDs in sorted order.
   std::vector<CLID> sortedIDs() const;
 
@@ -160,9 +153,6 @@ private:
 
   /// The path is which clid db files are to be searched (DATAPATH)
   DirSearchPath m_clidDBPath;
-
-  /// a local @c MsgStream object
-  MsgStream m_msg;
 
   // Mutex to protect internal structures.
   typedef std::mutex mutex_t;

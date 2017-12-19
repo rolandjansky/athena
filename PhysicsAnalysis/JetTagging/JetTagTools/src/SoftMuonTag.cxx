@@ -73,6 +73,7 @@ namespace Analysis
 
   SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
+      m_calibrationTool("Analysis::CalibrationBroker"),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_muonSelectorTool("JVC_MuonSelectorTool"),
       m_likelihoodTool("Analysis::NewLikelihoodTool"),
@@ -463,8 +464,7 @@ namespace Analysis
       CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
       std::vector<std::string> inputVars = calib.inputVars;
       std::string str = calib.str;
-      TTree* tree = calib.obj!=0 ? (TTree*) calib.obj->Clone() : 0;
-
+      TTree* tree = (TTree*) calib.obj;
       ATH_MSG_DEBUG("#BTAG# str= "<< str <<" m_treeName= "<< m_treeName );
 
       if ( (str!="" and tree==0) && (str=="" and tree!=0) ) {
@@ -479,7 +479,6 @@ namespace Analysis
       if (tree) {
 	ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
 	bdt = new MVAUtils:: BDT(tree);
-	delete tree;
       }
       else {
 	ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");

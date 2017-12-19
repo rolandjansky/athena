@@ -468,6 +468,30 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
      m_templateLWHistograms[interval] = std::vector< MgmtParams<LWHist> >();
      m_supportedIntervalsForRebooking.insert(interval);
    }
+
+   newLowStatInterval = false;
+   newMedStatInterval = false;
+   newHigStatInterval = false;
+   newLowStat = false;
+   newLumiBlock = false;
+   newRun = false;
+   newEventsBlock = false;
+   endOfEventsBlock = false;
+   endOfLowStat = false;
+   endOfLumiBlock = false;
+   endOfRun = false;
+
+   m_newLowStatInterval = false;
+   m_newMedStatInterval = false;
+   m_newHigStatInterval = false;
+   m_newLowStat = false;
+   m_newLumiBlock = false;
+   m_newRun = false;
+   m_newEventsBlock = false;
+   m_endOfEventsBlock = false;
+   m_endOfLowStat = false;
+   m_endOfLumiBlock = false;
+   m_endOfRun = false;
 }
 
 
@@ -941,15 +965,9 @@ fillHists()
       
 
       if (m_manager->forkedProcess()) {
-	ATH_MSG_INFO("Child process: Resetting all LW Histograms");
-	//Here, reset all LWHIstograms
-	//std::map< Interval_t, std::vector< MgmtParams<LWHist> > > m_templateLWHistograms;`
-	for (auto& mapIt : m_templateLWHistograms) {
-	  for (auto& vecIt : mapIt.second) {
-	    // Get handle to the histogram
-	    LWHist* h = vecIt.m_templateHist;
-	    h->Reset();
-	  }
+	ATH_MSG_INFO("Child process: Resetting all " << m_lwhists.size() <<  " LW Histograms");
+	for (LWHist* h : m_lwhists) {
+	  h->Reset();
 	}
       }
    }//end if new RUN/LB/Block

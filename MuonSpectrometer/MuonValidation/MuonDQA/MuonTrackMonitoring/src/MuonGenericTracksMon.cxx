@@ -68,7 +68,6 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   declareProperty("MuonTrackCollection",             m_muonTracksName       = "MuonSpectrometerTrackParticles");
   declareProperty("MuonExtrapolatedTrackCollection", m_muonExtrapTracksName = "ExtrapolatedMuonTrackParticles");
   declareProperty("InDetTrackParticles",             m_innerTracksName      = "InDetTrackParticles");
-  declareProperty("MuonHistSumTool",                 m_muonHitSummaryTool   = std::string("Muon::MuonHitSummaryTool/MuonHitSummaryTool"));
   declareProperty("MuonSelectorTool",                m_muonSelectionTool);
   declareProperty("ZmumuResonanceSelectionTool",     m_ZmumuResonanceSelectionTool);
   declareProperty("JpsimumuResonanceSelectionTool",  m_JpsimumuResonanceSelectionTool);
@@ -683,13 +682,6 @@ StatusCode MuonGenericTracksMon::setupTools()
   //   return sc;
   // }
   // ATH_MSG_DEBUG( "Retrieved " << m_helperTool );
- 
-  // sc = m_muonHitSummaryTool.retrieve();
-  // if (!sc.isSuccess()){
-  //   ATH_MSG_FATAL( "Could not get " << m_muonHitSummaryTool ); 
-  //   return sc;
-  // }
-  // ATH_MSG_DEBUG( "Retrieved " << m_muonHitSummaryTool );
  
   sc = m_ZmumuResonanceSelectionTool.retrieve();
   if (!sc.isSuccess()){

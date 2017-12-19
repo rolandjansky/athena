@@ -58,7 +58,7 @@ int HIClusterSubtraction::execute() const
     return 1;
   }
   const xAOD::HIEventShape* eshape = nullptr;
-  CHECK(m_modulator_tool->getShape(eshape));
+  CHECK(m_modulator_tool->getShape(eshape), 1);
 
   for(xAOD::CaloClusterContainer::iterator itr=ccl->begin(); itr!=ccl->end(); itr++) 
   {
@@ -76,7 +76,7 @@ int HIClusterSubtraction::execute() const
       toolIt!=m_clusterCorrectionTools.end();toolIt++) 
   {
     ATH_MSG_DEBUG(" Applying correction = " << (*toolIt)->name() );
-    CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), ccl));
+    CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), ccl), 1);
   }//End loop over correction tools
   return 0;
 }

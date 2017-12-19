@@ -66,6 +66,11 @@ CLASS_DEF(FooBar, 8109, 0)
 template <typename PROXIED>
 class TestProvider : public IAddressProvider {
 public:
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
+  { std::abort(); }
+
   TestProvider(const std::string& key) :
     m_ID(ClassID_traits<PROXIED>::ID()), m_key(key)
   {  }

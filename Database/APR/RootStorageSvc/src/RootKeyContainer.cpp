@@ -11,7 +11,6 @@
 //        Author     : M.Frank
 //====================================================================
 // Framework include files
-#include "POOLCore/strcasecmp.h"
 #include "StorageSvc/DbPrint.h"
 
 #include "StorageSvc/DbOption.h"

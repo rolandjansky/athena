@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -13,6 +14,10 @@
 
 #include "StoreGate/DataHandle.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
+#include "TrkTrack/TrackCollection.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "CommissionEvent/ComTime.h"
 //#include "TrkTrack/Track.h"
 //#include "TRT_ConditionsTools/TRTCalDbTool.h"
 
@@ -48,7 +53,7 @@ it). If the highest bin is lower than 5 ns a normal gaussian fit is
 made and Dt0 is set to the mean of that. The new t0 is then the old t0
 + Dt0.
 
-            
+
       @author Chafik, Johan, Alex
 
 */
@@ -61,12 +66,12 @@ public:
   TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcLocator);
   ~TRTCalibrationMgr(void);
 
-  StatusCode initialize(void);    
+  StatusCode initialize(void);
   StatusCode execute(void);
-  StatusCode finalize(void);  
+  StatusCode finalize(void);
 
 private:
- 
+
   ToolHandleArray<IFillAlignTrkInfo>  m_TrackInfoTools;
   ToolHandleArray<ITRTCalibrator>     m_TRTCalibTools;
   ToolHandleArray<IAccumulator>       m_AccumulatorTools;
@@ -81,10 +86,12 @@ private:
   bool m_writeConstants;
   int m_ntrk;
 
-  const DataHandle<xAOD::EventInfo> m_EventInfo;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_verticesKey{this,"VerticesKey","PrimaryVertices","RHK for primary veritces"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for xAOD::EventInfo"};
+  SG::ReadHandleKeyArray<TrackCollection> m_TrkCollections{this,"TrkCollections",{"Tracks", "ConvertedIParTracks"},"RHKs for track collections"};
+  SG::ReadHandleKey<ComTime> m_comTimeKey{this, "ComTimeKey", "TRT_Phase", "Name of TRT Com time object"};
   ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;   //!< Tool handle to the Trk::ITrackSelectorTool
 
-  std::vector<std::string> m_TrkCollections;
   unsigned int m_max_ntrk;
 };
 

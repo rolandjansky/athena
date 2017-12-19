@@ -182,7 +182,6 @@ inline void RegionSelectionSvc :: search_chambers_in_region()
 		int n_mls=m_mdtIdHelper->numberOfMultilayers(*it);
 	//fixed id
 		MuonCalib::MuonFixedId fixed_id(m_idToFixedIdTool->idToFixedId(*it));
-//		std::cout<<"***REMOVED***: "<<fixed_id.stationName()<<" "<<fixed_id.eta()<<" "<<fixed_id.phi()<<std::endl;
 		std::vector<MuonCalib::NtupleStationId> the_ids;
 		for(int i=1; i<=n_mls; i++)
 			{

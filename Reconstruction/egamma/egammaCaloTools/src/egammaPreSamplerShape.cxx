@@ -29,7 +29,6 @@ egammaPreSamplerShape::egammaPreSamplerShape(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_cluster(0), 
     m_cellContainer(0), 
-    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
     m_e011(0),
     m_e033(0),
     m_eta(0),
@@ -45,7 +44,6 @@ egammaPreSamplerShape::egammaPreSamplerShape(const std::string& type,
 { 
   // declare Interface
   declareInterface<IegammaPreSamplerShape>(this);
-  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
 }
 
 // ====================================================================
@@ -65,8 +63,8 @@ StatusCode egammaPreSamplerShape::initialize()
 
   // Create egammaEnergyAllSamples Tool
   if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-    return StatusCode::SUCCESS;
+    ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
+    return StatusCode::FAILURE;
   } 
   else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 

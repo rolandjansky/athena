@@ -34,12 +34,10 @@ class Iegammaqweta1c : virtual public IAlgTool {
   
   /** @brief AlgTool interface methods */
   static const InterfaceID& interfaceID();
-  /** @brief execute method*/
-  virtual StatusCode execute() = 0;
   /** @brief returns corrected width at eta*/
-  virtual float      Correct(float eta, float etacell, float width) = 0;
+  virtual float      Correct(float eta, float etacell, float width) const = 0;
   /** @brief returns relative position within cell*/
-  virtual double     RelPosition(float eta, float etacell) = 0;
+  virtual double     RelPosition(float eta, float etacell) const = 0;
 };
 
 inline const InterfaceID& Iegammaqweta1c::interfaceID()

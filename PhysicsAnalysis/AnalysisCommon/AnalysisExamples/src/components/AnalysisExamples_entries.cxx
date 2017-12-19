@@ -10,32 +10,16 @@
 #include "../AthExReadD3pdEvtStore.h"
 #include "../AthExReadD3pdNtuple.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_ALGORITHM_FACTORY( MiscellaneousExamples )
-DECLARE_ALGORITHM_FACTORY( WriteTruthParticles )
-DECLARE_ALGORITHM_FACTORY( ReadTruthParticles )
-DECLARE_ALGORITHM_FACTORY( TrackExample )
-DECLARE_ALGORITHM_FACTORY( ZeeOnESD )
-DECLARE_ALGORITHM_FACTORY( VFitZmmOnAOD )
-DECLARE_ALGORITHM_FACTORY( JetTagAna )
-DECLARE_ALGORITHM_FACTORY( PileUpTruthExample )
-DECLARE_ALGORITHM_FACTORY( TrigAnalysisExample )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthEx, ReadD3pdNtuple )
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthEx, ReadD3pdEvtStore )
-
-DECLARE_FACTORY_ENTRIES( AnalysisExamples ) {
-  DECLARE_ALGORITHM( MiscellaneousExamples )
-  DECLARE_ALGORITHM( WriteTruthParticles )
-  DECLARE_ALGORITHM( ReadTruthParticles )
-  DECLARE_ALGORITHM( TrackExample )
-  DECLARE_ALGORITHM( ZeeOnESD )
-  DECLARE_ALGORITHM( VFitZmmOnAOD )
-  DECLARE_ALGORITHM( JetTagAna )
-  DECLARE_ALGORITHM( PileUpTruthExample )
-  DECLARE_ALGORITHM( TrigAnalysisExample )
-  DECLARE_NAMESPACE_ALGORITHM( AthEx, ReadD3pdNtuple )
-  DECLARE_NAMESPACE_ALGORITHM( AthEx, ReadD3pdEvtStore )
-
-}
+DECLARE_COMPONENT( MiscellaneousExamples )
+DECLARE_COMPONENT( WriteTruthParticles )
+DECLARE_COMPONENT( ReadTruthParticles )
+DECLARE_COMPONENT( TrackExample )
+DECLARE_COMPONENT( ZeeOnESD )
+DECLARE_COMPONENT( VFitZmmOnAOD )
+DECLARE_COMPONENT( JetTagAna )
+DECLARE_COMPONENT( PileUpTruthExample )
+DECLARE_COMPONENT( TrigAnalysisExample )
+DECLARE_COMPONENT( AthEx::ReadD3pdNtuple )
+DECLARE_COMPONENT( AthEx::ReadD3pdEvtStore )
 

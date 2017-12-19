@@ -1,5 +1,3 @@
-/* -*- C++ -*- */
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -20,7 +18,6 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "Identifier/Identifier.h"
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
@@ -30,6 +27,7 @@
 
 #include "sTGC_Digitization/sTgcDigitInfoCollection.h"
 
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -83,15 +81,9 @@ public:
   //
   //   /** When being run from PileUpToolsAlgs, this method is called for each active
   //       bunch-crossing to process current SubEvents bunchXing is in ns */
-#ifdef ATHENA_20_20
-  StatusCode  processBunchXing(int bunchXing,
-			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-			       PileUpEventInfo::SubEvent::const_iterator eSubEvents);
-#else
   StatusCode  processBunchXing(int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents);
-#endif  
 
   //   /** When being run from PileUpToolsAlgs, this method is called at the end of
   //       the subevts loop. Not (necessarily) able to access SubEvents */
@@ -160,11 +152,16 @@ private:
   float m_readoutThreshold;
   float m_neighborOnThreshold;
   float m_saturation;
+  
   //float m_ADC;
   bool  m_deadtimeON;
   bool  m_produceDeadDigits;
   float m_deadtimeStrip;
   float m_deadtimePad;
+  float m_deadtimeWire;
+  float m_readtimeStrip;
+  float m_readtimePad;
+  float m_readtimeWire;
   float m_timeWindowOffsetPad;
   float m_timeWindowOffsetStrip;
   float m_timeWindowPad;
@@ -172,12 +169,14 @@ private:
   float m_bunchCrossingTime;
   float m_timeJitterElectronicsStrip;
   float m_timeJitterElectronicsPad;
+  float m_hitTimeMergeThreshold;
 
-  std::vector<int> m_hitSourceVec;
+  std::map< Identifier, int > m_hitSourceVec;
 
   void readDeadtimeConfig();
 
   uint16_t bcTagging(const float digittime, const int channelType) const;
+  int humanBC(uint16_t bctag);
 
   //TFile *m_file;
   //TH2F *m_SimHitOrg, *m_SimHitMerged, *m_SimHitDigitized, *m_SimHitDigitizedwPad, *m_SimHitDigitizedwoPad;

@@ -33,14 +33,13 @@ void sTGC_readoutHandler::ElementHandle()
       sTGC->roParameters.nPadPhi       = getAttributeAsIntVector ("nPadX", ret);
       if (! ret) std::cout << "WARNING: nPadX is missing" << std::endl;
     }
- 
+
     sTGC->roParameters.anglePadPhi            = getAttributeAsDouble    ("anglePadPhi", ret);
     if (! ret){
       std::cout << "INFO: anglePadPhi is missing trying older format anglePadX" << std::endl;
       sTGC->roParameters.anglePadPhi            = getAttributeAsDouble    ("anglePadX", ret);
       if (! ret) std::cout << "WARNING: anglePadX is missing" << std::endl;
     }
-    
 
     sTGC->roParameters.firstPadPhiDivision_A = getAttributeAsVector    ("firstPadPhiDivision_A", ret);
     sTGC->roParameters.firstPadPhiDivision_C         = getAttributeAsVector    ("firstPadPhiDivision_C", ret);
@@ -73,6 +72,9 @@ void sTGC_readoutHandler::ElementHandle()
 
     sTGC->roParameters.nWires              = getAttributeAsIntVector ("nWires", ret);
     if (! ret) std::cout << "WARNING: nWires is missing" << std::endl;
+
+    sTGC->roParameters.wireCutout          = getAttributeAsVector ("wireCutout", ret);
+    if (! ret) std::cout << "WARNING: wireCutout is missing" << std::endl;
 
     sTGC->roParameters.firstWire           = getAttributeAsVector    ("firstWire", ret);
     if (! ret) std::cout << "WARNING: firstWire is missing" << std::endl;
@@ -112,5 +114,4 @@ void sTGC_readoutHandler::ElementHandle()
 
     sTGC->roParameters.firstWireGroup      = getAttributeAsIntVector ("firstWireGroup", ret);
     if (! ret) std::cout << "WARNING: firstWireGroup is missing" << std::endl;
-    
 }

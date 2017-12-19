@@ -10,7 +10,7 @@
 #include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 
-#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 testAthenaPhotonAlg::testAthenaPhotonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator ),  m_photonSF("AsgPhotonEfficiencyCorrectionTool/AsgPhotonEfficiencyCorrectionTool",this){
 

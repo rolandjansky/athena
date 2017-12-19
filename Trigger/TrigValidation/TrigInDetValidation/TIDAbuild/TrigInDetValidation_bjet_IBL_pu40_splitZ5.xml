@@ -1,7 +1,7 @@
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_splitZ5'>
-            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
-            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;splitZHalfWidth=5;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <doc>Bjetslice, ttbar, pu40, IBL</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=900;splitZHalfWidth=5;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

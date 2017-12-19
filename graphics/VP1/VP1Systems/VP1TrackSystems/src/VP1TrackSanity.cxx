@@ -29,7 +29,7 @@ public:
 
 //____________________________________________________________________
 VP1TrackSanity::VP1TrackSanity(IVP1System*sys)
-  : VP1HelperClassBase(sys,"VP1TrackSanity"), d(new Imp)
+  : VP1HelperClassBase(sys,"VP1TrackSanity"), m_d(new Imp)
 {
   messageVerbose("constructor");
   if (sys)
@@ -39,7 +39,7 @@ VP1TrackSanity::VP1TrackSanity(IVP1System*sys)
 //____________________________________________________________________
 VP1TrackSanity::~VP1TrackSanity()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

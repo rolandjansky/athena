@@ -53,9 +53,9 @@ private:
       std::string         m_ntupleTrkAtVxTreeName; 
 
 
-      TTree * tree;
-      TTree * vtx_tree;
-      TTree * trk_at_vxtree;
+      TTree * m_tree;
+      TTree * m_vtx_tree;
+      TTree * m_trk_at_vxtree;
 
       mutable unsigned int m_lastEventNumber;
 

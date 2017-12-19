@@ -47,8 +47,8 @@ InDet::CompetingSCT_ClustersOnTrackTool::CompetingSCT_ClustersOnTrackTool(
     declareInterface<ICompetingRIOsOnTrackTool>(this);
     declareProperty("ToolForSCT_ClusterOnTrackCreation",    m_SCT__ROTCreator,          "SCT_ClusterOnTrackCreator needed for the creation of CompetingSCT_ClustersOnTrack");
     declareProperty("ToolForWeightCalculation",             m_WeightCalculator,         "Tool for weight (assignment probability) calculation");
-    declareProperty("WeightCutValueBarrel",                 mjo_BarrelCutValue=10.8275, "lambda parameter (intrinsic roadwidth) for measurements in the Barrel part");
-    declareProperty("WeightCutValueEndCap",                 mjo_EndCapCutValue=10.8275, "lambda parameter (intrinsic roadwidth) for measurements in the EndCap part");
+    declareProperty("WeightCutValueBarrel",                 m_jo_BarrelCutValue=10.8275, "lambda parameter (intrinsic roadwidth) for measurements in the Barrel part");
+    declareProperty("WeightCutValueEndCap",                 m_jo_EndCapCutValue=10.8275, "lambda parameter (intrinsic roadwidth) for measurements in the EndCap part");
     declareProperty("Extrapolator",                         m_extrapolator,             "Extrapolator tool");
 }
 
@@ -67,8 +67,8 @@ StatusCode InDet::CompetingSCT_ClustersOnTrackTool::initialize() {
 
     ATH_MSG_INFO("SCT ROTCreation by   : " << m_SCT__ROTCreator.name() );
     ATH_MSG_INFO("weight calculation by: " << m_WeightCalculator.name() );
-    ATH_MSG_INFO("WeightCutValues are  : " << mjo_BarrelCutValue<< " (barrel) and " 
-         << mjo_EndCapCutValue<< " (end-cap)");
+    ATH_MSG_INFO("WeightCutValues are  : " << m_jo_BarrelCutValue<< " (barrel) and " 
+         << m_jo_EndCapCutValue<< " (end-cap)");
 
     // Get the correction tool to create SCT_Clusters on Track
     sc = m_SCT__ROTCreator.retrieve();
@@ -247,10 +247,10 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
     // call normalize()
     if (isBarrel) {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_BarrelCutValue);
+        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
     } else {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_EndCapCutValue);
+        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
     }
     delete baseROTvector;
 
@@ -368,10 +368,10 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
         ATH_MSG_VERBOSE("normalize the assignment probabilities");
         if(compROT->rioOnTrack(0).detectorElement()->isBarrel()) {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_BarrelCutValue);
+            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
         } else {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, mjo_EndCapCutValue);
+            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
         }
         delete baseROTvector;
     } else {

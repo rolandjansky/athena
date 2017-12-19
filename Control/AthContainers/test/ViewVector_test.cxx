@@ -23,6 +23,7 @@
 #include "SGTools/TestStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -160,13 +161,13 @@ void test3()
 
 
 // toPersistent/toTransient
-void test4()
+void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
   DataVector<X> *dv = new DataVector<X>;
   for (int i=0; i < 10; i++)
     dv->push_back (new X(i));
-  SGTest::store.record (dv, "dv");
+  store.record (dv, "dv");
 
   ViewVector<DataVector<X> > vv;
   for (int i=0; i < 10; i++)
@@ -201,13 +202,13 @@ void test4()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
   test1();
   test2();
   test3();
-  test4();
+  test4 (SGTest::store);
   return 0;
 }
 

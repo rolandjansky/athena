@@ -373,7 +373,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) { 
     ATH_MSG_ERROR("Could not get Pixel ID helper");
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   

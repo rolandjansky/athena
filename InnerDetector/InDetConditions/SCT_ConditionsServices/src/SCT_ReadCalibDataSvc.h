@@ -13,9 +13,18 @@
 // Include interface class
 #include "SCT_ConditionsServices/ISCT_ReadCalibDataSvc.h"
 
+// Include STL
+#include <mutex>
+
+// Include Gaudi classes
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
+
 // Include SCT calibration data map objects
-//needed for typedef
 #include "SCT_ConditionsData/SCT_CalibDefectData.h"
+#include "SCT_ConditionsData/SCT_WaferGoodStripInfo.h"
+#include "SCT_ConditionsData/SCT_AllGoodStripInfo.h"
 
 // Include top level interface
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
@@ -23,21 +32,10 @@
 
 // Include Athena stuff 
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
-#include "AthenaKernel/IIOVDbSvc.h" 
-
-// Include Event Info 
-#include "EventInfo/EventInfo.h"
-
-///Read Handle
-#include "StoreGate/ReadHandleKey.h"
-
-// Include boost stuff
-#include "boost/array.hpp"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 // Forward declarations
-class CondAttrListCollection;
 class ISvcLocator;
 class StoreGateSvc;
 class ISCT_CablingSvc;
@@ -51,11 +49,11 @@ namespace InDetDD{ class SCT_DetectorManager; }
 class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public AthService {
 
  public:
-  enum {STRIPS_PER_WAFER=768, NUMBER_OF_WAFERS=8176};  
+  enum {STRIPS_PER_WAFER=768};
   //----------Public Member Functions----------//
   // Structors
   SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
-  virtual ~SCT_ReadCalibDataSvc();                                           //!< Destructor
+  virtual ~SCT_ReadCalibDataSvc();                                         //!< Destructor
   
   // Retrive interface ID
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
@@ -82,51 +80,40 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   virtual bool canFillDuringInitialize() { return false ; } //PJ need to know IOV/run#
   //@}
   
-  //Define methods
-  virtual StatusCode fillCalibDefectData(std::list<std::string>& keys); //!< Callback for retriving defect data
-  
   // Methods to return calibration defect type and summary
   virtual SCT_ReadCalibDataSvc::CalibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT); //!<Return summary of defect type and values for a strip
   virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan); //!<Returns module summary of defect  
   virtual std::list<Identifier> defectList(const std::string& defect); //!<Returns module summary of defect  
 
  private:
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheGain;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheNoise;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheInfo;
+  // Pointers of SCT_CalibDefectData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_CalibDefectData> m_condDataGain;
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_CalibDefectData> m_condDataNoise;
+  // Pointer of SCT_AllGoodStripInfo
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_AllGoodStripInfo> m_condDataInfo;
+  // Read Cond Handles
+  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyGain;
+  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyNoise;
+  SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKeyInfo;
+
+  const SCT_CalibDefectData* getCondDataGain(const EventContext& ctx) const;
+  const SCT_CalibDefectData* getCondDataNoise(const EventContext& ctx) const;
+  const SCT_AllGoodStripInfo* getCondDataInfo(const EventContext& ctx) const;
   
   //----------Private Attributes----------//
-  ServiceHandle<StoreGateSvc>         m_storeGateSvc;      //!< Handle to StoreGate service
-  ServiceHandle<StoreGateSvc>         m_detStoreSvc;       //!< Handle to detector store
-  ServiceHandle<IIOVDbSvc>            m_IOVDbSvc;          //!< Handle on the IOVDb service
-  ServiceHandle<ISCT_CablingSvc>      m_cabling;           //!< Handle to SCT cabling service
-  const InDetDD::SCT_DetectorManager* m_SCTdetMgr;         //!< Handle to SCT detector manager
-  const CondAttrListCollection*       m_attrListColl;      //!< Pointer to AL collection
-  const SCT_ID*                       m_id_sct;            //!< Handle to SCT ID helper
+  ServiceHandle<StoreGateSvc>         m_detStoreSvc; //!< Handle to detector store
+  ServiceHandle<ISCT_CablingSvc>      m_cabling;     //!< Handle to SCT cabling service
+  const InDetDD::SCT_DetectorManager* m_SCTdetMgr;   //!< Handle to SCT detector manager
+  const SCT_ID*                       m_id_sct;      //!< Handle to SCT ID helper
   
-  // If data filled correctly
-  bool m_dataFilled;  
-  // List folders to be read as CondAttrListCollection*
-  StringArrayProperty m_atrcollist;
-  // Calib defect maps
-  SCT_CalibDefectData m_NPGDefects;
-  SCT_CalibDefectData m_NODefects;
-  BooleanProperty m_printCalibDefectMaps; //!< Print the calib defect maps?
   // Flag to set true to be able to use all methods not just isGood
   bool m_recoOnly;
-  // Calib defect arrays
-  typedef boost::array<bool, STRIPS_PER_WAFER> WaferIsGoodInfo_t; // [768b]
-  typedef boost::array<WaferIsGoodInfo_t, NUMBER_OF_WAFERS> AllWaferIsGoodInfo_t; // [8176][768b]
-  AllWaferIsGoodInfo_t m_isGoodAllWafersInfo;
-  // Arrays to hold defects to ignore/limits
-  std::vector<std::string> m_ignoreDefects;
-  std::vector<float> m_ignoreDefectParameters;
-  
-  // DataHandles for callback
-  const DataHandle<CondAttrListCollection> m_CalibDefects_NP;
-  const DataHandle<CondAttrListCollection> m_CalibDefects_NO;
-  // Key for DataHandle
-  std::string m_key;
-
-  // Read Handle Key
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 };
 
 //---------------------------------------------------------------------- 
