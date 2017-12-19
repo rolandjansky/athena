@@ -7,7 +7,6 @@
 #include "AthenaKernel/IThinningSvc.h"
 
 #include "AthContainers/tools/getThinnedFlags.h"
-#include "AthContainers/tools/foreach.h"
 #include "AthContainers/AuxTypeRegistry.h"
 
 xAODShallowAuxContainerCnv::xAODShallowAuxContainerCnv( ISvcLocator* svcLoc ) :
@@ -40,7 +39,7 @@ xAOD::ShallowAuxContainer* xAODShallowAuxContainerCnv::createPersistent( xAOD::S
          newcont->getStore()->resize(nremaining); //had to access underlying store directly, can't call 'resize' on container
 
          // Loop over all the variables of the original container:
-         ATHCONTAINERS_FOREACH (SG::auxid_t auxid, auxids) {
+         for (SG::auxid_t auxid : auxids) {
             // Skip null auxids (happens if we don't have the dictionary)
             if(auxid == SG::null_auxid) continue;
             // Skip non-selected dynamic variables.
