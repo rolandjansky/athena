@@ -1086,7 +1086,18 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
       else{ // IBL
 	//
 	offset = filename.find("[");
-	std::istringstream ss(filename.substr(offset,20));
+        if(offset==std::string::npos){
+            ATH_MSG_ERROR( "Cound not find the token '['" );
+            return StatusCode::FAILURE;
+        }
+        std::string tmpstr;
+        try {
+          tmpstr = filename.substr(offset,20);
+        }
+        catch(std::exception &ex) {
+          ATH_MSG_ERROR( "Cound not get string, exception caught: " << ex.what() );
+        }
+	std::istringstream ss(tmpstr);
 	char c;
 	int system,subsystem,component, eta;
 	unsigned int layer,phi;
