@@ -26,10 +26,10 @@ const float MdtCalibHit::kNoValue = FLT_MAX;
 // MdtCalibHit::hitBase copies data from a MdtCalibHit instance to a MdtCalibHitBase
 // MdtCalibHit and MdtCalibHitBase are nearly identical except that 
 // MdtCalibHit uses an Athena identifier and MdtCalibHitBase uses Muonfixedid
-MuonCalib::MdtCalibHitBase* MdtCalibHit::hitBase(MuonCalib::IIdToFixedIdTool *pIdToFixed) const {
+MuonCalib::MdtCalibHitBase* MdtCalibHit::hitBase(const MuonCalib::IIdToFixedIdTool& rIdToFixed) const {
   MuonCalib::MdtCalibHitBase *hb = new MuonCalib::MdtCalibHitBase(); 
 
-  hb->setIdentifier(pIdToFixed->idToFixedId(m_id));
+  hb->setIdentifier(rIdToFixed.idToFixedId(m_id));
   hb->setTdc(m_tdc);
   hb->setAdc(m_adc);
   hb->setGlobalPos(m_globalPosition);
