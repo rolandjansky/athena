@@ -53,6 +53,7 @@ PixelRodDecoder::PixelRodDecoder
       m_maxNumBCIDWarnings(50),
       m_pixelCabling("PixelCablingSvc",name),
       m_pixel_id(nullptr),
+      m_det(eformat::SubDetector()),
       m_cablingData(nullptr),
       m_condsummary("PixelConditionsSummarySvc",name),
       m_errors("PixelByteStreamErrorsSvc",name)
