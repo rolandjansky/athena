@@ -84,5 +84,6 @@ bool TRTCalibTrackSelectionTool::isAccepted(const Trk::Track* pTrack) const
       << "\n\t nPixel = " << summary->get(Trk::numberOfPixelHits)
       << "\n\t nSCT = " << summary->get(Trk::numberOfSCTHits)
       << "\n\t nTRT = " << summary->get(Trk::numberOfTRTHits) << endmsg;
+  delete summary;
   return (true);
 }
