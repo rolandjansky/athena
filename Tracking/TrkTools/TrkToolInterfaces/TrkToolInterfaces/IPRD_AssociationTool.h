@@ -41,7 +41,7 @@ The user is responsible for informing the tool about the Tracks in question, by 
       typedef PrepRawDataTrackMap::iterator                        PRD_MapIt;
       typedef PrepRawDataTrackMap::const_iterator                  ConstPRD_MapIt;
       /**the first element is the beginning iterator of the range, the second is the end*/
-      typedef std::pair<PRD_MapIt, PRD_MapIt>       PrepRawDataTrackMapRange;
+      typedef std::pair<ConstPRD_MapIt, ConstPRD_MapIt>       PrepRawDataTrackMapRange;
 
       //      typedef std::multimap<const Track*, const PrepRawData*> TrackPrepRawDataMap;
       typedef std::map<const Track*, std::vector<const PrepRawData*> > TrackPrepRawDataMap;
@@ -93,7 +93,7 @@ The user is responsible for informing the tool about the Tracks in question, by 
       IMPORTANT: Please use the typedefs IPRD_AssociationTool::PrepRawDataTrackMapRange and 
       IPRD_AssociationTool::ConstPRD_MapIt to access the tracks, as the internal 
       representation may change.*/
-      virtual PrepRawDataTrackMapRange onTracks(const PrepRawData& prd)  =0 ;
+      virtual PrepRawDataTrackMapRange onTracks(const PrepRawData& prd) const=0 ;
 
       /**this may well go, but at the moment it resets the tool*/
       virtual void reset()=0;

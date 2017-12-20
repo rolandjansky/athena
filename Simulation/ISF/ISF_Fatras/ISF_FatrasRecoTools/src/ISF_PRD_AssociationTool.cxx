@@ -95,8 +95,8 @@ StatusCode iFatras::ISF_PRD_AssociationTool::removePRDs( const Trk::Track& track
       Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange 
 	range = m_prepRawDataTrackMap.equal_range(prd);
       // get iterators for range
-      PRD_MapIt mapIt    = range.first;
-      PRD_MapIt mapItEnd = range.second;
+      ConstPRD_MapIt mapIt    = range.first;
+      ConstPRD_MapIt mapItEnd = range.second;
       // simple for loop instead of fancier remove_if above
       for ( ;mapIt!=mapItEnd; ++mapIt) {
 	if ( mapIt->second==&track ) {
@@ -176,7 +176,7 @@ std::vector< const Trk::PrepRawData* > iFatras::ISF_PRD_AssociationTool::getPrds
    return vec;
 }
  
-Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange iFatras::ISF_PRD_AssociationTool::onTracks(const Trk::PrepRawData& prd) 
+Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange iFatras::ISF_PRD_AssociationTool::onTracks(const Trk::PrepRawData& prd) const
 {
      return m_prepRawDataTrackMap.equal_range(&prd);
 }

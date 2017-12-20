@@ -70,8 +70,8 @@ namespace Trk {
 
 		void updateTrackMap(const Trk::Track& track, double score, int rejectPlace);
 		void updateScore(const Trk::Track& track, double score);
-		void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared);
-		void rejectTrack(const Trk::Track& track, int rejectPlace);
+		void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) const;
+		void rejectTrack(const Trk::Track& track, int rejectPlace) const;
 
 		void addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack);
 		void storeInputTracks(const TrackCollection& trackCollection);

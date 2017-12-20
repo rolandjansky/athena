@@ -68,7 +68,7 @@ namespace Trk {
     IMPORTANT: Please use the typedefs IPRD_AssociationTool::PrepRawDataRange and 
     IPRD_AssociationTool::ConstPRD_MapIt (defined in the interface) to access the 
     tracks, as the way the data is stored internally may change.*/
-    virtual IPRD_AssociationTool::PrepRawDataTrackMapRange onTracks(const PrepRawData& prd) ;
+    virtual IPRD_AssociationTool::PrepRawDataTrackMapRange onTracks(const PrepRawData& prd) const;
 
       /** resets the tool - should be called before using tool (and maybe afterwards to free up 
     memory)*/

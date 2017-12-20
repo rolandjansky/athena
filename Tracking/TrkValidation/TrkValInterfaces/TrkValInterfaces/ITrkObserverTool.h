@@ -42,8 +42,8 @@ namespace Trk {
 
 			virtual void updateTrackMap(const Trk::Track& track, double score, int rejectPlace) = 0;
 			virtual void updateScore(const Trk::Track& track, double score) = 0;
-			virtual void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) = 0;
-			virtual void rejectTrack(const Trk::Track& track, int rejectPlace) = 0;
+			virtual void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) const = 0;
+			virtual void rejectTrack(const Trk::Track& track, int rejectPlace) const = 0;
 
 			virtual void addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack) = 0;
 			virtual void reset() = 0;
