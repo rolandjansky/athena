@@ -731,17 +731,61 @@ CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(co
     return CorrectionCode::Ok;
   }
 }
+   const xAOD::TrackParticle* MuonCalibrationAndSmearingTool::getTrack(const xAOD::IParticle& muon, xAOD::Muon::TrackParticleType track_type) const {
+        if (muon.type() == xAOD::Type::ObjectType::TrackParticle) return dynamic_cast<const xAOD::TrackParticle*>(&muon);
+        if (muon.type() != xAOD::Type::ObjectType::Muon) {
+            ATH_MSG_ERROR("No muon was given to MMC?  Whaaaat?!");
+            return nullptr;
+        }
+        static SG::AuxElement::ConstAccessor<ElementLink<TrackParticleContainer>> acc_indetlink("inDetTrackParticleLink");
+        static SG::AuxElement::ConstAccessor<ElementLink<TrackParticleContainer>> acc_mslink("muonSpectrometerTrackParticleLink");
+        static SG::AuxElement::ConstAccessor<ElementLink<TrackParticleContainer>> acc_cblink("combinedTrackParticleLink");
+        static SG::AuxElement::ConstAccessor<ElementLink<TrackParticleContainer>> acc_primlink("combinedTrackParticleLink");
 
+        if (track_type == xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle) {
+            if (!acc_indetlink.isAvailable(muon) || !acc_indetlink(muon).isValid(muon)) {
+                return nullptr;
+            } else return (*acc_indetlink(muon));
+        } else if (track_type == xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle) {
+            if (!acc_mslink.isAvailable(muon) || !acc_mslink(muon).isValid(muon)) {
+                return nullptr;
+            } else return (*acc_mslink(muon));
+        } else if (track_type == xAOD::Muon::TrackParticleType::CombinedTrackParticle) {
+            if (!acc_cblink.isAvailable(muon) || !acc_cblink(muon).isValid(muon)) {
+                return nullptr;
+            } else return (*acc_cblink(muon));
+        } else if (track_type == xAOD::Muon::TrckParticleType::PrimaryTrackParticle){
+
+        }
+        return nullptr;
+    }
+   CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::IParticle& particle) const {
+       if (particle.type() != xAOD::Type::ObjectType::TrackParticle && particle.type() != xAOD::Type::ObjectType::Muon){
+          ATH_MSG_FATAL("You try to pass a particle which is not a muon or a track to MMC. Magic will happen");
+          return CorrectionCode::Error;
+       }
+       InfoHelper muonInfo;
+
+       // Set pt ID:
+       const xAOD::TrackParticle* id_track = getTrack(mu, xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
+       const xAOD::TrackParticle* ms_track = getTrack(mu, xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
+       const xAOD::TrackParticle* cb_track = getTrack(mu, xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+
+       muonInfo.ptid = id_track ? id_track->pt() / 1.e3 : 0;
+       muonInfo.ptms = ms_track ? ms_track->pt() / 1.e3 : 0.;
+
+       return CorrectionCode::Ok;
+   }
 
 CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu ) const {
 
-  ATH_MSG_VERBOSE( "Muon Type = " << mu.muonType() << " ( 0: Combined, 1: StandAlone, 2: SegmentTagged, 3: CaloTagged )" );
-  ATH_MSG_VERBOSE( "Muon Author = " << mu.author() );
+    ATH_MSG_VERBOSE("Muon Type = " << mu.muonType() << " ( 0: Combined, 1: StandAlone, 2: SegmentTagged, 3: CaloTagged )");
+    ATH_MSG_VERBOSE("Muon Author = " << mu.author());
 
-  // Make InfoHelper for passing muon info between functions
-  InfoHelper muonInfo;
+    // Make InfoHelper for passing muon info between functions
+    InfoHelper muonInfo;
 
-  // Set pt ID:
+
 
   ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
   ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
@@ -798,7 +842,6 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   }
 
   // Set the charge
-
   if( mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon ) {
     if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer > > ("combinedTrackParticleLink")){
       if(mu.combinedTrackParticleLink().isValid()){

@@ -32,19 +32,48 @@
 #define MZPDG 91.1876
 
 namespace CP {
-
-namespace MCAST {
-
-  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5}; }
-  namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
-  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07}; }
-  namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
-  namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
-  namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
-  namespace SagittaCorType { enum { CB=0, ID=1, ME=2, WEIGHTS=3, AUTO=4}; }
-  namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2}; }
-
-}
+    namespace MCAST {
+        namespace DataType {
+            enum {
+                Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16 = 5
+            };
+        }
+        namespace AlgoType {
+            enum {
+                Muid = 1, Staco = 2, Muons = 3
+            };
+        }
+        namespace Release {
+            enum {
+                Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22 = 7, PreRec_2015_08_06 = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12, Recs2016_08_07 = 13, Recs2016_15_07
+            };
+        }
+        namespace SmearingType {
+            enum {
+                Pt = 1, QoverPt = 2
+            };
+        }
+        namespace DetectorType {
+            enum {
+                MS = 1, ID = 2, CB = 3
+            };
+        }
+        namespace SystVariation {
+            enum {
+                Default = 0, Down = -1, Up = 1
+            };
+        }
+        namespace SagittaCorType {
+            enum {
+                CB = 0, ID = 1, ME = 2, WEIGHTS = 3, AUTO = 4
+            };
+        }
+        namespace SagittaSysType {
+            enum {
+                NOMINAL = 0, RHO = 1, BIAS = 2
+            };
+        }
+    }
 
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
 
@@ -55,6 +84,10 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Interface methods that must be defined
     // Interface - Apply the correction on a modifyable object
     virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const;
+    // Inteface method - Apply the correction to a generic IParticle
+    virtual CorrectionCode applyCorrection( xAOD::IParticle& particle) const;
+
+
     // Interface - Create a corrected copy from a constant muon
     virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const;
     // Interface - Is the tool affected by a specific systematic?
@@ -157,6 +190,12 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
 
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
+
+
+
+
+    const xAOD::IParticle* getTrack(const xAOD::IParticle& muon, xAOD::Muon::TrackParticleType track_type) const;
+
     //private:
     // fake assignment operator missing actual implementation
     MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );
