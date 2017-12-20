@@ -30,7 +30,7 @@ namespace InDet {
 				 const Trk::PrepRawData* prd,
 				 const InDetSimDataCollection* simDataMap,
 				 bool pixels
-				 ) = 0;
+				 ) const = 0;
     
   };
 
