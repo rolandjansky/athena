@@ -38,7 +38,8 @@ public:
   xAOD::CaloCluster* getClusterForModification(xAOD::CaloClusterContainer* container);
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
-
+  ElementLink<xAOD::CaloClusterContainer> getOriginalClusElementLink() const { return m_originalClusElementLink; }
+  
   eflowMatchCluster* getMatchCluster() const { return m_matchCluster.get(); }
 
   double getSumExpectedEnergy();
@@ -60,6 +61,7 @@ public:
 private:
   int m_clusterId;
   const xAOD::CaloCluster* m_cluster;
+  ElementLink<xAOD::CaloClusterContainer> m_originalClusElementLink;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
   /* 1: ECAL, 2: HCAL */

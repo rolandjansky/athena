@@ -2,6 +2,7 @@
 
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowRecCluster.h"
+#include "eflowRec/eflowTrackClusterLink.h"
 
 #include "xAODPFlow/PFOAuxContainer.h"
 
@@ -40,9 +41,10 @@ StatusCode PFONeutralCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }
 void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyFlowCaloObject,SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle, SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle_nonModified){
 
   unsigned int nClusters = energyFlowCaloObject.nClusters();
+
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
     eflowRecCluster* thisEfRecCluster = energyFlowCaloObject.efRecCluster(iCluster);
-
+    
     /* Skip empty clusters (presumably subtraction remnants) */
     const CaloClusterCellLink* theCellLink = energyFlowCaloObject.efRecCluster(iCluster)->getCluster()->getCellLinks();
     CaloClusterCellLink::const_iterator it=theCellLink->begin();
@@ -66,8 +68,8 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
       neutralPFOContainerWriteHandle->push_back(thisPFO);
     }
 
-    ElementLink<xAOD::CaloClusterContainer> theClusterLink = thisEfRecCluster->getClusElementLink();
-    bool isSet = thisPFO->setClusterLink(theClusterLink);
+    ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = thisEfRecCluster->getOriginalClusElementLink();
+    bool isSet = thisPFO->setClusterLink(theOriginalClusterLink);
     if (!isSet) { msg(MSG::WARNING) << "Could not set Cluster in PFO " << endmsg; }
 
     const xAOD::CaloCluster* cluster = thisEfRecCluster->getCluster();

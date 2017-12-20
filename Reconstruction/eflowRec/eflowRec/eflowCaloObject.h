@@ -65,7 +65,7 @@ public:
 
 
   /* Link accessor methods */
-  std::vector<eflowTrackClusterLink*> efRecLink() { return m_trackClusterLinks; }
+  std::vector<eflowTrackClusterLink*> efRecLink() const { return m_trackClusterLinks; }
   void clearLinks() { m_trackClusterLinks.clear(); }
 
   /* Sets up static container of CaloClusters. This function does not own the objects,
