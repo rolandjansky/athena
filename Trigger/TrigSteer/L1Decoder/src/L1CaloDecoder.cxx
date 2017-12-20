@@ -47,7 +47,7 @@ StatusCode L1CaloDecoder::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1CaloDecoder::beginRun() {
+StatusCode L1CaloDecoder::start() {
   using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   for( auto caloType : std::vector<L1DataDef::TriggerType>{ L1DataDef::EM/*, L1DataDef::TAU*/} ) {    

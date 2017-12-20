@@ -56,7 +56,7 @@ StatusCode FakeRoI::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode FakeRoI::beginRun() {
+StatusCode FakeRoI::start() {
 	if (m_inputFilename.empty()) {
 		ATH_MSG_WARNING("Provided InputFilename parameter is empty");
 		return StatusCode::RECOVERABLE;

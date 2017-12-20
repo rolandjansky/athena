@@ -20,7 +20,7 @@ class IRoIsUnpackingTool : virtual public IAlgTool {
 public: 
   DeclareInterfaceID(IRoIsUnpackingTool, 1, 0);
     
-  /// Invoked when there is a potential change of the configuration. Typically beginRun.
+  /// Invoked when there is a potential change of the configuration. Typically start().
   virtual StatusCode updateConfiguration() = 0; 
   
   /**
