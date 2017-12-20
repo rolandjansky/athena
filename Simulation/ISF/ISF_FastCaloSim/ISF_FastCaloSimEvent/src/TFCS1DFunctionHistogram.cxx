@@ -54,7 +54,7 @@ double* TFCS1DFunctionHistogram::histo_to_array(TH1* hist)
  {
   histoVals[i]=histoVals[i-1] + h_clone->GetBinContent(i+1);
  }
-
+ delete h_clone;
  return histoVals;
 
 }
@@ -121,15 +121,17 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, int verbose, double cu
     TH1D* h_out=smart_rebin(h_input,change); h_out->SetName("h_out");
 
     maxdev=get_maxdev(hist,h_out);
-    if(verbose==2) cout<<"Iteration nr. "<<i<<" change "<<change<<" bins "<<h_out->GetNbinsX()<<"-> maxdev="<<maxdev<<endl;
+    if(i%100==0)cout<<"Iteration nr. "<<i<<" change "<<change<<" bins "<<h_out->GetNbinsX()<<"-> maxdev="<<maxdev<<endl;
 
-    if(maxdev<cut_maxdev)
+
+    if(maxdev<cut_maxdev && i < 10000 && h_out->GetNbinsX()>5 )
     {
+      delete h_input;
       h_input=(TH1D*)h_out->Clone("h_input");
       change+=step;
       i++;
     }
-    if(maxdev>cut_maxdev)
+    else
     {
       change-=step;
       h_output=(TH1D*)h_input->Clone("h_output");
@@ -233,7 +235,6 @@ TH1D* TFCS1DFunctionHistogram::smart_rebin(TH1D* h_input, double change)
 
 double TFCS1DFunctionHistogram::rnd_to_fct(double rnd)
 {
-
   //double value1=sample_from_histovalues(rnd);
   double value2=get_inverse(rnd);
   return value2;
@@ -280,6 +281,6 @@ double TFCS1DFunctionHistogram::get_inverse(double rnd)
       b=hist->GetNbinsX()+1;
     }
   }
-
+  delete hist;
   return value;
 }

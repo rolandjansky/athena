@@ -146,14 +146,20 @@ void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValu
         }
     }
 }
+void TFCSPCAEnergyParametrization::loadInputs(TFile* file){
+  loadInputs(file, "");
+}
 
 void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
 {
 
   int trynext=1;
+  TString x;
+  if(folder=="")x="bin";
+  else x="folder/bin";
   while(trynext)
     {
-      IntArray* test  =(IntArray*)file->Get(Form("%s/bin%i/pca/RelevantLayers",folder.c_str(),m_numberpcabins));
+      IntArray* test  =(IntArray*)file->Get(x+Form("%i/pca/RelevantLayers",m_numberpcabins));
       if(test)
         {
           m_numberpcabins++;
@@ -164,14 +170,14 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
     }
   m_numberpcabins-=1;
 
-  file->cd(Form("%s/bin1/pca",folder.c_str()));
+  file->cd(x+"1/pca");
   m_RelevantLayers=(IntArray*)gDirectory->Get("RelevantLayers");
   if(m_RelevantLayers == NULL) std::cout << "TFCSPCAEnergyParametrization::m_RelevantLayers in first pcabin is null!" << std::endl;
 
   for(int bin=1;bin<=m_numberpcabins;bin++)
     {
 
-      file->cd(Form("%s/bin%i/pca",folder.c_str(),bin));
+      file->cd(x+Form("%i/pca",bin));
 
       TMatrixDSym* symCov     =(TMatrixDSym*)gDirectory->Get("symCov");
       TVectorD* MeanValues    =(TVectorD*)gDirectory->Get("MeanValues");

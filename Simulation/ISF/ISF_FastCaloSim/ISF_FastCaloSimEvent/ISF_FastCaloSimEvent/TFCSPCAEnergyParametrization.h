@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_FASTCALOSIMEVENT_TFCSPCAEnergyParametrization_h
-#define ISF_FASTCALOSIMEVENT_TFCSPCAEnergyParametrization_h
+#ifndef TFCSPCAEnergyParametrization_h
+#define TFCSPCAEnergyParametrization_h
 
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/IntArray.h"
@@ -12,22 +12,25 @@
 #include "TMatrixDSym.h"
 #include "TVectorF.h"
 #include "TFile.h"
+#include "TRandom3.h"
 
 class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
 {
  public:
   TFCSPCAEnergyParametrization(const char* name=0, const char* title=0);
 
+  // energies in calo layers should be returned in simulstate
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
-
+  
   int n_pcabins()        { return m_numberpcabins; };
   IntArray* get_layers() { return m_RelevantLayers; };
-
+  
   void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
   void loadInputs(TFile* file);
   void loadInputs(TFile* file,std::string);
-
+  
  private:
+  // PCA Matrix and NN mapping information should be stored as private member variables here
   
   IntArray* m_RelevantLayers;
 
@@ -38,11 +41,16 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   std::vector<TVectorD*>    m_Gauss_rms;
   std::vector<TVectorD*>    m_LowerBounds;
   std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
-
+  
   int m_numberpcabins;
-
+  TRandom3* m_random3;
+  
   ClassDef(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
-
+ 
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSPCAEnergyParametrization+;
+#endif
 
 #endif
