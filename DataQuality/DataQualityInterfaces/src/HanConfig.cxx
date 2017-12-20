@@ -1242,7 +1242,10 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
       TDirectory* dir;
       if (!parDir->FindKey(dirName.c_str())) {
-	TDirectory* dir = parDir->mkdir( dirName.c_str() );
+	dir = parDir->mkdir( dirName.c_str() );
+      }
+      else{
+	std::cout << "Failed to make directory " << dirName.c_str() << std::endl;
       }
       DirMap_t::value_type dirVal( subPath, dir );
       directories.insert( dirVal );

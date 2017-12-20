@@ -380,6 +380,7 @@ static void WriteListToDirectory(TDirectory *dir, TSeqCollection *list, TFile* f
 	daughter = dir->mkdir(str);
       }
       else{ 
+	std::cout << "Failed to make " << std::endl;
 	continue; 
       }
       WriteListToDirectory(daughter, tmpList, file, level-1);
