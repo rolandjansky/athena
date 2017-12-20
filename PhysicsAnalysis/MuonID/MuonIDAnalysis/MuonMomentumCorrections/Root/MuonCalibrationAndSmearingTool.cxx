@@ -736,9 +736,9 @@ namespace CP {
         InfoHelper muonInfo;
 
         // Set pt ID:
-        const xAOD::TrackParticle* id_track = getTrack(mu, xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
-        const xAOD::TrackParticle* ms_track = getTrack(mu, xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
-        const xAOD::TrackParticle* cb_track = getTrack(mu, xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+        const xAOD::TrackParticle* id_track = getTrack(particle, xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
+        const xAOD::TrackParticle* ms_track = getTrack(particle, xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
+        const xAOD::TrackParticle* cb_track = getTrack(particle, xAOD::Muon::TrackParticleType::CombinedTrackParticle);
 
         muonInfo.ptid = id_track ? id_track->pt() / 1.e3 : 0;
         muonInfo.ptms = ms_track ? ms_track->pt() / 1.e3 : 0.;

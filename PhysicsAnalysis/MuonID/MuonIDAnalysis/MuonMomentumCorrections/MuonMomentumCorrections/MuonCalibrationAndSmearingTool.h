@@ -189,7 +189,7 @@ namespace CP {
 
             virtual bool isBadMuon(const xAOD::Muon& mu, InfoHelper& muonInfo) const;
 
-            const xAOD::IParticle* getTrack(const xAOD::IParticle& muon, xAOD::Muon::TrackParticleType track_type) const;
+            const xAOD::TrackParticle* getTrack(const xAOD::IParticle& muon, xAOD::Muon::TrackParticleType track_type) const;
 
             //private:
             // fake assignment operator missing actual implementation
