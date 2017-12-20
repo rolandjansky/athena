@@ -23,17 +23,12 @@ MuonTrackStatisticsAlg
 MuonTrackStatisticsAlg::MuonTrackStatisticsAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : 
   AthAlgorithm(name, pSvcLocator),
-  p_SGevent(0),
   m_statisticsTool("MuonTrackStatisticsTool"),
   m_writeToFile (false),
-  m_doTruth     (false),
-  m_log(0)  
+  m_doTruth     (false)
 {
-  declareProperty("TrackLocationList",          m_trackLocationList);
   declareProperty("doTruth",         m_doTruth);
   declareProperty("writeToFile",     m_writeToFile);
-  // printout level (0= no printout, 5=max printout)
-  declareProperty("print_level", m_print_level);
   declareProperty("FileName",               m_fileName);
 
 
@@ -43,27 +38,13 @@ MuonTrackStatisticsAlg::MuonTrackStatisticsAlg(const std::string& name, ISvcLoca
  
 StatusCode MuonTrackStatisticsAlg::initialize()
 {
-  // MSGStream object to output messages from your sub algorithm
-  m_log = new MsgStream(msgSvc(), name());
- 
-  // Locate the StoreGateSvc and initialize our local ptr
-  StatusCode sc = service("StoreGateSvc", p_SGevent);
-  if (!sc.isSuccess() || 0 == p_SGevent) 
-    {
-      *m_log << MSG::ERROR << "MuonTrackStatisticsAlg::initialize() :  Could not find StoreGateSvc" << endmsg;
-      return	sc;
-    }
 
-  sc = m_statisticsTool.retrieve();
-  if (sc.isSuccess()){
-    *m_log<<MSG::INFO << "Retrieved " << m_statisticsTool << endmsg;
-  }else{
-    *m_log<<MSG::ERROR<<"Could not get " << m_statisticsTool <<endmsg; 
-    return sc; 
-  }
+  ATH_CHECK(m_statisticsTool.retrieve());
+  ATH_CHECK(m_trackKeys.initialize());
+  ATH_CHECK(m_truthKeys.initialize());
   
-  int listLength = m_trackLocationList.size();
-  for (int i=0; i<listLength ; i++) m_statisticsTool->addTrackCounters(m_trackLocationList[i]);
+  for (unsigned int i=0; i<m_trackKeys.size() ; i++) m_statisticsTool->addTrackCounters(m_trackKeys[i].key());
+  for (unsigned int i=0; i<m_truthKeys.size() ; i++) m_statisticsTool->addTrackCounters(m_truthKeys[i].key());
     
   return StatusCode::SUCCESS;
 }
@@ -71,10 +52,31 @@ StatusCode MuonTrackStatisticsAlg::initialize()
 StatusCode MuonTrackStatisticsAlg::execute()
 {
   
-  *m_log << MSG::DEBUG << "MuonTrackStatisticsAlg in execute() ..." << endmsg;
+  ATH_MSG_DEBUG("MuonTrackStatisticsAlg in execute() ...");
 
-  StatusCode sc = m_statisticsTool->updateTrackCounters();
-  sc.ignore();
+  for(SG::ReadHandle<TrackCollection>& trackColl : m_trackKeys.makeHandles()){
+    if(!trackColl.isValid()){
+      ATH_MSG_WARNING("track collection "<<trackColl.key()<<" not valid!");
+      return StatusCode::FAILURE;
+    }
+    if(!trackColl.isPresent()){
+      ATH_MSG_DEBUG("track collection "<<trackColl.key()<<" not present");
+      continue;
+    }
+    m_statisticsTool->updateTrackCounters(trackColl.key(),trackColl.cptr());
+  }
+
+  for(SG::ReadHandle<DetailedTrackTruthCollection>& truthMap : m_truthKeys.makeHandles()){
+    if(!truthMap.isValid()){
+      ATH_MSG_WARNING("truth map "<<truthMap.key()<<" not valid!");
+      return StatusCode::FAILURE;
+    }
+    if(!truthMap.isPresent()){
+      ATH_MSG_DEBUG("truth map "<<truthMap.key()<<" not present");
+      continue;
+    }
+    m_statisticsTool->updateTruthTrackCounters(truthMap.key(),truthMap.cptr());
+  }
   
   return StatusCode::SUCCESS;
   
@@ -89,7 +91,7 @@ StatusCode MuonTrackStatisticsAlg::finalize()
 
 {
 
-  *m_log << MSG::INFO << std::endl << m_statisticsTool->printTrackCounters() << endmsg;
+  ATH_MSG_INFO(std::endl << m_statisticsTool->printTrackCounters());
 
 
   //write to file
@@ -101,11 +103,6 @@ StatusCode MuonTrackStatisticsAlg::finalize()
     m_fileOutput.close();
   }
 
-
-  
-  delete m_log;
-  
-  
   return StatusCode::SUCCESS;
 }
 

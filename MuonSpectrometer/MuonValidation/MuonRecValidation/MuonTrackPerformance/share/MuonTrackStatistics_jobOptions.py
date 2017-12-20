@@ -32,11 +32,11 @@ if muonRecFlags.doStandalone():
 
 if rec.doTruth():
    if muonRecFlags.doMoore():
-      MuonTrackStatistics.TrackLocationList += ["MooreTracksTruth"]
+      MuonTrackStatistics.TruthTrackLocationList += ["MooreTracksTruth"]
    if muonRecFlags.doMuonboy():
-      MuonTrackStatistics.TrackLocationList += ["ConvertedMBoyTracksTruth"]
+      MuonTrackStatistics.TruthTrackLocationList += ["ConvertedMBoyTracksTruth"]
    if muonRecFlags.doStandalone(): 
-      MuonTrackStatistics.TrackLocationList += ["MuonSpectrometerTracksTruth"]
+      MuonTrackStatistics.TruthTrackLocationList += ["MuonSpectrometerTracksTruth"]
 
 #MuonTrackStatistics.TrackLocationList += ["ConvertedMuIdCBTracksTruth"]
 #MuonTrackStatistics.TrackLocationList += ["ConvertedStacoTracksTruth"]
