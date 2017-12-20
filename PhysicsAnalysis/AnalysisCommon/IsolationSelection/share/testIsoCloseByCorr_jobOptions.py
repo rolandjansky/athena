@@ -67,3 +67,4 @@ from IsolationSelection.IsolationSelectionConf import CP__TestIsolationCloseByCo
 job += CfgMgr.CP__TestIsolationCloseByCorrAthenaAlg("TestAlg",IsoSelectorTool = ToolSvc.MySelectionTool, 
                                                        IsoCloseByCorrTool=ToolSvc.IsolationCloseByCorrectionTool)
 
+
