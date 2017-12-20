@@ -50,7 +50,7 @@ DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam)
         try {
             sprintf(m_d[i].test,"%s",dbam->data<std::string>("DBAM_DATA.TEST").c_str());
         }
-        catch (std::runtime_error)
+        catch (const std::runtime_error&)
         {
             //std::cerr<<"no TEST field available in DBAM"<<std::endl;
             sprintf(m_d[i].test,"unknown");
@@ -63,7 +63,7 @@ DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam)
             try {
                 sprintf(m_d[i].name[j],"%s",dbam->data<std::string>(tag).c_str());
             }
-            catch (std::runtime_error)
+            catch (const std::runtime_error&)
             {
                 //std::cerr<<"End of station-name list"<<std::endl;
                 break;

@@ -57,7 +57,7 @@ DblQ00Wtgc::DblQ00Wtgc(std::unique_ptr<IRDBQuery>&& wtgc)
             try {
 	      sprintf(m_d[i].allname[j],"%s",wtgc->data<std::string>(tag).c_str());
             }
-            catch (std::runtime_error)
+            catch (const std::runtime_error&)
             {
                 //std::cerr<<"MuonGM::DblQ00-Wtgc- End of material-name list"<<std::endl;
                 break;
