@@ -214,7 +214,7 @@ StatusCode InDetServMatTool::create()
 	}
       }
 
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
 	msg(MSG::FATAL) << "Could not create new InDetServMatNode!" << endmsg;
       return StatusCode::FAILURE; 
     }
