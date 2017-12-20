@@ -1240,7 +1240,10 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       std::string dirName;
       std::string::size_type k = subPath.find_last_of('/');
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
-      TDirectory* dir = parDir->mkdir( dirName.c_str() );
+      TDirectory* dir;
+      if (!parDir->FindKey(dirName.c_str())) {
+	TDirectory* dir = parDir->mkdir( dirName.c_str() );
+      }
       DirMap_t::value_type dirVal( subPath, dir );
       directories.insert( dirVal );
       return dir;

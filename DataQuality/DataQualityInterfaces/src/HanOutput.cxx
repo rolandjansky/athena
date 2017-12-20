@@ -375,7 +375,13 @@ static void WriteListToDirectory(TDirectory *dir, TSeqCollection *list, TFile* f
         str = tmp;
         tmp = strtok(0, "/");
       }
-      TDirectory* daughter = dir->mkdir(str);
+      TDirectory* daughter;
+      if (!dir->FindKey(str)) {
+	daughter = dir->mkdir(str);
+      }
+      else{ 
+	continue; 
+      }
       WriteListToDirectory(daughter, tmpList, file, level-1);
       if (level > 0) { file->Write(); delete daughter; }
     }
