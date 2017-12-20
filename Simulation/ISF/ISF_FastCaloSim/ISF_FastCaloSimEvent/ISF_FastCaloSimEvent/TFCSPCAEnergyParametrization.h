@@ -12,7 +12,7 @@
 #include "TMatrixDSym.h"
 #include "TVectorF.h"
 #include "TFile.h"
-#include "TRandom3.h"
+
 
 class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
 {
@@ -43,7 +43,6 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
   
   int m_numberpcabins;
-  TRandom3* m_random3;
   
   ClassDef(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
  

@@ -9,6 +9,7 @@
 #include <iostream>
 #include "TKey.h"
 #include "TClass.h"
+#include "TRandom3.h"
 #include "TMatrixD.h"
 #include "TMatrixDSymEigen.h"
 
@@ -19,8 +20,6 @@
 TFCSPCAEnergyParametrization::TFCSPCAEnergyParametrization(const char* name, const char* title):TFCSEnergyParametrization(name,title)
 {
   m_numberpcabins=1;
-  m_random3 = new TRandom3();
-  m_random3->SetSeed(0);
 }
 
 
@@ -42,7 +41,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   TVectorD*    LowerBounds   =m_LowerBounds[pcabin-1];
   std::vector<TFCS1DFunction*> cumulative=m_cumulative[pcabin-1];
 
-  //TRandom3* Random3=new TRandom3(); Random3->SetSeed(0);
+  TRandom3* Random3=new TRandom3(); Random3->SetSeed(0);
 
   std::vector<std::string> layer;
   std::vector<int> layerNr;
@@ -66,7 +65,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
     {
       double mean=vals_gauss_means[l];
       double rms =vals_gauss_rms[l];
-      double gauszz=m_random3->Gaus(mean,rms);
+      double gauszz=Random3->Gaus(mean,rms);
       input_data[l]=gauszz;
     }
   
@@ -121,7 +120,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
       simulstate.set_E(s,energyfrac*total_energy);
     }
 
-  //delete Random3;
+  delete Random3;
   delete [] output_data;
   delete [] input_data;
   delete [] simdata;
