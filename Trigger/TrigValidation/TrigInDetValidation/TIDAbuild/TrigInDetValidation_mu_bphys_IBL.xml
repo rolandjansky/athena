@@ -1,7 +1,7 @@
          <athena trendId='muonBphysMergingTrend' userJobId='TrigInDetValidation_mu_bphys_IBL'>
-            <doc>Muon slice B->Jpsi->mumu IBL sample, run2 chains</doc>
-            <displayName>MuonSlice, B->Jpsi->mumu IBL , run2 chains</displayName>
-	    <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+            <doc>Muon slice B->Jpsi->mumu IBL sample</doc>
+            <displayName>MuonSlice, B->Jpsi->mumu IBL </displayName>
+	    <commandLineFlags>EventMax=5000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

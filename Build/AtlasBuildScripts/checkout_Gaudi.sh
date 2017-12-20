@@ -43,6 +43,22 @@ _retry_ () {
     done
 }
 
+_max_retry_=5
+
+_retry_ () {
+    local cmd="$*"
+    local n=0
+    while ! $cmd ; do
+        if test $n -eq $_max_retry_ ; then
+            echo "ERROR: $cmd FAILED $_max_retry_ times. EXIT(1)" >&2
+            exit 1
+        fi
+        echo "WARNING: $cmd FAILED, retry in 30 sec ... "
+        sleep 30s
+        n=`expr $n + 1`
+    done
+}
+
 # Parse the command line arguments:
 TAGBRANCH=""
 SOURCEDIR=""
