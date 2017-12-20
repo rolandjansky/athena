@@ -205,12 +205,11 @@ StatusCode MetaDataSvc::stop() {
    }
    // finalizing tools via metaDataStop
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      ATH_MSG_INFO("MDS: calling metaDataStop for " << (*it)->name());
+      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
       if ( (*it)->metaDataStop().isFailure() ) {
          ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
       }
    }
-   ATH_MSG_INFO("MDS: " << m_outputDataStore->dump());
    ATH_MSG_DEBUG("Releasing MetaDataTools");
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
@@ -276,7 +275,6 @@ StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*,
 }
 //__________________________________________________________________________
 void MetaDataSvc::handle(const Incident& inc) {
-   ATH_MSG_INFO("MDS handle " << inc.type());
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
    if (fileInc == nullptr) {
       ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
@@ -308,7 +306,7 @@ void MetaDataSvc::handle(const Incident& inc) {
          }
       }
       for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-         ATH_MSG_INFO("MDS: calling beginInputFile for " << (*it)->name());
+         ATH_MSG_DEBUG(" calling beginInputFile for " << (*it)->name());
          if ( (*it)->beginInputFile().isFailure() ) {
             ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
          }
@@ -346,7 +344,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    Incident metaDataStopIncident(name(), "MetaDataStop");
    m_incSvc->fireIncident(metaDataStopIncident);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      ATH_MSG_INFO("MDS: calling metaDataStop for " << (*it)->name());
+      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
       if ( (*it)->metaDataStop().isFailure() ) {
          ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
       }
