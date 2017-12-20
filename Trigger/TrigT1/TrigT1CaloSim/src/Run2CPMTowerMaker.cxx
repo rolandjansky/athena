@@ -43,10 +43,6 @@ Run2CPMTowerMaker::Run2CPMTowerMaker( const std::string& name, ISvcLocator* pSvc
   declareProperty( "CPMTowerLocation", m_cpmTowerLocation ) ;
 }
   
-Run2CPMTowerMaker::~Run2CPMTowerMaker() {
-  ATH_MSG_INFO("Destructor called" );
-} 
-
 
   /** the initialise() method is called at the start of processing, so we set up any histograms
       etc. here*/

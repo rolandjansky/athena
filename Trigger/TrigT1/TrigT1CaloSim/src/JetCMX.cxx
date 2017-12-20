@@ -65,11 +65,6 @@ JetCMX::JetCMX
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 }
 
-// Destructor
-JetCMX::~JetCMX() {
-  ATH_MSG_INFO("Destructor called" );
-}
-
 
 //---------------------------------
 // initialise()
