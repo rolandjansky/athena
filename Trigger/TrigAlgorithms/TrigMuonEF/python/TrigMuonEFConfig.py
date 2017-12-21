@@ -417,7 +417,6 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
-                                                                WriteIntermediateResults = False,
                                                                 HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"),DoSegmentCombinations=True )
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False

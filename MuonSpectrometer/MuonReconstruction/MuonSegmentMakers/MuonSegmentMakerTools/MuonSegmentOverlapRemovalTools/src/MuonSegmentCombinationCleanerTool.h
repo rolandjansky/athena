@@ -25,7 +25,6 @@ namespace Muon {
   class MuonEDMPrinterTool;
   class MuonEDMHelperTool;
   class MuonIdHelperTool;
-  class IMuonPatternSegmentAssociationTool;
   class IMuonSegmentOverlapRemovalTool;
 
   class MuonSegmentCombinationCleanerTool : virtual public IMuonSegmentCombinationCleanerTool, public AthAlgTool
@@ -45,14 +44,15 @@ namespace Muon {
     virtual StatusCode finalize();
 
     /** clean segment combination collections */
-    MuonSegmentCombinationCollection* clean( const MuonSegmentCombinationCollection& combiCol );
+    MuonSegmentCombinationCollection* clean( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap );
 
     /** remove duplicates from a segment combination, returns a pointer to the original combi if unchanged */
     MuonSegmentCombination* removeDuplicateSegments( MuonSegmentCombination& combi ) const;
 
   private:
     /** remove overlaps between combination and merge combinations with large overlap */
-    void cleanAndMergeCombis( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombinationCollection* combiCleanCol );
+    void cleanAndMergeCombis( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombinationCollection* combiCleanCol,
+			      MuonSegmentCombPatternCombAssociationMap* segPattMap );
 
     /** check whether current summary is a subset of the previous once */
     bool subSetOfPrevious( MuonSegmentCombiSummary& summary, std::vector<MuonSegmentCombiSummary>& summaries) const;
@@ -76,7 +76,6 @@ namespace Muon {
     ToolHandle<Muon::MuonEDMHelperTool>  m_helperTool;
     ToolHandle<Muon::MuonIdHelperTool>   m_idHelperTool;
     ToolHandle<IMuonSegmentOverlapRemovalTool> m_overlapRemovalTool;    
-    ToolHandle<IMuonPatternSegmentAssociationTool> m_assocTool;
 
     /** If set to true, all combinaties will be merged into one big one */ 
     bool m_mergeAllCombis;

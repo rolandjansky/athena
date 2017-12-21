@@ -21,7 +21,6 @@
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -54,8 +53,7 @@ Muon::MuonCurvedSegmentCombiner::MuonCurvedSegmentCombiner(const std::string& t,
     m_tgcIdHelper(0),
     m_cscIdHelper(0),
     m_mdtIdHelper(0),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool")
+    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
 {
     declareInterface<IMuonCurvedSegmentCombiner>(this);
     declareInterface<IMuonSegmentPairFittingTool>(this);
@@ -128,14 +126,6 @@ StatusCode Muon::MuonCurvedSegmentCombiner::initialize()
         return sc;
     }
     
-    sc = m_assocTool.retrieve();
-    if (sc.isSuccess()){
-        ATH_MSG_DEBUG("Retrieved " << m_assocTool );
-    }else{
-        ATH_MSG_FATAL("Could not get " << m_assocTool ); 
-        return sc;
-    }
-
     ATH_MSG_INFO("initialize() successful in " << name() );
     return StatusCode::SUCCESS;
 }
@@ -153,7 +143,8 @@ StatusCode Muon::MuonCurvedSegmentCombiner::finalize()
 MuonSegmentCombinationCollection* 
 Muon::MuonCurvedSegmentCombiner::combineSegments(   const MuonSegmentCombinationCollection& mdtCombiColl, 
                                                     const MuonSegmentCombinationCollection& csc4DCombiColl, 
-                                                    const MuonSegmentCombinationCollection& csc2DCombiColl) 
+                                                    const MuonSegmentCombinationCollection& csc2DCombiColl,
+						    MuonSegmentCombPatternCombAssociationMap* segPattMap) 
 {
     m_segInfoMap.clear();
     m_seg2DCscInfoMap.clear();
@@ -180,7 +171,7 @@ Muon::MuonCurvedSegmentCombiner::combineSegments(   const MuonSegmentCombination
             if( csc4DCombiColl.empty() ) ATH_MSG_INFO(" summarizing input: Csc MuonSegment combinations empty" );
             else ATH_MSG_INFO(" summarizing input: Csc MuonSegment combinations " << std::endl << m_printer->print( csc4DCombiColl ) );
         }
-        processCscCombinationCollection(csc4DCombiColl);
+        processCscCombinationCollection(csc4DCombiColl,segPattMap);
 
         // Csc 2D segments
 
@@ -191,11 +182,12 @@ Muon::MuonCurvedSegmentCombiner::combineSegments(   const MuonSegmentCombination
         process2DCscCombinationCollection(csc2DCombiColl);
     }
 
-    return processCombinationCollection(mdtCombiColl);
+    return processCombinationCollection(mdtCombiColl,segPattMap);
 
 }
 
-MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombinationCollection(const MuonSegmentCombinationCollection& mdtCol){
+MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombinationCollection(const MuonSegmentCombinationCollection& mdtCol, 
+												MuonSegmentCombPatternCombAssociationMap* segPattMap){
 
     MuonSegmentCombinationCollection* curvedCombiCol = new MuonSegmentCombinationCollection();
 
@@ -215,9 +207,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 
   // get association to pattern
 
-//        IMuonPatternSegmentAssociationTool::ObjectList combiAssos = m_assocTool->getAssociatedObjects();
-
-        IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(combi);
+	std::pair<MuonSegmentCombPatternCombAssociationMap::const_iterator, MuonSegmentCombPatternCombAssociationMap::const_iterator> range = segPattMap->equal_range(combi);
         if ((range.first)==(range.second)) {
             ATH_MSG_WARNING("MDT Combination missing from the map - something is wrong! Skip combination");
             continue;
@@ -231,7 +221,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 //        Muon::MuonSegPatAssMap::object_list combiAssos; 
         // if (assMap) {
         //     assMap->getObjects( combi, combiAssos );
-        if( m_assocTool->count(combi) != 1 ){
+        if( segPattMap->count(combi) != 1 ){
             ATH_MSG_INFO(" This MuonSegPatAssMap for MDTs should only have one entry!! ");
         }
 // Take 2D Csc segments
@@ -277,7 +267,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 	  }
 	}
         
-        if ( addedMdtSegments ) muonCurvedSegmentCombinations(curvedCombiCol);
+        if ( addedMdtSegments ) muonCurvedSegmentCombinations(curvedCombiCol,segPattMap);
     }
     if (m_debug) std::cout << " First stage muonCurvedSegmentCombinations " << curvedCombiCol->size() << " Mdt segments " << nmdtsegments << " Csc segments " << ncscsegments << std::endl;
    
@@ -298,12 +288,12 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
         if( !combi ) continue;
 	if (combi->numberOfStations() == 0) continue;
   // get association to pattern
-        IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(combi);
+	std::pair<MuonSegmentCombPatternCombAssociationMap::const_iterator, MuonSegmentCombPatternCombAssociationMap::const_iterator> range = segPattMap->equal_range(combi);
         if ((range.first)==(range.second)) {
             continue;
         }
         const MuonPatternCombination* pattern = (range.first)->second;
-        if( m_assocTool->count(combi) != 1 ){
+        if( segPattMap->count(combi) != 1 ){
             ATH_MSG_INFO(" This MuonSegPatAssMap for MDTs should only have one entry!! ");
         }
 
@@ -320,12 +310,12 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 
           if (combi1 == combi) continue;
   // get association to pattern
-          IMuonPatternSegmentAssociationTool::AssociationMapRange range1 = m_assocTool->find(combi1);
+	  std::pair<MuonSegmentCombPatternCombAssociationMap::const_iterator, MuonSegmentCombPatternCombAssociationMap::const_iterator> range1 = segPattMap->equal_range(combi1);
           if ((range1.first)==(range1.second)) {
               continue;
           }
           const MuonPatternCombination* pattern1 = (range1.first)->second;
-          if( m_assocTool->count(combi1) != 1 ){
+          if( segPattMap->count(combi1) != 1 ){
             ATH_MSG_INFO(" This MuonSegPatAssMap for MDTs should only have one entry!! ");
          } 
 
@@ -484,7 +474,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 	    }
 	  }
 	  
-          if ( addedMdtSegments ) muonCurvedSegmentCombinations(curvedCombiCol);
+          if ( addedMdtSegments ) muonCurvedSegmentCombinations(curvedCombiCol,segPattMap);
         }
      }
      if (m_debug) std::cout << " Second stage muonCurvedSegmentCombinations " << curvedCombiCol->size() << std::endl;
@@ -498,7 +488,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 }
 
 void
-Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection( const MuonSegmentCombinationCollection& combiCol) {
+Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap) {
     MuonSegmentCombinationCollection::const_iterator cit = combiCol.begin();
     MuonSegmentCombinationCollection::const_iterator cit_end = combiCol.end();
     for(; cit!=cit_end;++cit ){
@@ -513,7 +503,7 @@ Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection( const MuonSegm
             // if (m_assCscMap) {
             //     m_assCscMap->getObjects( combi, combiAssos );
             // }
-            IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(combi);
+	  std::pair<MuonSegmentCombPatternCombAssociationMap::const_iterator, MuonSegmentCombPatternCombAssociationMap::const_iterator> range = segPattMap->equal_range(combi);
             if ((range.first)==(range.second)) {
                 ATH_MSG_DEBUG("CSC Combination missing from the map - can happen");
                 return;
@@ -545,8 +535,8 @@ Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection( const MuonSegm
                     Muon::MCSCSegmentInfo info = segInfo(segs[si]);
                     m_segmentIndex++;
                     info.index = m_segmentIndex;
-                    IMuonPatternSegmentAssociationTool::AssociationMap::const_iterator ia_it = range.first;
-                    IMuonPatternSegmentAssociationTool::AssociationMap::const_iterator ia_it_end = range.second;
+                    MuonSegmentCombPatternCombAssociationMap::const_iterator ia_it = range.first;
+                    MuonSegmentCombPatternCombAssociationMap::const_iterator ia_it_end = range.second;
                     for(; ia_it != ia_it_end; ++ia_it){
                       info.patPointers.push_back((*ia_it).second);
                     }
@@ -601,7 +591,7 @@ Muon::MuonCurvedSegmentCombiner::process2DCscCombinationCollection( const MuonSe
     }
 }
 
-void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(MuonSegmentCombinationCollection* curvedCombiCol) {
+void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(MuonSegmentCombinationCollection* curvedCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap) {
 
   // Strategy for makening trackcandidates: combinations of segments
   // Fill vectors with segment information MCSCSegmentInfo: 
@@ -1294,7 +1284,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(MuonSegmentC
                 }       
 
                 // if (patc) assCurvedMap->addAssociation( patternCol, patc, combiCol, combination );
-                m_assocTool->insert(combination, patc);
+                segPattMap->insert(std::make_pair(combination, patc));
                 
                 curvedCombiCol->push_back( combination );
             }
