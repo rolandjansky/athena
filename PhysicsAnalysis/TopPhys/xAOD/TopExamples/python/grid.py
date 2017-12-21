@@ -242,19 +242,19 @@ def submit(config, allSamples):
      splitted = d.split('.')
      
      runNumber = splitted[1]
-     txt = splitted[2]
-     if splitted[0] == "user":
+     physicsName = splitted[2]
+     if splitted[0] == "user" or splitted[0] == "group": #this is in case we run on private derivations, either produced with user or group role
          runNumber = splitted[2]
-         txt = splitted[3]
+         physicsName = splitted[3]
      derivation = splitted[-2]
      tags = splitted[-1].replace('/','')
 
      #grid complains dataset names are too long
      #stupid grid
-     if len(txt) > 20:
-         txt = txt.split('_')[0]
+     if len(physicsName) > 20:
+         physicsName = physicsName.split('_')[0]
 
-     n = runNumber + '.' + txt + '.' + derivation + '.' + tags
+     n = runNumber + '.' + physicsName + '.' + derivation + '.' + tags
 
      #Make the output dataset name
      #for group production it has to start with "group." and we asume that gridUsername is the name of the group (e.g. phys-top)
