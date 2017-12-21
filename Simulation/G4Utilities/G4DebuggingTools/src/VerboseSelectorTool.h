@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4DEBUGGINGTOOLS_G4UA__VERBOSESELECTORTOOL_H 
-#define G4DEBUGGINGTOOLS_G4UA__VERBOSESELECTORTOOL_H 
+#ifndef G4DEBUGGINGTOOLS_G4UA__VERBOSESELECTORTOOL_H
+#define G4DEBUGGINGTOOLS_G4UA__VERBOSESELECTORTOOL_H
 
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasInterfaces/IG4TrackingActionTool.h"
@@ -11,14 +11,15 @@
 #include "G4AtlasTools/ActionToolBase.h"
 #include "VerboseSelector.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
 
   class VerboseSelectorTool : public ActionToolBase<VerboseSelector>,
                               public IG4EventActionTool,
                               public IG4SteppingActionTool,
                               public IG4TrackingActionTool
   {
-    
+
   public:
     VerboseSelectorTool(const std::string& type, const std::string& name,const IInterface* parent);
     virtual G4UserSteppingAction* getSteppingAction() override final
@@ -34,7 +35,7 @@ namespace G4UA{
   private:
     VerboseSelector::Config m_config;
   }; // class VerboseSelectorTool
-  
-  
-} // namespace G4UA 
+
+} // namespace G4UA
+
 #endif

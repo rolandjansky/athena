@@ -20,7 +20,6 @@
 
 #include <iostream>
 
-
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
@@ -29,31 +28,28 @@
 #include "EventInfo/EventID.h"
 #include "StoreGate/ReadHandle.h"
 
-namespace G4UA{ 
-  
-  
+namespace G4UA
+{
+
   VerboseSelector::VerboseSelector(const Config& config):
     AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"VerboseSelector"),
     m_evtStore("StoreGateSvc/StoreGateSvc", "VerboseSelector"),
     m_detStore("StoreGateSvc/DetectorStore", "LooperKiller"),
-    m_config(config),m_evtCount(0){;
-  }
+    m_config(config),m_evtCount(0)
+  {}
 
-  void VerboseSelector::BeginOfEventAction(const G4Event*){
-
+  void VerboseSelector::BeginOfEventAction(const G4Event*)
+  {
     SG::ReadHandle<EventInfo> eic("McEventInfo");
     if (!eic.isValid()){
       ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
     } else {
-
-      m_evtCount=eic->event_ID()->event_number();
-
-      
+      m_evtCount = eic->event_ID()->event_number();
     }
   }
-    
-  void VerboseSelector::UserSteppingAction(const G4Step* aStep){
-    
+
+  void VerboseSelector::UserSteppingAction(const G4Step* aStep)
+  {
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0){
 
       G4ThreeVector myPos = aStep->GetPostStepPoint()->GetPosition();
@@ -99,11 +95,11 @@ namespace G4UA{
 	
       }
     }
-    
+
   }
-  
-  void VerboseSelector::PreUserTrackingAction(const G4Track* aTrack){
-   
+
+  void VerboseSelector::PreUserTrackingAction(const G4Track* aTrack)
+  {
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0)
       {
 
@@ -117,34 +113,32 @@ namespace G4UA{
 	//int primaryBarcode(0);
 	int currentBarcode(0);
 
-	if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary())
-	  {
-	    //primaryBarcode=eventInfo->GetCurrentPrimary()->barcode();
-	    // ADS this code crashes in MT runs, since eventInfo->GetCurrentlyTraced() is NULL untill we migrate the truth
-	    currentBarcode=eventInfo->GetCurrentlyTraced()->barcode();
-	  }
+        if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary()) {
+          //primaryBarcode=eventInfo->GetCurrentPrimary()->barcode();
+          // ADS this code crashes in MT runs, since eventInfo->GetCurrentlyTraced() is NULL untill we migrate the truth
+          currentBarcode=eventInfo->GetCurrentlyTraced()->barcode();
+        }
 
 	bool p1=m_config.targetTrack<0 && m_config.targetBarcode<0;
 	bool p2=trackID==m_config.targetTrack ;
-	bool p3=currentBarcode==m_config.targetBarcode; 
+	bool p3=currentBarcode==m_config.targetBarcode;
 	
 
-	if(p1 || p2 || p3)
-	  {
-	    ATH_MSG_INFO(std::endl<<"---------> Dumping now track #"<<trackID<<" barcode "
-			 <<currentBarcode<<" in event "<<m_evtCount<<std::endl);
-	    G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(m_config.verboseLevel);
-	  }
+        if(p1 || p2 || p3) {
+          ATH_MSG_INFO(std::endl<<"---------> Dumping now track #"<<trackID<<" barcode "
+                       <<currentBarcode<<" in event "<<m_evtCount<<std::endl);
+          G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(m_config.verboseLevel);
+        }
       }
-     
+
   }
-  
-  void VerboseSelector::PostUserTrackingAction(const G4Track* aTrack){
+
+  void VerboseSelector::PostUserTrackingAction(const G4Track* aTrack)
+  {
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0){
       if(aTrack->GetTrackID()==m_config.targetTrack||m_config.targetTrack<0)
 	G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(0);
     }
-    
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA
