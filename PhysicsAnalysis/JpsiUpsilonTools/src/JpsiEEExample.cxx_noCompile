@@ -16,8 +16,8 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 
 #include "StoreGate/StoreGateSvc.h"             // Storegate stuff
 #include "StoreGate/DataHandle.h"

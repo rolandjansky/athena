@@ -13,7 +13,7 @@
 
 class AGDDTechnology {
 protected:
-	std::string name;
+	std::string m_name;
 public:
 
 	AGDDTechnology(std::string s);

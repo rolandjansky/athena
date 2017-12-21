@@ -19,7 +19,6 @@ MuonPerformanceAlg
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
@@ -32,18 +31,10 @@ MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSv
   : 
   AthAlgorithm(name, pSvcLocator),
   m_writeToFile (false),
-  m_muonsNameKey("Muons"),
   m_nevents(0),
-  m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  //m_storeGate(NULL),
-  m_eventInfo(NULL), 
   m_runNumber(0),
   m_eventNumber(0)
 {
-  declareProperty( "MuonContainerName", m_muonsNameKey );
-
-  //m_muonLocationList.push_back("Muons");
-  //declareProperty("MuonLocationList",   m_muonLocationList);
   declareProperty("writeToFile",        m_writeToFile = false);
   declareProperty("FileName",           m_fileName = "MuonPerformanceAlg.txt" );
   declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
@@ -73,9 +64,6 @@ StatusCode MuonPerformanceAlg::initialize()
   m_nreco10.resize(nbins);
   m_hitCutString = { "SA 2.0   ", "CB all   ", "MuidCB   ", "MuGirl   ", "Tag      ","Calo     ", "ID       ","SA(no ID)","Tight    ", "Medium   ", "Loose    ","Combined " };
 
-  ATH_CHECK(m_printer.retrieve()); 
-  
-
   // add muons 
   if( m_pdgsToBeConsidered.value().empty() ){
     m_selectedPdgs.insert(13);
@@ -85,6 +73,9 @@ StatusCode MuonPerformanceAlg::initialize()
     for( auto pdg : m_pdgsToBeConsidered.value() ) m_selectedPdgs.insert(pdg);
   }
   if(!m_muonsNameKey.key().empty()) ATH_CHECK(m_muonsNameKey.initialize());
+
+  ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_truthMuons.initialize());
   return StatusCode::SUCCESS;
 }
  
@@ -161,14 +152,18 @@ bool MuonPerformanceAlg::passID(const xAOD::TrackParticle* tp, bool debug) const
 StatusCode MuonPerformanceAlg::execute()
 {
 
-  ATH_CHECK(evtStore()->retrieve(m_eventInfo));
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
 
-  m_runNumber = m_eventInfo->runNumber();
-  m_eventNumber = m_eventInfo->eventNumber();
+  m_runNumber = eventInfo->runNumber();
+  m_eventNumber = eventInfo->eventNumber();
 
-  const xAOD::TruthParticleContainer* TruthMuons = evtStore()->tryRetrieve< xAOD::TruthParticleContainer >("MuonTruthParticles");
-  if (!TruthMuons) {
-    ATH_MSG_VERBOSE ("Couldn't retrieve TruthMuons container with key: " << "MuonTruthParticles");
+  SG::ReadHandle<xAOD::TruthParticleContainer> TruthMuons(m_truthMuons);
+  if(!TruthMuons.isValid()){
+    ATH_MSG_WARNING(m_truthMuons.key()<<" not valid");
+    return StatusCode::FAILURE;
+  }
+  if(!TruthMuons.isPresent()){
+    ATH_MSG_DEBUG("no truth muon collection present");
     return StatusCode::SUCCESS;
   }
   ATH_MSG_VERBOSE("Retrieved truth muons " << TruthMuons->size());

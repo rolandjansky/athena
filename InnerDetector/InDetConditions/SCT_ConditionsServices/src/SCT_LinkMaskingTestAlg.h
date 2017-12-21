@@ -31,7 +31,7 @@ class ISCT_ConditionsSvc;
 ///Example class to show calling the SCT_LinkMaskingSvc
 class SCT_LinkMaskingTestAlg : public AthAlgorithm {
  public:
-  SCT_LinkMaskingTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
+  SCT_LinkMaskingTestAlg(const std::string& name, ISvcLocator* pSvcLocator);
  ~SCT_LinkMaskingTestAlg();
 
   StatusCode initialize();
@@ -42,4 +42,4 @@ class SCT_LinkMaskingTestAlg : public AthAlgorithm {
   ServiceHandle<ISCT_ConditionsSvc> m_linkMaskingSvc;
 }; 
 
-#endif
+#endif // SCT_LinkMaskingTestAlg_H

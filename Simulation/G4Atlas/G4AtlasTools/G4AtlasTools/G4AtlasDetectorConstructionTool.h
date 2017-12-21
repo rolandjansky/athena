@@ -21,7 +21,7 @@
  *  @author Andrea Dell'Acqua
  *  @date   2015-03-06
  */
-class G4AtlasDetectorConstructionTool final : public AthAlgTool, virtual public IDetectorConstructionTool {
+class G4AtlasDetectorConstructionTool final : public extends<AthAlgTool, IDetectorConstructionTool> {
 
  public:
   /// Standard constructor
@@ -34,9 +34,6 @@ class G4AtlasDetectorConstructionTool final : public AthAlgTool, virtual public 
   virtual StatusCode initialize( ) override final;
 
   virtual G4VUserDetectorConstruction* GetDetectorConstruction() override final {return this;}
-
-  /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
   /** Implements
    */

@@ -50,7 +50,7 @@ StatusCode L1JetElementTools::finalize()
 }
 
 /** Fill DataVector of JetElements from user-supplied vector of TriggerTowers */
-void L1JetElementTools::makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements){
+void L1JetElementTools::makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements) const {
 
   // Clear collection before filling
   jetElements->clear();
@@ -130,7 +130,7 @@ void L1JetElementTools::makeJetElements(const xAOD::TriggerTowerContainer* tts, 
 
 
 /** Fill map of JetElements from user-supplied vector of TriggerTowers */
-void L1JetElementTools::mapJetElements(const xAOD::JetElementContainer* jetElements, xAOD::JetElementMap_t* map){
+void L1JetElementTools::mapJetElements(const xAOD::JetElementContainer* jetElements, xAOD::JetElementMap_t* map) const {
 
   // Clear map before filling
   map->clear();
@@ -148,7 +148,7 @@ void L1JetElementTools::mapJetElements(const xAOD::JetElementContainer* jetEleme
 }
 
 /** Fill DataVector of JetElements from user-supplied vector of TriggerTowers */
-void L1JetElementTools::makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements){
+void L1JetElementTools::makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements) const {
   
   // Clear collection before filling
   jetElements->clear();

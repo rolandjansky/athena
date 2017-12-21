@@ -38,7 +38,6 @@ namespace Gaudi {
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthMemMacros.h"
-#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/HandleClassifier.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -48,7 +47,6 @@ namespace Gaudi {
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
-#include "AthenaKernel/IUserDataSvc.h"
 
 // Forward declaration
 
@@ -75,16 +73,12 @@ namespace Gaudi {
  */ 
 
 class AthAlgorithm
-  : public ::Algorithm,
-    public ::AthMessaging
+  : public ::Algorithm
 { 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
 
   // Copy constructor: 
 
@@ -116,10 +110,6 @@ class AthAlgorithm
    */
   ServiceHandle<StoreGateSvc>& detStore() const;
 
-  /** @brief The standard @c UserDataSvc 
-   * Returns (kind of) a pointer to the @c UserDataSvc
-   */
-  ServiceHandle<IUserDataSvc>& userStore() const;
 
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
@@ -200,7 +190,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleKey.
@@ -224,7 +214,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleBase.
@@ -357,6 +347,15 @@ public:
 
 
   /**
+   * @brief Handle START transition.
+   *
+   * We override this in order to make sure that conditions handle keys
+   * can cache a pointer to the conditions container.
+   */
+  virtual StatusCode sysStart() override;
+
+
+  /**
    * @brief Return this algorithm's input handles.
    *
    * We override this to include handle instances from key arrays
@@ -385,6 +384,18 @@ public:
   virtual const DataObjIDColl& extraOutputDeps() const override;
 
 
+  // forward to CommonMessaging
+  inline MsgStream& msg() const {
+    return msgStream();
+  }
+  inline MsgStream& msg(const MSG::Level lvl) const {
+    return msgStream(lvl);
+  }
+  inline bool msgLvl(const MSG::Level lvl) const {
+    return msgLevel(lvl);
+  }
+  
+  
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -419,10 +430,6 @@ public:
   /// Pointer to StoreGate (detector store by default)
   mutable StoreGateSvc_t m_detStore;
 
-  typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
-  /// Pointer to IUserDataSvc
-  mutable UserDataSvc_t m_userStore;
-
   /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
   /// to add symlinks.  Empty if no symlinks were found.
   DataObjIDColl m_extendedExtraObjects;
@@ -445,9 +452,5 @@ ServiceHandle<StoreGateSvc>& AthAlgorithm::evtStore() const
 inline
 ServiceHandle<StoreGateSvc>& AthAlgorithm::detStore() const 
 { return m_detStore; }
-
-inline
-ServiceHandle<IUserDataSvc>& AthAlgorithm::userStore() const 
-{ return m_userStore; }
 
 #endif //> !ATHENABASECOMPS_ATHALGORITHM_H

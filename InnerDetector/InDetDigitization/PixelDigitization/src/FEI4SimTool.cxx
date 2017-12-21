@@ -39,8 +39,6 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
-  int eta_module  = pixelId->eta_module(chargedDiodes.element()->identify());
-  int phi_module  = pixelId->eta_module(chargedDiodes.element()->identify());
 
   if (abs(barrel_ec)!=m_BarrelEC) { return; }
 

@@ -53,7 +53,7 @@ namespace ISF {
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
-  class TruthSvc : public AthService, public ITruthSvc {
+  class TruthSvc : public extends<AthService, ITruthSvc> {
   public:
 
     //** Constructor with parameters */
@@ -76,9 +76,6 @@ namespace ISF {
     /** Finalize the Truth Svc at the end of each event*/
     StatusCode releaseEvent() override final;
 
-    /** Query the interfaces. **/
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-
   private:
     /** Record the given truth incident to the MC Truth */
     void recordIncidentToMCTruth( ITruthIncident& truthincident) const;
@@ -87,6 +84,9 @@ namespace ISF {
 
     /** Set shared barcode for child particles */
     void setSharedChildParticleBarcode( ITruthIncident& truthincident) const;
+
+    /** Delete child vertex */
+    void deleteChildVertex(unsigned int i, std::vector<HepMC::GenVertex*>& verticesToDelete) const;
 
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
 

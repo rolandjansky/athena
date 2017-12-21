@@ -48,7 +48,7 @@ public:
 	    TRTElectronicsNoise * electronicsnoise,
 	    const TRT_ID* trt_id,
 	    int UseGasMix,
-	    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
+	    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
 	  );
 
   /**
@@ -66,14 +66,14 @@ public:
 				      const std::set<int>& sim_hitids) ;
 
 
-  void appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect, 
+  void appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect,
 					  const std::set<Identifier>& simhitsIdentifiers,
-					  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc); 
-  
+					  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc);
+
   void sortDigits(std::vector<TRTDigit>& digitVect);
 
   ~TRTNoise();
- 
+
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
@@ -205,6 +205,7 @@ public:
   unsigned int getRegion(int hitID,const TRT_ID* trt_id);
   int m_UseGasMix;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // need for Argon
+
 };
 
 #endif

@@ -13,7 +13,7 @@ NAME:     TrigDiMuon.h
 PURPOSE:  tracks passed MS identification
 
 ********************************************************************/
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include <vector>
 

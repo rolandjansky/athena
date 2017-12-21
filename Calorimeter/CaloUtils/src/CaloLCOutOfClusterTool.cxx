@@ -200,7 +200,7 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
     const CaloLocalHadCoeff* data = *h;
     if (!data) {
       ATH_MSG_ERROR("Unable to access conditions object");
-      return CaloRecoStatus::TAGGEDUNKNOWN;
+      return StatusCode(CaloRecoStatus::TAGGEDUNKNOWN);
     }
 
     const CaloLocalHadCoeff::LocalHadDimension *logeDim = data->getArea(0)->getDimension(2);

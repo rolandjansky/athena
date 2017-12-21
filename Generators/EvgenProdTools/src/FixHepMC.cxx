@@ -25,7 +25,8 @@ FixHepMC::FixHepMC(const string& name, ISvcLocator* pSvcLocator)
 
 StatusCode FixHepMC::execute() {
   for (McEventCollection::const_iterator ievt = events()->begin(); ievt != events()->end(); ++ievt) {
-    HepMC::GenEvent* evt = *ievt;
+    // FIXME: const_cast
+    HepMC::GenEvent* evt = const_cast<HepMC::GenEvent*>(*ievt);
 
     // Add a unit entry to the event weight vector if it's currently empty
     if (evt->weights().empty()) {

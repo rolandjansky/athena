@@ -18,7 +18,7 @@
 
 // for ElementLink to IdentifiableContainer PlanarClusterContainer
 #include "ISF_FatrasEvent/PlanarClusterContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace Trk  {
   class LocalParameters; }

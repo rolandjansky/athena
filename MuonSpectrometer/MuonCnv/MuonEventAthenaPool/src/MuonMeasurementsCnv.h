@@ -8,7 +8,6 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolExtendingCnv.h"
 
-#include "MuonEventTPCnv/MuonMeasurementsCnv_tlp3.h"
 #include "MuonEventTPCnv/MuonMeasurementsCnv_tlp2.h"
 #include "MuonEventTPCnv/MuonMeasurementsCnv_tlp1.h"
 
@@ -31,16 +30,13 @@ class MuonMeasurementsCnv : public MuonMeasurementsCnvBase
 protected:
   MuonMeasurementsCnv( ISvcLocator *svcloc );
 
-  virtual StatusCode initialize();
-
-  virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return &m_TPConverter; }
+  virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return &m_TPConverter_p2; }
 
   virtual void          readObjectFromPool( const std::string& );
 
   virtual AthenaPoolCnvTPExtension*  clone() { return new MuonMeasurementsCnv(0); }
   
 private:  
-  MuonMeasurementsCnv_tlp3            m_TPConverter;
   MuonMeasurementsCnv_tlp2            m_TPConverter_p2;
   MuonMeasurementsCnv_tlp1            m_TPConverter_p1;
 };

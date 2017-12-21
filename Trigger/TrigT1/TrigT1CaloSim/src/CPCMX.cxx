@@ -74,11 +74,6 @@ CPCMX::CPCMX
 
 }
 
-// Destructor
-CPCMX::~CPCMX() {
-  ATH_MSG_INFO("Destructor called" );
-}
-
 
 //---------------------------------
 // initialise()

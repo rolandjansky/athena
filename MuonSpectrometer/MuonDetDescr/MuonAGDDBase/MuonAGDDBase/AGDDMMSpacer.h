@@ -14,30 +14,30 @@ class GeoMaterial;
 
 class AGDDMMSpacer: public AGDDVolume {
 public:
-	AGDDMMSpacer(std::string s):AGDDVolume(s),_small_x(0),_large_x(0),_y(0),_z(0) {}
+	AGDDMMSpacer(std::string s):AGDDVolume(s),m_small_x(0),m_large_x(0),m_y(0),m_z(0) {}
 	void SetXYZ(std::vector<double> v) 
 	{
-		_small_x=v[0];
-		_large_x=v[1];
-		_y=v[2];
-		_z=v[3];
+		m_small_x=v[0];
+		m_large_x=v[1];
+		m_y=v[2];
+		m_z=v[3];
 	}
-	void small_x(double x) {_small_x=x;}
-	void large_x(double x) {_large_x=x;}
-	void y(double yval) {_y=yval;}
-	void z(double zval) {_z=zval;}
-	double small_x() {return _small_x;}
-	double large_x() {return _large_x;}
-	double y() {return _y;}
-	double z() {return _z;}
+	void small_x(double x) {m_small_x=x;}
+	void large_x(double x) {m_large_x=x;}
+	void y(double yval) {m_y=yval;}
+	void z(double zval) {m_z=zval;}
+	double small_x() {return m_small_x;}
+	double large_x() {return m_large_x;}
+	double y() {return m_y;}
+	double z() {return m_z;}
 	std::string tech;
 	void CreateVolume();
 	void CreateSolid();
 private:
-	double _small_x;
-	double _large_x;
-	double _y;
-	double _z;
+	double m_small_x;
+	double m_large_x;
+	double m_y;
+	double m_z;
 	
 	GeoMaterial* GetMMMaterial(std::string);
 };

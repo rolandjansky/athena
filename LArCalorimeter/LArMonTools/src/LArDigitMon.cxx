@@ -70,6 +70,7 @@ LArDigitMon::LArDigitMon(const std::string& type,
     m_strHelper(0),
     m_LArOnlineIDHelper(0),
     m_LArEM_IDHelper(0),
+    m_LArCablingService("LArCablingService"),
     m_badChannelMask("BadLArRawChannelMask"),
     m_summary(0),
     m_feedthroughID(0),
@@ -189,6 +190,8 @@ LArDigitMon::initialize()
       ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
       return StatusCode::FAILURE;
     }
+  } else {
+    m_badChannelMask.disable();
   }
   
   /** Retrieve pedestals container*/

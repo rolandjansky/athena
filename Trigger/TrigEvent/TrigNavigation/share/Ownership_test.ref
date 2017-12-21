@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/test.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigNavigation/share/../share/test.txt
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "TrigNavigation", "TrigSerializeCnvSvc"]
 JobOptionsSvc        INFO # (3,1): ApplicationMgr.ExtSvc += ["ClassIDSvc"]
 JobOptionsSvc        INFO # (4,1): ApplicationMgr.ExtSvc += ["TrigSerializeCnvSvc"]
@@ -20,17 +20,15 @@ JobOptionsSvc        INFO # (36,1): RoICache_test.OutputLevel = 3
 JobOptionsSvc        INFO Job options successfully read in from ../share/test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Wed Feb  8 10:39:37 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
+                                          running on lxplus020.cern.ch on Sat Dec  9 18:30:52 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, TrigNavigation, TrigSerializeCnvSvc
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 5881 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1529 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
-StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00
-StoreGateSvc        DEBUG Service base class initialized successfully
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
-StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -38,7 +36,7 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc.Navigation  DEBUG Property update for OutputLevel : new value = 1
 ToolSvc.Navigation  DEBUG Navigation::initialize() got TrigSerializeCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 408 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: EverEmptyButPresent
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: AgainPresentButEmpty
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: 
@@ -52,7 +50,6 @@ ToolSvc.NavigationVERBOSE type: TrigNavTest::TestBContainerView(96423) container
 ToolSvc.NavigationVERBOSE type: TestDContainer(96477) container: TestDContainer(96477)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG  successfully initialized Navigation 
 Ownership_test       INFO LINE:87 Start of the test: testing if the insert operation on an empty container makes it a view container
-StoreGateSvc        DEBUG Clearing store with forceRemove=0
 ToolSvc.Navigation  DEBUG Navigation reset done
 ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestC(7800) container: DataVector<TestC>(78001)label: "" subTypeIndex: 0 container not allocated yet
@@ -63,114 +60,43 @@ ToolSvc.NavigationVERBOSE NavigationCore::prepare Preregistering objects #:6
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: EverEmptyButPresent
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: EverEmptyButPresent index: 0
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: EverEmptyButPresent and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x2486d60 type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x108ab00 type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x2487100 with key HLT_DataVector<TestA>_EverEmptyButPresentAux. of type TestAuxA(CLID 642300)
- in DataObject @0x2485fa0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2486ff0 with key HLT_DataVector<TestA>_EverEmptyButPresent of type DataVector<TestA>(CLID 64210)
- in DataObject @0x2487f20
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: AgainPresentButEmpty
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: AgainPresentButEmpty index: 1
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: AgainPresentButEmpty and index: 1
-ToolSvc.NavigationVERBOSE Holder created, registering 0x2488510 type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x1083590 type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x2488bf0 with key HLT_DataVector<TestA>_AgainPresentButEmptyAux. of type TestAuxA(CLID 642300)
- in DataObject @0x2488e50
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2488ae0 with key HLT_DataVector<TestA>_AgainPresentButEmpty of type DataVector<TestA>(CLID 64210)
- in DataObject @0x24898a0
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: 
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label:  index: 2
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label:  and index: 2
-ToolSvc.NavigationVERBOSE Holder created, registering 0x2489ef0 type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x1089d60 type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x248a320 with key HLT_DataVector<TestA>Aux. of type TestAuxA(CLID 642300)
- in DataObject @0x248a580
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x248a210 with key HLT_DataVector<TestA> of type DataVector<TestA>(CLID 64210)
- in DataObject @0x248b120
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer1
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer1 index: 0
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: BContainer1 and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x248b6a0 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x10869c0 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x248be00 with key HLT_TrigNavTest__TestBContainer_BContainer1Aux. of type TrigNavTest::TestAuxB(CLID 642311)
- in DataObject @0x248bca0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x248bcf0 with key HLT_TrigNavTest__TestBContainer_BContainer1 of type TrigNavTest::TestBContainer(CLID 96422)
- in DataObject @0x248d2a0
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer2
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer2 index: 1
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
-ToolSvc.NavigationVERBOSE Holder created, registering 0x248d8c0 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x1078f60 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x248deb0 with key HLT_TrigNavTest__TestBContainer_BContainer2Aux. of type TrigNavTest::TestAuxB(CLID 642311)
- in DataObject @0x248e840
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x248dda0 with key HLT_TrigNavTest__TestBContainer_BContainer2 of type TrigNavTest::TestBContainer(CLID 96422)
- in DataObject @0x248f240
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96477 label: DContainer1
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96477 label: DContainer1 index: 0
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96477 label: DContainer1 and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x248f800 type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x107ab80 type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x248fcf0 with key HLT_TestDContainer_DContainer1 of type TestDContainer(CLID 96477)
- in DataObject @0x248fc00
- object modifiable when retrieved
 ToolSvc.Navigation  DEBUG NavigationCore::prepare Navigation structure prepared for next event
 Ownership_test       INFO LINE:98 Test progress fine:  Objects prepared
-StoreGateSvc        DEBUG Retrieved const handle to object HLT_TestDContainer_DContainer1  of type TestDContainer(CLID 96477)
 Ownership_test       INFO LINE:107 Test progress fine:  Event wise container has ownership policy OWN
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96477(TestDContainer) to TE: 23 label: "DContainer1" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: DContainer1
 ToolSvc.Navigation  DEBUG Getting holder for type: 96477 label: DContainer1
-ToolSvc.NavigationVERBOSE got Holder: 0x248f800
-StoreGateSvc        DEBUG Recorded object @0x24901e0 with key HLTAutoKey_DContainer1_96477_0_to_0 of type TestDContainer(CLID 96477)
- in DataObject @0x24907a0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Retrieved const handle to object HLT_TestDContainer_DContainer1  of type TestDContainer(CLID 96477)
+ToolSvc.NavigationVERBOSE got Holder: 0x107ab80
 Ownership_test       INFO LINE:123 Test progress fine:  After attachFeture the container is VIEW
 Ownership_test       INFO LINE:128 End of the test: testing if the insert operation on an empty container makes it a view container
 Ownership_test       INFO LINE:59 Start of the test: noMixTest
-StoreGateSvc        DEBUG Clearing store with forceRemove=0
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248b2a0, recorded with key=HLT_DataVector<TestA>, CLID=64210, containing data object @0x248b120  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2489ac0, recorded with key=HLT_DataVector<TestA>_AgainPresentButEmpty, CLID=64210, containing data object @0x24898a0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x2488140, recorded with key=HLT_DataVector<TestA>_EverEmptyButPresent, CLID=64210, containing data object @0x2487f20  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248d450, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer1, CLID=96422, containing data object @0x248d2a0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248f3f0, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer2, CLID=96422, containing data object @0x248f240  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24909a0, recorded with key=HLTAutoKey_DContainer1_96477_0_to_0, CLID=96477, containing data object @0x24907a0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248fec0, recorded with key=HLT_TestDContainer_DContainer1, CLID=96477, containing data object @0x248fc00  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248a7d0, recorded with key=HLT_DataVector<TestA>Aux., CLID=642300, containing data object @0x248a580  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24890a0, recorded with key=HLT_DataVector<TestA>_AgainPresentButEmptyAux., CLID=642300, containing data object @0x2488e50  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24873b0, recorded with key=HLT_DataVector<TestA>_EverEmptyButPresentAux., CLID=642300, containing data object @0x2485fa0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248cab0, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer1Aux., CLID=642311, containing data object @0x248bca0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248ea90, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer2Aux., CLID=642311, containing data object @0x248e840  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248a7d0, recorded with key=HLT_DataVector<TestA>Aux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24890a0, recorded with key=HLT_DataVector<TestA>_AgainPresentButEmptyAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24873b0, recorded with key=HLT_DataVector<TestA>_EverEmptyButPresentAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248cab0, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer1Aux., CLID=642311, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248ea90, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer2Aux., CLID=642311, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248a7d0, recorded with key=HLT_DataVector<TestA>Aux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24890a0, recorded with key=HLT_DataVector<TestA>_AgainPresentButEmptyAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24873b0, recorded with key=HLT_DataVector<TestA>_EverEmptyButPresentAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248cab0, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer1Aux., CLID=642311, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248ea90, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer2Aux., CLID=642311, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248a7d0, recorded with key=HLT_DataVector<TestA>Aux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24890a0, recorded with key=HLT_DataVector<TestA>_AgainPresentButEmptyAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24873b0, recorded with key=HLT_DataVector<TestA>_EverEmptyButPresentAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248cab0, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer1Aux., CLID=642311, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248ea90, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer2Aux., CLID=642311, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248a7d0, recorded with key=HLT_DataVector<TestA>Aux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24890a0, recorded with key=HLT_DataVector<TestA>_AgainPresentButEmptyAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x24873b0, recorded with key=HLT_DataVector<TestA>_EverEmptyButPresentAux., CLID=642300, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248cab0, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer1Aux., CLID=642311, containing data object @0  ... -> DONE
-StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x248ea90, recorded with key=HLT_TrigNavTest__TestBContainer_BContainer2Aux., CLID=642311, containing data object @0  ... -> DONE
 ToolSvc.Navigation  DEBUG Navigation reset done
 ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestC(7800) container: DataVector<TestC>(78001)label: "" subTypeIndex: 0 container not allocated yet
@@ -181,83 +107,44 @@ ToolSvc.NavigationVERBOSE NavigationCore::prepare Preregistering objects #:6
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: EverEmptyButPresent
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: EverEmptyButPresent index: 0
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: EverEmptyButPresent and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x248f800 type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x107ab80 type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x2488bf0 with key HLT_DataVector<TestA>_EverEmptyButPresentAux. of type TestAuxA(CLID 642300)
- in DataObject @0x2459910
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x248fcf0 with key HLT_DataVector<TestA>_EverEmptyButPresent of type DataVector<TestA>(CLID 64210)
- in DataObject @0x2488490
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: AgainPresentButEmpty
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: AgainPresentButEmpty index: 1
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: AgainPresentButEmpty and index: 1
-ToolSvc.NavigationVERBOSE Holder created, registering 0x248d8c0 type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x1078f60 type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x248b6a0 with key HLT_DataVector<TestA>_AgainPresentButEmptyAux. of type TestAuxA(CLID 642300)
- in DataObject @0x245a7a0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x24901e0 with key HLT_DataVector<TestA>_AgainPresentButEmpty of type DataVector<TestA>(CLID 64210)
- in DataObject @0x248b540
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: 
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label:  index: 2
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label:  and index: 2
-ToolSvc.NavigationVERBOSE Holder created, registering 0x2489ef0 type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x10869c0 type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x2488510 with key HLT_DataVector<TestA>Aux. of type TestAuxA(CLID 642300)
- in DataObject @0x248db50
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2490c30 with key HLT_DataVector<TestA> of type DataVector<TestA>(CLID 64210)
- in DataObject @0x2490510
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer1
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer1 index: 0
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: BContainer1 and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x248a210 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x108ab00 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x2486e70 with key HLT_TrigNavTest__TestBContainer_BContainer1Aux. of type TrigNavTest::TestAuxB(CLID 642311)
- in DataObject @0x2487700
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2486d60 with key HLT_TrigNavTest__TestBContainer_BContainer1 of type TrigNavTest::TestBContainer(CLID 96422)
- in DataObject @0x24892a0
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer2
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer2 index: 1
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
-ToolSvc.NavigationVERBOSE Holder created, registering 0x2486ff0 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x1084ba0 type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TrigNavTest::TestBContainer(96422) container: TrigNavTest::TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x248c3b0 with key HLT_TrigNavTest__TestBContainer_BContainer2Aux. of type TrigNavTest::TestAuxB(CLID 642311)
- in DataObject @0x2490650
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2488ae0 with key HLT_TrigNavTest__TestBContainer_BContainer2 of type TrigNavTest::TestBContainer(CLID 96422)
- in DataObject @0x248fc00
- object modifiable when retrieved
 ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96477 label: DContainer1
 ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96477 label: DContainer1 index: 0
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96477 label: DContainer1 and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x248c530 type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
+ToolSvc.NavigationVERBOSE Holder created, registering 0x1079510 type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x248e4a0 with key HLT_TestDContainer_DContainer1 of type TestDContainer(CLID 96477)
- in DataObject @0x248e5b0
- object modifiable when retrieved
 ToolSvc.Navigation  DEBUG NavigationCore::prepare Navigation structure prepared for next event
 Ownership_test       INFO LINE:67 Test progress fine:  Objects prepared
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TrigNavTest::TestBContainer) to TE: 23 label: "BContainer1" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: BContainer1
 ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: BContainer1
-ToolSvc.NavigationVERBOSE got Holder: 0x248a210
-StoreGateSvc        DEBUG Recorded object @0x248e660 with key HLTAutoKey_BContainer1_96422_0_to_0 of type TrigNavTest::TestBContainer(CLID 96422)
- in DataObject @0x2487f20
- object modifiable when retrieved
+ToolSvc.NavigationVERBOSE got Holder: 0x108ab00
 Ownership_test       INFO LINE:75 Test progress fine:  After attachFeture the container is VIEW
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TrigNavTest::TestBContainer) to TE: 23 label: "BContainer1" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: BContainer1
 ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: BContainer1
-ToolSvc.NavigationVERBOSE got Holder: 0x248a210
-StoreGateSvc        DEBUG Recorded object @0x2490d40 with key HLTAutoKey_BContainer1_96422_0_to_1 of type TrigNavTest::TestBContainer(CLID 96422)
- in DataObject @0x2491210
- object modifiable when retrieved
+ToolSvc.NavigationVERBOSE got Holder: 0x108ab00
 HolderFactory     WARNING insert::do_it objects can not be inserted because of ownership issues. Destination container has already 3 objects  and ownership policy OWN no action is performed, potential memory leak
 HolderFactory     WARNING HolderImp::add  insert failed 
 Ownership_test       INFO LINE:81 Test progress fine:  The attachFeature was unsuccesfull (as expected)
@@ -272,21 +159,12 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 96423 label: BView
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96423 label: BView and index: 0
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TrigNavTest::TestBContainerView(96423) container: TrigNavTest::TestBContainerView(96423)label: "BView" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2492360
-StoreGateSvc        DEBUG Recorded object @0x24929b0 with key HLT_TrigNavTest__TestBContainerView_BView of type TrigNavTest::TestBContainerView(CLID 96423)
- in DataObject @0x2492750
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2491bb0 with key HLTAutoKey_BView_96423_0_to_0 of type TrigNavTest::TestBContainerView(CLID 96423)
- in DataObject @0x2492c70
- object modifiable when retrieved
+ToolSvc.NavigationVERBOSE got Holder: 0x107da00
 Ownership_test       INFO LINE:151 Test progress fine:  First View attach worked
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96423(TrigNavTest::TestBContainerView) to TE: 23 label: "BView" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: BView
 ToolSvc.Navigation  DEBUG Getting holder for type: 96423 label: BView
-ToolSvc.NavigationVERBOSE got Holder: 0x2492360
-StoreGateSvc        DEBUG Recorded object @0x2491d00 with key HLTAutoKey_BView_96423_0_to_1 of type TrigNavTest::TestBContainerView(CLID 96423)
- in DataObject @0x2493300
- object modifiable when retrieved
+ToolSvc.NavigationVERBOSE got Holder: 0x107da00
 Ownership_test       INFO LINE:157 Test progress fine:  Second View attach worked
 Ownership_test       INFO LINE:160 End of the test: testing if the xAOD view container works
 Ownership_test       INFO LINE:219 Test progress fine:  END all went fine

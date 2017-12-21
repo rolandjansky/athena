@@ -934,7 +934,7 @@ private:
 
 #ifndef XAOD_STANDALONE
 
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 /**
  * @brief Specialize @c ClassID_traits for @c ConstDataVector so that
@@ -988,7 +988,7 @@ public:
  *        the first template argument.
  *
  * Specialize this for @c ConstDataVector.
- * See SGTools/StorableConversions.h for an explanation.
+ * See AthenaKernel/StorableConversions.h for an explanation.
  */
 template <class DV, class U>
 struct DataBucketTrait<ConstDataVector<DV>, U>

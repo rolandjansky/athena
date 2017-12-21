@@ -572,7 +572,7 @@
 #  define SG_VIRTUAL(X) X
 # endif // not SG_VIRTUAL
 #else
-# include "SGTools/BaseInfo.h"
+# include "AthenaKernel/BaseInfo.h"
 #endif
 
 
@@ -1962,7 +1962,7 @@ private:
 
 
   /// The DV/DL info struct for this class.
-  static DataModel_detail::DVLInfo<DataVector<T> > s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
 
 
   typedef typename
@@ -3208,7 +3208,7 @@ private:
 
 
   /// The DV/DL info struct for this class.
-  static DataModel_detail::DVLInfo<DataVector<T> > s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T> > s_info;
 
 
   typedef typename
@@ -3353,7 +3353,7 @@ public:
 
 
 #include "AthContainers/tools/DVLDataBucket.h"
-#include "SGTools/DataBucketTraitFwd.h"
+#include "AthenaKernel/DataBucketTraitFwd.h"
 
 
 namespace SG {
@@ -3363,7 +3363,7 @@ namespace SG {
  * @brief Metafunction to find the proper @c DataBucket class for @c T.
  *
  * Specialize this for @c DataVector.
- * See SGTools/StorableConversions.h for an explanation.
+ * See AthenaKernel/StorableConversions.h for an explanation.
  */
 template <class T, class U>
 struct DataBucketTrait<DataVector<T>, U>

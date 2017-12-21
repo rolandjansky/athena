@@ -3,7 +3,6 @@
 */
 
 #include "MuonInsideOutRecoTool.h"
-#include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
@@ -34,21 +33,20 @@ namespace MuonCombined {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_muonSystemExtentionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool"),
     m_segmentFinder("Muon::MuonLayerSegmentFinderTool/MuonLayerSegmentFinderTool"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
     m_ambiguityResolver("Muon::MuonLayerAmbiguitySolverTool/MuonLayerAmbiguitySolverTool"),
     m_candidateTrackBuilder("Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"),
     m_recoValidationTool(""),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor")
+    m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_layerHashProvider("Muon::MuonLayerHashProviderTool")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<MuonInsideOutRecoTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("MuonSystemExtensionTool",m_muonSystemExtentionTool );    
     declareProperty("MuonLayerSegmentFinderTool",m_segmentFinder );    
     declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
     declareProperty("MuonLayerAmbiguitySolverTool",m_ambiguityResolver );    
@@ -70,7 +68,6 @@ namespace MuonCombined {
 
     ATH_CHECK(m_idHelper.retrieve());    
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_muonSystemExtentionTool.retrieve());
     ATH_CHECK(m_segmentFinder.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
     ATH_CHECK(m_ambiguityResolver.retrieve());
@@ -113,8 +110,7 @@ namespace MuonCombined {
     
     
     // get intersections which precision layers in the muon system 
-    const Muon::MuonSystemExtension* muonSystemExtension = 0;
-    m_muonSystemExtentionTool->muonSystemExtension( indetTrackParticle, muonSystemExtension );
+    const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
     if( !muonSystemExtension ) {
       //ATH_MSG_DEBUG("No MuonSystemExtension, aborting ");
       return;

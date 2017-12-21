@@ -9,7 +9,7 @@
 #define HSG2Event_Quadruplet_H
 
 // EDM include(s):
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "VxVertex/VxContainer.h"
 #include "ParticleEvent/CompositeParticleContainer.h"
 

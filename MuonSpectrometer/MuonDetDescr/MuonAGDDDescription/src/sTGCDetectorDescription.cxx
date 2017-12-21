@@ -10,10 +10,10 @@
 
 #include <sstream>
 
-sTGCDetectorDescription* sTGCDetectorDescription::current=0;
+sTGCDetectorDescription* sTGCDetectorDescription::s_current=0;
 
 sTGCDetectorDescription::sTGCDetectorDescription(std::string s):
-    AGDDDetector(s,"sTGC"),_yCutout(0)
+    AGDDDetector(s,"sTGC"),m_yCutout(0)
 {
 }
 
@@ -27,7 +27,7 @@ void sTGCDetectorDescription::Register()
 void sTGCDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 {
 		//std::cout<<"This is AGDDsTGC::SetDetectorAddress "<<GetName()<<" "<<
-		// sType;
+		// m_sType;
 		p->ID.detectorType="sTGC";
 		p->theDetector=this;
 		std::stringstream stringone;
@@ -44,10 +44,11 @@ void sTGCDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 		p->ID.detectorAddress=stringone.str();
 }
 
-sTGC_Technology* sTGCDetectorDescription::GetTechnology()
+MuonGM::sTGC_Technology* sTGCDetectorDescription::GetTechnology()
 {
    AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();   
-   sTGC_Technology* t = dynamic_cast<sTGC_Technology*>(ds->GetTechnology("sTGC_1")); //This needs to be the tech name not the chamber name
+   MuonGM::sTGC_Technology* t =
+     dynamic_cast<MuonGM::sTGC_Technology*>(ds->GetTechnology("sTGC_1")); //This needs to be the tech name not the chamber name
 
    return t;
 }

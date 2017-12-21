@@ -21,8 +21,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "METInterface/IMETMaker.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
@@ -105,7 +105,7 @@ class PhysValMET
   bool Accept(const xAOD::Photon* ph);
   bool Accept(const xAOD::TauJet* tau);
   bool Accept(const xAOD::Muon* muon);
-  bool Accept(const xAOD::Jet* jet);
+  bool Accept(const xAOD::Jet* jet, double JvtCut);
 
   // vector of collections
   std::vector <std::string> types;

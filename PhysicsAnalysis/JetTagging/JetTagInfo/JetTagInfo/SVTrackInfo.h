@@ -5,7 +5,7 @@
 #ifndef JETTAGINFO_SVTRACKINFO
 #define JETTAGINFO_SVTRACKINFO
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 #include <iostream>

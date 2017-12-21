@@ -12,7 +12,7 @@
 #include "G4RunManager.hh"
 
 G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthService(name,pSvcLocator)
+  : base_class(name,pSvcLocator)
   , m_detGeoSvc("DetectorGeometrySvc",name)
   , m_physicsListTool("PhysicsListToolBase")
   , m_isMT(false)
@@ -74,17 +74,5 @@ StatusCode G4AtlasSvc::initialize(){
 StatusCode G4AtlasSvc::finalize()
 {
   ATH_MSG_INFO( "G4AtlasSvc being ifinalized!!!" );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode G4AtlasSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IG4AtlasSvc::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IG4AtlasSvc*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }

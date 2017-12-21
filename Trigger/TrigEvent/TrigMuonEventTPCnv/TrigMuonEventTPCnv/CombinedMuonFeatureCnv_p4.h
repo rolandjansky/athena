@@ -26,7 +26,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
 #include "TrigMuonEvent/MuonFeatureContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 class MsgStream;
 

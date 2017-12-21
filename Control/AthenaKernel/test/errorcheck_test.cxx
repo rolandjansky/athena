@@ -37,8 +37,12 @@ StatusCode Algtest::test1()
 {
   REPORT_ERROR (StatusCode (StatusCode::FAILURE)) << "foomsg";
   REPORT_MESSAGE (MSG::INFO) << "some info";
-  CHECK( StatusCode (StatusCode::SUCCESS) );
-  CHECK( StatusCode (StatusCode::FAILURE) );
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK( sc1 );
+  StatusCode sc2 (StatusCode::FAILURE);
+  CHECK( sc2 );
   return StatusCode (StatusCode::SUCCESS);
 }
 
@@ -57,8 +61,8 @@ StatusCode Algtooltest::test1()
 {
   REPORT_ERROR (StatusCode (StatusCode::FAILURE)) << "foomsg";
   REPORT_MESSAGE (MSG::INFO) << "some info";
-  CHECK_CODE( StatusCode (StatusCode::SUCCESS), 123 );
-  CHECK_CODE( StatusCode (StatusCode::RECOVERABLE), 123 );
+  CHECK_CODE( StatusCode (StatusCode::SUCCESS), StatusCode(123) );
+  CHECK_CODE( StatusCode (StatusCode::RECOVERABLE), StatusCode(123) );
   return StatusCode (StatusCode::SUCCESS);
 }
 
@@ -87,6 +91,7 @@ class Test
 {
 public:
   StatusCode test1();
+  int test2();
 };
 
 
@@ -99,57 +104,105 @@ StatusCode Test::test1()
   return StatusCode (StatusCode::SUCCESS);
 }
 
+int Test::test2()
+{
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK( sc1, 0 );
+  StatusCode sc2 (StatusCode::FAILURE);
+  CHECK( sc2, -1 );
+  return 0;
+}
+
+
 
 StatusCode test1a()
 {
-  CHECK_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg" );
-  CHECK_WITH_CONTEXT( StatusCode (StatusCode::FAILURE), "alg" );
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK_WITH_CONTEXT( sc1, "alg" );
+  StatusCode sc2 (StatusCode::FAILURE);
+  CHECK_WITH_CONTEXT( sc2, "alg" );
   return StatusCode (StatusCode::SUCCESS);
 }
 
 
 StatusCode test1b()
 {
-  CHECK_RECOVERABLE_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg" );
-  CHECK_RECOVERABLE_WITH_CONTEXT( StatusCode (StatusCode::FAILURE), "alg" );
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK_RECOVERABLE_WITH_CONTEXT( sc1, "alg" );
+  StatusCode sc2 (StatusCode::FAILURE);
+  CHECK_RECOVERABLE_WITH_CONTEXT( sc2, "alg" );
   return StatusCode (StatusCode::SUCCESS);
 }
 
 
 StatusCode test1c()
 {
-  CHECK_RECOVERABLE_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg" );
-  CHECK_RECOVERABLE_WITH_CONTEXT( StatusCode (StatusCode::RECOVERABLE),"alg" );
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK_RECOVERABLE_WITH_CONTEXT( sc1, "alg" );
+  StatusCode sc2 (StatusCode::RECOVERABLE);
+  CHECK_RECOVERABLE_WITH_CONTEXT( sc2,"alg" );
   return StatusCode (StatusCode::SUCCESS);
 }
 
 
 StatusCode test1d()
 {
-  CHECK_FATAL_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg" );
-  CHECK_FATAL_WITH_CONTEXT( StatusCode (StatusCode::FAILURE), "alg" );
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK_FATAL_WITH_CONTEXT( sc1, "alg" );
+  StatusCode sc2 (StatusCode::FAILURE);
+  CHECK_FATAL_WITH_CONTEXT( sc2, "alg" );
   return StatusCode (StatusCode::SUCCESS);
 }
 
 
 StatusCode test1e()
 {
-  CHECK_FATAL_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg" );
-  CHECK_FATAL_WITH_CONTEXT( StatusCode (StatusCode::RECOVERABLE), "alg" );
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK_FATAL_WITH_CONTEXT( sc1, "alg" );
+  StatusCode sc2 (StatusCode::RECOVERABLE);
+  CHECK_FATAL_WITH_CONTEXT( sc2, "alg" );
   return StatusCode (StatusCode::SUCCESS);
 }
 
 
 StatusCode test1f()
 {
-  CHECK_CODE_WITH_CONTEXT( StatusCode (StatusCode::SUCCESS), "alg", 123 );
-  CHECK_CODE_WITH_CONTEXT( StatusCode (StatusCode::RECOVERABLE), "alg", 123 );
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK_CODE_WITH_CONTEXT( sc1, "alg", StatusCode(123) );
+  StatusCode sc2 (StatusCode::RECOVERABLE);
+  CHECK_CODE_WITH_CONTEXT( sc2, "alg", StatusCode(123) );
   return StatusCode (StatusCode::SUCCESS);
 }
 
+int test1g()
+{
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
+  StatusCode sc1 (StatusCode::SUCCESS);
+  CHECK_WITH_CONTEXT( sc1, "alg", 0 );
+  StatusCode sc2 (StatusCode::FAILURE);
+  CHECK_WITH_CONTEXT( sc2, "alg", -1 );
+  return 0;
+}
 
 StatusCode test1()
 {
+  // Can't write it like CHECK( StatusCode (StatusCode::SUCCESS) );
+  // or we get parse errors from clang.
   Algtest algtest;  algtest.addRef();
   Algtooltest algtooltest (&algtest);  algtooltest.addRef();
   Servtest servtest;  servtest.addRef();
@@ -170,10 +223,12 @@ StatusCode test1()
   assert( test1d().isFailure() );
   assert( test1e().isFailure() );
   assert( test1f().isFailure() );
+  assert( test1g()==-1 );
   assert( algtest.test1().isFailure() );
   assert( algtooltest.test1().isFailure() );
   assert( servtest.test1().isFailure() );
   assert( test.test1().isFailure() );
+  assert( test.test2()==-1 );
 
   errorcheck::ReportMessage::hideErrorLocus();
   REPORT_ERROR_WITH_CONTEXT (StatusCode (StatusCode::FAILURE), "alg")

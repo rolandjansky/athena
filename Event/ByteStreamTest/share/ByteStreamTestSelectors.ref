@@ -1,8 +1,7 @@
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
-EventSelector        INFO reinitialization...
-EventSelector.E...  DEBUG Property update for OutputLevel : new value = 2
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
 ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
+EventSelector.E...  DEBUG Property update for OutputLevel : new value = 2
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()
@@ -768,5 +767,5 @@ EventSelector        INFO skipping event 452
 EventSelector        INFO skipping event 453
 EventSelector     WARNING INFO message limit (500) reached for EventSelector. Suppressing further output.
 EventSelector       DEBUG Calling EventSelectorByteStream::stop()
- EventSelector               |    INFO |     1105
+ EventSelector               |    INFO |     1104
  EventSelector.EvenEventsSelectorTool|    INFO |    48466

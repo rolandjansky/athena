@@ -84,118 +84,21 @@ StatusCode MuonTrackStatisticsTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 
-
-StatusCode MuonTrackStatisticsTool::updateTrackCounters() const{
-	
-	std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_it = m_allCounters.begin();
-	std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_itEnd = m_allCounters.end();
-	StatusCode sc = StatusCode::SUCCESS;
-	for (; counter_it!=counter_itEnd ; counter_it++) 
-    {
-		
-		sc = MuonTrackStatisticsTool::updateTrackCounters(**counter_it);
-		if(sc.isFailure()){
-			ATH_MSG_FATAL( "Could not update TrackCounters");
-			return sc;
-		}
+StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(std::string name, const DetailedTrackTruthCollection* truthMap) const{
+  std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_it = m_allTruthCounters.begin();
+  std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_itEnd = m_allTruthCounters.end();
+  for (; counterTruth_it!=counterTruth_itEnd ; counterTruth_it++){
+    if((*counterTruth_it)->trackLocation.compare(name)==0){
+      return updateTruthTrackCounters(**counterTruth_it,*truthMap);
     }
-	
-	if(m_doTruth){
-		std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_it = m_allTruthCounters.begin();
-		std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_itEnd = m_allTruthCounters.end();
-		for (; counterTruth_it!=counterTruth_itEnd ; counterTruth_it++) 
-		{
-			
-			sc = MuonTrackStatisticsTool::updateTruthTrackCounters(**counterTruth_it);
-			if(sc.isFailure()){
-				ATH_MSG_FATAL( "Could not update TruthTrackCounters");
-				return sc;
-			}
-		}
-	}
-	
-	return sc;
-	
+  }
+  ATH_MSG_WARNING("Failed to match the collection "<<name<<" to any counter");
+  return StatusCode::SUCCESS;
 }
-
-StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters& counters) const{
-	
-	
-	ATH_MSG_INFO("!updateTruthTrackCounters on:"<<counters.trackLocation);
-	StatusCode sc = StatusCode::SUCCESS;
-	
-	//retrieve tracks
-	const DetailedTrackTruthCollection* TruthMap  = NULL;
-	
-	
-	if (evtStore()->contains<DetailedTrackTruthCollection>( counters.trackLocation)){
-		
-		ATH_MSG_INFO( "Acessing DetailedTrackTruthCollection for Truth" <<  counters.trackLocation);
-		
-		if (counters.trackLocation != "") {
-			if (evtStore()->retrieve (TruthMap , counters.trackLocation).isFailure()) {
-				ATH_MSG_INFO( "DetailedTrackTruthCollection \"" << counters.trackLocation<<"\" not found.");
-				return StatusCode::SUCCESS;
-			}
-		}else {
-			ATH_MSG_INFO( "No DetailedTrackTruthCollection key specified to go with this"<<"TrackCollection!");
-			return StatusCode::SUCCESS;
-		}
-		
-		if (TruthMap) {
-			ATH_MSG_INFO( "Retrieved " << TruthMap->size()<< " TrackTruth elements from storegate");
-			
-			sc = MuonTrackStatisticsTool::updateTruthTrackCounters(counters, *TruthMap);
-		}
-	}else{
-		ATH_MSG_INFO( " Track Collection "  <<  counters.trackLocation << "not available to be retrieved" );
-		++counters.nEvents;
-		
-	}
-	
-	
-	return sc;
-}	
-
-
-
-
-
-
-StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters) const{
-	
-	ATH_MSG_INFO("!updateTrackCounters on:"<<counters.trackLocation);
-	StatusCode sc = StatusCode::SUCCESS;
-	
-	//retrieve tracks
-	const TrackCollection* tracks = 0;	
-	
-	if (evtStore()->contains<TrackCollection>( counters.trackLocation)){
-		sc = evtStore()->retrieve(tracks,counters.trackLocation);
-		if (sc.isFailure() ) {
-			ATH_MSG_FATAL(" Could not retrieve track collection " << counters.trackLocation);
-			
-		}else{
-			ATH_MSG_INFO(" Number of retrieved tracks = "  << tracks->size());
-			sc = MuonTrackStatisticsTool::updateTrackCounters(counters, *tracks);
-			
-		}
-		
-	}else{
-		ATH_MSG_INFO( " Track Collection "  <<  counters.trackLocation << "not available to be retrieved");
-		++counters.nEvents;
-		
-	}
-	
-	
-	return sc;
-	
-}
-
 
 StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters& counters,  const DetailedTrackTruthCollection& TruthMap) const{
 	
-	ATH_MSG_INFO( "MuonTrackStatisticsTool calling updateTruthTrackCounters: " << counters.trackLocation);
+	ATH_MSG_DEBUG( "MuonTrackStatisticsTool calling updateTruthTrackCounters: " << counters.trackLocation);
 	
 	++counters.nEvents;
 	
@@ -246,16 +149,16 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 		counters.nCSChits[2]+=(*it).second.statsTruth()[SubDetHitStatistics::CSC];
 		
 		
-		ATH_MSG_INFO( myindex << ".) " << "Index: "  <<  (*it).first.index() << "		" << (*it).second << " (Pixel, SCT, TRT, MDT, RPC, TGC, CSC) ");
-		ATH_MSG_INFO( "	GenParticle info:" );
+		ATH_MSG_DEBUG( myindex << ".) " << "Index: "  <<  (*it).first.index() << "		" << (*it).second << " (Pixel, SCT, TRT, MDT, RPC, TGC, CSC) ");
+		ATH_MSG_DEBUG( "	GenParticle info:" );
 		for( unsigned int i=0; i< (*it).second.trajectory().size(); i++) {
-			this->msg( MSG::INFO ) << "		Particle "<<i;
+		  ATH_MSG_DEBUG("		Particle "<<i);
 			if( !(*it).second.trajectory().at(i).cptr() ) {
-				this->msg( MSG::INFO ) << " has a null pointer: "<< (*it).second.trajectory().at(i).cptr() << endmsg;
+			  ATH_MSG_DEBUG( " has a null pointer: "<< (*it).second.trajectory().at(i).cptr());
 			}else{
-				this->msg( MSG::INFO ) << endmsg<< "			- pdg_id: "<< (*it).second.trajectory().at(i).cptr()->pdg_id() << endmsg;
-				this->msg( MSG::INFO ) << "			- status: "<< (*it).second.trajectory().at(i).cptr()->status() << endmsg;
-				counters.nTracks++;
+			  ATH_MSG_DEBUG( "			- pdg_id: "<< (*it).second.trajectory().at(i).cptr()->pdg_id());
+			  ATH_MSG_DEBUG( "			- status: "<< (*it).second.trajectory().at(i).cptr()->status());
+			  counters.nTracks++;
 			}
 			
 		}
@@ -268,9 +171,21 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 }
 
 
+StatusCode MuonTrackStatisticsTool::updateTrackCounters(std::string name, const TrackCollection* tracks) const{
+  std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_it = m_allCounters.begin();
+  std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_itEnd = m_allCounters.end();
+  for (; counter_it!=counter_itEnd ; counter_it++){
+    if((*counter_it)->trackLocation.compare(name)==0){
+      return updateTrackCounters(**counter_it,*tracks);
+    }
+  }
+  ATH_MSG_WARNING("Failed to match the collection "<<name<<" to any counter");
+  return StatusCode::SUCCESS;
+}
+
 StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters,  const TrackCollection& tracks) const{
 	
-	ATH_MSG_INFO("MuonTrackStatisticsTool calling updateTrackCounters: " << counters.trackLocation);
+	ATH_MSG_DEBUG("MuonTrackStatisticsTool calling updateTrackCounters: " << counters.trackLocation);
 	
 	++counters.nEvents;
 	

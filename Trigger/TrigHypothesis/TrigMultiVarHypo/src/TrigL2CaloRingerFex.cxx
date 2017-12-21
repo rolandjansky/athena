@@ -58,28 +58,28 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
   ///check configuration
   if(m_weights.size() != m_nDiscr){
     msg() << MSG::ERROR << "Weight list dont match with the number of discriminators found" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   if(m_bias.size() != m_nDiscr){
     msg() << MSG::ERROR << "Bias list dont match with the number of discriminators found" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   if((m_etaBins.size() != m_nDiscr) || (m_etBins.size() != m_nDiscr)){
     msg() << MSG::ERROR << "Eta/Et list dont match with the number of discriminators found" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   
   if(m_nRings.size() != m_normRings.size()){
     msg() << MSG::ERROR << "Preproc nRings list dont match with the number of discriminators found" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   if(m_sectionRings.size() != m_normRings.size()){
     msg() << MSG::ERROR << "Preproc section rings list dont match with the number of discriminators found" << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
 
@@ -109,18 +109,18 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     }
     catch(std::bad_alloc xa){
       msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endmsg;
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
     catch(int e){
       if (e == BAD_WEIGHT_SIZE)
       {
         msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endmsg;
-        return StatusCode::FAILURE;
+        return HLT::BAD_JOB_SETUP;
       }
       if (e == BAD_BIAS_SIZE)
       {
         msg() << MSG::ERROR << "Bias vector size is not compatible with nodes vector." << endmsg;
-        return StatusCode::FAILURE;
+        return HLT::BAD_JOB_SETUP;
       }
     }///try and catch alloc protection
     
@@ -140,7 +140,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     }
     catch(std::bad_alloc xa){
       msg() << MSG::ERROR << "Bad alloc for TrigRingerPrepoc." << endmsg;
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
 
     ///Hold the pointer configuration

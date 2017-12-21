@@ -26,9 +26,14 @@
 
 using namespace MuonGM;
 
+static constexpr unsigned int crazyParticleBarcode(
+    std::numeric_limits<int32_t>::max());
+// Barcodes at the HepMC level are int
+
 CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID) 
   : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool"), m_container(0)
-  , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0), m_run(0), m_evt(0), m_mergeSvc(0)
+  , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0)
+  , m_vetoThisBarcode(crazyParticleBarcode), m_run(0), m_evt(0), m_mergeSvc(0)
   , m_inputObjectName("CSC_Hits"), m_outputObjectName("csc_digits"), m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0), m_rndmEngineName("MuonDigitization") {
 
@@ -52,6 +57,8 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   declareProperty("DriftVelocity",    m_driftVelocity = 60); // 60 / (1e-6 * 1e9); // 6 cm/microsecond -> mm/ns // 0.06
   declareProperty("ElectronEnergy",   m_electronEnergy   = 66); // eV
   declareProperty("NInterFixed",      m_NInterFixed   = false);
+  declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
+  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 CscDigitizationTool::~CscDigitizationTool()  {
@@ -71,6 +78,8 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_MSG_INFO ( "  Use NewDigitEDM?          " << m_newDigitEDM );
   ATH_MSG_INFO ( "  Drift Velocity Set?       " << m_driftVelocity );
   ATH_MSG_INFO ( "  NInteraction per layer from poisson not from energyLoss?  " << m_NInterFixed );
+  ATH_MSG_INFO ( "  IncludePileUpTruth        " << m_includePileUpTruth );
+  ATH_MSG_INFO ( "  ParticleBarcodeVeto       " << m_vetoThisBarcode );
 
   ATH_MSG_INFO ( "  RndmSvc                   " << m_rndmSvc.typeAndName() );
   ATH_MSG_INFO ( "  cscCalibTool              " << m_pcalib.typeAndName() );
@@ -78,6 +87,8 @@ StatusCode CscDigitizationTool::initialize() {
 
   ATH_MSG_INFO ( "Retrieved Active Store Service." );
 
+  ATH_CHECK(m_cscSimDataCollectionWriteHandleKey.initialize());
+  
   // initialize transient detector store and MuonDetDescrManager
   if ( detStore()->retrieve(m_geoMgr).isFailure() ) {
     ATH_MSG_FATAL ( "Could not retrieve MuonDetectorManager!" );
@@ -205,8 +216,6 @@ StatusCode CscDigitizationTool::digitize() {
 
 StatusCode CscDigitizationTool::processAllSubEvents() {
 
-  StatusCode status;
-
   ATH_MSG_DEBUG ( "in processAllSubEvents()" );
 
   // clean up the digit container
@@ -223,14 +232,8 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
   if (m_isPileUp) return StatusCode::SUCCESS;
 
   // create and record the SDO container in StoreGate
-  std::string sdoKey = "CSC_SDO";
-  CscSimDataCollection* sdoContainer = new CscSimDataCollection();
-  status = evtStore()->record(sdoContainer,sdoKey);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record CSC SDO collection in StoreGate" );
-    return status;
-  } else
-    ATH_MSG_DEBUG ( "CscSDOCollection recorded in StoreGate." );
+  SG::WriteHandle<CscSimDataCollection> CSCSimDataCollectionWriteHandle(m_cscSimDataCollectionWriteHandleKey);
+  ATH_CHECK(CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
 
   //merging of the hit collection in getNextEvent method    
 
@@ -238,11 +241,11 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
     StatusCode sc = getNextEvent();
     if (StatusCode::FAILURE == sc) {
       ATH_MSG_INFO ( "There are no CSC hits in this event" );      
-      return status; // there are no hits in this event
+      return sc; // there are no hits in this event
     }
   }
 
-  return CoreDigitization(sdoContainer);
+  return CoreDigitization(CSCSimDataCollectionWriteHandle.ptr());
 
 }
 
@@ -323,6 +326,13 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
         ypos = yi + f*dy;
         zpos = zi + f*dz;
       }
+
+      if (!m_includePileUpTruth &&
+          ((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) {
+        hashVec.clear();
+        continue;
+      }
+
       for (; vecBeg != vecEnd; vecBeg++) {
         CscSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), CscMcData(energy, ypos, zpos));
         myDeposits[(*vecBeg)].push_back(deposit); 
@@ -424,8 +434,11 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     
     int sector = zsec*(2*phisec-istation+1);
     
-    (myDeposits[hashId])[0].second.setCharge(stripCharge);
-    sdoContainer->insert ( std::make_pair(digitId, CscSimData(myDeposits[hashId],0)) );
+    auto depositsForHash = myDeposits.find(hashId);
+    if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
+      depositsForHash->second[0].second.setCharge(stripCharge);
+      sdoContainer->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
+    }
     
     // fill the digit collections in StoreGate
     //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
@@ -549,8 +562,11 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     
     int sector = zsec*(2*phisec-istation+1);
     
-    (myDeposits[hashId])[0].second.setCharge(stripCharge);
-    sdoContainer->insert ( std::make_pair(digitId, CscSimData(myDeposits[hashId],0)) );
+    auto depositsForHash = myDeposits.find(hashId);
+    if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
+      depositsForHash->second[0].second.setCharge(stripCharge);
+      sdoContainer->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
+    }
     
     // fill the digit collections in StoreGate
     //    CscDigit * newDigit  = new CscDigit(digitId, int(stripCharge+1) );
@@ -708,16 +724,10 @@ StatusCode CscDigitizationTool::mergeEvent() {
   ATH_MSG_DEBUG ( "in mergeEvent()" );
 
   // create and record the SDO container in StoreGate
-  std::string sdoKey = "CSC_SDO";
-  CscSimDataCollection *sdoCollection = new CscSimDataCollection();
-  if ( (evtStore()->record(sdoCollection,sdoKey)).isFailure() )  {
-    ATH_MSG_ERROR ( "Unable to record CSC SDO collection in StoreGate" );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG ( "CscSDOCollection recorded in StoreGate." );
+  SG::WriteHandle<CscSimDataCollection> CSCSimDataCollectionWriteHandle(m_cscSimDataCollectionWriteHandleKey);
+  ATH_CHECK(CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
 
-
-  if ( CoreDigitization(sdoCollection).isFailure() ) { // 
+  if ( CoreDigitization(CSCSimDataCollectionWriteHandle.ptr()).isFailure() ) { // 
     ATH_MSG_ERROR ("mergeEvent() got failure from CoreDigitization()");
     return StatusCode::FAILURE;
   }
@@ -734,4 +744,3 @@ StatusCode CscDigitizationTool::mergeEvent() {
   
   return StatusCode::SUCCESS;
 }
-

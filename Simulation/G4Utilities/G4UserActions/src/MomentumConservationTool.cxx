@@ -11,16 +11,19 @@ namespace G4UA
   MomentumConservationTool::MomentumConservationTool(const std::string& type,
                                                      const std::string& name,
                                                      const IInterface* parent)
-    : ActionToolBase<MomentumConservation>(type, name, parent)
+    : UserActionToolBase<MomentumConservation>(type, name, parent)
   {
-    declareInterface<IG4EventActionTool>(this);
-    declareInterface<IG4SteppingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
-  std::unique_ptr<MomentumConservation>  MomentumConservationTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<MomentumConservation>();
+  std::unique_ptr<MomentumConservation>
+  MomentumConservationTool::makeAndFillAction(G4AtlasUserActions& actionList)
+  {
+    ATH_MSG_DEBUG("Making a MomentumConservation action");
+    auto action = std::make_unique<MomentumConservation>();
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

@@ -155,7 +155,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
 StatusCode PixelDigitizationTool::digitizeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
-  SiChargedDiodeCollection  *chargedDiodes = new SiChargedDiodeCollection;
+  std::unique_ptr<SiChargedDiodeCollection> chargedDiodes =  std::make_unique<SiChargedDiodeCollection>();
   std::vector<std::pair<double,double> > trfHitRecord; trfHitRecord.clear(); 
   std::vector<double> initialConditions; initialConditions.clear();
 
@@ -232,7 +232,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
     ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
-    addSDO(chargedDiodes);
+    addSDO(chargedDiodes.get());
     chargedDiodes->clear();
   }
   delete m_timedHits;
@@ -266,13 +266,12 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
           CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
           ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
-          addSDO(chargedDiodes);
+          addSDO(chargedDiodes.get());
           chargedDiodes->clear();
         }
       }
     }
   }
-  delete chargedDiodes;
   ATH_MSG_DEBUG("non-hits processed");
 
   return StatusCode::SUCCESS;

@@ -20,7 +20,7 @@ class G4VUserPhysicsList;
 // STL library
 #include <string>
 
-class PhysicsListToolBase : virtual public IPhysicsListTool , public AthAlgTool
+class PhysicsListToolBase : public extends<AthAlgTool, IPhysicsListTool>
 {
 public:
   // Standard constructor and destructor

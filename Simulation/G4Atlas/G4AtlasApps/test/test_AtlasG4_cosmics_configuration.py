@@ -3,6 +3,7 @@
 import pickle
 import subprocess
 import unittest
+import os
 
 
 class TestAtlasG4Cosmics(unittest.TestCase):
@@ -23,7 +24,7 @@ class TestAtlasG4Cosmics(unittest.TestCase):
             '--CosmicFilterVolume', 'Calo',
             '--CosmicFilterVolume2', 'NONE',
             '--CosmicPtSlice', 'NONE',
-            '--outputEVNT_COSMICSTRFile', 'test.TR.pool.root',
+            '--outputEVNT_TRFile', 'test.TR.pool.root',
             '--beamType', 'cosmics',
             # would otherwise fail due to missing HITS file:
             '--outputFileValidation', 'False',
@@ -234,7 +235,7 @@ class TestAtlasG4Cosmics(unittest.TestCase):
 
 
     def test___G4AtlasAlg_ListOfSetProperties(self):
-        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'FlagAbortedEvents', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'KillAbortedEvents', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListTool', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'UserStore', 'Verbosities']
+        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'FlagAbortedEvents', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'KillAbortedEvents', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListTool', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'Verbosities']
         g4atlasalg = self._job_config_dict['G4AtlasAlg']
         actual_list = g4atlasalg.keys()
         expected_property_value_sorted = sorted(expected_list)
@@ -364,4 +365,8 @@ class TestAtlasG4Cosmics(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    dirname = 'cosmics_config_test'
+    os.system ('rm -rf ' + dirname)
+    os.mkdir (dirname)
+    os.chdir (dirname)
     unittest.main()

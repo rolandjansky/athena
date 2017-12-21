@@ -169,7 +169,6 @@ namespace Muon {
     ServiceHandle<MuonStationIntersectSvc>           m_intersectSvc;      //<! pointer to hole search service
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator;      //!< extrapolator
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator;     //!< IMdtDriftCircleOnTrackCreator full calibration
-    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_tubeRotCreator;    //!< IMdtDriftCircleOnTrackCreator tube hits
     ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_cscRotCreator;     //!< IMuonClusterOnTrackCreator for cscs 
     ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_clusRotCreator;    //!< IMuonClusterOnTrackCreator for trigger hits
 

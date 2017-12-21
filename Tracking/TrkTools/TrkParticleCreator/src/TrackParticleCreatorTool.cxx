@@ -224,7 +224,10 @@ namespace Trk
 	} else {
 	  ATH_MSG_DEBUG( "Retrieved tool " << m_hitSummaryTool);
 	}
-      }
+    }
+    else{
+      m_hitSummaryTool.disable();
+    }
 
     /* MagneticFieldSvc handles updates itself */
     if (m_magFieldSvc.retrieve().isFailure()){

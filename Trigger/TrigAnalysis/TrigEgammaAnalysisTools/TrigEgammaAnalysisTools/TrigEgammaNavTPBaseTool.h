@@ -30,9 +30,9 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "egammaMVACalib/IegammaMVATool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 namespace Trig{
             class FeatureContainer;

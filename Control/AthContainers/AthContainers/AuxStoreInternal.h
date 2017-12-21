@@ -432,8 +432,8 @@ private:
 
 #ifndef XAOD_STANDALONE
 
-#include "SGTools/BaseInfo.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
 SG_BASE( SG::AuxStoreInternal, SG::IAuxStore );
 CLASS_DEF( SG::AuxStoreInternal , 16428258 , 1 )
 

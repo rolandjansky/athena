@@ -113,10 +113,18 @@ Trk::TrkMaterialProviderTool::initialize()
   if(m_useCaloEnergyMeasurement) {
     if(m_useMuonCaloEnergyTool) {
       ATH_CHECK(m_muonCaloEnergyTool.retrieve());
+      m_caloMeasTool.disable();
+      m_caloParamTool.disable();
     }else{
       ATH_CHECK(m_caloMeasTool.retrieve());
       ATH_CHECK(m_caloParamTool.retrieve());
+      m_muonCaloEnergyTool.disable();
     }
+  }
+  else{
+    m_caloMeasTool.disable();
+    m_caloParamTool.disable();
+    m_muonCaloEnergyTool.disable();
   }
   ATH_CHECK(m_trackIsolationTool.retrieve());
 

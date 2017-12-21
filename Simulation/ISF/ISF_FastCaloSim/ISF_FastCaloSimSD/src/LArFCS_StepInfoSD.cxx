@@ -125,7 +125,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       }
       //Identifier for the subhit with max energy
       Identifier maxEnergyIdentifier = this->ConvertID(processedHits[maxSubHitEnergyindex].id);
-      CaloDetDescrElement *maxEnergyCell = m_calo_dd_man->get_element(maxEnergyIdentifier);
+      const CaloDetDescrElement *maxEnergyCell = m_calo_dd_man->get_element(maxEnergyIdentifier);
 
       Identifier invalidIdentifier;
       //for (size_t i=0; i<numberOfProcessedHits; ++i) {
@@ -163,7 +163,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                 G4cout << this->GetName()<<" VERBOSE ProcessHits: shifting subhits: largest energy subhit index is "<<maxSubHitEnergyindex<<" E: "<<maxSubHitEnergy<<" identifier: "<<maxEnergyIdentifier.getString()<<G4endl;
               }
               //from identifier
-              CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
+              const CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
               if (!maxEnergyCell) {
                 //How often does this happen? Do not shift.
                 G4cout << this->GetName()<<" WARNING ProcessHits: maxEnergyCell failed: "<<maxEnergyIdentifier.getString()<<G4endl
@@ -186,7 +186,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                 G4ThreeVector diff(thiscell->x()-maxEnergyCell->x(), thiscell->y()-maxEnergyCell->y(), thiscell->z()-maxEnergyCell->z());
                 stepPosition = originalStepPosition+diff;
                 if(m_config.verboseLevel > 9) {
-                  CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),originalStepPosition.eta(), originalStepPosition.phi());
+                  const CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),originalStepPosition.eta(), originalStepPosition.phi());
                   G4cout << this->GetName()<<" VERBOSE ProcessHits: Original step position: "<<originalStepPosition.x()<<" "<<originalStepPosition.y()<<" "<<originalStepPosition.z()<<G4endl
                   <<"          "<<"This cell: "<<thiscell->x()<<" "<<thiscell->y()<<" "<<thiscell->z()<<G4endl
                   <<"          "<<"Highest E cell: "<<maxEnergyCell->x()<<" "<<maxEnergyCell->y()<<" "<<maxEnergyCell->z()<<G4endl
@@ -212,6 +212,50 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
 
   return result;
 }
+
+void LArFCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector)
+{
+  // Drop any hits that don't have a good identifier attached
+  if (!m_calo_dd_man->get_element(l_cell)) {
+    if(m_config.verboseLevel > 4) {
+      G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<l_cell.getString()<<" skipping this hit."<<G4endl;
+    }
+    return;
+  }
+
+  auto map_item = m_hit_map.find( l_cell );
+  if (map_item==m_hit_map.end()) {
+    m_hit_map[l_cell] = new std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >;
+    m_hit_map[l_cell]->reserve(200);
+    m_hit_map[l_cell]->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+  }
+  else {
+    // Get the appropriate merging limits
+    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(l_cell)->getSampling();
+    const double tsame(m_config.m_maxTime);
+    const double maxRadius((layer == CaloCell_ID::EMB1 || layer == CaloCell_ID::EME1) ? m_config.m_maxRadiusFine : m_config.m_maxRadius); //Default 1mm merging in layers 1 & 5, 5mm merging elsewhere
+    bool match = false;
+    for (auto map_it : * map_item->second) {
+      // Time check
+      const double delta_t = std::fabs(map_it->time()-l_time);
+      if ( delta_t >= tsame ) { continue; }
+      // Distance check
+      const CLHEP::Hep3Vector & currentPosition = map_it->position();
+      const double hit_diff2 = currentPosition.diff2( l_vec );
+      if ( hit_diff2 >= maxRadius ) { continue; }
+
+      // Found a match.  Make a temporary that will be deleted!
+      const ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
+      *map_it += my_info;
+      match = true;
+      break;
+    } // End of search for match in time and space
+    if (!match) {
+      map_item->second->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+    } // Didn't match
+  } // ID already in the map
+  return;
+} // That's it for updating the map!
 
 Identifier LArFCS_StepInfoSD::ConvertID(const LArG4Identifier& a_ident) const
 {

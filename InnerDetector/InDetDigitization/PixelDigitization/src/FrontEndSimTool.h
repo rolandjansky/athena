@@ -170,7 +170,7 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
 
           double x = CLHEP::RandFlat::shoot(m_rndmEngine,0.,1.);
           int bin=0;
-          for (int j=1; j<m_noiseShape.size(); j++) {
+          for (size_t j=1; j<m_noiseShape.size(); j++) {
             if (x>m_noiseShape[j-1] && x<=m_noiseShape[j]) { bin=j-1; continue; }
           }
           double noiseToTm = bin+1.5;

@@ -18,7 +18,7 @@ namespace JiveXML {
    **/
   BJetRetriever::BJetRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("BJet"){
+    m_typeName("BJet"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -117,7 +117,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(jets->size());
     DataVect eta; eta.reserve(jets->size());
@@ -181,21 +181,21 @@ namespace JiveXML {
       }
     }
     // Start with mandatory entries
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["energy"] = energy;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["energy"] = energy;
     // four-vectors
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
+    DataMap["mass"] = mass;
+    DataMap["px"] = px;
+    DataMap["py"] = py;
+    DataMap["pz"] = pz;
 
     // further details
-    m_DataMap["weight"] = weight;
-    m_DataMap["lhSig"] = lhSig;
-    m_DataMap["charge"] = charge;
-    m_DataMap["label"] = label;
+    DataMap["weight"] = weight;
+    DataMap["lhSig"] = lhSig;
+    DataMap["charge"] = charge;
+    DataMap["label"] = label;
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
@@ -205,7 +205,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
   

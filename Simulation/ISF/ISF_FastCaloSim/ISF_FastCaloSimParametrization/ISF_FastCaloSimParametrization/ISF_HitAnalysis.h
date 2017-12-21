@@ -28,6 +28,8 @@
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
+#include "ISF_FastCaloSimParametrization/FCS_Cell.h"
+
 
 namespace Trk
 {
@@ -40,6 +42,7 @@ class ICaloSurfaceHelper;
 
 #include <string>
 #include <Rtypes.h>
+#include <TLorentzVector.h>
 //#include "TH1.h"
 
 /* *************************************************************
@@ -78,12 +81,9 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode execute();
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
-   //bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
-   bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
-   bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
-   bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);
+   const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
-   IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
+   const static int MAX_LAYER = 25;
 
  private:
 
@@ -134,12 +134,22 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<Long64_t>* m_g4hit_cellidentifier;
    std::vector<float>*       m_g4hit_samplingfraction;
    std::vector<int>*         m_g4hit_sampling;
-   //Ok, this won't work, ROOT won't let me save a custom object which it doesn't know about
-   //std::vector<zh_matchedcell>* m_matched_cells;
+
+   //CaloHitAna variables
+   FCS_matchedcellvector* m_oneeventcells; //these are all matched cells in a single event
+   FCS_matchedcellvector* m_layercells[MAX_LAYER]; //these are all matched cells in a given layer in a given event
+
+   Float_t m_total_cell_e = 0;
+   Float_t m_total_hit_e = 0;
+   Float_t m_total_g4hit_e = 0;
+
+   std::vector<Float_t>* m_final_cell_energy;
+   std::vector<Float_t>* m_final_hit_energy;
+   std::vector<Float_t>* m_final_g4hit_energy;
+
 
    TTree * m_tree;
    std::string m_ntupleFileName;
-   std::string m_ntupleDirName;
    std::string m_ntupleTreeName;
    std::string m_metadataTreeName;
    std::string m_geoFileName;
@@ -163,14 +173,20 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<std::vector<float> >* m_newTTC_entrance_phi;
    std::vector<std::vector<float> >* m_newTTC_entrance_r;
    std::vector<std::vector<float> >* m_newTTC_entrance_z;
+   std::vector<std::vector<float> >* m_newTTC_entrance_detaBorder;
+   std::vector<std::vector<bool> >* m_newTTC_entrance_OK;
    std::vector<std::vector<float> >* m_newTTC_back_eta;
    std::vector<std::vector<float> >* m_newTTC_back_phi;
    std::vector<std::vector<float> >* m_newTTC_back_r;
    std::vector<std::vector<float> >* m_newTTC_back_z;
+   std::vector<std::vector<float> >* m_newTTC_back_detaBorder;
+   std::vector<std::vector<bool> >* m_newTTC_back_OK;
    std::vector<std::vector<float> >* m_newTTC_mid_eta;
    std::vector<std::vector<float> >* m_newTTC_mid_phi;
    std::vector<std::vector<float> >* m_newTTC_mid_r;
    std::vector<std::vector<float> >* m_newTTC_mid_z;
+   std::vector<std::vector<float> >* m_newTTC_mid_detaBorder;
+   std::vector<std::vector<bool> >* m_newTTC_mid_OK;
    std::vector<float>* m_newTTC_IDCaloBoundary_eta;
    std::vector<float>* m_newTTC_IDCaloBoundary_phi;
    std::vector<float>* m_newTTC_IDCaloBoundary_r;
@@ -245,6 +261,13 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_CaloBoundaryR;
    double m_CaloBoundaryZ;
    double m_calomargin;
+   bool m_saveAllBranches;
+   bool m_doAllCells;
+   bool m_doLayers;
+   bool m_doLayerSums;
+   bool m_doG4Hits;
+   Int_t m_TimingCut;
+
 
    std::string m_MC_DIGI_PARAM;
    std::string m_MC_SIM_PARAM;

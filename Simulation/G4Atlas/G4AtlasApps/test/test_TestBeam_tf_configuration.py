@@ -3,6 +3,7 @@
 import pickle
 import subprocess
 import unittest
+import os
 
 
 class TestTestBeam(unittest.TestCase):
@@ -169,7 +170,7 @@ class TestTestBeam(unittest.TestCase):
 
 
     def test___G4AtlasAlg_ListOfSetProperties(self):
-        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListTool', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'UserStore', 'Verbosities']
+        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListTool', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'Verbosities']
         g4atlasalg = self._job_config_dict['G4AtlasAlg']
         actual_list = g4atlasalg.keys()
         expected_property_value_sorted = sorted(expected_list)
@@ -294,4 +295,8 @@ class TestTestBeam(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    dirname = 'TestBeam_tf_config_test'
+    os.system ('rm -rf ' + dirname)
+    os.mkdir (dirname)
+    os.chdir (dirname)
     unittest.main()

@@ -58,8 +58,8 @@ int HIEventShapeJetIteration::execute() const
   const xAOD::JetContainer* theCaloJets=0;
   const xAOD::JetContainer* theTrackJets=0;
 
-  if(m_calo_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theCaloJets,m_calo_jet_seed_key));
-  if(m_track_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theTrackJets,m_track_jet_seed_key));
+  if(m_calo_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theCaloJets,m_calo_jet_seed_key), 1);
+  if(m_track_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theTrackJets,m_track_jet_seed_key), 1);
 
   if(theTrackJets && m_exclude_constituents) 
   {
@@ -72,8 +72,8 @@ int HIEventShapeJetIteration::execute() const
 
   std::vector<const xAOD::CaloCluster*> assoc_clusters;
   assoc_clusters.reserve(6400);
-  if(theCaloJets) ATH_CHECK(makeClusterList(assoc_clusters,theCaloJets,used_indices,used_eta_bins));
-  if(theTrackJets) ATH_CHECK(makeClusterList(assoc_clusters,theTrackJets,used_indices,used_eta_bins));
+  if(theCaloJets) ATH_CHECK(makeClusterList(assoc_clusters,theCaloJets,used_indices,used_eta_bins), 1);
+  if(theTrackJets) ATH_CHECK(makeClusterList(assoc_clusters,theTrackJets,used_indices,used_eta_bins), 1);
   
   updateShape(output_shape,assoc_clusters,es_index);
   
@@ -83,13 +83,13 @@ int HIEventShapeJetIteration::execute() const
     xAOD::HIEventShapeContainer* modShape=new xAOD::HIEventShapeContainer;
     xAOD::HIEventShapeAuxContainer *modShapeAux = new xAOD::HIEventShapeAuxContainer;
     modShape->setStore( modShapeAux );
-    ATH_CHECK( evtStore()->record(modShape,m_modulation_key) );
-    ATH_CHECK( evtStore()->record(modShapeAux,m_modulation_key+std::string("Aux.")) );
+    ATH_CHECK( evtStore()->record(modShape,m_modulation_key), 1 );
+    ATH_CHECK( evtStore()->record(modShapeAux,m_modulation_key+std::string("Aux.")), 1 );
     
     xAOD::HIEventShape* ms=new xAOD::HIEventShape();
     modShape->push_back(ms);
-    ATH_CHECK( fillModulatorShape(ms,output_shape,used_indices,m_modulation_scheme) );
-    if(m_do_remodulation) ATH_CHECK( remodulate(output_shape,ms,used_indices) );
+    ATH_CHECK( fillModulatorShape(ms,output_shape,used_indices,m_modulation_scheme), 1 );
+    if(m_do_remodulation) ATH_CHECK( remodulate(output_shape,ms,used_indices), 1 );
   }
   return 0;
 }

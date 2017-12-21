@@ -33,7 +33,7 @@ protected:
 	
 	void InitializeAGDD();
 	
-	AGDDController* controller;
+	AGDDController* m_controller;
 };
 
 #endif

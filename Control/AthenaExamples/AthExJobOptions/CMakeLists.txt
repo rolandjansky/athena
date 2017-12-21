@@ -9,8 +9,6 @@ atlas_subdir( AthExJobOptions )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/SGTools
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
@@ -21,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( AthExJobOptions
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools GaudiKernel StoreGateLib SGtests EventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests EventInfo )
 
 # Install files from the package:
 atlas_install_headers( AthExJobOptions )

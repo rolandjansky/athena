@@ -180,6 +180,6 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   // double m_chainTimeSquareAv{0.}; //std::chrono
   unsigned int m_nCalls{0};
 
-  //bool m_dumpJets{false};
+  bool m_dumpJets{false};
 };
 #endif

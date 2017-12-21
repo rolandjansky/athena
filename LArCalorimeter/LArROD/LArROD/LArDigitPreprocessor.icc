@@ -100,7 +100,7 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
   for(;cont_it!=cont_it_e;cont_it++) {
     //Retrieve input Container
     // const LArDigitContainer* inputContainer;
-    const DIGITCONTAINER* inputContainer;
+    const DIGITCONTAINER* inputContainer = nullptr;
     sc=evtStore()->retrieve(inputContainer,*cont_it);
     if (sc.isFailure()) {
       log << MSG::WARNING << "Cannot retrieve DIGITCONTAINER with key " << *cont_it

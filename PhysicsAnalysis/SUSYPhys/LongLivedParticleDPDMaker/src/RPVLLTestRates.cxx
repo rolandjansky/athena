@@ -94,7 +94,7 @@ StatusCode RPVLLTestRates::execute() {
 
   m_EventCounter++;
 
-  const EventInfo* eventInfo;
+  const EventInfo* eventInfo = nullptr;
   StatusCode sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Could not retrieve event info" );

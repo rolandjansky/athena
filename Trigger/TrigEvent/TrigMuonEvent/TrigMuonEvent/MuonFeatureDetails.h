@@ -12,8 +12,8 @@
 #include <stdint.h>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/MsgStream.h"
 
 //class MsgStream;

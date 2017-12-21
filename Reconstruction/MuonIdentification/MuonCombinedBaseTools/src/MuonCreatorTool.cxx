@@ -148,6 +148,7 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
+    ATH_CHECK(m_caloExtTool.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
@@ -460,20 +461,20 @@ namespace MuonCombined {
             ATH_MSG_DEBUG("MuonCreatorTool MuGirlLowBetaTag combined");
     
             // Create the xAOD object:
-            xAOD::SlowMuon* slowMuon = 0;
             if( outputData.slowMuonContainer ) {
-              slowMuon = new xAOD::SlowMuon();
+              xAOD::SlowMuon* slowMuon = new xAOD::SlowMuon();
               outputData.slowMuonContainer->push_back( slowMuon );
-            }
-            addMuGirlLowBeta(*muon,muGirlLowBetaTag,slowMuon, outputData ); // CHECK to see what variables are created here.
+            
+	      addMuGirlLowBeta(*muon,muGirlLowBetaTag,slowMuon, outputData ); // CHECK to see what variables are created here.
 
-            ATH_MSG_DEBUG("slowMuon muonContainer size "<<outputData.muonContainer->size());
-            ElementLink<xAOD::MuonContainer> muonLink(*outputData.muonContainer,outputData.muonContainer->size()-1);
-            if( slowMuon && muonLink.isValid() ) {
+	      ATH_MSG_DEBUG("slowMuon muonContainer size "<<outputData.muonContainer->size());
+	      ElementLink<xAOD::MuonContainer> muonLink(*outputData.muonContainer,outputData.muonContainer->size()-1);
+	      if( slowMuon && muonLink.isValid() ) {
 
-              ATH_MSG_DEBUG("slowMuon muonLink valid");
-              slowMuon->setMuonLink(muonLink);
-            }
+		ATH_MSG_DEBUG("slowMuon muonLink valid");
+		slowMuon->setMuonLink(muonLink);
+	      }
+	    }
           }          
         }
       }else{

@@ -196,7 +196,17 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
 	}
 	delete[] c1;
         delete reference;
-	chdir(currpath);
+
+        if(currpath==NULL) {
+          std::stringstream message;
+          message << "Invalid current directory! ";
+          throw std::runtime_error(message.str());
+        }
+        else if( chdir(currpath)!=0) {
+          std::stringstream message;
+          message << "Failed to enter current directory!";
+          throw std::runtime_error(message.str());;
+        }
 	delete currpath;
 
 	old->cd();

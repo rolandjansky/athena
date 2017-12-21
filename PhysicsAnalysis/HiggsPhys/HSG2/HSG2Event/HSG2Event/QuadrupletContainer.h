@@ -9,9 +9,9 @@
 #define HSG2Event_QuadrupletContainer_H
 
 // Gaudi/Athena include(s):
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 
 // Local include(s):
 #include "Quadruplet.h"

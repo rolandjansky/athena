@@ -1,8 +1,6 @@
 ReadData             INFO in initialize()
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 ReadData             INFO EventStreamInfo: Number of events = 7

@@ -79,6 +79,7 @@ namespace Muon {
     ATH_CHECK( m_propagator.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
 
     ATH_CHECK(m_key_mdt.initialize());
     ATH_CHECK(m_key_csc.initialize());

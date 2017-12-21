@@ -70,6 +70,9 @@
 #include "MdtCalibData/MdtTubeCalibContainer.h"
 #include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
+static constexpr unsigned int crazyParticleBarcode(
+    std::numeric_limits<int32_t>::max());
+// Barcodes at the HepMC level are int
 
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
@@ -81,6 +84,7 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_digiTool("MDT_Response_DigiTool", this)
   , m_inv_c_light(1./(CLHEP::c_light))
   , m_thpcMDT(0)
+  , m_vetoThisBarcode(crazyParticleBarcode) 
   , m_BMGpresent(false)
   , m_BMGid(-1)
   , m_mergeSvc(0)
@@ -145,6 +149,9 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   //Cosmics
   declareProperty("UseOffSet1",          m_useOffSet1          =  true);
   declareProperty("UseOffSet2",          m_useOffSet2          =  true);
+  //Truth
+  declareProperty("IncludePileUpTruth",  m_includePileUpTruth  =  true, "Include pile-up truth info");
+  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode     =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 
@@ -194,6 +201,8 @@ StatusCode MdtDigitizationTool::initialize() {
     ATH_MSG_INFO ( "UseCosmicsOffSet1      " << m_useOffSet1          );
     ATH_MSG_INFO ( "UseCosmicsOffSet2      " << m_useOffSet2          );
   }
+  ATH_MSG_INFO ( "IncludePileUpTruth     " << m_includePileUpTruth    );
+  ATH_MSG_INFO ( "ParticleBarcodeVet     " << m_vetoThisBarcode       );
 
 
   // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager  
@@ -598,7 +607,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
   
   if (0 == element) { 
     ATH_MSG_ERROR( "MuonGeoManager does not return valid element for given id!" );
-    return StatusCode::FAILURE;
+    return false;
   } 
   else {
     distRO = element->tubeFrame_localROPos(multilayer,layer,tube).z();
@@ -968,7 +977,7 @@ bool MdtDigitizationTool::createDigits(){
     }
     if(digitCollection==NULL) {
       ATH_MSG_ERROR( "Trying to use NULL pointer digitCollection" );
-      return StatusCode::FAILURE;
+      return false;
     }
       
     
@@ -1040,7 +1049,13 @@ bool MdtDigitizationTool::createDigits(){
       
       float localZPos = (float) hit.localPosition().z();
       ATH_MSG_VERBOSE( " createDigits() phit-" << &phit << " hit-" << hit.print() << "    localZPos = " << localZPos ); 
-    
+
+      //Do not store pile-up truth information
+      if (!m_includePileUpTruth &&
+          ((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) {
+        continue;
+      }
+
       //Create the Deposit for MuonSimData
       MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), MuonMCData((float)driftRadius,localZPos));
 

@@ -87,7 +87,6 @@ namespace Muon {
     declareProperty( "DoSummary", m_doSummary = false );
     declareProperty( "MuonTrackSelector",   m_trackSelector );
     declareProperty( "HoleRecoveryTool",   m_muonHoleRecoverTool);
-    declareProperty( "WriteMergedSegments", m_writeMergedSegments = false );
     declareProperty( "UseTightSegmentMatching", m_useTightMatching = true );
     declareProperty( "SegmentThreshold", m_segThreshold = 8);
     declareProperty( "OnlyMdtSeeding", m_onlyMDTSeeding = true );
@@ -103,6 +102,7 @@ namespace Muon {
     ATH_CHECK( m_candidateTool.retrieve() );
     ATH_CHECK( m_candidateMatchingTool.retrieve() );
     ATH_CHECK( m_trackBTool.retrieve() );
+    ATH_CHECK( m_ambiTool.retrieve() );
     ATH_CHECK( m_mooBTool.retrieve() );
     ATH_CHECK( m_trackRefineTool.retrieve() );
     ATH_CHECK( decodeStrategyVector( m_stringStrategies ) );
@@ -245,18 +245,6 @@ namespace Muon {
     MuonSegmentCollection theSegments;
     if( !m_segmentMerger.empty() ) {
       theSegments = m_segmentMerger->findDuplicates(coll);
-      if( m_writeMergedSegments){
-        Trk::SegmentCollection* segmentCollection = new Trk::SegmentCollection();
-        for( MuonSegmentCollection::const_iterator sit=theSegments.begin();sit!=theSegments.end();++sit ){
-          segmentCollection->push_back(const_cast<MuonSegment*>(*sit));
-        }
-        if (evtStore()->record(segmentCollection,"MergedMuonSegments").isFailure() ){
-          ATH_MSG_WARNING("failed to recoded MergedMuonSegments");
-          m_constsegmentsToDelete.insert(m_constsegmentsToDelete.end(),theSegments.begin(),theSegments.end());
-        }
-      }else{
-        m_constsegmentsToDelete.insert(m_constsegmentsToDelete.end(),theSegments.begin(),theSegments.end());
-      }
     }else{
       theSegments = coll;
     }

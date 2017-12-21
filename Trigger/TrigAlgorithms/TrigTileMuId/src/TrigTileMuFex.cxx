@@ -233,9 +233,9 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
     //std::string       key = "GEN_EVENT";
     std::string   key = m_key_for_truth;
     
-    StatusCode cont = evtStore()->contains<McEventCollection>(key);
+    bool cont = evtStore()->contains<McEventCollection>(key);
     StatusCode retr = evtStore()->retrieve(mcCollptr,key);
-    if( cont.isSuccess() && retr.isSuccess() ) {
+    if( cont && retr.isSuccess() ) {
       McEventCollection::const_iterator itr;
       for(itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
         HepMC::GenEvent::particle_const_iterator Part;

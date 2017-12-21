@@ -31,7 +31,6 @@ TBECBackOuterBarretteTool::TBECBackOuterBarretteTool(const std::string& type, co
   , m_chcollSD(nullptr)
   , m_roptSD(nullptr)
 {
-  declareInterface<ISensitiveDetector>(this);
   declareProperty("EMECPosBOBWheel_ECOR_GADJCalculator", m_emecbobgadjcalc);
   declareProperty("EMECPosBOBWheel_ECOR_GADJ_OLDCalculator", m_emecbobgadjoldcalc);
   declareProperty("EMECPosBOBWheel_ECOR_GADJ_ECalculator", m_emecbobgadjecalc);

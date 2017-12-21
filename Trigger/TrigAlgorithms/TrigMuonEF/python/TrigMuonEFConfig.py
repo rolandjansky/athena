@@ -523,7 +523,7 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=False)
@@ -558,7 +558,7 @@ class TrigMuonEFMSTrackIsolationConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=False)
@@ -593,7 +593,7 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_VarIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_VarIsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=True,
@@ -648,7 +648,7 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_AnnulusIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_AnnulusIsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=True,
                                                  annulusSize=0.1,

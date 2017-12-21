@@ -42,6 +42,7 @@ struct BadFebEntryMerger {
 LArBadChanTool::LArBadChanTool(const std::string& type, const std::string& name, 
 			       const IInterface* parent) :
 	AthAlgTool( type, name, parent), 
+        m_cablingService("LArCablingService"),
 	m_updatedFromDB( false),
 	m_updatedFebsFromDB( false),
 	m_ready( false),
@@ -413,7 +414,7 @@ bool LArBadChanTool::readFromDB( const DataHandle<CondAttrListCollection> collec
 bool LArBadChanTool::readBadFebsFromDB() 
 {
 
-  ATH_CHECK( detStore()->retrieve( m_DBBadFebColl, m_DBBadFebFolder) );
+  ATH_CHECK( detStore()->retrieve( m_DBBadFebColl, m_DBBadFebFolder), false );
   ATH_MSG_INFO ( "Retrieved folder " << m_DBBadFebFolder );
 
   if (!m_DBBadFebColl.isValid()){

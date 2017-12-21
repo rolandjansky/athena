@@ -61,7 +61,7 @@ bool DerivationFramework::DVTracklessJetFilterTool::eventPassesFilter() const
   StatusCode sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
   if( sc.isFailure()  ||  !jetContainer ) {
     msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
-    return StatusCode::FAILURE;
+    return false;
   } 
   msg(MSG::DEBUG)<<"size of  Jet container is "<<jetContainer->size()<<endmsg;
   

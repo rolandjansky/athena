@@ -529,8 +529,10 @@ namespace SG {
      * @brief Initialize the store pointer from the store handle.
      *        Also checks that the key is valid.
      * @param ctx The current event context, or nullptr.
+     *
+     * Returns true on success.
      */
-    StatusCode setStoreFromHandle (const EventContext* ctx);
+    bool setStoreFromHandle (const EventContext* ctx);
 
 
     /**

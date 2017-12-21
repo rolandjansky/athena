@@ -8,7 +8,6 @@
 #define SGTOOLS_SGTOOLSDICT_H
 
 #include <vector>
-#include "SGTools/DataBucket.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/CurrentEventStore.h"
 

@@ -2018,7 +2018,7 @@ void DataVector<T, BASE>::setMostDerived()
 
 /// The DV/DL info struct for this class.
 template <class T, class BASE>
-DataModel_detail::DVLInfo<DataVector<T> > DataVector<T, BASE>::s_info;
+const DataModel_detail::DVLInfo<DataVector<T> > DataVector<T, BASE>::s_info;
 
 
 //****************************************************************************
@@ -3796,7 +3796,7 @@ void DATAVECTOR::setMostDerived()
 
 /// The DV/DL info struct for this class.
 template <class T>
-DataModel_detail::DVLInfo<DataVector<T> > DATAVECTOR::s_info;
+const DataModel_detail::DVLInfo<DataVector<T> > DATAVECTOR::s_info;
 
 
 #undef DATAVECTOR

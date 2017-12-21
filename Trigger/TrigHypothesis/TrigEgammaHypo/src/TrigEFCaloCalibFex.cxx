@@ -305,10 +305,10 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         }
     }
 
-    bool status = CaloClusterStoreHelper::finalizeClusters( store(), m_pCaloClusterContainer,
-            clusterCollKey, msg());
+    StatusCode status = CaloClusterStoreHelper::finalizeClusters( store(), m_pCaloClusterContainer,
+                                                                  clusterCollKey, msg());
 
-    if ( !status ) { 
+    if ( !status.isSuccess() ) { 
         msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endmsg;
         return HLT::TOOL_FAILURE;
     } else {

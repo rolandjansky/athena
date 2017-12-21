@@ -119,50 +119,26 @@ StatusCode InDet::TRT_SegmentsToTrack::initialize()
 
 StatusCode InDet::TRT_SegmentsToTrack::finalize()
 {
+  ATH_MSG_INFO("Summary of" << m_events << " Events");
+  ATH_MSG_INFO("Found Real Tracks : " << m_nTracksReal);
+  ATH_MSG_INFO("Found Fake Tracks : " << m_nTracksFake);
 
-  SG::ReadHandle<PRD_MultiTruthCollection> m_truthCollectionTRT(m_multiTruthCollectionTRTName);
-
-  ATH_MSG_INFO( "Summary of"<<m_events<<" Events");
-  
-  if(m_truthCollectionTRT.isValid()){
-    ATH_MSG_INFO( "Found Real Tracks : "<<m_nTracksReal);
-    ATH_MSG_INFO( "Found Fake Tracks : "<<m_nTracksFake);
-  }else{
-    ATH_MSG_INFO( "Found Tracks : "<<m_nTracksFake);
+  if(m_nTracksReal>0) {
+    ATH_MSG_INFO("Average noise percentage " << m_noiseratio/double(m_nTracksReal));
   }
 
-
-  if(m_nTracksReal>0)
-    ATH_MSG_INFO( "Average noise percentage " << m_noiseratio/double(m_nTracksReal));
-
-  std::map<int,int>::iterator mit;
-  
-  if(m_truthCollectionTRT.isValid()){
-    for(mit=m_MapReal.begin();mit!=m_MapReal.end();++mit){
-      int key=(*mit).first;
-      int val=(*mit).second;
-      
-      ATH_MSG_INFO(" Real tracks with "<<key<<" hits: "<<val);
-    }
+  for (const auto& mitr : m_MapReal) {
+    ATH_MSG_INFO("Real tracks with " << mitr.first << " hits: " << mitr.second);
   }
-
-  for(mit=m_MapFake.begin();mit!=m_MapFake.end();++mit){
-    int key=(*mit).first;
-    int val=(*mit).second;
-    
-    if(m_truthCollectionTRT.isValid())
-      ATH_MSG_INFO("Fake tracks with "<<key<<" hits: "<<val);
-    else
-      ATH_MSG_INFO(" Tracks with "<<key<<" hits: "<<val);
+  for (const auto& mitr : m_MapFake) {
+    ATH_MSG_INFO("Fake tracks with " << mitr.first << " hits: " << mitr.second);
   }
-
 
   if(m_combineSegments){
     ATH_MSG_INFO("Number of combined Barrel+Endcap tracks: "<<m_n_combined_fit);
   }
 
   ATH_MSG_INFO(name() << " finalize() successful ");
-
 
   return StatusCode::SUCCESS;
 }
@@ -198,9 +174,9 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 
   //try to get truth information
 
-  SG::ReadHandle<PRD_MultiTruthCollection> m_truthCollectionTRT(m_multiTruthCollectionTRTName);
+  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName);
 
-  if (!m_truthCollectionTRT.isValid()){
+  if (!truthCollectionTRT.isValid()){
     ATH_MSG_INFO("Could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionTRTName.key());
     sc=StatusCode::SUCCESS; // not having truth information is not a failure
   }
@@ -420,10 +396,10 @@ int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* drif
   int numBarcodes = 0;
   typedef PRD_MultiTruthCollection::const_iterator iter;
 
-  SG::ReadHandle<PRD_MultiTruthCollection> m_truthCollectionTRT(m_multiTruthCollectionTRTName);
+  SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName);
 
-  if(!m_truthCollectionTRT.isValid()) return 0;
-  std::pair<iter,iter> range = m_truthCollectionTRT->equal_range(driftcircle->identify());
+  if(!truthCollectionTRT.isValid()) return 0;
+  std::pair<iter,iter> range = truthCollectionTRT->equal_range(driftcircle->identify());
   for(iter i = range.first; i != range.second; i++){
     numBarcodes++;
   }

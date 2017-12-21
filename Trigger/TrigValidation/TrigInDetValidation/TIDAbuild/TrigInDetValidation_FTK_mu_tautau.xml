@@ -1,7 +1,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_mu_tautau'>
             <doc>Muon slice FTK tautau sample</doc>
             <displayName>MuonSlice FTK tautau sample</displayName>
-	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=5000;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

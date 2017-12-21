@@ -20,21 +20,22 @@ from GaudiSvc.GaudiSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 #--------------------------------------------------------------
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
+globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
+globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
 print globalflags
 
+from RecExConfig.RecFlags import rec
+rec.projectName.set_Value_and_Lock("data12_8TeV")
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -76,6 +77,9 @@ ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg(OutputLevel=2)
+
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterTestAlg
 topSequence+= SCT_ConditionsParameterTestAlg()
 
@@ -83,7 +87,7 @@ from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsPara
 ServiceMgr += SCT_ConditionsParameterSvc()
 
 #SCT_DCSConditionsSvc=ServiceMgr.SCT_DCSConditionsSvc
-SCT_ConditionsParameterSvc.AttrListCollFolders=["/SCT/DAQ/Config/Chip"]
+SCT_ConditionsParameterSvc.AttrListCollFolders=["/SCT/DAQ/Configuration/Chip"]
 
 
 #--------------------------------------------------------------
@@ -93,10 +97,10 @@ import AthenaCommon.AtlasUnixGeneratorJob
 #ServiceMgr+= EventSelector()
 #ServiceMgr.EventSelector.FirstEvent = 1
 #ServiceMgr.EventSelector.EventsPerRun = 5
-ServiceMgr.EventSelector.RunNumber = 310809
+ServiceMgr.EventSelector.RunNumber = 215643
 # initial time stamp - this is number of seconds since 1st Jan 1970 GMT
 # run 310809 Recording start/end 2016-Oct-17 21:39:18 / 2016-Oct-18 16:45:23 UTC
-ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
+#ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
 # increment of 3 minutes
 ServiceMgr.EventSelector.TimeStampInterval = 180
 
@@ -112,11 +116,11 @@ ServiceMgr.MessageSvc.OutputLevel = 3
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-#IOVDbSvc.GlobalTag="HEAD"
-IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-10"
+conddb.dbdata="COMP200"
+IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = 3
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Chip", "/SCT/DAQ/Config/Chip")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
+conddb.addFolder('',"<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip")
+conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/ROD")
+conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Geog")
+conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/RODMUR")
+conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/MUR")

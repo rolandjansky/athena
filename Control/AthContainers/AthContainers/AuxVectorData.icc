@@ -61,7 +61,19 @@ const DataLink<SG::IConstAuxStore> AuxVectorData::getConstStoreLink() const
  * This will be non-zero if a non-const store is associated with this object.
  */
 inline
-SG::IAuxStore* AuxVectorData::getStore() const
+SG::IAuxStore* AuxVectorData::getStore()
+{
+  return m_store;
+}
+
+
+/**
+ * @brief Return the current store, as a non-const interface.
+ *
+ * This will be non-zero if a non-const store is associated with this object.
+ */
+inline
+const SG::IAuxStore* AuxVectorData::getStore() const
 {
   return m_store;
 }
@@ -120,7 +132,7 @@ bool AuxVectorData::isAvailable (const std::string& name,
  * @param id The variable to test.
  */
 inline
-bool AuxVectorData::isAvailableWritable (auxid_t id) const
+bool AuxVectorData::isAvailableWritable (auxid_t id)
 {
   // First check to see if this variable is present in the cache.
   if (m_cache.cachePtr (id)) return true;
@@ -137,7 +149,7 @@ template <class T>
 inline
 bool
 AuxVectorData::isAvailableWritable (const std::string& name,
-                                    const std::string& clsname /*= ""*/) const
+                                    const std::string& clsname /*= ""*/)
 {
   auxid_t id = SG::AuxTypeRegistry::instance().getAuxID<T> (name, clsname);
   return isAvailableWritable (id);

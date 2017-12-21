@@ -150,7 +150,7 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
     if(bool(pLog))
       (*pLog) << MSG::ERROR
 	      << "Unable to retrieve ComTime from StoreGate" << endmsg;
-    return sc;
+    return static_cast<bool>(sc);
   }
   
   else {//TileComTime exists

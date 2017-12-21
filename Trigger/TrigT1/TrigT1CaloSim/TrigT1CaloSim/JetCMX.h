@@ -64,9 +64,6 @@
 
    JetCMX( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~JetCMX();
-
-
    //------------------------------------------------------
    // Methods used by Athena to run the algorithm
    //------------------------------------------------------

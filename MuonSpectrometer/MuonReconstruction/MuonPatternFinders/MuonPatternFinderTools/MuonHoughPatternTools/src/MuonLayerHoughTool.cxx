@@ -53,7 +53,7 @@ namespace Muon {
     declareProperty("ExtrapolationDistance",m_extrapolationDistance = 1500. );
     declareProperty("MuonTruthParticlesKey", m_MuonTruthParticlesKey);
     declareProperty("MuonTruthSegmentsKey", m_MuonTruthSegmentsKey);
-    declareProperty("AddSectors", m_addSectors = true);
+    declareProperty("AddSectors", m_addSectors = false);
   }
 
   MuonLayerHoughTool::~MuonLayerHoughTool()
@@ -74,6 +74,9 @@ namespace Muon {
     if( m_doTruth && !m_truthSummaryTool.empty() && m_truthSummaryTool.retrieve().isFailure()){
       ATH_MSG_ERROR("Failed to initialize " << m_truthSummaryTool );
       return StatusCode::FAILURE;
+    }
+    else{
+      m_truthSummaryTool.disable();
     }
     if( detStore()->retrieve( m_detMgr ).isFailure() || !m_detMgr ){
       ATH_MSG_ERROR("Failed to initialize detector manager" );
@@ -1804,23 +1807,23 @@ namespace Muon {
         HashVec::const_iterator iit_end = hashes.end();
         for( ;iit!=iit_end;++iit ){
           // !?! else if made by Felix
-          if( mdtCont && tech == MuonStationIndex::MDT ) {
+          if( mdtCont && mdtCont->size()>0 && tech == MuonStationIndex::MDT ) {
             MdtPrepDataContainer::const_iterator pos = mdtCont->indexFind(*iit);
             if( pos != mdtCont->end() ) fill(**pos,houghData.hitVec[layerHash]);
           }
-          else if( rpcCont && tech == MuonStationIndex::RPC ) {
+          else if( rpcCont && rpcCont->size()>0 && tech == MuonStationIndex::RPC ) {
             RpcPrepDataContainer::const_iterator pos = rpcCont->indexFind(*iit);
             if( pos != rpcCont->end() ) fill(**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first]);
           }
-          else if( tgcCont && tech == MuonStationIndex::TGC ) {
+          else if( tgcCont && tgcCont->size()>0 && tech == MuonStationIndex::TGC ) {
             TgcPrepDataContainer::const_iterator pos = tgcCont->indexFind(*iit);
             if( pos != tgcCont->end() ) fill(**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
-          else if( stgcCont && tech == MuonStationIndex::STGC ) {
+          else if( stgcCont && stgcCont->size()>0 && tech == MuonStationIndex::STGC ) {
             sTgcPrepDataContainer::const_iterator pos = stgcCont->indexFind(*iit);
             if( pos != stgcCont->end() ) fill(**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
-          else if( mmCont && tech == MuonStationIndex::MM ) {
+          else if( mmCont && mmCont->size()>0 && tech == MuonStationIndex::MM ) {
             MMPrepDataContainer::const_iterator pos = mmCont->indexFind(*iit);
             if( pos != mmCont->end() ) fill(**pos,houghData.hitVec[layerHash]);
           }

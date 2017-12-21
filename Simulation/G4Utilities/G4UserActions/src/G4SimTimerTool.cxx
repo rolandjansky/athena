@@ -13,9 +13,8 @@ namespace G4UA
   G4SimTimerTool::G4SimTimerTool(const std::string& type,
                                  const std::string& name,
                                  const IInterface* parent)
-    : ActionToolBaseReport<G4SimTimer>(type, name, parent)
+    : UserActionToolBase<G4SimTimer>(type, name, parent)
   {
-    declareInterface<IG4EventActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
@@ -34,11 +33,14 @@ namespace G4UA
   {
     ATH_MSG_DEBUG( "Finalizing " << name() );
 
-    mergeReports();
+    // Accumulate results across threads
+    G4SimTimer::Report report;
+    m_actions.accumulate(report, &G4SimTimer::getReport,
+                         &G4SimTimer::Report::merge);
 
     // Report the results
-    auto meanSigma = m_report.meanAndSigma();
-    ATH_MSG_INFO("Finalized timing results for " << m_report.nEvent <<
+    auto meanSigma = report.meanAndSigma();
+    ATH_MSG_INFO("Finalized timing results for " << report.nEvent <<
                  " events (not all events used)");
     ATH_MSG_INFO("Average time per event was " <<
                  std::setprecision(4) << meanSigma.first << " +- " <<
@@ -50,10 +52,12 @@ namespace G4UA
   // Create the action on request
   //---------------------------------------------------------------------------
   std::unique_ptr<G4SimTimer>
-  G4SimTimerTool::makeAction()
+  G4SimTimerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Making a G4SimTimer action");
-    return std::make_unique<G4SimTimer>();
+    auto action = std::make_unique<G4SimTimer>();
+    actionList.eventActions.push_back( action.get() );
+    return action;
   }
 
 }

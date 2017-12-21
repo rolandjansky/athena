@@ -2,7 +2,7 @@
 
  <!-- MN: NOTE - do not select both typedef and the original class here! -->
 
-  <class name="TPCnv::MuonMeasurements_tlp3" id="5C8C4552-9F05-11E3-8164-6C3BE51AB9F1" />  
+    <class name="TPCnv::MuonMeasurements_tlp2" id="87FC613F-390A-4AB0-9BBF-28CE788867D5" />  
 
     <!-- MuonRIO_OnTrack -->
     <class name="Muon::CscClusterOnTrack_p2" />

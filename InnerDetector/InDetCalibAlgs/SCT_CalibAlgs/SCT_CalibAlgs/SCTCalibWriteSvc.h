@@ -153,8 +153,8 @@ private:
   StatusCode registerIOV(const CLID& clid);
   int stringToInt(const std::string& s) const;
   
-  StatusCode streamOutCondObjects(const std::string & foldername) const;
-  StatusCode streamOutCondObjectsWithErrMsg(const std::string & foldername) const;
+  StatusCode streamOutCondObjects(const std::string & foldername);
+  StatusCode streamOutCondObjectsWithErrMsg(const std::string & foldername);
 
   StatusCode registerCondObjects(const std::string & foldername,const std::string & tagname);
   StatusCode recordAndStream(const CondAttrListCollection* pCollection,const std::string & foldername, bool & flag);
