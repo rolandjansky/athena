@@ -110,7 +110,7 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
     declareProperty("PhotonContainerName",   m_photonContainerName="egamma_Photons");
     // Additional property to retrieve slw and topo containers from TE
     declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
-    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TopoCaloClusterMaker_topo_FS");
+    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigEgammaTopoClusters");
     // ShowerBuilder (trigger specific)
     declareProperty("ShowerBuilderTool",  m_showerBuilder, "Handle to Shower Builder");
     // FourMomBuilder (trigger specific)
@@ -121,6 +121,13 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
     declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder, "Handle to TrackMatchBuilder");
     // AmbiguityTool
     declareProperty("AmbiguityTool", m_ambiguityTool, "Handle to AmbiguityTool");
+
+    // TopoClusterCopierTool                        
+    declareProperty("TopoClusterCopierTool", m_topoclustercopier, "Handle to TopoClusterCopierTool");
+    // ElectronSuperClusterBuilderTool    
+    declareProperty("ElectronSuperClusterBuilderTool", m_electronSCBuilder, "Handle to ElectronSuperClusterBuilderTool");
+    // PhotonSuperClusterBuilderTool
+    declareProperty("PhotonSuperClusterBuilderTool",  m_photonSCBuilder, "Handle to PhotonSuperClusterBuilderTool");
     //ElectronPIDBuilder
     declareProperty("ElectronPIDBuilder", m_electronPIDBuilder, "Handle to ElectronPIDBuilder"); 
     //ElectronCaloPIDBuilder

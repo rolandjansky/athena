@@ -103,6 +103,12 @@ private:
   ToolHandle<IEMShowerBuilder> m_showerBuilder;  // trigger specific
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder; // trigger specific
   ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool;
+
+  // SuperCluster Tools
+ 
+  ToolHandle<IegammaTopoClusterCopier> m_topoclustercopier;
+  ToolHandle<IelectronSuperClusterBuilder> m_electronSCBuilder;
+  ToolHandle<IphotonSuperClusterBuilder> m_photonSCBuilder;
   
   /** @brief Tool for decorating electron PID isEM and LH */
   ToolHandle<IegammaBaseTool> m_electronPIDBuilder;

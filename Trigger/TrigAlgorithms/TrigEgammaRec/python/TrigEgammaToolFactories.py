@@ -196,4 +196,69 @@ def configureClusterCorrections(slwAlg):
 TrigCaloClusterMaker_slw = Factory(TrigCaloClusterMaker,name='TrigCaloClusterMaker_slw',ClustersOutputName="TriggerClustersegSW",
         postInit=[configureClusterBuilder,configureClusterCorrections,configureTrigCaloClusterMonitoring])
 
+# Here we configure tools needed for supercluster building. Copying from egamma/egammaTools/python/egammaToolsFactories.py
+def configureClusterCorrections(swTool):
+  "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
+  from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1, \
+      etaoff_b2,etaoff_e2,phioff_b2,phioff_e2,update,time,listBadChannel
+  from CaloRec.CaloRecMakers import _process_tools
+
+  clusterTypes = dict(
+    Ele35='ele35', Ele55='ele55', Ele37='ele37',
+    Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
+    Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
+  )
+  for attrName, clName in clusterTypes.iteritems():
+    x = 'ClusterCorrectionTools' + attrName
+    if not hasattr(swTool, x) or getattr(swTool, x):
+      continue
+    y = make_CaloSwCorrections(clName, suffix='EG',
+      version = jobproperties.egammaRecFlags.clusterCorrectionVersion(),
+      cells_name=egammaKeys.caloCellKey() )
+    setattr(swTool, x, _process_tools (swTool, y) )
+
+  #Super cluster position only corrections
+  for attrName, clName in clusterTypes.iteritems():
+    n = 'ClusterCorrectionToolsSuperCluster' + attrName
+    if not hasattr(swTool, n) or getattr(swTool, n):
+      continue
+
+    setattr(swTool, n ,_process_tools(swTool,
+                                      make_CaloSwCorrections(clName, suffix ='EGSuperCluster',
+                                                             corrlist=[[rfac,'v5'],[etaoff_b1,'v5'],[etaoff_e1,'v5'],
+                                                                       [etaoff_b2,'v5'],[etaoff_e2,'v5'], [phioff_b2, 'v5data'],
+                                                                       [phioff_e2,  'v5data'], [update], [time], [listBadChannel]],
+                                                             cells_name=egammaKeys.caloCellKey() )))
+    #End of super cluster position only corrections
+#-------------------------
+
+egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
+                           postInit=[configureClusterCorrections])
+
+TrigegammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
+        name = 'TrigegammaTopoClusterCopier' ,
+        InputTopoCollection='TopoCaloClusterMaker_topo_FS',
+        OutputTopoCollection='TrigEgammaTopoClusters',
+        )
+
+electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
+                                           name = 'electronSuperClusterBuilder',
+                                           ClusterCorrectionTool=egammaSwTool,
+                                           MVACalibTool=TrigEgammaMVACalibTool,
+                                           EtThresholdCut=1000,
+                                           AddCellsWindowEtaCellsBarrel=3,
+                                           AddCellsWindowPhiCellsBarrel=999,
+                                           AddCellsWindowEtaCellsEndcap=5,
+                                           AddCellsWindowPhiCellsEndcap=999
+                                         )
+
+TrigPhotonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
+                                         name = 'TrigPhotonSuperClusterBuilder',
+                                         ClusterCorrectionTool=egammaSwTool,
+                                         MVACalibTool= TrigEgammaMVACalibTool,
+                                         AddCellsWindowEtaCellsBarrel=3,
+                                         AddCellsWindowPhiCellsBarrel=999,
+                                         AddCellsWindowEtaCellsEndcap=5,
+                                         AddCellsWindowPhiCellsEndcap=999
+                                         )
 del mlog
