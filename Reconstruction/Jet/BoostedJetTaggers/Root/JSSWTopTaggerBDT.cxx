@@ -373,6 +373,8 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
     m_Tau2_wta = jet.getAttribute<float>("Tau2_wta");
     m_Tau3_wta = jet.getAttribute<float>("Tau3_wta");
 
+    m_undefInput = false;
+
     if (!jet.isAvailable<float>("Tau21_wta")){
         m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
 	if(m_Tau21_wta!=m_Tau21_wta){

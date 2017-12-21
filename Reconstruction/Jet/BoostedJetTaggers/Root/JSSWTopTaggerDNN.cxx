@@ -297,6 +297,12 @@ double JSSWTopTaggerDNN::getScore(const xAOD::Jet& jet) const{
 
     // obtain the output associated with the single output node
     double DNNscore(-666.);
+
+    if(m_undefInput){
+      ATH_MSG_WARNING("One (or more) tagger input variable has an undefined value (NaN), setting score to -666");      
+      return DNNscore;
+    }
+
     DNNscore = discriminant[m_kerasConfigOutputName];
 
     return DNNscore;
@@ -353,14 +359,28 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
     DNN_inputValues["Tau1_wta"] = tau1wta;
     DNN_inputValues["Tau2_wta"] = tau2wta;
     DNN_inputValues["Tau3_wta"] = tau3wta;
-    if (!jet.isAvailable<float>("Tau21_wta"))
-        DNN_inputValues["Tau21_wta"] = tau2wta / tau1wta;
-    else
+
+    m_undefInput = false;
+
+    if (!jet.isAvailable<float>("Tau21_wta")){
+        double tau21wta = tau2wta / tau1wta;
+	if(tau21wta!=tau21wta){
+	  m_undefInput = true;
+	}
+        DNN_inputValues["Tau21_wta"] = tau21wta;
+    }else{
         DNN_inputValues["Tau21_wta"] = jet.getAttribute<float>("Tau21_wta");
-    if (!jet.isAvailable<float>("Tau32_wta"))
-        DNN_inputValues["Tau32_wta"] = tau3wta/ tau2wta;
-    else
+    }
+
+    if (!jet.isAvailable<float>("Tau32_wta")){
+        double tau32wta = tau3wta / tau2wta;
+	if(tau32wta!=tau32wta){
+	  m_undefInput = true;
+	}
+        DNN_inputValues["Tau32_wta"] = tau32wta;
+    }else{
         DNN_inputValues["Tau32_wta"] = jet.getAttribute<float>("Tau32_wta");
+    }
 
     // Qw observable for top tagging
     DNN_inputValues["Qw"] = jet.getAttribute<float>("Qw");

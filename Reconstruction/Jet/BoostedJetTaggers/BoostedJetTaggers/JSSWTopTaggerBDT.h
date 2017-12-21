@@ -102,9 +102,8 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     mutable float m_ThrustMaj;
     mutable float m_FoxWolfram20;
 
-  // bool to check whether variables are corrupt
-  mutable  bool m_undefInput = false;
-
+    // bool to check whether variables are undefined
+    mutable  bool m_undefInput;
 
     // parameters to store specific cut values
     std::string m_strMassCutLow;
