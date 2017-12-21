@@ -895,7 +895,13 @@ uint32_t PixelCablingSvc::getFEwrtSlink(Identifier *pixelId) {
     uint32_t linkNum = (onlineId >> 24) & 0xFFFF;
     unsigned int localFE = getFE(pixelId, offlineId);   // FE number within module, [0,1]. Increases with increasing eta_index
 
-    nnn = (linkNum >> (localFE * 8)) & 0xF;
+    if(localFE>1) {
+      msg(MSG::WARNING) << "Unexpected FE: "<<localFE<<"  PixelCablingSvc::getFEwrtSlink() "<< endmsg;
+      exit(EXIT_FAILURE);
+    }
+    else {
+      nnn = (linkNum >> (localFE * 8)) & 0xF;
+    }
 
     // Check for errors
     if (nnn > 7) msg(MSG::WARNING) << "Error in the identification of the FE-I4 w.r.t. Slink" << endmsg;
