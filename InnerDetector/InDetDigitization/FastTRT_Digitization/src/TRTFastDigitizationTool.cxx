@@ -194,6 +194,15 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
                                   { 1.018, 1.040, 0.800, 0.935, 2.400 }   // EndCap C-side Argon
                                 };
 
+  float mu = 30.0;
+  const xAOD::EventInfo* m_eventInfo = 0;
+  if( StatusCode::SUCCESS == evtStore()->retrieve(m_eventInfo) ){
+    mu = (float) m_eventInfo->averageInteractionsPerCrossing();
+  }
+  else{
+    ATH_MSG_INFO("Cannot retrieve event info, use default value");
+  }
+
   m_driftCircleMap.clear();
 
   TimedHitCollection< TRTUncompressedHit >::const_iterator itr1, itr2;
@@ -243,7 +252,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       double sigmaTrt = trtSigmaDriftRadiusTail;
       if ( !isTail ) {
         double driftTime = m_trtDriftFunctionTool->approxDriftTime( fabs( driftRadiusLoc ) );
-        sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id );
+        sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id, mu );
       }
 
       // driftRadiusLoc smearing procedure 
