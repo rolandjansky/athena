@@ -72,6 +72,7 @@ class Config:
     cutsFile = 'nocuts.txt'
 
     gridUsername = ''
+    groupProduction = False
     suffix = ''
     excludedSites = ''
     forceSite = ''
@@ -256,9 +257,16 @@ def submit(config, allSamples):
      n = runNumber + '.' + txt + '.' + derivation + '.' + tags
 
      #Make the output dataset name
-     output = 'user.' + config.gridUsername + '.' + n + '.' + config.suffix
+     #for group production it has to start with "group." and we asume that gridUsername is the name of the group (e.g. phys-top)
+     if config.groupProduction:
+         output = 'group.' + config.gridUsername + '.' + n + '.' + config.suffix
+     else:
+         output = 'user.' + config.gridUsername + '.' + n + '.' + config.suffix
 
      cmd = 'prun \\\n'
+     #special care for group production - we assume that gridUsername is the name of the group (e.g. phys-top)
+     if config.groupProduction:
+         cmd += '--official --voms atlas:/atlas/' + config.gridUsername + '/Role=production '
      cmd += '--inDS=' + d + ' \\\n'
      cmd += '--outDS=' + output + ' \\\n'
      if config.CMake:
