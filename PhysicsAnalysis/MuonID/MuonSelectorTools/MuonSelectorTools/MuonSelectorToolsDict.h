@@ -10,7 +10,7 @@
 #endif // __GCCXML__
 
 // Includes for the dictionary generation:
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 
 #endif // MUONSELECTORTOOLS_MUONSELECTORTOOLSDICT_H

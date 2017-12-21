@@ -359,12 +359,9 @@ namespace CP {
           return (m_toroidOff ? xAOD::Muon::Medium : xAOD::Muon::Loose);
       }
 
-      // Improvement for Loose targeting low-pT muons
-      /*if (fabs(mu.eta())>0.1 && fabs(mu.eta())<1.05 && nprecisionLayers==1 && 
-	  (mu.author()==xAOD::Muon::MuidCo || 
-	   (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) || 
-	   mu.author()==xAOD::Muon::MuTagIMO ) ) 
-	   return xAOD::Muon::Loose;*/
+      // Improvement for Loose targeting low-pT muons (pt<7 GeV)
+      if ( mu.pt()/1000.<7. && fabs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) 
+	return xAOD::Muon::Loose;
 
       // didn't pass the set of requirements for a medium or tight combined muon
       return xAOD::Muon::VeryLoose;
