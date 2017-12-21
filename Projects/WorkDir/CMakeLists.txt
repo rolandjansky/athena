@@ -15,7 +15,7 @@ find_package( AtlasCMake QUIET )
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
 set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase
-   AthSimulation )
+   AthSimulation AthDerivation)
 set( _defaultParentProject Athena )
 set( _defaultUseFortran TRUE )
 foreach( _pp ${_parentProjectNames} )

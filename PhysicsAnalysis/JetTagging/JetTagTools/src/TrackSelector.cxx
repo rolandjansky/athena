@@ -12,7 +12,6 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh" 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GaudiKernel/IToolSvc.h"
-//#include "StoreGate/ReadHandle.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include <TMath.h>
 #include <string>
@@ -364,42 +363,4 @@ namespace Analysis {
     return pass;
   }
 
-
-//  StatusCode TrackSelector::selectAllTracks() {
-
-    /** retrieve input tracks: */
-    //const xAOD::TrackParticleContainer* inputTracks(0);
-    //SG::ReadHandle<xAOD::TrackParticleContainer> inputTracks(m_inputTrackCollection);
-/*    StatusCode sc = evtStore()->retrieve(inputTracks, m_inputTrackCollection);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("#BTAG# TrackParticleContainer " << m_inputTrackCollection << " not found.");
-      return sc;
-    }
-    ATH_MSG_VERBOSE("#BTAG# TrackParticleContainer " << m_inputTrackCollection << " found.");
-*/
-    /** create output container: */
-//    xAOD::TrackParticleContainer* outputTracks = new xAOD::TrackParticleContainer(); 
-
-    /** loop on tracks, select and fill output container: */
-/*    xAOD::TrackParticleContainer::const_iterator nextTrk(inputTracks->begin());
-    xAOD::TrackParticleContainer::const_iterator lastTrk(inputTracks->end());
-    for (; nextTrk!=lastTrk; nextTrk++) {
-      if( this->selectTrack( (*nextTrk) ) ) {
-	ATH_MSG_VERBOSE("#BTAG# track selected");
-	outputTracks->push_back( new xAOD::TrackParticle(**nextTrk) );
-      }
-    }
-*/
-    /** storing output collection in StoreGate: */
-/*    ATH_MSG_VERBOSE("#BTAG# recording to StoreGate: " << m_outputTrackCollection);
-    StatusCode sc = evtStore()->record(outputTracks, m_outputTrackCollection, false);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("#BTAG# unable to store TrackParticleContainer " << m_outputTrackCollection);
-      return sc;
-    }
-    ATH_MSG_VERBOSE("#BTAG# TrackParticleContainer " << m_outputTrackCollection << " stored."); 
-  
-    return StatusCode::SUCCESS;
-  }
-*/
 }

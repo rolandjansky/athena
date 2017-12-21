@@ -46,9 +46,6 @@ public:
   /** Returns true if the argument track fulfills the selection
    */
   bool selectTrack(const xAOD::TrackParticle* track, double refPt = 0); 
-  /** Processes all the tracks in input and outputs the tracks 
-      passing the selection */
-  //StatusCode selectAllTracks();
 
   inline const std::bitset<17> currentTrackpassedCuts() const { return m_passedCuts; }
 
