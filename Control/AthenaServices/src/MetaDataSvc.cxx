@@ -72,6 +72,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_toolForClid.insert(std::pair<CLID, std::string>(1234982351, "BookkeeperTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1107011239, "xAODMaker::TriggerMenuMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1115934851, "LumiBlockMetaDataTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(1188015687, "xAODMaker::TruthMetaDataTool"));
 }
 //__________________________________________________________________________
 MetaDataSvc::~MetaDataSvc() {
@@ -382,9 +383,6 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    std::istringstream iss(numName);
    iss >> num;
    CLID clid = m_persToClid[className];
-   const std::string par[2] = { "SHM" , className };
-   const unsigned long ipar[2] = { num , 0 };
-   IOpaqueAddress* opqAddr = nullptr;
    if (clid == 167728019) { // EventStreamInfo, will change tool to combine input metadata, clearing things before...
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
@@ -419,7 +417,9 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          }
       }
    }
-
+   const std::string par[3] = { "SHM" , keyName , className };
+   const unsigned long ipar[2] = { num , 0 };
+   IOpaqueAddress* opqAddr = nullptr;
    if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
       return(StatusCode::FAILURE);
@@ -432,6 +432,9 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    if (m_inputDataStore->accessData(clid, keyName) == nullptr) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
       return(StatusCode::FAILURE);
+   }
+   if (keyName.find("Aux.") != std::string::npos && m_inputDataStore->symLink (clid, keyName, 187169987).isFailure()) {
+      ATH_MSG_WARNING("addProxyToInputMetaDataStore: Cannot symlink to AuxStore for " << tokenStr);
    }
    std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
    if (iter == m_streamForKey.end()) {
