@@ -110,7 +110,7 @@ FitProcedure::~FitProcedure (void)
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 Track*
-FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
+FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 			      const FitParameters&				parameters,
 			      const TrackInfo&					trackInfo,
 			      const DataVector<const TrackStateOnSurface>*	leadingTSOS)
@@ -166,14 +166,12 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     }
     
     // then append the fitted TSOS
-    for (std::list<FitMeasurement*>::const_iterator m = measurements.begin();
-    	 m != measurements.end();
-    	 ++m)
+    for (auto m : measurements)
     {
-	if ((**m).isMaterialDelimiter()) continue;
+	if (m->isMaterialDelimiter()) continue;
 	
 	// push back previous TSOS when fresh surface reached
-	if ((**m).surface() != surface || alignmentEffects || (**m).alignmentEffects())
+	if (m->surface() != surface || alignmentEffects || m->alignmentEffects())
 	{
 	    if (surface)
 	    {
@@ -182,8 +180,8 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 		    if (m_debug)
 		    {
 			*m_log << MSG::DEBUG << " skip empty TSOS# " << tsos + 1;
-			if ((**m).materialEffects()) *m_log << " with material";
-			(**m).print(*m_log);
+			if (m->materialEffects()) *m_log << " with material";
+			m->print(*m_log);
 			*m_log << endmsg;
 		    }
 		}
@@ -212,8 +210,8 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 		    ++tsos;
 		}
 	    }
-	    fitMeasurement	= *m;
-	    surface 		= (**m).surface();
+	    fitMeasurement	= m;
+	    surface 		= m->surface();
 	    measurementBase	= 0;
 	    fitQoS		= 0;
 	    materialEffects	= 0;
@@ -222,12 +220,12 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	}
 	else
 	{
-	    fitMeasurement	= *m;
+	    fitMeasurement	= m;
 	    if (m_verbose) *m_log << MSG::VERBOSE << " tsos# " << tsos << " shared surface" << endmsg;
 	}
 
 	// it's a measurement
-	if ((**m).measurementBase())
+	if (m->measurementBase())
 	{
 	    // create an extra TSOS if there is already a measurement on this surface
 	    // (dirty fix for pseudoMeasurements)
@@ -254,77 +252,77 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									typePattern,
 									alignmentEffects));
 		++tsos;
-		fitMeasurement		= *m;
+		fitMeasurement		= m;
 		fitQoS			= 0;
 		materialEffects		= 0;
 		typePattern		= defaultPattern;
 		alignmentEffects	= 0;
 	    }
 	    
-	    measurementBase	= (**m).measurementBase()->clone();
+	    measurementBase	= m->measurementBase()->clone();
 	    typePattern.set(TrackStateOnSurface::Measurement);
-	    if ((**m).isOutlier()) typePattern.set(TrackStateOnSurface::Outlier);
+	    if (m->isOutlier()) typePattern.set(TrackStateOnSurface::Outlier);
 	}
 
 	// it's a CaloDeposit or Scatterer (scatterers may be fitted or not fitted)
-	if ((**m).materialEffects())
+	if (m->materialEffects())
 	{
 	    // update momentum to account for energy loss
 	    delete materialEffects;
 
-	    if ((**m).isEnergyDeposit())
+	    if (m->isEnergyDeposit())
 	    {
-		materialEffects	= (**m).materialEffects()->clone();
+		materialEffects	= m->materialEffects()->clone();
 		typePattern.set(TrackStateOnSurface::CaloDeposit);
 	    }
-	    else if ((**m).isScatterer())
+	    else if (m->isScatterer())
 	    {
 		// set materialPattern as the scattering parameters are fitted
 		std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typeMaterial;
 		typeMaterial.set(MaterialEffectsBase::FittedMaterialEffects);
 		const MaterialEffectsOnTrack* meot	=
-		    dynamic_cast<const MaterialEffectsOnTrack*>((**m).materialEffects());
+		    dynamic_cast<const MaterialEffectsOnTrack*>(m->materialEffects());
 		if (meot && meot->energyLoss())	// standard scatterer
 		{
 		    const EnergyLoss* energyLoss = meot->energyLoss()->clone();
 		    typeMaterial.set(Trk::MaterialEffectsBase::EnergyLossEffects);
-		    if ((**m).numberDoF())	// fitted scatterer	
+		    if (m->numberDoF())	// fitted scatterer	
 		    {
 			materialEffects	=
-			    new MaterialEffectsOnTrack((**m).materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(**m,scatter), 
+			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
+						       parameters.scatteringAngles(*m,scatter), 
 						       energyLoss,
-						       (**m).materialEffects()->associatedSurface(),
+						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
 			++scatter;
 		    }
 		    else			// unfitted (leading material)
 		    {
 			materialEffects	=
-			    new MaterialEffectsOnTrack((**m).materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(**m), 
+			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
+						       parameters.scatteringAngles(*m), 
 						       energyLoss,
-						       (**m).materialEffects()->associatedSurface(),
+						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
 		    }
 		}
 		else				// no meot for special calo scattering centres
 		{
-		    if ((**m).numberDoF())	// fitted scatterer
+		    if (m->numberDoF())	// fitted scatterer
 		    {
 			materialEffects	=
-			    new MaterialEffectsOnTrack((**m).materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(**m,scatter), 
-						       (**m).materialEffects()->associatedSurface(),
+			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
+						       parameters.scatteringAngles(*m,scatter), 
+						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
 			++scatter;
 		    }
 		    else			// unfitted (leading material)
 		    {
 			materialEffects	=
-			    new MaterialEffectsOnTrack((**m).materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(**m), 
-						       (**m).materialEffects()->associatedSurface(),
+			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
+						       parameters.scatteringAngles(*m), 
+						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
 		    }
 		}
@@ -334,22 +332,22 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	    else
 	    {
 		*m_log << MSG::WARNING <<" deprecated TrackStateOnSurface::InertMaterial" << endmsg;
-		materialEffects	= (**m).materialEffects()->clone();
+		materialEffects	= m->materialEffects()->clone();
 		typePattern.set(TrackStateOnSurface::InertMaterial);
 	    }
 	}
 
 	// additional perigee (e.g. at MS entrance)
-	if ((**m).isPerigee())
+	if (m->isPerigee())
 	{
 	    typePattern.set(TrackStateOnSurface::Perigee);
 	}
 	
 	// or alignment effects
-	else if ((**m).alignmentEffects())
+	else if (m->alignmentEffects())
 	{
-	    const AlignmentEffectsOnTrack&	AEOT	= *(**m).alignmentEffects();
-	    unsigned align				= (**m).alignmentParameter() - 1;
+	    const AlignmentEffectsOnTrack&	AEOT	= *m->alignmentEffects();
+	    unsigned align				= m->alignmentParameter() - 1;
 
             *m_log << MSG::VERBOSE  <<" Fitprocedure AEOT input deltaTranslation " << AEOT.deltaTranslation() << " deltaAngle " << AEOT.deltaAngle() << " output Trans " << parameters.alignmentOffset(align) << " deltaAngle " << parameters.alignmentAngle(align) << endmsg; 
 	    alignmentEffects				=
@@ -358,14 +356,14 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 						 parameters.alignmentAngle(align),
 						 AEOT.sigmaDeltaAngle(),
 						 AEOT.vectorOfAffectedTSOS(),
-						 (**m).surface());
+						 m->surface());
 	    typePattern.set(TrackStateOnSurface::Alignment);
 	}
 	
 	// passive types: hole for now
-	else if ((**m).isPassive())
+	else if (m->isPassive())
 	{
-	    if ((**m).type() == hole)		typePattern.set(TrackStateOnSurface::Hole);
+	    if (m->type() == hole)		typePattern.set(TrackStateOnSurface::Hole);
 	}
     }
 
@@ -402,7 +400,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 const FitProcedureQuality&
 FitProcedure::execute(bool				asymmetricCaloEnergy,
 		      MsgStream&			log,
-		      std::list<FitMeasurement*>&	measurements,
+		      std::vector<FitMeasurement*>&	measurements,
 		      FitParameters*&			parameters,
 		      const FitQuality*			perigeeQuality,
 		      bool				for_iPatTrack)
@@ -789,7 +787,7 @@ FitProcedure::setMinIterations (int minIter)
 //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
-FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
+FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 {
     // convergence criterion
     const double dChisqConv = 0.025;
@@ -799,41 +797,39 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
     m_chiSq		= 0.;
     double driftResidual= 0.;
     double DSqMax	= 0.;
-    for (std::list<FitMeasurement*>::iterator m = measurements.begin();
-	 m != measurements.end();
-	 ++m)
+    for (auto m : measurements)
     {
-	if (! (**m).numberDoF()) continue;
-	// if ((**m).isPerigee())
+	if (! m->numberDoF()) continue;
+	// if (m->isPerigee())
 	// {
 	//     m_chiSq += m_fitMatrices->perigeeChiSquared();
 	//     continue;
 	// }
 	
-	double residual	=  (**m).residual();
+	double residual	=  m->residual();
 	double DiffSq	=  residual*residual;
 	m_chiSq	+=  DiffSq;             
-	if ((**m).isPositionMeasurement())
+	if (m->isPositionMeasurement())
 	{
-	    if ((**m).isDrift())  driftResidual += residual;
+	    if (m->isDrift())  driftResidual += residual;
 	    if (DiffSq > DSqMax)
 	    {
 		DSqMax			= DiffSq;
-		m_worstMeasurement	= (**m).hitIndex() + 1;
+		m_worstMeasurement	= m->hitIndex() + 1;
 		m_chiSqWorst		= std::min(999.,DSqMax);
 	    }
 	}
-	if ((**m).is2Dimensional())
+	if (m->is2Dimensional())
 	{
-	    residual		=  (**m).residual2();
+	    residual		=  m->residual2();
 	    DiffSq		=  residual*residual;
 	    m_chiSq	+=  DiffSq;
-	    if ((**m).isPositionMeasurement())
+	    if (m->isPositionMeasurement())
 	    {
 		if (DiffSq > DSqMax)
 		{
 		    DSqMax		= DiffSq;
-		    m_worstMeasurement	= (**m).hitIndex() + 1;
+		    m_worstMeasurement	= m->hitIndex() + 1;
 		    m_chiSqWorst	= std::min(999.,DSqMax);
 		}
 	    }
@@ -927,16 +923,14 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 
 	(**measurements.begin()).printHeading(*m_log);
 	int n = 0;
-	for (std::list<FitMeasurement*>::iterator m = measurements.begin();
-	     m != measurements.end();
-	     ++m)
+	for (auto m : measurements)
 	{
 	    *m_log << std::setiosflags(std::ios::fixed)
 		   << std::setw(3) << ++n;
-	    if ((**m).isPerigee())
+	    if (m->isPerigee())
 	    {
 		*m_log << " perigee     ";
-		// if ((**m).numberDoF())
+		// if (m->numberDoF())
 		//     *m_log << std::setw(14) << std::setprecision(3)
 		// 	   << m_fitMatrices->perigeeChiSquared()
 		// 	   << "  (chi2 for 5 degF) ";
@@ -944,7 +938,7 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 	    }
 	    else
 	    {
-		(**m).print(*m_log);
+		m->print(*m_log);
 	    }
 	}
     }
@@ -1006,7 +1000,7 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 }
 
 ToolHandle<IIntersector>&
-FitProcedure::chooseIntersector (std::list<FitMeasurement*>&	measurements,
+FitProcedure::chooseIntersector (std::vector<FitMeasurement*>&	measurements,
 				 const FitParameters&		parameters) const
 {
     if (m_lineFit) return m_straightLineIntersector;
@@ -1015,7 +1009,7 @@ FitProcedure::chooseIntersector (std::list<FitMeasurement*>&	measurements,
     // ToolHandle<IIntersector>& intersector = m_rungeKuttaIntersector;
 
     // solenoidal intersector must start close to origin with last measurement inside valid region
-    for (std::list<FitMeasurement*>::reverse_iterator m = measurements.rbegin();
+    for (std::vector<FitMeasurement*>::reverse_iterator m = measurements.rbegin();
 	 m != measurements.rend();
 	 ++m)
     {
@@ -1028,7 +1022,7 @@ FitProcedure::chooseIntersector (std::list<FitMeasurement*>&	measurements,
 }
 
 void
-FitProcedure::reportQuality(const std::list<FitMeasurement*>&	measurements,
+FitProcedure::reportQuality(const std::vector<FitMeasurement*>&	measurements,
 			    const FitParameters&		parameters) const
 {
     if (! m_fitQuality) return;

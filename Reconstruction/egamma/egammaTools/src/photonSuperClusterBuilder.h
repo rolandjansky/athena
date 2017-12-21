@@ -37,6 +37,11 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder,
   //track-cluster vertex matches and make a supercluster egammaRec
   //container in StoreGate.
   StatusCode execute();
+
+  // Execute for HLT. Works the same as offline execute but with prepared containers and no StoreGate interaction.
+  StatusCode hltExecute(const EgammaRecContainer *egammaRecs,
+                        EgammaRecContainer *newEgammaRecs,
+                        xAOD::CaloClusterContainer *outputClusterContainer);
  private:
 
   /** Return extra clusters that can be added to make supercluster */
@@ -56,6 +61,10 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder,
   bool MatchesVtxTrack(const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
 		  const egammaRec *egRec) const;
 
+
+  StatusCode executeImpl(const EgammaRecContainer *egammaRecs,
+                         EgammaRecContainer *newEgammaRecs,
+                         xAOD::CaloClusterContainer *outputClusterContainer);
 
   /////////////////////////////////////////////////////////////////////
   //internal variables
