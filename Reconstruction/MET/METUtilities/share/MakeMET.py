@@ -1,7 +1,28 @@
+include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" ) #disable performance monitoring when running in MT mode for now
+
 import AthenaPoolCnvSvc.ReadAthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+nProc = jp.ConcurrencyFlags.NumProcs()
+
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
+if nThreads>=1:
+	from AthenaCommon.AlgScheduler import AlgScheduler
+	AlgScheduler.OutputLevel( INFO )
+	AlgScheduler.ShowControlFlow( True )
+	AlgScheduler.ShowDataDependencies( True )
+	AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+	
+	from SGComps.SGCompsConf import SGInputLoader
+	topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
+	
 
 from glob import glob
 filelist = ["/r03/atlas/sarahw/Rel21AODs/mc16_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.merge.AOD.e3601_s2997_r8903_r8906/AOD.10226642._001388.pool.root.1"]
@@ -20,12 +41,10 @@ metAlg_truth.METSoftTrkName = 'SoftTruthCharged'
 metAlg_truth.METName = 'MET_Truth_AntiKt4EMTopo'
 """
 
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 topSequence += metAlg
 # topSequence += metAlg_truth
 
-write_xAOD = True
+write_xAOD = False
 if write_xAOD:
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     xaodStream = MSMgr.NewPoolRootStream( "StreamXAOD", "xAOD.METMaker.pool.root" )
@@ -53,8 +72,22 @@ from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
 ServiceMgr.MessageSvc.defaultLimit = 9999999
-theApp.EvtMax = 10
+theApp.EvtMax = 20
 ServiceMgr.EventSelector.SkipEvents = 0
 
 printint = max(theApp.EvtMax/250,1) if theApp.EvtMax>0 else 1000
 svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=printint)
+
+#  set algCardinality = 1 to disable cloning for algs with thread unsafe features
+"""
+algCardinality = nThreads
+if (algCardinality > 1):
+	for alg in topSequence:
+		name = alg.name()
+		print " -> looking at ",name
+		if (name==metAlg.name()):
+			alg.Cardinality = 1
+			print " -> suppressing cloning for ", name
+		else:
+			alg.Cardinality = algCardinality			
+"""

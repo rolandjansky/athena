@@ -11,11 +11,22 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/DataHandle.h"
 
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTau/TauJet.h"
+
+#include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAssociationMap.h"
+
 
 class IMETMaker;
 class IAsgElectronLikelihoodTool;
@@ -53,18 +64,30 @@ namespace met {
     bool accept(const xAOD::TauJet* tau);
     bool accept(const xAOD::Muon* muon);
 
-    std::string m_mapname;
     std::string m_corename;
-    std::string m_outname;
 
     std::string m_softclname;
     std::string m_softtrkname;
 
-    std::string m_jetColl;
+    //In release 21 need to replace the names of the containers by the appropriate data handles
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_ElectronContainerKey;
+    SG::ReadHandleKey<xAOD::PhotonContainer>        m_PhotonContainerKey;
+    SG::ReadHandleKey<xAOD::TauJetContainer>        m_TauJetContainerKey;
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_MuonContainerKey;
+    SG::ReadHandleKey<xAOD::JetContainer>           m_JetContainerKey;
+
     std::string m_eleColl;
     std::string m_gammaColl;
     std::string m_tauColl;
+    std::string m_jetColl;
     std::string m_muonColl;
+
+
+
+    SG::WriteHandleKey<xAOD::MissingETContainer> m_metKey;
+
+    SG::ReadHandle<xAOD::MissingETAssociationMap> m_metMap;
+
 
     bool m_doTruthLep;
     

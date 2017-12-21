@@ -7,10 +7,14 @@
 #ifndef METReaderAlg_H
 #define METReaderAlg_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "StoreGate/DataHandle.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETComponentMap.h"
+
 
 namespace met {
-  class METReaderAlg : public AthAlgorithm { 
+  class METReaderAlg : public AthReentrantAlgorithm { 
 
   public: 
 
@@ -22,13 +26,23 @@ namespace met {
 
     /// Athena algorithm's Hooks
     StatusCode  initialize();
-    StatusCode  execute();
+    StatusCode  execute_r (const EventContext& ctx) const override;
     StatusCode  finalize();
 
   private: 
 
     /// Default constructor:
     METReaderAlg();
+    
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_met_RefFinal;
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_met_LocHadTopo;
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_met_Track;
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_met_PFlow;
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_met_Truth;
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_met_TruthReg;
+    SG::ReadHandleKey<xAOD::MissingETComponentMap> m_metMap_RefFinal;
+    SG::ReadHandleKey<xAOD::MissingETComponentMap> m_metMap_LocHadTopo;
+
 
   }; 
 

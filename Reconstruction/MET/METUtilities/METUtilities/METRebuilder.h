@@ -17,6 +17,8 @@
 // FrameWork includes
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "StoreGate/DataHandle.h"
+
 
 // METInterface includes
 #include "METInterface/IMETRebuilder.h"
@@ -24,7 +26,19 @@
 // Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+// MET EDM
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETComposition.h"
+#include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODMissingET/MissingETComponentMap.h"
+
 // EDM includes
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauxAODHelpers.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODJet/JetAttributes.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -147,6 +161,20 @@ namespace met {
     /// Default constructor:
     METRebuilder();
 
+    // ReadHandleKey(s)
+    SG::ReadHandleKey<xAOD::MissingETComponentMap>  m_METMapKey;
+    SG::ReadHandleKey<xAOD::MissingETContainer>     m_METContainerKey;
+    SG::ReadHandleKey<xAOD::MissingETAuxContainer>  m_METAuxContainerKey;
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_ElectronContainerKey;
+    SG::ReadHandleKey<xAOD::PhotonContainer>        m_PhotonContainerKey;
+    SG::ReadHandleKey<xAOD::TauJetContainer>        m_TauJetContainerKey;
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_MuonContainerKey;
+    SG::ReadHandleKey<xAOD::JetContainer>           m_JetContainerKey;
+    SG::ReadHandleKey<xAOD::VertexContainer>        m_PVKey;
+    // WriteHandleKey(s)
+    SG::WriteHandleKey<xAOD::MissingETContainer>    m_OutMETKey;
+    SG::WriteHandleKey<xAOD::MissingETAuxContainer> m_OutMETAuxKey;
+
     std::string m_eleColl;
     std::string m_gammaColl;
     std::string m_tauColl;
@@ -164,6 +192,10 @@ namespace met {
     std::string m_inputMap;
     std::string m_outMETCont;
     std::string m_outMETTerm;
+
+
+
+
     bool m_warnOfDupes;
 
     bool m_doEle;

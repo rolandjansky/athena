@@ -84,6 +84,7 @@ namespace met {
   ////////////////
   METMaker::METMaker(const std::string& name) :
     AsgTool(name),
+    m_PVkey("PrimaryVertices"),
     m_extraJetRejection(false),
     m_trkseltool("")
   {
@@ -158,6 +159,8 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
+    // ReadHandleKey(s)
+    ATH_CHECK( m_PVkey.initialize() );
     return StatusCode::SUCCESS;
   }
 
@@ -1092,21 +1095,25 @@ namespace met {
   }
 
   const xAOD::Vertex* METMaker::getPV() const {
-    const xAOD::VertexContainer *vxCont = 0;
-    const xAOD::Vertex *pv = 0;
-    if( evtStore()->retrieve(vxCont,"PrimaryVertices").isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
-    } else if(vxCont->empty()) {
-      ATH_MSG_WARNING("Event has no primary vertices!");
-    } else {
-      ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
-      for(const auto& vx : *vxCont) {
-	if(vx->vertexType()==xAOD::VxType::PriVtx)
-	  {pv = vx; break;}
-      }
-    }
-    return pv;
-  }
+
+    const xAOD::Vertex *pv = 0;
+    SG::ReadHandle<xAOD::VertexContainer> h_PV(m_PVkey);
+
+    if (!h_PV.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+    } else if(h_PV->empty()) {
+      ATH_MSG_WARNING("Event has no primary vertices!");
+    } else {
+      ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      for(const auto& vx : *h_PV) {
+	       if(vx->vertexType()==xAOD::VxType::PriVtx) {
+           pv = vx; break;
+         }
+      }
+    }
+    return pv;
+  }
+
 
   ///////////////////////////////////////////////////////////////////
   // Const methods:

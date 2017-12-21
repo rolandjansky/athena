@@ -6,6 +6,7 @@
 
 #include "METReaderAlg.h"
 #include "xAODJet/JetContainer.h"
+
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETComponentMap.h"
 
@@ -19,7 +20,17 @@ namespace met {
 
   METReaderAlg::METReaderAlg(const std::string& name,
 			     ISvcLocator* pSvcLocator )
-    : ::AthAlgorithm( name, pSvcLocator ) {
+    : ::AthReentrantAlgorithm( name, pSvcLocator ) {
+    declareProperty ("MET_RefFinal", m_met_RefFinal = "MET_RefFinal");
+    declareProperty ("MET_LocHadTopo", m_met_LocHadTopo = "MET_LocHadTopo");
+    declareProperty ("MET_Track", m_met_Track = "MET_Track");
+    declareProperty ("MET_PFlow", m_met_PFlow = "MET_PFlow");
+    declareProperty ("MET_Truth", m_met_Truth = "MET_Truth");
+    declareProperty ("MET_TruthRegions", m_met_TruthReg = "MET_TruthRegions");
+    declareProperty ("METMap_RefFinal", m_metMap_RefFinal = "METMap_RefFinal");
+    declareProperty ("METMap_LocHadTopo", m_metMap_LocHadTopo = "METMap_LocHadTopo");
+
+
   }
 
   //**********************************************************************
@@ -30,7 +41,15 @@ namespace met {
 
   StatusCode METReaderAlg::initialize() {
     ATH_MSG_INFO("Initializing " << name() << "...");
-  
+    ATH_CHECK( m_met_RefFinal.initialize() );
+    ATH_CHECK( m_met_LocHadTopo.initialize() );
+    ATH_CHECK( m_met_Track.initialize() );
+    ATH_CHECK( m_met_PFlow.initialize() );
+    ATH_CHECK( m_met_Truth.initialize() );
+    ATH_CHECK( m_met_TruthReg.initialize() );
+    ATH_CHECK( m_metMap_RefFinal.initialize() );
+    ATH_CHECK( m_metMap_LocHadTopo.initialize() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -43,22 +62,24 @@ namespace met {
 
   //**********************************************************************
 
-  StatusCode METReaderAlg::execute() { 
+  StatusCode METReaderAlg::execute_r (const EventContext& ctx) const{ 
     ATH_MSG_VERBOSE("Executing " << name() << "...");
     // Loop over tools.
 
     ATH_MSG_INFO( "Check MET rebuilding" );
+    SG::ReadHandle<xAOD::MissingETContainer> met_RefFinal (m_met_RefFinal, ctx);
+    SG::ReadHandle<xAOD::MissingETContainer> met_LocHadTopo (m_met_LocHadTopo, ctx);
+    SG::ReadHandle<xAOD::MissingETContainer> met_Track (m_met_Track, ctx);
+    SG::ReadHandle<xAOD::MissingETContainer> met_PFlow (m_met_PFlow, ctx);
+    SG::ReadHandle<xAOD::MissingETContainer> met_Truth (m_met_Truth, ctx);
 
-    const MissingETContainer* met_RefFinal = 0;
-    bool doRefFinal( evtStore()->retrieve(met_RefFinal,"MET_RefFinal").isSuccess() );
-    const MissingETContainer* met_LocHadTopo = 0;
-    bool doLHT( evtStore()->retrieve(met_LocHadTopo,"MET_LocHadTopo").isSuccess() );
-    const MissingETContainer* met_Track = 0;
-    bool doTrack( evtStore()->retrieve(met_Track,"MET_Track").isSuccess() );
-    const MissingETContainer* met_PFlow = 0;
-    bool doPFlow( evtStore()->retrieve(met_PFlow,"MET_PFlow").isSuccess() );
-    const MissingETContainer* met_Truth = 0;
-    bool doTruth( evtStore()->retrieve(met_Truth,"MET_Truth").isSuccess() );
+
+
+    bool doRefFinal( met_RefFinal.isValid() );
+    bool doLHT( met_LocHadTopo.isValid() );
+    bool doTrack( met_Track.isValid() );
+    bool doPFlow( met_PFlow.isValid() );
+    bool doTruth( met_Truth.isValid() );
 
     ATH_MSG_INFO( "  MET magnitude:" );
     //
@@ -155,17 +176,19 @@ namespace met {
     }
 
     if(doTruth) {
-      const MissingETContainer* met_TruthReg = 0;
-      if( evtStore()->retrieve(met_TruthReg,"MET_TruthRegions").isSuccess() ) {
+      SG::ReadHandle<xAOD::MissingETContainer> met_TruthReg (m_met_TruthReg, ctx);
+
+      if( met_TruthReg.isValid() ) {
 	ATH_MSG_INFO( "    MET_Truth_IntCentral_y = " << (*met_TruthReg)["Int_Central"]->mpy() );
 	ATH_MSG_INFO( "    MET_Truth_IntEndCap_y = " << (*met_TruthReg)["Int_EndCap"]->mpy() );
 	ATH_MSG_INFO( "    MET_Truth_IntForward_y = " << (*met_TruthReg)["Int_Forward"]->mpy() );
       }
     }
-    const MissingETComponentMap* metMap_RefFinal = 0;
-    CHECK( evtStore()->retrieve(metMap_RefFinal,"METMap_RefFinal") );
-    const MissingETComponentMap* metMap_LocHadTopo = 0;
-    CHECK( evtStore()->retrieve(metMap_LocHadTopo,"METMap_LocHadTopo") );
+    SG::ReadHandle<xAOD::MissingETComponentMap> metMap_RefFinal (m_metMap_RefFinal, ctx);
+    SG::ReadHandle<xAOD::MissingETComponentMap> metMap_LocHadTopo (m_metMap_LocHadTopo, ctx);
+
+    ATH_CHECK( metMap_RefFinal.isValid() );
+    ATH_CHECK( metMap_LocHadTopo.isValid() );
 
     ATH_MSG_INFO( "Number of components in MET map: " << metMap_RefFinal->size() );
     ATH_MSG_INFO( "Number of components in MET map: " << metMap_LocHadTopo->size() );

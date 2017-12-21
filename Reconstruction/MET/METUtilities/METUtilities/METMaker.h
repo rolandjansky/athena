@@ -17,6 +17,7 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/DataHandle.h"
 
 // METInterface includes
 #include "METInterface/IMETMaker.h"
@@ -146,6 +147,8 @@ namespace met {
     bool acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const;
     const xAOD::Vertex* getPV() const;
 
+
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_PVkey;
     // std::string m_pvcoll;
 
     bool m_jetCorrectPhi;

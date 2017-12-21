@@ -7,16 +7,9 @@
 #include "METMakerAlg.h"
 #include "METInterface/IMETMaker.h"
 
-#include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
-
-#include "xAODJet/JetContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODTau/TauJetContainer.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
@@ -37,15 +30,23 @@ namespace met {
   METMakerAlg::METMakerAlg(const std::string& name,
 			   ISvcLocator* pSvcLocator )
     : ::AthAlgorithm( name, pSvcLocator ),
+    m_ElectronContainerKey(""),
+    m_PhotonContainerKey(""),
+    m_TauJetContainerKey(""),
+    m_MuonContainerKey(""),
+    m_JetContainerKey(""),
+    m_metKey(""),
+    m_metMap("METAssoc"),
     m_muonSelTool(""),
     m_elecSelLHTool(""),
     m_photonSelIsEMTool(""),
     m_tauSelTool("")
  {
     declareProperty( "Maker",          m_metmaker                        );
-    declareProperty( "METMapName",     m_mapname   = "METAssoc"          );
     declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
-    declareProperty( "METName",        m_outname   = "MET_Reference"     );
+    declareProperty("METName",         m_metKey = std::string("MET_Reference"),"MET container");
+    declareProperty("METMapName",      m_metMap );
+
 
     declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
     declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
@@ -100,6 +101,17 @@ namespace met {
       ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
       return StatusCode::FAILURE;
     };
+    ATH_CHECK( m_ElectronContainerKey.assign(m_eleColl) );
+    ATH_CHECK( m_ElectronContainerKey.initialize() );
+    ATH_CHECK( m_PhotonContainerKey.assign(m_gammaColl) );
+    ATH_CHECK( m_PhotonContainerKey.initialize() );
+    ATH_CHECK( m_TauJetContainerKey.assign(m_tauColl) );
+    ATH_CHECK( m_TauJetContainerKey.initialize() );
+    ATH_CHECK( m_MuonContainerKey.assign(m_muonColl) );
+    ATH_CHECK( m_MuonContainerKey.initialize() );
+    ATH_CHECK( m_JetContainerKey.assign(m_jetColl) );
+    ATH_CHECK( m_JetContainerKey.initialize() );
+    ATH_CHECK( m_metKey.initialize() );
 
     return StatusCode::SUCCESS;
   }
@@ -117,23 +129,14 @@ namespace met {
     ATH_MSG_VERBOSE("Executing " << name() << "...");
 
     // Create a MissingETContainer with its aux store
-    MissingETContainer* newMet = new MissingETContainer();
-    if( evtStore()->record(newMet, m_outname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_outname);
-      return StatusCode::SUCCESS;
-    }
-    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    if( evtStore()->record(metAuxCont, m_outname+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_outname+"Aux.");
-      return StatusCode::SUCCESS;
-    }
-    newMet->setStore(metAuxCont);
+    auto ctx = getContext();
+    auto metHandle= SG::makeHandle (m_metKey, ctx);
+    ATH_CHECK( metHandle.record (std::make_unique<xAOD::MissingETContainer>(),                      std::make_unique<xAOD::MissingETAuxContainer>()) );
+    xAOD::MissingETContainer* newMet=metHandle.ptr();
 
-    const MissingETAssociationMap* metMap = 0;
-    if( evtStore()->retrieve(metMap, m_mapname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_mapname);
-      return StatusCode::SUCCESS;
-    }
+    ATH_CHECK( m_metMap.isValid() );
+
+    MissingETAssociationMap* metMap = new MissingETAssociationMap((*m_metMap));
     metMap->resetObjSelectionFlags();
 
     // Retrieve containers ***********************************************
@@ -146,51 +149,38 @@ namespace met {
     }
 
     /// Jets
-    const JetContainer* jetCont(0);
-    if( evtStore()->retrieve(jetCont, m_jetColl).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input jet container: " << m_jetColl);
-      return StatusCode::SUCCESS;
+    SG::ReadHandle<xAOD::JetContainer> Jets(m_JetContainerKey);
+    if (!Jets.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve JetContainer: " << Jets.key());
+      return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG("Successfully retrieved jet collection");
 
     /// Electrons
-    const ElectronContainer* elCont(0);
-    if(!m_eleColl.empty()) {
-      if( evtStore()->retrieve(elCont, m_eleColl).isFailure() ) {
-	ATH_MSG_WARNING("Unable to retrieve input electron container: " << m_eleColl);
-	return StatusCode::SUCCESS;
-      }
-      ATH_MSG_DEBUG("Successfully retrieved electron collection");
+    SG::ReadHandle<xAOD::ElectronContainer> Electrons(m_ElectronContainerKey);
+    if (!Electrons.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << Electrons.key());
+      return StatusCode::SUCCESS;
     }
 
     /// Photons
-    const PhotonContainer* phCont(0);
-    if(!m_gammaColl.empty()) {
-      if( evtStore()->retrieve(phCont, m_gammaColl).isFailure() ) {
-	ATH_MSG_WARNING("Unable to retrieve input photon container: " << m_gammaColl);
-	return StatusCode::SUCCESS;
-      }
-      ATH_MSG_DEBUG("Successfully retrieved photon collection");
+    SG::ReadHandle<xAOD::PhotonContainer> Gamma(m_PhotonContainerKey);
+    if (!Gamma.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve GammaContainer: " << Gamma.key());
+      return StatusCode::FAILURE;
     }
 
     /// Taus
-    const TauJetContainer* tauCont(0);
-    if(!m_tauColl.empty()) {
-      if( evtStore()->retrieve(tauCont, m_tauColl).isFailure() ) {
-	ATH_MSG_WARNING("Unable to retrieve input tau container: " << m_tauColl);
-	return StatusCode::SUCCESS;
-      }
-      ATH_MSG_DEBUG("Successfully retrieved tau collection");
+    SG::ReadHandle<xAOD::TauJetContainer> TauJets(m_TauJetContainerKey);
+    if (!TauJets.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve TauJetContainer: " << TauJets.key());
+      return StatusCode::FAILURE;
     }
 
     /// Muons
-    const MuonContainer* muonCont(0);
-    if(!m_muonColl.empty()) {
-      if( evtStore()->retrieve(muonCont, m_muonColl).isFailure() ) {
-	ATH_MSG_WARNING("Unable to retrieve input muon container: " << m_muonColl);
-	return StatusCode::SUCCESS;
-      }
-      ATH_MSG_DEBUG("Successfully retrieved muon collection");
+    SG::ReadHandle<xAOD::MuonContainer> Muons(m_MuonContainerKey);
+    if (!Muons.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve MuonContainer: "  << Muons.key());
+      return StatusCode::FAILURE;
     }
 
     // Select and flag objects for final MET building ***************************
@@ -198,11 +188,14 @@ namespace met {
     MissingETBase::UsageHandler::Policy objScale = MissingETBase::UsageHandler::PhysicsObject;
     if(m_doTruthLep) objScale = MissingETBase::UsageHandler::TruthParticle;
     // Electrons
-    if(!m_eleColl.empty()) {
+    if(!Electrons->empty()) {
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-      for(const auto& el : *elCont) {
+      //m_metElectrons = std::make_unique<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS);//Create the object and register it with storegate
+      for(const auto& el : *Electrons) {
     	if(accept(el)) {
+    	  //m_metElectrons->push_back(*el);
     	  metElectrons.push_back(el);
+
     	}
       }
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
@@ -215,9 +208,9 @@ namespace met {
     }
 
     // Photons
-    if(!m_gammaColl.empty()) {
+    if(!Gamma->empty()) {
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
-      for(const auto& ph : *phCont) {
+      for(const auto& ph : *Gamma) {
     	if(accept(ph)) {
     	  metPhotons.push_back(ph);
     	}
@@ -232,9 +225,9 @@ namespace met {
     }
 
     // Taus
-    if(!m_tauColl.empty()) {
+    if(!TauJets->empty()) {
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
-      for(const auto& tau : *tauCont) {
+      for(const auto& tau : *TauJets) {
     	if(accept(tau)) {
     	  metTaus.push_back(tau);
     	}
@@ -249,9 +242,9 @@ namespace met {
     }
 
     // Muons
-    if(!m_muonColl.empty()) {
+    if(!Muons->empty()) {
       ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-      for(const auto& mu : *muonCont) {
+      for(const auto& mu : *Muons) {
     	if(accept(mu)) {
     	  metMuons.push_back(mu);
     	}
@@ -268,10 +261,10 @@ namespace met {
     }
 
     if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
-				  jetCont, coreMet, metMap, false ).isFailure() ) {
+				  Jets.cptr(), coreMet, metMap, false ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
-    ATH_MSG_DEBUG("Of " << jetCont->size() << " jets, "
+    ATH_MSG_DEBUG("Of " << Jets.cptr()->size()  << " jets, "
 		  << acc_constitObjLinks(*(*newMet)["RefJet"]).size() << " are non-overlapping, "
 		  << acc_constitObjLinks(*(*newMet)[m_softtrkname]).size() << " are soft");
 

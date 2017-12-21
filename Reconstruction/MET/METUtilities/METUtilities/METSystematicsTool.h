@@ -17,6 +17,7 @@ class TH1D;
 
 #include "METInterface/IMETSystematicsTool.h"
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/DataHandle.h"
 
 #include "PATInterfaces/SystematicsTool.h"
 
@@ -166,6 +167,13 @@ namespace met {
 
     int getNPV() const;
     xAOD::EventInfo const * getDefaultEventInfo() const;
+
+
+    //Read/write handles
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_VertexContKey;
+    SG::ReadHandleKey<xAOD::MissingETContainer>  m_TruthContKey;
+    SG::ReadHandleKey<xAOD::EventInfo>  m_EventInfoKey;
+
 
     StatusCode addMETAffectingSystematics();
     StatusCode extractHistoPath(std::string & histfile, std::string & systpath, std::string & configdir, std::string & suffix, SystType const & type);

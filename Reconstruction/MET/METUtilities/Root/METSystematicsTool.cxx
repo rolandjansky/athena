@@ -39,20 +39,22 @@ namespace met {
   m_h_calosyst_scale(nullptr),
   m_h_calosyst_reso (nullptr),
   m_rand(0),
-  m_units(-1)
+  m_units(-1),
+  m_VertexContKey(""),
+  m_TruthContKey(""),
+  m_EventInfoKey("")
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
-
+    declareProperty( "VertexContainer",   m_vertexCont        = "PrimaryVertices"                           );
+    declareProperty( "EventInfo",         m_eventInfo         = "EventInfo"                                 );
+    declareProperty( "TruthContainer",    m_truthCont         = "MET_Truth"                                 );
+    declareProperty( "TruthObj",          m_truthObj          = "NonInt"                                    );
     declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data16_13TeV/rec_Dec16v1");
     declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );
     declareProperty( "ConfigSoftCaloFile",m_configSoftCaloFile= ""                                          );
     // declareProperty( "ConfigSoftCaloFile",m_configSoftCaloFile= "METRefFinal_Obsolete2012_V2.config"        );
-    declareProperty( "TruthContainer",    m_truthCont         = "MET_Truth"                                 );
-    declareProperty( "TruthObj",          m_truthObj          = "NonInt"                                    );
-    declareProperty( "VertexContainer",   m_vertexCont        = "PrimaryVertices"                           );
-    declareProperty( "EventInfo",         m_eventInfo         = "EventInfo"                                 );
     declareProperty( "UseDevArea",        m_useDevArea        = false                                       );
 
     applySystematicVariation(CP::SystematicSet()).ignore();
@@ -103,6 +105,14 @@ namespace met {
   StatusCode METSystematicsTool::initialize()
   {
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
+    // ReadHandleKey(s)
+    ATH_CHECK( m_VertexContKey.assign(m_vertexCont) );
+    ATH_CHECK( m_VertexContKey.initialize() );
+    ATH_CHECK( m_TruthContKey.assign(m_truthCont) );
+    ATH_CHECK( m_TruthContKey.initialize() );
+    ATH_CHECK( m_EventInfoKey.assign(m_eventInfo) );
+    ATH_CHECK( m_EventInfoKey.initialize() );
+
 
     const char lastchar = m_configPrefix.back();
     if(std::strncmp(&lastchar,"/",1)!=0) {
@@ -702,9 +712,9 @@ namespace met {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__ );
 
     //get truth container
-    xAOD::MissingETContainer const * truthCont = nullptr;
-    if(evtStore()->retrieve(truthCont, m_truthCont).isFailure()){
-      ATH_MSG_ERROR( m_truthCont << " container empty or does not exist, calcPtHard returning zero.");
+    SG::ReadHandle<xAOD::MissingETContainer> truthCont(m_TruthContKey);
+    if (!truthCont.isValid()) {
+      ATH_MSG_ERROR(m_truthCont<<" container empty or doesn't exist, calcPtHard returning zero.");
       return missingEt();
     }
 
@@ -864,20 +874,19 @@ namespace met {
   //stolen from JetUncertainties
   xAOD::EventInfo const * METSystematicsTool::getDefaultEventInfo() const
   {   ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
-    xAOD::EventInfo const * eInfoConst = nullptr;
 
-    if (evtStore()->retrieve(eInfoConst ,m_eventInfo).isFailure()){
+    SG::ReadHandle<xAOD::EventInfo> eInfoConst(m_EventInfoKey);
+    if (!eInfoConst.isValid()) {
       ATH_MSG_ERROR("Failed to retrieve default EventInfo object");
     }
-
-    return eInfoConst;
+    return &*eInfoConst;
   }
 
   int METSystematicsTool::getNPV() const{
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
-    const xAOD::VertexContainer* vertices = nullptr;
+    SG::ReadHandle<xAOD::VertexContainer> vertices(m_VertexContKey);
 
-    if (evtStore()->retrieve(vertices,m_vertexCont).isFailure()){
+    if (!vertices.isValid()) {
       ATH_MSG_ERROR("Failed to retrieve default NPV value from PrimaryVertices");
       return 0;
     }

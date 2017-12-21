@@ -59,6 +59,13 @@ namespace met {
   ////////////////
   METRebuilder::METRebuilder(const std::string& name) :
   AsgTool(name),
+  m_METMapKey(""),
+  m_ElectronContainerKey(""),
+  m_PhotonContainerKey(""),
+  m_TauJetContainerKey(""),
+  m_MuonContainerKey(""),
+  m_JetContainerKey(""),
+  m_PVKey(""),
   m_doEle(false),
   m_doGamma(false),
   m_doTau(false),
@@ -219,6 +226,28 @@ namespace met {
       ATH_CHECK( m_trkseltool.retrieve() );
     }
 
+    // ReadHandleKey(s)
+    ATH_CHECK( m_METMapKey.assign(m_inputMap) );
+    ATH_CHECK( m_METMapKey.initialize() );
+    ATH_CHECK( m_ElectronContainerKey.assign(m_eleColl) );
+    ATH_CHECK( m_ElectronContainerKey.initialize() );
+    ATH_CHECK( m_PhotonContainerKey.assign(m_gammaColl) );
+    ATH_CHECK( m_PhotonContainerKey.initialize() );
+    ATH_CHECK( m_TauJetContainerKey.assign(m_tauColl) );
+    ATH_CHECK( m_TauJetContainerKey.initialize() );
+    ATH_CHECK( m_MuonContainerKey.assign(m_muonColl) );
+    ATH_CHECK( m_MuonContainerKey.initialize() );
+    ATH_CHECK( m_JetContainerKey.assign(m_jetColl) );
+    ATH_CHECK( m_JetContainerKey.initialize() );
+    ATH_CHECK( m_PVKey.assign(m_vtxColl) );
+    ATH_CHECK( m_PVKey.initialize() );
+    // WriteHandleKey(s)
+    ATH_CHECK( m_OutMETKey.assign(m_outMETCont) );
+    ATH_CHECK( m_OutMETKey.initialize() );
+    ATH_CHECK( m_OutMETAuxKey.assign(m_outMETCont+"Aux") );
+    ATH_CHECK( m_OutMETAuxKey.initialize() );
+
+
     return StatusCode::SUCCESS;
   }
 
@@ -233,67 +262,80 @@ namespace met {
   {
     ATH_MSG_DEBUG ( name() << " in execute...");
 
-    const MissingETComponentMap* metMap = 0;
-    if( evtStore()->retrieve(metMap, m_inputMap).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve MissingETComponentMap: " << m_inputMap);
+    SG::ReadHandle<xAOD::MissingETComponentMap> METMap(m_METMapKey);
+    if (!METMap.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve MissingETComponentMap: " << METMap.key());
       return StatusCode::SUCCESS;
     }
 
-    if( evtStore()->contains<MissingETContainer>(m_outMETCont) ) {
-      if(m_warnOfDupes)
-      { ATH_MSG_WARNING("MET container " << m_outMETCont << " already in StoreGate"); }
+    SG::ReadHandle<xAOD::MissingETContainer> MET(m_METContainerKey);
+    if (!MET.isPresent()) {
+      if(m_warnOfDupes){
+        ATH_MSG_WARNING("MET container " << MET.key() << " already in StoreGate"); }      
       return StatusCode::SUCCESS;
     }
 
     // Create a MissingETContainer with its aux store
-    MissingETContainer* outCont = new MissingETContainer();
-    if( evtStore()->record(outCont, m_outMETCont).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_outMETCont);
+    std::unique_ptr<MissingETContainer> outCont = std::make_unique<xAOD::MissingETContainer>();
+    SG::WriteHandle<xAOD::MissingETContainer> OutMET(m_OutMETKey);
+
+    StatusCode sc = OutMET.record(std::make_unique<xAOD::MissingETContainer>(*outCont));
+
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING("Unable to record MissingETContainer: " << OutMET.key());
       return StatusCode::SUCCESS;
+
     }
+
     MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    if( evtStore()->record(metAuxCont, m_outMETCont+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_outMETCont+"Aux.");
+    SG::WriteHandle<xAOD::MissingETAuxContainer> OutMETAux(m_OutMETAuxKey);
+    sc = OutMETAux.record(std::make_unique<xAOD::MissingETAuxContainer>(*metAuxCont));
+    if (sc.isFailure()) {
+
+      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << OutMETAux.key());
+
       return StatusCode::SUCCESS;
+
     }
+
     outCont->setStore(metAuxCont);
 
     if(m_doEle) {
       if(m_rebuildEle) {
-        const xAOD::ElectronContainer* elec = 0;
-        if( evtStore()->retrieve(elec, m_eleColl).isFailure() ) {
-          ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << m_eleColl);
+        SG::ReadHandle<xAOD::ElectronContainer> Electrons(m_ElectronContainerKey);
+        if (!Electrons.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << Electrons.key());
           return StatusCode::SUCCESS;
         }
-        ATH_CHECK( rebuildMET(m_eleTerm, outCont, elec, metMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_eleTerm, &*outCont, &*Electrons, &*METMap, m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_eleTerm,outCont,metMap) );
+        ATH_CHECK( copyMET(m_eleTerm,&*outCont,&*METMap) );
       }
     }
 
     if(m_doGamma) {
       if(m_rebuildGamma) {
-        const xAOD::PhotonContainer* gamma = 0;
-        if( evtStore()->retrieve(gamma, m_gammaColl).isFailure() ) {
-          ATH_MSG_WARNING("Unable to retrieve GammaContainer: " << m_gammaColl);
+        SG::ReadHandle<xAOD::PhotonContainer> Gamma(m_PhotonContainerKey);
+        if (!Gamma.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve GammaContainer: " << Gamma.key());
           return StatusCode::FAILURE;
         }
-        ATH_CHECK( rebuildMET(m_gammaTerm, outCont, gamma, metMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_gammaTerm, &*outCont, &*Gamma, &*METMap, m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_gammaTerm,outCont,metMap) );
+        ATH_CHECK( copyMET(m_gammaTerm,&*outCont,&*METMap) );
       }
     }
 
     if(m_doTau) {
       if(m_rebuildTau) {
-        const xAOD::TauJetContainer* taujet = 0;
-        if( evtStore()->retrieve(taujet, m_tauColl).isFailure() ) {
-          ATH_MSG_WARNING("Unable to retrieve TauJetContainer: " << m_tauColl);
+        SG::ReadHandle<xAOD::TauJetContainer> TauJets(m_TauJetContainerKey);
+        if (!TauJets.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve TauJetContainer: " << TauJets.key());
           return StatusCode::FAILURE;
         }
-        ATH_CHECK( rebuildMET(m_tauTerm, outCont, taujet, metMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_tauTerm, &*outCont, &*TauJets, &*METMap, m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_tauTerm,outCont,metMap) );
+        ATH_CHECK( copyMET(m_tauTerm,&*outCont,&*METMap) );
       }
     }
 
@@ -302,28 +344,27 @@ namespace met {
       if(m_rebuildMuon) {
         // May need implementation of Eloss correction
         // Place in separate tool (?)
-        const xAOD::MuonContainer* muon = 0;
-        if( evtStore()->retrieve(muon, m_muonColl).isFailure() ) {
-          ATH_MSG_WARNING("Unable to retrieve MuonContainer: " << m_muonColl);
+        SG::ReadHandle<xAOD::MuonContainer> Muons(m_MuonContainerKey);
+        if (!Muons.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve MuonContainer: "  << Muons.key());
           return StatusCode::FAILURE;
         }
-        ATH_CHECK( rebuildMET(m_muonTerm, outCont, muon, metMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_muonTerm, &*outCont, &*Muons, &*METMap, m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_muonTerm,outCont,metMap) );
+        ATH_CHECK( copyMET(m_muonTerm,&*outCont,&*METMap) );
       }
     }
 
 
     // Implementation of the jet/soft term rebuilding
     // Place in separate tool (?)
-    const xAOD::JetContainer* jet = 0;
-    if( evtStore()->retrieve(jet, m_jetColl).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve JetContainer: " << m_jetColl);
+    SG::ReadHandle<xAOD::JetContainer> Jets(m_JetContainerKey);
+    if (!Jets.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve JetContainer: " << Jets.key());
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( rebuildJetMET(m_jetTerm, m_softTerm, outCont, jet, metMap, m_doTracks) );
-
-    ATH_CHECK( buildMETSum(m_outMETTerm, outCont) );
+    ATH_CHECK( rebuildJetMET(m_jetTerm, m_softTerm, &*outCont, &*Jets, &*METMap, m_doTracks) );
+    ATH_CHECK( buildMETSum(m_outMETTerm, &*outCont) );
 
     return StatusCode::SUCCESS;
   }
@@ -500,16 +541,24 @@ namespace met {
 
     if(component->size()==0) return StatusCode::SUCCESS;
 
-    const VertexContainer* vtxCont = 0;
+    // const VertexContainer* vtxCont = 0;
+    SG::ReadHandle<xAOD::VertexContainer> PV(m_PVKey);
+
     const Vertex* pv = 0;
+
+
     if(doJvfCut || (m_trk_doPVsel && doTracks)) {
-      if( evtStore()->retrieve( vtxCont, m_vtxColl).isFailure() ) {
+      if (!PV.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input primary vertex container");
+
         return StatusCode::FAILURE;
       }
-      for(const auto& vx : *vtxCont) {
+
+      for(const auto& vx : *PV) {
 	if(vx->vertexType()==VxType::PriVtx)
+
           {pv = vx; break;}
+
       }
       if(!pv) {
         ATH_MSG_WARNING("Event has no primary vertex");
@@ -518,6 +567,7 @@ namespace met {
         ATH_MSG_DEBUG("Main primary vertex has z = " << pv->z());
       }
     }
+
 
     stvf = 0.;
     float trksumpt_allsoft(0.);
