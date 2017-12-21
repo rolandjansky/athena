@@ -574,7 +574,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
       //}
       const xAOD::Electron* lep = *muel;
       if(!lep) continue;
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "electron! " << lep->pt() << ", " << lep->eta() << ", " << lep->phi() << endmsg;
+      ATH_MSG_DEBUG("electron! " << lep->pt() << ", " << lep->eta() << ", " << lep->phi());
       if ( lep->pt() < 5000.) continue; 
 
       const xAOD::TrackParticle* idtp(0);
