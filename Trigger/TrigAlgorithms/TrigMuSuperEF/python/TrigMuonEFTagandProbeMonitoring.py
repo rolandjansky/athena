@@ -37,9 +37,9 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
 
         
         self.Histograms += [ defineHistogram('EF_Eta_Total_thr1_b', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 1 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]
         self.Histograms += [ defineHistogram('EF_Eta_Passing_thr1_b', type='TH1F', title="Eta distribution of passing probe muons Threshold 1 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Total_thr1_b', type='TH1F', title="Phi distribution of all probe muon candidates Threshold 1 Barrel",
                                              xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Passing_thr1_b', type='TH1F', title="Phi distribution of passing probe muons Threshold 1 Barrel",
@@ -62,12 +62,18 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_Pt_Passing_thr1_e', type='TH1F', title="Pt distribution of passing probe muons Threshold 1 Endcap",
                                              xbins=55, xmin=0, xmax=110) ]  
         
-        
+
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr1', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 1",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr1', type='TH1F', title="Eta distribution of passing probe muons Threshold 1",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]          
+
+
         
         self.Histograms += [ defineHistogram('EF_Eta_Total_thr2_b', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 2 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Eta_Passing_thr2_b', type='TH1F', title="Eta distribution of passing probe muons Threshold 2 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Total_thr2_b', type='TH1F', title="Phi distribution of all probe muon candidates Threshold 2 Barrel",
                                              xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Passing_thr2_b', type='TH1F', title="Phi distribution of passing probe muons Threshold 2 Barrel",
@@ -90,12 +96,17 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_Pt_Passing_thr2_e', type='TH1F', title="Pt distribution of passing probe muons Threshold 2 Endcap",
                                              xbins=55, xmin=0, xmax=110) ]  
         
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr2', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 2",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr2', type='TH1F', title="Eta distribution of passing probe muons Threshold 2",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]          
+
+
         
-        
-        self.Histograms += [ defineHistogram('EF_Eta_Total_thr3_b', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 3 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
-        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr3_b', type='TH1F', title="Eta distribution of passing probe muons Threshold 3 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr3_b', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 3",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr3_b', type='TH1F', title="Eta distribution of passing probe muons Threshold 3",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Total_thr3_b', type='TH1F', title="Phi distribution of all probe muon candidates Threshold 3 Barrel",
                                              xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Passing_thr3_b', type='TH1F', title="Phi distribution of passing probe muons Threshold 3 Barrel",
@@ -117,13 +128,18 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=55, xmin=0, xmax=110) ]  
         self.Histograms += [ defineHistogram('EF_Pt_Passing_thr3_e', type='TH1F', title="Pt distribution of passing probe muons Threshold 3 Endcap",
                                              xbins=55, xmin=0, xmax=110) ]  
+
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr3', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 3",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr3', type='TH1F', title="Eta distribution of passing probe muons Threshold 3",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         
         
         
         self.Histograms += [ defineHistogram('EF_Eta_Total_thr4_b', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 4 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Eta_Passing_thr4_b', type='TH1F', title="Eta distribution of passing probe muons Threshold 4 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Total_thr4_b', type='TH1F', title="Phi distribution of all probe muon candidates Threshold 4 Barrel",
                                              xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Passing_thr4_b', type='TH1F', title="Phi distribution of passing probe muons Threshold 4 Barrel",
@@ -146,13 +162,17 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_Pt_Passing_thr4_e', type='TH1F', title="Pt distribution of passing probe muons Threshold 4 Endcap",
                                              xbins=55, xmin=0, xmax=110) ]  
 
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr4', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 4",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr4', type='TH1F', title="Eta distribution of passing probe muons Threshold 4",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
 
 
 
         self.Histograms += [ defineHistogram('EF_Eta_Total_thr5_b', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 5 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Eta_Passing_thr5_b', type='TH1F', title="Eta distribution of passing probe muons Threshold 5 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Total_thr5_b', type='TH1F', title="Phi distribution of all probe muon candidates Threshold 5 Barrel",
                                              xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Passing_thr5_b', type='TH1F', title="Phi distribution of passing probe muons Threshold 5 Barrel",
@@ -175,13 +195,17 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_Pt_Passing_thr5_e', type='TH1F', title="Pt distribution of passing probe muons Threshold 5 Endcap",
                                              xbins=55, xmin=0, xmax=110) ]  
 
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr5', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 5",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr5', type='TH1F', title="Eta distribution of passing probe muons Threshold 5",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
 
 
 
         self.Histograms += [ defineHistogram('EF_Eta_Total_thr6_b', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 6 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Eta_Passing_thr6_b', type='TH1F', title="Eta distribution of passing probe muons Threshold 6 Barrel",
-                                             xbins=35, xmin=-1.2, xmax=1.2) ]  
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Total_thr6_b', type='TH1F', title="Phi distribution of all probe muon candidates Threshold 6 Barrel",
                                              xbins=35, xmin=-3.5, xmax=3.5) ]  
         self.Histograms += [ defineHistogram('EF_Phi_Passing_thr6_b', type='TH1F', title="Phi distribution of passing probe muons Threshold 6 Barrel",
@@ -204,6 +228,79 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_Pt_Passing_thr6_e', type='TH1F', title="Pt distribution of passing probe muons Threshold 6 Endcap",
                                              xbins=55, xmin=0, xmax=110) ]  
 
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr6', type='TH1F', title="Eta distribution of all probe muon candidates Threshold 6",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr6', type='TH1F', title="Eta distribution of passing probe muons Threshold 6",
+                                             xbins=35, xmin=-3.5, xmax=3.5) ]  
+
+
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr1_b,EF_Phi_Passing_thr1_b', type='TH2F', title="Eta v Phi distribution of passing probe muons Threshold 1 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr1_b,EF_Phi_Total_thr1_b', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 1 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr1_e,EF_Phi_Passing_thr1_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 1 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr1_e,EF_Phi_Total_thr1_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 1 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr2_b,EF_Phi_Passing_thr2_b', type='TH2F', title="Eta v Phi distribution of passing probe muons Threshold 2 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr2_b,EF_Phi_Total_thr2_b', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 2 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr2_e,EF_Phi_Passing_thr2_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 2 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr2_e,EF_Phi_Total_thr2_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 2 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr3_b,EF_Phi_Passing_thr3_b', type='TH2F', title="Eta v Phi distribution of passing probe muons Threshold 3 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr3_b,EF_Phi_Total_thr3_b', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 3 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr3_e,EF_Phi_Passing_thr3_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 3 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr3_e,EF_Phi_Total_thr3_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 3 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr4_b,EF_Phi_Passing_thr4_b', type='TH2F', title="Eta v Phi distribution of passing probe muons Threshold 4 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr4_b,EF_Phi_Total_thr4_b', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 4 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr4_e,EF_Phi_Passing_thr4_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 4 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr4_e,EF_Phi_Total_thr4_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 4 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr5_b,EF_Phi_Passing_thr5_b', type='TH2F', title="Eta v Phi distribution of passing probe muons Threshold 5 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr5_b,EF_Phi_Total_thr5_b', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 5 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr5_e,EF_Phi_Passing_thr5_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 5 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr5_e,EF_Phi_Total_thr5_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 5 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr6_b,EF_Phi_Passing_thr6_b', type='TH2F', title="Eta v Phi distribution of passing probe muons Threshold 6 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr6_b,EF_Phi_Total_thr6_b', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 6 Barrel;Muon #eta;Muon #phi",
+                                             xbins=11, xmin=-1.1, xmax=1.1, ybins=8, ymin=-3.4, ymax=3.4,) ]  
+
+        self.Histograms += [ defineHistogram('EF_Eta_Passing_thr6_e,EF_Phi_Passing_thr6_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 6 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+        self.Histograms += [ defineHistogram('EF_Eta_Total_thr6_e,EF_Phi_Total_thr6_e', type='TH2F', title="Eta v Phi distribution of total probe muons Threshold 6 Endcap;Muon #eta;Muon #phi",
+                                             xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4,) ]
+
+  
 
 
 

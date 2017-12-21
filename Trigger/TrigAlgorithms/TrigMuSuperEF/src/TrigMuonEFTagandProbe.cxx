@@ -20,9 +20,11 @@
   
   For the Tag and probe method a tag muon is defined as any good muon with pt > 10GeV that can be associated with a LVL 1 RoI (DeltaR <0.1 and LVL1 threshold >= threshold 5 (MU20)) and a candidate probe muon is any other muon with pt > 10GeV with the additional requirement on tag and probe pairs that their invariant mass be within +-10GeV from the Z mass 
   
-  Trigger efficiency plots for kinemetic variables (eta,phi and pt) are produced seperately for each LVL1 threshold by dividing histograms of 'kinematic value vs. number passing probes' by 'kinemetic value vs. number of total probe candidates'. Seperate plots for barrel and endcap are produced for all kinemetics and a threshold based PT cut should be applied to data in Eta and Phi plots to avoid variance due to low pT
+  Trigger efficiency plots for kinemetic variables (eta,phi and pt) are produced seperately for each LVL1 threshold by dividing histograms of 'kinematic value vs. number passing probes' by 'kinemetic value vs. number of total probe candidates'. Seperate plots for barrel and endcap are produced for all kinemetics and a flat PT cut of 25GeV applied to data in Eta and Phi plots for all thresholds to avoid poor efficiency due to low pT. 
 
-  For probe muon candidates without a matching L1 RoI count 1 towards total in all thresholds to avoid biasing for higher efficiencies at pTs lower than threshold acceptance.
+  Eta barrel and endcap statistics are also merged to facilitate more senbile plotting of efficiencies but need to also have seperate statistics for producing 2d plots vs Phi
+
+  For probe muon candidates without a matching L1 RoI: count 1 towards total in all thresholds to avoid biasing for higher efficiencies at pTs lower than threshold acceptance.
   
 
 
@@ -52,13 +54,13 @@
 
   athenaHLT:
 
-  Run on multiple files using: from glob import glob;athenaHLT.py -M -f "glob("/path/to/dir1/*“)+glob("/path/to/dir2/*“)+glob(etc..)" -o HLT_MCV7  -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True' -C "topSequence.TrigSteer_HLT.TrigMuonEFTagandProbe.OutputLevel=DEBUG" TriggerRelease/runHLT_standalone.py >& log 
+  Run on multiple files using: from glob import glob;athenaHLT.py -M -f "glob("/path/to/dir1/star“)+glob("/path/to/dir2/star“)+glob(etc..)" -o HLT_MCV7  -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True' -C "topSequence.TrigSteer_HLT.TrigMuonEFTagandProbe.OutputLevel=DEBUG" TriggerRelease/runHLT_standalone.py >& log 
 
   Output of online histogramming will be in r000...HLT-Histogramming.root
 
   athena:
 
-  multiple files: athena.py -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True;from glob import glob;BSRDOInput=glob("/path/to/dir1/*“)+glob("/path/to/dir2/*“)+glob(etc..)'  TriggerRelease/runHLT_standalone.py setupDebugForMuons.py >& log_file
+  multiple files: athena.py -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True;from glob import glob;BSRDOInput=glob("/path/to/dir1/star“)+glob("/path/to/dir2/star“)+glob(etc..)'  TriggerRelease/runHLT_standalone.py setupDebugForMuons.py >& log_file
 
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
  */
@@ -85,8 +87,6 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
 
   declareMonitoredStdContainer("EF_FS_InvMass",             m_dimuon_invmass,            IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_FS_DeltaZ",              m_delta_z,                   IMonitoredAlgo::AutoClear);
-  //  declareMonitoredStdContainer("LVL1_EF_DeltaR_ALL",        m_delta_r_all,               IMonitoredAlgo::AutoClear);
-  //DeltaR_TAG and DeltaR_PROBE are somewhat redundant as monitoring variables
   declareMonitoredStdContainer("LVL1_EF_DeltaR_TAG",        m_delta_r_tag,               IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("LVL1_EF_DeltaR_PROBE",      m_delta_r_probepass,         IMonitoredAlgo::AutoClear);
 
@@ -111,6 +111,9 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Pt_Total_thr1_e",        m_pt_total_thr1_e,           IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Passing_thr1_e",      m_pt_passing_thr1_e,         IMonitoredAlgo::AutoClear);
 
+  declareMonitoredStdContainer("EF_Eta_Total_thr1",         m_eta_total_thr1,            IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Passing_thr1",       m_eta_passing_thr1,          IMonitoredAlgo::AutoClear);
+
 
   declareMonitoredStdContainer("EF_Eta_Total_thr2_b",       m_eta_total_thr2_b,          IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Eta_Passing_thr2_b",     m_eta_passing_thr2_b,        IMonitoredAlgo::AutoClear);
@@ -125,6 +128,9 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Phi_Passing_thr2_e",     m_phi_passing_thr2_e,        IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Total_thr2_e",        m_pt_total_thr2_e,           IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Passing_thr2_e",      m_pt_passing_thr2_e,         IMonitoredAlgo::AutoClear);
+
+  declareMonitoredStdContainer("EF_Eta_Total_thr2",         m_eta_total_thr2,            IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Passing_thr2",       m_eta_passing_thr2,          IMonitoredAlgo::AutoClear);
 
 
   declareMonitoredStdContainer("EF_Eta_Total_thr3_b",       m_eta_total_thr3_b,          IMonitoredAlgo::AutoClear);
@@ -141,6 +147,9 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Pt_Total_thr3_e",        m_pt_total_thr3_e,           IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Passing_thr3_e",      m_pt_passing_thr3_e,         IMonitoredAlgo::AutoClear);
 
+  declareMonitoredStdContainer("EF_Eta_Total_thr3",         m_eta_total_thr3,            IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Passing_thr3",       m_eta_passing_thr3,          IMonitoredAlgo::AutoClear);
+
 
   declareMonitoredStdContainer("EF_Eta_Total_thr4_b",       m_eta_total_thr4_b,          IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Eta_Passing_thr4_b",     m_eta_passing_thr4_b,        IMonitoredAlgo::AutoClear);
@@ -155,6 +164,9 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Phi_Passing_thr4_e",     m_phi_passing_thr4_e,        IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Total_thr4_e",        m_pt_total_thr4_e,           IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Passing_thr4_e",      m_pt_passing_thr4_e,         IMonitoredAlgo::AutoClear);
+
+  declareMonitoredStdContainer("EF_Eta_Total_thr4",         m_eta_total_thr4,            IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Passing_thr4",       m_eta_passing_thr4,          IMonitoredAlgo::AutoClear);
 
 
   declareMonitoredStdContainer("EF_Eta_Total_thr5_b",       m_eta_total_thr5_b,          IMonitoredAlgo::AutoClear);
@@ -171,6 +183,9 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Pt_Total_thr5_e",        m_pt_total_thr5_e,           IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Passing_thr5_e",      m_pt_passing_thr5_e,         IMonitoredAlgo::AutoClear);
 
+  declareMonitoredStdContainer("EF_Eta_Total_thr5",         m_eta_total_thr5,            IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Passing_thr5",       m_eta_passing_thr5,          IMonitoredAlgo::AutoClear);
+
 
   declareMonitoredStdContainer("EF_Eta_Total_thr6_b",       m_eta_total_thr6_b,          IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Eta_Passing_thr6_b",     m_eta_passing_thr6_b,        IMonitoredAlgo::AutoClear);
@@ -186,6 +201,9 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Pt_Total_thr6_e",        m_pt_total_thr6_e,           IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Passing_thr6_e",      m_pt_passing_thr6_e,         IMonitoredAlgo::AutoClear);
   
+  declareMonitoredStdContainer("EF_Eta_Total_thr6",         m_eta_total_thr6,            IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Passing_thr6",       m_eta_passing_thr6,          IMonitoredAlgo::AutoClear);
+
 }
 
 TrigMuonEFTagandProbe::~TrigMuonEFTagandProbe(){} //Destructor
@@ -195,247 +213,10 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
 {
 
   ATH_MSG_DEBUG("testphrase TrigMuonEFTagandProbe::hltInitialize()"); 
+  ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe::hltInitialize(); building framework for monitored variables"); 
 
-  //Might need to use setup to apply pre cuts to reduce data for tag and probe
-  //Probably depends where on chain tag and probe is applied 
-  //Leave empty for now
+  //Set up frame to hold monitoring vectors in place (There must be a better way of doing this) //BUT HOWWW
 
-  ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe Initialization completed successfully");
- 
-  return HLT::OK;
-}
-
-
-
-
-HLT::ErrorCode TrigMuonEFTagandProbe::hltFinalize()
-{
-  ATH_MSG_DEBUG("testphrase TrigMuonEFTagandProbe::hltFinalize()"); 
-
-  return HLT::OK;
-}
-
-
-//inputTE and TEout are passed to algorithm from Trigger menu
-HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout) 
-{
-  // Conditional debug flags for when debug output requires extra compute
-  m_debug = msgLvl() <= MSG::DEBUG; // MSG levels are 1-7, VERBOSE,DEBUG,INFO,WARNINGS,ERROR,FATAL,ALWAYS
-  m_verbose = msgLvl() <= MSG::VERBOSE;
-
-  //Reset temporary containers
-  
-  m_good_muons.clear(); //holds all combined muons
-  Thresh_Mon.clear(); //holds all of the monitored Total and Passing vectors so they can be accessed sensibly
-
-
-  ATH_MSG_DEBUG("testphrase TrigMuonEFTagandProbe::hltExecute()"); 
-
-  //DEBUG to check if Trigger events are passing through algorithm or not
-  if (m_debug){
-    std::string teInLabel;
-    std::string teOutLabel;
-    TrigConf::HLTTriggerElement::getLabel( inputTE->getId(), teInLabel );
-    TrigConf::HLTTriggerElement::getLabel( TEout->getId(), teOutLabel );
-
-    ATH_MSG_DEBUG("testphrase TrigMuonEFTagandProbeExecute() chain Trigger Event input ID=" << inputTE->getId() << " Trigger Event output ID=" << TEout->getId() << " Input Label=" << teInLabel << " Output Label=" << teOutLabel);
-  }
-
-
-
-  //Access LVL1 trigger ROI information-----------------------------------------------------------------------
-
-
-  
-  //Have to access directly from Storegate as AllTE combiner algorithms remove regular access back to seeding RoIs
-  //Check for LVL1 muon RoI information in current event first, if there is no info then we shouldn't bother calculating anything else and should move to next event 
-
-  if(evtStore()->retrieve(m_l1_muon_RoIs).isFailure()){
-    ATH_MSG_ERROR("testphrase Problem retrieving L1 muon ROI");
-    return HLT::MISSING_FEATURE;
-  }
-  
-  if(m_l1_muon_RoIs->empty()){ //Save compute by killing if there is no L1 information (MOVE ABOVE)
-    ATH_MSG_ERROR("testphrase L1 RoI size = 0, moving to next event");
-    return HLT::OK; 
-  }
-  
-  ATH_MSG_INFO("testphrase Number of L1 RoIs found = "<<m_l1_muon_RoIs->size());    
-
-
-
-
-  // Get muonContainer linked to inputTE--------------------------------------------------------------------
-
-
-  const xAOD::MuonContainer*  muonContainer=0; 
-
-  // getFeature takes a trigger element (inputTE) and a target feature (MuonContainer) and fills the target with the feature found in the trigger element, Output is a HLT::code, but OK does NOT mean a matching, non zero feature was found just that the feature exists within the trigger element
- 
-  if(getFeature(inputTE, muonContainer)!=HLT::OK) {  //If getfeature fails
-    ATH_MSG_DEBUG("testphrase no xAOD::MuonContainer Feature found");
-    return HLT::MISSING_FEATURE;
-  } 
-  else { //If get feature succeeds 
-    if (!muonContainer) { // if muonContainer entry is null
-      ATH_MSG_DEBUG("testphrase null xAOD::MuonContainer Feature found");
-      return HLT::MISSING_FEATURE;
-    } 
-    
-    ATH_MSG_DEBUG("testphrase xAOD::MuonContainer found with size " << muonContainer->size());
-  }
-  
-
-
-  // Initialise counters and temporary value containers
-  
-  //  unsigned int mu_count=0;
-  //unsigned int hit=0; // Tracks total number of LVL2 muons with matching level 1 triggers
-  //unsigned int total=0; // Total number of LVL2 muons
-  float invMass_dimuon=0.0; 
-  float deltaR=0.0; 
-  float deltaZ=0.0; 
-  //  unsigned int tag_thresh_pt=0.0; 
-  unsigned int tag_thresh=0;
-  //unsigned int probe_thresh_pt=0.0; 
-  unsigned int probe_thresh=0;
-
-  struct TaPMuon tagmuon, probemuon;
-  
-
-
-  // loop on the muons within the combined RoIs----------------------------------------------------------
-
-
-  // CHECK Might want to remove call to trackparticle because we can use muon->muonType()==0 to check for combined muon
-  // Would not be able to output chi^2 value associated to muon tracking in this case though
-
-
-  for(auto muon : *muonContainer) {
-                              
-    if (!muon) { // Check if muon object is null
-      ATH_MSG_DEBUG("testphrase No xAOD::Muon found.");
-      continue; //move to next muon
-    } 
-    else {
-
-      if (muon->primaryTrackParticle()) { //was there a muon in this RoI? (check muon hasn't been stripped of information) 
-                                                                                
-        const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::CombinedTrackParticle); //Checking muon is good (i.e. EF Combined muon NOT EF stand alone muon)
-
-
-	// 10 GeV minimum pT cut applied-----------------------------------------------------------------
-
-
-        if (!tr || tr->pt()/CLHEP::GeV < 10.0) { // if this muon has NOT been formed from a combined track > 10GeV
-
-          ATH_MSG_DEBUG("testphrase Bad muon is of type: " << muon->muonType() << " With 0=combined, 1=MuonSA, 2=SegmentTagged, 3=CaloTagged, 4=SiliconAssociatedForwardMuon, Abs pt = " << muon->pt()/CLHEP::GeV << " GeV. Charge=" << muon->charge() << " Psuedorapidity = " << muon->eta() << " Phi = " << muon->phi());
-
-          continue;
-        } 
-
-	//Collect good muons------------------------------------------------------------------------------
-
-	else { //Current muon is formed from combined track
-	  ATH_MSG_DEBUG("testphrase Retrieved muon of type " << muon->muonType() << ": Combined track with abs pt " << tr->pt()/CLHEP::GeV << " GeV. Charge=" << tr->charge() << " match chi2 = " << tr->chiSquared() << " Psuedorapidity = " << tr->eta() << " Phi = " << tr->phi());
-	  
-	  m_good_muons.push_back(muon);
-	  mu_count++;
-	}
-      }
-    }
-  }
-  
-
-
-  //Might be able to implement this more sensibly 
-  
-  if (m_good_muons.size()<2){
-    ATH_MSG_WARNING("testphrase Less than 2 combined muons before trimming so event will be ignored, moving to next event");
-    return HLT::OK;
-  }
-
-  if (m_good_muons.size()>2 || (m_good_muons)[0]->charge() == (m_good_muons)[1]->charge())
-    {
-      ATH_MSG_DEBUG("testphrase >2 muons found or matching charge found, no. of \"good\" muons = " << m_good_muons.size());
-      trim_container(m_good_muons); //Performs trimming of muon container reducing to size = 2 (or a multiple of 2?)
-      
-      if (m_good_muons.size()<2){
-	ATH_MSG_WARNING("testphrase Less than 2 good muons after trimming so further event analysis will be ignored, moving to next event");
-	return HLT::OK;
-      }
-      
-      ATH_MSG_DEBUG("testphrase container trimmed, no. of good muons = " << m_good_muons.size());
-    }
-  
-  
-  //Calculate dimuon invariant mass from 4 momenta
-  
-  invMass_dimuon = (((m_good_muons)[0]->p4() + (m_good_muons)[1]->p4()).M())/CLHEP::GeV;
-  
-    
-  m_dimuon_invmass.push_back(invMass_dimuon);
-  
-  
-  //Get track associated with each particle to calculate Delta z0
-  const xAOD::TrackParticle* track1 = m_good_muons[0]->trackParticle(xAOD::Muon::CombinedTrackParticle); 
-  const xAOD::TrackParticle* track2 = m_good_muons[1]->trackParticle(xAOD::Muon::CombinedTrackParticle); 
-  deltaZ=abs(track1->z0()-track2->z0());
-  m_delta_z.push_back(deltaZ);
-
-  
-  ATH_MSG_DEBUG("testphrase total number of combined muon tracks found = " << mu_count);
-  ATH_MSG_DEBUG("testphrase final size of good muon container = " << m_good_muons.size());
-  ATH_MSG_DEBUG("testphrase Dimuon Invariant Mass from 4mom  = " << invMass_dimuon);
-  ATH_MSG_DEBUG("testphrase Dimuon delta Z = " << deltaZ);
-  
-
-
-  //Perform Tag L1 matching to produce Tag and Probe pairs-------------------------------------------------------------
-
-  
-
-  //Define a vector of pairs of TaPmuon structure object and Probe muons i.e. tag and probe pairs
-  std::vector<std::pair <TaPMuon,const xAOD::Muon*> > TaP;
-  unsigned int sharedRoItest = 100; //test to make sure both muons in pair aren't mapped to same LvL1 RoI (unsigned 100 used instead of signed -1 to avoid warning when comparing to unsigned j)
-  
-  for (unsigned int i=0;i<m_good_muons.size();i++){ //loop over good muons
-    
-    for (unsigned int j=0;j<m_l1_muon_RoIs->size();j++){ //loop over LVL1 RoIs
-      //For each muon calculate all Delta R values in scope
-      deltaR=sqrt(pow((*m_l1_muon_RoIs)[j]->phi()-m_good_muons[i]->phi(),2) + pow((*m_l1_muon_RoIs)[j]->eta()-m_good_muons[i]->eta(),2));
-      ATH_MSG_DEBUG("testphrase DeltaR value = " << deltaR); 
-      
-      tag_thresh=(*m_l1_muon_RoIs)[j]->getThresholdNumber();
-      //      tag_thresh_pt=(*m_l1_muon_RoIs)[j]->getThresholdValue(); //Sanity check for hreshold values
-      ATH_MSG_DEBUG("testphrase Threshold_ALL value = " << tag_thresh); 
-      //ATH_MSG_DEBUG("testphrase corresponding Threshold_ALL Pt value = " << tag_thresh_pt); 
-      
-
-      //Tag Muon criteria
-
-      if (abs(91.1876-invMass_dimuon)<10.0 && deltaR<0.1 && j!=sharedRoItest && tag_thresh>=5) {
-	sharedRoItest=j; //could impliment pointer equivalence and remove j iterator in favour of auto range loop
-	ATH_MSG_DEBUG("testphrase Tag found with j value = " << j);
-	ATH_MSG_DEBUG("testphrase Threshold_Tag value = " << tag_thresh); 
-	//ATH_MSG_DEBUG("testphrase corresponding Threshold_Tag Pt value = " << tag_thresh_pt); 
-	m_delta_r_tag.push_back(deltaR); //DeltaR_tag value
-
-	tagmuon.Mu = m_good_muons[i]; //Tag muon
-	tagmuon.DR = deltaR; //Tag muon DeltaR
-	tagmuon.Thresh = tag_thresh; // Tag muon matched L1 threshold number
-	tagmuon.RoI = (*m_l1_muon_RoIs)[j]; //Tag muon match L1 RoI
-
-	//construct Tag and Probe pair including extra tag muon information
-	TaP.push_back(std::make_pair(tagmuon,m_good_muons[1-i])); //Assumes m_good_muons is size 2 
-	break; //speeds up computation but changes what values DeltaR_TAG will show 
-      }
-	
-    }
-  }
-  ATH_MSG_DEBUG("testphrase NUMBER of tag and probe pairs = " << TaP.size()); 
-  
-  //Set up Monitoring Vectors (There must be a better way of doing this) //BUT HOWWW
   Thresh_Mon.push_back(&m_eta_total_thr1_b);
   Thresh_Mon.push_back(&m_eta_passing_thr1_b);
   Thresh_Mon.push_back(&m_phi_total_thr1_b);
@@ -531,7 +312,283 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   Thresh_Mon.push_back(&m_delta_r_thresh4);
   Thresh_Mon.push_back(&m_delta_r_thresh5);
   Thresh_Mon.push_back(&m_delta_r_thresh6);
+
+
+  //Merged Barrel and Endcap stats for eta plots
+  Thresh_Mon.push_back(&m_eta_total_thr1);
+  Thresh_Mon.push_back(&m_eta_passing_thr1);
+  Thresh_Mon.push_back(&m_eta_total_thr2);
+  Thresh_Mon.push_back(&m_eta_passing_thr2);
+  Thresh_Mon.push_back(&m_eta_total_thr3);
+  Thresh_Mon.push_back(&m_eta_passing_thr3);
+  Thresh_Mon.push_back(&m_eta_total_thr4);
+  Thresh_Mon.push_back(&m_eta_passing_thr4);
+  Thresh_Mon.push_back(&m_eta_total_thr5);
+  Thresh_Mon.push_back(&m_eta_passing_thr5);
+  Thresh_Mon.push_back(&m_eta_total_thr6);
+  Thresh_Mon.push_back(&m_eta_passing_thr6);
+
+
+  //Might need to use setup to apply pre cuts to reduce data for tag and probe
+  //Probably depends where on chain tag and probe is applied 
+  //Leave empty for now
+
+  ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe Initialization completed successfully");
+ 
+  return HLT::OK;
+}
+
+
+
+
+HLT::ErrorCode TrigMuonEFTagandProbe::hltFinalize()
+{
+  ATH_MSG_DEBUG("testphrase TrigMuonEFTagandProbe::hltFinalize()"); 
   
+  //Merging outwith execute not currently working but would be a nicer way of doing it
+
+  /*
+  ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe::hltFinalize(): Merging Barrel and Endcap pseudo values"); 
+  ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe::hltFinalize(): original m_eta_total_thr1 size = " << m_eta_total_thr1.size()); 
+  
+  m_eta_total_thr1.insert( m_eta_total_thr1.end(), m_eta_total_thr1_b.begin(), m_eta_total_thr1_b.end() );
+  m_eta_total_thr1.insert( m_eta_total_thr1.end(), m_eta_total_thr1_e.begin(), m_eta_total_thr1_e.end() );
+  m_eta_total_thr2.insert( m_eta_total_thr2.end(), m_eta_total_thr2_b.begin(), m_eta_total_thr2_b.end() );
+  m_eta_total_thr2.insert( m_eta_total_thr2.end(), m_eta_total_thr2_e.begin(), m_eta_total_thr2_e.end() );
+  m_eta_total_thr3.insert( m_eta_total_thr3.end(), m_eta_total_thr3_b.begin(), m_eta_total_thr3_b.end() );
+  m_eta_total_thr3.insert( m_eta_total_thr3.end(), m_eta_total_thr3_e.begin(), m_eta_total_thr3_e.end() );
+  m_eta_total_thr4.insert( m_eta_total_thr4.end(), m_eta_total_thr4_b.begin(), m_eta_total_thr4_b.end() );
+  m_eta_total_thr4.insert( m_eta_total_thr4.end(), m_eta_total_thr4_e.begin(), m_eta_total_thr4_e.end() );
+  m_eta_total_thr5.insert( m_eta_total_thr5.end(), m_eta_total_thr5_b.begin(), m_eta_total_thr5_b.end() );
+  m_eta_total_thr5.insert( m_eta_total_thr5.end(), m_eta_total_thr5_e.begin(), m_eta_total_thr5_e.end() );
+  m_eta_total_thr6.insert( m_eta_total_thr6.end(), m_eta_total_thr6_b.begin(), m_eta_total_thr6_b.end() );
+  m_eta_total_thr6.insert( m_eta_total_thr6.end(), m_eta_total_thr6_e.begin(), m_eta_total_thr6_e.end() );
+  
+  ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe::hltFinalize(): final m_eta_total_thr1 size = " << m_eta_total_thr1.size()); 
+
+  ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe::hltFinalize(): Merge Successful"); 
+  */
+  return HLT::OK;
+}
+
+
+//inputTE and TEout are passed to algorithm from Trigger menu
+HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout) 
+{
+  // Conditional debug flags for when debug output requires extra compute
+  m_debug = msgLvl() <= MSG::DEBUG; // MSG levels are 1-7, VERBOSE,DEBUG,INFO,WARNINGS,ERROR,FATAL,ALWAYS
+  m_verbose = msgLvl() <= MSG::VERBOSE;
+
+  //Reset temporary containers
+  
+  m_good_muons.clear(); //holds all combined muons
+  //  Thresh_Mon.clear(); //holds all of the monitored Total and Passing vectors so they can be accessed sensibly
+
+
+  ATH_MSG_DEBUG("testphrase TrigMuonEFTagandProbe::hltExecute()"); 
+
+  //DEBUG to check if Trigger events are passing through algorithm or not
+  if (m_debug){
+    std::string teInLabel;
+    std::string teOutLabel;
+    TrigConf::HLTTriggerElement::getLabel( inputTE->getId(), teInLabel );
+    TrigConf::HLTTriggerElement::getLabel( TEout->getId(), teOutLabel );
+    
+    ATH_MSG_DEBUG("testphrase TrigMuonEFTagandProbeExecute() chain Trigger Event input ID=" << inputTE->getId() << " Trigger Event output ID=" << TEout->getId() << " Input Label=" << teInLabel << " Output Label=" << teOutLabel);
+  }
+
+
+
+  //Access LVL1 trigger ROI information-----------------------------------------------------------------------
+
+
+  
+  //Have to access directly from Storegate as AllTE combiner algorithms remove regular access back to seeding RoIs
+  //Check for LVL1 muon RoI information in current event first, if there is no info then we shouldn't bother calculating anything else and should move to next event 
+
+  if(evtStore()->retrieve(m_l1_muon_RoIs).isFailure()){
+    ATH_MSG_ERROR("testphrase Problem retrieving L1 muon ROI");
+    return HLT::MISSING_FEATURE;
+  }
+  
+  if(m_l1_muon_RoIs->empty()){ //Save compute by killing if there is no L1 information (MOVE ABOVE)
+    ATH_MSG_ERROR("testphrase L1 RoI size = 0, moving to next event");
+    return HLT::OK; 
+  }
+  
+  ATH_MSG_INFO("testphrase Number of L1 RoIs found = "<<m_l1_muon_RoIs->size());    
+
+
+
+
+  // Get muonContainer linked to inputTE--------------------------------------------------------------------
+
+
+  const xAOD::MuonContainer*  muonContainer=0; 
+
+  // getFeature takes a trigger element (inputTE) and a target feature (MuonContainer) and fills the target with the feature found in the trigger element, Output is a HLT::code, but OK does NOT mean a matching, non zero feature was found just that the feature exists within the trigger element
+ 
+  if(getFeature(inputTE, muonContainer)!=HLT::OK) {  //If getfeature fails
+    ATH_MSG_DEBUG("testphrase no xAOD::MuonContainer Feature found");
+    return HLT::MISSING_FEATURE;
+  } 
+  else { //If get feature succeeds 
+    if (!muonContainer) { // if muonContainer entry is null
+      ATH_MSG_DEBUG("testphrase null xAOD::MuonContainer Feature found");
+      return HLT::MISSING_FEATURE;
+    } 
+    
+    ATH_MSG_DEBUG("testphrase xAOD::MuonContainer found with size " << muonContainer->size());
+  }
+  
+
+
+  // Initialise counters and temporary value containers
+  
+  float invMass_dimuon=0.0; 
+  float deltaR=0.0; 
+  float deltaZ=0.0; 
+  unsigned int tag_thresh=0;
+  unsigned int probe_thresh=0;
+
+  struct TaPMuon tagmuon, probemuon; //TaP Muon structures to group muon and RoI values into one object
+  
+
+
+  // loop on the muons within the combined RoIs----------------------------------------------------------
+
+
+  // CHECK Might want to remove call to trackparticle because we can use muon->muonType()==0 to check for combined muon
+  // Would not be able to output chi^2 value associated to muon tracking in this case though
+
+
+  for(auto muon : *muonContainer) {
+                              
+    if (!muon) { // Check if muon object is null
+      ATH_MSG_DEBUG("testphrase No xAOD::Muon found.");
+      continue; //move to next muon
+    } 
+    else {
+
+      if (muon->primaryTrackParticle()) { //was there a muon in this RoI? (check muon hasn't been stripped of information) 
+                                                                                
+        const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::CombinedTrackParticle); //Checking muon is good (i.e. EF Combined muon NOT EF stand alone muon)
+
+
+	// 10 GeV minimum pT cut applied-----------------------------------------------------------------
+
+
+        if (!tr || tr->pt()/CLHEP::GeV < 10.0) { // if this muon has NOT been formed from a combined track > 10GeV
+
+          ATH_MSG_DEBUG("testphrase Bad muon is of type: " << muon->muonType() << " With 0=combined, 1=MuonSA, 2=SegmentTagged, 3=CaloTagged, 4=SiliconAssociatedForwardMuon, Abs pt = " << muon->pt()/CLHEP::GeV << " GeV. Charge=" << muon->charge() << " Psuedorapidity = " << muon->eta() << " Phi = " << muon->phi());
+
+          continue;
+        } 
+
+	//Collect good muons------------------------------------------------------------------------------
+
+	else { //Current muon is formed from combined track
+	  ATH_MSG_DEBUG("testphrase Retrieved muon of type " << muon->muonType() << ": Combined track with abs pt " << tr->pt()/CLHEP::GeV << " GeV. Charge=" << tr->charge() << " match chi2 = " << tr->chiSquared() << " Psuedorapidity = " << tr->eta() << " Phi = " << tr->phi());
+	  
+	  m_good_muons.push_back(muon);
+	  mu_count++;
+	}
+      }
+    }
+  }
+  
+
+
+  // CHECK Might be able to implement this more sensibly 
+  
+  if (m_good_muons.size()<2){
+    ATH_MSG_WARNING("testphrase Less than 2 combined muons before trimming so event will be ignored, moving to next event");
+    return HLT::OK;
+  }
+
+  if (m_good_muons.size()>2 || (m_good_muons)[0]->charge() == (m_good_muons)[1]->charge())
+    {
+      ATH_MSG_DEBUG("testphrase >2 muons found or matching charge found, no. of \"good\" muons = " << m_good_muons.size());
+      trim_container(m_good_muons); //Performs trimming of muon container reducing to size = 2 (or a multiple of 2?)
+      
+      if (m_good_muons.size()<2){
+	ATH_MSG_WARNING("testphrase Less than 2 good muons after trimming so further event analysis will be ignored, moving to next event");
+	return HLT::OK;
+      }
+      
+      ATH_MSG_DEBUG("testphrase container trimmed, no. of good muons = " << m_good_muons.size());
+    }
+  
+  
+  //Calculate dimuon invariant mass from 4 momenta
+  
+  invMass_dimuon = (((m_good_muons)[0]->p4() + (m_good_muons)[1]->p4()).M())/CLHEP::GeV;
+  
+    
+  m_dimuon_invmass.push_back(invMass_dimuon);
+  
+  
+  //Get track associated with each particle to calculate Delta z0
+  const xAOD::TrackParticle* track1 = m_good_muons[0]->trackParticle(xAOD::Muon::CombinedTrackParticle); 
+  const xAOD::TrackParticle* track2 = m_good_muons[1]->trackParticle(xAOD::Muon::CombinedTrackParticle); 
+  deltaZ=abs(track1->z0()-track2->z0());
+  m_delta_z.push_back(deltaZ);
+
+  
+  ATH_MSG_DEBUG("testphrase final size of good muon container = " << m_good_muons.size());
+  ATH_MSG_DEBUG("testphrase Dimuon Invariant Mass from 4mom  = " << invMass_dimuon);
+  ATH_MSG_DEBUG("testphrase Dimuon delta Z = " << deltaZ);
+  
+
+
+  //Perform Tag L1 matching to produce Tag and Probe pairs-------------------------------------------------------------
+
+  
+
+  //Define a vector of pairs of TaPmuon structure object and Probe muons i.e. tag and probe pairs
+  std::vector<std::pair <TaPMuon,const xAOD::Muon*> > TaP;
+
+  LVL1::RecMuonRoI* sharedRoItest=0;  
+
+  for (unsigned int i=0;i<m_good_muons.size();i++){ //loop over good muons
+    
+    for (auto roi : *m_l1_muon_RoIs){
+      //For each muon calculate all Delta R values in scope
+
+      deltaR=sqrt(pow(roi->phi()-m_good_muons[i]->phi(),2) + pow(roi->eta()-m_good_muons[i]->eta(),2));
+
+      ATH_MSG_DEBUG("testphrase DeltaR value = " << deltaR); 
+      
+      tag_thresh=roi->getThresholdNumber();
+
+      ATH_MSG_DEBUG("testphrase Threshold_ALL value = " << tag_thresh); 
+      
+
+      //Tag Muon criteria
+
+      if (abs(91.1876-invMass_dimuon)<10.0 && deltaR<0.1 && roi!=sharedRoItest && tag_thresh>=5) {
+	sharedRoItest=roi; // CHECK Not sure if this biases towards higher efficiency or not
+
+
+	ATH_MSG_DEBUG("testphrase Threshold_Tag value = " << tag_thresh); 
+
+	m_delta_r_tag.push_back(deltaR); //DeltaR_tag value
+
+	tagmuon.Mu = m_good_muons[i]; //Tag muon
+	tagmuon.DR = deltaR; //Tag muon DeltaR
+	tagmuon.Thresh = tag_thresh; // Tag muon matched L1 threshold number
+	tagmuon.RoI = roi; //Tag muon match L1 RoI
+
+	//construct Tag and Probe pair including extra tag muon information
+	TaP.push_back(std::make_pair(tagmuon,m_good_muons[1-i])); //Assumes m_good_muons is exactly size 2 
+	break; //speeds up computation but changes what values DeltaR_TAG will show 
+      }
+	
+    }
+  }
+  ATH_MSG_DEBUG("testphrase NUMBER of tag and probe pairs = " << TaP.size()); 
+  
+
 
   //Perform Probe L1 matching to fill Total and Passing histograms for each threshold-----------------------------
 
@@ -542,7 +599,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     if (TaP[i].second==(TaP[1-i].first).Mu){ 
       hit++;
       m_delta_r_probepass.push_back((TaP[1-i].first).DR);
-      match_thresh(TaP[1-i].first,Thresh_Mon);//Function to fill kinemetics for different probe thresholds inclusively (probe muon info,vector of threshold histograms)
+      match_thresh(TaP[1-i].first,Thresh_Mon);//Function to fill kinemetics for different probe thresholds inclusively (probe muon info,referenced vector of threshold histograms)
       continue;
     }
 
@@ -554,14 +611,13 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
 	m_delta_r_probepass.push_back(deltaR);
 
 	probe_thresh=(*m_l1_muon_RoIs)[j]->getThresholdNumber();
-	//	probe_thresh_pt=(*m_l1_muon_RoIs)[j]->getThresholdValue(); //sanity check 
 
 	ATH_MSG_DEBUG("testphrase Threshold_Probe value = " << probe_thresh);
-	//ATH_MSG_DEBUG("testphrase corresponding Threshold_Probe Pt value = " << probe_thresh_pt);
 
 	probemuon.Mu = TaP[i].second; //Probe Muon
         probemuon.DR = deltaR; //Probe muon DeltaR
         probemuon.Thresh = probe_thresh; //Probe muon matched L1 threshold number
+
 
 	match_thresh(probemuon,Thresh_Mon); //Fill kinematics
 	break;
@@ -576,8 +632,10 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     }
   }
 
-  ATH_MSG_DEBUG("testphrase TOTAL = " << total << " HITS = " << hit); 
-  ATH_MSG_DEBUG("testphrase TOTAL number of muons processed = " << mu_count); 
+
+
+  ATH_MSG_DEBUG("testphrase RUNNING TOTAL = " << total << " HITS = " << hit); 
+  ATH_MSG_DEBUG("testphrase RUNNING TOTAL number of muons processed = " << mu_count); 
 
   return HLT::OK;
   
@@ -591,25 +649,34 @@ void TrigMuonEFTagandProbe::match_thresh (TaPMuon tap ,std::vector<std::vector <
     for (unsigned int i=0;i<tap.Thresh;i++){
       //thresh_mon[i*12]->push_back(tap.Mu->eta()); //Dirty fix to plot eta not split by barrel and encap
       //thresh_mon[1+i*12]->push_back(tap.Mu->eta());
-      thresh_mon[6+i*12]->push_back(tap.Mu->eta());
-      thresh_mon[7+i*12]->push_back(tap.Mu->eta());
-      thresh_mon[2+i*12]->push_back(tap.Mu->phi());
-      thresh_mon[3+i*12]->push_back(tap.Mu->phi());
-      thresh_mon[4+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT Total
-      thresh_mon[5+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT Passing
-      thresh_mon[72+i]->push_back(tap.DR);
+      if ((tap.Mu->pt()/CLHEP::GeV) > 25.0){
+	thresh_mon[i*12]->push_back(tap.Mu->eta()); //eta barrel total
+	thresh_mon[1+i*12]->push_back(tap.Mu->eta()); //eta barrel passed
+	thresh_mon[2+i*12]->push_back(tap.Mu->phi()); //phi barrel total
+	thresh_mon[3+i*12]->push_back(tap.Mu->phi()); //phi barrel passed 
+	thresh_mon[78+i*2]->push_back(tap.Mu->eta()); //eta merged total
+	thresh_mon[79+i*2]->push_back(tap.Mu->eta()); //eta merged passed
+      }
+      thresh_mon[4+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT barrel Total
+      thresh_mon[5+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT barrel Passed
+      thresh_mon[72+i]->push_back(tap.DR); //DR merged 
+
     }
   }
   //Endcap
   else {
     for (unsigned int i=0;i<tap.Thresh;i++){
-      thresh_mon[6+i*12]->push_back(tap.Mu->eta());
-      thresh_mon[7+i*12]->push_back(tap.Mu->eta());
-      thresh_mon[8+i*12]->push_back(tap.Mu->phi());
-      thresh_mon[9+i*12]->push_back(tap.Mu->phi());
-      thresh_mon[10+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV);
-      thresh_mon[11+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV);
-      thresh_mon[72+i]->push_back(tap.DR);
+      if ((tap.Mu->pt()/CLHEP::GeV) > 25.0){
+	thresh_mon[6+i*12]->push_back(tap.Mu->eta()); //eta endcap total
+	thresh_mon[7+i*12]->push_back(tap.Mu->eta()); //eta endcap passed
+	thresh_mon[8+i*12]->push_back(tap.Mu->phi()); //phi endcap total
+	thresh_mon[9+i*12]->push_back(tap.Mu->phi()); //phi endcap passed
+	thresh_mon[78+i*2]->push_back(tap.Mu->eta()); //eta merged total
+	thresh_mon[79+i*2]->push_back(tap.Mu->eta()); //eta merged passed
+      }
+      thresh_mon[10+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT endcap Total
+      thresh_mon[11+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT endcap Passed
+      thresh_mon[72+i]->push_back(tap.DR); //DR merged
     }
   }
   
@@ -640,26 +707,32 @@ void TrigMuonEFTagandProbe::match_thresh (const xAOD::Muon* muon ,std::vector<st
   }
   */
 
-  //Only fill passing histograms
+  //Only fill total histograms
   if (abs(muon->eta())<1.05){
     for (unsigned int i=0;i<thresh;i++){
       //thresh_mon[i*12]->push_back(muon->eta());
+      if ((muon->pt()/CLHEP::GeV) > 25.0){
+	thresh_mon[i*12]->push_back(muon->eta()); //eta barrel total
+	
+	thresh_mon[2+i*12]->push_back(muon->phi()); //phi barrel total 
+
+	thresh_mon[78+i*2]->push_back(muon->eta()); //eta merged total
+
+      }
+      thresh_mon[4+i*12]->push_back(muon->pt()/CLHEP::GeV); //pT barrel Total
       
-      thresh_mon[6+i*12]->push_back(muon->eta());
-
-      thresh_mon[2+i*12]->push_back(muon->phi());
-
-      thresh_mon[4+i*12]->push_back(muon->pt()/CLHEP::GeV);
-
     }
   }
   else {
     for (unsigned int i=0;i<thresh;i++){
-      thresh_mon[6+i*12]->push_back(muon->eta());
-      
-      thresh_mon[8+i*12]->push_back(muon->phi());
+      if ((muon->pt()/CLHEP::GeV) > 25.0){
+	thresh_mon[6+i*12]->push_back(muon->eta()); //eta endcap total
+	
+	thresh_mon[8+i*12]->push_back(muon->phi()); //phi endcap total
 
-      thresh_mon[10+i*12]->push_back(muon->pt()/CLHEP::GeV);
+	thresh_mon[78+i*2]->push_back(muon->eta()); //eta merged total
+      }
+      thresh_mon[10+i*12]->push_back(muon->pt()/CLHEP::GeV); //pT endcap Total
 
     }
   }
@@ -676,7 +749,7 @@ void TrigMuonEFTagandProbe::trim_container (std::vector<const xAOD::Muon*>& good
   //if abs(91.1876-invariant mass) is below a given threshold (10 GeV) then write this as a key into a map with the second loop muon as the element
   //at last element of second loop push back first map element and first loop muon pair into good_muons vector then remove muon from second loop to avoid producing two pairs with a shared muon (Doesn't account for first loop muon being being a potential pair with multiple second loop muons and the order removing a valid pair but multiple z-mumu per event is so unlikely this is likely null
 
-  //QQ should I define these globally (in h file) and just clear at every call of function( is there a difference, how exactly are function variables working here?)
+  //CHECK should I define these globally (in h file) and just clear at every call of function( is there a difference, how exactly are function variables working here?)
 
   std::vector<const xAOD::Muon*> posvec;
   std::vector<const xAOD::Muon*> negvec;
@@ -708,6 +781,7 @@ void TrigMuonEFTagandProbe::trim_container (std::vector<const xAOD::Muon*>& good
       }
       if (j == (negvec.size()-1)){ //Once looped through all muons then go back and check the comparison map
 	if (comparisonmap.size()>0){ //if condition stops cbegin() being called on an empty map returning NAN as a value
+	 
 	  //Find the smallest tempinvmass key value using autmatic sorting of maps, use this to pick best muon pair
 	  good_muons.push_back(((*(comparisonmap.cbegin())).second).first); //Push back muon 2 (cbegin() always gives pointer)
 	  good_muons.push_back(muon1); //Push back muon 1

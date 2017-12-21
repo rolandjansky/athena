@@ -1258,9 +1258,9 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'),
         'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'), 
         'EF_CB_ROI': mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi'), 
- #       'EF_CB_FS_ma': mergeRemovingOverlap('EF_CB_FS_ma_', 'SAFSHypo'+hypocut+'_'+hypocutEF), #testphrase, what am I doing?
+ #       'EF_CB_FS_ma': mergeRemovingOverlap('EF_CB_FS_ma_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
         'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-
+        'EF_CB_FSTaP': mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF), #testphrase, what am I doing?
 
       }
 
