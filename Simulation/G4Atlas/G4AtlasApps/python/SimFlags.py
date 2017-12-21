@@ -666,11 +666,14 @@ class OptionalUserActionList(JobProperty):
     # FIXME: why do we add the LoopKillerTool here???
     StoredValue = {'Run':[], 'Event':[], 'Tracking':[], 'Step':[],
                    'General':['G4UA::LooperKillerTool']}
-    def addAction(self,actionTool,roles=[]):
-        #Add the action to the end of the list of actions for each role.
+    def addAction(self, actionTool, roles=[]):
+        # If no roles specified, assume 'General'.
+        if len(roles) == 0:
+            self.StoredValue['General'] += [actionTool]
+        # Add the action to the end of the list of actions for each role.
         for role in roles:
             try:
-                self.StoredValue[role]+=[actionTool]
+                self.StoredValue[role] += [actionTool]
             except KeyError:
                 print "WARNING Attempt to assign to action",actionTool,"a role ",role,"which is not allowed"
 
