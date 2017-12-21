@@ -17,7 +17,9 @@
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
-#include "TMath.h"
+#include <TMath.h>
+#include <boost/math/special_functions/erf.hpp>
+
 
 using CLHEP::RandGauss;
 
@@ -810,7 +812,10 @@ CaloNoiseToolDB::calcSig(double e, double sigma1, double ratio, double sigma2) {
  
   // if instead you want to return the sigma-equivalent C.L.
   // (with sign!) use the following line
-  return sqrt2*TMath::ErfInverse(z);
+  if (std::abs(z) < 1.0) {
+    return sqrt2*boost::math::erf_inv(z);
+  }
+  return 0.0;
 
 }
 
