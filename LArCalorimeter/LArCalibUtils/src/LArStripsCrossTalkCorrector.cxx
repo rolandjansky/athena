@@ -206,7 +206,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
     int nStrips=0;
     
     for (;it!=it_end;it++) {  //Loop over all cells to fill Strips lookup table
-      LArAccumulatedCalibDigit* dig=*it;
+      const LArAccumulatedCalibDigit* dig=*it;
       chid=dig->hardwareID();     
       if (!(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid))) continue; //Deal only with EM calos case
       if (!m_larCablingSvc->isOnlineConnected(chid)) continue; //ignore disconnected channels
@@ -301,7 +301,7 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	for (unsigned iphi=0; iphi<m_MAXphi; iphi++) {  // Loop over phi range
 	 
 	  const unsigned iphi2=iphi+m_MAXphi*iside;    //Phi index inside lookup table 
-	  LArAccumulatedCalibDigit* currDig=m_stripsLookUp[iphi2][ieta];
+	  const LArAccumulatedCalibDigit* currDig=m_stripsLookUp[iphi2][ieta];
 
 	  if (currDig==0 || currDig==&febErrorDummy) continue; //Digit not found or FEB in error: ignore
 
@@ -478,7 +478,8 @@ StatusCode LArStripsCrossTalkCorrector::executeWithAccumulatedDigits()
 	    else {
 	      ATH_MSG_VERBOSE("Correction for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec << " DAC="<<currDig->DAC() << " succeeded " 
 			      << currDig->sampleSum()[2] << "->" << SampleSumInt[2]);
-	      currDig->setSampleSum(SampleSumInt);
+              // FIXME: const_cast, modifying object in SG.
+	      const_cast<LArAccumulatedCalibDigit*>(currDig)->setSampleSum(SampleSumInt);
 	    }
 
 	  }// end if-pulsed 

@@ -139,7 +139,7 @@ StatusCode LArCalibShortCorrector::execute(){
     }
     
 
-    std::vector<std::pair<LArAccumulatedCalibDigit*, LArAccumulatedCalibDigit*> > shortedDigits;
+    std::vector<std::pair<const LArAccumulatedCalibDigit*, const LArAccumulatedCalibDigit*> > shortedDigits;
     shortedDigits.resize(nShorts);
 
     LArAccumulatedCalibDigitContainer::const_iterator it=larAccumulatedCalibDigitContainer->begin();
@@ -207,7 +207,8 @@ StatusCode LArCalibShortCorrector::execute(){
 	newSampleSum[is]=sampleSumsPulsed[is]+(sampleSumsNeighbor[is]-ped);
 	//std::cout << newSampleSum[is] << std::endl;
       }
-      shortedDigits[ii].first->setSampleSum(newSampleSum);
+      // FIXME: const_cast can change objects in SG.
+      const_cast<LArAccumulatedCalibDigit*>(shortedDigits[ii].first)->setSampleSum(newSampleSum);
     }//end loop over pairs of shorted digits
   }//end loop over container keys
   return StatusCode::SUCCESS;
