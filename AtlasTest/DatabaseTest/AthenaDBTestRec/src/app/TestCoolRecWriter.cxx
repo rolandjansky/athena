@@ -17,7 +17,6 @@
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistencySvc/ISession.h"
-#include "PersistencySvc/IPersistencySvcFactory.h"
 #include "PersistencySvc/IPersistencySvc.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ITransaction.h"
@@ -574,29 +573,12 @@ bool TestCoolRecWriter::setupPool() {
 	      << std::endl;
   }
   m_poolcat->start();
-
-  /*  MN: commenting it out, need to test if the dict get loaded automaticalle
-  // now load dictionary library
-  std::string library="libAthenaDBTestRecDataDict.so";
-  std::cout << "Load library " << library << std::endl;
-  Reflex::SharedLibrary libloader(library);
-  if (!libloader.Load()) {
-    std::cout << "Cannot load dictionary libaray " << library << std::endl;
-  }
-  */
-  
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  m_persistencySvc = psfactory? (psfactory->create("PersistencySvc", *m_poolcat)) : 0; 
-  if( m_persistencySvc ) {
-    pool::DatabaseConnectionPolicy policy;
-    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-    policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
-    m_persistencySvc->session().setDefaultConnectionPolicy(policy);
-    m_persistencySvc->session().transaction().start(pool::ITransaction::UPDATE);
-  } else {
-    std::cout << "Error setting up pool::PersistencySvc" << std::endl;
-    return false;
-  }
+  m_persistencySvc = pool::IPersistencySvc::create(*m_poolcat).get();
+  pool::DatabaseConnectionPolicy policy;
+  policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
+  policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
+  m_persistencySvc->session().setDefaultConnectionPolicy(policy);
+  m_persistencySvc->session().transaction().start(pool::ITransaction::UPDATE);
   return true;
 }
 
