@@ -81,13 +81,39 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
   
         indetovl.do_TRT = True
+        
+        
+        from Digitization.DigitizationFlags import digitizationFlags
+        rndmStream = "InDetOverlay"
+        indetovl.RndmEngine = rndmStream
+        indetovl.RndmSvc = digitizationFlags.rndmSvc.get_Value();
+        
+        from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
+        TRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "TRTStrawStatusSummarySvc")
+        ServiceMgr += TRTStrawStatusSummarySvc
+        indetovl.TRTStrawSummarySvc = TRTStrawStatusSummarySvc
+
+
+        from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
+        TRTCalibDBSvc=TRT_CalDbSvc()
+        ServiceMgr += TRTCalibDBSvc
+        
+        from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+        TRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "TRT_DriftFunctionTool",
+                                                           TRTCalDbTool=TRTCalibDBSvc           )
+        
+        ToolSvc += TRT_DriftFunctionTool
+        indetovl.TRTDriftFunctionTool = TRT_DriftFunctionTool   
+
+
+
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
-           from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-           InDetTRTCalDbSvc = TRT_CalDbSvc()
-           ServiceMgr += InDetTRTCalDbSvc
+           #from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
+           #InDetTRTCalDbSvc = TRT_CalDbSvc()
+           #ServiceMgr += InDetTRTCalDbSvc
           #from IOVDbSvc.CondDB import conddb
 #           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibt0-UPD2-FDR2-01</tag>")
 #           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibRt-UPD2-FDR2-01</tag>")
