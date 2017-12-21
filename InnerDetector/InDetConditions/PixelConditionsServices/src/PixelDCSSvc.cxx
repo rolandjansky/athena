@@ -27,9 +27,9 @@
 PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
   AthService(name, sl),
   m_detStore("DetectorStore", name),
+  m_pixelDCSData(0),
   m_pixid(nullptr),
   m_pixman(nullptr),
-  m_pixelDCSData(0),
   m_par_temperatureKey(""),
   m_par_HVKey(""),
   m_par_FSMStatusKey(""),
