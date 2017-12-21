@@ -24,7 +24,6 @@
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/IFCAction.h"
 
-#include "PersistencySvc/IPersistencySvcFactory.h"
 #include "PersistencySvc/IPersistencySvc.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/IDatabase.h"
@@ -210,16 +209,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
       delete *iter;
    }
    m_pers_mut.clear();
-   pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-   if (psfactory == nullptr) {
-      ATH_MSG_FATAL("Failed to create PersistencySvcFactory.");
-      return(StatusCode::FAILURE);
-   }
-   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Read Service
-   if (m_persistencySvcVec[IPoolSvc::kInputStream] == nullptr) {
-      ATH_MSG_FATAL("Failed to create Input PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
+   m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).get()); // Read Service
    m_pers_mut.push_back(new CallMutex);
    if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("MultiThreaded", true)) {
       ATH_MSG_FATAL("Failed to enable multithreaded ROOT via PersistencySvc.");
@@ -230,11 +220,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
       ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
       return(StatusCode::FAILURE);
    }
-   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Write Service
-   if (m_persistencySvcVec[IPoolSvc::kOutputStream] == nullptr) {
-      ATH_MSG_FATAL("Failed to create Output PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
+   m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).get()); // Write Service
    m_pers_mut.push_back(new CallMutex);
    pool::DatabaseConnectionPolicy policy;
    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
@@ -347,17 +333,8 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
          return(contextIter->second);
       }
    }
-   pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-   if (psfactory == nullptr) {
-      ATH_MSG_ERROR("Failed to create PersistencySvcFactory.");
-      return(IPoolSvc::kInputStream);
-   }
    const unsigned int id = m_persistencySvcVec.size();
-   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog));
-   if (m_persistencySvcVec[id] == nullptr) {
-      ATH_MSG_ERROR("Failed to create Input PersistencySvc.");
-      return(IPoolSvc::kInputStream);
-   }
+   m_persistencySvcVec.push_back( pool::IPersistencySvc::create(*m_catalog).get() );
    m_pers_mut.push_back(new CallMutex);
    if (!connect(pool::ITransaction::READ).isSuccess()) {
       ATH_MSG_ERROR("Failed to connect Input PersistencySvc.");
