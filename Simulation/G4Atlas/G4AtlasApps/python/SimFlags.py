@@ -21,6 +21,9 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobpro
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.Luminosity.set_Off()
 
+# Logging
+from AthenaCommon.Logging import logging
+_sflog = logging.getLogger('SimFlags')
 
 class InitFunctions(JobProperty):
     """
@@ -217,14 +220,14 @@ class PhysicsList(JobProperty):
                 n_value = n_value.replace("_VALIDATION", "")
                 if n_value not in self.allowedValues:
                     self.allowedValues.append(n_value)
-        from AthenaCommon.Logging import logging
-        _sflog = logging.getLogger('SimFlags')
         if n_value == 'FTFP_BERT_G4Precompound':
-            _sflog.warning( 'Setting G4CASCADE_USE_PRECOMPOUND for use of precompound model' )
+            _sflog.warning('Setting G4CASCADE_USE_PRECOMPOUND for use of ' +
+                           'precompound model' )
             os.environ['G4CASCADE_USE_PRECOMPOUND'] = '1'
             n_value = 'FTFP_BERT'
         elif 'G4CASCADE_USE_PRECOMPOUND' in os.environ:
-            _sflog.warning( 'Setting G4CASCADE_USE_PRECOMPOUND back to 0 (why was it set?)' )
+            _sflog.warning('Setting G4CASCADE_USE_PRECOMPOUND back to 0 ' +
+                           '(why was it set?)')
             os.environ['G4CASCADE_USE_PRECOMPOUND'] = '0'
         JobProperty.__setattr__(self, name, n_value)
 
@@ -368,14 +371,13 @@ class RandomSeedList(JobProperty):
         """Add seeds to internal seedlist. Seeds will be incremented by offset values."""
         newseed = name + " OFFSET " + str(jobproperties.SimFlags.RandomSeedOffset.get_Value()) + " " + str(seed1) + " " + str(seed2) #option 1b
 
-        from AthenaCommon.Logging import logging
-        _sflog = logging.getLogger('SimFlags')
         _sflog.info("Adding Simulation random number seed '" + newseed + "'")
 
         ## Ensure that each stream is only initialized once
         found = self.checkForExistingSeed(name)
         if found:
-            _sflog.error ("Initialization values for random number stream " + name + " already exist!")
+            _sflog.error("Initialization values for random number stream " +
+                         name + " already exist!")
         else:
             seedlist = self.get_Value()
             seedlist += [newseed]
@@ -385,10 +387,10 @@ class RandomSeedList(JobProperty):
         """print random seeds """
         from AthenaCommon.ConfigurableDb import getConfigurable
         rndmSvc = getConfigurable(jobproperties.SimFlags.RandomSvc.get_Value())()
-        from AthenaCommon.Logging import logging
-        _sflog = logging.getLogger('SimFlags')
-        _sflog.info ("Random Number Seeds stored in simFlag: " + str(self.get_Value()))
-        _sflog.info ("Random Number Seeds attached to Service '" + rndmSvc.name() + "': " + str(rndmSvc.Seeds))
+        _sflog.info("Random Number Seeds stored in simFlag: " +
+                    str(self.get_Value()))
+        _sflog.info("Random Number Seeds attached to Service '" +
+                    rndmSvc.name() + "': " + str(rndmSvc.Seeds))
 
     def checkRndmSvc(self):
         """Check if the random number service has already been defined"""
@@ -397,22 +399,26 @@ class RandomSeedList(JobProperty):
             from AthenaCommon.ConfigurableDb import getConfigurable
             rndmSvc = getConfigurable(jobproperties.SimFlags.RandomSvc.get_Value())()
             if len(rndmSvc.Seeds)!=0:
-                from AthenaCommon.Logging import logging
-                _sflog = logging.getLogger('SimFlags')
-                _sflog.warn (rndmSvc.name() + ".Seeds is not empty!")
-                _sflog.warn ("Random Number Seeds already attached to Service '" + rndmSvc.name() + "': " + str(rndmSvc.Seeds))
-                _sflog.warn ( "Please use simFlags.RandomSeedList.addSeed() instead!")
+                _sflog.warn(rndmSvc.name() + ".Seeds is not empty!")
+                _sflog.warn("Random Number Seeds already attached to Service '" +
+                            rndmSvc.name() + "': " + str(rndmSvc.Seeds))
+                _sflog.warn("Please use simFlags.RandomSeedList.addSeed() instead!")
                 for seedstring in rndmSvc.Seeds:
                     if 'OFFSET' not in seedstring:
-                        _sflog.warn ( "Existing Seed:'" + seedstring + "' incorrectly defined - missing OFFSET! Removing...")
+                        _sflog.warn("Existing Seed: '" + seedstring +
+                                    "' incorrectly defined - missing OFFSET! " +
+                                    "Removing...")
                     else:
-                        ## If seed is correctly formatted add seed properly
-                        ## after checking it hasn't already been defined in the stream list.
+                        # If seed is correctly formatted add seed properly after
+                        # checking it hasn't already been defined in the stream list.
                         splitseedstring = seedstring.split()
                         if self.checkForExistingSeed(splitseedstring[0]):
-                            _sflog.error ("Initialization values for random number stream " + splitseedstring[0] + " already exist!")
+                            _sflog.error("Initialization values for random " +
+                                         "number stream " + splitseedstring[0] +
+                                         " already exist!")
                         else:
-                            self.addSeed( splitseedstring[0], splitseedstring[3], splitseedstring[4] )
+                            self.addSeed( splitseedstring[0], splitseedstring[3],
+                                          splitseedstring[4] )
                 rndmSvc.Seeds = []
 
     def addtoService(self):
@@ -420,9 +426,8 @@ class RandomSeedList(JobProperty):
         """
         from AthenaCommon.ConfigurableDb import getConfigurable
         rndmSvc = getConfigurable(jobproperties.SimFlags.RandomSvc.get_Value())()
-        from AthenaCommon.Logging import logging
-        _sflog = logging.getLogger('SimFlags')
-        _sflog.info ("Adding Simulation random number seed stored in jobProperties to Random Number Service '" + rndmSvc.name() + "'")
+        _sflog.info("Adding Simulation random number seed stored in jobProperties " +
+                    "to Random Number Service '" + rndmSvc.name() + "'")
         self.checkRndmSvc()
         rndmSvc.Seeds += self.get_Value()
         from GaudiKernel.Configurable import WARNING
@@ -557,9 +562,8 @@ class RunDict(JobProperty):
         Get a run number based on the runs in the dictionary.  Returns
         as though we process a linear sequence for the moment
         """
-        _sflog = logging.getLogger('SimFlags')
         if len(self.get_Value())==0:
-            _sflog.warning ('No run dictionary - giving back run number -1')
+            _sflog.warning('No run dictionary - giving back run number -1')
             return -1
         else:
             total=0
@@ -568,7 +572,8 @@ class RunDict(JobProperty):
             for a in self.get_Value():
                 if baseJN<=self.get_Value()[a]: return a
                 else: baseJN-= self.get_Value()[a]
-        _sflog.warning ( 'Something went wrong with job '+str(a_job)+'. Returning run number -1.' )
+        _sflog.warning('Something went wrong with job ' + str(a_job) +
+                       '. Returning run number -1.' )
         return -1
 
 class DoLArBirk(JobProperty):
@@ -675,17 +680,21 @@ class OptionalUserActionList(JobProperty):
             try:
                 self.StoredValue[role] += [actionTool]
             except KeyError:
-                print "WARNING Attempt to assign to action",actionTool,"a role ",role,"which is not allowed"
+                _sflog.warn('Attempt to assign action %s to role %s not allowed' %
+                            (actionTool, role))
 
     def removeAction(self, actionTool, roles=['Run', 'Event', 'Tracking', 'Step']):
-         #Remove the action from the lists of actions for each role (remove from all by default) - no error if it isn't in the list.
+        # Remove the action from the lists of actions for each role
+        # (remove from all by default) - no error if it isn't in the list.
         for role in roles:
             try:
                 self.StoredValue[role].remove(actionTool)
             except KeyError:
-                print "WARNING Attempt to remove action",actionTool," from role ",role,"which is not allowed"
+                _sflog.warn('Attempt to remove action %s from role %s not allowed' %
+                            (actionTool, role))
             except ValueError:
-                print "WARNING Attempt to remove unkown action",actionTool,"from role ",role
+                _sflog.warn('Attempt to remove unknown action %s from role %s' %
+                            (actionTool, role))
 
 class G4Commands(JobProperty):
     """
@@ -821,8 +830,6 @@ class SimFlags(JobPropertyContainer):
 
 ## Register and populate the SimFlags container
 jobproperties.add_Container(SimFlags)
-from AthenaCommon.Logging import logging
-_sflog = logging.getLogger('SimFlags')
 for jpname in dir():
     jp = eval(jpname)
     import inspect
