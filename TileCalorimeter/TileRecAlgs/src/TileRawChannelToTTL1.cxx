@@ -26,18 +26,14 @@
 //
 //*****************************************************************************
 
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-
-// Calo includes
-#include "CaloIdentifier/TileID.h"
-#include "CaloIdentifier/CaloLVL1_ID.h"
-
 // Tile includes
 // small hack to be able to modify original TileRawChannel
+#include "TileRecAlgs/TileRawChannelToTTL1.h"
+
 #define private public
 #include "TileEvent/TileRawChannel.h"
 #undef private
+
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -46,8 +42,15 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileInfo.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileEvent/TileTTL1Container.h"
-#include "TileRecAlgs/TileRawChannelToTTL1.h"
+
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/CaloLVL1_ID.h"
+
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
@@ -73,8 +76,6 @@ TileRawChannelToTTL1::TileRawChannelToTTL1(std::string name, ISvcLocator* pSvcLo
   , m_tileToolEmscale("TileCondToolEmscale")
 {
   declareProperty("TileInfoName", m_infoName = "TileInfo");
-  declareProperty("TileRawChannelContainer", m_rawChannelContainer = "TileRawChannelCnt");
-  declareProperty("TileTTL1Container", m_TTL1Container = "TileTTL1Container");
   declareProperty("TileConstantTTL1Shape", m_constantTTL1shape = true);
   declareProperty("maskBadChannels", m_maskBadChannels = false);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
@@ -116,6 +117,9 @@ StatusCode TileRawChannelToTTL1::initialize() {
     }
   }
 
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_ttl1ContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileRawChannelToTTL1 initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -149,14 +153,15 @@ StatusCode TileRawChannelToTTL1::execute() {
   // step 3:  Get rawChannel container from TES and create TTL1 container
   /* Note that rawChannel container has 256 collections (one for each drawer),
    but TTL1 container has no collections and no structure. */
-  const TileRawChannelContainer* rawChannelCont;
-  CHECK( evtStore()->retrieve(rawChannelCont, m_rawChannelContainer) );
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+  ATH_CHECK( rawChannelContainer.isValid() );
 
-  TileRawChannelUnit::UNIT rChUnit = rawChannelCont->get_unit();
-  //TileFragHash::TYPE rChType = rawChannelCont->get_type();
+  TileRawChannelUnit::UNIT rChUnit = rawChannelContainer->get_unit();
+  //TileFragHash::TYPE rChType = rawChannelContainer->get_type();
 
-  TileTTL1Container* pTTL1Container = new TileTTL1Container();
-  TileTTL1* pTTL1;
+  SG::WriteHandle<TileTTL1Container> ttl1Container(m_ttl1ContainerKey);
+  ATH_CHECK( ttl1Container.record(std::make_unique<TileTTL1Container>()) );
+  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_ttl1ContainerKey.key() << ")" );
 
   /*......................................................*/
   // Step 4: Create temporary arrays for processing signals.
@@ -179,12 +184,9 @@ StatusCode TileRawChannelToTTL1::execute() {
 
   /*......................................................*/
   // Step 5: Begin loop over all collections (collection = electronic drawer). 
-  TileRawChannelContainer::const_iterator collItr = rawChannelCont->begin();
-  TileRawChannelContainer::const_iterator lastColl = rawChannelCont->end();
+  for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-  for (; collItr != lastColl; ++collItr) {
-
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(rawChannelCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -221,12 +223,13 @@ StatusCode TileRawChannelToTTL1::execute() {
 
     /*......................................................*/
     // Step 6: Iterate over all rawChannels in this collection, summing amps for each tower.
-    TileRawChannelCollection::const_iterator rawChannelItr = (*collItr)->begin();
-    TileRawChannelCollection::const_iterator lastRawChannel = (*collItr)->end();
+    TileRawChannelCollection::const_iterator rawChannelItr = rawChannelCollection->begin();
+    TileRawChannelCollection::const_iterator lastRawChannel = rawChannelCollection->end();
 
-    for (; rawChannelItr != lastRawChannel; ++rawChannelItr) {
+    for (TileRawChannel* rawChannel : *rawChannelCollection) {
+
       /* Get rawChannel Identifier */
-      HWIdentifier hwid = (*rawChannelItr)->adc_HWID();
+      HWIdentifier hwid = rawChannel->adc_HWID();
       int channel = m_tileHWID->channel(hwid);
       int adc = m_tileHWID->adc(hwid);
 
@@ -234,7 +237,7 @@ StatusCode TileRawChannelToTTL1::execute() {
       // put zero amplitude in all bad channels 
       // so that zero amplitude will be written to the ByteStream 
       if (m_maskBadChannels) {
-        TileRawChannel * pRch = static_cast<TileRawChannel *>(*rawChannelItr);
+        TileRawChannel * pRch = static_cast<TileRawChannel *>(rawChannel);
         TileBchStatus status = m_tileBadChanTool->getAdcStatus(hwid);
 
         if (status.isBad()) {
@@ -268,7 +271,9 @@ StatusCode TileRawChannelToTTL1::execute() {
 
       // note that amplitude() is in unknown units (can be even online MeV), convert it to MeV first
       float e = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc,
-          (*rawChannelItr)->amplitude(), rChUnit, TileRawChannelUnit::MegaElectronVolts);
+                                                rawChannel->amplitude(), 
+                                                rChUnit, 
+                                                TileRawChannelUnit::MegaElectronVolts);
 
       // convert MeV to pCb
       float q = e / m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
@@ -277,12 +282,12 @@ StatusCode TileRawChannelToTTL1::execute() {
       int ieta = 999;
       int iphi = 999;
 
-      Identifier pmt_id = (*rawChannelItr)->pmt_ID();
+      Identifier pmt_id = rawChannel->pmt_ID();
       if (pmt_id.is_valid() && m_tileID->section(pmt_id) < 4
           && m_tileID->section(pmt_id) > 0) {
 
         /* Get TT Identifier for this pmt */
-        Identifier tt_id = (*rawChannelItr)->tt_ID();
+        Identifier tt_id = rawChannel->tt_ID();
         /* Get eta-phi  indices of TTL1 for this channel. */
         ieta = m_TT_ID->eta(tt_id);
         iphi = m_TT_ID->phi(tt_id); // (same as module).
@@ -423,16 +428,10 @@ StatusCode TileRawChannelToTTL1::execute() {
         The preceding lines are commented out
         */
 
-        pTTL1 = new TileTTL1(ttId[ieta], ttL1samples);
-        pTTL1Container->push_back(pTTL1);
+        ttl1Container->push_back(std::make_unique<TileTTL1>(ttId[ieta], ttL1samples));
       }  // end second "Good" section.
     } // end loop over towers
   } // end loop over collections
-
-  // step8: register the TTL1 container in the TES
-  CHECK( evtStore()->record(pTTL1Container, m_TTL1Container, false) );
-
-  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_TTL1Container << ")" );
 
   // Execution completed.
   ATH_MSG_DEBUG( "TileRawChannelToTTL1 execution completed." );

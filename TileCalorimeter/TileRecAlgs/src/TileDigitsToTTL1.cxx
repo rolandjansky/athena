@@ -30,29 +30,29 @@
 //
 //*****************************************************************************
 
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
+// Tile includes
+#include "TileRecAlgs/TileDigitsToTTL1.h"
+#include "TileIdentifier/TileHWID.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileConditions/TileInfo.h"
+#include "TileConditions/TileCondToolEmscale.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 
-// Tile includes
-#include "TileIdentifier/TileHWID.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/TileInfo.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileEvent/TileDigitsContainer.h"
-#include "TileEvent/TileTTL1Container.h"
-#include "TileRecAlgs/TileDigitsToTTL1.h"
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
 
-using namespace CLHEP;
-
 //C++ STL includes
 #include <vector>
+#include <memory>
+
 
 //
 // Constructor
@@ -69,8 +69,6 @@ TileDigitsToTTL1::TileDigitsToTTL1(std::string name, ISvcLocator* pSvcLocator)
   m_rChType = TileFragHash::FitFilter;
 
   declareProperty("TileInfoName", m_infoName = "TileInfo");
-  declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");    
-  declareProperty("TileTTL1Container", m_TTL1Container = "TileTTL1Container");
   declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
 }
 
@@ -92,6 +90,9 @@ StatusCode TileDigitsToTTL1::initialize() {
   CHECK( m_tileToolEmscale.retrieve() );
 
   CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+
+  ATH_CHECK(m_digitsContainerKey.initialize());
+  ATH_CHECK(m_ttl1ContainerKey.initialize());
 
   ATH_MSG_INFO( "TileDigitsToTTL1 initialisation completed" );
 
@@ -128,11 +129,12 @@ StatusCode TileDigitsToTTL1::execute() {
   // step 3:  Get digit container from TES and create TTL1 container
   /* Note that digit container has 256 collections (one for each drawer),
    but TTL1 container has no collections and no structure. */
-  const TileDigitsContainer* digitCont;
-  CHECK( evtStore()->retrieve(digitCont, m_digitsContainer) );
+  SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey);
+  ATH_CHECK( digitsContainer.isValid() );
 
-  TileTTL1Container * pTTL1Container = new TileTTL1Container();
-  TileTTL1 * pTTL1;
+  SG::WriteHandle<TileTTL1Container> ttl1Container(m_ttl1ContainerKey);
+  ATH_CHECK( ttl1Container.record(std::make_unique<TileTTL1Container>()) );
+  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_ttl1ContainerKey.key() << ")" );
 
   /*......................................................*/
   // Step 4: Create temporary arrays for processing signals.
@@ -154,12 +156,9 @@ StatusCode TileDigitsToTTL1::execute() {
 
   /*......................................................*/
   // Step 5: Begin loop over all collections (collection = electronic drawer). 
-  TileDigitsContainer::const_iterator collItr = digitCont->begin();
-  TileDigitsContainer::const_iterator lastColl = digitCont->end();
+  for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
 
-  for (; collItr != lastColl; ++collItr) {
-
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(digitsCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -199,36 +198,34 @@ StatusCode TileDigitsToTTL1::execute() {
 
     /*......................................................*/
     // Step 6: Iterate over all digits in this collection, summing amps for each tower.
-    TileDigitsCollection::const_iterator digitItr = (*collItr)->begin();
-    TileDigitsCollection::const_iterator lastDigit = (*collItr)->end();
+    for (const TileDigits* tile_digits : *digitsCollection) {
 
-    for (; digitItr != lastDigit; ++digitItr) {
       // get digits
-      std::vector<float> digits = (*digitItr)->samples();
+      std::vector<float> samples = tile_digits->samples();
       // get number of time samples & compare with 
       // int nSamp = m_tileInfo->NdigitSamples();
-      int nSamp2 = digits.size();
+      int nSamp2 = samples.size();
       if (nSamp2 != nSamp) {
         ATH_MSG_ERROR( "nSamp from TileInfo=" << nSamp
                       << " nSamp from digits= " << nSamp2 );
       }
       /* Get digit HWIdentifier (= channel_id) */
-      HWIdentifier adcId = (*digitItr)->adc_HWID();
+      HWIdentifier adcId = tile_digits->adc_HWID();
       int channel = m_tileHWID->channel(adcId);
       int adc = m_tileHWID->adc(adcId);
-      // Subtract pedestal, that is sample[0] and convert from ADC counts to pCb. 
-      float pedestal = digits[0];
+      // Subtract pedestal, that is samples[0] and convert from ADC counts to pCb. 
+      float pedestal = samples[0];
       for (int jsamp = 0; jsamp < nSamp; ++jsamp) {
 
-        digits[jsamp] = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc,
-            (digits[jsamp] - pedestal), TileRawChannelUnit::ADCcounts, TileRawChannelUnit::PicoCoulombs);
+        samples[jsamp] = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc,
+            (samples[jsamp] - pedestal), TileRawChannelUnit::ADCcounts, TileRawChannelUnit::PicoCoulombs);
 
       }
-      Identifier pmt_id = (*digitItr)->pmt_ID();
+      Identifier pmt_id = tile_digits->pmt_ID();
       if (pmt_id.is_valid()) {
 
         /* Get TT Identifier for this pmt */
-        Identifier tt_id = (*digitItr)->tt_ID();
+        Identifier tt_id = tile_digits->tt_ID();
         /* Get eta-phi  indices of TTL1 for this channel. */
         int ieta = m_TT_ID->eta(tt_id);
         int iphi = m_TT_ID->phi(tt_id); // (same as module).
@@ -237,13 +234,13 @@ StatusCode TileDigitsToTTL1::execute() {
 
         if (ttDigit[ieta]) { // already exists - just add charge for each sample
           for (int jsamp = 0; jsamp < nSamp; ++jsamp) {
-            myttAmp[ieta][jsamp] += digits[jsamp];
+            myttAmp[ieta][jsamp] += samples[jsamp];
           }
         } else { // digit in new TT
           ttId[ieta] = tt_id;
           ttDigit[ieta] = true;
           for (int jsamp = 0; jsamp < nSamp; ++jsamp) {
-            myttAmp[ieta][jsamp] = digits[jsamp];
+            myttAmp[ieta][jsamp] = samples[jsamp];
           }
           if (ieta >= minieta && ieta <= maxieta)
             ++nTT; // count only valid TT
@@ -255,7 +252,7 @@ StatusCode TileDigitsToTTL1::execute() {
         //Sum cell energy for comparison to other algos.
         // convert pCb to MeV
         float e = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc,
-            digits[iTrig], TileRawChannelUnit::PicoCoulombs, TileRawChannelUnit::MegaElectronVolts);
+            samples[iTrig], TileRawChannelUnit::PicoCoulombs, TileRawChannelUnit::MegaElectronVolts);
 
         if (ieta >= minieta && ieta <= maxieta) {
           ttAmpTot += e;
@@ -329,7 +326,7 @@ StatusCode TileDigitsToTTL1::execute() {
 
         /* Include shaping fuction, pedestal, and noise. */
         if (tileNoise)
-          RandGauss::shootArray(nSamp, Rndm);
+          CLHEP::RandGauss::shootArray(nSamp, Rndm);
         float ttL1Ped = m_tileInfo->TTL1Ped(ttId[ieta]);
         float ttL1NoiseSigma = m_tileInfo->TTL1NoiseSigma(ttId[ieta]);
         for (int jsamp = 0; jsamp < nSamp; ++jsamp) {
@@ -373,16 +370,10 @@ StatusCode TileDigitsToTTL1::execute() {
          The preceding lines are commented out.
          */
 
-        pTTL1 = new TileTTL1(ttId[ieta], ttL1samples);
-        pTTL1Container->push_back(pTTL1);
+        ttl1Container->push_back(std::make_unique<TileTTL1>(ttId[ieta], ttL1samples));
       }  // end second "Good" section.
     } // end loop over towers
   } // end loop over collections
-
-  // step8: register the TTL1 container in the TES
-  CHECK( evtStore()->record(pTTL1Container, m_TTL1Container, false) );
-
-  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_TTL1Container << ")" );
 
 
   // Execution completed.

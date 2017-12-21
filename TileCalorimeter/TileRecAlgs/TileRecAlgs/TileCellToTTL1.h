@@ -27,8 +27,20 @@
 #ifndef TILERECALGS_TILECELLTOTTL1_H
 #define TILERECALGS_TILECELLTOTTL1_H
 
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileContainer.h"
+
+// Calo includes
+#include "CaloEvent/CaloCellContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
 
 class TileID;
 class CaloLVL1_ID;
@@ -51,8 +63,15 @@ class TileCellToTTL1: public AthAlgorithm {
 
   private:
 
-    std::string m_caloCellContainer;    // name of CaloCellContainer
-    std::string m_cellTTL1Container;   // name of TileCellTTL1Container
+
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey{this,"CaloCellContainer",
+                                                            "AllCalo", "Input Calo cell container key"};
+
+    SG::WriteHandleKey<TileTTL1CellContainer> m_ttl1CellContainerKey{this,"TileTTL1CellContainer",
+                                                                     "TileTTL1CellContainer",
+                                                                     "Output Tile TTL1 cell container key"};
+
+
 
     const TileID* m_tileID;
     const CaloLVL1_ID* m_TT_ID;

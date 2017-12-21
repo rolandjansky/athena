@@ -4,11 +4,26 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TileRecAlgs_TileCellSelector_H
-#define TileRecAlgs_TileCellSelector_H
+#ifndef TILERECALGS_TILESELECTOR_H
+#define TILERECALGS_TILESELECTOR_H
 
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+
+// Calo includes
+#include "CaloEvent/CaloCellContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
+// Gaudi incldues
+#include "GaudiKernel/ToolHandle.h"
+
+#include <string>
+#include <vector>
 
 class TileID;
 class TileHWID;
@@ -18,8 +33,6 @@ class ITileBadChanTool;
 class TileDCSSvc;
 class TileBeamInfoProvider;
 
-#include <string>
-#include <vector>
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -89,6 +102,20 @@ class TileCellSelector: public AthAlgorithm {
     std::string m_cellsContName;
     std::string m_digitsContName;
     std::string m_rchContName;
+
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey{this,"CellContainerName",
+                                                            "AllCalo", "Input Calo cell container key"};
+
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"DigitsContainerName",
+                                                               "TileDigitsFlt", "Input Tile digits container key"};
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"RawChannelContainerName",
+                                                                        "TileRawChannelCnt", 
+                                                                        "Input Tile raw channel container key"};
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfo",
+                                                      "EventInfo", "Input event info key"};
+
     float m_minEneCell;
     float m_maxEneCell;
     float m_minEneChan[3];
@@ -132,4 +159,4 @@ class TileCellSelector: public AthAlgorithm {
     std::vector<int> m_nDrawerOff;
 };
 
-#endif //
+#endif // TILERECALGS_TILESELECTOR_H

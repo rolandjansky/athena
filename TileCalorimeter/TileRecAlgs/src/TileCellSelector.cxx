@@ -2,24 +2,23 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "CaloIdentifier/TileID.h"
+// Tile includes
+#include "TileRecAlgs/TileCellSelector.h"
+#include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileCell.h"
-#include "CaloEvent/CaloCellContainer.h"
-#include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileDigits.h"
-#include "TileEvent/TileDigitsContainer.h"
-#include "TileEvent/TileRawChannelContainer.h"
+#include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileDCSSvc.h"
-#include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
 
-#include "xAODEventInfo/EventInfo.h"
+// Calo includes
+#include "CaloIdentifier/TileID.h"
 
-#include "TileRecAlgs/TileCellSelector.h"
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
 
 #include "boost/date_time/local_time/local_time.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -63,9 +62,6 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   , m_tileFlag(0)
   , m_tileError(0)
 {
-  declareProperty( "CellContainerName", m_cellsContName = "AllCalo");
-  declareProperty( "DigitsContainerName", m_digitsContName = "TileDigitsFlt");
-  declareProperty( "RawChannelContainerName", m_rchContName = "TileRawChannelCnt");
 
   declareProperty( "MinEnergyCell", m_minEneCell = -5000.);   // cut on cell energy
   declareProperty( "MaxEnergyCell", m_maxEneCell = 1000000.); // cut on cell energy
@@ -144,9 +140,12 @@ StatusCode TileCellSelector::initialize() {
     CHECK(m_tileDCSSvc.retrieve());
   }
 
-  ATH_MSG_INFO( "Cell container " << ((m_cellsContName.size()>0)?m_cellsContName:"NOT SET"));
-  ATH_MSG_INFO( "Digits container " << ((m_digitsContName.size()>0)?m_digitsContName:"NOT SET"));
-  ATH_MSG_INFO( "RawChannel container " << ((m_rchContName.size()>0)?m_rchContName:"NOT SET"));
+  ATH_MSG_INFO( "Cell container " 
+                << ((m_cellContainerKey.key().empty()) ? "NOT SET" : m_cellContainerKey.key()) );
+  ATH_MSG_INFO( "Digits container " 
+                << ((m_digitsContainerKey.key().empty()) ? "NOT SET" : m_digitsContName));
+  ATH_MSG_INFO( "RawChannel container " 
+                << ((m_rawChannelContainerKey.key().empty()) ? "NOT SET" : m_rawChannelContainerKey.key()));
 
   ATH_MSG_INFO( "CheckJumps " << ((m_checkJumps) ? "true" : "false"));
   ATH_MSG_INFO( "CheckDMUs " << ((m_checkDMUs) ? "true" : "false"));
@@ -157,16 +156,19 @@ StatusCode TileCellSelector::initialize() {
   ATH_MSG_INFO( "SkipMBTS " << ((m_skipMBTS) ? "true" : "false"));
   ATH_MSG_INFO( "CheckDCS " << ((m_checkDCS) ? "true" : "false"));
 
-  if (m_cellsContName.size() > 0) {
+  if (!m_cellContainerKey.key().empty()) {
     ATH_MSG_INFO( "MinEnergyCell < " << m_minEneCell);
     ATH_MSG_INFO( "MaxEnergyCell > " << m_maxEneCell);
     ATH_MSG_INFO( "PtnEnergyCell = " << m_ptnEneCell);
     ATH_MSG_INFO( "MinTimeCell < " << m_minTimeCell);
     ATH_MSG_INFO( "MaxTimeCell > " << m_maxTimeCell);
     ATH_MSG_INFO( "PtnTimeCell = " << m_ptnTimeCell);
+    
+    ATH_CHECK( m_cellContainerKey.initialize() );
+
   }
 
-  if (m_cellsContName.size() > 0 || m_rchContName.size() > 0) {
+  if (!(m_cellContainerKey.key().empty() && m_rawChannelContainerKey.key().empty())) {
     ATH_MSG_INFO( "MinEnergyChan < " << m_minEneChan[0]);
     ATH_MSG_INFO( "MaxEnergyChan > " << m_maxEneChan[0]);
     ATH_MSG_INFO( "PtnEnergyChan = " << m_ptnEneChan[0]);
@@ -181,24 +183,32 @@ StatusCode TileCellSelector::initialize() {
     ATH_MSG_INFO( "PtnTimeGap  = " << m_ptnTimeChan[1]);
   }
 
-  if (m_rchContName.size() > 0) {
+  if (!m_rawChannelContainerKey.key().empty()) {
     ATH_MSG_INFO( "MinEnergyMBTS < " << m_minEneChan[2]);
     ATH_MSG_INFO( "MaxEnergyMBTS > " << m_maxEneChan[2]);
     ATH_MSG_INFO( "PtnEnergyMBTS = " << m_ptnEneChan[2]);
     ATH_MSG_INFO( "MinTimeMBTS < " << m_minTimeChan[2]);
     ATH_MSG_INFO( "MaxTimeMBTS > " << m_maxTimeChan[2]);
     ATH_MSG_INFO( "PtnTimeMBTS = " << m_ptnTimeChan[2]);
+
+    ATH_CHECK( m_rawChannelContainerKey.initialize() );
+
   }
 
-  if (m_digitsContName.size() > 0 && m_checkJumps) {
-    ATH_MSG_INFO( "JumpDeltaHG " << m_jumpDeltaHG);
-    ATH_MSG_INFO( "JumpDeltaLG " << m_jumpDeltaLG);
-    ATH_MSG_INFO( "PedDetlaHG " << m_pedDeltaHG);
-    ATH_MSG_INFO( "PedDetlaLG " << m_pedDeltaLG);
-    ATH_MSG_INFO( "ConstLength " << m_constLength);
+  if (!m_digitsContainerKey.key().empty()) {
+    if (m_checkJumps) {
+      ATH_MSG_INFO( "JumpDeltaHG " << m_jumpDeltaHG);
+      ATH_MSG_INFO( "JumpDeltaLG " << m_jumpDeltaLG);
+      ATH_MSG_INFO( "PedDetlaHG " << m_pedDeltaHG);
+      ATH_MSG_INFO( "PedDetlaLG " << m_pedDeltaLG);
+      ATH_MSG_INFO( "ConstLength " << m_constLength);
+    }
+
+    ATH_CHECK( m_digitsContainerKey.initialize() );
+
   }
 
-  if (m_rchContName.size() > 0) {
+  if (!m_rawChannelContainerKey.key().empty()) {
     if (m_checkDMUs) {
       ATH_MSG_INFO( "MinBadDMU " << m_minBadDMU);
       ATH_MSG_INFO( "MaxBadDMU " << m_maxBadDMU);
@@ -252,21 +262,21 @@ StatusCode TileCellSelector::execute() {
 
   ++m_counter;
 
-  const DataHandle<EventInfo> eventInfo(0);
-  if (evtStore()->retrieve(eventInfo).isFailure()) {
-    m_runNum = 0;
-    m_evtNum = 0;
-    m_lumiBlock = 0;
-    m_evtBCID = 0;
-    m_tileFlag = 0;
-    m_tileError = 0;
-  } else {
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  if ( eventInfo.isValid() ) {
     m_runNum = eventInfo->runNumber();
     m_lumiBlock = eventInfo->lumiBlock();
     m_evtNum = eventInfo->eventNumber();
     m_evtBCID = eventInfo->bcid();
     m_tileFlag = eventInfo->eventFlags(EventInfo::Tile);
     m_tileError = eventInfo->errorState(EventInfo::Tile);
+  } else {
+    m_runNum = 0;
+    m_evtNum = 0;
+    m_lumiBlock = 0;
+    m_evtBCID = 0;
+    m_tileFlag = 0;
+    m_tileError = 0;
   }
 
   std::ostringstream evState;
@@ -435,19 +445,17 @@ StatusCode TileCellSelector::execute() {
   const TileCell* tcellminCh = 0;
   const TileCell* tcellmaxCh = 0;
 
-  if (m_cellsContName.size() > 0) {
+  if (!m_cellContainerKey.key().empty()) {
 
-    // Pointer to a Tile cell container
-    const CaloCellContainer* cell_container;
+    // Get Calo cell container
+    SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerKey);
 
-    if ( evtStore()->retrieve(cell_container, m_cellsContName).isFailure() ) {
+    if (!cellContainer.isValid()) {
+      
       ATH_MSG_WARNING("Unable to read CaloCellContainer from EventStore, disable reading of this container");
       m_cellsContName = "";
 
     } else {
-
-      CaloCellContainer::const_iterator iCell = cell_container->begin();
-      CaloCellContainer::const_iterator lastCell  = cell_container->end();
 
       float emin = 0.;
       float emax = 0.;
@@ -467,15 +475,15 @@ StatusCode TileCellSelector::execute() {
       // both for overflow and underflow and underflow is HG are very often in gap cells
       // also, overflow in HG might be masked if quality is too bad, so we'll not select all overflows...
       // that's why only overflow in LG are checked
-      bool checkOver = (m_checkOverLG && m_digitsContName.size()==0);
+      bool checkOver = (m_checkOverLG && m_digitsContainerKey.key().empty());
 
-      for ( ; iCell != lastCell; ++iCell) {
-        const CaloCell* cell_ptr = *iCell;
-        Identifier id = cell_ptr->ID();
+      for (const CaloCell* cell : *cellContainer) {
+
+        Identifier id = cell->ID();
         if ( m_tileID->is_tile(id) ) {
-          const TileCell* tile_cell = dynamic_cast<const TileCell*> (cell_ptr);
+          const TileCell* tile_cell = dynamic_cast<const TileCell*> (cell);
           if (tile_cell==0) continue;
-          const CaloDetDescrElement * caloDDE = cell_ptr->caloDDE();
+          const CaloDetDescrElement * caloDDE = cell->caloDDE();
           IdentifierHash hash1 = caloDDE->onl1();
           IdentifierHash hash2 = caloDDE->onl2();
           int ch_type = (hash2 == TileHWID::NOT_VALID_HASH) ? 1 : 0;
@@ -755,14 +763,13 @@ StatusCode TileCellSelector::execute() {
 
   const TileDQstatus* DQstatus(0);
 
-  if (m_rchContName.size()>0) {
+  if (!m_rawChannelContainerKey.key().empty()) {
 
-    // Pointer to a Tile RawChannel container
-    const TileRawChannelContainer* rch_container;
+    // Get Tile RawChannel container
+    SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
 
-    if ( evtStore()->retrieve(rch_container, m_rchContName).isFailure() ) {
+    if ( !rawChannelContainer.isValid() ) {
       ATH_MSG_WARNING("Unable to read TileRawChannelContainer from EventStore, disable reading of this container");
-      m_rchContName = "";
 
     } else {
 
@@ -774,7 +781,7 @@ StatusCode TileCellSelector::execute() {
       const TileRawChannel* maxCh = 0;
       const TileRawChannel* tminCh = 0;
       const TileRawChannel* tmaxCh = 0;
-      TileRawChannelUnit::UNIT rChUnit = rch_container->get_unit();
+      TileRawChannelUnit::UNIT rChUnit = rawChannelContainer->get_unit();
       bool allowAmpCheck = ( ( rChUnit == TileRawChannelUnit::MegaElectronVolts || // allow MeV only as units
                                rChUnit == TileRawChannelUnit::OnlineMegaElectronVolts ) ) ;
       bool fillChanEne = ( m_cellsContName.size()==0 && allowAmpCheck ); // use amplitude from channel if cell container was not checked
@@ -794,9 +801,6 @@ StatusCode TileCellSelector::execute() {
       IdentifierHash hash;
       int index=0, pmt;
 
-      TileRawChannelContainer::const_iterator collItr=rch_container->begin();
-      TileRawChannelContainer::const_iterator lastColl=rch_container->end();
-
       int nbadMax = 0;
       int nbadMBMax = 0;
       const TileRawChannelCollection * collMax = 0;
@@ -804,11 +808,9 @@ StatusCode TileCellSelector::execute() {
 
       bool someDQerrors = false;
 
-      for(; collItr!=lastColl; ++collItr) {
+      for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-        const TileRawChannelCollection * coll  = (*collItr);
-
-        int frag = coll->identify();
+        int frag = rawChannelCollection->identify();
         bool eb = (frag > 0x2ff);
         bool ebsp = (frag == 0x30e || frag == 0x411);
 
@@ -825,29 +827,29 @@ StatusCode TileCellSelector::execute() {
 
         // all error words contains information in last 16 bits only
         // but they are stored in collection as 32 bit numbers
-        uint32_t RODBCID         = coll->getRODBCID();
-        uint32_t DSPBCID         = coll->getFragDSPBCID();
-        uint32_t GlobalCRCErr    = coll->getFragGlobalCRC() & 0x1;
-        uint32_t FE_DMUmask      = coll->getFragFEChipMask();
-        uint32_t ROD_DMUmask     = coll->getFragRODChipMask();
-        uint32_t BCIDErr         = coll->getFragBCID();
-        uint32_t MemoryParityErr = coll->getFragMemoryPar();
-        uint32_t HeaderFormatErr = coll->getFragHeaderBit();
-        uint32_t HeaderParityErr = coll->getFragHeaderPar();
-        uint32_t SampleFormatErr = coll->getFragSampleBit();
-        uint32_t SampleParityErr = coll->getFragSamplePar();
-        uint32_t SingleStrobeErr = coll->getFragSstrobe();
-        uint32_t DoubleStrobeErr = coll->getFragDstrobe();
+        uint32_t RODBCID         = rawChannelCollection->getRODBCID();
+        uint32_t DSPBCID         = rawChannelCollection->getFragDSPBCID();
+        uint32_t GlobalCRCErr    = rawChannelCollection->getFragGlobalCRC() & 0x1;
+        uint32_t FE_DMUmask      = rawChannelCollection->getFragFEChipMask();
+        uint32_t ROD_DMUmask     = rawChannelCollection->getFragRODChipMask();
+        uint32_t BCIDErr         = rawChannelCollection->getFragBCID();
+        uint32_t MemoryParityErr = rawChannelCollection->getFragMemoryPar();
+        uint32_t HeaderFormatErr = rawChannelCollection->getFragHeaderBit();
+        uint32_t HeaderParityErr = rawChannelCollection->getFragHeaderPar();
+        uint32_t SampleFormatErr = rawChannelCollection->getFragSampleBit();
+        uint32_t SampleParityErr = rawChannelCollection->getFragSamplePar();
+        uint32_t SingleStrobeErr = rawChannelCollection->getFragSstrobe();
+        uint32_t DoubleStrobeErr = rawChannelCollection->getFragDstrobe();
 
         if (RODBCID!=0 && RODBCID != m_evtBCID ) {
           if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE(  evtnum.str()
-                << "  drw " << drwname(coll->identify())
+                << "  drw " << drwname(rawChannelCollection->identify())
                 << " ROD BCID " << RODBCID << " is wrong - skipping");
 
             if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
-                  << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
+                  << "   suppressing further messages about drawer 0x" << std::hex << rawChannelCollection->identify()
                   << std::dec << " being bad");
           }
           someDQerrors = true;
@@ -869,12 +871,14 @@ StatusCode TileCellSelector::execute() {
 
           if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE( evtnum.str()
-                << "  drw " << drwname(coll->identify()) << " is OFF - skipping");
+                             << "  drw " << drwname(rawChannelCollection->identify()) 
+                             << " is OFF - skipping");
 
             if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
-                  << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
-                  << std::dec << " being bad");
+                               << "   suppressing further messages about drawer 0x" << std::hex 
+                               << rawChannelCollection->identify()
+                               << std::dec << " being bad");
           }
           continue;
         }
@@ -894,12 +898,13 @@ StatusCode TileCellSelector::execute() {
 
           if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE( evtnum.str()
-                << "  drw " << drwname(coll->identify()) << " is MISSING - skipping");
+                             << "  drw " << drwname(rawChannelCollection->identify()) 
+                             << " is MISSING - skipping");
 
             if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
-                  << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
-                  << std::dec << " being bad");
+                               << "   suppressing further messages about drawer 0x" << std::hex 
+                               << rawChannelCollection->identify() << std::dec << " being bad");
           }
           continue;
         }
@@ -909,13 +914,13 @@ StatusCode TileCellSelector::execute() {
           if (m_maxBadDMU<16) {
             if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
               ATH_MSG_VERBOSE( evtnum.str()
-                  << "  drw " << drwname(coll->identify())
-                  << " global CRC error - skipping");
+                               << "  drw " << drwname(rawChannelCollection->identify())
+                               << " global CRC error - skipping");
 
               if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
                 ATH_MSG_VERBOSE( nevtnum.str()
-                    << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
-                    << std::dec << " being bad");
+                                 << "   suppressing further messages about drawer 0x" << std::hex 
+                                 << rawChannelCollection->identify() << std::dec << " being bad");
             }
             someDQerrors = true;
             continue;
@@ -939,13 +944,13 @@ StatusCode TileCellSelector::execute() {
           if (m_maxBadDMU < 16) {
             if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
               ATH_MSG_VERBOSE( evtnum.str()
-                  << "  drw " << drwname(coll->identify())
-                  << " BCID in DMU1 is bad - skipping");
+                               << "  drw " << drwname(rawChannelCollection->identify())
+                               << " BCID in DMU1 is bad - skipping");
 
               if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
                 ATH_MSG_VERBOSE( nevtnum.str()
-                    << "   suppressing further messages about drawer 0x"
-                    << std::hex << coll->identify() << std::dec << " being bad");
+                                 << "   suppressing further messages about drawer 0x"
+                                 << std::hex << rawChannelCollection->identify() << std::dec << " being bad");
             }
             someDQerrors = true;
             continue;
@@ -958,13 +963,13 @@ StatusCode TileCellSelector::execute() {
             if (m_maxBadDMU < 16) {
               if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
                 ATH_MSG_VERBOSE( evtnum.str()
-                    << "  drw " << drwname(coll->identify())
-                    << " DSP BCID is wrong - skipping");
+                                 << "  drw " << drwname(rawChannelCollection->identify())
+                                 << " DSP BCID is wrong - skipping");
 
                 if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
                   ATH_MSG_VERBOSE(  nevtnum.str()
-                      << "   suppressing further messages about drawer 0x"
-                      << std::hex << coll->identify() << std::dec << " being bad");
+                                    << "   suppressing further messages about drawer 0x"
+                                    << std::hex << rawChannelCollection->identify() << std::dec << " being bad");
               }
               someDQerrors = true;
               continue;
@@ -978,13 +983,13 @@ StatusCode TileCellSelector::execute() {
         if (error==0xFFFF && m_maxBadDMU<16) {
           if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE( evtnum.str()
-                << "  drw " << drwname(coll->identify())
+                << "  drw " << drwname(rawChannelCollection->identify())
                 << " whole drawer is bad - skipping");
 
             if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
                   << "   suppressing further messages about drawer 0x"
-                  << std::hex << coll->identify() << std::dec << " being bad");
+                  << std::hex << rawChannelCollection->identify() << std::dec << " being bad");
           }
           someDQerrors = true;
           continue;
@@ -995,8 +1000,9 @@ StatusCode TileCellSelector::execute() {
           if (++m_nDrawerOff[drawerIdx] == 2*m_maxVerboseCnt) {
             m_nDrawerOff[drawerIdx] = 0;
             ATH_MSG_VERBOSE( nevtnum.str()
-                << "   enabling messages about drawer 0x" << std::hex << coll->identify()
-                << std::dec << " being bad after " << m_maxVerboseCnt << " good events");
+                             << "   enabling messages about drawer 0x" << std::hex 
+                             << rawChannelCollection->identify()
+                             << std::dec << " being bad after " << m_maxVerboseCnt << " good events");
           }
         }
 
@@ -1016,7 +1022,7 @@ StatusCode TileCellSelector::execute() {
         someDQerrors = (nbadMB >= m_minBadMB);
         if (nbadMB > nbadMBMax) {
           nbadMBMax = nbadMB;
-          collMBMax = coll;
+          collMBMax = rawChannelCollection;
         }
 
         int nerr = 0;
@@ -1041,7 +1047,7 @@ StatusCode TileCellSelector::execute() {
           someDQerrors = true;
           if (nbad > nbadMax) {
             nbadMax = nbad;
-            collMax = coll;
+            collMax = rawChannelCollection;
           }
         }
         if (someDQerrors) { // will print later samples for all channels in a drawer
@@ -1052,13 +1058,9 @@ StatusCode TileCellSelector::execute() {
 
         if (allowAmpCheck || emptyBad) {
 
-          TileRawChannelCollection::const_iterator chItr=coll->begin();
-          TileRawChannelCollection::const_iterator lastCh=coll->end();
+          for (const TileRawChannel* rawChannel : *rawChannelCollection) {
 
-          for(; chItr!=lastCh; ++chItr) {
-
-            const TileRawChannel * pCh = (*chItr);
-            HWIdentifier adcId = pCh->adc_HWID();
+            HWIdentifier adcId = rawChannel->adc_HWID();
             HWIdentifier chId = m_tileHWID->channel_id(adcId);
             m_tileHWID->get_hash(chId, hash, &chan_context);
             int channel = m_tileHWID->channel(adcId);
@@ -1078,12 +1080,12 @@ StatusCode TileCellSelector::execute() {
 
             if (allowAmpCheck) {
 
-              float amp = pCh->amplitude();
-              float time = pCh->time();
+              float amp = rawChannel->amplitude();
+              float time = rawChannel->time();
               if (fillChanEne) {
                 m_chanEne[hash] = amp;
                 m_chanTime[hash] = time;
-                m_chanQua[hash] = pCh->quality();
+                m_chanQua[hash] = rawChannel->quality();
               } else {
                 m_chanDsp[hash] = amp;
                 m_chanTDsp[hash] = time;
@@ -1120,19 +1122,19 @@ StatusCode TileCellSelector::execute() {
 
                 if (amp < chmin) {
                   chmin = amp;
-                  minCh = pCh;
+                  minCh = rawChannel;
                 } else if (amp > chmax) {
                   chmax = amp;
-                  maxCh = pCh;
+                  maxCh = rawChannel;
                 }
 
                 if (time<tcmin) {
                   tcmin = time;
-                  tminCh = pCh;
+                  tminCh = rawChannel;
                 }
                 else if (time>tcmax) {
                   tcmax = time;
-                  tmaxCh = pCh;
+                  tmaxCh = rawChannel;
                 }
               }
             }
@@ -1142,21 +1144,21 @@ StatusCode TileCellSelector::execute() {
         for (index = hashNext - 48; index < hashNext; ++index) {
           if ((m_chanSel[index] && rawdata) || someDQerrors) {
             ATH_MSG_VERBOSE(evtnum.str()
-                            << "  drw " << drwname(coll->identify())
+                            << "  drw " << drwname(rawChannelCollection->identify())
                             << " nBadMB = " <<  nbadMB
                             << " nBadDMU = " <<  nbad
                             << " EvtBCID = " << m_evtBCID
-                            << " DSPBCID = " << coll->getFragDSPBCID()
-                            << " GlobCRC = " << coll->getFragGlobalCRC() << " " << GlobalCRCErr
+                            << " DSPBCID = " << rawChannelCollection->getFragDSPBCID()
+                            << " GlobCRC = " << rawChannelCollection->getFragGlobalCRC() << " " << GlobalCRCErr
                             << " error = 0x" << std::hex << error
-                            << " FE_CRC = 0x"  << coll->getFragFEChipMask()  << " 0x" << FE_DMUmask
-                            << " ROD_CRC = 0x" << coll->getFragRODChipMask() << " 0x" << ROD_DMUmask
-                            << " BCIDErr = 0x" << coll->getFragBCID()        << " 0x" << BCIDErr
-                            << " MemPar = 0x"  << coll->getFragMemoryPar()
-                            << " HeadForm = 0x"<< coll->getFragHeaderBit()
-                            << " HeadPar = 0x" << coll->getFragHeaderPar()
-                            << " SampForm = 0x"<< coll->getFragSampleBit()
-                            << " SampPar = 0x" << coll->getFragSamplePar()
+                            << " FE_CRC = 0x"  << rawChannelCollection->getFragFEChipMask()  << " 0x" << FE_DMUmask
+                            << " ROD_CRC = 0x" << rawChannelCollection->getFragRODChipMask() << " 0x" << ROD_DMUmask
+                            << " BCIDErr = 0x" << rawChannelCollection->getFragBCID()        << " 0x" << BCIDErr
+                            << " MemPar = 0x"  << rawChannelCollection->getFragMemoryPar()
+                            << " HeadForm = 0x"<< rawChannelCollection->getFragHeaderBit()
+                            << " HeadPar = 0x" << rawChannelCollection->getFragHeaderPar()
+                            << " SampForm = 0x"<< rawChannelCollection->getFragSampleBit()
+                            << " SampPar = 0x" << rawChannelCollection->getFragSamplePar()
                             << std::dec);
             break;
           }
@@ -1219,12 +1221,12 @@ StatusCode TileCellSelector::execute() {
   }
 
 
-  if (m_digitsContName.size()>0) {
+  if (!m_digitsContainerKey.key().empty()) {
 
     // Pointer to a Tile digits container
-    const TileDigitsContainer* digits_container;
+    SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey);
 
-    if (evtStore()->retrieve(digits_container, m_digitsContName).isFailure()) {
+    if (!digitsContainer.isValid()) {
       ATH_MSG_WARNING("Unable to read TileDigitsContainer from EventStore, disable reading of this container");
       m_digitsContName = "";
 
@@ -1239,14 +1241,9 @@ StatusCode TileCellSelector::execute() {
       int nOverLG = 0;
       int nOverHG = 0;
 
-      TileDigitsContainer::const_iterator collItr=digits_container->begin();
-      TileDigitsContainer::const_iterator lastColl=digits_container->end();
+      for (const TileDigitsCollection * digitsCollection : *digitsContainer) {
 
-      for(; collItr!=lastColl; ++collItr) {
-
-        const TileDigitsCollection * coll  = (*collItr);
-
-        int frag = coll->identify();
+        int frag = digitsCollection->identify();
         bool eb = (frag > 0x2ff);
         bool ebsp = (frag == 0x30e || frag == 0x411);
 
@@ -1266,15 +1263,11 @@ StatusCode TileCellSelector::execute() {
         int nChDmu[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         int nChBadDmu[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-        TileDigitsCollection::const_iterator digitItr=coll->begin();
-        TileDigitsCollection::const_iterator lastDigit=coll->end();
-
-        for(; digitItr!=lastDigit; ++digitItr) {
+        for (const TileDigits* tile_digits : *digitsCollection) {
 
           ++nChTot;
 
-          const TileDigits * pDig = (*digitItr);
-          HWIdentifier adcId = pDig->adc_HWID();
+          HWIdentifier adcId = tile_digits->adc_HWID();
           HWIdentifier chId = m_tileHWID->channel_id(adcId);
           m_tileHWID->get_hash(chId, hash, &chan_context);
           int channel = m_tileHWID->channel(adcId);
@@ -1344,11 +1337,11 @@ StatusCode TileCellSelector::execute() {
           sprintf(badnm," BADDIGIEX%s",badname);
           float dmin,dmax;
 
-          std::vector<float> fdigits = pDig->samples();
-          int nSamp = fdigits.size();
+          std::vector<float> samples = tile_digits->samples();
+          int nSamp = samples.size();
           if (nSamp > 6) {
 
-            int err = TileRawChannelBuilder::CorruptedData(ros,drawer,channel,adc,fdigits,dmin,dmax);
+            int err = TileRawChannelBuilder::CorruptedData(ros,drawer,channel,adc,samples,dmin,dmax);
 
             if (badname[0]==0) {
               if (err && err>-3) { // do not consider all zeros in empty samples as error
@@ -1371,7 +1364,7 @@ StatusCode TileCellSelector::execute() {
               } else {
                 // old error types, used for tests in August 2012
                 // expect to see only warningE7 and warningE8 for gap/crack
-                int warn = Are3FF(fdigits, adc, ch_type);
+                int warn = Are3FF(samples, adc, ch_type);
                 if (warn) {
                   m_chanSel[hash] = m_checkJumps;
                   sprintf(badnm," warningE%d%s",warn,badname);
@@ -1408,7 +1401,7 @@ StatusCode TileCellSelector::execute() {
               float pedDelta = (adc ? m_pedDeltaHG : m_pedDeltaLG);
               float jumpDelta = (adc ? m_jumpDeltaHG : m_jumpDeltaLG);
 
-              float ped = fdigits[0];
+              float ped = samples[0];
               float dmin = ped;
               float dmax = ped;
               int nped = 1;
@@ -1416,7 +1409,7 @@ StatusCode TileCellSelector::execute() {
               bool cnstPed = true;
               bool cnstPedmax = true;
               for (int i = 1; i < nSamp; ++i) {
-                float smp = fdigits[i];
+                float smp = samples[i];
                 float dped = smp - ped;
                 if (fabs(dped) < pedDelta) {
                   ++nped;
@@ -1469,7 +1462,7 @@ StatusCode TileCellSelector::execute() {
                 float abovemin = dmax;
                 float belowmax = dmin;
                 for (int i = 0; i < nSamp; ++i) {
-                  float smp = fdigits[i];
+                  float smp = samples[i];
                   if (smp - dmin < pedDelta) {
                     ++nmin;
                     pmin = i;
@@ -1530,7 +1523,7 @@ StatusCode TileCellSelector::execute() {
                   jumpOve = true;
                 }
                 float secondMax = (dmax-dmin)*m_secondMaxLevel;
-                if (pmax > 0 && pmax < nSamp-1 && std::max(fdigits[pmax-1], fdigits[pmax+1]) < dmin+secondMax) {
+                if (pmax > 0 && pmax < nSamp-1 && std::max(samples[pmax-1], samples[pmax+1]) < dmin+secondMax) {
                   if (!accJump) {
                     ++nJump;
                     accJump = true;
@@ -1541,7 +1534,7 @@ StatusCode TileCellSelector::execute() {
                   }
                   narrowUp = true;
                 }
-                if (pmin > 0 && pmin < nSamp - 1 && std::min(fdigits[pmin - 1], fdigits[pmin + 1]) > dmax - secondMax) {
+                if (pmin > 0 && pmin < nSamp - 1 && std::min(samples[pmin - 1], samples[pmin + 1]) > dmax - secondMax) {
                   if (!accJump) {
                     ++nJump;
                     accJump = true;
@@ -1557,9 +1550,9 @@ StatusCode TileCellSelector::execute() {
                   someSampErrors = true;
                   ATH_MSG_VERBOSE (evtnum.str()
                                    << " chan " << std::left << std::setw(14) << m_tileHWID->to_string(adcId)
-                                   << enename << m_chanEne[hash] << "  samp = " << fdigits[0]
-                                   << " " << fdigits[1] << " " << fdigits[2] << " " << fdigits[3]
-                                   << " " << fdigits[4] << " " << fdigits[5] << " " << fdigits[6]
+                                   << enename << m_chanEne[hash] << "  samp = " << samples[0]
+                                   << " " << samples[1] << " " << samples[2] << " " << samples[3]
+                                   << " " << samples[4] << " " << samples[5] << " " << samples[6]
                                    << timename << m_chanTime[hash]
                                    << qualname << m_chanQua[hash]
                                    << cellname << badname
@@ -1588,9 +1581,9 @@ StatusCode TileCellSelector::execute() {
               bool jumpOve = (dmax>1022.9);
               ATH_MSG_VERBOSE(evtnum.str()
                               << " chan " << std::left << std::setw(14) << m_tileHWID->to_string(adcId)
-                              << enename << m_chanEne[hash] << "  samp = " << fdigits[0]
-                              << " " << fdigits[1] << " " << fdigits[2] << " " << fdigits[3]
-                              << " " << fdigits[4] << " " << fdigits[5] << " " << fdigits[6]
+                              << enename << m_chanEne[hash] << "  samp = " << samples[0]
+                              << " " << samples[1] << " " << samples[2] << " " << samples[3]
+                              << " " << samples[4] << " " << samples[5] << " " << samples[6]
                               << timename << m_chanTime[hash]
                               << qualname << m_chanQua[hash]
                               << cellname << badname
@@ -1632,18 +1625,14 @@ StatusCode TileCellSelector::execute() {
 
             ++nDmuErr;
 
-            TileDigitsCollection::const_iterator digitItr = coll->begin();
-            TileDigitsCollection::const_iterator lastDigit = coll->end();
+            for (const TileDigits* tile_digits : *digitsCollection) {
 
-            for (; digitItr != lastDigit; ++digitItr) {
-
-              const TileDigits * pDig = (*digitItr);
-              HWIdentifier adcId = pDig->adc_HWID();
+              HWIdentifier adcId = tile_digits->adc_HWID();
               HWIdentifier chId = m_tileHWID->channel_id(adcId);
               m_tileHWID->get_hash(chId, hash, &chan_context);
-              std::vector<float> fdigits = pDig->samples();
+              std::vector<float> samples = tile_digits->samples();
 
-              if (!m_chanSel[hash] && fdigits.size()>6) {
+              if (!m_chanSel[hash] && samples.size()>6) {
                 int channel = m_tileHWID->channel(adcId);
                 int adc = m_tileHWID->adc(adcId);
                 const char *cellname = "";
@@ -1679,7 +1668,7 @@ StatusCode TileCellSelector::execute() {
                 float dmin, dmax;
 
                 int err = TileRawChannelBuilder::CorruptedData(ros, drawer,
-                    channel, adc, fdigits, dmin, dmax);
+                    channel, adc, samples, dmin, dmax);
 
                 if (err) {
                   bool isConnected = (TileDQstatus::isChEmpty(ros, drawer,
@@ -1719,9 +1708,9 @@ StatusCode TileCellSelector::execute() {
 
                 ATH_MSG_VERBOSE(evtnum.str()
                                 << " chan " << std::left << std::setw(14) << m_tileHWID->to_string(adcId)
-                                << enename << m_chanEne[hash] << "  samp = " << fdigits[0]
-                                << " " << fdigits[1] << " " << fdigits[2] << " " << fdigits[3]
-                                << " " << fdigits[4] << " " << fdigits[5] << " " << fdigits[6]
+                                << enename << m_chanEne[hash] << "  samp = " << samples[0]
+                                << " " << samples[1] << " " << samples[2] << " " << samples[3]
+                                << " " << samples[4] << " " << samples[5] << " " << samples[6]
                                 << timename << m_chanTime[hash]
                                 << qualname << m_chanQua[hash]
                                 << cellname << badname
@@ -1742,7 +1731,7 @@ StatusCode TileCellSelector::execute() {
             }
           }
           ATH_MSG_VERBOSE (evtnum.str()
-                           << "  drw " << drwname(coll->identify()) << badstr.str());
+                           << "  drw " << drwname(digitsCollection->identify()) << badstr.str());
         }
       }
 

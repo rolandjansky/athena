@@ -19,20 +19,18 @@
 //
 //*****************************************************************************
 
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
+// Tile includes
+#include "TileRecAlgs/TileCellToTTL1.h"
+#include "TileConditions/TileCablingService.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "CaloEvent/CaloCellContainer.h"
 
-// Tile includes
-#include "TileEvent/TileContainer.h"
-#include "TileEvent/TileTTL1Container.h"
-#include "TileEvent/TileTTL1CellContainer.h"
-#include "TileConditions/TileCablingService.h"
-#include "TileRecAlgs/TileCellToTTL1.h"
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
 
 //C++ STL includes
 #include <vector>
@@ -46,8 +44,7 @@ TileCellToTTL1::TileCellToTTL1(std::string name, ISvcLocator* pSvcLocator)
   , m_TT_ID(0)
   , m_tileCablingService(0)
 {
-  declareProperty("CaloCellContainer", m_caloCellContainer = "AllCalo");
-  declareProperty("TileCellTTL1Container", m_cellTTL1Container = "TileCellTTL1Container");
+
 }
 
 TileCellToTTL1::~TileCellToTTL1() {
@@ -64,6 +61,9 @@ StatusCode TileCellToTTL1::initialize() {
 
   m_tileCablingService = TileCablingService::getInstance();
 
+  ATH_CHECK( m_cellContainerKey.initialize() );
+  ATH_CHECK( m_ttl1CellContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileCellToTTL1 initialization completed");
 
   return StatusCode::SUCCESS;
@@ -79,17 +79,18 @@ StatusCode TileCellToTTL1::execute() {
   // -------------------------------------------------
   // Load the TileCell container
   // -------------------------------------------------
-  typedef CaloCellContainer CONTAINER;
 
-  const CONTAINER* cellcoll;
-  CHECK( evtStore()->retrieve(cellcoll, m_caloCellContainer));
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerKey);
+  ATH_CHECK( cellContainer.isValid() );
 
   // -------------------------------------------------
   // Create TTL1 container and other arrays
   // -------------------------------------------------
+  SG::WriteHandle<TileTTL1CellContainer> ttl1CellContainer(m_ttl1CellContainerKey);
 
-  TileTTL1CellContainer* pTTL1Container = new TileTTL1CellContainer();
-  TileTTL1Cell* pTTL1;
+  // Register the TTL1 container in the TES
+  ATH_CHECK( ttl1CellContainer.record(std::make_unique<TileTTL1CellContainer>()) );
+  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_ttl1CellContainerKey.key() << ")");
 
   int ttNpmt[32][64];       // array of TT occupancy
   Identifier ttId[32][64];  // array of TT identifiers
@@ -116,10 +117,7 @@ StatusCode TileCellToTTL1::execute() {
   // Loop over all cells
   // -------------------------------------------------
 
-  CONTAINER::const_iterator f_cell = cellcoll->begin();
-  CONTAINER::const_iterator l_cell = cellcoll->end();
-  for (; f_cell != l_cell; ++f_cell) {
-    const CaloCell* cell = (*f_cell);
+  for (const CaloCell* cell : *cellContainer) {
 
     // keep only cells from TileCal calorimeter barrel or extended barrel
     Identifier cell_id = cell->ID();
@@ -200,17 +198,15 @@ StatusCode TileCellToTTL1::execute() {
       if (ttStatusChans[ieta][iphi] > 0)
         qual += TileTTL1Cell::MASK_BADCHAN;
 
-      pTTL1 = new TileTTL1Cell(ttId[ieta][iphi], ttAmp[ieta][iphi], time_ave,
-          ttCorrFact[ieta][iphi], qual);
-      pTTL1Container->push_back(pTTL1);
+      ttl1CellContainer->push_back(std::make_unique<TileTTL1Cell>(ttId[ieta][iphi], 
+                                                                  ttAmp[ieta][iphi], 
+                                                                  time_ave,
+                                                                  ttCorrFact[ieta][iphi], 
+                                                                  qual));
 
     }
   }
 
-  // Register the TTL1 container in the TES
-  CHECK( evtStore()->record(pTTL1Container, m_cellTTL1Container, false) );
-
-  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_cellTTL1Container << ")");
 
   // Execution completed
   ATH_MSG_DEBUG( "TileCellToTTL1 execution completed.");
