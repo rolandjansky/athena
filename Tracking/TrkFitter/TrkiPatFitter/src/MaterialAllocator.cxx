@@ -198,7 +198,7 @@ MaterialAllocator::finalize()
 }
     
 void
-MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurements,
+MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 				       ParticleHypothesis		particleHypothesis,
 				       FitParameters&			fitParameters) const
 {
@@ -230,7 +230,7 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
     const TrackSurfaceIntersection* intersection	= 0;
     int leadingScatterers				= 0;
     Trk::FitMeasurement* leadingScatterer		= 0;
-    for (std::vector<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
+    for (std::list<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
 	 m != measurements.end();
 	 ++m)
     {
@@ -264,7 +264,7 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
 	Trk::FitMeasurement* leadingOutlier	= 0;
 	std::vector<Trk::FitMeasurement*> leadingOutliers;
 	const Surface* surface			= 0;
-	for (std::vector<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
+	for (std::list<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
 	     m != measurements.end();
 	     ++m)
 	{	
@@ -546,7 +546,7 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
 			 ++l)
 		    {
 			leadingOutlier	= leadingOutliers.back();
-			measurements.erase(l);
+			measurements.remove(*l);
 		    }
 		    
 		    leadingMeas = new FitMeasurement((**r).materialEffectsOnTrack()->thicknessInX0(),
@@ -570,7 +570,7 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
 			   && leadingOutlier->intersection(FittedTrajectory).position().perp() > radius)
 		    {
 			leadingOutliers.pop_back();
-			measurements.insert(measurements.begin(), leadingOutlier);
+			measurements.push_front(leadingOutlier);
 			if (leadingOutliers.size())
 			{
 			    
@@ -585,7 +585,7 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
 
 	        ATH_MSG_DEBUG(" push_front(leadingMeas) ");
 
-		measurements.insert(measurements.begin(), leadingMeas);
+		measurements.push_front(leadingMeas);
 		
 		// update momentum for energy loss
 		if (materialEffects)
@@ -653,7 +653,7 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
 	double leadingScattering	= 0.;
 	double previousScattering	= 0.;
 	double leadingX0Integral	= 0.;
-	std::vector<Trk::FitMeasurement*>::reverse_iterator m = measurements.rbegin();
+	std::list<Trk::FitMeasurement*>::reverse_iterator m = measurements.rbegin();
 	while (*m != leadingScatterer) ++m;
 	for ( ; m != measurements.rend(); ++m)
 	{
@@ -719,7 +719,7 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
 }
 
 void
-MaterialAllocator::allocateMaterial (std::vector<FitMeasurement*>&	measurements,
+MaterialAllocator::allocateMaterial (std::list<FitMeasurement*>&	measurements,
 				     ParticleHypothesis			particleHypothesis,
 				     const FitParameters&		fitParameters,
 				     const TrackParameters&		startParameters) const
@@ -756,13 +756,13 @@ MaterialAllocator::clear(void)
 }
 
 void
-MaterialAllocator::initializeScattering (std::vector<FitMeasurement*>&	measurements) const
+MaterialAllocator::initializeScattering (std::list<FitMeasurement*>&	measurements) const
 {
     // loop over scatterers to include log term corresponding to integral thickness
     bool integrate		= false;
     double previousScattering	= 0.;
     double X0Integral		= 0.;
-    std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
 
     // start integration after any leading material
     while (! (**m).isPositionMeasurement() || (**m).isOutlier()) ++m;
@@ -781,7 +781,7 @@ MaterialAllocator::initializeScattering (std::vector<FitMeasurement*>&	measureme
 	    if (integrate)
 	    {
 		// reset if measurement closely following
-		std::vector<Trk::FitMeasurement*>::iterator next = m;
+		std::list<Trk::FitMeasurement*>::iterator next = m;
 		if (++next != measurements.end()
 		    && ! (**next).hitOnTrack()
 		    && (**next).isPositionMeasurement()
@@ -896,7 +896,7 @@ MaterialAllocator::leadingSpectrometerTSOS (const TrackParameters& spectrometerP
 	return 0;
     }
 
-    std::vector<FitMeasurement*>	leadingMeasurements;
+    std::list<FitMeasurement*>	leadingMeasurements;
     std::vector<const TrackStateOnSurface*>* leadingTSOS = new std::vector<const TrackStateOnSurface*>;
     leadingTSOS->reserve(extrapolatedTSOS->size());
     double outgoingEnergy	= spectrometerParameters.momentum().mag();
@@ -911,7 +911,7 @@ MaterialAllocator::leadingSpectrometerTSOS (const TrackParameters& spectrometerP
 	
 	if (measurement)
 	{
-	  leadingMeasurements.insert(leadingMeasurements.begin(),measurement);
+	    leadingMeasurements.push_front(measurement);
 	}
 	else
 	{
@@ -921,7 +921,7 @@ MaterialAllocator::leadingSpectrometerTSOS (const TrackParameters& spectrometerP
 
 
     // convert back to TSOS
-    std::vector<FitMeasurement*>::iterator m = leadingMeasurements.begin();
+    std::list<FitMeasurement*>::iterator m = leadingMeasurements.begin();
     for ( ; m != leadingMeasurements.end(); ++m)
 	leadingTSOS->push_back(new TrackStateOnSurface(0,
 						       0,
@@ -953,7 +953,7 @@ MaterialAllocator::leadingSpectrometerTSOS (const TrackParameters& spectrometerP
 }
     
 void
-MaterialAllocator::orderMeasurements(std::vector<FitMeasurement*>&	measurements,
+MaterialAllocator::orderMeasurements(std::list<FitMeasurement*>&	measurements,
 				     Amg::Vector3D			startDirection,
 				     Amg::Vector3D			startPosition) const
 {
@@ -965,7 +965,7 @@ MaterialAllocator::orderMeasurements(std::vector<FitMeasurement*>&	measurements,
     double previousDistance = -m_orderingTolerance;
     std::vector< std::pair<double, FitMeasurement*> > measurementOrder;
     std::vector< std::pair<double, FitMeasurement*> > originalOrder;
-    for (std::vector<FitMeasurement*>::const_iterator m = measurements.begin();
+    for (std::list<FitMeasurement*>::const_iterator m = measurements.begin();
 	 m != measurements.end();
 	 ++m)
     {
@@ -1013,13 +1013,13 @@ MaterialAllocator::orderMeasurements(std::vector<FitMeasurement*>&	measurements,
 }
 
 bool
-MaterialAllocator::reallocateMaterial (std::vector<FitMeasurement*>&	measurements,
+MaterialAllocator::reallocateMaterial (std::list<FitMeasurement*>&	measurements,
 				       const FitParameters&		parameters) const
 {
     ATH_MSG_DEBUG( " reallocateSpectrometerMaterial " );
 
     int n = 0;
-    for (std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    for (std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
 	 m != measurements.end();
 	 ++m)
     {
@@ -1041,7 +1041,7 @@ MaterialAllocator::reallocateMaterial (std::vector<FitMeasurement*>&	measurement
     double qOverP = 0;
     ATH_MSG_INFO( "qOverP " << qOverP );
    
-    std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
     for ( ; m != measurements.end(); ++m)
     {
 	if (m_calorimeterVolume->inside((**m).position()))
@@ -1080,7 +1080,7 @@ MaterialAllocator::reallocateMaterial (std::vector<FitMeasurement*>&	measurement
     delete trackParameters;
     trackParameters = trackParametersTemp;
 
-    for (std::vector<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
+    for (std::list<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
 	 r != measurements.rend();
 	 ++r)
     {
@@ -1132,7 +1132,7 @@ MaterialAllocator::reallocateMaterial (std::vector<FitMeasurement*>&	measurement
     {
     	if (! (**m).isMaterialDelimiter())	continue;
 	delete *m;
-	std::vector<Trk::FitMeasurement*>::iterator n = m;
+	std::list<Trk::FitMeasurement*>::iterator n = m;
 	--m;
 	measurements.erase(n);
     }
@@ -1143,7 +1143,7 @@ MaterialAllocator::reallocateMaterial (std::vector<FitMeasurement*>&	measurement
 //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
     
 void
-MaterialAllocator::addSpectrometerDelimiters (std::vector<FitMeasurement*>&	measurements) const
+MaterialAllocator::addSpectrometerDelimiters (std::list<FitMeasurement*>&	measurements) const
 {
     // insert delimiters representing station limits for later material aggregation
     //   preBreak:  put delimiter upstream of measurement
@@ -1159,7 +1159,7 @@ MaterialAllocator::addSpectrometerDelimiters (std::vector<FitMeasurement*>&	meas
     Amg::Vector3D referencePosition;
     double referencePhi			= 0.;
     int index				= 1;
-    for (std::vector<FitMeasurement*>::iterator m = measurements.begin();
+    for (std::list<FitMeasurement*>::iterator m = measurements.begin();
 	 m != measurements.end();
 	 ++m, ++index)
     {
@@ -1322,7 +1322,7 @@ MaterialAllocator::extrapolatedMaterial (const ToolHandle<IExtrapolator>&	extrap
 }
 
 void
-MaterialAllocator::indetMaterial (std::vector<FitMeasurement*>&	measurements,
+MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 				  ParticleHypothesis		particleHypothesis,
 				  const TrackParameters&	startParameters) const
 {
@@ -1338,7 +1338,7 @@ MaterialAllocator::indetMaterial (std::vector<FitMeasurement*>&	measurements,
     Amg::Vector3D startPosition		= startParameters.position();
     const TrackParameters* parameters	= &startParameters;
 
-    std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
     if ((**m).isVertex()) ++m;
     for ( ; m != measurements.end(); ++m)
     {
@@ -1714,7 +1714,7 @@ MaterialAllocator::indetMaterial (std::vector<FitMeasurement*>&	measurements,
 
 std::pair<FitMeasurement*,FitMeasurement*>
 MaterialAllocator::materialAggregation (const std::vector<const TrackStateOnSurface*>& material,
-					std::vector<FitMeasurement*>&	/*measurements*/,
+					std::list<FitMeasurement*>&	/*measurements*/,
 					double				/*particleMass*/) const
 {
     // aggregation possible in indet and MS. Frequent occurrence in MS
@@ -1727,7 +1727,7 @@ MaterialAllocator::materialAggregation (const std::vector<const TrackStateOnSurf
 
     
     int adjacentScatterers		= 0;
-    std::vector<FitMeasurement*> aggregateScatterers;
+    std::list<FitMeasurement*> aggregateScatterers;
     bool haveAggregation		= false;
 //     bool makeAggregation		= false;
 //     double maxDistance			= 0.;
@@ -1828,7 +1828,7 @@ MaterialAllocator::materialAggregation (const std::vector<const TrackStateOnSurf
 // 		    double previousDistance	= 0.;
 // 		    haveAggregation		= true;
 		    
-// 		    for (std::vector<Trk::FitMeasurement*>::reverse_iterator s = start;
+// 		    for (std::list<Trk::FitMeasurement*>::reverse_iterator s = start;
 // 			 s != measurements.rend();
 // 			 ++s)
 // 		    {
@@ -1943,7 +1943,7 @@ MaterialAllocator::materialAggregation (const std::vector<const TrackStateOnSurf
 }
 
 void
-MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measurements,
+MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements,
 					double				particleMass) const
 {
     // Aggregate when at least 2 scatterers exist between delimiter pair.
@@ -1960,7 +1960,7 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
     
     Amg::Vector3D referenceDirection	= measurements.back()->intersection(FittedTrajectory).direction();
     int adjacentScatterers		= 0;
-    std::vector<FitMeasurement*> aggregateScatterers;
+    std::list<FitMeasurement*> aggregateScatterers;
     bool haveAggregation		= false;
     bool makeAggregation		= false;
     double maxDistance			= 0.;
@@ -1970,9 +1970,9 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
     double totalDistanceSq		= 0.;
     double totalEnergyDeposit		= 0.;
     double totalThickness		= 0.;
-    std::vector<FitMeasurement*>::reverse_iterator start;
-    std::vector<FitMeasurement*>::reverse_iterator previous = measurements.rbegin();
-    for (std::vector<FitMeasurement*>::reverse_iterator m = measurements.rbegin();
+    std::list<FitMeasurement*>::reverse_iterator start;
+    std::list<FitMeasurement*>::reverse_iterator previous = measurements.rbegin();
+    for (std::list<FitMeasurement*>::reverse_iterator m = measurements.rbegin();
 	 m != measurements.rend();
 	 ++m)
     {
@@ -2086,7 +2086,7 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
 		    double previousDistance	= 0.;
 		    haveAggregation		= true;
 		    
-		    for (std::vector<Trk::FitMeasurement*>::reverse_iterator s = start;
+		    for (std::list<Trk::FitMeasurement*>::reverse_iterator s = start;
 			 s != measurements.rend();
 			 ++s)
 		    {
@@ -2228,11 +2228,11 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
     {
 	referencePosition  = measurements.back()->intersection(FittedTrajectory).position();
 	referenceDirection = (referencePosition - measurements.front()->intersection(FittedTrajectory).position()).unit();
-	std::vector<Trk::FitMeasurement*>::reverse_iterator s = aggregateScatterers.rbegin();
+	std::list<Trk::FitMeasurement*>::reverse_iterator s = aggregateScatterers.rbegin();
 	Amg::Vector3D scattererPosition	= (**s).intersection(FittedTrajectory).position();
 	double scattererDistance	=
 	    std::abs(referenceDirection.dot(scattererPosition - referencePosition));
-	for (std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+	for (std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
 	     m != measurements.end();
 	     ++m)
 	{
@@ -2254,7 +2254,7 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
 		// delete the scatterer if it has been aggregated
 		if ((**m).isOutlier()) delete *m;
 		// in any case it must be removed from the list to avoid double counting
-		std::vector<Trk::FitMeasurement*>::iterator n = m;
+		std::list<Trk::FitMeasurement*>::iterator n = m;
 		--m;
 		measurements.erase(n);
 	    }
@@ -2268,7 +2268,7 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
 	int n = 0;
 	Amg::Vector3D startPosition	= measurements.front()->intersection(FittedTrajectory).position();
 	Amg::Vector3D startDirection	= measurements.front()->intersection(FittedTrajectory).direction();
-	for (std::vector<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
+	for (std::list<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
 	     m != measurements.end();
 	     ++m)
 	{
@@ -2303,7 +2303,7 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
 
     // loops to erase material delimiters and set energy gain when appropriate
     bool energyGain = false;
-    for (std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    for (std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
 	 m != measurements.end();
 	 ++m)
     {
@@ -2313,14 +2313,14 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
 	
 // 	if (! (**m).isMaterialDelimiter())	continue;
 // 	delete *m;
-// 	std::vector<Trk::FitMeasurement*>::iterator n = m;
+// 	std::list<Trk::FitMeasurement*>::iterator n = m;
 // 	--m;
 // 	measurements.erase(n);
     }
 
     if (energyGain)
     {
-	for (std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+	for (std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
 	     m != measurements.end();
 	     ++m)
 	{
@@ -2352,13 +2352,13 @@ MaterialAllocator::measurementFromTSOS (const TrackStateOnSurface&	tsos,
 }
  
 void
-MaterialAllocator::printMeasurements(std::vector<FitMeasurement*>&	measurements) const
+MaterialAllocator::printMeasurements(std::list<FitMeasurement*>&	measurements) const
 {
     ATH_MSG_VERBOSE( "measurements and material:  distance        X0   deltaE            E        pT"
 		     << "           R      phi         Z  DoF      phi    theta" );
 
     if (! measurements.size())			return;
-    std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
     while (m != measurements.end()
 	   && ! (**m).isPositionMeasurement())	++m;
     if (m == measurements.end())		m = measurements.begin();
@@ -2372,7 +2372,7 @@ MaterialAllocator::printMeasurements(std::vector<FitMeasurement*>&	measurements)
     double leadingELoss		= 0.;
     double sumELoss		= 0.;
     int n			= 0;
-    for (std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    for (std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
 	 m != measurements.end();
 	 ++m)
     {
@@ -2463,7 +2463,7 @@ MaterialAllocator::printMeasurements(std::vector<FitMeasurement*>&	measurements)
 }
 
 void
-MaterialAllocator::spectrometerMaterial (std::vector<FitMeasurement*>&	measurements,
+MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurements,
 					 ParticleHypothesis		particleHypothesis,
 					 const FitParameters&		fitParameters,
 					 const TrackParameters&		startParameters) const
@@ -2486,7 +2486,7 @@ MaterialAllocator::spectrometerMaterial (std::vector<FitMeasurement*>&	measureme
     double minDistanceMS		= 0.;
     double minRDistanceMS		= 0.;
     double minZDistanceMS		= 0.;
-    std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
+    std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
     for ( ; m != measurements.end(); ++m)
     {
 	Amg::Vector3D position			= (**m).intersection(FittedTrajectory).position();
@@ -2610,7 +2610,7 @@ MaterialAllocator::spectrometerMaterial (std::vector<FitMeasurement*>&	measureme
 	    entranceIntersection = new TrackSurfaceIntersection(entranceParameters->position(),
 								entranceParameters->momentum().unit(),
 								0.);
-	    std::vector<Trk::FitMeasurement*>::iterator e = measurements.begin();
+	    std::list<Trk::FitMeasurement*>::iterator e = measurements.begin();
 	    FitMeasurement* entranceDelimiter = new FitMeasurement(*entranceIntersection, 0.);
 	    for (m = measurements.begin(); m != measurements.end(); ++m)
 	    {
@@ -2761,7 +2761,7 @@ MaterialAllocator::spectrometerMaterial (std::vector<FitMeasurement*>&	measureme
 	std::vector<FitMeasurement*> material;
 	double particleMass	= ParticleMasses().mass[particleHypothesis];
 	material.reserve(spectrometerMaterial->size());
-	std::vector<FitMeasurement*>::iterator m = measurements.begin();
+	std::list<FitMeasurement*>::iterator m = measurements.begin();
 	for ( ; s != spectrometerMaterial->rend(); )
 	{
 	    const TrackStateOnSurface& tsos	= **s;

@@ -29,7 +29,7 @@ namespace Trk{
 // constructor
 MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 					    ToolHandle<IIntersector>&		intersector,
-					    std::vector<FitMeasurement*>&		measurements,
+					    std::list<FitMeasurement*>&		measurements,
 					    FitParameters*			parameters,
 					    ToolHandle<IIntersector>&		rungeKuttaIntersector,
 					    const ToolHandle<IPropagator>&	stepPropagator,
@@ -46,8 +46,8 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 	m_intersector			(intersector),
 	m_largeDeltaD0			(50.*Gaudi::Units::mm),
 	m_largeDeltaPhi0		(0.05),	
+	m_measurements			(measurements),
         //m_minDistanceForAngle		(2.*Gaudi::Units::mm),
-	m_measurements                  (measurements),
 	m_numericDerivatives		(false),
 	m_parameters			(parameters),
 	m_phiInstability		(false),
@@ -77,25 +77,27 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
     if(m_useStepPropagator==2)  m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
 
     
-    for (auto m : m_measurements)
+    for (std::list<FitMeasurement*>::iterator m = m_measurements.begin();
+	 m != m_measurements.end();
+	 ++m)
     {
-	if (! m->numberDoF())		continue;
-	if (m->isAlignment()) m_alignments.push_back(m);
-	// if (m->isDrift())	haveDrift	= true;
-	if (m->isPositionMeasurement())	++numberPositionMeas;
-	// if (m->isPseudo())			++numberPseudo;
-	if (m->isScatterer()) m_scatterers.push_back(m);
+	if (! (**m).numberDoF())		continue;
+	if ((**m).isAlignment()) m_alignments.push_back(*m);
+	// if ((**m).isDrift())	haveDrift	= true;
+	if ((**m).isPositionMeasurement())	++numberPositionMeas;
+	// if ((**m).isPseudo())			++numberPseudo;
+	if ((**m).isScatterer()) m_scatterers.push_back(*m);
 
 	// cache some variables when we fit calo energy deposit
-	if (! m->isEnergyDeposit() || ! m_parameters->fitMomentum())	continue;
-	m_caloEnergyMeasurement	= m;
+	if (! (**m).isEnergyDeposit() || ! m_parameters->fitMomentum())	continue;
+	m_caloEnergyMeasurement	= *m;
 	if (numberPositionMeas < 5)
 	{
 	    m_asymmetricCaloEnergy = false;
 	    m_caloEnergyMeasurement->setSigmaSymmetric();
 	}
 	m_qOverPbeforeCalo      = m_parameters->qOverP();
-	m_qOverPafterCalo	= m->qOverP();
+	m_qOverPafterCalo	= (**m).qOverP();
 	if (m_qOverPbeforeCalo*m_qOverPafterCalo < 0.) m_qOverPafterCalo = m_qOverPbeforeCalo;
 	m_parameters->qOverP1(m_qOverPafterCalo);
 	// std::cout << numberPositionMeas << " calo energy deposit "
@@ -182,63 +184,65 @@ MeasurementProcessor::calculateDerivatives(void)
     }
 
     // loop over measurements to compute derivatives:
-    for (auto m : m_measurements)
+    for (std::list<FitMeasurement*>::iterator m = m_measurements.begin();
+	 m != m_measurements.end();
+	 ++m)
     {
 	// strip detector types
-	if (m->isCluster())
+	if ((**m).isCluster())
 	{
-	    clusterDerivatives(m->numberDoF(), *m);
+	    clusterDerivatives((**m).numberDoF(), **m);
 	}
-	else if (m->isDrift() || m->isPerigee() || m->isPseudo()) // else drift circles
+	else if ((**m).isDrift() || (**m).isPerigee() || (**m).isPseudo()) // else drift circles
 	{
-            const TrackSurfaceIntersection& intersection = m->intersection(FittedTrajectory);
+            const TrackSurfaceIntersection& intersection = (**m).intersection(FittedTrajectory);
 	    Amg::Vector3D* driftDirection =
-		new Amg::Vector3D(m->sensorDirection().cross(intersection.direction()));
+		new Amg::Vector3D((**m).sensorDirection().cross(intersection.direction()));
 	    *driftDirection	= driftDirection->unit();
-	    m->minimizationDirection(driftDirection);
-	    driftDerivatives(m->numberDoF(), *m);
+	    (**m).minimizationDirection(driftDirection);
+	    driftDerivatives((**m).numberDoF(), **m);
 	}
-	else if (m->isVertex())
+	else if ((**m).isVertex())
 	{
-	    const TrackSurfaceIntersection& intersection = m->intersection(FittedTrajectory);
+	    const TrackSurfaceIntersection& intersection = (**m).intersection(FittedTrajectory);
 	    Amg::Vector3D* minimizationDirection =
-		new Amg::Vector3D(m->sensorDirection().cross(intersection.direction()));
+		new Amg::Vector3D((**m).sensorDirection().cross(intersection.direction()));
 	    *minimizationDirection	= minimizationDirection->unit();
-	    m->minimizationDirection(minimizationDirection);
-	    m->derivative(D0,m->weight()*(m_cosPhi0*m->minimizationDirection().y() -
-						m_sinPhi0*m->minimizationDirection().x()));
-	    if (m->is2Dimensional())
-		m->derivative2(Z0,m->weight2()*m->sensorDirection().z());
+	    (**m).minimizationDirection(minimizationDirection);
+	    (**m).derivative(D0,(**m).weight()*(m_cosPhi0*(**m).minimizationDirection().y() -
+						m_sinPhi0*(**m).minimizationDirection().x()));
+	    if ((**m).is2Dimensional())
+		(**m).derivative2(Z0,(**m).weight2()*(**m).sensorDirection().z());
 	}
-	else if (! m->numberDoF())
+	else if (! (**m).numberDoF())
 	{
 	    continue;
 	}
-	else if (m->isScatterer())
+	else if ((**m).isScatterer())
 	{
-	    unsigned param	= m->lastParameter() - 2;
-	    m->derivative(param,m->weight() *
-			     m->intersection(FittedTrajectory).direction().perp());
-	    m->derivative2(++param,m->weight());
+	    unsigned param	= (**m).lastParameter() - 2;
+	    (**m).derivative(param,(**m).weight() *
+			     (**m).intersection(FittedTrajectory).direction().perp());
+	    (**m).derivative2(++param,(**m).weight());
 	}
-	else if (m->isAlignment())
+	else if ((**m).isAlignment())
 	{
 	    // std::cout << " set alignment derivatives: "
-	    // 	      << "   alignmentParameter " << m->alignmentParameter()
-	    // 	      << "   firstParameter " << m->firstParameter()
-	    // 	      << "   lastParameter " << m->lastParameter()
+	    // 	      << "   alignmentParameter " << (**m).alignmentParameter()
+	    // 	      << "   firstParameter " << (**m).firstParameter()
+	    // 	      << "   lastParameter " << (**m).lastParameter()
 	    // 	      << std::endl;
-	    unsigned param	= m->firstParameter();
-	    m->derivative(param,m->weight());
-	    m->derivative2(++param,m->weight2());
+	    unsigned param	= (**m).firstParameter();
+	    (**m).derivative(param,(**m).weight());
+	    (**m).derivative2(++param,(**m).weight2());
 	}
-	else if (m->isEnergyDeposit())
+	else if ((**m).isEnergyDeposit())
 	{
 	    double E0           = 1./std::abs(m_qOverPbeforeCalo);
             double E1           = 1./std::abs(m_qOverPafterCalo);
-	    double weight	= m->weight();
-	    m->derivative(QOverP0, weight*E0/(m_qOverPbeforeCalo*Gaudi::Units::TeV));
-	    m->derivative(QOverP1,-weight*E1/(m_qOverPafterCalo*Gaudi::Units::TeV));
+	    double weight	= (**m).weight();
+	    (**m).derivative(QOverP0, weight*E0/(m_qOverPbeforeCalo*Gaudi::Units::TeV));
+	    (**m).derivative(QOverP1,-weight*E1/(m_qOverPafterCalo*Gaudi::Units::TeV));
 	}
 	else
 	{
@@ -345,45 +349,47 @@ MeasurementProcessor::calculateResiduals(void)
 {
     int nAlign		= 0;
     int nScat		= 0;
-    for (auto m : m_measurements)
+    for (std::list<FitMeasurement*>::iterator m = m_measurements.begin();
+	 m != m_measurements.end();
+	 ++m)
     {
-	if (! (*m).numberDoF())	continue;
+	if (! (**m).numberDoF())	continue;
 
 	// special measurements to constrain additional parameters
-	if (! m->isPositionMeasurement())
+	if (! (**m).isPositionMeasurement())
 	{
-	    if (m->isScatterer())	// scattering centres
+	    if ((**m).isScatterer())	// scattering centres
 	    {
-		double phiResidual	= -m->weight()*m_parameters->scattererPhi(nScat) *
-					  m->intersection(FittedTrajectory).direction().perp();
-		m->residual(phiResidual);
-		double thetaResidual	= -m->weight()*m_parameters->scattererTheta(nScat);
-		(*m).residual2(thetaResidual);
+		double phiResidual	= -(**m).weight()*m_parameters->scattererPhi(nScat) *
+					  (**m).intersection(FittedTrajectory).direction().perp();
+		(**m).residual(phiResidual);
+		double thetaResidual	= -(**m).weight()*m_parameters->scattererTheta(nScat);
+		(**m).residual2(thetaResidual);
 		++nScat;
 	    }
-	    else if ((*m).isAlignment())	// alignment uncertainties
+	    else if ((**m).isAlignment())	// alignment uncertainties
 	    {
-		(*m).residual(-m->weight()   * (m_parameters->alignmentAngle(nAlign) -
+		(**m).residual(-(**m).weight()   * (m_parameters->alignmentAngle(nAlign) -
 						  m_parameters->alignmentAngleConstraint(nAlign)));
-		(*m).residual2(-m->weight2() * (m_parameters->alignmentOffset(nAlign) -
+		(**m).residual2(-(**m).weight2() * (m_parameters->alignmentOffset(nAlign) -
 						    m_parameters->alignmentOffsetConstraint(nAlign)));
 		++nAlign;
 	    }
-	    else if (m->isEnergyDeposit())
+	    else if ((**m).isEnergyDeposit())
 	    {
 		// Add the energy loss as a measurement
 		double E0           = 1./std::abs(m_qOverPbeforeCalo);
 		double E1           = 1./std::abs(m_qOverPafterCalo);
-		double residual	= m->weight()*(E0 - E1 - m->energyLoss());
-		m->residual(residual);
+		double residual	= (**m).weight()*(E0 - E1 - (**m).energyLoss());
+		(**m).residual(residual);
             
 		// 	    std::cout << std::setiosflags(std::ios::fixed)
 		// 		      << " calo residual " << std::setw(8) << std::setprecision(2)
-		// 		      << m->residual()
+		// 		      << (**m).residual()
 		// 		      << " (in GeV):" << std::setw(8) << std::setprecision(3)
-		// 		      << (E0 - E1 - m->energyLoss())/Gaudi::Units::GeV
+		// 		      << (E0 - E1 - (**m).energyLoss())/Gaudi::Units::GeV
 		// 		      << std::endl;
-		// 	    const TrackSurfaceIntersection& intersection = m->intersection(FittedTrajectory);
+		// 	    const TrackSurfaceIntersection& intersection = (**m).intersection(FittedTrajectory);
 		// 	    double fittedLoss = (std::abs(E0/Gaudi::Units::GeV) - std::abs(E1/Gaudi::Units::GeV)) * intersection.direction().perp();
 		// 	    std::cout << std::setiosflags(std::ios::fixed)
 		// 		      << "  pT"                     
@@ -395,7 +401,7 @@ MeasurementProcessor::calculateResiduals(void)
 		// 		      << std::setw(8) << std::setprecision(1) << intersection.position().z()
 		// 		      << "     pT loss: measured "
 		// 		      << std::setw(9) << std::setprecision(3)
-		// 		      << m->energyLoss()*intersection.direction().perp()/Gaudi::Units::GeV
+		// 		      << (**m).energyLoss()*intersection.direction().perp()/Gaudi::Units::GeV
 		// 		      << "  fitted "                     
 		// 		      << std::setw(9) << std::setprecision(3) << fittedLoss
 		// 		      << std::endl;
@@ -404,111 +410,111 @@ MeasurementProcessor::calculateResiduals(void)
 	}
 
 	// position measurements
-	const TrackSurfaceIntersection& intersection	= m->intersection(FittedTrajectory);
-	const Amg::Vector3D& minimizationDirection	= m->minimizationDirection();
-	Amg::Vector3D offset 				= m->position() - intersection.position();
-	if (m->isCluster())		// strip detector types
+	const TrackSurfaceIntersection& intersection	= (**m).intersection(FittedTrajectory);
+	const Amg::Vector3D& minimizationDirection	= (**m).minimizationDirection();
+	Amg::Vector3D offset 				= (**m).position() - intersection.position();
+	if ((**m).isCluster())		// strip detector types
 	{
-	    double residual	= m->weight() * minimizationDirection.dot(offset);
-	    if (m->alignmentParameter())
+	    double residual	= (**m).weight() * minimizationDirection.dot(offset);
+	    if ((**m).alignmentParameter())
 	    {
 		// propagate to residual using derivatives
-		unsigned param  =  m->alignmentParameter() - 1;
+		unsigned param  =  (**m).alignmentParameter() - 1;
 		unsigned deriv 	=  m_parameters->numberParameters() - 2*m_parameters->numberAlignments() + 2*param;
-		residual	-= m_parameters->alignmentAngle(param)  * m->derivative(deriv) +
-				   m_parameters->alignmentOffset(param) * m->derivative(deriv+1);
+		residual	-= m_parameters->alignmentAngle(param)  * (**m).derivative(deriv) +
+				   m_parameters->alignmentOffset(param) * (**m).derivative(deriv+1);
 		
-		// FitMeasurement* fm	= m_alignments[m->alignmentParameter()-1];
-		// std::cout << " cluster resid:  measurement.alignmentParameter " << m->alignmentParameter()
+		// FitMeasurement* fm	= m_alignments[(**m).alignmentParameter()-1];
+		// std::cout << " cluster resid:  measurement.alignmentParameter " << (**m).alignmentParameter()
 		// 	  << "   at z " << fm->surface()->center().z()
 		// 	  << "   param " << param
 		// 	  << "   minimizationDirection.z() " << minimizationDirection.z()
 		// 	  << "   angle "
 		// 	  << m_parameters->alignmentAngle(param)
 		// 	  << " angle resid "
-		// 	  << m_parameters->alignmentAngle(param)*m->derivative(deriv) 
+		// 	  << m_parameters->alignmentAngle(param)*(**m).derivative(deriv) 
 		// 	  << "   offset "
 		// 	  << m_parameters->alignmentOffset(param)
 		// 	  << " offset resid"
-		// 	  << m_parameters->alignmentOffset(param)*m->derivative(deriv+1)
+		// 	  << m_parameters->alignmentOffset(param)*(**m).derivative(deriv+1)
 		// 	  << "   residual "	<< residual
 		// 	  << std::endl;
 
-		if (m->alignmentParameter2())
+		if ((**m).alignmentParameter2())
 		{
 		    // propagate to residual using derivatives
-		    param	=  m->alignmentParameter2() - 1;
+		    param	=  (**m).alignmentParameter2() - 1;
 		    deriv	=  m_parameters->numberParameters() - 2*m_parameters->numberAlignments() + 2*param;
-		    residual	-= m_parameters->alignmentAngle(param)  * m->derivative(deriv) +
-				   m_parameters->alignmentOffset(param) * m->derivative(deriv+1);
+		    residual	-= m_parameters->alignmentAngle(param)  * (**m).derivative(deriv) +
+				   m_parameters->alignmentOffset(param) * (**m).derivative(deriv+1);
 		}
 	    }
-	    m->residual(residual);
-	    if (! m->is2Dimensional()) continue;
-	    double residual2	=  m->weight2()*m->sensorDirection().dot(offset);
-	    m->residual2(residual2);
+	    (**m).residual(residual);
+	    if (! (**m).is2Dimensional()) continue;
+	    double residual2	=  (**m).weight2()*(**m).sensorDirection().dot(offset);
+	    (**m).residual2(residual2);
 	}
-	else if (m->isDrift() || m->isPerigee())	// else drift circles (perigee is similar)
+	else if ((**m).isDrift() || (**m).isPerigee())	// else drift circles (perigee is similar)
 	{
-	    double residual 	= m->weight() *
-				  (minimizationDirection.dot(offset) + m->signedDriftDistance());
-	    if (m->alignmentParameter())
+	    double residual 	= (**m).weight() *
+				  (minimizationDirection.dot(offset) + (**m).signedDriftDistance());
+	    if ((**m).alignmentParameter())
 	    {
 		// propagate to residual using derivatives
-		unsigned param  =  m->alignmentParameter() - 1;
+		unsigned param  =  (**m).alignmentParameter() - 1;
 		int deriv 	=  m_parameters->numberParameters() - 2*m_parameters->numberAlignments() + 2*param;
-		residual	-= m_parameters->alignmentAngle(param)  * m->derivative(deriv) +
-				   m_parameters->alignmentOffset(param) * m->derivative(deriv+1);
+		residual	-= m_parameters->alignmentAngle(param)  * (**m).derivative(deriv) +
+				   m_parameters->alignmentOffset(param) * (**m).derivative(deriv+1);
 		if (deriv != m_parameters->firstAlignmentParameter())
 		    // std::cout << " firstAlignmentParameter " << m_parameters->firstAlignmentParameter() + 2*param
 		    // 	      << " deriv " << deriv << std::endl;
 		
 		// FitMeasurement* fm	= m_alignments[param];
-		// std::cout << " drift resid:  measurement.alignmentParameter " << m->alignmentParameter()
+		// std::cout << " drift resid:  measurement.alignmentParameter " << (**m).alignmentParameter()
 		// 	  << "   at z " << fm->surface()->center().z()
 		// 	  << "   param " << param
 		// 	  << "   driftDirection.z() " << minimizationDirection.z()
 		// 	  << "   angle "
 		// 	  << m_parameters->alignmentAngle(param)
 		// 	  << " angle resid "
-		// 	  << m_parameters->alignmentAngle(param)*m->derivative(deriv) 
+		// 	  << m_parameters->alignmentAngle(param)*(**m).derivative(deriv) 
 		// 	  << "   offset "
 		// 	  << m_parameters->alignmentOffset(param)
 		// 	  << " offset resid"
-		// 	  << m_parameters->alignmentOffset(param)*m->derivative(deriv+1)
+		// 	  << m_parameters->alignmentOffset(param)*(**m).derivative(deriv+1)
 		// 	  << "   residual "	<< residual
 		// 	  << std::endl;
 
-		if (m->alignmentParameter2())
+		if ((**m).alignmentParameter2())
 		{
 		    // propagate to residual using derivatives
-		    param	=  m->alignmentParameter2() - 1;
+		    param	=  (**m).alignmentParameter2() - 1;
 		    deriv	=  m_parameters->numberParameters() - 2*m_parameters->numberAlignments() + 2*param;
-		    residual	-= m_parameters->alignmentAngle(param)  * m->derivative(deriv) +
-				   m_parameters->alignmentOffset(param) * m->derivative(deriv+1);
+		    residual	-= m_parameters->alignmentAngle(param)  * (**m).derivative(deriv) +
+				   m_parameters->alignmentOffset(param) * (**m).derivative(deriv+1);
 		}
 	    }
-	    m->residual(residual);
-	    // std::cout << " residual " << residual*m->sigma()
-	    // 	      << "  drift distance " << m->signedDriftDistance() << std::endl;
+	    (**m).residual(residual);
+	    // std::cout << " residual " << residual*(**m).sigma()
+	    // 	      << "  drift distance " << (**m).signedDriftDistance() << std::endl;
 	}
-	else if (m->isPseudo())	// else pseudo measurement
+	else if ((**m).isPseudo())	// else pseudo measurement
 	{
-	    double residual	= m->weight() * minimizationDirection.dot(offset);
-	    m->residual(residual);
-	    if (! m->is2Dimensional()) continue;
-	    double residual2	= m->weight2() * m->sensorDirection().dot(offset);
-	    m->residual2(residual2);
+	    double residual	= (**m).weight() * minimizationDirection.dot(offset);
+	    (**m).residual(residual);
+	    if (! (**m).is2Dimensional()) continue;
+	    double residual2	= (**m).weight2() * (**m).sensorDirection().dot(offset);
+	    (**m).residual2(residual2);
 	}
-	else if (m->isVertex())
+	else if ((**m).isVertex())
 	{
-	    double residual	=  m->weight() * (minimizationDirection.x()*offset.x() +
+	    double residual	=  (**m).weight() * (minimizationDirection.x()*offset.x() +
 						     minimizationDirection.y()*offset.y()) /
 				   minimizationDirection.perp() ;
-	    m->residual(residual);
-	    if (! m->is2Dimensional()) continue;
-	    double residual2= m->weight2() * m->sensorDirection().dot(offset);
-	    m->residual2(residual2);
+	    (**m).residual(residual);
+	    if (! (**m).is2Dimensional()) continue;
+	    double residual2= (**m).weight2() * (**m).sensorDirection().dot(offset);
+	    (**m).residual2(residual2);
 	}
     }
 }
@@ -644,12 +650,14 @@ MeasurementProcessor::propagationDerivatives(void)
 {
     // compute additional derivatives when needed for covariance propagation.
     //   loop over measurements:
-  for (auto m : m_measurements)
+    for (std::list<FitMeasurement*>::iterator m = m_measurements.begin();
+	 m != m_measurements.end();
+	 ++m)
     {
 	// compute the D0 and Z0 derivs that don't already exist
-	if (! m->isPositionMeasurement() || m->numberDoF() > 1) continue;
+	if (! (**m).isPositionMeasurement() || (**m).numberDoF() > 1) continue;
 	int derivativeFlag;
-	if (m->numberDoF())
+	if ((**m).numberDoF())
 	{
 	    derivativeFlag	= 0;
 	}
@@ -658,13 +666,13 @@ MeasurementProcessor::propagationDerivatives(void)
 	    derivativeFlag	= 2;
 	}
 
-	if (m->isCluster())
+	if ((**m).isCluster())
 	{
-	    clusterDerivatives(derivativeFlag, *m);
+	    clusterDerivatives(derivativeFlag, **m);
 	}
-	else if (m->isDrift() || m->isPerigee() || m->isPseudo())
+	else if ((**m).isDrift() || (**m).isPerigee() || (**m).isPseudo())
 	{
-	    driftDerivatives(derivativeFlag, *m);
+	    driftDerivatives(derivativeFlag, **m);
 	}
     }
 }
@@ -1067,7 +1075,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
     const Surface* surface				= 0;
     
     // careful: use RungeKutta for extrapolation to vertex measurement
-    std::vector<FitMeasurement*>::iterator m = m_measurements.begin();
+    std::list<FitMeasurement*>::iterator m = m_measurements.begin();
     if ((**m).isVertex())
     {
         if(m_useStepPropagator==99) {
