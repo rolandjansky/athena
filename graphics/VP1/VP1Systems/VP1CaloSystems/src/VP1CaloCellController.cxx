@@ -5,8 +5,8 @@
 #include "VP1CaloSystems/VP1CaloCellController.h"
 #include "VP1CaloSystems/VP1CaloCells.h"
 #include "ui_calocellcontrollerform.h"
-#include "ui_calodigitssingle.h"
-#include "ui_calodigitsdouble.h"
+//#include "ui_calodigitssingle.h" // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//#include "ui_calodigitsdouble.h" // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 #include "ui_calocell_badchannels_form.h"
 #include "ui_calocell_mbtsthresholds_form.h"
 #include "ui_calocell_tilethresholds_form.h"
@@ -26,12 +26,15 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileConditions/Exception.h"
 
+/*
+ * FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 #include <qwt_legend.h>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_marker.h>
 #include <qwt_symbol.h>
 #include <qwt_text.h>
+*/
 
 #include <QVector>
 
@@ -75,8 +78,9 @@ public:
 	// Digits display
 	QWidget*                   digit_form_single;
 	QWidget*                   digit_form_double;
-	Ui::frmCaloDigitsSingle*   UiDigitsSingle;
-	Ui::frmCaloDigitsDouble*   UiDigitsDouble;
+
+//	Ui::frmCaloDigitsSingle*   UiDigitsSingle; // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//	Ui::frmCaloDigitsDouble*   UiDigitsDouble; // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 
 	// at the beginning of every event reset these flags to FALSE
 	bool singlePlotHasData;
@@ -319,19 +323,21 @@ VP1CaloCellController::VP1CaloCellController(IVP1System* sys):
 	d->digit_form_double = new QWidget(0,Qt::WindowStaysOnTopHint);
 	d->digit_form_double->setVisible(false);
 
-	messageDebug("setting up digits box (s)");
-	d->UiDigitsSingle = new Ui::frmCaloDigitsSingle();
-	d->UiDigitsSingle->setupUi(d->digit_form_single);
-	d->UiDigitsSingle->plotDigits->setAxisTitle(QwtPlot::xBottom,"Bunch crossing");
-	d->UiDigitsSingle->plotDigits->setAxisTitle(QwtPlot::yLeft,"ADC counts");
-
-	messageDebug("setting up digits box (d)");
-	d->UiDigitsDouble = new Ui::frmCaloDigitsDouble();
-	d->UiDigitsDouble->setupUi(d->digit_form_double);
-	d->UiDigitsDouble->plotDigits_1->setAxisTitle(QwtPlot::xBottom,"Bunch crossing");
-	d->UiDigitsDouble->plotDigits_1->setAxisTitle(QwtPlot::yLeft,"ADC counts");
-	d->UiDigitsDouble->plotDigits_2->setAxisTitle(QwtPlot::xBottom,"Bunch crossing");
-	d->UiDigitsDouble->plotDigits_2->setAxisTitle(QwtPlot::yLeft,"ADC counts");
+//	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//	messageDebug("setting up digits box (s)");
+//	d->UiDigitsSingle = new Ui::frmCaloDigitsSingle();
+//	d->UiDigitsSingle->setupUi(d->digit_form_single);
+//	d->UiDigitsSingle->plotDigits->setAxisTitle(QwtPlot::xBottom,"Bunch crossing");
+//	d->UiDigitsSingle->plotDigits->setAxisTitle(QwtPlot::yLeft,"ADC counts");
+//
+	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//	messageDebug("setting up digits box (d)");
+//	d->UiDigitsDouble = new Ui::frmCaloDigitsDouble();
+//	d->UiDigitsDouble->setupUi(d->digit_form_double);
+//	d->UiDigitsDouble->plotDigits_1->setAxisTitle(QwtPlot::xBottom,"Bunch crossing");
+//	d->UiDigitsDouble->plotDigits_1->setAxisTitle(QwtPlot::yLeft,"ADC counts");
+//	d->UiDigitsDouble->plotDigits_2->setAxisTitle(QwtPlot::xBottom,"Bunch crossing");
+//	d->UiDigitsDouble->plotDigits_2->setAxisTitle(QwtPlot::yLeft,"ADC counts");
 	// --------------------- Digits Display -------------------------
 
 	// Fill Sel2Gui maps
@@ -845,6 +851,9 @@ void VP1CaloCellController::ClearHideDigitForms()
 void VP1CaloCellController::DeleteDigitForms()
 {
 	messageDebug("DeleteDigitForms()");
+
+	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+	/*
 	if (d) {
 		messageDebug("delete digit_form_single...");
 		if (d->digit_form_single) {
@@ -868,6 +877,7 @@ void VP1CaloCellController::DeleteDigitForms()
 		}
 		messageDebug("DeleteDigitForms(). End.");
 	}
+    */
 }
 
 void VP1CaloCellController::EnableDigitsCheckbox(bool enable)
@@ -876,11 +886,14 @@ void VP1CaloCellController::EnableDigitsCheckbox(bool enable)
 }
 
 void VP1CaloCellController::displayLArDigits(
-		int n_samples,
-		std::vector<short> samples,
-		std::vector<std::string>& msg)
+		int /* n_samples */,
+		std::vector<short> /* samples */,
+		std::vector<std::string>& /* msg */)
 {
-	messageDebug("VP1CaloCellController::displayLArDigits()...");
+	message("VP1CaloCellController::displayLArDigits()... not be ported to 'master' yet, because of failing dependencies (LCG's Qwt has to be ported to Qt5, still)");
+
+	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+/*
 
 	QwtPlot* plot = d->UiDigitsSingle->plotDigits;
 
@@ -932,6 +945,7 @@ void VP1CaloCellController::displayLArDigits(
 	// set the flag for the plot data
 	d->singlePlotHasData = true;
 	d->doublePlotHasData = false;
+    */
 
 	messageDebug("display LAr digits end.");
 }
@@ -944,6 +958,8 @@ void VP1CaloCellController::displayTileDigits(int n_samples,
 
 	messageDebug("VP1CaloCellController::displayTileDigits(A)...");
 
+	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+	/*
 	// Pop up the widget
 	d->digit_form_double->setVisible(true);
 	d->digit_form_single->setVisible(false);
@@ -963,6 +979,7 @@ void VP1CaloCellController::displayTileDigits(int n_samples,
 	// set the flag for the plot data
 	d->doublePlotHasData = true;
 	d->singlePlotHasData = false;
+	*/
 }
 
 void VP1CaloCellController::displayTileDigits(int n_samples,
@@ -970,6 +987,9 @@ void VP1CaloCellController::displayTileDigits(int n_samples,
 		std::vector<std::string>& msg)
 {
 	messageDebug("VP1CaloCellController::displayTileDigits(B)...");
+
+	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+	/*
 	// Pop up the widget
 	d->digit_form_single->setVisible(true);
 	d->digit_form_double->setVisible(false);
@@ -990,6 +1010,7 @@ void VP1CaloCellController::displayTileDigits(int n_samples,
 	// set the flag for the plot data
 	d->doublePlotHasData = true;
 	d->singlePlotHasData = false;
+	*/
 }
 
 void VP1CaloCellController::displayTilePulse(const TileRawChannel* rawchannel1,
@@ -1010,19 +1031,21 @@ void VP1CaloCellController::displayTilePulse(const TileRawChannel* rawchannel1,
 	//			<< "h:" << digitsize
 	//			<< std::endl;
 
-	DrawTilePulse(d->UiDigitsDouble->plotDigits_1,
-			d->UiDigitsDouble->lblPMTGain_1,
-			rawchannel1,
-			rawchannel_cont,
-			digitsize);
-	std::cout << "Drawn digits_1" << std::endl;
 
-	DrawTilePulse(d->UiDigitsDouble->plotDigits_2,
-			d->UiDigitsDouble->lblPMTGain_2,
-			rawchannel2,
-			rawchannel_cont,
-			digitsize);
-	std::cout << "Drawn digits_2" << std::endl;
+	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//	DrawTilePulse(d->UiDigitsDouble->plotDigits_1,
+//			d->UiDigitsDouble->lblPMTGain_1,
+//			rawchannel1,
+//			rawchannel_cont,
+//			digitsize);
+//	std::cout << "Drawn digits_1" << std::endl;
+//
+//	DrawTilePulse(d->UiDigitsDouble->plotDigits_2,
+//			d->UiDigitsDouble->lblPMTGain_2,
+//			rawchannel2,
+//			rawchannel_cont,
+//			digitsize);
+//	std::cout << "Drawn digits_2" << std::endl;
 }
 
 void VP1CaloCellController::displayTilePulse(const TileRawChannel* rawchannel,
@@ -1031,11 +1054,12 @@ void VP1CaloCellController::displayTilePulse(const TileRawChannel* rawchannel,
 {
 	messageDebug("VP1CaloCellController::displayTilePulse(B)...");
 
-	DrawTilePulse(d->UiDigitsSingle->plotDigits,
-			d->UiDigitsSingle->lblPMTGain,
-			rawchannel,
-			rawchannel_cont,
-			digitsize);
+	// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//	DrawTilePulse(d->UiDigitsSingle->plotDigits,
+//			d->UiDigitsSingle->lblPMTGain,
+//			rawchannel,
+//			rawchannel_cont,
+//			digitsize);
 
 	messageDebug("displayTilePulse(). End.");
 }
@@ -1155,120 +1179,124 @@ VP1CC_GlobalCuts VP1CaloCellController::globalCuts() const
 	return globalCuts;
 }
 
-void VP1CaloCellController::DrawTileDigits(QwtPlot* plot,
-		int n_samples,
-		std::vector<float> samples)
-{
-	messageDebug("VP1CaloCellController::DrawTileDigits()...");
-
-	// Get data
-	QVector<QPointF> _data;
-	for(int ii=0; ii<n_samples;ii++) {
-		_data.push_back(QPointF(ii,samples[ii]));
-	}
-
-	// Create symbol
-	QwtSymbol* sym = new QwtSymbol();
-	sym->setStyle(QwtSymbol::Star1);
-	sym->setPen(QColor(Qt::red));
-	sym->setSize(5);
-
-	// Create curve
-	QwtPlotCurve* _curve = new QwtPlotCurve("ADC Counts");
-	_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-	_curve->setSamples(_data);
-	_curve->setStyle(QwtPlotCurve::NoCurve);
-	_curve->setPen(QPen(Qt::red));
-	_curve->setSymbol(sym);
-
-	// Attach curve to the hosting plot
-	_curve->attach(plot);
-
-	// Set the canvas background color
-	plot->setCanvasBackground( QBrush(Qt::white) );
-
-	// Refresh the plot
-	plot->replot();
-}
-
-void VP1CaloCellController::DrawTilePulse(QwtPlot* plot,
-		QLabel* gainlabel,
-		const TileRawChannel* rawchannel,
-		const TileRawChannelContainer* rawchannel_cont,
-		size_t digitsize)
-{
-	messageDebug("VP1CaloCellController::DrawTilePulse()...");
-
-	// convert amplitude
-	double _amplitude1 = rawchannel->amplitude();
-	HWIdentifier adc_hwid1 = rawchannel->adc_HWID();
-
-	std::ostringstream pmtgain1;
-
-//	std::cout << "DEBUG - "
-//			<< "_amplitude1: " <<_amplitude1 << " - "
-//			<< "adc_hwid1: " << adc_hwid1 << " - "
-//			<< "tile_hw_id ros: " << tile_hw_id->ros(adc_hwid1) << " - "
-//			<< "tile_hw_id channel: " << tile_hw_id->channel(adc_hwid1)
-//			<< std::endl;
-
-	pmtgain1 << " PMT " << tile_cabling->channel2hole(tile_hw_id->ros(adc_hwid1),tile_hw_id->channel(adc_hwid1))
-			   << "   Gain " << tile_hw_id->adc(adc_hwid1);
-
-	gainlabel->setText(pmtgain1.str().c_str());
-
-	std::cout << "DEBUG - Getting TileInfo..." << std::endl;
-	try {
-		_amplitude1 /= tile_info->ChannelCalib(adc_hwid1,
-				TileRawChannelUnit::ADCcounts,
-				rawchannel_cont->get_unit(),
-				rawchannel_cont->get_type());
-	} catch (TileCalib::InvalidRawChanUnit& e) {
-		std::cout << "ERROR!!! Exception caught from Tile! --> " << e.what() << std::endl;
-		std::cout << "re-throwing it..." << std::endl;
-		throw e;
-	}
+// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//void VP1CaloCellController::DrawTileDigits(QwtPlot* plot,
+//		int n_samples,
+//		std::vector<float> samples)
+//{
+//	messageDebug("VP1CaloCellController::DrawTileDigits()...");
+//
+//	// Get data
+//	QVector<QPointF> _data;
+//	for(int ii=0; ii<n_samples;ii++) {
+//		_data.push_back(QPointF(ii,samples[ii]));
+//	}
+//
+//	// Create symbol
+//	QwtSymbol* sym = new QwtSymbol();
+//	sym->setStyle(QwtSymbol::Star1);
+//	sym->setPen(QColor(Qt::red));
+//	sym->setSize(5);
+//
+//	// Create curve
+//	QwtPlotCurve* _curve = new QwtPlotCurve("ADC Counts");
+//	_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
+//	_curve->setSamples(_data);
+//	_curve->setStyle(QwtPlotCurve::NoCurve);
+//	_curve->setPen(QPen(Qt::red));
+//	_curve->setSymbol(sym);
+//
+//	// Attach curve to the hosting plot
+//	_curve->attach(plot);
+//
+//	// Set the canvas background color
+//	plot->setCanvasBackground( QBrush(Qt::white) );
+//
+//	// Refresh the plot
+//	plot->replot();
+//}
+//
 
 
-
-	// Get correct vector of values depending on the gain
-	std::vector<double> *xval, *yval;
-	if(tile_hw_id->adc(adc_hwid1) == 0)
-	{
-		xval = &(tile_info->getPulseShapes()->m_tlphys);
-		yval = &(tile_info->getPulseShapes()->m_ylphys);
-	}
-	else if(tile_hw_id->adc(adc_hwid1) == 1)
-	{
-		xval = &(tile_info->getPulseShapes()->m_thphys);
-		yval = &(tile_info->getPulseShapes()->m_yhphys);
-	}
-	else
-		return;
-
-	// Prepare data for plotting
-	QVector<QPointF> _data;
-	for(size_t i=0; i<xval->size(); i++) {
-		double xpoint = ((*xval)[i] + rawchannel->time())/25. + (digitsize - 1)/2.;
-		double ypoint = rawchannel->pedestal() + _amplitude1*(*yval)[i];
-
-		if(xpoint >= 0 && xpoint <= digitsize -1)
-			_data.push_back(QPointF(xpoint,ypoint));
-	}
-
-	// Create curve
-	QwtPlotCurve* _curve = new QwtPlotCurve("Pulse");
-	_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-	_curve->setSamples(_data);
-	_curve->setStyle(QwtPlotCurve::Dots);
-	_curve->setPen(QPen(Qt::blue));
-
-	// Attach the curve to the hosting plot
-	_curve->attach(plot);
-
-	// Refresh the plot
-	plot->replot();
-}
+// FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//void VP1CaloCellController::DrawTilePulse(QwtPlot* plot,
+//		QLabel* gainlabel,
+//		const TileRawChannel* rawchannel,
+//		const TileRawChannelContainer* rawchannel_cont,
+//		size_t digitsize)
+//{
+//	messageDebug("VP1CaloCellController::DrawTilePulse()...");
+//
+//	// convert amplitude
+//	double _amplitude1 = rawchannel->amplitude();
+//	HWIdentifier adc_hwid1 = rawchannel->adc_HWID();
+//
+//	std::ostringstream pmtgain1;
+//
+////	std::cout << "DEBUG - "
+////			<< "_amplitude1: " <<_amplitude1 << " - "
+////			<< "adc_hwid1: " << adc_hwid1 << " - "
+////			<< "tile_hw_id ros: " << tile_hw_id->ros(adc_hwid1) << " - "
+////			<< "tile_hw_id channel: " << tile_hw_id->channel(adc_hwid1)
+////			<< std::endl;
+//
+//	pmtgain1 << " PMT " << tile_cabling->channel2hole(tile_hw_id->ros(adc_hwid1),tile_hw_id->channel(adc_hwid1))
+//			   << "   Gain " << tile_hw_id->adc(adc_hwid1);
+//
+//	gainlabel->setText(pmtgain1.str().c_str());
+//
+//	std::cout << "DEBUG - Getting TileInfo..." << std::endl;
+//	try {
+//		_amplitude1 /= tile_info->ChannelCalib(adc_hwid1,
+//				TileRawChannelUnit::ADCcounts,
+//				rawchannel_cont->get_unit(),
+//				rawchannel_cont->get_type());
+//	} catch (TileCalib::InvalidRawChanUnit& e) {
+//		std::cout << "ERROR!!! Exception caught from Tile! --> " << e.what() << std::endl;
+//		std::cout << "re-throwing it..." << std::endl;
+//		throw e;
+//	}
+//
+//
+//
+//	// Get correct vector of values depending on the gain
+//	std::vector<double> *xval, *yval;
+//	if(tile_hw_id->adc(adc_hwid1) == 0)
+//	{
+//		xval = &(tile_info->getPulseShapes()->m_tlphys);
+//		yval = &(tile_info->getPulseShapes()->m_ylphys);
+//	}
+//	else if(tile_hw_id->adc(adc_hwid1) == 1)
+//	{
+//		xval = &(tile_info->getPulseShapes()->m_thphys);
+//		yval = &(tile_info->getPulseShapes()->m_yhphys);
+//	}
+//	else
+//		return;
+//
+//	// Prepare data for plotting
+//	QVector<QPointF> _data;
+//	for(size_t i=0; i<xval->size(); i++) {
+//		double xpoint = ((*xval)[i] + rawchannel->time())/25. + (digitsize - 1)/2.;
+//		double ypoint = rawchannel->pedestal() + _amplitude1*(*yval)[i];
+//
+//		if(xpoint >= 0 && xpoint <= digitsize -1)
+//			_data.push_back(QPointF(xpoint,ypoint));
+//	}
+//
+//	// Create curve
+//	QwtPlotCurve* _curve = new QwtPlotCurve("Pulse");
+//	_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
+//	_curve->setSamples(_data);
+//	_curve->setStyle(QwtPlotCurve::Dots);
+//	_curve->setPen(QPen(Qt::blue));
+//
+//	// Attach the curve to the hosting plot
+//	_curve->attach(plot);
+//
+//	// Refresh the plot
+//	plot->replot();
+//}
 
 // --------------------- SLOTS ------------------------
 void VP1CaloCellController::enableUpperThreshold()
