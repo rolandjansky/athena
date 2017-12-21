@@ -4,12 +4,15 @@
 
 #include "CxxUtils/make_unique.h"
 #include "VolumeDebuggerTool.h"
-namespace G4UA{ 
 
+namespace G4UA
+{
 
-  VolumeDebuggerTool::VolumeDebuggerTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<VolumeDebugger>(type, name, parent), m_config(){
-
+  VolumeDebuggerTool::VolumeDebuggerTool(const std::string& type,
+                                         const std::string& name,
+                                         const IInterface* parent)
+    : ActionToolBase<VolumeDebugger>(type, name, parent)
+  {
     declareProperty("OutputPath",m_config.path);
     declareProperty("TargetVolume",m_config.targetVolume);
     declareProperty("Resolution",m_config.res);
@@ -18,16 +21,17 @@ namespace G4UA{
     declareProperty("RunGeoTest",m_config.volumeCheck);
     declareProperty("MaxCopiesToCheck", m_config.targetMaxCopiesToCheck);
     declareProperty("DumpGDML", m_config.dumpGDML);
-    
   }
 
-  std::unique_ptr<VolumeDebugger>  VolumeDebuggerTool::makeAction(){
+  std::unique_ptr<VolumeDebugger> VolumeDebuggerTool::makeAction()
+  {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<VolumeDebugger>(m_config);
     return std::move(action);
   }
-  StatusCode VolumeDebuggerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
+
+  StatusCode VolumeDebuggerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+  {
     if(riid == IG4RunActionTool::interfaceID()) {
       *ppvIf = (IG4RunActionTool*) this;
       addRef();
@@ -35,5 +39,5 @@ namespace G4UA{
     }
     return ActionToolBase<VolumeDebugger>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA

@@ -5,9 +5,7 @@
 #ifndef G4DEBUGGINGTOOLS_VerboseSelector_H
 #define G4DEBUGGINGTOOLS_VerboseSelector_H
 
-
 #include <string>
-
 
 #include "G4UserSteppingAction.hh"
 #include "G4UserTrackingAction.hh"
@@ -16,17 +14,20 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
 
-class VerboseSelector: 
-  public AthMessaging, public G4UserEventAction, public G4UserSteppingAction, public G4UserTrackingAction
+  class VerboseSelector : public AthMessaging,
+                          public G4UserEventAction,
+                          public G4UserSteppingAction,
+                          public G4UserTrackingAction
   {
-    
+
   public:
-    
+
     struct Config
     {
-      
+
       int targetEvent=-1;
       int targetTrack=-1;
       int targetBarcode=-1;
@@ -35,7 +36,7 @@ class VerboseSelector:
       double Xmin=0, Xmax=0;
       double Ymin=0, Ymax=0;
       double Zmin=0, Zmax=0;
-      
+
     };
 
     VerboseSelector(const Config& config);
@@ -54,9 +55,7 @@ class VerboseSelector:
     uint64_t m_evtCount;
 
   }; // class VerboseSelector
-  
-  
-} // namespace G4UA 
 
+} // namespace G4UA
 
 #endif //G4DEBUGGINGTOOLS_VerboseSelector_H

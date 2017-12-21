@@ -5,21 +5,19 @@
 #ifndef G4DEBUGGINGTOOLS_StepNtuple_H
 #define G4DEBUGGINGTOOLS_StepNtuple_H
 
-
 #include "GaudiKernel/NTuple.h"
 
 #include <string>
 #include <vector>
-
 
 #include "G4UserEventAction.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4UserRunAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
-namespace G4UA{
-  
-  
+namespace G4UA
+{
+
   class StepNtuple : public AthMessaging,
                      public G4UserEventAction,
                      public G4UserSteppingAction,
@@ -29,7 +27,7 @@ namespace G4UA{
     struct stepdata{
       float time, code, dep, x, y, z;
     };
-    
+
   public:
     /// ctor
     StepNtuple();
@@ -44,7 +42,7 @@ namespace G4UA{
 
     /// holds data extracted from steps
     std::vector<stepdata> eventSteps;
-    
+
     /// handles for ntuple writing
     NTuple::Item<long>     m_nsteps;
     NTuple::Array<float>   m_pdgcode;
@@ -53,13 +51,9 @@ namespace G4UA{
     NTuple::Array<float>   m_step_z;
     NTuple::Array<float>   m_time;
     NTuple::Array<float>   m_dep;
-    
-    
+
   }; // class StepNtuple
-  
-  
-} // namespace G4UA 
 
-
+} // namespace G4UA
 
 #endif // G4DEBUGGINGTOOLS_StepNtuple_H
