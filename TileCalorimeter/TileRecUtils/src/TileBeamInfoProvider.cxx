@@ -2,41 +2,36 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Atlas includes
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/errorcheck.h"
-//EventInfo
-#include "xAODEventInfo/EventInfo.h"
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
-//CLHEP includes
-#include <CLHEP/Random/Randomize.h>
-
-
-// Calo include
-#include "CaloIdentifier/CaloLVL1_ID.h" 
-
 // TileCal includes
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileIdentifier/TileTTL1Hash.h"
 #include "TileEvent/TileTrigger.h"
-#include "TileEvent/TileTriggerContainer.h"
-#include "TileEvent/TileBeamElemContainer.h"
-#include "TileEvent/TileDigitsContainer.h"
-#include "TileEvent/TileRawChannelContainer.h"
-#include "TileEvent/TileLaserObject.h"
 #include "TileConditions/TileDCSSvc.h"
 #include "TileConditions/TileBadChanTool.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
+// Calo include
+#include "CaloIdentifier/CaloLVL1_ID.h" 
+
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
+
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
+// Gaudi includes
+#include "GaudiKernel/IIncidentSvc.h"
+
+
+//CLHEP includes
+#include <CLHEP/Random/Randomize.h>
+
+
 #include <iomanip>
+#include <memory>
 
 // uncomment line below for debug output
 // #define TILECELL_DEBUG 1
@@ -54,14 +49,6 @@ TileBeamInfoProvider::interfaceID() {
 TileBeamInfoProvider::TileBeamInfoProvider(const std::string& type,
     const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    //  , m_TileBeamContainerID("TileBeamElemCnt")
-    //  , m_TileDigitsContainerID("TileDigitsCnt")
-    //  , m_TileRawChContainerID("TileRawChannelCnt")
-    , m_TileBeamContainerID("")
-    , m_TileDigitsContainerID("")
-    , m_TileRawChContainerID("")
-    , m_TileTriggerContainerID("")
-    , m_TileLaserObjectID("")
     , m_tileDCSSvc("TileDCSSvc", name)
     , m_rndmSvc ("AtRndmGenSvc", name)
     , m_tileBadChanTool("TileBadChanTool")
@@ -80,12 +67,6 @@ TileBeamInfoProvider::TileBeamInfoProvider(const std::string& type,
 {
 
   declareInterface < TileBeamInfoProvider > (this);
-
-  declareProperty("TileBeamElemContainer", m_TileBeamContainerID);
-  declareProperty("TileDigitsContainer", m_TileDigitsContainerID);
-  declareProperty("TileRawChannelContainer", m_TileRawChContainerID);
-  declareProperty("TileTriggerContainer", m_TileTriggerContainerID);
-  declareProperty("TileLaserObject", m_TileLaserObjectID);
 
   declareProperty("CheckDCS", m_checkDCS = false);
   declareProperty("SimulateTrips", m_simulateTrips = false, "Simulate drawer trips (default=false)");
@@ -136,9 +117,9 @@ StatusCode TileBeamInfoProvider::initialize() {
     ATH_MSG_INFO("Drawer trips will be simulated");
   }
 
-  if (m_TileBeamContainerID.length() > 0 
-      || m_TileDigitsContainerID.length() > 0
-      || m_TileRawChContainerID.length() > 0
+  if (!(m_beamElemContainerKey.key().empty() 
+        && m_digitsContainerKey.key().empty()
+        && m_rawChannelContainerKey.key().empty())
       || m_simulateTrips) {
 
     // Listen for begin of event
@@ -151,15 +132,38 @@ StatusCode TileBeamInfoProvider::initialize() {
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "TileBeamInfoProvider created, taking info from '"
-                      << m_TileBeamContainerID << "'" << endmsg;
-      msg(MSG::DEBUG) << " from '" << m_TileDigitsContainerID << "'"
-                      << " and from '" << m_TileRawChContainerID << "'"
+                      << m_beamElemContainerKey.key() << "'" << endmsg;
+      msg(MSG::DEBUG) << " from '" << m_digitsContainerKey.key() << "'"
+                      << " and from '" << m_rawChannelContainerKey.key() << "'"
                       << ((m_simulateTrips) ? ", and from drawer trips simulation" : "") << endmsg;
     }
 
   } else {
     ATH_MSG_DEBUG("TileBeamInfoProvider created, but BeginOfEvent incident not activated");
   }
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
+  if (!m_beamElemContainerKey.key().empty()) {
+    ATH_CHECK( m_beamElemContainerKey.initialize() ); 
+  }
+
+  if (!m_digitsContainerKey.key().empty()) {
+    ATH_CHECK( m_digitsContainerKey.initialize() ); 
+  }
+
+  if (!m_rawChannelContainerKey.key().empty()) {
+    ATH_CHECK( m_rawChannelContainerKey.initialize() ); 
+  }
+
+  if (!m_triggerContainerKey.key().empty()) {
+    ATH_CHECK( m_triggerContainerKey.initialize() ); 
+  }
+
+  if (!m_laserObjectKey.key().empty()) {
+    ATH_CHECK( m_laserObjectKey.initialize() ); 
+  }
+
 
   return StatusCode::SUCCESS;
 }
@@ -215,9 +219,9 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
 
   if (m_evt == 0) {
     //enable DQstatus checks
-    m_checkDQ = (m_TileRawChContainerID.length() > 0);
-    m_checkDigi = (m_TileDigitsContainerID.length() > 0);
-    m_checkBeam = (m_TileBeamContainerID.length() > 0);
+    m_checkDQ = (!m_rawChannelContainerKey.key().empty());
+    m_checkDigi = (!m_digitsContainerKey.key().empty());
+    m_checkBeam = (!m_beamElemContainerKey.key().empty());
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Check DQ=" << m_checkDQ << endmsg;
       msg(MSG::DEBUG) << "Check Digi=" << m_checkDigi << endmsg;
@@ -226,17 +230,19 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
     m_DQstatus.setCheckDigi(m_checkDigi);
   }
 
-  m_rcCnt = NULL;
-  m_digitsCnt = NULL;
-  m_beamElemCnt = NULL;
+  m_rcCnt = nullptr;
+  m_digitsCnt = nullptr;
+  m_beamElemCnt = nullptr;
   m_noiseFilterApplied = false;
 
   // retrive all containers from detector store and cache pointers for future use
 
   if (m_checkBeam) {
-    StatusCode sc = evtStore()->retrieve(m_beamElemCnt, m_TileBeamContainerID);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("can't retrieve BeamElem from TDS");
+    SG::ReadHandle<TileBeamElemContainer> beamElemContainer(m_beamElemContainerKey);
+    if (beamElemContainer.isValid()) {
+      m_beamElemCnt = beamElemContainer.cptr();
+    } else {
+      ATH_MSG_ERROR("can't retrieve BeamElem '" << m_beamElemContainerKey.key() << "' from TDS");
       if (m_evt == 0) {
         m_checkBeam = false;
       }
@@ -244,9 +250,11 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
   }
 
   if (m_checkDigi) {
-    StatusCode sc = evtStore()->retrieve(m_digitsCnt, m_TileDigitsContainerID);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("can't retrieve Digits from TDS");
+    SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey);
+    if (digitsContainer.isValid()) {
+      m_digitsCnt = digitsContainer.cptr();
+    } else {
+      ATH_MSG_ERROR("can't retrieve Digits '" << m_digitsContainerKey.key() << "' from TDS");
       if (m_evt == 0) {
         m_checkDigi = false;
         m_DQstatus.setCheckDigi(false);
@@ -256,9 +264,11 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
 
   if (m_checkDQ) {
     m_DQstatus.setAllGood();
-    StatusCode sc = evtStore()->retrieve(m_rcCnt, m_TileRawChContainerID);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("can't retrieve RawChannels '" << m_TileRawChContainerID << "' from TDS");
+    SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+    if (rawChannelContainer.isValid()) {
+      m_rcCnt = rawChannelContainer.cptr();
+    } else {
+      ATH_MSG_ERROR("can't retrieve RawChannels '" << m_rawChannelContainerKey.key() << "' from TDS");
       if (m_evt == 0) {
         m_checkDQ = false;
         m_DQstatus.setFilled(true);
@@ -446,49 +456,49 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
    }
    */
   // we are going to put TileTrigger to StoreGate
-  if (m_TileTriggerContainerID.length() > 0) {
+  if (!m_triggerContainerKey.key().empty()) {
 
-    TileTriggerContainer* pTileTriggerContainer = new TileTriggerContainer();
+    SG::WriteHandle<TileTriggerContainer> triggerContainer(m_triggerContainerKey);
+    if (triggerContainer.record( std::make_unique<TileTriggerContainer>() ).isSuccess()) {
 
-    int maxboard = m_coincTrig.size();
-    if (maxboard > 0) {
-      Identifier mtid;
-      double mtsum(0.0);
-      std::vector < Identifier > boardtid(maxboard);
-      std::vector<double> boardtsum(maxboard);
-      std::vector < Identifier > backtid(maxboard);
-      std::vector<double> backtsum(maxboard);
-
-      // FIXME:: convert coincTrig to TileTrigger
-
-      TileTrigger * tileTrigger = new TileTrigger(mtid, mtsum, boardtid,
-          boardtsum, backtid, backtsum);
-      pTileTriggerContainer->push_back(tileTrigger);
-    }
-
-    StatusCode sc = evtStore()->record(pTileTriggerContainer,
-        m_TileTriggerContainerID, false);
-    if (sc.isFailure()) {
+      int maxboard = m_coincTrig.size();
+      if (maxboard > 0) {
+        Identifier mtid;
+        double mtsum(0.0);
+        std::vector < Identifier > boardtid(maxboard);
+        std::vector<double> boardtsum(maxboard);
+        std::vector < Identifier > backtid(maxboard);
+        std::vector<double> backtsum(maxboard);
+        
+        // FIXME:: convert coincTrig to TileTrigger
+        
+        TileTrigger* tileTrigger = new TileTrigger(mtid, mtsum, boardtid,
+                                                   boardtsum, backtid, backtsum);
+        triggerContainer->push_back(tileTrigger);
+      }
+    } else {
       ATH_MSG_ERROR("failed to register the TileTrigger container: "
-                    << m_TileTriggerContainerID << " in StoreGate");
+                    << m_triggerContainerKey.key() << " in StoreGate");
+
     }
+    
   }
 
   // we are going to put TileLaserObject to StoreGate
-  if (m_TileLaserObjectID.length() > 0) {
+  if (!m_laserObjectKey.key().empty()) {
 
-    TileLaserObject* pTileLaserObject = new TileLaserObject();
+    SG::WriteHandle<TileLaserObject> laserObject(m_laserObjectKey);
+    if(laserObject.record( std::make_unique<TileLaserObject>() ).isSuccess()) {
+      laserObject->setBCID(m_BCID);
 
-    pTileLaserObject->setBCID(m_BCID);
+      // FIXME: a lot of set methods here 
+      // to copy m_laspar to TileLaserObject
 
-    // FIXME: a lot of set methods here 
-    // to copy m_laspar to TileLaserObject
-
-    StatusCode sc = evtStore()->record(pTileLaserObject, m_TileLaserObjectID, false);
-    if (sc.isFailure()) {
+    } else {
       ATH_MSG_ERROR("failed to register the TileLaserObject: "
-                    << m_TileLaserObjectID << " in StoreGate");
+                    << m_laserObjectKey.key() << " in StoreGate");
     }
+
   }
 
   if (m_calibMode == 0xFFFFFFFF) {
@@ -600,11 +610,15 @@ const TileDQstatus * TileBeamInfoProvider::getDQstatus() {
     return &m_DQstatus;
 
   //Fill BCID from the EventInfo, if available
+  //SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
   const DataHandle<xAOD::EventInfo> eventInfo(0);
   StatusCode sc = evtStore()->retrieve(eventInfo);
   if (sc.isSuccess()) {
     m_DQstatus.setRODBCID(eventInfo->bcid());
+  } else {
+    ATH_MSG_ALWAYS("AUUU: NO EVENT INFO!!!");
   }
+  //m_DQstatus.setRODBCID(eventInfo->bcid());
 
   if (m_rcCnt != NULL) {
 

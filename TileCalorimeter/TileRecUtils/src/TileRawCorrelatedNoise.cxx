@@ -2,34 +2,30 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-// Atlas includes
-// access all RawChannels inside container
-#include "EventContainers/SelectAllObject.h"
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileRecUtils/TileRawCorrelatedNoise.h"
-#include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileDigits.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
 
+// Atlas includes
+// access all RawChannels inside container
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "EventContainers/SelectAllObject.h"
+#include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
+
+
+
+#include <memory>
 
 // #############################################################################
 TileRawCorrelatedNoise::TileRawCorrelatedNoise(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_tileDigitsInputContainer("TileDigitsCnt")
-  , m_tileDigitsOutputContainer("NewDigitsContainer")
 {
 // #############################################################################
 
-  declareProperty("TileDigitsContainer",m_tileDigitsInputContainer);
-  declareProperty("TileDigitsOutputContainer",m_tileDigitsOutputContainer);
   declareProperty("nRMSThreshold", m_nRMS_threshold = 2.);
   declareProperty("AlphaMatrixFilePrefix", m_alphaMatrixFilePrefix  = "AlphaMatrix");
   declareProperty("MeanFilePrefix", m_meanFilePrefix  = "Mean");
@@ -290,6 +286,9 @@ StatusCode TileRawCorrelatedNoise::initialize() {
     }
   }
 
+  ATH_CHECK( m_inputDigitsContainerKey.initialize() );
+  ATH_CHECK( m_outputDigitsContainerKey.initialize() );
+
   ATH_MSG_INFO( "Initialization completed successfully" );
 
   return StatusCode::SUCCESS;
@@ -300,13 +299,9 @@ StatusCode TileRawCorrelatedNoise::execute() {
 // #############################################################################
 
   // get named TileDigitsContaner from TES
-  const TileDigitsContainer *digiCnt;
-  if (evtStore()->retrieve(digiCnt, m_tileDigitsInputContainer).isFailure()) {
-    ATH_MSG_WARNING( "Can't retrieve TileDigitsContainer '" << m_tileDigitsInputContainer << "' from TDS" );
-    return StatusCode::SUCCESS;
-  }
+  SG::ReadHandle<TileDigitsContainer> inputDigitsContainer(m_inputDigitsContainerKey);
 
-  ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_tileDigitsInputContainer << "'" );
+  ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_inputDigitsContainerKey.key() << "'" );
 
   const TileHWID* tileHWID;
   CHECK( detStore()->retrieve(tileHWID, "TileHWID") );
@@ -319,7 +314,7 @@ StatusCode TileRawCorrelatedNoise::execute() {
   const TileDigits* OriginalDigits[4][64][48];
 
   // go through ALL TileDigits in container
-  SelectAllObject<TileDigitsContainer> selAll(digiCnt);
+  SelectAllObject<TileDigitsContainer> selAll(inputDigitsContainer.cptr());
   SelectAllObject<TileDigitsContainer>::const_iterator digItr = selAll.begin();
   SelectAllObject<TileDigitsContainer>::const_iterator lastDig = selAll.end();
 
@@ -384,8 +379,9 @@ StatusCode TileRawCorrelatedNoise::execute() {
   }
 
   // create new container
-  TileDigits * NewDigits[4][64][48];
-  TileDigitsContainer* NewDigitsContainer = new TileDigitsContainer();
+  TileDigits* NewDigits[4][64][48];
+  SG::WriteHandle<TileDigitsContainer> outputDigitsContainer(m_outputDigitsContainerKey);
+  ATH_CHECK( outputDigitsContainer.record( std::make_unique<TileDigitsContainer>() ) );
 
   // fill new container
   for (int Ros = 1; Ros < 5; ++Ros) {
@@ -399,19 +395,12 @@ StatusCode TileRawCorrelatedNoise::execute() {
           }
           NewDigits[Ros - 1][Drawer][Channel] = new TileDigits(
               (OriginalDigits[Ros - 1][Drawer][Channel])->adc_HWID(), digits);
-          NewDigitsContainer->push_back(NewDigits[Ros - 1][Drawer][Channel]);
+          outputDigitsContainer->push_back(NewDigits[Ros - 1][Drawer][Channel]);
         }
       }
     }
   }
 
-  // register new container in TES
-  CHECK( evtStore()->record(NewDigitsContainer, "NewDigitsContainer") );
-
-  // lock new container
-  CHECK( evtStore()->setConst(NewDigitsContainer) );
-
-  NewDigitsContainer = NULL;
 
   ATH_MSG_DEBUG( "execute completed successfully" );
 
