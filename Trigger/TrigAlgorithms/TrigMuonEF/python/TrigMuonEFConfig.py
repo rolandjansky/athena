@@ -40,15 +40,6 @@ IsoCorrectionTool = PublicToolFactory(ICT,
                                 name = "NewLeakageCorrTool",
                                 IsMC = isMC)
 
-from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-pfoTool = RetrievePFOTool();
-ToolSvc += pfoTool
-
-from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
-PFlowObjectsInConeTool = PublicToolFactory(xAOD__PFlowObjectsInConeTool,
-                                     name = "PFlowObjectsInConeTool",
-                                     RetrievePFOTool = pfoTool)
-
 from CaloIdentifier import SUBCALO
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 

@@ -9,8 +9,9 @@
 #include "PFONeutralValidationPlots.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string>
-#include "PFlowUtils/IRetrievePFOTool.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class PhysValPFO : public ManagedMonitorToolBase {
 
@@ -31,17 +32,17 @@ public:
  private:
 
   /** ReadHandle to retrieve xAOD::VertexContainer */
-  SG::ReadHandle<xAOD::VertexContainer> m_vertexContainerReadHandle;
-  
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerReadHandleKey{this,"primaryVerticesName","PrimaryVertices","ReadHandleKey for the PrimaryVertices container"};
+
+  /** ReadHandle to retrieve xAOD::PFOContainer */
+  SG::ReadHandleKey<xAOD::PFOContainer> m_PFOContainerHandleKey{this,"PFOContainerName","JetETMissChargedParticleFlowObjects","ReadHandleKey for the PFO container"};
+    
   /** Pointer to class that deals with histograms for charged PFO */
   std::unique_ptr<PFOChargedValidationPlots> m_PFOChargedValidationPlots;
 
   /** Pointer to class that deals with histograms for neutral PFO */
   std::unique_ptr<PFONeutralValidationPlots> m_PFONeutralValidationPlots;
   
-  /** Tool to retrieve PFO */
-  ToolHandle<CP::IRetrievePFOTool> m_retrievePFOTool;
-
   /** Select which PFO setup to use - LC or EM */
   bool m_useLCScale;
   
