@@ -1,7 +1,7 @@
-Mon Oct 16 19:48:38 CEST 2017
+Tue Jan  2 16:49:14 PST 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/16a61e8faf] -- built on [2017-10-16T1807]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [dev/3227fd4b6f] -- built on [2018-01-02T1642]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -10,27 +10,27 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle1MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle1_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5421 configurables from 64 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5430 configurables from 7 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus032.cern.ch on Mon Oct 16 19:48:55 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on zeus on Tue Jan  2 16:49:22 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 2850 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 2845 CLIDRegistry entries for module ALL
 ChronoStatSvc                                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc                                         INFO  getRegistryEntries: read 6961 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 6935 CLIDRegistry entries for module ALL
 ClassIDSvc                                         INFO  getRegistryEntries: read 61 CLIDRegistry entries for module ALL
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
@@ -45,38 +45,38 @@ AvalancheSchedulerSvc                              INFO Data Dependencies for Al
   SGInputLoader
       none
   xAODTestWriteCVec
-    o INPUT  ('EventInfo','StoreGateSvc+McEventInfo')
-    o OUTPUT ('DMTest::CVec','StoreGateSvc+cvec')
-    o OUTPUT ('DMTest::CVec','StoreGateSvc+cvec.dtest')
+    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
+    o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
+    o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dtest' ) 
   xAODTestWriteCInfo
-    o INPUT  ('DMTest::CVec','StoreGateSvc+cvec')
-    o INPUT  ('EventInfo','StoreGateSvc+McEventInfo')
-    o OUTPUT ('DMTest::C','StoreGateSvc+cinfo')
-    o OUTPUT ('SG::AuxElement','StoreGateSvc+cinfo')
+    o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
+    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
+    o OUTPUT  ( 'DMTest::C' , 'StoreGateSvc+cinfo' ) 
+    o OUTPUT  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo' ) 
   xAODTestWrite
-    o INPUT  ('DMTest::CVec','StoreGateSvc+cvec')
-    o INPUT  ('EventInfo','StoreGateSvc+McEventInfo')
-    o OUTPUT ('DMTest::CVec','StoreGateSvc+ctrig')
-    o OUTPUT ('DMTest::CVecWithData','StoreGateSvc+cvecWD')
-    o OUTPUT ('DMTest::GVec','StoreGateSvc+gvec')
+    o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
+    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
+    o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+ctrig' ) 
+    o OUTPUT  ( 'DMTest::CVecWithData' , 'StoreGateSvc+cvecWD' ) 
+    o OUTPUT  ( 'DMTest::GVec' , 'StoreGateSvc+gvec' ) 
   xAODTestDecor
-    o INPUT  ('DMTest::C','StoreGateSvc+cinfo')
-    o INPUT  ('DMTest::CVec','StoreGateSvc+ctrig')
-    o INPUT  ('DMTest::CVec','StoreGateSvc+cvec')
-    o INPUT  ('EventInfo','StoreGateSvc+McEventInfo')
-    o OUTPUT ('DMTest::C','StoreGateSvc+cinfo.dInt1')
-    o OUTPUT ('DMTest::CVec','StoreGateSvc+ctrig.dInt1')
-    o OUTPUT ('DMTest::CVec','StoreGateSvc+cvec.dInt1')
-    o OUTPUT ('SG::AuxElement','StoreGateSvc+cinfo.dInt1')
+    o INPUT   ( 'DMTest::C' , 'StoreGateSvc+cinfo' ) 
+    o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+ctrig' ) 
+    o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
+    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
+    o OUTPUT  ( 'DMTest::C' , 'StoreGateSvc+cinfo.dInt1' ) 
+    o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+ctrig.dInt1' ) 
+    o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' ) 
+    o OUTPUT  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo.dInt1' ) 
   xAODTestReadDecor
-    o INPUT  ('DMTest::C','StoreGateSvc+cinfo.dInt1')
-    o INPUT  ('DMTest::CVec','StoreGateSvc+cvec.dInt1')
+    o INPUT   ( 'DMTest::C' , 'StoreGateSvc+cinfo.dInt1' ) 
+    o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' ) 
   EndIncFiringAlg
       none
   IncidentProcAlg2
       none
 AvalancheSchedulerSvc                              INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
-   o ('EventInfo','StoreGateSvc+McEventInfo')    required by Algorithm: 
+   o  ( 'EventInfo' , 'StoreGateSvc+McEventInfo' )     required by Algorithm: 
        * xAODTestWrite
        * xAODTestWriteCInfo
        * xAODTestDecor
@@ -92,9 +92,9 @@ AthenaHiveEventLoopMgr                             INFO Setup EventSelector serv
 ApplicationMgr                                     INFO Application Manager Initialized successfully
 ApplicationMgr                                     INFO Application Manager Started successfully
 AthenaHiveEventLoopMgr                             INFO Starting loop on events
-ClassIDSvc                                         INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
-EventPersistencySvc                                INFO Added successfully Conversion service:McCnvSvc
+EventPersistencySvc                     0   0      INFO Added successfully Conversion service:McCnvSvc
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
 xAODTestReadDecor                       0   0      INFO cvec.dInt1: 401 402 403 404 405 406 407 408 409 410
 xAODTestReadDecor                       0   0      INFO cinfo.dInt1: 3000
@@ -175,7 +175,7 @@ AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processi
 xAODTestReadDecor                       19  0      INFO cvec.dInt1: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
 xAODTestReadDecor                       19  0      INFO cinfo.dInt1: 60000
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.303719
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.333871
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...
