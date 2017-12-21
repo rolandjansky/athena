@@ -77,7 +77,7 @@ class Config:
     excludedSites = ''
     forceSite = ''
     noSubmit = False
-    CMake    = False # False by default - need to set to True for CMake-based releases (release 21)
+    CMake    = (os.getenv('ROOTCORE_RELEASE_SERIES')=='25') # Using info from ROOTCORE_RELEASE_SERIES environment variable by default - need to set to True for CMake-based releases (release 21)
     mergeType = 'Default' #None, Default, xAOD 
     destSE = ''
     memory = '2000' #in MB
