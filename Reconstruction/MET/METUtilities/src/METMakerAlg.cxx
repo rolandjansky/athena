@@ -12,7 +12,7 @@
 #include "xAODMissingET/MissingETAssociationMap.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "PATCore/AcceptData.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
@@ -303,6 +303,6 @@ namespace met {
   }
 
   bool METMakerAlg::accept(const xAOD::TauJet* tau)
-  { return m_tauSelTool->accept( *tau ); }
+  { return (tau->pt()>20e3);} //m_tauSelTool->accept( *tau ); }
 
 }

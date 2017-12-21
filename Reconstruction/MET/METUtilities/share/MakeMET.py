@@ -18,12 +18,9 @@ if nThreads>=1:
 	AlgScheduler.OutputLevel( INFO )
 	AlgScheduler.ShowControlFlow( True )
 	AlgScheduler.ShowDataDependencies( True )
-	AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
-
-	
+	AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )	
 	from SGComps.SGCompsConf import SGInputLoader
 	topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
-	
 
 from glob import glob
 filelist = ["DAOD_JETM2.test.TruthAssoc.pool.root"]
