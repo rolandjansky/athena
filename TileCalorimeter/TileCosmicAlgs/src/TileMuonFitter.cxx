@@ -31,30 +31,29 @@
  *    
  *   
  ********************************************************************/
-// External includes
-#include "Minuit2/MnMigrad.h"
-#include "Minuit2/MnUserParameterState.h"
-#include "Minuit2/FunctionMinimum.h"
+// Tile includes
+#include "TileCosmicAlgs/TileMuonFitter.h"
+#include "TileIdentifier/TileHWID.h"
+#include "TileDetDescr/TileDetDescrManager.h"
+#include "TileEvent/TileCosmicMuon.h"
+
+// Calo includes
+#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloIdentifier/CaloID.h"
+
+// Athena includes
+#include "EventContainers/SelectAllObject.h" 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "Identifier/HWIdentifier.h"
 
 // Gaudi includes
 #include "GaudiKernel/ISvcLocator.h"
 
-// Athena includes
-#include "EventContainers/SelectAllObject.h" 
-#include "CommissionEvent/ComTime.h"
-
-// Calo includes
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloIdentifier/CaloID.h"
-
-// Tile includes
-#include "Identifier/HWIdentifier.h"
-#include "TileIdentifier/TileHWID.h"
-#include "TileDetDescr/TileDetDescrManager.h"
-#include "TileCosmicAlgs/TileMuonFitter.h"
-#include "TileEvent/TileCosmicMuon.h"
-#include "TileEvent/TileContainer.h"
+// External includes
+#include "Minuit2/MnMigrad.h"
+#include "Minuit2/MnUserParameterState.h"
+#include "Minuit2/FunctionMinimum.h"
 
 // ROOT includes
 #include "CLHEP/Vector/ThreeVector.h"
@@ -93,11 +92,11 @@ CaloCell_ID::SUBCALO TileMuonFitter::m_caloIndex = CaloCell_ID::TILE;
 //
 TileMuonFitter::TileMuonFitter(std::string name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_tileMgr(0)
-  , m_caloCells(0)
-  , m_theTrack(0)
+  , m_tileID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_tileMgr(nullptr)
+  , m_caloCells(nullptr)
+  , m_theTrack(nullptr)
   , m_nCells(0)
   , m_meanX(0.0)
   , m_meanY(0.0)
@@ -109,21 +108,13 @@ TileMuonFitter::TileMuonFitter(std::string name, ISvcLocator* pSvcLocator)
   , m_maxTopIndex(0)
   , m_reg1to2(false)
 {
-  declareProperty("CaloCellContainer", m_cellContainer = "AllCalo");
   declareProperty("DoHoughTransform", m_doHoughTransform = true);
-  if (m_doHoughTransform) {
-    m_tileCosmicMuonKey = "TileCosmicMuonHT";
-  } else {
-    m_tileCosmicMuonKey = "TileCosmicMuonMF";
-  }
-  declareProperty("TileCosmicMuonKey", m_tileCosmicMuonKey);
   declareProperty("EThreshold", m_eThreshold = 250.);
   declareProperty("DeltaTimeCut", m_deltaTimeCut = 6.);
   declareProperty("MinimumCells", m_minimumCells = 2);
   declareProperty("DoWeighted", m_doWeighted = true);
   declareProperty("DoDensityWeighting", m_doDensity = true);
   declareProperty("BeamType", m_beamType = "cosmics");
-  declareProperty("ComTimeKey", m_comTimeKey = "ComTimeTileMuon");
 }
 
 // ********************************************************************
@@ -141,6 +132,13 @@ StatusCode TileMuonFitter::initialize() {
   CHECK( detStore()->retrieve(m_tileID) );
   CHECK( detStore()->retrieve(m_tileHWID) );
 
+  if (m_doHoughTransform) {
+    m_cosmicMuonContainerKey = "TileCosmicMuonHT";
+  }
+
+  ATH_CHECK( m_cellContainerKey.initialize() );
+  ATH_CHECK( m_cosmicMuonContainerKey.initialize() );
+  ATH_CHECK( m_comTimeKey.initialize() );
 
   m_cellEnergy.resize(m_tileID->cell_hash_max());
   m_cellWeight.resize(m_tileID->cell_hash_max());
@@ -151,8 +149,8 @@ StatusCode TileMuonFitter::initialize() {
 
   if (m_minimumCells < 2) m_minimumCells = 2;
 
-  ATH_MSG_INFO( "Loading:   " << m_cellContainer );
-  ATH_MSG_INFO( "Recording: " << m_tileCosmicMuonKey << " and " << m_comTimeKey );
+  ATH_MSG_INFO( "Loading:   " << m_cellContainerKey.key() );
+  ATH_MSG_INFO( "Recording: " << m_cosmicMuonContainerKey.key() << " and " << m_comTimeKey.key() );
   ATH_MSG_INFO( "Cell Energy Threshold: " << m_eThreshold << " (MeV)" );
   ATH_MSG_INFO( "Delta Time Cell Cut: " << m_deltaTimeCut << " (ns)" );
   ATH_MSG_INFO( "Minimum Number of cells for fit: " << m_minimumCells );
@@ -257,14 +255,17 @@ StatusCode TileMuonFitter::execute() {
   int fitStatus = 2; //not even try
   setEventDefaults();
 
-  if (evtStore()->retrieve(m_caloCells, m_cellContainer).isFailure()) {
-    ATH_MSG_WARNING( " Could not find container " << m_cellContainer );
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerKey);
+  if (!cellContainer.isValid()) {
+    ATH_MSG_WARNING( " Could not find container " << m_cellContainerKey.key() );
   } else {
-    ATH_MSG_DEBUG( "Container " << m_cellContainer << " with CaloCells found " );
+    ATH_MSG_DEBUG( "Container " << m_cellContainerKey.key() << " with CaloCells found " );
+
+    m_caloCells = cellContainer.cptr();
 
     // check on number of tile cells
     if (m_caloCells->nCellsCalo(m_caloIndex) == 0) {
-      ATH_MSG_DEBUG( "no TileCells in CellContainer " << m_cellContainer << "> for this event!" );
+      ATH_MSG_DEBUG( "no TileCells in CellContainer " << m_cellContainerKey.key() << "> for this event!" );
     } else {
       buildCells();
     }
@@ -685,7 +686,11 @@ void TileMuonFitter::buildTileCosmicMuonAtYequal0(int fitok) {
   //
   // Then put the result in a ComTime object
 
-  TileCosmicMuonContainer* tcmContainer = new TileCosmicMuonContainer;
+  SG::WriteHandle<TileCosmicMuonContainer> cosmicMuonContainer (m_cosmicMuonContainerKey);
+  StatusCode sc = cosmicMuonContainer.record(std::make_unique<TileCosmicMuonContainer>());
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL( "Cannot record TileCosmicMuonContainer" << cosmicMuonContainer.key() );
+  }
 
   for (unsigned int n = 0; n < m_linePar.size(); n++) {
     double p0 = m_linePar[n][0];
@@ -699,8 +704,7 @@ void TileMuonFitter::buildTileCosmicMuonAtYequal0(int fitok) {
     TileCosmicMuon *theTileCosmicMuon = new TileCosmicMuon();
 
     if (!(fitok == 1) || p1 == 0.0) {
-      tcmContainer->push_back(theTileCosmicMuon);
-      //sc = m_storeGate->record(theTileCosmicMuon, m_tileCosmicMuonKey);
+      cosmicMuonContainer->push_back(theTileCosmicMuon);
     } else {
       Hep3Vector theDirection(1.0, p1, p3);
       theDirection = theDirection.unit();
@@ -734,14 +738,9 @@ void TileMuonFitter::buildTileCosmicMuonAtYequal0(int fitok) {
       theTileCosmicMuon->SetEnergyBottom(ebot);
       theTileCosmicMuon->SetTrackCellHash(cells);
 
-      tcmContainer->push_back(theTileCosmicMuon);
-      //sc = m_storeGate->record(theTileCosmicMuon, m_tileCosmicMuonKey);
+      cosmicMuonContainer->push_back(theTileCosmicMuon);
     }
 
-  }
-
-  if (evtStore()->record(tcmContainer, m_tileCosmicMuonKey).isFailure()) {
-    ATH_MSG_FATAL( "Cannot record TileCosmicMuonContainer" );
   }
 
   if (fitok != 2) delete m_theTrack;
@@ -760,7 +759,11 @@ void TileMuonFitter::buildTileCosmicMuonAtZequal0(int fitok) {
   //
   // Then put the result in a ComTime object
 
-  TileCosmicMuonContainer* tcmContainer = new TileCosmicMuonContainer;
+  SG::WriteHandle<TileCosmicMuonContainer> cosmicMuonContainer (m_cosmicMuonContainerKey);
+  StatusCode sc = cosmicMuonContainer.record(std::make_unique<TileCosmicMuonContainer>());
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL( "Cannot record TileCosmicMuonContainer" << cosmicMuonContainer.key() );
+  }
 
   for (unsigned int n = 0; n < m_linePar.size(); n++) {
     double p0 = m_linePar[n][0];
@@ -774,8 +777,7 @@ void TileMuonFitter::buildTileCosmicMuonAtZequal0(int fitok) {
     TileCosmicMuon *theTileCosmicMuon = new TileCosmicMuon();
 
     if (!(fitok == 1) || p3 == 0.0) {
-      tcmContainer->push_back(theTileCosmicMuon);
-      //sc = m_storeGate->record(theTileCosmicMuon, m_tileCosmicMuonKey);
+      cosmicMuonContainer->push_back(theTileCosmicMuon);
     } else {
       Hep3Vector theDirection(1.0, p1, p3);
       theDirection = theDirection.unit();
@@ -809,14 +811,9 @@ void TileMuonFitter::buildTileCosmicMuonAtZequal0(int fitok) {
       theTileCosmicMuon->SetEnergyBottom(ebot);
       theTileCosmicMuon->SetTrackCellHash(cells);
 
-      tcmContainer->push_back(theTileCosmicMuon);
-      //sc = m_storeGate->record(theTileCosmicMuon, m_tileCosmicMuonKey);
+      cosmicMuonContainer->push_back(theTileCosmicMuon);
     }
 
-  }
-
-  if (evtStore()->record(tcmContainer, m_tileCosmicMuonKey).isFailure()) {
-    ATH_MSG_FATAL( "Cannot record TileCosmicMuonContainer" );
   }
 
   if (fitok != 2) delete m_theTrack;
@@ -1476,16 +1473,17 @@ void TileMuonFitter::buildComTimeAtYequal0(int fitok) {
   ATH_MSG_DEBUG( "Starting BuildComTime at y=0 m_linePar: "
                 << p0 << " " << p1 << " " << p2 << " " << p3 );
 
-  ComTime *theComTime;
+  SG::WriteHandle<ComTime> theComTime (m_comTimeKey);
+  StatusCode sc;
   if (!(fitok == 1) || p1 == 0.0) {
-    theComTime = new ComTime();
+    sc = theComTime.record(std::make_unique<ComTime>());
   } else {
     Hep3Vector theZeroCrossingPosition(-1.0 * p0 / p1, 0.0, p2 - 1.0 * p3 * p0 / p1);
     Hep3Vector theDirection(1.0, p1, p3);
     theDirection = theDirection.unit();
     if ((m_reg1to2 && p1 > 0.0) || (!m_reg1to2 && p1 < 0.0)) theDirection *= -1.0;
 
-    theComTime = new ComTime(0.0, ztime, theZeroCrossingPosition, theDirection);
+    sc = theComTime.record(std::make_unique<ComTime>(0.0, ztime, theZeroCrossingPosition, theDirection));
 
     if (msgLvl(MSG::DEBUG)) {
 
@@ -1500,7 +1498,7 @@ void TileMuonFitter::buildComTimeAtYequal0(int fitok) {
     }
   }
 
-  if (evtStore()->record(theComTime, m_comTimeKey).isFailure()) {
+  if (sc.isFailure()) {
     ATH_MSG_FATAL( "Cannot record ComTime" );
   }
 }
@@ -1539,16 +1537,17 @@ void TileMuonFitter::buildComTimeAtZequal0(int fitok) {
   ATH_MSG_DEBUG( "Starting BuildComTime at z=0 m_linePar: "
                 << p0 << " " << p1 << " " << p2 << " " << p3 );
 
-  ComTime* theComTime;
+  SG::WriteHandle<ComTime> theComTime (m_comTimeKey);
+  StatusCode sc;
   if (!(fitok == 1) || p3 == 0.0) {
-    theComTime = new ComTime();
+    sc = theComTime.record(std::make_unique<ComTime>());
   } else {
     Hep3Vector theZeroCrossingPosition(-1.0 * p2 / p3, p0 - 1.0 * p1 * p2 / p3, 0.0);
     Hep3Vector theDirection(1.0, p1, p3);
     theDirection = theDirection.unit();
     if ((m_reg1to2 && p3 > 0.0) || (!m_reg1to2 && p3 < 0.0)) theDirection *= -1.0;
 
-    theComTime = new ComTime(0.0, ztime, theZeroCrossingPosition, theDirection);
+    sc = theComTime.record(std::make_unique<ComTime>(0.0, ztime, theZeroCrossingPosition, theDirection));
 
     if (msgLvl(MSG::DEBUG)) {
 
@@ -1563,7 +1562,7 @@ void TileMuonFitter::buildComTimeAtZequal0(int fitok) {
     }
   }
 
-  if (evtStore()->record(theComTime, m_comTimeKey).isFailure()) {
+  if (sc.isFailure()) {
     ATH_MSG_FATAL( "Cannot record ComTime" );
   }
 }

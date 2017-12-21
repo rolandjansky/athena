@@ -18,34 +18,32 @@
 //
 //*****************************************************************************
 
+//TileCalo include
+#include "TileCosmicAlgs/TileCosmicsTrigger.h"
+#include "TileIdentifier/TileTTL1Hash.h"
+
+// Calo include
+#include "CaloIdentifier/CaloLVL1_ID.h" 
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 //Gaudi includes
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
-// Calo include
-#include "CaloIdentifier/CaloLVL1_ID.h" 
-
-//TileCalo include
-#include "TileEvent/TileTTL1Container.h"  
-#include "TileEvent/TileTriggerContainer.h"  
-#include "TileCosmicAlgs/TileCosmicsTrigger.h"
-#include "TileIdentifier/TileTTL1Hash.h"
-
 const int TileCosmicsTrigger::m_NMaxTowers = NMAXTOWERS;
 
 TileCosmicsTrigger::TileCosmicsTrigger(const std::string name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-  , m_ttl1Container("TileTTL1Cnt")
   , m_TThreshold(5.0)
   , m_NBOARDS(8)
   , m_NDRAWERSPERBOARD(12)
   //, m_NTOWERSPERDRAWER(8)
-  , m_tileTriggerContainer("TileTriggerCnt")
   , m_TT_ID(0)
   , m_TTHash(0)
 {
@@ -180,8 +178,6 @@ TileCosmicsTrigger::TileCosmicsTrigger(const std::string name, ISvcLocator* pSvc
   m_connectedDrawers8[10] = "EBC21";
   m_connectedDrawers8[11] = "EBC22";
 
-  declareProperty("TileTTL1Container", m_ttl1Container);
-  declareProperty("TileTriggerContainer", m_tileTriggerContainer);
   declareProperty("ConnectedDrawers1", m_connectedDrawers1);
   declareProperty("ConnectedDrawers2", m_connectedDrawers2);
   declareProperty("ConnectedDrawers3", m_connectedDrawers3);
@@ -297,6 +293,9 @@ StatusCode TileCosmicsTrigger::initialize() {
     if (m_connectedTowers[i] == 1) nt++;
   }
 
+  ATH_CHECK( m_ttl1ContainerKey.initialize() );
+  ATH_CHECK( m_triggerContainerKey.initialize() );
+
   ATH_MSG_INFO( "Initialization completed, number of towers " << nt );
 
   return StatusCode::SUCCESS;
@@ -309,13 +308,12 @@ StatusCode TileCosmicsTrigger::initialize() {
 StatusCode TileCosmicsTrigger::execute() {
 
   // step1: read TileTTL1s from TDS
-  const TileTTL1Container* TTL1Cnt;
-  CHECK( evtStore()->retrieve(TTL1Cnt, m_ttl1Container) );
+  SG::ReadHandle<TileTTL1Container> ttl1Container;
+  ATH_CHECK( ttl1Container.isValid() );
+  ATH_MSG_DEBUG( "Loaded TileTTL1Container: " <<  ttl1Container.key() );
 
-  ATH_MSG_DEBUG( "loaded TileTTL1Container: " <<  m_ttl1Container );
-
-  TileTriggerContainer* pTileTriggerContainer = new TileTriggerContainer();
-  TileTrigger* pTileTrigger;
+  SG::WriteHandle<TileTriggerContainer> triggerContainer (m_triggerContainerKey);
+  ATH_CHECK( triggerContainer.record(std::make_unique<TileTriggerContainer>()) );
 
   // step2: reset towers 
   for (int i = 0; i < m_NMaxTowers; i++) {
@@ -338,8 +336,8 @@ StatusCode TileCosmicsTrigger::execute() {
   p_backTowerSum.resize(NMAXTOWERS);
 
   // step3: check which towers fired the discriminator
-  TileTTL1Container::const_iterator it = TTL1Cnt->begin();
-  TileTTL1Container::const_iterator end = TTL1Cnt->end();
+  TileTTL1Container::const_iterator it = ttl1Container->begin();
+  TileTTL1Container::const_iterator end = ttl1Container->end();
 
   for (; it != end; ++it) {
     const TileTTL1 * cinp = (*it);
@@ -414,14 +412,12 @@ StatusCode TileCosmicsTrigger::execute() {
 
   p_backTowerID.resize(nbacktowers);
   p_backTowerSum.resize(nbacktowers);
-  pTileTrigger = new TileTrigger(p_maxTowerID, p_maxTowerSum, p_boardTowerID, p_boardTowerSum, p_backTowerID, p_backTowerSum);
 
-  pTileTriggerContainer->push_back(pTileTrigger);
+  triggerContainer->push_back(std::make_unique<TileTrigger>(p_maxTowerID, p_maxTowerSum,
+                                                            p_boardTowerID, p_boardTowerSum,
+                                                            p_backTowerID, p_backTowerSum));
 
-  // step8: register the TileTrigger container in the TES
-  CHECK( evtStore()->record(pTileTriggerContainer, m_tileTriggerContainer, false) );
-  ATH_MSG_DEBUG( "TileTriggerContainer registered successfully (" << m_tileTriggerContainer << ")" );
-
+  ATH_MSG_DEBUG( "TileTriggerContainer registered successfully (" << triggerContainer.key() << ")" );
   // Execution completed.
   ATH_MSG_DEBUG( "execute() completed successfully" );
 
