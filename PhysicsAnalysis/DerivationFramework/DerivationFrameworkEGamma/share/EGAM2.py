@@ -11,12 +11,22 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.EGAM2ExtraContent import *
 
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
+
 #====================================================================
-# SKIMMING TOOLS
+# SET UP STREAM (to be done early in the game to set up thinning Svc
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EGAM2Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM2Stream )
+EGAM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+
+
+#====================================================================
+# SET UP SKIMMING
 #====================================================================
 
 # SELECTION FOR CALIBRATION
@@ -132,7 +142,7 @@ print "EGAM2 skimming tool:", EGAM2_SkimmingTool
 
 
 #====================================================================
-# DECORATION TOOLS
+# SET UP AUGMENTATIONS
 #====================================================================
 
 
@@ -147,11 +157,17 @@ cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM2_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
-#================
-# THINNING TOOLS
-#================
+#====================================================================
+# SET UP THINNING
+#====================================================================
+
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EGAM2ThinningHelper = ThinningHelper( "EGAM2ThinningHelper" )
+EGAM2ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
+EGAM2ThinningHelper.AppendToStream( EGAM2Stream, ExtraContainersTrigger )
+
+
 thinningTools=[]
-# TO BE ADDED
 
 
 #=======================================
@@ -167,9 +183,9 @@ DerivationFrameworkJob += egam2Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 egam2Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
                                                          AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_GainDecoratorTool] + EGAM2_ClusterEnergyPerLayerDecorators,
-                                                         SkimmingTools = [EGAM2_SkimmingTool]
+                                                         SkimmingTools = [EGAM2_SkimmingTool],
+                                                         ThinningTools = thinningTools
                                                          )
-
 
 
 #====================================================================
@@ -181,11 +197,8 @@ replaceAODReducedJets(reducedJetList,egam2Seq,"EGAM2")
 
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM SELECTION
 #====================================================================
-streamName = derivationFlags.WriteDAOD_EGAM2Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM2Stream )
-EGAM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Only events that pass the filters listed below are written out.
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters
@@ -193,21 +206,13 @@ EGAM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EGAM2Stream.AcceptAlgs(["EGAM2Kernel"])
 
 
-#Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-# from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-# augStream = MSMgr.GetStream( streamName )
-# evtStream = augStream.GetEventStream()
-# svcMgr += createThinningSvc( svcName="EGAM2ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
-# CONTENT LIST  
+# SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM2SlimmingHelper = SlimmingHelper("EGAM2SlimmingHelper")
 
-from DerivationFrameworkEGamma.EGAM2ExtraContent import *
 EGAM2SlimmingHelper.SmartCollections = [
 				        "Electrons",
                                         "Photons",
@@ -227,12 +232,12 @@ EGAM2SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM2SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM2SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM2SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM2SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM2SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM2SlimmingHelper.AllVariables += ExtraContainersTruth
+else:
+    EGAM2SlimmingHelper.ExtraVariables += ExtraContainersTriggerDataOnly
 
 for tool in EGAM2_ClusterEnergyPerLayerDecorators:
     EGAM2SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
