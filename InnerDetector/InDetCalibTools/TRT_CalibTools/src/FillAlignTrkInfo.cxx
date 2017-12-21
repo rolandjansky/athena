@@ -69,10 +69,14 @@ bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
   (*output)[TRT::Track::chiSquare]=aTrack->fitQuality()->chiSquared();
   (*output)[TRT::Track::degreesOfFreedom]=aTrack->fitQuality()->numberDoF();
 
+  // implicit memory allocation in createSummary, need to clean up later 
   const Trk::TrackSummary* summary = m_TrackSummaryTool->createSummary(*aTrack);
   (*output)[TRT::Track::numberOfPixelHits]=summary->get(Trk::numberOfPixelHits) ;
   (*output)[TRT::Track::numberOfSCTHits]=summary->get(Trk::numberOfSCTHits) ;
   (*output)[TRT::Track::numberOfTRTHits]=summary->get(Trk::numberOfTRTHits) ;
+
+  // fix to coverity 118333
+  delete summary;
 
   // All ok
   if (msgLvl(MSG::DEBUG)) msg() << "Track info filled .... " << endmsg;
