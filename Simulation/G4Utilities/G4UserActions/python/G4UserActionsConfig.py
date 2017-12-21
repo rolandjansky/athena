@@ -29,7 +29,7 @@ def getFastMBKillerTool(name="G4UA::FastMBKillerTool", **kwargs):
 
 
 def addFastIDKillerTool(name="G4UA::FastIDKillerTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['Run','Step'],system)
+    G4AtlasServicesConfig.addAction(name, ['General'], system)
 
 
 def getHIPKillerTool(name="G4UA::HIPKillerTool", **kwargs):
@@ -37,7 +37,7 @@ def getHIPKillerTool(name="G4UA::HIPKillerTool", **kwargs):
 
 
 def addHIPKillerTool(name="G4UA::HIPKillerTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['Step'],system)
+    G4AtlasServicesConfig.addAction(name, ['General'], system)
 
 
 def getHIPLArVolumeAcceptTool(name="G4UA::HIPLArVolumeAcceptTool", **kwargs):
@@ -45,7 +45,7 @@ def getHIPLArVolumeAcceptTool(name="G4UA::HIPLArVolumeAcceptTool", **kwargs):
 
 
 def addHIPLArVolumeAcceptTool(name="G4UA::HIPLArVolumeAcceptTool", system=False):
-    G4AtlasServicesConfig.addAction(theTool,['Step','Event'],system)
+    G4AtlasServicesConfig.addAction(theTool, ['General'], system)
 
 
 def getLooperKillerTool(name="G4UA::LooperKillerTool", **kwargs):
@@ -69,7 +69,7 @@ def getMonopoleLooperKillerTool(name="G4UA::MonopoleLooperKillerTool", **kwargs)
 
 
 def addLooperKillerTool(name="G4UA::LooperKillerTool", system=False):
-    G4AtlasServicesConfig.addAction(name,['Step'],system)
+    G4AtlasServicesConfig.addAction(name, ['General'], system)
 
 
 def getMomentumConservationTool(name="G4UA::MomentumConservationTool", **kwargs):
@@ -77,7 +77,7 @@ def getMomentumConservationTool(name="G4UA::MomentumConservationTool", **kwargs)
 
 
 def addMomentumConservationTool(name="G4UA::MomentumConservationTool", system=False):
-    G4AtlasServicesConfig.addAction(name,['Step','Event'],system)
+    G4AtlasServicesConfig.addAction(name, ['General'], system)
 
 
 def getScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", **kwargs):
@@ -85,7 +85,7 @@ def getScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", *
 
 
 def addScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", system=False):
-    G4AtlasServicesConfig.addAction(theTool,['Step','Event'],system)
+    G4AtlasServicesConfig.addAction(theTool, ['General'], system)
 
 
 def getScoringPlaneTool(name="G4UA::ScoringPlaneTool", **kwargs):
