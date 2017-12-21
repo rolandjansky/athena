@@ -69,8 +69,8 @@ StatusCode TestViewDriver::execute( ) {
   //  auto outputClusterContainerAux = std::make_unique< TestClusterAuxContainer>( );
   //  outputClusterContainer->setStore( outputClusterContainerAux.get( ) );
 
-
-  for ( auto& viewCtx: contexts ) {
+  // This won't work because the views are now scheduled, not run immediately
+  /*for ( auto& viewCtx: contexts ) {
     auto handle = SG::makeHandle( m_clustersViewInputHandle, viewCtx );
     if ( not handle.isValid( ) ) {
       ATH_MSG_ERROR( "Can not bind handle to a view context" );
@@ -80,7 +80,7 @@ StatusCode TestViewDriver::execute( ) {
       ATH_MSG_DEBUG( "Cluster of ET " << TestEDM::getClusterEt( cluster ) );
       //outputClusterContainer->push_back(cluster);  // FIXME this is not as simple, we need some trick to do copy
     }
-  }
+  }*/
 
   // for now we are not outputting
   //  {

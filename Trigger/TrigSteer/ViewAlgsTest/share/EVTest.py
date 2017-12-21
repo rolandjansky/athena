@@ -48,12 +48,6 @@ include( "TrigUpgradeTest/HLTCF.py" )
 
 # definition of a hide corner for view algs
 viewAlgsContainer = seqAND( "ViewAlgsContainer" )
-alwaysFail = CfgMgr.AthPrescaler( "alwaysFail" )
-alwaysFail.PercentPass = 0.0
-viewAlgsContainer += alwaysFail
-alwaysPass = CfgMgr.AthPrescaler( "alwaysPass" )
-alwaysPass.PercentPass = 100.0
-TopHLTSeq += parOR( "viewAlgsHide", [alwaysPass, viewAlgsContainer])
 
 
 steps = [ parOR("step0Filtering"), parOR("step1InViewReco") ]
@@ -61,33 +55,19 @@ steps[0] += seqFilter( "Step0EM", Inputs=["L1EM"], Outputs=["step0EM"],
                       Chains=[ x.split(':')[-1].strip() for x in emUnpacker.ThresholdToChainMapping ] ) # all chains
 
 
-
-# this is a piece which is intended to be eliminated hopefully
-from GaudiHive.GaudiHiveConf import AlgResourcePool
-svcMgr += AlgResourcePool( "ViewAlgPool" )
-
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-allViewAlgs = AlgSequence( "allViewAlgs" )
-allViewAlgs += seqFilter( "NoExec" )
-#allViewAlgs += CfgMgr.AthPrescaler( "alwaysFail" )
-#allViewAlgs.alwaysFail.PercentPass = 0.0
-
-
 from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
 viewAlg = SchedulerProxyAlg( "algInView", OutputLevel = DEBUG, RoIsContainer = "InViewRoI", OutputClusterContainer="ViewClusters")
 
-#allViewAlgs += viewAlg
 viewAlgsContainer += viewAlg
-svcMgr.ViewAlgPool.TopAlg += [ viewAlg.getFullName() ]
-#topSequence += allViewAlgs
 
-algs=[]
+algs=[ useExisting( "Step0EM" ) ]
 from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
 EMViewsMaker = TestViewDriver( "EMViewsMaker", OutputLevel = DEBUG, 
                                RoIsContainer = 'L1EMRoIs', RoIsViewOutput="InViewRoI", 
                                ClustersViewInput="ViewClusters", Views="EMClusterViews", 
-                               ViewAlgorithmNames = [ viewAlg.name() ] )
+                               ViewNodeName = viewAlgsContainer.name(), Scheduler = AlgScheduler.getScheduler() )
 algs.append( EMViewsMaker )
+algs.append( viewAlgsContainer )
 
 if 'doMerging' in dir() and  doMerging == True:
     from ViewAlgsTest.ViewAlgsTestConf import TestViewMerger    
@@ -97,7 +77,7 @@ if 'doMerging' in dir() and  doMerging == True:
     algs.append( EMViewsMerger )
 
 
-steps[1] += stepSeq("emViewReco", useExisting( "Step0EM" ), algs ) 
+steps[1] += seqAND("emViewReco", algs )
 
 TopHLTSeq += addSteps( steps )
 
