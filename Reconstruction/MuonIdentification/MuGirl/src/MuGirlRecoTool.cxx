@@ -305,7 +305,8 @@ StatusCode MuGirlRecoTool::MuGirlReco(const InDetCandidateCollection& InDetSeeds
 
         ATH_MSG_DEBUG("CaloExtensionTool: pt_calo_local " << pt_calo_local.x() << ", z=" << pt_calo_local.z());
 
-        CaloParticle* pParticle = new CaloParticle((*ipIt), &tp_id, extrParameters, pt_calo_local.eta(), pt_calo_local.phi());
+        // FIXME: const_cast
+        CaloParticle* pParticle = new CaloParticle(const_cast<MuonCombined::InDetCandidate*>(*ipIt), &tp_id, extrParameters, pt_calo_local.eta(), pt_calo_local.phi());
         m_caloParticles.push_back(pParticle);
     }
     ATH_MSG_DEBUG("CaloExtensionTool: size of CaloParticles " << m_caloParticles.size());
