@@ -24,7 +24,7 @@ namespace InDet {
 				 const Trk::PrepRawData* prd,
 				 const InDetSimDataCollection* simDataMap,
 				 bool pixels
-				 );
+				 ) const;
 
     virtual StatusCode initialize();
     
