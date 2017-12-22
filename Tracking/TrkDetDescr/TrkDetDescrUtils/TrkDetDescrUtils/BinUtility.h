@@ -127,7 +127,7 @@ namespace Trk {
         }
         
         /** Operator++ to make multidimensional BinUtility */
-        BinUtility& operator+= ( const BinUtility& gbu) throw (GaudiException) {
+        BinUtility& operator+= ( const BinUtility& gbu) {
             const std::vector<BinningData>& bData = gbu.binningData(); 
             if (m_binningData.size() + bData.size() > 3) 
                 throw GaudiException("BinUtility does not support dim > 3", "FATAL", StatusCode::FAILURE);
@@ -145,7 +145,7 @@ namespace Trk {
         const std::vector<BinningData>& binningData() const { return m_binningData; }
           
         /** Bin from a 3D vector (already in binning frame) */
-        size_t bin(const Amg::Vector3D& position, size_t ba=0) const throw (GaudiException)
+        size_t bin(const Amg::Vector3D& position, size_t ba=0) const
         {
           if (ba >= m_binningData.size()) 
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
@@ -154,7 +154,7 @@ namespace Trk {
         }
         
         /** Bin from a 3D vector (already in binning frame) */
-        size_t entry(const Amg::Vector3D& position, size_t ba=0) const throw (GaudiException)
+        size_t entry(const Amg::Vector3D& position, size_t ba=0) const
         { if (ba >= m_binningData.size()) 
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
           return m_binningData[ba].entry(position);
@@ -162,21 +162,21 @@ namespace Trk {
         
         
         /** Bin from a 3D vector (already in binning frame) */
-        size_t next(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const throw (GaudiException)
+        size_t next(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const
         { if (ba >= m_binningData.size()) 
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
           return m_binningData[ba].next(position, direction);
         }       
 
         /** Distance estimate to next bin  */
-	    std::pair<size_t,float> distanceToNext(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const throw (GaudiException)
+	    std::pair<size_t,float> distanceToNext(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const
         { if (ba >= m_binningData.size()) 
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
           return m_binningData[ba].distanceToNext(position, direction);
         }       
         
         /** Return the oder direciton for fast interlinking */
-        LayerOrder orderDirection(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const throw (GaudiException)  {
+        LayerOrder orderDirection(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const  {
              if (ba >= m_binningData.size()) 
                     throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
               return m_binningData[ba].orderDirection(position, direction);
@@ -186,7 +186,7 @@ namespace Trk {
             - USE WITH CARE !!
               You need to check if your local position is actually in the binning frame of the BinUtility
         */
-        size_t bin(const Amg::Vector2D& lposition, size_t ba=0) const throw (GaudiException) 
+        size_t bin(const Amg::Vector2D& lposition, size_t ba=0) const 
         {    
             if (ba >= m_binningData.size()) 
                     throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
@@ -229,7 +229,7 @@ namespace Trk {
         }
 
         /** The type/value of the binning */
-        BinningValue binningValue(size_t ba=0) const throw (GaudiException) {
+        BinningValue binningValue(size_t ba=0) const {
             if (ba >= m_binningData.size()) 
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
             return (m_binningData[ba].binvalue);
