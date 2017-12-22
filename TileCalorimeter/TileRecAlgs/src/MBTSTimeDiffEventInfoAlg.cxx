@@ -39,8 +39,10 @@ MBTSTimeDiffEventInfoAlg::MBTSTimeDiffEventInfoAlg(const std::string &name,
 }
 
 StatusCode MBTSTimeDiffEventInfoAlg::initialize() {
-  if (m_minhitsperside == 0)
+  if (m_minhitsperside == 0) {
     m_minhitsperside = 1; //Avoid div-by-zero later
+  }
+
   ATH_MSG_INFO("Initializing. MBTS_Threshold=" << m_mbts_threshold
                << ", MinHitsPerSide=" << m_minhitsperside
                << ",TimeDiffThreshold=" << m_timeDiffThreshold );
@@ -73,8 +75,6 @@ StatusCode MBTSTimeDiffEventInfoAlg::execute() {
 
   SG::ReadHandle<TileCellContainer> mbtsContainer (m_mbtsContainerKey);
   ATH_CHECK( mbtsContainer.isValid() );
-
-  // ATH_MSG_DEBUG( "Mask:" << (int)mask << " Pattern:" << (int)pattern );
 
   for (const TileCell* mbtsCell : *mbtsContainer) {
 
