@@ -389,7 +389,7 @@ MuonDetectorTool::create()
             GeoPhysVol *world=&*theExpt->getPhysVol();
             theFactory.create(world);
             //      log << MSG::INFO << "CREATING MuonDetectorNode; MM=" << &*theMaterialManager<< endmsg;
-        } catch (std::bad_alloc) {
+        } catch (const std::bad_alloc&) {
             msg(MSG::FATAL)<< "Could not create new MuonDetectorNode!" << endmsg;
             return StatusCode::FAILURE; 
         }
