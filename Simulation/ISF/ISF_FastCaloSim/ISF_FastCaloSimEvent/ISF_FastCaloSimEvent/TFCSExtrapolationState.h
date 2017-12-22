@@ -60,6 +60,8 @@ class TFCSExtrapolationState:public TObject {
 
     void set_IDCaloBoundary_AngleEta(double val) {m_IDCaloBoundary_AngleEta=val;};
     void set_IDCaloBoundary_Angle3D(double val) {m_IDCaloBoundary_Angle3D=val;};
+	
+	void Print(Option_t *option="") const;
 
   private:
     bool   m_CaloOK[CaloCell_ID_FCS::MaxSample][3];
@@ -86,5 +88,9 @@ class TFCSExtrapolationState:public TObject {
 
   ClassDef(TFCSExtrapolationState,1)  //TFCSExtrapolationState
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSExtrapolationState+;
+#endif
 
 #endif

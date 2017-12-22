@@ -33,4 +33,8 @@ private:
   ClassDef(TFCSLateralShapeParametrization,1)  //TFCSLateralShapeParametrization
 };
 
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSLateralShapeParametrization+;
+#endif
+
 #endif

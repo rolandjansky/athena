@@ -31,3 +31,8 @@ void TFCSParametrizationBase::Print(Option_t *option) const
   std::cout <<"  eta="<<eta_nominal()<<", range "<<eta_min()<<" < eta < "<<eta_max()<<std::endl;
 }
 
+//=============================================
+//========== ROOT persistency stuff ===========
+//=============================================
+
+//ClassImp(TFCSParametrizationBase)

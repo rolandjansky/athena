@@ -42,4 +42,8 @@ private:
   ClassDef(TFCSParametrization,1)  //TFCSParametrization
 };
 
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSParametrization+;
+#endif
+
 #endif

@@ -19,11 +19,17 @@ class TFCSTruthState:public TLorentzVector {
     int    pdgid() const {return m_pdgid;};
     double Ekin() const {return E()-M();};
     const TLorentzVector& vertex() const {return m_vertex;};
+
+    void Print(Option_t *option="") const;
   private:
     int m_pdgid;
     TLorentzVector m_vertex;
 
   ClassDef(TFCSTruthState,1)  //TFCSTruthState
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSTruthState+;
+#endif
 
 #endif
