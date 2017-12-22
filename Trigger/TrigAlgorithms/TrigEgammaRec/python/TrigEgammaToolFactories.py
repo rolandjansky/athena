@@ -235,13 +235,13 @@ def configureClusterCorrections(swTool):
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
                            postInit=[configureClusterCorrections])
 
-TrigegammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
+TrigEgammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
         name = 'TrigegammaTopoClusterCopier' ,
         InputTopoCollection='TopoCaloClusterMaker_topo_FS',
         OutputTopoCollection='TrigEgammaTopoClusters',
         )
 
-electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
+TrigElecronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
                                            name = 'electronSuperClusterBuilder',
                                            ClusterCorrectionTool=egammaSwTool,
                                            MVACalibTool=TrigEgammaMVACalibTool,
