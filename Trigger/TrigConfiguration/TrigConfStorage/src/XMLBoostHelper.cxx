@@ -21,10 +21,10 @@ TrigConf::readAttribute(const boost::property_tree::ptree& pt, const char* attrn
    try {
       value = pt.get<int>(path);
    }
-   catch(ptree_bad_path) {
+   catch(const ptree_bad_path&) {
       return false;
    }
-   catch(ptree_bad_data e) {
+   catch(const ptree_bad_data& e) {
       cerr << "Attribute '" << attrname << "' is not an int value: " << e.data<string>() << endl;
       throw;
    }
@@ -37,10 +37,10 @@ TrigConf::readAttribute(const boost::property_tree::ptree& pt, const char* attrn
    try {
       value = pt.get<unsigned int>(path);
    }
-   catch(ptree_bad_path) {
+   catch(const ptree_bad_path&) {
       return false;
    }
-   catch(ptree_bad_data e) {
+   catch(const ptree_bad_data& e) {
       cerr << "Attribute '" << attrname << "' is not an int value: " << e.data<string>() << endl;
       throw;
    }
@@ -53,10 +53,10 @@ TrigConf::readAttribute(const boost::property_tree::ptree& pt, const char* attrn
    try {
       value = pt.get<float>(path);
    }
-   catch(ptree_bad_path) { 
+   catch(const ptree_bad_path&) { 
       return false;
    }
-   catch(ptree_bad_data e) {
+   catch(const ptree_bad_data& e) {
       cerr << "Attribute '" << attrname << "' is not a float value: " << e.data<string>() << endl;
       throw;
    }
@@ -69,10 +69,10 @@ TrigConf::readAttribute(const boost::property_tree::ptree& pt, const char* attrn
    try {
       value = pt.get<string>(path);
    }
-   catch(ptree_bad_path) {
+   catch(const ptree_bad_path&) {
       return false;
    }
-   catch(ptree_bad_data e) {
+   catch(const ptree_bad_data& e) {
       cerr << "Attribute '" << attrname << "' is not an string value: " << e.data<string>() << endl;
       throw;
    }
@@ -95,7 +95,7 @@ TrigConf::readAttribute(const boost::property_tree::ptree& pt, const char* attrn
          ( x == "yes" ) ||
          ( x == "YES" );
    }
-   catch(ptree_bad_path) { return false; }
+   catch(const ptree_bad_path&) { return false; }
 
    return true;
 }
