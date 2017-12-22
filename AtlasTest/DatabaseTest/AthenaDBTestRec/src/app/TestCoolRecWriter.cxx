@@ -573,7 +573,7 @@ bool TestCoolRecWriter::setupPool() {
 	      << std::endl;
   }
   m_poolcat->start();
-  m_persistencySvc = pool::IPersistencySvc::create(*m_poolcat).get();
+  m_persistencySvc = pool::IPersistencySvc::create(*m_poolcat).release();
   pool::DatabaseConnectionPolicy policy;
   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);

@@ -209,7 +209,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
       delete *iter;
    }
    m_pers_mut.clear();
-   m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).get()); // Read Service
+   m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).release()); // Read Service
    m_pers_mut.push_back(new CallMutex);
    if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("MultiThreaded", true)) {
       ATH_MSG_FATAL("Failed to enable multithreaded ROOT via PersistencySvc.");
@@ -220,7 +220,7 @@ StatusCode PoolSvc::setupPersistencySvc() {
       ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
       return(StatusCode::FAILURE);
    }
-   m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).get()); // Write Service
+   m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).release()); // Write Service
    m_pers_mut.push_back(new CallMutex);
    pool::DatabaseConnectionPolicy policy;
    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
@@ -334,7 +334,7 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
       }
    }
    const unsigned int id = m_persistencySvcVec.size();
-   m_persistencySvcVec.push_back( pool::IPersistencySvc::create(*m_catalog).get() );
+   m_persistencySvcVec.push_back( pool::IPersistencySvc::create(*m_catalog).release() );
    m_pers_mut.push_back(new CallMutex);
    if (!connect(pool::ITransaction::READ).isSuccess()) {
       ATH_MSG_ERROR("Failed to connect Input PersistencySvc.");
