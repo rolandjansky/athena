@@ -53,22 +53,106 @@ public:
   virtual StatusCode bookHistograms();
   virtual StatusCode procHistograms();
 
-private:
-  bool fillVertexInformation() const;
-  const xAOD::Vertex* findAssociatedVertexTP(const xAOD::TrackParticle *) const;
+  void InitializeHistograms();
+
+  void RegisterHisto(MonGroup& mon, TH1* histo);
+  //void RegisterHisto(MonGroup& mon, TH1F_LW* histo);
+  void RegisterHisto(MonGroup& mon, TH2* histo);
+  void RegisterHisto(MonGroup& mon, TProfile* histo);
+  void RegisterHisto(MonGroup& mon, TProfile2D* histo);
+
+ protected:
+
+	/////////////////////////////////////////////////
+    	///////Declare histo's 400MeV until 600MeV///////
+    	/////////////////////////////////////////////////
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative;
+ 
+	/////////////////////////////////////////////////
+    	////////Declare histo's 600MeV until 1GeV////////
+    	/////////////////////////////////////////////////
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative;
   
-  mutable std::map<const xAOD::TrackParticle*, const xAOD::Vertex* > m_trackVertexMapTP;
+	/////////////////////////////////////////////////
+    	/////////Declare histo's 1GeV until 2GeV/////////
+    	/////////////////////////////////////////////////
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative;
+  
+	/////////////////////////////////////////////////
+    	/////////Declare histo's 2GeV until 5GeV/////////
+    	/////////////////////////////////////////////////
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative;
+  
+	/////////////////////////////////////////////////
+    	////////Declare histo's 5GeV until 10GeV/////////
+    	/////////////////////////////////////////////////
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative;
+  
+	TH2F* m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative;
+  
+	/////////////////////////////////////////////////
+    	/////////Declare histo's larger than 10GeV///////
+    	/////////////////////////////////////////////////
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive;
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_phi_10GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_phi_10GeV_negative;
+
+	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_positive;
+  	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_negative;
+
+private:
+
+  //const AtlasDetectorID*                m_idHelper;
+  //const PixelID*                        m_pixelID;
+  //const SCT_ID*                         m_sctID; 
+  //const TRT_ID*                         m_trtID; 
 
   int m_checkrate;
   int m_events; 
+  int m_histosBooked;
   std::string m_tracksName;
   std::string m_triggerChainName;
   std::string m_VxPrimContainerName;
   ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
   const xAOD::VertexContainer* m_vertices;
-  std::string m_TreeFolder;
-  TTree* m_Tree;
-  std::string m_TreeName;
+  //std::string m_TreeFolder;
+  //TTree* m_Tree;
+  //std::string m_TreeName;
 
   mutable unsigned int            m_runNumber;
   mutable unsigned int            m_evtNumber;
@@ -85,12 +169,6 @@ private:
   double m_vertex_x;
   double m_vertex_y;
   double m_vertex_z;
-
-  //Daiki stuf
-  double bsXerror;
-  double bsYerror;
-  double bsXYerror;
-  double bsZerror;
 	
   ToolHandle< InDetAlignMon::TrackSelectionTool > m_trackSelection; 
 };

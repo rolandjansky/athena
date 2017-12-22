@@ -11,7 +11,9 @@
 #include <math.h>
 #include "TH1.h"
 #include "TH2.h"
+#include "TF1.h"
 #include "TProfile.h"
+#include "TProfile2D.h"
 #include "TMath.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -54,44 +56,123 @@
 IDAlignMonPVBiases::IDAlignMonPVBiases( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
   m_events(0),
+  m_histosBooked(0),
   m_tracksName("ExtendedTracks"),
   m_triggerChainName("NoTriggerSelection"),
   m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
-  m_vertices(0),
-  m_TreeFolder("/PVbiases/PVbiases"),
-  m_Tree(0),
-  m_TreeName("PVbiases")
+  m_vertices(0)
+  //m_TreeFolder("/PVbiases/PVbiases"),
+  //m_Tree(0),
+  //m_TreeName("PVbiases")
 {
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
+
+  InitializeHistograms();
 
   declareProperty("tracksName"           , m_tracksName);
   declareProperty("CheckRate"            , m_checkrate=1000);
   declareProperty("triggerChainName"     , m_triggerChainName);
   declareProperty("trackSelection"       , m_trackSelection);
   declareProperty("VxPrimContainerName"  , m_VxPrimContainerName);
-  
+ 
 }
 
 
 IDAlignMonPVBiases::~IDAlignMonPVBiases() { }
 
+void IDAlignMonPVBiases::InitializeHistograms() {
+
+	/////////////////////////////////////////////////
+    	//////Initialize histo's 400MeV until 600MeV/////
+    	/////////////////////////////////////////////////
+    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive = 0;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative = 0;
+
+    	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative 	= 0;
+
+	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative 	= 0;
+ 
+	/////////////////////////////////////////////////
+    	///////Initialize histo's 600MeV until 1GeV//////
+    	/////////////////////////////////////////////////
+	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive = 0;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative = 0;
+
+	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative 	= 0;
+
+	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative 	= 0;
+  
+	/////////////////////////////////////////////////
+    	////////Initialize histo's 1GeV until 2GeV///////
+    	/////////////////////////////////////////////////
+	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive	= 0;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative	= 0;
+
+	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative 	= 0;
+
+	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative 	= 0;
+  
+	/////////////////////////////////////////////////
+    	////////Initialize histo's 2GeV until 5GeV///////
+    	/////////////////////////////////////////////////
+	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= 0;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= 0;
+
+	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative 	= 0;
+
+	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative 	= 0;
+  
+	/////////////////////////////////////////////////
+    	///////Initialize histo's 5GeV until 10GeV///////
+    	/////////////////////////////////////////////////
+	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive = 0;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative = 0;
+
+	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative 	= 0;
+
+	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive 	= 0;
+  	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative 	= 0;
+  
+	/////////////////////////////////////////////////
+    	///////Initialize histo's larger than 10GeV//////
+    	/////////////////////////////////////////////////
+	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= 0;
+    	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= 0;
+
+	m_trkd0_wrtPV_vs_phi_10GeV_positive 		= 0;
+  	m_trkd0_wrtPV_vs_phi_10GeV_negative 		= 0;
+
+	m_trkd0_wrtPV_vs_eta_10GeV_positive 		= 0;
+  	m_trkd0_wrtPV_vs_eta_10GeV_negative 		= 0;
+} 
+
 
 StatusCode IDAlignMonPVBiases::initialize()
 {
   StatusCode sc;
-  m_events=0;  
-   
+  m_events=0; 
+  m_histosBooked=0; 
+
   sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess())
     return StatusCode::SUCCESS;
-
+   
   if ( m_trackSelection.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "BROOS Retrieved tool " << m_trackSelection << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelection << endmsg;
   }
-
+/*
   //create tree and branches
   if(m_Tree == 0) {
 
@@ -126,31 +207,292 @@ StatusCode IDAlignMonPVBiases::initialize()
     delete m_Tree; m_Tree = 0;
     //m_validationMode = false;
   }
+*/
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode IDAlignMonPVBiases::bookHistograms()
 {
+  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+    // book histograms that are only made in the online environment...
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Running in online mode "<<std::endl;
+  }
+  
+  if ( AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
+    // book histograms that are only relevant for cosmics data...
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Running in cosmic mode "<<std::endl;
+  } else {
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Running in collision mode "<<std::endl;
+  }
 
-return StatusCode::SUCCESS;
+  std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/GenericTracks";
+  MonGroup al_mon ( this, outputDirName, run );
+  MonGroup al_mon_ls ( this, outputDirName, lowStat );
+  
+  ITHistSvc* tHistSvc = 0;
+  if (service("THistSvc",tHistSvc).isFailure()){
+    ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !");
+    //m_validationMode = false;
+  }
+
+  //if ( newLowStatFlag() ) {    }
+  //if ( newLumiBlockFlag() ) {    }
+  if ( newRunFlag() ) {  
+
+    	//if user environment specified we don't want to book new histograms at every run boundary
+    	//we instead want one histogram per job
+    	if(m_histosBooked!=0 && AthenaMonManager::environment()==AthenaMonManager::user) return StatusCode::SUCCESS;
+
+    	const int nd0Bins = 10000;
+    	double maxD0 = 5;
+   
+	const int nphiBins = 50;
+	const int nphiBinsMap = 20;
+        double maxPhi = 3.1;
+
+	const int netaBins = 50; 
+	const int netaBinsMap = 20;
+        double maxEta = 2.5; 
+
+ 	/////////////////////////////////////////////////
+    	///Define+register histo's 400MeV until 600MeV///
+    	/////////////////////////////////////////////////
+	//TH3D for maps 
+	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive"	, "d0 vs phi vs eta 400MeV-600MeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative"	, "d0 vs phi vs eta 400MeV-600MeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative);
+
+	//TH2D vs phi
+	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive"		, "d0 vs phi 400MeV-600MeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative"		, "d0 vs phi 400MeV-600MeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative	);
+
+	//TH2D vs eta
+	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_400MeV_600MeV_positive"		, "d0 vs eta 400MeV-600MeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_400MeV_600MeV_negative"		, "d0 vs eta 400MeV-600MeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative	);
+	
+	/////////////////////////////////////////////////
+    	////Define+register histo's 600MeV until 1GeV////
+    	/////////////////////////////////////////////////
+ 	//TH3D for maps 
+	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive"	, "d0 vs phi vs eta 600MeV-1GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative"	, "d0 vs phi vs eta 600MeV-1GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative);
+
+	//TH2D vs phi
+	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_600MeV_1GeV_positive"		, "d0 vs phi 600MeV-1GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_600MeV_1GeV_negative"		, "d0 vs phi 600MeV-1GeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+	
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative	);
+
+	//TH2D vs eta
+	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_600MeV_1GeV_positive"		, "d0 vs eta 600MeV-1GeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_600MeV_1GeV_negative"		, "d0 vs eta 600MeV-1GeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative	);
+	
+	/////////////////////////////////////////////////
+    	/////Define+register histo's 1GeV until 2GeV/////
+    	/////////////////////////////////////////////////
+ 	//TH3D for maps 
+	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive"	, "d0 vs phi vs eta 1GeV-2GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative"	, "d0 vs phi vs eta 1GeV-2GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative);
+
+	//TH2D vs phi
+	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_1GeV_2GeV_positive"		, "d0 vs phi 1GeV-2GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_1GeV_2GeV_negative"		, "d0 vs phi 1GeV-2GeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative	);
+
+    	//TH2D vs eta
+	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_1GeV_2GeV_positive"		, "d0 vs eta 1GeV-2GeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_1GeV_2GeV_negative"		, "d0 vs eta 1GeV-2GeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative	);
+
+	/////////////////////////////////////////////////
+    	/////Define+register histo's 2GeV until 5GeV/////
+    	/////////////////////////////////////////////////
+	//TH3D for maps 
+	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive"	, "d0 vs phi vs eta 2GeV-5GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative"	, "d0 vs phi vs eta 2GeV-5GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative);
+
+	//TH2D vs phi
+	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_2GeV_5GeV_positive"		, "d0 vs phi 2GeV-5GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_2GeV_5GeV_negative"		, "d0 vs phi 2GeV-5GeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative	);
+
+	//TH2D vs eta
+	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_2GeV_5GeV_positive"		, "d0 vs eta 2GeV-5GeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_2GeV_5GeV_negative"		, "d0 vs eta 2GeV-5GeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative	);
+
+	/////////////////////////////////////////////////
+    	/////Define+register histo's 5GeV until 10GeV////
+    	/////////////////////////////////////////////////
+    	//TH3D for maps 
+	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive"	, "d0 vs phi vs eta 5GeV-10GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative"	, "d0 vs phi vs eta 5GeV-10GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative);
+
+	//TH2D vs phi
+	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_5GeV_10GeV_positive"		, "d0 vs phi 5GeV-10GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_5GeV_10GeV_negative"		, "d0 vs phi 5GeV-10GeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative	);
+
+	//TH2D vs eta
+	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_5GeV_10GeV_positive"		, "d0 vs eta 5GeV-10GeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_5GeV_10GeV_negative"		, "d0 vs eta 5GeV-10GeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+	
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative	);
+	
+	/////////////////////////////////////////////////
+    	////Define+register histo's larger than 10GeV////
+    	/////////////////////////////////////////////////
+    	//TH3D for maps 
+	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_10GeV_positive"	, "d0 vs phi vs eta >10GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_10GeV_negative"	, "d0 vs phi vs eta >10GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative);
+
+    	//TH2D vs phi
+	m_trkd0_wrtPV_vs_phi_10GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_10GeV_positive"		, "d0 vs phi >10GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_phi_10GeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_10GeV_negative"		, "d0 vs phi >10GeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_10GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_10GeV_negative	);
+
+	//TH2D vs eta
+	m_trkd0_wrtPV_vs_eta_10GeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_10GeV_positive"		, "d0 vs eta >10GeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+	m_trkd0_wrtPV_vs_eta_10GeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_10GeV_negative"		, "d0 vs eta >10GeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_10GeV_positive	);
+	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_10GeV_negative	);
+	
+/*
+    /////////////////////////////////////////////////
+    //Histo's from IDAMonGenericTracks.cxx///////////
+    /////////////////////////////////////////////////
+      const float m_Pi = 3.14156;
+  
+      m_d0_pt         = new TH2F("d0_pt"       , "d0 vs pt"           , nD0Bins,d0bin,NpTbins,ptBin);
+
+      m_d0_pt = new TProfile("prof", "d0 vs pT;pT (GeV);d0 (mm)", NpTbins, ptBin);
+      m_trk_d0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
+      m_trk_d0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
+      m_trk_d0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
+      m_trk_d0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
+  
+      m_trk_z0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
+      m_trk_z0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
+      m_trk_z0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
+      m_trk_z0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
+
+      RegisterHisto(al_mon, m_d0_pt );
+
+      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta        );
+      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta_barrel );
+      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta_ecc    );
+      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta_eca    );
+      
+      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta        );
+      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta_barrel );
+      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta_ecc    );
+      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta_eca    );
+    */
+	
+
+    m_histosBooked++;
+
+   } 
+    return StatusCode::SUCCESS;
 }
 
-StatusCode IDAlignMonPVBiases::procHistograms()
-{
+/*void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
+  
+  //histo->Sumw2(); this uses a lot of memory and isn't needed!
+  //histo->SetOption("e");
+  StatusCode sc = mon.regHist(histo);
+  if (sc.isFailure() ) {
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1F_LW Histogram:" << endmsg;
+  }
+}*/
 
-  return StatusCode::SUCCESS;
+
+void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TH1* histo) {
+
+  //histo->Sumw2();
+  histo->SetOption("e");
+  StatusCode sc = mon.regHist(histo);
+  if (sc.isFailure() ) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endmsg;
+  }
+}
+
+void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TProfile* histo) {
+
+  StatusCode sc = mon.regHist(histo);
+  if (sc.isFailure() ) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endmsg;
+  }
+
+}
+
+void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TH2* histo) {
+  
+  //histo->Sumw2();
+  StatusCode sc = mon.regHist(histo);
+  if (sc.isFailure() ) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endmsg;
+  }
+}
+
+void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TProfile2D* histo) {
+
+  StatusCode sc = mon.regHist(histo);
+  if (sc.isFailure() ) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile2D Histogram:" << endmsg;
+  }
+
 }
 
 StatusCode IDAlignMonPVBiases::fillHistograms()
 {
   m_events++;
 
- /******************************************************************
- ** Event Information
- *******************************************************************/
-	   bool isMC = false;
-  //get eventinfo
+  /******************************************************************
+  ** Event Information
+  *******************************************************************/
   ATH_MSG_DEBUG("Retrieving event info.");
   const xAOD::EventInfo * eventInfo;
   if (evtStore()->retrieve(eventInfo).isFailure())
@@ -163,276 +505,23 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
     ATH_MSG_DEBUG(" Execute() starting on --> Run: " << m_runNumber << "  event: " << m_evtNumber);
   }
 
+  /******************************************************************
+  ** Retrieve Trackparticles
+  ******************************************************************/
+  const xAOD::TrackParticleContainer* tracks = 0;
+  if( ! evtStore()->retrieve( tracks, "InDetTrackParticles").isSuccess() ){
+	msg(MSG::WARNING) << "Failed to retrieve event info collection. Exiting." << endmsg;
+	return StatusCode::FAILURE;
+  }
 
-	   /// Beam spot error
-	   bsXerror = eventInfo->beamPosSigmaX();
-	   bsYerror = eventInfo->beamPosSigmaY();
-	   bsXYerror = eventInfo->beamPosSigmaXY();
-	   bsZerror = eventInfo->beamPosSigmaZ();
-	   //Info("execute()", "bsXerror: %f, bsYerror: %f, bserror: %f, correlation:%f", bsXerror, bsYerror, bserror, eventInfo->beamPosSigmaXY() );
-	   
-           //COMMENTED OUT BY BROOS
-           //h2beamSpotXY->Fill( eventInfo->beamPosX(), eventInfo->beamPosY());
-	   //h2beamSpotErrorXY->Fill( bsXerror, bsYerror);
-	   //h1beamSpotZ->Fill( eventInfo->beamPosZ() );
+  xAOD::TrackParticleContainer::const_iterator track_itr = tracks->begin();
+  xAOD::TrackParticleContainer::const_iterator track_itrE = tracks->end();
 	
-	   /// check if the event is data or MC	  
-	   //if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-	     // isMC = true;
-	  // }
-	
-	   /// Scale Factor
-/*	   if(isMC){
-	      /// K_PV from Sarah Boutle, 18/5/2015
-	      kPV_d0 = 0.95; // +- 0.03
-	      kPV_z0 = 0.98; // +- 0.02
-	      kPV_z0st = 0.98; // +- 0.02  TEMPORARY!!!
-	   }else{
-	      kPV_d0 = 1.06; // +- 0.03
-	      kPV_z0 = 1.01; // +- 0.02
-	      kPV_z0st = 1.01; // +- 0.02  TEMPORARY!!!
-	   }
-*/	
-	   /// Event weight
-	   /// Overall weight is sigma*efficiency/Nevent, where sigma and filter
-	   /// efficiency are gotten from AMI
-//	   wt = 1.;
-	   //if(isMC){
-	     // const std::vector< float > weights = eventInfo->mcEventWeights();
-	     // if( weights.size() > 0 ) wt = weights[0];
-	   //}
-	
-	   //COMMENTED OUT BY BROOS
-	   /*
-	   /// if data check if event passes GRL & remove detector imperfection
-	   if(!isMC){ // it's data!
-	      //if(m_debug) std::cout << " GRL " << std::endl;
-	      if(!m_grl->passRunLB(*eventInfo)){
-	         return EL::StatusCode::SUCCESS; // go to next event
-	      }
-	      //if(m_debug) std::cout << " Detector imperfection " << std::endl;
-	      if(   (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
-	         || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
-	         || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
-	      {
-	         return EL::StatusCode::SUCCESS; // go to the next event
-	      } // end if event flags check
-	   } // end if not MC
-	   
-	
-	   /// examine the HLT_xe80* chains, see if they passed/failed and their total prescale
-	   if(m_doTrigger){
-	      if(m_debug) std::cout << " Trigger " << std::endl;
-	      bool triggerIsPassed = false;
-	      auto chainGroup = m_trigDecisionTool->getChainGroup( m_triggermenu.c_str() );
-	      std::map<std::string,int> triggerCounts;
-	      for(auto &trig : chainGroup->getListOfTriggers()) {
-	         auto cg = m_trigDecisionTool->getChainGroup(trig);
-	         std::string thisTrig = trig;
-	         triggerIsPassed = cg->isPassed();
-	         //Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
-	      } // end for loop (c++11 style) over chain group matching "HLT_xe80*"
-	      if(!triggerIsPassed){
-	         return EL::StatusCode::SUCCESS; // go to the next event
-	      }
-	      if(m_debug) std::cout << " Finish Trigger " << std::endl;
-	   }
-	  
-
-	   //// Fill the pile up
-	   h1ActPileUp->Fill(eventInfo->actualInteractionsPerCrossing(), wt);
-	   h1AvePileUp->Fill(eventInfo->averageInteractionsPerCrossing(), wt);
-	   h1DiffPileUp->Fill(eventInfo->actualInteractionsPerCrossing() -
-	                      eventInfo->averageInteractionsPerCrossing(), wt);
-           */           
-	
-
-	   /******************************************************************
-	    * Vertex Loop
-	    ******************************************************************/
-	   /*
-	   if(m_debug) std::cout << "Vertex loop" << std::endl;
-	   const xAOD::VertexContainer* vertices = 0;	 
-           if( ! m_event->retrieve( vertices, "PrimaryVertices").isSuccess() ){
-	      Error("execute()", "Failed to retrieve event info collection. Exiting." );
-	      return EL::StatusCode::FAILURE;
-	   }
-	   xAOD::VertexContainer::const_iterator vertex_itr = vertices->begin();
-	   xAOD::VertexContainer::const_iterator vertex_itrE = vertices->end();
-	   unsigned int *nvertices = new unsigned int(0);
-	   bool *hasMT10traks = new bool(false);
-	   for (; vertex_itr!=vertex_itrE; ++vertex_itr) {
-	           if((*vertex_itr)->vertexType() != 1) continue; // require primary vertex
-	      int nTracksPerVtx = (*vertex_itr)->nTrackParticles();
-	      if(nTracksPerVtx >= 10) (*hasMT10traks)=true;
-	      if(nTracksPerVtx > 4) (*nvertices)++;
-	      h1PrimVtxX->Fill( (*vertex_itr)->x() );
-	   }
-	   /// additional cut for primary vertex to reduce the effect of multile interactions
-	   //if( hasMT10traks && (*nvertices) > 1 ){
-	   //   return EL::StatusCode::SUCCESS;
-	   //}
-	   m_eventCounterAfterVtxCut++;
-	
-	   delete nvertices;
-	   delete hasMT10traks;
-	   */
-
-
-	   /******************************************************************
-	    * Track Loop
-	    ******************************************************************/
-	   //const xAOD::TrackParticleContainer* tracks = 0;
-	   //if( ! evtStore()->retrieve( tracks, "InDetTrackParticles").isSuccess() ){
-	     //msg(MSG::WARNING) << "Failed to retrieve event info collection. Exiting." << endreq;
-	      //return StatusCode::FAILURE;
-	   //}
-	   const xAOD::TrackParticleContainer* tracks = evtStore()->retrieve< const xAOD::TrackParticleContainer >("InDetTrackParticles");
-
-	   xAOD::TrackParticleContainer::const_iterator track_itr = tracks->begin();
-	   xAOD::TrackParticleContainer::const_iterator track_itrE = tracks->end();
-	
-	   /// Track Loop
-	   for (; track_itr!=track_itrE; ++track_itr) {
+  /******************************************************************
+  ** Trackparticle Loop
+  *******************************************************************/
+  for (; track_itr!=track_itrE; ++track_itr) {
            
-/*           uint8_t nhitsOfPixel = 0;
-           uint8_t ndeadOfPixel = 0;
-           uint8_t nhitsOfSCT = 0;
-           uint8_t ndeadOfSCT = 0;
-           uint8_t nSharedHitsOfPixel = 0;
-           uint8_t nSharedHitsOfSCT = 0;
-           uint8_t nholesOfPixel = 0;
-           uint8_t nholesOfSCT = 0;
- 
-           if( !(*track_itr)->summaryValue(nhitsOfPixel, xAOD::numberOfPixelHits)) continue;
-           if( !(*track_itr)->summaryValue(ndeadOfPixel, xAOD::numberOfPixelDeadSensors)) continue;
-           if( !(*track_itr)->summaryValue(nhitsOfSCT, xAOD::numberOfSCTHits)) continue;
-           if( !(*track_itr)->summaryValue(ndeadOfSCT, xAOD::numberOfSCTDeadSensors)) continue;
-           if( !(*track_itr)->summaryValue(nSharedHitsOfPixel, xAOD::numberOfPixelSharedHits)) continue;
-           if( !(*track_itr)->summaryValue(nSharedHitsOfSCT, xAOD::numberOfSCTSharedHits)) continue;
-           if( !(*track_itr)->summaryValue(nholesOfPixel, xAOD::numberOfPixelHoles)) continue;
-           if( !(*track_itr)->summaryValue(nholesOfSCT, xAOD::numberOfSCTHoles)) continue;
-         
-                  // To avoid crash for 20.7
-	      if( (*track_itr)->pt() < 300. || isinf((*track_itr)->pt()) || isnan((*track_itr)->pt()) || (*track_itr)->pt() > 1000000. ) continue;
-           
-
-   if(   !(fabs( (*track_itr)->eta()  ) < 2.5) &&
-         !((nhitsOfPixel + ndeadOfPixel + nhitsOfSCT + ndeadOfSCT) >= 7) &&
-         !((nSharedHitsOfPixel + (0.5*nSharedHitsOfSCT)) <= 1) && 
-         !((nholesOfPixel + nholesOfSCT) <= 2) &&
-         !(nholesOfPixel <= 1)) { 
-              continue;
-      }	  
-	      //bool trkSelection[nCuts] = {false};
-	        int dummy = nholesOfPixel;
-                msg(MSG::INFO) << "Number of pixel hits:" << dummy << endreq;
-*/
-
-		      //ElementLink< xAOD::VertexContainer> vtxLink = trktovxtool->getUniqueMatchVertexLink( (**track_itr), (*vertices) );
-	      //if(!vtxLink.isValid() ) continue;
-	      //priVtx = (*vtxLink);
-	
-           //if(priVtx->vertexType() != 1) continue;
-
-
-		
- 	
-	      /// retrieve truth particle and vertex
-	      /*const xAOD::TruthParticle * truthTrk = 0;
-	      if(isMC){
-	         typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-	         static const char* NAME = "truthParticleLink";
-	         if(!  (*track_itr)->isAvailable< Link_t > ( NAME ) ){
-	           // Info("execute()", "truthParticleLink is not available" );
-	         }
-	         const Link_t& link = (*track_itr)->auxdata< Link_t > (NAME);
-	         if(!link.isValid() ) continue;
-	         truthTrk = (*link);
-	         /// Cut of truthMatchProbability
-	         h1TruthMatchProb->Fill( (*track_itr)->auxdata<float>("truthMatchProbability") );
-	         if( (*track_itr)->auxdata<float>("truthMatchProbability") < 0.8 ) continue;
-	      }*/
-	
-	           /// retrieve track information
-	           ///if( !(*track_itr)->summaryValue(nhitsOfPixel, xAOD::numberOfBLayerHits)) continue;
-	           //if( !(*track_itr)->summaryValue(nhitsOfPixel, xAOD::numberOfInnermostPixelLayerHits)) continue;
-	           //if( !(*track_itr)->summaryValue(nhitsOfPixel, xAOD::numberOfPixelHits)) continue;
-	           //if( !(*track_itr)->summaryValue(nhitsOfSCT, xAOD::numberOfSCTHits)) continue;
-	
-	
-	           /// Definition of parameters
-	      //if(m_debug) std::cout << "[TrackParticle loop] retrieve the parameters" << std::endl;
-	           //retrieveTrackPars( (*track_itr) /*, priVtx */ );
-	           //if(isMC){
-	         //retrieveTruthPars( truthTrk /*, priVtx*/ );
-	     // }
-	  //    m_d0 = (*track_itr)->d0();
-	    //  m_z0 = (*track_itr)->z0();
-	      //m_z0SinTheta = z0 * TMath::Sin( theta );
-	      //bserror = xAODAnalysis::d0UncertaintyBeamSpot2(phi, bsXerror, bsYerror, bsXYerror);
-	      //bserror = TMath::Hypot(bsXerror*TMath::Sin(phi), bsYerror*TMath::Cos(phi));
-	
-	      //std::cout << (*track_itr)->pt() << std::endl;
-	
-	
-	      ////// additional cut
-	      ///if( ntracks < 10 ) continue;
-	      ///if( (*track_itr)->auxdata<float>("truthMatchProbability") < 0.8 ) continue;
-	      ///if( truthDr > 0.1) continue;
-	      ///if( fabs(truthPt - pt) > 5. ) continue;
-	      ///if( fabs(truthD0) > 1.0 ) continue;
-	    /*  if(!doTruthOnly){
-	         if( fabs(d0Unbias) > 100.0 ||
-	             fabs(z0Unbias) > 100.0 ||
-	             fabs(z0stUnbias) > 100.0 ) continue;
-	      }*/
-	
-	           ////// Track Selection
-	      ///if(m_debug) std::cout << "[TrackParticle loop] Track Selection" << std::endl;
-	           //////TrackQualityCut( trkSelection );
-	
-	           ////// Track Selection Loop
-	           //for(int isel=0; isel<nCuts; isel++){
-	
-	              //if(trkSelection[isel] == false) continue;
-	         //if( isel > 0 && !selTool[isel-1]->accept((*track_itr)) ) continue;
-	         //m_trackCounter[isel]++;
-	
-	         /// Track Weight for MC sample
-	         //float trkwt = 1.;
-	         /*if(isMC && m_doReweight){
-	            trkwt = readZVTXweight( isel );
-	            trkwt = trkwt * readPTETAweight( isel );
-	            //Info("execute()", "zwt = %f, ptetawt = %f, total = %f", readZVTXweight( isel ), readPTETAweight( isel ), trkwt);
-	         }else{
-	            trkwt = 1.;
-	         }*/
-	
-	        /* if(!doTruthOnly){
-	            unfoldD0Unbias = d0Unbias * UnfoldFactor(kPV_d0, 1.0, pvd0sigmaUnbias, d0sigmaUnbias);
-	            unfoldZ0Unbias = z0Unbias * UnfoldFactor(kPV_z0, 1.0, pvz0sigmaUnbias, z0sigmaUnbias);
-	            unfoldZ0stUnbias = z0stUnbias * UnfoldFactor(kPV_z0st, 1.0, pvz0stsigmaUnbias, z0stsigmaUnbias);
-	            unfoldD0UnbiasError = TMath::Hypot(d0sigmaUnbias, pvd0sigmaUnbias) * UnfoldFactor(kPV_d0, 1.0, pvd0sigmaUnbias, d0sigmaUnbias);
-	            unfoldZ0UnbiasError = TMath::Hypot(z0sigmaUnbias, pvz0sigmaUnbias) * UnfoldFactor(kPV_z0, 1.0, pvz0sigmaUnbias, z0sigmaUnbias);
-	         }
-	
-	         /// Fill histograms
-	         if(m_debug) std::cout << "[TrackParticle loop] Filling parameters" << std::endl;
-	              fillTrackPars( isel, trkwt );
-	              if(isMC){
-	            fillTruthPars( isel, trkwt );
-	         }
-	
-	         /// Categorization by pT and theta
-	         if(m_debug) std::cout << "[TrackParticle loop] Filling parameters by categorization" << std::endl;
-	         fillCategorizedMatrices( isel, trkwt );
-	          */
-    
-
-	// lumi block check REMOVE THIS
-	//if(m_lumi_block != 345) continue;
-    
        	// require having vertex
 	if(!(*track_itr)->vertex()) continue;
         // require associated with primary vertex
@@ -446,8 +535,10 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
         // require d0_pv to be smaller than 4
         if(myIPandSigma->IPd0 > 4.0) continue;
         if(myIPandSigma->IPd0 < -4.0) continue;
-
-        // store in ntuple 
+        
+	/******************************************************************
+  	** Fill TTree
+  	*******************************************************************/
 	m_d0=myIPandSigma->IPd0;
         m_z0=myIPandSigma->IPz0;
         m_z0_err = myIPandSigma->sigmaz0;
@@ -461,12 +552,200 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
         m_vertex_y = (*track_itr)->vertex()->y();
         m_vertex_z = (*track_itr)->vertex()->z();
   
-	m_Tree->Fill();
+	//m_Tree->Fill();
 
+ 	/******************************************************************
+  	** Fill Histograms
+  	*******************************************************************/
+        double pt = (*track_itr)->pt()*0.001;
+	
+	if(pt>0.4&&pt<0.6) {
+		//Fill TH3D for positive and negative vs phi vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
 
-	      } // End of track selection loop
+		//Fill TH2D for positive and negative vs phi
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive->Fill(m_phi,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive->Fill(m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+	}
+
+      	if(pt>0.6&&pt<1) {
+		//Fill TH3D for positive and negative vs phi vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs phi
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_eta_600MeV_1GeV_positive->Fill(m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_600MeV_1GeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+	}
+
+      	if(pt>1&&pt<2) {
+		//Fill TH3D for positive and negative vs phi vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs phi
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+	
+		//Fill TH2D for positive and negative vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_eta_1GeV_2GeV_positive->Fill(m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_1GeV_2GeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+	}
+
+      	if(pt>2&&pt<5) {
+		//Fill TH3D for positive and negative vs phi vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs phi
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_eta_2GeV_5GeV_positive->Fill(m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_2GeV_5GeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+	}
+
+      	if(pt>5&&pt<10) {
+		//Fill TH3D for positive and negative vs phi vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs phi
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_eta_5GeV_10GeV_positive->Fill(m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_5GeV_10GeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+	}
+
+      	if(pt>10) {
+		//Fill TH3D for positive and negative vs phi vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs phi
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_10GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_10GeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+
+		//Fill TH2D for positive and negative vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_eta_10GeV_positive->Fill(m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_10GeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+	}
+
+	/******************************************************************
+  	** Divide in barrel, eca, ecc
+  	*******************************************************************/
+    	/*if((*track_itr)->track()) {
+        	
+		int nhpixB=0, nhpixECA=0, nhpixECC=0, nhsctB=0, nhsctECA=0, nhsctECC=0, nhtrtB=0, nhtrtECA=0, nhtrtECC=0;
+    		// loop over all hits on track
+    	
+        	const Trk::Track* track_itr2 = (*track_itr)->track();
+		const DataVector<const Trk::TrackStateOnSurface>* TSOS;
+
+    		TSOS = track_itr2->trackStateOnSurfaces();
+	
+		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = TSOS->begin();
+    		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = TSOS->end();
+
+    		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"starting to loop over TSOS"<<endmsg;
+ 	
+    		for (; TSOSItr != TSOSItrE; ++TSOSItr) {
+	
+      			//check that we have track parameters defined for the surface (pointer is not null)
+      			if(!((*TSOSItr)->trackParameters())) {
+        			if (msgLvl(MSG::DEBUG)) msg() << "hit skipped because no associated track parameters" << endmsg;
+        			continue;
+      			}
+      
+      			Identifier surfaceID;
+      			const Trk::MeasurementBase* mesb=(*TSOSItr)->measurementOnTrack();
+      			if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!=NULL) {
+				surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+			}else{ 
+      				// hits, outliers
+				continue;
+			}
+
+      			if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
+   
+        			// --- pixel
+        			if (m_idHelper->is_pixel(surfaceID)){
+          				if(m_pixelID->barrel_ec(surfaceID)      ==  0){
+            					nhpixB++;
+          				}
+          				else if(m_pixelID->barrel_ec(surfaceID) ==  2)  nhpixECA++;
+          				else if(m_pixelID->barrel_ec(surfaceID) == -2) nhpixECC++;
+        			}
+        			// --- sct
+        			else if (m_idHelper->is_sct(surfaceID)){
+          				if(m_sctID->barrel_ec(surfaceID)      ==  0){
+            					nhsctB++;
+          				}
+          				else if(m_sctID->barrel_ec(surfaceID) ==  2) nhsctECA++;
+          				else if(m_sctID->barrel_ec(surfaceID) == -2) nhsctECC++;
+        			}
+        			// --- trt
+        			if (m_idHelper->is_trt(surfaceID)){
+          				int m_barrel_ec      = m_trtID->barrel_ec(surfaceID);
+          				if(m_barrel_ec == 1 || m_barrel_ec == -1 ) {
+            					nhtrtB++;
+          				}
+          				else if(m_barrel_ec ==  2){
+            					nhtrtECA++;
+          				}else if(m_barrel_ec == -2){
+            					nhtrtECC++;
+          				}
+        			}	
+      			}
+    		}
+ 		
+		int nhpix=nhpixB+nhpixECA+nhpixECC;
+    		int nhsct=nhsctB+nhsctECA+nhsctECC;
+    		int nhtrt=nhtrtB+nhtrtECA+nhtrtECC;
+    		int nhits=nhpix+nhsct+nhtrt;
+
+        	// set EC or not
+		bool hasECAhits = false;
+        	if(nhpixECA+nhsctECA+nhtrtECA > 0) hasECAhits = true;
+        	bool hasECChits = false;
+        	if(nhpixECC+nhsctECC+nhtrtECC > 0) hasECChits = true;
+
+        	if (!hasECAhits && !hasECChits) { //filling barrel histograms
+        		m_trk_d0_wrtPV_vs_phi_vs_eta_barrel->Fill(m_eta, m_phi, myIPandSigma->IPd0);
+        		m_trk_z0_wrtPV_vs_phi_vs_eta_barrel->Fill(m_eta, m_phi, myIPandSigma->IPz0);
+		}else if (hasECAhits) {//filling endcap A histograms
+        		m_trk_d0_wrtPV_vs_phi_vs_eta_eca -> Fill(m_eta, m_phi, myIPandSigma->IPd0);
+        		m_trk_z0_wrtPV_vs_phi_vs_eta_eca -> Fill(m_eta, m_phi, myIPandSigma->IPz0);
+ 		}else if (hasECChits) {//filling endcap C histograms
+        		m_trk_d0_wrtPV_vs_phi_vs_eta_ecc -> Fill(m_eta, m_phi, myIPandSigma->IPd0);
+        		m_trk_z0_wrtPV_vs_phi_vs_eta_ecc -> Fill(m_eta, m_phi, myIPandSigma->IPz0);
+ 		}
+	}*/
+   	
+ } // End of track selection loop
 
  return StatusCode::SUCCESS;
+}
+
+StatusCode IDAlignMonPVBiases::procHistograms()
+{
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  //if( endOfRunFlag() ) {  }
+ 
+  return StatusCode::SUCCESS;
 }
 
 StatusCode IDAlignMonPVBiases::finalize()
