@@ -40,10 +40,6 @@ Run2JetElementMaker::Run2JetElementMaker( const std::string& name, ISvcLocator* 
   declareProperty( "JetElementLocation", m_jetElementLocation ) ;
 }
   
-Run2JetElementMaker::~Run2JetElementMaker() {
-  ATH_MSG_INFO( "Destructor called" );
-} 
-
 
   /** the initialise() method is called at the start of processing, so we set up any histograms
       etc. here*/

@@ -2,13 +2,13 @@
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 
 #include <iostream>
 #include <sstream>
 #include <vector>
 #include <map>
 #include <set>
+#include <utility>
 
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 
@@ -40,7 +40,6 @@ namespace Muon {
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_keyRpc("RPC_Measurements"),
     m_keyTgc("TGC_Measurements")
   {
@@ -105,7 +104,7 @@ namespace Muon {
   }
 
 
-  MuonSegmentCombinationCollection* MuonPatternSegmentMaker::find( const MuonPatternCombinationCollection& patterns ) const {
+  MuonSegmentCombinationCollection* MuonPatternSegmentMaker::find( const MuonPatternCombinationCollection& patterns, MuonSegmentCombPatternCombAssociationMap* segPattMap ) const {
 
     if( m_recoverTriggerHits ) retrieveTriggerHitContainers();
   
@@ -126,7 +125,7 @@ namespace Muon {
       combiCol->push_back( combi );
 
       // create link between pattern and segment combination
-      m_assocTool->insert( combi, pattern );
+      segPattMap->insert(std::make_pair( combi, pattern) );
 
     } // end loop over patterns
 

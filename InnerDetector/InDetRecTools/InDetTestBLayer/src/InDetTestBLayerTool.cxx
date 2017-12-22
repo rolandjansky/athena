@@ -50,7 +50,10 @@ namespace InDet {
     AthAlgTool(name, n,p),
     m_extrapolator(""),
     m_pixelCondSummarySvc("",n),
-    m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
+    m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
+    m_idHelper(nullptr),
+    m_pixelId(nullptr),
+    m_configured(false)
   {
     declareInterface<IInDetTestBLayerTool>(this);
     declareProperty("Extrapolator"   , m_extrapolator);

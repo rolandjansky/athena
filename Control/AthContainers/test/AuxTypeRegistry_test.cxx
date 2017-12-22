@@ -23,7 +23,7 @@
 #ifndef XAOD_STANDALONE
 #include "SGTools/TestStore.h"
 #include "SGTools/StringPool.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF (std::vector<int*>, 28374627, 0)
 using namespace SGTest;
 

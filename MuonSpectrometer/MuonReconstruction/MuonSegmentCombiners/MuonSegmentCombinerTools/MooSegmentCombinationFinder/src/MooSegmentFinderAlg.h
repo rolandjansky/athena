@@ -24,7 +24,6 @@ class StoreGateSvc;
 
 namespace Muon {
   class IMuonClusterSegmentFinder;
-  class IMuonPatternSegmentAssociationTool;
   class IMooSegmentCombinationFinder;
 }
 
@@ -75,7 +74,6 @@ class MooSegmentFinderAlg : public AthAlgorithm
   SG::WriteHandleKey<MuonSegmentCombinationCollection>   m_segmentCombiLocation;
 
   ToolHandle<Muon::IMooSegmentCombinationFinder> m_segmentFinder;     //<! pointer to the segment finder
-  ToolHandle<Muon::IMuonPatternSegmentAssociationTool> m_assocTool;
   ToolHandle<Muon::IMuonClusterSegmentFinder> m_clusterSegMaker;
 
 };

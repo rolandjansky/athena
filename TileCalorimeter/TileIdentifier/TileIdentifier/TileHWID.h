@@ -79,25 +79,25 @@ public:
   /**
    * @brief ROS HWIdentifer
    */
-  HWIdentifier        ros_id                  ( int ros)                      const throw(TileID_Exception);
+  HWIdentifier        ros_id                  ( int ros)                      const;
   /**
    * @brief ROS HWIdentifer
    */
-  HWIdentifier        drawer_id               ( int frag )                    const throw(TileID_Exception);
+  HWIdentifier        drawer_id               ( int frag )                    const;
   /**
    * @brief drawer HWIdentifer
    */
-  HWIdentifier        drawer_id               ( int ros, int drawer )         const throw(TileID_Exception);
+  HWIdentifier        drawer_id               ( int ros, int drawer )         const;
   /**
    * @brief channel HWIdentifer
    */
   HWIdentifier        channel_id              ( int ros, int drawer, 
-                                                int channel )                 const throw(TileID_Exception);
+                                                int channel )                 const;
   /**
    * @brief adc HWIdentifer
    */
   HWIdentifier        adc_id                  ( int ros, int drawer,
-                                                int channel, int adc )        const throw(TileID_Exception);
+                                                int channel, int adc )        const;
 
   /**
    * @brief extract drawer ID from adc ID or channel ID 
@@ -111,17 +111,17 @@ public:
    * @brief create channel ID from drawer ID
    */
   HWIdentifier        channel_id              ( const HWIdentifier& id,
-                                                int channel )                 const throw(TileID_Exception); 
+                                                int channel )                 const;
   /**
    * @brief create adc ID from drawer ID
    */
   HWIdentifier        adc_id                  ( const HWIdentifier& id,
-                                                int channel, int adc )        const throw(TileID_Exception); 
+                                                int channel, int adc )        const; 
   /**
    * @brief create adc ID from channel ID
    */
   HWIdentifier        adc_id                  ( const HWIdentifier& id,
-                                                int adc )                     const throw(TileID_Exception); 
+                                                int adc )                     const;
 
   /**
    * @brief create channel ID from channel hash ID
@@ -135,7 +135,7 @@ public:
    * @brief validity of the hash_id is not checked, assuming that it is done outside
    */
   HWIdentifier        adc_id                  ( IdentifierHash hash_id,
-                                                int adc )                     const throw(TileID_Exception)
+                                                int adc )                     const
     { return adc_id(m_channel_vec[hash_id],adc); }
         
 

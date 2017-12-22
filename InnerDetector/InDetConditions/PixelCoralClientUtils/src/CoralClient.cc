@@ -747,7 +747,7 @@ void PixCoralClient::createTable(){
       std::cout << "\nCOOLCORAL Client:  Creating table: " << PIXEL_TABLE_DATA <<" for ";
       try {
 	std::cout <<tableTypeName<T>() << std::endl;
-      } catch (coral::AttributeListException) {
+      } catch (const coral::AttributeListException&) {
 	std::cout <<typeid(T).name() << std::endl;
       }
     }

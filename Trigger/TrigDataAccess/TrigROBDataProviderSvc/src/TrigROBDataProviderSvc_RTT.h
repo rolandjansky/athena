@@ -88,12 +88,18 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
   void handle(const Incident& incident);
 
   /// Check if complete event data are already in cache
-  bool isEventComplete() { return TrigROBDataProviderSvc::isEventComplete();} ;
+  virtual bool isEventComplete() { return TrigROBDataProviderSvc::isEventComplete(); }
+  virtual bool isEventComplete() const { return TrigROBDataProviderSvc::isEventComplete(); }
+  virtual bool isEventComplete(const EventContext& ctx) const override
+  { return TrigROBDataProviderSvc::isEventComplete(ctx); }
 
   /// Collect all data for an event from the ROS and put them into the cache
   /// Return value: number of ROBs which were retrieved to complete the event
   /// Optinonally the name of the caller of this method can be specified for cost monitoring
-  int collectCompleteEventData(const std::string callerName="UNKNOWN") {return TrigROBDataProviderSvc::collectCompleteEventData(callerName);};
+  virtual int collectCompleteEventData(const std::string callerName="UNKNOWN") override
+  { return TrigROBDataProviderSvc::collectCompleteEventData (callerName); }
+  virtual int collectCompleteEventData(const EventContext& ctx, const std::string callerName="UNKNOWN") override
+  { return TrigROBDataProviderSvc::collectCompleteEventData (ctx, callerName); }
 
   bool isMissingPrefetching()     { return 0;};// m_missingPrefetchingPerEvent; };
 

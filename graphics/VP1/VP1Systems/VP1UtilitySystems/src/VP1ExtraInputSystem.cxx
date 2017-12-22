@@ -3,16 +3,19 @@
 */
 
 #include "VP1UtilitySystems/VP1ExtraInputSystem.h"
+#include "ui_extrainputcontrollerform.h"
+
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Settings.h"
-#include "ui_extrainputcontrollerform.h"
+
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoSwitch.h>
+
 #include <QFileDialog>
 #include <QDir>
 #include <map>

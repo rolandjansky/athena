@@ -209,7 +209,6 @@ private:
 
   std::string print( const Muon::IMuonTrackTruthTool::TruthTreeEntry& trackTruth ) const;
 
-  void         getEventInfo();
   std::string  eventInfo() const;
   int eventNumber() const;
 
@@ -268,9 +267,10 @@ private:
 
   bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
 
-  SG::ReadHandleKey<TrackCollection>         m_trackKey;            //!< Location of the track output location
-  SG::ReadHandleKey<MuonSegmentCombinationCollection>    m_segmentCombiKey;     //!< Location of the segment combination collections
-  xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
+  SG::ReadHandleKey<TrackCollection> m_trackKey{this,"TrackInputLocation","MuonSpectrometerTracks","input tracks"};            //!< Location of the track input container
+  SG::ReadHandleKey<MuonSegmentCombinationCollection> m_segmentCombiKey{this,"SegmentLocation","MuonSegments","segments"};     //!< Location of the segments
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","MCEventInfo","EventInfo key"};
+  const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
 
   // member set by Joboptions 
   int  m_doSummary;

@@ -63,8 +63,6 @@
 
    EnergyCMX( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~EnergyCMX();
-
 
    //------------------------------------------------------
    // Methods used by Athena to run the algorithm

@@ -69,9 +69,6 @@
 
    CPMSim( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~CPMSim();
-
-
    //------------------------------------------------------
    // Methods used by Athena to run the algorithm
    //------------------------------------------------------

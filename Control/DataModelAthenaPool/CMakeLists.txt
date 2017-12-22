@@ -40,12 +40,6 @@ atlas_add_component( DataModelAthenaPool
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
 
-atlas_add_poolcnv_library( DataModelAthenaPoolPoolCnv
-                           src/*.cxx
-                           FILES AthContainers/UserDataStore.h
-                           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
-
 atlas_add_dictionary( DataModelAthenaPoolDictDict
                       DataModelAthenaPool/DataModelAthenaPoolDict.h
                       DataModelAthenaPool/selection.xml

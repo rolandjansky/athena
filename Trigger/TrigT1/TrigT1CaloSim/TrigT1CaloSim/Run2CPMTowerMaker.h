@@ -68,9 +68,6 @@ class Run2CPMTowerMaker : public AthAlgorithm
 
   Run2CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-  virtual ~Run2CPMTowerMaker();
-
-
   //------------------------------------------------------
   // Methods used by Athena to run the algorithm
   //------------------------------------------------------

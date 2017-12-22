@@ -25,8 +25,6 @@
 
 MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_trackKey("MooreTracks"),
-  m_segmentCombiKey("MooreSegmentCombinations"),
   m_eventInfo(0),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
@@ -60,9 +58,6 @@ MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLo
   m_ntruthTracks(0),
   m_ntruthTracksSecondary(0)
 {
-  // MoMu location segments (per chamner)
-  declareProperty("TrackInputLocation",m_trackKey );
-  declareProperty("SegmentCombitLocation",m_segmentCombiKey );
   declareProperty("DoHistos",m_doHistos = false);
   declareProperty("DoSummary",m_doSummary = 0);
   declareProperty("DoHitResiduals",m_doHitResiduals = 0);
@@ -125,6 +120,7 @@ StatusCode MuonTrackPerformanceAlg::initialize()
 
   ATH_CHECK(m_trackKey.initialize());
   ATH_CHECK(m_segmentCombiKey.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   return StatusCode::SUCCESS; 
 }
@@ -134,7 +130,12 @@ StatusCode MuonTrackPerformanceAlg::execute()
   
   if( m_verbose ) *m_log << MSG::VERBOSE << " Executing " << endmsg;
 
-  getEventInfo();
+  SG::ReadHandle<xAOD::EventInfo> evInfo(m_eventInfoKey);
+  if(!evInfo.isValid()){
+    ATH_MSG_WARNING("failed to retrieve EventInfo");
+    return StatusCode::FAILURE;
+  }
+  m_eventInfo=evInfo.cptr();
   handleTracks();
   if( m_doSegments ) handleSegmentCombinations();
 
@@ -602,12 +603,6 @@ StatusCode MuonTrackPerformanceAlg::finalize()
 
   delete m_log;
   return StatusCode::SUCCESS;
-}
-
-void MuonTrackPerformanceAlg::getEventInfo() {
-  if ( evtStore()->retrieve(m_eventInfo).isFailure() ) {
-    *m_log << MSG::ERROR << "Could not find eventInfo " << endmsg;
-  }
 }
 
 int MuonTrackPerformanceAlg::eventNumber() const {

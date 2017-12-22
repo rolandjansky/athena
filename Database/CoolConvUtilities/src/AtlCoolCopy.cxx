@@ -1624,7 +1624,7 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
 	// truncate the string first to avoid coverity complaining about
 	// potential buffer overruns
 	std::string sourcetag2=sourcetag.substr(0,255);
-	strncpy(nt_tagid,sourcetag2.c_str(),256);
+	strncpy(nt_tagid,sourcetag2.c_str(),sizeof(nt_tagid)-1);
       }
       // loop over the payload elements and fill the ones for which buffers
       // are defined

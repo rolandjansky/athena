@@ -1027,7 +1027,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::makeTrack(const Trk::ParticleHypo
             if (msgLvl(MSG::VERBOSE) && trkState->measurementOnTrack()) {
                 msg(MSG::VERBOSE) << "TrackStateOnSurface: measurement: " << trkState->measurementOnTrack();
                 const CompetingRIOsOnTrack* compRot = dynamic_cast<const CompetingRIOsOnTrack*> (trkState->measurementOnTrack());
-                if (compRot) ATH_MSG_VERBOSE( " compROT maxProb=" << compRot->assignmentProbability(compRot->indexOfMaxAssignProb()) << " on surface " << &(compROT->associatedSurface()));
+                if (compRot) ATH_MSG_VERBOSE( " compRot maxProb=" << compRot->assignmentProbability(compRot->indexOfMaxAssignProb()) << " on surface " << &(compRot->associatedSurface()));
                 else ATH_MSG_VERBOSE( " on surface " << &(trkState->measurementOnTrack()->associatedSurface()));
             }
              finalTrajectory->push_back( trkState );

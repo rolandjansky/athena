@@ -55,7 +55,6 @@ namespace Muon {
   class MuonSegment;
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class IMuonPatternSegmentAssociationTool;
 
   class MuonPatternSegmentMaker : virtual public IMuonPatternSegmentMaker, public AthAlgTool
   {
@@ -122,7 +121,7 @@ namespace Muon {
 
     MuonSegmentCombination* find( const MuonPatternCombination& pattern ) const;
 
-    MuonSegmentCombinationCollection* find( const MuonPatternCombinationCollection& patternCol ) const;
+    MuonSegmentCombinationCollection* find( const MuonPatternCombinationCollection& patternCol, MuonSegmentCombPatternCombAssociationMap* segPattMap) const;
 
   private:
     void createRegionMap( const MuonPatternCombination& pat, RegionMap& regionMap, bool hasPhiMeasurements ) const;
@@ -155,7 +154,6 @@ namespace Muon {
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! tool to print EDM objects
     ToolHandle<MuonIdHelperTool>              m_idHelper;    //<! tool to interpret and print Identifiers
-    ToolHandle<IMuonPatternSegmentAssociationTool> m_assocTool;       //<! tool to associate pattern combinations with segment combinations 
 
     bool m_doNtuple; //<! write ntuple for standalone pattern finding
     bool m_doMultiAnalysis; //<! use neighbouring chambers during segment finding

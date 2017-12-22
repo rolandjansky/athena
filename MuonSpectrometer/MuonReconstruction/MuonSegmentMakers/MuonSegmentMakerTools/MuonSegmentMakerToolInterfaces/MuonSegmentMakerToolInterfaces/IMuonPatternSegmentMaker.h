@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
+#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 
 #include <vector>
 
@@ -37,7 +38,7 @@ namespace Muon {
 	@param combiCol a reference to a MuonSegmentCombinationCollection
 	@return a pointer to a vector of tracks, the ownership of the tracks is passed to the client calling the tool.
     */
-    virtual MuonSegmentCombinationCollection* find( const MuonPatternCombinationCollection& patterns ) const = 0;
+    virtual MuonSegmentCombinationCollection* find( const MuonPatternCombinationCollection& patterns, MuonSegmentCombPatternCombAssociationMap* segPattMap ) const = 0;
 
   };
   

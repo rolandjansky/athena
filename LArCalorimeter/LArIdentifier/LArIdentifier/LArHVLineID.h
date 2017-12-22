@@ -159,7 +159,7 @@ class LArHVLineID : public AtlasDetectorID {
   IdentifierHash hvline_hash_binary_search(HWIdentifier hvId) const;
 
   /* Check methods */
-  void  hvlineId_checks(int part, int canline, int cannode, int line )const throw(LArOnlID_Exception);
+  void  hvlineId_checks(int part, int canline, int cannode, int line )const;
 
   /* create expanded HWIdentifier from HWIdentifier (return == 0 for OK) */
   int  get_expanded_id (const HWIdentifier& id, ExpandedIdentifier& exp_id, 

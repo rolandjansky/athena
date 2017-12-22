@@ -270,7 +270,8 @@ namespace MuonCombined {
 	continue;
       }
       
-	createMuon(*idTP,  deposits, tag, likelihood);
+      // FIXME const-cast  changes object passed in as const
+      createMuon(const_cast<InDetCandidate&>(*idTP),  deposits, tag, likelihood);
 
       // --- Count number of muons written to container 
       if ( abs(pdgId) == 13 )  m_nMuonsTagged++;

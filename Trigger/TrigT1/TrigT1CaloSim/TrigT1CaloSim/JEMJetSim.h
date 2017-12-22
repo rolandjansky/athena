@@ -63,8 +63,6 @@
 
    JEMJetSim( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~JEMJetSim();
-
 
    //------------------------------------------------------
    // Methods used by Athena to run the algorithm

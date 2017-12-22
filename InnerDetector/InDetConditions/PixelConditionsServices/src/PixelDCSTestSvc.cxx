@@ -16,6 +16,8 @@
 
 PixelDCSTestSvc::PixelDCSTestSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_pixid(nullptr),
+  m_pixman(nullptr),
   m_pixelDCSSvc("PixelDCSSvc", name),
   m_pixelSvc("PixelConditionsSummarySvc", name)
 {
