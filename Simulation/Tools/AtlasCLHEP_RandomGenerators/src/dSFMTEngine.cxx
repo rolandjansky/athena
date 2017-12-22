@@ -29,7 +29,7 @@ int dSFMTEngine::maxIndex = 215;
 
 const unsigned int VECTOR_STATE_SIZE = 2 + (DSFMT_N + 1)*4;
 
-dSFMTEngine::dSFMTEngine() throw(std::runtime_error):m_dsfmt(0) 
+dSFMTEngine::dSFMTEngine():m_dsfmt(0) 
 {
   init_dsfmt();
   
@@ -45,7 +45,7 @@ dSFMTEngine::dSFMTEngine() throw(std::runtime_error):m_dsfmt(0)
   for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
 }
 
-dSFMTEngine::dSFMTEngine(long seed) throw(std::runtime_error):m_dsfmt(0)  
+dSFMTEngine::dSFMTEngine(long seed):m_dsfmt(0)  
 {
   init_dsfmt();
   
@@ -53,7 +53,7 @@ dSFMTEngine::dSFMTEngine(long seed) throw(std::runtime_error):m_dsfmt(0)
   for( int i=0; i < 2000; ++i ) flat();      // Warm up just a bit
 }
 
-dSFMTEngine::dSFMTEngine(const long * seeds) throw(std::runtime_error):m_dsfmt(0) 
+dSFMTEngine::dSFMTEngine(const long * seeds):m_dsfmt(0) 
 {
   init_dsfmt();
   
