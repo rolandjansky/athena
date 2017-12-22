@@ -116,7 +116,6 @@ StatusCode G4AtlasAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  // TEST
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
 
@@ -283,7 +282,6 @@ StatusCode G4AtlasAlg::finalize()
 void G4AtlasAlg::finalizeOnce()
 {
   ATH_MSG_DEBUG("\t terminating the current G4 run");
-  // TODO: could probably just use G4RunManager base class generically.
   auto runMgr = G4RunManager::GetRunManager();
   runMgr->RunTermination();
 }
