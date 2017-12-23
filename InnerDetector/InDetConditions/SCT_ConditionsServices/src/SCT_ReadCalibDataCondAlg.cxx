@@ -34,7 +34,7 @@ namespace {
     for (Tokenizer::iterator i{tok.begin()}; i!=tok.end(); ++i) {
       try {
 	userContainer.push_back(boost::lexical_cast<V_t>(*i));
-      } catch (boost::bad_lexical_cast) {
+      } catch (const boost::bad_lexical_cast&) {
 	userContainer.push_back(errVal);
 	noNan=false;
       }

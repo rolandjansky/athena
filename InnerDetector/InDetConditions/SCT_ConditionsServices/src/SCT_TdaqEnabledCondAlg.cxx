@@ -194,7 +194,7 @@ unsigned int SCT_TdaqEnabledCondAlg::parseChannelName(const std::string &chanNam
   iss.exceptions(std::ios_base::badbit|std::ios_base::failbit);
   try{
     iss>>std::hex>>result;
-  } catch (std::ios_base::failure){ //bad conversion to int
+  } catch (const std::ios_base::failure&){ //bad conversion to int
     std::cerr<<"Bad conversion of last 6 digits of "<<chanNameString<<" to a hex number"<<std::endl;
     throw(std::ios_base::failure("stringToInt failure in SCT_TdaqEnabledSvc"));
   } 
