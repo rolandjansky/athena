@@ -29,7 +29,7 @@ namespace SCT_Cabling{
         } else {
           istrm>>std::dec>>result;
         }
-      } catch (std::ios_base::failure){ //bad conversion to int
+      } catch (const std::ios_base::failure&){ //bad conversion to int
         result=-1;
         //need to throw here
         std::cerr<<"stringToInt failed to convert a string to an integer in InDetCabling/SCT_CablingUtilities"<<std::endl;
