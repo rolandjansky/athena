@@ -90,7 +90,6 @@ topSeq += getAlgorithm("G4AtlasAlg", tryDefaultConfigurable=True)
 # Explicitly specify the data-flow dependencies of G4AtlasAlg and StreamHITS.
 # This is done like this because currently our VarHandles do not live in the
 # algorithm but rather in Geant4 components.
-# TODO: make this declaration more automatic
 topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','StoreGateSvc+BeamTruthEvent')]
 topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','StoreGateSvc+SCT_Hits')]
 topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
