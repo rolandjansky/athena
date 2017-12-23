@@ -153,15 +153,15 @@ void RegSelectorHashMap::mountDataStruct(void){
 void RegSelectorHashMap::regionSelectorRobIdUint(double etaminIn, double etamaxIn,
 					       double phiminIn, double phimaxIn,
 					       std::vector<uint32_t>& outList){
-  regionSelectorINROB((const int)-1, (const double)etaminIn, (const double)etamaxIn, 
-	(const double)phiminIn, (const double)phimaxIn,&outList);
+  regionSelectorINROB((int)-1, (double)etaminIn, (double)etamaxIn, 
+	(double)phiminIn, (double)phimaxIn,&outList);
 }
 
 void RegSelectorHashMap::regionSelectorRobIdUint(int sampling, double etaminIn, double etamaxIn,
 					       double phiminIn, double phimaxIn,
 					       std::vector<uint32_t>& outList){
-  regionSelectorINROB((const int)sampling, (const double)etaminIn,
-	(const double)etamaxIn, (const double)phiminIn, (const double)phimaxIn,
+  regionSelectorINROB((int)sampling, (double)etaminIn,
+	(double)etamaxIn, (double)phiminIn, (double)phimaxIn,
 	&outList);
 }
 
@@ -499,16 +499,16 @@ void RegSelectorHashMap::phiConditionRobId(std::vector<std::vector<uint32_t> >& 
 void RegSelectorHashMap::regionSelector(double etaminIn, double etamaxIn,
 					double phiminIn, double phimaxIn,std::vector<IdentifierHash>& outList){
   verifyInputs(etaminIn, etamaxIn, phiminIn, phimaxIn);
-  regionSelectorIN((const int)-1, (const double)etaminIn, (const double)etamaxIn,
-		   (const double)phiminIn, (const double)phimaxIn,&outList);
+  regionSelectorIN((int)-1, (double)etaminIn, (double)etamaxIn,
+		   (double)phiminIn, (double)phimaxIn,&outList);
   
 }
 
 void RegSelectorHashMap::regionSelector(int sampling, double etaminIn, double etamaxIn,
 					double phiminIn, double phimaxIn, std::vector<IdentifierHash>& outList){
   verifyInputs(etaminIn, etamaxIn, phiminIn, phimaxIn);
-  regionSelectorIN((const int)sampling, (const double)etaminIn, (const double)etamaxIn,
-		   (const double)phiminIn, (const double)phimaxIn,&outList);
+  regionSelectorIN((int)sampling, (double)etaminIn, (double)etamaxIn,
+		   (double)phiminIn, (double)phimaxIn,&outList);
   
 }
 
