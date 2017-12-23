@@ -42,7 +42,7 @@ public:
     */
 
     //Identifier          h2s_channel_id          ( const HWIdentifier & id ) const throw (ZdcID_Exception);
-    Identifier          h2s_channel_id          ( int crate, int channel ) const throw (ZdcID_Exception);
+    Identifier          h2s_channel_id          ( int crate, int channel ) const;
 
     //HWIdentifier        s2h_ppm_hwid              ( const Identifier & id ) const;
     //HWIdentifier        s2h_channel_hwid          ( const Identifier & id ) const;// throw (ZdcID_Exception);
