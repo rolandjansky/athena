@@ -16,7 +16,6 @@
 #ifndef XAOD_STANDALONE
 
 #include "AthContainers/tools/copyThinned.h"
-#include "AthContainers/tools/foreach.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
@@ -41,7 +40,7 @@ void compare (const SG::AuxStoreInternal& a,
 
   const SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
 
-  ATHCONTAINERS_FOREACH(SG::auxid_t id, a.getAuxIDs()) {
+  for (SG::auxid_t id : a.getAuxIDs()) {
     const char* aptr = reinterpret_cast<const char*>(a.getData(id));
     const char* bptr = reinterpret_cast<const char*>(b.getData(id));
     assert (aptr != 0 && bptr != 0);

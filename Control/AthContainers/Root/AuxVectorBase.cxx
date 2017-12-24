@@ -12,7 +12,6 @@
 
 
 #include "AthContainers/AuxVectorBase.h"
-#include "AthContainers/tools/foreach.h"
 
 
 namespace SG {
@@ -298,12 +297,12 @@ void AuxVectorBase::swapElementsAux (size_t aindex,
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   SG::AuxTypeRegistry::lock_t lock (r);
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, a_ids) {
+  for (SG::auxid_t auxid : a_ids) {
     void* aptr = acont->getDataArray (auxid);
     void* bptr = bcont->getDataArray (auxid);
     r.swap (lock, auxid, aptr, aindex, bptr, bindex);
   }
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, b_ids) {
+  for (SG::auxid_t auxid : b_ids) {
     if (a_ids.find (auxid) == a_ids.end()) {
       void* aptr = acont->getDataArray (auxid);
       void* bptr = bcont->getDataArray (auxid);
@@ -335,7 +334,7 @@ AuxVectorBase::ResortAuxHelper::ResortAuxHelper (size_t sz,
   size_t naux = auxid_set.size();
   m_auxdata.reserve (naux);
   m_auxids.reserve (naux);
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, auxid_set) {
+  for (SG::auxid_t auxid : auxid_set) {
     m_auxdata.push_back (vec.getDataArrayForResort (auxid));
     m_auxids.push_back (auxid);
   }
