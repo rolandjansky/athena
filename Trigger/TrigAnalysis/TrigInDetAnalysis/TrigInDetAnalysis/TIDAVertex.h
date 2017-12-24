@@ -86,13 +86,23 @@ private:
 
 }
 
-inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& t ) { 
-  return s <<  "[ x=" << t.position()[0]  << " +- " << t.error()[0]
-	   <<  "\ty=" << t.position()[1]  << " +- " << t.error()[1]
-	   <<  "\tz=" << t.position()[2]  << " +- " << t.error()[2]
-	   << ";\tchi2="   << t.chi2()    << "/" << t.ndof()
-	   << "\tNtracks=" << t.Ntracks() << "\t]"; 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& v ) { 
+  return s <<  "[ x=" << v.position()[0]  << " +- " << v.error()[0]
+	   <<  "\ty=" << v.position()[1]  << " +- " << v.error()[1]
+	   <<  "\tz=" << v.position()[2]  << " +- " << v.error()[2]
+	   << ";\tchi2="   << v.chi2()    << "/" << v.ndof()
+	   << "\tNtracks=" << v.Ntracks() << "\t]"; 
 }
 
 
-#endif  // TRIGINDETANALYSIS_TIDAVERTEX_H__TRACKVERTEX_H 
+#endif  // TRIGINDETANALYSIS_TIDAVERTEX_H
+
+
+
+
+
+
+
+
+
+

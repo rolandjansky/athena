@@ -19,7 +19,7 @@ class TrackSelector {
   
 public:
   
-  TrackSelector( /*TrigInDetAnalysis::*/TrackFilter* selector=0 ) :  m_selector(selector) {  } 
+  TrackSelector( /*TrigInDetAnalysis::*/TrackFilter* selector=0 ) :  mselector(selector) {  } 
   virtual ~TrackSelector() {}
 
   // add a track, do the selection while adding?
@@ -27,11 +27,11 @@ public:
   virtual bool addTrack(TIDA::Track* t, bool (*f)(const TIDA::Track*)=0 ) {
     //std::cout << "addtrack()  before f: t  " << *t << " " << size() << "\t f  " << f << std::endl;
     if ( f==0 ) { 
-      if ( m_selector && m_selector->select(t) )  { m_tracks.push_back(t);/*std::cout << "addtrack() after filter: t: " << *t << " f: " << f << "   " << size() << std::endl;*/ return true; }
+      if ( mselector && mselector->select(t) )  { mtracks.push_back(t);/*std::cout << "addtrack() after filter: t: " << *t << " f: " << f << "   " << size() << std::endl;*/ return true; }
       else                                      { cleanup(t); }
     }
     else { 
-      if ( f(t) )  { m_tracks.push_back(t); /*std::cout << "addtrack() no filter" << *t << " " << size() << std::endl;*/ return true; } 
+      if ( f(t) )  { mtracks.push_back(t); /*std::cout << "addtrack() no filter" << *t << " " << size() << std::endl;*/ return true; } 
       else         { cleanup(t); } 
     }
     return false;
@@ -42,21 +42,21 @@ public:
   }  
   
   // get the selected tracks   
-  const std::vector<TIDA::Track*>& tracks() const { return m_tracks; }
+  const std::vector<TIDA::Track*>& tracks() const { return mtracks; }
   
   std::vector<TIDA::Track*> tracks(  /*TrigInDetAnalysis::*/TrackFilter* selector ) const {
-    if ( selector==0 ) return m_tracks; 
+    if ( selector==0 ) return mtracks; 
     std::vector<TIDA::Track*> t;
-    for ( int i=m_tracks.size() ; i-- ; ) if ( selector->select(m_tracks[i]) ) t.push_back(m_tracks[i]);
+    for ( int i=mtracks.size() ; i-- ; ) if ( selector->select(mtracks[i]) ) t.push_back(mtracks[i]);
     return t;
   }
 
   // how many tracks in this selection
-  unsigned size() const { return m_tracks.size(); } 
+  unsigned size() const { return mtracks.size(); } 
 
   // clear tracks for this roi/event etc 
-  //  void clear() { for ( int i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); } 
-  virtual void clear() { m_tracks.clear(); } 
+  //  void clear() { for ( int i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); } 
+  virtual void clear() { mtracks.clear(); } 
   
 protected:
 
@@ -67,11 +67,11 @@ protected:
   
 protected:
   
-  std::vector<TIDA::Track*> m_tracks;
+  std::vector<TIDA::Track*> mtracks;
  
   // selection function
-  // static bool (*m_selector)(const /*TrigInDetAnalysis::*/Track*);
-  /*TrigInDetAnalysis::*/TrackFilter*  m_selector;
+  // static bool (*mselector)(const /*TrigInDetAnalysis::*/Track*);
+  /*TrigInDetAnalysis::*/TrackFilter*  mselector;
  
 };
 

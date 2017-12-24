@@ -28,7 +28,7 @@ public:
 
   VtxAnalysis( const std::string& n );
 
-  virtual ~VtxAnalysis() { if ( m_dir ) delete m_dir; } 
+  virtual ~VtxAnalysis() { if ( mdir ) delete mdir; } 
 
   void initialise();
 
@@ -42,28 +42,28 @@ private:
 
   bool m_initialised;
 
-  TIDDirectory* m_dir;
+  TIDDirectory* mdir;
 
-  TH1F*    m_hnvtx;
-  TH1F*    m_hzed;
-  TH1F*    m_hntrax;
+  TH1F*    hnvtx;
+  TH1F*    hzed;
+  TH1F*    hntrax;
 
-  TH1F*    m_hnvtx_rec;
-  TH1F*    m_hzed_rec;
-  TH1F*    m_hntrax_rec;
+  TH1F*    hnvtx_rec;
+  TH1F*    hzed_rec;
+  TH1F*    hntrax_rec;
 
-  TH1F*    m_hzed_res;
+  TH1F*    hzed_res;
 
-  TProfile* m_rdz_vs_zed;
-  TProfile* m_rdz_vs_ntrax;
-  TProfile* m_rdz_vs_nvtx;
-  TProfile* m_rdz_vs_mu;
+  TProfile* rdz_vs_zed;
+  TProfile* rdz_vs_ntrax;
+  TProfile* rdz_vs_nvtx;
+  TProfile* rdz_vs_mu;
 
-  TProfile* m_eff_zed;
-  TProfile* m_eff_ntrax;
-  TProfile* m_eff_nvtx;
-  TProfile* m_eff_mu;
-  TProfile* m_eff_lb;
+  TProfile* eff_zed;
+  TProfile* eff_ntrax;
+  TProfile* eff_nvtx;
+  TProfile* eff_mu;
+  TProfile* eff_lb;
  
 };
 

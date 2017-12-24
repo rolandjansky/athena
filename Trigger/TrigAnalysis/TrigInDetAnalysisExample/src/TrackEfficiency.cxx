@@ -38,10 +38,12 @@ void TrackEfficiency::initialise() {
 			 20000, 30000, 40000, 60000, 100000 };
 #endif
 
-  std::vector<double> limits (
-   { 0,     1000,  2000,  3000,  5000,  7000, 
-       8000,  9000, 10000, 11000, 12000, 13000, 
-       14000, 20000, 30000, 40000, 60000, 100000 } );
+  double _limits[18] = { 0,     1000,  2000,  3000,  5000,  7000, 
+			 8000,  9000, 10000, 11000, 12000, 13000, 
+			 14000, 20000, 30000, 40000, 60000, 100000 };
+
+  std::vector<double> limits;
+  for ( int i=0 ; i<18 ; i++ ) limits.push_back(_limits[i]);
 
 #if 0
   // efficiencies

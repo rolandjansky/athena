@@ -33,14 +33,14 @@ protected:
     
   public:
     
-    matched_(double d, int i, int j) : m_d(d), m_mmatch(std::pair<int,int>(i,j)) { } 
+    matched_(double d, int i, int j) : m_d(d), mmatch(std::pair<int,int>(i,j)) { } 
     
     double d() const { return m_d; } 
     
-    std::pair<int, int> pair() const { return m_mmatch; }
+    std::pair<int, int> pair() const { return mmatch; }
     
-    int first()  const { return m_mmatch.first; } 
-    int second() const { return m_mmatch.second; } 
+    int first()  const { return mmatch.first; } 
+    int second() const { return mmatch.second; } 
     
     bool  operator<(const matched_& a) const { return d()<a.d(); }
     bool  operator>(const matched_& a) const { return d()>a.d(); }
@@ -49,7 +49,7 @@ protected:
     
   private:
     double              m_d;
-    std::pair<int, int> m_mmatch; 
+    std::pair<int, int> mmatch; 
   };
 
 public:

@@ -749,10 +749,10 @@ void ConfAnalysis::initialiseInternal() {
   eff_vs_ntracks2 = new Efficiency( n_vtx_tracks2, "eff_vs_ntracks2");
   delete n_vtx_tracks2;
 
-  n_vtx       = new TH1F("nvtx", "nvtx", 31, -0.5, 30.5);
+  n_vtx       = new TH1F("nvtx", "nvtx", 81, -0.5, 80.5);
   eff_vs_nvtx = new Efficiency( n_vtx, "eff_vs_nvtx");
   //mu          = new TH1F("mu", "mu", 3000, -0.5, 29.5);
-  mu          = new TH1F("mu", "mu", 70, 0, 70);
+  mu          = new TH1F("mu", "mu", 90, 0, 90);
   eff_vs_mu   = new Efficiency( mu, "eff_vs_mu");
 
 
@@ -1799,10 +1799,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	  dump = true; 
 
 	  hipt = true;
-	  dumpstream << m_name << "\tMISSING TRACK run " << r << "\tevent " << ev 
+	  dumpstream << mname << "\tMISSING TRACK run " << r << "\tevent " << ev 
 		    << "\tlb " << lb << "\tN vertices " << NvtxCount << std::endl;
-	  dumpstream << m_name << "\tMISSING TRACK RoI   " << *groi << std::endl;
-	  dumpstream << m_name << "\tMISSING TRACK Track " << *reftracks[i];
+	  dumpstream << mname << "\tMISSING TRACK RoI   " << *groi << std::endl;
+	  dumpstream << mname << "\tMISSING TRACK Track " << *reftracks[i];
 	  if ( std::fabs(pTt)>=30 ) dumpstream << "\tvery high pt";
 	  if ( std::fabs(pTt)>4 &&
 	       std::fabs(pTt)<30  ) dumpstream << "\t     high pt";

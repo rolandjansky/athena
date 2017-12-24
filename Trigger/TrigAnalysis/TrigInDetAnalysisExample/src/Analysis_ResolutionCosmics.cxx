@@ -10,28 +10,28 @@
 Analysis_ResolutionCosmics::Analysis_ResolutionCosmics(const std::string& name) : TrackAnalysis(name) {
 
   // Create resolution histograms
-  m_h_res_eta   = new TH1D(std::string(m_name+"-Res-eta").c_str(), std::string(m_name+" eta resolution").c_str(), 50, -0.05, 0.05);
-  m_h_res_phi   = new TH1D(std::string(m_name+"-Res-phi").c_str(), std::string(m_name+" phi resolution").c_str(), 50, -0.05, 0.05);
-  m_h_res_z0    = new TH1D(std::string(m_name+"-Res-z0").c_str(),  std::string(m_name+" z0 resolution").c_str(), 50, -3.0, 3.0);
-  m_h_res_d0    = new TH1D(std::string(m_name+"-Res-d0").c_str(),  std::string(m_name+" d0 resolution").c_str(), 50, -3.0, 3.0);
-  m_h_res_invpT = new TH1D(std::string(m_name+"-Res-pT").c_str(),  std::string(m_name+" inv-pT resolution").c_str(), 100, -0.0004, 0.0004);
-  addHistogram(m_h_res_eta);
-  addHistogram(m_h_res_phi);
-  addHistogram(m_h_res_z0);
-  addHistogram(m_h_res_d0);
-  addHistogram(m_h_res_invpT);
+  h_res_eta   = new TH1D(std::string(mname+"-Res-eta").c_str(), std::string(mname+" eta resolution").c_str(), 50, -0.05, 0.05);
+  h_res_phi   = new TH1D(std::string(mname+"-Res-phi").c_str(), std::string(mname+" phi resolution").c_str(), 50, -0.05, 0.05);
+  h_res_z0    = new TH1D(std::string(mname+"-Res-z0").c_str(),  std::string(mname+" z0 resolution").c_str(), 50, -3.0, 3.0);
+  h_res_d0    = new TH1D(std::string(mname+"-Res-d0").c_str(),  std::string(mname+" d0 resolution").c_str(), 50, -3.0, 3.0);
+  h_res_invpT = new TH1D(std::string(mname+"-Res-pT").c_str(),  std::string(mname+" inv-pT resolution").c_str(), 100, -0.0004, 0.0004);
+  addHistogram(h_res_eta);
+  addHistogram(h_res_phi);
+  addHistogram(h_res_z0);
+  addHistogram(h_res_d0);
+  addHistogram(h_res_invpT);
   
   // Create pull histograms
-  m_h_pull_eta   = new TH1D(std::string(m_name+"-Pull-eta").c_str(), std::string(m_name+" eta pull").c_str(), 50, -20.0, 20.0);
-  m_h_pull_phi   = new TH1D(std::string(m_name+"-Pull-phi").c_str(), std::string(m_name+" phi pull").c_str(), 50, -20.0, 20.0);
-  m_h_pull_z0    = new TH1D(std::string(m_name+"-Pull-z0").c_str(),  std::string(m_name+" z0 pull").c_str(), 50, -20.0, 20.0);
-  m_h_pull_d0    = new TH1D(std::string(m_name+"-Pull-d0").c_str(),  std::string(m_name+" d0 pull").c_str(), 50, -20.0, 20.0);
-  m_h_pull_invpT = new TH1D(std::string(m_name+"-Pull-pT").c_str(),  std::string(m_name+" inv-pT pull").c_str(), 50, -20.0, 20.0);
-  addHistogram(m_h_pull_eta);
-  addHistogram(m_h_pull_phi);
-  addHistogram(m_h_pull_z0);
-  addHistogram(m_h_pull_d0);
-  addHistogram(m_h_pull_invpT);
+  h_pull_eta   = new TH1D(std::string(mname+"-Pull-eta").c_str(), std::string(mname+" eta pull").c_str(), 50, -20.0, 20.0);
+  h_pull_phi   = new TH1D(std::string(mname+"-Pull-phi").c_str(), std::string(mname+" phi pull").c_str(), 50, -20.0, 20.0);
+  h_pull_z0    = new TH1D(std::string(mname+"-Pull-z0").c_str(),  std::string(mname+" z0 pull").c_str(), 50, -20.0, 20.0);
+  h_pull_d0    = new TH1D(std::string(mname+"-Pull-d0").c_str(),  std::string(mname+" d0 pull").c_str(), 50, -20.0, 20.0);
+  h_pull_invpT = new TH1D(std::string(mname+"-Pull-pT").c_str(),  std::string(mname+" inv-pT pull").c_str(), 50, -20.0, 20.0);
+  addHistogram(h_pull_eta);
+  addHistogram(h_pull_phi);
+  addHistogram(h_pull_z0);
+  addHistogram(h_pull_d0);
+  addHistogram(h_pull_invpT);
 
 }
 
@@ -82,18 +82,18 @@ void Analysis_ResolutionCosmics::execute(const std::vector<TIDA::Track*>& refere
       double einvpT = sqrt( test->dpT() *test->dpT()  + (*reference)->dpT() *(*reference)->dpT() );
       
       // Fill resolution plots
-      m_h_res_eta->Fill(fabs(referenceEta)-fabs(testEta));
-      m_h_res_phi->Fill(phi(referencePhi-testPhi));
-      m_h_res_z0->Fill(fabs(referenceZ0)-fabs(testZ0));
-      m_h_res_d0->Fill(fabs(referenceD0)-fabs(testD0));
-      m_h_res_invpT->Fill(fabs(1.0/referencePT)-fabs(1.0/testPT));
+      h_res_eta->Fill(fabs(referenceEta)-fabs(testEta));
+      h_res_phi->Fill(phi(referencePhi-testPhi));
+      h_res_z0->Fill(fabs(referenceZ0)-fabs(testZ0));
+      h_res_d0->Fill(fabs(referenceD0)-fabs(testD0));
+      h_res_invpT->Fill(fabs(1.0/referencePT)-fabs(1.0/testPT));
       
       // Fill pull plots
-      if(eeta!=0)   m_h_pull_eta->Fill((fabs(referenceEta)-fabs(testEta))/eeta);           else m_h_pull_eta->Fill(-1000.0);
-      if(ephi!=0)   m_h_pull_phi->Fill((phi(referencePhi-testPhi))/ephi);                  else m_h_pull_phi->Fill(-1000.0);
-      if(ez0!=0)    m_h_pull_z0->Fill((fabs(referenceZ0)-fabs(testZ0))/ez0);               else m_h_pull_z0->Fill(-1000.0);
-      if(ed0!=0)    m_h_pull_d0->Fill((fabs(referenceD0)-fabs(testD0))/ed0);               else m_h_pull_d0->Fill(-1000.0);
-      if(einvpT!=0) m_h_pull_invpT->Fill((fabs(1.0/referencePT)-fabs(1.0/testPT))/einvpT); else m_h_pull_invpT->Fill(-1000.0);
+      if(eeta!=0)   h_pull_eta->Fill((fabs(referenceEta)-fabs(testEta))/eeta);           else h_pull_eta->Fill(-1000.0);
+      if(ephi!=0)   h_pull_phi->Fill((phi(referencePhi-testPhi))/ephi);                  else h_pull_phi->Fill(-1000.0);
+      if(ez0!=0)    h_pull_z0->Fill((fabs(referenceZ0)-fabs(testZ0))/ez0);               else h_pull_z0->Fill(-1000.0);
+      if(ed0!=0)    h_pull_d0->Fill((fabs(referenceD0)-fabs(testD0))/ed0);               else h_pull_d0->Fill(-1000.0);
+      if(einvpT!=0) h_pull_invpT->Fill((fabs(1.0/referencePT)-fabs(1.0/testPT))/einvpT); else h_pull_invpT->Fill(-1000.0);
 
     }
   }

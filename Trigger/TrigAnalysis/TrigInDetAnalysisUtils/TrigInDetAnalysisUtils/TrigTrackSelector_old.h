@@ -191,14 +191,14 @@ public:
       // 2 "hits" and an offline SCT "hit" is really a 1D cluster, so two intersetcting
       // stereo clusters making a spacepoint are two "hits"
       const Trk::TrackSummary *summary = track->trackSummary();
-      int nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
+      int nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
       int nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
       int nSctHits    = summary->get(Trk::numberOfSCTHits); 
       int nStrawHits  = summary->get(Trk::numberOfTRTHits);
       int nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 
       int nSiHits     = nPixelHits + nSctHits;
-      bool expectBL   = summary->get(Trk:: expectInnermostPixelLayerHit);
+      bool expectBL   = summary->get(Trk:: expectBLayerHit);
 
       const Trk::FitQuality *quality   = track->fitQuality();
       double chi2 = quality->chiSquared();
@@ -619,13 +619,13 @@ public:
             std::cout << "Could not create TrackSummary  - Track will likely fail hits requirements" << std::endl;
 	}    
 	else{      
-            nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
+            nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
             nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
 	    nSctHits    = summary->get(Trk::numberOfSCTHits); 
             nStrawHits  = summary->get(Trk::numberOfTRTHits);
             nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 	    nSiHits     = nPixelHits + nSctHits;
-	    expectBL    = summary->get(Trk::expectInnermostPixelLayerHit);
+	    expectBL    = summary->get(Trk::expectBLayerHit);
 	    for ( int ih=0 ; ih<20 ; ih++ ) {
 	      if ( summary->isHit(Trk::DetectorType(ih)) ) bitmap |= ( 1<<hpmap[ih] ); 	
 	    }

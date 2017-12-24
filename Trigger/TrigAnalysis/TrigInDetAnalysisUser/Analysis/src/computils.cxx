@@ -48,6 +48,14 @@ double  Entries( TH1* h ) {
 }
 
 
+double integral( TH1* h ) { 
+  double n=0;
+  for ( int i=h->GetNbinsX() ; i>0 ; i-- ) n += h->GetBinContent(i);
+  return n;
+}
+
+
+
 void Norm( TH1* h, double scale ) {
   double n = 0;
   for ( int i=h->GetNbinsX()+2 ; --i ; ) n += h->GetBinContent(i);
@@ -164,12 +172,6 @@ std::string globbed( const std::string& s ) {
 
 
 
-
-double integral( TH1* h ) { 
-  double n=0;
-  for ( int i=h->GetNbinsX() ; i>0 ; i-- ) n += h->GetBinContent(i);
-  return n;
-}
 
 
 bool empty( TH1* h ) { 

@@ -99,15 +99,15 @@ void SigAnalysis::initialise() {
   heff[6]    = new Efficiency( find("pT"), "pTm_eff" );
   heff[7]    = new Efficiency( find("pT"), "pTp_eff" );
 
-  m_eff_pt  = heff[0];
-  m_eff_eta = heff[1];
-  m_eff_phi = heff[2];
-  m_eff_z0  = heff[3];
-  m_eff_d0  = heff[4];
-  m_eff_a0  = heff[5];
+  eff_pt  = heff[0];
+  eff_eta = heff[1];
+  eff_phi = heff[2];
+  eff_z0  = heff[3];
+  eff_d0  = heff[4];
+  eff_a0  = heff[5];
 
-  m_eff_ptm = heff[6];
-  m_eff_ptp = heff[7];
+  eff_ptm = heff[6];
+  eff_ptp = heff[7];
   
   hpurity[0] = new Efficiency( find("pT"),  "pT_pur"  );
   hpurity[1] = new Efficiency( find("eta"), "eta_pur" );
@@ -116,12 +116,12 @@ void SigAnalysis::initialise() {
   hpurity[4] = new Efficiency( find("d0"),  "d0_pur"  );
   hpurity[5] = new Efficiency( find("a0"),  "a0_pur"  );
 
-  m_purity_pt  = hpurity[0];
-  m_purity_eta = hpurity[1];
-  m_purity_phi = hpurity[2];
-  m_purity_z0  = hpurity[3];
-  m_purity_d0  = hpurity[4];
-  m_purity_a0  = hpurity[5];
+  purity_pt  = hpurity[0];
+  purity_eta = hpurity[1];
+  purity_phi = hpurity[2];
+  purity_z0  = hpurity[3];
+  purity_d0  = hpurity[4];
+  purity_a0  = hpurity[5];
 
   // "test" quantities
   addHistogram(    new TH1F(  "pT_rec",   "pT_rec",   ptnbins,    ptbinlims ) );
@@ -161,9 +161,9 @@ void SigAnalysis::initialise() {
   
 
   // beam offset fitting histos
-  m_h2  = new TH2F( "d0vphi",       "d0vphi",        phiBins, -3.142, 3.142, d0Bins, -d0Max, d0Max );  
-  m_h2r = new TH2F( "d0vphi_rec",   "d0vphi_rec",    phiBins, -3.142, 3.142, d0Bins, -d0Max, d0Max );  
-  m_h2m = new TH2F( "d0vphi_match", "d0vphi_match",  phiBins, -3.142, 3.142, d0Bins, -d0Max, d0Max );  
+  h2  = new TH2F( "d0vphi",       "d0vphi",        phiBins, -3.142, 3.142, d0Bins, -d0Max, d0Max );  
+  h2r = new TH2F( "d0vphi_rec",   "d0vphi_rec",    phiBins, -3.142, 3.142, d0Bins, -d0Max, d0Max );  
+  h2m = new TH2F( "d0vphi_match", "d0vphi_match",  phiBins, -3.142, 3.142, d0Bins, -d0Max, d0Max );  
 
   m_dir->pop();
 
@@ -176,9 +176,9 @@ void SigAnalysis::initialise() {
 
 
 void SigAnalysis::finalise() { 
-  std::cout << "SigAnalysis::finalise() " << name() << "\tNreco " << m_Nreco << " tracks" << std::endl;
+  std::cout << "SigAnalysis::finalise() " << name() << "\tNreco " << Nreco << " tracks" << std::endl;
 
-  //  if ( m_Nreco==0 ) return;
+  //  if ( Nreco==0 ) return;
 
   m_dir->push();
 
@@ -188,14 +188,14 @@ void SigAnalysis::finalise() {
   //  std::map<std::string, TH1F*>::iterator hend=m_histos.end();
   //  for ( ; hitr!=hend ; hitr++ ) hitr->second->Write();     
 
-  //  std::cout << "DBG >" << m_eff_pt->Hist()->GetName() << "< DBG" << std::endl;
+  //  std::cout << "DBG >" << eff_pt->Hist()->GetName() << "< DBG" << std::endl;
 
-  Efficiency* heff[8] = { m_eff_pt, m_eff_eta, m_eff_phi, m_eff_z0, m_eff_d0, m_eff_a0, m_eff_ptm, m_eff_ptp };
+  Efficiency* heff[8] = { eff_pt, eff_eta, eff_phi, eff_z0, eff_d0, eff_a0, eff_ptm, eff_ptp };
   for ( int i=8 ; i-- ; ) { heff[i]->finalise();  } // heff[i]->Hist()->Write(); } 
 
-  //  std::cout << "DBG >" << m_purity_pt->Hist()->GetName() << "< DBG" << std::endl;
+  //  std::cout << "DBG >" << purity_pt->Hist()->GetName() << "< DBG" << std::endl;
 
-  Efficiency* hpurity[6] = { m_purity_pt, m_purity_eta, m_purity_phi, m_purity_z0, m_purity_d0, m_purity_a0 };
+  Efficiency* hpurity[6] = { purity_pt, purity_eta, purity_phi, purity_z0, purity_d0, purity_a0 };
   for ( int i=6 ; i-- ; ) { hpurity[i]->finalise();  } //  hpurity[i]->Hist()->Write(); } 
 
   m_dir->pop();
@@ -247,9 +247,9 @@ void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     double ntrtt   = reftracks[i]->trHits(); 
     double nstrawt = reftracks[i]->strawHits(); 
 
-    //    std::cout << "Fill m_h2 " << " " << m_h2m << " " << *reftracks[i] << std::endl; 
+    //    std::cout << "Fill h2 " << " " << h2m << " " << *reftracks[i] << std::endl; 
 
-    m_h2->Fill( phit, d0t );
+    h2->Fill( phit, d0t );
 
     const TIDA::Track* matchedreco = matcher->matched(reftracks[i]); 
     
@@ -271,16 +271,16 @@ void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     if ( matchedreco )  {
        
        // efficiency histos
-       m_eff_pt->Fill(std::fabs(pTt));
-       m_eff_z0->Fill(z0t);
-       m_eff_eta->Fill(etat);
-       m_eff_phi->Fill(phit);
-       m_eff_d0->Fill(d0t);
-       m_eff_a0->Fill(a0t);
+       eff_pt->Fill(std::fabs(pTt));
+       eff_z0->Fill(z0t);
+       eff_eta->Fill(etat);
+       eff_phi->Fill(phit);
+       eff_d0->Fill(d0t);
+       eff_a0->Fill(a0t);
        
        // signed pT
-       if ( pTt<0 ) m_eff_ptm->Fill(std::fabs(pTt));
-       else         m_eff_ptp->Fill(std::fabs(pTt));
+       if ( pTt<0 ) eff_ptm->Fill(std::fabs(pTt));
+       else         eff_ptp->Fill(std::fabs(pTt));
        
        // residual histos
        double pTr  = matchedreco->pT();  
@@ -290,7 +290,7 @@ void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
        double d0r  = matchedreco->a0(); 
        double a0r  = matchedreco->a0() + sin(phir)*m_xBeamTest - cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position
 
-       if ( m_h2m ) m_h2m->Fill( phit, d0t );
+       if ( h2m ) h2m->Fill( phit, d0t );
       
        //       if ( m_print ) std::cout << "SigAnalysis::execute() \t " << name() << "\t" << i << " " 
        if ( m_print ) std::cout << "SigAnalysis::execute() \t\t" << i << " " 
@@ -310,16 +310,16 @@ void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
      else { 
        // fill efficiencies with unmatched histos
        //       std::cout << "NULL" << std::endl;
-       m_eff_pt->FillDenom(std::fabs(pTt));
-       m_eff_z0->FillDenom(z0t);
-       m_eff_eta->FillDenom(etat);
-       m_eff_phi->FillDenom(phit);
-       m_eff_d0->FillDenom(d0t);
-       m_eff_a0->FillDenom(a0t);
+       eff_pt->FillDenom(std::fabs(pTt));
+       eff_z0->FillDenom(z0t);
+       eff_eta->FillDenom(etat);
+       eff_phi->FillDenom(phit);
+       eff_d0->FillDenom(d0t);
+       eff_a0->FillDenom(a0t);
 
        // signed pT
-       if ( pTt<0 ) m_eff_ptm->FillDenom(std::fabs(pTt));
-       else         m_eff_ptp->FillDenom(std::fabs(pTt));
+       if ( pTt<0 ) eff_ptm->FillDenom(std::fabs(pTt));
+       else         eff_ptp->FillDenom(std::fabs(pTt));
 
        if ( std::fabs(pTt)>4000 ) dump = true; 
      }
@@ -333,13 +333,13 @@ void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
   static int icount = 0;
 
-  //  if ( icount%1000 ) std::cout << "chain " << name() << "\t " << m_Nreco << " tracks" << std::endl;  
+  //  if ( icount%1000 ) std::cout << "chain " << name() << "\t " << Nreco << " tracks" << std::endl;  
   // if ( icount%1000 ) 
-  if ( m_print ) std::cout << "SigAnalysis::execute() \t " << name() << "\t " << icount << " events\t " << testtracks.size() << " tracks (" << m_Nreco << ")" << "\n---------------" << std::endl;  
+  if ( m_print ) std::cout << "SigAnalysis::execute() \t " << name() << "\t " << icount << " events\t " << testtracks.size() << " tracks (" << Nreco << ")" << "\n---------------" << std::endl;  
 
   icount++;
   
-  m_Nreco += testtracks.size();
+  Nreco += testtracks.size();
 
   for ( int i=testtracks.size() ; i-- ; ) { 
      
@@ -362,7 +362,7 @@ void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     double ntrtr   = testtracks[i]->trHits(); 
     double nstrawr = testtracks[i]->strawHits(); 
 
-    if ( m_h2r ) m_h2r->Fill( phir, d0r );
+    if ( h2r ) h2r->Fill( phir, d0r );
 
     const TIDA::Track* matchedref = matcher->revmatched(testtracks[i]); 
 
@@ -386,22 +386,22 @@ void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       //       std::cout << *matchedref << std::endl;
        
-       m_purity_pt->Fill(std::fabs(pTr));
-       m_purity_z0->Fill(z0r);
-       m_purity_eta->Fill(etar);
-       m_purity_phi->Fill(phir);
-       m_purity_d0->Fill(d0r);
-       m_purity_a0->Fill(a0r);
+       purity_pt->Fill(std::fabs(pTr));
+       purity_z0->Fill(z0r);
+       purity_eta->Fill(etar);
+       purity_phi->Fill(phir);
+       purity_d0->Fill(d0r);
+       purity_a0->Fill(a0r);
        
     }
     else { 
       //       std::cout << "NULL" << std::endl;
-       m_purity_pt->FillDenom(std::fabs(pTr));
-       m_purity_z0->FillDenom(z0r);
-       m_purity_eta->FillDenom(etar);
-       m_purity_phi->FillDenom(phir);
-       m_purity_d0->FillDenom(d0r);
-       m_purity_a0->FillDenom(a0r);
+       purity_pt->FillDenom(std::fabs(pTr));
+       purity_z0->FillDenom(z0r);
+       purity_eta->FillDenom(etar);
+       purity_phi->FillDenom(phir);
+       purity_d0->FillDenom(d0r);
+       purity_a0->FillDenom(a0r);
      }
 
   }

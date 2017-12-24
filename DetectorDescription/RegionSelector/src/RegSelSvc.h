@@ -64,7 +64,7 @@ class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
    */
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
 
-  //! @c reinitialize standard Service interface
+  //! @method reinitialize standard Service interface
   /*!
       Read list of pixel and sct robids to be initialised from OKS
       and anable the corresponding modules
@@ -75,7 +75,7 @@ class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
   bool reinitialiseInternalFromOKS();
   bool GetEnabledROBsFromOKS(); 
 
-  //! @c initialize standard Service interface
+  //! @method initialize standard Service interface
   /*!
     Load detector description tables for all detectors loaded in Constructor. 
     Internal maps for retrieve %Identifier %Hash and ROBID information are loaded. 
@@ -102,7 +102,7 @@ class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
 
   // StatusCode handleCalo(IOVSVC_CALLBACK_ARGS);
 
-  //! @c finalize  standard Service interface, deletes all maps from memory
+  //! @method finalize  standard Service interface, deletes all maps from memory
   StatusCode finalize();
   
   // Interface inherited from IRegSelSvc service

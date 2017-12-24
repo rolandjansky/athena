@@ -70,107 +70,109 @@ class Analysis_Tier0 : public TrackAnalysis {
   std::map<std::string, TH1*> m_histos;
   std::map<std::string, TProfile*> m_effhistos;
   
-  TProfile* m_h_total_efficiency;
-  TProfile* m_h_pTeff;
-  TProfile* m_h_etaeff;
-  TProfile* m_h_phieff;
-  TProfile* m_h_d0eff;
-  TProfile* m_h_z0eff;
-  TProfile* m_h_nVtxeff;
-  TProfile* m_h_lbeff;
+  TProfile* h_total_efficiency;
+  TProfile* h_pTeff;
+  TProfile* h_etaeff;
+  TProfile* h_phieff;
+  TProfile* h_d0eff;
+  TProfile* h_z0eff;
+  TProfile* h_nVtxeff;
+  TProfile* h_lbeff;
 
-  TProfile* m_h_pTres;
-  TProfile* m_h_ipTres;
-  TProfile* m_h_etares;
-  TProfile* m_h_phires;
-  TProfile* m_h_d0res;
-  TProfile* m_h_z0res;
+  TProfile* h_pTres;
+  TProfile* h_ipTres;
+  TProfile* h_etares;
+  TProfile* h_phires;
+  TProfile* h_d0res;
+  TProfile* h_z0res;
 
-  TProfile* m_h_trkvtx_x_lb;
-  TProfile* m_h_trkvtx_y_lb;
-  TProfile* m_h_trkvtx_z_lb;
-
-
-  TProfile* m_h_npixvseta;
-  TProfile* m_h_npixvsphi;
-  TProfile* m_h_npixvsd0;
-
-  TProfile* m_h_nsctvseta;
-  TProfile* m_h_nsctvsphi;
-  TProfile* m_h_nsctvsd0;
-
-  TProfile* m_h_ntrtvseta;
-  TProfile* m_h_ntrtvsphi;
-
-  TProfile* m_h_nsihits_lb;
-
-  TProfile* m_h_npixvseta_rec;
-  TProfile* m_h_npixvsphi_rec;
-  TProfile* m_h_npixvsd0_rec;
-
-  TProfile* m_h_nsctvseta_rec;
-  TProfile* m_h_nsctvsphi_rec;
-  TProfile* m_h_nsctvsd0_rec;
-
-  TProfile* m_h_ntrtvseta_rec;
-  TProfile* m_h_ntrtvsphi_rec;
-
-  TProfile* m_h_nsihits_lb_rec;
-
-  TProfile* m_h_d0vsphi;
-  TH2F*     m_h2d_d0vsphi;
-  TH2F*     m_h2d_d0vsphi_rec;
+  TProfile* h_trkvtx_x_lb;
+  TProfile* h_trkvtx_y_lb;
+  TProfile* h_trkvtx_z_lb;
 
 
-  TH1F* m_h_chain;
+  TProfile* h_npixvseta;
+  TProfile* h_npixvsphi;
+  TProfile* h_npixvsd0;
 
-  TH1F* m_h_ntrk;
+  TProfile* h_nsctvseta;
+  TProfile* h_nsctvsphi;
+  TProfile* h_nsctvsd0;
 
-  TH1F* m_h_trkpT;
-  TH1F* m_h_trketa;
-  TH1F* m_h_trkphi;
-  TH1F* m_h_trkd0;
-  TH1F* m_h_trkz0;
+  TProfile* h_ntrtvseta;
+  TProfile* h_ntrtvsphi;
 
-  TH1F* m_h_trkdd0;
-  TH1F* m_h_trkdz0;
+  TProfile* h_nsihits_lb;
 
-  TH1F* m_h_trkd0sig;
+  TProfile* h_npixvseta_rec;
+  TProfile* h_npixvsphi_rec;
+  TProfile* h_npixvsd0_rec;
 
-  TH1F* m_h_npix;
-  TH1F* m_h_nsct;
-  TH1F* m_h_nsihits;
-  TH1F* m_h_ntrt;
+  TProfile* h_nsctvseta_rec;
+  TProfile* h_nsctvsphi_rec;
+  TProfile* h_nsctvsd0_rec;
 
-  TH1F* m_h_ntrk_rec;
+  TProfile* h_ntrtvseta_rec;
+  TProfile* h_ntrtvsphi_rec;
 
+  TProfile* h_nsihits_lb_rec;
 
-  TH1F* m_h_trkpT_rec;
-  TH1F* m_h_trketa_rec;
-  TH1F* m_h_trkphi_rec;
-  TH1F* m_h_trkd0_rec;
-  TH1F* m_h_trkz0_rec;
+  TProfile* h_d0vsphi;
+  TProfile* h_d0vsphi_rec;
 
-  TH1F* m_h_trkdd0_rec;
-  TH1F* m_h_trkdz0_rec;
-
-  TH1F* m_h_trkd0sig_rec;
-
-  TH1F* m_h_npix_rec;
-  TH1F* m_h_nsct_rec;
-  TH1F* m_h_nsihits_rec;
-  TH1F* m_h_ntrt_rec;
+  TH2F*     h2d_d0vsphi;
+  TH2F*     h2d_d0vsphi_rec;
 
 
-  TH1F* m_h_trkpT_residual;
-  TH1F* m_h_trkipT_residual;
-  TH1F* m_h_trketa_residual;
-  TH1F* m_h_trkphi_residual;
-  TH1F* m_h_trkd0_residual;
-  TH1F* m_h_trkz0_residual;
+  TH1F* h_chain;
 
-  TH1F* m_h_trkdd0_residual;
-  TH1F* m_h_trkdz0_residual;
+  TH1F* h_ntrk;
+
+  TH1F* h_trkpT;
+  TH1F* h_trketa;
+  TH1F* h_trkphi;
+  TH1F* h_trkd0;
+  TH1F* h_trkz0;
+
+  TH1F* h_trkdd0;
+  TH1F* h_trkdz0;
+
+  TH1F* h_trkd0sig;
+
+  TH1F* h_npix;
+  TH1F* h_nsct;
+  TH1F* h_nsihits;
+  TH1F* h_ntrt;
+
+  TH1F* h_ntrk_rec;
+
+
+  TH1F* h_trkpT_rec;
+  TH1F* h_trketa_rec;
+  TH1F* h_trkphi_rec;
+  TH1F* h_trkd0_rec;
+  TH1F* h_trkz0_rec;
+
+  TH1F* h_trkdd0_rec;
+  TH1F* h_trkdz0_rec;
+
+  TH1F* h_trkd0sig_rec;
+
+  TH1F* h_npix_rec;
+  TH1F* h_nsct_rec;
+  TH1F* h_nsihits_rec;
+  TH1F* h_ntrt_rec;
+
+
+  TH1F* h_trkpT_residual;
+  TH1F* h_trkipT_residual;
+  TH1F* h_trketa_residual;
+  TH1F* h_trkphi_residual;
+  TH1F* h_trkd0_residual;
+  TH1F* h_trkz0_residual;
+
+  TH1F* h_trkdd0_residual;
+  TH1F* h_trkdz0_residual;
 
 
   // Efficiency plateau cuts

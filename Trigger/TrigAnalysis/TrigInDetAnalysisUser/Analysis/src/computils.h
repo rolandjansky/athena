@@ -42,6 +42,8 @@ void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Dou
 std::string stime();
 static std::string release;
 
+double integral( TH1* h );
+
 void Norm( TH1* h, double scale=1 );
 
 double Entries( TH1* h );
@@ -109,6 +111,7 @@ public:
     m_lo(0),
     m_hi(0),
     m_norm(false),
+    m_refnorm(false),
     m_binwidth(false)
   { 
     //    std::cout << "AxisInfo::info" << m_info << std::endl;
@@ -128,6 +131,7 @@ public:
       else if  ( keys[i]=="log" )   m_log       = true;
       else if  ( keys[i]=="sym" )   m_symmetric = true; 
       else if  ( keys[i]=="norm" )  m_norm      = true;
+      else if  ( keys[i]=="refn" )  m_refnorm   = true;
       else if  ( keys[i]=="width" ) m_binwidth  = true;
       else if  ( keys[i]=="auto" )  m_autoset   = true;
       else if  ( keys[i]=="auton" )  {
@@ -183,7 +187,9 @@ public:
 
   bool   autoset() const { return m_autoset; }
 
-  bool   normset() const { return m_norm; }
+  bool   normset()    const { return m_norm; }
+
+  bool   refnormset() const { return m_refnorm; }
   
   bool   symmetric() const { return m_symmetric; }
 
@@ -229,6 +235,7 @@ public:
   double m_hi;
 
   bool m_norm;
+  bool m_refnorm;
   
   bool m_binwidth;
   
@@ -357,18 +364,21 @@ public:
 	href()->SetLineColor(colours[i%6]);
 	href()->SetLineStyle(2);
 	href()->SetMarkerStyle(0);
+        href()->GetYaxis()->SetMoreLogLabels(true);
       }
       //      href()->SetMarkerColor(href()->GetLineColor());
       htest()->SetLineColor(colours[i%6]);
       htest()->SetLineStyle(1);
       htest()->SetMarkerColor(htest()->GetLineColor());
       htest()->SetMarkerStyle(markers[i%6]);
+      htest()->GetYaxis()->SetMoreLogLabels(true);
 
       //      std::cout << "Draw() href() " << href() << "\thtest() " << htest() << "\ttgtest() " << tgtest();
       if ( htest() ) std::cout << "\tentries " << plotable( htest() );
       std::cout << std::endl;
 
-      if(first)  { 
+      if(first)  {
+#if 0 
 	if ( plotref && href() ) {
 	  href()->GetXaxis()->SetMoreLogLabels(true);
 	  href()->Draw("hist][");
@@ -376,10 +386,13 @@ public:
 	  //	    setParameters( href(), tgref() );
 	  //	  }
 	}
-	else    {
+	else
+#endif
+        {
 	  if ( tgtest() ) { 
 	    zeroErrors(htest());
 	    htest()->GetXaxis()->SetMoreLogLabels(true);
+	    htest()->GetYaxis()->SetMoreLogLabels(true);
 	    htest()->Draw("ep");
 	    setParameters( htest(), tgtest() );
 	    // tgtest()->Draw("p1same");
@@ -387,6 +400,7 @@ public:
 	  }
 	  else { 
 	    htest()->GetXaxis()->SetMoreLogLabels(true);
+	    htest()->GetYaxis()->SetMoreLogLabels(true);
 	    htest()->Draw("ep");
 	  }
 	}

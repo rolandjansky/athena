@@ -161,17 +161,17 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
   msg(MSG::DEBUG) << "TrigTestMonToolAC::book() SUTT buildNtuple " << m_buildNtuple 
 		  << "\tNewEventBlock " << newEventsBlock 
-		  << "\tNewLumiBlock "  << newLumiBlock
+		  << "\tNewLumiBlock "  << newLumiBlock 
 		  << "\tNewRun "        << newRun  <<  std::endl;
 
 
   /// create sequences if need be ...
 
-  static bool first = true;
+  static bool tfirst = true;
 
-  if ( first ) { 
+  if ( tfirst ) { 
 
-    first = false;
+    tfirst = false;
 
     // track filters 
     // reference (offline) tracks...

@@ -81,7 +81,7 @@ public:
 
   void correctTracks(bool b=true) { m_correctTrkTracks = b; } 
 
-  virtual void clear() { for ( unsigned i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
+  virtual void clear() { for ( unsigned i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); }   
 
 
   void selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 );

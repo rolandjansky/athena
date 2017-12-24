@@ -59,8 +59,8 @@ public:
   /// the ntple selector manages the tracks itself, so we have to do an explicit 
   /// delete or each one to prevent memory leaking
   virtual void clear() {  
-    for ( int i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; 
-    m_tracks.clear(); 
+    for ( int i=mtracks.size() ; i-- ; ) delete mtracks[i]; 
+    mtracks.clear(); 
   }
 
 };

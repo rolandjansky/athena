@@ -24,7 +24,25 @@ bool TIDA::isGoodOffline(const xAOD::Electron& elec, const unsigned int selectio
 }
 
 // Currently no xAOD offline muon selection implemented
-bool TIDA::isGoodOffline(const xAOD::Muon& /*muon*/, double ) { return true; }
+bool TIDA::isGoodOffline(const xAOD::Muon& muon, const unsigned int selection, double ) { 
+
+  /// should allow this to be set also
+  if ( muon.muonType() != xAOD::Muon::Combined ) return false;
+ 
+  bool good_muon = false;
+
+  /// This muon selection is *ridiculous* - it looks like if it passed "Tight" 
+  /// selection, then it *does not* pass medium selection, as the goups are *exclusive*
+  /// this is completely nonsensical !
+
+  if      ( selection == 1 ) good_muon = (muon.quality()<=xAOD::Muon::Tight);
+  else if ( selection == 2 ) good_muon = (muon.quality()<=xAOD::Muon::Medium);
+  else if ( selection == 3 ) good_muon = (muon.quality()<=xAOD::Muon::Loose);
+  else if ( selection == 4 ) good_muon = (muon.quality()<=xAOD::Muon::VeryLoose);
+  else                       good_muon = true;
+
+  return good_muon; 
+}
 
 
 // xAOD offline tau selection
@@ -110,9 +128,9 @@ bool TIDA::isGoodOffline(const Analysis::Muon& muon) {
     /// maybe select all these track based quantitied om the TIDA::Track, so we dont 
     /// have to fuss with is it xAOD/is it not xAOD etc
     // B-Layer hits
-    int numberOfInnermostPixelLayerHits = summary->get(Trk::numberOfInnermostPixelLayerHits);
-    bool expectInnermostPixelLayerHit = summary->get(Trk::expectInnermostPixelLayerHit);
-    if (expectInnermostPixelLayerHit && numberOfInnermostPixelLayerHits<1) return false;
+    int numberOfBLayerHits = summary->get(Trk::numberOfBLayerHits);
+    bool expectBLayerHit = summary->get(Trk::expectBLayerHit);
+    if (expectBLayerHit && numberOfBLayerHits<1) return false;
     
     // Pix hits
     int nPixelHits = summary->get(Trk::numberOfPixelHits);

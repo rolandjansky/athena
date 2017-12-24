@@ -33,26 +33,26 @@ class Analysis_Fake : public TrackAnalysis {
   
   // Integral efficiency histograms
 
-  TH1* m_h_integralD;
-  TH1* m_h_integralN;
-  TH1* m_h_integral;
+  TH1* h_integralD;
+  TH1* h_integralN;
+  TH1* h_integral;
     
   // Differential efficiency histograms
-  TH1* m_h_etaD;
-  TH1* m_h_phiD;
-  TH1* m_h_z0D;
-  TH1* m_h_d0D;
-  TH1* m_h_pTD;
-  TH1* m_h_etaN;
-  TH1* m_h_phiN;
-  TH1* m_h_z0N;
-  TH1* m_h_d0N;
-  TH1* m_h_pTN;
-  TH1* m_h_eta;
-  TH1* m_h_phi;
-  TH1* m_h_z0;
-  TH1* m_h_d0;
-  TH1* m_h_pT;
+  TH1* h_etaD;
+  TH1* h_phiD;
+  TH1* h_z0D;
+  TH1* h_d0D;
+  TH1* h_pTD;
+  TH1* h_etaN;
+  TH1* h_phiN;
+  TH1* h_z0N;
+  TH1* h_d0N;
+  TH1* h_pTN;
+  TH1* h_eta;
+  TH1* h_phi;
+  TH1* h_z0;
+  TH1* h_d0;
+  TH1* h_pT;
 
   // Efficiency plateau cuts
   double m_pTCut;
