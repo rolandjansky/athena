@@ -67,8 +67,17 @@ namespace xAOD {
          neflowisol40 = 46,
 
          /// @}
+
+         /// Mini-Isolation http://arxiv.org/abs/1007.2221 for high mu
+         /// @{
+
+         ptvarcone20_TightTTVA_pt500 = 48,
+         ptvarcone30_TightTTVA_pt500 = 50,
+         ptvarcone40_TightTTVA_pt500 = 52,
+
+         /// @}
          
-         numIsolationTypes=47
+         numIsolationTypes=53
 
       }; // enum IsolationType
       
@@ -88,6 +97,10 @@ namespace xAOD {
               case ptvarcone20:    return "ptvarcone20";
               case ptvarcone30:    return "ptvarcone30";
               case ptvarcone40:    return "ptvarcone40";
+
+              case ptvarcone20_TightTTVA_pt500:    return "ptvarcone20_TightTTVA_pt500";
+              case ptvarcone30_TightTTVA_pt500:    return "ptvarcone30_TightTTVA_pt500";
+              case ptvarcone40_TightTTVA_pt500:    return "ptvarcone40_TightTTVA_pt500";
 
               case topoetcone20:    return "topoetcone20";
               case topoetcone30:    return "topoetcone30";
