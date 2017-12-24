@@ -53,7 +53,7 @@ StatusCode ZDC_DetTool::create()
       GeoPhysVol* world = &*theExpt->getPhysVol();
       theZDCFactory.create(world);  
     } 
-    catch (std::bad_alloc) {
+    catch (const std::bad_alloc&) {
       
       if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "Could not create new ZDC DetectorNode!" << endmsg;
       return StatusCode::FAILURE; 
