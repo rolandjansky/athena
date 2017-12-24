@@ -477,13 +477,13 @@ bool RegSelSiLUT::getRoIData(const RegSelRoI& roi, unsigned subdetector, unsigne
 	//      std::cout << layers[j] << "\tphimin=" << phimin << "\tphimax=" << phimax << std::endl;
 	//	std::cout << "lyr[" << subdetector << "] " << "\tphimin=" << phimin << "\tphimax=" << phimax << std::endl;
 
-	RegSelRoI _roi( roi.getzMin(), roi.getzMax(), phimin, phimax, roi.getetaMin(), roi.getetaMax() ); 
+	RegSelRoI troi( roi.getzMin(), roi.getzMax(), phimin, phimax, roi.getetaMin(), roi.getetaMax() ); 
        
-	bool inLayer = layers[layer].inRoI(_roi);
+	bool inLayer = layers[layer].inRoI(troi);
 
 	inDet |= inLayer;
 	
-	if ( inLayer ) layers[layer].getModules(_roi, modules);
+	if ( inLayer ) layers[layer].getModules(troi, modules);
 	
       } 
     }
