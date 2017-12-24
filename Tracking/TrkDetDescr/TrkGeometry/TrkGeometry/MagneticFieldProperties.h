@@ -53,7 +53,7 @@ namespace Trk {
       MagneticFieldMode magneticFieldMode() const;
             
       /** Get the magnetic field - in case of constant field only - throws exception if mode is not constant */
-      const Amg::Vector3D& magneticField() const throw (GaudiException);
+      const Amg::Vector3D& magneticField() const;
 
     protected:
       mutable MagneticFieldMode              m_magneticFieldMode;
@@ -65,7 +65,7 @@ namespace Trk {
 
   inline MagneticFieldMode MagneticFieldProperties::magneticFieldMode() const { return m_magneticFieldMode; }  
   
-  inline const Amg::Vector3D& MagneticFieldProperties::magneticField() const throw (GaudiException) { 
+  inline const Amg::Vector3D& MagneticFieldProperties::magneticField() const { 
       if ( m_magneticFieldMode != Trk::ConstantField ) 
           throw GaudiException("Trk::MagneticFieldProperties", "You can only ask for a field value if you have a constant field!", StatusCode::FAILURE);
       return m_magneticField;
