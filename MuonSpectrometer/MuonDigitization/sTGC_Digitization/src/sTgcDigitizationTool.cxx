@@ -20,6 +20,7 @@
 #include "sTGC_Digitization/sTgcDigitizationTool.h"
 #include "sTGC_Digitization/sTgcDigitMaker.h"
 #include "sTGC_Digitization/sTgcVMMSim.h"
+#include "sTGC_Digitization/sTgcSimDigitData.h"
 
 //Gaudi - Core
 #include "GaudiKernel/MsgStream.h"
@@ -96,8 +97,12 @@ inline bool sort_EarlyToLate(tempDigitType a, tempDigitType b){
   return a.first < b.first;
 }
 
-inline bool sort_digitsEarlyToLate(sTgcDigit a, sTgcDigit b){
-  return a.time() < b.time();
+//inline bool sort_digitsEarlyToLate(sTgcDigit a, sTgcDigit b){
+//  return a.time() < b.time();
+//}
+
+inline bool sort_digitsEarlyToLate(sTgcSimDigitData a, sTgcSimDigitData b){
+  return (a.getSTGCDigit()).time() < (b.getSTGCDigit()).time();
 }
 
 /*******************************************************************************/
@@ -182,7 +187,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_MSG_INFO ( "MCStore                " << m_sgSvc               );
   ATH_MSG_INFO ( "InputObjectName        " << m_inputHitCollectionName );
   ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionName );
-  //ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  ); //Skip SDO to bypass Trigger Tool error
+  ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  ); 
 
   // initialize transient event store 
   if(m_sgSvc.retrieve().isFailure()) { 
@@ -229,7 +234,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   
   // initialize class to execute digitization 
   m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");
     return StatusCode::FAILURE;
@@ -451,7 +456,6 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   }
   ATH_MSG_DEBUG("sTgcDigitContainer recorded in StoreGate.");
   
-  /*** Skip SDO to bypass an error in Trigger tool
   // create and record the SDO container in StoreGate
   m_sdoContainer = new MuonSimDataCollection();
   status = m_sgSvc->record(m_sdoContainer, m_outputSDO_CollectionName);
@@ -461,7 +465,6 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   } else {
     ATH_MSG_DEBUG("sTgcSDOCollection recorded in StoreGate.");
   }
-  ***/
 
   m_digitInfoCollection = new sTgcDigitInfoCollection();
 
@@ -540,11 +543,15 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   TimedHitCollection<GenericMuonSimHit>::const_iterator i, e; 
 
   // Collections of digits by digit type associated with a detector element
-  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedPadDigits;
-  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedStripDigits;
-  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedWireDigits;
+  //std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedPadDigits;
+  //std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedStripDigits;
+  //std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > unmergedWireDigits;
+  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedPadDigits;
+  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedStripDigits;
+  std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedWireDigits;
   
   std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > > outputDigits;
+  //std::map< IdentifierHash, std::map< Identifier, std:vector<sTgcSimDigitData> > > outputDigits;
 
   sTgcDigitCollection* digitCollection = 0;  //output digits
 
@@ -740,23 +747,38 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			if(it_SimHit->second!= 0)  //hit not from the main signal subevent
 				  isPileup = 1;
                   
-            sTgcDigit* newDigit = new sTgcDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  //Create the digit with updated time and BCTag
+            // Create a new digit with updated time and BCTag
+            sTgcDigit* newDigit = new sTgcDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
 			IdentifierHash coll_hash;  //Hash defining the detector element
             ATH_MSG_VERBOSE("Unmerged Digit") ;
             ATH_MSG_VERBOSE(" BC tag = "    << newDigit->bcTag()) ;
 			ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
 			ATH_MSG_VERBOSE(" charge = "    << newDigit->charge()) ;
 
-//
+            // Create a MuonSimData (SDO) corresponding to the digit
+            MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.depositEnergy(), tof));
+            std::vector<MuonSimData::Deposit> deposits;
+            deposits.push_back(deposit);
+            MuonSimData simData(deposits, hit.particleEncoding());
+            simData.setPosition(hit.globalPosition());
+            simData.setTime(globalHitTime);
+
+            // Associate the digit to the appropriate readout channel
 			m_idHelper->get_detectorElement_hash(elemId, coll_hash);
             if(newChannelType == 0){ //Pad Digit
-                unmergedPadDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+                //unmergedPadDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+                //Put the hit and digit in a vector associated with the RE
+                unmergedPadDigits[coll_hash][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
             }
             else if(newChannelType == 1){ //Strip Digit
-                unmergedStripDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+                //unmergedStripDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+                //Put the hit and digit in a vector associated with the RE
+                unmergedStripDigits[coll_hash][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
             }
             else if(newChannelType == 2){ //Wire Digit
-                unmergedWireDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+                //unmergedWireDigits[coll_hash][newDigitId].push_back(*newDigit);  //Put the digit in a vector associated with the RE 
+                //Put the hit and digit in a vector associated with the RE
+                unmergedWireDigits[coll_hash][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
             }
             delete newDigit;
 		} // end of loop digiHits
@@ -776,45 +798,81 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         */
    ATH_MSG_VERBOSE("Processing Pad Digits");
    int nPadDigits = 0;
-   for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
-   for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
+   //for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
+   for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
+   //for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
+   for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
        std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
        
        /*******************
        * Merge Pad Digits *
        *******************/       
    
-       std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
-       std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+       //std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
+       //std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+       std::vector<sTgcSimDigitData>::iterator i = it_REID->second.begin();
+       std::vector<sTgcSimDigitData>::iterator e = it_REID->second.end();
        e--;  //decrement e to be the last element and not the beyond the last element iterator
        
        while( i!=e ) { 
-           sTgcDigit digit1 = (*i);
-           sTgcDigit digit2 = (*(i+1));
+           //sTgcDigit digit1 = (*i);
+           //sTgcDigit digit2 = (*(i+1));
+           sTgcDigit digit1 = i->getSTGCDigit();
+           sTgcDigit digit2 = (i+1)->getSTGCDigit();
            if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
                ATH_MSG_VERBOSE("Merging Digits on REID[" << it_REID->first.getString() << "]");
                ATH_MSG_VERBOSE("digit1: " << digit1.time() << ", " << digit1.charge());
                ATH_MSG_VERBOSE("digit2: " << digit2.time() << ", " << digit2.charge());
+
+               // Update the digit info
                bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
-               i->set_isPileup(mergedIsPileup);
+               //i->set_isPileup(mergedIsPileup);
+               digit1.set_charge( digit1.charge()+digit2.charge() );
+               digit1.set_isPileup(mergedIsPileup);
+               i->setSTGCDigit(digit1);
+
                it_REID->second.erase (i+1); //remove the later time digit
                e = it_REID->second.end();  //update the end iterator
                e--; //decrement e to be the last element and not the beyond the last element iterator
                ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
            }
-           else ++i; //There was not a hit to merge: move onto the next one
+           else {
+               ++i; //There was not a hit to merge: move onto the next one
+           }
        }
        ATH_MSG_VERBOSE("Merging complete for Pad REID[" << it_REID->first.getString() << "]");
+       //ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
        ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
+
+        // Record SimData for pad channels and reate a temporary container 
+        // to store merged digits for VMM operation
+        std::vector<sTgcDigit> merged_pad_digits;
+        for ( const sTgcSimDigitData& digit_hit: it_REID->second) {
+            // Add element to SDO container
+            Identifier channel_id = (digit_hit.getSTGCDigit()).identify();
+            m_sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
+
+            // List of digits for VMM
+            merged_pad_digits.push_back( digit_hit.getSTGCDigit() );
+        }
+       unsigned int size_mergedDigits = merged_pad_digits.size();
+       unsigned int size_channelDigits = it_REID->second.size();
+       if (size_mergedDigits != size_channelDigits) {
+            ATH_MSG_WARNING("Critical: Number of merged pad digits (" << size_mergedDigits << ") is not equal to the number of digits on pad channel (" << size_channelDigits << ") after merging. Please verify.");
+        }
+
+
        /*************************
        * Calculate Pad deadtime *
        **************************/
        ATH_MSG_VERBOSE("Calculating deadtime for Pad REID[" << it_REID->first.getString() << "]");
        
-       float vmmStartTime = (*(it_REID->second.begin())).time();
+       //float vmmStartTime = (*(it_REID->second.begin())).time();
+       float vmmStartTime = (*(merged_pad_digits.begin())).time();
        
-       sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
-       theVMM->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+       //sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+       sTgcVMMSim* theVMM = new sTgcVMMSim(merged_pad_digits, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+       theVMM->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
        theVMM->initialReport();
        
        bool vmmControl = true;
@@ -862,40 +920,65 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    ATH_MSG_VERBOSE("Processing Strip Digits");
    std::map< IdentifierHash, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
    int nStripDigits = 0;
-    for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
-    for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
+    //for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
+    //for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
+    for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
+    for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
        std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
        
        /*******************
        * Merge Strip Digits *
        *******************/       
    
-       std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
-       std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+       std::vector<sTgcSimDigitData>::iterator i = it_REID->second.begin();
+       std::vector<sTgcSimDigitData>::iterator e = it_REID->second.end();
        e--;
-       
+
        while( i!=e ) { 
-           sTgcDigit digit1 = (*i);
-           sTgcDigit digit2 = (*(i+1));
+           sTgcDigit digit1 = i->getSTGCDigit();
+           sTgcDigit digit2 = (i+1)->getSTGCDigit();
            if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
                ATH_MSG_VERBOSE("Merging Digits on REID[" << it_REID->first.getString() << "]");
-               float mergedCharge = digit1.charge() + digit2.charge();
+               //float mergedCharge = digit1.charge() + digit2.charge();
                bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
-               i->set_charge(mergedCharge);
-               i->set_isPileup(mergedIsPileup);
+               digit1.set_charge( digit1.charge()+digit2.charge() );
+               digit1.set_isPileup(mergedIsPileup);
+               i->setSTGCDigit(digit1);
+
                it_REID->second.erase (i+1); //remove the later time digit
                e = it_REID->second.end();  //update the end iterator
                e--; //decrement e to be the last element and not the beyond the last element iterator
                ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
            }
-           else ++i; //There was not a hit to merge: move onto the next one
+           else {
+               ++i; //There was not a hit to merge: move onto the next one
+           }
        }
+
+        // Record SimData for pad channels and create a temporary container 
+        // to store merged digits for VMM operation
+        std::vector<sTgcDigit> merged_strip_digits;
+        for ( const sTgcSimDigitData& digit_hit: it_REID->second) {
+            // Add element to SDO container
+            Identifier channel_id = (digit_hit.getSTGCDigit()).identify();
+            m_sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
+
+            // Save digit for further processing with VMM
+            merged_strip_digits.push_back( digit_hit.getSTGCDigit() );
+        }
+       unsigned int size_mergedDigits = merged_strip_digits.size();
+       unsigned int size_channelDigits = it_REID->second.size();
+       if (size_mergedDigits != size_channelDigits) {
+            ATH_MSG_WARNING("Number of merged pad digits (" << size_mergedDigits << ") is not equal to the number of digits on pad channel (" << size_channelDigits << ") after merging. Please verify.");
+        }
+
+
        ATH_MSG_VERBOSE("Merging complete for Strip REID[" << it_REID->first.getString() << "]");
        ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
 //       float vmmStartTime = (*(it_REID->second.begin())).time();
        vmmArray[it_DETEL->first][it_REID->first].first = true;
-       vmmArray[it_DETEL->first][it_REID->first].second = new sTgcVMMSim(it_REID->second, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1);  // object to simulate the VMM response
-       vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+       vmmArray[it_DETEL->first][it_REID->first].second = new sTgcVMMSim(merged_strip_digits, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1);  // object to simulate the VMM response
+       vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
        ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
     }
     }
@@ -974,9 +1057,9 @@ StatusCode sTgcDigitizationTool::doDigitization() {
     */
    
    int nWGDigits = 0;
-   for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedWireDigits.begin(); it_DETEL!= unmergedWireDigits.end(); ++it_DETEL) {
+   for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedWireDigits.begin(); it_DETEL!= unmergedWireDigits.end(); ++it_DETEL) {
      // loop on digits of same wiregroup
-     for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {
+     for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {
          sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
 
          /*************************
@@ -985,36 +1068,61 @@ StatusCode sTgcDigitizationTool::doDigitization() {
          // No merging is done, just removing subsequent digits close in time
          // to the first digit. TODO: Have to be updated
 
-         std::vector<sTgcDigit>::iterator i = it_REID->second.begin();
-         std::vector<sTgcDigit>::iterator e = it_REID->second.end();
+         std::vector<sTgcSimDigitData>::iterator i = it_REID->second.begin();
+         std::vector<sTgcSimDigitData>::iterator e = it_REID->second.end();
          e--;  //decrement e to be the last element and not the beyond the last element iterator
 
          while( i!=e ) {
-             sTgcDigit digit1 = (*i);
-             sTgcDigit digit2 = (*(i+1));
+             sTgcDigit digit1 = i->getSTGCDigit();
+             sTgcDigit digit2 = (i+1)->getSTGCDigit();
              if(digit2.time() - digit1.time() < m_hitTimeMergeThreshold ) { //two consecutive hits are close enough for merging
                  ATH_MSG_VERBOSE("Merging Digits on REID[" << it_REID->first.getString() << "]");
                  ATH_MSG_VERBOSE("digit1: " << digit1.time() << ", " << digit1.charge());
                  ATH_MSG_VERBOSE("digit2: " << digit2.time() << ", " << digit2.charge());
+
                  bool mergedIsPileup = (digit1.isPileup() && digit2.isPileup());
-                 i->set_isPileup(mergedIsPileup);
+                 digit1.set_charge( digit1.charge()+digit2.charge() );
+                 digit1.set_isPileup(mergedIsPileup);
+                 i->setSTGCDigit(digit1);
+
                  it_REID->second.erase (i+1); //remove the later time digit
                  e = it_REID->second.end();  //update the end iterator
                  e--; //decrement e to be the last element and not the beyond the last element iterator
                  ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merge step");
              }
-             else ++i; //There was not a hit to merge: move onto the next one
+             else {
+                 ++i; //There was not a hit to merge: move onto the next one
+             }
          }
+
+        // Record SimData for pad channels and create a temporary container to 
+        // store merged digits for VMM operation
+        std::vector<sTgcDigit> merged_wire_digits;
+        for ( const sTgcSimDigitData& digit_hit: it_REID->second) {
+            Identifier channel_id = (digit_hit.getSTGCDigit()).identify();
+            m_sdoContainer->insert(std::make_pair(channel_id, digit_hit.getSimData()));
+
+            // Save digit for further processing with VMM
+            merged_wire_digits.push_back( digit_hit.getSTGCDigit() );
+        }
+       unsigned int size_mergedDigits = merged_wire_digits.size();
+       unsigned int size_channelDigits = it_REID->second.size();
+       if (size_mergedDigits != size_channelDigits) {
+            ATH_MSG_WARNING("Number of merged pad digits (" << size_mergedDigits << ") is not equal to the number of digits on pad channel (" << size_channelDigits << ") after merging. Please verify.");
+        }
+
+
          ATH_MSG_VERBOSE("Merging complete for Wiregroup REID[" << it_REID->first.getString() << "]");
          ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
+
          /*******************************
          * Calculate wiregroup deadtime *
          *******************************/
          ATH_MSG_VERBOSE("Calculating deadtime for wiregroup REID[" << it_REID->first.getString() << "]");
 
-         float vmmStartTime = (*(it_REID->second.begin())).time();
+         float vmmStartTime = (*(merged_wire_digits.begin())).time();
 
-         sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+         sTgcVMMSim* theVMM = new sTgcVMMSim(merged_wire_digits, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
          theVMM->setMessageLevel(msgLevel());
          theVMM->initialReport();
 
@@ -1173,15 +1281,20 @@ uint16_t sTgcDigitizationTool::bcTagging(const float digitTime, const int channe
 
   uint16_t bctag = 0;
 
-//  double offset, window;
-//  if(channelType == 1) { //strips 
-//    offset = m_timeWindowOffsetStrip;
-//    window = m_timeWindowStrip;
-//  }
-//  else { // wire gangs or pads
-//    offset = m_timeWindowOffsetPad;
-//    window = m_timeWindowPad;
-//  }
+  //double offset, window;
+  if(channelType == 0) { //pads 
+    ATH_MSG_VERBOSE("Determining BC tag for pad channel");
+  }
+  else if(channelType == 1) { //strips 
+    //offset = m_timeWindowOffsetStrip;
+    //window = m_timeWindowStrip;
+    ATH_MSG_VERBOSE("Determining BC tag for strip channel");
+  }
+  else if (channelType == 2) { // wire groups
+    //offset = m_timeWindowOffsetPad;
+    //window = m_timeWindowPad;
+    ATH_MSG_VERBOSE("Determining BC tag for wiregroup channel");
+  }
 
 //  if(-m_bunchCrossingTime+offset < digitTime && digitTime < -m_bunchCrossingTime+offset+window) {
 //    bctag = (bctag | 0x1);
