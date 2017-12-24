@@ -103,7 +103,7 @@ LArDetectorToolH62002::create()
       //
       GeoPhysVol *world=&*theExpt->getPhysVol();
       theLArFactory.create(world);
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
       log << MSG::FATAL << "Could not create new H62002Node!" << endmsg;
       return StatusCode::FAILURE; 
     }
