@@ -39,7 +39,7 @@ Trk::VertexOnTrack::VertexOnTrack( const LocalParameters& locpars,
 
 // Constructor with parameters:
 Trk::VertexOnTrack::VertexOnTrack( const Trk::RecVertex& rvertex,
-                                   const Trk::Perigee& perigee ) throw (GaudiException) :
+                                   const Trk::Perigee& perigee ) :
   Trk::MeasurementBase(),
   m_associatedSurface(perigee.associatedSurface().clone()),
   m_globalPosition(new Amg::Vector3D(perigee.position()))
