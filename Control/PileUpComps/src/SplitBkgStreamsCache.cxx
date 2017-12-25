@@ -167,7 +167,7 @@ SplitBkgStreamsCache::setup(int firstXing,
 	{
 	  m_streams1.push_back(PileUpStream(streamName,serviceLocator(),selecName1)); 
 	} 
-      catch (std::runtime_error e) 
+      catch (const std::runtime_error& e) 
 	{
 	  ATH_MSG_ERROR ( "Exception thrown while creating PileUpStream " 
 			  << streamName << " : " << e.what() );     
@@ -193,7 +193,7 @@ SplitBkgStreamsCache::setup(int firstXing,
 	{
 	  m_streams2.push_back(PileUpStream(streamName,serviceLocator(),selecName2)); 
 	} 
-      catch (std::runtime_error e) 
+      catch (const std::runtime_error& e) 
 	{
 	  ATH_MSG_ERROR ( "Exception thrown while creating PileUpStream " 
 			  << streamName << " : " << e.what() );     
