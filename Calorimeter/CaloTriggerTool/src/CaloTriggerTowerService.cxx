@@ -172,7 +172,7 @@ bool CaloTriggerTowerService::is_initialized () const
 
 
 //===========================================================
-HWIdentifier  CaloTriggerTowerService::createTTChannelID(const Identifier & id, bool bQuiet) throw(CaloID_Exception)
+HWIdentifier  CaloTriggerTowerService::createTTChannelID(const Identifier & id, bool bQuiet)
 {
 
 	HWIdentifier invalidId (0);
@@ -204,7 +204,7 @@ HWIdentifier  CaloTriggerTowerService::createTTChannelID(const Identifier & id, 
 
 
 //===========================================================================
-Identifier  CaloTriggerTowerService::cnvToIdentifier(const HWIdentifier & id, bool bQuiet) throw(CaloID_Exception)
+Identifier  CaloTriggerTowerService::cnvToIdentifier(const HWIdentifier & id, bool bQuiet)
 {
 	Identifier invalidId (0);
 
@@ -233,7 +233,7 @@ Identifier  CaloTriggerTowerService::cnvToIdentifier(const HWIdentifier & id, bo
 	}
 }
 
-L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1CaloRxCoolChannelId& rxCoolChannelId) throw(CaloID_Exception) {
+L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1CaloRxCoolChannelId& rxCoolChannelId) {
 
    L1CaloCoolChannelId invalidId;
 
@@ -256,7 +256,7 @@ L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1Calo
    }
 }
 
-std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId) throw(CaloID_Exception) {
+std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId) {
 
    if(!m_caloTTPpmRxIdMap ) {
      msg() << MSG::ERROR << " No CaloTTPpmRxIdMap !" << endmsg;
@@ -278,7 +278,7 @@ std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRx
 }
 
 //==========================================================================
-unsigned int CaloTriggerTowerService::barrel_endcap_fcal(const HWIdentifier & id) throw(CaloID_Exception) {
+unsigned int CaloTriggerTowerService::barrel_endcap_fcal(const HWIdentifier & id) {
 
     if(!m_caloTTOnAttrIdMap) {
      msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
@@ -292,7 +292,7 @@ unsigned int CaloTriggerTowerService::barrel_endcap_fcal(const HWIdentifier & id
 }
 
 //==========================================================================
-unsigned int CaloTriggerTowerService::em_had(const HWIdentifier & id) throw(CaloID_Exception) {
+unsigned int CaloTriggerTowerService::em_had(const HWIdentifier & id) {
 
     if(!m_caloTTOnAttrIdMap) {
      msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
@@ -306,7 +306,7 @@ unsigned int CaloTriggerTowerService::em_had(const HWIdentifier & id) throw(Calo
 }
 
 //==========================================================================
-unsigned int CaloTriggerTowerService::pos_neg(const HWIdentifier & id) throw(CaloID_Exception) {
+unsigned int CaloTriggerTowerService::pos_neg(const HWIdentifier & id) {
 
     if(!m_caloTTOnAttrIdMap) {
      msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
@@ -319,7 +319,7 @@ unsigned int CaloTriggerTowerService::pos_neg(const HWIdentifier & id) throw(Cal
     }
 }
 
-unsigned int CaloTriggerTowerService::module_type(const HWIdentifier & id) throw(CaloID_Exception) {
+unsigned int CaloTriggerTowerService::module_type(const HWIdentifier & id) {
 
 
     if(!m_caloTTOnAttrIdMap) {
@@ -335,7 +335,7 @@ unsigned int CaloTriggerTowerService::module_type(const HWIdentifier & id) throw
 
 
 //===========================================================
-L1CaloCoolChannelId CaloTriggerTowerService::createL1CoolChannelId( const HWIdentifier & id ) throw(CaloID_Exception) {
+L1CaloCoolChannelId CaloTriggerTowerService::createL1CoolChannelId( const HWIdentifier & id ) {
 
     if(m_caloTTOnAttrIdMap) {
 
@@ -360,7 +360,7 @@ L1CaloCoolChannelId CaloTriggerTowerService::createL1CoolChannelId( const HWIden
 
 
 //===========================================================
-HWIdentifier CaloTriggerTowerService::cnvCoolChannelIdToHWID( const L1CaloCoolChannelId& coolChannelId ) throw(CaloID_Exception) {
+HWIdentifier CaloTriggerTowerService::cnvCoolChannelIdToHWID( const L1CaloCoolChannelId& coolChannelId ) {
 
     unsigned int       crate = coolChannelId.crate();
     unsigned int      module = coolChannelId.module(false); // get the physical module position
