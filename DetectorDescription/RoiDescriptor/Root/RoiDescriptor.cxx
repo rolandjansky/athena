@@ -31,7 +31,7 @@ static const float  M_PIF = float(M_PI);
 
 /// This should be set by some static class function during the 
 /// overall configuration - perhaps by an RoiBuilder class  
-const double RoiDescriptor::s_zedWidthDefault = 225;
+const double RoiDescriptor::zedWidthDefault = 225;
 
 static int RoiVersion = 4;
 
@@ -39,7 +39,7 @@ RoiDescriptor::RoiDescriptor( bool fullscan )
   : m_phi(0), m_eta(0), m_zed(0), 
     m_phiMinus(0),  m_phiPlus(0),
     m_etaMinus(0),  m_etaPlus(0), 
-    m_zedMinus(-s_zedWidthDefault),  m_zedPlus(s_zedWidthDefault), 
+    m_zedMinus(-zedWidthDefault),  m_zedPlus(zedWidthDefault), 
     m_dzdrMinus(0), m_dzdrPlus(0), 
     m_drdzMinus(0), m_drdzPlus(0), 
     m_zedOuterMinus(0), m_zedOuterPlus(0), 
@@ -53,7 +53,7 @@ RoiDescriptor::RoiDescriptor( bool fullscan )
   /// flag is set
   /// Fixme: these fullscan limits probably need to be set from 
   ///        somewhere constistently. static class variables ???  
-  if ( m_fullscan ) construct( 0, -5, 5, 0, -M_PI, M_PI, 0, -s_zedWidthDefault, s_zedWidthDefault );
+  if ( m_fullscan ) construct( 0, -5, 5, 0, -M_PI, M_PI, 0, -zedWidthDefault, zedWidthDefault );
 }
 
 
@@ -97,7 +97,7 @@ RoiDescriptor::RoiDescriptor(double etaMinus_, double etaPlus_,
   if ( phi_<-M_PI ) phi_ -= M_2PI;
   if ( phi_>M_PI )  phi_ += M_2PI;
  
-  construct( eta_, etaMinus_, etaPlus_, phi_, phiMinus_, phiPlus_, 0, -s_zedWidthDefault, s_zedWidthDefault );
+  construct( eta_, etaMinus_, etaPlus_, phi_, phiMinus_, phiPlus_, 0, -zedWidthDefault, zedWidthDefault );
 }
 
 
