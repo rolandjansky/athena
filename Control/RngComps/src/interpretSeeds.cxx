@@ -52,7 +52,7 @@ bool interpretSeeds(const std::string& buffer,
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
-    } catch (boost::bad_lexical_cast e) {
+    } catch (const boost::bad_lexical_cast& e) {
       status = false;
     }
   }
@@ -84,7 +84,7 @@ bool interpretSeeds(const std::string& buffer,
 #pragma GCC diagnostic pop
 #endif
       }
-    } catch (boost::bad_lexical_cast e) {
+    } catch (const boost::bad_lexical_cast& e) {
       status = false;
     }
   }
