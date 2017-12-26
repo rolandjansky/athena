@@ -140,7 +140,7 @@ StatusCode MuonIdCutTool::finalize()
 
 
 
-bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
+bool MuonIdCutTool::isCut(Identifier ID) const { //false indicates all cuts are passed
   
   //some checks to see if the tool is configured in a state that makes sense 
   if (m_cutStationName && m_cutStationRegion){
@@ -419,7 +419,7 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
 
 //overloaded function to take in MuonFixedId
 
-bool MuonIdCutTool::isCut(MuonCalib::MuonFixedId mfid) {
+bool MuonIdCutTool::isCut(MuonCalib::MuonFixedId mfid) const {
 //  std::cout << "testing if IdCuts called" << std::endl;
 Identifier ID = m_idToFixedIdTool->fixedIdToId(mfid);
 bool iscut = MuonIdCutTool::isCut(ID);
@@ -427,7 +427,7 @@ return iscut;
 }
 
 //function to find phi sector (1-16) from phi station (1-8)
-int MuonIdCutTool::FindSector(unsigned int staName, unsigned int staPhi){
+int MuonIdCutTool::FindSector(unsigned int staName, unsigned int staPhi) const {
 
   int sector=-1;
   
