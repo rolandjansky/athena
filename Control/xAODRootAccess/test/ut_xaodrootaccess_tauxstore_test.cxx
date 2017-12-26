@@ -19,6 +19,8 @@
 #include "xAODRootAccess/TAuxStore.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
 
+#include "CxxUtils/StrFormat.h"
+
 /// Helper macro for evaluating logical tests
 #define SIMPLE_ASSERT( EXP )                                            \
    do {                                                                 \
@@ -73,11 +75,15 @@ int main() {
 
    // Check that it found the two variables that it needed to:
    ::Info( APP_NAME, "Auxiliary variables found on the input:" );
-   for( auto auxid : store.getAuxIDs() ) {
-      ::Info( APP_NAME, "  - id: %i, name: %s, type: %s",
-              static_cast< int >( auxid ),
-              reg.getName( auxid ).c_str(),
-              reg.getTypeName( auxid ).c_str() );
+   std::vector<std::string> vars;
+   for( SG::auxid_t auxid : store.getAuxIDs() ) {
+     vars.push_back (CxxUtils::strformat ("  - name: %s, type: %s",
+                                          reg.getName( auxid ).c_str(),
+                                          reg.getTypeName( auxid ).c_str() ));
+   }
+   std::sort (vars.begin(), vars.end());
+   for (const std::string& s : vars) {
+      ::Info( APP_NAME, "%s", s.c_str());
    }
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
 
