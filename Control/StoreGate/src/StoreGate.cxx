@@ -51,7 +51,7 @@ getStore() {
 }
 
 StoreGateSvc* 
-getStore(std::string name) throw (std::runtime_error) {
+getStore(std::string name) {
   StoreGateSvc* pSGService(0);
   static const bool CREATEIF(true);
   if ((Gaudi::svcLocator()->service(name, pSGService, CREATEIF)).isSuccess()) {
