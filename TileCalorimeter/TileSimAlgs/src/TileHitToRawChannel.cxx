@@ -16,31 +16,28 @@
 //
 //*****************************************************************************
 
-// Gaudi Includes
-#include "GaudiKernel/ISvcLocator.h"
-
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-
-// Calo includes
-#include "CaloIdentifier/TileID.h"
-#include "CaloIdentifier/TileTBID.h"
-
 // Tile includes
+#include "TileSimAlgs/TileHitToRawChannel.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileHitContainer.h"
-#include "TileEvent/TileRawChannelContainer.h"
-#include "TileSimAlgs/TileHitToRawChannel.h"
+
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/TileTBID.h"
+
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
+// For the Athena-based random numbers.
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
-
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 
 using CLHEP::RandGaussQ;
@@ -69,8 +66,6 @@ TileHitToRawChannel::TileHitToRawChannel(std::string name, ISvcLocator* pSvcLoca
   m_rChUnit = TileRawChannelUnit::ADCcounts;
   m_rChType = TileFragHash::Default;
 
-  declareProperty("TileHitContainer", m_hitContainer = "TileHitCnt");    
-  declareProperty("TileRawChannelContainer", m_rawChannelContainer  = "TileRawChannelCnt");
   declareProperty("TileInfoName", m_infoName  = "TileInfo");
   declareProperty("DeltaT",m_deltaT = -1.0); // keep hits only within deltaT;
   declareProperty("calibrateEnergy",m_calibrateEnergy = false); // convert or not to pCb
@@ -159,6 +154,9 @@ StatusCode TileHitToRawChannel::initialize() {
     m_all_ids.push_back(adc_ids);
   }
 
+  ATH_CHECK( m_hitContainerKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileHitToRawChannel initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -172,8 +170,8 @@ StatusCode TileHitToRawChannel::execute() {
   ATH_MSG_DEBUG( "Executing TileHitToRawChannel" );
 
   // step1: read hits from TES
-  const TileHitContainer* hitCont;
-  CHECK( evtStore()->retrieve(hitCont, m_hitContainer) );
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  ATH_CHECK( hitContainer.isValid() );
 
   //Zero sums for monitoring.
   int nChan = 0;
@@ -197,17 +195,13 @@ StatusCode TileHitToRawChannel::execute() {
   IdContext drawer_context = m_tileHWID->drawer_context();
 
   // step2: form raw channels, and put them in container
-  TileRawChannel * pRawChannel;
-  TileRawChannelContainer * pRawChannelContainer;
-  pRawChannelContainer = new TileRawChannelContainer(true, m_rChType, m_rChUnit);
+  SG::WriteHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+  ATH_CHECK( rawChannelContainer.record(std::make_unique<TileRawChannelContainer>(true, m_rChType, m_rChUnit)));
 
   // iterate over all collections in a container
-  TileHitContainer::const_iterator collItr = hitCont->begin();
-  TileHitContainer::const_iterator lastColl = hitCont->end();
+  for (const TileHitCollection* hitCollection : *hitContainer) {
 
-  for (; collItr != lastColl; ++collItr) {
-
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(hitCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -221,7 +215,7 @@ StatusCode TileHitToRawChannel::execute() {
     int ch;
 
     ATH_MSG_VERBOSE( MSG::hex
-                    << "Collection = 0x" << (*collItr)->identify() << MSG::dec
+                    << "Collection = 0x" << hitCollection->identify() << MSG::dec
                     << " : ROS=" << ros
                     << ", drawer=" << drawer );
 
@@ -247,31 +241,27 @@ StatusCode TileHitToRawChannel::execute() {
     memset(adc_qual, 0, sizeof(adc_qual));
 
     // iterate over all hits in a collection
-    TileHitCollection::const_iterator hitItr = (*collItr)->begin();
-    TileHitCollection::const_iterator lastHit = (*collItr)->end();
-
-    for (; hitItr != lastHit; ++hitItr) {
+    for (const TileHit* tile_hit : *hitCollection) {
 
       // Get hit Identifier (= identifier of pmt)
-      const TileHit * phit = (*hitItr);
-      Identifier pmt_id = phit->pmt_ID();
-      HWIdentifier channel_id = phit->pmt_HWID();
+      Identifier pmt_id = tile_hit->pmt_ID();
+      HWIdentifier channel_id = tile_hit->pmt_HWID();
 
       // index for array is the channel number
       ch = m_tileHWID->channel(channel_id);
 
       /* Get hit amplitude and convert to energy (cell-dependent) */
-      double e_hit = phit->energy();
-      double time = phit->time();
+      double e_hit = tile_hit->energy();
+      double time = tile_hit->time();
       if (m_deltaT > 0.0) {
         if (fabs(time) >= m_deltaT) { // reset first hit if it's outside deltaT window
           e_hit = 0.0;
           time = 0.0;
         }
         double etime = e_hit * time;
-        for (int i = phit->size() - 1; i > 0; --i) { // don't use first hit (i=0)
-          double en = phit->energy(i);
-          double ti = phit->time(i);
+        for (int i = tile_hit->size() - 1; i > 0; --i) { // don't use first hit (i=0)
+          double en = tile_hit->energy(i);
+          double ti = tile_hit->time(i);
           if (fabs(ti) < m_deltaT && en > 0.0) {
             e_hit += en;
             etime += en * ti;
@@ -358,8 +348,8 @@ StatusCode TileHitToRawChannel::execute() {
 
         if (lrcGood) {
 
-          pRawChannel = new TileRawChannel(adc_id, amp, adc_time[ch], adc_qual[ch]);
-          pRawChannelContainer->push_back(pRawChannel);
+          std::unique_ptr<TileRawChannel> rawChannel = std::make_unique<TileRawChannel>(adc_id, amp, adc_time[ch], adc_qual[ch]);
+          rawChannelContainer->push_back(rawChannel.release());
 
           if (TileID::HIGHGAIN == gain) {
             ++nChHG;
@@ -383,8 +373,6 @@ StatusCode TileHitToRawChannel::execute() {
     }
   }
 
-  // step3: register the cell container in the TES
-  CHECK( evtStore()->record(pRawChannelContainer, m_rawChannelContainer, false) );
 
   // Execution completed.
   if (msgLvl(MSG::DEBUG)) {
