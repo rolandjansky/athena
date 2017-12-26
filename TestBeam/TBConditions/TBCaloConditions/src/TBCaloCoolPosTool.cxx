@@ -124,7 +124,7 @@ double TBCaloCoolPosTool::eta()
   try {
     e=(* m_etaTable)["eta"].data<float>();
   }
-  catch (std::exception ex) {
+  catch (const std::exception& ex) {
      ATH_MSG_ERROR("eta AttributeList access failed");
      return 0 ; 
   }
@@ -137,7 +137,7 @@ double TBCaloCoolPosTool::theta()
   try {
     t=(* m_thetaTable)["theta"].data<float>();
   }
-  catch (std::exception ex) {
+  catch (const std::exception& ex) {
      ATH_MSG_ERROR("theta AttributeList access failed");
      return 0 ; 
   }
@@ -150,7 +150,7 @@ double TBCaloCoolPosTool::z()
   try {
     z=(* m_zTable)["z"].data<float>();
   }
-  catch (std::exception ex) {
+  catch (const std::exception& ex) {
      ATH_MSG_ERROR("z AttributeList access failed");
      return 0 ; 
   }
@@ -163,7 +163,7 @@ double TBCaloCoolPosTool::delta()
   try {
     d=(* m_deltaTable)["delta"].data<float>();
   }
-  catch (std::exception ex) {
+  catch (const std::exception& ex) {
      ATH_MSG_ERROR("delta AttributeList access failed");
      return 0 ; 
   }
