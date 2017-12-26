@@ -107,16 +107,8 @@ class JpsiTrackSelector : public TrigTrackSelector {
     } // if( probeTrack )
   } // void addJpsi(std::vector<DiMuonTool*>& diMuon) 
 
-  virtual void clear() { 
-    //std::cout << "clearing now..." << std::endl;
-    //std::cout << "JpsiTrackSelector clear -- mtracks size = " << mtracks.size() << std::endl;
-    for ( unsigned i=m_tracks.size() ; i-- ; ) { 
-      //std::cout << "m_tracks[" << i << "] = " << m_tracks[i] << std::endl;
-      delete m_tracks[i];
-    }
-    m_tracks.clear();
-    //TrigTrackSelector::clear();
-  }
+  virtual void clear() { delete();  }
+
 };
 
 #endif

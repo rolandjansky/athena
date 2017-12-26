@@ -52,11 +52,16 @@ public:
   }
 
   // how many tracks in this selection
-  unsigned size() const { return mtracks.size(); } 
+  size_t size() const { return mtracks.size(); } 
 
   // clear tracks for this roi/event etc 
   //  void clear() { for ( int i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); } 
   virtual void clear() { mtracks.clear(); } 
+
+  virtual void delete() { 
+    for ( unsigned i=size() ; i-- ; ) delete mtracks[i];
+    clear(); 
+  } 
   
 protected:
 
