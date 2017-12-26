@@ -17,7 +17,6 @@
 
 
 #include "AthContainers/exceptions.h"
-#include "AthContainers/tools/foreach.h"
 #include "TestTools/expect_exception.h"
 #include "SGTools/TestStore.h"
 #include "CxxUtils/checker_macros.h"
@@ -413,7 +412,7 @@ template <class T>
 void checkaux1 (const DataVector<T>& v, const SG::AuxElement*)
 {
   if (!v.hasNonConstStore()) return;
-  ATHCONTAINERS_FOREACH (const typename DataVector<T>::base_value_type* p, v) {
+  for (const typename DataVector<T>::base_value_type* p : v) {
     if (p)
       p->checkaux();
   }
@@ -462,7 +461,7 @@ void setaux1 (DV& v, SG::IAuxStore& store, const SG::AuxElement*)
 {
   if (!v.hasNonConstStore())
     v.setStore (&store);
-  ATHCONTAINERS_FOREACH (typename DV::value_type p, v) {
+  for (typename DV::value_type p : v) {
     if (p)
       p->setaux();
   }

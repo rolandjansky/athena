@@ -13,7 +13,6 @@
 
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 #include "AthContainers/tools/getThinnedFlags.h"
-#include "AthContainers/tools/foreach.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStore.h"
@@ -64,7 +63,7 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
   copy.resize (nremaining);
   
   // Loop over all the variables of the original container:
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, auxids) {
+  for (SG::auxid_t auxid : auxids) {
     // Skip null auxids (happens if we don't have the dictionary)
     if(auxid == SG::null_auxid) continue;
 
