@@ -424,7 +424,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
 
-      if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
+      if ( m_dataPreparator->isRpcFakeRoi() ) {
         ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
 	TrigL2MuonSA::TrackPattern trackPattern;
 	m_trackPatterns.push_back(trackPattern);
