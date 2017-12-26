@@ -24,12 +24,19 @@
 #ifndef TILERECALGS_TILEMUONRECEIVERREADCNT_H
 #define TILERECALGS_TILEMUONRECEIVERREADCNT_H
 
+// Tile includes
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileMuonReceiverContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+
+#include <string>
 
 class TileID;
 class TileHWID;
-
-#include <string>
 
 class TileMuonReceiverReadCnt : public AthAlgorithm {
 public:
@@ -46,9 +53,18 @@ public:
 
 private:
 
-    std::string m_TileMuRcvContainer;    
-    std::string m_TileRawChannelContainer;    
-    std::string m_TileDigitsContainer;
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
+                                                                "MuRcvDigitsCnt", "Input Tile digits container key"};
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
+                                                                        "MuRcvRawChCnt", 
+                                                                        "Input Tile raw channel container key"};
+
+    SG::ReadHandleKey<TileMuonReceiverContainer> m_muonReceiverContainerKey{this,"TileMuonReceiverContainer",
+                                                                           "TileMuRcvCnt", 
+                                                                           "Input Tile muon receiver container key"};
+
+
 
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;

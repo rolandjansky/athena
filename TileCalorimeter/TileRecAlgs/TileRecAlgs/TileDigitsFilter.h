@@ -32,7 +32,14 @@
 #ifndef TILERECALGS_TILEDIGITSFILTER_H
 #define TILERECALGS_TILEDIGITSFILTER_H
 
+// Tile includes
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class TileHWID;
 
@@ -62,6 +69,22 @@ class TileDigitsFilter: public AthAlgorithm {
     std::string m_outputContainer; //!< Name of the output TileDigitsContainer
     std::string m_inRchContainer; //!< Name of the input TileRawChannelContainer
     std::string m_outRchContainer; //!< Name of the output TileRawChannelContainer
+
+    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsContainerKey{this,"InputDigitsContainer",
+                                                                       "TileDigitsCnt", "Input Tile digits container key"};
+
+    SG::WriteHandleKey<TileDigitsContainer> m_outputDigitsContainerKey{this,"OutputDigitsContainer",
+                                                                       "TileDigitsFlt","Output Tile digits container key"};
+
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_inputRawChannelContainerKey{this,"InputRawChannelContainer",
+                                                                             "TileRawChannelCnt", 
+                                                                             "Input Tile raw channels container key"};
+
+    SG::WriteHandleKey<TileRawChannelContainer> m_outputRawChannelContainerKey{this,"OutputRawChannelContainer",
+                                                                               "TileRawChannelFlt",
+                                                                               "Output Tile digits container key"};
+
 
     const TileHWID* m_tileHWID;
 

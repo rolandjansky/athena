@@ -32,11 +32,16 @@
 #ifndef TILERECALGS_TILECELLVERIFY_H
 #define TILERECALGS_TILECELLVERIFY_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+// Calo includes
+#include "CaloEvent/CaloCellContainer.h"
 
-class TileID;
+// Atlas includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <string>
+
+class TileID;
 
 class TileCellVerify : public AthAlgorithm {
 public:
@@ -53,8 +58,14 @@ public:
 
 private:
 
-    std::string m_cellContainer1;
-    std::string m_cellContainer2;
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainer1Key{this,"TileCellContainer1",
+                                                              "TileCellContainer1",
+                                                              "Input Calo cell container 1 key"};
+
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainer2Key{this,"TileCellContainer2",
+                                                              "TileCellContainer1",
+                                                              "Input Calo cell container 2 key"};
+
 
     const TileID* m_tileID;
   

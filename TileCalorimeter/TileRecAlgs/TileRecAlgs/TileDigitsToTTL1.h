@@ -27,10 +27,18 @@
 #ifndef TILERECALGS_TILEDIGITSTOTTL1_H
 #define TILERECALGS_TILEDIGITSTOTTL1_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-
+// Tile includes
 #include "TileIdentifier/TileFragHash.h"
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileTTL1Container.h"
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
 
 #include <string>
 
@@ -55,8 +63,13 @@ class TileDigitsToTTL1: public AthAlgorithm {
     StatusCode finalize();
 
   private:
-    std::string m_digitsContainer; // name of TileDigitsContainer
-    std::string m_TTL1Container;   // name of TileTTL1Container
+
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
+                                                                "TileDigitsCnt", "Input Tile digits container key"};
+
+    SG::WriteHandleKey<TileTTL1Container> m_ttl1ContainerKey{this,"TileTTL1Container",
+                                                            "TileTTL1Container","Output Tile TTL1 container key"};
+
     std::string m_infoName;        // name of TileInfo object in TES
 
     TileFragHash::TYPE m_rChType;

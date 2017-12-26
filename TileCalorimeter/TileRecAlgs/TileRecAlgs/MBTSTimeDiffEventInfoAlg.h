@@ -5,7 +5,14 @@
 #ifndef MBTSTIMEDIFFEVENTINFOALG
 #define MBTSTIMEDIFFEVENTINFOALG
 
+// Tile includes
+#include "TileEvent/TileContainer.h"
+#include "TileEvent/MBTSCollisionTime.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class TileTBID;
 
@@ -30,7 +37,10 @@ class MBTSTimeDiffEventInfoAlg: public AthAlgorithm {
     unsigned m_minhitsperside;
     float m_mbts_threshold;
     const TileTBID* m_tileTBID;
-    std::string m_mbtsContainerName;
+
+    SG::ReadHandleKey<TileCellContainer> m_mbtsContainerKey{this,"MBTSContainer","MBTSContainer","Input MBTS container key"};
+    SG::WriteHandleKey<MBTSCollisionTime> m_mbtsCollisionTimeKey{this,"MBTSCollisionTime","MBTSCollisionTime","Output MBTS collision time key"};
+
     const uint8_t m_mask, m_pattern;
 };
 

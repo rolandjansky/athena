@@ -16,25 +16,28 @@
 //
 //*****************************************************************************
 
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-
-// access all RawChannels inside container
-#include "EventContainers/SelectAllObject.h" 
-
 // Tile includes
-#include "CaloIdentifier/TileID.h"
+#include "TileRecAlgs/TileRawChannelToHit.h"
+
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileInfo.h"
 #include "TileSimEvent/TileHit.h"
-#include "TileSimEvent/TileHitVector.h"
 #include "TileEvent/TileRawChannel.h"
-#include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecAlgs/TileRawChannelToHit.h"
 
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
+// access all RawChannels inside container
+#include "EventContainers/SelectAllObject.h" 
+
+#include <memory>
 
 //
 // Constructor
@@ -46,8 +49,6 @@ TileRawChannelToHit::TileRawChannelToHit(const std::string& name, ISvcLocator* p
   , m_tileInfo(0)
   , m_tileToolEmscale("TileCondToolEmscale")
 {
-  declareProperty("TileRawChannelContainer", m_rawChannelContainer = "TileRawChannelCnt");  // Raw chan to convert.
-  declareProperty("TileHitContainer", m_hitContainer = "TileHitVec");                       // Name of output container
   declareProperty("TileInfoName", m_infoName = "TileInfo");                                 // name of TileInfo store
   declareProperty("UseSamplFract", m_useSamplFract = false);  // if true energy in TileHit is the as it is coming from G4 simulation
                                                               // and by default it is equal to final - TileCell energy
@@ -77,6 +78,9 @@ StatusCode TileRawChannelToHit::initialize() {
 
   CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+  ATH_CHECK( m_hitVectorKey.initialize() );
+
   ATH_MSG_INFO( "TileRawChannelToHit initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -99,47 +103,43 @@ StatusCode TileRawChannelToHit::execute() {
   float eCh = 0.0;
   float eHitTot = 0.0;
 
-  TileHitVector* hits = new TileHitVector;
+  SG::WriteHandle<TileHitVector> hitVector(m_hitVectorKey);
+
+  /* Register the set of TileHits to the event store. */
+  ATH_CHECK( hitVector.record(std::make_unique<TileHitVector>()) );
 
   //**
   //* Get TileRawChannels
   //**
-  const TileRawChannelContainer* rawChannels;
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
 
-  if (evtStore()->retrieve(rawChannels, m_rawChannelContainer).isFailure()) {
-    ATH_MSG_WARNING( " Could not find container " << m_rawChannelContainer );
+  if (!rawChannelContainer.isValid()) {
+    ATH_MSG_WARNING( " Could not find container " << m_rawChannelContainerKey.key() );
     ATH_MSG_WARNING( " creating empty TileHitVector container " );
 
   } else {
 
-    TileRawChannelUnit::UNIT rChUnit = rawChannels->get_unit();
-    //TileFragHash::TYPE rChType = rawChannels->get_type();
+    TileRawChannelUnit::UNIT rChUnit = rawChannelContainer->get_unit();
+    //TileFragHash::TYPE rChType = rawChannelContainer->get_type();
 
     // iterate over all collections in a container
-    TileRawChannelContainer::const_iterator collItr = rawChannels->begin();
-    TileRawChannelContainer::const_iterator lastColl = rawChannels->end();
+    for(const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-    for (; collItr != lastColl; ++collItr) {
-
-      HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+      HWIdentifier drawer_id = m_tileHWID->drawer_id(rawChannelCollection->identify());
       int ros = m_tileHWID->ros(drawer_id);
       int drawer = m_tileHWID->drawer(drawer_id);
       int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
-      bool is_calibration = ((*collItr)->size() == 96);
+      bool is_calibration = (rawChannelCollection->size() == 96);
       if (is_calibration)
         ATH_MSG_DEBUG( "Calibration mode, ignore high gain" );
 
       // iterate over all raw channels in a collection, creating new TileHits
       // Add each new TileHit to the TileHitContainer.
 
-      TileRawChannelCollection::const_iterator rawItr = (*collItr)->begin();
-      TileRawChannelCollection::const_iterator end = (*collItr)->end();
+      for (const TileRawChannel* rawChannel : *rawChannelCollection) {
 
-      for (; rawItr != end; ++rawItr) {
-
-        const TileRawChannel * pChannel = (*rawItr);
-        HWIdentifier adc_id = pChannel->adc_HWID();
+        HWIdentifier adc_id = rawChannel->adc_HWID();
         int channel = m_tileHWID->channel(adc_id);
         int adc = m_tileHWID->adc(adc_id);
 
@@ -147,22 +147,23 @@ StatusCode TileRawChannelToHit::execute() {
         if (is_calibration && TileHWID::HIGHGAIN == adc)
           continue;
 
-        float amp = pChannel->amplitude();
-        float time = pChannel->time();
+        float amp = rawChannel->amplitude();
+        float time = rawChannel->time();
 
         ++nChan;
         eCh += amp;
 
-        Identifier pmt_id = pChannel->pmt_ID();
+        Identifier pmt_id = rawChannel->pmt_ID();
         if (pmt_id.is_valid()) {
 
           float ener = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc,
-              amp, rChUnit, TileRawChannelUnit::MegaElectronVolts);
+                                                       amp, rChUnit, 
+                                                       TileRawChannelUnit::MegaElectronVolts);
 
           if (m_useSamplFract) // divide by sampling fraction (about 40) 
             ener /= m_tileInfo->HitCalib(pmt_id);
 
-          TileHit * pHit = new TileHit(pmt_id, ener, time);
+          TileHit hit(pmt_id, ener, time);
           eHitTot += ener;
           ++nHit;
 
@@ -174,23 +175,20 @@ StatusCode TileRawChannelToHit::execute() {
                           << " ene=" << ener
                           << " time=" << time );
 
-          hits->push_back(*pHit);
-          delete pHit;
+          hitVector->push_back(hit);
 
         } else {
 
           ATH_MSG_VERBOSE( "TileRawChannelToHit: "
-                << " channel with adc_id=" << m_tileHWID->to_string(adc_id)
-                << " is not connected" );
+                           << " channel with adc_id=" << m_tileHWID->to_string(adc_id)
+                           << " is not connected" );
         }
       }
     }
   }
   
 
-  /* Register the set of TileHits to the event store. */
 
-  CHECK( evtStore()->record(hits, m_hitContainer, false ) );
 
   // Execution completed.
   ATH_MSG_DEBUG( "TileRawChannelToHit execution completed." );
@@ -201,7 +199,7 @@ StatusCode TileRawChannelToHit::execute() {
 
 
   ATH_MSG_VERBOSE( "TileHitVector container registered to the TES with name"
-                  << m_hitContainer );
+                   << m_hitVectorKey.key() );
 
   m_tileID->set_do_checks(do_checks); // set back this flag to TileID
 

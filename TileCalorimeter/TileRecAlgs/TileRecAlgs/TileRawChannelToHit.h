@@ -28,8 +28,20 @@
 #ifndef TILERECALGS_TILERAWCHANNELTOHIT_H
 #define TILERECALGS_TILERAWCHANNELTOHIT_H
 
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileSimEvent/TileHitVector.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
+// C++ STL includes
+#include <string>
 
 // Avoid pushing dependencies into clients- just fwd declare the following:
 
@@ -40,8 +52,6 @@ class TileInfo;
 class TileCablingService;
 class TileCondToolEmscale;
 
-// C++ STL includes
-#include <string>
 
 class TileRawChannelToHit: public AthAlgorithm {
   public:
@@ -58,8 +68,14 @@ class TileRawChannelToHit: public AthAlgorithm {
 
   private:
 
-    std::string m_rawChannelContainer;
-    std::string m_hitContainer;
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
+                                                                        "TileRawChannelCnt", 
+                                                                        "Input Tile raw channel container key"};
+
+    SG::WriteHandleKey<TileHitVector> m_hitVectorKey{this,"TileHitContainer",
+                                                      "TileHitVec","Output Tile hit container key"};
+
+
     std::string m_infoName;
     bool m_useSamplFract;
 
