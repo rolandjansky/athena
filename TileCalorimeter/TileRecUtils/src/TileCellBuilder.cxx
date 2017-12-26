@@ -471,11 +471,10 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
             &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime, m_of2,
             &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, dspOf2, this, 2);
 
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << " Calling build() method for rawChannels from two vectors" << endmsg;
-          msg(MSG::DEBUG) << " offline vector size = " << oflVec.size()
-                          << " dsp vector size = " << dspVec.size() << endmsg;
-        }
+        ATH_MSG_DEBUG("Build raw channels from two vectors:"
+                      << " offline vector size = " << oflVec.size()
+                      << ", dsp vector size = " << dspVec.size() );
+
         build(vecBeg, vecEnd, theCellContainer);
         begin = end;
       }
