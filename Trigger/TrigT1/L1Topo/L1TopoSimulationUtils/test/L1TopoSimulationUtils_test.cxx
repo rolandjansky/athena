@@ -128,8 +128,10 @@ int floorSqrt(unsigned int x)
 }
 int test4_compare(int u, int v){
     int bw_result = TSU::Kinematics::quadraticSumBW(u,v);
-    unsigned int uu = u*u;
-    unsigned int uv = v*v;
+    unsigned int u_u = u;
+    unsigned int v_u = v;
+    unsigned int uu = u_u*u_u;
+    unsigned int uv = v_u*v_u;
     int fl_result = floorSqrt(uu+uv);
     cout<<" sum2("<<u<<", "<<v<<") :"
         <<" std = "<<fl_result
