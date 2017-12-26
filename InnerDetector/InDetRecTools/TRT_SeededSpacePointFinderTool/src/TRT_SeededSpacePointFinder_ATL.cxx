@@ -841,10 +841,10 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 
   std::vector<bypass_struct> tmp_prod_bypass;
   tmp_prod_bypass.reserve(spcount);
-  Trk::SpacePoint const**vrp = new Trk::SpacePoint const*[spcount];
-  double *rk = new double[spcount];
-  long *geo_info = new long[spcount];
-  double *zSP = new double[spcount];
+  Trk::SpacePoint const**vrp = new Trk::SpacePoint const*[spcount]{};
+  double *rk = new double[spcount]{};
+  long *geo_info = new long[spcount]{};
+  double *zSP = new double[spcount]{};
 
   if (vrp != 0 && rk != 0 && geo_info != 0 && zSP != 0) {
 
