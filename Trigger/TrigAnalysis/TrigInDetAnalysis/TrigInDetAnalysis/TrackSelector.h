@@ -47,7 +47,7 @@ public:
   std::vector<TIDA::Track*> tracks(  /*TrigInDetAnalysis::*/TrackFilter* selector ) const {
     if ( selector==0 ) return mtracks; 
     std::vector<TIDA::Track*> t;
-    for ( int i=mtracks.size() ; i-- ; ) if ( selector->select(mtracks[i]) ) t.push_back(mtracks[i]);
+    for ( size_t i=mtracks.size() ; i-- ; ) if ( selector->select(mtracks[i]) ) t.push_back(mtracks[i]);
     return t;
   }
 
@@ -59,7 +59,7 @@ public:
   virtual void clear() { mtracks.clear(); } 
 
   virtual void delete() { 
-    for ( unsigned i=size() ; i-- ; ) delete mtracks[i];
+    for ( size_t i=size() ; i-- ; ) delete mtracks[i];
     clear(); 
   } 
   
