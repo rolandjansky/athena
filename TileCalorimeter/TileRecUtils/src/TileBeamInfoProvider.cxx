@@ -130,13 +130,11 @@ StatusCode TileBeamInfoProvider::initialize() {
     incSvc->addListener(this, "BeginRun", 101);
     incSvc->addListener(this, "BeginEvent", PRIORITY);
 
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "TileBeamInfoProvider created, taking info from '"
-                      << m_beamElemContainerKey.key() << "'" << endmsg;
-      msg(MSG::DEBUG) << " from '" << m_digitsContainerKey.key() << "'"
-                      << " and from '" << m_rawChannelContainerKey.key() << "'"
-                      << ((m_simulateTrips) ? ", and from drawer trips simulation" : "") << endmsg;
-    }
+    ATH_MSG_DEBUG( "TileBeamInfoProvider created, taking info from '"
+                   << m_beamElemContainerKey.key()
+                   << "', '" << m_digitsContainerKey.key()
+                   << "', and from '" << m_rawChannelContainerKey.key()
+                   << ((m_simulateTrips) ? "', and from drawer trips simulation" : "'") );
 
   } else {
     ATH_MSG_DEBUG("TileBeamInfoProvider created, but BeginOfEvent incident not activated");
@@ -610,15 +608,10 @@ const TileDQstatus * TileBeamInfoProvider::getDQstatus() {
     return &m_DQstatus;
 
   //Fill BCID from the EventInfo, if available
-  //SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-  const DataHandle<xAOD::EventInfo> eventInfo(0);
-  StatusCode sc = evtStore()->retrieve(eventInfo);
-  if (sc.isSuccess()) {
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  if (eventInfo.isValid()) {
     m_DQstatus.setRODBCID(eventInfo->bcid());
-  } else {
-    ATH_MSG_ALWAYS("AUUU: NO EVENT INFO!!!");
   }
-  //m_DQstatus.setRODBCID(eventInfo->bcid());
 
   if (m_rcCnt != NULL) {
 
