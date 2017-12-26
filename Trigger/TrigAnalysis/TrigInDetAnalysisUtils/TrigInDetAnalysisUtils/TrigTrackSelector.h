@@ -3,11 +3,6 @@
 #ifndef TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
 #define TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
 
-#include "TrigInDetAnalysisUtils/TIDA_newtracking.h"
-
-#ifndef  TIDA_NEWTRACKING_H
-#include "TrigInDetAnalysisUtils/TrigTrackSelector_old.h"
-#else
 
 /// L2 tracks
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -59,9 +54,6 @@
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
 
-// namspace TrigInDetAnalysis {
-
-// class TrigTrackSelector : public TIDA::TrackSelector<TIDA::Track> { 
 
 class TrigTrackSelector : public TrackSelector { 
 
@@ -153,14 +145,10 @@ private:
   double m_yBeam;
   double m_zBeam;
 
-  //bool m_first;
-
   bool m_correctTrkTracks;
 
 };
 
 
-// }
 
-#endif //   TIDA_NEWTRACKING_H
 #endif // TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
