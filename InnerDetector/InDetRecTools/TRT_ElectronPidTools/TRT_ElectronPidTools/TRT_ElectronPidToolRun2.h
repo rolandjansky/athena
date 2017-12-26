@@ -94,8 +94,8 @@ namespace InDet
     /** Electron probabilities to be returned */
     std::vector<float> electronProbability_old(const Trk::Track& track);
 
-    virtual double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) override;
-    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) override;
+    virtual double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) const override;
+    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const override;
 
   // get the ToT from the bitpattern and correct for local variations
   // Jared - Remove ToT calc

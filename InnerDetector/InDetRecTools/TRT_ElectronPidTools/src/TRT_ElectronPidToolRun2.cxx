@@ -498,7 +498,7 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
 |*%%%  a geometry check is performed every time here  %%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk::ParticleHypothesis /*hypothesis*/, const int HitPart, const int Layer, const int StrawLayer){
+double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk::ParticleHypothesis /*hypothesis*/, const int HitPart, const int Layer, const int StrawLayer) const {
   if (not CheckGeometry(HitPart,Layer,StrawLayer) ){
     ATH_MSG_ERROR("TRT geometry fail. Returning default value.");
     return 0.5;
@@ -509,6 +509,6 @@ double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk:
 }
 
 
-double InDet::TRT_ElectronPidToolRun2::probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ){
+double InDet::TRT_ElectronPidToolRun2::probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const {
    return m_HTcalc.getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy );
 }
