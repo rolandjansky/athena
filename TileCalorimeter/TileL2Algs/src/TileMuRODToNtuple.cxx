@@ -17,19 +17,18 @@
 //    
 //*****************************************************************************
 
+// Tile includes
+#include "TileL2Algs/TileMuRODToNtuple.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
+
 // Gaudi includes
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
-// Tile includes
-#include "TileEvent/TileContainer.h"
-#include "TileEvent/TileDigitsContainer.h"
-#include "TileL2Algs/TileMuRODToNtuple.h"
 
 TileMuRODToNtuple::TileMuRODToNtuple(std::string name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
@@ -38,9 +37,7 @@ TileMuRODToNtuple::TileMuRODToNtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_maxNMuons(50)
   , m_close(1)
   , m_ntupleLoc("/FILE1/TileMuRODTag")
-  , m_tileL2Container("TileL2Cnt")
 {
-  declareProperty("TileMuRODTagsOutputName", m_tileL2Container);
   declareProperty("NTupleLoc", m_ntupleLoc);
   declareProperty("NTupleID", m_ntupleID);
   declareProperty("MaxNMuons", m_maxNMuons);
@@ -74,6 +71,8 @@ StatusCode TileMuRODToNtuple::initialize() {
   CHECK(m_ntuplePtr->addItem("TileMuROD/EtaMuons", m_ntag, m_eta, -1.5, 1.5));
   CHECK(m_ntuplePtr->addItem("TileMuROD/PhiMuons", m_ntag, m_phi, 0., 6.3));
 
+  ATH_CHECK( m_l2ContainerKey.initialize() );
+
   ATH_MSG_INFO( "Initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -82,18 +81,14 @@ StatusCode TileMuRODToNtuple::initialize() {
 StatusCode TileMuRODToNtuple::execute() {
 
   // step1: read from TDS
-  const TileL2Container* mutags_ROD;
-  CHECK( evtStore()->retrieve(mutags_ROD, m_tileL2Container) );
-
-  TileL2Container::const_iterator it = mutags_ROD->begin();
-  TileL2Container::const_iterator end = mutags_ROD->end();
+  SG::ReadHandle<TileL2Container> l2Container(m_l2ContainerKey);
+  ATH_CHECK( l2Container.isValid() );
 
   m_ntag = 0;
-
-  for (; it != end; ++it) {
-    for (unsigned int a = 0; a < ((*it)->NMuons()); ++a) {
-      m_eta[m_ntag] = ((*it)->eta(a));
-      m_phi[m_ntag] = ((*it)->phi(a));
+  for (const TileL2* l2 : *l2Container) {
+    for (unsigned int a = 0; a < l2->NMuons(); ++a) {
+      m_eta[m_ntag] = l2->eta(a);
+      m_phi[m_ntag] = l2->phi(a);
       m_ntag++;
     }
     if (m_ntag >= m_maxNMuons) break;

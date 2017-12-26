@@ -51,9 +51,6 @@ class TileL2FromRawChGetter ( Configured )  :
         theTileRawChannelToL2=TileRawChannelToL2()
         self._TileRawChannelToL2Handle = theTileRawChannelToL2 ;
 
-        # Configure TileRawChannelToL2 here
-        theTileRawChannelToL2.TileRawChannelContainer="TileRawChannelCnt"
-
         # sets output key  
         theTileRawChannelToL2.TileL2Container=self.outputKey()        
 
