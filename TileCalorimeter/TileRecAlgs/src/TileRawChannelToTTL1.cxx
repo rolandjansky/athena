@@ -223,10 +223,7 @@ StatusCode TileRawChannelToTTL1::execute() {
 
     /*......................................................*/
     // Step 6: Iterate over all rawChannels in this collection, summing amps for each tower.
-    TileRawChannelCollection::const_iterator rawChannelItr = rawChannelCollection->begin();
-    TileRawChannelCollection::const_iterator lastRawChannel = rawChannelCollection->end();
-
-    for (TileRawChannel* rawChannel : *rawChannelCollection) {
+    for (const TileRawChannel* rawChannel : *rawChannelCollection) {
 
       /* Get rawChannel Identifier */
       HWIdentifier hwid = rawChannel->adc_HWID();
@@ -237,7 +234,8 @@ StatusCode TileRawChannelToTTL1::execute() {
       // put zero amplitude in all bad channels 
       // so that zero amplitude will be written to the ByteStream 
       if (m_maskBadChannels) {
-        TileRawChannel * pRch = static_cast<TileRawChannel *>(rawChannel);
+        // FIXME: const-cast modifying const SG object
+        TileRawChannel * pRch = const_cast<TileRawChannel*>(rawChannel);
         TileBchStatus status = m_tileBadChanTool->getAdcStatus(hwid);
 
         if (status.isBad()) {
@@ -250,18 +248,18 @@ StatusCode TileRawChannelToTTL1::execute() {
             pRch->m_time[0] = 0.0;
             pRch->m_quality[0] = 15.;
             pRch->m_pedestal = 0.0;
-          }
+          } else {
           //=== dead channel, put zero energy
-          else {
+
             pRch->m_amplitude[0] = 0.0;
             pRch->m_time[0] = 0.0;
             pRch->m_quality[0] = 0.0;
             pRch->m_pedestal = 0.0;
           }
-        }
+        } else if (status.isNoisy()) { // noisy channel ...
 
         //=== not bad, but noisy channel
-        else if (status.isNoisy()) { // noisy channel ...
+
           float noise = 0.0; // FIXME::add some noise - but don't know what to add
           pRch->m_amplitude[0] += m_tileToolEmscale->channelCalib(drawerIdx,
               channel, adc, noise, TileRawChannelUnit::ADCcounts, rChUnit);

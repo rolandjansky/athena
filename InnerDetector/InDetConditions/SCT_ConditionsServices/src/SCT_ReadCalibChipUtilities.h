@@ -31,7 +31,7 @@ namespace SCT_ReadCalibChipUtilities {
     for (Tokenizer::iterator i{tok.begin()}; i!=end; ++i) {
       try {
         userContainer[j]=boost::lexical_cast<V_t>(*i);
-      } catch (boost::bad_lexical_cast) {
+      } catch (const boost::bad_lexical_cast&) {
         userContainer[j]=errVal;
         noNan=false;
       }

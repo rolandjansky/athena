@@ -17,7 +17,7 @@ class TileHWID;
 class TileInfo;
 class TileCablingService;
 
-class QwtPlot;
+//class QwtPlot; // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
 class QLabel;
 class SoGroup;
 
@@ -116,15 +116,17 @@ class VP1CaloCellController : public VP1Controller
   static QString toString(const QPair<bool,double>& par) { return "<"+QString(par.first?"log":"linear")+", "+QString::number(par.second/(CLHEP::cm/CLHEP::GeV))+" cm/GeV>"; }
   static QString toString(const VP1CC_GlobalCuts& cuts) { return "VP1CC global cuts: sideA=" + QString(cuts.sideA?"True":"False") + ", sideC=" + QString(cuts.sideC?"True":"False") + ", allowedEta=" + VP1Controller::toString(cuts.allowedEta) + ", allowedPhi="  + VP1Controller::toString(cuts.allowedEta); }
 
-  void DrawTileDigits(QwtPlot* plot,
-		      int n_samples,
-		      std::vector<float> samples);
+//  // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//  void DrawTileDigits(QwtPlot* plot,
+//		      int n_samples,
+//		      std::vector<float> samples);
 
-  void DrawTilePulse(QwtPlot* plot,
-		     QLabel* gainlabel,
-		     const TileRawChannel* rawchannel,
-		     const TileRawChannelContainer* rawchannel_cont,
-		     size_t digitsize);
+//  // FIXME:You have to compile Qwt with Qt5. LCG's Qwt is compiled with Qt4 only...
+//  void DrawTilePulse(QwtPlot* plot,
+//		     QLabel* gainlabel,
+//		     const TileRawChannel* rawchannel,
+//		     const TileRawChannelContainer* rawchannel_cont,
+//		     size_t digitsize);
 
  private slots:
   void possibleChange_selectionIntervals();

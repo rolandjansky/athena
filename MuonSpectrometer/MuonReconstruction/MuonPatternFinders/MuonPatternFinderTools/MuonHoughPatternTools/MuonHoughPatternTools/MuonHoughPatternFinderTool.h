@@ -33,7 +33,6 @@ namespace MuonGM {
 namespace Muon {
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
-  class IMuonPatternSegmentAssociationTool;
 }
 
 class RpcIdHelper;
@@ -99,9 +98,6 @@ namespace Muon {
     /** convert and add tgc preprawdata collection (1 chamber) */
     void addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const;
 
-    /** construct and record csc asso map to storegate */
-    void storeCscAssMap(const MuonPatternCombinationCollection*) const;
-
     /** finds best segment for given driftcircle vector (nl1/2 = number of dc's in ml 1 and 2, angledif is difference between angle of segment and chamberangle, sel is vector of selected hits (0 not selected, 1 selected) */
     void fastSegmentFinder(TrkDriftCircleMath::DCVec& dcs,int &nl1, int &nl2, double &angleDif, std::vector <int> &sel)const;
 
@@ -145,7 +141,6 @@ namespace Muon {
     ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
     /** ToolHandle for EDM printing of segments */
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
-    ToolHandle< IMuonPatternSegmentAssociationTool> m_assocTool;
  
     /** reweight hits (true) */
     bool       m_hit_reweights;

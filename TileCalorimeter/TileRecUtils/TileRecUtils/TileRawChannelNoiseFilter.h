@@ -51,7 +51,7 @@ class TileRawChannelNoiseFilter: public AthAlgTool, virtual public ITileRawChann
     virtual StatusCode finalize();
 
     /** proceed the coherent noise subtruction algorithm and correct TileRawChannel amplitudes */
-    virtual StatusCode process(const TileRawChannelContainer *rchCnt);
+    virtual StatusCode process(TileRawChannelContainer *rchCnt);
 
   private:
 

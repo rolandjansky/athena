@@ -85,7 +85,7 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileRawChannelOF1Corrector::process(const TileRawChannelContainer* rawChannelContainer) {
+StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChannelContainer) {
 
   ATH_MSG_DEBUG("in process()");
 
@@ -127,7 +127,8 @@ StatusCode TileRawChannelOF1Corrector::process(const TileRawChannelContainer* ra
         }
       }
 
-      for (TileRawChannel* rawChannel : *rawChannelCollection) {
+      /// FIXME: const_cast
+      for (TileRawChannel* rawChannel : const_cast<TileRawChannelCollection&>(*rawChannelCollection)) {
         HWIdentifier adcId = rawChannel->adc_HWID();
         int channel = m_tileHWID->channel(adcId);
         int gain = m_tileHWID->adc(adcId);

@@ -8,11 +8,14 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Serialise.h"
 
+/* --- FIXME: Qat has still to be ported to Qt5 I think...
 // Plotting
-#include "QatPlotting/PlotStream.h"
-#include "QatPlotWidgets/PlotView.h"
-#include "QatDataAnalysis/Hist1D.h"
-#include "QatPlotting/PlotHist1D.h"
+//#include "QatPlotting/PlotStream.h"
+//#include "QatPlotWidgets/PlotView.h"
+//#include "QatDataAnalysis/Hist1D.h"
+//#include "QatPlotting/PlotHist1D.h"
+ */
+
 #include <QMainWindow>
 #include <QToolBar>
 #include <QAction>
@@ -22,6 +25,8 @@
 #include "TH1F.h"
 #include "TKey.h"
 #include <sstream>
+
+
 class VP1PartSpectSystem::Imp {
 public:
   Imp();
@@ -159,11 +164,11 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
   while(path.size()>1){
     QString dirBase= path.pop().replace(QString("::"),QString("_"));
     QString directory=dirBase;
-    if(!gDirectory->cd(directory.toAscii())) {
+    if(!gDirectory->cd(directory.toLatin1())) {
       directory = (dirBase.toStdString()+"_"+copyNumberStream.str()).c_str();
-      if (!gDirectory->cd(directory.toAscii())) {
+      if (!gDirectory->cd(directory.toLatin1())) {
 	directory = (dirBase.toStdString()+"_0").c_str();
-	if (!gDirectory->cd(directory.toAscii())) {
+	if (!gDirectory->cd(directory.toLatin1())) {
 	  message(QString("Unable to cd to ") + directory);
 	  return;
 	} else {
@@ -239,6 +244,7 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
     return;
   }
 
+  /* FIXME: Qat has to be ported to Qt5...
   // ___________ Plotting _______________
 
   // Create new window for the plot
@@ -315,6 +321,11 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
   delete prop;
   prop=nullptr;
   // ___________ Plotting _______________
+  */
+
+
+
+
 }
 
 void VP1PartSpectSystem::fileUpdated(const QString& fileName)

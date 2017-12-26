@@ -10,10 +10,10 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaMonitoring
+			  Control/StoreGate
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODPFlow
 			  Event/xAOD/xAODTracking
-                          Reconstruction/PFlow/PFlowUtils
                           Reconstruction/PFlow/PFlowValidation/PFOHistUtils
                           Tracking/TrkValidation/TrkValHistUtils )
 

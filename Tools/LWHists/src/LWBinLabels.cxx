@@ -100,7 +100,7 @@ void LWBinLabels::grow()
   assert(m_allocated==m_size);
   unsigned l = std::min<unsigned>(m_size+4,static_cast<unsigned>(m_allocated*1.5+0.5));
   Entry * new_list = LWPools::acquire<Entry>(l);
-  memcpy(new_list,m_list,m_size*sizeof(m_list[0]));
+  std::copy (m_list, m_list + m_size, new_list);
   LWPools::release<Entry>(m_list,m_allocated);
   m_list = new_list;
   m_allocated = l;

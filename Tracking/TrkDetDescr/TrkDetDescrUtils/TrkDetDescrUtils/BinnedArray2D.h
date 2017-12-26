@@ -35,7 +35,7 @@ namespace Trk {
 
     public:
      /**Default Constructor - needed for inherited classes */
-     BinnedArray2D() throw (GaudiException) :
+     BinnedArray2D() :
       BinnedArray<T>(),
       m_array(0),
       m_arrayObjects(0),
@@ -45,7 +45,7 @@ namespace Trk {
      /**Constructor with std::vector and a BinUtility - reference counted, will delete objects at the end,
         if this deletion should be turned off, the boolean deletion should be switched to false
         the global position is given by object! */
-     BinnedArray2D(const std::vector< std::pair< SharedObject<const T>, Amg::Vector3D > >& tclassvector, BinUtility* bingen)  throw (GaudiException) :
+     BinnedArray2D(const std::vector< std::pair< SharedObject<const T>, Amg::Vector3D > >& tclassvector, BinUtility* bingen) :
       BinnedArray<T>(),
       m_array(0),
       m_arrayObjects(0),
@@ -72,7 +72,7 @@ namespace Trk {
       }
 
      /**Copy Constructor - copies only pointers !*/
-     BinnedArray2D(const BinnedArray2D& barr) throw (GaudiException) :
+     BinnedArray2D(const BinnedArray2D& barr) :
       BinnedArray<T>(),
       m_array(0),
       m_arrayObjects(0),

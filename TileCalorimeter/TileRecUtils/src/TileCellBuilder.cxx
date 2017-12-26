@@ -383,7 +383,8 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
           ToolHandleArray<ITileRawChannelTool>::iterator endTool=m_noiseFilterTools.end();
 
           for (; itrTool != endTool; ++itrTool) {
-            if ((*itrTool)->process(dspChannels).isFailure()) {
+            /// FIXME: const_cast; tools can change the container!
+            if ((*itrTool)->process(const_cast<TileRawChannelContainer*>(dspChannels)).isFailure()) {
               ATH_MSG_ERROR( " Error status returned from noise filter " );
             } else {
               ATH_MSG_DEBUG( "Noise filter applied to the container" );
@@ -495,7 +496,8 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
         ToolHandleArray<ITileRawChannelTool>::iterator endTool = m_noiseFilterTools.end();
 
         for (; itrTool != endTool; ++itrTool) {
-          if ((*itrTool)->process(rawChannels).isFailure()) {
+            /// FIXME: const_cast; tools can change the container!
+          if ((*itrTool)->process(const_cast<TileRawChannelContainer*>(rawChannels)).isFailure()) {
             ATH_MSG_ERROR( " Error status returned from noise filter " );
           } else {
             ATH_MSG_DEBUG( "Noise filter applied to the container" );
@@ -648,6 +650,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   }
   xAOD::EventInfo* eventInfo = 0;
   if (eventInfo_c) {
+    /// FIXME: const_cast; changing EventInfo.
     eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
     if (!eventInfo->getStore()) {
       const SG::IAuxStore* store = dynamic_cast<const SG::IAuxStore*> (eventInfo->getConstStore());

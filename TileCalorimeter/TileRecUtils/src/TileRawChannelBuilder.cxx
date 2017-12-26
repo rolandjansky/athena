@@ -504,7 +504,8 @@ StatusCode TileRawChannelBuilder::commitContainer() {
       ATH_MSG_DEBUG( "Noise filter was already applied to DSP container before, use it as it is" );
     } else {
       for (;itrTool!=endTool;++itrTool){
-        if ((*itrTool)->process(dspCnt).isFailure()) {
+        /// FIXME: const_cast
+        if ((*itrTool)->process(const_cast<TileRawChannelContainer*>(dspCnt)).isFailure()) {
           ATH_MSG_ERROR( " Error status returned from noise filter " );
         } else {
           ATH_MSG_DEBUG( "Noise filter applied to DSP container" );
@@ -540,7 +541,7 @@ StatusCode TileRawChannelBuilder::commitContainer() {
       TileRawChannelCollection::const_iterator dspLast=dcoll->end();
 
       for(; rchItr!=lastRch; ++rchItr) {
-        TileRawChannel* rch = (*rchItr);
+        const TileRawChannel* rch = (*rchItr);
         HWIdentifier adc_id = rch->adc_HWID();
         while (dspItr != dspLast && adc_id != (*dspItr)->adc_HWID()) {
           ++dspItr;
@@ -550,8 +551,9 @@ StatusCode TileRawChannelBuilder::commitContainer() {
           ATH_MSG_VERBOSE( "Ch "<<m_tileHWID->to_string(adc_id)
                            <<" amp " << rch->amplitude() << " ped " << rch->pedestal() 
                            << " corr " << corr );
-          rch->setAmplitude (rch->amplitude() - corr);
-          rch->setPedestal (rch->pedestal() + corr);
+          /// FIXME: const_cast
+          const_cast<TileRawChannel*>(rch)->setAmplitude (rch->amplitude() - corr);
+          const_cast<TileRawChannel*>(rch)->setPedestal (rch->pedestal() + corr);
         } else {
           ATH_MSG_WARNING(" Problem in applying noise corrections " 
                         << " can not find channel in DSP container with HWID "

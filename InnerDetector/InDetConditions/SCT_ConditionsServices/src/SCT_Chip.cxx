@@ -57,7 +57,7 @@ bool SCT_Chip::initializeMaskFromString(const std::string &maskString){
                  >> std::hex >> subWords[nSubwords-2] 
                  >> std::hex >> subWords[nSubwords-3] 
                  >> std::hex >> subWords[nSubwords-4];
-  } catch(std::ios_base::failure) {
+  } catch(const std::ios_base::failure&) {
     std::cerr << "The SCT_ChipMask code has failed to convert the received string to a mask; the received string is: ";
     std::cerr << maskString << std::endl;
     successfulInitialization = false;

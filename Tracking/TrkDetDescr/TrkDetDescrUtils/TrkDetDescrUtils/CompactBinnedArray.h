@@ -30,7 +30,7 @@ namespace Trk {
 
   public:
     /**Default Constructor - needed for inherited classes */
-    CompactBinnedArray() throw (GaudiException):
+    CompactBinnedArray():
     BinnedArray<T>()
       {}
     

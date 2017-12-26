@@ -213,7 +213,7 @@ StatusCode AFP_GeoModelTool::create()
 
             m_pAFPDetectorFactory->create(world);
             //theFactory.create(world);
-        } catch (std::bad_alloc) {
+        } catch (const std::bad_alloc&) {
             log << MSG::FATAL << "Could not create new DetectorNode!" << endmsg;
             return StatusCode::FAILURE;
         }

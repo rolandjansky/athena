@@ -691,7 +691,7 @@ void IParticleHandle_Jet::updateBTagging(const std::string& bTaggingTagger, cons
 	//double bTaggingWeight = 0.99; // dummy value for debug only!!!
 	double bTaggingWeight = getBTaggingWeight(bTaggingTagger); // actual value
 
-	std::cout << "BTAG UPDATE - tagger: " << bTaggingTagger << " - cut: " << bTaggingCut << " - weight: " << bTaggingWeight;
+    std::cout << "B-TAG UPDATE - jet eta: " << d->eta() << ", phi: " << d->phi() << " - tagger: " << bTaggingTagger << " - cut: " << bTaggingCut << " - weight: " << bTaggingWeight;
 
 	if (bTaggingWeight > bTaggingCut) {
 		d->m_bTagged->whichChild = SO_SWITCH_ALL;
@@ -709,13 +709,23 @@ void IParticleHandle_Jet::updateBTagging(const std::string& bTaggingTagger, cons
 //____________________________________________________________________
 double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 {
-	const xAOD::BTagging * myBTag = d->m_jet->btagging();
+    double weight = 0.0;
 
-	double weight = 0.0;
+	const xAOD::BTagging * myBTag = nullptr;
+    myBTag = d->m_jet->btagging();
+
+   if (myBTag == nullptr) {
+    VP1Msg::messageWarningRed("It was not possible to access the pointer to b-tagging info, for the selected collection! Returning 'weight': 0.0"); //("It was not possible to access the tagger '"+ tagger +"' for the selected collection: " + d->m_jet->getInputType() + d->m_jet->getAlgorithmType() );
+    return weight;
+   }
+    
+	
 
 	// TODO: add the other taggers
-	if (tagger == "MV1")
-		weight = myBTag->MV1_discriminant();
+
+//    if (tagger == "MV1")
+//		weight = myBTag->MV1_discriminant();
+
 	/* these methods have been removed in xAODBTagging-00-00-35 (cfr. SVN changesets 797165 + 801102)
 	else if (tagger == "JetFitterCombNN_pb")
 		weight = myBTag->JetFitterCombNN_pb();
@@ -724,11 +734,13 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 	else if (tagger == "JetFitterCombNN_pu")
 		weight = myBTag->JetFitterCombNN_pu();
 	*/
-	else if (tagger=="MV2c20")
+
+//    else if (tagger=="MV2c20")
+    if (tagger=="MV2c20")
 		/*const bool hasMv2c20 =*/ myBTag->MVx_discriminant("MV2c20", weight);
-	else if ("MV2c10")
+    else if (tagger=="MV2c10")
 		/*const bool hasMv2c10 =*/ myBTag->MVx_discriminant("MV2c10", weight);
-	else if ("MV2c00")
+    else if (tagger=="MV2c00")
 	    /*const bool hasMv2c00 =*/ myBTag->MVx_discriminant("MV2c00", weight);
 	else
 		VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");

@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
+#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 
 namespace Muon 
 {
@@ -21,7 +22,8 @@ namespace Muon
 
     virtual MuonSegmentCombinationCollection* combineSegments(  const MuonSegmentCombinationCollection& mdtCombiColl, 
                                                                 const MuonSegmentCombinationCollection& csc4DCombiColl, 
-                                                                const MuonSegmentCombinationCollection& csc2DCombiColl)=0;
+                                                                const MuonSegmentCombinationCollection& csc2DCombiColl,
+								MuonSegmentCombPatternCombAssociationMap* segPattMap)=0;
   };
 
   inline const InterfaceID& Muon::IMuonCurvedSegmentCombiner::interfaceID()
