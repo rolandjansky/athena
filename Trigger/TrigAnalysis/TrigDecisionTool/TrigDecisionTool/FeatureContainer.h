@@ -144,8 +144,8 @@ namespace Trig {
     class ordering_by_objects_attached2 {
     public:
       template<class T>
-      bool operator()(Feature<T> a, Feature<T> b);
-      bool weakOrder(const HLT::TriggerElement* te_a, const HLT::TriggerElement* te_b, void* obj_a, void* obj_b);
+      bool operator()(Feature<T> a, Feature<T> b) const;
+      bool weakOrder(const HLT::TriggerElement* te_a, const HLT::TriggerElement* te_b, void* obj_a, void* obj_b) const;
     };
 
   };
@@ -155,7 +155,7 @@ namespace Trig {
 
 template<class T> 
 bool
-Trig::FeatureContainer::ordering_by_objects_attached2::operator()(Feature<T> a, Feature<T> b) {
+Trig::FeatureContainer::ordering_by_objects_attached2::operator()(Feature<T> a, Feature<T> b) const {
   bool ret = weakOrder(a.te(), b.te(), (void*) a.cptr(), (void*) b.cptr());
   //std::cout << " ==> " << (ret?"TRUE":"FALSE") << std::endl;
   return ret;
