@@ -38,7 +38,7 @@ public:
   }
 
   virtual void addTracks(std::vector<TIDA::Track*>& t, bool (*f)(const TIDA::Track*)=0 ) {
-    for ( unsigned i=0 ; i<t.size() ; i++ ){ addTrack( t[i], f ); /*std::cout << "addtrack() no filter called " << t[i] << " " << size() << std::endl;*/}
+    for ( size_t i=0 ; i<t.size() ; i++ ){ addTrack( t[i], f ); /*std::cout << "addtrack() no filter called " << t[i] << " " << size() << std::endl;*/}
   }  
   
   // get the selected tracks   
@@ -58,7 +58,7 @@ public:
   //  void clear() { for ( int i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); } 
   virtual void clear() { mtracks.clear(); } 
 
-  virtual void delete() { 
+  virtual void delete_tracks() { 
     for ( size_t i=size() ; i-- ; ) delete mtracks[i];
     clear(); 
   } 
