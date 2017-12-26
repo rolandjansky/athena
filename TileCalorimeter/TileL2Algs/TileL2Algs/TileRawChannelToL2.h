@@ -19,11 +19,15 @@
 #ifndef TILEL2ALGS_TILERAWCHANNELTOL2_H
 #define TILEL2ALGS_TILERAWCHANNELTOL2_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileEvent/TileContainer.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
 
 // C++ STL includes
 #include <string>
@@ -62,11 +66,10 @@ class TileRawChannelToL2: public AthAlgorithm {
     /** Pointer to TileL2Builder */
     ToolHandle<TileL2Builder> m_tileL2Builder;
 
-    /** Name of TileRawChannelContainer in detector store */
-    std::string m_rawChannelContainer;
+    /** TileL2Container in detector store */
+    SG::WriteHandleKey<TileL2Container> m_l2ContainerKey{this,"TileL2Container","TileL2Cnt",
+                                                         "Output Tile L2 container key"};
 
-    /** Name of TileL2Container in detector store */
-    std::string m_l2Container;
 
 };
 
