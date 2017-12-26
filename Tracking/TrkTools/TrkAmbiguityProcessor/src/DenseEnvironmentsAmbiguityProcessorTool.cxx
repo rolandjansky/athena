@@ -1093,7 +1093,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::overlapppingTracks()
     if (msgLvl(MSG::VERBOSE)) {
       TString tracks("---- number of tracks with this shared Prd: ");
       tracks += numberOfTracksWithThisPrd;
-      for (Trk::IPRD_AssociationTool::PRD_MapIt it =range.first; it != range.second;++it ){
+      for (Trk::IPRD_AssociationTool::ConstPRD_MapIt it =range.first; it != range.second;++it ){
        tracks += "    ";
        tracks += Form( " %p",(void*)(it->second)); 
       }
@@ -1130,7 +1130,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::overlapppingTracks()
     if (msgLvl(MSG::VERBOSE)) {
       TString tracks("---- number of tracks with this shared Prd: ");
       tracks += numberOfTracksWithThisPrd;
-      for (Trk::IPRD_AssociationTool::PRD_MapIt it =range.first; it != range.second;++it ){
+      for (Trk::IPRD_AssociationTool::ConstPRD_MapIt it =range.first; it != range.second;++it ){
        tracks += "    ";
        tracks += Form( " %p",(void*)(it->second)); 
       }

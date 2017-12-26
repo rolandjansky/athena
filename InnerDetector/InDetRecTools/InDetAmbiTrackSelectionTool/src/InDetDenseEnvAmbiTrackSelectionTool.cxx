@@ -709,8 +709,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     
     
     // get iterators for range
-    Trk::IPRD_AssociationTool::PRD_MapIt mapIt    = range.first;
-    Trk::IPRD_AssociationTool::PRD_MapIt mapItEnd = range.second;
+    Trk::IPRD_AssociationTool::ConstPRD_MapIt mapIt    = range.first;
+    Trk::IPRD_AssociationTool::ConstPRD_MapIt mapItEnd = range.second;
     // simple for loop instead of fancier remove_if above
     for ( ;mapIt!=mapItEnd; ++mapIt) {
       tsosDetails.overlappingTracks.insert( std::pair<const Trk::Track*, int >(mapIt->second, index) );

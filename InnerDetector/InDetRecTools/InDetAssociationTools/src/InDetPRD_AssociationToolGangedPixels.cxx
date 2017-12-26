@@ -123,8 +123,8 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::removePRDs( const Trk::T
     Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange 
         range = m_prepRawDataTrackMap.equal_range(prd);
     // get iterators for range
-    PRD_MapIt mapIt    = range.first;
-    PRD_MapIt mapItEnd = range.second;
+    ConstPRD_MapIt mapIt    = range.first;
+    ConstPRD_MapIt mapItEnd = range.second;
     // simple for loop instead of fancier remove_if above
     for ( ;mapIt!=mapItEnd; ++mapIt) {
       if ( mapIt->second==&track ) {
@@ -283,7 +283,7 @@ std::vector< const Trk::PrepRawData* > InDet::InDetPRD_AssociationToolGangedPixe
 }
 
 Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange 
-InDet::InDetPRD_AssociationToolGangedPixels::onTracks(const Trk::PrepRawData& prd) 
+InDet::InDetPRD_AssociationToolGangedPixels::onTracks(const Trk::PrepRawData& prd) const
 {
   //	std::pair<IPRD_AssociationTool::PRD_MapIt, IPRD_AssociationTool::PRD_MapIt>       range = 
   return m_prepRawDataTrackMap.equal_range(&prd);
