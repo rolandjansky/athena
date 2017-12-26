@@ -860,7 +860,11 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (token == nullptr) {
       return(StatusCode::RECOVERABLE);
    }
-   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], ip[0], token);
+   unsigned long ip0 = ip[0];
+   if (par[1].substr(0, 12) == "MetaDataHdr(") {
+     ip0 = 0;
+   }
+   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], ip0, token);
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
