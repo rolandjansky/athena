@@ -25,9 +25,8 @@
 #include "PersistencySvc/IDatabase.h"
 #include "PersistencySvc/IContainer.h"
 #include "PersistencySvc/ITokenIterator.h"
-
 #include "PersistencySvc/IPersistencySvc.h"
-#include "PersistencySvc/IPersistencySvcFactory.h"
+
 
 int numTokenInstances();
 
@@ -62,15 +61,7 @@ pool::TestDriver::write()
   pool::IFileCatalog& catalog = *m_fileCatalog;
 
   std::cout << "Creating the persistency service" << std::endl;
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  if ( ! psfactory ) {
-    throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
-  }
-  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
-  if ( ! persistencySvc.get() ) {
-    throw std::runtime_error( "Could not create a PersistencySvc" );
-  }
-
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( pool::IPersistencySvc::create(catalog) );
   catalog.start();
 
   // Set up the policy.
@@ -143,14 +134,7 @@ pool::TestDriver::read()
   pool::IFileCatalog& catalog = *m_fileCatalog;
 
   std::cout << "Creating the persistency service" << std::endl;
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  if ( ! psfactory ) {
-    throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
-  }
-  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
-  if ( ! persistencySvc.get() ) {
-    throw std::runtime_error( "Could not create a PersistencySvc" );
-  }
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( pool::IPersistencySvc::create(catalog) );
   catalog.start();
 
   // Starting a read transaction

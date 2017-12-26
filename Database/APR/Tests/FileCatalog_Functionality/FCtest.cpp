@@ -210,4 +210,5 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FCtest);
 //#include<CppUnit_testdriver.cpp>
-//#include<TestPolicy/CppUnit_testdriver.cxx>
+#include<TestPolicy/CppUnit_testdriver.cxx>
+

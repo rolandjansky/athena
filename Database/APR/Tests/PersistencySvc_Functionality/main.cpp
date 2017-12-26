@@ -18,11 +18,6 @@ int main( int, char** ) {
     libraries.push_back( "test_TestDictionaryDict" );
     driver.loadLibraries( libraries );
     
-
-    std::cout << "[OVAL] Testing the plugins..." << std::endl;
-    driver.testPlugins();
-    std::cout << "[OVAL] ...done" << std::endl;
-
     std::cout << "[OVAL] Writing objects in the database." << std::endl;
     driver.write();
     std::cout << "[OVAL] ...done" << std::endl;
