@@ -71,30 +71,30 @@ class CaloTriggerTowerService : public AthAlgTool
    * create a TT HWIdentifier from a TT Identifier
    *
    */
-  HWIdentifier createTTChannelID(const Identifier & id, bool bQuiet=false) throw(CaloID_Exception) ;
+  HWIdentifier createTTChannelID(const Identifier & id, bool bQuiet=false);
 
 
   /**
    * create a TT Identifier from a TT HWIdentifier
    *
    */
-  Identifier cnvToIdentifier(const HWIdentifier & id, bool bQuiet=false) throw(CaloID_Exception);
+  Identifier cnvToIdentifier(const HWIdentifier & id, bool bQuiet=false);
 
 
   /**
    * create a CoolChannelId (used by TDAQ framework) from a HWIdentifier
    *
    */
-  //unsigned int createL1CoolChannelId( const HWIdentifier & id ) throw(CaloID_Exception);
-  L1CaloCoolChannelId createL1CoolChannelId( const HWIdentifier& id ) throw(CaloID_Exception);
+  //unsigned int createL1CoolChannelId( const HWIdentifier & id );
+  L1CaloCoolChannelId createL1CoolChannelId( const HWIdentifier& id );
 
 
   /**
    * create an HWIdentifier from an TDAQ CoolChannelId
    *
    */
-  //HWIdentifier cnvCoolChannelIdToHWID( const unsigned int coolChannelId ) throw(CaloID_Exception);
-  HWIdentifier cnvCoolChannelIdToHWID( const L1CaloCoolChannelId& coolChannelId ) throw(CaloID_Exception);
+  //HWIdentifier cnvCoolChannelIdToHWID( const unsigned int coolChannelId );
+  HWIdentifier cnvCoolChannelIdToHWID( const L1CaloCoolChannelId& coolChannelId );
 
 
 
@@ -103,7 +103,7 @@ class CaloTriggerTowerService : public AthAlgTool
    * returns a TDAQ CoolChannelId corresponding to a L1CaloRxCoolChannelId
    *
    */
-  L1CaloCoolChannelId cnvRxIdToCoolChannelId(const L1CaloRxCoolChannelId& rxCoolChannelId) throw(CaloID_Exception);
+  L1CaloCoolChannelId cnvRxIdToCoolChannelId(const L1CaloRxCoolChannelId& rxCoolChannelId);
 
 
   /**
@@ -111,18 +111,18 @@ class CaloTriggerTowerService : public AthAlgTool
    *
    */
 
-   std::vector<L1CaloRxCoolChannelId> cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId) throw(CaloID_Exception);
+   std::vector<L1CaloRxCoolChannelId> cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId);
 
 
   /** return 0 for z<0 channels and 1 for z>0 channels */
-  unsigned int pos_neg(const HWIdentifier & id) throw(CaloID_Exception);
+  unsigned int pos_neg(const HWIdentifier & id);
 
   /** return the corresponding sampling of channelId:
       @return 0: for EM calorimeter
       @return 1: for HAD calorimeter
       @return 999: error
   */
-  unsigned int em_had(const HWIdentifier & id) throw(CaloID_Exception);
+  unsigned int em_had(const HWIdentifier & id);
 
   /** To know if a channel belongs to the barrel, end cap or fcal parts
       @return 0: barrel
@@ -130,7 +130,7 @@ class CaloTriggerTowerService : public AthAlgTool
       @return 2: fcal
       @return 999: error
   */
-  unsigned int barrel_endcap_fcal(const HWIdentifier & id) throw(CaloID_Exception);
+  unsigned int barrel_endcap_fcal(const HWIdentifier & id);
 
   /** To get the type of the module connected to the channel:
       @return 1: PPM
@@ -138,7 +138,7 @@ class CaloTriggerTowerService : public AthAlgTool
       @return 3: JEM
       @return 999: error
   */
-  unsigned int module_type(const HWIdentifier & id) throw(CaloID_Exception);
+  unsigned int module_type(const HWIdentifier & id);
 
 
   //
