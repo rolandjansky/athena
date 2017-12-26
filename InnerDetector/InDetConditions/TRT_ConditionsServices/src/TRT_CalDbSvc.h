@@ -143,10 +143,10 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
 
   ServiceHandle<ICondSvc> m_condSvc;
   //  ReadHandle  keys
-  SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtReadKeyName","in","r-t relation in-key"};
-  SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorReadKeyName","in","error on r in-key"};
-  SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"SlopeReadKeyName","in","slope of error in-key"};
-  SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0ReadKeyName","in","t0 in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtReadKeyName","/TRT/Calib/RT","r-t relation in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorReadKeyName","/TRT/Calib/errors2d","error on r in-key"};
+  SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"SlopeReadKeyName","/TRT/Calib/slopes","slope of error in-key"};
+  SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0ReadKeyName","/TRT/Calib/T0","t0 in-key"};
 
   bool m_useCachedPtr;  
   Gaudi::Hive::ContextSpecificPtr<RtRelationContainer> m_rtContainer;
