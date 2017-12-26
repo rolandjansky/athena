@@ -16,20 +16,22 @@
 //
 //*****************************************************************************
 
-// access all Hits inside container
-#include "EventContainers/SelectAllObject.h"
+// Tile includes
+#include "TileSimAlgs/TileHitToCell.h"
+#include "TileDetDescr/TileDetDescrManager.h"
+#include "TileConditions/TileInfo.h"
+#include "TileEvent/TileCell.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
-#include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
-// Tile includes
-#include "TileDetDescr/TileDetDescrManager.h"
-#include "TileConditions/TileInfo.h"
-#include "TileEvent/TileHitContainer.h"
-#include "TileEvent/TileCell.h"
-#include "TileSimAlgs/TileHitToCell.h"
+// Atlas includes
+// access all Hits inside container
+#include "EventContainers/SelectAllObject.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 
 //
 // Constructor
@@ -40,12 +42,7 @@ TileHitToCell::TileHitToCell(std::string name, ISvcLocator* pSvcLocator)
   , m_tileInfo(0)
   , m_tileMgr(0)
 {
-  m_hitContainer = "TileHitContainer";
-  m_cellContainer = "TileCellContainer";
   m_infoName = "TileInfo";
-
-  declareProperty("TileHitContainer", m_hitContainer);    
-  declareProperty("TileCellContainer", m_cellContainer);
   declareProperty("TileInfoName", m_infoName);
 }
 
@@ -65,6 +62,9 @@ StatusCode TileHitToCell::initialize() {
 
   CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
+  ATH_CHECK( m_hitContainerKey.initialize() );
+  ATH_CHECK( m_cellContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileHitToCell initialisation completed" );
 
   return StatusCode::SUCCESS;
@@ -78,8 +78,8 @@ StatusCode TileHitToCell::execute() {
   ATH_MSG_DEBUG( "Executing TileHitToCell" );
 
   // step1: read hits from TES
-  const TileHitContainer* hitCont;
-  CHECK( evtStore()->retrieve(hitCont, m_hitContainer) );
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  ATH_CHECK( hitContainer.isValid() );
 
   //Zero sums for monitoring.
   int nTwo = 0;
@@ -95,7 +95,7 @@ StatusCode TileHitToCell::execute() {
   enePmt1.resize(nCellMax);
   enePmt2.resize(nCellMax);
 
-  SelectAllObject<TileHitContainer> selAll(hitCont);
+  SelectAllObject<TileHitContainer> selAll(hitContainer.cptr());
   SelectAllObject<TileHitContainer>::const_iterator hitItr = selAll.begin();
   SelectAllObject<TileHitContainer>::const_iterator lastHit = selAll.end();
 
@@ -141,21 +141,18 @@ StatusCode TileHitToCell::execute() {
   }
 
   // step3: form cells, and put them in container
-  CaloCellContainer* pCellContainer = new CaloCellContainer;
+
+  SG::WriteHandle<CaloCellContainer> cellContainer(m_cellContainerKey);
+  ATH_CHECK( cellContainer.record(std::make_unique<CaloCellContainer>()) );
+  ATH_MSG_VERBOSE( "TileCell container registered to the TES with name" << m_cellContainerKey.key() );
+
   for (unsigned int i = 0; i < nCellMax; ++i) {
     const CaloDetDescrElement* caloDDE = m_tileMgr->get_cell_element(i);
     TileCell* pCell = new TileCell(caloDDE, enePmt1[i], enePmt2[i], 0.0, 0.0, 0, 0
                                    , TileCell::MASK_AMPL, TileCell::MASK_AMPL
                                    , CaloGain::INVALIDGAIN, CaloGain::INVALIDGAIN); // gain is not known
-    pCellContainer->push_back(pCell);
+    cellContainer->push_back(pCell);
   }
-
-  // step4: calibration
-  // empty for later
-
-  // step5: register the cell container in the TES
-  CHECK( evtStore()->record(pCellContainer, m_cellContainer, false) );
-
 
   // Execution completed.
   if (msgLvl(MSG::DEBUG))  {
@@ -167,7 +164,7 @@ StatusCode TileHitToCell::execute() {
                     << " eneTot=" << eCellTot << endmsg;
   }
 
-  ATH_MSG_VERBOSE( "TileCell container registered to the TES with name" << m_cellContainer );
+
 
   return StatusCode::SUCCESS;
 }

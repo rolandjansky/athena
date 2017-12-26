@@ -27,7 +27,14 @@
 #ifndef TILESIMALGS_TILETBHITTOBEAMELEM_H
 #define TILESIMALGS_TILETBHITTOBEAMELEM_H
 
+// Tile includes
+#include "TileSimEvent/TileHitVector.h"
+#include "TileEvent/TileBeamElemContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class TileTBID;
 class TileHWID;
@@ -54,8 +61,15 @@ class TileTBHitToBeamElem: public AthAlgorithm {
     StatusCode finalize();    //!< finalize method  
 
   private:
-    std::string m_hitVector;            //!< name of TileHitVector
-    std::string m_beamElemContainer;    //!< name of TileBeamElemContainer
+
+    SG::ReadHandleKey<TileHitVector> m_hitVectorKey{this,"TileTBHitVector","TileTBHits",
+                                                   "input Tile hit vector key"};
+
+    SG::WriteHandleKey<TileBeamElemContainer> m_beamElemContainerKey{this,"TileBeamElemContainer",
+                                                                     "TileBeamElemCnt",
+                                                                     "Output Tile beam elements container key"};
+
+
     std::string m_infoName;             //!< name of the TileInfo object in TES
 
     const TileTBID* m_tileTBID; //!< Pointer to TileID helper

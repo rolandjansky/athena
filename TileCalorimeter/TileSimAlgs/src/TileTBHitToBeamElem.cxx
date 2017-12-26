@@ -16,36 +16,30 @@
 //
 //*****************************************************************************
 
-// Gaudi Includes
-#include "GaudiKernel/ISvcLocator.h"
-
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
+// Tile includes
+#include "TileSimAlgs/TileTBHitToBeamElem.h"
+#include "TileConditions/TileInfo.h"
 
 // Calo includes
 #include "CaloIdentifier/TileTBID.h"
 #include "TileIdentifier/TileHWID.h"
 
-// Tile includes
-#include "TileConditions/TileInfo.h"
-#include "TileSimEvent/TileHitVector.h"
-#include "TileEvent/TileBeamElemContainer.h"
-#include "TileSimAlgs/TileTBHitToBeamElem.h"
+// Atlas includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 
 //
 // Constructor
 //
 TileTBHitToBeamElem::TileTBHitToBeamElem(std::string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_hitVector("TileTBHits")
-  , m_beamElemContainer("TileBeamElemCnt")
   , m_infoName("TileInfo")
   , m_tileTBID(0)
   , m_tileHWID(0)
   , m_tileInfo(0)
 {
-  declareProperty("TileTBHitVector", m_hitVector);    
-  declareProperty("TileBeamElemContainer", m_beamElemContainer);
   declareProperty("TileInfoName", m_infoName);
 }
 
@@ -65,6 +59,9 @@ StatusCode TileTBHitToBeamElem::initialize() {
 
   CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
+  ATH_CHECK( m_hitVectorKey.initialize() );
+  ATH_CHECK( m_beamElemContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileTBHitToBeamElem initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -78,32 +75,29 @@ StatusCode TileTBHitToBeamElem::execute() {
   ATH_MSG_DEBUG( "Executing TileTBHitToBeamElem" );
 
   // create new container
-  TileBeamElemContainer * pBeamElemContainer = new TileBeamElemContainer(true);
+  SG::WriteHandle<TileBeamElemContainer> beamElemContainer(m_beamElemContainerKey);
+  ATH_CHECK( beamElemContainer.record(std::make_unique<TileBeamElemContainer>(true)) );
 
   //**
   //* Get TileHits from TileHitVector
   //**
-  const TileHitVector * inputHits;
-  CHECK( evtStore()->retrieve(inputHits, m_hitVector) );
-
-  TileHitVecConstIterator hitItr = inputHits->begin();
-  TileHitVecConstIterator end = inputHits->end();
+  SG::ReadHandle<TileHitVector> hitVector(m_hitVectorKey);
+  ATH_CHECK( hitVector.isValid() );
 
   //**
   //* Iterate over hits
   //**
-
-  for (; hitItr != end; ++hitItr) {
+  for (const TileHit& tile_hit : *hitVector) {
 
     // Get hit Identifier (= identifier of pmt)
-    Identifier pmt_id = hitItr->pmt_ID();
+    Identifier pmt_id = tile_hit.pmt_ID();
     // adc_id and channel_id for beam elem are the same
     // because there is only one gain, i.e. gain bit is always 0
-    HWIdentifier adc_id = hitItr->pmt_HWID();
+    HWIdentifier adc_id = tile_hit.pmt_HWID();
 
     /* Get hit amplitude and convert to energy (cell-dependent) */
     double hit_calib = m_tileInfo->BeamElemHitCalib(pmt_id);
-    double e_hit = hitItr->energy();
+    double e_hit = tile_hit.energy();
     double e_ch = e_hit * hit_calib;
 
     /* Convert to amplitude of channel */
@@ -116,13 +110,9 @@ StatusCode TileTBHitToBeamElem::execute() {
                     << " adc=" << m_tileHWID->to_string(adc_id)
                     << " amp=" << amp_ch);
 
-    TileBeamElem * pBeamElem = new TileBeamElem(adc_id, amp_ch);
-    pBeamElemContainer->push_back(pBeamElem);
-
+    std::unique_ptr<TileBeamElem> beamElem = std::make_unique<TileBeamElem>(adc_id, amp_ch);
+    beamElemContainer->push_back(beamElem.release());
   }
-
-  // step3: register the cell container in the TES
-  CHECK( evtStore()->record(pBeamElemContainer, m_beamElemContainer, false) );
 
   // Execution completed.
   ATH_MSG_DEBUG( "TileTBHitToBeamElem execution completed." );

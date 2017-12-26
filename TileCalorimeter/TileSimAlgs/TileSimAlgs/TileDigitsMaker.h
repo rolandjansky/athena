@@ -27,9 +27,19 @@
 #ifndef TILESIMALGS_TILEDIGITSMAKER_H
 #define TILESIMALGS_TILEDIGITSMAKER_H
 
+// Tile includes
+#include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gauid includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "CLHEP/Random/RandomEngine.h"
 
 class IAtRndmGenSvc;
@@ -70,9 +80,18 @@ class TileDigitsMaker: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
-    std::string m_hitContainer;    //!< Name of the TileHitContainer
-    std::string m_digitsContainer; //!< Name of the TileDigitsContainer
-    std::string m_filteredContainer; //!< Name of the TileDigitsContainer with filtered digits
+
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
+                                                          "input Tile hit container key"};
+
+    SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
+                                                                 "TileDigitsCnt",
+                                                                 "Output Tile digits container key"};
+
+    SG::WriteHandleKey<TileDigitsContainer> m_filteredDigitsContainerKey{this,"TileFilteredContainer",
+                                                                         "TileDigitsFlt",
+                                                                         "Output filtered Tile digits container key"};
+
     std::string m_infoName;        //!< Name of TileInfo object in TES
     double m_filterThreshold;      //!< theshold on hit energy to store digit in filtered container
     double m_filterThresholdMBTS; //!< theshold on MBTS hit energy to store digit in filtered container

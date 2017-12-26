@@ -17,17 +17,8 @@
 //
 //*****************************************************************************
 
-// Gaudi includes
-#include "GaudiKernel/ISvcLocator.h"
-
-// Atlas include
-#include "AthenaKernel/errorcheck.h"
-
-// Calo includes
-#include "CaloIdentifier/TileID.h"
-#include "CaloIdentifier/TileTBID.h"
-
 // Tile includes
+#include "TileSimAlgs/TileDigitsMaker.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -37,22 +28,29 @@
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileCondToolPulseShape.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileEvent/TileHitContainer.h"
-#include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
-#include "TileSimAlgs/TileDigitsMaker.h"
+
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/TileTBID.h"
+
+// Atlas include
+#include "AthenaKernel/errorcheck.h"
+// For the Athena-based random numbers.
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/Units.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+// Pile up
+#include "PileUpTools/PileUpMergeSvc.h"
+
+// Gaudi includes
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AthenaKernel/Units.h"
-
-// Pile up
-#include "PileUpTools/PileUpMergeSvc.h"
 
 #include "TMatrixF.h"
 #include "TDecompChol.h"
@@ -101,9 +99,6 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
     m_tileBadChanTool("TileBadChanTool"),
     m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
 {
-  declareProperty("TileHitContainer",      m_hitContainer = "TileHitCnt");
-  declareProperty("TileDigitsContainer",   m_digitsContainer = "TileDigitsCnt");
-  declareProperty("TileFilteredContainer", m_filteredContainer = "TileDigitsFlt");
   declareProperty("FilterThreshold",       m_filterThreshold = 100.0 * MeV, "Threshold on filtered digits (default - 100 MeV)");
   declareProperty("FilterThresholdMBTS",   m_filterThresholdMBTS = 0.0 * MeV, "Threshold on filtered digits of MBTS (default - 0 MeV)");
   declareProperty("TileInfoName",   m_infoName = "TileInfo");
@@ -236,13 +231,18 @@ StatusCode TileDigitsMaker::initialize() {
     }
   }
 
-  if (m_calibRun)
-    m_filteredContainer = "";
-  if (m_filteredContainer.size() > 0) {
+  if (m_calibRun) {
+    m_filteredDigitsContainerKey = "";
+  }
+
+  if (!m_filteredDigitsContainerKey.key().empty()) {
     ATH_MSG_INFO( "Keep digits with hit energy above " << m_filterThreshold / MeV
-                 << " MeV in " << m_filteredContainer << " container");
+                  << " MeV in " << m_filteredDigitsContainerKey.key() << " container");
     ATH_MSG_INFO( "Keep digits from MBTS with original G4 hit energy above "
                  << m_filterThresholdMBTS / MeV << " MeV ");
+
+    ATH_CHECK( m_filteredDigitsContainerKey.initialize() );
+
   } else {
     m_filterThreshold = HUGE_VALL;
     m_filterThresholdMBTS = HUGE_VALL;
@@ -325,6 +325,11 @@ StatusCode TileDigitsMaker::initialize() {
   }
 
   /* ==================================*/
+
+
+  ATH_CHECK( m_hitContainerKey.initialize() );
+  ATH_CHECK( m_digitsContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileDigitsMaker initialization completed");
 
   return StatusCode::SUCCESS;
@@ -376,8 +381,8 @@ StatusCode TileDigitsMaker::execute() {
   double RndmLo_dG[1];  // uniform random number for the double gaussian
 
   // step1: Get hit container from TES 
-  const TileHitContainer* hitCont;
-  CHECK( evtStore()->retrieve(hitCont, m_hitContainer) );
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  ATH_CHECK( hitContainer.isValid() );
 
   // Zero sums for monitoring.
   int nChSum = 0;
@@ -398,12 +403,14 @@ StatusCode TileDigitsMaker::execute() {
   double RChSum = 0.;
 
   /* step2: Set up  Digits container */
-  TileDigitsContainer* pDigitsContainer;
-  pDigitsContainer = new TileDigitsContainer(true);
 
-  TileDigitsContainer* pFilteredContainer = 0;
-  if (m_filteredContainer.size() > 0)
-    pFilteredContainer = new TileDigitsContainer(true, SG::VIEW_ELEMENTS);
+  SG::WriteHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey);
+  ATH_CHECK( digitsContainer.record(std::make_unique<TileDigitsContainer>(true)) );
+
+  std::unique_ptr<TileDigitsContainer> filteredContainer;
+  if (!m_filteredDigitsContainerKey.key().empty()) {
+    filteredContainer = std::make_unique<TileDigitsContainer>(true, SG::VIEW_ELEMENTS);
+  }
 
   /* Set up buffers for handling information in a single collection. */
   IdentifierHash idhash;
@@ -482,8 +489,8 @@ StatusCode TileDigitsMaker::execute() {
   }
 
   // iterate over all collections in a container
-  TileHitContainer::const_iterator collItr = hitCont->begin();
-  TileHitContainer::const_iterator lastColl = hitCont->end();
+  TileHitContainer::const_iterator collItr = hitContainer->begin();
+  TileHitContainer::const_iterator lastColl = hitContainer->end();
 
   /* ----------------------------------------------------------------- */
   /* Begin loop over the Hit collections.  All collections are defined */
@@ -1108,7 +1115,7 @@ StatusCode TileDigitsMaker::execute() {
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/1 HG" );
         }
         TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
-        pDigitsContainer->push_back(pDigits);
+        digitsContainer->push_back(pDigits);
 
         if (chanLoIsBad) {
           for (int js = 0; js < m_nSamples; ++js) {
@@ -1117,7 +1124,7 @@ StatusCode TileDigitsMaker::execute() {
           ATH_MSG_DEBUG( "Masking Channel " << ros << '/' << drawer << '/' << ich << "/0 LG");
         }
         TileDigits* pDigitsLo = new TileDigits(adc_id_lo, digitsBufferLo);
-        pDigitsContainer->push_back(pDigitsLo);
+        digitsContainer->push_back(pDigitsLo);
 
       } else { //normal run
 
@@ -1190,10 +1197,10 @@ StatusCode TileDigitsMaker::execute() {
           }
 
           TileDigits* pDigits = new TileDigits(adc_id, digitsBuffer);
-          pDigitsContainer->push_back(pDigits);
+          digitsContainer->push_back(pDigits);
 
           if (ech_int[ich] > m_filterThreshold || ech_int[ich] < -m_filterThresholdMBTS) {
-            pFilteredContainer->push_back(pDigits);
+            if (filteredContainer) filteredContainer->push_back(pDigits);
             if (hiGain) {
               ++nChHiFlt;
             } else {
@@ -1274,11 +1281,9 @@ StatusCode TileDigitsMaker::execute() {
     }
   }
 
-  // step3: register the Digit container in the TES
-  CHECK( evtStore()->record(pDigitsContainer, m_digitsContainer, false) );
-
-  if (m_filteredContainer.size() > 0) {
-    CHECK( evtStore()->record(pFilteredContainer, m_filteredContainer, false) );
+  if (filteredContainer) {
+    SG::WriteHandle<TileDigitsContainer> filteredDigitsContainer(m_filteredDigitsContainerKey);
+    ATH_CHECK( filteredDigitsContainer.record(std::move(filteredContainer)) );
   }
 
   return StatusCode::SUCCESS;

@@ -27,11 +27,27 @@
 #ifndef TILESIMALGS_TILEHITTORAWCHANNEL_H
 #define TILESIMALGS_TILEHITTORAWCHANNEL_H
 
+// Tile includes
+#include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileIdentifier/TileFragHash.h"
+#include "TileIdentifier/TileRawChannelUnit.h"
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "CLHEP/Random/RandomEngine.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+
+#include <string>
+#include <vector>
+
 
 class IAtRndmGenSvc;
 class TileID;
@@ -42,11 +58,6 @@ class HWIdentifier;
 class TileCablingService;
 class TileCondToolEmscale;
 
-#include "TileIdentifier/TileFragHash.h"
-#include "TileIdentifier/TileRawChannelUnit.h"
-
-#include <string>
-#include <vector>
 
 /**
  @class TileHitToRawChannel
@@ -71,8 +82,14 @@ class TileHitToRawChannel: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method   
 
   private:
-    std::string m_hitContainer;         //!< name of TileHitContainer
-    std::string m_rawChannelContainer;  //!< name of TileRawChannelContainer
+
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
+                                                          "input Tile hit container key"};
+
+    SG::WriteHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
+                                                                         "TileRawChannelCnt",
+                                                                         "Output Tile raw channel container key"};
+
     std::string m_infoName;             //!< name of the TileInfo object
     double m_deltaT;                    //!< if true, keep only hits in deltaT range
     bool m_calibrateEnergy;             //!< if true, amplitude is converted to pCb

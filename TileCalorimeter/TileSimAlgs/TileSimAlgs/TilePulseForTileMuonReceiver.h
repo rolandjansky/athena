@@ -35,9 +35,20 @@
 #ifndef TILESIMALGS_TILEPULSEFORTILEMUONRECEIVER_H
 #define TILESIMALGS_TILEPULSEFORTILEMUONRECEIVER_H
 
+// Tile includes
+#include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "CLHEP/Random/RandomEngine.h"
 
 class IAtRndmGenSvc;
@@ -78,6 +89,20 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     std::string m_hitContainer;         //!< Name of the tile hit container
     std::string m_MuRcvDigitsContainer; //!< Name of the algorithm digits container
     std::string m_MuRcvRawChContainer;  //!< Name of the algorithm raw channel container
+
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
+                                                          "input Tile hit container key"};
+
+
+    SG::WriteHandleKey<TileDigitsContainer> m_muRcvDigitsContainerKey{this,"MuonReceiverDigitsContainer",
+                                                                      "MuRcvDigitsCnt",
+                                                                      "Output Tile muon receiver digits container key"};
+
+    SG::WriteHandleKey<TileRawChannelContainer> m_muRcvRawChannelContainerKey{this,"MuonReceiverRawChannelContainer",
+                                                                              "MuRcvRawChCnt",
+                                                                              "Output Tile muon receiver raw channel container key"};
+
+
     std::string m_infoName;             //!< Name of tile info object in TES
     bool m_integerDigits;               //!< If true => round digits to integer
     bool m_useCoolPulseShapes;          //!< If true => use of pulse shapes from db
@@ -115,6 +140,8 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;            //!< tool which provides status of every channel
     ToolHandle<TileBeamInfoProvider> m_beamInfo;               //!< tool which provides DQstatus (for overlay)
     ToolHandle<TileRawChannelBuilderMF> m_MuRcvBuildTool;      //!< tool to set up the reconstruction algorithm
+    
+    bool m_run2;
 };
 
 #endif

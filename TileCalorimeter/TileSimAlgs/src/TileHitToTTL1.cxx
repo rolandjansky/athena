@@ -22,30 +22,30 @@
 //
 //*****************************************************************************
 
-// Gaudi includes
-#include "GaudiKernel/ISvcLocator.h"
-
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
+// Tile includes
+#include "TileSimAlgs/TileHitToTTL1.h"
+#include "TileEvent/TileLogicalOrdering.h"
+#include "TileIdentifier/TileHWID.h"
+#include "TileConditions/TileInfo.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 
-// Tile includes
-#include "TileIdentifier/TileHWID.h"
-#include "TileConditions/TileInfo.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileEvent/TileHitContainer.h"
-#include "TileEvent/TileTTL1Container.h"
-#include "TileEvent/TileLogicalOrdering.h"
-#include "TileSimAlgs/TileHitToTTL1.h"
-#include "TileConditions/ITileBadChanTool.h"
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
+// For the Athena-based random numbers.
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
+// Gaudi includes
+#include "GaudiKernel/ISvcLocator.h"
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
@@ -82,15 +82,9 @@ TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
   , m_tileBadChanTool("TileBadChanTool")
 {
   m_infoName = "TileInfo";
-  m_hitContainer = "TileHitCnt";
-  m_TTL1Container = "TileTTL1Cnt";
-  m_MBTSTTL1Container = "TileTTL1MBTS";
   m_TileTTL1Type = "Standard";
 
   declareProperty("TileInfoName", m_infoName);
-  declareProperty("TileHitContainer", m_hitContainer);    
-  declareProperty("TileTTL1Container", m_TTL1Container);
-  declareProperty("TileMBTSTTL1Container", m_MBTSTTL1Container);
   declareProperty("TileTTL1Type",m_TileTTL1Type);
   declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in TileHitToTTL1");
   declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
@@ -148,15 +142,18 @@ StatusCode TileHitToTTL1::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_MBTSTTL1Container.size() > 0)
-    ATH_MSG_INFO( "Storing MBTS TileTTL1 in separate container " << m_MBTSTTL1Container );
-  else
-    ATH_MSG_INFO( "TileTTL1 from MBTS will not be produced" );
+  if (m_mbtsTTL1ContainerKey.key().empty()) {
+    ATH_MSG_INFO( "TileTTL1 from MBTS will not be produced" ); 
+  } else {
+    ATH_MSG_INFO( "Storing MBTS TileTTL1 in separate container " << m_mbtsTTL1ContainerKey.key() );
+    ATH_CHECK( m_mbtsTTL1ContainerKey.initialize() );
+  }
 
-  if (m_maskBadChannels)
+  if (m_maskBadChannels) {
     ATH_MSG_INFO( "Bad Channel trigger status will be applied" );
-  else
+  } else {
     ATH_MSG_INFO(  "Bad Channel trigger status will be ignored" );
+  }
 
   /*............................................................................*/
   // Get all global parameters that will be needed for processing
@@ -205,6 +202,9 @@ StatusCode TileHitToTTL1::initialize() {
                     << ", tileThresh=" << ((m_tileThresh) ? "true" : "false") << endmsg;
   }
 
+  ATH_CHECK( m_hitContainerKey.initialize() );
+  ATH_CHECK( m_ttl1ContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileHitToTTL1 initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -226,15 +226,18 @@ StatusCode TileHitToTTL1::execute() {
   // but TTL1 container has no collections and no structure
   /*........................................................................*/
 
-  const TileHitContainer* hitCont;
-  CHECK( evtStore()->retrieve(hitCont, m_hitContainer) );
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  ATH_CHECK( hitContainer.isValid() );
 
+  SG::WriteHandle<TileTTL1Container> ttl1Container(m_ttl1ContainerKey);
+  // Register the TTL1 container in the TES
+  ATH_CHECK( ttl1Container.record(std::make_unique<TileTTL1Container>()) );
+  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_ttl1ContainerKey.key() << ")" );
 
-  TileTTL1Container * pTTL1Container = new TileTTL1Container();
-  TileTTL1 * pTTL1;
-  TileTTL1Container * mbtsTTL1Container = NULL;
-  if (m_MBTSTTL1Container.size() > 0)
-    mbtsTTL1Container = new TileTTL1Container();
+  std::unique_ptr<TileTTL1Container>  mbtsTTL1Container;
+  if (!m_mbtsTTL1ContainerKey.key().empty()) {
+    mbtsTTL1Container = std::make_unique<TileTTL1Container>();
+  }
 
   /*........................................................................*/
   // Create temporary arrays for processing signals.
@@ -273,13 +276,11 @@ StatusCode TileHitToTTL1::execute() {
   /*........................................................................*/
   // Begin loop over all collections (collection = electronic drawer). 
   /*........................................................................*/
-  TileHitContainer::const_iterator collItr = hitCont->begin();
-  TileHitContainer::const_iterator lastColl = hitCont->end();
 
-  for (; collItr != lastColl; ++collItr) {
+  for (const TileHitCollection* hitCollection : *hitContainer) {
 
     // get drawer and ros number
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(hitCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -336,15 +337,12 @@ StatusCode TileHitToTTL1::execute() {
     /*........................................................................*/
     // Iterate over all hits in this collection, summing amps for each tower.
     /*........................................................................*/
-    TileHitCollection::const_iterator hitItr = (*collItr)->begin();
-    TileHitCollection::const_iterator lastHit = (*collItr)->end();
-
-    for (; hitItr != lastHit; ++hitItr) {
+    for (const TileHit* tile_hit : *hitCollection) {
 
       // Get hit Identifier (= pmt_id)
-      Identifier pmt_id = (*hitItr)->pmt_ID();
+      Identifier pmt_id = tile_hit->pmt_ID();
       // Get hit HWIdentifier (= channel_id)
-      HWIdentifier pmt_HWid = (*hitItr)->pmt_HWID();
+      HWIdentifier pmt_HWid = tile_hit->pmt_HWID();
       // Get channel and ADC number
       int channel = m_tileHWID->channel(pmt_HWid);
 
@@ -386,14 +384,14 @@ StatusCode TileHitToTTL1::execute() {
           for (int js = 0; js < m_MBTSnSamples; ++js)
             hitSamples[js] = 0.0;
 
-          int n_hits = (*hitItr)->size();
+          int n_hits = tile_hit->size();
           for (int ihit = 0; ihit < n_hits; ++ihit) {
             // Need to pass the negative of t_hit, this is because ttl1Shape returns the amplitude at 
             // a given phase, whereas the t_hit from t=0 when the hit took place
-            double t_hit = -((*hitItr)->time(ihit));
+            double t_hit = -(tile_hit->time(ihit));
             m_tileInfo->ttl1Shape(m_MBTSnSamples, m_MBTSiTrig, t_hit, m_TTL1Shape);
 
-            double e_hit = (*hitItr)->energy(ihit);
+            double e_hit = tile_hit->energy(ihit);
             for (int js = 0; js < m_MBTSnSamples; ++js) {
               hitSamples[js] += e_hit * m_TTL1Shape[js];
             } // end of loop over MBTS samples
@@ -432,7 +430,7 @@ StatusCode TileHitToTTL1::execute() {
       } // end of MBTS loop
 
       // Get TT Identifier for this pmt 
-      Identifier tt_id = (*hitItr)->tt_ID();
+      Identifier tt_id = tile_hit->tt_ID();
 
       // Get eta-phi indices of TTL1 for this channel.
       int ieta = m_TT_ID->eta(tt_id);
@@ -444,14 +442,14 @@ StatusCode TileHitToTTL1::execute() {
       // convolute with shaping function and add to digitSamples.
       for (int js = 0; js < m_nSamples; ++js)
         hitSamples[js] = 0.0;
-      int n_hits = (*hitItr)->size();
+      int n_hits = tile_hit->size();
       for (int ihit = 0; ihit < n_hits; ++ihit) {
         // Need to pass the negative of t_hit, this is because ttl1Shape returns the amplitude at 
         // a given phase, whereas the t_hit from t=0 when the hit took place
-        double t_hit = -((*hitItr)->time(ihit));
+        double t_hit = -(tile_hit->time(ihit));
         m_tileInfo->ttl1Shape(m_nSamples, m_iTrig, t_hit, m_TTL1Shape);
 
-        double e_hit = (*hitItr)->energy(ihit);
+        double e_hit = tile_hit->energy(ihit);
         for (int js = 0; js < m_nSamples; ++js) {
           hitSamples[js] += e_hit * m_TTL1Shape[js];
         } // end of loop over samples
@@ -567,8 +565,8 @@ StatusCode TileHitToTTL1::execute() {
               Good = false;
 
           if (Good) {
-            TileTTL1 * mbtsTTL1 = new TileTTL1(MBTS_id, MBTSsamples);
-            mbtsTTL1Container->push_back(mbtsTTL1);
+            std::unique_ptr<TileTTL1> mbtsTTL1 = std::make_unique<TileTTL1>(MBTS_id, MBTSsamples);
+            mbtsTTL1Container->push_back(mbtsTTL1.release());
             ATH_MSG_DEBUG( "mbtsTTL1 saved. Is MBTS hit " << MBTSHit
                           << " Is noise " << m_tileNoise );
           }
@@ -663,27 +661,24 @@ StatusCode TileHitToTTL1::execute() {
 
       /* Create the new TTL1 object and store in TTL1Container. */
       if (Good) {
-        pTTL1 = new TileTTL1(ttId[ieta], ttL1samples);
-        pTTL1Container->push_back(pTTL1);
+        std::unique_ptr<TileTTL1> ttl1 = std::make_unique<TileTTL1>(ttId[ieta], ttL1samples);
+        ttl1Container->push_back(ttl1.release());
       }  // end second "Good" section.
     } // end loop over towers
   } // end loop over collections
 
   // sort all trigger towers according to identifier
   if (m_cosmicsType) {
-    ATH_MSG_DEBUG( "Sorting container of size " << pTTL1Container->size() );
+    ATH_MSG_DEBUG( "Sorting container of size " << ttl1Container->size() );
     TileLogicalOrdering<TileTTL1> order;
-    pTTL1Container->sort(order);
+    ttl1Container->sort(order);
   }
 
-  // step8: register the TTL1 container in the TES
-  CHECK( evtStore()->record(pTTL1Container, m_TTL1Container, false) );
-  ATH_MSG_DEBUG( "TileTTL1Container registered successfully (" << m_TTL1Container << ")" );
-
-
   if (mbtsTTL1Container) {
-    CHECK( evtStore()->record(mbtsTTL1Container, m_MBTSTTL1Container, false) );
-    ATH_MSG_DEBUG( "MBTS TileTTL1Container registered successfully (" << m_MBTSTTL1Container << ")" );
+    SG::WriteHandle<TileTTL1Container> mbtsContainer(m_mbtsTTL1ContainerKey);
+    ATH_CHECK( mbtsContainer.record(std::move(mbtsTTL1Container)));
+
+    ATH_MSG_DEBUG( "MBTS TileTTL1Container registered successfully (" << m_mbtsTTL1ContainerKey.key() << ")" );
   }
 
   // Execution completed.
