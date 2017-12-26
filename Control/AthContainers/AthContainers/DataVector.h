@@ -2026,8 +2026,8 @@ public:
 
 
   /// Standard @c const_iterator.
-  // Here, we can just use the @c std::vector iterator.
-  typedef typename PtrVector::const_iterator const_iterator;
+ typedef typename DataModel_detail::const_iterator<DataVector>
+    const_iterator;
 
   /// Standard @c iterator.  Note that lvalue references here will yield
   /// an @c ElementProxy, not a @c reference.
