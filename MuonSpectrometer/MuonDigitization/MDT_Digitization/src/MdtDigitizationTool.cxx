@@ -243,7 +243,7 @@ StatusCode MdtDigitizationTool::initialize() {
   try{
     m_digitContainer = new MdtDigitContainer(m_idHelper->module_hash_max());
   } 
-  catch(std::bad_alloc){
+  catch(const std::bad_alloc&){
     ATH_MSG_FATAL ( "Could not create a new MdtDigitContainer!" );
     return StatusCode::FAILURE;
   }
