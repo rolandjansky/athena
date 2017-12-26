@@ -24,6 +24,9 @@
 #include "TClonesArray.h"
 
 
+bool operator< (const T1& a, const T1& b);
+
+
 class C
 {
 public:
@@ -146,6 +149,7 @@ public:
   E e;
   T9 t9;
 };
+bool operator< (const V& a, const V& b);
 
 
 class W
@@ -384,5 +388,3 @@ std::ostream& operator<< (std::ostream& s, const QQ& c);
 std::ostream& operator<< (std::ostream& s, const RR& c);
 std::ostream& operator<< (std::ostream& s, const SS& c);
 
-bool operator< (const T1& a, const T1& b);
-bool operator< (const V& a, const V& b);
