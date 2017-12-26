@@ -87,7 +87,7 @@ namespace pool  {
     /// Dereference operator
     T* object()  const                  {    return m_obj.ptr();              }
     /// Access to cursor token
-    const Token* token() const          {    return m_token;                  }
+    const Token* token() const          {    return &m_token;                 }
     /// Scan the container
     DbStatus scan(const DbContainer& cntH, const DbTypeInfo* typ);
     /// Retrieve next element
