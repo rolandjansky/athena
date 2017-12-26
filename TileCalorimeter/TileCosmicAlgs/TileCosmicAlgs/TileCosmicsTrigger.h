@@ -24,11 +24,16 @@
 //  
 //  
 //****************************************************************************
-#ifndef TileCosmicsTrigger_H
-#define TileCosmicsTrigger_H
+#ifndef TILECOSMICALGS_TILECOSMICSTRIGGER_H
+#define TILECOSMICALGS_TILECOSMICSTRIGGER_H
+//TileCalo include
+#include "TileEvent/TileTTL1Container.h"
+#include "TileEvent/TileTriggerContainer.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class CaloLVL1_ID;
 class TileTTL1Hash;
@@ -66,7 +71,6 @@ class TileCosmicsTrigger: public AthAlgorithm {
 
 // Input variables
 //
-    std::string m_ttl1Container;
     std::vector<std::string> m_connectedDrawers[8];
     std::vector<std::string> m_connectedDrawers1;
     std::vector<std::string> m_connectedDrawers2;
@@ -92,11 +96,13 @@ class TileCosmicsTrigger: public AthAlgorithm {
 
 // Store Gate & Auxiliary algorithms 
 //
-    std::string m_tileTriggerContainer;
 
     const CaloLVL1_ID* m_TT_ID;
     TileTTL1Hash* m_TTHash;
 
+    SG::ReadHandleKey<TileTTL1Container> m_ttl1ContainerKey{this, "TileTTL1Container", "TileTTL1Cnt", "Input TileTTL1Container name"};
+    SG::WriteHandleKey<TileTriggerContainer> m_triggerContainerKey{this, "TileTriggerContainer","TileTriggerCnt", "Output TileTriggerContainer name"};
+
 };
 
-#endif
+#endif // TILECOSMICALGS_TILECOSMICSTRIGGER_H
