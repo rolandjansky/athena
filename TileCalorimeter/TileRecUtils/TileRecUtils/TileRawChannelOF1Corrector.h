@@ -54,7 +54,7 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
     virtual StatusCode finalize() override;
 
     /** Correct TileRawChannel amplitudes if pedestal changed */
-    virtual StatusCode process(const TileRawChannelContainer* rawChannelContainer) override;
+    virtual StatusCode process(TileRawChannelContainer* rawChannelContainer) override;
 
 
   private:

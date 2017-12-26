@@ -31,12 +31,12 @@ namespace Trk {
 
   public:
     /**Default Constructor - needed for inherited classes */
-    CompactBinnedArray1D() throw (GaudiException):
+    CompactBinnedArray1D():
     CompactBinnedArray<T>(),
       m_binUtility(0){}
     
     /**Constructor with std::vector and a BinUtility */
-    CompactBinnedArray1D(const std::vector< const T*>& tclassvector, const std::vector<size_t>& indexvector,  BinUtility* bingen) throw (GaudiException) :
+    CompactBinnedArray1D(const std::vector< const T*>& tclassvector, const std::vector<size_t>& indexvector,  BinUtility* bingen) :
       CompactBinnedArray<T>(),
       m_array(indexvector),
       m_arrayObjects(tclassvector),
@@ -53,7 +53,7 @@ namespace Trk {
       }
 
      /**Copy Constructor - copies only pointers !*/
-     CompactBinnedArray1D(const CompactBinnedArray1D& barr) throw (GaudiException) :
+     CompactBinnedArray1D(const CompactBinnedArray1D& barr) :
       CompactBinnedArray<T>(),
       m_binUtility(0)
       {

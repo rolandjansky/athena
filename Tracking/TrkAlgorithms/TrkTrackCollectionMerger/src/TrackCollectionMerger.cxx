@@ -107,12 +107,10 @@ StatusCode Trk::TrackCollectionMerger::execute_r(const EventContext& ctx) const
 
   ATH_MSG_DEBUG("Update summaries");  
   // now loop over all tracks and update summaries with new shared hit counts
-  TrackCollection::iterator rf  = outputCol->begin();
-  TrackCollection::iterator rfE = outputCol->end();
-  for(  ; rf != rfE; ++rf){ 
-    if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(**rf);
-    else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(**rf);
-    else  m_trkSummaryTool->updateTrack(**rf);
+  for (Trk::Track* trk : *outputCol) {
+    if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(*trk);
+    else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(*trk);
+    else  m_trkSummaryTool->updateTrack(*trk);
   }
 
   SG::WriteHandle<TrackCollection> h_write(m_outtracklocation,ctx);
@@ -208,9 +206,11 @@ StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCo
     ATH_MSG_DEBUG("Size of track collection " << trackCol->size());
 
     // loop over tracks
-    for(auto& rf: *trackCol){
+    for(const auto& rf: *trackCol){
       // add track into output
-      Trk::Track* newTrack = m_createViewCollection ? rf : new Trk::Track(*rf);
+      // FIXME: const_cast
+      // These objects are modified in the `Update summaries' section
+      Trk::Track* newTrack = m_createViewCollection ? const_cast<Trk::Track*>(rf) : new Trk::Track(*rf);
       outputCol->push_back(newTrack);
       // add tracks into PRD tool
       if (m_assoTool->addPRDs(*newTrack).isFailure())

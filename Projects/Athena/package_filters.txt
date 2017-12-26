@@ -20,13 +20,10 @@
 - Generators/Herwigpp_i
 
 # Temporary VP1 compilation issues
-- graphics/VP1/VP1Systems/VP1UtilitySystems
 - graphics/VP1/VP1Systems/VP1TriggerSystems
 - graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
-- graphics/VP1/VP1Systems/VP1CaloSystems 
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
-- graphics/VP1/VP1Systems/VP1BPhysSystems
 + graphics/VP1/.*
 
 # Some analysis packages that are not part of Athena

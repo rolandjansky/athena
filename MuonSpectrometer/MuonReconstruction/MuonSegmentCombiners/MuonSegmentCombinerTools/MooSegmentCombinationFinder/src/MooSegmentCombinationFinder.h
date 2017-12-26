@@ -13,6 +13,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
@@ -32,7 +33,6 @@ class MdtIdHelper;
 
 namespace Muon 
 {
-    class IMuonPatternSegmentAssociationTool;
     class IMuonHoughPatternFinderTool;
     class IMuonPatternSegmentMaker;
     class IMuonCurvedSegmentCombiner;
@@ -82,7 +82,7 @@ namespace Muon
       void printSummary( std::string stageTag, const Trk::SegmentCollection* col ) const;
 
       /** helper functions to write out intermediate results */
-      void postProcess(  MuonSegmentCombinationCollection* col, bool write, SG::WriteHandleKey<MuonSegmentCombinationCollection> &colLocation );
+      void postProcess(  MuonSegmentCombinationCollection* col);
 
       /** extract a segment collection from a segment combination collection */
       void extractSegmentCollection( const MuonSegmentCombinationCollection& combiCol, Trk::SegmentCollection& segments  ) const;
@@ -113,7 +113,6 @@ namespace Muon
       bool                                            m_doSegmentCombinationCleaning; //<! run segment combination cleaning
       bool                                            m_auditorExecute; //<! audit the subtools during "execute"
       
-      ToolHandle<IMuonPatternSegmentAssociationTool> m_assocTool;
       ToolHandle<MuonEDMPrinterTool>                 m_edmPrinter;
       ToolHandle<MuonEDMHelperTool>                  m_helperTool;
       ToolHandle<MuonIdHelperTool>                   m_idHelperTool;
@@ -126,11 +125,7 @@ namespace Muon
       ToolHandle<IMuonSegmentOverlapRemovalTool>     m_overlapRemovalTool;    
       ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector;    
 
-      bool m_writeAll;
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_csc2dLocation;
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_csc4dLocation;
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_mdtSegmentCombinationLocation;
-      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_curvedCombinationLocation;
+      MuonSegmentCombPatternCombAssociationMap m_segmentPatternMap;
       bool m_cloneSegments;
 
       /** counters */

@@ -223,7 +223,7 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
+    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool')
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
 

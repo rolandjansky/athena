@@ -35,7 +35,7 @@ TCS::GenericArrayCreator::sort(const InputTOBArray & input, TOBArray & output) {
          output.push_back( GenericTOB(*cluster) );
       }
    }
-   catch(std::bad_cast bc) {
+   catch(const std::bad_cast& bc) {
       try {
          const JetTOBArray & in = dynamic_cast<const JetTOBArray &>(input);
          foreach(const JetTOB * jet, in) {
@@ -43,7 +43,7 @@ TCS::GenericArrayCreator::sort(const InputTOBArray & input, TOBArray & output) {
          }
          return StatusCode::SUCCESS;
       }
-      catch(std::bad_cast bc) {
+      catch(const std::bad_cast& bc) {
          TCS_EXCEPTION("GenericArrayCreator: neither ClusterArray nor JetArray")
       }
    }

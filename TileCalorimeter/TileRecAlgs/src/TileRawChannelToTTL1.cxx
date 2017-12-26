@@ -234,7 +234,8 @@ StatusCode TileRawChannelToTTL1::execute() {
       // put zero amplitude in all bad channels 
       // so that zero amplitude will be written to the ByteStream 
       if (m_maskBadChannels) {
-        TileRawChannel * pRch = static_cast<TileRawChannel *>(*rawChannelItr);
+        // FIXME: const-cast modifying const SG object
+        TileRawChannel * pRch = const_cast<TileRawChannel*> (static_cast<const TileRawChannel *>(*rawChannelItr));
         TileBchStatus status = m_tileBadChanTool->getAdcStatus(hwid);
 
         if (status.isBad()) {

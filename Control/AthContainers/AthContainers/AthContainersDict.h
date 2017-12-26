@@ -5,7 +5,6 @@
 */
 
 
-#include "AthContainers/UserDataStore.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/AuxVectorBase.h"

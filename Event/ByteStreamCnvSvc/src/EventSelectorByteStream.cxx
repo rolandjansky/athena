@@ -461,15 +461,15 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
       try { 
          pre = m_eventSource->nextEvent(); 
       } 
-      catch (ByteStreamExceptions::readError) { 
+      catch (const ByteStreamExceptions::readError&) { 
          ATH_MSG_FATAL("Caught ByteStreamExceptions::readError"); 
          return StatusCode::FAILURE; 
       } 
-      catch (ByteStreamExceptions::badFragment) { 
+      catch (const ByteStreamExceptions::badFragment&) { 
          ATH_MSG_ERROR("badFragment encountered");
          badEvent = true;
       }
-      catch (ByteStreamExceptions::badFragmentData) { 
+      catch (const ByteStreamExceptions::badFragmentData&) { 
          ATH_MSG_ERROR("badFragment data encountered");
          badEvent = true;
       }
@@ -537,7 +537,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          try {
             m_eventSource->validateEvent();
          }
-         catch (ByteStreamExceptions::badFragmentData) { 
+         catch (const ByteStreamExceptions::badFragmentData&) { 
             ATH_MSG_ERROR("badFragment data encountered");
 
             ++n_bad_events;
@@ -594,15 +594,15 @@ StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) co
        try { 
           pre = m_eventSource->previousEvent(); 
        } 
-       catch (ByteStreamExceptions::readError) { 
+       catch (const ByteStreamExceptions::readError&) { 
           ATH_MSG_FATAL("Caught ByteStreamExceptions::readError"); 
           return StatusCode::FAILURE; 
        } 
-       catch (ByteStreamExceptions::badFragment) { 
+       catch (const ByteStreamExceptions::badFragment&) { 
           ATH_MSG_ERROR("badFragment encountered");
           badEvent = true;
        }
-       catch (ByteStreamExceptions::badFragmentData) { 
+       catch (const ByteStreamExceptions::badFragmentData&) { 
           ATH_MSG_ERROR("badFragment data encountered");
           badEvent = true;
        }

@@ -1257,7 +1257,7 @@ void ALFA_DetectorFactory::ConstructODFibers00(const eRPotName eRPName, const in
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeoModel::ALFA_DetectorFactory");
 	
 	int i;
-	char szLabel[32];
+	char szLabel[180];
 	HepGeom::Transform3D TransODFiber;
 	
 	GeoBox* OD_Fiberbox1 = new GeoBox(4.*CLHEP::mm,.24*CLHEP::mm,.24*CLHEP::mm);
@@ -1363,7 +1363,7 @@ void ALFA_DetectorFactory::ConstructODFibers00(const eRPotName eRPName, const in
 void ALFA_DetectorFactory::ConstructODFibers01(const eRPotName eRPName, const int iODPlate, eFiberType eFType, GeoFullPhysVol* pMotherVolume, const HepGeom::Transform3D& MotherTransform, const HepGeom::Transform3D& TransODCladding)
 {
 	int i;
-	char szLabel[32];
+	char szLabel[180];
 	HepGeom::Transform3D TransODFiber;
 	
 	GeoBox* OD_Fiberbox1 = new GeoBox(4.*CLHEP::mm,.24*CLHEP::mm,.24*CLHEP::mm);

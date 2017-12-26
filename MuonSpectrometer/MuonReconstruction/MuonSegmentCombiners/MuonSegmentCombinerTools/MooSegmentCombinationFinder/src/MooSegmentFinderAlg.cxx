@@ -5,7 +5,6 @@
 #include "MooSegmentFinderAlg.h"
 #include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
 
-#include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 
 #include "MuonSegment/MuonSegment.h"
@@ -28,7 +27,6 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
   m_segmentLocation("MooreSegments"),
   m_segmentCombiLocation("MooreSegmentCombinations"),
   m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder"),
-  m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
   m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder")
 {
   declareProperty("UseRPC",m_useRpc = true);
@@ -77,11 +75,6 @@ StatusCode MooSegmentFinderAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_assocTool.retrieve().isFailure()){
-    ATH_MSG_FATAL("Could not get " << m_assocTool); 
-    return StatusCode::FAILURE;
-  }
-
   ATH_CHECK( m_keyMdt.initialize(m_useMdt) ); //Nullify key from scheduler if not needed
   ATH_CHECK( m_keyCsc.initialize(m_useCsc) );
   ATH_CHECK( m_keyRpc.initialize(m_useRpc) );
@@ -104,8 +97,6 @@ StatusCode MooSegmentFinderAlg::initialize()
 
 StatusCode MooSegmentFinderAlg::execute()
 {
-
-  m_assocTool->reset(); // clear all prior associations.
 
   std::vector<const Muon::MdtPrepDataCollection*> mdtCols;
   std::vector<const Muon::CscPrepDataCollection*> cscCols;

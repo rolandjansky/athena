@@ -378,7 +378,8 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
                          << " (i.e. on second container only) " );
           // apply noise filter on dsp container before merging it with offline contaier
           for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-            if (noiseFilterTool->process(dspRawChannelContainer.cptr()).isFailure()) {
+            /// FIXME: const_cast; tools can change the container!
+            if (noiseFilterTool->process(const_cast<TileRawChannelContainer*>(dspRawChannelContainer.cptr())).isFailure()) {
               ATH_MSG_ERROR( " Error status returned from noise filter " );
             } else {
               ATH_MSG_DEBUG( "Noise filter applied to the container" );
@@ -486,9 +487,9 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       if (m_noiseFilterTools.size() > 0) {
         ATH_MSG_DEBUG( " Running noise filter on " << m_rawChannelContainerKey.key() );
         // apply noise filter on input container before sending it to the build() method
-        
         for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
-          if (noiseFilterTool->process(rawChannelContainer.cptr()).isFailure()) {
+            /// FIXME: const_cast; tools can change the container!
+          if (noiseFilterTool->process(const_cast<TileRawChannelContainer*>(rawChannelContainer.cptr())).isFailure()) {
             ATH_MSG_ERROR( " Error status returned from noise filter " );
           } else {
             ATH_MSG_DEBUG( "Noise filter applied to the container" );
@@ -636,6 +637,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   }
   xAOD::EventInfo* eventInfo = 0;
   if (eventInfo_c) {
+    /// FIXME: const_cast; changing EventInfo.
     eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
     if (!eventInfo->getStore()) {
       const SG::IAuxStore* store = dynamic_cast<const SG::IAuxStore*> (eventInfo->getConstStore());

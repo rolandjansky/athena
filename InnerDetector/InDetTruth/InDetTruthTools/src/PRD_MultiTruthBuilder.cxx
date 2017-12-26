@@ -44,7 +44,7 @@ void PRD_MultiTruthBuilder::addPrepRawDatum(PRD_MultiTruthCollection *prdTruth,
 					    const Trk::PrepRawData* prd,
 					    const InDetSimDataCollection* simDataMap,
 					    bool pixels
-					    )
+					    ) const
 {
   if(!prdTruth || !prd || !simDataMap) {
     return;

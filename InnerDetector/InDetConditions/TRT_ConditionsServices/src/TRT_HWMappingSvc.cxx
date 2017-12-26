@@ -415,6 +415,7 @@ StatusCode TRT_HWMappingSvc::build_BarrelHVLinePadMap() {
     TRTcoralClient->get_BarrelHVLinePadMap( rawMap );
     if ( rawMap.size() == 0 ) {
       msg(MSG::WARNING) << "Retrieved and empty Barrel HV-line/pad map from database." << endmsg;
+      delete TRTcoralClient;
       return StatusCode::FAILURE;
     }
 
@@ -460,7 +461,7 @@ StatusCode TRT_HWMappingSvc::build_BarrelHVLinePadMap() {
         m_Barrel_HV_CoolChanNames->at(hashedPad) = chanName;
       }
     }
-
+    delete TRTcoralClient;
 
   } else {
     std::map< std::string, std::vector<int> > fuseBoxPadMapEven;

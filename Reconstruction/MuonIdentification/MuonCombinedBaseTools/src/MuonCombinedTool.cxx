@@ -120,7 +120,8 @@ namespace MuonCombined {
       if (deltaEta            > m_deltaEtaPreSelection)  continue;
       if (fabs(deltaPhi)      > m_deltaPhiPreSelection)  continue;
       if (ptBal               > m_ptBalance) continue;
-      associatedIdCandidates.push_back(x);
+      // FIXME: changing objects recorded in SG.
+      associatedIdCandidates.push_back(const_cast<InDetCandidate*>(x));
     }
   }
 

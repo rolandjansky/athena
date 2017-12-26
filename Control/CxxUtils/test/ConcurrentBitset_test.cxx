@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "CxxUtils/ConcurrentBitset.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/random.h"
 #include "tbb/concurrent_unordered_set.h"
 #include "boost/timer/timer.hpp"
@@ -762,7 +763,8 @@ public:
 
   bool test (size_t id) const
   {
-    return ck_hs_get (const_cast<ck_hs_t*>(&m_hs), id, reinterpret_cast<const void*> (id)) != nullptr;
+    ck_hs_t* hs ATLAS_THREAD_SAFE = const_cast<ck_hs_t*>(&m_hs);
+    return ck_hs_get (hs, id, reinterpret_cast<const void*> (id)) != nullptr;
   }
 
 
