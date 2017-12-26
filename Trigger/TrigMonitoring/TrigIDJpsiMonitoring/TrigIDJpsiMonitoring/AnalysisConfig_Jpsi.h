@@ -477,11 +477,11 @@ namespace TrigInDetAnalysis {
               static int hpmap[] = { 0, 1, 2, 7, 8, 9, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
 
 
-#ifndef TIDA_NEWTRACKING_H
-              const Trk::MeasuredPerigee* measPer = track->measuredPerigee();
-#else
+	      // #ifndef TIDA_NEWTRACKING_H
+	      //              const Trk::MeasuredPerigee* measPer = track->measuredPerigee();
+	      // #else
               const Trk::Perigee* measPer = track->measuredPerigee();
-#endif
+	      // #endif
               
               double pT    = measPer->pT(); 
               double eta   = measPer->eta();
@@ -544,26 +544,6 @@ namespace TrigInDetAnalysis {
               const Trk::TrackParticleBase trk = (Trk::TrackParticleBase)*track;
               m_provider->msg(MSG::DEBUG) << "original track?? " << trk.originalTrack() << endmsg;
 
-/* #ifndef TIDA_NEWTRACKING_H
-              double phiAtCalo = eta, etaAtCalo = phi; //(*trackitr),
-              const Trk::ParametersBase* result = m_efExtrapolator->extrapolate(trk,
-                                                    ((fabs(eta)<1.5)? CaloCell_ID::EMB2 : CaloCell_ID::EME2),
-                                                    0.0, Trk::alongMomentum, Trk::undefined);
-#else
-              const Trk::TrackParameters* result = m_efExtrapolator->extrapolate(trk,
-                                                    ((fabs(eta)<1.5)? CaloCell_ID::EMB2 : CaloCell_ID::EME2),
-                                                    0.0, Trk::alongMomentum, Trk::undefined);
-#endif
-              if(!result)  std::cout << "EF extrapolator failed " << std::endl;
-              else {
-                phiAtCalo = result->position().phi();
-                etaAtCalo = result->position().eta();
-              }
-              m_provider->msg(MSG::DEBUG) << "key: " << int(m_trigTracks.size() - 1) << " track: " << track
-                                          << " trackitr: " << (*trackitr) << " r& = " << result
-                                          << " phi = " << phiAtCalo  << " eta = " << etaAtCalo << endmsg;
-              m_phiAtCalo[ int(m_trigTracks.size() - 1) ] = phiAtCalo;
-              m_etaAtCalo[ int(m_trigTracks.size() - 1) ] = etaAtCalo; --> see also line w/ delete!!*/
               m_trackRois[ int(m_trigTracks.size() - 1) ] = roi;
               //std::cout << "SUTT ID track " << *t << "\t0x" << std::hex << track->HitPattern() << std::dec << std::endl;
               //if( !addTrack( t ) ) delete t;

@@ -27,7 +27,6 @@
 // TrigJpsiTool classes
 #include "TrigJPsiTools/MuonTrackAdder.h"
 
-#include "TrigInDetAnalysisUtils/TIDA_newtracking.h"
 
 class MuonTrackSelector : public MuonTrackAdder {
 
@@ -223,12 +222,7 @@ class MuonTrackSelector : public MuonTrackAdder {
     
     if( track ){
 
-
-#ifndef TIDA_NEWTRACKING_H
-	const Trk::MeasuredPerigee* measPer = track->measuredPerigee();
-#else
 	const Trk::Perigee* measPer = track->measuredPerigee();
-#endif
       
 	double pT  = measPer->pT(); 
 	double eta = measPer->eta();

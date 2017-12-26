@@ -31,8 +31,6 @@ using Athena::Units::GeV;
 //#include "Particle/TrackParticle.h"
 
 
-#include "TrigInDetAnalysisUtils/TIDA_newtracking.h"
-
 void JpsiAnalysis::initialise() { 
 
   //+++ pT ranges
@@ -601,11 +599,11 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
 
     if(matchOffline) {
 
-#ifndef TIDA_NEWTRACKING_H
-      const Trk::MeasuredPerigee* measPer = m_offlineProbes->at(i)->measuredPerigee();
-#else
+      // #ifndef TIDA_NEWTRACKING_H
+      //      const Trk::MeasuredPerigee* measPer = m_offlineProbes->at(i)->measuredPerigee();
+      // #else
       const Trk::Perigee* measPer = m_offlineProbes->at(i)->measuredPerigee();
-#endif
+      // #endif
       //      cout << "offd0 offset x = " << m_xBeamReference << " y = " << m_yBeamReference << endl;
       offd0   = measPer->parameters()[Trk::d0] + sin(m_offlineProbes->at(i)->phi())*m_xBeamReference;
       offd0  -= cos(m_offlineProbes->at(i)->phi())*m_yBeamReference;
