@@ -6,12 +6,14 @@
 #include <IsolationSelection/IsolationSelectionTool.h>
 #include <IsolationSelection/IsolationConditionHist.h>
 #include <IsolationSelection/IsolationConditionFormula.h>
+#include <IsolationSelection/IsolationConditionCombined.h>
 #include <IsolationSelection/Interp3D.h>
 #include "PathResolver/PathResolver.h"
 #include <TROOT.h>
 #include <TFile.h>
 #include <TObjString.h>
 #include <TH3.h>
+#include <TF2.h>
 
 namespace CP {
     IsolationSelectionTool::IsolationSelectionTool(const std::string& name) :
@@ -210,6 +212,11 @@ namespace CP {
         } else if (muWPname == "FixedCutHighMuLoose") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone30_TightTTVA_pt500, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
+        } else if (muWPname == "FixedCutPflowTight") {
+            std::vector<xAOD::Iso::IsolationType> isoTypes;
+            isoTypes.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
+            isoTypes.push_back(xAOD::Iso::neflowisol30);
+            wp->addCut(new IsolationConditionCombined("MuonPFlow", isoTypes, TF2("pflowFunction","fabs(x)+0.4*fabs(y)"), "0.055*x"));
         } else {
             ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
             delete wp;
