@@ -950,10 +950,10 @@ void VP1CaloCellController::displayLArDigits(
 	messageDebug("display LAr digits end.");
 }
 
-void VP1CaloCellController::displayTileDigits(int n_samples,
-		std::vector<float> samples1,
-		std::vector<float> samples2,
-		std::vector<std::string>& msg)
+void VP1CaloCellController::displayTileDigits(int /*n_samples*/,
+                                              std::vector<float> /*samples1*/,
+                                              std::vector<float> /*samples2*/,
+                                              std::vector<std::string>& /*msg*/)
 {
 
 	messageDebug("VP1CaloCellController::displayTileDigits(A)...");
@@ -982,9 +982,9 @@ void VP1CaloCellController::displayTileDigits(int n_samples,
 	*/
 }
 
-void VP1CaloCellController::displayTileDigits(int n_samples,
-		std::vector<float> samples,
-		std::vector<std::string>& msg)
+void VP1CaloCellController::displayTileDigits(int /*n_samples*/,
+                                              std::vector<float> /*samples*/,
+                                              std::vector<std::string>& /*msg*/)
 {
 	messageDebug("VP1CaloCellController::displayTileDigits(B)...");
 
@@ -1013,10 +1013,10 @@ void VP1CaloCellController::displayTileDigits(int n_samples,
 	*/
 }
 
-void VP1CaloCellController::displayTilePulse(const TileRawChannel* rawchannel1,
-		const TileRawChannel* rawchannel2,
-		const TileRawChannelContainer* rawchannel_cont,
-		size_t digitsize)
+void VP1CaloCellController::displayTilePulse(const TileRawChannel* /*rawchannel1*/,
+                                             const TileRawChannel* /*rawchannel2*/,
+                                             const TileRawChannelContainer* /*rawchannel_cont*/,
+                                             size_t /*digitsize*/)
 {
 	messageDebug("VP1CaloCellController::displayTilePulse(A)...");
 
@@ -1048,9 +1048,9 @@ void VP1CaloCellController::displayTilePulse(const TileRawChannel* rawchannel1,
 //	std::cout << "Drawn digits_2" << std::endl;
 }
 
-void VP1CaloCellController::displayTilePulse(const TileRawChannel* rawchannel,
-		const TileRawChannelContainer* rawchannel_cont,
-		size_t digitsize)
+void VP1CaloCellController::displayTilePulse(const TileRawChannel* /*rawchannel*/,
+                                             const TileRawChannelContainer* /*rawchannel_cont*/,
+                                             size_t /*digitsize*/)
 {
 	messageDebug("VP1CaloCellController::displayTilePulse(B)...");
 
