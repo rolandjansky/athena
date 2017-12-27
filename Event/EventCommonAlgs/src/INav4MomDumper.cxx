@@ -178,7 +178,7 @@ INav4MomDumper::dump( const std::string& collName )
   }
 
   // sorting the collection by Pt
-  typedef std::set<INavigable4Momentum*, P4Sorters::Descending::Pt> Coll_t;
+  typedef std::set<const INavigable4Momentum*, P4Sorters::Descending::Pt> Coll_t;
   Coll_t inav4moms( coll->begin(), coll->end() );
 
   FourMomUtils::dump( out, inav4moms );
