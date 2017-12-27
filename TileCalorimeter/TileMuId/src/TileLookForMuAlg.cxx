@@ -7,19 +7,23 @@
 // Author   : G Usai
 // Created  : June 2003 
 //***************************************************************************
+
+// Tile includes
+#include "TileMuId/TileLookForMuAlg.h"
+#include "TileEvent/TileCell.h"
+
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 //Library Includes
 #include <algorithm>
 #include <cmath>
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-// Calo includes
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/TileID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-// Tile includes
-#include "TileEvent/TileCell.h"
-#include "TileEvent/TileMuContainer.h"
-#include "TileMuId/TileLookForMuAlg.h"
 
 TileLookForMuAlg::TileLookForMuAlg(const std::string& name,
     ISvcLocator* pSvcLocator) 
@@ -30,8 +34,6 @@ TileLookForMuAlg::TileLookForMuAlg(const std::string& name,
   , m_etaA()
   , m_nMuMax(30)
 {
-  declareProperty("CellsNames", m_cellContainer);
-  declareProperty("TileMuTagsOutputName", m_tileTagContainer);
   declareProperty("LowerTresh0MeV", m_loThrA=80.0);
   declareProperty("LowerTresh1MeV", m_loThrBC=80.0);
   declareProperty("LowerTresh2MeV", m_loThrD=80.0);
@@ -41,7 +43,7 @@ TileLookForMuAlg::TileLookForMuAlg(const std::string& name,
   declareProperty("UpperTresh0MeV", m_hiThrA);
   declareProperty("From3to2", m_fromDtoBC);
   declareProperty("From2to1", m_fromBCtoA);
-  return;
+
 }
 
 TileLookForMuAlg::~TileLookForMuAlg() {
@@ -86,6 +88,10 @@ StatusCode TileLookForMuAlg::initialize() {
     }
   }
 
+
+  ATH_CHECK( m_cellContainerKey.initialize() );
+  ATH_CHECK( m_muContainerKey.initialize() );
+
   ATH_MSG_DEBUG("TileLookForMuAlg initialization completed");
 
   return StatusCode::SUCCESS;
@@ -95,6 +101,9 @@ StatusCode TileLookForMuAlg::initialize() {
 //Execution                                                                     /
 /////////////////////////////////////////////////////////////////////////////////
 StatusCode TileLookForMuAlg::execute() {
+
+  ATH_MSG_DEBUG("TileLookForMuAlg execution  started");
+
   double eneA[N_CELLS_A][N_MODULES]; // calorimeter cell matrices  
   double eneBC[N_CELLS_BC][N_MODULES];
   double eneD[N_CELLS_D][N_MODULES];
@@ -103,28 +112,24 @@ StatusCode TileLookForMuAlg::execute() {
   memset(eneBC, 0, sizeof(eneBC));
   memset(eneD, 0, sizeof(eneD));
 
-  TileMuContainer* muons = new TileMuContainer; //muon tag container
+  SG::WriteHandle<TileMuContainer> muContainer(m_muContainerKey);
+  ATH_CHECK( muContainer.record(std::make_unique<TileMuContainer>()) );
 
-  ATH_MSG_DEBUG("TileLookForMuAlg execution  started");
 
   //  Get CaloCell  Container
-
   std::vector<const CaloCell*> cellList;
-  const CaloCellContainer* cell_container;
 
-  if (evtStore()->retrieve(cell_container, m_cellContainer).isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve the   " << m_cellContainer);
-    return StatusCode::SUCCESS;
-  }
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerKey);
+  ATH_CHECK( cellContainer.isValid() );
 
   CaloCell_ID::SUBCALO tileCell_ID = CaloCell_ID::TILE;
   CaloCellContainer::const_iterator currentCell =
-      cell_container->beginConstCalo(tileCell_ID);
+      cellContainer->beginConstCalo(tileCell_ID);
   CaloCellContainer::const_iterator lastCell = 
-      cell_container->endConstCalo(tileCell_ID);
+      cellContainer->endConstCalo(tileCell_ID);
 
   ATH_MSG_DEBUG( "Calo Container size "
-                << cell_container->nCellsCalo(tileCell_ID));
+                << cellContainer->nCellsCalo(tileCell_ID));
 
   double phi[64] = { 0 };
 //  TileID::SAMPLE cellSample;
@@ -363,10 +368,11 @@ StatusCode TileLookForMuAlg::execute() {
                 }
 
                 muEnergy.push_back(eneAround);
+                std::unique_ptr<TileMu> muon = std::make_unique<TileMu>((float) muEta, 
+                                                                        (float) muPhi, 
+                                                                        muEnergy, 
+                                                                        muQuality);
 
-                TileMu* muon = new TileMu((float) muEta, (float) muPhi,
-                    muEnergy, muQuality);
-                muons->push_back(muon);
                 ATH_MSG_VERBOSE( "muon tag eta=" << muon->eta()
                                 << " muon tag phi=" << muon->phi()
                                 << " energydepVec[0]=" << muon->enedep()[0]
@@ -376,6 +382,7 @@ StatusCode TileLookForMuAlg::execute() {
                                 << " muon tag Q factor=" << muon->quality()
                                 << " ene around= " << eneAround);
 
+                muContainer->push_back(muon.release());
               }
 
             } else {
@@ -411,23 +418,18 @@ StatusCode TileLookForMuAlg::execute() {
   //debug--------------------------------------------------- 
   // check the mu tag container  
   if (msgLvl(MSG::DEBUG)) {
-    TileMuContainer::const_iterator ind = muons->begin();
-    TileMuContainer::const_iterator lastpippo = muons->end();
-    for (; ind != lastpippo; ++ind) {
-      msg(MSG::DEBUG) << "Container name = " << m_tileTagContainer
-                      << "  eta = " << (*ind)->eta()
-                      << "  phi = " << (*ind)->phi()
-                      << "  enedep[0] = " << ((*ind)->enedep())[0]
-                      << "  enedep[1] = " << ((*ind)->enedep())[1]
-                      << "  enedep[2] = " << ((*ind)->enedep())[2]
-                      << "  enedep[3] = " << ((*ind)->enedep())[3]
-                      << "  quality = " << (*ind)->quality() << endmsg;
+    for (const TileMu* mu : *muContainer) {
+      msg(MSG::DEBUG) << "Container name = " << m_muContainerKey.key()
+                      << "  eta = " << mu->eta()
+                      << "  phi = " << mu->phi()
+                      << "  enedep[0] = " << (mu->enedep())[0]
+                      << "  enedep[1] = " << (mu->enedep())[1]
+                      << "  enedep[2] = " << (mu->enedep())[2]
+                      << "  enedep[3] = " << (mu->enedep())[3]
+                      << "  quality = " << mu->quality() << endmsg;
     }
   }
   //-------------------debug-------------------------
-
-  //store the muon tags container  on the  TDS 
-  CHECK( evtStore()->record(muons, m_tileTagContainer, false) );
 
   return StatusCode::SUCCESS;
 }
