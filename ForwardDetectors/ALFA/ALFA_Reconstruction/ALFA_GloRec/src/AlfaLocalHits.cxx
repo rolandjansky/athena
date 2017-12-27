@@ -13,6 +13,9 @@
 #include "ALFA_LocRecEv/ALFA_LocRecEvent.h"
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrEvent.h"
 
+using std::cout;
+using std::endl;
+
 ////////////////////////////////////////////
 //
 //  implementation of AlfaLocalHit

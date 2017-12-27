@@ -68,8 +68,6 @@
 
 #include "ALFA_GloRec/AlfaLocalHits.h"
 
-using namespace std;
-
 class StoreGateSvc;
 class ActiveStoreSvc;
 
@@ -104,12 +102,12 @@ private:
     //  steerable members
     //////////////////////////////////////////////
     int m_iDataType;            
-    string m_strTrackPathPatterns;
+    std::string m_strTrackPathPatterns;
     TObjArray m_TObjArrTrackPathPatterns;
-    string m_strGloRecAnalysisFile;
-    string m_strGloRecCollectionName;   
-    string m_strLocRecCorrCollectionName;
-    string m_TruthCollectionName;   
+    std::string m_strGloRecAnalysisFile;
+    std::string m_strGloRecCollectionName;   
+    std::string m_strLocRecCorrCollectionName;
+    std::string m_TruthCollectionName;   
         
 
     //////////////////////////////////////////////
