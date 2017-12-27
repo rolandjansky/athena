@@ -259,10 +259,9 @@ StatusCode ALFA_GloRec::execute() {
 	ALFA_LocRecCorrEvCollection::const_iterator mcColBeg = pLocRecCorrCol->begin();
 	ALFA_LocRecCorrEvCollection::const_iterator mcColEnd = pLocRecCorrCol->end();
 	AlfaLocalHits hits;
-	ALFA_LocRecCorrEvent * pLocRecCorr_tmp = 0;
 	for(; mcColBeg!=mcColEnd; ++mcColBeg) {
 	        HepGeom::Point3D<double> PointInAtlasCS;
-		pLocRecCorr_tmp = static_cast<ALFA_LocRecCorrEvent*> (*mcColBeg);
+		const ALFA_LocRecCorrEvent* pLocRecCorr_tmp = static_cast<const ALFA_LocRecCorrEvent*> (*mcColBeg);
 		AlfaLocalHit l_hit(pLocRecCorr_tmp);
 		hits.AddHit(l_hit);
 		//PointInAtlasCS = m_pGeometryReader->GetDetPointInAtlas((eRPotName)(iRPot+1), Point3D<double>(fRecPosX, fRecPosY, 10.0));
