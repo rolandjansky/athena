@@ -61,7 +61,7 @@ public:
   }
   
   // setCablingSvc
-  void set_pixelCabling(ServiceHandle<IPixelCablingSvc>& pixelCabling) {
+  void set_pixelCabling(const ServiceHandle<IPixelCablingSvc>& pixelCabling) {
     m_pixelCabling = pixelCabling;
   }
 
@@ -112,7 +112,7 @@ class OrderRdos {
 
  public :
   
- OrderRdos(Identifier offlineId, ServiceHandle<IPixelCablingSvc>& pixelCabling):
+ OrderRdos(Identifier offlineId, const ServiceHandle<IPixelCablingSvc>& pixelCabling):
   m_pixelCabling("dummy","dummy") ,  m_offlineId(offlineId) 
   { m_pixelCabling = pixelCabling; }
   
@@ -141,7 +141,7 @@ class OrderInitialRdos {
   
   // OrderInitialRdos(Identifier offlineId, ServiceHandle<IPixelCablingSvc> pixelCabling, const PixelID * pixelID): 
   //  m_pixelCabling("dummy","dummy") ,  m_offlineId(offlineId) , m_PixelID(pixelID)
- OrderInitialRdos(ServiceHandle<IPixelCablingSvc>& pixelCabling, const PixelID * pixelID):
+ OrderInitialRdos(const ServiceHandle<IPixelCablingSvc>& pixelCabling, const PixelID * pixelID):
   m_pixelCabling("dummy","dummy") , m_PixelID(pixelID)
   { m_pixelCabling = pixelCabling; }
   
