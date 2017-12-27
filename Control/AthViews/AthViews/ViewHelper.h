@@ -8,6 +8,7 @@
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/IService.h"
+#include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/ExtendedEventContext.h"
@@ -31,238 +32,286 @@ namespace ViewHelper
       EventContext m_context;
     };
   }
-	//Function to create a vector of views, each populated with one data object
-	template< typename T >
-	inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
-			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData, bool allowFallThrough=false )
-	{
-		//Loop over all input data
-		unsigned int const viewNumber = InputData.size();
-		for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
-		{
-			//Create view
-			std::string viewName = ViewNameRoot + std::to_string( viewIndex );
-			SG::View * outputView = new SG::View( viewName, allowFallThrough );
-			ViewVector.push_back( outputView );
 
-			//Attach the handle to the view
-			StatusCode sc = PopulateHandle.setProxyDict( outputView );
-			if ( !sc.isSuccess() )
-			{
-				ViewVector.clear();
-				return sc;
-			}
+  //Function to create a vector of views, each populated with one data object
+  template< typename T >
+  inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
+                                     SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool const allowFallThrough=true )
+  {
+    //Make a WriteHandle to use
+    SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
 
-			//Populate the view
-			sc = PopulateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
-			if ( !sc.isSuccess() )
-			{
-				ViewVector.clear();
-				return sc;
-			}
-		}
+    //Loop over all input data
+    unsigned int const viewNumber = InputData.size();
+    for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
+    {
+      //Create view
+      std::string viewName = ViewNameRoot + std::to_string( viewIndex );
+      SG::View * outputView = new SG::View( viewName, allowFallThrough );
+      ViewVector.push_back( outputView );
 
-		return StatusCode::SUCCESS;
-	}
+      //Attach a handle to the view
+      StatusCode sc = populateHandle.setProxyDict( outputView );
+      if ( !sc.isSuccess() )
+      {
+        ViewVector.clear();
+        return sc;
+      }
 
-        //Function to add data to existing views
-        template< typename T >
-        inline StatusCode Populate( std::vector< SG::View* > & ViewVector,
-                        SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData )
+      //Populate the view
+      sc = populateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
+      if ( !sc.isSuccess() )
+      {
+        ViewVector.clear();
+        return sc;
+      }
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  //Function to add data to existing views
+  template< typename T >
+  inline StatusCode Populate( std::vector< SG::View* > const& ViewVector,
+                              SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData )
+  {
+    //Make a WriteHandle to use
+    SG::WriteHandle<T> populateHandle( PopulateKey, SourceContext );
+
+    //Vector length check
+    unsigned int const viewNumber = InputData.size();
+    if ( viewNumber != ViewVector.size() ) return StatusCode::FAILURE;
+
+    //Loop over all input data
+    for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
+    {
+      //Attach the handle to the view
+      StatusCode sc = populateHandle.setProxyDict( ViewVector.at( viewIndex ) );
+      if ( !sc.isSuccess() )
+      {
+        return sc;
+      }
+
+      //Populate the view
+      sc = populateHandle.record( CxxUtils::make_unique< T >( InputData.at( viewIndex ) ) );
+      if ( !sc.isSuccess() )
+      {
+        return sc;
+      }
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  //Function to run a set of views with the named algorithms
+  inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
+                              EventContext const& SourceContext, SmartIF< IService > & AlgPool )
+  {
+    impl::SaveAndRestoreContext restoreContext;
+
+    //Check there is work to do
+    if ( !ViewVector.size() || !AlgorithmNames.size() )
+    {
+      return StatusCode::FAILURE;
+    }
+
+    //Retrieve existing extended context
+    unsigned int conditionsRun = SourceContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+
+    //Create a tbb task for each view
+    tbb::task_list allTasks;
+    for ( SG::View* inputView : ViewVector )
+    {
+      //Make a context with the view attached
+      EventContext * viewContext = new EventContext( SourceContext );
+      viewContext->setExtension( Atlas::ExtendedEventContext( inputView, conditionsRun ) );
+
+      //Make the task
+      tbb::task * viewTask = new( tbb::task::allocate_root() )GraphExecutionTask( AlgorithmNames, viewContext, AlgPool );
+      allTasks.push_back( *viewTask );
+    }
+
+    //Run the tasks
+    tbb::task::spawn_root_and_wait( allTasks );
+
+    return StatusCode::SUCCESS;
+  }
+
+  //Function to attach a set of views to a graph node
+  inline StatusCode ScheduleViews( std::vector< SG::View* > const& ViewVector, std::string const& NodeName,
+      EventContext const& SourceContext, IScheduler * Scheduler )
+  {
+    //Retrieve the scheduler
+    if ( !Scheduler )
+    {
+      return StatusCode::FAILURE;
+    }
+
+    //Retrieve existing extended context
+    unsigned int conditionsRun = SourceContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+
+    if ( ViewVector.size() )
+    {
+      for ( SG::View* view : ViewVector )
+      {
+        //Make a context with the view attached
+        EventContext * viewContext = new EventContext( SourceContext );
+        viewContext->setExtension( Atlas::ExtendedEventContext( view, conditionsRun ) );
+
+        //Attach the view to the named node
+        StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, viewContext );
+        if ( !sc.isSuccess() )
         {
-		//Vector length check
-                unsigned int const viewNumber = InputData.size();
-		if ( viewNumber != ViewVector.size() ) return StatusCode::FAILURE;
-
-                //Loop over all input data
-                for ( unsigned int viewIndex = 0; viewIndex < viewNumber; ++viewIndex )
-                {
-                        //Attach the handle to the view
-                        StatusCode sc = PopulateHandle.setProxyDict( ViewVector.at( viewIndex ) );
-                        if ( !sc.isSuccess() )
-                        {
-                                return sc;
-                        }
-
-                        //Populate the view
-                        sc = PopulateHandle.record( CxxUtils::make_unique< T >( InputData.at( viewIndex ) ) );
-                        if ( !sc.isSuccess() )
-                        {
-                                return sc;
-                        }
-                }
-
-                return StatusCode::SUCCESS;
+          return StatusCode::FAILURE;
         }
+      }
+    }
+    else
+    {
+      //Disable the node if no views
+      return Scheduler->scheduleEventView( &SourceContext, NodeName, 0 );
+    }
 
-	
+    return StatusCode::SUCCESS;
+  }
 
-	
-	//Function to run a set of views with the named algorithms
-	inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
-			EventContext const& InputContext, SmartIF< IService > & AlgPool )
-	{
-	  impl::SaveAndRestoreContext restoreContext;
-		//Check there is work to do
-		if ( !ViewVector.size() || !AlgorithmNames.size() )
-		{
-			return StatusCode::FAILURE;
-		}
+  // a variant of RunViews accepting ready to use contexts
+  // useful when contexts neeed to be made anyways for the purpose of filling the handles
+  // to avoid confusion it start from small run
+  inline StatusCode runInViews( std::vector<EventContext> & contexts, const std::vector< std::string >& algorithms, SmartIF< IService > & algPool) {
 
-		//Create a tbb task for each view
-		tbb::task_list allTasks;
-		for ( SG::View* inputView : ViewVector )
-		{
-			//Make a context with the view attached
-			EventContext * viewContext = new EventContext( InputContext );
-                        unsigned int conditionsRun = InputContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
-                        viewContext->setExtension( Atlas::ExtendedEventContext( inputView,
-                                                                                conditionsRun ) );
+    if ( contexts.empty() )
+    return StatusCode::SUCCESS;
 
-			//Make the task
-			tbb::task * viewTask = new( tbb::task::allocate_root() )GraphExecutionTask( AlgorithmNames, viewContext, AlgPool );
-			allTasks.push_back( *viewTask );
-		}
-		
-		//Run the tasks
-		tbb::task::spawn_root_and_wait( allTasks );
+    impl::SaveAndRestoreContext restoreContext;
+    tbb::task_list allTasks;
+    for ( EventContext& ctx: contexts ) {
 
-		return StatusCode::SUCCESS;
-	}
+      tbb::task * viewTask  = new ( tbb::task::allocate_root() )GraphExecutionTask( algorithms, &ctx, algPool );
+      allTasks.push_back( *viewTask );
 
+    }
+    tbb::task::spawn_root_and_wait( allTasks );
 
-	// a varaint of RunViews accepting ready to use contexts
-	// useful ehne contexts neeed to be made anyways for the purpose of filling the handles
-	// to avoid confusion it start from small run
-	inline StatusCode runInViews( std::vector<EventContext>& contexts, const std::vector< std::string >& algorithms, SmartIF< IService > & algPool) {
-	  if ( contexts.empty() )
-	    return StatusCode::SUCCESS;
-	  
-	  impl::SaveAndRestoreContext restoreContext;
-	  tbb::task_list allTasks;
-	  for ( EventContext& ctx: contexts ) {
+    return StatusCode::SUCCESS;
+  }
 
-	    tbb::task * viewTask  = new ( tbb::task::allocate_root() )GraphExecutionTask( algorithms, &ctx, algPool );
-	    allTasks.push_back( *viewTask );
+  //Function merging view data into a single collection
+  template< typename T >
+  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< T > const& QueryKey, EventContext const& SourceContext, T & OutputData )
+  {
+    //Make a ReadHandle to use
+    SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
 
-	  }
-	  tbb::task::spawn_root_and_wait( allTasks );
+    //Loop over all views
+    for ( SG::View* inputView : ViewVector )
+    {
+      //Attach the handle to the view
+      StatusCode sc = queryHandle.setProxyDict( inputView );
+      if ( !sc.isSuccess() )
+      {
+        OutputData.clear();
+        return sc;
+      }
 
-	  return StatusCode::SUCCESS;
-	}
-	
-	//Function merging view data into a single collection
-	template< typename T >
-	inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< T > & QueryHandle, T & OutputData )
-	{
-		//Loop over all views
-		for ( SG::View* inputView : ViewVector )
-		{
-			//Attach the handle to the view
-			StatusCode sc = QueryHandle.setProxyDict( inputView );
-			if ( !sc.isSuccess() )
-			{
-				OutputData.clear();
-				return sc;
-			}
+      //Merge the data
+      T inputData = *queryHandle;
+      OutputData.insert( OutputData.end(), inputData.begin(), inputData.end() );
+    }
 
-			//Merge the data
-			T inputData = *QueryHandle;
-			OutputData.insert( OutputData.end(), inputData.begin(), inputData.end() );
-		}
+    return StatusCode::SUCCESS;
+  }
 
-		return StatusCode::SUCCESS;
-	}
+  //Function merging view data into a single collection - overload for datavectors because aux stores are annoying
+  template< typename T >
+  inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< DataVector< T > > const& QueryKey, EventContext const& SourceContext, DataVector< T > & OutputData )
+  {
+    //Make a ReadHandle to use
+    SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
 
-	//Function merging view data into a single collection - overload for datavectors because aux stores are annoying
-	template< typename T >
-	inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< DataVector< T > > & QueryHandle, DataVector< T > & OutputData )
-	{
-		//Loop over all views
-		for ( SG::View* inputView : ViewVector )
-		{
-			//Attach the handle to the view
-			StatusCode sc = QueryHandle.setProxyDict( inputView );
-			if ( !sc.isSuccess() )
-			{
-				OutputData.clear();
-				return sc;
-			}
+    //Loop over all views
+    for ( SG::View* inputView : ViewVector )
+    {
+      //Attach the handle to the view
+      StatusCode sc = queryHandle.setProxyDict( inputView );
+      if ( !sc.isSuccess() )
+      {
+        OutputData.clear();
+        return sc;
+      }
 
-			//Merge the data
-			for ( const auto inputObject : *QueryHandle.cptr() )
-			{
-				//Relies on non-existant assignment operator in TrigComposite
-				T * outputObject = new T();
-				OutputData.push_back( outputObject );
-				*outputObject = *inputObject;
-			}
+      //Merge the data
+      for ( const auto inputObject : *queryHandle.cptr() )
+      {
+        //Relies on non-existant assignment operator in TrigComposite
+        T * outputObject = new T();
+        OutputData.push_back( outputObject );
+        *outputObject = *inputObject;
+      }
 
-			//Tomasz version
-			//const size_t sizeSoFar = OutputData.size();
-			//OutputData.resize( sizeSoFar + QueryHandle->size() );
-			//std::swap_ranges( QueryHandle.ptr()->begin(), QueryHandle.ptr()->end(), OutputData.begin() + sizeSoFar );
-		}
+      //Tomasz version
+      //const size_t sizeSoFar = OutputData.size();
+      //OutputData.resize( sizeSoFar + QueryHandle->size() );
+      //std::swap_ranges( QueryHandle.ptr()->begin(), QueryHandle.ptr()->end(), OutputData.begin() + sizeSoFar );
+    }
 
-		return StatusCode::SUCCESS;
-	}
+    return StatusCode::SUCCESS;
+  }
+
   /**
    * @arg unique_index - gets appended to the view name if >= 0
    */
-  inline SG::View* makeView( const std::string& common_name, int unique_index=-1, bool allowFallThrough = true) {
-	  return  (( unique_index == -1 ) ?
-		   new SG::View( common_name, allowFallThrough ) :
-		   new SG::View( common_name+ " "+std::to_string(unique_index), allowFallThrough ) );
-	  
+  inline SG::View* makeView( const std::string& common_name, int const unique_index=-1, bool const allowFallThrough = true) {
+    return  (( unique_index == -1 ) ?
+    new SG::View( common_name, allowFallThrough ) :
+    new SG::View( common_name+ " "+std::to_string(unique_index), allowFallThrough ) );
+
   }
-  
+
   /**
    * @brief - records object in a view
-   */  
+   */
   template< typename T >
   StatusCode addToView( SG::View* view, const std::string& key, T* ptr ) {
-    
+
     SG::WriteHandle< T > handle( key );
-    
+
     if( handle.setProxyDict( view ).isFailure() ) {
       return StatusCode::FAILURE;
     }
-    
+
     if ( handle.record( std::unique_ptr<T>( ptr ) ).isFailure() ) {
       return StatusCode::FAILURE;
     }
-    
+
     return StatusCode::SUCCESS;
   }
 
   template< typename T >
   StatusCode addViewCollectionToView(SG::View* view, const std::string& key, const T* src ) {
-    auto * viewColl = new ConstDataVector<T>();    
+    auto * viewColl = new ConstDataVector<T>();
     viewColl->clear( SG::VIEW_ELEMENTS ); //make it a view
     viewColl->insert( viewColl->end(), src->begin(), src->end() ); // copy content
 
-    return  addToView( view, key, viewColl );    
+    return addToView( view, key, viewColl );
   }
 
-  
+
   /**
    * @return nullptr if object of type T is missing in the view
    */
   template< typename T >
   const T* getFromView( SG::View* view, const std::string& key) {
-    
+
     SG::ReadHandle<T> handle(key);
-    
-    if ( handle.setProxyDict(view).isFailure() )  {
+
+    if ( handle.setProxyDict(view).isFailure() ) {
       return nullptr;
     }
-    
+
     return handle.cptr();
   }
 
-  
-
-  
 } // EOF namspace ViewHelper
 
 #endif

@@ -42,7 +42,7 @@ DFlowAlg1::DFlowAlg1( const std::string& name,
 
   declareProperty( "IntFlow", m_w_int, "Data flow of int" );
 
-  declareProperty( "ViewStart", m_r_int, "Seed data of view" );
+  declareProperty( "ViewStart", m_r_int, "Seed data of view" ); //implicit DH or whatever
 }
 
 // Destructor

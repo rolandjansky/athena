@@ -6,11 +6,8 @@
   
 include("TrigUpgradeTest/testHLT_MT.py") 
 
-viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-if viewTest:
-  allViewAlgorithms = topSequence.allViewAlgorithms
 
 # provide a minimal menu information
 topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
@@ -111,53 +108,40 @@ if TriggerFlags.doMuon:
 
     svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
-    if viewTest:
-      allViewAlgorithms += muFastAlg
-      svcMgr.ViewAlgPool.TopAlg += [ muFastAlg.getName() ]
-      l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
-      l2MuViewsMaker.ViewFallThrough = True
+    l2MuViewNode = AthSequencer("l2MuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
+    l2MuViewNode += muFastAlg
+    l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
+    l2MuViewsMaker.ViewFallThrough = True
  
-      l2MuViewsMaker.Decisions = "MURoIDecisions"
-      l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
-      l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
-      l2MuViewsMaker.Views = "MUViewRoIs"
- 
-      l2MuViewsMaker.AlgorithmNameSequence = [ muFastAlg.getName() ]
+    l2MuViewsMaker.Decisions = "MURoIDecisions"
+    l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
+    l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    l2MuViewsMaker.Views = "MUViewRoIs"
+    l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
 
-      muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
-      muFastAlg.RecMuonRoI = "RecMURoIs"
-      muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
-      muFastAlg.MuFastComposite = "MuFastAlg_Composite"
-      muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
-      muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
-
-    else:
-      muFastAlg.MuRoIs = "MURoIs"
-      muFastAlg.RecMuonRoI = "RecMURoIs"
-      muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
-      muFastAlg.MuFastComposite = "MuFastAlg_Composite"
-      muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
-      muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
+    muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
+    muFastAlg.RecMuonRoI = "RecMURoIs"
+    muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
+    muFastAlg.MuFastComposite = "MuFastAlg_Composite"
+    muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
+    muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
 
     # set up MuFastHypo
-    if viewTest:
-      from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
-      trigMufastHypo = TrigMufastHypoConfig("L2MufastHypoAlg")
-      trigMufastHypo.OutputLevel = DEBUG
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
+    trigMufastHypo = TrigMufastHypoConfig("L2MufastHypoAlg")
+    trigMufastHypo.OutputLevel = DEBUG
 
-      trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
-      trigMufastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
-      trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
-      trigMufastHypo.Decisions = "L2MuonFastDecisions"
-      trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
+    trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
+    trigMufastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
+    trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
+    trigMufastHypo.Decisions = "L2MuonFastDecisions"
+    trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
 
-      trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
+    trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
 
-      muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
-      muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2MuViewsMaker, trigMufastHypo, muFastDecisionsDumper])
+    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
+    muFastStep = seqAND("muFastStep", [filterL1RoIsAlg, l2MuViewsMaker, l2MuViewNode, trigMufastHypo, muFastDecisionsDumper])
 
-    else:
-      pass 
 
   if doEFSA:
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
@@ -245,35 +229,23 @@ if TriggerFlags.doMuon:
 
 
   # CF construction
-  if viewTest:
+  if doL2SA:
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.L1Decision = "HLTChains" 
+    summary.FinalDecisions = ["L2MuonFastDecisions"]
+    summary.OutputLevel = DEBUG 
+    step0 = parOR("step0", [ muFastStep ] )
+    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
 
-    if doL2SA:
-      from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-      summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-      summary.L1Decision = "HLTChains" 
-      summary.FinalDecisions = ["L2MuonFastDecisions"]
-      summary.OutputLevel = DEBUG 
-      step0 = parOR("step0", [ muFastStep ] )
-      HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.L1Decision = "HLTChains" 
+    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ] 
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
 
-      mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-      mon.L1Decision = "HLTChains" 
-      mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ] 
-      mon.HLTSummary = "MonitoringSummary" 
-      mon.OutputLevel = DEBUG 
-      hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
-
-      topSequence += hltTop   
-  else:
-    if doL2SA:
-      topSequence += muFastAlg
-    if doEFSA:
-      topSequence+=theSegmentFinderAlg
-      topSequence += theNCBSegmentFinderAlg
-      topSequence +=TrackBuilder 
-      topSequence +=xAODTrackParticleCnvAlg
-      topSequence += theMuonCandidateAlg
-      topSequence +=themuoncreatoralg
+    topSequence += hltTop   
     
 
 

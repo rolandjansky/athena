@@ -28,7 +28,6 @@ class opt :
     doID             = True           # TriggerFlags.doID
     doCalo           = True           # TriggerFlags.doCalo
     doMuon           = True           # TriggerFlags.doMuon
-    enableViews      = True           # setup infrastructre for Views
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
@@ -232,7 +231,7 @@ for mod in modifierList:
 from IOVSvc.IOVSvcConf import CondSvc 
 svcMgr += CondSvc()
 
-from AthenaCommon.AlgSequence import AthSequencer 
+from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq") 
 
 from IOVSvc.IOVSvcConf import CondInputLoader 
@@ -336,54 +335,6 @@ else:
     from TrigUpgradeTest.TestUtils import L1EmulationTest
     topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
 
-# ----------------------------------------------------------------
-# Setup Views
-# ----------------------------------------------------------------
-viewSeq = AthSequencer("AthViewSeq", Sequential = True)
-topSequence+=viewSeq
-
-if opt.enableViews:
-    log.info('Setting up Views...')
-    # Make a separate alg pool for the view algs
-    from GaudiHive.GaudiHiveConf import AlgResourcePool
-    svcMgr += AlgResourcePool('ViewAlgPool')
-    #Create IdentifiableCaches
-    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
-                                        Pixel_ClusterKey = "PixelTrigClustersCache",
-                                        SCT_ClusterKey   = "SCT_ClustersCache",
-                                        SpacePointCachePix = "PixelSpacePointCache",
-                                        SpacePointCacheSCT   = "SctSpacePointCache",
-                                        SCTRDOCacheKey       = "SctRDOCache",
-                                        PixRDOCacheKey = "PixRDOCache",
-                                        OutputLevel=DEBUG)
-    viewSeq += InDetCacheCreatorTrigViews    
-    
-    # Set of view algs
-    allViewAlgs = AthSequencer( "allViewAlgorithms" )
-    allViewAlgs.ModeOR = False
-    allViewAlgs.Sequential = True
-    allViewAlgs.StopOverride = False
-    topSequence += allViewAlgs
-    
-    # Filter to stop view algs from running on whole event
-    allViewAlgs += CfgMgr.AthPrescaler( "alwaysFail" )
-    allViewAlgs.alwaysFail.PercentPass = 0.0
-
-    # dummy alg that just says you're running in a view
-    # allViewAlgs += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
-    # svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
-    # viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
-else:
-    #This is to workaround the problem CondHandle bug, this can be removed once a proper solution is made
-    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
-                                        Pixel_ClusterKey = "",
-                                        SCT_ClusterKey   = "",
-                                        SpacePointCachePix = "",
-                                        SpacePointCacheSCT   = "",
-                                        OutputLevel=INFO)
-    viewSeq += InDetCacheCreatorTrigViews    
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------

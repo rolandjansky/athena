@@ -22,29 +22,8 @@ namespace AthViews {
 ////////////////
 RoiCollectionToViews::RoiCollectionToViews( const std::string& name,
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_trigRoIs( "input_rois" ),
-  m_w_views( "all_views" ),
-  m_viewRoIs( "output_rois" ),
-  m_algorithmNameSequence( std::vector< std::string >() ),
-  m_algPoolName( "" ),
-  m_viewBaseName( "" )
+  ::AthAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
-
-  declareProperty( "InputRoICollection", m_trigRoIs, "Collection of RoIs to split into views" );
-  
-  declareProperty( "OutputRoICollection", m_viewRoIs, "RoI collection to use inside views" );
-  
-  declareProperty( "AllViews", m_w_views, "All views" );
-
-  declareProperty( "ViewBaseName", m_viewBaseName, "Name to use for all views - number will be appended" );
-
-  declareProperty( "AlgorithmNameSequence", m_algorithmNameSequence, "Names of algorithms to run in the views" );
-
-  declareProperty( "AlgPoolName", m_algPoolName, "Name for the algorithm pool service to use with the views" );
 }
 
 // Destructor
@@ -62,6 +41,7 @@ StatusCode RoiCollectionToViews::initialize()
   CHECK( m_trigRoIs.initialize() );
   CHECK( m_viewRoIs.initialize() );
   CHECK( m_w_views.initialize() );
+  CHECK( m_scheduler.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -88,7 +68,9 @@ StatusCode RoiCollectionToViews::execute()
   ATH_CHECK( inputRoIs.isValid() );
  
   //Skip if there's nothing to do
-  if ( inputRoIs->empty() ) return StatusCode::SUCCESS;
+  //if ( inputRoIs->empty() ) return StatusCode::SUCCESS;
+  //NB: don't do this any more. Calling the helper with an empty collection is now correct
+  //as this will deactivate the node in the scheduler
 
   std::vector< ConstDataVector<TrigRoiDescriptorCollection> > outputRoICollectionVector;
   for ( auto roi: *inputRoIs )
@@ -102,18 +84,30 @@ StatusCode RoiCollectionToViews::execute()
 
   //Create the views and populate them
   std::vector< SG::View* > viewVector;
-  SG::WriteHandle< ConstDataVector<TrigRoiDescriptorCollection> > outputRoIs( m_viewRoIs, ctx );
   CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName, //Base name for all views to use
           viewVector,                                 //Vector to store views
-          outputRoIs,                                 //A writehandle to use to access the views (the handle itself, not the contents)
+          m_viewRoIs,                                 //A writehandlekey to use to access the views
+          ctx,                                        //The context of this algorithm
           outputRoICollectionVector,                  //Data to initialise each view - one view will be made per entry
           m_viewFallThrough ) );                      //Allow fall through from view to storegate
 
   //Run the algorithms in views
-  CHECK( ViewHelper::RunViews( viewVector,              //View vector
-          m_algorithmNameSequence,                        //Algorithms to run in each view
-          ctx,                                            //Context to attach the views to
-          serviceLocator()->service( m_algPoolName ) ) ); //Service to retrieve algorithms by name
+  if ( m_algorithmNameSequence.empty() )
+  {
+    CHECK( ViewHelper::ScheduleViews( viewVector, //View vector
+            m_viewNodeName,                       //CF node to attach views to
+            ctx,                                  //Context to attach the views to
+            m_scheduler.get() ) );                //Scheduler
+  }
+  else
+  {
+    ATH_MSG_WARNING( "This method of EventView scheduling (specifying algorithm names) is DEPRECATED" );
+    ATH_MSG_WARNING( "Please use the scheduler EventView handling by specifying a CF node name" );
+    CHECK( ViewHelper::RunViews( viewVector,                //View vector
+            m_algorithmNameSequence,                        //CF node to attach views to
+            ctx,                                            //Context to attach the views to
+            serviceLocator()->service( m_algPoolName ) ) ); //Service to retrieve algorithms by name
+  }
 
   //Store the collection of views
   SG::WriteHandle< std::vector< SG::View* > > outputViewHandle( m_w_views, ctx );
