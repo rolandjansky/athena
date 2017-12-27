@@ -82,7 +82,7 @@ StatusCode EventBoost::execute() {
 
   for(it=mcCollptr->begin(); it!=mcCollptr->end(); it++) {
 
-    HepMC::GenEvent* genEvt = (*it);
+    const HepMC::GenEvent* genEvt = (*it);
     EventCopy(genEvt);
 
   }
@@ -97,7 +97,7 @@ StatusCode EventBoost::execute() {
 
   for(it=mcCollptrCOPY->begin(); it!=mcCollptrCOPY->end(); it++) {
 
-    HepMC::GenEvent* newEvt = (*it);
+    const HepMC::GenEvent* newEvt = (*it);
 
     //Call user analysis for this genevent:
     if (AnalyseGenEvent(newEvt).isFailure())
@@ -168,12 +168,12 @@ StatusCode EventBoost::GenAnalysis_finalize(){
 
 //______________________________________________________________________________
 
-StatusCode EventBoost::AnalyseGenEvent(HepMC::GenEvent* genEvt) {
+StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 
   msg(MSG::VERBOSE) << "EventBoost begin AnalyseGenEvent()" << endmsg;
 
-  HepMC::GenEvent::particle_iterator p = genEvt->particles_begin();
-  HepMC::GenEvent::particle_iterator pEnd = genEvt->particles_end();
+  HepMC::GenEvent::particle_const_iterator p = genEvt->particles_begin();
+  HepMC::GenEvent::particle_const_iterator pEnd = genEvt->particles_end();
 
   std::vector<HepMC::GenParticle*> particles_needing_modification;
 
@@ -198,8 +198,8 @@ StatusCode EventBoost::AnalyseGenEvent(HepMC::GenEvent* genEvt) {
   
   if ((m_gaussian_vertex_smearing)||(m_flat_vertex_smearing)) {
 
-    HepMC::GenEvent::vertex_iterator v = genEvt->vertices_begin();
-    HepMC::GenEvent::vertex_iterator vEnd = genEvt->vertices_end();
+    HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
+    HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();
 
     std::vector<HepMC::GenVertex*> vertices_needing_modification;
     

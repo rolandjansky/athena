@@ -45,7 +45,7 @@ public:
   StatusCode Analyse_EndEvent();
   StatusCode GenAnalysis_initialize();
   StatusCode GenAnalysis_finalize();
-  StatusCode AnalyseGenEvent(HepMC::GenEvent*);
+  StatusCode AnalyseGenEvent(const HepMC::GenEvent*);
   StatusCode EventCopy(const HepMC::GenEvent* evt) const;
 
   bool doModification(HepMC::GenParticle * part, double& pxsum);
