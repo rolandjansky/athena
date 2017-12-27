@@ -31,10 +31,10 @@ class ITrigTRT_DriftCircleProviderTool : virtual public IAlgTool {
   virtual StatusCode  fillCollections( const IRoiDescriptor &roi) = 0;
   virtual StatusCode  fillCollections( std::vector<IdentifierHash> ,std::vector<const ROBF*>) = 0;
   virtual std::string trtContainerName() = 0;
-  virtual double getTRTTotalTime() = 0;
-  virtual double getTRTRegSelTime() = 0;
-  virtual double getTRTTrtCnvTime() = 0;
-  virtual double getTRTRobProvTime() = 0;
+  virtual double getTRTTotalTime() const = 0;
+  virtual double getTRTRegSelTime() const = 0;
+  virtual double getTRTTrtCnvTime() const = 0;
+  virtual double getTRTRobProvTime() const = 0;
 
   virtual const std::vector<int>* fillTRT_DataErrors() = 0;
 };
