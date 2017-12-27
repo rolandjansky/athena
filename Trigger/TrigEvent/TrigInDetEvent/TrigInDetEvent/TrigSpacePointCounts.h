@@ -8,7 +8,7 @@
 #include "TrigInDetEvent/TrigHisto2D.h"
 #include "Identifier/Identifier.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /** @class TrigSpacePointCounts
  * @author Regina Kwee <regina.kwee@cern.ch>

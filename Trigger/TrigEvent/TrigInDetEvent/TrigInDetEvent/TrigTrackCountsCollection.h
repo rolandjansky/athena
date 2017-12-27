@@ -5,10 +5,10 @@
 #ifndef TRIGINDETEVENT_TRIGTRACKCOUNTSCOLLECTION_H
 #define TRIGINDETEVENT_TRIGTRACKCOUNTSCOLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigInDetEvent/TrigTrackCounts.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigTrackCountsCollection : public DataVector<TrigTrackCounts> { }; 
 

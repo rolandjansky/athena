@@ -5,10 +5,10 @@
 #ifndef TRIGINDETEVENT_TRIGTRTHITCOUNTSCOLLECTION_H
 #define TRIGINDETEVENT_TRIGTRTHITCOUNTSCOLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigInDetEvent/TrigTrtHitCounts.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** @class TrigTrtHitCountsCollection
  * @author Samir Ferrag <S.Ferrag@physics.gla.ac.uk>
