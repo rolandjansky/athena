@@ -48,11 +48,11 @@ public:
   typedef Identifier ID;
 
   // identifier of this detector element:
-  virtual Identifier identify() const;
+  Identifier identify() const;
 
-  virtual IdentifierHash identifyHash() const;
+  IdentifierHash identifyHash() const;
 
-  virtual void setIdentifier(Identifier id);
+  void setIdentifier(Identifier id);
   // plottable
   virtual std::string type() const;
 

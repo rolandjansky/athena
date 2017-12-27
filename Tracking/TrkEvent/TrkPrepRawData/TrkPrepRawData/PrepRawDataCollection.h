@@ -33,7 +33,7 @@ namespace Trk{
 class PrepRawDataCollectionCopyConstructorCalled{};
 
 template< class PrepRawDataT >
-class PrepRawDataCollection : public DataVector< PrepRawDataT > {
+class PrepRawDataCollection :  public Identifiable, public DataVector< PrepRawDataT > {
 
 	///////////////////////////////////////////////////////////////////
 	// Public methods:
@@ -56,11 +56,11 @@ class PrepRawDataCollection : public DataVector< PrepRawDataT > {
 	///////////////////////////////////////////////////////////////////
 	
 	// identifier of this detector element:
-	virtual Identifier identify() const;
+	virtual Identifier identify() const override final;
 
-	virtual IdentifierHash identifyHash() const;
+	virtual IdentifierHash identifyHash() const override final;
 
-	virtual void setIdentifier(Identifier id);	
+	void setIdentifier(Identifier id);	
 
 	// plottable
 	virtual std::string type() const;

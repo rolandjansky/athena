@@ -88,8 +88,8 @@ class SiChargedDiodeCollection : Identifiable {
   const InDetDD::SiDetectorElement * element() const;
 
   // wafer identifier for this collection
-  virtual Identifier identify() const;
-  virtual IdentifierHash identifyHash() const;
+  virtual Identifier identify() const override final;
+  virtual IdentifierHash identifyHash() const override final;
 
   // id helper for this collection
   const AtlasDetectorID* id_helper();

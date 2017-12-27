@@ -40,7 +40,7 @@ public:
   // Virtual methods:
   ///////////////////////////////////////////////////////////////////
 
-  virtual Identifier identify() const;
+  virtual Identifier identify() const override final;
 
 
   virtual unsigned int getWord() const;

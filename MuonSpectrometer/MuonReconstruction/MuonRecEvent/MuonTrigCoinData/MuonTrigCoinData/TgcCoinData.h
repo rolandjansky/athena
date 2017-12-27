@@ -125,16 +125,16 @@ namespace Muon
 		 const bool isPositiveDeltaR);
 
     /// Destructor:
-      virtual ~TgcCoinData();
+      ~TgcCoinData();
       
       /** return OfflineID of Outer Hit */
-      virtual Identifier identify() const;
+      Identifier identify() const;
 
       /** return the identifierHash of Outer Hit*/
-      virtual IdentifierHash identifyHash() const;
+      IdentifierHash identifyHash() const;
 
       /** set the OfflineID of Inner and Outer Hits*/
-      virtual void setIdentifier(Identifier in, Identifier out);
+      void setIdentifier(Identifier in, Identifier out);
 
 
       void setHashAndIndex(unsigned short collHash, unsigned short objIndex);
