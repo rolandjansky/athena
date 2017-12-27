@@ -78,7 +78,7 @@ namespace AthViews {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode FakeRoIView::beginRun() {
+  StatusCode FakeRoIView::start() {
     if (m_inputFilename.empty()) {
       ATH_MSG_WARNING("Provided InputFilename parameter is empty");
       return StatusCode::RECOVERABLE;

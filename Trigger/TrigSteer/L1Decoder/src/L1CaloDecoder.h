@@ -23,10 +23,10 @@
 class L1CaloDecoder : public AthAlgorithm {
 public:
   L1CaloDecoder(const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode beginRun();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 private:
   std::vector<TrigConf::TriggerThreshold*> m_emtauThresholds;
 
