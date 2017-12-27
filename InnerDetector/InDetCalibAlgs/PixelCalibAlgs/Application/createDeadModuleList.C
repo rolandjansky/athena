@@ -233,7 +233,7 @@ int main(int argc, char* argv[]){
   //std::string testarea = std::getenv("TestArea");
   //ifstream ifs;
   char* tmppath = std::getenv("DATAPATH");
-  if(tmppath == NULL){
+  if(tmppath == nullptr){
       std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
       exit(EXIT_FAILURE);
   }

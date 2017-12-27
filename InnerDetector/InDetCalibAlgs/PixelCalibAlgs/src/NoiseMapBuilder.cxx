@@ -167,7 +167,7 @@ StatusCode NoiseMapBuilder::initialize(){
   //std::string testarea = std::getenv("TestArea");
   //ifstream ifs(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
   char* tmppath = std::getenv("DATAPATH");
-  if(tmppath == NULL){
+  if(tmppath == nullptr){
       ATH_MSG_FATAL( "Unable to retrieve environmental DATAPATH" );
       return StatusCode::FAILURE;
   }
