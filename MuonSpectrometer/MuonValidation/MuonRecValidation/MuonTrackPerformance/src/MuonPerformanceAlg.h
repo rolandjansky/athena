@@ -61,7 +61,7 @@ class MuonPerformanceAlg : public AthAlgorithm {
   std::vector<int>                m_nreco5;
   std::vector<int>                m_nreco10;
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","MCEventInfo","event info"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthMuons{this,"TruthMuons","MuonTruthParticles","truth muons"};
 
   int m_runNumber;

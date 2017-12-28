@@ -269,7 +269,7 @@ private:
 
   SG::ReadHandleKey<TrackCollection> m_trackKey{this,"TrackInputLocation","MuonSpectrometerTracks","input tracks"};            //!< Location of the track input container
   SG::ReadHandleKey<MuonSegmentCombinationCollection> m_segmentCombiKey{this,"SegmentLocation","MuonSegments","segments"};     //!< Location of the segments
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","MCEventInfo","EventInfo key"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","EventInfo key"};
   const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
 
   // member set by Joboptions 
