@@ -436,7 +436,12 @@ int main(int argc, char* argv[]){
 
   //std::string testarea = std::getenv("TestArea");
   //ifstream ifs;
-  std::string cmtpath = std::getenv("DATAPATH");
+  char* tmppath = std::getenv("DATAPATH");
+  if(tmppath == nullptr){
+      std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
+      exit(EXIT_FAILURE);
+  }
+  std::string cmtpath(tmppath);
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
   for (const auto& x : paths){
