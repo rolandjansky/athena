@@ -120,7 +120,7 @@ Muon::MuonRdoContainerManager::handle(const Incident& incident)
 	    
 	    try{
 	        sec = new RpcSectorLogicContainer();
-            } catch(std::bad_alloc) {
+            } catch(const std::bad_alloc&) {
 	        sec = 0;
 	    }
 	    
