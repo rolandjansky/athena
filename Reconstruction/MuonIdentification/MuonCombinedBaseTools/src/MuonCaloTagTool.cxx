@@ -57,9 +57,6 @@ namespace MuonCombined {
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
-    // --- Collections ---
-    declareProperty("TrackParticleName",                 m_TrackParticleName             =  "TrackParticleCandidate"    );
-    declareProperty("VertexContainerName",               m_VertexContainerName           =  "VxPrimaryCandidate"        );
     
     // --- Muon Dressing ---    //declareProperty("CoreDeltaR",                        m_coreDR       =  0.05                );
     //declareProperty("doMuonDressing",                    m_doDressing   =  true                );
@@ -116,17 +113,16 @@ namespace MuonCombined {
     //  msg(MSG::ERROR) << "Detector service not found !" << endmsg;
     //  return StatusCode::FAILURE;
     //}
-    if( true ){
-      if( m_doCaloLR ) ATH_CHECK( m_caloMuonLikelihood.retrieve() );
-      ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
-      ATH_CHECK( m_caloMuonTagTight.retrieve()   );
-      ATH_CHECK( m_trkDepositInCalo.retrieve()   );
-      if(!m_trackIsolationTool.empty()) ATH_CHECK( m_trackIsolationTool.retrieve() );
-      ATH_CHECK( m_trkSelTool.retrieve()         );
-    }
-    if(m_doTrkSelection && m_doCosmicTrackSelection) {
-      ATH_MSG_WARNING("Inconsistent setup: track selection for collisions AND cosmics requested.");
-    } 
+    if( m_doCaloLR ) ATH_CHECK( m_caloMuonLikelihood.retrieve() );
+    else m_caloMuonLikelihood.disable();
+    ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
+    ATH_CHECK( m_caloMuonTagTight.retrieve()   );
+    ATH_CHECK( m_trkDepositInCalo.retrieve()   );
+    if(!m_trackIsolationTool.empty()) ATH_CHECK( m_trackIsolationTool.retrieve() );
+    else m_trackIsolationTool.disable();
+    ATH_CHECK( m_trkSelTool.retrieve()         );
+    ATH_CHECK(m_caloClusterCont.initialize(m_doCaloLR));
+    ATH_CHECK(m_caloCellCont.initialize(m_doOldExtrapolation));
     
     return StatusCode::SUCCESS;
   }
@@ -150,7 +146,21 @@ namespace MuonCombined {
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) {
-    extend(inDetCandidates, nullptr, nullptr);
+    const xAOD::CaloClusterContainer* caloClusterCont=0;
+    const CaloCellContainer* caloCellCont=0;
+    if(m_doCaloLR){ //retrieve the xAOD::CaloClusterContainer
+      SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_caloClusterCont);
+      if(!clusters.isValid()) ATH_MSG_WARNING("CaloClusterContainer "<<m_caloClusterCont.key()<<" not valid");
+      else if(!clusters.isPresent()) ATH_MSG_DEBUG("CaloClusterContainer "<<m_caloClusterCont.key()<<" not present");
+      else caloClusterCont=clusters.cptr();
+    }
+    if(m_doOldExtrapolation){ //retrieve the CaloCellContainer
+      SG::ReadHandle<CaloCellContainer> cells(m_caloCellCont);
+      if(!cells.isValid()) ATH_MSG_WARNING("CaloCellContainer "<<m_caloCellCont.key()<<" not valid");
+      else if(!cells.isPresent()) ATH_MSG_DEBUG("CaloCellContainer "<<m_caloCellCont.key()<<" not present");
+      else caloCellCont=cells.cptr();
+    }
+    extend(inDetCandidates, caloCellCont, caloClusterCont);
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates,
@@ -160,8 +170,8 @@ namespace MuonCombined {
 
     //return;
     //
-    // --- Retrieve primary vertex ---
-    const Trk::Vertex* vertex = 0;// retrievePrimaryVertex();
+    // --- Retrieve primary vertex (not retrieving for now) ---
+    const Trk::Vertex* vertex = 0;
 //    const Trk::TrackParticleOrigin prtOrigin =  Trk::TrackParticleOrigin::PriVtx; // we only consider trks form primary vtx
     
     // --- Big loop over all the particles in the container ---                                                                                                              
@@ -281,32 +291,6 @@ namespace MuonCombined {
     
   } //end of the extend method
 
-  
-  //retrievePrimaryVertex -> SHOULD BE OK
-  const Trk::Vertex* MuonCaloTagTool::retrievePrimaryVertex() const {
-    
-    // --- No need to retrieve the primary vertex when no track selection is applied ---
-    if (!m_doTrkSelection) 
-      return 0;
-    
-    // --- Retrieve vertex container ---
-    const VxContainer* vxContainer = 0;
-    StatusCode sc = evtStore()->retrieve(vxContainer, m_VertexContainerName);
-    if(sc.isFailure() || vxContainer==0) {
-      ATH_MSG_DEBUG("Vertex container " << m_VertexContainerName << " not found in StoreGate!");
-      return 0;
-    }
-    // --- Retrieve vertex ---
-    const Trk::Vertex* vertex = 0;
-    if(vxContainer->size()> 0)
-      vertex = &((*vxContainer)[0]->recVertex());
-    else{
-      ATH_MSG_DEBUG("No vertices in vertex container.");
-    }
-  
-    return vertex;
-    
-  }
   
   //getTrackParameters -> SHOULD BE OK
   const Trk::TrackParameters* MuonCaloTagTool::getTrackParameters(const Trk::Track* trk) const{
