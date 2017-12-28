@@ -6,7 +6,8 @@
 #define  FPTRACKER_CONDIFGDATA_H
 #include <ostream>
 namespace FPTracker{
-  struct ConfigData{
+  class ConfigData{
+  public:
     
     int    IP;
 //    float  xinner0;
