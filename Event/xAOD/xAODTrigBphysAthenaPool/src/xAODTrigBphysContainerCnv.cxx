@@ -39,7 +39,11 @@ xAODTrigBphysContainerCnv::
 createPersistent( xAOD::TrigBphysContainer* trans ) {
 
    // Create a copy of the container:
-   return SG::copyThinned (*trans, IThinningSvc::instance());
+   const xAOD::TrigBphysContainer* c =
+     SG::copyThinnedConst (*trans, IThinningSvc::instance());
+   // FIXME: const_cast.
+   //  createPersistent() should probably be changed to return a const pointer.
+   return const_cast<xAOD::TrigBphysContainer*> (c);
 }
 
 /**

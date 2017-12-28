@@ -95,6 +95,15 @@ void tryit (CONTAINER& cont, IThinningSvc* svc, bool thinned = false)
 }
 
 
+template <class CONTAINER>
+void tryitConst (CONTAINER& cont, IThinningSvc* svc, bool thinned = false)
+{
+  const CONTAINER* newcont = SG::copyThinnedConst (cont, svc);
+  compare (cont, *newcont, thinned);
+  delete newcont;
+}
+
+
 void test1()
 {
   std::cout << "test1\n";
@@ -105,11 +114,11 @@ void test1()
   std::vector<int> v;
 
   tryit (store, 0);
-  tryit (dv, 0);
+  tryitConst (dv, 0);
   tryit (v, 0);
 
   tryit (store, &svc);
-  tryit (dv, &svc);
+  tryitConst (dv, &svc);
   tryit (v, &svc);
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
@@ -134,7 +143,7 @@ void test1()
   svc.remap (&v2, 1, 2);
 
   tryit (store, &svc);
-  tryit (dv, &svc);
+  tryitConst (dv, &svc);
   tryit (v, &svc);
 
   for (int i=0, i1=0; i < 10; ++i) {
@@ -152,7 +161,7 @@ void test1()
   }
 
   tryit (store, &svc, true);
-  tryit (dv, &svc, true);
+  tryitConst (dv, &svc, true);
   tryit (v, &svc, true);
 }
 
