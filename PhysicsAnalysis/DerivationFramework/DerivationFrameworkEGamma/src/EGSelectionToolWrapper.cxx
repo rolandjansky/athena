@@ -83,7 +83,7 @@ namespace DerivationFramework {
 	  return StatusCode::FAILURE;
       }
       
-      xAOD::IParticle* pCopy = *pItr;
+      const xAOD::IParticle* pCopy = *pItr;
 
       // this should be computed based on some property of the tool or the existence of the ElectronPhotonShowerShapeFudgeTool
       bool applyFF = (!m_fudgeMCTool.empty());
