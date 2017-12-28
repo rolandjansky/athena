@@ -214,7 +214,6 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 #ifdef PIXEL_DEBUG
 	    log << MSG::DEBUG << "(before) empty Pixel Module header/trailer pair written for BCID " << fake_BCID << endmsg;
 #endif
-	    last_BCID = fake_BCID;  
 	    fake_BCID++;
 	  } // end while cycle "while ((fake_BCID < BCID) && !timing_error)"
 
@@ -336,7 +335,6 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 #ifdef PIXEL_DEBUG
 	    log << MSG::DEBUG << "(before) empty IBL Module header/trailer pair written for BCID " << fake_BCID << endmsg;
 #endif
-	    last_BCID = fake_BCID;  
 	    fake_BCID++;
 	  } // end while cycle "while ((fake_BCID < BCID) && !timing_error)"
 
