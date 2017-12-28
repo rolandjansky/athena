@@ -97,8 +97,8 @@ StatusCode AFPTechnicalMonitorTool::fillHistograms()
     const AFP_RawDataContainer* afpContainer = 0;
     CHECK(evtStore()->retrieve(afpContainer));
 
-    for (AFP_RawDataCollection* hitCollection : *afpContainer) {
-      for (AFP_RawData* hit : *hitCollection) {
+    for (const AFP_RawDataCollection* hitCollection : *afpContainer) {
+      for (const AFP_RawData* hit : *hitCollection) {
     	if (hit->Get_link() <= 3) {
     	  m_cNearStation.fillHistograms(*hit);
     	}
