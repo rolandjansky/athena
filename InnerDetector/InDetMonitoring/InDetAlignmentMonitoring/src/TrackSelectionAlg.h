@@ -34,7 +34,7 @@ class TrackSelectionAlg : public AthAlgorithm
 
  private:
     
-  bool makeTrackCuts(Trk::Track*, float);
+  bool makeTrackCuts(const Trk::Track*, float);
 
   ToolHandle< Trk::ITrackSummaryTool > m_trackSumTool; //!<  Pointer to Trk::ITrackSummaryTool
 

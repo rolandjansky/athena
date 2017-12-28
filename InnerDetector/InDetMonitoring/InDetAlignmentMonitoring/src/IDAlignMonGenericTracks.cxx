@@ -1654,7 +1654,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
   
   //get tracks
-  DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
   //const DataVector<xAOD::TrackParticle>* trkPs = m_trackSelection->selectTracksParticle(m_tracksName);
 
 
