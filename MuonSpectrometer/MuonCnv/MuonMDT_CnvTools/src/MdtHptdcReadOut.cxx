@@ -26,7 +26,7 @@ void MdtHptdcReadOut::decodeWord(uint32_t dataWord)
   setZero();
   m_dataWord = dataWord;
   m_word = dataWord;
-  m_wordHeader = (dataWord>>headerPos)&headerBits;
+  m_wordHeader = (dataWord>>HEADERPOS)&HEADERBITS;
 
   if (is_TSM())         // TDC single measurement
     {
@@ -84,14 +84,14 @@ void MdtHptdcReadOut::setZero()
 uint32_t MdtHptdcReadOut::makeBOT(uint16_t tdcId, uint16_t ecnt, uint16_t bcid)
 {
   uint16_t inputData[4];
-  uint16_t inputPos[4] = {headerPos, 24, 12, 0};
+  uint16_t inputPos[4] = {HEADERPOS, 24, 12, 0};
   uint16_t nData = 4;
 
   if (tdcId < 16) {
-    inputData[0]=BOTvalue1;
+    inputData[0]=BOTVALUE1;
   }
   else {
-    inputData[0]=BOTvalue2;
+    inputData[0]=BOTVALUE2;
     tdcId -= 16;
   }
 
@@ -105,8 +105,8 @@ uint32_t MdtHptdcReadOut::makeBOT(uint16_t tdcId, uint16_t ecnt, uint16_t bcid)
 // End of TDC
 uint32_t MdtHptdcReadOut::makeEOT(uint16_t tdcId, uint16_t ecnt, uint16_t wcnt)
 {
-  uint16_t inputData[4] = {EOTvalue,  tdcId, ecnt, wcnt};
-  uint16_t inputPos[4]  = {headerPos, 24, 12, 0};
+  uint16_t inputData[4] = {EOTVALUE,  tdcId, ecnt, wcnt};
+  uint16_t inputPos[4]  = {HEADERPOS, 24, 12, 0};
   uint16_t nData = 4;
 
   return setBits(nData,inputData,inputPos);
@@ -117,13 +117,13 @@ uint32_t MdtHptdcReadOut::makeTSM(uint16_t tdcId, uint16_t channel, bool leading
 				  uint16_t coarse, uint16_t /*fine*/)
 {
 
-  uint16_t TSMvalue = leading ? TSMvalue_lead : TSMvalue_tail;
+  uint16_t TSMvalue = leading ? TSMVALUE_LEAD : TSMVALUE_TAIL;
 
   uint16_t inputData[4] = {TSMvalue ,
 			   static_cast<uint16_t> (tdcId   & 0xf),
 			   static_cast<uint16_t> (channel & 0x1f),
 			   static_cast<uint16_t> (coarse  & 0x7ffff)};
-  uint16_t inputPos[4]  = {headerPos, 24, 19, 0};
+  uint16_t inputPos[4]  = {HEADERPOS, 24, 19, 0};
   uint16_t nData = 4;
 
   return setBits(nData,inputData,inputPos);
@@ -133,12 +133,12 @@ uint32_t MdtHptdcReadOut::makeTSM(uint16_t tdcId, uint16_t channel, bool leading
 uint32_t MdtHptdcReadOut::makeTCM(uint16_t tdcId, uint16_t channel, uint16_t width,
 		   uint16_t coarse, uint16_t /*fine*/)
 {
-  uint16_t inputData[5] = {TCMvalue,
+  uint16_t inputData[5] = {TCMVALUE,
 			   static_cast<uint16_t> (tdcId   & 0xf),
 			   static_cast<uint16_t> (channel & 0x1f),
 			   static_cast<uint16_t> (width   & 0x7f),
 			   static_cast<uint16_t> (coarse  & 0xfff) };
-  uint16_t inputPos[5]  = {headerPos, 24, 19, 12, 0};
+  uint16_t inputPos[5]  = {HEADERPOS, 24, 19, 12, 0};
   uint16_t nData = 5;
 
   return setBits(nData,inputData,inputPos);
