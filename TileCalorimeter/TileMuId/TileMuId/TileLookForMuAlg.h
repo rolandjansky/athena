@@ -22,8 +22,16 @@
 #ifndef  TILEMUID_TILELOOKFORMUALG_H
 #define  TILEMUID_TILELOOKFORMUALG_H 
 
-// includes 
+// Tile includes
+#include "TileEvent/TileContainer.h"
+
+// Calo includes
+#include "CaloEvent/CaloCellContainer.h"
+
+// Athena includes 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // C++ STL includes
 #include  <vector> 
@@ -73,9 +81,15 @@ class TileLookForMuAlg: public AthAlgorithm {
     std::vector<double> m_hiThrD;
     std::vector<double> m_hiThrBC;
     std::vector<double> m_hiThrA;
-    std::string m_cellContainer; // Cell container names 
-    std::string m_tileTagContainer;
-//std::string m_CellCollName;
+
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey{this,"CellsNames",
+                                                            "AllCalo",
+                                                            "Input Calo cell container key"};
+
+    SG::WriteHandleKey<TileMuContainer> m_muContainerKey{this,"TileMuTagsOutputName",
+                                                         "TileMuObj",
+                                                         "Output Tile mu container key"};
+
 
 };
 #endif // TILEMUID_TILELOOKFORMUALG_H

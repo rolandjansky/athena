@@ -17,11 +17,16 @@
 #ifndef TILEMUID_TILEMUTONTUPLE_H
 #define TILEMUID_TILEMUTONTUPLE_H
 
-// Gaudi includes
-#include "GaudiKernel/NTuple.h"
+// Tile includes
+#include "TileEvent/TileContainer.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/NTuple.h"
+
 
 #include <string>
 
@@ -54,6 +59,10 @@ class TileMuToNtuple: public AthAlgorithm {
     NTuple::Array<float> m_quality;
 
     std::string m_tileMuContainer;
+
+    SG::ReadHandleKey<TileMuContainer> m_muContainerKey{this,"TileMuContainer",
+                                                        "TileMuObj",
+                                                        "Input Tile mu container key"};
 
 };
 
