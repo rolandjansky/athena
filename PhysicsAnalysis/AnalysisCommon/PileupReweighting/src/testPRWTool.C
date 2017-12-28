@@ -98,7 +98,7 @@ int main() {
    
    try {
     prw_bad->initialize();
-   } catch(std::runtime_error e) {
+   } catch(const std::runtime_error& e) {
     std::cout << "correctly caught:" << e.what() << std::endl;
    }
    
