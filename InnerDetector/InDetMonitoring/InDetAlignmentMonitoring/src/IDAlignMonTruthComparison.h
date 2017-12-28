@@ -149,7 +149,6 @@ protected:
 
 	float m_Pi;
 
-	const AtlasDetectorID*                m_idHelper;
 	std::string m_stream;
 	std::string m_tracksName;
 	std::string m_tracksTruthName;

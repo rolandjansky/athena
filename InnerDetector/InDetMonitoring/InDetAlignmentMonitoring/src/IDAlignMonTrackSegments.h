@@ -82,12 +82,6 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   int m_histosBooked;
   
   //tools
-  const AtlasDetectorID*                m_idHelper;
-  const InDetDD::PixelDetectorManager*  m_Pix_Mgr;  
-  const InDetDD::SCT_DetectorManager*   m_SCT_Mgr;
-  const PixelID*                        m_pixelID;
-  const SCT_ID*                         m_sctID; 
-  
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
   ToolHandle<InDet::IInDetTrackSplitterTool> m_trackSplitter;
   ToolHandle<InDetAlignMon::TrackSelectionTool> m_trackSelectionUpper;

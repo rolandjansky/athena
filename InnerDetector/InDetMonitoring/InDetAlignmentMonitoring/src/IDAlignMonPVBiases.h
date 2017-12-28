@@ -149,7 +149,6 @@ private:
   std::string m_triggerChainName;
   std::string m_VxPrimContainerName;
   ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
-  const xAOD::VertexContainer* m_vertices;
   //std::string m_TreeFolder;
   //TTree* m_Tree;
   //std::string m_TreeName;

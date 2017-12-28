@@ -62,7 +62,6 @@
 IDAlignMonTruthComparison::IDAlignMonTruthComparison( const std::string & type, const std::string & name, const IInterface* parent )
 	     :ManagedMonitorToolBase( type, name, parent ),
 	      m_Pi(3.14156),
-	      m_idHelper(0),
 	      m_tracksName("ExtendedTracks"),
 	      m_tracksTruthName("ExtendedTracksTruthCollection")
 {
