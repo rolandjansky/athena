@@ -50,7 +50,7 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
 {
    declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
    declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
-
+   declareProperty("RpcPrepDataContainer", m_rpcPrepContainerKey = std::string("RPC_Measurements"), "RPC_Measurements to read in");
 }
 
 // --------------------------------------------------------------------------------
@@ -145,6 +145,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
      return StatusCode::FAILURE;
    } 
    
+   ATH_CHECK(m_rpcPrepContainerKey.initialize());
+   
    // 
    return StatusCode::SUCCESS; 
 }
@@ -235,17 +237,16 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
    if (!rpcHashList.empty()) {
      
      // Get RPC container
-     const RpcPrepDataContainer* rpcPrds = 0;
-     std::string rpcKey = "RPC_Measurements";
-     
+     const RpcPrepDataContainer* rpcPrds;
      if (m_activeStore) {		//m_activeStore->m_storeGateSvc
-       StatusCode sc = (*m_activeStore)->retrieve(rpcPrds, rpcKey);	//m_activeStore->m_storeGateSvc
-       if ( sc.isFailure() ) {
-         ATH_MSG_ERROR(" Cannot retrieve RPC PRD Container " << rpcKey);
-         return StatusCode::FAILURE;;
-       } else {       
-         ATH_MSG_DEBUG(" RPC PRD Container retrieved with key " << rpcKey);
-       }
+       auto rpcPrepContainerHandle = SG::makeHandle(m_rpcPrepContainerKey);
+       rpcPrds = rpcPrepContainerHandle.cptr();                                 
+       if (!rpcPrepContainerHandle.isValid()) {
+         ATH_MSG_ERROR("Cannot retrieve RPC PRD Container key: " << m_rpcPrepContainerKey.key());
+         return StatusCode::FAILURE;
+       } else {
+         ATH_MSG_DEBUG(" RPC PRD Container retrieved with key: " << m_rpcPrepContainerKey.key());
+       }         
      } else {
        ATH_MSG_ERROR("Null pointer to ActiveStore");
        return StatusCode::FAILURE;;

@@ -24,6 +24,8 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+
 class StoreGateSvc;
 class TgcIdHelper;
 
@@ -116,6 +118,8 @@ class TgcDataPreparator: public AthAlgTool
 
       // utils
       TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
+
+      SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcContainerKey;
 
       bool m_use_RoIBasedDataAccess;
 };

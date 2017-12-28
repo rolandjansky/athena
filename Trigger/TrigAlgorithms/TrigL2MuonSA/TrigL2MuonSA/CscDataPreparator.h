@@ -99,6 +99,8 @@ namespace TrigL2MuonSA {
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
     ToolHandle<ICscClusterBuilder>           m_cscClusterProvider;
 
+    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey;
+
     bool m_use_RoIBasedDataAccess;
   };
   

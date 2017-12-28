@@ -69,7 +69,9 @@ namespace Muon
        */
       //TgcRdoContainer*                    m_rdoContainer;
       /** RDO container key */
-      std::string                         m_rdoContainerKey;
+      SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey;	//MT
+      bool 		m_useContainer;	//MT
+      unsigned int 	m_maxhashtoUse;	//MT
       /** Active Store Service */ 
       ActiveStoreSvc*                     m_activeStore;
       /** ID converter */

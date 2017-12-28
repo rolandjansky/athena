@@ -30,6 +30,8 @@
 
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+
 class StoreGateSvc;
 class MdtIdHelper;
 namespace MuonGM{
@@ -150,6 +152,9 @@ namespace TrigL2MuonSA {
 
     // handles to data access
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
+
+    SG::ReadHandleKey<MdtCsmContainer> m_mdtCsmContainerKey;
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepContainerKey;
 
     bool m_use_mdtcsm;
     bool m_use_RoIBasedDataAccess;

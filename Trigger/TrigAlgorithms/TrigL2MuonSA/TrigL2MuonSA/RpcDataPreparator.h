@@ -101,6 +101,8 @@ class RpcDataPreparator: public AthAlgTool
       
       ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
 
+      SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepContainerKey;
+
       // Declare the keys used to access the data: one for reading and one
       // for writing.
       bool m_use_RoIBasedDataAccess;
