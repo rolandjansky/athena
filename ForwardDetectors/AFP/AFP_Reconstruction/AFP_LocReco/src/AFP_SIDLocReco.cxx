@@ -237,7 +237,7 @@ StatusCode AFP_SIDLocReco::AFPCollectionReading(list<SIDHIT> &ListSIDHits)
   xAOD::AFPSiHitContainer::const_iterator mcSIDGenEnd = siHitContainer->end();
 
   for(;hitIter!=mcSIDGenEnd;++hitIter) {
-    xAOD::AFPSiHit* hit = *hitIter;
+    const xAOD::AFPSiHit* hit = *hitIter;
     SIDHit.iEvent 			= m_eventNum;
     SIDHit.fADC  			= hit->depositedCharge();
     SIDHit.fTDC 			= 0;
