@@ -2,42 +2,38 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // Tile includes
 #include "TileRecUtils/TileCellBuilder.h"
+#include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileRecUtils/TileBeamInfoProvider.h"
+#include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileEvent/TileCell.h"
+#include "TileEvent/TileCellCollection.h"
+#include "TileEvent/TileRawChannel.h"
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "CaloDetDescr/MbtsDetDescrManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileEvent/TileRawChannel.h"
-#include "TileEvent/TileRawChannelContainer.h"
-#include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileEvent/TileCellCollection.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
-#include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-
-// Gaudi includes
-//#include "GaudiKernel/Bootstrap.h"
-
-// Atlas includes
-#include "AthAllocators/DataPool.h"
-// access all RawChannels inside container
-#include "EventContainers/SelectAllObject.h" 
-#include "xAODEventInfo/EventInfo.h"
-#include "AthenaKernel/errorcheck.h"
-
+ 
 // Calo includes
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "Identifier/IdentifierHash.h"
+
+// Atlas includes
+#include "AthAllocators/DataPool.h"
+#include "EventContainers/SelectAllObject.h" 
+#include "xAODEventInfo/EventInfo.h"
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 //using xAOD::EventInfo;
 using CLHEP::MeV;
@@ -55,9 +51,6 @@ const InterfaceID& TileCellBuilder::interfaceID( ) {
 TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& name,
     const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_rawChannelContainer("TileRawChannelCnt")
-  , m_MBTSContainer("MBTSContainer")
-  , m_E4prContainer("E4prContainer")
   , m_eneForTimeCut(35. * MeV) // keep time only for cells above 70 MeV (more than 35 MeV in at least one PMT to be precise)
   , m_eneForTimeCutMBTS(0.03675) // the same cut for MBTS, but in pC, corresponds to 3 ADC counts or 35 MeV
   , m_qualityCut(254) // cut on overflow in quality (if quality is 255 - assume that channel is bad)
@@ -82,8 +75,6 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_noiseFilterTools() // "TileRawChannelNoiseFilter/TileRawChannelNoiseFilter")
   , m_tileMgr(0)
   , m_mbtsMgr(0)
-  , m_MBTSCells(0)
-  , m_E4prCells(0)
   , m_RChType(TileFragHash::Default)
   , m_RChUnit(TileRawChannelUnit::ADCcounts)
   , m_maxTimeCorr(75.0)
@@ -108,10 +99,6 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   //!< MBTS channel energy threshold for masking (not used currently(
   m_minEneChan[2] = -999999. * MeV;
 
-  declareProperty("TileRawChannelContainer", m_rawChannelContainer);  // Raw channel to convert
-  declareProperty("MBTSContainer",           m_MBTSContainer);        // Where to put MBTS cells
-  declareProperty("E4prContainer",           m_E4prContainer);        // Where to put E4'  cells
-  declareProperty("TileDSPRawChannelContainer", m_dspRawChannelContainer = "TileRawChannelCnt");
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
   declareProperty("TileCondToolEmscale"    , m_tileToolEmscale);
   declareProperty("TileCondToolTiming"     , m_tileToolTiming);
@@ -162,7 +149,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   declareProperty("OF2", m_of2 = true);
 
   // merge DSP results with offline reco results
-  declareProperty("mergeChannels", m_mergeChannels = false);
+  declareProperty("mergeChannels", m_mergeChannels = true);
 
   // thresholds for parabolic amplitude correction 
   declareProperty("AmpMinForAmpCorrection", m_ampMinThresh = 15.0);
@@ -186,13 +173,17 @@ TileCellBuilder::~TileCellBuilder(){
 StatusCode TileCellBuilder::initialize() {
   
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
-  if (m_MBTSContainer.size() > 0) {
+  if (m_MBTSContainerKey.key().empty()) {
+    m_mbtsMgr = nullptr;
+  } else {
+
+    ATH_CHECK( m_MBTSContainerKey.initialize() );
+    ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainerKey.key() );
+    
     if (detStore()->retrieve(m_mbtsMgr).isFailure()) {
       ATH_MSG_WARNING( "Unable to retrieve MbtsDetDescrManager from DetectorStore" );
-      m_mbtsMgr = 0;
+      m_mbtsMgr = nullptr;
     }
-  } else {
-    m_mbtsMgr = 0;
   }
 
   CHECK( detStore()->retrieve(m_tileMgr) );
@@ -220,19 +211,26 @@ StatusCode TileCellBuilder::initialize() {
   m_run2 = ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling
             || (TileCablingService::getInstance())->getCablingType() == TileCablingService::UpgradeABC);
 
-  if (m_MBTSContainer.size() > 0)
-    ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainer );
-
-  if (!m_run2) {
-    m_E4prContainer = ""; // no E4' container for RUN1
-  } else if (m_E4prContainer.size() > 0) {
-    ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainer );
+  if (m_run2 && !m_E4prContainerKey.key().empty()) {
+    ATH_CHECK( m_E4prContainerKey.initialize() );
+    ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainerKey.key() );
+  } else {
+    m_E4prContainerKey = ""; // no E4' container for RUN1
   }
 
   if ((TileCablingService::getInstance())->getCablingType() == TileCablingService::UpgradeABC) {
     m_towerE1 = E1_TOWER_UPGRADE_ABC;
     m_notUpgradeCabling = false;
   }
+
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+
+  if (m_mergeChannels && (m_dspRawChannelContainerKey.key() == m_rawChannelContainerKey.key()
+                          || m_dspRawChannelContainerKey.key().empty())) {
+      m_mergeChannels = false;
+  }
+
+  ATH_CHECK( m_dspRawChannelContainerKey.initialize(m_mergeChannels) );
 
   ATH_MSG_INFO( "TileCellBuilder initialization completed" );
 
@@ -270,7 +268,7 @@ void TileCellBuilder::reset(bool /* fullSizeCont */, bool printReset) {
   m_E4prCells = NULL;
 
   ATH_MSG_INFO( "size of temp vector set to " << m_allCells.size() );
-  ATH_MSG_INFO( "taking RawChannels from '" << m_rawChannelContainer << "'" );
+  ATH_MSG_INFO( "taking RawChannels from '" << m_rawChannelContainerKey.key() << "'" );
 }
 
 void TileCellBuilder::set_type_and_unit(TileFragHash::TYPE type
@@ -302,19 +300,19 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
 
   memset(m_drawerEvtStatus, 0, sizeof(m_drawerEvtStatus));
 
-  const TileRawChannelContainer* rawChannels;
-  if (evtStore()->retrieve(rawChannels, m_rawChannelContainer).isFailure()) {
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
 
-    ATH_MSG_WARNING( " Could not find container " << m_rawChannelContainer );
+  if (!rawChannelContainer.isValid()) {
+    ATH_MSG_WARNING( " Could not find container " << m_rawChannelContainerKey.key() );
     ATH_MSG_WARNING( " do not fill CaloCellContainer " );
 
   } else {
     
-    ATH_MSG_DEBUG( "Container " << m_rawChannelContainer << " with TileRawChannles found ");
+    ATH_MSG_DEBUG( "Container " << m_rawChannelContainerKey.key() << " with TileRawChannles found ");
 
-    m_RChType = rawChannels->get_type();
-    m_RChUnit = rawChannels->get_unit();
-    unsigned int bsflags = rawChannels->get_bsflags();
+    m_RChType = rawChannelContainer->get_type();
+    m_RChUnit = rawChannelContainer->get_unit();
+    unsigned int bsflags = rawChannelContainer->get_bsflags();
     if (m_correctAmplitude || m_correctTime) {
       int DataType = (bsflags & 0x30000000) >> 28;
       if (DataType < 3) { // real data
@@ -345,46 +343,43 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
       }
     }
 
-    if (m_MBTSContainer.size() > 0)
-      m_MBTSCells = new TileCellContainer(SG::VIEW_ELEMENTS);
-    else
-      m_MBTSCells = NULL;
+    if (!m_MBTSContainerKey.key().empty()) {
+      m_MBTSCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+    }
 
-    if (m_E4prContainer.size() > 0)
-      m_E4prCells = new TileCellContainer(SG::VIEW_ELEMENTS);
-    else
-      m_E4prCells = NULL;
+    if (!m_E4prContainerKey.key().empty()) {
+      m_E4prCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+    }
 
-    SelectAllObject<TileRawChannelContainer> selAll(rawChannels);
+    SelectAllObject<TileRawChannelContainer> selAll(rawChannelContainer.cptr());
     SelectAllObject<TileRawChannelContainer>::const_iterator begin = selAll.begin();
     SelectAllObject<TileRawChannelContainer>::const_iterator end = selAll.end();
 
     if (m_mergeChannels
-        && m_dspRawChannelContainer != m_rawChannelContainer
-        && m_dspRawChannelContainer.size() > 0) {
+        && m_dspRawChannelContainerKey.key() != m_rawChannelContainerKey.key()
+        && !m_dspRawChannelContainerKey.key().empty()) {
 
-      ATH_MSG_DEBUG( "Merging " << m_rawChannelContainer
-                    << " and " << m_dspRawChannelContainer );
-      const TileRawChannelContainer* dspChannels;
-      if (evtStore()->retrieve(dspChannels, m_dspRawChannelContainer).isFailure()) {
+      ATH_MSG_DEBUG( "Merging " << m_rawChannelContainerKey.key()
+                     << " and " << m_dspRawChannelContainerKey.key() );
+
+      SG::ReadHandle<TileRawChannelContainer> dspRawChannelContainer(m_dspRawChannelContainerKey);
+
+      if (!dspRawChannelContainer.isValid()) {
         // no DSP channels, build cells from primary container
-        ATH_MSG_DEBUG( " No " << m_dspRawChannelContainer << " found, nothing to merge " );
+        ATH_MSG_DEBUG( " No " << m_dspRawChannelContainerKey.key() << " found, nothing to merge " );
 
       } else {
 
         if (m_beamInfo->noiseFilterApplied()) {
-          ATH_MSG_DEBUG( " Noise filter for " << m_dspRawChannelContainer 
+          ATH_MSG_DEBUG( " Noise filter for " << m_dspRawChannelContainerKey.key()
                          << " was already applied, use it directly " );
         } else if (m_noiseFilterTools.size() > 0) {
-          ATH_MSG_DEBUG( " Running noise filter on " << m_dspRawChannelContainer 
+          ATH_MSG_DEBUG( " Running noise filter on " << m_dspRawChannelContainerKey.key()
                          << " (i.e. on second container only) " );
           // apply noise filter on dsp container before merging it with offline contaier
-          ToolHandleArray<ITileRawChannelTool>::iterator itrTool=m_noiseFilterTools.begin();
-          ToolHandleArray<ITileRawChannelTool>::iterator endTool=m_noiseFilterTools.end();
-
-          for (; itrTool != endTool; ++itrTool) {
+          for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
             /// FIXME: const_cast; tools can change the container!
-            if ((*itrTool)->process(const_cast<TileRawChannelContainer*>(dspChannels)).isFailure()) {
+            if (noiseFilterTool->process(const_cast<TileRawChannelContainer*>(dspRawChannelContainer.cptr())).isFailure()) {
               ATH_MSG_ERROR( " Error status returned from noise filter " );
             } else {
               ATH_MSG_DEBUG( "Noise filter applied to the container" );
@@ -393,9 +388,9 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
           m_beamInfo->setNoiseFilterApplied(true);
         }
         
-        TileFragHash::TYPE dspType = dspChannels->get_type();
-        TileRawChannelUnit::UNIT dspUnit = dspChannels->get_unit();
-        unsigned int dspFlags = dspChannels->get_bsflags();
+        TileFragHash::TYPE dspType = dspRawChannelContainer->get_type();
+        TileRawChannelUnit::UNIT dspUnit = dspRawChannelContainer->get_unit();
+        unsigned int dspFlags = dspRawChannelContainer->get_bsflags();
         int DataType = (dspFlags & 0x30000000) >> 28;
         float dspTimeCut = m_maxTimeCorr;
         bool dspCorrectAmplitude = false, dspCorrectTime = false, dspOf2 = true;
@@ -409,7 +404,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
           dspTimeCut = ((dspFlags >> 27) & 1) ? 100.0 : 75.0; // 100 or 75 ns is the limit for 9 or 7 samples
         }
 
-        SelectAllObject<TileRawChannelContainer> selAllDsp(dspChannels);
+        SelectAllObject<TileRawChannelContainer> selAllDsp(dspRawChannelContainer.cptr());
         SelectAllObject<TileRawChannelContainer>::const_iterator beginDsp = selAllDsp.begin();
         SelectAllObject<TileRawChannelContainer>::const_iterator endDsp = selAllDsp.end();
 
@@ -476,11 +471,10 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
             &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime, m_of2,
             &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, dspOf2, this, 2);
 
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG) << " Calling build() method for rawChannels from two vectors" << endmsg;
-          msg(MSG::DEBUG) << " offline vector size = " << oflVec.size()
-                          << " dsp vector size = " << dspVec.size() << endmsg;
-        }
+        ATH_MSG_DEBUG("Build raw channels from two vectors:"
+                      << " offline vector size = " << oflVec.size()
+                      << ", dsp vector size = " << dspVec.size() );
+
         build(vecBeg, vecEnd, theCellContainer);
         begin = end;
       }
@@ -488,45 +482,37 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
     }
 
     if (begin != end) { // no merging applied, use original raw channel container
-        
+      
       if (m_noiseFilterTools.size() > 0) {
-        ATH_MSG_DEBUG( " Running noise filter on " << m_rawChannelContainer );
+        ATH_MSG_DEBUG( " Running noise filter on " << m_rawChannelContainerKey.key() );
         // apply noise filter on input container before sending it to the build() method
-        ToolHandleArray<ITileRawChannelTool>::iterator itrTool = m_noiseFilterTools.begin();
-        ToolHandleArray<ITileRawChannelTool>::iterator endTool = m_noiseFilterTools.end();
-
-        for (; itrTool != endTool; ++itrTool) {
+        for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
             /// FIXME: const_cast; tools can change the container!
-          if ((*itrTool)->process(const_cast<TileRawChannelContainer*>(rawChannels)).isFailure()) {
+          if (noiseFilterTool->process(const_cast<TileRawChannelContainer*>(rawChannelContainer.cptr())).isFailure()) {
             ATH_MSG_ERROR( " Error status returned from noise filter " );
           } else {
             ATH_MSG_DEBUG( "Noise filter applied to the container" );
           }
         }
       }
-
-      ATH_MSG_DEBUG( " Calling build() method for rawChannels from " << m_rawChannelContainer );
+      
+      ATH_MSG_DEBUG( " Calling build() method for rawChannels from " << m_rawChannelContainerKey.key() );
       build(begin, end, theCellContainer);
     }
     
-    if (m_MBTSContainer.size() > 0) {
-      if (evtStore()->record(m_MBTSCells, m_MBTSContainer, false).isFailure()) {
-        ATH_MSG_ERROR( " Could not register TileCellContainer for MBTS with name " << m_MBTSContainer );
-      }
+    if (!m_MBTSContainerKey.key().empty()) {
+      SG::WriteHandle<TileCellContainer> MBTSContainer(m_MBTSContainerKey);
+      ATH_CHECK( MBTSContainer.record(std::move(m_MBTSCells)) );
     }
-
-    if (m_E4prContainer.size() > 0) {
-      if (evtStore()->record(m_E4prCells, m_E4prContainer, false).isFailure()) {
-        ATH_MSG_ERROR( " Could not register TileCellContainer for E4'  with name " << m_E4prContainer );
-      }
+    
+    if (!m_E4prContainerKey.key().empty()) {
+      SG::WriteHandle<TileCellContainer> E4prContainer(m_E4prContainerKey);
+      ATH_CHECK( E4prContainer.record(std::move(m_E4prCells)) );
     }
     
     CaloCell_ID::SUBCALO caloNum = CaloCell_ID::TILE;
+
     //specify that a given calorimeter has been filled
-    if (theCellContainer->hasCalo(caloNum)) {
-      // log << MSG::WARNING << "CaloCellContainer has already been filled with TileCells (caloNum = " 
-      //  <<	caloNum << ")" << endmsg ;    
-    }
     theCellContainer->setHasCalo(caloNum);
   }
   

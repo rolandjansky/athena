@@ -22,15 +22,23 @@
  *   
  ********************************************************************/
 
-//Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+// Tile includes
+#include "TileIdentifier/TileFragHash.h"
+#include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileDigitsCollection.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
 
+//Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+
 #include <utility>
 #include <vector>
+#include <memory>
 
 class TileDigits;
 class TileRawChannel;
@@ -40,15 +48,6 @@ class TileInfo;
 class TileBeamInfoProvider;
 class ITileRawChannelTool;
 class StoreGateSvc;
-class MsgStream;
-
-//class vector;
-
-#include "TileIdentifier/TileFragHash.h"
-#include "TileIdentifier/TileRawChannelUnit.h"
-#include "TileEvent/TileRawChannelContainer.h"
-#include "TileEvent/TileDigitsCollection.h"
-
 
 typedef std::vector<std::pair<TileRawChannel*, const TileDigits*> > Overflows_t;
 
@@ -66,7 +65,7 @@ class TileRawChannelBuilder: public AthAlgTool {
 
     /**
      * Create container in SG with name given by
-     * parameter (m_TileRawChannelContainerID)
+     * parameter (m_rawChannelContainerKey)
      */
     virtual StatusCode createContainer();
 
@@ -136,10 +135,12 @@ class TileRawChannelBuilder: public AthAlgTool {
     friend class TileHid2RESrcID;
 
     // properties
-    std::string m_TileRawChannelContainerID;
+    // name of TDS container with output TileRawChannels
+    SG::WriteHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer","TileRawChannelFiltered",
+                                                                         "Output Tile raw channels container key"};
 
     // RawChannelContainer
-    TileRawChannelContainer* m_rawChannelCnt;
+    std::unique_ptr<TileRawChannelContainer> m_rawChannelCnt;
 
     // parameters for RawChannelContainer
     TileFragHash::TYPE m_rChType;

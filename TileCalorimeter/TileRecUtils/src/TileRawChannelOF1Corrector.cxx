@@ -5,7 +5,6 @@
 // Tile includes
 #include "TileRecUtils/TileRawChannelOF1Corrector.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileEvent/TileDigitsContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileIdentifier/TileHWID.h"
@@ -16,6 +15,7 @@
 #include "TileConditions/TileCondToolDspThreshold.h"
 
 // Atlas includes
+#include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
 static const InterfaceID IID_ITileRawChannelOF1Corrector("TileRawChannelOF1Corrector", 1, 0);
@@ -45,7 +45,6 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
   declareProperty("TileCondToolEmscale", m_tileToolEms);
   declareProperty("TileCondToolDspThreshold", m_tileDspThreshold);
 
-  declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("ZeroAmplitudeWithoutDigits", m_zeroAmplitudeWithoutDigits = true);
   declareProperty("CorrectPedestalDifference", m_correctPedestalDifference = true);
 }
@@ -78,6 +77,12 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
     CHECK( m_tileDspThreshold.retrieve() );
   }
 
+  if (m_zeroAmplitudeWithoutDigits) {
+    ATH_CHECK( m_digitsContainerKey.initialize() );
+  } else {
+    m_digitsContainerKey = "";
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -100,7 +105,11 @@ StatusCode TileRawChannelOF1Corrector::process(TileRawChannelContainer* rawChann
     ATH_MSG_VERBOSE( "Units in container is " << rawChannelUnit );
 
     const TileDigitsContainer* digitsContainer(nullptr);
-    if (m_zeroAmplitudeWithoutDigits) CHECK( evtStore()->retrieve(digitsContainer, m_digitsContainerName) );
+
+    if (m_zeroAmplitudeWithoutDigits) {
+      SG::ReadHandle<TileDigitsContainer> allDigits(m_digitsContainerKey);
+      digitsContainer = allDigits.cptr();
+    }
 
     for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 

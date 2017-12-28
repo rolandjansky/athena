@@ -8,13 +8,18 @@
 #ifndef TILERECUTILS_TILERAWCHANNELOF1CORRECTOR_H
 #define TILERECUTILS_TILERAWCHANNELOF1CORRECTOR_H
 
-// Atlas includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
 // Tile includes
 #include "TileRecUtils/ITileRawChannelTool.h"
+#include "TileEvent/TileDigitsContainer.h"
 #include "TileConditions/ITileCondToolDspThreshold.h"
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
 
 // forward declarations
 class TileRawChannel;
@@ -62,7 +67,11 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
     ToolHandle<TileCondToolEmscale> m_tileToolEms;
     ToolHandle<ITileCondToolDspThreshold> m_tileDspThreshold;
 
-    std::string m_digitsContainerName;
+    
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this, "TileDigitsContainer", 
+                                                                "TileDigitsCnt", "Input Tile digits container key"};
+
+
     bool m_zeroAmplitudeWithoutDigits;
     bool m_correctPedestalDifference;
 };

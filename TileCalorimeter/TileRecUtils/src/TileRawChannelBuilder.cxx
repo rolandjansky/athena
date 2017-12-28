@@ -8,20 +8,15 @@
 #include "TileRecUtils/ITileRawChannelTool.h"
 #include "TileEvent/TileDigits.h"
 #include "TileEvent/TileRawChannel.h"
-#include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
-#include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCablingSvc.h"
-
-#include "TileEvent/TileRawChannel.h"
-
+#include "CaloIdentifier/TileID.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
+#include "StoreGate/WriteHandle.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
 
 
 static const InterfaceID IID_ITileRawChannelBuilder("TileRawChannelBuilder", 1, 0);
@@ -50,7 +45,7 @@ Overflows_t& TileRawChannelBuilder::getOverflowedChannels() {
 }
 
 std::string TileRawChannelBuilder::getTileRawChannelContainerID() {
-  return m_TileRawChannelContainerID;
+  return m_rawChannelContainerKey.key();
 }
 
 /**
@@ -59,8 +54,6 @@ std::string TileRawChannelBuilder::getTileRawChannelContainerID() {
 TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
     , const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_TileRawChannelContainerID("TileRawChannelFiltered")
-  , m_rawChannelCnt(0)
   , m_rChType(TileFragHash::Default)
   , m_rChUnit(TileRawChannelUnit::ADCcounts)
   , m_bsflags(0)
@@ -88,7 +81,6 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   memset(s_error, 0, sizeof(s_error));
   memset(s_dmuerr, 0, sizeof(s_dmuerr));
 
-  declareProperty("TileRawChannelContainer", m_TileRawChannelContainerID);
   declareProperty("calibrateEnergy", m_calibrateEnergy = false);
   declareProperty("correctTime", m_correctTime = false);
   declareProperty("AmpMinForAmpCorrection", m_ampMinThresh = 15.0);
@@ -112,6 +104,9 @@ TileRawChannelBuilder::~TileRawChannelBuilder() {
  * Initializer
  */
 StatusCode TileRawChannelBuilder::initialize() {
+
+  ATH_MSG_INFO( "TileRawChannelBuilder::initialize()" );
+
   m_trigType = m_runType;
   m_idophys = ((m_trigType == 0) || (m_trigType == 1));
   m_idolas = ((m_trigType == 2) || (m_trigType == 3));
@@ -124,8 +119,6 @@ StatusCode TileRawChannelBuilder::initialize() {
   m_rawChannelCnt = NULL;
   m_nChL = m_nChH = 0;
   m_RChSumL = m_RChSumH = 0.0;
-
-  ATH_MSG_INFO( "TileRawChannelBuilder::initialize()" );
 
   // retrieve TileID helpers and TileIfno from det store
   CHECK( detStore()->retrieve(m_tileID, "TileID") );
@@ -165,7 +158,7 @@ StatusCode TileRawChannelBuilder::initialize() {
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "TileRawChannelBuilder created, storing rc in '"
-                    << m_TileRawChannelContainerID << "'" << endmsg;
+                    << m_rawChannelContainerKey.key() << "'" << endmsg;
     msg(MSG::DEBUG) << " calibrate energy = " << m_calibrateEnergy << endmsg;
     msg(MSG::DEBUG) << " correct time = " << m_correctTime << endmsg;
     msg(MSG::DEBUG) << " run type = " << m_runType << endmsg;
@@ -184,6 +177,8 @@ StatusCode TileRawChannelBuilder::initialize() {
   
   m_notUpgradeCabling = (cabling->getCablingType() != TileCablingService::UpgradeABC);
 
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -195,17 +190,11 @@ StatusCode TileRawChannelBuilder::finalize() {
 StatusCode TileRawChannelBuilder::createContainer() {
   initLog();
 
-  // create TRC container and record in TES
-  m_rawChannelCnt = new TileRawChannelContainer(true, m_rChType, m_rChUnit, SG::VIEW_ELEMENTS);
+  // create TRC container
+  m_rawChannelCnt = std::make_unique<TileRawChannelContainer>(true, m_rChType, m_rChUnit, SG::VIEW_ELEMENTS);
   m_rawChannelCnt->set_bsflags(m_bsflags);
-  StatusCode sc = evtStore()->record(m_rawChannelCnt, m_TileRawChannelContainerID);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Error registering TileRawChannelCnt" );
-    delete m_rawChannelCnt;
-    m_rawChannelCnt = NULL;
-    return sc;
-  }
-  ATH_MSG_DEBUG( "Created TileRawChannelContainer '" << m_TileRawChannelContainerID << "'" );
+
+  ATH_MSG_DEBUG( "Created TileRawChannelContainer '" << m_rawChannelContainerKey.key() << "'" );
 
   return StatusCode::SUCCESS;
 }
@@ -493,6 +482,7 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
 }
 
 StatusCode TileRawChannelBuilder::commitContainer() {
+
   ToolHandleArray<ITileRawChannelTool>::iterator itrTool = m_noiseFilterTools.begin();
   ToolHandleArray<ITileRawChannelTool>::iterator endTool = m_noiseFilterTools.end();
 
@@ -565,34 +555,26 @@ StatusCode TileRawChannelBuilder::commitContainer() {
     
   } else {
 
-    for (; itrTool != endTool; ++itrTool) {
-      if ((*itrTool)->process(m_rawChannelCnt).isFailure()) {
+    for (ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
+      if (noiseFilterTool->process(m_rawChannelCnt.get()).isFailure()) {
         ATH_MSG_ERROR( " Error status returned from noise filter " );
       } else {
         ATH_MSG_DEBUG( "Noise filter applied to the container" );
       }
     }
+
   }
   
   ATH_MSG_DEBUG( " nCh=" << m_chCounter
                 << " nChH/L=" << m_nChH << "/" << m_nChL
                 << " RChSumH/L=" << m_RChSumH << "/" << m_RChSumL );
 
-    // ATH_MSG_DEBUG( m_chCounter << " channels stored in '"
-    //                  << m_TileRawChannelContainerID << "' " );
-
-
-  //lock RawChannel container
-  StatusCode sc = evtStore()->setConst(m_rawChannelCnt);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( " Could not lock TileRawChannelContainer '"
-                  << m_TileRawChannelContainerID << "'" );
-  }
-  m_rawChannelCnt = NULL;
+  SG::WriteHandle<TileRawChannelContainer> rawChannelsContainer(m_rawChannelContainerKey);
+  ATH_CHECK( rawChannelsContainer.record(std::move(m_rawChannelCnt)) );
 
   endLog();
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 void TileRawChannelBuilder::endLog() {
