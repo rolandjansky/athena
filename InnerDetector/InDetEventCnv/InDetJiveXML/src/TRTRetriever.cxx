@@ -92,7 +92,7 @@ namespace JiveXML {
       for ( ; DriftCircleCollItr != DriftCircleColl->end(); ++DriftCircleCollItr){
 
         //Get the drift cirlce itself and its unique identifier
-        InDet::TRT_DriftCircle* driftcircle = (*DriftCircleCollItr);
+        const InDet::TRT_DriftCircle* driftcircle = (*DriftCircleCollItr);
 
         //In verbose mode, print out drift circle information
         if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Retrieving information from " << (*driftcircle) << endmsg;
