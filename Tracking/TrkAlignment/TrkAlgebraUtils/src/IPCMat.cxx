@@ -309,7 +309,7 @@ StatusCode IPCMat::write(const std::string ipcname, bool isMatrix){
 	   << endmsg;
 
   m_ipcmat_msgp.mtype = isMatrix ? M_WRITE_M : M_WRITE_V;
-  strncpy(m_ipcmat_msgp.data.fname, ipcname.c_str(), sizeof(m_ipcmat_msgp.data.fname));
+  strncpy(m_ipcmat_msgp.data.fname, ipcname.c_str(), sizeof(m_ipcmat_msgp.data.fname)-1);
   m_ipcmat_msgp.data.fname[sizeof(m_ipcmat_msgp.data.fname) - 1] = '\0';
 
   if (msgsnd(m_msgid, &m_ipcmat_msgp, sizeof(m_ipcmat_msgp)-sizeof(long), IPC_NOWAIT) < 0) {
