@@ -213,7 +213,7 @@ protected:
 
 inline bool TauID::TruthTau::type( const TruthTauType& type ) const
 {
-    if ((1<<static_cast<const int>(type))&m_typeFlags) return true;
+    if ((1<<static_cast<int>(type))&m_typeFlags) return true;
     return false;
 }
 
