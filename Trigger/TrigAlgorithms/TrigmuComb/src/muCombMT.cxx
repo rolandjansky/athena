@@ -104,11 +104,6 @@ int muCombMT::drptMatch(double pt, double eta, double phi, double id_pt, double 
    double winDR = m_winDR;
    double winPt = m_winPt;
 
-   //muFast parameters (in MeV!)
-   //double phi    = feature->phiMS();
-   //double eta    = feature->etaMS();
-   //double pt = feature->pt() * CLHEP::GeV;
-
    combPtRes = 0.0;
    if (algo == 1) combPtInv = ((1. / pt) + (1. / id_pt)) * 0.5;
    if (algo == 2) combPtInv = 1. / id_pt;
@@ -192,8 +187,6 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
    double sp1_R = feature->superPointR(inner);
    double sp2_z = feature->superPointZ(middle);
    double sp2_R = feature->superPointR(middle);
-   //double sp3_z = feature->superPointZ(outer);
-   //double sp3_R = feature->superPointR(outer);
 
    if ((fabs(sp1_R) < 1000.)) {
       sp1_z *= 10.;
@@ -205,14 +198,6 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
 
    double R = sp1_R;
    double z = sp1_z;
-   //msg() << MSG::DEBUG << m_test_string
-   //      << " Before Extrapolator: sp1_z / spi_R / spi2_z / sp2_R  / z / R "
-   //      << " / " << std::setw(11) << sp1_z
-   //      << " / " << std::setw(11) << sp1_R
-   //      << " / " << std::setw(11) << sp2_z
-   //      << " / " << std::setw(11) << sp2_R
-   //      << " / " << std::setw(11) << z
-   //      << " / " << std::setw(11) << R << endmsg;
 
    if (R == 0. && z == 0.) { //treat patological endcap cases
       doFix = kTRUE;
@@ -228,7 +213,6 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
    double y = R * sin(phi);
 
    Amg::Vector3D vertex(x, y, z);
-   //Trk::GlobalPosition vertex(x, y, z);
    Trk::PerigeeSurface beamSurface;
    Trk::PerigeeSurface pgsf(vertex);
    Trk::Perigee perigeeMS(0., 0., phi, theta, q_over_p, pgsf);
@@ -244,17 +228,6 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
    }
 
    double id_eptinv = id_eipt; //now taken from Track itself ...
-
-   //msg() << MSG::DEBUG << m_test_string
-   //      << " Before Extrapolator: doFix / pt mu/ qoverp / eta mu/ phi mu/ x / y / z "
-   //      << " / " << std::setw(11) << doFix
-   //      << " / " << std::setw(11) << pt
-   //      << " / " << std::setw(11) << q_over_p
-   //      << " / " << std::setw(11) << feature->etaMS()
-   //      << " / " << std::setw(11) << phi
-   //      << " / " << std::setw(11) << x
-   //      << " / " << std::setw(11) << y
-   //      << " / " << std::setw(11) << z << endmsg;
 
    const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, true, Trk::muon);
 
@@ -280,16 +253,6 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
          if (doFix) extr_pt = (1. / extr_q_over_p) * sin(theta);
       }
    }
-
-   //int isuc = 1;
-   //if (!muonPerigee) isuc = 0;
-   //msg() << MSG::DEBUG << m_test_string
-   //      << " Extrapolator called: Success / doFix / pt / eta / phi"
-   //      << " / " << std::setw(11) << isuc
-   //      << " / " << std::setw(11) << doFix
-   //      << " / " << std::setw(11) << extr_pt
-   //      << " / " << std::setw(11) << extr_eta
-   //      << " / " << std::setw(11) << extr_phi << endmsg;
 
    double extr_eeta = muCombUtil::getG4ExtEtaRes(feature->pt(), feature->etaMS());
    double extr_ephi = muCombUtil::getG4ExtPhiRes(feature->pt(), feature->etaMS());
@@ -602,6 +565,8 @@ StatusCode muCombMT::execute()
 
    // Get input for seeding
    auto muonColl = SG::makeHandle(m_muonCollKey, ctx);  //SA muons
+
+   // useL1 commented code to be removed once full muon chain with MT tested (SG)
    //Bool_t useL1 = false;
    if (muonColl->size() == 0) {
      //ATH_MSG_DEBUG(" L2 SA Muon collection size = 0");
@@ -613,7 +578,10 @@ StatusCode muCombMT::execute()
      return StatusCode::SUCCESS;
      //}
    }
+
+   // useL1 commented code to be removed once full muon chain with MT tested (SG)
    //xAOD::L2StandAloneMuonContainer* muonColl = const_cast<xAOD::L2StandAloneMuonContainer*>(const_muonColl);
+
    // retrieve L2StandAloneMuon (assumed to be the first element)
    const xAOD::L2StandAloneMuon* muonSA = muonColl->front();
 
@@ -636,6 +604,7 @@ StatusCode muCombMT::execute()
       }
    }
 
+   // useL1 commented code to be removed once full muon chain with MT tested (SG)
    //double ptL1    = -999.;
    //double etaL1   = -999.;
    //double phiL1   = -999.;
@@ -645,6 +614,7 @@ StatusCode muCombMT::execute()
    double eta_ms  = -999.;
    double phi_ms  = -999.;
    double zeta_ms = -999.;
+   // useL1 commented code to be removed once full muon chain with MT tested (SG)
    //if (useL1) {
    //   auto muonROIColl = SG::makeHandle(m_muonROICollKey, ctx); // L1 muon ROI
    //   if (muonROIColl->size() == 0) {
@@ -731,13 +701,6 @@ StatusCode muCombMT::execute()
       bool   has_match_tmp = false;
       int    imatch_tmp    = -1;
 
-      // Check if event timeout was reached
-      //if (Athena::Timeout::instance().reached()) {
-      //   if (msgLvl() <= MSG::DEBUG)
-      //      msg() << MSG::DEBUG << "Timeout reached. Trk loop, Aborting sequence." << endmsg;
-      //   return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
-      //}
-
       //Select tracks
       double phi_id    = (trkit)->phi();
       double eta_id    = (trkit)->eta();
@@ -776,6 +739,7 @@ StatusCode muCombMT::execute()
       ATH_MSG_DEBUG(" Track selected " );
 
       if (usealgo > 0) {//DeltaR match
+         // commented code (useL1) to be removed once full muon chain with MT tested
          //if (useL1) {
          //   imatch_tmp = drptMatch(ptL1, etaL1, phiL1, pt_id, eta_id, phi_id, usealgo, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp);
          //} else {
@@ -786,19 +750,9 @@ StatusCode muCombMT::execute()
          if (!m_useBackExtrapolatorG4) {
             imatch_tmp = mfMatch(muonSA, eta_id, phi_id, pt_id, q_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
             if (imatch_tmp == 0) has_match_tmp = true;
-            //if (Athena::Timeout::instance().reached()) {
-            //   if (msgLvl() <= MSG::DEBUG)
-            //      msg() << MSG::DEBUG << "Timeout reached. mfMatch backextrapolation, Aborting sequence." << endmsg;
-            //   return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
-            //}
          } else { //G4 match
             imatch_tmp = g4Match(muonSA, eta_id, phi_id, pt_id, q_id, e_eta_id, e_phi_id, e_qoverpt_id, ptinv_tmp, ptres_tmp, deta_tmp, dphi_tmp, chi2_tmp, ndof_tmp);
             if (imatch_tmp == 0) has_match_tmp = true;
-            //if (Athena::Timeout::instance().reached()) {
-            //   if (msgLvl() <= MSG::DEBUG)
-            //      msg() << MSG::DEBUG << "Timeout reached. g4Match backextrapolation, Aborting sequence." << endmsg;
-            //   return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
-            //}
          }
       }
 
@@ -886,6 +840,7 @@ StatusCode muCombMT::execute()
    }
 
    double prt_pt = pt;
+   // commented code (useL1) to be removed once full muon chain with MT tested
    //if (useL1) prt_pt = ptL1;
    ATH_MSG_DEBUG( " REGTEST Combination chosen: "
          << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
