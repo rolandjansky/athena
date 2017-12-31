@@ -42,7 +42,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
   }
 
   m_tagger          = ""; // Extract in the loop
-  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root"; // New file
+  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root";
   m_efficiency_maps = "410501"; //"410000;410004;410500;410187;410021"; // Not sure what is available yet
 
   // All WPs are calibrated ones
