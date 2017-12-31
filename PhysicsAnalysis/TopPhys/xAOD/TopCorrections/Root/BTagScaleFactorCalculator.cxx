@@ -84,7 +84,16 @@ namespace top{
         m_config->setBTaggingSFSysts( WP, base_names, true );
       }
     }
-    
+    // DL1 decoration
+    m_btagSelToolsDL1Decor["DL1"] = "BTaggingSelectionTool_forEventSaver_DL1_"+m_config->sgKeyJets();    
+    m_btagSelToolsDL1Decor["DL1mu"] = "BTaggingSelectionTool_forEventSaver_DL1mu_"+m_config->sgKeyJets();
+    m_btagSelToolsDL1Decor["DL1rnn"] = "BTaggingSelectionTool_forEventSaver_DL1rnn_"+m_config->sgKeyJets();
+    top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+    top::check(m_btagSelToolsDL1Decor["DL1mu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+    top::check(m_btagSelToolsDL1Decor["DL1rnn"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+    // Store a lightweight flag to limit error messages if the DL1 weights are not present
+    m_DL1Possible = true;
+
     return StatusCode::SUCCESS;
   }
 
@@ -113,6 +122,20 @@ namespace top{
 
       /// -- Loop over all jets in each collection --///
       for (auto jetPtr : *jets) {
+	// Decorate with the DL1 variable before checking selection (required)
+	for( auto alg_tool: m_btagSelToolsDL1Decor ){
+	  ToolHandle<IBTaggingSelectionTool>& tool = alg_tool.second;
+	  double tag_weight = -999;
+	  // For older p-tags, we cannot access the DL1 weights, so this fails (but should not crash)
+	  if(m_DL1Possible){
+	    if(!tool->getTaggerWeight(*jetPtr, tag_weight)){
+	      tag_weight = -999;
+	      ATH_MSG_WARNING("The b-tagging tool indicates that the DL1 weights are not available to calculate DL1(x).");
+	      m_DL1Possible = false;
+	    }
+	  }
+	  jetPtr->auxdecor<float>("AnalysisTop_"+alg_tool.first) = tag_weight;
+	}
 
 	bool passSelection(false);
 	if (jetPtr->isAvailable<char>("passPreORSelection")) {

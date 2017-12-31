@@ -69,9 +69,12 @@ namespace top{
       ///B-tagging selection tools
       std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
       std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
+      // DL1 decoration
+      std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelToolsDL1Decor;
 
-      int m_release_series = 24;  // Default to 2.4
-      
+      int m_release_series = 25;  // Default to 21
+
+      bool m_DL1Possible; // Flag to prevent recurrent error messages if ptag cannot be used for DL1
   };
 } // namespace
 #endif
