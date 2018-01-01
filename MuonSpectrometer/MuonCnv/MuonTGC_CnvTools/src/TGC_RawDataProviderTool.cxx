@@ -154,7 +154,7 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
       try {
 	m_container = 
 	  new TgcRdoContainer(m_muonMgr->tgcIdHelper()->module_hash_max());
-      } catch(std::bad_alloc) {
+      } catch(const std::bad_alloc&) {
 	ATH_MSG_FATAL( "Could not create a new TGC RDO container!" );
 	return StatusCode::FAILURE;
       }
