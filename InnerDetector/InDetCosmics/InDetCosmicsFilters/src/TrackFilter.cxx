@@ -113,10 +113,9 @@ StatusCode InDet::TrackFilter::execute()
         int ntrthits=0;
 	int npixhits=0;
 
-        for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos=track->trackStateOnSurfaces()->begin();
-             tsos!=track->trackStateOnSurfaces()->end(); ++tsos) {
+        for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
           
-          const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>((*tsos)->measurementOnTrack());
+          const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
           
           if (hitOnTrack != 0) {
             const Identifier& surfaceID = hitOnTrack->identify();
