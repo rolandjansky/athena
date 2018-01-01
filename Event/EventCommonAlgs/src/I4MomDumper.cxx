@@ -195,7 +195,7 @@ I4MomDumper::dump( const std::string& collName )
   }
 
   // sorting the collection by Pt
-  typedef std::set<I4Momentum*, P4Sorters::Descending::Pt> Coll_t;
+  typedef std::set<const I4Momentum*, P4Sorters::Descending::Pt> Coll_t;
   Coll_t i4moms( coll->begin(), coll->end() );
 
   if ( m_display == Display::EEtaPhiM ) {
