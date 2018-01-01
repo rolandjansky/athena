@@ -26,6 +26,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
+#include "AthContainers/ConstDataVector.h"
 
 
 
@@ -172,12 +173,12 @@ StatusCode AddTRTMomConstr::execute() {
       msg (MSG::FATAL) << "could not find input track list with name " << m_trackListInput << endmsg ;
       return StatusCode::FAILURE ;
     }
-    TrackCollection* outputtracks = new TrackCollection( SG::VIEW_ELEMENTS ) ;
+    auto outputtracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS ) ;
 
     TrackCollection::const_iterator it  = inputtracks->begin() ;
     TrackCollection::const_iterator itE = inputtracks->end() ;
     for( ; it != itE ; ++it ) {
-      Trk::Track *track = (*it) ;
+      const Trk::Track *track = (*it) ;
       if( m_applyTrkSel && !accept( *track ) ) {
         ATH_MSG_DEBUG( "kinematic requirements not passed, skip track") ;
         continue ;
@@ -193,11 +194,12 @@ StatusCode AddTRTMomConstr::execute() {
       }
     }
 
-    if( sgSvc()->record( outputtracks, m_trackListOutput ).isFailure() ) {
-      msg(MSG::ERROR) << "Failed to record trackcollection with name " << m_trackListOutput << endmsg ;
-    }
     m_nTracksProcessed += inputtracks->size() ;
     m_nTracksAccepted += outputtracks->size() ;
+
+    if( sgSvc()->record( std::move(outputtracks), m_trackListOutput ).isFailure() ) {
+      msg(MSG::ERROR) << "Failed to record trackcollection with name " << m_trackListOutput << endmsg ;
+    }
   }
   return StatusCode::SUCCESS;
 } // execute(.)
@@ -276,20 +278,18 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findouterscthit( const Trk::Tra
   ATH_MSG_VERBOSE ("Inside findouterscthit: " << track->trackStateOnSurfaces()->size());
   double rmax=0. ;
   const Trk::TrackStateOnSurface* rc=0 ;
-  for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos=
-         track->trackStateOnSurfaces()->begin();
-       tsos!=track->trackStateOnSurfaces()->end();++tsos){ 
-    if( !(*tsos)->type(Trk::TrackStateOnSurface::Outlier) &&
-        (*tsos)->measurementOnTrack() &&
-        (*tsos)->trackParameters() ) {
+  for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
+    if( !tsos->type(Trk::TrackStateOnSurface::Outlier) &&
+        tsos->measurementOnTrack() &&
+        tsos->trackParameters() ) {
       ATH_MSG_VERBOSE ( "Found good measuredtrackparameters" );
-      const InDet::SCT_ClusterOnTrack* sctclus = dynamic_cast<const InDet::SCT_ClusterOnTrack*>((*tsos)->measurementOnTrack()); 
+      const InDet::SCT_ClusterOnTrack* sctclus = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(tsos->measurementOnTrack()); 
       if(sctclus) {
         ATH_MSG_VERBOSE ( "Found SCT_ClusterOnTrack");
         const Amg::Vector3D& pos = sctclus->globalPosition() ;
         double r = sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
         if(rc==0 || r>rmax) {
-          rc = *tsos ;
+          rc = tsos ;
           rmax = r ;
         }
       }
@@ -303,19 +303,18 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findinnertrthit( const Trk::Tra
   ATH_MSG_VERBOSE ( "Inside findinnerscthit: " << track->trackStateOnSurfaces()->size() );
   double rmin=9999999. ;
   const Trk::TrackStateOnSurface* rc=0 ;
-  for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos = track->trackStateOnSurfaces()->begin();
-       tsos!=track->trackStateOnSurfaces()->end();++tsos){ 
-    if( !(*tsos)->type(Trk::TrackStateOnSurface::Outlier) && 
-         (*tsos)->measurementOnTrack() &&
-         (*tsos)->trackParameters() ) {
+  for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
+    if( !tsos->type(Trk::TrackStateOnSurface::Outlier) && 
+         tsos->measurementOnTrack() &&
+         tsos->trackParameters() ) {
       ATH_MSG_VERBOSE ( "Found good measuredtrackparameters" );
-      const InDet::TRT_DriftCircleOnTrack* trthit = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*tsos)->measurementOnTrack()); 
+      const InDet::TRT_DriftCircleOnTrack* trthit = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(tsos->measurementOnTrack()); 
       if(trthit) {
         ATH_MSG_VERBOSE ( "Found TRT_DriftCircleOnTrack" );
         const Amg::Vector3D& pos = trthit->globalPosition() ;
         double r = sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
         if(rc==0 || r<rmin) {
-          rc = *tsos ;
+          rc = tsos ;
           rmin = r ;
         }
       }
