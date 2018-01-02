@@ -18,10 +18,8 @@ atlas_depends_on_subdirs(
    Control/SGTools
    Control/StoreGate
    Database/APR/CollectionBase
-   Database/APR/CollectionUtilities
    Database/APR/POOLCore
-   Database/APR/PersistencySvc
-   Database/APR/StorageSvc
+   Database/APR/FileCatalog
    Database/AthenaPOOL/AthenaPoolKernel
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/PersistentDataModel
@@ -42,8 +40,8 @@ atlas_add_library( ByteStreamCnvSvcLib
    LINK_LIBRARIES AthenaBaseComps ByteStreamData GaudiKernel
    ByteStreamCnvSvcBaseLib StoreGateLib rt
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
-   AthenaKernel SGTools CollectionBase CollectionUtilities POOLCore
-   PersistencySvc StorageSvc AthenaPoolUtilities PersistentDataModel EventInfo
+   AthenaKernel SGTools CollectionBase POOLCore FileCatalog
+   AthenaPoolUtilities PersistentDataModel EventInfo
    ByteStreamCnvSvcLegacy )
 
 atlas_add_component( ByteStreamCnvSvc
@@ -59,7 +57,7 @@ atlas_add_executable( AtlCopyBSEvent test/AtlCopyBSEvent.cxx
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
    ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
-   CollectionBase POOLCore PersistentDataModel )
+   CollectionBase POOLCore FileCatalog PersistentDataModel )
 
 atlas_add_executable( AtlListBSEvents test/AtlListBSEvents.cxx
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
