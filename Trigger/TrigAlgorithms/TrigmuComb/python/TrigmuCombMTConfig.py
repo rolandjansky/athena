@@ -27,7 +27,6 @@ class TrigmuCombMTConfig (muCombMT):
     def __init__( self, name, *args, **kwargs ):
       super( TrigmuCombMTConfig, self ).__init__( name )
 
-      self.UseAthenaFieldService = True
       self.MuCombStrategy = 0
 
       self.UseBackExtrapolatorG4 = True

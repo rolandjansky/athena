@@ -114,8 +114,6 @@ class muCombMT : public AthAlgorithm
   /** flag to switch between G4 and LUT based back-extrapolation */
    Gaudi::Property<bool> m_useBackExtrapolatorG4 {this, "UseBackExtrapolatorG4", true, "Use g4-based back-extraploator"};
 
-  /** flag to switch on automatic configuration of algo. with magnetic field configuration */
-   Gaudi::Property<bool> m_useAthenaFieldService {this, "UseAthenaFieldService", true, "Use AthenaFieldService to check magnetic fields"};
   /** flag to assume B_Toroid=0 anyway */
    Gaudi::Property<bool> m_assumeToroidOff       {this, "AssumeToroidOff",       false, "Force assumption toroid off"};
   /** flag to assume B_Solenoid=0 anyway */

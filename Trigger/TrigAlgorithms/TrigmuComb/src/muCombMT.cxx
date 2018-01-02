@@ -41,14 +41,12 @@ StatusCode muCombMT::initialize()
    ATH_MSG_DEBUG("Initialization:");
 
    //Filed service
-   if (m_useAthenaFieldService) {
-      if (!m_MagFieldSvc) service("AtlasFieldSvc", m_MagFieldSvc, /*createIf=*/ false).ignore();
-      if (m_MagFieldSvc) {
-         ATH_MSG_DEBUG( "Retrieved AtlasFieldSvc" );
-      } else {
-         ATH_MSG_ERROR( "Could not retrieve AtlasFieldSvc --> Abort" );
-         return StatusCode::FAILURE; 
-      }
+   if (!m_MagFieldSvc) service("AtlasFieldSvc", m_MagFieldSvc, /*createIf=*/ false).ignore();
+   if (m_MagFieldSvc) {
+      ATH_MSG_DEBUG( "Retrieved AtlasFieldSvc" );
+   } else {
+      ATH_MSG_ERROR( "Could not retrieve AtlasFieldSvc --> Abort" );
+      return StatusCode::FAILURE; 
    }
 
    if (!m_monTool.empty()) {
@@ -143,7 +141,7 @@ int muCombMT::drptMatch(double pt, double eta, double phi, double id_pt, double 
 }
 
 // muon-trk match based on Geant4 backextrapolated SA Muon matched with ID track
-// return 0 --> match,  1 --> no match
+// return 0 --> match,  1/2/3/4/5/6 --> no match (muon pt zero, muon angle zero, ID pt zero, fail eta match, fail phi match, fail chi2 match)
 int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
                     double id_eta, double id_phi, double id_pt, double id_charge, double id_eeta, double id_ephi, double id_eipt,
                     double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof)
@@ -160,7 +158,7 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
    if (sin(theta) != 0) {
       p = (feature->pt() * CLHEP::GeV) / sin(theta);
    } else {
-      return 1; //No match if muon angle is zero
+      return 2; //No match if muon angle is zero
    }
    double charge = 1.0;
    double q_over_p = 0.;
@@ -342,7 +340,7 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
 }
 
 // muon-trk match based on LUT backextrapolated SA Muon matched with ID track
-// return 0 --> match,  1 --> no match
+// return 0 --> match,  1/2/3/4/5/6 --> no match (muon pt zero, muon angle zero, ID pt zero, fail eta match, fail phi match, fail chi2 match)
 int muCombMT::mfMatch(const xAOD::L2StandAloneMuon* feature,
                     double id_eta, double id_phi, double id_pt, double id_charge,
                     double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof)
@@ -518,14 +516,11 @@ StatusCode muCombMT::execute()
    //Magnetic field status
    bool toroidOn   = !m_assumeToroidOff;
    bool solenoidOn = !m_assumeSolenoidOff;
-   if (m_useAthenaFieldService) {
-      if (m_MagFieldSvc) {
-         toroidOn  = m_MagFieldSvc->toroidOn() && !m_assumeToroidOff;
-         solenoidOn = m_MagFieldSvc->solenoidOn() && !m_assumeSolenoidOff;
-      }
+   if (m_MagFieldSvc) {
+      toroidOn  = m_MagFieldSvc->toroidOn() && !m_assumeToroidOff;
+      solenoidOn = m_MagFieldSvc->solenoidOn() && !m_assumeSolenoidOff;
    }
    ATH_MSG_DEBUG( "=========== Magnetic Field Status ========== " );
-   ATH_MSG_DEBUG( " B Fields read from AthenaFieldService:   " << (m_useAthenaFieldService ? "TRUE" : "FALSE") );
    ATH_MSG_DEBUG( " Assuming Toroid OFF is:                  " << (m_assumeToroidOff ? "TRUE" : "FALSE") );
    ATH_MSG_DEBUG( " Assuming Solenoid OFF is:                " << (m_assumeSolenoidOff ? "TRUE" : "FALSE") );
    ATH_MSG_DEBUG( " ---> Solenoid : " << ((solenoidOn) ? "ON" : "OFF") );
