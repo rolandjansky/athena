@@ -58,7 +58,8 @@ if( NOT XAOD_STANDALONE )
 endif()
 atlas_add_test( ut_JetReclusteringTool_test
                 SOURCES test/ut_JetReclusteringTool_test.cxx
-                LINK_LIBRARIES xAODRootAccess AsgTools JetInterface xAODJet
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess AsgTools JetInterface xAODJet
                 ${extra_libs} )
 
 # Install files from the package:

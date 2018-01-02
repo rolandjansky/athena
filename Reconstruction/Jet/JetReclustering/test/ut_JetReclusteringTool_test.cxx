@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <TFile.h>
+#include <memory>
+
 #include <xAODRootAccess/Init.h>
 #include "AsgTools/AnaToolHandle.h"
 #include "JetInterface/IJetExecuteTool.h"
@@ -28,7 +31,8 @@ int main() {
   POOL::TEvent evt( POOL::TEvent::kAthenaAccess );
 #endif
 
-  evt.readFrom("$ASG_TEST_FILE_MC");
+  std::auto_ptr<TFile> ifile(TFile::Open(std::getenv("ASG_TEST_FILE_MC"), "READ"));
+  evt.readFrom(ifile);
   evt.getEntry(0);
 
   //example of configuring the tool
