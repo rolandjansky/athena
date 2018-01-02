@@ -73,10 +73,10 @@ IDPerfMonWenu::IDPerfMonWenu( const std::string & type, const std::string & name
   declareProperty("electronIDLevel",m_electronIDLevel = "Tight");
   //declareProperty("isolationCone",m_isolationCone = xAOD::Iso::ptcone20); // temporary -- should be replaced by isolation tool
 
-  region_strings.push_back("incl");
-  region_strings.push_back("barrel");
-  region_strings.push_back("eca");
-  region_strings.push_back("ecc");
+  m_region_strings.push_back("incl");
+  m_region_strings.push_back("barrel");
+  m_region_strings.push_back("eca");
+  m_region_strings.push_back("ecc");
 
 }
 
@@ -236,25 +236,25 @@ StatusCode IDPerfMonWenu::bookHistograms()
       std::string title;
       std::string name;
 
-      name = "Wenu_Eop_" + region_strings[region];
-      title = "E/p for Wenu EM-clusters in " + region_strings[region];
+      name = "Wenu_Eop_" + m_region_strings[region];
+      title = "E/p for Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eop.push_back(new TH1F(name.c_str(),title.c_str(), 60, 0., 10.));
       if (region==incl) RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
       else RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
 
-      name = "Wenu_Eopdiff_" + region_strings[region];
-      title = "E/p difference (pos-neg) for Wenu EM-clusters in " + region_strings[region];
+      name = "Wenu_Eopdiff_" + m_region_strings[region];
+      title = "E/p difference (pos-neg) for Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eopdiff.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       if (region==incl) RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
       else RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
 
-      name = "Wenu_Eop_plus_" + region_strings[region];
-      title = "E/p for pos. charged Wenu EM-clusters in " + region_strings[region];
+      name = "Wenu_Eop_plus_" + m_region_strings[region];
+      title = "E/p for pos. charged Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eop_plus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       RegisterHisto(al_Wenu_mon,m_Wenu_Eop_plus[region],true);
 
-      name = "Wenu_Eop_minus_" + region_strings[region];
-      title = "E/p for neg. charged Wenu EM-clusters in " + region_strings[region];
+      name = "Wenu_Eop_minus_" + m_region_strings[region];
+      title = "E/p for neg. charged Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eop_minus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       RegisterHisto(al_Wenu_mon,m_Wenu_Eop_minus[region],true);
 

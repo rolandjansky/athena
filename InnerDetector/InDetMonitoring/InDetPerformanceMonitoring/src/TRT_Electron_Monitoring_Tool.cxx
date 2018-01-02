@@ -34,7 +34,7 @@ TRT_Electron_Monitoring_Tool( const std::string & type,
                         const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
   m_pTRTHelper			(0),
-  mgr				(0)
+  m_mgr				(0)
 {
   declareProperty( "trackName", m_tracksName="InDetTrackParticles" );
   declareProperty( "electronName", m_electronsName="Electrons");
@@ -80,7 +80,7 @@ TRT_Electron_Monitoring_Tool::initialize()
   }
 
   // Retrieve detector manager
-  if (detStore()->retrieve(mgr, "TRT").isFailure())
+  if (detStore()->retrieve(m_mgr, "TRT").isFailure())
   {
      ATH_MSG_FATAL("Unable to retrieve pointer to TRT DetectorManager" );
      return StatusCode::FAILURE;
@@ -88,9 +88,9 @@ TRT_Electron_Monitoring_Tool::initialize()
     ATH_MSG_DEBUG( "Retrieved TRT manager" );
   }
 
-  if(m_isEMFlag=="Loose") isEMType = ISEMLOOSE;
-  else if(m_isEMFlag=="Medium") isEMType = ISEMMEDIUM;
-  else if(m_isEMFlag=="Tight") isEMType = ISEMTIGHT;
+  if(m_isEMFlag=="Loose") m_isEMType = ISEMLOOSE;
+  else if(m_isEMFlag=="Medium") m_isEMType = ISEMMEDIUM;
+  else if(m_isEMFlag=="Tight") m_isEMType = ISEMTIGHT;
   else {
     ATH_MSG_WARNING( "Unrecognized isEM jobOption " << m_isEMFlag );
     ATH_MSG_WARNING( "Choose from Loose,Medium or Tight" );
@@ -154,14 +154,14 @@ bookHistograms()
   {
     MonGroup hl_monGroup_pcand	( this, "TRT//HTMonitoring/ParticleCandidates",  run);
     if(m_doTracksMon){
-      bookGeoHistograms		(tBarrelA	,"BarrelA"    );
-      bookGeoHistograms		(tBarrelC	,"BarrelC"    );
-      bookGeoHistograms		(tEndCapA	,"EndCapA"    );
-      bookGeoHistograms		(tEndCapC	,"EndCapC"    );
-      bookPCandHistograms	(hl_monGroup_pcand,tPi		,"Pion");
+      bookGeoHistograms		(m_tBarrelA	,"BarrelA"    );
+      bookGeoHistograms		(m_tBarrelC	,"BarrelC"    );
+      bookGeoHistograms		(m_tEndCapA	,"EndCapA"    );
+      bookGeoHistograms		(m_tEndCapC	,"EndCapC"    );
+      bookPCandHistograms	(hl_monGroup_pcand,m_tPi		,"Pion");
     }
-    if(m_doMuonMon)	bookPCandHistograms(hl_monGroup_pcand,tMu,"Muon");
-    if(m_doElectronMon)	bookPCandHistograms(hl_monGroup_pcand,tEl,"Electron");
+    if(m_doMuonMon)	bookPCandHistograms(hl_monGroup_pcand,m_tMu,"Muon");
+    if(m_doElectronMon)	bookPCandHistograms(hl_monGroup_pcand,m_tEl,"Electron");
   }
   catch(const char* hName)
   {
@@ -261,13 +261,13 @@ fillHistograms()
 
    ATH_MSG_DEBUG("Filling TRT Electron Monitor Histograms");
 
-  tBarrelA.N = 0;
-  tBarrelC.N = 0;
-  tEndCapA.N = 0;
-  tEndCapC.N = 0;
-  tEl.N = 0;
-  tMu.N = 0;
-  tPi.N = 0;
+  m_tBarrelA.N = 0;
+  m_tBarrelC.N = 0;
+  m_tEndCapA.N = 0;
+  m_tEndCapC.N = 0;
+  m_tEl.N = 0;
+  m_tMu.N = 0;
+  m_tPi.N = 0;
 
   std::vector<Trk::Track*> v_usedTrks;
   loopOverConversions(v_usedTrks);
@@ -275,13 +275,13 @@ fillHistograms()
   loopOverMuons(v_usedTrks);
   loopOverTracks(v_usedTrks);
 
-  if(m_doElectronMon)	tEl.hNCand->Fill(tEl.N);
-  if(m_doMuonMon)	tMu.hNCand->Fill(tMu.N);
-  if(m_doTracksMon)	tPi.hNCand->Fill(tPi.N);
-  tBarrelA.hNTracks->Fill(tBarrelA.N);
-  tBarrelC.hNTracks->Fill(tBarrelC.N);
-  tEndCapA.hNTracks->Fill(tBarrelA.N);
-  tEndCapC.hNTracks->Fill(tBarrelC.N);
+  if(m_doElectronMon)	m_tEl.hNCand->Fill(m_tEl.N);
+  if(m_doMuonMon)	m_tMu.hNCand->Fill(m_tMu.N);
+  if(m_doTracksMon)	m_tPi.hNCand->Fill(m_tPi.N);
+  m_tBarrelA.hNTracks->Fill(m_tBarrelA.N);
+  m_tBarrelC.hNTracks->Fill(m_tBarrelC.N);
+  m_tEndCapA.hNTracks->Fill(m_tBarrelA.N);
+  m_tEndCapC.hNTracks->Fill(m_tBarrelC.N);
 
   return StatusCode::SUCCESS;
 }//fillHistograms
@@ -320,7 +320,7 @@ loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
 	  if(!trkProbe) continue;
 
 	  if(!conversionQualityCuts(trkTag,trkProbe)) continue;
-	  tEl.N++;
+	  m_tEl.N++;
 	  if(!fillAllHistograms( (xAOD::TrackParticle*)trkProbe, electron_mass, PCAND_EL ))
 	    {
 	      ATH_MSG_DEBUG( "fillStructHistograms failed!" );
@@ -363,7 +363,7 @@ loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks)
       }
       if(matched) continue;
       v_usedTrks.push_back( (Trk::Track*)trk );
-      tEl.N++;
+      m_tEl.N++;
       if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, electron_mass, PCAND_EL ))
       {
 	ATH_MSG_DEBUG( "fillStructHistograms failed!" );
@@ -396,7 +396,7 @@ loopOverMuons(std::vector<Trk::Track*> &v_usedTrks)
       if(!trkP) continue;
       const Trk::Track *trk = trkP->track();
       v_usedTrks.push_back( (Trk::Track*)trk );
-      tMu.N++;
+      m_tMu.N++;
       if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, muon_mass, PCAND_MU ))
       {
 	ATH_MSG_DEBUG( "fillStructHistograms failed!" );
@@ -426,7 +426,7 @@ loopOverTracks(std::vector<Trk::Track*> &v_usedTrks)
       //      if(!(*tp)) continue;
       fillAllHistograms((xAOD::TrackParticle*)tp);
       if(!pionQualityCuts((xAOD::TrackParticle*)tp,v_usedTrks)) continue;
-      tPi.N++;
+      m_tPi.N++;
       if(!fillAllHistograms((xAOD::TrackParticle*)tp, pion_mass, PCAND_PI ))
       {
 	ATH_MSG_DEBUG( "fillStructHistograms failed!" );
@@ -515,12 +515,12 @@ electronQualityCuts(const xAOD::Electron *electron)
    bool val_loose=0;
   bool val_medium=0;
   bool val_tight=0;
-  if(isEMType==ISEMLOOSE && !(electron->passSelection(val_loose, "Loose")==0))  return false;
-  if(isEMType==ISEMMEDIUM && !(electron->passSelection(val_medium, "Medium")==0))  return false;
-  if(isEMType==ISEMTIGHT && !(electron->passSelection(val_tight, "Tight")==0))  return false;
-  // if(isEMType==ISEMLOOSE  && !(electron->isem(egammaPID::ElectronLoose    )==0)) return false;
-  // if(isEMType==ISEMMEDIUM && !(electron->isem(egammaPID::ElectronMedium   )==0)) return false;
-  // if(isEMType==ISEMTIGHT  && !(electron->isem(egammaPID::ALLNOTRT_ELECTRON | egammaPID::TRACKMATCHTIGHT_ELECTRON | egammaPID::CONVMATCH_ELECTRON)==0)) return false;
+  if(m_isEMType==ISEMLOOSE && !(electron->passSelection(val_loose, "Loose")==0))  return false;
+  if(m_isEMType==ISEMMEDIUM && !(electron->passSelection(val_medium, "Medium")==0))  return false;
+  if(m_isEMType==ISEMTIGHT && !(electron->passSelection(val_tight, "Tight")==0))  return false;
+  // if(m_isEMType==ISEMLOOSE  && !(electron->isem(egammaPID::ElectronLoose    )==0)) return false;
+  // if(m_isEMType==ISEMMEDIUM && !(electron->isem(egammaPID::ElectronMedium   )==0)) return false;
+  // if(m_isEMType==ISEMTIGHT  && !(electron->isem(egammaPID::ALLNOTRT_ELECTRON | egammaPID::TRACKMATCHTIGHT_ELECTRON | egammaPID::CONVMATCH_ELECTRON)==0)) return false;
   return true;
 }//electronQualityCuts
 
@@ -610,7 +610,7 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
   int nHLHits[4]={0,0,0,0};
   int nTRTHTHits = 0;
   int nTRTHits   = 0;
-  int m_barrel_ec(0);
+  int barrel_ec(0);
   const DataVector<const Trk::TrackStateOnSurface>* trackStates = trkP->track()->trackStateOnSurfaces();
 
   DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin = trackStates->begin();
@@ -627,8 +627,8 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
       else
       {
 	Identifier DCoTId = trtCircle->identify();
-	m_barrel_ec = myBarrelEC(m_pTRTHelper->barrel_ec(DCoTId));
-	if(m_barrel_ec<0) continue;
+	barrel_ec = myBarrelEC(m_pTRTHelper->barrel_ec(DCoTId));
+	if(barrel_ec<0) continue;
 
 	const InDet::TRT_DriftCircle *RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
 	const Trk::MeasurementBase* mesb=(*TSOSItBegin)->measurementOnTrack();
@@ -636,10 +636,10 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 	float TRThitX = trtCircle->globalPosition().x();
 	float TRThitY = trtCircle->globalPosition().y();
 	float TRThitZ = fabs(trtCircle->globalPosition().z());
-	float zr = m_barrel_ec<2 ? TRThitZ : sqrt(pow(TRThitX,2)+pow(TRThitY,2));
-	int m_phi_or_plane   =  m_barrel_ec<2 ? m_pTRTHelper->phi_module(DCoTId) :m_pTRTHelper->straw_layer(DCoTId);
-	int m_layer_or_wheel = m_pTRTHelper->layer_or_wheel(DCoTId);
-	bool inCorOuter = isGasInCorOuter(m_barrel_ec,m_phi_or_plane,m_layer_or_wheel);
+	float zr = barrel_ec<2 ? TRThitZ : sqrt(pow(TRThitX,2)+pow(TRThitY,2));
+	int phi_or_plane   =  barrel_ec<2 ? m_pTRTHelper->phi_module(DCoTId) :m_pTRTHelper->straw_layer(DCoTId);
+	int layer_or_wheel = m_pTRTHelper->layer_or_wheel(DCoTId);
+	bool inCorOuter = isGasInCorOuter(barrel_ec,phi_or_plane,layer_or_wheel);
 	if(RawDriftCircle && !isTubeHit)
 	{
 	  bool highL = RawDriftCircle->highLevel();
@@ -649,47 +649,47 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 	  TProfile_LW	*pHTFracStrawZCO = 0;
     	  TProfile_LW	*pHTFracGamma = 0;
     	  lw_geo_hists_t * myGeoHists = 0;
-	  if(mass==0){ switch (m_barrel_ec){
+	  if(mass==0){ switch (barrel_ec){
 	    case DET_BARRELA:
-	      pHTFracTrackPhi = tBarrelA.pHTFracTrackPhi;
-	      pHTFracStrawZR  = tBarrelA.pHTFracStrawZR;
-	      pHTFracStrawZAI  = tBarrelA.pHTFracStrawZAI;
-	      pHTFracStrawZCO  = tBarrelA.pHTFracStrawZCO;
+	      pHTFracTrackPhi = m_tBarrelA.pHTFracTrackPhi;
+	      pHTFracStrawZR  = m_tBarrelA.pHTFracStrawZR;
+	      pHTFracStrawZAI  = m_tBarrelA.pHTFracStrawZAI;
+	      pHTFracStrawZCO  = m_tBarrelA.pHTFracStrawZCO;
 	      break;
 	    case DET_BARRELC:
-	      pHTFracTrackPhi = tBarrelC.pHTFracTrackPhi;
-	      pHTFracStrawZR  = tBarrelC.pHTFracStrawZR;
-	      pHTFracStrawZAI = tBarrelC.pHTFracStrawZAI;
-	      pHTFracStrawZCO = tBarrelC.pHTFracStrawZCO;
+	      pHTFracTrackPhi = m_tBarrelC.pHTFracTrackPhi;
+	      pHTFracStrawZR  = m_tBarrelC.pHTFracStrawZR;
+	      pHTFracStrawZAI = m_tBarrelC.pHTFracStrawZAI;
+	      pHTFracStrawZCO = m_tBarrelC.pHTFracStrawZCO;
 	      break;
 	    case DET_ENDCAPA:
-	      pHTFracTrackPhi = tEndCapA.pHTFracTrackPhi;
-	      pHTFracStrawZR  = tEndCapA.pHTFracStrawZR;
-	      pHTFracStrawZAI = tEndCapA.pHTFracStrawZAI;
-	      pHTFracStrawZCO = tEndCapA.pHTFracStrawZCO;
+	      pHTFracTrackPhi = m_tEndCapA.pHTFracTrackPhi;
+	      pHTFracStrawZR  = m_tEndCapA.pHTFracStrawZR;
+	      pHTFracStrawZAI = m_tEndCapA.pHTFracStrawZAI;
+	      pHTFracStrawZCO = m_tEndCapA.pHTFracStrawZCO;
 	      break;
 	    case DET_ENDCAPC:
-	      pHTFracTrackPhi = tEndCapC.pHTFracTrackPhi;
-	      pHTFracStrawZR  = tEndCapC.pHTFracStrawZR;
-	      pHTFracStrawZAI = tEndCapC.pHTFracStrawZAI;
-	      pHTFracStrawZCO = tEndCapC.pHTFracStrawZCO;
+	      pHTFracTrackPhi = m_tEndCapC.pHTFracTrackPhi;
+	      pHTFracStrawZR  = m_tEndCapC.pHTFracStrawZR;
+	      pHTFracStrawZAI = m_tEndCapC.pHTFracStrawZAI;
+	      pHTFracStrawZCO = m_tEndCapC.pHTFracStrawZCO;
 	      break;
 	    default : continue;
 	  }
 	  }
 	  else{
-	    switch (m_barrel_ec){
+	    switch (barrel_ec){
               case DET_BARRELA:
-                myGeoHists = &tBarrelA;
+                myGeoHists = &m_tBarrelA;
 	        break;
               case DET_BARRELC:
-                myGeoHists = &tBarrelC;
+                myGeoHists = &m_tBarrelC;
             	  break;
               case DET_ENDCAPA:
-                myGeoHists = &tEndCapA;
+                myGeoHists = &m_tEndCapA;
 	        break;
               case DET_ENDCAPC:
-                myGeoHists = &tEndCapC;
+                myGeoHists = &m_tEndCapC;
 	        break;
               default : break;
             }
@@ -726,7 +726,7 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 	      myGeoHists->pHTFracGammaAll->Fill(gamma,1);
 	      //charge>0 ? myGeoHists->pHTFracGammaPosAll->Fill(gamma,1) : myGeoHists->pHTFracGammaNegAll->Fill(gamma,1);
             }
-	    nHLHits[m_barrel_ec]++;
+	    nHLHits[barrel_ec]++;
 	    nTRTHTHits++;
 
 	  }//if(RawDriftCircle->highLevel())
@@ -741,7 +741,7 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 	    myGeoHists->pHTFracGammaAll->Fill(gamma,0);
 	    //charge>0 ? myGeoHists->pHTFracGammaPosAll->Fill(gamma,0) : myGeoHists->pHTFracGammaNegAll->Fill(gamma,0);
 	  }
-	  nLLHits[m_barrel_ec]++;
+	  nLLHits[barrel_ec]++;
 	  nTRTHits++;
 	}//if(RawDriftCircle && !isTubeHit)
       }//else  ---- came from if(!(trtCircle) || !(aTrackParam))
@@ -752,16 +752,16 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
     lw_geo_hists_t * myGeoHists = 0;
     switch (i){
       case DET_BARRELA:
-        myGeoHists = &tBarrelA;
+        myGeoHists = &m_tBarrelA;
         break;
       case DET_BARRELC:
-        myGeoHists = &tBarrelC;
+        myGeoHists = &m_tBarrelC;
 	break;
       case DET_ENDCAPA:
-        myGeoHists = &tEndCapA;
+        myGeoHists = &m_tEndCapA;
 	break;
       case DET_ENDCAPC:
-        myGeoHists = &tEndCapC;
+        myGeoHists = &m_tEndCapC;
 	break;
       default : continue;
     }
@@ -782,22 +782,22 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
 
     switch (PCand){
       case PCAND_EL:
-        hPIDProb	= tEl.hPIDProb;
-        hHTFrac		= tEl.hHTFrac;
-        pPIDProbEta	= tEl.pPIDProbEta;
-        pHTFracEta	= tEl.pHTFracEta;
+        hPIDProb	= m_tEl.hPIDProb;
+        hHTFrac		= m_tEl.hHTFrac;
+        pPIDProbEta	= m_tEl.pPIDProbEta;
+        pHTFracEta	= m_tEl.pHTFracEta;
         break;
       case PCAND_MU:
-        hPIDProb	= tMu.hPIDProb;
-        hHTFrac		= tMu.hHTFrac;
-        pPIDProbEta	= tMu.pPIDProbEta;
-        pHTFracEta	= tMu.pHTFracEta;
+        hPIDProb	= m_tMu.hPIDProb;
+        hHTFrac		= m_tMu.hHTFrac;
+        pPIDProbEta	= m_tMu.pPIDProbEta;
+        pHTFracEta	= m_tMu.pHTFracEta;
         break;
       case PCAND_PI:
-        hPIDProb	= tPi.hPIDProb;
-        hHTFrac		= tPi.hHTFrac;
-        pPIDProbEta	= tPi.pPIDProbEta;
-        pHTFracEta	= tPi.pHTFracEta;
+        hPIDProb	= m_tPi.hPIDProb;
+        hHTFrac		= m_tPi.hHTFrac;
+        pPIDProbEta	= m_tPi.pPIDProbEta;
+        pHTFracEta	= m_tPi.pHTFracEta;
         break;
       default : break;
     }
@@ -924,8 +924,8 @@ TH2F_LW* TRT_Electron_Monitoring_Tool::trtBookHistoLW(MonGroup &mongroup,
 
 int
 TRT_Electron_Monitoring_Tool::
-myBarrelEC(int m_barrel_ec){
-  switch(m_barrel_ec){
+myBarrelEC(int barrel_ec){
+  switch(barrel_ec){
     case  1 : return DET_BARRELA;
     case -1 : return DET_BARRELC;
     case  2 : return DET_ENDCAPA;
