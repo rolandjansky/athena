@@ -36,9 +36,7 @@ public:
   IsMostDerivedFlag() : m_flag(false) {}
   IsMostDerivedFlag(bool flag) : m_flag(flag) {}
   IsMostDerivedFlag(const IsMostDerivedFlag&) : m_flag(false) {}
-#if __cplusplus > 201100
   IsMostDerivedFlag(IsMostDerivedFlag&&) : m_flag(false) {}
-#endif
   operator bool() const { return m_flag; }
   IsMostDerivedFlag& operator= (const IsMostDerivedFlag&) { return *this; }
   IsMostDerivedFlag& operator= (bool flag) { m_flag = flag; return *this;}

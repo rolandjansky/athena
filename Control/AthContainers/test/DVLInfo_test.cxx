@@ -17,7 +17,7 @@
 #include "AthContainers/tools/DVLInfo.h"
 #include "SGTools/BaseInfo.h"
 #include "SGTools/CLASS_DEF.h"
-#include "boost/type_traits/remove_pointer.hpp"
+#include <type_traits>
 #include <vector>
 #include <list>
 #include <cassert>
@@ -136,7 +136,7 @@ class mycont
   : public T
 {
 public:
-  typedef typename boost::remove_pointer<typename T::value_type>::type
+  typedef typename std::remove_pointer<typename T::value_type>::type
     base_value_type;
   mycont (SG::OwnershipPolicy pol) : m_pol (pol) {}
   T& stdcont() { return *this; }

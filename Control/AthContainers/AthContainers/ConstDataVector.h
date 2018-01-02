@@ -67,9 +67,7 @@
 
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLink.h"
-#if __cplusplus > 201100
 #include <initializer_list>
-#endif
 
 
 /**
@@ -140,9 +138,7 @@ public:
   using DV::cend;
   using DV::crbegin;
   using DV::crend;
-#if __cplusplus > 201100
   using DV::shrink_to_fit;
-#endif
 
 
   /// Expose the const versions of these methods too.
@@ -226,14 +222,11 @@ public:
   // except for setting @c m_isMostDerived.  We arrange for these flags
   // to all get set to false; they'll get set correctly when
   // @c testInsert is called.
-#if __cplusplus > 201100
   // Need this to get the default copy ctor defined when a move
   // ctor is also present.
   ConstDataVector (const ConstDataVector&) = default;
-#endif
 
 
-#if __cplusplus > 201100
   /**
    * @brief Move constructor.
    * @param rhs The container from which to move.
@@ -254,7 +247,6 @@ public:
    */
   ConstDataVector(std::initializer_list<value_type> l,
                   SG::OwnershipPolicy ownPolicy = SG::VIEW_ELEMENTS);
-#endif
 
 
   /**
@@ -282,7 +274,6 @@ public:
   ConstDataVector& operator= (const ConstDataVector& rhs) ;
 
 
-#if __cplusplus > 201100
   /**
    * @brief Move assignment.
    * @param rhs The container from which to move.
@@ -303,7 +294,6 @@ public:
    * ownership of the new elements.
    */
   ConstDataVector& operator= (std::initializer_list<value_type> l);
-#endif
 
 
   /**
@@ -319,7 +309,6 @@ public:
   void assign(InputIterator first, InputIterator last);
 
 
-#if __cplusplus > 201100
   /**
    * @brief Assign from an initializer list.
    * @param l An initializer list.
@@ -329,7 +318,6 @@ public:
    * ownership of the new elements.
    */
   void assign(std::initializer_list<value_type> l);
-#endif
 
 
   /**
@@ -532,8 +520,6 @@ public:
   void insert(iterator position, InputIterator first, InputIterator last);
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
   /**
    * @brief Add an element to the end of the collection.
    * @param pElem The element to add to the collection.
@@ -558,7 +544,6 @@ public:
    * @c DataVector in the hierarchy.
    */
   iterator insert(iterator position, std::unique_ptr<const base_value_type> pElem);
-#endif
 
 
   /**
@@ -573,7 +558,6 @@ public:
    * @c DataVector in the hierarchy.
    */
   void insert(iterator position, std::initializer_list<value_type> l);
-#endif
 
 
   //@}
@@ -691,8 +675,6 @@ public:
   void swapElement(iterator pos, value_type newElem, reference oldElem);
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
   /**
    * @brief Swap one element out of the container.
    * @param index Index of the element in the container to swap.
@@ -739,8 +721,6 @@ public:
   void swapElement(iterator pos,
                    std::unique_ptr<const base_value_type> newElem,
                    std::unique_ptr<const base_value_type>& oldElem);
-#endif
-#endif
 
 
 public:
@@ -874,8 +854,6 @@ private:
   void assignElement (typename BaseContainer::iterator pos, value_type newElem);
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
   /**
    * @brief Handle element assignment.
    * @param pos Position in the container to assign.
@@ -886,8 +864,6 @@ private:
    */
   void assignElement (typename BaseContainer::iterator pos,
                       std::unique_ptr<const base_value_type> newElem);
-#endif
-#endif
 
 
   /**
@@ -973,13 +949,11 @@ public:
   DVLConstDataVectorBucket (ConstDataVector<DV>* data);
 
 
-#if __cplusplus > 201100
   /**
    * @brief Constructor from a payload object.
    * @param data Object to hold in the bucket.
    */
   DVLConstDataVectorBucket (std::unique_ptr<ConstDataVector<DV> > data);
-#endif
 };
 
 

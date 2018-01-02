@@ -23,7 +23,7 @@ namespace AthContainers_detail {
 inline
 void fence_acq_rel()
 {
-  SG_STD_OR_BOOST::atomic_thread_fence (SG_STD_OR_BOOST::memory_order_acq_rel);
+  std::atomic_thread_fence (std::memory_order_acq_rel);
 }
 
 
@@ -33,7 +33,7 @@ void fence_acq_rel()
 inline
 void fence_seq_cst()
 {
-  SG_STD_OR_BOOST::atomic_thread_fence (SG_STD_OR_BOOST::memory_order_seq_cst);
+  std::atomic_thread_fence (std::memory_order_seq_cst);
 }
 
 

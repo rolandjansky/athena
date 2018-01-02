@@ -30,10 +30,8 @@ void test1()
   assert (f2 == true);
   SG::IsMostDerivedFlag f3 (f2);
   assert (f3 == false);
-#if __cplusplus > 201100
   SG::IsMostDerivedFlag f4 (std::move (f2));
   assert (f4 == false);
-#endif
 }
 
 

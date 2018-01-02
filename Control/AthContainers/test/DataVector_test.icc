@@ -574,7 +574,7 @@ struct test2_maybeconst1
 
 
 template <class T>
-struct test2_maybeconst1<T, SG_STD_OR_BOOST::true_type>
+struct test2_maybeconst1<T, std::true_type>
 {
   typedef T type;
 };
