@@ -135,8 +135,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_pManager(0),
   m_TrackName(std::string("ResolvedSCTTracks")),// original track collection
   m_chrono(nullptr),
-  m_tracks(nullptr),// original tracks
-  m_TrackSum(nullptr),
   m_badChips(nullptr),
   m_fieldServiceHandle("AtlasFieldSvc", name),
   m_bunchCrossingTool("Trig::BunchCrossingTool/BunchCrossingTool", this),
@@ -419,25 +417,25 @@ SCTHitEffMonTool::bookHistograms() {
       VERBOSE("Module " << m_sctId->wafer_hash(chip->first) << ", chip " << chip->second);
     }
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {
+    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {{
       MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)
-    };
+    }};
 
-    std::array < MonGroup, N_REGIONS > histGroupL = {
+    std::array < MonGroup, N_REGIONS > histGroupL = {{
       MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)
-    };// 23.01.2015
+    }};// 23.01.2015
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {
+    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {{
       MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)
-    };
+    }};
 
     CHECK(bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SCT Total Efficiency", N_REGIONS, 0,
                        N_REGIONS));
@@ -500,24 +498,24 @@ SCTHitEffMonTool::bookHistograms() {
     }
     // Booking efficiency maps
     // inefficiency plots, i.e. 1 - efficiency
-    std::array < TString, N_REGIONS > mapName = {
+    std::array < TString, N_REGIONS > mapName = {{
       "m_effm_", "m_eff_", "m_effp_"
-    };
-    std::array < TString, N_REGIONS > ineffMapName = {
+    }};
+    std::array < TString, N_REGIONS > ineffMapName = {{
       "ineffm_", "ineff_", "ineffp_"
-    };
-    std::array < TString, N_REGIONS > effLumiName = {
+    }};
+    std::array < TString, N_REGIONS > effLumiName = {{
       "m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"
-    };// 23.01.2015
-    std::array < TString, N_REGIONS > sumeff = {
+    }};// 23.01.2015
+    std::array < TString, N_REGIONS > sumeff = {{
       "summaryeffm", "summaryeff", "summaryeffp"
-    };
-    std::array < TString, N_REGIONS > sumeffBCID = {
+    }};
+    std::array < TString, N_REGIONS > sumeffBCID = {{
       "summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"
-    };
-    std::array < TString, N_REGIONS > sumeff_old = {
+    }};
+    std::array < TString, N_REGIONS > sumeff_old = {{
       "summaryeffm_old", "summaryeff_old", "summaryeffp_old"
-    };
+    }};
     TString sumefftitle[3] = {
       "Summary Module Efficiency in Endcap C", "Summary Module Efficiency in Barrel",
       "Summary Module Efficiency in Endcap A"
@@ -526,9 +524,9 @@ SCTHitEffMonTool::bookHistograms() {
       "Summary Module Efficiency in Endcap C for First BC", "Summary Module Efficiency in Barrel for First BC",
       "Summary Module Efficiency in Endcap A for First BC"
     };// 30.11.2014
-    std::array < TString, 12 > selecName = {
+    std::array < TString, 12 > selecName = {{
       "All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"
-    };
+    }};
     for (Int_t isub(0); isub != N_REGIONS; ++isub) {
       for (Long_t i(0); i != n_layers[isub]; ++i) {
         const int detIndex = becIdxLayer2Index(isub, i);
@@ -775,25 +773,25 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
       VERBOSE("Module " << m_sctId->wafer_hash(chip->first) << ", chip " << chip->second);
     }
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {
+    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {{
       MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)
-    };
+    }};
 
-    std::array < MonGroup, N_REGIONS > histGroupL = {
+    std::array < MonGroup, N_REGIONS > histGroupL = {{
       MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)
-    };// 23.01.2015
+    }};// 23.01.2015
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {
+    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {{
       MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)
-    };
+    }};
 
     CHECK(bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SCT Total Efficiency", N_REGIONS, 0,
                        N_REGIONS));
@@ -849,26 +847,26 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
                          3.2));
     }
     // Booking efficiency maps
-    std::array < TString, N_REGIONS > mapName = {
+    std::array < TString, N_REGIONS > mapName = {{
       "m_eff_", "eff_", "p_eff_"
-    };
-    std::array < TString, N_REGIONS > effLumiName = {
+    }};
+    std::array < TString, N_REGIONS > effLumiName = {{
       "m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"
-    };// 23.01.2015
+    }};// 23.01.2015
     // inefficiency plots, i.e. 1 - efficiency
-    std::array< TString, N_REGIONS > ineffMapName = {
+    std::array< TString, N_REGIONS > ineffMapName = {{
       "ineffm_", "ineff_", "ineffp_"
-    };
+    }};
     //
-    std::array < TString, N_REGIONS > sumeff = {
+    std::array < TString, N_REGIONS > sumeff = {{
       "summaryeffm", "summaryeff", "summaryeffp"
-    };
-    std::array < TString, N_REGIONS > sumeffBCID = {
+    }};
+    std::array < TString, N_REGIONS > sumeffBCID = {{
       "summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"
-    };
-    std::array < TString, N_REGIONS > sumeff_old = {
+    }};
+    std::array < TString, N_REGIONS > sumeff_old = {{
       "summaryeffm_old", "summaryeff_old", "summaryeffp_old"
-    };
+    }};
     TString sumefftitle[3] = {
       "Summary Module Efficiency in Endcap C", "Summary Module Efficiency in Barrel",
       "Summary Module Efficiency in Endcap A"
@@ -877,9 +875,9 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
       "Summary Module Efficiency in Endcap C for First BC", "Summary Module Efficiency in Barrel for First BC",
       "Summary Module Efficiency in Endcap A for First BC"
     };
-    std::array < TString, 12 > selecName = {
+    std::array < TString, 12 > selecName = {{
       "All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"
-    };
+    }};
     for (Int_t isub(0); isub != N_REGIONS; ++isub) {
       for (Long_t i(0); i != n_layers[isub]; ++i) {
         const int detIndex(becIdxLayer2Index(isub, i));
@@ -1925,12 +1923,12 @@ SCTHitEffMonTool::procHistograms() {                                            
       m_badChipMap->GetYaxis()->SetRangeUser(-3.4, 3.4);
     }
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {
+    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {{
       MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)
-    };
+    }};
 
     for (Int_t isub(0); isub != N_REGIONS; ++isub) {
       for (Long_t i(0); i != n_layers[isub]; ++i) {

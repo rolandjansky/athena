@@ -498,9 +498,9 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   Prof2_t
     prof2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector);
   Prof2_t
-    prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, int xlo, int xhi, int nbiny, int ylo, int yhi);
+    prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi);
   Prof_t
-    profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, int lo, int hi);
+    profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, float lo, float hi);
   Prof_t
     profFactory(const std::string & name, const std::string & title, MonGroup & registry);
   //@}
