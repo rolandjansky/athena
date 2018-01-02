@@ -416,7 +416,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
       DataVector<SCTRawDataType>::const_iterator p_rdo_end = SCT_Collection->end();
       for (DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin(); p_rdo != p_rdo_end; ++p_rdo) {
         count_SCT_RDO++;
-        SCT3_RawData *rdo3 = dynamic_cast<SCT3_RawData *>(*p_rdo);
+        const SCT3_RawData *rdo3 = dynamic_cast<const SCT3_RawData *>(*p_rdo);
         if (rdo3 != 0) {
           tbin = (rdo3)->getTimeBin();
         }

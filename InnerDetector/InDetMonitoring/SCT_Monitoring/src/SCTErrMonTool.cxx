@@ -724,7 +724,7 @@ SCTErrMonTool::fillHistograms() {
     Identifier SCT_Identifier = SCT_Collection->identify();
     for (DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin(); p_rdo != p_rdo_end; ++p_rdo) {
       count_SCT_RDO++;
-      SCT3_RawData *rdo3 = dynamic_cast<SCT3_RawData *>(*p_rdo);
+      const SCT3_RawData *rdo3 = dynamic_cast<const SCT3_RawData *>(*p_rdo);
       SCT_Identifier = (*p_rdo)->identify();
       int barrel_ec = m_pSCTHelper->barrel_ec(SCT_Identifier);
       if (barrel_ec == BARREL) {
