@@ -42,7 +42,6 @@ class PoolSvc : public ::AthService, virtual public IPoolSvc, virtual public IIo
 public: // Non-static members
    /// Required of all Gaudi services:
    StatusCode initialize();
-   StatusCode reinit();
    StatusCode io_reinit();
    /// Required of all Gaudi services:
    StatusCode stop();
