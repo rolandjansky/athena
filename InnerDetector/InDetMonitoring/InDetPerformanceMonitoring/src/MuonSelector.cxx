@@ -33,10 +33,6 @@
 
 
 
-// Local debug variables. Global scope, but only accessible by this file.
-static const float CGeV              =  1.0e-3;  // Conversion factor to remove evil MeV
-                                                 // nonsense.
-
 // Static declarations
 unsigned int MuonSelector::s_uNumInstances;
 

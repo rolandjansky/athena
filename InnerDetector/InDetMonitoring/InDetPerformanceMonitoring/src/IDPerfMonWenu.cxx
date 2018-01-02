@@ -71,7 +71,6 @@ IDPerfMonWenu::IDPerfMonWenu( const std::string & type, const std::string & name
   declareProperty("triggerChainName",m_triggerChainName);
   declareProperty("rejectSecondCluster",m_rejectSecondCluster = true);
   declareProperty("electronIDLevel",m_electronIDLevel = "Tight");
-  //declareProperty("isolationCone",m_isolationCone = xAOD::Iso::ptcone20); // temporary -- should be replaced by isolation tool
 
   m_region_strings.push_back("incl");
   m_region_strings.push_back("barrel");

@@ -14,8 +14,6 @@
 const float electron_mass = 0.511 * Gaudi::Units::MeV;
 const float muon_mass = 105.66 * Gaudi::Units::MeV;
 const float pion_mass = 139.6 * Gaudi::Units::MeV;
-const float kaon_mass = 493.7 * Gaudi::Units::MeV;
-const float proton_mass = 938.3 * Gaudi::Units::MeV;
 
 const double profile_x_label_size = 0.03;
 const double profile_y_label_size = 0.03;
