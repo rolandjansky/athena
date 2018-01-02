@@ -139,9 +139,9 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   TH1I *m_nErrors;
   TH1I *m_nLinksWithErrors;
-  int *nErrors_buf;
-  int *nLinksWithErrors_buf;
-  int nErrors_pos;
+  int *m_nErrors_buf;
+  int *m_nLinksWithErrors_buf;
+  int m_nErrors_pos;
 
   TH1I *m_MaskedAllLinks; // maskedLinks||maskedRODs
 

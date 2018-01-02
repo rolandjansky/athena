@@ -72,8 +72,8 @@ SCTTracksMonTool::SCTTracksMonTool(const string &type,
                                    const IInterface *parent)
   : SCTMotherTrigMonTool(type, name, parent),
   m_nTracks(nullptr),
-  trackTrigger(nullptr),
-  trackTriggerRate(nullptr),
+  m_trackTrigger(nullptr),
+  m_trackTriggerRate(nullptr),
   m_totalBarrelResidual(nullptr),
   m_totalEndCapAResidual(nullptr),
   m_totalEndCapCResidual(nullptr),
@@ -138,8 +138,8 @@ SCTTracksMonTool::SCTTracksMonTool(const string &type,
   declareProperty("useIDGlobal", m_useIDGlobal = false);
   declareProperty("doUnbiasedCalc", m_doUnbiasedCalc = true);
   declareProperty("EvtsBins", m_evtsbins = 5000);
-  nTracks_buf = nullptr;
-  nTracks_pos = 0;
+  m_nTracks_buf = nullptr;
+  m_nTracks_pos = 0;
 }
 
 // ====================================================================================================
@@ -298,14 +298,14 @@ SCTTracksMonTool::fillHistograms() {
   if (trkend == trkbegin) {
     if (m_doTrigger) {
       for (int trig(0); trig != N_TRIGGER_TYPES; ++trig) {
-        trackTriggerRate->Fill(trig, 0);
+        m_trackTriggerRate->Fill(trig, 0);
       }
     }
     for (int i(0); i != N_REGIONS; ++i) {
       m_trackRate->Fill(i, 0);
     }
   }
-  int m_goodTrks_N = 0;
+  int goodTrks_N = 0;
   ATH_MSG_DEBUG("Begin loop over " << tracks->size() << " tracks");
   for (TrackCollection::const_iterator trkitr(tracks->begin()); trkitr != trkend; ++trkitr) {
     int local_scthits = 0;
@@ -325,7 +325,7 @@ SCTTracksMonTool::fillHistograms() {
       ATH_MSG_DEBUG("track fails minimum SCT hit requirement");
       break;
     }
-    m_goodTrks_N++;
+    goodTrks_N++;
     if (track->fitQuality()->numberDoF() > 0.) { // Fill Track Chi2/ndf histogram
       m_trk_chi2->Fill(track->fitQuality()->chiSquared() / track->fitQuality()->numberDoF());
     }
@@ -346,10 +346,10 @@ SCTTracksMonTool::fillHistograms() {
     if (m_doTrigger) {
       for (int trig(0); trig != N_TRIGGER_TYPES; ++trig) {
         if (SCTMotherTrigMonTool::hasTriggerFired(trig)) {
-          trackTrigger->Fill(trig);
-          trackTriggerRate->Fill(trig, 1);
+          m_trackTrigger->Fill(trig);
+          m_trackTriggerRate->Fill(trig, 1);
         } else {
-          trackTriggerRate->Fill(trig, 0);
+          m_trackTriggerRate->Fill(trig, 0);
         }
       }
     }
@@ -550,7 +550,7 @@ SCTTracksMonTool::fillHistograms() {
                                                                  // barrel, Eca, Ecb)
     }
   } // end of loop on tracks
-  m_trk_N->Fill(m_goodTrks_N);
+  m_trk_N->Fill(goodTrks_N);
   m_trk_nclu_totHisto->Fill(local_tot_trkhits, 1.);
   if (m_environment == AthenaMonManager::online) {
     if (m_numberOfEvents == 1 || (m_numberOfEvents > 1 && m_numberOfEvents % m_checkrate == 0)) {// 30.11.2014
@@ -560,26 +560,26 @@ SCTTracksMonTool::fillHistograms() {
       }
     }
     // Time Dependent SP plots only online
-    nTracks_buf[nTracks_pos] = (int) (m_trk_chi2->GetEntries());
-    nTracks_pos++;
-    if (nTracks_pos == m_evtsbins) {
-      nTracks_pos = 0;
+    m_nTracks_buf[m_nTracks_pos] = (int) (m_trk_chi2->GetEntries());
+    m_nTracks_pos++;
+    if (m_nTracks_pos == m_evtsbins) {
+      m_nTracks_pos = 0;
     }
     if (m_numberOfEvents % m_checkrate == 0) {
       m_nTracks->Reset();
-      Int_t latest_nTracks_pos(nTracks_pos);
+      Int_t latest_nTracks_pos(m_nTracks_pos);
       for (Int_t i(1); i != m_evtsbins; ++i) {
         if (latest_nTracks_pos == m_evtsbins) {
           latest_nTracks_pos = 0;
         }
         if (m_numberOfEvents < m_evtsbins) {
-          if (i < nTracks_pos) {
-            m_nTracks->SetBinContent(i, nTracks_buf[i]);
+          if (i < m_nTracks_pos) {
+            m_nTracks->SetBinContent(i, m_nTracks_buf[i]);
           } else {
             m_nTracks->SetBinContent(i, 0);
           }
         } else {
-          m_nTracks->SetBinContent(i, nTracks_buf[latest_nTracks_pos]);
+          m_nTracks->SetBinContent(i, m_nTracks_buf[latest_nTracks_pos]);
           m_nTracks->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
         }
         latest_nTracks_pos++;
@@ -781,19 +781,19 @@ SCTTracksMonTool::bookGeneralHistos() {                                        /
     CHECK(Tracks.regHist(m_totalEndCapCPull));
 
     if (m_doTrigger == true) {
-      trackTrigger = new TH1I("trackTriggers", "Tracks for different trigger types", N_TRIGGER_TYPES, -0.5, 7.5);            //
+      m_trackTrigger = new TH1I("trackTriggers", "Tracks for different trigger types", N_TRIGGER_TYPES, -0.5, 7.5);            //
                                                                                                                              // first
                                                                                                                              // bin,
                                                                                                                              // last
                                                                                                                              // bin
-      trackTriggerRate = new TProfile("trackTriggersRate", "Track per event for different trigger types",
+      m_trackTriggerRate = new TProfile("trackTriggersRate", "Track per event for different trigger types",
                                       N_TRIGGER_TYPES, -0.5, 7.5);            // first bin, last bin
       for (int trig(0); trig != N_TRIGGER_TYPES; ++trig) {
-        trackTrigger->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
-        trackTriggerRate->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
+        m_trackTrigger->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
+        m_trackTriggerRate->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
       }
-      CHECK(Tracks.regHist(trackTrigger));
-      CHECK(Tracks.regHist(trackTriggerRate));
+      CHECK(Tracks.regHist(m_trackTrigger));
+      CHECK(Tracks.regHist(m_trackTriggerRate));
     }
     // Book histogram of track rate for different regions of the detector
     m_trackRate = new TProfile("SCTTrackRate", "Track per event for SCT regions", 3, 0.0, 3.0);
@@ -849,8 +849,8 @@ SCTTracksMonTool::bookGeneralHistos() {                                        /
       m_nTracks->GetYaxis()->SetTitle("Num of Tracks");
       size_t nTracks_buf_size;
       nTracks_buf_size = m_evtsbins * sizeof(int);
-      nTracks_buf = (int *) malloc(nTracks_buf_size);
-      nTracks_pos = 0;
+      m_nTracks_buf = (int *) malloc(nTracks_buf_size);
+      m_nTracks_pos = 0;
       CHECK(Tracks.regHist(m_nTracks));
     }
   }                               // hidetoshi 14.01.22

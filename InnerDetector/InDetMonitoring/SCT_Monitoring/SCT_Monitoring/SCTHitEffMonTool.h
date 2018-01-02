@@ -94,7 +94,7 @@ private:
 
   StatusCode initialize();
 
-  const InDetDD::SCT_DetectorManager * mgr;
+  const InDetDD::SCT_DetectorManager * m_mgr;
 
   /** Method to cut on track or hit variables and automatize DEBUG statements */
   StatusCode failCut (Bool_t value, std::string name);
