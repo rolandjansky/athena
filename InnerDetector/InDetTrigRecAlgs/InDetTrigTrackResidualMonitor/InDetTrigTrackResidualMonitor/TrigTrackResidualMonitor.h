@@ -109,7 +109,6 @@ namespace InDet
     
     const PixelID*           m_idHelperPixel;
     const SCT_ID*            m_idHelperSCT;
-    const InDetDD::SCT_DetectorManager*   m_SCT_Mgr;
     
  
     
