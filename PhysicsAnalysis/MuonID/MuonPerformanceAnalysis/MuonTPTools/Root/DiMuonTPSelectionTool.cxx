@@ -145,7 +145,7 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
     else if (m_TruthMatchedProbe){
         FillCutFlows("Trigger",evtWeight);
         have_tag = true;
-        for(auto & probe : *probes) {
+        for(const xAOD::IParticle* probe : *probes) {
 
             FillCutFlows("TagCandidates",evtWeight);
             FillCutFlows("TagQuality",evtWeight);
@@ -159,7 +159,7 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
             FillCutFlows("TagIsolation",evtWeight);
 
             // Add trigger matching info
-            xAOD::Muon* probemu = dynamic_cast<xAOD::Muon*> (probe);
+            const xAOD::Muon* probemu = dynamic_cast<const xAOD::Muon*> (probe);
             if(probemu) {
                 this->TagTriggerMatch(probemu);
                 this->TagTriggerMatch_RerunMode(probemu);
@@ -278,12 +278,12 @@ ProbeContainer* DiMuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* t
                 // remove the probe track matched to the tag
                 if(isTag(tag, probe)) continue;
                 // ID hits
-                xAOD::Muon* probemu = dynamic_cast<xAOD::Muon*> (probe);
+                const xAOD::Muon* probemu = dynamic_cast<const xAOD::Muon*> (probe);
                 if (m_probe_ID_hits && probemu) {
                     if (!m_selection_tool->passedIDCuts(*probemu)) continue;
                 }
                 if (m_IDProbe && m_probe_ID_hits){
-                    xAOD::TrackParticle *trk = dynamic_cast<xAOD::TrackParticle*>(probe);
+                    const xAOD::TrackParticle *trk = dynamic_cast<const xAOD::TrackParticle*>(probe);
                     if (!m_selection_tool->passedIDCuts(*trk)) continue;
                 }
                 FillCutFlows("ProbeQuality",evtWeight);
