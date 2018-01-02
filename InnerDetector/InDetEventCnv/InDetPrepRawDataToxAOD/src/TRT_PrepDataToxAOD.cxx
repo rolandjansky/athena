@@ -100,8 +100,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
 {
   //This is needed for the algorithm. If not there, it fails
 
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtPrds(m_driftcirclecontainer);
-  if (not m_trtPrds.isValid()) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> h_trtPrds(m_driftcirclecontainer);
+  if (not h_trtPrds.isValid()) {
     ATH_MSG_ERROR("Cannot retrieve TRT PrepDataContainer " << m_driftcirclecontainer.key());
     return StatusCode::FAILURE;
   }
@@ -111,12 +111,12 @@ StatusCode TRT_PrepDataToxAOD::execute()
 
   const PRD_MultiTruthCollection* prdmtColl = 0; // to be used in the loop later
   if (m_useTruthInfo && (!m_multiTruth.key().empty())  ) {
-    SG::ReadHandle<PRD_MultiTruthCollection> m_prdmtColl(m_multiTruth);
-    if (not m_prdmtColl.isValid()){
+    SG::ReadHandle<PRD_MultiTruthCollection> h_prdmtColl(m_multiTruth);
+    if (not h_prdmtColl.isValid()){
       if (m_firstEventWarnings) {
 	ATH_MSG_WARNING("PRD MultiTruth collection not available (" << m_multiTruth.key() << "). Skipping this info although requested.");}
     } else {
-      prdmtColl = m_prdmtColl.cptr();
+      prdmtColl = h_prdmtColl.cptr();
     }
   }
 
@@ -125,12 +125,12 @@ StatusCode TRT_PrepDataToxAOD::execute()
 
   const InDetSimDataCollection* sdoCollection = 0; // to be used in the loop later
   if (m_writeSDOs && m_useTruthInfo && (!m_SDOcontainer.key().empty()) ) {
-    SG::ReadHandle<InDetSimDataCollection> m_sdoCollection(m_SDOcontainer);
-    if (not m_sdoCollection.isValid()) {
+    SG::ReadHandle<InDetSimDataCollection> h_sdoCollection(m_SDOcontainer);
+    if (not h_sdoCollection.isValid()) {
       if (m_firstEventWarnings){
 	ATH_MSG_WARNING("SDO Collection not available (" << m_SDOcontainer.key() << "). Skipping this info although requested.");}
     } else{
-      sdoCollection = m_sdoCollection.cptr();
+      sdoCollection = h_sdoCollection.cptr();
     }
   }
 
@@ -142,8 +142,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
   SG::WriteHandle<std::vector<unsigned int>> offsets(m_xAodOffset);
   ATH_CHECK(offsets.record(std::make_unique<std::vector<unsigned int>>(m_TRTHelper->straw_layer_hash_max() , 0)  ));
   
-  InDet::TRT_DriftCircleContainer::const_iterator it = m_trtPrds->begin();
-  InDet::TRT_DriftCircleContainer::const_iterator it_end = m_trtPrds->end();
+  InDet::TRT_DriftCircleContainer::const_iterator it = h_trtPrds->begin();
+  InDet::TRT_DriftCircleContainer::const_iterator it_end = h_trtPrds->end();
   unsigned int counter(0);
   for( ; it!=it_end; ++it ) {
 
