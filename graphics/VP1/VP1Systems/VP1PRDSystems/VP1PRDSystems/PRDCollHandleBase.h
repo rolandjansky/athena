@@ -87,7 +87,7 @@ private slots:
   void detailComboBoxItemChanged();
 
 protected:
-  virtual PRDHandleBase* addPRD(Trk::PrepRawData*) = 0;//Return pointer to the handle. Base class (this) will own it.
+  virtual PRDHandleBase* addPRD(const Trk::PrepRawData*) = 0;//Return pointer to the handle. Base class (this) will own it.
 
   virtual DETAIL defaultDetailLevel() const { return AUTO; }
   //Use to loop over prds in derived classes:

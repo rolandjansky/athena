@@ -24,7 +24,7 @@ public slots:
   void setProjectionMode( bool );
 
 protected:
-  PRDHandleBase * addPRD(Trk::PrepRawData*);
+  virtual PRDHandleBase * addPRD(const Trk::PrepRawData*) override;
   bool cut(PRDHandleBase*) { return true; }//accept all
   void setupSettingsFromControllerSpecific(PRDSystemController*);
   float lodArea() const { return 1000.0f*1000.0f; }

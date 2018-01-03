@@ -57,10 +57,10 @@ void PRDCollHandle_RPC::setupSettingsFromControllerSpecific(PRDSystemController*
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_RPC::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_RPC::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<Muon::RpcPrepData*>(prd));
-  return new PRDHandle_RPC(this,static_cast<Muon::RpcPrepData*>(prd));
+  assert(dynamic_cast<const Muon::RpcPrepData*>(prd));
+  return new PRDHandle_RPC(this,static_cast<const Muon::RpcPrepData*>(prd));
 }
 
 //____________________________________________________________________
