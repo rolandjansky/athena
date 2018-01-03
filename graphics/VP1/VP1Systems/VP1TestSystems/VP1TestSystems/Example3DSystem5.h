@@ -43,7 +43,7 @@ private slots:
   void updateSelectionMode( bool single );
 
 private:
-  std::map<SoNode*,Trk::Track *> m_nodeToTrack;
+  std::map<SoNode*,const Trk::Track *> m_nodeToTrack;
   std::map<SoSwitch*,double> m_switchToPt;
   double m_ptcut;
   SoCooperativeSelection * m_multiselection;
