@@ -170,7 +170,7 @@ StatusCode ALFA_GloRec::initialize() {
 	msg(MSG::DEBUG) << "======================================" << endmsg;
 	msg(MSG::DEBUG) << "ALFA_GloRec::initialize  - data type  " << endmsg;
 	msg(MSG::DEBUG) << "======================================" << endmsg;
-	msg(MSG::DEBUG) << "DataType = " << m_iDataType << endl;
+	msg(MSG::DEBUG) << "DataType = " << m_iDataType << endmsg;
 
 	TString l_strtmp(m_strTrackPathPatterns);
   	m_TObjArrTrackPathPatterns.Clear();
