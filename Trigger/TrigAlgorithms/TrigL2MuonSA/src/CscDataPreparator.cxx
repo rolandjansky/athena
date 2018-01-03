@@ -46,7 +46,6 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 
    declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
    declareProperty("CscClusterProvider",  m_cscClusterProvider);
-   declareProperty("CSCPrepDataContainer", m_cscPrepContainerKey = std::string("CSC_Clusters"), "CSC_Clusters to read in");
 }
 
 // --------------------------------------------------------------------------------

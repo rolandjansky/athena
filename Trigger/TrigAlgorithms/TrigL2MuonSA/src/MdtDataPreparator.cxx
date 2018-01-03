@@ -68,8 +68,6 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
 
    declareProperty("MDT_RawDataProvider", m_mdtRawDataProvider);
    declareProperty("MdtPrepDataProvider", m_mdtPrepDataProvider);
-   declareProperty("MDTCSMContainer", m_mdtCsmContainerKey = std::string("MDTCSM"), "MDTCSM to read in");
-   declareProperty("MDTPrepDataContainer", m_mdtPrepContainerKey = std::string("MDT_DriftCircles"), "MDT_DriftCircles to read in");
 }
 
 // --------------------------------------------------------------------------------

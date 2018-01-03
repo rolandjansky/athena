@@ -50,7 +50,6 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
 {
    declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
    declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
-   declareProperty("RpcPrepDataContainer", m_rpcPrepContainerKey = std::string("RPC_Measurements"), "RPC_Measurements to read in");
 }
 
 // --------------------------------------------------------------------------------

@@ -40,8 +40,6 @@ Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
-  declareProperty("RdoLocation", m_containerKey);
- 
 }
 
 //================ Destructor =================================================

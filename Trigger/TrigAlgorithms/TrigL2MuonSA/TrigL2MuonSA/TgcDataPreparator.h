@@ -119,7 +119,8 @@ class TgcDataPreparator: public AthAlgTool
       // utils
       TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
 
-      SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcContainerKey;
+      SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcContainerKey{
+	this, "TGCPrepDataContainer", "TGC_Measurements", "Name of the TGCContainer to read in"};
 
       bool m_use_RoIBasedDataAccess;
 };

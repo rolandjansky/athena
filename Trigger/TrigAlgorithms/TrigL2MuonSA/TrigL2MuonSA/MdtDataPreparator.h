@@ -153,8 +153,10 @@ namespace TrigL2MuonSA {
     // handles to data access
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
 
-    SG::ReadHandleKey<MdtCsmContainer> m_mdtCsmContainerKey;
-    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepContainerKey;
+    SG::ReadHandleKey<MdtCsmContainer> m_mdtCsmContainerKey{
+	this, "MDTCSMContainer", "MDTCSM", "Name of the MDTRDO to read in"};
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepContainerKey{
+	this, "MDTPrepDataContainer","MDT_DriftCircles", "Name of the MDTContainer to read in"};
 
     bool m_use_mdtcsm;
     bool m_use_RoIBasedDataAccess;

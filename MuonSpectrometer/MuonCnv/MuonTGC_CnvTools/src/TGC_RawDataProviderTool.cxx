@@ -37,7 +37,6 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
-  declareProperty("RdoLocation", m_rdoContainerKey);
 }
 
 //================ Destructor =================================================

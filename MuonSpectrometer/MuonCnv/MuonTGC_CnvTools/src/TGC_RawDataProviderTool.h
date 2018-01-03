@@ -69,7 +69,8 @@ namespace Muon
        */
       //TgcRdoContainer*                    m_rdoContainer;
       /** RDO container key */
-      SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey;	//MT
+      SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{
+	this, "RdoLocation", "TGCRDO", "Name of the TGCRDO produced by RawDataProvider"};	//MT
       bool 		m_useContainer;	//MT
       unsigned int 	m_maxhashtoUse;	//MT
       /** Active Store Service */ 

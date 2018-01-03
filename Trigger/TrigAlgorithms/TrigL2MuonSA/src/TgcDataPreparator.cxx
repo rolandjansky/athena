@@ -51,7 +51,6 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
    declareInterface<TrigL2MuonSA::TgcDataPreparator>(this);
    declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
    declareProperty("TGC_RawDataProvider", m_tgcRawDataProvider);
-   declareProperty("TGCPrepDataContainer", m_tgcContainerKey = std::string("TGC_Measurements"), "TGC_Measurements to read in");
 }
 
 

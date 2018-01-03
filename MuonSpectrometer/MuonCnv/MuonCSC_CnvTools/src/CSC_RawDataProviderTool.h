@@ -58,7 +58,8 @@ private:
 
   const MuonGM::MuonDetectorManager*  m_muonMgr;
 
-  SG::WriteHandleKey<CscRawDataContainer> m_containerKey;
+  SG::WriteHandleKey<CscRawDataContainer> m_containerKey{
+     this, "RdoLocation", "CSCRDO", "Name of the CSCRDO produced by RawDataProvider"};
   std::set<uint32_t>                  m_robIdSet;
   CSC_Hid2RESrcID                     m_hid2re;
 
