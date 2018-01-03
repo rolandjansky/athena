@@ -465,10 +465,7 @@ const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(const Trk::Track& trac
 	}
 
 	// add new holes
-	for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = holes->begin();
-	     it != holes->end(); ++it) {
-		tsos->push_back(*it);
-	}
+        tsos->insert (tsos->end(), holes->begin(), holes->end());
 
 	// sort
 	const Trk::TrackParameters* perigee = track.perigeeParameters();
