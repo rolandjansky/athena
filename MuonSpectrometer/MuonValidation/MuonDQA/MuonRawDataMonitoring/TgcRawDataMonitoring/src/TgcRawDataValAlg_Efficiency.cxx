@@ -376,14 +376,14 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 StatusCode
 TgcRawDataValAlg::fillEfficiency(){
 
-  vector<double> LptEta[2][2];//[ws][ac]        Eta associated lpt
-  vector<double> LptPhi[2][2];//[ws][ac]        Phi associated lpt
+  std::vector<double> LptEta[2][2];//[ws][ac]        Eta associated lpt
+  std::vector<double> LptPhi[2][2];//[ws][ac]        Phi associated lpt
 
-  vector<double> EIFIEta[2][2];//[ws][ac]        Eta associated lpt
-  vector<double> EIFIPhi[2][2];//[ws][ac]        Phi associated lpt
+  std::vector<double> EIFIEta[2][2];//[ws][ac]        Eta associated lpt
+  std::vector<double> EIFIPhi[2][2];//[ws][ac]        Phi associated lpt
 
-  //vector<double> MDTSegmentEta[2][3];//[ac][IMO]
-  //vector<double> CSCSegmentEta[2][3];//[ac][IMO]
+  //std::vector<double> MDTSegmentEta[2][3];//[ac][IMO]
+  //std::vector<double> CSCSegmentEta[2][3];//[ac][IMO]
 
   // Retrieve current coincidence container from storegate
   const Muon::TgcCoinDataContainer* tgc_trg_container(0);
