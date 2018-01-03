@@ -172,17 +172,17 @@ namespace JiveXML {
         LVL1_ROI::energysums_type::const_iterator itES  = (roi->getEnergySumROIs()).begin();
         LVL1_ROI::energysums_type::const_iterator itESe = (roi->getEnergySumROIs()).end();
         for (; itES != itESe; ++itES){
-	  float m_Et = itES->getEnergyT()/CLHEP::GeV;
-	  float m_Ex = itES->getEnergyX()/CLHEP::GeV;
-	  float m_Ey = itES->getEnergyY()/CLHEP::GeV;
-	  energySumEtVec.push_back(DataType( m_Et ) );
-	  energyExVec.push_back(DataType( m_Ex ) );
-	  energyEyVec.push_back(DataType( m_Ey ) );
-	  float m_EtMiss = static_cast<long>(sqrt(static_cast<double>(m_Ex*m_Ex + m_Ey*m_Ey)));
-	  energyEtMissVec.push_back(DataType( m_EtMiss ) );
+	  float Et = itES->getEnergyT()/CLHEP::GeV;
+	  float Ex = itES->getEnergyX()/CLHEP::GeV;
+	  float Ey = itES->getEnergyY()/CLHEP::GeV;
+	  energySumEtVec.push_back(DataType( Et ) );
+	  energyExVec.push_back(DataType( Ex ) );
+	  energyEyVec.push_back(DataType( Ey ) );
+	  float EtMiss = static_cast<long>(sqrt(static_cast<double>(Ex*Ex + Ey*Ey)));
+	  energyEtMissVec.push_back(DataType( EtMiss ) );
 
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "EnergySum from LVL1_ROI: X:" << m_Ex << ", Y:"
-	      << m_Ey << ", T:" << m_Et << ", ETMiss:" << m_EtMiss << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "EnergySum from LVL1_ROI: X:" << Ex << ", Y:"
+	      << Ey << ", T:" << Et << ", ETMiss:" << EtMiss << endmsg;
         }
       }else{ // empty container
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TriggerInfo: LVL1_ROI for EnergySum empty !" << endmsg;
