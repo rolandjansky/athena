@@ -33,7 +33,7 @@ atlas_add_library( LumiBlockCoolQuery
                    PUBLIC_HEADERS LumiCalc
                    INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel xAODLuminosity LumiBlockData GoodRunsListsLib
-                   PRIVATE_LINK_LIBRARIES DataModelRoot StorageSvc DBDataModel )
+                   PRIVATE_LINK_LIBRARIES DataModelRoot CollectionBase DBDataModel )
 
 atlas_add_executable( iLumiCalc
                       src/iLumiCalc.cxx
@@ -43,7 +43,7 @@ atlas_add_executable( iLumiCalc
                       src/LumiCalculator.cxx
                       src/ReplicaSorter.cxx
                       INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GoodRunsListsLib xAODLuminosity LumiBlockData DataModelRoot StorageSvc DBDataModel LumiBlockCoolQuery )
+                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GoodRunsListsLib xAODLuminosity LumiBlockData DataModelRoot CollectionBase DBDataModel LumiBlockCoolQuery )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
