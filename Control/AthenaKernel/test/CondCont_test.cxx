@@ -84,7 +84,7 @@ void fillit (CondCont<T>& cc, std::vector<T*> & ptrs)
   assert (cc.proxy() == nullptr);
   std::ostringstream ss1;
   cc.list (ss1);
-  assert (ss1.str() == "id: ('key')  proxy: 0\n\
+  assert (ss1.str() == "id: 'key'  proxy: 0\n\
 clock: [0]\n\
 RE: [0]\n");
 
@@ -101,7 +101,7 @@ RE: [0]\n");
   std::ostringstream ss2;
   cc.list (ss2);
   std::ostringstream exp2;
-  exp2 << "id: ('key')  proxy: 0\n"
+  exp2 << "id: 'key'  proxy: 0\n"
        << "clock: [1]\n"
        << "{[4294967295,t:123] - [4294967295,t:456]} " << ptrs[2] << "\n"
        << "RE: [2]\n"

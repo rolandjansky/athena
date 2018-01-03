@@ -1,22 +1,28 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/DataPool_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/AthAllocators/share/../share/DataPool_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/work/v30r1.002/src/Control/AthAllocators/share/../share/DataPool_test.txt
 JobOptionsSvc        INFO # (6,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (8,1): ApplicationMgr.ExtSvc += ["IncidentSvc", "ChronoStatSvc", "AuditorSvc"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/DataPool_test.txt
+MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
-                                          running on lxplus020.cern.ch on Mon Dec 11 13:11:58 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on zeus on Tue Jan  2 15:55:24 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
+ServiceManager      DEBUG Initializing service IncidentSvc
 IncidentSvc         DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service ChronoStatSvc
 ChronoStatSvc       DEBUG Service base class initialized successfully
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+ServiceManager      DEBUG Initializing service AuditorSvc
 AuditorSvc          DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service AppMgrRunable
 AppMgrRunable       DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service EventLoopMgr
 EventLoopMgr        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
 EventDataSvc        DEBUG Service base class initialized successfully
