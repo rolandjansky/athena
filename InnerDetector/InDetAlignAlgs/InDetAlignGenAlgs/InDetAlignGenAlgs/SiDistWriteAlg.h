@@ -28,10 +28,10 @@ private:
   const SCT_ID* m_sctid;
   bool m_first; // first event flag
   // parameters
-  bool par_print; // flag to print out information 
-  int par_size; // size of distortion array
-  std::string par_readfile; // text file to read for information
-  std::string par_distkey; // SG key for distortion information
+  bool m_par_print; // flag to print out information 
+  int m_par_size; // size of distortion array
+  std::string m_par_readfile; // text file to read for information
+  std::string m_par_distkey; // SG key for distortion information
 
   // private methods
   bool readFile();
