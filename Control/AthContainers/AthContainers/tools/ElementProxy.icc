@@ -18,9 +18,6 @@
 namespace DataModel_detail {
 
 
-#ifndef __GCCXML__
-
-
 /**
  * @brief Constructor.
  * @param i The underlying container iterator pointing at
@@ -79,8 +76,6 @@ ElementProxy<DVL>& ElementProxy<DVL>::operator= (typename DVL::value_type rhs)
 }
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
 /**
  * @brief Assignment operator, from a pointer.
  * @param rhs The pointer from which we're assigning.
@@ -98,8 +93,6 @@ ElementProxy<DVL>::operator= (std::unique_ptr<typename DVL::base_value_type> rhs
     m_container->assignElement(m_proxied, std::move(rhs));
   return *this;
 }
-#endif
-#endif
 
 
 /**
@@ -148,9 +141,6 @@ const DVL* ElementProxy<DVL>::container() const
 {
   return m_container;
 }
-
-
-#endif // not __GCCXML__
 
 
 } // namespace DataModel_detail

@@ -271,7 +271,7 @@ void resortAux (ForwardIterator beg,
  * Aux data case.
  */
 template <class DVL>
-void resortAux1 (const SG_STD_OR_BOOST::true_type&,
+void resortAux1 (const std::true_type&,
                  typename DataModel_detail::iterator<DVL> beg,
                  typename DataModel_detail::iterator<DVL> end)
 {
@@ -291,7 +291,7 @@ void resortAux1 (const SG_STD_OR_BOOST::true_type&,
  * Aux data case with reverse iterators.
  */
 template <class DVL>
-void resortAux1 (const SG_STD_OR_BOOST::true_type&,
+void resortAux1 (const std::true_type&,
                  typename std::reverse_iterator<typename DataModel_detail::iterator<DVL> > beg,
                  typename std::reverse_iterator<typename DataModel_detail::iterator<DVL> > end)
 {
@@ -312,7 +312,7 @@ void resortAux1 (const SG_STD_OR_BOOST::true_type&,
  */
 template <class ForwardIterator>
 inline
-void resortAux1 (const SG_STD_OR_BOOST::false_type&,
+void resortAux1 (const std::false_type&,
                  ForwardIterator,
                  ForwardIterator)
 {

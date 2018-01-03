@@ -256,9 +256,6 @@ AuxVectorData::getDecoration (SG::auxid_t auxid, size_t ndx) const
 
 
 
-#ifndef __GCCXML__
-
-
 /**
  * @brief Return a pointer to the start of an aux data vector.
  * @param auxid The desired aux data item.
@@ -328,9 +325,6 @@ void* AuxVectorData::getDecorationArray (SG::auxid_t auxid) const
 }
 
 
-#endif // not __GCCXML__
-
-
 /**
  * @brief Swap this instance with another.
  * @param other The other instance with which to swap.
@@ -382,9 +376,6 @@ void* AuxVectorData::Cache::cachePtr (SG::auxid_t auxid)
   // Return the cache entry.
   return m_cache[m_cache_len&1][auxid];
 }
-
-
-#ifndef __GCCXML__
 
 
 /**
@@ -516,9 +507,6 @@ void* AuxVectorData::Cache::getDecorationArray (SG::auxid_t auxid,
   }
   return ptr;
 }
-
-
-#endif // not __GCCXML__
 
 
 /**

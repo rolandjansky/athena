@@ -396,12 +396,8 @@ private:
   /// Record which variables are decorations.
   std::vector<bool> m_isDecoration;
 
-  // Hide this from root --- otherwise we get errors about the dictionary
-  // for this guy's allocator.
-#ifndef __REFLEX__
   /// Set of @c auxid's for which we've created a vector.
   SG::auxid_set_t m_auxids;
-#endif
 
   /// Count changes to @c m_auxids.
   size_t m_tick;

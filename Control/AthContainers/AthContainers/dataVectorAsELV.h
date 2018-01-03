@@ -35,7 +35,7 @@ namespace SG {
  * Handle the case of a view vector with elements deriving from AuxElement.
  */
 template <class DV>
-void dataVectorViewAsELV (const SG_STD_OR_BOOST::true_type&,
+void dataVectorViewAsELV (const std::true_type&,
                           const DV& v,
                           std::vector<ElementLink<DV> >& ret,
                           IProxyDict* store)
@@ -63,7 +63,7 @@ void dataVectorViewAsELV (const SG_STD_OR_BOOST::true_type&,
  * (just throw an exception).
  */
 template <class DV>
-void dataVectorViewAsELV (const SG_STD_OR_BOOST::false_type&,
+void dataVectorViewAsELV (const std::false_type&,
                           const DV&,
                           std::vector<ElementLink<DV> >&,
                           IProxyDict*)

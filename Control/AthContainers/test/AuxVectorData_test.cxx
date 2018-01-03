@@ -232,7 +232,6 @@ void test_move()
 {
   std::cout << "test_move\n";
 
-#if __cplusplus > 201100
   AuxVectorData_test b1;
   SG::AuxStoreInternal store;
   b1.setStore (&store);
@@ -259,7 +258,6 @@ void test_move()
   assert (b3.getStore() == &store);
   assert (b3.getData<int> (ityp, 0) == 1);
   assert (b3.getData<int> (ityp, 1) == 2);
-#endif
 }
 
 
