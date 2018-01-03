@@ -12,6 +12,7 @@
 
 #ifdef ROOTCORE
 #include "xAODRootAccess/TEvent.h"
+#include <xAODRootAccess/TStore.h>
 #else
 #include "POOLRootAccess/TEvent.h"
 #endif
@@ -27,6 +28,7 @@ int main() {
 
 #ifdef ROOTCORE
   xAOD::TEvent evt( xAOD::TEvent::kAthenaAccess );
+  xAOD::TStore store;
 #else
   POOL::TEvent evt( POOL::TEvent::kAthenaAccess );
 #endif
