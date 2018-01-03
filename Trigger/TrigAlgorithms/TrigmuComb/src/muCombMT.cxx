@@ -96,7 +96,7 @@ int muCombMT::drptMatch(double pt, double eta, double phi, double id_pt, double 
    if (algo < 1 || algo > 4) {
       ATH_MSG_DEBUG(" muComb::drptMatch wrong algo parameter, it is: " << algo
             << " while must be in the range [1,4], match failed!!!" );
-      return 0;
+      return 1;
    }
 
    double winDR = m_winDR;
