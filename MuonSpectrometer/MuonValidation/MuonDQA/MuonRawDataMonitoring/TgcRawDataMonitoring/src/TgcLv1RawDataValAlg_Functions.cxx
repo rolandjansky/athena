@@ -41,7 +41,7 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 // RoI Eta&Phi extractor function
 void
-TgcLv1RawDataValAlg::roi2etaphi(Muon::TgcCoinData& cd, int& etaroi, int& phiroi){
+TgcLv1RawDataValAlg::roi2etaphi(const Muon::TgcCoinData& cd, int& etaroi, int& phiroi){
   int roi=cd.roi();//[0:147]([0:63])
   //int localeta=roi/4;
 

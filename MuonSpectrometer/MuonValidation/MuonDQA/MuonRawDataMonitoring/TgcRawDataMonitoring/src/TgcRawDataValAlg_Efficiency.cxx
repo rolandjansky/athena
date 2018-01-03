@@ -402,7 +402,7 @@ TgcRawDataValAlg::fillEfficiency(){
     for( Muon::TgcCoinDataCollection::const_iterator itc=(*it)->begin();
          itc!= itc_end;
          ++itc){
-      Muon::TgcCoinData* tcd=*itc;
+      const Muon::TgcCoinData* tcd=*itc;
       
       // Only interested in LpT coincidences
       if( tcd->type() == Muon::TgcCoinData::TYPE_TRACKLET ){
