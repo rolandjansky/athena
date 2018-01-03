@@ -292,7 +292,7 @@ void MuonGMTestOnPrd::processMdtCollection(const Muon::MdtPrepDataCollection* md
         ATH_MSG_ERROR("Impossible to retrieve MdtDetectorElement for collection with hashId = "<<(int)collidh );
         return;
     }
-    for (Muon::MdtPrepData *mdtPrepDatum : *mdtColl)
+    for (const Muon::MdtPrepData *mdtPrepDatum : *mdtColl)
     {
         Identifier idchannel = mdtPrepDatum->identify();
 
@@ -309,7 +309,7 @@ void MuonGMTestOnPrd::processMdtCollectionOld(const Muon::MdtPrepDataCollection*
                                               Identifier& collid,
                                               IdentifierHash& /*collidh*/) const 
 {
-    for (Muon::MdtPrepData *mdtPrepDatum : *mdtColl)
+    for (const Muon::MdtPrepData *mdtPrepDatum : *mdtColl)
     {
         Identifier idchannel = mdtPrepDatum->identify();
 
