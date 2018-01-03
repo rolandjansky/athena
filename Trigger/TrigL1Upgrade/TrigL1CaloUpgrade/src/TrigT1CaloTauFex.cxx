@@ -303,16 +303,16 @@ void TrigT1CaloTauFex::IsolationCorett(const std::vector<const CaloCell*>& scell
         bool pres = true;
         // use maps (only barrel)
         if (maps) {
-          int m_phiBin(64), m_etaBin(54);
-          std::vector<int> m_map;
-          for(int i=0;i<(m_etaBin*m_phiBin);i++) m_map.push_back(-1);
-          float m_phiBin_size(2.*TMath::Pi()/m_phiBin), m_etaBin_size(0.1);
+          int nPhiBin(64), nEtaBin(54);
+          std::vector<int> map;
+          for(int i=0;i<(nEtaBin*nPhiBin);i++) map.push_back(-1);
+          float phiBin_size(2.*TMath::Pi()/nPhiBin), etaBin_size(0.1);
           etacell +=2.5;
           phicell +=TMath::Pi();
-          int m_eta_bin = (int) (etacell/m_etaBin_size);
-          int m_phi_bin = (int) (phicell/m_phiBin_size);
-          if(m_eta_bin*m_phiBin+m_phi_bin>(m_etaBin*m_phiBin)) {std::cout << "bin outside map!! "<< m_eta_bin << "," << m_phi_bin<<std::endl;return;}
-          if(m_map.at(m_eta_bin*m_phiBin+m_phi_bin)==-1) {m_map.at(m_eta_bin*m_phiBin+m_phi_bin) = 2;}
+          int eta_bin = (int) (etacell/etaBin_size);
+          int phi_bin = (int) (phicell/phiBin_size);
+          if(eta_bin*nPhiBin+phi_bin>(nEtaBin*nPhiBin)) {std::cout << "bin outside map!! "<< eta_bin << "," << phi_bin<<std::endl;return;}
+          if(map.at(eta_bin*nPhiBin+phi_bin)==-1) {map.at(eta_bin*nPhiBin+phi_bin) = 2;}
           else return;
         }
         // use coordinates of pre-sampler
