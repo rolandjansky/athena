@@ -11,10 +11,9 @@
  */
 
 #include "GaudiKernel/MsgStream.h"
+#include "TrigFTKByteStream/IFTKByteStreamDecoderEncoderTool.h"
 #include "FTKByteStreamDecoderEncoder.h"
 #include "AthenaBaseComps/AthMessaging.h"
-
-static const InterfaceID IID_FTKByteStreamDecoderEncoderTool("FTK::FTKByteStreamDecoderEncoderTool", 1, 0);
 
 using namespace FTKByteStreamDecoderEncoder;
 
@@ -39,14 +38,9 @@ namespace FTK {
       m_doHeader(false),
       m_doTrailer(false)
   {
-    declareInterface< FTK::FTKByteStreamDecoderEncoderTool  >( this );
+    declareInterface< IFTKByteStreamDecoderEncoderTool  >( this );
     declareProperty("doHeader", m_doHeader);
     declareProperty("doTrailer", m_doTrailer);
-  }
-
-  const InterfaceID& FTKByteStreamDecoderEncoderTool::interfaceID( )
-  {
-    return IID_FTKByteStreamDecoderEncoderTool;
   }
 
   FTKByteStreamDecoderEncoderTool::~FTKByteStreamDecoderEncoderTool(){;}
@@ -261,10 +255,12 @@ namespace FTK {
   }  
 
 
-  StatusCode FTKByteStreamDecoderEncoderTool::decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
+  StatusCode FTKByteStreamDecoderEncoderTool::decode(const uint32_t nDataWords, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
     
     ATH_MSG_DEBUG("rodData: " << rodData);
 
+    uint32_t nTracks = nDataWords / TrackBlobSize;
+    
     if (m_doHeader){
       unpackHeader(rodData);
     }
