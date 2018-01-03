@@ -8,8 +8,6 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
 typedef struct _TDHIT
 {
 	int iEvent;
@@ -84,7 +82,7 @@ typedef struct _SIDRESULT
 	float y_slope;
 	float z_slope;
 	
-	vector<int> ListHitID;
+        std::vector<int> ListHitID;
 	
 	float nHits;
 	float nHoles;

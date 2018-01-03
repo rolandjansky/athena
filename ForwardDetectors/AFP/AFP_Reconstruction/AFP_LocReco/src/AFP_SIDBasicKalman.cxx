@@ -46,7 +46,7 @@ AFP_SIDBasicKalman::~AFP_SIDBasicKalman()
 	m_listResults.clear();
 }
 
-StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const list<SIDHIT> &ListSIDHits, Float_t fsSID[SIDSTATIONID][SIDCNT], Float_t fxSID[SIDSTATIONID][SIDCNT], Float_t fySID[SIDSTATIONID][SIDCNT], Float_t fzSID[SIDSTATIONID][SIDCNT])
+StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const std::list<SIDHIT> &ListSIDHits, Float_t fsSID[SIDSTATIONID][SIDCNT], Float_t fxSID[SIDSTATIONID][SIDCNT], Float_t fySID[SIDSTATIONID][SIDCNT], Float_t fzSID[SIDSTATIONID][SIDCNT])
 {
 
       	m_AmpThresh = (float)fAmpThresh;
@@ -99,7 +99,7 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 	}
 
 	// x-y-z map of hit pixels
-	list<SIDHIT>::const_iterator iter;
+        std::list<SIDHIT>::const_iterator iter;
 	for (iter=ListSIDHits.begin(); iter!=ListSIDHits.end(); iter++)
 	{
          	if ((*iter).fADC > m_AmpThresh)
@@ -160,7 +160,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDBasicKalman::Execute()");
 	
 //	/*
-	map<Int_t, SIDHITPOS>::const_iterator iter0;
+        std::map<Int_t, SIDHITPOS>::const_iterator iter0;
 	for (iter0=m_MapSIDHitPos.begin(); iter0!=m_MapSIDHitPos.end(); iter0++)
 	{
                 /*
@@ -183,7 +183,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	GetTrkSeeds();
 	////////////////////////
 
-	vector<SIDHITSEED>::const_iterator iter1;
+        std::vector<SIDHITSEED>::const_iterator iter1;
 	for (iter1= m_pTrkSeeds.begin(); iter1!= m_pTrkSeeds.end(); iter1++)
 	{
                  		
@@ -240,14 +240,14 @@ StatusCode AFP_SIDBasicKalman::Execute()
 
 		LogStream << MSG::DEBUG << "Found new track candidate with parameters:" << endmsg;
 		LogStream << MSG::DEBUG << "Hit ID's : ";
-		vector<Int_t>::const_iterator iter2;
+                std::vector<Int_t>::const_iterator iter2;
 		for (iter2= m_HID.begin(); iter2!= m_HID.end(); iter2++) LogStream << MSG::DEBUG << (*iter2) << "\t";
 		LogStream << endmsg;
 		
 		LogStream << MSG::DEBUG << "Filtered parameters : X, DX, Y, DY, chi2" << endmsg;
-		vector< CLHEP::HepVector >::const_iterator iter3;
-		vector< Float_t >::const_iterator iter4 = m_chik.begin();
-			LogStream << MSG::DEBUG << (*iter1).fSeedX << "\t" << (*iter1).fSeedDX << "\t" << (*iter1).fSeedY << "\t" << (*iter1).fSeedDY << "\t" << 0 << endmsg;
+                std::vector< CLHEP::HepVector >::const_iterator iter3;
+                std::vector< Float_t >::const_iterator iter4 = m_chik.begin();
+                LogStream << MSG::DEBUG << (*iter1).fSeedX << "\t" << (*iter1).fSeedDX << "\t" << (*iter1).fSeedY << "\t" << (*iter1).fSeedDY << "\t" << 0 << endmsg;
 		for (iter3=m_xk.begin(); iter3!= m_xk.end(); iter3++)
 		{
 			LogStream << MSG::DEBUG << (*iter3)[0] << "\t" << (*iter3)[1] << "\t" << (*iter3)[2] << "\t" << (*iter3)[3] << "\t" << (*iter4) << endmsg;
@@ -262,8 +262,8 @@ StatusCode AFP_SIDBasicKalman::Execute()
 		Float_t Chi2Sum = 0;
 		
 		LogStream << MSG::DEBUG << "Smoothed parameters : X, DX, Y, DY, chi2" << endmsg;
-		vector< CLHEP::HepVector >::const_reverse_iterator iter5;
-		vector< Float_t >::const_reverse_iterator iter6 = m_chikS.rbegin();
+                std::vector< CLHEP::HepVector >::const_reverse_iterator iter5;
+                std::vector< Float_t >::const_reverse_iterator iter6 = m_chikS.rbegin();
 		for (iter5=m_xkS.rbegin(); iter5!= m_xkS.rend(); ++iter5)
 		{				
 			LogStream << MSG::DEBUG << (*iter5)[0] << "\t" << (*iter5)[1] << "\t" << (*iter5)[2] << "\t" << (*iter5)[3] << "\t" << (*iter6) << endmsg;
@@ -299,7 +299,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	
 	if (m_listResults.size()!=0)
 	{
-		list<SIDRESULT>::const_iterator iter7;
+                std::list<SIDRESULT>::const_iterator iter7;
 		LogStream << MSG::INFO << "Filtered tracks parameters : X, DX, Y, DY, Z, quality: " << endmsg;
 		for (iter7=m_listResults.begin(); iter7!=m_listResults.end(); iter7++)
 		{
@@ -313,7 +313,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_SIDBasicKalman::Finalize(list<SIDRESULT>* pListResults)
+StatusCode AFP_SIDBasicKalman::Finalize(std::list<SIDRESULT>* pListResults)
 {
 	*pListResults = m_listResults;
 
@@ -322,7 +322,7 @@ StatusCode AFP_SIDBasicKalman::Finalize(list<SIDRESULT>* pListResults)
 	return StatusCode::SUCCESS;
 }
 
-void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPOS> &MapSIDHitPos)
+void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, std::map<Int_t, SIDHITPOS> &MapSIDHitPos)
 {
 	SIDHITPOS SIDHitPos;
 
@@ -347,12 +347,12 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 	Int_t HitID = nStID*1000000+nPlID*100000+nPixCol*100+nPixRow;
 	// Remove close hit pixel in X wrt signal amplitude
         // Actually do simple clustering
-	map<Int_t, SIDHITPOS>::iterator iter0 = MapSIDHitPos.find(HitID-100);
-	map<Int_t, SIDHITPOS>::iterator iter1 = MapSIDHitPos.find(HitID+100);
+        std::map<Int_t, SIDHITPOS>::iterator iter0 = MapSIDHitPos.find(HitID-100);
+        std::map<Int_t, SIDHITPOS>::iterator iter1 = MapSIDHitPos.find(HitID+100);
 	
 	if( iter0==MapSIDHitPos.end() && iter1==MapSIDHitPos.end())
 	{
-		MapSIDHitPos.insert(pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
+          MapSIDHitPos.insert(std::pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
 	}
 	
 	else if( iter0!=MapSIDHitPos.end() )
@@ -371,7 +371,7 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
                 SIDHitPos.fPixZ	/=SIDHitPos.fAmp;                
 
 		MapSIDHitPos.erase(iter0);
-		MapSIDHitPos.insert(pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
+		MapSIDHitPos.insert(std::pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
 //		}
 	}
 	
@@ -390,7 +390,7 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
        	       	SIDHitPos.fPixZ /=SIDHitPos.fAmp;
 
 		MapSIDHitPos.erase(iter1);
-		MapSIDHitPos.insert(pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
+		MapSIDHitPos.insert(std::pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
 //		}
 	}
 
@@ -398,10 +398,10 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 
 void AFP_SIDBasicKalman::GetTrkSeeds()
 {	
-	map<Int_t, SIDHITPOS> MapSIDHitPosSeed0;
-	map<Int_t, SIDHITPOS> MapSIDHitPosSeed1;
+        std::map<Int_t, SIDHITPOS> MapSIDHitPosSeed0;
+        std::map<Int_t, SIDHITPOS> MapSIDHitPosSeed1;
 
-	list<SIDHIT>::const_iterator iter;
+        std::list<SIDHIT>::const_iterator iter;
 	for (iter=m_ListSIDHits.begin(); iter!=m_ListSIDHits.end(); iter++)
 	{
 		if ((*iter).fADC > m_AmpThresh && (*iter).nDetectorID == 0)
@@ -416,8 +416,8 @@ void AFP_SIDBasicKalman::GetTrkSeeds()
 	}
 
 
-	map<Int_t, SIDHITPOS>::const_iterator iter0;
-	map<Int_t, SIDHITPOS>::const_iterator iter1;
+        std::map<Int_t, SIDHITPOS>::const_iterator iter0;
+        std::map<Int_t, SIDHITPOS>::const_iterator iter1;
 	for (iter0=MapSIDHitPosSeed0.begin(); iter0!=MapSIDHitPosSeed0.end(); iter0++)
 	{
 		for (iter1=MapSIDHitPosSeed1.begin(); iter1!=MapSIDHitPosSeed1.end(); iter1++)
@@ -477,7 +477,7 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t 
 	CLHEP::HepVector mi(2);
 	Float_t XYdist=100.*CLHEP::mm;
 	Int_t HitID=-1;
-	map<Int_t, SIDHITPOS>::const_iterator iter;
+        std::map<Int_t, SIDHITPOS>::const_iterator iter;
 	for (iter=m_MapSIDHitPos.begin(); iter!=m_MapSIDHitPos.end(); iter++)
 	{
 		if( (*iter).second.nStationID != SIDHitSeed.nStationID ) continue;
@@ -550,7 +550,7 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 	CLHEP::HepVector mi(2);
 	Float_t XYdist=100.*CLHEP::mm;
 	Int_t HitID=-1;
-	map<Int_t, SIDHITPOS>::const_iterator iter;
+	std::map<Int_t, SIDHITPOS>::const_iterator iter;
 	for (iter=m_MapSIDHitPos.begin(); iter!=m_MapSIDHitPos.end(); iter++)
 	{
 		if( (*iter).second.nStationID != stID ) continue;
@@ -709,8 +709,8 @@ void AFP_SIDBasicKalman::Smooth()
 void AFP_SIDBasicKalman::FilterTrkCollection()
 {
 	//filtering tracking collection using shared hits + quality requirement
-	list<SIDRESULT>::iterator iter1;
-	list<SIDRESULT>::iterator iter2;
+        std::list<SIDRESULT>::iterator iter1;
+        std::list<SIDRESULT>::iterator iter2;
 	for (iter1=m_listResults.begin(); iter1!=m_listResults.end(); iter1++)
 	{
 		for (iter2=m_listResults.begin(); iter2!=m_listResults.end(); )
@@ -736,12 +736,12 @@ void AFP_SIDBasicKalman::FilterTrkCollection()
 	
 }
 
-Int_t AFP_SIDBasicKalman::GetSharedHits(const vector<Int_t> &HID1, const vector<Int_t>  &HID2)
+Int_t AFP_SIDBasicKalman::GetSharedHits(const std::vector<Int_t> &HID1, const std::vector<Int_t>  &HID2)
 {
 	Int_t SharedHits = 0;
 	
-	vector<Int_t>::const_iterator iter1;
-	vector<Int_t>::const_iterator iter2;
+        std::vector<Int_t>::const_iterator iter1;
+        std::vector<Int_t>::const_iterator iter2;
 	
 	for (iter1=HID1.begin(); iter1!=HID1.end(); iter1++)
 	{

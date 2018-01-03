@@ -62,8 +62,6 @@
 #include "xAODForward/AFPTrackContainer.h"
 
 
-using namespace std;
-
 #define SIDSTATIONID 4
 
 class StoreGateSvc;
@@ -72,7 +70,7 @@ class ActiveStoreSvc;
 class AFP_SIDLocReco : public AthAlgorithm
 {
 	public:
-		AFP_SIDLocReco(const string& name, ISvcLocator* pSvcLocator);
+                AFP_SIDLocReco(const std::string& name, ISvcLocator* pSvcLocator);
 		~AFP_SIDLocReco();
 
 	private:
@@ -101,12 +99,12 @@ class AFP_SIDLocReco : public AthAlgorithm
 		Float_t m_fzSID[SIDSTATIONID][SIDCNT];
 
 
-		string m_strKeyGeometryForReco;
-		vector<string> m_vecListAlgoSID;
-		string m_strAlgoSID;
+                std::string m_strKeyGeometryForReco;
+                std::vector<std::string> m_vecListAlgoSID;
+                std::string m_strAlgoSID;
 	
-		string m_strKeySIDLocRecoEvCollection;
-		string m_strSIDCollectionName;
+                std::string m_strKeySIDLocRecoEvCollection;
+                std::string m_strSIDCollectionName;
 
 	public:
 		StatusCode initialize();
@@ -119,10 +117,10 @@ class AFP_SIDLocReco : public AthAlgorithm
 		void SaveGeometry();
 		void ClearGeometry();
 
-		StatusCode AFPCollectionReading(list<SIDHIT> &ListSIDHits);	
+		StatusCode AFPCollectionReading(std::list<SIDHIT> &ListSIDHits);	
 
 		StatusCode RecordSIDCollection();
-  StatusCode ExecuteRecoMethod(const string strAlgo, const list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer);
+                StatusCode ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer);
 };
 
 #endif	//AFP_TDLOCRECO_h
