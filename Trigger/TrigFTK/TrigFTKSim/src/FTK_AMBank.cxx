@@ -1217,9 +1217,9 @@ void FTK_AMBank::am_in_minimal() {
   const unsigned int biasinit(ftkset.getMaxMissingPlanes()+FTKSetup::getFTKSetup().getMaxMissingSctPairs()+1);
 
   for (int ipatt=0;ipatt!=m_npatterns;++ipatt) { // loop over the patterns
-    register unsigned int bias(biasinit); // initialize the bias
+    unsigned int bias(biasinit); // initialize the bias
     // retrieve the status word for the current pattern
-    register pattstatus_t word(0);
+    pattstatus_t word(0);
 
     /* loop over the layers of the pattern, stop if too many layers are missing, causing the bias to go to 0 */
     for (int iplane=0;iplane!=m_nplanes&&bias;++iplane) { // lopp over the layers
