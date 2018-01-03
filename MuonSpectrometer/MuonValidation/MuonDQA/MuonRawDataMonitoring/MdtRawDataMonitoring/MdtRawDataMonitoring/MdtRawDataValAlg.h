@@ -75,7 +75,7 @@ class TubeTraversedBySegment {
 // JG remove expensive hardware_name comparison w/ idHash comparison
 // Hope I was careful ;)
 struct TubeTraversedBySegment_cmp {
-  bool operator()(const TubeTraversedBySegment & A, const TubeTraversedBySegment & B) {
+  bool operator()(const TubeTraversedBySegment & A, const TubeTraversedBySegment & B) const {
     if( A.idHash > B.idHash ) {
       return true;
     }

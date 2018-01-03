@@ -566,11 +566,8 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 	  tp->summaryValue(n_phi, xAOD::numberOfPhiLayers); 
 	  if(ntri_eta+n_phi==0) continue;
 	  
-	  std::vector< const Trk::MeasurementBase* >::const_iterator hit = trk->measurementsOnTrack()->begin();
-	  std::vector< const Trk::MeasurementBase* >::const_iterator hit_end = trk->measurementsOnTrack()->end();
-	  for( ;hit!=hit_end;++hit ){
-	   
-	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
+          for (const Trk::MeasurementBase* hit : *trk->measurementsOnTrack()) {
+	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(hit);
 	    if(!rot_from_track) continue;
 	    //              rot_from_track->dump(msg());
 	    Identifier rotId = rot_from_track->identify();
