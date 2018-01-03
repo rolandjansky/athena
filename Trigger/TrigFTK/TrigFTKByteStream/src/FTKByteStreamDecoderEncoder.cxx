@@ -22,16 +22,6 @@ using namespace FTKByteStreamDecoderEncoder;
 namespace FTK {
 
 
-  /*
-    size_t decodeNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData) {
-    uint16_t low, high;
-    uint32_t all;
-    unpackNumberOfTracks(rodData, low, high, all);
-    return all;
-    }
-  */
-
-
   FTKByteStreamDecoderEncoderTool::FTKByteStreamDecoderEncoderTool(const std::string& toolname, 
 								   const std::string& type, 
 								   const IInterface* parent) 
