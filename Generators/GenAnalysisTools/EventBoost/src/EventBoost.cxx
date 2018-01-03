@@ -265,7 +265,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 //__________________________________________________________________________
 
 
-bool EventBoost::doModification(HepMC::GenParticle * part, double& m_pxsum ) {
+bool EventBoost::doModification(HepMC::GenParticle * part, double& pxsum ) {
 
   /*    
   From px' = gamma_x*px+beta_x*gamma_x*E
@@ -287,7 +287,7 @@ bool EventBoost::doModification(HepMC::GenParticle * part, double& m_pxsum ) {
   mom.boost(boostvector);
   part->set_momentum(mom);
   if (part->status()==1) {
-    m_pxsum+=mom.x()-temp;
+    pxsum+=mom.x()-temp;
   }
 
   return true;
