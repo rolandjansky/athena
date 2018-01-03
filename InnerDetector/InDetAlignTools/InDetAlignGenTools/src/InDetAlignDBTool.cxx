@@ -1255,8 +1255,9 @@ Amg::Transform3D InDetAlignDBTool::getTransL123( const Identifier& ident ) const
   Amg::Transform3D trfL2 = getTrans( ident, 2 ) ;
   Amg::Transform3D trfL3 = getTrans( ident, 3 ) ;
   ATH_MSG_FATAL("Code needs to corrected otherwise you will get nonsensical results-- IndetAlignDBTool:2060");
-  const Amg::Transform3D trfNominal   ; //= element->defModuleTransform() ;
-  result = trfNominal.inverse() * trfL1 * trfL2 * trfNominal * trfL3 ;
+  //const Amg::Transform3D trfNominal   ; //= element->defModuleTransform() ;
+  //result = trfNominal.inverse() * trfL1 * trfL2 * trfNominal * trfL3 ;
+  result = trfL1 * trfL2 * trfL3 ;
   return result ;
 }
 
