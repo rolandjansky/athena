@@ -288,8 +288,9 @@ StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met
 
   ATH_MSG_DEBUG("in bookSourcesHistograms(" << metName.c_str() << ")");
     
-  std::ostringstream hName;
-  std::ostringstream hTitle;
+  //  std::ostringstream hName; //TB even if do not manage the move to Generic tool the strigstream can be now fully replaced by c++11 string helper functions 
+  std::string hName;
+  std::ostringstream hTitle;  
   std::ostringstream hxTitle;
   std::ostringstream hyTitle;
   TH1* h = 0;
@@ -310,98 +311,98 @@ StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met
       m_truncatedMean = 0.5*m_truncatedMean;
     }
   // Et Distributions
-  hName << "et_" << metName;
+  hName = "et_" + metName;
   hTitle << "Et Distribution (" << metName << ")";
   hxTitle << "MET Et (GeV)";
   hyTitle << "Events";
-  h = new TH1F(hName.str().c_str(), hTitle.str().c_str(), m_etbin, etmin, etmax);
+  h = new TH1F( hName.c_str(), hTitle.str().c_str(), m_etbin, etmin, etmax);
   h->GetXaxis()->SetTitle(hxTitle.str().c_str());
   h->GetYaxis()->SetTitle(hyTitle.str().c_str()); h->GetYaxis()->SetTitleOffset(m_tos);
   met_mongroup.regHist(h).ignore();
   m_et.push_back(h);
-  hName.str("");
+
   hTitle.str("");
   hxTitle.str(""); hyTitle.str("");
   // Ex Distributions
-  hName << "ex_" << metName;
+  hName = "ex_" + metName;
   hTitle << "Ex Distribution (" << metName << ")";
   hxTitle << "MET Etx (GeV)";
   hyTitle << "Events";
-  h = new TH1F(hName.str().c_str(), hTitle.str().c_str(), m_etbin, -etmax, etmax);
+  h = new TH1F( hName.c_str(), hTitle.str().c_str(), m_etbin, -etmax, etmax);
   h->GetXaxis()->SetTitle(hxTitle.str().c_str());
   h->GetYaxis()->SetTitle(hyTitle.str().c_str()); h->GetYaxis()->SetTitleOffset(m_tos);
   met_mongroup.regHist(h).ignore();
   m_ex.push_back(h);
-  hName.str("");
+
   hTitle.str("");
   hxTitle.str(""); hyTitle.str("");
   // Ey Distributions
-  hName << "ey_" << metName;
+  hName = "ey_" + metName;
   hTitle << "Ey Distribution (" << metName << ")";
   hxTitle << "MET Ety (GeV)";
   hyTitle << "Events";
-  h = new TH1F(hName.str().c_str(), hTitle.str().c_str(), m_etbin, -etmax, etmax);
+  h = new TH1F( hName.c_str(), hTitle.str().c_str(), m_etbin, -etmax, etmax);
   h->GetXaxis()->SetTitle(hxTitle.str().c_str());
   h->GetYaxis()->SetTitle(hyTitle.str().c_str()); h->GetYaxis()->SetTitleOffset(m_tos);
   met_mongroup.regHist(h).ignore();
   m_ey.push_back(h);
-  hName.str("");
+
   hTitle.str("");
   hxTitle.str(""); hyTitle.str("");
   // Phi Distributions
-  hName << "phi_" << metName;
+  hName = "phi_" + metName;
   hTitle << "Phi Distribution (" << metName << ")";
   hxTitle << "MET Phi (radian)";
   hyTitle << "Events";
-  h = new TH1F(hName.str().c_str(), hTitle.str().c_str(), m_phibin, -M_PI, +M_PI);
+  h = new TH1F(hName.c_str(), hTitle.str().c_str(), m_phibin, -M_PI, +M_PI);
   h->GetXaxis()->SetTitle(hxTitle.str().c_str());
   h->GetYaxis()->SetTitle(hyTitle.str().c_str()); h->GetYaxis()->SetTitleOffset(m_tos);
   met_mongroup.regHist(h).ignore();
   m_phi.push_back(h);
-  hName.str("");
+
   hTitle.str("");
   hxTitle.str(""); hyTitle.str("");
   // SumEt Distributions
-  hName << "sumet_" << metName;
+  hName = "sumet_" + metName;
   hTitle << "SumEt Distribution (" << metName << ")";
   hxTitle << "SumEt (GeV)";
   hyTitle << "Events";
   if (metName == "MET_Cryo" || metName == "MET_MuonBoy" || metName == "MET_Cryo" || metName == "MET_CellOut_em")
     sumetmax = m_etrange*m_etrangeSumFactor*0.25;
-  h = new TH1F(hName.str().c_str(), hTitle.str().c_str(), m_etbin, sumetmin, sumetmax);
+  h = new TH1F(hName.c_str(), hTitle.str().c_str(), m_etbin, sumetmin, sumetmax);
   h->GetXaxis()->SetTitle(hxTitle.str().c_str());
   h->GetYaxis()->SetTitle(hyTitle.str().c_str()); h->GetYaxis()->SetTitleOffset(m_tos);
   met_mongroup.regHist(h).ignore();
   m_sumet.push_back(h);
-  hName.str("");
+
   hTitle.str("");
   hxTitle.str(""); hyTitle.str("");
 
   if (doProfiles)
     {
       // MissingET Vs SumEt
-      hName << "metVsSumEt_" << metName;
+      hName = "metVsSumEt_" + metName;
       hTitle << "MET Vs SumEt Distribution (" << metName << ")";
       hxTitle << "SumEt (GeV)";
       hyTitle << "MET Et (GeV)";
-      m_metVsSumEt = new TProfile(hName.str().c_str(), hTitle.str().c_str(), m_etbin, sumetmin, sumetmax);
+      m_metVsSumEt = new TProfile(hName.c_str(), hTitle.str().c_str(), m_etbin, sumetmin, sumetmax);
       m_metVsSumEt->GetXaxis()->SetTitle(hxTitle.str().c_str());
       m_metVsSumEt->GetYaxis()->SetTitle(hyTitle.str().c_str()); m_metVsSumEt->GetYaxis()->SetTitleOffset(m_tos);
       met_mongroup.regHist(m_metVsSumEt).ignore();
-      hName.str("");
+
       hTitle.str("");
       hxTitle.str(""); hyTitle.str("");
 
       // MissingET Vs Phi
-      hName << "metVsMetPhi_" << metName;
+      hName = "metVsMetPhi_" + metName;
       hTitle << "MET Vs MetPhi Distribution (" << metName << ")";
       hxTitle << "MET Phi (radian)";
       hyTitle << "MET Et (GeV)";
-      m_metVsMetPhi = new TProfile(hName.str().c_str(), hTitle.str().c_str(), m_phibin, -M_PI, +M_PI);
+      m_metVsMetPhi = new TProfile(hName.c_str(), hTitle.str().c_str(), m_phibin, -M_PI, +M_PI);
       m_metVsMetPhi->GetXaxis()->SetTitle(hxTitle.str().c_str());
       m_metVsMetPhi->GetYaxis()->SetTitle(hyTitle.str().c_str()); m_metVsMetPhi->GetYaxis()->SetTitleOffset(m_tos);
       met_mongroup.regHist(m_metVsMetPhi).ignore();
-      hName.str("");
+
       hTitle.str("");
       hxTitle.str(""); hyTitle.str("");
     }
@@ -1088,25 +1089,18 @@ StatusCode METMonTool::fillSourcesHistograms()
 
                         //msg_info// ATH_MSG_INFO("METMonTool::FILL_ONE_ONE::1092");
 
-                        if (TMath::Abs(et) < m_truncatedMean)
-			  {
-			    if (xJetCollection != 0)
-			      {
-			      
-				xAOD::JetContainer::const_iterator jetItrE = xJetCollection->end();
-			      
-				xAOD::JetContainer::const_iterator jetItr = xJetCollection->begin();
-				for (; jetItr != jetItrE; ++jetItr)
-				  {
-				  
-				    const xAOD::Jet* xjet = *jetItr;
-				    const xAOD::JetFourMom_t& jetP4 = xjet->jetP4();
-				    if (xjet != 0) fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
-				  }
+                        if (TMath::Abs(et) < m_truncatedMean) {
+			  if (xJetCollection != 0) {
+			    for ( const xAOD::Jet* xjet : *xJetCollection ) {
+			      if ( xjet ) {
+				const xAOD::JetFourMom_t& jetP4 = xjet->jetP4();
+				fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
 			      }
-
-                            if (xhEle != 0) fillProfileHistograms(et, phi, xhEle->eta(), xhEle->phi(), m_iEle).ignore();
-                            if (xhMuon != 0) fillProfileHistograms(et, phi, xhMuon->eta(), xhMuon->phi(), m_iMuo).ignore();
+			    }
+			  }
+			  
+			  if (xhEle != 0) fillProfileHistograms(et, phi, xhEle->eta(), xhEle->phi(), m_iEle).ignore();
+			  if (xhMuon != 0) fillProfileHistograms(et, phi, xhMuon->eta(), xhMuon->phi(), m_iMuo).ignore();
 			  }
 		      }
                     // Mean summaries
@@ -1127,7 +1121,6 @@ StatusCode METMonTool::fillSourcesHistograms()
 	  ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << xaod_key);
         }
     }
-
 
   return StatusCode::SUCCESS;
 }
@@ -1177,7 +1170,7 @@ StatusCode METMonTool::fillCalosHistograms()
       ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
       //return StatusCode::FAILURE;
     } else {
-      // TB skip event if any jet is bad
+      // TB skip event if any jet is bad ?
       for ( const xAOD::Jet* xjet: *xJetCollection ) {
 	  if( m_selTool->keep(*xjet) == false )  return StatusCode::SUCCESS;
       }	      
@@ -1253,26 +1246,26 @@ StatusCode METMonTool::fillRegionsHistograms()
 	      else xaod_truth_region = "Int_Central";
 
 	      float ex = (*xmetReg)[xaod_truth_region]->mpx() / CLHEP::GeV;
-                float ey = (*xmetReg)[xaod_truth_region]->mpy() / CLHEP::GeV;
-		  float et = sqrt(ex*ex + ey*ey);
-		    float phi = atan2(ey, ex);
-		      float sumet = (*xmetReg)[xaod_truth_region]->sumet() / CLHEP::GeV;
+	      float ey = (*xmetReg)[xaod_truth_region]->mpy() / CLHEP::GeV;
+	      float et = sqrt(ex*ex + ey*ey);
+	      float phi = atan2(ey, ex);
+	      float sumet = (*xmetReg)[xaod_truth_region]->sumet() / CLHEP::GeV;
 
-		      if (et > 0.)
-			{
-			  m_etReg[i]->Fill(et);
-			  m_exReg[i]->Fill(ex);
-			  m_eyReg[i]->Fill(ey);
-			  m_phiReg[i]->Fill(phi);
-			  m_sumetReg[i]->Fill(sumet);
-			  // Mean summaries
-			  if (doSummary)
-			    {
-			      m_exRegMean->Fill(i + 0.5, ex);
-			      m_eyRegMean->Fill(i + 0.5, ey);
-			      m_phiRegMean->Fill(i + 0.5, phi);
-			    }
-			}
+	      if (et > 0.)
+		{
+		  m_etReg[i]->Fill(et);
+		  m_exReg[i]->Fill(ex);
+		  m_eyReg[i]->Fill(ey);
+		  m_phiReg[i]->Fill(phi);
+		  m_sumetReg[i]->Fill(sumet);
+		  // Mean summaries
+		  if (doSummary)
+		    {
+		      m_exRegMean->Fill(i + 0.5, ex);
+		      m_eyRegMean->Fill(i + 0.5, ey);
+		      m_phiRegMean->Fill(i + 0.5, phi);
+		    }
+		}
             }
         }
     }
