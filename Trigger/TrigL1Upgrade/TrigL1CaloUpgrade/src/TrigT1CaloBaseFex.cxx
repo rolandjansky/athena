@@ -41,7 +41,8 @@ StatusCode TrigT1CaloBaseFex::finalize(){
 	return StatusCode::SUCCESS;
 }
 
-StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs){
+StatusCode TrigT1CaloBaseFex::getContainers(std::vector<const CaloCell*>& scells,
+                                            const xAOD::TriggerTowerContainer*& TTs){
 	
 	MsgStream msg(msgSvc(), name());
         const CaloCellContainer* scells_from_sg;
@@ -55,18 +56,16 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 	}
 
 	if ( m_useProvenance ) {
-		if ( !scells ) scells = new CaloCellContainer();
         	for(auto scell : *scells_from_sg) {
-			if ( scell->provenance() & 0x40 ) scells->push_back( scell );
+			if ( scell->provenance() & 0x40 ) scells.push_back( scell );
 		}
 	}
 	else {
-		if ( !scells ) scells = new CaloCellContainer();
         	for(auto scell : *scells_from_sg) {
-			scells->push_back( scell );
+			scells.push_back( scell );
 		}
 	}
-        for(auto scell : *scells) {
+        for(auto scell : scells) {
 		if ( scell->et() < 3e3 ) continue;
 		msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endmsg;
 	}
@@ -77,7 +76,8 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 	return StatusCode::SUCCESS;
 }
 
-StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs, float etThresholdGeV){
+StatusCode TrigT1CaloBaseFex::getContainers(std::vector<const CaloCell*>& scells,
+                                            const xAOD::TriggerTowerContainer*& TTs, float etThresholdGeV){
 
         MsgStream msg(msgSvc(), name());
         const CaloCellContainer* scells_from_sg;
@@ -91,20 +91,18 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
         }
 
         if ( m_useProvenance ) {
-                if ( !scells ) scells = new CaloCellContainer();
                 for(auto scell : *scells_from_sg) {
-                        if ( scell->provenance() & 0x40 ) scells->push_back( scell );
+                        if ( scell->provenance() & 0x40 ) scells.push_back( scell );
                 }
         }
         else {
-                if ( !scells ) scells = new CaloCellContainer();
                 for(auto scell : *scells_from_sg) {
-                        scells->push_back( scell );
+                        scells.push_back( scell );
                 }
         }
 	// TODO: add more quality cuts? ...
 
-        for(auto scell : *scells) {
+        for(auto scell : scells) {
                 if ( scell->et() < etThresholdGeV*1e3 ) continue;
                 msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endmsg;
         }
@@ -127,21 +125,27 @@ StatusCode TrigT1CaloBaseFex::getContainers(const xAOD::TruthParticleContainer*&
 }
 
 
-void TrigT1CaloBaseFex::findCellsAbove(const CaloCellContainer* scells, const float& Thr, std::vector<CaloCell*>& out) {
+void TrigT1CaloBaseFex::findCellsAbove(const std::vector<const CaloCell*>& scells,
+                                       const float Thr,
+                                       std::vector<const CaloCell*>& out) {
 	out.clear();
-	for(auto scell : *scells) {
+	for(auto scell : scells) {
 		if ( scell->et() < Thr )  continue;
 		out.push_back(scell);
 	}
 	return;
 }
 
-void TrigT1CaloBaseFex::findCellsAround(const CaloCellContainer* scells, const CaloCell* cell, std::vector<CaloCell*>& out, const float detaSize, const float dphiSize) const {
+void TrigT1CaloBaseFex::findCellsAround(const std::vector<const CaloCell*>& scells,
+                                        const CaloCell* cell,
+                                        std::vector<const CaloCell*>& out,
+                                        const float detaSize,
+                                        const float dphiSize) const {
 	out.clear();
 	if ( !cell ) return;
 	float etacell = cell->eta();
 	float phicell = cell->phi();
-	for(auto scell : *scells) {
+	for(auto scell : scells) {
 		if ( fabsf( scell->eta() - etacell) > detaSize ) continue;
 		float dphi = fabsf( scell->phi() - phicell);
 		dphi = fabsf( M_PI - dphi );
@@ -152,9 +156,14 @@ void TrigT1CaloBaseFex::findCellsAround(const CaloCellContainer* scells, const C
 	return;
 }
 
-void TrigT1CaloBaseFex::findCellsAround(const CaloCellContainer* scells, const float etacell, const float phicell, std::vector<CaloCell*>& out, const float detaSize, const float dphiSize) const {
+void TrigT1CaloBaseFex::findCellsAround(const std::vector<const CaloCell*>& scells,
+                                        const float etacell,
+                                        const float phicell,
+                                        std::vector<const CaloCell*>& out,
+                                        const float detaSize,
+                                        const float dphiSize) const {
         out.clear();
-        for(auto scell : *scells) {
+        for(auto scell : scells) {
                 if ( fabsf( scell->eta() - etacell) > detaSize ) continue;
                 float dphi = fabsf( scell->phi() - phicell);
                 dphi = fabsf( M_PI - dphi );
@@ -194,7 +203,7 @@ void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells,
         return;
 }
 
-bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<CaloCell*>& scells, const CaloCell* cell) const {
+bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<const CaloCell*>& scells, const CaloCell* cell) const {
         if ( !cell ) return false;
 	if ( cell->caloDDE()->getSampling() >= 8 ) return false;
 	float cellpt = cell->et()+0.001; //make sure you don't get thecell itself
@@ -205,7 +214,7 @@ bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<CaloCell*>& scells, co
 	return true;
 }
 
-float TrigT1CaloBaseFex::sumEmCells(const std::vector<CaloCell*>& scells) const {
+float TrigT1CaloBaseFex::sumEmCells(const std::vector<const CaloCell*>& scells) const {
 	float totalSum = 0.0;
 	for(auto scell : scells) {
 		if ( scell->caloDDE()->getSampling() <8 ) totalSum+= scell->energy();
@@ -213,7 +222,7 @@ float TrigT1CaloBaseFex::sumEmCells(const std::vector<CaloCell*>& scells) const 
 	return totalSum;
 }
 
-float TrigT1CaloBaseFex::sumEmCells2nd(const std::vector<CaloCell*>& scells) const {
+float TrigT1CaloBaseFex::sumEmCells2nd(const std::vector<const CaloCell*>& scells) const {
 	float totalSum = 0.0;
 	for(auto scell : scells) {
 		if ( (scell->caloDDE()->getSampling()==2) ||(scell->caloDDE()->getSampling()==6) ) {
@@ -224,7 +233,7 @@ float TrigT1CaloBaseFex::sumEmCells2nd(const std::vector<CaloCell*>& scells) con
 }
 
 
-float TrigT1CaloBaseFex::sumHadCells(const std::vector<CaloCell*>& scells) const {
+float TrigT1CaloBaseFex::sumHadCells(const std::vector<const CaloCell*>& scells) const {
 	float totalSum = 0.0;
 	for(auto scell : scells){
              if ( (scell->caloDDE()->getSampling() <8) || ( scell->caloDDE()->getSampling()>=20) ) continue;
@@ -244,7 +253,7 @@ float TrigT1CaloBaseFex::sumHadTTs(const std::vector<const xAOD::TriggerTower*>&
 	return totalSum * 1e3; // express in MeV
 }
 
-void TrigT1CaloBaseFex::findCluster(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster) const {
+void TrigT1CaloBaseFex::findCluster(const std::vector<const CaloCell*>& scells, float &etaCluster, float &phiCluster) const {
 	etaCluster=0.0;
 	phiCluster=0.0;
 	float energyCluster=0.0;
@@ -264,9 +273,11 @@ void TrigT1CaloBaseFex::findCluster(const std::vector<CaloCell*>& scells, float 
 	}
 }
 
-void TrigT1CaloBaseFex::NoiseThreshold(const CaloCellContainer* scells, const float& significance, std::vector<CaloCell*>& out) {
+void TrigT1CaloBaseFex::NoiseThreshold(const std::vector<const CaloCell*>& scells,
+                                       const float significance,
+                                       std::vector<const CaloCell*>& out) {
 	out.clear();
-	for(auto scell : *scells) {
+	for(auto scell : scells) {
 	  float thr(0.);
 	  //energy = scell->et();
 	  float energy = scell->e();

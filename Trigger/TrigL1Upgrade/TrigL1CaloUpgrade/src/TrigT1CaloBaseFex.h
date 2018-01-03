@@ -46,38 +46,53 @@ public :
 
 protected :
 	/** method to get the containers */
-	StatusCode getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs);
-	StatusCode getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs, float etThresholdGeV);
+	StatusCode getContainers(std::vector<const CaloCell*>& scells,
+                                 const xAOD::TriggerTowerContainer*& TTs);
+	StatusCode getContainers(std::vector<const CaloCell*>& scells,
+                                 const xAOD::TriggerTowerContainer*& TTs, float etThresholdGeV);
 	StatusCode getContainers(const xAOD::TruthParticleContainer*& truthContainer);
 	/** find the cells above a given threshold in an event to be used as seeds to build electron candidates */
-	void findCellsAbove(const CaloCellContainer*, const float& thr, std::vector<CaloCell*>& out) ;
+	void findCellsAbove(const std::vector<const CaloCell*>&,
+                            const float thr,
+                            std::vector<const CaloCell*>& out) ;
 	/** finds cells around a seed cell. These cells will be part of the cluster */
-	void findCellsAround(const CaloCellContainer*, const CaloCell* cell, std::vector<CaloCell*>& out, const float deta, const float dphi) const;
-	void findCellsAround(const CaloCellContainer*, const float eta, const float phi, std::vector<CaloCell*>& out, const float deta, const float dphi) const ;
+	void findCellsAround(const std::vector<const CaloCell*>&,
+                             const CaloCell* cell,
+                             std::vector<const CaloCell*>& out,
+                             const float deta,
+                             const float dphi) const;
+	void findCellsAround(const std::vector<const CaloCell*>&,
+                             const float eta,
+                             const float phi,
+                             std::vector<const CaloCell*>& out,
+                             const float deta,
+                             const float dphi) const ;
 	/** finds TTs around a seed cell. These TTs will be part of the cluster. This helps to cover the part related to TileCall */
 	void findTTsAround(const xAOD::TriggerTowerContainer*, const CaloCell* cell, std::vector<const xAOD::TriggerTower*>& out) const ;
 	void findTTsAround(const xAOD::TriggerTowerContainer*, const float eta, const float phi, std::vector<const xAOD::TriggerTower*>& out) const ;
 	/** checks if a give (seed) cell is the highest in a vector of cells. This is to make sure we have a real local EM maximum */
-	bool isCellEmMaximum(const std::vector<CaloCell*>& scells, const CaloCell* cell) const ;
+	bool isCellEmMaximum(const std::vector<const CaloCell*>& scells, const CaloCell* cell) const ;
 	/** sum all cells from the vector that are in the EM calorimeter part */
-	float sumEmCells(const std::vector<CaloCell*>& scells) const ;
+	float sumEmCells(const std::vector<const CaloCell*>& scells) const ;
 	/** sum all cells from the vector that are in the EM calorimeter part (only 2nd layer) */
-	float sumEmCells2nd(const std::vector<CaloCell*>& scells) const ;
+	float sumEmCells2nd(const std::vector<const CaloCell*>& scells) const ;
 	/** sum all cells from the vector that are in the HAD calorimeter part */
-	float sumHadCells(const std::vector<CaloCell*>& scells) const ;
+	float sumHadCells(const std::vector<const CaloCell*>& scells) const ;
 	/** sum all TTs from the vector that are in the HAD calorimeter part, but only for |eta|<1.72 (tile region) */
 	float sumHadTTs(const std::vector<const xAOD::TriggerTower*>& scells) const ;
 	/** detect central cluster position */
-	void findCluster(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster) const;
+	void findCluster(const std::vector<const CaloCell*>& scells, float &etaCluster, float &phiCluster) const;
         /** find cells above E/sigm threshold */
-	void NoiseThreshold(const CaloCellContainer*, const float& significance, std::vector<CaloCell*>& out);
+	void NoiseThreshold(const std::vector<const CaloCell*>&,
+                            const float significance,
+                            std::vector<const CaloCell*>& out);
 
 	/** list of seeds */
-	std::vector<CaloCell*> m_cellsAboveThr;
+	std::vector<const CaloCell*> m_cellsAboveThr;
 	/** list of cells around a cell (seed) */
-	std::vector<CaloCell*> m_cellsAround;
+	std::vector<const CaloCell*> m_cellsAround;
 	/** list of cells around a cell (seed again) */
-	std::vector<CaloCell*> m_cellsAround2;
+	std::vector<const CaloCell*> m_cellsAround2;
 	/** list of TTs around a cell (seed) */
 	std::vector<const xAOD::TriggerTower*> m_TTsAround;
 	/** deta for the cluster definition */
