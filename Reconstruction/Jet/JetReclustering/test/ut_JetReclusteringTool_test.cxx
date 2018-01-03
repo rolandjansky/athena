@@ -31,6 +31,7 @@ int main() {
   POOL::TEvent evt( POOL::TEvent::kAthenaAccess );
 #endif
 
+  ANA_MSG_INFO("ASG_TEST_FILE_MC = " << std::getenv("ASG_TEST_FILE_MC"));
   std::auto_ptr<TFile> ifile(TFile::Open(std::getenv("ASG_TEST_FILE_MC"), "READ"));
   ANA_CHECK(ifile.get());
 
