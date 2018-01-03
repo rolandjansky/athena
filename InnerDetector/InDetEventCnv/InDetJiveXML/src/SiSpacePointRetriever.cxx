@@ -28,8 +28,8 @@ namespace JiveXML
    **/
   SiSpacePointRetriever::SiSpacePointRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("S3D"),
-    geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("S3D"),
+    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
 
     //Declare the interface
     declareInterface<IDataRetriever>(this);
@@ -209,8 +209,8 @@ namespace JiveXML
           Identifier idSecond = (clusterList.second != NULL) ? clusterList.second->identify() : Identifier();
 
           //Get phi and eta of the module in detector coordinates of the first cluster
-          phiModule.push_back(DataType(geo->SCTIDHelper()->phi_module(idFirst)));
-          etaModule.push_back(DataType(geo->SCTIDHelper()->eta_module(idFirst)));
+          phiModule.push_back(DataType(m_geo->SCTIDHelper()->phi_module(idFirst)));
+          etaModule.push_back(DataType(m_geo->SCTIDHelper()->eta_module(idFirst)));
 
           // Store the cluster(s) identifier (pair)
           clusters.push_back(DataType(idFirst.get_compact()));   
@@ -261,7 +261,7 @@ namespace JiveXML
     ATH_CHECK(m_PixelPRDTruthName.initialize());
     ATH_CHECK(m_SCTPRDTruthName.initialize());
 
-    return geo.retrieve();
+    return m_geo.retrieve();
   }
   
 } //namespace

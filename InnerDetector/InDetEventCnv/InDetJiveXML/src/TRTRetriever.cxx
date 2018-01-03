@@ -24,15 +24,15 @@ namespace JiveXML {
    **/
   TRTRetriever::TRTRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("TRT"),
-    geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("TRT"),
+    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
   }
 
   StatusCode TRTRetriever::initialize() {
-    ATH_CHECK( geo.retrieve() );
+    ATH_CHECK( m_geo.retrieve() );
     ATH_CHECK( m_TRTDriftCircleCollKey.initialize() );
     m_useTRTTruthMap = !m_TRTTruthMapKey.key().empty();
     ATH_CHECK( m_TRTTruthMapKey.initialize(m_useTRTTruthMap) );
@@ -112,10 +112,10 @@ namespace JiveXML {
          * NOTE: to get rhoz and phi, obtain DetectorElement
          * and then change to hashid - faster
          */
-        const InDetDD::TRT_BaseElement* element = geo->TRTGeoManager()->getElement(geo->TRTIDHelper()->layer_id(id));
+        const InDetDD::TRT_BaseElement* element = m_geo->TRTGeoManager()->getElement(m_geo->TRTIDHelper()->layer_id(id));
 
         //get global coord of straw
-	Amg::Vector3D global  = element->strawTransform(geo->TRTIDHelper()->straw(id))*Amg::Vector3D(0.,0.,0.);
+	Amg::Vector3D global  = element->strawTransform(m_geo->TRTIDHelper()->straw(id))*Amg::Vector3D(0.,0.,0.);
         
         //store the phi value
         phi.push_back(DataType( (global.phi()<0) ? global.phi() + 2*M_PI : global.phi()));
@@ -133,7 +133,7 @@ namespace JiveXML {
         driftR.push_back(DataType((driftcircle->localPosition())[Trk::driftRadius]*CLHEP::mm/CLHEP::cm));
 
         //Get subdetector number
-        switch ( geo->TRTIDHelper()->barrel_ec(id) ) {
+        switch ( m_geo->TRTIDHelper()->barrel_ec(id) ) {
           case -2 : sub.push_back(DataType( 0 )); break;
           case -1 : sub.push_back(DataType( 1 )); break;
           case  1 : sub.push_back(DataType( 2 )); break;
