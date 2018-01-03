@@ -149,7 +149,7 @@ atlas_install_python_modules( python/__init__.py python/TrigFTKTruthAlgsConfig.p
 atlas_install_joboptions( share/*.py )
 atlas_install_joboptions( share/skeleton.*.py )
 atlas_install_runtime( scripts/*_tf.py )
-atlas_install_runtime( test/TrigFTKSim_TestConfiguration.xml scripts/rtt_compare.py scripts/TrigFTKSM4Un_tf.py standalone/plot_simple_dataflow.C scripts/TrigFTKTM64SM4Un_tf.py scripts/TrigFTKSimITk_tf.py )
+atlas_install_runtime( test/TrigFTKSim_TestConfiguration.xml scripts/rtt_compare.py scripts/TrigFTKSM4Un_tf.py scripts/TrigFTKTM64SM4Un_tf.py scripts/TrigFTKSimITk_tf.py )
 atlas_install_generic( config/map_file/*
                        DESTINATION share/ftk_configuration/map_files
                        EXECUTABLE )
