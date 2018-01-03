@@ -22,7 +22,7 @@ int main() {
   ANA_CHECK_SET_TYPE (int); //makes ANA_CHECK return ints if exiting function
 #ifdef ROOTCORE
   StatusCode::enableFailure();
-  ANA_CHECK (xAOD::Init ());
+  ANA_CHECK(xAOD::Init());
 #endif
 
 #ifdef ROOTCORE
@@ -32,7 +32,9 @@ int main() {
 #endif
 
   std::auto_ptr<TFile> ifile(TFile::Open(std::getenv("ASG_TEST_FILE_MC"), "READ"));
-  evt.readFrom(ifile);
+  ANA_CHECK(ifile.get());
+
+  ANA_CHECK(evt.readFrom(ifile.get()));
   evt.getEntry(0);
 
   //example of configuring the tool
@@ -58,8 +60,8 @@ int main() {
   }
 
   //if it worked, the reclustered jets will be accessible from the storegate:
-  const xAOD::JetContainer* newJets = 0;
-  ANA_CHECK( evt.retrieve( newJets, "MyNewJets" ) );
+  const xAOD::JetContainer* newJets(nullptr);
+  ANA_CHECK(evt.retrieve(newJets, "MyNewJets"));
 
   return 0; //zero = success
 }
