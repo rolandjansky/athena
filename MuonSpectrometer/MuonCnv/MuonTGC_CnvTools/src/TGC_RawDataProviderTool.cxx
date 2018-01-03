@@ -33,7 +33,7 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
   m_rdoContainerKey("TGCRDO"), 
   m_activeStore(0),
   m_cabling(0),
-  m_robDataProvider("ROBDataProviderSvc",n)
+  m_robDataProvider("ROBDataProviderSvc",n) 
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
@@ -142,7 +142,7 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
   } else {
     has_bytestream = true;
   }
-   
+    
   // register the container only when the imput from ByteStream is set up     
   m_activeStore->setStore( &*evtStore() );
   m_useContainer = (has_bytestream || m_rdoContainerKey.key() != "TGCRDO") && !m_rdoContainerKey.key().empty();
@@ -182,11 +182,12 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   // if the MuonByteStream CNV has to be used, the container must have been
   // registered there!
   m_activeStore->setStore( &*evtStore() );
-
+      
   if (m_useContainer==false) {
     ATH_MSG_DEBUG( "Container " << m_rdoContainerKey 
 		   << " for bytestream conversion not available." );
     ATH_MSG_DEBUG( "Try retrieving it from the Store" );
+    
     return StatusCode::SUCCESS; // Maybe it should be false to stop the job
     // because the convert method should not
     // have been called .... but this depends
@@ -198,7 +199,7 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     return StatusCode::SUCCESS;
   }
   auto tgc = std::make_unique<TgcRdoContainer>(m_maxhashtoUse);
-  
+ 
   static int DecodeErrCount = 0;
 
   ROBFragmentList::const_iterator itFrag   = vecRobs.begin();
