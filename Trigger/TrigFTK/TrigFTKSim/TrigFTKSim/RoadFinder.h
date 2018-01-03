@@ -33,8 +33,6 @@ private:
 
   bool *m_goodRegion; // array with a flag to check which region are really simulated
 
-  int m_roadwarrior; // road warrior level, 0 off
-
   // resources needed for PIX+SCTtrk mode
   int m_SCTtrk_nlayers;
   int m_SCTtrk_nsubs;
