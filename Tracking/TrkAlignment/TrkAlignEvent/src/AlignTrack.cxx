@@ -269,21 +269,15 @@ namespace Trk {
   //________________________________________________________________________
   void AlignTrack::dumpTrackInfo(const Track& track, MsgStream& msg) 
   {
-    std::vector<const TrackStateOnSurface*>::const_iterator itsos     = track.trackStateOnSurfaces()->begin();
-    std::vector<const TrackStateOnSurface*>::const_iterator itsos_end = track.trackStateOnSurfaces()->end();
-    for ( ; itsos != itsos_end; ++itsos)
-      msg<<**itsos;
+    for (const TrackStateOnSurface* tsos : *track.trackStateOnSurfaces())
+      msg<<*tsos;
   }
 
   //________________________________________________________________________
   void AlignTrack::dumpLessTrackInfo(const Track& track, MsgStream& msg) 
   {
     int ntsos(0);
-    std::vector<const TrackStateOnSurface*>::const_iterator itsos     = track.trackStateOnSurfaces()->begin();
-    std::vector<const TrackStateOnSurface*>::const_iterator itsos_end = track.trackStateOnSurfaces()->end();
-    for ( ; itsos != itsos_end; ++itsos, ++ntsos) {
-
-      const TrackStateOnSurface* tsos = *itsos;
+    for (const TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
       msg<<"ntsos "<<ntsos<<":"<<", type "<<tsos->dumpType();
       //msg << " perigee center of this TSOS: "<< tsos->trackParameters()->associatedSurface()->center() << endmsg;
 
@@ -318,6 +312,7 @@ namespace Trk {
         else
           msg << ", hmm... no material effects on track!"<<endmsg;
       }
+      ++ntsos;
     }
   }
 
