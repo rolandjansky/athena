@@ -270,12 +270,10 @@ from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_e
 theFTF = TrigFastTrackFinder_eGamma()
 theFTF.OutputLevel = DEBUG
 
-# BIG THING
-# This is a workaround for the fact that L2CaloClusters is produced in the first set of views, but consumed in the second
-# Since the state of the first view algs is unknown outside those view slots, the scheduler declares a stall
-# The data is actually there through view linking, but the scheduler doesn't know about that
-# Instead we have claimed to have made the data locally - this is a HACK
-theFTF.ExtraOutputs=[('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloClusters')]
+# A simple algorithm to confirm that data has been inherited from parent view
+# Required to satisfy data dependencies
+ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
+ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloClusters')]
 
 from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
 from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
@@ -287,7 +285,7 @@ theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrack
                                                          TrackParticlesName = "xAODTracks",
                                                          ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
 
-IDSequence = [  InDetPixelRawDataProvider, InDetSCTRawDataProvider, InDetTRTRawDataProvider, InDetPixelClusterization, InDetSCT_Clusterization, InDetSiTrackerSpacePointFinder, theFTF, theTrackParticleCreatorAlg ]
+IDSequence = [  InDetPixelRawDataProvider, InDetSCTRawDataProvider, InDetTRTRawDataProvider, InDetPixelClusterization, InDetSCT_Clusterization, InDetSiTrackerSpacePointFinder, theFTF, ViewVerify, theTrackParticleCreatorAlg ]
 
 
 
