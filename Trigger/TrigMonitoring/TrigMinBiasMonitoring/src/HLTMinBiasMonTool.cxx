@@ -1390,7 +1390,7 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 		xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
 		for (; mbTS_coll_itr != mbTScont->end(); ++mbTS_coll_itr) {
 	
-			xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
+                        const xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
 	
 			mbtsHitEnergies = mbtsFeature->triggerEnergies();
 			mbtsHitTimes = mbtsFeature->triggerTimes();
@@ -1534,7 +1534,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 		xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
 		for (; mbTS_coll_itr != mbTScont->end(); ++mbTS_coll_itr) {
 
-			xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
+			const xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
 
 			mbtsHitEnergies = mbtsFeature->triggerEnergies();
 			mbtsHitTimes = mbtsFeature->triggerTimes();
@@ -1761,7 +1761,7 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itrE = mbSPcont->end();
 
 		for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) {
-			xAOD::TrigSpacePointCounts *id_mbFeature = (*mbSP_coll_itr);
+			const xAOD::TrigSpacePointCounts *id_mbFeature = (*mbSP_coll_itr);
 			unsigned totBins = id_mbFeature->pixelClusTotBins();
 			if ( totBins > 0){
 				m_pixSpBarr = (int) id_mbFeature->pixelClusBarrelSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
@@ -1833,7 +1833,7 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 		// Loop over EF TrigMinBias objects
 		xAOD::TrigTrackCountsContainer::const_iterator mbTT_coll_itr = mbTTcont->begin();
 		for (; mbTT_coll_itr != mbTTcont->end(); ++mbTT_coll_itr) {
-			xAOD::TrigTrackCounts *mbTT = (*mbTT_coll_itr);
+			const xAOD::TrigTrackCounts *mbTT = (*mbTT_coll_itr);
 
 			if (mbTT->z0Bins() > 0) {
 				m_mbTracks = (int) (mbTT->z0_ptSumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y));
@@ -1874,7 +1874,7 @@ StatusCode HLTMinBiasMonTool::fillHMTSpacePointsInfo()
 		unsigned tmp = 0;
 		for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) 
 		{
-			xAOD::TrigSpacePointCounts *trigSpacePointCounts = (*mbSP_coll_itr);
+			const xAOD::TrigSpacePointCounts *trigSpacePointCounts = (*mbSP_coll_itr);
 			++tmp;
 	
 			totNumSctSP = trigSpacePointCounts->sctSpEndcapC() + trigSpacePointCounts->sctSpEndcapA() + trigSpacePointCounts->sctSpBarrel();
@@ -1953,7 +1953,7 @@ StatusCode HLTMinBiasMonTool::fillHMTVertexCountsInfo()
 		
 		for (; vc_coll_itr != vc_coll_itrE; ++vc_coll_itr) 
 		{
-			xAOD::TrigVertexCounts *trigVertexCounts = (*vc_coll_itr);
+			const xAOD::TrigVertexCounts *trigVertexCounts = (*vc_coll_itr);
 		
 			// Get the number of tracks per vertex
 			std::vector<unsigned int> vtxNtrks = trigVertexCounts->vtxNtrks();
