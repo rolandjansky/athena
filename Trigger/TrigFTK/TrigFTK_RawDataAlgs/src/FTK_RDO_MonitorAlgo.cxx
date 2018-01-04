@@ -256,6 +256,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
   auto last_track = offlineTracks->end();
   
   int nAcc=0;
+  int nMatched=0;
 
   for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
   
@@ -300,9 +301,9 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 
       h_FTK_nHitMatch->Fill((double)ftkTrackMatch.second);  
       if (ftkTrackMatch.second > 0) {
-	ATH_MSG_DEBUG(" matched to FTK track index " << ftkTrackMatch.first << " with " << ftkTrackMatch.second << " matches");
+	ATH_MSG_VERBOSE(" matched to FTK track index " << ftkTrackMatch.first << " with " << ftkTrackMatch.second << " matches");
 	if (ftkTrackMatch.second > m_minMatches) { 
-
+	  nMatched+=1;
 	  const FTK_RawTrack* ftktrack = rawTracks->at(ftkTrackMatch.first);
 	  float ftkTrkTheta = std::atan2(1.0,(ftktrack)->getCotTh());
 	  float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
@@ -322,16 +323,17 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 
 	  if (uniqueMatch) (this)->compareTracks(ftktrack, offlinetrackPixLocxLocy, offlinetrackSctLocx);
 	} else {
-	  ATH_MSG_DEBUG(" not enough matched FTK hits");
+	  ATH_MSG_VERBOSE(" not enough matched FTK hits");
 	}
       } else {
-	ATH_MSG_DEBUG(" no matched FTK track");
+	ATH_MSG_VERBOSE(" no matched FTK track");
       }
     } else {
       ATH_MSG_VERBOSE(" Rejected Offline Track " << iTrack << " pT " << pT << " eta " << eta << 
 		      " phi0 " <<  phi0 << " d0 " << a0 << " z0 " << z0);
     }
   }
+  ATH_MSG_DEBUG(" Number of offline tracks passing cuts "<<nAcc<<" number matched to FTK track "<<nMatched);
 
   h_offline_nAcc->Fill(nAcc);
 
