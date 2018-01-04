@@ -299,7 +299,7 @@ namespace JiveXML {
 //---- association from:
 //---- from http://alxr.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/tauRec/src/PhotonConversionPID.cxx
 
-    std::vector<Trk::VxTrackAtVertex*>* trklist = (*vertexItr)->vxTrackAtVertex();
+    const std::vector<Trk::VxTrackAtVertex*>* trklist = (*vertexItr)->vxTrackAtVertex();
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks at vertex: " << trklist->size() << endmsg;
 
