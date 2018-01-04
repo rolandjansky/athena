@@ -15,7 +15,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-#include "xAODEventInfo/EventInfo.h"
 
 namespace MuonCombined {
  
@@ -44,8 +43,11 @@ namespace MuonCombined {
   StatusCode MuonCandidateTool::initialize() {
     ATH_CHECK(m_printer.retrieve());
     if( !m_trackBuilder.empty() )           ATH_CHECK(m_trackBuilder.retrieve());
+    else m_trackBuilder.disable();
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
+    else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
+    ATH_CHECK(m_evInfo.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -56,12 +58,12 @@ namespace MuonCombined {
   void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) {
     ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size() );
     unsigned int ntracks = 0;
-    const xAOD::EventInfo* eventInfo; 
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evInfo); 
     float beamSpotX = 0.;
     float beamSpotY = 0.;
     float beamSpotZ = 0.;
 
-    if(evtStore()->retrieve(eventInfo).isSuccess()){
+    if(eventInfo.isValid()){
       beamSpotX = eventInfo->beamPosX();
       beamSpotY = eventInfo->beamPosY();
       beamSpotZ = eventInfo->beamPosZ();
