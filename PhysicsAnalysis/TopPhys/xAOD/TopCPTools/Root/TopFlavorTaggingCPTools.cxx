@@ -41,84 +41,59 @@ StatusCode FlavorTaggingCPTools::initialize() {
     return StatusCode::SUCCESS;
   }
 
-  // 2.4 code
-  if( m_release_series == 24 ){
-    m_tagger = "MV2c10";
-    m_tagger_algorithms = {"MV2c10"};
-    m_cdi_file = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root";
-    m_efficiency_maps = "410000;410004;410500;410187;410021";
+  m_tagger          = ""; // Extract in the loop
+  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root";
+  m_efficiency_maps = "410501"; //"410000;410004;410500;410187;410021"; // Not sure what is available yet
 
-    // working points for calo jets
-    m_calo_WPs_calib = {"FixedCutBEff_60",
-			"FixedCutBEff_70",
-			"FixedCutBEff_77",
-			"FixedCutBEff_85",
-			"Continuous" };
-    m_calo_WPs = m_calo_WPs_calib;
-    m_calo_WPs.push_back("FlatBEff_30");// some other WPs are defined in addition to the calibrated ones
-    m_calo_WPs.push_back("FlatBEff_40");
-    m_calo_WPs.push_back("FlatBEff_50");
-    m_calo_WPs.push_back("FlatBEff_60");
-    m_calo_WPs.push_back("FlatBEff_70");
-    m_calo_WPs.push_back("FlatBEff_77");
-    m_calo_WPs.push_back("FlatBEff_85");
-    m_calo_WPs.push_back("FixedCutBEff_30");
-    m_calo_WPs.push_back("FixedCutBEff_50");
-    m_calo_WPs.push_back("FixedCutBEff_80");
-    m_calo_WPs.push_back("FixedCutBEff_90");
-    
-    // working points for track jets (AntiKt2)
-    m_trackAntiKt2_WPs_calib = {"FixedCutBEff_60",
-				"FixedCutBEff_70",
-				"FixedCutBEff_77",
-				"FixedCutBEff_85",
-				"Continuous" };
-    m_trackAntiKt2_WPs = m_trackAntiKt2_WPs_calib;
-    m_trackAntiKt2_WPs.push_back("FixedCutBEff_30");// some other WPs are defined in addition to the calibrated ones
-    m_trackAntiKt2_WPs.push_back("FixedCutBEff_50");
-    m_trackAntiKt2_WPs.push_back("FixedCutBEff_80");
-    m_trackAntiKt2_WPs.push_back("FixedCutBEff_90");
-    
-    // working points for track jets (AntiKt4)
-    m_trackAntiKt4_WPs_calib = {"FixedCutBEff_70",
-				"FixedCutBEff_77" };
-    m_trackAntiKt4_WPs = m_trackAntiKt4_WPs_calib;
-    m_trackAntiKt4_WPs.push_back("FixedCutBEff_60");// some other WPs are defined in addition to the calibrated ones
-    m_trackAntiKt4_WPs.push_back("FixedCutBEff_85");
-    m_trackAntiKt4_WPs.push_back("FixedCutBEff_30");
-    m_trackAntiKt4_WPs.push_back("FixedCutBEff_50");
-    m_trackAntiKt4_WPs.push_back("FixedCutBEff_80");
-    m_trackAntiKt4_WPs.push_back("FixedCutBEff_90");
+  // All WPs are calibrated ones
+  m_calo_WPs       = m_calo_WPs_calib;
+  // Only for calo jets for now
+  m_trackAntiKt2_WPs_calib = {"FixedCutBEff_60",
+			      "FixedCutBEff_70",
+			      "FixedCutBEff_77",
+			      "FixedCutBEff_85",
+			      "HybBEff_60",
+			      "HybBEff_70",
+			      "HybBEff_77",
+			      "HybBEff_85"};
+  m_trackAntiKt4_WPs_calib = {};
+  // List of algorithms in R21
+  m_tagger_algorithms = {"MV2c10",
+			 "MV2c10mu", 
+			 "MV2c10rnn", 
+			 "DL1", 
+			 "DL1mu", 
+			 "DL1rnn",
+			 "MV2cl100_MV2c100"};
+
+  // BTagging Selectors should be created for DL1 algorithm to get the correct weight (in case charm-fraction is adjusted)
+  std::vector<std::string> DL1_algorithms = {"DL1",
+					     "DL1mu",
+					     "DL1rnn"};
+  for(auto alg : DL1_algorithms){
+    std::string btagsel_tool_name = "BTaggingSelectionTool_forEventSaver_"+alg+"_"+m_config->sgKeyJets();
+    BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
+    top::check(btagsel->setProperty("TaggerName", alg),
+	       "Failed to set b-tagging selecton tool TaggerName");
+    top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyJets()),
+	       "Failed to set b-tagging selection JetAuthor");
+    top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
+				    m_cdi_file),
+	       "Failed to set b-tagging selection tool CDI file");
+    // OP doesn't matter, just need the tool to always exist even if the user does not cut on btag
+    top::check(btagsel->setProperty("OperatingPoint", "FixedCutBEff_60"),
+	       "Failed to set b-tagging selection tool OperatingPoint");
+    top::check(btagsel->setProperty("MinPt",
+				    static_cast<double>(m_config->jetPtcut())),
+	       "Failed to set b-tagging selection tool MinPt");
+    top::check(btagsel->setProperty("MaxEta",
+				    static_cast<double>(m_config->jetEtacut())),
+	       "Failed to set b-tagging selection tool MaxEta");
+    top::check(btagsel->initialize(),
+	       "Failed to initialize b-tagging selection tool");
+    m_btagging_selection_tools.push_back(btagsel);
   }
 
-  // 2.6/21.2
-  if( m_release_series == 25 ){
-    m_tagger          = ""; // Extract in the loop
-    m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root"; // New file
-    m_efficiency_maps = "410501"; //"410000;410004;410500;410187;410021"; // Not sure what is available yet
-
-    // Working points - available for all algorithms
-    m_calo_WPs_calib = {"FixedCutBEff_60",
-			"FixedCutBEff_70",
-			"FixedCutBEff_77",
-			"FixedCutBEff_85",
-			"HybBEff_60",
-			"HybBEff_70",
-			"HybBEff_77",
-			"HybBEff_85"};
-    // All WPs are calibrated ones
-    m_calo_WPs       = m_calo_WPs_calib;
-    // Only for calo jets for now
-    m_trackAntiKt2_WPs_calib = {};
-    m_trackAntiKt4_WPs_calib = {};
-    // List of algorithms in R21
-    m_tagger_algorithms = {"MV2c10",
-			   "MV2c10mu", 
-			   "MV2c10rnn", 
-			   "DL1", 
-			   "DL1mu", 
-			   "DL1rnn"};
-  }
 
   const std::string calib_file_path = PathResolverFindCalibFile(m_cdi_file);
   const std::string excludedSysts = m_config->bTagSystsExcludedFromEV()=="none"?"":m_config->bTagSystsExcludedFromEV();
@@ -378,13 +353,9 @@ StatusCode FlavorTaggingCPTools::checkExcludedSysts(BTaggingEfficiencyTool* btag
     ATH_MSG_INFO(" All systematics are accepted by CDI file ");
   }
   // We have passed all the tests so now we store the systematics removed from the EV method and use a mapping to ASG/AT naming and return
-  createExcludedSystMapping(unionOfSystematics);
   ATH_MSG_INFO(" ------------------------------------------------ ");
   return StatusCode::SUCCESS;
 }
 
-void FlavorTaggingCPTools::createExcludedSystMapping(std::vector<std::string> systematics){
-
-}
 
 }  // namespace top
