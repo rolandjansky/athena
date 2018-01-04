@@ -61,7 +61,7 @@ class ViewDataVerifier
   /// Default constructor: 
   ViewDataVerifier();
 
-  /// Containers
+  /// Containers to verify
   Gaudi::Property< DataObjIDColl > m_load{ this, "DataObjects", DataObjIDColl(), "Objects to confirm are found in this view" };
   
   // vars
