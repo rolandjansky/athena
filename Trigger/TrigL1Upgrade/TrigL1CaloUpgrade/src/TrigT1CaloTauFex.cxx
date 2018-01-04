@@ -122,11 +122,11 @@ StatusCode TrigT1CaloTauFex::execute(){
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute TrigT1CaloTauFex" << endmsg;
 
-	CaloCellContainer* scells(0);
+        std::vector<const CaloCell*> scells;
 	const xAOD::TriggerTowerContainer* TTs(0);
 	const xAOD::TruthParticleContainer *truthContainer(0);
 
-	if ( getContainers(scells, TTs, m_cellsEtThrehold).isFailure() || (TTs==0) || (scells==0) ) {
+	if ( getContainers(scells, TTs, m_cellsEtThrehold).isFailure() || (TTs==0) ) {
 		msg << MSG::WARNING << " Could not get scell or TT containers" << endmsg;
 		return StatusCode::SUCCESS;
 	}
@@ -290,7 +290,10 @@ void TrigT1CaloTauFex::Truth(const xAOD::TruthParticleContainer *truthContainer)
 }
 
 
-void TrigT1CaloTauFex::IsolationCorett(const CaloCellContainer* scells, const CaloCell* cell, std::vector<CaloCell*>& out1, std::vector<CaloCell*>& out2) {
+void TrigT1CaloTauFex::IsolationCorett(const std::vector<const CaloCell*>& scells,
+                                       const CaloCell* cell,
+                                       std::vector<const CaloCell*>& out1,
+                                       std::vector<const CaloCell*>& out2) {
         out1.clear();
         out2.clear();
         if ( !cell ) return;
@@ -321,7 +324,7 @@ void TrigT1CaloTauFex::IsolationCorett(const CaloCellContainer* scells, const Ca
         float deltaphiOuter = 0.15;
         float deltaetaInner = 0.05;
         float deltaphiInner = 0.05;
-        for(auto scell : *scells) {
+        for(auto scell : scells) {
                 if ( fabsf( scell->eta() - etacell) > deltaetaOuter2 ) continue;
                 if (scell->caloDDE()->getSampling()!=1 && scell->caloDDE()->getSampling()!=5 && cell->caloDDE()->getSampling()!=4 && cell->caloDDE()->getSampling()!=8) deltaetaOuter1 = 1.0; // tighter isolation in 1° and 2° layers
                 float dphi = fabsf( scell->phi() - phicell);
@@ -336,7 +339,11 @@ void TrigT1CaloTauFex::IsolationCorett(const CaloCellContainer* scells, const Ca
 }
 
 
-void TrigT1CaloTauFex::IsolationCore(const CaloCellContainer* scells, const CaloCell* cell, std::vector<CaloCell*>& out1, std::vector<CaloCell*>& out2, std::vector<std::vector<float>>& out) {
+void TrigT1CaloTauFex::IsolationCore(const std::vector<const CaloCell*>& scells,
+                                     const CaloCell* cell,
+                                     std::vector<const CaloCell*>& out1,
+                                     std::vector<const CaloCell*>& out2,
+                                     std::vector<std::vector<float>>& out) {
         out1.clear();
         out2.clear();
         out.clear();
@@ -354,7 +361,7 @@ void TrigT1CaloTauFex::IsolationCore(const CaloCellContainer* scells, const Calo
         float AvEta = 0;
         float AvPhi = 0;
         std::vector<float> RoIVar;
-        for(auto scell : *scells) {
+        for(auto scell : scells) {
           float eta = scell->eta();
           float phi = scell->phi();
           if ( fabsf( scell->eta() - etacell) > deltaetaOuter2 ) continue;
@@ -379,7 +386,7 @@ void TrigT1CaloTauFex::IsolationCore(const CaloCellContainer* scells, const Calo
 }
 
 
-void TrigT1CaloTauFex::sumEMCoreCells(const std::vector<CaloCell*>& scells, std::vector<CaloCell*>& out1, std::vector<float>& out2) {
+void TrigT1CaloTauFex::sumEMCoreCells(const std::vector<const CaloCell*>& scells, std::vector<const CaloCell*>& out1, std::vector<float>& out2) {
   out1.clear();
   out2.clear();
   float totalEMCoreSum = 0.0;
@@ -388,7 +395,7 @@ void TrigT1CaloTauFex::sumEMCoreCells(const std::vector<CaloCell*>& scells, std:
       return;
 }
 
-void TrigT1CaloTauFex::sumEMIsoCells(const std::vector<CaloCell*>& scells, std::vector<float>& out) {
+void TrigT1CaloTauFex::sumEMIsoCells(const std::vector<const CaloCell*>& scells, std::vector<float>& out) {
   out.clear();
   float totalEMIsoSum = 0.0;
   for(auto scell : scells) totalEMIsoSum+= scell->energy();
