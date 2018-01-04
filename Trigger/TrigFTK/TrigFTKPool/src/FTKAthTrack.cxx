@@ -163,7 +163,7 @@ unsigned int FTKAthTrack::getNCommonHits(const FTKAthTrack &track, const float *
      1 are similar and the other has a worse quality parameter
      -1 are similar and the other has a better quality parameter */
 int FTKAthTrack::HWChoice(const FTKAthTrack &other, const float *HW_dev,
-		       const unsigned int HW_ndiff, int HW_level)
+		       const unsigned int HW_ndiff, int HW_level) const
 {
   int accepted(0);
 
