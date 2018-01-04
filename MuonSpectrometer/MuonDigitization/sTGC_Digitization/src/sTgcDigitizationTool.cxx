@@ -1281,21 +1281,6 @@ uint16_t sTgcDigitizationTool::bcTagging(const float digitTime, const int /*chan
 
   uint16_t bctag = 0;
 
-  //double offset, window;
-  if(channelType == 0) { //pads 
-    ATH_MSG_VERBOSE("Determining BC tag for pad channel");
-  }
-  else if(channelType == 1) { //strips 
-    //offset = m_timeWindowOffsetStrip;
-    //window = m_timeWindowStrip;
-    ATH_MSG_VERBOSE("Determining BC tag for strip channel");
-  }
-  else if (channelType == 2) { // wire groups
-    //offset = m_timeWindowOffsetPad;
-    //window = m_timeWindowPad;
-    ATH_MSG_VERBOSE("Determining BC tag for wiregroup channel");
-  }
-
 //  if(-m_bunchCrossingTime+offset < digitTime && digitTime < -m_bunchCrossingTime+offset+window) {
 //    bctag = (bctag | 0x1);
 //  }
