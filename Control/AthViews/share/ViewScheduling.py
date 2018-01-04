@@ -42,7 +42,9 @@ makeViewSequence.make_alg.ViewNodeName = "allViewAlgorithms"
 makeViewSequence.make_alg.Scheduler = AlgScheduler.getScheduler()
 
 # View algorithms
-ViewTest = CfgMgr.AthViews__ViewTestAlg("view_test")
+#ViewTest = CfgMgr.AthViews__ViewTestAlg("view_test")
+ViewTest = CfgMgr.AthViews__ViewDataVerifier("view_test")
+ViewTest.DataObjects = [ ('int','view_start') ]
 allViewAlgorithms += ViewTest
 #
 dflow_alg1 = CfgMgr.AthViews__DFlowAlg1("dflow_alg1")

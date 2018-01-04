@@ -22,7 +22,8 @@ namespace AthViews {
 ////////////////
 ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
+  ::AthAlgorithm( name, pSvcLocator ),
+  m_w_int( "view_start" )
 {
 }
 
