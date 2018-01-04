@@ -16,7 +16,7 @@
 #include "xAODForward/AFPTrackAuxContainer.h"
 
 
-AFP_SIDLocReco::AFP_SIDLocReco(const string& name, ISvcLocator* pSvcLocator) :
+AFP_SIDLocReco::AFP_SIDLocReco(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::AFP_SIDLocReco");
@@ -119,7 +119,7 @@ StatusCode AFP_SIDLocReco::execute()
 
   StatusCode sc;
 
-  list<SIDHIT> ListSIDHits;
+  std::list<SIDHIT> ListSIDHits;
   ListSIDHits.clear();
 
   m_eventNum = 0;
@@ -170,7 +170,7 @@ StatusCode AFP_SIDLocReco::execute()
     //		return StatusCode::SUCCESS;
   }
   else {
-    string strAlgoSID;
+    std::string strAlgoSID;
     for(unsigned int i=0; i<m_vecListAlgoSID.size(); i++)
       {
 	strAlgoSID = m_vecListAlgoSID[i];
@@ -216,7 +216,7 @@ void AFP_SIDLocReco::ClearGeometry()
 }
 
 
-StatusCode AFP_SIDLocReco::AFPCollectionReading(list<SIDHIT> &ListSIDHits)
+StatusCode AFP_SIDLocReco::AFPCollectionReading(std::list<SIDHIT> &ListSIDHits)
 {
   StatusCode sc;
 
@@ -345,7 +345,7 @@ void AFP_SIDLocReco::SaveGeometry()
   ATH_MSG_DEBUG("end AFP_SIDLocReco::SaveGeometry()");
 }
 
-StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer)
+StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string strAlgo, const std::list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer)
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::ExecuteRecoMethod()");
 
@@ -356,12 +356,12 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SI
 
   StatusCode sc = StatusCode::SUCCESS;
   SIDRESULT SIDResults;
-  list<SIDRESULT> listSIDResults;
+  std::list<SIDRESULT> listSIDResults;
   listSIDResults.clear();
 
-  map<string, int> mapRecoMethods;
+  std::map<std::string, int> mapRecoMethods;
   mapRecoMethods.clear();
-  mapRecoMethods.insert(pair<string, int>("SIDBasicKalman", 1));
+  mapRecoMethods.insert(std::pair<std::string, int>("SIDBasicKalman", 1));
 
   switch(mapRecoMethods[strAlgo])
     {
@@ -380,7 +380,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SI
 	sc = pSIDBasicKalman->Execute();
 	sc = pSIDBasicKalman->Finalize(&listSIDResults);
 
-	list<SIDRESULT>::const_iterator iter;
+        std::list<SIDRESULT>::const_iterator iter;
 	for(iter=listSIDResults.begin(); iter!=listSIDResults.end(); iter++) {
 	  if (iter->nStationID != -1) {
 	    xAOD::AFPTrack* track = new xAOD::AFPTrack;

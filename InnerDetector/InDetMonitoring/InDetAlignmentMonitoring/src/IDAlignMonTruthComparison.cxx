@@ -358,7 +358,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 {
 
   //get TrackCollection using TrackSelectionTool
-  DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
   
   //although we select tracks using the TrackSelectionTool, we still need to get a complete TrackCollection
   //from StoreGate for use in the track-truth map, otherwise the track-truth matching is screwed up

@@ -93,7 +93,6 @@ struct RegisterDVLEltBaseInit
   RegisterDVLEltBaseInit();
   static void doinit (SG::BaseInfoBase* bib);
 };
-#ifndef __REFLEX__
 template <class T>
 RegisterDVLEltBaseInit<T>::RegisterDVLEltBaseInit()
 {
@@ -102,7 +101,6 @@ RegisterDVLEltBaseInit<T>::RegisterDVLEltBaseInit()
   // Set up the init function.
   SG::BaseInfoBase::addInit(&typeid(T), doinit);
 }
-#endif
 template <class T>
 void RegisterDVLEltBaseInit<T>::doinit (SG::BaseInfoBase* bib)
 {

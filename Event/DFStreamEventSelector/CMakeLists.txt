@@ -32,7 +32,7 @@ atlas_add_library( DFStreamEventSelectorLib
    LINK_LIBRARIES AthenaBaseComps GaudiKernel
    StoreGateLib rt ${TDAQ-COMMON_hltinterface_LIBRARY}
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} 
-   AthenaKernel StorageSvc EventInfo xAODEventInfo)
+   AthenaKernel EventInfo xAODEventInfo)
 
 atlas_add_component( DFStreamEventSelector
    src/components/*.cxx

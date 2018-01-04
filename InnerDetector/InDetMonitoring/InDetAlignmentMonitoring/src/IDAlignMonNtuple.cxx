@@ -325,8 +325,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
     int nHits = 0;
 
     //looping over the hits
-    for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator iter_tsos=(track->trackStateOnSurfaces()->begin());
-	 iter_tsos!=track->trackStateOnSurfaces()->end() &&  nHits < s_n_maxHits; ++iter_tsos) {//looping over hits
+    for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
 
       float residualX = s_n_ERRORVALUE; float residualY = s_n_ERRORVALUE;
       float biasedResidualX = s_n_ERRORVALUE; float biasedResidualY = s_n_ERRORVALUE;
@@ -340,45 +339,45 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TSOS (hit) = " << nHits << endmsg;       
 
-      if ((*iter_tsos) == NULL) continue;
+      if (tsos == nullptr) continue;
 
       //determining type of TSOS object - can represent many different track elements
-      if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Measurement)) {
+      if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Measurement" << endmsg;
 	hitType = 0;
       }
-      else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::InertMaterial)) {
+      else if (tsos->type(Trk::TrackStateOnSurface::InertMaterial)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::InertMaterial" << endmsg;
 	hitType = 1;
       }
-      else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::BremPoint)) {
+      else if (tsos->type(Trk::TrackStateOnSurface::BremPoint)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::BremPoint" << endmsg;
 	hitType = 2;
       }
-      else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Scatterer)) {
+      else if (tsos->type(Trk::TrackStateOnSurface::Scatterer)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Scatterer" << endmsg;
 	hitType = 3;
       }
-      else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Perigee)) {
+      else if (tsos->type(Trk::TrackStateOnSurface::Perigee)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Perigee" << endmsg;
 	hitType = 4;
       }
-      else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Outlier)) {
+      else if (tsos->type(Trk::TrackStateOnSurface::Outlier)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Outlier" << endmsg;
 	hitType = 5;
       }
-      else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Hole)) {
+      else if (tsos->type(Trk::TrackStateOnSurface::Hole)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Hole" << endmsg;
 	hitType = 6;
       }
-      else if ((*iter_tsos)->type(Trk::TrackStateOnSurface::Unknown)) {
+      else if (tsos->type(Trk::TrackStateOnSurface::Unknown)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trk::TrackStateOnSurface::Unknown" << endmsg;
 	hitType = 7;
       }
       else if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unrecognised Trk::TrackStateOnSurface Type" << endmsg;
 
 
-      const Trk::MeasurementBase* mesh =(*iter_tsos)->measurementOnTrack();
+      const Trk::MeasurementBase* mesh =tsos->measurementOnTrack();
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined  hit MeasurementBase " << endmsg;
          
       //Trk::RIO_OnTrack object contains information on the hit used to fit the track at this surface
@@ -464,7 +463,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit is pixel or SCT, finding residuals... " << endmsg;
 
-	const Trk::TrackParameters* trackParameter = (*iter_tsos)->trackParameters();
+	const Trk::TrackParameters* trackParameter = tsos->trackParameters();
 
 	//alternative method used by Oleg in his HitQualitySelection tool to get cluster width
 	const std::vector<Identifier> idVec = (hit->prepRawData())->rdoList() ;
@@ -501,7 +500,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	  
 	  //finding unbiased single residuals
 	  StatusCode sc;
-	  sc = getSiResiduals(track,*iter_tsos,true,unbiasedResXY);
+	  sc = getSiResiduals(track,tsos,true,unbiasedResXY);
 	  if (sc.isFailure()) {
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining unbiased residuals! Hit is skipped." << endmsg;
 	    //return StatusCode::SUCCESS;
@@ -515,7 +514,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
 	  
 	  //finding biased single residuals (for interest)
-	  sc = getSiResiduals(track,*iter_tsos,false,biasedResXY);
+	  sc = getSiResiduals(track,tsos,false,biasedResXY);
 	  if (sc.isFailure()) {
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining biased residuals! Hit is skipped." << endmsg;
 	    //return StatusCode::SUCCESS;
@@ -838,14 +837,14 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
     const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
     const Identifier& OtherModuleSideID = m_SCT_Mgr->getDetectorElement(surfaceID)->otherSide()->identify();
       
-    for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator TempTsos=trkPnt->trackStateOnSurfaces()->begin();TempTsos!=trkPnt->trackStateOnSurfaces()->end(); ++TempTsos) {
+    for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
         
-      const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>((*TempTsos)->measurementOnTrack());
+      const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
       if (hitOnTrack != 0) {
 	const Identifier& trkID = hitOnTrack->identify();
 	if (m_sctID->wafer_id(trkID) == OtherModuleSideID) {
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,0,'/') << endmsg;
-	  OtherModuleSideHit = *TempTsos;
+	  OtherModuleSideHit = TempTsos;
 	}
       }
     }

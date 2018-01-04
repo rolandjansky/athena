@@ -71,8 +71,8 @@ bool TRTCalibTrackSelectionTool::isAccepted(const Trk::Track* pTrack) const
   
   float eta=-log(tan(theta/2));
   if (m_EtaMin< m_EtaMax && (eta < m_EtaMin || eta > m_EtaMax) ) return false;
-  
-  const Trk::TrackSummary* summary = m_TrackSummaryTool->createSummary(*pTrack);
+
+  std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*pTrack));
   if(summary->get(Trk::numberOfTRTHits)<m_MinTRTHits) return false;
   if(summary->get(Trk::numberOfPixelHits)<m_MinPixelHits) return false;
   if(summary->get(Trk::numberOfSCTHits)<m_MinSCTHits) return false;

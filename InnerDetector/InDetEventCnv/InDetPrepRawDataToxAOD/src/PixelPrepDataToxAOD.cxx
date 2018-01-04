@@ -147,7 +147,7 @@ StatusCode PixelPrepDataToxAOD::execute()
     if( clusterCollection->empty() ) continue;
     
     // loop over collection and convert to xAOD
-    for( auto& prd : *clusterCollection ){    
+    for( const InDet::PixelCluster* prd : *clusterCollection ){    
       ++counter;
 
       Identifier clusterId = prd->identify();

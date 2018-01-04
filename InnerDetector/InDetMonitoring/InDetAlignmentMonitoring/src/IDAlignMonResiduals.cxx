@@ -1212,7 +1212,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
   // NB the weight is a "per track" weight, so histograms such as BS info are never weighted
 
 	
-  DataVector<Trk::Track>* tracks = m_trackSelection->selectTracks(m_tracksName);
+  const DataVector<Trk::Track>* tracks = m_trackSelection->selectTracks(m_tracksName);
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDAlignMonResiduals::fillHistograms() -- event: " << m_events
 					 << " with Track collection " << m_tracksName << " has size =" << tracks->size()
 					 << endmsg;
@@ -1268,21 +1268,20 @@ StatusCode IDAlignMonResiduals::fillHistograms()
     }
 
     //looping over the hits
-    for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator iter_tsos=(track->trackStateOnSurfaces()->begin());
-	 iter_tsos!=track->trackStateOnSurfaces()->end(); ++iter_tsos) {//looping over hits
+    for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
 					
       ++nTSOS;
 			
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "***************** TSOS (hit) = " << nTSOS << endmsg;       
 			
-      if ((*iter_tsos) == NULL) continue;
+      if (tsos == NULL) continue;
 			
       //skipping outliers
-      if(!(*iter_tsos)->type(Trk::TrackStateOnSurface::Measurement)) {
+      if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) {
       	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Skipping TSOS " << nTSOS << " because it is an outlier (or the first TSOS on the track)" << endmsg;
       continue;
       }		
-      const Trk::MeasurementBase* mesh =(*iter_tsos)->measurementOnTrack();
+      const Trk::MeasurementBase* mesh =tsos->measurementOnTrack();
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined hit MeasurementBase " << endmsg;
 			
       //Trk::RIO_OnTrack object contains information on the hit used to fit the track at this surface
@@ -1293,7 +1292,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	continue;
       }
 			
-      const Trk::TrackParameters* trackParameter = (*iter_tsos)->trackParameters();
+      const Trk::TrackParameters* trackParameter = tsos->trackParameters();
       if(trackParameter==NULL) {
 	//if no TrackParameters for TSOS we cannot define residuals
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Skipping TSOS " << nTSOS << " because does not have TrackParameters" << endmsg;
@@ -1375,9 +1374,9 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	//have identified a TRT hit
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit is from the TRT, finding residuals... " << endmsg;
 	bool isTubeHit = (mesh->localCovariance()(Trk::locX,Trk::locX) > 1.0) ? 1 : 0;			
-	const Trk::TrackParameters* trackParameter = (*iter_tsos)->trackParameters();
+	const Trk::TrackParameters* trackParameter = tsos->trackParameters();
 	float hitR = hit->localParameters()[Trk::driftRadius];
-	float trketa = (*iter_tsos)->trackParameters()->eta();
+	float trketa = tsos->trackParameters()->eta();
 	float pullR = -9.9;
 	
 	const Identifier& id = m_trtID->layer_id(hitId);
@@ -1394,7 +1393,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found Trk::TrackParameters" << endmsg;
 	
 	//getting unbiased track parameters by removing the hit from the track and refitting
-	const Trk::TrackParameters* trackParameterUnbiased = getUnbiasedTrackParameters(track,*iter_tsos);
+	const Trk::TrackParameters* trackParameterUnbiased = getUnbiasedTrackParameters(track,tsos);
 	
 	if(!trackParameterUnbiased){//updator can fail
 	  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot define unbiased parameters for hit, skipping it." << endmsg;
@@ -1407,7 +1406,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	//Theoretically there should be no difference in the pull, but in practice, there can be differences
 	bool isPullUnbiased = true;
 				
-	const Trk::MeasurementBase* mesh =(*iter_tsos)->measurementOnTrack(); //This has been defined in line 869. Should be safe to keep it without redefinition
+	const Trk::MeasurementBase* mesh =tsos->measurementOnTrack(); //This has been defined in line 869. Should be safe to keep it without redefinition
 	//Not clear to me here. isPullUnbiased is set to true. Why inside the Function I am checking if it is true or not? Useless I would say.
 	const Trk::ResidualPull* residualPull = m_residualPullCalculator->residualPull(mesh, 
 										       trackParameterUnbiased, 
@@ -1427,7 +1426,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	float residualR = hitR - perdictR;
 	//float eventPhase = timeCor;  I think this is useless. I would prefer not to assign this and pass directly timeCor
 
-	const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*iter_tsos)->measurementOnTrack());
+	const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(tsos->measurementOnTrack());
 
 	
 	  
@@ -1506,7 +1505,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	if(m_doHitQuality) {
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
 	  
-	  hit = m_hitQualityTool->getGoodHit(*iter_tsos);
+	  hit = m_hitQualityTool->getGoodHit(tsos);
 	  if(hit==NULL) {
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endmsg;
 	    continue;
@@ -1568,7 +1567,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  }
 	}
 				
-	//const Trk::TrackParameters* trackParameter = (*iter_tsos)->trackParameters();  // Already defined before in line 880. Should be safe here to take the one up since there are the continues.
+	//const Trk::TrackParameters* trackParameter = tsos->trackParameters();  // Already defined before in line 880. Should be safe here to take the one up since there are the continues.
 				
 	//finding residuals
 	if(trackParameter){//should always have TrackParameters since we now skip tracks with no MeasuredTrackParameters
@@ -1580,7 +1579,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 					
 	  //finding unbiased single residuals
 	  StatusCode sc;
-	  sc = getSiResiduals(track,*iter_tsos,true,unbiasedResXY);
+	  sc = getSiResiduals(track,tsos,true,unbiasedResXY);
 	  if (sc.isFailure()) {
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining unbiased residuals! Hit is skipped." << endmsg;
 	    m_sirescalcfailure -> Fill(detType, hweight);
@@ -1593,7 +1592,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  pullY     = (float)unbiasedResXY[3];
 					
 	  //finding biased single residuals (for interest)
-	  sc = getSiResiduals(track,*iter_tsos,false,biasedResXY);
+	  sc = getSiResiduals(track,tsos,false,biasedResXY);
 	  if (sc.isFailure()) {
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem in determining biased residuals! Hit is skipped." << endmsg;
 	    continue;
@@ -2727,8 +2726,8 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 					   << ", barrelEC= "<<barrelEC<< endmsg;
       
       int nHits = 0;
-      for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos2=trk->trackStateOnSurfaces()->begin();tsos2!=trk->trackStateOnSurfaces()->end(); ++tsos2) {
-	const Trk::MeasurementBase* mesh =(*tsos2)->measurementOnTrack();
+      for (const Trk::TrackStateOnSurface* tsos2 : *trk->trackStateOnSurfaces()) {
+	const Trk::MeasurementBase* mesh =tsos2->measurementOnTrack();
 	const Trk::RIO_OnTrack* hit2 = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
 	if (hit2== NULL) continue;//the first hit on the track never has associated RIO_OnTrack - just stores track parameters
 	++nHits;
@@ -2738,7 +2737,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	int modEta2 = -99; 
 	int modPhi2 = -99;
 			
-	//const Identifier& hitId2 = (dynamic_cast <const Trk::RIO_OnTrack*>((*tsos2)->measurementOnTrack()))->identify();
+	//const Identifier& hitId2 = (dynamic_cast <const Trk::RIO_OnTrack*>(tsos2->measurementOnTrack()))->identify();
 	const Identifier& hitId2 = hit2->identify();
 	
 	if (m_idHelper->is_sct(hitId2)) 
@@ -2780,7 +2779,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	  }
 			
 			
-	if(!(*tsos2)->type(Trk::TrackStateOnSurface::Measurement)) {
+	if(!tsos2->type(Trk::TrackStateOnSurface::Measurement)) {
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an outlier" << endmsg;
 	  continue;
 	}
@@ -2815,7 +2814,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	}
 			
 			
-	const Trk::TrackParameters* measuredTrackParameter = (*tsos2)->trackParameters();
+	const Trk::TrackParameters* measuredTrackParameter = tsos2->trackParameters();
 	const AmgSymMatrix(5)* MeasTrackParCovariance = measuredTrackParameter ? measuredTrackParameter->covariance() : NULL;
 	if(MeasTrackParCovariance==NULL) {
 				
@@ -2828,7 +2827,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	  if((detType2==0 || detType2==1) && m_doHitQuality) {
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endmsg;
 					
-	    hit2 = m_hitQualityTool->getGoodHit(*tsos2);
+	    hit2 = m_hitQualityTool->getGoodHit(tsos2);
 	    if(hit2==NULL) {
 	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endmsg;
 	      continue;
@@ -2883,7 +2882,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<  "original module phi, eta,layerDisk,barrelEC  = " << modEta <<", "<<modPhi<<",  "<< layerDisk <<" , "<< barrelEC  << endmsg;
 	    //if(msgLvl(MSG::DEBUG)) msg() <<  "overlap module radius = " << radius2 << endmsg;
 	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<  "second module phi, eta,layerDisk,barrelEC  = " << modEta2 <<", "<<modPhi2<<layerDisk<<barrelEC<< endmsg;
-	    xOverlap = (*tsos2);
+	    xOverlap = tsos2;
 	  } //added by LT
 				
 	}
@@ -2893,7 +2892,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "modPhi2 = " << modPhi2 << endmsg;
 	  //if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
 	  //if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
-	  yOverlap = (*tsos2);	  
+	  yOverlap = tsos2;	  
 	}
       }		
     }
@@ -2934,15 +2933,15 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
     const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
     const Identifier& OtherModuleSideID = m_SCT_Mgr->getDetectorElement(surfaceID)->otherSide()->identify();
 		
-    for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator TempTsos=trkPnt->trackStateOnSurfaces()->begin();TempTsos!=trkPnt->trackStateOnSurfaces()->end(); ++TempTsos) {
+    for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
 			
-      const Trk::RIO_OnTrack* TempHitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>((*TempTsos)->measurementOnTrack());
+      const Trk::RIO_OnTrack* TempHitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
       if (TempHitOnTrack != 0) {
 	//const Identifier& trkID = TempHitOnTrack->identify();
 	//if (m_sctID->wafer_id(trkID) == OtherModuleSideID) {
 	if (m_sctID->wafer_id(TempHitOnTrack->identify()) == OtherModuleSideID) {
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID,0,'/') << endmsg;
-	  OtherModuleSideHit = *TempTsos;
+	  OtherModuleSideHit = TempTsos;
 	}
       }
     }
@@ -3177,22 +3176,21 @@ bool IDAlignMonResiduals::trackRequiresRefit(const Trk::Track* track)
 	
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Testing track to see if requires refit..." << endmsg;
 	
-  for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator iter_tsos=(track->trackStateOnSurfaces()->begin());
-       iter_tsos!=track->trackStateOnSurfaces()->end(); ++iter_tsos) {//looping over hits
+  for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
 		
-    if((*iter_tsos) == NULL) continue;
+    if(tsos == nullptr) continue;
 		
     //skipping outliers
-    if(!(*iter_tsos)->type(Trk::TrackStateOnSurface::Measurement)) continue;
+    if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) continue;
 		
-    const Trk::MeasurementBase* mesh =(*iter_tsos)->measurementOnTrack();
+    const Trk::MeasurementBase* mesh =tsos->measurementOnTrack();
     if (mesh==NULL) continue;
     const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
     if (hit==NULL) continue;
 		
     ++nHits;
 		
-    const Trk::TrackParameters* trackParameter = (*iter_tsos)->trackParameters();
+    const Trk::TrackParameters* trackParameter = tsos->trackParameters();
     if(trackParameter==NULL) ++nHitsNoParams; //if no TrackParameters for TSOS we cannot define residuals
 		
   }

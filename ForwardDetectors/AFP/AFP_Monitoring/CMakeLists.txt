@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
    Event/xAOD/xAODForward
    ForwardDetectors/AFP/AFP_RawEv
    PRIVATE
-   External/AtlasROOT
    Tools/LWHists
    Event/xAOD/xAODEventInfo
    )
@@ -22,7 +21,7 @@ atlas_add_component( AFP_Monitoring
    src/*.cxx
    src/components/*.cxx
    PUBLIC_HEADERS AFP_Monitoring
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib LWHists xAODForward xAODEventInfo AFP_RawEv)
+   LINK_LIBRARIES AthenaMonitoringLib LWHists xAODForward xAODEventInfo AFP_RawEv)
 
 atlas_install_headers( AFP_Monitoring )
 atlas_install_joboptions( share/*.py )

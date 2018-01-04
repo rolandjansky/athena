@@ -50,12 +50,12 @@ namespace InDetAlignMon{
     //if this method is used the decision on which trackcollection
     //is made by the calling method
     DataVector<Trk::Track>* selectTracksNew(const std::string&);
-    DataVector<Trk::Track>* selectTracks(const std::string &);
+    const DataVector<Trk::Track>* selectTracks(const std::string &);
     DataVector<xAOD::TrackParticle>* selectTracksParticle(const std::string &);
 
     //if this method the decision on which trackcollection
     //is made from the configuration of the TrackSlectionTool (in jobOptions)
-    DataVector<Trk::Track>* selectTracks();
+    const DataVector<Trk::Track>* selectTracks();
 
     std::string getTrackColName(){
       return m_trackColName;

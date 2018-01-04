@@ -71,25 +71,25 @@ InDetAlignDBTool::InDetAlignDBTool(const std::string& type,
     m_pixman(nullptr),
     m_sctman(nullptr),
     m_attrListCollection(nullptr),
-    par_newdb(true),
-    par_scttwoside(false),
-    par_fake(0),
-    par_condstream("CondStream1"),
-    par_dbroot( IND_ALIGN ),
-    par_dbkey( IND_ALIGN ),
-    par_oldTextFile(false),
+    m_par_newdb(true),
+    m_par_scttwoside(false),
+    m_par_fake(0),
+    m_par_condstream("CondStream1"),
+    m_par_dbroot( IND_ALIGN ),
+    m_par_dbkey( IND_ALIGN ),
+    m_par_oldTextFile(false),
     m_dynamicDB(false),
     m_forceUserDBConfig(false)
 {
   declareInterface<IInDetAlignDBTool>(this);
   declareProperty("IToolSvc",    p_toolsvc);
-  declareProperty("NewDB",       par_newdb);     //Take out at some point; New is misleading!! Very old developments!
-  declareProperty("SCTTwoSide",  par_scttwoside);
-  declareProperty("FakeDB",      par_fake);
-  declareProperty("CondStream",  par_condstream);
-  declareProperty("DBRoot",      par_dbroot,"name of the root folder for constants");
-  declareProperty("DBKey",       par_dbkey,"base part of the key for loading AlignableTransforms");
-  declareProperty("OldTextFile", par_oldTextFile);
+  declareProperty("NewDB",       m_par_newdb);     //Take out at some point; New is misleading!! Very old developments!
+  declareProperty("SCTTwoSide",  m_par_scttwoside);
+  declareProperty("FakeDB",      m_par_fake);
+  declareProperty("CondStream",  m_par_condstream);
+  declareProperty("DBRoot",      m_par_dbroot,"name of the root folder for constants");
+  declareProperty("DBKey",       m_par_dbkey,"base part of the key for loading AlignableTransforms");
+  declareProperty("OldTextFile", m_par_oldTextFile);
   declareProperty("forceUserDBConfig",m_forceUserDBConfig, "Set to true to override any DB auto-configuration");
 }
 
@@ -136,22 +136,22 @@ StatusCode InDetAlignDBTool::initialize()
     ATH_MSG_FATAL("Pixel and SCT Managers have different alignfolder type registered --> Check ");
   
   if (m_pixman->m_alignfoldertype == InDetDD::static_run1 && !m_forceUserDBConfig){
-    par_dbroot = "/Indet/Align";
+    m_par_dbroot = "/Indet/Align";
     m_dynamicDB = false;
   }
   if (m_pixman->m_alignfoldertype == InDetDD::timedependent_run2 && !m_forceUserDBConfig){
-    par_dbroot = "/Indet/AlignL3";
+    m_par_dbroot = "/Indet/AlignL3";
     m_dynamicDB = true;
   }  
-  par_dbkey = par_dbroot;
+  m_par_dbkey = m_par_dbroot;
 
   if ((StatusCode::SUCCESS!=detStore()->retrieve(m_pixid)) ||
       (StatusCode::SUCCESS!=detStore()->retrieve(m_sctid))) {
     // attempt failed - optionally fake up the geometry
-    if (par_fake==1) {
+    if (m_par_fake==1) {
       ATH_MSG_DEBUG("Initialising fake full ATLAS geometry");
       fakeGeom(3,3,4,9);
-    } else if (par_fake==2) {
+    } else if (m_par_fake==2) {
       ATH_MSG_DEBUG("Initialising fake CTB geometry");
       fakeGeom(3,0,4,0);
     } else {
@@ -207,7 +207,7 @@ StatusCode InDetAlignDBTool::initialize()
 
 
   if (msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG( "Database root folder " << par_dbroot );
+    ATH_MSG_DEBUG( "Database root folder " << m_par_dbroot );
     ATH_MSG_DEBUG( "Geometry initialisation sees " << ndet[0] << 
       " pixel and " <<  ndet[1] << " SCT modules giving " << m_alignobjs.size() 
     << " alignment keys" );
@@ -216,7 +216,7 @@ StatusCode InDetAlignDBTool::initialize()
     for (unsigned int i=0;i<m_alignobjs.size();++i)
       ATH_MSG_DEBUG( " " << m_alignobjs[i] << " [" << m_alignchans[i] << "]" );
     
-    if (par_newdb)
+    if (m_par_newdb)
       ATH_MSG_DEBUG("Assuming new COOL alignment DB model based on AlignableTransformContainer");
     else
       ATH_MSG_DEBUG("Assuming old (Lisbon) alignment DB model based on separate AlignableTransforms");
@@ -261,7 +261,7 @@ void InDetAlignDBTool::createDB() const
   
   ATH_MSG_DEBUG("createDB method called");
   // check not running in fake mode (need real geometry here)
-  if (par_fake) {
+  if (m_par_fake) {
     ATH_MSG_FATAL("Cannot create new database when geometry is faked");
   }
   AlignableTransform* pat;
@@ -270,9 +270,9 @@ void InDetAlignDBTool::createDB() const
   // AlignableTransform objects with default values
 
   // first create the empty AlignableTransform objects in TDS
-  if (par_newdb) {
+  if (m_par_newdb) {
     // check object does not already exist
-    if (detStore()->contains<AlignableTransformContainer>(par_dbroot)) {
+    if (detStore()->contains<AlignableTransformContainer>(m_par_dbroot)) {
       ATH_MSG_WARNING("createDB: AlignableTransformContainer already exists");
       return;
     }
@@ -285,13 +285,13 @@ void InDetAlignDBTool::createDB() const
   }
 
   if (msgLvl(MSG::DEBUG)) {
-    if (par_scttwoside) ATH_MSG_DEBUG( "Produce separate transforms for each side of SCT modules" );
+    if (m_par_scttwoside) ATH_MSG_DEBUG( "Produce separate transforms for each side of SCT modules" );
     else ATH_MSG_DEBUG( "Treat both sides of SCT module as single entity" );
   }
 
   for (unsigned int i=0;i<m_alignobjs.size();++i) {
     pat=new AlignableTransform(m_alignobjs[i]);
-    if (par_newdb) {
+    if (m_par_newdb) {
       // add to collection and set corresponding channel number
       patc->push_back(pat);
       patc->add(m_alignchans[i]);
@@ -306,9 +306,9 @@ void InDetAlignDBTool::createDB() const
         ATH_MSG_ERROR( "Could not record AlignableTransform "<< m_alignobjs[i] );
     }
   }
-  if (par_newdb) {
+  if (m_par_newdb) {
     // record collection in SG
-    if (StatusCode::SUCCESS!=detStore()->record(patc,par_dbroot))
+    if (StatusCode::SUCCESS!=detStore()->record(patc,m_par_dbroot))
         ATH_MSG_ERROR("Could not record AlignableTransformContainer");
     ATH_MSG_DEBUG( "Collection has size " <<  patc->size() );
   }
@@ -331,7 +331,7 @@ void InDetAlignDBTool::createDB() const
         std::string key=dirkey(ident,3);
         // do not produce AlignableTrasnforms for SCT side 1 if option set
         if (!(m_sctid->is_sct(ident) && m_sctid->side(ident)==1) || 
-            par_scttwoside) {
+            m_par_scttwoside) {
             if ((pat=getTransPtr(key))) {
             pat->add(ident,Amg::EigenTransformToCLHEP( Amg::Transform3D::Identity() ) );
             } else {
@@ -402,7 +402,7 @@ void InDetAlignDBTool::createDB() const
       //return; 
     }
     
-    if (par_newdb) {
+    if (m_par_newdb) {
       atrlistcol = m_attrListCollection;
       if (StatusCode::SUCCESS!=detStore()->record(atrlistcol,ibl_folderName))
 	ATH_MSG_ERROR( "Could not record IBLDist "<< ibl_folderName );
@@ -455,7 +455,7 @@ std::string InDetAlignDBTool::dirkey(const int det,const int bec,const
   // given SCT/pixel det/bec/layer, and level (1,2 or 3) return
   // directory key name for associated alignment data
   std::ostringstream result;
-  result << par_dbkey << "/" ;
+  result << m_par_dbkey << "/" ;
   if (level==1) {
     result << "ID";
   } else {
@@ -482,7 +482,7 @@ std::string InDetAlignDBTool::dirkey(const int det,const int bec,const
     result << "/" ;          // new folders have L1, L2, L3 structure
   }
   else{
-    result << par_dbkey << "/" ;
+    result << m_par_dbkey << "/" ;
   }
   if (level==1) {
     result << "ID";
@@ -867,7 +867,7 @@ void InDetAlignDBTool::writeGlobalFolderFile( const std::string file)
 
 
 void InDetAlignDBTool::readTextFile(const std::string file) const {
-  //  if (par_oldTextFile) return readOldTextFile(file);
+  //  if (m_par_oldTextFile) return readOldTextFile(file);
 
   ATH_MSG_DEBUG("readTextFile - set alignment constants from text file: " << file );
   std::ifstream infile;
@@ -1255,8 +1255,9 @@ Amg::Transform3D InDetAlignDBTool::getTransL123( const Identifier& ident ) const
   Amg::Transform3D trfL2 = getTrans( ident, 2 ) ;
   Amg::Transform3D trfL3 = getTrans( ident, 3 ) ;
   ATH_MSG_FATAL("Code needs to corrected otherwise you will get nonsensical results-- IndetAlignDBTool:2060");
-  const Amg::Transform3D trfNominal   ; //= element->defModuleTransform() ;
-  result = trfNominal.inverse() * trfL1 * trfL2 * trfNominal * trfL3 ;
+  //const Amg::Transform3D trfNominal   ; //= element->defModuleTransform() ;
+  //result = trfNominal.inverse() * trfL1 * trfL2 * trfNominal * trfL3 ;
+  result = trfL1 * trfL2 * trfL3 ;
   return result ;
 }
 
@@ -1278,11 +1279,11 @@ Amg::Transform3D InDetAlignDBTool::getTrans(const Identifier& ident,
 
 StatusCode InDetAlignDBTool::outputObjs() const {
   
-  ATH_MSG_DEBUG( "Output AlignableTranform objects to stream" << par_condstream );
+  ATH_MSG_DEBUG( "Output AlignableTranform objects to stream" << m_par_condstream );
   // get the AthenaOutputStream tool
   IAthenaOutputStreamTool* optool;
 
-  if (StatusCode::SUCCESS!=p_toolsvc->retrieveTool("AthenaPoolOutputStreamTool",par_condstream,optool)) {
+  if (StatusCode::SUCCESS!=p_toolsvc->retrieveTool("AthenaPoolOutputStreamTool",m_par_condstream,optool)) {
     ATH_MSG_ERROR("Cannot get AthenaPoolOutputStream tool" );
     return StatusCode::FAILURE;
   }
@@ -1294,15 +1295,15 @@ StatusCode InDetAlignDBTool::outputObjs() const {
   // construct list of objects to be written out, either 
   // AlignableTransformContainer or several of AlignableTransforms
   int npairs=m_alignobjs.size();
-  if (par_newdb) npairs=1;
+  if (m_par_newdb) npairs=1;
   IAthenaOutputStreamTool::TypeKeyPairs typekeys(npairs);
-  if (par_newdb) {
+  if (m_par_newdb) {
     typekeys[0]=
       IAthenaOutputStreamTool::TypeKeyPair("AlignableTransformContainer",
-             par_dbroot);
-    if (!(detStore()->contains<AlignableTransformContainer>(par_dbroot)))
+             m_par_dbroot);
+    if (!(detStore()->contains<AlignableTransformContainer>(m_par_dbroot)))
       ATH_MSG_ERROR(
-        "Expected " << par_dbroot << " object not found" );
+        "Expected " << m_par_dbroot << " object not found" );
   } else {
     for (unsigned int i=0;i<m_alignobjs.size();++i) {
       typekeys[i]=IAthenaOutputStreamTool::TypeKeyPair("AlignableTransform",
@@ -1336,7 +1337,7 @@ StatusCode InDetAlignDBTool::outputObjs() const {
   if (StatusCode::SUCCESS!=optool->commitOutput()) {
     ATH_MSG_ERROR("Could not commit output" );
   }
-  ATH_MSG_DEBUG( "Written " << typekeys.size() << " objects to stream " << par_condstream);
+  ATH_MSG_DEBUG( "Written " << typekeys.size() << " objects to stream " << m_par_condstream);
   return StatusCode::SUCCESS;
 }
 
@@ -1357,13 +1358,13 @@ void InDetAlignDBTool::fillDB(const std::string tag,
   }
   // loop over all AlignableTransform objects created earlier and save them
   int nobj=0; 
-  if (par_newdb) {
+  if (m_par_newdb) {
     if (StatusCode::SUCCESS==regsvc->registerIOV(
-             "AlignableTransformContainer",par_dbroot,tag,run1,run2,event1,event2)) {
-      ATH_MSG_DEBUG( "Stored AlignableTransform object " << par_dbroot );
+             "AlignableTransformContainer",m_par_dbroot,tag,run1,run2,event1,event2)) {
+      ATH_MSG_DEBUG( "Stored AlignableTransform object " << m_par_dbroot );
       ++nobj;
     } else {
-      ATH_MSG_ERROR("Failed (registerIOV) to store object " << par_dbroot );
+      ATH_MSG_ERROR("Failed (registerIOV) to store object " << m_par_dbroot );
     }
   } else {
     // old way - register all objects separately
@@ -1427,8 +1428,8 @@ AlignableTransform* InDetAlignDBTool::getTransPtr(const std::string key)
   // given key and return it, return 0 if not collection or key value not found
   AlignableTransformContainer* patc;
   AlignableTransform* pat=0;
-  if (par_newdb) {
-    if (StatusCode::SUCCESS==detStore()->retrieve(patc,par_dbroot )) {
+  if (m_par_newdb) {
+    if (StatusCode::SUCCESS==detStore()->retrieve(patc,m_par_dbroot )) {
       for (DataVector<AlignableTransform>::iterator dva=patc->begin();
      dva!=patc->end();++dva) {
         if ((*dva)->tag()==key) {
@@ -1450,8 +1451,8 @@ const AlignableTransform* InDetAlignDBTool::cgetTransPtr(const std::string key)
   // const version
   const AlignableTransformContainer* patc;
   const AlignableTransform* pat=0;
-  if (par_newdb) {
-    if (StatusCode::SUCCESS==detStore()->retrieve(patc,par_dbroot )) {
+  if (m_par_newdb) {
+    if (StatusCode::SUCCESS==detStore()->retrieve(patc,m_par_dbroot )) {
       for (DataVector<AlignableTransform>::const_iterator dva=patc->begin();
      dva!=patc->end();++dva) {
         if ((*dva)->tag()==key) {

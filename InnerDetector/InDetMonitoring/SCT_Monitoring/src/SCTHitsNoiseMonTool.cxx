@@ -919,7 +919,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
     DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin();
     DataVector<SCTRawDataType>::const_iterator end_rdo = SCT_Collection->end();
     for (; p_rdo != end_rdo; ++p_rdo) {
-      SCT3_RawData *rdo3 = dynamic_cast<SCT3_RawData *>(*p_rdo);
+      const SCT3_RawData *rdo3 = dynamic_cast<const SCT3_RawData *>(*p_rdo);
       int tbin;// = (*p_rdo)->getTimeBin();
       if (rdo3 != 0) {
         tbin = (rdo3)->getTimeBin();

@@ -11,10 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/DataModelRoot
-                          Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
-                          Database/APR/PersistencySvc
                           Database/APR/StorageSvc )
 
 # External dependencies:
@@ -27,7 +23,7 @@ atlas_add_component( AthenaRootStreamerSvc
                      src/AthenaRootStreamerSvc.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps DataModelRoot CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps DataModelRoot StorageSvc )
 
 # Install files from the package:
 atlas_install_headers( AthenaPoolServices )

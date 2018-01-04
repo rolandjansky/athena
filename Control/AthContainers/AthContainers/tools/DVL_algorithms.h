@@ -916,7 +916,6 @@ random_shuffle
 }
                           
 
-#if __cplusplus > 201100
 /**
  * @brief Specialization of @c shuffle for @c DataVector/List.
  * @param beg The start iterator for the shuffle operation.
@@ -964,7 +963,6 @@ shuffle
                 g);
   DataModel_detail::resortAux (beg, end);
 }
-#endif
 
 
 } // namespace std

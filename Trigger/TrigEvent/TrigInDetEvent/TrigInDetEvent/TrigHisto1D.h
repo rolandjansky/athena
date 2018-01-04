@@ -5,7 +5,7 @@
 #ifndef TRIGINDETEVENT_TRIGHISTO1D_H
 #define TRIGINDETEVENT_TRIGHISTO1D_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TrigHisto.h"
 

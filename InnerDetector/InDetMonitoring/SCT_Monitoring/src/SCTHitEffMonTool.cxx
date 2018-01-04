@@ -89,7 +89,7 @@ namespace {// anonymous namespace for functions at file scope
   };// 23.01.2015
 
   template< typename T > Identifier
-  surfaceOnTrackIdentifier(T &tsos, const bool useTrackParameters = true) {
+  surfaceOnTrackIdentifier(const T &tsos, const bool useTrackParameters = true) {
     Identifier result(0); // default constructor produces invalid value
     const Trk::MeasurementBase *mesb = tsos->measurementOnTrack();
 

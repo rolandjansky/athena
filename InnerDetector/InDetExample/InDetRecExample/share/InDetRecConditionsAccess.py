@@ -407,9 +407,9 @@ if DetFlags.haveRIO.TRT_on():
     if not conddb.folderRequested('/TRT/Calib/T0'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className='TRTCond::StrawT0MultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/errors2d'):
-        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
+        TRTErrorsFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
     if not conddb.folderRequested('/TRT/Calib/slopes'):
-        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
+        TRTSlopesFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
         
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
@@ -420,6 +420,8 @@ if DetFlags.haveRIO.TRT_on():
     # Calibration DB Service
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
     InDetTRTCalDbSvc = TRT_CalDbSvc()
+    InDetTRTCalDbSvc.ErrorReadKeyName = TRTErrorsFolder
+    InDetTRTCalDbSvc.SlopeReadKeyName = TRTSlopesFolder
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
         print InDetTRTCalDbSvc

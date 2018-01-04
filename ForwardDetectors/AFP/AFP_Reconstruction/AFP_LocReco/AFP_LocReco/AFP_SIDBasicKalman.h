@@ -32,7 +32,6 @@
 #define MAXCHI2TRK 3.0
 #define MAXSHAREDHITS 2
 
-using namespace std;
 
 class AFP_SIDBasicKalman
 {
@@ -44,14 +43,14 @@ class AFP_SIDBasicKalman
 		float m_AmpThresh;
 		int m_iDataType;
 
-		list<SIDRESULT> m_listResults;
-		list<SIDHIT>    m_ListSIDHits;
-		map<Int_t, SIDHITPOS> m_MapSIDHitPos;
+                std::list<SIDRESULT> m_listResults;
+                std::list<SIDHIT>    m_ListSIDHits;
+                std::map<Int_t, SIDHITPOS> m_MapSIDHitPos;
 
 	public:
-		StatusCode Initialize(float fAmpThresh, int iDataType, const list<SIDHIT> &ListSIDHits, Float_t fsSID[SIDSTATIONID][SIDCNT], Float_t fxSID[SIDSTATIONID][SIDCNT], Float_t fySID[SIDSTATIONID][SIDCNT], Float_t fzSID[SIDSTATIONID][SIDCNT]);
+		StatusCode Initialize(float fAmpThresh, int iDataType, const std::list<SIDHIT> &ListSIDHits, Float_t fsSID[SIDSTATIONID][SIDCNT], Float_t fxSID[SIDSTATIONID][SIDCNT], Float_t fySID[SIDSTATIONID][SIDCNT], Float_t fzSID[SIDSTATIONID][SIDCNT]);
 		StatusCode Execute();
-		StatusCode Finalize(list<SIDRESULT>* pListResults);
+		StatusCode Finalize(std::list<SIDRESULT>* pListResults);
 		
 		void GetData();
 
@@ -70,37 +69,37 @@ class AFP_SIDBasicKalman
 		TH2F* m_histS4_PixMap;
 		
 	private:
-		vector<SIDHITSEED> m_pTrkSeeds;
+                std::vector<SIDHITSEED> m_pTrkSeeds;
 		CLHEP::HepMatrix m_Hk, m_Qk, m_Vk, m_C0;
 		
 		CLHEP::HepMatrix m_m0, m_x0;
 		Float_t m_z0;
 		
-		vector< CLHEP::HepMatrix > m_Fk;
-		vector< CLHEP::HepMatrix > m_Ck;
-		vector< CLHEP::HepMatrix > m_CkP;
-		vector< CLHEP::HepMatrix > m_Rk;
+		std::vector< CLHEP::HepMatrix > m_Fk;
+		std::vector< CLHEP::HepMatrix > m_Ck;
+		std::vector< CLHEP::HepMatrix > m_CkP;
+		std::vector< CLHEP::HepMatrix > m_Rk;
 
-		vector< CLHEP::HepVector > m_xk;
-		vector< CLHEP::HepVector > m_xkP;
-		vector< CLHEP::HepVector > m_rk;
-		vector< CLHEP::HepVector > m_rkP;
-		vector< CLHEP::HepVector > m_mk;
-		vector< Float_t > m_chik;
-		vector< Float_t > m_zk;
-		vector< Int_t >   m_HID;
+		std::vector< CLHEP::HepVector > m_xk;
+		std::vector< CLHEP::HepVector > m_xkP;
+		std::vector< CLHEP::HepVector > m_rk;
+		std::vector< CLHEP::HepVector > m_rkP;
+		std::vector< CLHEP::HepVector > m_mk;
+		std::vector< Float_t > m_chik;
+		std::vector< Float_t > m_zk;
+		std::vector< Int_t >   m_HID;
 		
-		vector< CLHEP::HepVector > m_xkS;
-		vector< CLHEP::HepMatrix > m_CkS;
-		vector< Float_t > m_chikS;
+		std::vector< CLHEP::HepVector > m_xkS;
+		std::vector< CLHEP::HepMatrix > m_CkS;
+		std::vector< Float_t > m_chikS;
 		
-		void FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPOS> &MapSIDHitPos);
+		void FillSIDHITPOS(const SIDHIT &SIDHit, std::map<Int_t, SIDHITPOS> &MapSIDHitPos);
 		void GetTrkSeeds();
 		bool FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t plateF);
 		bool FillTrkPropagators(Int_t stID, Int_t plateF);
 		void Smooth();
 		void FilterTrkCollection();
-		Int_t GetSharedHits(const vector<Int_t> &HID1, const vector<Int_t>  &HID2);
+		Int_t GetSharedHits(const std::vector<Int_t> &HID1, const std::vector<Int_t>  &HID2);
 		void ClearMatrix();
 		
 };

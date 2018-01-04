@@ -41,26 +41,26 @@ class MdtHptdcReadOut : public MdtReadOut {
 
   // Word header Position and values
   // The word header occupies the 4 highest bits of each TDC data word
-  static const uint16_t headerPos  = 28;
-  static const uint16_t headerBits = 0xf;
+  static const uint16_t HEADERPOS  = 28;
+  static const uint16_t HEADERBITS = 0xf;
 
   // Beginning of TDC: two possible header values
   // for channels 00-15 and 16-17 respectively
-  static const uint16_t BOTvalue1  = 0xa;
-  static const uint16_t BOTvalue2  = 0xb;
+  static const uint16_t BOTVALUE1  = 0xa;
+  static const uint16_t BOTVALUE2  = 0xb;
 
   // End of TDC
-  static const uint16_t EOTvalue   = 0xc;
+  static const uint16_t EOTVALUE   = 0xc;
 
   // TDC single measurement
-  static const uint16_t TSMvalue_lead   = 0x4;
-  static const uint16_t TSMvalue_tail   = 0x5;
+  static const uint16_t TSMVALUE_LEAD   = 0x4;
+  static const uint16_t TSMVALUE_TAIL   = 0x5;
 
   // TDC combined measurement
-  static const uint16_t TCMvalue   = 0x9;
+  static const uint16_t TCMVALUE   = 0x9;
 
   // TDC error status
-  static const uint16_t TESvalue   = 0x6;
+  static const uint16_t TESVALUE   = 0x6;
 
  public:
 
@@ -74,17 +74,17 @@ class MdtHptdcReadOut : public MdtReadOut {
 
   // Methods to identify the word type
   // Beginning of TDC
-  bool is_BOT() {return ((m_wordHeader == BOTvalue1) ||
-                         (m_wordHeader == BOTvalue2));};
+  bool is_BOT() {return ((m_wordHeader == BOTVALUE1) ||
+                         (m_wordHeader == BOTVALUE2));};
   // End of TDC
-  bool is_EOT() {return (m_wordHeader == EOTvalue);};
+  bool is_EOT() {return (m_wordHeader == EOTVALUE);};
   // TDC single measurement
-  bool is_TSM() {return ( (m_wordHeader == TSMvalue_lead) ||
-                          (m_wordHeader == TSMvalue_tail) );};
+  bool is_TSM() {return ( (m_wordHeader == TSMVALUE_LEAD) ||
+                          (m_wordHeader == TSMVALUE_TAIL) );};
   // TDC combined measurement
-  bool is_TCM() {return (m_wordHeader == TCMvalue);};
+  bool is_TCM() {return (m_wordHeader == TCMVALUE);};
   // TDC error status
-  bool is_TES() {return (m_wordHeader == TESvalue);};
+  bool is_TES() {return (m_wordHeader == TESVALUE);};
 
   // Methods to retrieve the decoded word content
   uint16_t tdcId() {return m_tdcId;}

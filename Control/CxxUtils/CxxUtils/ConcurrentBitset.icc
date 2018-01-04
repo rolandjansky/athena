@@ -415,11 +415,11 @@ ConcurrentBitset& ConcurrentBitset::insert (bit_t bit, bit_t new_nbits /*= 0*/)
  @endcode
 */
 template <class ITERATOR,
-          typename = typename std::enable_if<
+          typename /*= typename std::enable_if<
             std::is_base_of<
               typename std::forward_iterator_tag,
               typename std::iterator_traits<ITERATOR>::iterator_category
-              >::value> >
+              >::value>*/ >
 inline
 ConcurrentBitset&
 ConcurrentBitset::insert (ITERATOR beg, ITERATOR end, bit_t new_nbits /*= 0*/)

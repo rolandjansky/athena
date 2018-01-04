@@ -32,7 +32,6 @@ AuxVectorBase::AuxVectorBase()
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move constructor.
  * @param rhs The container from which to move.
@@ -56,7 +55,6 @@ AuxVectorBase& AuxVectorBase::operator= (AuxVectorBase&& rhs)
   }
   return *this;
 }
-#endif
 
 
 /**
@@ -131,7 +129,7 @@ void AuxVectorBase::setStore (const DataLink<SG::IConstAuxStore>& store)
  * (but that should never actually happen).
  */
 void
-AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::false_type&,
+AuxVectorBase::initAuxVectorBase1 (const std::false_type&,
                                    SG::OwnershipPolicy /*ownPolicy*/,
                                    SG::IndexTrackingPolicy /*indexTrackingPolicy*/)
 {
@@ -151,7 +149,7 @@ AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::false_type&,
  * has an associated store.
  */
 void
-AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::true_type&,
+AuxVectorBase::initAuxVectorBase1 (const std::true_type&,
                                    SG::OwnershipPolicy ownPolicy,
                                    SG::IndexTrackingPolicy indexTrackingPolicy)
 {
@@ -175,7 +173,7 @@ AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::true_type&,
  *
  * The auxdata case.
  */
-void AuxVectorBase::resize1 (const SG_STD_OR_BOOST::true_type&, size_t size)
+void AuxVectorBase::resize1 (const std::true_type&, size_t size)
 {
   if (this->hasNonConstStore()) {
     if (!this->getStore()->resize (size)) {
@@ -194,7 +192,7 @@ void AuxVectorBase::resize1 (const SG_STD_OR_BOOST::true_type&, size_t size)
  *
  * The auxdata case.
  */
-void AuxVectorBase::reserve1 (const SG_STD_OR_BOOST::true_type&, size_t size)
+void AuxVectorBase::reserve1 (const std::true_type&, size_t size)
 {
   if (this->hasNonConstStore()) {
     this->getStore()->reserve (size);

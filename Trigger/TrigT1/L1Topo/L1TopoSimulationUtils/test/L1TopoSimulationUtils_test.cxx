@@ -26,6 +26,7 @@
 #include <cassert>
 #include <cstdint>
 #include <exception>
+#include <cmath>
 
 using std::cout;
 using std::endl;
@@ -59,7 +60,7 @@ void test2()
     for(const double eta : {0.05, 0.2, 0.41, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.9, 3.1, 3.5}) {
         for(const unsigned int et : {4, 12, 24, 48, 96, 360}) {
             int iet = kflut.getetbin(et);
-            int ieta = kflut.getetabin(abs(eta));
+            int ieta = kflut.getetabin(std::abs(eta));
             double corrfactor = kflut.getcorrKF(iet, ieta);
             const bool large = corrfactor>+0.5;
             const bool small = corrfactor<-0.5;
@@ -84,7 +85,7 @@ void test3()
         const int et = 1024+1; // 2**10 + 1 : JetTOB has 10bits for E8x8
         const double eta = 0.5;
         int iet = kflut.getetbin(et);
-        int ieta = kflut.getetabin(abs(eta));
+        int ieta = kflut.getetabin(std::abs(eta));
         double corrfactor = kflut.getcorrKF(iet, ieta);
         cout<<" et "<<et<<" ["<<iet<<"], "
             <<" eta "<<eta<<" ["<<ieta<<"] : "

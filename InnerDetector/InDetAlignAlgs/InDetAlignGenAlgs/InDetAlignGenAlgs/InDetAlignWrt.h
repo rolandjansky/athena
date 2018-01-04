@@ -31,40 +31,40 @@ private:
   bool m_setup;
 
   // algorithm parameters
-  bool par_create;
-  bool par_wrt;
-  bool par_wrtiov;
-  bool par_print;
-  bool par_migrate;
-  std::string par_rfile;
-  std::string par_wfile;
-  std::string par_dispfile;
-  bool par_ntuple;
-  int par_wrtrun;
-  int par_wrtevent;
-  unsigned int par_run1;  // IOV to be filled
-  unsigned int par_run2;
-  unsigned int par_evt1;
-  unsigned int par_evt2;
-  std::string par_iovtag;
-  std::string par_dbtoolinst;
+  bool m_par_create;
+  bool m_par_wrt;
+  bool m_par_wrtiov;
+  bool m_par_print;
+  bool m_par_migrate;
+  std::string m_par_rfile;
+  std::string m_par_wfile;
+  std::string m_par_dispfile;
+  bool m_par_ntuple;
+  int m_par_wrtrun;
+  int m_par_wrtevent;
+  unsigned int m_par_run1;  // IOV to be filled
+  unsigned int m_par_run2;
+  unsigned int m_par_evt1;
+  unsigned int m_par_evt2;
+  std::string m_par_iovtag;
+  std::string m_par_dbtoolinst;
 
   // parameters to add displacements
-  int par_dispmode;
-  int par_dettype;
-  int par_bec;
-  int par_layer;
-  int par_ring;
-  int par_sector;
-  float par_rphidisp;
-  float par_rdisp;
-  float par_zdisp;
-  int par_systdisp;
-  int par_irskip;
-  int par_dispcsc;
-  bool par_wrtbeam;
-  bool par_writetop;
-  std::string par_topname;
+  int m_par_dispmode;
+  int m_par_dettype;
+  int m_par_bec;
+  int m_par_layer;
+  int m_par_ring;
+  int m_par_sector;
+  float m_par_rphidisp;
+  float m_par_rdisp;
+  float m_par_zdisp;
+  int m_par_systdisp;
+  int m_par_irskip;
+  int m_par_dispcsc;
+  bool m_par_wrtbeam;
+  bool m_par_writetop;
+  std::string m_par_topname;
 
   // private methods
   void DispDB();

@@ -30,12 +30,12 @@ AlfaLocalHit::AlfaLocalHit(){
 }
 
 
-AlfaLocalHit::AlfaLocalHit(ALFA_LocRecCorrEvent * LocRecCorrHit){
+AlfaLocalHit::AlfaLocalHit(const ALFA_LocRecCorrEvent * LocRecCorrHit){
   // explicit constructor 
   SetHit(LocRecCorrHit);
 }
 
-AlfaLocalHit::AlfaLocalHit(AlfaLocalHit * h){
+AlfaLocalHit::AlfaLocalHit(const AlfaLocalHit * h){
   m_pot = h->GetPotNum();
   m_potname = GetMDname(m_pot);
   m_ishit = 1;
@@ -46,7 +46,7 @@ AlfaLocalHit::AlfaLocalHit(AlfaLocalHit * h){
 }
 
 
-void AlfaLocalHit::SetHit(ALFA_LocRecCorrEvent * LocRecCorrHit){
+void AlfaLocalHit::SetHit(const ALFA_LocRecCorrEvent * LocRecCorrHit){
   m_pot = LocRecCorrHit->getPotNum();
   //cout << "AlfaLocalHit::SetHit... m_pot = " << m_pot << endl;
   m_potname = GetMDname(m_pot);

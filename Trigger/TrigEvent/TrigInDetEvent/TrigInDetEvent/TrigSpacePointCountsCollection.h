@@ -5,10 +5,10 @@
 #ifndef TRIGINDETEVENT_TRIGSPACEPOINTCOUNTSCOLLECTION_H
 #define TRIGINDETEVENT_TRIGSPACEPOINTCOUNTSCOLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigInDetEvent/TrigSpacePointCounts.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** @class TrigSctSpCountsCollection
  * @author Regina Kwee <Regina.Kwee@cern.ch>

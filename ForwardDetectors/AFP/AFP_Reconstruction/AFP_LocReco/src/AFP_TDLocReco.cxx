@@ -8,7 +8,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h" 
 
-AFP_TDLocReco::AFP_TDLocReco(const string& name, ISvcLocator* pSvcLocator) :
+AFP_TDLocReco::AFP_TDLocReco(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator)
 {
 	ATH_MSG_DEBUG("begin AFP_TDLocReco::AFP_TDLocReco");
@@ -111,7 +111,7 @@ StatusCode AFP_TDLocReco::execute()
 
 	StatusCode sc;
 
-	list<TDHIT> ListTDHits;
+        std::list<TDHIT> ListTDHits;
 	ListTDHits.clear();
 
 	m_eventNum = 0;
@@ -157,7 +157,7 @@ StatusCode AFP_TDLocReco::execute()
 	}
 	else
 	{
-		string strAlgoTD;
+                std::string strAlgoTD;
 		for(unsigned int i=0; i<m_vecListAlgoTD.size(); i++)
 		{
 			strAlgoTD = m_vecListAlgoTD[i];
@@ -203,7 +203,7 @@ void AFP_TDLocReco::ClearGeometry()
 }
 
 
-StatusCode AFP_TDLocReco::AFPCollectionReading(list<TDHIT> &ListTDHits)
+StatusCode AFP_TDLocReco::AFPCollectionReading(std::list<TDHIT> &ListTDHits)
 {
 	StatusCode sc;
 
@@ -280,19 +280,19 @@ void AFP_TDLocReco::SaveGeometry()
 	ATH_MSG_DEBUG("end AFP_TDLocReco::SaveGeometry()");
 }
 
-StatusCode AFP_TDLocReco::ExecuteRecoMethod(const string strAlgo, const list<TDHIT> &ListTDHits)
+StatusCode AFP_TDLocReco::ExecuteRecoMethod(const std::string strAlgo, const std::list<TDHIT> &ListTDHits)
 {
 	ATH_MSG_DEBUG("begin AFP_TDLocReco::ExecuteRecoMethod()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 	TDRESULT TDResults;
-	list<TDRESULT> listTDResults;
+        std::list<TDRESULT> listTDResults;
 	listTDResults.clear();
 
 
-	map<string, int> mapRecoMethods;
+        std::map<std::string, int> mapRecoMethods;
 	mapRecoMethods.clear();
-	mapRecoMethods.insert(pair<string, int>("TDZVertex", 1));
+	mapRecoMethods.insert(std::pair<std::string, int>("TDZVertex", 1));
 
 
 	switch(mapRecoMethods[strAlgo])
@@ -305,7 +305,7 @@ StatusCode AFP_TDLocReco::ExecuteRecoMethod(const string strAlgo, const list<TDH
 			sc = pTDZVertex->Execute(ListTDHits);
 			sc = pTDZVertex->Finalize(&listTDResults);
 
-			list<TDRESULT>::const_iterator iter;
+                        std::list<TDRESULT>::const_iterator iter;
 			for(iter=listTDResults.begin(); iter!=listTDResults.end(); iter++)
 			{
 				TDResults.nStationID  = (*iter).nStationID;
