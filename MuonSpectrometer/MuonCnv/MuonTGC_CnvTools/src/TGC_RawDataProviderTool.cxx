@@ -148,8 +148,19 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
   m_useContainer = (has_bytestream || m_rdoContainerKey.key() != "TGCRDO") && !m_rdoContainerKey.key().empty();
 
   if (!m_useContainer) {
-    ATH_MSG_DEBUG( "ByteStream conversion service not found." );
-    ATH_MSG_DEBUG( "TGC RDO container not registered." );
+    if (!has_bytestream){
+      ATH_MSG_DEBUG( "ByteStream conversion service not found." );
+      ATH_MSG_DEBUG( "TGC RDO container not registered." );
+    } 
+    if (m_rdoContainerKey.key().empty()){
+      ATH_MSG_DEBUG( "The RDO key is empty" );
+      ATH_MSG_DEBUG( "TGC RDO container not registered." );
+    } else {
+      if (m_rdoContainerKey.key() != "TGCRDO"){
+        ATH_MSG_DEBUG( "The RDO key isn't TGCRDO but " << m_rdoContainerKey.key() );
+        ATH_MSG_DEBUG( "TGC RDO container not registered." );
+      }
+    }
   } else {
     m_maxhashtoUse = m_muonMgr->tgcIdHelper()->module_hash_max();
   }
