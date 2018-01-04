@@ -201,7 +201,6 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
    m_trtID(0),
    m_PIX_Mgr(0),
    m_SCT_Mgr(0),
-   m_Pi(3.14156),
    m_NPixLayers(0),
    m_events(0),
    m_histosBooked(0),

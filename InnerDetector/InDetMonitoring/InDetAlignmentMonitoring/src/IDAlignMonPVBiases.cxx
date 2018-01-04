@@ -59,8 +59,7 @@ IDAlignMonPVBiases::IDAlignMonPVBiases( const std::string & type, const std::str
   m_histosBooked(0),
   m_tracksName("ExtendedTracks"),
   m_triggerChainName("NoTriggerSelection"),
-  m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
-  m_vertices(0)
+  m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator")
   //m_TreeFolder("/PVbiases/PVbiases"),
   //m_Tree(0),
   //m_TreeName("PVbiases")

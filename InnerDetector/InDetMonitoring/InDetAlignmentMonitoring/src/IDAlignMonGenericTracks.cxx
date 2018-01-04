@@ -2411,7 +2411,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       qOverP   = perigeeParams[Trk::qOverP]*1000.;
       trketa   = measPer->eta(); 
       if (qOverP < 0) charge = -1;
-      else charge =+ 1; 
+      else charge = 1; 
     }   
     if(trkpt > ptlast && trkpt < ptfirst && chargefirst*charge < 0 && trkpt > 20){
       z_E[1]   = fabs(trkpt / sin(trktheta));
