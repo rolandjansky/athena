@@ -88,7 +88,7 @@ StatusCode DumpMC::execute() {
   for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     //int g_id = (*itr)->signal_process_id();
     //GeneratorName_print(g_id);
-    HepMC::PdfInfo *pdfinfo = (*itr)->pdf_info();
+    const HepMC::PdfInfo *pdfinfo = (*itr)->pdf_info();
     if (pdfinfo) {
       cout << "PdfInfo: "
                 << pdfinfo->id1() << ", "
@@ -103,7 +103,7 @@ StatusCode DumpMC::execute() {
                 <<      endl;
     }
 
-   HepMC::HeavyIon *ion = (*itr)->heavy_ion();
+   const HepMC::HeavyIon *ion = (*itr)->heavy_ion();
     if (ion) {
       std::cout << std::endl;
       std::cout << "Heavy Ion: "
