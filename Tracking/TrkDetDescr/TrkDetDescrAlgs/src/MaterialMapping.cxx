@@ -241,7 +241,7 @@ StatusCode Trk::MaterialMapping::execute()
                 // layers are ordered, hence you can move the starting point along
                 size_t currentLayer = 0;
                 // loop through hits and find the closest layer, the start point moves outwards as we go 
-                for ( auto& step : (*materialStepCollection) ) {
+                for ( const Trk::MaterialStep* step : *materialStepCollection ) {
                    // verbose output    
                    ATH_MSG_VERBOSE("[L] starting from layer " << currentLayer << " from layer collection for this step.");
                    // step length and position
