@@ -2541,6 +2541,8 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 ################################################################################################################
 # Higgs
 
+309452  Pythia8EvtGen_A14NNPDF23LO_ZH125_bb_fj350           		0.346505        1.0             0.01301815 	1
+309451  Pythia8EvtGen_A14NNPDF23LO_WH125_bb_fj350           		0.634845        1.0             0.01307475 	1
 341000	PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam		0.068815	1.4551719568	1.0		1
 341001	PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_gamgam		0.00872602	0.979306020067	1.0		1
 341067	Pythia8EvtGen_A14NNPDF23LO_WH125_gamgam				0.0025297	1.24378384789	1.0		1
