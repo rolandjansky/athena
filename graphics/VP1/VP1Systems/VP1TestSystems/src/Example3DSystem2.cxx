@@ -57,7 +57,7 @@ void Example3DSystem2::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   TrackCollection::const_iterator trackItr, trackItrEnd = trackColl->end();
 
   for ( trackItr = trackColl->begin() ; trackItr != trackItrEnd; ++trackItr) {
-      Trk::Track *track = (*trackItr);
+      const Trk::Track *track = (*trackItr);
       const DataVector<const Trk::TrackParameters> *params = track->trackParameters();
 
       //Just a sanity check:
