@@ -106,14 +106,18 @@ namespace ViewHelper
   inline StatusCode ScheduleViews( std::vector< SG::View* > const& ViewVector, std::string const& NodeName,
       EventContext const& SourceContext, IScheduler * Scheduler )
   {
+    //Prevent view nesting - test if source context has view attached
+    Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+    if ( dynamic_cast< SG::View* >( extendedContext->proxy() ) )
+    {
+      return StatusCode::FAILURE;
+    }
+
     //Retrieve the scheduler
     if ( !Scheduler )
     {
       return StatusCode::FAILURE;
     }
-
-    //Retrieve existing extended context
-    unsigned int conditionsRun = SourceContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
 
     if ( ViewVector.size() )
     {
@@ -121,7 +125,7 @@ namespace ViewHelper
       {
         //Make a context with the view attached
         EventContext * viewContext = new EventContext( SourceContext );
-        viewContext->setExtension( Atlas::ExtendedEventContext( view, conditionsRun ) );
+        viewContext->setExtension( Atlas::ExtendedEventContext( view, extendedContext->conditionsRun() ) );
 
         //Attach the view to the named node
         StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, viewContext );

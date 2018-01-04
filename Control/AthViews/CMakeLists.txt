@@ -45,6 +45,12 @@ atlas_add_test( ViewLinking_test
 		LINK_LIBRARIES ${TBB_LIBRARIES}
 		AthViews TestTools )
 
+atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh
+                EXTRA_PATTERNS "INFO 109" )
+
+atlas_add_test( ViewNestFail SCRIPT test/test_view_nest_fail.sh
+                EXTRA_PATTERNS "Execution of algorithm nest_alg failed" )
+
 # Install files from the package:
 atlas_install_headers( AthViews )
 atlas_install_joboptions( share/*.py )
