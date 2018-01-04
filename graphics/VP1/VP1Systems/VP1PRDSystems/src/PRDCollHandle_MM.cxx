@@ -63,10 +63,10 @@ QColor PRDCollHandle_MM::defaultColor() const
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_MM::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_MM::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<Muon::MMPrepData*>(prd));
-  return new PRDHandle_MM(this,static_cast<Muon::MMPrepData*>(prd));
+  assert(dynamic_cast<const Muon::MMPrepData*>(prd));
+  return new PRDHandle_MM(this,static_cast<const Muon::MMPrepData*>(prd));
 }
 
 //____________________________________________________________________

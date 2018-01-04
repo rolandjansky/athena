@@ -57,10 +57,10 @@ void PRDCollHandle_sTGC::setupSettingsFromControllerSpecific(PRDSystemController
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_sTGC::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_sTGC::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<Muon::sTgcPrepData*>(prd));
-  return new PRDHandle_sTGC(this,static_cast<Muon::sTgcPrepData*>(prd));
+  assert(dynamic_cast<const Muon::sTgcPrepData*>(prd));
+  return new PRDHandle_sTGC(this,static_cast<const Muon::sTgcPrepData*>(prd));
 }
 
 //____________________________________________________________________

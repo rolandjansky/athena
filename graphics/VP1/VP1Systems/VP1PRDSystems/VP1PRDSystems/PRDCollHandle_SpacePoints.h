@@ -34,7 +34,7 @@ public:
   virtual ~PRDCollHandle_SpacePoints();
 
 protected:
-  PRDHandleBase* addPRD(Trk::PrepRawData*) { return 0; }
+  virtual PRDHandleBase* addPRD(const Trk::PrepRawData*) override { return 0; }
   bool load();
   bool cut(PRDHandleBase*);
   void eraseEventDataSpecific();

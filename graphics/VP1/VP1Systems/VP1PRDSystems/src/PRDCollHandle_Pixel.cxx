@@ -46,10 +46,10 @@ QColor PRDCollHandle_Pixel::defaultColor() const
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_Pixel::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_Pixel::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<InDet::PixelCluster*>(prd));
-  return new PRDHandle_Pixel(this,static_cast<InDet::PixelCluster*>(prd));
+  assert(dynamic_cast<const InDet::PixelCluster*>(prd));
+  return new PRDHandle_Pixel(this,static_cast<const InDet::PixelCluster*>(prd));
 }
 
 //____________________________________________________________________
