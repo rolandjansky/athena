@@ -98,7 +98,7 @@ namespace JiveXML {
       DataVector<LVL1::CPMRoI>::const_iterator roi_end = cpmRoICollection->end();
 	
       for(;roi_it!=roi_end;++roi_it) {
-        LVL1::CPMRoI* roi = (*roi_it);
+        const LVL1::CPMRoI* roi = (*roi_it);
 
   	const LVL1::CoordinateRange coord(decoder.coordinate(roi->roiWord()));
 	const double roiEta = coord.eta();
