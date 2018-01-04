@@ -15,7 +15,6 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthViews/View.h"
-#include "AthViews/GraphExecutionTask.h"
 #include "AthContainers/DataVector.h"
 
 #include "tbb/task.h"
@@ -103,40 +102,6 @@ namespace ViewHelper
     return StatusCode::SUCCESS;
   }
 
-  //Function to run a set of views with the named algorithms
-  inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
-                              EventContext const& SourceContext, SmartIF< IService > & AlgPool )
-  {
-    impl::SaveAndRestoreContext restoreContext;
-
-    //Check there is work to do
-    if ( !ViewVector.size() || !AlgorithmNames.size() )
-    {
-      return StatusCode::FAILURE;
-    }
-
-    //Retrieve existing extended context
-    unsigned int conditionsRun = SourceContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
-
-    //Create a tbb task for each view
-    tbb::task_list allTasks;
-    for ( SG::View* inputView : ViewVector )
-    {
-      //Make a context with the view attached
-      EventContext * viewContext = new EventContext( SourceContext );
-      viewContext->setExtension( Atlas::ExtendedEventContext( inputView, conditionsRun ) );
-
-      //Make the task
-      tbb::task * viewTask = new( tbb::task::allocate_root() )GraphExecutionTask( AlgorithmNames, viewContext, AlgPool );
-      allTasks.push_back( *viewTask );
-    }
-
-    //Run the tasks
-    tbb::task::spawn_root_and_wait( allTasks );
-
-    return StatusCode::SUCCESS;
-  }
-
   //Function to attach a set of views to a graph node
   inline StatusCode ScheduleViews( std::vector< SG::View* > const& ViewVector, std::string const& NodeName,
       EventContext const& SourceContext, IScheduler * Scheduler )
@@ -171,27 +136,6 @@ namespace ViewHelper
       //Disable the node if no views
       return Scheduler->scheduleEventView( &SourceContext, NodeName, 0 );
     }
-
-    return StatusCode::SUCCESS;
-  }
-
-  // a variant of RunViews accepting ready to use contexts
-  // useful when contexts neeed to be made anyways for the purpose of filling the handles
-  // to avoid confusion it start from small run
-  inline StatusCode runInViews( std::vector<EventContext> & contexts, const std::vector< std::string >& algorithms, SmartIF< IService > & algPool) {
-
-    if ( contexts.empty() )
-    return StatusCode::SUCCESS;
-
-    impl::SaveAndRestoreContext restoreContext;
-    tbb::task_list allTasks;
-    for ( EventContext& ctx: contexts ) {
-
-      tbb::task * viewTask  = new ( tbb::task::allocate_root() )GraphExecutionTask( algorithms, &ctx, algPool );
-      allTasks.push_back( *viewTask );
-
-    }
-    tbb::task::spawn_root_and_wait( allTasks );
 
     return StatusCode::SUCCESS;
   }

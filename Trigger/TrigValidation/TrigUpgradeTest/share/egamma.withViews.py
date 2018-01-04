@@ -71,7 +71,6 @@ fastCaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTo
 fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
 fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
 fastCaloViewsMaker.Views = "EMCaloViews"
-#fastCaloViewsMaker.AlgorithmNameSequence = [ theFastCaloAlgo.getName() ]
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
 theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
 

@@ -8,8 +8,7 @@
 #define ViewAlgs_TestFexAlgView_h
 
 #include <string>
-//#include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthViews/AthViewAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "AthViews/View.h"
@@ -17,7 +16,7 @@
 #include "./TestEDM.h"
 
 namespace AthViews {
-class TestFEXAlgView : public ::AthViewAlgorithm {
+class TestFEXAlgView : public ::AthAlgorithm {
 
 public:
   TestFEXAlgView(const std::string& name, ISvcLocator* pSvcLocator);

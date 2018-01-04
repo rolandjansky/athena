@@ -22,8 +22,8 @@ namespace AthViews {
 ////////////////
 ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_w_int( "view_start" ) // needed since this one isn't declared fully in the header
+  ::AthAlgorithm( name, pSvcLocator )//,
+  //m_w_int( "view_start" ) // needed since this one isn't declared fully in the header
 {
 }
 
@@ -39,6 +39,7 @@ StatusCode ViewSubgraphAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  renounce( m_w_int ); // To test ViewDataVerifier
   CHECK( m_w_int.initialize() );
   CHECK( m_w_views.initialize() );
   CHECK( m_scheduler.retrieve() );
