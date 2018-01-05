@@ -22,8 +22,6 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 
-using namespace std;
-
 
 
 ////////////////////////////////////////////
@@ -68,9 +66,9 @@ class AlfaLocalHit{
 ///////////////////////////////////////////////////
 class AlfaLocalHits : public AlfaLocalHit {
 	private:
-		vector<AlfaLocalHit> m_hits;
+                std::vector<AlfaLocalHit> m_hits;
 		int  m_nhits;
-		vector<AlfaLocalHits> m_paths;
+                std::vector<AlfaLocalHits> m_paths;
 		int  m_npaths;
 		TString m_pathpattern;
 	public:
