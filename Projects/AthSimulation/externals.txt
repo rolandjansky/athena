@@ -6,4 +6,4 @@
 # forbidden.
 
 AthSimulationExternalsVersion = 1.0.27
-GaudiVersion = v27r1.015
+GaudiVersion = v27r1.018
