@@ -559,7 +559,7 @@ void InDetAlignDBTool::dispGroup(const int dettype, const int bec,
         int mdet,mbec,mlayer,mring,msector,mside;
         idToDetSet(ident,mdet,mbec,mlayer,mring,msector,mside);
         // find matching modules - note side=1 modules never touched
-        if ((dettype==-1 || mdet==dettype) && (bec==-1 || fabs(2*mbec)==bec) &&
+        if ((dettype==-1 || mdet==dettype) && (bec==-1 || std::abs(2*mbec)==bec) &&
             (layer==-1 || mlayer==layer) && (ring==-1 || mring==ring) && 
             (sector== -1 || msector==sector) && mside==0) {
           // displace this module - first choose displacement type
