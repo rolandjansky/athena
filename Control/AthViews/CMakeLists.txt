@@ -45,6 +45,9 @@ atlas_add_test( ViewLinking_test
 		LINK_LIBRARIES ${TBB_LIBRARIES}
 		AthViews TestTools )
 
+atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
+                EXTRA_PATTERNS "INFO view_test running with store view9" )
+
 atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh
                 EXTRA_PATTERNS "INFO 109" )
 
