@@ -156,9 +156,9 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_rateErrorsPerLumi{},
   m_nErrors{},
   m_nLinksWithErrors{},
-  nErrors_buf{},
-  nLinksWithErrors_buf{},
-  nErrors_pos{},
+  m_nErrors_buf{},
+  m_nLinksWithErrors_buf{},
+  m_nErrors_pos{},
   m_MaskedAllLinks{},
   m_numberOfEventsLumi{},
   m_numberOfEvents{},
@@ -291,8 +291,8 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
      }
    }
 
-   free(nErrors_buf);
-   free(nLinksWithErrors_buf);
+   free(m_nErrors_buf);
+   free(m_nLinksWithErrors_buf);
  }
 
  // ====================================================================================================
@@ -477,7 +477,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
 
    // BSError histograms
    int nlayer = 0;
-   const std::string m_errorsNames[] = {
+   const std::string errorsNames[] = {
      "ABCD", "Raw", "TimeOut", "", "", "", "", "", "", "",
      "", "BSParse", "MissingLink", "", "", "", "", "",
      "", "", "", "", "", "", "summary", "badError", "", ""
@@ -488,7 +488,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
      else if(reg==1||reg==2) nlayer = N_DISKSx2;
      for (int layer(0); layer != nlayer; ++layer) {
        for (int errType(0); errType != N_ERRTYPES; ++errType) {
-	 if(m_errorsNames[errType]=="")continue;
+	 if(errorsNames[errType]=="")continue;
 	 if (m_doPerLumiErrors) {
 	   if (m_doErr2DPerLumiHists) {
 	     const int xbins(m_allErrsPerLumi[errType][reg][layer]->GetNbinsX() + 1);
@@ -1237,31 +1237,31 @@ SCTErrMonTool::fillByteStreamErrors() {
 
   //  if(m_environment==AthenaMonManager::online){
   // Time Dependent SP plots only online
-  nErrors_buf[nErrors_pos] = total_errors;
-  nLinksWithErrors_buf[nErrors_pos] = tot_mod_bytestream_errs[SUMMARY][iGEN];
-  nErrors_pos++;
-  if (nErrors_pos == m_evtsbins) {
-    nErrors_pos = 0;
+  m_nErrors_buf[m_nErrors_pos] = total_errors;
+  m_nLinksWithErrors_buf[m_nErrors_pos] = tot_mod_bytestream_errs[SUMMARY][iGEN];
+  m_nErrors_pos++;
+  if (m_nErrors_pos == m_evtsbins) {
+    m_nErrors_pos = 0;
   }
   if (m_numberOfEvents % m_checkrate == 0) {
     m_nErrors->Reset();
-    Int_t latest_nErrors_pos = nErrors_pos;
+    Int_t latest_nErrors_pos = m_nErrors_pos;
     m_nLinksWithErrors->Reset();
     for (Int_t i = 1; i < m_evtsbins; i++) {
       if (latest_nErrors_pos == m_evtsbins) {
         latest_nErrors_pos = 0;
       }
       if (m_numberOfEvents < m_evtsbins) {
-        if (i < nErrors_pos) {
-          m_nErrors->SetBinContent(i, nErrors_buf[i]);
-          m_nLinksWithErrors->SetBinContent(i, nLinksWithErrors_buf[i]);
+        if (i < m_nErrors_pos) {
+          m_nErrors->SetBinContent(i, m_nErrors_buf[i]);
+          m_nLinksWithErrors->SetBinContent(i, m_nLinksWithErrors_buf[i]);
         }else {
           m_nErrors->SetBinContent(i, 0);
           m_nLinksWithErrors->SetBinContent(i, 0);
         }
       } else {
-        m_nErrors->SetBinContent(i, nErrors_buf[latest_nErrors_pos]);
-        m_nLinksWithErrors->SetBinContent(i, nLinksWithErrors_buf[latest_nErrors_pos]);
+        m_nErrors->SetBinContent(i, m_nErrors_buf[latest_nErrors_pos]);
+        m_nLinksWithErrors->SetBinContent(i, m_nLinksWithErrors_buf[latest_nErrors_pos]);
         m_nErrors->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
         m_nLinksWithErrors->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
       }
@@ -1352,12 +1352,12 @@ SCTErrMonTool::bookErrHistosHelper(MonGroup &mg, TString name, TString title, TP
 // StatusCode SCTErrMonTool::bookErrHistos(bool newRunFlag(), bool newLumiBlockFlag()){
 StatusCode
 SCTErrMonTool::bookErrHistos() {
-  const std::string m_errorsNames[] = {
+  const std::string errorsNames[] = {
     "ABCD", "Raw", "TimeOut", "LVL1ID", "BCID", "Preamble", "Formatter", "MaskedLinkLink", "RODClock", "TruncROD",
     "ROBFrag", "BSParse", "MissingLink", "MaskedROD", "MaskedLink", "ABCDChip0", "ABCDChip1", "ABCDChip2",
     "ABCDChip3", "ABCDChip4", "ABCDChip5", "ABCDError1", "ABCDError2", "ABCDError4", "summary", "badError", "LinkLevel", "RODLevel"
   };
-  std::string m_errorsNamesMG[] = {
+  std::string errorsNamesMG[] = {
     "SCT/SCTB/errors", "SCT/SCTB/errors", "SCT/SCTB/errors", "SCT/SCTB/errors/LVL1ID", "SCT/SCTB/errors/BCID",
     "SCT/SCTB/errors/Preamble", "SCT/SCTB/errors/Formatter", "SCT/SCTB/errors/MaskedLinkLink",
     "SCT/SCTB/errors/RODClock", "SCT/SCTB/errors/TruncROD", "SCT/SCTB/errors/ROBFrag", "SCT/SCTB/errors",
@@ -1370,7 +1370,7 @@ SCTErrMonTool::bookErrHistos() {
   if (m_doPerLumiErrors) {
     MonGroup lumiErr(this, "SCT/SCTB/errors", lumiBlock, ATTRIB_UNMANAGED);
     if (ManagedMonitorToolBase::newLumiBlockFlag()) {
-      std::string m_layerNames[] = {
+      std::string layerNames[] = {
         "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1"
       };
       m_numErrorsPerLumi[iBARREL] = TH2F_LW::create("NumErrsPerLumi",
@@ -1388,29 +1388,29 @@ SCTErrMonTool::bookErrHistos() {
         msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endmsg;
       }
       for (unsigned int bin(0); bin < n_lumiErrBins; bin++) {
-        m_numErrorsPerLumi[iBARREL]->GetXaxis()->SetBinLabel(bin + 1, m_errorsNames[bin].c_str());
-        m_rateErrorsPerLumi[iBARREL]->GetXaxis()->SetBinLabel(bin + 1, m_errorsNames[bin].c_str());
+        m_numErrorsPerLumi[iBARREL]->GetXaxis()->SetBinLabel(bin + 1, errorsNames[bin].c_str());
+        m_rateErrorsPerLumi[iBARREL]->GetXaxis()->SetBinLabel(bin + 1, errorsNames[bin].c_str());
       }
       for (unsigned int bin(0); bin < N_BARRELSx2; bin++) {
-        m_numErrorsPerLumi[iBARREL]->GetYaxis()->SetBinLabel(bin + 1, m_layerNames[bin].c_str());
-        m_rateErrorsPerLumi[iBARREL]->GetYaxis()->SetBinLabel(bin + 1, m_layerNames[bin].c_str());
+        m_numErrorsPerLumi[iBARREL]->GetYaxis()->SetBinLabel(bin + 1, layerNames[bin].c_str());
+        m_rateErrorsPerLumi[iBARREL]->GetYaxis()->SetBinLabel(bin + 1, layerNames[bin].c_str());
       }
       // int limit = 2*n_barrels;
       bool somethingFailed(false);
       if (m_doErr2DPerLumiHists) {
         for (int layer(0); layer != N_BARRELSx2; ++layer) {
 	  for (int errType(0); errType != N_ERRTYPES; ++errType) {
-            MonGroup lumiErr2(this, m_errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);
-            std::string name1 = m_errorsNames[errType] + "ErrsPerLumi";
-            std::string title = m_errorsNames[errType] + " errors per lumiblock layer ";
-            std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsPerLumi_";
+            MonGroup lumiErr2(this, errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);
+            std::string name1 = errorsNames[errType] + "ErrsPerLumi";
+            std::string title = errorsNames[errType] + " errors per lumiblock layer ";
+            std::string name2 = std::string("T") + errorsNames[errType] + "ErrsPerLumi_";
             somethingFailed |=
               bookErrHistosHelper(lumiErr2, name1, title, name2, m_allErrsPerLumi[errType][iBARREL][layer],
                                   m_pallErrsPerLumi[errType][iBARREL][layer], layer).isFailure();
-	    if(m_errorsNames[errType]=="ABCD"||m_errorsNames[errType]=="Raw"||
-	       m_errorsNames[errType]=="TimeOut"||m_errorsNames[errType]=="BSParse"||
-	       m_errorsNames[errType]=="MissingLink"||m_errorsNames[errType]=="summary"||m_errorsNames[errType]=="badError"){
-	      MonGroup lumiErr3(this, m_errorsNamesMG[errType]+"/"+m_errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+	    if(errorsNames[errType]=="ABCD"||errorsNames[errType]=="Raw"||
+	       errorsNames[errType]=="TimeOut"||errorsNames[errType]=="BSParse"||
+	       errorsNames[errType]=="MissingLink"||errorsNames[errType]=="summary"||errorsNames[errType]=="badError"){
+	      MonGroup lumiErr3(this, errorsNamesMG[errType]+"/"+errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
 	      somethingFailed |= bookErrHistosHelper(lumiErr3, name1, title, name2, m_allErrsPerLumi_tmp[errType][iBARREL][layer],
 						   m_pallErrsPerLumi_tmp[errType][iBARREL][layer], layer).isFailure();
 	    }
@@ -1446,9 +1446,9 @@ SCTErrMonTool::bookErrHistos() {
     m_nLinksWithErrors->GetYaxis()->SetTitle("Num of Links with Errors");
     size_t nErrors_buf_size;
     nErrors_buf_size = m_evtsbins * sizeof(int);
-    nErrors_buf = (int *) malloc(nErrors_buf_size);
-    nLinksWithErrors_buf = (int *) malloc(nErrors_buf_size);
-    nErrors_pos = 0;
+    m_nErrors_buf = (int *) malloc(nErrors_buf_size);
+    m_nLinksWithErrors_buf = (int *) malloc(nErrors_buf_size);
+    m_nErrors_pos = 0;
     if (Errors.regHist(m_nErrors).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book nErrors vs event number hist" << endmsg;
     }
@@ -1469,18 +1469,18 @@ SCTErrMonTool::bookErrHistos() {
     bool somethingFailed(false);
     for (int layer(0); layer != N_BARRELSx2; ++layer) {
       for (int errType(0); errType != N_ERRTYPES; ++errType) {
-        MonGroup err2(this, m_errorsNamesMG[errType], run, ATTRIB_UNMANAGED);
-        std::string name1 = m_errorsNames[errType] + "Errs_";
-        std::string title = m_errorsNames[errType] + " errors layer ";
-        std::string name2 = std::string("T") + m_errorsNames[errType] + "Errs_";
+        MonGroup err2(this, errorsNamesMG[errType], run, ATTRIB_UNMANAGED);
+        std::string name1 = errorsNames[errType] + "Errs_";
+        std::string title = errorsNames[errType] + " errors layer ";
+        std::string name2 = std::string("T") + errorsNames[errType] + "Errs_";
         somethingFailed |= bookErrHistosHelper(err2, name1, title, name2, m_allErrs[errType][iBARREL][layer],
                                                m_pallErrs[errType][iBARREL][layer], layer).isFailure();
         m_allErrs[errType][iBARREL][layer]->GetXaxis()->SetTitle("Index in the direction of #eta");
         m_allErrs[errType][iBARREL][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
-	if(m_errorsNames[errType]=="ABCD"||m_errorsNames[errType]=="Raw"||
-	   m_errorsNames[errType]=="TimeOut"||m_errorsNames[errType]=="BSParse"||
-	   m_errorsNames[errType]=="MissingLink"||m_errorsNames[errType]=="summary"||m_errorsNames[errType]=="badError"){
-	  MonGroup lumiErr3(this, m_errorsNamesMG[errType]+"/"+m_errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+	if(errorsNames[errType]=="ABCD"||errorsNames[errType]=="Raw"||
+	   errorsNames[errType]=="TimeOut"||errorsNames[errType]=="BSParse"||
+	   errorsNames[errType]=="MissingLink"||errorsNames[errType]=="summary"||errorsNames[errType]=="badError"){
+	  MonGroup lumiErr3(this, errorsNamesMG[errType]+"/"+errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
 	  somethingFailed |= bookErrHistosHelper(lumiErr3, name1, title, name2, m_allErrs_tmp[errType][iBARREL][layer],
 					       m_pallErrs_tmp[errType][iBARREL][layer], layer).isFailure();
 	}
@@ -1504,12 +1504,12 @@ SCTErrMonTool::bookErrHistos() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookPositiveEndCapErrHistos() {
-  const std::string m_errorsNames[] = {
+  const std::string errorsNames[] = {
     "ABCD", "Raw", "TimeOut", "LVL1ID", "BCID", "Preamble", "Formatter", "MaskedLinkLink", "RODClock", "TruncROD",
     "ROBFrag", "BSParse", "MissingLink", "MaskedROD", "MaskedLink", "ABCDChip0", "ABCDChip1", "ABCDChip2",
     "ABCDChip3", "ABCDChip4", "ABCDChip5", "ABCDError1", "ABCDError2", "ABCDError4", "summary", "badError", "LinkLevel", "RODLevel"
   };
-  std::string m_errorsNamesMG[] = {
+  std::string errorsNamesMG[] = {
     "SCT/SCTEA/errors", "SCT/SCTEA/errors", "SCT/SCTEA/errors", "SCT/SCTEA/errors/LVL1ID", "SCT/SCTEA/errors/BCID",
     "SCT/SCTEA/errors/Preamble", "SCT/SCTEA/errors/Formatter", "SCT/SCTEA/errors/MaskedLinkLink",
     "SCT/SCTEA/errors/RODClock", "SCT/SCTEA/errors/TruncROD", "SCT/SCTEA/errors/ROBFrag", "SCT/SCTEA/errors",
@@ -1522,7 +1522,7 @@ SCTErrMonTool::bookPositiveEndCapErrHistos() {
   if (m_doPerLumiErrors) {
     MonGroup lumiErr(this, "SCT/SCTEA/errors", lumiBlock, ATTRIB_UNMANAGED);
     if (ManagedMonitorToolBase::newLumiBlockFlag()) {
-      std::string m_layerNames[N_DISKSx2] = {
+      std::string layerNames[N_DISKSx2] = {
         "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1", "5_0", "5_1", "6_0", "6_1", "7_0", "7_1",
         "8_0", "8_1"
       };
@@ -1540,27 +1540,27 @@ SCTErrMonTool::bookPositiveEndCapErrHistos() {
         msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endmsg;
       }
       for (unsigned int bin(0); bin < n_lumiErrBins; bin++) {
-        m_numErrorsPerLumi[iECp]->GetXaxis()->SetBinLabel(bin + 1, m_errorsNames[bin].c_str());
-        m_rateErrorsPerLumi[iECp]->GetXaxis()->SetBinLabel(bin + 1, m_errorsNames[bin].c_str());
+        m_numErrorsPerLumi[iECp]->GetXaxis()->SetBinLabel(bin + 1, errorsNames[bin].c_str());
+        m_rateErrorsPerLumi[iECp]->GetXaxis()->SetBinLabel(bin + 1, errorsNames[bin].c_str());
       }
       for (unsigned int bin(0); bin != N_ENDCAPSx2; ++bin) {
-        m_numErrorsPerLumi[iECp]->GetYaxis()->SetBinLabel(bin + 1, m_layerNames[bin].c_str());
-        m_rateErrorsPerLumi[iECp]->GetYaxis()->SetBinLabel(bin + 1, m_layerNames[bin].c_str());
+        m_numErrorsPerLumi[iECp]->GetYaxis()->SetBinLabel(bin + 1, layerNames[bin].c_str());
+        m_rateErrorsPerLumi[iECp]->GetYaxis()->SetBinLabel(bin + 1, layerNames[bin].c_str());
       }
       bool failedBooking(false);
       if (m_doErr2DPerLumiHists) {
         for (int layer(0); layer != N_DISKSx2; ++layer) {
           for (int errType(0); errType != N_ERRTYPES; ++errType) {
-            MonGroup lumiErr2(this, m_errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
-            std::string name1 = m_errorsNames[errType] + "ErrsECpPerLumi_";
-            std::string title = m_errorsNames[errType] + " errors per lumiblock Disk ";
-            std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECpPerLumi_";
+            MonGroup lumiErr2(this, errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+            std::string name1 = errorsNames[errType] + "ErrsECpPerLumi_";
+            std::string title = errorsNames[errType] + " errors per lumiblock Disk ";
+            std::string name2 = std::string("T") + errorsNames[errType] + "ErrsECpPerLumi_";
             failedBooking |= bookErrHistosHelper(lumiErr2, name1, title, name2, m_allErrsPerLumi[errType][iECp][layer],
                                                  m_pallErrsPerLumi[errType][iECp][layer], layer).isFailure();
-	    if(m_errorsNames[errType]=="ABCD"||m_errorsNames[errType]=="Raw"||
-	       m_errorsNames[errType]=="TimeOut"||m_errorsNames[errType]=="BSParse"||
-	       m_errorsNames[errType]=="MissingLink"||m_errorsNames[errType]=="summary"||m_errorsNames[errType]=="badError"){
-	      MonGroup lumiErr3(this, m_errorsNamesMG[errType]+"/"+m_errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+	    if(errorsNames[errType]=="ABCD"||errorsNames[errType]=="Raw"||
+	       errorsNames[errType]=="TimeOut"||errorsNames[errType]=="BSParse"||
+	       errorsNames[errType]=="MissingLink"||errorsNames[errType]=="summary"||errorsNames[errType]=="badError"){
+	      MonGroup lumiErr3(this, errorsNamesMG[errType]+"/"+errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
 	      failedBooking |= bookErrHistosHelper(lumiErr3, name1, title, name2, m_allErrsPerLumi_tmp[errType][iECp][layer],
 						   m_pallErrsPerLumi_tmp[errType][iECp][layer], layer).isFailure();
 	    }
@@ -1593,17 +1593,17 @@ SCTErrMonTool::bookPositiveEndCapErrHistos() {
     bool failedBooking(false);
     for (int layer(0); layer != N_DISKSx2; ++layer) {
       for (int errType(0); errType != N_ERRTYPES; ++errType) {
-        MonGroup err2(this, m_errorsNamesMG[errType], run, ATTRIB_UNMANAGED);
-        std::string name1 = m_errorsNames[errType] + "ErrsECp_";
-        std::string title = m_errorsNames[errType] + " errors Disk ";
-        std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECp_";
+        MonGroup err2(this, errorsNamesMG[errType], run, ATTRIB_UNMANAGED);
+        std::string name1 = errorsNames[errType] + "ErrsECp_";
+        std::string title = errorsNames[errType] + " errors Disk ";
+        std::string name2 = std::string("T") + errorsNames[errType] + "ErrsECp_";
         failedBooking |=
           bookErrHistosHelper(err2, name1, title, name2, m_allErrs[errType][iECp][layer],
                               m_pallErrs[errType][iECp][layer], layer, false).isFailure();
-	if(m_errorsNames[errType]=="ABCD"||m_errorsNames[errType]=="Raw"||
-	   m_errorsNames[errType]=="TimeOut"||m_errorsNames[errType]=="BSParse"||
-	   m_errorsNames[errType]=="MissingLink"||m_errorsNames[errType]=="summary"||m_errorsNames[errType]=="badError"){
-	  MonGroup lumiErr3(this, m_errorsNamesMG[errType]+"/"+m_errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+	if(errorsNames[errType]=="ABCD"||errorsNames[errType]=="Raw"||
+	   errorsNames[errType]=="TimeOut"||errorsNames[errType]=="BSParse"||
+	   errorsNames[errType]=="MissingLink"||errorsNames[errType]=="summary"||errorsNames[errType]=="badError"){
+	  MonGroup lumiErr3(this, errorsNamesMG[errType]+"/"+errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
 	  failedBooking |= bookErrHistosHelper(lumiErr3, name1, title, name2, m_allErrs_tmp[errType][iECp][layer],
 					       m_pallErrs_tmp[errType][iECp][layer], layer).isFailure();
 	}
@@ -1633,12 +1633,12 @@ SCTErrMonTool::bookPositiveEndCapErrHistos() {
 // StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(bool isNewRun, bool isNewLumiBlock){
 StatusCode
 SCTErrMonTool::bookNegativeEndCapErrHistos() {
-  const std::string m_errorsNames[] = {
+  const std::string errorsNames[] = {
     "ABCD", "Raw", "TimeOut", "LVL1ID", "BCID", "Preamble", "Formatter", "MaskedLinkLink", "RODClock", "TruncROD",
     "ROBFrag", "BSParse", "MissingLink", "MaskedROD", "MaskedLink", "ABCDChip0", "ABCDChip1", "ABCDChip2",
     "ABCDChip3", "ABCDChip4", "ABCDChip5", "ABCDError1", "ABCDError2", "ABCDError4", "summary", "badError", "LinkLevel", "RODLevel"
   };
-  std::string m_errorsNamesMG[] = {
+  std::string errorsNamesMG[] = {
     "SCT/SCTEC/errors", "SCT/SCTEC/errors", "SCT/SCTEC/errors", "SCT/SCTEC/errors/LVL1ID", "SCT/SCTEC/errors/BCID",
     "SCT/SCTEC/errors/Preamble", "SCT/SCTEC/errors/Formatter", "SCT/SCTEC/errors/MaskedLinkLink",
     "SCT/SCTEC/errors/RODClock", "SCT/SCTEC/errors/TruncROD", "SCT/SCTEC/errors/ROBFrag", "SCT/SCTEC/errors",
@@ -1651,7 +1651,7 @@ SCTErrMonTool::bookNegativeEndCapErrHistos() {
   if (m_doPerLumiErrors) {
     MonGroup lumiErr(this, "SCT/SCTEC/errors", lumiBlock, ATTRIB_UNMANAGED);
     if (ManagedMonitorToolBase::newLumiBlockFlag()) {
-      std::string m_layerNames[N_DISKSx2] = {
+      std::string layerNames[N_DISKSx2] = {
         "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1", "5_0", "5_1", "6_0", "6_1", "7_0", "7_1",
         "8_0", "8_1"
       };
@@ -1669,27 +1669,27 @@ SCTErrMonTool::bookNegativeEndCapErrHistos() {
         msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endmsg;
       }
       for (unsigned int bin(0); bin < n_lumiErrBins; bin++) {
-        m_numErrorsPerLumi[iECm]->GetXaxis()->SetBinLabel(bin + 1, m_errorsNames[bin].c_str());
-        m_rateErrorsPerLumi[iECm]->GetXaxis()->SetBinLabel(bin + 1, m_errorsNames[bin].c_str());
+        m_numErrorsPerLumi[iECm]->GetXaxis()->SetBinLabel(bin + 1, errorsNames[bin].c_str());
+        m_rateErrorsPerLumi[iECm]->GetXaxis()->SetBinLabel(bin + 1, errorsNames[bin].c_str());
       }
       for (unsigned int bin(0); bin < N_ENDCAPSx2; bin++) {
-        m_numErrorsPerLumi[iECm]->GetYaxis()->SetBinLabel(bin + 1, m_layerNames[bin].c_str());
-        m_rateErrorsPerLumi[iECm]->GetYaxis()->SetBinLabel(bin + 1, m_layerNames[bin].c_str());
+        m_numErrorsPerLumi[iECm]->GetYaxis()->SetBinLabel(bin + 1, layerNames[bin].c_str());
+        m_rateErrorsPerLumi[iECm]->GetYaxis()->SetBinLabel(bin + 1, layerNames[bin].c_str());
       }
       bool failedBooking(false);
       if (m_doErr2DPerLumiHists) {
         for (int layer(0); layer != N_DISKSx2; ++layer) {
           for (int errType(0); errType != N_ERRTYPES; ++errType) {
-            MonGroup lumiErr2(this, m_errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
-            std::string name1 = m_errorsNames[errType] + "ErrsECmPerLumi_";
-            std::string title = m_errorsNames[errType] + " errors per lumiblock layer ";
-            std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECmPerLumi_";
+            MonGroup lumiErr2(this, errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+            std::string name1 = errorsNames[errType] + "ErrsECmPerLumi_";
+            std::string title = errorsNames[errType] + " errors per lumiblock layer ";
+            std::string name2 = std::string("T") + errorsNames[errType] + "ErrsECmPerLumi_";
             failedBooking |= bookErrHistosHelper(lumiErr2, name1, title, name2, m_allErrsPerLumi[errType][iECm][layer],
                                                  m_pallErrsPerLumi[errType][iECm][layer], layer).isFailure();
-	    if(m_errorsNames[errType]=="ABCD"||m_errorsNames[errType]=="Raw"||
-	       m_errorsNames[errType]=="TimeOut"||m_errorsNames[errType]=="BSParse"||
-	       m_errorsNames[errType]=="MissingLink"||m_errorsNames[errType]=="summary"||m_errorsNames[errType]=="badError"){
-	      MonGroup lumiErr3(this, m_errorsNamesMG[errType]+"/"+m_errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+	    if(errorsNames[errType]=="ABCD"||errorsNames[errType]=="Raw"||
+	       errorsNames[errType]=="TimeOut"||errorsNames[errType]=="BSParse"||
+	       errorsNames[errType]=="MissingLink"||errorsNames[errType]=="summary"||errorsNames[errType]=="badError"){
+	      MonGroup lumiErr3(this, errorsNamesMG[errType]+"/"+errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
 	      failedBooking |= bookErrHistosHelper(lumiErr3, name1, title, name2, m_allErrsPerLumi_tmp[errType][iECm][layer],
 						   m_pallErrsPerLumi_tmp[errType][iECm][layer], layer).isFailure();
 	    }
@@ -1722,19 +1722,19 @@ SCTErrMonTool::bookNegativeEndCapErrHistos() {
     bool failedBooking(false);
     for (int layer(0); layer != N_DISKSx2; ++layer) {
       for (int errType(0); errType != N_ERRTYPES; ++errType) {
-        MonGroup err2(this, m_errorsNamesMG[errType], run, ATTRIB_UNMANAGED);
-        std::string name1 = m_errorsNames[errType] + "ErrsECm_";
-        std::string title = m_errorsNames[errType] + " errors Disk ";
-        std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECm_";
+        MonGroup err2(this, errorsNamesMG[errType], run, ATTRIB_UNMANAGED);
+        std::string name1 = errorsNames[errType] + "ErrsECm_";
+        std::string title = errorsNames[errType] + " errors Disk ";
+        std::string name2 = std::string("T") + errorsNames[errType] + "ErrsECm_";
         failedBooking |=
           bookErrHistosHelper(err2, name1, title, name2, m_allErrs[errType][iECm][layer],
                               m_pallErrs[errType][iECm][layer], layer, false).isFailure();
         m_allErrs[errType][iECm][layer]->GetXaxis()->SetTitle("Index in the direction of #eta");
         m_allErrs[errType][iECm][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
-	if(m_errorsNames[errType]=="ABCD"||m_errorsNames[errType]=="Raw"||
-	   m_errorsNames[errType]=="TimeOut"||m_errorsNames[errType]=="BSParse"||
-	   m_errorsNames[errType]=="MissingLink"||m_errorsNames[errType]=="summary"||m_errorsNames[errType]=="badError"){
-	  MonGroup lumiErr3(this, m_errorsNamesMG[errType]+"/"+m_errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
+	if(errorsNames[errType]=="ABCD"||errorsNames[errType]=="Raw"||
+	   errorsNames[errType]=="TimeOut"||errorsNames[errType]=="BSParse"||
+	   errorsNames[errType]=="MissingLink"||errorsNames[errType]=="summary"||errorsNames[errType]=="badError"){
+	  MonGroup lumiErr3(this, errorsNamesMG[errType]+"/"+errorsNames[errType], lumiBlock, ATTRIB_UNMANAGED);// 07.01.2015
 	  failedBooking |= bookErrHistosHelper(lumiErr3, name1, title, name2, m_allErrs_tmp[errType][iECm][layer],
 					       m_pallErrs_tmp[errType][iECm][layer], layer).isFailure();
 	}
@@ -1775,20 +1775,20 @@ SCTErrMonTool::bookConfMaps() {
       msg(MSG::INFO) << "Global Path :" << m_path << endmsg;
     }
 
-    std::string m_SummaryBinNames[] = {
+    std::string SummaryBinNames[] = {
       "Mod Out", "Flagged Links", "Masked Links", "Errors", "Inefficient", "Noisy"
     };
-    std::string m_ConfigurationBinNames[] = {
+    std::string ConfigurationBinNames[] = {
       "Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"
     };
-    std::string m_ConfigurationOnlineBinNames[] = {
+    std::string ConfigurationOnlineBinNames[] = {
       "Mod Out", "Flagged Links", "Masked Links", "Errors"
     };
-    std::string m_ConfigurationEffBinNames[] = {
+    std::string ConfigurationEffBinNames[] = {
       "Ineff B", "Ineff EA", "Ineff EC", "ALL"
     };
 
-    std::string m_ConfigurationNoiseBinNames[] = {
+    std::string ConfigurationNoiseBinNames[] = {
       "Noisy B", "Noisy EA", "Noisy EC", "ALL"
     };
     string hNumEndcap[N_DISKS] = {
@@ -1854,15 +1854,15 @@ SCTErrMonTool::bookConfMaps() {
       for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
         m_Conf[reg] = TProfile_LW::create(conftitle[reg], conflabel[reg], Confbins, -0.5, Confbins - 0.5);
         for (int bin = 0; bin < Confbins; bin++) {
-          m_Conf[reg]->GetXaxis()->SetBinLabel(bin + 1, m_SummaryBinNames[bin].c_str());
+          m_Conf[reg]->GetXaxis()->SetBinLabel(bin + 1, SummaryBinNames[bin].c_str());
         }
         m_ConfRN[reg] = TProfile_LW::create(conftitleRN[reg], conflabel[reg], Confbins, -0.5, Confbins - 0.5);
         for (int bin = 0; bin < Confbins; bin++) {
-          m_ConfRN[reg]->GetXaxis()->SetBinLabel(bin + 1, m_SummaryBinNames[bin].c_str());
+          m_ConfRN[reg]->GetXaxis()->SetBinLabel(bin + 1, SummaryBinNames[bin].c_str());
         }
         m_ConfNew[reg] = TProfile_LW::create(conftitleNew[reg], conflabel[reg], Confbins-1, -0.5, Confbins-1 - 0.5);
         for (int bin = 1; bin < Confbins; bin++) {
-          m_ConfNew[reg]->GetXaxis()->SetBinLabel(bin, m_SummaryBinNames[bin].c_str());
+          m_ConfNew[reg]->GetXaxis()->SetBinLabel(bin, SummaryBinNames[bin].c_str());
         }
         m_ConfOutModules[reg] = TProfile_LW::create(conftitleOutM[reg], conflabel[reg], 1, -0.5, 0.5);
 	m_ConfOutModules[reg]->GetXaxis()->SetBinLabel(1, "Mod Out");
@@ -1872,7 +1872,7 @@ SCTErrMonTool::bookConfMaps() {
           m_ConfOnline[reg] = TProfile_LW::create(confonlinetitle[reg], conflabel[reg] + " Online", conf_online_bins,
                                                   -0.5, conf_online_bins - 0.5);
           for (int bin = 0; bin < conf_online_bins; bin++) {
-            m_ConfOnline[reg]->GetXaxis()->SetBinLabel(bin + 1, m_ConfigurationOnlineBinNames[bin].c_str());
+            m_ConfOnline[reg]->GetXaxis()->SetBinLabel(bin + 1, ConfigurationOnlineBinNames[bin].c_str());
           }
         }
         for (int errType = 0; errType != SUMMARY; ++errType) {
@@ -1965,22 +1965,22 @@ SCTErrMonTool::bookConfMaps() {
         m_ConfEffOnline = new TProfile(confefftitle, "Number of Inefficient Modules Online", conf_eff_bins, -0.5,
                                        conf_eff_bins - 0.5);
         for (int bin = 0; bin < conf_eff_bins; bin++) {
-          m_ConfEffOnline->GetXaxis()->SetBinLabel(bin + 1, m_ConfigurationEffBinNames[bin].c_str());
+          m_ConfEffOnline->GetXaxis()->SetBinLabel(bin + 1, ConfigurationEffBinNames[bin].c_str());
         }
         m_ConfNoiseOnline = TProfile_LW::create(confnoisetitle, "Number of Noisy Modules Online", conf_noise_bins, -0.5,
                                                 conf_noise_bins - 0.5);
         for (int bin = 0; bin < conf_noise_bins; bin++) {
-          m_ConfNoiseOnline->GetXaxis()->SetBinLabel(bin + 1, m_ConfigurationNoiseBinNames[bin].c_str());
+          m_ConfNoiseOnline->GetXaxis()->SetBinLabel(bin + 1, ConfigurationNoiseBinNames[bin].c_str());
         }
         m_ConfNoiseOnlineRecent = TProfile_LW::create(confnoisetitle_recent, "Number of Noisy Modules Online Recent",
                                                       conf_noise_bins, -0.5, conf_noise_bins - 0.5);
 
         for (int bin = 0; bin < conf_noise_bins; bin++) {
-          m_ConfNoiseOnlineRecent->GetXaxis()->SetBinLabel(bin + 1, m_ConfigurationNoiseBinNames[bin].c_str());
+          m_ConfNoiseOnlineRecent->GetXaxis()->SetBinLabel(bin + 1, ConfigurationNoiseBinNames[bin].c_str());
         }
       }
       for (int bin = 0; bin < ConfbinsDetailed; bin++) {
-        m_DetailedConfiguration->GetXaxis()->SetBinLabel(bin + 1, m_ConfigurationBinNames[bin].c_str());
+        m_DetailedConfiguration->GetXaxis()->SetBinLabel(bin + 1, ConfigurationBinNames[bin].c_str());
       }
 
       for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {

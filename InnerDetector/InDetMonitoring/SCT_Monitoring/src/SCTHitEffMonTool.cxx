@@ -130,7 +130,7 @@ using std::string;
 // Constructor with parameters:
 SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const IInterface *parent) :
   ManagedMonitorToolBase(type, name, parent),
-  mgr(nullptr),
+  m_mgr(nullptr),
   m_pSCTHelper(0),
   m_pManager(0),
   m_TrackName(std::string("ResolvedSCTTracks")),// original track collection
@@ -348,7 +348,7 @@ StatusCode
 SCTHitEffMonTool::initialize() {
   INFO("Initializing SCTHitEffMonTool");
 
-  CHECK(detStore()->retrieve(mgr, "SCT"));
+  CHECK(detStore()->retrieve(m_mgr, "SCT"));
   CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
   CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
@@ -1139,16 +1139,16 @@ SCTHitEffMonTool::fillHistograms() {
   }
 
   // ---- First try if m_tracksName is a TrackCollection
-  SG::ReadHandle<TrackCollection>m_tracks(m_TrackName);
+  SG::ReadHandle<TrackCollection>tracks(m_TrackName);
   if (evtStore()->contains<TrackCollection> (m_TrackName.key())) {
-    if (not m_tracks.isValid()) {
-      WARNING("Tracks not found: " << m_tracks << " / " << m_TrackName.key());
+    if (not tracks.isValid()) {
+      WARNING("Tracks not found: " << tracks << " / " << m_TrackName.key());
       if (m_chronotime) {
         m_chrono->chronoStop("SCTHitEff");
       }
       return StatusCode::SUCCESS;
     }else {
-      VERBOSE("Successfully retrieved " << m_TrackName.key() << " : " << m_tracks->size() << " items");
+      VERBOSE("Successfully retrieved " << m_TrackName.key() << " : " << tracks->size() << " items");
     }
   } else {
     WARNING("Collection " << m_TrackName.key() << " not found");
@@ -1169,7 +1169,7 @@ SCTHitEffMonTool::fillHistograms() {
 
   // cut on number of tracks (skip this cut for online)
   if (m_environment != AthenaMonManager::online) {
-    if (failCut(m_tracks->size() <= m_maxTracks, "# of tracks cut")) {
+    if (failCut(tracks->size() <= m_maxTracks, "# of tracks cut")) {
       if (m_chronotime) {
         m_chrono->chronoStop("SCTHitEff");
       }
@@ -1180,8 +1180,8 @@ SCTHitEffMonTool::fillHistograms() {
   Int_t nTrk(0), nTrkPars(0), nTrkGood(0);
 
   // Loop over track collection to count tracks
-  const TrackCollection::const_iterator endOfTracks(m_tracks->end());
-  for (TrackCollection::const_iterator itr(m_tracks->begin()); itr != endOfTracks; ++itr) {
+  const TrackCollection::const_iterator endOfTracks(tracks->end());
+  for (TrackCollection::const_iterator itr(tracks->begin()); itr != endOfTracks; ++itr) {
     nTrk++;
     const Trk::Track *pthisTrack(*itr);
     if (not pthisTrack) {
@@ -1219,8 +1219,8 @@ SCTHitEffMonTool::fillHistograms() {
   }
 
   // Loop over original track collection
-  //  const TrackCollection::const_iterator endOfTracks(m_tracks->end());
-  for (TrackCollection::const_iterator itr(m_tracks->begin()); itr != endOfTracks; ++itr) {
+  //  const TrackCollection::const_iterator endOfTracks(tracks->end());
+  for (TrackCollection::const_iterator itr(tracks->begin()); itr != endOfTracks; ++itr) {
     VERBOSE("Starting new track");
     const Trk::Track *pthisTrack(*itr);
     if (not pthisTrack) {
@@ -1278,11 +1278,11 @@ SCTHitEffMonTool::fillHistograms() {
       trackWithHoles->trackStateOnSurfaces()->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = trackWithHoles->trackStateOnSurfaces()->end();
 
-    Int_t m_NHits[3] = {
+    Int_t NHits[3] = {
       0, 0, 0
     };
-    Int_t m_pixelNHits(0);
-    Int_t m_trtNHits(0);
+    Int_t pixelNHits(0);
+    Int_t trtNHits(0);
     std::map < Identifier, Double_t > mapOfTrackHitResiduals;
     Double_t zmin = std::numeric_limits<float>::max();
     Double_t zmax = -std::numeric_limits<float>::max();
@@ -1301,13 +1301,13 @@ SCTHitEffMonTool::fillHistograms() {
       if ((*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) or(*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier))
       {
         if (m_pixelId->is_pixel(surfaceID)) {
-          m_pixelNHits++;
+          pixelNHits++;
         }
         if (m_trtId->is_trt(surfaceID)) {
-          m_trtNHits++;
+          trtNHits++;
         }
         if (m_sctId->is_sct(surfaceID)) {
-          m_NHits[bec2Index(m_sctId->barrel_ec(surfaceID))]++;
+          NHits[bec2Index(m_sctId->barrel_ec(surfaceID))]++;
           mapOfTrackHitResiduals[surfaceID] = getResidual(surfaceID, (*TSOSItr)->trackParameters(), &*p_sctclcontainer);
         }
       }
@@ -1337,7 +1337,7 @@ SCTHitEffMonTool::fillHistograms() {
       }
     }
 
-    Int_t sctNHits(m_NHits[ENDCAP_C_INDEX] + m_NHits[BARREL_INDEX] + m_NHits[ENDCAP_A_INDEX]);
+    Int_t sctNHits(NHits[ENDCAP_C_INDEX] + NHits[BARREL_INDEX] + NHits[ENDCAP_A_INDEX]);
     std::vector<Bool_t> layersCrossedByTrack[N_REGIONS];
     std::vector<Int_t> nHolesOnLayer[N_REGIONS];
     std::vector<Int_t> nHolesDistOnLayer[N_REGIONS];
@@ -1369,7 +1369,7 @@ SCTHitEffMonTool::fillHistograms() {
         continue;
       }
       Int_t histnumber(detIndex);
-      Int_t m_eff(0), m_unas(0);
+      Int_t eff(0), unas(0);
       IdentifierHash sideHash(m_sctId->wafer_hash(surfaceID));
       Identifier module_id(m_sctId->module_id(surfaceID));
       Float_t layerPlusHalfSide(float(layer) + float(side) * 0.5);
@@ -1382,17 +1382,17 @@ SCTHitEffMonTool::fillHistograms() {
 
       if ((*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) or(*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier))
       {
-        m_eff = 1;
+        eff = 1;
       } else if ((*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) and fabs(trackHitResidual) < distCut) {
-        m_eff = 1;
-        m_unas = 1;
+        eff = 1;
+        unas = 1;
       }
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(0.); // Some sort of track on silicon
-        m_Eff_SelectionHisto[isub]->Fill(0., m_eff); // Some sort of track on silicon
+        m_Eff_SelectionHisto[isub]->Fill(0., eff); // Some sort of track on silicon
         m_SelectionHisto[isub]->Fill(1.); // Past the bad module selection
-        m_Eff_SelectionHisto[isub]->Fill(1., m_eff); // Past the bad module selection
+        m_Eff_SelectionHisto[isub]->Fill(1., eff); // Past the bad module selection
       }
 
       bool otherFaceFound(false);
@@ -1418,29 +1418,29 @@ SCTHitEffMonTool::fillHistograms() {
       }
 
       if (m_detailed) {
-        m_Eff_nSCTHisto[isub]->Fill(sctNHits, m_eff);
-        m_Eff_nTRTHisto[isub]->Fill(m_trtNHits, m_eff);
+        m_Eff_nSCTHisto[isub]->Fill(sctNHits, eff);
+        m_Eff_nTRTHisto[isub]->Fill(trtNHits, eff);
       }
       if (m_useSCTorTRT) {
-        if (failCut(m_trtNHits >= m_minTRTHits or
+        if (failCut(trtNHits >= m_minTRTHits or
                     sctNHits >= m_minSCTHits, "track cut: min TRT or SCT hits")) {
           continue;
         }
       } else {
-        if (failCut(m_trtNHits >= m_minTRTHits, "track cut: min TRT hits")) {
+        if (failCut(trtNHits >= m_minTRTHits, "track cut: min TRT hits")) {
           continue;
         }
         if (failCut(sctNHits >= m_minSCTHits, "track cut: min SCT hits")) {
           continue;
         }
-        if (failCut(m_pixelNHits >= m_minPixelHits, "track cut: min Pixel hits")) {
+        if (failCut(pixelNHits >= m_minPixelHits, "track cut: min Pixel hits")) {
           continue;
         }
       }
 
       if (m_detailed) {
         m_nOtherHisto[isub]->Fill(nOther);
-        m_Eff_nOtherHisto[isub]->Fill(nOther, m_eff);
+        m_Eff_nOtherHisto[isub]->Fill(nOther, eff);
       }
 
       if (failCut(nOther >= m_minOtherHits, "track cut: minOtherHits")) {
@@ -1449,10 +1449,10 @@ SCTHitEffMonTool::fillHistograms() {
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(2.); // Past SCT/TRT Hits selection
-        m_Eff_SelectionHisto[isub]->Fill(2., m_eff); // Past SCT/TRT Hits selection
+        m_Eff_SelectionHisto[isub]->Fill(2., eff); // Past SCT/TRT Hits selection
         if (m_useTRTPhase or m_isCosmic) {
           m_timecorHisto[isub]->Fill(timecor);
-          m_Eff_timecorHisto[isub]->Fill(timecor, m_eff);
+          m_Eff_timecorHisto[isub]->Fill(timecor, eff);
         }
       }
       DEBUG("Use TRT phase " << m_useTRTPhase << " is cosmic? " << m_isCosmic << " timecor " << timecor);
@@ -1512,7 +1512,7 @@ SCTHitEffMonTool::fillHistograms() {
       }
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(3.); // Past TRT time/Hits selection
-        m_Eff_SelectionHisto[isub]->Fill(3., m_eff); // Past TRT time/Hits selection
+        m_Eff_SelectionHisto[isub]->Fill(3., eff); // Past TRT time/Hits selection
       }
 
       Bool_t enclosingHits(true);
@@ -1544,7 +1544,7 @@ SCTHitEffMonTool::fillHistograms() {
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(4.); //
-        m_Eff_SelectionHisto[isub]->Fill(4., m_eff); // Past nHits cut
+        m_Eff_SelectionHisto[isub]->Fill(4., eff); // Past nHits cut
       }
 
       // Now fill with the local z
@@ -1553,11 +1553,11 @@ SCTHitEffMonTool::fillHistograms() {
       Double_t chi2_div_ndf = ndf > 0 ? chi2 / ndf : -1;
 
       if (m_detailed) {
-        m_Eff_phiHisto[isub]->Fill(phiUp, m_eff);
+        m_Eff_phiHisto[isub]->Fill(phiUp, eff);
         if (ndf > 0 and chi2_div_ndf <= m_maxChi2 and otherFaceFound) {
-          m_Eff_phiHistoFinal[isub]->Fill(phiUp, m_eff);
+          m_Eff_phiHistoFinal[isub]->Fill(phiUp, eff);
         }
-        m_Unas_phiHisto[isub]->Fill(phiUp, m_unas);
+        m_Unas_phiHisto[isub]->Fill(phiUp, unas);
         m_phiLocalHisto[isub]->Fill(phiUp);
         if (fabs(d0) < 50) {
           m_phiLocalCutHisto[isub]->Fill(phiUp);
@@ -1572,12 +1572,12 @@ SCTHitEffMonTool::fillHistograms() {
       }
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(5.); // Past phiUp cut
-        m_Eff_SelectionHisto[isub]->Fill(5., m_eff); // Past phiUp cut
+        m_Eff_SelectionHisto[isub]->Fill(5., eff); // Past phiUp cut
         if (ndf > 0) {
           m_chi2Histo[isub]->Fill(chi2_div_ndf);
-          m_Eff_chi2Histo[isub]->Fill(chi2_div_ndf, m_eff);
+          m_Eff_chi2Histo[isub]->Fill(chi2_div_ndf, eff);
           if (otherFaceFound) {
-            m_Eff_chi2HistoFinal[isub]->Fill(chi2_div_ndf, m_eff);
+            m_Eff_chi2HistoFinal[isub]->Fill(chi2_div_ndf, eff);
           }
           if (m_superDetailed) {
             m_chi2ResidualHisto[isub]->Fill(trackHitResidual, chi2_div_ndf);
@@ -1591,12 +1591,12 @@ SCTHitEffMonTool::fillHistograms() {
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(6.); //
-        m_Eff_SelectionHisto[isub]->Fill(6., m_eff); // Past chi2
+        m_Eff_SelectionHisto[isub]->Fill(6., eff); // Past chi2
         const float face(otherFaceFound);
-        m_Eff_otherFaceHisto[isub]->Fill(face, m_eff);
-        m_Unas_otherFaceHisto[isub]->Fill(face, m_unas);
-        m_Eff_otherFaceHisto[isub]->Fill(-1, m_eff);
-        m_Unas_otherFaceHisto[isub]->Fill(-1, m_unas);
+        m_Eff_otherFaceHisto[isub]->Fill(face, eff);
+        m_Unas_otherFaceHisto[isub]->Fill(face, unas);
+        m_Eff_otherFaceHisto[isub]->Fill(-1, eff);
+        m_Unas_otherFaceHisto[isub]->Fill(-1, unas);
       }
 
       if (m_requireOtherFace and failCut(otherFaceFound, "hit cut: other face found")) {
@@ -1605,7 +1605,7 @@ SCTHitEffMonTool::fillHistograms() {
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(7.); // Past other face selection
-        m_Eff_SelectionHisto[isub]->Fill(7., m_eff); // Past other face selection
+        m_Eff_SelectionHisto[isub]->Fill(7., eff); // Past other face selection
       }
       if (not trkParamOnSurface) continue;
       Double_t xl(trkParamOnSurface->localPosition()[0]);
@@ -1621,7 +1621,7 @@ SCTHitEffMonTool::fillHistograms() {
         if (ieta == 1) {
           m_xlResidualE1Histo[isub][layer]->Fill(xl, trackHitResidual);
         }
-        if (m_unas) {
+        if (unas) {
           m_xlResidualUnasHisto[isub][layer]->Fill(xl, trackHitResidual);
         }
       }
@@ -1655,11 +1655,11 @@ SCTHitEffMonTool::fillHistograms() {
       }
 
       if (m_detailed) {
-        if (m_eff == 1) {
+        if (eff == 1) {
           if (m_superDetailed) {
             m_localHitHisto[isub]->Fill(xl, yl);
           }
-          if (m_unas) {
+          if (unas) {
             m_localUnasHisto[isub]->Fill(xl, yl);
           }
           m_localHitXHisto[isub]->Fill(xl);
@@ -1667,23 +1667,23 @@ SCTHitEffMonTool::fillHistograms() {
         } else {
           m_localMissHisto[isub]->Fill(xl, yl);
         }
-        m_Eff_xlocHisto[isub]->Fill(xl, m_eff);
-        m_Eff_ylocHistos[isub]->Fill(yl, m_eff);
-        m_Unas_xlocHisto[isub]->Fill(xl, m_unas);
-        m_Unas_ylocHisto[isub]->Fill(yl, m_unas);
+        m_Eff_xlocHisto[isub]->Fill(xl, eff);
+        m_Eff_ylocHistos[isub]->Fill(yl, eff);
+        m_Unas_xlocHisto[isub]->Fill(xl, unas);
+        m_Unas_ylocHisto[isub]->Fill(yl, unas);
       }
 
       if (m_requireGuardRing and failCut(insideGuardRing, "hit cut: inside guard ring")) {
         continue;
       }
 
-      if (m_eff == 1 and m_superDetailed) {
+      if (eff == 1 and m_superDetailed) {
         m_localHitGHisto[isub]->Fill(xl, yl);
       }
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(8.); // Past guard ring
-        m_Eff_SelectionHisto[isub]->Fill(8., m_eff); // Past guard ring
+        m_Eff_SelectionHisto[isub]->Fill(8., eff); // Past guard ring
       }
 
       // Check bad chips
@@ -1710,42 +1710,42 @@ SCTHitEffMonTool::fillHistograms() {
         continue;
       }
       VERBOSE("Candidate passed all cuts");
-      m_Eff_summaryHisto_old[isub]->Fill(layerPlusHalfSide, m_eff); // in order to calculate m_EffsummaryIncBadMod
-      m_Eff_summaryHisto[isub]->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
-      m_Eff_hashCodeHisto->Fill(Double_t(sideHash), m_eff);// 15.12.2014
-      m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), m_eff);// 20.01.2015
-      m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), m_eff);// 02.09.2016
+      m_Eff_summaryHisto_old[isub]->Fill(layerPlusHalfSide, eff); // in order to calculate m_EffsummaryIncBadMod
+      m_Eff_summaryHisto[isub]->Fill(dedicated_layerPlusHalfSide, eff); // adjustment for dedicated_title()
+      m_Eff_hashCodeHisto->Fill(Double_t(sideHash), eff);// 15.12.2014
+      m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), eff);// 20.01.2015
+      m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), eff);// 02.09.2016
       if (BCIDpos == 0 && InTrain) {
-        m_Eff_summaryHistoFirstBCID[isub]->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
+        m_Eff_summaryHistoFirstBCID[isub]->Fill(dedicated_layerPlusHalfSide, eff); // adjustment for dedicated_title()
       }
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(9.); // Past bad chip
-        m_Eff_SelectionHisto[isub]->Fill(9., m_eff); // Past bad chip
+        m_Eff_SelectionHisto[isub]->Fill(9., eff); // Past bad chip
         m_EventHisto[isub]->Fill(pEvent->eventNumber());
-        m_Eff_EventHisto[isub]->Fill(pEvent->eventNumber(), m_eff);
+        m_Eff_EventHisto[isub]->Fill(pEvent->eventNumber(), eff);
         m_hashCodeHisto->Fill(Double_t(sideHash));
-        m_Unas_summaryHisto[isub]->Fill(layerPlusHalfSide, m_unas);
-        m_Eff_etaHisto[isub]->Fill(eta, m_eff);
-        m_Eff_ptiHisto[isub]->Fill(perigeeCharge / pT, m_eff);
-        m_Unas_ptiHisto[isub]->Fill(perigeeCharge / pT, m_unas);
-        m_Eff_d0Histo[isub]->Fill(d0, m_eff);
-        m_Eff_z0Histo[isub]->Fill(z0, m_eff);
-        m_Eff_ptHisto[isub]->Fill(log10(pT), m_eff);
+        m_Unas_summaryHisto[isub]->Fill(layerPlusHalfSide, unas);
+        m_Eff_etaHisto[isub]->Fill(eta, eff);
+        m_Eff_ptiHisto[isub]->Fill(perigeeCharge / pT, eff);
+        m_Unas_ptiHisto[isub]->Fill(perigeeCharge / pT, unas);
+        m_Eff_d0Histo[isub]->Fill(d0, eff);
+        m_Eff_z0Histo[isub]->Fill(z0, eff);
+        m_Eff_ptHisto[isub]->Fill(log10(pT), eff);
         m_ResidualHisto[isub]->Fill(trackHitResidual);
-        if (m_unas == 1) {
+        if (unas == 1) {
           m_ResidualUnasHisto[isub]->Fill(trackHitResidual);
         }
-        if (m_eff == 0) {
+        if (eff == 0) {
           m_ResidualMissHisto[isub]->Fill(trackHitResidual);
         }
-        m_Eff_nTrk[isub]->Fill(nTrk, m_eff);
-        m_Eff_nGoodTrk[isub]->Fill(nTrkGood, m_eff);
+        m_Eff_nTrk[isub]->Fill(nTrk, eff);
+        m_Eff_nGoodTrk[isub]->Fill(nTrkGood, eff);
       }
       if (m_superDetailed) {
-        // m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), m_eff);//20.01.2015
+        // m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), eff);//20.01.2015
         chipPos = (side == 1) ? 11 - chipPos : chipPos;
-        m_inEffChip[isub]->Fill(sideHash, chipPos, int(m_eff == 0));
-        m_inEffStrip[isub]->Fill(sideHash, xl / 79.95e-3 + 768. / 2., int(m_eff == 0));
+        m_inEffChip[isub]->Fill(sideHash, chipPos, int(eff == 0));
+        m_inEffStrip[isub]->Fill(sideHash, xl / 79.95e-3 + 768. / 2., int(eff == 0));
         // Find the opposite side of this module,
         if (side == 0) {
           Double_t trackHitResidual2(999);
@@ -1754,33 +1754,33 @@ SCTHitEffMonTool::fillHistograms() {
             trackHitResidual2 = otherItr->second;
           }
           m_TwoSidesResiduals[isub]->Fill(trackHitResidual, trackHitResidual2);
-          if (m_eff == 0 or m_unas == 1) {
+          if (eff == 0 or unas == 1) {
             m_TwoSidesResidualsIneff[isub]->Fill(trackHitResidual, trackHitResidual2);
           }
         }
         const int layerSideIndex = int(layerPlusHalfSide * 2);
         layersCrossedByTrack[isub][layerSideIndex] = true;
-        nHolesDistOnLayer[isub][layerSideIndex] += int(m_eff == 0);
+        nHolesDistOnLayer[isub][layerSideIndex] += int(eff == 0);
         nHolesOnLayer[isub][layerSideIndex] += int((*TSOSItr)->type(Trk::TrackStateOnSurface::Hole));
         if (fabs(trackHitResidual) < 65) {
           m_layerResidualHistos[isub][layerSideIndex]->Fill(m_sctId->eta_module(surfaceID),
                                                             m_sctId->phi_module(surfaceID), trackHitResidual);
         }
       }
-      m_Eff_Total->Fill(Double_t(isub), m_eff);
+      m_Eff_Total->Fill(Double_t(isub), eff);
       if (BCIDpos == 0 && InTrain) {
-        m_Eff_TotalBCID->Fill(Double_t(isub), m_eff);
+        m_Eff_TotalBCID->Fill(Double_t(isub), eff);
       }
       useDetector[isub] = true;
       const int ieta(m_sctId->eta_module(surfaceID));
       const int iphi(m_sctId->phi_module(surfaceID));
-      m_effMap[histnumber][side]->Fill(ieta, iphi, m_eff);
-      m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), m_eff);// 23.01.2015
+      m_effMap[histnumber][side]->Fill(ieta, iphi, eff);
+      m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), eff);// 23.01.2015
 
       if (testOffline) {
         m_ineffMap[histnumber][side]->Fill(ieta, iphi, 1); // dummyfill for testing
       }else {
-        m_ineffMap[histnumber][side]->Fill(ieta, iphi, (m_eff == 0));
+        m_ineffMap[histnumber][side]->Fill(ieta, iphi, (eff == 0));
       }
       if (testOffline) {
         INFO("Filling " << histnumber << ", " << side << " eta " << ieta << " phi " << iphi);
@@ -1791,12 +1791,12 @@ SCTHitEffMonTool::fillHistograms() {
       m_d0TkHisto->Fill(d0);
       m_z0TkHisto->Fill(z0);
       m_PtTkHisto->Fill(log10(pT));
-      m_mNHitHisto->Fill(m_NHits[ENDCAP_C_INDEX]);
-      m_pNHitHisto->Fill(m_NHits[ENDCAP_A_INDEX]);
-      m_barrelNHitHisto->Fill(m_NHits[BARREL_INDEX]);
+      m_mNHitHisto->Fill(NHits[ENDCAP_C_INDEX]);
+      m_pNHitHisto->Fill(NHits[ENDCAP_A_INDEX]);
+      m_barrelNHitHisto->Fill(NHits[BARREL_INDEX]);
       m_SCTNHitHisto->Fill(sctNHits);
-      m_pixelNHitHisto->Fill(m_pixelNHits);
-      m_trtNHitHisto->Fill(m_trtNHits);
+      m_pixelNHitHisto->Fill(pixelNHits);
+      m_trtNHitHisto->Fill(trtNHits);
       for (Int_t thisRegion(0); thisRegion != N_REGIONS; ++thisRegion) {
         if (useDetector[thisRegion]) {
           m_etaTkUsedHisto[thisRegion]->Fill(eta);
@@ -1822,7 +1822,7 @@ SCTHitEffMonTool::fillHistograms() {
     delete trackWithHoles;
     trackWithHoles = 0;
   }
-  VERBOSE("finished loop over tracks = " << (*m_tracks).size());
+  VERBOSE("finished loop over tracks = " << (*tracks).size());
   if (m_detailed) {
     m_nTrkHisto->Fill(nTrk);
     m_nTrkParsHisto->Fill(nTrkPars);
@@ -1844,8 +1844,8 @@ StatusCode
 SCTHitEffMonTool::procHistograms() {                                                                             // hidetoshi
                                                                                                                  // 14.01.22
   if (m_superDetailed) {
-    const std::set<Identifier> *m_badModules = m_configConditions->badModules();
-    INFO("Found " << m_badModules->size() << " bad modules");
+    const std::set<Identifier> *badModules = m_configConditions->badModules();
+    INFO("Found " << badModules->size() << " bad modules");
     std::array < std::array < double, N_ENDCAPS >, N_REGIONS > MaxEta;
     std::array < std::array < double, N_ENDCAPS >, N_REGIONS > MaxPhi;
     for (int isub(0); isub < N_REGIONS; ++isub) {
@@ -1864,7 +1864,7 @@ SCTHitEffMonTool::procHistograms() {                                            
       }
       Int_t isub(bec2Index(m_sctId->barrel_ec(*wafItr)));
       Int_t layer(m_sctId->layer_disk(*wafItr));
-      InDetDD::SiDetectorElement *element = mgr->getDetectorElement(*wafItr);
+      InDetDD::SiDetectorElement *element = m_mgr->getDetectorElement(*wafItr);
       const Amg::Vector3D position = element->center();
       element->getEtaPhiRegion(0., etaMin, etaMax, phiMin, phiMax, rz);
       etabins[isub][layer].push_back(etaMin);
@@ -1876,8 +1876,8 @@ SCTHitEffMonTool::procHistograms() {                                            
         dPhi = 2 * M_PI - dPhi;
       }
       float dEta(fabs(etaMax - etaMin));
-      std::set< Identifier >::const_iterator bMItr(m_badModules->find(*wafItr));
-      Float_t eff(Float_t(bMItr == m_badModules->end()));
+      std::set< Identifier >::const_iterator bMItr(badModules->find(*wafItr));
+      Float_t eff(Float_t(bMItr == badModules->end()));
       Float_t accSide[2] = {
         eff, eff
       };
@@ -1974,7 +1974,7 @@ SCTHitEffMonTool::procHistograms() {                                            
         WARNING("Barrel-or-endcap index is invalid");
         return StatusCode::FAILURE;
       }
-      InDetDD::SiDetectorElement *element = mgr->getDetectorElement(surfaceID);
+      InDetDD::SiDetectorElement *element = m_mgr->getDetectorElement(surfaceID);
       //      const HepGeom::Point3D<float> position = element->center();
       //      m_accPhysMap[histnumber]->Fill(position.pseudoRapidity(), position.phi(), (1. - bMod->second) * N_CHIPS *
       // 2);
@@ -2036,7 +2036,7 @@ StatusCode
 SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D &mom, Identifier id, Double_t &theta, Double_t &phi) {
   phi = 90.;
   theta = 90.;
-  InDetDD::SiDetectorElement *element = mgr->getDetectorElement(id);
+  InDetDD::SiDetectorElement *element = m_mgr->getDetectorElement(id);
   if (not element) {
     VERBOSE("findAnglesToWaferSurface: failed to find detector element for id = " << m_sctId->print_to_string(id));
     return StatusCode::FAILURE;

@@ -94,25 +94,25 @@ private:
   typedef std::vector<H2_t> VecH2_t;
   typedef std::vector<H1I_t> VecH1I_t;
   //@}
-  int eventID;
+  int m_eventID;
   int m_numberOfEvents;
   
   
-  int nNoSides_ev;
-  int nOneSide_ev;
-  int nTwoSide_ev;
-  int nNoSidesBarrel_ev[N_BARRELS];
-  int nOneSideBarrel_ev[N_BARRELS];
-  int nTwoSideBarrel_ev[N_BARRELS];
-  int nNonGoodModulesBarrel_ev[N_DISKS];
-  int nNoSidesEndcapA_ev[N_DISKS];
-  int nOneSideEndcapA_ev[N_DISKS];
-  int nTwoSideEndcapA_ev[N_DISKS];
-  int nNonGoodModulesEndcapA_ev[N_DISKS];
-  int nNoSidesEndcapC_ev[N_DISKS];
-  int nOneSideEndcapC_ev[N_DISKS];
-  int nTwoSideEndcapC_ev[N_DISKS];
-  int nNonGoodModulesEndcapC_ev[N_DISKS];
+  int m_nNoSides_ev;
+  int m_nOneSide_ev;
+  int m_nTwoSide_ev;
+  int m_nNoSidesBarrel_ev[N_BARRELS];
+  int m_nOneSideBarrel_ev[N_BARRELS];
+  int m_nTwoSideBarrel_ev[N_BARRELS];
+  int m_nNonGoodModulesBarrel_ev[N_DISKS];
+  int m_nNoSidesEndcapA_ev[N_DISKS];
+  int m_nOneSideEndcapA_ev[N_DISKS];
+  int m_nTwoSideEndcapA_ev[N_DISKS];
+  int m_nNonGoodModulesEndcapA_ev[N_DISKS];
+  int m_nNoSidesEndcapC_ev[N_DISKS];
+  int m_nOneSideEndcapC_ev[N_DISKS];
+  int m_nTwoSideEndcapC_ev[N_DISKS];
+  int m_nNonGoodModulesEndcapC_ev[N_DISKS];
   
   VecProf2_t m_pnoiseoccupancymapHistoVectorECC;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0;
@@ -124,51 +124,51 @@ private:
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1;
   
-  float d1;
-  float n1;
-  float n1Barrel[N_BARRELS];
-  float n1EndcapA[N_DISKS];
-  float n1EndcapC[N_DISKS];
-  float d1Barrel[N_BARRELS];
-  float d1EndcapA[N_DISKS];
-  float d1EndcapC[N_DISKS];
+  float m_d1;
+  float m_n1;
+  float m_n1Barrel[N_BARRELS];
+  float m_n1EndcapA[N_DISKS];
+  float m_n1EndcapC[N_DISKS];
+  float m_d1Barrel[N_BARRELS];
+  float m_d1EndcapA[N_DISKS];
+  float m_d1EndcapC[N_DISKS];
   
-  bool noSidesHit;
-  bool oneSideHit;
-  bool twoSidesHit;
-  bool correct_TimeBin;
+  bool m_noSidesHit;
+  bool m_oneSideHit;
+  bool m_twoSidesHit;
+  bool m_correct_TimeBin;
 
-  int nNoSides[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nOneSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nOneSide0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nOneSide1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nTwoSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nNoSides[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nOneSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nOneSide0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nOneSide1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nTwoSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   
-  int nLink0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nLink1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  bool goodModules[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nLink0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nLink1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  bool m_goodModules[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
 
-  int nLayer[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nEta[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nPhi[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nNonGoodModule[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nLayer[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nEta[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nPhi[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nNonGoodModule[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
 
   int m_checkrecent;
   int m_current_lb;
   int m_last_reset_lb;
   
-  int set_timebin;
-  int tbin;
-  int modNum;
-  float ratio;
-  float ratioside0;
-  float ratioside1;
+  int m_set_timebin;
+  int m_tbin;
+  int m_modNum;
+  float m_ratio;
+  float m_ratioside0;
+  float m_ratioside1;
   
   //static const long NBINS_LBs = 2000;
   
-  int nNoSides_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int nOneSide_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int noisyM[SCT_Monitoring::NBINS_LBs+1];
+  int m_nNoSides_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nOneSide_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_noisyM[SCT_Monitoring::NBINS_LBs+1];
   //@name Histograms related members
   //@{
 

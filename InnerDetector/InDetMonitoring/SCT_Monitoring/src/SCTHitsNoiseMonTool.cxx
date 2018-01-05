@@ -143,24 +143,24 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
                                          const IInterface *parent) :
   SCTMotherTrigMonTool(type, name, parent),
   m_nSP(nullptr),
-  nSP_buf(nullptr),
-  nSP_pos(0),
+  m_nSP_buf(nullptr),
+  m_nSP_pos(0),
   m_nHits(nullptr),
-  nHits_buf(nullptr),
-  nHits_pos(0),
+  m_nHits_buf(nullptr),
+  m_nHits_pos(0),
   m_nmaxHits(nullptr),
-  nmaxHits_buf(nullptr),
-  nmaxModule_buf(nullptr),
+  m_nmaxHits_buf(nullptr),
+  m_nmaxModule_buf(nullptr),
   m_nminHits(nullptr),
-  nminHits_buf(nullptr),
-  nminModule_buf(nullptr),
+  m_nminHits_buf(nullptr),
+  m_nminModule_buf(nullptr),
   m_numBarrelHitsPerLumiBlock(nullptr),
   m_numHitsPerLumiBlockECp(nullptr),
   m_numHitsPerLumiBlockECm(nullptr),
   m_numBarrelSPPerLumiBlock(nullptr),
   m_numSPPerLumiBlockECp(nullptr),
   m_numSPPerLumiBlockECm(nullptr),
-  rioMap(nullptr),
+  m_rioMap(nullptr),
   //
   m_BARNO(nullptr),
   m_BARNOTrigger(nullptr),
@@ -206,7 +206,7 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   m_hitsvstrigger(nullptr),
   m_hitsvsL1ID(nullptr),
   m_ncluHisto(nullptr),
-  coincidenceHist(nullptr),
+  m_coincidenceHist(nullptr),
   m_numberOfEvents(0),
   m_numberOfEventsTrigger(0),
   m_numberOfEventsRecent(0),
@@ -338,12 +338,12 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
 // ====================================================================================================
 // ====================================================================================================
 SCTHitsNoiseMonTool::~SCTHitsNoiseMonTool() {
-  free(nSP_buf);
-  free(nmaxHits_buf);
-  free(nminHits_buf);
-  free(nmaxModule_buf);
-  free(nminModule_buf);
-  free(nHits_buf);
+  free(m_nSP_buf);
+  free(m_nmaxHits_buf);
+  free(m_nminHits_buf);
+  free(m_nmaxModule_buf);
+  free(m_nminModule_buf);
+  free(m_nHits_buf);
 }
 
 // ====================================================================================================
@@ -1176,36 +1176,36 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   if (m_environment == AthenaMonManager::online) {
     // Time Dependent plots only online
     bool badmodule = false;
-    nHits_buf[nHits_pos] = meanhits;
-    nmaxHits_buf[nHits_pos] = maxhits;
-    nmaxModule_buf[nHits_pos] = maxhits_Id;
-    nminHits_buf[nHits_pos] = minhits;
-    nminModule_buf[nHits_pos] = minhits_Id;
-    nHits_pos++;
-    if (nHits_pos == m_evtsbins) {
-      nHits_pos = 0;
+    m_nHits_buf[m_nHits_pos] = meanhits;
+    m_nmaxHits_buf[m_nHits_pos] = maxhits;
+    m_nmaxModule_buf[m_nHits_pos] = maxhits_Id;
+    m_nminHits_buf[m_nHits_pos] = minhits;
+    m_nminModule_buf[m_nHits_pos] = minhits_Id;
+    m_nHits_pos++;
+    if (m_nHits_pos == m_evtsbins) {
+      m_nHits_pos = 0;
     }
 
     if (m_numberOfEvents % m_checkrate == 0) {
       m_nHits->Reset();
       m_nmaxHits->Reset();
-      Int_t latest_nHits_pos = nHits_pos;
+      Int_t latest_nHits_pos = m_nHits_pos;
       m_nminHits->Reset();
       // Check if the same module is the noisiest one for at least 10 events
       // Need to add a similar check for modules with the minimum number of hits
-      if (nHits_pos > 10) {
+      if (m_nHits_pos > 10) {
         for (int s = 10; s > 0; --s) {
-          int npos = nHits_pos - s;
-          if (nmaxModule_buf[npos] == nmaxModule_buf[npos - 1]) {
+          int npos = m_nHits_pos - s;
+          if (m_nmaxModule_buf[npos] == m_nmaxModule_buf[npos - 1]) {
             badmodule = true;
           } else {
             badmodule = false;
           }
         }
-      } else if (nHits_pos < 10 && m_numberOfEvents > m_evtsbins) {
+      } else if (m_nHits_pos < 10 && m_numberOfEvents > m_evtsbins) {
         for (int s = 10; s > 0; --s) {
-          int npos = nHits_pos - s;
-          int nppos = nHits_pos - s - 1;
+          int npos = m_nHits_pos - s;
+          int nppos = m_nHits_pos - s - 1;
           if (npos < 0) {
             npos = m_evtsbins + npos;
           }
@@ -1213,7 +1213,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
           if (nppos < 0) {
             nppos = m_evtsbins + nppos;
           }
-          if (nmaxModule_buf[npos] == nmaxModule_buf[nppos]) {
+          if (m_nmaxModule_buf[npos] == m_nmaxModule_buf[nppos]) {
             badmodule = true;
           } else {
             badmodule = false;
@@ -1227,10 +1227,10 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
         }
 
         if (m_numberOfEvents < m_evtsbins) {
-          if (i < nHits_pos) {
-            m_nHits->SetBinContent(i, nHits_buf[i]);
-            m_nmaxHits->SetBinContent(i, nmaxHits_buf[i]);
-            m_nminHits->SetBinContent(i, nminHits_buf[i]);
+          if (i < m_nHits_pos) {
+            m_nHits->SetBinContent(i, m_nHits_buf[i]);
+            m_nmaxHits->SetBinContent(i, m_nmaxHits_buf[i]);
+            m_nminHits->SetBinContent(i, m_nminHits_buf[i]);
           }else {
             m_nHits->SetBinContent(i, 0);
             m_nmaxHits->SetBinContent(i, 0);
@@ -1238,13 +1238,13 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
           }
         } else {
           // Fill average histo
-          m_nHits->SetBinContent(i, nHits_buf[latest_nHits_pos]);
+          m_nHits->SetBinContent(i, m_nHits_buf[latest_nHits_pos]);
           m_nHits->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
           // Fill max histo
-          m_nmaxHits->SetBinContent(i, nmaxHits_buf[latest_nHits_pos]);
+          m_nmaxHits->SetBinContent(i, m_nmaxHits_buf[latest_nHits_pos]);
           m_nmaxHits->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
           // Fill min histo
-          m_nminHits->SetBinContent(i, nminHits_buf[latest_nHits_pos]);
+          m_nminHits->SetBinContent(i, m_nminHits_buf[latest_nHits_pos]);
           m_nminHits->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
           // Change color of the Line if found a noisy module
           // Need to add similar system for minimum histogram
@@ -3009,12 +3009,12 @@ SCTHitsNoiseMonTool::bookNoiseDistributions() {
 StatusCode
 SCTHitsNoiseMonTool::bookSPvsEventNumber() {
   if (newRunFlag()) {
-    free(nSP_buf);
-    free(nHits_buf);
-    free(nmaxHits_buf);
-    free(nminHits_buf);
-    free(nmaxModule_buf);
-    free(nminModule_buf);
+    free(m_nSP_buf);
+    free(m_nHits_buf);
+    free(m_nmaxHits_buf);
+    free(m_nminHits_buf);
+    free(m_nmaxModule_buf);
+    free(m_nminModule_buf);
     MonGroup BarrelSPHist(this, "SCT/GENERAL/hits", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     // Book a histogram
     m_nSP = th1Factory("sct_sp_vs_en", "Number of Spacepoints vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
@@ -3023,8 +3023,8 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nSP->GetYaxis()->SetTitle("Num of Spacepoints");
     size_t nSP_buf_size;
     nSP_buf_size = m_evtsbins * sizeof(int);
-    nSP_buf = (int *) malloc(nSP_buf_size);
-    nSP_pos = 0;
+    m_nSP_buf = (int *) malloc(nSP_buf_size);
+    m_nSP_pos = 0;
 
     m_nHits = th1Factory("sct_av_hits_vs_en", "Number of Average Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                          m_evtsbins);
@@ -3032,8 +3032,8 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nHits->GetYaxis()->SetTitle("Num of Average Hits");
     size_t nHits_buf_size;
     nHits_buf_size = m_evtsbins * sizeof(int);
-    nHits_buf = (int *) malloc(nHits_buf_size);
-    nHits_pos = 0;
+    m_nHits_buf = (int *) malloc(nHits_buf_size);
+    m_nHits_pos = 0;
 
     m_nmaxHits = th1Factory("sct_max_hits_vs_en", "Max Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                             m_evtsbins);
@@ -3041,10 +3041,10 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nmaxHits->GetYaxis()->SetTitle("Num of Max Hits");
     size_t nmaxHits_buf_size;
     nmaxHits_buf_size = m_evtsbins * sizeof(int);
-    nmaxHits_buf = (int *) malloc(nmaxHits_buf_size);
+    m_nmaxHits_buf = (int *) malloc(nmaxHits_buf_size);
     size_t nmaxModule_buf_size;
     nmaxModule_buf_size = m_evtsbins * sizeof(Identifier);
-    nmaxModule_buf = (Identifier *) malloc(nmaxModule_buf_size);
+    m_nmaxModule_buf = (Identifier *) malloc(nmaxModule_buf_size);
 
     m_nminHits = th1Factory("sct_min_hits_vs_en", "Min Number of Hits vs Event Number", BarrelSPHist, 1, m_evtsbins + 1,
                             m_evtsbins);
@@ -3052,10 +3052,10 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
     m_nminHits->GetYaxis()->SetTitle("Num of Min Hits");
     size_t nminHits_buf_size;
     nminHits_buf_size = m_evtsbins * sizeof(int);
-    nminHits_buf = (int *) malloc(nminHits_buf_size);
+    m_nminHits_buf = (int *) malloc(nminHits_buf_size);
     size_t nminModule_buf_size;
     nminModule_buf_size = m_evtsbins * sizeof(Identifier);
-    nminModule_buf = (Identifier *) malloc(nminModule_buf_size);
+    m_nminModule_buf = (Identifier *) malloc(nminModule_buf_size);
   }
   return StatusCode::SUCCESS;
 }
@@ -3075,7 +3075,7 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
     }
     return StatusCode::FAILURE;
   }
-  int m_sct_nspacepoints(0);
+  int sct_nspacepoints(0);
   // loop over SCT space points collections
   SpacePointContainer::const_iterator it = SCT_spcontainer->begin();
   SpacePointContainer::const_iterator endit = SCT_spcontainer->end();
@@ -3096,31 +3096,31 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
     if (thisBec == 2) {
       m_numSPPerLumiBlockECp->Fill(thisLayerDisk, colNext->size());
     }
-    m_sct_nspacepoints += (int) colNext->size();
+    sct_nspacepoints += (int) colNext->size();
   }
 
   if (m_environment == AthenaMonManager::online) {
     // Time Dependent SP plots only online
-    nSP_buf[nSP_pos] = m_sct_nspacepoints;
-    nSP_pos++;
-    if (nSP_pos == m_evtsbins) {
-      nSP_pos = 0;
+    m_nSP_buf[m_nSP_pos] = sct_nspacepoints;
+    m_nSP_pos++;
+    if (m_nSP_pos == m_evtsbins) {
+      m_nSP_pos = 0;
     }
     if (m_numberOfEvents % m_checkrate == 0) {
       m_nSP->Reset();
-      Int_t latest_nSP_pos = nSP_pos;
+      Int_t latest_nSP_pos = m_nSP_pos;
       for (Int_t i = 1; i < m_evtsbins; i++) {
         if (latest_nSP_pos == m_evtsbins) {
           latest_nSP_pos = 0;
         }
         if (m_numberOfEvents < m_evtsbins) {
-          if (i < nSP_pos) {
-            m_nSP->SetBinContent(i, nSP_buf[i]);
+          if (i < m_nSP_pos) {
+            m_nSP->SetBinContent(i, m_nSP_buf[i]);
           } else {
             m_nSP->SetBinContent(i, 0);
           }
         } else {
-          m_nSP->SetBinContent(i, nSP_buf[latest_nSP_pos]);
+          m_nSP->SetBinContent(i, m_nSP_buf[latest_nSP_pos]);
           m_nSP->GetXaxis()->Set(m_evtsbins, m_numberOfEvents - m_evtsbins, m_numberOfEvents);
         }
         latest_nSP_pos++;
@@ -3286,7 +3286,7 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
     MonGroup tbinGroup(this, "SCT/GENERAL/tbin", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     std::string stem = m_stream + pathDelimiter + path[systemIndex];
     const unsigned int nBins = 8;
-    std::string m_tbinsNames[] = {
+    std::string tbinsNames[] = {
       "000", "001", "010", "011", "100", "101", "110", "111"
     };
     std::string histoName = "TrackTimeBin" + abbreviations[systemIndex];
@@ -3309,13 +3309,13 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       m_tbinfracVsLBECm = profFactory("TBinFrac01XVsLBEC", "fraction of 01X vs LumiBlock in EndcapC", timeGroup, 2000,
                                       0, 2000);
       for (unsigned int bin(0); bin < nBins; bin++) {
-        m_tbinHistoECm->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+        m_tbinHistoECm->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
       }
       m_tbinHistoECm->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
         m_tbinHistoRecentECm = h1Factory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
-          m_tbinHistoRecentECm->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+          m_tbinHistoRecentECm->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
         }
         m_tbinHistoRecentECm->GetXaxis()->SetTitle("TimeBin");
       }
@@ -3335,13 +3335,13 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       m_tbinfracVsLB =
         profFactory("TBinFrac01XVsLB", "fraction of 01X vs LumiBlock in Barrel", timeGroup, 2000, 0, 2000);
       for (unsigned int bin(0); bin < nBins; bin++) {
-        m_tbinHisto->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+        m_tbinHisto->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
       }
       m_tbinHisto->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
         m_tbinHistoRecent = h1Factory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
-          m_tbinHistoRecent->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+          m_tbinHistoRecent->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
         }
         m_tbinHistoRecent->GetXaxis()->SetTitle("TimeBin");
       }
@@ -3362,13 +3362,13 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       m_tbinfracVsLBECp = profFactory("TBinFrac01XVsLBEA", "fraction of 01X vs LumiBlock in EndcapA", timeGroup, 2000,
                                       0, 2000);
       for (unsigned int bin(0); bin < nBins; bin++) {
-        m_tbinHistoECp->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+        m_tbinHistoECp->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
       }
       m_tbinHistoECp->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
         m_tbinHistoRecentECp = h1Factory(histoNameRecent, histoTitleRecent, timeGroup, -0.5, 7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
-          m_tbinHistoRecentECp->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+          m_tbinHistoRecentECp->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
         }
         m_tbinHistoRecentECp->GetXaxis()->SetTitle("TimeBin");
       }
@@ -3390,14 +3390,14 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex) 
       }
       h1Factory(streamhitmap, histoTitle, timeGroup, *(tbinHistoVectorArray[systemIndex]), -0.5, 7.5, nBins);
       for (unsigned int bin(0); bin < nBins; bin++) {
-        tbinHistoVector[i]->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+        tbinHistoVector[i]->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
       }
       tbinHistoVector[i]->GetXaxis()->SetTitle("TimeBin");
       if (m_environment == AthenaMonManager::online) {
         h1Factory(streamhitmaprecent, histoTitleRecent, timeGroup, *(tbinHistoVectorArrayRecent[systemIndex]), -0.5,
                    7.5, nBins);
         for (unsigned int bin(0); bin < nBins; bin++) {
-          tbinHistoVectorRecent[i]->GetXaxis()->SetBinLabel(bin + 1, m_tbinsNames[bin].c_str());
+          tbinHistoVectorRecent[i]->GetXaxis()->SetBinLabel(bin + 1, tbinsNames[bin].c_str());
         }
         tbinHistoVectorRecent[i]->GetXaxis()->SetTitle("TimeBin");
       }
