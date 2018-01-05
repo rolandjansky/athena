@@ -182,6 +182,9 @@ namespace MuonCombined {
     bool m_fillTimingInformation;
     bool m_fillTimingInformationOnMuon;
 
+    //associate segments to MuGirlLowBeta muons;
+    bool m_segLowBeta;
+
     /// copy truth links from primary track particle (or put dummy link if this is missing)
     //bool m_fillMuonTruthLinks;
     
