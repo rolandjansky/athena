@@ -46,13 +46,13 @@ atlas_add_test( ViewLinking_test
 		AthViews TestTools )
 
 atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
-                EXTRA_PATTERNS "INFO view_test running with store view9" )
+                PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view9" )
 
 atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh
-                EXTRA_PATTERNS "INFO 109" )
+                PROPERTIES PASS_REGULAR_EXPRESSION "INFO 109" )
 
 atlas_add_test( ViewNestFail SCRIPT test/test_view_nest_fail.sh
-                EXTRA_PATTERNS "Execution of algorithm nest_alg failed" )
+                PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed" )
 
 # Install files from the package:
 atlas_install_headers( AthViews )
