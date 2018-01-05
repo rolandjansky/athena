@@ -78,10 +78,10 @@ IDPerfMonZee::IDPerfMonZee( const std::string & type, const std::string & name, 
   declareProperty("triggerChainName",m_triggerChainName);
   declareProperty("electronIDLevel",m_electronIDLevel = "Tight");
 
-  region_strings.push_back("incl");
-  region_strings.push_back("barrel");
-  region_strings.push_back("eca");
-  region_strings.push_back("ecc");
+  m_region_strings.push_back("incl");
+  m_region_strings.push_back("barrel");
+  m_region_strings.push_back("eca");
+  m_region_strings.push_back("ecc");
 
 }
 
@@ -253,25 +253,25 @@ StatusCode IDPerfMonZee::bookHistograms()
       std::string title;
       std::string name;
 
-      name = "Zee_Eop_" + region_strings[region];
-      title = "E/p for Zee EM-clusters in " + region_strings[region];
+      name = "Zee_Eop_" + m_region_strings[region];
+      title = "E/p for Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop.push_back(new TH1F(name.c_str(),title.c_str(), 60, 0., 10.));
       if (region==incl) RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
       else RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
 
-      name = "Zee_Eopdiff_" + region_strings[region];
-      title = "E/p difference (pos-neg) for Zee EM-clusters in " + region_strings[region];
+      name = "Zee_Eopdiff_" + m_region_strings[region];
+      title = "E/p difference (pos-neg) for Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eopdiff.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       if (region==incl) RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
       else RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
 
-      name = "Zee_Eop_plus_" + region_strings[region];
-      title = "E/p for pos. charged Zee EM-clusters in " + region_strings[region];
+      name = "Zee_Eop_plus_" + m_region_strings[region];
+      title = "E/p for pos. charged Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop_plus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       RegisterHisto(al_Zee_mon,m_Zee_Eop_plus[region],true);
 
-      name = "Zee_Eop_minus_" + region_strings[region];
-      title = "E/p for neg. charged Zee EM-clusters in " + region_strings[region];
+      name = "Zee_Eop_minus_" + m_region_strings[region];
+      title = "E/p for neg. charged Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop_minus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
       RegisterHisto(al_Zee_mon,m_Zee_Eop_minus[region],true);
 
