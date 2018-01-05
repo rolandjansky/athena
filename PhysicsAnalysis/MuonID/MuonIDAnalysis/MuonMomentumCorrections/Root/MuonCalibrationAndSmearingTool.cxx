@@ -1049,11 +1049,11 @@ namespace CP {
       ATH_MSG_VERBOSE( "Checking Weights - weightID: " << muonInfo.weightID <<" - weightMS: " << muonInfo.weightMS);
 
       //::: Calibrate the pt of the muon:
-      double res_pt = muonInfo.ptcb; //at this level ptcb is a dummy copy of ptID or ptMS
+      double res_pt = 1000. * muonInfo.ptcb; //at this level ptcb is a dummy copy of ptID or ptMS
       if(DetType == MCAST::DetectorType::ID) {
-        res_pt = CalculatePt( MCAST::DetectorType::ID, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo );
+        res_pt = 1000. * CalculatePt( MCAST::DetectorType::ID, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo);
       } else if ( DetType == MCAST::DetectorType::MS){
-        res_pt = CalculatePt( MCAST::DetectorType::MS, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo);
+        res_pt = 1000. * CalculatePt( MCAST::DetectorType::MS, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo);
       } else {
         return CorrectionCode::Error;
       }
