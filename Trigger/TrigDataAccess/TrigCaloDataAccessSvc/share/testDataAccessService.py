@@ -4,7 +4,6 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
