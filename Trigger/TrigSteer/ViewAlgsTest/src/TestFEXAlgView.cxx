@@ -13,7 +13,7 @@
 namespace AthViews {
 
 TestFEXAlgView::TestFEXAlgView(const std::string& name, ISvcLocator* pSvcLocator) 
-  : AthViewAlgorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_inputContainer("RoIsContainer"), 
     m_outputClusterContainer("OutputClusters"), 
     m_outputClusterContainerAux("OutputClusterAux."),
@@ -73,8 +73,11 @@ StatusCode TestFEXAlgView::execute() {
       ATH_MSG_DEBUG("Created cluster of Et " << etVal);
       xAOD::TrigComposite* proxy  = new xAOD::TrigComposite();          
       m_outputProxyContainer->push_back(proxy);
-      proxy->setObjectLink("cluster", ElementLink<TestClusterContainer>(m_outputClusterContainer.name(), nRoI, eventView(ctx)) );
-      proxy->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputContainer.name(), nRoI, eventView(ctx)) );
+
+      // This retrieval and cast could use some protection, but do we actually need this alg?
+      SG::View * myView = dynamic_cast< SG::View * >( ctx.getExtension<Atlas::ExtendedEventContext>()->proxy() );
+      proxy->setObjectLink("cluster", ElementLink<TestClusterContainer>(m_outputClusterContainer.name(), nRoI, myView ) );
+      proxy->setObjectLink("seed", ElementLink<xAOD::TrigCompositeContainer>(m_inputContainer.name(), nRoI, myView ) );
     } else {
       ATH_MSG_DEBUG("No path to RoI object");
     }

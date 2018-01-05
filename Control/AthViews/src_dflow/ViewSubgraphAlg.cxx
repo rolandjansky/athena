@@ -38,6 +38,7 @@ StatusCode ViewSubgraphAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  renounce( m_w_int ); // To test ViewDataVerifier
   CHECK( m_w_int.initialize() );
   CHECK( m_w_views.initialize() );
   CHECK( m_scheduler.retrieve() );
@@ -77,25 +78,11 @@ StatusCode ViewSubgraphAlg::execute()
                                         ctx,            //The context of this algorithm
 					viewData ) );   //Data to initialise each view - one view will be made per entry
 
-  //Toggle between the two demos
-  if ( m_algorithmNameSequence.size() )
-  {
-    //Run the algorithms in views
-    ATH_MSG_WARNING( "This method of EventView scheduling (specifying algorithm names) is DEPRECATED" );
-    ATH_MSG_WARNING( "Please use the scheduler EventView handling by specifying a CF node name" );
-    CHECK( ViewHelper::RunViews( viewVector,              //View vector
-          m_algorithmNameSequence,                        //Algorithms to run in each view
-          ctx,                                            //Context to attach the views to
-          serviceLocator()->service( m_algPoolName ) ) ); //Service to retrieve algorithms by name
-  }
-  else
-  {
-    //Schedule the algorithms in views
-    CHECK( ViewHelper::ScheduleViews( viewVector, //View vector
-          m_viewNodeName,                         //Name of node to attach views to
-          ctx,                                    //Context to attach the views to
-          m_scheduler.get() ) );
-  }
+  //Schedule the algorithms in views
+  CHECK( ViewHelper::ScheduleViews( viewVector, //View vector
+        m_viewNodeName,                         //Name of node to attach views to
+        ctx,                                    //Context to attach the views to
+        m_scheduler.get() ) );                  //ServiceHandle for the scheduler
 
   //Store the collection of views
   SG::WriteHandle< std::vector< SG::View* > > outputViewHandle( m_w_views, ctx );

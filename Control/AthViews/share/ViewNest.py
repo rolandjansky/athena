@@ -21,10 +21,14 @@ AlgScheduler.ShowDataDependencies( True )
 
 # Control flow
 from AthenaCommon.AlgSequence import AthSequencer
-allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
-allViewAlgorithms.ModeOR = False
-allViewAlgorithms.Sequential = False
-allViewAlgorithms.StopOverride = False
+l2ViewAlgorithms = AthSequencer( "l2ViewAlgorithms" )
+l2ViewAlgorithms.ModeOR = False
+l2ViewAlgorithms.Sequential = False
+l2ViewAlgorithms.StopOverride = False
+l1ViewAlgorithms = AthSequencer( "l1ViewAlgorithms" )
+l1ViewAlgorithms.ModeOR = False
+l1ViewAlgorithms.Sequential = True
+l1ViewAlgorithms.StopOverride = False
 makeViewSequence = AthSequencer( "makeViewSequence" )
 makeViewSequence.ModeOR = False
 makeViewSequence.Sequential = True
@@ -38,28 +42,25 @@ job = AlgSequence()
 makeViewSequence += CfgMgr.AthViews__ViewSubgraphAlg("make_alg")
 makeViewSequence.make_alg.ViewBaseName = "view"
 makeViewSequence.make_alg.ViewNumber = 10
-makeViewSequence.make_alg.ViewNodeName = "allViewAlgorithms"
+makeViewSequence.make_alg.ViewNodeName = l1ViewAlgorithms.name()
 makeViewSequence.make_alg.Scheduler = AlgScheduler.getScheduler()
 
 # View algorithms
 ViewTest = CfgMgr.AthViews__ViewTestAlg("view_test")
-allViewAlgorithms += ViewTest
+l1ViewAlgorithms += ViewTest
 #
-ViewVerify = CfgMgr.AthViews__ViewDataVerifier("view_verify")
-ViewVerify.DataObjects = [ ('int','view_start') ]
-allViewAlgorithms += ViewVerify
+l1ViewAlgorithms += CfgMgr.AthViews__ViewSubgraphAlg("nest_alg")
+l1ViewAlgorithms.nest_alg.ViewBaseName = "viewView"
+l1ViewAlgorithms.nest_alg.ViewNumber = 10
+l1ViewAlgorithms.nest_alg.ViewNodeName = l2ViewAlgorithms.name()
+l1ViewAlgorithms.nest_alg.Scheduler = AlgScheduler.getScheduler()
 #
-dflow_alg1 = CfgMgr.AthViews__DFlowAlg1("dflow_alg1")
-allViewAlgorithms += dflow_alg1
-#
-dflow_alg2 = CfgMgr.AthViews__DFlowAlg2("dflow_alg2")
-allViewAlgorithms += dflow_alg2
-#
-dflow_alg3 = CfgMgr.AthViews__DFlowAlg3("dflow_alg3")
-allViewAlgorithms += dflow_alg3
+ViewViewTest = CfgMgr.AthViews__ViewTestAlg("viewView_test")
+l2ViewAlgorithms += ViewViewTest
 
 # Add the view algorithms to the job
-makeViewSequence += allViewAlgorithms
+l1ViewAlgorithms += l2ViewAlgorithms
+makeViewSequence += l1ViewAlgorithms
 
 # Merge views
 makeViewSequence += CfgMgr.AthViews__ViewMergeAlg("merge_alg")
