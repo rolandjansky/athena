@@ -28,6 +28,7 @@ atlas_add_library( AthViews
                    LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils TrigSteeringEvent )
 
 atlas_add_component( AthViewsAlgs
+                   src/*.cxx
                    src/components/*.cxx
                    INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews TrigSteeringEvent )
