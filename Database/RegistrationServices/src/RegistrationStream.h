@@ -72,8 +72,9 @@ public:
     /// Working entry point
     virtual StatusCode execute();
 
-/// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
+    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
     virtual StatusCode io_reinit();
+    virtual StatusCode io_finalize();
 
     /// Standard RegistrationStream Constructor
     RegistrationStream(const std::string& name, ISvcLocator* pSvcLocator); 
