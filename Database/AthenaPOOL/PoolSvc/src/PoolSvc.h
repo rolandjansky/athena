@@ -12,13 +12,11 @@
 
 #include "PoolSvc/IPoolSvc.h"
 #include "GaudiKernel/IIoComponent.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <string>
 #include <vector>
 #include <map>
-#include <memory>
 #include <mutex>
 
 // Forward declarations
@@ -26,7 +24,6 @@ namespace pool {
    class IContainer;
    class IDatabase;
    class IPersistencySvc;
-   class ISession;
 }
 class Guid;
 

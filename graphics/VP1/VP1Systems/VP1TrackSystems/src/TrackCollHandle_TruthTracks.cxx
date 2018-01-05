@@ -359,7 +359,7 @@ bool TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,con
 
   for (;itEvt!=itEvtEnd;++itEvt) {
     //NB: Signal is always the first event in collection!
-    HepMC::GenEvent * evt = *itEvt;
+    const HepMC::GenEvent * evt = *itEvt;
     if (!evt)
       continue;
     HepMC::GenEvent::vertex_const_iterator itVtx(evt->vertices_begin()), itVtxEnd(evt->vertices_end());

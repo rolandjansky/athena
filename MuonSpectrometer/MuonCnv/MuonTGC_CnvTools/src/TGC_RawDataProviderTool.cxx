@@ -37,7 +37,6 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
-  declareProperty("RdoLocation", m_rdoContainerKey);
 }
 
 //================ Destructor =================================================
@@ -146,38 +145,25 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
     
   // register the container only when the imput from ByteStream is set up     
   m_activeStore->setStore( &*evtStore() );
-  if(has_bytestream || m_rdoContainerKey != "TGCRDO") {   
-    TgcRdoContainer* m_container = Muon::MuonRdoContainerAccess::retrieveTgcRdo(m_rdoContainerKey);
+  m_useContainer = (has_bytestream || m_rdoContainerKey.key() != "TGCRDO") && !m_rdoContainerKey.key().empty();
 
-    // create and register the container only once
-    if(m_container==0) {
-      try {
-	m_container = 
-	  new TgcRdoContainer(m_muonMgr->tgcIdHelper()->module_hash_max());
-      } catch(const std::bad_alloc&) {
-	ATH_MSG_FATAL( "Could not create a new TGC RDO container!" );
-	return StatusCode::FAILURE;
-      }
-	
-      // record the container for being used by the convert method
-
-      sc = Muon::MuonRdoContainerAccess::record(m_container,
-						m_rdoContainerKey,
-						serviceLocator(),
-						msg(),
-						&*evtStore());
-      if(sc.isFailure()) {
-	ATH_MSG_FATAL( "Recording of container " 
-		       << m_rdoContainerKey
-		       << " into MuonRdoContainerManager has failed" );
-	return StatusCode::FAILURE;
+  if (!m_useContainer) {
+    ATH_MSG_DEBUG( "TGC RDO container not registered." );
+    if (!has_bytestream){
+      ATH_MSG_DEBUG( "ByteStream conversion service not found." );
+    } 
+    if (m_rdoContainerKey.key().empty()){
+      ATH_MSG_DEBUG( "The RDO key is empty." );
+    } else {
+      if (m_rdoContainerKey.key() != "TGCRDO"){
+        ATH_MSG_DEBUG( "The RDO key isn't TGCRDO but " << m_rdoContainerKey.key() );
       }
     }
   } else {
-    ATH_MSG_DEBUG( "ByteStream conversion service not found." );
-    ATH_MSG_DEBUG( "TGC RDO container not registered." );
+    m_maxhashtoUse = m_muonMgr->tgcIdHelper()->module_hash_max();
   }
-  
+
+  ATH_CHECK(m_rdoContainerKey.initialize());
   
   //try to configure the cabling service
   sc = getCabling();
@@ -205,9 +191,8 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   // if the MuonByteStream CNV has to be used, the container must have been
   // registered there!
   m_activeStore->setStore( &*evtStore() );
-  TgcRdoContainer* TGC = Muon::MuonRdoContainerAccess::retrieveTgcRdo(m_rdoContainerKey);
       
-  if(TGC==0) {
+  if (m_useContainer==false) {
     ATH_MSG_DEBUG( "Container " << m_rdoContainerKey 
 		   << " for bytestream conversion not available." );
     ATH_MSG_DEBUG( "Try retrieving it from the Store" );
@@ -217,13 +202,19 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     // have been called .... but this depends
     // on the user experience
   }
-  
+
+  SG::WriteHandle<TgcRdoContainer> handle(m_rdoContainerKey); 
+  if (handle.isPresent()) {
+    return StatusCode::SUCCESS;
+  }
+  auto tgc = std::make_unique<TgcRdoContainer>(m_maxhashtoUse);
+ 
   static int DecodeErrCount = 0;
 
   ROBFragmentList::const_iterator itFrag   = vecRobs.begin();
   ROBFragmentList::const_iterator itFrag_e = vecRobs.end();
   for(; itFrag!=itFrag_e; itFrag++) {
-    if(m_decoder->fillCollection(**itFrag, *TGC).isFailure()) {
+    if(m_decoder->fillCollection(**itFrag, *tgc).isFailure()) {
       if(DecodeErrCount < 100) {
 	ATH_MSG_INFO( "Problem with TGC ByteStream Decoding!" );
 	DecodeErrCount++;
@@ -234,6 +225,7 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     }
   }
 
+  ATH_CHECK(handle.record(std::move(tgc)));
   return StatusCode::SUCCESS;
 }
 

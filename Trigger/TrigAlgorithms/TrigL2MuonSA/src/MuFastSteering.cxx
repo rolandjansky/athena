@@ -94,14 +94,6 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
 
   declareProperty("UseEndcapInnerFromBarrel",m_use_endcapInnerFromBarrel = false);
-
-  //adding a part of DataHandle for AthenaMT
-  declareProperty("MuRoIs", m_roiCollectionKey = std::string("MURoIs"), "MuRoIs to read in"); 
-  declareProperty("RecMuonRoI", m_recRoiCollectionKey = std::string("RecMuonRoI"), "RecMuonRoI to read in"); 
-  declareProperty("MuFastDecisions",m_muFastContainerKey = std::string("xAOD::L2StandAloneMuonContainer"),"xAOD::L2StandAloneMuonContainer to record");	
-  declareProperty("MuFastComposite",m_muCompositeContainerKey = std::string("xAOD::TrigCompositeContainer"),"xAOD::TrigCompositeContainer to record");	
-  declareProperty("MuFastForID",m_muIdContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for ID to record");
-  declareProperty("MuFastForMS",m_muMsContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for MS to record");
 }
 
 // --------------------------------------------------------------------------------

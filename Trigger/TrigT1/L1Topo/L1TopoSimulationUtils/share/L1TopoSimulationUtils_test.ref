@@ -1,0 +1,41 @@
+** test1: L1TopoSimulationUtils cosh at different delta-eta values**
+delta eta:  abs(0 - 23) = 23, cosh 000000001010000101
+delta eta:  abs(0 - 23) = 23, cosh 000000001010000101
+delta eta:  abs(0 - 24) = 24, cosh 000000001011000111
+** test2: L1TopoSimulationUtils KFLUT correction vs. et and eta**
+** test3: L1TopoSimulationUtils KFLUT saturation**
+This out_of_range is expected for ET values beyond 1024 : vector::_M_range_check: __n (which is 5) >= this->size() (which is 5)
+** test4: L1TopoSimulationUtils quadraticSumBW bitshift**
+ sum2(1, 1) : std = 1 bw = 1
+ sum2(-1, -1) : std = 1 bw = 1
+ sum2(3, 3) : std = 4 bw = 4
+ sum2(-3, -3) : std = 4 bw = 4
+ sum2(7, 7) : std = 9 bw = 9
+ sum2(-7, -7) : std = 9 bw = 9
+ sum2(15, 15) : std = 21 bw = 21
+ sum2(-15, -15) : std = 21 bw = 21
+ sum2(31, 31) : std = 43 bw = 43
+ sum2(-31, -31) : std = 43 bw = 43
+ sum2(63, 63) : std = 89 bw = 89
+ sum2(-63, -63) : std = 89 bw = 89
+ sum2(127, 127) : std = 179 bw = 179
+ sum2(-127, -127) : std = 179 bw = 179
+ sum2(255, 255) : std = 360 bw = 360
+ sum2(-255, -255) : std = 360 bw = 360
+ sum2(511, 511) : std = 722 bw = 722
+ sum2(-511, -511) : std = 722 bw = 722
+ sum2(1023, 1023) : std = 1446 bw = 1446
+ sum2(-1023, -1023) : std = 1446 bw = 1446
+ sum2(2047, 2047) : std = 2894 bw = 2894
+ sum2(-2047, -2047) : std = 2894 bw = 2894
+ sum2(4095, 4095) : std = 5791 bw = 5791
+ sum2(-4095, -4095) : std = 5791 bw = 5791
+ sum2(8191, 8191) : std = 11583 bw = 11583
+ sum2(-8191, -8191) : std = 11583 bw = 11583
+ sum2(16383, 16383) : std = 23169 bw = 23169
+ sum2(-16383, -16383) : std = 23169 bw = 23169
+ sum2(32767, 32767) : std = 46339 bw = 46339
+ sum2(-32767, -32767) : std = 46339 bw = 46339
+ sum2(0, 65535) : std = 65535 bw = 65535
+ sum2(362, 65535) : std = 65535 bw = 65535
+ sum2(46340, 46340) : std = 65534 bw = 65534

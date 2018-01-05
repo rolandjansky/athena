@@ -16,7 +16,6 @@
 #include "DataModelRoot/RootType.h"
 
 #include <string>
-#include <vector>
 
 // Forward declarations
 namespace pool {
