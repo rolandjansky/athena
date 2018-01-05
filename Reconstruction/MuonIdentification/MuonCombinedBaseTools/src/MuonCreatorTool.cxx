@@ -132,6 +132,7 @@ namespace MuonCombined {
     declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
     declareProperty("FillTimingInformation", m_fillTimingInformation = true );
     declareProperty("FillTimingInformationOnMuon", m_fillTimingInformationOnMuon = false );
+    declareProperty("AssociateSegmentsToLowBetaMuons",m_segLowBeta = false);
     //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
      
   }
@@ -158,9 +159,13 @@ namespace MuonCombined {
     ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
     ATH_CHECK(m_trackQuery.retrieve());
     if(!m_momentumBalanceTool.empty()) ATH_CHECK(m_momentumBalanceTool.retrieve());
+    else m_momentumBalanceTool.disable();
     if(!m_scatteringAngleTool.empty()) ATH_CHECK(m_scatteringAngleTool.retrieve());   
+    else m_scatteringAngleTool.disable();
     if(!m_selectorTool.empty()) ATH_CHECK(m_selectorTool.retrieve());
+    else m_selectorTool.disable();
     if(!m_meanMDTdADCTool.empty()) ATH_CHECK(m_meanMDTdADCTool.retrieve());
+    else m_meanMDTdADCTool.disable();
     if(m_applyCaloNoiseCut) {
         // apply CaloNoiseTool to cell collected for ET_Core
         if(!m_caloNoiseTool.empty()) ATH_CHECK(m_caloNoiseTool.retrieve());
@@ -169,6 +174,7 @@ namespace MuonCombined {
             m_applyCaloNoiseCut = false;
         }
     }
+    else m_caloNoiseTool.disable();
     ATH_MSG_INFO("ET_Core calculation: tool, doNoiseCut, sigma - " << m_caloNoiseTool.name() << " "
                  << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
 
@@ -1468,7 +1474,7 @@ namespace MuonCombined {
 
     if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
-    if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
+    if( !m_trackSegmentAssociationTool.empty() && (muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon);
 
     addMSIDScatteringAngles(muon);
     if(muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));
