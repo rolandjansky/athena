@@ -155,7 +155,7 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         				trk = (*tau)->track(i)->track();
 					#endif
       				}
-      				catch(std::exception e)
+      				catch(const std::exception& e)
       				{
         				msg() << MSG::WARNING << " REGTEST: EFPhotonTauFex, failed to get tau track link! " <<endmsg;
       				} 
