@@ -107,7 +107,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
                                        m_etBins[i][0], m_etBins[i][1], m_etaBins[i][0],
                                        m_etaBins[i][1]);
     }
-    catch(std::bad_alloc xa){
+    catch(const std::bad_alloc& xa){
       msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
@@ -138,7 +138,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
 
       preproc = new TrigRingerPreprocessor(nrings,normrings,sectionrings);
     }
-    catch(std::bad_alloc xa){
+    catch(const std::bad_alloc& xa){
       msg() << MSG::ERROR << "Bad alloc for TrigRingerPrepoc." << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
