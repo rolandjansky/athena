@@ -36,7 +36,7 @@ StatusCode SimpleLArDigitsChecks::initialize(){
 	msg << MSG::DEBUG << "initializing SimpleLArDigitsChecks" << endmsg;
 	std::string filename=name();
 	filename+=".BasicCheck.root";
-        counter=0;
+        m_counter=0;
 	m_file = new TFile (filename.c_str(),"RECREATE");
 	m_file->mkdir("EMB");
 	m_file->cd("EMB");
@@ -267,7 +267,7 @@ StatusCode SimpleLArDigitsChecks::execute(){
 	m_nSCells_perLayer[10]->Fill ( count_sCells_Layer10 );
 	m_nSCells_perLayer[11]->Fill ( count_sCells_Layer11 );
 	
-	counter++;
+	m_counter++;
 	return StatusCode::SUCCESS;
 }
 

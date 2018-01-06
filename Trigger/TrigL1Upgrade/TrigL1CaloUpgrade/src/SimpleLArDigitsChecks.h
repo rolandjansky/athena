@@ -51,7 +51,7 @@ private :
 	std::vector<TH1F*> m_EtSCells_perLayer;
 	std::vector<TH2F*> m_SSamples_perLayer;
 	std::vector<TH2F*> m_NorSSamples_perLayer;
-        int counter;
+        int m_counter;
 
 };
 

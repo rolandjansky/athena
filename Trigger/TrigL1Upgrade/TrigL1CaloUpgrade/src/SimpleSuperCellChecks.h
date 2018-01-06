@@ -82,7 +82,7 @@ private :
 	std::vector<TH2F*> m_resol_vs_eta_perLayer;
 	std::vector<TH2F*> m_resol_vs_nvtx_perLayer;
 	std::vector<TH1F*> m_TimeResolAT_perLayer;
-        int counter;
+        int m_counter;
 
 };
 
