@@ -41,7 +41,7 @@ namespace FSR {
       /// Connection to the fsr tool
       ToolHandle< IFsrPhotonTool > m_fsrTool;
 
-      FsrCandidate candidate;
+      FsrCandidate m_candidate;
 
    }; // class ToolTester
 
