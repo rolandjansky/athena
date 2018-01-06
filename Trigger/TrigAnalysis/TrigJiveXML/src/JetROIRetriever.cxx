@@ -79,7 +79,6 @@ namespace JiveXML {
 
     const DataVector<LVL1::JEMRoI>* jemRoICollection = 0;
     LVL1::JEPRoIDecoder decoder;
-    double m_roiPhi=0.;
     // L1JetObject -not- available
     m_sgKey = "JEMRoIs";
     if ( evtStore()->retrieve(jemRoICollection, m_sgKey).isFailure() ) {
@@ -94,15 +93,18 @@ namespace JiveXML {
       for(;roi_it!=roi_end;++roi_it) {
         const LVL1::JEMRoI* roi = (*roi_it);
 
+        // different coordinates in phi, correct for this:
+        auto fixphi = [] (double phi)
+        {
+          if (phi > M_PI) return phi - 2*M_PI;
+          return phi;
+        };
+
   	const LVL1::CoordinateRange coord(decoder.coordinate(roi->roiWord()));
 	const double roiEta = coord.eta();
-	const double roiPhi = coord.phi();
-        m_roiPhi = roiPhi;  
+	const double roiPhi = fixphi (coord.phi());
 
-        // different coordinates in phi, correct for this:
-        if (m_roiPhi > M_PI ){ m_roiPhi = m_roiPhi-2*M_PI; }
-
-	phi.push_back(DataType( m_roiPhi ));
+	phi.push_back(DataType( roiPhi ));
 	eta.push_back(DataType( roiEta ));
 
          // info from Alan Watson: energy would need to be decoded
