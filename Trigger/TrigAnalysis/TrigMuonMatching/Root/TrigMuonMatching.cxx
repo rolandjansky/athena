@@ -242,7 +242,7 @@ namespace Trig {
   Bool_t TrigMuonMatching::isPassedRerun(const std::string& trigger)
   {
     const unsigned int bits = m_trigDecTool->isPassedBits(trigger);
-    if( (bits & TrigDefs::EF_passedRaw) && ! ( bits & TrigDefs::EF_passThrough) && ( bits && TrigDefs::EF_resurrected)){
+    if( (bits & TrigDefs::EF_passedRaw) && ! ( bits & TrigDefs::EF_passThrough) && ( bits & TrigDefs::EF_resurrected)){
       return true;
     }
     return false;
