@@ -189,7 +189,7 @@ LArRoI_Map::~LArRoI_Map( )
 }
 
 
-void LArRoI_Map::addEntry(const Identifier& id )  throw (LArID_Exception) 
+void LArRoI_Map::addEntry(const Identifier& id )
 {
 
 // std::cout <<" addEntry id="<<m_TT_ID->show_to_string(id)<<std::endl; 
