@@ -216,7 +216,12 @@ namespace CP {
             std::vector<xAOD::Iso::IsolationType> isoTypes;
             isoTypes.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
             isoTypes.push_back(xAOD::Iso::neflowisol30);
-            wp->addCut(new IsolationConditionCombined("MuonPFlow", isoTypes, TF2("pflowFunction","fabs(x)+0.4*fabs(y)"), "0.055*x"));
+            wp->addCut(new IsolationConditionCombined("MuonPFlowTight", isoTypes, TF2("pflowFunction","fabs(x)+0.4*fabs(y)"), "0.055*x"));
+        } else if (muWPname == "FixedCutPflowLoose") {
+            std::vector<xAOD::Iso::IsolationType> isoTypes;
+            isoTypes.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
+            isoTypes.push_back(xAOD::Iso::neflowisol30);
+            wp->addCut(new IsolationConditionCombined("MuonPFlowLoose", isoTypes, TF2("pflowFunction","fabs(x)+0.4*fabs(y)"), "0.18*x"));
         } else {
             ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
             delete wp;
