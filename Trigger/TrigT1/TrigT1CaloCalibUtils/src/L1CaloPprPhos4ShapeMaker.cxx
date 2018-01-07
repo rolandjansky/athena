@@ -628,7 +628,7 @@ bool L1CaloPprPhos4ShapeMaker::IsCoolIdValid(const L1CaloCoolChannelId coolId){
       const unsigned int channel = coolId.channel();
       m_ttOnlineIdHelper->channelId(crate,moduleSlot,subModule,channel);
    }
-   catch(CaloID_Exception) {
+   catch(const CaloID_Exception&) {
       return false;
    }
    
