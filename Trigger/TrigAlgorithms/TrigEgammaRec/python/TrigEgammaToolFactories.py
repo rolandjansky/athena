@@ -44,6 +44,7 @@ PhotonPidTools()
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
+from egammaTools import egammaToolsConf
 from egammaTools.egammaToolsConf import EMPIDBuilder
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
 TrigCaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
@@ -213,8 +214,8 @@ def configureClusterCorrections(swTool):
     if not hasattr(swTool, x) or getattr(swTool, x):
       continue
     y = make_CaloSwCorrections(clName, suffix='EG',
-      version = jobproperties.egammaRecFlags.clusterCorrectionVersion(),
-      cells_name=egammaKeys.caloCellKey() )
+      version = EgammaSliceFlags.clusterCorrectionVersion(),
+      cells_name="") #(egammaKeys.caloCellKey() )
     setattr(swTool, x, _process_tools (swTool, y) )
 
   #Super cluster position only corrections
@@ -228,7 +229,7 @@ def configureClusterCorrections(swTool):
                                                              corrlist=[[rfac,'v5'],[etaoff_b1,'v5'],[etaoff_e1,'v5'],
                                                                        [etaoff_b2,'v5'],[etaoff_e2,'v5'], [phioff_b2, 'v5data'],
                                                                        [phioff_e2,  'v5data'], [update], [time], [listBadChannel]],
-                                                             cells_name=egammaKeys.caloCellKey() )))
+                                                             cells_name=""))) #(((egammaKeys.caloCellKey() )))
     #End of super cluster position only corrections
 #-------------------------
 
@@ -241,7 +242,7 @@ TrigEgammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopi
         OutputTopoCollection='TrigEgammaTopoClusters',
         )
 
-TrigElecronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
+TrigElectronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
                                            name = 'electronSuperClusterBuilder',
                                            ClusterCorrectionTool=egammaSwTool,
                                            MVACalibTool=TrigEgammaMVACalibTool,
