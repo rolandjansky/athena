@@ -114,7 +114,7 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
                                        m_etaBins[i][1]);
 
     }
-    catch(std::bad_alloc xa){
+    catch(const std::bad_alloc& xa){
       ATH_MSG_ERROR("Weight vector size is not compatible with nodes vector." );
       return StatusCode::FAILURE;
     }
@@ -146,7 +146,7 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
       ATH_MSG_INFO("Creating pre-processing tool..." );
       preproc = new TrigRingerPreprocessor(nrings,normrings,sectionrings);
     }
-    catch(std::bad_alloc xa){
+    catch(const std::bad_alloc& xa){
       ATH_MSG_ERROR("Bad alloc for TrigRingerPrepoc." );
       return StatusCode::FAILURE;
     }
