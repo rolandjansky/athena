@@ -8,7 +8,6 @@
 #include "TrigFTKSim/ftk_dcap.h"
 #include "TrigFTKSim/FTKPattern.h"
 #include "TrigFTKSim/FTKPatternBySector.h"
-using namespace ftk;
 
 #include <TFile.h>
 #include <TTree.h>
@@ -26,6 +25,8 @@ using namespace ftk;
 #include <map>
 
 using namespace std;
+using namespace ftk;
+using __gnu_cxx::hash_map;
 
 //#define USEAMIN2
 //#define PRINT_SS 1

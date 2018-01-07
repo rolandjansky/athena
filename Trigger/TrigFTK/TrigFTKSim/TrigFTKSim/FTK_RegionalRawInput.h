@@ -42,7 +42,7 @@ class FTK_RegionalRawInput : public FTKDataInput
 
   bool m_readTruthTracks;
   TTree *m_truthTracksTree;
-  vector<FTKTruthTrack> *m_truthTracks;
+  std::vector<FTKTruthTrack> *m_truthTracks;
   
 public:
   FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused = 0x0,bool readTruthTracks=false);
