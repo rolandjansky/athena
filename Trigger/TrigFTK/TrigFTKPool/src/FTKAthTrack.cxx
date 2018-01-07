@@ -5,9 +5,8 @@
 #include "TrigFTKPool/FTKAthTrack.h"
 
 #include <iostream>
-using namespace std;
-
 #include <TMath.h>
+using namespace std;
 
 FTKAthTrack::FTKAthTrack() :
    m_bankID(-1), m_roadID(-1),
