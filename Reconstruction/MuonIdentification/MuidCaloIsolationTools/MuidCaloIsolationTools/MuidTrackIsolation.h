@@ -21,6 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuidTrackIsolation.h"
 #include "TrkTrack/TrackCollection.h"
+#include "StoreGate/ReadHandleKey.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -71,7 +72,7 @@ private:
     const Trk::Surface*			m_caloCylinder;
     const Trk::Surface*			m_caloForwardDisc;
     double				m_etaSafetyFactor;
-    std::string				m_inDetTracksLocation;
+    SG::ReadHandleKey<TrackCollection>  m_inDetTracksLocation{this,"InDetTracksLocation","Tracks","ID tracks"};
     // FIXME: mutable
     mutable ToolHandle<Trk::IIntersector>	m_intersector;
     mutable double			m_maxP;
