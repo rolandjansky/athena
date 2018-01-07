@@ -50,8 +50,6 @@ class StatusCode;
 class SCT_ID;
 class IInDetConditionsSvc;
 
-using namespace SCT_Monitoring;
-
 #define DEBUG(x) ATH_MSG_DEBUG(x)
 #define INFO(x) ATH_MSG_INFO(x)
 #define WARNING(x) ATH_MSG_WARNING(x)
@@ -101,18 +99,18 @@ private:
   int m_nNoSides_ev;
   int m_nOneSide_ev;
   int m_nTwoSide_ev;
-  int m_nNoSidesBarrel_ev[N_BARRELS];
-  int m_nOneSideBarrel_ev[N_BARRELS];
-  int m_nTwoSideBarrel_ev[N_BARRELS];
-  int m_nNonGoodModulesBarrel_ev[N_DISKS];
-  int m_nNoSidesEndcapA_ev[N_DISKS];
-  int m_nOneSideEndcapA_ev[N_DISKS];
-  int m_nTwoSideEndcapA_ev[N_DISKS];
-  int m_nNonGoodModulesEndcapA_ev[N_DISKS];
-  int m_nNoSidesEndcapC_ev[N_DISKS];
-  int m_nOneSideEndcapC_ev[N_DISKS];
-  int m_nTwoSideEndcapC_ev[N_DISKS];
-  int m_nNonGoodModulesEndcapC_ev[N_DISKS];
+  int m_nNoSidesBarrel_ev[SCT_Monitoring::N_BARRELS];
+  int m_nOneSideBarrel_ev[SCT_Monitoring::N_BARRELS];
+  int m_nTwoSideBarrel_ev[SCT_Monitoring::N_BARRELS];
+  int m_nNonGoodModulesBarrel_ev[SCT_Monitoring::N_DISKS];
+  int m_nNoSidesEndcapA_ev[SCT_Monitoring::N_DISKS];
+  int m_nOneSideEndcapA_ev[SCT_Monitoring::N_DISKS];
+  int m_nTwoSideEndcapA_ev[SCT_Monitoring::N_DISKS];
+  int m_nNonGoodModulesEndcapA_ev[SCT_Monitoring::N_DISKS];
+  int m_nNoSidesEndcapC_ev[SCT_Monitoring::N_DISKS];
+  int m_nOneSideEndcapC_ev[SCT_Monitoring::N_DISKS];
+  int m_nTwoSideEndcapC_ev[SCT_Monitoring::N_DISKS];
+  int m_nNonGoodModulesEndcapC_ev[SCT_Monitoring::N_DISKS];
   
   VecProf2_t m_pnoiseoccupancymapHistoVectorECC;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0;
@@ -126,32 +124,32 @@ private:
   
   float m_d1;
   float m_n1;
-  float m_n1Barrel[N_BARRELS];
-  float m_n1EndcapA[N_DISKS];
-  float m_n1EndcapC[N_DISKS];
-  float m_d1Barrel[N_BARRELS];
-  float m_d1EndcapA[N_DISKS];
-  float m_d1EndcapC[N_DISKS];
+  float m_n1Barrel[SCT_Monitoring::N_BARRELS];
+  float m_n1EndcapA[SCT_Monitoring::N_DISKS];
+  float m_n1EndcapC[SCT_Monitoring::N_DISKS];
+  float m_d1Barrel[SCT_Monitoring::N_BARRELS];
+  float m_d1EndcapA[SCT_Monitoring::N_DISKS];
+  float m_d1EndcapC[SCT_Monitoring::N_DISKS];
   
   bool m_noSidesHit;
   bool m_oneSideHit;
   bool m_twoSidesHit;
   bool m_correct_TimeBin;
 
-  int m_nNoSides[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nOneSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nOneSide0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nOneSide1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nTwoSide[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nNoSides[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nOneSide[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nOneSide0[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nOneSide1[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nTwoSide[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
   
-  int m_nLink0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nLink1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  bool m_goodModules[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nLink0[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nLink1[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  bool m_goodModules[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
 
-  int m_nLayer[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nEta[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nPhi[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nNonGoodModule[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nLayer[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nEta[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nPhi[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nNonGoodModule[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
 
   int m_checkrecent;
   int m_current_lb;
@@ -166,17 +164,17 @@ private:
   
   //static const long NBINS_LBs = 2000;
   
-  int m_nNoSides_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
-  int m_nOneSide_lb[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int m_nNoSides_lb[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
+  int m_nOneSide_lb[SCT_Monitoring::N_MOD_BARREL + 2 * SCT_Monitoring::N_MOD_ENDCAPS];
   int m_noisyM[SCT_Monitoring::NBINS_LBs+1];
   //@name Histograms related members
   //@{
 
   //General Histograms
   H1_t m_NOEV;
-  H1_t m_NOEVBAR[N_BARRELS];
-  H1_t m_NOEVECC[N_DISKS];
-  H1_t m_NOEVECA[N_DISKS];
+  H1_t m_NOEVBAR[SCT_Monitoring::N_BARRELS];
+  H1_t m_NOEVECC[SCT_Monitoring::N_DISKS];
+  H1_t m_NOEVECA[SCT_Monitoring::N_DISKS];
   H2_t m_NOEV_RDO;
   H2_t m_NOEV_Eventnum;
   H1_t m_side;
@@ -185,23 +183,23 @@ private:
   H1_t m_N11;
   H1_t m_N21;
 
-  H1_t m_NZ1BAR[N_BARRELS];
-  H1_t m_N11BAR[N_BARRELS];
-  H1_t m_N21BAR[N_BARRELS];
-  Prof_t m_NZ1BAR_vsLB[N_BARRELS];
-  Prof_t m_N11BAR_vsLB[N_BARRELS];
+  H1_t m_NZ1BAR[SCT_Monitoring::N_BARRELS];
+  H1_t m_N11BAR[SCT_Monitoring::N_BARRELS];
+  H1_t m_N21BAR[SCT_Monitoring::N_BARRELS];
+  Prof_t m_NZ1BAR_vsLB[SCT_Monitoring::N_BARRELS];
+  Prof_t m_N11BAR_vsLB[SCT_Monitoring::N_BARRELS];
 
-  H1_t m_NZ1ECC[N_DISKS];
-  H1_t m_N11ECC[N_DISKS];
-  H1_t m_N21ECC[N_DISKS];
-  Prof_t m_NZ1ECC_vsLB[N_DISKS];
-  Prof_t m_N11ECC_vsLB[N_DISKS];
+  H1_t m_NZ1ECC[SCT_Monitoring::N_DISKS];
+  H1_t m_N11ECC[SCT_Monitoring::N_DISKS];
+  H1_t m_N21ECC[SCT_Monitoring::N_DISKS];
+  Prof_t m_NZ1ECC_vsLB[SCT_Monitoring::N_DISKS];
+  Prof_t m_N11ECC_vsLB[SCT_Monitoring::N_DISKS];
   
-  H1_t m_NZ1ECA[N_DISKS];
-  H1_t m_N11ECA[N_DISKS];
-  H1_t m_N21ECA[N_DISKS];
-  Prof_t m_NZ1ECA_vsLB[N_DISKS];
-  Prof_t m_N11ECA_vsLB[N_DISKS];
+  H1_t m_NZ1ECA[SCT_Monitoring::N_DISKS];
+  H1_t m_N11ECA[SCT_Monitoring::N_DISKS];
+  H1_t m_N21ECA[SCT_Monitoring::N_DISKS];
+  Prof_t m_NZ1ECA_vsLB[SCT_Monitoring::N_DISKS];
+  Prof_t m_N11ECA_vsLB[SCT_Monitoring::N_DISKS];
 
   H1_t m_NO;
   H1_t m_NOSide;
@@ -217,14 +215,14 @@ private:
   H1_t m_NOEC_ShortMiddle;
   H1_t m_NOEC_Inner;
   H1_t m_NOEC_Middle; 
-  H1_t m_NOBAR_layer[N_BARRELS];
-  Prof_t m_NOBAR_layer_vsLB[N_BARRELS];
-  H1_t m_NOECC_disk[N_DISKS];
-  Prof_t m_NOECC_disk_vsLB[N_DISKS];
-  H1_t m_NOECA_disk[N_DISKS];
-  Prof_t m_NOECA_disk_vsLB[N_DISKS];
+  H1_t m_NOBAR_layer[SCT_Monitoring::N_BARRELS];
+  Prof_t m_NOBAR_layer_vsLB[SCT_Monitoring::N_BARRELS];
+  H1_t m_NOECC_disk[SCT_Monitoring::N_DISKS];
+  Prof_t m_NOECC_disk_vsLB[SCT_Monitoring::N_DISKS];
+  H1_t m_NOECA_disk[SCT_Monitoring::N_DISKS];
+  Prof_t m_NOECA_disk_vsLB[SCT_Monitoring::N_DISKS];
   
-  H1_t m_numberHitsinBarrel[N_BARRELS];
+  H1_t m_numberHitsinBarrel[SCT_Monitoring::N_BARRELS];
 
   H1_t m_NZ1_vs_modnum;
   H1_t m_N11_vs_modnum;
