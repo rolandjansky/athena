@@ -171,7 +171,7 @@ HLT::ErrorCode TrigHLTJetHypo2::hltInitialize()
   HypoStrategy strategy;
   try {
     strategy = getStrategy(m_hypoStrategy);
-  } catch(std::out_of_range e){
+  } catch(const std::out_of_range& e){
     ATH_MSG_ERROR(name() << "Unknown hypo strategy: " << m_hypoStrategy);
                    
     return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
