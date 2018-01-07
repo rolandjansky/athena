@@ -49,7 +49,7 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize()
     try{
       m_cutDefs.push_back(new TrigL2CaloRingerHypo::CutDefsHelper(m_thresholds[i],m_etaBins[i][0],/*
                                               */m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
-    }catch(std::bad_alloc xa){
+    }catch(const std::bad_alloc& xa){
       msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
