@@ -265,7 +265,7 @@ StatusCode TrigSteer::initialize()
       try {
          m_topoSteer->setupFromConfiguration(*topomenu);
       }
-      catch(TCS::Exception e) {
+      catch(const TCS::Exception& e) {
          ATH_MSG_FATAL("Caught std::exception when configuring steering from menu: " << e.what() );
       }
    }
