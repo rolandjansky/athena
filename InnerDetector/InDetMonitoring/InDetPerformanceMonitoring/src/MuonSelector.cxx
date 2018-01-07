@@ -182,7 +182,7 @@ bool MuonSelector::passQualCuts()
   if( xAOD::Muon::Combined ) return false;
   if (IDTrk) {
     uint8_t dummy(-1);
-    bool eBLhits = IDTrk->summaryValue( dummy, xAOD::expectInnermostPixelLayerHit )? dummy :-1;
+    bool eBLhits = IDTrk->summaryValue( dummy, xAOD::expectInnermostPixelLayerHit )? dummy :false;
     int  nBLhits = IDTrk->summaryValue( dummy, xAOD::numberOfInnermostPixelLayerHits )? dummy :-1;
 
     int nhitsPIX = IDTrk->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy :-1;

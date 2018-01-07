@@ -714,11 +714,7 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::CaloClust
 
 }
 
-const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonContainer* photons, const xAOD::ElectronContainer* electrons, const xAOD::CaloCluster* omitCluster) const {
-
-  // iterators over the photon container
-  xAOD::PhotonContainer::const_iterator photonItr = photons->begin();
-  xAOD::PhotonContainer::const_iterator photonItrEnd = photons->end();
+const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonContainer* /*photons*/, const xAOD::ElectronContainer* electrons, const xAOD::CaloCluster* omitCluster) const {
 
   // iterators over the electron container
   xAOD::ElectronContainer::const_iterator electronItr = electrons->begin();
