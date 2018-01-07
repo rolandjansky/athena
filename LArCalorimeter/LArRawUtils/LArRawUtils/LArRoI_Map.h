@@ -90,7 +90,7 @@ class LArRoI_Map : public AthAlgTool,
 
   /** Add channel to cache
    */
-  void addEntry( const Identifier& id  ) throw (LArID_Exception) ; 
+  void addEntry( const Identifier& id  ); 
 
   void print(); 
 
