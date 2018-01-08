@@ -6,7 +6,6 @@
 
 #include "TFile.h"
 #include "TRandom1.h"
-#include <iostream>
 
 //=============================================
 //======= TFCS1DFunction =========
