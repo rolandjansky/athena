@@ -337,7 +337,7 @@ TrigConf::HLTConfigSvc::queryInterface( const InterfaceID& riid, void** ppvIF ) 
          try {
             *ppvIF = dynamic_cast<IHLTConfigSvc*>( this );
          }
-         catch( std::bad_cast ) {
+         catch( const std::bad_cast& ) {
             return StatusCode::FAILURE;
          }
          sc = StatusCode::SUCCESS;
