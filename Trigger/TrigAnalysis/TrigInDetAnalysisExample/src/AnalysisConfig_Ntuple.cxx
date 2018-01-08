@@ -228,7 +228,11 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 		    /// get matching chains
-		    std::vector<std::string> selectChains  = (*m_tdt)->getListOfTriggers( chainName.head() );
+
+   		    std::vector<std::string> selectChains;
+		    selectChains.clear();
+		    if ( chainitr->head()=="" ) selectChains.push_back("");
+		    else                        selectChains = (*m_tdt)->getListOfTriggers( chainName.head() );
 
 		    //		    std::cout << "selected chains for " << chainName << " -> " << selectChains.size() << " chains" << std::endl;
 

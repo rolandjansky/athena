@@ -77,7 +77,7 @@ if( XAOD_STANDALONE )
       xAODCore ElectronEfficiencyCorrectionLib )
 
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile
-	   util/testEgEfficiencyCorrWithoutFile.cxx util/CreateDummyEl.cxx
+      util/testEgEfficiencyCorrWithoutFile.cxx util/CreateDummyEl.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces

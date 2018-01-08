@@ -36,6 +36,8 @@ private:
   TH2 *m_mbts_sidetaphi;
 
   TH1 *m_etot;
+
+  bool m_testMBTS;
 };
 
 #endif

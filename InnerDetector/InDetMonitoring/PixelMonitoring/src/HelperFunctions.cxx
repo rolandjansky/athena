@@ -268,11 +268,25 @@ void PixelMainMon::fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH
 
 bool PixelMainMon::isOnTrack(Identifier id, bool isCluster) {
   bool onTrack = false;
-  // search through vector of ID's on track to see if there is a match
   if (isCluster) {
-    onTrack = binary_search(m_ClusterIDs.begin(), m_ClusterIDs.end(), id);
+    std::pair<Identifier, double> searchVal = std::make_pair(id, -1.0);
+    onTrack = std::binary_search(m_ClusterIDs.begin(), m_ClusterIDs.end(), searchVal,
+                                 [](std::pair<Identifier, double> l, std::pair<Identifier, double> r) -> bool { return l.first < r.first; });
   } else {
     onTrack = binary_search(m_RDOIDs.begin(), m_RDOIDs.end(), id);
+  }
+  return onTrack;
+}
+
+bool PixelMainMon::isOnTrack(Identifier id, double& cosalpha) {
+  bool onTrack(false);
+  std::pair<Identifier, double> searchVal = std::make_pair(id, -1.0);
+  auto it = std::lower_bound(m_ClusterIDs.begin(), m_ClusterIDs.end(), searchVal,
+                             [](std::pair<Identifier, double> l, std::pair<Identifier, double> r) -> bool { return l.first < r.first; });
+
+  if (it != m_ClusterIDs.end() && !(id < (*it).first)) {
+    onTrack = true;
+    cosalpha = (*it).second;
   }
   return onTrack;
 }

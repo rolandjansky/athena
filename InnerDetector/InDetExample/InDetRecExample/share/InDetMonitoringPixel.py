@@ -2,11 +2,6 @@
 doAllHits          = True
 doHitsOnTrack      = True
 
-# switch on all modules histograms for all hits if pixel online monitoring
-if (not 'doPixelOnlyMon' in dir()):
-  doPixelOnlyMon = False
-doAllHitsModules   = True if (athenaCommonFlags.isOnline() and doPixelOnlyMon) else False
-
 from PixelMonitoring.PixelMonitoringConf import PixelMainMon
 from InDetRecExample.InDetKeys import InDetKeys                                                                                     
 
@@ -23,7 +18,7 @@ if doAllHits:
                                   doHeavyIonMon       = InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
 
                                   do2DMaps            = True,       #Turn on/off the sets of 2D module maps                                             
-                                  doModules           = doAllHitsModules, #Turn on/off the sets of 1744 module histograms (for dqmf)
+                                  doModules           = True if athenaCommonFlags.isOnline() else False, #Turn on/off the sets of 1744 module histograms (for dqmf)
                                   doLowOccupancy      = False,      #Turn on/off histograms with binning for cosmics/single beam                        
                                   doHighOccupancy     = True,       #Turn on/off histograms with binning for collisions                                 
                                   doDetails           = False,      #Turn on/off the set of histograms with detailed info for 4 modules                 
@@ -67,11 +62,11 @@ if doHitsOnTrack:
 
                                          ##Flags for data container types                                                                                                    
                                          doOffline           = True,      #Histograms for offline (tier0) running                                          
-                                         doOnline            = True if athenaCommonFlags.isOnline() else False,     #Histograms for online (athenaPT) running                                        
+                                         doOnline            = True if athenaCommonFlags.isOnline() else False,     #Histograms for online (athenaPT) running
                                          doHeavyIonMon       = InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
 
                                          do2DMaps            = True ,     #Turn on/off the sets of 2D module maps                                          
-                                         doModules           = doAllHitsModules,     #Turn on/off the sets of 1744 module histograms (for dqmf)                       
+                                         doModules           = True if athenaCommonFlags.isOnline() else False,     #Turn on/off the sets of 1744 module histograms (for dqmf)
                                          doLowOccupancy      = False,     #Turn on/off histograms with binning for cosmics/single beam                     
                                          doHighOccupancy     = True,      #Turn on/off histograms with binning for collisions                              
                                          doDetails           = False,     #Turn on/off the set of histograms with detailed info for 4 modules              
@@ -100,6 +95,22 @@ if doHitsOnTrack:
   
   InDetPixelMainsMonOnTrack.TrackName      = InDetKeys.Tracks()
 
+  ## Track Selection Criteria
+  # InDetTrackSelectionToolPixelMon = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolPixelMon",
+  #                                                                               UseTrkTrackTools = True,
+  #                                                                               CutLevel = "TightPrimary",
+  #                                                                               minPt = 5000,
+  #                                                                               TrackSummaryTool    = InDetTrackSummaryTool,
+  #                                                                               Extrapolator        = InDetExtrapolator)
+  #ToolSvc += InDetTrackSelectionToolPixelMon
+  #InDetPixelMainsMonOnTrack.TrackSelectionTool = InDetTrackSelectionToolPixelMon
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.UseTrkTrackTools = True
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.CutLevel = "TightPrimary"
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.maxNPixelHoles = 1
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.maxD0 = 2
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.maxZ0 = 150
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.TrackSummaryTool    = InDetTrackSummaryTool
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.Extrapolator        = InDetExtrapolator
   ##Other parameters                                                                                                                  
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):

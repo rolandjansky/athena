@@ -68,7 +68,7 @@ class TauHypoProvider:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
                         currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
 
-                    elif criteria=='dikaon' or criteria=='dikaontight' or criteria=='dikaonmass' or criteria=='dikaonmasstight' or criteria=='kaonpi1' or criteria=='kaonpi2' or criteria=='dipion1' or criteria=='dipion1loose' or criteria=='dipion2':
+                    elif criteria=='dikaon' or criteria=='dikaontight' or criteria=='dikaonmass' or criteria=='dikaonmasstight' or criteria=='kaonpi1' or criteria=='kaonpi2' or criteria=='dipion1' or criteria=='dipion1loose' or criteria=='dipion2' or criteria=='dipion3':
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
                         theVars = ['massTrkSysMin', 'massTrkSysMax', 'massTrkSysKaonMin', 'massTrkSysKaonMax', 'massTrkSysKaonPiMin', 'massTrkSysKaonPiMax', 'targetMassTrkSysKaonPi', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
                         theThresh = self.thresholdsEF_dikaon[(criteria, int(threshold))]
@@ -105,7 +105,7 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec':
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec' or strategy == 'tracktwomva':
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -155,7 +155,7 @@ class TauHypoProvider:
                     theThresh = [0,3,1,0.*self.GeV,-1111,0]
                     currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
                 else:
-                    if strategy != 'tracktwo' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
+                    if strategy != 'tracktwo' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec' and strategy != 'tracktwomva':
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                         currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
@@ -336,6 +336,7 @@ class TauHypoProvider:
         ('medium1HighptH'):[160.0*GeV,330.0*GeV,410.0*GeV]   
         }
 
+# 'massTrkSysMin', 'massTrkSysMax', 'massTrkSysKaonMin', 'massTrkSysKaonMax', 'massTrkSysKaonPiMin', 'massTrkSysKaonPiMax', 'targetMassTrkSysKaonPi', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax'
     thresholdsEF_dikaon = {
         ('dikaon', 25):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.5],
         ('dikaon', 35):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5], 
@@ -354,7 +355,8 @@ class TauHypoProvider:
         ('dipion1loose', 25):    [0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 25.0*GeV, 1.5],
         ('dipion1loose', 35):    [0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5],
         ('dipion2', 25):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0],
-        ('dipion2', 35):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0]
+        ('dipion2', 35):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0],
+        ('dipion3', 25):         [0.279*GeV, 0.648*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 25.0*GeV, 2.2], #ATR-16600
         }
 
 

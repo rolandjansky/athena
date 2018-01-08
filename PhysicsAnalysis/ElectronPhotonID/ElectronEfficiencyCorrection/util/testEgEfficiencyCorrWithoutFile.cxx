@@ -258,5 +258,3 @@ int main( int argc, char* argv[] ) {
     MSG_INFO("===> " <<model << " : SF = "<< nominalSF << " + " << totalPos << " - " <<totalNeg );
     return 0;
 }
-
-

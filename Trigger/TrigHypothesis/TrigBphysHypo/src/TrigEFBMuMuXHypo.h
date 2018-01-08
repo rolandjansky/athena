@@ -51,7 +51,8 @@ class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
     
   private:
 
-    // Cuts and properties
+    std::string m_bphysCollectionKey;
+   // Cuts and properties
     bool m_acceptBplus;
     bool m_acceptBd;
     bool m_acceptBs;

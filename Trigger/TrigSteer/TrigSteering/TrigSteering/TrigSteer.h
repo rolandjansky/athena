@@ -39,7 +39,7 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc_RTT.h"
+#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "GaudiKernel/SmartIF.h"
 #include "EventInfo/TriggerInfo.h"
 #include "AthenaKernel/Timeout.h"
@@ -228,7 +228,7 @@ namespace HLT {
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;            //!< TrigConfiguration Service
       ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;    //!< TrigConfiguration Service of L1Topo
       ServiceHandle<IROBDataProviderSvc>      m_robDataProvider;      //!< ROB data provider (for ROB pre-fetching)
-      SmartIF <ITrigROBDataProviderSvc_RTT>   m_trigROBDataProvider;  //!< Trig ROB data provider (for Event Building)
+      SmartIF <ITrigROBDataProviderSvc>       m_trigROBDataProvider;  //!< Trig ROB data provider (for Event Building)
 
 
       ToolHandle<Navigation> m_navigation;                //!< HLT Navigation, taking care of all TriggerElements and the links etc.

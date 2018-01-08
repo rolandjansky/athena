@@ -28,7 +28,7 @@ def TrigTauMonitoringTool():
 #		'HLT_tau25_perf_ptonly',
 	]
 
-	tau_topo_chains = [
+	ditau_topo_chains = [
             'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
             'tau35_medium1_tracktwo_tau25_medium1_tracktwo', # 2tau non-L1TOPO
             'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
@@ -36,13 +36,24 @@ def TrigTauMonitoringTool():
             'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30',
             'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I',
             'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J
-            'tau35_medium1_tracktwo_xe70_L1XE45', # tau+xe
             'tau80_medium1_tracktwo_L1TAU60_tau35_medium1_tracktwo_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I', # 2tau L1TOPO
-            'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
-            'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO
-            'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25' # tau+e+J L1TOPO
 	]
 	
+	mutau_topo_chains = [
+            'mu14_ivarloose_tau25_medium1_tracktwo', # tau+mu non-L1TOPO
+            'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
+            'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO
+			'mu14_ivarloose_tau25_medium1_tracktwo_03dR30',
+			'mu14_ivarloose_tau25_medium1_tracktwo_03dR30_L1DR-MU10TAU12I_TAU12I-J25',
+	]
+
+	eltau_topo_chains = [
+			'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo', # tau+e+J non-L1TOPO
+            'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', # tau+e+J L1TOPO
+			'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_03dR30',
+			'e17_lhmedium_nod0_tau25_medium1_tracktwo_03dR30_L1DR-EM15TAU12I-J25',
+	]
+
 	tau_topo_support_chains = [
 
 	]
@@ -125,7 +136,12 @@ def TrigTauMonitoringTool():
 #				doTestTracking		= False,
 				doL1JetPlots		= False,
 				doEFTProfiles		= False,
-				topo_chains			= tau_topo_chains,
+				domuCut40		= False,
+				doEfficiencyRatioPlots = True, #False
+				doL1TopoLeptonsMonitoringWarnings = False,
+				topo_ditau_chains	= ditau_topo_chains,
+				topo_mutau_chains	= mutau_topo_chains,
+				topo_eltau_chains	= eltau_topo_chains,
 				topo_support_chains	= tau_topo_support_chains,
 				doTopoValidation	= False,
 				L1TriggerCondition	= "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]

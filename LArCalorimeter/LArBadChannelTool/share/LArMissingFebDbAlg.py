@@ -6,7 +6,7 @@ if "InputFile" not in dir():
     InputFile="mf_input.txt"
 
 if "TagPostfix" not in dir():
-    TagPostfix="-UPD3-01"
+    TagPostfix="-RUN2-UPD3-01"
 
 if "Folder" not in dir():
     Folder = "/LAR/BadChannelsOfl/MissingFEBs"
@@ -35,7 +35,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -61,11 +61,11 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
 theApp.EvtMax = 1
 
-svcMgr.EventSelector.RunNumber         = 1
+svcMgr.EventSelector.RunNumber         = IOVBeginRun
 svcMgr.EventSelector.FirstEvent        = 1
 #svcMgr.EventSelector.InitialTimeStamp  = 0
 #svcMgr.EventSelector.TimeStampInterval = 5
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04"
 
 
 ## get a handle to the default top-level algorithm sequence

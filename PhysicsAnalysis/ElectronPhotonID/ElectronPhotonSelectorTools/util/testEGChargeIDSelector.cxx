@@ -148,9 +148,9 @@ int main( int argc, char* argv[] ) {
      for (const xAOD::Electron* el : *electrons) {
        MSG_INFO("---------------------------");
        MSG_INFO("Electron: " << counter);
-       MSG_INFO("Electron LH Tight accept result: " <<m_TightLH->accept(el));
+       MSG_INFO("Electron LH Tight accept result: " <<m_TightLH->accept(*el));
        //       MSG_INFO("Electron stored LH Tight: "  << el->passSelection("LHTight") );
-       MSG_INFO("Electron Cut ECIDS accept result: " <<m_electronECIDS->accept(el));
+       MSG_INFO("Electron Cut ECIDS accept result: " <<m_electronECIDS->accept(*el));
        MSG_INFO("Electron stored Tight: "  << el->passSelection("Tight") );
        ++counter;
      }
@@ -179,7 +179,7 @@ int main( int argc, char* argv[] ) {
 	 if(ph->author() != xAOD::EgammaParameters::AuthorCaloTopo35){
 	   MSG_INFO("---------------------------");
 	   MSG_INFO("Photon: " << counter);
-	   MSG_INFO("Photon Tight accept result: " <<m_photonTightIsEMSelector->accept(ph));
+	   MSG_INFO("Photon Tight accept result: " <<m_photonTightIsEMSelector->accept(*ph));
 	   ++counter;       
 	 }
        }

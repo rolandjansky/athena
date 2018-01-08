@@ -40,7 +40,7 @@ class IAsgForwardElectronIsEMSelector : virtual public IAsgEGammaIsEMSelector
   ///@}
 
   /// Virtual Destructor
-  virtual ~IAsgForwardElectronIsEMSelector() {};
+  virtual ~IAsgForwardElectronIsEMSelector() {}
 
 
 }; // End: class definition

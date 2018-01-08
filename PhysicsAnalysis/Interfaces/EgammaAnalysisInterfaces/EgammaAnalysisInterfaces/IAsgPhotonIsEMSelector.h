@@ -40,7 +40,7 @@ public:
   ///@}
 
   /// Virtual Destructor
-  virtual ~IAsgPhotonIsEMSelector() {};
+  virtual ~IAsgPhotonIsEMSelector() {}
  
 }; // End: class definition
 

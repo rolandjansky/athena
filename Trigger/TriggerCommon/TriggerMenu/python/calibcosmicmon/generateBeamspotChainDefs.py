@@ -9,14 +9,13 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 mlog = logging.getLogger("TriggerMenu.calibcosmic.generateBeamspotChainDefs")
 
-from TriggerMenu.calibcosmicmon.BeamspotDef import *
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.calibcosmicmon.BeamspotDef import L2EFChain_Beamspot
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 
 ##########################################################################################
 ##########################################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []

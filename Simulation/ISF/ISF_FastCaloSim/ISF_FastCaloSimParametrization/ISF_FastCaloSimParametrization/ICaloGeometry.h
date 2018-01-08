@@ -8,7 +8,6 @@
 #include "Identifier/Identifier.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
 
 class CaloDetDescrElement;
 class ICaloGeometry {

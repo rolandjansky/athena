@@ -20,7 +20,7 @@
  *  @date   2015-03-23
  */
 
-class RegionCreator final :  public AthAlgTool, virtual public IRegionCreator {
+class RegionCreator final :  public extends<AthAlgTool, IRegionCreator> {
 public:
   // Standard constructor and destructor
   RegionCreator(const std::string& type, const std::string& name, const IInterface *parent);
@@ -29,9 +29,6 @@ public:
   StatusCode initialize();
   
   void Dump();
-  
-  /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
   
 private:
   std::string m_regionName;

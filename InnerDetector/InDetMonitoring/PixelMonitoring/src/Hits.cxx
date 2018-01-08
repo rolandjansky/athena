@@ -72,7 +72,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   double min_tot4 = -0.5;
   double max_tot4 = min_tot4 + (1.0 * nbins_tot4);
 
-  static constexpr int nmod_phi[PixLayer::COUNT] = {48, 48, 22, 38, 52, 14};
   static constexpr int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
 
   std::string atext_LB = ";lumi block";
@@ -197,19 +196,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     }
   }
 
-  if (m_doModules && !m_doOnline) {
-    for (int i = 0; i < PixLayer::COUNT; i++) {
-      tmp = "ToT_etaphi";
-      tmp2 = "Average Hit ToT Map";
-      atitles = ";Module eta;Module phi;Avg. ToT";
-      float xmin = -0.5;
-      float xmax = xmin + (1.0 * nmod_eta[i]);
-      float ymin = -0.5;
-      float ymax = ymin + (1.0 * nmod_phi[i]);
-      sc = rdoExpert.regHist(m_ToT_etaphi_mod[i] = TProfile2D_LW::create((tmp + "_" + m_modLabel_PixLayerIBL2D3D[i]).c_str(), (tmp2 + ", " + m_modLabel_PixLayerIBL2D3D[i] + m_histTitleExt + atitles).c_str(), nmod_eta[i], xmin, xmax, nmod_phi[i], ymin, ymax));
-    }
-  }
-
   if (m_doTiming) {
     sc = timeExpert.regHist(m_Lvl1ID_PIX = TH1I_LW::create("LvlID_PIX", ("Level 1 ID (PIX)" + m_histTitleExt + ";level 1 ID" + atext_nhit).c_str(), 20, -0.5, 19.5));
     sc = timeExpert.regHist(m_Lvl1ID_IBL = TH1I_LW::create("LvlID_IBL", ("Level 1 ID (IBL)" + m_histTitleExt + ";level 1 ID" + atext_nhit).c_str(), 40, -0.5, 39.5));
@@ -254,10 +240,10 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   }
 
   if (m_doModules) {
-    m_hit_num_mod = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Hit_num", ("Number of hits in a module in an event" + m_histTitleExt).c_str(), 15, -0.5, 149.5));
-    sc = m_hit_num_mod->regHist(this, (path + "/Modules_NumberOfHits").c_str(), run);
-    m_hiteff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500, -0.5, 2499.5));
-    sc = m_hiteff_mod->regHist(this, (path + "/Modules_HitEff").c_str(), run);
+    if (m_doOnTrack) {
+      m_hiteff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500, -0.5, 2499.5));
+      sc = m_hiteff_mod->regHist(this, (path + "/Modules_HitEff").c_str(), run);
+    }
     m_FE_chip_hit_summary = std::make_unique<PixelMonModules1D>(PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16, -0.5, 15.5));
     sc = m_FE_chip_hit_summary->regHist(this, (path + "/Modules_FEChipSummary").c_str(), run);
   }
@@ -308,29 +294,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     sc = rdoExpert.regHist(m_Details_mod2_ToT = TH1F_LW::create(("Details_ToT_" + m_DetailsMod2).c_str(), ("ToT mod2" + m_histTitleExt).c_str(), 300, -0.5, 299.5));
     sc = rdoExpert.regHist(m_Details_mod3_ToT = TH1F_LW::create(("Details_ToT_" + m_DetailsMod3).c_str(), ("ToT mod3" + m_histTitleExt).c_str(), 300, -0.5, 299.5));
     sc = rdoExpert.regHist(m_Details_mod4_ToT = TH1F_LW::create(("Details_ToT_" + m_DetailsMod4).c_str(), ("ToT mod4" + m_histTitleExt).c_str(), 300, -0.5, 299.5));
-  }
-
-  if (m_doOfflineAnalysis) {
-    // Quick Status
-    hname = makeHistname("Hits_per_lumi_L0_B11_S2_C6", false);
-    htitles = makeHisttitle("Number of hits, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
-    sc = rdoShift.regHist(m_nhits_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5 + 96));
-    m_nhits_L0_B11_S2_C6->SetOption("colz");
-
-    hname = makeHistname("Occupancy_per_lumi_L0_B11_S2_C6", false);
-    htitles = makeHisttitle("Average pixel occupancy per event, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits/pixel/event", false);
-    sc = rdoShift.regHist(m_occupancy_L0_B11_S2_C6 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5 + 96));
-    m_occupancy_L0_B11_S2_C6->SetOption("colz");
-
-    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-      hname = makeHistname(("AvgOcc_per_BCID_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-      htitles = makeHisttitle(("Average pixel occupancy per BCID per lumi, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_BCID + atext_occ), false);
-      sc = rdoExpert.regHist(m_avgocc_per_bcid_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 2000, -0.5, -0.5 + 2000, nbins_BCID, min_BCID, max_BCID));
-
-      hname = makeHistname(("Hit_ToT_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-      htitles = makeHisttitle(("Hit ToT per lumi, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_tot + atext_occ), false);
-      sc = rdoExpert.regHist(m_hit_ToT_per_lumi_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), 2000, -0.5, -0.5 + 2000, nbins_tot3, min_tot3, max_tot3));
-    }
   }
 
   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms");
@@ -425,7 +388,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 
   double nhits = 0;
   double nhits_mod[PixLayerIBL2D3D::COUNT] = {0};
-  int nhits_L0_B11_S2_C6[96] = {0};
 
   int fewithHits_EA[nmod_phi[PixLayer::kECA]][nmod_eta[PixLayer::kECA]][16];
   int fewithHits_EC[nmod_phi[PixLayer::kECC]][nmod_eta[PixLayer::kECC]][16];
@@ -507,6 +469,15 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 
     for (p_rdo = PixelCollection->begin(); p_rdo != PixelCollection->end(); ++p_rdo) {
       rdoID = (*p_rdo)->identify();
+
+      if (m_hiteff_mod) {
+        if (isOnTrack(rdoID, false)) {
+          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 1., rdoID, m_pixelid);
+        } else {
+          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 0., rdoID, m_pixelid);
+        }
+      }
+
       if (m_doOnTrack && !isOnTrack(rdoID, false)) {
         // if we only want hits on track, and the hit is NOT on the track, skip filling
         continue;
@@ -515,7 +486,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       int pixlayer = getPixLayerID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_doIBL);
       int pixlayerdbm = getPixLayerIDDBM(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_doIBL);
       int pixlayeribl2d3d = pixlayer;
-      if (pixlayeribl2d3d == PixLayer::kIBL) {
+      if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL) {
         pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_pixelid->eta_module(rdoID), m_doIBL);
       }
       int pixlayeribl2d3ddbm = pixlayerdbm;
@@ -558,14 +529,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 
       if (m_FE_chip_hit_summary) m_FE_chip_hit_summary->fill(m_pixelCableSvc->getFE(&rdoID, rdoID), rdoID, m_pixelid);
 
-      if (m_hiteff_mod) {
-        if (isOnTrack(rdoID, false)) {
-          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 1., rdoID, m_pixelid);
-        } else {
-          m_hiteff_mod->fill(m_manager->lumiBlockNumber(), 0., rdoID, m_pixelid);
-        }
-      }
-
       // Fill ToT
       if (pixlayeribl2d3ddbm != 99 && m_hit_ToT[pixlayeribl2d3ddbm]) m_hit_ToT[pixlayeribl2d3ddbm]->Fill((*p_rdo)->getToT());
       if (pixlayerdbm == PixLayerDBM::kIBL && m_hit_ToT[pixlayerdbm]) m_hit_ToT[pixlayerdbm]->Fill((*p_rdo)->getToT());
@@ -574,7 +537,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (m_doLumiBlock && pixlayer != 99 && m_hit_ToT_LB_mod[pixlayer]) {
         m_hit_ToT_LB_mod[pixlayer]->Fill((*p_rdo)->getToT());
       }
-      if (pixlayer != 99 && m_ToT_etaphi_mod[pixlayer]) m_ToT_etaphi_mod[pixlayer]->Fill(m_pixelid->eta_module(rdoID), m_pixelid->phi_module(rdoID), (*p_rdo)->getToT());
 
       if (m_doOnline && pixlayer != 99 && m_hit_ToT_tmp_mod[pixlayer]) {
         m_hit_ToT_tmp_mod[pixlayer]->Fill((*p_rdo)->getToT());
@@ -613,21 +575,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       // Quick Status
       int fephi = 0;
       int feeta = 0;
-      if (m_doOfflineAnalysis) {
-        if (pixlayer == PixLayer::kB0 && getFEID(pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta)) {
-          if (m_pixelid->phi_module(rdoID) == 0 && m_pixelid->eta_module(rdoID) < 0 && m_nhits_L0_B11_S2_C6) {
-            m_nhits_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), (16 * fabs(6 + m_pixelid->eta_module(rdoID))) + (8.0 * fephi) + feeta);
-            nhits_L0_B11_S2_C6[(int)(16 * fabs(6 + m_pixelid->eta_module(rdoID))) + (8 * fephi) + feeta]++;
-          }
-        }
-        // for Pixel Operation TF
-        if (pixlayer != 99 && m_hit_ToT_per_lumi_mod[pixlayer] && nGoodChannels_layer[pixlayer] > 0) {
-          m_hit_ToT_per_lumi_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT(), 1.0 / nGoodChannels_layer[pixlayer]);
-        }
-        if (pixlayer == PixLayer::kIBL && m_hit_ToT_per_lumi_mod[pixlayeribl2d3d] && nGoodChannels_layer[pixlayeribl2d3d] > 0) {
-          m_hit_ToT_per_lumi_mod[pixlayeribl2d3d]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT(), 1.0 / nGoodChannels_layer[pixlayeribl2d3d]);
-        }
-      }
       if (pixlayer == PixLayer::kB0 && getFEID(pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta)) {
         fewithHits_B0[m_pixelid->phi_module(rdoID)][(int)(fabs(6 + m_pixelid->eta_module(rdoID)))][(int)((8 * fephi) + feeta)] = 1;
       }
@@ -680,11 +627,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   double avgocc_active_mod[PixLayerIBL2D3D::COUNT] = {0};
   if (nGoodChannels_total > 0) avgocc = nhits / nGoodChannels_total;
   if (m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
-  if (m_doOfflineAnalysis) {
-    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-      if (m_avgocc_per_bcid_per_lumi_mod[i]) m_avgocc_per_bcid_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), pix_rod_bcid, avgocc_mod[i]);
-    }
-  }
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     if (nGoodChannels_layer[i] > 0) avgocc_mod[i] = nhits_mod[i] / nGoodChannels_layer[i];
@@ -765,27 +707,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
       for (; idIt != idItEnd; ++idIt) {
         Identifier WaferID = *idIt;
-        if (m_pixelid->barrel_ec(WaferID) == 2) {
-          m_hit_num_mod->fill(m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
-        }
-        if (m_pixelid->barrel_ec(WaferID) == -2) {
-          m_hit_num_mod->fill(m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
-        }
-        if (m_pixelid->barrel_ec(WaferID) == 0) {
-          if (m_doIBL && m_pixelid->layer_disk(WaferID) == 0) {
-            m_hit_num_mod->fill(m_HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 10], WaferID, m_pixelid);
-          }
-          if (m_pixelid->layer_disk(WaferID) == 0 + m_doIBL) {
-            m_hit_num_mod->fill(m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 6], WaferID, m_pixelid);
-          }
-          if (m_pixelid->layer_disk(WaferID) == 1 + m_doIBL) {
-            m_hit_num_mod->fill(m_HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 6], WaferID, m_pixelid);
-          }
-          if (m_pixelid->layer_disk(WaferID) == 2 + m_doIBL) {
-            m_hit_num_mod->fill(m_HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID) + 6], WaferID, m_pixelid);
-          }
-        }
-
         if (m_doLumiBlock) {
           if (m_pixelid->barrel_ec(WaferID) == 2) m_hit_num_mod_LB->fill(m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
           if (m_pixelid->barrel_ec(WaferID) == -2) m_hit_num_mod_LB->fill(m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
@@ -799,13 +720,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       }
     }  // if (m_doModules)
   }    // if (!m_majorityDisabled)
-
-  // Quick Status
-  if (m_doOfflineAnalysis && m_occupancy_L0_B11_S2_C6) {
-    for (int i = 0; i < 96; i++) {
-      m_occupancy_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), i, (1.0 * nhits_L0_B11_S2_C6[i] / (18.0 * 164.0)));
-    }
-  }
 
   for (int i = 0; i < PixLayer::COUNT; i++) {
     for (int phi = 0; phi < nmod_phi[i]; phi++) {
@@ -829,11 +743,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 }
 
 StatusCode PixelMainMon::procHitsMon(void) {
-  double events = m_event;
-  if (events == 0) {
-    // if no events, the rest of the test is pointless and would divide by 0
-    return StatusCode::SUCCESS;
-  }
 
   if (m_doOffline) {
     fillSummaryHistos(m_occupancy.get(),
@@ -843,10 +752,6 @@ StatusCode PixelMainMon::procHitsMon(void) {
                       m_occupancy_summary_mod[PixLayer::kB0],
                       m_occupancy_summary_mod[PixLayer::kB1],
                       m_occupancy_summary_mod[PixLayer::kB2]);
-  }
-
-  if (m_average_pixocc && m_num_hits->GetEntries() == m_event) {
-    m_event2 = m_num_hits->GetEntries();
   }
 
   return StatusCode::SUCCESS;

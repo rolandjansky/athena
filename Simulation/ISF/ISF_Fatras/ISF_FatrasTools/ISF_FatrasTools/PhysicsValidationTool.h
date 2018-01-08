@@ -51,8 +51,7 @@ namespace iFatras
       @author Sharka Todorova Sarka.Todorova -at- cern.ch
   */  
   
-  class PhysicsValidationTool : virtual public IPhysicsValidationTool,
-                        public AthAlgTool
+  class PhysicsValidationTool : public extends<AthAlgTool, IPhysicsValidationTool>
   {
   public:
     /** Constructor */
@@ -69,19 +68,19 @@ namespace iFatras
     virtual StatusCode finalize();
 
     /** ISFParticle info: old transport tool */
-    void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 );
+    void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 ) const;
     
     /** ISFParticle info: new transport tool */
     void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
-				     Trk::ExtrapolationCode ecode );
+				     Trk::ExtrapolationCode ecode ) const;
 
     /** ISFParticle info: new transport tool */
     void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
-				     Trk::ExtrapolationCode ecode );
+				     Trk::ExtrapolationCode ecode ) const;
 
 
     void saveISFVertexInfo(int process,Amg::Vector3D vertex,const ISF::ISFParticle& isp,Amg::Vector3D primIn,
-			   Amg::Vector3D* primOut, const ISF::ISFParticleVector children);
+			   Amg::Vector3D* primOut, const ISF::ISFParticleVector children) const;
 
     
   private:
@@ -95,7 +94,7 @@ namespace iFatras
               return StatusCode::SUCCESS;
      }
      
-     void saveInfo(const ISF::ISFParticle& isp); 
+     void saveInfo(const ISF::ISFParticle& isp) const;
       
     /*---------------------------------------------------------------------
      *  Private members

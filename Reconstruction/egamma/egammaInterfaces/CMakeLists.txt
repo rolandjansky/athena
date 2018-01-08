@@ -10,6 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTracking
+                          Event/xAOD/xAODCore
+                          Reconstruction/egamma/egammaRecEvent
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkNeutralParameters

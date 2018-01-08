@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_integratorExample
 # Nils Gollub <nils.gollub@cern.ch>, 2008-02-07
 # change Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
@@ -38,15 +41,7 @@ while len(sys.argv)>0:
             log.error("File \"%s\" does not exist, ignoring input!" % arg)
         
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
-
+import cppyy
 from TileCalibBlobPython import TileCalibTools
 
 #=== open the database
@@ -56,7 +51,7 @@ db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 blobWriter = TileCalibTools.TileBlobWriter(db,"/TILE/ONL01/INTEGRATOR",True,False)
 
 #=== declare default vector
-default = PyCintex.gbl.std.vector('float')()
+default = cppyy.gbl.std.vector('float')()
 default.push_back(0.)     # gain            0
 default.push_back(0.)     # sigma(gain)     1
 default.push_back(0.)     # chi2            2
@@ -65,7 +60,7 @@ default.push_back(0.)     # pedestal        4
 default.push_back(0.)     # sigma(pedestal) 5
 default.push_back(0.)     # rms             6
 default.push_back(0.)     # sigma(rms)      7
-defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+defVec = cppyy.gbl.std.vector('std::vector<float>')()
 defVec.push_back(default) # gain 1
 defVec.push_back(default) # gain 2
 defVec.push_back(default) # gain 3
