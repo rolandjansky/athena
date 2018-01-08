@@ -51,9 +51,9 @@ StatusCode CalibratedTracksProvider::execute() {
       }
       
       for(auto iParticle : *(out.first)) {
-         if(msg().level()==MSG::VERBOSE) std::cout << name() << " Old pt=" << iParticle->pt();
-         if(m_tool->applyCorrectionTrkOnly(*iParticle, m_detType).code()==CorrectionCode::Error) return StatusCode::FAILURE;
-         if(msg().level()==MSG::VERBOSE) std::cout << " New pt=" << iParticle->pt() << std::endl;
+        ATH_MSG_VERBOSE("Old pt=" << iParticle->pt());
+        if(m_tool->applyCorrectionTrkOnly(*iParticle, m_detType).code()==CorrectionCode::Error) return StatusCode::FAILURE;
+        ATH_MSG_VERBOSE("New pt=" << iParticle->pt());
       }
 
       //record to storegate 
