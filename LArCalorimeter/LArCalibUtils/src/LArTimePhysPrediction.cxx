@@ -221,7 +221,7 @@ StatusCode LArTimePhysPrediction::stop()
 	
 	try {
 	  id = larCablingSvc->cnvToIdentifier(chid);   
-	} catch ( LArID_Exception ) {
+	} catch ( const LArID_Exception& ) {
 	  ATH_MSG_ERROR ( "LArCablingSvc exception caught for channel " << MSG::hex << chid << MSG::dec );
 	  continue;
 	}
