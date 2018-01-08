@@ -11,6 +11,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.EGAM3ExtraContent import *
 
 # read common DFEGamma settings from egammaDFFlags
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
@@ -33,7 +34,15 @@ if globalflags.DataSource()!='geant4':
 
 
 #====================================================================
-# SKIMMING TOOLS
+# SET UP STREAM (to be done early in the game to set up thinning Svc
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EGAM3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM3Stream )
+EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+
+
+#====================================================================
+# SET UP SKIMMING
 #====================================================================
 
 
@@ -139,7 +148,7 @@ print "EGAM3 skimming tool:", EGAM3_SkimmingTool
 
 
 #====================================================================
-# DECORATION TOOLS
+# SET UP AUGMENTATIONS
 #====================================================================
 
 
@@ -200,9 +209,16 @@ if DoCellReweighting:
     ToolSvc += EGAM3_EGammaReweightTool
 
 
-#================
-# THINNING TOOLS
-#================
+#====================================================================
+# SET UP THINNING
+#====================================================================
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EGAM3ThinningHelper = ThinningHelper( "EGAM3ThinningHelper" )
+EGAM3ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
+if globalflags.DataSource()!='geant4':
+    ExtraContainersTrigger += ExtraContainersTriggerDataOnly
+EGAM3ThinningHelper.AppendToStream( EGAM3Stream, ExtraContainersTrigger )
+
 thinningTools=[]
 # TO BE ADDED
 
@@ -238,30 +254,19 @@ replaceAODReducedJets(reducedJetList,egam3Seq,"EGAM3")
 
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM SELECTION
 #====================================================================
-streamName = derivationFlags.WriteDAOD_EGAM3Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM3Stream )
-EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Only events that pass the filters listed below are written out.
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
 EGAM3Stream.AcceptAlgs(["EGAM3Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EGAM3ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
-# CONTENT LIST  
+# SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkEGamma.EGAM3ExtraContent import *
 
 EGAM3SlimmingHelper = SlimmingHelper("EGAM3SlimmingHelper")
 EGAM3SlimmingHelper.SmartCollections = ["Electrons",
@@ -286,12 +291,12 @@ if DoCellReweighting:
 EGAM3SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM3SlimmingHelper.AllVariables = ExtraContainersPhotons
 EGAM3SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM3SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM3SlimmingHelper.AllVariables += ExtraContainersTruth
+else:
+    EGAM3SlimmingHelper.ExtraVariables += ExtraContainersTriggerDataOnly
 
 for tool in EGAM3_ClusterEnergyPerLayerDecorators:
     EGAM3SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )

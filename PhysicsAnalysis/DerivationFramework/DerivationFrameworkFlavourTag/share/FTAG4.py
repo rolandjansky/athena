@@ -134,7 +134,8 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     ]
 
 FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
+                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
 addJetOutputs(FTAG4SlimmingHelper,["FTAG4"],[],[])
 

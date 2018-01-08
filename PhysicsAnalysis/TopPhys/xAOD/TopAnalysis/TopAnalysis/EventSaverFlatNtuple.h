@@ -1038,7 +1038,6 @@ protected:
   const std::vector<float>& jet_mv2c20() const { return m_jet_mv2c20;}
   const std::vector<float>& jet_jvt() const { return m_jet_jvt;}
   const std::vector<char>& jet_passfjvt() const { return m_jet_passfjvt;}
-  const std::vector<float>& jet_ip3dsv1() const { return m_jet_ip3dsv1;}
   const std::vector<int>& jet_truthflav() const { return m_jet_truthflav;}
   const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
   const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}

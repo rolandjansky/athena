@@ -1781,10 +1781,10 @@ namespace top {
 		if(m_config->getReleaseSeries() == 25){
 		  m_jet_MV2c10mu[i] = -999;
 		  m_jet_MV2c10rnn[i] = -999;
-		  // Cannot currently calculate DLX from the EDM, so only store weight components
-		  m_jet_DL1[i] = -999;
-		  m_jet_DL1mu[i] = -999;
-		  m_jet_DL1rnn[i] = -999;
+		  // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
+		  m_jet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
+		  m_jet_DL1mu[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1mu");
+		  m_jet_DL1rnn[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rnn");
 		  m_jet_MV2cl100[i] = -999;
 		  m_jet_MV2c100[i] = -999;
 		  m_jet_DL1_pu[i] = -999;

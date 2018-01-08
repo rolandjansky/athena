@@ -1,5 +1,4 @@
 // for editors : this file is -*- C++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -65,6 +64,9 @@ class JSSWTopTaggerDNN :  public JSSTaggerBase {
     std::string m_kerasConfigFileName;
     std::string m_kerasConfigFilePath;
     std::string m_kerasConfigOutputName;
+
+    // bool to check whether variables are corrupt
+    mutable bool m_undefInput;
 
     // parameters to store specific cut values
     std::string m_strMassCutLow;
