@@ -21,6 +21,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuidCaloEnergyMeas.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "CaloEvent/CaloCellContainer.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -95,7 +97,7 @@ private:
     const TileID*				m_tileID;
     const LArEM_ID*				m_emID;
     const LArHEC_ID*				m_hecID;
-    std::string					m_cellContainerLocation; // Cell container's name
+    SG::ReadHandleKey<CaloCellContainer>	m_cellContainerLocation{this,"CellContainerLocation","AllCalo","calo cell container location"};
 
     double 					m_measurementConeTile;
     double					m_measurementConeLArHEC;
