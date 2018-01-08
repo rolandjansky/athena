@@ -272,7 +272,10 @@ def setupMenu():
         ['j0_perf_ds1_L1All',      'L1_All',  [], ['DataScouting_05_Jets'], ['RATE:Cosmic_Jets_DS', 'BW:Jet'], -1],
         ['j0_lcw_jes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1], 
 
-
+        #ATR-17198
+        ['j0_perf_ds1_L1J50_DETA20-J50J ',     'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
+        ['j110_ds1_L1J100',                    'L1_J100',             [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
+        ['j60_ds1_L1J50_DETA20-J50J ',         'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
 
         #####
         ######################### Single-jet small-R trigger chains
@@ -1281,6 +1284,20 @@ def setupMenu():
         ['e9_bloose_bBeexM2700_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['e9_bloose_bBeexM6000_L1EM8VH',                   'L1_EM8VH',          [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 
+        ['e9_bloose_e5_bloose_bBeexM6000_L1BPH-0M9-EM7-EM5',  'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_e5_bloose_bBeexv2_L1BPH-0M9-EM7-EM5',         'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_e5_bloose_bBeexM2700_L1BPH-0M9-EM7-EM5',  'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+        ['e9_etcut_e5_etcut_bBeexM6000_L1BPH-0M9-EM7-EM5',  'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexv2_L1BPH-0M9-EM7-EM5',         'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexM2700_L1BPH-0M9-EM7-EM5',  'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+        ['e9_etcut_bBeexM2700_L1BPH-0DR4-EM7J15',   'L1_BPH-0DR4-EM7J15',    ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexv2_L1BPH-0DR4-EM7J15',        'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexM6000_L1BPH-0DR4-EM7J15',   'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexM2700_L1BPH-0DR4-EM7J15', 'L1_BPH-0DR4-EM7J15',    ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexv2_L1bBPH-0DR4-EM7J15',      'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexM6000_L1BPH-0DR4-EM7J15',  'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 			 ]
 
 
