@@ -2,12 +2,9 @@
 
 import user
 import ROOT
-import PyCintex
-
 
 def execute(g,electron = True, photon = True, expert = False) :
     from ROOT import TObjArray
-
 
     print "::: Creating File ::: "
     if(expert) :
