@@ -124,6 +124,8 @@ ExtraContainersTrigger=[
         "HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."
         ]
 
+ExtraContainersTriggerDataOnly=[]
+
 ExtraVariablesEventShape=[
     "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
     "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",

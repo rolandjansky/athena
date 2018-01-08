@@ -286,7 +286,7 @@ EGAM5SlimmingHelper.IncludeEGammaTriggerContent = True
 # Extra variables
 EGAM5SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM5SlimmingHelper.AllVariables = ExtraContainersElectrons
-EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
+EGAM5SlimmingHelper.AllVariables += ExtraContainersTrigger
 
 if globalflags.DataSource()=='geant4':
     EGAM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth

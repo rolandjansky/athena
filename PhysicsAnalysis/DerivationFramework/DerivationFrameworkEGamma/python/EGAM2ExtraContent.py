@@ -116,5 +116,7 @@ ExtraContainersTrigger = [
         "HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."
 ]
 
+ExtraContainersTriggerDataOnly = []
+
 # should probably slim electron/cluster collections and keep only relevant subset of variables..
 # no Jpsi with Fwd electrons so no ForwardElectrons, InDetTrackParticlesForwrd, ForwardElectronClusters
