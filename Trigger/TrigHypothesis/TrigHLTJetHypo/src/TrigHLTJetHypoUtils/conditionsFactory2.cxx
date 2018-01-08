@@ -17,6 +17,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetMassCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtAsymmetricCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDEtaMassCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDPhiCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
@@ -84,6 +85,18 @@ Conditions conditionsFactoryDijetEtaMass(const std::vector<double>& etaMins,
                                           massMaxs));
   
   conditions.push_back(ConditionBridge(pCondition));
+  return conditions;
+}
+
+
+Conditions conditionsFactoryDijetDPhi(const std::vector<double>& dPhiMins,
+                                      const std::vector<double>& dPhiMaxs){
+  
+  Conditions conditions;
+
+  std::shared_ptr<ICondition> pCondition(new DijetDPhiCondition(dPhiMins, dPhiMaxs));
+  conditions.push_back(ConditionBridge(pCondition));
+
   return conditions;
 }
 
