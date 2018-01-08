@@ -692,14 +692,15 @@ else:
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
 
-      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
-      InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
-                                                                 InDetKeys.ResolvedPixelPrdAssociationTracks(),
-                                                                 InDetKeys.ExtendedTracksPixelPrdAssociation(),
-                                                                 InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
-                                                                 TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys,
-                                                                 False)
+      if InDetFlags.doTRTExtension() :
+        include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+        InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
+                                                                   InDetKeys.ResolvedPixelPrdAssociationTracks(),
+                                                                   InDetKeys.ExtendedTracksPixelPrdAssociation(),
+                                                                   InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
+                                                                   TrackCollectionKeys,
+                                                                   TrackCollectionTruthKeys,
+                                                                   False)
 
     # ------------------------------------------------------------
     #
@@ -1067,7 +1068,10 @@ else:
       # Dummy Merger to fill additional info for PRD-associated pixel tracklets
       if InDetFlags.doTrackSegmentsPixelPrdAssociation():
        DummyCollection = []
-       DummyCollection += [ InDetKeys.ExtendedTracksPixelPrdAssociation()]
+       if InDetFlags.doTRTExtension() :
+         DummyCollection += [ InDetKeys.ExtendedTracksPixelPrdAssociation()]
+       else :
+         DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.PixelPrdAssociationTracks(),
