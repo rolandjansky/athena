@@ -93,7 +93,6 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         ServiceMgr += TRTStrawStatusSummarySvc
         indetovl.TRTStrawSummarySvc = TRTStrawStatusSummarySvc
 
-
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
         TRTCalibDBSvc=TRT_CalDbSvc()
         ServiceMgr += TRTCalibDBSvc
@@ -101,19 +100,15 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
         TRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "TRT_DriftFunctionTool",
                                                            TRTCalDbTool=TRTCalibDBSvc           )
-        
         ToolSvc += TRT_DriftFunctionTool
         indetovl.TRTDriftFunctionTool = TRT_DriftFunctionTool   
-
-
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        include("InDetRecExample/InDetRecConditionsAccess.py")
 
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
-           #from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-           #InDetTRTCalDbSvc = TRT_CalDbSvc()
-           #ServiceMgr += InDetTRTCalDbSvc
           #from IOVDbSvc.CondDB import conddb
 #           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibt0-UPD2-FDR2-01</tag>")
 #           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibRt-UPD2-FDR2-01</tag>")

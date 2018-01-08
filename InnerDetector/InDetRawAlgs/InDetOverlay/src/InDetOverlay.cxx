@@ -275,7 +275,13 @@ namespace Overlay {
 InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   IDC_OverlayBase(name, pSvcLocator),
   m_detStore("StoreGateSvc/DetectorStore", name),
-  m_sct_id(0)
+  m_sct_id(nullptr),
+  m_trt_id(nullptr),
+  m_rndmSvc("AtRndmGenSvc",name),
+  m_rndmEngineName("InDetOverlay"),
+  m_rndmEngine(nullptr),
+  m_driftFunctionTool("TRT_DriftFunctionTool"),
+  m_TRTStrawSummarySvc("TRTStrawStatusSummarySvc",name)
 {
 
   //change via postExec indetovl.do_XXX=True
