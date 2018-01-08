@@ -36,7 +36,7 @@ namespace iFatras {
       @author Noemi.Calace@cern.ch
   */
 
-  class LayerMaterialProvider :  public AthAlgTool, virtual public Trk::IGeometryProcessor {
+  class LayerMaterialProvider :  public extends<AthAlgTool, Trk::IGeometryProcessor> {
      
   public:
     /** Constructor */

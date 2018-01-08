@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/LooperKillerTool.h"
 
 namespace G4UA
@@ -15,7 +14,7 @@ namespace G4UA
                                  const IInterface* parent)
     : ActionToolBaseReport<LooperKiller>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("MaxSteps", m_config.MaxSteps);
     declareProperty("PrintSteps",m_config.PrintSteps);
     declareProperty("VerboseLevel", m_config.VerboseLevel);
@@ -56,7 +55,7 @@ namespace G4UA
   LooperKillerTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    return CxxUtils::make_unique<LooperKiller>(m_config);
+    return std::make_unique<LooperKiller>(m_config);
   }
 
 }

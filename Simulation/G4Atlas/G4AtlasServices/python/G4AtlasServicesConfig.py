@@ -226,8 +226,17 @@ def getTB_FieldMgrList():
     fieldMgrList = []
     return fieldMgrList
 
+def getGeometryConfigurationTools():
+    geoConfigToolList = []
+    # CfgGetter methods for these tools should be defined in the
+    # package containing each tool, so G4AtlasTools in this case
+    geoConfigToolList += ["MaterialDescriptionTool"]
+    return geoConfigToolList
+
 def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
     kwargs.setdefault("DetectorConstruction", 'G4AtlasDetectorConstructionTool')
+    ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
+    kwargs.setdefault("GeometryConfigurationTools", getGeometryConfigurationTools())
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags,"Eta"): #FIXME ugly hack
         kwargs.setdefault("World", 'TileTB_World')

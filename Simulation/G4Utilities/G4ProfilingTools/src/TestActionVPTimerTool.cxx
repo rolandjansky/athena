@@ -48,28 +48,18 @@ namespace G4UA{
   }
   StatusCode TestActionVPTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
+    if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
+    if(riid == IG4RunActionTool::interfaceID()) {
+      *ppvIf = (IG4RunActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndRunActionTool::interfaceID()) {
-      *ppvIf = (IEndRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
@@ -80,12 +70,10 @@ namespace G4UA{
   StatusCode TestActionVPTimerTool::finalize(){
 
     for(auto tidAction : this->actions()) {
-      ((IEndRunAction*)tidAction.second)->endOfRun(0);
+      ((G4UserRunAction*)tidAction.second)->EndOfRunAction(0);
     }
  
-  
-  
-  mergeReports();
+    mergeReports();
     
     if(m_report.time_index.size()){
 

@@ -47,7 +47,6 @@ namespace Trig{
             virtual bool isPassed(const std::string&)=0;
             virtual bool isPassed(const std::string&, const std::string&)=0;
             virtual const Root::TAccept& getAccept()=0;
- 
             /* Experimental methods */
             virtual void ExperimentalAndExpertMethods()=0;
             virtual void match( const xAOD::Egamma *, const HLT::TriggerElement *&)=0;

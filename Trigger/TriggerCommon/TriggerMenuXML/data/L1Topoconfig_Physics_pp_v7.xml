@@ -95,7 +95,7 @@
     <Output algname="8INVM15-MU6ab-MU4ab" triggerline="8INVM15-MU6ab-MU4ab" algoId="4" module="1" fpga="1" firstbit="12" clock="1"/>
     <Output algname="8INVM15-2MU6ab" triggerline="8INVM15-2MU6ab" algoId="7" module="1" fpga="1" firstbit="13" clock="1"/>
     <Output algname="0INVM9-EM7ab-EMab" triggerline="0INVM9-EM7ab-EMab" algoId="91" module="0" fpga="0" firstbit="8" clock="0"/>
-    <Output algname="0DR04-EM7ab-CJ15ab" triggerline="0DR04-EM7ab-CJ15ab" algoId="92" module="0" fpga="1" firstbit="0" clock="0"/>
+    <Output algname="0DR04-EM7ab-CJ15ab" triggerline="0DR04-EM7ab-CJ15ab" algoId="92" module="0" fpga="0" firstbit="4" clock="1"/>
     <Output algname="2INVM8-2MU4ab" triggerline="2INVM8-2MU4ab" algoId="2" module="1" fpga="1" firstbit="14" clock="1"/>
     <Output algname="2INVM8-MU6ab-MU4ab" triggerline="2INVM8-MU6ab-MU4ab" algoId="5" module="1" fpga="1" firstbit="15" clock="1"/>
   </OutputList>

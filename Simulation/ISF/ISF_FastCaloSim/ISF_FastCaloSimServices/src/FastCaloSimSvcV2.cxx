@@ -150,6 +150,9 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   TString path_to_fcal_geo_files = "/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/";
   m_caloGeo->LoadFCalGeometryFromFiles(path_to_fcal_geo_files + "FCal1-electrodes.sorted.HV.09Nov2007.dat", path_to_fcal_geo_files + "FCal2-electrodes.sorted.HV.April2011.dat", path_to_fcal_geo_files + "FCal3-electrodes.sorted.HV.09Nov2007.dat");
    
+  //m_caloGeo->PrintMapInfo(0,0); 
+   
+   
   for(unsigned int i=0;i<24;i++)
    m_rlayer.push_back(999);
   
@@ -352,7 +355,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
  else
  {
   ATH_MSG_INFO("\n\n*******************************************\n"
-        << "USING 1D SHAPE PARAMETRISATION"
+        << "USING 2D SHAPE PARAMETRISATION"
         << "\n*******************************************\n\n");
  }
  
@@ -508,7 +511,8 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
    }
    if(!m_useOneDShapeParametrisation)
    {
-    m_histEnergyDensity2D->GetRandom2(alpha, r);
+    this->getRandom2(m_histEnergyDensity2D,alpha,r);
+    //m_histEnergyDensity2D->GetRandom2(alpha, r);
    }
    delta_eta_mm=r * cos(alpha);
   }
@@ -942,3 +946,32 @@ double ISF::FastCaloSimSvcV2::doWiggle(int layer)
  return wiggle;
   
 }
+
+void ISF::FastCaloSimSvcV2::getRandom2(TH2* h,double &x,double &y){
+  //ATH_MSG_INFO("Running ISF::FastCaloSimSvcV2::getRandom2"); 
+  TAxis* fXaxis = h->GetXaxis();
+  TAxis* fYaxis = h->GetYaxis();
+  const int nbinsx = h->GetNbinsX();
+  const int nbinsy = h->GetNbinsY();
+  const int nbins  = nbinsx*nbinsy;
+  double integral;
+  double *fIntegral = h->GetIntegral();
+  // compute integral checking that all bins have positive content (see ROOT-5894)
+  
+  if (fIntegral[nbins+1] != h->GetEntries()) integral = h->ComputeIntegral(true);
+  else integral = fIntegral[nbins];
+ 
+  if (integral == 0 ) { x = 0; y = 0; return;}
+  // case histogram has negative bins
+  if (integral == TMath::QuietNaN() ) { x = TMath::QuietNaN(); y = TMath::QuietNaN(); return;}
+  
+  double r1 = CLHEP::RandFlat::shoot(m_randomEngine);
+  int ibin = TMath::BinarySearch(nbins,fIntegral,(double) r1);
+  int biny = ibin/nbinsx;
+  int binx = ibin - nbinsx*biny;
+  x = fXaxis->GetBinLowEdge(binx+1);
+  if (r1 > fIntegral[ibin]) x +=
+    fXaxis->GetBinWidth(binx+1)*(r1-fIntegral[ibin])/(fIntegral[ibin+1] - fIntegral[ibin]);
+  y = fYaxis->GetBinLowEdge(biny+1) + fYaxis->GetBinWidth(biny+1)*CLHEP::RandFlat::shoot(m_randomEngine);
+}
+

@@ -52,7 +52,6 @@ private:
   bool m_initialLayout;
   bool m_devVersion;
   bool m_buildDBM;
-  bool m_useDynamicAlignFolders;
   ToolHandle< IGeoSubDetTool > m_bcmTool;
   ToolHandle< IGeoSubDetTool > m_blmTool;
   ToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool;

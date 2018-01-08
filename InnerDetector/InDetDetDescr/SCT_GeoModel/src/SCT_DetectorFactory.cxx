@@ -63,8 +63,7 @@ using InDetDD::SiCommonItems;
 
 SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaComps,
 					 const SCT_Options & options)
-  : InDetDD::DetectorFactoryBase(athenaComps),
-    m_useDynamicAlignFolders(false)
+  : InDetDD::DetectorFactoryBase(athenaComps) 
 { 
   
   // Create the detector manager
@@ -77,8 +76,6 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   m_geometryManager = new SCT_GeometryManager();
   m_geometryManager->setOptions(options);
   m_geometryManager->setAthenaComps(athenaComps);
-
-  m_useDynamicAlignFolders = options.dynamicAlignFolders();
  
   // Pass the Athena components the data base access class
   SCT_DataBase::setAthenaComps(athenaComps);
@@ -277,15 +274,14 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
   // Register the keys and the level corresponding to the key
   // and whether it expects a global or local shift.
   // level 0: sensor, level 1: module, level 2, layer/disc, level 3: whole barrel/enccap
+  InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
+  m_detectorManager->addAlignFolderType(AlignFolder);
 
-
-  if (!m_useDynamicAlignFolders){
-
-    m_detectorManager->addAlignFolderType(InDetDD::static_run1);
+  if (AlignFolder==InDetDD::static_run1){
     m_detectorManager->addFolder("/Indet/Align");
     m_detectorManager->addChannel("/Indet/Align/ID",3,InDetDD::global);
     m_detectorManager->addChannel("/Indet/Align/SCT",2,InDetDD::global);
-    
+  
     if (barrelPresent) {
       m_detectorManager->addChannel("/Indet/Align/SCTB1",1,InDetDD::local);
       m_detectorManager->addChannel("/Indet/Align/SCTB2",1,InDetDD::local);
@@ -315,9 +311,8 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
       m_detectorManager->addChannel("/Indet/Align/SCTEC9",1,InDetDD::local);
     }
   }
-  
-  else {
-    m_detectorManager->addAlignFolderType(InDetDD::timedependent_run2);
+
+  if (AlignFolder==InDetDD::timedependent_run2){
     m_detectorManager->addGlobalFolder("/Indet/AlignL1/ID");
     m_detectorManager->addGlobalFolder("/Indet/AlignL2/SCT");
     m_detectorManager->addChannel("/Indet/AlignL1/ID",3,InDetDD::global);
@@ -366,3 +361,29 @@ const SCT_DetectorManager * SCT_DetectorFactory::getDetectorManager() const
 }
  
 
+// Determine which alignment folders are loaded to decide if we register old or new folders                                         
+InDetDD::AlignFolderType SCT_DetectorFactory::getAlignFolderType() const
+{
+
+  bool static_folderStruct = false;
+  bool timedep_folderStruct = false;
+  if (detStore()->contains<CondAttrListCollection>("/Indet/AlignL1/ID") &&
+      detStore()->contains<CondAttrListCollection>("/Indet/AlignL2/SCT") &&
+      detStore()->contains<AlignableTransformContainer>("/Indet/AlignL3") ) timedep_folderStruct = true;
+
+  if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
+
+  if (static_folderStruct && !timedep_folderStruct){
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq;
+    return InDetDD::static_run1;
+  }
+  else if (!static_folderStruct && timedep_folderStruct){
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    return InDetDD::timedependent_run2;
+  }
+  else if (static_folderStruct && timedep_folderStruct){
+    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");
+  }
+  else return InDetDD::none;
+
+}

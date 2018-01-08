@@ -34,9 +34,9 @@
 // forward declarations
 class IROBDataProviderSvc;
 
-
 namespace FTK {
 
+  class FTKByteStreamDecoderEncoderTool;
   /**
      @class TrigFTKByteStreamTool
      @brief An AlgTool class to provide conversion from TrigFTK to ByteStream, and fill it in RawEvent
@@ -68,6 +68,7 @@ namespace FTK {
 			const std::string& objName);
   private:
     FullEventAssembler<> m_fea;
+    ToolHandle <FTK::FTKByteStreamDecoderEncoderTool> m_decoder;
 
   };
 }

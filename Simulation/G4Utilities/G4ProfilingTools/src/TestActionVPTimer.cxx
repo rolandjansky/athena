@@ -59,29 +59,29 @@ namespace G4UA{
 
   }
 
-  void TestActionVPTimer::beginOfEvent(const G4Event*){
+  void TestActionVPTimer::BeginOfEventAction(const G4Event*){
     m_report.nev++;
     m_eventTimer->Start();
   }
   
-  void TestActionVPTimer::endOfEvent(const G4Event*){
+  void TestActionVPTimer::EndOfEventAction(const G4Event*){
     // this function also stops the timer. it will be restarted at BoE
     m_eventTime += TimerSum(m_eventTimer);
 
   }
   
-  void TestActionVPTimer::beginOfRun(const G4Run*){;
+  void TestActionVPTimer::BeginOfRunAction(const G4Run*){;
     m_runTimer->Start();
   }
   
-  void TestActionVPTimer::endOfRun(const G4Run*){
+  void TestActionVPTimer::EndOfRunAction(const G4Run*){
     // this also stops the timer
 
     m_report.runTime += TimerSum(m_runTimer);
 
   }
   
-  void TestActionVPTimer::processStep(const G4Step* aStep){
+  void TestActionVPTimer::UserSteppingAction(const G4Step* aStep){
 
     // HERE IS WHERE WE BEGIN OUR CLOCKING -- ONLY IF 
     // TIMERS ARE NOT VALID

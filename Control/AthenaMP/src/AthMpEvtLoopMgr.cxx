@@ -42,6 +42,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 				 , ISvcLocator* svcLocator)
   : AthService(name,svcLocator)
   , m_evtProcessor("AthenaEventLoopMgr", name)
+  , m_evtSelector(nullptr)
   , m_nWorkers(0)
   , m_workerTopDir("athenaMP_workers")
   , m_outputReportName("AthenaMPOutputs")
@@ -75,9 +76,27 @@ StatusCode AthMpEvtLoopMgr::initialize()
 {
   ATH_MSG_DEBUG("in initialize() ... ");
 
-  if(m_strategy=="EventService" && m_nEventsBeforeFork!=0) {
-    ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");
+  SmartIF<IProperty> prpMgr(serviceLocator());
+  if(!prpMgr.isValid()) {
+    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
     return StatusCode::FAILURE;
+  }
+
+  std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
+  ATH_CHECK(serviceLocator()->service(evtSelName,m_evtSelector));
+
+  if(m_strategy=="EventService") {
+    // ES with non-zero events before forking makes no sense
+    if(m_nEventsBeforeFork!=0) {
+      ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");
+      return StatusCode::FAILURE;
+    }
+
+    // We need to ignore SkipEvents in ES
+    if(updateSkipEvents(0).isFailure()) {
+      ATH_MSG_ERROR("Failed to set skipEvents=0 in Event Service");
+      return StatusCode::FAILURE;
+    }
   }
 
   if(m_isPileup) {
@@ -320,17 +339,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   }
 
   // Restart the event selector in order to avoid segfault at stop()
-  SmartIF<IProperty> prpMgr(serviceLocator());
-  if(prpMgr.isValid()) {
-    std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
-    IService* evtSelector(0);
-    ATH_CHECK(serviceLocator()->service(evtSelName,evtSelector));
-    ATH_CHECK(evtSelector->start());
-  }
-  else {
-    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_evtSelector->start());
 
   if(sc.isSuccess())
     return generateOutputReport();
@@ -643,22 +652,12 @@ StatusCode AthMpEvtLoopMgr::afterRestart(int& maxevt)
   }
 
   // Change the InputCollections property of the event selector
-  SmartIF<IProperty> prpMgr(serviceLocator());
-  IService* evtSelector(0);
-  if(prpMgr.isValid()) {
-    std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
-    ATH_CHECK(serviceLocator()->service(evtSelName,evtSelector));
-  }
-  else {
-    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
-    return StatusCode::FAILURE;
-  }
-
-  IProperty* propertyServer = dynamic_cast<IProperty*>(evtSelector);
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
   if(!propertyServer) {
     ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
     return StatusCode::FAILURE;
   }
+
   std::string propertyName("InputCollections");
   StringArrayProperty newInputFileList(propertyName, inpFiles);
   if(propertyServer->setProperty(newInputFileList).isFailure()) {
@@ -668,7 +667,7 @@ StatusCode AthMpEvtLoopMgr::afterRestart(int& maxevt)
   ATH_MSG_INFO("Updated the InputCollections property of the event selector");
 
   // Register new input files with the I/O component manager
-  IIoComponent* iocomp = dynamic_cast<IIoComponent*>(evtSelector);
+  IIoComponent* iocomp = dynamic_cast<IIoComponent*>(m_evtSelector);
   if(iocomp==nullptr) {
     ATH_MSG_FATAL("Unable to dyn-cast Event Selector to IIoComponent");
     return StatusCode::FAILURE;
@@ -707,14 +706,22 @@ StatusCode AthMpEvtLoopMgr::afterRestart(int& maxevt)
 
   // _______________________ Update Skip Events ___________________________
   int skipEvents = std::atoi(tokens["skipEvents"].c_str());
+  return updateSkipEvents(skipEvents);
+}
 
-  propertyName = "SkipEvents";
-  IntegerProperty skipEventsProperty(propertyName, skipEvents);
+StatusCode AthMpEvtLoopMgr::updateSkipEvents(int skipEvents)
+{
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(!propertyServer) {
+    ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
+    return StatusCode::FAILURE;
+  }
+
+  IntegerProperty skipEventsProperty("SkipEvents", skipEvents);
   if(propertyServer->setProperty(skipEventsProperty).isFailure()) {
     ATH_MSG_ERROR("Unable to update " << skipEventsProperty.name() << " property on the Event Selector");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Updated the SkipEvents property of the event selector. New value: " << skipEvents);
-  
   return StatusCode::SUCCESS;
 }

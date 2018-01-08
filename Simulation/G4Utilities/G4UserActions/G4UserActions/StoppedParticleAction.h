@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 class TrackFastSimSD;
@@ -16,11 +16,11 @@ namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class StoppedParticleAction : public AthMessaging, public ISteppingAction
+  class StoppedParticleAction : public AthMessaging, public G4UserSteppingAction
   {
     public:
       StoppedParticleAction();
-      virtual void processStep(const G4Step*) override;
+      virtual void UserSteppingAction(const G4Step*) override;
     private:
       bool isSUSYParticle(const int) const;
       TrackFastSimSD * m_fsSD;

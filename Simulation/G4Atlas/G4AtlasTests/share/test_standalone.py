@@ -130,10 +130,10 @@ def change_worldvolume_y():
 simFlags.InitFunctions.add_function(1, change_worldvolume_y)
 
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Insert the PyG4Atlas algorithm at the head of the alg sequence
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-job += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)

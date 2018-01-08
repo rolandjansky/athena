@@ -119,8 +119,11 @@ StatusCode SCT_ConfigurationConditionsSvc::queryInterface(const InterfaceID& rii
 
 // What level of element can this service report about
 bool SCT_ConfigurationConditionsSvc::canReportAbout(InDetConditions::Hierarchy h){
-  return (h == InDetConditions::SCT_STRIP or h == InDetConditions::SCT_MODULE or 
-    h == InDetConditions::SCT_SIDE or h == InDetConditions::DEFAULT); 
+  return (h == InDetConditions::SCT_STRIP or
+          h == InDetConditions::SCT_CHIP or
+          h == InDetConditions::SCT_SIDE or
+          h == InDetConditions::SCT_MODULE or
+          h == InDetConditions::DEFAULT);
 }
 
 // Is an element with this Identifier and hierachy good?
@@ -136,6 +139,8 @@ bool SCT_ConfigurationConditionsSvc::isGood(const Identifier & elementId, InDetC
     result = (m_badModuleIds->find(elementId) == m_badModuleIds->end());
   } else if (h == InDetConditions::SCT_SIDE or h == InDetConditions::DEFAULT) {
     result = (m_badWaferIds->find(elementId) == m_badWaferIds->end());
+  } else if (h == InDetConditions::SCT_CHIP) {
+    result = isGoodChip(elementId);
   }
   return result;
 }
@@ -144,6 +149,46 @@ bool SCT_ConfigurationConditionsSvc::isGood(const Identifier & elementId, InDetC
 bool SCT_ConfigurationConditionsSvc::isGood(const IdentifierHash & hashId){
   Identifier elementId(m_pHelper->wafer_id(hashId));
   return isGood(elementId);
+}
+
+// Is a chip with this Identifier good?
+bool SCT_ConfigurationConditionsSvc::isGoodChip(const Identifier& stripId) const {
+  // This check assumes present SCT.
+  // Get module number
+  const Identifier moduleId{m_pHelper->module_id(stripId)};
+  if (not moduleId.is_valid()) {
+    ATH_MSG_WARNING("moduleId obtained from stripId " << stripId << " is invalid.");
+    return false;
+  }
+
+  // badChips word for the module
+  const unsigned int v_badChips{badChips(moduleId)};
+  // badChips holds 12 bits.
+  // bit 0 (LSB) is chip 0 for side 0.
+  // bit 5 is chip 5 for side 0.
+  // bit 6 is chip 6 for side 1.
+  // bit 11 is chip 11 for side 1.
+
+  // If there is no bad chip, this check is done.
+  if (v_badChips==0) return true;
+
+  const int side{m_pHelper->side(stripId)};
+  // Check the six chips on the side
+  // 0x3F  = 0000 0011 1111
+  // 0xFC0 = 1111 1100 0000
+  // If there is no bad chip on the side, this check is done.
+  if ((side==0 and (v_badChips & 0x3F)==0) or (side==1 and (v_badChips & 0xFC0)==0)) return true;
+
+  int chip{getChip(stripId)};
+  if (chip<0 or chip>=12) {
+    ATH_MSG_WARNING("chip number is invalid: " << chip);
+    return false;
+  }
+
+  // Check if the chip is bad
+  const bool badChip{v_badChips & (1<<chip)};
+
+  return (not badChip);
 }
 
   // Callback funtion (with arguments required by IovDbSvc) to fill channel, module and link info
@@ -482,7 +527,7 @@ bool SCT_ConfigurationConditionsSvc::isWaferInBadModule(const Identifier& waferI
 }
 
 // Find the chip number containing a particular strip Identifier
-int SCT_ConfigurationConditionsSvc::getChip(const Identifier & stripId) {
+int SCT_ConfigurationConditionsSvc::getChip(const Identifier & stripId) const {
 
   // Find side and strip number
   const int side(m_pHelper->side(stripId));
@@ -529,7 +574,7 @@ std::pair<bool, bool> SCT_ConfigurationConditionsSvc::badLinks(const Identifier 
   return ((linkItr != m_badLinks->end()) ? (*linkItr).second : std::make_pair(true,true));
 }
 
-unsigned int SCT_ConfigurationConditionsSvc::badChips(const Identifier & moduleId) {
+unsigned int SCT_ConfigurationConditionsSvc::badChips(const Identifier & moduleId) const {
   // Bad chips for a given module
   std::map<Identifier, unsigned int>::const_iterator chipItr(m_badChips->find(moduleId));  
   return ((chipItr != m_badChips->end()) ? (*chipItr).second : static_cast<unsigned int>(0));

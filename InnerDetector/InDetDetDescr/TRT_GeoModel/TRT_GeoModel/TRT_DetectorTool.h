@@ -58,7 +58,6 @@ public:
  
     bool m_doArgonMixture;
     bool m_doKryptonMixture;
-    bool m_useDynamicAlignFolders;
  
     const InDetDD::TRT_DetectorManager * m_manager;
     InDetDD::AthenaComps * m_athenaComps;

@@ -4,8 +4,8 @@
 
 #ifndef G4HITFILTER_G4UA__G4HITFILTERTOOL_H
 #define G4HITFILTER_G4UA__G4HITFILTERTOOL_H
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4HitFilter.h"
 
@@ -13,18 +13,18 @@ namespace G4UA{
 
 class G4HitFilterTool:
   public ActionToolBaseReport<G4HitFilter>,
-    public IEndEventActionTool,
-    public IBeginRunActionTool
+    public IG4EventActionTool,
+    public IG4RunActionTool
     {
 
     public:
       G4HitFilterTool(const std::string& type, const std::string& name,const IInterface* parent);
 
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
-      virtual IBeginRunAction* getBeginRunAction() override final
-      { return static_cast<IBeginRunAction*>( getAction() ); }
+      virtual G4UserRunAction* getRunAction() override final
+      { return static_cast<G4UserRunAction*>( getAction() ); }
 
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
       virtual StatusCode finalize() override;

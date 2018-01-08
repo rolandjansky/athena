@@ -41,21 +41,21 @@ namespace JetTagDQA {
     //   m_jetPlots(0, "Summary/Jet/", "Jet"),
     //    m_trkvtxPlots(0, "Summary/TrackAndVertex/"),
     m_isData(false),
-    m_antiKt2PV0TrackJetPlots(0, "BTag/AntiKt2PV0TrackJets/", "antiKt2PV0TrackJets"),
-    m_antiKt3PV0TrackJetPlots(0, "BTag/AntiKt3PV0TrackJets/", "antiKt3PV0TrackJets"),
-    m_antiKt4PV0TrackJetPlots(0, "BTag/AntiKt4PV0TrackJets/", "antiKt4PV0TrackJets"),
-    m_antiKt4EMTopoPlots     (0, "BTag/AntiKt4EMTopo/"      , "antiKt4EMTopo"),
-    m_antiKt4LCTopoPlots     (0, "BTag/AntiKt4LCTopo/"      , "antiKt4LCTopo"),
+    m_antiKt2PV0TrackJetPlots             (0, "BTag/AntiKt2PV0TrackJets/"          , "antiKt2PV0TrackJets"),
+    m_antiKt4PV0TrackJetPlots             (0, "BTag/AntiKt4PV0TrackJets/"          , "antiKt4PV0TrackJets"),
+    m_antiKt4EMTopoPlots                  (0, "BTag/AntiKt4EMTopoJets/"            , "antiKt4EMTopoJets"),
+    m_antiKtVR30Rmax4Rmin02TrackJetsPlots (0, "BTag/AntiKtVR30Rmax4Rmin02TrackJets", "antiKtVR30Rmax4Rmin02TrackJets"),
+    m_antiKt4EMPFlowJetsPlots             (0, "BTag/AntiKt4EMPFlowJets"            , "antiKt4EMPFlowJets"),
     m_nevents(0)
   {
 
     declareProperty( "isData", m_isData );
 
     declareProperty( "JetContainerName1", m_jetName1 = "AntiKt2PV0TrackJets");
-    declareProperty( "JetContainerName2", m_jetName2 = "AntiKt3PV0TrackJets");
-    declareProperty( "JetContainerName3", m_jetName3 = "AntiKt4PV0TrackJets");
-    declareProperty( "JetContainerName4", m_jetName4 = "AntiKt4EMTopoJets" );
-    declareProperty( "JetContainerName5", m_jetName5 = "AntiKt4LCTopoJets");
+    declareProperty( "JetContainerName2", m_jetName2 = "AntiKt4PV0TrackJets");
+    declareProperty( "JetContainerName3", m_jetName3 = "AntiKt4EMTopoJets" );
+    declareProperty( "JetContainerName4", m_jetName4 = "AntiKtVR30Rmax4Rmin02TrackJets");
+    declareProperty( "JetContainerName5", m_jetName5 = "AntiKt4EMPFlowJets");
 
     declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );
     declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );
@@ -74,10 +74,10 @@ namespace JetTagDQA {
 	ATH_CHECK(ManagedMonitorToolBase::initialize());
 
 	m_btagplots.insert(std::make_pair(m_jetName1, m_antiKt2PV0TrackJetPlots));
-	m_btagplots.insert(std::make_pair(m_jetName2, m_antiKt3PV0TrackJetPlots));
-	m_btagplots.insert(std::make_pair(m_jetName3, m_antiKt4PV0TrackJetPlots));
-	m_btagplots.insert(std::make_pair(m_jetName4, m_antiKt4EMTopoPlots));
-	m_btagplots.insert(std::make_pair(m_jetName5, m_antiKt4LCTopoPlots));
+	m_btagplots.insert(std::make_pair(m_jetName2, m_antiKt4PV0TrackJetPlots));
+	m_btagplots.insert(std::make_pair(m_jetName3, m_antiKt4EMTopoPlots));
+	m_btagplots.insert(std::make_pair(m_jetName4, m_antiKtVR30Rmax4Rmin02TrackJetsPlots));
+	m_btagplots.insert(std::make_pair(m_jetName5, m_antiKt4EMPFlowJetsPlots));
    
         return StatusCode::SUCCESS;
   }
@@ -171,7 +171,13 @@ namespace JetTagDQA {
         int label(1000);
         //double dR(1000);
 
-        if(jet->pt() > 20000 && std::abs(jet->eta()) < 2.5){
+	if(jet->pt() <= 20000) continue;
+	if(std::abs(jet->eta()) >= 2.5) continue;
+
+	//Arnaud: JVT cut to remove horns in jet eta 
+	if (((plot_i->second).m_isJVT_defined) &&  (jet->getAttribute<float>("Jvt")) < ((plot_i->second).m_jvt_cut) && jet->pt() > 20e3 && jet->pt() < 60e3 && (std::abs(jet->eta()) < 2.4) ) continue;
+
+        //if(jet->pt() > 20000 && std::abs(jet->eta()) < 2.5){
           (plot_i->second).fill(jet);
 
 	  if(!m_isData) {
@@ -186,7 +192,7 @@ namespace JetTagDQA {
             //(plot_i->second).fill(jet, btag);
        	    (plot_i->second).fill(jet, btag, myVertex); //ANDREA: added xAOD::Vertex * as input to BTaggingValidationPlots.cxx
           }
-        }
+	  //}
       }//for (auto jet : *jets) {
     }//for(std::map<std::string,JetTagDQA::BTaggingValidationPlots>::iterator plot_i = m_btagplots.begin(); plot_i != m_btagplots.end(); ++plot_i){
 

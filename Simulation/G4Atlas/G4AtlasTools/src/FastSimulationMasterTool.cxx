@@ -11,7 +11,7 @@
 #include "G4ProcessManager.hh"
 
 FastSimulationMasterTool::FastSimulationMasterTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent)
+  : base_class(type,name,parent)
   , m_FastSimList(this)
 {
   declareProperty( "FastSimulations" , m_FastSimList , "Tool handle array of fast simulation tools" );
@@ -50,17 +50,5 @@ StatusCode FastSimulationMasterTool::EndOfAthenaEvent(){
   for (auto& ifs : m_FastSimList){
     CHECK(ifs->EndOfAthenaEvent());
   }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode FastSimulationMasterTool::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IFastSimulationMasterTool::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IFastSimulationMasterTool*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthAlgTool::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }

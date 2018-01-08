@@ -65,13 +65,14 @@ class CaloGeometry : virtual public ICaloGeometry {
     TCanvas* DrawGeoForPhi0();
     FCAL_ChannelMap* GetFCAL_ChannelMap(){return &m_FCal_ChannelMap;}
     virtual void LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3); // Initialize m_FCal_ChannelMap
+    virtual void PrintMapInfo(int i, int j);
 
   protected:
     virtual void addcell(const CaloDetDescrElement* cell);
 
     virtual void post_process(int layer);
 
-    virtual void PrintMapInfo(int i, int j);
+    
 
     virtual void InitRZmaps();
 

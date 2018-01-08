@@ -253,8 +253,10 @@ StatusCode ALFA_Raw2Digit::execute()
 
 		charge_1[mbID-1] = ((*RawData_Collection_Beg)->Get_ADC1_POT());
 		charge_2[mbID-1] = ((*RawData_Collection_Beg)->Get_ADC2_POT());
-		for (unsigned int i=0;i<16;i++) {
-	  trigger_pattern_b[mbID-1][i] = ((*RawData_Collection_Beg)->Get_pattern_POT())[i];
+
+		const std::vector<bool>& patternPot = (*RawData_Collection_Beg)->Get_pattern_POT();
+		for (unsigned int i=0; i<patternPot.size(); i++) {
+		  trigger_pattern_b[mbID-1][i] = patternPot[i];
 //	  msg(MSG::ERROR) << " pattern: bit " << i << ", value = "<< trigger_pattern_b[mbID-1][i] << " in MB = " << mbID-1 << endreq;
 		}
 

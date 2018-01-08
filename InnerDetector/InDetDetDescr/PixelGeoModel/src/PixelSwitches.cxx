@@ -13,8 +13,7 @@ PixelSwitches::PixelSwitches()
     m_alignable(true),
     m_slhc(false),
     m_ibl(false),
-    m_dbm(false),
-    m_dynAlignFolders(false)
+    m_dbm(false)
 {}
 
 void PixelSwitches::setServices(bool flag) {m_services = flag;}
@@ -47,5 +46,3 @@ bool PixelSwitches::ibl() const {return m_ibl;}
 void PixelSwitches::setDBM(bool flag) {m_dbm = flag;} //switch to build the DBM
 bool PixelSwitches::dbm() const {return m_dbm;}
 
-void PixelSwitches::setDynamicAlignFolders(const bool useDynAlignFolders){m_dynAlignFolders = useDynAlignFolders;}
-bool PixelSwitches::dynamicAlignFolders() const {  return m_dynAlignFolders;}

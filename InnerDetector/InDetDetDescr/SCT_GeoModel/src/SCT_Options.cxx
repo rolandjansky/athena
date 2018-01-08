@@ -9,8 +9,7 @@ SCT_Options::SCT_Options()
     m_dc1Geometry(false),
     m_dc2Geometry(true),
     m_alignable(true),
-    m_alignModule(true),
-    m_dynAlignFolders(false)
+    m_alignModule(true)
 {}
 
 void 
@@ -77,12 +76,3 @@ SCT_Options::alignAtModuleLevel() const
   return m_alignModule;
 }
 
-void SCT_Options::setDynamicAlignFolders(const bool flag)
-{
-  m_dynAlignFolders = flag;
-}
-
-bool SCT_Options::dynamicAlignFolders() const 
-{  
-  return m_dynAlignFolders;
-}

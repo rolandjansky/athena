@@ -25,6 +25,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
 
+#include "xAODCutFlow/CutBookkeeperContainer.h"
+
 //--------------- Utility Struct Constructors ----------------
 EventCount::ObjSum::ObjSum() : num(-1)
 {keys.clear();}
@@ -83,6 +85,27 @@ void EventCount::handle(const Incident& inc)
     } 
     else { 
       ATH_MSG_ERROR("Could not get file name at BeginInputFile");
+    }
+    ServiceHandle<StoreGateSvc> mdstore("StoreGateSvc/InputMetaDataStore", name());
+    if (mdstore.retrieve().isSuccess()) {
+      const DataHandle<xAOD::CutBookkeeperContainer> compBook(NULL);
+      if (mdstore->retrieve(compBook, "CutBookkeepers").isSuccess()) {
+        ATH_MSG_INFO("CBK size = " << compBook->size());
+        for (auto it = compBook->begin(); it != compBook->end(); ++it) {
+          ATH_MSG_INFO("CBK name= " << (*it)->name() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights());
+        }
+      } else {
+        ATH_MSG_INFO("CBK No bookkeepers " << mdstore->dump());
+      }
+      const DataHandle<xAOD::CutBookkeeperContainer> incompBook(NULL);
+      if (mdstore->retrieve(incompBook, "IncompleteCutBookkeepers").isSuccess()) {
+        ATH_MSG_INFO("CBK size = " << incompBook->size());
+        for (auto it = incompBook->begin(); it != incompBook->end(); ++it) {
+          ATH_MSG_INFO("CBK name= " << (*it)->name() << " stream=" << (*it)->inputStream() << " N=" << (*it)->nAcceptedEvents() << " W=" << (*it)->sumOfEventWeights());
+        }
+      } else {
+        ATH_MSG_INFO("CBK No bookkeepers " << mdstore->dump());
+      }
     }
   }
 }

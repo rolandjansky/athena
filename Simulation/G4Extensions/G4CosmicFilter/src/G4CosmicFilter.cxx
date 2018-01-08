@@ -11,27 +11,27 @@
 #include "G4Event.hh"
 #include "StoreGate/ReadHandle.h"
 
-
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-  G4CosmicFilter::G4CosmicFilter(const Config& config):
-    AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"G4CosmicFilter"),
-    m_config(config),m_report(),
-    m_evtStore("StoreGateSvc/StoreGateSvc","G4CosmicFilter"),
-    m_detStore("StoreGateSvc/DetectorStore","G4CosmicFilter"){
+  G4CosmicFilter::G4CosmicFilter(const Config& config)
+    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "G4CosmicFilter"),
+      m_config(config), m_report(),
+      m_evtStore("StoreGateSvc/StoreGateSvc","G4CosmicFilter"),
+      m_detStore("StoreGateSvc/DetectorStore","G4CosmicFilter")
+  {
   }
 
-
-  void G4CosmicFilter::endOfEvent(const G4Event*){;
-    
+  void G4CosmicFilter::EndOfEventAction(const G4Event*)
+  {
     int counter(0);
-    
+
     m_report.ntot++;
-    
+
     SG::ReadHandle <TrackRecordCollection> coll(m_config.collectionName);
     if (! coll.isValid() )
       {
@@ -39,9 +39,9 @@ namespace G4UA{
 	G4RunManager::GetRunManager()->AbortEvent();
 	return;
       }
-    
+
     counter = coll->size();
-    
+
     if (m_config.PDGId!=0 || m_config.ptMin>0 || m_config.ptMax>0)
       {
 	counter=0;
@@ -53,7 +53,7 @@ namespace G4UA{
 	    counter++;
 	  }
       }
-    
+
     //std::cout << "EndOfEventAction counter is "<<counter<<std::endl;
     if (counter==0)
       {
@@ -61,10 +61,10 @@ namespace G4UA{
 	G4RunManager::GetRunManager()->AbortEvent();
 	return;
       }
-    
+
     m_report.npass++;
     return;
- 
+
   }
 
-} // namespace G4UA 
+} // namespace G4UA

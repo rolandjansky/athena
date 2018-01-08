@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // Local includes
 #include "G4UserActions/G4SimTimer.h"
 
@@ -41,7 +40,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Begin-event action
   //---------------------------------------------------------------------------
-  void G4SimTimer::beginOfEvent(const G4Event* /*event*/)
+  void G4SimTimer::BeginOfEventAction(const G4Event* /*event*/)
   {
     m_eventTimer.Start();
   }
@@ -49,7 +48,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // End-event action
   //---------------------------------------------------------------------------
-  void G4SimTimer::endOfEvent(const G4Event* /*event*/)
+  void G4SimTimer::EndOfEventAction(const G4Event* /*event*/)
   {
     m_eventTimer.Stop();
     // We define time as user+system time.

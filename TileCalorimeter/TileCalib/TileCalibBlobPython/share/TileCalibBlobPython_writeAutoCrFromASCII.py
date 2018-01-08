@@ -1,17 +1,13 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writePedFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-03-03
 # modified: Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-06-27
 # modified: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-14
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
@@ -35,10 +31,10 @@ def fillAutoCr(filePed, tag, since,
     folderTag = TileCalibUtils.getFullTag(folder, tag)
 
     #=== common noise autocr defaults (no correlation)
-    default = PyCintex.gbl.std.vector('float')()
+    default = cppyy.gbl.std.vector('float')()
     for i in xrange(6):
         default.push_back(0.)
-    defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+    defVec = cppyy.gbl.std.vector('std::vector<float>')()
     defVec.push_back(default)
     defVec.push_back(default)    
     
@@ -50,7 +46,7 @@ def fillAutoCr(filePed, tag, since,
     parser = TileCalibTools.TileASCIIParser(filePed,"AutoCr");
 
     #=== initialize all channels and write global default
-    util = PyCintex.gbl.TileCalibUtils()
+    util = cppyy.gbl.TileCalibUtils()
     for ros in xrange(util.max_ros()):
         for drawer in xrange(util.getMaxDrawer(ros)):
             flt = writer.zeroBlob(ros,drawer)

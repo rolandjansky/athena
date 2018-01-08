@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef StepHelper_H
-#define StepHelper_H
+#ifndef SIMHELPERS_StepHelper_H
+#define SIMHELPERS_StepHelper_H
 
 #include "G4Step.hh"
 #include "G4EmProcessSubType.hh"
@@ -16,34 +16,44 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 class G4VProcess;
 
-/// @brief helper class which avoids having to play with the G4Step to retrieve
-/// relevant quantities.
+/// @brief helper functions to avoid having to play with the G4Step to
+/// retrieve relevant quantities.
 ///
 /// TODO: These should be standalone functions rather than a class.
 ///
-class StepHelper {
-public:
-  StepHelper();
-  StepHelper(const G4Step*);
-  void SetStep(const G4Step*);
-  G4ThreeVector PreStepPosition() const;
-  G4ThreeVector PostStepPosition() const;
-  std::string ParticleName() const;
-  int ParticlePDGCode() const;
-  double DepositedEnergy() const;
-  G4LogicalVolume* GetPreStepLogicalVolume(int iLevel=0) const;
-  std::string GetPreStepLogicalVolumeName(int iLevel=0) const;
-  G4VPhysicalVolume* GetPreStepPhysicalVolume(int iLevel=0) const;
-  G4LogicalVolume* GetPostStepLogicalVolume(int iLevel=0) const;
-  std::string GetPostStepLogicalVolumeName(int iLevel=0) const;
-  G4VPhysicalVolume* GetPostStepPhysicalVolume(int iLevel=0) const;
-  int PreStepBranchDepth() const;
-  int PostStepBranchDepth() const;
-  const G4VProcess* GetProcess() const;
-  std::string GetProcessName() const;
-  G4int GetProcessSubType() const;
-private:
-  const G4Step *m_theStep;
-};
+namespace G4StepHelper {
+  /// @brief TODO
+  G4ThreeVector preStepPosition(const G4Step* theStep);
+  /// @brief TODO
+  G4ThreeVector postStepPosition(const G4Step* theStep);
+  /// @brief TODO
+  std::string particleName(const G4Step* theStep);
+  /// @brief TODO
+  int particlePDGCode(const G4Step* theStep);
+  /// @brief TODO
+  double depositedEnergy(const G4Step* theStep);
+  /// @brief TODO
+  G4LogicalVolume* getPreStepLogicalVolume(const G4Step* theStep, int iLevel=0);
+  /// @brief TODO
+  std::string getPreStepLogicalVolumeName(const G4Step* theStep, int iLevel=0);
+  /// @brief TODO
+  G4VPhysicalVolume* getPreStepPhysicalVolume(const G4Step* theStep, int iLevel=0);
+  /// @brief TODO
+  G4LogicalVolume* getPostStepLogicalVolume(const G4Step* theStep, int iLevel=0);
+  /// @brief TODO
+  std::string getPostStepLogicalVolumeName(const G4Step* theStep, int iLevel=0);
+  /// @brief TODO
+  G4VPhysicalVolume* getPostStepPhysicalVolume(const G4Step* theStep, int iLevel=0);
+  /// @brief TODO
+  int preStepBranchDepth(const G4Step* theStep);
+  /// @brief TODO
+  int postStepBranchDepth(const G4Step* theStep);
+  /// @brief TODO
+  const G4VProcess* getProcess(const G4Step* theStep);
+  /// @brief TODO
+  std::string getProcessName(const G4Step* theStep);
+  /// @brief TODO
+  G4int getProcessSubType(const G4Step* theStep);
+}
 
 #endif

@@ -53,7 +53,7 @@ echo ${RESULT}
 # copy the test results to EOS area
 if [ -z "${EOS_MGM_URL}" ]; then
   echo "WARNING: EOS_MGM_URL variable is empty, setting it to root://eosatlas.cern.ch"
-  export EOS_MGM_URL="root://eosatlas.cern.ch" 
+  export EOS_MGM_URL="root://eosatlas.cern.ch"
 else
   echo "EOS_MGM_URL variable contains", ${EOS_MGM_URL}
 fi

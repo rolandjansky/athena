@@ -25,14 +25,14 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  void ScoringVolumeTrackKiller::endOfEvent(const G4Event*)
+  void ScoringVolumeTrackKiller::EndOfEventAction(const G4Event*)
   {
     ATH_MSG_INFO( m_killCount << " tracks killed in this event " );
     m_killCount = 0;
   }
 
   //---------------------------------------------------------------------------
-  void ScoringVolumeTrackKiller::processStep(const G4Step* aStep)
+  void ScoringVolumeTrackKiller::UserSteppingAction(const G4Step* aStep)
   {
     G4StepPoint* preStep = aStep->GetPreStepPoint();
     const G4VTouchable* preTouchable = preStep->GetTouchable();
