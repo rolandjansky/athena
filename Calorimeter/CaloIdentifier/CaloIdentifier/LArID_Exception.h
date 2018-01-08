@@ -60,7 +60,7 @@ public:
      */
     virtual int code() const { return m_code;}
 
-    virtual operator std::string();
+    virtual operator std::string() const;
 
     /**
      * destructor 
