@@ -29,7 +29,7 @@ void MuonHoughHitContainer::addHit(MuonHoughHit* hit)
   m_hit.push_back(hit);
 }
 
-void MuonHoughHitContainer::removeHit(int hitno) throw(const char *)
+void MuonHoughHitContainer::removeHit(int hitno)
 {
   if (hitno<0 || hitno>=(int)m_hit.size()) {throw "MuonHoughHitContainer::range error!";}
   if (m_ownhits==true) {
