@@ -56,7 +56,6 @@ public:
   void InitializeHistograms();
 
   void RegisterHisto(MonGroup& mon, TH1* histo);
-  //void RegisterHisto(MonGroup& mon, TH1F_LW* histo);
   void RegisterHisto(MonGroup& mon, TH2* histo);
   void RegisterHisto(MonGroup& mon, TProfile* histo);
   void RegisterHisto(MonGroup& mon, TProfile2D* histo);
@@ -137,11 +136,6 @@ public:
 
 private:
 
-  //const AtlasDetectorID*                m_idHelper;
-  //const PixelID*                        m_pixelID;
-  //const SCT_ID*                         m_sctID; 
-  //const TRT_ID*                         m_trtID; 
-
   int m_checkrate;
   int m_events; 
   int m_histosBooked;
@@ -150,9 +144,6 @@ private:
   std::string m_VxPrimContainerName;
   ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
   const xAOD::VertexContainer* m_vertices;
-  //std::string m_TreeFolder;
-  //TTree* m_Tree;
-  //std::string m_TreeName;
 
   mutable unsigned int            m_runNumber;
   mutable unsigned int            m_evtNumber;

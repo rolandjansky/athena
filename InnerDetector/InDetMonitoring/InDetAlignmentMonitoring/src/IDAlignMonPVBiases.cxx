@@ -28,8 +28,6 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 
-
-//#include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 
@@ -38,9 +36,7 @@
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "xAODEventInfo/EventInfo.h"
-//#include "EventInfo/EventInfo.h"
 
-//#include "AthenaMonitoring/AthenaMonManager.h"
 #include "IDAlignMonPVBiases.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
@@ -61,9 +57,6 @@ IDAlignMonPVBiases::IDAlignMonPVBiases( const std::string & type, const std::str
   m_triggerChainName("NoTriggerSelection"),
   m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
   m_vertices(0)
-  //m_TreeFolder("/PVbiases/PVbiases"),
-  //m_Tree(0),
-  //m_TreeName("PVbiases")
 {
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
 
@@ -172,42 +165,6 @@ StatusCode IDAlignMonPVBiases::initialize()
   } else {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelection << endmsg;
   }
-/*
-  //create tree and branches
-  if(m_Tree == 0) {
-
-    m_Tree = new TTree(m_TreeName.c_str(), "Tree");
-
-    m_Tree->Branch("run_number"      ,  &m_runNumber,  "runNumber/I");
-    m_Tree->Branch("event_number"    ,  &m_evtNumber,  "eventNumber/I");
-    m_Tree->Branch("lumi_block"     ,  &m_lumi_block,  "lumi_block/I");
-
-    m_Tree->Branch("charge",  &m_charge,  "Charge/D");
-    m_Tree->Branch("pt",  &m_pt,  "pt/D");
-    m_Tree->Branch("eta", &m_eta, "eta/D");
-    m_Tree->Branch("phi", &m_phi, "phi/D");
-    m_Tree->Branch("z0",  &m_z0,  "z0/D");
-    m_Tree->Branch("d0",  &m_d0,  "d0/D");
-    m_Tree->Branch("z0_err",  &m_z0_err,  "z0_err/D");
-    m_Tree->Branch("d0_err",  &m_d0_err,  "d0_err/D");
-    m_Tree->Branch("vertex_x",  &m_vertex_x,  "vertex_x/D");
-    m_Tree->Branch("vertex_y",  &m_vertex_y,  "vertex_y/D");
-    m_Tree->Branch("vertex_z",  &m_vertex_z,  "vertex_z/D");
-  }
-
-  //register the tree
-  ITHistSvc* tHistSvc = 0;
-  if (service("THistSvc",tHistSvc).isFailure()){
-    ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !");
-    //m_validationMode = false;
-  }
-
-  if ((tHistSvc->regTree(m_TreeFolder, m_Tree)).isFailure() ) {
-    ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !");
-    delete m_Tree; m_Tree = 0;
-    //m_validationMode = false;
-  }
-*/
 
   return StatusCode::SUCCESS;
 }
@@ -398,60 +355,15 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
 
 	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_10GeV_positive	);
 	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_10GeV_negative	);
-	
-/*
-    /////////////////////////////////////////////////
-    //Histo's from IDAMonGenericTracks.cxx///////////
-    /////////////////////////////////////////////////
-      const float m_Pi = 3.14156;
-  
-      m_d0_pt         = new TH2F("d0_pt"       , "d0 vs pt"           , nD0Bins,d0bin,NpTbins,ptBin);
 
-      m_d0_pt = new TProfile("prof", "d0 vs pT;pT (GeV);d0 (mm)", NpTbins, ptBin);
-      m_trk_d0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
-      m_trk_d0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
-      m_trk_d0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
-      m_trk_d0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -0.5, 0.5 );
-  
-      m_trk_z0_wrtPV_vs_phi_vs_eta         = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta"       , "d0 vs phi vs eta"           , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
-      m_trk_z0_wrtPV_vs_phi_vs_eta_barrel  = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_barrel", "d0 vs phi vs eta (Barrel)"  , 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
-      m_trk_z0_wrtPV_vs_phi_vs_eta_ecc     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_ecc"   , "d0 vs phi vs eta (Endcap C)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
-      m_trk_z0_wrtPV_vs_phi_vs_eta_eca     = new TH3F("trk_z0_wrtPV_vs_phi_vs_eta_eca"   , "d0 vs phi vs eta (Endcap A)", 100, -3., 3.,  40, 0, 2*m_Pi,  100, -1, 1 );
-
-      RegisterHisto(al_mon, m_d0_pt );
-
-      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta        );
-      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta_barrel );
-      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta_ecc    );
-      RegisterHisto(al_mon, m_trk_d0_wrtPV_vs_phi_vs_eta_eca    );
-      
-      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta        );
-      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta_barrel );
-      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta_ecc    );
-      RegisterHisto(al_mon, m_trk_z0_wrtPV_vs_phi_vs_eta_eca    );
-    */
-	
-
-    m_histosBooked++;
+        m_histosBooked++;
 
    } 
     return StatusCode::SUCCESS;
 }
 
-/*void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
-  
-  //histo->Sumw2(); this uses a lot of memory and isn't needed!
-  //histo->SetOption("e");
-  StatusCode sc = mon.regHist(histo);
-  if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1F_LW Histogram:" << endmsg;
-  }
-}*/
-
-
 void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TH1* histo) {
 
-  //histo->Sumw2();
   histo->SetOption("e");
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
@@ -470,7 +382,6 @@ void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TProfile* histo) {
 
 void IDAlignMonPVBiases::RegisterHisto(MonGroup& mon, TH2* histo) {
   
-  //histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endmsg;
@@ -552,8 +463,6 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
         m_vertex_y = (*track_itr)->vertex()->y();
         m_vertex_z = (*track_itr)->vertex()->z();
   
-	//m_Tree->Fill();
-
  	/******************************************************************
   	** Fill Histograms
   	*******************************************************************/
@@ -642,98 +551,6 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 		if(m_charge==1) m_trkd0_wrtPV_vs_eta_10GeV_positive->Fill(m_eta,myIPandSigma->IPd0);
 		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_10GeV_negative->Fill(m_eta,myIPandSigma->IPd0);
 	}
-
-	/******************************************************************
-  	** Divide in barrel, eca, ecc
-  	*******************************************************************/
-    	/*if((*track_itr)->track()) {
-        	
-		int nhpixB=0, nhpixECA=0, nhpixECC=0, nhsctB=0, nhsctECA=0, nhsctECC=0, nhtrtB=0, nhtrtECA=0, nhtrtECC=0;
-    		// loop over all hits on track
-    	
-        	const Trk::Track* track_itr2 = (*track_itr)->track();
-		const DataVector<const Trk::TrackStateOnSurface>* TSOS;
-
-    		TSOS = track_itr2->trackStateOnSurfaces();
-	
-		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = TSOS->begin();
-    		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = TSOS->end();
-
-    		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"starting to loop over TSOS"<<endmsg;
- 	
-    		for (; TSOSItr != TSOSItrE; ++TSOSItr) {
-	
-      			//check that we have track parameters defined for the surface (pointer is not null)
-      			if(!((*TSOSItr)->trackParameters())) {
-        			if (msgLvl(MSG::DEBUG)) msg() << "hit skipped because no associated track parameters" << endmsg;
-        			continue;
-      			}
-      
-      			Identifier surfaceID;
-      			const Trk::MeasurementBase* mesb=(*TSOSItr)->measurementOnTrack();
-      			if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!=NULL) {
-				surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
-			}else{ 
-      				// hits, outliers
-				continue;
-			}
-
-      			if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
-   
-        			// --- pixel
-        			if (m_idHelper->is_pixel(surfaceID)){
-          				if(m_pixelID->barrel_ec(surfaceID)      ==  0){
-            					nhpixB++;
-          				}
-          				else if(m_pixelID->barrel_ec(surfaceID) ==  2)  nhpixECA++;
-          				else if(m_pixelID->barrel_ec(surfaceID) == -2) nhpixECC++;
-        			}
-        			// --- sct
-        			else if (m_idHelper->is_sct(surfaceID)){
-          				if(m_sctID->barrel_ec(surfaceID)      ==  0){
-            					nhsctB++;
-          				}
-          				else if(m_sctID->barrel_ec(surfaceID) ==  2) nhsctECA++;
-          				else if(m_sctID->barrel_ec(surfaceID) == -2) nhsctECC++;
-        			}
-        			// --- trt
-        			if (m_idHelper->is_trt(surfaceID)){
-          				int m_barrel_ec      = m_trtID->barrel_ec(surfaceID);
-          				if(m_barrel_ec == 1 || m_barrel_ec == -1 ) {
-            					nhtrtB++;
-          				}
-          				else if(m_barrel_ec ==  2){
-            					nhtrtECA++;
-          				}else if(m_barrel_ec == -2){
-            					nhtrtECC++;
-          				}
-        			}	
-      			}
-    		}
- 		
-		int nhpix=nhpixB+nhpixECA+nhpixECC;
-    		int nhsct=nhsctB+nhsctECA+nhsctECC;
-    		int nhtrt=nhtrtB+nhtrtECA+nhtrtECC;
-    		int nhits=nhpix+nhsct+nhtrt;
-
-        	// set EC or not
-		bool hasECAhits = false;
-        	if(nhpixECA+nhsctECA+nhtrtECA > 0) hasECAhits = true;
-        	bool hasECChits = false;
-        	if(nhpixECC+nhsctECC+nhtrtECC > 0) hasECChits = true;
-
-        	if (!hasECAhits && !hasECChits) { //filling barrel histograms
-        		m_trk_d0_wrtPV_vs_phi_vs_eta_barrel->Fill(m_eta, m_phi, myIPandSigma->IPd0);
-        		m_trk_z0_wrtPV_vs_phi_vs_eta_barrel->Fill(m_eta, m_phi, myIPandSigma->IPz0);
-		}else if (hasECAhits) {//filling endcap A histograms
-        		m_trk_d0_wrtPV_vs_phi_vs_eta_eca -> Fill(m_eta, m_phi, myIPandSigma->IPd0);
-        		m_trk_z0_wrtPV_vs_phi_vs_eta_eca -> Fill(m_eta, m_phi, myIPandSigma->IPz0);
- 		}else if (hasECChits) {//filling endcap C histograms
-        		m_trk_d0_wrtPV_vs_phi_vs_eta_ecc -> Fill(m_eta, m_phi, myIPandSigma->IPd0);
-        		m_trk_z0_wrtPV_vs_phi_vs_eta_ecc -> Fill(m_eta, m_phi, myIPandSigma->IPz0);
- 		}
-	}*/
-   	
  } // End of track selection loop
 
  return StatusCode::SUCCESS;
