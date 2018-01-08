@@ -102,6 +102,8 @@ public:
   TH1D* h_FTK_pt;
   TH1D* h_FTK_eta;
   TH1D* h_FTK_phi;
+  TH1D* h_offline_n;
+  TH1D* h_offline_nAcc;
   TH1D* h_offline_pt;
   TH1D* h_offline_eta;
   TH1D* h_offline_phi;
@@ -119,6 +121,14 @@ public:
   std::vector<TH1D*> h_sctb_1_dlocX;
   std::vector<TH1D*> h_scte_0_dlocX;
   std::vector<TH1D*> h_scte_1_dlocX;
+
+  std::vector<TH1D*> h_pix_row;
+  std::vector<TH1D*> h_pix_col;
+  std::vector<TH1D*> h_sct_coord;
+
+  std::vector<TH1D*> h_pix_rowW;
+  std::vector<TH1D*> h_pix_colW;
+  std::vector<TH1D*> h_sct_width;
 
   std::vector<TH1D*> h_ftk_sctb_dlocX;
   TH1D* h_ftk_sct_clusWidth;
@@ -144,7 +154,7 @@ public:
   unsigned int m_Nlayers;
   bool m_getHashFromTrack;
   bool m_getHashFromConstants;
-
+  uint32_t m_towerID;
 
 };
 
