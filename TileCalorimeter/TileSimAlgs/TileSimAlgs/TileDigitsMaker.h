@@ -41,6 +41,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+#include "TileEvent/TileHitContainer.h"
+
 
 class IAtRndmGenSvc;
 class PileUpMergeSvc;
@@ -71,6 +73,7 @@ class TileDigitsMaker: public AthAlgorithm {
     // Constructor
     TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator);
 
+
     //Destructor 
     virtual ~TileDigitsMaker();
 
@@ -84,9 +87,16 @@ class TileDigitsMaker: public AthAlgorithm {
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
                                                           "input Tile hit container key"};
 
+    SG::ReadHandleKey<TileHitContainer> m_hitContainer_DigiHSTruthKey{this,"TileHitContainer_DigiHSTruth","TileHitCnt_DigiHSTruth",
+                                                          "input Tile hit container key"};
+
     SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
                                                                  "TileDigitsCnt",
                                                                  "Output Tile digits container key"};
+
+    SG::WriteHandleKey<TileDigitsContainer> m_digitsContainer_DigiHSTruthKey{this,"TileDigitsContainer_DigiHSTruth",
+                                                                 "TileDigitsCnt_DigiHSTruth",
+                                                                 "Output DigiHSTruth Tile digits container key"};
 
     SG::WriteHandleKey<TileDigitsContainer> m_filteredDigitsContainerKey{this,"TileFilteredContainer",
                                                                          "TileDigitsFlt",
@@ -100,6 +110,7 @@ class TileDigitsMaker: public AthAlgorithm {
     bool m_rndmEvtOverlay;       //!< If true -> overlay with random event (zero-luminosity pile-up)
     bool m_useCoolPulseShapes;
     bool m_maskBadChannels;
+    bool m_doDigiTruth;
 
     PileUpMergeSvc* m_mergeSvc; //!< Pointer to PileUpMergeService
 
@@ -113,6 +124,8 @@ class TileDigitsMaker: public AthAlgorithm {
     std::vector<HWIdentifier *> m_all_ids;
     std::vector<double *> m_drawerBufferHi; //!< Vector used to store pointers to digits for a single drawer (high gain)
     std::vector<double *> m_drawerBufferLo; //!< Vector used to store pointers to digits for a single drawer (low gain)
+    std::vector<double *> m_drawerBufferHi_DigiHSTruth; //!< Vector used to store pointers to digits for a single drawer (high gain)
+    std::vector<double *> m_drawerBufferLo_DigiHSTruth; //!< Vector used to store pointers to digits for a single drawer (low gain)
 
     int m_nSamples;           //!< Number of time slices for each channel
     int m_iTrig;           //!< Index of the triggering time slice

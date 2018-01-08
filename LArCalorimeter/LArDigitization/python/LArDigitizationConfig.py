@@ -83,6 +83,7 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     kwargs.setdefault('NoiseOnOff', digitizationFlags.doCaloNoise.get_Value() )
     kwargs.setdefault('RndmSvc', digitizationFlags.rndmSvc.get_Value() )
     digitizationFlags.rndmSeedList.addSeed("LArDigitization", 1234, 5678 )
+    kwargs.setdefault('DoDigiTruthReconstruction',digitizationFlags.doDigiTruth())
 
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault('FirstXing', -751 )

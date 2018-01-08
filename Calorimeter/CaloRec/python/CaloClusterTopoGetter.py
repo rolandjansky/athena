@@ -24,7 +24,7 @@ from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCali
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeightCalib
 #<<
 
-from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
+from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot, CaloClusterMomentsMaker_DigiHSTruth #, CaloClusterLockVars, CaloClusterPrinter
 from CaloRec import CaloRecFlags
 from CaloRec.CaloTopoClusterFlags import jobproperties
 from AthenaCommon.SystemOfUnits import deg, GeV, MeV
@@ -244,6 +244,48 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ]
 
 
+
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.doDigiTruth():
+          TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
+          TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
+          TopoMoments_Truth.MaxAxisAngle = 20*deg
+          TopoMoments_Truth.CaloNoiseTool = theCaloNoiseTool
+          TopoMoments_Truth.UsePileUpNoise = True
+          TopoMoments_Truth.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
+          TopoMoments_Truth.MinBadLArQuality = 4000
+          TopoMoments_Truth.MomentsNames = ["FIRST_PHI_DigiHSTruth"
+                                      ,"FIRST_ETA_DigiHSTruth"
+                                      ,"SECOND_R_DigiHSTruth"
+                                      ,"SECOND_LAMBDA_DigiHSTruth"
+                                      ,"DELTA_PHI_DigiHSTruth"
+                                      ,"DELTA_THETA_DigiHSTruth"
+                                      ,"DELTA_ALPHA_DigiHSTruth"
+                                      ,"CENTER_X_DigiHSTruth"
+                                      ,"CENTER_Y_DigiHSTruth"
+                                      ,"CENTER_Z_DigiHSTruth"
+                                      ,"CENTER_MAG_DigiHSTruth"
+                                      ,"CENTER_LAMBDA_DigiHSTruth"
+                                      ,"LATERAL_DigiHSTruth"
+                                      ,"LONGITUDINAL_DigiHSTruth"
+                                      ,"ENG_FRAC_CORE_DigiHSTruth"
+                                      ,"FIRST_ENG_DENS_DigiHSTruth"
+                                      ,"SECOND_ENG_DENS_DigiHSTruth"
+                                      ,"ISOLATION_DigiHSTruth"
+                                      ,"BAD_CELLS_CORR_E_DigiHSTruth"
+                                      ,"ENG_POS_DigiHSTruth"
+                                      ,"SIGNIFICANCE_DigiHSTruth"
+                                      ,"CELL_SIGNIFICANCE_DigiHSTruth"
+                                      ,"CELL_SIG_SAMPLING_DigiHSTruth"
+                                      ,"AVG_LAR_Q_DigiHSTruth"
+                                      ,"AVG_TILE_Q_DigiHSTruth"
+                                      ,"ENERGY_DigiHSTruth"
+                                      ,"PHI_DigiHSTruth"
+                                      ,"ETA_DigiHSTruth"
+                                      ]
+
+
+
         # only add HV related moments if it is offline.
         from IOVDbSvc.CondDB import conddb
         if not conddb.isOnline:
@@ -295,6 +337,7 @@ class CaloClusterTopoGetter ( Configured )  :
 
 
         theCaloClusterSnapshot=CaloClusterSnapshot(OutputName="CaloTopoCluster",SetCrossLinks=True)
+
             
         # maker tools
         TopoMaker = CaloTopoClusterMaker("TopoMaker")
@@ -392,10 +435,17 @@ class CaloClusterTopoGetter ( Configured )  :
         
         CaloTopoCluster.ClusterCorrectionTools += [TopoMoments]
 
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.doDigiTruth():
+          CaloTopoCluster.ClusterCorrectionTools += [TopoMoments_Truth]
+
         CaloTopoCluster += TopoMaker
         CaloTopoCluster += TopoSplitter
         CaloTopoCluster += BadChannelListCorr
         CaloTopoCluster += TopoMoments
+        from RecExConfig.RecFlags import rec
+        if digitizationFlags.doDigiTruth():
+          CaloTopoCluster += TopoMoments_Truth
         
         if jobproperties.CaloTopoClusterFlags.doClusterVertexFraction():
             from CaloTrackUtils.CaloTrackUtilsConf import CaloClusterVertexFractionMaker
@@ -471,7 +521,6 @@ class CaloClusterTopoGetter ( Configured )  :
 
         CaloTopoCluster.ClusterCorrectionTools += [theCaloClusterSnapshot]
         CaloTopoCluster += theCaloClusterSnapshot
-
 
         if jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
             CaloTopoCluster.ClusterCorrectionTools += [
