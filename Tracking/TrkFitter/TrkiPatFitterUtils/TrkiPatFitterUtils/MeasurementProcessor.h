@@ -33,7 +33,7 @@ class MeasurementProcessor
 public:
     MeasurementProcessor (bool					asymmetricCaloEnergy,
 			  ToolHandle<IIntersector>&		intersector,
-			  std::vector<FitMeasurement*>&		measurements,
+			  std::list<FitMeasurement*>&		measurements,
 			  FitParameters*			parameters,
 			  ToolHandle<IIntersector>&    		rungeKuttaIntersector,
 			  const ToolHandle<IPropagator>&    	stepPropagator,
@@ -70,7 +70,7 @@ private:
     const ToolHandle<IIntersector>&	m_intersector;
     double				m_largeDeltaD0;
     double				m_largeDeltaPhi0;
-    std::vector<FitMeasurement*>&	m_measurements;
+    std::list<FitMeasurement*>&		m_measurements;
     //double				m_minDistanceForAngle;
     bool				m_numericDerivatives;
     FitParameters*			m_parameters;

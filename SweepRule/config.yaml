@@ -1,4 +1,4 @@
 sweep-targets:
-  '21.0-mc16d':
+  '21.0':
     '.*':
       - 'master'
