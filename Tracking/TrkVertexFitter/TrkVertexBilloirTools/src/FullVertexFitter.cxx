@@ -72,8 +72,13 @@ namespace
 
 	struct BilloirVertex
 	{
-		BilloirVertex()  {};
-		virtual ~BilloirVertex() {};
+                BilloirVertex()
+                {
+                  A_mat.setZero();
+                  T_vec.setZero();
+                  BCB_mat.setZero();
+                  BCU_vec.setZero();
+                };
 		double chi2;
 		unsigned int ndf;
 		AmgMatrix(3,3) A_mat;              // T  = sum{Di.T * Wi * Di}
