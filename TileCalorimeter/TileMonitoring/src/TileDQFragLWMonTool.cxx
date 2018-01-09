@@ -46,7 +46,7 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   , m_badChannelNeg2DNotMasked{}
   , m_errors{{}}
   , m_errorsLB{{}}
-  , m_badPulseQuality{nullptr}
+  , m_badPulseQuality{{nullptr}}
   , m_noAllDigitsInDrawer(nullptr)
   , m_isFirstEvent(true)
   , m_nLumiblocks(3000)
