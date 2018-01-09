@@ -40,6 +40,7 @@
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/BoundarySurfaceFace.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "TrkSurfaces/DiamondBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
@@ -218,11 +219,15 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
           Identifier nswId = m_muonStationTypeBuilder->identifyNSW(oName, vols[ish].second[0]);
 
           // get bounds and transform from readout geometry
-	  const Trk::RotatedTrapezoidBounds* rtrd=0;
+	  const Trk::RotatedTrapezoidBounds* rtrd=nullptr;
+	  const Trk::TrapezoidBounds* trd=nullptr;
+	  const Trk::DiamondBounds* dia=nullptr;
 	  Amg::Transform3D layTransf(Trk::s_idTransform);
 	  if (m_muonMgr->stgcIdHelper()->is_stgc(nswId)) {
 	    const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(nswId);
 	    if (stgc) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*> (&stgc->bounds(nswId));
+	    if (stgc) trd = dynamic_cast<const Trk::TrapezoidBounds*> (&stgc->bounds(nswId));
+	    if (stgc) dia = dynamic_cast<const Trk::DiamondBounds*> (&stgc->bounds(nswId));
             if (stgc) layTransf = stgc->transform(nswId);
             if(stgc) ATH_MSG_DEBUG( " STGC readout element " );
             if(!stgc) ATH_MSG_DEBUG( " STGC and NO readout element " );
@@ -242,7 +247,9 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 
 	  const Trk::Layer* layer=0;
 
-          if (!rtrd ) {    // translate from GeoModel ( spacer & non-identified stuff )
+          if (!rtrd && !dia && !trd) {    // translate from GeoModel ( spacer & non-identified stuff )
+            // This used to be a !rtrd check as we either had a rotatedTrap or nothing
+            // Now we included trapezoid and diamond shape for the sTGC
 	    ATH_MSG_DEBUG( " translate from GeoModel " << protoName );
 
 	    Amg::Transform3D ident(Trk::s_idTransform);
@@ -254,6 +261,22 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
               if (layer) layer->moveLayer(vols[ish].second[0]);
               delete trObject;
 	    }
+	  } else if (dia) {
+	    // create active layer for diamond shape of NSW-sTGC QL3
+	    Trk::DiamondBounds* tbounds = new Trk::DiamondBounds(dia->minHalflengthX(),dia->medHalflengthX(),dia->maxHalflengthX(),dia->halflengthY1(),dia->halflengthY2());
+	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+	    Trk::OverlapDescriptor* od=0;
+	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
+	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+				bounds, mat,thickness, od, 1 );
+	  } else if (trd) {
+	    // create active layer for trapezoid shape of rest of NSW-sTGC
+	    Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(trd->minHalflengthX(),trd->maxHalflengthX(),trd->halflengthY());
+	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+	    Trk::OverlapDescriptor* od=0;
+	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
+	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+					bounds, mat,thickness, od, 1 );
 	  } else {
 	    // create active layer
 	    // change of boundary type ( VP1 problems with rotated trapezoid )   
@@ -309,7 +332,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -349,7 +372,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     -m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id),
@@ -388,7 +411,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  //std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		  //  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		  Identifier nid(0);
-		  if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		  if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		    nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							       m_muonMgr->stgcIdHelper()->stationEta(id),
 							       m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -434,7 +457,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -478,7 +501,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     -m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id),
@@ -517,7 +540,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  //std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		  //  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		  Identifier nid(0);
-		  if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		  if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		    nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							       m_muonMgr->stgcIdHelper()->stationEta(id),
 							       m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -547,7 +570,6 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 
 	// clean up prototypes
 	//for (unsigned int it = 0; it < objs.size(); it++)  delete objs[it].first; 
-	
       } // end NSW!
 
       if (vname.size()>7 && vname.substr(vname.size()-7,7) =="Station" && 
@@ -1488,3 +1510,4 @@ void Muon::MuonStationBuilder::getObjsForTranslation(const GeoVPhysVol* pv, std:
   }
 }
 */
+
