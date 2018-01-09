@@ -126,7 +126,7 @@ bool TileRoI_Map::addEntry(const HWIdentifier& adc_hwid)
 
 // Given offline channel ID, find TT ID. 
 TileRoI_Map::TT_ID TileRoI_Map::TrigTowerID(const Identifier& id) 
- const throw(TileID_Exception)
+ const
 {
   OFFMAP::const_iterator it = m_offmap.find(id); 
   if( it==m_offmap.end() ) 
@@ -144,7 +144,7 @@ TileRoI_Map::TT_ID TileRoI_Map::TrigTowerID(const Identifier& id)
 
 // Given online Channel ID, find TT ID. 
 TileRoI_Map::TT_ID TileRoI_Map::TrigTowerID(const HWIdentifier& id) 
-const throw(TileID_Exception)
+const
 {
   ONLMAP::const_iterator it = m_onlmap.find( id ); 
   if(it==m_onlmap.end() ) 
