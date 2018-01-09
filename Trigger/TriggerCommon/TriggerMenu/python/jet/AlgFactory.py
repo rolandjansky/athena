@@ -408,7 +408,7 @@ class AlgFactory(object):
         return [Alg(algType,(), kargs)]
 
 
-    def dimass_deta_kargs(self, algType):
+    def dimass_deta_kargs(self, algType): 
         kargs = self.etaet_kargs(algType)
         
         mass_min = self.hypo_params.mass_min
@@ -429,6 +429,24 @@ class AlgFactory(object):
 
         algType = 'TrigHLTJetHypo_DijetMassDEta'
         kargs = self.dimass_deta_kargs(algType)
+        return [Alg(algType,(), kargs)]
+
+
+    def dimass_deta_dphi_kargs(self, algType):
+        kargs = self.dimass_deta_kargs(algType)
+        
+        dPhi_max = self.hypo_params.dPhi_max
+        if dPhi_max is not None:
+            kargs['dPhi_maxs'] = [dPhi_max]
+        else:
+            kargs['dPhi_maxs'] = []
+
+        return kargs
+        
+    def hlthypo2_dimass_deta_dphi(self):
+
+        algType = 'TrigHLTJetHypo_DijetMassDEtaDPhi'
+        kargs = self.dimass_deta_dphi_kargs(algType)
         return [Alg(algType,(), kargs)]
 
 

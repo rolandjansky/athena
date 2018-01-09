@@ -52,6 +52,24 @@ class TrigHLTJetHypo_DijetMassDEta (
             self.AthenaMonTools = [ time, validation, online, cosmic ]
 
 
+class TrigHLTJetHypo_DijetMassDEtaDPhi (
+        TrigHLTJetHypoConf.TrigHLTJetHypo_DijetMassDEtaDPhi):
+    __slots__ = []
+    def __init__(self, name, **kwargs):
+        super( TrigHLTJetHypo_DijetMassDEtaDPhi, self ).__init__( name, **kwargs )
+
+        if  KeepMonitoring(self.chain_name,
+                           JetChainsToKeepMonitoring,
+                           strictComparison=True):
+            validation = TrigHLTJetHypo2ValidationMonitoring()
+            online = TrigHLTJetHypo2OnlineMonitoring()
+            cosmic = TrigHLTJetHypo2CosmicMonitoring()
+            
+            time = TrigTimeHistToolConfig("HLTJetHypo_DijetDEtaDPhi_Time")
+            
+            self.AthenaMonTools = [ time, validation, online, cosmic ]
+
+
 class TrigHLTJetHypo_EtaEt (TrigHLTJetHypoConf.TrigHLTJetHypo_EtaEt):
     __slots__ = []
     def __init__(self, name, **kwargs):

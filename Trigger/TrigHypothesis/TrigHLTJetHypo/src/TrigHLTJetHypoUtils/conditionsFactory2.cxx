@@ -94,7 +94,8 @@ Conditions conditionsFactoryDijetDPhi(const std::vector<double>& dPhiMins,
   
   Conditions conditions;
 
-  std::shared_ptr<ICondition> pCondition(new DijetDPhiCondition(dPhiMins, dPhiMaxs));
+  std::shared_ptr<ICondition> pCondition(new DijetDPhiCondition(dPhiMins, 
+                                                                dPhiMaxs));
   conditions.push_back(ConditionBridge(pCondition));
 
   return conditions;
