@@ -543,7 +543,7 @@ namespace CP {
         CBqOverPE=pow(sqrt( ID_track->definingParametersCovMatrix()( 4, 4 ) + ME_track->definingParametersCovMatrix()( 4, 4 ))/1e3,2);
 
       double IDqOverPE =  1e10;
-      if(ID_track!=nullptrptr)
+      if(ID_track!=nullptr)
         IDqOverPE=pow( ID_track->definingParametersCovMatrix()( 4, 4 )/1e3,2);
 
       double MEqOverPE = 1e10;
