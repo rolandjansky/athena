@@ -7,7 +7,7 @@
 #include <sstream>
 
 
-LArID_Exception::operator std::string () 
+LArID_Exception::operator std::string () const
 
 {
   std::ostringstream s;
