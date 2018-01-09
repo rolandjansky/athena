@@ -192,6 +192,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 		    trackParameters	= parameters.trackParameters(*m_log,
 								     *fitMeasurement,
 								     withCovariance);
+
 		    if (! trackParameters)
 		    {
 			*m_log << MSG::WARNING

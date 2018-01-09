@@ -546,9 +546,8 @@ MaterialAllocator::addLeadingMaterial (std::vector<FitMeasurement*>&	measurement
 			 ++l)
 		    {
 			leadingOutlier	= leadingOutliers.back();
-			measurements.erase(l);
+			measurements.erase(std::remove(measurements.begin(), measurements.end(), *l), measurements.end());
 		    }
-		    
 		    leadingMeas = new FitMeasurement((**r).materialEffectsOnTrack()->thicknessInX0(),
 						     -eLoss,
 						     ParticleMasses().mass[particleHypothesis],
@@ -979,7 +978,8 @@ MaterialAllocator::orderMeasurements(std::vector<FitMeasurement*>&	measurements,
     std::sort(measurementOrder.begin(), measurementOrder.end(), compareByDistance());
     std::vector< std::pair<double, FitMeasurement*> >::const_iterator orig = originalOrder.begin();
     bool shouldReorder	= false;
-    if (m_allowReordering) measurements.erase(measurements.begin(),measurements.end());
+    if (m_allowReordering)
+      measurements.erase(measurements.begin(),measurements.end());
     
     for (std::vector< std::pair<double, FitMeasurement*> >::const_iterator
 	     order = measurementOrder.begin();
