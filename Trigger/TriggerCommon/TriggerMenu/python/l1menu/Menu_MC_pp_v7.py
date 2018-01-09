@@ -403,6 +403,7 @@ def defineMenu():
 
         # combined EM -jet
         #'L1_JJ15.23ETA49', # 4x4 window
+        'L1_2EM8I_J50', 'L1_2EM8I_J75',
 
         # single MU
         "L1_MU4", "L1_MU6", "L1_MU10", "L1_MU11", "L1_MU20", "L1_MU21",
@@ -415,7 +416,7 @@ def defineMenu():
         
         # multi lepton
         "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM12", "L1_2EM15", "L1_2EM15VH", "L1_2EM15VHI", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7",
-	"L1_2EM20VH", "L1_EM15VH_3EM10VH", "L1_EM20VH_3EM10VH", "L1_EM20VH_2EM10VH_3EM8VH",
+	"L1_2EM20VH", "L1_EM15VH_3EM10VH", "L1_EM20VH_3EM10VH", "L1_EM20VH_2EM10VH_3EM8VH","L1_2EM8I",
         "L1_EM7_MU10",
         "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY", "L1_MU10_2MU6", "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6",  "L1_4MU4", "L1_MU6_3MU4", "L1_2MU6_3MU4",
 
@@ -985,6 +986,9 @@ def defineMenu():
 	#'L1_EM18VH_2EM10VH_3EM7':408,
         'L1_EM20VH_3EM10VH':431, 
         'L1_EM20VH_2EM10VH_3EM8VH':432,
+        'L1_2EM8I':290,
+        'L1_2EM8I_J50':291,
+        'L1_2EM8I_J75':292,
         'L1_2MU4' : 32,
         'L1_2MU6' : 33,
         'L1_2MU10' : 34,
