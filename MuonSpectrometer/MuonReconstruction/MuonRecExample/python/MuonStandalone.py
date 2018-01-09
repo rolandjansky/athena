@@ -181,6 +181,8 @@ class MuonStandalone(ConfiguredMuonRec):
                                                                       RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
                                                                       TrackContainerName = "MuonSpectrometerTracks",
                                                                       xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
+                                                                      AODContainerName = "",
+                                                                      AODTruthContainerName = "",
                                                                       ConvertTrackParticles = False,
                                                                       ConvertTracks = True)
 
