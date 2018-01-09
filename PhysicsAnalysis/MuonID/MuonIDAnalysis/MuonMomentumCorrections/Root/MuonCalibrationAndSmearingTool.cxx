@@ -200,10 +200,22 @@ namespace CP {
     // Greet the user:
     ATH_MSG_INFO( "Initialising..." );
 
-    if( SetData( m_year ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
-    if( SetAlgorithm( m_algo ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
-    if( SetRelease( m_release ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
-    if( SetType( m_type ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
+    if( SetData( m_year ) == StatusCode::FAILURE ) { 
+         ATH_MSG_ERROR( "Error in initialization of year: " << m_year );
+        return StatusCode::FAILURE;
+    }
+    if( SetAlgorithm( m_algo ) == StatusCode::FAILURE ) {
+        ATH_MSG_ERROR( "Error in initialization of algo: " << m_algo );
+        return StatusCode::FAILURE;
+    }
+    if( SetRelease( m_release ) == StatusCode::FAILURE ) {
+        ATH_MSG_ERROR( "Error in initialization of release: " << m_release );
+        return StatusCode::FAILURE;
+    }
+    if( SetType( m_type ) == StatusCode::FAILURE ) {
+        ATH_MSG_ERROR( "Error in initialization of type: " << m_type );
+        return StatusCode::FAILURE;
+    }
 
     ATH_MSG_DEBUG( "Checking Initialization - Year: " << m_year );
     ATH_MSG_DEBUG( "Checking Initialization - Algo: " << m_algo );
@@ -249,16 +261,24 @@ namespace CP {
     }
     ATH_MSG_DEBUG( "Checking Initialization - Regions file: " << regionsPath );
 
-    if( Regions( regionsPath, regionMode ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
+    if( Regions( regionsPath, regionMode ) == StatusCode::FAILURE ) {
+        ATH_MSG_ERROR( "Unkown regions or regionMode");
+        return StatusCode::FAILURE;
+    }
 
-    if( FillValues() == StatusCode::FAILURE ) return StatusCode::FAILURE;
-
+    if( FillValues() == StatusCode::FAILURE ) {
+        ATH_MSG_ERROR( "Unkown region values");
+        return StatusCode::FAILURE;
+    }
     if( !applySystematicVariation( SystematicSet() ) ) {
       ATH_MSG_ERROR( "Unable to run with no systematic" );
       return StatusCode::FAILURE;
     }
     SystematicRegistry& registry = SystematicRegistry::getInstance();
-    if( registry.registerSystematics( *this ) != SystematicCode::Ok ) return StatusCode::FAILURE;
+    if( registry.registerSystematics( *this ) != SystematicCode::Ok ) { 
+        ATH_MSG_ERROR( "Unkown systematic list");
+        return StatusCode::FAILURE;
+    }
 
 
     if(m_Tdata == MCAST::DataType::Data15 ||  m_Tdata == MCAST::DataType::Data16 ){
@@ -1042,7 +1062,7 @@ namespace CP {
     if( evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
       //Now get the specific regions and the MC smearing/scale calib
       if( SetInfoHelperCorConsts(muonInfo) == StatusCode::FAILURE ){
-        ATH_MSG_DEBUG( "Can't configure Correction constants! Set smearing to 0." );
+        ATH_MSG_ERROR( "Can't configure Correction constants! Set smearing to 0." );
         return CorrectionCode::OutOfValidityRange;
       }
 
