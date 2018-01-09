@@ -150,8 +150,8 @@ else:
     # ----------- Configuring the conditions access
     #
     # ------------------------------------------------------------
-    
-    include ("InDetRecExample/InDetRecConditionsAccess.py")
+    if not rec.doAODMerging():
+      include ("InDetRecExample/InDetRecConditionsAccess.py")
 
     # ------------------------------------------------------------
     # 
@@ -159,7 +159,8 @@ else:
     #
     # ------------------------------------------------------------
     
-    include ("InDetRecExample/InDetRecLoadTools.py")
+    if not rec.doAODMerging():  
+      include ("InDetRecExample/InDetRecLoadTools.py")
 
     # ------------------------------------------------------------
     #
@@ -1228,7 +1229,7 @@ else:
     #
     #
     # xAOD creation/conversion
-    if (InDetFlags.doxAOD()):
+    if (InDetFlags.doxAOD() and not rec.doAODMerging()):
       include("InDetRecExample/InDetxAODCreator.py")
 
     # Do post-processing algorithms (may depend on xAOD objects)
