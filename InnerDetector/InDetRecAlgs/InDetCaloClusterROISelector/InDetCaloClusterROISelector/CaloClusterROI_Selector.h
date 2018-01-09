@@ -12,9 +12,13 @@
 
 // INCLUDE HEADER FILES:
 #include <vector>
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 class IEMShowerBuilder;
 class IegammaCheckEnergyDepositTool;
@@ -23,6 +27,7 @@ class IegammaMiddleShape;
 
 
 #include "xAODCaloEvent/CaloClusterFwd.h"
+#include <vector>
 
 class CaloCellContainer;
 
@@ -31,7 +36,7 @@ namespace InDet {
 class ICaloClusterROI_Builder;
 
 
-class CaloClusterROI_Selector : public AthAlgorithm
+class CaloClusterROI_Selector : public AthReentrantAlgorithm
 {
  public:
 
@@ -46,16 +51,16 @@ class CaloClusterROI_Selector : public AthAlgorithm
   /** @brief finalize method*/
   StatusCode finalize();
   /** @brief execute method*/
-  StatusCode execute();
+  StatusCode execute_r(const EventContext& ctx) const;
 
  private:
-  bool PassClusterSelection(const xAOD::CaloCluster* cluster ,  const CaloCellContainer* cellcoll) ;
+  bool PassClusterSelection(const xAOD::CaloCluster* cluster ,  const CaloCellContainer* cellcoll) const;
   /** @brief Name of the cluster intput collection*/
-  std::string  m_inputClusterContainerName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_inputClusterContainerName;
   /** @brief Name of the cluster output collection*/
-  std::string  m_outputClusterContainerName;
+  SG::WriteHandleKey<CaloClusterROI_Collection>  m_outputClusterContainerName;
   /** @brief Name of the cells container*/
-  std::string  m_cellsName;
+  SG::ReadHandleKey<CaloCellContainer>   m_cellsName;
 
   //
   // The tools
@@ -72,18 +77,20 @@ class CaloClusterROI_Selector : public AthAlgorithm
   //
   // All booleans
   //
-  bool                              m_CheckEMsamples;
   bool                              m_CheckHadronicEnergy;
   bool                              m_CheckReta;
   //
   // Other properties.
   //
   /** @brief Cut on hadronic leakage*/
-  double              m_HadRatioCut;
-  double              m_RetaCut;
-  double              m_ClusterEtCut;
-	unsigned int         m_AllClusters;
-  unsigned int         m_SelectedClusters;
+  double               m_HadRatioCut;
+  double               m_RetaCut;
+  double               m_ClusterEtCut;
+
+  // statistics mutex protected
+  mutable std::mutex   m_statMutex;
+  mutable unsigned int m_allClusters;
+  mutable unsigned int m_selectedClusters;
 
   // others:
   IChronoStatSvc* m_timingProfile;
