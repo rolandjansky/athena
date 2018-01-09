@@ -102,6 +102,7 @@ private:
   //bool m_is_do_trigger_effic;
   
   std::string m_lvl1_roi_key;
+  std::string m_hlt_main_met_key; 
   std::string m_hlt_cell_met_key; 
   std::string m_hlt_mht_met_key; 
   std::string m_hlt_mhtem_met_key; 
