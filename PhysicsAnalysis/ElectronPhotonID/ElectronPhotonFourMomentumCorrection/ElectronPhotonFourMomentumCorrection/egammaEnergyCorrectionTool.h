@@ -221,7 +221,7 @@ namespace egEnergyCorr {
 
   };
 
-  // Geometry dostortions
+  // Geometry distortions
 
   enum Geometry {
     ConfigA=0,     // 5% ID material scaling
