@@ -55,16 +55,16 @@ namespace CP {
     declareProperty("useExternalSeed" ,m_useExternalSeed=false);
     declareProperty("externalSeed" ,m_externalSeed=0);
 
-    m_currentParameters = NULL;
+    m_currentParameters = nullptr;
     m_SagittaIterations.push_back(0);
     m_SagittaIterations.push_back(0);
     m_SagittaIterations.push_back(0);
     m_sagittasCB=new std::vector <TProfile2D*>();
     m_sagittasID=new  std::vector <TProfile2D*>();
     m_sagittasME=new std::vector <TProfile2D*>();
-    m_sagittaPhaseSpaceCB=NULL;
-    m_sagittaPhaseSpaceID=NULL;
-    m_sagittaPhaseSpaceME=NULL;
+    m_sagittaPhaseSpaceCB=nullptr;
+    m_sagittaPhaseSpaceID=nullptr;
+    m_sagittaPhaseSpaceME=nullptr;
   }
 
   MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool ) :
@@ -169,28 +169,28 @@ namespace CP {
 
 
   MuonCalibrationAndSmearingTool::~MuonCalibrationAndSmearingTool(){
-    if(m_sagittasCB!=NULL){
+    if(m_sagittasCB!=nullptr){
       for( auto t : *m_sagittasCB) delete t;
       delete m_sagittasCB;
     }
 
-    if(m_sagittasID!=NULL){
+    if(m_sagittasID!=nullptr){
       for( auto t : *m_sagittasID) delete t;
       delete m_sagittasID;
     }
 
-    if(m_sagittasME!=NULL){
+    if(m_sagittasME!=nullptr){
       for( auto t : *m_sagittasME) delete t;
       delete m_sagittasME;
     }
 
-    if(m_sagittaPhaseSpaceCB!=NULL)
+    if(m_sagittaPhaseSpaceCB!=nullptr)
       delete m_sagittaPhaseSpaceCB;
 
-    if(m_sagittaPhaseSpaceID!=NULL)
+    if(m_sagittaPhaseSpaceID!=nullptr)
       delete m_sagittaPhaseSpaceID;
 
-    if(m_sagittaPhaseSpaceME!=NULL)
+    if(m_sagittaPhaseSpaceME!=nullptr)
       delete m_sagittaPhaseSpaceME;
   }
 
@@ -350,7 +350,7 @@ namespace CP {
 
 
   void MuonCalibrationAndSmearingTool::ConvertToSagittaBias(TH2F *h,float mean){
-    if(h==NULL)return ;
+    if(h==nullptr)return ;
     ATH_MSG_VERBOSE("Will normalise w.r.t the scale of "<<mean);
     h->Scale(4/mean*1e3);
     h->GetZaxis()->SetTitle("#delta#it{s} [TeV^{-1}]");
@@ -363,15 +363,15 @@ namespace CP {
     ATH_MSG_INFO("Opening correction file : " <<fname);
     TFile *fmc=TFile::Open(fname.c_str());
 
-    if(fmc==NULL) {
+    if(fmc==nullptr) {
       ATH_MSG_ERROR("File not found");
       return NULL;
     }
 
-    TH3F *h3=NULL;
+    TH3F *h3=nullptr;
     h3=(TH3F*)fmc->Get(hname.c_str());
 
-    if( h3==NULL ){
+    if( h3==nullptr ){
       ATH_MSG_ERROR("NULL sagitta map");
       return NULL;
     }
@@ -543,11 +543,11 @@ namespace CP {
         CBqOverPE=pow(sqrt( ID_track->definingParametersCovMatrix()( 4, 4 ) + ME_track->definingParametersCovMatrix()( 4, 4 ))/1e3,2);
 
       double IDqOverPE =  1e10;
-      if(ID_track!=NULL)
+      if(ID_track!=nullptr)
         IDqOverPE=pow( ID_track->definingParametersCovMatrix()( 4, 4 )/1e3,2);
 
       double MEqOverPE = 1e10;
-      if(ME_track!=NULL)
+      if(ME_track!=nullptr)
         MEqOverPE = pow( ME_track->definingParametersCovMatrix()( 4, 4 )/1e3,2);
 
 
@@ -771,8 +771,7 @@ namespace CP {
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
     if( ( mu.inDetTrackParticleLink() ).isValid() ) {
-      //if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer> > ("inDetTrackParticleLink")){
-      const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
+            const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
       muonInfo.ptid = ( !id_track ) ? 0. : ( *id_track )->pt() / 1000.;
     } else {
       ATH_MSG_VERBOSE("The ID track link is not valid - setting pT(ID)=0");
@@ -788,8 +787,7 @@ namespace CP {
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
     if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
-      // if( mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) ) {
-      const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.extrapolatedMuonSpectrometerTrackParticleLink();
+          const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.extrapolatedMuonSpectrometerTrackParticleLink();
       muonInfo.ptms = ( !ms_track ) ? 0. : ( *ms_track )->pt() / 1000.;
     }
     else{
@@ -807,7 +805,6 @@ namespace CP {
     ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() ).isValid() = " << ( mu.primaryTrackParticleLink() ).isValid() );
 
     if( ( mu.primaryTrackParticleLink() ).isValid() ) {
-      //if( mu.isAvailable< ElementLink < xAOD::TrackParticleContainer > > ( "primaryTrackParticleLink" ) ) {
       const ElementLink< xAOD::TrackParticleContainer >& cb_track = mu.primaryTrackParticleLink();
       muonInfo.ptcb = ( !cb_track ) ? 0. : ( *cb_track )->pt() / 1000.;
     }
@@ -830,18 +827,7 @@ namespace CP {
       muonInfo.charge = mu.charge();
     }
 
-    // Set remaining muon information:
-    // Check if muon has been already corrected! If so, take original pt...
-    //ATH_MSG_VERBOSE( "Setting Pt  [CB]..." );
-    //if( mu.isAvailable< float >( "OriginalMuonPt" ) && mu.auxdata< float >( "OriginalMuonPt" ) > 0 ) {
-    //  muonInfo.ptcb = mu.auxdata< float >( "OriginalMuonPt" ) / 1000.;
-    //  ATH_MSG_DEBUG( "Found \"OriginalMuonPt\" decoration, with value: " << muonInfo.ptcb * 1000. );
-    //}
-    //else {
-    //  muonInfo.ptcb = mu.pt() / 1000.;
-    //  mu.auxdata< float >( "OriginalMuonPt" ) = mu.pt();
-    //  ATH_MSG_DEBUG( "Setting \"OriginalMuonPt\" decoration to value: " << mu.auxdata< float >( "OriginalMuonPt" ) );
-    //}
+   
     ATH_MSG_VERBOSE( "Setting Eta [CB]..." );
     muonInfo.eta = mu.eta();
     ATH_MSG_VERBOSE( "Setting Phi [CB]..." );
@@ -922,10 +908,6 @@ namespace CP {
       if( mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon ) {
         ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
         ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
-        //ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"combinedTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "combinedTrackParticleLink" ) );
-        //ATH_MSG_VERBOSE( "( mu.combinedTrackParticleLink() == NULL ) = " << ( mu.combinedTrackParticleLink() == NULL ) );
-        //ATH_MSG_VERBOSE( "mu.combinedTrackParticleLink() = " << mu.combinedTrackParticleLink() );
-        //ATH_MSG_VERBOSE( "( mu.combinedTrackParticleLink() ).isValid() = " << ( mu.combinedTrackParticleLink() ).isValid() );
         float temp_cb_pt = 0.;
         //if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer> > ("inDetTrackParticleLink")){
         if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer > > ("combinedTrackParticleLink")){
@@ -2022,9 +2004,8 @@ namespace CP {
     ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
 
     if( ( mu.inDetTrackParticleLink() ).isValid() ) {
-      //if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer> > ("inDetTrackParticleLink")){
-      const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
-      loc_ptid = ( !id_track ) ? 0. : ( *id_track )->pt() / 1000.;
+        const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
+        loc_ptid = ( !id_track ) ? 0. : ( *id_track )->pt() / 1000.;
     }
     else{
       ATH_MSG_VERBOSE("The ID track link is not valid - setting pT(ID)=0");
@@ -2040,9 +2021,8 @@ namespace CP {
     ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
     ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
     if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
-      // if( mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) ) {
-      const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.extrapolatedMuonSpectrometerTrackParticleLink();
-      loc_ptms = ( !ms_track ) ? 0. : ( *ms_track )->pt() / 1000.;
+        const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.extrapolatedMuonSpectrometerTrackParticleLink();
+        loc_ptms = ( !ms_track ) ? 0. : ( *ms_track )->pt() / 1000.;
     }
     else{
       ATH_MSG_VERBOSE("No link to extrapolatedMuonSpectrometerTrackParticleLink setting pT(MS)=0");
@@ -2059,9 +2039,8 @@ namespace CP {
     ATH_MSG_VERBOSE( "( mu.primaryTrackParticleLink() ).isValid() = " << ( mu.primaryTrackParticleLink() ).isValid() );
 
     if( ( mu.primaryTrackParticleLink() ).isValid() ) {
-      //if( mu.isAvailable< ElementLink < xAOD::TrackParticleContainer > > ( "primaryTrackParticleLink" ) ) {
-      const ElementLink< xAOD::TrackParticleContainer >& cb_track = mu.primaryTrackParticleLink();
-      loc_ptcb = ( !cb_track ) ? 0. : ( *cb_track )->pt() / 1000.;
+        const ElementLink< xAOD::TrackParticleContainer >& cb_track = mu.primaryTrackParticleLink();
+        loc_ptcb = ( !cb_track ) ? 0. : ( *cb_track )->pt() / 1000.;
     }
     else{
       ATH_MSG_VERBOSE("The ID+MS combined track link is not valid - setting pT(ID)=0");
