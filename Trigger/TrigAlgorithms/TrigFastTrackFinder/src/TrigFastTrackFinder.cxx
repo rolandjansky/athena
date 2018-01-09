@@ -426,6 +426,12 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
 }
 
 StatusCode TrigFastTrackFinder::execute() {
+  if (m_tcs.m_layerGeometry.empty()) {
+    HLT::ErrorCode ec = hltBeginRun();
+    if(ec != HLT::OK) {
+      return StatusCode::FAILURE;
+    }
+  }
   //RoI preparation/update 
   SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
   ATH_CHECK(roiCollection.isValid());
@@ -451,6 +457,13 @@ StatusCode TrigFastTrackFinder::execute() {
 //-------------------------------------------------------------------------
 HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inputTE*/,
     HLT::TriggerElement* outputTE) {
+
+  if (m_tcs.m_layerGeometry.empty()) {
+    HLT::ErrorCode ec = hltBeginRun();
+    if(ec != HLT::OK) {
+      return ec;
+    }
+  }
   const IRoiDescriptor* internalRoI;
   HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
   if(ec != HLT::OK) {

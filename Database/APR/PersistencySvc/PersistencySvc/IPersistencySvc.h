@@ -8,7 +8,7 @@
 #define PERSISTENCYSVC_IPERSISTENCYSVC
 
 #include <string>
-#include <utility>
+#include <memory>
 
 class Placement;
 class Token;
@@ -32,8 +32,8 @@ namespace pool {
   class IPersistencySvc { 
   public:
 
-    /// Constructor
-    explicit IPersistencySvc( IFileCatalog& ) {}
+    /// Factory for PersistencySvc
+    static std::unique_ptr<IPersistencySvc> create( IFileCatalog& catalog );
 
     /// Empty destructor
     virtual ~IPersistencySvc() {}

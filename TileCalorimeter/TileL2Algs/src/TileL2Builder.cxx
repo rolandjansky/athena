@@ -17,20 +17,12 @@
 //
 //*****************************************************************************
 
-// Gaudi incldes
-#include "GaudiKernel/ServiceHandle.h"
-
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
+#include "TileL2Algs/TileL2Builder.h"
 #include "TileEvent/TileL2.h"
 #include "TileEvent/TileRawChannel.h"
-#include "TileEvent/TileRawChannelContainer.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileIdentifier/TileHWID.h"
-#include "CaloIdentifier/TileTBID.h"
-#include "CaloIdentifier/TileID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseRawChn.h"
@@ -38,8 +30,19 @@
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileDetDescr/TileDetDescrManager.h"
+
+// Calo includes
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "TileL2Algs/TileL2Builder.h"
+#include "CaloIdentifier/TileTBID.h"
+#include "CaloIdentifier/TileID.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadHandle.h"
+
+// Gaudi incldes
+#include "GaudiKernel/ServiceHandle.h"
+
 
 static const InterfaceID IID_ITileL2Builder("TileL2Builder", 1, 0);
 
@@ -50,7 +53,6 @@ const InterfaceID& TileL2Builder::interfaceID() {
 TileL2Builder::TileL2Builder(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-  , m_rawChannelContainer("TileRawChannelCnt")
   , m_noiseThreshold(100.0) // 100 MeV universal cut for now
   , m_noiseType(9999)       // this huge value means that noise cut is taken from JO
   , m_tileHWID(0)
@@ -61,7 +63,6 @@ TileL2Builder::TileL2Builder(const std::string& type, const std::string& name,
 
   declareInterface<TileL2Builder>(this);
 
-  declareProperty("TileRawChannelContainer", m_rawChannelContainer);  // Raw channels to convert.
   declareProperty("NoiseThreshold", m_noiseThreshold);       // use channels only above noise cut
   declareProperty("Noise", m_noiseType);            // choose between electronic or total noise
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);      // Name of calibration tool
@@ -165,16 +166,18 @@ StatusCode TileL2Builder::initialize() {
     }
   }
 
+  ATH_CHECK( m_rawChannelContainerKey.initialize() );
+
   ATH_MSG_INFO( "TileL2Builder initialization completed" );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *cont) {
+StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *l2Container) {
 
   // Get TileRawChannels
-  const TileRawChannelContainer* rawChannels;
-  CHECK( evtStore()->retrieve(rawChannels, m_rawChannelContainer) );
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+  ATH_CHECK( rawChannelContainer.isValid() );
 
   std::vector<unsigned int> extraWord;
   std::vector<float> EtaMuons;
@@ -188,18 +191,15 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *con
   bool bad[48];
   int gain[48];
 
-  TileRawChannelUnit::UNIT rChUnit = rawChannels->get_unit();
+  TileRawChannelUnit::UNIT rChUnit = rawChannelContainer->get_unit();
   bool dspCont = (rChUnit >= TileRawChannelUnit::OnlineOffset);
   bool recalibrate = (rChUnit != TileRawChannelUnit::MegaElectronVolts
                       && rChUnit != TileRawChannelUnit::OnlineMegaElectronVolts);
 
   // iterate over all collections in a container
-  TileRawChannelContainer::const_iterator collItr = rawChannels->begin();
-  TileRawChannelContainer::const_iterator lastColl = rawChannels->end();
+  for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-  for (; collItr != lastColl; ++collItr) {
-
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(rawChannelCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int fragId = m_tileHWID->frag(ros, drawer);
@@ -214,15 +214,11 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *con
       memset(gain, -1, sizeof(gain));
 
       // iterate over all raw channels in a collection
-      TileRawChannelCollection::const_iterator rawItr = (*collItr)->begin();
-      TileRawChannelCollection::const_iterator lastRaw = (*collItr)->end();
-
-      for (; rawItr != lastRaw; ++rawItr) {
-        const TileRawChannel * pChannel = (*rawItr);
-        HWIdentifier adc_id = (*rawItr)->adc_HWID();
+      for (const TileRawChannel* rawChannel : *rawChannelCollection) {
+        HWIdentifier adc_id = rawChannel->adc_HWID();
         int channel = m_tileHWID->channel(adc_id);
         int adc = m_tileHWID->adc(adc_id);
-        float ampl = pChannel->amplitude();
+        float ampl = rawChannel->amplitude();
         if (recalibrate) {
           E_MeV[channel] = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, ampl, rChUnit
                                                           , TileRawChannelUnit::MegaElectronVolts);
@@ -230,7 +226,7 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *con
           E_MeV[channel] = ampl; // no conversion since energy is in MeV already
         }
         if (dspCont) {
-          bad[channel] = pChannel->quality() > 15.99;
+          bad[channel] = rawChannel->quality() > 15.99;
         } else {
           bad[channel] = m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad();
         }
@@ -242,7 +238,7 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *con
 
       // MET
       SumE(ros, drawer, TileRawChannelUnit::MegaElectronVolts, E_MeV, gain, sumE);
-      (*cont)[m_hashFunc(fragId)]->setEt(sumE);
+      (*l2Container)[m_hashFunc(fragId)]->setEt(sumE);
 
       // MTag
 
@@ -272,7 +268,7 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *con
       }
 
       if (EtaMuons.size())
-        (*cont)[m_hashFunc(fragId)]->setMu(EtaMuons, EMuons0, EMuons1, EMuons2, qf, extraWord);
+        (*l2Container)[m_hashFunc(fragId)]->setMu(EtaMuons, EMuons0, EMuons1, EMuons2, qf, extraWord);
 
     } // end loop over collections
 

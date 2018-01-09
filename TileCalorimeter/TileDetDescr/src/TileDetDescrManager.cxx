@@ -354,7 +354,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 	modDescr->set_depth_in(delr);
         add_module(idhash,modDescr);
         ++n_modules;
-      } catch ( TileID_Exception ) {
+      } catch ( const TileID_Exception& ) {
         (*log) << MSG::ERROR  << "can't build module ID from ("
                << section << ","
                << side << ","
@@ -839,7 +839,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
               
               add_cell(elt);
               ++n_cells;
-            } catch ( TileID_Exception ) {
+            } catch ( const TileID_Exception& ) {
               (*log) << MSG::ERROR << "can't build cell ID from ("
                      << section << "," << side << "," << module << ","
                      << tower << "," << sample << ")" << endmsg;

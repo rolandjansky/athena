@@ -54,14 +54,9 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
     m_sumSvc(sumSvc)
 {
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endmsg; }
-
   m_noise_randengine = atRndmGenSvc->GetEngine("TRT_Noise");
-
   InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool();
-
-  if ( m_settings->noiseInSimhits() )
-    m_pElectronicsNoise->reinitElectronicsNoise( 1000 );
-
+  if ( m_settings->noiseInSimhits() ) m_pElectronicsNoise->reinitElectronicsNoise( 1000 );
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "Constructor done" << endmsg; }
 }
 
@@ -93,6 +88,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   // So now we first figure out the value of k, and afterwards we go //
   // through the straws and set LT_i and NA_i.                       //
   /////////////////////////////////////////////////////////////////////
+
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE)
     << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Begin" << endmsg;
   }
@@ -101,7 +97,6 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   // Step 1 - create lookup table for mapping: noiselevel -> LT/NA //
   ///////////////////////////////////////////////////////////////////
   // According to Anatoli, the noise shaping function is not very different for Argon and Xenon(and Krypton).
-
   std::vector<float> maxLTOverNoiseAmp;
   m_pElectronicsNoise->getSamplesOfMaxLTOverNoiseAmp(maxLTOverNoiseAmp,10000);
 
@@ -192,9 +187,11 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   float actualLT, actualNA;
 
   m_pDigConditions->resetGetNextStraw();
+
   double sumLT_Ar(0.), sumLTsq_Ar(0.), sumNA_Ar(0.), sumNAsq_Ar(0.);
   double sumLT_Xe(0.), sumLTsq_Xe(0.), sumNA_Xe(0.), sumNAsq_Xe(0.);
   double sumLT_Kr(0.), sumLTsq_Kr(0.), sumNA_Kr(0.), sumNAsq_Kr(0.);
+
   while ( m_pDigConditions->getNextStraw( hitid, noiselevel, noiseamp) ) {
 
     int strawGasType = StrawGasType(getStrawIdentifier(hitid));
@@ -221,6 +218,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
     }
 
     m_pDigConditions->setRefinedStrawParameters( hitid, actualLT, actualNA );
+
     if ( m_settings->noiseInUnhitStraws() ) {
       actual_LTs.push_back(actualLT);
       actual_noiseamps.push_back(actualNA);
@@ -260,7 +258,6 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   ///////////////////////////////////////////////////////////////////
   // Step 4 - Produce pool of pure noise digits                    //
   ///////////////////////////////////////////////////////////////////
-
   if ( m_settings->noiseInUnhitStraws() ) {
     ProduceNoiseDigitPool( actual_LTs, actual_noiseamps, strawTypes );
   }
@@ -287,6 +284,7 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
   TRTDigit digit;
   unsigned int nokdigits(0);
   unsigned int ntries(0);
+
   while ( nokdigits < m_digitPoolLength ) {
 
     // Once and a while, create new vectors of shaped electronics noise.
@@ -350,7 +348,9 @@ void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, 
       digitVect.push_back(TRTDigit(hitid,ndigit));
     }
   };
+
   digitVect.pop_back(); //Required since last hitID is occasionally corrupted.
+
   return;
 }
 
@@ -452,7 +452,6 @@ void TRTNoise::sortDigits(std::vector<TRTDigit>& digitVect)
   return;
 }
 
-
 //_____________________________________________________________________________
 float TRTNoise::useLookupTable(const float& x, // noise_level
 			       const std::vector<float>& y_given_x,
@@ -492,6 +491,7 @@ void TRTNoise::makeInvertedLookupTable( const std::vector<float>& y_given_x,
 					std::vector<float>& x_given_y,
 					float & min_y,
 					float & max_y ) {
+
   //Only works well when y_given_x.size() is large.
   //
   //Also assumes that y_given_x is homogeneous.
@@ -514,6 +514,7 @@ void TRTNoise::makeInvertedLookupTable( const std::vector<float>& y_given_x,
   if ( x_given_y.size() != n ) {
     x_given_y.resize(n);
   }
+
   //Fill new array:
   const float step_y((max_y-min_y)/(n-1));
   const float step_x((max_x-min_x)/(n-1));
@@ -552,13 +553,10 @@ void TRTNoise::evolve_LT2AmpVsNL_to_include_LTfluct( std::vector<float>& nl_give
   std::vector<float> new_nl_given_lt2na(number_new_bins);
 
   new_min_lt2na = min_lt2na;
-  new_max_lt2na =
-    relativeLTFluct < 0.4 ? max_lt2na/(1.0-2.0*relativeLTFluct) : 5*max_lt2na;
-
+  new_max_lt2na = relativeLTFluct < 0.4 ? max_lt2na/(1.0-2.0*relativeLTFluct) : 5*max_lt2na;
 
   for (unsigned int i = 0; i<number_new_bins;++i) {
-    const float new_lt2naval(new_min_lt2na +
-			     (new_max_lt2na-new_min_lt2na)*static_cast<float>(i)/(number_new_bins-1));
+    const float new_lt2naval(new_min_lt2na + (new_max_lt2na-new_min_lt2na)*static_cast<float>(i)/(number_new_bins-1));
     float sigma = new_lt2naval*relativeLTFluct;
     if ( sigma <= 0 ) {
       if (sigma<0) { sigma *= -1.0; }

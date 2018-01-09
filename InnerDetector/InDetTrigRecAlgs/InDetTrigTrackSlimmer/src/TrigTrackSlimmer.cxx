@@ -108,7 +108,8 @@ namespace InDet
 	   it != m_allTracksFromStoreGate->end()   ; ++it) {
 
 	if (!m_sumTool.empty()) {
-	  m_sumTool->updateTrack(**it);
+          // FIXME: const_cast
+	  m_sumTool->updateTrack(*const_cast<Trk::Track*>(*it));
 	}
 	Trk::Track* slimmed = m_trackSlimmingTool->slim(**it);
 	slimmedTracks->push_back(slimmed);

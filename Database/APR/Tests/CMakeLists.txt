@@ -59,6 +59,7 @@ function( _add_test name )
 endfunction( _add_test )
 
 # Declare the test(s) of the package:
+_add_test( FileCatalog_Functionality )
 _add_test( StorageSvc_BasicFunctionality )
 _add_test( StorageSvc_AuxStore
   DICTHEADER StorageSvc_AuxStore/AuxStoreTest.h

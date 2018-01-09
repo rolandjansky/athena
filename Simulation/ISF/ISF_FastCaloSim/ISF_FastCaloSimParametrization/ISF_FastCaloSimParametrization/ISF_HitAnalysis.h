@@ -81,7 +81,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode execute();
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
-   IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
+   const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
    const static int MAX_LAYER = 25;
 
@@ -173,14 +173,20 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<std::vector<float> >* m_newTTC_entrance_phi;
    std::vector<std::vector<float> >* m_newTTC_entrance_r;
    std::vector<std::vector<float> >* m_newTTC_entrance_z;
+   std::vector<std::vector<float> >* m_newTTC_entrance_detaBorder;
+   std::vector<std::vector<bool> >* m_newTTC_entrance_OK;
    std::vector<std::vector<float> >* m_newTTC_back_eta;
    std::vector<std::vector<float> >* m_newTTC_back_phi;
    std::vector<std::vector<float> >* m_newTTC_back_r;
    std::vector<std::vector<float> >* m_newTTC_back_z;
+   std::vector<std::vector<float> >* m_newTTC_back_detaBorder;
+   std::vector<std::vector<bool> >* m_newTTC_back_OK;
    std::vector<std::vector<float> >* m_newTTC_mid_eta;
    std::vector<std::vector<float> >* m_newTTC_mid_phi;
    std::vector<std::vector<float> >* m_newTTC_mid_r;
    std::vector<std::vector<float> >* m_newTTC_mid_z;
+   std::vector<std::vector<float> >* m_newTTC_mid_detaBorder;
+   std::vector<std::vector<bool> >* m_newTTC_mid_OK;
    std::vector<float>* m_newTTC_IDCaloBoundary_eta;
    std::vector<float>* m_newTTC_IDCaloBoundary_phi;
    std::vector<float>* m_newTTC_IDCaloBoundary_r;

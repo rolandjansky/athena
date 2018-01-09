@@ -368,7 +368,7 @@ namespace JiveXML {
       //Now add the new event
       m_eventStreamMap.insert(EventStreamPair(evtStreamID,event));
     
-    } catch ( std::exception e ) {
+    } catch ( const std::exception& e ) {
       ATH_MSG_ERROR( "Exception caught while updating event for stream " << evtStreamID.StreamName()
                      << ": " << e.what()  );
       //Also release the lock in this case

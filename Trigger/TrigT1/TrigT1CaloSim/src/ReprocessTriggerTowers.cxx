@@ -90,12 +90,6 @@ ReprocessTriggerTowers::ReprocessTriggerTowers
 
 }
 
-// Destructor
-ReprocessTriggerTowers::~ReprocessTriggerTowers() {
-  
-  ATH_MSG_INFO( "Destructor called" );
-}
-
 
 //---------------------------------
 // initialise()

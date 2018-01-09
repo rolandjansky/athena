@@ -19,6 +19,7 @@
 using namespace ftk;
 using namespace std;
 using namespace boost;
+using __gnu_cxx::hash_map;
 
 #define PRINT_ROADS_SECTOR -1
 #define PRINT_ROADS_NUM 100

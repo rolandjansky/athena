@@ -67,13 +67,13 @@ namespace JiveXML {
    * Get a long strong with all the item lists and prescales that are passed by
    * the given chain group
    **/
-  StatusCode LVL1ResultRetriever::getItemLists(const Trig::ChainGroup* m_chains, 
-      std::string& m_itemList, std::string& m_prescaleList) {
+  StatusCode LVL1ResultRetriever::getItemLists(const Trig::ChainGroup* chains, 
+      std::string& itemList, std::string& prescaleList) {
 
     std::string sig_name;
 
     //Get a list of L1 items
-    std::vector<std::string> chainList = m_chains->getListOfTriggers();
+    std::vector<std::string> chainList = chains->getListOfTriggers();
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of items in chain is " << chainList.size() << endmsg;
 
     for (std::vector<std::string>::iterator itemItr = chainList.begin();
@@ -104,20 +104,20 @@ namespace JiveXML {
       if ( m_trigDec->isPassed((*itemItr)) ) { 
 
         //Add item to list
-        m_itemList += "-" + myItem; 
+        itemList += "-" + myItem; 
 
         // prescale factor
-        m_prescaleList += "-" + DataType(  m_trigDec->getPrescale(*itemItr) ).toString(); 
+        prescaleList += "-" + DataType(  m_trigDec->getPrescale(*itemItr) ).toString(); 
       }
     }
 
     //Mark empty item lists
-    if ( m_itemList.empty() ){ m_itemList = "empty"; }
-    if ( m_prescaleList.empty() ){ m_prescaleList = "empty"; }
+    if ( itemList.empty() ){ itemList = "empty"; }
+    if ( prescaleList.empty() ){ prescaleList = "empty"; }
 
     //print debug information
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " itemList: " << m_itemList << endmsg;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " prescaleList: " << m_prescaleList << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " itemList: " << itemList << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " prescaleList: " << prescaleList << endmsg;
 
     return StatusCode::SUCCESS;
   }

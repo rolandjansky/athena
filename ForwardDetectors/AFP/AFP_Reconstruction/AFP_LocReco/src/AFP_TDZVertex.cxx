@@ -26,7 +26,7 @@ StatusCode AFP_TDZVertex::Initialize(float fAmpThresh, int iDataType)
 	return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_TDZVertex::Execute(const list<TDHIT> &ListTDHits)
+StatusCode AFP_TDZVertex::Execute(const std::list<TDHIT> &ListTDHits)
 {
 
 	
@@ -35,7 +35,7 @@ StatusCode AFP_TDZVertex::Execute(const list<TDHIT> &ListTDHits)
 	const int NTRAINS = 4;
 	//const int NBARS = 32;
 	
-	vector<float> vecTDHit[NST][NDET][NTRAINS];
+        std::vector<float> vecTDHit[NST][NDET][NTRAINS];
 	
 	for (int i=0; i<NST; i++)
 	{
@@ -49,7 +49,7 @@ StatusCode AFP_TDZVertex::Execute(const list<TDHIT> &ListTDHits)
 	}
 
 	
-	list<TDHIT>::const_iterator iter;
+        std::list<TDHIT>::const_iterator iter;
 	for (iter=ListTDHits.begin(); iter!=ListTDHits.end(); iter++)
 	{
 		if ((*iter).fADC > m_AmpThresh)
@@ -107,7 +107,7 @@ StatusCode AFP_TDZVertex::Execute(const list<TDHIT> &ListTDHits)
 	return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_TDZVertex::Finalize(list<TDRESULT>* pListResults)
+StatusCode AFP_TDZVertex::Finalize(std::list<TDRESULT>* pListResults)
 {
 	*pListResults = m_listResults;
 

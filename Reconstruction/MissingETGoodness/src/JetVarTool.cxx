@@ -188,7 +188,7 @@ float JetVarTool::EventEMFraction()
    const CaloClusterContainer* clusters;   
    if ( evtStore()->retrieve(clusters,"CaloCalTopoCluster").isFailure() ) {
      ATH_MSG_WARNING ( " Could not get pointer to CaloClusterContainer " ) ;
-      return StatusCode::SUCCESS;
+      return 0.;
    }
    
    float EM = 0.;

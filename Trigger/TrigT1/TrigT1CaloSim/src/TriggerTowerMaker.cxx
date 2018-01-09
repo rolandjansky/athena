@@ -607,7 +607,6 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
 }
   
 TriggerTowerMaker::~TriggerTowerMaker() {
-  ATH_MSG_INFO( "Destructor called" );
   
   delete [] m_sinThetaHash;
   m_sinThetaHash = 0;

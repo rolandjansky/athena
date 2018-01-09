@@ -1201,6 +1201,12 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerNam
   return retrievedRobIds.size();
 } // end int collectCompleteEventData(...)
 
+int TrigROBDataProviderSvc::collectCompleteEventData(const EventContext&, 
+                                                     const std::string callerName)
+{
+  return collectCompleteEventData (callerName);
+}
+
 /// set the name of the program which uses the ROBDataProviderSvc
 void TrigROBDataProviderSvc::setCallerName(std::string callerName)
 {

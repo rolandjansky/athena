@@ -91,7 +91,7 @@ protected:
 	double m_ylFrame;
 
 	static sTGCDetectorDescription* s_current;
-	void SetDetectorAddress(AGDDDetectorPositioner*);
+	virtual void SetDetectorAddress(AGDDDetectorPositioner*) override;
 };
 
 #endif

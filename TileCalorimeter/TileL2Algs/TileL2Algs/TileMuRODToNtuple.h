@@ -17,14 +17,19 @@
 //    
 //*****************************************************************************
 
-#ifndef TILEMUID_TILEMURODTONTUPLE_H
-#define TILEMUID_TILEMURODTONTUPLE_H
+#ifndef TILEL2ALGS_TILEMURODTONTUPLE_H
+#define TILEL2ALGS_TILEMURODTONTUPLE_H
+
+// Tile includes
+#include "TileEvent/TileContainer.h"
+
+// Athena includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/NTuple.h"
 
-// Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
 
 /**
  * @class TileMuRODToNtuple
@@ -66,6 +71,10 @@ class TileMuRODToNtuple: public AthAlgorithm {
     /** Name of TileL2Container in detector store */
     std::string m_tileL2Container;
 
+        /** TileL2Container in detector store */
+    SG::ReadHandleKey<TileL2Container> m_l2ContainerKey{this,"TileL2Container","TileL2Cnt",
+                                                        "Input Tile L2 container key"};
+
 };
 
-#endif  //TILEMUID_TILEMURODTONTUPLE_H
+#endif  //TILEL2ALGS_TILEMURODTONTUPLE_H

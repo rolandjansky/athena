@@ -433,8 +433,8 @@ void MuonGMCheck::checkreadoutrpcgeo()
 
 
 
-                                 bool m_localToGlobal_rpc=true;
-                                 if (m_localToGlobal_rpc) 
+                                 bool localToGlobal_rpc=true;
+                                 if (localToGlobal_rpc) 
                                  {                                     
                                      //here (gasgap-level) perform checks on local to global transform
                                      // BMF1 at stEta = 3 stPhi = 6, dbR=1,dbZ=1,dbPhi=1->should be 2 gg=1 or 2
@@ -2710,7 +2710,7 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5;
-        char _dot[5];
+        char dot[5];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
@@ -2719,7 +2719,7 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
             {
                 mystream rpcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-                rpcid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]>>aux5>>leftover;
+                rpcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
                 std::ostringstream rpcid_nstr;
                 rpcid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5;
                 new_extid = rpcid_nstr.str();
@@ -2749,22 +2749,22 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
         unsigned int nmodules = 0;
         for (int dbz=1; dbz<=ndbz; dbz++)
         {
-            const RpcReadoutElement* _rpcold = NULL;
+            const RpcReadoutElement* rpcold = NULL;
             int ndbp = Set.NPhimodules(dbz);
             for (int dbp=1; dbp<=ndbp; dbp++)
             {
                 std::cout<<" dbz, dbp = "<<dbz<<" "<<dbp<<std::endl;
-                const RpcReadoutElement* _rpc = Set.readoutElement(dbz, dbp);
-                std::cout<<"_rpc = "<<_rpc<<std::endl;
-                if ( _rpc != _rpcold )
+                const RpcReadoutElement* rpc = Set.readoutElement(dbz, dbp);
+                std::cout<<"_rpc = "<<rpc<<std::endl;
+                if ( rpc != rpcold )
                 {
                     nmodules ++;
-                    _rpcold = _rpc;
+                    rpcold = rpc;
                     // here a new module
-                    Amg::Vector3D rpcPos = _rpc->center();
-                    double zminMod = rpcPos.z()-_rpc->getZsize()/2.;
-                    double zmaxMod = rpcPos.z()+_rpc->getZsize()/2.;
-                    double dphi = atan2(_rpc->getSsize()/2.,rpcPos.perp());
+                    Amg::Vector3D rpcPos = rpc->center();
+                    double zminMod = rpcPos.z()-rpc->getZsize()/2.;
+                    double zmaxMod = rpcPos.z()+rpc->getZsize()/2.;
+                    double dphi = atan2(rpc->getSsize()/2.,rpcPos.perp());
                     double pminMod = rpcPos.phi() - dphi;
                     double pmaxMod = rpcPos.phi() + dphi;
                     
@@ -2834,7 +2834,7 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5;
-        char _dot[5];
+        char dot[5];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
@@ -2843,7 +2843,7 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
             {
                 mystream mdtid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-                mdtid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]>>aux5>>leftover;
+                mdtid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
                 std::ostringstream mdtid_nstr;
                 mdtid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4;
                 new_extid = mdtid_nstr.str();
@@ -2910,31 +2910,31 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
         for (int i=0; i<4; i++)
         {
             //
-            const MdtReadoutElement* _mdt = NULL;
-            i<2 ? _mdt = mdt1: _mdt = mdt2;
-            if (_mdt == NULL) {
+            const MdtReadoutElement* mdt = NULL;
+            i<2 ? mdt = mdt1: mdt = mdt2;
+            if (mdt == NULL) {
                 std::cout<<" element not found for index i = "<<i<<" --------- "<<std::endl;
                 if (i==2) {
                     Idv[2] = p_MdtIdHelper->channelID(Id, 1, ntlay, 1);
-                    _mdt = p_MuonMgr->getMdtReadoutElement(Idv[2]);
+                    mdt = p_MuonMgr->getMdtReadoutElement(Idv[2]);
                 }
                 else if (i==3) {
                     Idv[3] = p_MdtIdHelper->channelID(Id, 1, ntlay, ntubesl1);
-                    _mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
+                    mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
                 }
             }
-            if (_mdt == NULL) {
+            if (mdt == NULL) {
                     std::cout<<" Skipping element; i = "<<i<<" ----- "<<std::endl;
                     continue;
             }            
-            Amg::Vector3D mdtPos = _mdt->tubePos(Idv[i]);
+            Amg::Vector3D mdtPos = mdt->tubePos(Idv[i]);
             std::cout<<p_MdtIdHelper->show_to_string(Idv[i])<<" index "<<i<<" posx,y,z "<<mdtPos<<" R = "<<mdtPos.perp()<<std::endl;
             //
             Amg::Vector3D mdtPos1 = mdtPos;
             Amg::Vector3D mdtPos2 = mdtPos;
 	    double scaleMin  = (mdtPos.perp()-tubePitch/2.)/mdtPos.perp();
 	    double scalePlus = (mdtPos.perp()+tubePitch/2.)/mdtPos.perp();
-            if (_mdt->barrel())
+            if (mdt->barrel())
             {
                 // these are z ranges of the first or last tube layer 
                 mdtPos1[2] = mdtPos.z()-tubePitch/2.;
@@ -2994,7 +2994,7 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
                 }
                 if (i<2) 
                 {
-                    if (_mdt->sideA())
+                    if (mdt->sideA())
                     {
                         mdtPos1[2] = mdtPos.z()-tubePitch/2.;
                         mdtPos2[2] = mdtPos.z()-tubePitch/2.;
@@ -3007,7 +3007,7 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
                 }
                 else
                 {
-                    if (_mdt->sideA())
+                    if (mdt->sideA())
                     {
                         mdtPos1[2] = mdtPos.z()+tubePitch/2.;
                         mdtPos2[2] = mdtPos.z()+tubePitch/2.;
@@ -3027,7 +3027,7 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
             double rminMod = 0.;
             double rmaxMod = 0.;
             double dphi = 0.;
-            if (_mdt->barrel())
+            if (mdt->barrel())
             {
                 eminMod = mdtPos1.eta(); 
                 emaxMod = mdtPos2.eta(); 
@@ -3038,11 +3038,11 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
                 rminMod = mdtPos1.perp();   
                 rmaxMod = mdtPos2.perp();
                 
-                dphi = atan2(_mdt->getSsize()/2., (mdtPos.perp()-tubePitch/2.));
+                dphi = atan2(mdt->getSsize()/2., (mdtPos.perp()-tubePitch/2.));
             }            
             else 
             {
-                if (_mdt->sideA())
+                if (mdt->sideA())
                 {
                     eminMod = mdtPos2.eta(); 
                     emaxMod = mdtPos1.eta(); 
@@ -3064,7 +3064,7 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
                     rminMod = mdtPos1.perp();   
                     rmaxMod = mdtPos2.perp();                       
                 }
-                dphi = atan2(_mdt->tubeLength(Idv[i])/2., (mdtPos.perp()-tubePitch/2.));
+                dphi = atan2(mdt->tubeLength(Idv[i])/2., (mdtPos.perp()-tubePitch/2.));
             }
             double pminMod = mdtPos.phi() - dphi;
             double pmaxMod = mdtPos.phi() + dphi;
@@ -3140,7 +3140,7 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
 
       std::string new_extid = "";
       int aux0, aux1, aux2, aux3, aux4, aux5;
-      char _dot[5];
+      char dot[5];
       std::string::size_type loc_o;
       std::string::size_type loc_c;
       std::string leftover="";
@@ -3149,7 +3149,7 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
 	  if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
 	    {
 	      std::istringstream tgcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-	      tgcid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]>>aux5>>leftover;
+	      tgcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
 	      std::ostringstream mdtid_nstr;
 	      mdtid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4;
 	      new_extid = mdtid_nstr.str();
@@ -3252,7 +3252,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  
          std::string new_extid="";
          int aux0, aux1=0, aux2, aux3=0, aux4, aux5;
-         char _dot[5];
+         char dot[5];
          std::string::size_type loc_o;
          std::string::size_type loc_c;
          std::string leftover="";
@@ -3261,7 +3261,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
              if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
              {
                  mystream cscid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-                 cscid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]>>aux5>>leftover;
+                 cscid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]>>aux5>>leftover;
                  std::ostringstream cscid_nstr;
                  cscid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4;
                  new_extid = cscid_nstr.str();
@@ -3517,8 +3517,8 @@ void MuonGMCheck::buildCscRegionSelectorMap()
 
 void MuonGMCheck::checkRegionSelectorMap()
 {
-    IRegSelSvc* m_pRegionSelector;
-    StatusCode status = service("RegSelSvc", m_pRegionSelector);
+    IRegSelSvc* pRegionSelector;
+    StatusCode status = service("RegSelSvc", pRegionSelector);
     if(status.isFailure()) {
       ATH_MSG_FATAL( "Unable to retrieve RegionSelector Svc" );
       return;
@@ -3812,7 +3812,7 @@ void MuonGMCheck::testMdtDetectorElementHash()
 
         std::string new_extid="";
         int aux0 = 0, aux1 = 0, aux2 = 0, aux3 = 0, aux4 = 0, aux5 = 0, aux6 = 0;
-        char _dot[6];
+        char dot[6];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
@@ -3821,8 +3821,8 @@ void MuonGMCheck::testMdtDetectorElementHash()
             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
             {
                 mystream mdtid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-                mdtid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]
-                             >>aux5>>_dot[5]>>aux6>>leftover;
+                mdtid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
+                             >>aux5>>dot[5]>>aux6>>leftover;
                 std::ostringstream mdtid_nstr;
                 mdtid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5 <<"/"<<aux6 ;
                 new_extid = mdtid_nstr.str();
@@ -3836,8 +3836,8 @@ void MuonGMCheck::testMdtDetectorElementHash()
         }
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
-        const MdtReadoutElement* _mdt = p_MuonMgr->getMdtReadoutElement(Idhash);
-        if (_mdt == NULL) 
+        const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(Idhash);
+        if (mdt == NULL) 
         {
             ATH_MSG_ERROR("MuonManager->getMdtReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
@@ -3845,10 +3845,10 @@ void MuonGMCheck::testMdtDetectorElementHash()
         
         
         // here a new module
-        Amg::Vector3D mdtPos = _mdt->center();
-        double zminMod = mdtPos.z()-_mdt->getZsize()/2.;
-        double zmaxMod = mdtPos.z()+_mdt->getZsize()/2.;
-        double dphi = atan2(_mdt->getSsize()/2.,mdtPos.perp());
+        Amg::Vector3D mdtPos = mdt->center();
+        double zminMod = mdtPos.z()-mdt->getZsize()/2.;
+        double zmaxMod = mdtPos.z()+mdt->getZsize()/2.;
+        double dphi = atan2(mdt->getSsize()/2.,mdtPos.perp());
         double phimin = mdtPos.phi() - dphi;
         double phimax = mdtPos.phi() + dphi;
         Amg::Vector3D Pzmin = mdtPos;
@@ -3906,7 +3906,7 @@ void MuonGMCheck::testRpcDetectorElementHash()
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5, aux6, aux7;
-        char _dot[7];
+        char dot[7];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
@@ -3915,8 +3915,8 @@ void MuonGMCheck::testRpcDetectorElementHash()
             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
             {
                 mystream rpcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-                rpcid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]
-                             >>aux5>>_dot[5]>>aux6>>_dot[6]>>aux7>>leftover;
+                rpcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
+                             >>aux5>>dot[5]>>aux6>>dot[6]>>aux7>>leftover;
                 std::ostringstream rpcid_nstr;
                 rpcid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5 <<"/"<<aux6<<"/"<<aux7 ;
                 new_extid = rpcid_nstr.str();
@@ -3924,8 +3924,8 @@ void MuonGMCheck::testRpcDetectorElementHash()
         }
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
-        const RpcReadoutElement* _rpc = p_MuonMgr->getRpcReadoutElement(Idhash);
-        if (_rpc == NULL) 
+        const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(Idhash);
+        if (rpc == NULL) 
         {
             ATH_MSG_ERROR("MuonManager->getRpcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
@@ -3934,10 +3934,10 @@ void MuonGMCheck::testRpcDetectorElementHash()
         
         
         // here a new module
-        Amg::Vector3D rpcPos = _rpc->center();
-        double zminMod = rpcPos.z()-_rpc->getZsize()/2.;
-        double zmaxMod = rpcPos.z()+_rpc->getZsize()/2.;
-        double dphi = atan2(_rpc->getSsize()/2.,rpcPos.perp());
+        Amg::Vector3D rpcPos = rpc->center();
+        double zminMod = rpcPos.z()-rpc->getZsize()/2.;
+        double zmaxMod = rpcPos.z()+rpc->getZsize()/2.;
+        double dphi = atan2(rpc->getSsize()/2.,rpcPos.perp());
         double phimin = rpcPos.phi() - dphi;
         double phimax = rpcPos.phi() + dphi;
         Amg::Vector3D Pzmin = rpcPos;
@@ -3997,7 +3997,7 @@ void MuonGMCheck::testTgcDetectorElementHash()
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5;
-        char _dot[5];
+        char dot[5];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
@@ -4006,7 +4006,7 @@ void MuonGMCheck::testTgcDetectorElementHash()
             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
             {
                 mystream tgcid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-                tgcid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]
+                tgcid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
                              >>aux5>>leftover;
                 std::ostringstream tgcid_nstr;
                 tgcid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5;
@@ -4015,18 +4015,18 @@ void MuonGMCheck::testTgcDetectorElementHash()
         }
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
-        const TgcReadoutElement* _tgc = p_MuonMgr->getTgcReadoutElement(Idhash);
-        if (_tgc == NULL) 
+        const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(Idhash);
+        if (tgc == NULL) 
         {
             ATH_MSG_ERROR("MuonManager->getTgcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
         }
         
         // here a new module
-        Amg::Vector3D tgcPos = _tgc->center();
-        double zminMod = tgcPos.z()-_tgc->getZsize()/2.;
-        double zmaxMod = tgcPos.z()+_tgc->getZsize()/2.;
-        double dphi = atan2(_tgc->getSsize()/2.,tgcPos.perp());
+        Amg::Vector3D tgcPos = tgc->center();
+        double zminMod = tgcPos.z()-tgc->getZsize()/2.;
+        double zmaxMod = tgcPos.z()+tgc->getZsize()/2.;
+        double dphi = atan2(tgc->getSsize()/2.,tgcPos.perp());
         double phimin = tgcPos.phi() - dphi;
         double phimax = tgcPos.phi() + dphi;
         Amg::Vector3D Pzmin = tgcPos;
@@ -4085,7 +4085,7 @@ void MuonGMCheck::testCscDetectorElementHash()
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5, aux6;
-        char _dot[6];
+        char dot[6];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
         std::string leftover="";
@@ -4094,8 +4094,8 @@ void MuonGMCheck::testCscDetectorElementHash()
             if ((loc_c = extid.find("]", loc_o+1)) != std::string::npos) 
             {
                 mystream cscid_stream(extid.substr(loc_o+1, loc_c-loc_o-1));
-                cscid_stream >>aux0>>_dot[0]>>aux1>>_dot[1]>>aux2>>_dot[2]>>aux3>>_dot[3]>>aux4>>_dot[4]
-                             >>aux5>>_dot[5]>>aux6>>leftover;
+                cscid_stream >>aux0>>dot[0]>>aux1>>dot[1]>>aux2>>dot[2]>>aux3>>dot[3]>>aux4>>dot[4]
+                             >>aux5>>dot[5]>>aux6>>leftover;
                 std::ostringstream cscid_nstr;
                 cscid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5 <<"/"<<aux6 ;
                 new_extid = cscid_nstr.str();
@@ -4103,18 +4103,18 @@ void MuonGMCheck::testCscDetectorElementHash()
         }
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
-        const CscReadoutElement* _csc = p_MuonMgr->getCscReadoutElement(Idhash);
-        if (_csc == NULL) 
+        const CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(Idhash);
+        if (csc == NULL) 
         {
             ATH_MSG_ERROR("MuonManager->getCscReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
         }
         
         // here a new module
-        Amg::Vector3D cscPos = _csc->center();
-        double zminMod = cscPos.z()-_csc->getZsize()/2.;
-        double zmaxMod = cscPos.z()+_csc->getZsize()/2.;
-        double dphi = atan2(_csc->getSsize()/2.,cscPos.perp());
+        Amg::Vector3D cscPos = csc->center();
+        double zminMod = cscPos.z()-csc->getZsize()/2.;
+        double zmaxMod = cscPos.z()+csc->getZsize()/2.;
+        double dphi = atan2(csc->getSsize()/2.,cscPos.perp());
         double phimin = cscPos.phi() - dphi;
         double phimax = cscPos.phi() + dphi;
         Amg::Vector3D Pzmin = cscPos;

@@ -26,7 +26,7 @@ class L1Decoder : public AthReentrantAlgorithm {
 public:
   L1Decoder(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize() override;
-  virtual StatusCode beginRun() override;
+  virtual StatusCode start() override;
   virtual StatusCode execute_r (const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 

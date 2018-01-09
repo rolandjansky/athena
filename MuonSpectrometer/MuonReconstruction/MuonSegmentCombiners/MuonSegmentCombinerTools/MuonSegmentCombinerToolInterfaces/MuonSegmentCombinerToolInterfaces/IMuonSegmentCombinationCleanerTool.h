@@ -8,7 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
-
+#include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 
 static const InterfaceID IID_IMuonSegmentCombinationCleanerTool("Muon::IMuonSegmentCombinationCleanerTool",1,0);
 
@@ -26,7 +26,7 @@ namespace Muon {
     static const InterfaceID& interfaceID();
 
     /** clean phi hits on a segment combination */
-    virtual MuonSegmentCombinationCollection* clean( const MuonSegmentCombinationCollection& combiCol ) = 0;
+    virtual MuonSegmentCombinationCollection* clean( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap ) = 0;
 
   };
   

@@ -197,7 +197,7 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltExecute(std::vector<HLT::TEVec>& /*fake_s
             return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
         }
         // get event ID
-        EventID* eventId;
+        const EventID* eventId;
         if ( !(eventId = event->event_ID())){
             ATH_MSG_WARNING( "Could not find EventID object" );
             return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
@@ -646,7 +646,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
             m_hasGenericDaqError = true;
         } else {
             // loop over and print RDOs
-            for (auto & rdo : *rdos){
+            for (const L1TopoRDO* rdo : *rdos){
                 ATH_MSG_VERBOSE( *rdo );
                 ATH_MSG_DEBUG( "CnvMon: Found DAQ RDO with source ID "<<L1Topo::formatHex8(rdo->getSourceID()) );
                 m_histSIDsViaConverters->Fill(m_allSIDLabelsToInts.at(rdo->getSourceID()));

@@ -17,32 +17,16 @@
 enum RoIsInView { BareRoIDescriptor = 0, CollectionWithOneElement = 1, CollectionWithAllElements = 2, SuperRoI=3 };
 
 TestViewDriver::TestViewDriver( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthAlgorithm( name, pSvcLocator ),
-    m_roisContainer( "RoIsContainer" ),
-    m_roisViewOutput( "RoIsViewOutput" ),
-    m_clustersViewInput( "ClustersViewInput" ),
-    m_views( "Views" ),
-    //    m_outputClusterContainer( "OutputClusters" ),
-    m_viewAlgorithmsPool( "AlgResourcePool/ViewAlgPool", name ) {
-   
-  declareProperty( "RoIsContainer", m_roisContainer, "Input RoIs" );
-  declareProperty( "RoIsViewOutput", m_roisViewOutput, "Name of the collection that will be placed in each view" );
-  declareProperty( "ClustersViewInput", m_clustersViewInput );
-  declareProperty( "Views", m_views, "Name of the generated view" );
-  //  declareProperty( "OutputClusterContainer", m_outputClusterContainer, "Output collection for clusters" );
-  declareProperty( "ViewAlgorithmsPool", m_viewAlgorithmsPool );
-  declareProperty( "ViewAlgorithmNames", m_viewAlgorithmNames, "Names of algorithms to run in the views" );
-  declareProperty( "RoITypeInViews", m_roITypeInViews = 1, "0 - place TrigRoiDesciptor in views, 1 - place Collections wiht single RoI, 2 - place entrie collection in the view, 3 - place SuperRoI in single view " );
+  : AthAlgorithm( name, pSvcLocator ) {
 }
 
 StatusCode TestViewDriver::initialize( ) {
-  CHECK( m_viewAlgorithmsPool.retrieve( ) );
+  CHECK( m_scheduler.retrieve( ) );
   CHECK( m_roisContainer.initialize( ) );
   CHECK( m_roisViewOutput.initialize( ) );
   m_clustersViewInputHandle.assign( m_clustersViewInput );
   CHECK( m_clustersViewInputHandle.initialize( ) );
   CHECK( m_views.initialize( ) );
-  //  CHECK( m_outputClusterContainer.initialize( ) );
   return StatusCode::SUCCESS;
 }
 
@@ -56,13 +40,13 @@ StatusCode TestViewDriver::execute( ) {
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {
 
-    contexts.push_back( getContext( ) );    
+    contexts.push_back( getContext( ) );
     viewVector->push_back( ViewHelper::makeView( name( )+"_view", viewCounter++ ) );
     contexts.back( ).setExtension( Atlas::ExtendedEventContext( viewVector->back( ),
                                                                 conditionsRun));
 
-    
-    auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );    
+
+    auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );
     oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
     oneRoIColl->push_back( roi );
     auto handle = SG::makeHandle( m_roisViewOutput, contexts.back( ) );
@@ -73,9 +57,10 @@ StatusCode TestViewDriver::execute( ) {
 
 
   // Run the views
-  CHECK( ViewHelper::runInViews( contexts,
-				 m_viewAlgorithmNames,				  // Algorithms to run in each view
-				 serviceLocator( )->service( "ViewAlgPool" ) ) );  //FIXME this should realy be service handle, else we do costly retrival each execution, needs api change of ViewHelper
+  CHECK( ViewHelper::ScheduleViews( *viewVector,
+                                    m_viewNodeName,
+                                    getContext(),
+                                    m_scheduler.get() ) );
 
   ATH_MSG_DEBUG( "Execution in " << viewVector->size( ) << " Views performed" );
   
@@ -84,8 +69,8 @@ StatusCode TestViewDriver::execute( ) {
   //  auto outputClusterContainerAux = std::make_unique< TestClusterAuxContainer>( );
   //  outputClusterContainer->setStore( outputClusterContainerAux.get( ) );
 
-
-  for ( auto& viewCtx: contexts ) {
+  // This won't work because the views are now scheduled, not run immediately
+  /*for ( auto& viewCtx: contexts ) {
     auto handle = SG::makeHandle( m_clustersViewInputHandle, viewCtx );
     if ( not handle.isValid( ) ) {
       ATH_MSG_ERROR( "Can not bind handle to a view context" );
@@ -94,8 +79,8 @@ StatusCode TestViewDriver::execute( ) {
     for ( auto cluster: *handle.get( ) ) {
       ATH_MSG_DEBUG( "Cluster of ET " << TestEDM::getClusterEt( cluster ) );
       //outputClusterContainer->push_back(cluster);  // FIXME this is not as simple, we need some trick to do copy
-    }    
-  }
+    }
+  }*/
 
   // for now we are not outputting
   //  {

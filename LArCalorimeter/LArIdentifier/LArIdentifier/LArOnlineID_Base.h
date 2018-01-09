@@ -355,18 +355,18 @@ protected:
 			  int pos_neg,
 			  int feedthrough,
 			  int slot,
-			  int channel ) const throw(LArOnlID_Exception);
+			  int channel ) const;
 
   void  channel_Id_checks(const HWIdentifier feedthroughId,
 			  int slot,
-			  int channel ) const throw(LArOnlID_Exception);
+			  int channel ) const;
 
   void  channel_Id_checks(const HWIdentifier febId,
-			  int channel ) const throw(LArOnlID_Exception);
+			  int channel ) const;
 
-  void  feb_Id_checks(int barrel_ec, int pos_neg, int feedthrough, int slot ) const throw(LArOnlID_Exception); 
+  void  feb_Id_checks(int barrel_ec, int pos_neg, int feedthrough, int slot ) const;
 
-  void  feedthrough_Id_checks(int barrel_ec, int pos_neg, int feedthrough ) const throw(LArOnlID_Exception); 
+  void  feedthrough_Id_checks(int barrel_ec, int pos_neg, int feedthrough ) const; 
 
   /** create expanded HWIdentifier from HWIdentifier (return == 0 for OK) */
   int  get_expanded_id  (const HWIdentifier& id, 

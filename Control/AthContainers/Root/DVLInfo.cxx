@@ -18,7 +18,7 @@
 #include "AthContainers/tools/DVLInfo.h"
 #include "AthContainers/tools/threading.h"
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 #endif
 #include <typeinfo>
 #include <string>

@@ -24,8 +24,8 @@ namespace JiveXML {
    **/
   PixelRDORetriever::PixelRDORetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("PixelRDO"),
-    geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("PixelRDO"),
+    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
     
     //Declare the interface
     declareInterface<IDataRetriever>(this);
@@ -72,7 +72,7 @@ namespace JiveXML {
         const Identifier id = rdoData->identify();
 
         //Get the detector element
-        const InDetDD::SiDetectorElement *element = geo->PixelGeoManager()->getDetectorElement(id);
+        const InDetDD::SiDetectorElement *element = m_geo->PixelGeoManager()->getDetectorElement(id);
 
         //Make sure we got the detector element
         if (element == NULL){
@@ -89,8 +89,8 @@ namespace JiveXML {
         xVec.push_back(DataType(globalPos.x()*CLHEP::mm/CLHEP::cm));
         yVec.push_back(DataType(globalPos.y()*CLHEP::mm/CLHEP::cm));
         zVec.push_back(DataType(globalPos.z()*CLHEP::mm/CLHEP::cm));
-        phiModuleVec.push_back(DataType(geo->PixelIDHelper()->phi_module(id)));
-        etaModuleVec.push_back(DataType(geo->PixelIDHelper()->eta_module(id)));
+        phiModuleVec.push_back(DataType(m_geo->PixelIDHelper()->phi_module(id)));
+        etaModuleVec.push_back(DataType(m_geo->PixelIDHelper()->eta_module(id)));
       }
     }
 

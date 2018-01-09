@@ -19,7 +19,6 @@ void InDetSimDataCollectionCnv_p3::transToPers(const InDetSimDataCollection*, In
 void  InDetSimDataCollectionCnv_p3::persToTrans(const InDetSimDataCollection_p3* persCont, InDetSimDataCollection* transCont, MsgStream &log)
 {
 
-    typedef InDetSimDataCollection_p3 PERS;
     typedef std::vector<std::pair<Identifier::value_type, InDetSimData_p2 > >::const_iterator COLLITER;
     InDetSimDataCnv_p2  simDataCnv;
 

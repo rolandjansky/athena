@@ -290,7 +290,7 @@ namespace Athena_test
       dummyToRemoveWarning(r3Foo);
       cout << "ERROR should never get here" <<endl;
       assert(0);
-    } catch (runtime_error e) {
+    } catch (const runtime_error& e) {
       cout << "foo Foo not yet registered. Caught exception -"
  	   << e.what()<< "- as expected" << endl;
     }	

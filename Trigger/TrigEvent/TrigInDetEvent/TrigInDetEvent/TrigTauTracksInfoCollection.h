@@ -5,10 +5,10 @@
 #ifndef TRIGTAUTRACKSINFOCOLLECTION_H
 #define TRIGTAUTRACKSINFOCOLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigTauTracksInfoCollection : public DataVector<TrigTauTracksInfo> { }; 
 

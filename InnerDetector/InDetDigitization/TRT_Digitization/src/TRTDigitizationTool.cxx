@@ -13,7 +13,7 @@
 
 #include "TRTDigitizationTool.h"
 #include "HitManagement/TimedHitCollection.h"
-#include "InDetSimEvent/TRTUncompressedHitCollection.h"//hide?
+#include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "TRTProcessingOfStraw.h"
 #include "TRTElectronicsProcessing.h"
 
@@ -69,10 +69,8 @@ static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>:
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
-
 #include "StoreGate/WriteHandleKey.h"
-//AJB Temporary for debugging and development
-//#include "driftCircle.h"
+//#include "driftCircle.h" // local copy for debugging and development
 
 //_____________________________________________________________________________
 TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
@@ -105,10 +103,9 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_condDBdigverfoldersexists(false),
     m_HardScatterSplittingMode(0),
     m_HardScatterSplittingSkipper(false),
-    m_UseGasMix(0),                  // postInclude UseGasMix for the whole detector: 0="default:use statusHT", 1="use Xe", 2="use Kr", 3="use Ar"
+    m_UseGasMix(0),
     m_cosmicEventPhase(0.0),
-    m_particleFlag(0),
-    m_sumSvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc") // added by Sasha for Argon
+    m_sumSvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc")
 
 {
 
@@ -125,7 +122,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   m_settings->addPropertiesForOverrideableParameters(static_cast<AlgTool*>(this));
   declareProperty("RndmSvc",                       m_atRndmGenSvc, "Random Number Service used in TRT digitization" );
   declareProperty("TRT_StrawNeighbourSvc",         m_TRTStrawNeighbourSvc);
-  declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);  // need for Argon
+  declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);
   declareProperty("UseGasMix",                     m_UseGasMix);
   declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
   declareProperty("ParticleBarcodeVeto",           m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
@@ -202,7 +199,6 @@ StatusCode TRTDigitizationTool::initialize()
   }
 
   // Initialize data handle keys
-
   ATH_CHECK(m_outputRDOCollName.initialize());
   ATH_CHECK(m_outputSDOCollName.initialize());
 
@@ -277,14 +273,11 @@ StatusCode TRTDigitizationTool::initialize()
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::prepareEvent(unsigned int)
 {
-
   m_vDigits.clear();
   m_trtHitCollList.clear();
   m_thpctrt = new TimedHitCollection<TRTUncompressedHit>();
   m_HardScatterSplittingSkipper = false;
-
   return StatusCode::SUCCESS;
-
 }
 
 //_____________________________________________________________________________
@@ -420,7 +413,7 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
   // Create a map for the SDO
   SG::WriteHandle<InDetSimDataCollection> simDataMap(m_outputSDOCollName);
 
-  ATH_CHECK(simDataMap.record(std::make_unique<InDetSimDataCollection>() )); 
+  ATH_CHECK(simDataMap.record(std::make_unique<InDetSimDataCollection>() ));
 
   // Register the map into StoreGate
   if (not simDataMap.isValid()) {
@@ -433,7 +426,6 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
   m_cosmicEventPhase = 0.0;
   if (m_settings->doCosmicTimingPit()) {
     m_cosmicEventPhase = getCosmicEventPhase();
-    //std::cout << "AJB " << m_cosmicEventPhase << std::endl;
   };
 
   // Create  a vector of deposits
@@ -484,13 +476,9 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
       }
       ATH_MSG_VERBOSE ( "Deposit: trackID " << deposit.first << " energyDeposit " << deposit.second );
       depositVector.push_back(deposit);
-      // evtIndex != 0 ? hit_iter->eventId() : 0 ;   commented for now. Once mc09 campaign is over, consider to implement + implement cuts on hitTime in addition/in stead bunchcrossing cuts.
     }
 
     const TimedHitPtr<TRTUncompressedHit>& theHit(*i);
-    //double globalHitTime(hitTime(theHit));
-    //double globalTime(static_cast<double>(theHit->GetGlobalTime()));
-    //double bunchCrossingTime(globalHitTime - globalTime);
     const double bunchCrossingTime(hitTime(theHit) - static_cast<double>(theHit->GetGlobalTime()));
 
     // Add the simdata object to the map.
@@ -513,10 +501,6 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     //  }
     //}
 
-    // This will be set in TRTProcessingOfStraw::ProcessStraw
-    // according to what types of particles hit the straw.
-    m_particleFlag=0;
-
     // if StatusHT == 6 thats emulate argon, ==7 that's emulate krypton
     bool emulateArFlag = m_sumSvc->getStatusHT(idStraw) == 6;
     bool emulateKrFlag = m_sumSvc->getStatusHT(idStraw) == 7;
@@ -526,51 +510,19 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
                                        m_cosmicEventPhase, //m_ComTime,
                                        StrawGasType(idStraw),
 				       emulateArFlag,
-				       emulateKrFlag,
-                                       m_particleFlag);
+				       emulateKrFlag);
 
-    // Sorry, a lot of test code here before the output digit is saved.
-
-    // query m_particleFlag bits 0 to 15 (left-to-right)
-    //std::cout << "AJB "; for (unsigned i=0;i<16;i++) std::cout << particleFlagQueryBit(i,m_particleFlag); std::cout << std::endl;
-
-    //AJB, Print out the digits etc (for debugging)
+    // Print out the digits etc (for debugging)
     //int          mstrw = digit_straw.GetStrawID();
     //unsigned int mword = digit_straw.GetDigit();
     //std::cout << "AJB " << mstrw << ":" << mword << std::endl;
-    //print_mword_properties(mword); // AJB
+    //print_mword_properties(mword);
     //std::cout << "AJB "; bits24(mword);
     //std::cout << "AJB "; bits27(mword);
-
-/*
-    if (particleFlagQueryBit(10,m_particleFlag)) { // Do this only for pions > 10 GeV
-      if ( digit_straw.GetDigit() ) {
-        // bool HT=highLevel(mword);
-        // if (HT) {
-          unsigned int region = getRegion(hitID); // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
-          // bool HT1=highLevel1(mword); bool HT2=highLevel2(mword); bool HT3=highLevel3(mword);
-          std::cout << "AJB " << region
-                    <<    " " << timeOverThreshold(mword)
-                    <<    " " << rawDriftTime(mword)
-                    <<    " " << highLevel2(mword)
-                    << std::endl;
-          //int ichip = 0; m_TRTStrawNeighbourSvc->getChip(idStraw, ichip);
-          //int detid = m_trt_id->barrel_ec(idLayer); // +1=BA, -1=BC, +2=EA, -2=EC
-          //if (detid==+1) std::cout << "AJBBA " << HT1 << " " << HT2 << " " << HT3 << std::endl;
-          //if (detid==-1) std::cout << "AJBBC " << HT1 << " " << HT2 << " " << HT3 << std::endl;
-          //if (detid==-2) std::cout << "AJBEC " << HT1 << " " << HT2 << " " << HT3 << std::endl;
-          //if (detid==+2) std::cout << "AJBEA " << HT1 << " " << HT2 << " " << HT3 << std::endl;
-       // }
-      }
-    }
-*/
 
     // finally push back the output digit.
     if ( digit_straw.GetDigit() ) {
       m_vDigits.push_back(digit_straw);
-      //int          mstrw = digit_straw.GetStrawID();
-      //unsigned int mword = digit_straw.GetDigit();
-      //std::cout << "AJB "; bits32(mword);
     }
 
   } // end of straw loop
@@ -595,14 +547,13 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   m_trtrdo_container = SG::makeHandle(m_outputRDOCollName);
   ATH_CHECK(m_trtrdo_container.record(std::make_unique<TRT_RDO_Container>(m_trt_id->straw_layer_hash_max())));
   ATH_MSG_DEBUG ( " TRT_RDO_Container created " );
-  
+
   if (not m_trtrdo_container.isValid()) {
     ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
     return StatusCode::FAILURE;
   }else {
     ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
   }
-
 
   m_vDigits.clear();
 
@@ -708,10 +659,9 @@ StatusCode TRTDigitizationTool::mergeEvent() {
   if (not m_trtrdo_container.isValid()) {
     ATH_MSG_FATAL ( "Container " << m_outputRDOCollName.key() << " could not be registered in StoreGate !" );
     return StatusCode::FAILURE;
-  }else {
+  } else {
     ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName.key() << " registered in StoreGate" );
   }
-
 
   //Set of all hitid's with simhits (used for noise simulation).
   std::set<int> sim_hitids;
@@ -998,19 +948,10 @@ StatusCode TRTDigitizationTool::ConditionsDependingInitialization() {
 }
 
 //_____________________________________________________________________________
-//The meaning of these 16 bits is given in TRTProcessingOfStraw::particleFlagSetBit()
-bool TRTDigitizationTool::particleFlagQueryBit(int bitposition, unsigned short particleFlag) const {
-  if ( bitposition >= 0 && bitposition < 16) {
-    return (1 << bitposition) & particleFlag;
-  } else {
-    ATH_MSG_WARNING ( "Trying to read bit position " << bitposition << " in unsigned short m_particleFlag !");
-    return 0; // returning a false neagtive is preferred over a false positive.
-  }
-}
-
-//_____________________________________________________________________________
 unsigned int TRTDigitizationTool::getRegion(int hitID) {
+
 // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+
   const int mask(0x0000001F);
   const int word_shift(5);
   int layerID, ringID, wheelID;

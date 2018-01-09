@@ -258,7 +258,7 @@ private:
 
 
 #ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 namespace SG {
 
 

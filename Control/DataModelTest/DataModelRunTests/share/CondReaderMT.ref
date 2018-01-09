@@ -1,7 +1,7 @@
-Thu Nov  2 15:55:29 EDT 2017
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Tue Jan  2 17:34:58 PST 2018
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [dev/3227fd4b6f] -- built on [2018-01-02T1642]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -11,25 +11,24 @@ Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/CondReaderMT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/CondReader_jo.py"
 Py:Athena            INFO including file "AthenaPoolCnvSvc/AthenaPool_jobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5430 configurables from 7 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  sss-rel_0
+[?1034hEventInfoMgtInit: Got release version  Athena-22.0.0
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Nov  2 15:55:58 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on zeus on Tue Jan  2 17:35:14 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 9454 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 3572 CLIDRegistry entries for module ALL
 ChronoStatSvc                                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -39,24 +38,26 @@ AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolC
 PoolSvc                                            INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                            INFO Frontier compression level set to 5
-DBReplicaSvc                                       INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
+DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(proxyurl=http://msquid01-ib.nersc.gov:3128)(proxyurl=http://msquid02-ib.nersc.gov:3128) will be considered for COOL data
+DBReplicaSvc                                       INFO Read replica configuration from /bld2/build/v30r1.002/build/install/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
 DBReplicaSvc                                       INFO No specific match for domain found - use default fallback
-DBReplicaSvc                                       INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc                                       INFO Total of 2 servers found for host zeus [ATLF atlas_dd ]
 PoolSvc                                            INFO Successfully setup replica sorting algorithm
 PoolSvc                                            INFO Setting up APR FileCatalog and Streams
-PoolSvc                                            INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
-PoolSvc                                            INFO Resolved path (via DATAPATH) is /home/sss/atlas/DBRelease/current/poolcond/PoolCat_oflcond.xml
-PoolSvc                                         WARNING Unable to locate catalog for apcfile:poolcond/PoolFileCatalog.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                         WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                         WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                            INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
 PoolSvc                                            INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
 IOVDbSvc                                           INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc                                           INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc                                           INFO Cache alignment will be done in 3 slices
 IOVDbSvc                                           INFO Read from meta data only for folder /TagInfo
 IOVDbSvc                                           INFO Initialised with 2 connections and 3 folders
 IOVDbSvc                                           INFO Service IOVDbSvc initialised successfully
-ClassIDSvc                                         INFO  getRegistryEntries: read 1155 CLIDRegistry entries for module ALL
-ClassIDSvc                                         INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 1612 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 324 CLIDRegistry entries for module ALL
 CondInputLoader                                    INFO Initializing CondInputLoader...
 IOVDbSvc                                           INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
 IOVDbSvc                                           INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
@@ -66,12 +67,12 @@ IOVDbSvc                                           INFO Disconnecting from sqlit
 IOVDbSvc                                           INFO Added taginfo remove for /DMTest/S2
 IOVDbSvc                                           INFO Added taginfo remove for /DMTest/TestAttrList
 CondInputLoader                                    INFO Adding base classes:
-  + ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')  ->
-  + ('DMTest::S2','ConditionStore+/DMTest/S2')  -> DMTest::S1 (243020043)
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' )   ->
+  +  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' )   -> DMTest::S1 (243020043)
 CondInputLoader                                    INFO Will create WriteCondHandle dependencies for the following DataObjects:
-    + ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')
-    + ('DMTest::S1','ConditionStore+/DMTest/S2')
-    + ('DMTest::S2','ConditionStore+/DMTest/S2')
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' ) 
+    +  ( 'DMTest::S1' , 'ConditionStore+/DMTest/S2' ) 
+    +  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' ) 
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
@@ -85,24 +86,24 @@ AvalancheSchedulerSvc                              INFO Data Dependencies for Al
   SGInputLoader
       none
   DMTest::CondReaderAlg
-    o INPUT  ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')
-    o INPUT  ('DMTest::S1','ConditionStore+/DMTest/S2')
-    o INPUT  ('DMTest::S1','ConditionStore+scond')
-    o INPUT  ('EventInfo','StoreGateSvc+McEventInfo')
+    o INPUT   ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' ) 
+    o INPUT   ( 'DMTest::S1' , 'ConditionStore+/DMTest/S2' ) 
+    o INPUT   ( 'DMTest::S1' , 'ConditionStore+scond' ) 
+    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
   CondInputLoader
-    o OUTPUT ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')
-    o OUTPUT ('DMTest::S1','ConditionStore+/DMTest/S2')
-    o OUTPUT ('DMTest::S2','ConditionStore+/DMTest/S2')
+    o OUTPUT  ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' ) 
+    o OUTPUT  ( 'DMTest::S1' , 'ConditionStore+/DMTest/S2' ) 
+    o OUTPUT  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' ) 
   DMTest::CondAlg1
-    o INPUT  ('AthenaAttributeList','ConditionStore+/DMTest/TestAttrList')
-    o OUTPUT ('DMTest::S1','ConditionStore+scond')
-    o OUTPUT ('DMTest::S2','ConditionStore+scond')
+    o INPUT   ( 'AthenaAttributeList' , 'ConditionStore+/DMTest/TestAttrList' ) 
+    o OUTPUT  ( 'DMTest::S1' , 'ConditionStore+scond' ) 
+    o OUTPUT  ( 'DMTest::S2' , 'ConditionStore+scond' ) 
   EndIncFiringAlg
       none
   IncidentProcAlg2
       none
 AvalancheSchedulerSvc                              INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
-   o ('EventInfo','StoreGateSvc+McEventInfo')    required by Algorithm: 
+   o  ( 'EventInfo' , 'StoreGateSvc+McEventInfo' )     required by Algorithm: 
        * DMTest::CondReaderAlg
 PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
 PrecedenceRulesGraph                               INFO CondSvc found. DF precedence rules will be augmented with 'Conditions'
@@ -119,20 +120,20 @@ CondInputLoader                                    INFO created CondCont<AthenaA
 CondInputLoader                                    INFO created CondCont<DMTest::S2> with key 'ConditionStore+/DMTest/S2'
 ApplicationMgr                                     INFO Application Manager Started successfully
 AthenaHiveEventLoopMgr                             INFO Starting loop on events
-EventPersistencySvc                                INFO Added successfully Conversion service:McCnvSvc
+EventPersistencySvc                     0   0      INFO Added successfully Conversion service:McCnvSvc
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
 EventPersistencySvc                     0   0      INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventPersistencySvc                     0   0      INFO Added successfully Conversion service:TagInfoMgr
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 109 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 114 CLIDRegistry entries for module ALL
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
 IOVDbSvc                                0   0      INFO Opening COOL connection for sqlite://;schema=condtest.db;dbname=OFLP200
 IOVDbSvc                                0   0      INFO Disconnecting from sqlite://;schema=condtest.db;dbname=OFLP200
 DbSession                               0   0      INFO     Open     DbSession    
 Domain[ROOT_All]                        0   0      INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                        0   0      INFO ->  Access   DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]                        0   0      INFO ->  Access   DbDatabase   READ      [ROOT_All] 03774D99-F736-A540-9FC7-19D4D27FAEC8
 Domain[ROOT_All]                        0   0      INFO                           condtest.pool.root
 RootDatabase.open                       0   0      INFO condtest.pool.root File version:60806
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 711 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 35 CLIDRegistry entries for module ALL
 DMTest::CondReaderAlg                   0   0      INFO Event 0 LBN 0
 DMTest::CondReaderAlg                   0   0      INFO   xint xint (int) : 10
 DMTest::CondReaderAlg                   0   0      INFO   scond 1000
@@ -145,7 +146,7 @@ DMTest::CondReaderAlg                   1   0      INFO   scond 1000
 DMTest::CondReaderAlg                   1   0      INFO   s2 0
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #1, run #0 on slot 0,  2 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  2   0      INFO   ===>>>  start processing event #2, run #0 on slot 0,  2 events processed so far  <<<===
-CondInputLoader                         2   0      INFO   CondObj ('DMTest::S2','ConditionStore+/DMTest/S2') is still valid at [0,2,t:0,l:1,b:4294967295]
+CondInputLoader                         2   0      INFO   CondObj  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' )  is still valid at [0,2,t:0,l:1,b:4294967295]
 DMTest::CondReaderAlg                   2   0      INFO Event 2 LBN 1
 DMTest::CondReaderAlg                   2   0      INFO   xint xint (int) : 20
 DMTest::CondReaderAlg                   2   0      INFO   scond 2000
@@ -170,7 +171,7 @@ DMTest::CondReaderAlg                   5   0      INFO   scond 3000
 DMTest::CondReaderAlg                   5   0      INFO   s2 100
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #5, run #0 on slot 0,  6 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  6   0      INFO   ===>>>  start processing event #6, run #0 on slot 0,  6 events processed so far  <<<===
-CondInputLoader                         6   0      INFO   CondObj ('DMTest::S2','ConditionStore+/DMTest/S2') is still valid at [0,6,t:0,l:3,b:4294967295]
+CondInputLoader                         6   0      INFO   CondObj  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' )  is still valid at [0,6,t:0,l:3,b:4294967295]
 DMTest::CondReaderAlg                   6   0      INFO Event 6 LBN 3
 DMTest::CondReaderAlg                   6   0      INFO   xint xint (int) : 40
 DMTest::CondReaderAlg                   6   0      INFO   scond 4000
@@ -195,7 +196,7 @@ DMTest::CondReaderAlg                   9   0      INFO   scond 5000
 DMTest::CondReaderAlg                   9   0      INFO   s2 200
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #9, run #0 on slot 0,  10 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  10  0      INFO   ===>>>  start processing event #10, run #0 on slot 0,  10 events processed so far  <<<===
-CondInputLoader                         10  0      INFO   CondObj ('DMTest::S2','ConditionStore+/DMTest/S2') is still valid at [0,10,t:0,l:5,b:4294967295]
+CondInputLoader                         10  0      INFO   CondObj  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' )  is still valid at [0,10,t:0,l:5,b:4294967295]
 DMTest::CondReaderAlg                   10  0      INFO Event 10 LBN 5
 DMTest::CondReaderAlg                   10  0      INFO   xint xint (int) : 60
 DMTest::CondReaderAlg                   10  0      INFO   scond 6000
@@ -220,7 +221,7 @@ DMTest::CondReaderAlg                   13  0      INFO   scond 7000
 DMTest::CondReaderAlg                   13  0      INFO   s2 300
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #13, run #0 on slot 0,  14 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  14  0      INFO   ===>>>  start processing event #14, run #0 on slot 0,  14 events processed so far  <<<===
-CondInputLoader                         14  0      INFO   CondObj ('DMTest::S2','ConditionStore+/DMTest/S2') is still valid at [0,14,t:0,l:7,b:4294967295]
+CondInputLoader                         14  0      INFO   CondObj  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' )  is still valid at [0,14,t:0,l:7,b:4294967295]
 DMTest::CondReaderAlg                   14  0      INFO Event 14 LBN 7
 DMTest::CondReaderAlg                   14  0      INFO   xint xint (int) : 80
 DMTest::CondReaderAlg                   14  0      INFO   scond 8000
@@ -245,7 +246,7 @@ DMTest::CondReaderAlg                   17  0      INFO   scond 9000
 DMTest::CondReaderAlg                   17  0      INFO   s2 400
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #17, run #0 on slot 0,  18 events processed so far  <<<===
 AthenaHiveEventLoopMgr                  18  0      INFO   ===>>>  start processing event #18, run #0 on slot 0,  18 events processed so far  <<<===
-CondInputLoader                         18  0      INFO   CondObj ('DMTest::S2','ConditionStore+/DMTest/S2') is still valid at [0,18,t:0,l:9,b:4294967295]
+CondInputLoader                         18  0      INFO   CondObj  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' )  is still valid at [0,18,t:0,l:9,b:4294967295]
 DMTest::CondReaderAlg                   18  0      INFO Event 18 LBN 9
 DMTest::CondReaderAlg                   18  0      INFO   xint xint (int) : 100
 DMTest::CondReaderAlg                   18  0      INFO   scond 10000
@@ -257,10 +258,10 @@ DMTest::CondReaderAlg                   19  0      INFO   xint xint (int) : 100
 DMTest::CondReaderAlg                   19  0      INFO   scond 10000
 DMTest::CondReaderAlg                   19  0      INFO   s2 400
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.468361
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.565278
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 condtest.pool.root                                 INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 31ADA153-ED54-8944-9F72-24E989E80F9B
+Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 03774D99-F736-A540-9FC7-19D4D27FAEC8
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
@@ -271,11 +272,11 @@ EventSelector                                      INFO finalize
 AvalancheSchedulerSvc                              INFO Joining Scheduler thread
 AvalancheSchedulerSvc                   19  0      INFO Terminating thread-pool resources
 EventDataSvc                                       INFO Finalizing EventDataSvc - package version StoreGate-00-00-00
-IOVDbSvc                                           INFO Folder /DMTest/S2 (PoolRef) db-read 1/5 objs/chan/bytes 10/1/1860 ((     0.00 ))s
-IOVDbSvc                                           INFO Folder /DMTest/TestAttrList (AttrList) db-read 1/10 objs/chan/bytes 20/1/80 ((     0.00 ))s
-IOVDbSvc                                           INFO Total payload read from COOL: 1940 bytes in ((      0.01 ))s
+IOVDbSvc                                           INFO Folder /DMTest/S2 (PoolRef) db-read 1/5 objs/chan/bytes 10/1/1860 ((     0.03 ))s
+IOVDbSvc                                           INFO Folder /DMTest/TestAttrList (AttrList) db-read 1/10 objs/chan/bytes 20/1/80 ((     0.01 ))s
+IOVDbSvc                                           INFO Total payload read from COOL: 1940 bytes in ((      0.03 ))s
 IOVDbSvc                                           INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc                                           INFO Connection sqlite://;schema=condtest.db;dbname=OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.01 ))s
+IOVDbSvc                                           INFO Connection sqlite://;schema=condtest.db;dbname=OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.03 ))s
 AthDictLoaderSvc                                   INFO in finalize...
 ToolSvc                                            INFO Removing all tools created by ToolSvc
 ChronoStatSvc.finalize()                           INFO  Service finalized successfully 

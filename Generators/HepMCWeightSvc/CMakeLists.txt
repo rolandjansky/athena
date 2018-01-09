@@ -23,6 +23,7 @@ find_package( CORAL COMPONENTS CoralBase )
 # Component(s) in the package:
 atlas_add_component( HepMCWeightSvc
    src/*.cxx src/components/*.cxx
+   NO_PUBLIC_HEADERS
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps
    AthenaPoolUtilities IOVDbDataModel EventInfo )

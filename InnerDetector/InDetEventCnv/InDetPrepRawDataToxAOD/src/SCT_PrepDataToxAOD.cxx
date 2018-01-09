@@ -150,7 +150,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
 
          
     // loop over collection and convert to xAOD
-    for( auto& prd : *clusterCollection ){
+    for( const InDet::SCT_Cluster* prd : *clusterCollection ){
       ++counter;
       
       Identifier clusterId = prd->identify();

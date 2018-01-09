@@ -1287,7 +1287,7 @@ HWIdentifier L1TriggerTowerTool::hwIdentifier(const Identifier& id)
    HWIdentifier hwId(0);
    if (m_ttSvc) {
      try   { hwId = m_ttSvc->createTTChannelID(id, false); }
-     catch (CaloID_Exception) { hwId = HWIdentifier(0); }
+     catch (const CaloID_Exception&) { hwId = HWIdentifier(0); }
    }
    return hwId;
 }
@@ -1345,7 +1345,7 @@ L1CaloCoolChannelId L1TriggerTowerTool::channelID(const Identifier& id)
       HWIdentifier hwId = hwIdentifier(id);
       coolId = m_ttSvc->createL1CoolChannelId(hwId);
     }
-    catch (CaloID_Exception) { coolId = L1CaloCoolChannelId(0); }
+    catch (const CaloID_Exception&) { coolId = L1CaloCoolChannelId(0); }
   }
   return coolId;
 }

@@ -27,16 +27,6 @@
 namespace DataModel_detail {
 
 
-#ifdef __GCCXML__
-// Dummy version for reflex.
-template <class DVL>
-struct DVLCast
-{
-  typedef typename DVL::base_value_type T;
-  template <class U> static T* cast (U* b);
-  template <class U> static const T* cast (const U* b);
-};
-#else
 /**
  * @brief casting operations for @c DataVector/@c DataList.
  *
@@ -157,7 +147,6 @@ struct DVLCast<DVL, true>
       return dynamic_cast<const T*> (b);
   }
 };
-#endif // not __GCCXML__
 
 
 } // namespace DataModel_detail

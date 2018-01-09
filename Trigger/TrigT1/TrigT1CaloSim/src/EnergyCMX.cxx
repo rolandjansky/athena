@@ -65,12 +65,6 @@ EnergyCMX::EnergyCMX
   declareProperty("EnergyCMXDataLocation",   m_energyCMXDataLocation );
 }
 
-// Destructor
-EnergyCMX::~EnergyCMX() {
-  ATH_MSG_INFO("Destructor called");
-	
-}
-
 
 //---------------------------------
 // initialise()

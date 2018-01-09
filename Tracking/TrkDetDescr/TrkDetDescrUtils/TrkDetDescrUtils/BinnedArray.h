@@ -33,8 +33,7 @@ namespace Trk {
 
     public:
      /**Default Constructor - needed for inherited classes */
-     BinnedArray() throw (GaudiException)
-      {}
+     BinnedArray() {}
 
      /**Virtual Destructor*/
      virtual ~BinnedArray(){}

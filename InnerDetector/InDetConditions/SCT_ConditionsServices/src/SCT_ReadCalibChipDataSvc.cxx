@@ -209,7 +209,7 @@ SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier& moduleId, const int s
     //see: http://stackoverflow.com/questions/235386/using-nan-in-c
     waferData.assign(it, end);
     return waferData;
-  } catch (std::out_of_range e) {
+  } catch (const std::out_of_range& e) {
     return waferData; 
   }
 } //SCT_ReadCalibChipDataSvc::getNPtGainData()
@@ -252,7 +252,7 @@ SCT_ReadCalibChipDataSvc::getNoiseOccupancyData(const Identifier& moduleId, cons
     if (*it != *it) return waferData;
     waferData.assign(it, end); 
     return waferData;
-  } catch (std::out_of_range e) {
+  } catch (const std::out_of_range& e) {
     return waferData; 
   }
 } // SCT_ReadCalibChipDataSvc::getNoiseOccupancyData()

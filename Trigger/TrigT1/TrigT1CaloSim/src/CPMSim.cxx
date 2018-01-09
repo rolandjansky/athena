@@ -71,11 +71,6 @@ CPMSim::CPMSim
     }
 }
 
-// Destructor
-CPMSim::~CPMSim() {
-  ATH_MSG_INFO("Destructor called" );
-}
-
 
 //---------------------------------
 // initialise()

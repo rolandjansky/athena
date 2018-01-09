@@ -158,14 +158,14 @@ private:
                       Amg::Vector3D        & FitVertex,
                       std::vector<double>  & ErrorMatrix,
                       CLHEP::HepLorentzVector     & Momentum,
-                      std::vector< std::vector<double> >  & TrkAtVrt) const; 
+                      std::vector< std::vector<double> >  & TrkAtVrt);
 
   void RemoveEntryInList(std::vector<const TrigInDetTrack*>& , int) const;
 
   int SelGoodTrigTrack(const std::vector<const TrigInDetTrack*>& InpPart,
 		       const Trk::RecVertex                    & PrimVrt,
 		       const CLHEP::HepLorentzVector                  & JetDir,
-		       std::vector<const TrigInDetTrack*>      & SelPart) const;
+		       std::vector<const TrigInDetTrack*>      & SelPart);
 
   template <class Track>
   void Select2TrVrt(std::vector<const Track*>  & SelectedTracks,
@@ -176,7 +176,7 @@ private:
                     std::vector<const Track*>  & TrkFromV0,
                     std::vector<const Track*>  & ListSecondTracks);
 
-  StatusCode VKalVrtFitFastBase(const std::vector<const TrigInDetTrack*>& listPart,Amg::Vector3D& Vertex) const;
+  StatusCode VKalVrtFitFastBase(const std::vector<const TrigInDetTrack*>& listPart,Amg::Vector3D& Vertex);
     
   StatusCode VKalVrtFitBase(const std::vector<const TrigInDetTrack*> & listPart,
                             Amg::Vector3D                            & Vertex,
@@ -185,7 +185,7 @@ private:
                             std::vector<double>                      & ErrorMatrix,
                             std::vector<double>                      & Chi2PerTrk,
                             std::vector< std::vector<double> >       & TrkAtVrt,
-                            double                                   & Chi2 ) const;
+                            double                                   & Chi2 );
 
 };
 

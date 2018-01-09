@@ -242,8 +242,8 @@ StatusCode InDetAlignCog::execute() {
     Params_t params;
 
     // initialize transforms to identity
-    for( int i=0; i<6; m_cog[i++]){ m_cog[i++]=0.0;} 
-    for( int i=0; i<6; m_resglob[i++]){ m_resglob[i++]=0.0;}
+    for( int i=0; i<6; i++){ m_cog[i]=0.0;} 
+    for( int i=0; i<6; i++){ m_resglob[i]=0.0;}
     m_CoG.setIdentity();
     m_ResGlob.setIdentity();
     
@@ -258,7 +258,7 @@ StatusCode InDetAlignCog::execute() {
 
 
       // normalization of m_cog
-      for( int i=0; i<6; m_cog[i++]){m_cog[i++]/=(double) m_counter;} 
+      for( int i=0; i<6; i++){m_cog[i]/=(double) m_counter;} 
 
 
       // convert to HepGeom::Transform3D:
@@ -314,7 +314,7 @@ StatusCode InDetAlignCog::execute() {
     if( !m_useChi2 ) {
       if (m_counter==0) throw std::logic_error("No Si-elements.");
       // normalization of m_resglob
-      for( int i=0; i<6; m_resglob[i++]){m_resglob[i++]/=(double) m_counter;}
+      for( int i=0; i<6; i++){m_resglob[i]/=(double) m_counter;}
 
       // convert to HepGeom::Transform3D:
       m_ResGlob = makeAffine3d(m_resglob);

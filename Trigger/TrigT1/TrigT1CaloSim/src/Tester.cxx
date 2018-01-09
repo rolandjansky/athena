@@ -118,13 +118,6 @@ Tester::Tester
 }
 
 
-
-// Destructor
-Tester::~Tester() {
-    ATH_MSG_INFO( "Destructor called" );
-} 
-
-
 //---------------------------------
 // initialise() 
 //---------------------------------

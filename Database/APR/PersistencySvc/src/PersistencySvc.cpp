@@ -17,7 +17,6 @@
 #include "PersistentDataModel/Placement.h"
 
 pool::PersistencySvc::PersistencySvc::PersistencySvc( pool::IFileCatalog& fileCatalog ):
-  pool::IPersistencySvc( fileCatalog ),
   m_session( new pool::PersistencySvc::UserSession( fileCatalog ) )
 {}
 

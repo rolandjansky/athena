@@ -106,7 +106,7 @@ TileTBID::tiletb_id     ()      const
 // Build type & module id
 //
 Identifier
-TileTBID::type_id       ( int type )      const throw(TileID_Exception)
+TileTBID::type_id       ( int type )      const
 {
 #ifndef NDEBUG
     if(m_do_checks) {
@@ -140,7 +140,7 @@ TileTBID::type_id       ( int type )      const throw(TileID_Exception)
 }
 
 Identifier
-TileTBID::module_id       ( int type, int module )       const throw(TileID_Exception)
+TileTBID::module_id       ( int type, int module )       const
 {
 #ifndef NDEBUG
     if(m_do_checks) {
@@ -178,7 +178,7 @@ TileTBID::module_id       ( int type, int module )       const throw(TileID_Exce
 // Build channel id
 //
 Identifier
-TileTBID::channel_id ( int type, int module, int channel ) const throw(TileID_Exception)
+TileTBID::channel_id ( int type, int module, int channel ) const
 {
 #ifndef NDEBUG
     if(m_do_checks) {
@@ -224,7 +224,7 @@ TileTBID::module_id     ( const Identifier & any_id )   const
 
 Identifier
 TileTBID::channel_id    ( const Identifier & module_id, 
-                          int channel )                     const throw(TileID_Exception)
+                          int channel )                     const
 {
     Identifier compactId(module_id);
     m_channel_impl.pack(channel,compactId);

@@ -22,17 +22,7 @@
 #include "AthContainers/AuxVectorBase.h"
 #include <typeinfo>
 #include <cstddef>
-
-
-#if __cplusplus > 201100
-# include <type_traits>
-namespace SG_STD_OR_BOOST = std;
-#else
-# include "boost/type_traits/remove_const.hpp"
-# include "boost/type_traits/is_pointer.hpp"
-# include "boost/type_traits/is_base_of.hpp"
-namespace SG_STD_OR_BOOST = boost;
-#endif
+#include <type_traits>
 
 
 
@@ -215,9 +205,7 @@ public:
   typedef T Container;
 
   /// The container's element type (with pointer and any const removed).
-  typedef typename
-    SG_STD_OR_BOOST::remove_const<typename Container::base_value_type>::type
-    Elt;
+  typedef typename std::remove_const<typename Container::base_value_type>::type Elt;
 
 
   /**

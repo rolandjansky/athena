@@ -39,6 +39,7 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm
   SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_sTGC_ContainerName{this,"sTGCPrepDataLocation","sTGC_Clusters","sTGC prep data"};
   SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MM_ContainerName{this,"MMPrepDataLocation","MM_Clusters","MM prep data"};
   bool m_usePRDs;
+  bool m_useNSW;
 };
 
 

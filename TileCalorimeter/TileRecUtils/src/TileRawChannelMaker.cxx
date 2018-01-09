@@ -2,21 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/ToolHandle.h"
-
+// Tile includes
+#include "TileRecUtils/TileRawChannelMaker.h"
+#include "TileRecUtils/TileRawChannelBuilder.h"
+ 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
-
 // access all RawChannels inside container
 #include "EventContainers/SelectAllObject.h"
-
-// Tile includes
-#include "TileEvent/TileDigitsContainer.h"
-#include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileRecUtils/TileRawChannelMaker.h"
+#include "StoreGate/ReadHandle.h"
+ 
+// Gaudi includes
 
 #include <algorithm>
 #include <set>
@@ -29,13 +25,10 @@
 TileRawChannelMaker::TileRawChannelMaker(const std::string& name,
     ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-    , m_TileDigitsContainerID("TileDigitsCnt")
     , m_tileRawChannelBuilderList()
     , m_fitOverflow(false)      
     , m_tileRawChannelBuilderFitOverflow("TileRawChannelBuilder")
 {
-  // declareProperty("TileRawChannelBuilder",m_TileRawChannelBuilderIDVec);
-  declareProperty("TileDigitsContainer", m_TileDigitsContainerID);
   declareProperty("TileRawChannelBuilder", m_tileRawChannelBuilderList, "List Of Tools");
   declareProperty("FitOverflow", m_fitOverflow, "Fit or not overflows");
   declareProperty("TileRawChannelBuilderFitOverflow", m_tileRawChannelBuilderFitOverflow, "Tool to fit overflows");
@@ -72,6 +65,8 @@ StatusCode TileRawChannelMaker::initialize() {
     m_tileRawChannelBuilderFitOverflow.disable();
   }
 
+  ATH_CHECK( m_digitsContainerKey.initialize() );
+
   ATH_MSG_INFO( "Initialization completed successfully");
 
   return StatusCode::SUCCESS;
@@ -83,24 +78,20 @@ StatusCode TileRawChannelMaker::initialize() {
 StatusCode TileRawChannelMaker::execute() {
 
   // get named TileDigitsContaner from TES
-  const TileDigitsContainer *digiCnt;
-  if (evtStore()->retrieve(digiCnt, m_TileDigitsContainerID).isFailure()) {
+  SG::ReadHandle<TileDigitsContainer> digitsContaner(m_digitsContainerKey);
+
+  if (!digitsContaner.isValid()) {
     ATH_MSG_WARNING( "Can't retrieve TileDigitsContainer '"
-                    << m_TileDigitsContainerID << "' from TDS" );
+                    << m_digitsContainerKey.key() << "' from TDS" );
 
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_TileDigitsContainerID << "'" );
-
-  ToolHandleArray<TileRawChannelBuilder>::iterator itRChB =
-      m_tileRawChannelBuilderList.begin();
-  ToolHandleArray<TileRawChannelBuilder>::iterator itRChBEnd =
-      m_tileRawChannelBuilderList.end();
+  ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_digitsContainerKey.key() << "'" );
 
   // create  RawChannel Containers for all sub-algs
-  for (; itRChB != itRChBEnd; ++itRChB) {
-    CHECK( (*itRChB)->createContainer() );
+  for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
+    CHECK( rawChannelBuilder->createContainer() );
   }
 
   //make sure that we clean memory about errors in a drawer
@@ -108,25 +99,20 @@ StatusCode TileRawChannelMaker::execute() {
 
   // clean memory about overflows
   if (m_fitOverflow) {
-    itRChB = m_tileRawChannelBuilderList.begin();
-    for (; itRChB != itRChBEnd; ++itRChB) {
-      (*itRChB)->resetOverflows();
+    for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
+      rawChannelBuilder->resetOverflows();
     }
   }
 
   // Iterate over all collections (drawers) with digits
-  TileDigitsContainer::const_iterator collItr = digiCnt->begin();
-  TileDigitsContainer::const_iterator lastColl = digiCnt->end();
-
-  for (; collItr != lastColl; ++collItr) {
-    const TileDigitsCollection * coll = (*collItr);
+  for (const TileDigitsCollection* digitsCollection : *digitsContaner) {
 
     // Iterate over all sub-algs
-    itRChB = m_tileRawChannelBuilderList.begin();
-    for (; itRChB != itRChBEnd; ++itRChB) {
+    for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
       // reconstruct all channels in one drawer
-      (*itRChB)->build(coll);
+      rawChannelBuilder->build(digitsCollection);
     }
+
   }
 
   if (m_fitOverflow
@@ -135,9 +121,8 @@ StatusCode TileRawChannelMaker::execute() {
   }
 
   // commit RawChannel Containers for all sub-algs
-  itRChB = m_tileRawChannelBuilderList.begin();
-  for (; itRChB != itRChBEnd; ++itRChB) {
-    CHECK( (*itRChB)->commitContainer() );
+  for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
+    CHECK( rawChannelBuilder->commitContainer() );
   }
 
   ATH_MSG_DEBUG( "execute completed successfully" );
@@ -157,20 +142,15 @@ StatusCode TileRawChannelMaker::finalize() {
 
 void TileRawChannelMaker::fitOverflowedChannels() {
 
-  ToolHandleArray<TileRawChannelBuilder>::iterator itRChB =
-      m_tileRawChannelBuilderList.begin();
-  ToolHandleArray<TileRawChannelBuilder>::iterator itRChBEnd =
-      m_tileRawChannelBuilderList.end();
+  for (ToolHandle<TileRawChannelBuilder> rawChannelBuilder : m_tileRawChannelBuilderList) {
 
-  // Iterate over all sub-algs  
-	itRChB = m_tileRawChannelBuilderList.begin();
-  for (; itRChB != itRChBEnd; ++itRChB) {
+    Overflows_t overflows = rawChannelBuilder->getOverflowedChannels();
 
-    Overflows_t overflows = (*itRChB)->getOverflowedChannels();
-    Overflows_t::const_iterator itOverflow = overflows.begin();
-    for (; itOverflow != overflows.end(); ++itOverflow) {
-      TileRawChannel* rwCh = (*itOverflow).first;
-      const TileDigits* pDigits = (*itOverflow).second;
+    for (std::pair<TileRawChannel*, const TileDigits*>& overflow : overflows) {
+
+      TileRawChannel* rwCh = overflow.first;
+      const TileDigits* pDigits = overflow.second;
+
       TileRawChannel* fittedRwCh = m_tileRawChannelBuilderFitOverflow->rawChannel(pDigits);
 
       bool fitOK = ( ( fabs(fittedRwCh->time()) < m_overflowReplaceTimeCut     ) &&

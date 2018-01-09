@@ -22,24 +22,32 @@
  *   
  ********************************************************************/
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-// Atlas includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "Identifier/HWIdentifier.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+// Tile includes
+#include "TileEvent/TileCellContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileIdentifier/TileFragHash.h"
+#include "TileIdentifier/TileRawChannelUnit.h"
+//#include "TileRecUtils/TileBeamInfoProvider.h"
 
 // Calo includes
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloConditions/CaloAffectedRegionInfo.h"
 
-// Tile includes
-#include "TileEvent/TileCellContainer.h"
-#include "TileIdentifier/TileFragHash.h"
-#include "TileIdentifier/TileRawChannelUnit.h"
-//#include "TileRecUtils/TileBeamInfoProvider.h"
+// Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "Identifier/HWIdentifier.h"
+#include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+// C++ STL includes
+#include <string>
+#include <vector>
+#include <memory>
 
 // forward declarations
 class TileID;
@@ -59,9 +67,6 @@ class TileBeamInfoProvider;
 class TileDQstatus;
 
 
-// C++ STL includes
-#include <string>
-#include <vector>
 
 /**
  @class TileDrawerEvtStatus
@@ -137,10 +142,25 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     friend class TileHid2RESrcID;
 
     // properties
-    std::string m_rawChannelContainer;
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this, "TileRawChannelContainer", 
+                                                                        "TileRawChannelCnt", 
+                                                                        "Input Tile raw channel container key"};
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_dspRawChannelContainerKey{this, "TileDSPRawChannelContainer", 
+                                                                           "TileRawChannelCnt", 
+                                                                           "Input Tile DSP raw channel container key"};
+
+
+    SG::WriteHandleKey<TileCellContainer> m_MBTSContainerKey{this, "MBTSContainer", 
+                                                             "MBTSContainer", 
+                                                             "Output Tile MBTS container key"};
+
+    SG::WriteHandleKey<TileCellContainer> m_E4prContainerKey{this, "E4prContainer", 
+                                                             "E4prContainer",
+                                                             "Output Tile E4 prime container key"};
+
+
     std::string m_infoName;
-    std::string m_MBTSContainer;
-    std::string m_E4prContainer;
     std::string m_dspRawChannelContainer;
 
     float m_eneForTimeCut;        //!< keep time for channels with energy above cut
@@ -185,8 +205,8 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager
 
     std::vector<TileCell*> m_allCells;  //!< vector to of pointers to TielCells
-    TileCellContainer* m_MBTSCells;     //!< Pointer to MBTS cell container
-    TileCellContainer* m_E4prCells;     //!< Pointer to E4'  cell container
+    std::unique_ptr<TileCellContainer> m_MBTSCells;     //!< Pointer to MBTS cell container
+    std::unique_ptr<TileCellContainer> m_E4prCells;     //!< Pointer to E4'  cell container
 
     TileFragHash::TYPE m_RChType;        //!< Type of TileRawChannels (Fit, OF2, etc.)
     TileRawChannelUnit::UNIT m_RChUnit;  //!< Unit for TileRawChannels (ADC, pCb, etc.)

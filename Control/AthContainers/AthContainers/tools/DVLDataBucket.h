@@ -18,7 +18,7 @@
 #define ATHCONTAINERS_TOOLS_DVLDATABUCKET_H
 
 #include "AthContainers/ViewVector.h"
-#include "SGTools/DataBucket.h"
+#include "AthenaKernel/DataBucket.h"
 #include "AthContainers/tools/DVLInfo.h"
 #include <memory>
 

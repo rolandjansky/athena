@@ -418,7 +418,7 @@ protected:
   std::string m_triggerChainName;
   float m_barrelEta;
   const xAOD::VertexContainer* m_vertices;
-  xAOD::Vertex* m_pvtx;
+  const xAOD::Vertex* m_pvtx;
   bool m_doHitQuality;
   bool m_extendedPlots;
   float m_d0Range;

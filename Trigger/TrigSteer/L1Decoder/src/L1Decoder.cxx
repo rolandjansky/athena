@@ -24,15 +24,14 @@ StatusCode L1Decoder::initialize() {
   CHECK( m_roiUnpackers.retrieve() );
   //  CHECK( m_prescaler.retrieve() );
 
-  // this code should be in th ebeginRun but the later does not seem to be called
-  for ( auto t: m_roiUnpackers )
-    CHECK( t->updateConfiguration() );
-  
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1Decoder::beginRun() {
+StatusCode L1Decoder::start() {
+
+  for ( auto t: m_roiUnpackers )
+    CHECK( t->updateConfiguration() );
+
   return StatusCode::SUCCESS;
 }
 

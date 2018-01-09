@@ -110,7 +110,7 @@ public:
 
   // Function used by the HW to compare similar combinations
   unsigned int getNCommonHits(const FTKAthTrack &, const float*) const;
-  int HWChoice(const FTKAthTrack&,const float*,const unsigned int,int);
+  int HWChoice(const FTKAthTrack&,const float*,const unsigned int,int) const;
 
   FTKAthTrack& operator=(const FTKAthTrack&);
 };

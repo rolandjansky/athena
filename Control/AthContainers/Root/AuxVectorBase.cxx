@@ -12,7 +12,6 @@
 
 
 #include "AthContainers/AuxVectorBase.h"
-#include "AthContainers/tools/foreach.h"
 
 
 namespace SG {
@@ -33,7 +32,6 @@ AuxVectorBase::AuxVectorBase()
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move constructor.
  * @param rhs The container from which to move.
@@ -57,7 +55,6 @@ AuxVectorBase& AuxVectorBase::operator= (AuxVectorBase&& rhs)
   }
   return *this;
 }
-#endif
 
 
 /**
@@ -132,7 +129,7 @@ void AuxVectorBase::setStore (const DataLink<SG::IConstAuxStore>& store)
  * (but that should never actually happen).
  */
 void
-AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::false_type&,
+AuxVectorBase::initAuxVectorBase1 (const std::false_type&,
                                    SG::OwnershipPolicy /*ownPolicy*/,
                                    SG::IndexTrackingPolicy /*indexTrackingPolicy*/)
 {
@@ -152,7 +149,7 @@ AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::false_type&,
  * has an associated store.
  */
 void
-AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::true_type&,
+AuxVectorBase::initAuxVectorBase1 (const std::true_type&,
                                    SG::OwnershipPolicy ownPolicy,
                                    SG::IndexTrackingPolicy indexTrackingPolicy)
 {
@@ -176,7 +173,7 @@ AuxVectorBase::initAuxVectorBase1 (const SG_STD_OR_BOOST::true_type&,
  *
  * The auxdata case.
  */
-void AuxVectorBase::resize1 (const SG_STD_OR_BOOST::true_type&, size_t size)
+void AuxVectorBase::resize1 (const std::true_type&, size_t size)
 {
   if (this->hasNonConstStore()) {
     if (!this->getStore()->resize (size)) {
@@ -195,7 +192,7 @@ void AuxVectorBase::resize1 (const SG_STD_OR_BOOST::true_type&, size_t size)
  *
  * The auxdata case.
  */
-void AuxVectorBase::reserve1 (const SG_STD_OR_BOOST::true_type&, size_t size)
+void AuxVectorBase::reserve1 (const std::true_type&, size_t size)
 {
   if (this->hasNonConstStore()) {
     this->getStore()->reserve (size);
@@ -298,12 +295,12 @@ void AuxVectorBase::swapElementsAux (size_t aindex,
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   SG::AuxTypeRegistry::lock_t lock (r);
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, a_ids) {
+  for (SG::auxid_t auxid : a_ids) {
     void* aptr = acont->getDataArray (auxid);
     void* bptr = bcont->getDataArray (auxid);
     r.swap (lock, auxid, aptr, aindex, bptr, bindex);
   }
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, b_ids) {
+  for (SG::auxid_t auxid : b_ids) {
     if (a_ids.find (auxid) == a_ids.end()) {
       void* aptr = acont->getDataArray (auxid);
       void* bptr = bcont->getDataArray (auxid);
@@ -335,7 +332,7 @@ AuxVectorBase::ResortAuxHelper::ResortAuxHelper (size_t sz,
   size_t naux = auxid_set.size();
   m_auxdata.reserve (naux);
   m_auxids.reserve (naux);
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, auxid_set) {
+  for (SG::auxid_t auxid : auxid_set) {
     m_auxdata.push_back (vec.getDataArrayForResort (auxid));
     m_auxids.push_back (auxid);
   }

@@ -14,6 +14,8 @@
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "TrkTrack/TrackCollection.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 #include <string>
 #include <vector>
@@ -115,15 +117,8 @@ namespace Muon {
     MuonTrackTruth getTruth( const std::vector<const Trk::MeasurementBase*>& measurements,
 			     TruthTreeEntry& truthEntry, bool restrictedTruth ) const;
 
-
-    const TrackRecordCollection* getTruthTrackCollection() const;
-    
-    const MuonSimDataCollection* retrieveTruthCollection( std::string colName ) const;
-
-    const CscSimDataCollection* retrieveCscTruthCollection( std::string colName ) const;
-
-    void addSimDataToTree( const std::string& name ) const;
-    void addCscSimDataToTree( const std::string& name ) const;
+    void addSimDataToTree( const MuonSimDataCollection* simDataCol ) const;
+    void addCscSimDataToTree( const CscSimDataCollection* simDataCol ) const;
 
     void addMdtTruth( MuonTechnologyTruth& trackTruth, const Identifier& id, const Trk::MeasurementBase& meas, 
 		      const MuonSimDataCollection& simCol ) const;
@@ -156,8 +151,10 @@ namespace Muon {
     ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
     ToolHandle<Trk::ITruthTrajectoryBuilder>     m_truthTrajectoryBuilder;
 
-    std::vector<std::string> m_simDataMapNames;
-    std::string m_CSC_SimDataMapName;
+    SG::ReadHandleKey<McEventCollection> m_mcEventColl{this,"McEventCollectionKey","TruthEvent","McEventCollection"};
+    SG::ReadHandleKeyArray<MuonSimDataCollection> m_muonSimData{this,"MuonSimDataNames",{ "MDT_SDO", "RPC_SDO", "TGC_SDO" },"Muon SDO maps"};
+    SG::ReadHandleKey<CscSimDataCollection> m_cscSimData{this,"CSC_SDO_Container","CSC_SDO","CSC SDO"};
+    SG::ReadHandleKey<TrackRecordCollection> m_trackRecord{this,"TrackRecord","MuonEntryLayerFilter","Track Record Collection"};
 
     mutable TruthTree m_truthTree;
     mutable std::vector<TruthTrajectory*> m_truthTrajectoriesToBeDeleted;

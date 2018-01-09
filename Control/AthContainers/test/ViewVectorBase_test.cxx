@@ -18,7 +18,7 @@
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxElement.h"
 #include "SGTools/TestStore.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>

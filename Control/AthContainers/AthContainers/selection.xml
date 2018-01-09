@@ -1,6 +1,4 @@
 <lcgdict>
-  <class name="UserDataStore"/>
-
   <class name="SG::AuxTypeRegistry"/>
   <class name="SG::AuxVectorBase"/>
   <class name="SG::AuxVectorData">

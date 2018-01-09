@@ -48,7 +48,6 @@ TrackDepositInCaloTool::TrackDepositInCaloTool( const std::string& type, const s
 {
   declareInterface<ITrackDepositInCaloTool>(this);
   declareProperty("ExtrapolatorHandle", m_extrapolator );   
-  declareProperty("CaloCellContainerName", m_cellContainerName="AllCalo");
   declareProperty("doExtrapolation",m_doExtr = true);
   declareProperty("doEDeposHist",m_doHist = false);
   declareProperty("DebugMode", m_debugMode = false);
@@ -130,7 +129,7 @@ StatusCode TrackDepositInCaloTool::finalize() {
 ///////////////////////////////////////////////////////////////////////////////
 // getDeposits
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont) const {
+std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont) const{
 
   ATH_MSG_DEBUG("In TrackDepositInCaloTool::getDeposits()");
   std::vector<DepositInCalo> result;
@@ -139,20 +138,8 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
   if (!par) {
     return result;
   }
-  // --- Get the CaloCellContainer from storegate every event ---
-  if(caloCellCont == nullptr) {
-    if ( evtStore()->retrieve(m_cellContainer, m_cellContainerName).isFailure() ) {
-      ATH_MSG_WARNING("Could not retrieve CaloCellContainer, key <" << m_cellContainerName << ">");
-      return result;
-    }
-    if (!m_cellContainer) {
-      ATH_MSG_WARNING("Cell container retrieved, but pointer is 0.");
-      return result;
-    }
-  }
-  else {
-    m_cellContainer = caloCellCont;
-  }
+
+  if(!caloCellCont) return result;
   
   const Trk::ParticleHypothesis muonHypo = Trk::muon;
 
@@ -199,7 +186,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
     //   ATH_MSG_INFO("Distance = " << distance << " => Eloss/CLHEP::mm = " << energyLoss/distance);
 
     // --- Retrieve crossed cells ---  
-    std::vector<const CaloCell*>* cells = getCaloCellsForLayer(descr, parEntrance, parExit);
+    std::vector<const CaloCell*>* cells = getCaloCellsForLayer(descr, parEntrance, parExit, caloCellCont);
 
     // --- Add contributions ---
     double sumEnergy = 0;
@@ -344,15 +331,15 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::Track
 ///////////////////////////////////////////////////////////////////////////////
 // getCaloCellsForLayer
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForLayer(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, const Trk::TrackParameters* parExit) const {
+std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForLayer(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, const Trk::TrackParameters* parExit, const CaloCellContainer* caloCellCont) const {
   if (descr->is_tile()) {
     // --- Tile implemention is lengthy and therefore put in seperate function ---
-    return getCaloCellsForTile(descr, parEntrance, parExit);
+    return getCaloCellsForTile(descr, parEntrance, parExit, caloCellCont);
   }
   else {
     // --- LAr implementation is short, quick and simple ---
-    const CaloCell* cellEntrance = getClosestCellLAr(parEntrance, descr);
-    const CaloCell* cellExit     = getClosestCellLAr(parExit, descr);
+    const CaloCell* cellEntrance = getClosestCellLAr(parEntrance, descr, caloCellCont);
+    const CaloCell* cellExit     = getClosestCellLAr(parExit, descr, caloCellCont);
     std::vector<const CaloCell*>* result = new std::vector<const CaloCell*>();
     result->push_back(cellEntrance);
     if (cellEntrance!=cellExit) {
@@ -370,7 +357,7 @@ std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForLayer(const
 ///////////////////////////////////////////////////////////////////////////////
 // getCaloCellsForTile
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForTile(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, const Trk::TrackParameters* parExit) const {
+std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForTile(const CaloDetDescriptor* descr, const Trk::TrackParameters* parEntrance, const Trk::TrackParameters* parExit, const CaloCellContainer* caloCellCont) const {
 /*
   ...to be written...
 */
@@ -408,7 +395,7 @@ std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForTile(const 
   std::map<double, const CaloCell*> neighbourMap1;
 
   while (it!=vecHash.end()) {
-    const CaloCell* cell = m_cellContainer->findCell(*it);
+    const CaloCell* cell = caloCellCont->findCell(*it);
     if (cell) {
       const CaloDetDescrElement* dde = cell->caloDDE();
       if (dde) {
@@ -714,11 +701,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
   if (!par) {
     return result;
   }
-  // --- Get the CaloCellContainer from storegate every event ---
-  if ( evtStore()->retrieve(m_cellContainer, m_cellContainerName).isFailure() ) {
-    ATH_MSG_WARNING("Could not retrieve CaloContainer = " << m_cellContainerName);
-    return result;
-  }
+
   if (!m_cellContainer) {
     ATH_MSG_WARNING("Cell container retrieved, but pointer = 0");
     return result;
@@ -1191,17 +1174,13 @@ For the non-projective tile cells one has to select cells in a certain (eta,phi)
 that is closest to the track.
 */
 
-  if ( evtStore()->retrieve(m_cellContainer, m_cellContainerName).isFailure() ) {
-    ATH_MSG_WARNING("Could not retrieve CaloContainer = " << m_cellContainerName);
-    return 0;
-  }
   // --- Determine cell type ---
   const CaloCell* cell = 0;
   if (descr->is_tile()) {
     cell = getClosestCellTile(par, descr);
   }
   else {
-    cell = getClosestCellLAr(par, descr);
+    cell = getClosestCellLAr(par, descr, m_cellContainer);
   }
   // ATH_MSG_INFO("cell = " << cell);
   return cell;
@@ -1211,14 +1190,14 @@ that is closest to the track.
 ///////////////////////////////////////////////////////////////////////////////
 // getClosestCellLAr()
 ///////////////////////////////////////////////////////////////////////////////
-const CaloCell* TrackDepositInCaloTool::getClosestCellLAr(const Trk::TrackParameters* par, const CaloDetDescriptor* descr) const {
+const CaloCell* TrackDepositInCaloTool::getClosestCellLAr(const Trk::TrackParameters* par, const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) const {
 
   CaloCell_ID::CaloSample sample = const_cast<CaloDetDescriptor*>(descr)->getSampling();
   // ATH_MSG_INFO("Sampling = " << sample);
   const CaloDetDescrElement* cellDescr = m_caloDDM->get_element(sample, par->position().eta(), par->position().phi());
   if (cellDescr) {
     IdentifierHash hash = cellDescr->calo_hash();
-    const CaloCell* cell = m_cellContainer->findCell(hash);
+    const CaloCell* cell = caloCellCont->findCell(hash);
     if (cell) {
       // ATH_MSG_INFO("Energy = " << cell->energy());
       return cell;

@@ -35,7 +35,7 @@ StatusCode L1TopoTestAlg::execute()
   }
   else {
     // loop over and print RDOs
-    for (auto & rdo : *rdos){
+    for (const L1TopoRDO* rdo : *rdos){
       ATH_MSG_VERBOSE( *rdo );
       const std::vector<uint32_t> &cDataWords = rdo->getDataWords();
       if ( cDataWords.size() == 0 ) {

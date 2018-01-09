@@ -3,6 +3,9 @@
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClone
 from MuonRecExample.ConfiguredMuonRec import ConfiguredMuonRec
+from MuonRecExample.MuonRecFlags import muonRecFlags
+muonRecFlags.setDefaults()
+
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
@@ -14,6 +17,7 @@ def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs)
     if muonCombinedRecFlags.doCaloTrkMuId():
         tools.append(getPublicTool("MuonCaloTagTool"))
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    kwargs.setdefault("useNSW", muonRecFlags.dosTGCs() and muonRecFlags.doMicromegas() )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuGirlAlg(name="MuGirlAlg",**kwargs):

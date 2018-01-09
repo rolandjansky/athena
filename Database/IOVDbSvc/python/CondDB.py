@@ -225,8 +225,10 @@ class CondDB:
         "Add access to given folder, using folder1 online, folder2 offline"
         if self.isOnline and not self.isMC:
             self.addFolder(ident,folder1,force=force,forceMC=forceMC,forceData=forceData,className=className)
+            return folder1
         else:
             self.addFolder(ident+'_OFL',folder2,force=force,forceMC=forceMC,forceData=forceData,className=className)
+            return folder2
 
     def addFolderSplitMC(self,ident,folder1,folder2,force=False,forceMC=False,forceData=False,className=None):
         "Add access to given folder, using folder1 (online) for real data, folde2 (offline) for MC"

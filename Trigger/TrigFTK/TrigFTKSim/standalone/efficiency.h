@@ -14,7 +14,6 @@
 #include "TFile.h"
 #include "TProfile.h"
 
-using namespace std;
 
 class MatchInfo {
 private:
@@ -28,7 +27,7 @@ public:
   bool operator<(const MatchInfo& o) const { if (m_evtindex!=o.m_evtindex) return (m_evtindex<o.m_evtindex); else return m_barcode<o.m_barcode; }
 };
 
-typedef multimap<MatchInfo,const FTKTrack*> FTKBarcodeMM;
+typedef std::multimap<MatchInfo,const FTKTrack*> FTKBarcodeMM;
 unsigned nbins;
 double maxntracks;
 double d0min, d0max;

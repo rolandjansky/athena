@@ -232,7 +232,7 @@ void Trk::TrkObserverTool::updateScore(const Trk::Track& track, double score) {
 	}
 }
 
-void Trk::TrkObserverTool::updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) {
+void Trk::TrkObserverTool::updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) const {
 	auto it_range = m_observedTrkMap->equal_range(&track);		// because same address is used multiple times we have to search by range
 
 	if (it_range.first == it_range.second) {
@@ -252,7 +252,7 @@ void Trk::TrkObserverTool::updateHolesSharedHits(const Trk::Track& track, int nu
 	}
 }
 
-void Trk::TrkObserverTool::rejectTrack(const Trk::Track& track, int rejectPlace) {
+void Trk::TrkObserverTool::rejectTrack(const Trk::Track& track, int rejectPlace) const {
 	auto it_range = m_observedTrkMap->equal_range(&track);		// because same address is used multiple times we have to search by range
 
 	if (it_range.first == it_range.second) {

@@ -12,21 +12,21 @@ MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& 
 {  
   declareProperty("MuonCombinedInDetExtensionTools",m_muonCombinedInDetExtensionTools);
   declareProperty("usePRDs",m_usePRDs=false);
+  declareProperty("useNSW", m_useNSW=false);
 }
 
 MuonCombinedInDetExtensionAlg::~MuonCombinedInDetExtensionAlg(){}
 
 StatusCode MuonCombinedInDetExtensionAlg::initialize()
 {
-
   ATH_CHECK(m_muonCombinedInDetExtensionTools.retrieve());
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
   ATH_CHECK(m_MDT_ContainerName.initialize(m_usePRDs));
   ATH_CHECK(m_RPC_ContainerName.initialize(m_usePRDs));
   ATH_CHECK(m_TGC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs));
-  ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs));
+  ATH_CHECK(m_CSC_ContainerName.initialize(m_usePRDs && !m_useNSW));
+  ATH_CHECK(m_sTGC_ContainerName.initialize(m_usePRDs && m_useNSW));
+  ATH_CHECK(m_MM_ContainerName.initialize(m_usePRDs && m_useNSW));
 
   return StatusCode::SUCCESS; 
 }
@@ -45,14 +45,16 @@ StatusCode MuonCombinedInDetExtensionAlg::execute()
     SG::ReadHandle<Muon::CscPrepDataContainer> cscPRDContainer(m_CSC_ContainerName);
     SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPRDContainer(m_RPC_ContainerName);
     SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPRDContainer(m_TGC_ContainerName);
-    SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcPRDContainer(m_sTGC_ContainerName);
-    SG::ReadHandle<Muon::MMPrepDataContainer> mmPRDContainer(m_MM_ContainerName);
-
-    for(auto& tool : m_muonCombinedInDetExtensionTools)
-      tool->extendWithPRDs(*indetCandidateCollection,mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),stgcPRDContainer.cptr(),mmPRDContainer.cptr());
-  }
-  else{
-
+    if (m_useNSW) {
+      SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcPRDContainer(m_sTGC_ContainerName);
+      SG::ReadHandle<Muon::MMPrepDataContainer> mmPRDContainer(m_MM_ContainerName);
+      for(auto& tool : m_muonCombinedInDetExtensionTools)
+        tool->extendWithPRDs(*indetCandidateCollection,mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),stgcPRDContainer.cptr(),mmPRDContainer.cptr());
+     } else {
+       for(auto& tool : m_muonCombinedInDetExtensionTools)
+         tool->extendWithPRDs(*indetCandidateCollection,mdtPRDContainer.cptr(),cscPRDContainer.cptr(),rpcPRDContainer.cptr(),tgcPRDContainer.cptr(),0,0);
+     }
+  } else{
     for(auto& tool : m_muonCombinedInDetExtensionTools)
       tool->extend(*indetCandidateCollection);
   }

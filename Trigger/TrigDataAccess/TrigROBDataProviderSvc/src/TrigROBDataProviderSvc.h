@@ -66,11 +66,11 @@ public:
 
     virtual ~TrigROBDataProviderSvc(void);
   
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
     /// --- Implementation of IROBDataProviderSvc interface ---    
 
@@ -100,35 +100,39 @@ public:
     /// --- Implementation of ITrigROBDataProviderSvc interface ---
 
     /// Return vector with all ROBFragments stored in the cache 
-    virtual void getAllROBData(std::vector<const ROBF*>& robFragments) ;
+    virtual void getAllROBData(std::vector<const ROBF*>& robFragments) override;
 
     // Dump ROB cache
-    virtual std::string dumpROBcache() const ;
+    virtual std::string dumpROBcache() const override;
 
     /// Return size of ROBFragments cache 
-    virtual int sizeROBCache() { return m_online_robmap.size(); }
+    virtual int sizeROBCache() override { return m_online_robmap.size(); }
 
     /// iterators over cache entries
-    virtual std::map<uint32_t, ROBF>::iterator beginROBCache() { return m_online_robmap.begin(); }
-    virtual std::map<uint32_t, ROBF>::iterator endROBCache()   { return m_online_robmap.end(); }
+    virtual std::map<uint32_t, ROBF>::iterator beginROBCache() override { return m_online_robmap.begin(); }
+    virtual std::map<uint32_t, ROBF>::iterator endROBCache()   override { return m_online_robmap.end(); }
 
     /// Check if complete event data are already in cache
     virtual bool isEventComplete() { return m_isEventComplete; }
+    virtual bool isEventComplete() const { return m_isEventComplete; }
+    virtual bool isEventComplete(const EventContext&) const override
+    { return m_isEventComplete; }
 
     /// Collect all data for an event from the ROS and put them into the cache
     /// Return value: number of ROBs which were retrieved to complete the event
-    virtual int collectCompleteEventData(const std::string callerName="UNKNOWN");
+    virtual int collectCompleteEventData(const std::string callerName="UNKNOWN") override;
+    virtual int collectCompleteEventData(const EventContext&, const std::string callerName="UNKNOWN") override;
 
     /// set the name of the program which uses the ROBDataProviderSvc
-    virtual void setCallerName(const std::string);
+    virtual void setCallerName(const std::string) override;
 
     /// get the name of the program which is presently registered in the ROBDataProviderSvc
-    virtual std::string getCallerName() { return m_callerName; };
+    virtual std::string getCallerName() override { return m_callerName; };
 
     /// --- Implementation of IIncidentListener interface ---
 
     // handler for BeginRun actions
-    void handle(const Incident& incident);
+    void handle(const Incident& incident) override;
 
 protected:
     /**

@@ -172,7 +172,7 @@ StatusCode Trk::TruthTrackCreation::execute()
     
     // If configured : update the track summary
     if (!m_trackSummaryTool.empty()) {
-        TrackCollection::const_iterator rf,rfe=outputTrackCollection->end();
+        TrackCollection::iterator rf,rfe=outputTrackCollection->end();
         for (rf=outputTrackCollection->begin();rf!=rfe; ++rf) {
             ATH_MSG_VERBOSE("Updating the TrackSummary with shared hits.");
             m_trackSummaryTool->updateTrack(**rf);

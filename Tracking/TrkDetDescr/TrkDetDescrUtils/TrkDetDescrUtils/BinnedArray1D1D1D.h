@@ -92,7 +92,7 @@ namespace Trk {
       }
 
       /** Copy Constructor - copies only pointers! */
-      BinnedArray1D1D1D(const BinnedArray1D1D1D& barr) throw (GaudiException)
+      BinnedArray1D1D1D(const BinnedArray1D1D1D& barr)
       : BinnedArray<T>(),
         m_array(0),
         m_arrayObjects(0),

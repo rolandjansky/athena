@@ -396,12 +396,8 @@ private:
   /// Record which variables are decorations.
   std::vector<bool> m_isDecoration;
 
-  // Hide this from root --- otherwise we get errors about the dictionary
-  // for this guy's allocator.
-#ifndef __REFLEX__
   /// Set of @c auxid's for which we've created a vector.
   SG::auxid_set_t m_auxids;
-#endif
 
   /// Count changes to @c m_auxids.
   size_t m_tick;
@@ -432,8 +428,8 @@ private:
 
 #ifndef XAOD_STANDALONE
 
-#include "SGTools/BaseInfo.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
 SG_BASE( SG::AuxStoreInternal, SG::IAuxStore );
 CLASS_DEF( SG::AuxStoreInternal , 16428258 , 1 )
 

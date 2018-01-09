@@ -45,7 +45,7 @@ public:
    virtual ~ROBDataProviderSvc();
 
    /// initialize the service
-   virtual StatusCode initialize();
+   virtual StatusCode initialize() override;
 
    /// Gaudi queryInterface method.
    //   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
@@ -85,7 +85,7 @@ public:
 				  const std::function< void(const ROBF* )>& fn ) const override;
 
    virtual bool isEventComplete(const EventContext& /*context*/) const override { return true; }
-   virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string /*callerName*/ ) {  return 0; }
+   virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string /*callerName*/ ) override {  return 0; }
 
 
 

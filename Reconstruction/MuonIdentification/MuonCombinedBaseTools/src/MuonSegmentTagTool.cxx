@@ -782,7 +782,7 @@ namespace MuonCombined {
 
     }
 
-    InDetCandidate*     tagCandidate = 0;
+    const InDetCandidate*     tagCandidate = 0;
     for( auto idTP : inDetCandidates ){
  
       if( ! idTP->indetTrackParticle().track() ) continue;
@@ -803,7 +803,8 @@ namespace MuonCombined {
       if(match) {     
         ATH_MSG_DEBUG( "make Segment Tag object for " << m_printer->print(*track) << " nr segments " << segmentsInfoTag.size() );          
         SegmentTag* tag = new SegmentTag(segmentsInfoTag);
-        tagCandidate->addTag(*tag);
+        // FIXME const-cast changes object passed in as const
+        const_cast<InDetCandidate*>(tagCandidate)->addTag(*tag);
       } 
     }   
 

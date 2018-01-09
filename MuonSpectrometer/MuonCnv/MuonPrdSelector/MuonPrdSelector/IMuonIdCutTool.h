@@ -25,8 +25,8 @@ class IMuonIdCutTool : virtual public IAlgTool
   /** access to tool interface */
   static const InterfaceID& interfaceID();
 
-  virtual bool isCut(Identifier ID)=0;
-  virtual bool isCut(MuonCalib::MuonFixedId id)=0;
+  virtual bool isCut(Identifier ID) const = 0;
+  virtual bool isCut(MuonCalib::MuonFixedId id) const = 0;
   
   
 };

@@ -91,12 +91,12 @@ ProbeContainer* HighPtSingleMuonSelectionTool::selectProbes(const xAOD::MuonCont
         FillCutFlows("ProbeKinematics",evtWeight);
 
         // ID hits
-        xAOD::Muon* probemu = dynamic_cast<xAOD::Muon*> (probe);
+        const xAOD::Muon* probemu = dynamic_cast<const xAOD::Muon*> (probe);
 		if (m_probe_ID_hits && probemu) {
 			if (!m_selection_tool->passedIDCuts(*probemu)) continue;
 		}
 		if (!probemu && m_probe_ID_hits) {
-			xAOD::TrackParticle *trk = dynamic_cast<xAOD::TrackParticle*>(probe);
+			const xAOD::TrackParticle *trk = dynamic_cast<const xAOD::TrackParticle*>(probe);
 			if (!m_selection_tool->passedIDCuts(*trk)) continue;
 		}
 		// reject CaloTags failing the Loose WP

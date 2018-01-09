@@ -134,7 +134,7 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 			z0Jet1 = vertex1->z();
 			ATH_MSG_DEBUG("Found Vertex 1, Z0: " << z0Jet1);
 		}
-		catch(std::exception e)
+		catch(const std::exception& e)
 		{
 			//do nothing
 		}
@@ -144,7 +144,7 @@ HLT::ErrorCode HLTVertexPreSelHypo::hltExecute(const HLT::TriggerElement* inputT
 			z0Jet2 = vertex2->z();
 			ATH_MSG_DEBUG("Found Vertex 2, Z0: " << z0Jet2);
 		}
-		catch(std::exception e)
+		catch(const std::exception& e)
 		{
 			//do nothing
 		}

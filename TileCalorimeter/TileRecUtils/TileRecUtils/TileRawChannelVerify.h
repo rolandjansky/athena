@@ -31,7 +31,11 @@
 #define TILERECUTILS_TILERAWCHANNELVERIFY_H
 
 // Tile includes
+#include "TileEvent/TileRawChannelContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class TileHWID;
 
@@ -58,8 +62,13 @@ class TileRawChannelVerify: public AthAlgorithm {
 
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID  
 
-    std::string m_rawChannelContainer2; //!< name of one of the TileRawChannelContainer
-    std::string m_rawChannelContainer1; //!< name of one of the TileRawChannelContainer
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainer1Key{this, "TileRawChannelContainer1", 
+                                                                         "", "Input Tile raw channel container 1 key"};
+
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainer2Key{this, "TileRawChannelContainer2", 
+                                                                         "", "Input Tile raw channel container 2 key"};
+
 
     double m_precision; //!< maximum difference between the amplitudes of the TileRawChannels to be compared
 

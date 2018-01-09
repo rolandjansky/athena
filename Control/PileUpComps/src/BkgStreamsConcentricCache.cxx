@@ -154,7 +154,7 @@ BkgStreamsConcentricCache::setup(int firstXing,
     const std::string& streamName(bufName.str());    
     try {
       m_streams.push_back(PileUpStream(streamName,serviceLocator(),selecName)); 
-    } catch (std::runtime_error e) {
+    } catch (const std::runtime_error& e) {
       ATH_MSG_ERROR ( "Exception thrown while creating PileUpStream " 
 		      << streamName << " : " << e.what() );     
       return StatusCode::FAILURE;
@@ -471,7 +471,7 @@ BkgStreamsConcentricCache::Ring::Ring(const string& prop) :
     try {
       m_lowXing = boost::lexical_cast<long>(*token++);
       m_hiXing = boost::lexical_cast<long>(*token);
-    } catch (boost::bad_lexical_cast e) {
+    } catch (const boost::bad_lexical_cast& e) {
       OK = false;
     }
   }

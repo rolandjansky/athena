@@ -105,7 +105,7 @@ HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp(const std::string& prefix
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
 HLTNavDetails::HolderImp<STORED, CONTAINER>::~HolderImp() {  
-  typedef Holder<STORED> H;
+  //typedef Holder<STORED> H;
   // Don't touch m_log here --- if we're running global dtors, then
   // it may have already been deleted.
   //if (H::m_log) HMLOG(VERBOSE) << "~HolderImp clearing memory manager" << endmsg;

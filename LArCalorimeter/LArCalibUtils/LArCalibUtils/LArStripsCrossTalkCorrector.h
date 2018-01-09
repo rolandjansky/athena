@@ -94,7 +94,7 @@ class LArStripsCrossTalkCorrector : public AthAlgorithm
 
   const size_t m_noIdx;
 
-  std::vector < std::vector < LArAccumulatedCalibDigit* > > m_stripsLookUp;
+  std::vector < std::vector < const LArAccumulatedCalibDigit* > > m_stripsLookUp;
 
   std::vector < std::bitset< 128 > > m_knownMissingFebs;
 

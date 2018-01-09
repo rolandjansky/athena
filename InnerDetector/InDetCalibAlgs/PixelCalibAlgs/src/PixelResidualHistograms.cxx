@@ -399,7 +399,7 @@ int PixelResidualHistograms::Analyze(PixelResidualHistograms *reference,
 	
 	int nhistos =  m_HistogramsVector->GetNhistos();
 
-	char *currpath = getcwd(NULL,0);
+	char *currpath = getcwd(nullptr,0);
         mkdir(m_GlobalName.c_str(),S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir(m_GlobalName.c_str());
 

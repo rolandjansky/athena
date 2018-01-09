@@ -12,9 +12,14 @@ def getDefaultRunActions():
 # begin of event
 def getDefaultEventActions():
     from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.BeamFlags import beamFlags
     defaultUA=[]
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
         defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
+    # Cosmic filter
+    if flag_on('StoppedParticleFile') or (
+       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
+        defaultUA += ['G4UA::G4CosmicFilterTool']
     return defaultUA
 
 # stepping
@@ -70,10 +75,6 @@ def getDefaultActions():
     # Hit wrapper action
     if flag_on('CavernBG') and simFlags.CavernBG.get_Value() == 'Read':
         actions += ['G4UA::HitWrapperTool']
-    # Cosmic filter
-    if flag_on('StoppedParticleFile') or (
-       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
-        actions += ['G4UA::G4CosmicFilterTool']
     # Photon killer
     if simFlags.PhysicsList == 'QGSP_BERT_HP':
         actions += ['G4UA::PhotonKillerTool']

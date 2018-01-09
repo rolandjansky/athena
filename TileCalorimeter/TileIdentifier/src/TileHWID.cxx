@@ -126,7 +126,7 @@ TileHWID::tilehw_id     ()      const
 // Build ros & drawer id
 //
 HWIdentifier
-TileHWID::ros_id       ( int ros )      const throw(TileID_Exception)
+TileHWID::ros_id       ( int ros )      const
 {
 
     HWIdentifier compactID(m_base_tile_ros);
@@ -165,7 +165,7 @@ TileHWID::ros_id       ( int ros )      const throw(TileID_Exception)
 }
 
 HWIdentifier
-TileHWID::drawer_id       ( int ros, int drawer )       const throw(TileID_Exception)
+TileHWID::drawer_id       ( int ros, int drawer )       const
 {
 
     HWIdentifier compactID(m_base_tile_ros);
@@ -205,7 +205,7 @@ TileHWID::drawer_id       ( int ros, int drawer )       const throw(TileID_Excep
 }
 
 HWIdentifier
-TileHWID::drawer_id ( int frag ) const throw(TileID_Exception)
+TileHWID::drawer_id ( int frag ) const
 {
     int ros = (frag >> 8) & 0xFF;
     int drawer = frag & 0xFF;
@@ -217,7 +217,7 @@ TileHWID::drawer_id ( int frag ) const throw(TileID_Exception)
 // Build channel & adc id
 //
 HWIdentifier
-TileHWID::channel_id ( int ros, int drawer, int channel ) const throw(TileID_Exception)
+TileHWID::channel_id ( int ros, int drawer, int channel ) const
 {
 
     HWIdentifier compactID(m_base_tile_ros);
@@ -258,7 +258,7 @@ TileHWID::channel_id ( int ros, int drawer, int channel ) const throw(TileID_Exc
 }
 
 HWIdentifier
-TileHWID::adc_id ( int ros, int drawer, int channel, int adc ) const throw(TileID_Exception)
+TileHWID::adc_id ( int ros, int drawer, int channel, int adc ) const
 {
         
     HWIdentifier compactID(m_base_tile_ros);
@@ -319,7 +319,7 @@ TileHWID::channel_id     ( const HWIdentifier & any_id )   const
 
 HWIdentifier
 TileHWID::channel_id    ( const HWIdentifier & drawer_id, 
-                          int channel )                     const throw(TileID_Exception)
+                          int channel )                     const
 {
         
     HWIdentifier compactId(drawer_id);
@@ -370,7 +370,7 @@ TileHWID::channel_id    ( const HWIdentifier & drawer_id,
 
 HWIdentifier
 TileHWID::adc_id        ( const HWIdentifier & channel_id,
-                          int adc )                     const throw(TileID_Exception)
+                          int adc )                     const
 {
         
     HWIdentifier compactId(channel_id);
@@ -421,7 +421,7 @@ TileHWID::adc_id        ( const HWIdentifier & channel_id,
 
 HWIdentifier
 TileHWID::adc_id        ( const HWIdentifier & drawer_id,
-                          int channel, int adc )                const throw(TileID_Exception)
+                          int channel, int adc )                const
 {
         
     HWIdentifier compactId(drawer_id);

@@ -241,11 +241,11 @@ double TRTTimeCorrection::calculateTimeShiftFromStrawEnds( const Amg::Vector3D& 
 
   //The two (hopefully relevant) extreme points of the vertex region:
   Amg::Vector3D vertexExtension1( m_settings->timeOffsetCalcVertexX(),
-			       m_settings->timeOffsetCalcVertexY(),
-			       m_settings->timeOffsetCalcVertexZ() + m_maxVertexDisplacement);
+                                  m_settings->timeOffsetCalcVertexY(),
+                                  m_settings->timeOffsetCalcVertexZ() + m_maxVertexDisplacement);
   Amg::Vector3D vertexExtension2( m_settings->timeOffsetCalcVertexX(),
-			       m_settings->timeOffsetCalcVertexY(),
-			       m_settings->timeOffsetCalcVertexZ() - m_maxVertexDisplacement);
+                                  m_settings->timeOffsetCalcVertexY(),
+                                  m_settings->timeOffsetCalcVertexZ() - m_maxVertexDisplacement);
 
   //Minimum distance between vertex region and the straw ends:
   // const double mindisttoend1(std::min(strawend1_globalcoord.distance(vertexExtension1),
@@ -295,10 +295,7 @@ void TRTTimeCorrection::PropagationTime(const int& strawID, const double& meanZ,
   if (strawID & m_subdetectorMask) {
 
     //===// EndCap //===//
-
     const unsigned int iWheel((strawID >> m_shift15Bits) & m_right5Bits);
-
-
     direct_distance  = m_directDistsForEndCapWheels[iWheel];
     reflect_distance = m_reflectedDistsForEndCapWheels[iWheel];
 
@@ -316,10 +313,8 @@ void TRTTimeCorrection::PropagationTime(const int& strawID, const double& meanZ,
   } else {
 
     //===// Barrel //===//
-
     const unsigned int iRing((strawID >> m_shift15Bits) & m_right5Bits);
     const unsigned int iLayer((strawID >> m_shift5Bits) & m_right5Bits);
-
     direct_distance  = m_directDistsForBarrelLayers[iRing][iLayer];
     reflect_distance = m_reflectedDistsForBarrelLayers[iRing][iLayer];
 
@@ -381,9 +376,6 @@ void TRTTimeCorrection::calculateSignalDists_EndCap(const unsigned int& iWheel,
 
   return;
 }
-
-
-
 
 //_____________________________________________________________________________
 Identifier TRTTimeCorrection::getIdentifier ( int hitID,
@@ -455,13 +447,9 @@ Identifier TRTTimeCorrection::getIdentifier ( int hitID,
 	<< planeID << ", " << strawID << ")"
 	<< endmsg;
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-	<< "If this happens very rarely, don't be alarmed "
-	<< "(it is a Geant4 'feature')"
-	<< endmsg;
+	<< "If this happens very rarely, don't be alarmed (it is a Geant4 'feature')" << endmsg;
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-	<< "If it happens a lot, you probably have misconfigured geometry "
-	<< "in the sim. job."
-	<< endmsg;
+	<< "If it happens a lot, you probably have misconfigured geometry in the sim. job." << endmsg;
       statusok = false;
     }
 
@@ -469,4 +457,3 @@ Identifier TRTTimeCorrection::getIdentifier ( int hitID,
 
   return IdStraw;
 }
-

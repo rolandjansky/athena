@@ -184,6 +184,7 @@ StatusCode AmdcDb::initialize() {
         ATH_MSG_FATAL( "DoUpdatedSvc failed" ) ; 
         return StatusCode::FAILURE;
       }
+      m_IsInitialized = true;
   }
   
   ATH_MSG_INFO( "Initialisation ended     " ) ;
@@ -240,11 +241,6 @@ StatusCode AmdcDb::AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS)
 }
 StatusCode AmdcDb::DoUpdatedSvc()
 {
-  if ( !m_AmdcsimrecAthenaSvcUpdatedSvcDONE ){
-    ATH_MSG_INFO( "DoUpdatedSvc() called BUT m_AmdcsimrecAthenaSvcUpdatedSvcDONE is false    " ) ;
-    return StatusCode::SUCCESS;
-  }
-
   if ( !m_AmdcsimrecAthenaSvcUpdatedSvcDONE ){
     ATH_MSG_INFO( "DoUpdatedSvc() called BUT m_AmdcsimrecAthenaSvcUpdatedSvcDONE is false    " ) ;
     return StatusCode::SUCCESS;

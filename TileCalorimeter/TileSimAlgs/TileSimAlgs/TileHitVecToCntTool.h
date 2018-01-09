@@ -28,15 +28,17 @@
 #ifndef TILESIMALGS_TILEHITVECTOCNTTOOL_H
 #define TILESIMALGS_TILEHITVECTOCNTTOOL_H
 
-// Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
-
-// Athena includes
-#include "PileUpTools/PileUpToolBase.h"
-
 // Tile includes
 #include "TileIdentifier/TileFragHash.h"
 #include "TileSimEvent/TileHitVector.h"
+#include "TileEvent/TileHitContainer.h"
+
+// Athena includes
+#include "PileUpTools/PileUpToolBase.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ServiceHandle.h"
 
 
 // Avoid pushing dependencies into clients- just fwd declare the following:
@@ -98,7 +100,11 @@ class TileHitVecToCntTool: public PileUpToolBase {
     void findAndMergeMBTS(TileHitCollection* coll, int frag_id);
 
     std::vector<std::string> m_hitVectorNames;  //!< vector with the names of TileHitVectors to use
-    std::string m_hitContainer;                 //!< name of the TileHitCointainer
+
+    SG::WriteHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
+                                                           "Output Tile hit container key"};
+
+
     std::string m_infoName;                     //!< name of TileInfo object in TES
     bool m_run2;                                //!< if true => RUN2 geometry with E4' and merged E1
     bool m_pileUp;                              //!< if true => pileup mode is activated

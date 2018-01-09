@@ -18,6 +18,7 @@
 #include "CommissionEvent/ComTime.h"
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
+#include "AthContainers/ConstDataVector.h"
 
 
 InDetAlignMon::TrackSelectionTool::TrackSelectionTool( const std::string & type, const std::string & name, const IInterface* parent )
@@ -230,7 +231,7 @@ DataVector<xAOD::TrackParticle>* InDetAlignMon::TrackSelectionTool::selectTracks
   return return_tracks;
 }
 
-DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const std::string &trackColName)
+const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const std::string &trackColName)
 {
 
   //if this method is used the decision on which trackcollection
@@ -238,7 +239,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
   //returns a view to a new track collection object which contains the selected tracks
 
   const TrackCollection* tracks; //pointer to original track collection in StoreGate
-  DataVector<Trk::Track>* selected_tracks = new DataVector<Trk::Track>(SG::VIEW_ELEMENTS); //new track collection view
+  auto selected_tracks = std::make_unique<ConstDataVector<DataVector<Trk::Track> > >(SG::VIEW_ELEMENTS); //new track collection view
   
   const Trk::RecVertex* pVtx = NULL;
   if(m_usePrimVtx){
@@ -248,7 +249,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
     StatusCode sc = evtStore()->retrieve (vxContainer,m_VtxContainerName);
     if (sc.isFailure()) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No PrimVtxCollection with name  "<<m_VtxContainerName<<" found in StoreGate" << endmsg;
-      return selected_tracks; //return empty track collection (but not NULL)
+      return selected_tracks.release()->asDataVector(); //return empty track collection (but not NULL)
     } else {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "PrimVtxCollection with name  "<<m_VtxContainerName<< " with nvertices =  " << vxContainer->size() <<" found  in StoreGate" << endmsg;
     }
@@ -259,7 +260,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
       // Select good primary vertex
       if ((*vxIter)->vertexType() != Trk::PriVtx) continue;
       if ((*vxIter)->recVertex().fitQuality().numberDoF() <= 0) continue;
-      std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
+      const std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
       if (vxTrackAtVertex==0 || vxTrackAtVertex->size() < m_minTracksPerVtx) continue;
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a primary vertex built with " << vxTrackAtVertex->size() << " tracks" << endmsg;
       pVtx = &((*vxIter)->recVertex());//set pointer to identified primary vertex
@@ -272,7 +273,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
   StatusCode sc = evtStore()->retrieve(tracks,trackColName);
   if (sc.isFailure()) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
-    return selected_tracks; //return empty track collection (but not NULL)
+    return selected_tracks.release()->asDataVector(); //return empty track collection (but not NULL)
   } else {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<trackColName<<" found in StoreGate" << endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
@@ -282,7 +283,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
   TrackCollection::const_iterator trksItrE = tracks->end();
   for (; trksItr != trksItrE; ++trksItr) {
     
-    Trk::Track* track = *trksItr;
+    const Trk::Track* track = *trksItr;
 
     if(m_passAllTracks) {
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track automatically passes TrackSelectionTool since passAllTracks=True" << endmsg;
@@ -350,7 +351,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
     }
   }
 
-  return selected_tracks;
+  return selected_tracks.release()->asDataVector();
 }
 
 
@@ -510,7 +511,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracksNew(const
 
 //---------------------------------------------------------------------------------------
 
-DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks()
+const DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks()
 {
 
   //if this method the decision on which trackcollection
@@ -518,12 +519,12 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks()
   //returns a view to a new track collection object which contains the selected tracks
 
   const TrackCollection* tracks;
-  DataVector<Trk::Track>* selected_tracks = new DataVector<Trk::Track>(SG::VIEW_ELEMENTS);
+  auto selected_tracks = std::make_unique<ConstDataVector<DataVector<Trk::Track> > >(SG::VIEW_ELEMENTS);
 
   StatusCode sc = evtStore()->retrieve(tracks,m_trackColName);
   if (sc.isFailure()) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endmsg;
-    return selected_tracks; //return empty track collection (but not NULL)
+    return selected_tracks.release()->asDataVector(); //return empty track collection (but not NULL)
   } else {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_trackColName<<" found in StoreGate" << endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
@@ -533,7 +534,7 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks()
   TrackCollection::const_iterator trksItrE = tracks->end();
   for (; trksItr != trksItrE; ++trksItr) {
     
-    Trk::Track* track = *trksItr;
+    const Trk::Track* track = *trksItr;
 
     if(m_passAllTracks) {
       selected_tracks->push_back(track);//allow all tracks into new collection, regardless of decision 
@@ -544,6 +545,6 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks()
     }
   }
 
-  return selected_tracks;
+  return selected_tracks.release()->asDataVector();
 }
 

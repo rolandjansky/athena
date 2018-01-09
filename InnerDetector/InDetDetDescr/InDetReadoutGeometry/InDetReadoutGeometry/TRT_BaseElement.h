@@ -63,10 +63,10 @@ namespace InDetDD {
     virtual TRT_BaseElement::Type type() const = 0; 
 
     /** identifier of this detector element: */
-    virtual Identifier identify() const;
+    Identifier identify() const;
 
     /** identifier hash */
-    virtual IdentifierHash identifyHash() const;
+    IdentifierHash identifyHash() const;
 
     // --- GeoModel transformation forwards ----------------------------------------------------- //
 

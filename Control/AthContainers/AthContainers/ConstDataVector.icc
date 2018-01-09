@@ -123,7 +123,6 @@ ConstDataVector<DV>::ConstDataVector
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move constructor.
  * @param rhs The container from which to move.
@@ -156,7 +155,6 @@ ConstDataVector<DV>::ConstDataVector
     : ConstDataVector (l.begin(), l.end(), ownPolicy)
 {
 }
-#endif
 
 
 /**
@@ -199,7 +197,6 @@ ConstDataVector<DV>::operator= (const ConstDataVector& rhs)
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move assignment.
  * @param rhs The container from which to move.
@@ -236,7 +233,6 @@ ConstDataVector<DV>::operator= (std::initializer_list<value_type> l)
   this->assign (l.begin(), l.end());
   return *this;
 }
-#endif
 
 
 /**
@@ -260,7 +256,6 @@ void ConstDataVector<DV>::assign(InputIterator first, InputIterator last)
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Assign from an initializer list.
  * @param l An initializer list.
@@ -275,7 +270,6 @@ void ConstDataVector<DV>::assign(std::initializer_list<value_type> l)
 {
   this->assign (l.begin(), l.end());
 }
-#endif
 
 
 /**
@@ -564,8 +558,6 @@ void ConstDataVector<DV>::insert (iterator position,
 }
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
 /**
  * @brief Add an element to the end of the collection.
  * @param pElem The element to add to the collection.
@@ -607,7 +599,6 @@ ConstDataVector<DV>::insert(iterator position,
   return to_my_iterator
     (DV::insert (to_base_iterator (position), std::move (ptr)));
 }
-#endif
 
 
 /**
@@ -628,7 +619,6 @@ void ConstDataVector<DV>::insert (iterator position,
 {
   this->insert (position, l.begin(), l.end());
 }
-#endif
 
 
 //=== Erasure operations.
@@ -784,8 +774,6 @@ ConstDataVector<DV>::swapElement (iterator pos,
 }
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
 /**
  * @brief Swap one element out of the container.
  * @param index Index of the element in the container to swap.
@@ -854,8 +842,6 @@ ConstDataVector<DV>::swapElement (iterator pos,
   DV::swapElement (to_base_iterator(pos), std::move(new_u), old_u);
   oldElem = std::move (old_u);
 }
-#endif
-#endif
 
 
 /**
@@ -1050,8 +1036,6 @@ ConstDataVector<DV>::assignElement (typename BaseContainer::iterator pos,
 }
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
 /**
  * @brief Handle element assignment.
  * @param pos Position in the container to assign.
@@ -1071,8 +1055,6 @@ ConstDataVector<DV>::assignElement (typename BaseContainer::iterator pos,
   std::unique_ptr<typename DV::base_value_type> new_u (pelem);
   DV::assignElement (pos, std::move(new_u));
 }
-#endif
-#endif
 
 
 /**
@@ -1156,7 +1138,6 @@ DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Constructor from a payload object.
  * @param data Object to hold in the bucket.
@@ -1167,7 +1148,6 @@ DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
   : DVLDataBucket<DV> (std::unique_ptr<DV> (const_cast<DV*> (data.release()->asDataVector())))
 {
 }
-#endif // C++11
 
 
 } // namespace SG

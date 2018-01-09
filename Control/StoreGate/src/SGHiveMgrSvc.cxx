@@ -133,7 +133,7 @@ size_t HiveMgrSvc::getPartitionNumber(int evtNumber) const {
   return std::string::npos;
 }
 
-unsigned int HiveMgrSvc::freeSlots() {
+size_t HiveMgrSvc::freeSlots() {
   return m_freeSlots;
 }
 

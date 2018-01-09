@@ -84,7 +84,6 @@ namespace Trk {
         
         /** Mapper and Inspector */                          
         ToolHandle<IMaterialMapper>                          m_materialMapper;            //!< Pointer to an IMaterialMapper algTool
-        int                                                  m_materialMappingEvents;     //!< count the number of validation records to avoid 2G files
         int                                                  m_maxMaterialMappingEvents;  //!< limit the number of validation records to avoid 2G files
         
 

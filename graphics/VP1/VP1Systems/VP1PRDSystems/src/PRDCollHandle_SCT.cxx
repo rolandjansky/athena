@@ -48,10 +48,10 @@ QColor PRDCollHandle_SCT::defaultColor() const
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_SCT::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_SCT::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<InDet::SCT_Cluster*>(prd));
-  return new PRDHandle_SCT(this,static_cast<InDet::SCT_Cluster*>(prd));
+  assert(dynamic_cast<const InDet::SCT_Cluster*>(prd));
+  return new PRDHandle_SCT(this,static_cast<const InDet::SCT_Cluster*>(prd));
 }
 
 //____________________________________________________________________

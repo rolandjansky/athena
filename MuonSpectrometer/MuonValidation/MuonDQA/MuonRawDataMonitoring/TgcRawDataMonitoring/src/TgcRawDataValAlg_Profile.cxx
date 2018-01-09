@@ -108,8 +108,8 @@ TgcRawDataValAlg::bookHistogramsProfile(){
     
     int n=1;
     
-    string tdname[12] = {"ETphi0","ETphi1","ETphi2","ETphi3","FTphi0","FTphi1",
-                         "EDphi0","EDphi1","EDphi2","EDphi3","FDphi0","FDphi1"};
+    std::string tdname[12] = {"ETphi0","ETphi1","ETphi2","ETphi3","FTphi0","FTphi1",
+                              "EDphi0","EDphi1","EDphi2","EDphi3","FDphi0","FDphi1"};
     for(int sec=1;sec<=12;sec++){
       for(int id=0;id<12;id++){
         ss.str(""); ss << side[ac];

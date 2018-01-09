@@ -88,10 +88,10 @@ StatusCode InDetAlignMonBeamSpot::initialize() {
   if(!sc.isSuccess()) return sc;
 
   if ( m_extrapolator.retrieve().isFailure() ) {
-    ATH_MSG_WARNING ("Failed to retrieve tool "+m_extrapolator);
+    ATH_MSG_WARNING ("Failed to retrieve tool "+m_extrapolator.typeAndName());
   } else {
     m_hasExtrapolator = true;
-    ATH_MSG_INFO ("Retrieved tool "+m_extrapolator);
+    ATH_MSG_INFO ("Retrieved tool "+m_extrapolator.typeAndName());
   }
 
   if ( m_beamCondSvc.retrieve().isFailure() ) {

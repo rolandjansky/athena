@@ -626,7 +626,7 @@ StatusCode SCTCalibWriteSvc::wrapUpLorentzAngle(){
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCTCalibWriteSvc::streamOutCondObjects(const std::string& foldername) const{
+StatusCode SCTCalibWriteSvc::streamOutCondObjects(const std::string& foldername) {
   //if (m_streamer->connectOutput().isFailure()) {
   if (m_streamer->connectOutput(m_streamName).isFailure()) {
     msg(MSG:: ERROR) <<"Could not connect stream to output" <<endmsg;
@@ -652,7 +652,7 @@ StatusCode SCTCalibWriteSvc::streamOutCondObjects(const std::string& foldername)
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCTCalibWriteSvc::streamOutCondObjectsWithErrMsg(const std::string& foldername) const{
+StatusCode SCTCalibWriteSvc::streamOutCondObjectsWithErrMsg(const std::string& foldername) {
   if (streamOutCondObjects(foldername).isFailure()){
     return msg(MSG:: ERROR) <<"Could create conditions object  "<< foldername<< endmsg, StatusCode::FAILURE;
   }

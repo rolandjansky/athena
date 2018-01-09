@@ -25,7 +25,15 @@
 #ifndef TILERECALGS_TILEDIGITSTHRESHOLDFILTER_H
 #define TILERECALGS_TILEDIGITSTHRESHOLDFILTER_H
 
+// Tile includes
+#include "TileEvent/TileDigitsContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 
 class TileHWID;
@@ -57,8 +65,11 @@ class TileDigitsThresholdFilter: public AthAlgorithm {
     const TileHWID*    m_tileHWID;
     ToolHandle<ITileCondToolDspThreshold> m_tileDspThreshold;
 
-    std::string m_inputContainer;  //!< Name of the input TileDigitsContainer
-    std::string m_outputContainer; //!< Name of the output TileDigitsContainer
+    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsContainerKey{this,"InputDigitsContainer",
+                                                                       "TileDigitsCnt", "Input Tile digits container key"};
+
+    SG::WriteHandleKey<TileDigitsContainer> m_outputDigitsContainerKey{this,"OutputDigitsContainer",
+                                                                         "TileDigitsFiltered","Output Tile digits container key"};
 
 };
 
