@@ -119,13 +119,6 @@ def setupMenu():
 
 #				#ATR-15246
         ['mu22_mu8noL1_mu6noL1',   'L1_MU20MU21',       ['L1_MU20','',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon', 'BW:Muon'],  -1,['serial',-1,['mu22','mu8noL1','mu6noL1']]],
-				#ATR-15878
-        ['mu22_mu8noL1_calotag_0eta010',  'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:17000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_calotag_0eta010']]],
-        ['mu24_mu8noL1_calotag_0eta010',  'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','mu8noL1_calotag_0eta010']]],
-        ['mu26_mu8noL1_calotag_0eta010',  'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu26','mu8noL1_calotag_0eta010']]],
-        ['mu28_mu8noL1_calotag_0eta010',  'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu28','mu8noL1_calotag_0eta010']]],
-        ['mu24_mu10noL1_calotag_0eta010', 'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','mu10noL1_calotag_0eta010']]],
-        ['mu26_mu10noL1_calotag_0eta010', 'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu26','mu10noL1_calotag_0eta010']]],
 
         #DiMuon for TAU OVERLAY
         ['2mu20_L12MU20_OVERLAY',   'L1_2MU20_OVERLAY', [], ['TauOverlay'], ["RATE:TauOverlay",  "BW:TauOverlay"], -1],
@@ -4993,21 +4986,15 @@ class Prescales:
         'mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU6_EMPTY',
         'mu22_2mu4noL1',
         'mu22_mu8noL1',
-        'mu22_mu8noL1_calotag_0eta010',
         'mu22_mu8noL1_mu6noL1',
         'mu24_2mu4noL1',
         'mu24_mu10noL1',
-        'mu24_mu10noL1_calotag_0eta010',
         'mu24_mu8noL1',
-        'mu24_mu8noL1_calotag_0eta010',
         'mu26_ivarmedium',
         'mu26_mu10noL1',
-        'mu26_mu10noL1_calotag_0eta010',
         'mu26_mu8noL1',
-        'mu26_mu8noL1_calotag_0eta010',
         'mu28_ivarmedium',
         'mu28_mu8noL1',
-        'mu28_mu8noL1_calotag_0eta010',
         'mu4_j90_xe90_pufit_2dphi10_L1MU4_J50_XE50_DPHI-J20s2XE30',
         'mu4_j90_xe90_pufit_2dphi10_L1MU4_XE60',
         'mu50',
