@@ -21,22 +21,19 @@
 
 // Constructor with parameters:
 InDet::InDetExtensionProcessor::InDetExtensionProcessor(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_TrackName("Tracks"),
+  AthReentrantAlgorithm(name,pSvcLocator),
+  m_trackName("Tracks"),
   m_cosmics(false),
-  m_ExtensionMapName("TrackExtensionMap"),
-  m_NewTrackName("ExtendedTrack"),
-  m_ITrackFitter("Trk::KalmanFitter/InDetTrackFitter"),
+  m_extensionMapName("TrackExtensionMap"),
+  m_newTrackName("ExtendedTrack"),
+  m_trackFitter("Trk::KalmanFitter/InDetTrackFitter"),
   m_scoringTool("Trk::TrackScoringTool"),
   m_runOutlier(true),
   m_keepFailedExtensionOnTrack(true),
   m_refitPrds(true),
   m_matEffects(3),
   m_suppressHoleSearch(false),
-  m_tracks(0),
-  m_trackExtensionMap(0),
-  m_newtracks(0),
-  m_ParticleHypothesis(Trk::undefined),
+  m_particleHypothesis(Trk::undefined),
   m_Nevents(0),m_Ninput(4),m_Nrecognised(4),m_Nextended(4),m_Nrejected(4),m_Nfailed(4),
   m_NrecoveryBremFits(4),m_NbremFits(4),m_Nfits(4),m_NnotExtended(4),m_NlowScoreBremFits(4),m_NextendedBrem(4)
 {  
@@ -45,11 +42,11 @@ InDet::InDetExtensionProcessor::InDetExtensionProcessor(const std::string &name,
   m_etabounds.push_back(2.10);
 
   // Get parameter values from jobOptions file
-  declareProperty("TrackName",          m_TrackName, "Name of the input Trackcollection");
+  declareProperty("TrackName",          m_trackName, "Name of the input Trackcollection");
   declareProperty("Cosmics",            m_cosmics, "switch whether we are running on cosmics");
-  declareProperty("ExtensionMap",       m_ExtensionMapName,"Name of the input extension map");
-  declareProperty("NewTrackName",       m_NewTrackName,"Name of the output Trackcollection");
-  declareProperty("TrackFitter",        m_ITrackFitter,"Toolhandle for the track fitter");
+  declareProperty("ExtensionMap",       m_extensionMapName,"Name of the input extension map");
+  declareProperty("NewTrackName",       m_newTrackName,"Name of the output Trackcollection");
+  declareProperty("TrackFitter",        m_trackFitter,"Toolhandle for the track fitter");
   declareProperty("ScoringTool",        m_scoringTool,"Toolhandle for the track scorer");
   declareProperty("runOutlier",         m_runOutlier,"switch whether to run outlier logics or not");
   declareProperty("keepFailedExtension",m_keepFailedExtensionOnTrack,"switch whether to keep failed extension as outlier hits on the new track");
@@ -71,16 +68,16 @@ StatusCode InDet::InDetExtensionProcessor::initialize()
   ATH_MSG_INFO( "InDetExtensionProcessor::initialize()"  );
 
   // get track fitter tool
-  if ( m_ITrackFitter.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_ITrackFitter  );
+  if ( m_trackFitter.retrieve().isFailure() ) {
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackFitter  );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO( "Retrieved tool " << m_ITrackFitter  );
+    ATH_MSG_INFO( "Retrieved tool " << m_trackFitter  );
   }
   
   // Configuration of the material effects
   Trk::ParticleSwitcher particleSwitch;
-  m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
+  m_particleHypothesis = particleSwitch.particle[m_matEffects];
 
   // get scoring tool
   if ( m_scoringTool.retrieve().isFailure() ) {
@@ -108,109 +105,97 @@ StatusCode InDet::InDetExtensionProcessor::initialize()
     m_NlowScoreBremFits[i] = 0;
   }
 
+  ATH_CHECK(m_trackName.initialize());
+  ATH_CHECK(m_extensionMapName.initialize());
+  ATH_CHECK(m_newTrackName.initialize());
+
   return StatusCode::SUCCESS;
 }
 
 //==================================================================================================
 
 // Execute method:
-StatusCode InDet::InDetExtensionProcessor::execute() 
+StatusCode InDet::InDetExtensionProcessor::execute_r(const EventContext& ctx) const
 {
-  ATH_MSG_DEBUG ("InDetExtensionProcessor::execute()");
-
-  ++m_Nevents; // statistics
-
-  StatusCode sc;
-
-  // get tracks from Storegate
-  if (m_TrackName != "") {
-    sc = sgSvc()->retrieve(m_tracks, m_TrackName);
-    if (sc.isFailure()){
-      ATH_MSG_ERROR ("Track collection named " <<m_TrackName<< " not found, exit InDetExtensionProcessor.");
-      return StatusCode::SUCCESS;
-    }
-    else{ 
-      ATH_MSG_DEBUG ("Number of Tracks found : " << m_tracks->size());
-      m_Ninput[InDet::InDetExtensionProcessor::iAll] += m_tracks->size(); // statistics
-    }
-  }
-  else {
-    ATH_MSG_ERROR ("m_TrackName not set");
-  }
-
-  // get track ExensionMap from Storegate
-  if (m_ExtensionMapName != "") {
-    sc = sgSvc()->retrieve(m_trackExtensionMap, m_ExtensionMapName);
-    if (sc.isFailure()){
-      ATH_MSG_WARNING( "TrackExtensionMap named " << m_ExtensionMapName 
-                     << " not found, exit InDetExtensionProcessor." );
-      return StatusCode::SUCCESS;
-    }
-    else{ 
-      ATH_MSG_DEBUG ("TrackExtensionMap found, size : " << m_trackExtensionMap->size());
-    }
-  }
-  else ATH_MSG_ERROR ("m_ExensionMapName not set");
-
-  // create new collection of tracks to write in storegate
-  m_newtracks = new TrackCollection;
-
   // process the extensions
-  process();
+  SG::ReadHandle<TrackCollection>   tracks(m_trackName, ctx);
+  SG::ReadHandle<TrackExtensionMap> track_extension_map(m_extensionMapName, ctx);
+  SG::WriteHandle<TrackCollection>  extended_tracks_out(m_newTrackName, ctx);
 
-  // record new track collection in storegate
-  sc = sgSvc()->record(m_newtracks,m_NewTrackName,false);
-  if (sc.isFailure()){
-    ATH_MSG_FATAL ("New Track Container could not be recorded in StoreGate !");
-    return StatusCode::FAILURE;
+  ATH_MSG_DEBUG ("Number of Tracks found : " << tracks->size());
+  // input statistics
+  {
+    std::lock_guard<std::mutex> lock (m_statMutex);
+    ++m_Nevents;
+    m_Ninput[InDet::InDetExtensionProcessor::iAll] += tracks->size();
   }
-  else ATH_MSG_DEBUG ("Container '" <<m_NewTrackName<< "' recorded in StoreGate, size : " << m_newtracks->size());
 
-  if (m_newtracks->size() != m_tracks->size())
+
+  ATH_CHECK( extended_tracks_out.record( std::unique_ptr<TrackCollection>(createExtendedTracks(tracks.cptr(), track_extension_map.cptr()) ) ));
+  ATH_MSG_DEBUG ("Container '" <<m_newTrackName.key() << "' recorded in StoreGate, size : " << extended_tracks_out->size());
+
+  if (extended_tracks_out->size() != tracks->size())
    ATH_MSG_WARNING ("Lost tracks after extension ??? This is a bug !");
-  
   return StatusCode::SUCCESS;
 }
 
 //==================================================================================================
+namespace
+{
+  template <class T1, class T2>
+  void add(const T1 &in,  T2 &out) {
+    assert( in.size() == out.size() );
+    typename T2::iterator out_iter = out.begin();
+    for ( auto elm : in ) {
+      assert( out_iter != out.end());
+      *out_iter += elm;
+      ++out_iter;
+    }
+  }
+}
 
-void InDet::InDetExtensionProcessor::process() {
+TrackCollection *InDet::InDetExtensionProcessor::createExtendedTracks(const TrackCollection *tracks_in,
+                                                                      const TrackExtensionMap *track_extension_map) const
+{
+  std::unique_ptr<TrackCollection> new_tracks( std::make_unique<TrackCollection>());
+  std::array<int,Nregions> Ninput{}, Nrecognised{}, Nextended{}, Nrejected{}, Nfailed{},
+                           NrecoveryBremFits{},NbremFits{},Nfits{},NnotExtended{},
+                           NlowScoreBremFits{}, NextendedBrem{};
 
   // loop over tracks
-  for (TrackCollection::const_iterator itr  = (*m_tracks).begin(); itr < (*m_tracks).end(); itr++)
-  {
+for (const Trk::Track *a_track : *tracks_in) {
     // statistics
-    increment_by_eta( m_Ninput, *itr, false );
+    increment_by_eta( Ninput, a_track, false );
 
-    ATH_MSG_DEBUG ("evaluate input track : " << *itr);
+    ATH_MSG_DEBUG ("evaluate input track : " << a_track);
 
     // try to find this track in extension map
-    TrackExtensionMap::const_iterator itEx = m_trackExtensionMap->find(*itr);
+    TrackExtensionMap::const_iterator itEx = track_extension_map->find(a_track);
 
     // copy input track if this track is not found in list
-    if (itEx == m_trackExtensionMap->end()) {
+    if (itEx == track_extension_map->end()) {
 
       ATH_MSG_DEBUG ("track not in extension map, copy original track to output");
 
       // copy track, set pattern info 
-      Trk::Track * ntrk = new Trk::Track(**itr);
+      std::unique_ptr<Trk::Track> ntrk( std::make_unique<Trk::Track>(*a_track) );
       ntrk->info().setPatternRecognitionInfo(Trk::TrackInfo::InDetExtensionProcessor);
-      m_newtracks->push_back(ntrk);
+      new_tracks->push_back(std::move(ntrk));
 
       // statistics
-      increment_by_eta( m_NnotExtended, *itr);
+      increment_by_eta( NnotExtended, a_track);
 	    
     } else {
 
       ATH_MSG_DEBUG ("track found in extension map, processing...");
 
       // statistics
-      increment_by_eta( m_Nrecognised, *itr);
+      increment_by_eta( Nrecognised, a_track);
 
       // setup new track
-      Trk::Track* newtrack=0;
+      std::unique_ptr<Trk::Track>  newtrack;
       // keep old track info
-      const Trk::TrackInfo old_info = (*itr)->info();
+      const Trk::TrackInfo old_info = a_track->info();
       // keep list of PRDs
       std::vector<const Trk::PrepRawData*> vecPrd;
 
@@ -227,36 +212,36 @@ void InDet::InDetExtensionProcessor::process() {
 	} //end of loop over prds
 	
 	// we have the PRD Vector, we need to refit the track and see if it is better
-	ATH_MSG_DEBUG ("fit track "<<*itr<< " with PRDs, number : " << vecPrd.size());
+	ATH_MSG_DEBUG ("fit track "<<a_track<< " with PRDs, number : " << vecPrd.size());
 	
 	if (!m_cosmics) {
 	  // normal event processing
 	  
-	  if (m_tryBremFit && (*itr)->info().trackProperties(Trk::TrackInfo::BremFit)) {
+	  if (m_tryBremFit && a_track->info().trackProperties(Trk::TrackInfo::BremFit)) {
 	    
 	    ATH_MSG_DEBUG ("brem fit of electron like track");
 	    //statistics
-	    increment_by_eta(m_NbremFits,*itr);
+	    increment_by_eta(NbremFits,a_track);
 	    // try brem fit of combined track
-	    newtrack = m_ITrackFitter->fit(**itr,vecPrd,m_runOutlier,Trk::electron);
+	    newtrack.reset( m_trackFitter->fit(*a_track,vecPrd,m_runOutlier,Trk::electron) );
 	    
 	  } else {
 	    
 	    ATH_MSG_DEBUG ("normal fit track");
 	    //statistics
-	    increment_by_eta(m_Nfits,*itr);
+	    increment_by_eta(Nfits,a_track);
 	    // normal fit of combined track
-	    newtrack = m_ITrackFitter->fit(**itr,vecPrd,m_runOutlier,m_ParticleHypothesis);
+	    newtrack.reset( m_trackFitter->fit(*a_track,vecPrd,m_runOutlier,m_particleHypothesis) );
 	    
 	    if (!newtrack && m_tryBremFit &&
-		(*itr)->trackParameters()->front()->pT() > m_pTminBrem &&
-		(!m_caloSeededBrem || (*itr)->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI))) {
+		a_track->trackParameters()->front()->pT() > m_pTminBrem &&
+		(!m_caloSeededBrem || a_track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI))) {
 	      
 	      ATH_MSG_DEBUG ("normal fit track failed, try to recover with brem fit");
 	      // statistics
-	      increment_by_eta(m_NrecoveryBremFits,*itr);
+	      increment_by_eta(NrecoveryBremFits,a_track);
 	      // try brem fit of combined track
-	      newtrack = m_ITrackFitter->fit(**itr,vecPrd,m_runOutlier,Trk::electron);
+	      newtrack.reset(m_trackFitter->fit(*a_track,vecPrd,m_runOutlier,Trk::electron) );
 	      
 	    }
 	  }
@@ -266,18 +251,18 @@ void InDet::InDetExtensionProcessor::process() {
 
 	  std::vector<const Trk::PrepRawData*> vecPrdComb;
 	  // get track parameters
-	  const Trk::Perigee* silicon_per = (*itr)->perigeeParameters();
+	  const Trk::Perigee* silicon_per = a_track->perigeeParameters();
 
 	  if (!silicon_per) {
 
 	    ATH_MSG_DEBUG ("no perigee found on track, copy input");
 	    // statistics
-	    increment_by_eta( m_Nfailed, *itr);
+	    increment_by_eta( Nfailed, a_track);
 
 	    // copy track, set pattern info 
-	    Trk::Track * ntrk = new Trk::Track(**itr);
+            std::unique_ptr<Trk::Track> ntrk(std::make_unique< Trk::Track>(*a_track));
 	    ntrk->info().setPatternRecognitionInfo(Trk::TrackInfo::InDetExtensionProcessor);
-	    m_newtracks->push_back(ntrk);
+	    new_tracks->push_back(std::move(ntrk) );
 	    
 	  } else {
 
@@ -300,9 +285,9 @@ void InDet::InDetExtensionProcessor::process() {
 	    }
 
 	    //statistics
-	    increment_by_eta(m_Nfits,*itr);
+	    increment_by_eta(Nfits,a_track);
 	    // normal fit of combined track
-	    newtrack = m_ITrackFitter->fit(vecPrdComb,*silicon_per,m_runOutlier,m_ParticleHypothesis);
+	    newtrack.reset( m_trackFitter->fit(vecPrdComb,*silicon_per,m_runOutlier,m_particleHypothesis) );
 	    
 	  }
 	}  
@@ -310,35 +295,35 @@ void InDet::InDetExtensionProcessor::process() {
       } else {
 	  
 	// we have an extension map with ROTs, we need to refit the track and see if it is better
-	ATH_MSG_DEBUG ("fit track "<<*itr<<" with ROTs, number : " << itEx->second.size());
+	ATH_MSG_DEBUG ("fit track "<<a_track<<" with ROTs, number : " << itEx->second.size());
 	
 	if (!m_cosmics) {
 	  
-	  if (m_tryBremFit && (*itr)->info().trackProperties(Trk::TrackInfo::BremFit) ) {
+	  if (m_tryBremFit && a_track->info().trackProperties(Trk::TrackInfo::BremFit) ) {
 	    
 	    ATH_MSG_DEBUG ("brem fit of electron like track");
 	    //statistics
-	    increment_by_eta(m_NbremFits,*itr);
+	    increment_by_eta(NbremFits,a_track);
 	    // try brem fit of combined track
-	    newtrack = m_ITrackFitter->fit(**itr,itEx->second,m_runOutlier,Trk::electron);
+	    newtrack.reset(  m_trackFitter->fit(*a_track,itEx->second,m_runOutlier,Trk::electron) );
 	    
 	  } else {
 	    
 	    ATH_MSG_DEBUG ("normal fit track");
 	    //statistics
-	    increment_by_eta(m_Nfits,*itr);
+	    increment_by_eta(Nfits,a_track);
 	    // fit combined track 
-	    newtrack = m_ITrackFitter->fit(**itr,itEx->second,m_runOutlier,m_ParticleHypothesis);
+	    newtrack.reset(  m_trackFitter->fit(*a_track,itEx->second,m_runOutlier,m_particleHypothesis) );
 	    
 	    if (!newtrack && m_tryBremFit &&
-		(*itr)->trackParameters()->front()->pT() > m_pTminBrem &&
-		(!m_caloSeededBrem || (*itr)->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI))) {
+		a_track->trackParameters()->front()->pT() > m_pTminBrem &&
+		(!m_caloSeededBrem || a_track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI))) {
 
 	      ATH_MSG_DEBUG ("normal fit track failed, try to recover with brem fit");
 	      // statistics
-	      increment_by_eta(m_NrecoveryBremFits,*itr);
+	      increment_by_eta(NrecoveryBremFits,a_track);
 	      // try to recover with brem fit
-	      newtrack = m_ITrackFitter->fit(**itr,itEx->second,m_runOutlier,Trk::electron);
+	      newtrack.reset( m_trackFitter->fit(*a_track,itEx->second,m_runOutlier,Trk::electron) );
 	    }
 	  }
 	  
@@ -347,18 +332,18 @@ void InDet::InDetExtensionProcessor::process() {
 	  
 	  Trk::MeasurementSet rotSet;
 	  // get track parameters
-	  const Trk::Perigee* silicon_per = (*itr)->perigeeParameters();
+	  const Trk::Perigee* silicon_per = a_track->perigeeParameters();
 
 	  if (!silicon_per) {
 
 	    ATH_MSG_DEBUG ("no perigee found on track, copy input");
 	    // statistics
-	    increment_by_eta( m_Nfailed, *itr);
+	    increment_by_eta( Nfailed, a_track);
 
 	    // copy track, set pattern info 
-	    Trk::Track * ntrk = new Trk::Track(**itr);
+            std::unique_ptr<Trk::Track>  ntrk(std::make_unique< Trk::Track>(*a_track) );
 	    ntrk->info().setPatternRecognitionInfo(Trk::TrackInfo::InDetExtensionProcessor);
-	    m_newtracks->push_back(ntrk);
+	    new_tracks->push_back(std::move(ntrk) );
 	    
 	  } else {
 
@@ -380,9 +365,9 @@ void InDet::InDetExtensionProcessor::process() {
 	    
 	    ATH_MSG_DEBUG ("normal fit track");
 	    //statistics
-	    increment_by_eta(m_Nfits,*itr);
+	    increment_by_eta(Nfits,a_track);
 	    // fit combined track 
-	    newtrack=m_ITrackFitter->fit(rotSet,*silicon_per,m_runOutlier,m_ParticleHypothesis);
+	    newtrack.reset( m_trackFitter->fit(rotSet,*silicon_per,m_runOutlier,m_particleHypothesis) );
 	  }
 	}
       }
@@ -391,22 +376,22 @@ void InDet::InDetExtensionProcessor::process() {
 	
 	ATH_MSG_DEBUG ("refit of extended track failed, copy original track to output");
 	// statistics
-	increment_by_eta( m_Nfailed, *itr);
+	increment_by_eta( Nfailed, a_track);
 	
 	// push track into output, does copy, needs fixing
 	if (m_keepFailedExtensionOnTrack) {
-	  m_newtracks->push_back( trackPlusExtension( *itr, itEx->second ) );
+	  new_tracks->push_back( trackPlusExtension( a_track, itEx->second ) );
 	} else {
 	  // copy track, set pattern info 
-	  Trk::Track * ntrk = new Trk::Track(**itr);
+          std::unique_ptr<Trk::Track>  ntrk( std::make_unique<Trk::Track>(*a_track) );
 	  ntrk->info().setPatternRecognitionInfo(Trk::TrackInfo::InDetExtensionProcessor);
-	  m_newtracks->push_back(ntrk);
+	  new_tracks->push_back(std::move(ntrk));
 	}
 	
       } else {
 	
 	// score old and new tool and decide which one to push back
-	Trk::TrackScore oldScore = m_scoringTool->score( **itr, m_suppressHoleSearch );
+	Trk::TrackScore oldScore = m_scoringTool->score( *a_track, m_suppressHoleSearch );
 	ATH_MSG_DEBUG ("original track has score : " << oldScore);
 	Trk::TrackScore newScore = m_scoringTool->score( *newtrack, m_suppressHoleSearch );
 	ATH_MSG_DEBUG ("new track has score      : " << newScore);
@@ -414,29 +399,27 @@ void InDet::InDetExtensionProcessor::process() {
 	// do we need to recover with a brem fit
 	if (newScore < oldScore && m_tryBremFit &&
 	    !newtrack->info().trackProperties(Trk::TrackInfo::BremFit) &&
-	    (*itr)->trackParameters()->front()->pT() > m_pTminBrem &&
-	    (!m_caloSeededBrem || (*itr)->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI))) {
+	    a_track->trackParameters()->front()->pT() > m_pTminBrem &&
+	    (!m_caloSeededBrem || a_track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI))) {
 	  
 	  ATH_MSG_DEBUG ("new track has low score, try to recover track using brem fit");
 	  // statistics
-	  increment_by_eta(m_NlowScoreBremFits,*itr);
+	  increment_by_eta(NlowScoreBremFits,a_track);
 	  
-	  Trk::Track* newBremTrack=0;
+          std::unique_ptr<Trk::Track> newBremTrack;
 	  // try to recover with brem fit
 	  if (m_refitPrds) {
-	    newBremTrack = m_ITrackFitter->fit(**itr,vecPrd,m_runOutlier,Trk::electron);
+            newBremTrack.reset(m_trackFitter->fit(*a_track,vecPrd,m_runOutlier,Trk::electron) ) ;
 	  } else {
-	    newBremTrack = m_ITrackFitter->fit(**itr,itEx->second,m_runOutlier,Trk::electron);
+            newBremTrack.reset(m_trackFitter->fit(*a_track,itEx->second,m_runOutlier,Trk::electron) );
 	  }
 	  
 	  if (newBremTrack) {
 	    // score again
 	    newScore = m_scoringTool->score( *newtrack, m_suppressHoleSearch );
 	    ATH_MSG_DEBUG ("recovered new track has score      : "<<newScore);
-	    // clean up newtrack
-	    delete (newtrack);
 	    // copy pointer
-	    newtrack = newBremTrack;
+	    newtrack = std::move( newBremTrack );
 	  }
 	}
 	
@@ -444,44 +427,57 @@ void InDet::InDetExtensionProcessor::process() {
 	  
 	  ATH_MSG_DEBUG ("take extended track, it's better !");
 	  // statistics
-	  increment_by_eta( m_Nextended, newtrack );
+	  increment_by_eta( Nextended, newtrack.get() );
 	  if (m_tryBremFit && newtrack->info().trackProperties(Trk::TrackInfo::BremFit))
-	    increment_by_eta( m_NextendedBrem, newtrack );
+	    increment_by_eta( NextendedBrem, newtrack.get() );
 
 	  //storing the precedent info 
 	  newtrack->info().addPatternReco(old_info);
 	  
 	  // push track into output
 	  newtrack->info().setPatternRecognitionInfo(Trk::TrackInfo::InDetExtensionProcessor);
-	  m_newtracks->push_back( newtrack );
+	  new_tracks->push_back( std::move(newtrack) );
 	  
 	} else {
 	  
 	  ATH_MSG_DEBUG ("take original track, new one is worse !");
 	  // statistics
-	  increment_by_eta( m_Nrejected, newtrack );
-	  
-	  // clean up newtrack
-	  delete (newtrack);
-	  
+	  increment_by_eta( Nrejected, newtrack.get() );
+	  	  
 	  // push track into output, does copy
-	  Trk::Track* ntrk = NULL;
+          std::unique_ptr<Trk::Track> ntrk;
 	  if (m_keepFailedExtensionOnTrack)
-	    ntrk = trackPlusExtension( *itr, itEx->second );
+	    ntrk.reset( trackPlusExtension( a_track, itEx->second ) );
 	  else
-	    ntrk = new Trk::Track(**itr);
+            ntrk.reset( new Trk::Track(*a_track) );
 	  ntrk->info().setPatternRecognitionInfo(Trk::TrackInfo::InDetExtensionProcessor);
-	  m_newtracks->push_back(ntrk);
+	  new_tracks->push_back(std::move(ntrk));
 	}
       }
     }
   }
+
+  {
+    std::lock_guard<std::mutex> lock(m_statMutex);
+    add(Ninput,m_Ninput);
+    add(Nrecognised,m_Nrecognised);
+    add(Nextended,m_Nextended);
+    add(Nrejected,m_Nrejected);
+    add(Nfailed,m_Nfailed);
+    add(NrecoveryBremFits,m_NrecoveryBremFits);
+    add(NbremFits,m_NbremFits);
+    add(Nfits,m_Nfits);
+    add(NnotExtended,m_NnotExtended);
+    add(NlowScoreBremFits,m_NlowScoreBremFits);
+    add(NextendedBrem,m_NextendedBrem);
+  }
+  return new_tracks.release();
 }
 
 //==================================================================================================
 
-void InDet::InDetExtensionProcessor::increment_by_eta(std::vector<int>& Ntracks,const Trk::Track* track,
-						      bool updateAll) {
+void InDet::InDetExtensionProcessor::increment_by_eta(std::array<int,4>& Ntracks,const Trk::Track* track,
+						      bool updateAll) const {
   if (updateAll) Ntracks[InDet::InDetExtensionProcessor::iAll] += 1;
   
   // test
