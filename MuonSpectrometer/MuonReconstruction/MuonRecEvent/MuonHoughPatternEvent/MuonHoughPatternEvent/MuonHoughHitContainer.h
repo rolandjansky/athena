@@ -31,7 +31,7 @@ class MuonHoughHitContainer
   void addHit(MuonHoughHit* hit);
 
   /** remove hit from container */
-  void removeHit(int hitno) throw(const char*);
+  void removeHit(int hitno);
 
   /** returns hitid of hit hitno */
   int getHitId(int hitno) const;
