@@ -578,10 +578,10 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Hit Particle ID : " << hit.particleEncoding() );
           float eventTime = phit.eventTime(); 
           if(eventTime < earliestEventTime) earliestEventTime = eventTime;
-		  // 50MeV cut on kineticEnergy of the particle
-		  if(hit.kineticEnergy()<50.) {
-              ATH_MSG_VERBOSE("Hit with Kinetic Energy of " << hit.kineticEnergy() << " less than 50.  Skip this hit." );
-              continue;
+	  // 300eV cut on EnergyDeposit of the particle
+	  if(hit.depositEnergy()<0.0003) {
+	    ATH_MSG_VERBOSE("Hit with Energy Deposit of " << hit.depositEnergy() << " less than 300.eV  Skip this hit." );
+	    continue;
           }
           if(eventTime != 0){
              msg(MSG::DEBUG) << "Updated hit global time to include off set of " << eventTime << " ns from OOT bunch." << endmsg;
