@@ -1,8 +1,9 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
+
 //////////////////////////////////////////////////////////////////////////////
 // MuonExtrapolationTool
-//  ASG Tool performing extrapolations
-//
-//  (c) ATLAS Muon Combined Performance Software
 //////////////////////////////////////////////////////////////////////////////
 #ifndef MuonExtrapolationTool_H
 #define MuonExtrapolationTool_H
@@ -52,7 +53,7 @@ namespace DerivationFramework {
     double m_endcapPivotPlaneMaximumRadius;
     double m_barrelPivotPlaneRadius;
     double m_barrelPivotPlaneHalfLength;
-  
+    std::string m_muonContainerName;  
 
   };
 }

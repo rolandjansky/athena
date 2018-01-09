@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/ 
 // MuonExtrapolationTool.cxx
 #include "DerivationFrameworkBPhys/MuonExtrapolationTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
@@ -23,6 +26,7 @@ MuonExtrapolationTool::MuonExtrapolationTool(const std::string &t, const std::st
   declareProperty("BarrelPivotPlaneRadius",        m_barrelPivotPlaneRadius = 8000.);// radius of pivot plane in barrel region
   declareProperty("BarrelPivotPlaneHalfLength",    m_barrelPivotPlaneHalfLength = 9700.);// half length of pivot plane in barrel region
   declareProperty("Extrapolator", m_extrapolator);
+  declareProperty("MuonCollection", m_muonContainerName = "Muons");
 }
 
 //**********************************************************************
@@ -95,9 +99,8 @@ const xAOD::TrackParticle* MuonExtrapolationTool::getPreferredTrackParticle (con
 
 StatusCode MuonExtrapolationTool::addBranches() const
 {
-    std::string muonContainerName = "Muons";
     const xAOD::MuonContainer* muons = NULL;
-    CHECK(evtStore()->retrieve(muons, muonContainerName));
+    CHECK(evtStore()->retrieve(muons, m_muonContainerName));
     for(auto muon : *muons){
        const xAOD::TrackParticle* track = getPreferredTrackParticle(muon);
        float eta, phi = 0;
