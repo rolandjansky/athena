@@ -27,8 +27,18 @@
 #ifndef TILERECALGS_TILERAWCHANNELTOTTL1_H
 #define TILERECALGS_TILERAWCHANNELTOTTL1_H
 
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+//#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileTTL1Container.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
 
 class TileID;
 class TileHWID;
@@ -37,6 +47,7 @@ class CaloLVL1_ID;
 class TileCablingService;
 class ITileBadChanTool;
 class TileCondToolEmscale;
+class TileRawChannelContainer;
 
 #include <string>
 
@@ -54,8 +65,14 @@ class TileRawChannelToTTL1: public AthAlgorithm {
     StatusCode finalize();
 
   private:
-    std::string m_rawChannelContainer;    // name of TileRawChannelContainer
-    std::string m_TTL1Container;   // name of TileTTL1Container
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
+                                                                        "TileRawChannelCnt", 
+                                                                        "Input Tile raw channel container key"};
+
+    SG::WriteHandleKey<TileTTL1Container> m_ttl1ContainerKey{this,"TileTTL1Container",
+                                                             "TileTTL1Container","Output Tile TTL1 container key"};
+
     std::string m_infoName;        // name of TileInfo object in TES
     bool m_constantTTL1shape; // true by default, so only gets ttl1 shape once at initialization, with phase=0 for all towers.
 

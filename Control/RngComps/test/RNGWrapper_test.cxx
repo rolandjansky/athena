@@ -91,6 +91,8 @@ private:
 
 
 int main() {
+
+    std::cout << "RNGWapper_test\n";
     
     std::function< CLHEP::HepRandomEngine*(void) > dSFMTFactory = [](void)->CLHEP::HepRandomEngine* { 
       return new CLHEP::dSFMTEngine(); 

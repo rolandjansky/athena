@@ -18,7 +18,6 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/exceptions.h"
-#include "AthContainers/tools/foreach.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
 #include "CxxUtils/checker_macros.h"
@@ -233,7 +232,6 @@ void test_move()
 {
   std::cout << "test_move\n";
 
-#if __cplusplus > 201100
   AuxVectorData_test b1;
   SG::AuxStoreInternal store;
   b1.setStore (&store);
@@ -260,7 +258,6 @@ void test_move()
   assert (b3.getStore() == &store);
   assert (b3.getData<int> (ityp, 0) == 1);
   assert (b3.getData<int> (ityp, 1) == 2);
-#endif
 }
 
 
@@ -322,7 +319,7 @@ ThreadingTest::ThreadingTest()
 
 void ThreadingTest::worker (AuxVectorData& b, size_t istart)
 {
-  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_ids) {
+  for (SG::auxid_t id : m_ids) {
     assert (b.getData<int> (id, istart) == static_cast<int>(id*1234 + istart));
     ++istart;
     if (istart >= m_nelt) istart = 0;
@@ -332,7 +329,7 @@ void ThreadingTest::worker (AuxVectorData& b, size_t istart)
 
 void ThreadingTest::worker_c (const AuxVectorData& b, size_t istart)
 {
-  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_ids) {
+  for (SG::auxid_t id : m_ids) {
     assert (b.getData<int> (id, istart) == static_cast<int>(id*1234 + istart));
     ++istart;
     if (istart >= m_nelt) istart = 0;

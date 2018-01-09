@@ -170,7 +170,7 @@ StatusCode ALFA_GloRec::initialize() {
 	msg(MSG::DEBUG) << "======================================" << endmsg;
 	msg(MSG::DEBUG) << "ALFA_GloRec::initialize  - data type  " << endmsg;
 	msg(MSG::DEBUG) << "======================================" << endmsg;
-	msg(MSG::DEBUG) << "DataType = " << m_iDataType << endl;
+	msg(MSG::DEBUG) << "DataType = " << m_iDataType << endmsg;
 
 	TString l_strtmp(m_strTrackPathPatterns);
   	m_TObjArrTrackPathPatterns.Clear();
@@ -259,10 +259,9 @@ StatusCode ALFA_GloRec::execute() {
 	ALFA_LocRecCorrEvCollection::const_iterator mcColBeg = pLocRecCorrCol->begin();
 	ALFA_LocRecCorrEvCollection::const_iterator mcColEnd = pLocRecCorrCol->end();
 	AlfaLocalHits hits;
-	ALFA_LocRecCorrEvent * pLocRecCorr_tmp = 0;
 	for(; mcColBeg!=mcColEnd; ++mcColBeg) {
 	        HepGeom::Point3D<double> PointInAtlasCS;
-		pLocRecCorr_tmp = static_cast<ALFA_LocRecCorrEvent*> (*mcColBeg);
+		const ALFA_LocRecCorrEvent* pLocRecCorr_tmp = static_cast<const ALFA_LocRecCorrEvent*> (*mcColBeg);
 		AlfaLocalHit l_hit(pLocRecCorr_tmp);
 		hits.AddHit(l_hit);
 		//PointInAtlasCS = m_pGeometryReader->GetDetPointInAtlas((eRPotName)(iRPot+1), Point3D<double>(fRecPosX, fRecPosY, 10.0));

@@ -407,7 +407,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
           used.insert(prefName);
           ATH_MSG_DEBUG("Setting primary ref to " << prefName);
        }
-       catch( pool::Exception e ) {
+       catch( const pool::Exception& e ) {
           ATH_MSG_WARNING("Unable to set primary ref name, taking default");
           ATH_MSG_WARNING("due to exception " << e.what() );
        }
@@ -440,7 +440,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
                     used.insert(name);
                     ATH_MSG_DEBUG("Provenance key " << name << " added to spec");
                 }
-                catch (pool::Exception e) {
+                catch (const pool::Exception& e) {
                     ATH_MSG_DEBUG("Provenance stage " << name << " already in token spec");
                 }
             }
@@ -496,7 +496,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
                try {
 	           m_collection->schemaEditor().insertColumn( name, typeName );
                }
-               catch (pool::Exception e) {
+               catch (const pool::Exception& e) {
                    msg(MSG::ERROR) << "Unable to add column " << name 
                                    << " to " << m_collection->description().name() << endmsg;
                }
@@ -506,7 +506,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
                try {
                   m_collection->schemaEditor().setUniqueConstraint("PrimKey",m_primKeyAtts);
                }
-               catch (pool::Exception e) {
+               catch (const pool::Exception& e) {
                   ATH_MSG_WARNING("Unable to set primary key due to " << e.what());
                }
             }
@@ -541,7 +541,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
  	   try {
               std::string brefName(ir->first+"_ref");
 	      if (brefName!=prefName) row.tokenList()[ brefName ].fromString( ir->second );
-	   } catch( pool::Exception e ) {
+	   } catch( const pool::Exception& e ) {
               msg(MSG::ERROR) << " Failed to set Token "
                   << ir->second << " for provenance stage "
 	          << ir->first 
@@ -551,7 +551,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
 
         m_collection->dataEditor().insertRow(row);
 
-    } catch (pool::Exception e) {
+    } catch (const pool::Exception& e) {
         ATH_MSG_ERROR( 
 	    "Caught exception from collection add of Pool attributes. Message: " 
   	    << e.what()

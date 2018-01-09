@@ -42,7 +42,17 @@
 #ifndef TILERECALGS_TILEBEAMELEMTOCELL_H
 #define TILERECALGS_TILEBEAMELEMTOCELL_H
 
+// Tile includes
+#include "TileEvent/TileBeamElemContainer.h"
+
+// Calo includes
+#include "CaloEvent/CaloCellContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
 
 // Avoid pushing dependencies into clients- just fwd declare the following:
 
@@ -70,8 +80,15 @@ class TileBeamElemToCell: public AthAlgorithm {
     StatusCode finalize();
 
   private:
-    std::string m_beamElemContainer;
-    std::string m_cellContainer;
+
+    SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey{this,"TileBeamElemContainer",
+                                                                     "TileBeamElemCnt",
+                                                                     "Input Tile beam elements container key"};
+
+    SG::WriteHandleKey<CaloCellContainer> m_cellContainerKey{this,"TileTBCellContainer",
+                                                             "TileTBCellCnt", "Output Calo cell container key"};
+
+
     std::string m_infoName;
 
     const TileTBID* m_tileTBID;
@@ -83,7 +100,7 @@ class TileBeamElemToCell: public AthAlgorithm {
 
 // Compute calibrated energy, time, etc. for TileCell and adjust it.
     void correctCell(TileCell* pCell, int correction, int pmt, int gain,
-        double ener, double time, double qual);
+                       double ener, double time, double qual);
 };
 
 #endif // TILERECALGS_TILEBEAMELEMTOCELL_H

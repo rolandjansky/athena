@@ -201,7 +201,6 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
    m_trtID(0),
    m_PIX_Mgr(0),
    m_SCT_Mgr(0),
-   m_Pi(3.14156),
    m_NPixLayers(0),
    m_events(0),
    m_histosBooked(0),
@@ -830,7 +829,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
   }
   
   // get TrackCollection
-  DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
   DataVector<Trk::Track>::const_iterator trksItr  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
   for (; trksItr != trksItrE; ++trksItr) {
@@ -2234,14 +2233,14 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 
 
   int nHits = 0;
-  for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos2=trk->trackStateOnSurfaces()->begin();tsos2!=trk->trackStateOnSurfaces()->end(); ++tsos2) {
+  for (const Trk::TrackStateOnSurface* tsos2 : *trk->trackStateOnSurfaces()) {
 
     int detType2 = -99; 
     int barrelEC2 = -99;
     int layerDisk2 = -99;
     int modEta2 = -99; 
     int modPhi2 = -99;
-    const Trk::MeasurementBase* hit2 =(*tsos2)->measurementOnTrack();
+    const Trk::MeasurementBase* hit2 =tsos2->measurementOnTrack();
     if (hit2== NULL) continue;//the first hit on the track never has associated hit information - just stores track parameters
     nHits++;
         
@@ -2275,7 +2274,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "testing hit " << nHits << " for overlap, detType2 = " << detType2 
 	       << ", modEta2 = " << modEta2 << ", modPhi2 = " << modPhi2 << endmsg;
 
-    if(!(*tsos2)->type(Trk::TrackStateOnSurface::Measurement)) {
+    if(!tsos2->type(Trk::TrackStateOnSurface::Measurement)) {
       if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an outlier" << endmsg;
       continue;
     }
@@ -2310,10 +2309,10 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       }
     }
 
-    //const Trk::TrackParameters* trackParameter = (*tsos2)->trackParameters();
+    //const Trk::TrackParameters* trackParameter = tsos2->trackParameters();
     //const Trk::MeasuredTrackParameters* measuredTrackParameter = dynamic_cast<const Trk::MeasuredTrackParameters*>(trackParameter);
 
-    const Trk::TrackParameters* TrackParameters = (*tsos2)->trackParameters();
+    const Trk::TrackParameters* TrackParameters = tsos2->trackParameters();
     if (!TrackParameters)
       continue;
     const AmgSymMatrix(5)* covariance = TrackParameters->covariance();
@@ -2330,7 +2329,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       if((detType2==0 || detType2==1) && m_doHitQuality) {
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endmsg;
 	
-	hit2 = m_hitQualityTool->getGoodHit(*tsos2);
+	hit2 = m_hitQualityTool->getGoodHit(tsos2);
 	if(hit2==NULL) {
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endmsg;
 	  continue;
@@ -2381,7 +2380,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module phi, eta  = " << modEta <<", "<<modPhi<< endmsg;
 	//if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "second module phi, eta  = " << modEta2 <<", "<<modPhi2<< endmsg;
-	xOverlap = (*tsos2);
+	xOverlap = (tsos2);
       } //added by LT
       
     }
@@ -2390,7 +2389,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local Y overlap" << endmsg;
       //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
       //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
-      yOverlap = (*tsos2);
+      yOverlap = (tsos2);
     }
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modEta2 = " << modEta2 << endmsg;
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modPhi2 = " << modPhi2 << endmsg;

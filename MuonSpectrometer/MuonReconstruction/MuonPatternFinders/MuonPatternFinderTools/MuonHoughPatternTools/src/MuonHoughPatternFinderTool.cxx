@@ -42,7 +42,6 @@
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
 #include "TrkDriftCircleMath/TangentToCircles.h"
 
-#include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
@@ -58,7 +57,6 @@ namespace Muon {
     m_muonCombinePatternTool("MuonCombinePatternTool"), 
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_hit_reweights(true),
     m_mdt_adc_cut(true), 
     m_mdt_adc_min(50), 
@@ -165,14 +163,6 @@ namespace Muon {
       return sc;
     }
   
-    sc = m_assocTool.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_DEBUG ("Retrieved " << m_assocTool);
-    }else{
-      ATH_MSG_FATAL ("Could not get " << m_assocTool);
-      return sc;
-    }
-
     StoreGateSvc* detStore=0;
     sc = serviceLocator()->service("DetectorStore", detStore);
 
@@ -328,8 +318,6 @@ namespace Muon {
     record( etapatterns, m_CosmicEtaPatternsKey );
     record( combinedpatterns, m_COMBINED_PATTERNSKey );
     
-    if( patterncombinations ) storeCscAssMap( patterncombinations );
-
     return patterncombinations;
   }
 
@@ -1387,43 +1375,6 @@ namespace Muon {
 	}
       }
     }
-  }
-
-  void MuonHoughPatternFinderTool::storeCscAssMap(const MuonPatternCombinationCollection* combinedpatterns) const
-  {
-    //Muon::MuonSegPatAssMap* cscAssMap = new Muon::MuonSegPatAssMap();
-
-    MuonPatternCombinationCollection::const_iterator it = combinedpatterns->begin();
-	for( ; it!=combinedpatterns->end();++it )
-	{
-		std::vector< Muon::MuonPatternChamberIntersect >::const_iterator mpcit = (*it)->chamberData().begin();
-		for (; mpcit!=(*it)->chamberData().end(); ++mpcit)
-		{
-			std::vector< const Trk::PrepRawData* >::const_iterator pit = (*mpcit).prepRawDataVec().begin();
-			for (; pit!=(*mpcit).prepRawDataVec().end(); ++pit)
-			{
-				if (m_cscIdHelper->is_csc((*pit)->identify()))
-				{
-					std::map <const Trk::PrepRawData*, const Muon::MuonSegmentCombination*>::const_iterator cscSegment = m_cschitsegassociation.find(*pit); 
-					if ( cscSegment != m_cschitsegassociation.end())
-					{
-						ATH_MSG_VERBOSE ("Hit CSC Association Found");
-						//cscAssMap->addAssociation( combinedpatterns, *it, m_csc_segments, (*cscSegment).second );
-						m_assocTool->insert( (*cscSegment).second, *it);
-						break;
-					}
-				}
-			}
-		}
-	}
-    // if (evtStore()->record(cscAssMap,m_cscAssoOutputLocation).isSuccess())
-    // {
-    //     msg() << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endmsg;
-    // }
-    // else 
-    // {
-    //     msg() << MSG::DEBUG << "Failed to store Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation << endmsg;
-    // }
   }
 
   void MuonHoughPatternFinderTool::updateRpcMdtStationMap(const Identifier rpcid, const int hit_begin, const int hit_end) const

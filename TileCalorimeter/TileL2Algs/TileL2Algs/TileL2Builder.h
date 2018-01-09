@@ -19,22 +19,23 @@
 #ifndef TILEL2ALGS_TILEL2BUILDER_H
 #define TILEL2ALGS_TILEL2BUILDER_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileEvent/TileContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileIdentifier/TileFragHash.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
 
-// Tile includes
-#include "TileEvent/TileContainer.h"
-#include "TileIdentifier/TileFragHash.h"
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
 
 // C++ STL includes
 #include <string>
 #include <vector>
 
 // forward declarations
-class TileRawChannel;
 class TileHWID;
 class TileCondToolEmscale;
 class TileCondToolNoiseRawChn;
@@ -54,7 +55,7 @@ class TileL2Builder: public AthAlgTool {
 
     virtual StatusCode finalize();
 
-    virtual StatusCode process(int fragmin, int fragmax, TileL2Container *cont);
+    virtual StatusCode process(int fragmin, int fragmax, TileL2Container *l2Container);
 
     /** Return colllection ID for a given index  */
     inline int indexToId(int i) {
@@ -175,7 +176,12 @@ class TileL2Builder: public AthAlgTool {
   protected:
 
     // properties
-    std::string m_rawChannelContainer;
+    /** TileRawChannelContainer in event store */
+    SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
+                                                                        "TileRawChannelCnt",
+                                                                        "Input Tile raw channel container key"};
+
+
     float m_noiseThreshold;
     int m_noiseType;
 

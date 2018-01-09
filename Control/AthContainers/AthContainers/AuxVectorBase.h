@@ -110,7 +110,6 @@ public:
   AuxVectorBase();
 
 
-#if __cplusplus > 201100
   /**
    * @brief Move constructor.
    * @param rhs The container from which to move.
@@ -123,7 +122,6 @@ public:
    * @param rhs The container from which to move.
    */
   AuxVectorBase& operator= (AuxVectorBase&& rhs);
-#endif
 
 
   /**
@@ -433,7 +431,7 @@ private:
    * An exception is raised if the container has an associated store
    * (but that should never actually happen).
    */
-  void initAuxVectorBase1 (const SG_STD_OR_BOOST::false_type&,
+  void initAuxVectorBase1 (const std::false_type&,
                            SG::OwnershipPolicy /*ownPolicy*/,
                            SG::IndexTrackingPolicy /*indexTrackingPolicy*/);
 
@@ -447,7 +445,7 @@ private:
    * An exception is raised if index tracking is disabled and the container
    * has an associated store.
    */
-  void initAuxVectorBase1 (const SG_STD_OR_BOOST::true_type&,
+  void initAuxVectorBase1 (const std::true_type&,
                            SG::OwnershipPolicy ownPolicy,
                            SG::IndexTrackingPolicy indexTrackingPolicy);
 
@@ -462,7 +460,7 @@ private:
    * @c m_trackIndices.
    */
   template <class ForwardIterator>
-  void setIndices1 (const SG_STD_OR_BOOST::false_type&,
+  void setIndices1 (const std::false_type&,
                     ForwardIterator beg,
                     ForwardIterator end,
                     size_t first);
@@ -479,7 +477,7 @@ private:
    * and indices will be set sequentially, starting with @c first.
    */
   template <class ForwardIterator>
-  void setIndices1 (const SG_STD_OR_BOOST::true_type&,
+  void setIndices1 (const std::true_type&,
                     ForwardIterator beg,
                     ForwardIterator end,
                     size_t first);
@@ -493,7 +491,7 @@ private:
    * @c m_trackIndices.
    */
   template <class ForwardIterator> 
-  void clearIndex1 (const SG_STD_OR_BOOST::false_type&, ForwardIterator elt);
+  void clearIndex1 (const std::false_type&, ForwardIterator elt);
 
 
   /**
@@ -503,7 +501,7 @@ private:
    * This is the auxdata case.
    */
   template <class ForwardIterator>
-  void clearIndex1 (const SG_STD_OR_BOOST::true_type&, ForwardIterator elt);
+  void clearIndex1 (const std::true_type&, ForwardIterator elt);
 
 
   /**
@@ -514,7 +512,7 @@ private:
    * No-auxdata case; a no-op except for checking @c m_trackIndices.
    */
   template <class ForwardIterator>
-  void clearIndices1 (const SG_STD_OR_BOOST::false_type&,
+  void clearIndices1 (const std::false_type&,
                       ForwardIterator,
                       ForwardIterator);
 
@@ -527,7 +525,7 @@ private:
    * Auxdata case.
    */
   template <class ForwardIterator>
-  void clearIndices1 (const SG_STD_OR_BOOST::true_type&,
+  void clearIndices1 (const std::true_type&,
                       ForwardIterator beg,
                       ForwardIterator end);
 
@@ -539,7 +537,7 @@ private:
    *
    * The no-auxdata case; a no-op except for checking @c m_trackIndices.
    */
-  void resize1 (const SG_STD_OR_BOOST::false_type&, size_t size);
+  void resize1 (const std::false_type&, size_t size);
 
 
   /**
@@ -548,7 +546,7 @@ private:
    *
    * The auxdata case.
    */
-  void resize1 (const SG_STD_OR_BOOST::true_type&, size_t size);
+  void resize1 (const std::true_type&, size_t size);
 
 
   /**
@@ -557,7 +555,7 @@ private:
    *
    * The no-auxdata case; a no-op except for checking @c m_trackIndices.
    */
-  void reserve1 (const SG_STD_OR_BOOST::false_type&, size_t size);
+  void reserve1 (const std::false_type&, size_t size);
 
 
   /**
@@ -566,7 +564,7 @@ private:
    *
    * The auxdata case.
    */
-  void reserve1 (const SG_STD_OR_BOOST::true_type&, size_t size);
+  void reserve1 (const std::true_type&, size_t size);
 
 
   /**
@@ -578,7 +576,7 @@ private:
    * No-auxdata version; a no-op except for checking @c m_trackIndices.
    */
   template <class DVL>
-  void shift1 (const SG_STD_OR_BOOST::false_type&,
+  void shift1 (const std::false_type&,
                DVL& cont, size_t pos, ptrdiff_t offs);
 
 
@@ -610,7 +608,7 @@ private:
    * (running destructors as appropriate).
    */
   template <class DVL>
-  void shift1 (const SG_STD_OR_BOOST::true_type&,
+  void shift1 (const std::true_type&,
                DVL& cont, size_t pos, ptrdiff_t offs);
 
 
@@ -623,7 +621,7 @@ private:
    * No-auxdata version; a no-op except for checking @c m_trackIndices.
    */
   template <class ForwardIterator>
-  void moveAux1 (const SG_STD_OR_BOOST::false_type&,
+  void moveAux1 (const std::false_type&,
                  size_t index,
                  ForwardIterator beg,
                  ForwardIterator end);
@@ -643,7 +641,7 @@ private:
    * The auxdata case.
    */
   template <class ForwardIterator>
-  void moveAux1 (const SG_STD_OR_BOOST::true_type&,
+  void moveAux1 (const std::true_type&,
                  size_t index,
                  ForwardIterator beg,
                  ForwardIterator end);
@@ -658,7 +656,7 @@ private:
    * No-auxdata version; a no-op except for checking @c m_trackIndices.
    */
   template <class ForwardIterator>
-  void resortAux1 (const SG_STD_OR_BOOST::false_type&,
+  void resortAux1 (const std::false_type&,
                    size_t index,
                    ForwardIterator beg,
                    ForwardIterator end);
@@ -678,7 +676,7 @@ private:
    * The auxdata case.
    */
   template <class ForwardIterator>
-  void resortAux1 (const SG_STD_OR_BOOST::true_type&,
+  void resortAux1 (const std::true_type&,
                    size_t index,
                    ForwardIterator a,
                    ForwardIterator b);

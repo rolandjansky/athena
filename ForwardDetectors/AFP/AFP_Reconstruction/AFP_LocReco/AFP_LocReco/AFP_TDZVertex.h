@@ -19,7 +19,6 @@
 #include "AFP_LocReco/AFP_UserObjects.h"
 //#include "AFP_Geometry/AFP_constants.h"
 
-using namespace std;
 
 class AFP_TDZVertex
 {
@@ -32,12 +31,12 @@ class AFP_TDZVertex
 		int m_iDataType;
 
 	private:
-		list<TDRESULT> m_listResults;
+                std::list<TDRESULT> m_listResults;
 
 	public:
 		StatusCode Initialize(float fAmpThresh, int iDataType);
-		StatusCode Execute(const list<TDHIT> &ListTDHits);
-		StatusCode Finalize(list<TDRESULT>* pListResults);
+		StatusCode Execute(const std::list<TDHIT> &ListTDHits);
+		StatusCode Finalize(std::list<TDRESULT>* pListResults);
 
 		void GetData();
 

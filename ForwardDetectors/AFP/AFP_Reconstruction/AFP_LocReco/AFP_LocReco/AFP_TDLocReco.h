@@ -56,8 +56,6 @@
 
 
 
-using namespace std;
-
 #define NSIDE  3
 #define NTRACK 10
 #define NTRIG  4
@@ -69,7 +67,7 @@ class ActiveStoreSvc;
 class AFP_TDLocReco : public AthAlgorithm
 {
 	public:
-		AFP_TDLocReco(const string& name, ISvcLocator* pSvcLocator);
+                AFP_TDLocReco(const std::string& name, ISvcLocator* pSvcLocator);
 		~AFP_TDLocReco();
 
 	private:
@@ -90,12 +88,12 @@ class AFP_TDLocReco : public AthAlgorithm
 		Int_t m_iEvent;				//event number from zero value
 		Float_t m_AmpThresh;			// TD signal amplitude threshold
 
-		string m_strKeyGeometryForReco;
-		vector<string> m_vecListAlgoTD;
-		string m_strAlgoTD;
+                std::string m_strKeyGeometryForReco;
+                std::vector<std::string> m_vecListAlgoTD;
+                std::string m_strAlgoTD;
 	
-		string m_strKeyTDLocRecoEvCollection;
-		string m_strTDCollectionName;
+                std::string m_strKeyTDLocRecoEvCollection;
+                std::string m_strTDCollectionName;
 
 	public:
 		StatusCode initialize();
@@ -108,10 +106,10 @@ class AFP_TDLocReco : public AthAlgorithm
 		void SaveGeometry();
 		void ClearGeometry();
 
-		StatusCode AFPCollectionReading(list<TDHIT> &ListTDHits);	
+		StatusCode AFPCollectionReading(std::list<TDHIT> &ListTDHits);	
 
 		StatusCode RecordTDCollection();
-		StatusCode ExecuteRecoMethod(const string strAlgo, const list<TDHIT> &ListMDHits);
+		StatusCode ExecuteRecoMethod(const std::string strAlgo, const std::list<TDHIT> &ListMDHits);
 };
 
 #endif	//AFP_TDLOCRECO_h

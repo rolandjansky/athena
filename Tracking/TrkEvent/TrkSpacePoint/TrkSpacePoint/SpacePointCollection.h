@@ -23,6 +23,7 @@
 
 // Base classes
 #include "Identifier/Identifier.h"
+#include "Identifier/Identifiable.h"
 #include "Identifier/IdentifierHash.h"
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/DataObject.h"
@@ -34,7 +35,7 @@ class SpacePointCollectionCopyConstructorCalled{};
 
 
 class SpacePointCollection 
-	: 
+	: public Identifiable,
 	public DataVector< Trk::SpacePoint >
 {
 	///////////////////////////////////////////////////////////////////
@@ -56,11 +57,11 @@ class SpacePointCollection
 	// Const methods:
 	///////////////////////////////////////////////////////////////////
 
-	virtual Identifier identify() const;
+	virtual Identifier identify() const override final;
 	
-	virtual IdentifierHash identifyHash() const;
+	virtual IdentifierHash identifyHash() const override final;
 	
-	virtual void setIdentifier(Identifier id);
+	void setIdentifier(Identifier id);
 
 	virtual std::string type() const;
 	

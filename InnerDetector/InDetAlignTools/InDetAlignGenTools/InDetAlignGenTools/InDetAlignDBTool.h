@@ -184,17 +184,17 @@ class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
 
   CondAttrListCollection* m_attrListCollection;
 
-  bool par_newdb; // create database using new (collection) format
-  bool par_scttwoside; // create structures with separated SCT module sides
-  int par_fake; // set to 1 to fake full ATLAS geom, 2 to fake CTB geom
-  std::string par_condstream; // name of conditions stream
+  bool m_par_newdb; // create database using new (collection) format
+  bool m_par_scttwoside; // create structures with separated SCT module sides
+  int m_par_fake; // set to 1 to fake full ATLAS geom, 2 to fake CTB geom
+  std::string m_par_condstream; // name of conditions stream
   /** name of the root folder for constants, which can be set via 
       the <key> syntax. Default: /Indet/Align. */
-  std::string par_dbroot;
+  std::string m_par_dbroot;
   /** the base part of the key for loading AlignableTransform objects
       from the Transient Data Store. Default: /Indet/Align */
-  std::string par_dbkey;
-  bool par_oldTextFile;  // Input text file using old format
+  std::string m_par_dbkey;
+  bool m_par_oldTextFile;  // Input text file using old format
 
   AlignableTransform* getTransPtr(const std::string key) const;
   const AlignableTransform* cgetTransPtr(const std::string key) const;

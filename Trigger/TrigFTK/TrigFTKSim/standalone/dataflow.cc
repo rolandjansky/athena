@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <cmath>
 #include <TFile.h>
+using namespace std;
 
 int SIGDIGITS=2;
 

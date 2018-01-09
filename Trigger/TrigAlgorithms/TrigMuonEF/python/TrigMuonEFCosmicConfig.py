@@ -359,9 +359,7 @@ class TrigMuonEFSegmentFinderCosmicConfig (TrigMuonEFSegmentFinder):
         self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         from MuonRecExample.MooreTools import MooSegmentCombinationFinder        
-        self.SegmentsFinderTool = MooSegmentCombinationFinder("SegmentsFinderToolCosmic",
-                                                             WriteIntermediateResults = False
-                                                             )
+        self.SegmentsFinderTool = MooSegmentCombinationFinder("SegmentsFinderToolCosmic")
         
         # use seeded decoding
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):

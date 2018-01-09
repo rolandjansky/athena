@@ -68,7 +68,7 @@ StatusCode TrigT1CaloEFex::execute(){
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endmsg;
 
-	CaloCellContainer* scells(0);
+        std::vector<const CaloCell*> scells;
 	const xAOD::TriggerTowerContainer* TTs(0);
 	if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
 		msg << MSG::WARNING << " Could not get containers" << endmsg;

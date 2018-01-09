@@ -14,6 +14,7 @@
 #include "boost/filesystem.hpp"
 
 #include <vector>
+using namespace std;
 
 void printpsfile(std::string, TFile* f);
 

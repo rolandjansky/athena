@@ -40,8 +40,6 @@ Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
 {
   declareInterface<IMuonRawDataProviderTool>(this);
   declareProperty("Decoder",     m_decoder);
-  declareProperty("RdoLocation", m_containerKey);
- 
 }
 
 //================ Destructor =================================================
@@ -231,12 +229,13 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     return StatusCode::SUCCESS;
   }
 
-  if (m_containerKey.isPresent())
+  SG::WriteHandle<CscRawDataContainer> handle(m_containerKey);
+  if (handle.isPresent())
     return StatusCode::SUCCESS;
-  ATH_CHECK( m_containerKey.record(std::unique_ptr<CscRawDataContainer>( 
+  ATH_CHECK( handle.record(std::unique_ptr<CscRawDataContainer>( 
            new CscRawDataContainer(m_muonMgr->cscIdHelper()->module_hash_max())) ));
   
-  CscRawDataContainer* container = m_containerKey.ptr();
+  CscRawDataContainer* container = handle.ptr();
 
 
   m_activeStore->setStore( &*evtStore() );   

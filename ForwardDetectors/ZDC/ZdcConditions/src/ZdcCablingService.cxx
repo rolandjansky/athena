@@ -345,7 +345,6 @@ Identifier ZdcCablingService::h2s_channel_id ( const HWIdentifier & hwid ) const
 */
 
 Identifier ZdcCablingService::h2s_channel_id ( int crate, int channel ) const
-  throw (ZdcID_Exception)
 {
 
   int side     = hwid2side     (crate,channel);

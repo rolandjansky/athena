@@ -53,7 +53,7 @@ public:
   virtual StatusCode freeStore( size_t /*partitionIndex*/ ) override { std::abort(); }
   virtual size_t getPartitionNumber(int /*eventnumber*/) const override { std::abort(); }
   virtual size_t getNumberOfStores() const override { return nslots; }
-  virtual unsigned int freeSlots() override { std::abort(); }
+  virtual size_t freeSlots() override { std::abort(); }
 
 };
 

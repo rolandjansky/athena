@@ -166,7 +166,7 @@ StatusCode CscDigitizationTool::initialize() {
   // create an empty CSC digit container for filling
   try{
     m_container = new CscDigitContainer(m_cscIdHelper->module_hash_max());
-  } catch(std::bad_alloc){
+  } catch(const std::bad_alloc&){
     ATH_MSG_FATAL ( "Could not create a new CscDigitContainer!");
     return StatusCode::FAILURE;
   }

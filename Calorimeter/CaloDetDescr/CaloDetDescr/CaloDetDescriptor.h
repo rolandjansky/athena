@@ -136,10 +136,10 @@ class CaloDetDescriptor : public Identifiable
 
   /** @brief get region identifier
    */
-  Identifier identify() const;               
+  Identifier identify() const override final;
   /** @brief get hash identifier for the region
    */
-  IdentifierHash identifyHash() const;       
+  IdentifierHash identifyHash() const  override final;
   /** @brief get calo hash
    */
   IdentifierHash calo_hash() const;

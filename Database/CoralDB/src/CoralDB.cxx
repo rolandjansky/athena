@@ -1001,7 +1001,7 @@ bool CoralDB::deleteDataTag(const string& tag, const string& tmpIdTag) {
     deleteRows(TABLENAME_PREFIX+"CLOBS", "IDTAG", idTag, "REV", rev);
     deleteRows(TABLENAME_PREFIX+"CLOBS_REVS", "IDTAG", idTag, "TAG", tag);
   }
-  catch(RowNotFound) {
+  catch(const RowNotFound&) {
     // OK, this dataTag did not have any fields => no REV found by findEntry().
     // Only need to delete from CLOBS_TAGS below.
   }

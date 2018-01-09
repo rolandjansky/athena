@@ -42,7 +42,6 @@ AuxVectorData::AuxVectorData()
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move constructor.
  * @param rhs The container from which to move.
@@ -81,7 +80,6 @@ AuxVectorData& AuxVectorData::operator= (AuxVectorData&& rhs)
   }
   return *this;
 }
-#endif
 
 
 /**
@@ -420,7 +418,6 @@ AuxVectorData::Cache::Cache()
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Cache manager move constructor.
  * @param rhs The cache from which to copy.
@@ -456,7 +453,6 @@ AuxVectorData::Cache& AuxVectorData::Cache::operator= (Cache&& rhs)
   }
   return *this;
 }
-#endif
 
 
 /**

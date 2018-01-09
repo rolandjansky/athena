@@ -107,8 +107,8 @@ StatusCode Trk::PRD_AssociationTool::removePRDs( const Trk::Track& track )
         range = m_prepRawDataTrackMap.equal_range(prd);
 
     // get iterators for range
-    PRD_MapIt mapIt    = range.first;
-    PRD_MapIt mapItEnd = range.second;
+    ConstPRD_MapIt mapIt    = range.first;
+    ConstPRD_MapIt mapItEnd = range.second;
 
 // FIXME - doesn't compile. Out of time -  come back to it later
 // 		remove_if(
@@ -212,7 +212,7 @@ std::vector< const Trk::PrepRawData* > Trk::PRD_AssociationTool::getPrdsOnTrack(
 }
 
 Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange 
-    Trk::PRD_AssociationTool::onTracks(const PrepRawData& prd) 
+    Trk::PRD_AssociationTool::onTracks(const PrepRawData& prd) const
 {
 //	std::pair<IPRD_AssociationTool::PRD_MapIt, IPRD_AssociationTool::PRD_MapIt>       range = 
   return m_prepRawDataTrackMap.equal_range(&prd);

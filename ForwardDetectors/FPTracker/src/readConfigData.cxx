@@ -17,7 +17,7 @@ namespace FPTracker{
 
   class ValueSetter{
   public:
-    ValueSetter():errors_(false){}
+    ValueSetter():m_errors(false){}
     
     template<class T>
     bool setValue(T& val, const std::string& s)
@@ -29,35 +29,35 @@ namespace FPTracker{
 	}
       catch (boost::bad_lexical_cast& )
 	{
-	  errors_ = true;
+	  m_errors = true;
 	  ok      = false;
 
 	  std::ostringstream ost;
 	  ost<<"error converting "<< s <<'\n';
 	  SimpleLogger::getLogger()->info(ost);
 
-	  notConverted_.push_back(s);
+	  m_notConverted.push_back(s);
 	}
       
       return ok;
     }
     
-    bool errors() const {return errors_;}
+    bool errors() const {return m_errors;}
     
     std::vector<std::string>::const_iterator begin() const
     {
-      return notConverted_.begin();
+      return m_notConverted.begin();
     }
 
     
     std::vector<std::string>::const_iterator end() const
     {
-      return notConverted_.end();
+      return m_notConverted.end();
     }
 
   private:
-    bool errors_;
-    std::vector< std::string > notConverted_;
+    bool m_errors;
+    std::vector< std::string > m_notConverted;
   };
       
 

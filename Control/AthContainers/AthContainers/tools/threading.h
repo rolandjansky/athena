@@ -21,13 +21,6 @@
 #define ATHCONTAINERS_THREADING_H
 
 
-#if defined(__GCCXML__)
-# ifndef ATHCONTAINERS_NO_THREADS
-#  define ATHCONTAINERS_NO_THREADS
-# endif
-#endif
-
-
 #ifdef ATHCONTAINERS_NO_THREADS
 
 
@@ -116,17 +109,9 @@ inline void fence_seq_cst() {}
 
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/tss.hpp"
-#if __cplusplus > 201100
-# include <atomic>
-# include <mutex>
-# include <thread>
-namespace SG_STD_OR_BOOST = std;
-#else
-# include "boost/atomic.hpp"
-# include "boost/thread/mutex.hpp"
-# include "boost/thread/thread.hpp"
-namespace SG_STD_OR_BOOST = boost;
-#endif
+#include <atomic>
+#include <mutex>
+#include <thread>
 
 
 namespace AthContainers_detail {
@@ -136,10 +121,9 @@ namespace AthContainers_detail {
 using boost::upgrade_mutex;
 using boost::thread_specific_ptr;
 
-// Other mutex/lock types come from either boost or std.
-using SG_STD_OR_BOOST::mutex;
-using SG_STD_OR_BOOST::lock_guard;
-using SG_STD_OR_BOOST::thread;
+using std::mutex;
+using std::lock_guard;
+using std::thread;
 
 
 /**

@@ -8,42 +8,39 @@
 // Created  : Dec. 2009
 //************************************************************
 
-#include <algorithm>
-
-// Gaudi includes
-#include "GaudiKernel/SystemOfUnits.h"
-
-// Athena includes
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-// Pile up
-#include "PileUpTools/PileUpMergeSvc.h"
-
-// Trigger time
-#include "AthenaKernel/ITriggerTime.h"
-#include "AthenaKernel/errorcheck.h"
-
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
+// Tile includes
+#include "TileSimAlgs/TileHitVecToCntTool.h"
+#include "TileIdentifier/TileHWID.h"
+#include "TileDetDescr/TileDetDescrManager.h"
+#include "TileEvent/TileHitNonConstContainer.h"
+#include "TileConditions/TileInfo.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"
 
-// Tile includes
-#include "TileSimAlgs/TileHitVecToCntTool.h"
-#include "TileIdentifier/TileHWID.h"
-#include "TileDetDescr/TileDetDescrManager.h"
-#include "TileConditions/TileInfo.h"
-#include "TileEvent/TileHitContainer.h"
-#include "TileEvent/TileHitNonConstContainer.h"
-#include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCablingSvc.h"
+// Athena includes
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "StoreGate/WriteHandle.h"
+
+// Pile up
+#include "PileUpTools/PileUpMergeSvc.h"
+// Trigger time
+#include "AthenaKernel/ITriggerTime.h"
+#include "AthenaKernel/errorcheck.h"
+// For the Athena-based random numbers.
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
+// Gaudi includes
+#include "GaudiKernel/SystemOfUnits.h"
 
 
 #include "CLHEP/Random/Randomize.h"
 #include "CLHEP/Random/RandomEngine.h"
 
+#include <algorithm>
 
 using CLHEP::RandFlat;
 using CLHEP::RandGaussQ; // FIXME CLHEP::RandGaussZiggurat is faster and more accurate.
@@ -54,7 +51,6 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
     : PileUpToolBase(type,name,parent)
-    , m_hitContainer("TileHitCnt")
     , m_infoName("TileInfo")
     , m_run2(false)
     , m_pileUp(false)
@@ -87,7 +83,6 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     m_hitVectorNames.push_back("TileHitVec");
 
     declareProperty("TileHitVectors", m_hitVectorNames,  "Name of input hit vectors (default=TileHitVec)" );
-    declareProperty("TileHitContainer", m_hitContainer,  "Name of output container (default=TileHitCnt)" );
     declareProperty("TileInfoName", m_infoName,          "Name of TileInfo store (default=TileInfo");
     declareProperty("PileUp",m_pileUp,                   "To switch on pileup (default=false)");
     declareProperty("DeltaT",m_deltaT,                   "Minimal Time granularity in TileHit (default=1ns)");
@@ -303,6 +298,9 @@ StatusCode TileHitVecToCntTool::initialize() {
     ATH_MSG_INFO("Number of E1 cell to be merged: " << std::count (m_E1merged.begin(), m_E1merged.end(), true));
     ATH_MSG_INFO("Number of MBTS cell to be merged: " << std::count (m_MBTSmerged.begin(), m_MBTSmerged.end(), true));
   }
+
+
+  ATH_CHECK( m_hitContainerKey.initialize() );
 
   ATH_MSG_DEBUG("TileHitVecToCntTool initialization completed");
 
@@ -915,9 +913,11 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   for (std::unique_ptr<TileHitCollection>& coll : *m_hits ) {
     CHECK(hits->addCollection (coll.release(), hashId++));
   }
-  CHECK(evtStore()->record(std::move(hits), m_hitContainer, false));
 
-  ATH_MSG_DEBUG("TileHit container registered to the TES with name" << m_hitContainer);
+  SG::WriteHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  ATH_CHECK( hitContainer.record(std::move(hits)) );
+
+  ATH_MSG_DEBUG("TileHit container registered to the TES with name" << m_hitContainerKey.key());
 
   //  if (m_skipNoHit && nHit==0) {
   //    setFilterPassed(false);

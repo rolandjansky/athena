@@ -377,6 +377,7 @@ void getTrackSegmentFromTransformVec(
     case Ringer::TrackCalJointSections:                                        \
       READ_ETA_ET_DEP_WRAPPER(vec, wrapType, Ringer::TrackCalJointSections,    \
           etaDep, etDep, configDir, version)                                   \
+      break;                                                                   \
     default:                                                                   \
       throw std::runtime_error(std::string("Unknown segmentation type"));      \
   }
@@ -426,6 +427,7 @@ void getTrackSegmentFromTransformVec(
       READ_ETA_ET_DEP_WRAPPER(vec, wrapType,                                   \
           Ringer::TrackCalJointSections, etaDep,                               \
           etDep, configDir, version)                                           \
+      break;                                                                   \
     default:                                                                   \
       throw std::runtime_error(std::string("Unknown segmentation type"));      \
   }

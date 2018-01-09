@@ -55,28 +55,28 @@ namespace FSR {
       for( ; mu_itr != mu_end; ++mu_itr ) {
 
           
-	if ( m_fsrTool->getFsrPhoton(*mu_itr, candidate) ==  CP::CorrectionCode::Ok){
+	if ( m_fsrTool->getFsrPhoton(*mu_itr, m_candidate) ==  CP::CorrectionCode::Ok){
 	  ATH_MSG_INFO( " FSR candidate found !!!!!!!! ");
-	  ATH_MSG_INFO( " container = " << candidate.container
+	  ATH_MSG_INFO( " container = " << m_candidate.container
 			//const xAOD::IParticle* particle;
-			<< " deltaR = " << candidate.deltaR
-			<< " Et = " << candidate.Et
-			<<" f1 = " << candidate.f1
-			<<" eta = " << candidate.eta
-			<<" phi = " << candidate.phi
-			<<" phIso = "<< candidate.phIso
-			<<" fsrtype = " << candidate.type
+			<< " deltaR = " << m_candidate.deltaR
+			<< " Et = " << m_candidate.Et
+			<<" f1 = " << m_candidate.f1
+			<<" eta = " << m_candidate.eta
+			<<" phi = " << m_candidate.phi
+			<<" phIso = "<< m_candidate.phIso
+			<<" fsrtype = " << m_candidate.type
 			);
     	 }
 	
-	if (candidate.container == "photon" ) {
-	  if(const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(candidate.particle)){
+	if (m_candidate.container == "photon" ) {
+	  if(const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(m_candidate.particle)){
 	    fsr_energy = photon->e();
 	  }else{
 	    ATH_MSG_WARNING( "Could not cast to Photon " );
 	  }
-	} else if (candidate.container == "electron" ) {
-	  if(const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(candidate.particle)){
+	} else if (m_candidate.container == "electron" ) {
+	  if(const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(m_candidate.particle)){
 	     fsr_energy = electron->e();
 	  }else{
 	    ATH_MSG_WARNING( "Could not cast to Electron " );
@@ -86,7 +86,7 @@ namespace FSR {
 	}
 	if ( fsr_energy > tmp_energy ) {
 	  tmp_energy = fsr_energy;   
-	  fsr_tlv.SetPtEtaPhiE(candidate.Et, candidate.eta, candidate.phi, fsr_energy);
+	  fsr_tlv.SetPtEtaPhiE(m_candidate.Et, m_candidate.eta, m_candidate.phi, fsr_energy);
 	}
 		
       }

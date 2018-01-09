@@ -32,7 +32,6 @@ Trk::MaterialValidation::MaterialValidation(const std::string& name, ISvcLocator
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc",name),
   m_trackingGeometry(0),
   m_materialMapper("Trk::MaterialMapper/MappingMaterialMapper"),
-  m_materialMappingEvents(0),
   m_maxMaterialMappingEvents(25000),
   m_flatDist(0),
   m_etaMin(-3.),

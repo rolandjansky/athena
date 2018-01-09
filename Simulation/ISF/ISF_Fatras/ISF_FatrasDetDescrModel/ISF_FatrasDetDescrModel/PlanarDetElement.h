@@ -83,10 +83,10 @@ namespace iFatras {
     //@{
     
     // Identifier
-    virtual Identifier identify() const;
+    Identifier identify() const;
 
     // Identifier hash
-    virtual IdentifierHash identifyHash() const;
+    IdentifierHash identifyHash() const;
 
     //@}
 

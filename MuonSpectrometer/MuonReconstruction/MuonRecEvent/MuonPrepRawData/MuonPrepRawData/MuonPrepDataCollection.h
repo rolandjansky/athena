@@ -59,9 +59,9 @@ public:
   typedef Identifier ID;
 
   // identifier of this detector element:
-  virtual Identifier identify() const;
+  virtual Identifier identify() const override final;
 
-  virtual IdentifierHash identifyHash() const;
+  virtual IdentifierHash identifyHash() const override final;
 
   virtual void setIdentifier(Identifier id);
   // plottable

@@ -21,7 +21,6 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
-#include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
@@ -36,13 +35,11 @@ namespace Muon {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_idHelperTool("Muon::MuonIdHelpers/MuonIdHelperTool"),
-    m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool"),
-    m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool")
+    m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool")
   {
     declareInterface<IMuonSegmentCombinationCleanerTool>(this);
 
     declareProperty("SegmentOverlapRemovalTool", m_overlapRemovalTool, "tool to removal overlaps in segment combinations" );
-    declareProperty("PatternAssociationTool", m_assocTool, "tool to keep track of associations between pattern and segment combinations" );
     declareProperty("MergeAllCombis", m_mergeAllCombis = false, "merge all combinations into one large combination" );
 
   }
@@ -89,23 +86,16 @@ namespace Muon {
       return sc;
     }
 
-    sc = m_assocTool.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_DEBUG("Retrieved " << m_assocTool );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_assocTool ); 
-      return sc;
-    }
-
     ATH_MSG_VERBOSE("End of Initializing");
     return StatusCode::SUCCESS; 
   }
 
-  MuonSegmentCombinationCollection* MuonSegmentCombinationCleanerTool::clean( const MuonSegmentCombinationCollection& combiCol ){
+  MuonSegmentCombinationCollection* MuonSegmentCombinationCleanerTool::clean( const MuonSegmentCombinationCollection& combiCol,
+									      MuonSegmentCombPatternCombAssociationMap* segPattMap ){
 
     MuonSegmentCombinationCollection* combiCleanCol = new MuonSegmentCombinationCollection;
     
-    cleanAndMergeCombis(combiCol,combiCleanCol);
+    cleanAndMergeCombis(combiCol,combiCleanCol,segPattMap);
     
     return combiCleanCol;
   }
@@ -118,7 +108,8 @@ namespace Muon {
   }
 
   void MuonSegmentCombinationCleanerTool::cleanAndMergeCombis( const MuonSegmentCombinationCollection& combiCol,
-							       MuonSegmentCombinationCollection* combiCleanCol ) {
+							       MuonSegmentCombinationCollection* combiCleanCol,
+							       MuonSegmentCombPatternCombAssociationMap* segPattMap) {
 
     ATH_MSG_DEBUG(" cleaning combis " << combiCol.size() );
 
@@ -190,13 +181,13 @@ namespace Muon {
       if( finalCombi != newCombi ) delete newCombi;
 
       // lookup the patterncombi and add association
-      unsigned int count = m_assocTool->count(originalCombi);
+      unsigned int count = segPattMap->count(originalCombi);
       if(count != 1 ){
 	ATH_MSG_INFO(" This list should only have one entry!! ");
       }else{
-	IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(originalCombi);
+	std::pair<MuonSegmentCombPatternCombAssociationMap::const_iterator, MuonSegmentCombPatternCombAssociationMap::const_iterator> range = segPattMap->equal_range(originalCombi);
 	const Muon::MuonPatternCombination* pat = (range.first)->second;
-	if( pat ) m_assocTool->insert(finalCombi, pat);
+	if( pat ) segPattMap->insert(std::make_pair(finalCombi, pat));
 	else ATH_MSG_INFO(" The pattern pointer should never be zero!!!! ");
       }
 

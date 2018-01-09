@@ -29,8 +29,8 @@ namespace VKalVrtAthena {
 
     ATH_MSG_DEBUG( "> VrtSecInclusive getNewTruthInfo()" );
 
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
     // Truth Vertex
     const xAOD::TruthVertexContainer*   truthVertices ( nullptr );//SS has worked but test below // Hide: moved to local scope
@@ -464,7 +464,7 @@ namespace VKalVrtAthena {
 	// if there are >=2 matched reco trks at vertex, do a quick fit
 	// 
 	ATH_MSG_DEBUG( "> getNewTruthInfo() : numReco "   <<   numReco );
-	ATH_MSG_DEBUG( "> getNewTruthInfo() : Selected trk size "   <<   m_selectedBaseTracks->size() );
+	ATH_MSG_DEBUG( "> getNewTruthInfo() : Selected trk size "   <<   selectedBaseTracks->size() );
 	ATH_MSG_DEBUG( "> getNewTruthInfo() : size of SelTrk_barcode "   <<   seltrk_barcode_list.size() );
 	//
 	int RefitSt =0;
@@ -475,7 +475,7 @@ namespace VKalVrtAthena {
 	double RefitChi2=0;
 	double RefitMass=0;
 	//
-	if( numReco>=2 && numReco<10 && m_selectedBaseTracks->size()>=2 ) {
+	if( numReco>=2 && numReco<10 && selectedBaseTracks->size()>=2 ) {
 
 	  vector<const xAOD::TrackParticle*>  ListMatBaseTracks( 0 );
 	  vector<const xAOD::NeutralParticle*>  dummyNeutrals( 0 );
@@ -484,8 +484,8 @@ namespace VKalVrtAthena {
 	  // first fill vector with selected tracks.
 	  for ( int itmp=0; itmp<numReco; ++itmp ) {
 
-	    for(  auto itrk = m_selectedBaseTracks->begin(); itrk!= m_selectedBaseTracks->end(); ++itrk ) {
-	      size_t isel = itrk - m_selectedBaseTracks->begin();
+	    for(  auto itrk = selectedBaseTracks->begin(); itrk!= selectedBaseTracks->end(); ++itrk ) {
+	      size_t isel = itrk - selectedBaseTracks->begin();
 	      
 	      ATH_MSG_DEBUG( "> getNewTruthInfo() : itmp/bcode of RecoTrks/SelTrk "
                              <<   itmp   <<   ","

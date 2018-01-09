@@ -174,7 +174,6 @@ public:
   AuxVectorData();
 
 
-#if __cplusplus > 201100
   /**
    * @brief Move constructor.
    * @param rhs The container from which to move.
@@ -187,7 +186,6 @@ public:
    * @param rhs The container from which to move.
    */
   AuxVectorData& operator= (AuxVectorData&& rhs);
-#endif
 
 
   /// Destructor.
@@ -655,7 +653,6 @@ private:
     Cache();
 
 
-#if __cplusplus > 201100
     /**
      * @brief Cache manager move constructor.
      * @param rhs The cache from which to copy.
@@ -668,7 +665,6 @@ private:
      * @param rhs The cache from which to copy.
      */
     Cache& operator= (Cache&& rhs);
-#endif
 
 
     /**

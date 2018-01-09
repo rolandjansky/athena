@@ -210,7 +210,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                    // FIXME: may be able to get rid of this copy
                    // if we switch to a thread-safe container.
                    const SG::auxid_set_t ids = store->getSelectedAuxIDs();
-                   for(auto &id : ids ) {
+                   for(SG::auxid_t id : ids ) {
                       BranchDesc&       newBrDsc( m_auxBranchMap[id] );
                       if( !newBrDsc.branch ) {
                          auto &reg = SG::AuxTypeRegistry::instance();

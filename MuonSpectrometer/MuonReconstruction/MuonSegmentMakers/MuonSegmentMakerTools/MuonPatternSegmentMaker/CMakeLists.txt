@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
+			  MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonEDM_AssociationObjects
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkSegment
                           Tracking/TrkTools/TrkToolInterfaces )
@@ -33,7 +34,7 @@ atlas_add_component( MuonPatternSegmentMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel MuonPattern MuonPrepRawData MuonSegment MuonRecToolInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonRIO_OnTrack MuonRecHelperToolsLib TrkParameters TrkSegment TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel MuonPattern MuonPrepRawData MuonSegment MuonRecToolInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonRIO_OnTrack MuonRecHelperToolsLib MuonEDM_AssociationObjects TrkParameters TrkSegment TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( MuonPatternSegmentMaker )

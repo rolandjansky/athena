@@ -14,7 +14,6 @@
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreStandalone.h"
 #include "AthContainers/exceptions.h"
-#include "AthContainers/tools/foreach.h"
 
 
 
@@ -437,7 +436,7 @@ void AuxElement::clearAux()
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   SG::AuxTypeRegistry::lock_t lock (r);
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, m_container->getWritableAuxIDs()) {
+  for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     void* dst = m_container->getDataArray (auxid);
     r.clear (lock, auxid, dst, m_index);
   }
@@ -475,7 +474,7 @@ void AuxElement::copyAux (const AuxElement& other)
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, other_ids) {
+  for (SG::auxid_t auxid : other_ids) {
     const void* src = ocont->getDataArrayAllowMissing (auxid);
     if (src) {
       void* dst = m_container->getDataArray (auxid);
@@ -487,7 +486,7 @@ void AuxElement::copyAux (const AuxElement& other)
     }
   }
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, m_container->getWritableAuxIDs()) {
+  for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     if (other_ids.find (auxid) == other_ids.end()) {
       void* dst = m_container->getDataArray (auxid);
       r.clear (auxid, dst, m_index);

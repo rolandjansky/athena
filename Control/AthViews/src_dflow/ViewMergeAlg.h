@@ -58,9 +58,9 @@ class ViewMergeAlg
   /// Containers
   
   // vars
-  SG::WriteHandleKey< std::vector<int> > m_w_ints;
-  SG::ReadHandleKey< std::vector<int> > m_r_ints;
-  SG::ReadHandleKey< std::vector< SG::View* > > m_r_views;
+  SG::WriteHandleKey< std::vector<int> > m_w_ints{ this, "MergedInts", "mergedOutput", "Data flow of ints" };
+  SG::ReadHandleKey< std::vector<int> > m_r_ints; //This is not guaranteed to be created, so can't be declared
+  SG::ReadHandleKey< std::vector< SG::View* > > m_r_views{ this, "AllViews", "all_views", "All views" };
 }; 
 
 // I/O operators

@@ -109,14 +109,14 @@ namespace JiveXML {
   
   StatusCode TrigSiSpacePointRetriever::initialize(){
 
-    const InDetDD::PixelDetectorManager* m_pixel_geomanager;
-    if (detStore()->retrieve(m_pixel_geomanager, "Pixel").isFailure() ){
+    const InDetDD::PixelDetectorManager* pixel_geomanager;
+    if (detStore()->retrieve(pixel_geomanager, "Pixel").isFailure() ){
 	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endmsg;
 	return StatusCode::RECOVERABLE;
     }
 
-    const InDetDD::SCT_DetectorManager* m_sct_geomanager;
-    if ( detStore()->retrieve(m_sct_geomanager, "SCT").isFailure() ){
+    const InDetDD::SCT_DetectorManager* sct_geomanager;
+    if ( detStore()->retrieve(sct_geomanager, "SCT").isFailure() ){
 	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT GeoModel Manager!" << endmsg;
 	return StatusCode::RECOVERABLE;
       } 

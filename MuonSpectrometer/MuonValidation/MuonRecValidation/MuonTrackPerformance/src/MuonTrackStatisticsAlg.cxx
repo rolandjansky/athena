@@ -55,25 +55,25 @@ StatusCode MuonTrackStatisticsAlg::execute()
   ATH_MSG_DEBUG("MuonTrackStatisticsAlg in execute() ...");
 
   for(SG::ReadHandle<TrackCollection>& trackColl : m_trackKeys.makeHandles()){
-    if(!trackColl.isValid()){
-      ATH_MSG_WARNING("track collection "<<trackColl.key()<<" not valid!");
-      return StatusCode::FAILURE;
-    }
     if(!trackColl.isPresent()){
       ATH_MSG_DEBUG("track collection "<<trackColl.key()<<" not present");
       continue;
     }
-    m_statisticsTool->updateTrackCounters(trackColl.key(),trackColl.cptr());
+    if(!trackColl.isValid()){
+      ATH_MSG_WARNING("track collection "<<trackColl.key()<<" not valid!");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_statisticsTool->updateTrackCounters(trackColl.key(),trackColl.cptr()) );
   }
 
   for(SG::ReadHandle<DetailedTrackTruthCollection>& truthMap : m_truthKeys.makeHandles()){
-    if(!truthMap.isValid()){
-      ATH_MSG_WARNING("truth map "<<truthMap.key()<<" not valid!");
-      return StatusCode::FAILURE;
-    }
     if(!truthMap.isPresent()){
       ATH_MSG_DEBUG("truth map "<<truthMap.key()<<" not present");
       continue;
+    }
+    if(!truthMap.isValid()){
+      ATH_MSG_WARNING("truth map "<<truthMap.key()<<" not valid!");
+      return StatusCode::FAILURE;
     }
     m_statisticsTool->updateTruthTrackCounters(truthMap.key(),truthMap.cptr());
   }

@@ -6,6 +6,12 @@
 //  Filename : TileMuToNtuple.cxx
 //*****************************************************************************
 
+//Tile includes
+#include "TileMuId/TileMuToNtuple.h"
+
+// Athena incldues
+#include "StoreGate/ReadHandle.h"
+
 //Gaudi Includes
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/INTupleSvc.h"
@@ -13,11 +19,6 @@
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
-//TileCalo include
-#include "TileEvent/TileMuContainer.h"
-#include "TileMuId/TileMuToNtuple.h"
-
-//const int max_ntag=50;
 
 // Constructor & deconstructor
 TileMuToNtuple::TileMuToNtuple(std::string name, ISvcLocator* pSvcLocator)
@@ -30,7 +31,6 @@ TileMuToNtuple::TileMuToNtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_tileMuContainer("TileMuObj")
 {
 
-  declareProperty("TileMuTagsOutputName", m_tileMuContainer);
   declareProperty("NTupleLoc", m_ntupleLoc);
   declareProperty("NTupleID", m_ntupleID);
   declareProperty("MaxNtag", m_maxNtag);
@@ -66,6 +66,8 @@ StatusCode TileMuToNtuple::initialize() {
   CHECK( m_ntuplePtr->addItem("TileMu/energydepVec", m_ntag, m_energy, 4) );
   CHECK( m_ntuplePtr->addItem("TileMu/quality", m_ntag, m_quality, 0., 1.) );
 
+  ATH_CHECK( m_muContainerKey.initialize() );
+
   ATH_MSG_INFO( "initialisation completed" );
 
   return StatusCode::SUCCESS;
@@ -74,24 +76,21 @@ StatusCode TileMuToNtuple::initialize() {
 StatusCode TileMuToNtuple::execute() {
 
   // step1: read  from TDS
-  const TileMuContainer* mutags_cont;
-  CHECK( evtStore()->retrieve(mutags_cont, m_tileMuContainer) );
+  SG::ReadHandle<TileMuContainer> muContainer(m_muContainerKey);
+  ATH_CHECK( muContainer.isValid() );
 
-  TileMuContainer::const_iterator it = mutags_cont->begin();
-  TileMuContainer::const_iterator end = mutags_cont->end();
   m_ntag = 0;
-  for (; it != end; ++it) {
-    m_eta[m_ntag] = (*it)->eta();
-    //   std::vector<double> ene;
-    // ene.reserve(4);
-    // ene.push_back( ((*it)->enedep()) [0]);
 
-    m_energy[m_ntag][0] = ((*it)->enedep())[0];
-    m_energy[m_ntag][1] = ((*it)->enedep())[1];
-    m_energy[m_ntag][2] = ((*it)->enedep())[2];
-    m_energy[m_ntag][3] = ((*it)->enedep())[3];
-    m_phi[m_ntag] = (*it)->phi();
-    m_quality[m_ntag] = (*it)->quality();
+  for (const TileMu* mu : *muContainer) {
+
+    m_eta[m_ntag] = mu->eta();
+
+    m_energy[m_ntag][0] = (mu->enedep())[0];
+    m_energy[m_ntag][1] = (mu->enedep())[1];
+    m_energy[m_ntag][2] = (mu->enedep())[2];
+    m_energy[m_ntag][3] = (mu->enedep())[3];
+    m_phi[m_ntag] = mu->phi();
+    m_quality[m_ntag] = mu->quality();
     m_ntag++;
 
     if (m_ntag >= m_maxNtag) break;

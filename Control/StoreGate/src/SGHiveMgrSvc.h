@@ -107,7 +107,7 @@ public:
   virtual size_t getPartitionNumber(int eventnumber) const override;
   
   /// Get free slots number
-  virtual unsigned int freeSlots() override;
+  virtual size_t freeSlots() override;
     
   //@{ @name Gaudi Service boilerplate
   virtual StatusCode initialize() override;
@@ -127,7 +127,7 @@ private:
   ServiceHandle<StoreGateSvc> m_hiveStore;
   size_t m_nSlots; //property settable also by setNumberOfStores
   std::vector<SG::HiveEventSlot> m_slots;
-    std::atomic<unsigned int> m_freeSlots {0};
+    std::atomic<size_t> m_freeSlots {0};
   //maybe  ServiceHandle<ActiveStoreSvc> m_active;
 
 };

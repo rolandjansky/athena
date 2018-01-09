@@ -7,11 +7,8 @@ atlas_subdir( CoolConvUtilities )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
+                          Database/APR/FileCatalog
                           Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
                           Database/CoraCool )
 
 # External dependencies:
@@ -25,7 +22,7 @@ atlas_add_executable( AtlCoolCopy
                       src/ReplicaSorter.cxx
                       src/CoolTagInfo.cxx
                       INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc CoraCool )
+                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} FileCatalog PersistencySvc CoraCool )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

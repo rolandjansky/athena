@@ -137,6 +137,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
      return sc ;
    }
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
+
+   ATH_CHECK(m_tgcContainerKey.initialize());
       
    // 
    return StatusCode::SUCCESS; 
@@ -173,7 +175,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
    const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
    
-   const Muon::TgcPrepDataContainer* tgcPrepContainer = 0;
+   //const Muon::TgcPrepDataContainer* tgcPrepContainer = 0;
+   const Muon::TgcPrepDataContainer* tgcPrepContainer;
    int gasGap;
    int channel;
    
@@ -204,12 +207,14 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    }
    
    if ( m_activeStore ) {
-     StatusCode sc_read = (*m_activeStore)->retrieve( tgcPrepContainer, "TGC_Measurements" );
-     if (sc_read.isFailure()){
-       ATH_MSG_ERROR("Could not retrieve PrepDataContainer.");
-       return sc_read;
+     auto tgcContainerHandle = SG::makeHandle(m_tgcContainerKey);
+     tgcPrepContainer = tgcContainerHandle.cptr();
+     if (!tgcContainerHandle.isValid()) { 
+       ATH_MSG_ERROR("Could not retrieve PrepDataContainer key:" << m_tgcContainerKey.key());
+       return StatusCode::FAILURE;
+     } else {
+       ATH_MSG_DEBUG("Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections());
      }
-     ATH_MSG_DEBUG("Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections());
    } else {
      ATH_MSG_ERROR("Null pointer to ActiveStore");
      return StatusCode::FAILURE;;

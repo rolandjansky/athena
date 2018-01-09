@@ -16,7 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces )
+                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces 
+			  MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonEDM_AssociationObjects)
 
 # External dependencies:
 find_package( Eigen )

@@ -134,7 +134,7 @@ public:
   float sigmaXtwin() const;                          //!< retrieve twin position error
   float sigma2Xtwin() const;                         //!< retrieve twin position variance
     
-  MuonCalib::MdtCalibHitBase* hitBase(MuonCalib::IIdToFixedIdTool*) const;  //!< return a pointer to the MdtCalibHit object to be used in the calibration framework 
+  MuonCalib::MdtCalibHitBase* hitBase(const MuonCalib::IIdToFixedIdTool&) const;  //!< return a pointer to the MdtCalibHit object to be used in the calibration framework 
   
   std::ostream& dump(std::ostream &stream) const;    //!< ostream operator
   MsgStream& dump(MsgStream &sl) const;              //!< MsgStream operator

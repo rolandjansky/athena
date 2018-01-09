@@ -158,13 +158,13 @@ StatusCode MuonPerformanceAlg::execute()
   m_eventNumber = eventInfo->eventNumber();
 
   SG::ReadHandle<xAOD::TruthParticleContainer> TruthMuons(m_truthMuons);
-  if(!TruthMuons.isValid()){
-    ATH_MSG_WARNING(m_truthMuons.key()<<" not valid");
-    return StatusCode::FAILURE;
-  }
   if(!TruthMuons.isPresent()){
     ATH_MSG_DEBUG("no truth muon collection present");
     return StatusCode::SUCCESS;
+  }
+  if(!TruthMuons.isValid()){
+    ATH_MSG_WARNING(m_truthMuons.key()<<" not valid");
+    return StatusCode::FAILURE;
   }
   ATH_MSG_VERBOSE("Retrieved truth muons " << TruthMuons->size());
   typedef ElementLink< xAOD::MuonContainer > MuonLink;

@@ -12,13 +12,23 @@
 #ifndef TILESIMALGS_TILEHITTOCELL_H
 #define TILESIMALGS_TILEHITTOCELL_H
 
+// Tile includes
+#include "TileEvent/TileHitContainer.h"
+
+// Calo includes
+#include "CaloEvent/CaloCellContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+#include <string>
 
 class TileID;
 class TileInfo;
 class TileDetDescrManager;
 
-#include <string>
 
 /**
  @class TileHitToCell
@@ -52,8 +62,15 @@ class TileHitToCell: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
-    std::string m_hitContainer;  //!< Name of the TileHitContainer
-    std::string m_cellContainer; //!< Name of the TileCellContainer
+
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitContainer",
+                                                          "input Tile hit container key"};
+
+    SG::WriteHandleKey<CaloCellContainer> m_cellContainerKey{this,"TileCellContainer",
+                                                             "TileCellContainer",
+                                                             "Output Tile cell container key"};
+
+
     std::string m_infoName;      //!< Name for TileInfo
 
     const TileID* m_tileID;    //!< Pointer to TileID helper

@@ -26,23 +26,30 @@
  *  Output: TileEvent/TileCosmicMuon object
  *   
  ********************************************************************/
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-
-// Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
 
 // Tile includes
 #include "TileCosmicAlgs/TileMuonTrackDistance.h"
+#include "TileEvent/TileContainer.h"
 
+// Calo includes
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloEvent/CaloCellContainer.h"
+
+// Athena includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "CommissionEvent/ComTime.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
 
 // forward declarations
 class HWIdentifier;
 class IdentifierHash;
 class TileID;
 class TileHWID;
-class CaloCellContainer;
 class TileDetDescrManager;
 
 // C++ STL includes
@@ -183,13 +190,6 @@ class TileMuonFitter: public AthAlgorithm {
 
   protected:
 
-    /** Name of input CaloCellContainer. */
-    std::string m_cellContainer;
-    /** Name of output TileCosmicMuon object. */
-    std::string m_tileCosmicMuonKey;
-    /** Name of output ComTime object. */
-    std::string m_comTimeKey;
-
     // Tile objects
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
@@ -260,6 +260,16 @@ class TileMuonFitter: public AthAlgorithm {
     bool m_reg1to2;
 
     static CaloCell_ID::SUBCALO m_caloIndex;
+
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey{this, "CaloCellContainer", "AllCalo",
+                                                            "Input CaloCellContainer name" };
+
+    SG::WriteHandleKey<TileCosmicMuonContainer> m_cosmicMuonContainerKey{this,
+                                                                         "TileCosmicMuonKey",
+                                                                         "TileCosmicMuonMF",
+                                                                         "Output TileCosmicMuonContainer name"};
+
+    SG::WriteHandleKey<ComTime> m_comTimeKey{this, "ComTimeKey", "ComTimeTileMuon", "Output ComTime name"};
 
 };
 

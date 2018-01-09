@@ -102,7 +102,7 @@ namespace Trk {
     
        /** return the identifier
       -extends MeasurementBase */
-      virtual Identifier identify() const;              
+      virtual Identifier identify() const final;
 
       /**return number of parameters currently created*/
       static unsigned int numberOfInstantiations() ;

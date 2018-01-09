@@ -675,7 +675,8 @@ inline void GeoCaloCalibHit::init(const std::string & collectionName) {
        m_distance = 3980*CLHEP::mm;
         return;
     default:
-      break;
+      m_failed = true;
+      return;
     }   //  over samplings
   case 2: // type == 2, 5200
      if (m_region !=0 || m_sampling !=0) {

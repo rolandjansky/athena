@@ -1,7 +1,7 @@
-Fri Oct 27 23:34:23 CEST 2017
+Tue Jan  2 17:45:50 PST 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/9f528da37a] -- built on [2017-10-27T2310]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [dev/3227fd4b6f] -- built on [2018-01-02T1642]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -10,22 +10,22 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle2MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle2_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5436 configurables from 58 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5430 configurables from 7 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 [?1034hPy:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus012.cern.ch on Fri Oct 27 23:34:39 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on zeus on Tue Jan  2 17:46:07 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 10254 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 10201 CLIDRegistry entries for module ALL
 ChronoStatSvc                                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -35,23 +35,22 @@ AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolC
 PoolSvc                                            INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                            INFO Frontier compression level set to 5
-DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-26T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(proxyurl=http://msquid01-ib.nersc.gov:3128)(proxyurl=http://msquid02-ib.nersc.gov:3128) will be considered for COOL data
+DBReplicaSvc                                       INFO Read replica configuration from /bld2/build/v30r1.002/build/install/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
+DBReplicaSvc                                       INFO No specific match for domain found - use default fallback
+DBReplicaSvc                                       INFO Total of 2 servers found for host zeus [ATLF atlas_dd ]
 PoolSvc                                            INFO Successfully setup replica sorting algorithm
 PoolSvc                                            INFO Setting up APR FileCatalog and Streams
 PoolSvc                                            INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-EventSelector                                      INFO reinitialization...
-EventSelector                                      INFO EventSelection with query 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 93E7DA84-0A72-4B49-A584-F3907D86A720
-Domain[ROOT_All]                                   INFO                           xaoddata.root
-RootDatabase.open                                  INFO xaoddata.root File version:60806
-EventPersistencySvc                                INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventSelector                                      INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector                                      INFO reinitialization...
 EventSelector                                      INFO EventSelection with query 
+Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 3B042E92-46EE-DB43-8F81-88D283E3D843
+Domain[ROOT_All]                                   INFO                           xaoddata.root
+RootDatabase.open                                  INFO xaoddata.root File version:60806
+EventPersistencySvc                                INFO Added successfully Conversion service:AthenaPoolCnvSvc
 AthenaPoolAddressProviderSvc                       INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 ClassIDSvc                                         INFO  getRegistryEntries: read 1493 CLIDRegistry entries for module ALL
 ThreadPoolSvc                                      INFO no thread init tools attached
@@ -67,16 +66,16 @@ AvalancheSchedulerSvc                              INFO Data Dependencies for Al
   SGInputLoader
       none
   xAODTestReadDecor
-    o INPUT  ('DMTest::C','StoreGateSvc+cinfo.dInt1')
-    o INPUT  ('DMTest::CVec','StoreGateSvc+cvec.dInt1')
+    o INPUT   ( 'DMTest::C' , 'StoreGateSvc+cinfo.dInt1' ) 
+    o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' ) 
   EndIncFiringAlg
       none
   IncidentProcAlg2
       none
 AvalancheSchedulerSvc                              INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
-   o ('DMTest::C','StoreGateSvc+cinfo.dInt1')    required by Algorithm: 
+   o  ( 'DMTest::C' , 'StoreGateSvc+cinfo.dInt1' )     required by Algorithm: 
        * xAODTestReadDecor
-   o ('DMTest::CVec','StoreGateSvc+cvec.dInt1')    required by Algorithm: 
+   o  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' )     required by Algorithm: 
        * xAODTestReadDecor
 PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully
@@ -87,18 +86,19 @@ HistogramPersistencySvc                         WARNING Histograms saving not re
 AthenaHiveEventLoopMgr                             INFO Setup EventSelector service EventSelector
 ApplicationMgr                                     INFO Application Manager Initialized successfully
 xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 93E7DA84-0A72-4B49-A584-F3907D86A720
+Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3B042E92-46EE-DB43-8F81-88D283E3D843
+Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 93E7DA84-0A72-4B49-A584-F3907D86A720
+Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 3B042E92-46EE-DB43-8F81-88D283E3D843
 Domain[ROOT_All]                                   INFO                           xaoddata.root
 RootDatabase.open                                  INFO xaoddata.root File version:60806
 ApplicationMgr                                     INFO Application Manager Started successfully
 AthenaHiveEventLoopMgr                             INFO Starting loop on events
-AthenaPoolConverter                                INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
+AthenaPoolConverter                     0   0      INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
-AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
 ClassIDSvc                              0   0      INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
+AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
 xAODTestReadDecor                       0   0      INFO cvec.dInt1: 401 402 403 404 405 406 407 408 409 410
 xAODTestReadDecor                       0   0      INFO cinfo.dInt1: 3000
 ClassIDSvc                              0   0      INFO  getRegistryEntries: read 50 CLIDRegistry entries for module ALL
@@ -179,9 +179,9 @@ AthenaHiveEventLoopMgr                  19  0      INFO   ===>>>  start processi
 xAODTestReadDecor                       19  0      INFO cvec.dInt1: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
 xAODTestReadDecor                       19  0      INFO cinfo.dInt1: 60000
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.394916
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.581046
 xaoddata.root                                      INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 93E7DA84-0A72-4B49-A584-F3907D86A720
+Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3B042E92-46EE-DB43-8F81-88D283E3D843
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...

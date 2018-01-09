@@ -64,7 +64,7 @@ StatusCode BCM_ZeroSuppression::execute() {
   // Create output RDO container and record it to StoreGate
   try {
     m_bcmCompactDO = new BCM_RDO_Container();
-  } catch (std::bad_alloc) {
+  } catch (const std::bad_alloc&) {
     msg(MSG::FATAL) << "Could not create a new BCM RawDataContainer!" << endmsg;
     return StatusCode::FAILURE;
   }

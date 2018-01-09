@@ -201,7 +201,7 @@ LVL1ConfigSvc::queryInterface( const InterfaceID& riid, void** ppvIF ) {
       if( riid == ILVL1ConfigSvc::interfaceID() ) {
          try {
             *ppvIF = dynamic_cast<ILVL1ConfigSvc*>( this );
-         } catch( bad_cast ) {
+         } catch( const bad_cast& ) {
             return StatusCode::FAILURE;
          }
          sc = StatusCode::SUCCESS;

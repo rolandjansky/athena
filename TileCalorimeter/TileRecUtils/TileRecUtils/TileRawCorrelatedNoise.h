@@ -15,13 +15,16 @@
  *
  ********************************************************************/
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+#include "TileEvent/TileDigitsContainer.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
-class TileRawChannelBuilder;
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
 
 class TileRawCorrelatedNoise: public AthAlgorithm {
 
@@ -37,11 +40,13 @@ class TileRawCorrelatedNoise: public AthAlgorithm {
 
   private:
 
-    // name of TDS container with input TileDigits
-    std::string m_tileDigitsInputContainer;
+    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsContainerKey{this, "TileDigitsContainer", 
+                                                                    "TileDigitsCnt", 
+                                                                    "Input Tile digits container key"};
 
-    // name of TDS container with output TileDigits
-    std::string m_tileDigitsOutputContainer;
+    SG::WriteHandleKey<TileDigitsContainer> m_outputDigitsContainerKey{this, "OutputTileDigitsContainer", 
+                                                                      "NewDigitsContainer", 
+                                                                      "Output Tile digits container key"};
 
     // RMS threshold
     float m_nRMS_threshold;

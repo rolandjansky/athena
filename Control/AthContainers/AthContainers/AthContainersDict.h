@@ -5,7 +5,6 @@
 */
 
 
-#include "AthContainers/UserDataStore.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/AuxVectorBase.h"
@@ -33,7 +32,7 @@ struct AthContainersInstan
 
 
 namespace {
-  struct GCCXML_DUMMY_INSTANTIATION_ATHCONTAINERS {
+  struct DUMMY_INSTANTIATION_ATHCONTAINERS {
     DataLink<SG::IConstAuxStore> dummy1;
 
     SG::PackedContainer<char>           pchar;

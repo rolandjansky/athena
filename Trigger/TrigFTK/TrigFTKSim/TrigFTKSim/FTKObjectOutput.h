@@ -15,7 +15,6 @@
 #include <TBranch.h>
 #include <TROOT.h>
 
-using namespace std;
 
 template<class FTKObjectStream>
 class FTKObjectOutput {
@@ -131,7 +130,7 @@ void FTKObjectOutput<FTKObjectStream>::init(int bufsize, bool *goodRegions)
       // skip bad regions (with no real simulation done)
       if (!goodRegions[ib]) continue;
 
-      const string bname1 = Form(m_datafmt.c_str(),ib);
+      const std::string bname1 = Form(m_datafmt.c_str(),ib);
       if(bufsize)
 	// if buffer size is specified (eg, 16000)
 	tmpBranch = m_tree->Branch(bname1.c_str(),&m_data[ib],bufsize);
@@ -156,7 +155,7 @@ void FTKObjectOutput<FTKObjectStream>::beginFile(const char *fname)
   if (!fname) 
     m_file = TFile::Open(m_filename.c_str(),"recreate");
   else {
-    string realname("");
+    std::string realname("");
     if (m_multifile)
       realname = m_outdir+"/";
     realname += fname;

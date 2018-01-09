@@ -20,9 +20,7 @@ namespace JiveXML {
   //--------------------------------------------------------------------------
 
   xAODJetROIRetriever::xAODJetROIRetriever(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent), m_typeName("JetROI"),
-    m_readCPM(false),
-    m_maskLowerThresholds(false)
+    AthAlgTool(type, name, parent), m_typeName("JetROI")
   {
 
     declareInterface<IDataRetriever>(this);

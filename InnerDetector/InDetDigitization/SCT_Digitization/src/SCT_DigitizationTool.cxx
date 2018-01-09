@@ -660,7 +660,7 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
   IdentifierHash idHash_de{collection->identifyHash()};
   try {
     p_rdocoll = new SCT_RDO_Collection(idHash_de);
-  } catch (std::bad_alloc) {
+  } catch (const std::bad_alloc&) {
     ATH_MSG_FATAL("Could not create a new SCT_RDORawDataCollection !");
   }
   p_rdocoll->setIdentifier(id_de);

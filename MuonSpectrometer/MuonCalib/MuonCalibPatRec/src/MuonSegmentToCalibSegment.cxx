@@ -825,7 +825,7 @@ namespace MuonCalib {
           if (sqrt(error2) < 1.999 ) ATH_MSG_DEBUG( " ALARM TOO SMALL drift error "  );
           if (chi2c > qualityFactor)   ATH_MSG_DEBUG( " ALARM TOO LARGE chi2 single hit "  );
         }  
-	MdtCalibHitBase* basehit = calibHit.hitBase(&*m_idToFixedIdTool);
+	MdtCalibHitBase* basehit = calibHit.hitBase(*m_idToFixedIdTool);
 	basehit->setSegmentT0Applied(apply_t0);
 	mdtSeg->addHitOnTrack(basehit);
 

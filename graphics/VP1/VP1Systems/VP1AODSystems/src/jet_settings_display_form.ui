@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>470</width>
-    <height>411</height>
+    <height>436</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -244,7 +244,7 @@
           <widget class="QComboBox" name="bTaggingComboBox">
            <item>
             <property name="text">
-             <string>MV1</string>
+             <string>MV2c20</string>
             </property>
            </item>
           </widget>

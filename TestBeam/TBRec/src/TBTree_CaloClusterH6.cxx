@@ -917,8 +917,8 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
     try {
       chid = m_larCablingSvc->createSignalChannelID(id);
     }
-    catch ( LArID_Exception except) {
-      ATH_MSG_ERROR("HWId not found: "<<(std::string)except);
+    catch ( const LArID_Exception& except) {
+      ATH_MSG_ERROR("HWId not found: "<<(const std::string&)except);
       return StatusCode::FAILURE;
     }
     // Find the cell data in the DigitContainer

@@ -295,10 +295,10 @@ namespace VKalVrtAthena {
   //____________________________________________________________________________________________________
   StatusCode VrtSecInclusive::fillAANT_SelectedBaseTracks() {
     
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
-    for ( const auto& trk : *m_selectedBaseTracks ) {
+    for ( const auto& trk : *selectedBaseTracks ) {
       
       if( m_FillNtuple ) {
         uint8_t tmpT;

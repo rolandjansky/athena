@@ -101,16 +101,16 @@ public:
   /**
    * @brief identifer for Tile testbeam detectors of a give type
    */
-  Identifier          type_id                 ( int type)                     const throw(TileID_Exception);
+  Identifier          type_id                 ( int type)                     const;
   /**
    * @brief identifer for one module of a Tile testbeam detector
    */
-  Identifier          module_id               ( int type, int module )        const throw(TileID_Exception);
+  Identifier          module_id               ( int type, int module )        const;
   /**
    * @brief identifer for one channel of a Tile testbeam detector
    */
   Identifier          channel_id              ( int type, int module, 
-                                                int channel )                 const throw(TileID_Exception);
+                                                int channel )                 const;
 
   /**
    * @brief extract module ID from channel ID
@@ -120,7 +120,7 @@ public:
    * @brief create channel ID from module ID
    */
   Identifier          channel_id              ( const Identifier& id,
-                                                int channel )                 const throw(TileID_Exception); 
+                                                int channel )                 const; 
 
   /**
    * @brief Test ID if it is TileTBID

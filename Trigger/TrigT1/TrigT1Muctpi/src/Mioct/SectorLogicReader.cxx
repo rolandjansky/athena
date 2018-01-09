@@ -60,7 +60,7 @@ namespace LVL1MUCTPI {
                      << "EventSource"  << MsgLogger::endmsg;
          }
 
-      } catch ( std::bad_cast ) {
+      } catch ( const std::bad_cast& ) {
          REPORT_ERROR_MSG( "The SectorLogicReader needs a SectorLogicSource as "
                            "EventSource !" );
          return;

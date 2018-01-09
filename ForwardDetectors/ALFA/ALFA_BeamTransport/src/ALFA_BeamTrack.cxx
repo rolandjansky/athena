@@ -85,28 +85,28 @@ int ALFA_BeamTrack::initialize(const FPConfig &ConfigValues){
 	*/
 	
 	//Set Configuration parameters of FPTracker library
-	FPTracker::ConfigData m_ConfigData;
+	FPTracker::ConfigData ConfigData;
 	
 	
-	m_ConfigData.IP=ConfigValues.IP;
-	m_ConfigData.useaper=ConfigValues.useaper;
-	m_ConfigData.apermb=ConfigValues.apermb;
-	m_ConfigData.xcol1=ConfigValues.xcol1;
-	m_ConfigData.xcol2=ConfigValues.xcol2;
-	m_ConfigData.absZMagMax=ConfigValues.absZMagMax;
-	m_ConfigData.endMarker=ConfigValues.RPDistance;
-	m_ConfigData.setpbeam(ConfigValues.pbeam0);
+	ConfigData.IP=ConfigValues.IP;
+	ConfigData.useaper=ConfigValues.useaper;
+	ConfigData.apermb=ConfigValues.apermb;
+	ConfigData.xcol1=ConfigValues.xcol1;
+	ConfigData.xcol2=ConfigValues.xcol2;
+	ConfigData.absZMagMax=ConfigValues.absZMagMax;
+	ConfigData.endMarker=ConfigValues.RPDistance;
+	ConfigData.setpbeam(ConfigValues.pbeam0);
 	
 	/*
-	std::cout<<m_ConfigData.IP<<std::endl;
-	std::cout<<m_ConfigData.useaper<<std::endl;
-	std::cout<<m_ConfigData.apermb<<std::endl;
-	std::cout<<m_ConfigData.xcol1<<std::endl;
-	std::cout<<m_ConfigData.xcol2<<std::endl;
-	std::cout<<m_ConfigData.absZMagMax<<std::endl;
-	std::cout<<m_ConfigData.endMarker<<std::endl;
-	std::cout<<m_ConfigData.pbeam0<<std::endl;
-	std::cout<<m_ConfigData.brho<<std::endl;*/
+	std::cout<<ConfigData.IP<<std::endl;
+	std::cout<<ConfigData.useaper<<std::endl;
+	std::cout<<ConfigData.apermb<<std::endl;
+	std::cout<<ConfigData.xcol1<<std::endl;
+	std::cout<<ConfigData.xcol2<<std::endl;
+	std::cout<<ConfigData.absZMagMax<<std::endl;
+	std::cout<<ConfigData.endMarker<<std::endl;
+	std::cout<<ConfigData.pbeam0<<std::endl;
+	std::cout<<ConfigData.brho<<std::endl;*/
 	
 	
 	
@@ -116,14 +116,14 @@ int ALFA_BeamTrack::initialize(const FPConfig &ConfigValues){
 	
 	
     
-	m_ip     = m_ConfigData.IP;
+	m_ip     = ConfigData.IP;
      	m_Magver = 3;
      
      	m_Side = FPTracker::beam1;
      	m_Magfile =  m_AlfaTwiss ? 
     	FPTracker::getAlfaMagnetConfigFiles(m_ConfDir, m_Side):
 			FPTracker::getMagnetConfigFiles(m_ConfDir, m_ip, m_Magver, m_Side);
-       	m_Beamline_1 = FPTracker::setupBeamline(m_ConfigData, m_Side, m_Magver, m_Magfile);
+       	m_Beamline_1 = FPTracker::setupBeamline(ConfigData, m_Side, m_Magver, m_Magfile);
     	std::cout<<" beamline_1 start  "<<'\n';
 	std::cout<<m_Beamline_1;
 	std::cout<<" beamline_1 end  "<<"\n\n";
@@ -132,7 +132,7 @@ int ALFA_BeamTrack::initialize(const FPConfig &ConfigValues){
 	m_Magfile =  m_AlfaTwiss ? 
     	FPTracker::getAlfaMagnetConfigFiles(m_ConfDir, m_Side):
 			FPTracker::getMagnetConfigFiles(m_ConfDir, m_ip, m_Magver, m_Side);
-	m_Beamline_2 = setupBeamline(m_ConfigData, m_Side, m_Magver, m_Magfile);
+	m_Beamline_2 = setupBeamline(ConfigData, m_Side, m_Magver, m_Magfile);
   
 	std::cout<<" beamline_2 start  "<<'\n';
 	std::cout<<m_Beamline_2;

@@ -36,7 +36,7 @@ namespace JiveXML {
    **/
   VertexRetriever::VertexRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("RVx"){
+    m_typeName("RVx"){
 
     //Declare the interface
     declareInterface<IDataRetriever>(this);
@@ -105,7 +105,7 @@ namespace JiveXML {
     std::string searchStr = "TrackParticle";
     found=m_trackCollection.find(searchStr);
 
-    perigeeVector.clear(); // need to clear, otherwise accumulates over events
+    m_perigeeVector.clear(); // need to clear, otherwise accumulates over events
     if (found!=std::string::npos){ // User selected a Rec::TrackParticle Collection
       if (evtStore()->retrieve(tracks, m_trackCollection).isFailure()){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection"
@@ -118,7 +118,7 @@ namespace JiveXML {
          for(track=tracks->begin();track!=tracks->end();++track) {
 	    const Trk::Perigee *perigee = (*track)->perigee();
 //          if(perigee == 0) continue; // not skip ! need to keep order for index !
-            perigeeVector.push_back( perigee ); // this perigee match works !
+            m_perigeeVector.push_back( perigee ); // this perigee match works !
          }
       }
     }else{ // it's a Trk::Tracks collection
@@ -135,8 +135,8 @@ namespace JiveXML {
           const Trk::Perigee* trackPerigee = (*track)->perigeeParameters();
           //const Trk::Perigee *perigee = dynamic_cast<const Trk::Perigee*>( trackPerigee );
 //          if(perigee == 0) continue; // not skip ! need to keep order for index !
-//          perigeeVector.push_back( perigee ); 
-          perigeeVector.push_back( trackPerigee ); 
+//          m_perigeeVector.push_back( perigee ); 
+          m_perigeeVector.push_back( trackPerigee ); 
         }
       }
     }
@@ -187,8 +187,6 @@ namespace JiveXML {
     DataVect tracks;
     DataVect vertexType; 
 
-    float m_chi2 = 0.;
-
     //Loop over all vertex containers
     for ( ; vtxCollectionItr != vtxCollectionsEnd; ++vtxCollectionItr ) {
 
@@ -218,7 +216,7 @@ namespace JiveXML {
 
       StatusCode sc = fillPerigeeList();
       if (!sc.isFailure()) {
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Perigee list filled with " << perigeeVector.size()
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Perigee list filled with " << m_perigeeVector.size()
                           << " entries " << endmsg;
       }    
 
@@ -239,28 +237,27 @@ namespace JiveXML {
         Trk::FitQuality fitQuality = (*vertexItr)->recVertex().fitQuality();
 
         //degrees of freedom might be zero - beware
+        float this_chi2 = -1;
         if ( fitQuality.doubleNumberDoF() != 0 ){
-          m_chi2 = fitQuality.chiSquared()/fitQuality.doubleNumberDoF();
-        }else{
-          m_chi2 = -1.;
+          this_chi2 = fitQuality.chiSquared()/fitQuality.doubleNumberDoF();
         }
         //Cut: on Chi^2 over NumberOfDegreesOfFreedom only for ConversionCandidate 
-        if ( m_chi2 > m_chi2Cut && ( vtxCollectionItr.key() == m_conversionVertexKey  )) continue;
+        if ( this_chi2 > m_chi2Cut && ( vtxCollectionItr.key() == m_conversionVertexKey  )) continue;
 
-        float m_x =  (*vertexItr)->recVertex().position().x()/10.; //Atlantis units are cm
-        float m_y =  (*vertexItr)->recVertex().position().y()/10.;
-        float m_z =  (*vertexItr)->recVertex().position().z()/10.;
-        float R = sqrt( pow(m_x,2) + pow(m_y,2) ); // distance from beamline
+        float this_x =  (*vertexItr)->recVertex().position().x()/10.; //Atlantis units are cm
+        float this_y =  (*vertexItr)->recVertex().position().y()/10.;
+        float this_z =  (*vertexItr)->recVertex().position().z()/10.;
+        float R = std::hypot (this_x, this_y); // distance from beamline
 
         if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " Collection: " << vtxCollectionItr.key() 
-            << ", m_chi2: " << m_chi2 << " - chi2: " << fitQuality.chiSquared() 
+            << ", this_chi2: " << this_chi2 << " - chi2: " << fitQuality.chiSquared() 
 //            << " ," << (*vertexItr)->recVertex().position().x()/10. << " ," << (*vertexItr)->recVertex().position().x()*CLHEP::cm 
             << ", R: " << R << endmsg; }
 
-        chi2.push_back(DataType( m_chi2 ));
-        x.push_back(DataType( m_x ));
-        y.push_back(DataType( m_y ));
-        z.push_back(DataType( m_z ));
+        chi2.push_back(DataType( this_chi2 ));
+        x.push_back(DataType( this_x ));
+        y.push_back(DataType( this_y ));
+        z.push_back(DataType( this_z ));
 
         // from: Tracking/TrkEvent/TrkEventPrimitives/VertexType.h
 	const Trk::VertexType vtx_type = (*vertexItr)->vertexType();
@@ -299,7 +296,7 @@ namespace JiveXML {
 //---- association from:
 //---- from http://alxr.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/tauRec/src/PhotonConversionPID.cxx
 
-    std::vector<Trk::VxTrackAtVertex*>* trklist = (*vertexItr)->vxTrackAtVertex();
+    const std::vector<Trk::VxTrackAtVertex*>* trklist = (*vertexItr)->vxTrackAtVertex();
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks at vertex: " << trklist->size() << endmsg;
 

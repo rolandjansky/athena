@@ -88,7 +88,8 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
 
 // ============================================================================
 // process container
-StatusCode TileRawChannelNoiseFilter::process(const TileRawChannelContainer *rchCont) {
+StatusCode TileRawChannelNoiseFilter::process(
+    TileRawChannelContainer *rchCont) {
 
   ATH_MSG_DEBUG("in process()");
 
@@ -281,7 +282,8 @@ StatusCode TileRawChannelNoiseFilter::process(const TileRawChannelContainer *rch
 
     // iterate over all channels in a collection again
     for (rchItr = coll->begin(); rchItr != lastRch; ++rchItr) {
-      TileRawChannel* rch = (*rchItr);
+      /// FIXME: const_cast
+      TileRawChannel* rch = const_cast<TileRawChannel*>(*rchItr);
       int chan = m_tileHWID->channel(rch->adc_HWID());
       int gain = m_tileHWID->adc(rch->adc_HWID());
 

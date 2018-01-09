@@ -19,11 +19,7 @@ TrigMufastHypoAlg::TrigMufastHypoAlg( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::AthReentrantAlgorithm( name, pSvcLocator )
 {
-   declareProperty("ViewRoIs", m_viewsKey = std::string("ViewRoIs"), "MUViewRoIs to read in");
-   declareProperty("MuFastDecisions", m_muFastKey = std::string("MufastDecisions"), "xAOD::L2StandAloneMuonContainer to read in");
-   declareProperty("RoIs", m_roiKey = std::string("RoIs"), "TrigRoiDescriptor RoIs to read in");
-   declareProperty("Decisions", m_decisionsKey = std::string("TrigMufastHypoAlgDesicions"), "Decisions");
-   declareProperty("L1Decisions", m_previousDecisionsKey = std::string("L1Decisions"), "Key for L1 decisions per RoI");
+
 } 
 
 TrigMufastHypoAlg::~TrigMufastHypoAlg() 

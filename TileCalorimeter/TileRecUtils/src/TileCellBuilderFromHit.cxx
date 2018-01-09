@@ -21,19 +21,6 @@
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
-// Gaudi includes
-//#include "GaudiKernel/Bootstrap.h"
-
-// Atlas includes
-#include "AthAllocators/DataPool.h"
-// access all Hits inside container
-#include "EventContainers/SelectAllObject.h" 
-#include "xAODEventInfo/EventInfo.h"
-#include "AthenaKernel/errorcheck.h"
-
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
 // Calo includes
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -41,6 +28,19 @@
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "Identifier/IdentifierHash.h"
+
+// Atlas includes
+#include "AthAllocators/DataPool.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
+// access all Hits inside container
+#include "EventContainers/SelectAllObject.h" 
+#include "xAODEventInfo/EventInfo.h"
+#include "AthenaKernel/errorcheck.h"
+// For the Athena-based random numbers.
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
 
 //CLHEP includes
 #include <CLHEP/Random/Randomize.h>
@@ -76,9 +76,6 @@ const InterfaceID& TileCellBuilderFromHit::interfaceID( ) {
 TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const std::string& name,
     const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_hitContainer("TileHitCnt")
-  , m_MBTSContainer("MBTSContainer")
-  , m_E4prContainer("E4prContainer")
   , m_infoName("TileInfo")
   , m_eneForTimeCut(35. * MeV) // keep time only for cells above 70 MeV (more than 35 MeV in at least one PMT to be precise)
   , m_eneForTimeCutMBTS(0.03675) // the same cut for MBTS, but in pC, corresponds to 3 ADC counts or 35 MeV
@@ -99,8 +96,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_noiseTool("CaloNoiseTool")
   , m_tileMgr(0)
   , m_mbtsMgr(0)
-  , m_MBTSCells(0)
-  , m_E4prCells(0)
   , m_RChType(TileFragHash::Default)
 {
   declareInterface<ICaloCellMakerTool>( this );
@@ -114,9 +109,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   // this will help TopoCluster to assign proper weight to the cell if needed
   m_zeroEnergy = 0.5 * MeV; // half a MeV in both PMTs i.e. one MeV in a cell
 
-  declareProperty("TileHitContainer"            ,m_hitContainer);         // Hits to convert
-  declareProperty("MBTSContainer"               ,m_MBTSContainer);        // Where to put MBTS cells
-  declareProperty("E4prContainer"               ,m_E4prContainer);        // Where to put E4'  cells
   declareProperty("TileInfoName"                ,m_infoName);        // Name of TileInfo store (default=TileInfo);
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
   declareProperty("TileCondToolEmscale"         , m_tileToolEmscale);
@@ -157,13 +149,20 @@ TileCellBuilderFromHit::~TileCellBuilderFromHit(){
 StatusCode TileCellBuilderFromHit::initialize() {
   
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
-  if (m_MBTSContainer.size() > 0) {
+  // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
+  if (m_MBTSContainerKey.key().empty()) {
+    m_mbtsMgr = nullptr;
+    m_MBTSVec.resize(0);
+  } else {
+
+    ATH_CHECK( m_MBTSContainerKey.initialize() );
+    ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainerKey.key() );
+    m_MBTSVec.resize(NCELLMBTS);
+    
     if (detStore()->retrieve(m_mbtsMgr).isFailure()) {
       ATH_MSG_WARNING( "Unable to retrieve MbtsDetDescrManager from DetectorStore" );
-      m_mbtsMgr = 0;
+      m_mbtsMgr = nullptr;
     }
-  } else {
-    m_mbtsMgr = 0;
   }
 
   CHECK( detStore()->retrieve(m_tileMgr) );
@@ -182,8 +181,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
   if (m_useNoiseTool) {
     ATH_MSG_INFO( "Reading electronic noise from DB" );
     CHECK( m_noiseTool.retrieve() );
-  }
-  else {
+  } else {
     ATH_MSG_INFO( "Noise Sigma " << m_noiseSigma << " MeV is selected!" );
   }
 
@@ -197,29 +195,21 @@ StatusCode TileCellBuilderFromHit::initialize() {
   m_allCells.resize(m_tileID->cell_hash_max(), 0);
   m_E1_TOWER = (m_allCells.size() < 10000) ? 10 : 40;
 
-  m_MBTSCells = NULL;
-  m_E4prCells = NULL;
-
   ATH_MSG_INFO( "size of temp vector set to " << m_allCells.size() );
-  ATH_MSG_INFO( "taking hits from '" << m_hitContainer << "'" );
+  ATH_MSG_INFO( "taking hits from '" << m_hitContainerKey.key() << "'" );
 
-  if (m_MBTSContainer.size() > 0) {
-    ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainer );
-    m_MBTSVec.resize(NCELLMBTS);
-  } else {
-    m_MBTSVec.resize(0);
-  }
-  
   m_cabling = TileCablingService::getInstance();
   m_RUN2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling);
 
-  if ( m_RUN2 && m_E4prContainer.size() > 0) {
-    ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainer );
+  if (m_RUN2 && !m_E4prContainerKey.key().empty()) {
+    ATH_CHECK( m_E4prContainerKey.initialize() );
+    ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainerKey.key() );
     m_E4prVec.resize(NCELLE4PR);
   } else {
-    m_E4prContainer = ""; // no E4' container for RUN1
+    m_E4prContainerKey = ""; // no E4' container for RUN1
     m_E4prVec.resize(0);
   }
+
 
   ATH_MSG_INFO( "TileCellBuilderFromHit initialization completed" );
 
@@ -241,47 +231,44 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
 
   memset(m_drawerEvtStatus, 0, sizeof(m_drawerEvtStatus));
 
-  const TileHitContainer* hits;
-  if (evtStore()->retrieve(hits, m_hitContainer).isFailure()) {
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
 
-    ATH_MSG_WARNING( " Could not find container " << m_hitContainer );
+  if (!hitContainer.isValid()) {
+
+    ATH_MSG_WARNING( " Could not find container " << m_hitContainerKey.key() );
     ATH_MSG_WARNING( " do not fill CaloCellContainer " );
 
   } else {
     
-    ATH_MSG_DEBUG( "Container " << m_hitContainer << " with TileHits found ");
+    ATH_MSG_DEBUG( "Container " << m_hitContainerKey.key() << " with TileHits found ");
 
-    if (m_MBTSContainer.size() > 0)
-      m_MBTSCells = new TileCellContainer(SG::VIEW_ELEMENTS);
-    else
-      m_MBTSCells = NULL;
+    if (!m_MBTSContainerKey.key().empty()) {
+      m_MBTSCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+    }
+
+    if (!m_E4prContainerKey.key().empty()) {
+      m_E4prCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
+    }
     
-    if (m_E4prContainer.size() > 0)
-      m_E4prCells = new TileCellContainer(SG::VIEW_ELEMENTS);
-    else
-      m_E4prCells = NULL;
-    
-    SelectAllObject<TileHitContainer> selAll(hits);
+    SelectAllObject<TileHitContainer> selAll(hitContainer.cptr());
     SelectAllObject<TileHitContainer>::const_iterator begin = selAll.begin();
     SelectAllObject<TileHitContainer>::const_iterator end = selAll.end();
 
     if (begin != end) {
-      ATH_MSG_DEBUG( " Calling build() method for hits from " << m_hitContainer );
+      ATH_MSG_DEBUG( " Calling build() method for hits from " << m_hitContainerKey.key() );
       build(begin, end, theCellContainer);
     }
     
-    if (m_MBTSContainer.size() > 0) {
-      if (evtStore()->record(m_MBTSCells, m_MBTSContainer, false).isFailure()) {
-        ATH_MSG_ERROR( " Could not register TileCellContainer for MBTS with name " << m_MBTSContainer );
-      }
-    }
-
-    if (m_E4prContainer.size() > 0) {
-      if (evtStore()->record(m_E4prCells, m_E4prContainer, false).isFailure()) {
-        ATH_MSG_ERROR( " Could not register TileCellContainer for E4'  with name " << m_E4prContainer );
-      }
+    if (!m_MBTSContainerKey.key().empty()) {
+      SG::WriteHandle<TileCellContainer> MBTSContainer(m_MBTSContainerKey);
+      ATH_CHECK( MBTSContainer.record(std::move(m_MBTSCells)) );
     }
     
+    if (!m_E4prContainerKey.key().empty()) {
+      SG::WriteHandle<TileCellContainer> E4prContainer(m_E4prContainerKey);
+      ATH_CHECK( E4prContainer.record(std::move(m_E4prCells)) );
+    }
+
     CaloCell_ID::SUBCALO caloNum = CaloCell_ID::TILE;
     //specify that a given calorimeter has been filled
     if (theCellContainer->hasCalo(caloNum)) {

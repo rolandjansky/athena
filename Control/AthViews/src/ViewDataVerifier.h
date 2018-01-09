@@ -1,25 +1,26 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHVIEWS_ATHVIEWS_ROICOLLECTIONTOVIEWS_H
-#define ATHVIEWS_ATHVIEWS_ROICOLLECTIONTOVIEWS_H
+// ViewDataVerifier.h 
+// Header file for class ViewDataVerifier
+// Author: B. Wynne <bwynne@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+#ifndef ATHVIEWS_VIEWDATAVERIFIER_H
+#define ATHVIEWS_VIEWDATAVERIFIER_H 1
 
 // STL includes
 #include <string>
-#include <vector>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthViews/View.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "AthContainers/ConstDataVector.h"
+#include "GaudiKernel/DataObjID.h"
 
 namespace AthViews {
 
-class RoiCollectionToViews
+class ViewDataVerifier
   : public ::AthAlgorithm
 { 
 
@@ -31,10 +32,13 @@ class RoiCollectionToViews
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  RoiCollectionToViews( const std::string& name, ISvcLocator* pSvcLocator );
+  ViewDataVerifier( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
-  virtual ~RoiCollectionToViews(); 
+  virtual ~ViewDataVerifier(); 
+
+  // Assignment operator: 
+  //ViewDataVerifier &operator=(const ViewDataVerifier &alg); 
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize();
@@ -55,18 +59,12 @@ class RoiCollectionToViews
  private: 
 
   /// Default constructor: 
-  RoiCollectionToViews();
+  ViewDataVerifier();
 
-  /// Containers
+  /// Containers to verify
+  Gaudi::Property< DataObjIDColl > m_load{ this, "DataObjects", DataObjIDColl(), "Objects to confirm are found in this view" };
   
   // vars
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_trigRoIs;
-  SG::WriteHandleKey< std::vector< SG::View* > > m_w_views;
-  SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_viewRoIs;
-  std::vector< std::string > m_algorithmNameSequence;
-  std::string m_algPoolName;
-  std::string m_viewBaseName;
-  Gaudi::Property< bool > m_viewFallThrough { this, "ViewFallThrough", false, "Set whether views may access StoreGate directly to retrieve data" };
 }; 
 
 // I/O operators
@@ -77,5 +75,4 @@ class RoiCollectionToViews
 /////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthViews
-
-#endif //> !ATHVIEWS_ATHVIEWS_ROICOLLECTIONTOVIEWS_H
+#endif //> !ATHVIEWS_VIEWDATAVERIFIER_H

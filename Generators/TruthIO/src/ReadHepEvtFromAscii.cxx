@@ -23,7 +23,7 @@ extern "C" {
 
 ReadHepEvtFromAscii::ReadHepEvtFromAscii(const std::string& name, ISvcLocator* pSvcLocator) 
   :  AthAlgorithm(name, pSvcLocator),
-     m_sgSvc(0), m_ascii_in(0)
+     m_sgSvc(0)
 {
   // Set users' request
   declareProperty("McEventKey",  m_key        = "GEN_EVENT");
@@ -46,7 +46,6 @@ StatusCode ReadHepEvtFromAscii::initialize(){
   HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);
   
   // Initialize input file
-//  m_ascii_in = new HepMC::IO_Ascii(m_input_file.c_str(), std::ios::in);
   int ifile=5;
   closefile_(ifile);
   openfile_(ifile,m_input_file.c_str(),m_input_file.size());

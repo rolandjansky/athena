@@ -72,10 +72,10 @@ private:
   typedef std::vector<H2_t> VecH2_t;
   //@}
   TH1I *m_nTracks;
-  int *nTracks_buf;
-  int nTracks_pos;
-  TH1I *trackTrigger;
-  TProfile *trackTriggerRate;
+  int *m_nTracks_buf;
+  int m_nTracks_pos;
+  TH1I *m_trackTrigger;
+  TProfile *m_trackTriggerRate;
   TH1F *m_totalBarrelResidual;
   TH1F *m_totalEndCapAResidual;
   TH1F *m_totalEndCapCResidual;

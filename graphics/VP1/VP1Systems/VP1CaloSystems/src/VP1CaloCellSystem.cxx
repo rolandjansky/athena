@@ -40,7 +40,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"

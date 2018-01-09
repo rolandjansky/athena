@@ -161,7 +161,7 @@ namespace MuonDQA {
   { 
   
     StatusCode sc = StatusCode::SUCCESS;  
-    const EventInfo* eventInfo;
+    const EventInfo* eventInfo = nullptr;
     ATH_MSG_VERBOSE( "MuonEventInfoMonTool::retrieveEventInfo() called" );
 
    
