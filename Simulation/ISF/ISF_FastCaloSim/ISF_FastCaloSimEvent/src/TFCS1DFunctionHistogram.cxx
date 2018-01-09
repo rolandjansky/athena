@@ -121,7 +121,7 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, int verbose, double cu
     TH1D* h_out=smart_rebin(h_input,change); h_out->SetName("h_out");
 
     maxdev=get_maxdev(hist,h_out);
-    if(i%100==0)cout<<"Iteration nr. "<<i<<" change "<<change<<" bins "<<h_out->GetNbinsX()<<"-> maxdev="<<maxdev<<endl;
+    if(verbose>0 && i%100==0)cout<<"Iteration nr. "<<i<<" change "<<change<<" bins "<<h_out->GetNbinsX()<<"-> maxdev="<<maxdev<<endl;
 
 
     if(maxdev<cut_maxdev && i < 10000 && h_out->GetNbinsX()>5 )
