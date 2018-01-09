@@ -9,7 +9,7 @@ from PathResolver import PathResolver
 
 # -- Settings --
 cutfilename   = "validation-cuts.txt"
-inputfilename = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TopAnalysis/p3215/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e5458_s3126_r9364_r9315_p3215/DAOD_TOPQ1.11627611._000441.pool.root.1"
+inputfilename = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3390/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_s3126_r9364_r9315_p3390/DAOD_TOPQ1.12720282._000339.pool.root.1"
 
 # -- Move to a unique directory --
 rundir = str(random.randrange(10**8))
