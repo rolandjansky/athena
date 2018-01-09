@@ -24,9 +24,7 @@ DijetDPhiCondition::DijetDPhiCondition(const std::vector<double>& dPhiMins,
 
 }
 
-
-bool
-DijetDPhiCondition::isSatisfied(const HypoJetVector& ips) const{
+bool DijetDPhiCondition::isSatisfied(const HypoJetVector& ips) const{
   if(ips.size() != 2){
     std::stringstream ss;
     ss << "DijetDPhi::isSatisfied must see exactly 2 particles, but received "
@@ -36,11 +34,10 @@ DijetDPhiCondition::isSatisfied(const HypoJetVector& ips) const{
     throw std::runtime_error(ss.str());
   }
 
-  auto phi0 =  ips[0]->phi();
-  auto phi1 =  ips[1]->phi();
-  auto dPhi = std::abs(phi0 - phi1);
-
+  double dPhi = std::abs( (ips[0]->p4()).DeltaPhi(ips[1]->p4()) );
+                         
   return m_dPhiMin <= dPhi and m_dPhiMax > dPhi;
+
 }
 
 
