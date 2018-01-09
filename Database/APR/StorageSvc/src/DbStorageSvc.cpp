@@ -43,8 +43,8 @@ using namespace std;
 namespace pool  {
 
   // factory function implementation
-  IStorageSvc* createStorageSvc(void* ctx,const string& componentName){
-    return new DbStorageSvc(ctx,componentName);
+  IStorageSvc* createStorageSvc(const string& componentName){
+    return new DbStorageSvc(componentName);
   }
   
   typedef DbObjectHandle<DbObject> ObjHandle;
@@ -142,17 +142,16 @@ namespace pool  {
 
    
 /// Standard Constructor.
-DbStorageSvc::DbStorageSvc(void* ctxt, const string& name /* ,int technology */)
+DbStorageSvc::DbStorageSvc(const string& name)
 : m_name(name),
   m_refCount(0),
   m_sesH(),
   m_domH(POOL_StorageType),
   m_ageLimit(2),
-  m_type(POOL_StorageType),
-  m_context(ctxt)
+  m_type(POOL_StorageType)
 {
   static char *als = getenv("POOL_STORAGESVC_DB_AGE_LIMIT");  
-  m_explorer = new DbStorageExplorer(ctxt, name+".Explorer", m_domH, this);
+  m_explorer = new DbStorageExplorer(name+".Explorer", m_domH, this);
   if ( als )    {
     int alimit = 2;
     istringstream buf(als);
@@ -514,7 +513,7 @@ DbStatus DbStorageSvc::startSession(int accessmode,int technology,SessionH& refS
   int typ  = DbType(technology).majorType();
   if ( m_type.majorType() == typ )  {  // Maybe implement this later
     refSession = 0;
-    if ( m_sesH.open(m_context).isSuccess() )  {
+    if ( m_sesH.open().isSuccess() )  {
       if ( m_domH.open(m_sesH, m_type, accessmode).isSuccess() )  {
         m_domH.setAgeLimit(m_ageLimit);
         refSession = SessionH(m_domH.ptr());

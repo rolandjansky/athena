@@ -18,7 +18,7 @@
 #include "PersistencySvc/ITransaction.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/IDatabase.h"
-#include "PersistencySvc/IDatabaseParameters.h"
+//#include "PersistencySvc/IDatabaseParameters.h"
 #include "PersistencySvc/IPersistencySvc.h"
 
 
@@ -76,6 +76,7 @@ pool::TestDriver::write()
   db->setTechnology( pool::ROOT_StorageType.type() );
   db->connectForWrite();
 
+/*
   // Retrieving the existing parameters
   pool::IDatabaseParameters& databaseParameters = db->parameters();
   std::set< std::string > parameterNames = databaseParameters.parameterNames();
@@ -87,6 +88,7 @@ pool::TestDriver::write()
   // adding a new parameter
   databaseParameters.addParameter( std::string( "newParameterName" ), std::string( "newParameterValue" ) );
   m_parameters.insert( std::make_pair( std::string( "newParameterName" ), std::string( "newParameterValue" ) ) );
+*/
 
   // Committing the transaction
   std::cout << "Committing the transaction." << std::endl;
@@ -121,6 +123,7 @@ pool::TestDriver::read()
 
   db->connectForRead();
 
+/*
   // Retrieve the database parameters
   const pool::IDatabaseParameters& databaseParameters = db->parameters();
   std::set< std::string > parameterNames = databaseParameters.parameterNames();
@@ -156,6 +159,7 @@ pool::TestDriver::read()
       std::cout << "       ";
     std::cout << "\"" << parameterName << "\" : \"" << parameterValue << "\"" << std::endl;
   }
+*/
 
   // Committing the transaction
   std::cout << "Committing the transaction." << std::endl;

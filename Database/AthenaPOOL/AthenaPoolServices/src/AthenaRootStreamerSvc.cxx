@@ -51,7 +51,7 @@ StatusCode AthenaRootStreamerSvc::initialize()
    pool::DbSession	session;
    // initialize the session
    // using NULL context, hopefully not a problem
-   pool::DbStatus       rc = session.open(0);
+   pool::DbStatus       rc = session.open();
    // create ROOT-type database object -
    // this loads the ROOT storage service plugin and
    // initializes POOL/ROOT class loader needed by GetClass()

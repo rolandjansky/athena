@@ -49,7 +49,7 @@ TestDriver::~TestDriver()
 void
 TestDriver::testWriting()
 {
-  pool::IStorageSvc* storSvc = pool::createStorageSvc( 0, "StorageSvc");
+  pool::IStorageSvc* storSvc = pool::createStorageSvc("StorageSvc");
   if ( ! storSvc ) {
     throw std::runtime_error( "Could not create a StorageSvc object" );
   }
@@ -132,7 +132,7 @@ TestDriver::testWriting()
 void
 TestDriver::testParallelReadWrite()
 {
-  pool::IStorageSvc* storSvc = pool::createStorageSvc( 0, "StorageSvc");
+  pool::IStorageSvc* storSvc = pool::createStorageSvc("StorageSvc");
   if ( ! storSvc ) {
     throw std::runtime_error( "Could not create a StorageSvc object" );
   }
@@ -309,7 +309,7 @@ TestDriver::testParallelReadWrite()
 void
 TestDriver::testReading()
 {
-  pool::IStorageSvc* storSvc = pool::createStorageSvc( 0, "StorageSvc");
+  pool::IStorageSvc* storSvc = pool::createStorageSvc("StorageSvc");
   if ( ! storSvc ) {
     throw std::runtime_error( "Could not create a StorageSvc object" );
   }

@@ -112,15 +112,6 @@ namespace pool {
                          const std::type_info& typeInfo,
                          const std::string& option );
 
-      /// Returns the names of all the currently available parameters
-      std::set< std::string > parameters() const;
-
-      /// Returns the value of a parameter given its name. If the parameter does not exist an empty string is returned.
-      std::string parameterValue( const std::string& name ) const;
-
-      /// Adds a new parameter with a given value
-      void addParameter( const std::string& name, const std::string& value );
-
     private:
       /// IStorageSvc reference
       IStorageSvc&      m_storageSvc;
