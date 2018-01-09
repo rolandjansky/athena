@@ -53,8 +53,7 @@ namespace DerivationFramework {
     double m_endcapPivotPlaneMaximumRadius;
     double m_barrelPivotPlaneRadius;
     double m_barrelPivotPlaneHalfLength;
-    std::string m_muonContainerName;  
-
+    std::string m_muonContainerName;
   };
 }
 #endif // MuonExtrapolationTool_H
