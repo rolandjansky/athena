@@ -211,6 +211,10 @@ namespace egEnergyCorr {
     es2017,                 // Moriond 2017
     es2017_summer,          // Summer 2017
     es2017_summer_improved, // Recommendations for Higgs mass paper
+    es2017_summer_final,    // Final 20.7 recommendations
+
+    es2015_5TeV,            // For 2015 low mu 5 TeV runs
+
     es2017_R21_PRE,         // Pre-recommendations for release 21
     
     UNDEFINED
