@@ -62,8 +62,9 @@ if TriggerFlags.doMuon:
   from RecExConfig.RecFlags import rec
 
   if doL2SA:
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    from AthenaCommon.AlgSequence import AthSequencer
     l2MuViewNode = AthSequencer("l2MuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
  
