@@ -228,16 +228,7 @@ for mod in modifierList:
 #--------------------------------------------------------------
 # Conditions setup.
 #--------------------------------------------------------------
-from IOVSvc.IOVSvcConf import CondSvc 
-svcMgr += CondSvc()
-
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq") 
-
-from IOVSvc.IOVSvcConf import CondInputLoader 
-condSeq += CondInputLoader("CondInputLoader") 
-
-from IOVDbSvc.CondDB import conddb
+from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
 conddb.setGlobalTag(globalflags.ConditionsTag())
 
 from AthenaCommon.AlgSequence import AlgSequence
