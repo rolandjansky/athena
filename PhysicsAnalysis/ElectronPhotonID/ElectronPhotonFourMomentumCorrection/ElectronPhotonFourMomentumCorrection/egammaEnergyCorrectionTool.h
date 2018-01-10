@@ -144,6 +144,9 @@ namespace egEnergyCorr {
       // ... Layer scale variations : data driven, uncorrelated vs eta
       PSUp, PSDown, S12Up, S12Down,
 
+      //PS correlated contribution
+      PSb12Up, PSb12Down,
+
       // extra E12 for es2017 run2
       S12ExtraLastEtaBinRun2Up, S12ExtraLastEtaBinRun2Down,
 
@@ -451,6 +454,7 @@ namespace AtlasRoot {
 
     TH1D*         m_aPSNom;
     TH1D*         m_daPSCor;
+    TH1D*         m_daPSb12;
     TH1D*         m_aS12Nom;
     TH1D*         m_daS12Cor;
 
