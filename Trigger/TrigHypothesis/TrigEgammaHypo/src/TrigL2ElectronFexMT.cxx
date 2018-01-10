@@ -153,9 +153,8 @@ StatusCode TrigL2ElectronFexMT::execute() {
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackParticleContainerKey, ctx);
 
 
-  if (tracks->size() < 1){
-      ATH_MSG_ERROR("No track collection, vector < 1");
-      return StatusCode::SUCCESS; //HLT::MISSING_FEATURE;
+  if (tracks->size() == 0){
+      return StatusCode::SUCCESS; // Exit early if there are no tracks
   }
   
   size_t coll_size = tracks->size();
