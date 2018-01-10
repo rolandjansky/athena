@@ -189,7 +189,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
 
   if(m_doTrackIso) {
 
-    bool countTracks=0;
+    int countTracks=0;
 
     const xAOD::TrackParticleContainer* vectorOfTracks;
     status = getFeature(outputTE, vectorOfTracks, "InDetTrigTrackingxAODCnv_Tau_IDTrig");
