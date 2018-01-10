@@ -26,6 +26,8 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "PathLengthUtils.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 class ICaloNoiseTool;
 
 namespace Rec {
@@ -75,10 +77,8 @@ namespace Rec {
     const double m_emipTile; // 0.86
     const double m_emipHEC; // 0.94
 
-    std::string m_indetTrackParticleLocation;
-    const xAOD::TrackParticleContainer* m_indetTrackParticles;
-    std::string m_muonTrackParticleLocation;
-    const xAOD::TrackParticleContainer* m_muonTrackParticles;
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_indetTrackParticleLocation{this,"TrackParticleLocation","InDetTrackParticles","ID track particles"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_muonTrackParticleLocation{this,"MuonSpectrometerTrackPArticleLocation","MuonSpectrometerTrackParticles","MS track particles"};
 
     // PRIVATE METHODS
     double thresholdCorrection(double E_observed,double E_expected,double sigma_Noise) const;
