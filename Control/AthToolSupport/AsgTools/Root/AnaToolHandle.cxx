@@ -145,7 +145,7 @@ namespace asg
         ANA_MSG_ERROR ("type \"" << type << "\" does not match format expression");
         return StatusCode::FAILURE;
       }
-      std::regex nameExpr ("[A-Za-z_][A-Za-z0-9_]*(.[A-Za-z_][A-Za-z0-9_]*)*");
+      std::regex nameExpr ("[A-Za-z_][A-Za-z0-9_]*((\\.|::)[A-Za-z_][A-Za-z0-9_]*)*");
       if (!std::regex_match (name, nameExpr))
       {
         ANA_MSG_ERROR ("name \"" << name << "\" does not match format expression");
