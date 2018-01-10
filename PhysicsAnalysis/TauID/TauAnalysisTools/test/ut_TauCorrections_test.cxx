@@ -148,11 +148,11 @@ int main()
   // ===========================================================================
   std::vector<std::map<std::string, double>> vExpectedValues;
   vExpectedValues.push_back({
-    {"TESScaleFactorHadTau",                    1.006     },
+    {"TESScaleFactorHadTau",                    0.9993    },
     {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", 0.        },
     {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",   0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1down",  -0.03689   },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1up",     0.03689   },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1down",  -0.01301   },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1up",     0.01301   },
     {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",   -0.0102478 },
     {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",      0.0102478 },
     {"TauScaleFactorReconstructionHadTau",      1.        },
@@ -164,11 +164,11 @@ int main()
   });
 
   vExpectedValues.push_back({
-    {"TESScaleFactorHadTau",                    0.977517  },
+    {"TESScaleFactorHadTau",                    1.0231    },
     {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", 0.        },
     {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",   0.        },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1down",  -0.02343   },
-    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1up",     0.02343   },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1down",  -0.01403   },
+    {"TAUS_TRUEHADTAU_SME_TES_INSITU__1up",     0.01403   },
     {"TAUS_TRUEHADTAU_SME_TES_MODEL__1down",   -0.00464107},
     {"TAUS_TRUEHADTAU_SME_TES_MODEL__1up",      0.00464107},
     {"TauScaleFactorReconstructionHadTau",      1.        },

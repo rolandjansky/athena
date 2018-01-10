@@ -153,13 +153,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   std::string jetname("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
   std::string jetcoll(jetname + "Jets");
+  std::string calibArea("00-04-81"); 
 
   if (!m_jetCalibTool.isUserConfigured()) {
     toolName = "JetCalibTool_" + jetname;
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName); 
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC16Recommendation_Nov2017.config");
+    std::string JES_config_file("JES_MC16Recommendation_28Nov2017.config");
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
@@ -193,7 +194,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       //Note! : There is no origin correction explicitly included in the PFlow JES
       //
       
-      JES_config_file = "JES_MC16Recommendation_PFlow_Nov2017.config"; 
+      JES_config_file = "JES_MC16Recommendation_PFlow_28Nov2017.config"; 
 
       calibseq = "JetArea_Residual_EtaJES_GSC";
 
@@ -211,6 +212,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("JetCollection", jetname) );
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
+    ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
     ATH_CHECK( m_jetCalibTool.retrieve() );
   }
@@ -219,11 +221,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   std::string fatjetcoll(m_fatJets); 
   if (fatjetcoll.size()>3) fatjetcoll = fatjetcoll.substr(0,fatjetcoll.size()-4); //remove (new) suffix
   if (!m_jetFatCalibTool.isUserConfigured() && ""!=m_fatJets) {
-    toolName = "JetFatCalibTool_" + jetname;
+    toolName = "JetFatCalibTool_" + m_fatJets;
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config");
+    std::string JES_config_file("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config");
     //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
 
     // form the string describing the calibration sequence to use
@@ -233,6 +235,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFatCalibTool.setProperty("JetCollection", fatjetcoll) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", calibseq) );
+    ATH_CHECK( m_jetFatCalibTool.setProperty("CalibArea", calibArea) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetFatCalibTool.retrieve() );
   }
@@ -560,6 +563,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING(" These may be used for loose electron CRs but no scale factors are provided.");
       ATH_MSG_WARNING(" ****************************************************************************");
     }
+    else if (m_eleId == "VeryLooseLLH_Rel20p7" || m_eleId == "LooseLLH_Rel20p7" || m_eleId == "LooseAndBLayerLLH_Rel20p7" || m_eleId == "MediumLLH_Rel20p7" || m_eleId == "TightLLH_Rel20p7") {
+      ATH_MSG_WARNING(" ****************************************************************************");
+      ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as signal electron ID");
+      ATH_MSG_WARNING(" The Rel20.7 working point will not be supported and being obsoleted.");
+      ATH_MSG_WARNING(" ****************************************************************************");
+    }
     ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
     ATH_CHECK( m_elecSelLikelihood.retrieve() );
   }
@@ -572,6 +581,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if ( !check_isOption(m_eleIdBaseline, el_id_support) ) { //check if supported
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleIdBaseline);
       return StatusCode::FAILURE;
+    }
+    else if (m_eleIdBaseline == "VeryLooseLLH_Rel20p7" || m_eleIdBaseline == "LooseLLH_Rel20p7" || m_eleIdBaseline == "LooseAndBLayerLLH_Rel20p7" || m_eleIdBaseline == "MediumLLH_Rel20p7" || m_eleIdBaseline == "TightLLH_Rel20p7") {
+      ATH_MSG_WARNING(" ****************************************************************************");
+      ATH_MSG_WARNING(" CAUTION: Setting " << m_eleIdBaseline << " as baseline electron ID");
+      ATH_MSG_WARNING(" The Rel20.7 working point will not be supported and being obsoleted.");
+      ATH_MSG_WARNING(" ****************************************************************************");
     }
     ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("WorkingPoint", EG_WP(m_eleIdBaseline)) );
     ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
@@ -1011,7 +1026,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauSmearingTool.isUserConfigured()) {
     m_tauSmearingTool.setTypeAndName("TauAnalysisTools::TauSmearingTool/TauSmearingTool");
     if (m_tauMVACalib) { // Apply the MVA calibration?
-      ATH_CHECK( m_tauSmearingTool.setProperty("ApplyMVATES",true) );
+      ATH_MSG_WARNING("'TauMVACalibration' set to true in SUSYTools config file, but 'ApplyMVATES' is not supperted anymore in R21. Just ignoring 'TauMVACalibration' for now; please remove it from your config file!");
     }
     ATH_CHECK( m_tauSmearingTool.retrieve() );
   }

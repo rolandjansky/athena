@@ -38,32 +38,17 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
-  /// accept using  reference to IParticle 
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part) const = 0;
-
   /// accept method with pointer to electron 
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
 
   /// accept method with pointer to electron  when mu not in EventInfo for online 
   virtual const Root::TAccept& accept( const xAOD::Electron* part, double mu ) const = 0;
 
-  /// accept method with reference to electron  
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
-
-  /// accept method with reference to electron  when mu not in EventInfo for online 
-  virtual const Root::TAccept& accept( const xAOD::Electron& part, double mu ) const = 0;
-
   /// accept method with pointer to  egamma 
   virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const = 0;
 
   /// accept method with pointer to egammma when mu not in EventInfo for online 
   virtual const Root::TAccept& accept( const xAOD::Egamma* part, double mu ) const = 0;
-
-  /// accept method with reference to  egamma 
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part ) const = 0;
-
-  /// accept method with reference to egammma when mu not in EventInfo for online
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part, double mu ) const = 0;
 
   /// TResult method: for pointer to IParticle
   virtual const Root::TResult& calculate( const xAOD::IParticle* part ) const = 0;

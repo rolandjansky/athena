@@ -159,10 +159,10 @@ StatusCode BoostedXbbTagger::initialize()
 
     // set up muon tools
     m_muonSelectionTool.setTypeAndName("CP::MuonSelectionTool/"+m_name+"MuonSelection");
-    m_muonSelectionTool.retrieve();
+    ANA_CHECK (m_muonSelectionTool.retrieve());
 
     m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+m_name+"MuonCalibration");
-    m_muonCalibrationAndSmearingTool.retrieve();
+    ANA_CHECK (m_muonCalibrationAndSmearingTool.retrieve());
 
     if (!getMuonCorrectionScheme(m_muonCorrectionSchemeName, m_muonCorrectionScheme)) {
         ATH_MSG_ERROR( "Error setting mass calibration scheme to " << m_muonCorrectionSchemeName );

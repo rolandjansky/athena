@@ -60,16 +60,6 @@ public:
   /** The main accept method: the actual cuts are applied here */
   const Root::TAccept& accept( const xAOD::Electron* eg ) const;
 
-  /** Accept using reference **/
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const {
-    return accept (&part);
-  }
-
-  /** Accept using reference **/
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
-    return accept (&part);
-  }
-
   /** Method to get the plain TAccept */
   virtual const Root::TAccept& getTAccept( ) const;
 

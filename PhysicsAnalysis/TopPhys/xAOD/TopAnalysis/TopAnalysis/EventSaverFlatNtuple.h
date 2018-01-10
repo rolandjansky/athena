@@ -636,11 +636,60 @@ private:
     std::vector<float> m_klfitter_model_lep_eta;
     std::vector<float> m_klfitter_model_lep_phi;
     std::vector<float> m_klfitter_model_lep_E;
+    std::vector<unsigned int> m_klfitter_model_lep_index;
+
+    std::vector<float> m_klfitter_model_lepZ1_pt;
+    std::vector<float> m_klfitter_model_lepZ1_eta;
+    std::vector<float> m_klfitter_model_lepZ1_phi;
+    std::vector<float> m_klfitter_model_lepZ1_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ1_index;
+
+    std::vector<float> m_klfitter_model_lepZ2_pt;
+    std::vector<float> m_klfitter_model_lepZ2_eta;
+    std::vector<float> m_klfitter_model_lepZ2_phi;
+    std::vector<float> m_klfitter_model_lepZ2_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ2_index;
 
     std::vector<float> m_klfitter_model_nu_pt;
     std::vector<float> m_klfitter_model_nu_eta;
     std::vector<float> m_klfitter_model_nu_phi;
     std::vector<float> m_klfitter_model_nu_E;
+
+    std::vector<float> m_klfitter_model_b_from_top1_pt;
+    std::vector<float> m_klfitter_model_b_from_top1_eta;
+    std::vector<float> m_klfitter_model_b_from_top1_phi;
+    std::vector<float> m_klfitter_model_b_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_b_from_top2_pt;
+    std::vector<float> m_klfitter_model_b_from_top2_eta;
+    std::vector<float> m_klfitter_model_b_from_top2_phi;
+    std::vector<float> m_klfitter_model_b_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top2_jetIndex;
 
     // calculated KLFitter variables for best perm
     float m_klfitter_bestPerm_topLep_pt;
@@ -989,7 +1038,6 @@ protected:
   const std::vector<float>& jet_mv2c20() const { return m_jet_mv2c20;}
   const std::vector<float>& jet_jvt() const { return m_jet_jvt;}
   const std::vector<char>& jet_passfjvt() const { return m_jet_passfjvt;}
-  const std::vector<float>& jet_ip3dsv1() const { return m_jet_ip3dsv1;}
   const std::vector<int>& jet_truthflav() const { return m_jet_truthflav;}
   const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
   const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}
@@ -1108,6 +1156,37 @@ protected:
   const std::vector<float>& klfitter_model_nu_eta() const { return m_klfitter_model_nu_eta;}
   const std::vector<float>& klfitter_model_nu_phi() const { return m_klfitter_model_nu_phi;}
   const std::vector<float>& klfitter_model_nu_E() const { return m_klfitter_model_nu_E;}
+  const std::vector<float>& klfitter_model_b_from_top1_pt() const { return m_klfitter_model_b_from_top1_pt;}
+  const std::vector<float>& klfitter_model_b_from_top1_eta() const { return m_klfitter_model_b_from_top1_eta;}
+  const std::vector<float>& klfitter_model_b_from_top1_phi() const { return m_klfitter_model_b_from_top1_phi;}
+  const std::vector<float>& klfitter_model_b_from_top1_E() const { return m_klfitter_model_b_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top1_jetIndex() const { return m_klfitter_model_b_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_b_from_top2_pt() const { return m_klfitter_model_b_from_top2_pt;}
+  const std::vector<float>& klfitter_model_b_from_top2_eta() const { return m_klfitter_model_b_from_top2_eta;}
+  const std::vector<float>& klfitter_model_b_from_top2_phi() const { return m_klfitter_model_b_from_top2_phi;}
+  const std::vector<float>& klfitter_model_b_from_top2_E() const { return m_klfitter_model_b_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top2_jetIndex() const { return m_klfitter_model_b_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_pt() const { return m_klfitter_model_lj1_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_eta() const { return m_klfitter_model_lj1_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_phi() const { return m_klfitter_model_lj1_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_E() const { return m_klfitter_model_lj1_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top1_jetIndex() const { return m_klfitter_model_lj1_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_pt() const { return m_klfitter_model_lj2_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_eta() const { return m_klfitter_model_lj2_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_phi() const { return m_klfitter_model_lj2_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_E() const { return m_klfitter_model_lj2_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top1_jetIndex() const { return m_klfitter_model_lj2_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_pt() const { return m_klfitter_model_lj1_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_eta() const { return m_klfitter_model_lj1_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_phi() const { return m_klfitter_model_lj1_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_E() const { return m_klfitter_model_lj1_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top2_jetIndex() const { return m_klfitter_model_lj1_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_pt() const { return m_klfitter_model_lj2_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_eta() const { return m_klfitter_model_lj2_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_phi() const { return m_klfitter_model_lj2_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_E() const { return m_klfitter_model_lj2_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top2_jetIndex() const { return m_klfitter_model_lj2_from_top2_jetIndex;}
+  
   // calculated KLFitter variables for best perm
   const float& klfitter_bestPerm_topLep_pt() const { return m_klfitter_bestPerm_topLep_pt;}
   const float& klfitter_bestPerm_topLep_eta() const { return m_klfitter_bestPerm_topLep_eta;}

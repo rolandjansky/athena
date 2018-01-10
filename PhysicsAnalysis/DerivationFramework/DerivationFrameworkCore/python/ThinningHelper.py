@@ -112,7 +112,7 @@ class ThinningHelper:
     # @param augmentedStream The augmented stream object returned by
     #                        MultipleStreamManager
     #
-    def AppendToStream( self, augmentedStream ):
+    def AppendToStream( self, augmentedStream, extraTriggerContent = [] ):
         # Access the stream object:
         stream = augmentedStream.GetEventStream()
         # Get the name of the "format":
@@ -165,7 +165,7 @@ class ThinningHelper:
         allFeatures = MuonTriggerContent + EGammaTriggerContent + \
             JetTriggerContent +EtMissTriggerContent + \
             TauTriggerContent + BJetTriggerContent + \
-            BPhysTriggerContent + MinBiasTriggerContent
+            BPhysTriggerContent + MinBiasTriggerContent + extraTriggerContent
         from TrigNavTools.TrigNavToolsConfig import slimmingTool
         sTool = slimmingTool( { 'name' : self.helperName,
                                 'features' : allFeatures,

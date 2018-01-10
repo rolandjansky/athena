@@ -4,6 +4,7 @@
 # art-type: grid
 # art-output: *.pool.root
 # art-output: checkFile.txt
+# art-output: checkxAOD.txt
 
 set -e
 
@@ -11,3 +12,4 @@ Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Deri
 
 DAODMerge_tf.py --inputDAOD_EXOT22File DAOD_EXOT22.art.pool.root --outputDAOD_EXOT22_MRGFile art_merged.pool.root
 checkFile.py DAOD_EXOT22.art.pool.root > checkFile.txt
+checkxAOD.py DAOD_EXOT22.art.pool.root > checkxAOD.txt

@@ -107,3 +107,10 @@ atlas_add_test( gt_AnaCheck
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools
    EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+
+atlas_add_executable (asg_tools_test_init util/asg_tools_test_init.cxx
+                      LINK_LIBRARIES AsgTools )
+
+# This ought to work, but I can't figure it out.
+#atlas_add_test (asg_tools_test_init_test COMMAND asg_tools_test_init asg::AsgTool)
+#atlas_add_test (asg_tools_test_init_test SCRIPT asg_tools_test_init asg::AsgTool)

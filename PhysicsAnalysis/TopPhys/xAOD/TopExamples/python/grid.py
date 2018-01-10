@@ -67,21 +67,45 @@ def Samples(names):
         samples.append(availableDatasets[n])
     return samples
 
+def basicInDSNameShortener(*args):
+    # don't ask what args[0] is; just use args[1] (sorry for my lack of understanding of python)
+    # if you want to use a different function defined outside this module, you don't need to bother
+    inDSName = args[1]
+    splitted = inDSName.split('.')
+
+    runNumber = splitted[1]
+    physicsName = splitted[2]
+    if splitted[0] == "user" or splitted[0] == "group": #this is in case we run on private derivations, either produced with user or group role
+        runNumber = splitted[2]
+        physicsName = splitted[3]
+    derivation = splitted[-2]
+    tags = splitted[-1].replace('/','')
+
+    #grid complains dataset names are too long
+    #stupid grid
+    if len(physicsName) > 20:
+        physicsName = physicsName.split('_')[0]
+
+    outDSName = runNumber + '.' + physicsName + '.' + derivation + '.' + tags
+    return outDSName
+
 class Config:
     code = 'top-xaod'
     cutsFile = 'nocuts.txt'
 
     gridUsername = ''
+    groupProduction = False
     suffix = ''
     excludedSites = ''
     forceSite = ''
     noSubmit = False
-    CMake    = False # False by default - need to set to True for CMake-based releases (release 21)
+    CMake    = (os.getenv('ROOTCORE_RELEASE_SERIES')=='25') # Using info from ROOTCORE_RELEASE_SERIES environment variable by default - need to set to True for CMake-based releases (release 21)
     mergeType = 'Default' #None, Default, xAOD 
     destSE = ''
     memory = '2000' #in MB
     maxNFilesPerJob = ''
     otherOptions = ''
+    nameShortener = basicInDSNameShortener # default shortener function
 
     def details(self):
         cutsFileIsARealFile = checkForFile(self.settingsFile)
@@ -102,7 +126,8 @@ class Config:
         print ' -MergeType:     ', self.mergeType, 'out of (None, Default, xAOD)'
         print ' -memory:        ', self.memory, 'in MB'
         print ' -maxNFilesPerJob', self.maxNFilesPerJob        
-        print ' -OtherOptions:  ', self.otherOptions
+        print ' -OtherOptions:  ', self.otherOptions 
+        print ' -nameShortener: ', self.nameShortener
 
         txt = self.destSE
         if len(txt) == 0:
@@ -238,27 +263,17 @@ def submit(config, allSamples):
   for i, d in enumerate(these):
      print logger.OKBLUE + 'Submitting %d of %d' % (i+1, len(these)) + logger.ENDC
 
-     splitted = d.split('.')
-     
-     runNumber = splitted[1]
-     txt = splitted[2]
-     if splitted[0] == "user":
-         runNumber = splitted[2]
-         txt = splitted[3]
-     derivation = splitted[-2]
-     tags = splitted[-1].replace('/','')
-
-     #grid complains dataset names are too long
-     #stupid grid
-     if len(txt) > 20:
-         txt = txt.split('_')[0]
-
-     n = runNumber + '.' + txt + '.' + derivation + '.' + tags
-
      #Make the output dataset name
-     output = 'user.' + config.gridUsername + '.' + n + '.' + config.suffix
+     #for group production it has to start with "group." and we asume that gridUsername is the name of the group (e.g. phys-top)
+     if config.groupProduction:
+         output = 'group.' + config.gridUsername + '.' + config.nameShortener(d) + '.' + config.suffix
+     else:
+         output = 'user.' + config.gridUsername + '.' + config.nameShortener(d) + '.' + config.suffix
 
      cmd = 'prun \\\n'
+     #special care for group production - we assume that gridUsername is the name of the group (e.g. phys-top)
+     if config.groupProduction:
+         cmd += '--official --voms atlas:/atlas/' + config.gridUsername + '/Role=production  \\\n'
      cmd += '--inDS=' + d + ' \\\n'
      cmd += '--outDS=' + output + ' \\\n'
      if config.CMake:

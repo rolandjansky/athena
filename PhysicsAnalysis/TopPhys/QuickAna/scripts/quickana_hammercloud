@@ -9,4 +9,6 @@ do
     options="$options --el-input-file $file"
 done
 
-quickana_validate --write-summary $options output
+OUTPUT_DIR=output.$$
+rm -rf $OUTPUT_DIR
+quickana_validate --write-summary $options $OUTPUT_DIR

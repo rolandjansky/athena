@@ -64,6 +64,8 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesElectronsTruth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesMuonsTruth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTausTruth
+# add these variables to all MC and data (TOPQ4 only)
+  if DFisMC or TOPQname == 'TOPQ4':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsBTag_HLT_Container
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_EF_Container
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_Split_Container

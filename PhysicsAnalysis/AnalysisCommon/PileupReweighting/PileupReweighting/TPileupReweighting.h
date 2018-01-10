@@ -274,11 +274,11 @@ namespace CP {
       }
 
       /** Method for weighting data to account for prescales and mu bias. Use by giving the tool multiple lumicalc files, one for each trigger */
-      Double_t GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent=false);
       Double_t GetDataWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
 
     /** Method for prescaling MC to account for prescales in data */
-      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent=false);
       Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
 
 
@@ -321,7 +321,7 @@ namespace CP {
       void AddDistributionTree(TTree *tree, TFile *file);
       //*Int_t FactorizeDistribution(TH1* hist, const TString weightName, Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal);
 
-      void CalculatePrescaledLuminosityHistograms(const TString& trigger);
+      void CalculatePrescaledLuminosityHistograms(const TString& trigger, int run_dependent=0);
 
       //********** Private members*************************
       TPileupReweighting* m_parentTool; //points to self if not a 'systematic varion' tool instance
@@ -387,6 +387,7 @@ public:
          
          // unnormalized ... i.e. integral should be equal to the lumi!
          // ... indexed by PeriodID,tbits
+         // ... if doing run-dependent weights, PeriodID is replaced by -runNumber (negative number!)
          std::map<int, std::map<long, std::unique_ptr< TH1 > > > triggerHists;
 
       };
@@ -395,7 +396,7 @@ protected:
       std::map<TString, std::unique_ptr<CompositeTrigger> > m_triggerObjs; //map from trigger string to composite trigger object
 
       std::unique_ptr<CompositeTrigger> makeTrigger(const TString& s);
-      void calculateHistograms(CompositeTrigger* trigger);
+      void calculateHistograms(CompositeTrigger* trigger, int run_dependent);
 
 public:
       inline void PrintPeriods() { for(auto p : m_periods) {std::cout << p.first << " -> "; p.second->print("");} }

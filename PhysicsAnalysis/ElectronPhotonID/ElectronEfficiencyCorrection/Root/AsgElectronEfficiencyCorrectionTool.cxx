@@ -740,13 +740,19 @@ int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::E
   if (cluster) {
     cluster_eta = cluster->etaBE(2);
   }
-
-  if (m_correlation_model == correlationModel::SIMPLIFIED) {
+  switch(m_correlation_model){
+  case  correlationModel::SIMPLIFIED:{
     currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-  }
-
-  if (m_correlation_model == correlationModel::FULL) {
+    break;
+    }
+  case correlationModel::FULL:{
     currentSystRegion = currentUncorrSystRegion( cluster_eta, et);
+    break;
+    }
+  default:{
+    //not there for the other models
+      break;
+    }
   }
   return currentSystRegion;
 }

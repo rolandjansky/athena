@@ -143,6 +143,7 @@ def main():
     parser.add_argument('--outFile',default=sys.stdout,type=argparse.FileType('w'),help="Where to print the output to. Leave blank to print to stdout")
     parser.add_argument('--delim',default="",help="The delimiter character. Defaults to spaces leading to nice formatting table")
     parser.add_argument('--latex',action='store_true',help="If specified, will output in latex format, ready for copy-paste into notes")
+    parser.add_argument('--allowBadStatus',action='store_true',help="If specified, will not filter out datasets which have the physicsStatus != good value")
     parser.add_argument('-v',action='store_true',help="Verbose output for debugging")
 
     args = parser.parse_args()
@@ -238,7 +239,14 @@ def main():
 
 
     #obtain list of datasets 
-    res = AtlasAPI.list_datasets(client,patterns=args.inDS,fields=dsFields+['ldn'],ami_status="VALID") #changed status from %, to only catch valid now: wb 08/2015
+    logging.debug("%d patterns" % len(args.inDS))
+
+    res = []
+
+    #split into blocks of 500 patterns
+    for i in range(0,len(args.inDS),500):
+        if i>0: logging.info("... doing next 500 patterns ...")
+        res += AtlasAPI.list_datasets(client,patterns=args.inDS[i:i+500],fields=dsFields+['ldn'],ami_status="VALID") #changed status from %, to only catch valid now: wb 08/2015
 
     logging.info("...Found %d datasets matching your selection" % len(res))
 
@@ -412,6 +420,7 @@ def main():
                 explainInfo[i] = dict()
                 old_explainInfo[i] = dict()
 
+            isGoodStatus="good"
             for param in paramFields:
                 groupsWithVals[param] = []
                 bestGroupIndex = len(args.physicsGroups)
@@ -419,6 +428,9 @@ def main():
                 paramVals[param] = copy.copy(fieldDefaults[param])
                 for r in res:
                     if int(r[u'subprocessID']) != sp: continue
+                    if str(r[u'paramName'])=="physicsStatus" and str(r[u'paramValue'])!="good":
+                        isGoodStatus=str(r[u'paramValue'])
+                        continue
                     if str(r[u'paramName']) != param and not (param=="crossSection_pb" and str(r[u'paramName'])=="crossSection"): continue
                     if str(r[u'physicsGroup']) not in args.physicsGroups: 
                         groupsWithVals[param] += [(str(r[u'physicsGroup']),str(r[u'paramValue']))]
@@ -460,6 +472,12 @@ def main():
             rowString = ""
             rowList = []
             firstPrint=False
+
+            #before doing anything, check if status is good
+            if not args.allowBadStatus and isGoodStatus!="good":
+                logging.info("Skipping %s because physicsStatus is %s" % (ds,isGoodStatus))
+                continue
+
             for param in args.fields:
                 val = None
                 if param == "ldn": val = ds
@@ -469,7 +487,7 @@ def main():
                 if val == None:
                     if args.outFile != sys.stdout: logging.warning("dataset %s (subprocess %d) does not have parameter %s, which has no default." % (ds,sp,param))
                     if len(groupsWithVals.get(param,[]))>0:
-                        logging.warning("The follow physicsGroups have defined that parameter though:")
+                        logging.warning("The following physicsGroups have defined that parameter though:")
                         logging.warning(groupsWithVals[param])
                     val = "#UNKNOWN#"
                     #return -1
@@ -591,10 +609,14 @@ def main():
     elif args.outFile != sys.stdout:
         #remove comment from dataset_values
         datasetss = [x for x in dataset_values.keys() if not x.startswith("comment")]
-        
+
         print("",file=args.outFile)
         print("#lsetup  \"asetup %s,%s\" pyAMI" % (os.environ.get('AtlasProject','UNKNOWN!'),os.environ.get('AtlasVersion','UNKNOWN!')),file=args.outFile)
-        print("#getMetadata.py --timestamp=\"%s\" --physicsGroups=\"%s\" --fields=\"%s\" --inDS=\"%s\"" % (args.timestamp,",".join(args.physicsGroups),",".join(args.fields),",".join(datasetss)),file=args.outFile )
+
+        if len(datasetss)>50 and args.inDsTxt!="":
+            print("#getMetadata.py --timestamp=\"%s\" --physicsGroups=\"%s\" --fields=\"%s\" --inDsTxt=\"%s\"" % (args.timestamp,",".join(args.physicsGroups),",".join(args.fields),args.inDsTxt),file=args.outFile )
+        else:
+            print("#getMetadata.py --timestamp=\"%s\" --physicsGroups=\"%s\" --fields=\"%s\" --inDS=\"%s\"" % (args.timestamp,",".join(args.physicsGroups),",".join(args.fields),",".join(datasetss)),file=args.outFile )
         logging.info("Results written to: %s" % args.outFile.name)
 
     args.outFile.close()

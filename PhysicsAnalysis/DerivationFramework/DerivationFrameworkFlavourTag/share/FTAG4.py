@@ -134,7 +134,8 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     ]
 
 FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
+                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
 addJetOutputs(FTAG4SlimmingHelper,["FTAG4"],[],[])
 
@@ -153,9 +154,9 @@ addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
 
 FTAG4SlimmingHelper.IncludeMuonTriggerContent = True
 FTAG4SlimmingHelper.IncludeEGammaTriggerContent = True
-FTAG4SlimmingHelper.IncludeJetTriggerContent = False
+FTAG4SlimmingHelper.IncludeJetTriggerContent = True
 FTAG4SlimmingHelper.IncludeEtMissTriggerContent = False
-FTAG4SlimmingHelper.IncludeBJetTriggerContent = False
+FTAG4SlimmingHelper.IncludeBJetTriggerContent = True
 
 #FTAG4 TrigNav Thinning
 FTAG4ThinningHelper = ThinningHelper( "FTAG4ThinningHelper" )

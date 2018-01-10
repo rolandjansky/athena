@@ -208,6 +208,28 @@ StatusCode DiTauTruthMatchingTool::checkTruthMatch (const xAOD::DiTauJet& xDiTau
   else 
     decIsTruthHadronic(xDiTau) = (char)false;
 
+  if (decIsTruthHadronic(xDiTau))
+  {
+    static const SG::AuxElement::Decorator<double> decTruthLeadPt("TruthVisLeadPt");
+    static const SG::AuxElement::Decorator<double> decTruthSubleadPt("TruthVisSubleadPt");
+    static const SG::AuxElement::Decorator<double> decTruthDeltaR("TruthVisDeltaR");
+    
+    TLorentzVector tlvTruthTau1;
+    TLorentzVector tlvTruthTau2;
+    tlvTruthTau1.SetPtEtaPhiE(m_accPtVis(*(*vTruthLinks.at(0))),
+                              m_accEtaVis(*(*vTruthLinks.at(0))),
+                              m_accPhiVis(*(*vTruthLinks.at(0))),
+                              m_accMVis(*(*vTruthLinks.at(0))));
+    tlvTruthTau2.SetPtEtaPhiE(m_accPtVis(*(*vTruthLinks.at(1))),
+                              m_accEtaVis(*(*vTruthLinks.at(1))),
+                              m_accPhiVis(*(*vTruthLinks.at(1))),
+                              m_accMVis(*(*vTruthLinks.at(1))));
+
+    decTruthLeadPt(xDiTau) = std::max(tlvTruthTau1.Pt(), tlvTruthTau2.Pt());
+    decTruthSubleadPt(xDiTau) = std::min(tlvTruthTau1.Pt(), tlvTruthTau2.Pt());
+    decTruthDeltaR(xDiTau) = tlvTruthTau1.DeltaR(tlvTruthTau2);
+  }
+
   return StatusCode::SUCCESS;
 }
 

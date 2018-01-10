@@ -10,6 +10,8 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
@@ -283,6 +285,10 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY1)
+
+#==============================================================================
 OutputJets["SUSY1"] = []
 
 #reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
@@ -328,10 +334,16 @@ SUSY1SlimmingHelper = SlimmingHelper("SUSY1SlimmingHelper")
 # BTagging_AntiKt4Track changed to BTagging_AntiKt2Track, as the former is no longer supported
 SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "AntiKt4EMTopoJets",
+"AntiKt4EMPFlowJets",
+
                                         "MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+
                                         "Muons",
                                         "TauJets",
                                         "BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
                                         "BTagging_AntiKt2Track",
@@ -361,7 +373,8 @@ SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
 if DerivationFrameworkIsMonteCarlo:
 
   # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-  SUSY1SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 

@@ -20,6 +20,8 @@
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
 #include "JetSubStructureMomentTools/Validator.h"
 #include "JetSubStructureMomentTools/QwTool.h"
+#include "JetSubStructureMomentTools/VariableRPseudoJetCalTool.h"
+#include "JetSubStructureMomentTools/HEPTopTaggerMomentsTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 
@@ -43,6 +45,8 @@ DECLARE_TOOL_FACTORY(SubjetFinderTool)
 DECLARE_TOOL_FACTORY(SubjetRecorderTool)
 DECLARE_TOOL_FACTORY(Validator)
 DECLARE_TOOL_FACTORY(QwTool)
+DECLARE_TOOL_FACTORY(VariableRPseudoJetCalTool)
+DECLARE_TOOL_FACTORY(HEPTopTaggerMomentsTool)
 
 DECLARE_FACTORY_ENTRIES(JetSubStructureMomentTools) {
   DECLARE_TOOL(KtDeltaRTool)
@@ -65,5 +69,7 @@ DECLARE_FACTORY_ENTRIES(JetSubStructureMomentTools) {
   DECLARE_TOOL(SubjetRecorderTool)
   DECLARE_TOOL(Validator)
   DECLARE_TOOL(QwTool)
+  DECLARE_TOOL(VariableRPseudoJetCalTool)
+  DECLARE_TOOL(HEPTopTaggerMomentsTool)
 }
 

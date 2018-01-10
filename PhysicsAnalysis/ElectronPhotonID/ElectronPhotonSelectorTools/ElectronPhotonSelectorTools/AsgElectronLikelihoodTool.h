@@ -60,32 +60,6 @@ public:
   /** The main accept method: in case mu not in EventInfo online */
   const Root::TAccept& accept( const xAOD::Egamma* eg, double mu ) const;
   
-  /** Accept using reference **/
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
-    return accept (&part);
-  }
-
-  /** Accept using reference **/
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const {
-    return accept (&part, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
-  }
-
-  /** Accept using reference **/
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part ) const {
-    return accept (&part, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
-  }
-
-  /** Accept using reference; in case mu not in EventInfo online **/
-  virtual const Root::TAccept& accept( const xAOD::Electron& part, double mu ) const {
-    return accept (&part, mu);
-  }
-
-  /** Accept using reference; in case mu not in EventInfo online **/
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part, double mu ) const {
-    return accept (&part, mu);
-  }
-
-
   // Main methods for IAsgCalculatorTool interface
 public:
   /** The main result method: the actual likelihood is calculated here */
