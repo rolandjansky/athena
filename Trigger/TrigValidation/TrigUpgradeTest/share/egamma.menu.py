@@ -26,20 +26,24 @@ InDetFlags.init()
 
 # PixelLorentzAngleSvc and SCTLorentzAngleSvc
 include("InDetRecExample/InDetRecConditionsAccess.py")
-
-viewTest = opt.enableViews   # from testHLT_MT.py
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-if viewTest:
-  allViewAlgorithms = topSequence.allViewAlgorithms
+
 
 from InDetRecExample.InDetKeys import InDetKeys
 
 # provide a minimal menu information
+if globalflags.InputFormat.is_bytestream():
+   topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
+   topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
+testChains = ["HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut", "HLT_2e3_etcut", "HLT_e3e5_etcut"]
 
-topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
+theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
+theFastCaloAlgo.OutputLevel=VERBOSE
+theFastCaloAlgo.ClustersName="L2CaloClusters"
+svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
 # start here new part
 #############################################################
@@ -47,121 +51,94 @@ topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 from TrigUpgradeTest.HLTCFConfig import *
 from TrigUpgradeTest.MenuComponents import *
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+
 def InputMakerAlg(name):
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, LinkName="initialRoI")
-
-
+ 
 
 def FastCaloAlg(name):
-  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-  theFastCaloAlgo=T2CaloEgamma_FastAlgo(name) #"FastCaloAlgo" )
-  theFastCaloAlgo.OutputLevel=VERBOSE
-  #theFastCaloAlgo.ClustersName="L2CaloClusters"
-  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-  return theFastCaloAlgo
+    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
+    theFastCaloAlgo=T2CaloEgamma_FastAlgo(name)
+    theFastCaloAlgo.OutputLevel=VERBOSE
+    theFastCaloAlgo.ClustersName="L2CaloClusters"
+    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
+    return theFastCaloAlgo
+
+def fastCaloViewsMaker(name):
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    fastCaloViewsMaker = EventViewCreatorAlgorithm(name, OutputLevel=DEBUG)
+    fastCaloViewsMaker.ViewFallThrough = True
+#    fastCaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
+    fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
+    fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
+    fastCaloViewsMaker.Views = "EMCaloViews"
+ #   fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
+ #add algo
+    theFastCaloAlgo = FastCaloAlg(name="FastCaloAlgo")
+    fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [ theFastCaloAlgo ])
+    theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
 
 
+  
 def FastCaloHypo(name):
-  # CaloClusters ->Decisions
   from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
-  from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
-  theFastCaloHypo = TrigL2CaloHypoAlg(name)# "L2CaloHypo")
-  theFastCaloHypo.OutputLevel = DEBUG
-  #theFastCaloHypo.L1Decisions = "EMRoIDecisions"
-  #theFastCaloHypo.Views = l2CaloViewsMaker.Views
-  #theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
-  #  theFastCaloHypo.RoIs = l2CaloViewsMaker.InViewRoIs
-  #theFastCaloHypo.Decisions = "EgammaCaloDecisions"
-  #  theFastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
+  theFastCaloHypo = TrigL2CaloHypoAlg(name)
+  theFastCaloHypo.OutputLevel = DEBUG 
   return theFastCaloHypo
 
 
 def TrigL2CaloHypoTool(name):
-    return TrigL2CaloHypoToolFromName(name)
+  from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+  hypotool= TrigL2CaloHypoToolFromName(name)
+  hypotool.OutputLevel = DEBUG
+  return hypotool
 
 def e3_etcut():
-  return TrigL2CaloHypoTool("e3_etcut")
+  return TrigL2CaloHypoTool("HLT_e3_etcut")
 
 def e5_etcut():
-  return TrigL2CaloHypoTool("e5_etcut")
+  return TrigL2CaloHypoTool("HLT_e5_etcut")
 
 
 #####################
 # Make the sequence
-# tmp: the InputMaker is just forwarding the filter output
-filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-filterL1RoIsAlg.Input = ["EMRoIDecisions"]
-filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
-filterL1RoIsAlg.Chains = testChains
-filterL1RoIsAlg.OutputLevel = DEBUG
 
-caloIM= InputMakerAlg(name="Step1CaloInputMaker")
-caloIMNode = AlgNode(Alg=caloIM, inputProp='Input', outputProp='Output') #set i/o
 
-fastCaloAlg = FastCaloAlg(name="fastCaloAlg")
-fastCaloAlgNode = AlgNode( Alg=fastCaloAlg,inputProp='RoIs', outputProp='ClustersName') 
+fastCaloViewsMaker = fastCaloViewsMaker(name="fastCaloViewsMaker")
+theFastCaloHypo = FastCaloHypo(name="L2CaloHypo")
 
-fastCaloHypo = FastCaloHypo(name="fastCaloHypo")
-fastCaloHypoNode = HypoAlgNode( Alg=fastCaloHypo,inputProp='CaloClusters', outputProp='Decisions')
+# Nodes & sequence
+fastCaloViewsMakerNode = AlgNode( Alg=fastCaloViewsMaker,inputProp='Decisions', outputProp='Views') 
+fastCaloHypoNode = HypoAlgNode( Alg=theFastCaloHypo,inputProp='Views', outputProp='Decisions')
+fastCalo_NodeSequence = NodeSequence("fastCalo_NodeSequence", Algs=[fastCaloViewsMaker], Hypo=fastCaloHypoNode, Seed=EMRoIDecisions)
 
-fastCaloNodeSequence = NodeSequence("fastCaloNodeSequence", InputMaker=caloIMNode, Algs=[fastCaloAlgNode], Hypo=fastCaloHypoNode, Seed="EMRoIDecisions") 
-fastCaloSequence = MenuSequence("fastCaloSequence", nodeSeqList=[fastCaloNodeSequence])
-  #egammaCaloStep = stepSeq("egammaCaloStep", filterL1RoIsAlg, [ l2CaloViewsMaker, theFastCaloHypo, caloDecisionsDumper ])
+#remaining connecitons to the Hypo
+theFastCaloHypo.RoIs = l2CaloViewsMaker.InViewRoIs
+theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
+theFastCaloHypo.L1Decisions = EMRoIDecisions
+
+#final sequence
+fastCaloSequence = MenuSequence("egammaCaloStep", nodeSeqList=[fastCalo_NodeSequence])
 print fastCaloSequence
 
-# with views
-# L1Decoder: RoIBResult -> [EMRoIs, EMRoIDecisions]
-# filterL1RoIsAlg : EMRoIDecisions -> FilteredEMRoIDecisions
-# l2CaloViewsMaker: FilteredEMRoIDecisions -> EMCaloViews
-# FastCaloAlgo : EMCaloRoIs -> L2CaloClusters
 
-# without views
-# L1Decoder: RoIBResult -> [EMRoIs, EMRoIDecisions]
-# filterL1RoIsAlg : EMRoIDecisions -> FilteredEMRoIDecisions
-# InputMaker: FilteredEMRoIDecisions -> EMCaloRoIs
-# FastCaloAlgo : EMCaloRoIs -> L2CaloClusters
-
-# test menu
-# L1Decoder: -> L1EM
-# Filter_Step1L1EM_Inputs_Outputs  [L1EM] -> [Filter_Step1L1EM_L1EM_out]
-# Step1ElInputMaker_Input_Output  [L1EM] -> [Step1ElInputMaker_Input_Output_out] !!!!!!
-# CaloClustering_Input_Output  [Step1ElInputMaker_Input_Output_out] -> [CaloClustering_Input_Output_out] 
+#########################################
+# here tracking.....
+#########################################
 
 
-
-#filterL1RoIsAlg                                   DEBUG Data Deps for filterL1RoIsAlg
-#  + INPUT  ('xAOD::TrigCompositeContainer','StoreGateSvc+EMRoIDecisions') --> from L1Decoder
-#  + OUTPUT ('xAOD::TrigCompositeContainer','StoreGateSvc+FilteredEMRoIDecisions')
-#l2CaloViewsMaker                                  DEBUG Data Deps for l2CaloViewsMaker
-#  + INPUT  ('xAOD::TrigCompositeContainer','StoreGateSvc+FilteredEMRoIDecisions')
-#  + OUTPUT ('std::vector< SG::View* >','StoreGateSvc+EMCaloViews')
-#FastCaloAlgo                                      DEBUG Data Deps for FastCaloAlgo
-#  + INPUT  ('TrigRoiDescriptorCollection','StoreGateSvc+EMCaloRoIs')
-#  + OUTPUT ('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloClusters')
-
+# menu
 
 testChains  = [
-    Chain(name='HLT_e3_etcut', Seed="L1_EM3",   ChainSteps=[ChainStep("Step1_e3_etcut", [SequenceHypoTool(fastCaloSequence,"e3_etcut")])]),
-    Chain(name='HLT_e5_etcut', Seed="L1_EM3",   ChainSteps=[ChainStep("Step1_e5_etcut", [SequenceHypoTool(fastCaloSequence,"e5_etcut")])])
-    ]
-
-  
-
-decisionTree_From_Chains(topSequence, testChains, NSTEPS=1)
-
-
-  ##########################################  
-
-
+  Chain(name='HLT_e3_etcut', Seed="L1_EM3",   ChainSteps=[ChainStep("Step1_e3_etcut", [SequenceHypoTool(fastCaloSequence,e3_etcut() )])]),
+  Chain(name='HLT_e5_etcut', Seed="L1_EM3",   ChainSteps=[ChainStep("Step1_e5_etcut", [SequenceHypoTool(fastCaloSequence,e5_etcut() )])])
+  ]
 
 
 # CF construction
 
-
-
-#step0 = parOR("step0", [ egammaCaloStep ] )
-#step1 = parOR("step1", [ egammaIDStep ] )
+from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 
 from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
 summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
@@ -169,7 +146,9 @@ summary.L1Decision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 summary.OutputLevel = DEBUG
 
-#steps = seqAND("HLTSteps", [ step0, step1, summary ]  )
+steps = seqAND("HLTSteps"  )
+decisionTree_From_Chains(steps, testChains, NSTEPS=1)
+steps += summary
 
 mon = TriggerSummaryAlg( "TriggerMonitoringAlg" )
 mon.L1Decision = "HLTChains"
@@ -177,6 +156,18 @@ mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" 
 mon.HLTSummary = "MonitoringSummary"
 mon.OutputLevel = DEBUG
 
-#hltTop = seqOR( "hltTop", [ steps, mon] )
-#topSequence += hltTop
+
+hltTop = seqOR( "hltTop", [ steps, mon] )
+topSequence += hltTop
+
+
+print fastCaloViewsMaker
+print theFastCaloHypo
+
+
+##########################################  
+
+
   
+from AthenaCommon.AlgSequence import dumpSequence
+dumpSequence(topSequence)

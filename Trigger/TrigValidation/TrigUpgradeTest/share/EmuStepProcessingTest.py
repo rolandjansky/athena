@@ -120,30 +120,41 @@ from TrigUpgradeTest.MenuComponents import *
 
 include("TrigUpgradeTest/HLTSignatureConfig.py")
 
+nsteps=2
 
 # muon chains
 muStep1 = muStep1Sequence()
+muStep2 = muStep2Sequence()
 MuChains  = [
-    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceHypoTool(muStep1,"mu20")])]),
-    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceHypoTool(muStep1,"mu8")] )])
+    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceHypoTool(muStep1,step1mu20())]),
+                                                         ChainStep("Step2_mu20", [SequenceHypoTool(muStep2,step2mu20())]) ] ),
+
+    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceHypoTool(muStep1,step1mu8())] ),
+                                                         ChainStep("Step2_mu8",  [SequenceHypoTool(muStep2,step2mu8())]) ] )
     ]
+
 
 
 #electron chains
 elStep1 = elStep1Sequence()
+elStep2 = elStep2Sequence()
 ElChains  = [
-    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ChainStep("Step1_e20",  [SequenceHypoTool(elStep1,"e20")])])
+    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [SequenceHypoTool(elStep1,step1e20())]),
+                                                        ChainStep("Step2_e20",  [SequenceHypoTool(elStep2,step2e20())]) ] )
     ]
 
 
 # combined chain
 muelStep1 = combStep1Sequence()
+muelStep2 = combStep2Sequence()
 CombChains =[
-    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ChainStep("Step1_mu8_e8",  [SequenceHypoTool(muelStep1,"mu8_e8")])])
+    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [SequenceHypoTool(muelStep1, step1mu8_e8())]),
+                                                              ChainStep("Step2_mu8_e8",  [SequenceHypoTool(muelStep2, step2mu8_e8())]) ] )
     ]
 
 
 group_of_chains = MuChains + ElChains + CombChains
+#+ ElChains + CombChains
 
 
 
@@ -161,7 +172,7 @@ TopHLTRootSeq += L1UnpackingSeq
 HLTAllStepsSeq = seqAND("HLTAllStepsSeq")
 TopHLTRootSeq += HLTAllStepsSeq
 
-decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=1)
+decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=nsteps)
 
 
 #from AthenaCommon.AlgSequence import dumpMasterSequence
