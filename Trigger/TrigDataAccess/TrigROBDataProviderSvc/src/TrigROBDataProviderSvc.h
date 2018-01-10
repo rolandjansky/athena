@@ -113,7 +113,7 @@ public:
     virtual std::map<uint32_t, ROBF>::iterator endROBCache()   override { return m_online_robmap.end(); }
 
     /// Check if complete event data are already in cache
-    virtual bool isEventComplete() { return m_isEventComplete; }
+    virtual bool isEventComplete() override { return m_isEventComplete; }
     virtual bool isEventComplete() const { return m_isEventComplete; }
     virtual bool isEventComplete(const EventContext&) const override
     { return m_isEventComplete; }
