@@ -6,6 +6,7 @@
 ///
 /// Implementation of energy scale uncertainties, for 2010 data and beyond
 ///
+
 #include <iostream>
 #include <cassert>
 #include <exception>
