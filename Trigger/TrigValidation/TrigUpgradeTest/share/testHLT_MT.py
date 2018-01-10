@@ -248,17 +248,10 @@ topSequence = AlgSequence()
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
 if jobproperties.ConcurrencyFlags.NumThreads() > 0:
-    from SGComps.SGCompsConf import SGInputLoader
-    topSequence += SGInputLoader( OutputLevel = INFO, 
-                                  ShowEventDump = False,
-                                  FailIfNoProxy = False )
-    #topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','StoreGateSvc+RoIBResult') ]
-
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
     AlgScheduler.ShowDataDependencies( True )
-    AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 # EventInfo creation if needed
 from RecExConfig.ObjKeyStore import objKeyStore
