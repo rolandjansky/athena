@@ -1,0 +1,46 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef CALIBRATEDTRACKSPROVIDER
+#define CALIBRATEDTRACKSPROVIDER
+
+// Gaudi/Athena include(s):
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+
+
+namespace CP {
+
+   /// decorates a track collection with efficiency and scale factor
+
+   class CalibratedTracksProvider : public AthAlgorithm {
+
+   public:
+      /// Regular Algorithm constructor
+       CalibratedTracksProvider( const std::string& name, ISvcLocator* svcLoc );
+
+      /// Function initialising the algorithm
+      virtual StatusCode initialize();
+      /// Function executing the algorithm
+      virtual StatusCode execute();
+
+   private:
+      /// track container
+      std::string m_inputKey,m_outputKey;
+
+      /// Scale factor tool
+      ToolHandle< IMuonCalibrationAndSmearingTool > m_tool;
+
+      /// detector type of track (MS or ID)
+      int m_detType;
+
+   }; // class 
+
+} // namespace CP
+
+#endif //
