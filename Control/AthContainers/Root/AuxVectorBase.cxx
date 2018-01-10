@@ -289,19 +289,17 @@ void AuxVectorBase::swapElementsAux (size_t aindex,
 
   // Swap aux data.
 
-  const SG::auxid_set_t& a_ids = acont->getAuxIDs();
-  const SG::auxid_set_t& b_ids = bcont->getAuxIDs();
-
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   SG::AuxTypeRegistry::lock_t lock (r);
 
+  SG::auxid_set_t a_ids = acont->getAuxIDs();
   for (SG::auxid_t auxid : a_ids) {
     void* aptr = acont->getDataArray (auxid);
     void* bptr = bcont->getDataArray (auxid);
     r.swap (lock, auxid, aptr, aindex, bptr, bindex);
   }
-  for (SG::auxid_t auxid : b_ids) {
-    if (a_ids.find (auxid) == a_ids.end()) {
+  for (SG::auxid_t auxid : bcont->getAuxIDs()) {
+    if (!a_ids.test (auxid)) {
       void* aptr = acont->getDataArray (auxid);
       void* bptr = bcont->getDataArray (auxid);
       r.swap (lock, auxid, aptr, aindex, bptr, bindex);

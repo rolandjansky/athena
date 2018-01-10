@@ -28,9 +28,6 @@
 #include <cassert>
 
 
-#include "auxid_set_equal.icc"
-
-
 struct MoveTest
 {
   MoveTest(int x=0) : m_v(x) {}

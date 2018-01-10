@@ -26,7 +26,6 @@
 
 struct AthContainersInstan
 {
-  std::pair<SG::auxid_set_t::iterator, bool> p1;
   std::pair<SG::auxid_set_t::const_iterator, bool> p2;
 };
 

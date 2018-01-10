@@ -68,7 +68,7 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     if(auxid == SG::null_auxid) continue;
 
     // Skip non-selected dynamic variables.
-    if (dyn_auxids.count(auxid) > 0 && sel_auxids.count(auxid) == 0)
+    if (dyn_auxids.test(auxid) && !sel_auxids.test(auxid))
       continue;
 
     // Access the source variable:
