@@ -37,7 +37,7 @@ createMdtPrepData( const Muon::MdtPrepData_p2 *persObj,
                          detEl,
                          persObj->m_tdc,
                          persObj->m_adc,
-                         static_cast<const Muon::MdtDriftCircleStatus>(persObj->m_status));
+                         static_cast<Muon::MdtDriftCircleStatus>(persObj->m_status));
 
   return data;
 }
