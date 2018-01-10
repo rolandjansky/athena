@@ -146,10 +146,20 @@ inline double FCS_StepInfoSD::getMaxDeltaPhi(const CaloCell_ID::CaloSample& laye
   return 999.;
 }
 
-void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector)
+
+void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector, double tsame, double maxRadius)
 {
+  // NB l_cell refers to:
+  // - the cell identifier for LAr
+  // - the PMT identifier for Tile
+
   // Drop any hits that don't have a good identifier attached
-  if (!m_calo_dd_man->get_element(l_cell)) { return; }
+  if (!m_calo_dd_man->get_element(l_cell)) {
+    if(m_config.verboseLevel > 4) {
+      G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<l_cell.getString()<<" skipping this hit."<<G4endl;
+    }
+    return;
+  }
 
   auto map_item = m_hit_map.find( l_cell );
   if (map_item==m_hit_map.end()) {
@@ -158,43 +168,14 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
     m_hit_map[l_cell]->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
   }
   else {
-
-    // Get the appropriate merging limits
-    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(l_cell)->getSampling();
-    const double tsame(this->getMaxTime(layer));
-    const double maxRadius(this->getMaxRadius(layer));
-    const double maxDeltaR(this->getMaxDeltaR(layer));
-    const double maxDeltaEta(this->getMaxDeltaEta(layer));
-    const double maxDeltaPhi(this->getMaxDeltaPhi(layer));
     bool match = false;
     for (auto map_it : * map_item->second) {
-      // Time check is straightforward
+      // Time check
       const double delta_t = std::fabs(map_it->time()-l_time);
       if ( delta_t >= tsame ) { continue; }
-
-      // Distance check is less straightforward
-      const CLHEP::Hep3Vector & currentPosition = map_it->position();
-      const double hit_diff2 = currentPosition.diff2( l_vec );
-
-      // Overall merging scheme
-      if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3) {
-        // Customized merging scheme for LAr barrel and endcap, use only if we're not changing maxRadiusLAr value
-        if(m_config.m_maxRadiusLAr == 25) {
-          const CLHEP::Hep3Vector a_diff = l_vec - currentPosition;
-          const double a_diffmag(a_diff.mag());
-          const double a_inv_length = 1./a_diffmag;
-          const double delta_r = std::fabs(a_diff.dot( l_vec ) * a_inv_length);
-          if (delta_r >= maxDeltaR) { continue; }
-          const double delta_eta = std::fabs(std::sin(l_vec.theta()-currentPosition.theta())*a_diffmag);
-          if (delta_eta >= maxDeltaEta) { continue; }
-          const double delta_phi = std::fabs(std::sin(l_vec.phi()-currentPosition.phi())*a_diffmag);
-          if (delta_phi >= maxDeltaPhi) { continue; }
-        }
-        else {
-          if ( hit_diff2 >= maxRadius ) { continue; }
-        }
-      }
-      else if ( hit_diff2 >= maxRadius ) { continue; }
+      // Distance check
+      const double hit_diff2 = map_it->position().diff2( l_vec );
+      if ( hit_diff2 >= maxRadius ) { continue; }
       // Found a match.  Make a temporary that will be deleted!
       const ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
       *map_it += my_info;
