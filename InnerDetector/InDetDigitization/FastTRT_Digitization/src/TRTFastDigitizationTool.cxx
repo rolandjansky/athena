@@ -195,9 +195,12 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
                                 };
 
   float mu = 30.0;
-  const xAOD::EventInfo* m_eventInfo = 0;
-  if( StatusCode::SUCCESS == evtStore()->retrieve(m_eventInfo) ){
-    mu = (float) m_eventInfo->averageInteractionsPerCrossing();
+  // const xAOD::EventInfo* m_eventInfo = 0;
+  // if( StatusCode::SUCCESS == evtStore()->retrieve(m_eventInfo) ){
+  //
+  SG::ReadHandle<EventInfo> eventInfoContainer("McEventInfo");
+  if(eventInfoContainer.isValid()){
+    mu = (float) eventInfoContainer->averageInteractionsPerCrossing();
   }
   else{
     ATH_MSG_INFO("Cannot retrieve event info, use default value");
