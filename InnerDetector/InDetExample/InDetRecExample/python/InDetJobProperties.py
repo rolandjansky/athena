@@ -420,6 +420,22 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class useDynamicAlignFolders(InDetFlagsJobProperty):
+    """ Deprecated property - use GeometryFlags directly to choose the alignment folder scheme """
+    def _do_action( self, *args, **kwds):
+       from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;  GeometryFlags.useDynamicAlignFolders.... ')
+       if self.StoredValue != 'none':
+          from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+          GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
+          self._log.info("GeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % GeometryFlags.useDynamicAlignFolders)
+       else:
+          self._log.warning("Not setting GeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
+          
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doPerfMon(InDetFlagsJobProperty):
     """ Use to turn on PerfMon """
     statusOn     = True
@@ -2540,9 +2556,7 @@ class InDetJobProperties(JobPropertyContainer):
           print '* use non-standard SCT DCS based on ~20V HV cut'          
     if self.useTrtDCS():
        print '* use TRT DCS'
-
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if geoFlags.useDynamicAlignFolders():
+    if self.useDynamicAlignFolders():
        print '* use of Dynamic alignment folder scheme enabled'
 
     if not self.doPRDFormation():
@@ -2682,6 +2696,7 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
+                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,
