@@ -158,8 +158,8 @@ int main()
     {"TauScaleFactorReconstructionHadTau",      1.        },
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.00885311},
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
-    {"TauScaleFactorJetIDHadTau",               1.074     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",    0.05962   },
+    {"TauScaleFactorJetIDHadTau",               0.970     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",    0.039     },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
   });
 
@@ -174,8 +174,8 @@ int main()
     {"TauScaleFactorReconstructionHadTau",      1.        },
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",     0.0155508 },
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",    0.        },
-    {"TauScaleFactorJetIDHadTau",               1.108     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",    0.06964   },
+    {"TauScaleFactorJetIDHadTau",               1.050     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",    0.077     },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",   0.        }
   });
   
@@ -190,8 +190,8 @@ int main()
     {"TauScaleFactorReconstructionHadTau",       1.        },
     {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up",      0.00591177},
     {"TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up",     0.        },
-    {"TauScaleFactorJetIDHadTau",                1.074     },
-    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",     0.05962   },
+    {"TauScaleFactorJetIDHadTau",                0.970     },
+    {"TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",     0.039     },
     {"TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",    0.0282150 }
   });
 
