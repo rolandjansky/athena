@@ -203,8 +203,9 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         double energy = larhit.energy/CLHEP::MeV;
         // Get the appropriate merging limits
         const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(id)->getSampling();
-        const double maxRadius((layer == CaloCell_ID::EMB1 || layer == CaloCell_ID::EME1) ? m_config.m_maxRadiusFine : m_config.m_maxRadius); //Default 1mm merging in layers 1 & 5, 5mm merging elsewhere
-        this->update_map(stepPosition, id, energy, time, true, numberOfProcessedHits, m_config.m_maxTime, maxRadius); //store numberOfProcessedHits as info
+        const double timeWindow(m_config.m_maxTime);
+        const double distanceWindow((layer == CaloCell_ID::EMB1 || layer == CaloCell_ID::EME1) ? m_config.m_maxRadiusFine : m_config.m_maxRadius); //Default 1mm merging in layers 1 & 5, 5mm merging elsewhere
+        this->update_map(stepPosition, id, energy, time, true, numberOfProcessedHits, timeWindow, distanceWindow); //store numberOfProcessedHits as info
       }//numberOfProcessedHits
     } //istep
     if (madeSubSteps) {
