@@ -732,20 +732,20 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       double expdirect(1.0), expreflect(1.0); // Initially set to "no attenuation".
       if (m_useAttenuation)
         {
-           // Distances the signal propagate along the wire.
-           double distdirect  = timedirect *m_signalPropagationSpeed;
-           double distreflect = timereflect*m_signalPropagationSpeed;
-           if (distdirect<0) distdirect=0.0; // Rarely (<0.2%) we get a few mm negative distance due to z compression.
-           if (distreflect>1419.9) distreflect=1419.9; // Very rarely, few mm.
-
-           // Tabulating exp(-dist/m_attenuationLength) with only 142 elements: index [0,141].
-           // > 99.9% of output digits are the same, saves 13% CPU time.
            //expdirect  = exp( -timedirect *m_signalPropagationSpeed / m_attenuationLength);
            //expreflect = exp( -timereflect*m_signalPropagationSpeed / m_attenuationLength);
-           unsigned int kdirect  = static_cast<unsigned int>(distdirect/10);
-           unsigned int kreflect = static_cast<unsigned int>(distreflect/10);
-           expdirect  = m_expattenuation[kdirect];
-           expreflect = m_expattenuation[kreflect];
+           // Tabulating exp(-dist/m_attenuationLength) with only 142 elements: index [0,141].
+           //   > 99.9% of output digits are the same, saves 13% CPU time.
+           // Distances the signal propagate along the wire:
+           //   distdirect is rarely negative (<0.2%) by a few mm due to z compression.
+           //   distreflect is very rarely > 1419.9 by a few mm due to z compression.
+           // Some other very strange bahaviour occurs for HIPs, see Jira ATLASSIM-2990.
+           const double distdirect  = timedirect *m_signalPropagationSpeed;
+           const double distreflect = timereflect*m_signalPropagationSpeed;
+           const unsigned int kdirect  = static_cast<unsigned int>(distdirect/10);
+           const unsigned int kreflect = static_cast<unsigned int>(distreflect/10);
+           if (kdirect<142)  expdirect  = m_expattenuation[kdirect];
+           if (kreflect<142) expreflect = m_expattenuation[kreflect];
         }
 
       // Finally, deposit the energy on the wire using the drift-time tool (diffusion is no longer available).
