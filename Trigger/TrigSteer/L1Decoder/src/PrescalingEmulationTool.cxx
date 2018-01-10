@@ -3,17 +3,17 @@
 */
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "OfflinePrescalingTool.h"
+#include "PrescalingEmulationTool.h"
 
 
-OfflinePrescalingTool::OfflinePrescalingTool( const std::string& type, 
+PrescalingEmulationTool::PrescalingEmulationTool( const std::string& type, 
 		      const std::string& name, 
 		      const IInterface* parent ) 
   : base_class(type, name, parent) { }
 
-OfflinePrescalingTool::~OfflinePrescalingTool() { }
+PrescalingEmulationTool::~PrescalingEmulationTool() { }
 
-StatusCode OfflinePrescalingTool::initialize() {
+StatusCode PrescalingEmulationTool::initialize() {
   CHECK( m_RNGSvc.retrieve() );
   m_RNGEngine = m_RNGSvc->GetEngine( name() );
   CHECK ( m_RNGEngine != nullptr );
@@ -29,7 +29,7 @@ StatusCode OfflinePrescalingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode OfflinePrescalingTool::prescaleChains( const EventContext& ctx,  
+StatusCode PrescalingEmulationTool::prescaleChains( const EventContext& ctx,  
 						  const HLT::IDVec& initialyActive,
 						  HLT::IDVec& remainActive ) {
   if ( initialyActive.empty() ) 
@@ -59,7 +59,7 @@ StatusCode OfflinePrescalingTool::prescaleChains( const EventContext& ctx,
 }
 
 
-StatusCode OfflinePrescalingTool::finalize()
+StatusCode PrescalingEmulationTool::finalize()
 {
   return StatusCode::SUCCESS;
 }

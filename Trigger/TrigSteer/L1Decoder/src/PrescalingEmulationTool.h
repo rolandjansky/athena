@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef L1DECODER_OFFLINEPRESCALINGTOOL_H
-#define L1DECODER_OFFLINEPRESCALINGTOOL_H 1
+#ifndef L1DECODER_PRESCALINGEMULATIONTOOL_H 
+#define L1DECODER_PRESCALINGEMULATIONTOOL_H
 
 // STL includes
 #include <string>
@@ -26,13 +26,13 @@
  * Prescaling decision is a function of the chain ID only. The seed of the RNG is reset at every event and thus decisions are reproducible.
  **/
 
-class OfflinePrescalingTool : public extends<AthAlgTool, IPrescalingTool> { 
+class PrescalingEmulationTool : public extends<AthAlgTool, IPrescalingTool> { 
 public:
-  OfflinePrescalingTool( const std::string& type,
-			 const std::string& name, 
-			 const IInterface* parent );
+  PrescalingEmulationTool( const std::string& type,
+			   const std::string& name, 
+			   const IInterface* parent );
 
-  virtual ~OfflinePrescalingTool(); 
+  virtual ~PrescalingEmulationTool(); 
 
   virtual StatusCode  initialize();
   virtual StatusCode  finalize();
@@ -42,7 +42,7 @@ public:
 				     HLT::IDVec& remainActive ) override;  
  private: 
 
-  OfflinePrescalingTool();  
+  PrescalingEmulationTool();  
   ServiceHandle<IAtRndmGenSvc> m_RNGSvc{ this, "RNGSvc", "AtRanluxGenSvc/AtRanluxGenSvc", "RNG Factory Service" };
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{ this, "EventInfo", "EventInfo", "EventInfo object, source of CTP time used to reseed the RNG" };
   Gaudi::Property<bool> m_keepUnknownChains{ this, "KeepUnknownChains", true, "If True then chains for which prescaling information is not set are kept" }; 
@@ -54,4 +54,4 @@ public:
 }; 
 
 
-#endif //> !L1DECODER_OFFLINEPRESCALINGTOOL_H
+#endif 
