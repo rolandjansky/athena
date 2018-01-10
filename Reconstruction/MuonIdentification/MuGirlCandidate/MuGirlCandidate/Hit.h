@@ -135,7 +135,7 @@ namespace MuGirlNS
          * \param h1 The first hit
          * \param h2 The second hit
          */
-        bool operator()(const Hit* h1, const Hit* h2)
+        bool operator()(const Hit* h1, const Hit* h2) const
         {
             if (!h1->isEta() &&  h2->isEta()) return true;
             if ( h1->isEta() && !h2->isEta()) return false;
