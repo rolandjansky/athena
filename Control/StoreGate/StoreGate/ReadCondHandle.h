@@ -65,7 +65,7 @@ namespace SG {
     EventIDBase m_eid;
     CondCont<T>*  m_cc {nullptr};
     const T* m_obj { nullptr };
-    EventIDRange m_range;
+    const EventIDRange* m_range { nullptr };
     
     const SG::ReadCondHandleKey<T>& m_hkey;
   };
@@ -246,8 +246,12 @@ namespace SG {
       }
     }
 
-    r = m_range;
-    return true;
+    if (m_range) {
+      r = *m_range;
+      return true;
+    }
+      
+    return false;
   }
 
   //---------------------------------------------------------------------------
