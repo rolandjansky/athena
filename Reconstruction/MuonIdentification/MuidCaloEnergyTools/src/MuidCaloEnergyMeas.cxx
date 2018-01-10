@@ -14,7 +14,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "CLHEP/Geometry/Vector3D.h"
-#include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/TileID.h"
@@ -44,7 +43,6 @@ MuidCaloEnergyMeas::MuidCaloEnergyMeas (const std::string&	type,
 	m_tileID                (0),
 	m_emID                  (0),
 	m_hecID                 (0),
-	m_cellContainerLocation	(""),
 	m_sigmasAboveNoise	(4.),
 	m_sigmasAboveNoiseCore	(1.5),
 	m_useCaloNoiseTool	(true),
@@ -58,7 +56,6 @@ MuidCaloEnergyMeas::MuidCaloEnergyMeas (const std::string&	type,
     declareInterface<IMuidCaloEnergyMeas>(this);
     declareProperty ("CaloNoiseTool",		m_caloNoiseTool);
     declareProperty ("CaloParamTool",		m_caloParamTool);
-    declareProperty ("CellContainerLocation",	m_cellContainerLocation);
     declareProperty ("NoiseThresInSigmas",	m_sigmasAboveNoise);
     declareProperty ("NoiseThresInSigmasCore",	m_sigmasAboveNoiseCore);
     declareProperty ("UseCaloNoiseTool",	m_useCaloNoiseTool);
@@ -136,6 +133,8 @@ MuidCaloEnergyMeas::initialize()
 	ATH_MSG_INFO( "Retrieved tool " << m_caloParamTool );
     }
 
+    ATH_CHECK(m_cellContainerLocation.initialize());
+
     return StatusCode::SUCCESS;
 }
 
@@ -160,33 +159,28 @@ MuidCaloEnergyMeas::energyMeasurement (double etaEM,
 				       double etaHad,
 				       double phiHad) const
 {
-    const CaloCellContainer* cellContainer = 0;
-    if (evtStore()->contains<CaloCellContainer>(m_cellContainerLocation))
-    {
-	if (StatusCode::FAILURE == evtStore()->retrieve(cellContainer,m_cellContainerLocation))
-	{
-	    ATH_MSG_WARNING( "failed to retrieve CaloCellContainer: " << m_cellContainerLocation );
-	    return 0;
-	}
-    }
-    else
-    {
-	ATH_MSG_WARNING( "failed to retrieve CaloCellContainer: " << m_cellContainerLocation );
-	return 0;
-    }
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_cellContainerLocation);
+  if(!cellContainer.isPresent()){
+    ATH_MSG_DEBUG("No calo cell container "<<m_cellContainerLocation.key()<<", energy measurement is 0");
+    return 0;
+  }
+  if(!cellContainer.isValid()){
+    ATH_MSG_WARNING("Calo cell container "<<m_cellContainerLocation.key()<<" not valid!");
+    return 0;
+  }
 
     // set measured tile energy, measured sampling fraction and isolation energy into CaloMeas
     CaloMeas* caloMeas	= new CaloMeas();
-    energyInCalo(*caloMeas,cellContainer,etaHad,phiHad,0);
-    isolationEnergy(*caloMeas,cellContainer,etaHad,phiHad,0);
+    energyInCalo(*caloMeas,cellContainer.cptr(),etaHad,phiHad,0);
+    isolationEnergy(*caloMeas,cellContainer.cptr(),etaHad,phiHad,0);
 
     // similar for LArHEC
-    energyInCalo(*caloMeas,cellContainer,etaHad,phiHad,1);
-    isolationEnergy(*caloMeas,cellContainer,etaHad,phiHad,1);
+    energyInCalo(*caloMeas,cellContainer.cptr(),etaHad,phiHad,1);
+    isolationEnergy(*caloMeas,cellContainer.cptr(),etaHad,phiHad,1);
 
     // and for the em calo
-    energyInCalo(*caloMeas,cellContainer,etaEM,phiEM,2);
-    isolationEnergy(*caloMeas,cellContainer,etaEM,phiEM,2);
+    energyInCalo(*caloMeas,cellContainer.cptr(),etaEM,phiEM,2);
+    isolationEnergy(*caloMeas,cellContainer.cptr(),etaEM,phiEM,2);
 
     if (msgLvl(MSG::DEBUG))
     {	 

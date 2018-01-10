@@ -52,7 +52,6 @@ namespace SG {
 
     const EventIDBase& m_eid;
     CondCont<T>* m_cc {nullptr};
-    StoreGateSvc* m_cs {nullptr};
 
     const SG::WriteCondHandleKey<T>& m_hkey;
     
@@ -72,7 +71,6 @@ namespace SG {
                                        const EventContext& ctx) :
     m_eid(ctx.eventID()),
     m_cc( key.getCC() ),
-    m_cs( key.getCS() ),
     m_hkey(key)
   {
     if (m_cc == 0) {
@@ -130,7 +128,8 @@ namespace SG {
   template <typename T>
   void
   WriteCondHandle<T>::updateStore() {
-    m_cs->addedNewTransObject( m_hkey.fullKey().clid(), m_hkey.fullKey().key() );
+    StoreGateSvc* cs = m_hkey.getCS();
+    cs->addedNewTransObject( m_hkey.fullKey().clid(), m_hkey.fullKey().key() );
   }
 
 

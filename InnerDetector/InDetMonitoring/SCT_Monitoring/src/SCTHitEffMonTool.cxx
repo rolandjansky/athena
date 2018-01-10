@@ -1132,8 +1132,6 @@ SCTHitEffMonTool::fillHistograms() {
   int BCIDpos = m_bunchCrossingTool->distanceFromFront(BCID);
   bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
 
-  typedef SCT_RDORawData SCTRawDataType;
-
   if (m_chronotime) {
     m_chrono->chronoStart("SCTHitEff");
   }

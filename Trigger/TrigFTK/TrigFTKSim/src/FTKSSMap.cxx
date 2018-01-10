@@ -114,7 +114,6 @@ FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname,
       if (!m_ssm[iplane]) {
 	    FTKSetup::PrintMessage(ftk::sevr,"Error allocating ssmap iternal strusture");
       }
-      memset(m_ssm[iplane][isec],0,sizeof(struct ssm)*(maxmod+1));
     }
   }
 
