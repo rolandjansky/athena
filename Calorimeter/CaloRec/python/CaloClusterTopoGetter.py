@@ -243,10 +243,15 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ,"EM_PROBABILITY"
                                     ]
 
+        doDigiTruthFlag = False
+        try:
+            from Digitization.DigitizationFlags import digitizationFlags
+            doDigiTruthFlag = digitizationFlags.doDigiTruth()
+        except:
+            log = logging.getLogger('CaloClusterTopoGetter')
+            log.info('Unable to import DigitizationFlags in CaloClusterTopoGetter. Expected in AthenaP1')
 
-
-        from Digitization.DigitizationFlags import digitizationFlags
-        if digitizationFlags.doDigiTruth():
+        if doDigiTruthFlag:
           TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
@@ -435,8 +440,7 @@ class CaloClusterTopoGetter ( Configured )  :
         
         CaloTopoCluster.ClusterCorrectionTools += [TopoMoments]
 
-        from Digitization.DigitizationFlags import digitizationFlags
-        if digitizationFlags.doDigiTruth():
+        if doDigiTruthFlag:
           CaloTopoCluster.ClusterCorrectionTools += [TopoMoments_Truth]
 
         CaloTopoCluster += TopoMaker
@@ -444,7 +448,7 @@ class CaloClusterTopoGetter ( Configured )  :
         CaloTopoCluster += BadChannelListCorr
         CaloTopoCluster += TopoMoments
         from RecExConfig.RecFlags import rec
-        if digitizationFlags.doDigiTruth():
+        if doDigiTruthFlag:
           CaloTopoCluster += TopoMoments_Truth
         
         if jobproperties.CaloTopoClusterFlags.doClusterVertexFraction():
