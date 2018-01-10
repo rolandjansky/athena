@@ -247,8 +247,6 @@ class L2EFChain_mu(L2EFChainDef):
       EFExtrapolatorThresh = "passthrough"
     elif "0eta105" in self.chainPart['etaRange']:
       EFExtrapolatorThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly"
-    elif "0eta250" in self.chainName:
-      EFExtrapolatorThresh = str(self.chainPart['threshold'])+ "GeV" + "_msonlyCut"
     elif "3layersEC" in self.chainName:
       EFExtrapolatorThresh = str(self.chainPart['threshold'])+ "GeV" + "_msonlyCut"
     else:
