@@ -788,6 +788,7 @@
         <Bit selection="0" name="LAR-EM20shi1"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortEM:"/>
+      <Generic name="MaxTob" value="0"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
@@ -806,6 +807,7 @@
         <Bit selection="0" name="LAR-J100s1"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortJET:"/>
+      <Generic name="MaxTob" value="0"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
@@ -842,6 +844,7 @@
         <Bit selection="0" name="FTK-EM20s1"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortEM:"/>
+      <Generic name="MaxTob" value="1"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
@@ -860,6 +863,7 @@
         <Bit selection="0" name="FTK-J100s1"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortJET:"/>
+      <Generic name="MaxTob" value="1"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
@@ -878,6 +882,7 @@
         <Bit selection="0" name="FTK-MU20s1"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortMU:"/>
+      <Generic name="MaxTob" value="1"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>

@@ -1229,7 +1229,7 @@ class TopoAlgoDef:
 
             alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
             alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
-#            alg.addgeneric('MaxTob', 1)
+            alg.addgeneric('MaxTob', 0)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET', str(ocut)) # noqa: F821
             alg.addvariable('EtaMin', minEta) # noqa: F821
@@ -1510,7 +1510,7 @@ class TopoAlgoDef:
 
             alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
             alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
-#            alg.addgeneric('MaxTob', 1)
+            alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET', str(ocut)) # noqa: F821
             alg.addvariable('EtaMin', minEta) # noqa: F821
