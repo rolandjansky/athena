@@ -155,7 +155,7 @@ protected:
    */
   virtual const void* findByCLID (CLID clid,
                                   const EventIDBase& t,
-                                  EventIDRange* r) const = 0;
+                                  EventIDRange const** r) const = 0;
 
   
 private:
@@ -350,7 +350,7 @@ public:
    */
   bool find (const EventIDBase& t,
              T const*& obj,
-             EventIDRange* r = nullptr) const;
+             EventIDRange const** r = nullptr) const;
 
 
   /**
@@ -404,7 +404,7 @@ protected:
    */
   virtual const void* findByCLID (CLID clid,
                                   const EventIDBase& t,
-                                  EventIDRange* r) const override;
+                                  EventIDRange const** r) const override;
 
 
 public:
