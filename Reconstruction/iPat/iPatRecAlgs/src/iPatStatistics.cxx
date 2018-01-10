@@ -370,10 +370,8 @@ iPatStatistics::execute()
 	ATH_MSG_WARNING( "Unable to retrieve the TrackContainer" );
 	return StatusCode::SUCCESS;
     }
-    
-    for (std::vector<Track*>::const_iterator t = m_tracks->begin();
-	 t != m_tracks->end();
-	 ++t)
+
+    for (const Track* t : *m_tracks)
     {
  	// physics selection cuts
  	int b_layer	= 0;
@@ -381,7 +379,7 @@ iPatStatistics::execute()
 	int middlePixel	= 0;
  	int outerPixel	= 0;
    
- 	for (hit_const_iterator h = (**t).hit_list_begin(); h!= (**t).hit_list_end(); ++h)
+ 	for (hit_const_iterator h = t->hit_list_begin(); h!= t->hit_list_end(); ++h)
  	{
 	    if ((**h).isCluster())
 	    {
@@ -420,19 +418,19 @@ iPatStatistics::execute()
 	    
  	}
 	// 	// egamma cut   TODO: fix barrel
-	// 	if ((**t).hitQuality().number_planar_clusters() >= 9
+	// 	if (t->hitQuality().number_planar_clusters() >= 9
 	// 	    && outerPixel > 0 
 	// 	    && b_layer > 0) continue;
  	//
 
 	int	row;
 	// int	type;
-	if ((**t).status() == primary)
+	if (t->status() == primary)
 	{
 	    row	= -1;
 	    // type = 1;
 	}
-	else if ((**t).status() == truncated)
+	else if (t->status() == truncated)
 	{
 	    row	=  0;
 	    // type = 2;
@@ -444,18 +442,18 @@ iPatStatistics::execute()
 	}
 
 	int	barcode		= 0;
-	if ((**t).hasTruthAssociation()) barcode = (**t).truthAssociation().barcode();
+	if (t->hasTruthAssociation()) barcode = t->truthAssociation().barcode();
 	bool	is_fake		= false;
 	bool	is_primary     	= false;
 	bool	is_secondary	= false;
 	++(*(m_trackCount.begin()));
 	if (! m_haveTruth)
 	{
-	    if ((**t).perigee_parameters().abs_pt() < m_minPt) continue;
+	    if (t->perigee_parameters().abs_pt() < m_minPt) continue;
 	    is_primary	= true;
 	    ++(*(m_trackCount.begin()+1));
 	    ++(*(m_trackPrimary.begin()+1));
-	    double absEta = std::abs((**t).perigee_parameters().eta());
+	    double absEta = std::abs(t->perigee_parameters().eta());
 	    if (absEta < 0.8)
 	    {
 		row	+= 3;
@@ -581,27 +579,27 @@ iPatStatistics::execute()
 		}
 	    }
 	    // track is a fake above minPt
-	    else if (is_fake && (**t).perigee_parameters().abs_pt() > m_minPt)
+	    else if (is_fake && t->perigee_parameters().abs_pt() > m_minPt)
 	    {
 		++(*(m_trackFakes.begin()+1));
-		if (std::abs((**t).perigee_parameters().eta()) < 0.8)
+		if (std::abs(t->perigee_parameters().eta()) < 0.8)
 		{
 		    row	+= 3;
 		}
-		else if (std::abs((**t).perigee_parameters().eta()) < 1.6)
+		else if (std::abs(t->perigee_parameters().eta()) < 1.6)
 		{
 		    row	+= 6;
 		}
-		else if (std::abs((**t).perigee_parameters().eta()) < 2.5)
+		else if (std::abs(t->perigee_parameters().eta()) < 2.5)
 		{
 		    row	+= 9;
 		}
 	    }
 	}
 	
-	*(m_trackClusters.begin())		+= (**t).hitQuality().number_planar_clusters();
-	*(m_trackHoles.begin())			+= (**t).hitQuality().number_planar_holes();
-	*(m_trackStraws.begin())		+= (**t).hitQuality().number_drift_hits();
+	*(m_trackClusters.begin())		+= t->hitQuality().number_planar_clusters();
+	*(m_trackHoles.begin())			+= t->hitQuality().number_planar_holes();
+	*(m_trackStraws.begin())		+= t->hitQuality().number_drift_hits();
 
 	// hit pattern counters for pixel barrel
 	if (! endcapPixel)
@@ -628,14 +626,14 @@ iPatStatistics::execute()
 	}
 
 	// and TRT association counters
-	if (std::abs((**t).perigee_parameters().eta()) < 2.0)
+	if (std::abs(t->perigee_parameters().eta()) < 2.0)
 	{
-	    if ((**t).hitQuality().number_drift_hits())
+	    if (t->hitQuality().number_drift_hits())
 	    {
 		if (m_haveTruth && (is_primary || is_secondary)) ++m_countTrtTruthAssociated;
 		++m_countTrtAssociated;
 	    }
-	    else if ((**t).status() == truncated)
+	    else if (t->status() == truncated)
 	    {
 		if (is_primary || is_secondary) ++m_countTrtTruthMissed;
 		++m_countTrtMissed;
@@ -646,14 +644,14 @@ iPatStatistics::execute()
 	{
 	    if (!is_fake)
 	    {
-		*(m_trackClusters.begin() + 1)	+= (**t).hitQuality().number_planar_clusters();
-		*(m_trackHoles.begin() + 1)    	+= (**t).hitQuality().number_planar_holes();
-		*(m_trackStraws.begin() + 1)   	+= (**t).hitQuality().number_drift_hits();
+		*(m_trackClusters.begin() + 1)	+= t->hitQuality().number_planar_clusters();
+		*(m_trackHoles.begin() + 1)    	+= t->hitQuality().number_planar_holes();
+		*(m_trackStraws.begin() + 1)   	+= t->hitQuality().number_drift_hits();
 	    }
 	    
-	    *(m_trackClusters.begin() + row)	+= (**t).hitQuality().number_planar_clusters();
-	    *(m_trackHoles.begin() + row)   	+= (**t).hitQuality().number_planar_holes();
-	    *(m_trackStraws.begin() + row)  	+= (**t).hitQuality().number_drift_hits();
+	    *(m_trackClusters.begin() + row)	+= t->hitQuality().number_planar_clusters();
+	    *(m_trackHoles.begin() + row)   	+= t->hitQuality().number_planar_holes();
+	    *(m_trackStraws.begin() + row)  	+= t->hitQuality().number_drift_hits();
 	    ++(*(m_trackCount.begin() + row));
 	    if (is_primary)
 	    {
