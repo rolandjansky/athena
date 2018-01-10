@@ -40,7 +40,7 @@ namespace Descending {
 class Px : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->px(), b->px() );
   }
 };
@@ -48,7 +48,7 @@ public:
 class Py : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->py(), b->py() );
   }
 };
@@ -56,7 +56,7 @@ public:
 class Pz : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->pz(), b->pz() );
   }
 };
@@ -65,7 +65,7 @@ public:
 class Mass : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->m(), b->m() );
   }
 };
@@ -73,7 +73,7 @@ public:
 class MassSquared : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->m2(), b->m2() );
     }
 };
@@ -81,7 +81,7 @@ public:
 class Momentum : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->p(), b->p() );
   }
 };
@@ -89,7 +89,7 @@ public:
 class MomentumSquared : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->p2(), b->p2() );
   }
 };
@@ -97,7 +97,7 @@ public:
 class Eta : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->eta(), b->eta() );
   }
 };
@@ -105,7 +105,7 @@ public:
 class AbsEta : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     using std::abs;
     return CxxUtils::fpcompare::greater( abs(a->eta()), abs(b->eta()) );
   }
@@ -123,7 +123,7 @@ public:
 class Ene : public I4MomPredicate_t
 {
   public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->e(), b->e() );
   }
 };
@@ -131,7 +131,7 @@ class Ene : public I4MomPredicate_t
 class Et : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->et(), b->et() );
   }
 };
@@ -139,7 +139,7 @@ public:
 class Pt : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->pt(), b->pt() );
   }
 };
@@ -147,7 +147,7 @@ public:
 class InvPt : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->iPt(), b->iPt() );
   }
 };
@@ -156,7 +156,7 @@ public:
 class CosTh : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->cosTh(), b->cosTh() );
   }
 };
@@ -164,7 +164,7 @@ public:
 class SinTh : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->sinTh(), b->sinTh() );
   }
 };
@@ -172,7 +172,7 @@ public:
 class CotTh : public I4MomPredicate_t
 {
 public:
-  bool operator()( const I4Momentum* a, const I4Momentum* b ) {
+  bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
     return CxxUtils::fpcompare::greater( a->cotTh(), b->cotTh() );
   }
 };
