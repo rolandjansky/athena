@@ -181,7 +181,6 @@ public:
   bool m_rejectSecondCluster;
   std::string m_electronIDLevel;
   bool m_doIDCuts;
-  xAOD::Iso::IsolationType m_isolationCone;
   //Likelihood tool:
   AsgElectronLikelihoodTool* m_LHTool2015; //!
 

@@ -110,7 +110,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   TTree*                          m_refit1Tree;
   TTree*                          m_refit2Tree;
   TTree*                          m_truthTree;
-  TTree*                          m_meStacoTree;
+  //TTree*                          m_meStacoTree;
   TTree*                          m_combStacoTree;
   TTree*                          m_combMuidTree;
 
