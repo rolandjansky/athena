@@ -112,7 +112,11 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
 
   using GMLB = Acts::GeoModelLayerBuilder;
   GMLB::Config cfg;
+
+  auto elementStore = std::make_shared<GMLB::ElementVector>();
+
   cfg.mng = manager;
+  cfg.elementStore = elementStore;
 
   auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
                     const Acts::Surface* bS) -> bool {
