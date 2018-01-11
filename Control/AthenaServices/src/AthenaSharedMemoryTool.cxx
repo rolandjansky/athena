@@ -14,7 +14,6 @@
 #include <boost/interprocess/mapped_region.hpp>
 
 #include <sstream>
-
 const std::size_t maxTokenLength = 1024;
 
 struct ShareEventHeader {

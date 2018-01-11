@@ -3,7 +3,7 @@
 */
 
 #include "ElectronPhotonFourMomentumCorrection/e1hg_systematics.h"
-
+#include "PathResolver/PathResolver.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -16,33 +16,30 @@
 
 e1hg_systematics::e1hg_systematics()
 {
-  
-#ifdef ROOTCORE
-  file0 = TFile::Open("$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/e1hg_systematics_histos.root");
-#else
-  file0 = TFile::Open( PathResolver::find_file("ElectronPhotonFourMomentumCorrection/e1hg_systematics_histos.root", "XMLPATH").c_str() );
-#endif
+
+  m_file0 = TFile::Open( PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/e1hg_systematics_histos.root").c_str() );
+
 
   for (Int_t ieta=0;ieta<8;ieta++) {
      char name[60];
      sprintf(name,"elec_%d",ieta);
-     helec[ieta] = (TH1D*) file0->Get(name);
+     m_helec[ieta] = (TH1D*) m_file0->Get(name);
      sprintf(name,"unconv_%d",ieta);
-     hphot[ieta] = (TH1D*) file0->Get(name);
+     m_hphot[ieta] = (TH1D*) m_file0->Get(name);
      sprintf(name,"conv_%d",ieta);
-     hphot2[ieta] = (TH1D*) file0->Get(name);
+     m_hphot2[ieta] = (TH1D*) m_file0->Get(name);
 
   }
 
-  TAxis* aa=helec[0]->GetXaxis();
-  etBins = aa->GetXbins();
+  TAxis* aa=m_helec[0]->GetXaxis();
+  m_etBins = aa->GetXbins();
 
 }
 
 //=========================================================================
 e1hg_systematics::~e1hg_systematics()
 {
-  file0->Close();
+  m_file0->Close();
 }
 
 //============================================================================
@@ -52,7 +49,7 @@ e1hg_systematics::~e1hg_systematics()
 //
 // returned value is alpha = DeltaE / E
 //
-double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, bool interpolate) const 
+double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, bool interpolate) const
 {
 
    //cout << " in getDelta " << endl;
@@ -73,9 +70,9 @@ double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, 
    double energyGeV = energy*0.001;
    double et = energyGeV/cosh(eta);
 
-   int ibinEt=etBins->GetSize()-2;
-   for (int i=1;i<etBins->GetSize();i++) {
-      if (et<etBins->GetAt(i)) {
+   int ibinEt=m_etBins->GetSize()-2;
+   for (int i=1;i<m_etBins->GetSize();i++) {
+      if (et<m_etBins->GetAt(i)) {
          ibinEt=i-1;
          break;
       }
@@ -84,18 +81,25 @@ double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, 
 //   cout << " energy, et , ibinEt " << energyGeV << " " << et << " " << ibinEt << endl;
 
    Double_t scale=0.;
+   //HACK: some ES model dependency needs to be introduced
+   /*Default up to es2017_summer
+     if (aeta<1.80) scale=0.;
+     else if (aeta<2.3) scale = 0.050*(aeta-1.8)/0.4 /0.05;
+     else scale=0.025/0.05;
+   */
+
    if (aeta<1.80) scale=0.;
-   else if (aeta<2.3) scale = 0.050*(aeta-1.8)/0.4 /0.05;
-   else scale=0.025/0.05;
- 
+   else if (aeta<2.3) scale = (0.050*(aeta-1.8)/0.4+0.025)/0.05;
+   else scale = 0.05/0.05;
+   
    if( !interpolate ) {
-     if (particle_type==0) return scale*helec[ieta]->GetBinContent(ibinEt+1);
-     else if (particle_type==1) return scale*hphot[ieta]->GetBinContent(ibinEt+1);
-     else  return scale*hphot2[ieta]->GetBinContent(ibinEt+1); //This is 2, since if particle_type is not 0,1,2 we have returned 0 above
+     if (particle_type==0) return scale*m_helec[ieta]->GetBinContent(ibinEt+1);
+     else if (particle_type==1) return scale*m_hphot[ieta]->GetBinContent(ibinEt+1);
+     else  return scale*m_hphot2[ieta]->GetBinContent(ibinEt+1); //This is 2, since if particle_type is not 0,1,2 we have returned 0 above
    } else {
-     if (particle_type==0) return scale*helec[ieta]->Interpolate(et);
-     else if (particle_type==1) return scale*hphot[ieta]->Interpolate(et);
-     else  return scale*hphot2[ieta]->Interpolate(et); //This is 2, since if particle_type is not 0,1,2 we have returned 0
+     if (particle_type==0) return scale*m_helec[ieta]->Interpolate(et);
+     else if (particle_type==1) return scale*m_hphot[ieta]->Interpolate(et);
+     else  return scale*m_hphot2[ieta]->Interpolate(et); //This is 2, since if particle_type is not 0,1,2 we have returned 0
    }
 
 }

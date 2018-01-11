@@ -8,7 +8,7 @@ from PrescaleHelper import getCutFromPrescale
 from Logic import Logic
 from Lvl1Condition import Lvl1InternalTrigger, ThrCondition
 from CaloInfo import MinimumTOBPt
-from Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lvl1CtpmonCounter
+from Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 
 from AthenaCommon.Logging import logging

@@ -871,6 +871,8 @@ def plot_resolution_error_bin(eta_min, eta_max, particle, esmodel, basedir, tool
                           "material gap up": ROOT.egEnergyCorr.Resolution.MaterialGapUp,
                           "material cryo up": ROOT.egEnergyCorr.Resolution.MaterialCryoUp,
                           "pileup up": ROOT.egEnergyCorr.Resolution.PileUpUp,
+                          "material ibl up": ROOT.egEnergyCorr.Resolution.MaterialIBLUp,
+                          "material pp0 up": ROOT.egEnergyCorr.Resolution.MaterialPP0Up,
                           "all up": ROOT.egEnergyCorr.Resolution.AllUp}
     variations_name_down = {"Zsmearing down": ROOT.egEnergyCorr.Resolution.ZSmearingDown,
                             "sampling down": ROOT.egEnergyCorr.Resolution.SamplingTermDown,
@@ -879,6 +881,9 @@ def plot_resolution_error_bin(eta_min, eta_max, particle, esmodel, basedir, tool
                             "material gap down": ROOT.egEnergyCorr.Resolution.MaterialGapDown,
                             "material cryo down": ROOT.egEnergyCorr.Resolution.MaterialCryoDown,
                             "pileup down": ROOT.egEnergyCorr.Resolution.PileUpDown,
+                            "material ibl down": ROOT.egEnergyCorr.Resolution.MaterialIBLDown,
+                            "material pp0 down": ROOT.egEnergyCorr.Resolution.MaterialPP0Down,
+
                             "all down": ROOT.egEnergyCorr.Resolution.AllDown}
 #                 ^    ^
     all_errors = [{}, {}]  # up and down

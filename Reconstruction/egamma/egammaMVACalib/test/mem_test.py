@@ -13,8 +13,7 @@ def Vmem():
 memUsage = [Vmem()]
 
 # import ROOT and load dictionary
-import ROOT, PyCintex, numpy as np
-PyCintex.loadDict('egammaMVACalibDict')
+import ROOT
 memUsage.append( Vmem() )
 
 # Electrons
@@ -25,4 +24,5 @@ memUsage.append( Vmem() )
 m = ROOT.egammaMVACalib(0, True, 'egammaMVACalib/online/v3')
 memUsage.append( Vmem() )
 
-print np.diff(memUsage)/1e6, 'GB'
+for i in memUsage:
+  print i/1e6 , 'GB'

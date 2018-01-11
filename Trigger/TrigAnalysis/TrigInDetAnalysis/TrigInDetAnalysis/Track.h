@@ -169,7 +169,8 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Track& t) {
 	    << "\talgo=" << t.author()
             << "\tbl="   << t.bLayerHits() 
             << ":"  << ( t.expectBL() ? "t" : "f" )
-	    << "\tid=0x" << std::hex << t.id() << std::dec
+            << ":"  << ( t.hasTruth() ? "t" : "f" )
+	    << "\tid=0x" << std::hex << t.id() << std::dec << std::hex << t.barcode() << std::dec
 	    << "\t] ";
 }
 

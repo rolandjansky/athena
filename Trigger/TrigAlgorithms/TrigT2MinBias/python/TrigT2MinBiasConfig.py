@@ -645,11 +645,12 @@ L2MbSpHypo_cos.SctSpEndcaps_cut = -1. # Disable
 hypos["L2MbSpHypo_cos"] = L2MbSpHypo_cos
 
 # Setup for 2016 SCT only non collision bacground filtering
+# 2016: 50 SP, 2017 Sep+: 100 SP 
 L2MbSpHypo_ncb = MbSpHypo("L2MbSpHypo_ncb")
 L2MbSpHypo_ncb.AcceptAll = False
 L2MbSpHypo_ncb.Veto = False
 L2MbSpHypo_ncb.TriggerTypeAND = False # SCT only
-L2MbSpHypo_ncb.SctSpEndcaps_cut = 50 # max(SCT_EC_A, SCT_EC_C)
+L2MbSpHypo_ncb.SctSpEndcaps_cut = 100 # max(SCT_EC_A, SCT_EC_C)
 L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
 L2MbSpHypo_ncb.PixelClusRatioA = -1. # Disable
 L2MbSpHypo_ncb.PixelClusRatioB = -1. # Disable

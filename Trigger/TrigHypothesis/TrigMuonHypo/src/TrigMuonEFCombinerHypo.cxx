@@ -6,12 +6,15 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class ISvcLocator;
 
 TrigMuonEFCombinerHypo::TrigMuonEFCombinerHypo(const std::string & name, ISvcLocator* pSvcLocator):
-	HLT::HypoAlgo(name, pSvcLocator){
-	declareProperty("AcceptAll", m_acceptAll=true);
+  HLT::HypoAlgo(name, pSvcLocator),
+  m_lumiTool("LuminosityTool/LuminosityTool")
+{
+        declareProperty("AcceptAll", m_acceptAll=true);
 	declareProperty("RejectCBmuons", m_rejectCBmuons=false);
 	std::vector<float> def_bins;
 	def_bins.push_back(0);
@@ -20,9 +23,12 @@ TrigMuonEFCombinerHypo::TrigMuonEFCombinerHypo(const std::string & name, ISvcLoc
 	def_thrs.push_back(0.*CLHEP::GeV);
 	declareProperty("PtBins", m_ptBins=def_bins);
 	declareProperty("PtThresholds", m_ptThresholds=def_thrs);
+	declareProperty("LumiTool", m_lumiTool);
 	declareMonitoredStdContainer("Pt",  m_fex_pt);
 	declareMonitoredStdContainer("Eta", m_fex_eta);
 	declareMonitoredStdContainer("Phi", m_fex_phi);
+	declareMonitoredVariable("BCID", m_fex_bcid);
+	declareMonitoredVariable("Rate", m_fex_rate);
 
 	m_bins = 0;
 }
@@ -49,7 +55,12 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltInitialize(){
 			                                               << " CLHEP::GeV" << endreq;
 		}
 	}
-
+	if(m_lumiTool.retrieve().isFailure()){
+	  msg() <<MSG::WARNING<<"Unable to retrieve luminosity tool"<<endreq;
+	}
+	else{
+	  msg()<<MSG::DEBUG<<"Sucessfully retrieved luminosty tool"<<endreq; 
+	}
 	msg() << MSG::INFO
 	<< "Initialization completed successfully"
 	<< endreq;
@@ -73,6 +84,8 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	m_fex_pt.clear();
 	m_fex_eta.clear();
 	m_fex_phi.clear();
+	m_fex_rate=-1;
+	m_fex_bcid=-1;
 
 	if(m_acceptAll) {
 		pass = true;
@@ -150,5 +163,27 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	}//loop on muons		     		
        
 	pass = result;
+
+	//Add some per bcid monitoring of rates to see if there are effects from RF detuning
+	const xAOD::EventInfo* pEvent(0);
+	if(store()->retrieve(pEvent).isFailure()){
+	  msg() << MSG::ERROR << "Cannot find xAODEventInfo object" << endreq;
+	  return HLT::ERROR;
+	}
+
+	double crosssection=1.0;
+	//cross sections are ~ constant vs luminosity - taken from run 311481 (and are approximate
+	// we only care how much the rates differ between bcids, so this should be enough).
+	if(m_ptThresholds[0]/CLHEP::GeV>3.5 && m_ptThresholds[0]/CLHEP::GeV<4.0) crosssection=65.;
+	if(m_ptThresholds[0]/CLHEP::GeV>5.5 && m_ptThresholds[0]/CLHEP::GeV<6.0) crosssection=55.;
+	if(m_ptThresholds[0]/CLHEP::GeV>13.0 && m_ptThresholds[0]/CLHEP::GeV<14.0) crosssection=45.;
+	if(m_ptThresholds[0]/CLHEP::GeV>25.0 && m_ptThresholds[0]/CLHEP::GeV<26.0) crosssection=30.;
+	if(pass==true){
+	  m_fex_bcid = pEvent->bcid();
+
+	  if(m_lumiTool){
+	    m_fex_rate = m_lumiTool->lbLuminosityPerBCID()*crosssection;
+	  }
+	}
 	return HLT::OK;
 }  

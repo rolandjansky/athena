@@ -120,7 +120,10 @@ menuMap={
          'PhysicsV1':       ('Physics_pp_v1',           'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
          'MCV1':            ('MC_pp_v1',                'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
          'CosmicPPV1':      ('Physics_pp_v1_cosmics_prescale','TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
-}
+
+         #Upgrade menus:       menu name                   L1 xml file
+         'MCPhaseII':       ('MC_PhaseII',           'TriggerMenuXML/LVL1config_MC_PhaseII.xml'),
+         }
 
 # Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
 menuMap['CurrentMenu'] = menuMap['PhysicsV7']
@@ -253,6 +256,7 @@ else:           # More data modifiers
                                 #'ignoreL1Vetos',  #also run L2 prescaled and disabled L1 items
                                 #'disablePixels',
                                 #'disableSCTBarrel',
+                                'useDynamicAlignFolders',
     ]
 
 #make some more common trig cost operations easier to setup
