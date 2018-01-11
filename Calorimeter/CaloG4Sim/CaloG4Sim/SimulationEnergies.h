@@ -37,11 +37,6 @@
 #include <map>
 #include <vector>
 
-#ifdef G4MULTITHREADED
-#  include <thread>
-#  include "tbb/concurrent_unordered_map.h"
-#endif
-
 // Forward declarations.
 class G4Step;
 
