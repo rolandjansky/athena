@@ -30,32 +30,38 @@
 #include "G4Step.hh"
 #include "G4RunManager.hh"
 
-
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-namespace G4UA {
+namespace G4UA
+{
 
-  namespace CaloG4 {
+  namespace CaloG4
+  {
 
-    CalibrationDefaultProcessing::CalibrationDefaultProcessing(const Config& config):AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"CalibrationDefaultProcessing"),m_config(config), m_defaultSD(0){;
+    CalibrationDefaultProcessing::CalibrationDefaultProcessing(const Config& config)
+      : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
+                     "CalibrationDefaultProcessing"),
+        m_config(config),
+        m_defaultSD(0)
+    {
     }
 
-    void CalibrationDefaultProcessing::BeginOfEventAction(const G4Event*){
-
+    void CalibrationDefaultProcessing::BeginOfEventAction(const G4Event*)
+    {
       // retrieve the SD from G4SDManager
       // done here instead of in initialize to leave more flexibility to the rest of the G4 init
-
       //G4SDManager* SDman = G4SDManager::GetSDMpointer();
+      m_defaultSD = G4SDManager::GetSDMpointer()->FindSensitiveDetector(m_config.SDName);
 
-      m_defaultSD = G4SDManager::GetSDMpointer()-> FindSensitiveDetector(m_config.SDName);
-
-      if(!m_defaultSD) ATH_MSG_ERROR("No valid SD name specified. The job will continue, but you should check your configuration");
+      if(!m_defaultSD) {
+        ATH_MSG_ERROR("No valid SD name specified. The job will continue, " <<
+                      "but you should check your configuration");
+      }
     }
 
-    void CalibrationDefaultProcessing::UserSteppingAction(const G4Step* a_step){
-
-
+    void CalibrationDefaultProcessing::UserSteppingAction(const G4Step* a_step)
+    {
       // Do we have a sensitive detector?
       if ( m_defaultSD != 0 )
         {
@@ -96,8 +102,6 @@ namespace G4UA {
         }
     }
 
-
   } // namespace CaloG4
-
 
 } // namespace G4UA
