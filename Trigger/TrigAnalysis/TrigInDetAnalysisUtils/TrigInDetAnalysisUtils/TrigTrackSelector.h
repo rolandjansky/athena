@@ -3,11 +3,6 @@
 #ifndef TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
 #define TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
 
-#include "TrigInDetAnalysisUtils/TIDA_newtracking.h"
-
-#ifndef  TIDA_NEWTRACKING_H
-#include "TrigInDetAnalysisUtils/TrigTrackSelector_old.h"
-#else
 
 /// L2 tracks
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -59,9 +54,6 @@
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
 
-// namspace TrigInDetAnalysis {
-
-// class TrigTrackSelector : public TIDA::TrackSelector<TIDA::Track> { 
 
 class TrigTrackSelector : public TrackSelector { 
 
@@ -81,7 +73,7 @@ public:
 
   void correctTracks(bool b=true) { m_correctTrkTracks = b; } 
 
-  virtual void clear() { for ( unsigned i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
+  virtual void clear() { for ( unsigned i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); }   
 
 
   void selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 );
@@ -153,14 +145,10 @@ private:
   double m_yBeam;
   double m_zBeam;
 
-  //bool m_first;
-
   bool m_correctTrkTracks;
 
 };
 
 
-// }
 
-#endif //   TIDA_NEWTRACKING_H
 #endif // TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H

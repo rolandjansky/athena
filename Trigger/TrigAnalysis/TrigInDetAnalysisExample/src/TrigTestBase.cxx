@@ -59,14 +59,14 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "etaCutOffline",     m_etaCutOffline     = 2.5 );
   declareProperty( "d0CutOffline",      m_d0CutOffline      = 1000 );
   declareProperty( "z0CutOffline",      m_z0CutOffline      = 2000 );
-  declareProperty( "pixHitsOffline",    m_pixHitsOffline    =  2 ); // 1 <- old value
-  declareProperty( "sctHitsOffline",    m_sctHitsOffline    =  6 ); // 6 <- old value
+  declareProperty( "pixHitsOffline",    m_pixHitsOffline    =  2 ); // 1 <- old value ( 2 degrees of freedom = 1 cluster ) 
+  declareProperty( "sctHitsOffline",    m_sctHitsOffline    =  6 ); // 6 <- old value ( 6 clusters = 3 spacepoints )
   declareProperty( "siHitsOffline",     m_siHitsOffline     =  8 );
-  declareProperty( "blayerHitsOffline", m_blayerHitsOffline = -1 );
+  declareProperty( "blayerHitsOffline", m_blayerHitsOffline = -1 ); // no requirement - in case IBL is off
 
   declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // essentially no limit
   declareProperty( "sctHolesOffline",   m_sctHolesOffline   =  20 ); // essentially no limit
-  declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 
+  declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 ( not degrees of freedom ! )   
 
   declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
   declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
@@ -94,12 +94,10 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
 
   declareProperty( "ShifterChains",    m_shifterChains = 1 );
 
-
   declareProperty( "GenericFlag", m_genericFlag = true );
   
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() exiting " << gDirectory->GetName() << endmsg;
 
-  //  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() returning: " << endmsg;
 
 }
 
@@ -107,7 +105,6 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
 
 TrigTestBase::~TrigTestBase() {
 
-  //  m_sequences[i]->finalize();
   if ( m_fileopen ) for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
 
   // msg(MSG::INFO) << "TrigTestBase::~TrigTestBase()" << endmsg;
@@ -180,7 +177,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     // reference (offline) tracks...
     TrackFilter* filterRef = new Filter_Track( m_etaCutOffline,    m_d0CutOffline,   m_z0CutOffline,  m_pTCutOffline,
 					       m_pixHitsOffline,   m_sctHitsOffline, m_siHitsOffline, m_blayerHitsOffline,  
-					       m_strawHitsOffline, m_trtHitsOffline, 0, 20, 20, m_siHolesOffline );
+					       m_strawHitsOffline, m_trtHitsOffline, 0, 
+					       m_pixHolesOffline, m_sctHolesOffline, m_siHolesOffline );
 
     // test (trigger) tracks...
     //  TrackFilter* filterTest = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut, -1, -1, -1, -1,  -2, -2 );
@@ -275,7 +273,10 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
             if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-            if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+            if ( !chainName.passed() )     selectChains[iselected] += ":DTE";
+	    //            if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+
+	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
 
 #if 0
 	    std::cout << "\nTrigTestBase::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
@@ -351,10 +352,11 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 								    dR_matcher,
 								    new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) );
 
-	analysis->setRunPurity(m_runPurity);
-	analysis->setShifter(m_shifter);
       
         m_sequences.push_back( analysis );
+
+	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setRunPurity(m_runPurity);
+	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setShifter(m_shifter);
 
 
 	std::string highestPT_str = "";
@@ -364,6 +366,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  highestPT_str = ": using highest PT only";
 	  m_sequences.back()->setUseHighestPT(true);
 	}
+	else m_sequences.back()->setUseHighestPT(false); /// not needed now, but can't do any harm
 
 	if ( !(m_vtxIndex<0) )  {
 	  vtxindex_str = ": searching for vertex index ";
@@ -421,11 +424,11 @@ StatusCode TrigTestBase::fill() {
   int passed_count = 0;
 
   /// print out all the configured chains is need be
-  static bool first = true;
+  static bool _first = true;
   for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
-    if ( first ) ATH_MSG_DEBUG( "\tchain " << selectChains[i] << " from TDT" );
+    if ( _first ) ATH_MSG_DEBUG( "\tchain " << selectChains[i] << " from TDT" );
   }
-  first = false;
+  _first = false;
 
 
   for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
@@ -463,7 +466,7 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
   bool endOfRun       = endOfRunFlag();
 #endif
 
-  msg(MSG::INFO) << " ----- enter proc() ----- " << endmsg;
+  msg(MSG::VERBOSE) << " ----- enter proc() ----- " << endmsg;
   if ( m_initialisePerRun && endOfRun ) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
     m_fileopen = false;

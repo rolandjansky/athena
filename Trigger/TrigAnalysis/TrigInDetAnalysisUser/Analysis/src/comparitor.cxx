@@ -144,12 +144,6 @@ std::string fullreplace( std::string s, const std::string& s2, const std::string
 
 
 
-// std::string replace( std::string s, const std::string& pattern, const std::string& regex ) { 
-//  if ( pattern!="" && regex!="" && s.find(pattern)!=std::string::npos ) s.replace( s.find(pattern), pattern.size(), regex );
-//  return s;
-// }
-
-
 /// zero the contents of a 2d histogram 
 void zero( TH2* h ) { 
   int Nx = h->GetNbinsX();
@@ -1146,7 +1140,7 @@ int main(int argc, char** argv) {
 	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
 	if ( hchain ) { 
 	  std::string name = hchain->GetTitle();
-	  if ( usechainref ) { 
+	  if ( usechainref && !contains(chains[j],"Purity") ) { 
 	    chainref = name;
 	    std::string::size_type pos = chainref.find(":for");
             if ( pos!=std::string::npos ) chainref.replace( pos, 4, "_for" );
@@ -1718,6 +1712,9 @@ int main(int argc, char** argv) {
 	Norm( htest );
 	if ( href ) Norm( href );
       }
+      else if ( yinfo.refnormset() ) { 
+      	if ( href ) Norm( href, Entries(htest) );
+      }
 
       if ( yinfo.binwidth() ) { 
 	binwidth( htest );
@@ -1726,9 +1723,11 @@ int main(int argc, char** argv) {
     
 
 
-      if ( !noreftmp && normref && !contains( histos[i], "mean") && !contains( histos[i], "sigma" ) && !contains( histos[i], "eff" ) ) { 
-	double entries = Entries( htest );
-	Norm( href, entries );
+      if ( !noreftmp && normref && 
+           !contains( histos[i], "mean") && !contains( histos[i], "sigma" ) && 
+           !contains( histos[i], "Eff")  && !contains( histos[i], "eff") &&
+           !contains( histos[i], "Res")  && !contains( histos[i], "vs") && !contains( histos[i], "_lb") ) { 
+        Norm( href, Entries( htest ) );
       }
 
     }
@@ -1751,28 +1750,37 @@ int main(int argc, char** argv) {
       double  yminset = 0;
       double  ymaxset = 0;
 
+      double rmin = 0;
+      double rmax = 0;
+      
+      if ( xinfo.rangeset() ) { 
+	rmin = plots.realmin( plots.lo(), plots.hi() );
+	rmax = plots.realmax( plots.lo(), plots.hi() );
+      }
+      else {
+	rmin = plots.realmin();
+	rmax = plots.realmax();
+      }
+      
+
       if ( yinfo.autoset() ) { 
 	
-	double rmin = 0;
-	double rmax = 0;
-	
-	if ( xinfo.rangeset() ) { 
-	  rmin = plots.realmin( plots.lo(), plots.hi() );
-	  rmax = plots.realmax( plots.lo(), plots.hi() );
-	}
-	else {
-	  rmin = plots.realmin();
-	  rmax = plots.realmax();
-	}
-	
-	if ( yinfo.log() && rmin!=0 && rmax!=0 ) { 
+	int csize = chains.size() + taglabels.size() + ( atlasstyle ? 1 : 0 );
 
+	if ( yinfo.log() && rmin>0 && rmax>0 ) { 
+
+	  /// calculate the log range
 	  double delta = std::log10(rmax)-std::log10(rmin);
 
-	  if ( atlasstyle ) ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size()+1));
-	  else              ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size())); 
+	  /// keep the original equation by way of documentation ...
+	  //    ymaxset =  rmax*std::pow(10,delta*0.15*csize); 
 
 	  yminset =  rmin*std::pow(10,-delta*0.1);
+
+	  double newdelta = std::log10(rmax) - std::log10(yminset) + 0.05*delta;
+
+	  if ( csize<10 ) ymaxset =  rmin*std::pow(10,newdelta/(1-0.07*csize));
+	  else            ymaxset =  rmin*std::pow(10,newdelta*2);
 
 	  if ( yminset!=yminset ) { 
 	    std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
@@ -1781,9 +1789,36 @@ int main(int argc, char** argv) {
 
 	}
 	else { 
-	  double delta = rmax-rmin;
-	  ymaxset = rmax+delta*0.1*chains.size();
-	  yminset = rmin-delta*0.1;
+
+	  /// calculate the required range such that the histogram labels 
+	  /// won't crowd the points
+
+	  if ( ypos>0.5 ) { 
+	    double delta = rmax-rmin;
+	    
+	    yminset = rmin-0.1*delta;
+	    
+	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
+	    
+	    double newdelta = rmax - yminset + 0.05*delta;
+	    
+	    if ( csize<10 ) ymaxset = yminset + newdelta/(1-0.09*csize);
+	    else            ymaxset = yminset + newdelta*2;
+	  }
+	  else { 
+	    double delta = rmax-rmin;
+  
+	    ymaxset = rmax+0.1*delta;
+	    	    
+	    double newdelta = ymaxset - rmin - 0.05*delta;
+	    
+	    if ( csize<10 ) yminset = ymaxset - newdelta/(1-0.09*csize);
+	    else            yminset = ymaxset - newdelta*2;
+
+	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
+
+	  }
+
 	}
 	
       }
@@ -1829,9 +1864,12 @@ int main(int argc, char** argv) {
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-      if ( yminset>0 ) plots.SetLogy(yinfo.log());
-      else             plots.SetLogy(false);
-   
+      if ( yminset!=0 || ymaxset!=0 ) { 
+	if ( yminset>0 ) plots.SetLogy(yinfo.log());
+	else             plots.SetLogy(false);
+      }	
+      else plots.SetLogy(yinfo.log());
+
       //      plots.SetLogy(false);
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
