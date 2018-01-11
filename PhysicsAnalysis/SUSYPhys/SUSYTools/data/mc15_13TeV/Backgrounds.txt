@@ -2374,6 +2374,9 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 407314  Sherpa_221_NNPDF30NNLO_3l3v_EW6                               0.015757          1.0             1.0000E+00         0.0    
 407315  Sherpa_221_NNPDF30NNLO_2l4v_EW6                               0.0058139         1.0             1.0000E+00         0.0    
 
+363507  Sherpa_222_NNPDF30NNLO_WWZ_3l1v2j_EW6                         0.017047          1.0             4.3938E-01         0.0
+363508  Sherpa_222_NNPDF30NNLO_WZZ_4l2j_EW6                           0.00038998        1.0             1.0000E+00         0.0
+363509  Sherpa_222_NNPDF30NNLO_WZZ_3l1v2j_EW6                         0.011815          1.0             2.2058E-01         0.0
 
 ################################################################################################################
 # Sherpa Vgamma

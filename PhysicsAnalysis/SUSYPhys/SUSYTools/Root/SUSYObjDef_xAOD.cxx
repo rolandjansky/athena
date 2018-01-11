@@ -85,6 +85,7 @@ using namespace xAOD;
 
 SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   : asg::AsgMetadataTool( name ),
+    m_autoconfigPRW(false),
     m_dataSource(Undefined),
     m_jetInputType(xAOD::JetInput::Uncategorized),
     m_force_noElId(false),
@@ -432,9 +433,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   //--- Tools configuration
   //PRW
-  declareProperty( "PRWConfigFiles",    m_prwConfFiles );
-  declareProperty( "PRWLumiCalcFiles",  m_prwLcalcFiles );
-  declareProperty( "PRWMuUncertainty",  m_muUncert); // = 0.2);
+  declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
+  declareProperty( "PRWConfigFiles",       m_prwConfFiles );
+  declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
+  declareProperty( "PRWMuUncertainty",     m_muUncert); // = 0.2);
   //JES Unc.
   declareProperty( "JESNuisanceParameterSet", m_jesNPset );
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
@@ -657,6 +659,9 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_inputMETMap = "METAssoc_" + m_inputMETSuffix;
   ATH_MSG_INFO("Build MET with map: " << m_inputMETMap);
 
+  // autoconfigure PRW tool if m_autoconfigPRW==true
+  ATH_CHECK( autoconfigurePileupRWTool() );
+
   ATH_CHECK( this->SUSYToolsInit() );
 
   ATH_MSG_VERBOSE("Done with tool retrieval");
@@ -670,12 +675,13 @@ StatusCode SUSYObjDef_xAOD::initialize() {
 StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
   // autoconfigure PRW tool using run number and DSID
   // based on: https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ConditionsRun1RunNumbers
-  if ( !m_prwTool.empty() && !isData() ) {
+  std::string prwConfigFile = "";
+  if ( !isData() && m_autoconfigPRW ) {
     const xAOD::EventInfo* evtInfo = 0;
     ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
     uint32_t runNum = evtInfo->runNumber();
     uint32_t dsid = evtInfo->mcChannelNumber();
-    TString prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONGIF/files/");
+    prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONGIF/files/");
     prwConfigFile += "pileup_mc16";
     switch(runNum) {
       case 284500 : prwConfigFile+="a_"; 
@@ -684,18 +690,19 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
 	break;
 	//  case XXXXXX : prwConfigFile+="d_";
 	//    break;
-      default : ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized MC run number, " << runNum << "! Impossible to autocongigure PRW. Aborting." );
+      default : ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized MC run number, " << runNum << " ! Impossible to autocongigure PRW. Aborting." );
 	return StatusCode::FAILURE;
 	break;
     }
     prwConfigFile += "dsid" + std::to_string(dsid) + ".root";
-    TFile testF(prwConfigFile,"read");
+    TFile testF(prwConfigFile.data(),"read");
     if(testF.IsZombie()) {
-      ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile );
+      ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autocongigure PRW. Aborting." );
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( m_prwTool.setProperty("ConfigFiles", prwConfigFile) );
-    ATH_MSG_INFO( "autoconfigurePileupRWTool(): configured PRW tool with using " << prwConfigFile );
+    m_prwConfFiles.clear();
+    m_prwConfFiles.push_back( prwConfigFile );
+    ATH_MSG_INFO( "autoconfigurePileupRWTool(): configuring PRW tool using " << prwConfigFile.data() );
   }
   // Return gracefully
   return StatusCode::SUCCESS;

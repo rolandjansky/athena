@@ -325,22 +325,15 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   if (debug) objTool.msg().setLevel( MSG::VERBOSE );
   ANA_CHECK(objTool.setBoolProperty("DebugMode", (bool)debug) );
 
+  // autoconfiguring PRW tool
+  if ( autoconfigPRW==1 ) objTool.setBoolProperty("AutoconfigurePRWTool", true);
+
   if ( objTool.initialize() != StatusCode::SUCCESS) {
     Error( APP_NAME, "Cannot initialize SUSYObjDef_xAOD..." );
     Error( APP_NAME, "Exiting... " );
     exit(-1);
   } else {
     Info( APP_NAME, "SUSYObjDef_xAOD initialized... " );
-  }
-
-  // autoconfiguring PRW tool
-  if ( autoconfigPRW==1 ) {
-    if( objTool.autoconfigurePileupRWTool() != StatusCode::SUCCESS ) {
-      Error( APP_NAME, "Cannot autoconfigure PRW tool: Exiting..." );
-      exit (EXIT_FAILURE);
-    } else {
-      Info( APP_NAME, "PRW tool: autoconfiguration was successful :-)" );
-    }
   }
 
   std::cout << " INITIALIZED SUSYTOOLS " << std::endl;
