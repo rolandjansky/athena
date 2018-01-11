@@ -128,7 +128,7 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
       "output Electron container name "};
 
 
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", " ", "Monitoring tool" };
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   
 };  
 DECLARE_ALGORITHM_FACTORY( TrigL2ElectronFexMT )
