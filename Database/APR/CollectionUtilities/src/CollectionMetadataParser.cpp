@@ -3,7 +3,7 @@
 */
 
 #include <boost/lexical_cast.hpp>
-#include "POOLCore/boost_tokenizer_headers.h"
+#include "CollectionBase/boost_tokenizer_headers.h"
 #include "CollectionUtilities/CollectionMetadataParser.h"
 #include <algorithm>
 #include <iostream>

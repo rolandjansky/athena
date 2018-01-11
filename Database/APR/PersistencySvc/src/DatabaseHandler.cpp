@@ -298,35 +298,6 @@ pool::PersistencySvc::DatabaseHandler::setAttribute( const std::string& attribut
 }
 
 
-std::set< std::string >
-pool::PersistencySvc::DatabaseHandler::parameters() const
-{
-  std::set< std::string > result;
-  std::vector< std::pair<std::string, std::string> > parameters;
-  if ( m_storageExplorer.dbParams( m_fileDescriptor, parameters ).isSuccess() ) {
-    for ( std::vector< std::pair<std::string, std::string> >::const_iterator iParameter = parameters.begin();
-          iParameter != parameters.end(); ++iParameter ) {
-      result.insert( iParameter->first );
-    }
-  }
-  return result;
-}
-
-std::string
-pool::PersistencySvc::DatabaseHandler::parameterValue( const std::string& name ) const
-{
-  std::string value = "";
-  m_storageExplorer.dbParam( m_fileDescriptor, name, value );
-  return value;
-}
-
-void
-pool::PersistencySvc::DatabaseHandler::addParameter( const std::string& name,
-                                                     const std::string& value )
-{
-  m_storageExplorer.addDbParam( m_fileDescriptor, name, value );
-}
-
 pool::DbDatabase::Redirections
 pool::PersistencySvc::DatabaseHandler::redirections() const
 {

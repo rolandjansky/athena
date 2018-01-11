@@ -45,8 +45,6 @@ namespace pool    {
   private:
     /// Known Implementation types
     void*         m_dbTypes;
-    /// Unser context
-    void*         m_ctxt;
   public:
     /// Standard constructor
     DbSessionObj();
@@ -55,7 +53,7 @@ namespace pool    {
     /// Allow access to the Database implementation
     IOODatabase* db(const DbType& typ)  const;
     /// Open session
-    DbStatus open(void* context);
+    DbStatus open();
     /// Close Database session
     DbStatus close();
     /// Inject new Database implementation

@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/EventTag/TagEvent
                           PRIVATE
                           Control/StoreGate
-                          Database/APR/POOLCore
                           Event/xAOD/xAODEventInfo
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
@@ -41,7 +40,7 @@ atlas_add_component( EventTagAlgs
                      src/EventSplitter.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GaudiKernel TagEvent StoreGateLib SGtests POOLCore xAODEventInfo AnalysisTriggerEvent ElectronPhotonTagToolsLib EventTagUtilsLib JetMissingEtTagToolsLib MuonTagToolsLib TauTagToolsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GaudiKernel TagEvent StoreGateLib SGtests xAODEventInfo AnalysisTriggerEvent ElectronPhotonTagToolsLib EventTagUtilsLib JetMissingEtTagToolsLib MuonTagToolsLib TauTagToolsLib )
 
 # Install files from the package:
 atlas_install_headers( EventTagAlgs )

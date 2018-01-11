@@ -7,10 +7,10 @@
 // includes
 #include "PersistencySvc.h"
 #include "UserSession.h"
-#include "PersistencySvcConfiguration.h"
 #include "UserDatabase.h"
 #include "DatabaseHandler.h"
 #include "PersistentDataModel/Token.h"
+#include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 #include "PersistencySvc/ITransaction.h"
 
@@ -28,18 +28,13 @@ pool::PersistencySvc::PersistencySvc::~PersistencySvc()
 void
 pool::PersistencySvc::PersistencySvc::setFileCatalog( pool::IFileCatalog& catalog )
 {
-  m_session->configuration().setFileCatalog( catalog );
+  m_session->setFileCatalog( catalog );
 }
 
 pool::IFileCatalog&
 pool::PersistencySvc::PersistencySvc::fileCatalog()
 {
-  return m_session->configuration().fileCatalog();
-}
-
-pool::IConfiguration&
-pool::PersistencySvc::PersistencySvc::configuration(){
-  return m_session->configuration();
+  return m_session->fileCatalog();
 }
 
 void*
@@ -48,7 +43,8 @@ pool::PersistencySvc::PersistencySvc::readObject( const Token& token, void* obje
   void* result( (void*)0 );
   if ( m_session->transaction().isActive() ) {
     UserDatabase db( m_session->technologyDispatcher(),
-                     m_session->configuration(),
+                     m_session->defaultConnectionPolicy(),
+                     m_session->fileCatalog(),
                      m_session->transaction(),
                      m_session->registry(),
                      token.dbID().toString(),
@@ -70,7 +66,8 @@ pool::PersistencySvc::PersistencySvc::registerForWrite( const Placement& place,
   if ( ! m_session->transaction().isActive() ||
        m_session->transaction().type() != pool::ITransaction::UPDATE ) return 0;
   UserDatabase db( m_session->technologyDispatcher(),
-                   m_session->configuration(),
+                   m_session->defaultConnectionPolicy(),
+                   m_session->fileCatalog(),
                    m_session->transaction(),
                    m_session->registry(),
                    place.fileName(),
@@ -99,7 +96,8 @@ pool::PersistencySvc::PersistencySvc::destroyObject( const Token& token )
   if ( ! m_session->transaction().isActive() ||
        m_session->transaction().type() != pool::ITransaction::UPDATE ) return false;
   UserDatabase db( m_session->technologyDispatcher(),
-                   m_session->configuration(),
+                   m_session->defaultConnectionPolicy(),
+                   m_session->fileCatalog(),
                    m_session->transaction(),
                    m_session->registry(),
                    token.dbID().toString(),
@@ -124,7 +122,8 @@ std::string
 pool::PersistencySvc::PersistencySvc::getContName( const Token& token )
 {
     UserDatabase db( m_session->technologyDispatcher(),
-                     m_session->configuration(),
+                     m_session->defaultConnectionPolicy(),
+                     m_session->fileCatalog(),
                      m_session->transaction(),
                      m_session->registry(),
                      token.dbID().toString(),

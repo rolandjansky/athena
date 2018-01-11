@@ -5,22 +5,14 @@
 #include <cstdio>
 #include "DatabaseRegistry.h"
 #include "DatabaseHandler.h"
-//#include "PersistencySvcConfiguration.h"
 #include "FileCatalog/IFileCatalog.h"
 
-pool::PersistencySvc::DatabaseRegistry::DatabaseRegistry( Context& context ):m_context(context)
+pool::PersistencySvc::DatabaseRegistry::DatabaseRegistry()
 {}
 
 
 pool::PersistencySvc::DatabaseRegistry::~DatabaseRegistry()
 {}
-
-// returns the POOL global context
-pool::Context&
-pool::PersistencySvc::DatabaseRegistry::context()
-{
-  return m_context;
-}
 
 std::set< pool::PersistencySvc::DatabaseHandler* >::iterator
 pool::PersistencySvc::DatabaseRegistry::registerDbHandler( pool::PersistencySvc::DatabaseHandler* dbHandler )

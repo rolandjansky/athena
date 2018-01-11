@@ -22,13 +22,12 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/RndmGenerators.h"
 
-#include "POOLCore/Exception.h"
-
 #include "CoralBase/AttributeListSpecification.h"
 
 #include <cassert>
 #include <stdlib.h>
 #include <math.h>
+#include <exception>
 
 
 TagEventTagWriter::TagEventTagWriter(const std::string& name, 
@@ -254,7 +253,7 @@ StatusCode TagEventTagWriter::execute()
   {
     attribList = new TagAthenaAttributeList(*m_attribListSpec);
   } 
-  catch (pool::Exception e) 
+  catch (std::exception e) 
   {
     ATH_MSG_ERROR( "Caught exception during creation of TagAthenaAttributeList object."
                    << "Message: " << e.what()  );
@@ -295,7 +294,7 @@ StatusCode TagEventTagWriter::execute()
     (*attribList)["TestDouble"].data<double>() = testDouble;
     (*attribList)["TestString"].data<std::string>() = testString;
   } 
-  catch (pool::Exception e) 
+  catch (std::exception e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting type test "
                    << "attributes; Message:" << e.what() );
@@ -339,7 +338,7 @@ StatusCode TagEventTagWriter::execute()
     nGlobal++;
     (*attribList)["NGlobal"].data<unsigned short>() = nGlobal;
   } 
-  catch (pool::Exception e) 
+  catch (std::exception e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
                    << "attributes; Message:" << e.what() );
