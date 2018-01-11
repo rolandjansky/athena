@@ -73,7 +73,7 @@ Alg<GET, ATTACH> createAlgo(const std::string& name, GET get, ATTACH attach) {
 
 
 
-int main() {
+bool run() {
   using namespace std;
 
   MsgStream log(Athena::getMessageSvc(), "RoICache_test");
@@ -360,5 +360,12 @@ int main() {
 
 
   //log << MSG::INFO << *hns << endmsg;
+  return true;
+}
+
+
+int main()
+{
+  if (!run()) return 1;
   return 0;
 }
