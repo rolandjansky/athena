@@ -49,7 +49,7 @@ namespace G4UA
     }
     if (0==m_world){
       ATH_MSG_FATAL( "Could not find world volume!" );
-      throw "NoWorld";
+      throw std::runtime_error("Could not find world volume!");
     }
   }
 
@@ -129,7 +129,7 @@ namespace G4UA
 
     if (m_config.killAfter>0 && m_killCount>m_config.killAfter){
       ATH_MSG_FATAL( m_config.killAfter << " cases of hyperspace bug found.  You have something seriously wrong going on here.  Needs to be fixed.  Bailing out." );
-      throw "OhMyGodWhatWasThat";
+      throw std::runtime_error("Hyperspace bug found");
     }
   }
 
