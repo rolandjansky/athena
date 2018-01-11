@@ -505,6 +505,11 @@ topSequence += xAODTruthCnvAlg
 
 print xAODTruthCnvAlg
 
+# register internally used track summary tool
+from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
+AtlasTrackSummaryTool = AtlasTrackSummaryTool()
+ToolSvc += AtlasTrackSummaryTool
+
 include("InDetRecExample/InDetxAODCreator.py") 
 
 public_InDetxAODParticleCreatorTool = getInDetxAODParticleCreatorTool()
