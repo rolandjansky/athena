@@ -6,14 +6,13 @@
 #define G4COSMICFILTER_G4UA__G4COSMICANDFILTERTOOL_H
 
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "G4CosmicFilter/G4CosmicAndFilter.h"
 
 namespace G4UA
 {
 
-  class G4CosmicAndFilterTool: public ActionToolBaseReport<G4CosmicAndFilter>,
-                               public IG4EventActionTool
+  class G4CosmicAndFilterTool : public UserActionToolBase<G4CosmicAndFilter>
   {
 
     public:
@@ -22,15 +21,13 @@ namespace G4UA
       G4CosmicAndFilterTool(const std::string& type, const std::string& name,
                             const IInterface* parent);
 
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
-
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
       virtual StatusCode finalize() override;
 
     protected:
 
-      virtual std::unique_ptr<G4CosmicAndFilter> makeAction() override final;
+      /// Create action for this thread
+      virtual std::unique_ptr<G4CosmicAndFilter>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
     private:
 
