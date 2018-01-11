@@ -57,9 +57,9 @@ def defineMenu():
         'EM8I',
         'EM10VH', 'EM12', 'EM15', 'EM15VH',
         'EM15VHI',
-        'EM18VHI',  'EM20VH', 'EM20VHI', 'EM22VHI', 'EM22VHIM', 'EM24VHI', 'EM24VHIM', 
+        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM', 
 
-        # 1 x ZB
+        # 1 x ZB/
         'ZB_EM15',
 
         #--------------------------
@@ -393,7 +393,7 @@ def defineMenu():
 #        'L1_EM8I',
         'L1_EM10VH', 'L1_EM15',
         'L1_EM15I','L1_EM15VHI',
-        'L1_EM24VHIM','L1_EM15VH', 'L1_EM18VHI', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM22VHIM','L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
+        'L1_EM24VHIM','L1_EM15VH', 'L1_EM18VHI', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM22VH','L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY','L1_EM7_UNPAIRED_NONISO',
         'L1_EM20VH_FIRSTEMPTY',
         'L1_EM22VHI_FIRSTEMPTY',
@@ -955,7 +955,7 @@ def defineMenu():
         'L1_EM20VH' : 9,
         'L1_EM20VHI' : 10,
         'L1_EM22VHI' : 11,
-        'L1_EM22VHIM' : 295,
+        'L1_EM22VH' : 295,
         'L1_EM3_EMPTY' : 12,
         'L1_EM7_EMPTY' : 13,
         'L1_MU4' : 14,
