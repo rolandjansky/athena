@@ -142,7 +142,7 @@ namespace CaloG4
   SimulationEnergies::SimulationEnergies()
   {
     // Initialize some static variables.
-
+    // FIXME: thread-unsafe static!!!
     static G4bool initialized = false;
     if ( ! initialized )
     {
@@ -561,6 +561,7 @@ namespace CaloG4
     // The first time this routine is called, we have to set up some
     // Geant4 navigation pointers.
 
+    // FIXME: thread-unsafe statics!!!
     static G4Navigator*        navigator         = 0;
     static G4TouchableHandle   touchableHandle;
 
@@ -612,6 +613,7 @@ namespace CaloG4
       }
 
       // If we get here, the registry was never initialized for LAr.
+      // FIXME: thread-unsafe statics!!!
       static G4bool errorDisplayed = false;
       if ( ! errorDisplayed ) {
         errorDisplayed = true;

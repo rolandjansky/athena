@@ -87,6 +87,7 @@ namespace G4UA
       }
 
       else {
+        // FIXME - thread unsafe static!!!
         static G4bool warningPrinted = false;
         if ( ! warningPrinted ) {
           warningPrinted = true;
