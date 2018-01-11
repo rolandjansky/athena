@@ -188,7 +188,6 @@ private:
 	std::string m_vcContainerName;
 	std::string m_vcolContainerName;
 	//std::string m_trigSpacePointCountsName;
-	const xAOD::EventInfo* m_evinfo{nullptr};
 	double m_timeOverThreshold_cut;
 	//
 

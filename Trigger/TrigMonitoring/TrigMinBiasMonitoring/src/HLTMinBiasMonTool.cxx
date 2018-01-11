@@ -251,12 +251,6 @@ StatusCode HLTMinBiasMonTool::init()
 		return sc;
 	}
 	
-	/*sc = m_detStore->retrieve(m_evinfo);
-	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to retrieve XAOD::EventInfo helper from DetectorStore" << endmsg;
-		return sc;
-	}*/
-
 	// retrieve the trigger decision tool
 	/*sc = m_tdthandle.retrieve();
 	if (sc.isFailure()) {
