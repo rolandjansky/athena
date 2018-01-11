@@ -25,7 +25,8 @@ namespace xAOD {
       : m_selection(), 
         m_store( new SG::AuxStoreInternal( standalone ) ),
         m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
-        m_parentLink(), m_parentIO( 0 ), m_shallowIO( true ), m_tick( 1 ),
+        m_parentLink(), m_parentIO( 0 ), m_shallowIO( true ), 
+        m_auxids (), 
         m_name( "UNKNOWN" ) {
 
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
@@ -38,7 +39,8 @@ namespace xAOD {
         m_ownsStore( false ), m_locked( parent.m_locked ),
         m_parentLink( parent.m_parentLink ),
         m_parentIO( parent.m_parentIO ), m_shallowIO( parent.m_shallowIO ),
-        m_tick( 1 ), m_name( parent.m_name ) {
+        m_auxids (), 
+        m_name( parent.m_name ) {
 
    }
 
@@ -53,7 +55,7 @@ namespace xAOD {
         m_store( new SG::AuxStoreInternal( standalone ) ),
         m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
         m_parentLink( parent ), m_parentIO( 0 ), m_shallowIO( true ),
-        m_tick( 1 ), m_name( "UNKNOWN" ) {
+        m_auxids (), m_name( "UNKNOWN" ) {
 
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
       const SG::IAuxStoreIO* temp =
@@ -92,7 +94,7 @@ namespace xAOD {
       m_parentIO   = rhs.m_parentIO;
       m_shallowIO  = rhs.m_shallowIO;
       m_name       = rhs.m_name;
-      ++m_tick;
+      m_auxids     = rhs.m_auxids;
 
       // Return this object:
       return *this;
@@ -111,7 +113,7 @@ namespace xAOD {
       const SG::IAuxStoreIO* temp =
          dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
       m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-      ++m_tick;
+      remakeAuxIDs();
       return;
    }
 
@@ -157,7 +159,7 @@ namespace xAOD {
       m_store = store;
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
       m_ownsStore = true;
-      ++m_tick;
+      remakeAuxIDs();
 
       return;
    }
@@ -181,7 +183,7 @@ namespace xAOD {
       const void* result = m_store->getData( auxid );
       if( result ) {
          if( nids != m_store->getAuxIDs().size() ) {
-            ++m_tick;
+            remakeAuxIDs();
          }
          return result;
       }
@@ -191,7 +193,7 @@ namespace xAOD {
          nids = m_parentLink->getAuxIDs().size();
          result = m_parentLink->getData( auxid );
          if( result && ( nids != m_parentLink->getAuxIDs().size() ) ) {
-            ++m_tick;
+            remakeAuxIDs();
          }
          return result;
       }
@@ -203,22 +205,7 @@ namespace xAOD {
    const ShallowAuxContainer::auxid_set_t&
    ShallowAuxContainer::getAuxIDs() const {
 
-      guard_t guard (m_mutex);
-      if( m_tsAuxids.get() == 0 ) {
-         m_tsAuxids.reset( new TSAuxidSet );
-      }
-
-      if( m_tsAuxids->m_tick != m_tick ) {
-         if( m_parentLink.isValid() ) {
-            m_tsAuxids->m_set = m_parentLink->getAuxIDs();
-         } else {
-            m_tsAuxids->m_set.clear();
-         }
-         const SG::auxid_set_t& store_auxids = m_store->getAuxIDs();
-         m_tsAuxids->m_set.insert( store_auxids.begin(), store_auxids.end() );
-         m_tsAuxids->m_tick = m_tick;
-      }
-      return m_tsAuxids->m_set;
+      return m_auxids;
    }
 
    /// Return the data vector for one aux data decoration item.
@@ -253,7 +240,7 @@ namespace xAOD {
       const size_t nids = m_store->getAuxIDs().size();
       void* result = m_store->getDecoration( auxid, size, capacity );
       if( result && ( nids != m_store->getAuxIDs().size() ) ) {
-         ++m_tick;
+         remakeAuxIDs();
       }
       return result;
    }
@@ -294,7 +281,7 @@ namespace xAOD {
      guard_t guard (m_mutex);
      bool ret = m_store->clearDecorations();
      if (ret) {
-       ++m_tick;
+       remakeAuxIDs();
      }
      return ret;
    }
@@ -312,8 +299,6 @@ namespace xAOD {
                                        size_t capacity ) {
 
       guard_t guard (m_mutex);
-      // Remember that we now manage this variable:
-      ++m_tick;
 
       // Create the variable in the dynamic store:
       void* ptr = m_store->getData( auxid, size, capacity );
@@ -358,6 +343,8 @@ namespace xAOD {
       for( size_t i = 0; i < size; ++i ) {
          factory->copy( ptr, i, pptr, i );
       }
+
+      remakeAuxIDs();
 
       // Now we're done:
       return ptr;
@@ -413,9 +400,7 @@ namespace xAOD {
 
       guard_t guard (m_mutex);
       // Do we have it?
-      const SG::auxid_set_t& store_auxids = m_store->getAuxIDs();
-      if( m_storeIO && ( store_auxids.find( auxid ) !=
-                         store_auxids.end() ) ) {
+      if( m_storeIO && m_store->getAuxIDs().test (auxid)) {
          return m_storeIO->getIOData( auxid );
       }
 
@@ -443,9 +428,7 @@ namespace xAOD {
 
       guard_t guard (m_mutex);
       // Do we have it?
-      const SG::auxid_set_t& store_auxids = m_store->getAuxIDs();
-      if( m_storeIO && ( store_auxids.find( auxid ) !=
-                         store_auxids.end() ) ) {
+      if( m_storeIO && m_store->getAuxIDs().test (auxid)) {
          return m_storeIO->getIOType( auxid );
       }
 
@@ -476,7 +459,7 @@ namespace xAOD {
          if( m_storeIO ) {
             return m_store->getAuxIDs();
          } else {
-            static const auxid_set_t dummy {};
+            static const auxid_set_t dummy (0);
             return dummy;
          }
       } else {
@@ -499,7 +482,7 @@ namespace xAOD {
          if( m_storeIO ) {
             return m_selection.getSelectedAuxIDs( m_store->getAuxIDs() );
          } else {
-            static const auxid_set_t dummy {};
+            static const auxid_set_t dummy (0);
             return dummy;
          }
       } else {
@@ -520,6 +503,15 @@ namespace xAOD {
 
       m_name = name;
       return;
+   }
+
+   void ShallowAuxContainer::remakeAuxIDs() const {
+     if( m_parentLink.isValid() ) {
+       m_auxids = m_parentLink->getAuxIDs();
+     } else {
+       m_auxids.clear();
+     }
+     m_auxids.insert( m_store->getAuxIDs());
    }
 
 } // namespace xAOD
