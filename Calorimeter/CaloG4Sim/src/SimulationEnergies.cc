@@ -5,26 +5,26 @@
 // SimulationEnergies.cc
 
 // This class implements the calculations requires to categorize the
-// energies deposited during the simulation. This "Monte Carlo truth" 
+// energies deposited during the simulation. This "Monte Carlo truth"
 // information is used in calibration studies and other applications.
 
-// 12-Aug-2009 M. Leltchouk: this code update improves performance. 
-// Many thanks to Zachary Marshall for introducing and coding or 
-// suggesting most of these changes and to Gennady Pospelov and 
-// Vakhtang Tsulaia for supporting this code and the whole 
+// 12-Aug-2009 M. Leltchouk: this code update improves performance.
+// Many thanks to Zachary Marshall for introducing and coding or
+// suggesting most of these changes and to Gennady Pospelov and
+// Vakhtang Tsulaia for supporting this code and the whole
 // "machinary of calibration hits" which he greatly improved and extended.
 
-// 07-Jan-2004 Mikhail Leltchouk with code additions and great support 
-//        from William Glenn Seligman (WGS). 
-//  Columbia University in the City of New York, 
-//  Nevis Labs, 136 South Broadway, Irvington, NY 10533, USA   
+// 07-Jan-2004 Mikhail Leltchouk with code additions and great support
+//        from William Glenn Seligman (WGS).
+//  Columbia University in the City of New York,
+//  Nevis Labs, 136 South Broadway, Irvington, NY 10533, USA
 
 //                ----------------------------
 
 // 15-Jul-2004 WGS: Now use the VEscapedEnergyProcessing interface and
 // EscapedEnergyRegistry from package Calorimeter/CaloG4Sim.
 
-// 28-Nov-2005 M. Leltchouk: protection against segfaults caused by 
+// 28-Nov-2005 M. Leltchouk: protection against segfaults caused by
 // geometry problems when touchableHandle->GetVolume()==0
 
 // 20-Apr-2006 M. Leltchouk: internal particle mass table is used now
@@ -32,10 +32,10 @@
 // G4 8.0 particle masses may not be available when SimulationEnergies
 // constructor is looking for them, see Andrea Dell'Acqua's comment below.
 
-// 24-Apr-2007 M. Leltchouk: Particle Data Group (PDG) encoding for nuclei 
-// has been introduced in SimulationEnergies.cc and 
+// 24-Apr-2007 M. Leltchouk: Particle Data Group (PDG) encoding for nuclei
+// has been introduced in SimulationEnergies.cc and
 // tagged CaloG4Sim-00-02-26 to be consistent with update in Geant4 8.2.
-	
+
 //    Particle Data Group (PDG) encoding for nuclei ( described in
 //    http://pdg.lbl.gov/2006/mcdata/mc_particle_id_contents.html )
 //    was introduced in Geant4 8.2 and in CaloG4Sim-00-02-26 which
@@ -44,8 +44,8 @@
 //    CaloG4Sim-00-02-25 should be used for earlier releases where
 //    PDGEncoding == 0 for nuclei.
 
-// 18-Feb-2008 M. Leltchouk: 
-// Since G4AtlasApps-00-02-45 the neutrinos are killed in the 'ATLAS' 
+// 18-Feb-2008 M. Leltchouk:
+// Since G4AtlasApps-00-02-45 the neutrinos are killed in the 'ATLAS'
 // geometries (not in Combined Test Beam geometries) by
 // Simulation/G4Atlas/G4AtlasAlg/AthenaStackingAction::ClassifyNewTrack()
 
@@ -54,17 +54,17 @@
 // G4Svc.KillAllNeutrinos=True  (or G4Svc.KillAllNeutrinos=False)
 // the SimulationEnergies.cc code has been changed:
 
-// 1) Now neutrino energies are accumulated in result.energy[kEscaped] 
-// as soon as neutrinos appear in the list of secondaries. 
-// 2) These escaped energies are recorded to the cell where the escaping 
-// track originates (i.e. where neutrinos have been born as a result of 
+// 1) Now neutrino energies are accumulated in result.energy[kEscaped]
+// as soon as neutrinos appear in the list of secondaries.
+// 2) These escaped energies are recorded to the cell where the escaping
+// track originates (i.e. where neutrinos have been born as a result of
 // some particle decay) without call of
 //  ProcessEscapedEnergy( thisTrackVertex, escapedEnergy ).
 // 3) If a neutrino is tracked (was not killed) then the special early
 // return from SimulationEnergies::Classify is used to avoid the second
 // counting of the same neutrino energy when this neutrino escapes from
 // World volume.
- 
+
 #undef DEBUG_ENERGIES
 
 #include "CaloG4Sim/SimulationEnergies.h"
@@ -126,7 +126,8 @@
 #include <string>
 
 
-namespace CaloG4 {
+namespace CaloG4
+{
 
   /* 20-Apr-2006 M. Leltchouk
   G4double SimulationEnergies::electronMass = 0;
@@ -138,7 +139,7 @@ namespace CaloG4 {
   G4double SimulationEnergies::helium3Mass  = 0;
   */
 
-  SimulationEnergies::SimulationEnergies() 
+  SimulationEnergies::SimulationEnergies()
   {
     // Initialize some static variables.
 
@@ -173,16 +174,16 @@ namespace CaloG4 {
 
 
   SimulationEnergies::~SimulationEnergies()
-  {;}
-
+  {}
 
 
   // The "simple" call, intended for calibration calculators:
-  void SimulationEnergies::Energies( const G4Step* a_step , std::vector<G4double>& energies ) const
+  void SimulationEnergies::Energies( const G4Step* a_step,
+                                     std::vector<G4double>& energies ) const
   {
     // Call the detailed classification.  Process any escaped energy.
     ClassifyResult_t category = Classify( a_step, true );
-	  
+
     // Extract the values we need from the result.  Note that it's at
     // this point we decide which of the available-energy calculations
     // is to be used in a calibration hit.
@@ -194,11 +195,12 @@ namespace CaloG4 {
     energies.push_back( category.energy[SimulationEnergies::kEscaped] );
 
     // Update the global step information to say that we've dealt with this
-    EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-    if ( event_info ) {
-        // Update the step info
-        event_info->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
-        event_info->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
+    EventInformation* evtInfo = dynamic_cast<EventInformation*>(
+        G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+    if ( evtInfo ) {
+      // Update the step info
+      evtInfo->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
+      evtInfo->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
     }
   }
 
@@ -209,42 +211,46 @@ namespace CaloG4 {
   //  1)  result.energy[kEm]    - visible energy for electromagnetic scale
   //  2)  result.energy[kNonEm] - visible energy for hadronic scale
   //  3)  result.energy[kInvisible0] - invisible energy (Version 0) | one of these
-  //  3a) result.energy[kInvisible1] - invisible energy (Version 1) | 3 versions should 
+  //  3a) result.energy[kInvisible1] - invisible energy (Version 1) | 3 versions should
   //  3b) result.energy[kInvisible2] - invisible energy (Version 2) | be choosen for a hit
   //  4)  result.energy[kEscaped] - escaped energy
   //  5)  result.time - "midstep" time delay compare to the light
   //                     travel from the point (0,0,0) in World
   //                     coordinates to the "midstep" point.
-  // 
+  //
   // For some studies, it's useful to have this method not process the
   // escaped energy.  If a_processEscaped==false, then the escaped
   // energy will be not be routed to some other volume's hits.
 
-  SimulationEnergies::ClassifyResult_t SimulationEnergies::Classify( const G4Step* step,
-								     const G4bool a_processEscaped ) const
+  SimulationEnergies::ClassifyResult_t
+  SimulationEnergies::Classify(const G4Step* step, const G4bool a_processEscaped) const
   {
     // Initialize our result to zero.
 
     ClassifyResult_t result;
-    for (unsigned int i = 0; i != kNumberOfEnergyCategories; i++ )
+    for (unsigned int i = 0; i != kNumberOfEnergyCategories; i++ ) {
       result.energy[ (eEnergyCategory) i ] = 0;
+    }
 
     G4Track* pTrack = step->GetTrack();
     G4ParticleDefinition* particle = pTrack->GetDefinition();
 
-    // If it is a step of a neutrino tracking: 
+    // If it is a step of a neutrino tracking:
     if (particle == G4NeutrinoE::Definition() || particle == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
-        particle == G4NeutrinoMu::Definition() || particle == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu 
+        particle == G4NeutrinoMu::Definition() || particle == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu
         particle == G4NeutrinoTau::Definition() || particle == G4AntiNeutrinoTau::Definition())   // nu_tau, anti_nu_tau
-      {
-	return result;
-      }
+    {
+      return result;
+    }
 
     G4TrackStatus status = pTrack->GetTrackStatus();
     G4double dEStepVisible = step->GetTotalEnergyDeposit();
     G4int processSubTypeValue=0;
-    if ( step->GetPostStepPoint()->GetProcessDefinedStep() != 0 )
-      processSubTypeValue = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessSubType(); //from G4VProcess.hh
+    if ( step->GetPostStepPoint()->GetProcessDefinedStep() != 0 ) {
+      //from G4VProcess.hh
+      processSubTypeValue =
+        step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessSubType();
+    }
 
     G4double EkinPreStep = step->GetPreStepPoint()->GetKineticEnergy();
     const G4DynamicParticle* dynParticle = pTrack->GetDynamicParticle();
@@ -254,18 +260,20 @@ namespace CaloG4 {
     if ( status == fStopAndKill ){ // StopAndKill stepping particle at PostStep
       G4double incomingEkin = EkinPreStep - dEStepVisible;
       G4double incomingEtot = dynParticle->GetMass() + incomingEkin;
-    
-      result.energy[kInvisible0]  =  
-	measurableEnergy(particle, 
+
+      result.energy[kInvisible0]  =
+        measurableEnergy(particle,
                          particle->GetPDGEncoding(),
                          incomingEtot,
                          incomingEkin);
     }
-    else if (status == fAlive || status == fStopButAlive){// Alive stepping particle at PostStep
+    else if (status == fAlive || status == fStopButAlive) {
+      // Alive stepping particle at PostStep
       result.energy[kInvisible0] = EkinPreStep - EkinPostStep - dEStepVisible;
     }
 
-    G4SteppingManager* steppingManager = G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager();
+    G4SteppingManager* steppingManager =
+      G4EventManager::GetEventManager()->GetTrackingManager()->GetSteppingManager();
 
     // Copy internal variables from the G4SteppingManager.
     G4TrackVector* fSecondary = steppingManager->GetfSecondary();
@@ -273,9 +281,9 @@ namespace CaloG4 {
     G4int fN2ndariesAlongStepDoIt = steppingManager->GetfN2ndariesAlongStepDoIt();
     G4int fN2ndariesPostStepDoIt = steppingManager->GetfN2ndariesPostStepDoIt();
 
-     G4int tN2ndariesTot = fN2ndariesAtRestDoIt +
-      fN2ndariesAlongStepDoIt +
-      fN2ndariesPostStepDoIt;
+    G4int tN2ndariesTot = fN2ndariesAtRestDoIt +
+                          fN2ndariesAlongStepDoIt +
+                          fN2ndariesPostStepDoIt;
 
     // loop through secondary particles which were added at current step
     // to the list of all secondaries of current track:
@@ -298,14 +306,14 @@ namespace CaloG4 {
       if (secondaryID == G4NeutrinoE::Definition() || secondaryID == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
           secondaryID == G4NeutrinoMu::Definition() || secondaryID == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu
           secondaryID == G4NeutrinoTau::Definition() || secondaryID == G4AntiNeutrinoTau::Definition())   // nu_tau, anti_nu_tau
-       {
+      {
         result.energy[kInvisible0] -= totalEofSecondary;
         result.energy[kEscaped] += totalEofSecondary;
       }
       else {
         //----- extract further information about each new secondary particle:
         kinEofSecondary = (*fSecondary)[lp1]->GetKineticEnergy();
-        measurEofSecondary = measurableEnergy(secondaryID, 
+        measurEofSecondary = measurableEnergy(secondaryID,
                                               secondaryID->GetPDGEncoding(),
                                               totalEofSecondary,
                                               kinEofSecondary);
@@ -350,12 +358,12 @@ namespace CaloG4 {
     // Subdivision of visible energy for current step
     if (particle == G4Electron::Definition() ||
         particle == G4Positron::Definition() ||
-        processSubTypeValue == 12)    
+        processSubTypeValue == 12)
     {
-	result.energy[kEm] = dEStepVisible;
-      }
+      result.energy[kEm] = dEStepVisible;
+    }
     else {
-      result.energy[kNonEm] = dEStepVisible;             
+      result.energy[kNonEm] = dEStepVisible;
     }
 
 #ifdef DEBUG_ENERGIES
@@ -371,21 +379,17 @@ namespace CaloG4 {
 		  << std::endl;
       }
 #endif
-
     return result;
   }
 
-
-
-  G4double SimulationEnergies::measurableEnergyV2(const G4ParticleDefinition *particleDef, 
-                                                  G4int PDGEncoding,
-                                                  G4double totalEnergy,
-                                                  G4double kineticEnergy) const
-
+  G4double SimulationEnergies::
+  measurableEnergyV2(const G4ParticleDefinition* particleDef,
+                     G4int PDGEncoding,
+                     G4double totalEnergy,
+                     G4double kineticEnergy) const
+  {
     // 15-Dec-2003 Mikhail Leltchouk: inspired by FORTRAN Function PrMeasE
     // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
-
-  {
     G4double measurableEnergy = totalEnergy;
 
     if (particleDef == G4Electron::Definition() || particleDef == G4Proton::Definition() ||
@@ -418,9 +422,9 @@ namespace CaloG4 {
       measurableEnergy = 2.* totalEnergy - kineticEnergy;
     }
 
-    if (measurableEnergy < -0.0001){
-      G4cerr << "Calibration Hit: NEGATIVE measurableEnergyV2="<<measurableEnergy
-	     << " < -0.0001 MeV for "<<particleDef->GetParticleName()<<G4endl;
+    if (measurableEnergy < -0.0001) {
+      G4cerr << "Calibration Hit: NEGATIVE measurableEnergyV2=" << measurableEnergy
+             << " < -0.0001 MeV for " << particleDef->GetParticleName() << G4endl;
       measurableEnergy = 0.;
     }
 
@@ -486,43 +490,52 @@ namespace CaloG4 {
       correctionForMass = - neutronMass;
     }
     else if (PDGEncoding > 1000010019 ){ //for nuclei
-      return kineticEnergy;  
+      return kineticEnergy;
     }
-    else if (particleDef == G4Lambda::Definition() || particleDef == G4SigmaPlus::Definition() ||
-	     particleDef == G4SigmaZero::Definition() || particleDef == G4XiMinus::Definition() ||
-	     particleDef == G4XiZero::Definition() || particleDef == G4OmegaMinus::Definition() ){
+    else if (particleDef == G4Lambda::Definition() ||
+             particleDef == G4SigmaPlus::Definition() ||
+             particleDef == G4SigmaZero::Definition() ||
+             particleDef == G4XiMinus::Definition() ||
+             particleDef == G4XiZero::Definition() ||
+             particleDef == G4OmegaMinus::Definition()) {
       correctionForMass = - protonMass;
     }
-    else if (particleDef == G4SigmaMinus::Definition() ){ // Need Sigma Minus?
+    else if (particleDef == G4SigmaMinus::Definition()) { // Need Sigma Minus?
       correctionForMass = - neutronMass;
     }
 
-    else if (particleDef == G4AntiNeutron::Definition() ){
+    else if (particleDef == G4AntiNeutron::Definition()) {
       correctionForMass = + neutronMass;
     }
-    else if (particleDef == G4AntiProton::Definition() || particleDef == G4AntiLambda::Definition() ||
-	     particleDef == G4AntiSigmaZero::Definition() || particleDef == G4AntiSigmaPlus::Definition() || // Need AntiSigmacPlus and Zero as well?
-	     particleDef == G4AntiXiZero::Definition() || particleDef == G4AntiXiMinus::Definition() || // Need AntiXicMinus and Zero as well?
-	     particleDef == G4AntiOmegaMinus::Definition() ){ 
+    else if (particleDef == G4AntiProton::Definition() ||
+             particleDef == G4AntiLambda::Definition() ||
+             particleDef == G4AntiSigmaZero::Definition() ||
+             // Need AntiSigmacPlus and Zero as well?
+             particleDef == G4AntiSigmaPlus::Definition() ||
+             particleDef == G4AntiXiZero::Definition() ||
+             // Need AntiXicMinus and Zero as well?
+             particleDef == G4AntiXiMinus::Definition() ||
+             particleDef == G4AntiOmegaMinus::Definition()) {
       correctionForMass = + protonMass;
     }
-    else if (particleDef == G4AntiSigmaMinus::Definition() ){
+    else if (particleDef == G4AntiSigmaMinus::Definition()) {
       correctionForMass = + neutronMass;
     }
 
     G4double measurableEnergy = totalEnergy + correctionForMass;
 
-    if (measurableEnergy < -0.0001){
+    if (measurableEnergy < -0.0001) {
       G4cerr << "Calibration Hit: NEGATIVE measurableEnergy="
-	     <<measurableEnergy<<" < -0.0001 MeV for "<<particleDef->GetParticleName()<<G4endl;
+             << measurableEnergy << " < -0.0001 MeV for "
+             << particleDef->GetParticleName() << G4endl;
       measurableEnergy = 0.;
     }
     return measurableEnergy;
   }
 
 
-
-  G4bool SimulationEnergies::ProcessEscapedEnergy( G4ThreeVector a_point, G4double a_energy ) const
+  G4bool SimulationEnergies::ProcessEscapedEnergy(G4ThreeVector a_point,
+                                                  G4double a_energy ) const
   {
     // Escaped energy requires special processing.  The energy was not
     // deposited in the current G4Step, but at the beginning of the
@@ -567,7 +580,8 @@ namespace CaloG4 {
     // Choose which VEscapedEnergyProcessing routine we'll use based
     // on the volume name.
 
-    CaloG4::EscapedEnergyRegistry* registry = CaloG4::EscapedEnergyRegistry::GetInstance();
+    CaloG4::EscapedEnergyRegistry* registry =
+      CaloG4::EscapedEnergyRegistry::GetInstance();
     CaloG4::VEscapedEnergyProcessing* eep;
 
     if (touchableHandle->GetHistoryDepth()) {
@@ -575,9 +589,10 @@ namespace CaloG4 {
       G4String volumeName = touchableHandle->GetVolume()->GetName();
       eep = registry->GetProcessing( volumeName );
 
-      if ( eep != 0 )
+      if ( eep != 0 ) {
         // Call the appropriate routine.
         return eep->Process( touchableHandle, a_point, a_energy );
+      }
 
       // If we reach here, we're in a volume that has no escaped energy
       // procedure (probably neither Tile nor LAr).
@@ -586,21 +601,21 @@ namespace CaloG4 {
       // procedure for non-sensitive volumes.  Let's use that (for now).
 
       eep = registry->GetProcessing( "LAr::" );
-      if ( eep != 0 )
+      if ( eep != 0 ) {
         return eep->Process( touchableHandle, a_point, a_energy );
+      }
 
       // If we get here, the registry was never initialized for LAr.
       static G4bool errorDisplayed = false;
-      if ( ! errorDisplayed )
-        {
-	  errorDisplayed = true;
-	  G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
-	         << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
-	         << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
-	         << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
-	         << "   will be recorded." << G4endl;
-	}
-    
+      if ( ! errorDisplayed ) {
+        errorDisplayed = true;
+        G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
+               << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
+               << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
+               << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
+               << "   will be recorded." << G4endl;
+      }
+
       return false;
     }
     else {
@@ -609,24 +624,24 @@ namespace CaloG4 {
       //  Let's use that (for now).
 
       eep = registry->GetProcessing( "LAr::" );
-      if ( eep != 0 )
+      if ( eep != 0 ) {
         return eep->Process( touchableHandle, a_point, a_energy );
- 
+      }
+
       // If we get here, the registry was never initialized for LAr.
+      // FIXME: thread-unsafe statics!!!
       static G4bool errorDisplayed1 = false;
-      if ( ! errorDisplayed1 )
-        {
-	  errorDisplayed1 = true;
-	  G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
-		 <<"   WARNING! touchableHandle->GetVolume()==0  geometry problem ?  and also" << G4endl
-	         << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
-	         << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
-	         << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
-	         << "   will be recorded." << G4endl;
-        }
+      if ( ! errorDisplayed1 ) {
+        errorDisplayed1 = true;
+        G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
+               <<"   WARNING! touchableHandle->GetVolume()==0  geometry problem ?  and also" << G4endl
+               << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
+               << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
+               << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
+               << "   will be recorded." << G4endl;
+      }
       return false;
     }
   }
 
 } // namespace LArG4
-

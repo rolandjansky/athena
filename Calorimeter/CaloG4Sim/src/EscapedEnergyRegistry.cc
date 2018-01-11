@@ -13,10 +13,10 @@
 
 #include <map>
 
-namespace CaloG4 {
+namespace CaloG4
+{
 
   // Standard implementation of a singleton pattern.
-
   EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
   {
     static EscapedEnergyRegistry instance;
@@ -24,19 +24,20 @@ namespace CaloG4 {
   }
 
   EscapedEnergyRegistry::EscapedEnergyRegistry()
-  {;}
+  {}
 
   EscapedEnergyRegistry::~EscapedEnergyRegistry()
   {
     // Delete all the pointers we've adopted.
     m_processingMap_ptr_t i;
     for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ )
-      {
-	delete (*i).second;
-      }
+    {
+      delete (*i).second;
+    }
   }
 
-  void EscapedEnergyRegistry::AddAndAdoptProcessing( const G4String& name, VEscapedEnergyProcessing* process )
+  void EscapedEnergyRegistry::AddAndAdoptProcessing( const G4String& name,
+                                                     VEscapedEnergyProcessing* process )
   {
     // Don't bother adding a null pointer.
     if ( process == 0 ) return;
@@ -73,7 +74,8 @@ namespace CaloG4 {
     m_processingMap[ name ] = process;
   }
 
-  VEscapedEnergyProcessing* EscapedEnergyRegistry::GetProcessing( const G4String& volumeName ) const
+  VEscapedEnergyProcessing*
+  EscapedEnergyRegistry::GetProcessing( const G4String& volumeName ) const
   {
     // Search through the map.  If we find an entry whose text string
     // is a substring of the volume name (e.g., "LAr::" is a substring
