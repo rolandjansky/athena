@@ -472,7 +472,7 @@ StatusCode SimpleSuperCellChecks::execute(){
 		float res_timew = -110.0;
 		if ( (fabsf(sc_timew)>0.3) && (fabsf(scell->time() )>0.3) ) res_timew = 100.0*(scell->time()-sc_timew ) / scell->time();
 
-		if ( ( fabsf( scell->eta() )<2.49 ) && ( scell->caloDDE()->getSampling() <= CaloSampling::EME3 ) ){
+		if ( ( std::abs( scell->eta() )<2.49 ) && ( scell->caloDDE()->getSampling() <= CaloSampling::EME3 ) ){
 		m_TimeResol->Fill( res_time );
 		m_TimeResol_vs_pt->Fill( scell->et()/1e3,res_time );
 		m_TimeResol_vs_time->Fill( scell->time()*1e-3, res_time );
@@ -513,22 +513,22 @@ StatusCode SimpleSuperCellChecks::execute(){
 		if ( scell->caloDDE()->getSampling() == CaloSampling::PreSamplerE ){
 			count_sCells_Layer4++;
 			index=4;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::EME1 ){
 			count_sCells_Layer5++;
 			index=5;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::EME2 ){
 			count_sCells_Layer6++;
 			index=6;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::EME3 ){
 			count_sCells_Layer7++;
 			index=7;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::HEC0 ){
 			count_sCells_Layer8++;

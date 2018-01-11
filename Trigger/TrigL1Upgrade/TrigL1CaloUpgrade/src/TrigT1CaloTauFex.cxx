@@ -325,15 +325,15 @@ void TrigT1CaloTauFex::IsolationCorett(const std::vector<const CaloCell*>& scell
         float deltaetaInner = 0.05;
         float deltaphiInner = 0.05;
         for(auto scell : scells) {
-                if ( fabsf( scell->eta() - etacell) > deltaetaOuter2 ) continue;
+                if ( std::abs( scell->eta() - etacell) > deltaetaOuter2 ) continue;
                 if (scell->caloDDE()->getSampling()!=1 && scell->caloDDE()->getSampling()!=5 && cell->caloDDE()->getSampling()!=4 && cell->caloDDE()->getSampling()!=8) deltaetaOuter1 = 1.0; // tighter isolation in 1° and 2° layers
-                float dphi = fabsf( scell->phi() - phicell);
-                dphi = fabsf( M_PI - dphi );
-                dphi = fabsf( M_PI - dphi );
-                if ( fabsf( dphi ) > deltaphiOuter ) continue;
-                if ( fabsf( scell->eta() - etacell) < deltaetaInner && fabsf( dphi ) < deltaphiInner ) out1.push_back(scell); // core
-                else if ( fabsf( scell->eta() - etacell) > deltaetaOuter1 ) out2.push_back(scell); // isolation
-                else if ( scell->caloDDE()->getSampling()!=2 && scell->caloDDE()->getSampling()!=3 && cell->caloDDE()->getSampling()!=6 && cell->caloDDE()->getSampling()!=7 && fabsf( scell->eta() - etacell) < deltaetaInner && fabsf( dphi ) > deltaphiInner  ) out2.push_back(scell); // isolation
+                float dphi = std::abs( scell->phi() - phicell);
+                dphi = std::abs( M_PI - dphi );
+                dphi = std::abs( M_PI - dphi );
+                if ( std::abs( dphi ) > deltaphiOuter ) continue;
+                if ( std::abs( scell->eta() - etacell) < deltaetaInner && std::abs( dphi ) < deltaphiInner ) out1.push_back(scell); // core
+                else if ( std::abs( scell->eta() - etacell) > deltaetaOuter1 ) out2.push_back(scell); // isolation
+                else if ( scell->caloDDE()->getSampling()!=2 && scell->caloDDE()->getSampling()!=3 && cell->caloDDE()->getSampling()!=6 && cell->caloDDE()->getSampling()!=7 && std::abs( scell->eta() - etacell) < deltaetaInner && std::abs( dphi ) > deltaphiInner  ) out2.push_back(scell); // isolation
         }
         return;
 }
@@ -364,15 +364,15 @@ void TrigT1CaloTauFex::IsolationCore(const std::vector<const CaloCell*>& scells,
         for(auto scell : scells) {
           float eta = scell->eta();
           float phi = scell->phi();
-          if ( fabsf( scell->eta() - etacell) > deltaetaOuter2 ) continue;
+          if ( std::abs( scell->eta() - etacell) > deltaetaOuter2 ) continue;
           if (scell->caloDDE()->getSampling()!=1 && scell->caloDDE()->getSampling()!=5 && cell->caloDDE()->getSampling()!=4 && cell->caloDDE()->getSampling()!=8) deltaetaInner = 0.5; // looser isolation in layers 0 and 3
-          float dphi = fabsf( scell->phi() - phicell);
-          dphi = fabsf( M_PI - dphi );
-          dphi = fabsf( M_PI - dphi );
-          if ( fabsf( dphi ) > deltaphiOuter ) continue;
-          if ( fabsf( scell->eta() - etacell) < deltaetaInner && fabsf( dphi ) < deltaphiInner ) {out1.push_back(scell); totalEMCoreSum += scell->energy(); AvEta += eta*(scell->energy()); AvPhi += phi*(scell->energy());} // core
-          else if ( fabsf( scell->eta() - etacell) > deltaetaOuter1 ) {out2.push_back(scell); totalEMIsoSum += scell->energy();} // isolation
-          else if ( scell->caloDDE()->getSampling()!=2 && scell->caloDDE()->getSampling()!=3 && cell->caloDDE()->getSampling()!=6 && cell->caloDDE()->getSampling()!=7 && fabsf( scell->eta() - etacell) < deltaetaInner && fabsf( dphi ) > deltaphiInner  ) {out2.push_back(scell); totalEMIsoSum = scell->energy();} // isolation
+          float dphi = std::abs( scell->phi() - phicell);
+          dphi = std::abs( M_PI - dphi );
+          dphi = std::abs( M_PI - dphi );
+          if ( std::abs( dphi ) > deltaphiOuter ) continue;
+          if ( std::abs( scell->eta() - etacell) < deltaetaInner && std::abs( dphi ) < deltaphiInner ) {out1.push_back(scell); totalEMCoreSum += scell->energy(); AvEta += eta*(scell->energy()); AvPhi += phi*(scell->energy());} // core
+          else if ( std::abs( scell->eta() - etacell) > deltaetaOuter1 ) {out2.push_back(scell); totalEMIsoSum += scell->energy();} // isolation
+          else if ( scell->caloDDE()->getSampling()!=2 && scell->caloDDE()->getSampling()!=3 && cell->caloDDE()->getSampling()!=6 && cell->caloDDE()->getSampling()!=7 && std::abs( scell->eta() - etacell) < deltaetaInner && std::abs( dphi ) > deltaphiInner  ) {out2.push_back(scell); totalEMIsoSum = scell->energy();} // isolation
         }
         AvEta = AvEta/totalEMCoreSum;
         AvPhi = AvPhi/totalEMCoreSum;

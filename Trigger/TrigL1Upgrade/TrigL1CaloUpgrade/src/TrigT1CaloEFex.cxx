@@ -163,7 +163,7 @@ StatusCode TrigT1CaloEFex::execute(){
 			cl->setEnergy( (CaloSampling::CaloSample)layer, cl->energy( (CaloSampling::CaloSample)layer )+cellAround->energy() );
 			if ( (layer==1) || (layer==5) ) {
 			  if ( cellAround->et() < 10 ) continue;
-			  wstot+=(cellAround->et()*fabsf(cellAround->eta()-etaCluster));
+			  wstot+=(cellAround->et()*std::abs(cellAround->eta()-etaCluster));
 			  wstot_nor+=(cellAround->et());
 			}
 		}// Loop over cells
