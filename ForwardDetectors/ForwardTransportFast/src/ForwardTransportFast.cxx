@@ -51,7 +51,10 @@ StatusCode ForwardTransportFast::execute() {
   
   for (McEventCollection::const_iterator itr = mcCollptr->begin(); itr != mcCollptr->end(); ++itr) {
 
-    HepMC::GenEvent* gEvent = (*itr); 
+    // FIXME: This algorithm is explicitly modifying an object
+    //        resident in the event store.  This will not work
+    //        with AthenaMT!
+    HepMC::GenEvent* gEvent = const_cast<HepMC::GenEvent*>(*itr); 
 
     std::vector<int>               fPidVector;
     std::vector<HepMC::FourVector> fPosVector;
