@@ -38,7 +38,7 @@ namespace G4UA
         int npass = 0;
         void merge(const Report& rep){
           ntot += rep.ntot;
-          ntot += rep.npass;
+          npass += rep.npass;
         }
       };
 
