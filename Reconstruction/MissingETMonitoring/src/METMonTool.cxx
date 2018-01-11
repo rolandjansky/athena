@@ -80,18 +80,10 @@ static const std::map<std::string, std::pair<std::string, std::string> > key2Sub
 METMonTool::METMonTool(const std::string& type, const std::string& name, const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent)
 {
+  // declare properties, this will disappear once moved data handles
   // fill vector with Missing Et Sources
-  m_metKeys.push_back("MET_Base");
-  m_metKeys.push_back("MET_Topo");
-  m_metKeys.push_back("MET_Track");
-  // m_metKeys.push_back("MET_PFlow");
 
-
-  // declare properties
-  // TB moved to header
-
-  //TB except these which in next go need to move to DH
-  declareProperty("metKeys", m_metKeys);
+  declareProperty("metKeys", m_metKeys={"MET_Base", "MET_Topo", "MET_Track"});
   declareProperty("metFinKey", m_metFinKey);
   declareProperty("metCalKey", m_metCalKey);
   declareProperty("metRegKey", m_metRegKey);
@@ -103,13 +95,7 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
 
 StatusCode METMonTool::initialize()
 {
-
-  //  CHECK( m_genTool.retrieve() );
-
-  //msg_info// ATH_MSG_INFO("METMonTool::143");
-  //msg_info// ATH_MSG_INFO("METMonTool::143");
-  //msg_info// ATH_MSG_INFO("METMonTool::143");
-
+  
   //resize vector with number of WARNINGs already displayed for retrieval of a certain container
   m_ContainerWarnings_metKeys.resize(m_metKeys.size(), 0);
 
@@ -129,14 +115,8 @@ METMonTool::~METMonTool()
 // *********************************************************************
 // Book Histograms
 // *********************************************************************
-
-
 StatusCode METMonTool::bookHistograms()
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::165");
-  //msg_info// ATH_MSG_INFO("METMonTool::165");
-  //msg_info// ATH_MSG_INFO("METMonTool::165");
-
   ATH_MSG_DEBUG("in bookHistograms()");//msg(MSG::DEBUG) << "in bookHistograms()" << endmsg;
 
   // If m_metFinKey is not empty then append it to m_metKeys
@@ -173,7 +153,7 @@ StatusCode METMonTool::bookHistograms()
     {
       ATH_MSG_DEBUG("Vector of Et ranges for calorimeter subsystems is incomplete: filling with 1's");
       std::vector<float> temp = m_etrangeCalFactors;
-      temp.resize( m_calIndices, 1.); // TB the properties should not be updated in C++ this days
+      temp.resize( m_calIndices, 1.); 
       m_etrangeCalFactors = temp; 
     }
 
@@ -241,7 +221,6 @@ StatusCode METMonTool::clearHistograms()
   //msg_info// ATH_MSG_INFO("METMonTool::259");
   //msg_info// ATH_MSG_INFO("METMonTool::259");
   //msg_info// ATH_MSG_INFO("METMonTool::259");
-  return StatusCode::SUCCESS;     // TB, interesting, why do we need to clear them? Is this memory management only?
   ATH_MSG_DEBUG("in clearHistograms()");
 
   // Sources
@@ -288,7 +267,7 @@ StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met
 
   ATH_MSG_DEBUG("in bookSourcesHistograms(" << metName.c_str() << ")");
     
-  //  std::ostringstream hName; //TB even if do not manage the move to Generic tool the strigstream can be now fully replaced by c++11 string helper functions 
+  //  std::ostringstream hName; //forward comment: even if do not manage the move to Generic tool the strigstream can be now fully replaced by c++11 string helper functions 
   std::string hName;
   std::ostringstream hTitle;  
   std::ostringstream hxTitle;
@@ -911,7 +890,7 @@ StatusCode METMonTool::fillSourcesHistograms()
   const xAOD::JetContainer* xJetCollection = 0;
   if (m_jetColKey != "")
     {
-      ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets")); // TB why not m_jetColKey ? 
+      ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets")); 
       if (!xJetCollection)
         {
 	  ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
@@ -923,7 +902,7 @@ StatusCode METMonTool::fillSourcesHistograms()
 	  // Assume sorted collection
 	  if (!(xJetCollection->size() > 0) && m_badJets)
             {
-	      return StatusCode::SUCCESS; // TB reali skip the event?
+	      return StatusCode::SUCCESS; 
             }
 
 	  if (xJetCollection->size() > 0)
@@ -945,7 +924,7 @@ StatusCode METMonTool::fillSourcesHistograms()
                     }
 		  if (counterbadjets == 0)
                     {
-		      return StatusCode::SUCCESS; // TB realy skip the event?
+		      return StatusCode::SUCCESS; 
                     }
                 }
             }
@@ -961,7 +940,7 @@ StatusCode METMonTool::fillSourcesHistograms()
 
   if (m_eleColKey != "")
     {
-      ATH_CHECK(evtStore()->retrieve(xElectrons, "Electrons")); // TB why not the m_eleColKey?
+      ATH_CHECK(evtStore()->retrieve(xElectrons, "Electrons")); 
       if (!xElectrons)
         {
 	  ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << "Electrons");
@@ -984,7 +963,7 @@ StatusCode METMonTool::fillSourcesHistograms()
 
   if (m_muoColKey != "")
     {
-      ATH_CHECK(evtStore()->retrieve(xMuons, "Muons")); // TB why not the m_muonColKey ?
+      ATH_CHECK(evtStore()->retrieve(xMuons, "Muons")); 
       if (!xMuons)
         {
 	  ATH_MSG_WARNING("Unable to retrieve muon collection: " << "Muons");
@@ -1018,7 +997,7 @@ StatusCode METMonTool::fillSourcesHistograms()
       if (et_RefFinal < m_met_cut) return StatusCode::SUCCESS;
     }
   }
-  // TB does logic below == skip event if there is badjet?
+
   if (m_doJetcleaning && !m_badJets)
     {
       if (xJetCollection->size() > 0){
@@ -1147,7 +1126,7 @@ StatusCode METMonTool::fillCalosHistograms()
     return StatusCode::SUCCESS;
   }
 
-  ATH_CHECK(evtStore()->retrieve(xmetCal, "MET_Calo")); // TB the key has to be made read data handle 
+  ATH_CHECK(evtStore()->retrieve(xmetCal, "MET_Calo")); 
 
 
   ATH_MSG_DEBUG("Filling histograms per calorimeter subsystem with key " << m_metCalKey);
@@ -1166,11 +1145,11 @@ StatusCode METMonTool::fillCalosHistograms()
   if (m_doJetcleaning && !m_badJets) {
     const xAOD::JetContainer* xJetCollection = 0;
     ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
-    if ( xJetCollection == 0 ) {// TB that will be impossible in AthenaMT
+    if ( xJetCollection == 0 ) {
       ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
       //return StatusCode::FAILURE;
     } else {
-      // TB skip event if any jet is bad ?
+
       for ( const xAOD::Jet* xjet: *xJetCollection ) {
 	  if( m_selTool->keep(*xjet) == false )  return StatusCode::SUCCESS;
       }	      
