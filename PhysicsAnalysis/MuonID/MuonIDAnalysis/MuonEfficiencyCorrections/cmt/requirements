@@ -41,3 +41,8 @@ apply_pattern declare_joboptions files=../share/*.py
 private
 use AtlasReflex AtlasReflex-* External -no-auto-imports
 apply_pattern lcgdict dict=MuonEfficiencyCorrections selectionfile=selection.xml headerfiles="../MuonEfficiencyCorrections/MuonEfficiencyCorrectionsDict.h"
+
+application MuonEfficiencyScaleFactorsTest ../util/MuonEfficiencyScaleFactorsTest.cxx
+macro_append MuonEfficiencyScaleFactorsTest_dependencies MuonEfficiencyCorrections
+application MuonEfficiencyScaleFactorsSFFileTester ../util/MuonEfficiencyScaleFactorsSFFileTester.cxx
+macro_append MuonEfficiencyScaleFactorsSFFileTester_dependencies MuonEfficiencyCorrections

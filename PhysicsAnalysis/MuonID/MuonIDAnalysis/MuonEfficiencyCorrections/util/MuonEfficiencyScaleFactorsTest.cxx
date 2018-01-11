@@ -2,10 +2,10 @@
  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-/// a simple testing macro for the MuonEfficiencyCorrections_xAOD package in RC
+/// a simple testing macro for the MuonEfficiencyScaleFactors class
 /// shamelessly stolen from CPToolTests.cxx
 ///
-/// Usage: MuonEfficiencyCorrectionsRootCoreTest <input file>
+/// Usage: MuonEfficiencyScaleFactorsTest -i <input file>
 // System include(s):
 #include <memory>
 #include <cstdlib>
@@ -19,12 +19,10 @@
 #include <TString.h>
 
 // Infrastructure include(s):
-//#ifdef ROOTCORE
-#   include "xAODRootAccess/Init.h"
-#   include "xAODRootAccess/TEvent.h"
-#   include "xAODRootAccess/tools/ReturnCheck.h"
-#   include "AsgTools/Check.h"
-//#endif // ROOTCORE
+#include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/tools/ReturnCheck.h"
+#include "AsgTools/Check.h"
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -81,20 +79,31 @@ int main(int argc, char* argv[]) {
     // The application's name:
     const char* APP_NAME = argv[0];
 
-    // check( if we received a file name:
-    if (argc < 2) {
-        Error(APP_NAME, "No file name received!");
-        Error(APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME);
-        return 1;
+    std::string prwFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/NTUP_PILEUP_r9364_r9315.root";
+    std::string ilumiFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root";
+    std::string InFile = "";
+    long long int nmax = -1;
+    // read the config provided by the user
+    for (int k = 1; k < argc - 1; ++k) {
+        if (std::string(argv[k]).find("-i") == 0) {
+            InFile = argv[k + 1];
+        }
+        if (std::string(argv[k]).find("-n") == 0) {
+            nmax = atoi(argv[k + 1]);
+        }
+        if (std::string(argv[k]).find("--ilumi") == 0) {
+            ilumiFilename = argv[k + 1];
+        }
+        if (std::string(argv[k]).find("--prw") == 0) {
+            prwFilename = argv[k + 1];
+        }
     }
-
     // Initialise the application:
     RETURN_CHECK(APP_NAME, xAOD::Init(APP_NAME));
 
     // Open the input file:
-    const TString fileName = argv[1];
-    Info(APP_NAME, "Opening file: %s", fileName.Data());
-    std::auto_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
+    Info(APP_NAME, "Opening file: %s", InFile.c_str());
+    std::auto_ptr<TFile> ifile(TFile::Open(InFile.c_str(), "READ"));
     if (!ifile.get()) {
         Error(APP_NAME, " Unable to load xAOD input file");
     }
@@ -111,6 +120,7 @@ int main(int argc, char* argv[]) {
     Info(APP_NAME, "Number of events in the file: %i", static_cast<int>(event.getEntries()));
 
     Long64_t entries = event.getEntries();
+    if ((nmax != -1) && (nmax<entries)) entries = nmax;
 
     TStopwatch tsw;
     tsw.Start();
@@ -121,12 +131,11 @@ int main(int argc, char* argv[]) {
     asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
     std::vector<std::string> m_ConfigFiles {
-           "dev/SUSYTools/merged_prw_mc16a_latest.root",
-           "dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root"   };
+        prwFilename
+    };
     std::vector<std::string> m_LumiCalcFiles {
-           std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.root"),
-           std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root")
-       };
+        ilumiFilename
+    };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
 
@@ -136,10 +145,16 @@ int main(int argc, char* argv[]) {
     // Initialize the PRW tool
     ASG_CHECK_SA(APP_NAME, m_prw_tool.initialize());
 
-     const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
-            //Isolation
-            "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","GradientIso","GradientLooseIso",
-            "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso"
+     const std::vector<std::string> WPs {
+         // reconstruction WPs
+         "Loose", "Medium", "Tight", "HighPt",
+         // track-to-vertex-association WPs
+         "TTVA",
+         // BadMuon veto SFs
+         "BadMuonVeto_HighPt",
+         // isolation WPs
+         "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
     };
    
     std::vector<EffiToolInstance> EffiTools;
