@@ -36,7 +36,7 @@ public:
 
   AnalysisConfig_Ntuple(TIDARoiDescriptor* roiInfo, 
 			const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
-			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool keepAllEvents=false) : 
+			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false) : 
     T_AnalysisConfig<IHLTMonTool>( "Ntple",
 				   "", "", "",
 				   "", "", "",
@@ -46,12 +46,13 @@ public:
 				   0,
 				   0 ),
     m_event(0),
-    m_file(0),
-    m_tree(0),
+    mFile(0),
+    mTree(0),
     m_doOffline(false),
     m_doVertices(false),
     m_doMuons(false),
     m_doMuonsSP(false),
+    m_muonType(),
     m_electronType(),
     m_rawElectrons(),
     m_tauType(),
@@ -65,15 +66,16 @@ public:
   {  
     //    std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
 
-    this->keepAllEvents( keepAllEvents ); /// this is now i nthe base class
+    this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
 
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
-      if ( chainNames[i] != "Offline"     &&
-	   chainNames[i] != "Muons"       &&
-	   chainNames[i] != "Bjets"       &&
+      if ( chainNames[i] != "Offline"         &&
+	   chainNames[i] != "Vertex"          &&
+	   chainNames[i] != "Bjets"           &&
+	   chainNames[i].find("Muons")!=0     &&
 	   chainNames[i].find("Electrons")!=0 &&
 	   chainNames[i].find("Taus")!=0  )   { 
-	
+
 	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
 	
 	m_chainNames.push_back( ChainString(chainNames[i]) );
@@ -87,8 +89,8 @@ public:
 
       if ( chainNames[i]=="Offline" )     m_doOffline     = true;
       if ( chainNames[i]=="Vertex" )      m_doVertices    = true;
-      if ( chainNames[i]=="Muons" )       m_doMuons       = true;
       if ( chainNames[i]=="MuonsSP" )     m_doMuonsSP     = true;
+      if ( chain.head()=="Muons" )        m_muonType.push_back(chain.tail());
 
       if ( chain.head()=="Electrons" ) { 
  	 m_electronType.push_back(chain.tail());
@@ -129,9 +131,9 @@ protected:
 
   TIDA::Event*  m_event;
 
-  TFile*      m_file;  
-  TTree*      m_tree;
-  TDirectory* m_dir;
+  TFile*      mFile;  
+  TTree*      mTree;
+  TDirectory* mDir;
 
   std::vector<ChainString> m_chainNames;
 
@@ -139,6 +141,8 @@ protected:
   bool m_doVertices;
   bool m_doMuons;
   bool m_doMuonsSP;
+
+  std::vector<std::string>  m_muonType;
 
   std::vector<std::string>  m_electronType;
   std::vector<std::string>  m_rawElectrons;

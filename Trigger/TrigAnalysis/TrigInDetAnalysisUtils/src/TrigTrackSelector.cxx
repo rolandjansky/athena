@@ -162,14 +162,14 @@ void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
       // 2 "hits" and an offline SCT "hit" is really a 1D cluster, so two intersetcting
       // stereo clusters making a spacepoint are two "hits"
       const Trk::TrackSummary *summary = track->trackSummary();
-      int nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
+      int nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
       int nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
       int nSctHits    = summary->get(Trk::numberOfSCTHits); 
       int nStrawHits  = summary->get(Trk::numberOfTRTHits);
       int nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 
       int nSiHits     = nPixelHits + nSctHits;
-      bool expectBL   = summary->get(Trk:: expectInnermostPixelLayerHit);
+      bool expectBL   = summary->get(Trk:: expectBLayerHit);
 
       const Trk::FitQuality *quality   = track->fitQuality();
       double chi2 = quality->chiSquared();
@@ -612,13 +612,13 @@ void TrigTrackSelector::selectTrack( const Trk::Track* track ) {
             std::cerr << "Could not create TrackSummary  - Track will likely fail hits requirements" << std::endl;
 	}    
 	else{      
-            nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
+            nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
             nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
 	    nSctHits    = summary->get(Trk::numberOfSCTHits); 
             nStrawHits  = summary->get(Trk::numberOfTRTHits);
             nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 	    nSiHits     = nPixelHits + nSctHits;
-	    expectBL    = summary->get(Trk::expectInnermostPixelLayerHit);
+	    expectBL    = summary->get(Trk::expectBLayerHit);
 	    for ( int ih=0 ; ih<20 ; ih++ ) {
 	      if ( summary->isHit(Trk::DetectorType(ih)) ) bitmap |= ( 1<<hpmap[ih] ); 	
 	    }
@@ -826,7 +826,7 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 	/// This is Soooo isHit, xAOD::TrackParticle::track() is supposed to produce a 
 	/// Trk::Track* in the new code, but an ElementLink<TrackContainer> in the old version
 	/// so to test with the old release use the ElementLink, but this just doesn't
-	/// compile, so give up on this subpar atlas code.   
+	/// compile, so give up on this ***REMOVED*** code.   
 	//   const Trk::TrackSummary*  summary = track->track()->trackSummary();
 	const Trk::TrackSummary*  summary = _track->trackSummary();
 	

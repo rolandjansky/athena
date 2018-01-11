@@ -31,35 +31,35 @@ static const double M_2PI = 2*M_PI;
 RegSelRoI::RegSelRoI(double zMin,   double zMax, 
 		     double phiMin, double phiMax, 
 		     double etaMin, double etaMax) 
-  : m_zMin(zMin),     m_zMax(zMax), 
-    m_phiMin(phiMin), m_phiMax(phiMax), 
-    m_etaMin(etaMin), m_etaMax(etaMax),
-    m_split(false)
+  : mzMin(zMin),     mzMax(zMax), 
+    mphiMin(phiMin), mphiMax(phiMax), 
+    metaMin(etaMin), metaMax(etaMax),
+    msplit(false)
 {
   // calculate and store inverses
-  m_invaMin = std::tan(2*atan(exp(-m_etaMin)));
-  m_invaMax = std::tan(2*atan(exp(-m_etaMax)));
-  m_aMin = 1/m_invaMin;
-  m_aMax = 1/m_invaMax;
+  minvaMin = std::tan(2*atan(exp(-metaMin)));
+  minvaMax = std::tan(2*atan(exp(-metaMax)));
+  maMin = 1/minvaMin;
+  maMax = 1/minvaMax;
 
   // AAARGH!!!! Check that the roi is in the correct range 
-  double deltaphi = m_phiMax-m_phiMin;
+  double deltaphi = mphiMax-mphiMin;
 
-  if ( m_phiMax<m_phiMin ) deltaphi+=M_2PI;
+  if ( mphiMax<mphiMin ) deltaphi+=M_2PI;
 
   if ( std::fabs(deltaphi-M_2PI)>1e-10 ) { 
-    if ( m_phiMin> M_PI ) m_phiMin -= M_2PI;
-    if ( m_phiMin<-M_PI ) m_phiMin += M_2PI;
+    if ( mphiMin> M_PI ) mphiMin -= M_2PI;
+    if ( mphiMin<-M_PI ) mphiMin += M_2PI;
     
-    if ( m_phiMax> M_PI ) m_phiMax -= M_2PI;
-    if ( m_phiMax<-M_PI ) m_phiMax += M_2PI;
+    if ( mphiMax> M_PI ) mphiMax -= M_2PI;
+    if ( mphiMax<-M_PI ) mphiMax += M_2PI;
   }
   else { 
-    m_phiMin = -M_PI;
-    m_phiMax =  M_PI;
+    mphiMin = -M_PI;
+    mphiMax =  M_PI;
   }  
 
-  m_split = (m_phiMax<m_phiMin);
+  msplit = (mphiMax<mphiMin);
 
 }
 

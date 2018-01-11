@@ -54,7 +54,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   , m_hist_BadChannelJump2D_nonmask{}
   , m_hist_BadChannelNeg2D_nonmask{}
   , m_hist_error_lb{}
-  , m_badPulseQuality{nullptr}
+  , m_badPulseQuality{{nullptr}}
   , m_noAllDigitsInDrawer(nullptr)
   , m_nLumiblocks(3000)
   , m_qualityCut(254.0)

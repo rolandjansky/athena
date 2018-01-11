@@ -51,7 +51,7 @@ bool SimpleUtilityBase::parseArguments()
 
 void SimpleUtilityBase::startSession()
 {
-   storageSvc = pool::createStorageSvc( 0, "StorageSvc");
+   storageSvc = pool::createStorageSvc("StorageSvc");
    if( !storageSvc ) {
       throw std::runtime_error( "Could not create a StorageSvc object" );
    }

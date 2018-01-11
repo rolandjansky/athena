@@ -11,24 +11,18 @@
 
 namespace pool {
   
-  class Context;
-  
   namespace PersistencySvc {
 
     // Forward declarations
-      //class PersistencySvcConfiguration;
     class DatabaseHandler;
 
     class DatabaseRegistry {
     public:
       /// Constructor
-      explicit DatabaseRegistry( Context& context );
+      explicit DatabaseRegistry();
 
       /// Destructor
       ~DatabaseRegistry();
-
-      // returns the POOL global context
-      pool::Context& context();
 
       /// Registers a database.
       void registerDatabaseHandler( DatabaseHandler* dbHandler );
@@ -72,9 +66,6 @@ namespace pool {
 
       // Registers a database
       std::set< DatabaseHandler* >::iterator registerDbHandler( DatabaseHandler* dbHandler );
-
-      // Pool global context
-      Context& m_context;
     };
   }
 }

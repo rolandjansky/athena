@@ -8,19 +8,18 @@
 #include "PersistencySvc/IDatabase.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 #include "PersistencySvc/ITechnologySpecificAttributes.h"
-#include "PersistencySvc/IDatabaseParameters.h"
 
 namespace pool {
 
   // forward declarations
   class DatabaseConnectionPolicy;
+  class IFileCatalog;
   class ITransaction;
 
   namespace PersistencySvc {
 
     // forward declarations
     class TechnologyDispatcher;
-    class PersistencySvcConfiguration;
     class DatabaseHandler;
     class DatabaseRegistry;
 
@@ -30,13 +29,13 @@ namespace pool {
      *
      */
     class UserDatabase : virtual public IDatabase,
-                         virtual public ITechnologySpecificAttributes,
-                         virtual public IDatabaseParameters
+                         virtual public ITechnologySpecificAttributes
     {
     public:
       /// Constructor
       UserDatabase( TechnologyDispatcher& technologyDispatcher,
-		    PersistencySvcConfiguration& configuration,
+		    const DatabaseConnectionPolicy& policy,
+		    IFileCatalog& fileCatalog,
 		    ITransaction& transaction,
 		    DatabaseRegistry& registry,
 		    const std::string& name,
@@ -93,19 +92,6 @@ namespace pool {
       const ITechnologySpecificAttributes& technologySpecificAttributes() const;
       ITechnologySpecificAttributes& technologySpecificAttributes();
 
-      /// Returns the object holding the database parameters
-      const IDatabaseParameters& parameters() const;
-      IDatabaseParameters& parameters();
-
-      /// Returns the names of all the currently available parameters
-      std::set< std::string > parameterNames() const;
-
-      /// Returns the value of a parameter given its name. If the parameter does not exist an empty string is returned.
-      std::string value( const std::string& name ) const;
-
-      /// Adds a new parameter with a given value
-      void addParameter( const std::string& name, const std::string& value );
-      
     protected:
       bool attributeOfType( const std::string& attributeName,
                             void* data,
@@ -119,8 +105,10 @@ namespace pool {
     private:
       /// Reference to the technology dispatcher
       TechnologyDispatcher&                   m_technologyDispatcher;
-      /// Reference to the configuration
-      PersistencySvcConfiguration&            m_configuration;
+      /// Reference to the policy
+      const DatabaseConnectionPolicy&         m_policy;
+      /// Reference to the file catalog
+      IFileCatalog&                           m_catalog;
       /// Reference to the global transaction
       ITransaction&                           m_transaction;
       /// Reference to the database registry

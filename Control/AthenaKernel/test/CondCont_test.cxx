@@ -141,10 +141,11 @@ void checkit (const CondCont<T>& cc, const std::vector<T*>& ptrs)
   assert (t == ptrs[1]);
 
   EventIDRange r;
+  const EventIDRange* rp = nullptr;
   t = nullptr;
-  assert (cc.find (timestamp (234), t, &r));
+  assert (cc.find (timestamp (234), t, &rp));
   assert (t == ptrs[2]);
-  assert (r == r3);
+  assert (*rp == r3);
 
   assert (!cc.find (runlbn (15, 17), t));
   assert (!cc.find (timestamp (999), t));

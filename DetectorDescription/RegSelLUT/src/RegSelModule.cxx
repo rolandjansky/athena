@@ -110,9 +110,9 @@ std::ostream& operator<<(std::ostream& s, const RegSelModule& m)
 
 
 
-bool getModule(std::istream& s, RegSelModule& m)
+bool getModule(std::istream& ss, RegSelModule& m)
 {
-  char sbuf[128], s1buf[128], s2buf[128]; 
+  char s[128], s1[128], s2[128]; 
 
   int layer;
   int detector;
@@ -126,42 +126,44 @@ bool getModule(std::istream& s, RegSelModule& m)
   //  IdentifierHash hash;
   unsigned int hashint;
 
-  s >> sbuf >> sbuf >> std::dec >> layer 
-    >> sbuf >> sbuf >> std::dec >> detector 
-    >> sbuf >> sbuf >> rMin    >> sbuf >> rMax  
-    >> sbuf >> sbuf >> phiMin  >> sbuf >> phiMax  
-    >> sbuf >> sbuf >> zMin    >> sbuf >> zMax;
+  ss >> s >> s >> std::dec >> layer 
+    >> s >> s >> std::dec >> detector 
+    >> s >> s >> rMin    >> s >> rMax  
+    >> s >> s >> phiMin  >> s >> phiMax  
+    >> s >> s >> zMin    >> s >> zMax;
  
   /// copy z limits to max radius values just in case
   z2Min = zMin;
   z2Max = zMax;
   
-  s >> s1buf >> s2buf;
+  ss >> s1 >> s2;
 
   /// read in extra z limits if required
-  if ( std::string(s2buf)=="z2=" ) { 
-    s >> z2Min    >> sbuf >> z2Max;
-    s >> sbuf >> sbuf;
+  if ( std::string(s2)=="z2=" ) { 
+    ss >> z2Min    >> s >> z2Max;
+    ss >> s >> s;
   }
 
-  s >> std::hex >> robid 
-    >> sbuf >> sbuf >> std::hex >> hashint >> std::dec >> sbuf;
+  ss >> std::hex >> robid 
+    >> s >> s >> std::hex >> hashint >> std::dec >> s;
 
-  if ( s.fail() ) return false;
+  if ( ss.fail() ) return false;
   
   //  std::cout << "s.fail() " << s.fail() << std::endl; 
 
   phiMin *= M_PI/180;   
   phiMax *= M_PI/180;   
 
-  m = RegSelModule( zMin,   zMax, 
-                    z2Min,  z2Max, 
-                    rMin,   rMax, 
-                    phiMin, phiMax, 
-                    layer, 
-                    detector, 
-                    robid, 
-                    IdentifierHash(hashint));
+  RegSelModule tm( zMin,   zMax, 
+		   z2Min,  z2Max, 
+		   rMin,   rMax, 
+		   phiMin, phiMax, 
+		   layer, 
+		   detector, 
+		   robid, 
+		   IdentifierHash(hashint));
+  
+  m=tm;
 
   return true;
 }  

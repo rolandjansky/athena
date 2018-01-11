@@ -9,8 +9,8 @@
 //   $Id: RegSelROB.h, v0.0   Thu 14 Oct 2010 18:06:34 BST sutt $
 
 
-#ifndef __REGSELROB_H
-#define __REGSELROB_H
+#ifndef REGSELROB_H
+#define REGSELROB_H
 
 #include <iostream>
 #include <set>

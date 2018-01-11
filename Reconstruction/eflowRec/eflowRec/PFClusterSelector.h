@@ -30,7 +30,7 @@ private:
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClustersReadHandleKey{this,"clustersName","CaloTopoCluster","ReadHandleKey for the CaloClusterContainer to be used as input"};
 
   /** ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoCluster","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoClusters","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};
 
   /** WriteHandleKey for the eflowRecClusterContainer to write out */
   SG::WriteHandleKey<eflowRecClusterContainer> m_eflowRecClustersWriteHandleKey{this,"eflowRecClustersOutputName","eflowRecClusters","WriteHandleKey for the eflowRecClusterContainer to write out"};

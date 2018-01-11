@@ -46,7 +46,7 @@ namespace pool    {
 
   protected:
     /// Constructor with initializing arguments
-    OODatabaseImp(void* ctxt, const DbType& typ);
+    OODatabaseImp(const DbType& typ);
     /// Standard Destructor
     virtual ~OODatabaseImp();
   public:

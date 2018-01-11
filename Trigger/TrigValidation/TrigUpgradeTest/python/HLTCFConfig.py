@@ -29,10 +29,10 @@ class AlgNode():
     def configureAlg(self, Alg):
         alg_name = Alg.getName()
         if AlgExisting(alg_name):
-            print "Found already Alg %s"%alg_name
+            print "AlgNode::%s: found already Alg %s"%(self.name,alg_name)
             self.Alg = useExisting(alg_name)
         else:
-            print "Add new Alg %s"%alg_name
+            print "AlgNode::%s: new Alg %s"%(self.name,alg_name)
             self.Alg=Alg
             remember(alg_name, self.Alg)
             
@@ -42,7 +42,10 @@ class AlgNode():
         self.addDefaultOutput()
 
     def addDefaultOutput(self):
-        self.setOutput(("%s_out"%(self.name)))
+        print "This is main addDefaultOutput"
+        self.setOutput(("%s_%s_out"%(self.algname,self.outputProp)))
+        #self.setOutput(("%s_out"%(self.name)))
+        
 
     def setPar(self, prop, name):
         cval = self.Alg.getProperties()[prop]
@@ -52,6 +55,14 @@ class AlgNode():
                 setattr(self.Alg, prop, cval)
             else:
                 setattr(self.Alg, prop, name)
+        except:
+            pass
+
+    def setParArray(self, prop, name):
+        cval = self.Alg.getProperties()[prop]
+        try:
+            cval.append(name)
+            setattr(self.Alg, prop, cval)
         except:
             pass
  
@@ -80,6 +91,9 @@ class AlgNode():
     
     def setInput(self, name):
         return self.setPar(self.inputProp,name)
+
+    def addInput(self, name):
+        return self.setParArray(self.inputProp,name)
     
     def getInput(self):
         return self.getPar(self.inputProp)
@@ -102,17 +116,56 @@ class HypoAlgNode(AlgNode):
     def __init__(self, Alg, inputProp, outputProp):
         AlgNode.__init__(self, Alg, inputProp, outputProp)
         self.tools = []
+        self.previous=[]
+       
 
     def addHypoTool(self, hypotool):
         if "Comb" in self.name: ###TMP combo, only one threshold
             import re
-            thresholds = map(int, re.findall(r'\d+', hypotool))
+            thresholds = map(int, re.findall(r'\d+', hypotool.getName()))
             self.setPar('Threshold1', thresholds[0])
             self.setPar('Threshold2', thresholds[1])
-            self.setPar('DecisionLabel', hypotool)
+            status=self.setPar('DecisionLabel', hypotool.getName())
         else:
-            self.tools.append(hypotool)
-            return self.setPar('HypoTools',hypotool)        
+            self.tools.append(hypotool.getName())
+            status= self.setParArray('HypoTools',hypotool)        
+        return status
+
+    def addPreviousDecision(self,prev):
+        self.previous.append(prev)
+        status= self.setParArray('previousDecisions',prev)
+        return status
+
+    def setPreviousDecision(self,prev):
+        if "Comb" in self.name: ###TMP combo: how handle previous decisions in combo?            
+            self.previous.append(prev)
+            if  "from_L1MU" in prev:
+                if "pt" in self.getPar("Property1"):
+                    status= self.setPar('previousDecisions1',prev)
+                if "pt" in self.getPar("Property2"):
+                    status= self.setPar('previousDecisions2',prev)
+
+            if  "from_L1EM" in prev:
+                if "et" in self.getPar("Property1"):
+                    status= self.setPar('previousDecisions1',prev)
+                if "et" in self.getPar("Property2"):
+                    status= self.setPar('previousDecisions2',prev)
+
+            if  "Output1" in prev:
+                status= self.setPar('previousDecisions1',prev)
+            if  "Output2" in prev:
+                status= self.setPar('previousDecisions2',prev)
+
+        else:
+            self.previous.append(prev)
+            status= self.setPar('previousDecisions',prev)
+        return status
+    
+    def __str__(self):
+        return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s] --> Alg %s"%(self.name,' '.join(map(str, self.getInputList())),
+                                                                                 ' '.join(map(str, self.getOutputList())),
+                                                                                 ' '.join(map(str, self.previous)),
+                                                                                 ' '.join(map(str, self.tools)), self.Alg)
 
 
 
@@ -121,6 +174,7 @@ class SequenceFilterNode(AlgNode):
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
         
     def addDefaultOutput(self):
+        print "This is SequenceFilter addDefaultOutput"
         return #do nothing    
        
     def setChains(self, name):
@@ -215,6 +269,25 @@ def find_stepCF_algs(step_list):
             
 
 
+def addChainToHypoTool(hypotool, chain):
+    prop="Chains"
+    cval = hypotool.getProperties()[prop]
+    try:
+        cval.append(chain)
+        setattr(hypotool, prop, cval)
+    except:
+        pass
+
+
+def addChainToHypoAlg(hypoAlg, chain):
+    if "Comb" in hypoAlg.algname:
+        prop="Chains"
+        cval = hypoAlg.Alg.getProperties()[prop]
+        try:
+            cval.append(chain)
+            setattr(hypoAlg.Alg, prop, cval)
+        except:
+            pass
 
 
 #######################################
@@ -233,36 +306,41 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
             print "\n*******Filling step %s for chain  %s"%(stepCF_name, chain.name)
       
             chain_step=chain.steps[count_steps]
-            sequenceHypoTool=chain_step.sequenceHypoTool
-            for st in sequenceHypoTool:
+            sequenceHypoTools=chain_step.sequenceHypoTools
+            countseq=0
+            for st in sequenceHypoTools:
                 sequence=st.sequence
                 hypotool=st.hypotool
+                addChainToHypoTool(hypotool, chain.name)
                 cfseq_name= sequence.name
 
-                print "Going through sequence %s with threshold %s"%(sequence.name, hypotool)
+                print "Going through sequence %s with threshold %s"%(sequence.name, hypotool.getName())
                 #define sequence input
                 if count_steps == 0: # seeding
+                    sequence_input= [nodeSeq.seed for nodeSeq in sequence.nodeSeqList]
+                    print "Seeds from this chain: %s"%(sequence_input)
                     previous_sequence="".join(chain.group_seed)
-                    print "Chain group seed : %s"%(previous_sequence)
-                    sequence_input = chain.group_seed
                 else:
-                    # from previous step
-                    previous_sequence=chain.steps[count_steps-1].sequence
-                    sequence_input=previous_sequence.outputs
-
+                    # from previous step, map the seuqence in the same order?
+                    previous_sequence=chain.steps[count_steps-1].sequences[countseq].name #menu sequence
+                    sequence_input=chain.steps[count_steps-1].sequences[countseq].outputs
+                    print "Connect to previous sequence:"
+                    print sequence_input
                 # add hypotools
                 for nodeSeq in sequence.nodeSeqList:
                     hypoAlg= nodeSeq.hypo                
-                    print "Adding %s to %s"%(hypotool,hypoAlg.algname)
+                    print "Adding %s to %s"%(hypotool.getName(),hypoAlg.algname)
                     hypoAlg.addHypoTool(hypotool)
+                    addChainToHypoAlg(hypoAlg, chain.name) # only for TMP Combo
+                    
 
 
                 #### FILTER
                 # one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
                 # if the previous hypo has more than one output, try to get all of them
                 # one filter per previous sequence: 1 input/previous seq, 1 output/next seq 
-                filter_name="Filter_%s%s"%(stepCF_name,previous_sequence)
-                filter_out=["%s_from%s_out"%(filter_name,i) for i in sequence_input]
+                filter_name="Filter%s_on_%s"%(stepCF_name,previous_sequence)
+                filter_out=["%s_from_%s_out"%(filter_name,i) for i in sequence_input]
                 filter_already_exists=False
                 findFilter= [cfseq.filter for cfseq in CFseq_list if filter_name in cfseq.filter.algname]        
                 if len(findFilter):
@@ -278,20 +356,35 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     else:
                         sfilter = RoRSequenceFilterNode(name=filter_name)
                     for o in filter_out: sfilter.setOutput(o)            
-                    for i in sequence_input: sfilter.setInput(i)
+                    for i in sequence_input: sfilter.addInput(i)
                     sfilter.setChains(chain.name)
                     print "Filter Done: %s"%(sfilter)
                     
-                #loop over NodeSequences of this sequence to add inputs to InputMaker
+                #loop over NodeSequences of this sequence to add inputs to InputMaker and send decisions to HypoAlg
                 for nodeSeq in sequence.nodeSeqList:
                     seed=nodeSeq.seed                    
-                    input_maker_input= [inp for inp in sfilter.getOutputList() if ("from"+seed) in inp]
-                    print "Adding %d inputs (from %s) to InputMaker %s from Filter %s"%(len(input_maker_input), seed, nodeSeq.inputMaker.algname, sfilter.algname)
-                    for i in input_maker_input: nodeSeq.inputMaker.setInput(i)                
+                    input_maker_input= [inp for inp in sfilter.getOutputList() if ("from_"+seed) in inp]
+                    print "Adding %d inputs to sequence::%s from Filter::%s (from seed %s)"%(len(input_maker_input), nodeSeq.name, sfilter.algname, seed)
+                    for i in input_maker_input: print i
+                    if len(input_maker_input) == 0:
+#                        print "ERROR, no inputs to sequence are set!"
+                        sys.exit("ERROR, no inputs to sequence are set!") 
+#                        return                    
+                    for i in input_maker_input: nodeSeq.addInput(i)
+
+                    hypoAlg= nodeSeq.hypo
+                    #node = AlgNode(Alg=hypoAlg.Alg,inputProp='', outputProp='Output1')
+                    for i in input_maker_input: hypoAlg.setPreviousDecision(i) # works for one
+                    #for i in input_maker_input: hypoAlg.addPreviousDecision(i)
+
+                    print hypoAlg
+
                                     
                 CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)    
+                #for node in otherNodes: CF_seq.addNode(node)
                 print CF_seq
                 CFseq_list.append(CF_seq)
+                countseq+=1
            
             #end of sequence/threshold
                 
@@ -318,7 +411,9 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
     dumpSequence (HLTAllStepsSeq, indent=0)
     return
 #####
-    
+
+
+
 
 ###### Here some graphical methods
 
@@ -417,10 +512,10 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
         cfseq_algs.append(cfseq.filter)       
 
         for seq in cfseq.menuSeq.nodeSeqList:
-            cfseq_algs.append(seq.inputMaker)
+            #            cfseq_algs.append(seq.inputMaker)
             cfseq_algs.extend(seq.algs )
             if seq.reuse==False:
-                file.write("    %s[fillcolor=%s]\n"%(seq.inputMaker.algname, algColor(seq.inputMaker.algname)))
+                #                file.write("    %s[fillcolor=%s]\n"%(seq.inputMaker.algname, algColor(seq.inputMaker.algname)))
                 for alg in seq.algs: file.write("    %s[fillcolor=%s]\n"%(alg.algname, algColor(alg.algname)))
                 seq.reuse=True
             cfseq_algs.append(seq.hypo)

@@ -6,7 +6,7 @@
 //        Root Database factories implementation
 //--------------------------------------------------------------------
 //
-//        Package    : POOLCore/RootDb (The POOL project)
+//        Package    : RootDb (The POOL project)
 //
 //        Author     : M.Frank
 //====================================================================
@@ -25,7 +25,7 @@ DECLARE_COMPONENT_WITH_ID(pool::RootOOKey, "ROOT_Key")
 using namespace pool;
 
 /// Standard Constructor
-RootOODb::RootOODb(void* ctxt, DbType typ) : OODatabaseImp(ctxt, typ)
+RootOODb::RootOODb(DbType typ) : OODatabaseImp(typ)
 {
    DbInstanceCount::increment(this);
 }

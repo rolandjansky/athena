@@ -31,7 +31,6 @@
 #include "GaudiKernel/GaudiException.h"
 
 // POOL include files
-#include "POOLCore/Exception.h"
 #include "CollectionBase/CollectionFactory.h"
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/ICollectionColumn.h"
@@ -60,6 +59,7 @@
 #include <algorithm>
 #include <typeinfo>
 #include <ctime>
+#include <exception>
 
 #include "DBDataModel/CollectionMetadata.h"
 
@@ -262,7 +262,7 @@ RegistrationStreamLCGTool::initCollection()
                                                       m_outputCollection.value(),
                                                       openMode);
        }
-       catch (pool::Exception& e) {
+       catch (std::exception& e) {
            msg(MSG::ERROR) << "::initCollection: Caught exception from Pool collection creation. Message: " 
                            << e.what()
                            << endmsg;
@@ -319,7 +319,7 @@ RegistrationStreamLCGTool::commit()
           if (m_openMode.value()=="CREATE_AND_OVERWRITE") overwrite = true;
           m_poolSvc->registerExistingCollection(m_collection,overwrite,true);
        }
-       catch (pool::Exception& e) {
+       catch (std::exception& e) {
           ATH_MSG_INFO("Unable to register collection: " << e.what());
        }
 
@@ -328,7 +328,7 @@ RegistrationStreamLCGTool::commit()
 
        try {
 	  m_collection->commit();
-       } catch (pool::Exception& e) {
+       } catch (std::exception& e) {
 	  ATH_MSG_ERROR("unable to commit collection commit: " << e.what() );
 	  return(StatusCode::FAILURE);
        }
@@ -407,7 +407,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
           used.insert(prefName);
           ATH_MSG_DEBUG("Setting primary ref to " << prefName);
        }
-       catch( const pool::Exception& e ) {
+       catch( const std::exception& e ) {
           ATH_MSG_WARNING("Unable to set primary ref name, taking default");
           ATH_MSG_WARNING("due to exception " << e.what() );
        }
@@ -440,7 +440,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
                     used.insert(name);
                     ATH_MSG_DEBUG("Provenance key " << name << " added to spec");
                 }
-                catch (const pool::Exception& e) {
+                catch (const std::exception& e) {
                     ATH_MSG_DEBUG("Provenance stage " << name << " already in token spec");
                 }
             }
@@ -496,7 +496,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
                try {
 	           m_collection->schemaEditor().insertColumn( name, typeName );
                }
-               catch (const pool::Exception& e) {
+               catch (const std::exception& e) {
                    msg(MSG::ERROR) << "Unable to add column " << name 
                                    << " to " << m_collection->description().name() << endmsg;
                }
@@ -506,7 +506,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
                try {
                   m_collection->schemaEditor().setUniqueConstraint("PrimKey",m_primKeyAtts);
                }
-               catch (const pool::Exception& e) {
+               catch (const std::exception& e) {
                   ATH_MSG_WARNING("Unable to set primary key due to " << e.what());
                }
             }
@@ -541,7 +541,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
  	   try {
               std::string brefName(ir->first+"_ref");
 	      if (brefName!=prefName) row.tokenList()[ brefName ].fromString( ir->second );
-	   } catch( const pool::Exception& e ) {
+	   } catch( const std::exception& e ) {
               msg(MSG::ERROR) << " Failed to set Token "
                   << ir->second << " for provenance stage "
 	          << ir->first 
@@ -551,7 +551,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
 
         m_collection->dataEditor().insertRow(row);
 
-    } catch (const pool::Exception& e) {
+    } catch (const std::exception& e) {
         ATH_MSG_ERROR( 
 	    "Caught exception from collection add of Pool attributes. Message: " 
   	    << e.what()

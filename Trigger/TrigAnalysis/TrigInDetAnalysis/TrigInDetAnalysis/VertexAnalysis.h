@@ -26,11 +26,11 @@ class VertexAnalysis {
 
 public:
 
-  VertexAnalysis( const std::string& n ) : m_name(n) { } 
+  VertexAnalysis( const std::string& n ) : mname(n) { } 
 
   virtual ~VertexAnalysis() { } 
 
-  std::string name() const { return m_name; }
+  std::string name() const { return mname; }
   
   virtual void initialise() = 0;
   
@@ -72,7 +72,7 @@ protected:
 
 private:
 
-  std::string m_name;
+  std::string mname;
 
 };
 
