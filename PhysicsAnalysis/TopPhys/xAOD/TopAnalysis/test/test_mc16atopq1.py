@@ -6,27 +6,40 @@
 
 import ROOT
 from PathResolver import PathResolver
-import subprocess, sys
+import subprocess, sys, shlex
 
-# -- Settings -- 
+# -- Settings --
 cutfilename   = "validation-cuts.txt"
-inputpath     = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TopAnalysis/p3215/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e5458_s3126_r9364_r9315_p3215/DAOD_TOPQ1.11627611._000441.pool.root.1"
+inputfilename = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3390/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_s3126_r9364_r9315_p3390/DAOD_TOPQ1.12720282._000339.pool.root.1"
+
+# -- Move to a unique directory --
+rundir = str(random.randrange(10**8))
+os.mkdir(rundir)
+os.chdir(rundir)
 
 # -- Get the validation file path from the most recent location --
 cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
                                             "DATAPATH", 
                                             ROOT.PathResolver.RecursiveSearch)
 
-# -- Make the input file path -- 
-inputfile = open("input.txt","w")
-inputfile.write(inputpath+"\n")
-inputfile.close()
+# -- Print the file location for debugging --
+print "ART Test : Using cutfile (%s) from %s"%(cutfilename, cutfilepath)
+print "ART Test : Using inputfile %s"%(inputfilename)
+print "Running on full statistics"
 
-# -- Run the top-xaod via Popen --
-proc = subprocess.Popen( ["top-xaod", cutfilepath, "input.txt"] )
+# -- Copy the cutfile locally to be updated -- 
+shutil.copyfile(cutfilepath, cutfilename)
 
-# -- Wait until the job is finished --
+# -- Write the input file path to a temporary file --
+inputfilepath = open("input.txt","w")
+inputfilepath.write(inputfilename+"\n")
+inputfilepath.close()
+
+# -- Run top-xaod --
+cmd  = "top-xaod %s input.txt"%(cutfilename)
+proc = subprocess.Popen(shlex.split(cmd))
 proc.wait()
 
-# -- Return the return code of the job --
+# -- Check the return code and exit this script with that --
 sys.exit( proc.returncode )
+
