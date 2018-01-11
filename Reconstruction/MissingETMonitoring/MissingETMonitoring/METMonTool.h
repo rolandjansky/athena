@@ -15,7 +15,7 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
-//#include "GaudiKernel/ITHistSvc.h"
+
 #include "JetInterface/IJetSelector.h"
 #include <string>
 #include <vector>
@@ -82,7 +82,7 @@ class METMonTool : public ManagedMonitorToolBase
 
 
 
-    //std::vector<int>      m_calIndices; // TB this seems to be only used to get its size
+
     const size_t m_calIndices = 7;
     const size_t m_regIndices = 3;
     const std::vector<std::string>                   m_calStrings {
@@ -105,7 +105,7 @@ class METMonTool : public ManagedMonitorToolBase
 	{ 0.1, 0.1, 0.1 }, "" };
 
     Gaudi::Property<bool>  m_doFillNegativeSumEt{ this, "FillNegativeSumEt", false , "" };
-    Gaudi::Property<float> m_tos{ this, "YaxisTitleOffset", 1.25, ""}; // TB we should solve this issue in Mon tool
+    Gaudi::Property<float> m_tos{ this, "YaxisTitleOffset", 1.25, ""}; 
     float m_truncatedMean = 200.;
     
     std::vector<TH1*> m_et;
@@ -159,13 +159,13 @@ class METMonTool : public ManagedMonitorToolBase
     
     /// Set Number of WARNINGs displayed for failure of container retrieval
     Gaudi::Property<int> m_maxNumContainerWarnings{ this, "maxNumContainerWarnings", 10, "" };
-    //TB why not to monitor it as well? can have 2bin histogram wiht "OK", "WARNING" 
+
     int m_ContainerWarnings_Muon{}, m_ContainerWarnings_Ele{}, m_ContainerWarnings_Jet{}; 
     std::vector<int> m_ContainerWarnings_metKeys; 
 
     ToolHandle<IJetSelector> m_selTool{ this, "JetSelectorTool", "", ""}; /// used only if m_selType == FromTool
 
-    ITHistSvc * m_thistSvc;   // TB ServiceHandle? 
+    ITHistSvc * m_thistSvc;   
   private:
 
     float m_Pi;
