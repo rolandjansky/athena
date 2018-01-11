@@ -16,10 +16,6 @@ def getDefaultEventActions():
     defaultUA=[]
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
         defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
-    # Cosmic filter
-    if flag_on('StoppedParticleFile') or (
-       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
-        defaultUA += ['G4UA::G4CosmicFilterTool']
     return defaultUA
 
 # stepping
@@ -69,6 +65,10 @@ def getDefaultActions():
     # Cosmic Perigee action
     if beamFlags.beamType() == 'cosmics' and flag_off('CavernBG'):
         actions += ['G4UA::CosmicPerigeeActionTool']
+    # Cosmic filter
+    if flag_on('StoppedParticleFile') or (
+       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
+        defaultUA += ['G4UA::G4CosmicFilterTool']
     # Stopped particle action
     if flag_on('StoppedParticleFile'):
         actions += ['G4UA::StoppedParticleActionTool']
