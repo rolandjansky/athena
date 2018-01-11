@@ -127,8 +127,8 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
       "Electrons",                                             // default value of StoreGate key
       "output Electron container name "};
 
-  //ToolHandle<GenericMonitoringTool> m_monTool;
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "VoidMonitoringTool", "Monitoring tool" };
+
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", " ", "Monitoring tool" };
   
 };  
 DECLARE_ALGORITHM_FACTORY( TrigL2ElectronFexMT )

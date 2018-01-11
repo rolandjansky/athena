@@ -157,7 +157,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
   size_t coll_size = tracks->size();
   trigElecColl->reserve(coll_size);
 
-  // moinotoring
+  // monitoring
   std::vector<float> calotrkdeta_noextrap_mon; //!< monitor preselection between track eta and cluster before extrapolation 
 
   auto caloPtMon = MonitoredCollection::declare("PtCalo",   *trigElecColl,  getCaloPt );
@@ -197,8 +197,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
 	}
           else{
               ATH_MSG_VERBOSE("REGTEST: TrigElectron: cluster index = " << clusEL.index() <<
-			      //                  " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
-			      " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
+				      " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
  
 
               xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
