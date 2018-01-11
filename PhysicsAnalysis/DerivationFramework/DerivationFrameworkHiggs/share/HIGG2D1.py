@@ -283,17 +283,17 @@ HIGG2D1SlimmingHelper.SmartCollections = ["Electrons",
 
 HIGG2D1SlimmingHelper.ExtraVariables = HIGG2D1ExtraContent
 HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
+HIGG2D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
+                                            'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D1SlimmingHelper.ExtraVariables += HIGG2D1ExtraContentTruth
     HIGG2D1SlimmingHelper.AllVariables += HIGG2D1ExtraContainersTruth
-    HIGG2D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
-                                                'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-                                                'TruthTop':'xAOD::TruthParticleContainer',
-                                                'TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthBSM':'xAOD::TruthParticleContainer',
-                                                'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthBoson':'xAOD::TruthParticleContainer',
-                                                'TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+    HIGG2D1SlimmingHelper.AppendToDictionary.update({'TruthTop':'xAOD::TruthParticleContainer',
+                                                     'TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthBSM':'xAOD::TruthParticleContainer',
+                                                     'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthBoson':'xAOD::TruthParticleContainer',
+                                                     'TruthBosonAux':'xAOD::TruthParticleAuxContainer'})
 
 # Add MET_RefFinalFix
 addMETOutputs(HIGG2D1SlimmingHelper,["Track"])
