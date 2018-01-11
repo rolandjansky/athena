@@ -29,6 +29,7 @@ namespace CaloG4
   EscapedEnergyRegistry::~EscapedEnergyRegistry()
   {
     // Delete all the pointers we've adopted.
+    // TODO: range-based for
     m_processingMap_ptr_t i;
     for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ )
     {
@@ -43,6 +44,7 @@ namespace CaloG4
     if ( process == 0 ) return;
 
     // Check that we're not adding any duplicates.
+    // TODO range-based for
     m_processingMap_ptr_t i;
     for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ ) {
       if ( name == (*i).first ) {
@@ -86,6 +88,7 @@ namespace CaloG4
     // (*i).first = a G4String
     // (*i).second = a VEscapedEnergyProcessing*
 
+    // TODO - use range-based for
     m_processingMap_const_ptr_t i;
     for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ ) {
       if ( volumeName.contains( (*i).first ) )
