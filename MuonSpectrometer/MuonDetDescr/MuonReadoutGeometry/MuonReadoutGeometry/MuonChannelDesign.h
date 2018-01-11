@@ -138,10 +138,9 @@ namespace MuonGM {
       double xMfirst = firstPos;
       double xMid;
       int chNum;
-      // sTGC strips no longer use the "eta" orientation in their local geometry.
-      // Its coordinates are "rotated". sTGC strip pitch == 3.2mm is a way to check if sTGC only
+      //sTGC strip pitch == 3.2mm is a way to check if sTGC only
       if (inputPitch == 3.2){ // if sTGC strip
-        xMid = pos.y() - pos.x()*tan(sAngle);
+        xMid = pos.x() - pos.y()*tan(sAngle);
        if (xMid < xMfirst && xMid > xMfirst - firstPitch) chNum = 1; // If position between bottom boundary and 1st strip
        else if (xMid > xMfirst) // position higher than first Pos
           chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch ) + 2;
@@ -255,9 +254,8 @@ namespace MuonGM {
           else if (st <= nch) x = xFirst + (st-1) * inputPitch;
           else return false;
           if (st == nch && firstPitch == 3.2) x = x - firstPitch/4; // accounts for staggering
-          // Here we "rotate" the coordinates. We changed the local geometry from a RotatedTrapezoid to a Trapezoid
-          pos[0] = 0;
-          pos[1] = x;
+          pos[0] = x;
+          pos[1] = 0;
         }
         else { // default
 	  pos[0] = x;
