@@ -97,13 +97,11 @@ iPatShortTracks::execute()
     // create a ShortTrackCollection
     iPatTrackContainer* shortTracks = new iPatTrackContainer;
 
-    for (std::vector<Track*>::const_iterator t = m_tracks->begin();
-	 t != m_tracks->end();
-	 ++t)
+    for (const Track* t : *m_tracks)
     {
 	// select primary tracks with sufficient pT
-	if ((**t).status() == secondary
-	    || (**t).perigee_parameters().abs_pt() < m_minPt) 
+	if (t->status() == secondary
+	    || t->perigee_parameters().abs_pt() < m_minPt) 
 	{
 	    // would like to keep track container vectors in phase,
 	    // but the following segv's
@@ -118,10 +116,10 @@ iPatShortTracks::execute()
 	int		sctClusters	= 0;
 	// value to essentially remove influence of hit on fit
 	double		largeSigma	= 10.*Gaudi::Units::mm;
-	HitList::hit_citerator	h	= (**t).hit_list_begin();
+	HitList::hit_citerator	h	= t->hit_list_begin();
 	hit_list* 	hits   		= new hit_list;
 	bool		haveTrt		= false;
-	while (! quit && h != (**t).hit_list_end()) 
+	while (! quit && h != t->hit_list_end()) 
 	{
 	    // bool	havePixel	= false;
 	    // bool	haveSct		= false;
@@ -208,7 +206,7 @@ iPatShortTracks::execute()
 	FitQuality*		fitQuality		= 0;
 	parameter_vector*	scattererParameters	= 0;
 	PerigeeParameters*	perigeeParameters	= new PerigeeParameters;
-	perigeeParameters->fillPerigee((**t).perigee_parameters());
+	perigeeParameters->fillPerigee(t->perigee_parameters());
 	m_trackFitter->fitWithResiduals(truncated,
 					fitQuality,
 					*perigeeParameters,
@@ -258,7 +256,7 @@ iPatShortTracks::execute()
 				      perigeeParameters,
 				      fitQuality,
 				      hitQuality);
-	shortTrack->truthAssociation(new TruthAssociation((**t).truthAssociation()));
+	shortTrack->truthAssociation(new TruthAssociation(t->truthAssociation()));
  	shortTracks->push_back(shortTrack);
 	++m_trackCount;
     }
