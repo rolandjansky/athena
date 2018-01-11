@@ -26,6 +26,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "AIDA/IHistogram1D.h"
@@ -145,7 +146,8 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_bunchCrossingTime(0),
     m_timeJitterElectronicsStrip(0),
     m_timeJitterElectronicsPad(0),
-    m_hitTimeMergeThreshold(0)
+    m_hitTimeMergeThreshold(0),
+    m_energyDepositThreshold(300.0*Gaudi::Units::eV)
 
     //m_file(0),
     //m_SimHitOrg(0),
@@ -172,6 +174,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareProperty("DeadtimeElectronicsPad",  m_deadtimePad); 
   declareProperty("timeWindowPad",           m_timeWindowPad); 
   declareProperty("timeWindowStrip",         m_timeWindowStrip); 
+  declareProperty("energyDepositThreshold",  m_energyDepositThreshold,           "Minimum energy deposit considered for digitization");
 }
 /*******************************************************************************/
 // member function implementation
@@ -578,8 +581,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Hit Particle ID : " << hit.particleEncoding() );
           float eventTime = phit.eventTime(); 
           if(eventTime < earliestEventTime) earliestEventTime = eventTime;
-	  // 300eV cut on EnergyDeposit of the particle
-	  if(hit.depositEnergy()<0.0003) {
+	  // Cut on energy deposit of the particle
+	  if(hit.depositEnergy() < m_energyDepositThreshold) {
 	    ATH_MSG_VERBOSE("Hit with Energy Deposit of " << hit.depositEnergy() << " less than 300.eV  Skip this hit." );
 	    continue;
           }
