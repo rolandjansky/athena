@@ -2297,9 +2297,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="295" partition="1" name="L1_EM22VHIM" complex_deadtime="0" definition="(EM22VHIM[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="295" partition="1" name="L1_EM22VH" complex_deadtime="0" definition="(EM22VH[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM22VHIM_x1" triggerthreshold="EM22VHIM"/>
+        <TriggerCondition multi="1" name="EM22VH_x1" triggerthreshold="EM22VH"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -4607,6 +4607,27 @@
     <TriggerCounter name="7EM20VHI" type="CTPIN">
       <TriggerCondition name="7EM20VHI" triggerthreshold="EM20VHI" multi="7"/>
     </TriggerCounter>
+    <TriggerCounter name="1EM22VH" type="CTPIN">
+      <TriggerCondition name="1EM22VH" triggerthreshold="EM22VH" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="2EM22VH" type="CTPIN">
+      <TriggerCondition name="2EM22VH" triggerthreshold="EM22VH" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="3EM22VH" type="CTPIN">
+      <TriggerCondition name="3EM22VH" triggerthreshold="EM22VH" multi="3"/>
+    </TriggerCounter>
+    <TriggerCounter name="4EM22VH" type="CTPIN">
+      <TriggerCondition name="4EM22VH" triggerthreshold="EM22VH" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="5EM22VH" type="CTPIN">
+      <TriggerCondition name="5EM22VH" triggerthreshold="EM22VH" multi="5"/>
+    </TriggerCounter>
+    <TriggerCounter name="6EM22VH" type="CTPIN">
+      <TriggerCondition name="6EM22VH" triggerthreshold="EM22VH" multi="6"/>
+    </TriggerCounter>
+    <TriggerCounter name="7EM22VH" type="CTPIN">
+      <TriggerCondition name="7EM22VH" triggerthreshold="EM22VH" multi="7"/>
+    </TriggerCounter>
     <TriggerCounter name="1EM22VHI" type="CTPIN">
       <TriggerCondition name="1EM22VHI" triggerthreshold="EM22VHI" multi="1"/>
     </TriggerCounter>
@@ -4627,27 +4648,6 @@
     </TriggerCounter>
     <TriggerCounter name="7EM22VHI" type="CTPIN">
       <TriggerCondition name="7EM22VHI" triggerthreshold="EM22VHI" multi="7"/>
-    </TriggerCounter>
-    <TriggerCounter name="1EM22VHIM" type="CTPIN">
-      <TriggerCondition name="1EM22VHIM" triggerthreshold="EM22VHIM" multi="1"/>
-    </TriggerCounter>
-    <TriggerCounter name="2EM22VHIM" type="CTPIN">
-      <TriggerCondition name="2EM22VHIM" triggerthreshold="EM22VHIM" multi="2"/>
-    </TriggerCounter>
-    <TriggerCounter name="3EM22VHIM" type="CTPIN">
-      <TriggerCondition name="3EM22VHIM" triggerthreshold="EM22VHIM" multi="3"/>
-    </TriggerCounter>
-    <TriggerCounter name="4EM22VHIM" type="CTPIN">
-      <TriggerCondition name="4EM22VHIM" triggerthreshold="EM22VHIM" multi="4"/>
-    </TriggerCounter>
-    <TriggerCounter name="5EM22VHIM" type="CTPIN">
-      <TriggerCondition name="5EM22VHIM" triggerthreshold="EM22VHIM" multi="5"/>
-    </TriggerCounter>
-    <TriggerCounter name="6EM22VHIM" type="CTPIN">
-      <TriggerCondition name="6EM22VHIM" triggerthreshold="EM22VHIM" multi="6"/>
-    </TriggerCounter>
-    <TriggerCounter name="7EM22VHIM" type="CTPIN">
-      <TriggerCondition name="7EM22VHIM" triggerthreshold="EM22VHIM" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1EM24VHI" type="CTPIN">
       <TriggerCondition name="1EM24VHI" triggerthreshold="EM24VHI" multi="1"/>
@@ -6204,7 +6204,29 @@
         <Signal range_begin="9" range_end="11"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="3" id="54" mapping="12" name="EM22VHI" type="EM" input="ctpin" version="1">
+    <TriggerThreshold active="1" bitnum="3" id="54" mapping="12" name="EM22VH" type="EM" input="ctpin" version="1">
+      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="1" thresholdval="24" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-15" etamax="-14" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-14" etamax="-13" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="20" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-13" etamax="-11" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-11" etamax="-8" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="22" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-8" etamax="-7" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-7" etamax="0" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="24" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="0" etamax="7" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="24" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="7" etamax="8" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="8" etamax="11" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="22" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="11" etamax="13" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="13" etamax="14" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="20" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00001" name="EM22VHfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
+      <Cable connector="CON1" input="SLOT7" name="EM2">
+        <Signal range_begin="12" range_end="14"/>
+      </Cable>
+    </TriggerThreshold>
+    <TriggerThreshold active="1" bitnum="3" id="55" mapping="13" name="EM22VHI" type="EM" input="ctpin" version="1">
       <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00100" name="EM22VHIfull" phimin="0" phimax="64" priority="1" thresholdval="24" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00100" name="EM22VHIfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00100" name="EM22VHIfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
@@ -6222,28 +6244,6 @@
       <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00100" name="EM22VHIfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00100" name="EM22VHIfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00100" name="EM22VHIfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
-      <Cable connector="CON1" input="SLOT7" name="EM2">
-        <Signal range_begin="12" range_end="14"/>
-      </Cable>
-    </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="3" id="55" mapping="13" name="EM22VHIM" type="EM" input="ctpin" version="1">
-      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="1" thresholdval="24" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-15" etamax="-14" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-14" etamax="-13" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="20" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-13" etamax="-11" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-11" etamax="-8" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="22" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-8" etamax="-7" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-7" etamax="0" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="24" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="0" etamax="7" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="24" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="7" etamax="8" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="8" etamax="11" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="22" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="11" etamax="13" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="13" etamax="14" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="20" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="21" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="01000" name="EM22VHIMfull" phimin="0" phimax="64" priority="2" thresholdval="23" type="EM" window="0"/>
       <Cable connector="CON1" input="SLOT7" name="EM2">
         <Signal range_begin="15" range_end="17"/>
       </Cable>
