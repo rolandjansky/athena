@@ -22,7 +22,8 @@ cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
                                             ROOT.PathResolver.RecursiveSearch)
 
 # -- Print the file location for debugging --
-print "runtime_ctest : Using cutfile (%s) from %s"%(cutfilename, cutfilepath)
+print "CI Integration Test : Using cutfile (%s) from %s"%(cutfilename, cutfilepath)
+print "CI Integration Test : Using inputfile %s"%(inputfilename)
 
 # -- Copy the cutfile locally to be updated -- 
 shutil.copyfile(cutfilepath, cutfilename)
