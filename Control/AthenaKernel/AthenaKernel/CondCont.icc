@@ -279,7 +279,7 @@ bool CondCont<T>::insert (const EventIDRange& r, std::unique_ptr<T> t)
 template <typename T>
 bool CondCont<T>::find (const EventIDBase& t,
                         T const *& obj,
-                        EventIDRange* r) const
+                        EventIDRange const** r) const
 {
   const void* ptr = findByCLID (ClassID_traits<CondCont<T> >::ID(), t, r);
   obj = reinterpret_cast<const T*> (ptr);
@@ -315,7 +315,12 @@ template <typename T>
 bool
 CondCont<T>::range(const EventIDBase& t, EventIDRange& r) const
 {
-  return findByCLID (this->clid(), t, &r) != nullptr;
+  const EventIDRange* rp = nullptr;
+  if (findByCLID (this->clid(), t, &rp) != nullptr) {
+    r = *rp;
+    return true;
+  }
+  return false;
 }
 
 
@@ -377,7 +382,7 @@ const void* CondCont<T>::cast (CLID clid, const void* ptr) const
 template <typename T>
 const void* CondCont<T>::findByCLID (CLID clid,
                                      const EventIDBase& t,
-                                     EventIDRange* r) const
+                                     EventIDRange const** r) const
 {
   const void* ptr = nullptr;
   {
@@ -390,7 +395,7 @@ const void* CondCont<T>::findByCLID (CLID clid,
       for (const IOVEntryT<T>& ent : m_condSet_RE) {
         if ( ent.range().isInRange(t2) ) {
           if (r) {
-            *r = ent.range();
+            *r = &ent.range();
           }
           ptr = ent.objPtr();
           break;
@@ -402,7 +407,7 @@ const void* CondCont<T>::findByCLID (CLID clid,
       for (const IOVEntryT<T>& ent : m_condSet_clock) {
         if ( ent.range().isInRange(t) ) {
           if (r) {
-            *r = ent.range();
+            *r = &ent.range();
           }
           ptr = ent.objPtr();
           break;

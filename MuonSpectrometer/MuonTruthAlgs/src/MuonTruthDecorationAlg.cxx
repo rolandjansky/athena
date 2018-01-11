@@ -42,11 +42,15 @@ namespace Muon {
     declareProperty("MuonTruthSegmentName"          , m_muonTruthSegmentContainerName = "MuonTruthSegments" );
     declareProperty("TrackRecordCollectionNames"    , m_trackRecordCollectionNames={"CaloEntryLayer","MuonEntryLayer","MuonExitLayer"});
 
-    declareProperty("PRD_TruthMaps",m_PRD_TruthNames={"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","MM_TruthMap","STGC_TruthMap"});
+    //declareProperty("PRD_TruthMaps",m_PRD_TruthNames={"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","MM_TruthMap","STGC_TruthMap"});
+    //remove NSW by default for now, can always be changed in the configuration
+    declareProperty("PRD_TruthMaps",m_PRD_TruthNames={"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"}); 
 
     m_CSC_SDO_TruthNames = "CSC_SDO";
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
-    declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","STGC_SDO"});
+    //declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","STGC_SDO"});
+    //remove NSW by default for now, can always be changed in the configuration
+    declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO"});
 
     declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 

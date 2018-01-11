@@ -101,12 +101,6 @@ namespace MuonCombined {
     /** id pt cut */
     double m_idTrackMinPt;
     bool m_ignoreSiAssocated;
-    const Muon::MdtPrepDataContainer* m_mdtPRDs;
-    const Muon::CscPrepDataContainer* m_cscPRDs;
-    const Muon::RpcPrepDataContainer* m_rpcPRDs;
-    const Muon::TgcPrepDataContainer* m_tgcPRDs;
-    const Muon::sTgcPrepDataContainer* m_stgcPRDs;
-    const Muon::MMPrepDataContainer* m_mmPRDs;
   };
 }
 

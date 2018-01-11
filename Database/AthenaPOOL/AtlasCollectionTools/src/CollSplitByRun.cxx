@@ -27,9 +27,6 @@
 #include "CoralBase/MessageStream.h"
 #include "CoralBase/AttributeListException.h"
 
-//#include "FileCatalog/IFileCatalog.h"
-//#include "DataSvc/DataSvcFactory.h"
-//#include "DataSvc/IDataSvc.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ITransaction.h"
@@ -38,9 +35,6 @@
 #include "GoodRunsLists/TGoodRunsList.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "GoodRunsLists/TGoodRunsListWriter.h"
-
-//#include "POOLCore/Token.h"
-#include "POOLCore/Exception.h"
 
 #include "CollectionUtilities/CmdLineArgs2.h"
 #include "CollectionUtilities/ArgQual.h"
@@ -510,11 +504,6 @@ int main(int argc, char *argv[])
       }
 
       return 0;
-   }
-   catch( pool::Exception& poolException )
-   {
-      std::cerr << "pool::Exception: " << poolException.what() << std::endl;
-      return 1;
    }
    catch( std::exception& exception )
    {

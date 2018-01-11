@@ -10,11 +10,11 @@
 namespace pool {
 
   class IFileCatalog;
+  class DatabaseConnectionPolicy;
 
   namespace PersistencySvc {
 
     // forward declarations
-    class PersistencySvcConfiguration;
     class DatabaseRegistry;
     class TechnologyDispatcher;
     class GlobalTransaction;
@@ -38,8 +38,6 @@ namespace pool {
       UserSession& operator= (const UserSession&) = delete;
 
       // Signatures needed for the PersistencySvc
-      PersistencySvcConfiguration& configuration();
-      const PersistencySvcConfiguration& configuration() const;
       DatabaseRegistry& registry();
       TechnologyDispatcher& technologyDispatcher();
 
@@ -68,6 +66,9 @@ namespace pool {
       /// Returns the file catalog in use
       IFileCatalog& fileCatalog();
 
+      /// Set the file catalog to be used
+      void setFileCatalog(IFileCatalog& catalog);
+
       /// Returns the object holding the technology specific attributes for a given technology domain
       const ITechnologySpecificAttributes& technologySpecificAttributes( long technology ) const;
       ITechnologySpecificAttributes& technologySpecificAttributes( long technology );
@@ -76,7 +77,8 @@ namespace pool {
       ITransaction& globalTransaction();
       
     private:
-      PersistencySvcConfiguration*   m_configuration;
+      DatabaseConnectionPolicy*      m_policy;
+      IFileCatalog*                  m_catalog;
       DatabaseRegistry*              m_registry;
       GlobalTransaction*             m_transaction;
       TechnologyDispatcher*          m_technologyDispatcher;

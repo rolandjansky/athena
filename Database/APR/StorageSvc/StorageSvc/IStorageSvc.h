@@ -376,7 +376,7 @@ namespace pool  {
   };
 
   // Factory function
-  IStorageSvc* createStorageSvc(void* ctx,const std::string& componentName);
+  IStorageSvc* createStorageSvc(const std::string& componentName);
   
 }       // End namespace pool
 #endif  // POOL_ISTORAGESVC_H

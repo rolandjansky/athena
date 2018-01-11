@@ -54,7 +54,7 @@ public:
 
   ~IOVEntryT() {}
 
-  EventIDRange range() const { return m_range; }
+  const EventIDRange& range() const { return m_range; }
   void setRange( const EventIDRange& range) { m_range=range; }
 
   T* objPtr ATLAS_NOT_CONST_THREAD_SAFE () const { return m_objPtr; }

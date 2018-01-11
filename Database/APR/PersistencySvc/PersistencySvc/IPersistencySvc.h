@@ -20,7 +20,6 @@ class Token;
 namespace pool {
   // Forward declarations
   class IFileCatalog;
-  class IConfiguration;
   class ISession;
 
   /** @class IPersistencySvc IPersistencySvc.h PersistencySvc/IPersistencySvc.h
@@ -43,9 +42,6 @@ namespace pool {
 
     /// Set the attached file catalog
     virtual void setFileCatalog( IFileCatalog& catalog ) = 0;
-
-    /// Returns the persistency configuration
-    virtual IConfiguration& configuration() = 0;
 
     /** Retrieves an object from persistent store and return with type information
      *  The handle to the reflection class is necessary to later delete the object.

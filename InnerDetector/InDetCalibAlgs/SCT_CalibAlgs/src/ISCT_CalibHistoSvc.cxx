@@ -43,7 +43,7 @@ ISCT_CalibHistoSvc::size(const int histogramIndex){
   try{
     pHisto=m_phistoVector.at(histogramIndex);
     result = pHisto->GetEntries();
-  } catch (std::out_of_range outOfRange) {
+  } catch (const std::out_of_range& outOfRange) {
      //do nothing, result is zero if the vector<>.at() throws
   }
   return result;
@@ -56,7 +56,7 @@ ISCT_CalibHistoSvc::getBinForHistogramIndex(const int bin, const int histogramIn
   try{
     pHisto=m_phistoVector.at(histogramIndex);
     result = pHisto->GetBinContent(bin);
-  } catch (std::out_of_range outOfRange) {
+  } catch (const std::out_of_range& outOfRange) {
       //do nothing, result is zero if the vector<>.at() throws
   }
   return result;

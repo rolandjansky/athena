@@ -30,9 +30,6 @@
 #include <cassert>
 
 
-#include "auxid_set_equal.icc"
-
-
 namespace SG {
 
 

@@ -32,17 +32,13 @@ namespace Rec {
     m_emF1Cut(0.15),
     m_emipEM(0.42), // 0.42
     m_emipTile(0.86), // 0.86
-    m_emipHEC(0.65),  // 0.65
-    m_indetTrackParticles(nullptr),
-    m_muonTrackParticles(nullptr)
+    m_emipHEC(0.65)  // 0.65
   {
     declareInterface<IMuonCaloEnergyTool>(this);
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
     declareProperty("ParticleCaloCellAssociationTool",m_caloCellAssociationTool );
     declareProperty("TrackParticleCreator",           m_particleCreator );
     declareProperty("CaloNoiseTool",                  m_caloNoiseTool);
-    declareProperty("TrackParticleLocation",          m_indetTrackParticleLocation = "InDetTrackParticles");
-    declareProperty("MuonSpectrometerTrackPArticleLocation",m_muonTrackParticleLocation = "MuonSpectrometerTrackParticles");    
 
     //coneSize for including calo cells around track
     declareProperty("SigmasAboveNoise", m_sigmasAboveNoise = 4.);
@@ -60,22 +56,8 @@ namespace Rec {
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_caloNoiseTool.retrieve());
 
-    m_indetTrackParticles = 0;
-    if(evtStore()->contains<xAOD::TrackParticleContainer>(m_indetTrackParticleLocation)) {
-      if(evtStore()->retrieve(m_indetTrackParticles,m_indetTrackParticleLocation).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << m_indetTrackParticleLocation );
-        return StatusCode::FAILURE;
-      }
-    }
-
-    m_muonTrackParticles = 0;
-    if(evtStore()->contains<xAOD::TrackParticleContainer>(m_muonTrackParticleLocation)) {
-      if(evtStore()->retrieve(m_muonTrackParticles,m_muonTrackParticleLocation).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << m_muonTrackParticleLocation );
-        return StatusCode::FAILURE;
-      }
-    }
-
+    ATH_CHECK(m_indetTrackParticleLocation.initialize());
+    ATH_CHECK(m_muonTrackParticleLocation.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -154,28 +136,35 @@ namespace Rec {
 
     const xAOD::TrackParticle* tp = 0;
 
-// check ID trackparticles
-
-    if(m_indetTrackParticles) {
-      for(auto it : *m_indetTrackParticles){
-        if((*it).track()==trk) {
-           tp = &(*it);
-           break;
-        }
+    SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(m_indetTrackParticleLocation);
+    if(indetTrackParticles.isValid()){
+      // check ID trackparticles
+      for(auto it : *indetTrackParticles){
+	if((*it).track()==trk) {
+	  tp = &(*it);
+	  break;
+	}
       }
       if(tp) ATH_MSG_DEBUG( " ID xAOD::TrackParticle found " << tp );
+    }
+    else{
+      ATH_MSG_WARNING("Failed to retrieve "<<m_indetTrackParticleLocation.key());
     }
 
 // look for Muon trackparticles 
 
-    if(m_muonTrackParticles&&!tp) {
-      for(auto it : *m_muonTrackParticles){
+    SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation);
+    if(!tp && muonTrackParticles.isValid()){
+      for(auto it : *muonTrackParticles){
         if((*it).track()==trk) {
            tp = &(*it);
            break;
         }
       }
       if(tp) ATH_MSG_DEBUG( " Muon xAOD::TrackParticle found " << tp );
+    }
+    else if(!tp){
+      ATH_MSG_WARNING("Failed to retrieve "<<m_muonTrackParticleLocation.key());
     }
    
     std::unique_ptr<const xAOD::TrackParticle> tpholder;

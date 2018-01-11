@@ -53,8 +53,7 @@ namespace pool  {
     /// Initializing Constructor: Constructs an object of type DbStorageExplorer.
     /** Once a proper framework exists, most of these arguments will go away.
       */
-    DbStorageExplorer(void*              framework, 
-                      const std::string& name,
+    DbStorageExplorer(const std::string& name,
                       DbDomain&          domH,
                       DbStorageSvc*      pOuter);
 

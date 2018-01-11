@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Control/StoreGate
                           Database/APR/CollectionBase
-                          Database/APR/POOLCore
                           Database/APR/FileCatalog
                           Database/AthenaPOOL/AthenaPoolKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
@@ -39,7 +38,7 @@ atlas_add_component( RegistrationServices
                      src/OutputConditionsAlg.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests CollectionBase POOLCore FileCatalog AthenaPoolUtilities DBDataModel PersistentDataModel )
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests CollectionBase FileCatalog AthenaPoolUtilities DBDataModel PersistentDataModel )
 
 # Install files from the package:
 atlas_install_headers( RegistrationServices )

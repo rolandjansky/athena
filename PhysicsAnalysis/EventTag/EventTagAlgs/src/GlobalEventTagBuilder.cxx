@@ -12,9 +12,8 @@
 
 #include "GlobalEventTagBuilder.h"
 
-#include "POOLCore/Exception.h"
-
 #include "CLHEP/Vector/ThreeVector.h"
+#include <exception>
 #include <vector>
 
 GlobalEventTagBuilder::GlobalEventTagBuilder( const std::string& name, ISvcLocator* pSvcLocator ) 
@@ -82,7 +81,7 @@ StatusCode GlobalEventTagBuilder::execute() {
   try {
     attribList = new TagAthenaAttributeList( *m_attribListSpec );
   } 
-  catch (pool::Exception& e) {
+  catch (std::exception& e) {
     ATH_MSG_ERROR( "Caught exception during creation of TagAthenaAttributeList object. "
                    << "Message: " << e.what() );
     return StatusCode::FAILURE;

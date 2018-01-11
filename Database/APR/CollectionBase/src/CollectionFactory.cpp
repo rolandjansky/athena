@@ -8,6 +8,7 @@
 #include "CollectionBase/CatalogCollectionCursor.h"
 #include "CollectionBase/ICollectionMetadata.h"
 #include "CollectionBase/CollectionBaseNames.h"
+#include "CollectionBase/boost_tokenizer_headers.h"
 
 #include "FileCatalog/FCEntry.h"
 #include "FileCatalog/IFCContainer.h"
@@ -19,7 +20,6 @@
 
 #include "PersistencySvc/ISession.h"
 #include "POOLCore/Exception.h"
-#include "POOLCore/boost_tokenizer_headers.h"
 
 #include "CoralBase/MessageStream.h"
 

@@ -23,9 +23,6 @@
 #include <map>
 
 
-#include "auxid_set_equal.icc"
-
-
 namespace SG {
 
 class AuxVectorBase

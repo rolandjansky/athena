@@ -373,9 +373,6 @@ StatusCode MuFastSteering::execute()
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI->size());
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " DONE");
 
-  DataVector<LVL1::RecMuonRoI>::const_iterator p_roi = recRoiCollection->begin();
-  DataVector<LVL1::RecMuonRoI>::const_iterator p_roiEn = recRoiCollection->end();
-
   // make RecMURoIs maching with MURoIs
   DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
   recRoIVector->clear();

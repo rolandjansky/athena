@@ -57,11 +57,11 @@ void DbSession::switchPtr(const DbSessionObj* obj) const {
 }
 
 /// Open session by handle
-DbStatus DbSession::open(void* context)  {
+DbStatus DbSession::open()  {
   if ( 0 == m_ptr )   {
     switchPtr(new DbSessionObj());
   }
-  return (isValid()) ? m_ptr->open(context) : Error;
+  return (isValid()) ? m_ptr->open() : Error;
 }
 
 /// Close session by handle

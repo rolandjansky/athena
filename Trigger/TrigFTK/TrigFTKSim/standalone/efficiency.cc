@@ -437,7 +437,6 @@ void Process(Long64_t ientry) {
       FTKRoad *road = roads->getRoad(iroad);
       for( int i=0; i < road->getNPlanes(); ++i ) {
 	const std::vector<FTKHit>& hits = road->getHits(i);
-	std::vector<FTKHit>::const_iterator match_hit=hits.end();
 	for( std::vector<FTKHit>::const_iterator ihit=hits.begin(), fhit=hits.end(); ihit!=fhit; ++ihit ) {
 	  //	  const FTKHit& hit = *ihit;
 	  // printf("plane = %d\n", hit.getPlane());

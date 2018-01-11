@@ -116,7 +116,10 @@ StatusCode TrigT1CaloEFex::execute(){
 		// if find the cluster position fails, etaCluster=999.0
 		if ( etaCluster > 998.0 ) continue;
 		// other cluster sizes for some of the shower shapes
-		findCellsAround(scells, (const float)etaCluster, (const float)phiCluster, m_cellsAround2,0.03,0.11);
+		findCellsAround(scells,
+                                static_cast<float>(etaCluster),
+                                static_cast<float>(phiCluster),
+                                m_cellsAround2,0.03,0.11);
 		// include TT (for Tile region only)
 		findTTsAround(TTs, etaCluster, phiCluster, m_TTsAround);
 		// check if seed cell is a local maximum (maybe could

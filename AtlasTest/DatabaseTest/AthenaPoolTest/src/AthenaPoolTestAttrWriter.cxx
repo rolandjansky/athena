@@ -47,7 +47,7 @@ StatusCode AthenaPoolTestAttrWriter::initialize()
 	m_attributes->extend("MissingET",  "float");
 	m_attributes->extend("electronPT", "float");
  	ATH_MSG_DEBUG("new attlist" );
-    } catch (std::exception e) {
+    } catch (const std::exception& e) {
  	ATH_MSG_ERROR("Caught exception from creation of AthenaAttributeList. Message: " 
  	    << e.what() 
  	    );
@@ -82,7 +82,7 @@ StatusCode AthenaPoolTestAttrWriter::execute()
 	// Must cast double to float, otherwise exception!!
 	(*attributes)["MissingET"].setValue(7.0f*iEvent);
 	(*attributes)["electronPT"].setValue(5.0f*iEvent);
-    } catch (std::exception e) {
+    } catch (const std::exception& e) {
 	ATH_MSG_ERROR("Caught exception from setValue for attributes. Message: " 
 	    << e.what() 
 	    );

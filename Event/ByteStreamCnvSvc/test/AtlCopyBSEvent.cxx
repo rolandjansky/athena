@@ -30,7 +30,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
-#include "POOLCore/Exception.h"
 #include "PersistentDataModel/Token.h"
 
 #include "CollectionBase/TokenList.h"
@@ -254,13 +253,13 @@ int main (int argc, char *argv[]) {
               // append to offset list
               offsetEventByPFN[pfn].push_back(pos);
             }
-          } catch (pool::Exception& e) {
+          } catch (std::exception& e) {
             std::cout << "Unable to find StreamRAW for event = " << *evNum << std::endl;
             std::cout << e.what()  << std::endl;
             return -1;
           }
         }
-      } catch (pool::Exception& e) {
+      } catch (std::exception& e) {
         std::cout << "Reading collections encountered " << e.what() << std::endl;
         return -1;
       }

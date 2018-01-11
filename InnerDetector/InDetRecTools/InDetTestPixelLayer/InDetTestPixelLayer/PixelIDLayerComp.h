@@ -12,7 +12,7 @@ namespace InDet {
   public:
     PixelIDLayerComp(): m_pixelId(0) {}
     PixelIDLayerComp(const PixelID* pixelId) : m_pixelId(pixelId) {}
-    bool operator() (Identifier id1, Identifier id2){
+    bool operator() (Identifier id1, Identifier id2) const {
 
       bool id1_is_pixel = m_pixelId->is_pixel(id1);
       bool id2_is_pixel = m_pixelId->is_pixel(id2);

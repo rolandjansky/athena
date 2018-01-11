@@ -39,8 +39,7 @@ static DbDatabaseH __DB(const FileDescriptor&     fDesc)  {
 }
 
 /// Standard Constructor.
-DbStorageExplorer::DbStorageExplorer( void* /*framework */,
-                                      const string& nam,
+DbStorageExplorer::DbStorageExplorer( const string& nam,
                                       DbDomain& domH,
                                       DbStorageSvc* pOuter)
 : m_pOuter(pOuter), m_domH(domH), m_name(nam)

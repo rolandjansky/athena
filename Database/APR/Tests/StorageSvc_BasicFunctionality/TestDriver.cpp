@@ -47,7 +47,7 @@ void
 TestDriver::testWriting()
 {
    cout << "createStorageSvc" << endl;
-   pool::IStorageSvc* storSvc = pool::createStorageSvc( 0, "StorageSvc");
+   pool::IStorageSvc* storSvc = pool::createStorageSvc("StorageSvc");
    if ( ! storSvc ) {
       throw std::runtime_error( "Could not create a StorageSvc object" );
    }
@@ -133,7 +133,7 @@ TestDriver::testWriting()
 void
 TestDriver::testReading()
 {
-  pool::IStorageSvc* storSvc = pool::createStorageSvc( 0, "StorageSvc");
+  pool::IStorageSvc* storSvc = pool::createStorageSvc("StorageSvc");
   if ( ! storSvc ) {
     throw std::runtime_error( "Could not create a StorageSvc object" );
   }

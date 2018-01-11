@@ -470,7 +470,7 @@ void AuxElement::copyAux (const AuxElement& other)
   }
 
   size_t oindex = other.index();
-  const SG::auxid_set_t& other_ids = ocont->getAuxIDs();
+  SG::auxid_set_t other_ids = ocont->getAuxIDs();
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
@@ -487,7 +487,7 @@ void AuxElement::copyAux (const AuxElement& other)
   }
 
   for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
-    if (other_ids.find (auxid) == other_ids.end()) {
+    if (!other_ids.test (auxid)) {
       void* dst = m_container->getDataArray (auxid);
       r.clear (auxid, dst, m_index);
     }

@@ -65,11 +65,9 @@ namespace SG {
     EventIDBase m_eid;
     CondCont<T>*  m_cc {nullptr};
     const T* m_obj { nullptr };
-    EventIDRange m_range;
+    const EventIDRange* m_range { nullptr };
     
     const SG::ReadCondHandleKey<T>& m_hkey;
-
-    StoreGateSvc* m_cs {nullptr};
   };
 
 
@@ -88,8 +86,7 @@ namespace SG {
                                     const EventContext& ctx):
     m_eid( ctx.eventID() ),
     m_cc( key.getCC() ),
-    m_hkey(key),
-    m_cs ( key.getCS() )
+    m_hkey(key)
   {
     EventIDBase::number_type conditionsRun =
       ctx.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
@@ -109,8 +106,9 @@ namespace SG {
 
     if (m_cc == 0) {
       // try to retrieve it
+      StoreGateSvc* cs = m_hkey.getCS();
       CondContBase *cb(nullptr);
-      if (m_cs->retrieve(cb, m_hkey.key()).isFailure()) {
+      if (cs->retrieve(cb, m_hkey.key()).isFailure()) {
         MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
         msg << MSG::ERROR
             << "can't retrieve " << m_hkey.fullKey() 
@@ -248,8 +246,12 @@ namespace SG {
       }
     }
 
-    r = m_range;
-    return true;
+    if (m_range) {
+      r = *m_range;
+      return true;
+    }
+      
+    return false;
   }
 
   //---------------------------------------------------------------------------
