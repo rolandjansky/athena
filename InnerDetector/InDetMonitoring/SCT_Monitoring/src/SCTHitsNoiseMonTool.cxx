@@ -3448,7 +3448,7 @@ SCTHitsNoiseMonTool::h2IFactory(const std::string &name, const std::string &titl
 
 SCTHitsNoiseMonTool::Prof2_t
 SCTHitsNoiseMonTool::prof2DFactory(const std::string &name, const std::string &title, MonGroup &registry, int nbinx,
-                                   int xlo, int xhi, int nbiny, int ylo, int yhi) {
+                                   float xlo, float xhi, int nbiny, float ylo, float yhi) {
   Prof2_t tmp = new TProfile2D(TString(name), TString(title), nbinx, xlo - 0.5, xhi + 0.5, nbiny, ylo - 0.5, yhi + 0.5);
 
   tmp->SetXTitle("Index in the direction of #eta");
@@ -3462,7 +3462,7 @@ SCTHitsNoiseMonTool::prof2DFactory(const std::string &name, const std::string &t
 
 SCTHitsNoiseMonTool::Prof_t
 SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &title, MonGroup &registry, int nbin,
-                                 int lo, int hi) {
+                                 float lo, float hi) {
   Prof_t tmp = TProfile_LW::create(TString(name), TString(title), nbin, lo, hi);
 
   tmp->SetXTitle("LumiBlock");
@@ -3479,9 +3479,9 @@ SCTHitsNoiseMonTool::profFactory(const std::string &name, const std::string &tit
   Prof_t tmp = TProfile_LW::create(TString(name), TString(title), 3, 0, 3);
 
   tmp->SetYTitle("Fraction of 01X");
-  tmp->GetXaxis()->SetBinLabel(1.5, "Endcap C");
-  tmp->GetXaxis()->SetBinLabel(2.5, "Barrel");
-  tmp->GetXaxis()->SetBinLabel(3.5, "Endcap A");
+  tmp->GetXaxis()->SetBinLabel(1, "Endcap C");
+  tmp->GetXaxis()->SetBinLabel(2, "Barrel");
+  tmp->GetXaxis()->SetBinLabel(3, "Endcap A");
   bool success(registry.regHist(tmp).isSuccess());
   if (not success) {
     msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endmsg;
