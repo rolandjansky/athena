@@ -183,11 +183,11 @@ StatusCode Trk::TruthTrackCreation::execute()
 
     ATH_CHECK(outputTrackCollectionHandle.record(std::move(outputTrackCollection)));
 
-    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_outputTrackCollectionName << " and size " <<  outputTrackCollection->size() << " recorded.");
+    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_outputTrackCollectionName << " and size " <<  outputTrackCollectionHandle->size() << " recorded.");
 
     ATH_CHECK(skippedTrackCollectionHandle.record(std::move(skippedTrackCollection)));
  
-    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_skippedTrackCollectionName << " and size " <<  skippedTrackCollection->size() << " recorded.");
+    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_skippedTrackCollectionName << " and size " <<  skippedTrackCollectionHandle->size() << " recorded.");
 
     // job done
     return StatusCode::SUCCESS;
