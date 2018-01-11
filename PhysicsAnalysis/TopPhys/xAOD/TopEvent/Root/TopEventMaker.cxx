@@ -64,21 +64,18 @@ namespace top {
       top::check(evtStore()->retrieve(event.m_primaryVertices, m_config->sgKeyPrimaryVertices()), "Failed to retrieve Primary Vertices");
     }
 
-    //Poisson bootstrap weights
-    std::vector<int> weight_poisson;
+    //Poisson bootstrap weights    
     if(m_config->saveBootstrapWeights()){
+      int second_seed;
       if(m_config->isMC()){
-      std::vector<int> weight_poisson = top::calculateBootstrapWeights(m_config->getNumberOfBootstrapReplicas(), 
-								       event.m_info->eventNumber(), 
-								       event.m_info->mcChannelNumber());
+	second_seed=event.m_info->mcChannelNumber();
       }
       else{
-	weight_poisson = top::calculateBootstrapWeights(m_config->getNumberOfBootstrapReplicas(),
-							event.m_info->eventNumber(),
-							event.m_info->runNumber()); 
-      }
-      //SG::AuxElement::Decorator< std::vector<int> > decoratePoissonWeights("weight_poisson");
-      //decoratePoissonWeights(*event.m_info) = weight_poisson;
+	second_seed = event.m_info->runNumber();
+      }      
+      std::vector<int> weight_poisson = top::calculateBootstrapWeights(m_config->getNumberOfBootstrapReplicas(), 
+								       event.m_info->eventNumber(), 
+								       second_seed);
       event.m_info->auxdecor< std::vector<int> >("weight_poisson") = weight_poisson;
     }
     

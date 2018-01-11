@@ -166,6 +166,3 @@ atlas_add_executable( top-xaod-v2
                                      ${ROOT_LIBRARIES}
                                      TopAnalysis )
 
-atlas_add_test(	top-xaod-runtime-ctest
-                SCRIPT test/runtime_ctest.py
-                PROPERTIES TIMEOUT 300 )			  
