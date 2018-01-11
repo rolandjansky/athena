@@ -70,6 +70,7 @@ namespace G4UA
         for (int j=0;j<(*lvs)[i]->GetNoDaughters();++j){
           if ( (*lvs)[i]->GetDaughter(j)->GetName().c_str()==m_config.targetVolume ){
             W = (*lvs)[i]->GetDaughter(j);
+            // FIXME: Remove this goto!!!
             goto exitLoop;
           } // If we found the volume
         } // Loop over PVs in the LV
