@@ -7,7 +7,6 @@ include.block ('InDetRecExample/ConfiguredInDetValidation.py')
 # ----------- Truth Validation algorithms for tracks
 #
 # ------------------------------------------------------------
-
 class  ConfiguredInDetValidation:
 
   def __init__ (self, nameExt = "",
@@ -39,10 +38,10 @@ class  ConfiguredInDetValidation:
       from InDetRecStatistics.InDetRecStatisticsConf import InDet__InDetRecStatisticsAlg
       InDetRecStatistics = InDet__InDetRecStatisticsAlg (name                     = "InDetRecStatistics"+nameExt,
                                                          TrackCollectionKeys      = TrackCollectionKeys,
-                                                         TrackTruthCollectionKeys = TrackCollectionTruthKeys,
-                                                         McTrackCollectionKey     = McEventCollectionKey,
+                                                         TrackTruthCollectionKeys = TrackCollectionTruthKeys if InDetFlags.doTruth() else [],
+                                                         McTrackCollectionKey     = McEventCollectionKey     if InDetFlags.doTruth() else "",
                                                          PrintSecondary           = True,
-                                                         TruthToTrackTool         = (InDetTruthToTrack if InDetFlags.doTruth() else None),
+                                                         TruthToTrackTool         = (InDetTruthToTrack       if InDetFlags.doTruth() else None),
                                                          UseTrackSummary          = True,
                                                          SummaryTool              = InDetTrackSummaryToolSharedHits, # this is a bug !!!
                                                          DoTruth                  = InDetFlags.doTruth(),
