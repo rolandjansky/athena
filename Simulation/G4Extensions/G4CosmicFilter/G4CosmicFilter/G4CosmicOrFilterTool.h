@@ -15,18 +15,24 @@ namespace G4UA
   class G4CosmicOrFilterTool : public ActionToolBaseReport<G4CosmicOrFilter>,
                                public IG4EventActionTool
   {
+
     public:
-      G4CosmicOrFilterTool(const std::string& type, const std::string& name,const IInterface* parent);
+      /// Standard constructor
+      G4CosmicOrFilterTool(const std::string& type, const std::string& name,
+                           const IInterface* parent);
 
       virtual G4UserEventAction* getEventAction() override final
       { return static_cast<G4UserEventAction*>( getAction() ); }
 
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
       virtual StatusCode finalize() override;
+
     protected:
       virtual std::unique_ptr<G4CosmicOrFilter> makeAction() override final;
     private:
+
       G4CosmicOrFilter::Config m_config;
+
   }; // class G4CosmicOrFilterTool
 
 } // namespace G4UA

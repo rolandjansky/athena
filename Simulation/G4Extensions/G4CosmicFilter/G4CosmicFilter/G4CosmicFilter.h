@@ -43,6 +43,7 @@ namespace G4UA
       };
 
       G4CosmicFilter(const Config& config);
+
       const Report& getReport() const
       { return m_report; }
 

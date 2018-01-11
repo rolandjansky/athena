@@ -18,7 +18,9 @@ namespace G4UA
 
     public:
 
-      G4CosmicAndFilterTool(const std::string& type, const std::string& name,const IInterface* parent);
+      /// Standard constructor
+      G4CosmicAndFilterTool(const std::string& type, const std::string& name,
+                            const IInterface* parent);
 
       virtual G4UserEventAction* getEventAction() override final
       { return static_cast<G4UserEventAction*>( getAction() ); }
