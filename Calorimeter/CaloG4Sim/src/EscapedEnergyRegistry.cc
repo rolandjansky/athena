@@ -44,31 +44,28 @@ namespace CaloG4
 
     // Check that we're not adding any duplicates.
     m_processingMap_ptr_t i;
-    for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ )
-      {
-	if ( name == (*i).first )
-	  {
-	    G4cout << "CaloG4Sim::EscapedEnergyRegistry::AddAndAdoptProcessing -"
-		   << G4endl;
-	    G4cout << "   Trying to add a second VEscapedEnergyProcessing with the name '"
-		   << name
-		   << "'" << G4endl;
-	    G4cout << "   Entry is rejected!" << G4endl;
-	    return;
-	  }
-	if ( process == (*i).second )
-	  {
-	    G4cout << "CaloG4Sim::EscapedEnergyRegistry::AddAndAdoptProcessing -"
-		   << G4endl;
-	    G4cout << "   The key '"
-		   << name
-		   << "' has the same VEscapedEnergyProcessing object as the key '"
-		   << (*i).first
-		   << "'" << G4endl;
-	    G4cout << "   Entry is rejected!" << G4endl;
-	    return;
-	  }
+    for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ ) {
+      if ( name == (*i).first ) {
+        G4cout << "CaloG4Sim::EscapedEnergyRegistry::AddAndAdoptProcessing -"
+               << G4endl;
+        G4cout << "   Trying to add a second VEscapedEnergyProcessing with the name '"
+               << name
+               << "'" << G4endl;
+        G4cout << "   Entry is rejected!" << G4endl;
+        return;
       }
+      if ( process == (*i).second ) {
+        G4cout << "CaloG4Sim::EscapedEnergyRegistry::AddAndAdoptProcessing -"
+               << G4endl;
+        G4cout << "   The key '"
+               << name
+               << "' has the same VEscapedEnergyProcessing object as the key '"
+               << (*i).first
+               << "'" << G4endl;
+        G4cout << "   Entry is rejected!" << G4endl;
+        return;
+      }
+    }
 
     // There are no duplicates, so add the entry.
     m_processingMap[ name ] = process;
@@ -90,11 +87,10 @@ namespace CaloG4
     // (*i).second = a VEscapedEnergyProcessing*
 
     m_processingMap_const_ptr_t i;
-    for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ )
-      {
-	if ( volumeName.contains( (*i).first ) )
-	  return (*i).second;
-      }
+    for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ ) {
+      if ( volumeName.contains( (*i).first ) )
+        return (*i).second;
+    }
 
     // If we get here, then there was no entry in the map that
     // matched any portion of the volume name.

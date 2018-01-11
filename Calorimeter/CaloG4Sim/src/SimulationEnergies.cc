@@ -145,31 +145,31 @@ namespace CaloG4
 
     static G4bool initialized = false;
     if ( ! initialized )
-      { 
-	initialized = true;
+    {
+      initialized = true;
 
-	/*
-	// Constructor: initialize some useful constants.
-	electronMass = G4ParticleTable::GetParticleTable()->FindParticle("e-")      ->GetPDGMass();
-	protonMass   = G4ParticleTable::GetParticleTable()->FindParticle("proton")  ->GetPDGMass();
-	neutronMass  = G4ParticleTable::GetParticleTable()->FindParticle("neutron") ->GetPDGMass();
-	deuteronMass = G4ParticleTable::GetParticleTable()->FindParticle("deuteron")->GetPDGMass();
-	tritonMass   = G4ParticleTable::GetParticleTable()->FindParticle("triton")  ->GetPDGMass();
-	alphaMass    = G4ParticleTable::GetParticleTable()->FindParticle("alpha")   ->GetPDGMass();
-	helium3Mass  = G4ParticleTable::GetParticleTable()->FindParticle("He3")     ->GetPDGMass();
-    
+      /*
+      // Constructor: initialize some useful constants.
+      electronMass = G4ParticleTable::GetParticleTable()->FindParticle("e-")      ->GetPDGMass();
+      protonMass   = G4ParticleTable::GetParticleTable()->FindParticle("proton")  ->GetPDGMass();
+      neutronMass  = G4ParticleTable::GetParticleTable()->FindParticle("neutron") ->GetPDGMass();
+      deuteronMass = G4ParticleTable::GetParticleTable()->FindParticle("deuteron")->GetPDGMass();
+      tritonMass   = G4ParticleTable::GetParticleTable()->FindParticle("triton")  ->GetPDGMass();
+      alphaMass    = G4ParticleTable::GetParticleTable()->FindParticle("alpha")   ->GetPDGMass();
+      helium3Mass  = G4ParticleTable::GetParticleTable()->FindParticle("He3")     ->GetPDGMass();
+
 #ifdef DEBUG_ENERGIES
-	G4cout << "SimulationEnergies initialization: " << G4endl;
-	G4cout << ">>>> electronMass="<<electronMass << G4endl;
-	G4cout << ">>>> protonMass="<<protonMass << G4endl;
-	G4cout << ">>>> neutronMass="<<neutronMass << G4endl;
-	G4cout << ">>>> deuteronMass="<<deuteronMass << G4endl;
-	G4cout << ">>>> tritonMass="<<tritonMass << G4endl;
-	G4cout << ">>>> alphaMass="<<alphaMass << G4endl;
-	G4cout << ">>>> helium3Mass="<<helium3Mass << G4endl;
+      G4cout << "SimulationEnergies initialization: " << G4endl;
+      G4cout << ">>>> electronMass="<<electronMass << G4endl;
+      G4cout << ">>>> protonMass="<<protonMass << G4endl;
+      G4cout << ">>>> neutronMass="<<neutronMass << G4endl;
+      G4cout << ">>>> deuteronMass="<<deuteronMass << G4endl;
+      G4cout << ">>>> tritonMass="<<tritonMass << G4endl;
+      G4cout << ">>>> alphaMass="<<alphaMass << G4endl;
+      G4cout << ">>>> helium3Mass="<<helium3Mass << G4endl;
 #endif
-	*/
-      }
+      */
+    }
   }
 
 
@@ -296,7 +296,8 @@ namespace CaloG4
 
     G4ParticleDefinition *secondaryID;
     G4double totalEofSecondary=0, kinEofSecondary=0, measurEofSecondary=0;
-    for(size_t lp1=loopStart; lp1<loopEnd; lp1++){
+
+    for(size_t lp1=loopStart; lp1<loopEnd; lp1++) {
 
       //----- extract information about each new secondary particle:
       secondaryID = (*fSecondary)[lp1]->GetDefinition();
@@ -327,31 +328,33 @@ namespace CaloG4
 #endif
 
     if ( pTrack->GetNextVolume() == 0 )
-      {
-	// this particle escaped World volume at this step
-	if ( status != fStopAndKill )
-	  { // checking for abnormal case
-	    G4cerr << "SimulationEnergies::Classify particle "
-		   << particle->GetParticleName() 
-		   << " escaped World volume with status="<<status<< G4endl;
-	  }
-
-	G4double escapedEnergy =
-	  measurableEnergy(particle, 
-                           particle->GetPDGEncoding(),
-                           dynParticle->GetTotalEnergy(),
-                           EkinPostStep);
-
-	result.energy[kInvisible0] -= escapedEnergy;        
-
-	if ( a_processEscaped )
-#ifdef DEBUG_ENERGIES
-	  allOK =
-#endif
-            ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
-	else
-	  result.energy[kEscaped] += escapedEnergy;
+    {
+      // this particle escaped World volume at this step
+      // checking for abnormal case
+      if ( status != fStopAndKill ) {
+        G4cerr << "SimulationEnergies::Classify particle "
+               << particle->GetParticleName()
+               << " escaped World volume with status=" << status << G4endl;
       }
+
+      G4double escapedEnergy =
+        measurableEnergy(particle,
+                         particle->GetPDGEncoding(),
+                         dynParticle->GetTotalEnergy(),
+                         EkinPostStep);
+
+      result.energy[kInvisible0] -= escapedEnergy;
+
+      if ( a_processEscaped ) {
+#ifdef DEBUG_ENERGIES
+        allOK =
+#endif
+          ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
+      }
+      else {
+        result.energy[kEscaped] += escapedEnergy;
+      }
+    }
 
     // END of calculation of Invisible and Escaped energy for current step
 
@@ -367,17 +370,17 @@ namespace CaloG4
     }
 
 #ifdef DEBUG_ENERGIES
-    if ( ! allOK )
-      {
-	std::cout << "SimulationEnergies::Classify - additional info: "
-		  << std::endl
-		  << "particle name=" << particle->GetParticleName()
-		  << "   volume=" << step->GetPreStepPoint()->GetPhysicalVolume()->GetName()
-		  << " status=" << status
-	  // 12-Aug-2009  << " process=" << processDefinedStepName
-		  << " process SubType=" << processSubTypeValue
-		  << std::endl;
-      }
+    if ( ! allOK ) {
+      std::cout << "SimulationEnergies::Classify - additional info: "
+                << std::endl
+                << "particle name=" << particle->GetParticleName()
+                << "   volume="
+                << step->GetPreStepPoint()->GetPhysicalVolume()->GetName()
+                << " status=" << status
+                // 12-Aug-2009  << " process=" << processDefinedStepName
+                << " process SubType=" << processSubTypeValue
+                << std::endl;
+    }
 #endif
     return result;
   }
@@ -392,33 +395,42 @@ namespace CaloG4
     // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
     G4double measurableEnergy = totalEnergy;
 
-    if (particleDef == G4Electron::Definition() || particleDef == G4Proton::Definition() ||
-        particleDef == G4Neutron::Definition() || PDGEncoding == 1000010020 || 
-        PDGEncoding == 1000010030 || PDGEncoding == 1000020040 ||
-        PDGEncoding == 1000020030 ){
+    if (particleDef == G4Electron::Definition() ||
+        particleDef == G4Proton::Definition() ||
+        particleDef == G4Neutron::Definition() ||
+        PDGEncoding == 1000010020 || PDGEncoding == 1000010030 ||
+        PDGEncoding == 1000020040 || PDGEncoding == 1000020030) {
       measurableEnergy = kineticEnergy;
     }
-    else if (particleDef == G4Positron::Definition() ){
+    else if (particleDef == G4Positron::Definition()) {
       measurableEnergy = 2.* totalEnergy - kineticEnergy;
     }
-    else if (PDGEncoding > 1000010019 ){ //for nuclei
+    else if (PDGEncoding > 1000010019) { //for nuclei
       measurableEnergy = kineticEnergy;
     }
-    else if (particleDef == G4Lambda::Definition() || particleDef == G4SigmaPlus::Definition() ||
-             particleDef == G4SigmaZero::Definition() || particleDef == G4SigmaMinus::Definition() ||
-             particleDef == G4XiMinus::Definition() || particleDef == G4XiZero::Definition() || 
-             particleDef == G4OmegaMinus::Definition() ){
+    else if (particleDef == G4Lambda::Definition() ||
+             particleDef == G4SigmaPlus::Definition() ||
+             particleDef == G4SigmaZero::Definition() ||
+             particleDef == G4SigmaMinus::Definition() ||
+             particleDef == G4XiMinus::Definition() ||
+             particleDef == G4XiZero::Definition() ||
+             particleDef == G4OmegaMinus::Definition()) {
       measurableEnergy = kineticEnergy;
     }
 
-    else if (particleDef == G4AntiNeutron::Definition() ){
+    else if (particleDef == G4AntiNeutron::Definition()) {
       measurableEnergy = 2.* totalEnergy - kineticEnergy;
     }
-    else if (particleDef == G4AntiProton::Definition() || 
-             particleDef == G4AntiLambda::Definition() || particleDef == G4AntiSigmaPlus::Definition() ||
-             particleDef == G4AntiSigmaZero::Definition() || particleDef == G4AntiSigmaMinus::Definition() || // Need AntiSigmacPlus and Zero as well?
-             particleDef == G4AntiXiZero::Definition() || particleDef == G4AntiXiMinus::Definition() || // Need AntiXicMinus and Zero as well?
-             particleDef == G4AntiOmegaMinus::Definition() ){
+    else if (particleDef == G4AntiProton::Definition() ||
+             particleDef == G4AntiLambda::Definition() ||
+             particleDef == G4AntiSigmaPlus::Definition() ||
+             particleDef == G4AntiSigmaZero::Definition() ||
+             // Need AntiSigmacPlus and Zero as well?
+             particleDef == G4AntiSigmaMinus::Definition() ||
+             particleDef == G4AntiXiZero::Definition() ||
+             // Need AntiXicMinus and Zero as well?
+             particleDef == G4AntiXiMinus::Definition() ||
+             particleDef == G4AntiOmegaMinus::Definition()) {
       measurableEnergy = 2.* totalEnergy - kineticEnergy;
     }
 
@@ -435,45 +447,42 @@ namespace CaloG4
   }
 
 
-  G4double SimulationEnergies::measurableEnergy(const G4ParticleDefinition* particleDef, 
+  // 5-Dec-2003 Mikhail Leltchouk: extended version of FORTRAN Function PrMeasE
+  // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
+  //
+  // Purpose: returns energy measurable in a calorimeter.
+  //
+  // Rest masses of stable particles do not give rise to a signal in
+  // the calorimeter. The measurable energy is obtained by subtracting
+  // the rest mass from the total energy for these particles and those
+  // particles which may decay into them. For antiparticles the rest
+  // mass has to be added due to annihilation processes.
+  //
+  // Input: particleDef   - Geant4 particle definition
+  //        PDGEncoding   - Particle Data Group (PDG) particle number
+  //        totalEnergy   - particle total energy
+  //        kineticEnergy - particle kinetic energy
+  //
+  // Output: measurableEnergy - energy measurable in a calorimeter
+  G4double SimulationEnergies::measurableEnergy(const G4ParticleDefinition* particleDef,
                                                 G4int PDGEncoding,
                                                 G4double totalEnergy,
                                                 G4double kineticEnergy) const
-
-    // 5-Dec-2003 Mikhail Leltchouk: extended version of FORTRAN Function PrMeasE
-    // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
-
-    // Purpose: returns energy measurable in a calorimeter.
-
-    // Rest masses of stable particles do not give rise to a signal in  
-    // the calorimeter. The measurable energy is obtained by subtracting
-    // the rest mass from the total energy for these particles and those
-    // particles which may decay into them. For antiparticles the rest  
-    // mass has to be added due to annihilation processes.              
-
-    // Input: particleDef   - Geant4 particle definition
-    //        PDGEncoding   - Particle Data Group (PDG) particle number
-    //        totalEnergy   - particle total energy
-    //        kineticEnergy - particle kinetic energy
-
-    // Output: measurableEnergy - energy measurable in a calorimeter
-
   {
 
-        // Constructor: initialize some useful constants.
-    //    static const G4double electronMass = G4Electron::Electron()->GetPDGMass();
+    //static const G4double electronMass = G4Electron::Electron()->GetPDGMass();
     //static const G4double protonMass   = G4Proton::Proton()->GetPDGMass();
     //static const G4double neutronMass  = G4Neutron::Neutron()->GetPDGMass();
 
     const G4double electronMass = G4Electron::Definition()->GetPDGMass();
     const G4double protonMass = G4Proton::Definition()->GetPDGMass();
     const G4double neutronMass = G4Neutron::Definition()->GetPDGMass();
-    
+
 #ifdef DEBUG_ENERGIES
-        G4cout << "SimulationEnergies initialization: " << G4endl;
-        G4cout << ">>>> electronMass="<<electronMass << G4endl;
-        G4cout << ">>>> protonMass="<<protonMass << G4endl;
-        G4cout << ">>>> neutronMass="<<neutronMass << G4endl;
+    G4cout << "SimulationEnergies initialization: " << G4endl;
+    G4cout << ">>>> electronMass=" << electronMass << G4endl;
+    G4cout << ">>>> protonMass=" << protonMass << G4endl;
+    G4cout << ">>>> neutronMass=" << neutronMass << G4endl;
 #endif
 
     G4double correctionForMass = 0.;
@@ -558,24 +567,21 @@ namespace CaloG4
     // Locate the G4TouchableHandle associated with the volume
     // containing "a_point".
 
-    if ( navigator == 0 )
-      {
-	// Get the navigator object used by the G4TransportationManager.
-	navigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-	// Initialize the touchableHandle object.
-	touchableHandle = new G4TouchableHistory();
-	navigator->
-	  LocateGlobalPointAndUpdateTouchable(a_point,
-					      touchableHandle(),
-					      false);
-      }
-    else
-      {
-	navigator->
-	  LocateGlobalPointAndUpdateTouchable(a_point,
-					      touchableHandle(),
-					      false);
-      }
+    if ( navigator == 0 ) {
+      // Get the navigator object used by the G4TransportationManager.
+      navigator =
+        G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+      // Initialize the touchableHandle object.
+      touchableHandle = new G4TouchableHistory();
+      navigator->LocateGlobalPointAndUpdateTouchable(a_point,
+                                                     touchableHandle(),
+                                                     false);
+    }
+    else {
+      navigator->LocateGlobalPointAndUpdateTouchable(a_point,
+                                                     touchableHandle(),
+                                                     false);
+    }
 
     // Choose which VEscapedEnergyProcessing routine we'll use based
     // on the volume name.
