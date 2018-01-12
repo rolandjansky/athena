@@ -9,11 +9,7 @@ else
 fi
 
 #setup the TT
-export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
-
-export PATH=$PATH:$TDAQ_JAVA_HOME/bin
-
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
 
 ##get the right pattern to load LVl1 xml file
@@ -98,7 +94,7 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"\\\"${rundate}${nightly}_${rel}\"\\\" --dbConn $DBConn -w_n 50 -w_t 60"
 
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log

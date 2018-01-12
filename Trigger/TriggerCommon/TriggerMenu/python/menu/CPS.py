@@ -52,7 +52,7 @@ def defineCPSGroups():
         #Egamma chains
         "RATE:CPS:HLT_e5_vloose"  :  ['e5_lhvloose_nod0',],
                                       
-        "RATE:CPS:HLT_2g3" : ['2g3_loose_L12EM3_VTE70','2g3_loose_dPhi15_L12EM3_VTE70','2g3_medium_dPhi15_L12EM3_VTE70'],
+        "RATE:CPS:HLT_2g3" : ['2g3_loose_L12EM3_VTE50','2g3_loose_dPhi15_L12EM3_VTE50','2g3_medium_dPhi15_L12EM3_VTE50'],
         ########################################################################
 
         "RATE:CPS:HLT_e20_vloose"        : ['e20_lhvloose_nod0'],
