@@ -537,13 +537,6 @@ for alg_name in ['InDetTrackParticles',InDetKeys.xAODPseudoTrackParticleContaine
     print >>sys.stderr,'WARNING top sequence does not contain the expected %s algorithm' % alg_name
   idx += 1
 
-#  xAODTrackParticleCnvAlg.OutputLevel = OutputLevel #VERBOSE
-
-
-# xAODPseudoTrackParticleCnvAlg.OutputLevel = OutputLevel #VERBOSE
-# xAODPseudoTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
-# print xAODPseudoTrackParticleCnvAlg
-
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolStream( "StreamAOD", "xAOD.pool.root" )
 #xaodStream.AddItem( "#*" )
