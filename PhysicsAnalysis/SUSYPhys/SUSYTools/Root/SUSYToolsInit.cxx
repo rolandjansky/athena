@@ -993,7 +993,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauEffTool.isUserConfigured()) {
     toolName = "TauEffTool_" + m_tauId;
     m_tauEffTool.setTypeAndName("TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName);
-    m_tauEffTool.setProperty("PileupReweightingTool",m_prwTool.getHandle());
+    ATH_CHECK( m_tauEffTool.setProperty("PileupReweightingTool",m_prwTool.getHandle()) );
 
     if (!m_tauSelTool.empty()) {
       ATH_CHECK( m_tauEffTool.setProperty("TauSelectionTool", m_tauSelTool.getHandle()) );

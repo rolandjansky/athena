@@ -299,6 +299,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   if (ilumicalc_file == "DUMMY") {
     prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
     prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
+    //prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"));
   }
   else {
     prw_lumicalc = getTokens(ilumicalc_file,",");
@@ -326,7 +327,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   ANA_CHECK(objTool.setBoolProperty("DebugMode", (bool)debug) );
 
   // autoconfiguring PRW tool
-  if ( autoconfigPRW==1 ) objTool.setBoolProperty("AutoconfigurePRWTool", true);
+  if ( autoconfigPRW==1 ) {
+    objTool.setBoolProperty("AutoconfigurePRWTool", true);
+    //objTool.setProperty("mcCampaign", "mc16a");
+  }
 
   if ( objTool.initialize() != StatusCode::SUCCESS) {
     Error( APP_NAME, "Cannot initialize SUSYObjDef_xAOD..." );
@@ -844,7 +848,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       if (isNominal || (sysInfo.affectsKinematics && (syst_affectsElectrons || syst_affectsMuons || syst_affectsJets))) {
         if(xStream.Contains("SUSY3")){
           ANA_CHECK( objTool.OverlapRemoval(electrons, muons, jets, 0, taus) );
-        }
+	}
         else if(xStream.Contains("SUSY10")){
           ANA_CHECK( objTool.OverlapRemoval(electrons, muons, jets, 0, 0, fatjets_nominal) );
         }

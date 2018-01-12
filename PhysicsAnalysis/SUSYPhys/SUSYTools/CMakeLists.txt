@@ -31,6 +31,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTau
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth
+   Event/xAOD/xAODMetaData
    PhysicsAnalysis/AnalysisCommon/AssociationUtils
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
@@ -98,7 +99,7 @@ atlas_add_library( SUSYToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
    PathResolver TriggerMatchingToolLib TrigConfInterfaces TrigConfxAODLib
-   xAODTrigMissingET ${extra_libs} )
+   xAODTrigMissingET xAODMetaData ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( SUSYTools

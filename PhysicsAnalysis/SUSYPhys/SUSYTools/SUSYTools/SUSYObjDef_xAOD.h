@@ -404,6 +404,7 @@ namespace ST {
     std::vector<std::string> getElSFkeys(const std::string& mapFile) const;
 
     bool m_autoconfigPRW;
+    std::string m_mcCampaign;
 
 #ifdef XAOD_STANDALONE // more convenient for property setting
     DataSource m_dataSource;
