@@ -68,7 +68,7 @@ namespace G4UA
         // calibration processing has occurred for this step.
         EventInformation* evtInfo = dynamic_cast<EventInformation*>(
             G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-        auto track = a_step->GetTrack();
+        auto* track = a_step->GetTrack();
         if ( evtInfo &&
              ( evtInfo->GetLastProcessedBarcode() != track->GetTrackID() ||
                evtInfo->GetLastProcessedStep() != track->GetCurrentStepNumber() ) )
