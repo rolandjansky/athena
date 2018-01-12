@@ -77,11 +77,31 @@ if DerivationFrameworkIsMonteCarlo :
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG5D2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG5D2JetTPThinningTool",
-                                                                ThinningService         = HIGG5D2ThinningHelper.ThinningSvc(),
-                                                                JetKey                  = "AntiKt4EMTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                          ThinningService         = HIGG5D2ThinningHelper.ThinningSvc(),
+                                                                          JetKey                  = "AntiKt4EMTopoJets",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                          SelectionString = "AntiKt4EMTopoJets.pt > 100000*GeV",
+                                                                          ApplyAnd        = True)
 ToolSvc += HIGG5D2JetTPThinningTool
 thinningTools.append(HIGG5D2JetTPThinningTool)
+
+HIGG5D2FatjetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG5D2FatjetTPThinningTool",
+                                                                             ThinningService         = HIGG5D2ThinningHelper.ThinningSvc(),
+                                                                             JetKey                  = "AntiKt10LCTopoJets",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                             SelectionString  = "(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)",
+                                                                             ApplyAnd        = True)
+ToolSvc += HIGG5D2FatjetTPThinningTool
+thinningTools.append(HIGG5D2FatjetTPThinningTool)
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+HIGG5D2FatjetCCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "HIGG5D2FatjetCCThinningTool",
+                                                                          ThinningService       = HIGG5D2ThinningHelper.ThinningSvc(),
+                                                                          SGKey                 = "AntiKt10LCTopoJets",     
+                                                                          TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                          SelectionString  = "(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)",
+                                                                          ApplyAnd        = True)
+ToolSvc += HIGG5D2FatjetCCThinningTool
+thinningTools.append(HIGG5D2FatjetCCThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -132,6 +152,37 @@ HIGG5D2TauCCThinningTool = DerivationFramework__CaloClusterThinning(name        
 ToolSvc += HIGG5D2TauCCThinningTool
 thinningTools.append(HIGG5D2TauCCThinningTool)
 
+# Tracks and CaloClusters associated with TCCs
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
+HIGG5D2TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(name                         = "HIGG5D2TCCTPThinningTool",
+                                                                         ThinningService              = HIGG5D2ThinningHelper.ThinningSvc(),
+                                                                         JetKey                       = "AntiKt10TrackCaloClusterJets",
+                                                                         TCCKey                       = "TrackCaloClustersCombinedAndNeutral",
+                                                                         InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                         CaloCalTopoClustersKey       = "CaloCalTopoClusters",
+                                                                         ThinOriginCorrectedClusters  = True,
+                                                                         SelectionString              = "AntiKt10TrackCaloClusterJets.pt>100*GeV && abs(AntiKt10TrackCaloClusterJets.eta)<2.6",
+                                                                         OriginCaloCalTopoClustersKey = "LCOriginTopoClusters")
+ToolSvc += HIGG5D2TCCTPThinningTool
+thinningTools.append(HIGG5D2TCCTPThinningTool)
+
+#Large-R jet thinning
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+HIGG5D2LargeRJetThinningTool = DerivationFramework__GenericObjectThinning( name             = "HIGG5D2LargeRJetThinningTool",
+                                                                           ThinningService  = HIGG5D2ThinningHelper.ThinningSvc(),
+                                                                           ContainerName    = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                                                           SelectionString  = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                                           ApplyAnd         = False)
+ToolSvc += HIGG5D2LargeRJetThinningTool
+thinningTools.append(HIGG5D2LargeRJetThinningTool)
+HIGG5D2TCCJetThinningTool = DerivationFramework__GenericObjectThinning( name             = "HIGG5D2TCCJetThinningTool",
+                                                                        ThinningService  = HIGG5D2ThinningHelper.ThinningSvc(),
+                                                                        ContainerName    = "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+                                                                        SelectionString  = "(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100*GeV && abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                                        ApplyAnd         = False)
+ToolSvc += HIGG5D2TCCJetThinningTool
+thinningTools.append(HIGG5D2TCCJetThinningTool)
+
 
 #========================================================================
 # lepton selection (keep isolation failed leptons for QCD-MJ estimation)
@@ -147,6 +198,7 @@ jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopo
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
 # jetSel += '|| (( count( (CamKt12LCTopoJets.pt > 100.0*GeV) && (abs(CamKt12LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
+jetSel += '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
 # jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.6) ) ) > 0)'
 # jetSel += '|| (( count( (CamKt10LCTopoPrunedR50Z15Jets.pt > 100.0*GeV) && (abs(CamKt10LCTopoPrunedR50Z15Jets.eta) < 2.6) ) ) > 0)'
 # jetSel += '|| (( count( (CamKt12LCTopoBDRSFilteredMU100Y15Jets.pt > 100.0*GeV) && (abs(CamKt12LCTopoBDRSFilteredMU100Y15Jets.eta) < 2.6) ) ) > 0)'
@@ -361,6 +413,19 @@ if not "HIGG5D2Jets" in OutputJets:
       addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d2Seq,outputGroup="HIGG5D2Jets")
 
     addDefaultTrimmedJets(higg5d2Seq,"HIGG5D2");
+
+
+#=======================================
+# TCC JETS
+#=======================================
+from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(higg5d2Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+addTCCTrimmedJets(higg5d2Seq, "HIGG5D2")
+OutputJets["HIGG5D2Jets"].append("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
