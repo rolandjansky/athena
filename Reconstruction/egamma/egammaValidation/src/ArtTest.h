@@ -4,13 +4,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 #include <string>
 
 
-class ArtTest : public AthAnalysisAlgorithm
+class ArtTest : public AthAlgorithm
 {
  public:
  

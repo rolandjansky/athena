@@ -10,7 +10,7 @@
 
 using namespace std;
 
-ArtTest :: ArtTest (const std::string& name, ISvcLocator *pSvcLocator) : AthAnalysisAlgorithm (name, pSvcLocator)
+ArtTest :: ArtTest (const std::string& name, ISvcLocator *pSvcLocator) : AthAlgorithm (name, pSvcLocator)
 {
 }
 
