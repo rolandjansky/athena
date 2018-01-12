@@ -200,22 +200,6 @@ void G4AtlasAlg::initializeOnce()
 
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
-  //if (rndmGen=="athena" || rndmGen=="ranecu")	{
-  //  // Set the random number generator to AtRndmGen
-  //  if (m_rndmGenSvc.retrieve().isFailure()) {
-  //    // We can only return void from here. Let's assume that eventually
-  //    // all this initialization code will be moved elsewhere (like a svc) for
-  //    // better control. Then, for now, let's just throw.
-  //    throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
-  //  }
-  //  CLHEP::HepRandomEngine* engine = (*m_rndmGenSvc->getEngine(this, "AtlasG4"));
-  //  CLHEP::HepRandom::setTheEngine(engine);
-  //  ATH_MSG_INFO("Random nr. generator is set to Athena");
-  //}
-  //else if (rndmGen=="geant4" || rndmGen.empty()) {
-  //  ATH_MSG_INFO("Random nr. generator is set to Geant4");
-  //}
-
   // Send UI commands
   for (auto g4command : m_g4commands) {
     ui->ApplyCommand( g4command );
