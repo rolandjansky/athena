@@ -465,8 +465,18 @@ class L2EFChain_mu(L2EFChainDef):
                                  [theTrigMuonEFTrackIsolationHypoConfig],
                                  'EF_mu_hypo3']]
       elif self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivartight" or self.chainPart['isoInfo'] == "ivarverytight" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+        # we activate the track selection by the trigger name
+        isoAlgoName = "TrigMuonEFTrackIsolationVar"
+        if 'tsloose' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'LooseTSel'
+        elif 'tstight' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'TightTSel'
+        
+        if 'z2mm' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'z2mm'
+  
         self.EFsequenceList += [[['EF_mu_step3'],
-                                 [TrigMuonEFTrackIsolationVarConfig("TrigMuonEFTrackIsolationVar")],
+                                 [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
                                  'EF_mu_step4']]
         self.EFsequenceList += [[['EF_mu_step4'],
                                  [theTrigMuonEFTrackIsolationHypoConfig],
