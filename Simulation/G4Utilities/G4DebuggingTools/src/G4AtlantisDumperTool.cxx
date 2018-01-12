@@ -23,7 +23,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<G4AtlantisDumper>(m_config);
-    return std::move(action);
+    return action;
   }
 
   StatusCode G4AtlantisDumperTool::queryInterface(const InterfaceID& riid, void** ppvIf)

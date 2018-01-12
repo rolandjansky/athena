@@ -19,7 +19,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<CheckActivation>();
-    return std::move(action);
+    return action;
   }
 
   StatusCode CheckActivationTool::queryInterface(const InterfaceID& riid, void** ppvIf)

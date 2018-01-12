@@ -18,7 +18,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<EnergyConservationTest>();
-    return std::move(action);
+    return action;
   }
 
   StatusCode EnergyConservationTestTool::queryInterface(const InterfaceID& riid, void** ppvIf)
