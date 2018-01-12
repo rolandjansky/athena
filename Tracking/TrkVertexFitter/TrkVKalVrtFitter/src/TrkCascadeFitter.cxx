@@ -736,7 +736,12 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        std::vector<VxTrackAtVertex> & xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
        xaodVTAV.swap(*tmpVTAV);
        for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
-          ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( m_partListForCascade[itvk] );
+          ElementLink<xAOD::TrackParticleContainer> TEL;
+	  if(itvk < (int)m_cascadeVList[iv].trkInVrt.size()){
+	    TEL.setElement( m_partListForCascade[ m_cascadeVList[iv].trkInVrt[itvk] ] );
+	  }else{
+	    TEL.setElement( 0 );
+	  }
           tmpXAODVertex->addTrackAtVertex(TEL,1.);
        }
        xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
