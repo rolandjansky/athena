@@ -563,6 +563,19 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
 
         self.AthenaMonTools = [validation_caloiso]
 
+def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
+    kwargs.setdefault('deltaZCut', 2.0*mm)
+    kwargs.setdefault('removeSelf',True)
+    kwargs.setdefault('useAnnulus',False)
+    kwargs.setdefault('useVarIso',True)
+    kwargs.setdefault('removeSelfType',0)
+    # Get the track selection tool
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    trkseltool = InDet__InDetTrackSelectionTool()
+    trkseltool.CutLevel='TightPrimary'
+    kwargs.setdefault('TrackSelectionTool',trkseltool)
+    return TrigMuonEFTrackIsolationTool(name, **kwargs)
+
 
 class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
     __slots__ = ()
@@ -571,11 +584,7 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFTrackIsolationConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=False)
+        TMEF_IsolationTool = TMEF_TrackIsolationTool('TMEF_IsolationTool',useVarIso=False)
 
         # Isolation tool
         self.IsolationTool = TMEF_IsolationTool
@@ -606,11 +615,7 @@ class TrigMuonEFMSTrackIsolationConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFMSTrackIsolationConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=False)
+        TMEF_IsolationTool = TMEF_TrackIsolationTool('TMEF_IsolationTool',useVarIso=False)
 
         # Isolation tool
         self.IsolationTool = TMEF_IsolationTool
@@ -641,13 +646,7 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFTrackIsolationVarConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_VarIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_VarIsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=True,
-                                                 removeSelfType=0 # 0=Standard,1=LeadTrk, 2=dRMatched
-        )
+        TMEF_VarIsolationTool = TMEF_TrackIsolationTool('TMEF_VarIsolationTool',useVarIso=True)
 
         # Isolation tool
         self.IsolationTool = TMEF_VarIsolationTool
@@ -696,12 +695,10 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFTrackIsolationAnnulusConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_AnnulusIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_AnnulusIsolationTool',
-                                                 deltaZCut = 3.0*mm,
-                                                 removeSelf=True,
-                                                 useAnnulus=True,
-                                                 annulusSize=0.1,
-						 useVarIso=False)
+        TMEF_AnnulusIsolationTool = TMEF_TrackIsolationTool('TMEF_AnnulusIsolationTool',
+                                                            useVarIso=False,
+                                                            useAnnlus=True,
+                                                            annulusSize=0.1)
 
         # Isolation tool
         self.IsolationTool = TMEF_AnnulusIsolationTool
