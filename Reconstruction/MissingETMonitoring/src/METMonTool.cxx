@@ -104,7 +104,15 @@ StatusCode METMonTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (m_badJets || m_doJetcleaning)   CHECK(m_selTool.retrieve());
+  if (m_badJets || m_doJetcleaning) {
+    CHECK(m_selTool.retrieve());
+  } else {
+    // if the tool is not required it shoudl be configured as non-retrievable
+    if ( not m_selTool.typeAndName().empty() ){
+      ATH_MSG_ERROR("JetSelTool is configured even if is not required");
+      return StatusCode::FAILURE;
+    }
+  }
   return ManagedMonitorToolBase::initialize();
 }
 
