@@ -231,7 +231,7 @@ def getJetTileD3PDObject(objectname='JetTileD3PDObject', prefix='jet_', btagleve
                            prefix = 'flavor_assoctrk_',
                            level = _jetAssocLevel,
                            blockname = 'AssocTrackCont')
-<
+
 
     object.defineBlock(10, 'JetRoIword',
                               JetD3PDMaker.JetROIWordFillerTool
