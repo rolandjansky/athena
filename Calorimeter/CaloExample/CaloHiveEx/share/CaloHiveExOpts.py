@@ -19,7 +19,6 @@ if nThreads >=1 :
    AlgScheduler.OutputLevel( INFO )
    AlgScheduler.ShowControlFlow( True )
    AlgScheduler.ShowDataDependencies( True )
-   AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
    # Support for the MT-MP hybrid mode
    if (nProc > 0) :
@@ -39,11 +38,6 @@ if nThreads >=1 :
          
          msg.info('AthenaMP workers will process %s events each',chunkSize)
 
-   ## force loading of data. make sure this alg is at the front of the
-   ## AlgSequence
-   #
-   from SGComps.SGCompsConf import SGInputLoader
-   topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 
 # MT-specific code
 #---------------------------------------------------------------------------------#
