@@ -65,6 +65,7 @@ std::unique_ptr<egGain::GainTool> gainToolFactory(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2017_summer_improved:
     case egEnergyCorr::es2017_summer_final:
     case egEnergyCorr::es2017_R21_PRE:
+    case egEnergyCorr::es2017_R21_v0:
       return nullptr;  
     default:
       return nullptr;
@@ -104,6 +105,7 @@ std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
           folder = "egammaMVACalib/offline/v4.0";
           break;
         case egEnergyCorr::es2017_R21_PRE:
+        case egEnergyCorr::es2017_R21_v0:
 	  folder = "egammaMVACalib/offline/v7";
           break;
         default: folder = "";
@@ -149,6 +151,9 @@ std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCo
     case egEnergyCorr::es2017_summer_final:    
       tune = "es2017_20.7_final";
       break;
+    case egEnergyCorr::es2017_R21_v0:
+      tune = "es2017_21.0_v0";
+      break;
     default:
       return nullptr;
   }
@@ -183,6 +188,7 @@ bool use_intermodule_correction(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2017_summer_final:
     case egEnergyCorr::es2015_5TeV:
     case egEnergyCorr::es2017_R21_PRE:
+    case egEnergyCorr::es2017_R21_v0:
       return true;
     case egEnergyCorr::UNDEFINED:  // TODO: find better logic
       return false;
@@ -223,6 +229,7 @@ bool is_run2(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2017_summer_final:
     case egEnergyCorr::es2015_5TeV:
     case egEnergyCorr::es2017_R21_PRE:  
+    case egEnergyCorr::es2017_R21_v0:
       return true;
     case egEnergyCorr::UNDEFINED:  // TODO: find better logic
       return false;
@@ -305,6 +312,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   else if (m_ESModel == "es2016data_mc15c_final") { m_TESModel = egEnergyCorr::es2017_summer_final; }
   else if (m_ESModel == "es2015_5TeV") { m_TESModel = egEnergyCorr::es2015_5TeV; }
   else if (m_ESModel == "es2017_R21_PRE") { m_TESModel = egEnergyCorr::es2017_R21_PRE; }
+  else if (m_ESModel == "es2017_R21_v0") {m_TESModel = egEnergyCorr::es2017_R21_v0;}
   else if (m_ESModel.empty()) {
     ATH_MSG_ERROR("you must set ESModel property");
     return StatusCode::FAILURE;
@@ -437,7 +445,8 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   }
 
   // configure layer recalibration tool
-  //For now: layer recalibration only needed before release 21
+  //For now: layer recalibration not applied to PRE release 21 (using run 1 based calibration applied at reco level)
+  //  for following R21 recommendations, need to apply the run2/run1 layer calibration ratio
   if (m_ESModel == "es2017_R21_PRE"){
     ATH_MSG_INFO("Layer recalibration already applied at cell level");
     m_useLayerCorrection = false;
@@ -481,6 +490,10 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
     m_doScaleCorrection = 0;
   }
   */
+  // No scale correction for v0 version of release 21 (to use to derive new scale corrections)
+  if (m_ESModel == "es2017_R21_v0") {
+    m_doScaleCorrection=0;
+  }
 
   ATH_MSG_INFO("ESModel: " << m_ESModel);
   ATH_MSG_INFO("ResolutionType: " << m_ResolutionType);
@@ -933,20 +946,20 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
 
     // additional systematic for PP0 region
-    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV) {
+    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV or m_TESModel == egEnergyCorr::es2017_R21_v0 ) {
       m_syst_description[CP::SystematicVariation("EG_SCALE_MATPP0", +1)] = SysInfo{always, egEnergyCorr::Scale::MatPP0Up};
       m_syst_description[CP::SystematicVariation("EG_SCALE_MATPP0", -1)] = SysInfo{always, egEnergyCorr::Scale::MatPP0Down};
     }
 
     // systematic related to wtots1
-    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV) {
+    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV or m_TESModel == egEnergyCorr::es2017_R21_v0) {
       m_syst_description[CP::SystematicVariation("EG_SCALE_WTOTS1", +1)] = SysInfo{always, egEnergyCorr::Scale::Wtots1Up};
       m_syst_description[CP::SystematicVariation("EG_SCALE_WTOTS1", -1)] = SysInfo{always, egEnergyCorr::Scale::Wtots1Down};
     }
 
     // systematic for the scintillators
     if (m_TESModel == egEnergyCorr::es2015cPRE or m_TESModel == egEnergyCorr::es2015c_summer or m_TESModel == egEnergyCorr::es2016PRE or m_TESModel == egEnergyCorr::es2017
-	or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV) {
+	or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV or m_TESModel == egEnergyCorr::es2017_R21_v0) {
       // scintillator systematics
       m_syst_description[CP::SystematicVariation("EG_SCALE_E4SCINTILLATOR", +1)] = SysInfo{always, egEnergyCorr::Scale::E4ScintillatorUp};
       m_syst_description[CP::SystematicVariation("EG_SCALE_E4SCINTILLATOR", -1)] = SysInfo{always, egEnergyCorr::Scale::E4ScintillatorDown};
@@ -959,7 +972,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
     
     //PS correlated barrel uncertainty
-    if (m_TESModel == egEnergyCorr::es2017_summer_final){
+    if (m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2017_R21_v0){
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", +1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Up}; 
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", -1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Down}; 
     }
@@ -975,7 +988,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
       #include "ElectronPhotonFourMomentumCorrection/systematics_1NPCOR_PLUS_UNCOR.def"
       #undef SYSMACRO
 
-    // additional systematic for S12 last eta bin run2
+    // additional systematic for S12 last eta bin run2 - not needed anymore for last 20.7 model since it is part of bin per bin E1/E2 uncertainty in root file
     if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved) {
       m_syst_description[CP::SystematicVariation("EG_SCALE_S12EXTRALASTETABINRUN2", +1)] = SysInfo{always, egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Up};
       m_syst_description[CP::SystematicVariation("EG_SCALE_S12EXTRALASTETABINRUN2", -1)] = SysInfo{always, egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Down};
@@ -990,7 +1003,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     const std::vector<double> decorrelation_edges_MODULE = {0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.37, 1.52, 1.8};
     const std::vector<double> decorrelation_edges_MATERIAL = {0.0, 1.1, 1.5, 2.1, 2.5};
 
-    if(m_TESModel != egEnergyCorr::es2017_summer_final){
+    if(m_TESModel != egEnergyCorr::es2017_summer_final and m_TESModel != egEnergyCorr::es2017_R21_v0){
     #define SYSMACRO(name, fullcorrelated, decorrelation, flagup, flagdown)                \
     if (bool(fullcorrelated)) {                                                            \
       m_syst_description[CP::SystematicVariation(#name, +1)] = SysInfo{always, flagup};    \
@@ -1076,7 +1089,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
 
     // additional systematic for PP0 region
-    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV) {
+    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV or m_TESModel == egEnergyCorr::es2017_R21_v0) {
       m_syst_description[CP::SystematicVariation("EG_SCALE_MATPP0__ETABIN0", +1)] = SysInfo{AbsEtaCaloPredicateFactory(0, 1.5), egEnergyCorr::Scale::MatPP0Up};
       m_syst_description[CP::SystematicVariation("EG_SCALE_MATPP0__ETABIN1", +1)] = SysInfo{AbsEtaCaloPredicateFactory(1.5, 2.5), egEnergyCorr::Scale::MatPP0Up};
       m_syst_description[CP::SystematicVariation("EG_SCALE_MATPP0__ETABIN0", -1)] = SysInfo{AbsEtaCaloPredicateFactory(0, 1.5), egEnergyCorr::Scale::MatPP0Down};
@@ -1084,14 +1097,14 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
 
     // systematic related to wtots1
-    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV) {
+    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV or m_TESModel == egEnergyCorr::es2017_R21_v0) {
       m_syst_description[CP::SystematicVariation("EG_SCALE_WTOTS1", +1)] = SysInfo{always, egEnergyCorr::Scale::Wtots1Up};
       m_syst_description[CP::SystematicVariation("EG_SCALE_WTOTS1", -1)] = SysInfo{always, egEnergyCorr::Scale::Wtots1Down};
     }
 
     // systematic for the scintillators
     if (m_TESModel == egEnergyCorr::es2015cPRE or m_TESModel == egEnergyCorr::es2015c_summer or m_TESModel == egEnergyCorr::es2016PRE or m_TESModel == egEnergyCorr::es2017
-	or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV) {
+	or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV or m_TESModel == egEnergyCorr::es2017_R21_v0) {
       m_syst_description[CP::SystematicVariation("EG_SCALE_E4SCINTILLATOR__ETABIN0", +1)] = SysInfo{AbsEtaCaloPredicateFactory(1.4, 1.46), egEnergyCorr::Scale::E4ScintillatorUp};
       m_syst_description[CP::SystematicVariation("EG_SCALE_E4SCINTILLATOR__ETABIN1", +1)] = SysInfo{AbsEtaCaloPredicateFactory(1.46, 1.52), egEnergyCorr::Scale::E4ScintillatorUp};
       m_syst_description[CP::SystematicVariation("EG_SCALE_E4SCINTILLATOR__ETABIN2", +1)] = SysInfo{AbsEtaCaloPredicateFactory(1.52, 1.6), egEnergyCorr::Scale::E4ScintillatorUp};
@@ -1110,7 +1123,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
 
     //PS correlated barrel uncertainty 
-    if (m_TESModel == egEnergyCorr::es2017_summer_final){ 
+    if (m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2017_R21_v0){ 
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", +1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Up};  
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", -1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Down};  
     }
@@ -1140,7 +1153,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALCRYO", -1)] = egEnergyCorr::Resolution::MaterialCryoDown;
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_PILEUP", +1)] = egEnergyCorr::Resolution::PileUpUp;
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_PILEUP", -1)] = egEnergyCorr::Resolution::PileUpDown;
-    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV) {
+    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer or m_TESModel == egEnergyCorr::es2017_summer_improved or m_TESModel == egEnergyCorr::es2017_summer_final or m_TESModel == egEnergyCorr::es2015_5TeV or m_TESModel == egEnergyCorr::es2017_R21_v0) {
       m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALIBL", +1)] = egEnergyCorr::Resolution::MaterialIBLUp;
       m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALIBL", -1)] = egEnergyCorr::Resolution::MaterialIBLDown;
       m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALPP0", +1)] = egEnergyCorr::Resolution::MaterialPP0Up;
@@ -1213,7 +1226,7 @@ double EgammaCalibrationAndSmearingTool::intermodule_correction(double Ecl,  dou
   int DivInt = 0;
   double pi = 3.1415926535897932384626433832795 ;
 
-  if ( m_TESModel == egEnergyCorr::es2017_summer_improved || m_TESModel == egEnergyCorr::es2017_summer_final) {
+  if ( m_TESModel == egEnergyCorr::es2017_summer_improved || m_TESModel == egEnergyCorr::es2017_summer_final || m_TESModel == egEnergyCorr::es2017_R21_v0) {
     
     double phi_mod = 0;
     if (phi < 0)
@@ -1322,7 +1335,7 @@ double EgammaCalibrationAndSmearingTool::correction_phi_unif(double eta, double 
     }
   }
   
-  if ( m_TESModel == egEnergyCorr::es2017_summer_improved || m_TESModel == egEnergyCorr::es2017_summer_final) {
+  if ( m_TESModel == egEnergyCorr::es2017_summer_improved || m_TESModel == egEnergyCorr::es2017_summer_final || m_TESModel == egEnergyCorr::es2017_R21_v0) {
 
     if(eta < 0.2 && eta > 0.) {
       if (phi < (-7 * 2 * PI / 32.) && phi > (-8 * 2 * PI / 32.)) { Fcorr = 1.016314; }

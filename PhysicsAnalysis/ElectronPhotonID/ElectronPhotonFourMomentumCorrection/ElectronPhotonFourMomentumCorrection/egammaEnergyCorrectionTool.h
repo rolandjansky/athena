@@ -219,6 +219,8 @@ namespace egEnergyCorr {
     es2015_5TeV,            // For 2015 low mu 5 TeV runs
 
     es2017_R21_PRE,         // Pre-recommendations for release 21
+
+    es2017_R21_v0,          // Release 21 model with layer calibration corrections from run 2, no global scale correction
     
     UNDEFINED
 

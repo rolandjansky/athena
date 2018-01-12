@@ -214,6 +214,9 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
   std::string tune = resolve_alias(tuneIn);
 
   if (tune.empty()) { }
+  else if ("es2017_21.0_v0" == tune) {
+    add_scale("run2_alt_with_layer2_r21_v0");
+  }
   else if ("es2017_20.7_final" == tune) {
     add_scale("pileup_20.7");
     add_scale("run2_alt_with_layer2_modif");
@@ -231,6 +234,10 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
     add_scale(new ScaleE3(InputModifier::SUBTRACT), new GetAmountPileupE3(m_pileup_tool));
   }
   //Run 2
+  else if ("run2_alt_with_layer2_r21_v0"==tune) {
+    add_scale("layer2_alt_run2_r21_v0");
+    add_scale("ps_2016_r21_v0");
+  }
   else if("run2_alt_with_layer2_modif" == tune) { 
     add_scale("ps_EMECHV1"); 
     add_scale("layer2_alt_run2_v1"); 
@@ -588,10 +595,18 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
     add_scale(new ScaleE1(InputModifier::ZEROBASED_ALPHA),
 	      new GetAmountHisto1DErrorDown(*histo));
   }
+  else if("layer2_alt_run2_r21_v0"==tune) {
+    const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v5/egammaLayerRecalibTunes.root");
+    TFile f(file.c_str());
+    TH1D* histo = static_cast<TH1D*>(f.Get("hE1E2mu_2016_rel21_v1"));
+    assert(histo);
+    add_scale(new ScaleE2(InputModifier::ONEBASED),
+              new GetAmountHisto1D(*histo));
+  }
   else if("layer2_alt_run2_v1" == tune) { 
     const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v3/egammaLayerRecalibTunes.root"); 
     TFile f(file.c_str()); 
-    TH1D* histo = static_cast<TH1D*>(f.Get("hE1E2mu_2016_v1")); 
+    TH1D* histo = static_cast<TH1D*>(f.Get("hE1E2mu_2016_v1"));
     assert(histo); 
     add_scale(new ScaleE2(InputModifier::ONEBASED), 
               new GetAmountHisto1D(*histo)); 
@@ -731,6 +746,14 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
     assert(histo);
     add_scale(new ScaleE2(InputModifier::ONEBASED),
 	      new GetAmountHisto1DErrorUp(*histo));
+  }
+  else if ("ps_2016_r21_v0" == tune) {
+    const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v5/egammaLayerRecalibTunes.root");
+    TFile f(file.c_str());
+    TH1F* histo_ps_tot_error = static_cast<TH1F*>(f.Get("hPS_2016_rel21"));
+    assert(histo_ps_tot_error);
+    add_scale(new ScaleE0(InputModifier::ONEBASED_ALPHA),
+              new GetAmountHisto1D(*histo_ps_tot_error));
   }
   else if ("ps_2016_v1" == tune) {
     const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v4/egammaLayerRecalibTunes.root");
