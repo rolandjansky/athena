@@ -21,17 +21,15 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 
-set(ACTS_COMPONENTS Core MaterialPlugin)
-find_package(ACTS REQUIRED COMPONENTS ${ACTS_COMPONENTS})
-message(STATUS ${ACTS_INCLUDE_DIRS})
-message(STATUS ${ACTS_LIBRARIES})
 
 # Component(s) in the package:
 atlas_add_component( GeomACTS
                      src/*.cxx
+                     src/*.cpp
+                     src/obj/*.cpp
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry ACTS::ACTSCore)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry ACTSCore ACTSGeoModelPlugin)
 
 # Install files from the package:
 atlas_install_headers( GeomACTS )

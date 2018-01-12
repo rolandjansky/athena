@@ -7,6 +7,14 @@
 # Set the minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
+include(GNUInstallDirs)
+set(ACTS_BUILD_EXAMPLES OFF)
+set(ACTS_BUILD_GEOMODEL_PLUGIN ON)
+set(ACTS_BUILD_TESTS OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/acts-core)
+
+
 # If there's a directory called AtlasCMake in the project,
 # and the user didn't specify AtlasCMake_DIR yet, then let's
 # give it a default value.
