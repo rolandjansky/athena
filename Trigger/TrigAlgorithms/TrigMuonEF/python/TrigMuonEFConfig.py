@@ -564,7 +564,10 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
         self.AthenaMonTools = [validation_caloiso]
 
 def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
-    kwargs.setdefault('deltaZCut', 2.0*mm)
+    deltaz = 3.0*mm
+    if 'z2mm' in name:
+        deltaz = 2.0*mm
+    kwargs.setdefault('deltaZCut', deltaz)
     kwargs.setdefault('removeSelf',True)
     kwargs.setdefault('useAnnulus',False)
     kwargs.setdefault('useVarIso',True)
@@ -572,7 +575,12 @@ def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
     # Get the track selection tool
     from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
     trkseltool = InDet__InDetTrackSelectionTool()
-    trkseltool.CutLevel='TightPrimary'
+    if 'LooseTSel' in name:
+        trkseltool.CutLevel='Loose'
+    elif 'TightTSel' in name:
+        trkseltool.CutLevel='TightPrimary'
+    print 'TMEF_TrackIsolationTool added trackselection tool:'
+    print trkseltool
     kwargs.setdefault('TrackSelectionTool',trkseltool)
     return TrigMuonEFTrackIsolationTool(name, **kwargs)
 
@@ -646,7 +654,16 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         super( TrigMuonEFTrackIsolationVarConfig, self ).__init__( name )
 
         # configure the isolation tool
-        TMEF_VarIsolationTool = TMEF_TrackIsolationTool('TMEF_VarIsolationTool',useVarIso=True)
+        trkseltoolname = 'TMEF_VarIsolationTool'
+        if 'LooseTSel' in name:
+            trkseltoolname = trkseltoolname + 'LooseTSel'
+        elif 'TightTSel' in name:
+            trkseltoolname = trkseltoolname + 'TightTSel'
+
+        if 'z2mm' in name:
+            trkseltoolname = trkseltoolname + 'z2mm'
+
+        TMEF_VarIsolationTool = TMEF_TrackIsolationTool(trkseltoolname,useVarIso=True)
 
         # Isolation tool
         self.IsolationTool = TMEF_VarIsolationTool
