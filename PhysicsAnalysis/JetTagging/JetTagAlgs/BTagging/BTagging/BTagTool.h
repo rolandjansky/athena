@@ -89,7 +89,7 @@ namespace Analysis
       std::string m_BaselineTagger; //!< whose result is stored in the combinedlikelihhod datamember of the jet
 
       std::string m_vxPrimaryName;           //!< Name of primary vertex container
-      SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Primary vertex Collection"};
+      SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
 
 
       std::string m_runModus;                //!< the run modus of the btagger (reference or analysis)

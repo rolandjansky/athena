@@ -70,10 +70,6 @@ from BTagging.BTaggingConfiguration_SV1Tag import *
 #from BTagging.BTaggingConfiguration_SV2FlipTag import *
 from BTagging.BTaggingConfiguration_SV2Tag import *
 
-# JetProb taggers
-#from BTagging.BTaggingConfiguration_JetProbFlipTag import *
-#from BTagging.BTaggingConfiguration_JetProbTag import *
-
 # MultiSV tagger
 #from BTagging.BTaggingConfiguration_MultiSVTag import *
 from BTagging.BTaggingConfiguration_MultiSVbb1Tag import *
@@ -1581,7 +1577,6 @@ def taggerIsPossible(tagger):
                       'lifetime3D',
                       'secVtxFitTD',
                       'secVtxFitBU',
-                      'JetProbFlip',
                       'IP2DFlip',
                       'IP2DPos',
                       'IP2DNeg',

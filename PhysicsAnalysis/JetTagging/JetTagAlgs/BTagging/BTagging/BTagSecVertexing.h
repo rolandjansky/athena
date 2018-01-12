@@ -73,10 +73,9 @@ namespace Analysis
          std::vector<std::string> m_secVertexFinderBaseNameList;
 
          std::string m_vxPrimaryName; //Input ReadHandle
-         SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Primary vertex Collection"};
-         SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingTrackSVCollectionName { this, "BTaggingTrackSVCollectionName", "", "BTagging container with tracks associations and sec vertexing"};
-         SG::WriteHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", ""};
-         SG::WriteHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", ""};
+         SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
+         SG::WriteHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", "Output BTagging secondary vertex container"};
+         SG::WriteHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", "Output BTagging Jet Fitter container"};
 
   }; // End class
 

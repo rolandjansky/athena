@@ -20,7 +20,6 @@ class _BTaggingFlags:
               'SV0', 'MultiSVbb1','MultiSVbb2',
               'SV1', 'SV1Flip',
               'SV2', 'SV2Flip',
-              'JetProb', 'JetProbFlip',
               'IPFordG', 'IPFordGNeg',
               'SoftMu', 'SoftMuChi2',
               'BasicJetFitter', 'JetFitterTag', 'JetFitterTagFlip','JetFitterNN', 'JetFitterCOMBNN', 'JetFitterNNFlip',
@@ -241,10 +240,6 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'SV2Flip':
           setattr(self, attr, False)
-        if attr == 'JetProb':
-          setattr(self, attr, False)
-        if attr == 'JetProbFlip':
-          setattr(self, attr, False)
         if attr == 'SoftMu':
           setattr(self, attr, True)
         if attr == 'SoftMuChi2':
@@ -331,7 +326,7 @@ class _BTaggingFlags:
       for attr in self._MediumPriorityTaggers:
         setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:
-        setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip','JetProb','JetProbFlip'])
+        setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip'])
 
       for attr in self._TriggerTaggers:
         setattr(self, attr, ['IP2D','IP3D','SV1','MV2c00','MV2c10','MV2c20', 'MV2c10hp'])

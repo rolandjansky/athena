@@ -49,12 +49,12 @@ namespace Analysis
 
           std::vector<std::string> m_TrackContainerNameList;
           //only one track container for test
-          SG::ReadHandleKey<xAOD::TrackParticleContainer > m_TrackContainerName {this, "TrackContainerName", "InDetTrackParticles", ""};
+          SG::ReadHandleKey<xAOD::TrackParticleContainer > m_TrackContainerName {this, "TrackContainerName", "InDetTrackParticles", "Input track particle container to build track-to-jet association"};
           std::vector<std::string> m_ElectronContainerNameList;
           std::vector<std::string> m_PhotonContainerNameList;
           std::vector<std::string> m_MuonContainerNameList;
           //only one muon container for test
-          SG::ReadHandleKey<xAOD::MuonContainer > m_MuonContainerName {this, "MuonContainerName", "Muons", ""};
+          SG::ReadHandleKey<xAOD::MuonContainer > m_MuonContainerName {this, "MuonContainerName", "Muons", "Input muon container to build muon-to-jet associations"};
 
           std::vector<std::string> m_TracksToTagList;
 

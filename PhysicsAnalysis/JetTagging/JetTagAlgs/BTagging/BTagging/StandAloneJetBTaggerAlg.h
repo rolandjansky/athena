@@ -36,8 +36,8 @@ class  StandAloneJetBTaggerAlg:
 
   private:
   
-    SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", ""};
-    SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName {this, "BTaggingCollectionName", "", ""};
+    SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
+    SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName {this, "BTaggingCollectionName", "", "Output BTagging container"};
     std::string m_suffix;
 
     ToolHandle< IJetBTaggerTool > m_JetBTaggerTool; 
