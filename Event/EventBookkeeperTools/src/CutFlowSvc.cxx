@@ -409,7 +409,7 @@ void CutFlowSvc::handle( const Incident& inc )
       if (m_inputStream.empty()) {m_inputStream=inputstream;}
       else if (m_inputStream!=inputstream) {
         const FileIncident* finc = dynamic_cast<const FileIncident*>(&inc);
-        if (m_inputStream != "N/A") {
+        if (m_inputStream != "N/A" && m_inputStream != "unknownStream") {
           ATH_MSG_FATAL("File " << finc->fileName() 
                                 << " stream " << inputstream 
                                 << " does not match previous file " 
