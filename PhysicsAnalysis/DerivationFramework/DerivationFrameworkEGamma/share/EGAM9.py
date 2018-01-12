@@ -1,7 +1,6 @@
 #********************************************************************
 # EGAM9.py - keep events passing or of photon triggers used for
 #            boostrap efficiency measurement of photon triggers
-#            fake electron candidates 
 # reductionConf flag EGAM9 in Reco_tf.py
 # author: fernando.monticelli@cern.ch
 #********************************************************************
@@ -13,6 +12,14 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM9ExtraContent import *
+
+# read common DFEGamma settings from egammaDFFlags
+from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
+jobproperties.egammaDFFlags.print_JobProperties("full")
+
+# check if we run on data or MC
+from AthenaCommon.GlobalFlags import globalflags
+print "EGAM9 globalflags.DataSource(): ", globalflags.DataSource()
 
 
 #====================================================================
@@ -125,6 +132,7 @@ ToolSvc += EGAM9_MaxCellDecoratorTool
 #====================================================================
 # SET UP THINNING
 #====================================================================
+
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EGAM9ThinningHelper = ThinningHelper( "EGAM9ThinningHelper" )
 EGAM9ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
@@ -132,30 +140,76 @@ if globalflags.DataSource()!='geant4':
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 EGAM9ThinningHelper.AppendToStream( EGAM9Stream, ExtraContainersTrigger )
 
+
 thinningTools=[]
 
-
 # Truth thinning
-truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
-truth_cond_gam = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
-truth_cond_finalState = '(TruthParticles.status == 1 && TruthParticles.barcode < 200000)'   # stable particles
-truth_expression = '(' + truth_cond_WZH + ' ||  ' + truth_cond_lep +' || '+truth_cond_top +' || '+truth_cond_gam + ') || (' + truth_cond_finalState+')'
-
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-EGAM9TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EGAM9TruthThinningTool",
-                                                                   ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
-                                                                   ParticleSelectionString = truth_expression,
-                                                                   PreserveDescendants     = False,
-                                                                   PreserveGeneratorDescendants     = True,
-                                                                   PreserveAncestors      = True)
-
-from AthenaCommon.GlobalFlags import globalflags
-print "EGAM9 globalflags.DataSource(): ", globalflags.DataSource()
 if globalflags.DataSource()=='geant4':
+    truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
+    truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
+    truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
+    truth_cond_gam = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
+    truth_cond_finalState = '(TruthParticles.status == 1 && TruthParticles.barcode < 200000)'   # stable particles
+    truth_expression = '(' + truth_cond_WZH + ' ||  ' + truth_cond_lep +' || '+truth_cond_top +' || '+truth_cond_gam + ') || (' + truth_cond_finalState+')'
+    
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+    EGAM9TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EGAM9TruthThinningTool",
+                                                                       ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+                                                                       ParticleSelectionString = truth_expression,
+                                                                       PreserveDescendants     = False,
+                                                                       PreserveGeneratorDescendants     = True,
+                                                                       PreserveAncestors      = True)
+    
+    
     ToolSvc += EGAM9TruthThinningTool
     thinningTools.append(EGAM9TruthThinningTool)
+    
+
+# Track thinning
+if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
+
+    # tracks associated with Electrons
+    # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+    # EGAM9ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM9ElectronTPThinningTool",
+    #                                                                                 ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+    #                                                                                 SGKey                   = "Electrons",
+    #                                                                                 GSFTrackParticlesKey    = "GSFTrackParticles",        
+    #                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
+    #                                                                                 SelectionString         = "Electrons.pt > 0*GeV",
+    #                                                                                 BestMatchOnly = True,
+    #                                                                                 ConeSize = 0.3,
+    #                                                                                 ApplyAnd = False)
+    # ToolSvc += EGAM9ElectronTPThinningTool
+    # print EGAM9ElectronTPThinningTool
+    # thinningTools.append(EGAM9ElectronTPThinningTool)
+    
+    # tracks associated with Photons
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+    EGAM9PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM9PhotonTPThinningTool",
+                                                                                  ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+                                                                                  SGKey                   = "Photons",
+                                                                                  GSFTrackParticlesKey    = "GSFTrackParticles",        
+                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                  SelectionString         = "Photons.pt > 0*GeV",
+                                                                                  BestMatchOnly = True,
+                                                                                  ConeSize = 0.3,
+                                                                                  ApplyAnd = False)
+    
+    ToolSvc += EGAM9PhotonTPThinningTool
+    print EGAM9PhotonTPThinningTool
+    thinningTools.append(EGAM9PhotonTPThinningTool)
+
+    # Tracks from primary vertex
+    # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+    # EGAM9TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM9TPThinningTool",
+    #                                                                   ThinningService         = EGAM9ThinningHelper.ThinningSvc(),
+    #                                                                   SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
+    #                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
+    # ToolSvc += EGAM9TPThinningTool
+    # print EGAM9TPThinningTool
+    # thinningTools.append(EGAM9TPThinningTool)
+
+
 print "EGAM9 thinningTools: ", thinningTools
 
 
