@@ -700,14 +700,14 @@ jtm += JetOriginCorrectionTool(
   OnlyAssignPV = True,
 )
 
-# Load the xAODCaloEvent dictionary for cluster scale enum
-import cppyy
-try: cppyy.loadDictionary('xAODCaloEventDict')
-except: pass
-from ROOT import xAOD
-# Touch an unrelated class so the dictionary is loaded
-# and therefore the CaloCluster version typedef is recognised
-xAOD.CaloVertexedTopoCluster
+# # Load the xAODCaloEvent dictionary for cluster scale enum
+# import cppyy
+# try: cppyy.loadDictionary('xAODCaloEventDict')
+# except: pass
+# from ROOT import xAOD
+# # Touch an unrelated class so the dictionary is loaded
+# # and therefore the CaloCluster version typedef is recognised
+# xAOD.CaloVertexedTopoCluster
 
 ### Workaround for inability of Gaudi to parse single-element tuple
 import GaudiPython.Bindings as GPB
@@ -723,7 +723,7 @@ jtm += JetConstitFourMomTool(
   "constitfourmom_lctopo",
   JetScaleNames = ["DetectorEtaPhi"],
   AltConstitColls = ["CaloCalTopoClusters"],
-  AltConstitScales = [xAOD.CaloCluster.CALIBRATED],
+  AltConstitScales = [1],#[xAOD.CaloCluster.CALIBRATED],
   AltJetScales = [""]
   )
 
@@ -731,7 +731,7 @@ jtm += JetConstitFourMomTool(
   "constitfourmom_emtopo",
   JetScaleNames = ["DetectorEtaPhi","JetLCScaleMomentum"],
   AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if jetFlags.useTracks() else "CaloCalTopoClusters"],
-  AltConstitScales = [xAOD.CaloCluster.UNCALIBRATED,xAOD.CaloCluster.CALIBRATED],
+  AltConstitScales = [0,1], #[xAOD.CaloCluster.UNCALIBRATED,xAOD.CaloCluster.CALIBRATED],
   AltJetScales = ["",""]
   )
 
