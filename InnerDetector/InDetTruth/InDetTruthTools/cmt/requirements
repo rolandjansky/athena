@@ -4,6 +4,7 @@ author Andrei Gaponenko <AGaponenko@lbl.gov>
 
 public
 use AtlasPolicy 		AtlasPolicy-*
+use AthenaKernel		AthenaKernel-*		Control
 use AthenaBaseComps		AthenaBaseComps-*		Control
 use InDetTruthInterfaces	InDetTruthInterfaces-*		InnerDetector/InDetTruth
 use TrkTruthTrackInterfaces     TrkTruthTrackInterfaces-*       Tracking/TrkTruthTracks
@@ -19,6 +20,7 @@ use InDetReadoutGeometry	InDetReadoutGeometry-*		InnerDetector/InDetDetDescr
 use InDetIdentifier		InDetIdentifier-*		InnerDetector/InDetDetDescr
 use AtlasDetDescr               AtlasDetDescr-*                 DetectorDescription 
 use AtlasHepMC                  AtlasHepMC-*                    External
+use AtlasCLHEP                  AtlasCLHEP-*                    External
 
 
 library InDetTruthTools *.cxx -s=components *.cxx
