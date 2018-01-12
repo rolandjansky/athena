@@ -107,7 +107,7 @@ namespace DerivationFramework {
   }
   //--------------------------------------------------------------------------
   // add one event to a named counter -- returns true on success
-  bool CfAthAlgTool::addEvent(std::string name, double weight) const {
+  bool CfAthAlgTool::addEvent(const std::string &name, double weight) const {
 
     CutIdentifier id = getCounter(name);
     if ( id > 0 ) {
@@ -118,7 +118,7 @@ namespace DerivationFramework {
   //--------------------------------------------------------------------------
   // add to a named counter -- returns true on success
   // if counts > 1 : same weight is added multiple times
-  bool CfAthAlgTool::addToCounter(std::string name, uint64_t counts,
+  bool CfAthAlgTool::addToCounter(const std::string &name, uint64_t counts,
 				  double weight) const {
 
     CutIdentifier id = getCounter(name);
@@ -131,7 +131,7 @@ namespace DerivationFramework {
   }
   //--------------------------------------------------------------------------
   // add a counter by name -- simply returns id if counter already exists
-  CutIdentifier CfAthAlgTool::getCounter(std::string name) const {
+  CutIdentifier CfAthAlgTool::getCounter(const std::string &name) const {
 
     CutIdentifier id = getCounterIdByName(name);
     if ( id < 1 ) {
@@ -162,13 +162,13 @@ namespace DerivationFramework {
   }
   //--------------------------------------------------------------------------
   // returns counter id by name
-  CutIdentifier CfAthAlgTool::getCounterIdByName(std::string name) const {
+  CutIdentifier CfAthAlgTool::getCounterIdByName(const std::string &name) const {
 
     CutIdentifier id = 0;
     
-    NameIdMap_t::iterator it = m_mctn.find(name);
+    NameIdMap_t::const_iterator it = m_mctn.find(name);
     if ( it != m_mctn.end() ) {
-      id = m_mctn[name];
+      id = it->second;
     }
     return id;
   }
