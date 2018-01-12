@@ -112,8 +112,8 @@ namespace InDet{
       std::string                    m_patternName   ;  // Name of the pattern recognition
 //      std::string         m_inputClusterContainerName;
 //      std::string      m_inputHadClusterContainerName;
-      SG::ReadHandle<CaloClusterROI_Collection> m_caloCluster;
-      SG::ReadHandle<CaloClusterROI_Collection> m_caloHad;
+      SG::ReadHandleKey<CaloClusterROI_Collection> m_caloCluster;
+      SG::ReadHandleKey<CaloClusterROI_Collection> m_caloHad;
       std::string                    m_beamconditions;
       Trk::TrackInfo                 m_trackinfo     ;
       bool                           m_pix           ;

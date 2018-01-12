@@ -69,14 +69,31 @@ StatusCode RoRSeqFilter::execute() {
 
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
+  
+  bool validInputs=0;
+  for ( auto inputHandle: inputHandles ) {
+    if( inputHandle.isValid() ) {// this is because input is implicit
+      validInputs++;
+    }
+  }
+  if (validInputs==0) {
+    setFilterPassed(false);
+    ATH_MSG_DEBUG ( "No valid inputs found, filter failed. Return...." );
+    return StatusCode::SUCCESS;
+  }
+  
 
+
+  ATH_MSG_DEBUG( "Running on "<< inputHandles.size() <<" input keys");
+  
   size_t passCounter = 0;    
   if ( m_mergeInputs ) {
     auto output = std::make_unique< ConstDataVector< TrigCompositeUtils::DecisionContainer > > ();
     output->clear( SG::VIEW_ELEMENTS );
 
     for ( auto inputHandle: inputHandles ) {
-      passCounter += copyPassing( *inputHandle, *output );
+      if( inputHandle.isValid() )
+	passCounter += copyPassing( *inputHandle, *output );
     }
 
     ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
@@ -86,7 +103,9 @@ StatusCode RoRSeqFilter::execute() {
     size_t outputIndex = 0;
     for ( auto inputKey: m_inputKeys ) {
       auto inputHandle = SG::makeHandle( inputKey );
-
+      if( not inputHandle.isValid() ) continue;//implicit
+      
+      ATH_MSG_DEBUG( "Checking inputHandle "<< inputKey.key() <<" with " << inputHandle->size() <<" elements");
       auto output = std::make_unique< ConstDataVector< TrigCompositeUtils::DecisionContainer > > ();
       output->clear( SG::VIEW_ELEMENTS );
       
@@ -114,10 +133,10 @@ size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& i
     TrigCompositeUtils::DecisionIDContainer objDecisions;      
     TrigCompositeUtils::decisionIDs( i, objDecisions );
 
-    ATH_MSG_DEBUG("Number of positive decisions " << objDecisions.size() );
+    ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size() );
 
     for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
-      ATH_MSG_DEBUG( "Positive decision " << HLT::Identifier( id ) );
+      ATH_MSG_DEBUG( " -- Positive decision " << HLT::Identifier( id ) );
     }
 
     std::vector<TrigCompositeUtils::DecisionID> intersection;
@@ -128,6 +147,10 @@ size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& i
     if ( not intersection.empty() ) {
       output.push_back( i );
       passCounter ++;
+      ATH_MSG_DEBUG("Input satisfied at least one active chain");
+    }
+    else {
+      ATH_MSG_DEBUG("No Input decisions requested by active chains");
     }
   }
   ATH_MSG_DEBUG( "Output size " << output.size() );

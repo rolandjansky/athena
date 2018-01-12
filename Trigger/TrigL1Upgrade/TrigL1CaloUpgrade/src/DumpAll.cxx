@@ -229,10 +229,10 @@ StatusCode DumpAll::execute(){
 				float limit = 0.066;
 				if ( absSeedEta > 1.7 ) limit = 0.088;
 				if ( absSeedEta > 1.9 ) limit = 0.132;
-				if ( fabsf( seedEta-d->eta() ) > limit ) continue;
-				float dphi = fabsf( seedPhi-d->phi() );
-				dphi = fabsf(M_PI - dphi);
-				dphi = fabsf(M_PI - dphi);
+				if ( std::abs( seedEta-d->eta() ) > limit ) continue;
+				float dphi = std::abs( seedPhi-d->phi() );
+				dphi = std::abs(M_PI - dphi);
+				dphi = std::abs(M_PI - dphi);
 				if ( dphi > 0.12 ) continue;
 				all_idx.push_back( index );
 				all_e.push_back ( d->energy() );
@@ -244,10 +244,10 @@ StatusCode DumpAll::execute(){
 			   }
 			   index++;
 			}
-			if ( fabsf( etaCl-c->eta() ) > 0.2 ) continue;
-			float dphi = fabsf( phiCl-c->phi() );
-			dphi = fabsf(M_PI - dphi);
-			dphi = fabsf(M_PI - dphi);
+			if ( std::abs( etaCl-c->eta() ) > 0.2 ) continue;
+			float dphi = std::abs( phiCl-c->phi() );
+			dphi = std::abs(M_PI - dphi);
+			dphi = std::abs(M_PI - dphi);
 			if ( dphi > 0.2 ) continue;
 			e.push_back ( c->energy() );
 			eta.push_back ( c->eta() );
@@ -284,7 +284,7 @@ StatusCode DumpAll::execute(){
 
 	for( auto tt : *truth ){
 		if ( tt->status() != 1 ) continue;
-                if ( fabsf(tt->absPdgId()) != 11 ) continue;
+                if ( std::abs(tt->absPdgId()) != 11 ) continue;
                 if ( tt->barcode() >= 10000 ) continue;
 		m_truth_pt.push_back( tt->pt() );
 		m_truth_eta.push_back( tt->eta() );

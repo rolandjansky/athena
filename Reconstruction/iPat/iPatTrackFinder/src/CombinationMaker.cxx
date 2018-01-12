@@ -405,7 +405,7 @@ CombinationMaker::next_vertex_point (void)
 }
 
 void
-CombinationMaker::setProperties (const std::vector<Trk::SpacePoint*>&	spacePoints,
+CombinationMaker::setProperties (const std::vector<const Trk::SpacePoint*>&	spacePoints,
 				 const Amg::Vector3D&			vertexRegionCentre)
 {
     m_pointManager->setPoints(spacePoints,vertexRegionCentre);

@@ -51,8 +51,6 @@ private :
 	TH1F* m_QualitySCells;
 	TH1F* m_TimeSCellsAT;
 	TH1F* m_QualitySCellsAT;
-	TH1F* m_EtaSCells;
-	TH1F* m_PhiSCells;
 	TH1F* m_TimeResol;
 	TH1F* m_TimeResolAT;
 	TH2F* m_TimeResol_vs_pt;

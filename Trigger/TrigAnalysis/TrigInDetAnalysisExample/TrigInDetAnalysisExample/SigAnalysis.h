@@ -32,7 +32,7 @@ class SigAnalysis : public TrackAnalysis {
 
 public:
   
-  SigAnalysis( const std::string& name ) : TrackAnalysis( name ), m_Nreco(0), m_print(true), m_dir(0) {
+  SigAnalysis( const std::string& name ) : TrackAnalysis( name ), Nreco(0), m_print(true), m_dir(0) {
     std::cout << "SigAnalysis::SigAnalysis() " << TrackAnalysis::name() << std::endl;
   }  
 
@@ -42,13 +42,13 @@ public:
     std::map<std::string, TH1F*>::iterator hend=m_histos.end();
     for ( ; hitr!=hend ; hitr++ ) delete hitr->second;     
 
-    Efficiency* heff[4]    = {    m_eff_pt,    m_eff_eta,    m_eff_phi,    m_eff_z0 };
-    Efficiency* hpurity[4] = { m_purity_pt, m_purity_eta, m_purity_phi, m_purity_z0 };
+    Efficiency* heff[4]    = {    eff_pt,    eff_eta,    eff_phi,    eff_z0 };
+    Efficiency* hpurity[4] = { purity_pt, purity_eta, purity_phi, purity_z0 };
 
     for ( int i=4 ; i-- ; ) { delete heff[i]; delete hpurity[i]; } 
 
-    delete m_eff_ptp;
-    delete m_eff_ptm;
+    delete eff_ptp;
+    delete eff_ptm;
 
   }  
   
@@ -81,30 +81,30 @@ private:
 
   std::map<std::string, TH1F*> m_histos;
  
-  Efficiency* m_eff_pt;
-  Efficiency* m_eff_ptp;
-  Efficiency* m_eff_ptm;
+  Efficiency* eff_pt;
+  Efficiency* eff_ptp;
+  Efficiency* eff_ptm;
 
-  Efficiency* m_eff_eta;
-  Efficiency* m_eff_phi;
-  Efficiency* m_eff_z0;
-  Efficiency* m_eff_d0;
-  Efficiency* m_eff_a0;
+  Efficiency* eff_eta;
+  Efficiency* eff_phi;
+  Efficiency* eff_z0;
+  Efficiency* eff_d0;
+  Efficiency* eff_a0;
 
-  Efficiency* m_purity_pt;
-  Efficiency* m_purity_eta;
-  Efficiency* m_purity_phi;
-  Efficiency* m_purity_z0;
-  Efficiency* m_purity_d0;
-  Efficiency* m_purity_a0;
+  Efficiency* purity_pt;
+  Efficiency* purity_eta;
+  Efficiency* purity_phi;
+  Efficiency* purity_z0;
+  Efficiency* purity_d0;
+  Efficiency* purity_a0;
 
 
-  TH2F* m_h2;
-  TH2F* m_h2m;
-  TH2F* m_h2r;
+  TH2F* h2;
+  TH2F* h2m;
+  TH2F* h2r;
 
   /// number of reconstructed tracks 
-  int m_Nreco;
+  int Nreco;
 
   /// flag to print out the matched tracks etc
   bool m_print;
@@ -123,4 +123,14 @@ inline std::ostream& operator<<( std::ostream& s, const SigAnalysis& /*_s*/ ) {
 
 
 
-#endif  // TRIGINDETANALYSISEXAMPLE_SIGANALYSIS_H
+#endif  // TRIGINDETANALYSISEXAMPLE_SIGANALYSIS_H 
+
+
+
+
+
+
+
+
+
+

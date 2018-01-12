@@ -146,11 +146,11 @@ void TrigT1CaloBaseFex::findCellsAround(const std::vector<const CaloCell*>& scel
 	float etacell = cell->eta();
 	float phicell = cell->phi();
 	for(auto scell : scells) {
-		if ( fabsf( scell->eta() - etacell) > detaSize ) continue;
-		float dphi = fabsf( scell->phi() - phicell);
-		dphi = fabsf( M_PI - dphi );
-		dphi = fabsf( M_PI - dphi );
-		if ( fabsf( dphi ) > dphiSize ) continue;
+                if ( std::abs( scell->eta() - etacell) > detaSize ) continue;
+		float dphi = std::abs( scell->phi() - phicell);
+		dphi = std::abs( M_PI - dphi );
+		dphi = std::abs( M_PI - dphi );
+		if ( std::abs( dphi ) > dphiSize ) continue;
 		out.push_back(scell);
 	}
 	return;
@@ -164,11 +164,11 @@ void TrigT1CaloBaseFex::findCellsAround(const std::vector<const CaloCell*>& scel
                                         const float dphiSize) const {
         out.clear();
         for(auto scell : scells) {
-                if ( fabsf( scell->eta() - etacell) > detaSize ) continue;
-                float dphi = fabsf( scell->phi() - phicell);
-                dphi = fabsf( M_PI - dphi );
-                dphi = fabsf( M_PI - dphi );
-                if ( fabsf( dphi ) > dphiSize ) continue;
+                if ( std::abs( scell->eta() - etacell) > detaSize ) continue;
+                float dphi = std::abs( scell->phi() - phicell);
+                dphi = std::abs( M_PI - dphi );
+                dphi = std::abs( M_PI - dphi );
+                if ( std::abs( dphi ) > dphiSize ) continue;
                 out.push_back(scell);
         }
         return;
@@ -180,11 +180,11 @@ void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells,
 	float etacell = cell->eta();
 	float phicell = cell->phi();
 	for(auto scell : *scells) {
-		if ( fabsf( scell->eta() - etacell) > m_detaTT ) continue;
-		float dphi = fabsf( scell->phi() - phicell);
-		dphi = fabsf( M_PI - dphi );
-		dphi = fabsf( M_PI - dphi );
-		if ( fabsf( dphi ) > m_dphiTT ) continue;
+		if ( std::abs( scell->eta() - etacell) > m_detaTT ) continue;
+		float dphi = std::abs( scell->phi() - phicell);
+		dphi = std::abs( M_PI - dphi );
+		dphi = std::abs( M_PI - dphi );
+		if ( std::abs( dphi ) > m_dphiTT ) continue;
 		out.push_back(scell);
 	}
 	return;
@@ -193,11 +193,11 @@ void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells,
 void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells, const float etacell, const float phicell, std::vector<const xAOD::TriggerTower*>& out) const {
         out.clear();
         for(auto scell : *scells) {
-                if ( fabsf( scell->eta() - etacell) > m_detaTT ) continue;
-                float dphi = fabsf( scell->phi() - phicell);
-                dphi = fabsf( M_PI - dphi );
-                dphi = fabsf( M_PI - dphi );
-                if ( fabsf( dphi ) > m_dphiTT ) continue;
+                if ( std::abs( scell->eta() - etacell) > m_detaTT ) continue;
+                float dphi = std::abs( scell->phi() - phicell);
+                dphi = std::abs( M_PI - dphi );
+                dphi = std::abs( M_PI - dphi );
+                if ( std::abs( dphi ) > m_dphiTT ) continue;
                 out.push_back(scell);
         }
         return;
@@ -246,7 +246,7 @@ float TrigT1CaloBaseFex::sumHadCells(const std::vector<const CaloCell*>& scells)
 float TrigT1CaloBaseFex::sumHadTTs(const std::vector<const xAOD::TriggerTower*>& scells) const {
 	float totalSum = 0.0;
 	for(auto scell : scells){
-             if ( fabsf( scell->eta() ) > 1.56 ) continue;
+             if ( std::abs( scell->eta() ) > 1.56 ) continue;
 	     if ( scell->sampling() == 0 ) continue;
              totalSum+= (scell->pt())*TMath::CosH(scell->eta());
 	}

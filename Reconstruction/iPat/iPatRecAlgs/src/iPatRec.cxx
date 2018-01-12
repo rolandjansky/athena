@@ -231,7 +231,7 @@ iPatRec::execute()
     m_trackFollower->setDataContainers(pixelContainer,sctContainer);
     
     // get new SpacePoints
-    std::vector<Trk::SpacePoint*>	spacePoints;
+    std::vector<const Trk::SpacePoint*>	spacePoints;
     const SpacePointContainer*		pixelSPContainer	= 0;
     const SpacePointContainer*		sctSPContainer		= 0;
     const SpacePointOverlapCollection*	overlapCollection	= 0;

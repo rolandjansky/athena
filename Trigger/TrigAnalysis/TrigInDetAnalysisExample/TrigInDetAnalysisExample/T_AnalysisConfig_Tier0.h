@@ -24,8 +24,6 @@
 #define TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
 
 
-// #include "TrigHLTMonitoring/IHLTMonTool.h"
-// #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetAnalysis/TIDAEvent.h"
@@ -64,7 +62,6 @@
 #include "TrigInDetAnalysisUtils/Filter_RoiSelector.h"
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/Filters.h"
-// #include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"
 
 
 #include "VxVertex/VxContainer.h"
@@ -75,7 +72,6 @@
 
 #include "tauEvent/TauJetContainer.h"
 
-//#include "JetEvent/JetCollection.h"
 
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigDecisionTool/ExpertMethods.h"
@@ -87,7 +83,10 @@
 // the xAOD::TrackParticle header if it exists
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
-#define endmsg endmsg
+
+
+
+
 
 
 template<typename T>
@@ -107,6 +106,26 @@ void HighestPTOnly( std::vector<T*>& tracks ) {
     
     tracks = tmp_tracks;
   }
+}
+
+
+
+
+
+
+template<typename T>
+void FilterPT( std::vector<T*>& tracks, double pt ) { 
+
+  std::vector<T*> tmp_tracks; 
+  
+  tmp_tracks.reserve( tracks.size() );
+  
+  for ( unsigned i=0 ; i<tracks.size() ; i++ ) { 
+    if ( std::fabs(tracks[i]->pT())>=pt ) tmp_tracks.push_back( tracks[i] );
+  }
+
+  if ( tmp_tracks.size()<tracks.size() ) tracks = tmp_tracks;
+
 }
 
 
@@ -150,7 +169,9 @@ public:
     m_NRefTracks(0),
     m_NTestTracks(0),
     m_runPurity(false),
-    m_shifter(false)
+    m_shifter(false),
+    m_pTthreshold(0),
+    m_first(true)
   {
     m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
@@ -165,6 +186,9 @@ public:
     std::cout << "\troi:   " << chain.roi()     << std::endl;
     std::cout << "\tvtx:   " << chain.vtx()     << std::endl;
     std::cout << "\tte:    " << chain.element() << std::endl;
+
+    std::cout << "\tpost:  " << chain.post()          << std::endl; 
+    std::cout << "\tpt:    " << chain.postvalue("pt") << std::endl;
 #endif
     
     m_testType = testType;
@@ -232,25 +256,21 @@ protected:
     }
 
 
-    static bool first = true;
+    if ( m_first ) {
 
-    if ( first ) {
-
-      m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
+      m_first = false;
+      
+      m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
 	
 	std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 	
         for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) {
-	  m_provider->msg(MSG::INFO)  << "Chain " << configuredChains[i]  << endmsg;
+	  m_provider->msg(MSG::VERBOSE)  << "Chain " << configuredChains[i]  << endmsg;
         }
 
       }
-      
-    
-      // std::vector<std::string> chains;
-      // chains.reserve( m_chainNames.size() );
 
 
       std::vector<ChainString>::iterator chainitr = m_chainNames.begin();
@@ -265,22 +285,11 @@ protected:
         /// get chain
         ChainString& chainName = (*chainitr);
 
-        m_provider->msg(MSG::INFO) << "process chain " << chainName << "\traw: " << chainitr->raw() << endmsg;
-
-        /// check for wildcard ...
-        // if ( chainName.head().find("*")!=std::string::npos ) {
-        //   std::cout << "wildcard chains: " << chainName << std::endl;
-
-        /// delete from vector
-        // m_chainNames.erase(chainitr);
-        // chainitr--;
+        m_provider->msg(MSG::INFO) << "process chain " << chainName << endmsg;
 
         /// get matching chains
         std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
 
-        // std::cout << "selected chains " << selectChains.size() << std::endl;
-
-        // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endmsg;
 	
         for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
@@ -290,6 +299,7 @@ protected:
           if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
           if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
           if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	  if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
 
 #if 0
 	  std::cout << "sorting:: chain specification: " << chainName << "\traw:" << chainName.raw() << std::endl;
@@ -307,10 +317,8 @@ protected:
           if(m_provider->msg().level() <= MSG::VERBOSE) {
             m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << ")" << endmsg;
 	  }
+
         }
-        // else {
-        //   chains.push_back( *chainitr );
-        // }
 
         chainitr++;
       }
@@ -365,12 +373,12 @@ protected:
 #else
     const xAOD::EventInfo* pEventInfo;
 #endif
-    unsigned run_number        = 0;
+    unsigned           run_number        = 0;
     unsigned long long event_number      = 0;
-    unsigned lumi_block        = 0;
-    unsigned bunch_crossing_id = 0;
-    unsigned time_stamp = 0;
-    double mu_val = 0;
+    unsigned           lumi_block        = 0;
+    unsigned           bunch_crossing_id = 0;
+    unsigned           time_stamp        = 0;
+    double             mu_val            = 0;
 
     if ( m_provider->evtStore()->retrieve(pEventInfo).isFailure() ) {
       m_provider->msg(MSG::WARNING) << "Failed to get EventInfo " << endmsg;
@@ -426,6 +434,8 @@ protected:
     for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {
       const std::string& chainname = m_chainNames[ichain].head();
 
+      
+
 
       //Only for trigger chains
       if ( chainname.find("L2")  == std::string::npos &&
@@ -439,7 +449,7 @@ protected:
       }
 
       //      std::cout << "Chain "  << chainname << "\tpass " << (*m_tdt)->isPassed(chainname)
-      //		<< "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
+      //  		<< "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
 
       
       if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
@@ -447,15 +457,11 @@ protected:
     }
     
 
-    //    std::cout << "here " << __LINE__ << std::endl;
-
-    first = false;
-
     if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
       m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
       return;
     }
-
+    
     if ( !this->m_keepAllEvents && !analyse ) {
       //     m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endmsg;
       if(m_provider->msg().level() <= MSG::VERBOSE)
@@ -616,14 +622,23 @@ protected:
       const std::string&  roi_name = m_chainNames[ichain].roi();
       const std::string&   te_name = m_chainNames[ichain].element();
 
+      m_pTthreshold = 0;  /// why does this need to be a class variable ???
+
+      if ( m_chainNames[ichain].postcount() ) { 
+        std::string ptvalue = m_chainNames[ichain].postvalue("pt");
+	if ( ptvalue!="" ) m_pTthreshold = std::stod(ptvalue);
+      }
+
       //      std::cout << "\tchain " << m_chainNames[ichain] << "\tchainname " << chainname << "\tvtx " << vtx_name << "\troi " << roi_name << std::endl;
 
-      unsigned  decisiontype = TrigDefs::Physics;
+      unsigned _decisiontype = TrigDefs::Physics;
+      unsigned  decisiontype;
      
-      if ( this->requireDecision() ) decisiontype =  TrigDefs::requireDecision;
+      if ( this->requireDecision() ) _decisiontype =  TrigDefs::requireDecision;
       
       
-      if ( ! m_chainNames[ichain].passed() ) decisiontype = TrigDefs::alsoDeactivateTEs;
+      if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
+      else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
 
       //      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\tSUTT TrigDefs::requireDecision " << decisiontype << std::endl;;
       //      if ( decisiontype==TrigDefs::Physics )         std::cout << "\tSUTT TrigDefs::Physics "         << decisiontype << std::endl;;
@@ -852,8 +867,10 @@ protected:
 	      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 	      
 	      for ( ; vtxitr != vert->end(); ++vtxitr) {
-		if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
-		  // vertices_rec.push_back( TIDA::Vertex( (*vtxitr)->x(),
+		/// leave this code commented so that we have a record of the change - as soon as we can 
+		/// fix the missing track multiplicity from the vertex this will need to go back  
+		//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+		if ( (*vtxitr)->vertexType()!=0 || vtx_name=="EFHistoPrmVtx" ) {
 		  chain.back().addVertex( TIDA::Vertex( (*vtxitr)->x(),
 							(*vtxitr)->y(),
 							(*vtxitr)->z(),
@@ -865,7 +882,6 @@ protected:
 							/// quality
 							(*vtxitr)->chiSquared(),
 							(*vtxitr)->numberDoF() ) );
-	
 		  
 		}
 	      }
@@ -887,8 +903,6 @@ protected:
       for ( unsigned  iroi=0 ; iroi<chain.size() ; iroi++ ) {
 
         m_selectorRef->clear();
-
-	//	std::cout << "SUTT: filterOnRoi() " << this->filterOnRoi() << " " << chain.rois().at(iroi).roi() << std::endl;
 
 	if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
 	else                       filterRef.setRoi( 0 );
@@ -1015,11 +1029,11 @@ protected:
 
           while ( evitr!=evend ) {
 
-            int this_ip = 0; /// count of particles in this interaction
+            int _ip = 0; /// count of particles in this interaction
 
             int pid = (*evitr)->signal_process_id();
 
-            //      if ( (*evitr)->particles_size()>0 ) std::cout << "process " << "\tpid " << pid << std::endl;
+
             if ( pid!=0 && (*evitr)->particles_size()>0 ) { /// hooray! actually found a sensible event
               /// go through the particles
               HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
@@ -1029,7 +1043,7 @@ protected:
 
                 selectorTruth.selectTrack( *pitr );
 
-                ++this_ip;
+                ++_ip;
 
                 ++pitr;
               }
@@ -1038,11 +1052,11 @@ protected:
             ++ie;
             ++evitr;
 
-            if ( this_ip>0 ) {
+            if ( _ip>0 ) {
               /// if there were some particles in this interaction ...
               //      m_provider->msg(MSG::VERBOSE) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
               ++ie_ip;
-              ip += this_ip;
+              ip += _ip;
             }
           }
 
@@ -1057,11 +1071,10 @@ protected:
 
 
           if ( !(ip>0) ) {
-            if(m_provider->msg().level() <= MSG::VERBOSE)
-              m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
-            return; /// need to be careful here, if not requiring truth *only* should not return
+            if (m_provider->msg().level() <= MSG::VERBOSE) m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
+	    return; /// need to be careful here, if not requiring truth *only* should not return
           }
-
+	  
         }
       
         // std::cout << "seeking offline tracks..." << std::endl;
@@ -1089,19 +1102,14 @@ protected:
             m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endmsg;
 	  }
 
-	  // std::cout << "seeking (more?) offline tracks..." << std::endl;
-
-	  
-	  //Noff = m_selectorRef->tracks().size();
           ref_tracks = m_selectorRef->tracks();
-
-	  //	  std::cout << "SUTT ref_tracks" << ref_tracks.size() << std::endl;  
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
             m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endmsg;
-            for ( int ii=m_selectorRef->tracks().size() ; ii-- ; )
+            for ( int ii=m_selectorRef->tracks().size() ; ii-- ; ) {
               m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *m_selectorRef->tracks()[ii] << endmsg;
-          }
+	    }
+	  }
         }
 	else { 
 	  /// what is this ???
@@ -1124,16 +1132,14 @@ protected:
 	if ( refbeamspot.size()>0 )  _analysis->setBeamRef(   refbeamspot ); 
 	if ( testbeamspot.size()>0 ) _analysis->setBeamTest( testbeamspot ); 
 
-	if ( first && m_NRois==0 && m_provider->msg().level() <= MSG::INFO) {
-	  m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endmsg;
-	}
-
 	/// if we want a purity, we need to swap round which tracks are the 
 	/// reference tracks and which the test tracks
 
-	if ( m_runPurity ) { 
+	if ( m_runPurity ) {
 
 	  if ( this->getUseHighestPT() ) HighestPTOnly( test_tracks );
+
+	  if ( m_pTthreshold>0 ) FilterPT( test_tracks, m_pTthreshold );
 
 	  /// stats book keeping 
 	  m_NRois++;
@@ -1148,7 +1154,13 @@ protected:
 	}
 	else { 
 
+	  /// filter on highest pt track only if required
+
 	  if ( this->getUseHighestPT() ) HighestPTOnly( ref_tracks );
+
+	  /// ignore all tracks belong the specific analysis pt threshold if set
+	  
+	  if ( m_pTthreshold>0 )         FilterPT( ref_tracks, m_pTthreshold );
 
 	  /// stats book keeping 
 	  m_NRois++;
@@ -1159,7 +1171,8 @@ protected:
 	  m_associator->match( ref_tracks, test_tracks );
 	 
 	  //	  std::cout << "SUTT: execute : N tracks " << ref_tracks.size() << " " << test_tracks.size() << std::endl; 
- 
+
+	  
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
 	  
 	  //	  std::cout << "chain " << m_chainNames[ichain]  << " " << "\tvtx name " << vtx_name << std::endl;
@@ -1247,6 +1260,7 @@ protected:
 
     std::vector<ChainString> chains;
 
+
     /// handle wildcard chain selection - but only the first time
     /// NB: also check all other chains as well - only set up an
     ///     analysis for configured chains
@@ -1254,17 +1268,6 @@ protected:
 
       /// get chain
       ChainString& chainName = (*chainitr);
-
-      // m_provider->msg(MSG::VERBOSE) << "process chain " << chainName << endmsg;
-
-      /// check for wildcard ...
-      // if ( chainName.head().find("*")!=std::string::npos ) {
-
-      // std::cout << "wildcard chains: " << chainName << std::endl;
-
-      /// delete from vector
-      // m_chainNames.erase(chainitr);
-      // chainitr--;
 
       /// get matching chains
       std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
@@ -1281,6 +1284,8 @@ protected:
         if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
         if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
         if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
+
 
         /// replace wildcard with actual matching chains ...
         chains.push_back( selectChains[iselected] );
@@ -1288,10 +1293,8 @@ protected:
         if(m_provider->msg().level() <= MSG::VERBOSE) {
           m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endmsg;
 	}
+
       }
-      // else {
-      //   chains.push_back( *chainitr );
-      // }
 
       chainitr++;
     }
@@ -1346,10 +1349,6 @@ protected:
 	else                                                                                  mongroup = folder_name + "/Unknown";
 
 	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();
-
-	//	std::cout << "\n SUTT       " << name() << std::endl;
-	
-	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
 
       }
       else { 
@@ -1447,7 +1446,7 @@ protected:
 
     m_analysis->finalise();
 
-    m_provider->msg(MSG::INFO) << m_provider->name() << " NRois processed: " << m_NRois << "\tRef tracks: " << m_NRefTracks << "\tTestTracks: " << m_NTestTracks << endmsg;
+    m_provider->msg(MSG::INFO) << m_provider->name() << " " << m_chainNames[0] << "   \tNRois processed: " << m_NRois << "\tRef tracks: " << m_NRefTracks << "\tTestTracks: " << m_NTestTracks << endmsg;
 
     if(m_provider->msg().level() <= MSG::VERBOSE)
       m_provider->msg(MSG::VERBOSE) << m_provider->name() << " finalised" << endmsg;
@@ -1464,8 +1463,8 @@ protected:
 
   TIDA::Event*  m_event;
 
-  TFile*    m_file;
-  TTree*    m_tree;
+  TFile*    mFile;
+  TTree*    mTree;
 
   std::vector<ChainString>     m_chainNames;
   std::vector<Analysis_Tier0*> m_analyses;
@@ -1491,6 +1490,10 @@ protected:
 
   bool m_shifter;
 
+  double m_pTthreshold;
+
+  bool   m_first;
+  
 };
 
 

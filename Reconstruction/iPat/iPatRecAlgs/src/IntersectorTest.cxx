@@ -236,11 +236,9 @@ IntersectorTest::execute()
 	return StatusCode::SUCCESS;
     }
 
-    for (std::vector<Track*>::const_iterator t = m_tracks->begin();
-	 t != m_tracks->end();
-	 ++t)
+    for (const Track* t : *m_tracks)
     {
-	Amg::Vector3D position0  ((**t).perigee_parameters().position());
+	Amg::Vector3D position0  (t->perigee_parameters().position());
 
 	// offset +-10cm along beam axis
 	Amg::Vector3D position1	=  position0;
@@ -249,12 +247,12 @@ IntersectorTest::execute()
 	position2[2]		-= 100.*Gaudi::Units::mm;
 
 	double qOverP	= 1./m_momentum;
-	if ((**t).perigee_parameters().qOverP() < 0.)  qOverP = -qOverP;
+	if (t->perigee_parameters().qOverP() < 0.)  qOverP = -qOverP;
 
-	double sinTheta	= (**t).perigee_parameters().direction().perp();
-	double cosPhi	= (**t).perigee_parameters().direction().x()/sinTheta;
-	double sinPhi	= (**t).perigee_parameters().direction().y()/sinTheta;
-	double eta	= m_etaScale*(**t).perigee_parameters().direction().eta();
+	double sinTheta	= t->perigee_parameters().direction().perp();
+	double cosPhi	= t->perigee_parameters().direction().x()/sinTheta;
+	double sinPhi	= t->perigee_parameters().direction().y()/sinTheta;
+	double eta	= m_etaScale*t->perigee_parameters().direction().eta();
 	double theta	= 2.*std::atan(std::exp(-eta));
 	double cosTheta	= std::cos(theta);
 	sinTheta	= std::sqrt(1. - cosTheta*cosTheta);

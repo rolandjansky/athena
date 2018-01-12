@@ -225,7 +225,6 @@ class MuFastSteering : public HLT::FexAlgo,
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
-  unsigned int m_countTotalRoI;
   int m_currentStage;  // The last stage reached during the processing of a given RoI
 
   ECRegions whichECRegion(const float eta, const float phi) const;

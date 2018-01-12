@@ -212,11 +212,11 @@ public:
   void addSelectionFilter(TrackFilter* filter) { m_filters[2].push_back(filter); }
 
   // Initialize, execute and finalize generic methods
-  //    void initialize(MsgStream* msg, StoreGateSvc* sg, ToolHandle<Trig::TrigDecisionTool>* tdt) {
-  virtual void initialize(Provider* p, ToolHandle<Trig::TrigDecisionTool>* tdt) {
+  virtual void initialize(Provider* p, ToolHandle<Trig::TrigDecisionTool>* tdt ) { 
       m_provider = p;
-      m_tdt=tdt;
+      m_tdt      = tdt;
       if ( m_tdt==0 ) m_analysis->initialise();
+
   }
 
 
@@ -468,7 +468,7 @@ protected:
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
   unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection=0, 
-			     bool raw_track=false,  
+			     bool   raw_track=false,  
 			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
@@ -538,7 +538,7 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline muons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processMuons(     TrigTrackSelector& selectorRef,
+  unsigned processMuons(     TrigTrackSelector& selectorRef,  const unsigned int selection=0, 
 			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
                              const std::string& containerName = "Muons"
@@ -577,7 +577,7 @@ protected:
 
     for( ; muon!=muon_end ; ++muon ){
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
-      if ( TIDA::isGoodOffline(*(*muon), ETOffline) ) selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
+      if ( TIDA::isGoodOffline(*(*muon), selection, ETOffline ) ) selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
 #     else
       if ( TIDA::isGoodOffline(*(*muon)) ) selectorRef.selectTrack((*muon)->inDetTrackParticle());
 #     endif
@@ -707,6 +707,8 @@ protected:
 
   std::string m_testChainName;
   std::string m_testChainKey;
+
+
 
 
   // RoI information

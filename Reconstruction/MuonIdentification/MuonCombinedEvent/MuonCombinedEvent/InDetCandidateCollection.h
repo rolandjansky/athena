@@ -7,8 +7,8 @@
 
 
 #include "MuonCombinedEvent/InDetCandidate.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
 This typedef represents a collection of InDetCandidate objects.

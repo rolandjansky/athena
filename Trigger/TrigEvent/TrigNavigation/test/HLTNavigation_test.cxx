@@ -797,7 +797,7 @@ bool external_collection_test(HLT::Navigation* hns) {
 
 
 //****************************************************************************************
-int main () {
+bool run () {
   using std::cerr;
   using std::endl;
   using std::hex;
@@ -892,7 +892,13 @@ int main () {
   REPORT_AND_CONTINUE( "SUCCESS test passed OK " );
 
   
-  return 0;
+  return true;
+}
 
+
+int main()
+{
+  if (!run()) return 1;
+  return 0;
 }
 

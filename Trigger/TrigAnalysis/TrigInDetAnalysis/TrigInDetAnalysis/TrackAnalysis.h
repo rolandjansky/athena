@@ -32,7 +32,7 @@ class TrackAnalysis {
 public:
 
   TrackAnalysis( const std::string& name ) : 
-    m_name(name), 
+    mname(name), 
     m_xBeamReference(0), m_yBeamReference(0), m_zBeamReference(0),
     m_xBeamTest(0),      m_yBeamTest(0),      m_zBeamTest(0),
     m_event(0)
@@ -41,7 +41,7 @@ public:
   virtual ~TrackAnalysis() { } 
 
   /// return identifier
-  std::string name() const { return m_name; }  
+  std::string name() const { return mname; }  
     
   /// standard operation interface 
   virtual void initialise() = 0;
@@ -103,7 +103,7 @@ protected:
  
   /// identifier of the of the analysis - also used for the root
   ///  directory into which the histograms are put
-  std::string   m_name;
+  std::string   mname;
 
   /// lookup table for the histograms by name - does this 
   /// need to be in the base class?  
@@ -132,4 +132,14 @@ inline std::ostream& operator<<(std::ostream& s, const TrackAnalysis& ta) {
 }
 
 
-#endif  // TRIGINDETANALYSIS_TRACKANALYSIS_H
+#endif  // TRIGINDETANALYSIS_TRACKANALYSIS_H 
+
+
+
+
+
+
+
+
+
+

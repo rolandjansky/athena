@@ -34,20 +34,20 @@ class Analysis_Distribution : public TrackAnalysis {
  private:
   
   // Track parameter histograms
-  TH1* m_h_eta;
-  TH1* m_h_phi;
-  TH1* m_h_d0;
-  TH1* m_h_z0;
-  TH1* m_h_pT;
+  TH1* h_eta;
+  TH1* h_phi;
+  TH1* h_d0;
+  TH1* h_z0;
+  TH1* h_pT;
   
   // Track hit histograms
-  TH1* m_h_blay;
-  TH1* m_h_pixel;
-  TH1* m_h_sct;
-  TH1* m_h_silicon;
-  TH1* m_h_silicon_match;
-  TH1* m_h_straw;
-  TH1* m_h_tr;
+  TH1* h_blay;
+  TH1* h_pixel;
+  TH1* h_sct;
+  TH1* h_silicon;
+  TH1* h_silicon_match;
+  TH1* h_straw;
+  TH1* h_tr;
 
 };
 

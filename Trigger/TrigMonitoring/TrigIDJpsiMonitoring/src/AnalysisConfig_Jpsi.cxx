@@ -105,18 +105,18 @@ void AnalysisConfig_Jpsi::loop() {
       
       if( m_iBeamCondSvc ) {
 
-#ifndef TIDA_NEWTRACKING_H
-        HepGeom::Point3D<double> vertex = m_iBeamCondSvc->beamPos();
-        //if(fabs(xbeam-vertex.x())>0.1 || fabs(ybeam-vertex.y())>0.1){
-          //m_provider->msg(MSG::INFO) << " using beam position\tx=" << vertex.x() << "\ty=" << vertex.y() << endmsg; 
-        //}
-        xbeam = vertex.x();
-        ybeam = vertex.y();
-#else 
+// #ifndef TIDA_NEWTRACKING_H
+//         HepGeom::Point3D<double> vertex = m_iBeamCondSvc->beamPos();
+//         //if(fabs(xbeam-vertex.x())>0.1 || fabs(ybeam-vertex.y())>0.1){
+//           //m_provider->msg(MSG::INFO) << " using beam position\tx=" << vertex.x() << "\ty=" << vertex.y() << endmsg; 
+//         //}
+//         xbeam = vertex.x();
+//         ybeam = vertex.y();
+// #
+// else 
 	xbeam = m_iBeamCondSvc->beamPos()[0];
 	ybeam = m_iBeamCondSvc->beamPos()[1];
-
-#endif
+// #endif
  
         m_analysis->setBeamRef( xbeam, ybeam );
       }
