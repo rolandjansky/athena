@@ -21,7 +21,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<HyperspaceCatcher>(m_config);
-    return std::move(action);
+    return action;
   }
 
   StatusCode HyperspaceCatcherTool::queryInterface(const InterfaceID& riid, void** ppvIf)

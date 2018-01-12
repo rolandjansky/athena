@@ -23,7 +23,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<Geant4SetupChecker>(m_file_location,m_test);
-    return std::move(action);
+    return action;
   }
 
   StatusCode Geant4SetupCheckerTool::queryInterface(const InterfaceID& riid, void** ppvIf)

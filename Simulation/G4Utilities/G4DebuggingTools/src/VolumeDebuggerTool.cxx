@@ -27,7 +27,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<VolumeDebugger>(m_config);
-    return std::move(action);
+    return action;
   }
 
   StatusCode VolumeDebuggerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
