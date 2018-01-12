@@ -21,9 +21,11 @@
 
 #include <Eigen/Dense>
 
+// @todo: re-check this
+#define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
+
 #include "ACTS/Detector/TrackingGeometry.hpp"
 //#include "ACTS/Plugins/GeoModelPlugins/GeoModelDetectorElement.hpp"
-#include "ACTS/Plugins/GeoModelPlugins/GeoModelLayerBuilder.hpp"
 #include "ACTS/Tools/LayerArrayCreator.hpp"
 #include "ACTS/Tools/LayerCreator.hpp"
 #include "ACTS/Tools/SurfaceArrayCreator.hpp"
@@ -36,6 +38,10 @@
 #include "ACTS/Tools/TrackingGeometryBuilder.hpp"
 #include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
 #include "ACTS/Tools/ITrackingVolumeBuilder.hpp"
+#include "ACTS/Plugins/GeoModelPlugin/GeoModelLayerBuilder.hpp"
+
+#include "GeomACTS/obj/ObjSurfaceWriter.hpp"
+#include "GeomACTS/obj/ObjTrackingGeometryWriter.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -112,6 +118,13 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
 
   using GMLB = Acts::GeoModelLayerBuilder;
   GMLB::Config cfg;
+  
+  if(managerName == "Pixel") {
+    cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::Pixel;
+  }
+  else {
+    cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::SCT;
+  }
 
   auto elementStore = std::make_shared<GMLB::ElementVector>();
 
@@ -195,7 +208,7 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
   cvbConfig.layerEnvelopeZ       = 2;
   cvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
   cvbConfig.volumeSignature      = 0;
-  cvbConfig.volumeName           = "Pixel";
+  cvbConfig.volumeName           = managerName;
   //cvbConfig.volumeMaterial       = volumeMaterial;
   cvbConfig.layerBuilder         = gmLayerBuilder;
 
@@ -214,14 +227,50 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
   auto trackingGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
   
-  
+
   std::unique_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
 
+  std::vector<std::shared_ptr<ObjSurfaceWriter>> subWriters;
+  std::vector<std::shared_ptr<std::ofstream>>           subStreams;
 
+  std::string sdet = managerName;
+  auto        sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
+  std::string sdOutputName = sdet + std::string(".obj");
+  sdStream->open(sdOutputName);
+  // object surface writers
+  ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
+      Acts::Logging::INFO);
+  sdObjWriterConfig.filePrefix         = "";
+  sdObjWriterConfig.outputPhiSegemnts  = 72;
+  sdObjWriterConfig.outputPrecision    = 6;
+  sdObjWriterConfig.outputScalor       = 1.;
+  sdObjWriterConfig.outputThickness    = 1.;
+  sdObjWriterConfig.outputSensitive    = true;
+  sdObjWriterConfig.outputLayerSurface = true;
+  sdObjWriterConfig.outputStream       = sdStream;
+  auto sdObjWriter
+    = std::make_shared<ObjSurfaceWriter>(sdObjWriterConfig);
+  // push back
+  subWriters.push_back(sdObjWriter);
+  subStreams.push_back(sdStream);
 
-  //gmLayerBuilder.centralLayers();
-  //gmLayerBuilder.negativeLayers();
-  //gmLayerBuilder.positiveLayers();
+  // configure the tracking geometry writer
+  ObjTrackingGeometryWriter::Config tgObjWriterConfig(
+      "ObjTrackingGeometryWriter", Acts::Logging::INFO);
+  tgObjWriterConfig.surfaceWriters       = subWriters;
+  tgObjWriterConfig.filePrefix           = "";
+  tgObjWriterConfig.sensitiveGroupPrefix = "";
+  tgObjWriterConfig.layerPrefix          = "";
+  // the tracking geometry writers
+  auto tgObjWriter
+    = std::make_shared<ObjTrackingGeometryWriter>(tgObjWriterConfig);
+
+  // write the tracking geometry object
+  tgObjWriter->write(*(trackingGeometry.get()));
+
+  //gmLayerBuilder->centralLayers();
+  //gmLayerBuilder->negativeLayers();
+  //gmLayerBuilder->positiveLayers();
   
 
 
@@ -319,8 +368,8 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
 StatusCode PrintSiElements::execute() {
   if (m_firstEvent) {
     m_firstEvent = false;
-    ATH_CHECK(printElements("Pixel"));
-    // ATH_CHECK( printElements("SCT") );
+    //ATH_CHECK(printElements("Pixel"));
+     ATH_CHECK( printElements("SCT") );
   }
   return StatusCode::SUCCESS;
 }
