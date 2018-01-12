@@ -5,4 +5,5 @@
   <variable pattern="MCTruthPartClassifier::*"/>
   <class name="MCTruthPartClassifier::ParticleDef"/>	
   <class name="std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin>" />
+  <class name="MCTruthPartClassifier::ROOT6_NamespaceAutoloadHook" />
 </lcgdict>
