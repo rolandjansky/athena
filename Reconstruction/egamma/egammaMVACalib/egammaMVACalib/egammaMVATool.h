@@ -46,10 +46,12 @@ public:
   StatusCode execute(xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType);
   StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType);
 
+  float getEnergy(const xAOD::Egamma* eg);
   float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Egamma*);
+  float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType);
+
   float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Electron*);
   float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Photon*);
-  float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType);
   float getEnergy(const xAOD::CaloCluster* cluster, const std::string&);
 
 private:

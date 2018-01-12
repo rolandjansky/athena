@@ -16,6 +16,9 @@ logging.basicConfig(level=logging.INFO)
 from array import array
 
 def merge_histograms(old, new, merge_error=True):
+    print "old binning: " + ", ".join(("%.3f" % old.GetBinLowEdge(ibin)) for ibin in xrange(1, old.GetNbinsX() + 2))
+    print "new binning: " + ", ".join(("%.3f" % new.GetBinLowEdge(ibin)) for ibin in xrange(1, new.GetNbinsX() + 2))
+    
     new_binning = []
     new_values = []
     new_errors = []
@@ -31,11 +34,12 @@ def merge_histograms(old, new, merge_error=True):
         remainer = None
 
         if il_new == UNDERFLOW and ir_new == UNDERFLOW:
+            print "1. adding %.3f - %.3f from old" % (l, r)
             new_binning.append((l, r))
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
 
-        elif il_new == UNDERFLOW and ir_new > UNDERFLOW and ir_new < OVERFLOW:
+        elif il_new == UNDERFLOW and ir_new > UNDERFLOW:
             if abs(new.GetBinLowEdge(1) - l) < 1E-100:
                 continue
             new_binning.append((l, new.GetBinLowEdge(1)))
@@ -43,21 +47,24 @@ def merge_histograms(old, new, merge_error=True):
             new_errors.append(old.GetBinError(iold))
             if ir_new == OVERFLOW:
                 remainer = iold
+            print "breaking"
             break
     last_old = iold
 
     for inew in xrange(1, new.GetNbinsX() + 1):
         l = new.GetBinLowEdge(inew)
         r = l + new.GetBinWidth(inew)
+        print "2. adding %.3f - %.3f from new" % (l, r)
         new_binning.append((l, r))
         new_values.append(new.GetBinContent(inew))
         new_errors.append(new.GetBinError(inew))
-
+    """
     if remainer is not None:
+        print "3. adding %.3f - %.3f from old" % (new.GetBinLowEdge(new.GetNbinsX()), old.GetBinLowEdge(remainer) + old.GetBinWidth(remainer))
         new_binning.append((new.GetBinLowEdge(new.GetNbinsX()), old.GetBinLowEdge(remainer) + old.GetBinWidth(remainer)))
         new_values.append(old.GetBinContent(remainer))
         new_errors.append(old.GetBinError(remainer))
-
+    """
     for iold in xrange(last_old, old.GetNbinsX() + 1):
         l = old.GetBinLowEdge(iold)
         r = l + old.GetBinWidth(iold)
@@ -66,6 +73,7 @@ def merge_histograms(old, new, merge_error=True):
         ir_new = new.FindFixBin(r)
 
         if il_new == OVERFLOW and ir_new == OVERFLOW:
+            print "4. adding %.3f - %.3f from old" % (l, r)
             new_binning.append((l, r))
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
@@ -76,6 +84,7 @@ def merge_histograms(old, new, merge_error=True):
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
 
+    print new_binning
     new_edges = array('f', [x[0] for x in new_binning] + [new_binning[-1][1]])
     histo_type = type(new)
     result = histo_type(new.GetName(), new.GetTitle(), len(new_edges) - 1, new_edges)
@@ -83,6 +92,10 @@ def merge_histograms(old, new, merge_error=True):
         result.SetBinContent(i, v)
         if merge_error:
             result.SetBinError(i, e)
+
+    print "merged binning: " + ", ".join(("%.3f" % result.GetBinLowEdge(ibin)) for ibin in xrange(1, result.GetNbinsX() + 1))
+
+            
     return result
 
 
@@ -133,6 +146,9 @@ example (merge ct sys 2015PRE + 2015 summer): ./merge_scale_histograms.py ../../
     histo_merged.SetFillColor(ROOT.kBlue)
     histo_old.SetMarkerColor(ROOT.kRed)
     histo_new.SetMarkerColor(ROOT.kGreen)
+    for histo in histo_old, histo_new:
+        histo.SetMarkerStyle(20)
+        histo.SetMarkerSize(1)
     histo_merged.Draw("histo")
     histo_old.Draw("Psame")
     histo_new.Draw("Psame")

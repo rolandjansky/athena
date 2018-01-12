@@ -177,19 +177,18 @@ StatusCode TrigZFinder::finalize() {
 
 TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi)
 {
-  MsgStream athenaLog( msgSvc(), name() );
 
   TrigVertexCollection* output = new TrigVertexCollection;
 
   std::vector<vertex>* vertices = findZInternal( spVec, roi);
 
-  athenaLog << MSG::DEBUG << "roi: "    << roi << endmsg;
-  athenaLog << MSG::DEBUG << "m_NumPhiSlices: " << m_NumPhiSlices << endmsg;
+  ATH_MSG_DEBUG("roi: "    << roi);
+  ATH_MSG_DEBUG("m_NumPhiSlices: " << m_NumPhiSlices);
  
 
   if ( GetInternalStatus()==-1 ) { 
-    athenaLog << MSG::WARNING << "phi of spacepoint out of range! phi=" << GetReturnValue() << endmsg;
-    athenaLog << MSG::WARNING << "Exiting ZFinder..." << endmsg;
+    ATH_MSG_WARNING("phi of spacepoint out of range! phi=" << GetReturnValue());
+    ATH_MSG_WARNING("Exiting ZFinder...");
   }
 
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 

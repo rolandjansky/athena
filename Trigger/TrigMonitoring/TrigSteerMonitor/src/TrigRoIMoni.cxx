@@ -54,16 +54,12 @@
 const int ABORT_GAP_START = 3446;
 const int ABORT_GAP_END   = 3563;
 
-using namespace std;
-using namespace HLT;
-
 TrigRoIMoni::TrigRoIMoni(const std::string & type, const std::string & name,
                          const IInterface* parent)
   :  TrigMonitorToolBase(type, name, parent),
      m_trigConfigSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
      m_gotL1Config(false),
      m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this),
-     m_trigLvl("HLT"),
      m_threshMultiMax(100)
    
 {
@@ -152,13 +148,9 @@ StatusCode TrigRoIMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewL
    // roi & threshold multiplicity hists
    m_etaphi_EM_all = new 
      TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiEM", 
-                            ("phi vs eta for all L1 EM RoIs "+m_trigLvl).c_str(), 
+                            "phi vs eta for all L1 EM RoIs", 
                             51, -2.55, 2.55,
                             64,  -M_PI*(1.-1./64.), M_PI*(1.+1./64.)));
-
-   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_EM_all).isFailure()) {
-     ATH_MSG_WARNING("Cannot register " << m_etaphi_EM_all->GetName());
-   }
 
    // Fill bin limits with {-5,-3.1,-2.9,...,3.1,5}
    const int n_jbins = 34;
@@ -169,45 +161,39 @@ StatusCode TrigRoIMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewL
 
    m_etaphi_J_all = new  
      TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiJ", 
-                            ("phi vs eta for all L1 jet RoIs "+m_trigLvl).c_str(), 
+                            "phi vs eta for all L1 jet RoIs", 
                             n_jbins-1, jbins,
                             32,  -M_PI*(1.-1./32.), M_PI*(1.+1./32.)));
       
-   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_J_all).isFailure()) {
-     ATH_MSG_WARNING("Cannot register " << m_etaphi_J_all->GetName());
-   }
-      
    m_etaphi_JF_all = new 
      TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiJF", 
-                            ("phi vs eta for all L1 forward jet RoIs "+m_trigLvl).c_str(),
+                            "phi vs eta for all L1 forward jet RoIs",
                             2, -5., 5.,
                             32,  -M_PI*(1.-1./32.), M_PI*(1.+1./32.)));
 
    m_etaphi_JF_all->GetXaxis()->SetBinLabel(1, "eta < -3.2");
    m_etaphi_JF_all->GetXaxis()->SetBinLabel(2, "eta > 3.2");
-   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_JF_all).isFailure()) {
-     ATH_MSG_WARNING("Cannot register " << m_etaphi_JF_all->GetName());
-   }
       
    m_etaphi_HA_all = new     
      TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiHA", 
-                            ("phi vs eta for all L1 tau RoIs "+m_trigLvl).c_str(), 51, -2.55, 2.55,
+                            "phi vs eta for all L1 tau RoIs", 51, -2.55, 2.55,
                             64,  -M_PI*(1.-1./64.), M_PI*(1.+1./64.)));
             
-   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_HA_all).isFailure()) {
-     ATH_MSG_WARNING("Cannot register " << m_etaphi_HA_all->GetName());
-   }
-      
    m_etaphi_MU_all = new     
      TrigLBNHist<TH2I>(TH2I("AllRoIsEtaPhiMU", 
-                            ("phi vs eta for all L1 MU RoIs "+m_trigLvl).c_str(), 
+                            "phi vs eta for all L1 MU RoIs", 
                             50, -2.5, 2.5,
                             64,  -M_PI, M_PI));
 
-   if ( expertHistograms.regHist((ITrigLBNHist*)m_etaphi_MU_all).isFailure()) {
-     ATH_MSG_WARNING("Cannot register " << m_etaphi_MU_all->GetName());
-   }
 
+   TrigLBNHist<TH2I>* lbnhists[] = {m_etaphi_EM_all, m_etaphi_J_all, m_etaphi_JF_all,
+                                    m_etaphi_HA_all, m_etaphi_MU_all};
+
+   for (auto h : lbnhists) {
+     if ( expertHistograms.regHist((ITrigLBNHist*)h).isFailure())
+       ATH_MSG_WARNING("Cannot register " << h->GetName());
+   }
+     
    m_histoverflow = SetupOverflowHist(); 
    if ( m_histoverflow == 0 || expertHistograms.regHist(m_histoverflow).isFailure()) {
      ATH_MSG_WARNING("Either can't book or can't register RoIsOverflow");
@@ -265,58 +251,21 @@ StatusCode TrigRoIMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewL
   
    float etamin=-5.,etamax=5.;
   
-   std::string tmpstring("N Initial RoI in Event ");
-   tmpstring+=m_trigLvl;
-   TString htit(/*Form*/(tmpstring.c_str()));
+   m_histonroi =  new TH1F("NInitialRoIsPerEvent", "N Initial RoI in Event", 50, -0.5, 49.5);
+   m_histodeta =  new TH1F("RoIsDEta", "Updates of RoI positions with respect to L1 (eta)", 100, detamin, detamax); 
+   m_histodphi =  new TH1F("RoIsDPhi","Updates of RoI positions with respect to L1 (phi)", 32, dphimin, dphimax);
+   m_histoeta0 =  new TH1F("RoIsL1Eta","L1 RoIs eta", 25, etamin, etamax);
+   m_histophi0 =  new TH1F("RoIsL1Phi", "L1 RoIs phi", 32, phimin, phimax);
+   m_histo_eta0_phi0 =  new TH2F("RoIsL1PhiEta", "L1 RoIs phi vs eta", 25, etamin, etamax, 32, phimin, phimax);
+  
+   TH1* hists[] = {m_histonroi, m_histodeta, m_histodphi, 
+                   m_histoeta0, m_histophi0, m_histo_eta0_phi0};
 
-   m_histonroi =  new TH1F( "NInitialRoIsPerEvent",htit.Data(),50,-0.5,49.5);
-  
-   if ( expertHistograms.regHist(m_histonroi).isFailure())
-     ATH_MSG_WARNING("Cannot register " << m_histoPathexpert << m_histonroi ->GetName());
-             
-   tmpstring="Updates of RoI positions with respect to L1 (phi) ";
-   tmpstring+=m_trigLvl;
-   htit=/*Form*/(tmpstring.c_str());
+   for (auto h : hists) {
+     if ( expertHistograms.regHist(h).isFailure())
+       ATH_MSG_WARNING("Cannot register " << h->GetName());
+   }
 
-   m_histodeta =  new TH1F( "RoIsDEta",htit.Data(),100,detamin,detamax);
- 
-   if ( expertHistograms.regHist(m_histodeta).isFailure())
-     ATH_MSG_WARNING("Cannot register " << m_histoPathexpert << m_histodeta ->GetName());
-  
-   tmpstring="Updates of RoI positions with respect to L1 (eta) ";
-   tmpstring+=m_trigLvl;
-   htit=/*Form*/(tmpstring.c_str());
-
-   m_histodphi =  new TH1F( "RoIsDPhi",htit.Data(), 32,dphimin,dphimax);
-  
-   if ( expertHistograms.regHist(m_histodphi).isFailure())
-     ATH_MSG_WARNING("Cannot register " << m_histoPathexpert << m_histodphi->GetName());
-  
-   tmpstring="L1 RoIs eta ";
-   tmpstring+=m_trigLvl;
-   htit=/*Form*/(tmpstring.c_str());
-
-   m_histoeta0 =  new TH1F( "RoIsL1Eta",htit.Data(), 25,etamin,etamax);
-  
-   if ( expertHistograms.regHist(m_histoeta0).isFailure())
-     ATH_MSG_WARNING("Cannot register " << m_histoPathexpert << m_histoeta0->GetName());
-  
-   tmpstring="L1 RoIs phi ";
-   tmpstring+=m_trigLvl;
-   htit=/*Form*/(tmpstring.c_str());
-   m_histophi0 =  new TH1F( "RoIsL1Phi",htit.Data(), 32,phimin,phimax);
-  
-   if ( expertHistograms.regHist(m_histophi0).isFailure())
-     ATH_MSG_WARNING("Cannot register " << m_histoPathexpert << m_histophi0->GetName());
-  
-   tmpstring="L1 RoIs phi vs eta ";
-   tmpstring+=m_trigLvl;
-   htit=/*Form*/(tmpstring.c_str());
-   m_histo_eta0_phi0 =  new TH2F( "RoIsL1PhiEta", htit.Data(), 25,etamin,etamax, 32,phimin,phimax);
-  
-   if ( expertHistograms.regHist(m_histo_eta0_phi0).isFailure())
-     ATH_MSG_WARNING("Cannot register " << m_histoPathexpert << m_histophi0->GetName());
-  
    return StatusCode::SUCCESS;
 }
 
@@ -687,7 +636,7 @@ void TrigRoIMoni::FillEtaPhiPlots()
   
   for (const HLT::JetEnergyRoI jetERoI : jetERoIs) {
     
-    if (jetERoI.type() == JetRoI || jetERoI.type() == ForwardJetRoI) {
+    if (jetERoI.type() == HLT::JetRoI || jetERoI.type() == HLT::ForwardJetRoI) {
 
       // Dummy configuration vector, only need coordinates, not thresholds
       std::vector<TrigConf::TriggerThreshold*> jetConfig;
@@ -697,8 +646,8 @@ void TrigRoIMoni::FillEtaPhiPlots()
       double eta = recRoI.eta();
       double phi = fixphi(recRoI.phi());
 
-      if (jetERoI.type() == JetRoI && m_etaphi_J_all)         m_etaphi_J_all->Fill(eta, phi);
-      if (jetERoI.type() == ForwardJetRoI && m_etaphi_JF_all) m_etaphi_JF_all->Fill(eta, phi);
+      if (jetERoI.type() == HLT::JetRoI && m_etaphi_J_all)         m_etaphi_J_all->Fill(eta, phi);
+      if (jetERoI.type() == HLT::ForwardJetRoI && m_etaphi_JF_all) m_etaphi_JF_all->Fill(eta, phi);
 
       m_histoeta0->Fill(eta);
       m_histophi0->Fill(phi);

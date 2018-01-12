@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-"""TBD."""
+"""Class for grid submission."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
@@ -18,43 +18,29 @@ import tempfile
 import time
 import urllib2
 
-try:
-    import rucio.client
-    RUCIO = True
-except ImportError:
-    # NOTE: defer logging as level is not set yet
-    RUCIO = False
-
 from art_base import ArtBase
+from art_configuration import ArtConfiguration
 from art_header import ArtHeader
+from art_rucio import ArtRucio
 from art_misc import mkdir_p, make_executable, run_command
 
 MODULE = "art.grid"
 
 
 class ArtGrid(ArtBase):
-    """TBD."""
+    """Class for grid submission."""
 
     CVMFS_DIRECTORY = '/cvmfs/atlas-nightlies.cern.ch/repo/sw'
     EOS_MGM_URL = 'root://eosatlas.cern.ch/'
     EOS_OUTPUT_DIR = '/eos/atlas/atlascerngroupdisk/data-art/grid-output'
 
-    LOG = '.log'
-    JSON = '_EXT0'
-    OUTPUT = '_EXT1'
-
     ARTPROD = 'artprod'
-    ART_JOB = 'art-job.json'
-    LOG_TGZ = 'log.tgz'
-    JOB_TAR = 'job.tar'
     JOB_REPORT = 'jobReport.json'
     JOB_REPORT_ART_KEY = 'art'
-
-    ATHENA_STDOUT = 'athena_stdout.txt'
-    RESULT_WAIT_INTERVAL = 300
+    RESULT_WAIT_INTERVAL = 5 * 60
 
     def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory=None, skip_setup=False, submit_directory=None):
-        """TBD."""
+        """Keep arguments."""
         super(ArtGrid, self).__init__(art_directory)
         self.nightly_release = nightly_release
         self.project = project
@@ -63,14 +49,15 @@ class ArtGrid(ArtBase):
         self.script_directory = script_directory
         self.skip_setup = skip_setup
         self.submit_directory = submit_directory
-        self.rucio_cache = os.path.join(tempfile.gettempdir(), "rucio-cache")
+
+        self.rucio = ArtRucio()
 
     def status(self, status):
         """Print status for usage in gitlab-ci."""
         print 'art-status:', status
 
     def get_script_directory(self):
-        """On demand script directory, only to be called if directory exists."""
+        """Return calculated script directory, sometimes overriden by commandline."""
         if self.script_directory is None:
             self.script_directory = ArtGrid.CVMFS_DIRECTORY
             self.script_directory = os.path.join(self.script_directory, self.nightly_release)  # e.g. 21.0
@@ -96,34 +83,46 @@ class ArtGrid(ArtBase):
             self.status('error')
             exit(1)
 
-    def copy_art(self, run_dir):
+    def exit_if_outfile_too_long(self, outfile_test):
+        """Exit with ERROR if outfile too long."""
+        log = logging.getLogger(MODULE)
+        MAX_OUTFILE_LEN = 132
+        if len(outfile_test) > MAX_OUTFILE_LEN:
+            log.error('OutFile string length > %d: %s', MAX_OUTFILE_LEN, outfile_test)
+            exit(1)
+
+    def copy_art(self, art_python, run_dir):
         """Copy all art files to the the run directory. Returns final script directory to be used."""
         log = logging.getLogger(MODULE)
         ART = os.path.join(run_dir, "ART")
         mkdir_p(ART)
 
         # get the path of the python classes and support scripts
-        art_python_directory = os.path.join(self.art_directory, '..', 'python', 'ART')
+        art_python_directory = os.path.join(self.art_directory, art_python, 'ART')
 
         shutil.copy(os.path.join(self.art_directory, 'art.py'), run_dir)
+        shutil.copy(os.path.join(self.art_directory, 'art-diff.py'), run_dir)
         shutil.copy(os.path.join(self.art_directory, 'art-get-input.sh'), run_dir)
-        shutil.copy(os.path.join(self.art_directory, 'art-get-tar.sh'), run_dir)
         shutil.copy(os.path.join(self.art_directory, 'art-internal.py'), run_dir)
+        shutil.copy(os.path.join(self.art_directory, 'art-task-grid.sh'), run_dir)
         shutil.copy(os.path.join(art_python_directory, '__init__.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'art_base.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'art_build.py'), ART)
+        shutil.copy(os.path.join(art_python_directory, 'art_configuration.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'art_grid.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'art_header.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'art_misc.py'), ART)
+        shutil.copy(os.path.join(art_python_directory, 'art_rucio.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'docopt.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'docopt_dispatch.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'parallelScheduler.py'), ART)
         shutil.copy(os.path.join(art_python_directory, 'serialScheduler.py'), ART)
 
         make_executable(os.path.join(run_dir, 'art.py'))
+        make_executable(os.path.join(run_dir, 'art-diff.py'))
         make_executable(os.path.join(run_dir, 'art-get-input.sh'))
-        make_executable(os.path.join(run_dir, 'art-get-tar.sh'))
         make_executable(os.path.join(run_dir, 'art-internal.py'))
+        make_executable(os.path.join(run_dir, 'art-task-grid.sh'))
 
         script_directory = self.get_script_directory()
 
@@ -139,32 +138,11 @@ class ArtGrid(ArtBase):
     def get_jedi_id(self, text):
         """Return Jedi Task Id or 0."""
         match = re.search(r"jediTaskID=(\d+)", text)
-        return match.group(1) if match else 0
+        return match.group(1) if match else -1
 
     def get_nightly_release_short(self):
         """Return  a short version of the nightly release."""
         return re.sub(r"-VAL-.*", "-VAL", self.nightly_release)
-
-    def get_outfile(self, user, package, sequence_tag=0, test_name=None, nightly_tag=None):
-        """Create outfile from parameters."""
-        log = logging.getLogger(MODULE)
-
-        if nightly_tag is None:
-            nightly_tag = self.nightly_tag
-
-        if sequence_tag == 0:
-            if not RUCIO:
-                log.critical("RUCIO not available")
-                exit(1)
-
-            scope = '.'.join(('user', user))
-            outfile = '.'.join(('user', user, 'atlas', self.get_nightly_release_short(), self.project, self.platform, nightly_tag, '*', package, 'log'))
-            rucio_client = rucio.client.Client()
-            for out in rucio_client.list_dids(scope, {'name': outfile}):
-                outfile = os.path.splitext(out)[0]
-        else:
-            outfile = '.'.join(('user', user, 'atlas', self.get_nightly_release_short(), self.project, self.platform, nightly_tag, sequence_tag, package))
-        return outfile if test_name is None else '.'.join((outfile, test_name))
 
     def copy(self, package, dst=None, user=None):
         """Copy output from scratch area to eos area."""
@@ -176,7 +154,7 @@ class ArtGrid(ArtBase):
 
         if package is not None:
             log.info("Copy %s", package)
-            outfile = self.get_outfile(user, package)
+            outfile = self.rucio.get_outfile(user, package, self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag)
             log.info("Copying from %s", outfile)
 
             return self.copy_output(outfile, dst)
@@ -195,134 +173,17 @@ class ArtGrid(ArtBase):
             number_of_tests = len(self.get_files(root, "grid", "all", self.nightly_release, self.project, self.platform))
             if number_of_tests > 0:
                 log.info("Copy %s", package)
-                outfile = self.get_outfile(user, package)
+                outfile = self.rucio.get_outfile(user, package, self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag)
                 log.info("Copying from %s", outfile)
 
                 result |= self.copy_output(outfile, dst)
         return result
 
-    # Not used yet
-    def download(self, did):
-        """Download did into temp directory."""
-        log = logging.getLogger(MODULE)
-        if not RUCIO:
-            log.critical("RUCIO not available")
-            exit(1)
-
-        # rucio downloads cache properly
-        (exit_code, out, err) = run_command("rucio download --dir " + self.rucio_cache + " " + did)
-        if (exit_code != 0):
-            log.error(err)
-        log.info(out)
-        return exit_code
-
-    # Not used yet
-    def get_job_name(self, user, index, package, sequence_tag, nightly_tag):
-        """
-        Return job name for index.
-
-        job_name is without .sh or .py
-        """
-        log = logging.getLogger(MODULE)
-        if not RUCIO:
-            log.critical("RUCIO not available")
-            exit(1)
-
-        outfile = self.get_outfile(user, package, sequence_tag=sequence_tag, nightly_tag=nightly_tag)
-        log.debug("outfile %s", outfile)
-
-        container_json = outfile + ArtGrid.JSON
-        container_log = outfile + ArtGrid.LOG
-        log.info("Downloading json")
-        self.download(container_json)
-        log.info("Downloading log")
-        self.download(container_log)
-
-        index_formatted = index
-        indexed_json = os.path.join(container_json, '.'.join((container_json, sequence_tag, index_formatted, ArtGrid.JSON)))
-        log.debug("Looking for json")
-        if os.path.exists(indexed_json):
-            with open(indexed_json) as json_file:
-                info = json.load(json_file)
-                test_name = os.path.splitext(info['name'])[0]
-                return test_name
-
-        indexed_log = os.path.join(container_log, '.'.join((container_log, sequence_tag, index_formatted, ArtGrid.LOG_TGZ)))
-        log.debug("Looking for log")
-        if os.path.exists(indexed_log):
-            tar = tarfile.open(indexed_log)
-            for name in tar.getnames():
-                if ArtGrid.ATHENA_STDOUT in name:
-                    log.debug("Found %s", ArtGrid.ATHENA_STDOUT)
-                    info = tar.extractfile(name).read()
-                    # try art-job-name
-                    match = re.search(r"art-job-name:\s(\S+)", info)
-                    if match:
-                        log.debug("Found 'art-job-name'")
-                        return os.path.splitext(match.group(1))[0]
-
-                    # try Job Name
-                    match = re.search(r"Job Name:\s(\S+)", info)
-                    if match:
-                        log.debug("Found 'Job Name:'")
-                        return os.path.splitext(match.group(1))[0]
-
-        log.error("Cannot retrieve job_name from art-job.json or logfile")
-        return None
-
-    def get_test_name(self, rucio_name, rucio_log_name):
-        """Return test_name for log rucio_name."""
-        log = logging.getLogger(MODULE)
-        if not RUCIO:
-            log.critical("RUCIO not available")
-            exit(1)
-
-        tmp_dir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tmp_dir)
-
-        tmp_json = os.path.join(tmp_dir, ArtGrid.ART_JOB)
-
-        if rucio_name is not None:
-            (exit_code, out, err) = run_command(' '.join(('xrdcp -N -f ', rucio_name, tmp_json)))
-            if exit_code == 0:
-                log.debug("copied json %s", rucio_name)
-                with open(tmp_json) as json_file:
-                    info = json.load(json_file)
-                    test_name = os.path.splitext(info['name'])[0]
-                    return test_name
-
-        tmp_log = os.path.join(tmp_dir, ArtGrid.LOG_TGZ)
-
-        if rucio_log_name is not None:
-            (exit_code, out, err) = run_command(' '.join(('xrdcp -N -f ', rucio_log_name, tmp_log)))
-            if exit_code == 0:
-                log.debug("copied log %s %s", rucio_log_name, tmp_log)
-                tar = tarfile.open(tmp_log)
-                for name in tar.getnames():
-                    if ArtGrid.ATHENA_STDOUT in name:
-                        log.debug("Found %s", ArtGrid.ATHENA_STDOUT)
-                        info = tar.extractfile(name).read()
-                        # try art-job-name
-                        match = re.search(r"art-job-name:\s(\S+)", info)
-                        if match:
-                            log.debug("Found 'art-job-name'")
-                            return os.path.splitext(match.group(1))[0]
-
-                        # try Job Name
-                        match = re.search(r"Job Name:\s(\S+)", info)
-                        if match:
-                            log.debug("Found 'Job Name:'")
-                            return os.path.splitext(match.group(1))[0]
-
-        log.debug("Cannot retrieve job_name from art-job.json or logfile")
-        return None
-
     def copy_output(self, outfile, dst):
         """Copy outfile to dst."""
         log = logging.getLogger(MODULE)
-        if not RUCIO:
-            log.critical("RUCIO not available")
-            exit(1)
+
+        cleanup = False
 
         result = 0
         outfile_pattern = r"([^\.]+)\.([^\.]+)\.([^\.]+)\.(.+)\.([^\.]+)\.([^\.]+)\.([^\.]+)\.([^\.]+)\.([^\.\n]+)"
@@ -332,31 +193,21 @@ class ArtGrid(ArtBase):
             return 1
         (user_type, user, experiment, nightly_release, project, platform, nightly_tag, sequence_tag, package) = match.groups()
         dst_dir = os.path.join(dst, nightly_release, nightly_tag, project, platform, package)
-        log.info(dst_dir)
-
-        scope = '.'.join((user_type, user))
+        log.info("%s", dst_dir)
 
         tmp_dir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tmp_dir)
+        if cleanup:
+            atexit.register(shutil.rmtree, tmp_dir)
 
-        tmp_json = os.path.join(tmp_dir, ArtGrid.ART_JOB)
-        tmp_log = os.path.join(tmp_dir, ArtGrid.LOG_TGZ)
-        tmp_tar = os.path.join(tmp_dir, ArtGrid.JOB_TAR)
+        tmp_json = os.path.join(tmp_dir, ArtRucio.ART_JOB)
+        tmp_log = os.path.join(tmp_dir, ArtRucio.LOG_TGZ)
+        tmp_tar = os.path.join(tmp_dir, ArtRucio.JOB_TAR)
 
-        jsons = self.get_rucio_map(scope, outfile, ArtGrid.JSON)
-        logs = self.get_rucio_map(scope, outfile, ArtGrid.LOG)
-        tars = self.get_rucio_map(scope, outfile, ArtGrid.OUTPUT)
-
-        # log.debug(jsons)
-        # log.debug(logs)
-
-        for number in tars:
+        for index in self.rucio.get_indices(user, outfile + ArtRucio.OUTPUT):
             # get the test name
-            rucio_name = jsons[number]['rucio_name'] if number in jsons else None
-            rucio_log_name = logs[number]['rucio_name'] if number in logs else None
-            test_name = self.get_test_name(rucio_name, rucio_log_name)
+            test_name = self.rucio.get_job_name(user, index, package, sequence_tag, nightly_release, project, platform, nightly_tag)
             if test_name is None:
-                log.error("JSON Lookup Error for test %s", rucio_name)
+                log.error("JSON Lookup Error for test %d", index)
                 result = 1
                 continue
 
@@ -364,115 +215,71 @@ class ArtGrid(ArtBase):
             test_dir = os.path.join(tmp_dir, test_name)
             mkdir_p(test_dir)
 
-            # copy art-job in, ignore error
-            run_command(' '.join(('xrdcp -N -f', rucio_name, tmp_json)))
-            shutil.copyfile(tmp_json, os.path.join(test_dir, ArtGrid.ART_JOB))
+            # copy art-job.json, ignore error
+            log.info("Copying JSON: %d %s", index, outfile + ArtRucio.JSON)
+            if self.rucio.xrdcp(self.rucio.get_rucio_name(user, outfile + ArtRucio.JSON, index), tmp_json, force=True) == 0:
+                shutil.copyfile(tmp_json, os.path.join(test_dir, ArtRucio.ART_JOB))
 
             # copy and unpack log
-            log_source = logs[number]['source']
-            (exit_code, out, err) = run_command(' '.join(('xrdcp -N -f', rucio_log_name, tmp_log)))
-            if exit_code != 0:
-                log.error("Log Unpack Error: %d %s %s", exit_code, out, err)
+            log.info("Copying LOG: %d %s", index, outfile + ArtRucio.LOG)
+            if self.rucio.xrdcp(self.rucio.get_rucio_name(user, outfile + ArtRucio.LOG, index), tmp_log, force=True) != 0:
+                log.error("Log Unpack Error")
                 result = 1
             else:
+                log.info("Unpacking LOG: %s %s", index, test_dir)
                 tar = tarfile.open(tmp_log)
                 for member in tar.getmembers():
                     tar.extract(member, path=test_dir)
                 # does not work: tar.extractall()
                 tar.close()
 
-            log.info("Copying: %d %s", number, test_name)
-            log.info("- json: %s", jsons[number]['source'])
-            log.info("- log:  %s", log_source)
-            log.info("- tar:  %s", tars[number]['source'])
+            log.info("Copying TAR: %d %s", index, outfile + ArtRucio.OUTPUT)
 
             # copy results and unpack
-            (exit_code, out, err) = run_command(' '.join(('xrdcp -N -f', tars[number]['rucio_name'], tmp_tar)))
-            if exit_code != 0:
-                log.error("TAR Error: %d %s %s", exit_code, out, err)
+            if self.rucio.xrdcp(self.rucio.get_rucio_name(user, outfile + ArtRucio.OUTPUT, index), tmp_tar, force=True) != 0:
+                log.error("TAR Error")
                 result = 1
             else:
+                log.info("Unpacking TAR: %d %s to %s", index, tmp_tar, test_dir)
                 tar = tarfile.open(tmp_tar)
                 tar.extractall(path=test_dir)
                 tar.close()
 
             # copy to eos
             dst_target = os.path.join(dst_dir, test_name)
-            log.info("to: %s", dst_target)
             if dst_target.startswith('/eos'):
-                mkdir_cmd = 'eos ' + ArtGrid.EOS_MGM_URL + ' mkdir -p'
-                xrdcp_target = ArtGrid.EOS_MGM_URL + dst_target
+                # mkdir_cmd = 'eos ' + ArtGrid.EOS_MGM_URL + ' mkdir -p'
+                mkdir_cmd = None
+                xrdcp_target = ArtGrid.EOS_MGM_URL + dst_target + '/'
             else:
                 mkdir_cmd = 'mkdir -p'
                 xrdcp_target = dst_target
+            log.info("Copying to DST: %d %s", index, xrdcp_target)
 
-            (exit_code, out, err) = run_command(' '.join((mkdir_cmd, dst_target)))
-            if exit_code != 0:
-                log.error("Mkdir Error: %d %s %s", exit_code, out, err)
-                result = 1
-            else:
-                (exit_code, out, err) = run_command(' '.join(('xrdcp -N -r -v', test_dir, xrdcp_target)))
-                if exit_code not in [0, 51, 54]:
-                    # 0 all is ok
-                    # 51 File exists
-                    # 54 is already copied
-                    log.error("XRDCP to EOS Error: %d %s %s", exit_code, out, err)
+            if mkdir_cmd is not None:
+                (exit_code, out, err) = run_command(' '.join((mkdir_cmd, dst_target)))
+                if exit_code != 0:
+                    log.error("Mkdir Error: %d %s %s", exit_code, out, err)
                     result = 1
 
+            cmd = ' '.join(('xrdcp -N -r -p -v', test_dir, xrdcp_target))
+            log.info("using: %s", cmd)
+            (exit_code, out, err) = run_command(cmd)
+            if exit_code not in [0, 51, 54]:
+                # 0 all is ok
+                # 51 File exists
+                # 54 is already copied
+                log.error("XRDCP to EOS Error: %d %s %s", exit_code, out, err)
+                result = 1
+
             # cleanup
-            shutil.rmtree(test_dir)
+            if cleanup:
+                shutil.rmtree(test_dir)
 
         return result
 
-    def get_rucio_map(self, scope, outfile, extension):
-        """Return map of entries by grid_index into { source, rucio_name }."""
-        log = logging.getLogger(MODULE)
-        if not RUCIO:
-            log.critical("RUCIO not available")
-            exit(1)
-
-        CERN = 'CERN-PROD_SCRATCHDISK'
-
-        LOG_PATTERN = r"\.(\d{6})\.log\.tgz"
-        JSON_PATTERN = r"\._(\d{6})\.art-job\.json"
-        OUTPUT_PATTERN = r"\._(\d{6})\.tar"
-        table = {}
-        rucio_client = rucio.client.Client()
-        log.debug("Looking for %s", outfile + extension)
-        for rep in rucio_client.list_replicas([{'scope': scope, 'name': outfile + extension}], schemes=['root']):
-            source = None
-            rucio_name = None
-            log.debug("Found in %s", rep['states'].keys())
-            # first look at CERN
-            if CERN in rep['states'].keys() and rep['states'][CERN] == 'AVAILABLE':
-                source = CERN
-                rucio_name = rep['rses'][CERN][0]
-            else:
-                for rse in rep['states'].keys():
-                    if rep['states'][rse] == 'AVAILABLE' and len(rep['rses'][rse]) >= 1:
-                        source = rse
-                        rucio_name = rep['rses'][rse][0]
-                        break
-
-            # maybe not found at all
-            if rucio_name is not None:
-                log.debug("Found rucio name %s in %s", rucio_name, source)
-                pattern = JSON_PATTERN if extension == ArtGrid.JSON else LOG_PATTERN if extension == ArtGrid.LOG else OUTPUT_PATTERN
-                match = re.search(pattern, rucio_name)
-                if match:
-                    number = int(match.group(1))
-                else:
-                    log.warning("%s does not contain test number using pattern %s skipped...", rucio_name, pattern)
-                    continue
-
-                table[number] = {'source': source, 'rucio_name': rucio_name}
-
-        if not table:
-            log.warning("Outfile %s not found or empty", outfile + extension)
-        return table
-
-    def task_package(self, root, package, job_type, sequence_tag, no_action):
-        """TBD."""
+    def task_package(self, root, package, job_type, sequence_tag, no_action, config_file):
+        """Submit a single package."""
         log = logging.getLogger(MODULE)
         result = {}
         number_of_tests = len(self.get_files(root, job_type, "all", self.nightly_release, self.project, self.platform))
@@ -482,16 +289,15 @@ class ArtGrid(ArtBase):
             log.info('root %s', root)
             log.info('Handling %s for %s project %s on %s', package, self.nightly_release, self.project, self.platform)
             log.info("Number of tests: %d", number_of_tests)
-            submit_dir = os.path.join(self.submit_directory, package)
-            run_dir = os.path.join(submit_dir, "run")
 
-            script_directory = self.copy_art(run_dir)
+            run_dir = os.path.join(self.submit_directory, package, 'run')
+            script_directory = self.copy_art('../python', run_dir)
 
-            result = self.task(script_directory, package, job_type, sequence_tag, no_action)
+            result = self.task(script_directory, package, job_type, sequence_tag, no_action, config_file)
         return result
 
-    def task_list(self, job_type, sequence_tag, package=None, no_action=False, wait_and_copy=True):
-        """TBD."""
+    def task_list(self, job_type, sequence_tag, package=None, no_action=False, wait_and_copy=True, config_file=None):
+        """Submit a list of packages."""
         log = logging.getLogger(MODULE)
         # job will be submitted from tmp directory
         self.submit_directory = tempfile.mkdtemp(dir='.')
@@ -507,38 +313,50 @@ class ArtGrid(ArtBase):
         if not test_directories:
             log.warning('No tests found in directories ending in "test"')
 
+        configuration = None if self.skip_setup else ArtConfiguration(config_file)
+
         all_results = {}
 
         if package is None:
-            config = None if self.skip_setup else self.get_config()
-            excluded_packages = config.get('excluded-packages', []) if config is not None else []
-
             # submit tasks for all packages
             for package, root in test_directories.items():
-                if package in excluded_packages:
+                if configuration is not None and configuration.get(self.nightly_release, self.project, self.platform, package, 'exclude', False):
                     log.warning("Package %s is excluded", package)
                 else:
-                    all_results.update(self.task_package(root, package, job_type, sequence_tag, no_action))
+                    all_results.update(self.task_package(root, package, job_type, sequence_tag, no_action, config_file))
         else:
             # Submit single package
             root = test_directories[package]
-            all_results.update(self.task_package(root, package, job_type, sequence_tag, no_action))
+            all_results.update(self.task_package(root, package, job_type, sequence_tag, no_action, config_file))
+
+        if no_action:
+            log.info("--no-action specified, so not waiting for results")
+            return 0
+
+        if len(all_results) == 0:
+            log.warning('No tests found, nothing to submit.')
+            return 0
 
         # wait for all results
         if wait_and_copy:
+            configuration = ArtConfiguration(config_file)
             while len(all_results) > 0:
                 time.sleep(ArtGrid.RESULT_WAIT_INTERVAL)
-                # force a cpy as we are modifying all_results
+                # force a copy of all_results since we are modifying all_results
                 for jedi_id in list(all_results):
+                    package = all_results[jedi_id][0]
+                    # skip packages without copy
+                    if not configuration.get(self.nightly_release, self.project, self.platform, package, "copy"):
+                        del all_results[jedi_id]
+                        continue
+
                     status = self.task_status(jedi_id)
                     if status is not None:
                         log.info("JediID %s finished with status %s", str(jedi_id), status)
-                        if status == 'done':
-                            package = all_results[jedi_id][0]
-                            # FIXME limited
-                            if self.nightly_release in ['21.0', '21.0-mc16d'] and package in ['Tier0ChainTests']:
-                                log.info("Copy %s to eos area", package)
-                                self.copy(package)
+                        if status in ['finished', 'done']:
+                            dst = configuration.get(self.nightly_release, self.project, self.platform, package, "dst", ArtGrid.EOS_OUTPUT_DIR)
+                            log.info("Copy %s to %s", package, dst)
+                            self.copy(package, dst)
                         del all_results[jedi_id]
 
         return 0
@@ -566,19 +384,48 @@ class ArtGrid(ArtBase):
             log.error('%s for %s status', str(e.code), str(jedi_id))
         return None
 
-    def task(self, script_directory, package, job_type, sequence_tag, no_action=False):
+    def task_job(self, grid_options, sub_cmd, script_directory, sequence_tag, package, outfile, job_type='', number_of_tests=0, split=0, job_name='', inds='', n_files=0, in_file=False, no_action=False):
         """
-        Submit a task, consisting of multiple jobs.
+        Submit a single job.
 
-        For 'single' jobs each task contains exactly one job.
-        Returns a map of JediIds to tuples of (package, test_name)
+        Returns jedi_id or 0 if submission failed.
+
+        # art-task-grid.sh [--no-action --skip-setup] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_type> <number_of_tests>
+        #
+        # art-task-grid.sh [--no-action --skip-setup] single [--inds <input_file> --n-files <number_of_files> --split <split> --in] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_name>
         """
         log = logging.getLogger(MODULE)
-        log.info('Running art task')
+        cmd = ' '.join((os.path.join(self.art_directory, 'art-task-grid.sh'),
+                        '--no-action' if no_action else '',
+                        '--skip-setup' if self.skip_setup else '',
+                        sub_cmd))
 
-        config = None if self.skip_setup else self.get_config()
-        grid_options = self.grid_option(config, package, 'grid-exclude-sites', '--excludedSite=')
-        grid_options += ' ' + self.grid_option(config, package, 'grid-sites', '--site=')
+        if sub_cmd == 'single':
+            cmd = ' '.join((cmd,
+                            '--inds ' + inds if inds != '' else '',
+                            '--n-files ' + str(n_files) if n_files > 0 else '',
+                            '--split ' + str(split) if split > 0 else ''
+                            '--in' if in_file else ''))
+
+        cmd = ' '.join((cmd,
+                        self.submit_directory,
+                        script_directory,
+                        sequence_tag,
+                        package,
+                        outfile))
+
+        if sub_cmd == 'batch':
+            cmd = ' '.join((cmd,
+                            job_type,
+                            str(number_of_tests)))
+        elif sub_cmd == 'single':
+            cmd = ' '.join((cmd,
+                            job_name))
+        else:
+            log.critical("Invalid sub_cmd %s", sub_cmd)
+            exit(1)
+
+        log.info("cmd: %s", cmd)
 
         # run task from Bash Script as is needed in ATLAS setup
         # FIXME we need to parse the output
@@ -586,123 +433,157 @@ class ArtGrid(ArtBase):
         env['PATH'] = '.:' + env['PATH']
         env['ART_GRID_OPTIONS'] = grid_options
 
+        jedi_id = -1
+        # run the command, no_action is forwarded and used inside the script
+        (exit_code, out, err) = run_command(cmd, env=env)
+        if exit_code != 0:
+            log.error("art-task-grid failed %d", exit_code)
+            print err
+        else:
+            jedi_id = 0 if no_action else self.get_jedi_id(err)
+        print out
+
+        log.info('jedi_id: %s', str(jedi_id))
+        return jedi_id
+
+    def get_grid_options(self, package, config_file):
+        """Return grid options for a package."""
+        if self.skip_setup:
+            return ''
+
+        configuration = ArtConfiguration(config_file)
+        grid_options = configuration.get_option(self.nightly_release, self.project, self.platform, package, 'exclude-sites', '--excludedSite=')
+        grid_options += ' ' + configuration.get_option(self.nightly_release, self.project, self.platform, package, 'sites', '--site=')
+        return grid_options
+
+    def task(self, script_directory, package, job_type, sequence_tag, no_action=False, config_file=None):
+        """
+        Submit a task, consisting of multiple jobs.
+
+        For 'single' jobs each task contains exactly one job.
+        Returns a map of jedi_id to (package, test_name, out_file)
+        """
+        log = logging.getLogger(MODULE)
+        log.info('Running art task')
+
+        grid_options = self.get_grid_options(package, config_file)
+
         test_directories = self.get_test_directories(self.get_script_directory())
         test_directory = test_directories[package]
         number_of_batch_tests = len(self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform))
 
-        MAX_OUTFILE_LEN = 132
-        user = env['USER'] if self.skip_setup else ArtGrid.ARTPROD
-        outfile = self.get_outfile(user, package, sequence_tag)
+        user = os.getenv('USER', 'artprod') if self.skip_setup else ArtGrid.ARTPROD
+        outfile = self.rucio.get_outfile(user, package, self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag, sequence_tag)
 
         result = {}
 
         # submit batch tests
         if number_of_batch_tests > 0:
-            if len(outfile) > MAX_OUTFILE_LEN:
-                log.error("OutFile string length > %d: ", MAX_OUTFILE_LEN, outfile)
-                return 1
+            self.exit_if_outfile_too_long(outfile)
 
             # Batch
-            cmd = ' '.join((os.path.join(self.art_directory, 'art-task-grid.sh'), '--skip-setup' if self.skip_setup else '', self.submit_directory, script_directory, package, job_type, sequence_tag, str(number_of_batch_tests), self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag, outfile))
-            log.info("batch: %s", cmd)
-
-            if not no_action:
-                (exit_code, out, err) = run_command(cmd, env=env)
-                if exit_code != 0:
-                    log.error("art-task-grid failed %d", exit_code)
-                    print out
-                    print err
-                else:
-                    jediID = self.get_jedi_id(err)
-                    if jediID > 0:
-                        result[jediID] = (package, "", outfile)
-                log.info(out)
+            log.info("Batch")
+            jedi_id = self.task_job(grid_options, "batch", script_directory, sequence_tag, package, outfile, job_type=job_type, number_of_tests=number_of_batch_tests, no_action=no_action)
+            if jedi_id > 0:
+                result[jedi_id] = (package, "", outfile)
 
         # submit single tests
         index = 1
-        for test_name in self.get_files(test_directory, job_type, "single", self.nightly_release, self.project, self.platform):
-            job = os.path.join(test_directory, test_name)
+        for job_name in self.get_files(test_directory, job_type, "single", self.nightly_release, self.project, self.platform):
+            job = os.path.join(test_directory, job_name)
             header = ArtHeader(job)
             inds = header.get(ArtHeader.ART_INPUT)
-            nFiles = header.get(ArtHeader.ART_INPUT_NFILES)
+            n_files = header.get(ArtHeader.ART_INPUT_NFILES)
             split = header.get(ArtHeader.ART_INPUT_SPLIT)
 
-            outfile_test = self.get_outfile(user, package, sequence_tag, str(index))
-            if len(outfile_test) > MAX_OUTFILE_LEN:
-                log.error("ERROR: OutFile string length > %d : %s ", MAX_OUTFILE_LEN, outfile_test)
-                return 1
+            outfile_test = self.rucio.get_outfile(user, package, self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag, sequence_tag, str(index))
+            self.exit_if_outfile_too_long(outfile_test)
 
             # Single
-            cmd = ' '.join((os.path.join(self.art_directory, 'art-task-grid.sh'), '--skip-setup' if self.skip_setup else '', '--test-name ' + test_name, '--inDS ' + inds, '--nFiles ' + str(nFiles) if nFiles > 0 else '', self.submit_directory, script_directory, package, job_type, sequence_tag, str(split), self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag, outfile_test))
-            log.info("single: %s", cmd)
+            log.info("Single")
+            jedi_id = self.task_job(grid_options, "single", script_directory, sequence_tag, package, outfile_test, split=split, job_name=job_name, inds=inds, n_files=n_files, in_file=True, no_action=no_action)
 
-            if not no_action:
-                (exit_code, out, err) = run_command(cmd, env=env)
-                if exit_code != 0:
-                    log.error("art-task-grid failed %d", exit_code)
-                    print out
-                    print err
-                else:
-                    jediID = self.get_jedi_id(err)
-                    if jediID > 0:
-                        result[jediID] = (package, test_name, outfile_test)
-
-                log.info(out)
+            if jedi_id > 0:
+                result[jedi_id] = (package, job_name, outfile_test)
 
             index += 1
 
         return result
 
-    def job(self, package, job_type, sequence_tag, index_type, index_or_name, out):
-        """TBD."""
+    def batch(self, sequence_tag, package, out, job_type, job_index):
+        """Run a single job by job_index of a 'batch' submission."""
         log = logging.getLogger(MODULE)
-        log.info('Running art job grid')
-
-        log.info("%s %s %s %s %s %s %s %s", self.nightly_release, self.project, self.platform, self.nightly_tag, package, job_type, str(index_or_name), out)
+        log.info('Running art grid batch')
+        log.info("%s %s %s %s %s %s %s %s", self.nightly_release, self.project, self.platform, self.nightly_tag, package, job_type, str(job_index), out)
 
         test_directories = self.get_test_directories(self.get_script_directory())
         test_directory = test_directories[package]
-        if index_type == "batch":
-            test_list = self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform)
 
-            # minus one for grid
-            index = int(index_or_name)
-            test_name = test_list[index - 1]
-        else:
-            test_name = index_or_name
+        test_list = self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform)
 
-        log.info("art-job-name: %s", test_name)
+        # FIXME ??? minus one for grid
+        index = int(job_index)
+        job_name = test_list[index - 1]
 
-        test_file = os.path.join(test_directory, test_name)
-        # arguments are SCRIPT_DIRECTORY, PACKAGE, TYPE, TEST_NAME, NIGHTLY_RELEASE, PROJECT, PLATFORM, NIGHTLY_TAG
-        command = ' '.join((test_file, self.get_script_directory(), package, job_type, test_name, self.nightly_release, self.project, self.platform, self.nightly_tag))
+        in_file = None
 
-        log.debug(test_name)
+        return self.job(test_directory, package, job_name, job_type, out, in_file)
+
+    def single(self, sequence_tag, package, out, job_name, in_file):
+        """Run a single job by name of a 'single' submission."""
+        log = logging.getLogger(MODULE)
+
+        log.info('Running art grid single')
+        log.info("%s %s %s %s %s %s %s %s", self.nightly_release, self.project, self.platform, self.nightly_tag, package, job_name, out, in_file)
+
+        test_directories = self.get_test_directories(self.get_script_directory())
+        test_directory = test_directories[package]
+
+        job_type = 'grid'
+        return self.job(test_directory, package, job_name, job_type, out, in_file)
+
+    def job(self, test_directory, package, job_name, job_type, out, in_file):
+        """Run a single job."""
+        log = logging.getLogger(MODULE)
+        log.info("art-job-name: %s", job_name)
+        test_file = os.path.join(test_directory, job_name)
+
+        # Tests are called with arguments: PACKAGE TEST_NAME SCRIPT_DIRECTORY TYPE [IN_FILE]
+        script_directory = self.get_script_directory()
+        command = ' '.join((test_file, package, job_name, script_directory, job_type, in_file if in_file is not None else ''))
+
+        log.debug(job_name)
         log.debug(test_directory)
         log.debug(command)
 
         # run the test
         env = os.environ.copy()
         env['PATH'] = '.:' + env['PATH']
+        env['ArtScriptDirectory'] = script_directory
+        env['ArtPackage'] = package
+        env['ArtJobType'] = job_type
+        env['ArtJobName'] = job_name
+        if in_file is not None:
+            env['ArtInFile'] = in_file
         (exit_code, output, error) = run_command(command, env=env)
         print output
         if (exit_code != 0):
-            log.error("Test %s failed %d", str(index_or_name), exit_code)
+            log.error("Test %s failed %d", job_name, exit_code)
             print error
         # NOTE: exit_code always 0
         print error
 
         # gather results
         result = {}
-        result['name'] = test_name
+        result['name'] = job_name
         result['exit_code'] = exit_code
         result['test_directory'] = test_directory
-        result['result'] = self.get_art_results(output)
+        result['result'] = ArtBase.get_art_results(output)
 
         # write out results
-        with open(os.path.join(ArtGrid.ART_JOB), 'w') as jobfile:
+        with open(os.path.join(ArtRucio.ART_JOB), 'w') as jobfile:
             json.dump(result, jobfile, sort_keys=True, indent=4, ensure_ascii=False)
-            log.info("Wrote %s", ArtGrid.ART_JOB)
+            log.info("Wrote %s", ArtRucio.ART_JOB)
 
         # grab the content of "jobReport.json", add the art dictionary and write it back
         if os.path.isfile(ArtGrid.JOB_REPORT):
@@ -713,6 +594,12 @@ class ArtGrid(ArtBase):
                 json_file.seek(0)
                 json.dump(info, json_file, sort_keys=True, indent=4, ensure_ascii=False)
                 json_file.truncate()
+                log.info("Updated %s", ArtGrid.JOB_REPORT)
+        else:
+            with open(ArtGrid.JOB_REPORT, 'w') as json_file:
+                info = {}
+                info[ArtGrid.JOB_REPORT_ART_KEY] = result
+                json.dump(info, json_file, sort_keys=True, indent=4, ensure_ascii=False)
                 log.info("Updated %s", ArtGrid.JOB_REPORT)
 
         # pick up the outputs
@@ -741,48 +628,22 @@ class ArtGrid(ArtBase):
         # Always return 0
         return 0
 
-    def get_grid_map(self, user, package, sequence_tag=0, nightly_tag=None):
-        """Return grid map of test_name to grid_index."""
-        log = logging.getLogger(MODULE)
-        scope = '.'.join(('user', user))
-
-        outfile = self.get_outfile(user, package, sequence_tag=sequence_tag, nightly_tag=nightly_tag)
-        log.debug("outfile %s", outfile)
-        jsons = self.get_rucio_map(scope, outfile, ArtGrid.JSON)
-        logs = self.get_rucio_map(scope, outfile, ArtGrid.LOG)
-
-        result = {}
-        for grid_index in logs:
-            rucio_name = jsons[grid_index]['rucio_name'] if grid_index in jsons else None
-            rucio_log_name = logs[grid_index]['rucio_name'] if grid_index in logs else None
-            test_name = self.get_test_name(rucio_name, rucio_log_name)
-            if test_name is None:
-                # log.warning("JSON Lookup failed for test %s", rucio_log_name if rucio_name is None else rucio_name)
-                continue
-
-            result[test_name] = int(grid_index)
-        return result
-
     def list(self, package, job_type, index_type, json_format, user, nogrid):
-        """TBD."""
+        """List all jobs available."""
         log = logging.getLogger(MODULE)
         user = ArtGrid.ARTPROD if user is None else user
 
         # make sure script directory exist
         self.exit_if_no_script_directory()
 
-        if not nogrid:
-            log.info("Getting grid map...")
-            grid_map = self.get_grid_map(user, package)
-
         log.info("Getting test names...")
         test_names = self.get_list(self.get_script_directory(), package, job_type, index_type)
         json_array = []
         for test_name in test_names:
-            name = os.path.splitext(test_name)[0]
+            job_name = os.path.splitext(test_name)[0]
             json_array.append({
-                'name': name,
-                'grid_index': str(grid_map[name]) if not nogrid and name in grid_map else '-1'
+                'name': job_name,
+                'grid_index': str(self.rucio.get_index(user, '*', package, job_name, self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag)) if not nogrid else '-1'
             })
 
         if json_format:
@@ -803,20 +664,20 @@ class ArtGrid(ArtBase):
         return 0
 
     def log(self, package, test_name, user):
-        """TBD."""
+        """Print the log of a job."""
         log = logging.getLogger(MODULE)
         user = ArtGrid.ARTPROD if user is None else user
 
         # make sure script directory exist
         self.exit_if_no_script_directory()
 
-        tar = self.open_tar(user, package, test_name, ArtGrid.LOG)
+        tar = self.open_tar(user, package, test_name, ArtRucio.LOG)
         if tar is None:
             log.error("No log tar file found")
             return 1
 
         for name in tar.getnames():
-            if ArtGrid.ATHENA_STDOUT in name:
+            if ArtRucio.ATHENA_STDOUT in name:
                 f = tar.extractfile(name)
                 content = f.read()
                 print content
@@ -825,18 +686,18 @@ class ArtGrid(ArtBase):
         return 0
 
     def output(self, package, test_name, user):
-        """TBD."""
+        """Download the putput of a job."""
         log = logging.getLogger(MODULE)
         user = ArtGrid.ARTPROD if user is None else user
 
         # make sure script directory exist
         self.exit_if_no_script_directory()
 
-        outfile = self.get_outfile(user, package)
-        tar_dir = os.path.join(tempfile.gettempdir(), outfile + ArtGrid.OUTPUT)
+        outfile = self.rucio.get_outfile(user, package, self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag)
+        tar_dir = os.path.join(tempfile.gettempdir(), outfile + ArtRucio.OUTPUT)
         mkdir_p(tar_dir)
 
-        tar = self.open_tar(user, package, test_name, ArtGrid.OUTPUT)
+        tar = self.open_tar(user, package, test_name, ArtRucio.OUTPUT)
         if tar is None:
             log.error("No output tar file found")
             return 1
@@ -846,14 +707,13 @@ class ArtGrid(ArtBase):
         print "Output extracted in", tar_dir
         return 0
 
-    def compare(self, package, test_name, days, file_names, user):
-        """TBD."""
+    def compare(self, package, test_name, days, user, entries=-1):
+        """Compare current output against a job of certain days ago."""
         log = logging.getLogger(MODULE)
         user = ArtGrid.ARTPROD if user is None else user
 
         previous_nightly_tag = self.get_previous_nightly_tag(days)
         log.info("LOG Previous Nightly Tag: %s", str(previous_nightly_tag))
-        print "PRINT Previous Nightly Tag", str(previous_nightly_tag)
 
         if previous_nightly_tag is None:
             log.error("No previous nightly tag found")
@@ -862,72 +722,37 @@ class ArtGrid(ArtBase):
         ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
         mkdir_p(ref_dir)
 
-        tar = self.open_tar(user, package, test_name, ArtGrid.OUTPUT, previous_nightly_tag)
+        tar = self.open_tar(user, package, test_name, ArtRucio.OUTPUT, previous_nightly_tag)
         if tar is None:
             log.error("No comparison tar file found")
             return 1
 
         for member in tar.getmembers():
-            if member.name in file_names:
-                tar.extractall(path=ref_dir, members=[member])
+            tar.extractall(path=ref_dir, members=[member])
         tar.close()
 
-        result = 0
-        for file_name in file_names:
-            ref_file = os.path.join(ref_dir, file_name)
-            if os.path.isfile(ref_file):
-                print "art-compare:", previous_nightly_tag, file_name
-                result |= self.compare_ref(file_name, ref_file, 10)
-            else:
-                log.error("%s not found in tar file", ref_file)
-                result = 1
-        return result
-
-    def grid_option(self, config, package, key, option_key):
-        """Based on config, return value for key, or ''.
-
-        A global value is pre-pended if found. If not local value is found only the global value is returned, or ''.
-        """
-        if config is None:
-            return ''
-
-        global_value = config.get(key)
-        if package not in config.keys():
-            return '' if global_value is None else option_key + global_value
-
-        value = config.get(package).get(key)
-
-        if global_value is None:
-            return '' if value is None else option_key + value
-        else:
-            return option_key + global_value + ('' if value is None else ', ' + value)
+        return self.compare_ref('.', ref_dir, entries)
 
     def open_tar(self, user, package, test_name, extension, nightly_tag=None):
         """Open tar file for particular release."""
         log = logging.getLogger(MODULE)
-        if not RUCIO:
-            log.critical("RUCIO not available")
-            exit(1)
+        job_name = os.path.splitext(test_name)[0]
+        if nightly_tag is None:
+            nightly_tag = self.nightly_tag
 
-        log.info("Getting grid map...")
-        grid_map = self.get_grid_map(user, package, nightly_tag=nightly_tag)
-
-        name = os.path.splitext(test_name)[0]
-        if name not in grid_map:
+        grid_index = self.rucio.get_index(user, '*', package, job_name, self.get_nightly_release_short(), self.project, self.platform, nightly_tag)
+        if grid_index < 0:
             log.error("No log or tar found for package %s or test %s", package, test_name)
             return None
 
-        grid_index = grid_map[name]
         log.info("Grid Index: %d", grid_index)
 
-        scope = '.'.join(('user', user))
-        outfile = self.get_outfile(user, package, nightly_tag=nightly_tag)
-        rucio_map = self.get_rucio_map(scope, outfile, extension)
-        if grid_index not in rucio_map:
-            log.error("No entry in rucio map for %d", grid_index)
-            return None
+        outfile = self.rucio.get_outfile(user, package, self.get_nightly_release_short(), self.project, self.platform, nightly_tag)
 
-        rucio_name = rucio_map[grid_index]['rucio_name']
+        rucio_name = self.rucio.get_rucio_name(user, outfile + extension, grid_index)
+        if rucio_name is None:
+            log.error("No rucio_name for %d", grid_index)
+            return None
         log.info("RUCIO: %s", rucio_name)
 
         tmp_dir = tempfile.mkdtemp()
@@ -935,15 +760,18 @@ class ArtGrid(ArtBase):
 
         tmp_tar = os.path.join(tmp_dir, os.path.basename(rucio_name))
 
-        (exit_code, out, err) = run_command(' '.join(('xrdcp -N -f', rucio_name, tmp_dir)))
-        if exit_code != 0:
-            log.error("TAR Error: %s %d %s %s", rucio_name, exit_code, out, err)
+        if self.rucio.xrdcp(rucio_name, tmp_tar) != 0:
+            log.error("TAR Error: %s", rucio_name)
             return None
 
         return tarfile.open(tmp_tar)
 
     def get_previous_nightly_tag(self, days):
-        """TBD. 21:00 is cutoff time."""
+        """
+        Return the nightly tag of given days ago.
+
+        21:00 is the cutoff time. Any submission before 21:00 counts as the previous day.
+        """
         directory = os.path.join(ArtGrid.CVMFS_DIRECTORY, self.nightly_release)
         tags = os.listdir(directory)
         tags.sort(reverse=True)

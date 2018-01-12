@@ -18,26 +18,26 @@
 // STL includes
 #include <vector>
 #include <string>
-
+#include <iterator>
+#include <map>
 // Utility includes
 #include "boost/unordered_map.hpp"
-
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TResult.h"
 #include "AthContainers/AuxElement.h"
-
 //xAOD includes
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMetadataTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
-#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
-  : virtual public IAsgElectronEfficiencyCorrectionTool,
-    public asg::AsgTool
+  : virtual public IAsgElectronEfficiencyCorrectionTool, public asg::AsgMetadataTool
 {
   ASG_TOOL_CLASS(AsgElectronEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool)
 
@@ -56,6 +56,11 @@ public:
   /// Gaudi Service Interface method implementations
   virtual StatusCode finalize();
 
+  // Introducing to check if  METADATA working
+  virtual StatusCode beginInputFile();    
+  virtual StatusCode beginEvent();
+  virtual StatusCode endInputFile();    
+ 
   // Main methods from IUserDataCalcTool
 public:
 
@@ -76,7 +81,7 @@ public:
     ATH_MSG_INFO("TOTAL");
   } ;
 
-  /// returns: whether this tool is affected by the given systematis
+ /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const ;
   
   /// returns: the list of all systematics this tool can be affected by
@@ -95,11 +100,22 @@ public:
 
   CP::SystematicCode registerSystematics();
 
+  int systUncorrVariationIndex( const xAOD::Electron &inputObject) const;
+
   // Private member variables
 private:
+  // To check if the metadat can be retrieved 
+  bool m_metadata_retrieved = false;
+
+  // Get the simulation type from metadata
+  StatusCode get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const;
+
+  int currentSimplifiedUncorrSystRegion(const double cluster_eta, const double et) const ;
+  int currentUncorrSystRegion(const double cluster_eta, const double et) const ;
+
 
   /// The main calculate method: the actual correction factors are determined here
-  const Root::TResult& calculate( const xAOD::Electron& egam, const unsigned int runnumber, int &currentElectronSimplifiedUncorrSystRegion, int& currentElectronUncorrSystRegion ) const ;
+  const Root::TResult& calculate( const double cluster_eta, const double et, const unsigned int runnumber ) const ;
   CP::SystematicCode InitSystematics();
 
   // struct for toys
@@ -108,6 +124,27 @@ private:
     unsigned m_toy_index;
     float m_toy_scale;
   };
+
+  // Gets the correction filename from map  
+  virtual StatusCode getFile(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey);
+
+  // Convert reco, ID, iso and trigger key values into a 
+  // single key according to the map file key format
+  std::string convertToOneKey(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey) const;
+
+  // Retrieves the value from the provided map file as 
+  // associated with the provided key
+  std::string getValueByKey(const std::string& mapFile, const std::string& key);
+
+  // Reads the provided map file
+  // and construct the map
+  StatusCode read (const std::string& strFile);
+      
+  // Retrieves the value from the provided map file if 
+  // even the provided key is found. If the key has an 
+  // association then, the actual retrieved value would
+  // be assigned to the 2nd argument of this method 
+  std::string getValue(const std::string& strKey, std::string& strValue);  
 
   /// Pointer to the underlying ROOT based tool
   Root::TElectronEfficiencyCorrectionTool* m_rootTool;
@@ -124,9 +161,20 @@ private:
   /// Currently applied systematics
   CP::SystematicSet* m_appliedSystematics;
 
-  // Properties
+  // Correlation Model
   std::string m_correlation_model_name;
+  int  m_correlation_model;
 
+  // Map-key properties
+  std::map<std::string,std::string> m_map;
+  std::string  m_mapFile;
+  
+  //Four SF key Properties 
+  std::string  m_recoKey;
+  std::string  m_idKey;
+  std::string  m_isoKey;
+  std::string  m_trigKey;
+  
   /// The list of file names
   std::vector< std::string > m_corrFileNameList;
 
@@ -169,6 +217,8 @@ private:
   // simplified uncorrelation regions
   TH2F * m_UncorrRegions;
   int m_nSimpleUncorrSyst;
+
+
 
 }; // End: class definition
 

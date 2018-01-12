@@ -141,14 +141,20 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_newTTC_entrance_phi(0)
    , m_newTTC_entrance_r(0)
    , m_newTTC_entrance_z(0)
+   , m_newTTC_entrance_detaBorder(0)
+   , m_newTTC_entrance_OK(0)
    , m_newTTC_back_eta(0)
    , m_newTTC_back_phi(0)
    , m_newTTC_back_r(0)
    , m_newTTC_back_z(0)
+   , m_newTTC_back_detaBorder(0)
+   , m_newTTC_back_OK(0)
    , m_newTTC_mid_eta(0)
    , m_newTTC_mid_phi(0)
    , m_newTTC_mid_r(0)
    , m_newTTC_mid_z(0)
+   , m_newTTC_mid_detaBorder(0)
+   , m_newTTC_mid_OK(0)
    , m_newTTC_IDCaloBoundary_eta(0)
    , m_newTTC_IDCaloBoundary_phi(0)
    , m_newTTC_IDCaloBoundary_r(0)
@@ -515,14 +521,20 @@ StatusCode ISF_HitAnalysis::initialize()
   m_newTTC_entrance_phi = new std::vector<std::vector<float> >;
   m_newTTC_entrance_r = new std::vector<std::vector<float> >;
   m_newTTC_entrance_z = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_detaBorder = new std::vector<std::vector<float> >;
+  m_newTTC_entrance_OK = new std::vector<std::vector<bool> >;
   m_newTTC_back_eta = new std::vector<std::vector<float> >;
   m_newTTC_back_phi = new std::vector<std::vector<float> >;
   m_newTTC_back_r = new std::vector<std::vector<float> >;
   m_newTTC_back_z = new std::vector<std::vector<float> >;
+  m_newTTC_back_detaBorder = new std::vector<std::vector<float> >;
+  m_newTTC_back_OK = new std::vector<std::vector<bool> >;
   m_newTTC_mid_eta = new std::vector<std::vector<float> >;
   m_newTTC_mid_phi = new std::vector<std::vector<float> >;
   m_newTTC_mid_r = new std::vector<std::vector<float> >;
   m_newTTC_mid_z = new std::vector<std::vector<float> >;
+  m_newTTC_mid_detaBorder = new std::vector<std::vector<float> >;
+  m_newTTC_mid_OK = new std::vector<std::vector<bool> >;
   m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
   m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
   m_newTTC_IDCaloBoundary_r = new std::vector<float>;
@@ -600,14 +612,20 @@ StatusCode ISF_HitAnalysis::initialize()
   m_tree->Branch("newTTC_back_phi",&m_newTTC_back_phi);
   m_tree->Branch("newTTC_back_r",&m_newTTC_back_r);
   m_tree->Branch("newTTC_back_z",&m_newTTC_back_z);
+  m_tree->Branch("newTTC_back_detaBorder",&m_newTTC_back_detaBorder);
+  m_tree->Branch("newTTC_back_OK",&m_newTTC_back_OK);
   m_tree->Branch("newTTC_entrance_eta",&m_newTTC_entrance_eta);
   m_tree->Branch("newTTC_entrance_phi",&m_newTTC_entrance_phi);
   m_tree->Branch("newTTC_entrance_r",&m_newTTC_entrance_r);
   m_tree->Branch("newTTC_entrance_z",&m_newTTC_entrance_z);
+  m_tree->Branch("newTTC_entrance_detaBorder",&m_newTTC_entrance_detaBorder);
+  m_tree->Branch("newTTC_entrance_OK",&m_newTTC_entrance_OK);
   m_tree->Branch("newTTC_mid_eta",&m_newTTC_mid_eta);
   m_tree->Branch("newTTC_mid_phi",&m_newTTC_mid_phi);
   m_tree->Branch("newTTC_mid_r",&m_newTTC_mid_r);
   m_tree->Branch("newTTC_mid_z",&m_newTTC_mid_z);
+  m_tree->Branch("newTTC_mid_detaBorder",&m_newTTC_mid_detaBorder);
+  m_tree->Branch("newTTC_mid_OK",&m_newTTC_mid_OK);
   m_tree->Branch("newTTC_IDCaloBoundary_eta",&m_newTTC_IDCaloBoundary_eta);
   m_tree->Branch("newTTC_IDCaloBoundary_phi",&m_newTTC_IDCaloBoundary_phi);
   m_tree->Branch("newTTC_IDCaloBoundary_r",&m_newTTC_IDCaloBoundary_r);
@@ -791,14 +809,20 @@ StatusCode ISF_HitAnalysis::execute()
  m_newTTC_back_phi->clear();
  m_newTTC_back_r->clear();
  m_newTTC_back_z->clear();
+ m_newTTC_back_detaBorder->clear();
+ m_newTTC_back_OK->clear();
  m_newTTC_entrance_eta->clear();
  m_newTTC_entrance_phi->clear();
  m_newTTC_entrance_r->clear();
  m_newTTC_entrance_z->clear();
+ m_newTTC_entrance_detaBorder->clear();
+ m_newTTC_entrance_OK->clear();
  m_newTTC_mid_eta->clear();
  m_newTTC_mid_phi->clear();
  m_newTTC_mid_r->clear();
  m_newTTC_mid_z->clear();
+ m_newTTC_mid_detaBorder->clear();
+ m_newTTC_mid_OK->clear();
  m_newTTC_IDCaloBoundary_eta->clear();
  m_newTTC_IDCaloBoundary_phi->clear();
  m_newTTC_IDCaloBoundary_r->clear();
@@ -960,16 +984,22 @@ StatusCode ISF_HitAnalysis::execute()
                  std::vector<float> phi_vec_ENT;
                  std::vector<float> r_vec_ENT;
                  std::vector<float> z_vec_ENT;
+                 std::vector<float> detaBorder_vec_ENT;
+                 std::vector<bool>  OK_vec_ENT;
 
      std::vector<float> eta_vec_EXT;
                  std::vector<float> phi_vec_EXT;
                  std::vector<float> r_vec_EXT;
                  std::vector<float> z_vec_EXT;
+                 std::vector<float> detaBorder_vec_EXT;
+                 std::vector<bool>  OK_vec_EXT;
 
      std::vector<float> eta_vec_MID;
                  std::vector<float> phi_vec_MID;
                  std::vector<float> r_vec_MID;
                  std::vector<float> z_vec_MID;
+                 std::vector<float> detaBorder_vec_MID;
+                 std::vector<bool>  OK_vec_MID;
 
      float phi_MID;
 
@@ -980,6 +1010,8 @@ StatusCode ISF_HitAnalysis::execute()
                         ATH_MSG_DEBUG(" phi ENT "<<result.phi(sample,1)<<" phi EXT "<<result.phi(sample,2));
                         ATH_MSG_DEBUG(" r   ENT "<<result.r(sample,1)  <<" r   EXT "<<result.r(sample,2)  );
                         ATH_MSG_DEBUG(" z   ENT "<<result.z(sample,1)  <<" z   EXT "<<result.z(sample,2)  );
+                        ATH_MSG_DEBUG(" detaBorder   ENT "<<result.detaBorder(sample,1)  <<" detaBorder   EXT "<<result.detaBorder(sample,2)  );
+                        ATH_MSG_DEBUG(" OK   ENT "<<result.OK(sample,1)  <<" OK   EXT "<<result.OK(sample,2)  );
                         eta_vec_ENT.push_back(float(result.eta(sample,1)));
                         eta_vec_EXT.push_back(float(result.eta(sample,2)));
                         eta_vec_MID.push_back(float((result.eta(sample,1)+result.eta(sample,2))/2));
@@ -997,20 +1029,32 @@ StatusCode ISF_HitAnalysis::execute()
                         z_vec_ENT.push_back(float(result.z(sample,1)));
                         z_vec_EXT.push_back(float(result.z(sample,2)));
                         z_vec_MID.push_back(float((result.z(sample,1)+result.z(sample,2))/2));
+                        detaBorder_vec_ENT.push_back(float(result.detaBorder(sample,1)));
+                        detaBorder_vec_EXT.push_back(float(result.detaBorder(sample,2)));
+                        detaBorder_vec_MID.push_back(float((result.detaBorder(sample,1)+result.detaBorder(sample,2))/2));
+                        OK_vec_ENT.push_back(float(result.OK(sample,1)));
+                        OK_vec_EXT.push_back(float(result.OK(sample,2)));
+                        OK_vec_MID.push_back(float(result.OK(sample,1)&&result.OK(sample,2)));
      }
 
      m_newTTC_back_eta->push_back(eta_vec_EXT);
                  m_newTTC_back_phi->push_back(phi_vec_EXT);
                  m_newTTC_back_r  ->push_back(r_vec_EXT);
                  m_newTTC_back_z  ->push_back(z_vec_EXT);
+                 m_newTTC_back_detaBorder  ->push_back(detaBorder_vec_EXT);
+                 m_newTTC_back_OK  ->push_back(OK_vec_EXT);
                  m_newTTC_entrance_eta->push_back(eta_vec_ENT);
                  m_newTTC_entrance_phi->push_back(phi_vec_ENT);
                  m_newTTC_entrance_r  ->push_back(r_vec_ENT);
                  m_newTTC_entrance_z  ->push_back(z_vec_ENT);
+                 m_newTTC_entrance_detaBorder  ->push_back(detaBorder_vec_ENT);
+                 m_newTTC_entrance_OK  ->push_back(OK_vec_ENT);
                  m_newTTC_mid_eta->push_back(eta_vec_MID);
                  m_newTTC_mid_phi->push_back(phi_vec_MID);
                  m_newTTC_mid_r  ->push_back(r_vec_MID);
                  m_newTTC_mid_z  ->push_back(z_vec_MID);
+                 m_newTTC_mid_detaBorder  ->push_back(detaBorder_vec_MID);
+                 m_newTTC_mid_OK  ->push_back(OK_vec_MID);
 
      //*******************************************************************************************************************************
 

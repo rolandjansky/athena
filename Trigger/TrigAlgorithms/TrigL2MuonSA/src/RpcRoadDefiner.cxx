@@ -100,7 +100,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   
   const double ZERO_LIMIT = 1e-5;
   
-  const int N_LAYER = 4; // 0: inner, 1: middle, 2: outer 4: BME
+  const int N_LAYER = 5; // 0: inner, 1: middle, 2: outer 4: BME 5: BMG
   const int N_SECTOR = 2; // 0: normal, 1:overlap
 
   if (m_use_rpc) {
@@ -152,13 +152,14 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     special = 1;
   muonRoad.Special = special;
   
-  for (int i_station=0; i_station<5; i_station++) {
+  for (int i_station=0; i_station<6; i_station++) {
     for (int i_layer=0; i_layer<8; i_layer++) {
       if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 400;//for inner
       else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 200;//for middle
       else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 400;//for outer
       else if (i_station==3) muonRoad.rWidth[i_station][i_layer] = 400;//EndcapInner
       else if (i_station==4) muonRoad.rWidth[9][i_layer] = m_rWidth_RPC_Failed;//BME
+      else if (i_station==5) muonRoad.rWidth[10][i_layer] = m_rWidth_RPC_Failed;//BMG
       else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
     }
   }
@@ -200,6 +201,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
     
     if ( name[1]=='M' && name[2]=='E' ) continue;//exclude BME
+    if ( name[1]=='M' && name[2]=='G' ) continue;//exclude BMG
     
     int LargeSmall = 0;
     if(name[2]=='S' || name[2]=='F' || name[2]=='G' ) LargeSmall = 1;
@@ -231,6 +233,8 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
       muonRoad.bw[3][i_sector] = rpcFitResult.offset_inner;
       muonRoad.aw[9][i_sector] = rpcFitResult.slope_middle;//BME
       muonRoad.bw[9][i_sector] = rpcFitResult.offset_middle;
+      muonRoad.aw[10][i_sector] = rpcFitResult.slope_middle;//BMG
+      muonRoad.bw[10][i_sector] = rpcFitResult.offset_middle;
     }
    
   } else {
@@ -248,6 +252,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 	if (i_station==2) muonRoad.aw[i_station][i_sector] = awHigh;
   if (i_station==3) muonRoad.aw[i_station][i_sector] = awLow; //EI
   if (i_station==4) muonRoad.aw[9][i_sector] = awLow; //BME
+  if (i_station==5) muonRoad.aw[10][i_sector] = awLow; //BMG
       }
     }
   }

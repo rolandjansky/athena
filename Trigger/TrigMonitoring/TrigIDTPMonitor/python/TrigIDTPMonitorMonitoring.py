@@ -280,27 +280,27 @@ class TrigIDTPMonitorElectronMonitorBase(TrigGenericMonitoringToolConfig):
 
         #MONITORING THE IBL
         #Innermost detector hit efficiency profiles in bins of probe track (PT): eta and phi
-        self.Histograms += [ defineHistogram('PTeta, PTpixelFound', type='TProfile', title="Innermost layer of detector - Observed Tracks/Expected Tracks (pixel) for Precision Tracker vs eta; eta [radians]",
+        self.Histograms += [ defineHistogram('PTeta, PTpixelFound', type='TProfile', title="Expected && Found hit (IBL) for Precision Tracker vs eta; eta [radians]",
                                              xbins=15, xmin=-3, xmax=3,
                                              ymin=-0.1, ymax=1.1) ]
-        self.Histograms += [ defineHistogram('PTphi, PTpixelFound', type='TProfile', title="Innermost layer of detector - Observed Tracks/Expected Tracks (pixel) for Precision Tracker vs phi; phi [radians]",
-                                             xbins=9, xmin=-3.14, xmax=3.14,
+        self.Histograms += [ defineHistogram('PTphi, PTpixelFound', type='TProfile', title="Expected && Found hit (IBL) for Precision Tracker vs phi; phi [radians]",
+                                             xbins=14, xmin=-3.14, xmax=3.14,
                                              ymin=-0.1, ymax=1.1) ]
         #2D profile histogram of inner detector region
-        self.Histograms += [ defineHistogram('PTeta, PTphi, PTpixelFound', type='TProfile2D', title="Innermost layer of detector - Observed Tracks/Expected Tracks (pixel) for region; eta; phi",
+        self.Histograms += [ defineHistogram('PTeta, PTphi, PTpixelFound', type='TProfile2D', title="Expected && Found hit (IBL) for region; eta; phi",
                                              xbins=10, xmin=-3, xmax=3,
-                                             ybins=10, ymin=-3.14, ymax=3.14, zmin=-0.1, zmax=1.1) ]
+                                             ybins=14, ymin=-3.14, ymax=3.14, zmin=-0.1, zmax=1.1) ]
         #Next to Innermost detector hit efficiency profiles in bins of probe track (PT): eta and phi
-        self.Histograms += [ defineHistogram('PTeta, PTpixelNextToFound', type='TProfile', title="Next to innermost layer of detector - Observed Tracks/Expected Tracks (pixel) for Precision Tracker vs eta; eta [radians]",
+        self.Histograms += [ defineHistogram('PTeta, PTpixelNextToFound', type='TProfile', title="Next to innermost layer of detector - Expected && Found hit (L0) for Precision Tracker vs eta; eta [radians]",
                                              xbins=15, xmin=-3, xmax=3,
                                              ymin=-0.1, ymax=1.1) ]
-        self.Histograms += [ defineHistogram('PTphi, PTpixelNextToFound', type='TProfile', title="Next to innermost layer of detector - Observed Tracks/Expected Tracks (pixel) for Precision Tracker vs phi; phi [radians]",
-                                             xbins=9, xmin=-3.14, xmax=3.14,
+        self.Histograms += [ defineHistogram('PTphi, PTpixelNextToFound', type='TProfile', title="Next to innermost layer of detector - Expected && Found hit (L0) for Precision Tracker vs phi; phi [radians]",
+                                             xbins=22, xmin=-3.14, xmax=3.14,
                                              ymin=-0.1, ymax=1.1) ]
         #2D profile histogram of inner detector region
-        self.Histograms += [ defineHistogram('PTeta, PTphi, PTpixelNextToFound', type='TProfile2D', title="Next to innermost layer of detector - Observed Tracks/Expected Tracks (pixel) for region; eta; phi",
+        self.Histograms += [ defineHistogram('PTeta, PTphi, PTpixelNextToFound', type='TProfile2D', title="Next to innermost layer of detector - Expected && Found hit (L0) for region; eta; phi",
                                              xbins=10, xmin=-3, xmax=3,
-                                             ybins=10, ymin=-3.14, ymax=3.14, zmin=-0.1, zmax=1.1) ]
+                                             ybins=22, ymin=-3.14, ymax=3.14, zmin=-0.1, zmax=1.1) ]
     
 
 class TrigIDTPMonitorElectronOnlineMonitor(TrigIDTPMonitorElectronMonitorBase):

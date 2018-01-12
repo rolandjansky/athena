@@ -9,18 +9,11 @@ echo "art-result: $?"
 Reco_tf.py --validationFlags 'doExample,doMET,doPFlow,doTau,doEgamma,doBtag,doZee,doJet,doTopoCluster,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau, doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult' --inputAODFile=myAOD.pool.root  --outputNTUP_PHYSVALFile=myNTUP_PHYSVAL.root
 echo "art-result: $?"
 
-
-SCRIPT_DIRECTORY=$1
-PACKAGE=$2
-TYPE=$3
-TEST_NAME=$4
-NIGHTLY_RELEASE=$5
-PROJECT=$6
-PLATFORM=$7
-NIGHTLY_TAG=$8
-
-art.py compare grid $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD.pool.root myESD.pool.root
+ArtPackage=$1
+ArtJobName=$2
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo "art-result: $?"
 
-art.py compare grid --days=3 $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD.pool.root myESD.pool.root
+art.py compare grid --days=3 --entries 10 ${ArtPackage} ${ArtJobName}
 echo "art-result: $?"
+

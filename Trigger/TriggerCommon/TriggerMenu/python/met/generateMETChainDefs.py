@@ -9,10 +9,10 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 
 
-from TriggerMenu.met.MissingETDef import *
+from TriggerMenu.met.MissingETDef import L2EFChain_met
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 
 
 

@@ -46,7 +46,7 @@ _retry_ () {
 # Parse the command line arguments:
 TAGBRANCH=""
 SOURCEDIR=""
-EXTERNALSURL="https://:@gitlab.cern.ch:8443/atlas/atlasexternals.git"
+EXTERNALSURL="https://gitlab.cern.ch/atlas/atlasexternals.git"
 while getopts ":t:o:s:e:h" opt; do
     case $opt in
         t)

@@ -14,6 +14,9 @@
 #include "TFile.h"                      // for TFile
 #include "TH1.h"                        // for TH1F
 #include "TString.h"                    // for TString
+
+#include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
+
 /** 
     Author : Kurt Brendlinger <kurb@sas.upenn.edu>
     Please see TElectronLikelihoodTool.h for usage.
@@ -51,6 +54,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   m_cutPosition_NPixel(-9),
   m_cutPosition_NBlayer(-9),
   m_cutPosition_conversion(-9),
+  m_cutPosition_ambiguity(-9),
   m_cutPosition_LH(-9),
   m_cutPositionTrackA0(-9),
   m_cutPositionTrackMatchEta(-9),
@@ -202,6 +206,11 @@ int Root::TElectronLikelihoodTool::initialize()
   m_cutPosition_conversion = m_accept.addCut( "conversion", "pass conversion" );
   if ( m_cutPosition_conversion < 0 ) {sc = 0;}
 
+ // Ambiguity
+  m_cutPosition_ambiguity = m_accept.addCut( "ambiguity", "pass ambiguity" );
+  if ( m_cutPosition_ambiguity < 0 ) {sc = 0;}
+
+
   // Cut position for the likelihood selection - DO NOT CHANGE ORDER!
   m_cutPosition_LH = m_accept.addCut( "passLH", "pass Likelihood" );
   if ( m_cutPosition_LH < 0 ) {sc = 0;}
@@ -285,6 +294,7 @@ int Root::TElectronLikelihoodTool::initialize()
 		<< "\n - (bool)CutPi (yes/no)                         : " << (CutPi.size() ? "yes" : "no")
 		<< "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
 		<< "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
+		<< "\n - (bool)CutAmbiguity (yes/no)                  : " << (CutAmbiguity.size() ? "yes" : "no")
 		<< "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
 		<< "\n - (bool)doRemoveTRTPIDAtHighEt (yes/no)        : " << (doRemoveTRTPIDAtHighEt ? "yes" : "no")
 		<< "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
@@ -378,36 +388,29 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 }
 
 const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
-							    double eta, double eT,
-							    int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
-							    int nBlayer, int nBlayerOutliers, bool expectBlayer,
-							    int nNextToInnerMostLayer, int nNextToInnerMostLayerOutliers, bool expectNextToInnerMostLayer,
-							    int convBit, double d0, double deltaEta, double deltaphires, 
-							    double wstot, double EoverP, double ip
-							    ) const
+                                                            double eta, double eT,
+                                                            int nSiHitsPlusDeadSensors, int nPixHitsPlusDeadSensors,
+                                                            bool passBLayerRequirement,
+                                                            int convBit, uint8_t ambiguityBit, double d0, double deltaEta, double deltaphires, 
+                                                            double wstot, double EoverP, double ip
+                                                            ) const
 {
   LikeEnum::LHAcceptVars_t vars;
   
-  vars.likelihood      = likelihood     ;
-  vars.eta             = eta            ;
-  vars.eT              = eT             ;
-  vars.nSi             = nSi            ;
-  vars.nSiDeadSensors  = nSiDeadSensors ;
-  vars.nPix            = nPix           ;
-  vars.nPixDeadSensors = nPixDeadSensors;
-  vars.nBlayer         = nBlayer        ;
-  vars.nBlayerOutliers = nBlayerOutliers;
-  vars.expectBlayer    = expectBlayer   ;
-  vars.nNextToInnerMostLayer        = nNextToInnerMostLayer        ;
-  vars.nNextToInnerMostLayerOutliers = nNextToInnerMostLayerOutliers;
-  vars.expectNextToInnerMostLayer = expectNextToInnerMostLayer   ;
-  vars.convBit         = convBit        ;
-  vars.d0              = d0             ;
-  vars.deltaEta        = deltaEta       ;
-  vars.deltaphires     = deltaphires    ;
-  vars.wstot           = wstot          ;
-  vars.EoverP          = EoverP         ;
-  vars.ip              = ip             ;
+  vars.likelihood              = likelihood;
+  vars.eta                     = eta;
+  vars.eT                      = eT;
+  vars.nSiHitsPlusDeadSensors  = nSiHitsPlusDeadSensors;
+  vars.nPixHitsPlusDeadSensors = nPixHitsPlusDeadSensors;
+  vars.passBLayerRequirement   = passBLayerRequirement;
+  vars.convBit                 = convBit;
+  vars.ambiguityBit            = ambiguityBit;
+  vars.d0                      = d0;
+  vars.deltaEta                = deltaEta;
+  vars.deltaphires             = deltaphires;
+  vars.wstot                   = wstot;
+  vars.EoverP                  = EoverP;
+  vars.ip                      = ip;
   
   return accept(vars);
 }
@@ -424,6 +427,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   bool passNPixel(true);
   bool passNBlayer(true);
   bool passConversion(true);
+  bool passAmbiguity(true);
   bool passLH(true);
   bool passTrackA0(true);
   bool passDeltaEta(true);
@@ -462,32 +466,34 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
     ATH_MSG_DEBUG("Likelihood macro: Conversion Bit Failed." );
     passConversion = false;
   }
-
+  
+  // ambiguity bit
+  if (CutAmbiguity.size()) {
+    if ( !ElectronSelectorHelpers::passAmbiguity((xAOD::AmbiguityTool::AmbiguityType)vars_struct.ambiguityBit,
+						CutAmbiguity[etabin])
+	 ) {
+      ATH_MSG_DEBUG("Likelihood macro: ambiguity Bit Failed." );
+      passAmbiguity = false;
+    }
+  }
+  
   // blayer cut
   if (CutBL.size() ) {
-    if(vars_struct.expectBlayer) {
-      if(vars_struct.nBlayer + vars_struct.nBlayerOutliers < CutBL[etabin]) {
-	ATH_MSG_DEBUG("Likelihood macro: Inner most Blayer Failed." );
-	passNBlayer = false;
-      }
-    }  
-    else if(vars_struct.expectNextToInnerMostLayer) { // When we do not expect IBL but next to inner 
-      if(vars_struct.nNextToInnerMostLayer + vars_struct.nNextToInnerMostLayerOutliers < CutBL[etabin]) {
-	ATH_MSG_DEBUG("Likelihood macro: Next Inner Failed when not expecting." );
-	passNBlayer = false;
-      } 
+    if(CutBL[etabin] == 1 && !vars_struct.passBLayerRequirement) {
+      ATH_MSG_DEBUG("Likelihood macro: Blayer cut failed.");
+      passNBlayer = false;
     }
   }
   // pixel cut
   if (CutPi.size()){
-    if (vars_struct.nPix+vars_struct.nPixDeadSensors < CutPi[etabin]){
+    if (vars_struct.nPixHitsPlusDeadSensors < CutPi[etabin]){
       ATH_MSG_DEBUG("Likelihood macro: Pixels Failed.");
       passNPixel = false;
     }
   }
   // silicon cut
   if (CutSi.size()){
-    if (vars_struct.nSi + vars_struct.nSiDeadSensors < CutSi[etabin]){
+    if (vars_struct.nSiHitsPlusDeadSensors < CutSi[etabin]){
       ATH_MSG_DEBUG( "Likelihood macro: Silicon Failed.");
       passNSilicon = false;
     }
@@ -580,6 +586,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   m_accept.setCutResult( m_cutPosition_NPixel, passNPixel );
   m_accept.setCutResult( m_cutPosition_NBlayer, passNBlayer );
   m_accept.setCutResult( m_cutPosition_conversion, passConversion );
+  m_accept.setCutResult( m_cutPosition_ambiguity, passAmbiguity );
   m_accept.setCutResult( m_cutPosition_LH, passLH );  
   m_accept.setCutResult( m_cutPositionTrackA0, passTrackA0 );  
   m_accept.setCutResult( m_cutPositionTrackMatchEta, passDeltaEta );  
@@ -1027,6 +1034,8 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
   int etabin = getLikelihoodEtaBin(eta);
   double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
   double prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
+
+  int Nbins      = fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetNbinsX();
   if (et > 42500.) return prob; // interpolation stops here.
   if (et < 6000.) return prob; // interpolation stops here.
   if (22500. < et && et < 27500.) return prob; // region of non-interpolation for pdfs
@@ -1042,16 +1051,35 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
   if (et > bin_center){
     double prob_next = prob;
     if (etbin+1<=6) {
+      // account for potential histogram bin inequalities
+      int NbinsPlus  = fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetNbinsX();
+      int binplus = bin;
+      if (Nbins < NbinsPlus){
+	binplus = int(round(bin*(Nbins/NbinsPlus)));
+      }
+      else if (Nbins > NbinsPlus){
+	binplus = int(round(bin*(NbinsPlus/Nbins)));
+      }
+      // do interpolation
       double integral_next = double(fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->Integral());
-      prob_next = double(fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetBinContent(bin)) / integral_next;
+      prob_next = double(fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetBinContent(binplus)) / integral_next;
       return prob+(prob_next-prob)*(et-bin_center)/(bin_width);
     }
   }
   // or else if et < bin_center :
   double prob_before = prob;
   if (etbin-1>=0) {
+    // account for potential histogram bin inequalities
+    int NbinsMinus = fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetNbinsX();
+    int binminus = bin;
+    if (Nbins < NbinsMinus){
+      binminus = int(round(bin*(Nbins/NbinsMinus)));
+    }
+    else if (Nbins > NbinsMinus){
+      binminus = int(round(bin*(NbinsMinus/Nbins)));
+    }
     double integral_before = double(fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->Integral());
-    prob_before = double(fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetBinContent(bin)) / integral_before;
+    prob_before = double(fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetBinContent(binminus)) / integral_before;
   }
   return prob-(prob-prob_before)*(bin_center-et)/(bin_width);
 }
@@ -1122,7 +1150,11 @@ int Root::TElectronLikelihoodTool::SafeTH1::FindBin(double value){
 }
 
 double Root::TElectronLikelihoodTool::SafeTH1::GetBinContent(int bin){
-  return m_binContent[bin];
+  int nbins = this->GetNbinsX();
+  // since we store the bin content in a vector we need a protection 
+  // for cases where we try to access a non-existing bin. In these 
+  // cases just go to the last bin
+  return (bin>nbins) ? m_binContent[nbins-1] : m_binContent[bin];
 }
 
 double Root::TElectronLikelihoodTool::SafeTH1::GetBinLowEdge(int bin){

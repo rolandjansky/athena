@@ -4,7 +4,6 @@
 INCOMPLETE
 """
 
-import copy
 import unittest
 from mock import MagicMock
 from fexargs_factory import fexargs_factory
