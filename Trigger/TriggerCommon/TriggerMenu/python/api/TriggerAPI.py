@@ -21,14 +21,14 @@ class TriggerAPI:
             with open(cls.centralPickleFile, 'r') as f:
                 print "Reading cached information"
                 cls.dbQueries = pickle.load(f)
-        except Exception as e:
+        except Exception:
             print "Reading cached information failed"
             cls.dbQueries = {}
         try:
             with open(cls.privatePickleFile, 'r') as f:
                 cls.privatedbQueries = pickle.load(f)
                 cls.dbQueries.update(cls.privatedbQueries)
-        except Exception as e:
+        except Exception:
             pass
 
     @classmethod
