@@ -420,35 +420,34 @@
                 <queue>long</queue>
             </jobTransform>
 
-            <!-- tmp solution manually remove the failing class in finalization ATLASSIM-3277 -->
+            <!-- [fixed] tmp solution manually remove the failing class in finalization ATLASSIM-3277 -->
+			<!-- remove postExec 'from AthenaCommon.AlgSequence import AlgSequence;topSeq = AlgSequence();topSeq.remove("topSeq.InDetAmbiguitySolver")' -->
             <jobTransform userJobId="data17_13TeV">
                 <doc>Reco_tf runs on 13TeV collision data 2017, early data, A3, Toroid and solenoid off</doc>
                 <jobTransformJobName>RecoTf_13TeV_data_2017</jobTransformJobName>
                 <jobTransformCmd>
-				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --postExec 'from AthenaCommon.AlgSequence import AlgSequence;topSeq = AlgSequence();topSeq.remove("topSeq.InDetAmbiguitySolver")' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
 
             <!-- Test runs on 13TeV collision data with Hephaestos -->
-            <!-- tmp solution manually remove the failing class in finalization ATLASSIM-3277 -->
             <jobTransform userJobId="data17_13TeV_memleak">
                 <doc>Reco_tf runs on 13TeV collision data with Hephaestos for checking for memory leaks 2017</doc>
                 <jobTransformJobName>RecoTf_13TeV_data</jobTransformJobName>
                 <jobTransformCmd>
-				export LD_PRELOAD=$LCG_RELEASE_BASE/libunwind/5c2cade-76996/$LCG_PLATFORM/lib/libunwind.so; Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 10 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute' --postExec 'from AthenaCommon.AlgSequence import AlgSequence;topSeq = AlgSequence();topSeq.remove("topSeq.InDetAmbiguitySolver")'
+				export LD_PRELOAD=$LCG_RELEASE_BASE/libunwind/5c2cade-76996/$LCG_PLATFORM/lib/libunwind.so; Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 10 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
       
-	        <!-- tmp solution manually remove the failing class in finalization ATLASSIM-3277 -->
             <jobTransform userJobId="data17_13TeV_fpe">
                 <doc>Reco_tf runs on 13TeV collision data with floating point exception enabled 2017</doc>
                 <jobTransformJobName>RecoTf_13TeV_data_fpe</jobTransformJobName>
                 <jobTransformCmd>
-				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents -1 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5;from AthenaCommon.AlgSequence import AlgSequence;topSeq = AlgSequence();topSeq.remove("topSeq.InDetAmbiguitySolver")'
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents -1 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
