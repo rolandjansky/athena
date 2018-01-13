@@ -40,10 +40,18 @@ namespace JiveXML {
    * Return nothing - server has just been pinged
    */
   void ReturnNull( SVCXPRT* transp, IServer* const ServerSvc ){
+// xdr_void is defined inconsistently in xdr.h and gets a warning from gcc8.
+#if __GNUC__ >= 8
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
     if (!svc_sendreply(transp, (xdrproc_t)xdr_void, 0))
       //check global errno variable on result
       checkResult(errno,"dispatch thread sending reply to NULLPROC call",ServerSvc);
   }
+#if __GNUC__ >= 8
+# pragma GCC diagnostic pop
+#endif
 
   /**
    * Implementation of ONCRPC_GETSTATUS_PROC 
