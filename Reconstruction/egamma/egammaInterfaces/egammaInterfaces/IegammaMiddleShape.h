@@ -48,6 +48,8 @@ public:
         double e277=0; 
         double etaw=0;
         double phiw=0;  
+        double width=0;
+        double poscs2=0;
     };
     /** @brief AlgTool method.*/
     virtual StatusCode execute(const xAOD::CaloCluster& cluster, 

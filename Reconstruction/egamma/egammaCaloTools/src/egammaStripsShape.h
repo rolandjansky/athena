@@ -18,11 +18,11 @@
 ///
 
 
-#include "xAODCaloEvent/CaloClusterFwd.h"
 class CaloCellContainer;
 class CaloDetDescrManager;
 class LArEM_ID;
 
+#include "xAODCaloEvent/CaloCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -48,8 +48,7 @@ public:
     StatusCode finalize() override;
 
     /** @brief AlgTool main method */
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer &cell_container, Info& info) const override final;
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster, Info& info) const override final;
 
 private:
 
@@ -65,14 +64,14 @@ private:
     /** @brief set total width in strips*/
     void setWstot(Info& info, double deta, double* enecell, double* etacell, int* ncell) const;
     /** @brief set fraction of energy in 2nd sampling*/
-    void setF2(Info& info, double* enecell) const ;
+    void setF2(Info& info, double* enecell,const double eallsamples) const ;
     /** @brief set energy in 3x1 and in 15x3 strips*/
     void setEnergy(Info& info, double* enecell) const;
     /** @brief set asymmetry*/
     void setAsymmetry(Info& info, double* enecell) const;
     /** @brief set width in three strips*/
-    void setWs3(Info& info, const xAOD::CaloCluster::CaloSample sam, const xAOD::CaloCluster& cluster 
-            double* enecell, double* etacell) const;
+    void setWs3(Info& info, const xAOD::CaloCluster::CaloSample sam, const xAOD::CaloCluster& cluster, 
+            double* enecell, double* etacell,int* ncell) const;
     /** @brief set difference between eta of max and eta of cells*/
     double setDeltaEtaTrackShower(int nstrips,int ieta, double* enecell) const;
     /** @brief set width in 5 strips*/
@@ -82,12 +81,12 @@ private:
     /** @brief set energy of the second local maximum*/
     int setEmax2(Info& info, double* enecell, double* gracell, int* ncell) const;
     /** @brief set energy of strip with minimum energy*/
-    void setEmin(int ncsec1,Info& info, double* enecell, double* gracell, i§§§gT§§§§ ) const;
+    void setEmin(int ncsec1,Info& info, double* enecell, double* gracell, int* ncell ) const;
     /** @brief set M.S's valley*/
     void setValley(Info& info, double* enecell) const; 
     /** @brief set fraction of energy outside shower core 
       (E(+/-3strips)-E(+/-1strips))/ E(+/-1strips) */
-    void setFside(Info& info, double* enecell, double* etacell, int* ncell) const;
+    void setFside(Info& info, double* enecell, double* gracell, int* ncell) const;
     /** @brief set F1core*/
     void setF1core(Info& info, const xAOD::CaloCluster& cluster) const;
 
@@ -99,12 +98,7 @@ private:
     ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
         "egammaEnergyPositionAllSamplesTool", 
         "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
-    double m_neta;
-    double m_nphi;
-    /** @brief boolean to calculate all variables*/
-    bool m_ExecAllVariables;
-    /** @brief boolean to calculate less important variables*/
-    bool m_ExecOtherVariables;
+    
     // Calo variables
     const CaloDetDescrManager* m_calo_dd;
 

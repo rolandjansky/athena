@@ -66,12 +66,13 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
 
     IegammaPreSamplerShape::Info egammaPreSamplerShapeInfo;
     IegammaStripsShape::Info egammaStripsShapeInfo;
-    IegammaMiddleShape::Info egammMiddleShapeInfo;
+    IegammaMiddleShape::Info egammaMiddleShapeInfo;
     IegammaBackShape::Info egammaBackShapeInfo;
+    
     // shower shapes in presampler
     if ( m_ExecAllVariables && m_ExecOtherVariables && m_ExecPreSampler ) {
         // call execute method
-        StatusCode sc = egammaPreSamplerShapeInfo.execute(cluster,cell_container,egammaPreSamplerShapeInfo);
+        StatusCode sc = m_egammaPreSamplerShape->execute(cluster,cell_container,egammaPreSamplerShapeInfo);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("Presampler shape returned failure ");
         }
@@ -80,7 +81,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     // shower shapes in 1st compartment
     if ( m_ExecEMFirst ) {
         // call the execute method
-        StatusCode sc = egammaStripsShapeInfo.execute(cluster,cell_container,egammaStripsShapeInfo );
+        StatusCode sc = m_egammaStripsShape->execute(cluster,egammaStripsShapeInfo );
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("Strip shape returned failure ");
         }
@@ -89,7 +90,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     // shower shapes in 2nd compartment
     if ( m_ExecEMSecond ) {
         // call the execute method
-        StatusCode sc = egammaMiddleShapeInfo.execute(cluster,cell_container,egammaMiddleShapeInfo);
+        StatusCode sc = m_egammaMiddleShape->execute(cluster,cell_container,egammaMiddleShapeInfo);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("Middle shape returned failure ");
         }
@@ -98,7 +99,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     // shower shapes in 3rd compartment
     if ( m_ExecAllVariables && m_ExecEMThird ) {
         // call execute method
-        StatusCode sc = egammaBackShapeInfo.execute(cluster,cell_container,egammaBackShapeInfo);
+        StatusCode sc = m_egammaBackShape->execute(cluster,cell_container,egammaBackShapeInfo);
         if ( sc.isFailure() ) {
             ATH_MSG_DEBUG("Back shape returned failure ");
         }

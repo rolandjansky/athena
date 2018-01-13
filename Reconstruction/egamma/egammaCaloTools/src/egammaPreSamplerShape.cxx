@@ -74,14 +74,14 @@ StatusCode egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
         ATH_MSG_DEBUG(" egammaPreSamplerShape: Cluster is neither in Barrel nor in Endcap, cannot calculate ShowerShape ");
         return StatusCode::SUCCESS;
     }
-    CaloSampling::CaloSample sama=CaloSampling::PreSamplerB;
+    CaloSampling::CaloSample sam=CaloSampling::PreSamplerB;
     CaloSampling::CaloSample sam2=CaloSampling::EMB2;
     // check if cluster is in barrel or end-cap
     bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,0);
     // define accordingly the position of CaloSampling
     if (in_barrel) {
         sam  = CaloSampling::PreSamplerB; 
-        am2 = CaloSampling::EMB2; 
+        sam2 = CaloSampling::EMB2; 
     } else {
         sam  = CaloSampling::PreSamplerE; 
         sam2 = CaloSampling::EME2; 
@@ -134,13 +134,13 @@ StatusCode egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
     // in the following eta X phi windows
     CaloLayerCalculator calc;
     // 1X1
-    sc = calc.fill (&cellContainer, eta, phi, deta, dphi, sam);
+    StatusCode sc = calc.fill (&cell_container, eta, phi, deta, dphi, sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
     }
     info.e011 = calc.em(); 
     // 3X3
-    sc = calc.fill (&cellContainer, eta, phi, 3.*deta, 3.*dphi, sam);
+    sc = calc.fill (&cell_container, eta, phi, 3.*deta, 3.*dphi, sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
     }

@@ -54,7 +54,7 @@ class egammaEnergyPositionAllSamples : public AthAlgTool, virtual public Iegamma
   /** @brief return the uncorrected cluster energy in 3rd sampling*/
   double e3(const xAOD::CaloCluster& cluster) const override final;
   /** @brief return boolean to know if we are in barrel/end-cap*/
-  bool inBarrel(const xAOD::CaloCluster& cluster, int is=2) const override final;
+  bool inBarrel(const xAOD::CaloCluster& cluster, int is) const override final;
 
  private:
 

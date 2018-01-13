@@ -76,4 +76,4 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
   const CaloDetDescrManager* m_calo_dd;
 };
 
-endif
+#endif

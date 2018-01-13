@@ -37,8 +37,8 @@ class IegammaPreSamplerShape : virtual public IAlgTool {
 
   class Info{
     public :
-     e011=0;
-     e033=0;
+     double e011=0;
+     double e033=0;
   };
 
   /// @name IegammaPreSamplerShape virtual functions

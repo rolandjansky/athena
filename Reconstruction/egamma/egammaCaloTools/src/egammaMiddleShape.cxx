@@ -69,8 +69,7 @@ StatusCode egammaMiddleShape::finalize(){
 // =====================================================================
 // ATHENA METHOD:
 StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster, 
-        const CaloCellContainer& cell_container, Info& info) 
-{
+        const CaloCellContainer& cell_container, Info& info) const {
     //
     // Estimate shower shapes from 2nd compartment
     // based on hottest cell and deta,dphi
@@ -88,9 +87,8 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
         return StatusCode::SUCCESS;
     }
 
-    double eallsamples = m_egammaEnergyPositionAllSamples->e(cluster);
     // check if cluster is in barrel or end-cap
-    bool in_barrel = egammaEnergyPositionAllSamples->inBarrel(cluster);
+    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,2);
     CaloSampling::CaloSample sam=CaloSampling::EMB2;
     if (in_barrel) {
         sam=CaloSampling::EMB2; 
@@ -100,6 +98,7 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
 
     // granularity in (eta,phi) in the pre sampler
     // CaloCellList needs both enums: subCalo and CaloSample
+    double eta=0;
     double phi=0;
     double deta=0;
     double dphi=0;
@@ -121,7 +120,7 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     // Get the corresponding grannularities : needs to know where you are
     //                  the easiest is to look for the CaloDetDescrElement
     const CaloDetDescrElement* dde =
-        m_calo_dd->get_element(subcalo,sampling_or_module,barrel,eta,m_phi);
+        m_calo_dd->get_element(subcalo,sampling_or_module,barrel,eta,phi);
     // if object does not exist then return
     if (!dde) {
         return StatusCode::SUCCESS;
@@ -135,7 +134,7 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     // around this position a hot cell is searched for in a window
     // (m_neta*m_deta,m_nphi*m_dphi), by default (m_neta,m_nphi)=(7,7)
     CaloLayerCalculator calc;
-    sc = calc.fill(&cellContainer,cluster.etaSample(sam),cluster->phiSample(sam),
+    StatusCode sc = calc.fill(&cell_container,cluster.etaSample(sam),cluster.phiSample(sam),
             m_neta*deta,m_nphi*dphi, (CaloSampling::CaloSample) sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed  fill ");
@@ -146,13 +145,13 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     // estimate the relevant quantities around the hottest cell
     // in the following eta X phi windows
     // 3X3
-    sc = calc.fill(&cellContainer,etamax,phimax,3.*deta,3.*dphi, (CaloSampling::CaloSample) sam);
+    sc = calc.fill(&cell_container,etamax,phimax,3.*deta,3.*dphi, (CaloSampling::CaloSample) sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed 3x3 fill ");
     }
     info.e233 = calc.em(); 
     // 3X5
-    sc = calc.fill(&cellContainer,etamax,phimax,3.*deta,5.*dphi, (CaloSampling::CaloSample) sam);
+    sc = calc.fill(&cell_container,etamax,phimax,3.*deta,5.*dphi, (CaloSampling::CaloSample) sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed 3x5 fill ");
     }
@@ -160,25 +159,25 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     double etaw = calc.etas();
     info.phiw = calc.phis();
     //egammaqweta2c qweta2; 
-    info.etaw = m_egammaqweta2c->Correct(m_eta,m_etacell, etaw); 
+    info.etaw = m_egammaqweta2c->Correct(eta,etacell, etaw); 
     info.width = etaw;
-    info.poscs2 = m_egammaqweta2c->RelPosition(m_eta,m_etacell);
+    info.poscs2 = m_egammaqweta2c->RelPosition(eta,etacell);
     // 5X5
     if (m_ExecOtherVariables) {
-        sc = calc.fill(&cellContainer,etamax,phimax,5.*deta,5.*dphi, (CaloSampling::CaloSample) sam);
+        sc = calc.fill(&cell_container,etamax,phimax,5.*deta,5.*dphi, (CaloSampling::CaloSample) sam);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("CaloLayerCalculator failed 5x5 fill ");
         }
         info.e255 = calc.em(); 
     }
     // 3X7
-    sc = calc.fill(&cellContainer,etamax,phimax,3.*deta,7.*dphi, (CaloSampling::CaloSample) sam);
+    sc = calc.fill(&cell_container,etamax,phimax,3.*deta,7.*dphi, (CaloSampling::CaloSample) sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed 3x7 fill ");
     }
     info.e237 = calc.em(); 
     // 7x7
-    sc = calc.fill(&cellContainer,etamax,phimax,7.*deta,7.*dphi, (CaloSampling::CaloSample) sam);
+    sc = calc.fill(&cell_container,etamax,phimax,7.*deta,7.*dphi, (CaloSampling::CaloSample) sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed 7x7 fill ");
     }

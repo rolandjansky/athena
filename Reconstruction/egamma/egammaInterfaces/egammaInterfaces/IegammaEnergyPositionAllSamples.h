@@ -35,14 +35,14 @@ class IegammaEnergyPositionAllSamples : virtual public IAlgTool {
   /** @brief AlgTool interface methods */
   static const InterfaceID& interfaceID();
   
-    /** @brief uncorrected sum of energy in all samplings*/
+  /** @brief uncorrected sum of energy in all samplings*/
   virtual double e(const xAOD::CaloCluster& cluster) const = 0;
   /** @brief return the uncorrected cluster energy in pre-sampler*/
   virtual double e0(const xAOD::CaloCluster& cluster) const = 0;
   /** @brief return the uncorrected cluster energy in 1st sampling*/
   virtual double e1(const xAOD::CaloCluster& cluster) const = 0;
   /** @brief return the uncorrected cluster energy in 2nd sampling*/
-  virtual double e2(const xAOD::CaloCluster& cluster() const = 0;
+  virtual double e2(const xAOD::CaloCluster& cluster) const = 0;
   /** @brief return the uncorrected cluster energy in 3rd sampling*/
   virtual double e3(const xAOD::CaloCluster& cluster) const = 0;
   /** @brief boolean to know if we are in barrel or end-cap*/

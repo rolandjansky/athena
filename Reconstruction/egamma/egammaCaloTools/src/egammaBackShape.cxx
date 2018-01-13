@@ -80,7 +80,7 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
         return StatusCode::SUCCESS;
     }
 
-    double eallsamples = m_egammaEnergyPositionAllSamples->(cluster);
+    double eallsamples = m_egammaEnergyPositionAllSamples->e(cluster);
     double e3 = m_egammaEnergyPositionAllSamples->e3(cluster);
     // check if cluster is in barrel or end-cap
     bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,3);
@@ -116,11 +116,11 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
 
     // Fetch eta and phi of the sampling 
     // Note that we use m_sam2 in the 2nd sampling, not in presampler
-    eta  = cluster.etamax(m_sam2);
-    phi  = cluster.phimax(m_sam2);
+    eta  = cluster.etamax(sam2);
+    phi  = cluster.phimax(sam2);
 
     if ((eta==0. && phi==0.) || fabs(eta)>100){
-        return StatuCode::SUCCESS;
+        return StatusCode::SUCCESS;
     }
 
     // granularity in (eta,phi) in the pre sampler
@@ -148,7 +148,7 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
     CaloLayerCalculator calc;
 
     // 3X3
-    sc = calc.fill(&cellContainer,eta,phi,3.*deta,3.*dphi,sam);
+    StatusCode sc = calc.fill(&cell_container,eta,phi,3.*deta,3.*dphi,sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
     }
@@ -156,28 +156,28 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
 
     if (m_ExecOtherVariables) {
         // 3X5
-        sc = calc.fill(&cellContainer,eta,phi,3.*deta,5.*dphi,sam);
+        sc = calc.fill(&cell_container,eta,phi,3.*deta,5.*dphi,sam);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
         }
         info.e335 = calc.em(); 
 
         // 5X5
-        sc = calc.fill(&cellContainer,eta,phi,5.*deta,5.*dphi,sam);
+        sc = calc.fill(&cell_container,eta,phi,5.*deta,5.*dphi,sam);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
         }
         info.e355 = calc.em(); 
 
         // 3X7
-        sc = calc.fill(&cellContainer,eta,phi,3.*deta,7.*dphi,sam);
+        sc = calc.fill(&cell_container,eta,phi,3.*deta,7.*dphi,sam);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
         }
         info.e337 = calc.em(); 
 
         // 7x7
-        sc = calc.fill(&cellContainer,eta,phi,7.*deta,7.*dphi,sam);
+        sc = calc.fill(&cell_container,eta,phi,7.*deta,7.*dphi,sam);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
         }

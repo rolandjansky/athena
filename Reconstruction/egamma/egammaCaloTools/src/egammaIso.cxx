@@ -31,9 +31,9 @@ StatusCode egammaIso::finalize(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode egammaIso::execute(const xAOD::CaloCluster& cluster, CaloCellList& HADCellList,  Info& info){
-    const double eta  = cluster->eta(); 
-    const double phi  = cluster->phi(); 
+StatusCode egammaIso::execute(const xAOD::CaloCluster& cluster, CaloCellList& HADCellList,  Info& info) const {
+    const double eta  = cluster.eta(); 
+    const double phi  = cluster.phi(); 
     double egap=0.;
     double ehad=0.;
     const double size = 0.12;
@@ -43,27 +43,27 @@ StatusCode egammaIso::execute(const xAOD::CaloCluster& cluster, CaloCellList& HA
     // choosen below is safe.
     // all hadron in 0.2X0.2
     HADCellList.select(eta,phi,size,size);       
-    ehad +=m_HADCellList.energy(); 
+    ehad +=HADCellList.energy(); 
     HADCellList.select(eta,phi,size,size,CaloSampling::TileGap3);       
     egap +=HADCellList.energy(); 
 
     HADCellList.select(eta,phi,size,size,CaloSampling::HEC0);       
-    ehad1 +=m_HADCellList.energy(); 
+    info.ehad1 +=HADCellList.energy(); 
 
     HADCellList.select(eta,phi,size,size,CaloSampling::TileBar0);       
-    ehad1 +=HADCellList.energy(); 
+    info.ehad1 +=HADCellList.energy(); 
 
     // Fix had leakage in crack (TileGap1 and TileGap2 missing before 14.2)
     HADCellList.select(eta,phi,size,size,CaloSampling::TileGap1);
-    ehad1 +=HADCellList.energy();
+    info.ehad1 +=HADCellList.energy();
     HADCellList.select(eta,phi,size,size,CaloSampling::TileGap2);       
-    ehad1 +=m_HADCellList.energy(); 
+    info.ehad1 +=HADCellList.energy(); 
 
     HADCellList.select(eta,phi,size,size,CaloSampling::TileExt0);       
-    ehad1 +=HADCellList.energy(); 
+    info.ehad1 +=HADCellList.energy(); 
 
 
-    const double eta2 = cluster->etaBE(2);
+    const double eta2 = cluster.etaBE(2);
     if (eta2==-999.) {
         info.ethad1 = -999;
         info.ethad = -999;

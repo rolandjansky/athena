@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 ///////////////////////////////////////////////////////////////////
 // IegammaIso.h, (c) ATLAS Detector software 2008
@@ -28,29 +28,30 @@
 class CaloCellList; 
 
 static const InterfaceID IID_IegammaIso("IEgammaIso", 1, 0);
-        
+
 class IegammaIso : virtual public IAlgTool {
 
-     
- public:
-  /** @brief Virtual destructor */
-  virtual ~IegammaIso(){};
-  
-  /** @brief AlgTool interface methods */
-  static const InterfaceID& interfaceID();
 
-  class Info{
-  double ethad=0;
-  double ethad1=0;
-  double ehad1=0;
-  }
-  /** @brief  method: Method to just calculate hadronic leakage*/
-  virtual StatusCode execute(const xAOD::CaloCluster& cluster, CaloCellList& had, Info& info) const =0;
- };
+public:
+    /** @brief Virtual destructor */
+    virtual ~IegammaIso(){};
+
+    /** @brief AlgTool interface methods */
+    static const InterfaceID& interfaceID();
+
+    class Info{
+    public:
+        double ethad=0;
+        double ethad1=0;
+        double ehad1=0;
+    };
+    /** @brief  method: Method to just calculate hadronic leakage*/
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster, CaloCellList& had, Info& info) const =0;
+};
 
 inline const InterfaceID& IegammaIso::interfaceID()
 {
-  return IID_IegammaIso;
+    return IID_IegammaIso;
 }
 
 #endif // EGAMMAINTERFACES_IEGAMMAISO_H

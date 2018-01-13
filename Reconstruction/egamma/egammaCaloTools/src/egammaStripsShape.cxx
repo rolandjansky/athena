@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
  */
 
 #include "egammaStripsShape.h"
@@ -83,8 +83,7 @@ StatusCode egammaStripsShape::finalize(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster, 
-        const CaloCellContainer& cell_container, Info& info) const  {
+StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster, Info& info) const  {
     //
     // Estimate shower shapes from first compartment
     // based on hottest cell in 2nd sampling , the  deta,dphi,
@@ -109,19 +108,16 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
     // samgran is used to estimate the window to use cells in eta
     // it is based on the granularity of the middle layer
     // For phi we use the strip layer granularity  
-    bool in_barrel =  m_egammaEnergyPositionAllSamples->inBarrel(cluster);
+    bool in_barrel =  m_egammaEnergyPositionAllSamples->inBarrel(cluster,2);
     CaloSampling::CaloSample sam=CaloSampling::EMB1;
     CaloSampling::CaloSample samgran=CaloSampling::EMB2;
-    CaloSampling::CaloSample offset=CaloSampling::PreSamplerB;
     CaloCell_ID::SUBCALO subcalo= CaloCell_ID::LAREM;
     if (in_barrel) {
         sam     = CaloSampling::EMB1;
         samgran = CaloSampling::EMB2;
-        offset  = CaloSampling::PreSamplerB;
     } else {
         sam     = CaloSampling::EME1;
         samgran = CaloSampling::EME2;
-        offset  = CaloSampling::PreSamplerE; 
     }
     // get eta and phi of the seed
     info.etaseed = cluster.etaSample(sam);  
@@ -135,13 +131,16 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
     }
     // check if we are in a crack or outside area where strips are well defined
     if (fabs(info.etamax) > 2.4) {
-        return StatusCode::SUCCESS
+        return StatusCode::SUCCESS;
     }
-    if (fabs(info.etamax) > 1.4 && fabs(m_etamax) < 1.5) {
+    if (fabs(info.etamax) > 1.4 && fabs(info.etamax) < 1.5) {
         return StatusCode::SUCCESS;
     }
     // CaloCellList needs both enums: subCalo and CaloSample
     // use samgran = granularity in second sampling for eta !!!!
+    double deta=0; 
+    double dphi=0; 
+    bool barrel=false;
     int sampling_or_module=0;
     m_calo_dd->decode_sample(subcalo, barrel, sampling_or_module, 
             (CaloCell_ID::CaloSample) samgran);
@@ -170,7 +169,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
     double etacell[STRIP_ARRAY_SIZE]={0}; 
     double gracell[STRIP_ARRAY_SIZE]={0}; 
     int ncell[STRIP_ARRAY_SIZE]={0}; 
-   // Fill the array in energy and eta from which all relevant
+    // Fill the array in energy and eta from which all relevant
     // quantities are estimated
     setArray(cluster,sam,info.etamax,info.phimax,deta,dphi,
             enecell,etacell,gracell,ncell);
@@ -184,7 +183,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
     // calculate total width 
     setWstot(info,deta,enecell,etacell,ncell);
     // width in three strips
-    setWs3(info,sam,cluster,enecell,etacell);
+    setWs3(info,sam,cluster,enecell,etacell,ncell);
     // Energy in in +/-1 and in +/-7 strips
     if (m_ExecAllVariables) {
         setEnergy(info,enecell);
@@ -199,7 +198,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
         // position in eta from +/- 7 strips 
         info.deltaEtaTrackShower7 = setDeltaEtaTrackShower(7,info.ncetaseed,enecell);
         // calculate the fraction of energy int the two highest energy strips
-        setF2(info,enecell);
+        setF2(info,enecell,eallsamples);
         // Shower width in 5 strips around the highest energy strips
         setWidths5(info,enecell);
         // calculate energy of the second local maximum
@@ -215,7 +214,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
     return  StatusCode::SUCCESS; 
 }
 
-void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
+void egammaStripsShape::setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
         double eta, double phi,  double deta, double dphi,
         double* enecell, double* etacell, double* gracell,
         int* ncell) const {
@@ -223,7 +222,7 @@ void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
     // Put in an array the energies,eta,phi values contained in 
     // a window (deta,dphi) 
 
-    StripArrayHelper stripArray[BIG_STRIP_ARRAY_SIZE]={0};
+    StripArrayHelper stripArray[BIG_STRIP_ARRAY_SIZE];
     //Raw --> Calo Frame 
     //Difference  is important in end-cap which is shifted by about 4 cm
     //
@@ -402,7 +401,7 @@ void egammaStripsShape::setWstot(Info& info, double deta,
     return;
 }
 
-void egammaStripsShape::setF2(Info& info, double* enecell) const {
+void egammaStripsShape::setF2(Info& info, double* enecell,const double eallsamples) const {
     // 
     // Fraction of energy in two highest energy strips
     //
@@ -414,7 +413,7 @@ void egammaStripsShape::setF2(Info& info, double* enecell) const {
     // find hottest of these strips
     double e2     = std::max(eleft,eright); 
     // calculate fraction of the two highest energy strips
-    info.f2 = info.eallsamples > 0. ? (e1+e2)/info.eallsamples : 0.;  
+    info.f2 = eallsamples > 0. ? (e1+e2)/eallsamples : 0.;  
     return;
 }
 
@@ -465,8 +464,8 @@ void egammaStripsShape::setAsymmetry(Info& info , double* enecell) const {
 
 
 void egammaStripsShape::setWs3(Info& info, 
-        const xAOD::CaloCluster::CaloSample sam, const xAOD::CaloCluster& cluster 
-        double* enecell, double* etacell) const {
+        const xAOD::CaloCluster::CaloSample sam, const xAOD::CaloCluster& cluster, 
+        double* enecell, double* etacell,int* ncell) const {
     //
     // Width in three strips centered on the strip with the largest energy
     // 
@@ -497,7 +496,6 @@ void egammaStripsShape::setWs3(Info& info,
     return;
 }
 
-// =====================================================================
 double egammaStripsShape::setDeltaEtaTrackShower(int nstrips,int ieta,
         double* enecell) const {
     //
@@ -567,7 +565,7 @@ void egammaStripsShape::setWidths5(Info& info, double* enecell) const {
     return;
 }
 
-void egammaStripsShape::setEmax(Info& info, double* enecell) const {{
+void egammaStripsShape::setEmax(Info& info, double* enecell) const {
     //
     // calculate energy of strip with maximum energy
     //
@@ -580,7 +578,6 @@ void egammaStripsShape::setEmax(Info& info, double* enecell) const {{
     return;
 }
 
-// =====================================================================
 int egammaStripsShape::setEmax2(Info& info, double* enecell, 
         double* gracell, int* ncell) const {
     //
@@ -722,7 +719,7 @@ void egammaStripsShape::setValley(Info& info, double* enecell) const {
     return;
 }
 
-void egammaStripsShape::setFside(Info& info, double* enecell, double* etacell, int* ncell) const {
+void egammaStripsShape::setFside(Info& info, double* enecell, double* gracell, int* ncell) const {
     //
     // fraction of energy outside shower core 
     // (E(+/-3strips)-E(+/-1strips))/ E(+/-1strips)

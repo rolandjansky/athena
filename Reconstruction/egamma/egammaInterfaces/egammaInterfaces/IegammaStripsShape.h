@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-   */
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
 ///////////////////////////////////////////////////////////////////
 // IegammaStripsShape.h, (c) ATLAS Detector software 2009
@@ -42,8 +42,8 @@ public:
     public :
         double etamax               = 0;
         double phimax               = 0;
-        double ncetamax             = -1;
-        double ncetaseed            = -1;
+        double etaseed              =0;   
+        double phiseed              =0;   
         double wstot                = -999. ;
         double etot                 = 0;
         double etas3                = 0;  
@@ -66,13 +66,15 @@ public:
         double emaxs1               = 0; 
         double emins1               = 0; 
         double esec1                = 0;
+        int  ncetamax               = -1;
+        int  ncetaseed              = -1;
         bool success              = false ;
 
 
     };
     /** @brief AlgTool method.*/
     virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer& cell_container, Info& info) const = 0;
+             Info& info) const = 0;
 
     };
 

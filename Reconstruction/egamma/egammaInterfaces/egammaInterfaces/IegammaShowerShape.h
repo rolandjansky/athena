@@ -22,7 +22,7 @@ MODIFIED :
 #include "GaudiKernel/IAlgTool.h"
 
 // Forward declarations
-#include "0AODCaloEvent/CaloClusterFwd.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
 class CaloCellContainer;
 
 static const InterfaceID IID_IegammaShowerShape("IegammaShowerShape", 1, 0);
