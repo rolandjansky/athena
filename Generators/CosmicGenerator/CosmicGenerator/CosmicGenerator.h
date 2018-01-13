@@ -99,7 +99,6 @@ private:
   float m_ctcut;
   float m_xlow, m_xhig, m_zlow, m_zhig, m_yval, m_IPx, m_IPy, m_IPz, m_radius, m_zpos;
   float m_tmin, m_tmax;
-  float m_stopped_tminus, m_stopped_tplus;
   bool m_cavOpt;
   int m_srOneOpt;
   bool m_srOnePixECOpt;
