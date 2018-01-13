@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
+   */
 
 #ifndef EGAMMACALOTOOLS_EGAMMASTRIPSSHAPE_H
 #define EGAMMACALOTOOLS_EGAMMASTRIPSSHAPE_H
@@ -56,44 +56,41 @@ private:
     /** @brief From the original (eta,phi) position, find the location
       (sampling, barrel/end-cap, granularity) */
     /** @brief set an array of energies,eta,phi in ~40 strips around max*/
-    void setArray(const xAOD::CaloCluster& cluster,
-            CaloSampling::CaloSample sam,
-            double eta, double phi, 
-            double deta, double dphi,
-            double* enecell,
-            double* etacell,
-            double* gracell,
+    void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
+            double eta, double phi,  double deta, double dphi,
+            double* enecell, double* etacell, double* gracell,
             int* ncell) const ;
-    
     /** @brief check index of seed in the array*/
-    void setIndexSeed(double eta, const Auxiliary& aux, Info& info) const ;
-    /** @brief set energy in 3x1 and in 15x3 strips*/
-    void setEnergy(const Auxiliary& aux, Info& info) const ;
-    /** @brief set energy of strip with maximum energy*/
-    void setEmax(const Auxiliary& aux, Info& info) const ;         
-    /** @brief set energy of the second local maximum*/
-    int setEmax2(const Auxiliary& aux, Info& info) const;        
-    /** @brief set energy of strip with minimum energy*/
-    void setEmin(int nsec1,const Auxiliary& aux, Info& info);
-    /** @brief set fraction of energy in 2nd sampling*/
-    void setF2(const Auxiliary& aux, Info& info) const ;             
-    /** @brief set difference between eta of max and eta of cells*/
-    double setDeltaEtaTrackShower(int nstrips,int ieta, const Auxiliary& aux, Info& info) const;
+    void setIndexSeed(Info& info, double* etacell, double* gracell) const;  
     /** @brief set total width in strips*/
-    void setWstot(double eta, double deta, const Auxiliary& aux, Info& info) const ; 
-    /** @brief set width in three strips*/
-    void setWs3(CaloSampling::CaloSample sam, const Auxiliary& aux, Info& info) const ;       
-    /** @brief set width in 5 strips*/
-    void setWidths5(const Auxiliary& aux, Info& info) const ;         
+    void setWstot(Info& info, double deta, double* enecell, double* etacell, int* ncell) const;
+    /** @brief set fraction of energy in 2nd sampling*/
+    void setF2(Info& info, double* enecell) const ;
+    /** @brief set energy in 3x1 and in 15x3 strips*/
+    void setEnergy(Info& info, double* enecell) const;
     /** @brief set asymmetry*/
-    void setAsymmetry(const Auxiliary& aux, Info& info) const ;
+    void setAsymmetry(Info& info, double* enecell) const;
+    /** @brief set width in three strips*/
+    void setWs3(Info& info, const xAOD::CaloCluster::CaloSample sam, const xAOD::CaloCluster& cluster 
+            double* enecell, double* etacell) const;
+    /** @brief set difference between eta of max and eta of cells*/
+    double setDeltaEtaTrackShower(int nstrips,int ieta, double* enecell) const;
+    /** @brief set width in 5 strips*/
+    void setWidths5(Info& info, double* enecell) const;
+    /** @brief set energy of strip with maximum energy*/
+    void setEmax(Info& info, double* enecell) const;
+    /** @brief set energy of the second local maximum*/
+    int setEmax2(Info& info, double* enecell, double* gracell, int* ncell) const;
+    /** @brief set energy of strip with minimum energy*/
+    void setEmin(int ncsec1,Info& info, double* enecell, double* gracell, int* ncell ) const;
     /** @brief set M.S's valley*/
-    void setValleyI( const Auxiliary& aux, Info& info) const ;   
+    void setValley(Info& info, double* enecell) const; 
     /** @brief set fraction of energy outside shower core 
       (E(+/-3strips)-E(+/-1strips))/ E(+/-1strips) */
-    void setFside(const Auxiliary& aux, Info& info) const ;  
+    void setFside(Info& info, double* enecell, double* etacell, int* ncell) const;
     /** @brief set F1core*/
-    void setF1core(const Auxiliary& aux, Info& info) const ;  
+    void setF1core(Info& info, const xAOD::CaloCluster& cluster) const;
+
     /** Tool to calculate correction for the eta width modulation in strips */
     ToolHandle<Iegammaqweta1c> m_egammaqweta1c {this,
         "egammaqweta1cTool", "egammaqweta1c/egammaqweta1c"};
@@ -110,7 +107,7 @@ private:
     bool m_ExecOtherVariables;
     // Calo variables
     const CaloDetDescrManager* m_calo_dd;
-    
+
     // calculate quantities based on information in the strips in a region
     // around the cluster. 
     //
@@ -132,6 +129,6 @@ private:
     Gaudi::Property<bool> m_ExecOtherVariables {this,
         "ExecOtherVariables", true, "Calculate some less important variables"};
 
-   };
+};
 
 #endif
