@@ -1173,6 +1173,19 @@ if doTileNtuple:
 
     TileNtuple.CheckDCS = TileUseDCS
 
+    # FIXME: TileAANtuple does a back-door set of properties
+    #        in TileBeamInfoProvider.  That doesn't really work with
+    #        handles and MT.  To compensate, also set the properties here.
+    def moveprop (pname):
+        pval = TileNtuple.properties()[pname]
+        if pval == TileNtuple.propertyNoValue:
+            pval = TileNtuple.getDefaultProperty(pname)
+        if pval:
+            setattr (ToolSvc.TileBeamInfoProvider, pname, pval)
+
+    moveprop ('TileBeamElemContainer')
+    moveprop ('TileDigitsContainer')
+    moveprop ('TileRawChannelContainer')
 
 if doTileMon:
     # Monitoring historgrams
