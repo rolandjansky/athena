@@ -101,7 +101,6 @@ namespace ISF {
     bool                                      m_skipIfNoParentBarcode;  //!< do not record if parentBarcode==fUndefinedBarcode
     bool                                      m_ignoreUndefinedBarcodes;//!< do/don't abort if retrieve an undefined barcode
 
-    bool                                      m_storeExtraBCs;
     bool                                      m_passWholeVertex;
 
     std::vector<bool>                         m_forceEndVtxRegionsVec; //!< property containing AtlasRegions for which
@@ -110,9 +109,6 @@ namespace ISF {
                                                                                                      //   all parent particles if they die
 
     bool                                      m_quasiStableParticlesIncluded; //!< does this job simulate quasi-stable particles.
-
-    Barcode::ParticleBarcode                  m_secondaryParticleBcOffset;
-    Barcode::VertexBarcode                    m_myLowestVertexBC;
 
   };
 }
