@@ -29,7 +29,6 @@ SCT_SiliconConditionsTestAlg::SCT_SiliconConditionsTestAlg( const std::string& n
 
 SCT_SiliconConditionsTestAlg::~SCT_SiliconConditionsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize

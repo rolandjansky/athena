@@ -31,7 +31,6 @@ SCT_MajorityConditionsTestAlg::SCT_MajorityConditionsTestAlg(const std::string& 
 
 SCT_MajorityConditionsTestAlg::~SCT_MajorityConditionsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize

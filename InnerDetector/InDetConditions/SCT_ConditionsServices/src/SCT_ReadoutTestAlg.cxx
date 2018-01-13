@@ -40,7 +40,6 @@ SCT_ReadoutTestAlg::SCT_ReadoutTestAlg( const std::string& name, ISvcLocator* pS
 // Destructor
 SCT_ReadoutTestAlg::~SCT_ReadoutTestAlg()
 { 
-  ATH_MSG_INFO( "Calling destructor" );
 }
 
 // Initialize
