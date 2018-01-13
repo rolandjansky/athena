@@ -1284,4 +1284,11 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
     }
 
 
+template
+bool InDetVKalVxInJetTool::Check2TrVertexInPixel( const xAOD::TrackParticle* p1,
+                                                  const xAOD::TrackParticle* p2,
+                                                  Amg::Vector3D &FitVertex, double)
+  const;
+
+
 }  //end of namespace
