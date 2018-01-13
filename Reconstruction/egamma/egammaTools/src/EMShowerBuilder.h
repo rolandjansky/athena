@@ -13,7 +13,6 @@
   - egammaIso calculates information concerning isolation behind em clusters 
   in the hadronic calorimeter and around the em cluster
   for isolation around em clustr use cone of different sizes
-  - EMTrackIsolation calculates isolation based on tracking information
   - Calculate shower shapes in all samplings from egammaShowerShape tool
   - When running on AOD data(defined as samples which do not contain AllCalo 
     CaloCellContainer) as there is not enough cells, the showers are not 
@@ -44,7 +43,6 @@
 
 class StoreGateSvc;
 class CaloCellContainer;
-class IEMTrackIsolationTool;
 class IChronoStatSvc;
 
 class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
@@ -69,31 +67,23 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   StatusCode finalize();
 
  private:
-  /** @brief method to find parent electron/photon of cluster */
-  const xAOD::Egamma* matchdRParent();
   /** @brief method to retrieve ShowerBuilder tool */
   StatusCode RetrieveShowerShapeTool();
   /** @brief method to retrieve hadronic leakage calculation from CaloIso tool */
-  StatusCode RetrieveHadronicLeakageTool();
- 
-
+  StatusCode RetrieveHadronicLeakageTool(); 
   /** @brief method shared by the various execute method to retrieve the cell and cluster containers */
   StatusCode retrieveContainers();
   /** @brief calculate shower shapes*/
   StatusCode CalcShowerShape(xAOD::Egamma* eg);
+  /** @brief calculate Hadronic leakage*/
   StatusCode CalcHadronicLeakage(xAOD::Egamma* eg);
-  
   /** @brief fill shower detail from shower shape calculation*/
-  StatusCode FillEMShowerShape(xAOD::Egamma* eg) const ;
+  StatusCode FillEMShowerShape(xAOD::Egamma* eg,const IegammaShowerShape::Info& info) const ;
 
   /** @brief Cell container*/
   SG::ReadHandleKey<CaloCellContainer> m_cellsKey {this,
       "CellsName", "AllCalo", "Names of containers which contain cells"};
      
-  /** @brief vector of calo-id to treat*/
-  Gaudi::Property<std::vector<int> > m_caloNums {this,
-      "CaloNums", {}, "list of calo to treat"};     
-
   /** @brief Tool for shower shape calculation*/
   ToolHandle<IegammaShowerShape> m_ShowerShapeTool {this,
       "ShowerShapeTool", "egammaShowerShape/egammashowershape", 
@@ -109,6 +99,8 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   /** @brief the CaloCluster container */
   const xAOD::CaloCluster* m_clus;
 
+  IChronoStatSvc* m_timingProfile;
+  
   /** @brief boolean to print results*/
   Gaudi::Property<bool> m_Print {this,
       "Print", false, "in case of extra prints"};
@@ -125,9 +117,6 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
       "UseCaloIsoTool", true, 
       "Boolean to call hadronic leakage calculation and filling"};
 
-  /** @brief */
-  bool m_caloSelection ;
-
   /** @brief boolean to know if we are looking at cosmic data */
   Gaudi::Property<bool> m_isCosmics {this,
       "isCosmics", false, "Boolean for use of cosmics"};
@@ -136,7 +125,6 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   Gaudi::Property<bool> m_timing {this, 
       "Timing", false, "do extra timing"};
 
-  IChronoStatSvc* m_timingProfile;
 
 };
 

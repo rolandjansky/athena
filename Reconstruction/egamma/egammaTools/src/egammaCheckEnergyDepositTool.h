@@ -36,7 +36,7 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
   virtual StatusCode finalize() override;
   /** @brief execute method */
   virtual bool checkFractioninSampling(const xAOD::Egamma* eg) const override final;
-  virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) override final ;
+  virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) const override final ;
 
  private:
 
