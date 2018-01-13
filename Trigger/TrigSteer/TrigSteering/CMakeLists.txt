@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/AthenaMonitoring
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
@@ -58,25 +58,25 @@ atlas_add_library( TrigSteeringLib
                    PUBLIC_HEADERS TrigSteering
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel DataModel EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent TrigT1CaloToolInterfaces TrigT1Result AthenaMonitoringLib StoreGateLib SGtests TrigROBDataProviderSvcLib L1TopoSimulationLib TrigT1CaloEventLib TrigTimeAlgsLib ByteStreamCnvSvcBaseLib TrigSerializeResultLib TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthContainers EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent TrigT1CaloToolInterfaces TrigT1Result AthenaMonitoringLib StoreGateLib SGtests TrigROBDataProviderSvcLib L1TopoSimulationLib TrigT1CaloEventLib TrigTimeAlgsLib ByteStreamCnvSvcBaseLib TrigSerializeResultLib TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} TestTools xAODTrigger TrigConfL1Data TrigStorageDefinitions L1TopoCommon L1TopoConfig TrigT1Interfaces )
 
 atlas_add_component( TrigSteering
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib DataModel StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib )
 
 atlas_add_dictionary( TrigSteeringDict
                       TrigSteering/TrigSteeringDict.h
                       TrigSteering/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib DataModel StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib )
 
 atlas_add_test( Signature_test
                 SOURCES
                 test/Signature_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib DataModel StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib
                 EXTRA_PATTERNS ".*" )
 
 # Install files from the package:
