@@ -169,9 +169,12 @@ StatusCode ALFA_BeamTransport::execute()
 	       // Loop over all events in McEventCollectio
 	       msg(MSG::INFO) << "successful load of HepMC info" << endmsg;
 	       for (McEventCollection::const_iterator itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
-		       std::cout<<"loop"<<std::endl;
-		    HepMC::GenEvent* evt=(*itr);
-
+	            std::cout<<"loop"<<std::endl;
+                    // FIXME: This algorithm is explicitly modifying an object
+                    //        resident in the event store.  This will not work
+                    //        with AthenaMT!
+                    HepMC::GenEvent* evt=const_cast<HepMC::GenEvent*>(*itr);
+                    
 		    //convert unit MeV to GeV for energy and momenta
 		    MeVToGeV (evt);
 
