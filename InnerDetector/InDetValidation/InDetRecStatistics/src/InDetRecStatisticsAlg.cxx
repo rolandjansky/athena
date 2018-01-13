@@ -281,14 +281,8 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   }     
 
   ATH_CHECK( m_RecTrackCollection_keys.initialize() );
-  if (m_doTruth) {
-    if (!m_McTrackCollection_key.key().empty()) {
-      ATH_CHECK( m_McTrackCollection_key.initialize() );
-    }
-    if (!m_TrackTruthCollection_keys.empty()) {
-      ATH_CHECK( m_TrackTruthCollection_keys.initialize() );
-    }
-  }
+  ATH_CHECK( m_McTrackCollection_key.initialize(m_doTruth && !m_McTrackCollection_key.key().empty()) );
+  ATH_CHECK( m_TrackTruthCollection_keys.initialize() );
 
   return StatusCode :: SUCCESS;
 

@@ -78,6 +78,7 @@ rec.doJetMissingETTag=False
 rec.doTau=False
 rec.doTrigger=True
 
+rec.AutoConfiguration = ['FieldAndGeo']
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.Enabled.set_Value_and_Lock(False)

@@ -300,7 +300,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  
 	  try {
 	    id = larCablingSvc->cnvToIdentifier(chID);   
-	  } catch ( LArID_Exception ) {
+	  } catch ( const LArID_Exception& ) {
 	    ATH_MSG_ERROR ( "LArCablingSvc exception caught for channel 0x" << MSG::hex << chID << MSG::dec );
 	  }
 	  int layer = emId->sampling(id);

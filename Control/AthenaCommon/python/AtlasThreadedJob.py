@@ -50,6 +50,15 @@ def _setupAtlasThreadedJob():
     AlgScheduler.ShowDataDependencies(False)
     AlgScheduler.ShowControlFlow(False)
 
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    from SGComps.SGCompsConf import SGInputLoader
+    # FailIfNoProxy=False makes it a warning, not an error, if unmet data
+    # dependencies are not found in the store.  It should probably be changed
+    # to True eventually.
+    topSequence += SGInputLoader (FailIfNoProxy = False)
+    AlgScheduler.setDataLoaderAlg ('SGInputLoader' )
+
     from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
 
     svcMgr += AthenaHiveEventLoopMgr()

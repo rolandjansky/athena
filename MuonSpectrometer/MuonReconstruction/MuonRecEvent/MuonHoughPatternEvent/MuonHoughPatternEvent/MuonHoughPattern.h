@@ -7,7 +7,7 @@
 
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace MuonHough{
   /** enum to identify the different houghtransformers */

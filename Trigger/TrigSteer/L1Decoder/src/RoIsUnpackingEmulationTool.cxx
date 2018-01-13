@@ -37,7 +37,7 @@ StatusCode RoIsUnpackingEmulationTool::initialize() {
 
 
 StatusCode RoIsUnpackingEmulationTool::readEmulatedData(){
-  if (m_inputFilename.empty()) {
+  if ( m_inputFilename.empty() ) {
     ATH_MSG_WARNING("Provided InputFilename parameter is empty");
     return StatusCode::RECOVERABLE;
   }

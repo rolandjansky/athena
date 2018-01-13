@@ -34,6 +34,9 @@ Updated:
 #include "xAODMuon/Muon.h"
 #include "xAODJet/Jet.h"
 
+// For making PID selections easier
+#include "TruthUtils/PIDHelpers.h"
+
 #ifndef XAOD_ANALYSIS
 //Athena only includes 
 #include "GeneratorObjects/xAODTruthParticleLink.h"
@@ -189,6 +192,11 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TruthParticle  *thePart,
     return std::make_pair(SUSYParticle,partOrig);   
   }
                                                                                                          
+
+  if(thePart->status()==1&&MC::PID::isBSM(iParticlePDG)) {
+    return std::make_pair(OtherBSMParticle,partOrig);
+  }
+
   if(thePart->status()==10902&&(abs(iParticlePDG)!=11&&abs(iParticlePDG)!=13&&abs(iParticlePDG)!=15&&abs(iParticlePDG)!=22)&&!isPartHadr) {
     return std::make_pair(GenParticle,partOrig); 
   }
@@ -336,7 +344,7 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TrackParticle *trkPtr,
 // called via egammaClusMatch.
 std::pair<ParticleType,ParticleOrigin>
 MCTruthClassifier::particleTruthClassifier(const xAOD::Electron* elec,
-                                           Info* info /*= nullptr*/){
+                                           Info* info /*= nullptr*/) const {
   //-----------------------------------------------------------------------------------------
   
   ATH_MSG_DEBUG( "Executing egamma electron Classifier" );
@@ -374,7 +382,7 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Electron* elec,
 // called via egammaClusMatch.
 std::pair<ParticleType,ParticleOrigin>
 MCTruthClassifier::particleTruthClassifier(const xAOD::Photon* phot,
-                                           Info* info /*= nullptr*/){
+                                           Info* info /*= nullptr*/) const {
   //-----------------------------------------------------------------------------------------
   
 
@@ -462,7 +470,7 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Muon* mu,
 // called via egammaClusMatch.
 std::pair<ParticleType,ParticleOrigin>
 MCTruthClassifier::particleTruthClassifier(const xAOD::CaloCluster* clus,
-                                           Info* info /*= nullptr*/){
+                                           Info* info /*= nullptr*/) const {
   //-----------------------------------------------------------------------------------------
   
   ATH_MSG_DEBUG( "Executing egamma photon Classifier with cluster Input" );
@@ -597,8 +605,9 @@ ParticleOrigin MCTruthClassifier::defJetOrig(std::set<const xAOD::TruthParticle*
     if ( pdg == 32 ||
          pdg == 33 ||
          pdg == 34 )                        { partOrig = HeavyBoson; return partOrig; }  
-    if ( pdg == 42 )                        { partOrig = LQ;         return partOrig; }     
+    if ( pdg == 42 )                        { partOrig = LQ;         return partOrig; }
     if ( MC::PID::isSUSY(pdg) )             { partOrig = SUSY;       return partOrig; }
+    if ( MC::PID::isBSM(pdg) )              { partOrig = OtherBSM;   return partOrig; }
   }
   return partOrig;
 }
@@ -750,8 +759,8 @@ ParticleType MCTruthClassifier::defTypeOfElectron(ParticleOrigin EleOrig, bool i
       EleOrig == HeavyBoson || EleOrig == WBosonLRSM || EleOrig == NuREle    || 
       EleOrig == NuRMu      || EleOrig == NuRTau     || EleOrig == LQ        || 
       EleOrig == SUSY       || EleOrig == DiBoson    || EleOrig == ZorHeavyBoson ||
-      isPrompt ) { 
-    return IsoElectron;
+      EleOrig == OtherBSM  || EleOrig == MultiBoson ||  isPrompt ) { 
+      return IsoElectron;
   }
   if (EleOrig == JPsi          || EleOrig == BottomMeson  || 
       EleOrig == CharmedMeson  || EleOrig == BottomBaryon || 
@@ -1091,6 +1100,16 @@ MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleContainer* mcTruth
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
   }
 
+
+  //--Sherpa VVV -- Note, have to allow for prompt photon radiation or these get lost
+  if(numOfParents==2&&(numOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==6&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
+  }
+
   //New Sherpa Z->ee
   if(partOriVert==mothOriVert&&partOriVert!=0){
     int NumOfEleLoop=0;
@@ -1146,14 +1165,16 @@ MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleContainer* mcTruth
     else return TauLep;
   }
 
-  if(abs(motherPDG)==9900024)                return WBosonLRSM;  
+  if(abs(motherPDG)==9900024)                return WBosonLRSM;
   if(abs(motherPDG)==9900012)                return NuREle;
   if(abs(motherPDG)==9900014)                return NuRMu;
   if(abs(motherPDG)==9900016)                return NuRTau;
 
-  if (abs(motherPDG) == 42 || NumOfLQ!=0 )   return LQ;  
+  if (abs(motherPDG) == 42 || NumOfLQ!=0 )   return LQ;
 
-  if( MC::PID::isSUSY(motherPDG)  )          return SUSY;
+  if( MC::PID::isSUSY(motherPDG) )           return SUSY;
+
+  if( MC::PID::isBSM(motherPDG) )            return OtherBSM;
 
  
   ParticleType pType = defTypeOfHadron(motherPDG);
@@ -1176,7 +1197,7 @@ ParticleType MCTruthClassifier::defTypeOfMuon(ParticleOrigin MuOrig, bool isProm
       MuOrig == HeavyBoson || MuOrig == WBosonLRSM || MuOrig == NuREle    ||  
       MuOrig == NuRMu      || MuOrig == NuRTau     || MuOrig == LQ        || 
       MuOrig == SUSY       || MuOrig == DiBoson    || MuOrig == ZorHeavyBoson ||
-      isPrompt)  {                                      
+      MuOrig == OtherBSM   || MuOrig == MultiBoson ||  isPrompt)  {
     return IsoMuon;
   }
   if (MuOrig == JPsi          || MuOrig == BottomMeson  || 
@@ -1299,7 +1320,7 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
 
   //---
   long DaugType(0);
-  int  NumOfEl(0),NumOfPos(0);
+  int  NumOfPhot(0),NumOfEl(0),NumOfPos(0);
   int  NumOfElNeut(0),NumOfMuNeut(0),NumOfLQ(0),NumOfquark(0),NumOfgluon(0);
   int  NumOfMuPl(0),NumOfMuMin(0);
   int  NumOfTau(0),NumOfTauNeut(0);
@@ -1308,16 +1329,17 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
     if(!theDaug) continue;
     DaugType  = theDaug->pdgId();
     if( DaugType      == 11 ) NumOfEl++;
-    if( DaugType      ==-11 ) NumOfPos++;
-    if( DaugType      == 13 ) NumOfMuMin++;
-    if( DaugType      ==-13 ) NumOfMuPl++;
-    if( abs(DaugType) == 12 ) NumOfElNeut++;
-    if( abs(DaugType) == 14 ) NumOfMuNeut++;
-    if( abs(DaugType) == 15 ) NumOfTau++;
-    if( abs(DaugType) == 16 ) NumOfTauNeut++;
-    if( abs(DaugType) == 42 ) NumOfLQ++;
-    if( abs(DaugType)  < 7  ) NumOfquark++;
-    if( abs(DaugType) == 21 ) NumOfgluon++;
+    else if( DaugType      ==-11 ) NumOfPos++;
+    else if( DaugType      == 13 ) NumOfMuMin++;
+    else if( DaugType      ==-13 ) NumOfMuPl++;
+    else if( abs(DaugType) == 12 ) NumOfElNeut++;
+    else if( abs(DaugType) == 14 ) NumOfMuNeut++;
+    else if( abs(DaugType) == 15 ) NumOfTau++;
+    else if( abs(DaugType) == 16 ) NumOfTauNeut++;
+    else if( abs(DaugType) == 42 ) NumOfLQ++;
+    else if( abs(DaugType)  < 7  ) NumOfquark++;
+    else if( abs(DaugType) == 21 ) NumOfgluon++;
+    else if( DaugType      == 22 ) NumOfPhot++;
   } // cycle itrDaug
  
   // if ( numOfParents == 0 && numOfDaug == 1 )   return  SingleMuon;   
@@ -1424,7 +1446,15 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
   }
 
- 
+  //--Sherpa VVV -- Note, have to allow for prompt photon radiation or these get lost
+  if(numOfParents==2&&(numOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==6&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
+  }
+
   //--New Sherpa Z->mumu
   if(partOriVert==mothOriVert){
     int NumOfMuLoop=0;
@@ -1481,8 +1511,8 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
   if(abs(motherPDG)==9900016)                return NuRTau;
 
   if (abs(motherPDG) == 42 || NumOfLQ!=0  )  return LQ;  
-
   if( MC::PID::isSUSY(motherPDG) )           return SUSY;
+  if( MC::PID::isBSM(motherPDG) )            return OtherBSM;
 
  
   ParticleType pType = defTypeOfHadron(motherPDG);
@@ -1503,7 +1533,8 @@ ParticleType MCTruthClassifier::defTypeOfTau(ParticleOrigin TauOrig){
       TauOrig == SingleMuon || TauOrig == Higgs      || TauOrig == HiggsMSSM || 
       TauOrig == HeavyBoson || TauOrig == WBosonLRSM || TauOrig ==  NuREle   || 
       TauOrig == NuRMu      || TauOrig ==  NuRTau    || TauOrig == SUSY      ||
-      TauOrig == DiBoson    || TauOrig == ZorHeavyBoson )  
+      TauOrig == DiBoson    || TauOrig == ZorHeavyBoson || TauOrig == OtherBSM ||
+      TauOrig == MultiBoson )
     return IsoTau;
 
   if (TauOrig == JPsi          || TauOrig == BottomMeson  || 
@@ -1681,6 +1712,16 @@ ParticleOrigin MCTruthClassifier::defOrigOfTau(const xAOD::TruthParticleContaine
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
   }
 
+
+  //--Sherpa VVV -- Note, have to allow for prompt photon radiation or these get lost
+  if(numOfParents==2&&(numOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==6&&
+     (NumOfEl+NumOfPos+NumOfMuPl+NumOfMuMin+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
+  }
+
   //New Sherpa Z->tautau
   if(partOriVert==mothOriVert){
     int NumOfTauLoop=0;
@@ -1726,9 +1767,8 @@ ParticleOrigin MCTruthClassifier::defOrigOfTau(const xAOD::TruthParticleContaine
   if(abs(motherPDG)==9900024)                return WBosonLRSM;  
   if(abs(motherPDG)==9900016)                return NuRTau;
 
-  if( abs(motherPDG)<2000040&&
-      abs(motherPDG)>1000001)                return SUSY;  
-
+  if( MC::PID::isSUSY(motherPDG) )           return SUSY;
+  if( MC::PID::isBSM(motherPDG) )            return OtherBSM;
 
   if ( abs(motherPDG) == 443 )               return JPsi;
  
@@ -1745,7 +1785,7 @@ ParticleType MCTruthClassifier::defTypeOfPhoton(ParticleOrigin PhotOrig) const {
 
   if (PhotOrig == WBoson     || PhotOrig == ZBoson  || PhotOrig == SinglePhot || 
       PhotOrig == Higgs      || PhotOrig == HiggsMSSM  || PhotOrig == HeavyBoson  ||
-      PhotOrig == PromptPhot || PhotOrig == SUSY )   return IsoPhoton;
+      PhotOrig == PromptPhot || PhotOrig == SUSY || PhotOrig == OtherBSM)   return IsoPhoton;
 
   if (PhotOrig == ISRPhot ||  PhotOrig == FSRPhot || PhotOrig == TauLep ||   
       PhotOrig == Mu      ||  PhotOrig == NuREle   || PhotOrig == NuRMu ||
@@ -2084,9 +2124,9 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
       abs(motherPDG)==34||      
       abs(motherPDG)==5100039 // KK graviton
       )                                       return HeavyBoson; 
-
-  if( abs(motherPDG)<2000040&&
-      abs(motherPDG)>1000001)             return SUSY; 
+  
+  if( MC::PID::isSUSY(motherPDG) )       return SUSY;
+  if( MC::PID::isBSM(motherPDG) )        return OtherBSM;
  
   // Pythia8 gamma+jet samples
   if ((motherStatus==62||motherStatus==52||motherStatus==21||motherStatus==22) &&
@@ -2341,6 +2381,15 @@ ParticleOrigin MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleCon
        (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return DiBoson;
   }
 
+  //--Sherpa VVV -- Note, have to allow for prompt photon radiation or these get lost
+  if(numOfParents==2&&(numOfDaug-NumOfquark-NumOfgluon-NumOfPhot)==6&&
+     (NumOfEl+NumOfMu+NumOfTau+NumOfElNeut+NumOfMuNeut+NumOfTauNeut==6) ) {
+    int pdg1=partOriVert->incomingParticle(0)->pdgId();
+    int pdg2=partOriVert->incomingParticle(1)->pdgId();
+    if((abs(pdg1)==21&&abs(pdg2)==21)||(abs(pdg1)<7&&abs(pdg2)<7)||
+       (pdg1==21&&abs(pdg2)<7)||(pdg2==21&&abs(pdg1)<7))  return MultiBoson;
+  }
+
   //New Sherpa Z->nunu
   if(partOriVert==mothOriVert&&partOriVert!=0){
     int NumOfLepLoop=0;
@@ -2393,10 +2442,11 @@ ParticleOrigin MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleCon
   if(abs(motherPDG)==9900014)                return NuRMu;
   if(abs(motherPDG)==9900016)                return NuRTau;
 
-  if (abs(motherPDG) == 42 || NumOfLQ!=0 )  return LQ;  
+  if (abs(motherPDG) == 42 || NumOfLQ!=0 )   return LQ;
 
-  if( abs(motherPDG)<2000040&&
-      abs(motherPDG)>1000001)                return SUSY;  
+  if( MC::PID::isSUSY(motherPDG) )           return SUSY;
+
+  if( MC::PID::isBSM(motherPDG) )            return OtherBSM;
 
   ParticleType pType = defTypeOfHadron(motherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart ) 

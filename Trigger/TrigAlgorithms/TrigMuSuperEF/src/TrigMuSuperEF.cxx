@@ -15,6 +15,8 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "CaloEvent/CaloClusterContainer.h"
+#include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
+
 
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -106,6 +108,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_TrackToTrackParticleConvTool("TrackToTrackParticleConvTool",this),
   m_muonCreatorTool("MuonCreatorTool"),
   m_stauCreatorTool("MuonCreatorTool"),
+  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool"),
   m_doMuonFeature(false),
   m_useL2Info(false),
   m_doCache(true)
@@ -135,6 +138,8 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   // tool to create xAOD::Muons
   declareProperty("MuonCreatorTool", m_muonCreatorTool);
   declareProperty("StauCreatorTool", m_stauCreatorTool);
+  // tool for extending ID tracks to muon system
+  declareProperty("MuonSystemExtensionTool", m_muonSystemExtensionTool );
 
   declareProperty("recordSegmentCombinations",  m_recordSegments);
   declareProperty("recordPatternCombinations",  m_recordPatterns);
@@ -325,8 +330,7 @@ TrigMuSuperEF::hltInitialize()
   //if ( m_doOutsideIn ) {
   // TrigMuonEF algtools
   if(!m_combinerOnly) {
-    StatusCode sc = m_TrigMuonEF_saTrackTool.retrieve();
-    if (sc.isSuccess()){
+    if (m_TrigMuonEF_saTrackTool.retrieve().isSuccess()){
       ATH_MSG_INFO( "Retrieved " << m_TrigMuonEF_saTrackTool );
     }else{
       ATH_MSG_FATAL( "Could not get " << m_TrigMuonEF_saTrackTool );
@@ -335,6 +339,9 @@ TrigMuSuperEF::hltInitialize()
 
     if (doTiming()) m_TrigMuonEF_saTrackTool->setExtrapolatedTimers(this, m_TMEF_SATimers);
     m_TrigMuonEF_saTrackTool->declareExtrapolatedMonitoringVariables(this, m_TMEF_monVars);
+  } else {
+    // disable tools we don't need when in combiner-only mode
+    m_TrigMuonEF_saTrackTool.disable();
   }
 
   if ( !m_standaloneOnly) {
@@ -344,7 +351,19 @@ TrigMuSuperEF::hltInitialize()
       msg() << MSG::FATAL << "Could not get " << m_muonCombinedTool << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
+
+    if(m_muonSystemExtensionTool.retrieve().isSuccess()) {
+      ATH_MSG_INFO("Retrieved " << m_muonSystemExtensionTool);
+    } else {
+      ATH_MSG_FATAL("Could not get " << m_muonSystemExtensionTool);
+      return HLT::BAD_JOB_SETUP;
+    } 
+
     if (doTiming()) setCombinedTimers(this, m_TMEF_CBTimers);
+  } else {
+    // disable any tools we don't need in standalone-only mode
+    m_muonCombinedTool.disable();
+    m_muonSystemExtensionTool.disable();
   }
 
   // retrieve Trk::Track -> TrackParticle converter
@@ -373,40 +392,45 @@ TrigMuSuperEF::hltInitialize()
       msg() << MSG::FATAL << "Could not get " << m_stauCreatorTool << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
-  }
   
-  if ( m_doInsideOut ) {
     // Retrieve TrigMuGirl tool
     ATH_MSG_INFO("Try to retrieve " << m_muGirlTool);
-    StatusCode sc = m_muGirlTool.retrieve();
-    if (sc.isSuccess()){
+    if (m_muGirlTool.retrieve().isSuccess()) {
       ATH_MSG_INFO( "Retrieved " << m_muGirlTool );
     }else{
       ATH_MSG_FATAL( "Could not get " << m_muGirlTool );
       return HLT::BAD_JOB_SETUP;
     }
+  } else {
+    // disable tools when not running inside-out
+    m_stauCreatorTool.disable();
+    m_muGirlTool.disable();
   }
 
   if ( m_caloTagOnly ) {
     //Retreive CaloTagTool
-    StatusCode sc = m_caloTagTool.retrieve();
-    if(sc.isSuccess()){
+    if(m_caloTagTool.retrieve().isSuccess()) {
       ATH_MSG_INFO( "Retrieved " << m_caloTagTool );
     }else{
       ATH_MSG_FATAL("Could not retrieve " << m_caloTagTool);
       return HLT::BAD_JOB_SETUP;
     }
+  } else {
+    // disable calo-tagging tool when not needed
+    m_caloTagTool.disable();
   }
 
   if ( m_segmentTagOnly ) {
     //Retreive CaloTagTool
-    StatusCode sc = m_muonSegmentTagTool.retrieve();
-    if(sc.isSuccess()){
+    if (m_muonSegmentTagTool.retrieve().isSuccess()){
       ATH_MSG_INFO( "Retrieved " << m_muonSegmentTagTool );
     }else{
       ATH_MSG_FATAL("Could not retrieve " << m_muonSegmentTagTool);
       return HLT::BAD_JOB_SETUP;
     }
+  } else {
+    // disable segment tagging tool when not needed
+    m_muonSegmentTagTool.disable();
   }
 
   if (!m_caloTagOnly) {
@@ -1816,8 +1840,14 @@ HLT::ErrorCode TrigMuSuperEF::attachTrackParticleContainer(HLT::TriggerElement* 
 void TrigMuSuperEF::buildInDetCandidates(const ElementLinkVector<xAOD::TrackParticleContainer>& trackLinks, InDetCandidateCollection* inDetCandidates){
   // build InDetCandidates
   // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
-  for(unsigned int itrack=0; itrack<trackLinks.size(); ++itrack)
-    inDetCandidates->push_back(new MuonCombined::InDetCandidate(trackLinks.at(itrack)));
+  for(unsigned int itrack=0; itrack<trackLinks.size(); ++itrack) {
+    MuonCombined::InDetCandidate* candidate = new MuonCombined::InDetCandidate(trackLinks.at(itrack));
+    // add extension to muon system
+    const Muon::MuonSystemExtension* muonSystemExtension = 0;
+    m_muonSystemExtensionTool->muonSystemExtension( candidate->indetTrackParticle(), muonSystemExtension );
+    candidate->setExtension(muonSystemExtension);// candidate takes ownership of the extension
+    inDetCandidates->push_back(candidate);
+  }
 }
 
 bool TrigMuSuperEF::buildL2InDetCandidates(const ElementLinkVector<xAOD::TrackParticleContainer>& trackLinks, InDetCandidateCollection* inDetCandidates, const xAOD::L2CombinedMuonContainer* l2combcont){

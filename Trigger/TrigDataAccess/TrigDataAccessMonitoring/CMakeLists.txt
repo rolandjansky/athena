@@ -7,9 +7,8 @@ atlas_subdir( TrigDataAccessMonitoring )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           GaudiKernel
@@ -27,19 +26,19 @@ atlas_add_library( TrigDataAccessMonitoringLib
                    PUBLIC_HEADERS TrigDataAccessMonitoring
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} DataModel SGTools ByteStreamData GaudiKernel ByteStreamCnvSvcBaseLib ByteStreamData_test StoreGateLib SGtests
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthContainers ByteStreamData GaudiKernel ByteStreamCnvSvcBaseLib ByteStreamData_test StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_component( TrigDataAccessMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} DataModel SGTools ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TestTools StoreGateLib SGtests TrigDataAccessMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TestTools StoreGateLib SGtests TrigDataAccessMonitoringLib )
 
 atlas_add_test( Methods_test
                 SOURCES
                 test/Methods_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} DataModel SGTools ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TestTools StoreGateLib SGtests TrigDataAccessMonitoringLib
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TestTools StoreGateLib SGtests TrigDataAccessMonitoringLib
                 EXTRA_PATTERNS ".*" )
 
 # Install files from the package:

@@ -33,9 +33,9 @@ StatusCode CTPUnpackingTool::initialize()
 
 StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {
   using namespace Monitored;
-  auto nTAVItems = MonitoredScalar::declare("TAVItems", 0);
-  auto nChains   = MonitoredScalar::declare("Chains", 0);
-  auto monitorit = MonitoredScope::declare(m_monTool, nTAVItems, nChains);
+  auto nTAVItems = MonitoredScalar::declare( "TAVItems", 0 );
+  auto nChains   = MonitoredScalar::declare( "Chains", 0 );
+  auto monitorit = MonitoredScope::declare( m_monTool, nTAVItems, nChains );
   auto tav = roib.cTPResult().TAV();
   const size_t tavSize = tav.size();
 
@@ -50,14 +50,14 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
 	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains");
 	}
 
-	auto itr = m_ctpToChain.find(ctpIndex);
+	auto itr = m_ctpToChain.find( ctpIndex );
 	if ( itr != m_ctpToChain.end() ) {
 	  enabledChains.insert( enabledChains.end(), itr->second.begin(), itr->second.end() );
-
 	}
       }
     }    
   }
+  
   nChains = enabledChains.size();
   for ( auto chain: enabledChains ) {
     ATH_MSG_DEBUG( "Enabling chain: " << chain );

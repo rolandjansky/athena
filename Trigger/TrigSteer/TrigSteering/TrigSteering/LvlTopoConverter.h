@@ -22,7 +22,7 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteering/LvlConverter.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrigT1CaloEvent/JetElement.h"
 #include "TrigT1CaloEvent/JetElement_ClassDEF.h"

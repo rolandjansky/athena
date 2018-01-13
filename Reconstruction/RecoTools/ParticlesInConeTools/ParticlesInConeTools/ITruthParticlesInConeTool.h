@@ -17,8 +17,7 @@ namespace xAOD {
   static const InterfaceID IID_ITruthParticlesInConeTool("xAOD::ITruthParticlesInConeTool", 1, 0);
 
   /** @class ITruthParticlesInConeTool
-      @brief interface for collecting truth particles inside a cone
- 
+      @brief interface for collecting truth particles inside a cone 
       @author Niels van Eldik
    */
   class ITruthParticlesInConeTool : virtual public IAlgTool {
@@ -33,7 +32,7 @@ namespace xAOD {
        @param[in] output    output vector to be filled
        @return true if the calculation was successfull
      */    
-    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< const TruthParticle*>& output ) = 0;
+    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< const TruthParticle*>& output ) const = 0;
   };
 
   inline const InterfaceID& ITruthParticlesInConeTool::interfaceID() { 

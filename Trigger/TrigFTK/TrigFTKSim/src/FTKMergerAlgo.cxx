@@ -1116,7 +1116,11 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 	   decided if there is a match. In case of a match only 1 track is accepted: the new one, removing the old one, or the old one, avoiding to add the new one */
 
 	// Hit Warrior //
-	FTKAthTrack &track_cur = **itrack;
+        // FIXME: This is an object read from SG, so must be const.
+        //        But these objects are then changed here
+        //        (e.g., calls to setHWRejected() and setHWTrackID() in
+        //        removeTrack).  This won't work with AthenaMT.
+	FTKAthTrack &track_cur = const_cast<FTKAthTrack&>(**itrack);
 	// remains 0 if the track has to be added
 	// -1 means is worse than an old track (duplicated)
 	int accepted(0);

@@ -34,6 +34,7 @@ from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Dec
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 l1Decoder = L1Decoder( OutputLevel=DEBUG )
 l1Decoder.RoIBResult=""
+l1Decoder.prescaler.EventInfo=""
 
 data = {}
 data['CTPEmulation'] = ['HLT_e3 HLT_g5 HLT_e7 HLT_2e3 HLT_mu6 HLT_2mu6 HLT_mu6idperf HLT_e15mu4', 

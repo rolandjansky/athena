@@ -12,6 +12,11 @@ jp.Rec.doWriteAOD.set_Value_and_Lock(True)
 jp.AthenaCommonFlags.PoolAODOutput="fromTAG_AOD.pool.root"
 
 
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 #force printout each event

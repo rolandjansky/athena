@@ -171,6 +171,9 @@ private:
   float m_timeJitterElectronicsPad;
   float m_hitTimeMergeThreshold;
 
+  // Minimum energy deposit for hit to be digitized
+  double m_energyDepositThreshold;
+
   std::map< Identifier, int > m_hitSourceVec;
 
   void readDeadtimeConfig();
