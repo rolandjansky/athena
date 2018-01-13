@@ -8,7 +8,7 @@ from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 class TriggerAPI:
-    centralPickleFile = "/afs/cern.ch/user/t/trigmenu/public/TriggerAPI/TriggerInfo.pickle"
+    centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo.pickle"
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
     privatedbQueries = {}
