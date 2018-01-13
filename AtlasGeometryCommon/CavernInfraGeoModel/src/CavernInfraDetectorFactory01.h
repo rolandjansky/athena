@@ -40,10 +40,10 @@ class CavernInfraDetectorFactory01 : public GeoVDetectorFactory
   CavernInfraDetectorFactory01(const CavernInfraDetectorFactory01 &right);
   
   // The manager:
-  CavernInfraDetectorManager       *detectorManager;
+  CavernInfraDetectorManager       *m_detectorManager;
   
-  StoreGateSvc             *detectorStore;
-  IRDBAccessSvc            *access;
+  StoreGateSvc             *m_detectorStore;
+  IRDBAccessSvc            *m_access;
   std::string              m_versionTag;
   std::string              m_versionNode;
 };
