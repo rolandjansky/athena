@@ -17,13 +17,13 @@ class AlgB  :  public AthAlgorithm {
 public:
     
   AlgB (const std::string& name, ISvcLocator* pSvcLocator);
-  ~AlgB();
+  virtual ~AlgB();
   
-  bool isClonable() const override { return true; }
+  virtual bool isClonable() const override { return true; }
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
 private:
   

@@ -19,13 +19,13 @@ class AlgA  :  public AthAlgorithm {
 public:
   
   AlgA (const std::string& name, ISvcLocator* pSvcLocator);
-  ~AlgA ();
+  virtual ~AlgA ();
 
-  bool isClonable() const override { return true; }
+  virtual bool isClonable() const override { return true; }
   
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
 private:
 
