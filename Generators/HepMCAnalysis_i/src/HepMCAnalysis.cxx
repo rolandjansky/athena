@@ -256,7 +256,15 @@ StatusCode HepMCAnalysis::execute()
 
     // loop over all events in McEventCollection
     for ( McEventCollection::const_iterator itr = mcCollptr->begin(); itr != mcCollptr->end(); ++itr ) {
-      HepMC::GenEvent *evt = (*itr);
+      // FIXME: This gets an object from SG, which we are not allowed to modify.
+      //        But we do modify it in MeVToGeV.
+      //        This needs to change.
+      //        Further, we need a non-const pointer to call the Process() and
+      //        ClearEvent() methods of baseAnalysis, although from a spot check,
+      //        it appears that these do not actually change the object.
+      //        If that is the case, then these interfaces should really be changed
+      //        to take a const pointer.
+      HepMC::GenEvent *evt = const_cast<HepMC::GenEvent*>(*itr);
 
       // convert units 
       MeVToGeV( evt );
