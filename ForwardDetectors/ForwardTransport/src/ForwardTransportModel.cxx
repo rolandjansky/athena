@@ -54,7 +54,11 @@ void ForwardTransportModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
     {
       G4cout <<"ForwardTransportModel::DoIt" << G4endl;
     }
-  HepMC::GenEvent* gEvent = m_fwdSvc->getEvent(); if (!gEvent) { G4cout << "ForwardTransportModel::DoIt WARNING Cannot get HepMC::GenEvent pointer" << G4endl; return; };
+  // FIXME: This algorithm is explicitly modifying an object
+  //        resident in the event store.  This will not work
+  //        with AthenaMT!
+  HepMC::GenEvent* gEvent = const_cast<HepMC::GenEvent*>(m_fwdSvc->getEvent());
+  if (!gEvent) { G4cout << "ForwardTransportModel::DoIt WARNING Cannot get HepMC::GenEvent pointer" << G4endl; return; };
 
   int           pdgcode  = fastTrack.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding();
   double        charge   = fastTrack.GetPrimaryTrack()->GetDefinition()->GetPDGCharge();
