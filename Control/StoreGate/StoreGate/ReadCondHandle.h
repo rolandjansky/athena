@@ -13,6 +13,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "GaudiKernel/DataHandle.h"
 #include "GaudiKernel/DataObjID.h"
@@ -96,7 +97,7 @@ namespace SG {
     // Event number not used in IOV comparisons, only run+lbn.
     m_eid.set_event_number (EventIDBase::UNDEFEVT);
 
-    if (! m_hkey.isInit()) {
+    if (ATH_UNLIKELY(!key.isInit())) {
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
       msg << MSG::ERROR 
           << "ReadCondHandleKey " << key.objKey() << " was not initialized"
@@ -104,7 +105,7 @@ namespace SG {
       throw std::runtime_error("ReadCondHandle: ReadCondHandleKey was not initialized");
     }
 
-    if (m_cc == 0) {
+    if (ATH_UNLIKELY(m_cc == 0)) {
       // try to retrieve it
       StoreGateSvc* cs = m_hkey.getCS();
       CondContBase *cb(nullptr);
@@ -150,7 +151,7 @@ namespace SG {
 
     if (m_obj != 0) return true;
 
-    if ( ! m_cc->find(m_eid, m_obj, &m_range) ) {
+    if ( ATH_UNLIKELY(!m_cc->find(m_eid, m_obj, &m_range)) ) {
       std::ostringstream ost;
       m_cc->list(ost);
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
