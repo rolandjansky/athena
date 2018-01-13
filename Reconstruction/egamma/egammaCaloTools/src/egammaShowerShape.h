@@ -46,22 +46,16 @@ public:
     ~egammaShowerShape();  
 
     /** @brief AlgTool initialize method.*/
-    StatusCode initialize() final;
+    StatusCode initialize() override;
     /** @brief AlgTool finalize method */
-    StatusCode finalize() final;
+    StatusCode finalize() override;
 
     /** @brief AlgTool main method */
     virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer& cell_container, Info& info) const final;
+            const CaloCellContainer& cell_container, Info& info) const override final;
 
 private:
-    /** @brief Calculate shower shapes combining samplings*/
-    void CombinedShape(Info& info);
-
-    /** @brief method to fill shower object with other tool variables */
-    void FillShower(Info& info);
-
-    /** @brief Tool to estimate shower shapes in presampler */
+      /** @brief Tool to estimate shower shapes in presampler */
     ToolHandle<IegammaPreSamplerShape> m_egammaPreSamplerShape {this,
         "egammaPreSamplerShapeTool", "egammaPreSamplerShape/egammapresamplershape"};
 

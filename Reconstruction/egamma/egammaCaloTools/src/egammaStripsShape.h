@@ -43,13 +43,13 @@ public:
     ~egammaStripsShape();  
 
     /** @brief AlgTool initialize method.*/
-    StatusCode initialize();
+    StatusCode initialize() override;
     /** @brief AlgTool finalize method */
-    StatusCode finalize();
+    StatusCode finalize() override;
 
     /** @brief AlgTool main method */
     virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer &cell_container, Info& info) const final;
+            const CaloCellContainer &cell_container, Info& info) const override final;
 
 private:
 
@@ -82,7 +82,7 @@ private:
     /** @brief set energy of the second local maximum*/
     int setEmax2(Info& info, double* enecell, double* gracell, int* ncell) const;
     /** @brief set energy of strip with minimum energy*/
-    void setEmin(int ncsec1,Info& info, double* enecell, double* gracell, int* ncell ) const;
+    void setEmin(int ncsec1,Info& info, double* enecell, double* gracell, i§§§gT§§§§ ) const;
     /** @brief set M.S's valley*/
     void setValley(Info& info, double* enecell) const; 
     /** @brief set fraction of energy outside shower core 

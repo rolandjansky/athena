@@ -34,21 +34,20 @@ class IegammaPreSamplerShape : virtual public IAlgTool {
   
   /// @brief AlgTool interface methods 
   static const InterfaceID& interfaceID();
-    
+
+  class Info{
+    public :
+     e011=0;
+     e033=0;
+  };
+
   /// @name IegammaPreSamplerShape virtual functions
   /// @{
 
   /// @brief AlgTool method.
-  virtual StatusCode execute(const xAOD::CaloCluster *cluster, const CaloCellContainer *cell_container) = 0;
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster, const CaloCellContainer& cell_container, Info& info) const = 0;
   
-
-  /// @brief energy in a 1x1 window in cells in eta X phi
-  virtual double e011() const = 0;
-
-  /// @brief  energy in a 3x3 window in cells in eta X phi
-  virtual double e033() const = 0;
-
-  /// @}
+ /// @}
 
 };
 

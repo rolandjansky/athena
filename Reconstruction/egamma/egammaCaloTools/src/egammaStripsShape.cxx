@@ -20,6 +20,7 @@ using CLHEP::GeV;
 
 namespace {
     const int STRIP_ARRAY_SIZE =40;
+    const int BIG_STRIP_ARRAY_SIZE= 3*STRIP_ARRAY_SIZE;
 }
 
 double proxim(const double b, const double a){ return b+2.*M_PI*round((a-b)/(2.*M_PI)) ;}
@@ -92,25 +93,23 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
     ATH_MSG_DEBUG(" egammaStripsShape: execute");
 
     // check if cluster is in barrel or in the end-cap
-    if(!cluster->inBarrel() && !cluster->inEndcap() ) { 
+    if(!cluster.inBarrel() && !cluster.inEndcap() ) { 
         ATH_MSG_WARNING(" egammaStripsShape: Cluster is neither in Barrel nor in Endcap, cannot calculate ShowerShape ");
         return StatusCode::SUCCESS;
     }
 
     // retrieve energy in all samplings
-    StatusCode sc = m_egammaEnergyPositionAllSamples->execute(cluster);
-    sc.ignore(); // should we check for errors?
 
-    double eallsamples = m_egammaEnergyPositionAllSamples->e();
+    double eallsamples = m_egammaEnergyPositionAllSamples->e(cluster);
     // retrieve energy in 1st sampling
-    double e1 = m_egammaEnergyPositionAllSamples->e1();
+    double e1 = m_egammaEnergyPositionAllSamples->e1(cluster);
 
     //check if cluster is in barrel or end-cap
     // sam is used in SetArray to check that cells belong to strips
     // samgran is used to estimate the window to use cells in eta
     // it is based on the granularity of the middle layer
     // For phi we use the strip layer granularity  
-    bool in_barrel =  m_egammaEnergyPositionAllSamples->inBarrel();
+    bool in_barrel =  m_egammaEnergyPositionAllSamples->inBarrel(cluster);
     CaloSampling::CaloSample sam=CaloSampling::EMB1;
     CaloSampling::CaloSample samgran=CaloSampling::EMB2;
     CaloSampling::CaloSample offset=CaloSampling::PreSamplerB;
@@ -167,15 +166,11 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
     dphi = dde->dphi()*m_nphi/2.0;
 
     /* initialize the arrays*/ 
-    double enecell[STRIP_ARRAY_SIZE];       
-    double etacell[STRIP_ARRAY_SIZE]; 
-    double gracell[STRIP_ARRAY_SIZE]; 
-    int ncell[STRIP_ARRAY_SIZE]; 
-    std::fill (enecell,     enecell+STRIP_ARRAY_SIZE,     0);
-    std::fill (etacell,     etacell+STRIP_ARRAY_SIZE,     0);
-    std::fill (gracell,     gracell+STRIP_ARRAY_SIZE,     0);
-    std::fill (ncell,       ncell+STRIP_ARRAY_SIZE,       0);
-    // Fill the array in energy and eta from which all relevant
+    double enecell[STRIP_ARRAY_SIZE]={0};       
+    double etacell[STRIP_ARRAY_SIZE]={0}; 
+    double gracell[STRIP_ARRAY_SIZE]={0}; 
+    int ncell[STRIP_ARRAY_SIZE]={0}; 
+   // Fill the array in energy and eta from which all relevant
     // quantities are estimated
     setArray(cluster,sam,info.etamax,info.phimax,deta,dphi,
             enecell,etacell,gracell,ncell);
@@ -228,7 +223,7 @@ void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
     // Put in an array the energies,eta,phi values contained in 
     // a window (deta,dphi) 
 
-    StripArrayHelper stripArray[STRIP_ARRAY_SIZE*3];
+    StripArrayHelper stripArray[BIG_STRIP_ARRAY_SIZE]={0};
     //Raw --> Calo Frame 
     //Difference  is important in end-cap which is shifted by about 4 cm
     //
@@ -259,8 +254,8 @@ void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
     double phi_cell  = 0.;
 
     // Now loop over all cells in the cluster  
-    xAOD::CaloCluster::const_cell_iterator first = cluster->cell_begin();
-    xAOD::CaloCluster::const_cell_iterator last  = cluster->cell_end();
+    xAOD::CaloCluster::const_cell_iterator first = cluster.cell_begin();
+    xAOD::CaloCluster::const_cell_iterator last  = cluster.cell_end();
     for (; first != last; ++first) {        
         // ensure we are in 1st sampling
         const CaloCell* theCell = *first;
@@ -496,8 +491,8 @@ void egammaStripsShape::setWs3(Info& info,
         info.etas3   = eta1 / energy;
         // corrected width for position inside the cell
         // estimated from the first sampling
-        info.ws3c = m_egammaqweta1c->Correct(cluster->etaSample(sam),cluster->etamax(sam),info.ws3); 
-        info.poscs1 =  m_egammaqweta1c->RelPosition(cluster->etaSample(sam),cluster->etamax(sam));    
+        info.ws3c = m_egammaqweta1c->Correct(cluster.etaSample(sam),cluster.etamax(sam),info.ws3); 
+        info.poscs1 =  m_egammaqweta1c->RelPosition(cluster.etaSample(sam),cluster.etamax(sam));    
     }
     return;
 }
@@ -785,7 +780,7 @@ void egammaStripsShape::setF1core(Info& info, const xAOD::CaloCluster& cluster) 
     // energy in 3 strips in the 1st sampling
     double e132  = (info.e132>x) ? info.e132 : 0.;
     // total ennergy
-    double energy = cluster->e();
+    double energy = cluster.e();
     // build fraction only if both quantities are well defined
     if ( fabs(energy) > 0. && e132 > x ){
         info.f1core = e132/energy;

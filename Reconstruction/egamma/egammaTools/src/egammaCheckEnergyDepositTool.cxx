@@ -53,7 +53,7 @@ StatusCode egammaCheckEnergyDepositTool::finalize()
 }
 
 // =========================================================================
-bool egammaCheckEnergyDepositTool::checkFractioninSampling(const xAOD::Egamma* eg) 
+bool egammaCheckEnergyDepositTool::checkFractioninSampling(const xAOD::Egamma* eg) const 
 {
 
   // protection against bad pointers
@@ -65,7 +65,7 @@ bool egammaCheckEnergyDepositTool::checkFractioninSampling(const xAOD::Egamma* e
   return checkFractioninSamplingCluster(cluster);
 }
 
-bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::CaloCluster*   cluster) 
+bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::CaloCluster*   cluster) const  
 {
 
   // return true if no check to be done
