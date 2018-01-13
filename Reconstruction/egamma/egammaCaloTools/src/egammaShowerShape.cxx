@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-   */
+ */
 
 #include "egammaShowerShape.h"
 #include "egammaInterfaces/IegammaPreSamplerShape.h"
@@ -13,10 +13,10 @@
 egammaShowerShape::egammaShowerShape(const std::string& type,
         const std::string& name,
         const IInterface* parent)
-: AthAlgTool(type, name, parent){ 
-    // declare Interface
-    declareInterface<IegammaShowerShape>(this);
-}
+    : AthAlgTool(type, name, parent){ 
+        // declare Interface
+        declareInterface<IegammaShowerShape>(this);
+    }
 
 egammaShowerShape::~egammaShowerShape(){ 
 }
@@ -63,16 +63,20 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
         ATH_MSG_WARNING(" egammaShowerShape: Cluster is neither in Barrel nor in Endcap, cannot calculate ShowerShape ");
     }
 
+
+    IegammaPreSamplerShape::Info egammaPreSamplerShapeInfo;
+    IegammaStripsShape::Info egammaStripsShapeInfo;
+    IegammaMiddleShape::Info egammMiddleShapeInfo;
+    IegammaBackShape::Info egammaBackShapeInfo;
     // shower shapes in presampler
     if ( m_ExecAllVariables && m_ExecOtherVariables && m_ExecPreSampler ) {
         // call execute method
-        StatusCode sc = m_egammaPreSamplerShape->execute(cluster,cell_container);
+        StatusCode sc = egammaPreSamplerShapeInfo.execute(cluster,cell_container,egammaPreSamplerShapeInfo);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("Presampler shape returned failure ");
         }
     }
 
-    IegammaStripsShape::Info egammaStripsShapeInfo;
     // shower shapes in 1st compartment
     if ( m_ExecEMFirst ) {
         // call the execute method
@@ -85,7 +89,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     // shower shapes in 2nd compartment
     if ( m_ExecEMSecond ) {
         // call the execute method
-        StatusCode sc = m_egammaMiddleShape->execute(cluster,cell_container);
+        StatusCode sc = egammaMiddleShapeInfo.execute(cluster,cell_container,egammaMiddleShapeInfo);
         if ( sc.isFailure() ) {
             ATH_MSG_WARNING("Middle shape returned failure ");
         }
@@ -94,7 +98,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     // shower shapes in 3rd compartment
     if ( m_ExecAllVariables && m_ExecEMThird ) {
         // call execute method
-        StatusCode sc = m_egammaBackShape->execute(cluster,cell_container);
+        StatusCode sc = egammaBackShapeInfo.execute(cluster,cell_container,egammaBackShapeInfo);
         if ( sc.isFailure() ) {
             ATH_MSG_DEBUG("Back shape returned failure ");
         }
@@ -105,8 +109,8 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
      */
 
     // presampler
-    info.e011 = m_egammaPreSamplerShape->e011();
-    info.e033 = m_egammaPreSamplerShape->e033();
+    info.e011 = egammaPreSamplerShapeInfo.e011;
+    info.e033 = egammaPreSamplerShapeInfo.e033;
 
     // strips
     info.etot                 = egammaStripsShapeInfo.etot;
@@ -135,23 +139,23 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     info.success              = egammaStripsShapeInfo.success;
 
     // middle
-    info.e233   = m_egammaMiddleShape->e233();
-    info.e235   = m_egammaMiddleShape->e235();
-    info.e255   = m_egammaMiddleShape->e255();
-    info.e237   = m_egammaMiddleShape->e237();
-    info.e277   = m_egammaMiddleShape->e277();
-    info.etaw   = m_egammaMiddleShape->etaw();
-    info.phiw   = m_egammaMiddleShape->phiw();
-    info.poscs2 = m_egammaMiddleShape->poscs2();
+    info.e233   = egammaMiddleShapeInfo.e233;
+    info.e235   = egammaMiddleShapeInfo.e235;
+    info.e255   = egammaMiddleShapeInfo.e255;
+    info.e237   = egammaMiddleShapeInfo.e237;
+    info.e277   = egammaMiddleShapeInfo.e277;
+    info.etaw   = egammaMiddleShapeInfo.etaw;
+    info.phiw   = egammaMiddleShapeInfo.phiw;
+    info.poscs2 = egammaMiddleShapeInfo.poscs2;
 
     // back
-    info.e333   = m_egammaBackShape->e333();
-    info.e335   = m_egammaBackShape->e335();
-    info.e355   = m_egammaBackShape->e355();
-    info.e337   = m_egammaBackShape->e337();
-    info.e377   = m_egammaBackShape->e377();
-    info.f3     = m_egammaBackShape->f3();
-    info.f3core = m_egammaBackShape->f3core();
+    info.e333   = egammaBackShapeInfo.e333;
+    info.e335   = egammaBackShapeInfo.e335;
+    info.e355   = egammaBackShapeInfo.e355;
+    info.e337   = egammaBackShapeInfo.e337;
+    info.e377   = egammaBackShapeInfo.e377;
+    info.f3     = egammaBackShapeInfo.f3;
+    info.f3core = egammaBackShapeInfo.f3core;
 
     // shower shapes combined in different samplings
     if ( m_ExecAllVariables && m_ExecEMCombined ) {

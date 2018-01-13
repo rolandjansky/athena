@@ -39,28 +39,14 @@ class IegammaIso : virtual public IAlgTool {
   /** @brief AlgTool interface methods */
   static const InterfaceID& interfaceID();
 
-  /// IsoSpecifier specifie the type of isolation to do. It uses
-  /// the standard introduced in the functions below.
-  
-  /// R1 is the inner ring; R1 == 0 means do cone
-  /// R2 is the outer ring size
-  /// NsigNoise = Number of sigma above noise, if -1 no cut on noise
-  /// flagCell  = 1 EM, 2 EM+HAD
-  /// flagNoise = 1 elec, 2 total
-  /// symmetric : symmetric cut is a cut on abs(e)>meannoise instead of e>meannoise
-
-
+  class Info{
+  double ethad=0;
+  double ethad1=0;
+  double ehad1=0;
+  }
   /** @brief  method: Method to just calculate hadronic leakage*/
-  virtual StatusCode execute(const xAOD::CaloCluster *cluster, CaloCellList* had) =0;
-  
-  /** @brief total hadronic calorimeter et in cone*/
-  virtual double ethad()  const = 0; 
-  /** @brief energy in first hardon layer in cone*/
-  virtual double ehad1()  const = 0; 
-  /** @brief et in first hadron cal layer in cone*/
-  virtual double ethad1() const = 0; 
-
-};
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster, CaloCellList& had, Info& info) const =0;
+ };
 
 inline const InterfaceID& IegammaIso::interfaceID()
 {

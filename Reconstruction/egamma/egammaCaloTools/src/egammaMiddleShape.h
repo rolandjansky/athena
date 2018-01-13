@@ -51,10 +51,7 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
 			     const CaloCellContainer& cell_container, Info& info) const override final;
  private:
 
-  /** @brief (eta,phi) around which estimate the shower shapes */
-  double m_eta;
-  double m_phi;
- 
+
  /** @brief tool to calculate sum of energy in all samples */
   ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
       "egammaEnergyPositionAllSamplesTool", 

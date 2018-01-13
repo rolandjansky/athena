@@ -41,13 +41,13 @@ public:
 
     class Info {
     public:
-        e233=0;
-        e235=0; 
-        e237=0; 
-        e255=0;
-        e277=0; 
-        etaw=0;
-        phiw=0;  
+        double e233=0;
+        double e235=0; 
+        double e237=0; 
+        double e255=0;
+        double e277=0; 
+        double etaw=0;
+        double phiw=0;  
     };
     /** @brief AlgTool method.*/
     virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
