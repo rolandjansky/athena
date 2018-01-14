@@ -1171,8 +1171,10 @@ class ItemDef:
             AFP_A_AND_C_SPECTOF = (AFP_FSA_TOF & AFP_FSC_TOF)     # noqa: F821
 
             LVL1MenuItem('L1_AFP_A_BGRP0').setLogic( AFP_A & BGRP0)                 # noqa: F821
+            LVL1MenuItem('L1_AFP_A_SPECTOF').setLogic( AFP_FSA_TOF & physcond)      # noqa: F821
             LVL1MenuItem('L1_AFP_A_SPECTOF_BGRP0').setLogic( AFP_FSA_TOF & BGRP0)   # noqa: F821
             LVL1MenuItem('L1_AFP_C_BGRP0').setLogic( AFP_C & BGRP0)                 # noqa: F821
+            LVL1MenuItem('L1_AFP_C_SPECTOF').setLogic( AFP_FSC_TOF & physcond)      # noqa: F821
             LVL1MenuItem('L1_AFP_C_SPECTOF_BGRP0').setLogic( AFP_FSC_TOF & BGRP0)   # noqa: F821
             LVL1MenuItem('L1_AFP_NSA_BGRP0').setLogic( AFP_NSA & BGRP0)             # noqa: F821
             LVL1MenuItem('L1_AFP_NSC_BGRP0').setLogic( AFP_NSC & BGRP0)             # noqa: F821
