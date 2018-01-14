@@ -134,7 +134,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
 
   // define the different classes of plots;
   enum SOURCE {Z = 0, JPSI, CBMUONS, NONCBMUONS, CONTAINER, N_SOURCE};
-  std::string sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "CBMuons", "NonCBMuons", "Container", "N_SOURCE"};
+  std::string m_sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "CBMuons", "NonCBMuons", "Container", "N_SOURCE"};
   enum MUON_COMPONENT {TRACK_MS=0, TRACK_ME, TRACK_ID, N_COMPONENTS};
   // Trigger items
   bool m_useTrigger; 
