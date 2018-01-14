@@ -18,7 +18,7 @@
 namespace xAODMaker {
 
    /// Name of the incident sent around for metadata writing
-   static const char* METADATASTOP = "MetaDataStop";
+   //static const char* METADATASTOP = "MetaDataStop";
 
    EventFormatMetaDataTool::EventFormatMetaDataTool( const std::string& type,
                                                      const std::string& name,

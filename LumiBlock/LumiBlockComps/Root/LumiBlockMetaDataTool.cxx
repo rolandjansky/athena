@@ -201,42 +201,38 @@ StatusCode LumiBlockMetaDataTool::beginInputFile()
 }
 StatusCode LumiBlockMetaDataTool::endInputFile()
 {
-   std::string fileName = "Undefined ";
-   bool alreadyRecorded=false;
-      m_fileCurrentlyOpened=false;
-      xAOD::LumiBlockRangeContainer::const_iterator it;
-      for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
-	xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-        m_cacheOutputRangeContainer->push_back(iovr);
-      }
-      m_cacheInputRangeContainer->clear();
+   m_fileCurrentlyOpened=false;
+   xAOD::LumiBlockRangeContainer::const_iterator it;
+   for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
+     xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
+     m_cacheOutputRangeContainer->push_back(iovr);
+   }
+   m_cacheInputRangeContainer->clear();
 
-      for(it=m_cacheSuspectInputRangeContainer->begin(); it!=m_cacheSuspectInputRangeContainer->end(); it++) {
-	xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-        m_cacheSuspectOutputRangeContainer->push_back(iovr);
-      }
-      m_cacheSuspectInputRangeContainer->clear();
+   for(it=m_cacheSuspectInputRangeContainer->begin(); it!=m_cacheSuspectInputRangeContainer->end(); it++) {
+     xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
+     m_cacheSuspectOutputRangeContainer->push_back(iovr);
+   }
+   m_cacheSuspectInputRangeContainer->clear();
    return(StatusCode::SUCCESS);
 }
 StatusCode LumiBlockMetaDataTool::metaDataStop()
 {
-   std::string fileName = "Undefined ";
-   bool alreadyRecorded=false;
-     if(m_fileCurrentlyOpened) {
-         ATH_MSG_INFO( "MetaDataStop called when input file open: LumiBlock is suspect" );
-         xAOD::LumiBlockRangeContainer::const_iterator it;
-         for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
+   if(m_fileCurrentlyOpened) {
+      ATH_MSG_INFO( "MetaDataStop called when input file open: LumiBlock is suspect" );
+      xAOD::LumiBlockRangeContainer::const_iterator it;
+      for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
 	   xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
           m_cacheSuspectOutputRangeContainer->push_back(iovr);
-	 }
+      }
       m_cacheInputRangeContainer->clear();
-     }
+   }
 
-      StatusCode sc = finishUp();
-      if (!sc.isSuccess()) {
-         ATH_MSG_INFO( "finishup failed" );
-         return StatusCode::FAILURE;
-    } 
+   StatusCode sc = finishUp();
+   if (!sc.isSuccess()) {
+      ATH_MSG_INFO( "finishup failed" );
+      return StatusCode::FAILURE;
+   } 
    return(StatusCode::SUCCESS);
 }
 

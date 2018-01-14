@@ -51,6 +51,8 @@ namespace xAODMaker {
       /// file
       virtual StatusCode beginInputFile();
 
+      virtual StatusCode endInputFile();
+
       /// Function writing out the collected metadata
       virtual StatusCode metaDataStop();
 
