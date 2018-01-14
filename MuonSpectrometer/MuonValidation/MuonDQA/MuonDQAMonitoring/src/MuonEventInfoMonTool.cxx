@@ -202,7 +202,7 @@ namespace MuonDQA {
     ATH_MSG_DEBUG( "MuonDQAeventInfo" << MuonDQAeventInfo );
  
     // Retrieve trigger Info
-    TriggerInfo* trig = eventInfo->trigger_info(); 
+    const TriggerInfo* trig = eventInfo->trigger_info(); 
     //bitset<8> m_l1Trig = 0; 
     //uint m_l1Trig = 0;
    
