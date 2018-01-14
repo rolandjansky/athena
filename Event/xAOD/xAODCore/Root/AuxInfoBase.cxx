@@ -293,15 +293,16 @@ namespace xAOD {
       if (!anycleared) return false;
 
       // Reconstruct the list of managed auxiliary IDs from scratch:
-      m_auxids.clear();
+      auxid_set_t ids;
       for( auxid_t auxid = 0; auxid < m_vecs.size(); ++auxid ) {
          if( m_vecs[ auxid ] ) {
-            m_auxids.insert( auxid );
+            ids.insert( auxid );
          }
       }
       if( m_store ) {
-         m_auxids.insert (m_store->getAuxIDs());
+        ids.insert (m_store->getAuxIDs());
       }
+      m_auxids = ids;
       
       return true;
    }

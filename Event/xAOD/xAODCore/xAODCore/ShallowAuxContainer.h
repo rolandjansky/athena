@@ -196,6 +196,7 @@ namespace xAOD {
       mutable mutex_t m_mutex;
 
       mutable auxid_set_t m_auxids;
+      mutable bool m_auxidsValid;
 
       /// Name of the container in memory. Set externally.
       std::string m_name;

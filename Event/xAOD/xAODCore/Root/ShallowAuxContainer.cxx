@@ -26,7 +26,8 @@ namespace xAOD {
         m_store( new SG::AuxStoreInternal( standalone ) ),
         m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
         m_parentLink(), m_parentIO( 0 ), m_shallowIO( true ), 
-        m_auxids (), 
+        m_auxids (),
+        m_auxidsValid (false),
         m_name( "UNKNOWN" ) {
 
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
@@ -39,7 +40,8 @@ namespace xAOD {
         m_ownsStore( false ), m_locked( parent.m_locked ),
         m_parentLink( parent.m_parentLink ),
         m_parentIO( parent.m_parentIO ), m_shallowIO( parent.m_shallowIO ),
-        m_auxids (), 
+        m_auxids (),
+        m_auxidsValid (false),
         m_name( parent.m_name ) {
 
    }
@@ -55,7 +57,9 @@ namespace xAOD {
         m_store( new SG::AuxStoreInternal( standalone ) ),
         m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
         m_parentLink( parent ), m_parentIO( 0 ), m_shallowIO( true ),
-        m_auxids (), m_name( "UNKNOWN" ) {
+        m_auxids (),
+        m_auxidsValid (false),
+        m_name( "UNKNOWN" ) {
 
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
       const SG::IAuxStoreIO* temp =
@@ -95,6 +99,7 @@ namespace xAOD {
       m_shallowIO  = rhs.m_shallowIO;
       m_name       = rhs.m_name;
       m_auxids     = rhs.m_auxids;
+      m_auxidsValid= rhs.m_auxidsValid;
 
       // Return this object:
       return *this;
@@ -113,7 +118,7 @@ namespace xAOD {
       const SG::IAuxStoreIO* temp =
          dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
       m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-      remakeAuxIDs();
+      m_auxidsValid = false;
       return;
    }
 
@@ -159,7 +164,7 @@ namespace xAOD {
       m_store = store;
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
       m_ownsStore = true;
-      remakeAuxIDs();
+      m_auxidsValid = false;
 
       return;
    }
@@ -205,6 +210,10 @@ namespace xAOD {
    const ShallowAuxContainer::auxid_set_t&
    ShallowAuxContainer::getAuxIDs() const {
 
+      guard_t guard( m_mutex );
+      if (!m_auxidsValid) {
+        remakeAuxIDs();
+      }
       return m_auxids;
    }
 
@@ -506,12 +515,12 @@ namespace xAOD {
    }
 
    void ShallowAuxContainer::remakeAuxIDs() const {
+     auxid_set_t ids = m_store->getAuxIDs();
      if( m_parentLink.isValid() ) {
-       m_auxids = m_parentLink->getAuxIDs();
-     } else {
-       m_auxids.clear();
+       ids.insert (m_parentLink->getAuxIDs());
      }
-     m_auxids.insert( m_store->getAuxIDs());
+     m_auxids = ids;
+     m_auxidsValid = true;
    }
 
 } // namespace xAOD
