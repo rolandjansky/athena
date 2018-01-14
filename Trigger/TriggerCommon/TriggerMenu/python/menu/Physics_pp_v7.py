@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#----------phy--------------------------------------------------------------#
+#------------------------------------------------------------------------#
 #------------------------------------------------------------------------#
 def setupMenu():
 
@@ -3105,48 +3105,9 @@ def setupMenu():
         ['mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_pusup550_trk90_hmt'],False]],
         ['mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup600_trk100_hmt'],False]],
         
-        ['mu4_mb_sp1100_trk70_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1100_trk70_hmt'],False]],
-        ['mu4_mb_sp1200_trk80_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias','express'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1200_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_trk90_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_trk100_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk100_hmt'],False]],
-        ['mu4_mb_sp1700_trk110_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_trk110_hmt'],False]],
-        
-        ['mu4_mb_sp1100_trk70_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1100_trk70_hmt'],False]],
-        ['mu4_mb_sp1200_trk80_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1200_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_trk90_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_trk100_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk100_hmt'],False]],
-        ['mu4_mb_sp1700_trk110_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_trk110_hmt'],False]],
-        
-        ['mu4_mb_sp1200_trk80_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1200_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_trk90_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_trk100_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk100_hmt'],False]],
-        ['mu4_mb_sp1700_trk110_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_trk110_hmt'],False]],
-        #['mu4_mb_sp1400_trk90_hmt_L1MU4_TE50', 'L1_MU4_TE50', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_trk90_hmt'],False]],
-        #['mu4_mb_sp1600_trk100_hmt_L1MU4_TE50', 'L1_MU4_TE50', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk100_hmt'],False]],
-        #['mu4_mb_sp1700_trk110_hmt_L1MU4_TE50', 'L1_MU4_TE50', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_trk110_hmt'],False]],
-
-        #['mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE50', 'L1_MU4_TE50', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_pusup550_trk90_hmt'],False]],
-        #['mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE50', 'L1_MU4_TE50', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup600_trk100_hmt'],False]],
-        #['mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE50', 'L1_MU4_TE50', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_pusup650_trk110_hmt'],False]],
-        ['mu4_mb_sp1100_pusup450_trk70_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1100_pusup450_trk70_hmt'],False]],
-        ['mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias','express'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1200_pusup500_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_pusup550_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup600_trk100_hmt'],False]],
-        ['mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE20', 'L1_MU4_TE20', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_pusup650_trk110_hmt'],False]],
-		
-        ['mu4_mb_sp1100_pusup450_trk70_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1100_pusup450_trk70_hmt'],False]],
-        ['mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1200_pusup500_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_pusup550_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup600_trk100_hmt'],False]],
-        ['mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE30', 'L1_MU4_TE30', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_pusup650_trk110_hmt'],False]],
-		
-        ['mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1200_pusup500_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_pusup550_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup600_trk100_hmt'],False]],
-        ['mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE40', 'L1_MU4_TE40', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1700_pusup650_trk110_hmt'],False]],
 		
 		#HMT + jets
-		['j40_mb_sp600_pusup300_trk40_hmt', 'L1_J12',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j40', 'mb_sp600_pusup300_trk40_hmt'],False]],
+        ['j40_mb_sp600_pusup300_trk40_hmt', 'L1_J12',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j40', 'mb_sp600_pusup300_trk40_hmt'],False]],
         ['j40_mb_sp700_pusup350_trk50_hmt', 'L1_J12',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j40', 'mb_sp700_pusup350_trk50_hmt'],False]],
         ['j40_mb_sp900_pusup400_trk60_hmt', 'L1_J12',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j40', 'mb_sp900_pusup400_trk60_hmt'],False]],
         ['j40_mb_sp1100_pusup450_trk70_hmt', 'L1_J12',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j40', 'mb_sp1100_pusup450_trk70_hmt'],False]],
@@ -3815,8 +3776,6 @@ def setupMenu():
 
         ['mb_sp_vetospmbts2in_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sp_vetospmbts2in_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['mb_sp_vetospmbts2in_L1AFP_A',                     'L1_AFP_A',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['mb_sp_vetospmbts2in_L1AFP_C',                     'L1_AFP_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sp_vetosp_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ['mb_sp_L1RD0_FILLED',                     'L1_RD0_FILLED',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -3933,10 +3892,11 @@ def setupMenu():
         ['satu20em_l1satmon_L1J100.31ETA49',  'L1_J100.31ETA49',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
 
         #AFP calib ATR-16124
-        ['calibAFP_L1AFP_A_BGRP0',                   'L1_AFP_A_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_A_SPECTOF',                   'L1_AFP_A_SPECTOF'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_A_SPECTOF_BGRP0',                   'L1_AFP_A_SPECTOF_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
-        ['calibAFP_L1AFP_C_BGRP0',                   'L1_AFP_C_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_C_SPECTOF',                   'L1_AFP_C_SPECTOF'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_C_SPECTOF_BGRP0',                   'L1_AFP_C_SPECTOF_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+ 
         ['calibAFP_L1AFP_NSA_BGRP0',                   'L1_AFP_NSA_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_NSC_BGRP0',                   'L1_AFP_NSC_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_FSA_SIT_BGRP0',                   'L1_AFP_FSA_SIT_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
@@ -3951,9 +3911,6 @@ def setupMenu():
         ['calibAFP_L1AFP_A_AND_C',                   'L1_AFP_A_AND_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_A_OR_C',                   'L1_AFP_A_OR_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_A_AND_C_SPECTOF',                   'L1_AFP_A_AND_C_SPECTOF'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
-
-        ['calibAFP_L1AFP_A',                   'L1_AFP_A'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
-        ['calibAFP_L1AFP_C',                   'L1_AFP_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
 
         ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
@@ -4319,8 +4276,6 @@ def setupMenu():
         ['noalg_L1AFP_A_OR_C_J12',                        'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_AND_C_J12',                        'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_OR_C',                      'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_A',                      'L1_AFP_A',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_C',                      'L1_AFP_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_L1AFP_A_OR_C_MBTS_2',                      'L1_AFP_A_OR_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_L1AFP_A_AND_C',                      'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_L1AFP_A_AND_C_MBTS_2',                      'L1_AFP_A_AND_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -4342,6 +4297,9 @@ def setupMenu():
         ['noalg_L1AFP_A_AND_C_SPECTOF_J50',                        'L1_AFP_A_AND_C_SPECTOF_J50',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_AND_C_SPECTOF_J75',                        'L1_AFP_A_AND_C_SPECTOF_J75',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_AND_C_SPECTOF_J100',                        'L1_AFP_A_AND_C_SPECTOF_J100',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_SPECTOF',                      'L1_AFP_A_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_C_SPECTOF',                      'L1_AFP_C_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+
 
         ['noalg_L1MBTS_2',                        'L1_MBTS_2',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
@@ -5367,26 +5325,6 @@ chain_list=[
     'mu4_mb_sp1200_trk80_hmt_L1MU4_TE10',
     'mu4_mb_sp1400_trk90_hmt_L1MU4_TE10',
     'mu4_mb_sp1600_trk100_hmt_L1MU4_TE10',
-    'mu4_mb_sp1100_trk70_hmt_L1MU4_TE20',
-    'mu4_mb_sp1200_trk80_hmt_L1MU4_TE20',
-    'mu4_mb_sp1400_trk90_hmt_L1MU4_TE20',
-    'mu4_mb_sp1600_trk100_hmt_L1MU4_TE20',
-    'mu4_mb_sp1700_trk110_hmt_L1MU4_TE20',
-    'mu4_mb_sp1100_pusup450_trk70_hmt_L1MU4_TE20',
-    'mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE20',
-    'mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE20',
-    'mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE20',
-    'mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE20',
-    'mu4_mb_sp1100_trk70_hmt_L1MU4_TE30',
-    'mu4_mb_sp1200_trk80_hmt_L1MU4_TE30',
-    'mu4_mb_sp1400_trk90_hmt_L1MU4_TE30',
-    'mu4_mb_sp1600_trk100_hmt_L1MU4_TE30',
-    'mu4_mb_sp1700_trk110_hmt_L1MU4_TE30',
-    'mu4_mb_sp1100_pusup450_trk70_hmt_L1MU4_TE30',
-    'mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE30',
-    'mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE30',
-    'mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE30',
-    'mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE30',
     'mu4_mb_sp600_pusup300_trk40_hmt_L1MU4_TE10',
     'mu4_mb_sp700_pusup350_trk50_hmt_L1MU4_TE10',
     'mu4_mb_sp900_pusup400_trk60_hmt_L1MU4_TE10',
@@ -5394,20 +5332,12 @@ chain_list=[
     'mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE10',
     'mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE10',
     'mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE10',
-    'mu4_mb_sp1200_trk80_hmt_L1MU4_TE40',
-    'mu4_mb_sp1400_trk90_hmt_L1MU4_TE40',
-    'mu4_mb_sp1600_trk100_hmt_L1MU4_TE40',
-    'mu4_mb_sp1700_trk110_hmt_L1MU4_TE40',
     #'mu4_mb_sp1400_trk90_hmt_L1MU4_TE50',
     #'mu4_mb_sp1600_trk100_hmt_L1MU4_TE50',
     #'mu4_mb_sp1700_trk110_hmt_L1MU4_TE50',
     #'mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE50',
     #'mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE50',
     #'mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE50',
-    'mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE40',
-    'mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE40',
-    'mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE40',
-    'mu4_mb_sp1700_pusup650_trk110_hmt_L1MU4_TE40',
     'j40_mb_sp600_pusup300_trk40_hmt',
     'j40_mb_sp700_pusup350_trk50_hmt',
     'j40_mb_sp900_pusup400_trk60_hmt',
