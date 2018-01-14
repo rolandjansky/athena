@@ -291,6 +291,11 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
     //
     ATH_MSG_DEBUG("Executing CalcHadronicLeakage");
 
+    if ( m_caloNums.size() <3 ) {
+        ATH_MSG_DEBUG("Less than 3 subCalos, skipping");
+        return StatusCode::SUCCESS;
+    }
+
     // protection in case tool does not exist
     if (m_HadronicLeakageTool.empty()) {
         return StatusCode::SUCCESS;
