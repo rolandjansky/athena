@@ -73,6 +73,34 @@ namespace VKalVrtAthena {
     }
   }
   
+  //____________________________________________________________________________________________________
+  template<>
+  void genSequence( const xAOD::Muon*, std::vector<unsigned>& trackTypes ) {
+    trackTypes = { xAOD::Muon::Primary,
+                   xAOD::Muon::InnerDetectorTrackParticle,
+                   xAOD::Muon::MuonSpectrometerTrackParticle,
+                   xAOD::Muon::CombinedTrackParticle,
+                   xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle
+    };
+  }
+  
+  template<>
+  void genSequence( const xAOD::Electron* electron, std::vector<unsigned>& trackTypes ) {
+    for( size_t i=0; i<electron->nTrackParticles(); i++ ) trackTypes.emplace_back( i );
+  }
+  
+  
+  //____________________________________________________________________________________________________
+  template<>
+  const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Muon* muon, const unsigned& trackType ) {
+    return muon->trackParticle( static_cast<xAOD::Muon::TrackParticleType>( trackType ) );
+  }
+  
+  template<>
+  const xAOD::TrackParticle* getLeptonTrackParticle( const xAOD::Electron* electron, const unsigned& trackType ) {
+    return electron->trackParticle( trackType );
+  }
+  
   
   //____________________________________________________________________________________________________
   double VrtSecInclusive::distanceBetweenVertices( const WrkVrt& v1, const WrkVrt& v2 ) const {
@@ -1556,120 +1584,7 @@ namespace VKalVrtAthena {
   }
   
 
-  //____________________________________________________________________________________________________
-  StatusCode VrtSecInclusive::augmentDVimpactParametersToMuons()
-  {
-    
-    const xAOD::VertexContainer *secondaryVertexContainer( nullptr );
-    ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
-    
-    const xAOD::MuonContainer *muonContainer( nullptr );
-    ATH_CHECK( evtStore()->retrieve( muonContainer, "Muons" ) );
-    
-    static SG::AuxElement::Decorator< std::vector<float> > decor_d0wrtSV( "d0_wrtSVs" );
-    static SG::AuxElement::Decorator< std::vector<float> > decor_z0wrtSV( "z0_wrtSVs" );
-    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
-    
-    for( const auto& muon : *muonContainer ) {
-      // Loop over muons
-      
-      const auto& primaryTrackLink = muon->primaryTrackParticleLink();
-      const auto* trk = *primaryTrackLink;
-      if( trk ) {
-        
-        std::map< const xAOD::Vertex*, std::vector<double> > distanceMap;
-      
-        std::vector<float> d0wrtSV;
-        std::vector<float> z0wrtSV;
-        std::vector<ElementLink< xAOD::VertexContainer > > links;
-      
-        for( const auto& vtx : *secondaryVertexContainer ) {
-      
-          std::vector<double> impactParameters;
-          std::vector<double> impactParErrors;
-          
-          m_fitSvc->VKalGetImpact( trk, vtx->position(), static_cast<int>( muon->charge() ), impactParameters, impactParErrors);
-          
-          enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
-          
-          d0wrtSV.emplace_back( impactParameters.at(k_d0) );
-          z0wrtSV.emplace_back( impactParameters.at(k_z0) );
-          
-          ElementLink<xAOD::VertexContainer> link_SV( *( dynamic_cast<const xAOD::VertexContainer*>( vtx->container() ) ), static_cast<size_t>( vtx->index() ) );
-          
-          links.emplace_back( link_SV );
-          
-        }
-      
-        decor_d0wrtSV( *muon ) = d0wrtSV;
-        decor_z0wrtSV( *muon ) = z0wrtSV;
-        decor_svLink ( *muon ) = links;
-      
-      }
-    }
-    
-    return StatusCode::SUCCESS;
-  }
-
-
-  //____________________________________________________________________________________________________
-  StatusCode VrtSecInclusive::augmentDVimpactParametersToElectrons()
-  {
-    
-    const xAOD::VertexContainer *secondaryVertexContainer( nullptr );
-    ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
-    
-    const xAOD::ElectronContainer *electronContainer( nullptr );
-    ATH_CHECK( evtStore()->retrieve( electronContainer, "Electrons" ) );
-    
-    static SG::AuxElement::Decorator< std::vector<float> > decor_d0wrtSV( "d0_wrtSVs" );
-    static SG::AuxElement::Decorator< std::vector<float> > decor_z0wrtSV( "z0_wrtSVs" );
-    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
-    
-    for( const auto& electron : *electronContainer ) {
-      // Loop over electrons
-      
-      if( 0 == electron->nTrackParticles() ) continue;
-      
-      // The first track is the best-matched track
-      const auto* trk = electron->trackParticle(0);
-      if( trk ) {
-        
-        std::map< const xAOD::Vertex*, std::vector<double> > distanceMap;
-      
-        std::vector<float> d0wrtSV;
-        std::vector<float> z0wrtSV;
-        std::vector<ElementLink< xAOD::VertexContainer > > links;
-      
-        for( const auto& vtx : *secondaryVertexContainer ) {
-      
-          std::vector<double> impactParameters;
-          std::vector<double> impactParErrors;
-          
-          m_fitSvc->VKalGetImpact( trk, vtx->position(), static_cast<int>( electron->charge() ), impactParameters, impactParErrors);
-          
-          enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
-          
-          d0wrtSV.emplace_back( impactParameters.at(k_d0) );
-          z0wrtSV.emplace_back( impactParameters.at(k_z0) );
-          
-          ElementLink<xAOD::VertexContainer> link_SV( *( dynamic_cast<const xAOD::VertexContainer*>( vtx->container() ) ), static_cast<size_t>( vtx->index() ) );
-          
-          links.emplace_back( link_SV );
-          
-        }
-      
-        decor_d0wrtSV( *electron ) = d0wrtSV;
-        decor_z0wrtSV( *electron ) = z0wrtSV;
-        decor_svLink ( *electron ) = links;
-      
-      }
-    }
-    
-    return StatusCode::SUCCESS;
-  }
-
-
+  
 } // end of namespace VKalVrtAthena
 
 
