@@ -1022,7 +1022,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
       //ATH_MSG_INFO("Electron is medium: " << eg->selectionisEM(isEMbit,"isEMMedium"));
       //ATH_MSG_INFO("Electron is tight: " << eg->selectionisEM(isEMbit,"isEMTight"));
       
-      electronEtaReq = ( fabsf(eg->eta()) < 1.37 || fabsf(eg->eta()) > 1.52 ) && fabsf(eg->eta()) < 2.47; 
+      electronEtaReq = ( std::abs(eg->eta()) < 1.37 || std::abs(eg->eta()) > 1.52 ) && std::abs(eg->eta()) < 2.47; 
 
       //if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq && eg->trackParticle()) {
       if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq) {
@@ -1155,7 +1155,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
       //float tmp_hlt_me_log = -9e9;
       
       float epsilon = 1e-6;  // 1 keV
-      //if (tmp_hlt_me > epsilon)  tmp_hlt_me_log  = log10(fabsf(tmp_hlt_me)); // underflow otherwise
+      //if (tmp_hlt_me > epsilon)  tmp_hlt_me_log  = log10(std::abs(tmp_hlt_me)); // underflow otherwise
       
       epsilon = 1.189;
       tmp_hlt_ex_log = signed_log(tmp_hlt_ex, epsilon);
@@ -1309,18 +1309,18 @@ StatusCode HLTMETMonTool::fillMETHist() {
            float comp_sum_e_lin = -9e9;
            float comp_et_lin = -9e9;
 
-           if (fabsf(ex)>epsilon)
-             comp_ex_log = copysign(log10f(fabsf(ex)), ex);
+           if (std::abs(ex)>epsilon)
+             comp_ex_log = copysign(log10f(std::abs(ex)), ex);
            else
              comp_ex_log = 0.01;
 
-           if (fabsf(ey)>epsilon)
-             comp_ey_log = copysign(log10f(fabsf(ey)), ey);
+           if (std::abs(ey)>epsilon)
+             comp_ey_log = copysign(log10f(std::abs(ey)), ey);
            else
              comp_ey_log = 0.01;
 
-           if (fabsf(ez)>epsilon)
-             comp_ez_log = copysign(log10f(fabsf(ez)), ez);
+           if (std::abs(ez)>epsilon)
+             comp_ez_log = copysign(log10f(std::abs(ez)), ez);
            else
              comp_ez_log = 0.01;
 
@@ -1333,12 +1333,12 @@ StatusCode HLTMETMonTool::fillMETHist() {
            comp_sum_et_lin = sumEt;
            comp_sum_e_lin = sumE;
           
-           if (fabsf(sumEt)>epsilon)
-             comp_sum_et_log = copysign(log10f(fabsf(sumEt)), sumEt);
+           if (std::abs(sumEt)>epsilon)
+             comp_sum_et_log = copysign(log10f(std::abs(sumEt)), sumEt);
            else
              comp_sum_et_log = 0.01;
-           if (fabsf(sumE)>epsilon)
-             comp_sum_e_log = copysign(log10f(fabsf(sumE)), sumE);
+           if (std::abs(sumE)>epsilon)
+             comp_sum_e_log = copysign(log10f(std::abs(sumE)), sumE);
            else
              comp_sum_e_log = 0.01;
 
@@ -1361,7 +1361,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
              }
            }
          
-           float nchan_used = fabsf(missETEF->usedChannelsComponent(i));
+           float nchan_used = missETEF->usedChannelsComponent(i);
            if(nchan_used > epsilon) nchan_used = log10f(nchan_used);
            else nchan_used = -1.;
            if((h2 = hist2("compN_HLT_usedChannels"))) h2->Fill(i,nchan_used);
@@ -1628,8 +1628,8 @@ double HLTMETMonTool::signed_delta_phi(double phi1, double phi2) {
 
 
   double e_log = -9e9;
-  if (fabsf(e) > epsilon)
-    e_log = copysign(log10(fabsf(e)), e);
+  if (std::abs(e) > epsilon)
+    e_log = copysign(log10(std::abs(e)), e);
   else
     e_log = 0.01;
 
