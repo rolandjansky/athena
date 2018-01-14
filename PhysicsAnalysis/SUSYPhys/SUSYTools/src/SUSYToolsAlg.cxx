@@ -818,15 +818,6 @@ StatusCode SUSYToolsAlg::execute() {
         CHECK( m_SUSYTools->GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux) );
         jets = jets_syst;
       }
-//      KY: fat jet collection is not supported for several variations
-//      if (syst_affectsJets && doFatJets) {
-//        ATH_MSG_DEBUG("Get systematics-varied large radius jets");
-//        xAOD::JetContainer* fatjets_syst(0);
-//        xAOD::ShallowAuxContainer* fatjets_syst_aux(0);
-//        CHECK( m_SUSYTools->GetJetsSyst(*fatjets_nominal, fatjets_syst, fatjets_syst_aux, false, m_FatJetCollection) );
-//        fatjets = fatjets_syst;
-//        fatjets_aux = fatjets_syst_aux;
-//      }
 
       if (syst_affectsTaus) {
         ATH_MSG_DEBUG("Get systematics-varied taus");
