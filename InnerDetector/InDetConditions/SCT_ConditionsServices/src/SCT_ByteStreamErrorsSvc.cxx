@@ -314,8 +314,8 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash& elementIdHash) {
   bool allChipsBad{true};
   for (int errType{SCT_ByteStreamErrors::ABCDError_Chip0}; (errType<=SCT_ByteStreamErrors::ABCDError_Chip5) and allChipsBad; errType++) {
     bool issueABCDError{(std::find(m_bsErrors[errType].begin(), m_bsErrors[errType].end(), elementIdHash)!=m_bsErrors[errType].end())};
-    bool isBadChip{((badChips >> (id)) & 0x1)};
-    bool isTempMaskedChip{((tempMaskedChips2 >> (id)) & 0x1)};
+    bool isBadChip = ((badChips >> (id)) & 0x1) != 0;
+    bool isTempMaskedChip = ((tempMaskedChips2 >> (id)) & 0x1) != 0;
     id++;
     allChipsBad = (issueABCDError or isBadChip or isTempMaskedChip);
     if (not allChipsBad) break;
