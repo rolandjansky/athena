@@ -4,7 +4,6 @@ from egammaRec.egammaKeys import egammaKeysDict
 from AthenaCommon.Logging import logging
 from RecExConfig.RecFlags import rec
 
-
 def getItem(cType, cKey):
   "getItem(cType, cKey) -> Return item to be added to the output list: <cType>#<cKey>"
   return '%s#%s' % (cType, cKey)
@@ -28,11 +27,11 @@ def addAuxContainer(outputList, cType, cKey, auxOptionAll='',auxOptionAOD=''):
   if item not in outputList:
     outputList.append( item )
 
-
 # List for of keys to be written to AOD. 
 # All egammaKeys.outputs but EgammaRec and TopoSeededCellLink
 AOD_outputs = [i for i,j in egammaKeysDict.outputs.items() 
-               if i not in ('EgammaRec', 'TopoSeededCellLink','FwdClusterCellLink')]
+               if i not in ('EgammaRec','PhotonSuperRec','ElectronSuperRec',
+                            'TopoSeededCellLink','FwdClusterCellLink')]
 
 # Define egammaAODList in the proper format (<type>#<key><option>),
 # including aux containers
