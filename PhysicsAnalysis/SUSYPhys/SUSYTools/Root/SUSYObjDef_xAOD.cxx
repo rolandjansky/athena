@@ -697,7 +697,15 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
 	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample and make sure it's mc16a, c or d. If it is, contact the Background Forum conveners." );
 	return StatusCode::FAILURE;
       }
-    } 
+    } else  {
+      std::string AccessingEventStore("");
+      AccessingEventStore += "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store. ";
+      AccessingEventStore += "If you're using athena, you might need to instatiate SUSYTools in the 'firstExecute' method of AthAnalysisAlgorithm.";
+      ATH_MSG_WARNING( AccessingEventStore );
+      const xAOD::EventInfo* evtInfo = 0;
+      ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+      dsid = evtInfo->mcChannelNumber();
+    }
     // ::
     // Sanity checks
     bool mc16X_GoodFromProperty = false;
