@@ -39,62 +39,28 @@ class egammaEnergyPositionAllSamples : public AthAlgTool, virtual public Iegamma
   ~egammaEnergyPositionAllSamples();  
 
   /** @brief AlgTool initialize method.*/
-  StatusCode initialize();
+  StatusCode initialize() override;
   /** @brief AlgTool finalize method */
-  StatusCode finalize();
+  StatusCode finalize() override;
 
-  /** @brief AlgTool main method */
-  virtual StatusCode execute(const xAOD::CaloCluster *cluster);
-  virtual StatusCode execute(const xAOD::CaloCluster *cluster, int is);
-
-  /** @brief method to print results*/
-  void print() const;
-  /** @brief return the uncorrected sum of energy in all samples*/
-  double e() const;
+ /** @brief return the uncorrected sum of energy in all samples*/
+  double e(const xAOD::CaloCluster& cluster) const override final;
   /** @brief return the uncorrected cluster energy in pre-sampler*/
-  double e0() const;
+  double e0(const xAOD::CaloCluster& cluster) const override final;
   /** @brief return the uncorrected cluster energy in 1st sampling*/
-  double e1() const;
+  double e1(const xAOD::CaloCluster& cluster) const override final;
   /** @brief return the uncorrected cluster energy in 2nd sampling*/
-  double e2() const;
+  double e2(const xAOD::CaloCluster& cluster) const override final;
   /** @brief return the uncorrected cluster energy in 3rd sampling*/
-  double e3() const;
+  double e3(const xAOD::CaloCluster& cluster) const override final;
   /** @brief return boolean to know if we are in barrel/end-cap*/
-  bool inBarrel() const;
+  bool inBarrel(const xAOD::CaloCluster& cluster, int is) const override final;
 
  private:
- 
-  StatusCode energy(); 
-  /** @brief method to check if cluster is in barrel/end-cap 
-   using also information from energy deposit*/
-  bool isClusterinBarrel(int is = 2);
-
-  /** @brief pointer to a CaloCluster*/
-  const xAOD::CaloCluster* m_cluster; 
-
-  /** @brief sum of energy in all samplings*/
-  double m_eallsamples;
-  /** @brief cluster energy in presampler*/
-  double m_e0;
-  /** @brief cluster energy in 1st sampling*/
-  double m_e1;
-  /** @brief cluster energy in 2nd sampling*/
-  double m_e2;
-  /** @brief cluster energy in 3rd sampling*/
-  double m_e3;
-  /** @brief boolean to know if we are in barrel/end-cap */
-  bool m_inbarrel;
 
 };
 
 //
 // set values for the different variables in the egammaEnergyPositionAllSamples
 //
-inline double egammaEnergyPositionAllSamples::e()        const { return m_eallsamples; }
-inline double egammaEnergyPositionAllSamples::e0()       const { return m_e0; }
-inline double egammaEnergyPositionAllSamples::e1()       const { return m_e1; }
-inline double egammaEnergyPositionAllSamples::e2()       const { return m_e2; }
-inline double egammaEnergyPositionAllSamples::e3()       const { return m_e3; }
-inline bool   egammaEnergyPositionAllSamples::inBarrel() const { return m_inbarrel; }
-
 #endif

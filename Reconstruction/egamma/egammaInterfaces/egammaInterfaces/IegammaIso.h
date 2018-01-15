@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 ///////////////////////////////////////////////////////////////////
 // IegammaIso.h, (c) ATLAS Detector software 2008
@@ -28,43 +28,30 @@
 class CaloCellList; 
 
 static const InterfaceID IID_IegammaIso("IEgammaIso", 1, 0);
-        
+
 class IegammaIso : virtual public IAlgTool {
 
-     
- public:
-  /** @brief Virtual destructor */
-  virtual ~IegammaIso(){};
-  
-  /** @brief AlgTool interface methods */
-  static const InterfaceID& interfaceID();
 
-  /// IsoSpecifier specifie the type of isolation to do. It uses
-  /// the standard introduced in the functions below.
-  
-  /// R1 is the inner ring; R1 == 0 means do cone
-  /// R2 is the outer ring size
-  /// NsigNoise = Number of sigma above noise, if -1 no cut on noise
-  /// flagCell  = 1 EM, 2 EM+HAD
-  /// flagNoise = 1 elec, 2 total
-  /// symmetric : symmetric cut is a cut on abs(e)>meannoise instead of e>meannoise
+public:
+    /** @brief Virtual destructor */
+    virtual ~IegammaIso(){};
 
+    /** @brief AlgTool interface methods */
+    static const InterfaceID& interfaceID();
 
-  /** @brief  method: Method to just calculate hadronic leakage*/
-  virtual StatusCode execute(const xAOD::CaloCluster *cluster, CaloCellList* had) =0;
-  
-  /** @brief total hadronic calorimeter et in cone*/
-  virtual double ethad()  const = 0; 
-  /** @brief energy in first hardon layer in cone*/
-  virtual double ehad1()  const = 0; 
-  /** @brief et in first hadron cal layer in cone*/
-  virtual double ethad1() const = 0; 
-
+    class Info{
+    public:
+        double ethad=0;
+        double ethad1=0;
+        double ehad1=0;
+    };
+    /** @brief  method: Method to just calculate hadronic leakage*/
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster, CaloCellList& had, Info& info) const =0;
 };
 
 inline const InterfaceID& IegammaIso::interfaceID()
 {
-  return IID_IegammaIso;
+    return IID_IegammaIso;
 }
 
 #endif // EGAMMAINTERFACES_IEGAMMAISO_H

@@ -38,54 +38,21 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
   ~egammaPreSamplerShape();  
 
   /** @brief AlgTool initialize method.*/
-  StatusCode initialize();
+  StatusCode initialize() override ;
   /** @brief AlgTool finalize method */
-  StatusCode finalize();
+  StatusCode finalize() override ;
 
   /** @brief AlgTool main method */
-  virtual StatusCode execute(const xAOD::CaloCluster *cluster, 
-			     const CaloCellContainer *cell_container);
-  
-  /** @brief return the energy in a 1x1 window in cells in eta X phi*/
-  double e011() const { return m_e011 ;}
-  /** @brief return the energy in a 3x3 window in cells in eta X phi*/
-  double e033() const { return m_e033 ;}
-
- private: 
-  /** @brief pointer to a CaloCluster*/
-  const xAOD::CaloCluster* m_cluster; 
-  /** @brief Cell container*/
-  const CaloCellContainer* m_cellContainer;
-  /** @brief tool to calculate sum of energy in all samples */
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
+			     const CaloCellContainer& cell_container, Info& info) const override final;
+  private: 
+ /** @brief tool to calculate sum of energy in all samples */
   ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
       "egammaEnergyPositionAllSamplesTool", 
       "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
 
-  /** @brief  energy in S0 in a 1x1 window in cells in eta X phi*/
-  double m_e011;     
-
-  /** @brief energy in S0 in a 3x3 window in cells in eta X phi*/
-  double m_e033;     
-
-  /** @brief (eta,phi) around which estimate the shower shapes */
-  double m_eta;
-  double m_phi;
-  
-  /** @brief (deta,dphi) granularity*/
-  double m_deta;
-  double m_dphi;
-  
-  // Calo variables
   const CaloDetDescrManager* m_calo_dd;
   /** @brief CaloSample */
-  CaloSampling::CaloSample m_sam;
-  CaloSampling::CaloSample m_sam2;
-  CaloCell_ID::SUBCALO m_subcalo;
-  bool m_barrel;
-  int m_sampling_or_module;
-
-  /** @brief From the original (eta,phi) position, find the location (sampling, barrel/end-cap, granularity) */
-  bool FindPosition();
 };
 
 #endif
