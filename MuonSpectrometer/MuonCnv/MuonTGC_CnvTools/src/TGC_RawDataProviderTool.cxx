@@ -30,7 +30,6 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
   m_muonMgr(0),
   m_decoder("Muon__TGC_RodDecoderReadout"),
   //m_rdoContainer(0),
-  m_rdoContainerKey("TGCRDO"), 
   m_activeStore(0),
   m_cabling(0),
   m_robDataProvider("ROBDataProviderSvc",n) 
