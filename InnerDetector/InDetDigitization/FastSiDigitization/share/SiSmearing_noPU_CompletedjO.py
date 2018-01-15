@@ -505,17 +505,37 @@ topSequence += xAODTruthCnvAlg
 
 print xAODTruthCnvAlg
 
+# register internally used track summary tool
+from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
+AtlasTrackSummaryTool = AtlasTrackSummaryTool()
+ToolSvc += AtlasTrackSummaryTool
+
 include("InDetRecExample/InDetxAODCreator.py") 
 
-InDetxAODParticleCreatorTool.TrackSummaryTool = InDetTrackSummaryTool
-InDetxAODParticleCreatorTool.OutputLevel = OutputLevel #VERBOSE
-print InDetxAODParticleCreatorTool 
+public_InDetxAODParticleCreatorTool = getInDetxAODParticleCreatorTool()
+public_InDetxAODParticleCreatorTool.TrackSummaryTool = InDetTrackSummaryTool
+public_InDetxAODParticleCreatorTool.OutputLevel = OutputLevel #VERBOSE
+print public_InDetxAODParticleCreatorTool
 
-xAODTrackParticleCnvAlg.OutputLevel = OutputLevel #VERBOSE
-
-xAODPseudoTrackParticleCnvAlg.OutputLevel = OutputLevel #VERBOSE
-xAODPseudoTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
-print xAODPseudoTrackParticleCnvAlg
+# adjust track particle creators
+add_truth_links=[False,True]
+idx=0
+for alg_name in ['InDetTrackParticles',InDetKeys.xAODPseudoTrackParticleContainer()] :
+  if hasattr(topSequence,alg_name) :
+    alg=getattr(topSequence,alg_name)
+    alg.OutputLevel = OutputLevel # VERBOSE
+    if hasattr(alg,"TrackParticleCreator") :
+        alg.TrackParticleCreator.TrackSummaryTool = InDetTrackSummaryTool
+        alg.TrackParticleCreator.OutputLevel = OutputLevel # VERBOSE
+        if add_truth_links[idx] :
+            alg.AddTruthLink = InDetFlags.doTruth()
+    else :
+        print >>sys.stderr,'WARNING the %s algorithm does not contain the expected TrackParticleCreator property.' % alg_name
+    print alg
+  else :
+    import sys
+    print >>sys.stderr,'WARNING top sequence does not contain the expected %s algorithm' % alg_name
+  idx += 1
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolStream( "StreamAOD", "xAOD.pool.root" )
