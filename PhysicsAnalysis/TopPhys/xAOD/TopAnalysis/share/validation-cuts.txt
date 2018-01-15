@@ -186,7 +186,7 @@ SELECTION ejets_wbjets_2015
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION ejets_wbjets_2015
+SELECTION ejets_wbjets_2016
 . EL_2016
 . ejets_basic
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
