@@ -49,15 +49,13 @@ try:
             include ("CaloMonitoring/CaloCellVecMonCosmics_jobOpt.py")
          include("CaloMonitoring/CaloClusterVecMonCosmics_jobOpt.py")
          include("CaloMonitoring/EMClusterVecMonCosmics_jobOpt.py")
-#         include("CaloMonitoring/LArMuIDClusterVecMonCosmics_jobOpt.py")
-#         include("CaloMonitoring/CaloTowerVecMonCosmics_jobOptions.py")
     else:  # should be jobproperties.Beam.beamType() =='collisions' or 'singlebeam'
        if caloESDMon:
          if doCaloCellVecMon:
             include("CaloMonitoring/CaloCellVecMonCollisions_jobOpt.py")
          include("CaloMonitoring/CaloClusterVecMonCollisions_jobOpt.py")
+         include("CaloMonitoring/CaloBaselineMon_jobOpt.py")
          include("CaloMonitoring/EMClusterVecMonCollisions_jobOpt.py")
-#         include("CaloMonitoring/CaloTowerVecMonCollisions_jobOptions.py")
 
 except Exception:
          treatException("CaloAllMonitoring_jobOptions.py: exception when setting up Calo monitoring")
