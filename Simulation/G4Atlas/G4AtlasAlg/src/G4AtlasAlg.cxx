@@ -5,6 +5,8 @@
 // Local includes
 #include "G4AtlasAlg.h"
 
+#include "AthenaKernel/RNGWrapper.h"
+
 // Can we safely include all of these?
 #include "G4AtlasMTRunManager.h"
 #include "G4AtlasWorkerRunManager.h"
@@ -53,7 +55,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   , m_inputTruthCollection("BeamTruthEvent")
   , m_outputTruthCollection("TruthEvent")
   , m_useMT(false)
-  , m_rndmGenSvc("AtDSFMTGenSvc", name)
+  , m_rndmGenSvc("AthRNGSvc", name)
   , m_g4atlasSvc("G4AtlasSvc", name)
   , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
   , m_detGeoSvc("DetectorGeometrySvc", name)
@@ -114,6 +116,7 @@ StatusCode G4AtlasAlg::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_rndmGenSvc.retrieve() );
   ATH_CHECK( m_userActionSvc.retrieve() );
 
   // FIXME TOO EARLY???
@@ -197,22 +200,6 @@ void G4AtlasAlg::initializeOnce()
 
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
-  if (m_rndmGen=="athena" || m_rndmGen=="ranecu") {
-    // Set the random number generator to AtRndmGen
-    if (m_rndmGenSvc.retrieve().isFailure()) {
-      // We can only return void from here. Let's assume that eventually
-      // all this initialization code will be moved elsewhere (like a svc) for
-      // better control. Then, for now, let's just throw.
-      throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
-    }
-    CLHEP::HepRandomEngine* engine = m_rndmGenSvc->GetEngine("AtlasG4");
-    CLHEP::HepRandom::setTheEngine(engine);
-    ATH_MSG_INFO("Random nr. generator is set to Athena");
-  }
-  else if (m_rndmGen=="geant4" || m_rndmGen.empty()) {
-    ATH_MSG_INFO("Random nr. generator is set to Geant4");
-  }
-
   // Send UI commands
   for (auto g4command : m_g4commands) {
     ui->ApplyCommand( g4command );
@@ -279,7 +266,6 @@ StatusCode G4AtlasAlg::finalize()
 void G4AtlasAlg::finalizeOnce()
 {
   ATH_MSG_DEBUG("\t terminating the current G4 run");
-  // TODO: could probably just use G4RunManager base class generically.
   auto runMgr = G4RunManager::GetRunManager();
   runMgr->RunTermination();
 }
@@ -310,6 +296,12 @@ StatusCode G4AtlasAlg::execute()
       return StatusCode::FAILURE;
     }
   }
+
+  // Set the RNG to use for this event. We need to reset it for MT jobs
+  // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  G4Random::setTheEngine(*rngWrapper);
 
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 

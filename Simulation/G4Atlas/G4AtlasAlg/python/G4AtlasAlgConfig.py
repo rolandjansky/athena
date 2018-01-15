@@ -44,19 +44,14 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         ## default true
         kwargs.setdefault('KillAbortedEvents' ,simFlags.KillAbortedEvents.get_Value())
 
-    if hasattr(simFlags, 'RandomSvc') and simFlags.RandomSvc.statusOn:
+    if hasattr(simFlags, 'RandomSvcMT') and simFlags.RandomSvcMT.statusOn:
         ## default true
-        kwargs.setdefault('AtRndmGenSvc' ,simFlags.RandomSvc.get_Value())
-    if not simFlags.RandomSeedList.checkForExistingSeed('AtlasG4'):
-        simFlags.RandomSeedList.addSeed( "AtlasG4", 423451, 3213210 )
+        kwargs.setdefault('AtRndmGenSvc', simFlags.RandomSvcMT.get_Value())
     kwargs.setdefault("RandomGenerator", "athena")
 
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-    if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
-        is_hive = True
-    else:
-        is_hive = False
+    is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
     kwargs.setdefault('MultiThreading', is_hive)
 
     kwargs.setdefault('TruthRecordService', simFlags.TruthStrategy.TruthServiceName())

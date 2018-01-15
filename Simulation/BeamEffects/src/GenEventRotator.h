@@ -14,18 +14,11 @@
 // Base class headers
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HepMC_Interfaces/IGenEventManipulator.h"
-// Athena headers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 // Gaudi headers
 #include "GaudiKernel/ServiceHandle.h"
 // CLHEP headers
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/LorentzRotation.h"
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 namespace HepMC {
   class GenParticle;

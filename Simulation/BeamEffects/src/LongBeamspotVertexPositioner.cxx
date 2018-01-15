@@ -19,6 +19,7 @@
 #include <math.h>       /* erf */
 
 // RandomNumber generator
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -32,7 +33,7 @@ namespace Simulation
     : base_class(t,n,p),
       m_L(150.0),// 150.0 mm
       m_beamCondSvc("BeamCondSvc", n),
-      m_rndGenSvc("AtRndmGenSvc", n),
+      m_rndGenSvc("AthRNGSvc", n),
       m_randomEngine(0),
       m_randomEngineName("VERTEX"),
       m_timeSmearing(false)
@@ -59,7 +60,7 @@ namespace Simulation
     ATH_CHECK(m_beamCondSvc.retrieve());
     // prepare the RandonNumber generation
     ATH_CHECK(m_rndGenSvc.retrieve());
-    m_randomEngine = m_rndGenSvc->GetEngine( m_randomEngineName);
+    m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
     if (!m_randomEngine) {
       ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
       return StatusCode::FAILURE;
@@ -84,15 +85,15 @@ namespace Simulation
     return erf(2.5*temp)*heaviside(temp); // zero for |z|>150.0
   }
 
-  double LongBeamspotVertexPositioner::getZpos() const
+  double LongBeamspotVertexPositioner::getZpos(CLHEP::HepRandomEngine* randomEngine) const
   {
     size_t ntries(0);
-    double yval(CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0));
-    double zval(CLHEP::RandFlat::shoot(m_randomEngine, -150.0, 150.0));
+    double yval(CLHEP::RandFlat::shoot(randomEngine, 0.0, 1.0));
+    double zval(CLHEP::RandFlat::shoot(randomEngine, -150.0, 150.0));
     while (this->beamspotFunction(zval)<yval) {
       if(ntries>1000000) return 0.0; //just so we don't sit in this loop forever
-      yval = CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0);
-      zval = CLHEP::RandFlat::shoot(m_randomEngine, -150.0, 150.0);
+      yval = CLHEP::RandFlat::shoot(randomEngine, 0.0, 1.0);
+      zval = CLHEP::RandFlat::shoot(randomEngine, -150.0, 150.0);
       ++ntries;
     }
     return zval;
@@ -101,17 +102,16 @@ namespace Simulation
   /** computes the vertex displacement */
   CLHEP::HepLorentzVector *LongBeamspotVertexPositioner::generate() const
   {
-    if (!m_randomEngine) {
-      ATH_MSG_ERROR("No random number engine! Abort.");
-      return nullptr;
-    }
+    // Prepare the random engine
+    m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
+    CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
 
     // See jira issue ATLASSIM-497 for an explanation of why calling
     // shoot outside the CLHEP::HepLorentzVector constructor is
     // necessary/preferable.
-    float vertexX = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(0);
-    float vertexY = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(1);
-    float vertexZ = this->getZpos();
+    float vertexX = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(0);
+    float vertexY = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(1);
+    float vertexZ = getZpos(randomEngine);
     // calculate the vertexSmearing
     CLHEP::HepLorentzVector *vertexSmearing =
       new CLHEP::HepLorentzVector( vertexX, vertexY, vertexZ, 0. );
@@ -173,7 +173,7 @@ namespace Simulation
 
       // Time should be set in units of distance, which is a little funny
       double time_offset = CLHEP::RandGaussZiggurat::shoot(
-          m_randomEngine, vertexSmearing->z()/Gaudi::Units::c_light,
+          randomEngine, vertexSmearing->z()/Gaudi::Units::c_light,
           bunch_length_z/Gaudi::Units::c_light );
 
       vertexSmearing->setT( vertexSmearing->t() + time_offset*Gaudi::Units::c_light );

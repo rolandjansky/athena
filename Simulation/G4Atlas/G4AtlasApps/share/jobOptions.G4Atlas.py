@@ -28,7 +28,6 @@ athenaCommonFlags.EvtMax = 3
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
-simFlags.RandomSvc = 'AtDSFMTGenSvc'
 
 ## Layout tags: see simFlags.SimLayout for allowed values
 ## Use the default layout:

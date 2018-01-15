@@ -235,7 +235,7 @@ class TestTestBeam(unittest.TestCase):
 
 
     def test___G4AtlasAlg_AtRndmGenSvc_setCorrectly(self):
-        expected_service_name = 'AtDSFMTGenSvc'
+        expected_service_name = 'AthRNGSvc'
         self._assert_Algorithm_property_equal('G4AtlasAlg', 'AtRndmGenSvc', expected_service_name)
 
 
