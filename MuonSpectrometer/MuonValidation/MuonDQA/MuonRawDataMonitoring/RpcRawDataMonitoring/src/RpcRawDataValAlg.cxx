@@ -3523,7 +3523,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 		  }
     
 		   
-			char BinLabel[20];
+			char BinLabel[32];
 			sprintf(BinLabel,"Sec%d%s",(iphi-1)*2+ismall,NAME);
 			if(PlaneTipo==0){
 			  if(ieta>=0){
