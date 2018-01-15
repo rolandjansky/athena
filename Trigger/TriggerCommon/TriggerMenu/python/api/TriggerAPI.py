@@ -8,24 +8,28 @@ from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 class TriggerAPI:
-    centralPickleFile = "/afs/cern.ch/user/t/trigmenu/public/TriggerAPI/TriggerInfo.pickle"
+    centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo.pickle"
     privatePickleFile = "TriggerInfo.pickle"
-    dbQueries = {}
+    dbQueries = None
     privatedbQueries = {}
     customGRL = None
-    try:
-        with open(centralPickleFile, 'r') as f:
-            print "Reading cached information"
-            dbQueries = pickle.load(f)
-    except Exception as e:
-        print "Reading cached information failed, please report to jmontejo@cern.ch"
-        dbQueries = {}
-    try:
-        with open(privatePickleFile, 'r') as f:
-            privatedbQueries = pickle.load(f)
-            dbQueries.update(privatedbQueries)
-    except Exception as e:
-        pass
+
+    @classmethod
+    def init(cls):
+        if cls.dbQueries: return
+        try:
+            with open(cls.centralPickleFile, 'r') as f:
+                print "Reading cached information"
+                cls.dbQueries = pickle.load(f)
+        except Exception:
+            print "Reading cached information failed"
+            cls.dbQueries = {}
+        try:
+            with open(cls.privatePickleFile, 'r') as f:
+                cls.privatedbQueries = pickle.load(f)
+                cls.dbQueries.update(cls.privatedbQueries)
+        except Exception:
+            pass
 
     @classmethod
     def setCustomGRL(cls, grl):
@@ -102,6 +106,7 @@ class TriggerAPI:
         
     @classmethod
     def _loadTriggerPeriod(cls, period, reparse):
+        cls.init()
         if (period,cls.customGRL) not in cls.dbQueries:
             cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL)
             cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
