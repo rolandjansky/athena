@@ -4,6 +4,7 @@
 
 # Testing package(s):
 + AtlasTest/TestTools
++ AsgExternal/Asg_Test
 
 # Common geometry package(s):
 + AtlasGeometryCommon/BeamPipeGeoModel
@@ -244,6 +245,7 @@
 
 # Reconstruction package(s):
 + Reconstruction/AODFix
++ Reconstruction/RecoFix
 + Reconstruction/DiTauRec
 + Reconstruction/eflowRec
 + Reconstruction/egamma/egammaCaloTools

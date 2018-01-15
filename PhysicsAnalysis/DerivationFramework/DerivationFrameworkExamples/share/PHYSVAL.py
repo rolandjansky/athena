@@ -64,6 +64,12 @@ addVRJets(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4R
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
+# Truth collections
+#====================================================================
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+addStandardTruthContents()
+
+#====================================================================
 # SET UP STREAM   
 #====================================================================
 
@@ -105,7 +111,9 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "MuonSpectrometerTrackParticles",
                                        "MSOnlyExtrapolatedMuonTrackParticles",
                                        "InDetForwardTrackParticles",
-                                       "MuonTruthSegments"
+                                       "MuonTruthSegments",
+                                       "MET_Truth","MET_TruthRegions",
+                                       "TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"
                                      ]
 
 PHYSVALSlimmingHelper.SmartCollections = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
@@ -121,6 +129,7 @@ PHYSVALSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackA
                                          "CaloCalTopoClusters.rawEta.rawPhi.rawE.rawM.calEta.calPhi.calE.calM.AVG_LAR_Q.AVG_TILE_Q.BADLARQ_FRAC.CENTER_LAMBDA.ENG_BAD_CELLS.ENG_POS.ISOLATION.N_BAD_CELLS.SECOND_R",
                                          "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
                                          "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
+                                         "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
                                          ]
 
 
@@ -190,6 +199,28 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "EMOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer", 
   "MuonTruthSegments"                          :   "xAOD::MuonSegmentContainer",
   "MuonTruthSegmentsAux"                       :   "xAOD::MuonSegmentAuxContainer", 
+  "MET_Truth"                                  :   "xAOD::MissingETContainer",
+  "MET_TruthAux"                               :   "xAOD::MissingETAuxContainer",
+  "MET_TruthRegions"                           :   "xAOD::MissingETContainer",
+  "MET_TruthRegionsAux"                        :   "xAOD::MissingETAuxContainer",
+  "TruthElectrons"                             :   "xAOD::TruthParticleContainer",
+  "TruthElectronsAux"                          :   "xAOD::TruthParticleAuxContainer",
+  "TruthMuons"                                 :   "xAOD::TruthParticleContainer",
+  "TruthMuonsAux"                              :   "xAOD::TruthParticleAuxContainer",
+  "TruthPhotons"                               :   "xAOD::TruthParticleContainer",
+  "TruthPhotonsAux"                            :   "xAOD::TruthParticleAuxContainer",
+  "TruthTaus"                                  :   "xAOD::TruthParticleContainer",
+  "TruthTausAux"                               :   "xAOD::TruthParticleAuxContainer",
+  "TruthNeutrinos"                             :   "xAOD::TruthParticleContainer",
+  "TruthNeutrinosAux"                          :   "xAOD::TruthParticleAuxContainer",
+  "TruthBSM"                                   :   "xAOD::TruthParticleContainer",
+  "TruthBSMAux"                                :   "xAOD::TruthParticleAuxContainer",
+  "TruthBoson"                                 :   "xAOD::TruthParticleContainer",
+  "TruthBosonAux"                              :   "xAOD::TruthParticleAuxContainer",
+  "TruthTop"                                   :   "xAOD::TruthParticleContainer",
+  "TruthTopAux"                                :   "xAOD::TruthParticleAuxContainer",
+  "AntiKt4TruthDressedWZJets"                  :   "xAOD::JetContainer",
+  "AntiKt4TruthDressedWZJetsAux"               :   "xAOD::JetAuxContainer",
   }
 #----------------------------------------------------------------------
 

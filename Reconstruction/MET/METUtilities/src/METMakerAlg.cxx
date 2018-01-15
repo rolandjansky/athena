@@ -18,7 +18,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
@@ -299,7 +299,7 @@ namespace met {
   bool METMakerAlg::accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(*el);
+    return m_elecSelLHTool->accept(el);
   }
 
   bool METMakerAlg::accept(const xAOD::Photon* ph)

@@ -112,6 +112,7 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
++ Trigger/TriggerSimulation/TrigBtagEmulationTool
 + Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/RecoToolInterfaces
 

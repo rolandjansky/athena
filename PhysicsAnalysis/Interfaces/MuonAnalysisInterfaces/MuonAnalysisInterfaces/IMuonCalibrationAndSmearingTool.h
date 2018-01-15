@@ -35,6 +35,8 @@ class IMuonCalibrationAndSmearingTool : public virtual asg::IAsgTool, virtual pu
     virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const=0;
     /// Get the expected pT resolution - int argument is more efficient
     virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const=0;
+    // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
+    virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType) const = 0;
 
 
 }; /// class IMuonCalibrationAndSmearingTool

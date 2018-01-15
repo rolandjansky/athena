@@ -24,7 +24,7 @@ DiTauDiscriminantTool::DiTauDiscriminantTool( const std::string& name )
   : AsgTool(name)
   , m_bdt(0)
 {
-  declareProperty( "WeightsFile", m_sWeightsFile = "");
+  declareProperty( "WeightsFile", m_sWeightsFile = "tauRecTools/00-02-00/DiTau_JetBDT_spring2017.weights.root");
 }
 
 //______________________________________________________________________________
@@ -73,7 +73,9 @@ StatusCode DiTauDiscriminantTool::initialize()
       {"m_track", new float(0)},
       {"m_track_core", new float(0)},
       {"m_core_lead", new float(0)},
+      {"log(m_core_lead)", new float(0)},
       {"m_core_subl", new float(0)},
+      {"log(m_core_subl)", new float(0)},
       {"m_track_all", new float(0)},
       {"m_tracks_lead", new float(0)},
       {"log(m_tracks_lead)", new float(0)},
@@ -171,7 +173,9 @@ void DiTauDiscriminantTool::setIDVariables(const xAOD::DiTauJet& xDiTau)
   setVar("m_track") = (float) xDiTau.auxdata<double>("m_track");
   setVar("m_track_core") = (float) xDiTau.auxdata<double>("m_track_core");
   setVar("m_core_lead") = (float) xDiTau.auxdata<double>("m_core_lead");
+  setVar("log(m_core_lead)") = log(*m_mIDVariables["m_core_lead"]);
   setVar("m_core_subl") = (float) xDiTau.auxdata<double>("m_core_subl");
+  setVar("log(m_core_subl)") = log(*m_mIDVariables["m_core_subl"]);
   setVar("m_track_all") = (float) xDiTau.auxdata<double>("m_track_all");
   setVar("m_tracks_lead") = (float) xDiTau.auxdata<double>("m_tracks_lead");
   setVar("log(m_tracks_lead)") = log(*m_mIDVariables["m_tracks_lead"]);

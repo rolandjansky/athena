@@ -132,7 +132,6 @@ PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-PoolSvc              INFO Re-initializing PoolSvc
 FileMgr             DEBUG Property update for OutputLevel : new value = 2
 FileMgr             DEBUG Service base class initialized successfully
 FileMgr             DEBUG Successfully registered handler for tech "ROOT"

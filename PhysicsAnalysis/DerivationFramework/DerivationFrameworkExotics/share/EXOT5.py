@@ -8,7 +8,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkTau.TauTruthCommon import *
+from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+scheduleTauTruthTools()
 from DerivationFrameworkCore.WeightMetadata import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
@@ -121,7 +122,6 @@ EXOT5ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
     ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
     SGKey                   = 'Electrons',
     CaloClCollectionSGKey   = 'egammaClusters',
-    TopoClCollectionSGKey   = 'CaloCalTopoClusters',
     ConeSize                = 0.4)
 ToolSvc += EXOT5ElectronCCThinningTool
 thinningTools.append(EXOT5ElectronCCThinningTool)
@@ -132,7 +132,6 @@ EXOT5PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(
     ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
     SGKey                   = 'Photons',
     CaloClCollectionSGKey   = 'egammaClusters',
-    TopoClCollectionSGKey   = 'CaloCalTopoClusters',
     ConeSize                = 0.4)
 ToolSvc += EXOT5PhotonCCThinningTool
 thinningTools.append(EXOT5PhotonCCThinningTool)

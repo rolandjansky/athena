@@ -5,14 +5,40 @@
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import errno
+import logging
 import os
 import shlex
 import subprocess
+import sys
+
+MODULE = "art.misc"
+
+
+def set_log(kwargs):
+    """TBD."""
+    level = logging.DEBUG if kwargs['verbose'] else logging.WARN if kwargs['quiet'] else logging.INFO
+    log = logging.getLogger("art")
+    log.setLevel(level)
+
+    # create and attach new handler, disable propagation to root logger to avoid double messages
+    handler = logging.StreamHandler(sys.stdout)
+    format_string = "%(asctime)s %(name)15s.%(funcName)-15s %(levelname)8s %(message)s"
+    date_format_string = None
+    formatter = logging.Formatter(format_string, date_format_string)
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+    log.propagate = False
 
 
 def run_command(cmd, dir=None, shell=False, env=None):
-    """Run the given command locally and returns the output, err and exit_code."""
-    # print "Execute: " + cmd
+    """
+    Run the given command locally.
+
+    The command runs as separate subprocesses for every piped command.
+    Returns tuple of exit_code, output and err.
+    """
+    log = logging.getLogger(MODULE)
+    log.debug("Execute: %s", cmd)
     if "|" in cmd:
         cmd_parts = cmd.split('|')
     else:
@@ -33,37 +59,9 @@ def run_command(cmd, dir=None, shell=False, env=None):
     return exit_code, str(output), str(err)
 
 
-def check((exitcode, out, err)):
-    """Check exitcode and print statement and exit if needed."""
-    if exitcode == 0:
-        print err
-        return out
-
-    print "Error:", exitcode
-    print "StdOut:", out
-    print "StdErr:", err
-
-    print 'art-status: error'
-
-    exit(exitcode)
-
-
-def verify((exitcode, out, err)):
-    """Check exitcode and print statement."""
-    if exitcode == 0:
-        print out
-        return exitcode
-
-    print "Error:", exitcode
-    print "StdOut:", out
-    print "StdErr:", err
-
-    return exitcode
-
-
-def redirect((exitcode, out, err)):
-    """Check exitcode."""
-    return exitcode
+def is_exe(fpath):
+    """Return True if fpath is executable."""
+    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 
 def make_executable(path):

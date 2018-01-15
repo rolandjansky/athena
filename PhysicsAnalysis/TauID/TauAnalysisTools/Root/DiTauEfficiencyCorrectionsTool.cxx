@@ -220,7 +220,7 @@ StatusCode DiTauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
     if (iEfficiencyCorrectionType == SFJetIDHadTau)
     {
       // only set vars if they differ from "", which means they have been configured by the user
-      if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadDiTau_2017-prerec.root";
+      if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadDiTau_2017-fall.root";
       if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "DiTauScaleFactorJetIDHadTau";
 
       asg::AnaToolHandle<IDiTauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<IDiTauEfficiencyCorrectionsTool>("JetIDHadTauTool", this);
@@ -245,7 +245,10 @@ std::string DiTauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLev
   switch(iLevel)
   {
   case JETIDNONE:
-    return "none";
+    return "ditaureconstruction";
+    break;
+  case JETIDBDTVERYLOOSE:
+    return "jetbdtsigveryloose";
     break;
   case JETIDBDTLOOSE:
     return "jetbdtsigloose";
@@ -255,24 +258,6 @@ std::string DiTauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLev
     break;
   case JETIDBDTTIGHT:
     return "jetbdtsigtight";
-    break;
-  case JETIDBDTOTHER:
-    return "jetbdtsigother";
-    break;
-  case JETIDLLHLOOSE:
-    return "taujllhloose";
-    break;
-  case JETIDLLHMEDIUM:
-    return "taujllhmedium";
-    break;
-  case JETIDLLHTIGHT:
-    return "taujllhtight";
-    break;
-  case JETIDLLHFAIL:
-    return "taujllh";
-    break;
-  case JETIDBDTFAIL:
-    return "jetbdtsig";
     break;
   default:
     assert(false && "No valid ID level passed. Breaking up ...");

@@ -49,11 +49,13 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
    declareProperty("UseMultiPeriods",m_useMultiPeriods=true,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
+   declareProperty("UseRunDependentPrescaleWeight",m_useRunDependentPrescaleWeight=false,"If true, prescale weights in the getCombinedWeight method with Trigger string are determined with the specific random run number");
    declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
    declareProperty("DataScaleFactorUP",m_upVariation=1./1.,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
    declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.18,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("VaryRandomRunNumber",m_varyRunNumber=false,"If true, then when doing systematic variations, RandomRunNumber will fluctuate as well. Off by default as believed to lead to overestimated uncertainties");
    
    declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );
    declareProperty("TrigDecisionTool",m_tdt, "When using the getDataWeight method, the TDT will be used to check decisions before prescale. Alternatively do expert()->SetTriggerBit('trigger',0) to flag which triggers are not fired before prescale (assumed triggers are fired if not specified)");
@@ -198,6 +200,8 @@ StatusCode PileupReweightingTool::initialize() {
         if(m_upTool) m_upTool->IgnoreConfigFilePeriods(true);
         if(m_downTool) m_downTool->IgnoreConfigFilePeriods(true);
         UsePeriodConfig("MC16"); //hardcoded period assignments
+        if(m_upTool) m_upTool->UsePeriodConfig("MC16");
+        if(m_downTool) m_downTool->UsePeriodConfig("MC16");
       }
       
       for(unsigned int j=0;j<m_prwFiles.size();j++) {
@@ -221,8 +225,11 @@ StatusCode PileupReweightingTool::initialize() {
             if(m_upTool) m_upTool->UsePeriodConfig(m_usePeriodConfig);
             if(m_downTool) m_downTool->UsePeriodConfig(m_usePeriodConfig);
          } else {
-            ATH_MSG_INFO("No config files provided, but " << m_lumicalcFiles.size() << " lumicalc file provided. Please specify a UsePeriodConfig if you want to use the tool without a config file (e.g. do 'MC15') ");
-            return StatusCode::FAILURE;
+            ATH_MSG_WARNING("No config files provided, but " << m_lumicalcFiles.size() << " lumicalc file provided. Assuming a period config of MC16 ");
+            UsePeriodConfig("MC16");
+            m_noWeightsMode=true; //will stop the prw weight being decorated in apply method
+            if(m_upTool) m_upTool->UsePeriodConfig("MC16");
+            if(m_downTool) m_downTool->UsePeriodConfig("MC16");
          }
       }
    
@@ -375,9 +382,10 @@ float PileupReweightingTool::getUnrepresentedDataWeight( const xAOD::EventInfo& 
 
 /// Get a random run number for this MC event, mu_dependency is not recommended for this
 int PileupReweightingTool::getRandomRunNumber( const xAOD::EventInfo& eventInfo , bool mu_dependent) {
-   m_activeTool->SetRandomSeed(314159+eventInfo.mcChannelNumber()*2718+eventInfo.eventNumber()); //to make randomization repeatable
-   if(mu_dependent) return m_activeTool->GetRandomRunNumber(   eventInfo.runNumber(), eventInfo.averageInteractionsPerCrossing()  );
-   else return m_activeTool->GetRandomRunNumber( eventInfo.runNumber() );
+   CP::TPileupReweighting* tool = (m_varyRunNumber) ? m_activeTool : this;
+   tool->SetRandomSeed(314159+eventInfo.mcChannelNumber()*2718+eventInfo.eventNumber()); //to make randomization repeatable
+   if(mu_dependent) return tool->GetRandomRunNumber(   eventInfo.runNumber(), eventInfo.averageInteractionsPerCrossing()  );
+   else return tool->GetRandomRunNumber( eventInfo.runNumber() );
 }
 
 int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo ) {
@@ -467,7 +475,7 @@ float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo
    //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod
    unsigned int randomRunNum = (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")) ? eventInfo.auxdataConst<unsigned int>(m_prefix+"RandomRunNumber") : getRandomRunNumber( eventInfo, mu_dependent );
    if(!mu_dependent) out *= m_activeTool->GetPrescaleWeight(randomRunNum, trigger);
-   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/, m_useRunDependentPrescaleWeight /*run-dependent*/ );
    return out;
 }
 

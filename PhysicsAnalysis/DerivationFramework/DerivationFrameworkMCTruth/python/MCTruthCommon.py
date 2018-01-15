@@ -99,7 +99,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                      IncludePromptLeptons=False,IncludePromptPhotons=False,
                                      IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
                                      FSRPhotonCone=-1., DressingDecorationName=decorationDressing
-                                    )
+                                     )
         # Add a jet tool runner for this thing
         from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
         jtm += JetToolRunner("jetdressedwzrun", EventShapeTools=[], Tools=[jtm.truthpartdressedwz], Timer=jetFlags.timeJetToolRunner() )
@@ -115,7 +115,8 @@ def addTruthJets(kernel=None, decorationDressing=None):
           GhostScale = 0.0,
           SkipNegativeEnergy = True
         )
-        jtm.gettersMap['truthdressedwz'] = [jtm.truthdressedwzget]
+        jtm.gettersMap['truthdressedwz'] = list(jtm.gettersMap['truth'])
+        jtm.gettersMap['truthdressedwz'][0] = jtm.truthdressedwzget
     # Propagate that downward
     if dfInputIsEVNT:
         addTruthJetsEVNT(kernel,decorationDressing)
@@ -151,9 +152,6 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         DFCommonTruthElectronDressingTool.decorationName = decorationDressing
         DFCommonTruthMuonDressingTool.decorationName = decorationDressing
 
-    # Tau collections are built separately
-    import DerivationFrameworkTau.TauTruthCommon
-
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
     augmentationToolsList = [ DFCommonTruthClassificationTool,
                               DFCommonTruthMuonTool,DFCommonTruthElectronTool,
@@ -163,7 +161,6 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                               DFCommonTruthBosonTool,
                               DFCommonTruthBSMTool,
                               DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
-                              DFCommonTruthTauDressingTool,
                               DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                               DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
                               DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
@@ -171,6 +168,10 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
                                                              AugmentationTools = augmentationToolsList
                                                              )
+
+
+    
+
 
 def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     # These augmentations *require* truth jets in order to behave properly
@@ -181,11 +182,19 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     if hasattr(kernel,'MCTruthCommonPostJetKernel'):
         # Already there!  Carry on...
         return
+
+    # Tau collections are built separately 
+    # truth tau matching needs truth jets, truth electrons and truth muons
+    from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+    scheduleTauTruthTools(kernel)
+
+    augmentationToolsList = [ DFCommonTruthTauDressingTool ]
+
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
     from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-    augmentationToolsList = [ DFCommonTruthGenFilter,
+    augmentationToolsList += [ DFCommonTruthGenFilter,
                               DFCommonTruthQGLabelTool]
     if decorationDressing is not None:
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
@@ -339,3 +348,43 @@ def addTruthCollectionNavigationDecorations(kernel=None,TruthCollections=[]):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthNavigationDecoratorKernel",
                                                              AugmentationTools = [DFCommonTruthNavigationDecorator] )
+
+# Add BSM particles and their downstream particles (immediate and further decay products) in a special collection
+def addBSMAndDownstreamParticles(kernel=None, generations=-1):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonBSMAndDecaysKernel'):
+        # Already there!  Carry on...
+        return
+    # Set up a tool to keep the taus and all downstream particles
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
+    DFCommonBSMAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonBSMAndDecaysTool",
+                                                                   NewCollectionName="TruthBSMWithDecay",
+                                                                             KeepBSM=True,
+                                                                         Generations=generations)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonBSMAndDecaysTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonBSMAndDecaysKernel",
+                                                             AugmentationTools = [DFCommonBSMAndDecaysTool] )
+
+# Add a mini-collection for the born leptons
+def addBornLeptonCollection(kernel=None):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonBornLeptonsKernel'):
+        # Already there!  Carry on...
+        return
+    # Set up a tool to keep the taus and all downstream particles
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthBornLeptonCollectionMaker
+    DFCommonBornLeptonCollTool = DerivationFramework__TruthBornLeptonCollectionMaker( name="DFCommonBornLeptonCollTool",
+                                                                         NewCollectionName="BornLeptons")
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonBornLeptonCollTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonBornLeptonsKernel",
+                                                             AugmentationTools = [DFCommonBornLeptonCollTool] )

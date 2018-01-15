@@ -21,7 +21,7 @@ namespace Trig{
 
         public: 
 
-            /// Constructor with parameters: 
+            /// Constructor with parameters:
             TrigBtagEmulationToolTest(const std::string& name, ISvcLocator* pSvcLocator);
 
             /// Destructor: 
@@ -32,14 +32,10 @@ namespace Trig{
             StatusCode  execute();
             StatusCode  finalize();
 
-        private: 
+        private:
 
-            /// Default constructor: 
-            TrigBtagEmulationToolTest();
-            StatusCode Method1();
-            StatusCode Method2();
-            void writeEmulationSummary();
-            float ratio(float,float);
+	    /// Constructor with parameters: 
+	    TrigBtagEmulationToolTest();
 
         private:
             ToolHandle<Trig::TrigDecisionTool> m_trigdec;
@@ -47,13 +43,6 @@ namespace Trig{
 
             std::vector<std::string>   m_triggerList;
             StoreGateSvc              *m_storeGate;
-
-            //counters
-            std::map<std::string, int> m_counter;
-            std::map<std::string, int> m_counter_emu;
-            std::map<std::string, int> m_counter2;
-            std::map<std::string, int> m_counter_emu2;
-
     }; 
 }
 #endif

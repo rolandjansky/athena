@@ -196,7 +196,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     m_bdtTagger->AddVariable( "fjet_D2", &m_D2  );
     m_bdtTagger->AddVariable( "fjet_Tau2_wta", &m_Tau2_wta );
     m_bdtTagger->AddVariable( "fjet_e3", &m_e3 );
-    m_bdtTagger->AddVariable( "fjet_Split12", &m_Split23  );
+    m_bdtTagger->AddVariable( "fjet_Split12", &m_Split12  );
     m_bdtTagger->AddVariable( "fjet_JetpTCorrByCombinedMass", &m_pt);
     m_bdtTagger->AddVariable( "fjet_Tau21_wta", &m_Tau21_wta  );
 
@@ -318,6 +318,10 @@ float JSSWTopTaggerBDT::getScore(const xAOD::Jet& jet) const{
 
     // evaluate bdt
     float bdt_score(-666.);
+    if(m_undefInput){
+      ATH_MSG_WARNING("One (or more) tagger input variable has an undefined value (NaN), setting score to -666");      
+      return bdt_score;
+    }
     bdt_score = m_bdtTagger->EvaluateMVA( m_BDTmethod.c_str() );
 
     return bdt_score;
@@ -369,16 +373,25 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
     m_Tau2_wta = jet.getAttribute<float>("Tau2_wta");
     m_Tau3_wta = jet.getAttribute<float>("Tau3_wta");
 
-    if (!jet.isAvailable<float>("Tau21_wta"))
+    m_undefInput = false;
+
+    if (!jet.isAvailable<float>("Tau21_wta")){
         m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
-    else
+	if(m_Tau21_wta!=m_Tau21_wta){
+	  m_undefInput = true;
+	}
+    }else{
         m_Tau21_wta = jet.getAttribute<float>("Tau21_wta");
+    }
 
-    if (!jet.isAvailable<float>("Tau32_wta"))
+    if (!jet.isAvailable<float>("Tau32_wta")){
         m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-    else
+	if(m_Tau21_wta!=m_Tau21_wta){
+	  m_undefInput = true;
+	}
+    }else{
         m_Tau32_wta = jet.getAttribute<float>("Tau32_wta");
-
+    }
 
     // Other Substructure Variables
     m_Qw           = jet.getAttribute<float>("Qw");

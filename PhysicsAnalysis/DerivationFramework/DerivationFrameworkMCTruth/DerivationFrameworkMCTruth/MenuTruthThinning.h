@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MenuTruthThinning, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_MENUTRUTHTHINNINGTOOL_H
 #define DERIVATIONFRAMEWORK_MENUTRUTHTHINNINGTOOL_H
 

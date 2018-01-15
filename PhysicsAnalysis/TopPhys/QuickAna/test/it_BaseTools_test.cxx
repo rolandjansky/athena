@@ -583,7 +583,7 @@ TEST (ToolMakeTest, makeNew_ElectronPhotonShowerShapeFudgeTool)
   ASSERT_SUCCESS (ASG_MAKE_ANA_TOOL (handle, ElectronPhotonShowerShapeFudgeTool));
 }
 
-TEST (ToolMakeTest, initialize_ElectronPhotonShowerShapeFudgeTool)
+TEST (ToolMakeTest, DISABLED_initialize_ElectronPhotonShowerShapeFudgeTool)
 {
   asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> handle ("tool");
   ASSERT_SUCCESS (ASG_MAKE_ANA_TOOL (handle, ElectronPhotonShowerShapeFudgeTool));

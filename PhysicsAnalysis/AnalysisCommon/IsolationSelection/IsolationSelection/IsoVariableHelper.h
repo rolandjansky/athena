@@ -30,7 +30,7 @@ namespace CP {
             IsoVariableHelper(IsoType type, const std::string& BackupPreFix);
 
         private:
-
+            CorrectionCode getIsolationFromOriginal(const xAOD::IParticle* particle, float& value) const;
             IsoType m_isoType;
             bool m_BackupIso;
             CharDecorator m_dec_IsoIsBackup;

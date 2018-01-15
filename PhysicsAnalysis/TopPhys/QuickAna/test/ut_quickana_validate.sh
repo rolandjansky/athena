@@ -20,5 +20,6 @@ then
     exit 1
 fi
 
-quickana_validate --el-input-file "$FILE" output
-#quickana_validate output
+OUTPUT_DIR=output.$$
+rm -rf $OUTPUT_DIR
+quickana_validate --el-input-file "$FILE" $OUTPUT_DIR

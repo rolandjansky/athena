@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthPVCollectionMaker.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthPVCollectionMaker.cxx
 // Makes a small collection of 'primary' vertices, one per event
 // A bit like a collection of 'reconstructable' vertices
 // Future option: try to add b-decay vertices, or LLP vertices?

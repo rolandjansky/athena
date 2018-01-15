@@ -92,7 +92,10 @@ public:
   template<class W, typename = typename std::enable_if<!std::is_base_of<GaudiHandleBase,W>::value && 
 						       !std::is_base_of<GaudiHandleArrayBase,W>::value>::type> 
    static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const W& value, bool override=true) {
-      
+      if(toolHandle.empty()) {
+          std::cout << "ERROR: Empty toolHandle passed to AthAnalysisHelper::setProperty" << std::endl;
+          return StatusCode::FAILURE;
+      }
       std::string fullName = toolHandle.parentName() + "." + toolHandle.name();
       std::string thePropertyName(property);
       //if the property contains any "." then strip the last bit as the property name

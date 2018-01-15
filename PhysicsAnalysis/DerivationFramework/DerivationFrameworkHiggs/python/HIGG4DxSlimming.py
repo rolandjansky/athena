@@ -101,10 +101,24 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     else:
         ExtraContentVtx=["PrimaryVertices.x.y.z.vertexType"]
 
+    if HIGG4DxName == 'HIGG4D6':
+        ExtraContentElectrons[0] += ".asy1.barys1.f1core.pos.pos7.poscs1.poscs2.r33over37allcalo"
+        ExtraContentMuons[0] += ".MeasEnergyLoss.ParamEnergyLoss.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"
+        ExtraContentTaus[0] += ".etaIntermediateAxis.etEMAtEMScale.etHadAtEMScale.centFrac.ptDetectorAxis.trFlightPathSig.absipSigLeadTrk"
+        ExtraContentJets = [
+            "AntiKt4LCTopoJets."
+            ,
+            "CaloCalTopoClusters."
+            ]
+
+
     HIGG4DxSlimmingHelper.ExtraVariables = ExtraContentElectrons + ExtraContentMuons + ExtraContentTaus + ExtraContentVtx
 
     if DFisMC:
         HIGG4DxSlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth
+
+    if HIGG4DxName == 'HIGG4D6':
+        HIGG4DxSlimmingHelper.ExtraVariables += ExtraContentJets
 
     #extra containers
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:

@@ -293,7 +293,7 @@ STDM4SlimmingHelper.IncludeMuonTriggerContent = True
 # removed end of line ot build in rel21
 STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt",
-  "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag",
+  "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM",
   "AntiKt4EMTopoJets.SumPtTrkPt1000.SumPtTrkPt500.NumTrkPt500.NumTrkPt1000",
   "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
 ]

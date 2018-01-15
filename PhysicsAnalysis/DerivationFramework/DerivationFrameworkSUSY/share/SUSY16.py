@@ -13,6 +13,8 @@ if DerivationFrameworkIsMonteCarlo:
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY16Stream.StreamName
@@ -354,6 +356,10 @@ SeqSUSY16 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY16)
+
+#==============================================================================
 OutputJets["SUSY16"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
 # now part of MCTruthCommon
@@ -382,6 +388,19 @@ SeqSUSY16 += CfgMgr.DerivationFramework__DerivationKernel(
     ThinningTools = thinningTools,
     )
 
+#====================================================================
+# Prompt Lepton Tagger
+#====================================================================
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY16, "SUSY16")
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY16, "SUSY16")
+
+# add decoration
+SeqSUSY16 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY16 += JetTagConfig.GetDecoratePromptTauAlgs()
+
 
 #====================================================================
 # CONTENT LIST  
@@ -394,8 +413,14 @@ SUSY16SlimmingHelper.SmartCollections = ["Electrons",
                                          "Muons",
                                          "TauJets",
                                          "AntiKt4EMTopoJets",
+"AntiKt4EMPFlowJets",
+
                                          "MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+
                                          "BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+
                                          "InDetTrackParticles",
                                          "PrimaryVertices"]
 SUSY16SlimmingHelper.AllVariables = ["TruthParticles", 
@@ -424,6 +449,13 @@ SUSY16SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl"
 ]
 
+# Saves BDT and input variables for light lepton algorithms. 
+# Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
+SUSY16SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+# Saves BDT and input variables tau algorithm
+SUSY16SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+
+
 SUSY16SlimmingHelper.IncludeMuonTriggerContent   = True
 SUSY16SlimmingHelper.IncludeEGammaTriggerContent = True
 SUSY16SlimmingHelper.IncludeBPhysTriggerContent  = False
@@ -436,7 +468,8 @@ SUSY16SlimmingHelper.IncludeBJetTriggerContent   = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY16SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY16SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   

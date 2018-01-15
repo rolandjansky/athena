@@ -72,7 +72,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
   // Declare the needed properties
   declareProperty("CorrectionFileNameList", m_corrFileNameList,
 		  "List of file names that store the correction factors for simulation.");
-  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v2/map0.txt" ,
+  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/map0.txt" ,
 		  "Full path to the map file");
   declareProperty("RecoKey", m_recoKey = "" ,
 		  "Key associated with reconstruction");
@@ -740,13 +740,19 @@ int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::E
   if (cluster) {
     cluster_eta = cluster->etaBE(2);
   }
-
-  if (m_correlation_model == correlationModel::SIMPLIFIED) {
+  switch(m_correlation_model){
+  case  correlationModel::SIMPLIFIED:{
     currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-  }
-
-  if (m_correlation_model == correlationModel::FULL) {
+    break;
+    }
+  case correlationModel::FULL:{
     currentSystRegion = currentUncorrSystRegion( cluster_eta, et);
+    break;
+    }
+  default:{
+    //not there for the other models
+      break;
+    }
   }
   return currentSystRegion;
 }

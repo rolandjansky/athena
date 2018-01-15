@@ -348,16 +348,16 @@ thinningTools.append(EXOT4ElectronTPThinningTool)
 # Keep the topo-cluster to which the electron is ElementLink'ed
 # needed for calibration and electron-in-jet overlap studies
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-EXOT4ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "EXOT4ElectronCCThinningTool",
-                                                                                     ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
-                                                                                     SGKey             	     = "Electrons",
-                                                                                     CaloClCollectionSGKey   = "egammaClusters",
-                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                                     SelectionString         = "Electrons.pt > 7*GeV",
-                                                                                     #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
-                                                                                     ConeSize                = 0)
-ToolSvc += EXOT4ElectronCCThinningTool
-thinningTools.append(EXOT4ElectronCCThinningTool)
+#EXOT4ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "EXOT4ElectronCCThinningTool",
+#                                                                                     ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
+#                                                                                     SGKey             	     = "Electrons",
+#                                                                                     CaloClCollectionSGKey   = "egammaClusters",
+#                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
+#                                                                                     SelectionString         = "Electrons.pt > 7*GeV",
+#                                                                                     #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
+#                                                                                     ConeSize                = 0)
+#ToolSvc += EXOT4ElectronCCThinningTool
+#thinningTools.append(EXOT4ElectronCCThinningTool)
 
 # Keep topoclusters which are in the list of constituents of the CA 1.5
 # jets
@@ -371,8 +371,7 @@ thinningTools.append(EXOT4ElectronCCThinningTool)
 #                                                                       ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
 #                                                                       SGKey                   = "CamKt15LCTopoJets",
 #                                                                       TopoClCollectionSGKey   = "CaloCalTopoClusters",
-#                                                                       SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV",
-#                                                                       ConeSize                = 0)
+#                                                                       SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV")
 #ToolSvc += EXOT4CA15CCThinningTool
 #thinningTools.append(EXOT4CA15CCThinningTool)
 
@@ -384,7 +383,7 @@ EXOT4Ak10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name      
                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 150*GeV",
-                                                                       ConeSize                = 0)
+                                                                       AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += EXOT4Ak10CCThinningTool
 thinningTools.append(EXOT4Ak10CCThinningTool)
 
@@ -701,5 +700,8 @@ EXOT4SlimmingHelper.IncludeMuonTriggerContent = True
 
 # also keep MET trigger object information for studies
 EXOT4SlimmingHelper.IncludeEtMissTriggerContent = True
+
+addOriginCorrectedClusters(EXOT4SlimmingHelper, writeLC = True, writeEM = True)
+
 
 EXOT4SlimmingHelper.AppendContentToStream(EXOT4Stream)

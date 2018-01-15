@@ -131,7 +131,9 @@ FTAG3SlimmingHelper.AllVariables =  ["AntiKt4EMTopoJets",
                                      "HLT_xAOD__MuonContainer_MuonEFInfo"
                                      ]
 
-FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
+FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt10TruthSecVtx.-vxTrackAtVertex"]
 
 addJetOutputs(FTAG3SlimmingHelper,["FTAG3"],[],[])
 

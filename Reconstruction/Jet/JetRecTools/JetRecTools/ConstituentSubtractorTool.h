@@ -31,10 +31,12 @@ public:
 
 public:
 
-  float m_maxDeltaR;
-  float m_alpha;
-  float m_maxEta;
-  float m_maxRapForRhoComputation;
+  float m_maxDeltaR = 0.25;
+  float m_alpha = 0.0;
+  float m_maxEta = 4.5;
+  float m_maxRapForRhoComputation = 2.0;
+  float m_ghost_area = 0.01;
+  bool m_common_bge_for_rho_and_rhom = false;
 };
 
 #endif

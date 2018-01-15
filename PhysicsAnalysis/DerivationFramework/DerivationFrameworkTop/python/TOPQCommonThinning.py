@@ -127,7 +127,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
               SGKey                   = "AntiKt4EMTopoJets",
               TopoClCollectionSGKey   = "CaloCalTopoClusters",
               SelectionString         = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 7*GeV",
-              ConeSize                = 0.5
+              AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters"]
   )
 
   ToolSvc += TOPQAK4CCThinningTool
@@ -141,7 +141,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
               SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
               TopoClCollectionSGKey   = "CaloCalTopoClusters",
               SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 7*GeV",
-              ConeSize                = 1.1
+              AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters"]
   )
 
   ToolSvc += TOPQLargeJetCCThinningTool

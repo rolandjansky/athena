@@ -125,13 +125,14 @@ int main( int argc, char* argv[] ) {
   // Check if we received a file name:
   if ( argc < 2 ) {
     Error( APP_NAME, "No file name received!" );
-    Error( APP_NAME, "  Usage: %s [xAOD file name] [maxEvents] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug] [ConfigFile=<cfile.conf>] [PRWFile=<prwfile.root>] [doRTT] [SUSYx]", APP_NAME );
+    Error( APP_NAME, "  Usage: %s [xAOD file name] [maxEvents] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug] [ConfigFile=<cfile.conf>] [PRWFile=<prwfile.root>] [doRTT] [SUSYx] [autoconfigPRW]", APP_NAME );
     return 1;
   }
 
 
   /// READ CONFIG ------------
 
+  int autoconfigPRW = -1;
   int isData = -1;
   int isAtlfast = -1;
   int NoSyst = 1;
@@ -152,6 +153,7 @@ int main( int argc, char* argv[] ) {
 
     Info( APP_NAME,  "processing key %s  with value %s", key, val );
 
+    if (strcmp(key, "autoconfigPRW") == 0) autoconfigPRW = atoi(val);
     if (strcmp(key, "isData") == 0) isData = atoi(val);
     if (strcmp(key, "isAtlfast") == 0) isAtlfast = atoi(val);
     if (strcmp(key, "NoSyst") == 0) NoSyst = atoi(val);
@@ -280,16 +282,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   ////       ****        AND SHOULD NOT BE USED FOR SERIOUS ANALYSIS          ****       ////
   ////                                                                                   ////
   ///////////////////////////////////////////////////////////////////////////////////////////
-  std::vector<std::string> prw_conf;
-  if (prw_file == "DUMMY") {
-    prw_conf.push_back("dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
-    prw_conf.push_back("dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
-  }
-  else {
-    prw_conf = getTokens(prw_file,",");
-    //    prw_conf.push_back(prw_file);
-  }
-  ANA_CHECK( objTool.setProperty("PRWConfigFiles", prw_conf) );
+  if ( autoconfigPRW != 1 ) {
+    std::vector<std::string> prw_conf;
+    if (prw_file == "DUMMY") {
+      prw_conf.push_back("dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
+      prw_conf.push_back("dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+    }
+    else {
+      prw_conf = getTokens(prw_file,",");
+      //    prw_conf.push_back(prw_file);
+    }
+    ANA_CHECK( objTool.setProperty("PRWConfigFiles", prw_conf) );
+  } 
 
   std::vector<std::string> prw_lumicalc;
   if (ilumicalc_file == "DUMMY") {
@@ -327,6 +331,16 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     exit(-1);
   } else {
     Info( APP_NAME, "SUSYObjDef_xAOD initialized... " );
+  }
+
+  // autoconfiguring PRW tool
+  if ( autoconfigPRW==1 ) {
+    if( objTool.autoconfigurePileupRWTool() != StatusCode::SUCCESS ) {
+      Error( APP_NAME, "Cannot autoconfigure PRW tool: Exiting..." );
+      exit (EXIT_FAILURE);
+    } else {
+      Info( APP_NAME, "PRW tool: autoconfiguration was successful :-)" );
+    }
   }
 
   std::cout << " INITIALIZED SUSYTOOLS " << std::endl;

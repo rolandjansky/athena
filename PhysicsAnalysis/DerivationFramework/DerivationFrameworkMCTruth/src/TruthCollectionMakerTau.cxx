@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthCollectionMakerTau.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthCollectionMakerTau.cxx
 // Create truth tau collection decorated with tau decay specific variables
 
 // Class header file
