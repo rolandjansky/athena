@@ -13,11 +13,8 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
+#include "StoreGate/ReadHandle.h"
 
-#include "RecoToolInterfaces/ICaloCellIsolationTool.h"
-#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
-#include "RecoToolInterfaces/ITrackIsolationTool.h"
-#include "RecoToolInterfaces/INeutralEFlowIsolationTool.h"
 #include "xAODPrimitives/IsolationConeSize.h"
 #include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -40,44 +37,9 @@
 #include <utility>
 
 IsolationBuilder::IsolationBuilder( const std::string& name, 
-			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_cellIsolationTool("", this),
-  m_cellColl (nullptr),
-  m_topoIsolationTool("", this),
-  m_pflowIsolationTool("", this),
-  m_trackIsolationTool("", this)
+				    ISvcLocator* pSvcLocator ) : 
+  ::AthAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
-  declareProperty("ElectronCollectionContainerName",    m_ElectronContainerName    = "Electrons");
-  declareProperty("PhotonCollectionContainerName",      m_PhotonContainerName      = "Photons");
-  declareProperty("MuonCollectionContainerName",        m_MuonContainerName        = "Muons");
-  declareProperty("FwdElectronCollectionContainerName", m_FwdElectronContainerName = "ForwardElectrons");
-  declareProperty("CellCollectionName",              m_cellsName             = "AllCalo", "Name of container which contain calo cells");
-  declareProperty("CaloCellIsolationTool",           m_cellIsolationTool,    "Handle of the calo cell IsolationTool");
-  declareProperty("CaloTopoIsolationTool",           m_topoIsolationTool,    "Handle of the calo topo IsolationTool");
-  declareProperty("PFlowIsolationTool",              m_pflowIsolationTool,   "Handle of the pflow IsolationTool");
-  declareProperty("TrackIsolationTool",              m_trackIsolationTool,   "Handle of the track IsolationTool");
-  declareProperty("useBremAssoc",                    m_useBremAssoc          = true, "use track to track assoc after brem");
-  declareProperty("FeIsoTypes",                      m_feisoInts, "The isolation types to do for forward electron: vector of vector of enum type Iso::IsolationType, stored as float");
-  declareProperty("FeCorTypes",                      m_fecorInts, "The correction types to do for forward electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float");
-  declareProperty("EgIsoTypes",                      m_egisoInts, "The isolation types to do for egamma: vector of vector of enum type Iso::IsolationType, stored as float");
-  declareProperty("EgCorTypes",                      m_egcorInts, "The correction types to do for egamma iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float");
-  declareProperty("MuIsoTypes",                      m_muisoInts, "The isolation types to do for Muons : vector of vector of enum type Iso::IsolationType, stored as float");
-  declareProperty("MuCorTypes",                      m_mucorInts, "The correction types to do for Muon iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float");
-  declareProperty("CustomConfigurationName",         m_customConfig          = "", "use a custom configuration");
-  declareProperty("CustomConfigurationNameEl",       m_customConfigEl        = "", "use a custom configuration for electron");
-  declareProperty("CustomConfigurationNamePh",       m_customConfigPh        = "", "use a custom configuration for photon");
-  declareProperty("CustomConfigurationNameFwd",      m_customConfigFwd       = "", "use a custom configuration for forward electron");
-  declareProperty("CustomConfigurationNameMu",       m_customConfigMu        = "", "use a custom configuration for muon");
-  declareProperty("IsAODFix",                        m_isAODFix              = false);
-  declareProperty("LeakageTool",                     m_leakTool,                   "Handle of the leakage Tool");
-  declareProperty("IsolateEl",                       m_isolateEl             = true, "since egIsoTypes is common for el and ph, a new flag to control individually : electron");
-  declareProperty("IsolatePh",                       m_isolatePh             = true, "since egIsoTypes is common for el and ph, a new flag to control individually : photon");
-  declareProperty("AllTrackRemoval",                 m_allTrackRemoval       = true);
-  
 }
 
 IsolationBuilder::~IsolationBuilder() {}
@@ -85,9 +47,9 @@ IsolationBuilder::~IsolationBuilder() {}
 StatusCode IsolationBuilder::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
-
+  
   std::set<xAOD::Iso::IsolationFlavour> runIsoType;
-
+  
   // Build helpers for all required isolations
   // For egamma (central)
   unsigned int nI = m_egisoInts.size();
@@ -145,7 +107,7 @@ StatusCode IsolationBuilder::initialize()
       ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
     if (runIsoType.find(isoFlav) == runIsoType.end()) runIsoType.insert(isoFlav);
   }
-
+  
   // For forward electrons
   nI = m_feisoInts.size();
   if (nI > 0 && m_feisoInts[0].size() > 0) 
@@ -254,28 +216,40 @@ StatusCode IsolationBuilder::initialize()
   }
 
   // Retrieve the tools (there three Calo ones are the same in fact)
-  if (!m_cellIsolationTool.empty() && runIsoType.find(xAOD::Iso::etcone) != runIsoType.end())
+  if (!m_cellIsolationTool.empty() && runIsoType.find(xAOD::Iso::etcone) != runIsoType.end()) {
     ATH_CHECK(m_cellIsolationTool.retrieve());
-
-  if (!m_topoIsolationTool.empty() && runIsoType.find(xAOD::Iso::topoetcone) != runIsoType.end())
-    ATH_CHECK(m_topoIsolationTool.retrieve());
-
-  if (!m_pflowIsolationTool.empty() && runIsoType.find(xAOD::Iso::neflowisol) != runIsoType.end())
-    ATH_CHECK(m_pflowIsolationTool.retrieve());
-
-  if (!m_trackIsolationTool.empty() && runIsoType.find(xAOD::Iso::IsolationFlavour::ptcone) != runIsoType.end())
-    ATH_CHECK(m_trackIsolationTool.retrieve());
-
-
-  // Also can apply leakage correction if AODFix :
-  // be carefull ! There is a leakage in topoetcone, etcone, ... : do not run this !!!!!! (useless)
-  if (m_isAODFix && !m_leakTool.empty()) {
-    ATH_MSG_INFO("Will run leakage corrections for photons and electrons");
-    ATH_CHECK(m_leakTool.retrieve());
+  } else {
+    m_cellIsolationTool.disable();
   }
 
+  if (!m_topoIsolationTool.empty() && runIsoType.find(xAOD::Iso::topoetcone) != runIsoType.end()) {
+    ATH_CHECK(m_topoIsolationTool.retrieve());
+  } else {
+    m_topoIsolationTool.disable();
+  }
+
+  if (!m_pflowIsolationTool.empty() && runIsoType.find(xAOD::Iso::neflowisol) != runIsoType.end()) {
+    ATH_CHECK(m_pflowIsolationTool.retrieve());
+  } else {
+    m_pflowIsolationTool.disable();
+  }
+
+  if (!m_trackIsolationTool.empty() && runIsoType.find(xAOD::Iso::IsolationFlavour::ptcone) != runIsoType.end()) {
+    ATH_CHECK(m_trackIsolationTool.retrieve());
+  } else {
+    m_trackIsolationTool.disable();
+  }
+  
   //initialise data handles
-  ATH_CHECK(m_MuonContainerName.initialize());
+  ATH_CHECK(m_cellsKey.initialize(!m_cellIsolationTool.empty()));
+	    
+  // // Also can apply leakage correction if AODFix :
+  // // be carefull ! There is a leakage in topoetcone, etcone, ... : do not run this !!!!!! (useless)
+  // if (m_isAODFix && !m_leakTool.empty()) {
+  //   ATH_MSG_INFO("Will run leakage corrections for photons and electrons");
+  //   ATH_CHECK(m_leakTool.retrieve());
+  // }
+
 
   return StatusCode::SUCCESS;
 }
@@ -321,13 +295,23 @@ StatusCode IsolationBuilder::execute()
 
   // For etcone, needs the cells
   if (!m_cellIsolationTool.empty()) {
-    if (evtStore()->retrieve(m_cellColl, m_cellsName).isFailure() || !m_cellColl) {
-      ATH_MSG_WARNING("Cannot retrieve Calo Cell Container " << m_cellsName << ". Will not compute etcone");
-      m_cellColl = 0;
+    SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+    
+    // check is only used for serial running; remove when MT scheduler used
+    if(!cellcoll.isValid()) {
+      ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
+      return StatusCode::FAILURE;
     }
+    
+    m_cellColl = cellcoll.cptr();
+  } else {
+    m_cellColl = nullptr;
   }
 
-  // // If AODFix, first deep copy  -- (JM: no longer necessary)
+  // If AODFix, first deep copy  -- 
+  // JM: Let's leave this to later. From what I understand we will rename inputs
+  //     and create new objects, but I don't know if it makes sense to do it here
+  //     like this. Maybe there can be an external utility to copy renamed xAOD objects?
   // if (m_isAODFix) {
   //   if (m_ElectronContainerName.size()) {
   //     if (!evtStore()->tryRetrieve<xAOD::ElectronContainer>(m_ElectronContainerName)) {
@@ -415,8 +399,8 @@ StatusCode IsolationBuilder::execute()
       CHECK(DecorateMuon());
   }
 
-  if (m_isAODFix && !m_leakTool.empty())
-    CHECK(runLeakage());
+  // if (m_isAODFix && !m_leakTool.empty())
+  //   CHECK(runLeakage());
 
   
   return StatusCode::SUCCESS;
@@ -704,7 +688,7 @@ StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
 	ATH_MSG_WARNING("Call to custom TrackIsolationTool failed");
     }
   }
-
+  
   return StatusCode::SUCCESS;
 } 
 StatusCode IsolationBuilder::DecorateMuon() {
@@ -784,93 +768,95 @@ StatusCode IsolationBuilder::DecorateMuon() {
 
   return StatusCode::SUCCESS;
 }
+ 
+// JM:  of AODFix, so commenting out for now
 
-StatusCode IsolationBuilder::runLeakage() {
+// StatusCode IsolationBuilder::runLeakage() {
   
-  // Retrieve data
-  if (m_PhotonContainerName.size()) {
-    xAOD::PhotonContainer* photons = evtStore()->retrieve< xAOD::PhotonContainer >(m_PhotonContainerName);
-    if( !photons ) {
-      ATH_MSG_ERROR("Couldn't retrieve photon container with key: " << m_PhotonContainerName);
-      return StatusCode::FAILURE;
-    }
-    for (auto ph : *photons)           
-      m_leakTool->applyCorrection(*ph);
-  }
+//   // Retrieve data
+//   if (m_PhotonContainerName.size()) {
+//     xAOD::PhotonContainer* photons = evtStore()->retrieve< xAOD::PhotonContainer >(m_PhotonContainerName);
+//     if( !photons ) {
+//       ATH_MSG_ERROR("Couldn't retrieve photon container with key: " << m_PhotonContainerName);
+//       return StatusCode::FAILURE;
+//     }
+//     for (auto ph : *photons)           
+//       m_leakTool->applyCorrection(*ph);
+//   }
     
-  if (m_ElectronContainerName.size()) {
-    xAOD::ElectronContainer* electrons = evtStore()->retrieve< xAOD::ElectronContainer >(m_ElectronContainerName);
-    if( !electrons ) {
-      ATH_MSG_ERROR("Couldn't retrieve electron container with key: " << m_ElectronContainerName);
-      return StatusCode::FAILURE;
-    }
-    for (auto el : *electrons)
-      m_leakTool->applyCorrection(*el);
-  }
+//   if (m_ElectronContainerName.size()) {
+//     xAOD::ElectronContainer* electrons = evtStore()->retrieve< xAOD::ElectronContainer >(m_ElectronContainerName);
+//     if( !electrons ) {
+//       ATH_MSG_ERROR("Couldn't retrieve electron container with key: " << m_ElectronContainerName);
+//       return StatusCode::FAILURE;
+//     }
+//     for (auto el : *electrons)
+//       m_leakTool->applyCorrection(*el);
+//   }
 
-  return StatusCode::SUCCESS;
-}
+//   return StatusCode::SUCCESS;
+// }
+ 
 
-
-template< class CONTAINER, class AUXSTORE > StatusCode IsolationBuilder::deepCopy( const std::string& key ) const {
+// template< class CONTAINER, class AUXSTORE > StatusCode IsolationBuilder::deepCopy( const std::string& key ) const {
     
-  // Let the user know what's happening:
-  ATH_MSG_VERBOSE( "Running deepCopy on container: " << key );
+//   // Let the user know what's happening:
+//   ATH_MSG_VERBOSE( "Running deepCopy on container: " << key );
   
-  // Decide which implementation to call:
-  if( evtStore()->template contains< AUXSTORE >( key + "Aux." ) ) {
-    if( deepCopyImp< CONTAINER, AUXSTORE >( key ).isFailure() ) {
-      ATH_MSG_FATAL( "Couldn't call deepCopyImp with concrete "
-		     "auxiliary store" );
-      return StatusCode::FAILURE;
-    }
-  } else if( evtStore()->template contains< xAOD::AuxContainerBase >( key +
-								      "Aux." ) ) {
-    if( deepCopyImp< CONTAINER,
-	xAOD::AuxContainerBase >( key ).isFailure() ) {
-      ATH_MSG_FATAL( "Couldn't call deepCopyImp with generic "
-		     "auxiliary store" );
-      return StatusCode::FAILURE;
-    }
-  } else {
-    ATH_MSG_FATAL( "Couldn't discover auxiliary store type for container \""
-		   << key << "\"" );
-    return StatusCode::FAILURE;
-  }
+//   // Decide which implementation to call:
+//   if( evtStore()->template contains< AUXSTORE >( key + "Aux." ) ) {
+//     if( deepCopyImp< CONTAINER, AUXSTORE >( key ).isFailure() ) {
+//       ATH_MSG_FATAL( "Couldn't call deepCopyImp with concrete "
+// 		     "auxiliary store" );
+//       return StatusCode::FAILURE;
+//     }
+//   } else if( evtStore()->template contains< xAOD::AuxContainerBase >( key +
+// 								      "Aux." ) ) {
+//     if( deepCopyImp< CONTAINER,
+// 	xAOD::AuxContainerBase >( key ).isFailure() ) {
+//       ATH_MSG_FATAL( "Couldn't call deepCopyImp with generic "
+// 		     "auxiliary store" );
+//       return StatusCode::FAILURE;
+//     }
+//   } else {
+//     ATH_MSG_FATAL( "Couldn't discover auxiliary store type for container \""
+// 		   << key << "\"" );
+//     return StatusCode::FAILURE;
+//   }
   
-  // Return gracefully:
-  return StatusCode::SUCCESS;
-}
+//   // Return gracefully:
+//   return StatusCode::SUCCESS;
+// }
   
-template< class CONTAINER, class AUXSTORE > StatusCode IsolationBuilder::deepCopyImp( const std::string& key ) const {
+// template< class CONTAINER, class AUXSTORE > StatusCode IsolationBuilder::deepCopyImp( const std::string& key ) const {
   
-  // Retrieve the const container:
-  ATH_MSG_VERBOSE( "Will retrieve " << key);
-  const CONTAINER* c = 0;
-  ATH_CHECK( evtStore()->retrieve( c, key ) );
+//   // Retrieve the const container:
+//   ATH_MSG_VERBOSE( "Will retrieve " << key);
+//   const CONTAINER* c = 0;
+//   ATH_CHECK( evtStore()->retrieve( c, key ) );
   
-  // Create the new container:
-  ATH_MSG_VERBOSE( "Will create new containers" );
-  CONTAINER* copy = new CONTAINER();
-  AUXSTORE* copyAux = new AUXSTORE();
-  copy->setStore( copyAux );
+//   // Create the new container:
+//   ATH_MSG_VERBOSE( "Will create new containers" );
+//   CONTAINER* copy = new CONTAINER();
+//   AUXSTORE* copyAux = new AUXSTORE();
+//   copy->setStore( copyAux );
   
-  // Do the deep copy:
-  ATH_MSG_VERBOSE( "Will copy the object" );
-  for( auto oldObj : *c ) {
-    ATH_MSG_VERBOSE( "Now working on object " << oldObj);
-    auto newObj = new typename CONTAINER::base_value_type();
-    copy->push_back( newObj );
-    *newObj = *oldObj;
-  }
+//   // Do the deep copy:
+//   ATH_MSG_VERBOSE( "Will copy the object" );
+//   for( auto oldObj : *c ) {
+//     ATH_MSG_VERBOSE( "Now working on object " << oldObj);
+//     auto newObj = new typename CONTAINER::base_value_type();
+//     copy->push_back( newObj );
+//     *newObj = *oldObj;
+//   }
   
-  // Do the overwrite:
-  ATH_MSG_VERBOSE( "Will overwrite the container" );
-  ATH_CHECK( evtStore()->overwrite( copy, key, true, false ) );
-  ATH_MSG_VERBOSE( "Will overwrite the aux container" );
-  ATH_CHECK( evtStore()->overwrite( copyAux, key + "Aux.", true, false ) );
-  ATH_MSG_VERBOSE( "Done" );
+//   // Do the overwrite:
+//   ATH_MSG_VERBOSE( "Will overwrite the container" );
+//   ATH_CHECK( evtStore()->overwrite( copy, key, true, false ) );
+//   ATH_MSG_VERBOSE( "Will overwrite the aux container" );
+//   ATH_CHECK( evtStore()->overwrite( copyAux, key + "Aux.", true, false ) );
+//   ATH_MSG_VERBOSE( "Done" );
   
-  // Return gracefully:
-  return StatusCode::SUCCESS;
-}
+//   // Return gracefully:
+//   return StatusCode::SUCCESS;
+// }
