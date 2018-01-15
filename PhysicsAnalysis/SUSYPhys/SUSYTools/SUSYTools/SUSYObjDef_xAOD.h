@@ -455,6 +455,9 @@ namespace ST {
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
     double m_muUncert;
+    double m_prwDataSF;
+    double m_prwDataSF_UP;
+    double m_prwDataSF_DW;
 
     // bookkeep supported configurations (in increasing order of tightness)
     std::vector<std::string> el_id_support;

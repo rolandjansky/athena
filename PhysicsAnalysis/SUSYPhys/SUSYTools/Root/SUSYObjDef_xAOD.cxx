@@ -115,6 +115,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_metDoSetMuonJetEMScale(true),
     m_metDoMuonJetOR(true),
     m_muUncert(-99.),
+    m_prwDataSF(1./1.03), // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
+    m_prwDataSF_UP(1.), // old value for mc15 (mc16 uncertainties still missing)
+    m_prwDataSF_DW(1./1.18), // old value for mc15 (mc16 uncertainties still missing)   
     m_electronTriggerSFStringSingle(""),
     m_electronTriggerSFStringDiLepton(""),
     m_electronTriggerSFStringMixedLepton(""),
@@ -442,6 +445,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
   declareProperty( "PRWMuUncertainty",     m_muUncert); // = 0.2);
+  declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
+  declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
+  declareProperty( "PRWDataScaleFactorDOWN", m_prwDataSF_DW);
   //JES Unc.
   declareProperty( "JESNuisanceParameterSet", m_jesNPset );
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
@@ -698,13 +704,15 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
 	return StatusCode::FAILURE;
       }
     } else  {
-      std::string AccessingEventStore("");
-      AccessingEventStore += "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store. ";
-      AccessingEventStore += "If you're using athena, you might need to instatiate SUSYTools in the 'firstExecute' method of AthAnalysisAlgorithm.";
-      ATH_MSG_WARNING( AccessingEventStore );
+#ifndef XAOD_STANDALONE
+      ATH_MSG_ERROR( "autoconfigurePileupRWTool(): access to FileMetaData failed, can't get mc channel number -> please get in touch with the Background Forum conveners reporting what sample you're running over." );
+      return StatusCode::FAILURE;
+#else
+      ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store." );
       const xAOD::EventInfo* evtInfo = 0;
       ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
       dsid = evtInfo->mcChannelNumber();
+#endif
     }
     // ::
     // Sanity checks
