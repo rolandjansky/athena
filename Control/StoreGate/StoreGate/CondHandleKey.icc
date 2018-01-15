@@ -52,7 +52,8 @@ namespace SG {
             << endmsg;
         return StatusCode::FAILURE;
       } else {
-        m_cc = new CondCont<T>(Gaudi::DataHandle::fullKey());
+        ServiceHandle<Athena::IRCUSvc> rcusvc ("Athena::RCUSvc", "CondHandleKey");
+        m_cc = new CondCont<T>(*rcusvc, Gaudi::DataHandle::fullKey());
         if (m_cs->record(m_cc, SG::VarHandleKey::key()).isFailure()) {
           MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
           msg << MSG::ERROR 
@@ -70,7 +71,7 @@ namespace SG {
       }
     } else {
       // lets see if we get lucky and the Write alg already created the
-      // continer we want
+      // container we want
       if (m_cs->contains< CondCont<T> > (SG::VarHandleKey::key()) ) {
         if (m_cs->retrieve(m_cc, SG::VarHandleKey::key()).isFailure()) {
           MsgStream msg(Athena::getMessageSvc(), "CondHandleKey");
