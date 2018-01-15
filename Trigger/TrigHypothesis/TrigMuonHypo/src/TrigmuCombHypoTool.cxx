@@ -181,13 +181,13 @@ StatusCode TrigmuCombHypoTool::decide(TrigmuCombHypoTool::CombinedMuonInfo& inpu
 
   //Kpi rejection
   bool pikCut = true;
-  if (m_pikCuts && (fabsf(fexPt) < m_maxPtToApplyPik)) {
+  if (m_pikCuts && (std::abs(fexPt) < m_maxPtToApplyPik)) {
      if (pMuon->idTrack()->chiSquared() > m_chi2MaxID) pikCut = false;
   }
 
   //Std Pt cut
   bool stdCut = true;
-  if (fabsf(fexPt) <= (threshold / CLHEP::GeV)) stdCut = false;
+  if (std::abs(fexPt) <= (threshold / CLHEP::GeV)) stdCut = false;
   ATH_MSG_DEBUG("REGTEST muon pt is " << fexPt
              << " GeV and threshold cut is " << threshold / CLHEP::GeV
              << " GeV and pik_cut is " << (pikCut ? "true" : "false"));
