@@ -75,6 +75,13 @@ pool::PersistencySvc::UserDatabase::connectForRead( const pool::DatabaseConnecti
           throw pool::PersistencySvcException( "PFN \"" + m_name + "\" is not existing",
                                                "PersistencySvc::UserDatabase::connectForRead" );
         }
+        if( m_nameType == DatabaseSpecification::LFN ) {
+           // fid() found the PFN and FID but no tech
+           // retry assuming the name was really an LFN - need to clear the_fid for that
+           m_the_fid.clear();
+           connectForRead( policy );
+           return;
+        }
         break;
 
       case pool::DatabaseSpecification::FID:
@@ -289,6 +296,13 @@ pool::PersistencySvc::UserDatabase::fid() const
         m_catalog.setAction( action );
         action.lookupFileByPFN( m_name, m_the_fid, technology );
         if ( ! m_the_fid.empty() ) {
+           if( technology.empty() ) {
+              m_nameType = DatabaseSpecification::LFN;
+              coral::MessageStream log( "PersistencySvc::UserDatabase::fid()" );
+              log << coral::Debug << "Retrying 'connect' using assumed PFN " << m_name
+                  << " as LFN (no tech found in PFC)" << coral::MessageStream::endmsg;
+              return m_the_fid;
+           }
           m_the_pfn = m_name;
           this->setTechnologyIdentifier( technology );
           m_alreadyConnected = true;
