@@ -11,18 +11,18 @@ theApp.EvtMax = 400 #set to -1 to run on all events
 
 inputFile = os.environ['ASG_TEST_FILE_DATA'] #test input file
 svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here, takes a list
+svcMgr.MessageSvc.OutputLevel = INFO 
 
-AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
-                                        name = "AST99TauTruthMatchingTool",
-                              WriteTruthTaus = True,
-                                 OutputLevel = INFO,
-                       MCTruthClassifierTool = "" ) # This is data!
-ToolSvc += AST99tauTruthTool
+#AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
+#                                        name = "AST99TauTruthMatchingTool",
+#                              WriteTruthTaus = True,
+#                                 OutputLevel = INFO,
+#                       MCTruthClassifierTool = "" ) # This is data!
+#ToolSvc += AST99tauTruthTool
 
 ToolSvc += CfgMgr.ST__SUSYObjDef_xAOD("SUSYTools")
 
-config_file = "SUSYTools/SUSYTools_Default.conf" #look in the data directory of SUSYTools for other config files
-ToolSvc.SUSYTools.ConfigFile = config_file
+ToolSvc.SUSYTools.ConfigFile = "SUSYTools/SUSYTools_Default.conf" #look in the data directory of SUSYTools for other config files
 ToolSvc.SUSYTools.PRWConfigFiles = [
     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root", 
     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"
@@ -44,7 +44,8 @@ except ImportError:
     myPath="."
 
 
-algseq += CfgMgr.SUSYToolsAlg("DataAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,TauTruthMatchingTool=AST99tauTruthTool,STConfigFile=config_file,CheckTruthJets=False) #Substitute your alg here
+algseq += CfgMgr.SUSYToolsAlg("DataAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,CheckTruthJets=False) #Substitute your alg here
+#algseq += CfgMgr.SUSYToolsAlg("DataAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,TauTruthMatchingTool=AST99tauTruthTool,STConfigFile=config_file,CheckTruthJets=False) #Substitute your alg here
 
 
 #You algorithm can use the SUSYTools through a ToolHandle:
@@ -62,6 +63,7 @@ algseq.DataAlg.DataSource = 0 #run on data
 
 #That completes the minimum configuration. The rest is extra....
 algseq.DataAlg.DoSyst = True
+algseq.DataAlg.OutputLevel = INFO 
 
 svcMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" #Creates more space for displaying tool names
 svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=100) #message every 100 events processed

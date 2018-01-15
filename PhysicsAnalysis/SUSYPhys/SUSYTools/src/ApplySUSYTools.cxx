@@ -189,7 +189,8 @@ StatusCode ApplySUSYTools::initialize()
   // Need truth matching for tau CP tools
   if( !m_isData ){
     ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthTool");
-    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatchingTool");
+    ATH_CHECK( m_tauTruthTool.setProperty("WriteTruthTaus", true) );
     ATH_CHECK( m_tauTruthTool.retrieve() );
   }
 
