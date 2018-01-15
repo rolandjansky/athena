@@ -98,8 +98,8 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_neighborCutsInAbsE               (true),
     m_cellCutsInAbsE                   (true),
     m_clusterEtorAbsEtCut              (    0.*MeV),
-    m_twogaussiannoise                 (false),
     m_seedCutsInT                      (false),
+    m_twogaussiannoise                 (false),
     m_treatL1PredictedCellsAsGood      (true),
     m_minSampling                      (0),
     m_maxSampling                      (0),
@@ -513,27 +513,30 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 
 	  // get the cell time to cut on (the same as in CaloEvent/CaloCluster.h)
           bool isTimeDefined=false;
-          // need sampling number already for time 
-	  CaloSampling::CaloSample sam = pCell->caloDDE()->getSampling();
-          // check for unknown sampling
-          if ( sam != CaloSampling::Unknown )
-            {
-              unsigned pmask = 0;
-              if (sam != CaloSampling::PreSamplerB &&
-                  sam != CaloSampling::PreSamplerE)
-                {
-                  if ( pCell->caloDDE()->is_tile() )
-                    pmask = 0x8080;
-                  else
-                    pmask = 0x2000; //0x2000 is used to tell that time and quality information are available for this channel  (from TWiki)                                                                                         
+          float cellTime = 0;
+	  if(m_seedCutsInT)
+	    {
+	      // need sampling number already for time 
+	      CaloSampling::CaloSample sam = pCell->caloDDE()->getSampling();
+	      // check for unknown sampling
+	      if ( sam != CaloSampling::Unknown )
+		{
+		  unsigned pmask = 0;
+		  if (sam != CaloSampling::PreSamplerB &&
+		      sam != CaloSampling::PreSamplerE)
+		    {
+		      if ( pCell->caloDDE()->is_tile() )
+			pmask = 0x8080;
+		      else
+			pmask = 0x2000; //0x2000 is used to tell that time and quality information are available for this channel  (from TWiki)                                                                                         
 		    }
-              // Is time defined?                                     
-              isTimeDefined = (pCell->provenance() & pmask );
-            }
-
-          float cellTime = 1e3;
-          if(isTimeDefined)
-            cellTime = pCell->time();
+		  // Is time defined?                                     
+		  isTimeDefined = (pCell->provenance() & pmask );
+		}
+	      
+	      if(isTimeDefined)
+		cellTime = pCell->time();
+	    }
 
 	  //apply energy cuts
 	  bool passedCellCut = (m_cellCutsInAbsE?std::abs(signedRatio):signedRatio)
@@ -549,7 +552,7 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
           bool passedSeedTimeCut = (!m_seedCutsInT || !isTimeDefined || std::fabs(cellTime) < m_seedThresholdOnTAbs);
 
 
-	  if ( passedCellCut || passedNeighborCut || passedSeedCut ) {
+	  if ( passedCellCut || passedNeighborCut || (passedSeedTimeCut && passedSeedCut) ) {
 	    const CaloDetDescrElement* dde = pCell->caloDDE();
 	    IdentifierHash hashid = dde ? dde->calo_hash() : m_calo_id->calo_cell_hash(pCell->ID());
 	    CaloTopoTmpClusterCell *tmpClusterCell =

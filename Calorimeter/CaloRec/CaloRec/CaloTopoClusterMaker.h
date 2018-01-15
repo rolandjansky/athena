@@ -150,6 +150,13 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
       seed level */
   float m_seedThresholdOnEtorAbsEt;              
 
+
+  /**                                                                                                             
+   * threshold used for timing cut. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
+  float m_seedThresholdOnTAbs;
+
+
+
   /**
    * @brief switch to use the CaloNoiseTool 
    *
@@ -159,9 +166,6 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * to false a constant noise value for all cells will be used.  */
   bool m_useNoiseTool;
 
-  /**                                                                                                             
-   * threshold used for timing cut. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
-  float m_seedThresholdOnTAbs;
 
 
   /**
