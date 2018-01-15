@@ -118,6 +118,8 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("FourMomBuilderTool", m_fourMomBuilder, "Handle to FourMomBuilder");
     // ConversionBuilder 
     declareProperty("ConversionBuilderTool", m_conversionBuilder, "Handle to ConversionBuilder");
+    //BremcollectionBuilder
+    declareProperty("BremCollectionBuilderTool", m_BremCollectionBuilderTool, "Handle of the Brem Collection builder tool"); 
     // TrackMatchBuilder
     declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder, "Handle to TrackMatchBuilder");
     // AmbiguityTool
@@ -296,6 +298,19 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
             ATH_MSG_DEBUG("Retrieved Tool "<<m_trackMatchBuilder);
             if (timerSvc()) m_timerTool1 = addTimer("EMTrackMatchBuilder");
         }
+    }
+
+    if(m_doBremCollection){
+      if (m_BremCollectionBuilderTool.empty()){
+	ATH_MSG_ERROR("EMBremCollectionBuilder is empty");
+	return HLT::BAD_JOB_SETUP;
+      }
+      if (m_BremCollectionBuilderTool.retrieve().isFailure()){
+	ATH_MSG_ERROR("Unable to retrieve " << m_BremCollectionBuilderTool);
+	return HLT::BAD_JOB_SETUP;
+      } else {
+	ATH_MSG_DEBUG("Retrieved Tool "<<m_BremCollectionBuilderTool);
+      }
     }
 
     if(m_doTrackMatching && m_doConversions){
@@ -532,6 +547,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     ATH_MSG_DEBUG("REGTEST: Do Track Isolation: "   << m_doTrackIsolation);
     ATH_MSG_DEBUG("REGTEST: Do CaloCell Isolation: "<< m_doCaloCellIsolation);
     ATH_MSG_DEBUG("REGTEST: Do TopoIsolation: "     << m_doTopoIsolation);
+    ATH_MSG_DEBUG("REGTEST: run bremBuilding: "     << m_doBremCollection);
     ATH_MSG_DEBUG("REGTEST: Use BremAssoc: "        << m_useBremAssoc);
 
     ATH_MSG_INFO("REGTEST: ElectronContainerName: " << m_electronContainerName );
@@ -776,6 +792,27 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
        return HLT::OK;
       }
 
+      //output collections
+      TrackCollection *refitTracks = new TrackCollection(0);
+      xAOD::TrackParticleContainer *refitTrackParticles = new xAOD::TrackParticleContainer();
+      xAOD::TrackParticleAuxContainer* refitTPaux = new xAOD::TrackParticleAuxContainer();
+      refitTrackParticles->setStore(refitTPaux);
+	
+      if (m_BremCollectionBuilderTool->hltExecute(clusContainer,tracks,refitTracks, refitTrackParticles ).isFailure()){
+	ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
+	return HLT::ERROR;  
+      }
+
+      // Make readable from INav4mom
+      const INavigable4MomentumCollection* theNav4s(0);
+      /*
+      sc = evtStore()->symLink(m_finalTrkPartContainer,theNav4s);
+      if (sc.isFailure()){
+	ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
+      } 
+      */
+
+      //MISSING - interaction with the navigation
     }
 
     //**********************************************************************
