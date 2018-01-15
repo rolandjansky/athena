@@ -4,7 +4,7 @@
 
 /*
  * This macro is meant for testing purposes of the MCP efficiency teams, it is not a minimal working example for analyzers,
- * please use MuonEfficiencyCorrectionsRootCoreTest instead
+ * please use MuonEfficiencyScaleFactorsTest or MuonTriggerSFRootCoreTest instead
  */
 
 #include <memory>
@@ -51,15 +51,15 @@
 
 typedef asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> EffiToolInstance;
 
-EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomInput, bool uncorrelate_Syst) {
-    EffiToolInstance tool(std::string("CP::MuonEfficiencyScaleFactors/EffiTool_") + WP);
+EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomInput, bool uncorrelate_Syst, bool doJPsi, bool isComparison=false) {
+    EffiToolInstance tool(std::string("CP::MuonEfficiencyScaleFactors/EffiTool_") + WP + (isComparison ? "_comp" : "" ) );
 
     tool.setProperty("WorkingPoint", WP).isSuccess();
     tool.setProperty("UncorrelateSystematics", uncorrelate_Syst).isSuccess();
-    tool.setProperty("LowPtThreshold", 15.e3).isSuccess();
-    tool.retrieve().isSuccess();
-
+    if (doJPsi) tool.setProperty("LowPtThreshold", 1.e14).isSuccess();
+    else tool.setProperty("LowPtThreshold", -1.).isSuccess();
     if (!CustomInput.empty()) tool.setProperty("CustomInputFolder", CustomInput).isSuccess();
+    tool.retrieve().isSuccess();
 
     return tool;
 }
@@ -75,9 +75,12 @@ int main(int argc, char* argv[]) {
     const char* APP_NAME = argv[0];
 
     std::string OutputFilename = "Applied_SFs.root";
+    std::string prwFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/NTUP_PILEUP_r9364_r9315.root";
+    std::string ilumiFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root";
     std::string InDir = "";
     std::string DefaultCalibRelease = "";
     std::string SFComparisonFolder = "";
+    bool doJPsi = false;
     long long int nmax = -1;
 
     // read the config provided by the user
@@ -85,10 +88,10 @@ int main(int argc, char* argv[]) {
         if (std::string(argv[k]).find("-i") == 0) {
             InDir = argv[k + 1];
         }
-        if (std::string(argv[k]).find("-c1") == 0) {
+        if (std::string(argv[k]).find("--c1") == 0) {
             DefaultCalibRelease = argv[k + 1];
         }
-        if (std::string(argv[k]).find("-c2") == 0) {
+        if (std::string(argv[k]).find("--c2") == 0) {
             SFComparisonFolder = argv[k + 1];
         }
         if (std::string(argv[k]).find("-n") == 0) {
@@ -97,8 +100,15 @@ int main(int argc, char* argv[]) {
         if (std::string(argv[k]).find("-o") == 0) {
             OutputFilename = argv[k + 1];
         }
-        if (std::string(argv[k]).find("-JPsi") == 0) {
+        if (std::string(argv[k]).find("--JPsi") == 0) {
+            doJPsi = true;
             if (OutputFilename == "Applied_SFs.root") OutputFilename = "Applied_SFs_JPsi.root";
+        }
+        if (std::string(argv[k]).find("--ilumi") == 0) {
+            ilumiFilename = argv[k + 1];
+        }
+        if (std::string(argv[k]).find("--prw") == 0) {
+            prwFilename = argv[k + 1];
         }
     }
     bool doComparison = !SFComparisonFolder.empty();
@@ -133,17 +143,23 @@ int main(int argc, char* argv[]) {
     TStopwatch tsw;
     tsw.Start();
 
-    const std::vector<std::string> WPs { "Loose", "Medium", "Tight", "HighPt", "TTVA", "BadMuonVeto_HighPt",
-            //Isolation
-            "FixedCutLooseIso","LooseTrackOnlyIso", "LooseIso","GradientIso","GradientLooseIso",
-            "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso","FixedCutTightIso"
+    const std::vector<std::string> WPs {
+        // reconstruction WPs
+        "Loose", "Medium", "Tight", "HighPt",
+        // track-to-vertex-association WPs
+        "TTVA",
+        // BadMuon veto SFs
+        "BadMuonVeto_HighPt",
+        // isolation WPs
+        "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+        "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
     };
     std::vector<EffiToolInstance> EffiTools;
     std::vector<EffiToolInstance> ComparisonTools;
 
     for (auto& WP : WPs) {
-        EffiTools.push_back(createSFTool(WP, DefaultCalibRelease, false));
-        if (doComparison) ComparisonTools.push_back(createSFTool(WP, SFComparisonFolder, false));
+        EffiTools.push_back(createSFTool(WP, DefaultCalibRelease, false, doJPsi));
+        if (doComparison) ComparisonTools.push_back(createSFTool(WP, SFComparisonFolder, false, doJPsi, true));
     }
 
     TestMuonSF::MuonSFTestHelper PrimaryHelper(DefaultCalibRelease, true);
@@ -167,11 +183,10 @@ int main(int argc, char* argv[]) {
 
     asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
-    std::vector<std::string> m_ConfigFiles { "dev/SUSYTools/merged_prw_mc16a_latest.root", "dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root" };
-    std::vector<std::string> m_LumiCalcFiles { std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.root"), std::string("/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root") };
+    std::vector<std::string> m_ConfigFiles { prwFilename };
+    std::vector<std::string> m_LumiCalcFiles { ilumiFilename };
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
-
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactor", 1.0 / 1.09));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorUP", 1.));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorDOWN", 1.0 / 1.18));
@@ -199,6 +214,7 @@ int main(int argc, char* argv[]) {
             if (doComparison && ComparisonHelper.fill(mu) != CP::CorrectionCode::Ok) return EXIT_FAILURE;
             PrimaryHelper.fillTree();
         }
+        nMuons = nMuons+muons->size();
 
     }
     double t_run = tsw.CpuTime() / entries;
@@ -207,6 +223,8 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Number of muons in file: " << nMuons << std::endl;
 
+    f->cd();
+    f->WriteObject(PrimaryHelper.tree(), PrimaryHelper.tree()->GetName());
     f->Close();
 
     //get smart slimming list

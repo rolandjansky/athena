@@ -84,7 +84,6 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
   // Last two switches only apply if the thing is a lepton and not a tau
   if (MC::PID::isLepton(pdgid) && abs(pdgid)!=15 && tp->hasProdVtx()){
     bool isPromptLepton = isPrompt( tp, originMap );
-    if(isPromptLepton && (abs(pdgid)==11 || abs(pdgid)==13)) promptLeptons.push_back(tp);
     if (!m_includePromptLeptons && isPromptLepton) {
       ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
       return false;
@@ -276,6 +275,23 @@ int CopyTruthJetParticles::execute() const {
   std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin> originMap;
   originMap.clear();
   size_t numCopied = 0;
+
+  // First gather the list of prompt leptons
+  for (unsigned int ip = 0; ip < evt->nTruthParticles(); ++ip) {
+    const xAOD::TruthParticle* tp = evt->truthParticle(ip);
+    if(tp == NULL) continue;
+    if (tp->pt() < m_ptmin)
+        continue;
+    // Cannot use the truth helper functions; they're written for HepMC
+    // Last two switches only apply if the thing is a lepton and not a tau
+    int pdgid = tp->pdgId();
+    if (MC::PID::isLepton(pdgid) && abs(pdgid)!=15 && tp->hasProdVtx()){
+      bool isPromptLepton = isPrompt( tp, originMap );
+      if(isPromptLepton && (abs(pdgid)==11 || abs(pdgid)==13)) promptLeptons.push_back(tp);
+    }
+  }
+
+  // Now do the classification of all leptons
   for (unsigned int ip = 0; ip < evt->nTruthParticles(); ++ip) {
     const xAOD::TruthParticle* tp = evt->truthParticle(ip);
     if(tp == NULL) continue;
