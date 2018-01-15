@@ -83,25 +83,26 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
     trackassoc = \
         JetParticleShrinkingConeAssociation(
             "BTaggingTrackAssoc",
-            inputParticleCollectionName="InDetTracks",
-            outputCollectionName="MatchedTracks",
-            coneSizeFitPar1=+0.239,
-            coneSizeFitPar2=-1.220,
-            coneSizeFitPar3=-1.64e-5
+            InputParticleCollectionName="InDetTracks",
+            OutputCollectionName="MatchedTracks",
+            ConeSizeFitPar1=+0.239,
+            ConeSizeFitPar2=-1.220,
+            ConeSizeFitPar3=-1.64e-5
         )
 
 
     muonassoc = \
         JetParticleShrinkingConeAssociation(
             "MuonAssocAntiKt2PV0TrackJets",
-            inputParticleCollectionName="Muons",
-            outputCollectionName="MatchedMuons",
-            coneSizeFitPar1=0.4,
-            coneSizeFitPar2=0.0,
-            coneSizeFitPar3=99999999,
+            InputParticleCollectionName="Muons",
+            OutputCollectionName="MatchedMuons",
+            ConeSizeFitPar1=0.4,
+            ConeSizeFitPar2=0.0,
+            ConeSizeFitPar3=99999999,
         )
 
-    ToolSvc += [trackassoc, muonassoc]
+    ToolSvc += trackassoc
+    ToolSvc += muonassoc
 
     trackassocalg = \
         JetModifierAlg(

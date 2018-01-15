@@ -22,15 +22,15 @@ class JetParticleShrinkingConeAssociation : public JetParticleAssociation {
             match(const xAOD::JetContainer&) const;
 
         inline double coneSize(double pt) const {
-            return (m_coneSizeFitPar1 + exp(m_coneSizeFitPar2 + m_coneSizeFitPar3*pt));
+            return (m_ConeSizeFitPar1 + exp(m_ConeSizeFitPar2 + m_ConeSizeFitPar3*pt));
         }
 
 
     private:
-        std::string m_inputParticleCollectionName;
-        double m_coneSizeFitPar1;
-        double m_coneSizeFitPar2;
-        double m_coneSizeFitPar3;
+        std::string m_InputParticleCollectionName;
+        double m_ConeSizeFitPar1;
+        double m_ConeSizeFitPar2;
+        double m_ConeSizeFitPar3;
 };
 
 #endif
