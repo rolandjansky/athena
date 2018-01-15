@@ -88,6 +88,9 @@ private:
 
   ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder;
   ToolHandle<IEMConversionBuilder> m_conversionBuilder;
+  /** @brief Pointer to the BremCollectionBuilder tool*/
+  ToolHandle<IEMBremCollectionBuilder>         m_BremCollectionBuilderTool;
+
   ToolHandle<IEMShowerBuilder> m_showerBuilder;  // trigger specific
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder; // trigger specific
   ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool;
