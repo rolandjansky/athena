@@ -21,15 +21,15 @@ class HiveAlgBase  :  public AthAlgorithm, public rGen {
 public:
   
  HiveAlgBase (const std::string& name, ISvcLocator* pSvcLocator);
-  ~HiveAlgBase();
+ virtual ~HiveAlgBase();
 
-  bool isClonable() const override { return true; }
+ virtual bool isClonable() const override { return true; }
   
-  // Define the initialize, execute and finalize methods:
+ // Define the initialize, execute and finalize methods:
   
-  StatusCode initialize();
-  // StatusCode execute();
-  // StatusCode finalize();
+ virtual  StatusCode initialize() override;
+ // StatusCode execute();
+ // StatusCode finalize();
 
 protected:
 
