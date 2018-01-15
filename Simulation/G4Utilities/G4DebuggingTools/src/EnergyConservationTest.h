@@ -5,7 +5,6 @@
 #ifndef G4DEBUGGINGTOOLS_EnergyConservationTest_H
 #define G4DEBUGGINGTOOLS_EnergyConservationTest_H
 
-
 #include <string>
 
 #include "G4UserTrackingAction.hh"
@@ -15,7 +14,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
+
   class EnergyConservationTest : public AthMessaging,
                                  public G4UserTrackingAction,
                                  public G4UserEventAction,
@@ -37,8 +38,7 @@ namespace G4UA{
     double e_in , e_out , e_dep;
 
   }; // class EnergyConservationTest
-} // namespace G4UA 
 
-
+} // namespace G4UA
 
 #endif // G4DEBUGGINGTOOLS_EnergyConservationTest_H
