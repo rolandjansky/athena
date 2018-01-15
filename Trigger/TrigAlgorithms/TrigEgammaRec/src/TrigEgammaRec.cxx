@@ -804,7 +804,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
       }
 
       // Make readable from INav4mom
-      const INavigable4MomentumCollection* theNav4s(0);
+      //const INavigable4MomentumCollection* theNav4s(0);
       /*
       sc = evtStore()->symLink(m_finalTrkPartContainer,theNav4s);
       if (sc.isFailure()){
