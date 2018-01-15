@@ -22,10 +22,6 @@ from AthenaCommon.GlobalFlags  import globalflags
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
-#if DQMonFlags.monManEnvironment() == 'online':
-#   tmp_CaloClusterContainer = "EMTopoCluster430"
-#else:
-#   tmp_CaloClusterContainer = "LArClusterEM"
 tmp_CaloClusterContainer = "LArClusterEM"
 
 if DQMonFlags.monManEnvironment() == 'online':
@@ -41,8 +37,12 @@ else:
 if DQMonFlags.monManEnvironment() == 'online':
   tmp_useReadyFilterTool=FALSE
 else:
-#  tmp_useReadyFilterTool=FALSE
   tmp_useReadyFilterTool=TRUE
+
+if (rec.triggerStream()=='CosmicCalo'):
+  tmp_useLArCollisionTime = TRUE
+else:
+  tmp_useLArCollisionTime = FALSE
 
 if DQMonFlags.monManEnvironment() == 'online':
    tmp_useLArNoisyAlg = FALSE
@@ -53,12 +53,9 @@ if DQMonFlags.monManEnvironment() == 'online':
    tmp_useBeamBackgroundRemoval = FALSE
 else:
    tmp_useBeamBackgroundRemoval = TRUE
+   if not (rec.triggerStream()=='CosmicCalo'):
+      tmp_useBeamBackgroundRemoval = FALSE
 
-if not (rec.triggerStream()=='CosmicCalo'):
-  tmp_useBeamBackgroundRemoval = FALSE
-  print "not CosmicCalo stream"
-
-print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
 
 EMCaloClusterMonNoTA = CaloClusterVecMon(
    name           = "EMCaloClusterMonNoTA",
@@ -72,6 +69,8 @@ EMCaloClusterMonNoTA = CaloClusterVecMon(
    useReadyFilterTool = tmp_useReadyFilterTool,
    ReadyFilterTool = monAtlasReadyFilterTool,
 
+   useLArCollisionFilterTool = tmp_useLArCollisionTime,
+
    useLArNoisyAlg = tmp_useLArNoisyAlg,
 
    useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
@@ -80,7 +79,6 @@ EMCaloClusterMonNoTA = CaloClusterVecMon(
    lowEthresh = 0.0,  
    lowmedEthresh = 4.0,
    medEthresh = 10.0,
-#   medhiEthresh = 15.0,
    hiEthresh = 25.0,
 )
 

@@ -33,8 +33,12 @@ else:
 if DQMonFlags.monManEnvironment() == 'online':
   tmp_useReadyFilterTool=FALSE
 else:
-#  tmp_useReadyFilterTool=FALSE
   tmp_useReadyFilterTool=TRUE
+
+if (rec.triggerStream()=='CosmicCalo'):
+  tmp_useLArCollisionTime = TRUE
+else:
+  tmp_useLArCollisionTime = FALSE
 
 if DQMonFlags.monManEnvironment() == 'online':
    tmp_useLArNoisyAlg = FALSE
@@ -45,10 +49,8 @@ if DQMonFlags.monManEnvironment() == 'online':
    tmp_useBeamBackgroundRemoval = FALSE
 else:
    tmp_useBeamBackgroundRemoval = TRUE
-
-if not (rec.triggerStream()=='CosmicCalo'):
-  tmp_useBeamBackgroundRemoval = FALSE
-  print "not CosmicCalo stream"
+   if not (rec.triggerStream()=='CosmicCalo'):
+      tmp_useBeamBackgroundRemoval = FALSE
 
 print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
 
@@ -63,6 +65,9 @@ CaloClusterMonNoTA = CaloClusterVecMon(
 
    useReadyFilterTool = tmp_useReadyFilterTool,
    ReadyFilterTool = monAtlasReadyFilterTool,
+
+   useLArCollisionFilterTool = tmp_useLArCollisionTime,
+
    useLArNoisyAlg = tmp_useLArNoisyAlg,
 
    useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
@@ -71,7 +76,6 @@ CaloClusterMonNoTA = CaloClusterVecMon(
    lowEthresh = 0.0,  
    lowmedEthresh = 10.0,
    medEthresh = 25.0,
-#   medhiEthresh = 15.0,
    hiEthresh = 50.0,
 )
 

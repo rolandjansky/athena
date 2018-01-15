@@ -26,9 +26,9 @@ else:
   tmp_useBeamBackgroundRemoval = FALSE
 
 if rec.triggerStream()=='CosmicCalo':
-  tmp_useLArCollisionFilterTool = TRUE
+  tmp_useLArCollisionFilter = TRUE
 else:
-  tmp_useLArCollisionFilterTool = FALSE
+  tmp_useLArCollisionFilter = FALSE
 
 CaloBaseline = CaloBaselineMon(
    name           = "CaloBaseline",
@@ -37,7 +37,7 @@ CaloBaseline = CaloBaselineMon(
    BadLBTool = GetLArBadLBFilterTool(),
    useReadyFilterTool = tmp_useReadyFilterTool,
    ReadyFilterTool = monAtlasReadyFilterTool,
-   useLArCollisionFilterTool = tmp_useLArCollisionFilterTool,
+   useLArCollisionFilterTool = tmp_useLArCollisionFilter,
    useLArNoisyAlg = tmp_useLArNoisyAlg,
    useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
 
