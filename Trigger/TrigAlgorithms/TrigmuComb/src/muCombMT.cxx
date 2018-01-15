@@ -478,40 +478,40 @@ StatusCode muCombMT::execute()
    //Timer
    auto timer = MonitoredTimer::declare("TIME_execute");
    //Input
-   auto m_ptMS = MonitoredScalar::declare("PtMS",        -9999.);
-   auto m_etaMS = MonitoredScalar::declare("EtaMS",      -9999.);
-   auto m_phiMS = MonitoredScalar::declare("PhiMS",      -9999.);
-   auto m_zetaMS = MonitoredScalar::declare("ZetaMS",    -9999.);
+   auto ptMS = MonitoredScalar::declare("PtMS",        -9999.);
+   auto etaMS = MonitoredScalar::declare("EtaMS",      -9999.);
+   auto phiMS = MonitoredScalar::declare("PhiMS",      -9999.);
+   auto zetaMS = MonitoredScalar::declare("ZetaMS",    -9999.);
    //ID
-   auto m_ptID = MonitoredScalar::declare("PtID",        -9999.);
-   auto m_etaID = MonitoredScalar::declare("EtaID",      -9999.);
-   auto m_phiID = MonitoredScalar::declare("PhiID",      -9999.);
-   auto m_zetaID = MonitoredScalar::declare("ZetaID",    -9999.);
+   auto ptID = MonitoredScalar::declare("PtID",        -9999.);
+   auto etaID = MonitoredScalar::declare("EtaID",      -9999.);
+   auto phiID = MonitoredScalar::declare("PhiID",      -9999.);
+   auto zetaID = MonitoredScalar::declare("ZetaID",    -9999.);
    //Combined
-   auto m_ptMC = MonitoredScalar::declare("PtMC",        -9999.);
-   auto m_dEta = MonitoredScalar::declare("DEta",        -9999.);
-   auto m_dPhi = MonitoredScalar::declare("DPhi",        -9999.);
-   auto m_dZeta = MonitoredScalar::declare("DZeta",      -9999.);
-   auto m_dR = MonitoredScalar::declare("DeltaR",        -9999.);
+   auto ptMC = MonitoredScalar::declare("PtMC",        -9999.);
+   auto dEta = MonitoredScalar::declare("DEta",        -9999.);
+   auto dPhi = MonitoredScalar::declare("DPhi",        -9999.);
+   auto dZeta = MonitoredScalar::declare("DZeta",      -9999.);
+   auto dR = MonitoredScalar::declare("DeltaR",        -9999.);
    //Failed
-   auto m_ptFL = MonitoredScalar::declare("PtFL",        -9999.);
-   auto m_etaFL = MonitoredScalar::declare("EtaFL",      -9999.);
-   auto m_phiFL = MonitoredScalar::declare("PhiFL",      -9999.);
+   auto ptFL = MonitoredScalar::declare("PtFL",        -9999.);
+   auto etaFL = MonitoredScalar::declare("EtaFL",      -9999.);
+   auto phiFL = MonitoredScalar::declare("PhiFL",      -9999.);
    //Info
-   auto m_efficiency = MonitoredScalar::declare<int>("Efficiency",  -1);
-   auto m_StrategyMC = MonitoredScalar::declare<int>("StrategyMC",  -1);
-   auto m_ErrorFlagMC = MonitoredScalar::declare<int>("ErrorFlagMC", 0);
-   auto m_MatchFlagMC = MonitoredScalar::declare<int>("MatchFlagMC", 0);
+   auto efficiency = MonitoredScalar::declare<int>("Efficiency",  -1);
+   auto StrategyMC = MonitoredScalar::declare<int>("StrategyMC",  -1);
+   auto ErrorFlagMC = MonitoredScalar::declare<int>("ErrorFlagMC", 0);
+   auto MatchFlagMC = MonitoredScalar::declare<int>("MatchFlagMC", 0);
 
 
-   auto mon = MonitoredScope::declare(m_monTool, timer, m_ptMS, m_etaMS, m_phiMS, m_zetaMS, 
-                                                        m_ptID, m_etaID, m_phiID, m_zetaID, 
-                                                        m_ptMC, m_dEta, m_dPhi, m_dZeta, m_dR,
-                                                        m_ptFL, m_etaFL, m_phiFL,
-                                                        m_efficiency, m_StrategyMC, m_ErrorFlagMC, m_MatchFlagMC);
+   auto mon = MonitoredScope::declare(m_monTool, timer, ptMS, etaMS, phiMS, zetaMS, 
+                                                        ptID, etaID, phiID, zetaID, 
+                                                        ptMC, dEta, dPhi, dZeta, dR,
+                                                        ptFL, etaFL, phiFL,
+                                                        efficiency, StrategyMC, ErrorFlagMC, MatchFlagMC);
 
 
-   m_StrategyMC  = m_AlgoStrategy;
+   StrategyMC  = m_AlgoStrategy;
 
    //Magnetic field status
    bool toroidOn   = !m_assumeToroidOff;
@@ -587,13 +587,13 @@ StatusCode muCombMT::execute()
 
    // check muonSA pt != 0
    if (muonSA->pt() == 0.) {
-      m_ErrorFlagMC = 1;
+      ErrorFlagMC = 1;
       if (usealgo == 2 || usealgo == 4) {
          ATH_MSG_DEBUG(" L2StandAloneMuon pt = 0 --> using angular match" );
          //if (usealgo == 2) useL1 = true;
       } else {
          ATH_MSG_DEBUG(" L2StandAloneMuon pt = 0 --> stop processing RoI, no match" );
-         muonCB->setErrorFlag(m_ErrorFlagMC);
+         muonCB->setErrorFlag(ErrorFlagMC);
          muonCBColl->push_back(muonCB);
          return StatusCode::SUCCESS;
       }
@@ -615,8 +615,8 @@ StatusCode muCombMT::execute()
    //   if (muonROIColl->size() == 0) {
    //      ATH_MSG_DEBUG(" L1 Muon RoI collection size = 0");
    //      ATH_MSG_DEBUG(" L2StandAloneMuon pt == 0. && no L1 && torid=OFF --> no match" );
-   //      m_ErrorFlagMC = 1;
-   //      muonCB->setErrorFlag(m_ErrorFlagMC);
+   //      ErrorFlagMC = 1;
+   //      muonCB->setErrorFlag(ErrorFlagMC);
    //      return StatusCode::SUCCESS;
    //   } else {
    //      const TrigRoiDescriptor* muonROI = *(muonROIColl->begin());
@@ -654,15 +654,15 @@ StatusCode muCombMT::execute()
    SG::ReadHandle<xAOD::TrackParticleContainer> idTrackParticles(m_TrackParticleContainerKey, ctx); //L2 ID trks
    if (!idTrackParticles.isValid()){
       ATH_MSG_DEBUG(" Failed to get xAOD::TrackParticleContainer --> no match" );
-      m_ErrorFlagMC = 2;
-      muonCB->setErrorFlag(m_ErrorFlagMC);
+      ErrorFlagMC = 2;
+      muonCB->setErrorFlag(ErrorFlagMC);
       muonCBColl->push_back(muonCB);
       return StatusCode::SUCCESS;
    }
    if (idTrackParticles->size() < 1){
       ATH_MSG_DEBUG(" xAOD::TrackParticleContainer has 0 tracks --> no match" );
-      m_ErrorFlagMC = 2;
-      muonCB->setErrorFlag(m_ErrorFlagMC);
+      ErrorFlagMC = 2;
+      muonCB->setErrorFlag(ErrorFlagMC);
       muonCBColl->push_back(muonCB);
       return StatusCode::SUCCESS;
    }
@@ -774,26 +774,26 @@ StatusCode muCombMT::execute()
 
    //Set monitored quantities (monitor only pt>6 GeV/c && standard matching)
    if (usealgo == 0 && fabs(pt) >= 6.) {
-      m_ptMS       = pt;
-      m_etaMS      = eta;
-      m_phiMS      = phi;
-      m_zetaMS     = zeta_ms;
-      m_ptFL       = pt;
-      m_etaFL      = eta;
-      m_phiFL      = phi;
-      if (m_ptMS >  100.) m_ptMS =  101.5;
-      if (m_ptMS < -100.) m_ptMS = -101.5;
-      if (m_ptFL >  100.) m_ptFL =  101.5;
-      if (m_ptFL < -100.) m_ptFL = -101.5;
+      ptMS       = pt;
+      etaMS      = eta;
+      phiMS      = phi;
+      zetaMS     = zeta_ms;
+      ptFL       = pt;
+      etaFL      = eta;
+      phiFL      = phi;
+      if (ptMS >  100.) ptMS =  101.5;
+      if (ptMS < -100.) ptMS = -101.5;
+      if (ptFL >  100.) ptFL =  101.5;
+      if (ptFL < -100.) ptFL = -101.5;
    }
 
    if (!has_match) {
-      m_ErrorFlagMC = 3;
-      m_MatchFlagMC = imatch;
-      if (usealgo == 0 && fabs(pt) >= 6.)  m_efficiency = 0; //monitor only efficiency for mu6 && standard matching
+      ErrorFlagMC = 3;
+      MatchFlagMC = imatch;
+      if (usealgo == 0 && fabs(pt) >= 6.)  efficiency = 0; //monitor only efficiency for mu6 && standard matching
       ATH_MSG_DEBUG( " No matched ID tracks --> no match" );
-      muonCB->setErrorFlag(m_ErrorFlagMC);
-      muonCB->setMatchFlag(m_MatchFlagMC);
+      muonCB->setErrorFlag(ErrorFlagMC);
+      muonCB->setMatchFlag(MatchFlagMC);
       muonCBColl->push_back(muonCB);
       return StatusCode::SUCCESS;
    }
@@ -812,26 +812,26 @@ StatusCode muCombMT::execute()
    ATH_MSG_DEBUG(" SA muon macthed to ID track ..." );
 
    //Update monitored vars
-   m_MatchFlagMC = imatch;
-   m_ptFL        = -9999.;
-   m_etaFL       = -9999.;
-   m_phiFL       = -9999.;
+   MatchFlagMC = imatch;
+   ptFL        = -9999.;
+   etaFL       = -9999.;
+   phiFL       = -9999.;
    if (usealgo == 0 && fabs(pt) >= 6.) {
-      m_efficiency = 1;
-      m_ptID       = pt_id / CLHEP::GeV; //in GeV/c
-      m_etaID      = eta_id;
-      m_phiID      = phi_id;
-      m_zetaID     = zPos_id;
-      m_ptMC       = 1. / (ptinv_comb * CLHEP::GeV); //in GeV/c
-      m_dZeta      = zeta_ms - zPos_id;
-      m_dPhi       = best_dphi;
-      m_dEta       = best_deta;
-      m_dR         = best_dr;
+      efficiency = 1;
+      ptID       = pt_id / CLHEP::GeV; //in GeV/c
+      etaID      = eta_id;
+      phiID      = phi_id;
+      zetaID     = zPos_id;
+      ptMC       = 1. / (ptinv_comb * CLHEP::GeV); //in GeV/c
+      dZeta      = zeta_ms - zPos_id;
+      dPhi       = best_dphi;
+      dEta       = best_deta;
+      dR         = best_dr;
 
-      if (m_ptMC >  100.) m_ptMC =  101.5;
-      if (m_ptMC < -100.) m_ptMC = -101.5;
-      if (m_ptID >  100.) m_ptID =  101.5;
-      if (m_ptID < -100.) m_ptID = -101.5;
+      if (ptMC >  100.) ptMC =  101.5;
+      if (ptMC < -100.) ptMC = -101.5;
+      if (ptID >  100.) ptID =  101.5;
+      if (ptID < -100.) ptID = -101.5;
    }
 
    double prt_pt = pt;
@@ -854,8 +854,8 @@ StatusCode muCombMT::execute()
    ATH_MSG_DEBUG( " SigmaPt (GeV) is: " << mcresu / CLHEP::GeV );
    muonCB->setSigmaPt(mcresu);
 
-   muonCB->setErrorFlag(m_ErrorFlagMC);
-   muonCB->setMatchFlag(m_MatchFlagMC);
+   muonCB->setErrorFlag(ErrorFlagMC);
+   muonCB->setMatchFlag(MatchFlagMC);
 
    muonCBColl->push_back(muonCB);
    return StatusCode::SUCCESS;
