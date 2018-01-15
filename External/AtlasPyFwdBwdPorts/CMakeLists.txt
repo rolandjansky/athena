@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 790212 2016-12-16 17:43:15Z ssnyder $
 
 # The name of the package:
 atlas_subdir( AtlasPyFwdBwdPorts )
@@ -10,6 +9,7 @@ endif()
 
 # External dependencies:
 find_package( pytools )
+find_package( pip )
 
 # Helper macro for building and installing the packages. Documentation
 # to be written later...
@@ -140,12 +140,6 @@ _setup_python_package( keyring
    DEPENDS distribute
    SINGLE_VERSION )
 
-# Install pip:
-_setup_python_package( pip
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pip-1.1.tar.gz
-   62a9f08dd5dc69d76734568a6c040508
-   DEPENDS distribute )
-
 # Install pycrypto:
 _setup_python_package( pycrypto
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pycrypto-2.6.1.tar.gz
@@ -200,11 +194,13 @@ _setup_python_package( pycodestyle
    SINGLE_VERSION )
 
 # Install pyinotify:
-_setup_python_package( pyinotify
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyinotify-0.9.1.tar.gz
-   bd06a9feac312414e57d92c781bda539
-   DEPENDS distribute
-   SINGLE_VERSION )
+if( NOT XAOD_STANDALONE )
+   _setup_python_package( pyinotify
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/pyinotify-0.9.1.tar.gz
+      bd06a9feac312414e57d92c781bda539
+      DEPENDS distribute
+      SINGLE_VERSION )
+endif()
 
 # Install pyyaml:
 _setup_python_package( pyyaml
@@ -222,4 +218,3 @@ _setup_python_package( simplejson
 
 # Clean up:
 unset( _setup_python_package )
-
