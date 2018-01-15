@@ -57,6 +57,18 @@ IndexFillerTool::IndexFillerTool (const std::string& type,
 
 
 /**
+ * @brief Standard Gaudi @c initialize method.
+ */
+StatusCode IndexFillerTool::initialize()
+{
+  // Be sure the registry is retrieved, to avoid warnings from Gaudi
+  // that the tool is unused.
+  ATH_CHECK( m_registry.retrieve() );
+  return StatusCode::SUCCESS;
+}
+
+
+/**
  * @brief Configure during initialization: type-check.
  * @param tree Our parent for tuple making.
  * @param ti Gives the type of the object being passed to @c fillUntyped.

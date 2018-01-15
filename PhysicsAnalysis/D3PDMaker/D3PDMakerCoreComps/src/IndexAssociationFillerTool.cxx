@@ -65,6 +65,10 @@ IndexAssociationFillerTool::initialize()
 
   CHECK( AthAlgTool::initialize() );
   CHECK( m_associator.retrieve() );
+
+  // Be sure the registry is retrieved, to avoid warnings from Gaudi
+  // that the tool is unused.
+  CHECK( m_registry.retrieve() );
   return StatusCode::SUCCESS;
 }
 
