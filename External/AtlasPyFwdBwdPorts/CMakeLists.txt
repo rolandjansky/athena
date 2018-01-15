@@ -161,11 +161,13 @@ _setup_python_package( pyflakes
    SINGLE_VERSION )
 
 # Install flake8:
-_setup_python_package( flake8
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
-   3df622aac9bad27c04f34164609bbed8
-   DEPENDS pyflakes
-   SINGLE_VERSION )
+if( NOT XAOD_STANDALONE )
+   _setup_python_package( flake8
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
+      3df622aac9bad27c04f34164609bbed8
+      DEPENDS pyflakes
+      SINGLE_VERSION )
+endif()
 
 # Install configparser:
 _setup_python_package( configparser
@@ -182,11 +184,13 @@ _setup_python_package( enum34
    SINGLE_VERSION )
 
 # Install mccabe:
-_setup_python_package( mccabe
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-0.6.1.tar.gz
-   723df2f7b1737b8887475bac4c763e1e
-   DEPENDS distribute
-   SINGLE_VERSION )
+if( NOT XAOD_STANDALONE )
+   _setup_python_package( mccabe
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-0.6.1.tar.gz
+      723df2f7b1737b8887475bac4c763e1e
+      DEPENDS distribute
+      SINGLE_VERSION )
+endif()
 
 # Install :
 _setup_python_package( pycodestyle 
