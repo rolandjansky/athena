@@ -717,41 +717,41 @@ StatusCode HLTBjetMonTool::book(){
       // Set keys
       // HLT non split input chaines
       SplitKey = false;
-      std::string m_jetKey = "";
-      std::string m_priVtxKey = "EFHistoPrmVtx";
-      std::string m_trackKey  = "";
+      std::string jetKey = "";
+      std::string priVtxKey = "EFHistoPrmVtx";
+      std::string trackKey  = "";
       // HLT split input chaines
       std::size_t found = trigItem.find("split");
       if (found!=std::string::npos) {
 	SplitKey =true;
-	m_jetKey = "SplitJet";
-	m_priVtxKey = "xPrimVx";
-	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
+	jetKey = "SplitJet";
+	priVtxKey = "xPrimVx";
+	trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
       }
       // FTK input chains: John Baines and Julie Hart 
       FTKchain = false;
       std::size_t found1 = trigItem.find("FTK");
       if (found1!=std::string::npos) {
 	FTKchain = true;
-	//	m_priVtxKey = "HLT_PrimVertexFTK";
-	m_priVtxKey = "PrimVertexFTK";  // Mark Sutton 17.09.17 
-	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
+	//	priVtxKey = "HLT_PrimVertexFTK";
+	priVtxKey = "PrimVertexFTK";  // Mark Sutton 17.09.17 
+	trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
 	std::size_t found2 = trigItem.find("FTKRefit");
         if (found2!=std::string::npos) {
-          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
+          trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
         }//found2
 	std::size_t found3 = trigItem.find("FTKVtx");
         if (found3!=std::string::npos) {
-          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
+          trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
         }//found3
       }//found1
       // gsc input chains: Ruch Gupta 2017/08/02 
       std::size_t found4 = trigItem.find("gsc");
       if (found4!=std::string::npos) {
-	m_jetKey = "GSCJet";
+	jetKey = "GSCJet";
       } // if found4
-      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey 
-		    << " m_trackKey: " << m_trackKey << " SplitKey: " << SplitKey << " FTKchain: " << FTKchain);
+      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << jetKey << " m_priVtxKey: " << priVtxKey 
+		    << " m_trackKey: " << trackKey << " SplitKey: " << SplitKey << " FTKchain: " << FTKchain);
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
       // Set flag MuJet
       bool MuJet = false;
@@ -764,7 +764,7 @@ StatusCode HLTBjetMonTool::book(){
       bool HistTrack = !MuJet;
       bool HistBjet = !MuJet;
 
-      float m_zPrmVtx = 0.; // used for muon-jets
+      float zPrmVtx = 0.; // used for muon-jets
 
       // Temporary work-around to retrieve online PV for FTK chains suggested by John Baines 2017/09/12
       // Dummy vertices not treated here for the moment
@@ -783,7 +783,7 @@ StatusCode HLTBjetMonTool::book(){
 	    if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepvFTK))[0]->y());
 	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepvFTK))[0]->z());
 	    if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepvFTK->size());
-	    m_zPrmVtx = (*(onlinepvFTK))[0]->z();
+	    zPrmVtx = (*(onlinepvFTK))[0]->z();
 	    if (EofflinepvFTK && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepvFTK))[0]->z()-offlinepvzFTK);
           } // not onlinepvFTK->empty()
 	} // if contains
@@ -798,29 +798,29 @@ StatusCode HLTBjetMonTool::book(){
       for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
 	const Trig::Combination& comb = *bjetComb;
 	ATH_MSG_DEBUG("------------ NEW COMBINATION ------------");
-	m_zPrmVtx = 0.; // used for muon-jets
+	zPrmVtx = 0.; // used for muon-jets
 
 	if (!FTKchain) {
 
 	  // Get online PV
 	  bool DummyVtx = false;
-	  const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(m_priVtxKey);
+	  const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(priVtxKey);
 	  ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
 	  if ( not onlinepvs.empty() ) {
 	    const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
-	    ATH_MSG_DEBUG("   for VertexContainer: " << m_priVtxKey << " nVert: " << onlinepv->size());
+	    ATH_MSG_DEBUG("   for VertexContainer: " << priVtxKey << " nVert: " << onlinepv->size());
 	    if( not onlinepv->empty()) {
 	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
 		if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
 		if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
 		if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
-		m_zPrmVtx = (*(onlinepv))[0]->z();
+		zPrmVtx = (*(onlinepv))[0]->z();
 		if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);
 		ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
 	      } // if PV not dummy
 	      else {
 		DummyVtx = true;
-		ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << m_jetKey << " HistExt = " << HistExt << " m_priVtxKey " << m_priVtxKey );
+		ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << jetKey << " HistExt = " << HistExt << " m_priVtxKey " << priVtxKey );
 		ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
 			     << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
 		int dummyflag = -1;
@@ -856,7 +856,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_DEBUG(" ======== End of retrival of PV histograms  ==============  ");
 
 	// Get online jet
-	const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(m_jetKey);
+	const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(jetKey);
 	ATH_MSG_DEBUG("RETRIEVED JETS   -   size: " << onlinejets.size());
 	if( not onlinejets.empty()) {  // SR
 	  const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
@@ -890,8 +890,8 @@ StatusCode HLTBjetMonTool::book(){
 	// Loop over muons and jets to monitor muon-jets m_deltaZ and m_dR
 	float muonEta=0, muonPhi=0, muonZ=0;
 	float jetEta=0,  jetPhi=0, jetZ=0;
-	float m_deltaEta=0, m_deltaPhi=0, m_deltaZ=0;
-	double m_dR = 0.;
+	float deltaEta=0, deltaPhi=0, deltaZ=0;
+	double dR = 0.;
 	if( not onlinemuons.empty()) { // SR
 	  const xAOD::MuonContainer* onlinemuon = onlinemuons[0].cptr();
 	  for(const auto* muon : *onlinemuon) {
@@ -910,13 +910,13 @@ StatusCode HLTBjetMonTool::book(){
 		if((jet)->p4().Et() < m_etCut) continue;
 		jetEta = (jet)->eta();
 		jetPhi = (jet)->phi();
-		jetZ=m_zPrmVtx;
-		m_deltaEta = muonEta - jetEta;
-		m_deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
-		m_deltaZ   = fabs(muonZ-jetZ);
-		m_dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
-		if(HistMuJet) hist("DeltaZAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(m_deltaZ);
-		if(HistMuJet) hist("DeltaRAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(m_dR);
+		jetZ=zPrmVtx;
+		deltaEta = muonEta - jetEta;
+		deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
+		deltaZ   = fabs(muonZ-jetZ);
+		dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+		if(HistMuJet) hist("DeltaZAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(deltaZ);
+		if(HistMuJet) hist("DeltaRAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dR);
 	      } // for online jet
 	    }//onlinejets.size
 	  } // for online muon
@@ -925,7 +925,7 @@ StatusCode HLTBjetMonTool::book(){
 	ATH_MSG_DEBUG(" Muon histograms are stored successfully !");
 
 	// Get online track particles
-	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(m_trackKey);
+	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(trackKey);
 	ATH_MSG_DEBUG("RETRIEVED TRACKS -   size: " << onlinetracks.size());
 	if ( not onlinetracks.empty() ) { // SR
 	  const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
