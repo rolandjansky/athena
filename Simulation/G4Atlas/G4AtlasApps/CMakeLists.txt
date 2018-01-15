@@ -10,14 +10,17 @@ find_package( COOL COMPONENTS CoolKernel )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 atlas_add_test(test_AtlasG4_tf_configuration
-               SCRIPT test/test_AtlasG4_tf_configuration.py)
+               SCRIPT test/test_AtlasG4_tf_configuration.py
+               PROPERTIES TIMEOUT 300 )
 
 if( NOT SIMULATIONBASE )
    atlas_add_test(test_AtlasG4_cosmics_configuration
-                  SCRIPT test/test_AtlasG4_cosmics_configuration.py)
+                  SCRIPT test/test_AtlasG4_cosmics_configuration.py
+                  PROPERTIES TIMEOUT 300 )
 
    atlas_add_test(test_TestBeam_tf_configuration
-                  SCRIPT test/test_TestBeam_tf_configuration.py)
+                  SCRIPT test/test_TestBeam_tf_configuration.py
+                  PROPERTIES TIMEOUT 300 )
 endif()
 
 # Install files from the package:
