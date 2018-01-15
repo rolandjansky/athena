@@ -22,12 +22,14 @@ CLID CondContBase::clid() const
 
 /**
  * @brief Internal constructor.
+ * @param rcusvc RCU service instance.
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
  */
 inline
-CondContBase::CondContBase (CLID clid,
+CondContBase::CondContBase (Athena::IRCUSvc& /*rcusvc*/,
+                            CLID clid,
                             const DataObjID& /*id*/,
                             SG::DataProxy* /*proxy*/)
   : m_clid (clid)
@@ -49,18 +51,75 @@ const void* CondContBase::cast (CLID /*clid*/, const void* /*ptr*/) const
 }
 
 
+/**
+ * @brief Make a run+lbn key from an EventIDBase.
+ * @param Event ID to convert.
+ */
+inline
+CondContBase::key_type CondContBase::keyFromRunLBN (const EventIDBase& b)
+{
+  return (static_cast<key_type> (b.run_number())<<32) + b.lumi_block();
+}
+
+
+/**
+ * @brief Make a timestamp key from an EventIDBase.
+ * @param Event ID to convert.
+ */
+inline
+CondContBase::key_type CondContBase::keyFromTimestamp (const EventIDBase& b)
+{
+  return (static_cast<key_type> (b.time_stamp())<<32) + b.time_stamp_ns_offset();
+}
+
+
+/**
+ * @brief Default constructor.
+ */
+inline
+CondContBase::RangeKey::RangeKey()
+  : m_start(0),
+    m_stop(0)
+{
+}
+
+
+/**
+ * @brief Constructor from range+start/stop.
+ * @param r The range to store.
+ * @param start Packed start time.
+ * @param stop Packed stop time.
+ */
+inline
+CondContBase::RangeKey::RangeKey (const EventIDRange& r,
+                                  key_type start,
+                                  key_type stop)
+  : m_start (start),
+    m_stop (stop),
+    m_range (r)
+{
+}
+
+
 ///////////////////////////////////////////////////////////////////////////
 
 
 /** 
  * @brief Constructor.
+ * @param rcusvc RCU service instance.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
+ * @param capacity Initial capacity of the container.
  */
 template <class T>
 inline
-CondCont<T>::CondCont (const DataObjID& id, SG::DataProxy* proxy /*=nullptr*/)
-  : Base (ClassID_traits<CondCont<T> >::ID(), id, proxy),
+CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
+                       const DataObjID& id,
+                       SG::DataProxy* proxy /*=nullptr*/,
+                       size_t capacity /*= 16*/)
+  : Base (rcusvc, ClassID_traits<CondCont<T> >::ID(), id, proxy),
+    m_condSet_clock (typename CondContSet::Updater_t (rcusvc), capacity),
+    m_condSet_RE (typename CondContSet::Updater_t (rcusvc), capacity),
     m_id (id),
     m_proxy (proxy)
 {
@@ -76,12 +135,6 @@ CondCont<T>::CondCont (const DataObjID& id, SG::DataProxy* proxy /*=nullptr*/)
  */
 template <typename T>
 CondCont<T>::~CondCont<T>() {
-  for (const IOVEntryT<T>& ent : m_condSet_clock) {
-    delete ent.objPtr();
-  }
-  for (const IOVEntryT<T>& ent : m_condSet_RE) {
-    delete ent.objPtr();
-  }
 }    
 
 
@@ -138,17 +191,15 @@ void CondCont<T>::setProxy (SG::DataProxy* proxy)
 template <typename T>
 void CondCont<T>::list (std::ostream& ost) const
 {
-  lock_t lock (m_mutex);
-
   ost << "id: " << m_id << "  proxy: " << m_proxy << std::endl;
 
   ost << "clock: [" << m_condSet_clock.size() << "]" << std::endl;
-  for (const IOVEntryT<T>& ent : m_condSet_clock) {
-    ost << ent << std::endl;
+  for (const typename CondContSet::value_type& ent : m_condSet_clock.range()) {
+    ost << ent.first.m_range << " " << ent.second << std::endl;
   }
   ost << "RE: [" << m_condSet_RE.size() << "]" << std::endl;
-  for (const IOVEntryT<T>& ent : m_condSet_RE) {
-    ost << ent << std::endl;
+  for (const typename CondContSet::value_type& ent : m_condSet_RE.range()) {
+    ost << ent.first.m_range << " " << ent.second << std::endl;
   }
 }
 
@@ -162,7 +213,6 @@ void CondCont<T>::list (std::ostream& ost) const
 template <typename T>
 int CondCont<T>::entries() const
 {
-  lock_t lock(m_mutex);
   return m_condSet_RE.size() + m_condSet_clock.size();
 }
 
@@ -177,15 +227,13 @@ template <typename T>
 std::vector<EventIDRange> 
 CondCont<T>::ranges() const
 {
-  lock_t lock(m_mutex);
-
   std::vector<EventIDRange> r;
   r.reserve (m_condSet_RE.size() + m_condSet_clock.size());
-  for (const IOVEntryT<T>& ent : m_condSet_RE) {
-    r.push_back( ent.range() );
+  for (const typename CondContSet::value_type& ent : m_condSet_RE.range()) {
+    r.push_back( ent.first.m_range );
   }
-  for (const IOVEntryT<T>& ent : m_condSet_clock) {
-    r.push_back( ent.range() );
+  for (const typename CondContSet::value_type& ent : m_condSet_clock.range()) {
+    r.push_back( ent.first.m_range );
   }
 
   return r;
@@ -199,6 +247,7 @@ CondCont<T>::ranges() const
  * @brief Insert a new conditions object.
  * @param r Range of validity of this object.
  * @param obj Pointer to the object being inserted.
+ * @param ctx Event context for the current thread.
  *
  * @c obj must point to an object of type @c T,
  * except in the case of inheritance, where the type of @c obj must
@@ -209,9 +258,11 @@ CondCont<T>::ranges() const
  * (ownership of the object will be taken in either case).
  */
 template <typename T>
-bool CondCont<T>::typelessInsert (const EventIDRange& r, void* obj)
+bool CondCont<T>::typelessInsert (const EventIDRange& r,
+                                  void* obj,
+                                  const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
-  return insert (r, std::unique_ptr<T> (static_cast<T*>(obj)));
+  return insert (r, std::unique_ptr<T> (static_cast<T*>(obj)), ctx);
 }
 
 
@@ -222,6 +273,7 @@ bool CondCont<T>::typelessInsert (const EventIDRange& r, void* obj)
  * @brief Insert a new conditions object.
  * @param r Range of validity of this object.
  * @param obj Pointer to the object being inserted.
+ * @param ctx Event context for the current thread.
  *
  * @c obj must point to an object of type @c T.
  * This will give an error if this is not called
@@ -230,7 +282,9 @@ bool CondCont<T>::typelessInsert (const EventIDRange& r, void* obj)
  * Returns true if the object was successfully inserted; false otherwise.
  */
 template <typename T>
-bool CondCont<T>::insert (const EventIDRange& r, std::unique_ptr<T> t)
+bool CondCont<T>::insert (const EventIDRange& r,
+                          std::unique_ptr<T> t,
+                          const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
   if (this->clid() != ClassID_traits<CondCont<T> >::ID()) {
     std::cerr << "CondCont<T>::insert error: Not most-derived class."
@@ -238,21 +292,24 @@ bool CondCont<T>::insert (const EventIDRange& r, std::unique_ptr<T> t)
     return false;
   }
 
-  lock_t lock (m_mutex);
+  EventIDBase start = r.start();
+  EventIDBase stop = r.stop();
 
   // LBN part of ranges may be undefined for an open-ended range.
-  if (r.start().run_number() != EventIDBase::UNDEFNUM &&
-      r.stop().run_number() != EventIDBase::UNDEFNUM)
+  if (start.run_number() != EventIDBase::UNDEFNUM &&
+      stop.run_number() != EventIDBase::UNDEFNUM)
   {
-    EventIDBase start = r.start();
-    EventIDBase stop = r.stop();
-    start.set_event_number (EventIDBase::UNDEFEVT);
-    stop.set_event_number (EventIDBase::UNDEFEVT);
-    m_condSet_RE.emplace( IOVEntryT<T>(t.release(), EventIDRange(start, stop)) );
+    m_condSet_RE.emplace( RangeKey(r,
+                                   CondContBase::keyFromRunLBN (start),
+                                   CondContBase::keyFromRunLBN (stop)),
+                          std::move(t), ctx );
     
   }
-  else if (r.start().isTimeStamp() && r.stop().isTimeStamp()) {
-    m_condSet_clock.emplace( IOVEntryT<T>(t.release(), r) );
+  else if (start.isTimeStamp() && stop.isTimeStamp()) {
+    m_condSet_clock.emplace( RangeKey(r,
+                                      CondContBase::keyFromTimestamp (start),
+                                      CondContBase::keyFromTimestamp (stop)),
+                             std::move(t), ctx );
   }
   else {
     std::cerr << "CondCont<T>::insert error: EventIDRange " << r 
@@ -328,15 +385,61 @@ CondCont<T>::range(const EventIDBase& t, EventIDRange& r) const
 
 
 /**
+ * @brief Erase the first element not less than @c t.
+ * @param IOV time of element to erase.
+ * @param ctx Event context for the current thread.
+ */
+template <typename T>
+void CondCont<T>::erase (const EventIDBase& t,
+                         const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  if (t.isRunLumi()) {
+    m_condSet_RE.erase (CondContBase::keyFromRunLBN (t), ctx);
+  }
+  else if (t.isTimeStamp()) {
+    m_condSet_clock.erase (CondContBase::keyFromTimestamp (t), ctx);
+  }
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Mark that this thread is no longer accessing data from this container.
+ * @param ctx Event context for the current thread.
+ *
+ * This would normally be done through RCU service.
+ * Defined here for purposes of testing.
+ */
+template <typename T>
+void
+CondCont<T>::quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+{
+  m_condSet_RE.quiescent (ctx);
+  m_condSet_clock.quiescent (ctx);
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
  * @brief Internal constructor.
+ * @param rcusvc RCU service instance.
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
  * @param proxy @c DataProxy for this object.
  */
 template <typename T>
 inline
-CondCont<T>::CondCont (CLID clid, const DataObjID& id, SG::DataProxy* proxy)
-  : Base (clid, id, proxy),
+CondCont<T>::CondCont (Athena::IRCUSvc& rcusvc,
+                       CLID clid,
+                       const DataObjID& id,
+                       SG::DataProxy* proxy)
+  : Base (rcusvc, clid, id, proxy),
+    m_condSet_clock (typename CondContSet::Updater_t (rcusvc)),
+    m_condSet_RE (typename CondContSet::Updater_t (rcusvc)),
     m_id(id),
     m_proxy(proxy)
 {
@@ -385,34 +488,25 @@ const void* CondCont<T>::findByCLID (CLID clid,
                                      EventIDRange const** r) const
 {
   const void* ptr = nullptr;
-  {
-    lock_t lock (m_mutex);
-
-    if (t.isRunLumi()) {
-      EventIDBase t2 = t;
-      t2.set_event_number (EventIDBase::UNDEFEVT);
-
-      for (const IOVEntryT<T>& ent : m_condSet_RE) {
-        if ( ent.range().isInRange(t2) ) {
-          if (r) {
-            *r = &ent.range();
-          }
-          ptr = ent.objPtr();
-          break;
-        }
+  if (t.isRunLumi()) {
+    key_type key = CondContBase::keyFromRunLBN (t);
+    typename CondContSet::const_iterator it = m_condSet_RE.find (key);
+    if (it && key < it->first.m_stop) {
+      if (r) {
+        *r = &it->first.m_range;
       }
-    } 
+      ptr = it->second;
+    }
+  } 
 
-    if (!ptr && t.isTimeStamp()) {
-      for (const IOVEntryT<T>& ent : m_condSet_clock) {
-        if ( ent.range().isInRange(t) ) {
-          if (r) {
-            *r = &ent.range();
-          }
-          ptr = ent.objPtr();
-          break;
-        }
+  if (!ptr && t.isTimeStamp()) {
+    key_type key = CondContBase::keyFromTimestamp (t);
+    typename CondContSet::const_iterator it = m_condSet_clock.find (key);
+    if (it && key < it->first.m_stop) {
+      if (r) {
+        *r = &it->first.m_range;
       }
+      ptr = it->second;
     }
   }
 
@@ -438,3 +532,5 @@ void CondCont<T>::registerBaseInit()
 {
   static const SG::RegisterBaseInit<CondCont> rbi;
 }
+
+
