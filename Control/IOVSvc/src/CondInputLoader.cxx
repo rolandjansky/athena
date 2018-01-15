@@ -58,7 +58,8 @@ CondInputLoader::CondInputLoader( const std::string& name,
   m_condStore("StoreGateSvc/ConditionStore", name),
   m_condSvc("CondSvc",name),
   m_IOVSvc("IOVSvc",name),
-  m_clidSvc("ClassIDSvc",name)
+  m_clidSvc("ClassIDSvc",name),
+  m_rcuSvc("Athena::RCUSvc",name)
 
 {
   //
@@ -93,6 +94,7 @@ CondInputLoader::initialize()
   ATH_CHECK( m_condSvc.retrieve() );
   ATH_CHECK( m_condStore.retrieve() );
   ATH_CHECK( m_clidSvc.retrieve() );
+  ATH_CHECK( m_rcuSvc.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
@@ -259,12 +261,12 @@ CondInputLoader::start()
                         << "This is a BAD sign, but will try to continue");
       }
       SG::DataObjectSharedPtr<DataObject> cb = 
-        CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+        CondContainer::CondContFactory::Instance().Create( *m_rcuSvc, ditr->clid(), ditr->key() );
       if (cb == 0) {
         // try to force a load of libraries using ROOT
         (void)TClass::GetClass (tp.c_str());
         cb =
-          CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+          CondContainer::CondContFactory::Instance().Create( *m_rcuSvc, ditr->clid(), ditr->key() );
       }
       if (cb == 0) {
         ATH_MSG_ERROR("failed to create CondCont<" << tp
