@@ -4,33 +4,33 @@
 # art-type: grid
 
 # Run 10 events normally
-AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsFull.ttbar.pool.root' --maxEvents '10' --skipEvents '0'
+AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsFull.ttbar.pool.root' --maxEvents '10' --skipEvents '0'
 
-# art-result: $? <unsplit-sim>
+echo "art-result: $? unsplit-sim"
 
 # Run first 5 events
-AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf1.ttbar.pool.root' --maxEvents '5' --skipEvents '0'
+AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf1.ttbar.pool.root' --maxEvents '5' --skipEvents '0'
 
-# art-result: $? <split-sim1>
+echo "art-result: $? split-sim1"
 
 # Run next 5 events
-AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf2.ttbar.pool.root' --maxEvents '5' --skipEvents '5'
+AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf2.ttbar.pool.root' --maxEvents '5' --skipEvents '5'
 
-# art-result: $? <split-sim2>
+echo "art-result: $? split-sim2"
 
 # Merge the partial files
 HITSMerge_tf.py --inputHitsFile hitsHalf1.ttbar.pool.root \
                                 hitsHalf2.ttbar.pool.root \
                 --outputHitsFile 'hitsMerged.ttbar.pool.root'
 
-# art-result: $? <split-merge>
+echo "art-result: $? split-merge"
 
 # Run a dummy merge on the full hits file to deal with lossy compression:
 HITSMerge_tf.py --inputHitsFile 'hitsFull.ttbar.pool.root' --outputHitsFile 'hitsFullMerged.ttbar.pool.root'
 
-# art-result: $? <dummy-merge>
+echo "art-result: $? dummy-merge"
 
 # Compare the merged outputs
 acmd.py diff-root hitsFullMerged.ttbar.pool.root hitsMerged.ttbar.pool.root --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings
 
-# art-result: $? <comparison>
+echo "art-result: $? comparison"
