@@ -47,6 +47,10 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
+
+
+ private:
+
   void Hist_Init(std::vector<TH1D*> *histograms);
 
   void fillMaps(const FTK_RawTrackContainer* rawTracks, std::vector<std::vector<unsigned int>*>& pixList, std::vector<std::vector<unsigned int>*>& sctList);
@@ -62,9 +66,16 @@ public:
   void compareTracks(const FTK_RawTrack* ftkTrack, 
 		     std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
 		     std::map<unsigned int,double>& offlinetrackSctLocx);
-
- private:
   
+  typedef std::vector<std::vector<int>> sectormap;
+
+  int readModuleIds(unsigned int itower, sectormap& hashID);
+    
+  unsigned int getHash(unsigned int tower, unsigned int sector,  unsigned int plane);
+
+  
+  bool findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane);
+
   /// Tools and services ///
   ITHistSvc*    rootHistSvc;
 
@@ -91,6 +102,8 @@ public:
   TH1D* h_FTK_pt;
   TH1D* h_FTK_eta;
   TH1D* h_FTK_phi;
+  TH1D* h_offline_n;
+  TH1D* h_offline_nAcc;
   TH1D* h_offline_pt;
   TH1D* h_offline_eta;
   TH1D* h_offline_phi;
@@ -109,6 +122,14 @@ public:
   std::vector<TH1D*> h_scte_0_dlocX;
   std::vector<TH1D*> h_scte_1_dlocX;
 
+  std::vector<TH1D*> h_pix_row;
+  std::vector<TH1D*> h_pix_col;
+  std::vector<TH1D*> h_sct_coord;
+
+  std::vector<TH1D*> h_pix_rowW;
+  std::vector<TH1D*> h_pix_colW;
+  std::vector<TH1D*> h_sct_width;
+
   std::vector<TH1D*> h_ftk_sctb_dlocX;
   TH1D* h_ftk_sct_clusWidth;
   TH1D* h_ftk_pix_phiClusWidth;
@@ -123,6 +144,18 @@ public:
   double m_maxphi;
   unsigned int m_minMatches;
   bool m_reverseIBLlocx;
+
+  size_t m_max_tower;
+
+  std::vector<sectormap*> m_moduleFromSector;
+
+  std::string m_ConstantsDir;
+  std::string m_PatternsVersion;
+  unsigned int m_Nlayers;
+  bool m_getHashFromTrack;
+  bool m_getHashFromConstants;
+  uint32_t m_towerID;
+
 };
 
 #endif // FTK_RDO_MonitorAlgo_h
