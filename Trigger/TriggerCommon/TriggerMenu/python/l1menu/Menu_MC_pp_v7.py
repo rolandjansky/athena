@@ -93,7 +93,7 @@ def defineMenu():
         'J50', 'J75', 'J85', 'J100', 'J120', 'J400',
 
         # 6 x FJ              
-        'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', 'J100.31ETA49', 
+        'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', 'JJ15.23ETA49', #'J100.31ETA49',
 
 
         #---------------------
@@ -403,7 +403,7 @@ def defineMenu():
         # see savannah https://savannah.cern.ch/bugs/?103935
 
         # combined EM -jet
-        #'L1_JJ15.23ETA49', # 4x4 window
+        'L1_JJ15.23ETA49', # 4x4 window
         'L1_2EM8I_J50', 'L1_2EM8I_J75',
 
         # single MU
@@ -481,6 +481,8 @@ def defineMenu():
         # combined em - jet
         #'L1_EM15VH_J15.23ETA49',
 #        'L1_EM15VH_JJ15.23ETA49',
+        'L1_EM18VHI_JJ15.23ETA49',
+        'L1_EM20VHI_JJ15.23ETA49',
         'L1_EM18VHI_3J20',
         'L1_EM20VH_3J20',
         #'L1_EM18VH_3J20',
@@ -495,7 +497,7 @@ def defineMenu():
 
         # single jet
         "L1_J12","L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50" ,"L1_J75","L1_J85", "L1_J100", "L1_J120", "L1_J400",
-        "L1_J20.31ETA49", "L1_J30.31ETA49", "L1_J50.31ETA49", "L1_J75.31ETA49", "L1_J100.31ETA49",
+        "L1_J20.31ETA49", "L1_J30.31ETA49", "L1_J50.31ETA49", "L1_J75.31ETA49", #"L1_J100.31ETA49",
         #'L1_J15.23ETA49',
          'L1_J15.31ETA49',
         "L1_J20.28ETA31",
@@ -508,7 +510,7 @@ def defineMenu():
         "L1_J50_UNPAIRED_ISO", "L1_J50_UNPAIRED_NONISO", "L1_J50_ABORTGAPNOTCALIB",         
         "L1_J12_BGRP12", "L1_J30.31ETA49_BGRP12",
         'L1_J100_FIRSTEMPTY',
-        'L1_J100.31ETA49_FIRSTEMPTY',
+        #'L1_J100.31ETA49_FIRSTEMPTY',
         
         # multi jet
 
@@ -1047,6 +1049,8 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM_XE35' : 83,
         'L1_TAU40_2TAU12IM_XE40' : 429,
 #        'L1_EM15VH_JJ15.23ETA49' : 86,
+        'L1_EM18VHI_JJ15.23ETA49' : 316,
+        'L1_EM20VHI_JJ15.23ETA49' : 326,
         'L1_MU6_J20' : 88,
         'L1_MU6_J40' : 89,
         'L1_MU6_J75' : 90,
@@ -1069,7 +1073,8 @@ def defineMenu():
         'L1_J30.31ETA49' : 104,
         'L1_J50.31ETA49' : 105,
         'L1_J75.31ETA49' : 106,
-        'L1_J100.31ETA49' : 107,
+        #'L1_J100.31ETA49' : 107,
+        'L1_JJ15.23ETA49' : 107,
 #        'L1_J40.0ETA25' : 108,
         
         'L1_J15.31ETA49' : 109,
@@ -1505,7 +1510,7 @@ def defineMenu():
         'L1_MU20_FIRSTEMPTY':413, 
         'L1_MU21_FIRSTEMPTY':406, 
         'L1_J100_FIRSTEMPTY':414, 
-        'L1_J100.31ETA49_FIRSTEMPTY':415, 
+        #'L1_J100.31ETA49_FIRSTEMPTY':415, 
         #'L1_TE60.0ETA24':416, 
 #        'L1_MBTS_1_VTE4':417, 
 #        'L1_MBTS_1_VTE3':418,
