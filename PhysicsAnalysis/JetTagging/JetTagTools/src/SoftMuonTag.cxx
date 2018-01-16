@@ -208,6 +208,8 @@ namespace Analysis
       ATH_MSG_INFO("#BTAG# Retrieved tool " << m_muonSelectorTool);  
     }
 
+    ATH_CHECK( m_TrackParticles.initialize() );
+
     /** retrieving TrackToVertex: */
     /*
       if ( m_trackToVertexTool.retrieve().isFailure() ) {
@@ -742,11 +744,15 @@ namespace Analysis
       //std::cout << " trk: " <<  tmpMuon->primaryTrackParticle()->z0() << "  PVZ: " << m_priVtx->z() << "  and z: " << z0 << std::endl;
 
       //Finding SV with a muon
-      //const xAOD::TrackParticleContainer *trackParticles = 0;
-      //evtStore()->retrieve(trackParticles, "InDetTrackParticles") );
-      SG::ReadHandle<xAOD::TrackParticleContainer> trackParticles("InDetTrackParticles");
-      xAOD::TrackParticleContainer::const_iterator trackItr   = trackParticles->begin();
-      xAOD::TrackParticleContainer::const_iterator trackItrE =  trackParticles->end();
+      SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackParticles (m_TrackParticles);
+      ATH_MSG_DEBUG( " retrieve track particle container with key " << m_TrackParticles.key()  );
+      if (!h_TrackParticles.isValid()) {
+        ATH_MSG_ERROR( " cannot retrieve track particle container with key " << m_TrackParticles.key()  );
+        return StatusCode::FAILURE;
+      }
+
+      xAOD::TrackParticleContainer::const_iterator trackItr   = h_TrackParticles->begin();
+      xAOD::TrackParticleContainer::const_iterator trackItrE =  h_TrackParticles->end();
       std::vector<const xAOD::TrackParticle*> my_trkparticles(0);
       for( ; trackItr != trackItrE; ++trackItr ) {
 	const xAOD::TrackParticle* trackParticle = ( *trackItr );
