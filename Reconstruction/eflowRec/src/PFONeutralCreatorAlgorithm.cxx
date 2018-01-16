@@ -69,7 +69,8 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
     }
 
     ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = thisEfRecCluster->getOriginalClusElementLink();
-    bool isSet = thisPFO->setClusterLink(theOriginalClusterLink);
+    ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+    bool isSet = thisPFO->setClusterLink(theSisterClusterLink);
     if (!isSet) { msg(MSG::WARNING) << "Could not set Cluster in PFO " << endmsg; }
 
     const xAOD::CaloCluster* cluster = thisEfRecCluster->getCluster();

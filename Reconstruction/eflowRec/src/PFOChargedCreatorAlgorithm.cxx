@@ -120,7 +120,8 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
       for (auto trackClusterLink : trackClusterLinks){
 	eflowRecCluster* efRecCluster = trackClusterLink->getCluster();
 	ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
-	bool isSet = thisPFO->addClusterLink(theOriginalClusterLink);
+	ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+	bool isSet = thisPFO->addClusterLink(theSisterClusterLink);
 	 if (!isSet) ATH_MSG_WARNING("Could not set Cluster in PFO");
       }//track-cluster link loop
     }//addClusters is set to true - so we added the clusters to the xAOD::PFO   
