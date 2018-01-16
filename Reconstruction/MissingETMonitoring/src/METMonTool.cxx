@@ -108,7 +108,7 @@ StatusCode METMonTool::initialize()
     CHECK(m_selTool.retrieve());
   } else {
     // if the tool is not required it shoudl be configured as non-retrievable
-    if ( not m_selTool.typeAndName().empty() ){
+    if ( m_selTool.isEnabled() ){
       ATH_MSG_ERROR("JetSelTool is configured even if is not required");
       return StatusCode::FAILURE;
     }
