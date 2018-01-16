@@ -8,10 +8,10 @@ You can also use it to output a single PRW config file containing just your data
 Example: checkPRW.py --outPRWFile=my.prw.root --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
 
 """
-
+import os
+import argparse
 
 def main():
-    import argparse
     from argparse import RawTextHelpFormatter
     
     parser = argparse.ArgumentParser(description=__doc__,formatter_class=RawTextHelpFormatter)
@@ -21,8 +21,14 @@ def main():
     
     args = parser.parse_args()
 
-    import pyAMI.atlas.api as atlasAPI
-    import pyAMI.client
+    
+    try:
+      import pyAMI.atlas.api as atlasAPI
+      import pyAMI.client
+    except ImportError:
+      print "Could not import pyAMI ... please do: lsetup pyAMI"
+      print "Also ensure you have a valid certificate (voms-proxy-init -voms atlas)"
+      return 1
 
     client = pyAMI.client.Client('atlas')
     atlasAPI.init()
@@ -103,10 +109,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
-    try:
-      sys.exit(main())
-    except:
-      print "There was an error ... please ensure you have done the following before running the script:"
-      print "lsetup pyAMI"
-      print "voms-proxy-init -voms atlas"
+    os._exit(main())
