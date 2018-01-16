@@ -251,14 +251,9 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
   if (! m_vxContainerWithBeamConstraint) {
 
     // Basic primary vertex monitoring
-    SG::ReadHandle<xAOD::VertexContainer_v1> vxContainer;
-    if (evtStore()->contains<xAOD::VertexContainer_v1>(m_vxContainerName.key())) {
-      if (!vxContainer.isValid()) {
-        ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName.key());
-        return StatusCode::SUCCESS;
-      }
-    } else {
-      ATH_MSG_DEBUG ("StoreGate doesn't contain primary vertex container with key "+m_vxContainerName.key());
+    SG::ReadHandle<xAOD::VertexContainer_v1> vxContainer(m_vxContainerName);
+    if (!vxContainer.isValid()) {
+      ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName.key());
       return StatusCode::SUCCESS;
     }
 
