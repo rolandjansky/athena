@@ -50,11 +50,11 @@ private:
   
   /** methods to make booking easier */
   void addL1BasicHistograms();
+  void addL1ProfileHistograms(std::map<std::string, int> met_signatures_tolook);
   void addL1ProfileShifterHistograms();
   void addL1ProfileExpertHistograms();
   void addHLTBasicHistograms();
-  void addHLTProfileShifterHistograms();
-  void addHLTProfileExpertHistograms();
+  void addHLTProfileHistograms(std::map<std::string, int> met_signatures_tolook);
   void addHLTStatusHistograms();
   void addHLTCompHistograms();
   void addOffMETHistograms();
@@ -64,9 +64,9 @@ private:
   void addElMuHistograms();
   // methods to make filling easier
   void fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1_mey,float l1_mey_log,float l1_met,float l1_met_log,float l1_sumet,float l1_sumet_log,float l1_phi,float saturated);
-  void fillL1ProfileShifterHistograms(float off_met,float pT_mumu,bool METMuonFilled);
-  void fillL1ProfileExpertHistograms(float off_met);
+  void fillL1ProfileHistograms(float off_met,float pT_mumu,bool METMuonFilled,std::map<std::string, int> met_signatures_tolook);
   void fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float hlt_ey,float hlt_ey_log,float hlt_ez,float hlt_ez_log,float hlt_met,float hlt_met_log,float hlt_sumet,float hlt_sumet_log,float hlt_sume,float hlt_sume_log,float hlt_phi,float hlt_eta,float hlt_significance);
+  void fillHLTProfileHistograms(float off_met,std::map<std::string, int> met_signatures_tolook);
   void fillHLTProfileShifterHistograms(float off_met);
   void fillHLTProfileExpertHistograms(float off_met);
   void fillOffMETHistograms(float off_met,float off_ex,float off_ey,float off_sumet,float off_phi);
@@ -104,8 +104,11 @@ private:
   std::vector<std::string> m_monitoring_met_shifter;
   std::vector<std::string> m_monitoring_met_expert;
   std::vector<std::string> m_monitoring_alg;
+  std::vector<std::string> m_monitoring_alg_shifter;
+  std::vector<std::string> m_monitoring_alg_expert;
   std::vector<std::string> m_prescaled_met;
   
+   
   std::vector<std::string> m_met_triggers_l1_expert, m_met_triggers_hlt_expert;
   std::vector<std::string> m_met_triggers_l1_shifter, m_met_triggers_hlt_shifter;
   std::map<std::string, int> m_l1_met_signatures_tolook_shifter;
@@ -124,7 +127,7 @@ private:
   //bool m_is_do_trigger_effic;
   
   std::string m_lvl1_roi_key;
-  std::string m_hlt_main_met_key; 
+  //std::string m_hlt_main_met_key; 
   std::string m_hlt_cell_met_key; 
   std::string m_hlt_mht_met_key; 
   std::string m_hlt_mhtem_met_key; 

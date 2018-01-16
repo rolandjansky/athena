@@ -41,11 +41,13 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("monitoring_met_shifter", m_monitoring_met_shifter);
   declareProperty("monitoring_met_expert", m_monitoring_met_expert);
   declareProperty("monitoring_alg", m_monitoring_alg);
+  declareProperty("monitoring_alg_shifter", m_monitoring_alg_shifter);
+  declareProperty("monitoring_alg_expert", m_monitoring_alg_expert);
   declareProperty("prescaled_met", m_prescaled_met);
 
   // Met keys
   declareProperty("l1_key", m_lvl1_roi_key="LVL1EnergySumRoI");
-  declareProperty("hlt_main_key", m_hlt_main_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC");
+  //declareProperty("hlt_main_key", m_hlt_main_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
@@ -144,7 +146,7 @@ StatusCode HLTMETMonTool::init() {
   if (m_debuglevel) {
     ATH_MSG_DEBUG("in HLTMETMonTool::init()");
     ATH_MSG_DEBUG("HLTMETMonTool: L1Key  = "     << m_lvl1_roi_key);
-    ATH_MSG_DEBUG("HLTMETMonTool: HLT_METKey = " << m_hlt_main_met_key);
+    ATH_MSG_DEBUG("HLTMETMonTool: HLT_METKey = " << m_primary_met[0]);
     ATH_MSG_DEBUG("HLTMETMonTool: Off_METKey = " << m_off_met_key);
   }
 
@@ -186,8 +188,9 @@ StatusCode HLTMETMonTool::book() {
   if (m_met_triggers_hlt_expert.size())
     check_triggers(m_met_triggers_hlt_expert, m_hlt_met_signatures_tolook_expert);//
   
-  // declare iteratot
+  // declare iterator etc.
   std::map<std::string,int>::const_iterator it;
+  std::map<std::string, int> met_signatures_tolook;
 
   // Create Shifter and Expert folders
   m_shifter_path = m_mon_path + "/Shifter";
@@ -214,7 +217,8 @@ StatusCode HLTMETMonTool::book() {
   monFolderName = monGroupName + "/Efficiency";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
-  addL1ProfileShifterHistograms();
+  met_signatures_tolook = m_l1_met_signatures_tolook_shifter;
+  addL1ProfileHistograms(met_signatures_tolook);
     
 
   // Book Shifter HLT histograms *****
@@ -231,21 +235,24 @@ StatusCode HLTMETMonTool::book() {
   monFolderName = monGroupName + "/Efficiency";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
-  addHLTProfileShifterHistograms();
+  met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
+  addHLTProfileHistograms(met_signatures_tolook);
 
   // Signal like electron histograms
   monFolderName = monGroupName + "/SignalEl";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addHLTBasicHistograms();
-  addHLTProfileShifterHistograms();
+  met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
+  addHLTProfileHistograms(met_signatures_tolook);
 
   // Signal like muon histograms
   monFolderName = monGroupName + "/SignalMu";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addHLTBasicHistograms();
-  addHLTProfileShifterHistograms();
+  met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
+  addHLTProfileHistograms(met_signatures_tolook);
 
   // HLT cell status histograms
   monFolderName = monGroupName + "/Status";
@@ -254,7 +261,7 @@ StatusCode HLTMETMonTool::book() {
   addHLTStatusHistograms();
 
   /// Alternative algorithms: tc_lcw, tc_em, pueta, pufit, mht, etc.
-  for (std::vector<std::string>::iterator it2 = m_monitoring_alg.begin(); it2 != m_monitoring_alg.end(); it2++) {
+  for (std::vector<std::string>::iterator it2 = m_monitoring_alg_shifter.begin(); it2 != m_monitoring_alg_shifter.end(); it2++) {
 
     monFolderName = monGroupName + "/" + *it2;
     addMonGroup(new MonGroup(this, monFolderName, run));
@@ -276,7 +283,8 @@ StatusCode HLTMETMonTool::book() {
   monFolderName = monGroupName + "/Efficiency";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
-  addL1ProfileExpertHistograms();
+  met_signatures_tolook = m_l1_met_signatures_tolook_expert;
+  addL1ProfileHistograms(met_signatures_tolook);
 
   // With trigger rquirement:  L1_XE50 etc.
   for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
@@ -297,13 +305,25 @@ StatusCode HLTMETMonTool::book() {
   monFolderName = monGroupName + "/Efficiency";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
-  addHLTProfileExpertHistograms();
+  met_signatures_tolook = m_hlt_met_signatures_tolook_expert;
+  addHLTProfileHistograms(met_signatures_tolook);
 
   /// HLT cell component histograms
   monFolderName = monGroupName + "/Component";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addHLTCompHistograms();
+
+  // Alternative algorithms: tc_lcw, tc_em, pueta, pufit, mht, etc.
+  for (std::vector<std::string>::iterator it2 = m_monitoring_alg_expert.begin(); it2 != m_monitoring_alg_expert.end(); it2++) {
+
+    monFolderName = monGroupName + "/" + *it2;
+    addMonGroup(new MonGroup(this, monFolderName, run));
+    setCurrentMonGroup(monFolderName);
+
+    addHLTBasicHistograms();
+
+  }
  
   // With trigger requiriment: xe35, xe80, xe100 etc.
   for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
@@ -315,7 +335,6 @@ StatusCode HLTMETMonTool::book() {
     addHLTBasicHistograms();
 
   }
-  
 
   // Book Offline MET histograms *********
   monFolderName = monGroupName + "/Offline";
@@ -696,13 +715,49 @@ StatusCode HLTMETMonTool::fillMETHist() {
   float hlt_significance = -9e9;
 
 
-  //######################################################
-  //##### Set main trigger Algorithm  ####################
-  //######################################################
-  if(m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()){
-    //Replace mht with pufit 
+  // Set primary trigger Algorithm
+  std::string primary_name = m_primary_met[0];
+  //std::cout << "primary_name = " << primary_name << std::endl;
+  std::string primary_algo = get_trigger_algo(primary_name);
+  //std::cout << "primary_algo = " << primary_algo << std::endl;
+  ATH_MSG_DEBUG("Primary Selected Alg : " << primary_algo);
+  if (primary_algo == "cell" && m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : Cell");
+    m_hlt_met = m_hlt_cell_met_cont->at(0);
+  } else if (primary_algo == "mht" && m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : MHT");
+    m_hlt_met = m_hlt_mht_met_cont->at(0);
+  } else if (primary_algo == "mhtem" && m_hlt_mhtem_met_cont && m_hlt_mhtem_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : mht_em");
+    m_hlt_met = m_hlt_mhtem_met_cont->at(0);
+  } else if (primary_algo == "trkmht" && m_hlt_trkmht_met_cont && m_hlt_trkmht_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : trkmht");
+    m_hlt_met = m_hlt_trkmht_met_cont->at(0);
+  } else if (primary_algo == "trkmhtFTK" && m_hlt_trkmhtFTK_met_cont && m_hlt_trkmhtFTK_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : trkmhtFTK");
+    m_hlt_met = m_hlt_trkmhtFTK_met_cont->at(0);
+  } else if (primary_algo == "topocl" && m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : TopoCL");
+    m_hlt_met = m_hlt_topocl_met_cont->at(0);
+  } else if (primary_algo == "topocl_PS" && m_hlt_topocl_PS_met_cont && m_hlt_topocl_PS_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : TopoCL_PS");
+    m_hlt_met = m_hlt_topocl_PS_met_cont->at(0);
+  } else if (primary_algo == "topocl_PUC" && m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : TopoCL_PUC");
     m_hlt_met = m_hlt_topocl_PUC_met_cont->at(0);
-    
+  } else if (primary_algo == "FEB" && m_hlt_FEB_met_cont && m_hlt_FEB_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : FEB");
+    m_hlt_met = m_hlt_FEB_met_cont->at(0);
+  } else if (primary_algo == "Fex" && m_hlt_Fex_met_cont && m_hlt_Fex_met_cont->size()>0) {
+    ATH_MSG_DEBUG("Primary Alg : FEX");
+    m_hlt_met = m_hlt_Fex_met_cont->at(0);
+  } else {
+    ATH_MSG_DEBUG("Primary Alg : NONE");
+    m_hlt_met = 0;
+  }
+  //if(m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()){
+  //m_hlt_met = m_hlt_topocl_PUC_met_cont->at(0);
+  if (m_hlt_met) {
     hlt_ex = m_hlt_met->ex()/CLHEP::GeV; 
     hlt_ey = m_hlt_met->ey()/CLHEP::GeV; 
     hlt_ez = m_hlt_met->ez()/CLHEP::GeV;
@@ -757,8 +812,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //-- Fill histograms
   //########################
   
-  // declare iteratot etc.
+  // declare iterator etc.
   std::map<std::string,int>::const_iterator it;
+  std::map<std::string, int> met_signatures_tolook;
   TH1 *h(0);
   TH2 *h2(0);
 
@@ -785,8 +841,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   monFolderName = monGroupName + "/Efficiency";
   setCurrentMonGroup(monFolderName.c_str());
 
-  fillL1ProfileShifterHistograms(off_met,pT_mumu,METMuonFilled);
-  
+  met_signatures_tolook = m_l1_met_signatures_tolook_shifter;
+  fillL1ProfileHistograms(off_met,pT_mumu,METMuonFilled,met_signatures_tolook);
+ 
 
   /////////////
   // Shifter HLT
@@ -805,7 +862,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
   monFolderName = monGroupName + "/Efficiency";
   setCurrentMonGroup(monFolderName);
 
-  fillHLTProfileShifterHistograms(off_met);
+  met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
+  fillHLTProfileHistograms(off_met,met_signatures_tolook);
 
 
   // HLT signal-like electron
@@ -814,7 +872,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
   
   if(METElectronFilled == true) {
     fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
-    fillHLTProfileShifterHistograms(off_met);
+    met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
+    fillHLTProfileHistograms(off_met,met_signatures_tolook);
   }
 
   
@@ -824,7 +883,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   if(METMuonFilled == true) {
     fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
-    fillHLTProfileShifterHistograms(off_met);
+    met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
+    fillHLTProfileHistograms(off_met,met_signatures_tolook);
   }
 
   // HLT cell status
@@ -879,7 +939,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
 
   /// Alternative algorithms: tc_lcw, tc_em, pueta, pufit, mht, etc.
-  for (std::vector<std::string>::iterator it2 = m_monitoring_alg.begin(); it2 != m_monitoring_alg.end(); it2++) {
+  for (std::vector<std::string>::iterator it2 = m_monitoring_alg_shifter.begin(); it2 != m_monitoring_alg_shifter.end(); it2++) {
    
     monFolderName = monGroupName + "/" + *it2;
     setCurrentMonGroup(monFolderName);
@@ -922,26 +982,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
     } else {
       ATH_MSG_DEBUG("Alternative Alg : NONE");
       m_hlt_met = 0;
-    }
-    ATH_MSG_DEBUG("m_hlt_met = " << m_hlt_met);
-    if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {
-      ATH_MSG_DEBUG("m_hlt_met cell = " << m_hlt_cell_met_cont->at(0));
-      ATH_MSG_DEBUG("CELL MET Ex = " << m_hlt_cell_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()) {
-      ATH_MSG_DEBUG("MHT  MET Ex = " << m_hlt_mht_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {
-      ATH_MSG_DEBUG("CL   MET Ex = " << m_hlt_topocl_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_topocl_PS_met_cont && m_hlt_topocl_PS_met_cont->size()) {
-      ATH_MSG_DEBUG("PS   MET Ex = " << m_hlt_topocl_PS_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()) {
-      ATH_MSG_DEBUG("PUC  MET Ex = " << m_hlt_topocl_PUC_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_FEB_met_cont && m_hlt_FEB_met_cont->size()) {
-      ATH_MSG_DEBUG("FEB  MET Ex = " << m_hlt_FEB_met_cont->at(0)->ex()/CLHEP::GeV);
     }
     
     if (m_hlt_met) {  
@@ -1010,7 +1050,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
   monFolderName = monGroupName + "/Efficiency";
   setCurrentMonGroup(monFolderName);
 
-  fillL1ProfileExpertHistograms(off_met);
+  met_signatures_tolook = m_l1_met_signatures_tolook_expert;
+  fillL1ProfileHistograms(off_met,pT_mumu,METMuonFilled,met_signatures_tolook);
 
   // L1 Triggers
   for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
@@ -1040,7 +1081,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
   monFolderName = monGroupName + "/Efficiency";
   setCurrentMonGroup(monFolderName);
 
-  fillHLTProfileExpertHistograms(off_met);
+  met_signatures_tolook = m_hlt_met_signatures_tolook_expert;
+  fillHLTProfileHistograms(off_met,met_signatures_tolook);
 
 
   // HLT trigger requiriment: xe35, xe80, xe100 etc.
@@ -1158,6 +1200,97 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
 
 
+  /// Alternative algorithms: tc_lcw, tc_em, pueta, pufit, mht, etc.
+  for (std::vector<std::string>::iterator it2 = m_monitoring_alg_expert.begin(); it2 != m_monitoring_alg_expert.end(); it2++) {
+   
+    monFolderName = monGroupName + "/" + *it2;
+    setCurrentMonGroup(monFolderName);
+
+    std::string name = *it2;
+    //std::cout << "name = " << name << std::endl;
+    std::string algo = get_trigger_algo(name);
+    //std::cout << "algo = " << algo << std::endl;
+    ATH_MSG_DEBUG("Alternative Selected Alg : " << algo);
+    if (algo == "cell" && m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : Cell");
+      m_hlt_met = m_hlt_cell_met_cont->at(0);
+    } else if (algo == "mht" && m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : MHT");
+      m_hlt_met = m_hlt_mht_met_cont->at(0);
+    } else if (algo == "mhtem" && m_hlt_mhtem_met_cont && m_hlt_mhtem_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : mht_em");
+     m_hlt_met = m_hlt_mhtem_met_cont->at(0);
+    } else if (algo == "trkmht" && m_hlt_trkmht_met_cont && m_hlt_trkmht_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trkmht");
+      m_hlt_met = m_hlt_trkmht_met_cont->at(0);
+    } else if (algo == "trkmhtFTK" && m_hlt_trkmhtFTK_met_cont && m_hlt_trkmhtFTK_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trkmhtFTK");
+      m_hlt_met = m_hlt_trkmhtFTK_met_cont->at(0);
+    } else if (algo == "topocl" && m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL");
+      m_hlt_met = m_hlt_topocl_met_cont->at(0);
+    } else if (algo == "topocl_PS" && m_hlt_topocl_PS_met_cont && m_hlt_topocl_PS_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PS");
+      m_hlt_met = m_hlt_topocl_PS_met_cont->at(0);
+    } else if (algo == "topocl_PUC" && m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PUC");
+      m_hlt_met = m_hlt_topocl_PUC_met_cont->at(0);
+    } else if (algo == "FEB" && m_hlt_FEB_met_cont && m_hlt_FEB_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : FEB");
+      m_hlt_met = m_hlt_FEB_met_cont->at(0);
+    } else if (algo == "Fex" && m_hlt_Fex_met_cont && m_hlt_Fex_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : FEX");
+      m_hlt_met = m_hlt_Fex_met_cont->at(0);
+    } else {
+      ATH_MSG_DEBUG("Alternative Alg : NONE");
+      m_hlt_met = 0;
+    }
+    
+    if (m_hlt_met) {  
+      float tmp_hlt_ex = m_hlt_met->ex()/CLHEP::GeV; 
+      float tmp_hlt_ey = m_hlt_met->ey()/CLHEP::GeV; 
+      float tmp_hlt_ez = m_hlt_met->ez()/CLHEP::GeV;
+      float tmp_hlt_met = sqrt(tmp_hlt_ex*tmp_hlt_ex+tmp_hlt_ey*tmp_hlt_ey); 
+      float tmp_hlt_sumet = m_hlt_met->sumEt()/CLHEP::GeV;
+      float tmp_hlt_sume  = m_hlt_met->sumE()/CLHEP::GeV; 
+      ATH_MSG_DEBUG("Alternative Ex = " << tmp_hlt_ex);
+      ATH_MSG_DEBUG("Alternative Ey = " << tmp_hlt_ey);
+      ATH_MSG_DEBUG("Alternative MET = " << tmp_hlt_met);
+      
+      CLHEP::Hep3Vector v(tmp_hlt_ex, tmp_hlt_ey, tmp_hlt_ez);
+      float tmp_hlt_eta = v.eta();
+      float tmp_hlt_phi = v.phi();
+      
+      float tmp_hlt_ex_log = -9e9;
+      float tmp_hlt_ey_log = -9e9;
+      float tmp_hlt_ez_log = -9e9;
+      float tmp_hlt_met_log = -9e9;
+      float tmp_hlt_sume_log = -9e9;
+      float tmp_hlt_sumet_log = -9e9;
+      float tmp_hlt_significance = -9e9;
+      
+      float epsilon = 1e-6;  // 1 keV
+      //if (tmp_hlt_me > epsilon)  tmp_hlt_me_log  = log10(fabsf(tmp_hlt_me)); // underflow otherwise
+      
+      epsilon = 1.189;
+      tmp_hlt_ex_log = signed_log(tmp_hlt_ex, epsilon);
+      tmp_hlt_ey_log = signed_log(tmp_hlt_ey, epsilon);
+      tmp_hlt_ez_log = signed_log(tmp_hlt_ez, epsilon);
+      tmp_hlt_met_log = signed_log(tmp_hlt_met, epsilon);
+      tmp_hlt_sume_log = signed_log(tmp_hlt_sume, epsilon);
+      tmp_hlt_sumet_log = signed_log(tmp_hlt_sumet, epsilon);
+
+      float tmp_resolution = 0.0;
+      if (tmp_hlt_sumet>0.0) tmp_resolution = m_sigOffset + m_sigSlope*sqrt(tmp_hlt_sumet) + m_sigQuadr*tmp_hlt_sumet;
+      if (tmp_resolution>0.0) tmp_hlt_significance = tmp_hlt_met/tmp_resolution;
+      
+      fillHLTBasicHistograms(tmp_hlt_ex,tmp_hlt_ex_log,tmp_hlt_ey,tmp_hlt_ey_log,tmp_hlt_ez,tmp_hlt_ez_log,tmp_hlt_met,tmp_hlt_met_log,tmp_hlt_sumet,tmp_hlt_sumet_log,tmp_hlt_sume,tmp_hlt_sume_log,tmp_hlt_phi,tmp_hlt_eta,tmp_hlt_significance);
+
+    }
+
+  }
+
+
   
   //////////////////////////
   // Offline MET
@@ -1265,10 +1398,10 @@ void HLTMETMonTool::fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::addL1ProfileShifterHistograms() {
+void HLTMETMonTool::addL1ProfileHistograms(std::map<std::string, int> met_signatures_tolook) {
 
   std::map<std::string,int>::const_iterator it;
-  for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
+  for (it = met_signatures_tolook.begin(); it != met_signatures_tolook.end(); it++) {
     std::string prof_name = "Eff_" + it->first;
     std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
     addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
@@ -1285,16 +1418,16 @@ void HLTMETMonTool::addL1ProfileShifterHistograms() {
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::fillL1ProfileShifterHistograms(float off_met,float pT_mumu,bool METMuonFilled) {
+void HLTMETMonTool::fillL1ProfileHistograms(float off_met,float pT_mumu,bool METMuonFilled,std::map<std::string, int> met_signatures_tolook) {
 
   std::map<std::string,int>::const_iterator it;
   TProfile *p(0);
   TProfile *pmu(0);
-  for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
+  for (it = met_signatures_tolook.begin(); it != met_signatures_tolook.end(); it++) {
     std::string name = it->first;
     std::string profname = "Eff_"+ name;
     if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-      //trig_eff_num[0]->Fill(off_met);
+      //trig_eff_num[0]->Fill(off_met);                                      
       if ((p = profile(profname))) p->Fill(off_met,1.0,1.0);
     } else {
       if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
@@ -1318,44 +1451,6 @@ void HLTMETMonTool::fillL1ProfileShifterHistograms(float off_met,float pT_mumu,b
 	}
       }//pT_mumu > 0
     }//loop over signatures  
-  }
-
-}
-
-//___________________________________________________________________________________________________________
-void HLTMETMonTool::addL1ProfileExpertHistograms() {
-
-  std::map<std::string,int>::const_iterator it;
-  for (it = m_l1_met_signatures_tolook_expert.begin(); it != m_l1_met_signatures_tolook_expert.end(); it++) {
-    std::string prof_name = "Eff_" + it->first;
-    std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
-    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
-    
-    prof_name = "Eff_mu_" + it->first;
-    prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
-    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
-
-    prof_name = "Eff_mumu_" + it->first;
-    prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
-    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
-  }
-
-}
-
-//___________________________________________________________________________________________________________
-void HLTMETMonTool::fillL1ProfileExpertHistograms(float off_met) {
-
-  std::map<std::string,int>::const_iterator it;
-  TProfile *p(0);
-  for (it = m_l1_met_signatures_tolook_expert.begin(); it != m_l1_met_signatures_tolook_expert.end(); it++) {
-    std::string name = it->first;
-    std::string profname = "Eff_"+ name;
-    if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-      //trig_eff_num[0]->Fill(off_met);                                      
-      if ((p = profile(profname))) p->Fill(off_met,1.0,1.0);
-    } else {
-      if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
-    }
   }
 
 }
@@ -1415,10 +1510,10 @@ void HLTMETMonTool::fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float h
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::addHLTProfileShifterHistograms() {
+void HLTMETMonTool::addHLTProfileHistograms(std::map<std::string, int> met_signatures_tolook) {
 
   std::map<std::string,int>::const_iterator it;
-  for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
+  for (it = met_signatures_tolook.begin(); it != met_signatures_tolook.end(); it++) {
     std::string prof_name = "Eff_" + it->first;
     std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
     addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
@@ -1427,11 +1522,11 @@ void HLTMETMonTool::addHLTProfileShifterHistograms() {
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::fillHLTProfileShifterHistograms(float off_met) {
+void HLTMETMonTool::fillHLTProfileHistograms(float off_met,std::map<std::string, int> met_signatures_tolook) {
 
   std::map<std::string,int>::const_iterator it;
   TProfile *p(0);
-  for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
+  for (it = met_signatures_tolook.begin(); it != met_signatures_tolook.end(); it++) {
     std::string name = it->first;
     std::string profname = "Eff_"+name;
     if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
@@ -1444,35 +1539,6 @@ void HLTMETMonTool::fillHLTProfileShifterHistograms(float off_met) {
 
 }
 
-//___________________________________________________________________________________________________________
-void HLTMETMonTool::addHLTProfileExpertHistograms() {
-
-  std::map<std::string,int>::const_iterator it;
-  for (it = m_hlt_met_signatures_tolook_expert.begin(); it != m_hlt_met_signatures_tolook_expert.end(); it++) {
-    std::string prof_name = "Eff_" + it->first;
-    std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
-    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
-  }
-
-}
-
-//___________________________________________________________________________________________________________
-void HLTMETMonTool::fillHLTProfileExpertHistograms(float off_met) {
-
-  std::map<std::string,int>::const_iterator it;
-  TProfile *p(0);
-  for (it = m_hlt_met_signatures_tolook_expert.begin(); it != m_hlt_met_signatures_tolook_expert.end(); it++) {
-    std::string name = it->first;
-    std::string profname = "Eff_"+name;
-    if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-      //trig_eff_num[i_eff]->Fill(off_met);             
-      if ((p = profile(profname))) p->Fill(off_met,1.0,1.0);
-    } else {
-      if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
-    }
-  }
-
-}
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addHLTStatusHistograms() {
