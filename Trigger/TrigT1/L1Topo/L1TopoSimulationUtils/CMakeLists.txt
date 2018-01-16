@@ -17,8 +17,10 @@ atlas_add_library( L1TopoSimulationUtils
                    Root/*.cxx
                    PUBLIC_HEADERS L1TopoSimulationUtils
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} L1TopoEvent )
 
-
-
-
+atlas_add_test( L1TopoSimulationUtils_test
+                SOURCES
+                test/L1TopoSimulationUtils_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} TestTools DataModel SGTools L1TopoEvent L1TopoSimulationUtils)

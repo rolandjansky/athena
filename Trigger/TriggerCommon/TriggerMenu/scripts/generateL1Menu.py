@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys,os
+import sys,os,filecmp
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
@@ -40,6 +40,23 @@ def generateL1Menu(menu, doFTK="False",useTopoMenu="MATCH"):
         
     return tpcl1.menu
 
+def compareL1Menus(menu="LVL1config_Physics_pp_v7.xml"):
+
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger("TriggerConfigLVL1")
+    log.setLevel(logging.INFO)
+
+    import os
+    for path in os.environ['XMLPATH'].split(':'):
+        if not 'TriggerMenuXML' in os.listdir(path):
+            continue
+        if menu in os.listdir("%s/TriggerMenuXML/" % path):
+            fullname = "%s/TriggerMenuXML/%s" % (path,menu)
+        break # we only want to look into the first TriggerMenuXML package
+    print 'comparing: ', fullname, TF.outputLVL1configFile()
+    local_menu = TF.outputLVL1configFile()
+    are_files_identical = filecmp.cmp(fullname,local_menu)
+    return are_files_identical
 
 def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
@@ -71,9 +88,6 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
 
 def findUnneededRun2():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-    
     menus = ['Physics_pp_v6']
 
     for menu in menus:
@@ -85,10 +99,8 @@ def findUnneededRun2():
 
 
 def findRequiredItemsFromXML():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6']
+    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6', 'MC_PhaseII']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -136,11 +148,8 @@ def findFreeCTPIDs(menu):
     [menus,allItems,allThrs] = load(f)
 
     TF.triggerMenuSetup = menu
-    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
 
     print set(Lvl1Flags.CtpIdMap().keys()) - allItems
-
-
     
 def main():
     printCabling = False
@@ -151,18 +160,34 @@ def main():
         if arg.lower().startswith("doftk"):
             FTKFlag = True
 
+    if len(sys.argv) > 1 and sys.argv[1] == "l1xml_unit_test_v7":
+        generateL1Menu(menu="Physics_pp_v7")
+        phys_comp = compareL1Menus(menu="LVL1config_Physics_pp_v7.xml")
+        generateL1Menu(menu="MC_pp_v7")
+        mc_comp = compareL1Menus(menu="LVL1config_MC_pp_v7.xml")
+
+        from AthenaCommon.Logging import logging
+        log = logging.getLogger("L1MenuDiff")
+        log.setLevel(logging.INFO)
+
+        if phys_comp and mc_comp:
+            log.info("The menus are the same")
+        else:
+            log.error("The L1 menus are different!")
+        return 0
+
     if len(sys.argv)==1 or (len(sys.argv)==2 and FTKFlag):        
         
         generateL1Menu(menu="Physics_pp_v7",doFTK=FTKFlag)
         generateL1Menu(menu="MC_pp_v7",doFTK=FTKFlag)
         generateL1Menu(menu="Physics_pp_v6",doFTK=FTKFlag)
         generateL1Menu(menu="MC_pp_v6",doFTK=FTKFlag)
+        generateL1Menu(menu="MC_PhaseII",doFTK=FTKFlag)
 #        generateL1Menu(menu="LS1_v1" )
         #generateL1Menu(menu="DC14")
 #        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
 #        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
         return 0
-
     
     if sys.argv[1].endswith(".xml"):
         readL1MenuFromXML(sys.argv[1])

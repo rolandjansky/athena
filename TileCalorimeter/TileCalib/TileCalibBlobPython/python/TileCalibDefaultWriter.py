@@ -24,14 +24,7 @@ self.__tilePrefixOfl1
 
 """
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK, LASPARTCHAN
@@ -70,8 +63,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 self.__tilePrefixOfl  = TileCalibTools.getTilePrefix(True,True) 
                 self.__tilePrefixOnl  = TileCalibTools.getTilePrefix(False)
                 #=== force the creation of template classes
-                PyCintex.makeClass('std::vector<float>')
-                PyCintex.makeClass('std::vector<unsigned int>')
+                cppyy.makeClass('std::vector<float>')
+                cppyy.makeClass('std::vector<unsigned int>')
         except Exception, e:
             self.log().critical( e )
 
@@ -83,11 +76,11 @@ class TileCalibDefaultWriter(TileCalibLogger):
                   (loGainDef,hiGainDef,tag)                                         )
 
         #=== fill LIN (linear) folders first
-        loGainDefVec = PyCintex.gbl.std.vector('float')()
+        loGainDefVec = cppyy.gbl.std.vector('float')()
         loGainDefVec.push_back(loGainDef)
-        hiGainDefVec = PyCintex.gbl.std.vector('float')()
+        hiGainDefVec = cppyy.gbl.std.vector('float')()
         hiGainDefVec.push_back(hiGainDef)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(loGainDefVec)
         defVec.push_back(hiGainDefVec)
 
@@ -105,7 +98,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
 
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -120,7 +113,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         #=== fill NLN (non-linear) folders with unit corretion
         #=== Note: first insert all x values, then all y values
         #=== LUT for all channels and gains must have the same length
-        lut = PyCintex.gbl.std.vector('float')()
+        lut = cppyy.gbl.std.vector('float')()
         lut.push_back(0.) # x1
         lut.push_back(1.) # y1
         defVec.clear()
@@ -152,9 +145,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing Las default (1.) with tag %s" % tag )
 
         #=== write linear (LIN) folders online and offline
-        lasDef = PyCintex.gbl.std.vector('float')()
+        lasDef = cppyy.gbl.std.vector('float')()
         lasDef.push_back(1.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(lasDef)
 
         #=== write both to offline and online folders
@@ -167,7 +160,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
 
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -180,7 +173,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
         
         #=== fill NLN (non-linear) folders with unit corretion
-        lut = PyCintex.gbl.std.vector('float')()
+        lut = cppyy.gbl.std.vector('float')()
         lut.push_back(0.) # x1
         lut.push_back(1.) # y1
         defVec.clear()
@@ -195,7 +188,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
 
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -215,13 +208,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         fibFolder = self.__tilePrefixOfl+"CALIB/LAS/FIBER"
         #=== write fiber folder
-        lasDef = PyCintex.gbl.std.vector('float')()
+        lasDef = cppyy.gbl.std.vector('float')()
         lasDef.push_back(1.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(lasDef)
         blobWriter = TileCalibTools.TileBlobWriter(self.__db,fibFolder,'Flt')
         #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
+        util = cppyy.gbl.TileCalibUtils()
         for ros in xrange(util.max_ros()):
             for drawer in xrange(util.getMaxDrawer(ros)):
                 flt = blobWriter.zeroBlob(ros,drawer)
@@ -502,7 +495,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                     print "EBC",mod+1, " outer MBTS = ",special[(4,mod,0)] 
 
         #=== store 4 values per channel
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         if Simulation:
             default.push_back(  1.) # cesium constant
             default.push_back(  1.) # laser slope
@@ -513,7 +506,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             default.push_back( -1.) # laser slope
             default.push_back(  0.) # reference HV
             default.push_back( 20.) # reference temperature (same for all channels)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
 
         #=== write both to offline and online folders
@@ -525,7 +518,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
 
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -654,12 +647,12 @@ class TileCalibDefaultWriter(TileCalibLogger):
             special[(4,mod,47)] = ces_mbts_outer
 
         #=== store 4 values per channel
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         default.push_back(  1.) # cesium constant
         default.push_back(  1.) # laser slope
         default.push_back(700.) # reference HV
         default.push_back( 20.) # reference temperature (same for all channels)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
 
         #=== write both to offline and online folders
@@ -669,7 +662,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         blobWriterOnl = TileCalibTools.TileBlobWriter(self.__db,folderOnl,'Flt',False)
 
         #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
+        util = cppyy.gbl.TileCalibUtils()
         for ros in xrange(util.max_ros()):
             for drawer in xrange(util.getMaxDrawer(ros)):
                 fltOfl = blobWriterOfl.zeroBlob(ros,drawer)
@@ -763,9 +756,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing Emscale with particle/Cesium factors with tag %s" % (tag,) )
 
         #=== write linear (LIN) folder
-        emsDef = PyCintex.gbl.std.vector('float')()
+        emsDef = cppyy.gbl.std.vector('float')()
         emsDef.push_back(emscale)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(emsDef)
 
         folders = [ self.__tilePrefixOfl+"CALIB/EMS",
@@ -776,7 +769,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
 
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -826,9 +819,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing Emscale default (%.2f) with tag %s" % ((emscale * 1000.),tag) )
 
         #=== write linear (LIN) folder
-        emsDef = PyCintex.gbl.std.vector('float')()
+        emsDef = cppyy.gbl.std.vector('float')()
         emsDef.push_back(emscale)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(emsDef)
 
         folders = [ self.__tilePrefixOfl+"CALIB/EMS",
@@ -838,7 +831,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             multiVers=('OFL' in folder)
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -877,10 +870,10 @@ class TileCalibDefaultWriter(TileCalibLogger):
         ngain = 6
         nperg = 8
 
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
 
         for i in xrange(ngain):
-            defaultGain = PyCintex.gbl.std.vector('float')()
+            defaultGain = cppyy.gbl.std.vector('float')()
             for v in dv[i]:
                 defaultGain.push_back(v)
             defVec.push_back(defaultGain)
@@ -891,7 +884,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         writer = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
         writer.setComment(self.__author,"Integrator gain defaults")
         #=== initialize all channels and write global default
-        util = PyCintex.gbl.TileCalibUtils()
+        util = cppyy.gbl.TileCalibUtils()
         for ros in xrange(util.max_ros()):
             for drawer in xrange(util.getMaxDrawer(ros)):
                 flt = writer.zeroBlob(ros,drawer)
@@ -911,14 +904,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         parser = TileCalibTools.TileASCIIParser(pathDef+"TileTcfib.dat","Tfib")
         folder = self.__tilePrefixOfl+"TIME/CELLFIBERLENGTH"
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         default.push_back(0.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
         try:
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -960,14 +953,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing Tclas defaults using tag %s" % tag )
 
         folder = self.__tilePrefixOfl+"TIME/CHANNELOFFSET/LAS"
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         default.push_back(0.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
         try:
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -986,14 +979,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing Tdlas defaults using tag %s" % tag )
 
         folder = self.__tilePrefixOfl+"TIME/DRAWEROFFSET/LAS"
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         default.push_back(0.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
         try:
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize only one channel per drawer
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -1013,14 +1006,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         parser = TileCalibTools.TileASCIIParser(pathDef+"Tile.tctof","Tctof")
         folder = self.__tilePrefixOfl+"TIME/TIMEOFFLIGHT"
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         default.push_back(0.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
         try:
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels and write global default
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -1065,11 +1058,11 @@ class TileCalibDefaultWriter(TileCalibLogger):
                          (loGainDef,hiGainDef,tag) )
 
         #=== fill folders 
-        loGainDefVec = PyCintex.gbl.std.vector('float')()
+        loGainDefVec = cppyy.gbl.std.vector('float')()
         loGainDefVec.push_back(loGainDef)
-        hiGainDefVec = PyCintex.gbl.std.vector('float')()
+        hiGainDefVec = cppyy.gbl.std.vector('float')()
         hiGainDefVec.push_back(hiGainDef)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(loGainDefVec)
         defVec.push_back(hiGainDefVec)
 
@@ -1083,7 +1076,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 multiVers=('OFL' in folder)
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
-                util = PyCintex.gbl.TileCalibUtils()
+                util = cppyy.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
                     for drawer in xrange(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
@@ -1104,21 +1097,21 @@ class TileCalibDefaultWriter(TileCalibLogger):
                   (loGainDef,hiGainDef,tag)                                  )
         
         #=== common noise defaults
-        defaultLo = PyCintex.gbl.std.vector('float')()
+        defaultLo = cppyy.gbl.std.vector('float')()
         defaultLo.push_back(      40.) # pedestal value  
         defaultLo.push_back(loGainDef) # pedestal rms (high frequency noise)
         defaultLo.push_back(       0.) #              (low  frequency noise)
         defaultLo.push_back(loGainDef) # sigma 1 of HFN 
         defaultLo.push_back(       0.) # sigma 2 of HFN 
         defaultLo.push_back(       0.) # HFN2/HFN1 ratio
-        defaultHi = PyCintex.gbl.std.vector('float')()
+        defaultHi = cppyy.gbl.std.vector('float')()
         defaultHi.push_back(      40.) # pedestal value
         defaultHi.push_back(hiGainDef) # pedestal rms (high frequency noise)
         defaultHi.push_back(       0.) #              (low  frequency noise)
         defaultHi.push_back(hiGainDef) # sigma 1 of HFN 
         defaultHi.push_back(       0.) # sigma 2 of HFN 
         defaultHi.push_back(       0.) # HFN2/HFN1 ratio
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(defaultLo)
         defVec.push_back(defaultHi)
 
@@ -1130,7 +1123,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 multiVers=('OFL' in folder)
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
-                util = PyCintex.gbl.TileCalibUtils()
+                util = cppyy.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
                     for drawer in xrange(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
@@ -1150,14 +1143,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
                          (loGainDef,hiGainDef,tag) )
         
         #=== common noise defaults
-        defaultLo = PyCintex.gbl.std.vector('float')()
+        defaultLo = cppyy.gbl.std.vector('float')()
         defaultLo.push_back(loGainDef) # el. noise  
         defaultLo.push_back(0.) # pileup noise
-        defaultHi = PyCintex.gbl.std.vector('float')()
+        defaultHi = cppyy.gbl.std.vector('float')()
         defaultHi.push_back(hiGainDef) # el. noise
         defaultHi.push_back(0.) # pileup noise
 
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(defaultLo)
         defVec.push_back(defaultHi)
 
@@ -1169,7 +1162,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 multiVers=('OFL' in folder)
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
-                util = PyCintex.gbl.TileCalibUtils()
+                util = cppyy.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
                     for drawer in xrange(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
@@ -1203,7 +1196,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 multiVers=('OFL' in folder)
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
-                util = PyCintex.gbl.TileCalibUtils()
+                util = cppyy.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
                     for drawer in xrange(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
@@ -1211,7 +1204,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
                 #=== initialize all channels in the drawer
                 
-                defaultLo = PyCintex.gbl.std.vector('float')()
+                defaultLo = cppyy.gbl.std.vector('float')()
                 defaultLo.push_back(0.) # pedestal value  
                 defaultLo.push_back(0.) # pedestal rms (high frequency noise)
                 defaultLo.push_back(0.) # (low  frequency noise)
@@ -1219,7 +1212,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 defaultLo.push_back(0.) # sigma2 of high frequency noise
                 defaultLo.push_back(0.) # HFN2/HFN1 normalization
                 
-                defaultHi = PyCintex.gbl.std.vector('float')()
+                defaultHi = cppyy.gbl.std.vector('float')()
                 defaultHi.push_back(0.) # pedestal value
                 defaultHi.push_back(0.) # pedestal rms (high frequency noise)
                 defaultHi.push_back(0.) # (low  frequency noise)
@@ -1227,7 +1220,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 defaultHi.push_back(0.) # sigma2 of high frequency noise)
                 defaultHi.push_back(0.) # HFN2/HFN1 normalization
                 
-                defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+                defVec = cppyy.gbl.std.vector('std::vector<float>')()
                 defVec.push_back(defaultLo)
                 defVec.push_back(defaultHi)
                 
@@ -1268,16 +1261,16 @@ class TileCalibDefaultWriter(TileCalibLogger):
         folder = self.__tilePrefixOfl+"NOISE/AUTOCR"
 
         #=== common noise defaults
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         for i in xrange(6):
             default.push_back(0.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
 
         try:
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -1295,9 +1288,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         self.log().info( "*** Writing BadChannel defaults using tag %s" % tag )
 
-        default = PyCintex.gbl.std.vector('unsigned int')()
+        default = cppyy.gbl.std.vector('unsigned int')()
         default.push_back(0)
-        defVec = PyCintex.gbl.std.vector('std::vector<unsigned int>')()
+        defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
         defVec.push_back(default)
 
         #=== fill offline folder
@@ -1309,12 +1302,12 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 multiVers=('OFL' in folder)
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Bch',multiVers)
                 #=== initialize all channels
-                util = PyCintex.gbl.TileCalibUtils()
+                util = cppyy.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
                     for drawer in xrange(util.getMaxDrawer(ros)):
                         bch = blobWriter.zeroBlob(ros,drawer)
                 bch = blobWriter.getDrawer(0, 0)
-                bch.init(defVec,1,PyCintex.gbl.TileBchDecoder.BitPat_ofl01 if multiVers else TileBchDecoder.BitPat_onl01)
+                bch.init(defVec,1,cppyy.gbl.TileBchDecoder.BitPat_ofl01 if multiVers else TileBchDecoder.BitPat_onl01)
 
                 blobWriter.setComment(self.__author,"no bad channels")
                 folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
@@ -1386,20 +1379,20 @@ class TileCalibDefaultWriter(TileCalibLogger):
             defFile.close()
 
             #=== build default pulseshape vectors for db
-            defaultLo = PyCintex.gbl.std.vector('float')()
+            defaultLo = cppyy.gbl.std.vector('float')()
             for x in xlo: defaultLo.push_back(x)
             for y in ylo: defaultLo.push_back(y)
-            defaultHi = PyCintex.gbl.std.vector('float')()
+            defaultHi = cppyy.gbl.std.vector('float')()
             for x in xhi: defaultHi.push_back(x)
             for y in yhi: defaultHi.push_back(y)
-            defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+            defVec = cppyy.gbl.std.vector('std::vector<float>')()
             defVec.push_back(defaultLo)
             defVec.push_back(defaultHi)
             try:
                 folder = self.__tilePrefixOfl+"PULSESHAPE/"+source
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
                 #=== initialize all channels
-                util = PyCintex.gbl.TileCalibUtils()
+                util = cppyy.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
                     for drawer in xrange(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
@@ -1453,16 +1446,16 @@ class TileCalibDefaultWriter(TileCalibLogger):
         defFile.close()
 
         #=== build default pulseshape vectors for db
-        defaultPls = PyCintex.gbl.std.vector('float')()
+        defaultPls = cppyy.gbl.std.vector('float')()
         for phase in phases: defaultPls.push_back(phase)
         for amplitude in amplitudes: defaultPls.push_back(amplitude)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(defaultPls)
         try:
             folder = self.__tilePrefixOfl + "PULSESHAPE/" + folder_name
             blobWriter = TileCalibTools.TileBlobWriter(self.__db, folder, 'Flt')
             #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
+            util = cppyy.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
@@ -1495,11 +1488,11 @@ class TileCalibDefaultWriter(TileCalibLogger):
         folder = self.__tilePrefixOnl+"MUID"
     
         #=== common TileMuId defaults
-        default = PyCintex.gbl.std.vector('float')()
+        default = cppyy.gbl.std.vector('float')()
         for i in xrange(20):
             default.push_back(150.)
             default.push_back(5000.)
-        defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+        defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
         defVec.push_back(default)    
         
@@ -1508,7 +1501,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         writer.setComment(self.__author,"TileMuId default values")
     
         #=== initialize all channels and write global default
-        util = PyCintex.gbl.TileCalibUtils()
+        util = cppyy.gbl.TileCalibUtils()
         for ros in xrange(util.max_ros()):
             for drawer in xrange(util.getMaxDrawer(ros)):
                 flt = writer.zeroBlob(ros,drawer)

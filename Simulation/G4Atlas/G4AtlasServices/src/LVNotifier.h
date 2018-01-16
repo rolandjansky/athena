@@ -9,15 +9,22 @@
 
 class G4GeometryNotifierSvc;
 
-  class LVNotifier: public G4VNotifier {
-    friend class G4GeometryNotifierSvc;
-  private:
-    LVNotifier(G4GeometryNotifierSvc *);
+/// @class LVNotifier
+/// @todo NEEDS DOCUMENTATION
+class LVNotifier : public G4VNotifier
+{
+  friend class G4GeometryNotifierSvc;
 
-    G4GeometryNotifierSvc* m_notifierSvc;
   public:
+
     void NotifyRegistration();
     void NotifyDeRegistration();
-  };
+
+  private:
+
+    LVNotifier(G4GeometryNotifierSvc*);
+
+    G4GeometryNotifierSvc* m_notifierSvc;
+};
 
 #endif

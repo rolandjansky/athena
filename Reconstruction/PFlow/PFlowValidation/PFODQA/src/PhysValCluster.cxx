@@ -37,22 +37,25 @@ StatusCode PhysValCluster::bookHistograms(){
 StatusCode PhysValCluster::fillHistograms(){
 
   const xAOD::CaloClusterContainer* theClusterContainer = NULL;
-
-  ATH_CHECK( evtStore()->retrieve(theClusterContainer,m_clusterContainerName) );
-
-  if (!theClusterContainer){
-    if (msgLvl(MSG::WARNING))  msg(MSG::WARNING) << " Have NULL pointer to xAOD::PFOContainer " << endreq;
-    return StatusCode::SUCCESS;
-  }
+ 
+  if( evtStore()->contains<xAOD::CaloClusterContainer>(m_clusterContainerName)){
   
-  xAOD::CaloClusterContainer::const_iterator firstCluster = theClusterContainer->begin();
-  xAOD::CaloClusterContainer::const_iterator lastCluster = theClusterContainer->end();
+    ATH_CHECK( evtStore()->retrieve(theClusterContainer,m_clusterContainerName) );
 
-  for (; firstCluster != lastCluster; ++firstCluster) {
-    const xAOD::CaloCluster* theCluster = *firstCluster;
-    m_clusterValidationPlots->fill(*theCluster);
+    if (!theClusterContainer){
+      ATH_MSG_WARNING(" Have NULL pointer to xAOD::CaloClusterContainer ");  
+      return StatusCode::FAILURE;
+    }
+  
+    xAOD::CaloClusterContainer::const_iterator firstCluster = theClusterContainer->begin();
+    xAOD::CaloClusterContainer::const_iterator lastCluster = theClusterContainer->end();
+
+    for (; firstCluster != lastCluster; ++firstCluster) {
+      const xAOD::CaloCluster* theCluster = *firstCluster;
+      m_clusterValidationPlots->fill(*theCluster);
+    }
   }
-
+  else ATH_MSG_WARNING(" Cluster container : " << m_clusterContainerName << " not found");
   return StatusCode::SUCCESS;
 
 }

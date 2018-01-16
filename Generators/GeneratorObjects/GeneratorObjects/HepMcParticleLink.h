@@ -145,6 +145,7 @@ public:
 
  private:
   friend class HepMcParticleLinkCnv_p1;
+  friend class HepMcParticleLinkCnv_p2;
 
   static std::string s_HOSTKEY;
 

@@ -35,7 +35,7 @@ if DetFlags.overlay.Tile_on():
    job += theTileDigits
    from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker
    newTileRawChannelMaker=TileRawChannelMaker("newTileRawChannelMaker")
-   newTileRawChannelMaker.EventStore = "BkgEvent_0_SG"
+   newTileRawChannelMaker.EvtStore = "BkgEvent_0_SG"
    newTileRawChannelMaker.TileRawChannelBuilder = []
    job += newTileRawChannelMaker
 
@@ -44,7 +44,7 @@ if DetFlags.overlay.Tile_on():
    newTileBeamInfoProvider.TileBeamElemContainer = ToolSvc.TileBeamInfoProvider.TileBeamElemContainer
    newTileBeamInfoProvider.TileDigitsContainer = ToolSvc.TileBeamInfoProvider.TileDigitsContainer
    newTileBeamInfoProvider.TileRawChannelContainer = ToolSvc.TileBeamInfoProvider.TileRawChannelContainer
-   newTileBeamInfoProvider.EventStore = "BkgEvent_0_SG"
+   newTileBeamInfoProvider.EvtStore = "BkgEvent_0_SG"
    ToolSvc += newTileBeamInfoProvider
   
    if jobproperties.TileRecFlags.doTileManyAmps():
@@ -54,7 +54,7 @@ if DetFlags.overlay.Tile_on():
       newTileRawChannelBuilderManyAmps.RunType = ToolSvc.TileRawChannelBuilderManyAmps.RunType
       newTileRawChannelBuilderManyAmps.calibrateEnergy = ToolSvc.TileRawChannelBuilderManyAmps.calibrateEnergy
       newTileRawChannelBuilderManyAmps.correctTime     =   ToolSvc.TileRawChannelBuilderManyAmps.correctTime
-      newTileRawChannelBuilderManyAmps.EventStore = "BkgEvent_0_SG"
+      newTileRawChannelBuilderManyAmps.EvtStore = "BkgEvent_0_SG"
       newTileRawChannelBuilderManyAmps.BeamInfo = ToolSvc.newTileBeamInfoProvider
       ToolSvc += newTileRawChannelBuilderManyAmps
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderManyAmps ]
@@ -66,7 +66,7 @@ if DetFlags.overlay.Tile_on():
       newTileRawChannelBuilderFlatFilter.RunType = ToolSvc.TileRawChannelBuilderFlatFilter.RunType
       newTileRawChannelBuilderFlatFilter.calibrateEnergy = ToolSvc.TileRawChannelBuilderFlatFilter.calibrateEnergy
       newTileRawChannelBuilderFlatFilter.correctTime     = ToolSvc.TileRawChannelBuilderFlatFilter.correctTime    
-      newTileRawChannelBuilderFlatFilter.EventStore = "BkgEvent_0_SG"
+      newTileRawChannelBuilderFlatFilter.EvtStore = "BkgEvent_0_SG"
       newTileRawChannelBuilderFlatFilter.BeamInfo = ToolSvc.newTileBeamInfoProvider
       ToolSvc += newTileRawChannelBuilderFlatFilter
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderFlatFilter ]
@@ -78,7 +78,7 @@ if DetFlags.overlay.Tile_on():
       newTileRawChannelBuilderFitFilter.RunType = ToolSvc.TileRawChannelBuilderFitFilter.RunType
       newTileRawChannelBuilderFitFilter.calibrateEnergy = ToolSvc.TileRawChannelBuilderFitFilter.calibrateEnergy
       newTileRawChannelBuilderFitFilter.correctTime     = ToolSvc.TileRawChannelBuilderFitFilter.correctTime
-      newTileRawChannelBuilderFitFilter.EventStore = "BkgEvent_0_SG"
+      newTileRawChannelBuilderFitFilter.EvtStore = "BkgEvent_0_SG"
       newTileRawChannelBuilderFitFilter.BeamInfo = ToolSvc.newTileBeamInfoProvider
       ToolSvc += newTileRawChannelBuilderFitFilter
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderFitFilter ] 
@@ -90,7 +90,7 @@ if DetFlags.overlay.Tile_on():
       newTileRawChannelBuilderFitFilterCool.RunType = ToolSvc.TileRawChannelBuilderFitFilterCool.RunType
       newTileRawChannelBuilderFitFilterCool.calibrateEnergy =  ToolSvc.TileRawChannelBuilderFitFilterCool.calibrateEnergy
       newTileRawChannelBuilderFitFilterCool.correctTime     =  ToolSvc.TileRawChannelBuilderFitFilterCool.correctTime    
-      newTileRawChannelBuilderFitFilterCool.EventStore = "BkgEvent_0_SG"
+      newTileRawChannelBuilderFitFilterCool.EvtStore = "BkgEvent_0_SG"
       newTileRawChannelBuilderFitFilterCool.BeamInfo = ToolSvc.newTileBeamInfoProvider
       ToolSvc += newTileRawChannelBuilderFitFilterCool
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderFitFilterCool ]
@@ -107,43 +107,18 @@ if DetFlags.overlay.Tile_on():
       newTileRawChannelBuilderOptFilter.MaxIterations = ToolSvc.TileRawChannelBuilderOptFilter.MaxIterations
       newTileRawChannelBuilderOptFilter.Minus1Iteration = ToolSvc.TileRawChannelBuilderOptFilter.Minus1Iteration
       newTileRawChannelBuilderOptFilter.AmplitudeCorrection = ToolSvc.TileRawChannelBuilderOptFilter.AmplitudeCorrection 
-      newTileRawChannelBuilderOptFilter.EventStore = "BkgEvent_0_SG"
+      newTileRawChannelBuilderOptFilter.EvtStore = "BkgEvent_0_SG"
       newTileRawChannelBuilderOptFilter.BeamInfo = ToolSvc.newTileBeamInfoProvider
       ToolSvc += newTileRawChannelBuilderOptFilter
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderOptFilter ]
 
    if jobproperties.TileRecFlags.doTileOpt2():
-      from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
-      newTileRawChannelBuilderOpt2Filter= TileRawChannelBuilderOpt2Filter("newTileRawChannelBuilderOpt2Filter")
-      newTileRawChannelBuilderOpt2Filter.TileRawChannelContainer = ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer
-      newTileRawChannelBuilderOpt2Filter.RunType = ToolSvc.TileRawChannelBuilderOpt2Filter.RunType
-      newTileRawChannelBuilderOpt2Filter.calibrateEnergy = ToolSvc.TileRawChannelBuilderOpt2Filter.calibrateEnergy
-      newTileRawChannelBuilderOpt2Filter.correctTime     = ToolSvc.TileRawChannelBuilderOpt2Filter.correctTime
-      newTileRawChannelBuilderOpt2Filter.OF2 = ToolSvc.TileRawChannelBuilderOpt2Filter.OF2
-      newTileRawChannelBuilderOpt2Filter.PedestalMode = ToolSvc.TileRawChannelBuilderOpt2Filter.PedestalMode
-      newTileRawChannelBuilderOpt2Filter.MaxIterations = ToolSvc.TileRawChannelBuilderOpt2Filter.MaxIterations
-      newTileRawChannelBuilderOpt2Filter.Minus1Iteration = ToolSvc.TileRawChannelBuilderOpt2Filter.Minus1Iteration
-      newTileRawChannelBuilderOpt2Filter.AmplitudeCorrection = ToolSvc.TileRawChannelBuilderOpt2Filter.AmplitudeCorrection
-      newTileRawChannelBuilderOpt2Filter.OfcfromCool = ToolSvc.TileRawChannelBuilderOpt2Filter.OfcfromCool          
-      newTileRawChannelBuilderOpt2Filter.BeamInfo = ToolSvc.newTileBeamInfoProvider
-      newTileRawChannelBuilderOpt2Filter.EventStore = "BkgEvent_0_SG"
-      ToolSvc += newTileRawChannelBuilderOpt2Filter
+      ToolSvc +=  ToolSvc.TileRawChannelBuilderOpt2Filter.clone("newTileRawChannelBuilderOpt2Filter")
+      ToolSvc.newTileRawChannelBuilderOpt2Filter.EvtStore="BkgEvent_0_SG"
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderOpt2Filter ]
 
    if jobproperties.TileRecFlags.doTileOptATLAS():
-      from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
-      newTileRawChannelBuilderOptATLAS= TileRawChannelBuilderOpt2Filter("newTileRawChannelBuilderOptATLAS")
-      newTileRawChannelBuilderOptATLAS.TileRawChannelContainer = ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer
-      newTileRawChannelBuilderOptATLAS.RunType         = ToolSvc.TileRawChannelBuilderOptATLAS.RunType
-      newTileRawChannelBuilderOptATLAS.calibrateEnergy = ToolSvc.TileRawChannelBuilderOptATLAS.calibrateEnergy
-      newTileRawChannelBuilderOptATLAS.correctTime     = ToolSvc.TileRawChannelBuilderOptATLAS.correctTime
-      newTileRawChannelBuilderOptATLAS.OF2 = ToolSvc.TileRawChannelBuilderOptATLAS.OF2
-      newTileRawChannelBuilderOptATLAS.MaxIterations = ToolSvc.TileRawChannelBuilderOptATLAS.MaxIterations
-      newTileRawChannelBuilderOptATLAS.Minus1Iteration = ToolSvc.TileRawChannelBuilderOptATLAS.Minus1Iteration
-      newTileRawChannelBuilderOptATLAS.AmplitudeCorrection = ToolSvc.TileRawChannelBuilderOptATLAS.AmplitudeCorrection
-      newTileRawChannelBuilderOptATLAS.OfcfromCool = ToolSvc.TileRawChannelBuilderOptATLAS.OfcfromCool            
-      newTileRawChannelBuilderOptATLAS.BeamInfo = ToolSvc.newTileBeamInfoProvider
-      newTileRawChannelBuilderOptATLAS.EventStore = "BkgEvent_0_SG"
-      ToolSvc += newTileRawChannelBuilderOptATLAS
+      ToolSvc +=  ToolSvc.TileRawChannelBuilderOptATLAS.clone("newTileRawChannelBuilderOptATLAS")
+      ToolSvc.newTileRawChannelBuilderOptATLAS.EvtStore="BkgEvent_0_SG"
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderOptATLAS ]
 

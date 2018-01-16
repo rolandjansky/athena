@@ -19,12 +19,9 @@
 #include <map>
 
 class AtlasDetectorID;
-class SCT_ID;
 class Identifier;
 class AtlasID;
 class IInDetConditionsSvc;
-class ISCT_ConfigurationConditionsSvc;
-class ISCT_ByteStreamErrorsSvc;
 namespace InDet {class IInDetTestPixelLayerTool; }
 class IGeoModelSvc;
 
@@ -117,15 +114,9 @@ namespace InDet
       /** Handles to IConditionsSummaryServices for Pixels and SCT*/
       ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc, m_sctCondSummarySvc;
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
-      ServiceHandle <ISCT_ConfigurationConditionsSvc> m_sctConfCondSvc;
-
-      /** Handle to ISCT_ByteStreamErrorsSvc*/
-      ServiceHandle <ISCT_ByteStreamErrorsSvc> m_sctBsErrSvc;
 
       /** Handle for IGeoModelSvc to retrieve geo model information */
       ServiceHandle<IGeoModelSvc> m_geoModelSvc;
-
-      const SCT_ID* m_sct_id;
 
       /** Configure outwards hole search */
       bool m_extendedListOfHoles,m_cosmic;

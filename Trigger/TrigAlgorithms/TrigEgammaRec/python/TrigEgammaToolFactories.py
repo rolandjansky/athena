@@ -33,8 +33,12 @@ from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 ElectronPidTools()
 PhotonPidTools()
-from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-lumiTool = LuminosityToolOnline()
+#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+#lumiTool = LuminosityToolOnline()
+
+#from LumiBlockComps.LumiBlockCompsConf import LumiBlockMuTool
+#ToolSvc += LumiBlockMuTool("LumiBlockMuTool")
+
 
 # Following tools have TrigEgamma factories
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
@@ -97,7 +101,6 @@ TrigElectronPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronPIDBuild
         ToolSvc.AsgElectronLHTightSelector],
     electronLHselectorResultNames= ["LHVLoose","LHLoose","LHMedium","LHTight"],
     UseLuminosityTool = True,
-    LuminosityTool = lumiTool
 )
 
 TrigElectronCaloPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronCaloPIDBuilder",
@@ -108,7 +111,6 @@ TrigElectronCaloPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronCalo
     electronLHselectorResultNames= ["LHCaloVLoose","LHCaloLoose","LHCaloMedium","LHCaloTight"],
     LHValueName = "LHCaloValue",
     UseLuminosityTool = True,
-    LuminosityTool = lumiTool
 )
 
 TrigPhotonPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigPhotonPIDBuilder",
@@ -143,6 +145,7 @@ from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
 from egammaMVACalib import egammaMVACalibConf 
 mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
 mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
+EgammaSliceFlags.calibMVAVersion.set_On()
 TrigEgammaMVACalibTool = ToolFactory(egammaMVACalibConf.egammaMVATool,name="TrigEgammaMVACalibTool",
         folder=EgammaSliceFlags.calibMVAVersion(),use_layer_corrected = False)
 

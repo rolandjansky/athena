@@ -110,12 +110,14 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
       ElementLink< xAOD::TruthParticleContainer > truthLink = tp->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
       if( truthLink.isValid() ){
 	// loop over truth particles
+	bool foundTruth=false;
 	for( const auto& truthParticle : truthParticles ){
 	  if( truthParticle->status() != 1 ) continue;   
 	  ATH_MSG_DEBUG("Adding recoMuonLink for truth muon with barcode " << truthParticle->barcode() << " pt "<< truthParticle->pt());
 	  ElementLink< xAOD::MuonContainer > muonLink;
 	  
 	  if( ((*truthLink)->barcode())%m_barcodeOffset == truthParticle->barcode() ) {
+	    foundTruth=true;
 	    ATH_MSG_VERBOSE(" Got truth link -> creating link with truth particle " << (*truthLink)->barcode() );
 	    muonLink = ElementLink< xAOD::MuonContainer >(muon,muons);
 	    // add the link from xAOD::Muon to TruthParticle in m_muonTruthParticleContainerName
@@ -293,6 +295,10 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
 	    break;
 	  }
 	}
+	if(!foundTruth){
+	  ATH_MSG_DEBUG("failed to find a status=1 truth particle to match the truth link");
+	  setDummyTruthInfo(*muon);
+	}
       }
       else{ //no truth link, add a dummy
 	setDummyTruthInfo(*muon);
@@ -300,6 +306,8 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
       }
     }catch ( SG::ExcBadAuxVar& ) {
       ATH_MSG_WARNING("Track particle is missing truthParticleLink variable!");
+      //there should always be a truthParticleLink, but just in case
+      setDummyTruthInfo(*muon);
     }
   }
 

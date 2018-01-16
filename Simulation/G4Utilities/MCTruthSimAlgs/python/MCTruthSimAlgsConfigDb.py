@@ -5,6 +5,8 @@ from AthenaCommon.CfgGetter import addTool
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getTrackRange"                  , "TrackRange" )
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeTrackRecordCollTool"       , "MergeTrackRecordCollTool")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeCaloEntryLayerTool"        , "MergeCaloEntryLayerTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMuonEntryLayerTool"        , "MergeMuonEntryLayerTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeMuonExitLayerTool"         , "MergeMuonExitLayerTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getCalibRange"                  , "CalibRange")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeCalibHitsTool"             , "MergeCalibHitsTool")

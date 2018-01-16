@@ -22,9 +22,6 @@ namespace ISF
 namespace iFatras
 {
 
-
-  static const InterfaceID IID_IParticleDecayHelper("IParticleDecayHelper", 1, 0);
-
   /** 
       @class IParticleDecayHelper
       
@@ -48,8 +45,8 @@ namespace iFatras
     /** Virtual destructor */
     virtual ~IParticleDecayHelper(){}
     
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_IParticleDecayHelper; }
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(IParticleDecayHelper, 1, 0);
 
     /** free path estimator (-1 for stable particle) */
     virtual double freePath(const ISF::ISFParticle& isp) const = 0;

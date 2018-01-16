@@ -29,7 +29,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class CylinderVolumeTruthStrategy : public AthAlgTool, public ITruthStrategy {
+  class CylinderVolumeTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
      /** Constructor with parameters */

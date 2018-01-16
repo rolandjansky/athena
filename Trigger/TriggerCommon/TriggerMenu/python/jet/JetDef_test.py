@@ -1,11 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys
-import os
-from cStringIO import StringIO
 import copy
 import unittest
-from mock import MagicMock
 from JetDef import generateHLTChainDef, usage
 
 from ChainConfigMaker import JetAttributes
@@ -35,7 +31,7 @@ class TestJetDef(unittest.TestCase):
 
     def _test_3(self):
         'run exerciser function'
-        run_test()
+        #run_test()
 
     def test_4(self):
         'test error handling: missing entry in input dict'
@@ -252,7 +248,7 @@ class TestJetDef(unittest.TestCase):
              'topoStartFrom': False,
              'topoThreshold': None}
         
-        chain_def = generateHLTChainDef(d)
+        generateHLTChainDef(d)
         
 
 if __name__ == '__main__':

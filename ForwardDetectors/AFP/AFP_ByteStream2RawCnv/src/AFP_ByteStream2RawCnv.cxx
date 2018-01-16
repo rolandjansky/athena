@@ -159,6 +159,7 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	ToFData.setHeader( m_wordReadout.getBits (23, 21) );
 	ToFData.setEdge( m_wordReadout.getBits (20, 20) );
 	ToFData.setChannel( m_wordReadout.getBits (19, 16) );
+	ToFData.setPulseLength( m_wordReadout.getBits (15, 10) );
 	ToFData.setTime( m_wordReadout.getBits (9, 0) );
 
 	setDataHeader (&ToFData);
