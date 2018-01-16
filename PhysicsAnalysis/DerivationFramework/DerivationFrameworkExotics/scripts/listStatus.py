@@ -31,7 +31,6 @@ def listStatus(args):
     atlasAPI.init()
 
     #variables
-    allSearchPatterns = []
     datasets = []
     tagCounter = 0
 
@@ -52,7 +51,6 @@ def listStatus(args):
             else:
                 print 'adding', len(theseDatasets), ' datasets from rowNum=', x*10000,  ' to global result'
             datasets = datasets + theseDatasets
-        allSearchPatterns.append(searchPatterns)
 
         nDatasets = len(datasets)
         print "total number of datasets to process = ",nDatasets
