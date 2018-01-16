@@ -24,7 +24,7 @@ persToTrans( const Muon::MdtPrepData_p1 *persObj, Muon::MdtPrepData *transObj,Ms
                                   transObj->detectorElement(),
                                   persObj->m_tdc,
                                   persObj->m_adc,
-                                  static_cast<const Muon::MdtDriftCircleStatus>(persObj->m_status));
+                                  static_cast<Muon::MdtDriftCircleStatus>(persObj->m_status));
 
    fillTransFromPStore( &m_prdCnv, persObj->m_prd, transObj, log );
 }
