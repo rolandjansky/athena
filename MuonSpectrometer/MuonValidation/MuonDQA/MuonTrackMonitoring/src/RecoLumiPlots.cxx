@@ -60,60 +60,60 @@ void RecoLumiPlots::initializePlots()
 }
 
 //fill Segment related lb plots
-void RecoLumiPlots::fill(const xAOD::MuonSegmentContainer* MuonSegments, int m_current_lb, float m_inst_lumi_bcid, float m_inst_lumi_lb) {
+void RecoLumiPlots::fill(const xAOD::MuonSegmentContainer* MuonSegments, int current_lb, float inst_lumi_bcid, float inst_lumi_lb) {
   
-  m_hNSegment_LB->Fill(m_current_lb, MuonSegments->size() + m_inst_lumi_bcid - m_inst_lumi_bcid + m_inst_lumi_lb - m_inst_lumi_lb);
+  m_hNSegment_LB->Fill(current_lb, MuonSegments->size() + inst_lumi_bcid - inst_lumi_bcid + inst_lumi_lb - inst_lumi_lb);
 
 }
 
 //fill Track related plots
-void RecoLumiPlots::fill(const xAOD::TrackParticleContainer* MSTracks, int m_current_lb, float m_inst_lumi_bcid, float m_inst_lumi_lb){
+void RecoLumiPlots::fill(const xAOD::TrackParticleContainer* MSTracks, int current_lb, float inst_lumi_bcid, float inst_lumi_lb){
 
-  m_hNMuonTrack_LB->Fill(m_current_lb, MSTracks->size() + m_inst_lumi_bcid - m_inst_lumi_bcid + m_inst_lumi_lb - m_inst_lumi_lb);
+  m_hNMuonTrack_LB->Fill(current_lb, MSTracks->size() + inst_lumi_bcid - inst_lumi_bcid + inst_lumi_lb - inst_lumi_lb);
 
 }
 
 //fill CB muon related plots
-void RecoLumiPlots::fill_CB(const xAOD::MuonContainer* Muons, int m_current_lb, float m_inst_lumi_bcid, float m_inst_lumi_lb){
+void RecoLumiPlots::fill_CB(const xAOD::MuonContainer* Muons, int current_lb, float inst_lumi_bcid, float inst_lumi_lb){
 
-  int m_NMuIDco = 0;
+  int NMuIDco = 0;
 
   for(const auto mu : *Muons) {
 
     //do a muon quality cut: 0 tight, 1 medium, 2 loss
-    if(mu->muonType() == xAOD::Muon::Combined){m_NMuIDco++;}
+    if(mu->muonType() == xAOD::Muon::Combined){NMuIDco++;}
 
   }
 
   //only do this for combined muons
-  m_hNMuon_LB->Fill(m_current_lb, m_NMuIDco + m_inst_lumi_bcid - m_inst_lumi_bcid + m_inst_lumi_lb - m_inst_lumi_lb);
+  m_hNMuon_LB->Fill(current_lb, NMuIDco + inst_lumi_bcid - inst_lumi_bcid + inst_lumi_lb - inst_lumi_lb);
 
 }
 
 //fill other muon related plots
-void RecoLumiPlots::fill_Other(const xAOD::MuonContainer* Muons, int m_current_lb, float m_inst_lumi_bcid, float m_inst_lumi_lb){
+void RecoLumiPlots::fill_Other(const xAOD::MuonContainer* Muons, int current_lb, float inst_lumi_bcid, float inst_lumi_lb){
 
-  int m_NMuIDco = 0;
+  int NMuIDco = 0;
 
   for(const auto mu : *Muons) {
 
     //do a muon quality cut: 0 tight, 1 medium, 2 loss
-    if(mu->muonType() != xAOD::Muon::Combined){m_NMuIDco++;}
+    if(mu->muonType() != xAOD::Muon::Combined){NMuIDco++;}
 
   }
 
   //only do this for combined muons
-  m_hNMuon_LB->Fill(m_current_lb, m_NMuIDco + m_inst_lumi_bcid - m_inst_lumi_bcid + m_inst_lumi_lb - m_inst_lumi_lb);
+  m_hNMuon_LB->Fill(current_lb, NMuIDco + inst_lumi_bcid - inst_lumi_bcid + inst_lumi_lb - inst_lumi_lb);
 
 }
 
 //fill muon related plots
-void RecoLumiPlots::fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int m_current_lb, float m_inst_lumi_bcid, float m_inst_lumi_lb){
+void RecoLumiPlots::fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int current_lb, float inst_lumi_bcid, float inst_lumi_lb){
 
-  int m_Nresonance = resonances.size();
+  int Nresonance = resonances.size();
 
   //only do this for combined muons
-  m_hNResonance_LB->Fill(m_current_lb, m_Nresonance + m_inst_lumi_bcid - m_inst_lumi_bcid + m_inst_lumi_lb - m_inst_lumi_lb);//playing really dumb here
+  m_hNResonance_LB->Fill(current_lb, Nresonance + inst_lumi_bcid - inst_lumi_bcid + inst_lumi_lb - inst_lumi_lb);//playing really dumb here
 
 } 
 
