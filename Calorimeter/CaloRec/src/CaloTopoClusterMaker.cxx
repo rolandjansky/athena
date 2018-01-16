@@ -528,7 +528,7 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 		      if ( pCell->caloDDE()->is_tile() )
 			pmask = 0x8080;
 		      else
-			pmask = 0x2000; //0x2000 is used to tell that time and quality information are available for this channel  (from TWiki)                                                                                         
+			pmask = 0x2000; //0x2000 is used to tell that time and quality information are available for this channel  (from TWiki: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/CaloEventDataModel#The_Raw_Data_Model)                                                                                         
 		    }
 		  // Is time defined?                                     
 		  isTimeDefined = (pCell->provenance() & pmask );
