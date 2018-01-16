@@ -166,7 +166,7 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["GenericMuonSimHitCollection#sTGCSensitiveDetector"]
         if DetFlags.writeRDOPool.Micromegas_on():
             StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
-            StreamRDO_ItemList+=["MM_RawDataContainer#*"]
+            StreamRDO_ItemList+=["Muon::MM_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
             StreamRDO_ItemList+=["GenericMuonSimHitCollection#MicromegasSensitiveDetector"]
     # LVL1 Emulation Output
