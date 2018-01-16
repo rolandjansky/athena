@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_JETCMXTOPODATACOLLECTION_H
 #define TRIGT1CAL_JETCMXTOPODATACOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/JetCMXTopoData.h"
 
 /** Container class for JetCMXTopoData objects.

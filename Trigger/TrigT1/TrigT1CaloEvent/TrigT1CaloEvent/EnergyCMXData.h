@@ -19,7 +19,7 @@
   #ifndef ENERGYCMXDATA_H
   #define ENERGYCMXDATA_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
 
   namespace LVL1 {
   
