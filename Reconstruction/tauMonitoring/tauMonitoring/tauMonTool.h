@@ -189,8 +189,6 @@ protected:
 	TH2* m_pTVsEta_Tau_W;
 
 private:
-	StoreGateSvc* m_storeGate;
-
         bool m_Trigged, m_doLS ;
         std::vector< std::vector< std::string > > m_trigItems ;
 
