@@ -2655,7 +2655,8 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
   std::string vName=trVol->volumeName().substr(trVol->volumeName().find("-")+1); 
   //std::cout <<"NSW layer identification:"<< vName << std::endl;
 
-  const Trk::RotatedTrapezoidBounds* rtrd=0;
+  const Trk::RotatedTrapezoidBounds* rtrd=nullptr;
+  const Trk::TrapezoidBounds* trd=nullptr;
   Amg::Vector3D mrg_pos=transf.translation();
  
   unsigned int layType = 0;  
@@ -2685,9 +2686,11 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
     unsigned int iLay;
     istl >> iLay;
     iLay += 1;
-    if (vName[0]=='Q') {
-      std::string stName = (vName[2]=='L') ? "STL" : "STS";
-      int stId = (vName[2]=='L') ? 0 : 1;
+    if (vName[0]=='Q') {// vName looks like QL3P...
+      // Alexandre Laurier: for stName,  used to be vName[2] which would give 1,2,3 so stName would always be STS
+      // for stId, vName[2] was used, always giving a 0 value
+      std::string stName = (vName[1]=='L') ? "STL" : "STS";
+      int stId = (vName[1]=='L') ? 0 : 1;
       Identifier id = m_muonMgr->stgcIdHelper()->channelID(stName,iEta,iPhi,iMult,iLay,1,1);
       //std::cout <<"identifier:"<< id << std::endl;
       const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcRElement_fromIdFields(stId,iEta,iPhi,iMult);
@@ -2699,7 +2702,7 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
       layType = id.get_identifier32().get_compact();
       if (stgc) {
 	rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*> (&stgc->bounds(id));
-	//std::cout <<"stgc bounds rotated trapezoid ? "<< rtrd<<  std::endl;
+	trd = dynamic_cast<const Trk::TrapezoidBounds*> (&stgc->bounds(id));
 	mrg_pos = stgc->center(id);
       }
     } else {
@@ -2781,6 +2784,14 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
     //double sf        = 2*(trdBounds->minHalflengthX()+trdBounds->maxHalflengthX())*trdBounds->halflengthY();
     if (rtrd) {
       Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(rtrd->halflengthX(),rtrd->minHalflengthY(),rtrd->maxHalflengthY());
+      Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+      layer = new Trk::PlaneLayer(new Amg::Transform3D(subt*trVol->transform()),
+				bounds, mat, thickness, od, 1 );
+      //std::cout <<"MTG layer shift ? " << (transf*subt*trVol->transform()).translation()<<"->"<<mrg_pos << std::endl;
+      Amg::Vector3D mtg_pos=(transf*subt*trVol->transform()).translation();
+      transf *= Amg::Translation3D(mrg_pos-mtg_pos);
+    } else if (trd) {
+      Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(trd->minHalflengthX(),trd->maxHalflengthX(),trd->halflengthY());
       Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
       layer = new Trk::PlaneLayer(new Amg::Transform3D(subt*trVol->transform()),
 				bounds, mat, thickness, od, 1 );
@@ -2883,3 +2894,4 @@ Trk::MaterialProperties Muon::MuonStationTypeBuilder::collectStationMaterial(con
   }
   return layMat;
 }
+

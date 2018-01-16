@@ -1008,6 +1008,19 @@ StatusCode MmDigitizationTool::doDigitization() {
       //
       // digitize input for strip response
       m_StripsResponse->set_stripWidth(mmChannelDes->channelWidth(posOnSurf));
+      // fill the SDO collection in StoreGate
+      // create here deposit for MuonSimData, link and tof
+      //
+      // Since we have output based on channel, instead of hit, the SDO and digit ID are No longer meaningless. 2016/06/27 T.Saito
+      //
+      // digitize input for strip response
+      // m_StripsResponseSimulation->setStripWidth(mmChannelDes->channelWidth(posOnSurf));
+      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      //Record the SDO collection in StoreGate
+      std::vector<MuonSimData::Deposit> deposits;
+      deposits.push_back(deposit);
+      m_sdoContainer->insert ( std::make_pair ( DigitId, MuonSimData(deposits,0) ) );
+      ATH_MSG_DEBUG(" added MM SDO " <<  m_sdoContainer->size());
 
       m_n_hitStripID=stripNumber;
       m_n_hitDistToChannel=distToChannel;
