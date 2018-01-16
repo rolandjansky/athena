@@ -98,8 +98,6 @@ private:
   int m_et_bins, m_ec_bins, m_sumet_bins, m_sume_bins;
   int m_phi_bins, m_eta_bins, m_det_bins, m_eff_bins, m_xs_bins;
   
-  bool m_debuglevel; //!< private member to control debug messages
-  
   std::vector<std::string> m_primary_met;
   std::vector<std::string> m_monitoring_met_shifter;
   std::vector<std::string> m_monitoring_met_expert;

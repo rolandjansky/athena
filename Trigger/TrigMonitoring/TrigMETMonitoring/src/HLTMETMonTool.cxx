@@ -26,8 +26,8 @@
 
 //___________________________________________________________________________________________________________
 HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : IHLTMonTool(type, name, parent),
-    m_debuglevel(false) {
+  : IHLTMonTool(type, name, parent)
+{
 
   ATH_MSG_DEBUG("in HLTMETMonTool::HLTMETMonTool()");
 
@@ -124,8 +124,7 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
 
 //___________________________________________________________________________________________________________
 HLTMETMonTool::~HLTMETMonTool() {
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG("in HLTMETMonTool::~HLTMETMonTool()");
+  ATH_MSG_DEBUG("in HLTMETMonTool::~HLTMETMonTool()");
 }
 
 
@@ -139,16 +138,10 @@ public:
 //___________________________________________________________________________________________________________
 StatusCode HLTMETMonTool::init() {
 
-  // init message stream
-  m_log->setLevel(msgLevel());
-  m_debuglevel = (m_log->level() <= MSG::DEBUG);
-
-  if (m_debuglevel) {
-    ATH_MSG_DEBUG("in HLTMETMonTool::init()");
-    ATH_MSG_DEBUG("HLTMETMonTool: L1Key  = "     << m_lvl1_roi_key);
-    ATH_MSG_DEBUG("HLTMETMonTool: HLT_METKey = " << m_primary_met[0]);
-    ATH_MSG_DEBUG("HLTMETMonTool: Off_METKey = " << m_off_met_key);
-  }
+  ATH_MSG_DEBUG("in HLTMETMonTool::init()");
+  ATH_MSG_DEBUG("HLTMETMonTool: L1Key  = "     << m_lvl1_roi_key);
+  ATH_MSG_DEBUG("HLTMETMonTool: HLT_METKey = " << m_primary_met[0]);
+  ATH_MSG_DEBUG("HLTMETMonTool: Off_METKey = " << m_off_met_key);
 
   // put all trigger names into one array for shifter
   for (std::vector<std::string>::iterator it = m_monitoring_met_shifter.begin(); it != m_monitoring_met_shifter.end(); ++it) {
@@ -174,9 +167,8 @@ StatusCode HLTMETMonTool::init() {
 //___________________________________________________________________________________________________________
 StatusCode HLTMETMonTool::book() {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG("in HLTMETMonTool::book()");
-
+  ATH_MSG_DEBUG("in HLTMETMonTool::book()");
+    
   // check if input met triggers are in trigger configuration and add them to signatures_to look vectors
   if (m_met_triggers_l1_shifter.size())
     check_triggers(m_met_triggers_l1_shifter, m_l1_met_signatures_tolook_shifter);
@@ -379,8 +371,7 @@ StatusCode HLTMETMonTool::book() {
 //___________________________________________________________________________________________________________
 StatusCode HLTMETMonTool::fill() {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG("in HLTMETMonTool:fill()");
+  ATH_MSG_DEBUG("in HLTMETMonTool:fill()");
 
   trigger_decision();
 
@@ -402,8 +393,7 @@ StatusCode HLTMETMonTool::proc() {
   std::string monGroupName;
   //TH1 *h_numerator;
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG("in HLTMETMonTool::proc()");
+  ATH_MSG_DEBUG("in HLTMETMonTool::proc()");
 
   if(m_print_met_trig_stats)
     print_trigger_stats();
@@ -445,8 +435,7 @@ StatusCode HLTMETMonTool::proc() {
 //___________________________________________________________________________________________________________
 StatusCode HLTMETMonTool::fillMETHist() {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG("in HTLMETMonTool::fillMETHistos()");
+  ATH_MSG_DEBUG("in HTLMETMonTool::fillMETHistos()");
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -459,7 +448,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
  // retrieve xAOD L1 ROI 
   const xAOD::EnergySumRoI *m_l1_roi_cont = 0;
-  sc = m_storeGate->retrieve(m_l1_roi_cont, m_lvl1_roi_key);
+  sc = evtStore()->retrieve(m_l1_roi_cont, m_lvl1_roi_key);
   if(sc.isFailure() || !m_l1_roi_cont) {
     ATH_MSG_WARNING("Could not retrieve LVL1_RoIs with key \"" << m_lvl1_roi_key << "\" from TDS"  );
   }
@@ -467,7 +456,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // retrieve HLT containers
   // Get HLT (CELL) container
   const xAOD::TrigMissingETContainer *m_hlt_cell_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_cell_met_cont, m_hlt_cell_met_key);
+  sc = evtStore()->retrieve(m_hlt_cell_met_cont, m_hlt_cell_met_key);
   if (sc.isFailure() || !m_hlt_cell_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_cell_met_key << " from TDS");
   }
@@ -476,7 +465,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT mht container
   const xAOD::TrigMissingETContainer *m_hlt_mht_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_mht_met_cont, m_hlt_mht_met_key);
+  sc = evtStore()->retrieve(m_hlt_mht_met_cont, m_hlt_mht_met_key);
   if (sc.isFailure() || !m_hlt_mht_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_mht_met_key << " from TDS");
   }
@@ -487,7 +476,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT mhtem container
   const xAOD::TrigMissingETContainer *m_hlt_mhtem_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_mhtem_met_cont, m_hlt_mhtem_met_key);
+  sc = evtStore()->retrieve(m_hlt_mhtem_met_cont, m_hlt_mhtem_met_key);
   if (sc.isFailure() || !m_hlt_mhtem_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_mhtem_met_key << " from TDS");
   }
@@ -498,7 +487,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT trkmht container
   const xAOD::TrigMissingETContainer *m_hlt_trkmht_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_trkmht_met_cont, m_hlt_trkmht_met_key);
+  sc = evtStore()->retrieve(m_hlt_trkmht_met_cont, m_hlt_trkmht_met_key);
   if (sc.isFailure() || !m_hlt_trkmht_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trkmht_met_key << " from TDS");
   }
@@ -509,7 +498,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT trkmhtFTK container
   const xAOD::TrigMissingETContainer *m_hlt_trkmhtFTK_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_trkmhtFTK_met_cont, m_hlt_trkmhtFTK_met_key);
+  sc = evtStore()->retrieve(m_hlt_trkmhtFTK_met_cont, m_hlt_trkmhtFTK_met_key);
   if (sc.isFailure() || !m_hlt_trkmhtFTK_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trkmhtFTK_met_key << " from TDS");
   }
@@ -520,7 +509,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT topocl container
   const xAOD::TrigMissingETContainer *m_hlt_topocl_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_topocl_met_cont, m_hlt_topocl_met_key);
+  sc = evtStore()->retrieve(m_hlt_topocl_met_cont, m_hlt_topocl_met_key);
   if (sc.isFailure() || !m_hlt_topocl_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_topocl_met_key << " from TDS");
   }
@@ -529,7 +518,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT topocl_PS container
   const xAOD::TrigMissingETContainer *m_hlt_topocl_PS_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_topocl_PS_met_cont, m_hlt_topocl_PS_met_key);
+  sc = evtStore()->retrieve(m_hlt_topocl_PS_met_cont, m_hlt_topocl_PS_met_key);
   if (sc.isFailure() || !m_hlt_topocl_PS_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_topocl_PS_met_key << " from TDS");
   }
@@ -538,7 +527,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT topocl_PUC container
   const xAOD::TrigMissingETContainer *m_hlt_topocl_PUC_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_topocl_PUC_met_cont, m_hlt_topocl_PUC_met_key);
+  sc = evtStore()->retrieve(m_hlt_topocl_PUC_met_cont, m_hlt_topocl_PUC_met_key);
   if (sc.isFailure() || !m_hlt_topocl_PUC_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_topocl_PUC_met_key << " from TDS");
   }
@@ -547,7 +536,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT FEB container
   const xAOD::TrigMissingETContainer *m_hlt_FEB_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_FEB_met_cont, m_hlt_FEB_met_key);
+  sc = evtStore()->retrieve(m_hlt_FEB_met_cont, m_hlt_FEB_met_key);
   if (sc.isFailure() || !m_hlt_FEB_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_FEB_met_key << " from TDS");
   }
@@ -556,7 +545,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get HLT Fex container
   const xAOD::TrigMissingETContainer *m_hlt_Fex_met_cont = 0;
-  sc = m_storeGate->retrieve(m_hlt_Fex_met_cont, m_hlt_Fex_met_key);
+  sc = evtStore()->retrieve(m_hlt_Fex_met_cont, m_hlt_Fex_met_key);
   if (sc.isFailure() || !m_hlt_Fex_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_Fex_met_key << " from TDS");
   }
@@ -566,7 +555,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // Get EF muon and EF egamma containers for signal-like selection
   // retrieve EF muon container
   const xAOD::MuonContainer *m_hlt_muonEFcontainer = 0;
-  sc = m_storeGate->retrieve(m_hlt_muonEFcontainer, m_muon_key);
+  sc = evtStore()->retrieve(m_hlt_muonEFcontainer, m_muon_key);
   if (sc.isFailure() || !m_hlt_muonEFcontainer) {
     ATH_MSG_WARNING("Could not retrieve muon container with key " << m_muon_key << " from TDS"); 
   }
@@ -575,7 +564,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // retrieve EF electron container
   const xAOD::ElectronContainer *m_hlt_electronEFcontainer = 0;
-  sc = m_storeGate->retrieve(m_hlt_electronEFcontainer, m_electron_key);
+  sc = evtStore()->retrieve(m_hlt_electronEFcontainer, m_electron_key);
   if (sc.isFailure() || !m_hlt_electronEFcontainer) {
     ATH_MSG_WARNING("Could not retrieve electron container with key " << m_electron_key << " from TDS");
   }
@@ -584,14 +573,13 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Get Offline MET container
   const xAOD::MissingETContainer *m_off_met_cont = 0;
-  sc = m_storeGate->retrieve(m_off_met_cont, m_off_met_key);
+  sc = evtStore()->retrieve(m_off_met_cont, m_off_met_key);
   if (sc.isFailure() || !m_off_met_cont) {
     ATH_MSG_DEBUG("Could not retrieve Reconstructed MET term with Key " << m_off_met_key << " : m_off_met_cont = 0");
-  }
-  else if (m_debuglevel) {
+  } else {
     ATH_MSG_DEBUG("Got Reconstructed MET term with key " << m_off_met_key);
   }
-
+  
 
   // Check if signal-like muon exists
   ATH_MSG_DEBUG("Going to iterate through muon container");
@@ -651,8 +639,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
 
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG("Filling histograms...");
+  ATH_MSG_DEBUG("Filling histograms...");
 
   //####################
   //-- Get met values
@@ -1038,8 +1025,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //-- Fill Expert histograms  ###############################
   //########################
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG("filling Expert histograms");
+  ATH_MSG_DEBUG("filling Expert histograms");
 
   /////////////
   /// Expert L1
@@ -1842,8 +1828,7 @@ void HLTMETMonTool::check_triggers(std::vector<std::string>& m_triggers, std::ma
     std::string item = m_triggers[it];
     std::string trig_level = get_trigger_level(item); //item.substr(0,3);
 
-    if (m_debuglevel)
-      ATH_MSG_DEBUG("signature " << item << " requested");
+    ATH_MSG_DEBUG("signature " << item << " requested");
 
     // check your trigger is defined in the menu
     bool triggerFound = false;
