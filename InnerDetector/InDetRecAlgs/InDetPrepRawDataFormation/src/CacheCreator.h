@@ -16,6 +16,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
+#include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "SCT_ConditionsData/SCT_MonitorConditionsCondData.h"
 #include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
@@ -55,6 +56,7 @@ namespace InDet{
         SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey2{ this, "SCT_TdaqEnabledCondData", "SCT_TdaqEnabledCondData", "" };
         SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey3{ this, "SCT_ConfigurationCondData", "SCT_ConfigurationCondData", "" };
         SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKey4{ this, "SCT_AllGoodStripInfo", "SCT_AllGoodStripInfo", "" };
+        SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
 
         template<typename T>
         StatusCode CreateContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
