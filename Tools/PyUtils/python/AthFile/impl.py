@@ -609,7 +609,7 @@ class AthFileServer(object):
             fname = _normalize(url.path)
             fname = protocol+':'+fname
 
-        elif protocol in ('root','dcap', 'dcache', 'http', 'https'):
+        elif protocol in ('root','dcap', 'dcache', 'http', 'https', 'dav', 'davs'):
             #fname = fname
             pass
 
