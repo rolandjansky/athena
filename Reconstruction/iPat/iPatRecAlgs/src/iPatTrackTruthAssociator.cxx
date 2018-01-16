@@ -148,9 +148,7 @@ iPatTrackTruthAssociator::execute()
     }
 
     // loop over all tracks in TrackContainer
-    for (std::vector<Track*>::const_iterator t = m_tracks->begin();
-	 t != m_tracks->end();
-	 ++t)
+    for (const Track* t : *m_tracks)
     {
 	// barcodeMap - ensure trackBarcode = 0 unless at least 3 hits with same barcode
 	std::map<int,int>	trackBarcodeMap;
@@ -158,8 +156,8 @@ iPatTrackTruthAssociator::execute()
 	trackBarcodeMap[trackBarcode] = 1;
 
 	// map the barcode association for the hits
-	for (HitList::hit_citerator h = (**t).hit_list_begin();
-	     h != (**t).hit_list_end();
+	for (HitList::hit_citerator h = t->hit_list_begin();
+	     h != t->hit_list_end();
 	     ++h)
 	{
 	    if ((**h).isCluster())
@@ -230,7 +228,9 @@ iPatTrackTruthAssociator::execute()
 // 	{
 	TruthAssociation* assoc = new TruthAssociation(trackBarcode,trackBarcode);
 // 	}
-	(**t).truthAssociation(assoc);
+        // FIXME: This is modifying an object retrieved from SG.
+        //        This won't work with AthenaMT.
+	const_cast<Track*>(t)->truthAssociation(assoc);
 	
 	// finally count spoilt/unique/wrong/shared statistics 
 	// according to the barcode association of each hit
@@ -238,8 +238,8 @@ iPatTrackTruthAssociator::execute()
 	unsigned uniqueSilicon	= 0;
 	unsigned wrongSilicon	= 0;
 	
-	for (HitList::hit_citerator h = (**t).hit_list_begin();
-	     h != (**t).hit_list_end();
+	for (HitList::hit_citerator h = t->hit_list_begin();
+	     h != t->hit_list_end();
 	     ++h)
 	{
 	    if ((**h).isPositionMeasurement())
@@ -402,7 +402,7 @@ iPatTrackTruthAssociator::execute()
 			       << sharedSilicon << " shared SiliconClusters" );
 		assoc->print();
 		std::cout << " ";
-		(**t).print_parameters();
+		t->print_parameters();
 	    }
 	}
     }
