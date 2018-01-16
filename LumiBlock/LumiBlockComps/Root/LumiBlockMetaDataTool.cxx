@@ -11,7 +11,6 @@
 #include "LumiBlockComps/LumiBlockMetaDataTool.h"
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
-//#include "LumiCalc/LumiBlockRangeContainerConverter.h"
 #include "LumiBlockComps/ILumiCalcSvc.h"
 #include "xAODLuminosity/SortLumiBlockRangeByStart.h"
 
@@ -26,7 +25,6 @@
 #include "GoodRunsLists/TGoodRunsList.h"
 #include "GoodRunsLists/TUniqueGRLString.h"
 
-//#include "urldecode.h"
 #include "TROOT.h"
 
 #include <algorithm>
@@ -40,7 +38,6 @@ LumiBlockMetaDataTool::LumiBlockMetaDataTool(const std::string& type, const std:
    m_nfiles(0),
    m_fileCurrentlyOpened(false),
    m_CurrentFileName("none"),
-   /*   m_converter(new LumiBlockRangeContainerConverter()),*/
    m_grlcollection(new Root::TGRLCollection()),
    m_GoodRunsListSelectorTool("GoodRunsListSelectorTool")
 {
@@ -110,16 +107,6 @@ StatusCode LumiBlockMetaDataTool::initialize() {
    ATH_CHECK( m_pMetaDataStore.retrieve() );
    ATH_CHECK( m_pInputStore.retrieve() );
    ATH_CHECK( m_tagDataStore.retrieve() );
-
-   // Set to be listener for end of event
-   /*
-   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-   ATH_CHECK( incSvc.retrieve() );
-   incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
-   incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc and AthenaOutputStream.
-   incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 20 to be before MetaDataSvc and AthenaOutputStream.
-   incSvc->addListener(this, "MetaDataStop", 70); 
-   */
 
 
    // Don't try to retrieve this during initialize().
@@ -199,6 +186,7 @@ StatusCode LumiBlockMetaDataTool::beginInputFile()
       }
    return(StatusCode::SUCCESS);
 }
+
 StatusCode LumiBlockMetaDataTool::endInputFile()
 {
    m_fileCurrentlyOpened=false;
@@ -216,6 +204,7 @@ StatusCode LumiBlockMetaDataTool::endInputFile()
    m_cacheSuspectInputRangeContainer->clear();
    return(StatusCode::SUCCESS);
 }
+
 StatusCode LumiBlockMetaDataTool::metaDataStop()
 {
    if(m_fileCurrentlyOpened) {
@@ -235,113 +224,6 @@ StatusCode LumiBlockMetaDataTool::metaDataStop()
    } 
    return(StatusCode::SUCCESS);
 }
-
-//__________________________________________________________________________
-/*
-void LumiBlockMetaDataTool::handle(const Incident& inc) {
-  // This handle is fired when files are opened or closed.
-  // The "MetaDataStop" incident is fired when the final write
-  // of metadata to the output store should occur
-
-   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-   std::string fileName;
-   if (fileInc == 0) { fileName = "Undefined "; }
-   else { fileName = fileInc->fileName(); }
-   ATH_MSG_INFO( "handle() " << inc.type());
-   bool alreadyRecorded=false;
-   if (inc.type() == "BeginInputFile") {
-
-     if(m_CurrentFileName==fileName) {
-       alreadyRecorded=true;
-       }
-     if(m_fileCurrentlyOpened) {
-       alreadyRecorded=true;
-     }
-     m_CurrentFileName = fileName;
-     if(alreadyRecorded) return;
-      m_nfiles++;
-      m_fileCurrentlyOpened=true;
-      //
-      // Look for LB information on input store and transfer it to temporay cache
-      // ===========================================================================
-
-      if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_LBColl_name)) {
-	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_LBColl_name << endmsg;
-	const xAOD::LumiBlockRangeContainer* lbrange =0;
-	StatusCode sc = m_pInputStore->retrieve(lbrange,m_LBColl_name);
-         if (!sc.isSuccess()) {
-            ATH_MSG_INFO( "Could not find unfinished xAOD::LumiBlockRangeContainer in input metatdata store" );
-	    return;
-	 }
-	 ATH_MSG_INFO( "xAOD::LumiBlockRangeContainer size" << lbrange->size() );
-         for ( const auto* lb : *lbrange ) {
-	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*lb);
-            m_cacheInputRangeContainer->push_back(iovr);
-	 }
-      }
-      if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_unfinishedLBColl_name)) {
-	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_unfinishedLBColl_name << endmsg;
-	const xAOD::LumiBlockRangeContainer* lbrange =0;
-	StatusCode sc = m_pInputStore->retrieve(lbrange,m_unfinishedLBColl_name);
-         if (!sc.isSuccess()) {
-            ATH_MSG_INFO( "Could not find unfinished xAOD::LumiBlockRangeContainer in input metatdata store" );
-	    return;
-	 }
-	 ATH_MSG_INFO( "xAOD::LumiBlockRangeContainer size" << lbrange->size() );
-         for ( const auto* lb : *lbrange ) {
-	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*lb);
-            m_cacheInputRangeContainer->push_back(iovr);
-	}
-      }
-      if (m_pInputStore->contains<xAOD::LumiBlockRangeContainer>(m_suspectLBColl_name)) {
-	msg(MSG::INFO) << " Contains xAOD::LumiBlockRangeContainer " << m_suspectLBColl_name << endmsg;
-	const xAOD::LumiBlockRangeContainer* lbrange =0;
-	StatusCode sc = m_pInputStore->retrieve(lbrange,m_suspectLBColl_name);
-         if (!sc.isSuccess()) {
-            ATH_MSG_INFO( "Could not find suspect xAOD::LumiBlockRangeContainer in input metatdata store" );
-	    return;
-	 }
-	 ATH_MSG_INFO( "xAOD::LumiBlockRangeContainer size" << lbrange->size() );
-         for ( const auto* lb : *lbrange ) {
-	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*lb);
-            m_cacheSuspectInputRangeContainer->push_back(iovr);
-	 }
-      }
-   }
-   else if (inc.type() == "EndInputFile") {
-      m_fileCurrentlyOpened=false;
-      xAOD::LumiBlockRangeContainer::const_iterator it;
-      for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
-	xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-        m_cacheOutputRangeContainer->push_back(iovr);
-      }
-      m_cacheInputRangeContainer->clear();
-
-      for(it=m_cacheSuspectInputRangeContainer->begin(); it!=m_cacheSuspectInputRangeContainer->end(); it++) {
-	xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-        m_cacheSuspectOutputRangeContainer->push_back(iovr);
-      }
-      m_cacheSuspectInputRangeContainer->clear();
-   }
-   else if (inc.type() == "MetaDataStop") {
-     if(m_fileCurrentlyOpened) {
-         ATH_MSG_INFO( "MetaDataStop called when input file open: LumiBlock is suspect" );
-         xAOD::LumiBlockRangeContainer::const_iterator it;
-         for(it=m_cacheInputRangeContainer->begin(); it!=m_cacheInputRangeContainer->end(); it++) {
-	   xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
-          m_cacheSuspectOutputRangeContainer->push_back(iovr);
-	 }
-      m_cacheInputRangeContainer->clear();
-     }
-
-      StatusCode sc = finishUp();
-      if (!sc.isSuccess()) {
-         ATH_MSG_INFO( "finishup failed" );
-         return;
-    } 
-   }
-}
-*/
 
 //__________________________________________________________________________
 StatusCode   LumiBlockMetaDataTool::finishUp() {
@@ -499,43 +381,6 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
     ATH_CHECK( m_pMetaDataStore->record( piovSuspect, m_suspectLBColl_name ) );
     ATH_CHECK( m_pMetaDataStore->record( piovSuspectAux, m_suspectLBColl_name + "Aux." ) );
   }
-
-  /*
-  if (m_storexmlfiles) {
-    if(piovComplete->size()>0) {
-       TString this_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
-       std::map<TString,TString> metadata;
-       metadata["complete"]=TString("complete");
-       TString complete   = m_converter->GetSuggestedName(*piovComplete);
-       TString subname = "complete"+complete;
-       TString filename = "LumiBlockMetaData_" + subname + ".xml";
-       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovComplete,metadata,this_version);
-       m_converter->CreateXMLFile(*pgrl,filename.Data());
-    }
-    if(piovUnfinished->size()>0) {
-       TString this_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
-       std::map<TString,TString> metadata;
-       metadata["complete"]=TString("unfinished");
-       TString unfinished   = m_converter->GetSuggestedName(*piovUnfinished);
-       TString subname = "unfinished"+unfinished;
-       TString filename = "LumiBlockMetaData_" + subname + ".xml";
-       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovUnfinished,metadata,this_version);
-       m_converter->CreateXMLFile(*pgrl,filename.Data());
-    }
-    if(piovSuspect->size()>0) {
-       TString this_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
-       std::map<TString,TString> metadata;
-       metadata["suspect"]=TString("suspect");
-       TString suspect   = m_converter->GetSuggestedName(*piovSuspect);
-       TString subname = "suspect"+suspect;
-       TString filename = "LumiBlockMetaData_" + subname + ".xml";
-       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovSuspect,metadata,this_version);
-       m_converter->CreateXMLFile(*pgrl,filename.Data());
-    }
-
-  }
-  */
-
 
   return(StatusCode::SUCCESS);
 }
