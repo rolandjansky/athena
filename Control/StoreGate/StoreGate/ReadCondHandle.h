@@ -94,8 +94,6 @@ namespace SG {
     if (conditionsRun != EventIDBase::UNDEFNUM) {
       m_eid.set_run_number (conditionsRun);
     }
-    // Event number not used in IOV comparisons, only run+lbn.
-    m_eid.set_event_number (EventIDBase::UNDEFEVT);
 
     if (ATH_UNLIKELY(!key.isInit())) {
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");

@@ -12,13 +12,16 @@
 #include <mutex>
 
 class DataObject;
+namespace Athena {
+  class IRCUSvc;
+}
 
 namespace CondContainer {
   class CondContFactory {
   public:
     static CondContFactory& Instance();
     void regMaker(const CLID& clid, ICondContMaker* maker);
-    SG::DataObjectSharedPtr<DataObject> Create(const CLID& clid, const std::string& key) const;
+    SG::DataObjectSharedPtr<DataObject> Create(Athena::IRCUSvc& rcusvc, const CLID& clid, const std::string& key) const;
     
   private:
     CondContFactory(){}

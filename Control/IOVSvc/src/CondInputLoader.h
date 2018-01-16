@@ -89,6 +89,7 @@ class CondInputLoader
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<IIOVSvc> m_IOVSvc;
   ServiceHandle<IClassIDSvc> m_clidSvc;
+  ServiceHandle<Athena::IRCUSvc> m_rcuSvc;
   
   std::map<std::string,std::string> m_keyFolderMap;
 }; 
