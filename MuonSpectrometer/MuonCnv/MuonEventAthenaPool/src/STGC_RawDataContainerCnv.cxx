@@ -24,7 +24,7 @@ StatusCode STGC_RawDataContainerCnv::initialize() {
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "STGC_RawDataContainerCnv");
-  if (log.level() <= MSG::INFO) log << MSG::INFO << "sTgcPrepDataContainerCnv::initialize()" << endmsg;
+  if (log.level() <= MSG::INFO) log << MSG::INFO << "STGC_RawDataContainerCnv::initialize()" << endmsg;
 
   // get DetectorStore service
   ISvcLocator* svcLocator = Gaudi::svcLocator();
@@ -64,8 +64,8 @@ STGC_RawDataContainerCnv::createTransient()
   using namespace Muon;
   MsgStream log(msgSvc(), "STGC_RawDataContainerCnv" );
  
-  STGC_RawDataContainer *transCont = 0;
-  static pool::Guid	p1_guid("93035F54-0FA9-4A56-98E0-A808DD23C089");
+  STGC_RawDataContainer *transCont = nullptr;
+  static pool::Guid	p1_guid("E9229710-DB8A-447E-9546-4BAB079C7547");
 
   if( compareClassGuid(p1_guid) ) {
     std::unique_ptr< STGC_RawDataContainer_p1 >  cont( this->poolReadObject<STGC_RawDataContainer_p1>() );

@@ -17,6 +17,7 @@ class MM_RawDataContainer
 {
 public:  
   MM_RawDataContainer(unsigned int hashmax);
+  MM_RawDataContainer() {};
   virtual ~MM_RawDataContainer(); 
 
   /// class ID

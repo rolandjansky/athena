@@ -5,6 +5,7 @@
 #include "MuonByteStreamCnvTest/TgcDigitToTgcRDO.h"
 #include "MuonByteStreamCnvTest/CscDigitToCscRDO.h"
 #include "../STGC_DigitToRDO.h"
+#include "../MM_DigitToRDO.h"
 
 #include "MuonByteStreamCnvTest/ReadMdtRDO.h"
 #include "MuonByteStreamCnvTest/ReadRpcRDO.h"
@@ -25,6 +26,7 @@ DECLARE_COMPONENT( MdtDigitToMdtRDO )
 DECLARE_COMPONENT( TgcDigitToTgcRDO )
 DECLARE_COMPONENT( CscDigitToCscRDO )
 DECLARE_COMPONENT( STGC_DigitToRDO )
+DECLARE_COMPONENT( MM_DigitToRDO )
 
 DECLARE_COMPONENT( ReadRpcRDO )
 DECLARE_COMPONENT( ReadMdtRDO )
