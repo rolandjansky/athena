@@ -116,7 +116,6 @@ FTAG4SlimmingHelper = SlimmingHelper("FTAG4SlimmingHelper")
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo"]
@@ -126,6 +125,7 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2Track",
                                     "BTagging_AntiKt2TrackJFVtx", 
+                                    "PrimaryVertices",
                                     "TruthVertices",
                                     "TruthEvents",
                                     "MET_Truth",
