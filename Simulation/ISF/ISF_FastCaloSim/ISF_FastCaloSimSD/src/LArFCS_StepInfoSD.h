@@ -41,6 +41,11 @@ public:
   G4bool ProcessHits(G4Step* a_step, G4TouchableHistory*) override;
 
 private:
+  /// Keep a map instead of trying to keep the full vector.
+  /// At the end of the event we'll push the map back into the
+  /// FCS_StepInfoCollection in StoreGate.
+  virtual void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector) override final;
+
   /// Helper function for making "real" identifiers from LArG4Identifiers
   Identifier ConvertID(const LArG4Identifier& a_ident) const;
 

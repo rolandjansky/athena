@@ -48,8 +48,8 @@ namespace EgammaSelectors {
   //----------------------------------------------------------
   //Map enums to masks , needed for photons
   const std::map<std::string,unsigned int> PhotonCutPointToMask={{"LoosePhoton",egammaPID::PhotonLoose},
-								   {"MediumPhoton",egammaPID::PhotonMedium},
-								   {"TightPhoton",egammaPID::PhotonTight},
+                                                                 {"MediumPhoton",egammaPID::PhotonMedium},
+                                                                 {"TightPhoton",egammaPID::PhotonTight},
   };
 }
 ////////////////////////////////////////////

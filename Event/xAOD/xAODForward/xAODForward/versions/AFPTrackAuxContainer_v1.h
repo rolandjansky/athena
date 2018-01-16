@@ -21,7 +21,7 @@
 #include "xAODCore/AuxContainerBase.h"
 
 // local includes
-#include "xAODForward/AFPTrack.h"
+#include "xAODForward/versions/AFPTrack_v1.h"
 
 
 namespace xAOD {
@@ -46,7 +46,7 @@ namespace xAOD {
     // float zSlope() const;
     std::vector< int > nHoles;
     std::vector< int > nHits;
-    std::vector< std::vector<AFPTrack::AFPHitLink_t> > hits;
+    std::vector< std::vector<AFPTrack_v1::AFPHitLink_t> > hits;
     std::vector< float > chi2;
     std::vector< int > algID;
     

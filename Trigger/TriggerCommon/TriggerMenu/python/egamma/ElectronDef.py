@@ -129,9 +129,14 @@ class L2EFChain_e(L2EFChainDef):
         thr = self.chainPart['threshold']
         log.debug("Apply ringer %s",self._ringer_selection)
 
-        if TriggerFlags.EgammaSlice.doRinger:
+        if 'noringer' in self.chainPart['addInfo']:
+          log.debug('No Ringer selection used. Disable the ringer for this chain.')
+          self._ringer_selection=False
+        elif TriggerFlags.EgammaSlice.doRinger:
             log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
             if 'merged' in self.chainPart['IDinfo']:
+                self._ringer_selection=False
+            elif 'bloose' in self.chainPart['IDinfo']:
                 self._ringer_selection=False
             elif float(thr)>15.0:
                 self._ringer_selection=True
@@ -144,6 +149,7 @@ class L2EFChain_e(L2EFChainDef):
                 self._ringer_selection=True
             else:
                 self._ringer_selection=False
+        
         log.debug("Apply ringer is set %s",self._ringer_selection)
 
 

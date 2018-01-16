@@ -579,7 +579,6 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
   AmgSymMatrix(5) Gi;
   for(i=0;i<5;i++) for(j=i;j<5;j++)
     {
-      Gi(i,j)=pTE->m_getTrackCovariance(i,j);
       Gi.fillSymmetric(i, j, pTE->m_getTrackCovariance(i,j));
     }
   Gi = Gi.inverse();
@@ -1078,7 +1077,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
         break;
         ATH_MSG_DEBUG("REGTEST: cov(" << i << "," << i << ") =" << cov_diag << " < 0, reject track");
       }
-      cov->fillSymmetric(i, i, pTS->m_getTrackCovariance(i,i));
+      (*cov)(i, i) = pTS->m_getTrackCovariance(i,i);
       for(int j=i+1;j<5;j++) {
         cov->fillSymmetric(i, j, pTS->m_getTrackCovariance(i,j));
       }

@@ -96,7 +96,7 @@ except:
 
 ## Add an action
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['Run','Event','Step'])
 
 # suppress the enormous amount of MC output
 from TruthExamples.TruthExamplesConf import DumpMC
@@ -116,9 +116,11 @@ MaterialStream.ItemList    += [ 'MaterialStepVector#*']
 
 ##############################################################
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 from InDetIBL_Example.SLHC_Setup import SLHC_Setup
 SLHC_Setup = SLHC_Setup()

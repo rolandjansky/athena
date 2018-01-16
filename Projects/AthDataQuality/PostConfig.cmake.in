@@ -1,0 +1,11 @@
+#
+# File taking care of pointing the downstream projects at the right
+# version of the externals.
+#
+
+# Set the versions of the TDAQ projects:
+set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" )
+set( TDAQ-COMMON_ROOT "@TDAQ-COMMON_ROOT@" )
+
+set( DQM-COMMON_VERSION "@DQM-COMMON_VERSION@" )
+set( DQM-COMMON_ROOT "@DQM-COMMON_ROOT@" )

@@ -6,11 +6,13 @@ log = logging.getLogger( 'TriggerMenu.menu.GroupInfo' )
 AllowedGroups = ['Muon',
                  'Jet',
                  'BJet',
+                 'BJet_combined',
                  'MET',
                  'Tau',
                  'Egamma',
                  'Bphys',
                  'BeamSpot',
+                 'AFP',
                  'MinBias',
                  'Detector',
                  'Other',
@@ -18,6 +20,7 @@ AllowedGroups = ['Muon',
                  'ID',
                  'TauOverlay',
                  'ZeroBias',
+                 'MinBiasOverlay',
                  ]
 
 
@@ -31,10 +34,10 @@ AllowedGroup_HI = ['UltraCentral',
                    ]
 
 def getAllAllowedGroups(menu):    
-    if 'pp_v6' in menu or 'pp_v7' in menu:
+    if 'pp_v6' in menu or 'pp_v7' in menu or 'PhaseII' in menu:
         return AllowedGroups
     elif 'HI' in menu:
         return AllowedGroups+AllowedGroup_HI
     else:
-        log.error("No list of allowed groupd for "+menu)
+        log.error("No list of allowed group for "+menu)
     

@@ -4,8 +4,7 @@
 Lvl1 specific flags
 """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.Logging import logging
 from Limits import Limits
 

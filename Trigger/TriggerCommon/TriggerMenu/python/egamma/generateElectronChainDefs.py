@@ -9,14 +9,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.egamma.generateElectronChainDefs' )
 log.info("Importing %s",__name__)
 
-import traceback
-
 from TriggerMenu.egamma.ElectronDef import L2EFChain_e as L2EFChain_e
-try:
-    from TriggerMenu.egamma.ElectronDefIdTest import L2EFChain_e as L2EFChain_e_IdTest
-except:
-    log.error('generateElectronChainDefs: Problems when importing ElectronDefIdTest.')
-    log.info(traceback.print_exc())
 
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs, setupTopoStartFrom
@@ -34,10 +27,7 @@ def generateChainDefs(chainDict):
     for subChainDict in listOfChainDicts:
         electron_seq = EgammaSequence(subChainDict)
         log.debug('Egamma Sequence: %s', electron_seq)
-        if "IdTest" in subChainDict["chainParts"]["addInfo"]:
-            Electron = L2EFChain_e_IdTest(subChainDict)
-        else:
-            Electron = L2EFChain_e(subChainDict,electron_seq)
+        Electron = L2EFChain_e(subChainDict,electron_seq)
             
         listOfChainDefs += [Electron.generateHLTChainDef()]
     if len(listOfChainDefs)>1:
@@ -108,6 +98,12 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
              theChainDef.addSequence([IDTP],myInputTEsEF,EFChainName+"_monit")
              theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1,[EFChainName+"_monit"])
     
+    elif "bBeexv2" in chainDict["topo"] or  "bBeexM2700" in chainDict["topo"] or "bBeexM6000" in chainDict["topo"] :
+        # this algorithm is set up in generateBPhysicsChainDef
+        from TriggerMenu.bphysics.generateBPhysicsChainDefs import bBeexTopos
+        inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 
+        theChainDef = bBeexTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF)
+        
     
     else:
         pass 

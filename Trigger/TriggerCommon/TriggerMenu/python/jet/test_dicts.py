@@ -112,5 +112,5 @@ triggerMenuXML_dicts = [
     j85, j460_a10r, _3j30, j150_2j55_boffperf_split, j0_0i1c200m400TLA,
     j0_0i1c200m400TLA_1, j0_0i1c200m400TLA_2, _2j10_deta20_L1J12,
     _2j55_bmedium_ht300_L14J20, j460_a10t_lcw_nojcalib_L1J100,
-    j440_a10r_L1J100, j440_a10r_L1J100_1, j440_a10r_L1J100_2
+    j440_a10r_L1J100, j440_a10r_L1J100_1, j440_a10r_L1J100_2,
 ]

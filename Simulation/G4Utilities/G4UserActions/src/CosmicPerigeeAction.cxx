@@ -29,34 +29,33 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::beginOfEvent(const G4Event*)
+  void CosmicPerigeeAction::BeginOfEventAction(const G4Event*)
   {
-#ifdef G4MULTITHREADED
-    // Temporary fix for Hive until isValid is fixed
-    m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
-#else
-    if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
-#endif
+    if (!m_trackRecordCollection.isValid()) {
+      m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(
+          m_trackRecordCollection.name());
+    }
+
     // @todo need a nice way of getting the maximum size of the ID
     // envelope in R and Z.
-    // EnvelopeGeometryManager *gm=EnvelopeGeometryManager::GetGeometryManager();
-    //m_idR = gm->IdetOuterRadius(); m_idZ = gm->IdetMaxZ();
+    //m_idR = gm->IdetOuterRadius();
+    //m_idZ = gm->IdetMaxZ();
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::endOfEvent(const G4Event*)
+  void CosmicPerigeeAction::EndOfEventAction(const G4Event*)
   {
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::preTracking(const G4Track*)
+  void CosmicPerigeeAction::PreUserTrackingAction(const G4Track*)
   {
     // reset the field
     m_hasBeenSaved = false;
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::processStep(const G4Step* aStep)
+  void CosmicPerigeeAction::UserSteppingAction(const G4Step* aStep)
   {
     // See if this is a new track
     if (aStep->GetPreStepPoint()->GetStepStatus() == fUndefined)
@@ -101,6 +100,8 @@ namespace G4UA
       theStep = postStep;
     }
 
+    // Could the following code be optimized?
+    // There seems to be a bit of object copying.
     int pdgcode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
     double ener = theStep->GetTotalEnergy();
     G4ThreeVector pos = theStep->GetPosition();
@@ -111,11 +112,11 @@ namespace G4UA
     if (aStep->GetTrack()->GetDefinition() == G4Geantino::Definition() ) pdgcode=999;
     if (aStep->GetTrack()->GetDefinition() == G4ChargedGeantino::Definition() ) pdgcode=998;
 
-    //create the TimedTrackRecord
+    // Create the TimedTrackRecord
     TrackHelper trHelp(aStep->GetTrack());
     int barcode = trHelp.GetBarcode();
-    m_trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
-
+    m_trackRecordCollection->Emplace(pdgcode, ener, mom, pos, time, barcode,
+                                     preVol->GetName());
   }
 
 } // namespace G4UA

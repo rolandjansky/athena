@@ -132,7 +132,8 @@ void Trk::RungeKuttaUtils::transformGlobalToPlane
   double S[3] =  {T(0,2),T(1,2),T(2,2)};
 
   double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
   double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
@@ -192,7 +193,8 @@ void Trk::RungeKuttaUtils::transformGlobalToDisc
   double S[3] =  {T(0,2),T(1,2),T(2,2)};
 
   double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2]; 
   double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
@@ -474,15 +476,23 @@ double Trk::RungeKuttaUtils::stepEstimatorToCylinder
   if(S[8]!=0.) {
 
     if(inside > 0. || S[8] > 0.) return Smin;
-    if(S[7] >=0. ) {if(Smin>=0.) return Smin; return Smax;}
-                    if(Smin<=0.) return Smin; return Smax;
+    if(S[7] >=0. ) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   if(inside < 0.) {
 
     S[8]=-1.;
-    if(S[7]>=0.) {if(Smin>=0.) return Smin; return Smax;}
-                  if(Smin<=0.) return Smin; return Smax;
+    if(S[7]>=0.) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   //if(fabs(Smin) < .001) {S[8]=-1.; return Smax;} 
@@ -558,15 +568,23 @@ double Trk::RungeKuttaUtils::stepEstimatorToCone
   if(S[8]!=0.) {
 
     if(inside > 0. || S[8] > 0.) return Smin;
-    if(S[7] >=0. ) {if(Smin>=0.) return Smin; return Smax;}
-                    if(Smin<=0.) return Smin; return Smax;
+    if(S[7] >=0. ) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   if(inside < 0.) {
 
     S[8]=-1.;
-    if(S[7]>=0.) {if(Smin>=0.) return Smin; return Smax;}
-                  if(Smin<=0.) return Smin; return Smax;
+    if(S[7]>=0.) {
+      if(Smin>=0.) return Smin;
+      return Smax;
+    }
+    if(Smin<=0.) return Smin;
+    return Smax;
   }
 
   S[8]= 1.; return Smin;
@@ -923,7 +941,8 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   double S [3] = {    P[3]   , P[4]     ,P[5]};
 
   double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
    
   double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
   double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
@@ -1093,7 +1112,8 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToPlane
   double* S  = &P[19]; 
 
   double    A = At[0]*S[0]+At[1]*S[1]+At[2]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s1 = Au[0]*S[0]+Au[1]*S[1];
   double s2 = Av[0]*S[0]+Av[1]*S[1]+Av[2]*S[2];
@@ -1129,7 +1149,8 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToDisc
   // Condition trajectory on surface
   //
   double    A = At[0]*S[0]+At[1]*S[1]+At[2]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
+  if(A!=0.) A=1./A;
+  S[0]*=A; S[1]*=A; S[2]*=A;
 
   double s1 = Au[0]*S[0]+Au[1]*S[1];
   double s2 = Av[0]*S[0]+Av[1]*S[1]+Av[2]*S[2];

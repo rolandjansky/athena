@@ -10,11 +10,8 @@ from exc2string import exc2string2
 
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from TrigGenericAlgs.TrigGenericAlgsConf import \
-    PESA__DummyUnseededAllTEAlgo as DummyAlgo
-
-from TrigGenericAlgs.TrigGenericAlgsConf import \
-    PESA__SeededSuperRoiAllTEAlgo as SeededAlgo
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo   # noqa: F401
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__SeededSuperRoiAllTEAlgo as SeededAlgo # noqa: F401
 
 # from TrigGenericAlgs.TrigGenericAlgsConf import DummyFEX
 
@@ -25,44 +22,44 @@ from TrigGenericAlgs.TrigGenericAlgsConf import \
 #                                           TrigCaloClusterMaker_topo,
 #                                           TrigLArNoisyROAlgConfig)
 
-from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
-                                           TrigCaloCellMaker_jet_super,
-                                           TrigCaloClusterMaker_topo)
+from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo, # noqa: F401
+                                           TrigCaloCellMaker_jet_super,    # noqa: F401
+                                           TrigCaloClusterMaker_topo)      # noqa: F401
 
-from TrigCaloRec.TrigCaloRecConf import (TrigL1BSTowerMaker,)
+from TrigCaloRec.TrigCaloRecConf import (TrigL1BSTowerMaker,)     # noqa: F401
 
-from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics
+from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics # noqa: F401
 
-from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
-                                               TrigHLTJetRecFromCluster,
-                                               TrigHLTJetRecFromJet,
-                                               TrigHLTJetRecGroomer,
-                                               TrigHLTJetRecFromTriggerTower,
-                                               TrigHLTClusterDiagnostics_named,
-                                               TrigHLTCellDiagnostics_named,
-                                               TrigHLTHypoDiagnostics_named,
-                                               TrigHLTJetDebug,
-                                               TrigHLTEnergyDensity,
-                                               TrigHLTSoftKiller,
-                                               TrigHLTJetDSSelector,
-                                               TrigHLTTrackMomentHelpers,)
+from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,     # noqa: F401
+                                               TrigHLTJetRecFromCluster,        # noqa: F401
+                                               TrigHLTJetRecFromJet,            # noqa: F401
+                                               TrigHLTJetRecGroomer,            # noqa: F401
+                                               TrigHLTJetRecFromTriggerTower,   # noqa: F401
+                                               TrigHLTClusterDiagnostics_named, # noqa: F401
+                                               TrigHLTCellDiagnostics_named,    # noqa: F401
+                                               TrigHLTHypoDiagnostics_named,    # noqa: F401
+                                               TrigHLTJetDebug,                 # noqa: F401
+                                               TrigHLTEnergyDensity,            # noqa: F401
+                                               TrigHLTSoftKiller,               # noqa: F401
+                                               TrigHLTJetDSSelector,            # noqa: F401
+                                               TrigHLTTrackMomentHelpers,)      # noqa: F401
 
-from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,
-                                                 TrigHLTJetHypo_DijetMassDEta,
-                                                 TrigHLTJetHypo_EtaEt,
-                                                 TrigHLTJetHypo_HT,
-                                                 TrigHLTJetHypo_TLA,
-                                                 TrigHLTJetHypo_SMC,
+from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,              # noqa: F401
+                                                 TrigHLTJetHypo_DijetMassDEta, # noqa: F401
+                                                 TrigHLTJetHypo_EtaEt,         # noqa: F401
+                                                 TrigHLTJetHypo_HT,            # noqa: F401
+                                                 TrigHLTJetHypo_TLA,           # noqa: F401
+                                                 TrigHLTJetHypo_SMC,           # noqa: F401
                                                  )
 
-from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
+from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter    # noqa: F401
 
-from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,
-                                     TrigHIClusterMaker_hijet,
-                                     TrigHIEventShapeMaker_hijet,
+from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,    # noqa: F401
+                                     TrigHIClusterMaker_hijet,    # noqa: F401
+                                     TrigHIEventShapeMaker_hijet, # noqa: F401
                                     )
                                     
-from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster
+from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster  # noqa: F401
 
 abomination_to_keep_config_weakvalue_dict_intact = []
 

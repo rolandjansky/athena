@@ -5,11 +5,9 @@
 #ifndef G4UserActions_HIPLArVolumeAccept_H
 #define G4UserActions_HIPLArVolumeAccept_H
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
+#include "G4UserSteppingAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -18,8 +16,9 @@ namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class HIPLArVolumeAccept : public AthMessaging, public ISteppingAction,
-                             public IBeginEventAction, public IEndEventAction
+  class HIPLArVolumeAccept : public AthMessaging,
+                             public G4UserSteppingAction,
+                             public G4UserEventAction
   {
     public:
       HIPLArVolumeAccept();
@@ -38,9 +37,9 @@ namespace G4UA
       const Report& getReport() const
       { return m_report; }
 
-      virtual void processStep(const G4Step*) override;
-      virtual void beginOfEvent(const G4Event*) override;
-      virtual void endOfEvent(const G4Event*) override;
+      virtual void UserSteppingAction(const G4Step*) override;
+      virtual void BeginOfEventAction(const G4Event*) override;
+      virtual void EndOfEventAction(const G4Event*) override;
 
     private:
       Report m_report;

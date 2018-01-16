@@ -74,7 +74,6 @@ class AddContainers( PyAthena.Alg ):
         ## Import needed modules
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
-        import PyCintex
 
         ## Get the StoreGate service
         self.storeGateSvc = PyAthena.py_svc('StoreGateSvc')

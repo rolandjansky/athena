@@ -40,10 +40,10 @@ if "RunNumberOld" not in dir():
 
 
 if "GlobalTag" not in dir():
-    GlobalTag =  'COMCOND-BLKPA-2014-02'
+    GlobalTag =  'COMCOND-BLKPA-2017-09'
 
 if "Geometry" not in dir():
-    Geometry = 'ATLAS-R2-2015-02-00-00'
+    Geometry = 'ATLAS-R2-2015-04-00-00'
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(int(RunNumberOld))

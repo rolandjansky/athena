@@ -257,6 +257,7 @@ class TileDddbManager
   // fields of tile switches
   bool addPlatesToCell() const;
   int  Ushape()  const;
+  bool glue() const;
  private:
 
   IRDBRecordset_ptr m_tiglob;

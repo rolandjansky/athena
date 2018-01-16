@@ -8,7 +8,7 @@
  **
  **   this algo just counts number of (EF) muons in the whole event and rejects if insufficient
  **
- **   Author:Olya Igonkina
+ **   Author:Olya Igonkina (Nikhef)
  **
  **   Created:   28/03/2017
  **   Modified:     
@@ -57,7 +57,8 @@ class TrigBphysMuonCounter: public HLT::AllTEAlgo  {
   std::vector<float> m_ptMuonMin;
   float m_mindR;
   // OI: should we check for CB flag?
-
+  std::string m_muonCollectionKey;
+  
   //Counters
   uint32_t m_countTotalEvents;
   uint32_t m_countPassedEvents;

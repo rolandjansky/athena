@@ -250,7 +250,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
    float Ymid, Xmid, Amid;
 
    const float ZERO_LIMIT         = 1e-6;
-   const unsigned int MAX_STATION = 10;
+   const unsigned int MAX_STATION = 10; // no BMG(Backup=10)
    const float SIGMA              = 0.0080;
    const float DRIFTSPACE_LIMIT   = 16.;
    const int   MIN_MDT_FOR_FIT    = 3;

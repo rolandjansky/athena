@@ -362,7 +362,7 @@ class BjetFexFTK (TrigBjetFex):
         if instance=="EF" :
             calibInstance = "EF"
 
-        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig"
         
         self.par_0_MC = getTuning_par_0_MC(calibInstance)
@@ -514,7 +514,7 @@ class BjetFexFTKRefit (TrigBjetFex):
         if instance=="EF" :
             calibInstance = "EF"
 
-        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig"
         
         self.par_0_MC = getTuning_par_0_MC(calibInstance)
@@ -666,7 +666,7 @@ class BjetFexFTKVtx (TrigBjetFex):
         if instance=="EF" :
             calibInstance = "EF"
 
-        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
         self.par_0_MC = getTuning_par_0_MC(calibInstance)

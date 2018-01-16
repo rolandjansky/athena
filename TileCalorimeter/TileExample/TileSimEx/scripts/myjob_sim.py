@@ -131,24 +131,6 @@ if 'Y' in dir():
 # uncomment this for simulation with calibration hits
 #simFlags.CalibrationRun = 'Tile'
 
-# uncomment and modify any of options below to have non-standard simulation 
-from TileSimUtils.TileSimInfoConfigurator import TileSimInfoConfigurator
-tileSimInfoConfigurator=TileSimInfoConfigurator()
-# tileSimInfoConfigurator.DeltaTHit = [ 1. ]
-# tileSimInfoConfigurator.TimeCut = 200.5
-# tileSimInfoConfigurator.TileTB = True
-# tileSimInfoConfigurator.PlateToCell = True
-# tileSimInfoConfigurator.DoExpAtt = False
-# tileSimInfoConfigurator.DoTileRow = False
-# tileSimInfoConfigurator.DoTOFCorrection = True
-# Birks' law
-if 'DoBirk' in dir():
-    tileSimInfoConfigurator.DoBirk = DoBirk
-# U-shape
-if 'TileUshape' in dir():
-    tileSimInfoConfigurator.Ushape = TileUshape
-
-print tileSimInfoConfigurator
 
 # avoid reading CaloTTMap from COOL
 include.block ( "CaloConditions/CaloConditions_jobOptions.py" )
@@ -208,6 +190,8 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg")
 
@@ -222,23 +206,32 @@ simFlags.PhysicsList.set_Value('PHYSICSLIST')
 
 ## Use verbose G4 tracking
 if 'VerboseTracking' in dir():
-    def use_verbose_tracking():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
-    simFlags.InitFunctions.add_function("postInit", use_verbose_tracking)
+    simFlags.G4Commands+= ['/tracking/verbose 1']
 
 ## Set non-standard range cut
 if 'RangeCut' in dir():
-    def set_general_range_cut():
-        from G4AtlasApps import AtlasG4Eng
-        physics = AtlasG4Eng.G4Eng.Dict.get('physics')
-        physics.Value_gen_cut = RangeCut
-    simFlags.InitFunctions.add_function('preInitPhysics',set_general_range_cut)
+    svcMgr.ToolSvc['PhysicsListToolBase'].GeneralCut=RangeCut
 
 #--- Final step -----------------------------------------------
 
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+
+# uncomment and modify any of options below to have non-standard simulation 
+from AthenaCommon.AppMgr import ToolSvc
+SD = ToolSvc.SensitiveDetectorMasterTool.SensitiveDetectors[0]
+SD.TileTB=True
+# SD.DeltaTHit = [ 50. ]
+# SD.TimeCut = 200.5
+# SD.PlateToCell = True
+# SD.DoTileRow = False
+# SD.DoTOFCorrection = True
+# Birks' law
+if 'DoBirk' in dir():
+    SD.DoBirk = DoBirk
+if 'TileUshape' in dir():
+    SD.Ushape=TileUshape
+print SD
 
 #--- End of jobOptions_TileTB_Sim.py --------------------------

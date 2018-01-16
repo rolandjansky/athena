@@ -1,7 +1,7 @@
 	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_pu46' >
-           <doc>TauSlice, H->tautau sample, pu46, run2 chains</doc>
-           <displayName>TauSlice, H->tautau sample, pu46, run2 chains</displayName>
-           <commandLineFlags>EventMax=4000;runMergedChain=True</commandLineFlags>
+           <doc>TauSlice, H->tautau sample, pu46</doc>
+           <displayName>TauSlice, H->tautau sample, pu46</displayName>
+           <commandLineFlags>EventMax=4000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>

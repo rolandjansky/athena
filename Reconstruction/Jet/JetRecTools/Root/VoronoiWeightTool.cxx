@@ -96,7 +96,7 @@ StatusCode VoronoiWeightTool::process(xAOD::CaloClusterContainer* in_clusters) c
     if(!m_doLC) ATH_MSG_ERROR(APP_NAME << ": Unclear how we're going to implement EM scaling as an input to JetConstituentModiferBase tools.");
     fastjet::PseudoJet test;
     test = fastjet::PseudoJet(clust->p4());
-    if(clust->e() >= 0){
+    if(clust->e() >= 0){ //definition of clusters (\label{clust_def})
 	clusters.push_back(test);
 	if(m_debug) std::cout << clust->pt() << std::endl;
     }
@@ -117,7 +117,7 @@ StatusCode VoronoiWeightTool::process(xAOD::CaloClusterContainer* in_clusters) c
   for(auto clust : SortHelper::sort_container_pt(in_clusters)){
     float newE;
    //There should be the same number of positive E Clusters in the container as clusters in the ptvec
-    bool endContainer = clust->e()<=0;
+    bool endContainer = clust->e()<0; //consistent with definition of clusters on L.~\ref{clust_def}
     bool endVec = i>=ptvec.size();
     if(endVec && endContainer){
       newE = 0;  //remove negative energy clusters

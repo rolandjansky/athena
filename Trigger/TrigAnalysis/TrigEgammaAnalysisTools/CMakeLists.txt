@@ -19,6 +19,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigRinger
                           Event/xAOD/xAODTrigger
                           Event/xAOD/xAODTruth
+                          Event/xAOD/xAODMissingET
+                          Event/xAOD/xAODCaloRings
                           LumiBlock/LumiBlockComps
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/RecoTools/RecoToolInterfaces
@@ -47,7 +49,7 @@ atlas_add_component( TrigEgammaAnalysisTools
                      Root/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODEventInfo xAODJet xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger xAODTruth LumiBlockCompsLib ElectronPhotonSelectorToolsLib egammaMVACalibLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigEgammaEmulationTool TrigConfHLTData TrigSteeringEvent TrigHLTMonitoringLib AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests GaudiKernel PATCoreLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools xAODCaloEvent xAODMissingET xAODEgamma xAODEventInfo xAODJet xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODCaloRings xAODTrigger xAODTruth LumiBlockCompsLib ElectronPhotonSelectorToolsLib egammaMVACalibLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigEgammaEmulationTool TrigConfHLTData TrigSteeringEvent TrigHLTMonitoringLib AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests GaudiKernel PATCoreLib )
 
 # Install files from the package:
 atlas_install_headers( TrigEgammaAnalysisTools )

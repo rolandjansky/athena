@@ -41,7 +41,7 @@ class IAsgElectronIsEMSelector : virtual public IAsgEGammaIsEMSelector
   ///@}
 
   /// Virtual Destructor
-  virtual ~IAsgElectronIsEMSelector() {};
+  virtual ~IAsgElectronIsEMSelector() {}
 
 
 

@@ -27,12 +27,12 @@ SCT_GMX_DetectorTool.GmxFilename="../../../InDetDetDescr/GmxLayouts/data/ITk/Str
 from InDetSLHC_Example.SLHC_Setup import SLHC_Setup
 SLHC_Setup = SLHC_Setup()
 
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags()
-# SimFlags.SimLayout='ATLAS-SLHC-02-00-00_VALIDATION'
-SimFlags.SimLayout='ATLAS-SLHC-02-00-00'
-SimFlags.SimLayout.set_On()
-SimFlags.EventFilter.set_On()
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags()
+# simFlags.SimLayout='ATLAS-SLHC-02-00-00_VALIDATION'
+simFlags.SimLayout='ATLAS-SLHC-02-00-00'
+simFlags.SimLayout.set_On()
+simFlags.EventFilter.set_On()
 
 from SiLorentzAngleSvc.LorentzAngleSvcSetup import SCTLorentzAngleSvc
 # SCTLorentzAngleSvc.OutputLevel=VERBOSE

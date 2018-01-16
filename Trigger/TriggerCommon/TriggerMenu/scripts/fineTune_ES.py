@@ -4,10 +4,7 @@
 
 import sys
 import os
-import commands
-import time
 import xml.etree.cElementTree as ET
-
 
 #-----------------------------------------------------------------------------
 # Create and configure option parser
@@ -226,15 +223,15 @@ def Calculate_ES_Prescale(chain, PS, PT):
 
     if chain in read_bw.keys() :
     
-        rate = read_rates[chain][0]
+        #rate = read_rates[chain][0]
         cor_rate = corrected_rate[chain][0]
-        PT_contribution = rate - cor_rate
+        #PT_contribution = rate - cor_rate
         
         target_rate = float(read_bw_file(options.bw_file)[chain])
         
         EF_Chain = chain
         EF_Prescale = read_rates[EF_Chain][1]
-        EF_Rate = read_rates[EF_Chain][0]
+        #EF_Rate = read_rates[EF_Chain][0]
         
         L2_Chain = read_rates[EF_Chain][2]
         L2_Prescale = read_rates[L2_Chain][1]

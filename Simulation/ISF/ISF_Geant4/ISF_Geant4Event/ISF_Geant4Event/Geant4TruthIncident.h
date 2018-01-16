@@ -8,15 +8,14 @@
 // std
 #include <vector>
 
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
-
 // ISF includes
 #include "ISF_Event/ITruthIncident.h"
 
 // HepMC includes
 #include "HepMC/SimpleVector.h"
 
+//Geant4 includes
+#include "G4ThreeVector.hh"
 
 // forward declarations
 class G4Step;
@@ -42,8 +41,6 @@ namespace iGeant4 {
       Geant4TruthIncident( const G4Step*,
                            const ISF::ISFParticle& baseISP,
                            AtlasDetDescr::AtlasRegion geoID,
-                           int numChildren,
-                           SecondaryTracksHelper& sHelper,
                            EventInformation* eventInfo);
       virtual ~Geant4TruthIncident() {};
 
@@ -97,7 +94,7 @@ namespace iGeant4 {
 
     private:
       Geant4TruthIncident();
-      /** prepare the child particles, using the SecondaryTracksHelper */
+      /** prepare the child particles */
       inline void prepareChildren() const;
 
       /** check if the given G4Track represents a particle that is alive in ISF or ISF-G4 */
@@ -110,10 +107,9 @@ namespace iGeant4 {
       const G4Step*                 m_step;
       const ISF::ISFParticle&       m_baseISP;
 
-      SecondaryTracksHelper&        m_sHelper;
       EventInformation*             m_eventInfo;
       mutable bool                  m_childrenPrepared;
-      mutable std::vector<G4Track*> m_children;
+      mutable std::vector<const G4Track*> m_children;
 
       HepMC::GenParticle*           m_parentParticleAfterIncident;
    };
