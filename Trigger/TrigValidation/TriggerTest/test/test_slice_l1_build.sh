@@ -18,6 +18,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="slice_l1_build"
 export EVENTS="10"
