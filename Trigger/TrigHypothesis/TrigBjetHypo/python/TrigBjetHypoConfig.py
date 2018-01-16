@@ -314,7 +314,7 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         
         mlog = logging.getLogger('BjetHypoAllTEConfig.py')
         #mlog.setLevel(0)
-        AllowedVersions  = ["2015","2017"]
+        AllowedVersions  = ["2017"]
         AllowedInstances = ["EF"  ]
 
         if instance not in AllowedInstances :
