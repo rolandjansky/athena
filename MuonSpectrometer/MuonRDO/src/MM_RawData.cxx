@@ -5,7 +5,7 @@
 #include "MuonRDO/MM_RawData.h"
 #include "GaudiKernel/MsgStream.h"
 
-MsgStream& operator << ( MsgStream& sl, const MM_RawData& data) 
+MsgStream& operator << ( MsgStream& sl, const Muon::MM_RawData& data) 
 {
     sl << "MM_RawData ("<< &data <<") "
     << ", Strip ID=" << data.identify();
@@ -13,7 +13,7 @@ MsgStream& operator << ( MsgStream& sl, const MM_RawData& data)
 }
 
 
-std::ostream& operator << ( std::ostream& sl, const MM_RawData& data) 
+std::ostream& operator << ( std::ostream& sl, const Muon::MM_RawData& data) 
 {
     sl << "MM_RawData "
     << ", Strip ID=" << data.identify();
