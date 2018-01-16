@@ -68,10 +68,8 @@ doL2SA=True
 doL2CB=True
 doEFSA=False
 
-if TriggerFlags.doID:
-  ### EM thresholds ###
-  EMtestChains = ["HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut", "HLT_2e3_etcut", "HLT_e3e5_etcut"]
 
+if TriggerFlags.doID:
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
   InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
                                                    Pixel_ClusterKey = "PixelTrigClustersCache",
@@ -248,40 +246,8 @@ if TriggerFlags.doID:
                                                            TrackName = theFTF.TracksName,
                                                            TrackParticlesName = "xAODTracks",
                                                            ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-  
+
   IDSequence = [ InDetPixelRawDataProvider, InDetSCTRawDataProvider, InDetTRTRawDataProvider, InDetPixelClusterization, InDetSCT_Clusterization, InDetSiTrackerSpacePointFinder, theFTF, ViewVerify, theTrackParticleCreatorAlg ]
-
-  from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm 
-  l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
-  l2ElectronViewsMaker.Decisions = "MURoIDecisions" # output of L2CaloHypo
-  l2ElectronViewsMaker.RoIsLink = "initialRoI" # -||-
-  l2ElectronViewsMaker.InViewRoIs = "MURoIs" # contract with the fastCalo
-  l2ElectronViewsMaker.Views = "MUViewsRoIs"
-  l2ElectronViewsMaker.ViewFallThrough = True
-  
-  from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-  filterL1EMRoIsAlg = RoRSeqFilter("filterL1EMRoIsAlg")
-  filterL1EMRoIsAlg.Input = [ l2ElectronViewsMaker.Decisions ]
-  filterL1EMRoIsAlg.Output = [ "Filtered"+l2ElectronViewsMaker.Decisions ]
-  filterL1EMRoIsAlg.Chains = EMtestChains
-  filterL1EMRoIsAlg.OutputLevel = DEBUG
-  
-  
-  theTrackParticleCreatorAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
-  for idAlg in IDSequence:
-    if idAlg.properties().has_key("RoIs"):
-      idAlg.RoIs = l2ElectronViewsMaker.InViewRoIs
-  
-  electronInViewAlgs = parOR("electronInViewAlgs", IDSequence )
-  
-  l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
-  
-  
-  electronSequence = seqAND("electronSequence", [ InDetCacheCreatorTrigViews, l2ElectronViewsMaker, electronInViewAlgs ] )
-  
-  egammaIDStep = stepSeq("egammaIDStep", filterL1EMRoIsAlg, [ electronSequence ] )
-
-
  
 if TriggerFlags.doMuon:
   import MuonRecExample.MuonRecStandaloneOnlySetup
@@ -533,15 +499,15 @@ if TriggerFlags.doMuon:
  
     l2muCombViewsMaker.Decisions = filterL2SAAlg.Output[0] # Output of TrigMufastHypo
     l2muCombViewsMaker.RoIsLink = "roi" # -||-
-    l2muCombViewsMaker.InViewRoIs = "MUCombRoIs" # contract with the consumer
-    l2muCombViewsMaker.Views = "MUCombViewRoIs"
+    l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
+    l2muCombViewsMaker.Views = "MUTrkViewRoIs"
     l2muCombViewsMaker.ViewNodeName = l2muCombViewNode.name()
 
+  
     theTrackParticleCreatorAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
     for idAlg in IDSequence:
       if idAlg.properties().has_key("RoIs"):
         idAlg.RoIs = l2muCombViewsMaker.InViewRoIs
- 
 
     ### please read out TrigmuCombMTConfig file ###
     ### and set up to run muCombMT algorithm    ###
@@ -666,7 +632,7 @@ if TriggerFlags.doMuon:
 #               Setup CF(Control Flow)
 # ==================================================================================================================================
   ### CF construction ###
-if TriggerFlags.doMuon==True and TriggerFlags.doID==False:    
+if TriggerFlags.doMuon==True:    
   if doL2SA==True and doL2CB==False:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
@@ -686,24 +652,6 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==False:
     topSequence += hltTop  
 
 if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
-  if doL2SA==True and doL2CB==False:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.L1Decision = "HLTChains" 
-    summary.FinalDecisions = ["L2MuonFastDecisions"]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep, egammaIDStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
-
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.L1Decision = "HLTChains" 
-    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
-
-    topSequence += hltTop   
-
   if doL2SA==True and doL2CB==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
