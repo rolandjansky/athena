@@ -74,269 +74,187 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker.Views = "MUViewRoIs"
     l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
 
-  if doL2SA or doEFSA:
-    ### ==================== Input=BSfile ==================== ###
-    if isData:
-      ### CSC RDO date ###
-      if muonRecFlags.doCSCs():
-        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
-        CSCRodDecoder = Muon__CscROD_Decoder(name		= "CSCRodDecoder",
-                                             IsCosmics		= False,
-                                             IsOldCosmics 	= False,
-                                             OutputLevel 	= INFO )
-        ToolSvc += CSCRodDecoder
+  if doEFSA or doL2SA:
+    ### ==================== Data prepartion needed for the EF and L2 SA #######################333
+    ### CSC RDO data ###
+    if muonRecFlags.doCSCs():
+      from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
+      CSCRodDecoder = Muon__CscROD_Decoder(name		= "CSCRodDecoder",
+                                           IsCosmics		= False,
+                                           IsOldCosmics 	= False,
+                                           OutputLevel 	= INFO )
+      ToolSvc += CSCRodDecoder
   
-        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
-        MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name        = "MuonCscRawDataProviderTool",
-                                                                   Decoder     = ToolSvc.CSCRodDecoder,
-                                                                   OutputLevel = INFO )
-        ToolSvc += MuonCscRawDataProviderTool
+      from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
+      MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name        = "MuonCscRawDataProviderTool",
+                                                                 Decoder     = ToolSvc.CSCRodDecoder,
+                                                                 OutputLevel = INFO )
+      ToolSvc += MuonCscRawDataProviderTool
   
-        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToPrepDataTool",
-                                                                OutputLevel         = INFO,
-                                                                RawDataProviderTool = MuonCscRawDataProviderTool,
-                                                                useBStoRdoTool	    = True)
-        ToolSvc += CscRdoToCscPrepDataTool
+      from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+      CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToPrepDataTool",
+                                                              OutputLevel         = INFO,
+                                                              RawDataProviderTool = MuonCscRawDataProviderTool,
+                                                              useBStoRdoTool	    = True)
+      ToolSvc += CscRdoToCscPrepDataTool
   
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
-        CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepDataProvider",
-                                                  CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
-                                                  PrintPrepData	    	  = False,
-                                                  OutputLevel             = INFO)
-        CscRdoToCscPrepData.DoSeededDecoding = True
-        CscRdoToCscPrepData.RoIs = "MUViewRoIs"
+      from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
+      CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepDataProvider",
+                                                CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
+                                                PrintPrepData	    	  = False,
+                                                OutputLevel             = INFO)
+      CscRdoToCscPrepData.DoSeededDecoding = True
+      CscRdoToCscPrepData.RoIs = "MURoIs"
    
-        from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-        CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
-                                                      ProviderTool = MuonCscRawDataProviderTool,
-                                                      OutputLevel  = INFO)
-        l2MuViewNode += CscRawDataProvider  
-   
-      ### MDT RDO date ###
-      if muonRecFlags.doMDTs():
-        from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
-        MDTRodDecoder = MdtROD_Decoder(name	   = "MDTRodDecoder",
-                                       OutputLevel = INFO )
-        ToolSvc += MDTRodDecoder
-  
-        from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
-        MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name        = "MuonMdtRawDataProviderTool",
-                                                                   Decoder     = ToolSvc.MDTRodDecoder,
-                                                                   OutputLevel = INFO )
-        ToolSvc += MuonMdtRawDataProviderTool
-  
-        from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool",
-                                                             OutputLevel         = INFO,
-                                                             RawDataProviderTool = MuonMdtRawDataProviderTool,
-                                                             useBStoRdoTool      = True)
-        ToolSvc += MdtRdoToMdtPrepDataTool
-  
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
-        MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = "MdtRdoToMdtPrepDataProvider",
-                                                  DecodingTool  = MdtRdoToMdtPrepDataTool,
-                                                  PrintPrepData = False,
-                                                  OutputLevel   = INFO)  
-        MdtRdoToMdtPrepData.DoSeededDecoding = True
-        MdtRdoToMdtPrepData.RoIs = "MUViewRoIs"
-  
-        from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
-        MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
-                                                      ProviderTool = MuonMdtRawDataProviderTool,
-                                                      OutputLevel  = INFO)
-        l2MuViewNode += MdtRawDataProvider 
-  
-      ### RPC RDO date ###
-      if muonRecFlags.doRPCs():
-        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
-        RPCRodDecoder = Muon__RpcROD_Decoder(name	 = "RPCRodDecoder",
-                                             OutputLevel = INFO )
-        ToolSvc += RPCRodDecoder
-  
-        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
-        MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "MuonRpcRawDataProviderTool",
-                                                                   Decoder = RPCRodDecoder )
-        ToolSvc += MuonRpcRawDataProviderTool
-  
-        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool",
-                                                             OutputLevel         = INFO,
-                                                             RawDataProviderTool = MuonRpcRawDataProviderTool,
-                                                             useBStoRdoTool      = True)
-        ToolSvc += RpcRdoToRpcPrepDataTool
-  
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
-        RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepDataProvider",
-                                                  DecodingTool  = RpcRdoToRpcPrepDataTool,
-                                                  PrintPrepData = False,
-                                                  OutputLevel   = INFO)    
-        RpcRdoToRpcPrepData.DoSeededDecoding = True
-        RpcRdoToRpcPrepData.RoIs = "MUViewRoIs"
-  
-        from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
-        RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
-                                                      ProviderTool = MuonRpcRawDataProviderTool,
-                                                      OutputLevel  = INFO)
-        l2MuViewNode += RpcRawDataProvider 
-    
-      ### TGC RDO date ###
-      if muonRecFlags.doTGCs():
-        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RodDecoderReadout
-        TGCRodDecoder = Muon__TGC_RodDecoderReadout(name		= "TGCRodDecoder",
-                                                    OutputLevel 	= INFO )
-        ToolSvc += TGCRodDecoder
-  
-        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
-        MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name    = "MuonTgcRawDataProviderTool",
-                                                                   Decoder = TGCRodDecoder )
-        ToolSvc += MuonTgcRawDataProviderTool
-        
-        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name                = "TgcRdoToPrepDataTool",
-                                                             OutputLevel         = INFO,
-                                                             RawDataProviderTool = MuonTgcRawDataProviderTool,
-                                                             useBStoRdoTool      = True)
-        ToolSvc += TgcRdoToTgcPrepDataTool
-  
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
-        TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = "TgcRdoToTgcPrepDataProvider",
-                                                  DecodingTool  = TgcRdoToTgcPrepDataTool,
-                                                  PrintPrepData = False,
-                                                  OutputLevel   = INFO)
-        TgcRdoToTgcPrepData.DoSeededDecoding = True
-        TgcRdoToTgcPrepData.RoIs = "MUViewRoIs"
-   
-        from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
-        TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
-                                                      ProviderTool = MuonTgcRawDataProviderTool,
-                                                      OutputLevel  = INFO)
-        l2MuViewNode += TgcRawDataProvider 
+      from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
+      CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
+                                                    ProviderTool = MuonCscRawDataProviderTool,
+                                                    OutputLevel  = INFO)
 
-    ### ==================== Input=RDOfile ==================== ###
-    else:
-      ### CSC RDO date ###
-      if muonRecFlags.doCSCs():
-        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRDO_Decoder
-        CscRdoDecoder = Muon__CscRDO_Decoder(name        = "CscRdoDecoder",
-                                             OutputLevel = INFO)
-        ToolSvc += CscRdoDecoder
-   
-        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name              = "CscRdoToCscPrepDataTool",
-                                                                OutputLevel       = INFO,
-                                                                CscRdoDecoderTool = CscRdoDecoder,
-                                                                useBStoRdoTool	  = False)
-        ToolSvc += CscRdoToCscPrepDataTool
+      from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
+      CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThesholdClusterBuilderTool",
+                                                             OutputLevel = INFO)
+      ToolSvc += CscClusterBuilderTool
+
+      #CSC cluster building
+      from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+      CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
+                                                     OutputLevel     = INFO,
+                                                     cluster_builder = CscClusterBuilderTool)    
      
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
-        CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepDataProvider",
-                                                  CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
-                                                  PrintPrepData	  	  = False,
-                                                  OutputLevel             = INFO)
-    
-        CscRdoToCscPrepData.DoSeededDecoding = True
-        CscRdoToCscPrepData.RoIs = "MUViewRoIs"
-        l2MuViewNode += CscRdoToCscPrepData 
-      
-      ### MDT RDO date ###
-      if muonRecFlags.doMDTs():
-        from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRDO_Decoder
-        MdtRdoDecoder = Muon__MdtRDO_Decoder(name        = "MdtRdoDecoder",
-                                             OutputLevel = INFO)
-        ToolSvc += MdtRdoDecoder
+      if doEFSA: 
+        topSequence += CscRdoToCscPrepData  
+        topSequence += CscClusterBuilder 
+      if doL2SA:
+        l2MuViewNode += CscRawDataProvider
    
-        from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name           = "MdtRdoToMdtPrepDataTool",
-                                                             OutputLevel    = INFO,
-                                                             useBStoRdoTool = False)
-        ToolSvc += MdtRdoToMdtPrepDataTool
-     
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
-        MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = "MdtRdoToMdtPrepDataProvider",
-                                                  DecodingTool  = MdtRdoToMdtPrepDataTool,
-                                                  PrintPrepData = False,
-                                                  OutputLevel   = INFO)
+    ### MDT RDO data ###
+    if muonRecFlags.doMDTs():
+      from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import MdtROD_Decoder
+      MDTRodDecoder = MdtROD_Decoder(name	   = "MDTRodDecoder",
+                                     OutputLevel = INFO )
+      ToolSvc += MDTRodDecoder
   
-        MdtRdoToMdtPrepData.DoSeededDecoding = True
-        MdtRdoToMdtPrepData.RoIs = "MUViewRoIs"
-        l2MuViewNode += MdtRdoToMdtPrepData 
+      from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
+      MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name        = "MuonMdtRawDataProviderTool",
+                                                                 Decoder     = ToolSvc.MDTRodDecoder,
+                                                                 OutputLevel = INFO )
+      ToolSvc += MuonMdtRawDataProviderTool
   
-      ### RPC RDO date ###
-      if muonRecFlags.doRPCs():
-        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRDO_Decoder
-        RpcRdoDecoder = Muon__RpcRDO_Decoder(name        = "RpcRdoDecoder",
-                                             OutputLevel = INFO)
-        ToolSvc += RpcRdoDecoder
-   
-        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name           = "RpcRdoToRpcPrepDataTool",
-                                                             OutputLevel    = INFO,
-                                                             RdoDecoderTool = RpcRdoDecoder,
-                                                             useBStoRdoTool = False)
-        ToolSvc += RpcRdoToRpcPrepDataTool
-     
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
-        RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepDataProvider",
-                                                  DecodingTool  = RpcRdoToRpcPrepDataTool,
-                                                  PrintPrepData = False,
-                                                  OutputLevel   = INFO)
-      
-        RpcRdoToRpcPrepData.DoSeededDecoding = True
-        RpcRdoToRpcPrepData.RoIs = "MUViewRoIs"
-        l2MuViewNode += RpcRdoToRpcPrepData 
-     
-      ### TGC RDO date ###
-      if muonRecFlags.doTGCs():
-        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRDO_Decoder
-        TgcRdoDecoder = Muon__TgcRDO_Decoder(name        = "TgcRdoDecoder",
-                                             OutputLevel = INFO)
-        ToolSvc += TgcRdoDecoder
-   
-        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name           = "TgcRdoToTgcPrepDataTool",
-                                                             OutputLevel    = INFO,
-                                                             useBStoRdoTool = False)
-        ToolSvc += TgcRdoToTgcPrepDataTool
-     
-        from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
-        TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = "TgcRdoToTgcPrepDataProvider",
-                                                  DecodingTool  = TgcRdoToTgcPrepDataTool,
-                                                  PrintPrepData = False,
-                                                  OutputLevel   = INFO)
-      
-        TgcRdoToTgcPrepData.DoSeededDecoding = True
-        TgcRdoToTgcPrepData.RoIs = "MUViewRoIs"
-        l2MuViewNode += TgcRdoToTgcPrepData 
+      from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+      MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool",
+                                                           OutputLevel         = INFO,
+                                                           RawDataProviderTool = MuonMdtRawDataProviderTool,
+                                                           useBStoRdoTool      = True)
+      ToolSvc += MdtRdoToMdtPrepDataTool
   
-      ### CSC CscCluster date ###
-      if muonRecFlags.doCSCs():
-        from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
-        CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThesholdClusterBuilderTool",
-                                                               OutputLevel = INFO)
-        ToolSvc += CscClusterBuilderTool
+      from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
+      MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = "MdtRdoToMdtPrepDataProvider",
+                                                DecodingTool  = MdtRdoToMdtPrepDataTool,
+                                                PrintPrepData = False,
+                                                OutputLevel   = INFO)  
+      MdtRdoToMdtPrepData.DoSeededDecoding = True
+      MdtRdoToMdtPrepData.RoIs = "MURoIs"
+      
+      from MuonByteStream.MuonByteStreamConf import Muon__MdtRawDataProvider
+      MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
+                                                    ProviderTool = MuonMdtRawDataProviderTool,
+                                                    OutputLevel  = INFO)
+      if doEFSA:
+        topSequence += MdtRdoToMdtPrepData
+      if doL2SA:
+        l2MuViewNode += MdtRawDataProvider
+
+    ### RPC RDO data ###
+    if muonRecFlags.doRPCs():
+      from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
+      RPCRodDecoder = Muon__RpcROD_Decoder(name	 = "RPCRodDecoder",
+                                           OutputLevel = INFO )
+      ToolSvc += RPCRodDecoder
+  
+      from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
+      MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "MuonRpcRawDataProviderTool",
+                                                                 Decoder = RPCRodDecoder )
+      ToolSvc += MuonRpcRawDataProviderTool
+  
+      from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+      RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool",
+                                                           OutputLevel         = INFO,
+                                                           RawDataProviderTool = MuonRpcRawDataProviderTool,
+                                                           useBStoRdoTool      = True)
+      ToolSvc += RpcRdoToRpcPrepDataTool
+  
+      from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
+      RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepDataProvider",
+                                                DecodingTool  = RpcRdoToRpcPrepDataTool,
+                                                PrintPrepData = False,
+                                                OutputLevel   = INFO)    
+      RpcRdoToRpcPrepData.DoSeededDecoding = True
+      RpcRdoToRpcPrepData.RoIs = "MURoIs"
+  
+      from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
+      RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
+                                                    ProviderTool = MuonRpcRawDataProviderTool,
+                                                    OutputLevel  = INFO)
+      if doEFSA:
+        topSequence += RpcRdoToRpcPrepData
+      if doL2SA:
+        l2MuViewNode += RpcRawDataProvider
+
+    ### TGC RDO data ###
+    if muonRecFlags.doTGCs():
+      from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RodDecoderReadout
+      TGCRodDecoder = Muon__TGC_RodDecoderReadout(name		= "TGCRodDecoder",
+                                                  OutputLevel 	= INFO )
+      ToolSvc += TGCRodDecoder
+  
+      from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
+      MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name    = "MuonTgcRawDataProviderTool",
+                                                                 Decoder = TGCRodDecoder )
+      ToolSvc += MuonTgcRawDataProviderTool
+        
+      from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+      TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name                = "TgcRdoToPrepDataTool",
+                                                           OutputLevel         = INFO,
+                                                           RawDataProviderTool = MuonTgcRawDataProviderTool,
+                                                           useBStoRdoTool      = True)
+  
+      ToolSvc += TgcRdoToTgcPrepDataTool
+
+      from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
+      TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = "TgcRdoToTgcPrepDataProvider",
+                                                DecodingTool  = TgcRdoToTgcPrepDataTool,
+                                                PrintPrepData = False,
+                                                OutputLevel   = INFO)
+      TgcRdoToTgcPrepData.DoSeededDecoding = True
+      TgcRdoToTgcPrepData.RoIs = "MURoIs"
+
+
+      from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
+      TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
+                                                    ProviderTool = MuonTgcRawDataProviderTool,
+                                                    OutputLevel  = INFO)
+      if doEFSA:
+        topSequence += TgcRdoToTgcPrepData
+      if doL2SA:
+        l2MuViewNode += TgcRawDataProvider
+
     
-        from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-        CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
-                                                       OutputLevel     = INFO,
-                                                       cluster_builder = CscClusterBuilderTool)    
-     
-        l2MuViewNode += CscClusterBuilder 
+    #Run clustering
+    if muonRecFlags.doCreateClusters():
+      from MuonClusterization.MuonClusterizationConf import MuonClusterizationTool
+      MuonClusterTool = MuonClusterizationTool(name        = "MuonClusterizationTool",
+                                               OutputLevel = INFO)
+      ToolSvc += MuonClusterTool
+      
+      from MuonClusterization.MuonClusterizationConf import MuonClusterizationAlg
+      MuonClusterAlg = MuonClusterizationAlg(name                 = "MuonClusterizationAlg",
+                                             OutputLevel          = INFO,
+                                             ClusterTool          = MuonClusterTool,
+                                             TgcPrepDataContainer = "TGC_MeasurementsAllBCs")
     
-      ### TGC TGC_MeasurementsAllBCs date ###
-      if muonRecFlags.doCreateClusters():
-        from MuonClusterization.MuonClusterizationConf import MuonClusterizationTool
-        MuonClusterTool = MuonClusterizationTool(name        = "MuonClusterizationTool",
-                                                 OutputLevel = INFO)
-        ToolSvc += MuonClusterTool
-    
-        from MuonClusterization.MuonClusterizationConf import MuonClusterizationAlg
-        MuonClusterAlg = MuonClusterizationAlg(name                 = "MuonClusterizationAlg",
-                                               OutputLevel          = INFO,
-                                               ClusterTool          = MuonClusterTool,
-                                               TgcPrepDataContainer = "TGC_MeasurementsAllBCs")
-    
-        l2MuViewNode += MuonClusterAlg 
+      if doEFSA:
+        topSequence += MuonClusterAlg 
 
 
   ### muon thresholds ###
@@ -429,7 +347,7 @@ if TriggerFlags.doMuon:
     CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
     theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker",
                                                     SegmentFinder=theSegmentFinder,
-                                                    MuonSegmentOutputLocation = "MuonSegmentCollection",
+                                                    MuonSegmentOutputLocation = "MooreSegments",
                                                     UseCSC = muonRecFlags.doCSCs(),
                                                     UseMDT = muonRecFlags.doMDTs(),
                                                     UseRPC = muonRecFlags.doRPCs(),
@@ -525,7 +443,13 @@ if TriggerFlags.doMuon:
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
 
     topSequence += hltTop   
-    
+  if doEFSA:
+    topSequence+=theSegmentFinderAlg
+    #topSequence += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.
+    topSequence +=TrackBuilder 
+    topSequence +=xAODTrackParticleCnvAlg
+    topSequence += theMuonCandidateAlg
+    topSequence +=themuoncreatoralg
 
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
