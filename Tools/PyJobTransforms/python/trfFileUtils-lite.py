@@ -396,7 +396,7 @@ def urlType(filename):
     if filename.startswith('file:'):
         return 'posix'
     if filename.startswith('https:'):
-        return 'https'
+        return 'root'
     if filename.startswith('davs:'):
         return 'root'
     return 'posix'
