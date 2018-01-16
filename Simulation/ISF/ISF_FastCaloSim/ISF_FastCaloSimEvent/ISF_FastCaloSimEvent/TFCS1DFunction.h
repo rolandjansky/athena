@@ -26,4 +26,8 @@ class TFCS1DFunction:public TObject
 
 };
 
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCS1DFunction+;
+#endif
+
 #endif

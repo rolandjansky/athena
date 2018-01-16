@@ -13,6 +13,7 @@ class TFCSLateralShapeParametrizationHitBase;
 class TFCSLateralShapeParametrizationHitChain:public TFCSLateralShapeParametrization {
 public:
   TFCSLateralShapeParametrizationHitChain(const char* name=0, const char* title=0);
+  TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim);
 
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 

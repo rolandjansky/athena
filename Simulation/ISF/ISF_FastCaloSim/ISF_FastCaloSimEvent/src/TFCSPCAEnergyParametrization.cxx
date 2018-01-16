@@ -5,6 +5,9 @@
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
+
 #include "TFile.h"
 #include <iostream>
 #include "TKey.h"
@@ -12,6 +15,7 @@
 #include "TRandom3.h"
 #include "TMatrixD.h"
 #include "TMatrixDSymEigen.h"
+#include "TMath.h"
 
 //=============================================
 //======= TFCSPCAEnergyParametrization =========

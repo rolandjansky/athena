@@ -30,7 +30,7 @@ public:
   class t_hit
   {
     public:
-    t_hit():m_eta(0),m_phi(0),m_E(0) {};
+    t_hit():m_eta(0),m_phi(0),m_E(0) {}; // for hits with the same energy, m_E should normalized to E(layer)/nhit
     t_hit(float eta, float phi, float E):m_eta(eta),m_phi(phi),m_E(E) {};
 
     float& eta() {return m_eta;};

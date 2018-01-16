@@ -18,6 +18,11 @@ void TFCSParametrization::set_pdgid(int id)
   m_pdgid.insert(id);
 }
 
+void TFCSParametrization::set_pdgid(const std::set< int > &ids)
+{
+  m_pdgid=ids;
+}
+
 void TFCSParametrization::add_pdgid(int id)
 {
   m_pdgid.insert(id);

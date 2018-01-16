@@ -4,31 +4,41 @@
 
 #include "ISF_FastCaloSimParametrization/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 
 #include "TFile.h"
+#include "TMath.h"
+
+#include <iostream>
 
 //=============================================
 //======= TFCSHistoLateralShapeParametrization =========
 //=============================================
 
 TFCSHistoLateralShapeParametrization::TFCSHistoLateralShapeParametrization(const char* name, const char* title) :
-  TFCSLateralShapeParametrization(name,title),
+  TFCSLateralShapeParametrizationHitBase(name,title),
   m_hist(0),m_rnd(0)
 {
 }
 
-void TFCSHistoLateralShapeParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+int TFCSHistoLateralShapeParametrization::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
+{
+  return gRandom->Poisson(m_hist->Integral());
+}
+
+void TFCSHistoLateralShapeParametrization::simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
   double center_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   double center_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
   double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
   double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
-  double hit_weight=1;
+  hit.E()*=1;
 
   double alpha, r;
   
-  m_hist->GetRandom2(alpha, r);
+  m_hist->GetRandom2(r,alpha);
   double delta_eta_mm = r * cos(alpha);
   double delta_phi_mm = r * sin(alpha);
 
@@ -39,9 +49,10 @@ void TFCSHistoLateralShapeParametrization::simulate(TFCSSimulationState& simulst
   double delta_eta = delta_eta_mm / eta_jakobi / dist000;
   double delta_phi = delta_phi_mm / center_r;
 
-  double hit_eta = center_eta + delta_eta;
-  double hit_phi = center_phi + delta_phi;
-  simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);
+  hit.eta() = center_eta + delta_eta;
+  hit.phi() = center_phi + delta_phi;
+  //simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);
+  //std::cout<<"TFCSHistoLateralShapeParametrization::simulate_hit: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" r="<<r<<" alpha="<<alpha<<" delta_eta_mm="<<delta_eta_mm<<" delta_phi_mm="<<delta_phi_mm<<std::endl;
 }
 
 

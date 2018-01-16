@@ -24,6 +24,7 @@ public:
   double eta_max() const {return m_eta_max;};
 
   void set_pdgid(int id);
+  void set_pdgid(const std::set< int > &ids);
   void add_pdgid(int id);
   void clear_pdgid();
 

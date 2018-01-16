@@ -22,6 +22,7 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
   
   int n_pcabins()        { return m_numberpcabins; };
+  virtual int n_bins() {return m_numberpcabins;};
   IntArray* get_layers() { return m_RelevantLayers; };
   
   void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
@@ -45,5 +46,9 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   ClassDef(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
  
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSPCAEnergyParametrization+;
+#endif
 
 #endif

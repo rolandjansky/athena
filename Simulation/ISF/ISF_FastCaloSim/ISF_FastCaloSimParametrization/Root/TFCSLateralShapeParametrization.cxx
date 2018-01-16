@@ -24,14 +24,14 @@ void TFCSLateralShapeParametrization::set_calosample(int cs)
   m_calosample=cs;
 }
 
-void TFCSLateralShapeParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+void TFCSLateralShapeParametrization::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
-  int cs=calosample();
-  double hit_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
-  double hit_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  double hit_weight=1;
+//  int cs=calosample();
+//  double hit_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
+//  double hit_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
+//  double hit_weight=1;
 
-  simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);
+//  simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);
 }
 
 void TFCSLateralShapeParametrization::Print(Option_t *option) const

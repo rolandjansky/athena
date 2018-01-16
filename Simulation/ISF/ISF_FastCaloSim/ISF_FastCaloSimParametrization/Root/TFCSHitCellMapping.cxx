@@ -4,6 +4,7 @@
 
 #include "ISF_FastCaloSimParametrization/TFCSHitCellMapping.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include <iostream>
 
 //=============================================

@@ -7,9 +7,11 @@
 
 #include <TNamed.h>
 #include <set>
-#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
-#include "ISF_FastCaloSimEvent/TFCSTruthState.h"
-#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
+
+class CaloGeometry;
+class TFCSSimulationState;
+class TFCSTruthState;
+class TFCSExtrapolationState;
 
 class TFCSParametrizationBase:public TNamed {
 public:
@@ -29,6 +31,8 @@ public:
   virtual double eta_nominal() const {return 100;};
   virtual double eta_min() const {return 100;};
   virtual double eta_max() const {return 100;};
+
+  virtual void set_geometry(CaloGeometry*) {};
 
   // Do some simulation. Result should be returned in simulstate
   // Simulate all energies in calo layers for energy parametrizations

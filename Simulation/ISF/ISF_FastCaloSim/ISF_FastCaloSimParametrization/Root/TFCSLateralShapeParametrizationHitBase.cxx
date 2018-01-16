@@ -4,6 +4,10 @@
 
 #include "ISF_FastCaloSimParametrization/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
+
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
+
 #include <iostream>
 
 //=============================================
@@ -34,7 +38,7 @@ void TFCSLateralShapeParametrizationHitBase::simulate_hit(t_hit& hit,TFCSSimulat
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   hit.phi()=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  hit.E()=1;
+  hit.E()*=1;
 }
 
 void TFCSLateralShapeParametrizationHitBase::Print(Option_t *option) const

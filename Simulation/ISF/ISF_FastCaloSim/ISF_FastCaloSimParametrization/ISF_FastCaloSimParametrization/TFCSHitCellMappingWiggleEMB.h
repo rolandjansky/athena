@@ -13,7 +13,7 @@ class TFCSHitCellMappingWiggleEMB:public TFCSLateralShapeParametrizationHitBase 
 public:
   TFCSHitCellMappingWiggleEMB(const char* name=0, const char* title=0, CaloGeometry* geo=0);
   
-  void set_geometry(CaloGeometry* geo) {m_geo=geo;};
+  virtual void set_geometry(CaloGeometry* geo) {m_geo=geo;};
   CaloGeometry* get_geometry() {return m_geo;};
 
   // simulated one hit position with weight that should be put into simulstate

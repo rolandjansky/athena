@@ -5,20 +5,21 @@
 #ifndef TFCSHistoLateralShapeParametrization_h
 #define TFCSHistoLateralShapeParametrization_h
 
-#include "ISF_FastCaloSimParametrization/TFCSLateralShapeParametrization.h"
+#include "ISF_FastCaloSimParametrization/TFCSLateralShapeParametrizationHitBase.h"
 
 #include "TH2.h"
 #include "TRandom3.h"
 
 
-class TFCSHistoLateralShapeParametrization:public TFCSLateralShapeParametrization {
+class TFCSHistoLateralShapeParametrization:public TFCSLateralShapeParametrizationHitBase {
 public:
   TFCSHistoLateralShapeParametrization(const char* name=0, const char* title=0);
 
+  int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
   // simulated one hit position with weight that should be put into simulstate
   // sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
   // someone also needs to map all hits into cells
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual void simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
   // Init and fill sigma
   bool Initialize(TH2* hist);

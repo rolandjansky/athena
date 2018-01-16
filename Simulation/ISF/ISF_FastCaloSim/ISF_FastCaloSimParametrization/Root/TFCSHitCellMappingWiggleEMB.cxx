@@ -4,8 +4,10 @@
 
 #include "ISF_FastCaloSimParametrization/TFCSHitCellMappingWiggleEMB.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include <iostream>
 #include "TRandom3.h"
+#include "TVector2.h"
 
 //=============================================
 //======= TFCSHitCellMappingWiggleEMB =========
