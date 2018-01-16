@@ -45,6 +45,15 @@ StatusCode FlavorTaggingCPTools::initialize() {
   m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root";
   m_efficiency_maps = "410501"; //"410000;410004;410500;410187;410021"; // Not sure what is available yet
 
+  m_calo_WPs_calib = {"FixedCutBEff_60",
+		      "FixedCutBEff_70",
+		      "FixedCutBEff_77",
+		      "FixedCutBEff_85",
+		      "HybBEff_60",
+		      "HybBEff_70",
+		      "HybBEff_77",
+		      "HybBEff_85"};
+
   // All WPs are calibrated ones
   m_calo_WPs       = m_calo_WPs_calib;
   // Only for calo jets for now

@@ -74,7 +74,7 @@ DoLoose Data
 UseAodMetaData False
 IsAFII False
 
-BTaggingWP FixedCutBEff_77
+BTaggingWP MV2c10:FixedCutBEff_77 DL1:HybBEff_60
 
 # Example of how to remove systematics from b-tag EV
 #BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
@@ -180,6 +180,18 @@ SELECTION ejets_2016
 . ejets_basic
 SAVE
 
+SELECTION ejets_wbjets_2015
+. EL_2015
+. ejets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_wbjets_2016
+. EL_2016
+. ejets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
 SELECTION ejets_particle
 PRIVTX
 PARTICLE_LEVEL
@@ -217,6 +229,18 @@ SAVE
 SELECTION mujets_2016
 . MU_2016
 . mujets_basic
+SAVE
+
+SELECTION mujets_wbjets_2015
+. MU_2015
+. mujets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_wbjets_2016
+. MU_2016
+. mujets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
 SELECTION mujets_particle
