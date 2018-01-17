@@ -61,7 +61,7 @@ bool TFCSHistoLateralShapeParametrization::Initialize(TH2* hist)
 	m_hist=(TH2*)hist->Clone();
 	m_hist->SetDirectory(0);
 
-    return true;
+  return true;
 }
 
 
@@ -84,6 +84,15 @@ bool TFCSHistoLateralShapeParametrization::Initialize(const char* filepath, cons
     f->Close();
 
     return OK;
+}
+
+void TFCSHistoLateralShapeParametrization::Print(Option_t *option) const
+{
+  TString opt(option);
+  if(!opt.IsWhitespace()) opt="";
+  TFCSLateralShapeParametrizationHitBase::Print(option);
+
+  std::cout << opt <<"  Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" ptr="<<m_hist<<std::endl;
 }
 
 //=============================================

@@ -90,6 +90,15 @@ void TFCSHitCellMappingWiggleEMB::simulate_hit(t_hit& hit,TFCSSimulationState& s
   //std::cout<<"TFCSLateralShapeParametrizationHitCellMapping::simulate_hit: cellele="<<cellele<<" E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<std::endl;
 }
 
+void TFCSHitCellMappingWiggleEMB::Print(Option_t *option) const
+{
+  TString opt(option);
+  if(!opt.IsWhitespace()) opt="";
+  TFCSLateralShapeParametrizationHitBase::Print(option);
+
+  std::cout << opt <<"  geo="<<m_geo<<std::endl;
+}
+
 //=============================================
 //========== ROOT persistency stuff ===========
 //=============================================

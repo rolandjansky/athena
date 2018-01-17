@@ -21,6 +21,8 @@ public:
   // someone also needs to map all hits into cells
   virtual void simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
+  void Print(Option_t *option) const;
+
 private:
   CaloGeometry* m_geo;
   

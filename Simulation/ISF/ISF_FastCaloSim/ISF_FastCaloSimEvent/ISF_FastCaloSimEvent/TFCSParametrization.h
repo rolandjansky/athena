@@ -10,6 +10,7 @@
 class TFCSParametrization:public ::TFCSParametrizationBase {
 public:
   TFCSParametrization(const char* name=0, const char* title=0);
+  void clear();
 
   virtual bool is_match_pdgid(int id) const {return m_pdgid.find(id)!=m_pdgid.end();};
   virtual bool is_match_Ekin(float Ekin) const {return (Ekin>=m_Ekin_min) && (Ekin<m_Ekin_max);};

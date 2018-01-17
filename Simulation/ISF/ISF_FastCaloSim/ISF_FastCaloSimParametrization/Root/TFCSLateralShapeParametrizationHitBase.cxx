@@ -43,10 +43,12 @@ void TFCSLateralShapeParametrizationHitBase::simulate_hit(t_hit& hit,TFCSSimulat
 
 void TFCSLateralShapeParametrizationHitBase::Print(Option_t *option) const
 {
+  TString opt(option);
+  if(!opt.IsWhitespace()) opt="";
   TFCSParametrization::Print(option);
 
-  std::cout <<"  Ekin_bin="<<Ekin_bin()<<std::endl;
-  std::cout <<"  calosample="<<calosample()<<std::endl;
+  std::cout << opt <<"  Ekin_bin="<<Ekin_bin()<<std::endl;
+  std::cout << opt <<"  calosample="<<calosample()<<std::endl;
 }
 
 //=============================================

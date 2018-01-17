@@ -25,6 +25,7 @@ public:
   bool Initialize(TH2* hist);
   bool Initialize(const char* filepath, const char* histname);
 
+  void Print(Option_t *option = "") const;
 private:
   // simple shape information should be stored as private member variables here
 

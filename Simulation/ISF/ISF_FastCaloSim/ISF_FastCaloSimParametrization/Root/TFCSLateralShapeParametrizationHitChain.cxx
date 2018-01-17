@@ -46,7 +46,7 @@ int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationSt
 {
   for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
     int n=hitsim->get_number_of_hits(simulstate,truth,extrapol);
-    std::cout<<"  "<<hitsim->ClassName()<<":"<<hitsim->GetName()<<" #hits="<<n<<std::endl;
+    //std::cout<<"  "<<hitsim->ClassName()<<":"<<hitsim->GetName()<<" #hits="<<n<<std::endl;
     if(n>=0) return n;
   } 
   return -1;
@@ -69,9 +69,10 @@ void TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simu
 void TFCSLateralShapeParametrizationHitChain::Print(Option_t *option) const
 {
   TFCSLateralShapeParametrization::Print(option);
+  TString opt(option);
+  if(!opt.IsWhitespace()) opt=option; else opt=opt+"  ";
   for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
-    std::cout<<"  ";
-    hitsim->Print();
+    hitsim->Print(opt);
   } 
 }
 

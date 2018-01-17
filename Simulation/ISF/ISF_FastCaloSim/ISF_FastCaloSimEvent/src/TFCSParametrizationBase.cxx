@@ -21,14 +21,17 @@ void TFCSParametrizationBase::simulate(TFCSSimulationState& /*simulstate*/,const
 
 void TFCSParametrizationBase::Print(Option_t *option) const
 {
+  TString opt(option);
+  if(!opt.IsWhitespace()) opt="";
+  std::cout << opt;
   TNamed::Print(option);
 
-  std::cout <<"  PDGID: ";
+  std::cout << opt <<"  PDGID: ";
   for (std::set<int>::iterator it=pdgid().begin(); it!=pdgid().end(); ++it) std::cout << *it << ", ";
   std::cout << std::endl;
   
-  std::cout <<"  Ekin="<<Ekin_nominal()<<" MeV, range "<<Ekin_min()<<" MeV < Ekin < "<<Ekin_max()<<" MeV"<<std::endl;
-  std::cout <<"  eta="<<eta_nominal()<<", range "<<eta_min()<<" < eta < "<<eta_max()<<std::endl;
+  std::cout << opt <<"  Ekin="<<Ekin_nominal()<<" MeV, range "<<Ekin_min()<<" MeV < Ekin < "<<Ekin_max()<<" MeV"<<std::endl;
+  std::cout << opt <<"  eta="<<eta_nominal()<<", range "<<eta_min()<<" < eta < "<<eta_max()<<std::endl;
 }
 
 //=============================================
