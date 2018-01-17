@@ -1409,7 +1409,7 @@ def defineMenu():
         'L1_MJJ-100' : 333,
         'L1_MJJ-800-NFF' : 87,
         'L1_MJJ-600-NFF' : 127,
-        'L1_MJJ-500-NFF' : 316,
+        'L1_MJJ-500-NFF' : 108,
         'L1_MJJ-400-NFF' : 129,
         'L1_MJJ-200-NFF' : 133,
         'L1_63DETA-J30J15' : 257,
