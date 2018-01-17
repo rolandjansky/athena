@@ -62,8 +62,12 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
 
   void getClusterSize();
 
+
  private: 
   
+ 
+  inline bool passCellTimeCut(const CaloCell*) const;
+
   const CaloDetDescrManager* m_calo_dd_man; 
   
   const CaloCell_ID* m_calo_id;
