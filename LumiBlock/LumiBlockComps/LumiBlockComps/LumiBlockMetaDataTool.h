@@ -13,7 +13,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-//#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
@@ -30,14 +29,12 @@
 
 class StoreGateSvc;
 class IGoodRunsListSelectorTool;
-//class LumiBlockRangeContainerConverter;
 
 
 namespace Root {
   class TGRLCollection;
 }
 
-//class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool, virtual public IIncidentListener {
 class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool {
 public: // Constructor and Destructor
    /// Standard Service Constructor
@@ -59,9 +56,6 @@ public:
 
    /// Function writing the collected metadata to the output
    virtual StatusCode metaDataStop();
-
-   /// Incident service handle listening for BeginFile and EndFile.
-   //void handle(const Incident& incident);
 
    /// functions from ILumiBlockMetaDataTool
    inline const Root::TGRLCollection* getGRLCollection() const { return m_grlcollection; }
@@ -107,7 +101,6 @@ private:
    bool m_calcLumi;
    bool m_storexmlfiles;
    bool m_applydqcuts;
-   /*LumiBlockRangeContainerConverter* m_converter;*/
    Root::TGRLCollection* m_grlcollection;
 
    ToolHandle< IGoodRunsListSelectorTool > m_GoodRunsListSelectorTool;

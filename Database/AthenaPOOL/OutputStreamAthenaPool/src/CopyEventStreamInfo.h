@@ -11,7 +11,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-//#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
 
 #include <string>
@@ -21,7 +20,6 @@ class StoreGateSvc;
 /** @class CopyEventStreamInfo 
  *  @brief This class provides an algorithm to make the EventStreamInfo object and update it.
  **/
-//class CopyEventStreamInfo : public ::AthAlgTool, virtual public IMetaDataTool, virtual public IIncidentListener {
 class CopyEventStreamInfo : public ::AthAlgTool, virtual public IMetaDataTool {
 public:
    /// Standard AlgTool Constructor

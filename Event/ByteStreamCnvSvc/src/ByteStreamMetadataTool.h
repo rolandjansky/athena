@@ -12,8 +12,6 @@
  **/
 
 #include "GaudiKernel/ServiceHandle.h"
-//#include "GaudiKernel/IIncidentListener.h"
-//#include "AthenaKernel/IFileTransition.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
 
@@ -37,7 +35,6 @@ public:
    StatusCode finalize();
 
    /// Incident service handle listening for BeginInputFile and EndInputFile.
-   //void handle(const Incident& incident);
    virtual StatusCode beginInputFile();
    virtual StatusCode endInputFile();
    virtual StatusCode metaDataStop();

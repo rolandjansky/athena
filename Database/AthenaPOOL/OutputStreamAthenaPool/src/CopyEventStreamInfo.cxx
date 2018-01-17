@@ -91,24 +91,29 @@ StatusCode CopyEventStreamInfo::beginInputFile()
                return StatusCode::FAILURE;
             }
             evtStrInfo_out->addEvent(evtStrInfo_in->getNumberOfEvents());
-            for (std::set<unsigned int>::const_iterator elem = evtStrInfo_in->getRunNumbers().begin(),
-	               lastElem = evtStrInfo_in->getRunNumbers().end(); elem != lastElem; elem++) {
+            for (auto elem = evtStrInfo_in->getRunNumbers().begin(),
+	              lastElem = evtStrInfo_in->getRunNumbers().end(); 
+                      elem != lastElem; elem++) {
                evtStrInfo_out->insertRunNumber(*elem);
             }
-            for (std::set<unsigned int>::const_iterator elem = evtStrInfo_in->getLumiBlockNumbers().begin(),
-	               lastElem = evtStrInfo_in->getLumiBlockNumbers().end(); elem != lastElem; elem++) {
+            for (auto elem = evtStrInfo_in->getLumiBlockNumbers().begin(),
+	              lastElem = evtStrInfo_in->getLumiBlockNumbers().end(); 
+                      elem != lastElem; elem++) {
                evtStrInfo_out->insertLumiBlockNumber(*elem);
             }
-            for (std::set<std::string>::const_iterator elem = evtStrInfo_in->getProcessingTags().begin(),
-	               lastElem = evtStrInfo_in->getProcessingTags().end(); elem != lastElem; elem++) {
+            for (auto elem = evtStrInfo_in->getProcessingTags().begin(),
+	              lastElem = evtStrInfo_in->getProcessingTags().end(); 
+                      elem != lastElem; elem++) {
                evtStrInfo_out->insertProcessingTag(*elem);
             }
-            for (std::set<std::pair<CLID, std::string> >::const_iterator elem = evtStrInfo_in->getItemList().begin(),
-	               lastElem = evtStrInfo_in->getItemList().end(); elem != lastElem; elem++) {
+            for (auto elem = evtStrInfo_in->getItemList().begin(),
+	              lastElem = evtStrInfo_in->getItemList().end(); 
+                      elem != lastElem; elem++) {
                evtStrInfo_out->insertItemList((*elem).first, (*elem).second);
             }
-            for (std::set<EventType>::const_iterator elem = evtStrInfo_in->getEventTypes().begin(),
-	               lastElem = evtStrInfo_in->getEventTypes().end(); elem != lastElem; elem++) {
+            for (auto elem = evtStrInfo_in->getEventTypes().begin(),
+	              lastElem = evtStrInfo_in->getEventTypes().end(); 
+                      elem != lastElem; elem++) {
                evtStrInfo_out->insertEventType(*elem);
             }
          }
