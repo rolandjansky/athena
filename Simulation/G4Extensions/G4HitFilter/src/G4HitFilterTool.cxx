@@ -13,44 +13,33 @@ namespace G4UA
   G4HitFilterTool::G4HitFilterTool(const std::string& type,
                                    const std::string& name,
                                    const IInterface* parent)
-    : ActionToolBaseReport<G4HitFilter>(type, name, parent)
+    : UserActionToolBase<G4HitFilter>(type, name, parent)
   {
     declareProperty("VolumeNames", m_config.volumenames);
   }
 
   //----------------------------------------------------------------------------
-  std::unique_ptr<G4HitFilter> G4HitFilterTool::makeAction()
+  std::unique_ptr<G4HitFilter>
+  G4HitFilterTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
+    ATH_MSG_DEBUG("Constructing a G4HitFilter action");
     auto action = CxxUtils::make_unique<G4HitFilter>(m_config);
-    return std::move(action);
-  }
-
-  //----------------------------------------------------------------------------
-  StatusCode G4HitFilterTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
-    if(riid == IG4RunActionTool::interfaceID()) {
-      *ppvIf = (IG4RunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
-    return ActionToolBase<G4HitFilter>::queryInterface(riid, ppvIf);
+    actionList.runActions.push_back( action.get() );
+    actionList.eventActions.push_back( action.get() );
+    return action;
   }
 
   //----------------------------------------------------------------------------
   StatusCode G4HitFilterTool::finalize()
   {
-    mergeReports();
+    // Merge results across worker threads
+    G4HitFilter::Report report;
+    m_actions.accumulate(report, &G4HitFilter::getReport,
+                         &G4HitFilter::Report::merge);
 
-    ATH_MSG_INFO("processed " << m_report.ntot << " events, " <<
-                 m_report.npass << " events passed filter ");
+    // Report the results
+    ATH_MSG_INFO("processed " << report.ntot << " events, " <<
+                 report.npass << " events passed filter ");
     return StatusCode::SUCCESS;
   }
 
