@@ -14,12 +14,17 @@
 namespace G4UA
 {
 
+  /// @class G4HitFilterTool
+  /// Tool which constructs/manages the G4HitFilter user action.
+  ///
   class G4HitFilterTool : public ActionToolBaseReport<G4HitFilter>,
                           public IG4EventActionTool,
                           public IG4RunActionTool
   {
 
     public:
+
+      /// Standard constructor
       G4HitFilterTool(const std::string& type, const std::string& name,
                       const IInterface* parent);
 
@@ -30,11 +35,20 @@ namespace G4UA
       { return static_cast<G4UserRunAction*>( getAction() ); }
 
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+
+      /// Finalize the tool
       virtual StatusCode finalize() override;
+
     protected:
+
+      /// Construct the user action for current worker thread
       virtual std::unique_ptr<G4HitFilter> makeAction() override final;
+
     private:
+
+      /// User action configuration options
       G4HitFilter::Config m_config;
+
   }; // class G4HitFilterTool
 
 } // namespace G4UA
