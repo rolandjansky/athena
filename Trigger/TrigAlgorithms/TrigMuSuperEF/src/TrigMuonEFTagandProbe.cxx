@@ -511,8 +511,8 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
       ATH_MSG_DEBUG("testphrase >2 muons found or matching charge found, no. of \"good\" muons = " << m_good_muons.size());
       trim_container(m_good_muons); //Performs trimming of muon container reducing to size = 2 (or a multiple of 2?)
       
-      if (m_good_muons.size()<2){
-	ATH_MSG_WARNING("testphrase Less than 2 good muons after trimming so further event analysis will be ignored, moving to next event");
+      if (m_good_muons.size()!=2){
+	ATH_MSG_WARNING("testphrase More/Less than 2 good muons after trimming so further event analysis will be ignored, moving to next event");
 	return HLT::OK;
       }
       
@@ -782,12 +782,15 @@ void TrigMuonEFTagandProbe::trim_container (std::vector<const xAOD::Muon*>& good
       if (j == (negvec.size()-1)){ //Once looped through all muons then go back and check the comparison map
 	if (comparisonmap.size()>0){ //if condition stops cbegin() being called on an empty map returning NAN as a value
 	 
-	  //Find the smallest tempinvmass key value using autmatic sorting of maps, use this to pick best muon pair
+	  //Find the smallest tempinvmass key value using automatic sorting of maps, use this to pick best muon pair
 	  good_muons.push_back(((*(comparisonmap.cbegin())).second).first); //Push back muon 2 (cbegin() always gives pointer)
 	  good_muons.push_back(muon1); //Push back muon 1
-	  ATH_MSG_DEBUG("testphrase (trim_container) best match found, current negvec size = "<<negvec.size()); 
-	  negvec.erase(negvec.begin()+((*(comparisonmap.cbegin())).second).second); //Use neg muon iterator to remove already paired neg muon so it doesn't get double paired
-	  ATH_MSG_DEBUG("testphrase (trim_container) removing best match, new negvec size = "<<negvec.size()); 
+	  
+	  ATH_MSG_DEBUG("testphrase (trim_container) first best match found, removing all other potential pairs");
+	  return;
+	  //ATH_MSG_DEBUG("testphrase (trim_container) best match found, current negvec size = "<<negvec.size()); 
+	  //negvec.erase(negvec.begin()+((*(comparisonmap.cbegin())).second).second); //Use neg muon iterator to remove already paired neg muon so it doesn't get double paired
+	  //ATH_MSG_DEBUG("testphrase (trim_container) removing best match, new negvec size = "<<negvec.size()); 
 	}	
       }
     }
