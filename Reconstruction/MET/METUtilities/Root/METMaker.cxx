@@ -298,6 +298,7 @@ namespace met {
 	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
 	  // if this is an uncalibrated electron below the threshold, then we put it into the soft term
 	  if(orig->type()==xAOD::Type::Electron){
+	    uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(obj->container()),obj->index()) );
 	    uniqueWeights.emplace_back( 0. );
 	    ATH_MSG_WARNING("Missing an electron from the MET map. Included as a track in the soft term. pT: " << obj->pt());
 	    continue;
