@@ -510,34 +510,7 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	  float signedRatio = epsilon; // not 0 in order to keep bad cells 
 	  if ( finite(noiseSigma) && noiseSigma > 0 && !CaloBadCellHelper::isBad(pCell,m_treatL1PredictedCellsAsGood) ) 
 	    signedRatio = signedE/noiseSigma;
-	  /*
-	  // get the cell time to cut on (the same as in CaloEvent/CaloCluster.h)
-          bool isTimeDefined=false;
-          float cellTime = 0;
-	  if(m_seedCutsInT)
-	    {
-	      // need sampling number already for time 
-	      CaloSampling::CaloSample sam = pCell->caloDDE()->getSampling();
-	      // check for unknown sampling
-	      if ( sam != CaloSampling::Unknown )
-		{
-		  unsigned pmask = 0;
-		  if (sam != CaloSampling::PreSamplerB &&
-		      sam != CaloSampling::PreSamplerE)
-		    {
-		      if ( pCell->caloDDE()->is_tile() )
-			pmask = 0x8080;
-		      else
-			pmask = 0x2000; //0x2000 is used to tell that time and quality information are available for this channel  (from TWiki: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/CaloEventDataModel#The_Raw_Data_Model)                                                                                         
-		    }
-		  // Is time defined?                                     
-		  isTimeDefined = (pCell->provenance() & pmask );
-		  }
-	      
-	      if(isTimeDefined)
-		cellTime = pCell->time();
-		}
-	  */
+
 	  //apply energy cuts
 	  bool passedCellCut = (m_cellCutsInAbsE?std::abs(signedRatio):signedRatio)
 	    > m_cellThresholdOnEorAbsEinSigma 
@@ -548,10 +521,9 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	  bool passedSeedCut = (m_seedCutsInAbsE?std::abs(signedRatio):signedRatio) > m_seedThresholdOnEorAbsEinSigma
 	    && ( m_usePileUpNoise || ((m_seedCutsInAbsE?std::abs(signedEt):signedEt) > m_seedThresholdOnEtorAbsEt ));
 
-	  //apply time cuts
-	  //	  bool passedSeedTimeCut = (!m_seedCutsInT || !isTimeDefined || std::fabs(cellTime) < m_seedThresholdOnTAbs);
 
-	  bool passedSeedAndTimeCut = (passedSeedCut && (!m_seedCutsInT || passCellTimeCut(pCell)));
+
+	  bool passedSeedAndTimeCut = (passedSeedCut && (!m_seedCutsInT || passCellTimeCut(pCell))); //time cut is applied here
 	  if ( passedCellCut || passedNeighborCut || passedSeedAndTimeCut ) {
 	    const CaloDetDescrElement* dde = pCell->caloDDE();
 	    IdentifierHash hashid = dde ? dde->calo_hash() : m_calo_id->calo_cell_hash(pCell->ID());
