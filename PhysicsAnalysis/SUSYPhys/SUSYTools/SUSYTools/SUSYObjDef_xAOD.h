@@ -132,9 +132,6 @@ namespace ST {
 
     StatusCode setBoolProperty(const std::string& name, const bool& property) override final;
 
-    // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool() override final;
-
     // Hack to make thisx configurable from python
     // 0 = data, 1 = full sim, 2 = AF-II
     void setDataSource(int source);
@@ -379,6 +376,9 @@ namespace ST {
 
   protected:
 
+    // autoconfiguration of pileup-reweighting tool       
+    StatusCode autoconfigurePileupRWTool();
+
     StatusCode readConfig() override final; 
     StatusCode validConfig(bool strict = false) const;
 
@@ -402,6 +402,9 @@ namespace ST {
     std::string EG_WP(const std::string& wp) const; //translate our WPs to make egamma selectors happy
 
     std::vector<std::string> getElSFkeys(const std::string& mapFile) const;
+
+    bool m_autoconfigPRW;
+    std::string m_mcCampaign;
 
 #ifdef XAOD_STANDALONE // more convenient for property setting
     DataSource m_dataSource;
@@ -452,6 +455,9 @@ namespace ST {
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
     double m_muUncert;
+    double m_prwDataSF;
+    double m_prwDataSF_UP;
+    double m_prwDataSF_DW;
 
     // bookkeep supported configurations (in increasing order of tightness)
     std::vector<std::string> el_id_support;

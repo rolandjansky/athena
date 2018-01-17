@@ -6,7 +6,11 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 
 ##########################################################################################################################
 # ttbar
-#110351	PowhegPythia_P2012_ttbar_allhad				      831.76	        1.	        0.45684		   1.0
+#110351 PowhegPythia_P2012_ttbar_allhad                               831.76            1.              0.45684            1.0
+410470  PhPy8EG_A14_ttbar_hdamp258p75_nonallhad                       729.77            1.0             5.4379E-01         0.0
+410471  PhPy8EG_A14_ttbar_hdamp258p75_allhad                          729.78            1.0             4.5628E-01         0.0
+410472  PhPy8EG_A14_ttbar_hdamp258p75_dil                             729.77            1.0             1.0546E-01         0.0
+
 410001  PowhegPythiaEvtGen_P2012radHi_ttbar_hdamp345_down_nonallhad   783.73            1.06128386051   0.5442             0.0    
 410002  PowhegPythiaEvtGen_P2012radLo_ttbar_hdamp172_up_nonallhad     611.1             1.36108656521   0.5442             0.0    
 410003  aMcAtNloHerwigppEvtGen_ttbar_nonallhad                        694.59            1.19748340748   0.5442             0.0    
@@ -2374,6 +2378,9 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 407314  Sherpa_221_NNPDF30NNLO_3l3v_EW6                               0.015757          1.0             1.0000E+00         0.0    
 407315  Sherpa_221_NNPDF30NNLO_2l4v_EW6                               0.0058139         1.0             1.0000E+00         0.0    
 
+363507  Sherpa_222_NNPDF30NNLO_WWZ_3l1v2j_EW6                         0.017047          1.0             4.3938E-01         0.0
+363508  Sherpa_222_NNPDF30NNLO_WZZ_4l2j_EW6                           0.00038998        1.0             1.0000E+00         0.0
+363509  Sherpa_222_NNPDF30NNLO_WZZ_3l1v2j_EW6                         0.011815          1.0             2.2058E-01         0.0
 
 ################################################################################################################
 # Sherpa Vgamma
