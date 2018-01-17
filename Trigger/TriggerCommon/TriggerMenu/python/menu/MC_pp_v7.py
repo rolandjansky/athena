@@ -479,6 +479,10 @@ def setupMenu():
 
         # VBF triggers
         ['j80_0eta240_2j60_320eta490_invm700',  'L1_J40.0ETA25_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1 ], #Bjet rate but needs to be in the Jet slice
+        ['j70_j50_0eta490_invm900_dphi24_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm900_dphi26_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm900_dphi24_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm900_dphi26_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
 
 
