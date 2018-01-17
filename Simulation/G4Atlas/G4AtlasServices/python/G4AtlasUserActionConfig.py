@@ -11,14 +11,11 @@ def getDefaultRunActions():
 
 # begin of event
 def getDefaultEventActions():
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import beamFlags
     defaultUA=[]
     return defaultUA
 
 # stepping
 def getDefaultSteppingActions():
-    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
     return defaultUA
 
@@ -54,8 +51,7 @@ def getDefaultActions():
     if not simFlags.ISFRun:
         actions += ['G4UA::AthenaTrackingActionTool',
                     'G4UA::MCTruthSteppingActionTool',
-                    'G4UA::G4SimTimerTool',
-                    ]
+                    'G4UA::G4SimTimerTool']
     # Track counter
     actions += ['G4UA::G4TrackCounterTool']
     # Cosmic Perigee action
