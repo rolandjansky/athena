@@ -111,8 +111,8 @@ int main() {
    RETURN_CHECK( APP_NAME, event.retrieve( c, "MuonsAux." ) );
 
    // Check if the second one was assigned the correct type of internal store:
-   SG::IAuxStore* dynStore = c->getStore();
-   if( ! dynamic_cast< xAOD::TAuxStore* >( dynStore ) ) {
+   const SG::IAuxStore* dynStore = c->getStore();
+   if( ! dynamic_cast< const xAOD::TAuxStore* >( dynStore ) ) {
       ::Error( APP_NAME,
                XAOD_MESSAGE( "Dynamic store not updated correctly!" ) );
       return 1;

@@ -262,7 +262,7 @@ LArCosmicsMonTool::fillHistograms() {
   /////////////////////////////////
   
   // retrieve LArDigits
-  const LArDigitContainer* pLArDigitContainer;
+  const LArDigitContainer* pLArDigitContainer = nullptr;
   sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
     ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 

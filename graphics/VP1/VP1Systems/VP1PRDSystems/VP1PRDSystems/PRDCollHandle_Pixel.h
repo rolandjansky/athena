@@ -24,13 +24,13 @@ public slots:
   void setMinNRDOPerCluster(unsigned);
 
 protected:
-  PRDHandleBase * addPRD(Trk::PrepRawData*);
+  virtual PRDHandleBase * addPRD(const Trk::PrepRawData*) override;
   bool cut(PRDHandleBase*);
 
   void setupSettingsFromControllerSpecific(PRDSystemController*);
   float lodArea() const { return 800.0f*800.0f; }
   QColor defaultColor() const;
-  virtual DETAIL defaultDetailLevel() const { return AUTO; }
+  virtual DETAIL defaultDetailLevel() const override { return AUTO; }
   //  virtual DETAIL defaultDetailLevel() const { return SIMPLE; }
 
 private:

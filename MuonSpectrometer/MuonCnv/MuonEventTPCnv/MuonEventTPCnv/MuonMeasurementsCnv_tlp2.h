@@ -12,11 +12,9 @@
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MdtDriftCircleOnTrackCnv_p2.h"
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MM_ClusterOnTrackCnv_p1.h"
 #include "MuonEventTPCnv/MuonRIO_OnTrack/STGC_ClusterOnTrackCnv_p1.h"
-#include "MuonEventTPCnv/MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrackCnv_p1.h"
-
-#include "MuonEventTPCnv/MuonSegment/MuonSegmentCnv_p1.h"
+#include "MuonEventTPCnv/MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrackCnv_p2.h"
+#include "MuonEventTPCnv/MuonSegment/MuonSegmentCnv_p2.h"
 #include "MuonEventTPCnv/MuonSegment/MuonSegmentQualityCnv_p1.h"
-#include <iostream>
 
 class MuonMeasurementsCnv_tlp2
    : public AthenaPoolTopLevelExtTPConverter< TPCnv::MuonMeasurements_tlp2 >
@@ -35,12 +33,13 @@ protected:
     RpcClusterOnTrackCnv_p3         m_rpcClustersOTCnv;
     TgcClusterOnTrackCnv_p2         m_tgcClustersOTCnv;
     MdtDriftCircleOnTrackCnv_p2     m_mdtDriftCirclesOTCnv;
-    MuonSegmentCnv_p1               m_muonSegmentsCnv;
+    MuonSegmentCnv_p2               m_muonSegmentsCnv;
     MuonSegmentQualityCnv_p1        m_muonSegmentQualitiesCnv;
-    CompetingMuonClustersOnTrackCnv_p1  m_muonCompetingROTsCnv;
+    CompetingMuonClustersOnTrackCnv_p2  m_muonCompetingROTsCnv;
     MM_ClusterOnTrackCnv_p1         m_mmClustersOTCnv;
     STGC_ClusterOnTrackCnv_p1       m_stgcClustersOTCnv;
 };
 #endif
+
 
 

@@ -87,13 +87,11 @@ class IRDBAccessSvc : virtual public IInterface
   //    structures. 
   //        * The Cursor is NOT BIDIRECTIONAL
   //
-  // 3. !!! ------ DELETE IRDBQuery object ----- !!!
-  //
 
-  virtual IRDBQuery* getQuery(const std::string& node,
-			      const std::string& tag,
-			      const std::string& tag2node="",
-			      const std::string& connName = "ATLASDD") = 0;
+  virtual std::unique_ptr<IRDBQuery> getQuery(const std::string& node,
+					      const std::string& tag,
+					      const std::string& tag2node="",
+					      const std::string& connName = "ATLASDD") = 0;
 
   /// Returns AttributeList with tag details
   /// Attributes in the list: Locked (bool), Supported (bool)

@@ -7,7 +7,7 @@ atlas_subdir( InDetRIO_OnTrack )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthLinks
                           DetectorDescription/Identifier
                           GaudiKernel
                           InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -26,12 +26,12 @@ atlas_add_library( InDetRIO_OnTrack
                    src/*.cxx
                    PUBLIC_HEADERS InDetRIO_OnTrack
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack EventContainers
+                   LINK_LIBRARIES AthLinks Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} InDetReadoutGeometry TrkSurfaces )
 
 atlas_add_dictionary( InDetRIO_OnTrackDict
                       InDetRIO_OnTrack/InDetRIO_OnTrackDict.h
                       InDetRIO_OnTrack/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack InDetReadoutGeometry TrkSurfaces InDetRIO_OnTrack EventContainers )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack InDetReadoutGeometry TrkSurfaces InDetRIO_OnTrack EventContainers )
 

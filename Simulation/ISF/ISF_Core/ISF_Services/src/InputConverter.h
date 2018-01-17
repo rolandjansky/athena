@@ -53,7 +53,7 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class InputConverter : public extends<AthService, IInputConverter> {
+  class InputConverter final: public extends<AthService, IInputConverter> {
 
     // allow test to access private data
     friend ISFTesting::InputConverter_test;
@@ -79,9 +79,6 @@ namespace ISF {
     virtual StatusCode convertHepMCToG4Event(McEventCollection& inputGenEvents,
                                              G4Event*& outputG4Event,
                                              bool isPileup) const override final;
-
-    /** Query the interfaces. **/
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
     /** Converts vector of ISF::ISFParticles to G4Event */
     G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const override final;

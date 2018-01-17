@@ -19,7 +19,7 @@ namespace JiveXML {
    **/
   AODJetRetriever::AODJetRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Jet"){
+    m_typeName("Jet"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -115,7 +115,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(jets->size());
     DataVect eta; eta.reserve(jets->size());
@@ -240,54 +240,54 @@ namespace JiveXML {
     }
 
     // Start with mandatory entries
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["et"] = et;
-    m_DataMap["pt"] = pt;
-    m_DataMap["id"] = idVec;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["et"] = et;
+    DataMap["pt"] = pt;
+    DataMap["id"] = idVec;
 
-    m_DataMap["bTagName multiple=\"9\""] = bTagName; // assigned by hand !
-    m_DataMap["bTagValue multiple=\"9\""] = bTagValue;
+    DataMap["bTagName multiple=\"9\""] = bTagName; // assigned by hand !
+    DataMap["bTagValue multiple=\"9\""] = bTagValue;
 	
     // basic jet quality
-    m_DataMap["quality"] = quality;
-    m_DataMap["isGood"] = isGood;
-    m_DataMap["isBad"] = isBad;
-    m_DataMap["isUgly"] = isUgly;
-    m_DataMap["emfrac"] = emfrac;
+    DataMap["quality"] = quality;
+    DataMap["isGood"] = isGood;
+    DataMap["isBad"] = isBad;
+    DataMap["isUgly"] = isUgly;
+    DataMap["emfrac"] = emfrac;
 
-    m_DataMap["jvf"] = jvf;
+    DataMap["jvf"] = jvf;
 
     if (m_writeJetQuality){ // extended jet quality
-      m_DataMap["qualityLAr"] = qualityLAr;
-      m_DataMap["qualityTile"] = qualityTile;
-      m_DataMap["time"] = time;
-      m_DataMap["timeClusters"] = timeClusters;
-      m_DataMap["n90cells"] = n90cells;
-      m_DataMap["n90const"] = n90const;
-      m_DataMap["hecf"] = hecf;
-      m_DataMap["tileGap3f"] = tileGap3f;
-      m_DataMap["fcorCell"] = fcorCell;
-      m_DataMap["fcorDotx"] = fcorDotx;
-      m_DataMap["fcorJet"] = fcorJet;
-      m_DataMap["fcorJetForCell"] = fcorJetForCell;
-      m_DataMap["nbadcells"] = nbadcells;
-      m_DataMap["fracSamplingMax"] = fracSamplingMax;
-      m_DataMap["sMax"] = sMax;
-      m_DataMap["OutOfTimeEfrac"] = OutOfTimeEfrac;
+      DataMap["qualityLAr"] = qualityLAr;
+      DataMap["qualityTile"] = qualityTile;
+      DataMap["time"] = time;
+      DataMap["timeClusters"] = timeClusters;
+      DataMap["n90cells"] = n90cells;
+      DataMap["n90const"] = n90const;
+      DataMap["hecf"] = hecf;
+      DataMap["tileGap3f"] = tileGap3f;
+      DataMap["fcorCell"] = fcorCell;
+      DataMap["fcorDotx"] = fcorDotx;
+      DataMap["fcorJet"] = fcorJet;
+      DataMap["fcorJetForCell"] = fcorJetForCell;
+      DataMap["nbadcells"] = nbadcells;
+      DataMap["fracSamplingMax"] = fracSamplingMax;
+      DataMap["sMax"] = sMax;
+      DataMap["OutOfTimeEfrac"] = OutOfTimeEfrac;
     } // writeJetQuality
  
     // further details
     // four-vectors
 /* need to be added to AtlantisJava/event.dtd !
-    m_DataMap["charge"] = charge;
-    m_DataMap["flavourTagWeight"] = flavourTagWeight;
+    DataMap["charge"] = charge;
+    DataMap["flavourTagWeight"] = flavourTagWeight;
 */
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
-    m_DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["px"] = px;
+    DataMap["py"] = py;
+    DataMap["pz"] = pz;
+    DataMap["energy"] = energy;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " (AOD, no cells), collection: " << dataTypeName();
@@ -295,7 +295,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

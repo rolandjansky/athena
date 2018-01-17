@@ -11,8 +11,8 @@
 
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthContainers/DataVector.h"
 
 namespace JiveXML {
   
@@ -24,7 +24,7 @@ namespace JiveXML {
    **/
   TrackParticleRetriever::TrackParticleRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Track"){
+    m_typeName("Track"){
 
       //Declare the interface
       declareInterface<IDataRetriever>(this);
@@ -326,36 +326,36 @@ namespace JiveXML {
       } // end loop over tracks in collection
 
       //Now fill everything in a datamap
-      DataMap m_DataMap;
+      DataMap DataMap;
       // Start with mandatory entries
-      m_DataMap["id"] = id;
-      m_DataMap["chi2"] = chi2;
-      m_DataMap["numDoF"] = numDoF;
-      m_DataMap["trackAuthor"] = trackAuthor;
-      m_DataMap["numPolyline"] = numPolyline;
-      // m_DataMap["label"] = labelStr; // need to add into event.dtd first
+      DataMap["id"] = id;
+      DataMap["chi2"] = chi2;
+      DataMap["numDoF"] = numDoF;
+      DataMap["trackAuthor"] = trackAuthor;
+      DataMap["numPolyline"] = numPolyline;
+      // DataMap["label"] = labelStr; // need to add into event.dtd first
      
       // if perigee parameters are not available, leave the corresponding subtags empty.
       // This way atlantis knows that such tracks can only be displayed as polylines.
       if (pt.size() > 0){
-        m_DataMap["pt"] = pt;
-        m_DataMap["d0"] = d0;
-        m_DataMap["z0"] = z0;
-        m_DataMap["phi0"] = phi0;
-        m_DataMap["cotTheta"] = cotTheta;
-        m_DataMap["covMatrix multiple=\"15\""] = covMatrix;
+        DataMap["pt"] = pt;
+        DataMap["d0"] = d0;
+        DataMap["z0"] = z0;
+        DataMap["phi0"] = phi0;
+        DataMap["cotTheta"] = cotTheta;
+        DataMap["covMatrix multiple=\"15\""] = covMatrix;
       }
 
       // vectors with measurement, maximum 3 for TrackParticle (perigee, calo entry, muon entry)
       if ( polylineX.size() > 0){
         std::string numPolyPerTrack = DataType(polylineX.size()/((double)id.size())).toString();
-        m_DataMap["polylineX multiple=\"" + numPolyPerTrack + "\""] = polylineX;
-        m_DataMap["polylineY multiple=\"" + numPolyPerTrack + "\""] = polylineY;
-        m_DataMap["polylineZ multiple=\"" + numPolyPerTrack + "\""] = polylineZ;
+        DataMap["polylineX multiple=\"" + numPolyPerTrack + "\""] = polylineX;
+        DataMap["polylineY multiple=\"" + numPolyPerTrack + "\""] = polylineY;
+        DataMap["polylineZ multiple=\"" + numPolyPerTrack + "\""] = polylineZ;
       }
 
       //forward data to formating tool
-      if ( FormatTool->AddToEvent(dataTypeName(), collectionName, &m_DataMap).isFailure())
+      if ( FormatTool->AddToEvent(dataTypeName(), collectionName, &DataMap).isFailure())
             return StatusCode::RECOVERABLE;
       
       //Be verbose

@@ -6,6 +6,7 @@
 #include "CollectionBase/CollectionFactory.h"
 #include "CollectionBase/CollectionDescription.h"
 #include "CollectionBase/ICollectionCursor.h"
+#include "CollectionBase/boost_tokenizer_headers.h"
 
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/FCEntry.h"
@@ -16,7 +17,6 @@ namespace pool { class ISession; }
 
 #include "POOLCore/Exception.h"
 
-#include "POOLCore/boost_tokenizer_headers.h"
 #include <cstring>
 
 #include <iostream>

@@ -6,7 +6,7 @@
 #include "TRTDigSettings.h"
 
 #include <cmath>
-#include <cstdlib> //Always include this when including cmath!
+#include <cstdlib>
 
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -27,7 +27,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
 				const InDetDD::TRT_DetectorManager* detmgr,
 				const TRT_ID* trt_id,
 				int UseGasMix,
-				ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
+				ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
 			      )
   : m_settings(digset), m_detmgr(detmgr), m_id_helper(trt_id),
     m_averageNoiseLevel(-1.0),
@@ -51,7 +51,7 @@ float TRTDigCondBase::strawAverageNoiseLevel() const {
   } else {
     std::map<int,StrawState>::const_iterator it(m_hitid_to_StrawState.begin());
     m_averageNoiseLevel = 0.;
-    double tmp(0.);//we want double precision for this
+    double tmp(0.);
     for ( ; it!=m_it_hitid_to_StrawState_End; ++it ) {
       tmp += it->second.noiselevel;
     };
@@ -80,7 +80,7 @@ void TRTDigCondBase::initialize() {
 
   for (;it!=itE;++it) { // loop over straws
 
-    const double strawLength((*it)->strawLength()); //Not used until much later..
+    const double strawLength((*it)->strawLength());
     const Identifier id((*it)->identify());
 
     const int ringwheel(m_id_helper->layer_or_wheel(id));
@@ -104,7 +104,6 @@ void TRTDigCondBase::initialize() {
 
       // get ID of the straw, and the gas mix
       const int hitid(hitid_helper->buildHitId( endcap, isneg, ringwheel, phisector, layer, iStraw));
-      //Identifier strawId = m_id_helper->straw_id(m_id_helper->barrel_ec(id), phisector, ringwheel, layer, iStraw);
       Identifier strawId = m_id_helper->straw_id(side, phisector, ringwheel, layer, iStraw);
       int strawGasType = StrawGasType(strawId);
 
@@ -121,7 +120,6 @@ void TRTDigCondBase::initialize() {
       ++strawcount;
 
       // Count the gas fraction in a number of regions:
-      // std::cout << "AJB  side=" << side << " ringwheel=" << ringwheel << " phisector=" << phisector << " layer=" << layer << " iStraw=" << iStraw << " strawGasType=" << strawGasType << std::endl;
       if ( side==+1 && ringwheel>=0 && ringwheel<=2  ) nBAA[ringwheel][strawGasType]++; // [ringwheel=0,1,2][strawGasType=0,1,2]
       if ( side==-1 && ringwheel>=0 && ringwheel<=2  ) nBAC[ringwheel][strawGasType]++; // [ringwheel=0,1,2][strawGasType=0,1,2]
       if ( side==+2 && ringwheel>=0 && ringwheel<=13 ) nECA[ringwheel][strawGasType]++; // [ringwheel=0, 13][strawGasType=0,1,2]

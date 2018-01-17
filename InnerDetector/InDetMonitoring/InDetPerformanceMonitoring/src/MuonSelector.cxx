@@ -33,10 +33,6 @@
 
 
 
-// Local debug variables. Global scope, but only accessible by this file.
-static const float CGeV              =  1.0e-3;  // Conversion factor to remove evil MeV
-                                                 // nonsense.
-
 // Static declarations
 unsigned int MuonSelector::s_uNumInstances;
 
@@ -182,7 +178,7 @@ bool MuonSelector::passQualCuts()
   if( xAOD::Muon::Combined ) return false;
   if (IDTrk) {
     uint8_t dummy(-1);
-    bool eBLhits = IDTrk->summaryValue( dummy, xAOD::expectInnermostPixelLayerHit )? dummy :-1;
+    bool eBLhits = IDTrk->summaryValue( dummy, xAOD::expectInnermostPixelLayerHit )? dummy :false;
     int  nBLhits = IDTrk->summaryValue( dummy, xAOD::numberOfInnermostPixelLayerHits )? dummy :-1;
 
     int nhitsPIX = IDTrk->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy :-1;

@@ -84,11 +84,10 @@ bool MCTruthClassifier::compareTruthParticles(const HepMC::GenParticle *genPart,
 
 //Methods using directly the extrapolator usable only from Athena
 //-----------------------------------------------------------------------------------------
-// Not const due to ITruthParticlesInConeTool::particlesInCone.
 const xAOD::TruthParticle*
 MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
                                    bool isFwrdEle,
-                                   Info* info)
+                                   Info* info) const
 {
   //-----------------------------------------------------------------------------------------
 

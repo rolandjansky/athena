@@ -1,5 +1,6 @@
 include ("RecExRecoTest/RecExRecoTest_RTT_common.py")
 rec.doTrigger=False
+rec.AutoConfiguration = ['FieldAndGeo']
 
 include ("RecExCommon/RecExCommon_flags.py")
 

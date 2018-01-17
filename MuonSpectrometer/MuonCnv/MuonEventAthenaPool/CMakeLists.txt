@@ -15,10 +15,9 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           PRIVATE
                           AtlasTest/TestTools
-                          Control/CLIDSvc
+                          Control/AthenaKernel
                           Control/AthAllocators
                           Control/AthContainers
-                          Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           DetectorDescription/Identifier
@@ -45,7 +44,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
                            FILES MuonSimData/MuonSimDataCollection.h MuonSimData/CscSimDataCollection.h MuonRDO/MdtCsmContainer.h MuonRDO/RpcPadContainer.h MuonRDO/TgcRdoContainer.h MuonRDO/CscRawDataContainer.h MuonRDO/RpcSectorLogicContainer.h MuonRDO/STGC_RawDataContainer.h MuonRDO/MM_RawDataContainer.h MuonDigitContainer/MdtDigitContainer.h MuonDigitContainer/RpcDigitContainer.h MuonDigitContainer/TgcDigitContainer.h MuonDigitContainer/CscDigitContainer.h MuonDigitContainer/MmDigitContainer.h MuonDigitContainer/sTgcDigitContainer.h CscCalibEvent/CscCalibDataContainer.h MuonPrepRawData/CscPrepDataContainer.h MuonPrepRawData/CscStripPrepDataContainer.h MuonPrepRawData/RpcPrepDataContainer.h MuonPrepRawData/TgcPrepDataContainer.h MuonPrepRawData/MdtPrepDataContainer.h MuonPrepRawData/MMPrepDataContainer.h MuonPrepRawData/sTgcPrepDataContainer.h MuonTrigCoinData/TgcCoinDataContainer.h MuonTrigCoinData/RpcCoinDataContainer.h MuonChamberT0s/ChamberT0s.h src/MuonMeasurements.h
                            TYPES_WITH_NAMESPACE Muon::STGC_RawDataContainer Muon::MM_RawDataContainer Muon::CscPrepDataContainer Muon::CscStripPrepRawDataContainer Muon::RpcPrepDataContainer Muon::TgcPrepDataContainer Muon::MdtPrepDataContainer Muon::MMPrepDataContainer Muon::sTgcPrepDataContainer Muon::TgcCoinDataContainer Muon::ChamberT0s TPCnv::MuonMeasurements
                            INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
+                           LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
 
 # We need to build a separate library for unit testing, since we can't link
 # against the PoolCnv library.
@@ -54,13 +53,13 @@ atlas_add_library( MuonEventAthenaPoolTestLib
                    src/CreateTransientTemplates.cxx
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
 
 atlas_add_dictionary( MuonRDOCnvDict
                       MuonEventAthenaPool/MuonRDOCnvDict.h
                       MuonEventAthenaPool/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
 
 # Install files from the package:
 atlas_install_headers( MuonEventAthenaPool )
@@ -115,7 +114,7 @@ foreach( name
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData MuonEventAthenaPoolTestLib IdDictParser
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData MuonEventAthenaPoolTestLib IdDictParser
       PROPERTIES TIMEOUT 300
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

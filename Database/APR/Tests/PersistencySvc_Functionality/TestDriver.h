@@ -25,7 +25,6 @@ namespace pool {
     TestDriver();
     ~TestDriver();
     void loadLibraries( const std::vector<std::string>& libraries );
-    void testPlugins();
     void write();
     void read();
     void readCollections();

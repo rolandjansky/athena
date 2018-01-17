@@ -50,7 +50,7 @@ StatusCode SelectEventNumber::execute()
 {
   ATH_MSG_DEBUG("in SelectEventNumber::execute()");
 
-  const xAOD::EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo = nullptr;
   StatusCode sc=evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) { 
     ATH_MSG_ERROR("Couldn't retrieve event info"); 

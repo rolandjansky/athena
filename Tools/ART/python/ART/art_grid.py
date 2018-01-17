@@ -15,6 +15,8 @@ import shutil
 import sys
 import tarfile
 import tempfile
+import time
+import urllib2
 
 try:
     import rucio.client
@@ -34,6 +36,8 @@ class ArtGrid(ArtBase):
     """TBD."""
 
     CVMFS_DIRECTORY = '/cvmfs/atlas-nightlies.cern.ch/repo/sw'
+    EOS_MGM_URL = 'root://eosatlas.cern.ch/'
+    EOS_OUTPUT_DIR = '/eos/atlas/atlascerngroupdisk/data-art/grid-output'
 
     LOG = '.log'
     JSON = '_EXT0'
@@ -47,6 +51,7 @@ class ArtGrid(ArtBase):
     JOB_REPORT_ART_KEY = 'art'
 
     ATHENA_STDOUT = 'athena_stdout.txt'
+    RESULT_WAIT_INTERVAL = 300
 
     def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory=None, skip_setup=False, submit_directory=None):
         """TBD."""
@@ -161,17 +166,18 @@ class ArtGrid(ArtBase):
             outfile = '.'.join(('user', user, 'atlas', self.get_nightly_release_short(), self.project, self.platform, nightly_tag, sequence_tag, package))
         return outfile if test_name is None else '.'.join((outfile, test_name))
 
-    def copy(self, sequence_tag, package, dst, user):
+    def copy(self, package, dst=None, user=None):
         """Copy output from scratch area to eos area."""
         log = logging.getLogger(MODULE)
         real_user = os.getenv('USER', ArtGrid.ARTPROD)
         user = real_user if user is None else user
-        default_dst = '/eos/atlas/atlascerngroupdisk/data-art/grid-output' if real_user == ArtGrid.ARTPROD else '.'
+        default_dst = ArtGrid.EOS_OUTPUT_DIR if real_user == ArtGrid.ARTPROD else '.'
         dst = default_dst if dst is None else dst
 
         if package is not None:
             log.info("Copy %s", package)
-            outfile = self.get_outfile(user, package, sequence_tag)
+            outfile = self.get_outfile(user, package)
+            log.info("Copying from %s", outfile)
 
             return self.copy_output(outfile, dst)
 
@@ -188,12 +194,11 @@ class ArtGrid(ArtBase):
         for package, root in test_directories.items():
             number_of_tests = len(self.get_files(root, "grid", "all", self.nightly_release, self.project, self.platform))
             if number_of_tests > 0:
-                # FIXME limited
-                if self.nightly_release == '21.0' and package in ['TriggerTest', 'Tier0ChainTests']:
-                    log.info("Copy %s", package)
-                    outfile = self.get_outfile(user, package, sequence_tag)
+                log.info("Copy %s", package)
+                outfile = self.get_outfile(user, package)
+                log.info("Copying from %s", outfile)
 
-                    result |= self.copy_output(outfile, dst)
+                result |= self.copy_output(outfile, dst)
         return result
 
     # Not used yet
@@ -395,8 +400,8 @@ class ArtGrid(ArtBase):
             dst_target = os.path.join(dst_dir, test_name)
             log.info("to: %s", dst_target)
             if dst_target.startswith('/eos'):
-                mkdir_cmd = 'eos mkdir -p'
-                xrdcp_target = 'root://eosatlas.cern.ch/' + dst_target
+                mkdir_cmd = 'eos ' + ArtGrid.EOS_MGM_URL + ' mkdir -p'
+                xrdcp_target = ArtGrid.EOS_MGM_URL + dst_target
             else:
                 mkdir_cmd = 'mkdir -p'
                 xrdcp_target = dst_target
@@ -485,7 +490,7 @@ class ArtGrid(ArtBase):
             result = self.task(script_directory, package, job_type, sequence_tag, no_action)
         return result
 
-    def task_list(self, job_type, sequence_tag, package=None, no_action=False):
+    def task_list(self, job_type, sequence_tag, package=None, no_action=False, wait_and_copy=True):
         """TBD."""
         log = logging.getLogger(MODULE)
         # job will be submitted from tmp directory
@@ -519,7 +524,47 @@ class ArtGrid(ArtBase):
             root = test_directories[package]
             all_results.update(self.task_package(root, package, job_type, sequence_tag, no_action))
 
+        # wait for all results
+        if wait_and_copy:
+            while len(all_results) > 0:
+                time.sleep(ArtGrid.RESULT_WAIT_INTERVAL)
+                # force a cpy as we are modifying all_results
+                for jedi_id in list(all_results):
+                    status = self.task_status(jedi_id)
+                    if status is not None:
+                        log.info("JediID %s finished with status %s", str(jedi_id), status)
+                        if status == 'done':
+                            package = all_results[jedi_id][0]
+                            # FIXME limited
+                            if self.nightly_release in ['21.0', '21.0-mc16d'] and package in ['Tier0ChainTests']:
+                                log.info("Copy %s to eos area", package)
+                                self.copy(package)
+                        del all_results[jedi_id]
+
         return 0
+
+    def task_status(self, jedi_id):
+        """
+        Wait for job to finish.
+
+        Return final status of a task, or None if not finished
+        """
+        log = logging.getLogger(MODULE)
+
+        # fake return for simulation
+        if jedi_id == 0:
+            return "done"
+
+        try:
+            r = urllib2.urlopen('https://bigpanda.cern.ch/task/' + str(jedi_id) + '?json=true')
+            s = json.load(r)
+            status = s['task']['superstatus']
+            if status in ["done", "finished", "failed", "aborted", "broken"]:
+                log.info("Task: %s %s", str(jedi_id), str(status))
+                return status
+        except urllib2.HTTPError, e:
+            log.error('%s for %s status', str(e.code), str(jedi_id))
+        return None
 
     def task(self, script_directory, package, job_type, sequence_tag, no_action=False):
         """
@@ -541,7 +586,7 @@ class ArtGrid(ArtBase):
         env['PATH'] = '.:' + env['PATH']
         env['ART_GRID_OPTIONS'] = grid_options
 
-        test_directories = self.get_test_directories(script_directory)
+        test_directories = self.get_test_directories(self.get_script_directory())
         test_directory = test_directories[package]
         number_of_batch_tests = len(self.get_files(test_directory, job_type, "batch", self.nightly_release, self.project, self.platform))
 
@@ -578,9 +623,9 @@ class ArtGrid(ArtBase):
         for test_name in self.get_files(test_directory, job_type, "single", self.nightly_release, self.project, self.platform):
             job = os.path.join(test_directory, test_name)
             header = ArtHeader(job)
-            inds = header.get('art-input')
-            nFiles = header.get('art-input-nfiles')
-            split = header.get('art-input-split')
+            inds = header.get(ArtHeader.ART_INPUT)
+            nFiles = header.get(ArtHeader.ART_INPUT_NFILES)
+            split = header.get(ArtHeader.ART_INPUT_SPLIT)
 
             outfile_test = self.get_outfile(user, package, sequence_tag, str(index))
             if len(outfile_test) > MAX_OUTFILE_LEN:
@@ -652,16 +697,7 @@ class ArtGrid(ArtBase):
         result['name'] = test_name
         result['exit_code'] = exit_code
         result['test_directory'] = test_directory
-
-        # find all 'art-result: x' or 'art-result: [x]' and append them to result list
-        result['result'] = []
-        matches = re.findall(r"art-result: (.*)", output)
-        for match in matches:
-            item = json.loads(match)
-            if isinstance(item, list):
-                result['result'].extend(item)
-            else:
-                result['result'].append(item)
+        result['result'] = self.get_art_results(output)
 
         # write out results
         with open(os.path.join(ArtGrid.ART_JOB), 'w') as jobfile:
@@ -727,7 +763,7 @@ class ArtGrid(ArtBase):
             result[test_name] = int(grid_index)
         return result
 
-    def list(self, package, job_type, index_type, json_format, user):
+    def list(self, package, job_type, index_type, json_format, user, nogrid):
         """TBD."""
         log = logging.getLogger(MODULE)
         user = ArtGrid.ARTPROD if user is None else user
@@ -735,8 +771,9 @@ class ArtGrid(ArtBase):
         # make sure script directory exist
         self.exit_if_no_script_directory()
 
-        log.info("Getting grid map...")
-        grid_map = self.get_grid_map(user, package)
+        if not nogrid:
+            log.info("Getting grid map...")
+            grid_map = self.get_grid_map(user, package)
 
         log.info("Getting test names...")
         test_names = self.get_list(self.get_script_directory(), package, job_type, index_type)
@@ -745,7 +782,7 @@ class ArtGrid(ArtBase):
             name = os.path.splitext(test_name)[0]
             json_array.append({
                 'name': name,
-                'grid_index': str(grid_map[name]) if name in grid_map else '-1'
+                'grid_index': str(grid_map[name]) if not nogrid and name in grid_map else '-1'
             })
 
         if json_format:
@@ -758,9 +795,10 @@ class ArtGrid(ArtBase):
             i += 1
 
         # print warnings
-        for entry in json_array:
-            if entry['grid_index'] < 0:
-                log.warning('test %s could not be found in json or log', entry['name'])
+        if not nogrid:
+            for entry in json_array:
+                if entry['grid_index'] < 0:
+                    log.warning('test %s could not be found in json or log', entry['name'])
 
         return 0
 

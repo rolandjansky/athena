@@ -75,6 +75,9 @@ MuidCaloMaterialParam::initialize()
 	    ATH_MSG_INFO( "Retrieved tool " << m_surfaceDisplayTool );
 	}
     }
+    else{
+      m_surfaceDisplayTool.disable();
+    }
 	
     // setup up CaloMaterial
     m_caloInnerLayers.reserve(2*m_numberBins);

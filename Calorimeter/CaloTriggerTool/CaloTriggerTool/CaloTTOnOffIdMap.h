@@ -63,7 +63,7 @@ private:
   CaloTTOnOffId_P m_persData;
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( CaloTTOnOffIdMap,267570070,1)
 
 #endif

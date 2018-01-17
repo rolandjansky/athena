@@ -66,6 +66,7 @@ void throw_test_err (const char* file, int line, const char* what)
 #include "AthContainers/tools/ElementProxy.h"
 #include "AthContainers/exceptions.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <cassert>
 
@@ -73,7 +74,7 @@ void throw_test_err (const char* file, int line, const char* what)
 using CxxUtils::make_unique;
 
 
-std::vector<int> dtor_log;
+std::vector<int> dtor_log ATLAS_THREAD_SAFE;
 
 
 struct A

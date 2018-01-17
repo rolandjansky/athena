@@ -53,6 +53,7 @@ namespace Muon {
     declareProperty("ExtrapolationDistance",m_extrapolationDistance = 1500. );
     declareProperty("MuonTruthParticlesKey", m_MuonTruthParticlesKey);
     declareProperty("MuonTruthSegmentsKey", m_MuonTruthSegmentsKey);
+    declareProperty("AddSectors", m_addSectors = false);
   }
 
   MuonLayerHoughTool::~MuonLayerHoughTool()
@@ -73,6 +74,9 @@ namespace Muon {
     if( m_doTruth && !m_truthSummaryTool.empty() && m_truthSummaryTool.retrieve().isFailure()){
       ATH_MSG_ERROR("Failed to initialize " << m_truthSummaryTool );
       return StatusCode::FAILURE;
+    }
+    else{
+      m_truthSummaryTool.disable();
     }
     if( detStore()->retrieve( m_detMgr ).isFailure() || !m_detMgr ){
       ATH_MSG_ERROR("Failed to initialize detector manager" );
@@ -530,8 +534,22 @@ namespace Muon {
       // sector indices have an offset of -1 because the numbering of the sectors are from 1 to 16 but the indices in the vertices are of course 0 to 15
       extendSeed( road, m_houghDataPerSectorVec[sector-1] );
 
+      // look for maxima in the overlap regions of sectors
+      int sectorN            = sector-1;
+      if(sectorN<1)  sectorN = 16;
+      int sectorP            = sector+1;
+      if(sectorP>16) sectorP = 1;
+
       // associate the road with phi maxima
       associatePhiMaxima( road, m_houghDataPerSectorVec[sector-1].phiMaxVec[region] );
+      //
+      if(m_addSectors) {
+        extendSeed( road, m_houghDataPerSectorVec[sectorN-1] );
+        associatePhiMaxima( road, m_houghDataPerSectorVec[sectorN-1].phiMaxVec[region] );
+        extendSeed( road, m_houghDataPerSectorVec[sectorP-1] );
+        associatePhiMaxima( road, m_houghDataPerSectorVec[sectorP-1].phiMaxVec[region] );
+      }
+
       if( road.neighbouringRegion != MuonStationIndex::DetectorRegionUnknown ) {
         associatePhiMaxima( road, m_houghDataPerSectorVec[sector-1].phiMaxVec[road.neighbouringRegion] );
       }
@@ -1028,6 +1046,7 @@ namespace Muon {
             // calculate the position of the first maximum in the reference frame of the other sector
             double rcor = maximumN.hough->m_descriptor.referencePosition*m_sectorMapping.transformRToNeighboringSector( maximum.pos,sector,sectorN)/maximum.hough->m_descriptor.referencePosition;
             double dist = rcor - maximumN.pos;
+            ATH_MSG_DEBUG(" maximumN.hough " << maximumN.hough->m_descriptor.referencePosition << " maximum.hough " << maximum.hough->m_descriptor.referencePosition << " maximumN.pos " << maximumN.pos << " maximum.pos " << maximum.pos << rcor << " distance " << dist );
             if( fabs(dist) > 100 ) continue;
             houghData.maxAssociationMap[&maximum].push_back(&maximumN);
             houghDataN.associatedToOtherSector.insert(&maximumN);
@@ -1788,23 +1807,23 @@ namespace Muon {
         HashVec::const_iterator iit_end = hashes.end();
         for( ;iit!=iit_end;++iit ){
           // !?! else if made by Felix
-          if( mdtCont && tech == MuonStationIndex::MDT ) {
+          if( mdtCont && mdtCont->size()>0 && tech == MuonStationIndex::MDT ) {
             MdtPrepDataContainer::const_iterator pos = mdtCont->indexFind(*iit);
             if( pos != mdtCont->end() ) fill(**pos,houghData.hitVec[layerHash]);
           }
-          else if( rpcCont && tech == MuonStationIndex::RPC ) {
+          else if( rpcCont && rpcCont->size()>0 && tech == MuonStationIndex::RPC ) {
             RpcPrepDataContainer::const_iterator pos = rpcCont->indexFind(*iit);
             if( pos != rpcCont->end() ) fill(**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first]);
           }
-          else if( tgcCont && tech == MuonStationIndex::TGC ) {
+          else if( tgcCont && tgcCont->size()>0 && tech == MuonStationIndex::TGC ) {
             TgcPrepDataContainer::const_iterator pos = tgcCont->indexFind(*iit);
             if( pos != tgcCont->end() ) fill(**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
-          else if( stgcCont && tech == MuonStationIndex::STGC ) {
+          else if( stgcCont && stgcCont->size()>0 && tech == MuonStationIndex::STGC ) {
             sTgcPrepDataContainer::const_iterator pos = stgcCont->indexFind(*iit);
             if( pos != stgcCont->end() ) fill(**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
-          else if( mmCont && tech == MuonStationIndex::MM ) {
+          else if( mmCont && mmCont->size()>0 && tech == MuonStationIndex::MM ) {
             MMPrepDataContainer::const_iterator pos = mmCont->indexFind(*iit);
             if( pos != mmCont->end() ) fill(**pos,houghData.hitVec[layerHash]);
           }

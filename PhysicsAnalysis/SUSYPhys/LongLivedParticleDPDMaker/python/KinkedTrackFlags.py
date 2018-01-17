@@ -164,6 +164,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe130_mht_L1XE50'        
         ]
     cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
+    cutsEtMinForStublet = [90.0*Units.GeV, 40.0*Units.GeV]
     cutsEtMinForMultiJets = [60.0*Units.GeV, 60.0*Units.GeV]
     jetMetPtMin = 40.0*Units.GeV
     cutMetHt = 0.0
@@ -175,8 +176,10 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     leptonPtMax = 20.0*Units.GeV
     leptonEtaMax = 2.5
     cutMetMin = 60.0*Units.GeV  # no cut
+    cutMetMinForStublet = 90.0*Units.GeV  # no cut
     cutMetMinForMultiJets = 170.0*Units.GeV
     jetMetDphiMin = 1.0
+    preScaleStublet = 10
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_singleJetMetFilterFlags)
 

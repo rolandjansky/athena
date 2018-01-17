@@ -36,7 +36,7 @@ bool DQFilledBunchFilterTool::accept() const {
     return true;
   } else {
     const EventInfo* eventInfo(0);
-    CHECK( evtStore()->retrieve( eventInfo ) );
+    CHECK( evtStore()->retrieve( eventInfo ), false );
     
     EventID::number_type bcid = eventInfo->event_ID()->bunch_crossing_id();  
     bool value = m_bunchtool->isFilled(bcid) ^ m_invert;

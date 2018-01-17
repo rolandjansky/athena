@@ -13,7 +13,8 @@
 #ifndef DBLQ00_WSPA_H
 #define DBLQ00_WSPA_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 namespace MuonGM
 {
 class DblQ00Wspa {
@@ -21,7 +22,7 @@ class DblQ00Wspa {
 public:
     DblQ00Wspa(){};
     ~DblQ00Wspa();
-    DblQ00Wspa(IRDBQuery*);
+    DblQ00Wspa(std::unique_ptr<IRDBQuery>&&);
 
     // data members for DblQ00/WSPA fields
     struct WSPA {

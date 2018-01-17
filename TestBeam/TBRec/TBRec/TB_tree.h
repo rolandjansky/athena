@@ -12,7 +12,7 @@
 #ifndef TB_tree_h
 #define TB_tree_h
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TROOT.h"
 #include "TChain.h"

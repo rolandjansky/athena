@@ -10,7 +10,7 @@
 
 // Gaudi/Athena includes:
 #include "AthenaKernel/errorcheck.h"
-#include "EventInfo/EventInfo.h"
+
 #include "EventInfo/EventID.h"
 #include "DataModel/DataVector.h"
 
@@ -18,13 +18,11 @@
 #include "eformat/SourceIdentifier.h"
 
 // TrigT1 includes:
-#include "TrigT1Result/RoIBResult.h"
-#include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
-#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/TrigT1CTPDefs.h"
-#include "TrigT1Interfaces/CTPSLink.h"
-#include "TrigT1Interfaces/SlinkWord.h"
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
+
+
+
+
 
 // Local includes:
 #include "RoIBuilder.h"
@@ -39,25 +37,7 @@ namespace ROIB {
       : AthAlgorithm( name, pSvcLocator ) {
 
       // Property setting general behaviour:
-      declareProperty( "DoCalo", m_doCalo = true, "Use inputs from Calo system" );
-      declareProperty( "DoMuon", m_doMuon = true, "Use inputs from Muon system" );
 
-      // Properties for data object locations in StoreGate
-      declareProperty( "CTPSLinkLocation",
-                       m_ctpSLinkLocation = LVL1CTP::DEFAULT_CTPSLinkLocation,
-                       "StoreGate location of CTP RoI" );
-      declareProperty( "CaloEMTauLocation",
-                       m_caloEMTauLocation = LVL1::TrigT1CaloDefs::EmTauSlinkLocation,
-                       "StoreGate location of EmTau inputs" );
-      declareProperty( "CaloJetEnergyLocation",
-                       m_caloJetEnergyLocation = LVL1::TrigT1CaloDefs::jepSlinkLocation,
-                       "StoreGate location of JetEnergy inputs");
-      declareProperty( "MuCTPISLinkLocation",
-                       m_muctpiSLinkLocation = LVL1MUCTPI::DEFAULT_MuonRoIBLocation,
-                       "StoreGate location of MuCTPI inputs");
-      declareProperty( "RoIBRDOLocation",
-                       m_roibRDOLocation = ROIB::DEFAULT_RoIBRDOLocation,
-                       "StoreGate location of RoIB RDO");
    }
 
    //---------------------------------
@@ -69,16 +49,37 @@ namespace ROIB {
       ATH_MSG_INFO( "Initialisation for RoIBuilder algorithm." );
       ATH_MSG_INFO( " Version: " << PACKAGE_VERSION );
       ATH_MSG_INFO( "========================================" );
-
       // Print system info
       if( ! m_doCalo ) {
-         REPORT_MESSAGE( MSG::WARNING )
-            << "Inputs from LVL1 Calo systems switched off";
+	ATH_MSG_WARNING( "Inputs from LVL1 Calo systems switched off" );
       }
       if( ! m_doMuon ) {
-         REPORT_MESSAGE( MSG::WARNING )
-            << "Inputs from LVL1 Muon systems switched off";
+	ATH_MSG_WARNING("Inputs from LVL1 Muon systems switched off" );
       }
+
+      CHECK( m_eventInfoKey.initialize() );
+
+      if ( m_doCalo ) { 
+	CHECK( not m_caloEMTauLocation.empty() );
+	CHECK( not m_caloJetEnergyLocation.empty() );
+      } else {
+	renounceArray( m_caloEMTauLocation );
+	renounceArray( m_caloJetEnergyLocation );
+      }	
+      CHECK( m_caloEMTauLocation.initialize() );
+      CHECK( m_caloJetEnergyLocation.initialize() );
+	
+
+      if ( m_doMuon ) {
+	CHECK( not m_muctpiSLinkLocation.key().empty() );
+      } else {
+	renounce( m_muctpiSLinkLocation );
+
+      }
+      CHECK( m_muctpiSLinkLocation.initialize() );
+
+      CHECK( m_ctpSLinkLocation.initialize() );
+      CHECK( m_roibRDOLocation.initialize() );
 
       return StatusCode::SUCCESS;
    }
@@ -87,10 +88,8 @@ namespace ROIB {
    // finalize()
    //---------------------------------
    StatusCode RoIBuilder::finalize() {
-
       ATH_MSG_INFO( "Finalizing " << name()
                     << " - package version " << PACKAGE_VERSION );
-
       return StatusCode::SUCCESS;
    }
 
@@ -107,19 +106,15 @@ namespace ROIB {
       //
       // Get the official event ID:
       //
-      int evtNum = 0;
-      const EventInfo* thisEvent = 0;
-      if( evtStore()->retrieve( thisEvent ).isFailure() ) {
-         REPORT_MESSAGE( MSG::WARNING )
-            << "Unable to get EventInfo from SG!";
-         REPORT_MESSAGE( MSG::WARNING )
-            << "Using event number 0 in output!";
-      } else if( msgLvl( MSG::VERBOSE ) ) {
-         REPORT_MESSAGE( MSG::VERBOSE )
-            << "Retrieved EventInfo object from StoreGate.";
-         REPORT_MESSAGE( MSG::VERBOSE )
-            << "Event number is: " << ( evtNum = thisEvent->event_ID()->event_number() );
-      }
+
+      auto eventInfoHandle = SG::makeHandle( m_eventInfoKey );
+      CHECK( eventInfoHandle.isValid() );
+      const xAOD::EventInfo* thisEvent = eventInfoHandle.cptr();
+      // Note we are loosing precision here as we cast from 64 to 32 bits integer
+      // but this is constraint imposed by: Trigger/TrigT1/TrigT1Result/TrigT1Result/Header.h
+      const int evtNum = static_cast<int>(thisEvent->eventNumber());
+      ATH_MSG_VERBOSE( "Event number is: " << evtNum );
+
 
       /////////////////////////////////////////////////////////////////////////////
       //                                                                         //
@@ -137,46 +132,41 @@ namespace ROIB {
       // create data element
       std::vector< unsigned int > ctp_rdo_data;
 
-      // Try to retrieve CTP result from StoreGate:
       bool ctp_simulation_error = false;
+      auto ctpSlinkHandle = SG::makeHandle( m_ctpSLinkLocation );      
+      CHECK( ctpSlinkHandle.isValid() );
+      const LVL1CTP::CTPSLink* ctp_slink = ctpSlinkHandle.cptr();
 
-      const LVL1CTP::CTPSLink* ctp_slink = 0;
-      if( evtStore()->retrieve( ctp_slink, m_ctpSLinkLocation ).isFailure() ) {
-         ctp_simulation_error = true;
-         REPORT_MESSAGE( MSG::WARNING )
-            << "No CTP result found in TES at: " << m_ctpSLinkLocation;
+      // test for consistency
+      if ( ctp_slink->getCTPToRoIBWords().empty() ) {
+	ctp_simulation_error = true;
+	REPORT_MESSAGE( MSG::WARNING )
+	  << "CTP size is zero. No header, trailer, data element";
+
+      } else if( ctp_slink->getDataElements().size() != ctp_slink->getNumWordsPerCTPSLink() ) {
+	ctp_simulation_error = true;
+	REPORT_MESSAGE( MSG::WARNING )
+	  << "Found CTP size inconsistency: " 
+	  << ctp_slink->getDataElements().size() << "/"
+	  //<< LVL1CTP::CTPSLink::wordsPerCTPSLink
+	  << ctp_slink->getNumWordsPerCTPSLink()
+	  << " (found/expected)";
+	
+	// get the data elements
+	if( msgLvl( MSG::DEBUG ) ) {
+	  const std::vector< unsigned int > ctp_rdo_data_inc = ctp_slink->getDataElements();
+	  for( size_t i(0); i < ctp_rdo_data_inc.size(); ++i ) {
+	    ATH_MSG_DEBUG( "broken CTP RoI = " << std::setw( 2 ) << i << ' ' 
+			   << MSG::hex << std::setfill('0') << std::setw( 8 )
+			   << ctp_rdo_data_inc[i] 
+			   << MSG::dec << std::setfill(' ') );
+	  }
+	}
       } else {
-
-         // test for consistency
-         if ( ctp_slink->getCTPToRoIBWords().empty() ) {
-            ctp_simulation_error = true;
-            REPORT_MESSAGE( MSG::WARNING )
-               << "CTP size is zero. No header, trailer, data element";
-         //} else if( ctp_slink->getDataElements().size() != LVL1CTP::CTPSLink::wordsPerCTPSLink ) {
-         } else if( ctp_slink->getDataElements().size() != ctp_slink->getNumWordsPerCTPSLink() ) {
-            ctp_simulation_error = true;
-            REPORT_MESSAGE( MSG::WARNING )
-               << "Found CTP size inconsistency: " 
-               << ctp_slink->getDataElements().size() << "/"
-               //<< LVL1CTP::CTPSLink::wordsPerCTPSLink
-               << ctp_slink->getNumWordsPerCTPSLink()
-               << " (found/expected)";
-
-            // get the data elements
-            if( msgLvl( MSG::DEBUG ) ) {
-               const std::vector< unsigned int > ctp_rdo_data_inc = ctp_slink->getDataElements();
-               for( size_t i(0); i < ctp_rdo_data_inc.size(); ++i ) {
-                  ATH_MSG_DEBUG( "broken CTP RoI = " << std::setw( 2 ) << i << ' ' 
-                                 << MSG::hex << std::setfill('0') << std::setw( 8 )
-                                 << ctp_rdo_data_inc[i] 
-                                 << MSG::dec << std::setfill(' ') );
-               }
-            }
-         } else {
-            ATH_MSG_VERBOSE( "Retrieved CTP result from TES with key: "
-                             << m_ctpSLinkLocation );
-         }
+	ATH_MSG_VERBOSE( "Retrieved CTP result from TES with key: "
+			 << m_ctpSLinkLocation );
       }
+   
 
       if( ctp_simulation_error ) {
 
@@ -200,7 +190,7 @@ namespace ROIB {
             }
          }
 
-         // perpare trailer
+         // prepare trailer
          ctp_rdo_trailer = ctp_slink->getTrailer();
       }
 
@@ -220,13 +210,8 @@ namespace ROIB {
       //                                                                         //
       /////////////////////////////////////////////////////////////////////////////
 
-      std::vector< std::string > emtau_slink_location;
-      emtau_slink_location.push_back( m_caloEMTauLocation + "0" );
-      emtau_slink_location.push_back( m_caloEMTauLocation + "1" );
-      emtau_slink_location.push_back( m_caloEMTauLocation + "2" );
-      emtau_slink_location.push_back( m_caloEMTauLocation + "3" );
-
       std::vector< EMTauResult > emtau_rdo_result_vector;
+
 
       for( unsigned int slink = 0; slink < numEMTauSlinks; ++slink ) {
 
@@ -238,44 +223,36 @@ namespace ROIB {
          bool emtau_simulation_error = false;
          const DataVector< LVL1CTP::SlinkWord >* emtau_slink = 0;
 
-         // get slink from storegate
          if( m_doCalo ) {
-            if( evtStore()->retrieve( emtau_slink,
-                                      emtau_slink_location[ slink ] ).isFailure() ) {
-               emtau_simulation_error = true;
-               REPORT_MESSAGE( MSG::WARNING )
-                  << "No EMTau Slink found in TES at: " << emtau_slink_location[ slink ];
-               REPORT_MESSAGE( MSG::WARNING )
-                  << "Creating empty EMTau RDO part!";
-            } else {
-               ATH_MSG_VERBOSE( "Retrieved EMTau Slink from TES with key: "
-                                << emtau_slink_location[ slink ] );
-            }
+	   ATH_MSG_VERBOSE("Reading " <<  m_caloEMTauLocation[slink].key() );
+	   auto handle = SG::makeHandle( m_caloEMTauLocation[slink] );
+	   CHECK( handle.isValid() );
+	   emtau_slink  = handle.cptr();	   
+
+	   unsigned int icnt = 0;
+	   DataVector< LVL1CTP::SlinkWord >::const_iterator itr =
+	     emtau_slink->begin();
+	   DataVector< LVL1CTP::SlinkWord >::const_iterator end =
+	     emtau_slink->end();
+	   for( ; itr != end; ++itr ) {
+	     
+	     ++icnt;
+	     if( ( icnt > ( wordsPerHeader + 1 ) ) &&
+		 ( icnt <= ( emtau_slink->size() - wordsPerTrailer - 1 ) ) ) {
+	       
+	       EMTauRoI emtau_roi( ( *itr )->word() );
+	       emtau_rdo_data.push_back( emtau_roi );
+	       ATH_MSG_DEBUG( "EmTau RoI  = " << MSG::hex << std::setw( 8 )
+			      << emtau_roi.roIWord() );	       
+	     }
+	   }
+         
          } else {
             emtau_simulation_error = true;
+	    ATH_MSG_VERBOSE( "Retrieved EMTau Slink from TES with key: " <<  m_caloEMTauLocation[slink] );
          }
 
-         if( emtau_slink ) {
 
-            unsigned int icnt = 0;
-            DataVector< LVL1CTP::SlinkWord >::const_iterator itr =
-               emtau_slink->begin();
-            DataVector< LVL1CTP::SlinkWord >::const_iterator end =
-               emtau_slink->end();
-            for( ; itr != end; ++itr ) {
-
-               ++icnt;
-               if( ( icnt > ( wordsPerHeader + 1 ) ) &&
-                   ( icnt <= ( emtau_slink->size() - wordsPerTrailer - 1 ) ) ) {
-
-                  EMTauRoI emtau_roi( ( *itr )->word() );
-                  emtau_rdo_data.push_back( emtau_roi );
-                  ATH_MSG_DEBUG( "EmTau RoI  = " << MSG::hex << std::setw( 8 )
-                                 << emtau_roi.roIWord() );
-
-               }
-            }
-         }
 
          Trailer emtau_rdo_trailer( 0, 0 );
          if( ! emtau_simulation_error ) {
@@ -296,10 +273,6 @@ namespace ROIB {
       //                                                                         //
       /////////////////////////////////////////////////////////////////////////////
 
-      std::vector< std::string > jetenergy_slink_location;
-      jetenergy_slink_location.push_back( m_caloJetEnergyLocation + "0" );
-      jetenergy_slink_location.push_back( m_caloJetEnergyLocation + "1" );
-
       std::vector< JetEnergyResult > jetenergy_rdo_result_vector;
 
       for( unsigned int slink = 0; slink < numJetEnergySlinks; ++slink ) {
@@ -312,45 +285,38 @@ namespace ROIB {
          bool jetenergy_simulation_error = false;
          const DataVector< LVL1CTP::SlinkWord >* jetenergy_slink = 0;
 
-         // get slink from storegate
          if( m_doCalo ) {
-            if( evtStore()->retrieve( jetenergy_slink,
-                                      jetenergy_slink_location[ slink ] ).isFailure() ) {
-               jetenergy_simulation_error = true;
-               REPORT_MESSAGE( MSG::WARNING )
-                  << "No JetEnergy Slink found in TES at: "
-                  << jetenergy_slink_location[ slink ];
-               REPORT_MESSAGE( MSG::WARNING )
-                  << "Creating empty JetEnergy RDO part!";
-            } else {
-               ATH_MSG_VERBOSE( "Retrieved JetEnergy Slink from TES with key: "
-                                << jetenergy_slink_location[ slink ] );
-            }
+	   auto handle = SG::makeHandle( m_caloJetEnergyLocation[slink] );
+	   CHECK( handle.isValid() );
+	   jetenergy_slink = handle.cptr();
+	   
+	   ATH_MSG_VERBOSE( "Retrieved JetEnergy Slink from TES with key: "
+			    << m_caloJetEnergyLocation[slink] );
+
+	   unsigned int icnt = 0;
+	   DataVector< LVL1CTP::SlinkWord >::const_iterator itr =
+	     jetenergy_slink->begin();
+	   DataVector< LVL1CTP::SlinkWord >::const_iterator end =
+	     jetenergy_slink->end();
+	   for( ; itr != end; ++itr ) {
+	     
+	     ++icnt;
+	     if( ( icnt > ( wordsPerHeader + 1 ) ) &&
+		 ( icnt <= ( jetenergy_slink->size() - wordsPerTrailer - 1 ) ) ) {
+	       
+	       JetEnergyRoI jetenergy_roi( ( *itr )->word() );
+	       jetenergy_rdo_data.push_back( jetenergy_roi );
+	       ATH_MSG_DEBUG( "Jet/Energy RoI    = " << MSG::hex << std::setw( 8 )
+			      << jetenergy_roi.roIWord() );
+	     }
+	   }
          } else {
             jetenergy_simulation_error = true;
          }
 
-         if( jetenergy_slink ) {
-            unsigned int icnt = 0;
-            DataVector< LVL1CTP::SlinkWord >::const_iterator itr =
-               jetenergy_slink->begin();
-            DataVector< LVL1CTP::SlinkWord >::const_iterator end =
-               jetenergy_slink->end();
-            for( ; itr != end; ++itr ) {
 
-               ++icnt;
-               if( ( icnt > ( wordsPerHeader + 1 ) ) &&
-                   ( icnt <= ( jetenergy_slink->size() - wordsPerTrailer - 1 ) ) ) {
 
-                  JetEnergyRoI jetenergy_roi( ( *itr )->word() );
-                  jetenergy_rdo_data.push_back( jetenergy_roi );
-                  ATH_MSG_DEBUG( "Jet/Energy RoI    = " << MSG::hex << std::setw( 8 )
-                                 << jetenergy_roi.roIWord() );
-               }
-            }
-         }
-
-         // Now wrap up the jetenergy triggers:
+         // Now wrap up the jet energy triggers:
          Trailer jetenergy_rdo_trailer( 0, 0 );
          if( !jetenergy_simulation_error ) {
             jetenergy_rdo_trailer.setNumDataWords( jetenergy_rdo_data.size() );
@@ -379,44 +345,36 @@ namespace ROIB {
       bool muctpi_simulation_error = false;
       const L1MUINT::MuCTPIToRoIBSLink* muctpi_slink = 0;
 
-      // get slink from storegate
       if( m_doMuon ) {
-         if( evtStore()->retrieve( muctpi_slink,
-                                   m_muctpiSLinkLocation ).isFailure() ) {
-            muctpi_simulation_error = true;
-            REPORT_MESSAGE( MSG::WARNING )
-               << "No MuCTPI result found in TES at: " << m_muctpiSLinkLocation;
-            REPORT_MESSAGE( MSG::WARNING )
-               << "Creating empty MuCTPI RDO part!";
-         } else {
-            ATH_MSG_VERBOSE( "Retrieved MuCTPI result from TES with key: "
-                             << m_muctpiSLinkLocation );
-         }
+	auto handle = SG::makeHandle( m_muctpiSLinkLocation );
+	CHECK( handle.isValid() );
+	muctpi_slink = handle.cptr();
+	ATH_MSG_VERBOSE( "Retrieved MuCTPI result from TES with key: "
+			 << m_muctpiSLinkLocation );
+
+	unsigned int icnt = 0;
+	std::vector< unsigned int >::const_iterator itr =
+	  muctpi_slink->getMuCTPIToRoIBWords().begin();
+	std::vector< unsigned int >::const_iterator end =
+	  muctpi_slink->getMuCTPIToRoIBWords().end();
+	for( ; itr != end; ++itr ) {
+	  
+	  ++icnt;
+	  if( ( icnt > ( wordsPerHeader + 1 ) ) &&
+	      ( icnt <= ( muctpi_slink->getMuCTPIToRoIBWords().size() -
+			  wordsPerTrailer ) ) ) {
+	    
+	    MuCTPIRoI muctpi_roi( *itr );
+	    muctpi_rdo_data.push_back( muctpi_roi );
+	    ATH_MSG_DEBUG( "MuCTPI RoI = " << MSG::hex << std::setw( 8 )
+			   << muctpi_roi.roIWord() );
+	  }
+	}
       } else {
          muctpi_simulation_error = true;
       }
 
-      if( muctpi_slink ){
 
-         unsigned int icnt = 0;
-         std::vector< unsigned int >::const_iterator itr =
-            muctpi_slink->getMuCTPIToRoIBWords().begin();
-         std::vector< unsigned int >::const_iterator end =
-            muctpi_slink->getMuCTPIToRoIBWords().end();
-         for( ; itr != end; ++itr ) {
-
-            ++icnt;
-            if( ( icnt > ( wordsPerHeader + 1 ) ) &&
-                ( icnt <= ( muctpi_slink->getMuCTPIToRoIBWords().size() -
-                            wordsPerTrailer ) ) ) {
-
-               MuCTPIRoI muctpi_roi( *itr );
-               muctpi_rdo_data.push_back( muctpi_roi );
-               ATH_MSG_DEBUG( "MuCTPI RoI = " << MSG::hex << std::setw( 8 )
-                              << muctpi_roi.roIWord() );
-            }
-         }
-      }
 
       Trailer muctpi_rdo_trailer( 0, 0 );
       if( ! muctpi_simulation_error ) {
@@ -431,9 +389,9 @@ namespace ROIB {
       //
       // Finally create RoIB RDO object:
       //
-      RoIBResult* roib_rdo_result = new RoIBResult( muctpi_rdo_result, ctp_rdo_result,
-                                                    jetenergy_rdo_result_vector,
-                                                    emtau_rdo_result_vector );
+      std::unique_ptr<RoIBResult> roib_rdo_result = std::make_unique< RoIBResult>( muctpi_rdo_result, ctp_rdo_result,
+										   jetenergy_rdo_result_vector,
+										   emtau_rdo_result_vector );
       if( msgLvl( MSG::DEBUG ) ) {
          ATH_MSG_DEBUG( "RoIB Results:" );
          roib_rdo_result->muCTPIResult().dumpData( msg( MSG::DEBUG ) );
@@ -445,15 +403,10 @@ namespace ROIB {
       //
       // Put RoIB RDO object into SG:
       //
-      if(evtStore()->contains<RoIBResult>(m_roibRDOLocation)) {
-         CHECK( evtStore()->overwrite( roib_rdo_result, m_roibRDOLocation ) );
-      } else {
-         CHECK( evtStore()->record( roib_rdo_result, m_roibRDOLocation ) );
-      }
+      auto roibHandle = SG::makeHandle( m_roibRDOLocation );
+      CHECK( roibHandle.record( std::move( roib_rdo_result ) ) );
+      // no owerwrite possible with DataHandles
 
-      //
-      // Return happily:
-      //
       return StatusCode::SUCCESS;
    }
 

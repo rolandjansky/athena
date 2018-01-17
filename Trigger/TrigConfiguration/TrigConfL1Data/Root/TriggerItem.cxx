@@ -165,7 +165,7 @@ TriggerItem::setCondition(const string& logic,
    try {
       m_TopNode = TrigConf::parse(logic, conditions, thrs);
    }
-   catch(exception e) {
+   catch(const exception& e) {
       cout << "WARNING: Could not set condition of triggeritem " << name() << " because: " << e.what() << endl;
    }
 }

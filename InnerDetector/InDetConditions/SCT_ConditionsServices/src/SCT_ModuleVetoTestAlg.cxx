@@ -23,58 +23,69 @@
 //local includes
 #include "SCT_ModuleVetoSvc.h"
 
-SCT_ModuleVetoTestAlg::SCT_ModuleVetoTestAlg( 
-                         const std::string& name, 
-                         ISvcLocator* pSvcLocator ) : 
-                         AthAlgorithm( name, pSvcLocator ), m_pModuleVetoSvc("SCT_ModuleVetoSvc",name){
-                           //nop
+SCT_ModuleVetoTestAlg::SCT_ModuleVetoTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
+  AthAlgorithm(name, pSvcLocator), 
+  m_pModuleVetoSvc("SCT_ModuleVetoSvc", name) {
+  //nop
 }
 
 SCT_ModuleVetoTestAlg::~SCT_ModuleVetoTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
+  ATH_MSG_INFO("Calling destructor");
 }
 
 //Initialize
 StatusCode 
-SCT_ModuleVetoTestAlg::initialize(){
-  StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling initialize" << endmsg;
+SCT_ModuleVetoTestAlg::initialize() {
+  StatusCode sc{StatusCode::SUCCESS};
+  ATH_MSG_INFO("Calling initialize");
   sc = m_pModuleVetoSvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the veto service"<<endmsg;
+    ATH_MSG_ERROR("Could not retrieve the veto service");
   }
   return sc;
 }
 
 //Execute
 StatusCode 
-SCT_ModuleVetoTestAlg::execute(){
+SCT_ModuleVetoTestAlg::execute() {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
-  StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling execute" << endmsg;
-  msg(MSG::INFO) <<"Dummy call to module id 0: module is "<<endmsg;
-  bool result=m_pModuleVetoSvc->isGood(Identifier(0));
-  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
-  msg(MSG::INFO) <<"Dummy call to module id 1: module is "<<endmsg;
-  result=m_pModuleVetoSvc->isGood(Identifier(1));
-  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
-  msg(MSG::INFO) << "Using Identifier Hash method: with number 2137 "<<endmsg;
-  result=m_pModuleVetoSvc->isGood(IdentifierHash(2137));
-  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
-  msg(MSG::INFO) <<"Dummy call to module id 3: module is "<<endmsg;
-  result=m_pModuleVetoSvc->isGood(Identifier(3));
-   msg(MSG::INFO) << (result?"good":"bad") << endmsg;
-  return sc;
+
+  ATH_MSG_INFO("Calling execute");
+
+  ATH_MSG_INFO("Dummy call to module id 0: module is ");
+  bool result{m_pModuleVetoSvc->isGood(Identifier{0})};
+  ATH_MSG_INFO((result ? "good" : "bad"));
+
+  ATH_MSG_INFO("Dummy call to module id 1:  module is ");
+  result=m_pModuleVetoSvc->isGood(Identifier{1});
+  ATH_MSG_INFO((result ? "good" : "bad"));
+
+  ATH_MSG_INFO("Dummy call to module id 2:  module is ");
+  result=m_pModuleVetoSvc->isGood(Identifier{2});
+  ATH_MSG_INFO((result ? "good" : "bad"));
+
+  ATH_MSG_INFO("Dummy call to module id 3:  module is ");
+  result=m_pModuleVetoSvc->isGood(Identifier{3});
+  ATH_MSG_INFO((result ? "good" : "bad"));
+
+  ATH_MSG_INFO("Dummy call to module id 151040000:  module is ");
+  result=m_pModuleVetoSvc->isGood(Identifier{151040000});
+  ATH_MSG_INFO((result ? "good" : "bad"));
+
+  ATH_MSG_INFO("Using Identifier Hash method:  with number 2137 ");
+  result=m_pModuleVetoSvc->isGood(IdentifierHash{2137});
+  ATH_MSG_INFO((result ? "good" : "bad"));
+
+  return StatusCode::SUCCESS;
 }
 
 
 //Finalize
 StatusCode
-SCT_ModuleVetoTestAlg::finalize(){
-  StatusCode sc(StatusCode::SUCCESS);
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "Calling finalize" << endmsg;
-  return sc;
+SCT_ModuleVetoTestAlg::finalize() {
+  ATH_MSG_INFO("Calling finalize");
+
+  return StatusCode::SUCCESS;
 }

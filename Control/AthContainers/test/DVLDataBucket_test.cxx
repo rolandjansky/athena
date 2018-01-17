@@ -20,9 +20,10 @@
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/BaseInfo.h"
-#include "SGTools/IRegisterTransient.h"
+#include "AthenaKernel/IRegisterTransient.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <cassert>
 
@@ -46,7 +47,7 @@ struct A
   A(int x) : aa(x) {}
   virtual ~A() { log.push_back (aa); }
   int aa;
-  static std::vector<int> log;
+  static std::vector<int> log ATLAS_THREAD_SAFE;
 };
 std::vector<int> A::log;
 

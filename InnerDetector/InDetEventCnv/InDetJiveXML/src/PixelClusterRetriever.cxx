@@ -29,8 +29,8 @@ namespace JiveXML {
    **/
   PixelClusterRetriever::PixelClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("PixCluster"),
-    geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("PixCluster"),
+    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -97,7 +97,7 @@ namespace JiveXML {
       const InDet::SiClusterCollection* SiClusterColl = (*SiClusterCollItr);
 
       //Only run on Pixel clusters
-      if ( ! geo->PixelIDHelper()->is_pixel(SiClusterColl->identify())) continue ;
+      if ( ! m_geo->PixelIDHelper()->is_pixel(SiClusterColl->identify())) continue ;
 
       //Now loop over all clusters in that collection 
       InDet::SiClusterCollection::const_iterator SiClusterItr = SiClusterColl->begin();
@@ -108,8 +108,8 @@ namespace JiveXML {
         const InDet::PixelCluster *cluster = dynamic_cast<const InDet::PixelCluster*>(sicluster);
         
         //and the detector element for that cluster via the id
-        Identifier id = geo->PixelIDHelper()->wafer_id(cluster->identify());
-        InDetDD::SiDetectorElement* element = geo->PixelGeoManager()->getDetectorElement(id);
+        Identifier id = m_geo->PixelIDHelper()->wafer_id(cluster->identify());
+        InDetDD::SiDetectorElement* element = m_geo->PixelGeoManager()->getDetectorElement(id);
         if (!element){
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not obtain Detector Element with ID " << id << endmsg;
           continue ;
@@ -126,8 +126,8 @@ namespace JiveXML {
         //Get the cluster id
         Identifier clusterId = cluster->identify();
         ident.push_back(DataType(clusterId.get_compact()));
-        phiModule.push_back(DataType(geo->PixelIDHelper()->phi_module(clusterId)));
-        etaModule.push_back(DataType(geo->PixelIDHelper()->eta_module(clusterId)));
+        phiModule.push_back(DataType(m_geo->PixelIDHelper()->phi_module(clusterId)));
+        etaModule.push_back(DataType(m_geo->PixelIDHelper()->eta_module(clusterId)));
         
         //Only process truth if its there
         if ( simClusterMap == NULL ) continue;

@@ -122,7 +122,7 @@ void AuxVectorBase::setIndices (ForwardIterator beg,
  */
 template <class ForwardIterator>
 inline
-void AuxVectorBase::setIndices1 (const SG_STD_OR_BOOST::false_type&,
+void AuxVectorBase::setIndices1 (const std::false_type&,
                                  ForwardIterator,
                                  ForwardIterator,
                                  size_t)
@@ -142,7 +142,7 @@ void AuxVectorBase::setIndices1 (const SG_STD_OR_BOOST::false_type&,
  * and indices will be set sequentially, starting with @c first.
  */
 template <class ForwardIterator>
-void AuxVectorBase::setIndices1 (const SG_STD_OR_BOOST::true_type&,
+void AuxVectorBase::setIndices1 (const std::true_type&,
                                  ForwardIterator beg,
                                  ForwardIterator end,
                                  size_t first)
@@ -185,7 +185,7 @@ void AuxVectorBase::clearIndex (ForwardIterator elt)
  */
 template <class ForwardIterator>
 inline
-void AuxVectorBase::clearIndex1 (const SG_STD_OR_BOOST::false_type&,
+void AuxVectorBase::clearIndex1 (const std::false_type&,
                                  ForwardIterator /*elt*/)
 {
   ATHCONTAINERS_ASSERT (!m_trackIndices);
@@ -199,7 +199,7 @@ void AuxVectorBase::clearIndex1 (const SG_STD_OR_BOOST::false_type&,
  * This is the auxdata case.
  */
 template <class ForwardIterator>
-void AuxVectorBase::clearIndex1 (const SG_STD_OR_BOOST::true_type&,
+void AuxVectorBase::clearIndex1 (const std::true_type&,
                                  ForwardIterator elt)
 {
   if (!m_trackIndices)
@@ -239,7 +239,7 @@ void AuxVectorBase::clearIndices (ForwardIterator beg,
  */
 template <class ForwardIterator>
 inline
-void AuxVectorBase::clearIndices1 (const SG_STD_OR_BOOST::false_type&,
+void AuxVectorBase::clearIndices1 (const std::false_type&,
                                    ForwardIterator,
                                    ForwardIterator)
 {
@@ -255,7 +255,7 @@ void AuxVectorBase::clearIndices1 (const SG_STD_OR_BOOST::false_type&,
  * Auxdata case.
  */
 template <class ForwardIterator>
-void AuxVectorBase::clearIndices1 (const SG_STD_OR_BOOST::true_type&,
+void AuxVectorBase::clearIndices1 (const std::true_type&,
                                    ForwardIterator beg,
                                    ForwardIterator end)
 {
@@ -292,7 +292,7 @@ void AuxVectorBase::resize (size_t size)
  */
 inline
 void
-AuxVectorBase::resize1 (const SG_STD_OR_BOOST::false_type&, size_t /*size*/)
+AuxVectorBase::resize1 (const std::false_type&, size_t /*size*/)
 {
   ATHCONTAINERS_ASSERT (!m_trackIndices);
 }
@@ -321,7 +321,7 @@ void AuxVectorBase::reserve (size_t size)
  * The no-auxdata case; a no-op except for checking @c m_trackIndices.
  */
 inline
-void AuxVectorBase::reserve1 (const SG_STD_OR_BOOST::false_type&, size_t)
+void AuxVectorBase::reserve1 (const std::false_type&, size_t)
 {
   ATHCONTAINERS_ASSERT (!m_trackIndices);
 }
@@ -375,7 +375,7 @@ void AuxVectorBase::shift (DVL& cont,
  */
 template <class DVL>
 inline
-void AuxVectorBase::shift1 (const SG_STD_OR_BOOST::false_type&,
+void AuxVectorBase::shift1 (const std::false_type&,
                             DVL& /*cont*/,
                             size_t /*pos*/, ptrdiff_t /*offs*/)
 {
@@ -411,7 +411,7 @@ void AuxVectorBase::shift1 (const SG_STD_OR_BOOST::false_type&,
  * (running destructors as appropriate).
  */
 template <class DVL>
-void AuxVectorBase::shift1 (const SG_STD_OR_BOOST::true_type&,
+void AuxVectorBase::shift1 (const std::true_type&,
                             DVL& cont,
                             size_t pos, ptrdiff_t offs)
 {
@@ -490,7 +490,7 @@ AuxVectorBase::moveAux (size_t index, ForwardIterator beg, ForwardIterator end)
  */
 template <class ForwardIterator>
 inline
-void AuxVectorBase::moveAux1 (const SG_STD_OR_BOOST::false_type&,
+void AuxVectorBase::moveAux1 (const std::false_type&,
                               size_t /*index*/,
                               ForwardIterator /*beg*/,
                               ForwardIterator /*end*/)
@@ -513,7 +513,7 @@ void AuxVectorBase::moveAux1 (const SG_STD_OR_BOOST::false_type&,
  * The auxdata case.
  */
 template <class ForwardIterator>
-void AuxVectorBase::moveAux1 (const SG_STD_OR_BOOST::true_type&,
+void AuxVectorBase::moveAux1 (const std::true_type&,
                               size_t index,
                               ForwardIterator beg,
                               ForwardIterator end)
@@ -596,7 +596,7 @@ void AuxVectorBase::resortAux (size_t index,
  */
 template <class ForwardIterator>
 inline
-void AuxVectorBase::resortAux1 (const SG_STD_OR_BOOST::false_type&,
+void AuxVectorBase::resortAux1 (const std::false_type&,
                                 size_t /*index*/,
                                 ForwardIterator /*beg*/,
                                 ForwardIterator /*end*/)
@@ -619,7 +619,7 @@ void AuxVectorBase::resortAux1 (const SG_STD_OR_BOOST::false_type&,
  * The auxdata case.
  */
 template <class ForwardIterator>
-void AuxVectorBase::resortAux1 (const SG_STD_OR_BOOST::true_type&,
+void AuxVectorBase::resortAux1 (const std::true_type&,
                                 size_t index,
                                 ForwardIterator beg,
                                 ForwardIterator end)

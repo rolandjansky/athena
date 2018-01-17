@@ -204,10 +204,9 @@ bool DQTMuonIDTrackTool::bookMuons()
    MsgStream log(msgSvc(), name());
     
 
-   StatusCode sc = m_extrapolator.retrieve();
-   if(sc.isFailure()) {
+   if(m_extrapolator.retrieve().isFailure()) {
       log << MSG::FATAL << "Could not get " << m_extrapolator.type() << endmsg;
-      return sc;
+      return false;
    }
 
 

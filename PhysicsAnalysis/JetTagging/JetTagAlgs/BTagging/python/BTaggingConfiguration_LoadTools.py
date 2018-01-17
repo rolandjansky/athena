@@ -381,11 +381,6 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 #            # The name of this tagger was misspelled in the old code; I fixed it (Wouter)
 #            addTool('MultiSVTag', ToolSvc, 'BTagTrackToJetAssociatorBB', JetCollection, Verbose =  BTaggingFlags.OutputLevel < 3)
 
-#          if BTaggingFlags.JetProb:
-#            addTool('JetProbTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-#            if BTaggingFlags.JetProbFlip:
-#              addTool('JetProbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-
   if 'SoftMu' in TaggerList:
     ConfInstance.addTool('SoftMuonTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.SoftMuChi2:

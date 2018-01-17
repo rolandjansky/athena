@@ -11,10 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Commission/CommissionEvent
                           Control/AthenaKernel
-                          Control/CLIDSvc
                           Control/CxxUtils
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthContainers
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoModel/GeoAdaptors
@@ -72,7 +70,7 @@ atlas_add_component( TrackD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} TrkParameters CommissionEvent AthenaKernel CxxUtils DataModel SGTools StoreGateLib SGtests AtlasDetDescr GeoAdaptors Identifier EventPrimitives xAODBase xAODEventInfo xAODPrimitives xAODTracking GaudiKernel GeneratorObjects TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetTestBLayerLib InDetSimEvent MuonIdHelpersLib ParticleEvent D3PDMakerUtils MCTruthClassifierLib muonEvent Particle ParticleTruth ITrackToVertex RecoToolInterfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex VxVertex TrkToolInterfaces TrkVertexFitterValidationUtilsLib TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} TrkParameters CommissionEvent AthenaKernel CxxUtils AthContainers StoreGateLib SGtests AtlasDetDescr GeoAdaptors Identifier EventPrimitives xAODBase xAODEventInfo xAODPrimitives xAODTracking GaudiKernel GeneratorObjects TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetTestBLayerLib InDetSimEvent MuonIdHelpersLib ParticleEvent D3PDMakerUtils MCTruthClassifierLib muonEvent Particle ParticleTruth ITrackToVertex RecoToolInterfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex VxVertex TrkToolInterfaces TrkVertexFitterValidationUtilsLib TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrackD3PDMaker )

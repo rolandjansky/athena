@@ -21,36 +21,35 @@ MdtReadWriteCoolStr::MdtReadWriteCoolStr(const std::string& name,
    p_detstore(0),
    p_coolsvc(0),
    m_done(false),
-   par_read(false),
-   par_extract(false),
-   par_write(false),
-   par_chan(1),
-   par_tech(0),
-   par_folder("/TEST/COOLSTR"),
-   par_rfile(""),
-   par_wfile("coolstrfile.dat"),
-   par_calT0(false),
-   par_calRT(false),
-   par_alignCorr(false),
-   par_alignasciiformat(false),			     
-   par_deadTube(false)
+   m_par_read(false),
+   m_par_extract(false),
+   m_par_write(false),
+   m_par_chan(1),
+   m_par_tech(0),
+   m_par_folder("/TEST/COOLSTR"),
+   m_par_rfile(""),
+   m_par_wfile("coolstrfile.dat"),
+   m_par_calT0(false),
+   m_par_calRT(false),
+   m_par_alignCorr(false),
+   m_par_alignasciiformat(false),			     
+   m_par_deadTube(false)
 {
   // declare properties
 
-  declareProperty("Read",par_read);
-  declareProperty("Extract",par_extract);
-  declareProperty("Write",par_write);
-  declareProperty("Channel",par_chan);
-  declareProperty("Tech",par_tech);
-  declareProperty("Folder",par_folder);
-  declareProperty("RFile",par_rfile);
-  declareProperty("WFile",par_wfile);
-  declareProperty("WFile",par_wfile);
-  declareProperty("CalT0",par_calT0);
-  declareProperty("CalRT",par_calRT);
-  declareProperty("AlignCorr",par_alignCorr);
-  declareProperty("Alignasciiformat",par_alignasciiformat);
-  declareProperty("DeadTube",par_deadTube);
+  declareProperty("Read",m_par_read);
+  declareProperty("Extract",m_par_extract);
+  declareProperty("Write",m_par_write);
+  declareProperty("Channel",m_par_chan);
+  declareProperty("Tech",m_par_tech);
+  declareProperty("Folder",m_par_folder);
+  declareProperty("RFile",m_par_rfile);
+  declareProperty("WFile",m_par_wfile);
+  declareProperty("CalT0",m_par_calT0);
+  declareProperty("CalRT",m_par_calRT);
+  declareProperty("AlignCorr",m_par_alignCorr);
+  declareProperty("Alignasciiformat",m_par_alignasciiformat);
+  declareProperty("DeadTube",m_par_deadTube);
 }
 
 MdtReadWriteCoolStr::~MdtReadWriteCoolStr() {}
@@ -73,27 +72,27 @@ StatusCode MdtReadWriteCoolStr::initialize()
 }
 
 StatusCode MdtReadWriteCoolStr::execute() {
-  if (par_write) {
+  if (m_par_write) {
     // only write data to TDS once
     if (!m_done) writeData();
-    if (!par_read) return StatusCode::SUCCESS;
+    if (!m_par_read) return StatusCode::SUCCESS;
   }
-  if (par_read && par_calT0) {
+  if (m_par_read && m_par_calT0) {
     loadData();
     m_done=true;
     return StatusCode::SUCCESS;
   }
-  if (par_read && par_calRT) {
+  if (m_par_read && m_par_calRT) {
     loadDataRt();
     m_done=true;
     return StatusCode::SUCCESS;
   }
-  if (par_read && par_alignCorr) {
+  if (m_par_read && m_par_alignCorr) {
     loadDataAlign();
     m_done=true;
     return StatusCode::SUCCESS;
   }
-  if (par_read && par_alignasciiformat) {
+  if (m_par_read && m_par_alignasciiformat) {
     loadDataAlignAscii();
     m_done=true;
     return StatusCode::SUCCESS;
@@ -106,43 +105,43 @@ StatusCode MdtReadWriteCoolStr::finalize() {
 }
 
 void MdtReadWriteCoolStr::writeData() {
-  m_log << MSG::INFO << "Write data from file " << par_wfile << " to folder "
-	<< par_folder << " at channel " << par_chan << endmsg;
- if(par_calT0) {
-  if (StatusCode::SUCCESS!=p_coolsvc->putFileT0(par_folder,par_wfile,par_chan,
-       par_tech))
+  m_log << MSG::INFO << "Write data from file " << m_par_wfile << " to folder "
+	<< m_par_folder << " at channel " << m_par_chan << endmsg;
+ if(m_par_calT0) {
+  if (StatusCode::SUCCESS!=p_coolsvc->putFileT0(m_par_folder,m_par_wfile,m_par_chan,
+       m_par_tech))
     m_log << MSG::ERROR << "putFile T0 failed" << endmsg;
  }
- if(par_calRT) {
-  if (StatusCode::SUCCESS!=p_coolsvc->putFileRT(par_folder,par_wfile,par_chan,
-       par_tech))
+ if(m_par_calRT) {
+  if (StatusCode::SUCCESS!=p_coolsvc->putFileRT(m_par_folder,m_par_wfile,m_par_chan,
+       m_par_tech))
     m_log << MSG::ERROR << "putFile RT failed" << endmsg;
  }
- if(par_alignCorr) {
-  if (StatusCode::SUCCESS!=p_coolsvc->putFileAlignCorr(par_folder,par_wfile,par_chan,
-       par_tech))
+ if(m_par_alignCorr) {
+  if (StatusCode::SUCCESS!=p_coolsvc->putFileAlignCorr(m_par_folder,m_par_wfile,m_par_chan,
+       m_par_tech))
     m_log << MSG::ERROR << "putFile Align corrections failed" << endmsg;
  }
- if(par_alignasciiformat) {
-  if (StatusCode::SUCCESS!=p_coolsvc->putAligFromFile(par_folder,par_wfile,par_chan,
-       par_tech))
+ if(m_par_alignasciiformat) {
+  if (StatusCode::SUCCESS!=p_coolsvc->putAligFromFile(m_par_folder,m_par_wfile,m_par_chan,
+       m_par_tech))
     m_log << MSG::ERROR << "putFile Align corrections failed" << endmsg;
  }
- if (par_deadTube){
-   if (StatusCode::SUCCESS!=p_coolsvc->putFileTube(par_folder,par_wfile,par_chan,
-						   par_tech))
+ if (m_par_deadTube){
+   if (StatusCode::SUCCESS!=p_coolsvc->putFileTube(m_par_folder,m_par_wfile,m_par_chan,
+						   m_par_tech))
      m_log << MSG::ERROR << "putFile Tube failed" << endmsg;
  }
 
 }
 
 void MdtReadWriteCoolStr::readData() {
-  m_log << MSG::INFO << "Read data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+  m_log << MSG::INFO << "Read data from folder " << m_par_folder << " channel "
+	<< m_par_chan << endmsg;
   std::string data;
-  if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
+  if (StatusCode::SUCCESS!=p_coolsvc->getString(m_par_folder,m_par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      m_par_folder << " channel " << m_par_chan << endmsg;
   } else {
     m_log << MSG::INFO << "Data read is " << data << endmsg;
   }
@@ -154,21 +153,21 @@ void MdtReadWriteCoolStr::readData() {
 	<< endmsg;
 
   // do read of data into file if requested on first event
-  if (par_extract && !m_done) {
-    if (StatusCode::SUCCESS!=p_coolsvc->getFile(par_folder,par_chan,par_rfile))
+  if (m_par_extract && !m_done) {
+    if (StatusCode::SUCCESS!=p_coolsvc->getFile(m_par_folder,m_par_chan,m_par_rfile))
       m_log << MSG::ERROR << "MdtCoolStrSvc getFile fails for folder " << 
-       par_folder << " channel " << par_chan << endmsg;
+       m_par_folder << " channel " << m_par_chan << endmsg;
   }
 }
 
 
 void MdtReadWriteCoolStr::loadData() {
-  m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+  m_log << MSG::INFO << "Load data from folder " << m_par_folder << " channel "
+	<< m_par_chan << endmsg;
   std::string data;
-  if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
+  if (StatusCode::SUCCESS!=p_coolsvc->getString(m_par_folder,m_par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      m_par_folder << " channel " << m_par_chan << endmsg;
   } else {
     m_log << MSG::INFO << "Data load is " << data << endmsg;
   }
@@ -261,22 +260,22 @@ void MdtReadWriteCoolStr::loadData() {
   }
 
 
-  if (par_extract && !m_done) {
-    if (StatusCode::SUCCESS!=p_coolsvc->getFile(par_folder,par_chan,par_rfile))
+  if (m_par_extract && !m_done) {
+    if (StatusCode::SUCCESS!=p_coolsvc->getFile(m_par_folder,m_par_chan,m_par_rfile))
       m_log << MSG::ERROR << "MdtCoolStrSvc getFile fails for folder " << 
-	par_folder << " channel " << par_chan << endmsg;
+	m_par_folder << " channel " << m_par_chan << endmsg;
   }
 }
 
 // Rt Relation
 
 void MdtReadWriteCoolStr::loadDataRt() {
-  m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+  m_log << MSG::INFO << "Load data from folder " << m_par_folder << " channel "
+	<< m_par_chan << endmsg;
   std::string data;
-  if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
+  if (StatusCode::SUCCESS!=p_coolsvc->getString(m_par_folder,m_par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      m_par_folder << " channel " << m_par_chan << endmsg;
   } else {
     m_log << MSG::INFO << "Data load is " << data << endmsg;
   }
@@ -349,12 +348,12 @@ void MdtReadWriteCoolStr::loadDataRt() {
 
 // Align Corrections
 void MdtReadWriteCoolStr::loadDataAlign() {
-  m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+  m_log << MSG::INFO << "Load data from folder " << m_par_folder << " channel "
+	<< m_par_chan << endmsg;
   std::string data;
-  if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
+  if (StatusCode::SUCCESS!=p_coolsvc->getString(m_par_folder,m_par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      m_par_folder << " channel " << m_par_chan << endmsg;
   } else {
     m_log << MSG::INFO << "Data load is " << data << endmsg;
   }
@@ -408,12 +407,12 @@ void MdtReadWriteCoolStr::loadDataAlign() {
 
 // Align Corrections From Ascii File
 void MdtReadWriteCoolStr::loadDataAlignAscii() {
-  m_log << MSG::INFO << "Load data from folder " << par_folder << " channel "
-	<< par_chan << endmsg;
+  m_log << MSG::INFO << "Load data from folder " << m_par_folder << " channel "
+	<< m_par_chan << endmsg;
   std::string data;
-  if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
+  if (StatusCode::SUCCESS!=p_coolsvc->getString(m_par_folder,m_par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endmsg;
+      m_par_folder << " channel " << m_par_chan << endmsg;
   } else {
     m_log << MSG::INFO << "Data load is " << data << endmsg;
   }

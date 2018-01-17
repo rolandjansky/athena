@@ -46,7 +46,7 @@ public:
   virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) override final;
 
 protected:
-  IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
+  const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
   // extrapolation through Calo
   std::vector<Trk::HitInfo>* caloHits(const TFCSTruthState* truth) const;

@@ -15,9 +15,6 @@
 // #include "MCUtils/Clustering.h"
 
 // Common imports from external namespaces
-using HepMC::GenEvent;
-using HepMC::GenParticle;
-using HepMC::GenVertex;
 //using fastjet::PseudoJet;
 //using fastjet::ClusterSequence;
 

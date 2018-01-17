@@ -28,7 +28,7 @@
 #include <cassert>
 
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
 
 typedef ElementLink<Muon::MdtPrepDataContainer> ElementLinkToIDC_MDT_Container;

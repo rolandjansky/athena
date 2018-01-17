@@ -71,7 +71,7 @@ StatusCode TruthParticleFakerTool::book()
 StatusCode TruthParticleFakerTool::fill (const HepMC::GenParticle& p)
 {
   if ( abs(p.pdg_id())!=m_filterID ||
-       p.momentum().perp()<m_minPt ) return IBlockFillerTool::EMPTY;
+       p.momentum().perp()<m_minPt ) return StatusCode(IBlockFillerTool::EMPTY);
 
   bool last = abs(p.pdg_id())==15;
   if ( abs(p.pdg_id())==15 && p.status()!=1 && p.end_vertex() ){
@@ -82,14 +82,14 @@ StatusCode TruthParticleFakerTool::fill (const HepMC::GenParticle& p)
       last=false;
       break;
     }
-    if (!last) return IBlockFillerTool::EMPTY;
+    if (!last) return StatusCode(IBlockFillerTool::EMPTY);
   }
 
   if ( !last &&
        p.status()%1000 != 1 &&
        !(p.status()%1000 == 2 && p.status()>1000) &&
        !(p.status()==2 && (!p.end_vertex() || p.end_vertex()->barcode()<-200000) ) ) {
-    return IBlockFillerTool::EMPTY;
+    return StatusCode(IBlockFillerTool::EMPTY);
   }
 
   HepMC::FourVector v = p.momentum();

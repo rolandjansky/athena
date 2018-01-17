@@ -12,6 +12,7 @@
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MdtRDO_Decoder.h"
 
@@ -50,7 +51,10 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder"),
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_fullEventDone(false),
-  m_BMEpresent(false)
+  m_BMEpresent(false),
+  m_BMGpresent(false),
+  m_BMEid(-1),
+  m_BMGid(-1)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
@@ -146,7 +150,27 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
 
   // check if the layout includes elevator chambers
   m_BMEpresent = m_mdtHelper->stationNameIndex("BME") != -1;
-  if(m_BMEpresent) ATH_MSG_DEBUG("Processing configuration for layouts with BME chambers.");
+  if(m_BMEpresent){
+    ATH_MSG_INFO("Processing configuration for layouts with BME chambers.");
+    m_BMEid = m_mdtHelper->stationNameIndex("BME");
+  }
+  m_BMGpresent = m_mdtHelper->stationNameIndex("BMG") != -1;
+  if(m_BMGpresent){
+    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+    m_BMGid = m_mdtHelper->stationNameIndex("BMG");
+    for(int phi=6; phi<8; phi++) { // phi sectors
+      for(int eta=1; eta<4; eta++) { // eta sectors
+        for(int side=-1; side<2; side+=2) { // side
+          if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+          for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+            const MdtReadoutElement* mdtRE =
+                  dynamic_cast<const MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+            if(mdtRE) initDeadChannels(mdtRE);
+          }
+        }
+      }
+    }
+  }
 
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() ); 
@@ -299,7 +323,7 @@ bool Muon::MdtRdoToPrepDataTool::handlePRDHash( IdentifierHash hash, const MdtCs
     
     // for BMEs there are 2 CSMs per chamber, registered with the hashes of the 2 multilayers
     // we've processed only one now, now time for the second
-    if (m_mdtHelper->stationName(elementId) == 53) {
+    if (m_mdtHelper->stationName(elementId) == m_BMEid) {
       multilayerId = m_mdtHelper->multilayerID(elementId, 2); //second multilayer
       m_mdtHelper->get_detectorElement_hash(multilayerId, multilayerHash);
       rdoHash = multilayerHash;
@@ -538,7 +562,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsm(const MdtCsm *rdoColl, std::ve
 
   if ( m_mdtPrepDataContainer->indexFind(mdtHashId) != m_mdtPrepDataContainer->end() ) {
     // for elevator chambers there are 2 CSMs to be filled in the same collection
-    if ( m_mdtHelper->stationName(elementId) == 53 ) {
+    if ( m_mdtHelper->stationName(elementId) == m_BMEid && m_BMEpresent) {
       driftCircleColl = const_cast<MdtPrepDataCollection*>(&(**m_mdtPrepDataContainer->indexFind(mdtHashId)));
       ATH_MSG_DEBUG("In ProcessCSM - collection already contained in IDC, but BME! Taking it.");
     } 
@@ -594,6 +618,16 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsm(const MdtCsm *rdoColl, std::ve
     // Do something with it
     Identifier     channelId   = newDigit->identify();
     Identifier     parentId    = m_mdtHelper->parentID(channelId);
+    if( m_mdtHelper->stationName(parentId) == m_BMGid && m_BMGpresent) {
+      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
+      if( myIt != m_DeadChannels.end() ){
+        if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
+          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_mdtHelper->show_to_string(channelId) );
+          delete newDigit;
+          continue;
+        }
+      }
+    }
 
     // check if the module ID of this channel is different from the CSM one
     // If it's the first case, create the additional collection
@@ -799,6 +833,18 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
     // make an Identifier
     Identifier channelId = newDigit->identify();
     //IdentifierHash channelHash = newDigit->identifyHash();
+
+    if( m_mdtHelper->stationName(channelId) == m_BMGid && m_BMGpresent) {
+      std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
+      if( myIt != m_DeadChannels.end() ){
+        if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
+          ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_mdtHelper->show_to_string(channelId) );
+          delete newDigit;
+          continue;
+        }
+      }
+    }
+
     // get tube params
     int tube = m_mdtHelper->tube(channelId);
     int layer = m_mdtHelper->tubeLayer(channelId);
@@ -1421,3 +1467,41 @@ MdtDriftCircleStatus MdtRdoToPrepDataTool::getMdtTwinPosition(const MdtDigit * d
   return MdtStatusDriftTime;
 }
 
+void MdtRdoToPrepDataTool::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl) {
+  PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
+  int nGrandchildren = cv->getNChildVols();
+  if(nGrandchildren <= 0) return;
+
+  Identifier detElId = mydetEl->identify();
+
+  int name = m_mdtHelper->stationName(detElId);
+  int eta = m_mdtHelper->stationEta(detElId);
+  int phi = m_mdtHelper->stationPhi(detElId);
+  int ml = m_mdtHelper->multilayer(detElId);
+  std::vector<Identifier> deadTubes;
+
+  for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
+    for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
+      bool tubefound = false;
+      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+        int tubegeo = cv->getIdOfChildVol(kk) % 100;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        if( tubegeo == tube && layergeo == layer ) {
+          tubefound=true;
+          break;
+        }
+        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      }
+      if(!tubefound) {
+        Identifier deadTubeId = m_mdtHelper->channelID( name, eta, phi, ml, layer, tube );
+        deadTubes.push_back( deadTubeId );
+        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      }
+    }
+  }
+  std::sort(deadTubes.begin(), deadTubes.end());
+  m_DeadChannels[detElId] = deadTubes;
+  return;
+}

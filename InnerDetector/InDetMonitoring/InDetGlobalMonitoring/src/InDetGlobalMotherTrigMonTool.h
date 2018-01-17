@@ -60,7 +60,7 @@ class InDetGlobalMotherTrigMonTool : public InDetGlobalMotherMonTool
     StatusCode fillTrigAwareHisto(TH2I_LW*, int);
     std::string m_triggerNames[8];  
     StatusCode PrintTriggers();
-    bool doTrigger;
+    bool m_doTrigger;
     
  private:
     int m_firedTriggers[8];

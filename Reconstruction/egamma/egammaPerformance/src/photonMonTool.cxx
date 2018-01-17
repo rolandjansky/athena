@@ -520,12 +520,14 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
 
   // Isolation Energy 
   float topoetcone40 = 0.0;
-  StatusCode sc = (*g_iter)->isolationValue(topoetcone40,xAOD::Iso::topoetcone40);
-  if (!sc.isFailure()) myHist.m_hTopoEtCone40->Fill(topoetcone40);
+  if ( (*g_iter)->isolationValue(topoetcone40,xAOD::Iso::topoetcone40) ) {
+    myHist.m_hTopoEtCone40->Fill(topoetcone40);
+  }
  
   float ptcone20 = 0.0;
-  sc = (*g_iter)->isolationValue(ptcone20,xAOD::Iso::ptcone20);
-  if (!sc.isFailure()) myHist.m_hPtCone20->Fill(ptcone20);
+  if ( (*g_iter)->isolationValue(ptcone20,xAOD::Iso::ptcone20) ) {
+    myHist.m_hPtCone20->Fill(ptcone20);
+  }
 
   fillTH1FperRegion(myHist.m_hvTopoEtCone40,ir,topoetcone40);
   fillTH1FperRegion(myHist.m_hvPtCone20,ir,ptcone20);

@@ -40,7 +40,7 @@
  *
  * Implementation note: the attributes are currently all in the `gnu'
  * attribute namespace due to a gcc limitation.  This has been fixed
- * in gcc7, so eventually the attributes should move into an atlas-specifi
+ * in gcc7, so eventually the attributes should move into an atlas-specific
  * namespace.  Thus, you should always use the macros defined here; don't
  * write the attributes directly.
  */

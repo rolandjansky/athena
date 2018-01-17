@@ -24,6 +24,7 @@ using CLHEP::ns;
 
 LArCalibDigitMaker::LArCalibDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
+    m_larCablingSvc("LArCablingService"),
     m_nTrigger(0)
 {
   //declareProperty("DigitKey",m_key="");

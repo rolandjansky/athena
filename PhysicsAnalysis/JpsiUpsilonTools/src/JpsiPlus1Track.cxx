@@ -17,7 +17,7 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include <memory>

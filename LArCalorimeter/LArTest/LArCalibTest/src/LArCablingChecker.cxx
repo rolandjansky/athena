@@ -149,7 +149,7 @@ StatusCode LArCablingChecker::execute() {
     try {
       offline_id = m_larCablingSvc->cnvToIdentifier(online_id);
     }
-    catch (LArID_Exception) {
+    catch (const LArID_Exception&) {
       noOffline_id = true;
     }
 

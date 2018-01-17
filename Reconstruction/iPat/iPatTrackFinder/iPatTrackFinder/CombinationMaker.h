@@ -63,7 +63,7 @@ public:
     bool				next_vertex_point (void);
     Point*			       	outer_point (void) const;
     bool				pixelInterchange (void) const;
-    void				setProperties (const std::vector<Trk::SpacePoint*>&	spacePoints,
+    void				setProperties (const std::vector<const Trk::SpacePoint*>&	spacePoints,
 						       const Amg::Vector3D&			vertexRegionCentre);
     void				set_tolerances (double minPt);
     void				set_vertex_points (const PerigeeParameters& perigeeParameters);

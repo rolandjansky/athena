@@ -281,14 +281,8 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   }     
 
   ATH_CHECK( m_RecTrackCollection_keys.initialize() );
-  if (m_doTruth) {
-    if (!m_McTrackCollection_key.key().empty()) {
-      ATH_CHECK( m_McTrackCollection_key.initialize() );
-    }
-    if (!m_TrackTruthCollection_keys.empty()) {
-      ATH_CHECK( m_TrackTruthCollection_keys.initialize() );
-    }
-  }
+  ATH_CHECK( m_McTrackCollection_key.initialize(m_doTruth && !m_McTrackCollection_key.key().empty()) );
+  ATH_CHECK( m_TrackTruthCollection_keys.initialize() );
 
   return StatusCode :: SUCCESS;
 
@@ -662,14 +656,36 @@ selectGenSignal  (const McEventCollection* SimTracks,
   return;
 }
 
+namespace {
+    class StreamState
+    {
+    public:
+      StreamState(std::ostream& out)
+           : m_out(out), m_fmt(out.flags())
+       {
+       }
+
+       ~StreamState()
+       {
+	   m_out.flags(m_fmt);
+       }
+
+    private:
+       std::ostream& m_out;
+       std::ios_base::fmtflags m_fmt;
+    };
+}
+
+
 void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   ATH_MSG_INFO(" ********** Beginning InDetRecStatistics Statistics Table ***********");
   ATH_MSG_INFO("For documentation see https://twiki.cern.ch/twiki/bin/view/Atlas/InDetRecStatistics");
-  ATH_MSG_INFO("(or for guarenteed latest version: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/InnerDetector/InDetValidation/InDetRecStatistics/doc/mainpage.h?&view=markup )");
+  ATH_MSG_INFO("(or for guaranteed latest version: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/InnerDetector/InDetValidation/InDetRecStatistics/doc/mainpage.h?&view=markup )");
   ATH_MSG_INFO(" ********************************************************************");
   //  if(msgSvc.outputLevel() >= MSG::INFO){
+  StreamState restore_precision (std::cout);
   std::cout << MSG::INFO 
-	    <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) 
+	    << std::setiosflags(std::ios::fixed | std::ios::showpoint)  
 	    << std::setw(7) << std::setprecision(2)
 	    << s_linestr << std::endl
 	    << "Summary" << std::endl 

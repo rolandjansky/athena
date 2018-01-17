@@ -19,11 +19,6 @@
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// For Read Handle
-#include "StoreGate/ReadHandleKey.h"
-// Event Info
-#include "xAODEventInfo/EventInfo.h"
-
 // Include STL stuff
 #include <string>
 
@@ -54,7 +49,6 @@ class SCT_ReadCalibDataTestAlg:public AthAlgorithm
   //----------Private Attributes----------//
   StatusCode                          m_sc;            //!< To check return codes
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
-  SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey;  //!< Current event
   Identifier                          m_moduleId;      //!< Module identifier
   Identifier                          m_waferId;       //!< Wafer identifier
   Identifier                          m_stripId;       //!< Strip identifier

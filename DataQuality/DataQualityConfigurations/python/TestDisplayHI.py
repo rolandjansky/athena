@@ -29,4 +29,3 @@ dqconfig.runlist        = "runlist_TEST.xml"
 dqconfig.indexFile      = "results_TEST.html"
 dqconfig.lockFile       = "DQWebDisplay_TEST.lock"
 dqconfig.doHandi        = False
-

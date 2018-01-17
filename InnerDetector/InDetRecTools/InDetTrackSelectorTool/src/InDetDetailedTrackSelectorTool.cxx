@@ -189,6 +189,9 @@ namespace InDet
 	if(m_useEtaDepententMinHitTrtWithOutliers)
 	  ATH_MSG_INFO("Using eta dependent cut on number of TRT hits + outliers.");
       }
+    else{
+      m_trtDCTool.disable();
+    }
     
     if (m_magFieldSvc.retrieve().isFailure()) 
       {

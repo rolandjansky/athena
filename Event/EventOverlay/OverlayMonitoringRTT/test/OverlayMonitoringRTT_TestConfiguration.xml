@@ -132,7 +132,7 @@
               </chainElement>
               <chainElement>
                 <!-- Regression Test on ESDs -->
-                <jobTransform userJobId="MC12_2011_Legacy_ESD_Reg">
+                <jobTransform userJobId="MC12_2016_Legacy_ESD_Reg">
                   <doc>Regression test for Reco_tf"</doc>
                   <jobTransformJobName>MC15_2016_Legacy_ESD_Reg</jobTransformJobName>
                   <jobTransformCmd>

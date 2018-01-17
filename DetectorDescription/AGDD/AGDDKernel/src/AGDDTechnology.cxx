@@ -9,10 +9,10 @@
 
 std::string AGDDTechnology::GetName()
 {
-	return name;
+	return m_name;
 }
 
-AGDDTechnology::AGDDTechnology(std::string s): name(s)
+AGDDTechnology::AGDDTechnology(std::string s): m_name(s)
 {
 	AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();
     ds->RegisterTechnology(this);

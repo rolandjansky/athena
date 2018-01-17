@@ -27,11 +27,8 @@ namespace G4UA
       /// Return the action for current thread.
       virtual G4UserRunAction* getRunAction() = 0;
 
-      /// Interface declaration
-      static const InterfaceID& interfaceID() {
-        static const InterfaceID iid_IG4RunTool("G4UA::IG4RunActionTool", 1, 0);
-        return iid_IG4RunTool;
-      }
+      /// Creates the InterfaceID and interfaceID() method
+      DeclareInterfaceID(G4UA::IG4RunActionTool, 1, 0);
 
   }; // class IG4RunActionTool
 

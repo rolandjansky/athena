@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file DataModel/test/AuxVectorData_test.cxx
+ * @file AthContainers/test/AuxVectorData_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2013
  * @brief Regression tests for AuxVectorData
@@ -18,9 +18,9 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/exceptions.h"
-#include "AthContainers/tools/foreach.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/checker_macros.h"
 #ifndef ATHCONTAINERS_NO_THREADS
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/shared_lock_guard.hpp"
@@ -28,9 +28,6 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
-
-
-#include "auxid_set_equal.icc"
 
 
 namespace SG {
@@ -232,7 +229,6 @@ void test_move()
 {
   std::cout << "test_move\n";
 
-#if __cplusplus > 201100
   AuxVectorData_test b1;
   SG::AuxStoreInternal store;
   b1.setStore (&store);
@@ -259,7 +255,6 @@ void test_move()
   assert (b3.getStore() == &store);
   assert (b3.getData<int> (ityp, 0) == 1);
   assert (b3.getData<int> (ityp, 1) == 2);
-#endif
 }
 
 
@@ -321,7 +316,7 @@ ThreadingTest::ThreadingTest()
 
 void ThreadingTest::worker (AuxVectorData& b, size_t istart)
 {
-  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_ids) {
+  for (SG::auxid_t id : m_ids) {
     assert (b.getData<int> (id, istart) == static_cast<int>(id*1234 + istart));
     ++istart;
     if (istart >= m_nelt) istart = 0;
@@ -331,7 +326,7 @@ void ThreadingTest::worker (AuxVectorData& b, size_t istart)
 
 void ThreadingTest::worker_c (const AuxVectorData& b, size_t istart)
 {
-  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_ids) {
+  for (SG::auxid_t id : m_ids) {
     assert (b.getData<int> (id, istart) == static_cast<int>(id*1234 + istart));
     ++istart;
     if (istart >= m_nelt) istart = 0;
@@ -393,8 +388,8 @@ public:
     return true;
   }
 
-  static SG::auxid_t lastid;
-  static SG::AuxDataOption lastopt;
+  static SG::auxid_t lastid ATLAS_THREAD_SAFE;
+  static SG::AuxDataOption lastopt ATLAS_THREAD_SAFE;
 };
 
 
@@ -478,7 +473,7 @@ double test_code (SG::auxid_t auxid, const AuxVectorData_test& b)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
 

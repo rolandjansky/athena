@@ -40,15 +40,6 @@ IsoCorrectionTool = PublicToolFactory(ICT,
                                 name = "NewLeakageCorrTool",
                                 IsMC = isMC)
 
-from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-pfoTool = RetrievePFOTool();
-ToolSvc += pfoTool
-
-from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__PFlowObjectsInConeTool
-PFlowObjectsInConeTool = PublicToolFactory(xAOD__PFlowObjectsInConeTool,
-                                     name = "PFlowObjectsInConeTool",
-                                     RetrievePFOTool = pfoTool)
-
 from CaloIdentifier import SUBCALO
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 
@@ -426,7 +417,6 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
-                                                                WriteIntermediateResults = False,
                                                                 HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"),DoSegmentCombinations=True )
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
@@ -523,7 +513,7 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=False)
@@ -558,7 +548,7 @@ class TrigMuonEFMSTrackIsolationConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=False)
@@ -593,7 +583,7 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_VarIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_VarIsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=False,
 						 useVarIso=True,
@@ -648,7 +638,7 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
 
         # configure the isolation tool
         TMEF_AnnulusIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_AnnulusIsolationTool',
-                                                 deltaZCut = 6.0*mm,
+                                                 deltaZCut = 3.0*mm,
                                                  removeSelf=True,
                                                  useAnnulus=True,
                                                  annulusSize=0.1,

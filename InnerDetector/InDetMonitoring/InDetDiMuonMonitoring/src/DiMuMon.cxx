@@ -321,7 +321,7 @@ StatusCode DiMuMon::fillHistograms()
     double idTrkPt(0),ptSum(0);
     float iso_pt40(0);
     if( !muon->isolation(iso_pt40, xAOD::Iso::ptcone40) ) {
-      return false;
+      return StatusCode::FAILURE;
     }
     else {
       idTrkPt = idTrk->pt();
@@ -666,7 +666,7 @@ bool DiMuMon::trackQuality(const xAOD::TrackParticle *idTrk){
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesEPS2011
   if (idTrk) {
     uint8_t dummy(-1);
-    bool eBLhits = idTrk->summaryValue( dummy, xAOD::expectInnermostPixelLayerHit )? dummy :-1;
+    bool eBLhits = idTrk->summaryValue( dummy, xAOD::expectInnermostPixelLayerHit )? dummy :false;
     int  nBLhits = idTrk->summaryValue( dummy, xAOD::numberOfInnermostPixelLayerHits )? dummy :-1;
     int nhitsPIX = idTrk->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy :-1;
     int nPIXDS = idTrk->summaryValue( dummy, xAOD::numberOfPixelDeadSensors )? dummy :-1;

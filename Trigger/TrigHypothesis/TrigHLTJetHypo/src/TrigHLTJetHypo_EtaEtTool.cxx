@@ -66,9 +66,9 @@ StatusCode TrigHLTJetHypo_EtaEtTool::checkVals() const {
                   << m_asymmetricEtas.size() << " "
                   );
     
-    return false;
+    return StatusCode::FAILURE;
   }
-  return true;
+  return StatusCode::SUCCESS;
 }
 
 std::vector<std::shared_ptr<ICleaner>> 

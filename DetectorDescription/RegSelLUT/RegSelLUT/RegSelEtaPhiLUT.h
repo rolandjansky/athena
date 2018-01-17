@@ -28,8 +28,8 @@
 //   $Id: RegSelEtaPhiLUT.h, v0.0   Sat 25 Jun 2011 18:47:25 BST sutt $
 
 
-#ifndef __REGSELETAPHILUT_H
-#define __REGSELETAPHILUT_H
+#ifndef REGSELETAPHILUT_H
+#define REGSELETAPHILUT_H
 
 #include <iostream>
 #include <vector>

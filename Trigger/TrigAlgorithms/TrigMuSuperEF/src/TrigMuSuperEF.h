@@ -53,6 +53,11 @@ namespace MuonCombined {
   class IMuonSegmentTagTool;
 }
 
+namespace Muon {
+  class IMuonSystemExtensionTool;
+}
+
+
 class TrigMuSuperEF: public virtual HLT::FexAlgo {
  public:
 
@@ -250,6 +255,9 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   /// tool for creating xAOD muons
   ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool;
   ToolHandle<MuonCombined::IMuonCreatorTool> m_stauCreatorTool;
+
+  /// tool for extending ID tracks to the muon system
+  ToolHandle <Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool;
 
   //Timers
   std::vector<TrigTimer*> m_TMEF_SATimers;

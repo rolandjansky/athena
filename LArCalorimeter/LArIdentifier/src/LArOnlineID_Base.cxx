@@ -675,7 +675,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
 /* ================================================================*/
 void LArOnlineID_Base::channel_Id_checks( int barrel_ec, int pos_neg, int feedthrough,
-                                     int slot,       int channel ) const throw(LArOnlID_Exception)
+                                     int slot,       int channel ) const
 /* ================================================================*/
 {  
     // Check that id is within allowed range
@@ -703,7 +703,7 @@ void LArOnlineID_Base::channel_Id_checks( int barrel_ec, int pos_neg, int feedth
 
 /* ================================================================*/
 void LArOnlineID_Base::channel_Id_checks   ( const HWIdentifier febId,
-                                        int channel ) const throw(LArOnlID_Exception) 
+                                        int channel ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -729,7 +729,7 @@ void LArOnlineID_Base::channel_Id_checks   ( const HWIdentifier febId,
 
 /* ================================================================*/
 void LArOnlineID_Base::channel_Id_checks   ( const HWIdentifier feedthroughId,
-                                         int slot,  int channel ) const throw(LArOnlID_Exception) 
+                                         int slot,  int channel ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -754,7 +754,7 @@ void LArOnlineID_Base::channel_Id_checks   ( const HWIdentifier feedthroughId,
 }
 
 /* ================================================================*/
-void LArOnlineID_Base::feb_Id_checks( int barrel_ec, int pos_neg, int feedthrough, int slot ) const throw(LArOnlID_Exception)
+void LArOnlineID_Base::feb_Id_checks( int barrel_ec, int pos_neg, int feedthrough, int slot ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -781,7 +781,7 @@ void LArOnlineID_Base::feb_Id_checks( int barrel_ec, int pos_neg, int feedthroug
 }
 
 /* ================================================================*/
-void LArOnlineID_Base::feedthrough_Id_checks( int barrel_ec, int pos_neg, int feedthrough ) const throw(LArOnlID_Exception)
+void LArOnlineID_Base::feedthrough_Id_checks( int barrel_ec, int pos_neg, int feedthrough ) const
 /* ==============================================================================*/
 {
   // Check that id is within allowed range

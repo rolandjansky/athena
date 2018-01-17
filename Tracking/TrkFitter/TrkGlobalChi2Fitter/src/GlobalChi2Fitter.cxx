@@ -284,6 +284,10 @@ namespace Trk {
         return StatusCode::FAILURE;
       }
     }
+    else{
+      m_calotool.disable();
+      m_calotoolparam.disable();
+    }
 
 
     if (m_scattool.retrieve().isFailure()) {
@@ -335,6 +339,9 @@ namespace Trk {
         return StatusCode::FAILURE;
       }
       msg(MSG::INFO) << m_caloMaterialProvider << " retrieved " << endmsg;
+    }
+    else{
+      m_caloMaterialProvider.disable();
     }
 
     msg(MSG::INFO) << "fixed momentum: " << m_p << endmsg;

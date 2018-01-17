@@ -58,7 +58,8 @@ CondInputLoader::CondInputLoader( const std::string& name,
   m_condStore("StoreGateSvc/ConditionStore", name),
   m_condSvc("CondSvc",name),
   m_IOVSvc("IOVSvc",name),
-  m_clidSvc("ClassIDSvc",name)
+  m_clidSvc("ClassIDSvc",name),
+  m_rcuSvc("Athena::RCUSvc",name)
 
 {
   //
@@ -93,6 +94,7 @@ CondInputLoader::initialize()
   ATH_CHECK( m_condSvc.retrieve() );
   ATH_CHECK( m_condStore.retrieve() );
   ATH_CHECK( m_clidSvc.retrieve() );
+  ATH_CHECK( m_rcuSvc.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
@@ -258,13 +260,13 @@ CondInputLoader::start()
         ATH_MSG_WARNING("unable to convert clid " << ditr->clid() << " to a classname."
                         << "This is a BAD sign, but will try to continue");
       }
-      CondContBase* cb = 
-        CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+      SG::DataObjectSharedPtr<DataObject> cb = 
+        CondContainer::CondContFactory::Instance().Create( *m_rcuSvc, ditr->clid(), ditr->key() );
       if (cb == 0) {
         // try to force a load of libraries using ROOT
         (void)TClass::GetClass (tp.c_str());
         cb =
-          CondContainer::CondContFactory::Instance().Create( ditr->clid(), ditr->key() );
+          CondContainer::CondContFactory::Instance().Create( *m_rcuSvc, ditr->clid(), ditr->key() );
       }
       if (cb == 0) {
         ATH_MSG_ERROR("failed to create CondCont<" << tp
@@ -274,7 +276,7 @@ CondInputLoader::start()
       } else {
         ATH_MSG_INFO("created CondCont<" << tp << "> with key '"
                      << ditr->key() << "'");
-        if (m_condStore->record(cb, vhk.key()).isFailure()) {
+        if (m_condStore->recordObject(cb, vhk.key(), true, false) == nullptr) {
           ATH_MSG_ERROR("while creating a CondContBase for " 
                         << vhk.fullKey());
           fail = true;

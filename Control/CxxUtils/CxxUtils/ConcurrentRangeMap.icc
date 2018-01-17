@@ -1,0 +1,409 @@
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file CxxUtils/ConcurrentRangeMap.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2017
+ * @brief Map from range to payload object, allowing concurrent, lockless reads.
+ */
+
+
+namespace CxxUtils {
+
+
+#define T_CONCURRENTRANGEMAP template <class RANGE, class KEY, class T, class COMPARE, template <class> class UPDATER>
+#define CONCURRENTRANGEMAP ConcurrentRangeMap<RANGE, KEY, T, COMPARE, UPDATER>
+
+
+/**
+ * @brief Constructor.
+ * @param capacity Size of the data vector to allocate.
+ */
+T_CONCURRENTRANGEMAP
+CONCURRENTRANGEMAP::Impl::Impl (size_t capacity /*= 10*/)
+  : m_data (capacity)
+{
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * This also deletes payload objects that were passed to discard().
+ */
+T_CONCURRENTRANGEMAP
+CONCURRENTRANGEMAP::Impl::~Impl()
+{
+  for (const T* p : m_garbage) {
+    delete p;
+  }
+}
+
+
+/**
+ * @brief Return a pointer to the start of the data vector.
+ */
+T_CONCURRENTRANGEMAP
+typename CONCURRENTRANGEMAP::value_type*
+CONCURRENTRANGEMAP::Impl::data()
+{
+  return m_data.data();
+}
+
+
+/**
+ * @brief Return the size of the current data vector.
+ */
+T_CONCURRENTRANGEMAP
+size_t
+CONCURRENTRANGEMAP::Impl::capacity() const
+{
+  return m_data.capacity();
+}
+
+
+T_CONCURRENTRANGEMAP
+void
+CONCURRENTRANGEMAP::Impl::discard (const T* p)
+{
+  m_garbage.push_back (p);
+}
+
+
+T_CONCURRENTRANGEMAP
+CONCURRENTRANGEMAP::ConcurrentRangeMap (Updater_t&& updater,
+                                        size_t capacity /*= 16*/,
+                                        const COMPARE& compare /*= COMPARE()*/)
+  : m_updater (std::move (updater)),
+    m_compare (compare)
+{
+  auto impl = std::make_unique<Impl> (capacity);
+  m_impl = impl.get();
+  m_updater.update (std::move (impl), Updater_t::defaultContext());
+  m_begin = m_impl->data();
+  m_last = nullptr;
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * Clean up any remaining payload objects.
+ */
+T_CONCURRENTRANGEMAP
+CONCURRENTRANGEMAP::~ConcurrentRangeMap()
+{
+  value_type* last = m_last;
+  if (last) {
+    for (value_type* p = m_begin; p <= m_last; ++p) {
+      delete p->second;
+    }
+      
+  }
+}
+
+
+/**
+ * @brief Search for the first item less than or equal to KEY.
+ * @param key The key to search for.
+ * @returns The value, or nullptr if not found.
+ */
+T_CONCURRENTRANGEMAP
+inline
+typename CONCURRENTRANGEMAP::const_iterator
+CONCURRENTRANGEMAP::find (const key_query_type& key) const
+{
+  // Return right away if the map's empty;
+  const_iterator last = m_last;
+  if (!last) return nullptr;
+
+  // Check the last value.
+  if (!m_compare (key, last->first)) {
+    return last;
+  }
+
+  // Do a binary search to find the proper position.
+  const_iterator begin = getBegin (last);
+  if (!last) return nullptr;
+  const_iterator pos = std::upper_bound (begin, last+1, key,
+                                         [this](const key_query_type& key,
+                                                const value_type& v)
+                                         { return m_compare (key, v.first); } );
+
+  // Fail if it would be before the first value.
+  if (pos == begin) return nullptr;
+
+  // Proper place.
+  return pos-1;
+}
+
+
+/**
+ * @brief Add a new element to the map.
+ * @param range Validity range for this element.
+ * @param ptr Payload for this element.
+ * @param ctx Execution context.
+ */
+T_CONCURRENTRANGEMAP
+void
+CONCURRENTRANGEMAP::emplace (const RANGE& range,
+                             std::unique_ptr<T> ptr,
+                             const typename Updater_t::Context_t& ctx
+                               /*= Updater_t::defaultContext()*/)
+{
+  lock_t lock (m_mutex);
+
+  // Can we add this to the end?
+  // There has to be room for another, and either the container must be empty,
+  // or the new element must be greater than the current last one.
+  value_type* last = m_last;
+  value_type* begin = m_begin;
+  value_type* end = last ? last+1 : begin;
+  if (end < m_impl->data() + m_impl->capacity() &&
+      (!last || !m_compare (range, last->first)))
+  {
+    // Yes --- copy the data to the container.
+    end->first = range;
+    end->second = ptr.release();
+
+    // Update the last pointer.
+    m_last = end;
+    // Now the new element is visible to other threads.
+    return;
+  }
+
+  // No --- need to make a new implementation object and copy.
+  // Make the new one bigger, if needed.
+  int new_capacity = m_impl->capacity();
+  if (end-begin > new_capacity/2) {
+    new_capacity = (end-begin)*2;
+  }
+
+  // Allocate the new object.
+  auto new_impl = std::make_unique<Impl> (new_capacity);
+  value_type* new_begin = new_impl->data();
+  value_type* new_end = new_begin;
+
+  // Copy the data, adding the new item at the proper place.
+  while (begin < end) {
+    if (ptr && m_compare (range, begin->first)) {
+      new_end->first = range;
+      new_end->second = ptr.release();
+      ++new_end;
+    }
+    *new_end++ = *begin++;
+  }
+  // Maybe the new one goes at the end.
+  if (ptr) {
+    new_end->first = range;
+    new_end->second = ptr.release();
+    ++new_end;
+  }
+
+  // Install the new implementation.
+  m_impl = new_impl.get();
+  m_updater.update (std::move (new_impl), ctx);
+
+  // Make the update visible to other threads.
+  updatePointers (new_begin, new_end);
+}
+
+
+/**
+ * @brief Erase the first item less than or equal to KEY.
+ * @param key The key to search erase.
+ * @param ctx Execution context.
+ */
+T_CONCURRENTRANGEMAP
+void
+CONCURRENTRANGEMAP::erase (const key_query_type& key,
+                           const typename Updater_t::Context_t& ctx
+                             /*= Updater_t::defaultContext()*/)
+{
+  lock_t lock (m_mutex);
+
+  // Return if the container's empty.
+  value_type* last = m_last;
+  if (last == nullptr) return;
+  
+  value_type* begin = m_begin;
+  value_type* end = last+1;
+
+  // Don't do anything if key is before the first element.
+  if (m_compare (key, begin->first)) return;
+
+  // Is the first element the one we're deleting?
+  if (begin == last || m_compare (key, (begin+1)->first)) {
+    // Yes --- queue the payload for deletion.
+    m_impl->discard (begin->second);
+    ++begin;
+
+    // Make the update visible to other threads.
+    // If we need to update both pointers, then clear m_begin first.
+    if (begin == end) {
+      m_begin = nullptr;
+      m_last = nullptr;
+    }
+    m_begin = begin;
+    return;
+  }
+
+  // Need to make a new implementation object and copy data.
+  size_t capacity = m_impl->capacity();
+  auto new_impl = std::make_unique<Impl> (capacity);
+  value_type* new_begin = new_impl->data();
+  value_type* new_end = new_begin;
+
+  // Copy the data, skipping the object to be deleted.
+  while (begin < end-1 && !m_compare (key, (begin+1)->first)) {
+    *new_end++ = *begin++;
+  }
+  m_impl->discard (begin->second);
+  ++begin;
+  while (begin < end) {
+    *new_end++ = *begin++;
+  }
+
+  // Install the new implementation.
+  m_impl = new_impl.get();
+  m_updater.update (std::move (new_impl), ctx);
+
+  // Make the update visible to other threads.
+  updatePointers (new_begin, new_end);
+}
+
+
+/**
+ * @brief Return the current number of elements in the map.
+ */
+T_CONCURRENTRANGEMAP
+inline
+size_t CONCURRENTRANGEMAP::size() const
+{
+  const_iterator last = m_last;
+  if (!last) return 0;
+  const_iterator begin = getBegin (last);
+  if (!last) return 0;
+  return last+1 - begin;
+}
+
+
+/**
+ * @brief Test if the map is empty.
+ */
+T_CONCURRENTRANGEMAP
+inline
+bool CONCURRENTRANGEMAP::empty() const
+{
+  return m_last == nullptr;
+}
+
+
+/**
+ * @brief Return the current capacity of the map.
+ */
+T_CONCURRENTRANGEMAP
+inline
+size_t CONCURRENTRANGEMAP::capacity() const
+{
+  return m_updater.get().capacity();
+}
+
+
+/**
+ * @brief Return a range that can be used to iterate over the container.
+ */
+T_CONCURRENTRANGEMAP
+inline
+typename CONCURRENTRANGEMAP::const_iterator_range
+CONCURRENTRANGEMAP::range() const
+{
+  const_iterator last = m_last;
+  if (!last) return const_iterator_range (nullptr, nullptr);
+  const_iterator begin = getBegin (last);
+  if (!last) return const_iterator_range (nullptr, nullptr);
+  return const_iterator_range (begin, last+1);
+}
+
+
+/**
+ * @brief Called when this thread is no longer referencing anything
+ *        from this container.
+ * @param ctx Execution context.
+ */
+T_CONCURRENTRANGEMAP
+void
+CONCURRENTRANGEMAP::quiescent (const typename Updater_t::Context_t& ctx /*= Updater_t::defaultContext()*/)
+{
+  m_updater.quiescent (ctx);
+}
+
+
+/**
+ * @brief Return the begin/last pointers.
+ * @param [inout] last Current value of last.
+ *
+ * Retrieve consistent values of the begin and last pointers.
+ * The last pointer should have already been fetched, and may be updated.
+ * Usage should be like this:
+ *
+ *@code
+ *  const_iterator last = m_last;
+ *  if (!last) return;  // Container empty.
+ *  const_iterator begin = getBegin (last);
+ *  if (!last) return;  // Container empty.
+ @endcode
+*/
+T_CONCURRENTRANGEMAP
+inline
+typename CONCURRENTRANGEMAP::const_iterator
+CONCURRENTRANGEMAP::getBegin (const_iterator& last) const
+{
+  // First fetch the begin pointer, then check that both there is not
+  // an update in progress and that the last pointer
+  // hasn't changed.  In either case, we need to refetch both pointers.
+  // ABA isn't an issue here since the pointers go only in one direction,
+  // and if we allocate a new chunk, it will be in a disjoint
+  // piece of memory.
+  const_iterator begin;
+  while (true) {
+    begin = m_begin;
+    if (begin && last == m_last) break;
+    CxxUtils::stall();
+    last = m_last;
+  }
+  return begin;
+}
+
+
+/**
+ * @brief Consistently update both the begin and last pointers.
+ * @param begin New begin pointer.
+ * @param end New end pointer.
+ */
+T_CONCURRENTRANGEMAP
+inline
+void
+CONCURRENTRANGEMAP::updatePointers (value_type* new_begin, value_type* new_end)
+{
+  // Mark that there's an update in progress.
+  m_begin = nullptr;
+  // Then update the last pointer.
+  if (new_begin == new_end) {
+    m_last = nullptr;
+  }
+  else {
+    m_last = new_end-1;
+  }
+  // Then set the begin pointer.
+  m_begin = new_begin;
+}
+
+
+#undef T_CONCURRENTRANGEMAP
+#undef CONCURRENTRANGEMAP
+
+
+} // namespace CxxUtils

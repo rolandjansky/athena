@@ -26,7 +26,7 @@ MdtROD_Decoder::MdtROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
 :  AthAlgTool(type,name,parent), 
    m_EvtStore(0), m_hid2re(0), m_cabling(0), m_mdtIdHelper(0), m_rodReadOut(0), m_csmReadOut(0), 
-   m_amtReadOut(0), m_BMEpresent(false)
+   m_amtReadOut(0), m_hptdcReadOut(0), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1)
    //   m_debug(false),
    //   m_log (msgSvc(), name) 
 {
@@ -83,10 +83,19 @@ StatusCode MdtROD_Decoder::initialize() {
   m_rodReadOut = new MdtRODReadOut();
   m_csmReadOut = new MdtCsmReadOut();
   m_amtReadOut = new MdtAmtReadOut();
+  m_hptdcReadOut = new MdtHptdcReadOut();
 
   // check if the layout includes elevator chambers
   m_BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
-  if(m_BMEpresent) ATH_MSG_INFO("Processing configuration for layouts with BME chambers.");
+  if(m_BMEpresent){
+    ATH_MSG_INFO("Processing configuration for layouts with BME chambers.");
+    m_BMEid = m_mdtIdHelper->stationNameIndex("BME");
+  }
+  m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
+  if(m_BMGpresent){
+    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+    m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -96,6 +105,7 @@ StatusCode MdtROD_Decoder::finalize() {
   delete m_rodReadOut;
   delete m_csmReadOut;
   delete m_amtReadOut;
+  delete m_hptdcReadOut;
   
   if (m_hid2re) delete m_hid2re;
 
@@ -294,7 +304,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
       // for layouts with BMEs (read out by 2 CSMs) the RDOs have to be registered with the detectorElement hash
       // registration of common chambers is always done with detectorElement hash of 1st multilayer
       // boundary in BME when 2nd CSM starts is (offline!) tube 43, 1st CMS is registered with ML1 hash, 2nd CSM is ML2 hash
-      if (StationName == 53 && Tube > 42)
+      if (StationName == m_BMEid && Tube > 42)
         moduleId = m_mdtIdHelper->channelID(StationName, StationEta, StationPhi, 2, 1, 1);
       else
         moduleId = m_mdtIdHelper->channelID(StationName, StationEta, StationPhi, 1, 1, 1);
@@ -356,11 +366,13 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
         ATH_MSG_DEBUG("Error: data corrupted");
         return StatusCode::FAILURE;
       }
-      m_amtReadOut->decodeWord(vint[wordPos]);
+      StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
+                             : m_amtReadOut->decodeWord(vint[wordPos]);
       m_csmReadOut->decodeWord(vint[wordPos]);
       while (!m_csmReadOut->is_TWC()) {
 
-        uint16_t tdcNum = m_amtReadOut->tdcId();
+        uint16_t tdcNum = StationName == m_BMGid ? m_hptdcReadOut->tdcId()
+                                                 : m_amtReadOut->tdcId();
         
         ATH_MSG_DEBUG(" Decoding data from TDC number : " << tdcNum);
                 
@@ -371,14 +383,19 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 	  return StatusCode::FAILURE;
 	}
 	
-	m_amtReadOut->decodeWord(vint[wordPos]);
+	StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
+	                       : m_amtReadOut->decodeWord(vint[wordPos]);
 
         MdtAmtHit* amtHit;
         // Loop on the TDC data words and create the corresponding
         // RDO's
-        while (!(m_amtReadOut->is_EOT() || m_amtReadOut->is_BOT() || m_amtReadOut->is_TWC()) ) {
+        while (!( (StationName == m_BMGid ? m_hptdcReadOut->is_EOT() : m_amtReadOut->is_EOT())
+               || (StationName == m_BMGid ? m_hptdcReadOut->is_BOT() : m_amtReadOut->is_BOT())
+               || (StationName == m_BMGid ? m_csmReadOut->is_TWC() : m_amtReadOut->is_TWC())
+               ) ) {
 
-          m_amtReadOut->decodeWord(vint[wordPos]);
+          StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
+                                 : m_amtReadOut->decodeWord(vint[wordPos]);
           int tdcCounts;
           uint16_t chanNum;
           // decode the tdc channel number 
@@ -386,12 +403,17 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
           // Check whether this channel has already been 
           // created for this CSM
 
-          if (m_amtReadOut->is_TSM() && m_amtReadOut->isLeading() && collection ) {
+          if ( (StationName == m_BMGid ? m_hptdcReadOut->is_TSM() : m_amtReadOut->is_TSM())
+            && (StationName == m_BMGid ? m_hptdcReadOut->isLeading() : m_amtReadOut->isLeading())
+            && collection ) {
             
-            chanNum = m_amtReadOut->channel();
+            chanNum = StationName == m_BMGid ? m_hptdcReadOut->channel()
+                                             : m_amtReadOut->channel();
 
             amtHit = new MdtAmtHit(tdcNum, chanNum);
-            amtHit->setValues(m_amtReadOut->coarse(), m_amtReadOut->fine(), 0);
+            amtHit->setValues((StationName == m_BMGid ? m_hptdcReadOut->coarse() : m_amtReadOut->coarse()),
+                              (StationName == m_BMGid ? m_hptdcReadOut->fine() : m_amtReadOut->fine()),
+                              0);
             amtHit->addData(vint[wordPos]);
             std::pair <leading_amt_map::iterator,bool> ins = 
                 leadingHitMap.insert(leading_amt_map::value_type(chanNum,amtHit));
@@ -404,9 +426,12 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 	    }
 	    //leadingHitMap[chanNum] = amtHit;
           }
-          else if ( m_amtReadOut->is_TSM() && !m_amtReadOut->isLeading() && collection ) {
+          else if ( (StationName == m_BMGid ? m_hptdcReadOut->is_TSM() : m_amtReadOut->is_TSM())
+                 && !(StationName == m_BMGid ? m_hptdcReadOut->isLeading() : m_amtReadOut->isLeading())
+                 && collection ) {
             
-            chanNum = m_amtReadOut->channel();
+            chanNum = StationName == m_BMGid ? m_hptdcReadOut->channel()
+                                             : m_amtReadOut->channel();
             leading_amt_map::iterator chanPosition = leadingHitMap.find(chanNum);
 
             if (chanPosition != leadingHitMap.end() ) {
@@ -417,7 +442,8 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
               int tdcCountsFirst = coarse*32+fine;
 
               // get the tdc counts of the current data word
-              tdcCounts = m_amtReadOut->coarse()*32+m_amtReadOut->fine();
+              tdcCounts = StationName == m_BMGid ? m_hptdcReadOut->coarse()*32+m_hptdcReadOut->fine()
+                                                 : m_amtReadOut->coarse()*32+m_amtReadOut->fine();
               int width = tdcCounts-tdcCountsFirst;
 
               amtHit->setValues(coarse,fine,width);
@@ -433,12 +459,15 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
             }
 
           }
-          else if (m_amtReadOut->is_TCM() && collection ) {
-            uint16_t chanNum = m_amtReadOut->channel();
+          else if ((StationName == m_BMGid ? m_hptdcReadOut->is_TCM() : m_amtReadOut->is_TCM())
+                 && collection ) {
+            uint16_t chanNum = StationName == m_BMGid ? m_hptdcReadOut->channel()
+                                                      : m_amtReadOut->channel();
 
             amtHit = new MdtAmtHit(tdcNum, chanNum);
-            amtHit->setValues(m_amtReadOut->coarse(), m_amtReadOut->fine(), 
-                              m_amtReadOut->width());
+            amtHit->setValues((StationName == m_BMGid ? m_hptdcReadOut->coarse() : m_amtReadOut->coarse()),
+                              (StationName == m_BMGid ? m_hptdcReadOut->fine() : m_amtReadOut->fine()),
+                              (StationName == m_BMGid ? m_hptdcReadOut->width() : m_amtReadOut->width()));
             amtHit->addData(vint[wordPos]);
             collection->push_back(amtHit);
           }
@@ -450,7 +479,10 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
             return StatusCode::FAILURE;
           }
 
-          m_amtReadOut->decodeWord(vint[wordPos]);
+          StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
+                                 : m_amtReadOut->decodeWord(vint[wordPos]);
+
+          if ( StationName == m_BMGid ) m_csmReadOut->decodeWord(vint[wordPos]);
 
         } // End of loop on AMTs
 
@@ -467,7 +499,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
         
 	// increase the decoding position only if it's end of TDC 
 	// i.e. not operating in TDC trailer suppression mode
-	if ( m_amtReadOut->is_EOT() ) {
+	if ( (StationName == m_BMGid ? m_hptdcReadOut->is_EOT() : m_amtReadOut->is_EOT()) ) {
 	  wordPos += 1;
 	  if (wordPos >= size) {
 	    ATH_MSG_ERROR("Error: data corrupted");
@@ -475,7 +507,8 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 	  }
 	}
         m_csmReadOut->decodeWord(vint[wordPos]);
-        m_amtReadOut->decodeWord(vint[wordPos]);
+        StationName == m_BMGid ? m_hptdcReadOut->decodeWord(vint[wordPos])
+                               : m_amtReadOut->decodeWord(vint[wordPos]);
       }  // End of loop on TDCs
 
       // Collection has been found, go out

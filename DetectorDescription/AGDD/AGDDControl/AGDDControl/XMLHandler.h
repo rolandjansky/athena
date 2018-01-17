@@ -10,17 +10,15 @@
 
 #include "AGDDControl/ExpressionEvaluator.h"
 
-using namespace xercesc;
-
 class XMLHandlerStore;
 
 class XMLHandler {
 public:
 	XMLHandler(std::string n);
 	virtual ~XMLHandler() {}
-	std::string GetName() {return name;}
+	std::string GetName() {return m_name;}
 	virtual void ElementHandle()=0;
-	virtual void Handle(DOMNode *t) 
+	virtual void Handle(xercesc::DOMNode *t) 
 	{
 		SetCurrentElement(t);
 		ElementHandle();
@@ -28,12 +26,12 @@ public:
 	void StopLoop(bool);
 	bool IsLoopToBeStopped();
 protected:
-	std::string name;
-	bool stopLoop;
+	std::string m_name;
+	bool m_stopLoop;
 
-	static DOMNode *currentElement;
-	static void SetCurrentElement(DOMNode *t) {currentElement=t;}
-	static DOMNode *GetCurrentElement() {return currentElement;}
+	static xercesc::DOMNode *s_currentElement;
+	static void SetCurrentElement(xercesc::DOMNode *t) {s_currentElement=t;}
+	static xercesc::DOMNode *GetCurrentElement() {return s_currentElement;}
 	
 	bool isAttribute(const std::string) const;
 
@@ -53,7 +51,7 @@ protected:
 	int getAttributeAsInt(const std::string, const int) const;
 	std::vector<double> getAttributeAsVector(const std::string, const std::vector<double>) const;
     std::vector<int> getAttributeAsIntVector(const std::string, const std::vector<int>) const;
-	static bool printFlag;
+	static bool s_printFlag;
 	
 	ExpressionEvaluator& Evaluator() const
 	{

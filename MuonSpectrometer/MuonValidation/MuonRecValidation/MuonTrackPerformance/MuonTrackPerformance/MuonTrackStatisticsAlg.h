@@ -7,11 +7,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include <string>
 #include <fstream>
 
-class MsgStream;
-class StoreGateSvc;
 class MuonTrackStatisticsTool;
 
 class MuonTrackStatisticsAlg : public AthAlgorithm
@@ -26,13 +27,8 @@ class MuonTrackStatisticsAlg : public AthAlgorithm
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-  //statistics to be counted
-  std::vector<std::string> m_trackLocationList;
   
  private:
-
-    // Cache the StoreGateSvc ptr for efficiency
-    StoreGateSvc*	p_SGevent;
 
     //ToolHandle<Muon::MuonEDMHelperTool>   m_helperTool;
     ToolHandle <MuonTrackStatisticsTool>    m_statisticsTool;
@@ -43,12 +39,11 @@ class MuonTrackStatisticsAlg : public AthAlgorithm
     /** output file*/
     std::ofstream  m_fileOutput;  
 
-    int			m_print_level;
     bool                m_writeToFile;
     bool                m_doTruth;
-    MsgStream*          m_log;
 
-
+    SG::ReadHandleKeyArray<TrackCollection> m_trackKeys{this,"TrackLocationList",{"MuonSpectrometerTracks"},"track collections to track"};
+    SG::ReadHandleKeyArray<DetailedTrackTruthCollection> m_truthKeys{this,"TruthTrackLocationList",{"MuonSpectrometerTracksTruth"},"truth track collections"};
 
     void storeTruthTracks(void);
  

@@ -158,8 +158,7 @@ StatusCode sTgcFastDigitizer::execute() {
 
 // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
-  auto sdoContainer = std::make_unique<MuonSimDataCollection>(*h_sdoContainer);
-  ATH_CHECK( h_sdoContainer.record ( std::move (sdoContainer)) );
+  ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
   sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->detectorElement_hash_max());
   

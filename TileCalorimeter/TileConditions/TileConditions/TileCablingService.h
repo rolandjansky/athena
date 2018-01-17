@@ -40,12 +40,12 @@ public:
     
     // Conversion between TileID and Trigger Tower ID
 
-    Identifier          cell2tt_id              ( const Identifier & id ) const throw (CaloID_Exception, TileID_Exception);
-    Identifier          pmt2tt_id               ( const Identifier & id ) const throw (CaloID_Exception);
-    Identifier          cell2mt_id              ( const Identifier & id ) const throw (CaloID_Exception, TileID_Exception);
-    Identifier          pmt2mt_id               ( const Identifier & id ) const throw (CaloID_Exception);
+    Identifier          cell2tt_id              ( const Identifier & id ) const;
+    Identifier          pmt2tt_id               ( const Identifier & id ) const;
+    Identifier          cell2mt_id              ( const Identifier & id ) const;
+    Identifier          pmt2mt_id               ( const Identifier & id ) const;
 
-    Identifier          drawer2MBTS_id          ( const HWIdentifier & id ) const throw (TileID_Exception);
+    Identifier          drawer2MBTS_id          ( const HWIdentifier & id ) const;
 
     // Conversion between TileID and TileHWID
 
@@ -53,16 +53,16 @@ public:
 //  Identifier          h2s_region_id           ( const HWIdentifier & id );
 //  Identifier          h2s_module_id           ( const HWIdentifier & id );
 //  Identifier          h2s_tower_id            ( const HWIdentifier & id );
-    Identifier          h2s_cell_id_index       ( const HWIdentifier & id, int & index, int & pmt ) const throw (TileID_Exception);
-    Identifier          h2s_cell_id_index       ( int ros, int drawer, int channel, int & index, int & pmt ) const throw (TileID_Exception);
-    Identifier          h2s_cell_id             ( const HWIdentifier & id ) const throw (TileID_Exception);
-    Identifier          h2s_pmt_id              ( const HWIdentifier & id ) const throw (TileID_Exception);
-    Identifier          h2s_adc_id              ( const HWIdentifier & id ) const throw (TileID_Exception);
+    Identifier          h2s_cell_id_index       ( const HWIdentifier & id, int & index, int & pmt ) const;
+    Identifier          h2s_cell_id_index       ( int ros, int drawer, int channel, int & index, int & pmt ) const;
+    Identifier          h2s_cell_id             ( const HWIdentifier & id ) const;
+    Identifier          h2s_pmt_id              ( const HWIdentifier & id ) const;
+    Identifier          h2s_adc_id              ( const HWIdentifier & id ) const;
                                                                   
 //  HWIdentifier        s2h_ros_id              ( const Identifier & id );
     HWIdentifier        s2h_drawer_id           ( const Identifier & id ) const;
-    HWIdentifier        s2h_channel_id          ( const Identifier & id ) const throw (TileID_Exception);
-    HWIdentifier        s2h_adc_id              ( const Identifier & id ) const throw (TileID_Exception);
+    HWIdentifier        s2h_channel_id          ( const Identifier & id ) const;
+    HWIdentifier        s2h_adc_id              ( const Identifier & id ) const;
 
     int                 frag                    ( const HWIdentifier & id ) const;
     int                 frag                    ( const Identifier & id )   const;
@@ -246,7 +246,7 @@ private:
     std::vector<int> m_ch2pmt;
     std::vector<int> m_ch2index;
 
-   Identifier h2s_cell_id_index_find ( int ros, int drawer, int channel, int & index, int & pmt ) const throw (TileID_Exception);
+   Identifier h2s_cell_id_index_find ( int ros, int drawer, int channel, int & index, int & pmt ) const;
    Identifier h2s_cell_id_index_from_cache (int ros, int drawer, int channel, int & index, int & pmt ) const;
 
    // returns index used for caching (for ros != TileHWID::BEAM_ROS) and calculated as 

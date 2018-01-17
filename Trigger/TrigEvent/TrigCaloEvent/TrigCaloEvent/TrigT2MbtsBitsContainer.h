@@ -5,10 +5,10 @@
 #ifndef TRIGCALOEVENT_TRIGT2MBTSBITSCONTAINER_H 
 #define TRIGCALOEVENT_TRIGT2MBTSBITSCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigCaloEvent/TrigT2MbtsBits.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigT2MbtsBitsContainer : public DataVector<TrigT2MbtsBits> { }; 
 

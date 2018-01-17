@@ -242,7 +242,7 @@ bool TrigEgammaNavNtuple::executeTrigItemDump(){
     const TrigInfo info = getTrigInfo(trigItem);
     if ( executeNavigation(info).isFailure() ){
       ATH_MSG_DEBUG("executeNavigation failure! continue...");
-      return StatusCode::FAILURE;
+      return false;
     }
 
     TTree *t = tree( "trigger", m_dir+"/Expert/"+trigItem);

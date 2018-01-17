@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PRIVATE
                           DataQuality/GoodRunsLists
                           Database/APR/CollectionBase
                           Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
                           Database/APR/PersistencySvc
                           Database/APR/StorageSvc
                           TestPolicy )
@@ -22,11 +21,11 @@ atlas_add_library( AtlasCollectionTools
                    src/GlobalSum.cxx
                    NO_PUBLIC_HEADERS
                    LINK_LIBRARIES GoodRunsListsLib
-                   PRIVATE_LINK_LIBRARIES CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc )
+                   PRIVATE_LINK_LIBRARIES CollectionBase CollectionUtilities PersistencySvc StorageSvc )
 
 atlas_add_executable( AthCollAppend
                       src/CollAppend.cxx
-                      LINK_LIBRARIES GoodRunsListsLib CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AtlasCollectionTools )
+                      LINK_LIBRARIES GoodRunsListsLib CollectionBase CollectionUtilities PersistencySvc StorageSvc AtlasCollectionTools )
 
 
 # Install files from the package:

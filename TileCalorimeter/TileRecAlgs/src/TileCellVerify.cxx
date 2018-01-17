@@ -16,16 +16,17 @@
 //
 //*****************************************************************************
 
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-
-// Calo includes
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/TileID.h"
-
 // Tile includes
 #include "TileEvent/TileCell.h"
 #include "TileRecAlgs/TileCellVerify.h"
+
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "AthenaKernel/errorcheck.h"
+
 
 //C++ STL includes
 #include <vector>
@@ -47,16 +48,11 @@ class CompCell: public binary_function<const CaloCell*, const CaloCell*, bool> {
 // Constructor
 TileCellVerify::TileCellVerify(string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_cellContainer1("TileCellContainer1")
-  , m_cellContainer2("TileCellContainer2")
   , m_tileID(0)
   , m_dumpCells(false)
   , m_sortFlag(false)
 
 {
-
-  declareProperty("TileCellContainer1", m_cellContainer1);
-  declareProperty("TileCellContainer2", m_cellContainer2);
   declareProperty("DumpCells", m_dumpCells);
   declareProperty("SortFlag", m_sortFlag);
 }
@@ -70,6 +66,9 @@ StatusCode TileCellVerify::initialize() {
   // retrieve TileID helper from det store
   CHECK( detStore()->retrieve(m_tileID) );
 
+  ATH_CHECK( m_cellContainer1Key.initialize() );
+  ATH_CHECK( m_cellContainer2Key.initialize() );
+
   ATH_MSG_INFO( "TileCellVerify initialization completed" );
 
   return StatusCode::SUCCESS;
@@ -78,42 +77,43 @@ StatusCode TileCellVerify::initialize() {
 StatusCode TileCellVerify::execute() {
 
   // step1: read two cell containers from TES
-  const CaloCellContainer* pCellContainer1;
-  const CaloCellContainer* pCellContainer2;
-  CHECK( evtStore()->retrieve(pCellContainer1, m_cellContainer1) );
-  CHECK( evtStore()->retrieve(pCellContainer2, m_cellContainer2) );
+  SG::ReadHandle<CaloCellContainer> cellContainer1(m_cellContainer1Key);
+  ATH_CHECK(cellContainer1.isValid());
+
+  SG::ReadHandle<CaloCellContainer> cellContainer2(m_cellContainer2Key);
+  ATH_CHECK(cellContainer2.isValid());
 
   // step2: first compare the number of cells in the two containers
-  int nCells1 = pCellContainer1->size();
-  int nCells2 = pCellContainer2->size();
-  ATH_MSG_INFO( "The number of cells in " << m_cellContainer1 << " is " << nCells1 );
-  ATH_MSG_INFO( "The number of cells in " << m_cellContainer2 << " is " << nCells2 );
+  int nCells1 = cellContainer1->size();
+  int nCells2 = cellContainer2->size();
+  ATH_MSG_INFO( "The number of cells in " << m_cellContainer1Key.key() << " is " << nCells1 );
+  ATH_MSG_INFO( "The number of cells in " << m_cellContainer2Key.key() << " is " << nCells2 );
 
   if (nCells1 != nCells2) {
     ATH_MSG_ERROR( "The number of cells is not equal in the two cell "
-        << "containers: " << m_cellContainer1 << " and " << m_cellContainer2 );
+                   << "containers: " << m_cellContainer1Key.key() 
+                   << " and " << m_cellContainer2Key.key() );
 
     return (StatusCode::SUCCESS);
   }
 
   // step3: to sort the cells in the container read above by energy
-  vector<const CaloCell*> v1;
-  vector<const CaloCell*> v2;
-  const CaloCell* pCell1;
-  const CaloCell* pCell2;
+  vector<const CaloCell*> cells1;
+  vector<const CaloCell*> cells2;
+  const CaloCell* cell1(nullptr);
+  const CaloCell* cell2(nullptr);
   if (m_sortFlag) {
-    CaloCellContainer::const_iterator it = pCellContainer1->begin();
-    CaloCellContainer::const_iterator itLast = pCellContainer1->end();
-    for (; it != itLast; ++it) {
-      v1.push_back(*it);
+
+    for (const CaloCell* cell : *cellContainer1) {
+      cells1.push_back(cell);
     }
-    it = pCellContainer2->begin();
-    itLast = pCellContainer2->end();
-    for (; it != itLast; ++it) {
-      v2.push_back(*it);
+
+    for (const CaloCell* cell : *cellContainer2) {
+      cells2.push_back(cell);
     }
-    sort(v1.begin(), v1.end(), CompCell());
-    sort(v2.begin(), v2.end(), CompCell());
+
+    sort(cells1.begin(), cells1.end(), CompCell());
+    sort(cells2.begin(), cells2.end(), CompCell());
   }
 
   // step4: then compare every cell-pair in the containers
@@ -123,28 +123,28 @@ StatusCode TileCellVerify::execute() {
   for (int i = 0; i < nCells1; ++i) {
 
     if (m_sortFlag) {
-      pCell1 = v1[i];
-      pCell2 = v2[i];
+      cell1 = cells1[i];
+      cell2 = cells2[i];
     } else {
-      pCell1 = (*pCellContainer1)[i];
-      pCell2 = (*pCellContainer2)[i];
+      cell1 = (*cellContainer1)[i];
+      cell2 = (*cellContainer2)[i];
     }
 
-    Identifier id1 = pCell1->ID();
-    Identifier id2 = pCell2->ID();
+    Identifier id1 = cell1->ID();
+    Identifier id2 = cell2->ID();
     if (id1 != id2) bErrorFlag = true;
     if (lVerbose && (m_dumpCells || bErrorFlag)) {
 
       if (!bOnlyOnceFlag) {
-        msg(MSG::VERBOSE) << "  ===" << m_cellContainer1 << "===      ===" << m_cellContainer2 << "===" << endmsg;
+        msg(MSG::VERBOSE) << "  ===" << m_cellContainer1Key.key() << "===      ===" << m_cellContainer2Key.key() << "===" << endmsg;
         msg(MSG::VERBOSE) << "  Index      e1            id1        |        e2           id2" << endmsg;
         msg(MSG::VERBOSE) << "--------------------------------------------------------------------------------" << endmsg;
         bOnlyOnceFlag = true;
       }
 
-      msg(MSG::VERBOSE) << setw(5) << i << "   " << setw(12) << pCell1->energy() << "   [";
+      msg(MSG::VERBOSE) << setw(5) << i << "   " << setw(12) << cell1->energy() << "   [";
       msg(MSG::VERBOSE) << m_tileID->to_string(id1, -2) << "]";
-      msg(MSG::VERBOSE) << "  |  " << setw(12) << pCell2->energy() << "   [";
+      msg(MSG::VERBOSE) << "  |  " << setw(12) << cell2->energy() << "   [";
       msg(MSG::VERBOSE) << m_tileID->to_string(id2, -2) << "]";
 
       if (bErrorFlag) msg(MSG::VERBOSE) << " * ";
@@ -159,11 +159,11 @@ StatusCode TileCellVerify::execute() {
     msg(MSG::VERBOSE) << "--------------------------------------------------------------------------------" << endmsg;
   }
   if (!bErrorFlag) {
-    ATH_MSG_INFO( "The two cellContainers (" << m_cellContainer1
-        << " and " << m_cellContainer2 << ") are same!!!" );
+    ATH_MSG_INFO( "The two cellContainers (" << m_cellContainer1Key.key()
+                  << " and " << m_cellContainer2Key.key() << ") are same!!!" );
   } else {
-    ATH_MSG_INFO( "The two cellContainers (" << m_cellContainer1
-        << " and " << m_cellContainer2 << ") are not same!!!" );
+    ATH_MSG_INFO( "The two cellContainers (" << m_cellContainer1Key.key()
+                  << " and " << m_cellContainer2Key.key() << ") are not same!!!" );
   }
 
   // Execution completed.

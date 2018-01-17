@@ -144,7 +144,13 @@ void PixCoralClient::connect() {
 */
 PixCoralClient::~PixCoralClient() {
   disconnect();
-  m_connectionService->purgeConnectionPool();
+  try {
+    m_connectionService->purgeConnectionPool();
+  }
+  catch (coral::Exception & ex) {
+    std::cout << "INFO [PixCoralClient::~PixCoralClien] Exception caught in purging connection pool. " <<std::endl;
+    std::cout << ex.what() <<std::endl;
+  }
 }
 
 
@@ -747,7 +753,7 @@ void PixCoralClient::createTable(){
       std::cout << "\nCOOLCORAL Client:  Creating table: " << PIXEL_TABLE_DATA <<" for ";
       try {
 	std::cout <<tableTypeName<T>() << std::endl;
-      } catch (coral::AttributeListException) {
+      } catch (const coral::AttributeListException&) {
 	std::cout <<typeid(T).name() << std::endl;
       }
     }

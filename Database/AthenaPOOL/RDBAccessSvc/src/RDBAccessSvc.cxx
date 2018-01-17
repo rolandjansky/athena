@@ -227,15 +227,15 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
   return rec;
 }
 
-IRDBQuery* RDBAccessSvc::getQuery(const std::string& node,
-				  const std::string& tag,
-				  const std::string& tag2node,
-				  const std::string& connName)
+std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node,
+						  const std::string& tag,
+						  const std::string& tag2node,
+						  const std::string& connName)
 {
   ATH_MSG_DEBUG("getQuery (" << node << "," << tag << "," << tag2node << "," << connName << ")");
   std::lock_guard<std::mutex> guard(m_mutex);
 
-  IRDBQuery* query{nullptr};
+  std::unique_ptr<IRDBQuery> query;
 
   if(!connect(connName)) {
     ATH_MSG_ERROR("Unable to open connection " << connName << ". Returning nullptr to IRDBQuery");
@@ -271,7 +271,7 @@ IRDBQuery* RDBAccessSvc::getQuery(const std::string& node,
       ATH_MSG_WARNING("Could not get the tag for " << node << " node. Returning 0 pointer to IRDBQuery");
     }
     else {
-      query = new RDBQuery(this,session,node,childTagId);
+      query = std::unique_ptr<IRDBQuery>(new RDBQuery(this,session,node,childTagId,connName));
     }
   }
   catch(coral::SchemaException& se) {

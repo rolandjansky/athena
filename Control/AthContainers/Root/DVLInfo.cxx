@@ -16,14 +16,18 @@
 
 
 #include "AthContainers/tools/DVLInfo.h"
+#include "AthContainers/tools/threading.h"
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 #endif
 #include <typeinfo>
 #include <string>
 #include <memory>
 #include <unordered_map>
 
+
+using AthContainers_detail::mutex;
+using AthContainers_detail::lock_guard;
 
 
 namespace DataModel_detail {
@@ -34,7 +38,8 @@ namespace DataModel_detail {
 /// to avoid initialization ordering problems.
 typedef std::unordered_map<const std::type_info*, DVLInfoBase*>
    dvl_tinfo_map_t;
-dvl_tinfo_map_t* s_dvl_tinfo_map = 0;
+dvl_tinfo_map_t* s_dvl_tinfo_map ATLAS_THREAD_SAFE = 0;
+mutex s_dvl_tinfo_mutex;
 
 struct dvlmapdel {
   ~dvlmapdel() { delete s_dvl_tinfo_map; }
@@ -56,6 +61,7 @@ DVLInfoBase::DVLInfoBase (const std::type_info& tinfo,
   : m_tinfo (tinfo),
     m_elt_tinfo (elt_tinfo)
 {
+  lock_guard<mutex> lock (s_dvl_tinfo_mutex);
   if (s_dvl_tinfo_map == 0)
     s_dvl_tinfo_map = new dvl_tinfo_map_t;
   (*s_dvl_tinfo_map)[&tinfo] = this;
@@ -69,6 +75,7 @@ DVLInfoBase::DVLInfoBase (const std::type_info& tinfo,
  */
 DVLInfoBase* DVLInfoBase::find (const std::type_info& tinfo)
 {
+  lock_guard<mutex> lock (s_dvl_tinfo_mutex);
   if (!s_dvl_tinfo_map)
     return 0;
   dvl_tinfo_map_t::iterator i = s_dvl_tinfo_map->find (&tinfo);

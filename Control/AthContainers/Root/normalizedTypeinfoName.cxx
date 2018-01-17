@@ -16,6 +16,7 @@
 #include "AthContainers/tools/threading.h"
 #include "AthContainers/tools/error.h"
 #include "CxxUtils/ClassName.h"
+#include "CxxUtils/checker_macros.h"
 #include <unordered_map>
 #include <functional>
 
@@ -23,15 +24,10 @@
 namespace {
 
 
-typedef std::unordered_map<const std::type_info*, std::string> typemap_t;
-
-typedef AthContainers_detail::upgrade_mutex mutex_t;
-typedef AthContainers_detail::strict_shared_lock<mutex_t> lock_t;
-typedef AthContainers_detail::upgrading_lock<mutex_t> upgrading_lock_t;
-
-
-void initRules (CxxUtils::ClassName::Rules& rules)
+CxxUtils::ClassName::Rules makeRules()
 {
+  CxxUtils::ClassName::Rules rules;
+
   // STL container types that Reflex knows about.
   rules.add ("std::deque<$T, std::allocator<$T> >",
              "std::deque<$T>");
@@ -91,6 +87,8 @@ void initRules (CxxUtils::ClassName::Rules& rules)
 
   // Needed for macos?
   rules.add ("std::__1", "std");
+
+  return rules;
 }
 
 
@@ -121,40 +119,32 @@ namespace SG {
  */
 std::string normalizedTypeinfoName (const std::type_info& info)
 {
-  static typemap_t normalizedTypemap;
+  // Maintain a cache of mappings, protected with an ordinary mutex.
+  // We originally did this with an upgrading mutex.
+  // However, these mutexes have been observed to have considerable overhead,
+  // so are probably not worthwhile if the read critical section is short.
+  // If this lock becomes a performance issue, consider a concurrent hashmap
+  // or rcu-style solution.
+  typedef std::unordered_map<const std::type_info*, std::string> typemap_t;
+  static typemap_t normalizedTypemap ATLAS_THREAD_SAFE;
+  typedef AthContainers_detail::mutex mutex_t;
   static mutex_t normalizedTypemapMutex;
+  AthContainers_detail::lock_guard<mutex_t> lock (normalizedTypemapMutex);
 
-  // First test to see if we already have this mapping.
-  // For this, use a read lock.
-  {
-    lock_t lock (normalizedTypemapMutex);
-    typemap_t::iterator it = normalizedTypemap.find (&info);
-    if (it != normalizedTypemap.end())
-      return it->second;
+  // Test to see if we already have the mapping.
+  typemap_t::iterator it = normalizedTypemap.find (&info);
+  if (it != normalizedTypemap.end()) {
+    return it->second;
   }
 
-  static CxxUtils::ClassName::Rules normalizeRules;
+  // Didn't find it.  Apply the rules.
+  static const CxxUtils::ClassName::Rules normalizeRules = makeRules();
+  std::string tiname = AthContainers_detail::typeinfoName (info);
+  std::string normalizedName = normalizeRules.apply (tiname);
 
-  // Didn't find it.  Take out an upgrading lock.
-  {
-    upgrading_lock_t lock (normalizedTypemapMutex);
-
-    // Need to check again to see if the mapping's there.
-    typemap_t::iterator it = normalizedTypemap.find (&info);
-    if (it != normalizedTypemap.end())
-      return it->second;
-
-    // Convert lock to exclusive.
-    lock.upgrade();
-
-    if (normalizeRules.size() == 0)
-      initRules (normalizeRules);
-
-    std::string tiname = AthContainers_detail::typeinfoName (info);
-    std::string normalizedName = normalizeRules.apply (tiname);
-    normalizedTypemap[&info] = normalizedName;
-    return normalizedName;
-  }
+  // Remember this mapping.
+  normalizedTypemap[&info] = normalizedName;
+  return normalizedName;
 }
 
 

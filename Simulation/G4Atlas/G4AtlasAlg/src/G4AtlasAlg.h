@@ -19,7 +19,7 @@
 // Athena headers
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
@@ -109,8 +109,8 @@ private:
   /// Activate multi-threading configuration
   bool m_useMT;
 
-  /// Random number Service
-  ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+  /// Random number service
+  ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
   /// G4Atlas Service - handles G4 initialization
   ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
   /// User Action Service

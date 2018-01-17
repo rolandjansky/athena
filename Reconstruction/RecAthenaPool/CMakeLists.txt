@@ -11,8 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AtlasSealCLHEP
                           PRIVATE
                           AtlasTest/TestTools
-                          Control/CLIDSvc
-                          Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           GaudiKernel
@@ -25,7 +23,7 @@ atlas_add_poolcnv_library( RecAthenaPoolPoolCnv
                            src/*.cxx
                            FILES MissingETEvent/MissingEtCalo.h MissingETEvent/MissingEtTruth.h MissingETEvent/MissingET.h MissingETEvent/MissingETComposition.h muonEvent/MuonSpShowerContainer.h muonEvent/MuonCaloEnergyContainer.h muonEvent/MuonContainer.h src/MuonCaloEnergies.h
                            TYPES_WITH_NAMESPACE Rec::MuonSpShowerContainer Analysis::MuonContainer TPCnv::MuonCaloEnergies
-                           LINK_LIBRARIES AthenaPoolUtilities SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel MissingETEvent muonEvent RecTPCnv )
+                           LINK_LIBRARIES AthenaPoolUtilities StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel MissingETEvent muonEvent RecTPCnv )
 
 # Install files from the package:
 atlas_install_headers( RecAthenaPool )

@@ -21,13 +21,6 @@
 #define ATHCONTAINERS_THREADING_H
 
 
-#if defined(__GCCXML__)
-# ifndef ATHCONTAINERS_NO_THREADS
-#  define ATHCONTAINERS_NO_THREADS
-# endif
-#endif
-
-
 #ifdef ATHCONTAINERS_NO_THREADS
 
 
@@ -83,9 +76,12 @@ public:
   ~thread_specific_ptr() { delete m_ptr; }
   thread_specific_ptr (const thread_specific_ptr&) = delete;
   thread_specific_ptr& operator= (const thread_specific_ptr&) = delete;
-  T* get() const { return m_ptr; }
-  T* operator->() const { return m_ptr; }
-  T& operator*() const { return *m_ptr; }
+  T* get() { return m_ptr; }
+  T* operator->() { return m_ptr; }
+  T& operator*() { return *m_ptr; }
+  const T* get() const { return m_ptr; }
+  const T* operator->() const { return m_ptr; }
+  const T& operator*() const { return *m_ptr; }
   void reset (T* new_value=0) { delete m_ptr; m_ptr = new_value; }
   T* release() { T* ret = m_ptr; m_ptr = 0; return ret; }
 
@@ -113,17 +109,9 @@ inline void fence_seq_cst() {}
 
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/tss.hpp"
-#if __cplusplus > 201100
-# include <atomic>
-# include <mutex>
-# include <thread>
-namespace SG_STD_OR_BOOST = std;
-#else
-# include "boost/atomic.hpp"
-# include "boost/thread/mutex.hpp"
-# include "boost/thread/thread.hpp"
-namespace SG_STD_OR_BOOST = boost;
-#endif
+#include <atomic>
+#include <mutex>
+#include <thread>
 
 
 namespace AthContainers_detail {
@@ -133,10 +121,9 @@ namespace AthContainers_detail {
 using boost::upgrade_mutex;
 using boost::thread_specific_ptr;
 
-// Other mutex/lock types come from either boost or std.
-using SG_STD_OR_BOOST::mutex;
-using SG_STD_OR_BOOST::lock_guard;
-using SG_STD_OR_BOOST::thread;
+using std::mutex;
+using std::lock_guard;
+using std::thread;
 
 
 /**

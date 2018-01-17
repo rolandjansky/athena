@@ -5,7 +5,7 @@
 #ifndef TRIGINDETEVENT_TRIGVERTEXCOUNTS_H
 #define TRIGINDETEVENT_TRIGVERTEXCOUNTS_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /** @class TrigVertexCounts
  * @author W. H. Bell <W.Bell@cern.ch>

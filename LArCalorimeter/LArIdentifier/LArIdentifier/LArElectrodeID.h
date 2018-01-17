@@ -247,7 +247,7 @@ class LArElectrodeID : public AtlasDetectorID {
   IdentifierHash electrode_hash_binary_search(HWIdentifier elecId) const;
   
   /* Check methods */
-  void  electrodeId_checks(int det, int side, int mod, int phi, int eta, int hvgap, int elec )const throw(LArOnlID_Exception);
+  void  electrodeId_checks(int det, int side, int mod, int phi, int eta, int hvgap, int elec )const;
   
   /* create expanded HWIdentifier from HWIdentifier (return == 0 for OK) */
   int  get_expanded_id (const HWIdentifier& id, ExpandedIdentifier& exp_id, 

@@ -123,11 +123,10 @@ void TrackHandle_TrkTrack::ensureTouchedMuonChambersInitialiasedFromMeas( const 
 //____________________________________________________________________
 Amg::Vector3D TrackHandle_TrkTrack::momentum() const
 {
-  std::vector<const Trk::TrackParameters*>::const_iterator it,itE=m_trk->trackParameters()->end();
-  for (it=m_trk->trackParameters()->begin();it!=itE;++it) {
-    if (!common()->trackSanityHelper()->isSafe(*it))
+  for (const Trk::TrackParameters* param : *m_trk->trackParameters()) {
+    if (!common()->trackSanityHelper()->isSafe(param))
       continue;
-    return (*it)->momentum();
+    return param->momentum();
   }
   return TrackHandleBase::momentum();
 }

@@ -70,21 +70,21 @@ StatusCode InDetRawDataFakeWriter::initialize()
     // create the IdentifiableContainers to contain the rdo collections
     try {
         m_pixCont=new PixelRDO_Container(m_pixelId->wafer_hash_max());
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
         ATH_MSG_ERROR("Could not create a new Pixel RawDataContainer !");
         return StatusCode::FAILURE;
     }
   
     try {
         m_sctCont=new SCT_RDO_Container(m_sctId->wafer_hash_max());
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
         ATH_MSG_ERROR("Could not create a new SCT  RawDataContainer !");
         return StatusCode::FAILURE;
     }
   
     try {
         m_trtCont=new TRT_RDO_Container(m_trtId->straw_layer_hash_max());
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
         ATH_MSG_ERROR("Could not create a new TRT RawDataContainer !");
         return StatusCode::FAILURE;
     }

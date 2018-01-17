@@ -8,7 +8,7 @@
 // Infrastructure includes
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasInterfaces/IG4TrackingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
 #include "G4TrackCounter.h"
@@ -23,9 +23,7 @@ namespace G4UA
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class G4TrackCounterTool : public ActionToolBaseReport<G4TrackCounter>,
-                             public IG4EventActionTool,
-                             public IG4TrackingActionTool
+  class G4TrackCounterTool : public UserActionToolBase<G4TrackCounter>
   {
 
     public:
@@ -40,18 +38,11 @@ namespace G4UA
       /// Finalize and merge results from all threads
       virtual StatusCode finalize() override final;
 
-      /// Retrieve the event action interface
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
-
-      /// Retrieve the tracking action interface
-      virtual G4UserTrackingAction* getTrackingAction() override final
-      { return static_cast<G4UserTrackingAction*>( getAction() ); }
-
     protected:
 
       /// Create action for this thread
-      virtual std::unique_ptr<G4TrackCounter> makeAction() override final;
+      virtual std::unique_ptr<G4TrackCounter>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
   }; // class G4TrackCounterTool
 

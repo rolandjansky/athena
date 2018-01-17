@@ -53,8 +53,8 @@ class MuonIdCutTool :  virtual public IMuonIdCutTool, public AthAlgTool   {
     /** finialize method, method taken from bass-class AlgTool */
     StatusCode finalize();
     
-    virtual bool isCut(Identifier ID);
-    virtual bool isCut(MuonCalib::MuonFixedId id);
+    virtual bool isCut(Identifier ID) const;
+    virtual bool isCut(MuonCalib::MuonFixedId id) const;
     
     bool m_cutStationRegion;
     bool m_cutStationName;
@@ -93,7 +93,7 @@ class MuonIdCutTool :  virtual public IMuonIdCutTool, public AthAlgTool   {
 
   private:
  
-    int FindSector(unsigned int staName, unsigned int staPhi);
+    int FindSector(unsigned int staName, unsigned int staPhi) const;
 
 
 

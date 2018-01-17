@@ -8,11 +8,11 @@
 
 #include <vector>
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
 #include "TrigCaloEvent/TrigEMCluster.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
  * This class carries the output of the Neural Network of TrigMultiVarHypo.

@@ -16,25 +16,26 @@
 //
 //*****************************************************************************
 
-// Atlas include
-#include "AthenaKernel/errorcheck.h"
-
-// access all RawChannels inside container
-#include "EventContainers/SelectAllObject.h" 
-
-// Calo includes
-#include "CaloIdentifier/TileTBID.h"
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
-#include "Identifier/IdentifierHash.h"
 
 // Tile includes
+#include "TileRecAlgs/TileBeamElemToCell.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileConditions/TileInfo.h"
-#include "TileEvent/TileBeamElemContainer.h"
 #include "TileEvent/TileCell.h"
-#include "TileRecAlgs/TileBeamElemToCell.h"
+
+// Calo includes
+#include "CaloIdentifier/TileTBID.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
+
+// Atlas include
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
+#include "Identifier/IdentifierHash.h"
+// access all RawChannels inside container
+#include "EventContainers/SelectAllObject.h" 
+
 
 // C++ STL includes
 #include <map>
@@ -49,12 +50,8 @@ TileBeamElemToCell::TileBeamElemToCell(const std::string& name, ISvcLocator* pSv
   , m_tileInfo(0)
   , m_tileMgr(0)
 {
-  m_beamElemContainer = "TileBeamElemCnt";
-  m_cellContainer = "TileTBCellCnt";
   m_infoName = "TileInfo";
 
-  declareProperty("TileBeamElemContainer", m_beamElemContainer);   // Name of input container
-  declareProperty("TileTBCellContainer", m_cellContainer);         // Name of output container
   declareProperty("TileInfoName", m_infoName);                     // name of TileInfo store
 }
 
@@ -73,8 +70,11 @@ StatusCode TileBeamElemToCell::initialize()
   CHECK( detStore()->retrieve(m_tileTBID) );
   CHECK( detStore()->retrieve(m_tileHWID) );
   CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+
+  ATH_CHECK( m_beamElemContainerKey.initialize() );
+  ATH_CHECK( m_cellContainerKey.initialize() );
   
-  ATH_MSG_INFO( "TileBeamElemToCell initialization completed" );
+  ATH_MSG_INFO( "initialization completed" );
 
   return StatusCode::SUCCESS;
 }
@@ -88,48 +88,47 @@ StatusCode TileBeamElemToCell::execute()
 {
 
   // create new container
-  CaloCellContainer* cells = new CaloCellContainer;
+  SG::WriteHandle<CaloCellContainer> cellContainer(m_cellContainerKey);
+
+  /* Register the set of TileCells to the event store. */
+  ATH_CHECK( cellContainer.record(std::make_unique<CaloCellContainer>()) );
 
   //**
   //* Get TileBeamElems
   //**
-    
-  const TileBeamElemContainer* beamElemCnt;
+  SG::ReadHandle<TileBeamElemContainer> beamElemContainer(m_beamElemContainerKey);
 
- if(evtStore()->retrieve(beamElemCnt, m_beamElemContainer).isFailure()) {
+  if(!beamElemContainer.isValid()) {
    ATH_MSG_WARNING( "No signal from beam elements; container '"
-       << m_beamElemContainer << "' doesn't exist in StoreGate" );
+                    << m_beamElemContainerKey.key() << "' doesn't exist in StoreGate" );
 
   } else {
 
     //* Iterate over BeamElem, creating new TileCells (or incrementing
     //* existing ones). Add each new TileCell to the CaloCellContainer.
       
-    SelectAllObject<TileBeamElemContainer> beamElems(beamElemCnt);
-    SelectAllObject<TileBeamElemContainer>::const_iterator itr=beamElems.begin(); 
-    SelectAllObject<TileBeamElemContainer>::const_iterator end=beamElems.end(); 
+    SelectAllObject<TileBeamElemContainer> beamElems(beamElemContainer.cptr());
 
-    for( ; itr != end; ++itr) {
+    for (const TileBeamElem* beamElem : beamElems) {
 	
-      HWIdentifier adc_id = (*itr)->adc_HWID();
-      std::vector<unsigned int> amp = (*itr)->get_digits();
+      HWIdentifier adc_id = beamElem->adc_HWID();
+      std::vector<unsigned int> amp = beamElem->get_digits();
       float ener = amp[0] * m_tileInfo->BeamElemChannelCalib(adc_id);
 
-      Identifier cell_ID = (*itr)->pmt_ID();
-      TileCell * pCell = new TileCell(NULL,cell_ID,ener); // CaloDDE is NULL pointer here
-	
-      cells->push_back(pCell); // store cell in container
+      Identifier cell_ID = beamElem->pmt_ID();
+
+      // CaloDDE is NULL pointer here
+      // store cell in container
+      std::unique_ptr<TileCell> cell = std::make_unique<TileCell>(nullptr, cell_ID, ener);
+      cellContainer->push_back(cell.release());
     }
   }
  
-  /* Register the set of TileCells to the event store. */
-    
- CHECK( evtStore()->record(cells, m_cellContainer, false) );
 
  // Execution completed.
 
  ATH_MSG_VERBOSE( "TileCell container registered to the TES with name"
-      << m_cellContainer);
+                  << m_cellContainerKey.key());
     
     
   return StatusCode::SUCCESS;
@@ -144,7 +143,7 @@ StatusCode TileBeamElemToCell::execute()
 StatusCode TileBeamElemToCell::finalize()
 {
   
-  ATH_MSG_INFO( "TileBeamElemToCell::finalize() end" );
+  ATH_MSG_INFO( "finalize() end" );
   
   return StatusCode::SUCCESS;
 }

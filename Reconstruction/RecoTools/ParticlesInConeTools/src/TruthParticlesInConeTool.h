@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef PARTICLESINCONETOOLS_TRUTHPARTICLESINCONETOOL_H
 #define PARTICLESINCONETOOLS_TRUTHPARTICLESINCONETOOL_H
@@ -12,48 +12,41 @@
 #include "IParticlesLookUpTable.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "GaudiKernel/IIncidentListener.h"
- 
-class IIncidentSvc;
- 
+
 namespace xAOD {
 
-  class TruthParticlesInConeTool: public AthAlgTool, virtual public ITruthParticlesInConeTool, virtual public IIncidentListener {
-  public:
-    /** constructor */
-    TruthParticlesInConeTool(const std::string& type, const std::string& name, const IInterface* parent);
+    class TruthParticlesInConeTool: public AthAlgTool, virtual public ITruthParticlesInConeTool{
+    public:
+        /** constructor */
+        TruthParticlesInConeTool(const std::string& type, const std::string& name, const IInterface* parent);
 
-    /** destructor */
-    ~TruthParticlesInConeTool(void); 
-  
-    /** initialize */
-    StatusCode initialize();
+        /** destructor */
+        ~TruthParticlesInConeTool(void); 
 
-    /** finalize */
-    StatusCode finalize();
+        /** initialize */
+        StatusCode initialize() final;
 
-    /**ITruthParticlesInConeTool interface */    
-    bool particlesInCone( float eta, float phi, float dr, std::vector< const TruthParticle*>& output );
+        /** finalize */
+        StatusCode finalize() final;
 
-    /** incident to clear cache at end of the event */
-    void handle(const Incident& inc);
+        /**ITruthParticlesInConeTool interface */    
+        bool particlesInCone( float eta, float phi, float dr, std::vector< const TruthParticle*>& output ) const final;
 
-  private:
-    /** retrieve id track particles */
-    const TruthParticleContainer* retrieveTruthParticleContainer() const; 
+        typedef IParticlesLookUpTable<TruthParticle> LookUpTable;
 
-    /** ID track collection name */
-    std::string m_truthParticleLocation;
-    
-    /** look-up table */
-    IParticlesLookUpTable<TruthParticle> m_lookUpTable;
+    private:
+        /** retrieve Truth  particles */
+        const TruthParticleContainer* retrieveTruthParticleContainer() const; 
 
-    /** incident service */
-    ServiceHandle< IIncidentSvc >        m_incidentSvc;
-  };
+        // init look-up table
+        const LookUpTable* getTable() const;
 
+        /** Truth Particle collection name */
+        std::string m_truthParticleLocation;
+    };
 }	// end of namespace
 
+CLASS_DEF( xAOD::TruthParticlesInConeTool::LookUpTable, 151156931 , 0 )
 #endif
 
 

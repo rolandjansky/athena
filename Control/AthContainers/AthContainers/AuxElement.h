@@ -544,7 +544,7 @@ public:
      * @brief Test to see if this variable exists in the store and is writable.
      * @param e An element of the container which to test the variable.
      */
-    bool isAvailableWritable (const AuxElement& e) const;
+    bool isAvailableWritable (AuxElement& e) const;
   };
 
 
@@ -806,7 +806,7 @@ public:
    */
   template <class T>
   bool isAvailableWritable (const std::string& name,
-                            const std::string& clsname = "") const;
+                            const std::string& clsname = "");
 
 
   /**
@@ -1176,7 +1176,7 @@ private:
   /// but it was released because it was added to a container.
   /// (And therefore we should recreate the private store if the
   /// object is later removed.)
-  static SG::AuxElementData* s_privatePlaceholder;
+  static SG::AuxElementData* const s_privatePlaceholder;
 };
 
 

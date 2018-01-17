@@ -54,8 +54,10 @@ private:
     //    ServiceHandle<StoreGateSvc>         m_eventStore;
     ToolHandle<IRpcROD_Decoder>         m_decoder;
 //    std::string                         m_rdoContainerKey;
-    SG::WriteHandleKey<RpcPadContainer>            m_RpcPadC;
-    SG::WriteHandleKey<RpcSectorLogicContainer>    m_sec;
+    SG::WriteHandleKey<RpcPadContainer>            m_RpcPadC {
+	this, "RdoLocation", "RPCPAD", "Name of the RPCPAD produced by RawDataProvider"};
+    SG::WriteHandleKey<RpcSectorLogicContainer>    m_sec{
+	this, "RPCSec", "RPC_SECTORLOGIC", "Name of the RPC_SECTORLOGIC produced by RawDataProvider"};
     bool m_AllowCreation;
 
     std::vector<IdentifierHash> to_be_converted(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,

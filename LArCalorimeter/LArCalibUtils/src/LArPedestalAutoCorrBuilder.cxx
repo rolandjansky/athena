@@ -108,7 +108,7 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-  const LArAccumulatedDigitContainer* container;
+  const LArAccumulatedDigitContainer* container = nullptr;
   
   //Outermost loop goes over all gains (different containers).
   for (;key_it!=key_it_e;key_it++) {

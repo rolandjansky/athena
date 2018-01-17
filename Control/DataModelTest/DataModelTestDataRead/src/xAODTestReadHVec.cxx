@@ -66,14 +66,13 @@ StatusCode xAODTestReadHVec::initialize()
  */
 StatusCode xAODTestReadHVec::execute_r (const EventContext& ctx) const
 {
-  SG::ReadHandle<DMTest::HVec> hvec (m_hvecKey, ctx);
+  const DMTest::HVec* hvec = SG::get (m_hvecKey, ctx);
   std::cout << m_hvecKey.key() << ":";
   for (const H* h : *hvec)
     std::cout << " " << h->aFloat();
   std::cout << "\n";
 
-  if (!m_hviewKey.key().empty()) {
-    SG::ReadHandle<DMTest::HVec> hview (m_hviewKey, ctx);
+  if (const DMTest::HVec* hview = SG::get (m_hviewKey, ctx)) {
     std::cout << m_hviewKey.key() << ":";
     for (const H* h : *hview)
       std::cout << " " << h->aFloat();

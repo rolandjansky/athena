@@ -18,7 +18,7 @@
 #include "HepMC/GenParticle.h"
 
 #include <map>
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace Muon {
 

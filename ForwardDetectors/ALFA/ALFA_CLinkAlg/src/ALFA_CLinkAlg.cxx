@@ -290,7 +290,7 @@ unsigned long long ALFA_CLinkAlg::CalcDCSId(eDCSItem eItem)
 	}
 
 	const CondAttrListCollection* pAttrListCol=NULL;
-	CHECK(detStore()->retrieve(pAttrListCol,Folder));
+	CHECK(detStore()->retrieve(pAttrListCol,Folder), 0);
 	if(!m_iovSvc->getKeyInfo(Folder,Foldername,Tag,Range,bRetrieved,ullBytesRead,fReadTime)) {
 		msg(MSG::ERROR)<<"Couldn't get IOV data about folder: "<<Folder<<endmsg;
 		return 0;

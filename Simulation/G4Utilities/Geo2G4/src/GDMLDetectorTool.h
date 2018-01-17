@@ -43,7 +43,6 @@ class GDMLDetectorTool final : public DetectorGeometryBase
 
   std::string m_GDMLFileName;
   std::string m_builderName;
-  bool m_blParamOn;
   bool m_blGetTopTransform;
   G4Transform3D m_topTransform;
   std::string m_geoDetectorName;

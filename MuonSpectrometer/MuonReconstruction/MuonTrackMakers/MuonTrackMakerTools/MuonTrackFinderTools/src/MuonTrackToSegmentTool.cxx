@@ -64,6 +64,7 @@ namespace Muon {
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_helperTool.retrieve() );
     ATH_CHECK( m_intersectSvc.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
     return StatusCode::SUCCESS;
   }
   

@@ -78,9 +78,9 @@ private:
     TH2F * m_totalModulesMapSCT;
     TH2F * m_totalModulesMapSi;
 
-    const unsigned int c_nBinsEta;
-    const float        c_rangeEta;
-    const unsigned int c_nBinsPhi;
+    const unsigned int m_c_nBinsEta;
+    const float        m_c_rangeEta;
+    const unsigned int m_c_nBinsPhi;
 };
 
 #endif

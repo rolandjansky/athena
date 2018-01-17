@@ -200,7 +200,7 @@ namespace xAOD {
       TReturnCode::kSuccess;
 #else
    /// Helper variable for returning a successful status code
-   static const unsigned long STATUSCODE_SUCCESS = StatusCode::SUCCESS;
+   static const StatusCode STATUSCODE_SUCCESS = StatusCode::SUCCESS;
 #endif // XAOD_STANDALONE
 
    SG::DataProxy* TEvent::proxy( const void* const pTransient ) const {

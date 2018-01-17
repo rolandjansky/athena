@@ -5,9 +5,15 @@
 // Implementation of MdtROD_Encoder class 
 
 #include "MdtAmtReadOut.h"
+#include "MdtHptdcReadOut.h"
 #include "MdtCsmReadOut.h"
 #include "MdtRODReadOut.h"
 #include "MdtROD_Encoder.h" 
+
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/StoreGate.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "MDT_Hid2RESrcID.h"
 
@@ -18,8 +24,12 @@
 /** constructor 
 */ 
 
-MdtROD_Encoder::MdtROD_Encoder() {
-
+MdtROD_Encoder::MdtROD_Encoder() : m_mdtIdHelper(0), m_mdm(0), m_BMGid(-1)
+{
+  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+  if(detStore->retrieve(m_mdm,"Muon").isSuccess())
+  m_mdtIdHelper = m_mdm->mdtIdHelper();
+  m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
 }
 
 /** destructor 
@@ -58,6 +68,7 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
   //MsgStream log(msgSvc, "MdtROD_Encoder::fillROD");   
   
   MdtAmtReadOut * amtReadOut = new MdtAmtReadOut(); 
+  MdtHptdcReadOut * hptdcReadOut = new MdtHptdcReadOut();
   MdtCsmReadOut * csmReadOut = new MdtCsmReadOut(); 
   MdtRODReadOut * rodReadOut = new MdtRODReadOut(); 
   
@@ -100,6 +111,8 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
   for ( ; it != it_end ; ++it) {
     const MdtCsm * csm = (*it);
     
+    bool isBMG = m_mdtIdHelper->stationName(csm->identify()) == m_BMGid;
+
     uint16_t ctwc = 0;     // Trailer word count initialized
     
     v.push_back(csmReadOut->makeLWC(0));   // Link Word Count 
@@ -131,7 +144,8 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
       
       // Beginning of TDC header word
       // Need to fix event counter and bcid
-      v.push_back(amtReadOut->makeBOT((*it_tdc).first , 0 , 0 )); 
+      v.push_back( (isBMG ? hptdcReadOut->makeBOT((*it_tdc).first, 0 , 0 )
+                          : amtReadOut->makeBOT((*it_tdc).first,  0 , 0 )) );
       ++ctwc;
 
       uint32_t maskedFlags = maskedMap[(*it_tdc).first];
@@ -139,7 +153,7 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
 
       // Masked channels flags
       if (maskedFlags != 0) {
-	v.push_back(amtReadOut->makeTMC(jt, maskedFlags));
+	v.push_back( (isBMG ? 0 : amtReadOut->makeTMC(jt, maskedFlags)) );
 	++ctwc;
 	++wcnt;
       }
@@ -156,21 +170,25 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
 	uint16_t coarse = (*it_amtvec)->coarse();
 	uint16_t fine   = (*it_amtvec)->fine();
 	uint16_t width  = (*it_amtvec)->width();
+	uint16_t tdcId  = (*it_amtvec)->tdcId();
 
 	// Add a "Single Measurement" word
-	// v.push_back(amtReadOut->makeTSM(jt, chan, leading, errflag, coarse, fine)); 
+	// v.push_back( isBMG ? hptdcReadOut->makeTSM(tdcId, chan, leading, coarse, fine)
+	//                    : amtReadOut->makeTSM(jt, chan, leading, errflag, coarse, fine) );
 
 	// Add a combined measurement data word
-	v.push_back(amtReadOut->makeTCM(jt, chan, width, coarse, fine)); 
+	v.push_back( (isBMG ? hptdcReadOut->makeTCM(tdcId, chan, width, coarse, fine)
+	                    : amtReadOut->makeTCM(jt, chan, width, coarse, fine) ) );
 
 	++ctwc;  // CSM word count
 	++wcnt;  // TDC word count
       }
       
       uint16_t jt   = 0;
+      uint16_t tdcId= 0;
       uint16_t ecnt = 0;    // Event counter
       // End of TDC trailer
-      v.push_back(amtReadOut->makeEOT(jt,ecnt,wcnt+2));
+      v.push_back( (isBMG ? hptdcReadOut->makeEOT(tdcId,ecnt,wcnt+2) : amtReadOut->makeEOT(jt,ecnt,wcnt+2)));
       ++ctwc;
     }    
     
@@ -199,6 +217,7 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
   
   // cleanup
   delete amtReadOut;
+  delete hptdcReadOut;
   delete csmReadOut;
   delete rodReadOut;
   

@@ -21,8 +21,6 @@
 #include <set>
 #include <string>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 // the tool to decode a ROB frament
 
 class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool, 
@@ -48,7 +46,7 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   virtual StatusCode finalize();
   
   //! this is the main decoding method
-  StatusCode convert( std::vector<const ROBFragment*>& vecRobs,
+  StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
 		      TRT_RDO_Container*               rdoIdc );
 
   //! Incident listener

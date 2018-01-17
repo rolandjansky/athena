@@ -77,7 +77,7 @@ StatusCode TrackParticleDetailedTruthAssociationTool::reset(const Rec::TrackPart
     return invalidate(StatusCode::SUCCESS);
   }
   // -- TrackParticleDetailedTruth:
-  const DetailedTrackTruthCollection* tm;
+  const DetailedTrackTruthCollection* tm = nullptr;
   sc = evtStore()->retrieve(tm, m_TruthMap);
   if(sc.isFailure() || !tm) {
     REPORT_MESSAGE (MSG::WARNING) << "Could not retrieve: " << m_TruthMap;

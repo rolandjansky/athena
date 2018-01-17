@@ -22,17 +22,15 @@
 
 namespace Simulation
 {
-
   /** Constructor **/
   GenEventRotator::GenEventRotator( const std::string& t,
                                     const std::string& n,
                                     const IInterface* p )
-    : AthAlgTool(t,n,p)
+    : base_class(t,n,p)
     , m_xangle (0.0)
     , m_yangle (0.0)
     , m_zangle (0.0)
   {
-    declareInterface<IGenEventManipulator>(this);
     declareProperty( "xAngle", m_xangle, "rotation about x-axis");
     declareProperty( "yAngle", m_yangle, "rotation about y-axis");
     declareProperty( "zAngle", m_zangle, "rotation about z-axis");

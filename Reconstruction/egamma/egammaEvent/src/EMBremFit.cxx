@@ -89,7 +89,7 @@ void EMBremFit::set_parameter(egammaParameters::ParamDef key, double value, bool
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMBremFit::set_parameter(...)", false);
+      throw GaudiException("parameter not saved", "EMBremFit::set_parameter(...)", StatusCode::FAILURE);
     }
   }
 
@@ -132,7 +132,7 @@ void EMBremFit::set_parameterInt(egammaParameters::ParamDef key, int value, bool
       (*p).second = value;
     }
     else {      
-      throw GaudiException("parameter not saved", "EMBremFit::set_parameter(...)", false);
+      throw GaudiException("parameter not saved", "EMBremFit::set_parameter(...)", StatusCode::FAILURE);
     }
   }
 

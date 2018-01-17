@@ -52,17 +52,17 @@ StatusCode NSWAGDDTool::construct()
 	ATH_MSG_INFO(" Name = "<<name());
 	
 	ATH_MSG_INFO(" trying to parse files ");
-	controller->ParseFiles();
+	m_controller->ParseFiles();
 	
 	if (m_printSections) 
 	{
 		ATH_MSG_INFO("\t Printing all sections ");
-		controller->PrintSections();
+		m_controller->PrintSections();
 	}
 	
-	controller->UseGeoModelDetector("Muon");
+	m_controller->UseGeoModelDetector("Muon");
 	
-	controller->BuildAll();
+	m_controller->BuildAll();
 	
 	// part needed to build the NSW RO geometry
 	
@@ -71,7 +71,7 @@ StatusCode NSWAGDDTool::construct()
 	bool testRet=theHelper.BuildMScomponents();
 	if (!testRet) ATH_MSG_ERROR("something went wrong building the RO geometry!!! ");
 	
-	controller->Clean();
+	m_controller->Clean();
 	
 	return StatusCode::SUCCESS;
 }

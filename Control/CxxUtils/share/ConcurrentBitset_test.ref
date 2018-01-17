@@ -1,0 +1,11 @@
+test_basic
+test_reference
+test_iterate
+test_find
+test_insert
+test_copy
+test_initlist
+test_compare
+test_operators
+test_anyall
+test_mt

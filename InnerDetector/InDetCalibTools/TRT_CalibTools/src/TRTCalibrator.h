@@ -155,7 +155,7 @@ private:
   std::vector<std::string> m_doOutPrint;
   std::vector<std::string> m_doRtPrint;
 
-  std::string Tkey,Dkey,Lkey,Mkey,Bkey,Ckey,Skey,Lkey_acc,Dkey_acc;
+  std::string m_Tkey,m_Dkey,m_Lkey,m_Mkey,m_Bkey,m_Ckey,m_Skey,m_Lkey_acc,m_Dkey_acc;
   
   /** dummy dictionary class*/ class BDzero{public: int z;};
   /** dictionary class for a straw*/ class BDstraw{public: std::map<std::string,BDzero> s;};
@@ -165,9 +165,9 @@ private:
   /** dictionary class for a layer*/ class BDlayer{public: std::map<std::string,BDmodule> l;};
   /** dictionary class for a detector*/ class BDdetector{public: std::map<std::string,BDlayer> d;};
   /** dictionary class for the full %TRT*/ class BDTRT{public: std::map<std::string,BDdetector> t;};
-  /** instance if the dictionary class for the full %TRT*/ BDTRT trt;
+  /** instance if the dictionary class for the full %TRT*/ BDTRT m_trt;
 
-  /** instance if the dictionary class for the full %TRT*/ BDTRT trt_acc;
+  /** instance if the dictionary class for the full %TRT*/ BDTRT m_trt_acc;
 
   
   class epdata{

@@ -56,14 +56,14 @@ void MuonRecoTPEfficiencyTool::dRMatching(ProbeContainer* probes, const xAOD::IP
 
 			if (!GoodMatchMuonType(match)) continue;
 
-			xAOD::Muon* matchmuon = dynamic_cast <xAOD::Muon*>(match);
+			const xAOD::Muon* matchmuon = dynamic_cast <const xAOD::Muon*>(match);
 			if (matchmuon && m_do_IDHits){
 				if (!m_selection_tool->passedIDCuts(*matchmuon)) continue;
 			}
 			// ID tracks
 
 			if (m_match_ID){
-				xAOD::TrackParticle *trk = dynamic_cast<xAOD::TrackParticle*>(match);
+				const xAOD::TrackParticle *trk = dynamic_cast<const xAOD::TrackParticle*>(match);
 				if(!trk || (m_do_IDHits && !m_selection_tool->passedIDCuts(*trk))) continue;
 			}
 
@@ -115,14 +115,14 @@ void MuonRecoTPEfficiencyTool::ptrMatching(ProbeContainer* probes, const xAOD::I
 
 			if (!GoodMatchMuonType(match)) continue;
 
-			xAOD::Muon* matchmuon = dynamic_cast <xAOD::Muon*>(match);
+			const xAOD::Muon* matchmuon = dynamic_cast <const xAOD::Muon*>(match);
 			if (matchmuon && m_do_IDHits){
 				if (!m_selection_tool->passedIDCuts(*matchmuon)) continue;
 			}
 
 			// ID tracks
 			if (m_match_ID){
-				xAOD::TrackParticle *trk = dynamic_cast<xAOD::TrackParticle*>(match);
+				const xAOD::TrackParticle *trk = dynamic_cast<const xAOD::TrackParticle*>(match);
 				if(!trk || (m_do_IDHits && !m_selection_tool->passedIDCuts(*trk))) continue;
 				// match MS to ID
 				if (probemuon){

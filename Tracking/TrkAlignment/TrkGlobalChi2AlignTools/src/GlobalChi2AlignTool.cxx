@@ -579,12 +579,12 @@ namespace Trk {
 
     if (!success) {
       ATH_MSG_FATAL("failure in MatrixTool accumulateFromFiles");
-      return StatusCode::FAILURE;
+      return false;
     }
 
     m_fromFiles = true;
 
-    return StatusCode::SUCCESS;
+    return true;
   }  
 
   //________________________________________________________________________

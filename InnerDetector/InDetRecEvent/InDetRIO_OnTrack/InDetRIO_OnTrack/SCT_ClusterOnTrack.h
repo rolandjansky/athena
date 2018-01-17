@@ -15,7 +15,7 @@
 
 // for ElementLink to IdentifiableContainer SCT_ClusterContainer
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace Trk {
   class Surface;

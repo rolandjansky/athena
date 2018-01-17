@@ -22,7 +22,7 @@
 #include "TBEvent/TBTDCRawCont.h"
 #include "TBEvent/TBADCRawCont.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include <string>
 #include <vector>

@@ -695,7 +695,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
       }
     }
   }
-  return true;
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -766,7 +766,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
       }
     }
   }
-  return true;
+  return StatusCode::SUCCESS;
 }  
 
 // --------------------------------------------------------------------------------

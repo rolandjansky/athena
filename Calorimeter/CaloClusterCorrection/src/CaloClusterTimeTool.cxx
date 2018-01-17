@@ -34,7 +34,8 @@ using xAOD::CaloCluster;
 CaloClusterTimeTool::CaloClusterTimeTool (const std::string& type,const std::string& name,const IInterface* parent)
    :  AthAlgTool( type, name, parent ),
       m_LArOnlineIDHelper(nullptr),
-      m_calo_id(nullptr)
+      m_calo_id(nullptr),
+      m_LArCablingService("LArCablingService")
 {
   declareInterface<ICaloClusterTimeTool>(this);
   

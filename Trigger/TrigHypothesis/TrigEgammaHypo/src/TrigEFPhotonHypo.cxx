@@ -196,11 +196,11 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
   if(m_applyIsolation){
       if ( m_EtConeCut.size() != m_EtConeSizes ) {
           ATH_MSG_ERROR(" m_EtConeCut size is " <<  m_EtConeCut.size() << " but needs " << m_EtConeSizes);
-          return StatusCode::FAILURE;
+          return HLT::BAD_JOB_SETUP;
       }
       if ( m_RelEtConeCut.size() != m_EtConeSizes ) {
           ATH_MSG_ERROR(" m_RelEtConeCut size is " <<  m_RelEtConeCut.size() << " but needs " << m_EtConeSizes);
-          return StatusCode::FAILURE;
+          return HLT::BAD_JOB_SETUP;
       }
 
       //Define mapping between vector of Isolation Cone Sizes and variable names 

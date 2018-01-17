@@ -184,7 +184,7 @@ MixingEventSelector::decodeTrigger(string triggDescr) {
 	   << selTN.type() << '/' << selTN.name() 
 	   << "] can not be found or created");
       } //selector available
-    } catch (boost::bad_lexical_cast e) {
+    } catch (const boost::bad_lexical_cast& e) {
       ATH_MSG_ERROR
 	("decodeTrigger: Can't cast ["<< *iToken 
 	 << "] to double(frequency). SKIPPING");
@@ -258,8 +258,8 @@ MixingEventSelector::createAddress(const IEvtSelector::Context& /*c*/,
   if (!validTrigger()) return StatusCode::FAILURE;
 
   FORWARD___DEBUG( createAddress )
-  return (currentTrigger()->createAddress(pAddr)).isSuccess() &&
-      pAddr != nullptr;
+  return (currentTrigger()->createAddress(pAddr).isSuccess() &&
+          pAddr != nullptr) ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
 
 StatusCode

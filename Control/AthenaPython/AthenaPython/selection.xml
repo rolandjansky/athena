@@ -8,7 +8,6 @@
   <class name="Athena::IThinningHdlr" />
   <class name="Athena::ISlimmingHdlr" />
   <class name="IValgrindSvc" />
-  <class name="IUserDataSvc" />
   <class name="IAthenaSealSvc" />
   <class name="IDictLoaderSvc" />
   <class name="IEvtIdModifierSvc" />
@@ -25,7 +24,6 @@
   <class name="PyAthena::Aud" />
 
   <class name="ServiceHandle<StoreGateSvc>" />
-  <class name="ServiceHandle<IUserDataSvc>" />
 
   <!-- not yet
   <function name="AthenaInternal::queryInterface" />

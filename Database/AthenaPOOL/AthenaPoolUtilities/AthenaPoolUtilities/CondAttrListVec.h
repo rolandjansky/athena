@@ -117,6 +117,9 @@ class CondAttrListVec : public DataObject
 
 CLASS_DEF( CondAttrListVec , 55403898 , 1)
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( CondAttrListVec, 74272308 );
+
 inline CondAttrListVec::CondAttrListVec(bool runevent) :
   m_minrange(IOVRange(IOVTime(IOVTime::MINRUN, IOVTime::MINEVENT), 
 		      IOVTime(IOVTime::MAXRUN, IOVTime::MAXEVENT))),

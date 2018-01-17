@@ -103,7 +103,7 @@ void TSPROOTBankGenerator::writeSSMapsToFile() {
 
 
 /** produce the banks and the relations */
-void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
+void TSPROOTBankGenerator::generate() {
   // read the head of the oroginal pattern bank
    FTKSetup::PrintMessageFmt(ftk::info, "Leaf bank db copy started\nInput bank: %d Patterns, %d Planes, %d MaxPatterns\n", m_npatterns, m_nplanes, m_maxPatterns);
 
@@ -191,7 +191,7 @@ void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
   m_setup->usageStat();
 }
 
-void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPatternReadException){
+void TSPROOTBankGenerator::generateChildren(int bankID, int planes) {
   // check which HW format should be used (0: global SSID, 1: not supported, 2: local compressed SSID
   int hwmode =  FTKSetup::getFTKSetup().getHWModeSS();
   TTree *TSPbank = dynamic_cast<TTree*>(m_bankfile->Get(Form("Bank%d",bankID-1)));
@@ -500,7 +500,7 @@ void TSPROOTBankGenerator::showstats(int ipatt, int npatterns) const{
 	}
 }
 
-void TSPROOTBankGenerator::readNextPattern(FTKPattern& pattern, int patternID) throw (TSPPatternReadException) {
+void TSPROOTBankGenerator::readNextPattern(FTKPattern& pattern, int patternID) {
 	m_inputBank >> pattern;
 	if (!m_inputBank) throw TSPPatternReadException("Stream error reading pattern");
 	if (pattern.getPatternID() != patternID) throw TSPPatternReadException("Synch error: read pattern id doesn't correspond to the expected id");

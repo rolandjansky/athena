@@ -19,7 +19,7 @@ namespace JiveXML {
    **/
   PhotonRetriever::PhotonRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Photon"){
+    m_typeName("Photon"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -84,7 +84,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(photcont->size());
     DataVect eta; eta.reserve(photcont->size());
@@ -112,7 +112,7 @@ namespace JiveXML {
     PhotonContainer::const_iterator photonItr  = photcont->begin();
     PhotonContainer::const_iterator photonItrE = photcont->end();
 
-    int m_MCdataType = 1;
+    int MCdataType = 1;
     std::string clusterKey = "none"; // Storegate key of container 
     int clusterIndex = -1; // index number inside the container 
 
@@ -160,10 +160,10 @@ namespace JiveXML {
       py.push_back( DataType((*photonItr)->py()/CLHEP::GeV ) );
       pz.push_back( DataType((*photonItr)->pz()/CLHEP::GeV ) );
 
-      m_MCdataType = (*photonItr)->dataType();
+      MCdataType = (*photonItr)->dataType();
       // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " Which MC datatype, fast or full ? " << m_dataType() << " (" << m_sgKey << ")" << endmsg;
   
-      if (m_MCdataType != 3){ // full simulation
+      if (MCdataType != 3){ // full simulation
           isEM.push_back( DataType((**photonItr).isem()) );
 // do associations:
           const ElementLink<CaloClusterContainer> clusterLink = (*photonItr)->clusterElementLink();
@@ -178,14 +178,14 @@ namespace JiveXML {
           }
 	  /// get shower variables. Booked in AtlantisJava/event.dtd:
           // emWeight|et37|etCone|etHad1|f1|fracs1|pionWeight
-	  const EMShower* m_EMShower = (*photonItr)->detail<EMShower>("egDetailAOD");
-	  if (m_EMShower) {
+	  const EMShower* emShower = (*photonItr)->detail<EMShower>("egDetailAOD");
+	  if (emShower) {
 	    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "found photon shower, example wtots=" 
-	    //      << m_EMShower->parameter(egammaParameters::wtots1) << endmsg;
-	    f1Vec.push_back(    DataType( m_EMShower->parameter(egammaParameters::f1) )); 
-            etConeVec.push_back(DataType( m_EMShower->parameter(egammaParameters::etcone20)));
-            fracs1Vec.push_back(DataType( m_EMShower->parameter(egammaParameters::fracs1)));
-            et37Vec.push_back(   DataType( m_EMShower->parameter(egammaParameters::e237)));
+	    //      << emShower->parameter(egammaParameters::wtots1) << endmsg;
+	    f1Vec.push_back(    DataType( emShower->parameter(egammaParameters::f1) )); 
+            etConeVec.push_back(DataType( emShower->parameter(egammaParameters::etcone20)));
+            fracs1Vec.push_back(DataType( emShower->parameter(egammaParameters::fracs1)));
+            et37Vec.push_back(   DataType( emShower->parameter(egammaParameters::e237)));
           }else{ //placeholders if no shower available
 	    f1Vec.push_back( DataType( -1.)); 
             etConeVec.push_back(DataType( -1. ));
@@ -208,35 +208,35 @@ namespace JiveXML {
         isEMString.push_back( DataType( photonIsEMString ) );
     }
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["px"] = px;
+    DataMap["py"] = py;
+    DataMap["pz"] = pz;
 
     // further details and associations
-    m_DataMap["isEM"] = isEM;
-    m_DataMap["clusterKey"] = clusterKeyVec;
-    m_DataMap["clusterIndex"] = clusterIndexVec;
+    DataMap["isEM"] = isEM;
+    DataMap["clusterKey"] = clusterKeyVec;
+    DataMap["clusterIndex"] = clusterIndexVec;
     // shower details
-    m_DataMap["f1"] = f1Vec;
-    m_DataMap["etCone"] = etConeVec;
-    m_DataMap["fracs1"] = fracs1Vec;
-    m_DataMap["et37"] = et37Vec;
+    DataMap["f1"] = f1Vec;
+    DataMap["etCone"] = etConeVec;
+    DataMap["fracs1"] = fracs1Vec;
+    DataMap["et37"] = et37Vec;
 
-    m_DataMap["author"] = author;
-    m_DataMap["isEMString"] = isEMString;
-    m_DataMap["label"] = label;
+    DataMap["author"] = author;
+    DataMap["isEMString"] = isEMString;
+    DataMap["label"] = label;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

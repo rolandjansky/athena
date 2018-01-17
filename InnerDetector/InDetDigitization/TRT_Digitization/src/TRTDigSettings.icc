@@ -60,12 +60,6 @@ inline double TRTDigSettings::discriminatorSettlingTime() const {
 inline double TRTDigSettings::discriminatorDeadTime() const {
   return m_discriminatorDeadTime;
 }
-inline double TRTDigSettings::overallT0Shift() const {
-  return m_overallT0Shift;
-}
-inline double TRTDigSettings::overallT0ShiftShortBarrel() const {
-  return m_overallT0ShiftShortBarrel;
-}
 inline double TRTDigSettings::distanceToTimeFactor() const {
   return m_distanceToTimeFactor; 
 }
@@ -126,10 +120,10 @@ inline double TRTDigSettings::trEfficiencyEndCapB(int strawGasType) const {
   else if (strawGasType==2) return m_trEfficiencyEndCapBArgon;
   else return m_trEfficiencyEndCapB; // should not happen
 }
-inline int TRTDigSettings::htT0shiftBarShort() const {
+inline int TRTDigSettings::htT0shiftBarShort()  const {
   return m_htT0shiftBarShort;
 }
-inline int TRTDigSettings::htT0shiftBarLong() const {
+inline int TRTDigSettings::htT0shiftBarLong()   const {
   return m_htT0shiftBarLong;
 }
 inline int TRTDigSettings::htT0shiftECAwheels() const {
@@ -137,6 +131,30 @@ inline int TRTDigSettings::htT0shiftECAwheels() const {
 }
 inline int TRTDigSettings::htT0shiftECBwheels() const {
   return m_htT0shiftECBwheels;
+}
+inline int TRTDigSettings::ltT0shiftBarShort(int strawGasType) const {
+  if      (strawGasType==0) return m_ltT0shiftBarShortXe;
+  else if (strawGasType==1) return m_ltT0shiftBarShortKr;
+  else if (strawGasType==2) return m_ltT0shiftBarShortAr;
+  else return 0; // should not happen
+}
+inline int TRTDigSettings::ltT0shiftBarLong(int strawGasType) const {
+  if      (strawGasType==0) return m_ltT0shiftBarLongXe;
+  else if (strawGasType==1) return m_ltT0shiftBarLongKr;
+  else if (strawGasType==2) return m_ltT0shiftBarLongAr;
+  else return 0; // should not happen
+}
+inline int TRTDigSettings::ltT0shiftECAwheels(int strawGasType) const {
+  if      (strawGasType==0) return m_ltT0shiftECAwheelsXe;
+  else if (strawGasType==1) return m_ltT0shiftECAwheelsKr;
+  else if (strawGasType==2) return m_ltT0shiftECAwheelsAr;
+  else return 0; // should not happen
+}
+inline int TRTDigSettings::ltT0shiftECBwheels(int strawGasType) const {
+  if      (strawGasType==0) return m_ltT0shiftECBwheelsXe;
+  else if (strawGasType==1) return m_ltT0shiftECBwheelsKr;
+  else if (strawGasType==2) return m_ltT0shiftECBwheelsAr;
+  else return 0; // should not happen
 }
 inline double TRTDigSettings::innerRadiusOfStraw() const {
   return m_innerRadiusOfStraw;

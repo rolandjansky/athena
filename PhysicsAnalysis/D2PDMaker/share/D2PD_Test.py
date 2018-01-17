@@ -187,13 +187,6 @@ TestStream.AddItem( ['INav4MomAssocs#*'] )
 
 
 #====================================================================
-# UserDataSvc
-#====================================================================
-#from AthenaServices.TheUserDataSvc import TheUserDataSvc
-#svcMgr += TheUserDataSvc("UserDataInTestStream")
-#svcMgr.UserDataSvc.OutputStream = TestStream.Stream
-
-#====================================================================
 # Define the ThinningSvc
 #====================================================================
 #from AthenaServices.Configurables import ThinningSvc, createThinningSvc

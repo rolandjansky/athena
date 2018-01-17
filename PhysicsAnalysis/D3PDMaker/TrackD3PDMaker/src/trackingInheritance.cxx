@@ -15,7 +15,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "VxVertex/VxContainer.h"
 #include "TrkV0Vertex/V0Container.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 SG_ADD_BASE (Trk::Perigee, Trk::TrackParameters);

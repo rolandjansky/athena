@@ -323,8 +323,13 @@ StatusCode FullCaloCellContMaker::addFullDetCells(CaloCellContainer& pCaloCellCo
   } // with noise suppression
   else{
 
-    pCaloCellContainer.insert(pCaloCellContainer.end(),
-        m_icBegin,m_icEnd);
+    // FIXME: const-cast allows changing cells in SG.
+    for (CaloCellContainer::const_iterator it = m_icBegin;
+         it != m_icEnd;
+         ++it)
+    {
+      pCaloCellContainer.push_back (const_cast<CaloCell*>(*it));
+    }
   } // without noise suppression
 
   pCaloCellContainer.setHasCalo(CaloCell_ID::LAREM);

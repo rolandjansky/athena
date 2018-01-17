@@ -14,6 +14,7 @@
 #include "CollectionBase/ICollectionColumn.h"
 #include "CollectionBase/ICollectionFragment.h"
 #include "CollectionBase/CollectionBaseNames.h"
+#include "CollectionBase/boost_tokenizer_headers.h"
 
 #include "POOLCore/Exception.h"
 
@@ -24,8 +25,6 @@
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ISchema.h"
-
-#include "POOLCore/boost_tokenizer_headers.h"
 
 #include <iostream>
 using namespace std;

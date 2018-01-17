@@ -38,6 +38,7 @@ SCFillerTool::SCFillerTool
      const std::string& name,
      const IInterface* parent)
       : BlockFillerTool<CaloCellContainer> (type, name, parent), 
+        m_larCablingSvc("LArCablingService"),
 	m_tableFilled(false),
 	m_caloEtaSelection( false ),
 	m_caloPhiSelection( false ),

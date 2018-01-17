@@ -17,7 +17,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include <cmath>
-#include <cstdlib> //Always include this when including cmath!
+#include <cstdlib>
 
 //________________________________________________________________________________
 TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
@@ -25,7 +25,7 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
 				      ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 				      const TRT_ID* trt_id,
 				      int UseGasMix,
-				      ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
+				      ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
 				    )
   : TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumSvc)
 {
@@ -42,9 +42,9 @@ void TRTDigCondFakeMap::setStrawStateInfo(Identifier& TRT_Identifier,
 
   noiselevel = m_average_noiselevel; // Not used here, but returned to caller
 
-  const double relfluct(0.05); // Hard coded! FIXME
-  double                      relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, relfluct );
-  while (relnoiseamp < 0.1) { relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, relfluct ); }
+  // 5% relative fluctuation is hard-coded here
+  double                       relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.00, 0.05 );
+  while (relnoiseamp < 0.10) { relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.00, 0.05 ); }
 
   // Anatoli says we need to scale the noise amplitude of Kr,Ar according to LT_(Kr,Ar)/LT_Xe
   int strawGasType = StrawGasType(TRT_Identifier);

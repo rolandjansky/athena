@@ -62,11 +62,15 @@ job = AlgSequence()
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-#--------------------------------------------------------------
-# Load IOVDbSvc
-#--------------------------------------------------------------
 IOVDbSvc.GlobalTag='OFLCOND-RUN12-SDR-25'
 IOVDbSvc.OutputLevel = DEBUG
+
+#--------------------------------------------------------------
+# Load AthCondSeq
+#--------------------------------------------------------------
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
 test='MC'
 #
 #NOTE: Testing with run2 requires presence of local sqlite file 'configTest.db'
@@ -119,14 +123,21 @@ else:
   conddb.addFolder("","<db>sqlite://none;schema=output.db;dbname=CONDBR2</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-Oct2016_00</tag><forceRunNumber>20</forceRunNumber>")
   conddb.addFolder("","<db>sqlite://none;schema=output.db;dbname=CONDBR2</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-Oct2016_00</tag><forceRunNumber>20</forceRunNumber>")
   '''
+
   #test perfect DB on server
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
+  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
+  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-  
+  if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
+    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
+    condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
+                                        ReadKeyChannel = "/SCT/DAQ/Config/Chip",
+                                        ReadKeyModule = "/SCT/DAQ/Config/Module",
+                                        ReadKeyMur = "/SCT/DAQ/Config/MUR")
+
   from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
   ToolSvc = ServiceMgr.ToolSvc
   ServiceMgr+=SCT_CablingSvc()

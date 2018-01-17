@@ -23,16 +23,21 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library( AthViews
                    src/*.cxx
-                   src/components/*.cxx
                    PUBLIC_HEADERS AthViews
                    INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils )
+                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils TrigSteeringEvent )
+
+atlas_add_component( AthViewsAlgs
+                   src/*.cxx
+                   src/components/*.cxx
+                   INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews TrigSteeringEvent )
 
 atlas_add_component( AthViewsDFlow
                      src_dflow/*.cxx
                      src_dflow/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews TrigSteeringEvent )
+                     LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews )
 
 
 atlas_add_test( ViewLinking_test 
@@ -40,6 +45,15 @@ atlas_add_test( ViewLinking_test
 		SOURCES test/ViewLinking_test.cxx 
 		LINK_LIBRARIES ${TBB_LIBRARIES}
 		AthViews TestTools )
+
+atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
+                PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view9" )
+
+atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh
+                PROPERTIES PASS_REGULAR_EXPRESSION "INFO 109" )
+
+atlas_add_test( ViewNestFail SCRIPT test/test_view_nest_fail.sh
+                PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed" )
 
 # Install files from the package:
 atlas_install_headers( AthViews )

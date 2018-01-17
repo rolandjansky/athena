@@ -291,7 +291,7 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 	trk = (*tauIt)->track(i)->track();
 	#endif
       }
-      catch(std::exception e)
+      catch(const std::exception& e)
       {
         msg() << MSG::WARNING << " REGTEST: EFTauDiKaonHypo, failed to get tau track link! " <<endmsg;
       } 

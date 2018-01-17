@@ -22,8 +22,6 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 
-using namespace std;
-
 
 
 ////////////////////////////////////////////
@@ -37,23 +35,23 @@ class AlfaLocalHit{
     	TString m_potname;
     	int m_ishit;
     	Float_t m_x, m_y, m_z;
-        ALFA_LocRecCorrEvent * m_LocRecCorr;
+        const ALFA_LocRecCorrEvent * m_LocRecCorr;
   	public:
     	AlfaLocalHit();
-    	AlfaLocalHit(ALFA_LocRecCorrEvent * LocRecCorrHit);
-    	AlfaLocalHit(AlfaLocalHit * h);
-        void    SetHit(ALFA_LocRecCorrEvent * LocRecCorrHit); 
+    	AlfaLocalHit(const ALFA_LocRecCorrEvent * LocRecCorrHit);
+    	AlfaLocalHit(const AlfaLocalHit * h);
+        void    SetHit(const ALFA_LocRecCorrEvent * LocRecCorrHit); 
     	void    AssignZ();
-    	int     GetPotNum(){return m_pot;};
-    	float   GetX(){return m_x;};
-    	float   GetY(){return m_y;};
-    	float   GetZ(){return m_z;};
-    	int     IsHi(){return m_ishit;};
+    	int     GetPotNum() const {return m_pot;};
+    	float   GetX() const {return m_x;};
+    	float   GetY() const {return m_y;};
+    	float   GetZ() const {return m_z;};
+    	int     IsHi() const {return m_ishit;};
     	int     GetMDindex(const char * name);
-    	TString GetPotName(){return m_potname;};
-	    TString GetMDname (int i);
-	    ALFA_LocRecCorrEvent * GetLocRecCorr(){return m_LocRecCorr;};
-	    void    Print();
+    	TString GetPotName() const {return m_potname;};
+        TString GetMDname (int i);
+        const ALFA_LocRecCorrEvent * GetLocRecCorr() const {return m_LocRecCorr;};
+        void    Print();
 };
 
 ///////////////////////////////////////////////////
@@ -68,9 +66,9 @@ class AlfaLocalHit{
 ///////////////////////////////////////////////////
 class AlfaLocalHits : public AlfaLocalHit {
 	private:
-		vector<AlfaLocalHit> m_hits;
+                std::vector<AlfaLocalHit> m_hits;
 		int  m_nhits;
-		vector<AlfaLocalHits> m_paths;
+                std::vector<AlfaLocalHits> m_paths;
 		int  m_npaths;
 		TString m_pathpattern;
 	public:

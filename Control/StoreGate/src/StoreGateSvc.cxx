@@ -133,8 +133,8 @@ StatusCode StoreGateSvc::initialize()    {
   // Initialize service:
   CHECK( Service::initialize() );
 
-  msg() << MSG::VERBOSE << "Initializing " << name() 
-        << " - package version " << PACKAGE_VERSION << endmsg;
+  verbose() << "Initializing " << name() 
+            << " - package version " << PACKAGE_VERSION << endmsg;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
   // retrieve the job options svc (TODO: the code below relies heavily on
@@ -210,7 +210,7 @@ StatusCode StoreGateSvc::initialize()    {
 
 /// Service start
 StatusCode StoreGateSvc::stop()    {
-  msg() << MSG::VERBOSE << "Stop " << name() << endmsg;
+  verbose() << "Stop " << name() << endmsg;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -219,7 +219,7 @@ StatusCode StoreGateSvc::stop()    {
     if (!pISM)
       return StatusCode::FAILURE;
     pISM->setPriority(name(), pISM->getPriority(name())+1).ignore();
-    msg() << MSG::VERBOSE << "stop: setting service priority to " << pISM->getPriority(name()) 
+    verbose() << "stop: setting service priority to " << pISM->getPriority(name()) 
           << " so that event stores get finalized and cleared before other stores" <<endmsg;
   }
   return StatusCode::SUCCESS;
@@ -233,9 +233,8 @@ void StoreGateSvc::handle(const Incident &inc) {
 IIOVSvc* StoreGateSvc::getIIOVSvc() {
   // Get hold of the IOVSvc
   if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
-    msg() << MSG::WARNING
-          << "Could not locate IOVSvc "
-          << endmsg;
+    warning() << "Could not locate IOVSvc "
+              << endmsg;
   }
   return m_pIOVSvc;
 }
@@ -243,7 +242,7 @@ IIOVSvc* StoreGateSvc::getIIOVSvc() {
 StatusCode
 StoreGateSvc::finalize() {
   CHECK( Service::finalize() );
-  msg() << MSG::VERBOSE << "Finalizing " << name() 
+  verbose() << "Finalizing " << name() 
         << " - package version " << PACKAGE_VERSION << endmsg;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!

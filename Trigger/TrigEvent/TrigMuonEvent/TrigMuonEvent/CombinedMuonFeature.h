@@ -8,12 +8,12 @@
 #define TRIGMUONEVENT_COMBINED_MUON_FEATURE_H
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "FourMom/P4PtEtaPhiMBase.h"
 #include "Navigation/NavigableTerminalNode.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // STL include(s):
 #include <vector>

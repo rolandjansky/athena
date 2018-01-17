@@ -27,7 +27,6 @@ namespace xAOD {
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
         m_locked( false ),
-        m_tick( 0 ),
         m_name( "UNKNOWN" ) {
 
       if( allowDynamicVars ) {
@@ -50,7 +49,6 @@ namespace xAOD {
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
         m_locked( false ),
-        m_tick( 1 ),
         m_name( parent.m_name ) {
 
       // Unfortunately the dynamic variables can not be copied this easily...
@@ -75,7 +73,6 @@ namespace xAOD {
         m_store( const_cast< SG::IAuxStore* >( store ) ),
         m_storeIO( 0 ), m_ownsStore( false ),
         m_locked( false),
-        m_tick( 1 ),
         m_name( "UNKNOWN" ) {
 
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
@@ -112,13 +109,7 @@ namespace xAOD {
 
       // Clean up after the old dynamic store:
       if( m_store && m_ownsStore ) {
-         const auxid_set_t& auxids = m_store->getAuxIDs();
-         auxid_set_t::const_iterator itr = auxids.begin();
-         auxid_set_t::const_iterator end = auxids.end();
-         for( ; itr != end; ++itr ) {
-            m_auxids.erase( *itr );
-         }
-         ++m_tick;
+         m_auxids -= m_store->getAuxIDs();
          delete m_store;
       }
       m_store = 0;
@@ -130,9 +121,7 @@ namespace xAOD {
          m_store = rhs.m_store;
          m_ownsStore = false;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
-         const auxid_set_t& auxids = m_store->getAuxIDs();
-         m_auxids.insert( auxids.begin(), auxids.end() );
-         ++m_tick;
+         m_auxids.insert (m_store->getAuxIDs());
       }
 
       m_name = rhs.m_name;
@@ -145,8 +134,13 @@ namespace xAOD {
    //         Implementation of the SG::IAuxStoreHolder functions
    //
 
-   SG::IAuxStore* AuxContainerBase::getStore() const {
+   SG::IAuxStore* AuxContainerBase::getStore()
+   {
+      return m_store;
+   }
 
+   const SG::IAuxStore* AuxContainerBase::getStore() const
+   {
       return m_store;
    }
 
@@ -169,13 +163,7 @@ namespace xAOD {
 
       // Clean up the current store object:
       if( m_store && m_ownsStore ) {
-         const auxid_set_t& auxids = m_store->getAuxIDs();
-         auxid_set_t::const_iterator itr = auxids.begin();
-         auxid_set_t::const_iterator end = auxids.end();
-         for( ; itr != end; ++itr ) {
-            m_auxids.erase( *itr );
-         }
-         ++m_tick;
+         m_auxids -= m_store->getAuxIDs();
          delete m_store;
       }
       m_store = 0;
@@ -186,9 +174,7 @@ namespace xAOD {
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
       m_ownsStore = true;
       if( m_store ) {
-         const auxid_set_t& auxids = m_store->getAuxIDs();
-         m_auxids.insert( auxids.begin(), auxids.end() );
-         ++m_tick;
+         m_auxids.insert (m_store->getAuxIDs());
       }
 
       return;
@@ -213,7 +199,6 @@ namespace xAOD {
             const void* result = m_store->getData( auxid );
             if( result && nids != m_store->getAuxIDs().size() ) {
                m_auxids.insert( auxid );
-               ++m_tick;
             }
             return result;
          } else {
@@ -253,7 +238,6 @@ namespace xAOD {
            void* result = m_store->getDecoration( auxid, size, capacity );
            if( result && ( nids != m_store->getAuxIDs().size() ) ) {
              m_auxids.insert( auxid );
-             ++m_tick;
            }
            return result;
          }
@@ -308,20 +292,16 @@ namespace xAOD {
 
       // Construct the list of managed auxiliary variables from scratch after
       // the cleanup:
-      m_auxids.clear();
+      auxid_set_t ids;
       for( auxid_t auxid = 0; auxid < m_vecs.size(); ++auxid ) {
          if( m_vecs[ auxid ] ) {
-            m_auxids.insert( auxid );
+            ids.insert( auxid );
          }
       }
       if( m_store ) {
-         for( auto auxid : m_store->getAuxIDs() ) {
-            m_auxids.insert( auxid );
-         }
+         ids.insert (m_store->getAuxIDs());
       }
-
-      // Remember that the auxiliary IDs were updated:
-      ++m_tick;
+      m_auxids = ids;
 
       return true;
    }
@@ -341,11 +321,9 @@ namespace xAOD {
       guard_t guard (m_mutex);
 
       // Try to find a variable:
-      auxid_set_t::const_iterator i = m_auxids.begin();
-      auxid_set_t::const_iterator end = m_auxids.end();
-      for( ; i != end; ++i ) {
-         if( ( *i < m_vecs.size() ) && m_vecs[ *i ] ) {
-            size_t sz = m_vecs[ *i ]->size();
+      for (SG::auxid_t i : m_auxids) {
+         if( ( i < m_vecs.size() ) && m_vecs[ i ] ) {
+            size_t sz = m_vecs[ i ]->size();
             if( sz > 0 ) {
                return sz;
             }
@@ -382,7 +360,6 @@ namespace xAOD {
             void* result = m_store->getData( auxid, size, capacity );
             if( result && nids != m_store->getAuxIDs().size() ) {
                m_auxids.insert( auxid );
-               ++m_tick;
             }
             return result;
          } else {
@@ -403,16 +380,8 @@ namespace xAOD {
    AuxContainerBase::getWritableAuxIDs() const {
 
       // Return the full list of known IDs. The constness of this object's
-      // members comes from the object being const or not. 
-      guard_t guard( m_mutex );
-      if (m_tsAuxids.get() == 0) {
-        m_tsAuxids.reset (new TSAuxidSet (m_tick, m_auxids));
-      }
-      else if (m_tsAuxids->m_tick != m_tick) {
-        m_tsAuxids->m_set = m_auxids;  // May need to optimize this!
-        m_tsAuxids->m_tick = m_tick;
-      }
-      return m_tsAuxids->m_set;
+      // members comes from the object being const or not.
+      return m_auxids;
    }
 
    bool AuxContainerBase::resize( size_t size ) {
@@ -541,9 +510,7 @@ namespace xAOD {
           nomove = false;
 
         // Notice any new variables added as a result of this.
-        const AuxContainerBase::auxid_set_t& dynids = m_store->getAuxIDs();
-        m_auxids.insert (dynids.begin(), dynids.end());
-        ++m_tick;
+        m_auxids.insert (m_store->getAuxIDs());
       }
 
       return nomove;
@@ -628,7 +595,7 @@ namespace xAOD {
       }
       // In case we don't use an internal store, there are no dynamic
       // variables:
-      static const auxid_set_t dummy {};
+      static const auxid_set_t dummy (0);
       return dummy;
    }
 
@@ -659,7 +626,7 @@ namespace xAOD {
 
       // In case we don't use an internal store, there are no dynamic
       // variables:
-      static auxid_set_t dummy;
+      static const auxid_set_t dummy (0);
       return dummy;
    }
 

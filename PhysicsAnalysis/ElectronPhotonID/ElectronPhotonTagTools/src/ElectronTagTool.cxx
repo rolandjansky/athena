@@ -8,6 +8,7 @@ Package : offline/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 Purpose : create a collection of ElectronTag
 
 *****************************************************************************/
+#include "ElectronPhotonTagTools/ElectronTagTool.h"
 
 #include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -20,8 +21,6 @@ Purpose : create a collection of ElectronTag
 #include "xAODEgamma/Electron.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODEgamma/EgammaEnums.h"
-#include "ElectronPhotonTagTools/ElectronTagTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "TagEvent/ElectronAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthContainers/ConstDataVector.h"
@@ -53,7 +52,7 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   m_fixedcut_tight_trackonly_isolation(""),
   m_fixedcut_loose_isolation(""),
   m_fixedcut_tight_isolation("") {
-  //  m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
+  // m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
   
   /** Electron AOD Container Name */
   declareProperty("Container",                 m_containerNames);
@@ -98,7 +97,7 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   declareProperty ("PrimaryVertexKey", m_vxCandidate = "PrimaryVertices");
 
   /** CP tool to calib objects */
-  //  declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
+  // declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
 
   declareInterface<ElectronTagTool>( this );
 }
@@ -133,7 +132,7 @@ StatusCode  ElectronTagTool::initialize() {
   CHECK(m_fixedcut_tight_isolation.retrieve());
 
   /** retreive and check the calibration tool */
-  //  CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
+  // CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
 
   if (m_etconeisocutvalues.size() > 4) {
     ATH_MSG_FATAL ("More than four etcone values are not permitted");
@@ -226,11 +225,11 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     for ( xAOD::Electron *shallowCopyElectron : * electronContainerShallowCopy ) {
 
       /** fix calibration using tool */
-      //      ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyElectron->pt());
-      //      if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyElectron) != CP::CorrectionCode::Ok){
-      //          ATH_MSG_WARNING("Cannot calibrate electron");
-      //      }
-      //      ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyElectron->pt()); 
+      // ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyElectron->pt());
+      // if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyElectron) != CP::CorrectionCode::Ok){
+      //    ATH_MSG_WARNING("Cannot calibrate electron");
+      // }
+      // ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyElectron->pt()); 
 
       /** apply isolation fix */
       if (m_isolation_correction_tool->applyCorrection(*shallowCopyElectron) != CP::CorrectionCode::Ok) {

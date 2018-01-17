@@ -23,7 +23,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   UserActionSvc::UserActionSvc(const std::string& name,
                                ISvcLocator* pSvcLocator)
-    : AthService(name, pSvcLocator),
+    : base_class(name, pSvcLocator),
       m_runActionTools(),
       m_eventActionTools(),
       m_stackingActionTools(),
@@ -197,23 +197,6 @@ namespace G4UA
     G4RunManager::GetRunManager()->SetUserAction( stepAction.get() );
     m_steppingActions.set( std::move(stepAction) );
 
-    return StatusCode::SUCCESS;
-  }
-
-  //---------------------------------------------------------------------------
-  // Gaudi interface query
-  //---------------------------------------------------------------------------
-  StatusCode UserActionSvc::queryInterface(const InterfaceID& riid,
-                                           void** ppvInterface)
-  {
-    if(IUserActionSvc::interfaceID().versionMatch(riid)){
-      *ppvInterface = static_cast<IUserActionSvc*>(this);
-    }
-    else{
-      // Interface is not directly available; try out a base class
-      return AthService::queryInterface(riid, ppvInterface);
-    }
-    addRef();
     return StatusCode::SUCCESS;
   }
 

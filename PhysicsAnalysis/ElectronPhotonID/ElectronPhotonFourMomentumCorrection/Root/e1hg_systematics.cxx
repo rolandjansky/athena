@@ -81,10 +81,17 @@ double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, 
 //   cout << " energy, et , ibinEt " << energyGeV << " " << et << " " << ibinEt << endl;
 
    Double_t scale=0.;
-   if (aeta<1.80) scale=0.;
-   else if (aeta<2.3) scale = 0.050*(aeta-1.8)/0.4 /0.05;
-   else scale=0.025/0.05;
+   //HACK: some ES model dependency needs to be introduced
+   /*Default up to es2017_summer
+     if (aeta<1.80) scale=0.;
+     else if (aeta<2.3) scale = 0.050*(aeta-1.8)/0.4 /0.05;
+     else scale=0.025/0.05;
+   */
 
+   if (aeta<1.80) scale=0.;
+   else if (aeta<2.3) scale = (0.050*(aeta-1.8)/0.4+0.025)/0.05;
+   else scale = 0.05/0.05;
+   
    if( !interpolate ) {
      if (particle_type==0) return scale*m_helec[ieta]->GetBinContent(ibinEt+1);
      else if (particle_type==1) return scale*m_hphot[ieta]->GetBinContent(ibinEt+1);

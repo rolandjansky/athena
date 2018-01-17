@@ -105,8 +105,7 @@ TileRegionSelectorTable::fillMaps()
 {
   // check on the map if job not already done by s.o. else
   std::string tileKey = "TileRegionSelectorLUT";
-  StatusCode sc = detStore()->contains< RegionSelectorLUT >(tileKey);
-  if (sc == StatusCode::SUCCESS ) {
+  if ( detStore()->contains< RegionSelectorLUT >(tileKey) ) {
     ATH_MSG_ERROR ( " RegionSelectorLUT " << tileKey
                     << " already exists => do nothing " );
     return;
@@ -255,8 +254,7 @@ StatusCode
 TileRegionSelectorTable::recordMap(RegionSelectorLUT* RSlut, std::string key) 
 {
   static const bool SETCONST(false);
-  StatusCode sc = detStore()->contains< RegionSelectorLUT >(key);
-  if (sc == StatusCode::SUCCESS ) {
+  if ( detStore()->contains< RegionSelectorLUT >(key) ) {
     ATH_MSG_ERROR ( " RegionSelectorLUT " << key 
                     << " already exists " );
   } else {

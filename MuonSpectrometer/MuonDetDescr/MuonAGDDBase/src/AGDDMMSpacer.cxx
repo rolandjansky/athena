@@ -31,9 +31,9 @@ void AGDDMMSpacer::CreateVolume()
 	
 	MuonGM::MMSpacerComponent *mm_comp=new MuonGM::MMSpacerComponent;
 	mm_comp->name=tech;
-	mm_comp->dx1=_small_x;
-	mm_comp->dx2=_large_x;
-	mm_comp->dy=_y;
+	mm_comp->dx1=m_small_x;
+	mm_comp->dx2=m_large_x;
+	mm_comp->dy=m_y;
 	
 	MuonGM::MMSpacer cham(mm_comp);
 	GeoPhysVol *vvv=cham.build(1);

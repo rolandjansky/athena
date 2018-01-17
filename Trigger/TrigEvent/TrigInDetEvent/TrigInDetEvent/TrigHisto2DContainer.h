@@ -5,10 +5,10 @@
 #ifndef TRIGINDETEVENT_TRIGHISTO2DCONTAINER_H
 #define TRIGINDETEVENT_TRIGHISTO2DCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigInDetEvent/TrigHisto2D.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** @class TrigHistoContainer
  * @author W. H. Bell <W.Bell@cern.ch>

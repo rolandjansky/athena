@@ -36,13 +36,13 @@ class GeoAccessVolAndSTAction final : public GeoNodeAction
   const HepGeom::Transform3D & getDefTransform() const;
   const std::string & getName() const;
 
-  virtual void handleNameTag(const GeoNameTag *nameTag);
-  virtual void handleSerialDenominator(const GeoSerialDenominator* sD);
+  virtual void handleNameTag(const GeoNameTag *nameTag) override;
+  virtual void handleSerialDenominator(const GeoSerialDenominator* sD) override;
 
-  virtual void handleSerialTransformer(const GeoSerialTransformer* sT);
+  virtual void handleSerialTransformer(const GeoSerialTransformer* sT) override;
   const GeoSerialTransformer* getSerialTransformer() const;
 
-  virtual void handleIdentifierTag(const GeoIdentifierTag* idTag);
+  virtual void handleIdentifierTag(const GeoIdentifierTag* idTag) override;
 
   Query<unsigned int> getId() const;
 

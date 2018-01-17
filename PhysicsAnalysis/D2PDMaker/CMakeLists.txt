@@ -12,11 +12,9 @@ atlas_depends_on_subdirs(
    Calorimeter/CaloEvent
    Control/AthenaBaseComps
    Control/AthenaKernel
-   Control/CLIDSvc
    Control/AthContainers
    Control/AthLinks
    Control/Navigation
-   Control/SGTools
    Control/StoreGate
    Event/EventKernel
    Event/NavFourMom
@@ -52,7 +50,7 @@ atlas_add_component( D2PDMaker
    ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}
    ${HEPMC_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers AthLinks
-   Navigation SGTools StoreGateLib EventKernel NavFourMom GaudiKernel
+   Navigation StoreGateLib EventKernel NavFourMom GaudiKernel
    GeneratorObjects AnalysisUtilsLib PATCoreLib ParticleEvent AssociationKernel
    McParticleEvent JetEvent muonEvent Particle egammaEvent tauEvent VxVertex
    GeoPrimitives TruthHelper MissingETPerformanceLib TrkTrackSummary )

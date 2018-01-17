@@ -520,9 +520,9 @@ namespace G4UA{
                               }
                             //from sampling, hit_eta, hit_phi (simple geometry)
                             //CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),origpos.eta(), origpos.phi());
-                            CaloDetDescrElement *highestcell = m_calo_dd_man->get_element(e_subhitmax_id);
+                            const CaloDetDescrElement *highestcell = m_calo_dd_man->get_element(e_subhitmax_id);
                             //from identifier
-                            CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
+                            const CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
                             //delete them afterwards?
                             if (!highestcell)
                               {

@@ -1286,7 +1286,7 @@ TrigConfCoolWriter::readHLTPayload( unsigned int run,
       hltFrame.setSMK(smk);
       hltFrame.setConfigSource(configSource);
    }
-   catch(cool::ObjectNotFound o) {
+   catch(const cool::ObjectNotFound& o) {
       m_ostream << "<readHLTPayload> No entry found in HLT keys folder for run " << run  << endl;
    }
 }

@@ -53,9 +53,6 @@ conddb.dbdata="COMP200"
 IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = DEBUG
 
-conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipNoise","SctDaqCalibrationChipNoise-UPD1-002-00")
-conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipGain","SctDaqCalibrationChipGain-UPD1-002-00")
-
 #--------------------------------------------------------------
 # Set Detector setup
 #--------------------------------------------------------------
@@ -94,6 +91,30 @@ ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 #--------------------------------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence +=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+sctGainFolder = "/SCT/DAQ/Calibration/ChipGain"
+sctGainCondAlg = "SCT_ReadCalibChipGainCondAlg"
+if not conddb.folderRequested(sctGainFolder):
+    conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipGain","SctDaqCalibrationChipGain-UPD1-002-00", className="CondAttrListCollection")
+if not hasattr(condSeq, sctGainCondAlg):
+    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
+    condSeq += SCT_ReadCalibChipGainCondAlg(name=sctGainCondAlg, ReadKey=sctGainFolder)
+
+sctNoiseFolder = "/SCT/DAQ/Calibration/ChipNoise"
+sctNoiseCondAlg = "SCT_ReadCalibChipNoiseCondAlg"
+if not conddb.folderRequested(sctNoiseFolder):
+    conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipNoise","SctDaqCalibrationChipNoise-UPD1-002-00", className="CondAttrListCollection")
+if not hasattr(condSeq, sctNoiseCondAlg):
+    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
+    condSeq += SCT_ReadCalibChipNoiseCondAlg(name=sctNoiseCondAlg, ReadKey=sctNoiseFolder)
+
+from AthenaCommon.AppMgr import ServiceMgr
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataTestAlg
 topSequence+= SCT_ReadCalibChipDataTestAlg()

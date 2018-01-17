@@ -7,7 +7,7 @@ atlas_subdir( JetTagInfo )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthLinks
                           Event/EventPrimitives
                           Reconstruction/Jet/JetEvent
                           Reconstruction/MuonIdentification/muonEvent
@@ -26,12 +26,12 @@ atlas_add_library( JetTagInfo
                    src/*.cxx
                    PUBLIC_HEADERS JetTagInfo
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel EventPrimitives JetEvent muonEvent Particle egammaEvent VxVertex
+                   LINK_LIBRARIES AthLinks EventPrimitives JetEvent muonEvent Particle egammaEvent VxVertex
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( JetTagInfoDict
                       JetTagInfo/JetTagInfoDict.h
                       JetTagInfo/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModel EventPrimitives JetEvent muonEvent Particle egammaEvent VxVertex GaudiKernel JetTagInfo )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthLinks EventPrimitives JetEvent muonEvent Particle egammaEvent VxVertex GaudiKernel JetTagInfo )
 

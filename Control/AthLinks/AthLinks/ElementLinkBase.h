@@ -19,9 +19,9 @@
 
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
+#include "CxxUtils/CachedPointer.h"
 #include "AthenaKernel/sgkey_t.h"
 #include <cstdlib>
-#include <atomic>
 #include <stdint.h>
 
 
@@ -479,69 +479,7 @@ private:
   /// SG proxy for this link.
   SG::DataProxyHolder m_proxy;  //! Transient
 
-  /// Cached copy of the element to which this link refers.
-  // In principle, we need this to be atomic, since this cached value
-  // can be changed from a const method.  However, because any access should
-  // always fill this with the same value, we don't care about ordering,
-  // only that the access itself is atomic in the sense of reading/writing
-  // the entire object at once.  Hence, we can use a relaxed memory ordering
-  // for accesses to the value.
-  // A further wrinkle is that we need to return a pointer to the value here;
-  // there doesn't seem to be a way around that without either changing
-  // how links are used or storing additional data here.  It should, however,
-  // be ok from a data race point of view because we ensure that we don't
-  // return a pointer until after it's set, and also that after it's set
-  // it isn't written again (from a const method).
-  // There is however, no portable way of getting a pointer to the
-  // underlying value of a std::atomic, so here we cheat and use a union.
-  // As an added check, we require that the compiler say that atomic
-  // pointers are always lock-free.
-  union ElementTypeWrapper
-  {
-  public:
-    /// Default constructor.  Sets the element to null.
-    ElementTypeWrapper();
-
-    
-    /// Constructor from an element.
-    ElementTypeWrapper (ElementType elt);
-
-
-    /// Copy constructor.
-    ElementTypeWrapper (const ElementTypeWrapper& other);
-
-
-    /// Assignment.
-    ElementTypeWrapper& operator= (const ElementTypeWrapper& other);
-
-
-    /// Set the element, assuming it is currently null.
-    void set (ElementType elt) const;
-
-
-    /// Store a new value to the element.
-    void store (ElementType elt) const;
-
-
-    /// Return the current value of the element.
-    ElementType get() const;
-
-
-    /// Return a pointer to the cached element.
-    const ElementType* ptr() const;
-
-
-  private:
-    /// The cached element, both directly and as an atomic
-    /// (recall that this is a union).
-    mutable std::atomic<ElementType> m_a;  //! Transient
-    ElementType m_e;    //! Transient
-  };
-  ElementTypeWrapper m_element;    //! Transient
-
-#if ATOMIC_POINTER_LOCK_FREE != 2
-# error Code assumes lock-free atomic pointers; see comments above.
-#endif
+  CxxUtils::CachedPointer  m_element;    //! Transient
 };
 
 

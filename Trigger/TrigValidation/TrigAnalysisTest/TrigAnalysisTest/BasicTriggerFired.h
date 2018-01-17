@@ -10,7 +10,6 @@
 
 #include "TrigAnalysisTest/ITest.h"
 
-using namespace std;
 
 namespace TrigAnalysisTest {
 
@@ -25,7 +24,7 @@ namespace TrigAnalysisTest {
     unsigned int m_passed_l1;
     unsigned int m_passed_hlt;
     bool m_first_call;
-    map<string,int> m_trigger_counts;
+    std::map<std::string,int> m_trigger_counts;
   };
 
 }

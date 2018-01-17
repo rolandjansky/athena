@@ -336,7 +336,7 @@ namespace JiveXML {
 		**/
 		TrackRetriever::TrackRetriever(const std::string& type,const std::string& name,const IInterface* parent):
 		  AthAlgTool(type,name,parent),
-		  typeName("Track"),
+		  m_typeName("Track"),
 		  m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
 		  m_idHelper(nullptr) {
 				//Declare the interface
@@ -639,58 +639,58 @@ namespace JiveXML {
 			} // end loop over tracks in collection
 
 			//Now fill everything in a datamap
-			DataMap m_DataMap;
+			DataMap DataMap;
 			// Start with mandatory entries
-			m_DataMap["id"] = id;
-			m_DataMap["chi2"] = chi2;
-			m_DataMap["numDoF"] = numDoF;
-			m_DataMap["trackAuthor"] = trackAuthor;
-			m_DataMap["barcode"] = barcode;
-			m_DataMap["numHits"] = numHits;
-			m_DataMap["nBLayerHits"] = nBLayerHits;
-			m_DataMap["nPixHits"] = nPixHits;
-			m_DataMap["nSCTHits"] = nSCTHits;
-			m_DataMap["nTRTHits"] = nTRTHits;
-			m_DataMap["numPolyline"] = numPolyline;
+			DataMap["id"] = id;
+			DataMap["chi2"] = chi2;
+			DataMap["numDoF"] = numDoF;
+			DataMap["trackAuthor"] = trackAuthor;
+			DataMap["barcode"] = barcode;
+			DataMap["numHits"] = numHits;
+			DataMap["nBLayerHits"] = nBLayerHits;
+			DataMap["nPixHits"] = nPixHits;
+			DataMap["nSCTHits"] = nSCTHits;
+			DataMap["nTRTHits"] = nTRTHits;
+			DataMap["numPolyline"] = numPolyline;
 
 			// if perigee parameters are not available, leave the corresponding subtags empty.
 			// This way atlantis knows that such tracks can only be displayed as polylines.
 			if (pt.size() > 0){
-				m_DataMap["pt"] = pt;
-				m_DataMap["d0"] = d0;
-				m_DataMap["z0"] = z0;
-				m_DataMap["phi0"] = phi0;
-				m_DataMap["cotTheta"] = cotTheta;
-				m_DataMap["covMatrix multiple=\"15\""] = covMatrix;
+				DataMap["pt"] = pt;
+				DataMap["d0"] = d0;
+				DataMap["z0"] = z0;
+				DataMap["phi0"] = phi0;
+				DataMap["cotTheta"] = cotTheta;
+				DataMap["covMatrix multiple=\"15\""] = covMatrix;
 			}
 
 			// vectors with measurement- or TrackStateOnSurface-wise entries
 			if ( polylineX.size() > 0){
 				std::string numPolyPerTrack = DataType(polylineX.size()/((double)id.size())).toString();
-				m_DataMap["polylineX multiple=\"" + numPolyPerTrack + "\""] = polylineX;
-				m_DataMap["polylineY multiple=\"" + numPolyPerTrack + "\""] = polylineY;
-				m_DataMap["polylineZ multiple=\"" + numPolyPerTrack + "\""] = polylineZ;
+				DataMap["polylineX multiple=\"" + numPolyPerTrack + "\""] = polylineX;
+				DataMap["polylineY multiple=\"" + numPolyPerTrack + "\""] = polylineY;
+				DataMap["polylineZ multiple=\"" + numPolyPerTrack + "\""] = polylineZ;
 			}
 
 			if ( hits.size() > 0){
 				std::string numHitsPerTrack = DataType(hits.size()/((double)id.size())).toString();
-				m_DataMap["hits multiple=\"" + numHitsPerTrack + "\""] = hits;
-				m_DataMap["isOutlier multiple=\""+numHitsPerTrack+"\""] = isOutlier;
-				m_DataMap["driftSign multiple=\""+numHitsPerTrack+"\""] = driftSign;
+				DataMap["hits multiple=\"" + numHitsPerTrack + "\""] = hits;
+				DataMap["isOutlier multiple=\""+numHitsPerTrack+"\""] = isOutlier;
+				DataMap["driftSign multiple=\""+numHitsPerTrack+"\""] = driftSign;
 
 				if (m_doWriteResiduals){
 					// hits counter in principle not needed anymore:
-					m_DataMap["numTsos"] = numHits;
-					m_DataMap["tsosResLoc1 multiple=\""+numHitsPerTrack+"\""] = tsosResLoc1;
-					m_DataMap["tsosResLoc2 multiple=\""+numHitsPerTrack+"\""] = tsosResLoc2;
-					m_DataMap["tsosPullLoc1 multiple=\""+numHitsPerTrack+"\""] = tsosPullLoc1;
-					m_DataMap["tsosPullLoc2 multiple=\""+numHitsPerTrack+"\""] = tsosPullLoc2;
-					m_DataMap["tsosDetType multiple=\""+numHitsPerTrack+"\""] = tsosDetType;
+					DataMap["numTsos"] = numHits;
+					DataMap["tsosResLoc1 multiple=\""+numHitsPerTrack+"\""] = tsosResLoc1;
+					DataMap["tsosResLoc2 multiple=\""+numHitsPerTrack+"\""] = tsosResLoc2;
+					DataMap["tsosPullLoc1 multiple=\""+numHitsPerTrack+"\""] = tsosPullLoc1;
+					DataMap["tsosPullLoc2 multiple=\""+numHitsPerTrack+"\""] = tsosPullLoc2;
+					DataMap["tsosDetType multiple=\""+numHitsPerTrack+"\""] = tsosDetType;
 				}
 			}
 
 			//forward data to formating tool
-			if ( FormatTool->AddToEvent(dataTypeName(), collectionName, &m_DataMap).isFailure())
+			if ( FormatTool->AddToEvent(dataTypeName(), collectionName, &DataMap).isFailure())
 			  return StatusCode::RECOVERABLE;
 
 			//Be verbose

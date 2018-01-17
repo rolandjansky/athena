@@ -344,7 +344,7 @@ LArCellBuilderFromLArHitTool::handle(const Incident& /* inc*/ )
   if (m_WithMap) 
   {    
     ATH_MSG_VERBOSE (" initialize internal cell collection ");
-    if (this->initializeCellPermamentCollection()!=SUCCESS)
+    if (!this->initializeCellPermamentCollection().isSuccess())
     {
       ATH_MSG_FATAL ("Making of cell permament collection failed");
       return;
@@ -663,11 +663,6 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
 {
   m_cellPermanentCollection.clear();
    
-
-  std::vector <CaloDetDescrElement*>::const_iterator itrDDE, itrEndDDE;
-  itrDDE=m_calo_dd_man->element_begin (m_caloNum);
-  itrEndDDE=m_calo_dd_man->element_end (m_caloNum);
-
   //resize to correct size and rest to zero
   IdentifierHash caloCellMin, caloCellMax ;
   m_caloCID->calo_cell_hash_range(m_caloNum,caloCellMin,caloCellMax);
@@ -679,11 +674,11 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
   
   long nHole =0 ;
   long nFilled =0 ;
-  
-  for (; itrDDE!=itrEndDDE;++itrDDE){
-    ++index;
 
-    CaloDetDescrElement* caloDDE = (*itrDDE);
+  for (const CaloDetDescrElement* caloDDE :
+         m_calo_dd_man->element_range (m_caloNum))
+  {
+    ++index;
     
     //check if no hole
     if (caloDDE==0) {

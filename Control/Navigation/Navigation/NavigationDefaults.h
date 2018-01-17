@@ -8,7 +8,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "AthLinks/tools/GenerateIndexingPolicy.h"
 
 #include <utility>

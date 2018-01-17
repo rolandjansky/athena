@@ -48,7 +48,6 @@ namespace Gaudi {
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthMemMacros.h"
-#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/HandleClassifier.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -58,7 +57,6 @@ namespace Gaudi {
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
-#include "AthenaKernel/IUserDataSvc.h"
 
 /**
  * @brief An algorithm that can be simultaneously executed in multiple threads.
@@ -114,16 +112,12 @@ namespace Gaudi {
 
 
 class AthReentrantAlgorithm
-  : public ::ReEntAlgorithm,
-    public ::AthMessaging
+  : public ::ReEntAlgorithm
 { 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
 
   // Copy constructor: 
 
@@ -155,10 +149,6 @@ class AthReentrantAlgorithm
    */
   ServiceHandle<StoreGateSvc>& detStore() const;
 
-  /** @brief The standard @c UserDataSvc 
-   * Returns (kind of) a pointer to the @c UserDataSvc
-   */
-  ServiceHandle<IUserDataSvc>& userStore() const;
 
 #ifndef REENTRANT_GAUDI
   /**
@@ -400,6 +390,15 @@ public:
 
 
   /**
+   * @brief Handle START transition.
+   *
+   * We override this in order to make sure that conditions handle keys
+   * can cache a pointer to the conditions container.
+   */
+  virtual StatusCode sysStart() override;
+
+
+  /**
    * @brief Return this algorithm's input handles.
    *
    * We override this to include handle instances from key arrays
@@ -427,6 +426,17 @@ public:
    */
   virtual const DataObjIDColl& extraOutputDeps() const override;
 
+
+  // forward to CommonMessaging
+  inline MsgStream& msg() const {
+    return msgStream();
+  }
+  inline MsgStream& msg(const MSG::Level lvl) const {
+    return msgStream(lvl);
+  }
+  inline bool msgLvl(const MSG::Level lvl) const {
+    return msgLevel(lvl);
+  }
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -463,10 +473,6 @@ public:
   /// Pointer to StoreGate (detector store by default)
   mutable StoreGateSvc_t m_detStore;
 
-  typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
-  /// Pointer to IUserDataSvc
-  mutable UserDataSvc_t m_userStore;
-
   /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
   /// to add symlinks.  Empty if no symlinks were found.
   DataObjIDColl m_extendedExtraObjects;
@@ -489,9 +495,5 @@ ServiceHandle<StoreGateSvc>& AthReentrantAlgorithm::evtStore() const
 inline
 ServiceHandle<StoreGateSvc>& AthReentrantAlgorithm::detStore() const 
 { return m_detStore; }
-
-inline
-ServiceHandle<IUserDataSvc>& AthReentrantAlgorithm::userStore() const 
-{ return m_userStore; }
 
 #endif //> !ATHENABASECOMPS_ATHREENTRANTALGORITHM_H

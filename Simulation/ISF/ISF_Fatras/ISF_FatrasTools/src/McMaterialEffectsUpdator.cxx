@@ -60,7 +60,7 @@
 
 // constructor
 iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_eLoss(true),
   m_eLossUpdator("iFatras::McEnergyLossUpdator/FatrasEnergyLossUpdator"),
   m_ms(true),
@@ -131,7 +131,6 @@ iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t
   m_truthRecordSvc("ISF_TruthRecordSvc", n),
   m_layer(0)
 {
-      declareInterface<ITimedMatEffUpdator>(this);
       // the tool parameters -----------------------------------------------------
       declareProperty("EnergyLoss"                          , m_eLoss);
       declareProperty("EnergyLossUpdator"                   , m_eLossUpdator);

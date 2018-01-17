@@ -5,6 +5,7 @@
 #ifndef TFCSPCAEnergyParametrization_h
 #define TFCSPCAEnergyParametrization_h
 
+
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/IntArray.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
@@ -17,7 +18,7 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
 {
  public:
   TFCSPCAEnergyParametrization(const char* name=0, const char* title=0);
-  
+
   // energies in calo layers should be returned in simulstate
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
   
@@ -34,7 +35,6 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   IntArray* m_RelevantLayers;
 
   std::vector<TMatrixDSym*> m_symCov;
-  std::vector<TMatrixD*>    m_EV;
   std::vector<TVectorD*>    m_MeanValues;
   std::vector<TVectorD*>    m_SigmaValues;
   std::vector<TVectorD*>    m_Gauss_means;

@@ -36,8 +36,6 @@ DecisionSvc::DecisionSvc(const std::string& name,
 {
   declareProperty("CalcStats",m_calcStats);
 
-  ATH_MSG_DEBUG ("In DecisionSvc::DecisionSvc ");
-
   assert( pSvcLocator );
 }
 

@@ -5,8 +5,8 @@
 #ifndef TrigMuonEvent_CachingFeatureCollection_H__
 #define TrigMuonEvent_CachingFeatureCollection_H__
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 typedef DataVector<int> CachingFeatureCollection;

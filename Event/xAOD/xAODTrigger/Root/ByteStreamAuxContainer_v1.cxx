@@ -11,7 +11,6 @@
 #include "xAODCore/tools/AuxPersVector.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
-#include "AthContainers/tools/foreach.h"
 
 // Local include(s):
 #include "xAODTrigger/versions/ByteStreamAuxContainer_v1.h"
@@ -419,14 +418,14 @@ namespace xAOD {
 
       guard_t guard (m_mutex);
 
-      ATHCONTAINERS_FOREACH (SG::IAuxTypeVector* p, m_dynamicVecs)
+      for (SG::IAuxTypeVector* p : m_dynamicVecs)
          delete p;
       m_dynamicVecs.clear();
 
       SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 #define ADD_IDS(VAR, TYP) \
       do { typedef std::map< std::string, std::vector< TYP > > CONT; \
-           ATHCONTAINERS_FOREACH (CONT::value_type& p, VAR) \
+          for (CONT::value_type& p : VAR)                                 \
              m_auxids.insert (r.getAuxID< TYP > (p.first)); } while(0)
       ADD_IDS(m_int, int);
       ADD_IDS(m_float, float);

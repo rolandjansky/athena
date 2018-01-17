@@ -22,7 +22,6 @@
 #include "DataModelAthenaPool/CLHEPConverters.h"
 #include "DataModelAthenaPool/PackedContainerConverter.h"
 #include "DataModelAthenaPool/AthenaBarCode_p1.h"
-#include "DataModelAthenaPool/UserDataStore_p1.h"
 
 
 namespace {
@@ -63,9 +62,6 @@ namespace {
      std::vector<ElementLinkStr_p2> m_elLinkStr_p2;
 
      AthenaBarCode_p1 m_abcp1;
-
-     UserDataStore_p1 m_UDSp1;
-     UDSLabelHashTable_p1 m_UDSLabels_p1;
    };
 
    

@@ -115,17 +115,17 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   VecProf2_t m_pnoiseoccupancymapHistoVectorECmTrigger;
   
   TH1F* m_nSP;
-  int *nSP_buf;
-  int nSP_pos;
+  int *m_nSP_buf;
+  int m_nSP_pos;
   TH1F* m_nHits;
-  int *nHits_buf;
-  int nHits_pos;
+  int *m_nHits_buf;
+  int m_nHits_pos;
   TH1F* m_nmaxHits;
-  int *nmaxHits_buf;
-  Identifier *nmaxModule_buf;
+  int *m_nmaxHits_buf;
+  Identifier *m_nmaxModule_buf;
   TH1F* m_nminHits;
-  int *nminHits_buf;
-  Identifier *nminModule_buf;
+  int *m_nminHits_buf;
+  Identifier *m_nminModule_buf;
 
   //Histograms with hits per luminosity block
   H1_t m_numBarrelHitsPerLumiBlock;
@@ -138,7 +138,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   H1_t m_numSPPerLumiBlockECm;
 
 
-  H2_t rioMap;
+  H2_t m_rioMap;
   //@}
   //Histograms with NO distribution
   TH1F* m_BARNO;
@@ -222,7 +222,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   VecH1_t m_ncluHistoVectorECm;
 
   //Pointer to histogram of time bin coincidences
-  H2I_t coincidenceHist; 
+  H2I_t m_coincidenceHist; 
 
   /// stream stem for the ROOT histograms
   std::string m_stream;
@@ -498,9 +498,9 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   Prof2_t
     prof2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector);
   Prof2_t
-    prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, int xlo, int xhi, int nbiny, int ylo, int yhi);
+    prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, float xlo, float xhi, int nbiny, float ylo, float yhi);
   Prof_t
-    profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, int lo, int hi);
+    profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, float lo, float hi);
   Prof_t
     profFactory(const std::string & name, const std::string & title, MonGroup & registry);
   //@}

@@ -46,6 +46,6 @@ StatusCode T2TauEnergyTool::execute(const TrigTauCluster *pTrigTauCluster,
     pTrigTau.setEtCalibCluster(0);
   
   
-  return true;
+  return StatusCode::SUCCESS;
 }
 

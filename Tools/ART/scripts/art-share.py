@@ -9,7 +9,7 @@ Usage:
 Options:
   -h --help               Show this screen
   --version               Show version
-  --q --quiet             Show less information, only warnings and errors
+  -q --quiet              Show less information, only warnings and errors
   --write                 Write to directory
   -v --verbose            Show more information, debug level
 

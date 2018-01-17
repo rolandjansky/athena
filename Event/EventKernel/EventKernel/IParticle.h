@@ -15,10 +15,10 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "EventKernel/PdtPdg.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #ifndef SIMULATIONBASE
 #ifndef XAOD_ANALYSIS

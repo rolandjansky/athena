@@ -517,7 +517,7 @@ bool MissingETEventSelector::hasgoodZ_tautau(){
     int* flag = 0;
     if (evtStore()->retrieve(flag, m_passflagZtautau).isFailure() || !flag){ 
         msg() << MSG::DEBUG <<"Failed to retrieve " << m_passflagZtautau <<endmsg;
-        return StatusCode::FAILURE;
+        return false;
     }	
     if (*flag!=0){
         msg() << MSG::WARNING << "Event ok = flag " << *flag << endmsg;
@@ -533,7 +533,7 @@ bool MissingETEventSelector::hasgoodZ_tautau(){
     if(evtStore()->retrieve(tau_cont, m_tau_container).isFailure() || !tau_cont )
     {
         msg() << MSG::DEBUG <<"Failed to retrieve " << m_tau_container <<endmsg;
-        return StatusCode::FAILURE;
+        return false;
     }
     if(tau_cont->size() == 0)
     {
@@ -546,7 +546,7 @@ bool MissingETEventSelector::hasgoodZ_tautau(){
     if(evtStore()->retrieve(lepton_cont, m_lepton_container).isFailure() || !lepton_cont )
     {
          msg() << MSG::DEBUG <<"Failed to retrieve " << m_lepton_container<<endmsg; 
-        return StatusCode::FAILURE;
+        return false;
     }
     if(lepton_cont->size() != 1)
     {

@@ -2,9 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#ifndef G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
-#define G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
+#ifndef G4ATLASALG_ATHENASTACKINGACTION_H
+#define G4ATLASALG_ATHENASTACKINGACTION_H
 
 #include "G4UserStackingAction.hh"
 

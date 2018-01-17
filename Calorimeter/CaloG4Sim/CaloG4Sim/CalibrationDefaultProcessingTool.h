@@ -4,21 +4,23 @@
 
 #ifndef CALOG4SIM_G4UA_CALOG4_CALIBRATIONDEFAULTPROCESSINGTOOL_H
 #define CALOG4SIM_G4UA_CALOG4_CALIBRATIONDEFAULTPROCESSINGTOOL_H
+
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "CaloG4Sim/CalibrationDefaultProcessing.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-  namespace CaloG4 {
+  namespace CaloG4
+  {
 
     /// @class CalibrationDefaultProcessingTool
-    /// @brief Tool which manages  CalibrationDefaultProcessing
+    /// @brief Tool which manages CalibrationDefaultProcessing
     ///
     /// @author Andrea Di Simone
     ///
-
     class CalibrationDefaultProcessingTool:
       public ActionToolBase<CalibrationDefaultProcessing>,
       public IG4EventActionTool, public IG4SteppingActionTool
@@ -26,7 +28,9 @@ namespace G4UA{
 
     public:
       /// Standard constructor
-      CalibrationDefaultProcessingTool(const std::string& type, const std::string& name,const IInterface* parent);
+      CalibrationDefaultProcessingTool(const std::string& type,
+                                       const std::string& name,
+                                       const IInterface* parent);
       /// Retrieve the BoE action
       virtual G4UserEventAction* getEventAction() override final
       { return static_cast<G4UserEventAction*>( getAction() ); }
@@ -46,4 +50,5 @@ namespace G4UA{
   }// namespace CaloG4
 
 } // namespace G4UA
+
 #endif

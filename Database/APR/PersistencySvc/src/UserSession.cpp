@@ -3,7 +3,7 @@
 */
 
 #include "UserSession.h"
-#include "PersistencySvcConfiguration.h"
+#include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "GlobalTransaction.h"
 #include "DatabaseRegistry.h"
 #include "TechnologyDispatcher.h"
@@ -12,16 +12,16 @@
 #include "MicroSessionManager.h"
 
 pool::PersistencySvc::UserSession::UserSession( pool::IFileCatalog& fileCatalog ):
-  m_configuration( 0 ),
+  m_policy( 0 ),
+  m_catalog( &fileCatalog ),
   m_registry( 0 ),
   m_transaction( 0 ),
   m_technologyDispatcher( 0 )
 {
-  m_configuration = new pool::PersistencySvc::PersistencySvcConfiguration;
-  m_registry = new pool::PersistencySvc::DatabaseRegistry( *m_configuration );
+  m_policy = new pool::DatabaseConnectionPolicy;
+  m_registry = new pool::PersistencySvc::DatabaseRegistry();
   m_transaction = new pool::PersistencySvc::GlobalTransaction( *m_registry );
   m_technologyDispatcher = new pool::PersistencySvc::TechnologyDispatcher( *m_registry, *m_transaction );
-  m_configuration->setFileCatalog( fileCatalog );
 }
 
 pool::PersistencySvc::UserSession::~UserSession()
@@ -29,19 +29,7 @@ pool::PersistencySvc::UserSession::~UserSession()
   delete m_technologyDispatcher;
   delete m_transaction;
   delete m_registry;
-  delete m_configuration;
-}
-
-pool::PersistencySvc::PersistencySvcConfiguration&
-pool::PersistencySvc::UserSession::configuration()
-{
-  return *m_configuration;
-}
-
-const pool::PersistencySvc::PersistencySvcConfiguration&
-pool::PersistencySvc::UserSession::configuration() const
-{
-  return *m_configuration;
+  delete m_policy;
 }
 
 pool::PersistencySvc::DatabaseRegistry&
@@ -59,13 +47,13 @@ pool::PersistencySvc::UserSession::technologyDispatcher()
 void
 pool::PersistencySvc::UserSession::setDefaultConnectionPolicy( const pool::DatabaseConnectionPolicy& policy )
 {
-  m_configuration->setDatabaseConnectionPolicy( policy );
+  *m_policy = policy;
 }
 
 const pool::DatabaseConnectionPolicy&
 pool::PersistencySvc::UserSession::defaultConnectionPolicy() const
 {
-  return m_configuration->databaseConnectionPolicy();
+  return *m_policy;
 }
 
 void
@@ -103,7 +91,8 @@ pool::PersistencySvc::UserSession::databaseHandle( const std::string& dbName,
 {
   if ( m_transaction->isActive() ) {
     return new pool::PersistencySvc::UserDatabase( *m_technologyDispatcher,
-                                                   *m_configuration,
+                                                   *m_policy,
+                                                   *m_catalog,
                                                    *m_transaction,
                                                    *m_registry,
                                                    dbName,
@@ -121,7 +110,13 @@ pool::PersistencySvc::UserSession::globalTransaction()
 pool::IFileCatalog&
 pool::PersistencySvc::UserSession::fileCatalog()
 {
-  return m_configuration->fileCatalog();
+  return *m_catalog;
+}
+
+void
+pool::PersistencySvc::UserSession::setFileCatalog(pool::IFileCatalog& catalog)
+{
+  m_catalog = &catalog;
 }
 
 const pool::ITechnologySpecificAttributes&

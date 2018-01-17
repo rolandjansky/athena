@@ -31,6 +31,8 @@ class PixelDetectorTool : public GeoModelTool {
   // Standard Destructor
   virtual ~PixelDetectorTool() override final;
 
+  virtual StatusCode initialize() override final;
+
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 

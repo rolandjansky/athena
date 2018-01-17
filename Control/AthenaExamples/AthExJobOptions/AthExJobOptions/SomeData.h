@@ -7,7 +7,7 @@
 #ifndef ATHEXJOBOPTIONS_SOMEDATA_H
 #define ATHEXJOBOPTIONS_SOMEDATA_H 1
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

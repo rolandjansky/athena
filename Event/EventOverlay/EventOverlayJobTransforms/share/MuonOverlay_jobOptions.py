@@ -88,7 +88,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         job.TgcDigitToTgcRDO.EvtStore = job.TgcOverlay.OutputStore
         #job.TgcOverlay.DataStore = "BkgEvent_2_SG"
         if readBS:
-           ToolSvc.TgcRawDataProviderTool.EvtStore = "OriginalEvent_SG"
+           ToolSvc.TgcRawDataProviderTool.RdoLocation = "OriginalEvent_SG+TGCRDO"
 
            job.TgcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
 

@@ -38,8 +38,6 @@ namespace Muon
 {
 
   class MuonEDMPrinterTool;
-  class IMuonPatternSegmentAssociationTool;
-
 
   /** @class MuonCurvedSegmentCombiner 
 
@@ -68,7 +66,8 @@ namespace Muon
     /** INSERT main method here.*/
     MuonSegmentCombinationCollection* combineSegments(    const MuonSegmentCombinationCollection& mdtCombiColl, 
 							  const MuonSegmentCombinationCollection& csc4DCombiColl, 
-							  const MuonSegmentCombinationCollection& csc2DCombiColl);      
+							  const MuonSegmentCombinationCollection& csc2DCombiColl,
+							  MuonSegmentCombPatternCombAssociationMap* segPattMap);
 
     void trackParameters( const Muon::MuonSegment& seg ,double &theta,double &curvature,int &imeth );
     //    void fulltrackParameters( const Muon::MuonSegment& seg ,HepMatrix & T , HepMatrix & CovT ,int &imeth );
@@ -80,11 +79,11 @@ namespace Muon
 
   private:
           
-    MuonSegmentCombinationCollection*  processCombinationCollection(const MuonSegmentCombinationCollection& mdtCombiCol);
-    void processCscCombinationCollection( const MuonSegmentCombinationCollection& cscCombiCol) ;
+    MuonSegmentCombinationCollection*  processCombinationCollection(const MuonSegmentCombinationCollection& mdtCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap);
+    void processCscCombinationCollection( const MuonSegmentCombinationCollection& cscCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap) ;
     void process2DCscCombinationCollection( const MuonSegmentCombinationCollection& csc2DcombiCol);
 
-    void muonCurvedSegmentCombinations(MuonSegmentCombinationCollection* curvedCombiCol);
+    void muonCurvedSegmentCombinations(MuonSegmentCombinationCollection* curvedCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap);
 
     Muon::MCSCSegmentInfo segInfo( const Muon::MuonSegment* seg );
 
@@ -104,8 +103,6 @@ namespace Muon
     const MdtIdHelper*                  m_mdtIdHelper;
 
     ToolHandle< MuonEDMPrinterTool> m_printer;
-
-    ToolHandle< IMuonPatternSegmentAssociationTool> m_assocTool;
 
     bool m_debug;    
     bool m_doCosmics;

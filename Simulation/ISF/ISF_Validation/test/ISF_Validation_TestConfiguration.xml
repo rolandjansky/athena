@@ -484,7 +484,7 @@
       <jobTransform userJobId="G4_cosmics_1sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>G4_cosmics_1sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_COSMICSFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-R2-2015-03-01-00_VALIDATION --conditionsTag OFLCOND-RUN12-SDR-19 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics</jobTransformCmd>
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_TRFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-R2-2015-03-01-00_VALIDATION --conditionsTag OFLCOND-RUN12-SDR-19 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics</jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>short</queue>
         <!-- add in some tests later -->
@@ -493,7 +493,7 @@
       <jobTransform userJobId="G4_cosmicsTR_1sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>G4_cosmicsTR_1sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --CosmicPtSlice 'NONE' --beamType 'cosmics'</jobTransformCmd>
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_TRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --CosmicPtSlice 'NONE' --beamType 'cosmics'</jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>medium</queue>
         <!-- add in some tests later -->

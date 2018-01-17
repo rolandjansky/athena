@@ -453,7 +453,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
 
   float value;
   if(ncsx<0)ncsx = 0;
-  ncsx = std::min(ncsx, nmax);
+  if(ncsx>nmax) ncsx=nmax;
   m_csx.clear();
   m_csx.reserve(ncsx);
   for(int i=0; i<ncsx && !infile.eof(); i++){
@@ -461,7 +461,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
     m_csx.push_back(value);
   }
   if(ncsy<0)ncsy=0;
-  ncsy = std::min(ncsy, nmax);
+  if(ncsy>nmax) ncsy=nmax;
   m_csy.clear();
   m_csy.reserve(ncsy);
   for(int i=0; i<ncsy && !infile.eof(); i++){
@@ -470,14 +470,14 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   }
   if(m_etabinsibl>0 && m_phibinsibl >0 ){ // IBL
     m_ibletaref.clear();
-    m_etabinsibl = std::min(m_etabinsibl, nmax);
+    if(m_etabinsibl>nmax) m_etabinsibl=nmax;
     m_ibletaref.reserve(m_etabinsibl+1);
     for(int i=0; i<m_etabinsibl+1; i++){
       infile >> value;
       m_ibletaref.push_back(value);
     }
     m_iblphibins.clear();
-    m_phibinsibl = std::min(m_phibinsibl, nmax);
+    if(m_phibinsibl>nmax) m_phibinsibl=nmax;
     m_iblphibins.reserve(m_phibinsibl+1);
     for(int i=0; i<m_phibinsibl+1; i++){
       infile >> value;
@@ -485,7 +485,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
     }	 
   }
   if(neta<0)neta=0;
-  neta = std::min(neta, nmax);
+  if(neta>nmax) neta=nmax;
   m_etaref.clear();
   m_etaref.reserve(neta);
   for(int i=0; i<neta && !infile.eof(); i++){
@@ -493,7 +493,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
     m_etaref.push_back(value);
   }
   if(nalpha<0)nalpha = 0;
-  nalpha = std::min(nalpha, nmax);
+  if(nalpha>nmax) nalpha=nmax;
   m_phibins.clear();
   m_phibins.reserve(nalpha);
   for(int i=0; i<nalpha && !infile.eof(); i++){
@@ -501,7 +501,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
     m_phibins.push_back(value);
   }
   if(nxbinsibl>0){ // IBL
-    nxbinsibl = std::min(nxbinsibl, nmax);
+    if(nxbinsibl>nmax) nxbinsibl=nmax;
     m_iblphierror.clear();
     m_iblphierror.reserve(nxbinsibl);
     for(int ib1=0; ib1<nxbinsibl; ib1++){
@@ -520,7 +520,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
      m_barrelphierror.push_back(value);
   }
   if(nybinsibl>0){ // IBL
-    nybinsibl = std::min(nybinsibl, nmax);
+    if(nybinsibl>nmax) nybinsibl=nmax;
     m_ibletaerror.clear();
     m_ibletaerror.reserve(nybinsibl);
     for(int ib1=0; ib1<nybinsibl; ib1++){

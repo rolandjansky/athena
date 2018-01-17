@@ -74,8 +74,6 @@ private:
   double m_et_max, m_sumet_max, m_phi_max, m_det_max, m_eff_max;
   int m_et_bins, m_sumet_bins, m_phi_bins, m_det_bins, m_eff_bins;
   
-  bool m_debuglevel; //!< private member to control debug messages
-  
   std::vector<std::string> m_primary_met;
   std::vector<std::string> m_monitoring_met;
   std::vector<std::string> m_monitoring_alg;

@@ -12,7 +12,6 @@
 #include "../MemoryRescueSvc.h"
 #include "../FPEControlSvc.h"
 #include "../JobIDSvc.h"
-#include "../UserDataSvc.h"
 #include "../CoreDumpSvc.h"
 #include "../AthDictLoaderSvc.h"
 #include "../AthenaSealSvc.h"
@@ -46,7 +45,6 @@ DECLARE_COMPONENT( ThinningSvc )
 DECLARE_COMPONENT( MemoryRescueSvc )
 DECLARE_COMPONENT( FPEControlSvc )
 DECLARE_COMPONENT( JobIDSvc )
-DECLARE_COMPONENT( UserDataSvc )
 DECLARE_COMPONENT( CoreDumpSvc )
 DECLARE_COMPONENT( PageAccessControlSvc )
 DECLARE_COMPONENT( AthDictLoaderSvc )
@@ -65,4 +63,3 @@ DECLARE_COMPONENT( AthenaOutputStreamTool )
 DECLARE_COMPONENT( ThinningOutputTool )
 DECLARE_COMPONENT( AthenaStopperAlg )
 DECLARE_COMPONENT( AthIncFirerAlg )
-

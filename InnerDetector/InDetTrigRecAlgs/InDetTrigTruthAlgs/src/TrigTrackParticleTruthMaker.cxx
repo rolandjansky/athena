@@ -19,7 +19,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include <map>
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace InDet {
 

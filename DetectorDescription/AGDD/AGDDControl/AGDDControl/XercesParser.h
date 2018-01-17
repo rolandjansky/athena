@@ -27,7 +27,7 @@ public:
 	static void elementLoop();
 	static void elementLoop(xercesc::DOMNode*);
 	static ExpressionEvaluator& Evaluator();
-	static xercesc::DOMNode* GetCurrentElement() {return currentElement;}
+	static xercesc::DOMNode* GetCurrentElement() {return s_currentElement;}
 	bool Initialize();
 	bool Finalize();
 private:
@@ -37,7 +37,7 @@ private:
 	
 	bool m_initialized;
 protected:
-	static xercesc::DOMNode *currentElement;
+	static xercesc::DOMNode *s_currentElement;
 };
 
 #endif

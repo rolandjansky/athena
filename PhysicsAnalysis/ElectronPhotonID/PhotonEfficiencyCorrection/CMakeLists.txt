@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 796691 2017-02-11 10:15:48Z ludovica $
 
 # The name of the package:
 atlas_subdir( PhotonEfficiencyCorrection )
@@ -18,6 +17,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEgamma
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
    PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
    PRIVATE
    Event/xAOD/xAODCore
@@ -34,7 +34,7 @@ atlas_add_library( PhotonEfficiencyCorrectionLib
    PhotonEfficiencyCorrection/*.h Root/*.cxx
    PUBLIC_HEADERS PhotonEfficiencyCorrection
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEgamma
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} EgammaAnalysisInterfacesLib AsgTools xAODEgamma
    PATCoreLib PATInterfaces ElectronEfficiencyCorrectionLib
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 

@@ -45,7 +45,7 @@ echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
 # run build tests
 SUBDIR=${BRANCH}/${PROJECT}/${PLATFORM}/${DATESTAMP}
 OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
-CMD="art.py run ${RELEASE_BASE}/athena ${OUTDIR}"
+CMD="art.py run ${RELEASE_BASE}/build/build/${PROJECT} ${OUTDIR}"
 echo ${CMD}
 RESULT=`eval "${CMD}"`
 echo ${RESULT}

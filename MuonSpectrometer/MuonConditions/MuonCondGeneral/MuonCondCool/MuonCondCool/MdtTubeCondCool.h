@@ -41,16 +41,16 @@ class MdtTubeCondCool: public AthAlgorithm
   MdtDeadTubeStatusContainer* m_mdtDeadTubeStatusContainer;
   bool m_done;
 // properties
-  bool par_read;
-  bool par_extract;
-  bool par_write;
-  bool par_deadTube;
-  int par_chan;
-  int par_tech;
+  bool m_par_read;
+  bool m_par_extract;
+  bool m_par_write;
+  bool m_par_deadTube;
+  int m_par_chan;
+  int m_par_tech;
   
-  std::string par_folder;
-  std::string par_rfile;
-  std::string par_wfile;
+  std::string m_par_folder;
+  std::string m_par_rfile;
+  std::string m_par_wfile;
   //std::string m_DeadTubeLocation;
   
   // methods

@@ -409,10 +409,8 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
 #endif
   
   // record and lock the Clusters Container with the new EDM helper... 
-  bool status = CaloClusterStoreHelper::finalizeClusters( store(), m_pCaloClusterContainer,
-                                                        clusterCollKey, msg());
-  
-  if ( !status ) {  
+  if ( !CaloClusterStoreHelper::finalizeClusters( store(), m_pCaloClusterContainer,
+                                                  clusterCollKey, msg() ).isSuccess() ) {
     msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endmsg;
     return HLT::TOOL_FAILURE;
   } else {
@@ -422,9 +420,8 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   
   // Build the "uses" relation for the outputTE to the cell container
   std::string aliasKey = "";
-  status = reAttachFeature(outputTE, m_pCaloClusterContainer, aliasKey, persKey );
 
-  if (status != (bool)HLT::OK) {
+  if (reAttachFeature(outputTE, m_pCaloClusterContainer, aliasKey, persKey ) != HLT::OK) {
     msg() << MSG::ERROR
 	  << "Write of RoI Cluster Container into outputTE failed"
 	  << endmsg;
@@ -439,8 +436,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     msg() << MSG::WARNING << "cannot get CaloClusterCellLinkContainer (not return FAILURE) " << endmsg;
   }
   else {
-    status = reAttachFeature(outputTE, pCaloCellLinkContainer, aliasKey, persKeyLink ); 
-    if (status != (bool)HLT::OK) {
+    if (reAttachFeature(outputTE, pCaloCellLinkContainer, aliasKey, persKeyLink ) != HLT::OK) {
       msg() << MSG::ERROR
 	    << "Write of RoI CellLink Container into outputTE failed"
 	    << endmsg;

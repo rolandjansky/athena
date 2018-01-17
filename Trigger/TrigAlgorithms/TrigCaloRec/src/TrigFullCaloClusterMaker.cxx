@@ -547,15 +547,16 @@ HLT::ErrorCode TrigFullCaloClusterMaker::hltExecute( std::vector<std::vector<HLT
     m_AllTECaloClusterContainer->setROIAuthor(m_clustersOutputName + "_" + strm.str());
 #endif
     
-    bool status = CaloClusterStoreHelper::finalizeClusters( store(), m_AllTECaloClusterContainer,
-    						       AllTEclusterCollKey, msg());
+    if ( !CaloClusterStoreHelper::finalizeClusters( store(), m_AllTECaloClusterContainer,
+                                                    AllTEclusterCollKey, msg() ).isSuccess() ) {
+      msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << AllTEclusterCollKey << "> failed" << endmsg;
+      return HLT::TOOL_FAILURE;
+    }
 
     // Build the "uses" relation for the outputTE to the cell container
     std::string aliasKey = "";
-    status = reAttachFeature(AllTEoutputTE, m_AllTECaloClusterContainer, aliasKey, "TrigCaloClusterMaker");
-    
-    if (status != (bool)HLT::OK) {
-      msg() << MSG::ERROR
+    if ( reAttachFeature(AllTEoutputTE, m_AllTECaloClusterContainer, aliasKey, "TrigCaloClusterMaker") != HLT::OK ) {
+       msg() << MSG::ERROR
 	    << "Write of RoI Cluster Container into outputTE failed"
 	    << endmsg;
       return HLT::NAV_ERROR;

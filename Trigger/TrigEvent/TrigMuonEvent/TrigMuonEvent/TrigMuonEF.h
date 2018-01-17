@@ -15,7 +15,7 @@
 #include "EventKernel/INavigable4Momentum.h"
 #include "FourMom/P4IPtCotThPhiM.h"
 #include "Navigation/NavigableTerminalNode.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Forward declaration(s):
 class MsgStream;

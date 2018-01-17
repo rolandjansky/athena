@@ -29,7 +29,7 @@ atlas_add_component( RngComps src/*.h src/*.cxx src/components/*.cxx
    AtlasCLHEP_RandomGenerators )
 
 # Test(s) in the package:
-set( RNGCOMPS_REFERENCE_TAG RngComps/RngCompsReference-01-00-01 ) 
+set( RNGCOMPS_REFERENCE_TAG RngComps/RngCompsReference-01-00-03 ) 
  
 atlas_add_test( AtRndmGen_test
    SOURCES test/AtRndmGen_test.cxx
@@ -52,7 +52,7 @@ atlas_add_test( AtDSFMT_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} TestTools AthenaKernel StoreGateLib
    GaudiKernel
-   EXTRA_PATTERNS "^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
+   EXTRA_PATTERNS "^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel|^ServiceManager *DEBUG Initializing service"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"  )
 set_property( TEST RngComps_AtDSFMT_test_ctest APPEND PROPERTY
               ENVIRONMENT "ATLAS_REFERENCE_TAG=${RNGCOMPS_REFERENCE_TAG}" )

@@ -16,7 +16,7 @@
 
 
 #include "AthContainers/exceptions.h"
-#include "SGTools/IRegisterTransient.h"
+#include "AthenaKernel/IRegisterTransient.h"
 
 
 namespace SG {
@@ -143,15 +143,15 @@ void*
 DVLDataBucket<T>::cast (CLID clid, IRegisterTransient* irt /*= 0*/,
                         bool /*isConst = true*/)
 {
-  const T* ptr = *((DataBucket<T>*)this);
+  T* ptr = *((DataBucket<T>*)this);
 
   // Test for trivial conversion.
   // FIXME: Assumes we can reinterpret_cast between DV* and ViewVector<DV>*.
   if (clid == m_clid || clid == DataBucket<T>::classID())
-    return const_cast<T*>(ptr);
+    return ptr;
 
   // Try looking for a true base conversion.
-  void* ret = SG::BaseInfo<T>::cast (const_cast<T*>(ptr), clid);
+  void* ret = SG::BaseInfo<T>::cast (ptr, clid);
   if (ret)
     return ret;
 
@@ -163,7 +163,7 @@ DVLDataBucket<T>::cast (CLID clid, IRegisterTransient* irt /*= 0*/,
     if (clid == it->first->clid()) {
       // Recopy the elements if the container size has changed.
       if (it->first->size (it->second) != ptr->size()) {
-        dvl_update (*const_cast<T*> (ptr), it->second, it->first);
+        dvl_update (*ptr, it->second, it->first);
       }
       return it->second;
     }
@@ -171,7 +171,7 @@ DVLDataBucket<T>::cast (CLID clid, IRegisterTransient* irt /*= 0*/,
 
   // Try to do a copying conversion.
   DataModel_detail::DVLInfoBase* info;
-  void* newcont = dvl_convert (*const_cast<T*> (ptr), clid, info);
+  void* newcont = dvl_convert (*ptr, clid, info);
   if (newcont) {
     m_copies.push_back (std::make_pair (info, newcont));
     irt->registerTransient (newcont);
@@ -195,15 +195,15 @@ DVLDataBucket<T>::cast (const std::type_info& tinfo,
                         IRegisterTransient* irt /*= 0*/,
                         bool /*isConst = true*/)
 {
-  const T* ptr = *((DataBucket<T>*)this);
+  T* ptr = *((DataBucket<T>*)this);
 
   // Test for trivial conversion.
   // FIXME: Assumes we can reinterpret_cast between DV* and ViewVector<DV>*.
   if (&tinfo == m_ti || tinfo == DataBucket<T>::tinfo())
-    return const_cast<T*>(ptr);
+    return ptr;
 
   // Try looking for a true base conversion.
-  void* ret = SG::BaseInfo<T>::cast (const_cast<T*>(ptr), tinfo);
+  void* ret = SG::BaseInfo<T>::cast (ptr, tinfo);
   if (ret)
     return ret;
 
@@ -215,7 +215,7 @@ DVLDataBucket<T>::cast (const std::type_info& tinfo,
     if (tinfo == it->first->tinfo()) {
       // Recopy the elements if the container size has changed.
       if (it->first->size (it->second) != ptr->size()) {
-        dvl_update (*const_cast<T*> (ptr), it->second, it->first);
+        dvl_update (*ptr, it->second, it->first);
       }
       return it->second;
     }
@@ -223,7 +223,7 @@ DVLDataBucket<T>::cast (const std::type_info& tinfo,
 
   // Try to do a copying conversion.
   DataModel_detail::DVLInfoBase* info;
-  void* newcont = dvl_convert (*const_cast<T*> (ptr), tinfo, info);
+  void* newcont = dvl_convert (*ptr, tinfo, info);
   if (newcont) {
     m_copies.push_back (std::make_pair (info, newcont));
     irt->registerTransient (newcont);

@@ -150,61 +150,61 @@ StatusCode InDetGlobalHitsMonTool::bookHistogramsRecurrent()
   
 
     //--- ID histograms
-    status &= registerHist( monGr_shift,  m_ID_hitmap_x_y = TH2F_LW::create("m_ID_hitmap_x_y","Map of ID hits (BARREL) in x vs y (mm)",400,-1100,1100,400,-1100,1100));
-    status &= registerHist( monGr_shift,  m_ID_hitmap_x_y_eca = TH2F_LW::create("m_ID_hitmap_x_y_eca","Map of ID hits (ECA) in x vs y (mm)",400,-1100,1100,400,-1100,1100));
-    status &= registerHist( monGr_shift,  m_ID_hitmap_x_y_ecc = TH2F_LW::create("m_ID_hitmap_x_y_ecc","Map of ID hits (ECC) in x vs y (mm)",400,-1100,1100,400,-1100,1100));
-    status &= registerHist( monGr_shift,  m_ID_hitmap_z_x = TH2F_LW::create("m_ID_hitmap_z_x","Map of ID hits in z vs x (mm)",1000,-3100,3100,300,-1100,1100));
-    status &= registerHist( monGr_shift,  m_ID_hitmap_z_r = TH2F_LW::create("m_ID_hitmap_z_r","Map of ID hits in z vs r (mm)",3000,-3100,3100,1100,0,1100));
-    status &= registerHist( monGr_shift,  m_ID_holes = TH2I_LW::create("m_ID_holes","Number of ID holes on tracks in the subdetectors",2,0,2,3,0,3));
+    status &= registerHist( monGr_shift,  m_ID_hitmap_x_y = TH2F_LW::create("m_ID_hitmap_x_y","Map of ID hits (BARREL) in x vs y (mm)",400,-1100,1100,400,-1100,1100)).isSuccess();
+    status &= registerHist( monGr_shift,  m_ID_hitmap_x_y_eca = TH2F_LW::create("m_ID_hitmap_x_y_eca","Map of ID hits (ECA) in x vs y (mm)",400,-1100,1100,400,-1100,1100)).isSuccess();
+    status &= registerHist( monGr_shift,  m_ID_hitmap_x_y_ecc = TH2F_LW::create("m_ID_hitmap_x_y_ecc","Map of ID hits (ECC) in x vs y (mm)",400,-1100,1100,400,-1100,1100)).isSuccess();
+    status &= registerHist( monGr_shift,  m_ID_hitmap_z_x = TH2F_LW::create("m_ID_hitmap_z_x","Map of ID hits in z vs x (mm)",1000,-3100,3100,300,-1100,1100)).isSuccess();
+    status &= registerHist( monGr_shift,  m_ID_hitmap_z_r = TH2F_LW::create("m_ID_hitmap_z_r","Map of ID hits in z vs r (mm)",3000,-3100,3100,1100,0,1100)).isSuccess();
+    status &= registerHist( monGr_shift,  m_ID_holes = TH2I_LW::create("m_ID_holes","Number of ID holes on tracks in the subdetectors",2,0,2,3,0,3)).isSuccess();
     
     //--- Pixel histograms
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_nSCThits = TH2I_LW::create("m_Trk_nPIXhits_nSCThits","Number of SCT hits vs Pixel hits",13,-0.5,12.5,31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPixhits_SCTTRTPixFid = TH1I_LW::create("m_Trk_nPixhits_SCTTRTPixFid","Number of Pixel hits per track with a least one hit in the other sub-detectors and going through the fiducial layer",11,-0.5,10.5));
-    status &= registerHist( monGr_shift,  m_Trk_nSihits_nTRThits = TH2I_LW::create("m_Trk_nSihits_nTRThits","Number of Silicon hits vs TRT hits",100,0.5,100.5,31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_nTRThits = TH2I_LW::create("m_Trk_nSCThits_nTRThits","Number of SCT hits vs TRT hits",100,0.5,100.5,31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits = TH1I_LW::create("m_Trk_nPIXhits","Number of Pixel hits per track",13,-0.5,12.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_EA = TH1I_LW::create("m_Trk_nPIXhits_EA","Number of Pixel hits per track (ECA)",13,-0.5,12.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_TA = TH1I_LW::create("m_Trk_nPIXhits_TA","Number of Pixel hits per track (Transition region A)",13,-0.5,12.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_B = TH1I_LW::create("m_Trk_nPIXhits_B","Number of Pixel hits per track (Barrel)",13,-0.5,12.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_TC = TH1I_LW::create("m_Trk_nPIXhits_TC","Number of Pixel hits per track (Transition region C)",13,-0.5,12.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_EC = TH1I_LW::create("m_Trk_nPIXhits_EC","Number of Pixel hits per track (ECC)",13,-0.5,12.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_eta = TProfile_LW::create("m_Trk_nPIXhits_eta","Number of Pixel hits per track, as a function of eta",25,-2.5,2.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_phi = TProfile_LW::create("m_Trk_nPIXhits_phi","Number of Pixel hits per track, as a function of phi",30,-3.2,3.2)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_eta_phi = new TProfile2D("m_Trk_nPIXhits_eta_phi","Number of Pixel hits per track, eta-phi profile",25,-2.5,2.5,30,-3.2,3.2)); 
-    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_fidusial = TH1I_LW::create("m_Trk_nPIXhits_fiducial","Number of Pixel hits per track for tracks with |d0|<5cm and |z0|<1.4m",12,0.5,12.5));
-    status &= registerHist( monGr_exp , m_Trk_nPIXhits_1trk = TH1I_LW::create("m_Trk_nPIXhits_1trk","Number of Pixel hits per track - only 1 track per event",12,0.5,12.5));
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_nSCThits = TH2I_LW::create("m_Trk_nPIXhits_nSCThits","Number of SCT hits vs Pixel hits",13,-0.5,12.5,31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPixhits_SCTTRTPixFid = TH1I_LW::create("m_Trk_nPixhits_SCTTRTPixFid","Number of Pixel hits per track with a least one hit in the other sub-detectors and going through the fiducial layer",11,-0.5,10.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nSihits_nTRThits = TH2I_LW::create("m_Trk_nSihits_nTRThits","Number of Silicon hits vs TRT hits",100,0.5,100.5,31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_nTRThits = TH2I_LW::create("m_Trk_nSCThits_nTRThits","Number of SCT hits vs TRT hits",100,0.5,100.5,31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits = TH1I_LW::create("m_Trk_nPIXhits","Number of Pixel hits per track",13,-0.5,12.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_EA = TH1I_LW::create("m_Trk_nPIXhits_EA","Number of Pixel hits per track (ECA)",13,-0.5,12.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_TA = TH1I_LW::create("m_Trk_nPIXhits_TA","Number of Pixel hits per track (Transition region A)",13,-0.5,12.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_B = TH1I_LW::create("m_Trk_nPIXhits_B","Number of Pixel hits per track (Barrel)",13,-0.5,12.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_TC = TH1I_LW::create("m_Trk_nPIXhits_TC","Number of Pixel hits per track (Transition region C)",13,-0.5,12.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_EC = TH1I_LW::create("m_Trk_nPIXhits_EC","Number of Pixel hits per track (ECC)",13,-0.5,12.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_eta = TProfile_LW::create("m_Trk_nPIXhits_eta","Number of Pixel hits per track, as a function of eta",25,-2.5,2.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_phi = TProfile_LW::create("m_Trk_nPIXhits_phi","Number of Pixel hits per track, as a function of phi",30,-3.2,3.2)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_eta_phi = new TProfile2D("m_Trk_nPIXhits_eta_phi","Number of Pixel hits per track, eta-phi profile",25,-2.5,2.5,30,-3.2,3.2)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nPIXhits_fidusial = TH1I_LW::create("m_Trk_nPIXhits_fiducial","Number of Pixel hits per track for tracks with |d0|<5cm and |z0|<1.4m",12,0.5,12.5)).isSuccess();
+    status &= registerHist( monGr_exp , m_Trk_nPIXhits_1trk = TH1I_LW::create("m_Trk_nPIXhits_1trk","Number of Pixel hits per track - only 1 track per event",12,0.5,12.5)).isSuccess();
       
     //--- SCT histograms
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits = TH1I_LW::create("m_Trk_nSCThits","Number of SCT hits per track",31,-0.5,30.5));
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_EA = TH1I_LW::create("m_Trk_nSCThits_EA","Number of SCT hits per track (ECA)",31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_TA = TH1I_LW::create("m_Trk_nSCThits_TA","Number of SCT hits per track (Transition region A)",31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_B = TH1I_LW::create("m_Trk_nSCThits_B","Number of SCT hits per track (Barrel)",31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_TC = TH1I_LW::create("m_Trk_nSCThits_TC","Number of SCT hits per track (Transition region C)",31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_EC = TH1I_LW::create("m_Trk_nSCThits_EC","Number of SCT hits per track (ECC)",31,-0.5,30.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_eta = TProfile_LW::create("m_Trk_nSCThits_eta","Number of SCT hits per track, as a function of eta",25,-2.5,2.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_phi = TProfile_LW::create("m_Trk_nSCThits_phi","Number of SCT hits per track, as a function of phi",30,-3.2,3.2)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_eta_phi = new TProfile2D("m_Trk_nSCThits_eta_phi","Number of SCT hits per track, eta-phi profile",25,-2.5,2.5,30,-3.2,3.2)); 
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_pt = TH2I_LW::create("m_Trk_nSCThits_pt", "Number of SCT hits per track by vs track P_{T}",50,-0.,10,30,0.5,30.5));
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_PixTRT = TH1I_LW::create("m_Trk_nSCThits_PixTRT","Number of SCT hits per track, with at least one hit in the other subdetectors",31,-0.5,30.5));
-    status &= registerHist( monGr_exp , m_Trk_nSCThits_1trk = TH1I_LW::create("m_Trk_nSCThits_1trk","Number of SCT hits per track - only 1 track per event",30,0.5,30.5));
-    status &= registerHist( monGr_shift,  m_Trk_nSCThits_withPix = TH1I_LW::create("m_Trk_nSCThits_withPix","number of SCT hits for tracks which have Pixel hit",31,-0.5,30.5));    
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits = TH1I_LW::create("m_Trk_nSCThits","Number of SCT hits per track",31,-0.5,30.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_EA = TH1I_LW::create("m_Trk_nSCThits_EA","Number of SCT hits per track (ECA)",31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_TA = TH1I_LW::create("m_Trk_nSCThits_TA","Number of SCT hits per track (Transition region A)",31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_B = TH1I_LW::create("m_Trk_nSCThits_B","Number of SCT hits per track (Barrel)",31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_TC = TH1I_LW::create("m_Trk_nSCThits_TC","Number of SCT hits per track (Transition region C)",31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_EC = TH1I_LW::create("m_Trk_nSCThits_EC","Number of SCT hits per track (ECC)",31,-0.5,30.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_eta = TProfile_LW::create("m_Trk_nSCThits_eta","Number of SCT hits per track, as a function of eta",25,-2.5,2.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_phi = TProfile_LW::create("m_Trk_nSCThits_phi","Number of SCT hits per track, as a function of phi",30,-3.2,3.2)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_eta_phi = new TProfile2D("m_Trk_nSCThits_eta_phi","Number of SCT hits per track, eta-phi profile",25,-2.5,2.5,30,-3.2,3.2)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_pt = TH2I_LW::create("m_Trk_nSCThits_pt", "Number of SCT hits per track by vs track P_{T}",50,-0.,10,30,0.5,30.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_PixTRT = TH1I_LW::create("m_Trk_nSCThits_PixTRT","Number of SCT hits per track, with at least one hit in the other subdetectors",31,-0.5,30.5)).isSuccess();
+    status &= registerHist( monGr_exp , m_Trk_nSCThits_1trk = TH1I_LW::create("m_Trk_nSCThits_1trk","Number of SCT hits per track - only 1 track per event",30,0.5,30.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nSCThits_withPix = TH1I_LW::create("m_Trk_nSCThits_withPix","number of SCT hits for tracks which have Pixel hit",31,-0.5,30.5)).isSuccess();    
     //--- TRT histograms
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits = TH1I_LW::create("m_Trk_nTRThits","Number of TRT hits per track",100,0.5,100.5));
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_EA = TH1I_LW::create("m_Trk_nTRThits_EA","Number of TRT hits per track (ECA)",100,0.5,100.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_TA = TH1I_LW::create("m_Trk_nTRThits_TA","Number of TRT hits per track (Transition region A)",100,0.5,100.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_B = TH1I_LW::create("m_Trk_nTRThits_B","Number of TRT hits per track (Barrel)",100,0.5,100.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_TC = TH1I_LW::create("m_Trk_nTRThits_TC","Number of TRT hits per track (Transition region C)",100,0.5,100.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_EC = TH1I_LW::create("m_Trk_nTRThits_EC","Number of TRT hits per track (ECC)",100,0.5,100.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_eta = TProfile_LW::create("m_Trk_nTRThits_eta","Number of TRT hits per track, as a function of eta",30,-3.5,3.5)); 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_phi = TProfile_LW::create("m_Trk_nTRThits_phi","Number of TRT hits per track, as a function of phi",30,-3.2,3.2)); 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_eta_phi = new TProfile2D("m_Trk_nTRThits_eta_phi","Number of TRT hits per track, eta-phi profile",25,-2.5,2.5,30,-3.2,3.2)); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits = TH1I_LW::create("m_Trk_nTRThits","Number of TRT hits per track",100,0.5,100.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_EA = TH1I_LW::create("m_Trk_nTRThits_EA","Number of TRT hits per track (ECA)",100,0.5,100.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_TA = TH1I_LW::create("m_Trk_nTRThits_TA","Number of TRT hits per track (Transition region A)",100,0.5,100.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_B = TH1I_LW::create("m_Trk_nTRThits_B","Number of TRT hits per track (Barrel)",100,0.5,100.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_TC = TH1I_LW::create("m_Trk_nTRThits_TC","Number of TRT hits per track (Transition region C)",100,0.5,100.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_EC = TH1I_LW::create("m_Trk_nTRThits_EC","Number of TRT hits per track (ECC)",100,0.5,100.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_eta = TProfile_LW::create("m_Trk_nTRThits_eta","Number of TRT hits per track, as a function of eta",30,-3.5,3.5)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_phi = TProfile_LW::create("m_Trk_nTRThits_phi","Number of TRT hits per track, as a function of phi",30,-3.2,3.2)).isSuccess(); 
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_eta_phi = new TProfile2D("m_Trk_nTRThits_eta_phi","Number of TRT hits per track, eta-phi profile",25,-2.5,2.5,30,-3.2,3.2)).isSuccess(); 
 
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_PixSCT = TH1I_LW::create("m_Trk_nTRThits_PixSCT","Number of TRT hits per track, with at least one hit in other subdetectors",100,-0.5,100.5));
-    status &= registerHist( monGr_shift,  m_Trk_nTRTHLhits = TH1I_LW::create("m_Trk_nTRTHLhits","Number of high level TRT hits per track",30,0.5,30.5));
-    status &= registerHist( monGr_shift,  m_Trk_nTRTLLhits = TH1I_LW::create("m_Trk_nTRTLLhits","Number of low level TRT hits per track",80,0.5,80.5));
-    status &= registerHist( monGr_shift,  m_Trk_nTRThits_withSi = TH1I_LW::create("m_Trk_nTRThits_withSi","Number of TRT hits for tracks with both Pixel and SCT hits",100,0.5,100.5));
-    status &= registerHist( monGr_exp , m_Trk_nTRTHLhits_1trk = TH1I_LW::create("m_Trk_nHL_1trk","Number of high level TRT hits per track - only 1 track per event",30,0.5,30.5));
-    status &= registerHist( monGr_exp , m_Trk_nTRTLLhits_1trk = TH1I_LW::create("m_Trk_nLL_1trk","Number of low level TRT hits per track - only 1 track per event",80,0.5,80.5));
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_PixSCT = TH1I_LW::create("m_Trk_nTRThits_PixSCT","Number of TRT hits per track, with at least one hit in other subdetectors",100,-0.5,100.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nTRTHLhits = TH1I_LW::create("m_Trk_nTRTHLhits","Number of high level TRT hits per track",30,0.5,30.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nTRTLLhits = TH1I_LW::create("m_Trk_nTRTLLhits","Number of low level TRT hits per track",80,0.5,80.5)).isSuccess();
+    status &= registerHist( monGr_shift,  m_Trk_nTRThits_withSi = TH1I_LW::create("m_Trk_nTRThits_withSi","Number of TRT hits for tracks with both Pixel and SCT hits",100,0.5,100.5)).isSuccess();
+    status &= registerHist( monGr_exp , m_Trk_nTRTHLhits_1trk = TH1I_LW::create("m_Trk_nHL_1trk","Number of high level TRT hits per track - only 1 track per event",30,0.5,30.5)).isSuccess();
+    status &= registerHist( monGr_exp , m_Trk_nTRTLLhits_1trk = TH1I_LW::create("m_Trk_nLL_1trk","Number of low level TRT hits per track - only 1 track per event",80,0.5,80.5)).isSuccess();
     
     // Fix the labels for the holes histogram
     LWHist::LWHistAxis *xaxis = m_ID_holes->GetXaxis();

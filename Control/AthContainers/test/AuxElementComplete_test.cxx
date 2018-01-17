@@ -32,25 +32,25 @@ public:
 
   int& ityp1()
   {
-    static Accessor<int> acc ("anInt");
+    static const Accessor<int> acc ("anInt");
     return acc (*this);
   }
 
   int ityp1() const
   {
-    static Accessor<int> acc ("anInt");
+    static const Accessor<int> acc ("anInt");
     return acc (*this);
   }
 
   float& ftyp1()
   {
-    static Accessor<float> acc ("aFloat");
+    static const Accessor<float> acc ("aFloat");
     return acc (*this);
   }
 
   float ftyp1() const
   {
-    static Accessor<float> acc ("aFloat");
+    static const Accessor<float> acc ("aFloat");
     return acc (*this);
   }
 
@@ -94,7 +94,6 @@ void test1()
   assert (elt3.ityp1() == 31);
   assert (elt3.container() != elt.container());
 
-#if __cplusplus > 201100
   elt.ityp1() = 41;
   assert (elt3.ityp1() == 31);
   elt3 = std::move(elt);
@@ -107,7 +106,6 @@ void test1()
   assert (ityp2(elt4) == 2);
   assert (elt4.ftyp1() == 1.5);
   assert (elt4.container() != elt.container());
-#endif
 
   elt3.ityp1() = 41;
   elt.releasePrivateStore();

@@ -14,57 +14,58 @@ class GeoMaterial;
 
 class AGDDDetector {
 public:
-	AGDDDetector(std::string s):_small_x(0),_large_x(0),_y(0),_z(0),name(s) {}
-	AGDDDetector(std::string s,std::string t):_small_x(0),_large_x(0),_y(0),_z(0),detectorType(t),name(s) {}
-	virtual void SetXYZ(std::vector<double> v) 
+        AGDDDetector(std::string s):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_name(s) {}
+        AGDDDetector(std::string s,std::string t):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_detectorType(t),m_name(s) {}
+        virtual ~AGDDDetector() {}
+	virtual void SetXYZ(const std::vector<double>& v) 
 	{
-		_small_x=v[0];
-		_large_x=v[1];
-		_y=v[2];
-		_z=v[3];
+		m_small_x=v[0];
+		m_large_x=v[1];
+		m_y=v[2];
+		m_z=v[3];
 	}
 	
-	void small_x(double x) {_small_x=x;}
-	void large_x(double x) {_large_x=x;}
-	void y(double yval) {_y=yval;}
-	void z(double zval) {_z=zval;}
-        void subType(std::string s) {sType=s;}
-	double small_x() {return _small_x;}
-	double large_x() {return _large_x;}
-	double y() {return _y;}
-	double z() {return _z;}
-	std::string subType() {return sType;}
+	void small_x(double x) {m_small_x=x;}
+	void large_x(double x) {m_large_x=x;}
+	void y(double yval) {m_y=yval;}
+	void z(double zval) {m_z=zval;}
+        void subType(std::string s) {m_sType=s;}
+	double small_x() const {return m_small_x;}
+	double large_x() const {return m_large_x;}
+	double y() const {return m_y;}
+	double z() const {return m_z;}
+	const std::string& subType() const {return m_sType;}
 	std::string tech;
 	
-	std::string GetName() {return name;}
+	const std::string& GetName() const {return m_name;}
 	
-	std::string DetectorType() {return detectorType;}
-	std::string DetectorID() {return detectorID;}
+	const std::string& DetectorType() const {return m_detectorType;}
+	const std::string& DetectorID() const {return m_detectorID;}
 	
 	void SetAddressAndPosition(AGDDDetectorPositioner*) ;
 	
 	std::vector<AGDDDetectorPositioner*>& GetDetectorPositioners();
 	
 protected:
-	double _small_x;
-	double _large_x;
-	double _y;
-	double _z;
+	double m_small_x;
+	double m_large_x;
+	double m_y;
+	double m_z;
 	
 	// detector Type to avoid dynamic casting
-	std::string detectorType;
-	std::string detectorID;
+	std::string m_detectorType;
+	std::string m_detectorID;
 
-	std::string sType;
+	std::string m_sType;
 	
 	GeoMaterial* GetMMMaterial(std::string);
 	
 	void AddDetectorPosition(AGDDDetectorPositioner* p);
 
 	virtual void SetDetectorAddress(AGDDDetectorPositioner*) =0;
-	std::vector<AGDDDetectorPositioner*> detectorPositions;
+	std::vector<AGDDDetectorPositioner*> m_detectorPositions;
 	
-	std::string name;
+	std::string m_name;
 };
 
 #endif

@@ -53,7 +53,7 @@
 
 // constructor
 iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_samplingTool(""),
   m_eLoss(true),
   m_eLossSampler(""),
@@ -82,8 +82,6 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   m_oneOverThree(1./3.),
   m_projectionFactor(sqrt(2.)/2.)
 {
-  declareInterface<Trk::IMaterialEffectsEngine>(this);
-
   // steering of the screen outoput (SOP)
   declareProperty("OutputPrefix"                        , m_sopPrefix);
   declareProperty("OutputPostfix"                       , m_sopPostfix);

@@ -37,6 +37,9 @@ int main (int argc, char *argv[])
 {
   using namespace eformat;
 
+  setenv("TZ", "Europe/Zurich", 1);
+  tzset();
+  
   //Interpret arguments
   //Format
   // findEvent -e [--event] <eventNumber> [-r, --run <runnumber>] [-l, --listevents] [-c, --checkevents] files ... 

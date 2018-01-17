@@ -43,7 +43,7 @@ public:
   TSPROOTBankGenerator(FTKSetup* setup, const std::vector<FTKSSMap*> & ssMaps, const std::string& inputBank, const std::string& outBank, unsigned planes = 7, int maxPatterns = -1,int mincoverage=1);
   ~TSPROOTBankGenerator();
 
-	void generate() throw (TSPPatternReadException);
+	void generate();
 	void showstats(int ipatt, int npatterns) const;
         void writeSSMapsToFile();  //!< write maps to root file
 	void SetRemoveTSP(int remtsp) { m_RemoveTSP = remtsp; }
@@ -53,8 +53,8 @@ public:
         void SetSubregion(int iSub, int nSub) {m_iSub = iSub; m_nSub=nSub; }; //!< Get current subregion
 private:
 
-	void readNextPattern(FTKPattern& pattern, int patternID) throw (TSPPatternReadException);
-	void generateChildren(int bankID, int planes) throw (TSPPatternReadException);
+	void readNextPattern(FTKPattern& pattern, int patternID);
+	void generateChildren(int bankID, int planes);
 	int addAMPattern(int bankID, int childID, const std::string& patternKey, TTree *ambank);
 
 	typedef boost::unordered_map<std::string, long> PatternMap;

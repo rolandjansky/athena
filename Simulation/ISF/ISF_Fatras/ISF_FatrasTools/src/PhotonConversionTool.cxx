@@ -57,7 +57,7 @@ Trk::PdgToParticleHypothesis  iFatras::PhotonConversionTool::s_pdgToHypo;
 
 // constructor
 iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_particleBroker("ISF_ParticleParticleBroker", n),
   m_truthRecordSvc("ISF_TruthRecordSvc", n),
   m_processCode(14),
@@ -84,8 +84,6 @@ iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const 
   m_conversionChildEnergy(0.),
   m_conversionChildAngle(0.)
 {
-      declareInterface<IPhotonConversionTool>(this);
-
       // ISF Services and Tools
       declareProperty("ParticleBroker"                      , m_particleBroker        , "ISF ParticleBroker Svc"  );
       declareProperty("TruthRecordSvc"                      , m_truthRecordSvc        , "ISF Particle Truth Svc"  );      

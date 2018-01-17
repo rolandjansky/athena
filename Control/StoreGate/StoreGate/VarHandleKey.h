@@ -62,6 +62,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * @param a Mode: read/write/update.
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
+   * @param isCond True if this is a CondHandleKey.
    *
    * The provided key may actually start with the name of the store,
    * separated by a "+":  "MyStore:Obj".  If no "+" is present
@@ -75,7 +76,8 @@ public:
   VarHandleKey (CLID clid,
                 const std::string& sgkey,
                 Gaudi::DataHandle::Mode a,
-                const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
+                const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE),
+                bool isCond = false);
 
 
   /**
@@ -149,6 +151,18 @@ public:
    * @brief Does this key reference the primary event store?
    */
   bool isEventStore() const;
+
+
+  /**
+   * @brief Called by the owning algorithm during the START transition.
+   *
+   * AthAlgorithm and friends will call this during START.  This allows
+   * for extra initialization that we can't do during initialize(), such
+   * as retrieving a conditions container from the store.
+   *
+   * The default implementation is a no-op.
+   */
+  virtual StatusCode start();
 
 
 private:

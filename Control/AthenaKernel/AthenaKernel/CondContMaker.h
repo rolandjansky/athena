@@ -7,10 +7,14 @@
 
 #include "AthenaKernel/ICondContMaker.h"
 #include "AthenaKernel/CondContFactory.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "GaudiKernel/DataObjID.h"
 
 class CondContBase;
+namespace Athena {
+  class IRCUSvc;
+}
 
 namespace CondContainer {
   template <typename T>
@@ -20,10 +24,13 @@ namespace CondContainer {
       CondContFactory::Instance().regMaker( ClassID_traits<T>::ID() , this );
     }
     
-    virtual CondContBase* Create(const CLID& clid, const std::string& key)  const {
+    virtual
+    SG::DataObjectSharedPtr<DataObject>
+    Create(Athena::IRCUSvc& rcusvc, const CLID& clid, const std::string& key)  const {
       DataObjID id(clid,key);
       
-      return new CondCont<T>(id);
+      return SG::DataObjectSharedPtr<DataObject>
+        (SG::asStorable (new CondCont<T>(rcusvc, id)));
     }
   };
 }

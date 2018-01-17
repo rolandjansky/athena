@@ -89,7 +89,7 @@ StatusCode Muon::STGC_RawDataToPrepDataTool::finalize()
 
 //================ Decoding =================================================
 StatusCode Muon::STGC_RawDataToPrepDataTool::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
-					      std::vector<IdentifierHash>& selectedIdHashVect)
+                                                    std::vector<IdentifierHash>& /*selectedIdHashVect*/)
 {
   int sizeVectorRequested = requestedIdHashVect.size();
   ATH_MSG_DEBUG("decode for " << sizeVectorRequested << " offline collections called");
@@ -138,7 +138,7 @@ void Muon::STGC_RawDataToPrepDataTool::processPRDHashes( const std::vector<Ident
   }//ends loop over chamberhash  
 }
 
-bool Muon::STGC_RawDataToPrepDataTool::handlePRDHash( IdentifierHash hash, const STGC_RawDataContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds ) {
+bool Muon::STGC_RawDataToPrepDataTool::handlePRDHash( IdentifierHash /*hash*/, const STGC_RawDataContainer& /*rdoContainer*/, std::vector<IdentifierHash>& /*idWithDataVect*/, sTgcPrepDataContainer& /*prds*/ ) {
   
   // if in prep data the chamber already exists ... do nothing
   // if( m_mdtPrepDataContainer->indexFind(hash) != m_mdtPrepDataContainer->end() ) return true;

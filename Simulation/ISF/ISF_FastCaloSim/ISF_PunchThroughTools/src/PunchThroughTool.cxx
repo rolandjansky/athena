@@ -69,7 +69,7 @@
 ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
                                          const std::string& name,
                                          const IInterface*  parent )
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_parentGenEvt(0),
     m_particleDataTable(0),
     m_randomSvc("AtDSFMTGenSvc", name),
@@ -94,9 +94,6 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
     m_envDefSvc("AtlasGeometry_EnvelopeDefSvc",name),
     m_beamPipe(500.)
 {
-  // declare this as an interface
-  declareInterface<IPunchThroughTool>(this);
-
   // property definition and initialization - allows to set variables from python
 
   declareProperty( "FilenameLookupTable",          m_filenameLookupTable   );
@@ -528,7 +525,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
       if (!par)
         {
           ATH_MSG_ERROR("[ punchthrough ] something went wrong while creating punch-through particles");
-          return StatusCode::FAILURE;
+          return 0;
         }
 
       // get the energy of the particle which was just created

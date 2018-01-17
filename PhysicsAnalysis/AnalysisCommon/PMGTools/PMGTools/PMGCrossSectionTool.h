@@ -51,24 +51,22 @@ namespace PMGTools {
     std::string getSampleName(const int dsid) const;
     
     /// return the AMI cross-section for DSID
-    double getAMIXsection(const int dsid) const;
+    double getGeneratorXsection(const int dsid) const;
     
-    /// return the branching ratio for DSID
-    double getBR(const int dsid) const;
     
     /// return the k-factor for DSID
-   double getKfactor(const int dsid) const;
+    double getKfactor(const int dsid) const;
    
-   /// return the sample cross-section for DSID
-   double getSampleXsection(const int dsid) const;
+    /// return the sample cross-section for DSID
+    double getSampleXsection(const int dsid) const;
    
-   /// get a list of the DSID for the loaded samples
-   std::vector<int> getLoadedDSIDs() const;
+    /// get a list of the DSID for the loaded samples
+    std::vector<int> getLoadedDSIDs() const;
    
   private:
       
     // store vector of structures, each structure contains full info for DSID
-    std::vector<PMGTools::AllSampleInfo> fStoreSampleInfo;
+    std::map<int,PMGTools::AllSampleInfo> fStoreSampleInfo;
     std::string m_InputFileName;
     
   }; // class PMGCrossSectionTool

@@ -5,10 +5,10 @@
 #ifndef TRIG_TILEMUFEATURECONTAINER
 #define TRIG_TILEMUFEATURECONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigMuonEvent/TileMuFeature.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TileMuFeatureContainer : public DataVector<TileMuFeature> { }; 
 

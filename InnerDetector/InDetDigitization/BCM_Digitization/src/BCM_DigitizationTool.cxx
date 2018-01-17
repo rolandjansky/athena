@@ -74,7 +74,7 @@ StatusCode BCM_DigitizationTool::createOutputContainers()
   // Create output RDO container and record it to StoreGate
   try {
     m_rdoContainer = new BCM_RDO_Container();
-  } catch (std::bad_alloc) {
+  } catch (const std::bad_alloc&) {
     ATH_MSG_FATAL ( "Could not create a new BCM RawDataContainer!" );
     return StatusCode::FAILURE;
   }

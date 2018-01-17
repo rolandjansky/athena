@@ -30,9 +30,9 @@ namespace CLHEP {
 class dSFMTEngine : public HepRandomEngine {
 
 public:
-  dSFMTEngine() throw(std::runtime_error);
-  dSFMTEngine( long seed ) throw(std::runtime_error);
-  dSFMTEngine( const long * seeds ) throw(std::runtime_error);
+  dSFMTEngine();
+  dSFMTEngine( long seed );
+  dSFMTEngine( const long * seeds );
   virtual ~dSFMTEngine();
   // Constructors and destructor.
 

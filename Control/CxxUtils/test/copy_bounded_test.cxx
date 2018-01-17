@@ -17,7 +17,6 @@
 #ifndef XAOD_STANDALONE
 
 #include "CxxUtils/copy_bounded.h"
-#include "boost/foreach.hpp"
 #include "boost/range/iterator_range.hpp"
 #include "boost/range/algorithm/fill.hpp"
 #include <vector>
@@ -65,43 +64,43 @@ void test1b (InputRange& input, OutputRange& output)
   boost::iterator_range<OutputIterator> rangeo (bego, mido);
 
   int i = 0;
-  BOOST_FOREACH (value_type& it, input)
+  for (value_type& it : input)
     it = i++;
 
   boost::range::fill (output, 0);
   CxxUtils::copy_bounded (begi, endi, bego, mido);
   i = 0;
-  BOOST_FOREACH (value_type& it, output)
+  for (value_type& it : output)
     assert (it == (i < 5 ? i++ : 0));
 
   boost::range::fill (output, 0);
   CxxUtils::copy_bounded (input, rangeo);
   i = 0;
-  BOOST_FOREACH (value_type& it, output)
+  for (value_type& it : output)
     assert (it == (i < 5 ? i++ : 0));
 
   boost::range::fill (output, 0);
   CxxUtils::copy_bounded (begi, midi, bego, endo);
   i = 0;
-  BOOST_FOREACH (value_type& it, output)
+  for (value_type& it : output)
     assert (it == (i < 5 ? i++ : 0));
 
   boost::range::fill (output, 0);
   CxxUtils::copy_bounded (rangei, output);
   i = 0;
-  BOOST_FOREACH (value_type& it, output)
+  for (value_type& it : output)
     assert (it == (i < 5 ? i++ : 0));
 
   boost::range::fill (output, 0);
   CxxUtils::copy_bounded (begi, endi, bego, endo);
   i = 0;
-  BOOST_FOREACH (value_type& it, output)
+  for (value_type& it : output)
     assert (it == i++);
 
   boost::range::fill (output, 0);
   CxxUtils::copy_bounded (input, output);
   i = 0;
-  BOOST_FOREACH (value_type& it, output)
+  for (value_type& it : output)
     assert (it == i++);
 }
 

@@ -91,9 +91,8 @@ template <class T>
 struct RegisterDVLEltBaseInit
 {
   RegisterDVLEltBaseInit();
-  static const SG::BaseInfoBase& doinit();
+  static void doinit (SG::BaseInfoBase* bib);
 };
-#ifndef __REFLEX__
 template <class T>
 RegisterDVLEltBaseInit<T>::RegisterDVLEltBaseInit()
 {
@@ -102,19 +101,14 @@ RegisterDVLEltBaseInit<T>::RegisterDVLEltBaseInit()
   // Set up the init function.
   SG::BaseInfoBase::addInit(&typeid(T), doinit);
 }
-#endif
 template <class T>
-const SG::BaseInfoBase& RegisterDVLEltBaseInit<T>::doinit()
+void RegisterDVLEltBaseInit<T>::doinit (SG::BaseInfoBase* bib)
 {
-  // Find the BaseInfo instance.
-  SG::BaseInfoBase* bib =
-    const_cast<SG::BaseInfoBase*> (SG::BaseInfoBase::find (typeid(T)));
   if (bib) {
     // Walk the base classes and add to it.
     SG::BaseInfoImpl<T>& impl = *static_cast<SG::BaseInfoImpl<T>*> (bib);
     DVLEltBase_init<T>::init (impl, false);
   }
-  return *bib;
 }
 
 
@@ -124,10 +118,10 @@ const SG::BaseInfoBase& RegisterDVLEltBaseInit<T>::doinit()
 // during global initialization.
 //
 template <class T> struct DVLEltBaseInit {
-  static RegisterDVLEltBaseInit<T> s_regbase;
+  static const RegisterDVLEltBaseInit<T> s_regbase;
 };
 #ifndef __APPLE__
-template <class T> RegisterDVLEltBaseInit<T> DVLEltBaseInit<T>::s_regbase;
+template <class T> const RegisterDVLEltBaseInit<T> DVLEltBaseInit<T>::s_regbase;
 #endif
 
 #undef DVLPASTE

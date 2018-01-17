@@ -123,8 +123,8 @@ SG::WPtr<T>
 StoreGateSvc::create(const TKEY& key, ARGS... constructorArgs) {
   T* pT = new T(constructorArgs...);
   if(!(this->record(pT, key).isSuccess())) {
-    msg() << MSG::ERROR << "create: problem recording created object @" 
-          << pT << " using key " << key << endmsg;
+    error() << "create: problem recording created object @" 
+            << pT << " using key " << key << endmsg;
     pT=0; //record will take care of deleting pT even if it fails
   }
   return pT;

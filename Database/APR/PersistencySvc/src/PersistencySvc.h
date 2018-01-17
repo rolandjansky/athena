@@ -36,9 +36,6 @@ namespace pool {
       /// Set the attached file catalog
       void setFileCatalog( IFileCatalog& catalog );
 
-      /// Returns the persistency configuration
-      IConfiguration& configuration();
-      
       /** Retrieves an object from persistent store and return with type information
        *  The handle to the reflection class is necessary to later delete the object.
        *  The Guid of the transient class is assumed to be the classID of the token

@@ -5,7 +5,7 @@
 #ifndef TPCNV_MUONMEASUREMENTS_H
 #define TPCNV_MUONMEASUREMENTS_H 
  
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
  
 namespace TPCnv {
 /** 'Dummy' class to produce convertor for MuonMeasurements_tlp 

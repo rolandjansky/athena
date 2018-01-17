@@ -429,7 +429,7 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // and other miscellaneous functions
 
     // reads etaroi and phi roi from TgcCoinData
-    void roi2etaphi(Muon::TgcCoinData& cd, //input
+    void roi2etaphi(const Muon::TgcCoinData& cd, //input
 	int& etaroi, int& phiroi);//output
 
     // calculates sector number from phi index and forward/endcap index

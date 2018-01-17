@@ -37,8 +37,7 @@ namespace G4UA
   /// @brief A service which manages the user actions for G4 simulation
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class UserActionSvc : public AthService,
-                        public virtual IUserActionSvc
+  class UserActionSvc : public extends<AthService, IUserActionSvc>
   {
 
     public:
@@ -51,10 +50,6 @@ namespace G4UA
 
       /// Initialize the user actions for the current thread
       StatusCode initializeActions() override final;
-
-      /// Gaudi interface query
-      virtual StatusCode queryInterface(const InterfaceID& riid,
-                                        void** ppvInterface) override;
 
     private:
 

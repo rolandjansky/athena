@@ -64,7 +64,6 @@ namespace InDet
       StatusCode update( IOVSVC_CALLBACK_ARGS );  
       dEdxID *m_mydedx;
       std::string m_filename;
-      Trk::ParticleMasses        m_particlemasses;      // Particle masses.
       const PixelID* m_pixelid;
       double m_conversionfactor;
       bool m_readfromcool;

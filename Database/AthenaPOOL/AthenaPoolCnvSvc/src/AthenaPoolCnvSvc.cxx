@@ -365,9 +365,13 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       }
       return(StatusCode::SUCCESS);
    }
-   if (!m_outputStreamingTool.empty()
-		   && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[0]->isServer())) {
+   if (!m_outputStreamingTool.empty() && m_metadataContainerProp.value().empty()
+                  && m_streamServer == m_outputStreamingTool.size()) {
       ATH_MSG_DEBUG("commitOutput SKIPPED for expired server.");
+      return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
+      ATH_MSG_DEBUG("commitOutput SKIPPED for uninitialized server.");
       return(StatusCode::SUCCESS);
    }
    std::map<void*, RootType> commitCache;
@@ -821,8 +825,8 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (par[0] == "SHM") {
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
-      token->setAuxString("[PNAME=" + par[1] + "]");
-      RootType classDesc = RootType::ByName(par[1]);
+      token->setAuxString("[PNAME=" + par[2] + "]");
+      RootType classDesc = RootType::ByName(par[2]);
       token->setClassID(pool::DbReflex::guid(classDesc));
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       Token addressToken;
@@ -856,7 +860,11 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (token == nullptr) {
       return(StatusCode::RECOVERABLE);
    }
-   refpAddress = new TokenAddress(POOL_StorageType, clid, "", "", 0, token);
+   unsigned long ip0 = ip[0];
+   if (par[1].substr(0, 12) == "MetaDataHdr(") {
+     ip0 = 0;
+   }
+   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], ip0, token);
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________

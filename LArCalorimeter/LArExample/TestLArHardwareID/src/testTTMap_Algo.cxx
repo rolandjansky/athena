@@ -212,7 +212,7 @@ StatusCode testTTMap_Algo::execute(){
     dumpTTMap=new std::ofstream(file.c_str());   
     if (dumpTTMap==0) {
       std::cout << "Problem opening TTmapTest dump file" << std::endl;
-      return 1;
+      return StatusCode::SUCCESS;
     }
   }
 

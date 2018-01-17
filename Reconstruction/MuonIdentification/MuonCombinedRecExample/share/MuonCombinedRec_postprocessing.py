@@ -35,22 +35,9 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg
     topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlg")
 
-if rec.doMuonCombined() and hasattr(topSequence,'InitializeMuonClusters'):
-    # Needed by MuonIsolationTools
-    FinalizeMuonClusters = CfgMgr.Rec__FinalizeMuonClusters (
-        name                 = "FinalizeMuonClusters",
-        MuonClusterContainer = "MuonClusterCollection"
-        )
-    topSequence += FinalizeMuonClusters
-    if muonCombinedRecFlags.printConfigurables():
-        print FinalizeMuonClusters
 
 if muonCombinedRecFlags.doTrackPerformance:
     include("MuonCombinedRecExample/MuonCombinedTrackPerformance_jobOptions.py")
-
-#TODO - add something here to make this conditional, once the recFlag is decided on
-if( rec.doMuonCombined() ):
-    include("MuonCombinedRecExample/MuonAODto_xAODCnv_jobOptions.py")
 
 if( muonCombinedRecFlags.createTagAndProbeInput() ):
     from MuonCombinedRecExample.TagAndProbeInputSetup import setupTagAndProbeInput

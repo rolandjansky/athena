@@ -21,35 +21,33 @@
 //  
 //****************************************************************************
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
-// Calo includes
-
-#include "CaloIdentifier/TileID.h"
-#include "TileConditions/TileInfo.h"
 // Tile includes
-
+#include "TileSimAlgs/TileMuonReceiverDecision.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileEvent/TileRawChannelContainer.h"
 #include "TileConditions/TileCondToolEmscale.h"
-
-#include "TileSimAlgs/TileMuonReceiverDecision.h"
-#include "TileEvent/TileContainer.h"
+#include "TileConditions/TileInfo.h"
 #include "TileEvent/TileMuonReceiverObj.h"
+
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
 
 TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_MuRcvRawChContainer("MuRcvRawChCnt"),
-    m_TileMuRcvContainer("TileMuRcvCnt"),
     m_tileID(0),
     m_tileHWID(0),
     m_cablingService(0),
     m_tileInfo(0),
-    m_tileToolEmscale("TileCondToolEmscale")
+    m_tileToolEmscale("TileCondToolEmscale"),
+    m_run2(true)
 {
   // declare properties...
   declareProperty( "MuonReceiverEneThreshCellD6Low"       , m_threshold_d6_lo   = 500. , "Setting the lowest trigger threshold for cell D6 in MeV (Def=500 MeV)");
@@ -57,7 +55,6 @@ TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator
   declareProperty( "MuonReceiverEneThreshCellD6High"      , m_threshold_d6_hi   = 600. , "Setting the highest trigger threshold for cell D6 in MeV (Def=600 MeV)");
   declareProperty( "MuonReceiverEneThreshCellD6andD5High" , m_threshold_d5d6_hi = 600. , "Setting the highest trigger threshold for cell D5+D6 in MeV (Def=600 MeV)");
   declareProperty( "SelectionCutForMatchedFilterQf"       , m_selCutQf=0.              , "Selection cut for the quality factor of the matched filters");
-  declareProperty( "TileMuonReceiverContainer"            , m_TileMuRcvContainer       , "Tile Calorimeter decision to TGC Sector Logic");
   declareProperty( "TileCondToolEmscale"                  , m_tileToolEmscale          , "Service to calibrate all channels");
   declareProperty( "TileInfoName"                         , m_infoName = "TileInfo" );
 }
@@ -72,6 +69,7 @@ StatusCode TileMuonReceiverDecision::initialize() {
 
   if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling) {
      ATH_MSG_INFO("TileMuonReceiverDecision should not be used for RUN1 simulations");
+     m_run2 = false;
      return StatusCode::SUCCESS;
   } else {
      ATH_MSG_INFO("Initializing TileMuonReceiverDecision");
@@ -84,13 +82,16 @@ StatusCode TileMuonReceiverDecision::initialize() {
 
   CHECK(m_tileToolEmscale.retrieve());
 
+  ATH_CHECK( m_rawChannelContainerKey.initialize(m_run2));
+  ATH_CHECK( m_muonReceiverContainerKey.initialize(m_run2));
+
   ATH_MSG_INFO("TileMuonReceiverDecision initialization completed" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode TileMuonReceiverDecision::execute() {
   
-  if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling) {
+  if (!m_run2) {
      ATH_MSG_VERBOSE( "ATT: RUN1 settings TileMuonReceiverDecision will end now" );
      return StatusCode::SUCCESS;
   } else {
@@ -100,14 +101,9 @@ StatusCode TileMuonReceiverDecision::execute() {
 
   // Get the container with the matched filter reconstructed raw channels in MeV
   //
-  const TileRawChannelContainer * MuonReceiverRawChannelContainer;
-  CHECK( evtStore()->retrieve(MuonReceiverRawChannelContainer, m_MuRcvRawChContainer) ); 
+  SG::ReadHandle<TileRawChannelContainer> rawChannelContainer(m_rawChannelContainerKey);
+  ATH_CHECK( rawChannelContainer.isValid() );
   
-  // The collection of raw channel containers are the drawers of extended barrel
-  //
-  TileRawChannelContainer::const_iterator collItr  = MuonReceiverRawChannelContainer->begin();
-  TileRawChannelContainer::const_iterator lastColl = MuonReceiverRawChannelContainer->end();
-
   // Vectors for managemnt for TMDB 2015 configuration with inclusion in trigger in 1.1<eta<1.3
   //
   std::vector<bool>  tile2SL(4,false);
@@ -122,10 +118,12 @@ StatusCode TileMuonReceiverDecision::execute() {
 
   // Create the container to store the decision from the algorithm
   //  
-  TileMuonReceiverContainer * decisionContainer = new TileMuonReceiverContainer();  
+  SG::WriteHandle<TileMuonReceiverContainer> decisionContainer(m_muonReceiverContainerKey);
+  ATH_CHECK( decisionContainer.record(std::make_unique<TileMuonReceiverContainer>()) );
 
-  TileMuonReceiverObj * TileMuRcvObj = new TileMuonReceiverObj(0,thresholds); // Special object with thresholds
-  decisionContainer->push_back(TileMuRcvObj);
+ // Special object with thresholds
+  std::unique_ptr<TileMuonReceiverObj> tileMuRcvObj = std::make_unique<TileMuonReceiverObj>(0,thresholds);
+  decisionContainer->push_back(tileMuRcvObj.release());
 
   // Conversion from TMDB channel number the index to channel number in a drawer
   //
@@ -143,13 +141,11 @@ StatusCode TileMuonReceiverDecision::execute() {
   float energy_HLX[maxCell]={0.,0.,0.,0.,0.};
   float time_HLX[maxCell]={0.,0.,0.,0.,0.};
 
-  for ( ; collItr != lastColl; ++collItr ) {
+  for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-    TileRawChannelCollection::const_iterator chanItr  = (*collItr)->begin();
-    TileRawChannelCollection::const_iterator lastChan = (*collItr)->end();
+    if (rawChannelCollection->empty()) continue;
 
-    if (chanItr==lastChan) continue;
-    int frag_id   = (*collItr)->identify();
+    int frag_id   = rawChannelCollection->identify();
     int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(frag_id);
     int ros       = frag_id>>8;
     bool eb_ros   = ((ros == TileHWID::EXTBAR_POS) || (ros == TileHWID::EXTBAR_NEG));
@@ -171,11 +167,11 @@ StatusCode TileMuonReceiverDecision::execute() {
     int jch6  = 0;
     int jch56 = 0;
 
-    for ( ; chanItr != lastChan; ++chanItr ) {
+    for (const TileRawChannel* rawChannel : *rawChannelCollection) {
        
       ++ich;
       // For TMDB channel numbers are being set differently (17,16,37,38)->(D5L,D5r,D6L,D6R)->(0,1,2,3)
-      HWIdentifier adc_id = (*chanItr)->adc_HWID() ;
+      HWIdentifier adc_id = rawChannel->adc_HWID() ;
       // TMDB channel is used in COOL and goes from 0..n with n=5 for EB and n=8 in LB
       int TMDBchan = m_tileHWID->channel(adc_id) ;
       if ( TMDBchan >= upperLim ) {
@@ -190,11 +186,11 @@ StatusCode TileMuonReceiverDecision::execute() {
                                                                       , TileRawChannelUnit::MegaElectronVolts) 
                            / m_tileInfo->MuRcvCalib(adc_id);
 
-      float energy = (*chanItr)->amplitude()*ADC2MeV_factor;
-      float time   = (*chanItr)->time();
+      float energy = rawChannel->amplitude()*ADC2MeV_factor;
+      float time   = rawChannel->time();
 
       ATH_MSG_DEBUG( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: "<< TILEchan  );
-      ATH_MSG_DEBUG( "        E[ADC]: "<<(*chanItr)->amplitude()<<" E[MeV]: "<<energy<<" t[ns]: "<<time<<" QF: "<<(*chanItr)->quality()  );
+      ATH_MSG_DEBUG( "        E[ADC]: "<<rawChannel->amplitude()<<" E[MeV]: "<<energy<<" t[ns]: "<<time<<" QF: "<<rawChannel->quality()  );
 
       if ( eb_ros ) {
         if ( TMDBchan<4 ) {
@@ -274,8 +270,8 @@ StatusCode TileMuonReceiverDecision::execute() {
       time[0] = time_d5d6;
       time[1] = time_d6;
 
-      TileMuonReceiverObj * TileMuRcvObj = new TileMuonReceiverObj(frag_id,ene,time,tile2SL);
-      decisionContainer->push_back(TileMuRcvObj);
+      std::unique_ptr<TileMuonReceiverObj> tileMuRcvObj = std::make_unique<TileMuonReceiverObj>(frag_id,ene,time,tile2SL);
+      decisionContainer->push_back(tileMuRcvObj.release());
       
     } else {
       ATH_MSG_VERBOSE( "== NULL trigger not include in container " );
@@ -286,7 +282,7 @@ StatusCode TileMuonReceiverDecision::execute() {
     ATH_MSG_DEBUG( "== Print TileD decision container output to SL"  );
     decisionContainer->print();
   }
-  CHECK(evtStore()->record( decisionContainer, m_TileMuRcvContainer, false));
+
 
   ATH_MSG_DEBUG("TileMuonReceiverDecision execution completed" );
   return StatusCode::SUCCESS;

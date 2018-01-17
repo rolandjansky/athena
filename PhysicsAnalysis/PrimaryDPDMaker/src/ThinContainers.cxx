@@ -21,8 +21,8 @@
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 

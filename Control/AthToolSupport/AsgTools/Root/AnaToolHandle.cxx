@@ -195,7 +195,7 @@ namespace asg
   {
    StatusCode hasPropertiesInCatalogue( const std::string& toolName ) {
       ServiceHandle<IJobOptionsSvc> svc("JobOptionsSvc","AnaToolHandle");
-      if( svc.retrieve().isFailure() ) return false;
+      if( svc.retrieve().isFailure() ) return StatusCode::FAILURE;
       auto props = svc->getProperties(toolName);
       StatusCode out = StatusCode::FAILURE;
       if( props && props->size()>0 ) out = StatusCode::SUCCESS;
@@ -238,9 +238,9 @@ namespace asg
       ServiceHandle<IToolSvc> toolSvc("ToolSvc","AnaToolHandle");
       toolSvc.retrieve().ignore();
       auto tools = toolSvc->getTools();
-      bool out(false);
+      StatusCode out(StatusCode::FAILURE);
       for(auto atool : tools) {
-         if(atool && atool->name() == fullName) {out=true;tool=atool;break;}
+         if(atool && atool->name() == fullName) {out=StatusCode::SUCCESS;tool=atool;break;}
       }
       toolSvc.release().ignore();
       return out;

@@ -7,7 +7,6 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h" // this tool is not correctly interfaced
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
@@ -21,18 +20,14 @@ namespace Muon {
                                                                  const IInterface* p):
     AthAlgTool(t,n,p),
     m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
   
     declareInterface<TrackSegmentAssociationTool>(this);
     //  declareInterface<ITrackSegmentAssociationTool>(this);
 
     declareProperty("MuonEDMHelperTool",m_helper);
-    declareProperty("MuonIdHelperTool",m_idHelper);
     declareProperty("MuonEDMPrinterTool",m_printer);
-    declareProperty("MuonSegmentLocation",m_segmentLocation="MuonSegments");
-    declareProperty("StauSegmentLocation",m_stauSegmentLocation="StauSegments");
   }
 
   //Destructor
@@ -43,6 +38,8 @@ namespace Muon {
 
   StatusCode TrackSegmentAssociationTool::initialize() {
     ATH_CHECK(m_helper.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_segments.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -72,15 +69,16 @@ namespace Muon {
   bool TrackSegmentAssociationTool::associatedSegments(const xAOD::Muon& muon, 
                                                        std::vector< ElementLink<xAOD::MuonSegmentContainer> >& associatedSegments ) const {
 
-    // don't do this for MuGirlLowBeta
-    if( muon.author() == xAOD::Muon::MuGirlLowBeta ){
+    // get segments 
+    SG::ReadHandle<xAOD::MuonSegmentContainer> segments(m_segments);
+    if(!segments.isPresent()){
+      ATH_MSG_DEBUG(m_segments.key()<<" not present");
       return false;
     }
-    
-    // get segments 
-    std::string location = (muon.author() == xAOD::Muon::MuGirlLowBeta) ? m_stauSegmentLocation : m_segmentLocation;
-    const xAOD::MuonSegmentContainer* segments = retrieveSegments(location);
-    if( !segments ) return false;
+    if(!segments.isValid()){
+      ATH_MSG_WARNING(m_segments.key()<<" not valid");
+      return false;
+    }
 
     // only fill if the primary track particle is not equal to the ID track particle and 
     // it has an associated track with track states 

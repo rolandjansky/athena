@@ -62,7 +62,6 @@
 IDAlignMonTruthComparison::IDAlignMonTruthComparison( const std::string & type, const std::string & name, const IInterface* parent )
 	     :ManagedMonitorToolBase( type, name, parent ),
 	      m_Pi(3.14156),
-	      m_idHelper(0),
 	      m_tracksName("ExtendedTracks"),
 	      m_tracksTruthName("ExtendedTracksTruthCollection")
 {
@@ -358,7 +357,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 {
 
   //get TrackCollection using TrackSelectionTool
-  DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
   
   //although we select tracks using the TrackSelectionTool, we still need to get a complete TrackCollection
   //from StoreGate for use in the track-truth map, otherwise the track-truth matching is screwed up

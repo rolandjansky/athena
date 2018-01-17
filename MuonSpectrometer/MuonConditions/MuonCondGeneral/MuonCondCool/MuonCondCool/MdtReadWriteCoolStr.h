@@ -36,19 +36,19 @@ class MdtReadWriteCoolStr: public AthAlgorithm
 
   bool m_done;
 // properties
-  bool par_read;
-  bool par_extract;
-  bool par_write;
-  int par_chan;
-  int par_tech;
-  std::string par_folder;
-  std::string par_rfile;
-  std::string par_wfile;
-  bool par_calT0;
-  bool par_calRT;
-  bool par_alignCorr;
-  bool par_alignasciiformat;
-  bool par_deadTube;
+  bool m_par_read;
+  bool m_par_extract;
+  bool m_par_write;
+  int m_par_chan;
+  int m_par_tech;
+  std::string m_par_folder;
+  std::string m_par_rfile;
+  std::string m_par_wfile;
+  bool m_par_calT0;
+  bool m_par_calRT;
+  bool m_par_alignCorr;
+  bool m_par_alignasciiformat;
+  bool m_par_deadTube;
   // methods
   void writeData();
   void loadData();

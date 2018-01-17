@@ -16,7 +16,7 @@
 using namespace std;
 using namespace HLT;
 
-StatusCode unit0(const TriggerElement::ObjectIndex& orig, unsigned expSerializedSize, MsgStream& log ) {
+bool unit0(const TriggerElement::ObjectIndex& orig, unsigned expSerializedSize, MsgStream& log ) {
   BEGIN_TEST("Unit0 test");
   vector<uint32_t> serial;
   vector<uint32_t>::const_iterator sIt;
@@ -61,34 +61,34 @@ int main () {
   log << MSG::INFO << "small " << endmsg;
   // test ObjectIndex:
   TriggerElement::ObjectIndex small1(12, 4, 5);
-  if ( unit0(small1, 1, log).isFailure() ) 
+  if ( !unit0(small1, 1, log) ) 
     ABORT("");
 
   TriggerElement::ObjectIndex small2(15, 4, 7);
-  if ( unit0(small2, 1, log).isFailure() )
+  if ( !unit0(small2, 1, log) )
     ABORT("");
 
 
   REPORT_AND_CONTINUE("big ");  
   TriggerElement::ObjectIndex big1(345, 60000, 60001);
-  if ( unit0(big1, 2, log).isFailure() )
+  if ( !unit0(big1, 2, log) )
     ABORT("");
 
   TriggerElement::ObjectIndex big2(345, 60000, 62345);
-  if ( unit0(big2, 2, log).isFailure() )
+  if ( !unit0(big2, 2, log) )
     ABORT("");
 
 
   log << MSG::INFO << "huge "  << endmsg;
   try {
   TriggerElement::ObjectIndex huge1(12, 65535, 65536);
-  if ( unit0(huge1, 3, log).isFailure() )
+  if ( !unit0(huge1, 3, log) )
     ABORT("");
   } catch (std::exception& ex) {
     ABORT("Execption from the test " <<  ex.what() );
   }
   TriggerElement::ObjectIndex huge2(12, 820000, 820001);
-  if ( unit0(huge2, 3, log).isFailure() )
+  if ( !unit0(huge2, 3, log) )
     ABORT("");
   
   REPORT_AND_CONTINUE("SUCCESS");

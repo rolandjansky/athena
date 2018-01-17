@@ -51,7 +51,8 @@
     m_hv(0),
     m_current(0),
     m_barrelec(0), m_posneg(0), m_FT(0),m_slot(0),m_channel(0),
-    m_caloId(0), m_onlId(0)
+    m_caloId(0), m_onlId(0),
+    m_cabling("LArCablingService")
   {
     declareProperty("AddCellID",m_addcells);
   }

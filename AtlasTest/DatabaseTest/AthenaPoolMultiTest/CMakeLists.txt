@@ -17,9 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DataQuality/GoodRunsLists
                           Database/APR/CollectionBase
                           Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
-                          Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
                           Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleData
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/PersistentDataModel
@@ -40,12 +37,12 @@ atlas_add_library( AthenaPoolMultiTestLib
                    PUBLIC_HEADERS AthenaPoolMultiTest
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES StoreGateLib SGtests GoodRunsListsLib ByteStreamData_test
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolTestData AthenaBaseComps SGTools CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaPoolExampleData AthenaPoolUtilities PersistentDataModel DBDataModel ByteStreamData EventInfo xAODEventInfo GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolTestData AthenaBaseComps SGTools CollectionBase CollectionUtilities AthenaPoolExampleData AthenaPoolUtilities PersistentDataModel DBDataModel ByteStreamData EventInfo xAODEventInfo GaudiKernel )
 
 atlas_add_component( AthenaPoolMultiTest
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolTestData AthenaBaseComps SGTools StoreGateLib SGtests GoodRunsListsLib CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaPoolExampleData AthenaPoolUtilities DBDataModel ByteStreamData ByteStreamData_test EventInfo xAODEventInfo GaudiKernel AthenaPoolMultiTestLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolTestData AthenaBaseComps SGTools StoreGateLib SGtests GoodRunsListsLib CollectionBase CollectionUtilities AthenaPoolExampleData AthenaPoolUtilities DBDataModel ByteStreamData ByteStreamData_test EventInfo xAODEventInfo GaudiKernel AthenaPoolMultiTestLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

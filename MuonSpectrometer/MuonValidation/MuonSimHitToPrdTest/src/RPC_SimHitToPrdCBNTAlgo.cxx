@@ -753,7 +753,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
     const RpcPadContainer*            m_rpcRDO       = NULL;
     
   StatusCode sc_read = evtStore()->retrieve( m_rpcRDO, m_RDOCollectionName );   
-  if ( sc_read != SUCCESS ) { 
+  if ( !sc_read.isSuccess() ) { 
      ATH_MSG_WARNING ( " Cannot retrieve RDO Container" ); 
      return sc_read; 
   } 

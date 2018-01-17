@@ -10,16 +10,19 @@ namespace G4UA
   //---------------------------------------------------------------------------
   HitWrapperTool::HitWrapperTool(const std::string& type, const std::string& name,
                                  const IInterface* parent)
-    : ActionToolBase<HitWrapper>(type, name, parent)
+    : UserActionToolBase<HitWrapper>(type, name, parent)
   {
-    declareInterface<IG4EventActionTool>(this);
     declareProperty("Time", m_config.time);
   }
 
   //---------------------------------------------------------------------------
-  std::unique_ptr<HitWrapper> HitWrapperTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<HitWrapper>(m_config);
+  std::unique_ptr<HitWrapper>
+  HitWrapperTool::makeAndFillAction(G4AtlasUserActions& actionList)
+  {
+    ATH_MSG_DEBUG("Making a HitWrapper action");
+    auto action = std::make_unique<HitWrapper>(m_config);
+    actionList.eventActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

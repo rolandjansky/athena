@@ -29,7 +29,7 @@
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <map>
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>

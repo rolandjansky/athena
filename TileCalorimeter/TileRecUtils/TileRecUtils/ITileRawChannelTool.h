@@ -19,7 +19,7 @@ class ITileRawChannelTool: virtual public IAlgTool {
 
 public:
   // update TileRawChannelContainer, subtract common mode noise for example
-  virtual StatusCode process( const TileRawChannelContainer * rchCnt)=0 ;
+  virtual StatusCode process(TileRawChannelContainer * rchCnt)=0 ;
 
   static const InterfaceID& interfaceID() { return IID_ITileRawChannelTool;}
 };

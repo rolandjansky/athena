@@ -92,9 +92,9 @@ StatusCode TrigHLTJetHypo_SMCTool::checkVals() const {
                 << m_JetMassMin.size() << " "
                 << m_JetMassMin.size() << " "
                 );
-        return false;
+        return StatusCode::FAILURE;
     }
-    return true;
+    return StatusCode::SUCCESS;
 }
     
 std::vector<std::shared_ptr<ICleaner>> TrigHLTJetHypo_SMCTool::getCleaners() const {

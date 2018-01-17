@@ -251,12 +251,6 @@ StatusCode HLTMinBiasMonTool::init()
 		return sc;
 	}
 	
-	/*sc = m_detStore->retrieve(m_evinfo);
-	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to retrieve XAOD::EventInfo helper from DetectorStore" << endmsg;
-		return sc;
-	}*/
-
 	// retrieve the trigger decision tool
 	/*sc = m_tdthandle.retrieve();
 	if (sc.isFailure()) {
@@ -810,7 +804,7 @@ unsigned HLTMinBiasMonTool::howManyGoodTracks(const ToolHandle< InDet::IInDetTra
 	StatusCode sc = StatusCode::SUCCESS;
 	// Get the InDetTrackParticles from the event:
 	const xAOD::TrackParticleContainer* tracks = nullptr;
-	sc = m_storeGate->retrieve(tracks,m_inDetTrackParticleContainerName);
+	sc = evtStore()->retrieve(tracks,m_inDetTrackParticleContainerName);
 	unsigned goodTracks(0);
 	if (acceptedTracksPt) acceptedTracksPt->clear();
 	
@@ -843,7 +837,7 @@ void HLTMinBiasMonTool::fillPurityForItem(const std::string &item, const ToolHan
 	StatusCode sc = StatusCode::SUCCESS;
 	// Get the InDetTrackParticles from the event:
 	const xAOD::TrackParticleContainer* tracks = nullptr;
-	sc = m_storeGate->retrieve(tracks,m_inDetTrackParticleContainerName);
+	sc = evtStore()->retrieve(tracks,m_inDetTrackParticleContainerName);
 	unsigned goodTracks(0);
 	if (sc.isFailure() || tracks->empty()) {
 		if (sc.isFailure())
@@ -970,7 +964,7 @@ StatusCode HLTMinBiasMonTool::fillZDCInfo()
 	// Unapcking Calorimeter energy:
 
 	const CaloCellContainer * cellColl = 0;
-	sc = m_storeGate->retrieve(cellColl,m_CaloCellContainerName);
+	sc = evtStore()->retrieve(cellColl,m_CaloCellContainerName);
 	if (sc.isFailure()) {
 	  return(StatusCode::SUCCESS); // to fix no-Calo datasets (bug #90180)
 	}
@@ -1007,7 +1001,7 @@ StatusCode HLTMinBiasMonTool::fillZDCInfo()
 	double E_A = 0; //ZDC energy on Side A
 	double E_C = 0; //ZDC energy on Side C
 
-	sc = m_storeGate->retrieve(zdcChannelCollection, m_ZdcContainerName);
+	sc = evtStore()->retrieve(zdcChannelCollection, m_ZdcContainerName);
 
 	if (sc.isFailure() || zdcChannelCollection->empty()) {
 		if (sc.isFailure())
@@ -1089,7 +1083,7 @@ StatusCode HLTMinBiasMonTool::fillLUCIDInfo()
 	int hitsAn      = 0, hitsCn     = 0;
         
 	const LUCID_RawDataContainer* LUCID_RawDataContainer;
-	sc = m_storeGate->retrieve(LUCID_RawDataContainer, m_LUCID_RawDataContainerName);
+	sc = evtStore()->retrieve(LUCID_RawDataContainer, m_LUCID_RawDataContainerName);
 
 	if (sc.isFailure() || LUCID_RawDataContainer->empty()) {
 		if (sc.isFailure())
@@ -1187,7 +1181,7 @@ StatusCode HLTMinBiasMonTool::fillBCMInfo()
 	//we should check that the both triggers are in the same state!
 
 	const BCM_RDO_Container* bcmRDOcont = 0;
-	StatusCode sc_bcm = m_storeGate->retrieve(bcmRDOcont, m_bcmContainerName);
+	StatusCode sc_bcm = evtStore()->retrieve(bcmRDOcont, m_bcmContainerName);
 	if (sc_bcm.isFailure() || (bcmRDOcont->empty())) {
 		if (sc_bcm.isFailure())
 			(*m_log) << MSG::WARNING << "Failed to retrieve BcmMinBiasMonTool for BCM_RDO_Container" << endmsg;
@@ -1376,7 +1370,7 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 	//==============================================================================
 	
 	const xAOD::TrigT2MbtsBitsContainer* mbTScont = 0;
-	sc = m_storeGate->retrieve(mbTScont, m_t2mbtsContainerName);
+	sc = evtStore()->retrieve(mbTScont, m_t2mbtsContainerName);
 	
 	if (sc.isFailure() || mbTScont->empty()) {
 		if (sc.isFailure())
@@ -1390,7 +1384,7 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 		xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
 		for (; mbTS_coll_itr != mbTScont->end(); ++mbTS_coll_itr) {
 	
-			xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
+                        const xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
 	
 			mbtsHitEnergies = mbtsFeature->triggerEnergies();
 			mbtsHitTimes = mbtsFeature->triggerTimes();
@@ -1520,7 +1514,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 	// MBTS BITS INFORMATION
 	//==============================================================================
 	const xAOD::TrigT2MbtsBitsContainer* mbTScont = 0;
-	StatusCode sc = m_storeGate->retrieve(mbTScont, m_t2mbtsContainerName);
+	StatusCode sc = evtStore()->retrieve(mbTScont, m_t2mbtsContainerName);
 
 	if (sc.isFailure() || mbTScont->empty()) {
 		if (sc.isFailure())
@@ -1534,7 +1528,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 		xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
 		for (; mbTS_coll_itr != mbTScont->end(); ++mbTS_coll_itr) {
 
-			xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
+			const xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
 
 			mbtsHitEnergies = mbtsFeature->triggerEnergies();
 			mbtsHitTimes = mbtsFeature->triggerTimes();
@@ -1620,7 +1614,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 	//Retrieve MBTS container collection from SG
 
 	const TileCellContainer* theMBTScontainer;
-	sc = m_storeGate->retrieve(theMBTScontainer, m_mbtsContainerName);
+	sc = evtStore()->retrieve(theMBTScontainer, m_mbtsContainerName);
 	if (sc.isFailure() || theMBTScontainer->empty()) {
 		if (sc.isFailure())
 			(*m_log) << MSG::WARNING << "Cannot find TileCellContainer object with name " << m_mbtsContainerName << " in TDS"
@@ -1744,7 +1738,7 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 	m_sctSpECC = 0;
 
 	const xAOD::TrigSpacePointCountsContainer* mbSPcont = 0;
-	StatusCode sc_mbsp = m_storeGate->retrieve(mbSPcont, m_spContainerName);
+	StatusCode sc_mbsp = evtStore()->retrieve(mbSPcont, m_spContainerName);
 
 	if (sc_mbsp.isFailure() || mbSPcont->empty()) {
 		if (sc_mbsp.isFailure())
@@ -1761,7 +1755,7 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itrE = mbSPcont->end();
 
 		for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) {
-			xAOD::TrigSpacePointCounts *id_mbFeature = (*mbSP_coll_itr);
+			const xAOD::TrigSpacePointCounts *id_mbFeature = (*mbSP_coll_itr);
 			unsigned totBins = id_mbFeature->pixelClusTotBins();
 			if ( totBins > 0){
 				m_pixSpBarr = (int) id_mbFeature->pixelClusBarrelSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
@@ -1815,7 +1809,7 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 
 	// EF ID (it is the same for trt and pixel+sct)
 	const xAOD::TrigTrackCountsContainer* mbTTcont = 0;
-	StatusCode sc_mbtt = m_storeGate->retrieve(mbTTcont, m_tcContainerName);
+	StatusCode sc_mbtt = evtStore()->retrieve(mbTTcont, m_tcContainerName);
 
 	if (sc_mbtt.isFailure() || mbTTcont->empty()) {
 		if (sc_mbtt.isFailure())
@@ -1833,7 +1827,7 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 		// Loop over EF TrigMinBias objects
 		xAOD::TrigTrackCountsContainer::const_iterator mbTT_coll_itr = mbTTcont->begin();
 		for (; mbTT_coll_itr != mbTTcont->end(); ++mbTT_coll_itr) {
-			xAOD::TrigTrackCounts *mbTT = (*mbTT_coll_itr);
+			const xAOD::TrigTrackCounts *mbTT = (*mbTT_coll_itr);
 
 			if (mbTT->z0Bins() > 0) {
 				m_mbTracks = (int) (mbTT->z0_ptSumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y));
@@ -1859,7 +1853,7 @@ StatusCode HLTMinBiasMonTool::fillHMTSpacePointsInfo()
 	for (auto &i: multiplicity) i = 0.0;
 	
 	const xAOD::TrigSpacePointCountsContainer* mbSPcont = nullptr;
-	sc = m_storeGate->retrieve(mbSPcont, m_spContainerName);
+	sc = evtStore()->retrieve(mbSPcont, m_spContainerName);
 	
 	if (sc.isFailure() || !mbSPcont) {
 		if (sc.isFailure())
@@ -1874,7 +1868,7 @@ StatusCode HLTMinBiasMonTool::fillHMTSpacePointsInfo()
 		unsigned tmp = 0;
 		for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) 
 		{
-			xAOD::TrigSpacePointCounts *trigSpacePointCounts = (*mbSP_coll_itr);
+			const xAOD::TrigSpacePointCounts *trigSpacePointCounts = (*mbSP_coll_itr);
 			++tmp;
 	
 			totNumSctSP = trigSpacePointCounts->sctSpEndcapC() + trigSpacePointCounts->sctSpEndcapA() + trigSpacePointCounts->sctSpBarrel();
@@ -1938,7 +1932,7 @@ StatusCode HLTMinBiasMonTool::fillHMTVertexCountsInfo()
     
     //const xAOD::TrigVertexCounts* trigVertexCounts = nullptr;
 	const xAOD::TrigVertexCountsContainer* vcCont = nullptr;
-    sc = m_storeGate->retrieve(vcCont, m_vcContainerName);
+    sc = evtStore()->retrieve(vcCont, m_vcContainerName);
 
     if (sc.isFailure() || !vcCont) {
 		if (sc.isFailure())
@@ -1953,7 +1947,7 @@ StatusCode HLTMinBiasMonTool::fillHMTVertexCountsInfo()
 		
 		for (; vc_coll_itr != vc_coll_itrE; ++vc_coll_itr) 
 		{
-			xAOD::TrigVertexCounts *trigVertexCounts = (*vc_coll_itr);
+			const xAOD::TrigVertexCounts *trigVertexCounts = (*vc_coll_itr);
 		
 			// Get the number of tracks per vertex
 			std::vector<unsigned int> vtxNtrks = trigVertexCounts->vtxNtrks();
@@ -1976,7 +1970,7 @@ StatusCode HLTMinBiasMonTool::fillHMTTrigVertexCollectionInfo()
 	StatusCode sc = StatusCode::SUCCESS;
 	
 	const TrigVertexCollection* vertexCollection = nullptr;
-	sc = m_storeGate->retrieve(vertexCollection, m_vcolContainerName);
+	sc = evtStore()->retrieve(vertexCollection, m_vcolContainerName);
 	
 	double vertex_weight=0.;
 	double max_vertex_weight=0.;

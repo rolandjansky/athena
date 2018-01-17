@@ -97,11 +97,11 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
     if ( evtStore()->retrieve ( primcontainer, m_vxContainerName ).isFailure() )
     {
       ATH_MSG_WARNING( "Could not retrieve collection " << m_vxContainerName << " in StoreGate, but contains<> says it is there."  );
-      return false;
+      return StatusCode::FAILURE;
     }
   } else {
     ATH_MSG_WARNING( "No collection " << m_vxContainerName << " in StoreGate."  );
-    return false;
+    return StatusCode::FAILURE; 
   }
 
   // loop over vertices, extrapolate tracks to calo, remember num tracks per vertex (for cluster vertex fraction calculation later)

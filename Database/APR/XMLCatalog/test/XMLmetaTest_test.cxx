@@ -39,6 +39,7 @@ public:
   pool::MetaDataEntry abc;
   void setUp(){
     mycatalog=new pool::IFileCatalog;
+    (void)unlink ("metadata.xml");
     mycatalog->setWriteCatalog("xmlcatalog_file:metadata.xml");
     for(size_t i=0; i<20; ++i){
       names.push_back("this-is-a-physical-file-name"+pool::FCSystemTools::itostr(i));

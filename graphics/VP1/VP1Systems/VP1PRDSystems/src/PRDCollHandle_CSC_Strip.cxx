@@ -59,10 +59,10 @@ void PRDCollHandle_CSC_Strip::setupSettingsFromControllerSpecific(PRDSystemContr
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_CSC_Strip::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_CSC_Strip::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<Muon::CscStripPrepData*>(prd));
-  return new PRDHandle_CSC_Strip(this,static_cast<Muon::CscStripPrepData*>(prd));
+  assert(dynamic_cast<const Muon::CscStripPrepData*>(prd));
+  return new PRDHandle_CSC_Strip(this,static_cast<const Muon::CscStripPrepData*>(prd));
 }
 
 //____________________________________________________________________

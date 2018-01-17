@@ -21,8 +21,8 @@ DATE:		V1.0 Jan 13th , 2009
 #include <map>
 #include <string>
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "FourMom/P4PtEtaPhiMBase.h"
 #include "Navigation/NavigableTerminalNode.h"

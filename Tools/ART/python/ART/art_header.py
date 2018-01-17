@@ -17,6 +17,15 @@ MODULE = "art.header"
 class ArtHeader(object):
     """TBD."""
 
+    ART_CI = 'art-ci'
+    ART_DESCRIPTION = 'art-description'
+    ART_INCLUDE = 'art-include'
+    ART_INPUT = 'art-input'
+    ART_INPUT_NFILES = 'art-input-nfiles'
+    ART_INPUT_SPLIT = 'art-input-split'
+    ART_OUTPUT = 'art-output'
+    ART_TYPE = 'art-type'
+
     def __init__(self, filename):
         """TBD."""
         self.header_format = re.compile(r'#\s(art-[\w-]+):\s+(.+)$')
@@ -29,18 +38,18 @@ class ArtHeader(object):
         self.header = {}
 
         # general
-        self.add('art-description', StringType, '')
-        self.add('art-type', StringType, None, ['build', 'grid'])
+        self.add(ArtHeader.ART_DESCRIPTION, StringType, '')
+        self.add(ArtHeader.ART_TYPE, StringType, None, ['build', 'grid'])
+        self.add(ArtHeader.ART_INCLUDE, ListType, ['*'])
 
         # "build" type only
-        self.add('art-ci', ListType, [])
+        self.add(ArtHeader.ART_CI, ListType, [])
 
         # "grid" type only
-        self.add('art-include', ListType, ['*'])
-        self.add('art-output', ListType, [])
-        self.add('art-input', StringType, None)
-        self.add('art-input-nfiles', IntType, 1)
-        self.add('art-input-split', IntType, 0)
+        self.add(ArtHeader.ART_OUTPUT, ListType, [])
+        self.add(ArtHeader.ART_INPUT, StringType, None)
+        self.add(ArtHeader.ART_INPUT_NFILES, IntType, 1)
+        self.add(ArtHeader.ART_INPUT_SPLIT, IntType, 0)
 
         self.read(filename)
 

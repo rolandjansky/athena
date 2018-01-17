@@ -2,13 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PMGCrossSectionTool.cxx 764400 2016-07-26 17:47:39Z tripiana $
+// $Id: PMGCrossSectionTool.cxx 810599 2017-09-22 15:50:07Z cohm $
 
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <TSystem.h>
 #include <TString.h>
+#include <TTree.h>
 #include <iostream>
 #include <stdlib.h>
 
@@ -37,60 +38,45 @@ namespace PMGTools {
 
   bool PMGCrossSectionTool::readInfosFromFiles(std::vector<std::string> InputFiles)
   {
-  
     for (const auto& currentFileName : InputFiles) {
 
       std::ifstream currentFile;
       currentFile.open(currentFileName.c_str());
 
-      std::string line;
-      while (currentFile.good()) {
+      // use the TTree functionality for reading in text files - easy way to remove
+      // dependency on specific order of the columns in the text file
+      TTree* xsecTree = new TTree();
+      xsecTree->ReadFile(currentFileName.c_str());
+      
+      // one branch per variable we care about of the existing ones: DSID/I:DSName/C:GenXsec/D:BR:FilterEff:Xsec:Kfactor:TotSampleXsec
+      int dsid(0);
+      double genXsec(0);      
+      double filterEff(0);
+      double kFactor(0);
+      TBranch* dsidBranch = xsecTree->GetBranch("DSID");
+      dsidBranch->SetAddress(&dsid);
+      TBranch* genXsecBranch = xsecTree->GetBranch("crossSection");
+      genXsecBranch->SetAddress(&genXsec);
+      TBranch* filterEffBranch = xsecTree->GetBranch("genFiltEff");
+      filterEffBranch->SetAddress(&filterEff);
+      TBranch* kFactorBranch = xsecTree->GetBranch("kFactor");
+      kFactorBranch->SetAddress(&kFactor);
 
-	getline(currentFile, line);
-      
-	std::istringstream input_line(line);
-	std::string str_dsid;
-	std::string containerName;
-	std::string str_amiXsec;
-	std::string str_br;
-	std::string str_filterEff;
-	std::string str_hoXsec;
-	std::string str_kFac;
-	std::string str_hoSampleXsec;
-      
-	input_line >> str_dsid;
-	input_line >> containerName;
-	input_line >> str_amiXsec;
-	input_line >> str_br;
-	input_line >> str_filterEff;
-	input_line >> str_hoXsec;
-	input_line >> str_kFac;
-	input_line >> str_hoSampleXsec; // this is hoXsec * filter eff
-
-	int dsid = TString(str_dsid).Atoi();
-	double BR           = TString(str_br).Atof();
-	double kFactor      = TString(str_kFac).Atof(); 
-	double filterEff    = TString(str_filterEff).Atof(); 
-	double hoXsec       = TString(str_hoXsec).Atof();
-	double hoSampleXsec = TString(str_hoSampleXsec).Atof();
-	double amiXsec      = TString(str_amiXsec).Atof();
-           
-	AllSampleInfo help;
-	help.dsid = dsid;
-	help.containerName = containerName;
-	help.br = BR;
-	help.amiXSec = amiXsec;
-	help.filterEff = filterEff;
-	help.higherOrderXsecTotal = hoXsec;
-	help.kFactor = kFactor;
-	help.higherOrderXsecSample = hoSampleXsec;
-      
-	fStoreSampleInfo.push_back(help);
-      
+      auto nEntries = xsecTree->GetEntries();
+      for (Long64_t i = 0; i < nEntries; i++) {
+	xsecTree->GetEntry(i);
+	AllSampleInfo sample;
+	sample.dsid = dsid;
+	sample.genXsec = genXsec;
+	sample.filterEff = filterEff;
+	sample.kFactor = kFactor;
+	//sample.containerName = containerName;
+	fStoreSampleInfo[sample.dsid] = sample;
       }
+
+      delete xsecTree;
     }
-  
-  
+    
     return true;
   }
 
@@ -131,8 +117,8 @@ namespace PMGTools {
   {
   
     for (const auto& info : fStoreSampleInfo){
-      if(dsid == info.dsid)
-	return info.filterEff;
+      if(dsid == info.second.dsid)
+	return info.second.filterEff;
     }
   
     std::cout << "ERROR::getFilterEff --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
@@ -146,8 +132,8 @@ namespace PMGTools {
   {
   
     for (const auto& info : fStoreSampleInfo){
-      if(dsid == info.dsid)
-	return info.containerName;
+      if(dsid == info.second.dsid)
+	return info.second.containerName;
     }
   
     std::cout << "ERROR::getSampleName --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
@@ -157,40 +143,26 @@ namespace PMGTools {
   }
 
 
-  double PMGCrossSectionTool::getAMIXsection(const int dsid) const
+  double PMGCrossSectionTool::getGeneratorXsection(const int dsid) const
   {
 
     for (const auto& info : fStoreSampleInfo){
-      if(dsid == info.dsid)
-	return info.amiXSec;
+      if(dsid == info.second.dsid)
+	return info.second.genXsec;
     }
 
-    std::cout << "ERROR::getAMIXsection --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
+    std::cout << "ERROR::getGeneratorXsection --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
   
     return -1;
 
   } 
 
-  double PMGCrossSectionTool::getBR(const int dsid) const
-  {
-
-    for (const auto& info : fStoreSampleInfo){
-      if(dsid == info.dsid)
-	return info.br;
-    }
-
-    std::cout << "ERROR::getBR --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
-
-    return -1;
-
-  }
-
   double PMGCrossSectionTool::getKfactor(const int dsid) const
   {
 
     for (const auto& info : fStoreSampleInfo){
-      if(dsid == info.dsid)
-	return info.kFactor;
+      if(dsid == info.second.dsid)
+	return info.second.kFactor;
     }
 
     std::cout << "ERROR::getKfactor --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
@@ -203,8 +175,8 @@ namespace PMGTools {
   {
 
     for (const auto& info : fStoreSampleInfo){
-      if(dsid == info.dsid)
-	return info.higherOrderXsecSample;
+      if(dsid == info.second.dsid)
+	return info.second.genXsec * info.second.kFactor * info.second.filterEff;
     }
 
     std::cout << "ERROR::getSampleXsection --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
@@ -216,7 +188,7 @@ namespace PMGTools {
   std::vector<int> PMGCrossSectionTool::getLoadedDSIDs() const {
     std::vector<int> dsids;
     for (const auto& info : fStoreSampleInfo){
-      dsids.push_back(info.dsid);
+      dsids.push_back(info.second.dsid);
     }
     return dsids;
   }

@@ -62,6 +62,10 @@ using namespace MuonGM;
 #define SIG_VEL 4.8  // ns/m
 static double time_correction(double, double, double);
 
+static constexpr unsigned int crazyParticleBarcode(
+    std::numeric_limits<int32_t>::max());
+// Barcodes at the HepMC level are int
+
 RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
 					 const std::string& name,
 					 const IInterface* pIID)
@@ -75,6 +79,7 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   , m_rSummarySvc("RPCCondSummarySvc", name)
   , m_cs3Para(0)
   , m_validationSetup(false)
+  , m_vetoThisBarcode(crazyParticleBarcode) 
   , m_SetPhiOn(false)
   , m_SetEtaOn(false)
   , m_mergeSvc(0)
@@ -144,6 +149,8 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("CutProjectedTracks"        ,  m_CutProjectedTracks     = 100     );
   declareProperty("RPCCondSummarySvc"         ,  m_rSummarySvc                      );
   declareProperty("ValidationSetup"           ,  m_validationSetup        = false   );
+  declareProperty("IncludePileUpTruth"        ,  m_includePileUpTruth     = true    );
+  declareProperty("ParticleBarcodeVeto"       ,  m_vetoThisBarcode = crazyParticleBarcode);
 }
 
 // member function implementation
@@ -186,6 +193,8 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "PanelId_OK_fromlist    " <<  m_PanelId_OK_fromlist      );
   ATH_MSG_DEBUG ( "FileName_GoodPanels    " <<  m_FileName_GoodPanels      );
   ATH_MSG_DEBUG ( "ValidationSetup        " <<  m_validationSetup          );
+  ATH_MSG_DEBUG ( "IncludePileUpTruth     " <<  m_includePileUpTruth       );
+  ATH_MSG_DEBUG ( "ParticleBarcodeVeto    " <<  m_vetoThisBarcode          );
 
 
   if (detStore()->retrieve( m_GMmgr,"Muon" ).isFailure()) {
@@ -792,6 +801,10 @@ StatusCode RpcDigitizationTool::doDigitization() {
 				     MuonMCData((*b),time)); // store tof+strip_propagation+corr.jitter
 	//				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
 
+	//Do not store pile-up truth information
+	if (m_includePileUpTruth ||
+		!((phit->trackNumber() == 0) || (phit->trackNumber() == m_vetoThisBarcode))) {
+
         if( abs(hit.particleEncoding())== 13 || hit.particleEncoding() == 0){
 
           auto channelSimDataMapPos = channelSimDataMap.find(atlasId);
@@ -808,6 +821,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
             ATH_MSG_VERBOSE("adding SDO entry: r " << content.gpos.perp() << " z " << content.gpos.z() );
           }
         }
+	}
 
 	if( imeasphi==0 && m_SetEtaOn==0) continue ;
 	if( imeasphi==1 && m_SetPhiOn==0) continue ;
@@ -3029,12 +3043,3 @@ double time_correction(double x, double y, double z)
   double speed_of_light = 299.792458;     // mm/ns
   return sqrt(x*x+y*y+z*z)/speed_of_light; //FIXME use CLHEP::c_light
 }
-
-
-
-
-
-
-
-
-

@@ -181,8 +181,8 @@ class Lvl1SimulationGetter (Configured):
             topSequence += CTPSimulationInReco("CTPSimulation")
             
             log.info("adding ROIB simulation to the topSequence")
-            from TrigT1RoIB.TrigT1RoIBConf import ROIB__RoIBuilder
-            topSequence += ROIB__RoIBuilder("RoIBuilder")
+            from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
+            topSequence += RoIBuilder("RoIBuilder")
 
             # monitoring
             LVL1MonitoringTools()

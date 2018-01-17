@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
 # External dependencies:
+find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
@@ -23,9 +24,9 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( CollectionBase
                    src/*.cpp
                    PUBLIC_HEADERS CollectionBase
-                   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} FileCatalog
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} FileCatalog
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools POOLCore PersistencySvc PersistentDataModel GaudiKernel )
 
 atlas_add_dictionary( CollectionDict

@@ -16,7 +16,8 @@ class JetSelectorAttribute : public asg::AsgTool , virtual public IJetSelector
    ASG_TOOL_CLASS(JetSelectorAttribute,IJetSelector)
    public:
 
-   /// \class SelValueRetriever retrieves the value on which this tool select jets.
+   /// \class SelValueRetriever
+   /// SelValueRetriever retrieves the value on which this tool select jets.
    /// concrete classes are used internally to retrieve the attribute according to its type. 
    struct SelValueRetriever {
      virtual float value(const xAOD::Jet& j) = 0;

@@ -4,7 +4,7 @@
 
 #ifndef TRIGINDETTRACK_H
 #define TRIGINDETTRACK_H
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"

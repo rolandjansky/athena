@@ -11,6 +11,9 @@
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPadContainer.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 // STL include:
 #include <vector>
@@ -36,6 +39,9 @@ public:
   virtual StatusCode finalize()  { return StatusCode::SUCCESS; }
 
 private:
+
+  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_trackMeasVal;
+  SG::ReadHandleKey<RpcPadContainer> m_rpcPad;
 
 };
 

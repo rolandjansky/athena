@@ -187,25 +187,25 @@ StatusCode EFexAnalysis::execute(){
 
 	for( auto tt : *truth ){
 		if ( tt->status() != 1 ) continue;
-		if ( fabsf(tt->absPdgId()) != 11 ) continue;
+		if ( std::abs(tt->absPdgId()) != 11 ) continue;
 		if ( tt->barcode() >= 10000 ) continue;
 		if ( tt->pt() < 1e3 ) continue;
 		m_eff_truth_pt_d->Fill( tt->pt()/1e3 );
-		if ( fabsf( tt->eta() )<2.5 ) m_eff_truth_ptA_d->Fill( tt->pt()/1e3 );
+		if ( std::abs( tt->eta() )<2.5 ) m_eff_truth_ptA_d->Fill( tt->pt()/1e3 );
 		if ( tt->pt() > 16000 ) m_eff_truth_eta_d->Fill( tt->eta() );
 		for( auto cl : *scluster ){
-			if ( fabsf( tt->eta() - cl->eta() ) > 0.06 ) continue;
-			float dphi = fabsf( tt->eta() - cl->eta() );
-			dphi = fabsf( M_PI - dphi );
-			dphi = fabsf( M_PI - dphi );
+                        if ( std::abs( tt->eta() - cl->eta() ) > 0.06 ) continue;
+			float dphi = std::abs( tt->eta() - cl->eta() );
+			dphi = std::abs( M_PI - dphi );
+			dphi = std::abs( M_PI - dphi );
 			if ( dphi > 0.09 ) continue;
 			float resolution = 100.0*(tt->pt() - cl->et() ) / tt->pt();
 			m_res_truth->Fill( resolution );
 			m_res_truth_eta->Fill( tt->eta(), resolution );
 			m_res_truth_pt->Fill( tt->pt()/1e3, resolution );
-			if ( fabsf( tt->eta() )<2.5 ) m_res_truth_ptA->Fill( tt->pt()/1e3, resolution );
+			if ( std::abs( tt->eta() )<2.5 ) m_res_truth_ptA->Fill( tt->pt()/1e3, resolution );
 			if ( tt->pt() > 16000 ) m_eff_truth_pt_n->Fill( tt->pt()/1e3 );
-			if ( fabsf( tt->eta() )<2.5 ) m_eff_truth_ptA_n->Fill( tt->pt()/1e3 );
+			if ( std::abs( tt->eta() )<2.5 ) m_eff_truth_ptA_n->Fill( tt->pt()/1e3 );
 			m_eff_truth_eta_n->Fill( tt->eta() );
 		}
 		
@@ -226,23 +226,23 @@ StatusCode EFexAnalysis::execute(){
                 m_eff_off_pt_d->Fill( el->pt()/1e3 );
                 if ( el->pt() > 16000 ) m_eff_off_eta_d->Fill( el->eta() );
                 for( auto cl : *scluster ){
-                        if ( fabsf( el->eta() - cl->eta() ) > 0.05 ) continue;
-                        float dphi = fabsf( el->phi() - cl->phi() );
-                        dphi = fabsf( M_PI - dphi );
-                        dphi = fabsf( M_PI - dphi );
+                        if ( std::abs( el->eta() - cl->eta() ) > 0.05 ) continue;
+                        float dphi = std::abs( el->phi() - cl->phi() );
+                        dphi = std::abs( M_PI - dphi );
+                        dphi = std::abs( M_PI - dphi );
                         if ( dphi > 0.08 ) continue;
                         float resolution = 100.0*(el->pt() - cl->et() ) / el->pt();
                         m_res_off->Fill( resolution );
                         m_res_off_eta->Fill( el->eta(), resolution );
                         m_res_off_pt->Fill( el->pt()/1e3, resolution );
 			
-			if ( (el->caloCluster()->et() > 9e3) && (fabsf(el->eta())<2.47) )
+			if ( (el->caloCluster()->et() > 9e3) && (std::abs(el->eta())<2.47) )
                         m_res_off_nvtx->Fill( nvtxs, resolution );
 
                         float off_eta = el->caloCluster()->eta();
                         float SE_eta = cl->eta();
                         float resol_eta = -100.0;
-                        if ( fabsf(off_eta) > 0 ) resol_eta =
+                        if ( std::abs(off_eta) > 0 ) resol_eta =
                                 100.0*(off_eta-SE_eta)/off_eta;
                         m_res_eta_off->Fill( resol_eta );
                         m_res_eta_off_eta->Fill( el->eta(), resol_eta );
@@ -251,7 +251,7 @@ StatusCode EFexAnalysis::execute(){
                         float off_phi = el->caloCluster()->phi();
                         float SE_phi = cl->phi();
                         float resol_phi = -100.0;
-                        if ( fabsf(off_phi) > 0 ) resol_phi =
+                        if ( std::abs(off_phi) > 0 ) resol_phi =
                                 100.0*(off_phi-SE_phi)/off_phi;
                         m_res_phi_off->Fill( resol_phi );
                         m_res_phi_off_eta->Fill( el->eta(), resol_phi );
@@ -267,7 +267,7 @@ StatusCode EFexAnalysis::execute(){
 			m_res_rEta_off->Fill( resol_reta );
 			m_res_rEta_off_eta->Fill( el->eta(), resol_reta );
 			m_res_rEta_off_pt->Fill( el->pt()/1e3, resol_reta );
-			if ( (el->caloCluster()->et() > 9e3) && (fabsf(el->eta())<2.47) )
+			if ( (el->caloCluster()->et() > 9e3) && (std::abs(el->eta())<2.47) )
                         m_res_rEta_off_nvtx->Fill( nvtxs, resol_reta );
 
 			float off_f1 = el->auxdata<float>("f1");
@@ -281,7 +281,7 @@ StatusCode EFexAnalysis::execute(){
 			m_res_f1_off_eta->Fill( el->eta(), resol_f1 );
 			m_res_f1_off_pt->Fill( el->pt()/1e3, resol_f1 );
 
-			if ( (el->caloCluster()->et() > 9e3) && (fabsf(el->eta())<2.47) )
+			if ( (el->caloCluster()->et() > 9e3) && (std::abs(el->eta())<2.47) )
                         m_res_f1_off_nvtx->Fill( nvtxs, resol_f1 );
 
 			float off_f3 = el->auxdata<float>("f3");

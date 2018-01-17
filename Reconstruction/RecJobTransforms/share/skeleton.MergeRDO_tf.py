@@ -115,6 +115,7 @@ import MuonCnvExample.MuonCablingConfig
 # PixelLorentzAngleSvc and SCTLorentzAngleSvc
 from InDetRecExample.InDetJobProperties import InDetFlags
 include("InDetRecExample/InDetRecConditionsAccess.py")
+include("InDetRecExample/InDetRecCabling.py")
 
 #--------------------------------------------------------------
 # Setup Input

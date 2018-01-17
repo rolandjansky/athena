@@ -51,7 +51,7 @@ void AthAnalysisHelper::dumpJobOptionProperties(const std::string& client) {
 void AthAnalysisHelper::printAuxElement(const SG::AuxElement& ae) {
    const SG::auxid_set_t& auxids = ae.getAuxIDs();
    SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
-   for( auto& aux : auxids) {
+   for( SG::auxid_t aux : auxids) {
       std::string name = reg.getName( aux );
       std::cout << "    " << name << " = ";
       const std::type_info& typeinfo = *reg.getType(aux);

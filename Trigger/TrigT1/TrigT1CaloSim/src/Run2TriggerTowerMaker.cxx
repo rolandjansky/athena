@@ -163,7 +163,7 @@ namespace LVL1 {
   {
     ATH_MSG_DEBUG("Initialising");
 
-    CHECK(detStore()->retrieve(m_caloId).isSuccess());
+    CHECK(detStore()->retrieve(m_caloId));
     CHECK(m_configSvc.retrieve());
     CHECK(m_mappingTool.retrieve());
     CHECK(m_TTtool.retrieve());

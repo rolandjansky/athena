@@ -22,7 +22,7 @@ namespace JiveXML {
    **/
   MuonRetriever::MuonRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Muon"){
+    m_typeName("Muon"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -91,7 +91,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(muoncont->size());
     DataVect eta; eta.reserve(muoncont->size());
@@ -117,7 +117,7 @@ namespace JiveXML {
     Analysis::MuonContainer::const_iterator muonItr  = muoncont->begin();
     Analysis::MuonContainer::const_iterator muonItrE = muoncont->end();
 
-    int m_MCdataType = 1;
+    int MCdataType = 1;
     std::string clusterKey = "none"; // Storegate key of container 
     int clusterIndex = -1; // index number inside the container 
     std::string trackKey = "none"; // Storegate key of container 
@@ -141,13 +141,13 @@ namespace JiveXML {
       if (( (*muonItr)->author()) == 2){ muonAuthor = "lowpt"; } 
       author.push_back( DataType( muonAuthor ) );
  
-      m_MCdataType = (*muonItr)->dataType();
-      dataType.push_back( DataType(  m_MCdataType ) );
+      MCdataType = (*muonItr)->dataType();
+      dataType.push_back( DataType(  MCdataType ) );
 
 // check: full simulation input file (1) or fast (0) 
 // code from:
 // PhysicsAnalysis/AnalysisCommon/AnalysisExamples/src/MiscellaneousExamples.cxx
-      if (m_MCdataType != 3){ // full simulation
+      if (MCdataType != 3){ // full simulation
           chi2.push_back( DataType((*muonItr)->matchChi2OverDoF() ) );
           etConeIsol.push_back( DataType(
               ((*muonItr)->parameter(MuonParameters::etcone20))/CLHEP::GeV ) );
@@ -197,33 +197,33 @@ namespace JiveXML {
       }
     }
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["px"] = px;
+    DataMap["py"] = py;
+    DataMap["pz"] = pz;
 
     // special muon parameters
-    m_DataMap["chi2"] = chi2;
-    m_DataMap["etConeIsol"] = etConeIsol;
-    m_DataMap["author"] = author;
-    m_DataMap["pdgId"] = pdgId;
-    m_DataMap["dataType"] = dataType;
+    DataMap["chi2"] = chi2;
+    DataMap["etConeIsol"] = etConeIsol;
+    DataMap["author"] = author;
+    DataMap["pdgId"] = pdgId;
+    DataMap["dataType"] = dataType;
     // further details and associations
-    m_DataMap["clusterKey"] = clusterKeyVec;
-    m_DataMap["clusterIndex"] = clusterIndexVec;
-    m_DataMap["trackKey"] = trackKeyVec;
-    m_DataMap["trackIndex"] = trackIndexVec;
+    DataMap["clusterKey"] = clusterKeyVec;
+    DataMap["clusterIndex"] = clusterIndexVec;
+    DataMap["trackKey"] = trackKeyVec;
+    DataMap["trackIndex"] = trackIndexVec;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

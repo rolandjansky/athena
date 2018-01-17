@@ -16,11 +16,7 @@ atlas_depends_on_subdirs(
    Control/CxxUtils
    Control/SGTools
    Control/StoreGate
-   Database/APR/CollectionBase
-   Database/APR/CollectionUtilities
-   Database/APR/POOLCore
-   Database/APR/PersistencySvc
-   Database/APR/StorageSvc
+   Database/APR/FileCatalog
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/AthenaPOOL/PoolSvc
    Database/CoraCool
@@ -48,8 +44,7 @@ atlas_add_component( IOVDbSvc
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES}
    GaudiKernel AthenaBaseComps AthenaKernel CxxUtils SGTools StoreGateLib
-   CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc
-   AthenaPoolUtilities CoraCool IOVDbDataModel EventInfo IOVDbSvcLib )
+   FileCatalog AthenaPoolUtilities CoraCool IOVDbDataModel EventInfo IOVDbSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

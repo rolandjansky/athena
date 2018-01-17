@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Wcsc.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 //#include <stdio>
@@ -32,7 +31,7 @@
 namespace MuonGM
 {
 
-DblQ00Wcsc::DblQ00Wcsc(IRDBQuery* wcsc)
+DblQ00Wcsc::DblQ00Wcsc(std::unique_ptr<IRDBQuery>&& wcsc)
  : m_nObj(0)
 {
   if(wcsc) {
@@ -77,7 +76,7 @@ DblQ00Wcsc::DblQ00Wcsc(IRDBQuery* wcsc)
             //m_d[i].psndco =  m_d[i].azcat;
             //std::cerr<<" redefined psndco = "<<m_d[i].psndco<<std::endl;
         }
-        catch (std::runtime_error)
+        catch (const std::runtime_error&)
         {
             std::cerr<<" azcat field does not exists !"<<std::endl;
             m_d[i].azcat =   0.;

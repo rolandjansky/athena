@@ -600,15 +600,8 @@ StatusCode HLTMuonMonTool::init()
     ATH_MSG_VERBOSE("initMuZTPDQA failed");
   }
 
-  int sc = scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
-
-  if(sc==1){
-    return StatusCode::SUCCESS;
-  }else if(sc>1){
-    return StatusCode::RECOVERABLE;
-  }
-
-  return StatusCode::FAILURE;
+  StatusCode sc = scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
+  return sc;
 }
 
 
@@ -716,16 +709,8 @@ StatusCode HLTMuonMonTool::book()
     ATH_MSG_VERBOSE("bookMuZTPDQA failed");
   }
 
-  int sc = scCommon * scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
-
-  if(sc==1){
-    return StatusCode::SUCCESS;
-  }else if(sc>1){
-    return StatusCode::RECOVERABLE;
-  }
-
-  return StatusCode::FAILURE;
-
+  StatusCode sc = scCommon && scChain && scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
+  return sc;
 }
 
 /*---------------------------------------------------------*/
@@ -878,7 +863,7 @@ StatusCode HLTMuonMonTool::fill()
     scMuZTP=StatusCode::RECOVERABLE;
   }
 
-  int sc = scCommon * scRecMuon * scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
+  StatusCode sc = scCommon && scRecMuon && scChain && scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
 
   ATH_MSG_DEBUG( " scCommon " << scCommon  
 		<< " scRecMuon " << scRecMuon 
@@ -892,14 +877,7 @@ StatusCode HLTMuonMonTool::fill()
                 << " scMuZTP " << scMuZTP
                 << " sc " << sc);
 
-  if(sc==1){
-    return StatusCode::SUCCESS;
-  }else if(sc>1){
-    return StatusCode::RECOVERABLE;
-  }
-
-  return StatusCode::FAILURE;
-
+  return sc;
 }
 
 /*---------------------------------------------------------*/
@@ -1016,13 +994,6 @@ StatusCode HLTMuonMonTool::proc()
 
   //
 
-  int sc = scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
-
-  if(sc==1){
-    return StatusCode::SUCCESS;
-  }else if(sc>1){
-    return StatusCode::RECOVERABLE;
-  }
-
-  return StatusCode::FAILURE;
+  StatusCode sc = scChain && scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
+  return sc;
 }

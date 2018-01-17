@@ -9,6 +9,7 @@ atlas_subdir( sTGC_Digitization )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/AthContainers
                           Control/PileUpTools
                           DetectorDescription/Identifier
                           Event/xAOD/xAODEventInfo
@@ -45,7 +46,7 @@ atlas_add_component( sTGC_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers PileUpToolsLib Identifier xAODEventInfo GaudiKernel MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
 
 # Install files from the package:
 atlas_install_headers( sTGC_Digitization )

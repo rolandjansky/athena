@@ -19,9 +19,9 @@
 #include <string>
 #include <vector>
 
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
@@ -72,7 +72,7 @@ protected:
       "photonIsEMselectorResultNames", {}, "The selector result names"};
  
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool {this,
-      "LuminosityTool", "", "Luminosity Tool"};
+      "LuminosityTool", "LumiBlockMuTool/LumiBlockMuTool", "Luminosity Tool"};
 
   Gaudi::Property<std::string> m_LHValueName {this, 
       "LHValueName", "LHValue", "The LH Value name"};

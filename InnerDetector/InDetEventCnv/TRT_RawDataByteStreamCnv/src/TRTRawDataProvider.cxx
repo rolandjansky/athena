@@ -6,6 +6,8 @@
 #include "TRTRawDataProvider.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"  
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 // --------------------------------------------------------------------
 // Constructor
 

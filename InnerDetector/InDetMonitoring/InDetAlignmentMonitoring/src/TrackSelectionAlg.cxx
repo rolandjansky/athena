@@ -19,6 +19,7 @@
 
 
 #include "VxVertex/VxContainer.h"
+#include "AthContainers/ConstDataVector.h"
 
 //---------------------------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ StatusCode TrackSelectionAlg::execute()
   //if this method the decision on which trackcollection and whether to require TRT hits
   //is made from the configuration of the TrackSlectionTool (in jobOptions)
 
-  const TrackCollection* tracks;
+  const TrackCollection* tracks = nullptr;
 
   //retrieving input track collection from Storegate
   StatusCode sc = evtStore()->retrieve(tracks,m_inputTrackCol);
@@ -96,7 +97,7 @@ StatusCode TrackSelectionAlg::execute()
   }
 
   //getting primary vertex collection from Storegate
-  const VxContainer* vertices;// = new VxContainer; // commented out by Priscilla bug CID30178
+  const VxContainer* vertices = nullptr;
   StatusCode scv = evtStore()->retrieve(vertices,"VxPrimaryCandidate");
   if (scv.isFailure()) {
     msg(MSG::ERROR) << "No Collection with name " << "VxPrimaryCandidate" <<" found in StoreGate" << endmsg;
@@ -130,26 +131,26 @@ StatusCode TrackSelectionAlg::execute()
   
   
   //this is the track view that will be filled
-  TrackCollection* selectedTracks = new TrackCollection( SG::VIEW_ELEMENTS );
+  auto selectedTracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS );
 
   //looping over input track collection and implementing track selection cuts
   TrackCollection::const_iterator trksItr  = tracks->begin();
   TrackCollection::const_iterator trksItrE = tracks->end();
   for (; trksItr != trksItrE; ++trksItr) {
     
-    Trk::Track* track = *trksItr;
+    const Trk::Track* track = *trksItr;
     bool trackPassed = makeTrackCuts(track, zVtx);
     if(trackPassed) selectedTracks->push_back(track);    
   }
 
-  evtStore()->record(selectedTracks,m_outputTrackCol);
+  evtStore()->record(std::move(selectedTracks),m_outputTrackCol);
 
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------------------------------------
 
-bool TrackSelectionAlg::makeTrackCuts(Trk::Track* track, float zVtx)
+bool TrackSelectionAlg::makeTrackCuts(const Trk::Track* track, float zVtx)
 {
   bool trackPassed = true;
 

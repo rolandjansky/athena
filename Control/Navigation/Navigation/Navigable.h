@@ -65,8 +65,6 @@
 #include "Navigation/NavigationToken.h"
 
 // services etc.
-// #include "DataModel/DataVector.h"
-// #include "DataModel/ElementLink.h"
 #include "AthLinks/tools/GenerateIndexingPolicy.h"
 
 // STL includes

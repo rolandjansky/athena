@@ -7,7 +7,7 @@ atlas_subdir( MuonRIO_OnTrack )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthLinks
                           GaudiKernel
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
@@ -26,12 +26,12 @@ atlas_add_library( MuonRIO_OnTrack
                    src/*.cxx
                    PUBLIC_HEADERS MuonRIO_OnTrack
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel GaudiKernel MuonReadoutGeometry MuonPrepRawData TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack
+                   LINK_LIBRARIES AthLinks GaudiKernel MuonReadoutGeometry MuonPrepRawData TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives )
 
 atlas_add_dictionary( MuonRIO_OnTrackDict
                       MuonRIO_OnTrack/MuonRIO_OnTrackDict.h
                       MuonRIO_OnTrack/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} DataModel GaudiKernel MuonReadoutGeometry MuonPrepRawData TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack GeoPrimitives MuonRIO_OnTrack )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks GaudiKernel MuonReadoutGeometry MuonPrepRawData TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack GeoPrimitives MuonRIO_OnTrack )
 

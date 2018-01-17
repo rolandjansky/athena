@@ -11,32 +11,32 @@
 Analysis_Distribution::Analysis_Distribution(const std::string& name) : TrackAnalysis(name) {
 
   // Create track parameter histograms
-  m_h_eta = new TH1D(std::string(m_name+"-eta").c_str(), std::string(m_name+" eta distribution").c_str(), 100, -3, 3);
-  m_h_phi = new TH1D(std::string(m_name+"-phi").c_str(), std::string(m_name+" phi distribution").c_str(), 100, -3.15, 3.15);
-  m_h_z0  = new TH1D(std::string(m_name+"-z0").c_str(),  std::string(m_name+" z0 distribution").c_str(),  100, -200.0, 200.0);
-  m_h_d0  = new TH1D(std::string(m_name+"-d0").c_str(),  std::string(m_name+" d0 distribution").c_str(),  100, -5.0, 5.0);
-  m_h_pT  = new TH1D(std::string(m_name+"-pT").c_str(),  std::string(m_name+" pT distribution").c_str(),  100, -10000, 10000);
-  addHistogram(m_h_eta);
-  addHistogram(m_h_phi);
-  addHistogram(m_h_z0);
-  addHistogram(m_h_d0);
-  addHistogram(m_h_pT);
+  h_eta = new TH1D(std::string(mname+"-eta").c_str(), std::string(mname+" eta distribution").c_str(), 100, -3, 3);
+  h_phi = new TH1D(std::string(mname+"-phi").c_str(), std::string(mname+" phi distribution").c_str(), 100, -3.15, 3.15);
+  h_z0  = new TH1D(std::string(mname+"-z0").c_str(),  std::string(mname+" z0 distribution").c_str(),  100, -200.0, 200.0);
+  h_d0  = new TH1D(std::string(mname+"-d0").c_str(),  std::string(mname+" d0 distribution").c_str(),  100, -5.0, 5.0);
+  h_pT  = new TH1D(std::string(mname+"-pT").c_str(),  std::string(mname+" pT distribution").c_str(),  100, -10000, 10000);
+  addHistogram(h_eta);
+  addHistogram(h_phi);
+  addHistogram(h_z0);
+  addHistogram(h_d0);
+  addHistogram(h_pT);
   
   // Create track hit histograms
-  m_h_blay    = new TH1D(std::string(m_name+"-blay").c_str(),    std::string(m_name+" blayer").c_str(),  2, -0.5, 1.5);
-  m_h_pixel   = new TH1D(std::string(m_name+"-pixel").c_str(),   std::string(m_name+" pixel").c_str(),   10, -0.5, 9.5);
-  m_h_sct     = new TH1D(std::string(m_name+"-sct").c_str(),     std::string(m_name+" sct").c_str(),     12, -0.5, 11.5);
-  m_h_silicon = new TH1D(std::string(m_name+"-silicon").c_str(), std::string(m_name+" silicon").c_str(), 20, -0.5, 19.5);
-  m_h_silicon_match = new TH1D(std::string(m_name+"-silicon_match").c_str(), std::string(m_name+" silicon_match").c_str(), 20, -0.5, 19.5);
-  m_h_straw   = new TH1D(std::string(m_name+"-straw").c_str(),   std::string(m_name+" straw").c_str(),   40, -0.5, 39.5);
-  m_h_tr      = new TH1D(std::string(m_name+"-tr").c_str(),      std::string(m_name+" tr").c_str(),      40, -0.5, 39.5);
-  addHistogram(m_h_blay);
-  addHistogram(m_h_pixel);
-  addHistogram(m_h_sct);
-  addHistogram(m_h_silicon);
-  addHistogram(m_h_silicon_match);
-  addHistogram(m_h_straw);
-  addHistogram(m_h_tr);
+  h_blay    = new TH1D(std::string(mname+"-blay").c_str(),    std::string(mname+" blayer").c_str(),  2, -0.5, 1.5);
+  h_pixel   = new TH1D(std::string(mname+"-pixel").c_str(),   std::string(mname+" pixel").c_str(),   10, -0.5, 9.5);
+  h_sct     = new TH1D(std::string(mname+"-sct").c_str(),     std::string(mname+" sct").c_str(),     12, -0.5, 11.5);
+  h_silicon = new TH1D(std::string(mname+"-silicon").c_str(), std::string(mname+" silicon").c_str(), 20, -0.5, 19.5);
+  h_silicon_match = new TH1D(std::string(mname+"-silicon_match").c_str(), std::string(mname+" silicon_match").c_str(), 20, -0.5, 19.5);
+  h_straw   = new TH1D(std::string(mname+"-straw").c_str(),   std::string(mname+" straw").c_str(),   40, -0.5, 39.5);
+  h_tr      = new TH1D(std::string(mname+"-tr").c_str(),      std::string(mname+" tr").c_str(),      40, -0.5, 39.5);
+  addHistogram(h_blay);
+  addHistogram(h_pixel);
+  addHistogram(h_sct);
+  addHistogram(h_silicon);
+  addHistogram(h_silicon_match);
+  addHistogram(h_straw);
+  addHistogram(h_tr);
 
 }
 
@@ -77,19 +77,19 @@ void Analysis_Distribution::execute(const std::vector<TIDA::Track*>& referenceTr
     double testTr      = (*test)->trHits();
 
     // Fill parameter distribution plots
-    m_h_eta->Fill(testEta);
-    m_h_phi->Fill(testPhi);
-    m_h_z0->Fill(testZ0);
-    m_h_d0->Fill(testD0);
-    m_h_pT->Fill(testPT);
+    h_eta->Fill(testEta);
+    h_phi->Fill(testPhi);
+    h_z0->Fill(testZ0);
+    h_d0->Fill(testD0);
+    h_pT->Fill(testPT);
 
     // Fill hit distribution plots
-    m_h_blay->Fill(testBlay);
-    m_h_pixel->Fill(testPixel);
-    m_h_sct->Fill(testSct);
-    m_h_silicon->Fill(testSilicon);
-    m_h_straw->Fill(testStraw);
-    m_h_tr->Fill(testTr);
+    h_blay->Fill(testBlay);
+    h_pixel->Fill(testPixel);
+    h_sct->Fill(testSct);
+    h_silicon->Fill(testSilicon);
+    h_straw->Fill(testStraw);
+    h_tr->Fill(testTr);
 
   }
 

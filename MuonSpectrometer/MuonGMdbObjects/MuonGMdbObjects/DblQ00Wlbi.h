@@ -13,7 +13,8 @@
 #ifndef DBLQ00_WLBI_H
 #define DBLQ00_WLBI_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 namespace MuonGM
 {
 class DblQ00Wlbi {
@@ -21,7 +22,7 @@ class DblQ00Wlbi {
 public:
     DblQ00Wlbi(){};
     ~DblQ00Wlbi();
-    DblQ00Wlbi(IRDBQuery*);
+    DblQ00Wlbi(std::unique_ptr<IRDBQuery>&&);
 
     struct WLBI {
         int version; // VERSION

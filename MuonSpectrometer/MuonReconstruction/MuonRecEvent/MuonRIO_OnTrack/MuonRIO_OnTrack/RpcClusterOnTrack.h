@@ -10,7 +10,7 @@
 #include "MuonPrepRawData/RpcPrepData.h"
 // needed classes
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 typedef ElementLink<Muon::RpcPrepDataContainer> ElementLinkToIDC_RPC_Container;
 

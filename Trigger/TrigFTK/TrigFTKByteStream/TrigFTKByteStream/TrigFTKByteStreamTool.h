@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: FTK
  * @Package: TrigFTKByteStream
- * @class  : TrigFTKByteStreamTool
+ * @Class  : TrigFTKByteStreamTool
  *
  * @brief  Gaudi bytestream Converter tool for the TrigFTK class
  *
@@ -28,15 +28,16 @@
 /* the RDO structure */
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 
+#include "TrigFTKByteStream/IFTKByteStreamDecoderEncoderTool.h"
 
 #include "eformat/SourceIdentifier.h"
 
 // forward declarations
 class IROBDataProviderSvc;
 
-
 namespace FTK {
 
+  //  class IFTKByteStreamDecoderEncoderTool;
   /**
      @class TrigFTKByteStreamTool
      @brief An AlgTool class to provide conversion from TrigFTK to ByteStream, and fill it in RawEvent
@@ -68,6 +69,9 @@ namespace FTK {
 			const std::string& objName);
   private:
     FullEventAssembler<> m_fea;
+    ToolHandle <IFTKByteStreamDecoderEncoderTool> m_decoder;
+    bool m_isAuxFormat;
+    std::vector<uint32_t> m_robID;
 
   };
 }

@@ -533,7 +533,7 @@ void JobConfig::PrintCompleteSetup(std::ostream & log, std::ostream& (*lineend) 
 // --------------------------------------------------------------------------------
 // parseProgramOptions
 // --------------------------------------------------------------------------------
-void parseProgramOptions(int argc, char* argv[]) throw(TrigConfError) {
+void parseProgramOptions(int argc, char* argv[]) {
 
   // building the option map
   std::string currentPar("");

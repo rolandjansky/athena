@@ -167,7 +167,7 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
     {
       if (m_TrackParticleName == "") {
 	ATH_MSG_ERROR ("m_TrackParticleName not set" );
-	return StatusCode::SUCCESS;
+	return true;
       }
 
       sc = evtStore()->retrieve(m_particle, m_TrackParticleName);
@@ -189,7 +189,7 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
     {
       if (m_TrackName == "") {
 	ATH_MSG_ERROR ("m_TrackName not set" );
-	return StatusCode::SUCCESS;
+	return true;
       }
 
       sc = evtStore()->retrieve(m_tracks, m_TrackName);
@@ -461,7 +461,7 @@ void TBTrackToCaloAlg::CompareImpactWithCluster()
 
   // loop on clusters
   
-  const CaloClusterContainer* cluster_container;
+  const CaloClusterContainer* cluster_container = nullptr;
   sc1=evtStore()->retrieve(cluster_container,m_cluster_container);
   
   const ImpactInCaloCollection* impact_collection;
@@ -668,7 +668,7 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
   // get tracks from TDS
   if (m_TrackName == "") {
     ATH_MSG_ERROR ("m_TrackName not set" );
-    return StatusCode::SUCCESS;
+    return true;
   }
   
   StatusCode sc = evtStore()->retrieve(m_tracks, m_TrackName);

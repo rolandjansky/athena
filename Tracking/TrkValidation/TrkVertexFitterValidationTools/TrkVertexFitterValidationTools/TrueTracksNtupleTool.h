@@ -49,7 +49,7 @@ private:
 	      std::string	m_ntupleDirName;     
 	      std::string	m_ntupleTreeName;
 
-	      TTree * tree;     
+	      TTree * m_tree;     
               
         //variables for track collection
         mutable std::vector<float> *m_prod_x; //!< x coordinate in mm of

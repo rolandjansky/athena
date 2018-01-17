@@ -49,7 +49,7 @@ public:
 					       int			printLevel,
 					       const VertexRegion&	vertexRegion);
     
-    TrackList::track_list*	trackSearch (const std::vector<Trk::SpacePoint*>& spacePoints);
+    TrackList::track_list*	trackSearch (const std::vector<const Trk::SpacePoint*>& spacePoints);
 
 private:
     typedef	TrackList::track_list		track_list;

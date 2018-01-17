@@ -40,7 +40,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h" 
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"

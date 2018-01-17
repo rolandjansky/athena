@@ -24,7 +24,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class ValidationTruthStrategy : public AthAlgTool, public ITruthStrategy {
+  class ValidationTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
      /** Constructor with parameters */

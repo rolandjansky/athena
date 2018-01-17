@@ -24,7 +24,7 @@
 
 using namespace xercesc;
 
-DOMNode* XercesParser::currentElement=0;
+DOMNode* XercesParser::s_currentElement=0;
 
 XercesParser::~XercesParser()
 {
@@ -48,7 +48,7 @@ XercesParser::XercesParser(std::string s):IAGDDParser(s),m_doc(0),m_parser(0),m_
 bool XercesParser::ParseFile(std::string s)
 {
 //	std::cout<<"+++++++++++> Xerces Parser parsing file "<<s <<std::endl;
-        fileName=s;
+        m_fileName=s;
 	s=PathResolver::find_file(s,"XMLPATH",PathResolver::RecursiveSearch);
 	if (s.empty())
 		std::cout<<" something wrong, could not find XML file "<<s<<std::endl;
@@ -173,7 +173,7 @@ void XercesParser::navigateTree()
 	DOMNode* node = 0;
 	node = dynamic_cast<DOMNode*>(m_doc->getDocumentElement());
 	if( !node ) throw;
-	currentElement=node;
+	s_currentElement=node;
 	elementLoop(node);
 }
 
@@ -189,7 +189,7 @@ void XercesParser::elementLoop(DOMNode *e)
 		return;
 	}
 	if (!(e->getNodeType()==DOMNode::ELEMENT_NODE)) return;
-	currentElement=e;
+	s_currentElement=e;
 	XMLHandler *h=XMLHandlerStore::GetHandlerStore()->GetHandler(e);
 	bool stopLoop=false;
 	if (h)

@@ -13,6 +13,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
+#include "IPrescalingTool.h"
 
 
 /*
@@ -26,7 +27,7 @@ class L1Decoder : public AthReentrantAlgorithm {
 public:
   L1Decoder(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize() override;
-  virtual StatusCode beginRun() override;
+  virtual StatusCode start() override;
   virtual StatusCode execute_r (const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
@@ -34,9 +35,7 @@ protected: // protected to support unit testing
   //  StatusCode flagPassingRoIs(TrigCompositeUtils::DecisionContainer* rois,
   //			     const xAOD::TrigCompositeUtils* chains) const;
   virtual StatusCode readConfiguration(); 
-  StatusCode prescaleChains(const HLT::IDVec& active,
-			    HLT::IDVec& prescaled) const;
-
+  
   StatusCode saveChainsInfo(const HLT::IDVec& chains,
 			    xAOD::TrigCompositeContainer* storage,
 			    const std::string& type) const;
@@ -55,9 +54,11 @@ private:
 
   ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{this, "roiUnpackers", {},
       "Tools unpacking RoIs"};
+  ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingEmulationTool/PrescalingEmulationTool", "Prescaling tool"};
+    
   ///@}
 
-  std::map<HLT::Identifier, float> m_prescalingInfo;  
+
 };
 
 #endif

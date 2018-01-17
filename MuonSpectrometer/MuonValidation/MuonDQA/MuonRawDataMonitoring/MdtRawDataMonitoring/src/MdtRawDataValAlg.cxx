@@ -195,7 +195,6 @@ StatusCode MdtRawDataValAlg::initialize()
   //initialize to stop coverity bugs
    m_activeStore = 0;
    m_mdtIdHelper=0;
-   m_idHelper=0;
    p_MuonDetectorManager=0;
    //mdtevents_RPCtrig = 0;
    //mdtevents_TGCtrig=0;
@@ -567,11 +566,8 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 	  tp->summaryValue(n_phi, xAOD::numberOfPhiLayers); 
 	  if(ntri_eta+n_phi==0) continue;
 	  
-	  std::vector< const Trk::MeasurementBase* >::const_iterator hit = trk->measurementsOnTrack()->begin();
-	  std::vector< const Trk::MeasurementBase* >::const_iterator hit_end = trk->measurementsOnTrack()->end();
-	  for( ;hit!=hit_end;++hit ){
-	   
-	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
+          for (const Trk::MeasurementBase* hit : *trk->measurementsOnTrack()) {
+	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(hit);
 	    if(!rot_from_track) continue;
 	    //              rot_from_track->dump(msg());
 	    Identifier rotId = rot_from_track->identify();
@@ -1665,7 +1661,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for TotalNumber_of_MDT_hits_per_event without a cut on ADC 
     sc = bookMDTHisto_overview(m_mdteventsLumi, "TotalNumber_of_MDT_hits_per_event", "[counts]", "Number of Events",
-                               500, 0., 10000., m_mg->mongroup_overview_shiftLumi);
+                               500, 0., 20000., m_mg->mongroup_overview_shiftLumi);
     
      
     ////////////////////////////////////////////////////////////////////////////////////// 

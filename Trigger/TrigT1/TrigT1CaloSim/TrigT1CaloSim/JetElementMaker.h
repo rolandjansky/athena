@@ -65,8 +65,6 @@ class JetElementMaker : public AthAlgorithm
 
   JetElementMaker( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-  virtual ~JetElementMaker();
-
 
   //------------------------------------------------------
   // Methods used by Athena to run the algorithm

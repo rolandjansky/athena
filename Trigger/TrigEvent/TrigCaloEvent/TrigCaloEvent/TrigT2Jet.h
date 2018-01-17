@@ -16,7 +16,7 @@
 #define TRIGCALOEVENT_TRIGT2JET_H
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TrigCaloEvent/Trig3Momentum.h"
 #include "FourMom/P4EEtaPhiM.h"

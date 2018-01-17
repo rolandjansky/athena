@@ -25,7 +25,7 @@ AGDDToolBase::AGDDToolBase(const std::string& type, const std::string& name,
 	declareProperty("DisableSections",	m_disableSections);
 	
 	ATH_MSG_DEBUG(" trying to get the controller");
-  	controller =AGDDController::GetController();
+  	m_controller =AGDDController::GetController();
 }
 
 StatusCode AGDDToolBase::initialize()
@@ -38,13 +38,13 @@ void AGDDToolBase::InitializeAGDD()
 {
 	ATH_MSG_INFO(" initializing AGDD builder");
 	
-	controller->Locked(m_locked);
+	m_controller->Locked(m_locked);
 	
 	ATH_MSG_INFO(" XML file ");
   	for (unsigned int i=0;i<m_xmlFiles.size();i++)
   	{
   		ATH_MSG_INFO(" \t file "<<m_xmlFiles[i]);
-		controller->AddFile(m_xmlFiles[i]);		
+		m_controller->AddFile(m_xmlFiles[i]);		
   	}
   	ATH_MSG_INFO (" ---------");	
 	
@@ -53,7 +53,7 @@ void AGDDToolBase::InitializeAGDD()
   	for (unsigned int i=0;i<m_sectionsToBuild.size();i++)
   	{
   		ATH_MSG_INFO(" \t section "<<m_sectionsToBuild[i]);
-		controller->AddSection(m_sectionsToBuild[i]);		
+		m_controller->AddSection(m_sectionsToBuild[i]);		
   	}
   	ATH_MSG_INFO (" ---------");
 	
@@ -62,7 +62,7 @@ void AGDDToolBase::InitializeAGDD()
   	for (unsigned int i=0;i<m_volumesToBuild.size();i++)
   	{
   		ATH_MSG_INFO(" \t volume "<<m_volumesToBuild[i]);
-		controller->AddVolume(m_volumesToBuild[i]);		
+		m_controller->AddVolume(m_volumesToBuild[i]);		
   	}
   	ATH_MSG_INFO (" ---------");
 

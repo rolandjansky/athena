@@ -171,7 +171,7 @@ StatusCode OnlineSpacePointProviderTool::initialize()
 
   // Register incident handler
   ServiceHandle<IIncidentSvc> iincSvc( "IncidentSvc", name());
-  sc = iincSvc.retrieve().isSuccess();
+  sc = iincSvc.retrieve();
   if ( sc.isFailure() ) 
     {
       ATH_MSG_FATAL("Unable to locate IncidentSvc ");

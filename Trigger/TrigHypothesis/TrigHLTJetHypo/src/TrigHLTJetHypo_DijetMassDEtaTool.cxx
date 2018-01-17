@@ -91,7 +91,7 @@ StatusCode TrigHLTJetHypo_DijetMassDEtaTool::checkVals() const {
                   << m_asymmetricEtas.size() << " "
                   );
     
-    return false;
+    return StatusCode::FAILURE;
   }
 
   bool multOK = m_EtThresholds.size() > 1;
@@ -121,7 +121,7 @@ StatusCode TrigHLTJetHypo_DijetMassDEtaTool::checkVals() const {
     ATH_MSG_ERROR(name() << " neither mass nor deta limits given");
   }
   
-  return multOK and ystarOK and massOK and atLeastOne;
+  return StatusCode(multOK and ystarOK and massOK and atLeastOne);
 }
 
 

@@ -34,10 +34,10 @@ private:
 	};
 public:
 	FakeRoI(const std::string& name, ISvcLocator* pSvcLocator);
-	StatusCode initialize();
-	StatusCode beginRun();
-	StatusCode execute();
-	StatusCode finalize();
+    virtual StatusCode initialize() override;
+	virtual StatusCode start() override;
+	virtual StatusCode execute() override;
+	virtual StatusCode finalize() override;
 private:
 	std::vector<std::vector<SingleFakeRoI>> parseInputFile();
 	std::vector<SingleFakeRoI> parseInputFileLine(const std::string& line, unsigned lineNumber);

@@ -11,16 +11,18 @@ namespace G4UA
   StoppedParticleActionTool::StoppedParticleActionTool(const std::string& type,
                                                        const std::string& name,
                                                        const IInterface* parent)
-    : ActionToolBase<StoppedParticleAction>(type, name, parent)
+    : UserActionToolBase<StoppedParticleAction>(type, name, parent)
   {
-    declareInterface<IG4SteppingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
-  std::unique_ptr<StoppedParticleAction> StoppedParticleActionTool::makeAction()
+  std::unique_ptr<StoppedParticleAction>
+  StoppedParticleActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<StoppedParticleAction>();
+    ATH_MSG_DEBUG("Making a StoppedParticleAction");
+    auto action = std::make_unique<StoppedParticleAction>();
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

@@ -165,7 +165,7 @@ SCT_FillCablingFromText::readDataFromFile(SCT_CablingSvc * cabling){
         dataLine>>rod>>Link>>barrelOrEndcap>>layer>>eta>>phi>>side>>std::hex>>robidFromfile>>std::dec>>sn ;
         offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side) ;
         offlineIdHash = idHelper->wafer_hash(offlineId);       
-      }catch(std::ios_base::failure){
+      }catch(const std::ios_base::failure&){
         msg(MSG::FATAL)<<"An error occurred while reading the cabling file "<<m_source
         <<", it may be badly formatted in the following line: \n"<<inString<<endmsg;
         //shall we continue or fail? continue... to see whether there are more errors

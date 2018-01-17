@@ -38,7 +38,6 @@ namespace Gaudi {
 #include "AthenaBaseComps/AthMemMacros.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/HandleClassifier.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
@@ -47,21 +46,16 @@ namespace Gaudi {
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/VarHandleKeyArray.h"
 #include "StoreGate/VarHandleKeyArrayProperty.h"
-#include "AthenaKernel/IUserDataSvc.h"
 
 
 class AthAlgTool : 
-  public ::AlgTool,
-  public ::AthMessaging
+  public ::AlgTool
 { 
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
 public: 
-
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
 
   // Copy constructor: 
 
@@ -87,10 +81,6 @@ public:
    */
   ServiceHandle<StoreGateSvc>& detStore() const;
 
-  /** @brief The standard @c UserDataSvc 
-   * Returns (kind of) a pointer to the @c UserDataSvc
-   */
-  ServiceHandle<IUserDataSvc>& userStore() const;
 
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
@@ -164,7 +154,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleKey.
@@ -189,7 +179,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleBase.
@@ -312,6 +302,15 @@ public:
 
 
   /**
+   * @brief Handle START transition.
+   *
+   * We override this in order to make sure that conditions handle keys
+   * can cache a pointer to the conditions container.
+   */
+  virtual StatusCode sysStart() override;
+
+
+  /**
    * @brief Return this tool's input handles.
    *
    * We override this to include handle instances from key arrays
@@ -330,6 +329,17 @@ public:
    */
   virtual std::vector<Gaudi::DataHandle*> outputHandles() const override;
 
+
+  // forward to CommonMessaging
+  inline MsgStream& msg() const {
+    return msgStream();
+  }
+  inline MsgStream& msg(const MSG::Level lvl) const {
+    return msgStream(lvl);
+  }
+  inline bool msgLvl(const MSG::Level lvl) const {
+    return msgLevel(lvl);
+  }
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -364,10 +374,6 @@ private:
   /// Pointer to StoreGate (detector store by default)
   mutable StoreGateSvc_t m_detStore;
 
-  typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
-  /// Pointer to IUserDataSvc
-  mutable UserDataSvc_t m_userStore;
-
   bool m_varHandleArraysDeclared;
 }; 
 
@@ -382,9 +388,5 @@ ServiceHandle<StoreGateSvc>& AthAlgTool::evtStore() const
 inline
 ServiceHandle<StoreGateSvc>& AthAlgTool::detStore() const 
 { return m_detStore; }
-
-inline
-ServiceHandle<IUserDataSvc>& AthAlgTool::userStore() const 
-{ return m_userStore; }
 
 #endif //> ATHENABASECOMPS_ATHALGTOOL_H

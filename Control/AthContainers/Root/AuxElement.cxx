@@ -14,7 +14,6 @@
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreStandalone.h"
 #include "AthContainers/exceptions.h"
-#include "AthContainers/tools/foreach.h"
 
 
 
@@ -77,7 +76,7 @@ public:
 /// but it was released because it was added to a container.
 /// (And therefore we should recreate the private store if the
 /// object is later removed.)
-SG::AuxElementData* AuxElement::s_privatePlaceholder =
+SG::AuxElementData* const AuxElement::s_privatePlaceholder =
   reinterpret_cast<SG::AuxElementData*>(1);
 
 
@@ -249,7 +248,7 @@ const SG::auxid_set_t& AuxElement::getAuxIDs() const
     return m_privateData->getConstStore()->getAuxIDs();
   if (container())
     return container()->getAuxIDs();
-  static SG::auxid_set_t null_set;
+  static const SG::auxid_set_t null_set;
   return null_set;
 }
 
@@ -437,7 +436,7 @@ void AuxElement::clearAux()
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   SG::AuxTypeRegistry::lock_t lock (r);
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, m_container->getWritableAuxIDs()) {
+  for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     void* dst = m_container->getDataArray (auxid);
     r.clear (lock, auxid, dst, m_index);
   }
@@ -471,11 +470,11 @@ void AuxElement::copyAux (const AuxElement& other)
   }
 
   size_t oindex = other.index();
-  const SG::auxid_set_t& other_ids = ocont->getAuxIDs();
+  SG::auxid_set_t other_ids = ocont->getAuxIDs();
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, other_ids) {
+  for (SG::auxid_t auxid : other_ids) {
     const void* src = ocont->getDataArrayAllowMissing (auxid);
     if (src) {
       void* dst = m_container->getDataArray (auxid);
@@ -487,8 +486,8 @@ void AuxElement::copyAux (const AuxElement& other)
     }
   }
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, m_container->getWritableAuxIDs()) {
-    if (other_ids.find (auxid) == other_ids.end()) {
+  for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
+    if (!other_ids.test (auxid)) {
       void* dst = m_container->getDataArray (auxid);
       r.clear (auxid, dst, m_index);
     }

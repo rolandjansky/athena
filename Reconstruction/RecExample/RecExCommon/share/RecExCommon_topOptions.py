@@ -90,6 +90,7 @@ excludeTracePattern.append("*/DQDefects/virtual*")
 excludeTracePattern.append("*/PanTauAnalysis/Class_FeatureHandler.py")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
+excludeTracePattern.append("*AthFile/impl.py")
 #####################
 # Flags (separated) #
 #####################
@@ -128,6 +129,9 @@ if rec.readESD():
 from AODFix.AODFix import *
 AODFix_Init()
 AODFix_preInclude()
+
+from RecoFix.RecoFix import RecoFix_Init, RecoFix_addMetaData
+RecoFix_Init()
 
 
 ###################
@@ -178,6 +182,7 @@ else:
 
 
 AODFix_addMetaData()
+RecoFix_addMetaData()
 
 if rec.oldFlagCompatibility:
     print "RecExCommon_flags.py flags values:"

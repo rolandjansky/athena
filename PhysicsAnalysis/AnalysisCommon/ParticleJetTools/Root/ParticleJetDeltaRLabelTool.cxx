@@ -111,9 +111,9 @@ int ParticleJetDeltaRLabelTool::modify(JetContainer& jets) const {
     const TruthParticleContainer* taus = NULL;
     const TruthParticleContainer* bs = NULL;
     const TruthParticleContainer* cs = NULL;
-    ASG_CHECK( evtStore()->retrieve( taus, m_taupartcollection));
-    ASG_CHECK( evtStore()->retrieve( bs, m_bottompartcollection));
-    ASG_CHECK( evtStore()->retrieve( cs, m_charmpartcollection));
+    ASG_CHECK( evtStore()->retrieve( taus, m_taupartcollection), 1);
+    ASG_CHECK( evtStore()->retrieve( bs, m_bottompartcollection), 1);
+    ASG_CHECK( evtStore()->retrieve( cs, m_charmpartcollection), 1);
 
     vector<vector<const TruthParticle*> > jetlabelpartsb = match(*bs, jets);
     vector<vector<const TruthParticle*> > jetlabelpartsc = match(*cs, jets);

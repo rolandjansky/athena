@@ -136,6 +136,9 @@ private:
   double         m_cs3Para;
   std::vector<double> m_cs4Para;
   bool                m_validationSetup;
+  //pileup truth veto
+  bool m_includePileUpTruth;
+  IntegerProperty m_vetoThisBarcode;
 
   /** Get next event and extract collection of hit collections: */
   StatusCode getNextEvent();

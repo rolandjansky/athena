@@ -76,7 +76,7 @@ namespace pool  {
     /// Find domain in session
     DbStatus remove(const DbDomainObj* dom) const;
     /// Open the session in a given mode
-    DbStatus open(void* context);
+    DbStatus open();
     /// Close the session
     DbStatus close() const;
     /// Allow access to the Database implementation

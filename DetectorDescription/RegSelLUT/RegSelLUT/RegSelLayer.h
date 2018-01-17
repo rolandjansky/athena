@@ -22,8 +22,8 @@
  **************************************************************************/ 
 
 
-#ifndef REGSELLUT_REGSELLAYER_H
-#define REGSELLUT_REGSELLAYER_H
+#ifndef REGSELLAYER_H
+#define REGSELLAYER_H
 
 
 #include <vector>
@@ -42,14 +42,15 @@ public:
   
   RegSelLayer() : 
     ZRObject(0,0,0,0), 
-    m_set(false), m_ID(0),
-    m_modules(0),   m_disabled(0), m_Nphi(0),
-    m_ideltaphi(0), m_phiMin(0), m_phiMax(0), m_phimaps(0) { }   
+    m_set(false), m_ID(0), m_detID(0), 
+    m_modules(0),   m_disabled(0), m_Nphi(0),  m_Nz(0), m_Nr(0),
+    m_ideltaphi(0), m_ideltaz(0),  m_phiMin(0), m_phiMax(0), m_phimaps(0) { }   
   
   RegSelLayer(double rmin, double rmax, double zmin, double zmax) :
     ZRObject(rmin, rmax, zmin, zmax), 
-    m_set(true), m_ID(0), m_modules(0), m_disabled(0), m_Nphi(0),
-    m_ideltaphi(0), m_phiMin(0), m_phiMax(0), m_phimaps(0) { }    
+    m_set(true), m_ID(0), m_detID(0), m_modules(0), m_disabled(0), m_Nphi(0),
+    m_Nz(0), m_Nr(0),
+    m_ideltaphi(0), m_ideltaz(0),  m_phiMin(0), m_phiMax(0), m_phimaps(0) { }    
   
   void reset(); 
 
@@ -85,10 +86,10 @@ private:
     // add and cluster module 
     void addModule(const RegSelModule& m);
     // how many phi clusters are there?
-    unsigned size() const { return m_N.size(); }
+    unsigned size() const { return mN.size(); }
   private:
-    std::vector<int>    m_N; 
-    std::vector<double> m_positions;
+    std::vector<int>    mN; 
+    std::vector<double> mpositions;
   };
 
   // driver routine to pick which modules to cluster
@@ -98,6 +99,7 @@ private:
 
   bool m_set;
   int  m_ID;
+  int  m_detID;
 
   std::vector<const RegSelModule*> m_modules;
   std::vector<const RegSelModule*> m_disabled;
@@ -106,8 +108,11 @@ private:
 
 
   int m_Nphi;
+  int m_Nz;
+  int m_Nr;
 
   double m_ideltaphi;
+  double m_ideltaz;
 
   double m_phiMin;
   double m_phiMax; 
@@ -120,4 +125,14 @@ private:
 std::ostream& operator<<(std::ostream& s, const RegSelLayer& layer);
 
 
-#endif // not REGSELLUT_REGSELLAYER_H
+#endif  /* REGSELLAYER_H */
+
+
+
+
+
+
+
+
+
+

@@ -72,12 +72,8 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-# SGInputLoader is a module in SGComps that will do a typeless StoreGate read
-# of data on disk, to preload it in the Whiteboard for other Alorithms to use.
-# It uses the same syntax as Algorithmic dependency declarations.
 from AthenaCommon import CfgMgr
-topSeq += CfgMgr.SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
-topSeq.SGInputLoader.Load = [('McEventCollection', 'StoreGateSvc+GEN_EVENT')]
+CfgMgr.SGInputLoader().Load += [('McEventCollection', 'StoreGateSvc+GEN_EVENT')]
 
 # Add the beam effects algorithm
 from AthenaCommon.CfgGetter import getAlgorithm
@@ -90,7 +86,6 @@ topSeq += getAlgorithm("G4AtlasAlg", tryDefaultConfigurable=True)
 # Explicitly specify the data-flow dependencies of G4AtlasAlg and StreamHITS.
 # This is done like this because currently our VarHandles do not live in the
 # algorithm but rather in Geant4 components.
-# TODO: make this declaration more automatic
 topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','StoreGateSvc+BeamTruthEvent')]
 topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','StoreGateSvc+SCT_Hits')]
 topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs

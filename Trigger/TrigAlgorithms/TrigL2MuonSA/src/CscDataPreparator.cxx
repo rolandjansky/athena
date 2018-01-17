@@ -133,6 +133,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    }
    ATH_MSG_DEBUG("Retrieved service " << serviceName);
 
+   ATH_CHECK(m_cscPrepContainerKey.initialize());
+
    // 
    return StatusCode::SUCCESS; 
 }
@@ -200,13 +202,12 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 
   // Get CSC container
   if( !cscHashIDs_cluster.empty() ){
-    const CscPrepDataContainer* cscPrepContainer = 0;
-    StatusCode sc = (*p_ActiveStore)->retrieve( cscPrepContainer, "CSC_Clusters" );
-    if( sc.isFailure() ){
-      ATH_MSG_ERROR(" Cannot retrieve CSC PRD Container ");
-      return sc;
-    }
-    
+    auto cscPrepContainerHandle = SG::makeHandle(m_cscPrepContainerKey);
+    const CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
+    if (!cscPrepContainerHandle.isValid()) {
+      ATH_MSG_ERROR("Cannot retrieve CSC PRD Container key: " << m_cscPrepContainerKey.key());
+      return StatusCode::FAILURE;
+    }    
     // Loop over collections
     CscPrepDataContainer::const_iterator it = cscPrepContainer->begin();
     CscPrepDataContainer::const_iterator it_end = cscPrepContainer->end();

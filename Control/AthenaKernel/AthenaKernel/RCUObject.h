@@ -187,7 +187,7 @@ public:
 
 protected:
   typedef std::mutex mutex_t;
-  typedef std::lock_guard<mutex_t> lock_t;
+  typedef std::unique_lock<mutex_t> lock_t;
 
 
   /**
@@ -463,6 +463,7 @@ public:
    */
   void update (std::unique_ptr<T> ptr);
 
+
 private:
   /// The object we're referencing.
   RCUObject<T>& m_rcuobj;
@@ -471,7 +472,7 @@ private:
   const EventContext& m_ctx;
 
   /// Lock for synchonization.
-  std::lock_guard<std::mutex> m_g;
+  std::unique_lock<std::mutex> m_g;
 };
 
 

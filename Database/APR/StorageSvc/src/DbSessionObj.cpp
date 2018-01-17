@@ -36,7 +36,7 @@ typedef std::map<DbType, IOODatabase*> DbTypeMap;
 
 // Standard Constructor
 DbSessionObj::DbSessionObj()
-: Base("DbSession", pool::READ, POOL_StorageType), m_ctxt(0)
+: Base("DbSession", pool::READ, POOL_StorageType)
 {
   m_dbTypes = new DbTypeMap();
   DbInstanceCount::increment(this);
@@ -58,10 +58,9 @@ DbSessionObj::~DbSessionObj()  {
 }
 
 // Open session
-DbStatus DbSessionObj::open(void* ctxt)   {
+DbStatus DbSessionObj::open()   {
   DbPrint log( "DbSession");
   log << DbPrintLvl::Info << "    Open     DbSession    " << DbPrint::endmsg;
-  m_ctxt = ctxt;
   return Success;
 }
 
@@ -79,12 +78,12 @@ IOODatabase* DbSessionObj::db(const DbType& typ)  const   {
     const std::string nam = typ.storageName();
 #ifdef HAVE_GAUDI_PLUGINSVC
 #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
-    IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*, void*>::create(nam, m_ctxt);
+    IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*>::create(nam);
 #else  
-    IOODatabase* imp = Gaudi::PluginService::Factory1<IOODatabase*, void*>::create(nam, m_ctxt);
+    IOODatabase* imp = Gaudi::PluginService::Factory1<IOODatabase*>::create(nam);
 #endif
 #else
-    IOODatabase* imp = ROOT::Reflex::PluginService::Create<IOODatabase*>(nam, m_ctxt);
+    IOODatabase* imp = ROOT::Reflex::PluginService::Create<IOODatabase*>(nam);
 #endif
     if ( imp )  {
       DbStatus sc = imp->initialize(nam);

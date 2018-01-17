@@ -482,14 +482,12 @@ StatusCode CscPrdValAlg::bookHistograms() {
 //
 StatusCode CscPrdValAlg::fillHistograms()  {
 
-  StatusCode sc = StatusCode::SUCCESS;
-
   // Part 1: Get the messaging service, print where you are
   ATH_MSG_DEBUG( "CscPrdValAlg: in fillHistograms" );
 
   const DataHandle<CscStripPrepDataContainer> CscPRD(0);
 
-  sc = evtStore()->contains<CscStripPrepDataContainer>(m_cscPrdKey);
+  StatusCode sc(evtStore()->contains<CscStripPrepDataContainer>(m_cscPrdKey));
   if(sc.isFailure() || m_cscPrdKey == "") {
     ATH_MSG_WARNING (  "PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPrdKey << "\" NOT found in StoreGate" );
     return sc;

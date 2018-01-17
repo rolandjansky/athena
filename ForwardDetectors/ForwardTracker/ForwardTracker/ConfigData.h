@@ -9,7 +9,8 @@
 
 namespace ForwardTracker {
 
-  struct ConfigData {
+  class ConfigData {
+  public:
     
     std::string twissFile1;
     std::string twissFile2;

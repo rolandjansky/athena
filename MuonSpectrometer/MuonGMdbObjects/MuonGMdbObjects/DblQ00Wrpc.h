@@ -13,7 +13,8 @@
 #ifndef DBLQ00_WRPC_H
 #define DBLQ00_WRPC_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 namespace MuonGM
 {
 class DblQ00Wrpc {
@@ -21,7 +22,7 @@ class DblQ00Wrpc {
 public:
     DblQ00Wrpc(){};
     ~DblQ00Wrpc();
-    DblQ00Wrpc(IRDBQuery*);
+    DblQ00Wrpc(std::unique_ptr<IRDBQuery>&&);
     
     // data members for DblQ00/WRPC fields
     struct WRPC {

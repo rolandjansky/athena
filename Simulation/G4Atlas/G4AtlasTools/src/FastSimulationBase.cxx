@@ -9,7 +9,7 @@
 #include "G4FastSimulationManager.hh"
 
 FastSimulationBase::FastSimulationBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent)
+  : base_class(type,name,parent)
 #ifndef G4MULTITHREADED
   , m_FastSimModel(nullptr)
 #endif
@@ -67,15 +67,6 @@ StatusCode FastSimulationBase::initializeFastSim(){
   }
 
   return StatusCode::SUCCESS;
-}
-
-StatusCode FastSimulationBase::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IFastSimulation::interfaceID() ) {
-    *ppvIf = (IFastSimulation*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 G4VFastSimulationModel* FastSimulationBase::getFastSimModel()

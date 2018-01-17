@@ -13,7 +13,6 @@
 #include "../IndexMultiAssociationFillerTool.h"
 #include "../SGObjGetterTool.h"
 #include "../SGDataVectorGetterTool.h"
-#include "../UserDataFillerTool.h"
 #include "../AuxDataFillerTool.h"
 #include "../SelectedParticlesFilterTool.h"
 #include "../ContainerFlagFillerTool.h"
@@ -36,7 +35,6 @@ DECLARE_COMPONENT( D3PD::ContainedVectorMultiAssociationFillerTool )
 DECLARE_COMPONENT( D3PD::IndexMultiAssociationFillerTool )
 DECLARE_COMPONENT( D3PD::SGObjGetterTool )
 DECLARE_COMPONENT( D3PD::SGDataVectorGetterTool )
-DECLARE_COMPONENT( D3PD::UserDataFillerTool )
 DECLARE_COMPONENT( D3PD::AuxDataFillerTool )
 DECLARE_COMPONENT( D3PD::SelectedParticlesFilterTool )
 DECLARE_COMPONENT( D3PD::ContainerFlagFillerTool )

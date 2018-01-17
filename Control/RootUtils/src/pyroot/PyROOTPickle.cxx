@@ -31,7 +31,7 @@ namespace RootUtils {
  * @brief PyROOT object proxy pickle support
  * @param self object proxy instance to be pickled
  */
-PyObject* ObjectProxyReduce( PyObject* self )
+PyObject* ObjectProxyReduce( PyObject* self, PyObject* )
 {
   // Turn the object proxy instance into a character stream and return for
   // pickle, together with the callable object that can restore the stream

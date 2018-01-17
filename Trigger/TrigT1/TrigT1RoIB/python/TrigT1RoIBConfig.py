@@ -9,7 +9,9 @@ class DefaultRoIBuilder(ROIB__RoIBuilder):
     def __init__(self, name = "DefaultRoIBuilder"):
         super( DefaultRoIBuilder, self ).__init__( name )
 
+
     def setDefaults(self, handle):
+
         pass
 
 class RoIBuilder(DefaultRoIBuilder):
@@ -27,7 +29,7 @@ class RoIBuilderInDigi(DefaultRoIBuilder):
 
     def __init__(self, name = "RoIBuilder"):
         super( RoIBuilderInDigi, self ).__init__( name )
-
+        
     def setDefaults(self, handle):
         DefaultRoIBuilder.setDefaults(handle)
 

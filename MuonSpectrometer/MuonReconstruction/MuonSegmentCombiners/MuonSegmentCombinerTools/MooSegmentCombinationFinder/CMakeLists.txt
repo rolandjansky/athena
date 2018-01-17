@@ -26,6 +26,7 @@ atlas_depends_on_subdirs( PRIVATE
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonPatternSegmentMaker
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils
+			  MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonEDM_AssociationObjects
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
@@ -45,5 +46,5 @@ atlas_add_component( MooSegmentCombinationFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonChamberT0s MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLinearSegmentMakerUtilities MuonSegmentMakerUtils TrkSurfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTruthData TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonChamberT0s MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLinearSegmentMakerUtilities MuonSegmentMakerUtils MuonEDM_AssociationObjects TrkSurfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTruthData TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces )
 

@@ -256,7 +256,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       if sequenceFlavour != "FTF":
         algos = [("TrigAmbiguitySolver",""),
-                 ("TRTDriftCircleMaker",""),
+                 ("TRTDriftCircleMaker","TRTDriftCircleMaker_IDTrig"),
                  ("InDetTrigPRD_MultiTruthMaker",""), 
                  ("TRTTrackExtAlg",""),
                  ("TrigExtProcessor",""),
@@ -288,7 +288,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
     elif sequenceType=="TRTdata":
       algos = [("IDTrigRoiUpdater", "IDTrigRoiUpdater_HIP"),
-               ("TRTDriftCircleMaker",""),]
+               ("TRTDriftCircleMaker","TRTDriftCircleMaker_IDTrig"),]
       fullseq.append(algos)
 
     elif sequenceType=="FastEFID":

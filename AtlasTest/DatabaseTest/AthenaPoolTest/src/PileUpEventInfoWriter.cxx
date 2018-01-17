@@ -124,13 +124,13 @@ void PileUpEventInfoWriter::handle(const Incident& inc) {
     if (evtStore()->retrieve( pevt ).isFailure() ) {
  	ATH_MSG_ERROR("  Could not get pileup event info" );      
 	throw GaudiException("PileUpEventInfoWriter::handle Could not get pileup event info", 
-			     "PileUpEventInfoWriter", 0);
+                         "PileUpEventInfoWriter", StatusCode::FAILURE);
     }
     else {
         if (evtStore()->remove(pevt).isFailure() ) {
 	    ATH_MSG_ERROR("  Could not remove pileup event info" );      
             throw GaudiException("PileUpEventInfoWriter::handle Could not remove pileup event info", 
-                                 "PileUpEventInfoWriter", 0);
+                                 "PileUpEventInfoWriter", StatusCode::FAILURE);
 	}
 	else {
 	    ATH_MSG_DEBUG("Removed PileUpEventInfo/OverlayEvent: " );

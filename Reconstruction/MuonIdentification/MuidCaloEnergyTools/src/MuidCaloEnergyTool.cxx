@@ -139,7 +139,12 @@ StatusCode MuidCaloEnergyTool::initialize()
 	else
 	{
 	    ATH_MSG_WARNING( " Using energy measurement without trackIsolation " );
+	    m_trackIsolationTool.disable();
 	}
+    }
+    else{
+      m_trackIsolationTool.disable();
+      m_caloMeasTool.disable();
     }
 
     return StatusCode::SUCCESS;

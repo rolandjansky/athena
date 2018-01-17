@@ -30,7 +30,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGateSvc.h" 
 #include "TFile.h"

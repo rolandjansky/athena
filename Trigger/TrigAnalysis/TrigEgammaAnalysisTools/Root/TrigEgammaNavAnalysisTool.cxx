@@ -99,7 +99,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             return StatusCode::SUCCESS;
         }
         // Fill distributions / trigger
-        for( const auto& tool : m_tools) {
+        for( auto& tool : m_tools) {
             // Set detail level from analysis tool each time
             tool->setDetail(getDetail()); 
             tool->setTP(getTP()); 

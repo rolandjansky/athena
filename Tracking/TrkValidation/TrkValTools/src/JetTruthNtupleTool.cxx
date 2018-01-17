@@ -132,7 +132,7 @@ StatusCode Trk::JetTruthNtupleTool::writeJetTruthData (
 
   // ---------------------------------------
   // fill event data
-  const EventInfo* eventInfo;
+  const EventInfo* eventInfo = nullptr;
   sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) {
     ATH_MSG_WARNING ( "Could not retrieve event info" );

@@ -36,10 +36,6 @@ TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
     m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
     m_detstore("DetectorStore",name),
     m_condSvc("CondSvc",name),
-    m_rtReadKey("/TRT/Calib/RT"),
-    m_errReadKey("/TRT/Calib/errors2d"),
-    m_slopeReadKey("/TRT/Calib/slopes"),
-    m_t0ReadKey("/TRT/Calib/T0"),
     m_useCachedPtr(false)
 {
   declareProperty("StreamTool",m_streamer);

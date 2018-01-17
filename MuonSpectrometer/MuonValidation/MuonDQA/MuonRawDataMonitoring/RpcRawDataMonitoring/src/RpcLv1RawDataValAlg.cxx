@@ -143,7 +143,7 @@ StatusCode RpcLv1RawDataValAlg::initialize()
 
 
 StatusCode RpcLv1RawDataValAlg::StoreTriggerType() {
-  const xAOD::EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo = nullptr;
   StatusCode sc = StatusCode::SUCCESS;
   sc = m_eventStore->retrieve(eventInfo);
   if ( sc.isFailure() ) {
@@ -841,22 +841,22 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	ATH_MSG_DEBUG ( "Booked rpclv1_TriggerLy_vs_SL successfully" ); 
 	  
 	// set label for Trigger Layer vs SL histograms
-	char YLabel[100];
 	for(int ie=1;ie!=16;ie++){
-	  sprintf(YLabel,"L=");
+          std::ostringstream YLabel;
+          YLabel << "L=";
 	  int first = 0 ;
 	  for(int layer=0;layer!=4;layer++){
 	    int bit = (ie>>layer) & 1  ;
 	    if(bit==1){
 	      if(first==0){
-		sprintf(YLabel,"%s%d",YLabel,layer);
+                YLabel << layer;
 	      }
 	      else{
-		sprintf(YLabel,"%s,%d",YLabel,layer);
+                YLabel << "," << layer;
 	      }
 	      first=1;
-	      rpclv1_TriggerLy_vs_SL->GetYaxis()->SetBinLabel(ie+1,YLabel   );  //  low pt
-	      rpclv1_TriggerLy_vs_SL->GetYaxis()->SetBinLabel(ie+1+16,YLabel);  //  high pt
+	      rpclv1_TriggerLy_vs_SL->GetYaxis()->SetBinLabel(ie+1,YLabel.str().c_str()   );  //  low pt
+	      rpclv1_TriggerLy_vs_SL->GetYaxis()->SetBinLabel(ie+1+16,YLabel.str().c_str());  //  high pt
 	    }
 	  }
 	}
@@ -877,19 +877,20 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	// set label for Trigger conditions per CM
 	rpclv1_TriggerCond_vs_CM->GetYaxis()->SetBinLabel(1 ,"No Hits" );
 	for(int ie=1;ie!=16;ie++){
-	  sprintf(YLabel,"L=");
-	  int first = 0 ;
+          std::ostringstream YLabel;
+          YLabel << "L=";
+          int first = 0 ;
 	  for(int layer=0;layer!=4;layer++){
 	    int bit = (ie>>layer) & 1  ;
 	    if(bit==1){
 	      if(first==0){
-		sprintf(YLabel,"%s%d",YLabel,layer);
+                YLabel << layer;
 	      }
 	      else{
-		sprintf(YLabel,"%s,%d",YLabel,layer);
+                YLabel << "," << layer;
 	      }
 	      first=1;
-	      rpclv1_TriggerCond_vs_CM->GetYaxis()->SetBinLabel(ie+1,YLabel   ); 
+	      rpclv1_TriggerCond_vs_CM->GetYaxis()->SetBinLabel(ie+1,YLabel.str().c_str()   ); 
 	    }
 	  }
 	}
@@ -918,13 +919,14 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	  rpclv1_logicalOR->SetOption("COLZ");
 	  rpclv1_logicalOR->GetYaxis()->SetLabelSize(0.03);
 	  for (int ie=0+1; ie!=128; ie++ ) {
-	    sprintf(YLabel,"pad");
+            std::ostringstream YLabel;
+            YLabel << "pad";
 	    for ( int k=0; k!=8; k++ ) {
 	      if ( (int(pow(2,float(k))) & ie) != 0 ) {
-	        sprintf(YLabel,"%s %d", YLabel, k);
+                YLabel << " " << k;
               }
 	    }
-	    rpclv1_logicalOR->GetYaxis()->SetBinLabel(ie+1, YLabel );
+	    rpclv1_logicalOR->GetYaxis()->SetBinLabel(ie+1, YLabel.str().c_str() );
 	  }
 	}
 
@@ -1375,31 +1377,31 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	/////////////////////////////////////////
       
 	// set label for Trigger Condition histograms
-	char XLabel[1000];
 	for(int ie=1;ie!=16;ie++){
-	  sprintf(XLabel,"L=");
+          std::ostringstream XLabel;
+          XLabel << "L=";
 	  int first = 0 ;
 	  for(int layer=0;layer!=4;layer++){
 	    int bit = (ie>>layer) & 1  ;
 	    if(bit==1){
 	      if(first==0){
-		sprintf(XLabel,"%s%d",XLabel,layer);
+                XLabel << layer;
 	      }
 	      else{
-		sprintf(XLabel,"%s,%d",XLabel,layer);
+                XLabel << "," << layer;
 	      }
 	      first=1;
-	      rpclv1Trigger_cond_LowPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel);
-	      rpclv1Trigger_cond_LowPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel);
+	      rpclv1Trigger_cond_LowPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
+	      rpclv1Trigger_cond_LowPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
 	    
-	      rpclv1Trigger_cond_LowPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel);
-	      rpclv1Trigger_cond_LowPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel);
+	      rpclv1Trigger_cond_LowPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
+	      rpclv1Trigger_cond_LowPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
 	    
-	      rpclv1Trigger_cond_HighPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel);
-	      rpclv1Trigger_cond_HighPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel);
+	      rpclv1Trigger_cond_HighPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
+	      rpclv1Trigger_cond_HighPt_phi->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
 	    
-	      rpclv1Trigger_cond_HighPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel);
-	      rpclv1Trigger_cond_HighPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel);
+	      rpclv1Trigger_cond_HighPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
+	      rpclv1Trigger_cond_HighPt_eta->GetXaxis()->SetBinLabel(ie+1,XLabel.str().c_str());
 	    }
 	  }
 	}

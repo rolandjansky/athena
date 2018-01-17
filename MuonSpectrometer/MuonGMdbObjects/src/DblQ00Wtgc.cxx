@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Wtgc.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -32,7 +31,7 @@
 namespace MuonGM
 {
 
-DblQ00Wtgc::DblQ00Wtgc(IRDBQuery* wtgc)
+DblQ00Wtgc::DblQ00Wtgc(std::unique_ptr<IRDBQuery>&& wtgc)
  : m_nObj(0)
 {
   if(wtgc) {
@@ -58,7 +57,7 @@ DblQ00Wtgc::DblQ00Wtgc(IRDBQuery* wtgc)
             try {
 	      sprintf(m_d[i].allname[j],"%s",wtgc->data<std::string>(tag).c_str());
             }
-            catch (std::runtime_error)
+            catch (const std::runtime_error&)
             {
                 //std::cerr<<"MuonGM::DblQ00-Wtgc- End of material-name list"<<std::endl;
                 break;

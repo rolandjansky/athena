@@ -41,7 +41,7 @@ double iFatras::G4ParticleDecayHelper::s_speedOfLightSI =  CLHEP::c_light*CLHEP:
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::G4ParticleDecayHelper::G4ParticleDecayHelper(const std::string& t, const std::string& n, const IInterface* p):    
-   AthAlgTool(t,n,p),
+   base_class(t,n,p),
    m_particleBroker("ISF_ParticleBroker", n),
    m_truthRecordSvc("ISF_TruthRecordSvc", n),
    m_rndmSvc("AtDSFMTGenSvc", n),
@@ -60,8 +60,6 @@ iFatras::G4ParticleDecayHelper::G4ParticleDecayHelper(const std::string& t, cons
    m_nChargedParticles(0),
    m_nNeutralParticles(0)
 {
-  declareInterface<IParticleDecayHelper>(this);
-    
   // ISF: truth and broker service
   declareProperty("ParticleBroker",           m_particleBroker,       "ISF Particle Broker Svc");
   declareProperty("ParticleTruthSvc",         m_truthRecordSvc,       "ISF Particle Truth Svc");

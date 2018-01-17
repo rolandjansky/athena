@@ -4,7 +4,7 @@
 
 #include "TrigCaloEvent/TrigRNNOutput.h"
 #include "TrigCaloEvent/TrigEMCluster.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 TrigRNNOutput::TrigRNNOutput()
   : m_output(), m_cluster() {

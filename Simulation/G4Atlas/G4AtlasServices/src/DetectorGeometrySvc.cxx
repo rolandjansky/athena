@@ -24,7 +24,7 @@
 // #include "G4ClassicalRK4.hh"
 
 DetectorGeometrySvc::DetectorGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthService(name,pSvcLocator),
+  : base_class(name,pSvcLocator),
     m_detTool("",this),
     m_detConstruction("",this),
     m_regionCreators(this),
@@ -129,18 +129,6 @@ StatusCode DetectorGeometrySvc::finalize(){
   //     else if (dynamic_cast<const G4AtlasRK4*>(stepper)!=nullptr) stepperName="AtlasRK4";
   //     ATH_MSG_INFO("Stepper properties: GetNumberOfVariables() = " << stepper->GetNumberOfVariables() << ", GetNumberOfStateVariables() = " << stepper->GetNumberOfStateVariables() << ", IntegratorOrder() = " << stepper->IntegratorOrder() << ", Stepper Type = " << stepperName);
   //   }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode DetectorGeometrySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IDetectorGeometrySvc::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IDetectorGeometrySvc*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }
 

@@ -83,7 +83,7 @@ namespace DerivationFramework {
 	  return StatusCode::FAILURE;
       }
       
-      xAOD::IParticle* pCopy = *pItr;
+      const xAOD::IParticle* pCopy = *pItr;
 
       // this should be computed based on some property of the tool or the existence of the ElectronPhotonShowerShapeFudgeTool
       bool applyFF = (!m_fudgeMCTool.empty());
@@ -91,13 +91,13 @@ namespace DerivationFramework {
 	// apply the shower shape corrections
 	CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
 	if (type==xAOD::Type::Electron) {
-	    const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(*pItr);
+	    const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(*pItr);
 	    xAOD::Electron* el = 0;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, el);
 	    pCopy = el;
 	}
 	else {
-	    const xAOD::Photon* eg = dynamic_cast<const xAOD::Photon*>(*pItr);
+	    const xAOD::Photon* eg = static_cast<const xAOD::Photon*>(*pItr);
 	    xAOD::Photon* ph = 0;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, ph);
 	    pCopy = ph;
@@ -109,7 +109,7 @@ namespace DerivationFramework {
 	else if (correctionCode==CP::CorrectionCode::OutOfValidityRange)
 	    Warning("addBranches()","Current photon has no valid fudge factors due to out-of-range");
 	else
-	    Warning("addBranches()",Form("Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode));
+	    Warning("addBranches()","Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode);
       }
 
       // compute the output of the selector

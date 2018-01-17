@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00IAcsc.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -40,7 +39,7 @@ DblQ00IAcsc::DblQ00IAcsc()
     
 }
     
-DblQ00IAcsc::DblQ00IAcsc(IRDBQuery* iacsc)
+DblQ00IAcsc::DblQ00IAcsc(std::unique_ptr<IRDBQuery>&& iacsc)
  : m_nObj(0)
 {
     //std::cerr<<" pointer to ISZT data "<< iacsc<<std::endl;

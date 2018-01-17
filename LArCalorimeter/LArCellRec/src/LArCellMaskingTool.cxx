@@ -140,10 +140,10 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
 	    else
 	      nDisconnected++;
 	  }
-	  catch (LArOnlID_Exception) {
+	  catch (const LArOnlID_Exception&) {
 	    nOnlExceptions++;
 	  }
-	  catch(LArID_Exception) {
+	  catch(const LArID_Exception&) {
 	    nOfflExceptions++;
 	  }
 	  if (!haveChannel) channel++;

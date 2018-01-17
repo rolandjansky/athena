@@ -14,7 +14,7 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
