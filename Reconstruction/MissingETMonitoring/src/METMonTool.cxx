@@ -6,6 +6,7 @@
 // METMonTool.cxx
 // AUTHORS: Michele Consonni
 // 20110202: Jet cleaning added by Isabel Pedraza and Michele Consonni
+// 20180118: Major cleaning for release 22 (AthenaMT) Tomasz Bold
 // **********************************************************************
 
 
@@ -41,9 +42,6 @@
 #include <cmath>
 #include <sstream>
 
-// using xAOD::MissingETContainer;
-// using xAOD::MissingETComposition;
-// using xAOD::MissingET;
 
 // *********************************************************************
 // Public Methods
@@ -125,7 +123,7 @@ METMonTool::~METMonTool()
 // *********************************************************************
 StatusCode METMonTool::bookHistograms()
 {
-  ATH_MSG_DEBUG("in bookHistograms()");//msg(MSG::DEBUG) << "in bookHistograms()" << endmsg;
+  ATH_MSG_DEBUG("in bookHistograms()");
 
   // If m_metFinKey is not empty then append it to m_metKeys
   if (m_metFinKey != "")
@@ -143,7 +141,7 @@ StatusCode METMonTool::bookHistograms()
   m_ContainerWarnings_metKeys.resize(m_metKeys.size(), 0);
 
   // ...and debug
-  // if ( msgLvl(MSG::DEBUG) ) {
+
   ATH_MSG_DEBUG("Using the following keys:");
   ATH_MSG_DEBUG("metCalKey = " << m_metCalKey);
   ATH_MSG_DEBUG("metRegKey = " << m_metRegKey);
@@ -154,7 +152,7 @@ StatusCode METMonTool::bookHistograms()
       ATH_MSG_DEBUG((*it));
     }
   ATH_MSG_DEBUG("");
-  // }
+
 
   // Check consistency between m_etrangeCalFactors and m_calIndices
   if (m_etrangeCalFactors.size() < m_calIndices)
@@ -226,9 +224,7 @@ StatusCode METMonTool::bookHistograms()
 
 StatusCode METMonTool::clearHistograms()
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::259");
-  //msg_info// ATH_MSG_INFO("METMonTool::259");
-  //msg_info// ATH_MSG_INFO("METMonTool::259");
+
   ATH_MSG_DEBUG("in clearHistograms()");
 
   // Sources
@@ -240,12 +236,8 @@ StatusCode METMonTool::clearHistograms()
 
   // Profiles
   m_metVsEta.clear();
-  //m_metParaVsEta.clear();
-  //m_metPerpVsEta.clear();
   m_dphiVsEta.clear();
   m_metVsPhi.clear();
-  //m_metParaVsPhi.clear();
-  //m_metPerpVsPhi.clear();
   m_dphiVsPhi.clear();
   m_metVsEtaPhi.clear();
 
@@ -269,9 +261,6 @@ StatusCode METMonTool::clearHistograms()
 
 StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met_mongroup, bool doProfiles)
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::303");
-  //msg_info// ATH_MSG_INFO("METMonTool::303");
-  //msg_info// ATH_MSG_INFO("METMonTool::303");
 
   ATH_MSG_DEBUG("in bookSourcesHistograms(" << metName.c_str() << ")");
     
@@ -400,10 +389,6 @@ StatusCode METMonTool::bookSourcesHistograms(std::string& metName, MonGroup& met
 
 StatusCode METMonTool::bookCalosHistograms(MonGroup& met_calos)
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::431");
-  //msg_info// ATH_MSG_INFO("METMonTool::431");
-  //msg_info// ATH_MSG_INFO("METMonTool::431");
-
   ATH_MSG_DEBUG("in bookCalosHistograms()");
 
   std::ostringstream hName;
@@ -496,9 +481,6 @@ StatusCode METMonTool::bookCalosHistograms(MonGroup& met_calos)
 
 StatusCode METMonTool::bookRegionsHistograms(MonGroup& met_regions)
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::526");
-  //msg_info// ATH_MSG_INFO("METMonTool::526");
-  //msg_info// ATH_MSG_INFO("METMonTool::526");
 
   ATH_MSG_DEBUG("in bookRegionsHistograms()");
 
@@ -592,9 +574,6 @@ StatusCode METMonTool::bookRegionsHistograms(MonGroup& met_regions)
 
 StatusCode METMonTool::bookSummaryHistograms(MonGroup& met_summary)
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::621");
-  //msg_info// ATH_MSG_INFO("METMonTool::621");
-  //msg_info// ATH_MSG_INFO("METMonTool::621");
 
   ATH_MSG_DEBUG("in bookSummaryHistograms()");
 
@@ -677,11 +656,6 @@ StatusCode METMonTool::bookSummaryHistograms(MonGroup& met_summary)
 
 StatusCode METMonTool::bookProfileHistograms(std::string& metName, const char* objName, MonGroup& met_mongroup, int* index)
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::700");
-  //msg_info// ATH_MSG_INFO("METMonTool::700");
-  //msg_info// ATH_MSG_INFO("METMonTool::700");
-
-
   ATH_MSG_DEBUG("in bookProfileHistograms(" << metName.c_str() << ", " << objName << ")");
 
   // ************************************ //
@@ -708,32 +682,6 @@ StatusCode METMonTool::bookProfileHistograms(std::string& metName, const char* o
   hName.str("");
   hTitle.str("");
   hxTitle.str(""); hyTitle.str("");
-  /* // MissingET Parallel Vs Eta
-     hName << "metParaVs" << objName << "Eta_" << metName.c_str();
-     hTitle << "MET Parallel Vs " << objName << " Eta Distribution (" << metName.c_str() << ")";
-     hxTitle << objName << " Eta";
-     hyTitle << "MET Parallel (GeV)";
-     hp = new TProfile( hName.str().c_str(), hTitle.str().c_str(), m_etabin, -5., +5. );
-     hp->GetXaxis()->SetTitle(hxTitle.str().c_str());
-     hp->GetYaxis()->SetTitle(hyTitle.str().c_str()); hp->GetYaxis()->SetTitleOffset(m_tos);
-     met_mongroup.regHist( hp ).ignore();
-     //m_metParaVsEta.push_back( hp );
-     hName.str("");
-     hTitle.str("");
-     hxTitle.str(""); hyTitle.str("");
-     // MissingET Perpendicular Vs Eta
-     hName << "metPerpVs" << objName << "Eta_" << metName.c_str();
-     hTitle << "MET Perpendicular Vs " << objName << " Eta Distribution (" << metName.c_str() << ")";
-     hxTitle << objName << " Eta";
-     hyTitle << "MET Perpendicular (GeV)";
-     hp = new TProfile( hName.str().c_str(), hTitle.str().c_str(), m_etabin, -5., +5. );
-     hp->GetXaxis()->SetTitle(hxTitle.str().c_str());
-     hp->GetYaxis()->SetTitle(hyTitle.str().c_str()); hp->GetYaxis()->SetTitleOffset(m_tos);
-     met_mongroup.regHist( hp ).ignore();
-     m_metPerpVsEta.push_back( hp );
-     hName.str("");
-     hTitle.str("");
-     hxTitle.str(""); hyTitle.str("");*/
   // DeltaPhi Vs Eta
   hName << "dphiVs" << objName << "Eta_" << metName.c_str();
   hTitle << "DeltaPhi Vs " << objName << " Eta Distribution (" << metName.c_str() << ")";
@@ -823,16 +771,10 @@ StatusCode METMonTool::bookProfileHistograms(std::string& metName, const char* o
 
 // *********************************************************************
 // Fill Histograms
-// Fill Histograms
-// Fill Histograms
 // *********************************************************************
 
 StatusCode METMonTool::fillHistograms()
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::851");
-  //msg_info// ATH_MSG_INFO("METMonTool::851");
-  //msg_info// ATH_MSG_INFO("METMonTool::851");
-
   ATH_MSG_DEBUG("in fillHistograms()");
 
   const xAOD::EventInfo* thisEventInfo = 0;
@@ -862,39 +804,8 @@ StatusCode METMonTool::fillSourcesHistograms()
 {
 
   // MET > 80 cut
-  /*
-    const xAOD::MissingETContainer* xMissEt80 = 0;
-
-    if (m_met_cut > 0) {
-    m_met_cut_80 = true;
-    }
-
-    if (m_met_cut_80) {
-    if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
-    ATH_CHECK(evtStore()->retrieve(xMissEt80, "MET_Reference_AntiKt4LCTopo"));
-
-    // ATH_MSG_WARNING("MONTOOL DOING 80 GeV Cut!!");
-
-    if (!xMissEt80) {
-    ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_Reference_AntiKt4LCTopo");
-    }
-    else {
-    float sumet = (*xMissEt80)["FinalClus"]->met() / CLHEP::GeV;
-    if (sumet < 80.0) return StatusCode::SUCCESS;
-    }
-    }
-    }
-  */
-
-
-
-  //msg_info// ATH_MSG_INFO("METMonTool::880");
-  //msg_info// ATH_MSG_INFO("METMonTool::880");
-  //msg_info// ATH_MSG_INFO("METMonTool::880");
-
   ATH_MSG_DEBUG("in fillSourcesHistograms()");
 
-  //const xAOD::Jet* xjet = 0;
   const xAOD::JetContainer* xJetCollection = 0;
   if (m_jetColKey != "")
     {
@@ -902,7 +813,6 @@ StatusCode METMonTool::fillSourcesHistograms()
       if (!xJetCollection)
         {
 	  ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
-	  //return StatusCode::FAILURE;
         }
       else
         {
@@ -943,7 +853,7 @@ StatusCode METMonTool::fillSourcesHistograms()
         }
     }
 
-  const xAOD::ElectronContainer* xElectrons = 0; // evtStore()->retrieve< const xAOD::ElectronContainer >("ElectronCollection");
+  const xAOD::ElectronContainer* xElectrons = 0; 
   const xAOD::Electron* xhEle = 0;
 
   if (m_eleColKey != "")
@@ -966,7 +876,7 @@ StatusCode METMonTool::fillSourcesHistograms()
         }
     }
 
-  const xAOD::MuonContainer* xMuons = 0; // evtStore()->retrieve< const xAOD::ElectronContainer >("ElectronCollection");
+  const xAOD::MuonContainer* xMuons = 0; 
   const xAOD::Muon* xhMuon = 0;
 
   if (m_muoColKey != "")
@@ -995,7 +905,6 @@ StatusCode METMonTool::fillSourcesHistograms()
   // *************************** //
 
   bool doSummary = (m_metKeys.size() > 1);
-  // const MissingET *missET;
 
   if (m_met_cut_80) {
     if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
@@ -1074,7 +983,6 @@ StatusCode METMonTool::fillSourcesHistograms()
                         m_metVsMetPhi->Fill(phi, et);
                         // Profile Histograms
 
-                        //msg_info// ATH_MSG_INFO("METMonTool::FILL_ONE_ONE::1092");
 
                         if (TMath::Abs(et) < m_truncatedMean) {
 			  if (xJetCollection != 0) {
@@ -1115,9 +1023,6 @@ StatusCode METMonTool::fillSourcesHistograms()
 
 StatusCode METMonTool::fillCalosHistograms()
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::1126");
-  //msg_info// ATH_MSG_INFO("METMonTool::1126");
-  //msg_info// ATH_MSG_INFO("METMonTool::1126");
 
   ATH_MSG_DEBUG("in fillCalosHistograms()");
 
@@ -1195,9 +1100,6 @@ StatusCode METMonTool::fillCalosHistograms()
 
 StatusCode METMonTool::fillRegionsHistograms()
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::1159");
-  //msg_info// ATH_MSG_INFO("METMonTool::1159");
-  //msg_info// ATH_MSG_INFO("METMonTool::1159");
 
   ATH_MSG_DEBUG("in fillRegionsHistograms()");
 
@@ -1267,9 +1169,6 @@ StatusCode METMonTool::fillRegionsHistograms()
 
 StatusCode METMonTool::fillProfileHistograms(float et, float phi, float objEta, float objPhi, int i)
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::1205");
-  //msg_info// ATH_MSG_INFO("METMonTool::1205");
-  //msg_info// ATH_MSG_INFO("METMonTool::1205");
 
   ATH_MSG_DEBUG("in fillProfileHistograms()");
 
@@ -1297,10 +1196,6 @@ StatusCode METMonTool::fillProfileHistograms(float et, float phi, float objEta, 
 
 StatusCode METMonTool::procHistograms()
 {
-  //msg_info// ATH_MSG_INFO("METMonTool::1236");
-  //msg_info// ATH_MSG_INFO("METMonTool::1236");
-  //msg_info// ATH_MSG_INFO("METMonTool::1236");
-
   ATH_MSG_DEBUG("in procHistograms()");
 
   ATH_MSG_DEBUG("procHistograms() ended");
