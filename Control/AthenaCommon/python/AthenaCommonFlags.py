@@ -52,6 +52,90 @@ class FilesInput(JobProperty):
     allowedTypes = ['list']
     StoredValue  = []
 
+    def _do_action( self, *args, **kwds ):
+        import AppMgr
+        if hasattr(AppMgr.ServiceMgr,"EventSelector") and hasattr(AppMgr.ServiceMgr.EventSelector,"InputCollections"):
+            AppMgr.ServiceMgr.EventSelector.InputCollections = self.StoredValue
+
+        pass
+
+class TreeName(JobProperty):
+    """The name of the ttree in the input file"""
+    statusOn     = True
+    allowedType  = "str"
+    StoredValue  = "CollectionTree"
+
+    def _do_action( self, *args, **kwds ):
+        import AppMgr
+        if not hasattr(AppMgr.ServiceMgr,"EventSelector"): return
+
+        if not hasattr(AppMgr.ServiceMgr.EventSelector,"TupleName"):
+            if self.StoredValue != "CollectionTree":
+                raise ValueError("TreeName can only be CollectionTree if you are not using AccessMode=TreeAccess")
+        else:
+            AppMgr.ServiceMgr.EventSelector.TupleName = self.StoredValue
+    
+
+class AccessMode(JobProperty):
+    """The type of read mechanism to use in this athena job"""
+    statusOn     = True
+    allowedType  = "str"
+    allowedValues = ["TreeAccess","BranchAccess","ClassAccess","AthenaAccess","POOLAccess"]
+    StoredValue  = "ClassAccess"
+
+    def _do_action( self, *args, **kwds ):
+        import AppMgr
+        if hasattr(AppMgr.ServiceMgr,"EventSelector"):
+            del AppMgr.ServiceMgr.EventSelector
+        if self.StoredValue=="ClassAccess":
+            import AthenaRootComps.ReadAthenaxAODHybrid
+            AppMgr.ServiceMgr.EventSelector.AccessMode = 1
+        elif self.StoredValue=="BranchAccess":
+            import AthenaRootComps.ReadAthenaxAODHybrid
+            AppMgr.ServiceMgr.EventSelector.AccessMode = 0
+        elif self.StoredValue=="AthenaAccess":
+            import AthenaRootComps.ReadAthenaxAODHybrid
+            AppMgr.ServiceMgr.EventSelector.AccessMode = 2
+        elif self.StoredValue=="POOLAccess":
+            import AthenaPoolCnvSvc.ReadAthenaPool
+        elif self.StoredValue=="TreeAccess":
+            import AthenaRootComps.ReadAthenaRoot
+            AppMgr.ServiceMgr.EventSelector.TupleName = jobproperties.AthenaCommonFlags.TreeName()
+
+
+class HistOutputs(JobProperty):
+    """A list of outputs to be produced by THistSvc in the format <streamName>:<fileName>"""
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue   = []
+
+    def _do_action( self, *args, **kwds ):
+        import CfgMgr,AppMgr
+        if not hasattr(AppMgr.ServiceMgr,"THistSvc"):
+            AppMgr.ServiceMgr += CfgMgr.THistSvc()
+
+        for output in self.StoredValue:
+            if ":" not in output:
+                self.StoredValue.remove(output)
+                raise ValueError("HistOutputs: %s must be in format '<streamName>:<fileName>'" % output)
+
+            streamName = output.split(":",1)[0]
+            fileName = output.split(":",1)[1]
+
+            #check the THistSvc has the stream, if not we create it
+            outputs = AppMgr.ServiceMgr.THistSvc.Output
+            foundStream=False
+            for hsOutput in outputs:
+                hsStreamName = hsOutput.split(" ",1)[0]
+                if hsStreamName==streamName: 
+                    foundStream=True
+                    break
+            if not foundStream:
+                AppMgr.ServiceMgr.THistSvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (streamName,fileName)]
+            
+        
+
+
 class PoolEvgenInput(JobProperty):
     """The list of input POOL files containing HepMC decay trees"""
     statusOn     = True
@@ -261,7 +345,10 @@ jobproperties.add_Container(AthenaCommonFlags)
 ## adding athena common flags to the AthenaCommonFlags container
 jobproperties.AthenaCommonFlags.add_JobProperty(EvtMax)
 jobproperties.AthenaCommonFlags.add_JobProperty(SkipEvents)
-jobproperties.AthenaCommonFlags.add_JobProperty(FilesInput )
+jobproperties.AthenaCommonFlags.add_JobProperty(FilesInput)
+jobproperties.AthenaCommonFlags.add_JobProperty(TreeName)
+jobproperties.AthenaCommonFlags.add_JobProperty(AccessMode)
+jobproperties.AthenaCommonFlags.add_JobProperty(HistOutputs)
 jobproperties.AthenaCommonFlags.add_JobProperty(PoolEvgenInput )
 jobproperties.AthenaCommonFlags.add_JobProperty(PoolEvgenOutput)
 jobproperties.AthenaCommonFlags.add_JobProperty(PoolHitsInput )
