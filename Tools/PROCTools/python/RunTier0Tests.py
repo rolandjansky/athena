@@ -500,7 +500,7 @@ def main():
                       help="""patched option will run q-tests just on your
                               patched version of packages. Be warned! File output comparisons will only be
                               performed against pre-defined reference files stored in the directory
-                              /afs/cern.ch/work/g/gencomm/public/referenceFiles and performance comparison
+                              /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests and performance comparison
                               tests will not be run.""")
     parser.add_option("-n",
                       "--no-setup",
@@ -543,7 +543,7 @@ def main():
         logging.error("")
         logging.error("Exit. The value of trigRun2Config can be \"2016\" or \"2017\"")
         logging.error("")
-        sys.exit(0)
+        sys.exit(-1)
         
 
 ########### Does the clean run head directory exist?
@@ -556,11 +556,11 @@ def main():
         if RunPatchedOnly:
             logging.info("You are running in patched only mode whereby only q-tests against your build are being run.")
             logging.info("In this mode ESD and AOD outputs are compared with pre-defined reference files found in the directory")
-            logging.info("/afs/cern.ch/work/g/gencomm/public/referenceFiles")
-            if not os.path.exists('/afs/cern.ch/work/g/gencomm/public/referenceFiles'):
+            logging.info("/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests")
+            if not os.path.exists('/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests'):
                 logging.info("")
-                logging.error("Exit. Patched only mode can only be run on nodes with access to /afs/cern.ch/work/g/gencomm/public/referenceFiles")
-                sys.exit(0)            
+                logging.error("Exit. Patched only mode can only be run on nodes with access to /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests")
+                sys.exit(-1)            
         else:
             logging.info("The head directory for the output of the clean Tier0 q-tests will be "+CleanRunHeadDir)
         logging.info("")
@@ -570,13 +570,13 @@ def main():
         logging.error("")
         logging.error("RunTier0Tests.py  --cleanDir <ExistingDirectory>")
         logging.error("")
-        sys.exit(0)            
+        sys.exit(-1)            
 
 
 ########### Is an ATLAS release setup?
     if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ and 'AtlasVersion' not in os.environ:
         logging.error("Exit. Please setup the an ATLAS release")
-        sys.exit(0)
+        sys.exit(-1)
     else:
         if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ and 'AtlasVersion' not in os.environ:
             logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
@@ -751,9 +751,7 @@ def main():
             logging.info("ALL TESTS: PASSED (0)")
         else:
             logging.error("ALL TESTS: FAILED (-1)")
-
-
-
+            sys.exit(-1)
 
 if __name__ == '__main__':
         main()
