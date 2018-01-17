@@ -43,11 +43,11 @@ namespace xAOD {
   };
 
   PFO_v1::PFO_v1()
-    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
+    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false) {
     
   }
 
-  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
+  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false) {
     this->makePrivateStore(other);
   }
 
@@ -282,7 +282,7 @@ namespace xAOD {
   template<> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const float& anAttribute) {
     if (this->isJetETMissFloatForCompression(AttributeType)){
       float dummy = anAttribute*m_floatCompressionFactor;
-      int maxIntSize = 1000000000;
+      const static int maxIntSize = 1000000000;
       int internalAttribute = maxIntSize;
       if (dummy < 0) internalAttribute *= -1;//if we had a large -ve energy, then we should set the max size to a -ve value         
       if (dummy < maxIntSize && dummy > -maxIntSize) internalAttribute = static_cast<int>(dummy);

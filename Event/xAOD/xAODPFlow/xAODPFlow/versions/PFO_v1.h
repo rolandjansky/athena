@@ -190,7 +190,7 @@ namespace xAOD {
     /** bool to track whether we have cached EM 4-vector - mutable so it can be set in non-const getter function */
     mutable bool m_p4EMCached;
     /** this defines the factor to compress floats by */
-    int m_floatCompressionFactor;
+    const static int m_floatCompressionFactor = 1000;
 
   }; // class PFO
 
