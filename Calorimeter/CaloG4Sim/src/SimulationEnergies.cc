@@ -135,7 +135,7 @@ namespace CaloG4 {
   G4double SimulationEnergies::helium3Mass  = 0;
   */
 
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   SimulationEnergies::StCallThreadMap_t SimulationEnergies::m_calledForStepThreadMap;
 #else
   G4bool SimulationEnergies::m_calledForStep = false;
@@ -180,7 +180,7 @@ namespace CaloG4 {
 
 
   G4bool SimulationEnergies::StepWasProcessed() {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
     // Get current thread-ID
     const auto tid = std::this_thread::get_id();
     // Retrieve it from the call flags map
@@ -193,7 +193,7 @@ namespace CaloG4 {
   }
 
   void SimulationEnergies::SetStepProcessed() {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
     const auto tid = std::this_thread::get_id();
     m_calledForStepThreadMap.insert( std::make_pair(tid, true) );
 #else
@@ -202,7 +202,7 @@ namespace CaloG4 {
   }
 
   void SimulationEnergies::ResetStepProcessed() {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
     const auto tid = std::this_thread::get_id();
     m_calledForStepThreadMap.insert( std::make_pair(tid, false) );
 #else
