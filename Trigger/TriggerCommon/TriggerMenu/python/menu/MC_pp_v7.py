@@ -321,6 +321,7 @@ def setupMenu():
         ['j125',                    'L1_J50', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j200',                    'L1_J50', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j300',                    'L1_J85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j520',                    'L1_J120', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         
         # 2017 calibration central jet triggers
         ['j175_subjesIS',           'L1_J50', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
@@ -425,6 +426,9 @@ def setupMenu():
         ['j100_a10r_30smcINF',              'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         ['j100_a10t_lcw_jes',               'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         ['j100_a10t_lcw_jes_30smcINF',      'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['2j360_a10t_lcw_jes_35smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j370_a10t_lcw_jes_35smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j380_a10t_lcw_jes_35smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 
 
