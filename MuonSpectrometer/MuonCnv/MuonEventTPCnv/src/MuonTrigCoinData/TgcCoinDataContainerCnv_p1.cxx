@@ -26,7 +26,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::TgcCoinDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -37,7 +37,7 @@ StatusCode Muon::TgcCoinDataContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
     StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "StoreGate service not found !" << endreq;
+        log << MSG::FATAL << "StoreGate service not found !" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -45,28 +45,28 @@ StatusCode Muon::TgcCoinDataContainerCnv_p1::initialize(MsgStream &log) {
     StoreGateSvc *detStore;
     sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        log << MSG::DEBUG << "Found DetectorStore." << endreq;
+        log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
 
    // Get the pixel helper from the detector store
     sc = detStore->retrieve(m_TgcId);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get Tgc ID helper !" << endreq;
+        log << MSG::FATAL << "Could not get Tgc ID helper !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        log << MSG::DEBUG << "Found the Tgc ID helper." << endreq;
+        log << MSG::DEBUG << "Found the Tgc ID helper." << endmsg;
     }
 
     sc = detStore->retrieve(m_muonDetMgr);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
+        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
         return sc;
     }
 
-    log << MSG::DEBUG << "Converter initialized." << endreq;
+    log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -104,11 +104,11 @@ void Muon::TgcCoinDataContainerCnv_p1::transToPers(const Muon::TgcCoinDataContai
     //     numColl++;
     //  it_Coll     = transCont->begin(); // reset the iterator, we used it!
     // }
-    persCont->m_collections.resize(numColl);    log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+    persCont->m_collections.resize(numColl);    log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-        log << MSG::DEBUG  << " New collection" << endreq;
+        log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::TgcCoinDataCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -124,7 +124,7 @@ void Muon::TgcCoinDataContainerCnv_p1::transToPers(const Muon::TgcCoinDataContai
             persCont->m_CoinData[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-    log << MSG::DEBUG  << " ***  Writing TgcCoinDataContainer ***" << endreq;
+    log << MSG::DEBUG  << " ***  Writing TgcCoinDataContainer ***" << endmsg;
 }
 
 void  Muon::TgcCoinDataContainerCnv_p1::persToTrans(const Muon::MuonCoinDataContainer_p1* persCont, Muon::TgcCoinDataContainer* transCont, MsgStream &log) 
@@ -150,7 +150,7 @@ void  Muon::TgcCoinDataContainerCnv_p1::persToTrans(const Muon::MuonCoinDataCont
     TgcCoinDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Muon::TgcCoinData> CONV;
 
-    log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+    log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of TgcCoinData (SG::VIEW_ELEMENTS)
@@ -189,11 +189,11 @@ void  Muon::TgcCoinDataContainerCnv_p1::persToTrans(const Muon::MuonCoinDataCont
         }
         if (log.level() <= MSG::DEBUG) {
             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-                collID.get_compact() << ", added to Identifiable container." << endreq;
+                collID.get_compact() << ", added to Identifiable container." << endmsg;
         }
     }
 
-    log << MSG::DEBUG  << " ***  Reading TgcCoinDataContainer" << endreq;
+    log << MSG::DEBUG  << " ***  Reading TgcCoinDataContainer" << endmsg;
 }
 
 
@@ -203,7 +203,7 @@ Muon::TgcCoinDataContainer* Muon::TgcCoinDataContainerCnv_p1::createTransient(co
 {
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize TgcCoinDataContainerCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize TgcCoinDataContainerCnv_p1 " << endmsg;
             return 0;
         } 
     }

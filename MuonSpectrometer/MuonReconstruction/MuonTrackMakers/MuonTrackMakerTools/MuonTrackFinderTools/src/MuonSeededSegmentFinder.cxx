@@ -76,44 +76,18 @@ namespace Muon {
 
   StatusCode MuonSeededSegmentFinder::initialize()
   {
-    if ( AthAlgTool::initialize().isFailure() ) return StatusCode::SUCCESS;
 
-    if ( detStore()->retrieve( m_detMgr ).isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-      return StatusCode::FAILURE;
-    }
-
-    if (m_segMaker.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find refit tool "<<m_segMaker<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
-
-    if (m_segMakerNoHoles.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find refit tool "<<m_segMakerNoHoles<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
-
-    if (m_propagator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find refit tool "<<m_propagator<<". Exiting.");
-      return StatusCode::FAILURE;
-    } 
-
-    
-    if (m_mdtRotCreator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find refit tool "<<m_mdtRotCreator<<". Exiting.");
-      return StatusCode::FAILURE;
-    } 
-
-    if (m_idHelper.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not retrieve "<<m_idHelper<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    ATH_CHECK( m_segMaker.retrieve() );
+    ATH_CHECK( m_segMakerNoHoles.retrieve() );
+    ATH_CHECK( m_propagator.retrieve() );
+    ATH_CHECK( m_mdtRotCreator.retrieve() );
+    ATH_CHECK( m_idHelper.retrieve() );
     
     return StatusCode::SUCCESS;
   }
   StatusCode MuonSeededSegmentFinder::finalize()
   {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 

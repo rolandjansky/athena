@@ -26,7 +26,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::CscPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -37,7 +37,7 @@ StatusCode Muon::CscPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
     StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "StoreGate service not found !" << endreq;
+        log << MSG::FATAL << "StoreGate service not found !" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -45,28 +45,28 @@ StatusCode Muon::CscPrepDataContainerCnv_p1::initialize(MsgStream &log) {
     StoreGateSvc *detStore;
     sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
 
    // Get the pixel helper from the detector store
     sc = detStore->retrieve(m_cscId);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get CSC ID helper !" << endreq;
+        log << MSG::FATAL << "Could not get CSC ID helper !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the CSC ID helper." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the CSC ID helper." << endmsg;
     }
 
     sc = detStore->retrieve(m_muonDetMgr);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
+        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
         return sc;
     }
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -110,11 +110,11 @@ void Muon::CscPrepDataContainerCnv_p1::transToPers(const Muon::CscPrepDataContai
     //  it_Coll     = transCont->begin(); // reset the iterator, we used it!
     // }
     persCont->m_collections.resize(numColl);    
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::CscPrepDataCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -130,7 +130,7 @@ void Muon::CscPrepDataContainerCnv_p1::transToPers(const Muon::CscPrepDataContai
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing CscPrepDataContainer ***" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing CscPrepDataContainer ***" << endmsg;
 }
 
 void  Muon::CscPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Container_p1* persCont, Muon::CscPrepDataContainer* transCont, MsgStream &log) 
@@ -155,7 +155,7 @@ void  Muon::CscPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
 
     CscPrepDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of CscPrepData (SG::VIEW_ELEMENTS)
@@ -172,7 +172,7 @@ void  Muon::CscPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             Muon::CscPrepData* chan = dynamic_cast<Muon::CscPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
             if (!chan) {
-               log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscPrepData!" << endreq;
+               log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscPrepData!" << endmsg;
                continue;
             }
             const MuonGM::CscReadoutElement * de = m_muonDetMgr->getCscReadoutElement(chan->identify());
@@ -187,11 +187,11 @@ void  Muon::CscPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         }
         if (log.level() <= MSG::DEBUG) {
             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-                collID.get_compact() << ", added to Identifiable container." << endreq;
+                collID.get_compact() << ", added to Identifiable container." << endmsg;
         }
     }
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CscPrepDataContainer" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading CscPrepDataContainer" << endmsg;
 }
 
 
@@ -201,7 +201,7 @@ Muon::CscPrepDataContainer* Muon::CscPrepDataContainerCnv_p1::createTransient(co
 {
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize CscPrepDataContainerCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize CscPrepDataContainerCnv_p1 " << endmsg;
             return 0;
         } 
     }

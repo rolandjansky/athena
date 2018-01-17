@@ -3,7 +3,6 @@
 */
 
 #include "G4UserActions/G4TrackCounterTool.h"
-#include "CxxUtils/make_unique.h"
 
 namespace G4UA
 {
@@ -54,7 +53,7 @@ namespace G4UA
   G4TrackCounterTool::makeAction()
   {
     ATH_MSG_DEBUG("Making a G4TrackCounter action");
-    return CxxUtils::make_unique<G4TrackCounter>();
+    return std::make_unique<G4TrackCounter>();
   }
 
 }

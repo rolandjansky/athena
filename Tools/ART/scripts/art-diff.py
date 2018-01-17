@@ -4,27 +4,31 @@
 ART  - ATLAS Release Tester - Diff.
 
 Usage:
-  art-diff.py [--diff-type=<diff_type> --exclude=<pattern>... --platform=<platform> --platform-ref=<platform>] <nightly_release> <project> <nightly_tag> <nightly_release_ref> <platform_ref> <nightly_tag_ref> <package>
-  art-diff.py [--diff-type=<diff_type> --exclude=<pattern>...] <dir> <ref_dir>
+  art-diff.py [--diff-type=<diff_type> --exclude=<pattern>... --platform-ref=<platform> --entries=<entries>] <nightly_release_ref> <platform_ref> <nightly_tag_ref> <package>
+  art-diff.py [--diff-type=<diff_type> --exclude=<pattern>... --entries=<entries>] <path> <ref_path>
 
 Options:
   --diff-type=<diff_type>    Type of diff (e.g. diff-pool or diff-root) [default: diff-pool]
+  --entries=<entries>        Only diff over number of entries [default: -1]
   --exclude=<pattern>...     Exclude test files according to pattern
   -h --help                  Show this screen
-  --platform=<platform>      Platform [default: x86_64-slc6-gcc62-opt]
   --platform-ref=<platform>  Reference Platform [default: x86_64-slc6-gcc62-opt]
+  --test-name=<test_name>    Test name to compare
   --version                  Show version
 
 Arguments:
-  dir                     Directory to compare
-  nightly_release         Name of the nightly release (e.g. 21.0)
-  nightly_release_ref     Reference Name of the nightly release (e.g. 21.0)
-  nightly_tag             Nightly tag (e.g. 2017-02-26T2119)
-  nightly_tag_ref         Reference Nightly tag (e.g. 2017-02-26T2119)
-  package                 Package of the test (e.g. Tier0ChainTests)
-  project                 Name of the project (e.g. Athena)
-  project_ref             Reference Name of the project (e.g. Athena)
-  ref_dir                 Directory to compare to
+  path                       Directory or File to compare
+  nightly_release_ref        Reference Name of the nightly release (e.g. 21.0)
+  nightly_tag_ref            Reference Nightly tag (e.g. 2017-02-26T2119)
+  package                    Package of the test (e.g. Tier0ChainTests)
+  project_ref                Reference Name of the project (e.g. Athena)
+  ref_path                   Directory or File to compare to
+
+Environment:
+  AtlasBuildBranch           Name of the nightly release (e.g. 21.0)
+  AtlasProject               Name of the project (e.g. Athena)
+  <AtlasProject>_PLATFORM    Platform (e.g. x86_64-slc6-gcc62-opt)
+  AtlasBuildStamp            Nightly tag (e.g. 2017-02-26T2119)
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
@@ -39,8 +43,9 @@ import sys
 
 from ART.docopt import docopt
 
-VERSION = "0.6.7"
+VERSION = "0.7.8"
 ATHENA_STDOUT = "athena_stdout.txt"
+DEFAULT_ENTRIES = -1
 
 
 class ArtDiff(object):
@@ -48,15 +53,24 @@ class ArtDiff(object):
 
     EOS_OUTPUT_DIR = '/eos/atlas/atlascerngroupdisk/data-art/grid-output'
 
-    def __init__(self, arguments):
+    def __init__(self):
         """Constructor of ArtDiff."""
+
+    def parse(self, arguments):
+        """Called from comandline."""
         diff_type = arguments['--diff-type']
+        entries = arguments['--entries']
         excludes = arguments['--exclude']
-        if arguments['<dir>'] is None:
-            nightly_release = arguments['<nightly_release>']
-            project = arguments['<project>']
-            platform = arguments['--platform']
-            nightly_tag = arguments['<nightly_tag>']
+        if arguments['<nightly_release_ref>'] is not None:
+            try:
+                nightly_release = os.environ['AtlasBuildBranch']
+                project = os.environ['AtlasProject']
+                platform = os.environ[project + '_PLATFORM']
+                nightly_tag = os.environ['AtlasBuildStamp']
+                return (nightly_release, project, platform, nightly_tag)
+            except KeyError, e:
+                print "Environment variable not set", e
+                sys.exit(1)
 
             nightly_release_ref = arguments['<nightly_release_ref>']
             project_ref = arguments['<project_ref>']
@@ -65,26 +79,45 @@ class ArtDiff(object):
 
             package = arguments['<package>']
 
-            exit(self.diff(nightly_release, project, platform, nightly_tag, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref, package, diff_type, excludes))
+            exit(self.diff(nightly_release, project, platform, nightly_tag, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref, package, diff_type, excludes, entries=entries))
 
         # directory compare
-        directory = arguments['<dir>']
-        ref_dir = arguments['<ref_dir>']
-        exit(self.diff_dirs(directory, ref_dir, diff_type, excludes))
+        path = arguments['<path>']
+        ref_path = arguments['<ref_path>']
 
-    def diff(self, nightly_release, project, platform, nightly_tag, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref, package, diff_type, excludes=[]):
+        if os.path.isfile(path):
+            # file compare
+            if not os.path.isfile(ref_path):
+                print "Error: <ref_path> should be a file, if <path> is a file."
+                sys.exit(1)
+
+            exit(self.diff_file(path, ref_path, diff_type, entries=entries))
+
+        if os.path.isfile(ref_path):
+            print "Error: <ref_path> should be a directory, if <path> is a directory."
+            sys.exit(1)
+
+        # check if path contains "test_" entries
+        if len(glob.glob(os.path.join(path, 'test_*'))) > 0:
+            # directory compare
+            exit(self.diff_dirs(path, ref_path, diff_type, excludes, entries=entries))
+
+        # single test compare
+        exit(self.diff_test(path, ref_path, diff_type, entries=entries))
+
+    def diff(self, nightly_release, project, platform, nightly_tag, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref, package, diff_type, excludes=[], entries=DEFAULT_ENTRIES):
         """Run difference between two results."""
-        val_dir = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release, nightly_tag, project, platform, package)
-        ref_dir = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release_ref, nightly_tag_ref, project_ref, platform_ref, package)
-        return self.diff_dirs(val_dir, ref_dir, diff_type, excludes)
+        path = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release, nightly_tag, project, platform, package)
+        ref_path = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release_ref, nightly_tag_ref, project_ref, platform_ref, package)
+        return self.diff_dirs(path, ref_path, diff_type, excludes, entries=entries)
 
-    def diff_dirs(self, val_dir, ref_dir, diff_type, excludes=[]):
+    def diff_dirs(self, path, ref_path, diff_type, excludes=[], entries=DEFAULT_ENTRIES):
         """Run difference between two directories."""
-        print "val_dir: %s" % val_dir
-        print "ref_dir: %s" % ref_dir
+        print "    path: %s" % path
+        print "ref_path: %s" % ref_path
 
         stat_per_chain = {}
-        for test_name in os.listdir(val_dir):
+        for test_name in os.listdir(path):
             # skip tests in pattern
             exclude_test = False
             for exclude in excludes:
@@ -98,54 +131,58 @@ class ArtDiff(object):
             print "******************************************"
             print "Test: %s" % test_name
             print "******************************************"
-
-            val_result = self.get_result(os.path.join(val_dir, test_name))
-            ref_result = self.get_result(os.path.join(val_dir, test_name))
-            for key, value in val_result.iteritems():
-                if key in ref_result:
-                    print "%-10s: ref: %d events, val: %d events" % (key, int(ref_result[key][1]), int(val_result[key][1]))
-
-            test_dir = os.path.join(val_dir, test_name)
-            test_patterns = ['*AOD*.pool.root', '*ESD*.pool.root', '*HITS*.pool.root', '*RDO*.pool.root', '*TAG*.root']
-            test_files = []
-            for test_pattern in test_patterns:
-                test_files.extend(glob.glob(os.path.join(test_dir, test_pattern)))
-            for test_file in test_files:
-                extension = '.root'
-                name = os.path.splitext(os.path.basename(test_file))[0]  # remove .root
-                if name.endswith('.pool'):
-                    extension = '.pool.root'
-                    name = os.path.splitext(os.path.basename(name))[0]  # remove .pool
-                val_file = os.path.join(val_dir, test_name, name + extension)
-                ref_file = os.path.join(ref_dir, test_name, name + extension)
-                print "val_file: %s" % val_file
-                print "ref_file: %s" % ref_file
-
-                if not os.path.exists(ref_file):
-                    print "no test found in ref_dir to compare: %s" % ref_file
-                    continue
-
-                # add the test to the summary if it was not already there
-                if test_name not in stat_per_chain:
-                    stat_per_chain[test_name] = 0
-
-                if extension == '.pool.root':
-                    if diff_type == 'diff-pool':
-                        stat_per_chain[test_name] |= self.diff_pool(val_file, ref_file)
-                    else:
-                        stat_per_chain[test_name] |= self.diff_root(val_file, ref_file)
-                else:
-                    stat_per_chain[test_name] |= self.diff_tag(val_file, ref_file)
+            stat_per_chain[test_name] = self.diff_test(os.path.join(path, test_name), os.path.join(ref_path, test_name), diff_type, entries=entries)
 
         result = 0
-        for filename, status in stat_per_chain.iteritems():
+        for test_name, status in stat_per_chain.iteritems():
             if status:
-                print "%-70s CHANGED" % filename
+                print "%-70s CHANGED" % test_name
                 result = 1
             else:
-                print "%-70s IDENTICAL" % filename
+                print "%-70s IDENTICAL" % test_name
 
         return result
+
+    def diff_test(self, path, ref_path, diff_type, entries=DEFAULT_ENTRIES):
+        """Run differences between two directories."""
+        result = self.get_result(path)
+        ref_result = self.get_result(ref_path)
+        for key, value in result.iteritems():
+            if key in ref_result:
+                print "%-10s: ref: %d events, val: %d events" % (key, int(ref_result[key][1]), int(result[key][1]))
+
+        test_dir = path
+        test_patterns = ['*AOD*.pool.root', '*ESD*.pool.root', '*HITS*.pool.root', '*RDO*.pool.root', '*TAG*.root']
+        # get files in all patterns
+        test_files = []
+        for test_pattern in test_patterns:
+            test_files.extend(glob.glob(os.path.join(test_dir, test_pattern)))
+        # run test over all files
+        result = 0
+        for test_file in test_files:
+            basename = os.path.basename(test_file)
+            val_file = os.path.join(path, basename)
+            ref_file = os.path.join(ref_path, basename)
+            print "val_file: %s" % val_file
+            print "ref_file: %s" % ref_file
+
+            result |= self.diff_file(val_file, ref_file, diff_type, entries=entries)
+
+        return result
+
+    def diff_file(self, path, ref_path, diff_type, entries=DEFAULT_ENTRIES):
+        """Compare two files."""
+        if not os.path.exists(ref_path):
+            print "no test found in ref_dir to compare: %s" % ref_path
+            return 0
+
+        if fnmatch.fnmatch(path, '*TAG*.root'):
+            return self.diff_tag(path, ref_path)
+
+        if diff_type == 'diff-pool':
+            return self.diff_pool(path, ref_path)
+
+        return self.diff_root(path, ref_path, entries)
 
     def get_result(self, directory):
         """
@@ -189,7 +226,7 @@ class ArtDiff(object):
 
         return stat
 
-    def diff_root(self, file_name, ref_file, entries=-1):
+    def diff_root(self, file_name, ref_file, entries):
         """TBD."""
         # diff-root
         (code, out, err) = self.run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings --entries " + str(entries))
@@ -207,7 +244,7 @@ class ArtDiff(object):
         The command runs as separate subprocesses for every piped command.
         Returns tuple of exit_code, output and err.
         """
-        print "Execute: %s" % cmd
+        print "Execute:", cmd
         if "|" in cmd:
             cmd_parts = cmd.split('|')
         else:
@@ -234,4 +271,4 @@ if __name__ == '__main__':
         exit(1)
 
     arguments = docopt(__doc__, version=os.path.splitext(os.path.basename(__file__))[0] + ' ' + VERSION)
-    ArtDiff(arguments)
+    ArtDiff().parse(arguments)

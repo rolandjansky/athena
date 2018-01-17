@@ -60,6 +60,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_findtracks  = 0                  ;
   m_qualityCut  = 9.3                ;
   m_fieldService = 0                 ; 
+  m_passThroughExtension = false     ;
   declareInterface<ISiCombinatorialTrackFinder>(this);
 
   declareProperty("SCTManagerLocation"   ,m_sctm               );
@@ -77,6 +78,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
+  declareProperty("PassThroughExtension" ,m_passThroughExtension);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -226,7 +228,8 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::finalize()
 MsgStream&  InDet::SiCombinatorialTrackFinder_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)  { return dumpevent(out);      }
+  else          { return dumpconditions(out); }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -445,7 +448,7 @@ void InDet::SiCombinatorialTrackFinder_xk::endEvent()
 const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 (const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
- std::list<const InDetDD::SiDetectorElement*>& DE,const TrackQualityCuts& Cuts)
+ std::vector<const InDetDD::SiDetectorElement*>& DE,const TrackQualityCuts& Cuts)
 {
   m_tools.setBremNoise(false,false);
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
@@ -487,7 +490,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 (const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
- std::list<const InDetDD::SiDetectorElement*>& DE,
+ std::vector<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT)
 {
   m_tools.setBremNoise(false,false);
@@ -529,7 +532,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWithBrem
 (const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
- std::list<const InDetDD::SiDetectorElement*>& DE,
+ std::vector<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT,
  bool isCaloCompatible)
 {
@@ -603,12 +606,12 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
 bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 (const Trk::TrackParameters& Tp,
  const std::list<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
- std::list<const InDetDD::SiDetectorElement*>& DE,
+ std::vector<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT)
 {
   // List detector element links preparation
   //
-  std::list<const InDet::SiDetElementBoundaryLink_xk*> DEL; 
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*> DEL; 
   detectorElementLinks(DE,DEL);
 
   // List cluster preparation
@@ -617,7 +620,8 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   bool TWO     = false;
 
   if     (Sp.size() > 1) {
-    if(!spacePointsToClusters(Sp,Cl)) return false; if(Sp.size()<=2) TWO = true;
+    if(!spacePointsToClusters(Sp,Cl)) { return false; }
+    if(Sp.size()<=2) { TWO = true; }
   }
   else if(Gp.size() > 2) {
     if(!m_trajectory.globalPositionsToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Gp,DEL,PT,Cl)) return false;
@@ -640,13 +644,15 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
     Q=Qr=true;
   }
 
-  if(!Qr) ++m_roadbug; if(!Q) return false;
+  if(!Qr) { ++m_roadbug; }
+  if(!Q)  { return false; }
   ++m_inittracks;
   bool pixseed = m_trajectory.isLastPixel();
   int itmax    = 30; if(m_simpleTrack) itmax = 10; if(m_heavyion) itmax = 50;
 
   // Track finding
   //
+  if(m_passThroughExtension) return true;
   if(pixseed) {      // Strategy for pixel seeds
     
     if(!m_trajectory.forwardExtension (false,itmax)) return false;
@@ -912,10 +918,10 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
-(std::list<const InDetDD::SiDetectorElement*>        & DE,
- std::list<const InDet::SiDetElementBoundaryLink_xk*>& DEL)
+(std::vector<const InDetDD::SiDetectorElement*>        & DE,
+ std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DEL)
 {
-  std::list<const InDetDD::SiDetectorElement*>::iterator d = DE.begin(),de = DE.end();
+  std::vector<const InDetDD::SiDetectorElement*>::iterator d = DE.begin(),de = DE.end();
  
   for(; d!=de; ++d) {
  

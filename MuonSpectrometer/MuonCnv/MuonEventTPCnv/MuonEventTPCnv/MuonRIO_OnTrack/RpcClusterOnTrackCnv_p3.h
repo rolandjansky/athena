@@ -16,7 +16,7 @@
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MuonClusterOnTrackCnv_p1.h"
 
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventCnvTools/IEventCnvSuperTool.h"

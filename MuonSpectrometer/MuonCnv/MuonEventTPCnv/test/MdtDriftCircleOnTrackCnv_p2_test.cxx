@@ -14,6 +14,7 @@
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MdtDriftCircleOnTrackCnv_p2.h"
 #include "MuonEventTPCnv/MuonMeasurementsCnv_tlp2.h"
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
+#include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/MsgStream.h"
@@ -153,6 +154,8 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
                                       strategy,
                                       nullptr); // surface
 
+  testit (trans1);
+  Athena_test::Leakcheck check;
   testit (trans1);
 }
 

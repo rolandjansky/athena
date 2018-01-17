@@ -34,20 +34,12 @@ MSVertexRecoAlg::~MSVertexRecoAlg() {}
 StatusCode MSVertexRecoAlg::initialize(){
 
   //* Retrieve MSVertexRecoTool *//
-  StatusCode sc = m_vertexRecoTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL( "Failed to locate tool " << m_vertexRecoTool );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG( "Retrieved tool " << m_vertexRecoTool );
+  ATH_CHECK( m_vertexRecoTool.retrieve() );
+  ATH_MSG_DEBUG( "Retrieved tool " << m_vertexRecoTool );
 
   //* Retrieve MSVertexTrackletTool *//
-  sc = m_vertexTrackletTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL( "Failed to locate tool " << m_vertexTrackletTool );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG( "Retrieved tool " << m_vertexTrackletTool );
+  ATH_CHECK( m_vertexTrackletTool.retrieve() );
+  ATH_MSG_DEBUG( "Retrieved tool " << m_vertexTrackletTool );
 
   return StatusCode::SUCCESS;
 }

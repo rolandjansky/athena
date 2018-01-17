@@ -2,8 +2,11 @@
 
 import sys, subprocess, tempfile, os, re, signal
 import __main__
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QLabel, QCheckBox,QMessageBox
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QLabel, QCheckBox, QMessageBox
+from PyQt5.QtGui import QColor, QPalette, QPixmap
+import timeit, socket, getpass
+from collections import OrderedDict
 
 class StringVar:
     def __init__(self,value=""):
@@ -39,11 +42,11 @@ class Option:
         if qtw!=None:
             self.qtw = qtw
         elif self.name=='userPreCommand':
-            self.qtw = QtGui.QTextEdit()
+            self.qtw = QtWidgets.QTextEdit()
             self.qtw.setMinimumHeight(60)
             self.qtw.textChanged.connect(self.textChanged)
         else:
-            self.qtw = QtGui.QLineEdit()
+            self.qtw = QtWidgets.QLineEdit()
             self.qtw.textEdited.connect(self.textEdited)
         self.set(value)
 
@@ -66,6 +69,9 @@ class BoolOption:
     def __init__(self, name, isChecked, description, label):
         self.name        = name
         self.cb          = QCheckBox(label)
+        palette = QPalette( self.cb.palette() )
+        palette.setColor( palette.WindowText, QColor("#ffffff") )    
+        self.cb.setPalette(palette)
         self.description = description
         self.cb.setCheckState(QtCore.Qt.Checked if isChecked else QtCore.Qt.Unchecked)
         self.cb.setToolTip(description)
@@ -84,10 +90,12 @@ class Process:
         self.w_label.setCheckState(QtCore.Qt.Checked)
         self.w_state     = QLabel()
         self.w_logfile   = QLabel()
+        button_style ="QPushButton {padding: 4px; font-size: 14px; color: #3a81c7; font-weight: bold; background-color: #ffffff; border-radius: 1px; border: 1px solid #3a81c7;}"
         if name == 'jobCheckRes':
-            self.w_showMT  = QtGui.QPushButton("Show MT Result")
-            self.w_showPT  = QtGui.QPushButton("Show PT Result")
-        self.w_clearbutton = QtGui.QPushButton("Clear")
+            self.w_showHLT  = QtWidgets.QPushButton("Show athenaHLT Result")
+            self.w_showHLT.setStyleSheet(button_style)
+        self.w_clearbutton = QtWidgets.QPushButton("Clear")
+        self.w_clearbutton.setStyleSheet(button_style)
 
     def __str__(self):
         return "### %s\nprocess['%s'] = (%i, '%s', '%s')\n" % (self.description, self.name, self.enabled, self.w_state.text(), self.logfile)
@@ -168,51 +176,52 @@ class Config:
         import os
         tempdir = os.environ["TMPDIR"] if "TMPDIR" in os.environ else (tempfile.gettempdir() + '/' + os.environ["USER"])
         # red 
-        self.addOption('release','',"The release tag",  'Release:'      , QtGui.QLabel())
-        self.addOption('patch',  '',"The patch tag",    'Patch:'        , QtGui.QLabel())
-        self.addOption('swpath','',"The software path", 'Software path:', QtGui.QLabel())
-        self.addOption('tt','/afs/cern.ch/user/a/attrgcnf/TriggerTool/TriggerTool-new.jar',"The TriggerTool jar-file", 'TriggerTool:')
+        self.addOption('release','',"The release tag number",  'Release number:'      , QtWidgets.QLabel())
+        self.addOption('relName',  '',"The release build name",    'Release build:'        , QtWidgets.QLabel())
+        self.addOption('swpath','',"The software path", 'Software path:', QtWidgets.QLabel())
+        self.addOption('tt','/afs/cern.ch/user/a/attrgcnf/TriggerTool/run_TriggerTool.sh',"The TriggerTool run script", 'TriggerTool:')
         # green
         self.addOption('jobName', 'Default',"Job name", 'Job name:')
         self.addOption('jobOption','',"The python job option file", 'Joboption file')
-        self.addOption('userPreCommand','',"The users precommands to be run", 'Pre-command:')
+        self.addOption('userPreCommand','',"The user pre-commands to be run", 'Pre-command:')
+        self.addOption('userPostCommand', '', "The post-commands to be run", 'Post-command:')
         self.addOption('setupDir','./setup',"Directory for setup and xml files (a subdir for each job is created)", 'Output directory:')
         self.addOption('tmpDir',tempdir,"Directory for temporary results", 'Temp directory:')
         self.addOption('nEvt',10,"Number of Events", 'Number of Events:')
-        self.addOption('inputL2','input.data',"Input data file L2", 'MT input data:')
-        self.addOption('inputEF','',          "Input data file EF", 'PT input data:')
+        self.addOption('inputBSFile','input.data',"Input bs file", 'Input file:')
         self.addOption('l1menu',   '',"LVL1 menu file",   'L1 menu:')
-        self.addOption('hltl2menu','',"HLT L2 menu file", 'L2 menu:')
-        self.addOption('hltefmenu','',"HLT EF menu file", 'EF menu:')
-        self.addOption('setupL2','',"Setup file L2", 'L2 setup:')
-        self.addOption('setupEF','',"Setup file EF", 'EF setup:')
+        self.addOption('l1topomenu','',"L1Topo menu file", 'L1Topo menu:')
+        self.addOption('hltmenu','',"HLT menu file", 'HLT menu:')
+        self.addOption('setupEF','',"EF Setup file", 'EF setup:')
         self.addOption('dbAlias','TRIGGERDBREPR',"Alias for TriggerDB connection", 'DB connection')
         self.addOption('dbPW','',"Password for writer accound (not needed by experts)", 'DB password')
-        self.addOption('cfgKey',0,"Configuration key", 'Configuration key:')
+        self.addOption('cfgKey',0,"Super Master key", 'Super master key:')
         self.addOption('l1psKey',0,"LVL1 prescale key", 'LVL1 prescale key:')
         self.addOption('hltpsKey',0,"HLT prescale key", 'HLT prescale key:')
         self.addBoolOption('onlineMonitoring', 'Online Monitoring', 'Online Monitoring switch (e.g. online histogram service)', True)
         self.addBoolOption('cafConfig', 'Reprocessing', 'Configuration for reprocessings (enable additional monitoring)', False)
-        self.addBoolOption('l1rerun', 'Rerun Level 1', 'Rerun level 1 simulation (should be on for CAF)', False)
-        self.dontStore('cafConfig', 'l1rerun', 'release', 'patch', 'swpath') # excempt from storage option to avoid accidental use for online
+        self.addBoolOption('l1rerun', 'Rerun Level 1', 'Rerun level 1 simulation (should be on for reprocessings if L1 menu has changed since last EB run)', False)
+        self.addBoolOption('doDBConfig', 'doDBConfig', 'Needs to be true to generate the text files for configuration', True)
+        self.dontStore('cafConfig', 'l1rerun', 'release', 'relName', 'swpath') # excempt from storage option to avoid accidental use for online
         # blue
-        self.addProcess('jobMTjo',     "Run athenaMT from JobOptions", 'run athenaMT from JO')
-        self.addProcess('jobPTjo',     "Run athenaPT from JobOptions", 'run athenaPT from JO')
-        self.addProcess('jobSetupCnv', "Run setup conversion script",  'convert setup')
-        self.addProcess('jobUploadDb', "Load TriggerDB",               'load TriggerDB')
-        self.addProcess('jobMTdb',     "Run athenaMT from TriggerDB",  'run athenaMT from DB')
-        self.addProcess('jobPTdb',     "Run athenaPT from TriggerDB",  'run athenaPT from DB')
-        self.addProcess('jobCheckRes', "Compare counts",               'check results')
+        self.addProcess('jobHLTjo',     "Run athenaHLT from JobOptions", 'Run athenaHLT from JO')
+        self.addProcess('jobSetupCnv', "Run setup conversion script",  'Convert ef setup')
+        self.addProcess('jobUploadDb', "Upload xmls to TriggerDB",               'Upload xmls to TriggerDB')
+        self.addProcess('jobHLTdb',     "Run athenaHLT from TriggerDB",  'Run athenaHLT from DB')
+        self.addProcess('jobCheckRes', "Compare counts",               'Compare athenaHLT results')
         self.jobOption.qtw.textChanged.connect(self.readMenus)
         self.cafConfig.cb.stateChanged.connect(self.toggleModifierCAF)
         self.l1rerun.cb.stateChanged.connect(self.toggleL1RerunOption)
+        self.doDBConfig.cb.stateChanged.connect(self.toggleDBConfigOption)
 
     def toggleModifierCAF(self):
-        self.setPreCommandModifier('caf', 'True' if self.cafConfig() else None)
+        self.setPreCommandModifier('enableCostForCAF', 'True' if self.cafConfig() else None)
 
     def toggleL1RerunOption(self):
         self.setPreCommandModifier('rerunLVL1', 'True' if self.l1rerun() else None)
 
+    def toggleDBConfigOption(self):
+        self.setPreCommandModifier('doDBConfig', 'True' if self.doDBConfig() else None)
 
     def read(self):
         if self.inputFile==None: return
@@ -222,7 +231,7 @@ class Config:
         print "Reading configuration from %s!" % self.inputFile
         execfile(self.inputFile,__main__.__dict__)
         for name, (value, desc) in option.iteritems():
-            if name in ['athenaMTjo','athenaMTdb','athenaPTjo','athenaPTdb','checkRes','uploadDb','setupCnv','mtJoLog', 'ptJoLog','mtDbLog', 'ptDbLog', 'cnvLog', 'loadDbLog']: continue  # for backward compatibility
+            if name in ['athenaHLTjo','athenaHLTdb','checkRes','uploadDb','setupCnv','mtJoLog', 'ptJoLog','mtDbLog', 'ptDbLog', 'cnvLog', 'loadDbLog']: continue  # for backward compatibility
             self.options[name].set(value)
         if 'process' in dir(__main__):
             for name, content in process.iteritems():
@@ -267,36 +276,39 @@ class Config:
                     end=i+1
                     break
             exec(''.join(lines[begin:end]))
-            self.menus = sorted(menuMap.keys())
+            self.menus = sorted(menuMap.keys()) 
         except:
             self.menus = None
 
     def setPreCommandModifier(self, name, value):
         pc = self.userPreCommand().strip(';')
-        mods = {} if not pc else dict([tuple(m.split('=')) for m in pc.split(';')])
+        mods = {} if not pc else OrderedDict([tuple(m.split('=')) if '=' in m else [m,''] for m in pc.split(';')])
+
         if value==None:
             if name in mods: mods.pop(name)
         else:
             mods[name] = value
-        pc = ';'.join(['='.join([k,v]) for k,v in sorted(mods.iteritems())])
+        pc = ';'.join(['='.join([k,v]) if v != '' else ''.join([k,v]) for k,v in mods.iteritems()])
         self.userPreCommand.set(pc)            
 
     def write(self):
         outputfile = 'myPref_%s.py' % self.jobName()
         print "Saving configuration to %s !" % outputfile
-        f = open(outputfile, 'w')
-        print >>f, 'option = {}'
-        print >>f, 'process = {}\n'
-        for opt in self.options:
-            if opt in self.excempt: continue
-            print >>f, self.options[opt]
-        for pro in self.processes:
-            if pro in self.excempt: continue
-            print >>f, self.processes[pro]
-        f.close()
-
-
-class KeyPrep(QtGui.QScrollArea):
+        try:
+          f = open(outputfile, 'w')
+          print >>f, 'option = {}'
+          print >>f, 'process = {}\n'
+          for opt in self.options:
+              if opt in self.excempt: continue
+              print >>f, self.options[opt]
+          for pro in self.processes:
+              if pro in self.excempt: continue
+              print >>f, self.processes[pro]
+          f.close()
+        except:
+          print "Error: couldn't write the configuration files, not sure why!" 
+ 
+class KeyPrep(QtWidgets.QScrollArea):
     def __init__(self, configFile, parent=None):
         super(KeyPrep,self).__init__(parent)
         self.config = Config(configFile)
@@ -306,11 +318,13 @@ class KeyPrep(QtGui.QScrollArea):
         self.layout()
         self.checkReleaseAndTT()
         self.updateMenuComboBox()
+        self.updateCommandBox()
+        self.checkMachine()
         self.runThread = KeyPrep.RunThread(self)
         self.currentSubprocess = None
 
-    def position(self, w=550, h=870, m=30):
-        desktop = QtGui.QApplication.desktop()
+    def position(self, w=675, h=870, m=30):
+        desktop = QtWidgets.QApplication.desktop()
         dw = desktop.availableGeometry().width()
         dh = desktop.availableGeometry().height()
         h = min(h,dh-2*m)
@@ -320,60 +334,74 @@ class KeyPrep(QtGui.QScrollArea):
     def elements(self):
         self.position()
         self.setWindowTitle('Prepare Trigger Configuration')
-
         self.gr_relconf = {
-            'box' : QtGui.QGroupBox("Release configuration"),
-            'cont': [ self.config.release, self.config.patch, self.config.swpath, self.config.tt ]
+            'box' : QtWidgets.QGroupBox("Release configuration"),
+            'cont': [ self.config.relName, self.config.release, self.config.swpath, self.config.tt ]
             }
-        self.gr_relconf['box'].setStyleSheet("QGroupBox { background-color: #8CDBFF; }");
-
+        self.gr_relconf['box'].setStyleSheet("QGroupBox { background-color: #3a81c7; color: #e2e2e2; font-weight: bold; font-size: 12pt; }")
 
         self.gr_setup = {
-            'box' : QtGui.QGroupBox("Job configuration"),
-            'cont': [ self.config.jobName, self.config.jobOption, self.config.userPreCommand, self.config.setupDir,
-                      self.config.tmpDir, self.config.dbAlias, self.config.dbPW, self.config.nEvt, self.config.inputL2,
-                      self.config.inputEF, self.config.l1menu, self.config.hltl2menu, self.config.hltefmenu,
-                      self.config.setupL2, self.config.setupEF, self.config.cfgKey, self.config.l1psKey, self.config.hltpsKey ]
+            'box' : QtWidgets.QGroupBox("Job configuration"),
+            'cont': [ self.config.jobName, self.config.jobOption, self.config.userPreCommand,self.config.userPostCommand, self.config.setupDir,
+                      self.config.tmpDir, self.config.dbAlias, self.config.dbPW, self.config.nEvt,
+                      self.config.inputBSFile, self.config.l1menu, self.config.l1topomenu, self.config.hltmenu,
+                      self.config.setupEF, self.config.cfgKey, self.config.l1psKey, self.config.hltpsKey ]
             }
-        self.gr_setup['box'].setStyleSheet("QGroupBox { background-color: #FFE430; }");
+        self.gr_setup['box'].setStyleSheet("QGroupBox { background-color: #7c7c7c; color: #ffffff;font-weight: bold; font-size: 12pt;  }");
 
         self.gr_run = {
-            'box' : QtGui.QGroupBox("Run state"),
-            'cont': [ self.config.jobMTjo, self.config.jobPTjo, self.config.jobSetupCnv, self.config.jobUploadDb,
-                      self.config.jobMTdb, self.config.jobPTdb, self.config.jobCheckRes ]
+            'box' : QtWidgets.QGroupBox("Run state"),
+            'cont': [ self.config.jobHLTjo, self.config.jobSetupCnv, self.config.jobUploadDb,
+                      self.config.jobHLTdb, self.config.jobCheckRes ]
             }
-        self.gr_run['box'].setStyleSheet("QGroupBox { background-color: #A5FF00; }");
+        self.gr_run['box'].setStyleSheet("QGroupBox { background-color: #e2e2e2; font-weight: bold; font-size: 12pt;}");
 
-        self.config.jobCheckRes.w_showMT.clicked.connect(self.displayResultMT)
-        self.config.jobCheckRes.w_showPT.clicked.connect(self.displayResultPT)
+        self.config.jobCheckRes.w_showHLT.clicked.connect(self.displayResultHLT)
 
-        self.d_menu = QtGui.QComboBox()
-        self.b_save = QtGui.QPushButton("Save",self)
-        self.b_kill = QtGui.QPushButton("Kill Process",self)
-        self.b_run  = QtGui.QPushButton("Run",self)
-        self.b_quit = QtGui.QPushButton("Quit",self)
-        self.connect(self.b_run,  QtCore.SIGNAL('clicked()'), self.run)
-        self.connect(self.b_kill, QtCore.SIGNAL('clicked()'), self.killCurrentProcess)
-        self.connect(self.b_save, QtCore.SIGNAL('clicked()'), self.config.write)
-        self.connect(self.b_quit, QtCore.SIGNAL('clicked()'), self.quit)
+        button_style ="QPushButton {padding: 4px; font-size: 14px; color: #3a81c7; \
+                      font-weight: bold; background-color: #ffffff; border-radius: 1px; border: 1px solid #3a81c7;}"
+
+        self.d_menu = QtWidgets.QComboBox()
+        self.d_menu.setStyleSheet("QComboBox {padding: 2px; color #3a81c7; border-radius: 1px; border: 1px solid #3a81c7;}")
+        self.b_save = QtWidgets.QPushButton("Save",self)
+        self.b_save.setStyleSheet(button_style)
+        self.b_kill = QtWidgets.QPushButton("Kill Process",self)
+        self.b_kill.setStyleSheet(button_style)
+        self.b_run  = QtWidgets.QPushButton("Run",self)
+        self.b_run.setStyleSheet(button_style)
+        self.b_quit = QtWidgets.QPushButton("Quit",self)
+        self.b_quit.setStyleSheet(button_style)
+        self.b_run.clicked.connect(self.run)
+        self.b_kill.clicked.connect(self.killCurrentProcess)
+        self.b_save.clicked.connect(self.config.write)
+        self.b_quit.clicked.connect(self.quit)
 
     def layout(self):
-        top = QtGui.QVBoxLayout()
+        top = QtWidgets.QVBoxLayout()
+        top.setContentsMargins(0,0,0,0)
 
         # release info
-        grid = QtGui.QGridLayout()
+        grid = QtWidgets.QGridLayout()
         for i,c in enumerate(self.gr_relconf['cont']):
             grid.addWidget(c.w_label,i,0,1,1)
+            c.w_label.setStyleSheet("QWidget { color: #e2e2e2; font-weight: bold; font-size: 11pt; }")
             grid.addWidget(c.qtw,i,1,1,3)
+            c.qtw.setStyleSheet("QWidget { color: #e2e2e2; }")
+            if c.name =="tt":
+              c.qtw.setStyleSheet("QWidget { background-color: #a9a9a9; }")
+
         self.gr_relconf['box'].setLayout(grid)
         top.addWidget(self.gr_relconf['box'])
 
         # job setup
-        grid = QtGui.QGridLayout()
+        grid = QtWidgets.QGridLayout()
         grid.setVerticalSpacing(0)
+        grid.setHorizontalSpacing(0)
+        
         line = 0
         for c in self.gr_setup['cont']:
-            if c.name=='userPreCommand':
+            c.w_label.setStyleSheet("QWidget { color: #ffffff; }")
+            if c.name=='userPreCommand' or c.name=='userPostCommand':
                 grid.addWidget(c.w_label,line,0) # label
                 grid.addWidget(self.d_menu,line+1,0,QtCore.Qt.AlignTop) # menu combo box
                 grid.addWidget(c.qtw,line,1,2,7) # field
@@ -382,9 +410,14 @@ class KeyPrep(QtGui.QScrollArea):
                 grid.addWidget(c.w_label,line,0) # label
                 grid.addWidget(c.qtw,line,1,1,7) # field
                 line += 1
-        grid.addItem(QtGui.QSpacerItem(10,10),line,0,1,4) # space
-        hl = QtGui.QHBoxLayout() # horizontal box for buttons
+            if c.name in ['jobOption','l1psKey', 'hltpsKey', 'cfgKey', 'dbPW', 'l1menu','l1topomenu','hltmenu','setupEF']:
+                c.qtw.setStyleSheet("QWidget { background-color: #D4E1EA; }")
+
+        grid.addItem(QtWidgets.QSpacerItem(10,10),line,0,1,4) # space
+        hl = QtWidgets.QHBoxLayout() # horizontal box for buttons
+
         hl.addWidget(self.config.onlineMonitoring.cb)
+        hl.addWidget(self.config.doDBConfig.cb)
         hl.addWidget(self.config.cafConfig.cb)
         hl.addWidget(self.config.l1rerun.cb)
         hl.addStretch(1)
@@ -394,39 +427,56 @@ class KeyPrep(QtGui.QScrollArea):
         top.addWidget(self.gr_setup['box'])
 
         # job progress
-        grid = QtGui.QGridLayout()
+        grid = QtWidgets.QGridLayout()
         grid.setVerticalSpacing(0)
+        grid.setHorizontalSpacing(0)
+        grid.setContentsMargins(0,0,0,0)
         line = 0
         for c in self.gr_run['cont']:
             grid.addWidget(c.w_label,line,0) # label
             grid.addWidget(c.w_state,line,1) # state
             if c.name != 'jobCheckRes':
                 grid.addWidget(c.w_logfile,line,2,1,6) # field
-                #c.w_logfile.setStyleSheet("QLineEdit { background-color: rgb(255, 176, 165); }");
             else:
-                grid.addWidget(c.w_showMT,line,6) # show res button
-                grid.addWidget(c.w_showPT,line,7) # show res button
-            #grid.addWidget(c.w_clearbutton,line,9) # clear button
+                grid.addWidget(c.w_showHLT,line,6) # show res button
             line += 1
         self.gr_run['box'].setLayout(grid)
         top.addWidget(self.gr_run['box'])
 
-        actions = QtGui.QHBoxLayout()
-        #actions.addWidget(self.b_style)
+        actions = QtWidgets.QHBoxLayout()
+        actions.setContentsMargins(4,0,4,4)
         actions.addWidget(self.b_kill)
         actions.addStretch(1)
         actions.addWidget(self.b_run)
         actions.addWidget(self.b_quit)
         top.addLayout(actions)
+        top.addStretch(1)
 
-        #self.setLayout(top)
-
-        frame = QtGui.QFrame()
+        frame = QtWidgets.QFrame()
         frame.setLayout(top)
+
+        palette = QPalette( frame.palette() )
+        palette.setColor( frame.backgroundRole(), QColor("#7c7c7c") )
+
+        frame.setAutoFillBackground(True)
+        frame.setPalette( palette )
+        
         self.setWidget(frame)
         self.setWidgetResizable(True)
+        self.setContentsMargins(0,0,100,0)
 
+        label = QLabel(self)
+        pixmap = QPixmap('/afs/cern.ch/user/a/attrgcnf/TriggerDBReplica/TrigDbHltUploadFiles/logo.png') 
+        label.setPixmap(pixmap)
+        label.setGeometry(675-5-100,5,675-5,100+5)
 
+    def changeWidgetSetting(self, setting):
+        self.config.onlineMonitoring.cb.setEnabled(setting)
+        self.config.doDBConfig.cb.setEnabled(setting) 
+        self.config.cafConfig.cb.setEnabled(setting)
+        self.config.l1rerun.cb.setEnabled(setting)
+        for c in self.gr_setup['cont']:
+            c.qtw.setEnabled(setting)
 
     def updateMenuComboBox(self):
         menus = self.config.menus
@@ -441,24 +491,30 @@ class KeyPrep(QtGui.QScrollArea):
         index=-1
         if self.menuInPreCommand:
             index = menus.index(self.menuInPreCommand)
-        elif "PhysicsV4" in menus:
-            index = menus.index("PhysicsV4")            
-        elif "PhysicsV3" in menus:
-            index = menus.index("PhysicsV3")
-        elif "PhysicsV2" in menus:
-            index = menus.index("PhysicsV2")
+        elif "PhysicsV7" in menus:
+            index = menus.index("PhysicsV7")            
         if index>=0:
             self.d_menu.setCurrentIndex(index)
-          
+
+    def updateCommandBox(self):
+        if self.config.doDBConfig():
+             self.config.setPreCommandModifier('doDBConfig', 'True')
+      
     def selectMenu(self, menu):
         if self.menuInPreCommand!=None: # remove the old one first
             self.config.setPreCommandModifier('test%s' % self.menuInPreCommand, None)
         self.config.setPreCommandModifier('test%s' % menu, 'True') # set the selected one
         self.menuInPreCommand = menu
+   
+    def checkMachine(self):
+      if "lxplus" in socket.gethostname():
+          QMessageBox.information(None, '', "Warning! You're running on lxplus, and this will be slow!")
+      elif "tbed" not in socket.gethostname():
+          QMessageBox.information(None, '', "Warning! You're not running on the testbed, it could be slow!")
 
     def quit(self):
         self.config.write()
-        QtGui.qApp.quit()
+        QtWidgets.qApp.quit()
 
     def setFrameTitle(self,title):
         self.setWindowTitle(title)
@@ -469,9 +525,9 @@ class KeyPrep(QtGui.QScrollArea):
 
     def checkReleaseAndTT(self):
         self.config.release.set(os.getenv('AtlasVersion'))
-        self.config.swpath.set(os.getenv('AtlasBaseDir'))
-        if os.getenv('AtlasProject') in ['AtlasP1HLT','AtlasCAFHLT','AtlasProduction']:
-            self.config.patch.set(os.getenv('AtlasProject'))
+        self.config.swpath.set(os.getenv('AtlasBaseDir'))	
+        if os.getenv('AtlasProject') in ['Athena','AthenaP1']:
+            self.config.relName.set(os.getenv('AtlasProject'))
         
         if self.config.tt()=='':
             for p in os.getenv('DATAPATH').split(os.pathsep):
@@ -481,7 +537,7 @@ class KeyPrep(QtGui.QScrollArea):
 
     def guessMenuInPreCommand(self):
         pc = self.config.userPreCommand().strip(';')
-        mods = {} if not pc else dict([tuple(m.split('=')) for m in pc.split(';')])
+        mods = {} if not pc else OrderedDict([tuple(m.split('=')) if '=' in m else [m,''] for m in pc.split(';')])
         p = re.compile("test.*")
         menucands = filter(p.match,mods.keys())
         self.menuInPreCommand = menucands[0][4:] if menucands else None
@@ -489,7 +545,7 @@ class KeyPrep(QtGui.QScrollArea):
     def write(self,s):
         if not self.summarylog:
             base = self.config.jobName()
-            mode = "w" if self.config.jobMTjo.enabled else "a"
+            mode = "w" if self.config.jobHLTjo.enabled else "a"
             self.summarylog=open('%s/log%sSummary' % (self.config.tmpDir(),base), mode)
         print s,
         print >>self.summarylog, s,
@@ -502,7 +558,9 @@ class KeyPrep(QtGui.QScrollArea):
             self.success = True
 
         def run(self):
-            for job in ['MTjo', 'PTjo', 'SetupCnv', 'UploadDb', 'MTdb', 'PTdb', 'CheckRes']:
+            processing_times = []
+            for job in ['HLTjo', 'SetupCnv', 'UploadDb', 'HLTdb', 'CheckRes']:
+                start_time = timeit.default_timer()
                 proc_conf = getattr(self.gui.config, "job%s" % job)
                 if not proc_conf.enabled:
                     proc_conf.setSkipped()
@@ -519,20 +577,28 @@ class KeyPrep(QtGui.QScrollArea):
                     if proc_conf.inError():
                         self.gui.addFrameTitle(' -> Failure')
                     self.success = False
+                    self.gui.changeWidgetSetting(True)
                     return
                 if not proc(proc_conf): # exec
                     if proc_conf.inError(): self.gui.addFrameTitle(' -> Failure')
                     if proc_conf.isKilled(): self.gui.addFrameTitle(' -> Killed')
                     self.success = False
+                    self.gui.changeWidgetSetting(True)
                     return
                 proc_conf.setSuccess()
                 print >>self.gui, "===>>> Success"
-
+                elapsed = timeit.default_timer() - start_time
+		timer_line = "Elapsed time for " + job + ": " + str(elapsed)
+                print timer_line
+                processing_times += [timer_line]
+            makeTimingFile(processing_times)     
             print "===>>> Success"
             self.gui.setFrameTitle('Success')
+            self.gui.changeWidgetSetting(True)
             self.success = True
             return
 
+    
     def run(self):
         import os
         tmpdir = self.config.tmpDir()
@@ -543,6 +609,7 @@ class KeyPrep(QtGui.QScrollArea):
                 os.makedirs(tmpdir)
             except OSError, e:
                 raise RuntimeError("Can't create temporary directory %s (reason: %s)" % (tmpdir,e) )
+        self.changeWidgetSetting(False)
         self.runThread.start() # starts the thread
 
     def killCurrentProcess(self):
@@ -552,15 +619,14 @@ class KeyPrep(QtGui.QScrollArea):
                 if pr.isRunning():
                     runningProcess=pr
                     break
-            if QMessageBox.question(None, '', "Are you sure you want to kill \nthe process '' ?" % runningProcess.label,
+            if QMessageBox.question(None, '', "Are you sure you want to kill \nthe process %s ?" % runningProcess.label,
                                     QMessageBox.Yes | QMessageBox.No,
                                     QMessageBox.No) == QMessageBox.Yes:
                 if self.currentSubprocess:
                     self.currentSubprocess.kill()
+                    self.changeWidgetSetting(True)
         else:
             QMessageBox.information(None, '', "No process running!")
-
-
 
     # helper functions
     # check existence of file
@@ -570,7 +636,7 @@ class KeyPrep(QtGui.QScrollArea):
             print 'ERROR: <%s> No %s configured' % (caller, filedesc)
             proc_conf.setError()
             return False
-        if not os.path.exists(filename):
+        if 'root://eosatlas//eos/atlas/' not in filename and not os.path.exists(filename):
             print 'ERROR: <%s> %s %s does not exist in %s' % (caller, filedesc, filename, os.path.realpath('.'))
             proc_conf.setError()
             return False
@@ -601,7 +667,7 @@ class KeyPrep(QtGui.QScrollArea):
         for opt in optlist:
             getattr(self.config,opt).clear()
 
-    # execute cmd (string)
+    # 	 cmd (string)
     def executeProcess(self, cmd, proc_conf):
         try:
             FD = open(proc_conf.logfile,'w')
@@ -624,89 +690,74 @@ class KeyPrep(QtGui.QScrollArea):
             return False
         return True
 
+    def executeProcessList(self, cmd_list, proc_conf):
+        try:
+            FD = open(proc_conf.logfile,'w')
+            self.currentSubprocess = subprocess.Popen(cmd_list,stdout=FD,stderr=FD)
+            self.currentSubprocess.wait()
+            retCode = self.currentSubprocess.returncode
+            self.currentSubprocess = None
+        except OSError, v:
+            print 'ERROR: <%s> %r' % (proc_conf.name,v)
+            proc_conf.setError()
+            FD.close()
+            return False
+        FD.close()
+        if retCode==-9:
+            proc_conf.setKilled()
+            return False
+        if retCode!=0:
+            print 'ERROR: <%s> job failed with exit code: %r' % (proc_conf.name, retCode)
+            proc_conf.setError()
+            return False
+        return True
+
     #####################################################
     ###
-    ### Running athenaMT from the JO
+    ### Running athenaHLT from the JO
     ###
     #####################################################
-    def clearMTjo(self):
+    def clearHLTjo(self):
         base = self.config.jobName()
         self.deleteLocalFile("%s-1._0001.data" % base)
         self.deleteLocalFile("%s-1._0001.data.writing" % base)
-        self.deleteTmpFile('log%sMT' % base)
-        self.clearOptions( ['l1menu', 'hltl2menu', 'hltefmenu', 'setupL2', 'inputEF', 'jobMTjo'] )
+        self.deleteTmpFile('log%sHLT' % base)
+        self.clearOptions( ['l1menu', 'hltmenu', 'setupEF', 'jobHLTjo'] )
 
-    def checkPreReqMTjo(self,proc_conf):
-        return self.checkInput(proc_conf, 'inputL2', '') and \
-               self.checkFile(proc_conf, self.config.inputL2(), "Input file")
+    def checkPreReqHLTjo(self,proc_conf):
+        return self.checkInput(proc_conf, 'inputBSFile', '') and \
+               self.checkFile(proc_conf, self.config.inputBSFile(), "Input file")
 
-    def runMTjo(self, proc_conf):
+    def runHLTjo(self, proc_conf):
         base    = self.config.jobName()
-        logfile = '%s/log%sMT' % (self.config.tmpDir(),base)
+        logfile = '%s/log%sHLT' % (self.config.tmpDir(),base)
         proc_conf.setLogfile(logfile)
 
 
-        args = [ '-n %i' % self.config.nEvt(),
-                 '-o %s' % base,
-                 "-c doDBConfig=True",
-                 "-c trigBase='\"%s\"'" % base,
-                 "" if self.config.userPreCommand().strip()=='' else " -c '%s'"  % self.config.userPreCommand().strip(),
-                 '-f %s' % self.config.inputL2(),
-                 '--oh-monitoring' if self.config.onlineMonitoring() else '' ]
-        cmd = 'athenaMT.py %s %s' % ( " ".join(args), self.config.jobOption() )
-        print >>self, '%s &>! %s' % (cmd,logfile)
+        args = [ '-n 1 -f %s' % self.config.inputBSFile(),
+                 '-M' if self.config.onlineMonitoring() else '', 
+                 "" if self.config.userPreCommand().strip()=='' else " -c %s"  % self.config.userPreCommand().strip(),
+                 "" if self.config.userPostCommand().strip()=='' else " -C %s"  % self.config.userPostCommand().strip() ]
+        cmd = 'athenaHLT.py %s %s' % ( " ".join(args), self.config.jobOption() )
 
-        if not self.executeProcess(cmd, proc_conf): return False
+        cmd_list = ['athenaHLT.py' ,  '-n', '1', '-f','%s' % self.config.inputBSFile(),
+                 '-M' if self.config.onlineMonitoring() else '', 
+                  '-c', "%s"  % self.config.userPreCommand().strip(),'-C', "%s"  % self.config.userPostCommand().strip(), self.config.jobOption()]
+
+        print >>self, '%s &> %s' % (cmd,logfile)
+        print cmd_list
+
+        if not self.executeProcessList(cmd_list, proc_conf): return False
 
         try:
             self.config.l1menu     = subprocess.Popen("egrep 'DBCONFIG LVL1XML' %s" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1]
-            self.config.hltl2menu  = subprocess.Popen("egrep 'DBCONFIG HLTXML' %s" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1]
-            self.config.inputEF    = "%s-1._0001.data" % base
-            self.config.setupL2    = './l2_%s_setup.txt' % base
+            self.config.l1topomenu = self.config.l1menu().split("LVL1")[0]+"L1Topo"+self.config.l1menu().split("LVL1")[1]
+            self.config.hltmenu    = subprocess.Popen("egrep 'DBCONFIG HLTXML' %s" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1]
+            self.config.setupEF    = './ef__setup.txt'
         except:
             return False
         return True
-
-    #####################################################
-    ###
-    ### athenaPT from JobOptions
-    ###
-    #####################################################
-    def clearPTjo(self):
-        base = self.config.jobName()
-        self.deleteLocalFile("ef_%s_setup.txt" % base)
-        self.deleteLocalFile("%s-1._0001.data.writing" % base)
-        self.deleteTmpFile('log%sPT' % base)
-        self.clearOptions( ['hltefmenu', 'setupEF', 'jobPTjo'] )
-
-    def checkPreReqPTjo(self,proc_conf):
-        return self.checkInput(proc_conf, 'inputEF', '') and \
-               self.checkFile(proc_conf, self.config.inputEF(), "Input file")
-
-    def runPTjo(self, proc_conf):
-        base = self.config.jobName()
-        logfile = '%s/log%sPT' % (self.config.tmpDir(),base)
-        proc_conf.setLogfile(logfile)
-
-        args = [ '-n %i' % self.config.nEvt(),
-                 '-c doDBConfig=True',
-                 "-c trigBase='\"%s\"'" % base,
-                 "" if self.config.userPreCommand().strip()=='' else " -c '%s'"  % self.config.userPreCommand().strip(),
-                 '-f %s' % self.config.inputEF(),
-                 '--oh-monitoring' if self.config.onlineMonitoring() else '' ]
-        cmd = 'athenaPT.py %s %s' % ( " ".join(args), self.config.jobOption() )
-        print >>self, '%s &>! %s' % (cmd,logfile)
-
-        if not self.executeProcess(cmd, proc_conf): return False
-
-        try:
-            self.config.hltefmenu = subprocess.Popen("egrep 'DBCONFIG HLTXML' %s" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1]
-            self.config.setupEF   = './ef_%s_setup.txt' % base
-        except:
-            return False
-        return True
-
-
+    
     #####################################################
     ###
     ### setup conversion
@@ -722,50 +773,49 @@ class KeyPrep(QtGui.QScrollArea):
 
     def checkPreReqSetupCnv(self,proc_conf):
         allfiles = \
-                 self.checkFile(proc_conf, self.config.setupL2(), "L2 setup file") and \
                  self.checkFile(proc_conf, self.config.setupEF(), 'EF setup file') and \
-                 self.checkFile(proc_conf, self.config.hltl2menu(), 'HLT L2 menu file') and \
-                 self.checkFile(proc_conf, self.config.hltefmenu(), 'HLT EF menu file')
+                 self.checkFile(proc_conf, self.config.hltmenu(), 'HLT menu file')
         if not allfiles: return False
         return self.checkInput(proc_conf, 'l1menu', '')
 
     def runSetupCnv(self, proc_conf):
+
+        print 'Running the setup conversion'
+
         # check for level 1 menu
         base = self.config.jobName()
         fullSetupDir = '%s/%s' % (self.config.setupDir(), base)
+
+        print 'I think things are in the folder',fullSetupDir,', and this is where I\'ll put the files'
+
         l1menuName = os.path.basename(self.config.l1menu())
-        subprocess.call( ('cp -f %s .' % self.config.l1menu()).split() ) 
+        subprocess.call( ('cp -f %s .' % self.config.l1menu()).split() )
+        subprocess.call( ('cp -f %s .' % self.config.l1topomenu()).split()  )
+        l1topoName = os.path.basename(self.config.l1topomenu()) 
+
         #l1menuName = os.path.basename(self.config.l1menu())
         #if not os.path.exists(l1menuName):
         #    subprocess.call(('get_files -xmls %s' % l1menuName).split())
         if not self.checkFile(proc_conf, l1menuName, "L1 menu file after running get_files"):
             return False
+        if not self.checkFile(proc_conf, l1topoName, "L1 topo menu file after running get_files"):
+            return False
         
         logfile = '%s/log%sConv' % (self.config.tmpDir(),base)
         proc_conf.setLogfile(logfile)
 
-        subprocess.call(['cp', self.config.setupL2(), fullSetupDir+'/l2setup.txt'])
-        subprocess.call(['cp', self.config.setupEF(), fullSetupDir+'/efsetup.txt'])
-        subprocess.call(['cp', l1menuName,            fullSetupDir+'/lvl1Menu.xml'])
-        subprocess.call(['cp', self.config.hltl2menu(), fullSetupDir+'/hltL2Menu.xml'])
-        subprocess.call(['cp', self.config.hltefmenu(), fullSetupDir+'/hltEFMenu.xml'])
-        subprocess.call(['cp', self.config.setupL2().replace('.txt','_setup.txt'), fullSetupDir+'/l2setuppy.txt'])
-        subprocess.call(['cp', self.config.setupEF().replace('.txt','_setup.txt'), fullSetupDir+'/efsetuppy.txt'])
+        subprocess.call(['cp', self.config.setupEF(),   fullSetupDir+'/efsetup.txt'])
+        subprocess.call(['cp', l1menuName,              fullSetupDir+'/lvl1Menu.xml'])
+        subprocess.call(['cp', l1topoName,              fullSetupDir+'/l1topoMenu.xml'])
+        subprocess.call(['cp', self.config.hltmenu(),   fullSetupDir+'/hltMenu.xml'])
+        subprocess.call(['cp', self.config.setupEF().replace('.txt','_setup.txt'), fullSetupDir+'/efsetup_setup.txt'])
 
         cwd = os.getcwd()
         os.chdir(fullSetupDir)
 
-        cmd = 'menumerge.py --l2menu hltL2Menu.xml --efmenu hltEFMenu.xml --output hltMenu.xml'
-        print '%s &>! %s' % (cmd,logfile)
-        if not self.executeProcess(cmd, proc_conf): return False
+        cmd = 'ConvertHLTSetup_txt2xml.py efsetup.txt efsetup_setup.txt'
+        print >>self,'%s &> %s' % (cmd,logfile)
 
-
-        cmd = 'ConvertHLTSetup_txt2xml.py l2setup.txt l2setuppy.txt'
-        print >>self,'%s &>>! %s' % (cmd,logfile)
-        if not self.executeProcess(cmd, proc_conf): return False
-
-        cmd = 'ConvertHLTSetup_txt2xml.py efsetup.txt efsetuppy.txt'
-        print >>self,'%s &>>! %s' % (cmd,logfile)
         if not self.executeProcess(cmd, proc_conf): return False
 
         os.chdir(cwd)
@@ -786,18 +836,20 @@ class KeyPrep(QtGui.QScrollArea):
         fullSetupDir = '%s/%s' % (self.config.setupDir(), self.config.jobName())
         cwd = os.getcwd()
         os.chdir(fullSetupDir)
+        subprocess.call(['get_files','LVL1config.dtd'])
         allfiles = \
-                 self.checkFile(proc_conf, 'l2setup.xml', 'L2 setup file') and \
                  self.checkFile(proc_conf, 'efsetup.xml', 'EF setup file') and \
                  self.checkFile(proc_conf, 'hltMenu.xml', 'HLT menu file') and \
-                 self.checkFile(proc_conf, 'lvl1Menu.xml','LVL1 menu file')
+                 self.checkFile(proc_conf, 'lvl1Menu.xml','LVL1 menu file') and \
+                 self.checkFile(proc_conf, 'LVL1config.dtd','LVL1 configuration file') and \
+                 self.checkFile(proc_conf, 'l1topoMenu.xml','L1Topo menu file')
         os.chdir(cwd)
         return allfiles
 
     def runUploadDb(self,proc_conf):
         base = self.config.jobName()
         fullSetupDir = '%s/%s' % (self.config.setupDir(),base)
-        java='/afs/cern.ch/sw/lcg/external/Java/JDK/1.6.0/ia32/jre/bin/java -Xms512m -Xmx2000m'
+        #java='/afs/cern.ch/sw/lcg/external/Java/JDK/Oracle_1.8.0_31/amd64/bin/java -Xms512m -Xmx2000m'
         TT=self.config.tt()
         
         logfile = '%s/log%sUpload' % (self.config.tmpDir(),base)
@@ -815,82 +867,59 @@ class KeyPrep(QtGui.QScrollArea):
                     '-pw %s' % self.config.dbPW()]
         args += ['-up',
                  '-l1  %s/lvl1Menu.xml' % fullSetupDir,
+                 '-l1topo  %s/l1topoMenu.xml' % fullSetupDir,
                  '-hlt %s/hltMenu.xml'  % fullSetupDir,
-                 '-l2s %s/l2setup.xml'  % fullSetupDir,
                  '-efs %s/efsetup.xml'  % fullSetupDir,
                  '-rel %s'  % self.config.release(),
-                 '-o %sTT'  % logfile ]
+                 '-m \"Upload from script\"',
+                 '-onl',
+                 '-o %sTTlog'  % logfile ]
 
-        cmd  = '%s -jar %s %s' % (java,TT,' '.join(args))
-        print >>self,'%s &>! %s' % (cmd,logfile)
-        if not self.executeProcess(cmd, proc_conf): return False
+        cmd  = '%s %s' % (TT,' '.join(args))
+        print >>self,'%s &> %s' % (cmd,logfile)
 
-        self.config.cfgKey   = int(subprocess.Popen("egrep 'UPLOAD Supermasterkey' %sTT" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1])
-        self.config.l1psKey  = int(subprocess.Popen("egrep 'UPLOAD LVL1prescalekey' %sTT" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1])
-        self.config.hltpsKey = int(subprocess.Popen("egrep 'UPLOAD HLTprescalekey' %sTT" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1])
+        os.unsetenv("TRIGGER_EXP_CORAL_PATH")
+        os.environ["TRIGGER_EXP_CORAL_PATH_RUN2"] = "/afs/cern.ch/user/a/attrgcnf/.dbauth/menuexperts"
+        subprocess.call(cmd, shell=True) 
+
+        self.config.cfgKey   = int(subprocess.Popen("egrep 'UPLOAD Supermasterkey' %sTTlog" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1])
+        self.config.l1psKey  = int(subprocess.Popen("egrep 'UPLOAD LVL1prescalekey' %sTTlog" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1])
+        self.config.hltpsKey = int(subprocess.Popen("egrep 'UPLOAD HLTprescalekey' %sTTlog" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1])
         return True
 
-
-
     #####################################################
     ###
-    ### Running athenaMT from the DB
+    ### Running athenaHLT from the DB
     ###
     #####################################################
-    def clearMTdb(self):
+    def clearHLTdb(self):
         base = self.config.jobName()
         self.deleteLocalFile("%s-1._0001.data" % base)
         self.deleteLocalFile("%s-1._0001.data.writing" % base)
-        self.deleteTmpFile('log%sMTdb' % base)
-        self.clearOptions( ['jobMTdb'] )
-    def checkPreReqMTdb(self,proc_conf):
+        self.deleteTmpFile('log%sHLTdb' % base)
+        self.clearOptions( ['jobHLTdb'] )
+    def checkPreReqHLTdb(self,proc_conf):
         return self.checkInput(proc_conf, 'cfgKey', 0) and \
                    self.checkInput(proc_conf, 'l1psKey', 0) and \
                    self.checkInput(proc_conf, 'hltpsKey', 0)
-    def runMTdb(self,proc_conf):
+    def runHLTdb(self,proc_conf):
         base = self.config.jobName()
-        logfile = '%s/log%sMTdb' % (self.config.tmpDir(),base)
+        logfile = '%s/log%sHLTdb' % (self.config.tmpDir(),base)
         proc_conf.setLogfile(logfile)
 
-        args = [ '-f %s' % self.config.inputL2(),
+        args = [ '-f %s' % self.config.inputBSFile(),
                  '-n %i' % self.config.nEvt(),
-                 '-o %s' % base,
-                 '--oh-monitoring' if self.config.onlineMonitoring() else '',
                  '-J TrigConf::HLTJobOptionsSvc',
-                 '-b DBServer=%s:DBSMKey=%i:DBHLTPSKey=%i:DBLVL1PSKey=%i:Instance=L2' % (self.config.dbAlias(),self.config.cfgKey(),self.config.hltpsKey(),self.config.l1psKey()) ]
-        cmd  = 'athenaMT.py %s' % ' '.join(args)
-        print >>self,'%s &>! %s' % (cmd,logfile)
+                 '-M' if self.config.onlineMonitoring() else '', 
+                 '--use-database --db-type Coral  --db-server %s --db-smk %i --db-hltpskey %i --db-extra {"lvl1key":%i}' % (self.config.dbAlias(),self.config.cfgKey(),self.config.hltpsKey(),self.config.l1psKey()) ]
+
+        cmd  = 'athenaHLT.py %s' % ' '.join(args)
+        print >>self,'%s &> %s' % (cmd,logfile)
+      
+        os.unsetenv("FRONTIER_SERVER")
+       
         if not self.executeProcess(cmd, proc_conf): return False
         return True
-
-    #####################################################
-    ###
-    ### Running athenaPT from the DB
-    ###
-    #####################################################
-    def clearPTdb(self):
-        base = self.config.jobName()
-        self.deleteTmpFile('log%sPTdb' % base)
-        self.clearOptions( ['jobPTdb'] )
-
-    def checkPreReqPTdb(self,proc_conf):
-        return self.checkInput(proc_conf, 'cfgKey', 0)
-
-    def runPTdb(self,proc_conf):
-        base = self.config.jobName()
-        logfile = '%s/log%sPTdb' % (self.config.tmpDir(),base)
-        proc_conf.setLogfile(logfile)
-
-        args = [ '-f %s' % self.config.inputEF(),
-                 '-n %i' % self.config.nEvt(),
-                 '--oh-monitoring' if self.config.onlineMonitoring() else '',
-                 '-J TrigConf::HLTJobOptionsSvc',
-                 '-b DBServer=%s:DBSMKey=%i:DBHLTPSKey=%i:DBLVL1PSKey=%i:Instance=EF' % (self.config.dbAlias(),self.config.cfgKey(),self.config.hltpsKey(),self.config.l1psKey()) ]
-        cmd  = 'athenaPT.py %s' % ' '.join(args)
-        print >>self,'%s &>! %s' % (cmd,logfile)
-        if not self.executeProcess(cmd, proc_conf): return False
-        return True
-
 
     #####################################################
     ###
@@ -904,31 +933,21 @@ class KeyPrep(QtGui.QScrollArea):
 
     def checkPreReqCheckRes(self, proc_conf):
         allfiles = \
-                 self.checkFile(proc_conf, self.config.jobMTjo.logfile, "L2 JO log file") and \
-                 self.checkFile(proc_conf, self.config.jobMTdb.logfile, 'L2 DB log file') and \
-                 self.checkFile(proc_conf, self.config.jobPTjo.logfile, "EF JO log file") and \
-                 self.checkFile(proc_conf, self.config.jobPTdb.logfile, 'EF DB log file')
+                 self.checkFile(proc_conf, self.config.jobHLTjo.logfile, "HLT JO log file") and \
+                 self.checkFile(proc_conf, self.config.jobHLTdb.logfile, 'HLT DB log file')
         return allfiles
 
     def runCheckRes(self, proc_conf):
         base = self.config.jobName()
-        resMtJo = self.getResultFromLog(self.config.jobMTjo.logfile)
-        resMtDb = self.getResultFromLog(self.config.jobMTdb.logfile)
+        resHltJo = self.getResultFromLog(self.config.jobHLTjo.logfile)
+        resHltDb = self.getResultFromLog(self.config.jobHLTdb.logfile)
         self.testresults = {
-            'mtjo' : resMtJo,
-            'mtdb' : resMtDb
+            'hltjo' : resHltJo,
+            'hltdb' : resHltDb
             }
-        print >>self,"Checking L2\n==========="
-        successMT = self.checkResultInLevel(proc_conf, resMtJo, resMtDb)
+        print >>self,"Checking HLT\n==========="
+        success = self.checkResultInLevel(proc_conf, resHltJo, resHltDb)
         
-        resPtJo = self.getResultFromLog(self.config.jobPTjo.logfile)
-        resPtDb = self.getResultFromLog(self.config.jobPTdb.logfile)
-        self.testresults['ptjo'] = resPtJo
-        self.testresults['ptdb'] = resPtDb
-        print >>self,"Checking EF\n==========="
-        successPT = self.checkResultInLevel(proc_conf, resPtJo, resPtDb)
-
-        success = successMT and successPT
         if success:
             print >>self,"Check successful! This database key returns the correct answers and can be used online!"
         else:
@@ -937,7 +956,7 @@ class KeyPrep(QtGui.QScrollArea):
         if True:
             logfile = '%s/log%sCheckRes' % (self.config.tmpDir(),base)
             cmd  = 'buildConfigInstaller.sh %s %s' % (self.config.jobName(), self.config.release())
-            print >>self,'%s &>! %s' % (cmd,logfile)
+            print >>self,'%s &> %s' % (cmd,logfile)
             try:
                 successBuildInstaller = ( 0 == subprocess.call(cmd.split()) )
             except OSError, v:
@@ -992,14 +1011,11 @@ class KeyPrep(QtGui.QScrollArea):
                 d[m.group('chain')] = m.groupdict()
         return d
 
-    def displayResultMT(self):
-        self.displayResult('mt')
+    def displayResultHLT(self):
+        self.displayResult('hlt')
         
-    def displayResultPT(self):
-        self.displayResult('pt')
-
     def displayResult(self, name):
-        if name!='mt' and name!='pt':
+        if name!='hlt':
             return
         if not (self.testresults.has_key('%sjo' % name) and self.testresults.has_key('%sdb' % name)):
             print "Results for %s are missing" % name
@@ -1071,10 +1087,6 @@ class KeyPrep(QtGui.QScrollArea):
         #t.insert("%s+1l" % INSERT, ul)
         print ul
 
-
-
-
-
 def parse_programm_options():
     import getopt
     short_opt = "h?F:"
@@ -1102,11 +1114,21 @@ def parse_programm_options():
             inputFile = v
     return inputFile
 
+def makeTimingFile(lines = []):
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    timing_file = open('/afs/cern.ch/user/a/attrgcnf/TriggerDBReplica/TrigDbHltUploadFiles/timingLogs/logTiming'+timestr, 'w')
+    timing_file.write('Machine: '+socket.gethostname()+'\n')
+    timing_file.write('User: '+getpass.getuser()+'\n') 
+    for line in lines:
+        timing_file.write(line+'\n')
+    timing_file.close()  # you can omit in most cases as the destructor will call it
 
 def main():
     signal.signal(signal.SIGINT, sigint_handler)
     inputFile = parse_programm_options()
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
+    app.setStyle('cleanlooks')
     timer = QtCore.QTimer()
     timer.start(500)  # interval after which timeout signal is called
     timer.timeout.connect(lambda: None)
@@ -1120,7 +1142,7 @@ def sigint_handler(*args):
     #if QMessageBox.question(None, '', "Are you sure you want to quit?",
     #                        QMessageBox.Yes | QMessageBox.No,
     #                        QMessageBox.No) == QMessageBox.Yes:
-    QtGui.QApplication.quit()
+    QtWidgets.QApplication.quit()
 
 if __name__ == "__main__":
     main()

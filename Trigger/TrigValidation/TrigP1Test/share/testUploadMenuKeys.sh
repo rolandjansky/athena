@@ -3,23 +3,17 @@
 echo 'Testing SMKey upload'
 if [ $# -ge 1 ]; then
    type=$1
-   echo 'Trying to upload Menu generated  with test "${type}"_menu' 
+   echo "Trying to upload Menu generated  with test "${type}"_menu" 
 else
    type=""
 fi
 
 #setup the TT
-get_files -data -symlink TrigDb.jar
-get_files -data -symlink TriggerTool.jar
-export JAVA_VER="1.8.0"
-source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
 export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
 
-export TDAQ_VERSION="tdaq-07-01-00"
-export TDAQ_RELEASE_BASE=/afs/cern.ch/atlas/project/tdaq/prod
-export TDAQ_DB_PATH=/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/share/data:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/databases:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/databases
-source $TDAQ_RELEASE_BASE/../cmake/cmake_tdaq/bin/cm_setup.sh $TDAQ_VERSION
+export PATH=$PATH:$TDAQ_JAVA_HOME/bin
+
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
 
 ##get the right pattern to load LVl1 xml file
@@ -54,8 +48,6 @@ get_files -xmls -copy LVL1config_"${stump}".xml
 l1menu=`find .  -name LVL1config_${stump}.xml` 
 
 #get the L1 Topo configuration
-
-
 get_files -xmls -copy L1Topoconfig_"${stump}".xml 
 l1topo=`find . -name L1Topoconfig_${stump}.xml` 
 
@@ -83,13 +75,13 @@ get_files -xmls LVL1config.dtd
 
 
 
-p1_rel="P1HLT"
+p1_rel="AthenaP1"
 if [ $NICOS_ATLAS_RELEASE ]
 then
     p1_rel=$NICOS_ATLAS_RELEASE
 fi
 
-nightly="P1HLTTest"
+nightly="AthenaP1Test"
 if [ $NICOS_NIGHTLY_NAME ]
 then
     nightly="$NICOS_NIGHTLY_NAME"
@@ -106,7 +98,8 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -Duser.timezone=CET -cp \"*:$TDAQ_CLASSPATH\"  triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
+
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log
 
@@ -149,7 +142,7 @@ echo "Generating RuleBook_HLTPS_Physics${lumi}.xml by running\ncnvXML.py --ps_na
 cnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml
 
 # Upload
-java -jar TriggerTool.jar -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 50 -w_t 60 &> uploadPSK.log
+afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 50 -w_t 60 &> uploadPSK.log
 hltpsk2=`grep 'HLT Prescale set saved with id' uploadPSK.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ]; then
     echo "ERROR Upload of prescale key failed"

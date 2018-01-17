@@ -25,7 +25,7 @@
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::RpcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -36,7 +36,7 @@ StatusCode Muon::RpcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
     StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "StoreGate service not found !" << endreq;
+        log << MSG::FATAL << "StoreGate service not found !" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -44,28 +44,28 @@ StatusCode Muon::RpcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
     StoreGateSvc *detStore;
     sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
 
    // Get the pixel helper from the detector store
     sc = detStore->retrieve(m_RpcId);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get Rpc ID helper !" << endreq;
+        log << MSG::FATAL << "Could not get Rpc ID helper !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the Rpc ID helper." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the Rpc ID helper." << endmsg;
     }
 
     sc = detStore->retrieve(m_muonDetMgr);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
+        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
         return sc;
     }
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -104,11 +104,11 @@ void Muon::RpcPrepDataContainerCnv_p1::transToPers(const Muon::RpcPrepDataContai
     //  it_Coll     = transCont->begin(); // reset the iterator, we used it!
     // }
     persCont->m_collections.resize(numColl);    
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::RpcPrepDataCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -124,7 +124,7 @@ void Muon::RpcPrepDataContainerCnv_p1::transToPers(const Muon::RpcPrepDataContai
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing RpcPrepDataContainer ***" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing RpcPrepDataContainer ***" << endmsg;
 }
 
 void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Container_p1* persCont, Muon::RpcPrepDataContainer* transCont, MsgStream &log) 
@@ -150,7 +150,7 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
     RpcPrepDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-    log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+    log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
         // Create trans collection - is NOT owner of RpcPrepData (SG::VIEW_ELEMENTS)
     // IDet collection don't have the Ownership policy c'tor
@@ -169,7 +169,7 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             Muon::RpcPrepData* chan = dynamic_cast<Muon::RpcPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
             if (!chan) {
-               log << MSG::ERROR << "RpcPrepDataContainerCnv_p1::persToTrans: Cannot get RpcPrepData!" << endreq;
+               log << MSG::ERROR << "RpcPrepDataContainerCnv_p1::persToTrans: Cannot get RpcPrepData!" << endmsg;
                continue;
             }
             const MuonGM::RpcReadoutElement * de = m_muonDetMgr->getRpcReadoutElement(chan->identify());
@@ -185,7 +185,7 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
                 const Trk::PlaneSurface& surf = de->surface( chan->identify() );
                 const Amg::Vector2D* pos = surf.Trk::Surface::globalToLocal(globalposHIT,tolerance); 
                 if (!pos){
-                  log << MSG::WARNING << "RpcPrepDataContainerCnv_p1::persToTrans - globalToLocal failed!"<<endreq;
+                  log << MSG::WARNING << "RpcPrepDataContainerCnv_p1::persToTrans - globalToLocal failed!"<<endmsg;
                   chan->m_localPos = Amg::Vector2D(0,0);
                 }
                 else chan->m_localPos = *pos;
@@ -199,11 +199,11 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         }
         if (log.level() <= MSG::DEBUG) {
             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-                collID.get_compact() << ", added to Identifiable container." << endreq;
+                collID.get_compact() << ", added to Identifiable container." << endmsg;
         }
     }
 
-    log << MSG::DEBUG  << " ***  Reading RpcPrepDataContainer" << endreq;
+    log << MSG::DEBUG  << " ***  Reading RpcPrepDataContainer" << endmsg;
 }
 
 
@@ -213,7 +213,7 @@ Muon::RpcPrepDataContainer* Muon::RpcPrepDataContainerCnv_p1::createTransient(co
 {
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize RpcPrepDataContainerCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize RpcPrepDataContainerCnv_p1 " << endmsg;
             return 0;
         } 
     }

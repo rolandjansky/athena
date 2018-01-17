@@ -137,7 +137,12 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupZDCPEBChains()
       elif 'calibAFP' in self.chainPart['purpose']:
         self.setupAFPCalibrationChains()
-        
+      elif 'rpcpeb' in self.chainPart['purpose']:
+        self.setupRPCCalibrationChains()
+      elif 'idpsl1' in self.chainPart['purpose']:
+        self.setupIDPSCalibrationChains()
+      elif 'larpebcalib' in self.chainPart['purpose']:
+        self.setupLArPEBCalibCalibrationChains()
       else:
          log.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
@@ -206,7 +211,15 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       self.AlgList = []
       self.signatureCounterOffset = 14
 
-      from TrigDetCalib.TrigDetCalibConfig import *
+      from TrigDetCalib.TrigDetCalibConfig import (CheckForTracks_Trk9_Central,
+                                                   CheckForTracks_Trk16_Central,
+                                                   CheckForTracks_Trk29_Central,
+                                                   CheckForTracks_Trk9_Fwd,
+                                                   CheckForTracks_Trk16_Fwd,
+                                                   CheckForTracks_Trk29_Fwd,
+                                                   CheckForTracks_Trk9_Central_Beamspot,
+                                                   CheckForTracks_Trk9_Fwd_Beamspot) 
+
       trkAlgDict = {
          'idcalib_trk9_central'  : CheckForTracks_Trk9_Central('CheckForTracks_Trk9_Central'),
          'idcalib_trk16_central' : CheckForTracks_Trk16_Central('CheckForTracks_Trk16_Central'),
@@ -220,6 +233,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
          'idcalib_trk9_fwd_L1J10_VTE200'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_2'),
          'idcalib_trk9_central_bs'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
          'idcalib_trk9_fwd_bs'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
+         'idcalib_trk9_central_L1MBTS_1_VTE70'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
+         'idcalib_trk9_fwd_L1MBTS_1_VTE70'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
 
          }
       for name, alg in trkAlgDict.items():
@@ -287,6 +302,47 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2signatureList += [[['L2_']]]
      self.TErenamingDict = {
        'L2_':     'L2_l1ALFAcalib',
+       }
+
+
+   ###########################################################################
+   # RPC Calibration chains
+   ###########################################################################
+   def setupRPCCalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
+     l2_RPCSubDetListWriter.SubdetId = ['TDAQ_MUON', 'TDAQ_CTP', 'TDAQ_HLT', 'RPC']
+
+     l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_RPCSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1RPCcalib',
+       }
+  
+   ###########################################################################
+   # IDprescaledL1 Calibration chains
+   ###########################################################################
+   def setupIDPSCalibrationChains(self):
+
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+
+     l2_IDPSSubDetListWriter = TrigSubDetListWriter("IDPSSubDetListWriter")
+     l2_IDPSSubDetListWriter.SubdetId = ['TDAQ_CTP','TDAQ_HLT','InnerDetector']
+
+     l2_IDPSSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [l2_IDPSSubDetListWriter]
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1IDPScalib',
        }
 
 
@@ -451,4 +507,15 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2sequenceList += [['', self.robWriter, 'L2_zdc']]     
      self.L2signatureList += [[['L2_zdc']]]
 
+######################################################################
+   def setupLArPEBCalibCalibrationChains(self):
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     larpebSubDetListWriter = TrigSubDetListWriter("LArPEBSubDetListWriter")
+     larpebSubDetListWriter.SubdetId = ['TDAQ_CTP','LAr']
 
+     larpebSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [larpebSubDetListWriter]
+     self.L2sequenceList += [['', self.robWriter, 'L2_larpeb']]
+     self.L2signatureList += [[['L2_larpeb']]]
+ 

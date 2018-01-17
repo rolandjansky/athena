@@ -52,7 +52,7 @@ namespace G4UA
   {
 
     // Trigger if the energy is below our threshold or if the time is over 150 ns
-    int id = fabs(aStep->GetTrack()->GetDynamicParticle()->GetDefinition()->GetPDGEncoding());
+    int id = std::abs(aStep->GetTrack()->GetDynamicParticle()->GetDefinition()->GetPDGEncoding());
     if (id>=1000000 && id<=1100000 &&
 	isSUSYParticle(id)){
 

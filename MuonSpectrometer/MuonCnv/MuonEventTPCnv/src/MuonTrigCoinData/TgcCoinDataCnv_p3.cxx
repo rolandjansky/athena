@@ -5,14 +5,14 @@
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinDataCnv_p3.h"
 #include <algorithm>
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "CxxUtils/make_unique.h"
 
 void TgcCoinDataCnv_p3::
 persToTrans( const Muon::TgcCoinData_p3 *persObj, Muon::TgcCoinData *transObj,MsgStream &log ) 
 {
-   log << MSG::DEBUG << "TgcCoinDataCnv_p3::persToTrans" << endreq;
+   log << MSG::DEBUG << "TgcCoinDataCnv_p3::persToTrans" << endmsg;
    
    Muon::TgcCoinData::CoinDataType type = Muon::TgcCoinData::TYPE_UNKNOWN;
    switch(persObj->m_type){
@@ -67,7 +67,7 @@ persToTrans( const Muon::TgcCoinData_p3 *persObj, Muon::TgcCoinData *transObj,Ms
 void TgcCoinDataCnv_p3::
 transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, MsgStream &log )
 {
-  log << MSG::DEBUG << "TgcCoinDataCnv_p3::transToPers" << endreq;
+  log << MSG::DEBUG << "TgcCoinDataCnv_p3::transToPers" << endmsg;
   
   // Tracklet and HiPt should have valid channelIdIn  
   if((transObj->type()==Muon::TgcCoinData::TYPE_TRACKLET || 
@@ -78,7 +78,7 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
       log << MSG::ERROR << "TgcCoinDataCnv_p3::transToPers - invalid trans channelIdIn!! " 
           << (transObj->type()==Muon::TgcCoinData::TYPE_TRACKLET ? "(TRACKLET)" : 
               (transObj->type()==Muon::TgcCoinData::TYPE_TRACKLET_EIFI ? "(TRACKLET_EIFI)" : "(HIPT)"))
-          << endreq;
+          << endmsg;
     }
   }
 
@@ -91,7 +91,7 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
       log << MSG::ERROR << "TgcCoinDataCnv_p3::transToPers - invalid trans channelIdOut!! " 
           << (transObj->type()==Muon::TgcCoinData::TYPE_TRACKLET ? "(TRACKLET)" : 
               (transObj->type()==Muon::TgcCoinData::TYPE_HIPT ? "(HIPT)" : "(SL)"))
-          << endreq;
+          << endmsg;
     }
   }
 
@@ -128,7 +128,7 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
       if (numErrsPrinted<10) {
         numErrsPrinted++;
         log << MSG::WARNING << "Have been given a TgcCoinData error matrix with size = ["
-            <<transObj->errMat().rows()<<","<<transObj->errMat().cols()<<"]. Skipping writing of the matrix."<<endreq;
+            <<transObj->errMat().rows()<<","<<transObj->errMat().cols()<<"]. Skipping writing of the matrix."<<endmsg;
       }
     } else {
       Trk::ErrorMatrix pMat;

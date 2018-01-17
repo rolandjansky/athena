@@ -1,0 +1,205 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/MuonEventTPCnv_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/work/s/ssnyder/builds/atlas-work3/build-x86_64-slc6-gcc62-opt/MuonSpectrometer/MuonCnv/MuonEventTPCnv/unitTestRun/../share/MuonEventTPCnv_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO Job options successfully read in from ../share/MuonEventTPCnv_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
+                                          running on lxplus027.cern.ch on Fri Nov 24 17:51:21 2017
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 3742 CLIDRegistry entries for module ALL
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+ Volume psdum2 not found: returning 0
+ Volume psdum3 not found: returning 0
+ Volume pmdum2 not found: returning 0
+ Volume pmdum3 not found: returning 0
+ INFO Initialize from dictionary
+ DEBUG (Re)initialize
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ DEBUG decode index and bit fields for each level: 
+ DEBUG indet          decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+ DEBUG pixel          decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffffffffffff 59 2  3  indexes                     mode  both_bounded  
+ DEBUG bec            decode 1 vals -2,0,2          mask/zero mask/shift/bits/offset 3   f9ffffffffffffff 57 2  5  indexes 0 0 1 0 2           mode  enumerated  
+ DEBUG bec_shift      decode 0 vals 0               mask/zero mask/shift/bits/offset 0   0 0  0  0  indexes                     mode  both_bounded  
+ DEBUG lay_disk       decode 0 vals 0:2             mask/zero mask/shift/bits/offset 3   fe7fffffffffffff 55 2  7  indexes                     mode  both_bounded  
+ DEBUG lay_disk_shift decode 0 vals 0               mask/zero mask/shift/bits/offset 0   0 0  0  0  indexes                     mode  both_bounded  
+ DEBUG phi_mod        decode 0 vals 0:51            mask/zero mask/shift/bits/offset 3f  ff81ffffffffffff 49 6  9  indexes                     mode  both_bounded  
+ DEBUG phi_mod_shift  decode 0 vals 0               mask/zero mask/shift/bits/offset 0   0 0  0  0  indexes                     mode  both_bounded  
+ DEBUG eta_mod        decode 1 vals -6:6            mask/zero mask/shift/bits/offset f   fffe1fffffffffff 45 4  15 indexes                     mode  both_bounded  
+ DEBUG eta_mod_shift  decode 0 vals 0               mask/zero mask/shift/bits/offset 0   0 0  0  0  indexes                     mode  both_bounded  
+ DEBUG phi_index      decode 0 vals 0:327           mask/zero mask/shift/bits/offset 1ff ffffe00fffffffff 36 9  19 indexes                     mode  both_bounded  
+ DEBUG eta_index      decode 0 vals 0:191           mask/zero mask/shift/bits/offset ff  fffffff00fffffff 28 8  28 indexes                     mode  both_bounded  
+ DEBUG bec_eta_mod    decode 0 vals 0               mask/zero mask/shift/bits/offset 0   0 0  0  0  indexes                     mode  both_bounded  
+indet 1 2,4,5,7,10,11,12,13 7 1fffffffffffffff 61 3 0 min/max 2 13 values  2 4 5 7 10 11 12 13 indexes  0 0 1 2 0 3 0 0 4 5 6 7 indices  8 prev  0 next  0 mode  enumerated  cont mode  none  
+pixel 1 1:3 3 e7ffffffffffffff 59 2 3 min/max 1 3 values  indexes  indices  3 prev  0 next  0 mode  both_bounded  cont mode  none  
+bec 1 -2,0,2 3 f9ffffffffffffff 57 2 5 min/max -2 2 values  -2 0 2 indexes  0 0 1 0 2 indices  3 prev  0 next  0 mode  enumerated  cont mode  none  
+bec_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
+lay_disk 0 0:2 3 fe7fffffffffffff 55 2 7 min/max 0 2 values  indexes  indices  3 prev  0 next  0 mode  both_bounded  cont mode  none  
+lay_disk_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
+phi_mod 0 0:51 3f ff81ffffffffffff 49 6 9 min/max 0 51 values  indexes  indices  52 prev  0 next  0 mode  both_bounded  cont mode  none  
+phi_mod_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
+eta_mod 1 -6:6 f fffe1fffffffffff 45 4 15 min/max -6 6 values  indexes  indices  13 prev  0 next  0 mode  both_bounded  cont mode  none  
+eta_mod_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
+phi_index 0 0:327 1ff ffffe00fffffffff 36 9 19 min/max 0 327 values  indexes  indices  328 prev  0 next  0 mode  both_bounded  cont mode  none  
+eta_index 0 0:191 ff fffffff00fffffff 28 8 28 min/max 0 191 values  indexes  indices  192 prev  0 next  0 mode  both_bounded  cont mode  none  
+bec_eta_mod 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
+PixelID::initLevelsFromDict - found levels 
+subdet        0
+part          1
+barrel_endcap 2
+layer or disk 3
+phi_module    4
+eta_module    5
+phi_index     6
+eta_index     7
+ DEBUG PixelID::initialize_from_dict Set barrel field values: 0
+ DEBUG PixelID::initialize_from_dict Set dbm field values: -999,999
+ DEBUG PixelID::initialize_from_dict Found field values: InDet/Pixel 2/1
+ DEBUG PixelID::init_neighbors 
+ DEBUG PixelID::initialize_from_dict 
+ DEBUG Wafer range -> 2/1/0/0/0:21/-6:6 | 2/1/0/1/0:37/-6:6 | 2/1/0/2/0:51/-6:6 | 2/1/-2,2/0:2/0:47/0
+ DEBUG Pixel range -> 2/1/0/0/0:21/-6:6/0:327/0:191 | 2/1/0/1/0:37/-6:6/0:327/0:143 | 2/1/0/2/0:51/-6:6/0:327/0:143 | 2/1/-2,2/0:2/0:47/0/0:327/0:143
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+SCT_ID               INFO Initialize from dictionary
+ DEBUG (Re)initialize
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ DEBUG decode index and bit fields for each level: 
+ DEBUG indet    decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+ DEBUG sct      decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffffffffffff 59 2  3  indexes                     mode  both_bounded  
+ DEBUG bec      decode 1 vals -2,0,2          mask/zero mask/shift/bits/offset 3   f9ffffffffffffff 57 2  5  indexes 0 0 1 0 2           mode  enumerated  
+ DEBUG lay_disk decode 0 vals 0:8             mask/zero mask/shift/bits/offset f   fe1fffffffffffff 53 4  7  indexes                     mode  both_bounded  
+ DEBUG phi_mod  decode 0 vals 0:55            mask/zero mask/shift/bits/offset 3f  ffe07fffffffffff 47 6  11 indexes                     mode  both_bounded  
+ DEBUG eta_mod  decode 1 vals -6:6            mask/zero mask/shift/bits/offset f   ffff87ffffffffff 43 4  17 indexes                     mode  both_bounded  
+ DEBUG side     decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffbffffffffff 42 1  21 indexes                     mode  both_bounded  
+ DEBUG strip    decode 0 vals 0:767           mask/zero mask/shift/bits/offset 3ff fffffc00ffffffff 32 10 22 indexes                     mode  both_bounded  
+indet 1 2,4,5,7,10,11,12,13 7 1fffffffffffffff 61 3 0
+sct1 1:3 3 e7ffffffffffffff 59 2 3
+bec1 -2,0,2 3 f9ffffffffffffff 57 2 5
+lay_disk0 0:8 f fe1fffffffffffff 53 4 7
+phi_mod0 0:55 3f ffe07fffffffffff 47 6 11
+eta_mod1 -6:6 f ffff87ffffffffff 43 4 17
+side0 0:1 1 fffffbffffffffff 42 1 21
+strip0 0:767 3ff fffffc00ffffffff 32 10 22
+ DEBUG SCT_ID::initialize_from_dict Set barrel field values: 0
+ DEBUG SCT_ID::initialize_from_dict Found field values: SCT 2
+ DEBUG SCT_ID::init_neighbors 
+ INFO SCT_ID::initialize_from_dict 
+ DEBUG  Wafer range -> 2/2/0/0/0:31/-6:-1/0:1 | 2/2/0/1/0:39/-6:-1/0:1 | 2/2/0/2/0:47/-6:-1/0:1 | 2/2/0/3/0:55/-6:-1/0:1 | 2/2/0/0/0:31/1:6/0:1 | 2/2/0/1/0:39/1:6/0:1 | 2/2/0/2/0:47/1:6/0:1 | 2/2/0/3/0:55/1:6/0:1 | 2/2/-2,2/0:8/0:51/0/0:1 | 2/2/-2,2/0/0:39/1/0:1 | 2/2/-2,2/1:5/0:39/1:2/0:1 | 2/2/-2,2/6:7/0:39/1/0:1
+ DEBUG Strip range -> 2/2/0/0/0:31/-6:-1/0:1/0:767 | 2/2/0/1/0:39/-6:-1/0:1/0:767 | 2/2/0/2/0:47/-6:-1/0:1/0:767 | 2/2/0/3/0:55/-6:-1/0:1/0:767 | 2/2/0/0/0:31/1:6/0:1/0:767 | 2/2/0/1/0:39/1:6/0:1/0:767 | 2/2/0/2/0:47/1:6/0:1/0:767 | 2/2/0/3/0:55/1:6/0:1/0:767 | 2/2/-2,2/0:8/0:51/0/0:1/0:767 | 2/2/-2,2/0/0:39/1/0:1/0:767 | 2/2/-2,2/1:5/0:39/1:2/0:1/0:767 | 2/2/-2,2/6:7/0:39/1/0:1/0:767
+INFO Initialize from dictionary cout 0
+ DEBUG (Re)initialize
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ DEBUG decode index and bit fields for each level: 
+ DEBUG indet     decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+ DEBUG trt       decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffffffffffff 59 2  3  indexes                     mode  both_bounded  
+ DEBUG bec       decode 1 vals -2,-1,1,2       mask/zero mask/shift/bits/offset 3   f9ffffffffffffff 57 2  5  indexes 0 1 0 2 3           mode  enumerated  
+ DEBUG phi_mod   decode 0 vals 0:31            mask/zero mask/shift/bits/offset 1f  fe0fffffffffffff 52 5  7  indexes                     mode  both_bounded  
+ DEBUG lay_wheel decode 0 vals 0:17            mask/zero mask/shift/bits/offset 1f  fff07fffffffffff 47 5  12 indexes                     mode  both_bounded  
+ DEBUG str_lay   decode 0 vals 0:29            mask/zero mask/shift/bits/offset 1f  ffff83ffffffffff 42 5  17 indexes                     mode  both_bounded  
+ DEBUG straw     decode 0 vals 0:28            mask/zero mask/shift/bits/offset 1f  fffffc1fffffffff 37 5  22 indexes                     mode  both_bounded  
+ DEBUG  TRT_ID::initialize_from_dict Set barrel field values: -1,1
+ DEBUG  TRT_ID::initialize_from_dict Found field values: InDet/TRT 2/3
+ DEBUG Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13 | 2/3/-2,2/0:31/14:17
+ DEBUG TRT_ID::init_hashes  module hash max 1344
+ DEBUG TRT_ID::init_hashes  straw layer hash max 19008
+ DEBUG TRT_ID::init_hashes  straw hash max 424576
+ DEBUG  TRT_ID::initialize_from_dict 
+ DEBUG Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13 | 2/3/-2,2/0:31/14:17
+ DEBUG Straw layer range -> 2/3/-1,1/0:31/0/0 | 2/3/-1,1/0:31/0/1:4 | 2/3/-1,1/0:31/0/5:9 | 2/3/-1,1/0:31/0/10:14 | 2/3/-1,1/0:31/0/15:17 | 2/3/-1,1/0:31/0/18 | 2/3/-1,1/0:31/1/0 | 2/3/-1,1/0:31/1/1:5 | 2/3/-1,1/0:31/1/6:10 | 2/3/-1,1/0:31/1/11:15 | 2/3/-1,1/0:31/1/16:20 | 2/3/-1,1/0:31/1/21:22 | 2/3/-1,1/0:31/1/23 | 2/3/-1,1/0:31/2/0 | 2/3/-1,1/0:31/2/1:4 | 2/3/-1,1/0:31/2/5:9 | 2/3/-1,1/0:31/2/10:14 | 2/3/-1,1/0:31/2/15:19 | 2/3/-1,1/0:31/2/20:24 | 2/3/-1,1/0:31/2/25:28 | 2/3/-1,1/0:31/2/29 | 2/3/-2,2/0:31/0:5/0:15 | 2/3/-2,2/0:31/6:13/0:7 | 2/3/-2,2/0:31/14:17/0:15
+ DEBUG Straw range -> 2/3/-1,1/0:31/0/0/0:14 | 2/3/-1,1/0:31/0/1:4/0:15 | 2/3/-1,1/0:31/0/5:9/0:16 | 2/3/-1,1/0:31/0/10:14/0:17 | 2/3/-1,1/0:31/0/15:17/0:18 | 2/3/-1,1/0:31/0/18/0:17 | 2/3/-1,1/0:31/1/0/0:18 | 2/3/-1,1/0:31/1/1:5/0:19 | 2/3/-1,1/0:31/1/6:10/0:20 | 2/3/-1,1/0:31/1/11:15/0:21 | 2/3/-1,1/0:31/1/16:20/0:22 | 2/3/-1,1/0:31/1/21:22/0:23 | 2/3/-1,1/0:31/1/23/0:22 | 2/3/-1,1/0:31/2/0/0:22 | 2/3/-1,1/0:31/2/1:4/0:23 | 2/3/-1,1/0:31/2/5:9/0:24 | 2/3/-1,1/0:31/2/10:14/0:25 | 2/3/-1,1/0:31/2/15:19/0:26 | 2/3/-1,1/0:31/2/20:24/0:27 | 2/3/-1,1/0:31/2/25:28/0:28 | 2/3/-1,1/0:31/2/29/0:27 | 2/3/-2,2/0:31/0:5/0:15/0:23 | 2/3/-2,2/0:31/6:13/0:7/0:23 | 2/3/-2,2/0:31/14:17/0:15/0:17
+ AtlasDetectorID::initialize_from_dictionary - OK 
+CscIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
+CscIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 257
+CscIdHelper          INFO MultiRange built successfully to cscStrip: MultiRange size is 261
+CscIdHelper          INFO Initializing CSC hash indices ... 
+CscIdHelper          INFO The element hash max is 32
+CscIdHelper          INFO The detector element hash max is 64
+CscIdHelper          INFO The channel hash max is 61440
+CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 261
+RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 261
+RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 261
+RpcIdHelper          INFO Initializing RPC hash indices ... 
+RpcIdHelper          INFO The element hash max is 600
+RpcIdHelper          INFO The detector element hash max is 1122
+RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+TgcIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
+TgcIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 218
+TgcIdHelper          INFO MultiRange built successfully to channel: MultiRange size is 261
+TgcIdHelper          INFO Initializing TGC hash indices ... 
+TgcIdHelper          INFO The element hash max is 1578
+TgcIdHelper          INFO The detector element hash max is 1578
+TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MdtIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
+MdtIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 261
+MdtIdHelper          INFO MultiRange built successfully to tube: MultiRange size is 261
+MdtIdHelper          INFO Initializing MDT hash indices ... 
+MdtIdHelper          INFO The element hash max is 1188
+MdtIdHelper          INFO The detector element hash max is 2328
+MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ... 
+ AtlasDetectorID::initialize_from_dictionary - OK 
+sTgcIdHelper         INFO MultiRange built successfully to Technology: MultiRange size is 218
+sTgcIdHelper         INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 253
+sTgcIdHelper         INFO MultiRange built successfully to channel: MultiRange size is 261
+sTgcIdHelper         INFO Initializing sTGC hash indices ... 
+sTgcIdHelper         INFO The element hash max is 96
+sTgcIdHelper         INFO The detector element hash max is 192
+sTgcIdHelper         INFO Initializing sTGC hash indices for finding neighbors ... 
+MuGM:sTgcReadou...   INFO sTGCname: sTG1-dummy
+MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x63e620
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO Volume Type: Trd
+MuGM:sTgcReadou...   INFO STS
+MuGM:sTgcReadou...   INFO Found sTGC Detector sTG1-dummy
+MuGM:sTgcReadou...   INFO firstPos: 0
+MuGM:sTgcReadou...   INFO initDesign:STS layer 0, strip pitch 3.2, nstrips 0
+MuGM:sTgcReadou...   INFO initDesign:STS layer 0, wireGang pitch 1.8, nWireGangs 0
+MuGM:sTgcReadou...   INFO initDesign stationname STS layer 0,pad phi angular width 0, eta pad size 0  Length: 0 sWidth: 0 lWidth: 0 firstPhiPos:0 padEtaMin:0 padEtaMax:0 firstRowPos:0 inputRowPitch:0 thickness:1 sPadWidth: 0 lPadWidth: 0 xFrame: 0 ysFrame: 0 ylFrame: 0 yCutout: 0
+ Willing to add sTGC RE with IdFields: iStName, iStEta, iStPhi, imL = 1 2 2 1
+ ... using internal indices  [0][5][3][0]
+MuGM:sTgcReadou...   INFO sTGCname: sTG1-dummy
+MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x63e620
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
+MuGM:sTgcReadou...   INFO Volume Type: Trd
+MuGM:sTgcReadou...   INFO STS
+MuGM:sTgcReadou...   INFO Found sTGC Detector sTG1-dummy
+MuGM:sTgcReadou...   INFO firstPos: 0
+MuGM:sTgcReadou...   INFO initDesign:STS layer 0, strip pitch 3.2, nstrips 0
+MuGM:sTgcReadou...   INFO initDesign:STS layer 0, wireGang pitch 1.8, nWireGangs 0
+MuGM:sTgcReadou...   INFO initDesign stationname STS layer 0,pad phi angular width 0, eta pad size 0  Length: 0 sWidth: 0 lWidth: 0 firstPhiPos:0 padEtaMin:0 padEtaMax:0 firstRowPos:0 inputRowPitch:0 thickness:1 sPadWidth: 0 lPadWidth: 0 xFrame: 0 ysFrame: 0 ylFrame: 0 yCutout: 0
+ Willing to add sTGC RE with IdFields: iStName, iStEta, iStPhi, imL = 1 2 3 1
+ ... using internal indices  [0][5][5][0]
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MmIdHelper           INFO MultiRange built successfully to Technology: MultiRange size is 218
+MmIdHelper           INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 257
+MmIdHelper           INFO MultiRange built successfully to channel: MultiRange size is 261
+MmIdHelper           INFO Initializing MicroMegas hash indices ... 
+MmIdHelper           INFO The element hash max is 64
+MmIdHelper           INFO The detector element hash max is 128
+MmIdHelper           INFO Initializing MicroMegas hash indices for finding neighbors ... 
+MuGM:MMReadoutE...   INFO initDesign:MMS layer 0, strip pitch 0, nstrips -2147483647
+ Willing to add MM RE with IdFields: iStName, iStEta, iStPhi, imL = 1 1 2 1
+ ... using internal indices  [0][4][3][0]
+MuGM:MMReadoutE...   INFO initDesign:MMS layer 0, strip pitch 0, nstrips -2147483647
+ Willing to add MM RE with IdFields: iStName, iStEta, iStPhi, imL = 1 1 3 1
+ ... using internal indices  [0][4][5][0]
+ AtlasDetectorID::initialize_from_dictionary - OK 
+test1

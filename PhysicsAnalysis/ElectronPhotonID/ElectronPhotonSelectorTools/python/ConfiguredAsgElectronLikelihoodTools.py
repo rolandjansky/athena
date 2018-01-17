@@ -20,7 +20,7 @@ import sys
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronLikelihoodTool
 from ElectronPhotonSelectorTools.ElectronLikelihoodToolMapping import ElectronLikelihoodMap, electronLHmenu
 
-def ConfiguredAsgElectronLikelihoodTool( name, quality, menu=electronLHmenu.offline2015, **kw ):
+def ConfiguredAsgElectronLikelihoodTool( name, quality, menu=electronLHmenu.offlineMC16, **kw ):
     """
     Configure the AsgElectronIsEMSelector with the quality cuts
     and allow for (re-)setting of all provided cuts.

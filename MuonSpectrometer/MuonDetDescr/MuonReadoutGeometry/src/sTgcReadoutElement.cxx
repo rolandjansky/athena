@@ -314,7 +314,9 @@ namespace MuonGM {
       }
 	
       // These values depend on local geometry. When using DiamondBounds for QL3, the origin (0,0) is not at the center of the gas volume, but rather where the yCutout begins.
-      if (m_sTGC_type == 3) m_etaDesign[il].firstPos = -(m_etaDesign[il].xSize -yCutout) + m_etaDesign[il].firstPitch;
+      // The following line must be uncommented when we start using RotatedDiamond for QL3
+      //if (m_sTGC_type == 3) m_etaDesign[il].firstPos = -(m_etaDesign[il].xSize -yCutout) + m_etaDesign[il].firstPitch;
+      if (m_sTGC_type == 3) m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
       else m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
 
       reLog() << MSG::INFO
@@ -456,12 +458,15 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       /* Here we define the geometry for the strips followed by pad/wire plane
       / If QL3, a cutoff trapezoid, we use diamondBounds. Otherwise, Trapezoid */
       if (m_sTGC_type == 3) {
-        m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_minHalfY[layer],m_maxHalfY[layer],m_maxHalfY[layer],m_halfX[layer] - m_etaDesign[layer].yCutout/2,m_etaDesign[layer].yCutout/2) ); // strips
+        // should use RotatedDiamondBounds and something like
+        // m_surfaceData->m_surfBounds.push_back( new Trk::RotatedDiamondBounds(m_minHalfX[layer],m_maxHalfX[layer],m_maxHalfX[layer],m_halfY[layer] - m_etaDesign[layer].xCutout/2,m_etaDesign[layer].xCutout/2) ); // strips
+        // Let's use temporarily RotatedTrapezoidBounds in stead of RotatedDiamondBounds
+        m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], (m_maxHalfY[layer] + (m_maxHalfY[layer] - m_minHalfY[layer])*(m_padDesign[layer].yCutout/2)/(m_PadhalfX[layer] - m_padDesign[layer].yCutout/2)) ));  // strips, extended trapezoid bounds that includes whole diamond bounds
         m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_PadminHalfY[layer],m_PadmaxHalfY[layer],m_PadmaxHalfY[layer],m_PadhalfX[layer] - m_padDesign[layer].yCutout/2,m_padDesign[layer].yCutout/2) ); // pad and wires
       }
       else {
-        m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[layer], m_maxHalfY[layer], m_halfX[layer]));    
-        m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));    
+        m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
+        m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));
       }
       
       // If the top and bottom frames are not the same widths, the active geometry is incorrectly positionned by half the difference
@@ -501,15 +506,25 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
 
       if (m_sTGC_type == 1 || m_sTGC_type == 2)
+// wrong
+//        m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
+//						 Amg::Translation3D(shift,0.,-offset)*
+//						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
+//						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+// we have RotatedTrapezoid for the strips
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 						 Amg::Translation3D(shift,0.,-offset)*
-						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
-						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)));
+
       else if (m_sTGC_type == 3) // if QL3, diamond. have to shift geometry to account for origin not being in center
+//        m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
+//					Amg::Translation3D(shift,0.,-offset + m_halfX[layer] - m_etaDesign[layer].yCutout)*
+//					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
+//					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+// we have RotatedTrapezoid for the strips
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-					Amg::Translation3D(shift,0.,-offset + m_halfX[layer] - m_etaDesign[layer].yCutout)*
-					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
-					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+					Amg::Translation3D(shift,0.,-offset)*
+					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
       else reLog()<<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Strip Geometry not Created!" << endmsg;
 
       // is this cache really needed ? 

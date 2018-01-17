@@ -22,14 +22,14 @@ class TrackletSegment {
   float m_rErr, m_zErr;//error on the r & z coordinates
   Amg::Vector3D m_globalPosition;//GlobalPosition of the segment
   float m_chmid;//radius of the middle of the chamber
-  std::vector<Muon::MdtPrepData*> m_mdts;//vector of hits on track
+  std::vector<const Muon::MdtPrepData*> m_mdts;//vector of hits on track
   int m_pattern;
   bool m_isCombined;
 
  public:
   TrackletSegment();
-  TrackletSegment(int ch, int cheta, int chphi, float chmid, float alpha,float dalpha, Amg::Vector3D gpos, float rErr,
-		  float zErr,std::vector<Muon::MdtPrepData*> mdts, int pattern);
+  TrackletSegment(int ch, int cheta, int chphi, float chmid, float alpha,float dalpha, const Amg::Vector3D& gpos, float rErr,
+		  float zErr,const std::vector<const Muon::MdtPrepData*>& mdts, int pattern);
   ~TrackletSegment();
 
   //set functions
@@ -37,18 +37,18 @@ class TrackletSegment {
   void isCombined(bool iscomb);
 
   //get functions
-  int mdtChamber();
-  int mdtChEta();
-  int mdtChPhi();
-  float alpha();
-  float alphaError();
-  float zError();
-  float rError();
-  float getChMidPoint();
-  bool isCombined();
-  Amg::Vector3D globalPosition();
-  std::vector<Muon::MdtPrepData*> mdtHitsOnTrack();
-  int getHitPattern();
+  int mdtChamber() const;
+  int mdtChEta() const;
+  int mdtChPhi() const;
+  float alpha() const;
+  float alphaError() const;
+  float zError() const;
+  float rError() const;
+  float getChMidPoint() const;
+  bool isCombined() const;
+  const Amg::Vector3D& globalPosition() const;
+  const std::vector<const Muon::MdtPrepData*>& mdtHitsOnTrack() const;
+  int getHitPattern() const;
 
 };
 

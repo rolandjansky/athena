@@ -26,7 +26,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::MdtPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -37,7 +37,7 @@ StatusCode Muon::MdtPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
     StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "StoreGate service not found !" << endreq;
+        log << MSG::FATAL << "StoreGate service not found !" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -45,28 +45,28 @@ StatusCode Muon::MdtPrepDataContainerCnv_p1::initialize(MsgStream &log) {
     StoreGateSvc *detStore;
     sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
 
    // Get the pixel helper from the detector store
     sc = detStore->retrieve(m_MdtId);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get Mdt ID helper !" << endreq;
+        log << MSG::FATAL << "Could not get Mdt ID helper !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the Mdt ID helper." << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the Mdt ID helper." << endmsg;
     }
 
     sc = detStore->retrieve(m_muonDetMgr);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
+        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
         return sc;
     }
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -105,11 +105,11 @@ void Muon::MdtPrepDataContainerCnv_p1::transToPers(const Muon::MdtPrepDataContai
     //  it_Coll     = transCont->begin(); // reset the iterator, we used it!
     // }
     persCont->m_collections.resize(numColl);
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::MdtPrepDataCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -125,7 +125,7 @@ void Muon::MdtPrepDataContainerCnv_p1::transToPers(const Muon::MdtPrepDataContai
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing MdtPrepDataContainer ***" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing MdtPrepDataContainer ***" << endmsg;
 }
 
 void  Muon::MdtPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Container_p1* persCont, Muon::MdtPrepDataContainer* transCont, MsgStream &log) 
@@ -151,7 +151,7 @@ void  Muon::MdtPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
     MdtPrepDataCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of MdtPrepData (SG::VIEW_ELEMENTS)
@@ -174,7 +174,7 @@ void  Muon::MdtPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
                 chan->m_detEl = de;
                 (*coll)[ichan] = chan;
             } else {
-                log<<MSG::WARNING<<"Dynamic cast or createTransFromPStore failed - channel missing"<<endreq;
+                log<<MSG::WARNING<<"Dynamic cast or createTransFromPStore failed - channel missing"<<endmsg;
             }
         }
 
@@ -185,11 +185,11 @@ void  Muon::MdtPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         }
         if (log.level() <= MSG::DEBUG) {
             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-                collID.get_compact() << ", added to Identifiable container." << endreq;
+                collID.get_compact() << ", added to Identifiable container." << endmsg;
         }
     }
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading MdtPrepDataContainer" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading MdtPrepDataContainer" << endmsg;
 }
 
 
@@ -199,7 +199,7 @@ Muon::MdtPrepDataContainer* Muon::MdtPrepDataContainerCnv_p1::createTransient(co
 {
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize MdtPrepDataContainerCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize MdtPrepDataContainerCnv_p1 " << endmsg;
             return 0;
         } 
     }

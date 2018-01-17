@@ -1,7 +1,7 @@
 ################################################################################
 # Package: ElectronPhotonTagTools
 ################################################################################
- 
+
 # Declare the package name:
 atlas_subdir( ElectronPhotonTagTools )
 
@@ -15,10 +15,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMissingET
                           GaudiKernel
+			  PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
                           PhysicsAnalysis/AnalysisCommon/IsolationSelection
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
+			  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
                           PhysicsAnalysis/EventTag/TagEvent
                           PRIVATE
                           Event/xAOD/xAODCore
@@ -34,7 +35,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( ElectronPhotonTagToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS ElectronPhotonTagTools
-                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventInfo xAODEgamma xAODEventInfo xAODMissingET GaudiKernel TagEvent StoreGateLib SGtests IsolationSelectionLib ElectronPhotonFourMomentumCorrectionLib ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib AnalysisUtilsLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventInfo xAODEgamma xAODEventInfo xAODMissingET GaudiKernel TagEvent StoreGateLib SGtests IsolationSelectionLib ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib AnalysisUtilsLib
                    PRIVATE_LINK_LIBRARIES xAODCore xAODParticleEvent xAODTracking )
 
 atlas_add_component( ElectronPhotonTagTools

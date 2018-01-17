@@ -149,7 +149,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::L2Combin
     }
   }//combinedmuon
   else {
-    msg() << MSG::ERROR << "ERROR: L2Combined muon with no ID track? Exiting..." << endmsg;
+    msg() << MSG::WARNING << "L2Combined muon with no ID track? Exiting isolation tool..." << endmsg;
     return StatusCode::FAILURE;
 
     }//not combined

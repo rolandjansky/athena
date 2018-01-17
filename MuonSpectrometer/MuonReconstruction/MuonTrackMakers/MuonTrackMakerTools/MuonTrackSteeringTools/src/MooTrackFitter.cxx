@@ -132,88 +132,27 @@ namespace Muon {
   
   StatusCode MooTrackFitter::initialize() {
 
-    if ( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-
-    if( m_propagator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_propagator); 
-      return StatusCode::FAILURE;
-    }
-
-
-    if ( m_trackSummaryTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Unable to retrieve" << m_trackSummaryTool);
-      return StatusCode::FAILURE;
-    }
-
-    if( m_cleaner.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_cleaner); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_overlapResolver.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_overlapResolver); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_trackFitter.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_trackFitter); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_trackFitterPrefit.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_trackFitterPrefit); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_momentumEstimator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_momentumEstimator); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_idHelperTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_helperTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_helperTool); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_hitHandler.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_hitHandler); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_entryHandler.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_entryHandler); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_printer.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_printer); 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_propagator.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
+    ATH_CHECK( m_cleaner.retrieve() );
+    ATH_CHECK( m_overlapResolver.retrieve() );
+    ATH_CHECK( m_trackFitter.retrieve() );
+    ATH_CHECK( m_trackFitterPrefit.retrieve() );
+    ATH_CHECK( m_momentumEstimator.retrieve() );
+    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_hitHandler.retrieve() );
+    ATH_CHECK( m_entryHandler.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
 
     // Configuration of the material effects
     Trk::ParticleSwitcher particleSwitch;
     m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
 
-    if( m_trackToSegmentTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_trackToSegmentTool); 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_trackToSegmentTool.retrieve() );
+    ATH_CHECK( m_mdtRotCreator.retrieve() );
+    ATH_CHECK( m_phiHitSelector.retrieve() );
 
-    if( m_mdtRotCreator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_mdtRotCreator); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_phiHitSelector.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_phiHitSelector); 
-      return StatusCode::FAILURE;
-    }
-    
     return StatusCode::SUCCESS;
   }
   

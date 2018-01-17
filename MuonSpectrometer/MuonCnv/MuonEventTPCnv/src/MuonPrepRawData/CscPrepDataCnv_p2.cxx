@@ -18,7 +18,7 @@ CscPrepDataCnv_p2::createCscPrepData( const Muon::CscPrepData_p2 *persObj,
                                       const MuonGM::CscReadoutElement* detEl,
                                       MsgStream & log ) 
 {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p2::persToTrans" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p2::persToTrans" << endmsg;
 
     Amg::Vector2D localPos;
     localPos[Trk::locX] = persObj->m_locX; 
@@ -47,7 +47,7 @@ CscPrepDataCnv_p2::createCscPrepData( const Muon::CscPrepData_p2 *persObj,
 void CscPrepDataCnv_p2::
 persToTrans( const Muon::CscPrepData_p2 *persObj, Muon::CscPrepData *transObj,MsgStream & log ) 
 {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p2::persToTrans" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p2::persToTrans" << endmsg;
 
     *transObj = createCscPrepData (persObj,
                                    transObj->identify(),
@@ -58,7 +58,7 @@ persToTrans( const Muon::CscPrepData_p2 *persObj, Muon::CscPrepData *transObj,Ms
 void CscPrepDataCnv_p2::
 transToPers( const Muon::CscPrepData *transObj, Muon::CscPrepData_p2 *persObj, MsgStream & log)
 {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p2::transToPers" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "CscPrepDataCnv_p2::transToPers" << endmsg;
     persObj->m_locX           = transObj->localPosition()[Trk::locX];
     persObj->m_errorMat       = transObj->localCovariance()(0,0);
     

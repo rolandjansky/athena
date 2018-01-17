@@ -32,7 +32,7 @@ persToTrans( const Muon::STGC_ClusterOnTrack_p1 *persObj,
    if (transObj->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
-            << transObj->identify()<<"/"<<transObj->idDE()<<")"<<endreq;   
+            << transObj->identify()<<"/"<<transObj->idDE()<<")"<<endmsg;   
 }
 
 
@@ -42,7 +42,7 @@ transToPers( const Muon::sTgcClusterOnTrack *transObj,
 {
   // std::cout<<"BLAH! STGC_ClusterOnTrackCnv_p1::persToTrans"<<std::endl;
   // log << MSG::INFO<<"Identifier/IdentifierHash : ("
-  //     << transObj->identify()<<"/"<<transObj->idDE()<<endreq;   
+  //     << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;   
   
   // Prepare ELs
    m_eventCnvTool->prepareRIO_OnTrack(const_cast<Muon::sTgcClusterOnTrack *>(transObj));  
@@ -63,7 +63,7 @@ transToPers( const Muon::sTgcClusterOnTrack *transObj,
    if (nonconst->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
-            << nonconst->identify()<<"/"<<nonconst->idDE()<<")"<<endreq;   
+            << nonconst->identify()<<"/"<<nonconst->idDE()<<")"<<endmsg;   
 }
 
 

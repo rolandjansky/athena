@@ -23,7 +23,6 @@ class MuonSimDataCnv_p1 : public T_AthenaPoolTPCnvBase<MuonSimData, Muon::MuonSi
   private:
     HepMcParticleLinkCnv_p1 m_mcpartlinkCnv;
     MuonMCDataCnv_p1 m_mcdataCnv;
-
 };
 
 #endif

@@ -72,7 +72,10 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
     m_trt_id( nullptr ),
     m_HardScatterSplittingMode( 0 ),
     m_HardScatterSplittingSkipper( false ),
-    m_vetoThisBarcode( crazyParticleBarcode )
+    m_vetoThisBarcode( crazyParticleBarcode ),
+    m_useEventInfo( false ),
+    m_EventInfoKey( "McEventInfo" ),
+    m_NCollPerEvent( 30 )
 {
   declareInterface< ITRTFastDigitizationTool >( this );
   declareProperty( "TRT_DriftFunctionTool",       m_trtDriftFunctionTool );
@@ -86,6 +89,9 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
   declareProperty( "trtPrdMultiTruthCollection",  m_trtPrdTruth );
   declareProperty( "HardScatterSplittingMode",    m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty( "ParticleBarcodeVeto",         m_vetoThisBarcode, "Barcode of particle to ignore");
+  declareProperty( "useEventInfo",                m_useEventInfo);
+  declareProperty( "EventInfoKey",                m_EventInfoKey);
+  declareProperty( "NCollPerEvent",               m_NCollPerEvent);
 }
 
 
@@ -193,6 +199,17 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
                                   { 0.986, 1.020, 0.800, 0.995, 2.400 },  // Barrel C-side Argon
                                   { 1.018, 1.040, 0.800, 0.935, 2.400 }   // EndCap C-side Argon
                                 };
+  
+  if(m_useEventInfo){
+
+     SG::ReadHandle<EventInfo> eventInfoContainer(m_EventInfoKey);
+     if(eventInfoContainer.isValid()){
+       m_NCollPerEvent = (float) eventInfoContainer->averageInteractionsPerCrossing();
+     }
+     else{
+      ATH_MSG_INFO("Cannot retrieve event info");
+     }
+  }
 
   m_driftCircleMap.clear();
 
@@ -243,7 +260,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       double sigmaTrt = trtSigmaDriftRadiusTail;
       if ( !isTail ) {
         double driftTime = m_trtDriftFunctionTool->approxDriftTime( fabs( driftRadiusLoc ) );
-        sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id );
+        sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id, m_NCollPerEvent );
       }
 
       // driftRadiusLoc smearing procedure 

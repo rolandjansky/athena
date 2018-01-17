@@ -466,8 +466,8 @@ namespace VKalVrtAthena {
     //
     // 
     
-    StatusCode augmentDVimpactParametersToMuons();
-    StatusCode augmentDVimpactParametersToElectrons();
+    template<class LeptonFlavor>
+    StatusCode augmentDVimpactParametersToLeptons( const std::string& containerName );
     
   };
   

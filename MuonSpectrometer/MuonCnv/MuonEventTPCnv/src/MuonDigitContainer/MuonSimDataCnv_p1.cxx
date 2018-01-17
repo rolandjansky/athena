@@ -6,11 +6,11 @@
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCnv_p1.h"
 
 void MuonSimDataCnv_p1::persToTrans(const Muon::MuonSimData_p1 * persObj, MuonSimData * transObj, MsgStream & log){
-   log << MSG::DEBUG << "MuonSimDataCnv_p1::persToTrans" << endreq;
-   //log << MSG::VERBOSE << "\tconverting m_word:\t" << persObj->m_word << "\tto\t" << transObj->m_word << endreq;
-   //log << MSG::VERBOSE << "\tconverting x:\t" << persObj->x << "\tto\t" << transObj->x << endreq;
-   //log << MSG::VERBOSE << "\tconverting y:\t" << persObj->y << "\tto\t" << transObj->y << endreq;
-   //log << MSG::VERBOSE << "\tconverting z:\t" << persObj->z << "\tto\t" << transObj->z << endreq;
+   log << MSG::DEBUG << "MuonSimDataCnv_p1::persToTrans" << endmsg;
+   //log << MSG::VERBOSE << "\tconverting m_word:\t" << persObj->m_word << "\tto\t" << transObj->m_word << endmsg;
+   //log << MSG::VERBOSE << "\tconverting x:\t" << persObj->x << "\tto\t" << transObj->x << endmsg;
+   //log << MSG::VERBOSE << "\tconverting y:\t" << persObj->y << "\tto\t" << transObj->y << endmsg;
+   //log << MSG::VERBOSE << "\tconverting z:\t" << persObj->z << "\tto\t" << transObj->z << endmsg;
 
    std::vector<MuonSimData::Deposit> deposits;
    deposits.reserve(persObj->m_deposits.size());
@@ -33,17 +33,17 @@ void MuonSimDataCnv_p1::persToTrans(const Muon::MuonSimData_p1 * persObj, MuonSi
 }
 
 void MuonSimDataCnv_p1::transToPers( const MuonSimData * transObj, Muon::MuonSimData_p1 * persObj, MsgStream & log){
-   log << MSG::DEBUG << "MuonSimDataCnv_p1::TransToPers" << endreq;
+   log << MSG::DEBUG << "MuonSimDataCnv_p1::TransToPers" << endmsg;
    persObj->m_word = transObj->word();
    Amg::Vector3D pos = transObj->globalPosition();
    persObj->x = pos.x();
    persObj->y = pos.y();
    persObj->z = pos.z();
    persObj->t = transObj->getTime();
-   //log << MSG::VERBOSE << "\tconverting m_word:\t" << transObj->m_word << "\tto\t" << persObj->m_word << endreq;
-   //log << MSG::VERBOSE << "\tconverting x:\t" << transObj->x << "\tto\t" << persObj->x << endreq;
-   //log << MSG::VERBOSE << "\tconverting y:\t" << transObj->y << "\tto\t" << persObj->y << endreq;
-   //log << MSG::VERBOSE << "\tconverting z:\t" << transObj->z << "\tto\t" << persObj->z << endreq;
+   //log << MSG::VERBOSE << "\tconverting m_word:\t" << transObj->m_word << "\tto\t" << persObj->m_word << endmsg;
+   //log << MSG::VERBOSE << "\tconverting x:\t" << transObj->x << "\tto\t" << persObj->x << endmsg;
+   //log << MSG::VERBOSE << "\tconverting y:\t" << transObj->y << "\tto\t" << persObj->y << endmsg;
+   //log << MSG::VERBOSE << "\tconverting z:\t" << transObj->z << "\tto\t" << persObj->z << endmsg;
    persObj->m_deposits.clear();
    persObj->m_deposits.reserve(transObj->getdeposits().size());
    for (const MuonSimData::Deposit& d : transObj->getdeposits()) {

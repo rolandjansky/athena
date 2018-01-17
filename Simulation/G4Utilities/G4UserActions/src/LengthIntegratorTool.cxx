@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/LengthIntegratorTool.h"
 
 namespace G4UA
@@ -41,7 +40,7 @@ namespace G4UA
   LengthIntegratorTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    return CxxUtils::make_unique<LengthIntegrator>( m_hSvc.name() );
+    return std::make_unique<LengthIntegrator>( m_hSvc.name() );
   }
 
 }

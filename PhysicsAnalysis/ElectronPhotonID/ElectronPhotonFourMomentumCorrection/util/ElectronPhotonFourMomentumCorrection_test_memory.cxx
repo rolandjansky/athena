@@ -6,7 +6,9 @@
 
 int main()
 {
+#ifdef XAOD_STANDALONE
   StatusCode::enableFailure();
+#endif // XAOD_STANDALONE
   CP::EgammaCalibrationAndSmearingTool tool("EgammaCalibrationAndSmearingTool");
   tool.msg().setLevel(MSG::DEBUG);
   tool.setProperty("ESModel", "es2015cPRE").ignore();

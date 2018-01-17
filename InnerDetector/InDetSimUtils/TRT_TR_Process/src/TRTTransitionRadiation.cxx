@@ -498,7 +498,7 @@ inline G4double TRTTransitionRadiation::XEmitanArtru( const G4double & omega,
   G4double ginv2 = 1./(Gamma*Gamma);
   G4double tau = d2/d1;
 
-  G4double m_om = omega/CLHEP::hbarc;
+  G4double mom = omega/CLHEP::hbarc;
 
   G4double xi1 = m_WplasmaFoil/omega;
   G4double xi2 = m_WplasmaGas/omega;
@@ -506,13 +506,13 @@ inline G4double TRTTransitionRadiation::XEmitanArtru( const G4double & omega,
   G4double xi1sq = xi1*xi1;
   G4double xi2sq = xi2*xi2;
 
-  G4double Z1 = 2./(m_om*(ginv2+xi1sq));
-  G4double Z2 = 2./(m_om*(ginv2+xi2sq));
+  G4double Z1 = 2./(mom*(ginv2+xi1sq));
+  G4double Z2 = 2./(mom*(ginv2+xi2sq));
 
   G4double a = d1/Z2;
   G4double V = d1*(1./Z1-1./Z2);
 
-  G4double p0   = m_om*d1*(xi1sq-xi2sq)/(4.*M_PI);
+  G4double p0   = mom*d1*(xi1sq-xi2sq)/(4.*M_PI);
   G4double pmin = p0 + a*(1.+tau)/(2.*M_PI);
   G4double ymax = tau*phimax;
   G4double pmax = p0 + ymax*(1.+tau)/(2.*M_PI);
@@ -521,7 +521,7 @@ inline G4double TRTTransitionRadiation::XEmitanArtru( const G4double & omega,
   G4int ipmax = (int)pmax;
 
   G4double sum=0.;
-  G4double y0 = -0.5*m_om*d1*(xi1sq-xi2sq)/(1+tau);
+  G4double y0 = -0.5*mom*d1*(xi1sq-xi2sq)/(1+tau);
   G4double dy = (2.*M_PI)/(1+tau);
   G4double y;
 
@@ -540,7 +540,7 @@ inline G4double TRTTransitionRadiation::XEmitanArtru( const G4double & omega,
     term *= y-a;
     sum  += term;
 
-    //G4double theta2 = 2.*y*tau/(m_om*d2) - ginv2 - xi2sq;
+    //G4double theta2 = 2.*y*tau/(mom*d2) - ginv2 - xi2sq;
     //G4double theta  = sqrt(theta2);
 
     tx = (tx>term) ? tx : term;

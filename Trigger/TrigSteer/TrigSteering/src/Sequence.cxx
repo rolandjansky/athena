@@ -38,10 +38,6 @@
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "GaudiKernel/AlgTool.h"
 
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc_RTT.h" //just for debug
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h" //just for debug
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-
 using namespace HLT;
 
 
@@ -60,7 +56,8 @@ Sequence::Sequence(std::vector<unsigned int> inputTypes,
    m_prepRobReqAlreadyExecuted(false),
    m_prepRobReqErrorCode(HLT::OK),
    m_topoStartFromSequence(0),
-   m_timer(0)
+   m_timer(0),
+   m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigSteer_HLT")
 {
    // add the timer
    if ( config->getDoTiming() ) {
@@ -93,12 +90,11 @@ Sequence::Sequence(std::vector<unsigned int> inputTypes,
    }
 
    // Get TrigROBDataProvider_RTT for data pre-fetch test 
-   ServiceHandle<IROBDataProviderSvc>   robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigSteer_HLT");
-   if( robDataProvider.retrieve().isFailure() ) {
+   if( m_robDataProvider.retrieve().isFailure() ) {
       m_config->getMsgStream() << MSG::ERROR << "can't get ROBDataProviderSvc" << endmsg;
    } else{
-      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc_RTT>( &*robDataProvider );
-      if (m_trigROBDataProvider.isValid()) {
+      m_trigROBDataProviderRTT = SmartIF<ITrigROBDataProviderSvc_RTT>( &*m_robDataProvider );
+      if (m_trigROBDataProviderRTT.isValid()) {
          if (m_config && m_config->getMsgLvl() <= MSG::DEBUG)
             m_config->getMsgStream() << MSG::DEBUG << "A ROBDataProviderSvc implementing the trig interface ITrigROBDataProviderSvc_RTT was found."<< endmsg;
       }
@@ -362,7 +358,7 @@ HLT::ErrorCode Sequence::execute()
 HLT::ErrorCode Sequence::prepareRobRequests()
 {
   // this variable enables the monitor of the pre-fetching with the trigROBDataProviderSvc
-  bool do_prefetching_test = m_trigROBDataProvider.isValid() && m_trigROBDataProvider->isPrefetchingAtAlgoLevel();
+  bool do_prefetching_test = m_trigROBDataProviderRTT.isValid() && m_trigROBDataProviderRTT->isPrefetchingAtAlgoLevel();
 
   // in case this sequence was executed before
   if (m_prepRobReqAlreadyExecuted) {
@@ -486,10 +482,10 @@ HLT::ErrorCode Sequence::prepareRobRequests()
                                  << te_create_alg->name() << " " << HLT::strErrorCode( m_prepRobReqErrorCode ) <<  endmsg;
 
       //test of the pretching: fill the pre-fetching list 
-      if (do_prefetching_test){
+      if (do_prefetching_test && m_robDataProvider.isValid()){
 	std::string pref_name = alg->name() + "_pref";
 	if (m_config->getMsgLvl() <=MSG::INFO) m_config->getMsgStream() << MSG::INFO <<"Forcing trigROBDataProvider_RTT.addROBData: Algorithm "<< te_create_alg->name() <<" scheduled "<<m_config->robRequestInfo()->requestScheduledRobIDs().size() <<" ROBs"<<endmsg;
-	m_trigROBDataProvider->addROBData(m_config->robRequestInfo()->requestScheduledRobIDs(),pref_name);
+	m_robDataProvider->addROBData(m_config->robRequestInfo()->requestScheduledRobIDs(),pref_name);
       }
 
       // Check if event timeout was reached

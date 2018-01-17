@@ -68,7 +68,9 @@ endif()
 # Test(s) in the package:
 atlas_add_test( mem_test SCRIPT test/mem_test.py )
 if( XAOD_STANDALONE )
-   atlas_add_test( ut_test SCRIPT test/ut_test.py )
+# Disable until we have reasonable input/to check 
+# against 
+#  atlas_add_test( ut_test SCRIPT test/ut_test.py)
 endif()
 
 # Install files from the package:

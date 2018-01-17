@@ -9,7 +9,7 @@
 """
 
 import importlib
-import sys, re, os
+import sys, re
 from TriggerJobOpts.TriggerFlags					import TriggerFlags
 
 def_maxlumi = 20000

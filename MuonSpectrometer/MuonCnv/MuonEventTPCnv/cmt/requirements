@@ -6,7 +6,8 @@ public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
 use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
-use  DataModel                  DataModel-*                     Control
+use  AthAllocators              AthAllocators-*                 Control
+use  AthLinks                   AthLinks-*                      Control
 use  DataModelAthenaPool        DataModelAthenaPool-*           Control
 use  GaudiInterface             GaudiInterface-*                External
 use  GeneratorObjectsTPCnv      GeneratorObjectsTPCnv-*         Generators
@@ -127,3 +128,9 @@ apply_pattern UnitTest_run unit_test=RpcCoinDataContainerCnv_p1 extrapatterns=$(
 apply_pattern UnitTest_run unit_test=TgcCoinDataContainerCnv_p1 extrapatterns=$(ep)
 apply_pattern UnitTest_run unit_test=TgcCoinDataContainerCnv_p2 extrapatterns=$(ep)
 apply_pattern UnitTest_run unit_test=TgcCoinDataContainerCnv_p3 extrapatterns=$(ep)
+apply_pattern UnitTest_run unit_test=MM_DigitCnv_p1 extrapatterns=$(ep)
+apply_pattern UnitTest_run unit_test=MM_DigitCnv_p2 extrapatterns=$(ep)
+apply_pattern UnitTest_run unit_test=MM_DigitContainerCnv_p1 extrapatterns=$(ep)
+apply_pattern UnitTest_run unit_test=MM_DigitContainerCnv_p2 extrapatterns=$(ep)
+apply_pattern UnitTest_run unit_test=STGC_DigitCnv_p1 extrapatterns=$(ep)
+apply_pattern UnitTest_run unit_test=STGC_DigitContainerCnv_p1 extrapatterns=$(ep)

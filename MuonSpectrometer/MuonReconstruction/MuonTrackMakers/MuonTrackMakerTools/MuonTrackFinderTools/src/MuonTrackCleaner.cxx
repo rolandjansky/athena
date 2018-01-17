@@ -111,61 +111,17 @@ namespace Muon {
   StatusCode MuonTrackCleaner::initialize()
   {
     
-    if ( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-    
-    if (m_trackFitter.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find refit tool "<<m_trackFitter<<". Exiting." );
-      return StatusCode::FAILURE;
-    }
-    if (m_slTrackFitter.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find refit tool "<<m_slTrackFitter<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
-    
-    if (m_idHelper.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelper); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_helper.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_helper); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_printer.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_printer); 
-      return StatusCode::FAILURE;
-    }
-    
-    if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find "<< m_extrapolator);
-      return StatusCode::FAILURE;
-    }
-    
-    if (m_pullCalculator.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_pullCalculator); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_mdtRotCreator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find refit tool "<<m_mdtRotCreator<<". Exiting.");
-      return StatusCode::FAILURE;
-    }
-
-    if( m_compRotCreator.retrieve().isFailure() ){
-      ATH_MSG_ERROR(" failed to retrieve " << m_compRotCreator );
-      return StatusCode::FAILURE;
-    }
-
-    if (m_measurementUpdator.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_measurementUpdator); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_magFieldSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_trackFitter.retrieve() );
+    ATH_CHECK( m_slTrackFitter.retrieve() );
+    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_pullCalculator.retrieve() );
+    ATH_CHECK( m_mdtRotCreator.retrieve() );
+    ATH_CHECK( m_compRotCreator.retrieve() );
+    ATH_CHECK( m_measurementUpdator.retrieve() );
+    ATH_CHECK( m_magFieldSvc.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -202,7 +158,6 @@ namespace Muon {
 	  << " Outlier cut             " << m_counters.noutlierCut*norm << endmsg;
 
     cleanUp();
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
   Trk::Track* MuonTrackCleaner::clean( Trk::Track& track, const std::set<Identifier>& chamberRemovalExclusionList ) const {

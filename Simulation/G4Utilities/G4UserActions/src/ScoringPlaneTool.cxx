@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/ScoringPlaneTool.h"
 
 
@@ -25,7 +24,7 @@ namespace G4UA
   std::unique_ptr<ScoringPlane> ScoringPlaneTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    return CxxUtils::make_unique<ScoringPlane>(m_config);
+    return std::make_unique<ScoringPlane>(m_config);
   }
 
 } // namespace G4UA

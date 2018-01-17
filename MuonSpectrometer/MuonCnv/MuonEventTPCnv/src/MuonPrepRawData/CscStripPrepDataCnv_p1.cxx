@@ -15,7 +15,7 @@ void CscStripPrepDataCnv_p1::
 persToTrans( const Muon::CscStripPrepData_p1 *persObj, Muon::CscStripPrepData *transObj,MsgStream &log ) 
 {
     if (log.level() <= MSG::DEBUG) 
-      log << MSG::DEBUG << "CscStripPrepDataCnv_p1::persToTrans" << endreq;
+      log << MSG::DEBUG << "CscStripPrepDataCnv_p1::persToTrans" << endmsg;
 
     Amg::Vector2D locpos;
     locpos.setZero();
@@ -38,7 +38,7 @@ void CscStripPrepDataCnv_p1::
 transToPers( const Muon::CscStripPrepData *transObj, Muon::CscStripPrepData_p1 *persObj, MsgStream &log )
 {
     if (log.level() <= MSG::DEBUG) 
-      log << MSG::DEBUG << "CscStripPrepDataCnv_p1::transToPers" << endreq;
+      log << MSG::DEBUG << "CscStripPrepDataCnv_p1::transToPers" << endmsg;
     persObj->m_prd = baseToPersistent( &m_prdCnv, transObj, log );
     persObj->m_collectionHash       = transObj->collectionHash();
     persObj->m_sampleCharges        = transObj->sampleCharges();

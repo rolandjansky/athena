@@ -26,7 +26,7 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::RpcCoinDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
@@ -37,7 +37,7 @@ StatusCode Muon::RpcCoinDataContainerCnv_p1::initialize(MsgStream &log) {
    // // get StoreGate service
    //  StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    //  if (sc.isFailure()) {
-   //      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+   //      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
    //      return StatusCode::FAILURE;
    //  }
 
@@ -45,28 +45,28 @@ StatusCode Muon::RpcCoinDataContainerCnv_p1::initialize(MsgStream &log) {
     StoreGateSvc *detStore;
     StatusCode sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        log << MSG::DEBUG << "Found DetectorStore." << endreq;
+        log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
 
    // Get the pixel helper from the detector store
     sc = detStore->retrieve(m_RpcId);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get Rpc ID helper !" << endreq;
+        log << MSG::FATAL << "Could not get Rpc ID helper !" << endmsg;
         return StatusCode::FAILURE;
     } else {
-        log << MSG::DEBUG << "Found the Rpc ID helper." << endreq;
+        log << MSG::DEBUG << "Found the Rpc ID helper." << endmsg;
     }
 
     sc = detStore->retrieve(m_muonDetMgr);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get RpcDetectorDescription" << endreq;
+        log << MSG::FATAL << "Could not get RpcDetectorDescription" << endmsg;
         return sc;
     }
 
-    log << MSG::DEBUG << "Converter initialized." << endreq;
+    log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -98,7 +98,7 @@ void Muon::RpcCoinDataContainerCnv_p1::transToPers(const RpcCoinDataContainerCnv
         unsigned int idHashLast = 0; // Used to calculate deltaHashId.
         int numColl = transCont->numberOfCollections();
         persCont->m_collections.resize(numColl);
-        log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
+        log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
         for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {
             // Add in new collection
             const Muon::MuonCoinDataCollection<RpcCoinData>& collection = (**it_Coll);
@@ -116,7 +116,7 @@ void Muon::RpcCoinDataContainerCnv_p1::transToPers(const RpcCoinDataContainerCnv
             // Add in channels
             persCont->m_prds.resize(pcollEnd);
             persCont->m_prdDeltaId.resize(pcollEnd);
-            log << MSG::VERBOSE << "Reading collections with " <<  collection.size() << "PRDs " << endreq;
+            log << MSG::VERBOSE << "Reading collections with " <<  collection.size() << "PRDs " << endmsg;
             for (unsigned int i = 0; i < collection.size(); ++i) {
                 unsigned int pchanIndex=i+pcollBegin;
                 const Muon::RpcCoinData* chan = collection[i];
@@ -125,7 +125,7 @@ void Muon::RpcCoinDataContainerCnv_p1::transToPers(const RpcCoinDataContainerCnv
                 persCont->m_prdDeltaId[pchanIndex]=chan->identify().get_identifier32().get_compact() - collection.identify().get_identifier32().get_compact(); //store delta identifiers, rather than full identifiers
             }
         }
-      log << MSG::DEBUG  << " ***  Writing Muon::RpcCoinDataContainer" << endreq;
+      log << MSG::DEBUG  << " ***  Writing Muon::RpcCoinDataContainer" << endmsg;
 }
 
 void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCnv_p1::PERS* persCont, RpcCoinDataContainerCnv_p1::TRANS* transCont, MsgStream &log) 
@@ -150,7 +150,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
       RpcCoinDataCnv_p1  chanCnv;
       unsigned int pchanIndex(0); // position within persCont->m_prds. Incremented inside innermost loop 
       unsigned int pCollEnd = persCont->m_collections.size();
-      log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
+      log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
       for (unsigned int pcollIndex = 0; pcollIndex < pCollEnd; ++pcollIndex) {
           const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];       
           // Identifier collID= Identifier(idLast);
@@ -170,7 +170,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
               // The reason I need to do the following is that one collection can have several detector elements in, the collection hashes!=detector element hashes
               IdentifierHash deIDHash;
               int result = m_RpcId->get_detectorElement_hash(clusId, deIDHash);
-              if (result) log << MSG::WARNING  << " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endreq;
+              if (result) log << MSG::WARNING  << " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endmsg;
               const MuonGM::RpcReadoutElement* detEl =
                 m_muonDetMgr->getRpcReadoutElement(deIDHash);;
 
@@ -191,11 +191,11 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
           }
           if (log.level() <= MSG::DEBUG) {
               log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " 
-                  << coll->identify().get_compact() << ", added to Identifiable container." << endreq;
+                  << coll->identify().get_compact() << ", added to Identifiable container." << endmsg;
           }
       }
 
-      log << MSG::DEBUG  << " ***  Reading InDet::SCT_ClusterContainer" << endreq;
+      log << MSG::DEBUG  << " ***  Reading InDet::SCT_ClusterContainer" << endmsg;
 
 }
 
@@ -204,7 +204,7 @@ Muon::RpcCoinDataContainerCnv_p1::TRANS* Muon::RpcCoinDataContainerCnv_p1::creat
 {
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize RpcCoinDataContainerCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize RpcCoinDataContainerCnv_p1 " << endmsg;
             return 0;
         } 
     }

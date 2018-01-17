@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinDataCnv_p3.h"
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp3.h"
+#include "TestTools/leakcheck.h"
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -74,6 +75,7 @@ void testit (const Muon::TgcCoinData& trans1)
 void test1()
 {
   std::cout << "test1\n";
+  Athena_test::Leakcheck check;
 
   Amg::Vector2D locpos1 (2.5, 3.5);
   Amg::Vector2D locpos2 (4.5, 5.5);
