@@ -5,12 +5,9 @@
 #ifndef G4HITFILTER_H
 #define G4HITFILTER_H
 
-
-
 #include <string>
 #include <vector>
 #include <map>
-
 
 #include "G4UserEventAction.hh"
 #include "G4UserRunAction.hh"
@@ -19,7 +16,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
   class G4HitFilter:
     public AthMessaging, public G4UserEventAction, public G4UserRunAction
@@ -32,17 +30,16 @@ namespace G4UA{
       std::vector<std::string> volumenames;
     };
 
+    /// Constructor
     G4HitFilter(const Config& config);
 
     struct Report
     {
-      int ntot=0;
-      int npass=0;
+      int ntot = 0;
+      int npass = 0;
       void merge(const Report& rep){
-
-        ntot+=rep.ntot;
-        npass+=rep.npass;
-
+        ntot += rep.ntot;
+        npass += rep.npass;
       }
     };
 
@@ -51,6 +48,7 @@ namespace G4UA{
 
     virtual void EndOfEventAction(const G4Event*) override;
     virtual void BeginOfRunAction(const G4Run*) override;
+
   private:
 
     enum hitCntainerTypes {
@@ -65,22 +63,15 @@ namespace G4UA{
       TILE,
       TRT };
 
-
     Config m_config;
     Report m_report;
 
-    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-    /// Pointer to StoreGate (event store by default)
-    mutable StoreGateSvc_t m_evtStore;
-    /// Pointer to StoreGate (detector store by default)
-    mutable StoreGateSvc_t m_detStore;
-    std::vector<std::pair<int,std::string> > m_hitContainers;
+    /// A list of (hitContainerTypes, volumeName) pairs,
+    /// filled in BeginOfRunAction.
+    std::vector< std::pair<int,std::string> > m_hitContainers;
+
   }; // class G4HitFilter
 
-
 } // namespace G4UA
-
-
-
 
 #endif
