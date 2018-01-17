@@ -14,16 +14,12 @@ def getDefaultEventActions():
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import beamFlags
     defaultUA=[]
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     return defaultUA
 
 # stepping
 def getDefaultSteppingActions():
     from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     return defaultUA
 
 # tracking
@@ -78,6 +74,9 @@ def getDefaultActions():
     # Photon killer
     if simFlags.PhysicsList == 'QGSP_BERT_HP':
         actions += ['G4UA::PhotonKillerTool']
+    # Calo calibration default processing
+    if simFlags.CalibrationRun == 'LAr+Tile':
+        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
 
     return actions
 
