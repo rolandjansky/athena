@@ -319,37 +319,37 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
 
 
 std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ){
-	
+  
   std::map<int,int> hitCounter;
   std::map<int,double> occResults;
 
   TRT_RDO_Container::const_iterator RDO_collection_iter = p_trtRDOContainer->begin();
-	TRT_RDO_Container::const_iterator RDO_collection_end  = p_trtRDOContainer->end();
-	for ( ; RDO_collection_iter!= RDO_collection_end; ++RDO_collection_iter) {
-	  const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
-	  if (!RDO_Collection) continue;
-	  if (RDO_Collection->size() != 0){
-	    DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
-	    
-	    for(r=rb; r!=re; ++r) {
-	      if (!*r)
+  TRT_RDO_Container::const_iterator RDO_collection_end  = p_trtRDOContainer->end();
+  for ( ; RDO_collection_iter!= RDO_collection_end; ++RDO_collection_iter) {
+    const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
+    if (!RDO_Collection) continue;
+    if (RDO_Collection->size() != 0){
+      DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
+      
+      for(r=rb; r!=re; ++r) {
+        if (!*r)
           continue;
 
-	      Identifier  rdo_id  = (*r)->identify    ()                          ;
-	      
-	      //Check if straw is OK
+        Identifier  rdo_id  = (*r)->identify    ()                          ;
+        
+        //Check if straw is OK
         if((m_TRTStrawStatusSummarySvc->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
-		        || (m_TRTStrawStatusSummarySvc->getStatusPermanent(rdo_id))) {
-		      continue;
-	      }
+            || (m_TRTStrawStatusSummarySvc->getStatusPermanent(rdo_id))) {
+          continue;
+        }
 
-	      int det      = m_TRTHelper->barrel_ec(rdo_id)     ;
+        int det      = m_TRTHelper->barrel_ec(rdo_id)     ;
 
-	      unsigned int m_word = (*r)->getWord();
+        unsigned int m_word = (*r)->getWord();
 
-	      double t0 = 0.;
-	      if (m_T0Shift) {
-       		unsigned  mask = 0x02000000; 
+        double t0 = 0.;
+        if (m_T0Shift) {
+           unsigned  mask = 0x02000000; 
           bool SawZero = false; 
           int tdcvalue; 
           for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
@@ -363,14 +363,14 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
             double dummy_rawrad=0. ; bool dummy_isOK=true;
             m_driftFunctionTool->driftRadius(dummy_rawrad,rdo_id,t0,dummy_isOK);
           }
-	      }
+        }
 
-	      if (!passValidityGate(m_word, t0)) continue;
+        if (!passValidityGate(m_word, t0)) continue;
 
-	      hitCounter[det] +=1;
-	    }
-	  }
-	}
+        hitCounter[det] +=1;
+      }
+    }
+  }
 
   int*  straws = m_TRTStrawStatusSummarySvc->getStwTotal();
     
