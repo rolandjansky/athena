@@ -242,7 +242,8 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
     if RunPatchedOnly: #overwrite
-        clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
+        #clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
+        clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/'+q
 
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
