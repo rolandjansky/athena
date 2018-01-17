@@ -654,6 +654,43 @@ class ConfiguredNewTrackingCuts :
       self.__useSCTSeeding    = False
       self.__maxEta           = 2.2
 
+    if mode == "PixelFourLayer":
+      self.__extension        = "PixelFourLayer" # this runs after NewTracking
+      self.__minPT            = 5.0 * Units.GeV
+      self.__minClusters      = 4
+      self.__maxHoles         = 0
+      self.__maxPixelHoles    = 0
+      self.__maxSctHoles      = 0
+      self.__maxDoubleHoles   = 0
+      self.__minSiNotShared   = 3
+      self.__maxShared        = 0
+      self.__seedFilterLevel  = 2
+      self.__nHolesMax        = self.__maxHoles
+      self.__nHolesGapMax     = self.__maxHoles      
+      self.__useSCT           = True
+      self.__useTRT           = True
+      self.__useSCTSeeding    = False
+      self.__maxEta           = 2.2
+
+    if mode == "PixelThreeLayer":
+      self.__extension        = "PixelThreeLayer" # this runs after NewTracking
+      self.__minPT            = 5.0 * Units.GeV
+      self.__minClusters      = 3
+      self.__maxHoles         = 0
+      self.__maxPixelHoles    = 0
+      self.__maxSctHoles      = 0
+      self.__maxDoubleHoles   = 0
+      self.__minSiNotShared   = 0
+      self.__maxShared        = 0
+      self.__seedFilterLevel  = 0
+      self.__nHolesMax        = self.__maxHoles
+      self.__nHolesGapMax     = self.__maxHoles      
+      self.__useSCT           = True
+      self.__useTRT           = True
+      self.__useSCTSeeding    = False
+      self.__maxEta           = 2.2
+      self.__radMax           = 100. * Units.mm # to pixel layer-1 (~ 88 mm)
+
 
     # --- changes for SCT segments
     if mode == "SCT":

@@ -23,6 +23,7 @@ JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
   declareProperty("JVFName", m_jvfname ="JVF");
   declareProperty("K_JVFCorrScale",m_kcorrJVF = 0.01);
   declareProperty("PUTrkPtCut",m_PUtrkptcut = 30000.);
+  declareProperty("IsTrigger",m_isTrigger =false);
 }
 
 //**********************************************************************
@@ -143,8 +144,9 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     jet->setAttribute(m_jvfname, jvf);
   
     // Get and set the highest JVF vertex
-    jet->setAttribute("Highest" + m_jvfname + "Vtx",getMaxJetVertexFraction(vertices,jvf));
-
+    if(!m_isTrigger) {
+      jet->setAttribute("Highest" + m_jvfname + "Vtx",getMaxJetVertexFraction(vertices,jvf));
+    }
     // Calculate RpT and JVFCorr 
     // Default JVFcorr to -1 when no tracks are associated.
     float jvfcorr = -999.;

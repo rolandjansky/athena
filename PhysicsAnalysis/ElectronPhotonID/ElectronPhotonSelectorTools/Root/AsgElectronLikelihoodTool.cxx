@@ -561,7 +561,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
-  
+
   //double et = cluster->e()/cosh(eta); 
   // transverse energy of the electron (using the track eta) 
   //const double et = eg->pt(); 
@@ -618,6 +618,10 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 			     std::pow(t->parameterPZ(index), 2));
 	
 	  dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
+        }
+        else{
+          allFound = false; 
+          notFoundList += "deltaPoverP ";
         }
       
       }
@@ -974,3 +978,26 @@ double AsgElectronLikelihoodTool::getFcalEt() const
   return fcalEt;
 }
 
+bool AsgElectronLikelihoodTool::isForwardElectron( const xAOD::Egamma* eg, const float eta ) const{
+
+  static const SG::AuxElement::ConstAccessor< uint16_t > accAuthor( "author" );
+
+  if( accAuthor.isAvailable(*eg) ){
+    
+    // cannot just do eg->author() because it isn't always filled
+    // at trigger level
+    if( accAuthor(*eg) == xAOD::EgammaParameters::AuthorFwdElectron ){
+      ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+      return true;
+    }
+  }
+  else{
+    //Check for fwd via eta range the old logic 
+    if ( fabs(eta) > 2.5 ) {
+      ATH_MSG_WARNING("Failed, cluster->etaBE(2) range due to " << eta << " seems like a fwd electron" );
+      return true;
+    }
+  }
+
+  return false;
+}

@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadFloatFromCaloCool.py
 # Carlos.Solans <Carlos.Solans@cern.ch>
 # Each Tile cell has 5 values stored in COOL.
@@ -83,19 +86,16 @@ for o, a in opts:
         
 tile=(chan==48)
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools
-hashMgr=TileCellTools.TileCellHashMgr()
+hashMgr=None
+hashMgrDef=TileCellTools.TileCellHashMgr()
+hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
+hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
+hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")
 
 #=== get a logger
 log = CaloCondLogger.getLogger("ReadCellNoise")
@@ -165,7 +165,7 @@ obj = folder.findObject( iov, chan, folderTag )
 blob = obj.payload()[0]
 
 #=== create CaloCondBlobFlt
-blobFlt = PyCintex.gbl.CaloCondBlobFlt.getInstance(blob)
+blobFlt = cppyy.gbl.CaloCondBlobFlt.getInstance(blob)
 
 #=== retrieve data from the blob
 #cell  = 0 # 0..5183 - Tile hash
@@ -175,6 +175,16 @@ blobFlt = PyCintex.gbl.CaloCondBlobFlt.getInstance(blob)
 ncell=blobFlt.getNChans()
 ngain=blobFlt.getNGains()
 nval=blobFlt.getObjSizeUint32()
+
+if ncell>hashMgrA.getHashMax():
+    hashMgr=hashMgrABC
+elif ncell>hashMgrBC.getHashMax():
+    hashMgr=hashMgrA
+elif ncell>hashMgrDef.getHashMax():
+    hashMgr=hashMgrBC
+else:
+    hashMgr=hashMgrDef
+log.info("Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax()))
 
 if cell<0 or cell>=ncell:
     cellmin=0

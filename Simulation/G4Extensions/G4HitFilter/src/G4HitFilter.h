@@ -12,8 +12,8 @@
 #include <map>
 
 
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -22,7 +22,7 @@
 namespace G4UA{
 
   class G4HitFilter:
-    public AthMessaging, public IEndEventAction,public IBeginRunAction
+    public AthMessaging, public G4UserEventAction, public G4UserRunAction
   {
 
   public:
@@ -49,8 +49,8 @@ namespace G4UA{
     const Report& getReport() const
     { return m_report; }
 
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfRun(const G4Run*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
   private:
 
     enum hitCntainerTypes {

@@ -2065,7 +2065,6 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t, int runDep
               pFactor = 1. - pFactor;
   */
               
-                           
               double pFactor = t->eval(prescaleByRunAndLbn,runNbr,lbn,this);
   
               //Info("...","prescale in [%d,%d] = %f", runNbr,lbn,1./pFactor);

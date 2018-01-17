@@ -48,12 +48,6 @@ StatusCode PixelMainMon::bookStatusMon(void) {
   sc = m_status_mon->regHist(statusHistos);
   m_status_mon->setMaxValue(2.0);
 
-  if (m_doModules) {
-    m_Status_modules = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(), 2, 0, 2));
-    sc = m_Status_modules->regHist(this, (path + "/Modules_Status").c_str(), run);
-    m_Status_modules->setBinLabel("Status", 2);
-    m_Status_modules->formatHist("status");
-  }
   if (m_doOffline) {
     m_dqStatus = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Ok_modules", ("module problems, empty bin means dead module not listed in status database" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
     sc = m_dqStatus->regHist(statusHistos);
@@ -121,8 +115,6 @@ StatusCode PixelMainMon::fillStatusMon(void) {
   int nDisabled = 0;
   int nDisabled_mod[PixLayerIBL2D3D::COUNT] = {0};
 
-  if (m_isNewLumiBlock && m_Status_modules) m_Status_modules->reset();
-
   for (; idIt != idItEnd; ++idIt) {
     Identifier WaferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
@@ -160,21 +152,6 @@ StatusCode PixelMainMon::fillStatusMon(void) {
         nDisabled++;
         nDisabled_mod[pixlayer]++;
         if (pixlayeribl2d3d != 0) nDisabled_mod[pixlayeribl2d3d]++;
-      }
-
-      if (m_Status_modules) {
-        int diffToFill = 0;
-        double content = floor(m_Status_modules->getBinContent(1.5, WaferID, m_pixelid));  // 1.5 refers to the bin [1,2]
-        if (content == 2) {
-          diffToFill = 0;
-        } else if (content == 1 && (Index == 2)) {
-          diffToFill = 1;
-        } else if (content == 0) {
-          diffToFill = Index;
-        }
-        for (int i = 0; i < diffToFill; i++) {
-          m_Status_modules->fill(1.5, WaferID, m_pixelid);
-        }
       }
     }
   }  // end of pixelid wafer loop

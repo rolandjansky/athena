@@ -3,8 +3,6 @@
 import AthenaCommon.SystemOfUnits as Units
 from D2PDMaker.D2PDMakerConf import D2PDMuonSelector, D2PDElectronSelector
 
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 
 class MuonSelector( object ) :

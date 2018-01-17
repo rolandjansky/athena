@@ -57,7 +57,7 @@ Trk::PdgToParticleHypothesis  iFatras::PhotonConversionTool::s_pdgToHypo;
 
 // constructor
 iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_particleBroker("ISF_ParticleParticleBroker", n),
   m_truthRecordSvc("ISF_TruthRecordSvc", n),
   m_processCode(14),
@@ -84,8 +84,6 @@ iFatras::PhotonConversionTool::PhotonConversionTool(const std::string& t, const 
   m_conversionChildEnergy(0.),
   m_conversionChildAngle(0.)
 {
-      declareInterface<IPhotonConversionTool>(this);
-
       // ISF Services and Tools
       declareProperty("ParticleBroker"                      , m_particleBroker        , "ISF ParticleBroker Svc"  );
       declareProperty("TruthRecordSvc"                      , m_truthRecordSvc        , "ISF Particle Truth Svc"  );      
@@ -259,6 +257,9 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
         ch1->setUserInformation(validInfo);
       }
       children[ichild] = ch1;
+      if (!ch1->getTruthBinding()) {
+	ch1->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+      }
       m_particleBroker->push( ch1, parent);
       ichild++;
     }
@@ -281,6 +282,9 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
         ch2->setUserInformation(validInfo);
       }
       children[ichild] = ch2;
+      if (!ch2->getTruthBinding()) {
+        ch2->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+      }
       m_particleBroker->push( ch2, parent);
     }
 
@@ -375,12 +379,20 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
     children[1] = ch2;
 
     // register TruthIncident
-    //ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
-    //                             children,
-    //                             m_processCode,
-    //                             parent->nextGeoID(),
-    //                             ISF::fKillsPrimary );
-    //m_truthRecordSvc->registerTruthIncident( truth);
+    ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
+                                 children,
+                                 m_processCode,
+                                 parent->nextGeoID(),
+                                 ISF::fKillsPrimary );
+    m_truthRecordSvc->registerTruthIncident( truth);
+
+    //Make sure the conversion products get a chance to have correct truth info before pushing into the particle broker
+    if (!children[0]->getTruthBinding()) {
+        children[0]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+    if (!children[1]->getTruthBinding()) {
+        children[1]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
 
     // save info for validation
     //if (m_validationMode && m_validationTool) {

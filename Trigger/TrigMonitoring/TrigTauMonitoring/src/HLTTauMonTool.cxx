@@ -128,11 +128,16 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     //declareProperty("HltEmulationTool", 	m_hltemulationTool,  "Handle to the HLT emulation tool");
     declareProperty("doTrackCurves",            m_doTrackCurves=false, "Efficiency plots of track distributions");
     //declareProperty("doTestTracking", 		m_doTestTracking=false);
+    declareProperty("doEfficiencyRatioPlots",            m_doEfficiencyRatioPlots=false, "Efficiency ratio plots of FTK vs nonFTK LST chains");
     declareProperty("doTopoValidation",         m_doTopoValidation=false);
     declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
     declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
-    declareProperty("topo_chains",              m_topo_chains);
-    declareProperty("topo_support_chains",      m_topo_support_chains);
+    declareProperty("domuCut40", 		m_domuCut40=false);    
+    declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
+    declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
+    declareProperty("topo_eltau_chains",    m_topo_chains_eltau);
+    declareProperty("topo_mutau_chains",    m_topo_chains_mutau);
+    declareProperty("topo_support_chains",  m_topo_support_chains);
     declareProperty("LowestSingleTau", 		m_lowest_singletau="");
     declareProperty("L1TriggerCondition", 	m_L1StringCondition="Physics");
     declareProperty("HLTTriggerCondition",      m_HLTStringCondition="Physics");
@@ -152,6 +157,42 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     m_mu_offline = 0.;
     m_mu_online = 0;
     m_tauCont = 0;
+
+	counterOfdR0_Topomutau = 0;
+	counterOfdR0_Topoeltau = 0;
+
+	for (int i=0; i<3; i++)
+	{
+		LST_FTK_PassHLTsel.push_back(0);
+		LST_FTK0Prong_PassHLTsel.push_back(0);
+		LST_FTKBDT_PassHLTsel.push_back(0);
+		LST_FTK0ProngBDT_PassHLTsel.push_back(0);
+		LST_tracktwo_PassHLTsel.push_back(0);
+	}
+
+	// FTK LST chains activation check flags
+	FTKLST_idperfActive = false;
+	FTKLST_perfActive = false;
+	FTKLST_medium1Active = false;
+	FTKLST_perf0Active = false;	
+	FTKLST_medium0Active = false;
+	FTKLST_medium1NoPrecActive = false;
+	FTKLST_medium0NoPrecActive = false;
+
+	// FTKEffTProf flags
+ 	doFTKEffTProf = false;
+ 	doFTKEffTProf_2 = false;
+ 	do0prongFTKEffTProf = false;
+ 	do0prongFTKEffTProf_2 = false;
+	doFTKNoPrecEffTProf_2 = false;
+	do0prongFTKNoPrecEffTProf_2 = false;
+
+	// EffRatioPlots flags
+	effRatioChains_Active = false;
+	effRatio0ProngChains_Active = false;
+	effRatioBDTChains_Active = false;
+	effRatio0ProngBDTChains_Active = false;
+
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -204,6 +245,14 @@ StatusCode HLTTauMonTool::init() {
       m_trigItemsZtt.push_back(*it);
     }
 
+	// List of chains of interest for Efficiency Ratio plots between FTK and Reference (i.e. non-FTK/"tracktwo") chains.
+	m_LST_HLTsel_FTK_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTK"};
+	m_LST_HLTsel0Prong_FTK_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTK"};
+	m_LST_HLTsel_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTKNoPrec"};
+	m_LST_HLTsel0Prong_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTKNoPrec"};
+	m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
+	m_Ratio = {"idperf", "perf", "medium1"};
+
 // 	HERE DOESN'T WORK SINCE TDT NOT YET INITIALISED
 //	const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup("HLT_.*");
 //	std::vector<std::string> TauItems = m_allHLTTauItems->getListOfTriggers();
@@ -218,8 +267,69 @@ StatusCode HLTTauMonTool::init() {
     if(m_L1StringCondition=="allowResurrectedDecision") m_L1TriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
     if(m_HLTStringCondition=="allowResurrectedDecision") m_HLTTriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
 
+ 	// Check if chains for Efficiency Ratio plots are in the "cleaned-up" m_trigItems list.
+	for(unsigned int i=0; i<m_trigItems.size(); i++){
+		// LST FTK
+		if(m_trigItems.at(i) == m_LST_HLTsel_FTK_chains.at(0))	
+		{
+			FTKLST_idperfActive=true;
+			activeFTKvsNonFTKEffRatioChains++;
+		}
+		if(m_trigItems.at(i) == m_LST_HLTsel_FTK_chains.at(1))
+		{
+			FTKLST_perfActive=true;
+			activeFTKvsNonFTKEffRatioChains++;
+		}
+		if(m_trigItems.at(i) == m_LST_HLTsel_FTK_chains.at(2))	
+		{
+			FTKLST_medium1Active=true;
+			activeFTKvsNonFTKEffRatioChains++;
+		}
+		// LST FTK - 0prong
+		//if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTK_chains.at(0))	FTKLST_idperfActive=true;
+		if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTK_chains.at(1))	
+		{
+			FTKLST_perf0Active=true;
+			activeFTKvsNonFTKEffRatio0prongChains++;
+		}
+		if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTK_chains.at(2))
+		{
+			FTKLST_medium0Active=true;
+			activeFTKvsNonFTKEffRatio0prongChains++;
+		}
+		// LST FTK - NoPrec
+		if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2))
+		{
+			FTKLST_medium1NoPrecActive=true;
+			//activeFTKvsNonFTKEffRatioNoPrecChains++;
+			effRatioBDTChains_Active = true;
+		}
+		// LST FTK - 0prong NoPrec
+		if(m_trigItems.at(i) == m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2))	
+		{
+			FTKLST_medium0NoPrecActive=true;
+			//activeFTKvsNonFTKEffRatio0prongNoPrecChains++;
+			effRatio0ProngBDTChains_Active = true;
+		}
+	}
 
-    return StatusCode::SUCCESS;
+	if (FTKLST_idperfActive && FTKLST_perfActive) doFTKEffTProf = true;
+	if (FTKLST_perfActive && FTKLST_medium1Active) doFTKEffTProf_2 = true;
+	if (activeFTKvsNonFTKEffRatioChains == m_LST_HLTsel_FTK_chains.size()) effRatioChains_Active = true;
+
+	if (FTKLST_idperfActive && FTKLST_perf0Active) do0prongFTKEffTProf = true;
+	if (FTKLST_perf0Active && FTKLST_medium0Active) do0prongFTKEffTProf_2 = true;
+	if (activeFTKvsNonFTKEffRatio0prongChains == (m_LST_HLTsel0Prong_FTK_chains.size()-1)) effRatio0ProngChains_Active = true;
+
+	if (FTKLST_perfActive && FTKLST_medium1NoPrecActive) doFTKNoPrecEffTProf_2 = true;
+	//if (activeFTKvsNonFTKEffRatioNoPrecChains == (m_LST_HLTsel_FTKNoPrec_chains.size()) effRatioBDTChains_Active = true;
+
+	if (FTKLST_perf0Active && FTKLST_medium0NoPrecActive) do0prongFTKNoPrecEffTProf_2 = true;
+	//if (activeFTKvsNonFTKEffRatio0prongNoPrecChains == m_LST_HLTsel0Prong_FTKNoPrec_chains.size()) effRatio0ProngBDTChains_Active = true;
+
+	// end Check for Efficiency Ratio plots
+
+   return StatusCode::SUCCESS;
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -297,6 +407,7 @@ StatusCode HLTTauMonTool::fill() {
         m_mu_online = avg_mu;
         ATH_MSG_DEBUG("online mu "<<avg_mu);
      }
+	muCut40Passed = (!m_domuCut40 || (m_domuCut40 && (m_mu_offline<40.)));
 
     // fill true taus vectors
     m_true_taus.clear(); 
@@ -387,89 +498,76 @@ StatusCode HLTTauMonTool::fill() {
 	if ( getTDT()->isPassed(trig_item_EF,m_HLTTriggerCondition) ) hist("hHLTCounts","HLT/TauMon/Expert")->Fill(m_trigItems.at(j).c_str(),1.);  
 		//testL1TopoNavigation(m_trigItems[j]);
 		//testPrescaleRetrieval(m_trigItems[j]);
-	sc = fillHistogramsForItem(m_trigItems[j]);
-	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
-	if(m_doTrackCurves){
-		sc = trackCurves (m_trigItems[j]);
-		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
+
+	// muCut on Filling the Histograms
+	if (muCut40Passed)
+	{
+		sc = fillHistogramsForItem(m_trigItems[j]);
+		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
+		if(m_doTrackCurves){
+			sc = trackCurves (m_trigItems[j]);
+			if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
+		}
+		if(m_doEfficiencyRatioPlots){
+			sc = efficiencyRatioPlots (m_trigItems[j]);
+			if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed efficiencyRatioPlots()"); } //return sc;}
+		}
+	}
+	else
+	{
+		ATH_MSG_WARNING("Pileup Cut 40 was not passed. Skipped: HistogramsForItem"); 
+	} 
+
+
+    }
+
+	// do L1TopoLeptons
+	for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){
+		sc = L1TopoLeptons (m_topo_chains_ditau.at(i), "ditau");
+		if(!sc.isSuccess())	ATH_MSG_WARNING("Failed TopoLeptons() for ditau");
+	}
+	for(unsigned int i=0;i<m_topo_chains_mutau.size(); ++i){
+		sc = L1TopoLeptons (m_topo_chains_mutau.at(i), "mutau");
+		if(!sc.isSuccess())	ATH_MSG_WARNING("Failed TopoLeptons() for mutau");
+	}
+	for(unsigned int i=0;i<m_topo_chains_eltau.size(); ++i){
+		sc = L1TopoLeptons (m_topo_chains_eltau.at(i), "eltau");
+		if(!sc.isSuccess())	ATH_MSG_WARNING("Failed TopoLeptons() for eltau");
 	}
 
-    }
+	// muCut on filling the histograms
+	if (muCut40Passed)
+	{
+		if(m_doTopoValidation){
+		if(m_topo_chains_ditau.size()!=m_topo_support_chains.size()) ATH_MSG_WARNING("List of topo and support chains are different. Skipping!");
+		    else for(unsigned int topo=0;topo<m_topo_chains_ditau.size();topo++){
+			sc = fillTopoValidation(m_topo_chains_ditau.at(topo), m_topo_support_chains.at(topo));
+		    	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed TopoValidation");} //return sc;}
+		}
+		}
 
-     for(unsigned int i=0;i<m_topo_chains.size(); ++i){
-        setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));
-        std::string chain = "HLT_"+m_topo_chains.at(i);
-        if(getTDT()->isPassed(chain)){
-        
-                Trig::FeatureContainer f = ( getTDT()->features(chain,m_HLTTriggerCondition) );
-                Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-                if(comb->size()!=2){
-                        ATH_MSG_DEBUG("Number of combinations for chain " << chain << " is "<< comb->size());
-                        
-                }
-                std::vector<float> v_eta, v_phi, v_pt;
-				for(;comb!=combEnd;++comb){
-                        const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-                        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator topoTau = vec_HLTtau.begin(), topoTau_e = vec_HLTtau.end();
-                        if(topoTau==topoTau_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
-                        ATH_MSG_DEBUG("Item "<< chain << ": " << vec_HLTtau.size() << " " << topoTau->label() << " containers");
-						for(; topoTau != topoTau_e; ++topoTau){
-                                if(topoTau->cptr()){
-                                        if(topoTau->cptr()->size()==0) ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << topoTau->cptr()->size() << " TauJets");
-                                        ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << topoTau->cptr()->size() << " TauJets");
-                                        xAOD::TauJetContainer::const_iterator tauItr = topoTau->cptr()->begin();
-                                        xAOD::TauJetContainer::const_iterator tauEnd = topoTau->cptr()->end();
-                                        for(; tauItr != tauEnd; ++tauItr){
-                                                v_eta.push_back((*tauItr)->eta()); v_phi.push_back((*tauItr)->phi()); v_pt.push_back((*tauItr)->pt());
-                                        }
-                                }
-                        }
-                }
-                if(v_eta.size()!=2){
-                        ATH_MSG_DEBUG("Number of taus for chain " << chain << " is "<< v_eta.size());
-                        
-                }
-                float min_dR(999.);
-                for(unsigned int t1=0;t1<v_eta.size();t1++)
-                        for(unsigned int t2=t1+1;t2<v_eta.size();t2++){
-                                float dR = deltaR(v_eta.at(t1),v_eta.at(t2),v_phi.at(t1),v_phi.at(t2));
-                                if(dR<min_dR && dR!=0.) min_dR=dR;
-                }
-                if(min_dR<0.1){
-                        ATH_MSG_DEBUG(" tau pair with dR="<<min_dR);
-                        for(unsigned int t1=0;t1<v_eta.size();t1++) ATH_MSG_DEBUG(" tau "<<t1<<": eta "<<v_eta.at(t1)<<", phi "<<v_phi.at(t1)<<", pt "<<v_pt.at(t1));
-                }
-                hist("hHLTdR")->Fill(min_dR);
-        }
-     }
+		if(m_emulation) {
+		    sc = Emulation();
+		    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed emulation"); } //return sc;}
+		}
 
+		if(m_RealZtautauEff)
+		  {
+		    sc = RealZTauTauEfficiency();
+		    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency()");} //return sc;}
+		  }
 
-
-
-    if(m_doTopoValidation){
-	if(m_topo_chains.size()!=m_topo_support_chains.size()) ATH_MSG_WARNING("List of topo and support chains are different. Skipping!");
-        else for(unsigned int topo=0;topo<m_topo_chains.size();topo++){
-		sc = fillTopoValidation(m_topo_chains.at(topo), m_topo_support_chains.at(topo));
-        	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed TopoValidation");} //return sc;}
+		if(m_dijetFakeTausEff)
+		  {
+		    sc = dijetFakeTausEfficiency();
+		    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed dijetFakeTausEfficiency()"); } //return sc;}
+		  }
 	}
-    }
+	else
+	{
+		ATH_MSG_WARNING("Pileup Cut 40 was not passed. Skipped: TopoValidation, Emulation, RealZtautauEff, dijetFakeTausEff."); 
+	}  
 
-    if(m_emulation) {
-        sc = Emulation();
-        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed emulation"); } //return sc;}
-    }
-
-    if(m_RealZtautauEff)
-      {
-        sc = RealZTauTauEfficiency();
-        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency()");} //return sc;}
-      }
-
-    if(m_dijetFakeTausEff)
-      {
-        sc = dijetFakeTausEfficiency();
-        if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed dijetFakeTausEfficiency()"); } //return sc;}
-      }
   
     //if(m_doTestTracking){ sc = test2StepTracking();
     //  if(sc.isFailure()){ ATH_MSG_WARNING("Failed at test2Steptracking. Exiting!"); return StatusCode::FAILURE;}
@@ -776,50 +874,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
           }
      	} // end comb loop
      } // end events passing HLT chain
-
-     // L1Topo Tests
-     if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM" && getTDT()->isPassed(trig_item_EF)){
-
-      		Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
-       		Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-       		if(comb->size()!=2){
-        		ATH_MSG_DEBUG("Number of combinations for chain " << trig_item_EF<< " is "<< comb->size()); 
-         		//return StatusCode::FAILURE;
-                }
-	        std::vector<float> v_eta, v_phi;
-                for(;comb!=combEnd;++comb){
-         		const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-         		std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator ditauCI = vec_HLTtau.begin(), ditauCI_e = vec_HLTtau.end();
-         		if(ditauCI==ditauCI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
-         		ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << ditauCI->label() << " containers");
-         		for(; ditauCI != ditauCI_e; ++ditauCI){
-           			if(ditauCI->cptr()){
-             				if(ditauCI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
-             				ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
-             				xAOD::TauJetContainer::const_iterator tauItr = ditauCI->cptr()->begin();
-             				xAOD::TauJetContainer::const_iterator tauEnd = ditauCI->cptr()->end();
-					for(; tauItr != tauEnd; ++tauItr){				
-						v_eta.push_back((*tauItr)->eta()); v_phi.push_back((*tauItr)->phi());
-					}
-				}
-			}
-		}
-		float min_dR(999.);
-		for(unsigned int t1=0;t1<v_eta.size();t1++)
-			for(unsigned int t2=t1+1;t2<v_eta.size();t2++){ 
-				float dR = deltaR(v_eta.at(t1),v_eta.at(t2),v_phi.at(t1),v_phi.at(t2));
-				if(dR<min_dR  && dR!=0.) min_dR=dR;
-		}
-
-    		for(unsigned int i=0;i<m_topo_chains.size(); ++i){
-        		setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));
-			int pass(0);
-		        std::string chain = "HLT_"+m_topo_chains.at(i);	
-                        if(getTDT()->isPassed(chain)) pass = 1;
-			profile("TProfRecoL1_dREfficiency")->Fill(min_dR,pass);	
-    		}
-
-     }
    }
     
     if( m_turnOnCurves) {
@@ -2392,6 +2446,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		  //		  hist("hRecoTau25NVtxDenom")->Fill(nvtx);
 		  //		  hist("hRecoTau25MuDenom")->Fill(mu);
 		  hist2("hRecoTau25EtaVsPhiDenom")->Fill(eta,phi);
+			LST_tracktwo_PassHLTsel.at(0) = 1;
 		}
 		if( HLTTauMatching("tau25_perf_tracktwo", TauTLV, 0.2)  )
 		  {		  
@@ -2446,6 +2501,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		    //		    hist("hRecoTau25NVtxDenom_2")->Fill(nvtx);
 		    //		    hist("hRecoTau25MuDenom_2")->Fill(mu);
 		    hist2("hRecoTau25EtaVsPhiDenom_2")->Fill(eta,phi);
+			LST_tracktwo_PassHLTsel.at(1) = 1;
 		  }
 		  
 		  if( HLTTauMatching("tau25_medium1_tracktwo", TauTLV, 0.2)  ){
@@ -2480,7 +2536,221 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		    profile("TProfRecoHLT25MuEfficiency_2")->Fill(mu,0);		
 		  }	 
 	      }   
+
+	      if(trigItem=="tau25_medium1_tracktwo"){
+			//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+			if( HLTTauMatching("tau25_medium1_tracktwo", TauTLV, 0.2)  )
+			{
+				LST_tracktwo_PassHLTsel.at(2) = 1;
+		  	}
+		  }
 	   
+		// FTK eff TProfiles 
+		if (doFTKEffTProf)
+		{
+			//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
+			if(trigItem==m_LST_HLTsel_FTK_chains.at(0))
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(1), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_FTK_1")->Fill(pt/GeV,1);
+					profile("TProfRecoHLTLSTEtaEfficiency_FTK_1")->Fill(eta,1);
+					profile("TProfRecoHLTLSTNTrackEfficiency_FTK_1")->Fill(ntracks,1);
+					profile("TProfRecoHLTLSTMuEfficiency_FTK_1")->Fill(mu,1);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_1")->Fill(pt/GeV,1);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_1")->Fill(pt/GeV,1);
+					//hist("hRecoHLTLSTPt_FTK_1")->Fill(pt/GeV);
+					//hist("hRecoHLTLSTEtaEfficiency_FTK_1")->Fill(eta);
+					//hist("hRecoHLTLSTNTrackEfficiency_FTK_1")->Fill(ntracks);
+					//hist("hRecoHLTLSTMuEfficiency_FTK_1")->Fill(mu);
+				}
+				else if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(0), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_FTK_1")->Fill(pt/GeV,0);
+					profile("TProfRecoHLTLSTEtaEfficiency_FTK_1")->Fill(eta,0);
+					profile("TProfRecoHLTLSTNTrackEfficiency_FTK_1")->Fill(ntracks,0);
+					profile("TProfRecoHLTLSTMuEfficiency_FTK_1")->Fill(mu,0);
+					//hist("hRecoHLTLSTPt_idperf_FTK_1")->Fill(pt/GeV);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_1")->Fill(pt/GeV,0);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_1")->Fill(pt/GeV,0);
+					LST_FTK_PassHLTsel.at(0) = 1;
+				}
+			}
+		}
+		if (doFTKEffTProf_2)
+		{
+			//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
+			if(trigItem==m_LST_HLTsel_FTK_chains.at(1))
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(2), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_FTK_2")->Fill(pt/GeV,1);
+					profile("TProfRecoHLTLSTEtaEfficiency_FTK_2")->Fill(eta,1);
+					profile("TProfRecoHLTLSTNTrackEfficiency_FTK_2")->Fill(ntracks,1);
+					profile("TProfRecoHLTLSTMuEfficiency_FTK_2")->Fill(mu,1);					
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_2")->Fill(pt/GeV,1);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_2")->Fill(pt/GeV,1);
+				}
+				else if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(1), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_FTK_2")->Fill(pt/GeV,0);
+					profile("TProfRecoHLTLSTEtaEfficiency_FTK_2")->Fill(eta,0);
+					profile("TProfRecoHLTLSTNTrackEfficiency_FTK_2")->Fill(ntracks,0);
+					profile("TProfRecoHLTLSTMuEfficiency_FTK_2")->Fill(mu,0);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTK_2")->Fill(pt/GeV,0);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTK_2")->Fill(pt/GeV,0);
+					LST_FTK_PassHLTsel.at(1) = 1;
+				}
+			}
+			if(trigItem==m_LST_HLTsel_FTK_chains.at(2))
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel_FTK_chains.at(2), TauTLV, 0.2)  )
+				{
+					LST_FTK_PassHLTsel.at(2) = 1;
+				}
+			}
+		}
+
+		// NoPrec
+		if (doFTKNoPrecEffTProf_2)
+		{
+			//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
+			if(trigItem==m_LST_HLTsel_FTKNoPrec_chains.at(1)) //perf
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel_FTKNoPrec_chains.at(2), TauTLV, 0.2)  ) //medium1
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_FTKNoPrec_2")->Fill(pt/GeV,1);
+					profile("TProfRecoHLTLSTEtaEfficiency_FTKNoPrec_2")->Fill(eta,1);
+					profile("TProfRecoHLTLSTNTrackEfficiency_FTKNoPrec_2")->Fill(ntracks,1);
+					profile("TProfRecoHLTLSTMuEfficiency_FTKNoPrec_2")->Fill(mu,1);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,1);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,1);
+				}
+				else if( HLTTauMatching(m_LST_HLTsel_FTKNoPrec_chains.at(1), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_FTKNoPrec_2")->Fill(pt/GeV,0);
+					profile("TProfRecoHLTLSTEtaEfficiency_FTKNoPrec_2")->Fill(eta,0);
+					profile("TProfRecoHLTLSTNTrackEfficiency_FTKNoPrec_2")->Fill(ntracks,0);
+					profile("TProfRecoHLTLSTMuEfficiency_FTKNoPrec_2")->Fill(mu,0);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,0);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_FTKNoPrec_2")->Fill(pt/GeV,0);
+				}
+			}
+			if(trigItem==m_LST_HLTsel_FTKNoPrec_chains.at(2)) //perf
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel_FTKNoPrec_chains.at(2), TauTLV, 0.2)  ) //medium1
+				{
+					LST_FTKBDT_PassHLTsel.at(2) = 1;
+				}
+			}
+		}
+
+		// 0prong
+		if (do0prongFTKEffTProf)
+		{
+			//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
+			if(trigItem==m_LST_HLTsel0Prong_FTK_chains.at(0))
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(1), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_1")->Fill(pt/GeV,1);
+					//hist("hRecoHLTLSTPt_perf_FTK_1")->Fill(pt/GeV);
+					profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_1")->Fill(eta,1);
+					profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_1")->Fill(ntracks,1);
+					profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_1")->Fill(mu,1);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_1")->Fill(pt/GeV,1);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_1")->Fill(pt/GeV,1);
+				}
+				else if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(0), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_1")->Fill(pt/GeV,0);
+					//hist("hRecoHLTLSTPt_idperf_FTK_1")->Fill(pt/GeV);
+					profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_1")->Fill(eta,0);
+					profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_1")->Fill(ntracks,0);
+					profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_1")->Fill(mu,0);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_1")->Fill(pt/GeV,0);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_1")->Fill(pt/GeV,0);
+				}
+			}
+		}
+		if (do0prongFTKEffTProf_2)
+		{
+			//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
+			if(trigItem==m_LST_HLTsel0Prong_FTK_chains.at(1))
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(2), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_2")->Fill(pt/GeV,1);
+					profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_2")->Fill(eta,1);
+					profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_2")->Fill(ntracks,1);
+					profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_2")->Fill(mu,1);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_2")->Fill(pt/GeV,1);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_2")->Fill(pt/GeV,1);
+				}
+				else if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(1), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_2")->Fill(pt/GeV,0);
+					profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_2")->Fill(eta,0);
+					profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_2")->Fill(ntracks,0);
+					profile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_2")->Fill(mu,0);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_2")->Fill(pt/GeV,0);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_2")->Fill(pt/GeV,0);
+					LST_FTK0Prong_PassHLTsel.at(1) = 1;
+				}
+			}
+			if(trigItem==m_LST_HLTsel0Prong_FTK_chains.at(2))
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel0Prong_FTK_chains.at(2), TauTLV, 0.2)  )
+				{
+					LST_FTK0Prong_PassHLTsel.at(2) = 1;
+				}
+			}
+		}
+
+		// 0prong NoPrec
+		if (do0prongFTKNoPrecEffTProf_2)
+		{
+			//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/");
+			if(trigItem==m_LST_HLTsel0Prong_FTKNoPrec_chains.at(1))
+			{
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,1);
+					profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTKNoPrec_2")->Fill(eta,1);
+					profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTKNoPrec_2")->Fill(ntracks,1);
+					profile("TProfRecoHLTLSTMuEfficiency_0prong_FTKNoPrec_2")->Fill(mu,1);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,1);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,1);
+				}
+				else if( HLTTauMatching(m_LST_HLTsel0Prong_FTKNoPrec_chains.at(1), TauTLV, 0.2)  )
+				{
+					profile("TProfRecoHLTLSTPtEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,0);
+					profile("TProfRecoHLTLSTEtaEfficiency_0prong_FTKNoPrec_2")->Fill(eta,0);
+					profile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTKNoPrec_2")->Fill(ntracks,0);
+					profile("TProfRecoHLTLSTMuEfficiency_0prong_FTKNoPrec_2")->Fill(mu,0);
+					if (ntracks==1) profile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,0);
+					if (ntracks>1) profile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTKNoPrec_2")->Fill(pt/GeV,0);
+				}
+			}
+			if(trigItem==m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2))
+			{
+				//setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+				if( HLTTauMatching(m_LST_HLTsel0Prong_FTKNoPrec_chains.at(2), TauTLV, 0.2)  )
+				{
+					LST_FTK0ProngBDT_PassHLTsel.at(2) = 1;
+				}
+			}
+		}// end FTK eff TProfiles
+
 	  }	
 
 	  return StatusCode::SUCCESS;

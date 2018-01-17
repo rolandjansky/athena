@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadCellNoiseFromCoolCompare.py
 # based on ReadCellNoiseFromCool.py and ReadFromCoolCompare.py
 # Yuri Smirnov 2015-03-19
@@ -120,14 +123,7 @@ if schema2=="none":
         
 tile=(chan==48)
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 from TileCalibBlobPython import TileCalibTools
@@ -265,8 +261,8 @@ blob = obj.payload()[0]
 blob2 = obj2.payload()[0]
 
 #=== create CaloCondBlobFlt
-blobFlt = PyCintex.gbl.CaloCondBlobFlt.getInstance(blob)
-blobFlt2 = PyCintex.gbl.CaloCondBlobFlt.getInstance(blob2)
+blobFlt = cppyy.gbl.CaloCondBlobFlt.getInstance(blob)
+blobFlt2 = cppyy.gbl.CaloCondBlobFlt.getInstance(blob2)
 
 #=== retrieve data from the blob
 #cell  = 0 # 0..5183 - Tile hash

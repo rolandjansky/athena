@@ -4,16 +4,15 @@
 
 #ifndef TRKG4USERACTIONS_G4UA__GEANTFOLLOWERMSTOOL_H
 #define TRKG4USERACTIONS_G4UA__GEANTFOLLOWERMSTOOL_H
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "TrkG4UserActions/GeantFollowerMS.h"
 
 namespace G4UA{
 
-  /// @class AthenaStackingActionTool
+  /// @class GeantFollowerMSTool
   /// @brief Tool which manages the GeantFollowerMS action
   ///
   /// @author Andrea Di Simone
@@ -21,24 +20,21 @@ namespace G4UA{
 
   class GeantFollowerMSTool:
     public ActionToolBase<GeantFollowerMS>,
-    public IBeginEventActionTool,  public IEndEventActionTool,  public IBeginRunActionTool,  public ISteppingActionTool
+    public IG4EventActionTool, public IG4RunActionTool,  public IG4SteppingActionTool
   {
 
   public:
     /// Standard constructor
     GeantFollowerMSTool(const std::string& type, const std::string& name,const IInterface* parent);
-    /// Retrieve the BoE action
-    virtual IBeginEventAction* getBeginEventAction() override final
-    { return static_cast<IBeginEventAction*>( getAction() ); }
-    /// Retrieve the EoE action
-    virtual IEndEventAction* getEndEventAction() override final
-    { return static_cast<IEndEventAction*>( getAction() ); }
-    /// Retrieve the BoR action
-    virtual IBeginRunAction* getBeginRunAction() override final
-    { return static_cast<IBeginRunAction*>( getAction() ); }
+    /// Retrieve the event action
+    virtual G4UserEventAction* getEventAction() override final
+    { return static_cast<G4UserEventAction*>( getAction() ); }
+    /// Retrieve the run action
+    virtual G4UserRunAction* getRunAction() override final
+    { return static_cast<G4UserRunAction*>( getAction() ); }
     /// Retrieve the stepping action
-    virtual ISteppingAction* getSteppingAction() override final
-    { return static_cast<ISteppingAction*>( getAction() ); }
+    virtual G4UserSteppingAction* getSteppingAction() override final
+    { return static_cast<G4UserSteppingAction*>( getAction() ); }
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
   protected:
     /// Create an action for this thread

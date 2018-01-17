@@ -104,6 +104,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareMonitoredVariable("AbsPt", m_absolute_pt);
   declareMonitoredVariable("Sagitta", m_sagitta);
   declareMonitoredVariable("TrackPt", m_track_pt);
+  declareMonitoredVariable("InvalidRpcRoINumber", m_invalid_rpc_roi_number);
   declareMonitoredStdContainer("ResInner", m_res_inner);
   declareMonitoredStdContainer("ResMiddle", m_res_middle);
   declareMonitoredStdContainer("ResOuter", m_res_outer);
@@ -328,6 +329,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
   m_inner_mdt_hits  = -1;
   m_middle_mdt_hits = -1;
   m_outer_mdt_hits  = -1;
+  m_invalid_rpc_roi_number = -1;
   
   m_fit_residuals.clear();
   m_res_inner.clear();
@@ -403,6 +405,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
       // Data preparation
       m_rpcHits.clear();
+      m_tgcHits.clear();     
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
                                          m_rpcHits,
@@ -474,6 +477,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       ATH_MSG_DEBUG("Endcap");
 
       // Data preparation
+      m_rpcHits.clear();
       m_tgcHits.clear();     
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
@@ -727,6 +731,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int endcapinner = 3;
   int bee = 8;
   int bme = 9;
+  // int bmg = 10;
 
   std::string muonCollKey = "MuonL2SAInfo";
   
@@ -753,6 +758,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
       bme = xAOD::L2MuonParameters::Chamber::BME;
       endcapinner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
+      // bmg  = xAOD::L2MuonParameters::Chamber::Backup;
     }
 
     ATH_MSG_DEBUG("pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size());
@@ -1391,6 +1397,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
                                          const TrigL2MuonSA::MdtHits&             mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
 {
+  
   const float ZERO_LIMIT = 1e-5;
   
   if( trackPatterns.size() > 0 ) {
@@ -1432,6 +1439,9 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     m_inner_mdt_hits  = count_inner;
     m_middle_mdt_hits = count_middle;
     m_outer_mdt_hits  = count_outer;
+
+    if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) 
+      m_invalid_rpc_roi_number = roi->getRoINumber();
     
     m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
     m_absolute_pt = fabs(m_track_pt);

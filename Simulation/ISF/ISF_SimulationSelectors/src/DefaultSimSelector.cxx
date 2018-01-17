@@ -15,9 +15,8 @@
 
 /** Constructor **/
 ISF::DefaultSimSelector::DefaultSimSelector(const std::string& t, const std::string& n, const IInterface* p)
-  : ISimulationSelector(t,n,p)
+  : BaseSimulationSelector(t,n,p)
 {
-    declareInterface<ISF::ISimulationSelector>(this);
 }
 
 /** Destructor **/
