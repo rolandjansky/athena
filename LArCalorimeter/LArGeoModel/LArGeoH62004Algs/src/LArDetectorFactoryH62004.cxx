@@ -31,7 +31,7 @@
 #include "CLHEP/GenericFunctions/Cos.hh"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // need if we want tu use EMEC from LArGeoTBEC:
 #include "LArGeoTBEC/EMECModuleConstruction.h"
@@ -91,7 +91,7 @@ void LArGeo::LArDetectorFactoryH62004::getSimulationParameters()
 {
 
 //  StoreGateSvc* detStore;
-  const LArGeoTB2004Options      *largeoTB2004Options ;
+  const LArGeoTB2004Options      *largeoTB2004Options = nullptr;
   
   StatusCode status;
 //  ISvcLocator* svcLocator = Gaudi::svcLocator(); 

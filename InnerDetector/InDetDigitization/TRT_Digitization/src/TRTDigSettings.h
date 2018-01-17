@@ -108,12 +108,17 @@ class TRTDigSettings {
   double highThresholdECAwheels(int strawGasType) const;
   double highThresholdECBwheels(int strawGasType) const;
 
-  /** delta T0 for HT */
+  /** T0 shift for HT */
   int htT0shiftBarShort()  const;
   int htT0shiftBarLong()   const;
   int htT0shiftECAwheels() const;
   int htT0shiftECBwheels() const;
 
+  /** T0 for LT */
+  int ltT0shiftBarShort(int strawGasType)  const;
+  int ltT0shiftBarLong(int strawGasType)   const;
+  int ltT0shiftECAwheels(int strawGasType) const;
+  int ltT0shiftECBwheels(int strawGasType) const;
 
   //--- Common straw geometry parameters:
 
@@ -139,10 +144,6 @@ class TRTDigSettings {
 
   //--- Calculating electronics time shifts:
 
-  /** Get overall T0 shift */
-  double overallT0Shift() const;
-  /** Get overall T0 shift for short barrel */
-  double overallT0ShiftShortBarrel() const;
   /** Get "distanceToTimeFactor" (fugde factor) */
   double distanceToTimeFactor() const;
   /** Get max vertex displacement */
@@ -272,8 +273,6 @@ class TRTDigSettings {
   double m_discriminatorSettlingTime; /**< Discriminator settling time */
   double m_discriminatorDeadTime;     /**< Discriminator dead time */
   double m_signalPropagationSpeed;/**< Signal propagation time in signal wire*/
-  double m_overallT0Shift;            /**< Overall T0 shift */
-  double m_overallT0ShiftShortBarrel; /**< Overall T0 shift for short barrel */
   double m_distanceToTimeFactor; /**< Fudge factor: time to distance */
 
   double m_lowThresholdBar;         /**< Low threshold discriminator setting */
@@ -300,10 +299,23 @@ class TRTDigSettings {
   double m_highThresholdECAwheelsKrypton;        /**< High threshold discriminator setting Krypton */
   double m_highThresholdECBwheelsKrypton;        /**< High threshold discriminator setting Krypton */
 
-  int m_htT0shiftBarShort; /** HT T0 delta shift */
+  int m_htT0shiftBarShort; /** HT T0 shift */
   int m_htT0shiftBarLong;
   int m_htT0shiftECAwheels;
   int m_htT0shiftECBwheels;
+
+  int m_ltT0shiftBarShortXe; /** LT T0 shift */
+  int m_ltT0shiftBarShortKr;
+  int m_ltT0shiftBarShortAr;
+  int m_ltT0shiftBarLongXe;
+  int m_ltT0shiftBarLongKr;
+  int m_ltT0shiftBarLongAr;
+  int m_ltT0shiftECAwheelsXe;
+  int m_ltT0shiftECAwheelsKr;
+  int m_ltT0shiftECAwheelsAr;
+  int m_ltT0shiftECBwheelsXe;
+  int m_ltT0shiftECBwheelsKr;
+  int m_ltT0shiftECBwheelsAr;
 
   double m_innerRadiusOfStraw;   /**< Inner radius of straw */
   double m_outerRadiusOfWire;    /**< Radius of drift wire */

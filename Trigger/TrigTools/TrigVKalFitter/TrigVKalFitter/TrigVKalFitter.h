@@ -4,8 +4,8 @@
 
 // TrigVKalFittter.h
 //
-#ifndef _TrigVKalVrt_TrigVKalFitter_H
-#define _TrigVKalVrt_TrigVKalFitter_H
+#ifndef TRIGVKALFITTER_TRIGVKALFITTER_H
+#define TRIGVKALFITTER_TRIGVKALFITTER_H
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 // Normal STL and physical vectors
@@ -19,7 +19,9 @@
 //
 
 
-static const int m_NTrMaxTrig=300;
+namespace {
+static const int NTRMAXTRIG=300;
+}
 
 typedef std::vector<double> dvect;
 class VTrack;
@@ -184,9 +186,9 @@ private:
    SimpleProperty<double> m_MassForConstraint;
    SimpleProperty<int>    m_IterationNumber;
    SimpleProperty<double> m_IterationPrecision;
-   SimpleProperty< std::vector< double > > mp_CovVrtForConstraint;
-   SimpleProperty< std::vector< double > > mp_MassInputParticles;
-   SimpleProperty< std::vector< double > > mp_ApproximateVertex;
+   SimpleProperty< std::vector< double > > m_CovVrtForConstraintProp;
+   SimpleProperty< std::vector< double > > m_MassInputParticlesProp;
+   SimpleProperty< std::vector< double > > m_ApproximateVertexProp;
 
 
    ServiceHandle<MagField::IMagFieldSvc> m_magFieldAthenaSvc;                //Athena magnetic field 
@@ -202,13 +204,13 @@ private:
    //
    // Arrays needed for fitting kernel
    //
-   long int m_ich[m_NTrMaxTrig];
-   double m_chi2tr[m_NTrMaxTrig];
-   double m_par0[m_NTrMaxTrig][3];
-   double m_apar[m_NTrMaxTrig][5];
-   double m_awgt[m_NTrMaxTrig][15];
-   double m_parfs[m_NTrMaxTrig][3];
-   double m_wm[m_NTrMaxTrig];
+   long int m_ich[NTRMAXTRIG];
+   double m_chi2tr[NTRMAXTRIG];
+   double m_par0[NTRMAXTRIG][3];
+   double m_apar[NTRMAXTRIG][5];
+   double m_awgt[NTRMAXTRIG][15];
+   double m_parfs[NTRMAXTRIG][3];
+   double m_wm[NTRMAXTRIG];
    double m_VrtCst[3];
    double m_CovVrtCst[6];
    //

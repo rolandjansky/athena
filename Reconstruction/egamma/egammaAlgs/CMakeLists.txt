@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTracking
                           InnerDetector/InDetRecTools/InDetConversionFinderTools
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+                          PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
                           Reconstruction/Particle
                           Reconstruction/ParticleTruth
                           Reconstruction/egamma/egammaInterfaces
@@ -44,7 +44,7 @@ atlas_add_component( egammaAlgs
 		     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel CxxUtils StoreGateLib SGtests xAODTracking ElectronPhotonSelectorToolsLib egammaRecEvent egammaUtils egammaMVACalibLib PathResolver Particle ParticleTruth TrkToolInterfaces InDetRecToolInterfaces FourMomUtils TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel CxxUtils StoreGateLib SGtests xAODTracking EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils egammaMVACalibLib PathResolver Particle ParticleTruth TrkToolInterfaces InDetRecToolInterfaces FourMomUtils TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

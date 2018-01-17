@@ -184,7 +184,7 @@ namespace VKalVrtAthena {
     double               m_mcTrkResolution;
     double               m_TruthTrkLen;
     bool                 m_extrapPV; //extrapolate reco and prim truth trks to PV (for testing only)
-    xAOD::Vertex*        m_thePV;
+    const xAOD::Vertex*  m_thePV;
     
     
     ToolHandle < Trk::ITrkVKalVrtFitter >  m_fitSvc;       // VKalVrtFitter tool

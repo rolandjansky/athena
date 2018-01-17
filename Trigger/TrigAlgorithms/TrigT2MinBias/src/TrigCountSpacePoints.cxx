@@ -180,7 +180,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   // get detector store
   if(m_detStore.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
-    return StatusCode::FAILURE;
+    return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    //    return StatusCode::FAILURE;
   } 
   else {
     ATH_MSG_INFO("Successfully initialised DetectorStore !");
@@ -191,7 +192,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
     StatusCode sc_pixH = m_detStore->retrieve(m_pixHelper, "PixelID");
     if( sc_pixH.isFailure() ){
       ATH_MSG_WARNING("Could not obtain pix helper!");
-      return StatusCode::FAILURE;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      //return StatusCode::FAILURE;
     }
   }
 
@@ -200,7 +202,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
     StatusCode sc_sctH = m_detStore->retrieve(m_sctHelper, "SCT_ID");
     if( sc_sctH.isFailure() ){
       ATH_MSG_WARNING("Could not obtain sct helper!");
-      return StatusCode::FAILURE;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      //return StatusCode::FAILURE;
     }
   }
   

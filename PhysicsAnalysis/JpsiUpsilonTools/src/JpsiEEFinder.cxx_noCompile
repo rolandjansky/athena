@@ -26,7 +26,7 @@
 #include "CaloEvent/CaloCluster.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "egammaAnalysisUtils/EnergyRescaler.h"
 #include "egammaAnalysisUtils/IsEMPlusPlusHelper.h"
 

@@ -5,8 +5,8 @@
 #ifndef TBADCRAWCONT_H
 #define TBADCRAWCONT_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TBEvent/TBADCRaw.h"
 

@@ -11,11 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
-                          Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
-                          Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
+                          Database/APR/FileCatalog
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/AthenaPOOL/PoolSvc
                           DetectorDescription/DetDescrCond/DetDescrConditions
@@ -32,7 +28,7 @@ atlas_add_component( DetDescrCondTools
                      src/CoolHistSvc.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaPoolUtilities DetDescrConditions Identifier )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel FileCatalog AthenaPoolUtilities DetDescrConditions Identifier )
 
 # Install files from the package:
 atlas_install_headers( DetDescrCondTools )

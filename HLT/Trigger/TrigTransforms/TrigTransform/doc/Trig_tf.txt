@@ -127,7 +127,7 @@ scripts/Trig_reco_tf.py
   asetup AtlasP1HLT,64,20.1.2.1,here,slc6
 
   Old example using athenaopts:
-  Trig_reco_tf.py --inputBS_RDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data \
+  Trig_reco_tf.py --inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data \
     --athenaopts=" -J TrigConf::HLTJobOptionsSvc --use-database --db-type Coral --db-server TRIGGERDBREPR  \
     --db-smkey 11 --db-hltpskey 7 --db-extra \"{'lvl1key': 4}\" \
     -c \"rerunLVL1=True;markTest=True\" " \
@@ -135,7 +135,7 @@ scripts/Trig_reco_tf.py
     --dumpOptions=True | tee log.txt
 
   New example using db arguments:
-  Trig_reco_tf.py --inputBS_RDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data \
+  Trig_reco_tf.py --inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data \
     --jobOptionSvcType TrigConf::HLTJobOptionsSvc --useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
     --DBsmkey 11 --DBhltpskey 7 --DBextra "{'lvl1key': 4}" \
     --precommand "rerunLVL1=True;markTest=True" \
@@ -148,7 +148,7 @@ scripts/Trig_reco_tf.py
   #simple old example:
   #Example of Trig_reco_tf version in use:
   #asetup devval,rel_2,here
-  #Trig_reco_tf.py --inputBS_RDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data --outputESDFile=testESD2 --maxEvents=5  | tee outputLOG.txt
+  #Trig_reco_tf.py --inputBS_RDOFile=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_eb_zee_zmumu_cc._0001.data --outputESDFile=testESD2 --maxEvents=5  | tee outputLOG.txt
   #creates:
   #tmp.BS (bs) and testESD2 (esd)
   #
@@ -218,7 +218,7 @@ BatchHLTTrf_wrap.py
     pkgco.py TrigTransformOld
     cd HLT/Trigger/TrigTransforms/TrigTransformOld/cmt && make && cd -
   Data file
-    xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data .
+    xrdcp root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data .
   Keys
     can use ../UploadMenuKeys/exportMenuKeys.sh
     or take from:

@@ -51,7 +51,7 @@ public:
 
     /**ITrackFinder interface:
        perform the full iPatRec pattern recognition and fitting */
-    virtual std::list<Track*>*	trackSearch (const std::vector<Trk::SpacePoint*>&) = 0;
+    virtual std::list<Track*>*	trackSearch (const std::vector<const Trk::SpacePoint*>&) = 0;
 
 };
 

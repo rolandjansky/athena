@@ -38,6 +38,7 @@ public:
 };
 }
 CLASS_DEF (AthenaBaseCompsTest::MyObj, 293847295, 1)
+CONDCONT_DEF (AthenaBaseCompsTest::MyObj, 293847296);
 using AthenaBaseCompsTest::MyObj;
 
 

@@ -66,7 +66,7 @@ namespace JiveXML {
     std::string truthLabels;
     std::string statusList="_";
     std::string typeLabel="n_a";
-    int m_pdgId;
+    int pdgId2;
     int motherPdgId;
     int childPdgId;
     int countTruth = 1;
@@ -88,13 +88,13 @@ namespace JiveXML {
 */     
      if ( abs( (*mcpartItr)->pdgId()) > m_truthMaximumPdgId ){ continue; }
 
-     m_pdgId = (*mcpartItr)->pdgId();
+     pdgId2 = (*mcpartItr)->pdgId();
 
      // important particles are protected (can come from gamma etc)
-     if (( abs(m_pdgId) == 24 ) || ( abs(m_pdgId) == 5 ) ||  
-          ( abs(m_pdgId) == 6 ) || ( abs(m_pdgId) == 23 ) ||  
-          ( abs(m_pdgId) == 36 ) || ( abs(m_pdgId) == 37 ) || 
-          ( abs(m_pdgId) == 25 ) ){ 
+     if (( abs(pdgId2) == 24 ) || ( abs(pdgId2) == 5 ) ||  
+          ( abs(pdgId2) == 6 ) || ( abs(pdgId2) == 23 ) ||  
+          ( abs(pdgId2) == 36 ) || ( abs(pdgId2) == 37 ) || 
+          ( abs(pdgId2) == 25 ) ){ 
 	 protectedParticleFlag = true; 
      }
 
@@ -103,11 +103,11 @@ namespace JiveXML {
       bool motherHasPdgId = (*mcpartItr)->mother(iMother)->hasPdgId(); 
        if ( motherHasPdgId ){ 
          motherPdgId = (*mcpartItr)->mother(iMother)->pdgId();       
-         if ( motherPdgId == m_pdgId ){ samePdgIdFlag = true; }
+         if ( motherPdgId == pdgId2 ){ samePdgIdFlag = true; }
          if (( abs(motherPdgId) == 24 ) || ( abs(motherPdgId) == 5 ) ||  
           ( abs(motherPdgId) == 6 ) || ( abs(motherPdgId) == 23 ) ||  
           ( abs(motherPdgId) == 36 ) || ( abs(motherPdgId) == 37 ) || 
-	  ( abs(m_pdgId) == 25 ) ){ 
+	  ( abs(pdgId2) == 25 ) ){ 
 	      initialProcessFlag = true; 
 	 }
        }
@@ -132,26 +132,26 @@ namespace JiveXML {
 // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TruthParticle No:" << countTruth << " pt:" 
 //                << (*mcpartItr)->et()/CLHEP::GeV << endmsg;
 	  
-     pdgId.push_back( DataType( m_pdgId ));
+     pdgId.push_back( DataType( pdgId2 ));
 
      typeLabel = "n_a";
-     if( abs(m_pdgId) == 11) typeLabel = "Electron";
-     if( abs(m_pdgId) == 12) typeLabel = "NeutrinoElectron";
-     if( abs(m_pdgId) == 13) typeLabel = "Muon";
-     if( abs(m_pdgId) == 14) typeLabel = "NeutrinoMuon";
-     if( abs(m_pdgId) == 15) typeLabel = "Tau";
-     if( abs(m_pdgId) == 16) typeLabel = "NeutrinoTau";
-     if( m_pdgId == 6) typeLabel = "Top";  
-     if( m_pdgId == -6) typeLabel = "AntiTop";  
-     if( m_pdgId == 5) typeLabel = "Bottom";
-     if( m_pdgId == -5) typeLabel = "AntiBottom";
-     if( m_pdgId == 22) typeLabel = "Photon";
-     if( m_pdgId == 23) typeLabel = "Z0";
-     if( m_pdgId == 24) typeLabel = "Wplus";
-     if( m_pdgId == -24) typeLabel = "Wminus";
-     if( m_pdgId == 36) typeLabel = "A0";
-     if( m_pdgId == 25) typeLabel = "Higgs0";
-     if(( abs(m_pdgId) >= 1) && ( abs(m_pdgId) <= 4)) typeLabel = "LightQuark"; 
+     if( abs(pdgId2) == 11) typeLabel = "Electron";
+     if( abs(pdgId2) == 12) typeLabel = "NeutrinoElectron";
+     if( abs(pdgId2) == 13) typeLabel = "Muon";
+     if( abs(pdgId2) == 14) typeLabel = "NeutrinoMuon";
+     if( abs(pdgId2) == 15) typeLabel = "Tau";
+     if( abs(pdgId2) == 16) typeLabel = "NeutrinoTau";
+     if( pdgId2 == 6) typeLabel = "Top";  
+     if( pdgId2 == -6) typeLabel = "AntiTop";  
+     if( pdgId2 == 5) typeLabel = "Bottom";
+     if( pdgId2 == -5) typeLabel = "AntiBottom";
+     if( pdgId2 == 22) typeLabel = "Photon";
+     if( pdgId2 == 23) typeLabel = "Z0";
+     if( pdgId2 == 224) typeLabel = "Wplus";
+     if( pdgId2 == -24) typeLabel = "Wminus";
+     if( pdgId2 == 36) typeLabel = "A0";
+     if( pdgId2 == 25) typeLabel = "Higgs0";
+     if(( abs(pdgId2) >= 1) && ( abs(pdgId2) <= 4)) typeLabel = "LightQuark"; 
    
      typeEV.push_back( DataType( typeLabel ) );
 

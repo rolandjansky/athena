@@ -56,7 +56,7 @@ class TrigT2HistoPrmVtx : public HLT::FexAlgo {
  private:
 
   /** @brief Pointer to TrigT2HistoPrmVtxBase class (to not duplicate code between the Fex and the AllTE versions). */ 
-  TrigT2HistoPrmVtxBase* c;
+  TrigT2HistoPrmVtxBase* m_c;
 
   /** @brief Const pointer to TrigT2HistoPrmVtxBase class (for monitoring). */ 
   const TrigT2HistoPrmVtxBase* m_constTrigT2HistoPrmVtxBase;

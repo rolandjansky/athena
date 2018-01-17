@@ -6,7 +6,7 @@
 #define CALODETECTORELEMENTCONTAINER_H
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class CaloDetDescrElementContainer : public DataVector<CaloDetDescrElement> 
 {

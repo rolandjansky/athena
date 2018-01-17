@@ -163,7 +163,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
 
         // Just for counting
         ATH_MSG_DEBUG("Probes " << m_probeElectrons.size() << " Pairs " << m_pairObj.size() );
-        for( const auto& tool : m_tools) {
+        for( auto& tool : m_tools) {
             tool->setDetail(getDetail()); 
             tool->setTP(getTP()); 
             tool->setEmulation(getEmulation());

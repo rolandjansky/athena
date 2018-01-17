@@ -25,7 +25,7 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "Identifier/Identifier.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class AtlasDetectorID;
 class SCT_ID;

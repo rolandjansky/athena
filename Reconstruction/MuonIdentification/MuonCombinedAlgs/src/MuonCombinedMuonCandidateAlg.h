@@ -7,6 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonCombinedToolInterfaces/IMuonCandidateTool.h"
 #include <string>
 
 namespace MuonCombined {
@@ -25,9 +30,9 @@ class MuonCombinedMuonCandidateAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool;
-  std::string m_muonTrackParticleLocation;
-  std::string m_candidateCollectionName;
+  ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool{this,"MuonCandidateTool","MuonCombined::MuonCandidateTool/MuonCandidateTool","Muon Candidate Tool"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_muonTrackParticleLocation{this,"MuonSpectrometerTrackParticleLocation","MuonSpectrometerTrackParticles","MS Track Particle collection"};
+  SG::WriteHandleKey<MuonCandidateCollection> m_candidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","Muon candidate collection"};
 
 };
 

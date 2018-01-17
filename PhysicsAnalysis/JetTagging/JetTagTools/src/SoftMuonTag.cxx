@@ -73,6 +73,7 @@ namespace Analysis
 
   SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
+      m_calibrationTool("Analysis::CalibrationBroker"),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_muonSelectorTool("JVC_MuonSelectorTool"),
       m_likelihoodTool("Analysis::NewLikelihoodTool"),
@@ -206,6 +207,8 @@ namespace Analysis
     } else {
       ATH_MSG_INFO("#BTAG# Retrieved tool " << m_muonSelectorTool);  
     }
+
+    ATH_CHECK( m_TrackParticles.initialize() );
 
     /** retrieving TrackToVertex: */
     /*
@@ -463,8 +466,7 @@ namespace Analysis
       CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
       std::vector<std::string> inputVars = calib.inputVars;
       std::string str = calib.str;
-      TTree* tree = calib.obj!=0 ? (TTree*) calib.obj->Clone() : 0;
-
+      TTree* tree = (TTree*) calib.obj;
       ATH_MSG_DEBUG("#BTAG# str= "<< str <<" m_treeName= "<< m_treeName );
 
       if ( (str!="" and tree==0) && (str=="" and tree!=0) ) {
@@ -479,7 +481,6 @@ namespace Analysis
       if (tree) {
 	ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
 	bdt = new MVAUtils:: BDT(tree);
-	delete tree;
       }
       else {
 	ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
@@ -743,10 +744,15 @@ namespace Analysis
       //std::cout << " trk: " <<  tmpMuon->primaryTrackParticle()->z0() << "  PVZ: " << m_priVtx->z() << "  and z: " << z0 << std::endl;
 
       //Finding SV with a muon
-      const xAOD::TrackParticleContainer *trackParticles = 0;
-      CHECK( evtStore()->retrieve(trackParticles, "InDetTrackParticles") );
-      xAOD::TrackParticleContainer::const_iterator trackItr   = trackParticles->begin();
-      xAOD::TrackParticleContainer::const_iterator trackItrE =  trackParticles->end();
+      SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackParticles (m_TrackParticles);
+      ATH_MSG_DEBUG( " retrieve track particle container with key " << m_TrackParticles.key()  );
+      if (!h_TrackParticles.isValid()) {
+        ATH_MSG_ERROR( " cannot retrieve track particle container with key " << m_TrackParticles.key()  );
+        return StatusCode::FAILURE;
+      }
+
+      xAOD::TrackParticleContainer::const_iterator trackItr   = h_TrackParticles->begin();
+      xAOD::TrackParticleContainer::const_iterator trackItrE =  h_TrackParticles->end();
       std::vector<const xAOD::TrackParticle*> my_trkparticles(0);
       for( ; trackItr != trackItrE; ++trackItr ) {
 	const xAOD::TrackParticle* trackParticle = ( *trackItr );

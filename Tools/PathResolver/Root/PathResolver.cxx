@@ -145,7 +145,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
         result = bf::system_complete(fp).string();
         return true;
       }
-    } catch (bf::filesystem_error /*err*/) {
+    } catch (const bf::filesystem_error& /*err*/) {
     }
 
 
@@ -168,7 +168,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
             return true;
           }
         }
-      } catch (bf::filesystem_error /*err*/) {
+      } catch (const bf::filesystem_error& /*err*/) {
       }
     }
 
@@ -288,7 +288,7 @@ PathResolver::check_search_path (const std::string& search_path)
         return (UnknownDirectory);
       }
     }
-  } catch(bf::filesystem_error /*err*/) {
+  } catch(const bf::filesystem_error& /*err*/) {
     return (UnknownDirectory);
   }
 

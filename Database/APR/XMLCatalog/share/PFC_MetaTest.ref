@@ -1,0 +1,35 @@
+.[OVAL] TEST -->testCreateSchema
+.[OVAL] TEST -->testUpdateSchema
+abcx 
+[guid (string) : ], [a (int) : 0], [b (int) : 0], [c (string) : ]
+result1 
+[guid (string) : ], [a (int) : 0], [b (int) : 0], [c (string) : ]
+.[OVAL] TEST -->testMetadata
+hasNext
+960EDCD5-FDCD-CF45-8DEC-3E47AF0320DB
+[guid (string) : 960EDCD5-FDCD-CF45-8DEC-3E47AF0320DB], [jobid (int) : 12], [owner (string) : cmsprod]
+hasNext
+8C28D075-8013-124F-B1D5-9712FC42B83E
+[guid (string) : 8C28D075-8013-124F-B1D5-9712FC42B83E], [jobid (int) : 13], [owner (string) : cmsprod]
+hasNext
+F417FF30-E710-7F42-BD48-B79DEDE7221B
+[guid (string) : F417FF30-E710-7F42-BD48-B79DEDE7221B], [jobid (int) : 14], [owner (string) : cmsprod]
+hasNext
+AE175C9E-AA10-8549-8BCA-9CAEEF1CDB49
+[guid (string) : AE175C9E-AA10-8549-8BCA-9CAEEF1CDB49], [jobid (int) : 15], [owner (string) : cmsprod]
+hasNext
+27FF672E-AAC2-8442-AD91-57C3513EEE77
+[guid (string) : 27FF672E-AAC2-8442-AD91-57C3513EEE77], [jobid (int) : 16], [owner (string) : cmsprod]
+hasNext
+46DAF300-6548-F84F-8AF9-808E922A521E
+[guid (string) : 46DAF300-6548-F84F-8AF9-808E922A521E], [jobid (int) : 17], [owner (string) : cmsprod]
+hasNext
+05402560-E860-B84A-9FF5-D3BD3E81EEC5
+[guid (string) : 05402560-E860-B84A-9FF5-D3BD3E81EEC5], [jobid (int) : 18], [owner (string) : cmsprod]
+hasNext
+7722DAA8-077B-B14D-9F55-B14774C5189D
+[guid (string) : 7722DAA8-077B-B14D-9F55-B14774C5189D], [jobid (int) : 19], [owner (string) : cmsprod]
+
+
+OK (3)
+[OVAL] Cppunit-result OK

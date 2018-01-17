@@ -46,36 +46,40 @@ public:
 
     virtual ~MonROBDataProviderSvc(void);
   
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
     /// --- Implementation of IROBDataProviderSvc interface ---    
 
     /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector 
+    using ROBDataProviderSvc::addROBData;
     virtual void addROBData(const std::vector<uint32_t>& robIds,
-			    const std::string callerName="UNKNOWN");
+			    const std::string callerName="UNKNOWN") override;
 
     /// Add a given LVL1/LVL2 ROBFragment to cache 
-    virtual void setNextEvent(const std::vector<ROBF>& result);
+    using ROBDataProviderSvc::setNextEvent;
+    virtual void setNextEvent(const std::vector<ROBF>& result) override;
 
     /// Add all ROBFragments of a RawEvent to cache 
-    virtual void setNextEvent(const RawEvent* re);
+    virtual void setNextEvent(const RawEvent* re) override;
 
     /// Retrieve ROBFragments for given ROB ids from cache 
+    using ROBDataProviderSvc::getROBData;
     virtual void getROBData(const std::vector<uint32_t>& robIds, 
 			    std::vector<const ROBF*>& robFragments,
-                            const std::string callerName="UNKNOWN");
+                            const std::string callerName="UNKNOWN") override;
  
     /// Retrieve the whole event.
-    virtual const RawEvent* getEvent() ;
+    using ROBDataProviderSvc::getEvent;
+    virtual const RawEvent* getEvent() override;
 
     /// --- Implementation of IIncidentListener interface ---
 
     // handler for BeginRun actions
-    void handle(const Incident& incident);
+    virtual void handle(const Incident& incident) override;
 
 protected:
     /**
@@ -103,8 +107,11 @@ private:
 
     // monitoring
     std::map<eformat::GenericStatus, std::string> m_map_GenericStatus;
+    const std::string& genericStatusName( eformat::GenericStatus ) const;
+
     std::vector<std::string>                      m_vec_SpecificStatus;
-    std::vector<uint32_t>                         m_robAlreadyAccessed;
+    
+    SG::SlotSpecificObj< std::vector<uint32_t> > m_robAlreadyAccessed;
 
     BooleanProperty m_doMonitoring;
     BooleanProperty m_doDetailedROBMonitoring;

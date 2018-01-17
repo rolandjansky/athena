@@ -278,7 +278,7 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
       if(dets.empty())  continue;
 
       if (m_timersvc) m_RingerRegSelTimer->resume();
-      m_data->RegionSelector(sampling,etamin,etamax,phimin,phimax, static_cast<const DETID> (det));
+      m_data->RegionSelector(sampling,etamin,etamax,phimin,phimax, static_cast<DETID> (det));
       if ( m_data->LoadCollections(m_iBegin, m_iEnd).isFailure() ) {
         ATH_MSG_ERROR( "Failure while trying to retrieve cell information for the "<< det <<" calorimeter." );
         return StatusCode::FAILURE;

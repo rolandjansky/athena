@@ -148,7 +148,9 @@ StatusCode MCTesterAlg::execute()
     McEventCollection::const_iterator itr;
 
     for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
-      HepMC::GenEvent* evt=(*itr);
+      // const_cast needed because HepMCEvent ctor below takes
+      // a non-const reference (and we probably don't want to copy it).
+      HepMC::GenEvent* evt=const_cast<HepMC::GenEvent*>(*itr);
 
       //make HepMCEvent
       HepMCEvent * temp_event = new HepMCEvent(*evt,m_include_decays_to_self);

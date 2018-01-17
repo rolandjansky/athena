@@ -572,15 +572,15 @@ StatusCode LArPhysWaveBuilder::execute()
  */
 StatusCode LArPhysWaveBuilder::stop()
 {
-  LArPhysWaveContainer*  larPhysWaveContainer = 0;
+  std::unique_ptr<LArPhysWaveContainer>  larPhysWaveContainer;
   CHECK( make_container(larPhysWaveContainer) );
 
   // Root raw output.
   if (m_rootrawdump)
-    CHECK( write_root (larPhysWaveContainer) );
+    CHECK( write_root (larPhysWaveContainer.get()) );
 
   // Record LArPhysWaveContainer to detector store
-  CHECK( detStore()->record(larPhysWaveContainer, "") );
+  CHECK( detStore()->record(std::move(larPhysWaveContainer), "") );
   ATH_MSG_DEBUG ( "LArPhysWaveContainer has been recorded to StoreGate"
                   << " with key= size="<<larPhysWaveContainer->size());
  
@@ -593,13 +593,13 @@ StatusCode LArPhysWaveBuilder::stop()
  * @brief Make the wave container from the accumulated waves.
  * @param[out] larPhysWaveContainer The created container.
  */
-StatusCode LArPhysWaveBuilder::make_container (LArPhysWaveContainer*&
+StatusCode LArPhysWaveBuilder::make_container (std::unique_ptr<LArPhysWaveContainer>&
                                                 larPhysWaveContainer)
 {
   MsgStream log(msgSvc(), name());
 
   // Create LArPhysWaveContainer
-  larPhysWaveContainer = new LArPhysWaveContainer();
+  larPhysWaveContainer = std::make_unique<LArPhysWaveContainer>();
 
   ATH_CHECK( larPhysWaveContainer->setGroupingType(m_groupingType,msg()) );
   ATH_CHECK( larPhysWaveContainer->initialize() );

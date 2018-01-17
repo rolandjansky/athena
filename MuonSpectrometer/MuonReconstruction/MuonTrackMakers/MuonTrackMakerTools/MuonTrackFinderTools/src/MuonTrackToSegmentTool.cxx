@@ -59,33 +59,16 @@ namespace Muon {
   
   StatusCode MuonTrackToSegmentTool::initialize() {
     
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
     
-    if (m_propagator.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_propagator); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_helperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_helperTool); 
-      return StatusCode::FAILURE;
-    }
-
-    // retrieve detector store
-    if (m_intersectSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_intersectSvc); 
-      return StatusCode::FAILURE;
-    }    
+    ATH_CHECK( m_propagator.retrieve() );
+    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_intersectSvc.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
     return StatusCode::SUCCESS;
   }
   
   StatusCode MuonTrackToSegmentTool::finalize(){
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 

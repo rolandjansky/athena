@@ -17,7 +17,6 @@
 #include <TFile.h>
 #include <TTree.h>
 
-using namespace std;
 
 template<class FTKObjectStream, class FTKObject>
 class FTKObjectInput {
@@ -99,17 +98,17 @@ int FTKObjectInput<FTKObjectStream,FTKObject>::addFile(const char *path)
   int res = access(path,R_OK);
   if (!res) { // add the file
     m_files_path.push_back(path);
-    cout << "Added input file: " << path << endl;
+    std::cout << "Added input file: " << path << std::endl;
     return 0;
   }
   else if (res==EACCES) {
-    cerr << "*** warning: accessing the file: " << path << endl;    
+    std::cerr << "*** warning: accessing the file: " << path << std::endl;    
   }
   else if (res==ENOENT) {
-    cerr << "*** warning: doesn't exist: " << path << endl;
+    std::cerr << "*** warning: doesn't exist: " << path << std::endl;
   }
   else {
-        cerr << "*** error reading: " << path << endl;
+    std::cerr << "*** error reading: " << path << std::endl;
   }
 
   return -1;
@@ -119,15 +118,15 @@ template<class FTKObjectStream, class FTKObject>
 int FTKObjectInput<FTKObjectStream,FTKObject>::addFileList(const char *pathsfile)
 {
 
-  ifstream filelist(pathsfile);
+  std::ifstream filelist(pathsfile);
   if (!filelist) {
-    cerr << "*** error reading list of paths in: " << pathsfile << endl;
+    std::cerr << "*** error reading list of paths in: " << pathsfile << std::endl;
     return 0;
   }
 
-  string line;
+  std::string line;
   int nfiles(0);
-  while(getline(filelist,line)) {
+  while(std::getline(filelist,line)) {
     if (line[0]=='#') {
       // comment, skip tis line
       continue;

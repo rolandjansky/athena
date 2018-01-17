@@ -15,8 +15,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 class LUCID_RodDecoder {
   
  public: 
@@ -24,7 +22,7 @@ class LUCID_RodDecoder {
   LUCID_RodDecoder();
   ~LUCID_RodDecoder();
   
-  StatusCode decode(const ROBFragment* robFragment, std::vector<uint32_t>& data_block);
+  StatusCode decode(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFragment, std::vector<uint32_t>& data_block);
   
   MsgStream& msg(MSG::Level lvl) const { return m_msg << lvl; }
   

@@ -86,7 +86,7 @@ else:
 
 #athenaCommonFlags.FilesInput = getEOSDirectoryList( "/eos/atlas/atlasgroupdisk/trig-daq/validation/test_data/EnhancedBias10TeV15315m31.digit.RDO.e357_s462_d148_t93a97/", [1,20] )
 
-#athenaCommonFlags.FilesInput = [ "root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data" ]
+#athenaCommonFlags.FilesInput = [ "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_7TeV.00191628.physics_eb_zee_zmumu._0001.data" ]
 
 if Input=='Zmumu':
     athenaCommonFlags.FilesInput = getEOSDirectoryList( "/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc10_7TeV.106047.PythiaZmumu_no_filter.digit.RDO.e574_s1021_d423_tid211907_00", [1,20] )

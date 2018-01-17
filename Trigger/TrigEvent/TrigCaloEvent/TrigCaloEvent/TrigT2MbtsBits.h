@@ -5,7 +5,7 @@
 #ifndef TRIGT2MBTSBITS_H
 #define TRIGT2MBTSBITS_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include <vector>

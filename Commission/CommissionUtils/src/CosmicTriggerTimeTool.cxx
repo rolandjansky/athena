@@ -142,7 +142,7 @@ double CosmicTriggerTimeTool::larTime()
   for (;it!=it_e;++it) {
     const LArHitContainer* cont; 
 
-    CHECK( evtStore()->retrieve(cont,(*it)) );
+    CHECK( evtStore()->retrieve(cont,(*it)), 0 );
 
     LArHitContainer::const_iterator hit_it = cont->begin(); 
     LArHitContainer::const_iterator hit_it_e = cont->end(); 

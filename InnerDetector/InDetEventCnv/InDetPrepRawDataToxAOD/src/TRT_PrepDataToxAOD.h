@@ -20,6 +20,15 @@
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+#include "InDetSimData/InDetSimDataCollection.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
+
 #include <string>
 
 class TRT_ID;
@@ -46,13 +55,16 @@ public:
 private:
 
   // --- Steering and configuration flags
-  bool m_useTruthInfo;
-  bool m_writeSDOs;
+  Gaudi::Property<bool> m_useTruthInfo {this, "UseTruthInfo",false,"Use data object"};
+  Gaudi::Property<bool> m_writeSDOs {this, "WriteSDOs", true,"Use data object"};
 
   // --- Configuration keys
-  std::string  m_driftcirclecontainer;
-  std::string  m_SDOcontainer;
-  std::string  m_multiTruth;
+  SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_driftcirclecontainer {this,"DriftCircleContainer","TRT_DriftCircles","RHK to retrieve the drift Circle Container"};
+  SG::ReadHandleKey<PRD_MultiTruthCollection> m_multiTruth {this,"PRD_MultiTruth","PRD_MultiTruthTRT","RHK to retrieve PRD multitruth"};
+  SG::ReadHandleKey<InDetSimDataCollection> m_SDOcontainer {this,"MC_TRTUncompressedHit","TRT_SDO_Map","RHK to retrieve TRT SDO map"};
+  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer>  m_xAodContainer {this,"TRTxAodContainer","TRT_DriftCircles","WHK to write the TRT drift circle container"};
+  SG::WriteHandleKey<std::vector<unsigned int> >  m_xAodOffset {this,"TRTxAodOffset","TRT_DriftCirclesOffsets","WHK to write the TRT drift circle offsets"};
+
 
   // --- Services and Tools
   ToolHandle< ITRT_DriftFunctionTool >      m_driftFunctionTool ; //!< DriftFunctionTool

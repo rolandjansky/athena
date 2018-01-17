@@ -26,8 +26,7 @@ pool::PersistencySvc::MicroSessionManager::MicroSessionManager( pool::Persistenc
   m_databaseHandlers()
 {
   void* ppvoid = 0;
-  // creating a StorageSvc instance passing the POOL global context
-  m_storageSvc = createStorageSvc(&m_registry.context(),"StorageSvc");
+  m_storageSvc = createStorageSvc("StorageSvc");
   if ( ! m_storageSvc ) {
     throw pool::PersistencySvcException( "Could not create a StorageSvc object",
                                          "PersistencySvc::MicroSessionManager::MicroSessionManager" );

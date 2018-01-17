@@ -14,11 +14,10 @@ def TrigL2ElectronHypoToolFromName( name ):
     tool.MonTool = ""
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-        from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
-        from AthenaMonitoring.DefineHistogram import defineHistogram
+        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
         monTool = GenericMonitoringTool("MonTool"+name)
         monTool.Histograms = [         
-            defineHistogram('CutCounter', type='TH1I', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative", labels=labelsDescription),
+            defineHistogram('CutCounter', type='TH1I', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative"),
             defineHistogram('CaloTrackdEta', type='TH1F', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
             defineHistogram('CaloTrackdPhi', type='TH1F', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
             defineHistogram('CaloTrackEoverP', type='TH1F', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12),

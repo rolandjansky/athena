@@ -328,7 +328,7 @@ StatusCode RootNtupleEventSelector::initialize()
     return StatusCode::FAILURE;
   }
 
-   CHECK( m_incsvc.retrieve().isSuccess() );
+  CHECK( m_incsvc.retrieve() );
    m_incsvc->addListener(this,IncidentType::BeginEvent,99); //used to trigger BeginInputFile on start of first event of file - 99 priority so AFTER storegatesvc done
 
 

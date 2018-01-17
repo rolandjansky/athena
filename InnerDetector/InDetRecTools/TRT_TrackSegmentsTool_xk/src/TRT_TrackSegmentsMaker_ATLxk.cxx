@@ -214,19 +214,19 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
 
   // Get drift circles collection
   //
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if(not trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
 
-  if (not m_trtcontainer.isValid()) return;
+  if (not trtcontainer.isValid()) return;
   // Initiate extension tool
   //
   m_extensionTool->newEvent();
 
   InDet::TRT_DriftCircleContainer::const_iterator
-    w = m_trtcontainer->begin(),we = m_trtcontainer->end();
+    w = trtcontainer->begin(),we = trtcontainer->end();
   if(w==we) return;
   
   eraseHistogramm(); 
@@ -293,19 +293,19 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 
   // Get drift cilrcles collection
   //
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if(not trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
 
-  if(not m_trtcontainer.isValid()) return;
+  if(not trtcontainer.isValid()) return;
   // Initiate extension tool
   //
   m_extensionTool->newEvent();
 
   InDet::TRT_DriftCircleContainer::const_iterator  
-    w,we = m_trtcontainer->end();
+    w,we = trtcontainer->end();
 
   eraseHistogramm(); 
 
@@ -313,7 +313,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   int n = 0;
   for(; d!=de; ++d) {
 
-    w = m_trtcontainer->indexFind((*d));
+    w = trtcontainer->indexFind((*d));
 
     for(; w!=we; ++w) {
 

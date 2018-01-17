@@ -19,7 +19,7 @@ if "EventMax" in dir():
 else:
   EvtMax = 25
 
-PoolRDOInput  = ["root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1" ]
+PoolRDOInput  = ["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1" ]
 #PoolRDOInput  = [ "rfio:/castor/cern.ch/user/g/golling/Align_Zmumu_RDO_2/misal1_mc12.005151.McAtNloZmumu.digit.RDO.v12003108_tid004784._00025.pool.root.1"]
 #PoolRDOInput = [ "rfio:/castor/cern.ch/grid/atlas/dq2/misal1_valid1/RDO/misal1_valid1.005144.PythiaZee.digit.RDO.v12000605_tid009162/misal1_valid1.005144.PythiaZee.digit.RDO.v12000605_tid009162._00101.pool.root.3 " ]
 

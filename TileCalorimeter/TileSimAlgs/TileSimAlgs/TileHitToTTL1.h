@@ -27,11 +27,22 @@
 #ifndef TILESIMALGS_TILEHITTOTTL1_H
 #define TILESIMALGS_TILEHITTOTTL1_H
 
+// Tile includes
+#include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileTTL1Container.h"
+
+// Atlas includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "CLHEP/Random/RandomEngine.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include <string>
 
 class IAtRndmGenSvc;
 class TileID;
@@ -42,8 +53,6 @@ class CaloLVL1_ID;
 class TileCablingService;
 class TileCondToolEmscale;
 class ITileBadChanTool;
-
-#include <string>
 
 /**
  @class TileHitToTTL1
@@ -71,9 +80,18 @@ class TileHitToTTL1: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method   
 
   private:
-    std::string m_hitContainer;      //!< name of TileHitContainer
-    std::string m_TTL1Container;     //!< name of TileTTL1Container
-    std::string m_MBTSTTL1Container; //!< name of TileTTL1Container for MBTS
+
+    SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
+                                                          "input Tile hit container key"};
+
+    SG::WriteHandleKey<TileTTL1Container> m_ttl1ContainerKey{this,"TileTTL1Container",
+                                                             "TileTTL1Cnt",
+                                                             "Output Tile TTL1 container key"};
+
+    SG::WriteHandleKey<TileTTL1Container> m_mbtsTTL1ContainerKey{this,"TileMBTSTTL1Container",
+                                                                 "TileTTL1MBTS",
+                                                                 "Output Tile MBTS TTL1 container key"};
+
     std::string m_infoName;          //!< name of TileInfo object in TES
     std::string m_TileTTL1Type;      //!< name of Trigger Type
     bool m_cosmicsType;              //!< if true => use dediated cosmcis TTL1

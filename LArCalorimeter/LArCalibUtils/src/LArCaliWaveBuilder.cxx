@@ -145,7 +145,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 {
  StatusCode sc;
 
- const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer;
+ const LArAccumulatedCalibDigitContainer* larAccumulatedCalibDigitContainer = nullptr;
  
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
@@ -264,7 +264,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
 {
  StatusCode sc;
 
- const LArCalibDigitContainer* larCalibDigitContainer;
+ const LArCalibDigitContainer* larCalibDigitContainer = nullptr;
  
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
@@ -329,7 +329,7 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
 StatusCode LArCaliWaveBuilder::stop()
 {
     // Create wave container using feedthru grouping and initialize
-    LArCaliWaveContainer* caliWaveContainer = new LArCaliWaveContainer();
+    auto caliWaveContainer = std::make_unique<LArCaliWaveContainer>();
   
     StatusCode sc=caliWaveContainer->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
@@ -448,9 +448,7 @@ StatusCode LArCaliWaveBuilder::stop()
 	    } // end of loop DACs                 
 
 	    // intermediate map cleanup (save memory)
-	    const WaveMap* cmap = &(*cell_it);
-            WaveMap* map = const_cast<WaveMap*>(cmap);
-            map->clear();
+            cell_it->clear();
 
 	} //end loop cells
 
@@ -465,10 +463,7 @@ StatusCode LArCaliWaveBuilder::stop()
     msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
  
     // Record in detector store with key (m_keyoutput)
-    if (StatusCode::SUCCESS!=detStore()->record(caliWaveContainer, m_keyoutput)) {
-	msg(MSG::ERROR) << "Cannot record caliWaveContainer with key '" << m_keyoutput << "' to StoreGate!" << endmsg;
-	return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->record(std::move(caliWaveContainer), m_keyoutput) );
 
     msg(MSG::INFO) << "LArCaliWaveBuilder has finished." << endmsg;
     return StatusCode::SUCCESS;

@@ -40,10 +40,12 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 
 from DataModelTestDataRead.DataModelTestDataReadConf import \
-     DMTest__xAODTestReadCVec
+     DMTest__xAODTestReadCVec, \
+     DMTest__xAODTestReadCInfo
 
 
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec')
+topSequence += DMTest__xAODTestReadCInfo ('xAODTestReadCInfo')
 
 
 # Note: can't autoload these.

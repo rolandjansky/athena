@@ -310,7 +310,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
       if ( jetIsAssociated.isFailure() ) {
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "#BTAG# Failed to associate tracks to jet" << endmsg;
-	return StatusCode::FAILURE;
+	return HLT::MISSING_FEATURE;
       }
     }
     else {

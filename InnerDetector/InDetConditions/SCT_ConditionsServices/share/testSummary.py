@@ -83,16 +83,28 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 print "conddb.dbdata", conddb.dbdata
 IOVDbSvc.OutputLevel = 3
+#--------------------------------------------------------------
+# Load AthCondSeq
+#--------------------------------------------------------------
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
-#ToolSvc = ServiceMgr.ToolSvc
+conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins", className="CondAttrListCollection")
+from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+condSeq += SCT_TdaqEnabledCondAlg(name="SCT_TdaqEnabledCondAlg")
 
-conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Chip", "/SCT/DAQ/Config/Chip")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Module", "/SCT/DAQ/Config/Module")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Chip", "/SCT/DAQ/Config/Chip", className="CondAttrListVec")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Module", "/SCT/DAQ/Config/Module", className="CondAttrListVec")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR", className="CondAttrListVec") # Also for cabling
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
+condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
+                                    ReadKeyChannel = "/SCT/DAQ/Config/Chip",
+                                    ReadKeyModule = "/SCT/DAQ/Config/Module",
+                                    ReadKeyMur = "/SCT/DAQ/Config/MUR")
+
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog") # Needed for cabling
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR") # Needed for cabling
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD") # Needed for cabling
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
 ServiceMgr +=SCT_ModuleVetoSvc()

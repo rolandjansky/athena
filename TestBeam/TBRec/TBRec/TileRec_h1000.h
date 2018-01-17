@@ -12,7 +12,7 @@
 #ifndef TileRec_h1000_h
 #define TileRec_h1000_h
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TROOT.h"
 #include "TChain.h"

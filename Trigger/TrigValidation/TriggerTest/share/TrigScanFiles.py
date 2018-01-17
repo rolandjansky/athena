@@ -9,8 +9,8 @@ def getCastorDirectoryList(path,fileRange):
         fileNumber = i[i.rfind(".pool.root")-5:i.rfind(".pool.root")]
         print 'fileNumber',fileNumber
         if  int(fileNumber) > fileRange[0]-1 and int(fileNumber) <fileRange[1]+1 :
-            collection = 'root://eosatlas/'+path+i
-            files += ["root://eosatlas/%s/%s" % (path,i) ]
+            collection = 'root://eosatlas.cern.ch/'+path+i
+            files += ["root://eosatlas.cern.ch/%s/%s" % (path,i) ]
     print files 
     return files 
 
@@ -22,8 +22,8 @@ def getCastorDirectoryListRepeat(path,fileRange,repeatN):
             fileNumber = i[i.rfind(".pool.root")-5:i.rfind(".pool.root")]
             print 'fileNumber',fileNumber
             if  int(fileNumber) > fileRange[0]-1 and int(fileNumber) <fileRange[1]+1 :
-                collection = 'root://eosatlas/'+path+i
-                files += ["root://eosatlas/%s/%s" % (path,i) ]
+                collection = 'root://eosatlas.cern.ch/'+path+i
+                files += ["root://eosatlas.cern.ch/%s/%s" % (path,i) ]
         print files 
         return files 
 
@@ -38,9 +38,9 @@ def getEOSDirectoryList(path,fileRange):
         fileNumber = i[i.rfind(".pool.root")-5:i.rfind(".pool.root")]
         print 'fileNumber',fileNumber
         if  int(fileNumber) > fileRange[0]-1 and int(fileNumber) <fileRange[1]+1 :
-            collection = 'root://eosatlas/'+path+i
+            collection = 'root://eosatlas.cern.ch/'+path+i
             print collection
-            files += ["root://eosatlas//%s/%s" % (path,i) ]
+            files += ["root://eosatlas.cern.ch//%s/%s" % (path,i) ]
     print files
     return files
 
@@ -55,8 +55,8 @@ def getEOSDirectoryListRepeat(path,fileRange,repeatN):
             fileNumber = i[i.rfind(".pool.root")-5:i.rfind(".pool.root")]
             print 'fileNumber',fileNumber
             if  int(fileNumber) > fileRange[0]-1 and int(fileNumber) <fileRange[1]+1 :
-                collection = 'root://eosatlas/'+path+i
-                files += ["root://eosatlas//%s/%s" % (path,i) ]
+                collection = 'root://eosatlas.cern.ch/'+path+i
+                files += ["root://eosatlas.cern.ch//%s/%s" % (path,i) ]
         print files
         return files
 

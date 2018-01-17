@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   */
 
 ///////////////////////////////////////////////////////////////////
 // IegammaMiddleShape.h, (c) ATLAS Detector software 2009
@@ -31,44 +31,34 @@ static const InterfaceID IID_IegammaMiddleShape("IegammaMiddleShape", 1, 0);
 
 class IegammaMiddleShape : virtual public IAlgTool {
 
-  
- public:
-  /** @brief Virtual destructor */
-  virtual ~IegammaMiddleShape(){};
-  
-  /** @brief AlgTool interface methods */
-  static const InterfaceID& interfaceID();
-    
-  // pure virtual
-  /** @brief AlgTool method.*/
-  virtual StatusCode execute(const xAOD::CaloCluster *cluster, const CaloCellContainer *cell_container) = 0;
-  
-  /** @brief energy in a  3x3 window in cells in eta X phi*/
-  virtual double e233()   const = 0; 
-  /** @brief energy in a  3x5 window in cells in eta X phi*/
-  virtual double e235()   const = 0; 
-  /** @brief energy in a  3x7 window in cells in eta X phi*/
-  virtual double e237()   const = 0; 
-  /** @brief energy in a  5x5 window in cells in eta X phi*/
-  virtual double e255()   const = 0; 
-  /** @brief energy in a  7x7 window in cells in eta X phi*/
-  virtual double e277()   const = 0; 
-  /** @brief weighted eta in a 3X5 window in eta X phi */
-  virtual double etaw()   const = 0; 
-  /** @brief weighted phi in a 3X5 window in eta X phi*/
-  virtual double phiw()   const = 0; 
-  /** @brief uncorrected width in a 3X5 window in eta X phi*/
-  virtual double width()  const = 0; 
-  /** @brief relative position in eta within cell*/
-  virtual double poscs2() const = 0; 
 
-  double m_neta;
-  double m_nphi;
+public:
+    /** @brief Virtual destructor */
+    virtual ~IegammaMiddleShape(){};
+
+    /** @brief AlgTool interface methods */
+    static const InterfaceID& interfaceID();
+
+    class Info {
+    public:
+        double e233=0;
+        double e235=0; 
+        double e237=0; 
+        double e255=0;
+        double e277=0; 
+        double etaw=0;
+        double phiw=0;  
+        double width=0;
+        double poscs2=0;
+    };
+    /** @brief AlgTool method.*/
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
+            const CaloCellContainer& cell_container, Info& info) const = 0;
 };
 
 inline const InterfaceID& IegammaMiddleShape::interfaceID()
 {
-  return IID_IegammaMiddleShape;
+    return IID_IegammaMiddleShape;
 }
 
 #endif // EGAMMAINTERFACES_IEGAMMAMIDDLESHAPE_H

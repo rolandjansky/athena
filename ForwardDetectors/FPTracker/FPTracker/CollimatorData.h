@@ -10,7 +10,8 @@
 
 namespace FPTracker{
   class ConfigData;
-  struct CollimatorData{
+  class CollimatorData{
+  public:
     static const int ncoll = 2;
     std::vector< std::vector<double> > coll_z;
     std::vector< std::vector<double> > coll_xap;

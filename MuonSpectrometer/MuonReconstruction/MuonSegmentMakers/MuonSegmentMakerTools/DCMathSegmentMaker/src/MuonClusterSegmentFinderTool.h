@@ -6,7 +6,6 @@
 #define MUONROADFINDERTOOL_H
 
 #include "GaudiKernel/AlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
@@ -55,9 +54,8 @@ namespace Muon {
     ToolHandle<MuonEDMPrinterTool>                m_printer;   //<! Id helper tool
     ToolHandle<MuonEDMHelperTool>                 m_helper;   //<! Id helper tool
     ToolHandle<IMuonTrackCleaner>                 m_trackCleaner;
-    double m_maxClustDist;
-
-    StoreGateSvc* m_storeGate;    
+    bool                                          m_ipConstraint; // use a ip perigee(0,0) constraint in the segment fit
+    double                                        m_maxClustDist;
 
   public:
     //find segments given a list of MuonCluster

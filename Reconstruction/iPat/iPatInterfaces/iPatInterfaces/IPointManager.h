@@ -60,7 +60,7 @@ public:
     
     /**IPointManager interface: 	*/
     virtual void			setPoints (
-	const std::vector<Trk::SpacePoint*>&	spacePoints,
+	const std::vector<const Trk::SpacePoint*>&	spacePoints,
 	const Amg::Vector3D&			vertexRegionCentre) = 0;
 
 };

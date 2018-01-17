@@ -3,28 +3,19 @@
 */
 
 #include "MuonCombinedMuonCandidateAlg.h"
-#include "MuonCombinedToolInterfaces/IMuonCandidateTool.h"
-
-#include "xAODTracking/TrackParticleContainer.h"
-#include "MuonCombinedEvent/MuonCandidateCollection.h"
 
 MuonCombinedMuonCandidateAlg::MuonCombinedMuonCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_muonCandidateTool("MuonCombined::MuonCandidateTool/MuonCandidateTool")
-{  
-  declareProperty("MuonCandidateTool",m_muonCandidateTool);
-  declareProperty("MuonSpectrometerTrackPArticleLocation",m_muonTrackParticleLocation = "MuonSpectrometerTrackParticles");
-  declareProperty("MuonCandidateLocation",m_candidateCollectionName = "MuonCandidates" );
-}
+  AthAlgorithm(name,pSvcLocator)
+{}
 
 MuonCombinedMuonCandidateAlg::~MuonCombinedMuonCandidateAlg()
-{
-
-}
+{}
 
 StatusCode MuonCombinedMuonCandidateAlg::initialize()
 {
-
+  ATH_CHECK(m_muonCandidateTool.retrieve());
+  ATH_CHECK(m_muonTrackParticleLocation.initialize());
+  ATH_CHECK(m_candidateCollectionName.initialize());
   return StatusCode::SUCCESS; 
 }
 
@@ -32,25 +23,19 @@ StatusCode MuonCombinedMuonCandidateAlg::execute()
 {
 
   // retrieve MuonSpectrometer tracks
-  const xAOD::TrackParticleContainer* muonTrackParticles = 0;
-  if(evtStore()->contains<xAOD::TrackParticleContainer>(m_muonTrackParticleLocation)) {
-    if(evtStore()->retrieve(muonTrackParticles,m_muonTrackParticleLocation).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_muonTrackParticleLocation );
-      return StatusCode::FAILURE;
-    }
+  SG::ReadHandle<xAOD::TrackParticleContainer> muonTrackParticles(m_muonTrackParticleLocation);
+  if(!muonTrackParticles.isValid()){
+    ATH_MSG_ERROR("Could not read "<<m_muonTrackParticleLocation);
+    return StatusCode::FAILURE;
   }
-  
-  if( !muonTrackParticles ){ 
-    ATH_MSG_WARNING("MuonTrackParticles tracks not found in StoreGate");
+  if(!muonTrackParticles.isPresent()){
+    ATH_MSG_WARNING(m_muonTrackParticleLocation<<" not present");
     return StatusCode::SUCCESS;
   }
 
-  MuonCandidateCollection* muonCandidates = new MuonCandidateCollection();
+  SG::WriteHandle<MuonCandidateCollection> muonCandidates(m_candidateCollectionName);
+  ATH_CHECK(muonCandidates.record(std::make_unique<MuonCandidateCollection>()));
   m_muonCandidateTool->create(*muonTrackParticles,*muonCandidates);
-  if(evtStore()->record(muonCandidates,m_candidateCollectionName).isFailure()) {
-    ATH_MSG_FATAL( "Could not record " << m_candidateCollectionName );
-    return StatusCode::FAILURE;
-  }    
 
   return StatusCode::SUCCESS;
 }

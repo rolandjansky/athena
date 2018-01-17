@@ -11,7 +11,7 @@
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 #jp.AthenaCommonFlags.FilesInput = ['/afs/cern.ch/atlas/maxidisk/d49/AOD.191045._001937.pool.root.1']
-jp.AthenaCommonFlags.FilesInput = ['root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/rel_2/17.2.X/i686-slc5-gcc43-opt/offline/Tier0ChainTests/Run00183021_JetTauEtmiss0_Collisions/myESD_JetTauEtmiss_0.pool.root']
+jp.AthenaCommonFlags.FilesInput = ['root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/rel_2/17.2.X/i686-slc5-gcc43-opt/offline/Tier0ChainTests/Run00183021_JetTauEtmiss0_Collisions/myESD_JetTauEtmiss_0.pool.root']
 #jp.AthenaCommonFlags.FilesInput = ['/usatlas/u/vj/vj_bnl_local/datafile/mc11_7TeV.105014.J5_pythia_jetjet.recon.ESD.e815_s1273_s1274_r3060_tid709350_00/ESD.709350._002530.pool.root.1']
 
 #DATAPATH = '/afs/cern.ch/atlas/maxidisk/d49/'

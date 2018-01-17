@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PRIVATE
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthContainers
+                          Control/AthLinks
                           Control/SGTools
                           Control/StoreGate )
 
@@ -21,11 +22,11 @@ atlas_add_library( DerivationFrameworkCoreLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkCore
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaKernel DataModel SGTools )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel AthContainers AthLinks SGTools )
 
 atlas_add_component( DerivationFrameworkCore
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel AthenaKernel DataModel SGTools StoreGateLib SGtests DerivationFrameworkCoreLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel AthenaKernel AthContainers AthLinks SGTools StoreGateLib SGtests DerivationFrameworkCoreLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

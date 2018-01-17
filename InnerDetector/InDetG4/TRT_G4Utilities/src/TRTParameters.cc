@@ -8,18 +8,14 @@
 #include <fstream>
 
 
-TRTParameters* TRTParameters::pParameters = NULL;
+TRTParameters* TRTParameters::s_pParameters = NULL;
 
 
   // Called by GetPointer
 
 TRTParameters::TRTParameters() : m_msg("TRTParameters")
 {
-  printMessages = 0;
-
   ReadInputFile("TRT_G4Utilities_management.txt");
-
-  printMessages = GetInteger("PrintMessages");
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParameters" << endmsg;
 
@@ -38,7 +34,7 @@ TRTParameters::~TRTParameters()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters" << endmsg;
 
-  pParameters = NULL;
+  s_pParameters = NULL;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters done" << endmsg;
 }
@@ -128,7 +124,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
       else
       {
         parameterValue = atof(inputString.c_str());
-        multimapOfParameters.insert(make_pair(parameterName, parameterValue));
+        m_multimapOfParameters.insert(make_pair(parameterName, parameterValue));
         parameterIsRead = true;
       }
     }
@@ -164,8 +160,8 @@ void TRTParameters::PrintListOfParameters() const
   output << "***** TRTParameters::PrintListOfParameters *****" << std::endl;
   output << "List of parameters:" << std::endl;
 
-  for (multimapIterator i = multimapOfParameters.begin();
-    i != multimapOfParameters.end(); ++i)
+  for (multimapIterator i = m_multimapOfParameters.begin();
+    i != m_multimapOfParameters.end(); ++i)
     output << "  " << (*i).first << "=" << (*i).second << std::endl;
   output << std::endl;
 
@@ -177,11 +173,11 @@ void TRTParameters::PrintListOfParameters() const
 
 int TRTParameters::GetInteger(std::string parameterName) const
 {
-  int numberOfItems = multimapOfParameters.count(parameterName);
+  int numberOfItems = m_multimapOfParameters.count(parameterName);
 
   if (numberOfItems == 1)
   {
-    multimapIterator i = multimapOfParameters.find(parameterName);
+    multimapIterator i = m_multimapOfParameters.find(parameterName);
     int parameterValue = (int) (*i).second;
     return parameterValue;
   }
@@ -209,11 +205,11 @@ int TRTParameters::GetInteger(std::string parameterName) const
 
 double TRTParameters::GetDouble(std::string parameterName) const
 {
-  int numberOfItems = multimapOfParameters.count(parameterName);
+  int numberOfItems = m_multimapOfParameters.count(parameterName);
 
   if (numberOfItems == 1)
   {
-    multimapIterator i = multimapOfParameters.find(parameterName);
+    multimapIterator i = m_multimapOfParameters.find(parameterName);
     double parameterValue = (*i).second;
     return parameterValue;
   }
@@ -242,11 +238,11 @@ double TRTParameters::GetDouble(std::string parameterName) const
 void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
   int* array) const
 {
-  int numberOfItems = multimapOfParameters.count(arrayName);
+  int numberOfItems = m_multimapOfParameters.count(arrayName);
 
   if (numberOfItems == arraySize)
   {
-    multimapIterator i = multimapOfParameters.find(arrayName);
+    multimapIterator i = m_multimapOfParameters.find(arrayName);
     for (int j = 0; j < arraySize; ++j, ++i)
       array[j] = (int) ((*i).second);
   }
@@ -276,11 +272,11 @@ void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
 void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
   double* array) const
 {
-  int numberOfItems = multimapOfParameters.count(arrayName);
+  int numberOfItems = m_multimapOfParameters.count(arrayName);
 
   if (numberOfItems == arraySize)
   {
-    multimapIterator i = multimapOfParameters.find(arrayName);
+    multimapIterator i = m_multimapOfParameters.find(arrayName);
     for (int j = 0; j < arraySize; ++j, ++i)
       array[j] = (*i).second;
   }
@@ -310,11 +306,11 @@ void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
 void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
   int numberOfDemandedElements, int* array) const
 {
-  int numberOfItems = multimapOfParameters.count(arrayName);
+  int numberOfItems = m_multimapOfParameters.count(arrayName);
 
   if (numberOfItems > numberOfDemandedElements)
   {
-    multimapIterator i = multimapOfParameters.find(arrayName);
+    multimapIterator i = m_multimapOfParameters.find(arrayName);
     for (int j = 0; j < numberOfDemandedElements; ++j, ++i)
       array[j] = (int) ((*i).second);
   }
@@ -345,11 +341,11 @@ void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
 void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
   int numberOfDemandedElements, double* array) const
 {
-  int numberOfItems = multimapOfParameters.count(arrayName);
+  int numberOfItems = m_multimapOfParameters.count(arrayName);
 
   if (numberOfItems > numberOfDemandedElements)
   {
-    multimapIterator i = multimapOfParameters.find(arrayName);
+    multimapIterator i = m_multimapOfParameters.find(arrayName);
     for (int j = 0; j < numberOfDemandedElements; ++j, ++i)
       array[j] = (*i).second;
   }
@@ -380,11 +376,11 @@ void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
 int TRTParameters::GetElementOfIntegerArray(std::string arrayName,
   int elementIndex) const
 {
-  int numberOfItems = multimapOfParameters.count(arrayName);
+  int numberOfItems = m_multimapOfParameters.count(arrayName);
 
   if (elementIndex >= 0 && elementIndex < numberOfItems)
   {
-    multimapIterator i = multimapOfParameters.find(arrayName);
+    multimapIterator i = m_multimapOfParameters.find(arrayName);
     for (int j = 0; j < elementIndex; ++j, ++i) ;
     return (int) (*i).second;
   }

@@ -49,17 +49,15 @@ SCT_RODVetoTestAlg::initialize(){
 
 //Execute
 StatusCode 
-SCT_RODVetoTestAlg::execute(){
+SCT_RODVetoTestAlg::execute() {
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO) << "Calling execute" << endmsg;
-  msg(MSG::INFO) <<"Call to module in ROD : Module is "<<endmsg;
-  bool result=m_pRODVetoSvc->isGood(0x240100);//invented, no idea what this is
-  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
-  IdentifierHash anyRandomHash(1000);
-  result=m_pRODVetoSvc->isGood(anyRandomHash);
-  msg(MSG::INFO) << (result?"good":"bad") << endmsg;
+  for (unsigned int hash=0; hash<8176; hash+=2) {
+    bool result=m_pRODVetoSvc->isGood(IdentifierHash(hash));//invented, no idea what this is
+    msg(MSG::INFO) <<"Call to module in ROD : Module (hash=" << hash << ") is " << (result?"good":"bad") << endmsg;
+  }
  
   return sc;
 }

@@ -94,7 +94,7 @@ private:
 
   StatusCode initialize();
 
-  const InDetDD::SCT_DetectorManager * mgr;
+  const InDetDD::SCT_DetectorManager * m_mgr;
 
   /** Method to cut on track or hit variables and automatize DEBUG statements */
   StatusCode failCut (Bool_t value, std::string name);
@@ -130,8 +130,6 @@ private:
   const InDetDD::SCT_DetectorManager*   m_pManager;
   SG::ReadHandle<TrackCollection> m_TrackName;
   IChronoStatSvc * m_chrono;
-  const TrackCollection * m_tracks; 
-  Trk::TrackSummaryTool* m_TrackSum;
 
   const std::map < Identifier, unsigned int > * m_badChips;
   ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;

@@ -6,7 +6,7 @@
 #define IMPACTINCALOCOLLECTION_H
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TBRec/ImpactInCalo.h"
 
 //class ImpactInCalo;

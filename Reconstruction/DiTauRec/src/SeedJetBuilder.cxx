@@ -76,7 +76,7 @@ StatusCode SeedJetBuilder::execute(DiTauCandidateData * data) {
 
 	// retrieve jet container
 	StatusCode sc;
-	const xAOD::JetContainer* pJetCont;
+	const xAOD::JetContainer* pJetCont = nullptr;
 	sc = evtStore()->retrieve(pJetCont, m_jetContainerName);
 	
 

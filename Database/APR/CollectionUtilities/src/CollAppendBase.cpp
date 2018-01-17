@@ -16,7 +16,7 @@
 #include "CoralBase/Attribute.h"
 
 #include "POOLCore/Exception.h"
-#include "POOLCore/boost_tokenizer_headers.h"
+#include "CollectionBase/boost_tokenizer_headers.h"
 
 #include <ctime>
 #include <sstream>

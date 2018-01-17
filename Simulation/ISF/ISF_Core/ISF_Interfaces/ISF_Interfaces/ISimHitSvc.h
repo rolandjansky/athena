@@ -9,9 +9,6 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 
-/** Declaration of the interface ID ( interface id, major version, minor version) */
-static const InterfaceID IID_ISimHitSvc("ISimHitSvc", 1 , 0);
-
 namespace ISF {
 
   /** @class ISimHitSvc
@@ -30,8 +27,8 @@ namespace ISF {
       ///////////////////////////////////////////////////////////////////
     public:
 
-      /** Retrieve interface ID */
-      static const InterfaceID& interfaceID() { return IID_ISimHitSvc; }
+      /// Creates the InterfaceID and interfaceID() method
+      DeclareInterfaceID(ISimHitSvc, 1, 0);
 
       /** Initialize event chain */
       virtual StatusCode initializeEvent() = 0;

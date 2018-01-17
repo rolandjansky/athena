@@ -95,8 +95,7 @@ public:
 		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
                      int strawGasType,
 		     bool emulationArflag,
-		     bool emulationKrflag,
-                     unsigned short & m_particleFlag );
+		     bool emulationKrflag );
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
@@ -234,7 +233,6 @@ private:
 
   Amg::Vector3D getGlobalPosition( int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit );
 
-  void particleFlagSetBit(int bitposition, unsigned short &particleFlag) const;
   unsigned int getRegion(int hitID);
 
   //Magnetic field stuff

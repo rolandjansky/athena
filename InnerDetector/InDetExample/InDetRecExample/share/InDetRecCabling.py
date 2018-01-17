@@ -61,7 +61,7 @@ if DetFlags.detdescr.SCT_on() and not 'SCT_CablingSvc' in dir():
   if not conddb.folderRequested(SCTRodConfigPath):
     conddb.addFolderSplitMC("SCT",SCTRodConfigPath,SCTRodConfigPath)
   if not conddb.folderRequested(SCTMurConfigPath):
-    conddb.addFolderSplitMC("SCT",SCTMurConfigPath,SCTMurConfigPath)
+    conddb.addFolderSplitMC("SCT", SCTMurConfigPath, SCTMurConfigPath, className="CondAttrListVec")
   if not conddb.folderRequested(SCTRodMurConfigPath):
     conddb.addFolderSplitMC("SCT",SCTRodMurConfigPath,SCTRodMurConfigPath)
   if not conddb.folderRequested(SCTGeogConfigPath):

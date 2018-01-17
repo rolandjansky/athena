@@ -16,7 +16,7 @@
 # define ATHENAPOOLTESTDATA_ATHENAPOOLTESTMAP_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolTestData/AthenaPoolTestMapData.h"
 #include <map>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>

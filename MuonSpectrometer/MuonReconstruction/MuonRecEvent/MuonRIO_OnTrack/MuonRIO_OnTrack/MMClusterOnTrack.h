@@ -10,7 +10,7 @@
 #include "MuonPrepRawData/MMPrepData.h"
 // needed classes
 #include "MuonPrepRawData/MMPrepDataContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 typedef ElementLink<Muon::MMPrepDataContainer> ElementLinkToIDC_MM_Container;
 

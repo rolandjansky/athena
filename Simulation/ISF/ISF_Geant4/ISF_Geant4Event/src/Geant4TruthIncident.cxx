@@ -1,6 +1,6 @@
-///////////////////////////////////////////////////////////////////
-// Geant4TruthIncident.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 // class header
 #include "ISF_Geant4Event/Geant4TruthIncident.h"
@@ -14,7 +14,6 @@
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/PrimaryParticleInformation.h"
-#include "SimHelpers/SecondaryTracksHelper.h"
 
 // Units
 #include "GaudiKernel/PhysicalConstants.h"
@@ -48,8 +47,6 @@
   Existing code:
   Simulation/G4Sim/SimHelpers/src/StepHelper.cxx
   - provids convenient information of a G4Step
-  Simulation/G4Sim/SimHelpers/src/SecondaryTracksHelper.cxx
-  - provids convenient information about secondaries produced in (last) G4Step
   Simulation/G4Utilities/G4TruthStrategies/src/BremsstrahlungStrategy.cxx
   - retrives information from a G4Step (via StepHelper)
   Simulation/G4Sim/MCTruth/MCTruth/TruthStrategy.h
@@ -59,24 +56,18 @@
   Simulation/G4Sim/MCTruth/src/TrackInformation.cxx
   Simulation/G4Sim/MCTruth/src/TrackHelper.cxx
   - store/manage barcode
-
-  Simulation/G4Sim/MCTruth/src/AtlasTrajectory.cxx
-  - setup SecondaryTrackHelper to provide secondaries to truth
 */
 
 
 iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
                                                const ISF::ISFParticle& baseISP,
                                                AtlasDetDescr::AtlasRegion geoID,
-                                               int numChildren,
-                                               SecondaryTracksHelper &sHelper,
                                                EventInformation *eventInfo) :
-  ITruthIncident(geoID, numChildren),
+  ITruthIncident(geoID, step->GetSecondaryInCurrentStep()->size()), // switch to G4Step::GetNumberOfSecondariesInCurrentStep() once we're using G4 10.2 or later
   m_positionSet(false),
   m_position(),
   m_step(step),
   m_baseISP(baseISP),
-  m_sHelper( sHelper),
   m_eventInfo(eventInfo),
   m_childrenPrepared(false),
   m_children(),
@@ -233,7 +224,7 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i
   prepareChildren();
 
   // the G4Track instance for the current child particle
-  G4Track* thisChildTrack = m_children[i];
+  const G4Track* thisChildTrack = m_children[i];
 
   // NB: NOT checking if secondary is actually alive. Even with zero momentum,
   //     secondary could decay right away and create further particles which pass the
@@ -309,12 +300,13 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, 
 void iGeant4::Geant4TruthIncident::prepareChildren() const {
 
   if (!m_childrenPrepared) {
-    // NB: m_children is *not* a pointer, therefore this calls
-    //     the assignment operator of std::vector<T> (C++11 should
-    //     be using fast move semantics here)
     unsigned short numChildren = numberOfChildren();
-    m_children = m_sHelper.GetSecondaries( numChildren );
-
+    const auto &tracks = m_step->GetSecondaryInCurrentStep();
+    const int iSize=tracks->size();
+    const int iLast=iSize-numChildren-1; //NB can be -1.
+    for(int i=iSize-1;i>iLast;i--) {
+      m_children.push_back((*tracks)[i]);
+    }
     m_childrenPrepared  = true;
   }
 }

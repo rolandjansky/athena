@@ -77,41 +77,32 @@ double PDFWeight::computeWeight(const xAOD::EventInfo* evtInfo) const {
   for (auto truthEvent : *truthEventContainer) {
 
     try {
-      sc = truthEvent->pdfInfoParameter( pdg_id1, xAOD::TruthEvent::PdfParam::PDGID1 );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( pdg_id1, xAOD::TruthEvent::PdfParam::PDGID1 ) ) {
         ATH_MSG_DEBUG("Could not retrieve PDG id1.");
       }
-      sc = truthEvent->pdfInfoParameter( pdg_id2, xAOD::TruthEvent::PdfParam::PDGID2 );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( pdg_id2, xAOD::TruthEvent::PdfParam::PDGID2 ) ) {
         ATH_MSG_DEBUG("Could not retrieve PDG id2.");
       }
-      sc = truthEvent->pdfInfoParameter( pdf_id1, xAOD::TruthEvent::PdfParam::PDFID1 );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( pdf_id1, xAOD::TruthEvent::PdfParam::PDFID1 ) ) {
         ATH_MSG_DEBUG("Could not retrieve PDF id1.");
       }
-      sc = truthEvent->pdfInfoParameter( pdf_id2, xAOD::TruthEvent::PdfParam::PDFID2 );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( pdf_id2, xAOD::TruthEvent::PdfParam::PDFID2 ) ) {
         ATH_MSG_DEBUG("Could not retrieve PDF id2.");
       }
-      sc = truthEvent->pdfInfoParameter( x1, xAOD::TruthEvent::PdfParam::X1 );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( x1, xAOD::TruthEvent::PdfParam::X1 ) ) {
         ATH_MSG_DEBUG("Could not retrieve x_1.");
       }
-      sc = truthEvent->pdfInfoParameter( x2, xAOD::TruthEvent::PdfParam::X2 );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( x2, xAOD::TruthEvent::PdfParam::X2 ) ) {
         ATH_MSG_DEBUG("Could not retrieve x_2.");
       }
-      sc = truthEvent->pdfInfoParameter( q, xAOD::TruthEvent::PdfParam::Q );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( q, xAOD::TruthEvent::PdfParam::Q ) ) {
         ATH_MSG_DEBUG("Could not retrieve Q.");
       }
-      sc = truthEvent->pdfInfoParameter( xf1, xAOD::TruthEvent::PdfParam::XF1 );
-      if (sc.isFailure()) {
+      if ( !truthEvent->pdfInfoParameter( xf1, xAOD::TruthEvent::PdfParam::XF1 ) ) {
         ATH_MSG_DEBUG("Could not retrieve x_f1.");
       }
-      sc = truthEvent->pdfInfoParameter( xf2, xAOD::TruthEvent::PdfParam::XF2 );
-      if (sc.isFailure()) {
-        ATH_MSG_DEBUG("Could not retrieve x_f2.");
+      if ( !truthEvent->pdfInfoParameter( xf2, xAOD::TruthEvent::PdfParam::XF2 ) ) {
+         ATH_MSG_DEBUG("Could not retrieve x_f2.");
       }
     } catch (...) {
       // set this to debug only because this is a frequent problem in ttbar samples

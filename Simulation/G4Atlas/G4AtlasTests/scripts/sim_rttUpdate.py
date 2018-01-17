@@ -414,10 +414,10 @@ class RttUpdate :
         # EOS result directory, etc.
         opt.rttcastor='/eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/'+opt.rel+'/'+opt.branch+'/'+opt.cmt+'/offline/'+opt.package
         opt.eoscmd='/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select'
-        opt.eosprefix='root://eosatlas/'
+        opt.eosprefix='root://eosatlas.cern.ch/'
 
         """
-        xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_2/17.1.X.Y/i686-slc5-gcc43-opt/offline/DigitizationTests/mc11_ttbar_LVL1_on/mc11_ttbar.RDO.pool.root root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/MC12/MC11_ttbar_LVL1_ON.RDO.pool.root
+        xrdcp root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/rel_2/17.1.X.Y/i686-slc5-gcc43-opt/offline/DigitizationTests/mc11_ttbar_LVL1_on/mc11_ttbar.RDO.pool.root root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/MC12/MC11_ttbar_LVL1_ON.RDO.pool.root
 """
 
         opt.testpath,opt.project=db.findPackage(opt.package)

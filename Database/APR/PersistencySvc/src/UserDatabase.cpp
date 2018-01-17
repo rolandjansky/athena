@@ -7,7 +7,6 @@
 #include "TechnologyDispatcher.h"
 #include "MicroSessionManager.h"
 #include "DatabaseRegistry.h"
-#include "PersistencySvcConfiguration.h"
 #include "PersistencySvc/PersistencySvcException.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ITransaction.h"
@@ -20,13 +19,15 @@
 static const std::string& emptyString = "";
 
 pool::PersistencySvc::UserDatabase::UserDatabase( pool::PersistencySvc::TechnologyDispatcher& technologyDispatcher,
-                                                  pool::PersistencySvc::PersistencySvcConfiguration& configuration,
+                                                  const pool::DatabaseConnectionPolicy& policy,
+                                                  pool::IFileCatalog& catalog,
                                                   pool::ITransaction& transaction,
                                                   pool::PersistencySvc::DatabaseRegistry& registry,
                                                   const std::string& name,
                                                   pool::DatabaseSpecification::NameType nameType ):
   m_technologyDispatcher( technologyDispatcher ),
-  m_configuration( configuration ),
+  m_policy( policy ),
+  m_catalog( catalog ),
   m_transaction( transaction ),
   m_registry( registry ),
   m_name( name ),
@@ -56,7 +57,7 @@ pool::PersistencySvc::UserDatabase::databaseHandler()
 void
 pool::PersistencySvc::UserDatabase::connectForRead()
 {
-  this->connectForRead( m_configuration.databaseConnectionPolicy() );
+  this->connectForRead( m_policy );
 }
 
 void
@@ -73,6 +74,13 @@ pool::PersistencySvc::UserDatabase::connectForRead( const pool::DatabaseConnecti
         if ( this->fid().empty() ) {
           throw pool::PersistencySvcException( "PFN \"" + m_name + "\" is not existing",
                                                "PersistencySvc::UserDatabase::connectForRead" );
+        }
+        if( m_nameType == DatabaseSpecification::LFN ) {
+           // fid() found the PFN and FID but no tech
+           // retry assuming the name was really an LFN - need to clear the_fid for that
+           m_the_fid.clear();
+           connectForRead( policy );
+           return;
         }
         break;
 
@@ -122,7 +130,7 @@ pool::PersistencySvc::UserDatabase::connectForRead( const pool::DatabaseConnecti
 void
 pool::PersistencySvc::UserDatabase::connectForWrite()
 {
-  this->connectForWrite( m_configuration.databaseConnectionPolicy() );
+  this->connectForWrite( m_policy );
 }
 
 void
@@ -159,9 +167,8 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 	  // register in the catalog 
 	  pool::DbType dbType( m_technology );
 	  pool::DbType dbTypeMajor( dbType.majorType() );
-	  pool::IFileCatalog& fileCatalog = m_configuration.fileCatalog();
 	  pool::IFCAction action;
-	  fileCatalog.setAction( action );
+	  m_catalog.setAction( action );
 	  action.registerPFN( m_the_pfn, dbTypeMajor.storageName(), m_the_fid );
 	  dbRegistered = true;
 	  accessMode = pool::CREATE;
@@ -217,7 +224,7 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 	 if( dbRegistered ) {
 	    // creation failed, remove entry from the in-memory catalog
 	    pool::FCAdmin action;
-	    m_configuration.fileCatalog().setAction( action );
+	    m_catalog.setAction( action );
 	    action.deleteEntry( m_the_fid );
 	 }
 	 throw pool::PersistencySvcException( "Could not connect to the file",
@@ -283,13 +290,19 @@ pool::PersistencySvc::UserDatabase::fid() const
     if ( m_nameType == pool::DatabaseSpecification::FID ) return m_name;
     else if ( ! m_the_fid.empty() ) return m_the_fid;
     else {
-      pool::IFileCatalog& fileCatalog = m_configuration.fileCatalog();
       if ( m_nameType == pool::DatabaseSpecification::PFN ) {
         std::string technology;
         pool::IFCAction action;
-        fileCatalog.setAction( action );
+        m_catalog.setAction( action );
         action.lookupFileByPFN( m_name, m_the_fid, technology );
         if ( ! m_the_fid.empty() ) {
+           if( technology.empty() ) {
+              m_nameType = DatabaseSpecification::LFN;
+              coral::MessageStream log( "PersistencySvc::UserDatabase::fid()" );
+              log << coral::Debug << "Retrying 'connect' using assumed PFN " << m_name
+                  << " as LFN (no tech found in PFC)" << coral::MessageStream::endmsg;
+              return m_the_fid;
+           }
           m_the_pfn = m_name;
           this->setTechnologyIdentifier( technology );
           m_alreadyConnected = true;
@@ -315,7 +328,7 @@ pool::PersistencySvc::UserDatabase::fid() const
       } /* not PFN */
       else if ( m_nameType == pool::DatabaseSpecification::LFN ) {
         pool::IFCAction action;
-        fileCatalog.setAction( action );
+        m_catalog.setAction( action );
         action.lookupFileByLFN( m_name, m_the_fid );
       }
       if ( ! m_the_fid.empty() ) {
@@ -337,11 +350,10 @@ pool::PersistencySvc::UserDatabase::pfn() const
     if ( m_nameType == pool::DatabaseSpecification::PFN ) return m_name;
     else if ( ! m_the_pfn.empty() ) return m_the_pfn;
     else {
-      pool::IFileCatalog& fileCatalog = m_configuration.fileCatalog();
       if ( m_nameType == pool::DatabaseSpecification::FID ) {
         std::string technology;
         pool::IFCAction action;
-        fileCatalog.setAction( action );
+        m_catalog.setAction( action );
         action.lookupBestPFN( m_name, pool::FileCatalog::READ,
                               pool::FileCatalog::SEQUENTIAL,
                               m_the_pfn, technology );
@@ -353,7 +365,7 @@ pool::PersistencySvc::UserDatabase::pfn() const
       }
       else if ( m_nameType == pool::DatabaseSpecification::LFN ) {
         pool::IFCAction action;
-        fileCatalog.setAction( action );
+        m_catalog.setAction( action );
         action.lookupFileByLFN( m_name, m_the_fid );
         if ( ! m_the_fid.empty() ) {
           std::string technology;
@@ -493,39 +505,4 @@ pool::PersistencySvc::UserDatabase::setAttributeOfType( const std::string& attri
 {
   if ( ! m_databaseHandler ) return false;
   else return m_databaseHandler->setAttribute( attributeName, data, typeInfo, option );
-}
-
-
-const pool::IDatabaseParameters&
-pool::PersistencySvc::UserDatabase::parameters() const
-{
-  return static_cast< const pool::IDatabaseParameters& >( *this );
-}
-
-pool::IDatabaseParameters&
-pool::PersistencySvc::UserDatabase::parameters()
-{
-  return static_cast< pool::IDatabaseParameters& >( *this );
-}
-
-
-std::set< std::string >
-pool::PersistencySvc::UserDatabase::parameterNames() const
-{
-  if ( ! m_databaseHandler ) return std::set< std::string >();
-  else return m_databaseHandler->parameters();
-}
-
-std::string
-pool::PersistencySvc::UserDatabase::value( const std::string& name ) const
-{
-  if ( ! m_databaseHandler ) return std::string( "" );
-  else return m_databaseHandler->parameterValue( name );
-}
-
-void
-pool::PersistencySvc::UserDatabase::addParameter( const std::string& name, const std::string& value )
-{
-  if ( m_databaseHandler )
-    m_databaseHandler->addParameter( name, value );
 }

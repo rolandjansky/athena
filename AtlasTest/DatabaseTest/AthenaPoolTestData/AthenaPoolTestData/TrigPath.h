@@ -43,7 +43,7 @@ public:
           {return this->pathID<t.pathID;}
 };
 	
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(TrigPath, 1287801, 0)
 #endif
 

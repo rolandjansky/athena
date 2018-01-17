@@ -56,15 +56,13 @@ namespace pool  {
     DbType              m_type;
     /// Reference to storage explorer object
     DbStorageExplorer*  m_explorer;
-    /// Service context
-    void*               m_context;
   public:
 
     /// Standard Constructor: Constructs an object of type DbStorageSvc.
     DbStorageSvc();
 
     /// Initializing Constructor: Constructs an object of type DbStorageSvc.
-    DbStorageSvc(void* ctxt, const std::string& name /*, int technology */);
+    DbStorageSvc(const std::string& name);
 
     /// Standard destructor.
     virtual ~DbStorageSvc();

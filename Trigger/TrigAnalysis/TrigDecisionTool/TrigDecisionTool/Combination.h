@@ -43,7 +43,8 @@ namespace Trig {
   class CacheGlobalMemory;
 
   /**
-   * @class Combination is a connector between chains and object
+   * @class Combination
+   * is a connector between chains and object
    * It store single combination of trigger elements. 
    * Thanks to templates methods get()  it is able to 
    * invoke features retrieval and return actual objects (wrapped into Feature class).

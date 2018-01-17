@@ -29,6 +29,7 @@ LayerAllocator::LayerAllocator (const std::string&	type,
 				const IInterface*      	parent)
     :	AthAlgTool		(type, name, parent),
 	m_detectorSelection	("DetectorSelection/DetectorSelection"),
+	m_manager		(nullptr),
 	m_pixelName		("Pixel"),
 	m_sctName		("SCT"),
 	m_ringVector		(new ring_vector),

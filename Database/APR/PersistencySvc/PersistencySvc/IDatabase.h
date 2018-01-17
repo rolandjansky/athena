@@ -15,7 +15,6 @@ namespace pool {
   class DatabaseConnectionPolicy;
   class IContainer;
   class ITechnologySpecificAttributes;
-  class IDatabaseParameters;
 
   /** @class IDatabase IDatabase.h PersistencySvc/IDatabase.h
    *
@@ -77,10 +76,6 @@ namespace pool {
     /// Returns the object holding the technology specific attributes
     virtual const ITechnologySpecificAttributes& technologySpecificAttributes() const = 0;
     virtual ITechnologySpecificAttributes& technologySpecificAttributes() = 0;
-
-    /// Returns the object holding the database parameters
-    virtual const IDatabaseParameters& parameters() const = 0;
-    virtual IDatabaseParameters& parameters() = 0;
   };
 
 }

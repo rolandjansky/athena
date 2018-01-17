@@ -1,20 +1,21 @@
-Fri Oct 27 23:49:55 CEST 2017
-Preloading tcmalloc_minimal.so
+Thu Nov  2 15:38:37 EDT 2017
+WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/9f528da37a] -- built on [2017-10-27T2337]
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestReadFilterRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5436 configurables from 58 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-[?1034hPy:Athena            INFO including file "AthenaCommon/runbatch.py"
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus012.cern.ch on Fri Oct 27 23:50:09 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Thu Nov  2 15:38:56 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -22,20 +23,20 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 9865 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10025 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 380 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 318 CLIDRegistry entries for module ALL
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-10-26T2259/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus012.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
+DBReplicaSvc         INFO No specific match for domain found - use default fallback
+DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
@@ -43,7 +44,7 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 0E6FD732-FE7F-A34E-BFE5-F44BF4B5020E
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 804CCEF9-A425-2D48-BF6D-3CBEFE68561B
 Domain[ROOT_All]     INFO                           xaoddata_filt.root
 RootDatabase.open    INFO xaoddata_filt.root File version:60806
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
@@ -55,16 +56,17 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata_filt.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 0E6FD732-FE7F-A34E-BFE5-F44BF4B5020E
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 804CCEF9-A425-2D48-BF6D-3CBEFE68561B
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 0E6FD732-FE7F-A34E-BFE5-F44BF4B5020E
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 804CCEF9-A425-2D48-BF6D-3CBEFE68561B
 Domain[ROOT_All]     INFO                           xaoddata_filt.root
 RootDatabase.open    INFO xaoddata_filt.root File version:60806
 ApplicationMgr       INFO Application Manager Started successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1114 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1084 CLIDRegistry entries for module ALL
+AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -90,7 +92,9 @@ RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAux
   pvInt: [-320 -319 -318 -317 -316 -315 -314 -313 ]
   pvFloat: [-0.419 -0.319 -0.219 -0.119 -0.019 0.081 0.181 0.281 ]
   dpvFloat: [0.810 0.811 0.812 0.813 0.814 0.815 0.816 0.817 ]
-ClassIDSvc           INFO  getRegistryEntries: read 68 CLIDRegistry entries for module ALL
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 1111 aFloat: 111.1 anInt2: 2111 dInt1: 3111 cEL: cvec[1]
+ClassIDSvc           INFO  getRegistryEntries: read 76 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -115,6 +119,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [-220 -219 -218 -217 -216 -215 -214 -213 ]
   pvFloat: [-0.418 -0.318 -0.218 -0.118 -0.018 0.082 0.182 0.282 ]
   dpvFloat: [0.820 0.821 0.822 0.823 0.824 0.825 0.826 0.827 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 2111 aFloat: 111.2 anInt2: 4111 dInt1: 6111 cEL: cvec[2]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -139,6 +145,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [-120 -119 -118 -117 -116 -115 -114 -113 ]
   pvFloat: [-0.417 -0.317 -0.217 -0.117 -0.017 0.083 0.183 0.283 ]
   dpvFloat: [0.830 0.831 0.832 0.833 0.834 0.835 0.836 0.837 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 3111 aFloat: 111.3 anInt2: 6111 dInt1: 9111 cEL: cvec[3]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -163,10 +171,14 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [-20 -19 -18 -17 -16 -15 -14 -13 ]
   pvFloat: [-0.416 -0.316 -0.216 -0.116 -0.016 0.084 0.184 0.284 ]
   dpvFloat: [0.840 0.841 0.842 0.843 0.844 0.845 0.846 0.847 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 4111 aFloat: 111.4 anInt2: 8111 dInt1: 12111 cEL: cvec[4]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: xAOD::AuxContainerBase
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 5111 aFloat: 111.5 anInt2: 10111 dInt1: 15111 cEL: [18446744073709551615]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -191,6 +203,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [180 181 182 183 184 185 186 187 ]
   pvFloat: [-0.414 -0.314 -0.214 -0.114 -0.014 0.086 0.186 0.286 ]
   dpvFloat: [0.860 0.861 0.862 0.863 0.864 0.865 0.866 0.867 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 6111 aFloat: 111.6 anInt2: 12111 dInt1: 18111 cEL: cvec[1]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -215,6 +229,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [280 281 282 283 284 285 286 287 ]
   pvFloat: [-0.413 -0.313 -0.213 -0.113 -0.013 0.087 0.187 0.287 ]
   dpvFloat: [0.870 0.871 0.872 0.873 0.874 0.875 0.876 0.877 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 7111 aFloat: 111.7 anInt2: 14111 dInt1: 21111 cEL: cvec[2]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -239,6 +255,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [380 381 382 383 384 385 386 387 ]
   pvFloat: [-0.412 -0.312 -0.212 -0.112 -0.012 0.088 0.188 0.288 ]
   dpvFloat: [0.880 0.881 0.882 0.883 0.884 0.885 0.886 0.887 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 8111 aFloat: 111.8 anInt2: 16111 dInt1: 24111 cEL: cvec[3]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -263,6 +281,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [480 481 482 483 484 485 486 487 ]
   pvFloat: [-0.411 -0.311 -0.211 -0.111 -0.011 0.089 0.189 0.289 ]
   dpvFloat: [0.890 0.891 0.892 0.893 0.894 0.895 0.896 0.897 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 9111 aFloat: 111.9 anInt2: 18111 dInt1: 27111 cEL: cvec[4]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -287,6 +307,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [580 581 582 583 584 585 586 587 ]
   pvFloat: [-0.410 -0.310 -0.210 -0.110 -0.010 0.090 0.190 0.290 ]
   dpvFloat: [0.900 0.901 0.902 0.903 0.904 0.905 0.906 0.907 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 10111 aFloat: 112 anInt2: 20111 dInt1: 30111 cEL: cvec[0]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -311,6 +333,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [680 681 682 683 684 685 686 687 ]
   pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 ]
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 11111 aFloat: 112.1 anInt2: 22111 dInt1: 33111 cEL: cvec[1]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -335,6 +359,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [780 781 782 783 784 785 786 787 ]
   pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 ]
   dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 12111 aFloat: 112.2 anInt2: 24111 dInt1: 36111 cEL: cvec[2]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -359,6 +385,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [880 881 882 883 884 885 886 887 ]
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 ]
   dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 13111 aFloat: 112.3 anInt2: 26111 dInt1: 39111 cEL: cvec[3]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -383,6 +411,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [980 981 982 983 984 985 986 987 ]
   pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 ]
   dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 14111 aFloat: 112.4 anInt2: 28111 dInt1: 42111 cEL: cvec[4]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -407,6 +437,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [1080 1081 1082 1083 1084 1085 1086 1087 ]
   pvFloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 ]
   dpvFloat: [0.950 0.951 0.952 0.953 0.954 0.955 0.956 0.957 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 15111 aFloat: 112.5 anInt2: 30111 dInt1: 45111 cEL: cvec[0]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -431,6 +463,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [1180 1181 1182 1183 1184 1185 1186 1187 ]
   pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 ]
   dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 16111 aFloat: 112.6 anInt2: 32111 dInt1: 48111 cEL: cvec[1]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -455,6 +489,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [1280 1281 1282 1283 1284 1285 1286 1287 ]
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 ]
   dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 17111 aFloat: 112.7 anInt2: 34111 dInt1: 51111 cEL: cvec[2]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -479,6 +515,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [1380 1381 1382 1383 1384 1385 1386 1387 ]
   pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 ]
   dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 18111 aFloat: 112.8 anInt2: 36111 dInt1: 54111 cEL: cvec[3]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -503,6 +541,8 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [1480 1481 1482 1483 1484 1485 1486 1487 ]
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 ]
   dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 19111 aFloat: 112.9 anInt2: 38111 dInt1: 57111 cEL: cvec[4]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -527,9 +567,11 @@ Type of aux store: xAOD::AuxContainerBase
   pvInt: [1580 1581 1582 1583 1584 1585 1586 1587 ]
   pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo  anInt1 20111 aFloat: 113 anInt2: 40111 dInt1: 60111 cEL: cvec[0]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 xaoddata_filt.root   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 0E6FD732-FE7F-A34E-BFE5-F44BF4B5020E
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 804CCEF9-A425-2D48-BF6D-3CBEFE68561B
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize

@@ -29,7 +29,7 @@ namespace JiveXML {
    **/
   TauJetRetriever::TauJetRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("TauJet"){
+    m_typeName("TauJet"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -107,7 +107,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(taucont->size());
     DataVect eta; eta.reserve(taucont->size());
@@ -144,16 +144,16 @@ namespace JiveXML {
     Analysis::TauJetContainer::const_iterator taujetItr  = taucont->begin();
     Analysis::TauJetContainer::const_iterator taujetItrE = taucont->end();
 
-  ParticleDataType::DataType m_dataType;
-  bool m_checkDataType=true;
+  ParticleDataType::DataType dataType;
+  bool checkDataType=true;
 
   if ( taujetItr != taujetItrE) {
-    m_dataType = (*taujetItr)->dataType();
-    m_checkDataType = (m_dataType != ParticleDataType::Fast) && 
-                      (m_dataType != ParticleDataType::True);
+    dataType = (*taujetItr)->dataType();
+    checkDataType = (dataType != ParticleDataType::Fast) && 
+                      (dataType != ParticleDataType::True);
   }
 
-  if(m_checkDataType){
+  if(checkDataType){
      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TauJet Datatype: Full Sim " << endmsg;
   }else{     
      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TauJet Datatype: Fast Sim " << endmsg;
@@ -167,7 +167,7 @@ namespace JiveXML {
   std::string trackIndexString = "trackIndex";
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Number of TauJets: " << taucont->size() << endmsg;
-  if (m_checkDataType && !m_fastSimSGFlag){ // full sim
+  if (checkDataType && !m_fastSimSGFlag){ // full sim
    for (; taujetItr != taujetItrE; ++taujetItr) { // first, just count trackKey for multiple
       const ElementLinkVector<Rec::TrackParticleContainer> myTrackLinkVector = (*taujetItr)->trackLinkVector();
       countTrackLinks += myTrackLinkVector.size();  
@@ -200,7 +200,7 @@ namespace JiveXML {
     energy.push_back( JiveXML::DataType((*taujetItr)->m()/CLHEP::GeV ) ); 
     mass.push_back( JiveXML::DataType((*taujetItr)->e()/CLHEP::GeV ) ); 
 
-   if (m_checkDataType && !m_fastSimSGFlag) { // full sim
+   if (checkDataType && !m_fastSimSGFlag) { // full sim
 
     std::string taujetAuthor = "none";
     if (( (*taujetItr)->author()) == 0){ taujetAuthor = "default"; } 
@@ -309,41 +309,41 @@ namespace JiveXML {
   } // end tau iterator
 
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["px"] = px;
+    DataMap["py"] = py;
+    DataMap["pz"] = pz;
 
     // special tau parameters
-    m_DataMap["isTauString"] = isTauString;
-    m_DataMap["label"] = label;
-    m_DataMap["numTracks"] = numTracks;
-    m_DataMap["charge"] = charge;
-    m_DataMap["author"] = author;
-    m_DataMap["etEMCalib"] = etEMCalib;
-    m_DataMap["etHadCalib"] = etHadCalib;
-    m_DataMap["emRadius"] = emRadius;
-    m_DataMap["isolFrac"] = isolFrac;
-    m_DataMap["stripWidth"] = stripWidth;
-    m_DataMap["logLhRatio"] = logLhRatio;
-//    m_DataMap["isTau"] = isTau;
+    DataMap["isTauString"] = isTauString;
+    DataMap["label"] = label;
+    DataMap["numTracks"] = numTracks;
+    DataMap["charge"] = charge;
+    DataMap["author"] = author;
+    DataMap["etEMCalib"] = etEMCalib;
+    DataMap["etHadCalib"] = etHadCalib;
+    DataMap["emRadius"] = emRadius;
+    DataMap["isolFrac"] = isolFrac;
+    DataMap["stripWidth"] = stripWidth;
+    DataMap["logLhRatio"] = logLhRatio;
+//    DataMap["isTau"] = isTau;
     // associations
-    m_DataMap["clusterKey"] = clusterKeyVec;
-    m_DataMap["clusterIndex"] = clusterIndexVec;
-    m_DataMap[trackKeyString] = trackKeyVec;
-    m_DataMap[trackIndexString] = trackIndexVec;
-    m_DataMap["trackLinkCount"] = trackLinkCountVec;
+    DataMap["clusterKey"] = clusterKeyVec;
+    DataMap["clusterIndex"] = clusterIndexVec;
+    DataMap[trackKeyString] = trackKeyVec;
+    DataMap[trackIndexString] = trackIndexVec;
+    DataMap["trackLinkCount"] = trackLinkCountVec;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

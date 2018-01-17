@@ -63,7 +63,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief finalize method */
   virtual StatusCode finalize() override;
   
-  void fillPositionsInCalo(xAOD::CaloCluster* cluster) const ;
+  virtual void fillPositionsInCalo(xAOD::CaloCluster* cluster) const override;
  private:
 
   /** @brief Set new cluster to the egamma object, decorate the new cluster

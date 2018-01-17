@@ -185,9 +185,9 @@ protected:
   Trig::ITrigEgammaEmulationTool *emulation(){return &*m_emulationTool;}
 
   // Retrieve Properties
-  bool getDetail(){return m_detailedHists;}
-  bool getTP(){return m_tp;}
-  bool getEmulation(){return m_doEmulation;}
+  bool getDetail() const {return m_detailedHists;}
+  bool getTP() const {return m_tp;}
+  bool getEmulation() const {return m_doEmulation;}
 
   // TAccept
   Root::TAccept getAccept(){return m_accept;}

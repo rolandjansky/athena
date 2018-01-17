@@ -43,7 +43,8 @@ DQTNonCollBkg_ZDC::DQTNonCollBkg_ZDC(const std::string & type,
                                           m_complainContain(1),
                                           m_complainRetrieve(1),
 					  m_nsamples(0),
-					  m_bcid(nullptr)
+					  m_bcid(nullptr),
+                                          m_trigDec("Trig::TrigDecisionTool")
 
 {
   declareInterface<IMonitorToolBase> (this);
@@ -194,7 +195,7 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
   // Do the trigger selection here
   // Trigger selection suggested by D.Berge
   // Too rare :for testing, comment it 
-  if (! m_trigDec->isPassed("L1_ZDC_UNPAIRED")) return 0;
+  if (! m_trigDec->isPassed("L1_ZDC_UNPAIRED")) return StatusCode::FAILURE;
  
   std::vector<std::string> L1items = m_trigDec->getChainGroup("L1_.*")->getListOfTriggers();
   unsigned int nL1Items = L1items.size();

@@ -152,7 +152,7 @@ ContainedAssociationFillerTool::fillUntyped (const void* p,
   }
   m_associator->releaseObjectUntyped (pout);
 
-  scout.setCode (scout.getCode());  // Make sure checked flag is clear again.
+  scout = StatusCode(scout.getCode()); // Make sure checked flag is clear again.
   return againok (scout);
 }
 

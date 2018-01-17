@@ -14,9 +14,9 @@ rm -rf $WORKDIR
 mkdir $WORKDIR
 cd $WORKDIR
 
-#INPUTRDO='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00/RDO.05062245._000003.pool.root.1'
+#INPUTRDO='root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00/RDO.05062245._000003.pool.root.1'
 #INPUTRDO=/afs/cern.ch/work/s/stelzer/LegacySimWorkareaForWernerJoerg/digitizedRDO/digiRDO.pool.root
-INPUTRDO='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/LegacySim/digitizedRDO/digiRDO.pool.root'
+INPUTRDO='root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/LegacySim/digitizedRDO/digiRDO.pool.root'
 
 OUTPUTRDO="trigRDO.pool.root"
 

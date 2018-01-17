@@ -18,13 +18,11 @@ namespace PMGTools {
   struct AllSampleInfo{
     int dsid;
     std::string containerName;
-    double amiXSec;
-    double br;
+    double genXsec;
     double filterEff;
-    double higherOrderXsecTotal;
     double kFactor;
-    double higherOrderXsecSample;
   };
+
 
     
   class IPMGCrossSectionTool : public virtual asg::IAsgTool { 
@@ -47,15 +45,12 @@ namespace PMGTools {
     virtual std::string getSampleName(const int dsid) const = 0;
     
     /// return the AMI cross-section for DSID
-    virtual double getAMIXsection(const int dsid) const = 0;
-    
-    /// return the branching ratio for DSID
-    virtual double getBR(const int dsid) const = 0;
+    virtual double getGeneratorXsection(const int dsid) const = 0;
     
     /// return the k-factor for DSID
     virtual double getKfactor(const int dsid) const = 0;
     
-    /// return the sample cross-section for DSID
+    /// return the sample cross-section for DSID (can we find a more descriptive name for this, PMG? /CO)
     virtual double getSampleXsection(const int dsid) const = 0;
     
     /// get a list of the DSID for the loaded samples
@@ -65,4 +60,12 @@ namespace PMGTools {
   
 } // namespace PMGTools
 
+// overload the output operator for the AllSampleInfo object
+std::ostream& operator<<(std::ostream& os, const PMGTools::AllSampleInfo& s) {
+  return os << "Name:          " << s.containerName << std::endl
+	    << "DSID:          " << s.dsid << std::endl
+	    << "Cross section: " << s.genXsec << std::endl
+	    << "k-factor:      " << s.kFactor << std::endl
+	    << "Filter eff.:   " << s.filterEff << std::endl;
+}
 #endif //> !PMGTOOLS_IPMGCROSSSECTIONTOOL_H

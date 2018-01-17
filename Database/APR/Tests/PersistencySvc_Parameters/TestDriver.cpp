@@ -18,10 +18,9 @@
 #include "PersistencySvc/ITransaction.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/IDatabase.h"
-#include "PersistencySvc/IDatabaseParameters.h"
-
+//#include "PersistencySvc/IDatabaseParameters.h"
 #include "PersistencySvc/IPersistencySvc.h"
-#include "PersistencySvc/IPersistencySvcFactory.h"
+
 
 int numTokenInstances();
 
@@ -55,14 +54,7 @@ pool::TestDriver::write()
   catalog.start();
 
   std::cout << "Creating the persistency service" << std::endl;
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  if ( ! psfactory ) {
-    throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
-  }
-  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
-  if ( ! persistencySvc.get() ) {
-    throw std::runtime_error( "Could not create a PersistencySvc" );
-  }
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( pool::IPersistencySvc::create(catalog) );
 
   // Set up the policy.
   pool::DatabaseConnectionPolicy policy;
@@ -84,6 +76,7 @@ pool::TestDriver::write()
   db->setTechnology( pool::ROOT_StorageType.type() );
   db->connectForWrite();
 
+/*
   // Retrieving the existing parameters
   pool::IDatabaseParameters& databaseParameters = db->parameters();
   std::set< std::string > parameterNames = databaseParameters.parameterNames();
@@ -95,6 +88,7 @@ pool::TestDriver::write()
   // adding a new parameter
   databaseParameters.addParameter( std::string( "newParameterName" ), std::string( "newParameterValue" ) );
   m_parameters.insert( std::make_pair( std::string( "newParameterName" ), std::string( "newParameterValue" ) ) );
+*/
 
   // Committing the transaction
   std::cout << "Committing the transaction." << std::endl;
@@ -114,14 +108,7 @@ pool::TestDriver::read()
   catalog.start();
 
   std::cout << "Creating the persistency service" << std::endl;
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  if ( ! psfactory ) {
-    throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
-  }
-  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
-  if ( ! persistencySvc.get() ) {
-    throw std::runtime_error( "Could not create a PersistencySvc" );
-  }
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( pool::IPersistencySvc::create(catalog) );
 
   // Starting a read transaction
   if ( ! persistencySvc->session().transaction().start( pool::ITransaction::READ ) ) {
@@ -136,6 +123,7 @@ pool::TestDriver::read()
 
   db->connectForRead();
 
+/*
   // Retrieve the database parameters
   const pool::IDatabaseParameters& databaseParameters = db->parameters();
   std::set< std::string > parameterNames = databaseParameters.parameterNames();
@@ -171,6 +159,7 @@ pool::TestDriver::read()
       std::cout << "       ";
     std::cout << "\"" << parameterName << "\" : \"" << parameterValue << "\"" << std::endl;
   }
+*/
 
   // Committing the transaction
   std::cout << "Committing the transaction." << std::endl;

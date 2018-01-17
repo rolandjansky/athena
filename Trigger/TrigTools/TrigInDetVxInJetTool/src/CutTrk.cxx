@@ -13,7 +13,7 @@
 int  TrigInDetVxInJetTool::SelGoodTrigTrack( const std::vector<const TrigInDetTrack*>& InpTrk,
                                              const Trk::RecVertex                    & PrimVrt,
                                              const CLHEP::HepLorentzVector                  & JetDir,
-                                             std::vector<const TrigInDetTrack*>& SelectedTracks) const {    
+                                             std::vector<const TrigInDetTrack*>& SelectedTracks) {
   
   std::vector<const TrigInDetTrack*>::const_iterator i_ntrk = InpTrk.begin();
   const TrigInDetTrackFitPar* mPer=0;

@@ -57,8 +57,6 @@
 
    ReprocessTriggerTowers( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~ReprocessTriggerTowers();
-
 
    //------------------------------------------------------
    // Methods used by Athena to run the algorithm

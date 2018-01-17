@@ -26,7 +26,6 @@
 #include "PersistencySvc/ITokenIterator.h"
 
 #include "PersistencySvc/IPersistencySvc.h"
-#include "PersistencySvc/IPersistencySvcFactory.h"
 
 #include "MyTestClass.h"
 
@@ -62,14 +61,7 @@ pool::TestDriver::write()
   catalog.start();
 
   std::cout << "Creating the persistency service" << std::endl;
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  if ( ! psfactory ) {
-    throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
-  }
-  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
-  if ( ! persistencySvc.get() ) {
-    throw std::runtime_error( "Could not create a PersistencySvc" );
-  }
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( pool::IPersistencySvc::create(catalog) );
 
   // Set up the policy.
   pool::DatabaseConnectionPolicy policy;
@@ -128,14 +120,7 @@ pool::TestDriver::read()
   catalog.start();
 
   std::cout << "Creating the persistency service" << std::endl;
-  pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-  if ( ! psfactory ) {
-    throw std::runtime_error( "Could not retrieve an IPersistencySvc factory" );
-  }
-  std::unique_ptr< pool::IPersistencySvc > persistencySvc( psfactory->create( "PersistencySvc", catalog ) );
-  if ( ! persistencySvc.get() ) {
-    throw std::runtime_error( "Could not create a PersistencySvc" );
-  }
+  std::unique_ptr< pool::IPersistencySvc > persistencySvc( pool::IPersistencySvc::create(catalog) );
 
   // Starting a read transaction
   if ( ! persistencySvc->session().transaction().start( pool::ITransaction::READ ) ) {

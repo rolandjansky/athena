@@ -15,7 +15,8 @@
 #ifndef DBLQ00_ASZT_H
 #define DBLQ00_ASZT_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 
 namespace MuonGM
 {
@@ -26,7 +27,7 @@ class DblQ00Aszt {
 public:
     DblQ00Aszt();
     ~DblQ00Aszt();
-    DblQ00Aszt(IRDBQuery*);
+    DblQ00Aszt(std::unique_ptr<IRDBQuery>&&);
     DblQ00Aszt(std::string asciiFileName);
     
     void WriteAsztToAsciiFile(std::string filename);

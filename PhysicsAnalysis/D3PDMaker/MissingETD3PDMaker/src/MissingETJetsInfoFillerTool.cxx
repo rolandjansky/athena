@@ -27,7 +27,8 @@ namespace D3PD {
 MissingETJetsInfoFillerTool::MissingETJetsInfoFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
-  : BlockFillerTool<JetCollection> (type, name, parent)
+  : BlockFillerTool<JetCollection> (type, name, parent),
+    m_jetVariables("JetVariablesTool")
 {
 declareProperty ("TrackParticleContainer",       m_trackContainerKey        = "TrackParticleCandidate");
 book().ignore(); // Avoid coverity warning.

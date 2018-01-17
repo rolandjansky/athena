@@ -40,7 +40,6 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h" 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonancePairingTool.h"
@@ -135,7 +134,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
 
   // define the different classes of plots;
   enum SOURCE {Z = 0, JPSI, CBMUONS, NONCBMUONS, CONTAINER, N_SOURCE};
-  std::string sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "CBMuons", "NonCBMuons", "Container", "N_SOURCE"};
+  std::string m_sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "CBMuons", "NonCBMuons", "Container", "N_SOURCE"};
   enum MUON_COMPONENT {TRACK_MS=0, TRACK_ME, TRACK_ID, N_COMPONENTS};
   // Trigger items
   bool m_useTrigger; 
@@ -149,7 +148,6 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   //ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls
   //ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
   //ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
-  ToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool;
   // MCP muon quality tool
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   // MCP T&P helpers

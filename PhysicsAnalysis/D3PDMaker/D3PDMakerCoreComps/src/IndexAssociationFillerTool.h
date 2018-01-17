@@ -74,7 +74,7 @@ public:
 
 
   /// Standard Gaudi @c initialize method.
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /**
@@ -86,7 +86,7 @@ public:
    * is compatible with what it expects, and raise an error otherwise.
    */
   virtual StatusCode configureD3PD (IAddVariable* tree,
-                                    const std::type_info& ti);
+                                    const std::type_info& ti) override;
 
 
   /**
@@ -94,7 +94,7 @@ public:
    *
    * This is called at the start of the first event.
    */
-  virtual StatusCode book();
+  virtual StatusCode book() override;
 
 
   /**
@@ -124,7 +124,7 @@ public:
    * @c AGAIN will be treated as an error.
    */
   virtual StatusCode fillUntyped (const void* p,
-                                  bool again = false);
+                                  bool again = false) override;
 
 
 private:

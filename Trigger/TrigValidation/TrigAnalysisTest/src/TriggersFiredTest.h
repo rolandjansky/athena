@@ -25,11 +25,6 @@
 //#include "TrigConfInterfaces/ITrigConfigSvc.h"
 //#include "TrigConfxAOD/xAODConfigTool.h"
 
-using namespace std;
-using namespace Trig;
-using namespace TrigConf;
-using namespace xAOD;
-
 /**
  * @class TriggersFiredTest
  * bSimple algorithm to check fired triggers with TrigDecisionTool
@@ -57,8 +52,8 @@ class TriggersFiredTest : public AthAlgorithm
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< interface to use the trigger data: TriggerTool
 
-  unsigned int passed_l1;
-  unsigned int passed_hlt;
+  unsigned int m_passed_l1;
+  unsigned int m_passed_hlt;
 
 };
 

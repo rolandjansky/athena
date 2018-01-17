@@ -33,6 +33,7 @@
 
 LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator) 
 	: AthAlgorithm(name, pSvcLocator),
+          m_cablingService("LArCablingService"),
           m_onlineID(nullptr),
           m_calo_dd_man(nullptr),
 	  m_larPhysWaveBin(nullptr),

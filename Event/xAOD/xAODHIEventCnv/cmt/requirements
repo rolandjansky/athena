@@ -1,7 +1,0 @@
-package xAODHIEventCnv
-
-author Anne Sickles <sickles@illinois.edu> 
-
-# Base package(s):
-use AtlasPolicy   AtlasPolicy-*
-

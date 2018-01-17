@@ -20,7 +20,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTrigRinger
    Event/xAOD/xAODTrigger
    PhysicsAnalysis/AnalysisCommon/PATCore
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    LumiBlock/LumiBlockComps
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Reconstruction/RecoTools/RecoToolInterfaces
@@ -46,7 +46,7 @@ atlas_add_library( TrigEgammaEmulationToolLib
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AsgTools xAODBase
    xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma
-   xAODTrigRinger xAODTrigger PATCoreLib ElectronPhotonSelectorToolsLib
+   xAODTrigRinger xAODTrigger PATCoreLib EgammaAnalysisInterfacesLib
    LumiBlockCompsLib InDetTrackSelectionToolLib RecoToolInterfaces
    TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent TrigMultiVarHypoLib
    TrigEgammaMatchingToolLib

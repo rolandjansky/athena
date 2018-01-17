@@ -261,7 +261,7 @@ VectorFillerToolBase::doFill (IIteration& it, size_t sizeHint)
   while (const void* obj = it.nextUntyped() ) {
     // AGAIN processing.
     codes_in.clear();
-    codes_in.resize (m_blockFillers.size(), StatusCode::SUCCESS);
+    codes_in.resize (m_blockFillers.size(), StatusCode(StatusCode::SUCCESS).getCode());
     CHECK( fillOnce (obj, nobj, n, sz, codes_in, codes_out) );
     codes_in = codes_out;
     while (std::find (codes_out.begin(), codes_out.end(),

@@ -50,7 +50,7 @@ StatusCode AdjustableT0Tool::initialize()
   ATH_MSG_INFO(  "= DoTof                         " << m_DoTof           ) ;
   ATH_MSG_INFO(  "================================" ) ;
 
-  const MdtIdHelper* pMdtIdHelper ;
+  const MdtIdHelper* pMdtIdHelper = nullptr;
   sc = detStore()->retrieve(pMdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure()){
     ATH_MSG_FATAL(  "Cannot retrieve MDTIDHELPER" ) ;

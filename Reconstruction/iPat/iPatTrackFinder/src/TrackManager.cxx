@@ -35,6 +35,7 @@ TrackManager::TrackManager (const std::string&	type,
 	m_trackFollower		("TrackFollower/TrackFollower"),
 	m_trackQuality		("TrackQuality/TrackQuality"),
 	m_primaryTrack		(0),
+	m_printLevel		(0),
 	m_secondaryTrack	(0),
 	m_trackList		(0),
 	m_truncatedTrack	(0)

@@ -23,9 +23,7 @@ from AthenaCommon.AppMgr import theApp
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 
@@ -40,15 +38,11 @@ jobproperties.PerfMonFlags.OutputFile = "perfmon.root"
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
+globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
 print globalflags
-
-eventInfoKey = "ByteStreamEventInfo"
-if globalflags.DataSource()=="geant4":
-    eventInfoKey = "McEventInfo"
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -89,17 +83,46 @@ ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+#--------------------------------------------------------------
+# Load IOVDbSvc
+#--------------------------------------------------------------
+#include("IOVDbSvc/IOVDbSvc_jobOptions.py")
+IOVDbSvc = Service("IOVDbSvc")
+from IOVDbSvc.CondDB import conddb
+IOVDbSvc.GlobalTag='CONDBR2-BLKPA-2017-06'
+IOVDbSvc.OutputLevel = DEBUG
+
+# Load AthCondSeq
+from AthenaCommon.AlgSequence import AthSequencer 
+condSeq = AthSequencer("AthCondSeq")
+
+# Load conditions folders
+sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
+if not conddb.folderRequested(sctGainDefectFolder):
+    conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
+sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
+if not conddb.folderRequested(sctNoiseDefectFolder):
+    conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
+
+
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
+condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
+                                    ReadKeyGain = sctGainDefectFolder,
+                                    ReadKeyNoise = sctNoiseDefectFolder)
+SCT_ReadCalibDataCondAlg = condSeq.SCT_ReadCalibDataCondAlg
+
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataTestAlg
 topSequence+= SCT_ReadCalibDataTestAlg()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-ServiceMgr += SCT_ReadCalibDataSvc(EventInfoKey=eventInfoKey)
+ServiceMgr += SCT_ReadCalibDataSvc()
 
 SCT_ReadCalibDataSvc=ServiceMgr.SCT_ReadCalibDataSvc
+
 #SCT_ReadCalibDataSvc.RecoOnly = False
 # <-999 setting ignores the defect, otherwise it will be checked against the set value
-SCT_ReadCalibDataSvc.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]
-SCT_ReadCalibDataSvc.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000]
+SCT_ReadCalibDataCondAlg.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]
+SCT_ReadCalibDataCondAlg.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000]
 #SCT_ReadCalibDataSvc.IgnoreDefects = ["BADFIT","NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]
 #SCT_ReadCalibDataSvc.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000,-1000]
 #SCT_ReadCalibDataSvc.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE"]
@@ -131,48 +154,21 @@ theApp.EvtMax                    = 1
 
 #For real data, earliest timestamp is 0
 #ServiceMgr.EventSelector.InitialTimeStamp = 1228950000
-ServiceMgr.EventSelector.InitialTimeStamp = 1530617600
-ServiceMgr.EventSelector.RunNumber = 198232
+ServiceMgr.EventSelector.InitialTimeStamp = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
+ServiceMgr.EventSelector.RunNumber = 310809
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
+ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
 ServiceMgr.SCT_ReadCalibDataSvc.OutputLevel = INFO
 topSequence.SCT_ReadCalibDataTestAlg.OutputLevel = INFO
 
-
-#--------------------------------------------------------------
-# Load IOVDbSvc
-#--------------------------------------------------------------
-#include("IOVDbSvc/IOVDbSvc_jobOptions.py")
-IOVDbSvc = Service("IOVDbSvc")
-from IOVDbSvc.CondDB import conddb
-IOVDbSvc.GlobalTag='COMCOND-BLKPA-RUN1-09'
-IOVDbSvc.OutputLevel = DEBUG
-#ToolSvc = Service( "ToolSvc" )
-
-# Not clear why these tags are not resolved from global tag
-conddb.blockFolder("/Indet/Align")
-conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-BLK-UPD4-09")
-
-#For testing against the DEVDB10
-#DBname='<dbConnection>oracle://DEVDB10;schema=ATLAS_SCT_COMMCOND_DEV;dbname=ACALTEST;user=ATLAS_SCT_COMMCOND_DEV;password=********</dbConnection>'
-#IOVDbSvc.Folders += [ DBname + '/SCT/DAQ/Calibration/NPtGainDefects' ]
-#IOVDbSvc.Folders += [ DBname + '/SCT/DAQ/Calibration/NoiseOccupancyDefects' ]
-
-#For real Pit one data in comp200
-#conddb.addFolder("SCT",CoolFldrPathNoiseOcc)
-#conddb.addFolder("SCT",CoolFldrPathNPtGain)
-#Now multi-version in comp200:
-
-conddb.addFolder("SCT","/SCT/DAQ/Calibration/NoiseOccupancyDefects <tag>HEAD</tag>")
-conddb.addFolder("SCT","/SCT/DAQ/Calibration/NPtGainDefects <tag>HEAD</tag>")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD <tag>HEAD</tag>")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog <tag>HEAD</tag>")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/RODMUR <tag>HEAD</tag>")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR <tag>HEAD</tag>")
-
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 
 #--------------------------------------------------------------
 # Set the correct flags

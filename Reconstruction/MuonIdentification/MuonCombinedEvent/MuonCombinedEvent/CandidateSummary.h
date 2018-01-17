@@ -160,6 +160,66 @@ public:
         startFromEF = false;
         innerIsectPositions.clear();
     }
+
+    void clear()
+    {
+      startFromMF = false;
+      startFromEF = false;
+      startFromBetaRefit = false;
+      startFromMuonEntry = false;
+
+      pIDTrkIsect = nullptr;
+      pMuonFeature = nullptr;
+      pMuonEFTrack = nullptr;
+
+      innerIsectPositions.clear();
+      muonSegmentList.clear();
+
+      pTrackParticle = nullptr;
+      pLowBetaTrack = nullptr;
+      pLowBetaExtrpTrack = nullptr;
+      pRefittedTrack = nullptr;
+      pMSRefittedTrack.reset();
+
+
+      pTrkTrack = nullptr;
+      pTrkLowBeta = nullptr;
+      pTrkRefitted = nullptr;
+      pTrkMSRefitted.reset();
+
+      numMdtHits = 0;
+      numRpcPhiHits = 0;
+      numRpcEtaHits = 0;
+      numCscPhiHits = 0;
+      numCscEtaHits = 0;
+      numMdtSegs = 0;
+      numRpcSegs = 0;
+      numMdtHitsInSeg = 0;
+      numRpcHitsInSeg = 0;
+      numTgcRpcPhiHits = 0;
+      numTgcRpcEtaHits = 0;
+      numTgcRpcSegs = 0;
+      numTgcRpcHitsInSeg = 0;
+      numTgcPhiHits = 0;
+      numTgcEtaHits = 0;
+      numTgcSegs = 0;
+      numTgcHitsInSeg = 0;
+      numCscSegs = 0;
+      innAngle = 0;
+      innDelta = 0;
+      midAngle = 0;
+      midDelta = 0;
+      nnBarrel = 0;
+      nnEndCap = 0;
+      PassNNsel = 0;
+      beta = 0;
+      qOverP = 0;
+      lhr = 0;
+      saveAnn = 0;
+      saveStau = 0;
+      isSiliconAssociated = false;
+      rpcHitsLists = nullptr;
+    }
 };
 
 typedef std::vector<const CandidateSummary*> CandidateSummaryList; // sofia: vector of CandidateSummary

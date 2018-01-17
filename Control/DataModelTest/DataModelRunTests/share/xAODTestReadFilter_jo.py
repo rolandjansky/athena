@@ -42,6 +42,8 @@ AddressRemappingSvc.addInputRename ('DMTest::CAuxContainer',
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec#cvec"]
 fullItemList+=["xAOD::AuxContainerBase!#cvecAux."]
+fullItemList+=["DMTest::C#cinfo"]
+fullItemList+=["DMTest::CInfoAuxContainer#cinfoAux."]
 
 from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
 fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
@@ -65,11 +67,19 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestWriteCInfo, \
+     DMTest__xAODTestDecor
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestFilterCVec
 
 
 topSequence += DMTest__xAODTestFilterCVec ('xAODTestFilterCVec')
+topSequence += DMTest__xAODTestWriteCInfo ('xAODTestWriteCInfo',
+                                           Offset = 111)
+topSequence += DMTest__xAODTestDecor ('xAODTestDecor',
+                                      DoCVec = False,
+                                      DoCTrig = False)
 
 
 # Stream's output file

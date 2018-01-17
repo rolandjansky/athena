@@ -81,8 +81,6 @@ class Tester : public AthAlgorithm
 
   Tester( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-  virtual ~Tester();
-
 
   //------------------------------------------------------
   // Methods used by Athena to run the algorithm

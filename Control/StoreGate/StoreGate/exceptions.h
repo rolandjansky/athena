@@ -263,6 +263,42 @@ void throwExcUpdatedObjectFailure (CLID clid,
                                    const std::string& storename);
 
 
+/**
+ * @brief Exception --- Attempt to get non-const VarHandleKey from non-owning VarHandle.
+ *
+ * If a Read/Write/Update handle is initialized from a HandleKey object, then
+ * that HandleKey is const, and cannot be retrieved as a non-const reference.
+ * A non-const HandleKey can only be retrieved if the handle was not
+ * initialized from a HandleKey.
+ */
+class ExcNonConstHandleKey
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param clid CLID from the key.
+   * @param sgkey StoreGate key from the key.
+   * @param storename Store name from the key.
+   */
+  ExcNonConstHandleKey (CLID clid,
+                        const std::string& sgkey,
+                        const std::string& storename);
+};
+
+
+/**
+ * @brief Throw a SG::ExcNonConstHandleKey exception.
+ * @param clid CLID from the key.
+ * @param sgkey StoreGate key from the key.
+ * @param storename Store name from the key.
+ */
+[[noreturn]]
+void throwExcNonConstHandleKey (CLID clid,
+                                const std::string& sgkey,
+                                const std::string& storename);
+
+
 } // namespace SG
 
 

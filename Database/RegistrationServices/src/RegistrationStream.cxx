@@ -518,6 +518,24 @@ std::vector<std::string> RegistrationStream::getCollMetadataKeys()
 StatusCode RegistrationStream::io_reinit() 
 {
    ATH_MSG_DEBUG("I/O reinitialization...");
-   // Dummy
+   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
+   if (!incSvc.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get the IncidentSvc");
+      return StatusCode::FAILURE;
+   }
+   incSvc->addListener(this, "MetaDataStop", 30);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode RegistrationStream::io_finalize() {
+   ATH_MSG_INFO("I/O finalization...");
+   const Incident metaDataStopIncident(name(), "MetaDataStop");
+   this->handle(metaDataStopIncident);
+   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
+   if (!incSvc.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get the IncidentSvc");
+      return StatusCode::FAILURE;
+   }
+   incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;
 }

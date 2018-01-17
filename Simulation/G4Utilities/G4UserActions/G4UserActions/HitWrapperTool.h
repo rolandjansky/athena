@@ -6,28 +6,30 @@
 #define G4USERACTIONS_G4UA__HITWRAPPERTOOL_H
 
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include  "G4AtlasTools/ActionToolBase.h"
+#include  "G4AtlasTools/UserActionToolBase.h"
 #include "G4UserActions/HitWrapper.h"
 
 namespace G4UA
 {
 
   /// @brief A tool which manages the HitWrapper user action.
-  class HitWrapperTool : public ActionToolBase<HitWrapper>,
-                         public IG4EventActionTool
+  class HitWrapperTool : public UserActionToolBase<HitWrapper>
   {
+
     public:
+
       /// Standard constructor
       HitWrapperTool(const std::string& type, const std::string& name,
                      const IInterface* parent);
 
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
-
     protected:
-      virtual std::unique_ptr<HitWrapper> makeAction() override final;
+
+      /// Create the action for the current thread
+      virtual std::unique_ptr<HitWrapper>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
     private:
+
       HitWrapper::Config m_config;
 
   }; // class HitWrapperTool

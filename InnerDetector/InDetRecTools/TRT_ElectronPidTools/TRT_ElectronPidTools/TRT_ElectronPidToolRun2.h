@@ -94,8 +94,8 @@ namespace InDet
     /** Electron probabilities to be returned */
     std::vector<float> electronProbability_old(const Trk::Track& track);
 
-    virtual double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) override;
-    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) override;
+    virtual double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) const override;
+    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const override;
 
   // get the ToT from the bitpattern and correct for local variations
   // Jared - Remove ToT calc
@@ -141,14 +141,10 @@ namespace InDet
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     bool                       m_OccupancyUsedInPID;   // DEPRECATED!!!
 
-    //Some constants about the Bitpattern:
-    static const unsigned int LTbits=0x3FDFEFF;
-    static const unsigned int HTbits=0x4020100;
-
     public:
      class HTcalculator;
     private:
-     HTcalculator & HTcalc;
+     HTcalculator & m_HTcalc;
 
     public:
      class StorePIDinfo;

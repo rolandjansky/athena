@@ -142,6 +142,7 @@ MissingETD3PDMakerFlags.METDefaultJetPrefix = "jet_AntiKt4LCTopo_MET_" # Change 
 MissingETD3PDMakerFlags.METMuonsPrefix = "mu_muon_MET_" # Change mu_MET_ to mu_muon_MET_ 
 from MissingETD3PDMaker.MissingETD3PDObject            import *
 from MissingETD3PDMaker.MissingETD3PDTriggerBitsObject import *
+from MissingET.METRefGetter_plup import *
 
 # Trigger
 from TriggerD3PDMaker.TrigDecisionD3PDObject           import TrigDecisionD3PDObject
@@ -316,7 +317,6 @@ def HSG2physicsD3PD (name,file,
     # For H->ZZ->llqq analysis
     # PhysicsAnalysis/D3PDMaker/PhysicsD3PDMaker/python/SMWZD3PD.py
     if jobproperties.HSG2.doHSG5METInD3PD():
-        from MissingET.METRefGetter_plup import *
         METRefAlg_HSG5 = make_METRefAlg(_suffix='_HSG5')
         METRefAlg_HSG5.sequence                    = AlgSequence( D3PDMakerFlags.PreD3PDAlgSeqName() )
         METRefAlg_HSG5.jet_JetInputCollectionKey   = "AntiKt4TopoEMJets"+JetTagD3PD_CollectionPostfix

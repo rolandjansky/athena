@@ -18,6 +18,7 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include <math.h>       /* erf */
 // RandomNumber generator
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -28,9 +29,9 @@ namespace Simulation
   CrabKissingVertexPositioner::CrabKissingVertexPositioner( const std::string& t,
                                                             const std::string& n,
                                                             const IInterface* p )
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_beamCondSvc("BeamCondSvc", n),
-      m_rndGenSvc("AtRndmGenSvc", n),
+      m_rndGenSvc("AthRNGSvc", n),
       m_randomEngine(0),
       m_randomEngineName("VERTEX"),
       m_bunchShapeProp("GAUSS"),
@@ -42,8 +43,6 @@ namespace Simulation
       m_alphaX(295e-6),
       m_thetaX(295e-6)
   {
-    declareInterface<ILorentzVectorGenerator>(this);
-
     // declare properties for the configuration
     declareProperty( "BeamCondSvc"  , m_beamCondSvc,      ""                                                );
     declareProperty( "RandomSvc"    , m_rndGenSvc,        ""                                                );
@@ -79,7 +78,7 @@ namespace Simulation
     ATH_CHECK(m_beamCondSvc.retrieve());
     // prepare the RandonNumber generation
     ATH_CHECK(m_rndGenSvc.retrieve());
-    m_randomEngine = m_rndGenSvc->GetEngine( m_randomEngineName);
+    m_randomEngine = m_rndGenSvc->getEngine(this, m_randomEngineName);
     if (!m_randomEngine) {
       ATH_MSG_ERROR("Could not get random number engine from RandomNumberService. Abort.");
       return StatusCode::FAILURE;
@@ -117,15 +116,16 @@ namespace Simulation
            heaviside(temp);
   }
 
-  double CrabKissingVertexPositioner::getDisplacement(double bunchSize, double angle1, double angle2) const
+  double CrabKissingVertexPositioner::getDisplacement(double bunchSize, double angle1, double angle2,
+                                                      CLHEP::HepRandomEngine* randomEngine) const
   {
     size_t ntries(0);
-    double yval(CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0));
-    double displ(CLHEP::RandFlat::shoot(m_randomEngine, -bunchSize, bunchSize));
+    double yval(CLHEP::RandFlat::shoot(randomEngine, 0.0, 1.0));
+    double displ(CLHEP::RandFlat::shoot(randomEngine, -bunchSize, bunchSize));
     while (this->beamspotFunction(displ, angle1, angle2)<yval) {
       if(ntries>1000000) return 0.0; //just so we don't sit in this loop forever
-      yval = CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0);
-      displ = CLHEP::RandFlat::shoot(m_randomEngine, -bunchSize, bunchSize);
+      yval = CLHEP::RandFlat::shoot(randomEngine, 0.0, 1.0);
+      displ = CLHEP::RandFlat::shoot(randomEngine, -bunchSize, bunchSize);
       ++ntries;
     }
     return displ;
@@ -134,11 +134,15 @@ namespace Simulation
   // computes the vertex displacement
   CLHEP::HepLorentzVector *CrabKissingVertexPositioner::generate() const
   {
+    // Prepare the random engine
+    m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
+    CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
+
     // See jira issue ATLASSIM-497 for an explanation of why calling
     // shoot outside the CLHEP::HepLorentzVector constructor is
     // necessary/preferable.
-    double vertexX = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(0);
-    double vertexY = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(1);
+    double vertexX = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(0);
+    double vertexY = CLHEP::RandGaussZiggurat::shoot(randomEngine)*m_beamCondSvc->beamSigma(1);
     double piwinski_phi = std::fabs(m_thetaX - m_alphaX) * m_bunchLength/std::sqrt(m_epsilon * m_betaStar);
     double piwinski_psi = m_alphaPar * m_bunchLength / std::sqrt( m_epsilon * m_betaStar);
     double vertexZ = 0;
@@ -147,12 +151,12 @@ namespace Simulation
     if ( m_bunchShape == BunchShape::GAUSS) {
       double zWidth    = m_bunchLength / std::sqrt(2*(1+pow(piwinski_phi,2)));
       double timeWidth = m_bunchLength / std::sqrt(2*(1+pow(piwinski_psi,2)));
-      vertexZ = CLHEP::RandGaussZiggurat::shoot( m_randomEngine , 0., zWidth);
-      vertexT = CLHEP::RandGaussZiggurat::shoot( m_randomEngine , 0., timeWidth);
+      vertexZ = CLHEP::RandGaussZiggurat::shoot(randomEngine, 0., zWidth);
+      vertexT = CLHEP::RandGaussZiggurat::shoot(randomEngine, 0., timeWidth);
     }
     else if ( m_bunchShape == BunchShape::FLAT ) {
-      vertexZ = this->getDisplacement(m_bunchLength, piwinski_psi, piwinski_phi);
-      vertexT = this->getDisplacement(m_bunchLength, piwinski_phi, piwinski_psi);
+      vertexZ = getDisplacement(m_bunchLength, piwinski_psi, piwinski_phi, randomEngine);
+      vertexT = getDisplacement(m_bunchLength, piwinski_phi, piwinski_psi, randomEngine);
     }
     else {
       ATH_MSG_WARNING("Invalid BunchShape ("<<m_bunchShapeProp.value()<<"). Vertex smearing disabled");

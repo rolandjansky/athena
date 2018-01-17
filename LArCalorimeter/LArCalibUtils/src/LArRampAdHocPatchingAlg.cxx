@@ -103,7 +103,7 @@ StatusCode LArRampAdHocPatchingAlg::stop()
   }
   else { //Same container for reading and writing (must not be locked)
     ATH_CHECK( detStore()->retrieve(m_contOut,m_containerKey) ); //non-const retrieve
-    m_contIn=const_cast<const LArRampComplete*>(m_contOut);
+    m_contIn=m_contOut;
     ATH_MSG_INFO ( "Work on container '" <<  m_containerKey  << "'" );
   }
 

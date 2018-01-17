@@ -39,7 +39,8 @@ class CondAttrListCollection;
 namespace TrigConf {
 
   /**
-   * @class TrigConfDataIOVChanger - Algorithm-derived class to be
+   * @class TrigConfDataIOVChanger
+   * Algorithm-derived class to be
    * used when producing ESD/AOD using Trigger Menu configuration from
    * xml. In this case the menu.xml is converted into COOL/SQlite.db
    * before the start of the run and read from the SQlite file using

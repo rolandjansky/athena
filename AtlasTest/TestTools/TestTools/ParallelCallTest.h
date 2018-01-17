@@ -7,6 +7,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #include <cstddef>
 #include <initializer_list>
+#include <vector>
 /**
  * @brief Provides interface and helper functions to perform stress testing of the thread-safe code.
  * 
@@ -28,6 +29,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 class ParallelCallTest {
 public:
+  virtual ~ParallelCallTest() {}
   /**
    * @brief runs the stress test by invoking it the firstCall and then repetitively 
    * the callAndCompare @arg nrepeats times (>=1)
@@ -53,7 +55,7 @@ public:
    * case compared to a situation when the first calls are invoked sequentially while further calls in parallel.
    **/
   
-  static bool launchTests( size_t nrepeats, std::initializer_list<ParallelCallTest*> testList );
-  
+  //  static bool launchTests( size_t nrepeats, std::initializer_list<ParallelCallTest*> tests );
+  static bool launchTests( size_t nrepeats, const std::vector<ParallelCallTest*>& tests );
 };
 #endif 

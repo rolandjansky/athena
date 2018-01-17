@@ -105,14 +105,19 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
   MsgStream log(msgSvc(), name());
 
   // Get CaloDetDescrManager
-  const CaloDetDescrManager* caloMgr;
+  const CaloDetDescrManager* caloMgr_const;
 
-  status = detStore()->retrieve(caloMgr);
+  status = detStore()->retrieve(caloMgr_const);
   if (status.isFailure()) {
     log << MSG::WARNING << "Unable to retrieve CaloDetDescrManager from DetectorStore. No alignments&sagging for Calo." << endmsg;
     return StatusCode::SUCCESS;
   } else 
     log << MSG::DEBUG << "Successfully retrieved CaloDetDescrManager from the DetectorStore" << endmsg;
+
+  // FIXME: This tool changes the content of the (const) CaloDetDescrManager
+  // recorded in the detector store.  Need to get rid of this for MT.
+  // This should go away with the new scheme for dealing with alignments.
+  CaloDetDescrManager* caloMgr = const_cast<CaloDetDescrManager*>(caloMgr_const);
 
   const CaloRec::CaloCellPositionShift* posShift = 0;
   status = detStore()->retrieve(posShift,"LArCellPositionShift");
@@ -187,7 +192,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 					  embRegion->getSamplingIndex(),
 					  embRegion->getRegionIndex());
 
-      EMBDescriptor* embDescr = dynamic_cast<EMBDescriptor*>(caloMgr->get_descriptor(regId));
+      EMBDescriptor* embDescr = dynamic_cast<EMBDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
       if(embDescr==0)
       {
@@ -219,7 +224,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 	  
 	  
 	  // Retrieve DD element
-	  EMBDetectorElement* embElement = dynamic_cast<EMBDetectorElement*>(caloMgr->get_element(chanId));
+	  EMBDetectorElement* embElement = dynamic_cast<EMBDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 
 	  if(embElement==0)
 	  {
@@ -340,7 +345,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 					  emecRegion->getSamplingIndex(),
 					  emecRegion->getRegionIndex());
 
-      EMECDescriptor* emecDescr = dynamic_cast<EMECDescriptor*>(caloMgr->get_descriptor(regId));
+      EMECDescriptor* emecDescr = dynamic_cast<EMECDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
       if(emecDescr==0)
       {
@@ -368,7 +373,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 						iEta,iPhi);
 	  
 	  // Retrieve DD element
-	  EMECDetectorElement* emecElement = dynamic_cast<EMECDetectorElement*>(caloMgr->get_element(chanId));
+	  EMECDetectorElement* emecElement = dynamic_cast<EMECDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 
 	  if(emecElement==0)
 	  {
@@ -448,7 +453,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 					   hecRegion->getSamplingIndex(),
 					   hecRegion->getRegionIndex());
       
-      HECDescriptor* hecDescr = dynamic_cast<HECDescriptor*>(caloMgr->get_descriptor(regId));
+      HECDescriptor* hecDescr = dynamic_cast<HECDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
       if(hecDescr==0)
       {
@@ -480,7 +485,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 						   iEta,iPhi);
 
 	    // Retrieve DD element
-	    HECDetectorElement* hecElement = dynamic_cast<HECDetectorElement*>(caloMgr->get_element(chanId));
+	    HECDetectorElement* hecElement = dynamic_cast<HECDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 	    
 	    if(hecElement==0)
 	    {
@@ -562,7 +567,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 					    (int)fcalmodule->getModuleIndex());
       
 
-      FCALDescriptor* fcalDescr = dynamic_cast<FCALDescriptor*>(caloMgr->get_descriptor(regId));
+      FCALDescriptor* fcalDescr = dynamic_cast<FCALDescriptor*>(caloMgr->get_descriptor_nonconst(regId));
 
       if(fcalDescr==0)
       {
@@ -588,7 +593,7 @@ StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 						fcaltileIt->getIndexI());  // phi
 	
 	// Retrieve DD element
-	FCALDetectorElement* fcalElement = dynamic_cast<FCALDetectorElement*>(caloMgr->get_element(chanId));
+	FCALDetectorElement* fcalElement = dynamic_cast<FCALDetectorElement*>(caloMgr->get_element_nonconst(chanId));
 	
 	if(fcalElement==0)
 	{

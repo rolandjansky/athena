@@ -87,8 +87,8 @@ private:
    mutable std::vector<EventContext::ContextEvt_t> m_cache;
    // Pointer of SCT_TdaqEnabledCondData
    mutable Gaudi::Hive::ContextSpecificPtr<const SCT_TdaqEnabledCondData> m_condData;
-  
-   const SCT_ID* m_pHelper;
+   
+  const SCT_ID* m_pHelper;
    bool m_useDatabase;
    ServiceHandle<StoreGateSvc> m_detStore; //!< Handle on the detector store
 

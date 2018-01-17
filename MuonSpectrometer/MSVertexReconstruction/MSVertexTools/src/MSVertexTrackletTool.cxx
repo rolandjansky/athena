@@ -37,8 +37,6 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-    //CONSTANTS
-    constexpr float c_PI = 3.1415927;
     //Delta Alpha Constants -- p = k/(delta_alpha)
     constexpr float c_BIL = 28.4366;//MeV*mrad
     constexpr float c_BML = 62.8267;//MeV*mrad
@@ -81,18 +79,7 @@ namespace Muon {
 
   StatusCode MSVertexTrackletTool::initialize() {
     
-    if( AthAlgTool::initialize().isFailure() ) {
-      ATH_MSG_ERROR("Failed to initialize AthAlgTool " );
-      return StatusCode::FAILURE;
-    }
-    
-    if(detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER").isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve the mdtIdHelper");
-      return StatusCode::FAILURE;
-    }
-
-
-
+    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
     ATH_CHECK(m_mdtTESKey.initialize());
     ATH_CHECK(m_TPContainer.initialize());
 
@@ -691,7 +678,7 @@ namespace Muon {
       
       //Find the initial parameters of the fit
       float alpha = atan2(SeedParams.at(i_p).first,1.0);
-      if(alpha < 0) alpha += c_PI;
+      if(alpha < 0) alpha += M_PI;
       float dalpha = 0;
       float d = (SeedParams.at(i_p).second - yc + zc*SeedParams.at(i_p).first)*cos(alpha);
       float dd = 0;

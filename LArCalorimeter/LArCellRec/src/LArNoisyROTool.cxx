@@ -25,12 +25,14 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
 				const std::string& name, 
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
-  m_calo_id(0), m_onlineID(0) , m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
+  m_calo_id(0), m_onlineID(0), 
+  m_cablingService("LArCablingService"),
+  m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
   m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);
   declareProperty( "BadChanPerFEB", m_BadChanPerFEB=30 );
-  declareProperty( "BadChanPerPA", m_BadChanPerPA=2 );
+  //  declareProperty( "BadChanPerPA", m_BadChanPerPA=2 );
   declareProperty( "CellQualityCut", m_CellQualityCut=4000 );
   declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
   declareProperty( "IgnoreFrontInnerWheelCells", m_ignore_front_innerwheel_cells=true );
@@ -120,10 +122,6 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   unsigned int NsaturatedTightCutBarrelC = 0;
   unsigned int NsaturatedTightCutEMECA = 0;
   unsigned int NsaturatedTightCutEMECC = 0;
-  unsigned int NsaturatedTightCutHECA = 0;
-  unsigned int NsaturatedTightCutHECC = 0;
-  unsigned int NsaturatedTightCutFCALA = 0;
-  unsigned int NsaturatedTightCutFCALC = 0;
 
 
   CaloCellContainer::const_iterator cellItr    = cellContainer->begin();
@@ -158,16 +156,6 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 	if ( sideA ) { NsaturatedTightCutEMECA++; } 
 	else { NsaturatedTightCutEMECC++; }
       }
-      else if ( m_calo_id->is_hec(id) )
-      {
-	if ( sideA ) { NsaturatedTightCutHECA++; } 
-	else { NsaturatedTightCutHECC++; }
-      }
-      else if ( m_calo_id->is_fcal(id) )
-      {
-	if ( sideA ) { NsaturatedTightCutFCALA++; } 
-	else { NsaturatedTightCutFCALC++; }
-      }
     }
 
 
@@ -183,15 +171,11 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     }
   }
 
-  // exclude FCAL for now
-  // And also HEC (since 08/2015 - B.Trocme)
   uint8_t SatTightPartitions = 0;
   if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
   if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
   if ( NsaturatedTightCutEMECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECAMask;
   if ( NsaturatedTightCutEMECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECCMask;
-//  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
-//  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
   bool badSaturatedTightCut = (SatTightPartitions != 0);
   if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
 
@@ -201,8 +185,6 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     m_SaturatedCellTightCutEvents++;
   }
 
-
-  
   // are there any bad FEB or preamp ?
   for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
     ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
@@ -211,6 +193,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
       if (m_printSummary) m_badFEB_counters[it->first]++;
       //BadFEBCount++;
     }
+
     // Tight MNBs
     if ( it->second.badChannels() > m_MNBTightCut ){
        noisyRO->add_MNBTight_feb(HWIdentifier(it->first));
@@ -221,15 +204,17 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
        noisyRO->add_MNBLoose_feb(HWIdentifier(it->first));
     }
  
-    const unsigned int* PAcounters = it->second.PAcounters();
-    for ( size_t i = 0; i < 32; i++ ) {
-      if ( PAcounters[i] > m_BadChanPerPA ) {
-	uint64_t PAid = static_cast<uint64_t>(1000000000)*static_cast<uint64_t>(i)+static_cast<uint64_t>(it->first);
-	ATH_MSG_DEBUG(" bad preamp " << i << " in FEB " << it->first << "  ID " << PAid);
-	noisyRO->add_noisy_preamp(HWIdentifier(it->first),4*i);
-	 if (m_printSummary) m_badPA_counters[PAid]++;
-      }
-    }
+//  // Noisy preamp removed as no used currently
+//  // Kept here just in case we may want to revive it
+//    const unsigned int* PAcounters = it->second.PAcounters();
+//    for ( size_t i = 0; i < 32; i++ ) {
+//      if ( PAcounters[i] > m_BadChanPerPA ) {
+//	uint64_t PAid = static_cast<uint64_t>(1000000000)*static_cast<uint64_t>(i)+static_cast<uint64_t>(it->first);
+//	ATH_MSG_DEBUG(" bad preamp " << i << " in FEB " << it->first << "  ID " << PAid);
+//	noisyRO->add_noisy_preamp(HWIdentifier(it->first),4*i);
+//	 if (m_printSummary) m_badPA_counters[PAid]++;
+//      }
+//    }
 
   }//end loop over m_FEBats
 
@@ -254,9 +239,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     // If the FEB is known to be subject to noise burst (list defiend as property)
     // give a weight 2
     const unsigned int int_id =  febid.get_identifier32().get_compact();
-    //if (knownFEB(int_id)) weight = 2;
     if (m_knownBadFEBs.find(int_id)!=m_knownBadFEBs.end()) weight=2;
-
 
     if ( m_onlineID->isEMBchannel(chanID) ) 
     {
@@ -341,15 +324,15 @@ StatusCode LArNoisyROTool::finalize() {
       ATH_MSG_INFO( "FEB " << it->first << " declared noisy in " << it->second << " events "  );
     }
 
-    ATH_MSG_INFO( "List of bad preamps found in at least max(2,0.1%) events"  );
-    unsigned int cut = static_cast<unsigned int>(0.001*static_cast<float>(m_invocation_counter));
-    if ( cut < 2 ) cut = 2;
-    uint64_t PAfactor = 1000000000L;
-    for ( std::map<uint64_t, unsigned int>::const_iterator it = m_badPA_counters.begin(); it != m_badPA_counters.end(); it++ )
-      {
-	if ( it->second > cut )
-          ATH_MSG_INFO( "Preamplifier " << (it->first)/PAfactor << " of FEB " << (it->first)%PAfactor << " declared noisy in " << it->second << " events "  );
-      }
+//    ATH_MSG_INFO( "List of bad preamps found in at least max(2,0.1%) events"  );
+//    unsigned int cut = static_cast<unsigned int>(0.001*static_cast<float>(m_invocation_counter));
+//    if ( cut < 2 ) cut = 2;
+//    uint64_t PAfactor = 1000000000L;
+//    for ( std::map<uint64_t, unsigned int>::const_iterator it = m_badPA_counters.begin(); it != m_badPA_counters.end(); it++ )
+//      {
+//	if ( it->second > cut )
+//          ATH_MSG_INFO( "Preamplifier " << (it->first)/PAfactor << " of FEB " << (it->first)%PAfactor << " declared noisy in " << it->second << " events "  );
+//      }
     
     ATH_MSG_INFO( "Number of events with too many saturated QFactor cells (Tight cuts): " << m_SaturatedCellTightCutEvents  );
   }

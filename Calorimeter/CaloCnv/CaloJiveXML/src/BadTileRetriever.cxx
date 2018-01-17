@@ -73,7 +73,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
 
-    const CaloCellContainer* cellContainer;
+    const CaloCellContainer* cellContainer = nullptr;
     if (!evtStore()->retrieve(cellContainer,m_sgKey))
       {
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << 

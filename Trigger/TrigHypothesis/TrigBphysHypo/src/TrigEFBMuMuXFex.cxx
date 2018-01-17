@@ -555,7 +555,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltInitialize()
     // retrieving the vertex fitting tool
     if (m_fitterSvc.retrieve().isFailure()) {
         msg() << MSG::ERROR << "Can't find Trk::TrkVKalVrtFitter" << endmsg;
-        return StatusCode::SUCCESS;
+        return HLT::BAD_JOB_SETUP;
     } else {
         if (msgLvl() <= MSG::DEBUG) {
             msg() << MSG::DEBUG << "Trk::TrkVKalVrtFitter found" << endmsg;
@@ -566,7 +566,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltInitialize()
     // retrieving BphysHelperUtilsTool
     if (m_bphysHelperTool.retrieve().isFailure()) {
         msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
-        return StatusCode::SUCCESS;
+        return HLT::BAD_JOB_SETUP;
     } else {
             if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
     }

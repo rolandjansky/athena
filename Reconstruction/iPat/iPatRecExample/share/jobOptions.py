@@ -207,7 +207,7 @@ if globalflags.InputFormat == 'pool':
         ServiceMgr.EventSelector.InputCollections = \
                                                   [ "/afs/cern.ch/user/p/pop/scratch0/bug72496/g4digi.pool.root" ]
 #    elif recFlags.readESD:
-#        ServiceMgr.EventSelector.InputCollections = [ "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/Bytestream2010/MuonBytestreamZmumu_rec16.0.X.ESD.pool.root" ]
+#        ServiceMgr.EventSelector.InputCollections = [ "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/Bytestream2010/MuonBytestreamZmumu_rec16.0.X.ESD.pool.root" ]
     else:
         # careful when ignoring tag - this is dangerous !
         #GeoModelSvc.IgnoreTagDifference = True
@@ -239,34 +239,34 @@ if globalflags.InputFormat == 'pool':
         for i in filseq:
             if noPileUp:
                 if singleMu3:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_3GeV/group.phys-beauty.144580_005686.EXT0._"+"%05d"%(i)+".RDO.pool.root"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_3GeV/group.phys-beauty.144580_005686.EXT0._"+"%05d"%(i)+".RDO.pool.root"
                 elif singleMu5:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_5GeV/group.phys-beauty.144581_005688.EXT0._"+"%05d"%(i)+".RDO.pool.root"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_5GeV/group.phys-beauty.144581_005688.EXT0._"+"%05d"%(i)+".RDO.pool.root"
                 elif singleMu10:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_10GeV/group.phys-beauty.144582_005690.EXT0._"+"%05d"%(i)+".RDO.pool.root"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_10GeV/group.phys-beauty.144582_005690.EXT0._"+"%05d"%(i)+".RDO.pool.root"
                 elif singleMu50:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_50GeV/group.phys-beauty.144583_005692.EXT0._"+"%05d"%(i)+".RDO.pool.root"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_50GeV/group.phys-beauty.144583_005692.EXT0._"+"%05d"%(i)+".RDO.pool.root"
                 elif singleMu100:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_100GeV/group.phys-beauty.147613_005700.EXT0._"+"%05d"%(i)+".RDO.pool.root"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_100GeV/group.phys-beauty.147613_005700.EXT0._"+"%05d"%(i)+".RDO.pool.root"
                 elif singleMu500:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_500GeV/group.phys-beauty.144584_005694.EXT0._"+"%05d"%(i)+".RDO.pool.root"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_500GeV/group.phys-beauty.144584_005694.EXT0._"+"%05d"%(i)+".RDO.pool.root"
             else:
                 if singleMu10:
                     ## official mc12 with standard pileup 
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_e1717_s1609_s1611_r4076/RDO.01138971._"+"%06d"%(i)+".pool.root.1"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/SingleMu_10GeV_e1717_s1609_s1611_r4076/RDO.01138971._"+"%06d"%(i)+".pool.root.1"
                 elif singleMu20:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_10GeV/group.phys-beauty.144582_005690.EXT0._"+"%05d"%(i)+".RDO.pool.root"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_10GeV/group.phys-beauty.144582_005690.EXT0._"+"%05d"%(i)+".RDO.pool.root"
                 elif testJpsi:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_Jpsimu4mu4/RDO.01177876._"+"%06d"%(i)+".pool.root.1"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_Jpsimu4mu4/RDO.01177876._"+"%06d"%(i)+".pool.root.1"
                 elif testT1:
                     if (i == 1):
-                        s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_T1/RDO.01177879._"+"%06d"%(i)+".pool.root.1"
+                        s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_T1/RDO.01177879._"+"%06d"%(i)+".pool.root.1"
                     else:
-                        s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_T1/RDO.01177879._"+"%06d"%(i)+".pool.root.2"
+                        s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_T1/RDO.01177879._"+"%06d"%(i)+".pool.root.2"
                 elif testZmumu:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_Zmumu/RDO.01177877._"+"%06d"%(i)+".pool.root.1"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/mc12_Zmumu/RDO.01177877._"+"%06d"%(i)+".pool.root.1"
                 elif testZprime:
-                    s = "root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/mc12_8TeV.158028.Zprime_mumu_SSM2000.e1242_s1469_s1470_d700/RDO.01177878._"+"%06d"%(i)+".pool.root.1"
+                    s = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/mc12_8TeV.158028.Zprime_mumu_SSM2000.e1242_s1469_s1470_d700/RDO.01177878._"+"%06d"%(i)+".pool.root.1"
 
             t.append(s)
             

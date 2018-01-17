@@ -265,7 +265,7 @@ StatusCode TrigSteer::initialize()
       try {
          m_topoSteer->setupFromConfiguration(*topomenu);
       }
-      catch(TCS::Exception e) {
+      catch(const TCS::Exception& e) {
          ATH_MSG_FATAL("Caught std::exception when configuring steering from menu: " << e.what() );
       }
    }
@@ -1399,7 +1399,7 @@ void HLT::TrigSteer::sortChains(std::vector<HLT::SteeringChain*>& chains) {
 
 struct comparePS {
   
-  bool operator() (const HLT::SteeringChain* ch1, const HLT::SteeringChain* ch2) {
+  bool operator() (const HLT::SteeringChain* ch1, const HLT::SteeringChain* ch2) const {
 
     // all what is below 1 means infinity (n omater if it is 0 or -1
     float ps1 = ch1->prescaleFactor() < 1. ? std::numeric_limits<float>::infinity() : ch1->prescaleFactor();

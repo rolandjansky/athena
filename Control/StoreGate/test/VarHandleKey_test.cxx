@@ -21,6 +21,15 @@
 #include <iostream>
 
 
+namespace SG {
+class VarHandleBase
+{
+public:
+  void setOwner_test (VarHandleKey& key) { key.setOwningHandle (this); }
+};
+}
+
+
 void test1()
 {
   std::cout << "test1\n";
@@ -33,6 +42,8 @@ void test1()
   assert (!k1.storeHandle().isSet());
   assert (k1.initialize().isSuccess());
   assert (k1.storeHandle().isSet());
+  assert (k1.start().isSuccess());
+  assert (!k1.isCondition());
 
   k1 = "aab";
   assert (k1.clid() == 1234);
@@ -59,7 +70,7 @@ void test1()
   EXPECT_EXCEPTION (SG::ExcBadHandleKey,
                     k1 = "FeeSvc+foo/aac");
   
-  SG::VarHandleKey k2 (1235, "bbb", Gaudi::DataHandle::Writer, "FooSvc");
+  SG::VarHandleKey k2 (1235, "bbb", Gaudi::DataHandle::Writer, "FooSvc", true);
   assert (k2.clid() == 1235);
   assert (k2.key() == "bbb");
   assert (k2.mode() == Gaudi::DataHandle::Writer);
@@ -67,6 +78,7 @@ void test1()
   assert (!k2.storeHandle().isSet());
   assert (k2.initialize().isFailure());
   assert (!k2.storeHandle().isSet());
+  assert (k2.isCondition());
 
   SG::VarHandleKey k3 (1236, "BarSvc+ccc", Gaudi::DataHandle::Updater, "FooSvc");
   assert (k3.clid() == 1236);
@@ -91,6 +103,11 @@ void test1()
   assert (k5.key() == "ccc");
   assert (k5.initialize(false).isSuccess());
   assert (k5.key() == "");
+
+  assert (k5.owningHandle() == nullptr);
+  SG::VarHandleBase base;
+  base.setOwner_test (k5);
+  assert (k5.owningHandle() == &base);
 }
 
 

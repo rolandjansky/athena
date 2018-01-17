@@ -17,7 +17,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace G4UA{ 
+namespace G4UA{
 
 Geant4SetupChecker::Geant4SetupChecker(const std::string& file_location, const bool test=true) : m_file_location(file_location) , m_test(test) {;
 }
@@ -30,13 +30,13 @@ void Geant4SetupChecker::BeginOfRunAction(const G4Run*){
   G4RegionStore* g4_region_store = G4RegionStore::GetInstance();
 
   // For each region: GetNumberOfMaterials GetFastSimulationManager ( GetFastSimulationModelList().size() )
-  
+
   // Might be nice to get at some kind of field information? Stepper?
 //  G4TransportationManager* g4_transportation_manager = G4TransportationManager::GetTransportationManager();
 
    if (m_test){
      // open a file for comparing these numbers to
-     std::ifstream infile(m_file_location); 
+     std::ifstream infile(m_file_location);
      for (std::string line; std::getline(infile, line); ){
        std::istringstream in(line);
        std::string id;
@@ -78,7 +78,7 @@ void Geant4SetupChecker::BeginOfRunAction(const G4Run*){
          if ( (!areg->GetFastSimulationManager() && nfs!=0) ||
               ( areg->GetFastSimulationManager() && nfs!=areg->GetFastSimulationManager()->GetFastSimulationModelList().size()) ){
            G4ExceptionDescription ed;
-           ed << "ERROR! Region " << id << " had " << nfs << " fast sims in ref and " << (areg->GetFastSimulationManager()?areg->GetFastSimulationManager()->GetFastSimulationModelList().size():0) << " in this setup" << G4endl; 
+           ed << "ERROR! Region " << id << " had " << nfs << " fast sims in ref and " << (areg->GetFastSimulationManager()?areg->GetFastSimulationManager()->GetFastSimulationModelList().size():0) << " in this setup" << G4endl;
            G4Exception("Geant4SetupChecker","FastSimMismatch",FatalException,ed);
          }
        } // End of region handling
@@ -97,4 +97,4 @@ void Geant4SetupChecker::BeginOfRunAction(const G4Run*){
   } // Done with writing a reference file
 }
 
-} // namespace G4UA 
+} // namespace G4UA

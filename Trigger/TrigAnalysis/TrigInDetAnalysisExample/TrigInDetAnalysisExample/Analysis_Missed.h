@@ -34,31 +34,31 @@ class Analysis_Missed : public TrackAnalysis {
  private:
   
   // Track number histograms
-  TH1* m_h_ntrack;
-  TH1* m_h_ntrackfrac;
+  TH1* h_ntrack;
+  TH1* h_ntrackfrac;
 
   // Track parameter histograms
-  TH1* m_h_eta;
-  TH1* m_h_phi;
-  TH1* m_h_d0;
-  TH1* m_h_z0;
-  TH1* m_h_pT;
-  TH1* m_h_chi2;
+  TH1* h_eta;
+  TH1* h_phi;
+  TH1* h_d0;
+  TH1* h_z0;
+  TH1* h_pT;
+  TH1* h_chi2;
   
   // Track hit histograms
-  TH1* m_h_blay;
-  TH1* m_h_pixel;
-  TH1* m_h_sct;
-  TH1* m_h_silicon;
-  TH1* m_h_straw;
-  TH1* m_h_tr;
-  TH1* m_h_patt;
-  TH1* m_h_firstpatt;
+  TH1* h_blay;
+  TH1* h_pixel;
+  TH1* h_sct;
+  TH1* h_silicon;
+  TH1* h_straw;
+  TH1* h_tr;
+  TH1* h_patt;
+  TH1* h_firstpatt;
 
   // Bidimensional histograms
-  TH2* m_h_etaphi;
-  TH2* m_h_etapatt;
-  TH2* m_h_phipatt;
+  TH2* h_etaphi;
+  TH2* h_etapatt;
+  TH2* h_phipatt;
 };
 
 

@@ -7,7 +7,7 @@
 
 /** Constructor **/
 ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
 {
@@ -16,7 +16,8 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc)
 }
 
 
-ISF::SimHitSvc::~SimHitSvc() {
+ISF::SimHitSvc::~SimHitSvc()
+{
 }
 
 /** Initialize event */
@@ -24,10 +25,9 @@ StatusCode ISF::SimHitSvc::initializeEvent() {
   ATH_MSG_DEBUG("initializing hit collections");
 
   //FIXME Lazy initialization to be removed after FADS migration
-  if(!m_senDetTool)
-    {
-      ATH_CHECK(m_senDetTool.retrieve());
-    }
+  if(!m_senDetTool) {
+    ATH_CHECK(m_senDetTool.retrieve());
+  }
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   return StatusCode::SUCCESS;
@@ -50,15 +50,4 @@ StatusCode ISF::SimHitSvc::releaseEvent() {
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   return StatusCode::SUCCESS;
-}
-
-/** Query the interfaces. */
-StatusCode ISF::SimHitSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if ( IID_ISimHitSvc == riid ) {
-    *ppvInterface = (ISimHitSvc*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  // Interface is not directly available: try out a base class
-  return AthService::queryInterface(riid, ppvInterface);
 }

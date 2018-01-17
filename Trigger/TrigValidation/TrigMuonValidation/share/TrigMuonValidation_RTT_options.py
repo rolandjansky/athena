@@ -2,7 +2,7 @@
 
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964/RDO.0119996._000032.pool.root.1"]
+athenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964/RDO.0119996._000032.pool.root.1"]
 
 jp.AthenaCommonFlags.PoolESDOutput="theoutput.ESD.pool.root"
 if not 'rec.doWriteESD' in dir():

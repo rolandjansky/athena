@@ -109,12 +109,21 @@ if digitizationFlags.readSeedsFromFile.get_Value():
     logConfigDigitization.info("Random seeds for Digitization will be read from the file %s",digitizationFlags.rndmSeedInputFile.get_Value())
 
 # write out a summary of the time spent
+
+printNameAuditor=False
+
 from AthenaCommon.AppMgr import theAuditorSvc
-from GaudiAud.GaudiAudConf import ChronoAuditor, MemStatAuditor
+from GaudiAud.GaudiAudConf import ChronoAuditor, MemStatAuditor, NameAuditor
 if not 'ChronoAuditor/ChronoAuditor' in theAuditorSvc.Auditors:
     theAuditorSvc += ChronoAuditor()
 if not 'MemStatAuditor/MemStatAuditor' in theAuditorSvc.Auditors:
     theAuditorSvc += MemStatAuditor()
+if printNameAuditor:
+  from AthenaCommon.AppMgr import ServiceMgr
+  ServiceMgr.MessageSvc.infoLimit = 0
+  if not 'MemStatAuditor/NameAuditor' in theAuditorSvc.Auditors:
+      theAuditorSvc += NameAuditor()
+
 
 # LSFTimeLimi. Temporary disable
 # include( "LSFTimeKeeper/LSFTimeKeeperOptions.py" )

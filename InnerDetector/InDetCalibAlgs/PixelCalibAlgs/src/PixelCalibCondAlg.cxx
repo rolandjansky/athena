@@ -59,7 +59,7 @@ StatusCode PixelCalibCondAlg::execute()
   }
 
   // Construct the output Cond Object and fill it in
-  PixelCalib::PixelOfflineCalibData* writeCdo = new PixelCalib::PixelOfflineCalibData();
+  auto writeCdo = std::make_unique<PixelCalib::PixelOfflineCalibData>();
 
   SG::ReadCondHandle<DetCondCFloat> readHandle{m_readKey};
   const DetCondCFloat* readCdo{*readHandle}; 
@@ -79,7 +79,7 @@ StatusCode PixelCalibCondAlg::execute()
     const float* const2 = readCdo->find(key);
     if (const2) {
       ATH_MSG_INFO("Found constants with old-style Identifier key");
-      writeCdo->SetConstants(constants);
+      writeCdo->SetConstants(const2);
     }
     else {
       ATH_MSG_ERROR("Could not get the constants!");
@@ -94,7 +94,7 @@ StatusCode PixelCalibCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  if(writeHandle.record(rangeW,writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
     ATH_MSG_ERROR("Could not record PixelCalib::PixelOfflineCalibData " << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");

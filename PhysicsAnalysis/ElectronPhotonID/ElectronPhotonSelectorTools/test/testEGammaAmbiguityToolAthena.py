@@ -6,7 +6,7 @@ __author__ = "Bruno Lenzi"
 import AthenaPoolCnvSvc.ReadAthenaPool # EventSelector
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-svcMgr.EventSelector.InputCollections = ['root://eosatlas//eos/atlas/atlasdatadisk/rucio/valid3/24/c7/AOD.05062229._000129.pool.root.1']
+svcMgr.EventSelector.InputCollections = ['root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/valid3/24/c7/AOD.05062229._000129.pool.root.1']
 
 # Redefine the function InputFileNames to make autoconfiguration work 
 # outside RecExCommon

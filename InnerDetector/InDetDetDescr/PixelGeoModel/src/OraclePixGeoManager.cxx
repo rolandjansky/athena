@@ -2516,8 +2516,8 @@ double OraclePixGeoManager::PixelModuleZPositionTabulated(int etaModule, int typ
     m_zPositionMap = new InDetDD::PairIndexMap;
     for (unsigned int indexTmp = 0; indexTmp < db()->getTableSize(m_PixelStaveZ); ++indexTmp) {
       int eta_module = db()->getInt(m_PixelStaveZ,"ETAMODULE",indexTmp);
-      int type       = db()->getInt(m_PixelStaveZ,"TYPE",indexTmp);
-      m_zPositionMap->add(type,eta_module,indexTmp);
+      int type_tmp       = db()->getInt(m_PixelStaveZ,"TYPE",indexTmp);
+      m_zPositionMap->add(type_tmp,eta_module,indexTmp);
     }
   }
   int index = m_zPositionMap->find(type, etaModule);

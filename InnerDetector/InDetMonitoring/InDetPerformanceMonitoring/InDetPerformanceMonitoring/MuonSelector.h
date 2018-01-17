@@ -65,7 +65,6 @@ class MuonSelector : public EventAnalysis
 
   bool  m_bCutOnCombKine;
   float m_fEtaCut;
-  float m_fPtCut;
 
   double m_combPtCut;
   float m_ptMSCut;

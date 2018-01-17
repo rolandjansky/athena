@@ -3,12 +3,8 @@ EventSelector        INFO EventSelection with query RunNumber != 1000000 && Even
 EventSelector        INFO Using standard collection ref 
 Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_Splittable0.root
 RootDatabase.open    INFO AthenaPoolMultiTest_Splittable0.root File version:60806
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query RunNumber != 1000000 && EventNumber > 0
-EventSelector        INFO Using standard collection ref 
 DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 RegStream1.Regi...   INFO No Primary Key defined
 RegStream1.Regi...   INFO Collection Events output: 19
-name: "SplittableCollection.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 13  ptr: 0x1414b0c0  [o] [u]

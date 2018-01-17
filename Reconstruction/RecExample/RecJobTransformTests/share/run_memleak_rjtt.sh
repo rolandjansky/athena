@@ -10,7 +10,7 @@ if [[ $1 == "mc11_memleak" ]]; then
     echo "running $1 with CMTCONFIG $CMTCONFIG"
     if [[ $CMTCONFIG = x86_64-* ]]; then
 	echo "64 bit : igprof"
-	Reco_trf.py inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1 outputESDFile=T1_McAtNlo_Jimmy.ESD.pool.root outputAODFile=T1_McAtNlo_Jimmy.AOD.pool.root outputHISTFile=T1_McAtNlo_Jimmy.HIST.root maxEvents=500 autoConfiguration=everything --athenaopts="--config-only=job.cfg --keep-configuration"
+	Reco_trf.py inputRDOFile=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1 outputESDFile=T1_McAtNlo_Jimmy.ESD.pool.root outputAODFile=T1_McAtNlo_Jimmy.AOD.pool.root outputHISTFile=T1_McAtNlo_Jimmy.HIST.root maxEvents=500 autoConfiguration=everything --athenaopts="--config-only=job.cfg --keep-configuration"
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.2/${CMTCONFIG}/lib
 	export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.2/${CMTCONFIG}/bin
 	igprof -mp -z -t python athena.py job.cfg.pkl --stdcmalloc
@@ -19,7 +19,7 @@ if [[ $1 == "mc11_memleak" ]]; then
 	igprof-analyse --sqlite -d -v -g -r MEM_LIVE igprof.*.gz | sqlite3 web/data/igreport_total.sql3
     else
 	echo "32 bit leak check execute"
-	Reco_trf.py inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1 outputESDFile=T1_McAtNlo_Jimmy.ESD.pool.root outputAODFile=T1_McAtNlo_Jimmy.AOD.pool.root outputHISTFile=T1_McAtNlo_Jimmy.HIST.root maxEvents=500 autoConfiguration=everything --athenaopts="--leak-check-execute"
+	Reco_trf.py inputRDOFile=root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1 outputESDFile=T1_McAtNlo_Jimmy.ESD.pool.root outputAODFile=T1_McAtNlo_Jimmy.AOD.pool.root outputHISTFile=T1_McAtNlo_Jimmy.HIST.root maxEvents=500 autoConfiguration=everything --athenaopts="--leak-check-execute"
     fi
     RUN=1
 fi

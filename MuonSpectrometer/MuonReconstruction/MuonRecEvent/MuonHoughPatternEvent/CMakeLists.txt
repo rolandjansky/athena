@@ -7,7 +7,7 @@ atlas_subdir( MuonHoughPatternEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           PRIVATE
                           Control/CxxUtils
@@ -27,6 +27,6 @@ atlas_add_library( MuonHoughPatternEvent
                    PUBLIC_HEADERS MuonHoughPatternEvent
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} DataModel GeoPrimitives
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers GeoPrimitives
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils TrkDetElementBase TrkSurfaces TrkPrepRawData )
 

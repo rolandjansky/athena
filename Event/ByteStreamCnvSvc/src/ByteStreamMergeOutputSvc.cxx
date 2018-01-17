@@ -95,12 +95,12 @@ bool  ByteStreamMergeOutputSvc::putEvent(RawEvent* newEvent) {
    size_t orgrobcount = orgEvent->children(orgRobF, MAX_ROBFRAGMENTS);
    if (orgrobcount == MAX_ROBFRAGMENTS) {
       ATH_MSG_ERROR("ROB buffer overflow");
-      return(StatusCode::FAILURE);
+      return false;
    }
    size_t newrobcount = newEvent->children(newRobF,MAX_ROBFRAGMENTS);
    if (newrobcount == MAX_ROBFRAGMENTS) {
       ATH_MSG_ERROR("ROB buffer overflow");
-      return(StatusCode::FAILURE);
+      return false;
    }
 
    ROBMAP robsToAdd;
@@ -159,10 +159,10 @@ bool  ByteStreamMergeOutputSvc::putEvent(RawEvent* newEvent) {
    uint32_t count = eformat::write::copy(*(mergedEventWrite->bind()), buffer, rawSize);
    if (count != rawSize) {
       ATH_MSG_ERROR("Memcopy failed " << count << " " << rawSize);
-      return(StatusCode::FAILURE);
+      return false;
    }
    RawEvent newRawEvent(buffer);
-   StatusCode sc = m_outSvc->putEvent(&newRawEvent);
+   StatusCode sc = m_outSvc->putEvent(&newRawEvent) ? StatusCode::SUCCESS : StatusCode::FAILURE;
    for(ROBMAP::iterator it = robsToAdd.begin(), itEnd = robsToAdd.end(); it != itEnd; it++) {
       delete it->second; it->second = 0;
    }

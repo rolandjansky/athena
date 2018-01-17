@@ -198,6 +198,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
      }
    }
 
+   ATH_CHECK(m_mdtCsmContainerKey.initialize());
+
+   ATH_CHECK(m_mdtPrepContainerKey.initialize());
    
    // 
    return StatusCode::SUCCESS; 
@@ -349,15 +352,11 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     mdtHits_overlap.clear();
     
     // get MdtCsmContainer
-    const MdtCsmContainer* pMdtCsmContainer =
-      Muon::MuonRdoContainerAccess::retrieveMdtCsm("MDTCSM");
-    if( pMdtCsmContainer==0 ) {
-      ATH_MSG_DEBUG("MDT CSM container not registered by MuonRdoContainerManager; retrieving it from the store! ");
-      StatusCode sc = m_storeGateSvc->retrieve(pMdtCsmContainer, "MDTCSM");
-      if (sc.isFailure()) {
-	ATH_MSG_WARNING("Retrieval of MdtCsmContainer failed");
-	return sc;
-      }
+    auto mdtCsmContainerHandle = SG::makeHandle(m_mdtCsmContainerKey);
+    const MdtCsmContainer* pMdtCsmContainer = mdtCsmContainerHandle.cptr();
+    if (!mdtCsmContainerHandle.isValid()) {
+      ATH_MSG_ERROR("Retrieval of MdtCsmContainer key: " << m_mdtCsmContainerKey.key() << " failed");
+      return StatusCode::FAILURE;
     }
     
     // get IdHashes
@@ -429,7 +428,6 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
    // preload ROBs
     std::vector<uint32_t> v_robIds;
     std::vector<IdentifierHash> mdtHashList;
-
     if (m_use_RoIBasedDataAccess) {
       
       ATH_MSG_DEBUG("Use RoI based data access");
@@ -960,15 +958,13 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
     return StatusCode::SUCCESS;
   }
   
-  const MdtPrepDataContainer* mdtPrds = 0;
-  std::string mdtKey = "MDT_DriftCircles";
-  
+  const MdtPrepDataContainer* mdtPrds;
   if (m_activeStore) {
-    if((*m_activeStore)->retrieve(mdtPrds, mdtKey).isFailure()) {
-      ATH_MSG_ERROR(" Cannot retrieve MDT PRD Container " << mdtKey);
+    auto mdtPrepContainerHandle = SG::makeHandle(m_mdtPrepContainerKey);
+    mdtPrds = mdtPrepContainerHandle.cptr();
+    if (!mdtPrepContainerHandle.isValid()) {    
+      ATH_MSG_ERROR(" Cannot retrieve MDT PRD Container " << m_mdtPrepContainerKey.key());
       return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG(" MDT PRD Container retrieved with key " << mdtKey);	 
     }
   } else {
     ATH_MSG_ERROR("Null pointer to ActiveStore");

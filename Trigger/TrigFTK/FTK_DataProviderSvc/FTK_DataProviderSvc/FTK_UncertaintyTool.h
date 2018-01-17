@@ -65,6 +65,7 @@ class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTo
   //
   void LoadConstants      ();
   void LoadConstants_NoIBL();
+  void LoadConstants_OCT2017_V1();
 
  private:
 
@@ -179,6 +180,11 @@ class FTK_UncertaintyTool : public AthAlgTool, virtual public IFTK_UncertaintyTo
   //  Flag to turn off IBL
   //
   bool m_noIBL;
+  
+  //
+  // Flag to run on new ftk error parameters
+  //
+  std::string m_ftkparversion;
 
 };
 

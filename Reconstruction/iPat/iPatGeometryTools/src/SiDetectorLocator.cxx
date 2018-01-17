@@ -19,7 +19,9 @@ SiDetectorLocator::SiDetectorLocator (const std::string&	type,
 				      const std::string&	name, 
 				      const IInterface*		parent)
     :	AthAlgTool		(type, name, parent),
-	m_layerAllocator	("LayerAllocator/LayerAllocator")
+	m_layerAllocator	("LayerAllocator/LayerAllocator"),
+	m_SCT_Helper		(nullptr),
+	m_pixelHelper		(nullptr)
 {
     declareInterface<ISiDetectorLocator>(this);
     declareProperty("LayerAllocator",	m_layerAllocator);

@@ -1,6 +1,0 @@
-package InDetTruthInterfaces
-
-author Andrei Gaponenko <AGaponenko@lbl.gov>
-
-use AtlasPolicy AtlasPolicy-*
-use GaudiInterface       GaudiInterface-*       External

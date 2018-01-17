@@ -34,7 +34,7 @@ public:
 	bool BuildMScomponents() const;
 	bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
 
-	std::string TagInfoKey() {return tagInfoKey;}
+	std::string TagInfoKey() {return m_tagInfoKey;}
 
 private:
 
@@ -43,7 +43,7 @@ private:
 	
 	
 	ITagInfoMgr* m_tagInfoMgr;
-	std::string tagInfoKey;
+	std::string m_tagInfoKey;
 	
 };
 

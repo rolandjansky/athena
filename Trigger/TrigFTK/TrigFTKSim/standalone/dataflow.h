@@ -20,10 +20,9 @@
 
 #define TTREE_NAME "ftkdata"
 
-using namespace std;
 
-ofstream myfile;
-ofstream myfileTeX;
+std::ofstream myfile;
+std::ofstream myfileTeX;
 
 // [tower]
 float nRoad[MAXTOWER], nFit[MAXTOWER], nFitI[MAXTOWER], nTrack[MAXTOWER], nTrackI[MAXTOWER], nTrackBeforeHW[MAXTOWER], nFitRecovery[MAXTOWER], nFitRecoveryI[MAXTOWER];
@@ -33,7 +32,7 @@ float nConn[MAXTOWER], nExtrapAUX[MAXTOWER];
 FTKRoadStream *stream[MAXTOWER];
 FTKTrackStream *trackstream[MAXTOWER];
 
-vector<float> nRoad_tow_evt[MAXTOWER], nFitI_tow_evt[MAXTOWER];
+std::vector<float> nRoad_tow_evt[MAXTOWER], nFitI_tow_evt[MAXTOWER];
 
 
 // events to run over

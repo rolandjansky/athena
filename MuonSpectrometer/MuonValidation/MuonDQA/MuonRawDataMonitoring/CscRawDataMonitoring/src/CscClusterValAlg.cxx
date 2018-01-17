@@ -747,7 +747,7 @@ StatusCode CscClusterValAlg::fillHistograms() {
   const DataHandle<CscPrepDataContainer> cscCluster(0);
   const DataHandle<CscStripPrepDataContainer> cscStrip(0);
 
-  sc = evtStore()->contains<Muon::CscPrepDataContainer>(m_cscClusterKey);
+  sc = StatusCode(evtStore()->contains<Muon::CscPrepDataContainer>(m_cscClusterKey));
   if(sc.isFailure() || m_cscClusterKey == "") {
     ATH_MSG_WARNING (  "Cluster container of type Muon::CscPrepDataContainer and key \"" << m_cscClusterKey << "\" NOT found in StoreGate" );
     return sc;
@@ -759,7 +759,7 @@ StatusCode CscClusterValAlg::fillHistograms() {
     }
   }
 
-  sc = evtStore()->contains<Muon::CscStripPrepDataContainer>(m_cscPRDKey);
+  sc = StatusCode(evtStore()->contains<Muon::CscStripPrepDataContainer>(m_cscPRDKey));
   if(sc.isFailure() || m_cscPRDKey == "") {
     ATH_MSG_WARNING (  "PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPRDKey << "\" NOT found in StoreGate" );
     return sc;

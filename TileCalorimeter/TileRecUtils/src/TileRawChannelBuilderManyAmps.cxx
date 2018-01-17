@@ -43,7 +43,7 @@ TileRawChannelBuilderManyAmps::TileRawChannelBuilderManyAmps(const std::string& 
   declareInterface< TileRawChannelBuilder >( this );
   declareInterface< TileRawChannelBuilderManyAmps >(this);
     
-  m_TileRawChannelContainerID = "TileRawChannelManyAmps";
+  m_rawChannelContainerKey = "TileRawChannelManyAmps";
 
   //declare properties
   declareProperty("FilterMode",  m_digitFilterMode = 2);  // can be 2 or 3

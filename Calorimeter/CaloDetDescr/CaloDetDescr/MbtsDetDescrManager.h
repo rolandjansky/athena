@@ -5,7 +5,7 @@
 #ifndef CALODETDESCR_MBTSDETDESCRMANAGER_H
 #define CALODETDESCR_MBTSDETDESCRMANAGER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
 #include <map>
 

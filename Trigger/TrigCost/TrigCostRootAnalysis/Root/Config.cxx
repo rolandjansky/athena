@@ -1472,9 +1472,9 @@ namespace TrigCostRootAnalysis {
     // check names
     for (UInt_t _n = 0; _n < _inputFiles.size(); ++_n) {
       if (_inputFiles.at(_n).substr(0, 5) == "/eos/") {
-        _inputFiles.at(_n) = std::string("root:://eosatlas/" + _inputFiles.at(_n));
+        _inputFiles.at(_n) = std::string("root:://eosatlas.cern.ch/" + _inputFiles.at(_n));
       } else if (_inputFiles.at(_n).substr(0, 27) == "srm://srm-eosatlas.cern.ch/") {
-        _inputFiles.at(_n) = std::string("root:://eosatlas//") + _inputFiles.at(_n).substr(27, std::string::npos);
+        _inputFiles.at(_n) = std::string("root:://eosatlas.cern.ch//") + _inputFiles.at(_n).substr(27, std::string::npos);
       }
     }
 

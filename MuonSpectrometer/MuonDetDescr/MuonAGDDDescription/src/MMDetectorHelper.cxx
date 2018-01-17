@@ -19,7 +19,7 @@ MMDetectorHelper::MMDetectorHelper()
 	{
 		MMDetectorDescription* st=dynamic_cast<MMDetectorDescription*>(vl_iter.second);
 		if (st) 
-			MicromegasList[vl_iter.first]=st;
+			m_MicromegasList[vl_iter.first]=st;
 	}
 	
 }
@@ -98,6 +98,6 @@ AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int 
 
 MMDetectorDescription* MMDetectorHelper::Get_MMDetectorType(std::string type)
 {
-	if (MicromegasList.find(type) != MicromegasList.end()) return MicromegasList[type];
+	if (m_MicromegasList.find(type) != m_MicromegasList.end()) return m_MicromegasList[type];
 	return nullptr;
 }

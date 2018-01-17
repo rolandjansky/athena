@@ -11,18 +11,19 @@ namespace G4UA
   ScoringVolumeTrackKillerTool::ScoringVolumeTrackKillerTool(const std::string& type,
                                                              const std::string& name,
                                                              const IInterface* parent)
-    : ActionToolBase<ScoringVolumeTrackKiller>(type, name, parent)
+    : UserActionToolBase<ScoringVolumeTrackKiller>(type, name, parent)
   {
-    declareInterface<IG4EventActionTool>(this);
-    declareInterface<IG4SteppingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
   std::unique_ptr<ScoringVolumeTrackKiller>
-  ScoringVolumeTrackKillerTool::makeAction()
+  ScoringVolumeTrackKillerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<ScoringVolumeTrackKiller>();
+    ATH_MSG_DEBUG("Making a ScoringVolumeTrackKiller action");
+    auto action = std::make_unique<ScoringVolumeTrackKiller>();
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

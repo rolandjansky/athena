@@ -276,7 +276,7 @@ def FindFile(path, runinput, filter):
             good=True
         if good:
             if (path.startswith('/eos/')):
-                fullname.append('root://eosatlas/' + path + '/' + file_name)
+                fullname.append('root://eosatlas.cern.ch/' + path + '/' + file_name)
             elif ReadPool and not RunFromLocal:
                 fullname.append('rfio:' + path + '/' + file_name) # maybe castor: ?
             elif (path.startswith('/castor/')):
@@ -1173,6 +1173,19 @@ if doTileNtuple:
 
     TileNtuple.CheckDCS = TileUseDCS
 
+    # FIXME: TileAANtuple does a back-door set of properties
+    #        in TileBeamInfoProvider.  That doesn't really work with
+    #        handles and MT.  To compensate, also set the properties here.
+    def moveprop (pname):
+        pval = TileNtuple.properties()[pname]
+        if pval == TileNtuple.propertyNoValue:
+            pval = TileNtuple.getDefaultProperty(pname)
+        if pval:
+            setattr (ToolSvc.TileBeamInfoProvider, pname, pval)
+
+    moveprop ('TileBeamElemContainer')
+    moveprop ('TileDigitsContainer')
+    moveprop ('TileRawChannelContainer')
 
 if doTileMon:
     # Monitoring historgrams

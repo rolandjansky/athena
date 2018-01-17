@@ -17,7 +17,6 @@
 #include <vector>
 #include <iostream>
 
-#include <cassert>
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CxxUtils/fpcompare.h"

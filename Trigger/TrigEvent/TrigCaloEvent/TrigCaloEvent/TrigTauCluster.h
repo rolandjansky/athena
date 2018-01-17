@@ -23,7 +23,7 @@ DATE:		October 17th, 2005
 ******************************************************/
 // includes section
 #include <math.h>
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrigCaloEvent/TrigCaloCluster.h"
 #include "TrigCaloEvent/TrigTauClusterDetailsContainer.h"
 

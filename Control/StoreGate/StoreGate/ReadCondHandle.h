@@ -10,10 +10,10 @@
 #include "AthenaKernel/IOVEntryT.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 
-#include "StoreGate/VarHandleBase.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "GaudiKernel/DataHandle.h"
 #include "GaudiKernel/DataObjID.h"
@@ -28,7 +28,7 @@
 namespace SG {
 
   template <typename T>
-  class ReadCondHandle : public SG::VarHandleBase {
+  class ReadCondHandle {
 
   public: 
     typedef T*               pointer_type; // FIXME: better handling of
@@ -41,8 +41,11 @@ namespace SG {
     ReadCondHandle(const SG::ReadCondHandleKey<T>& key, 
                    const EventContext& ctx);
     
-    virtual ~ReadCondHandle() override {};
+    ~ReadCondHandle() {};
     
+    const std::string& key() const { return m_hkey.key(); }
+    const DataObjID& fullKey() const { return m_hkey.fullKey(); }
+
     const_pointer_type retrieve();
     const_pointer_type retrieve( const EventIDBase& t);
 
@@ -50,7 +53,7 @@ namespace SG {
     const_pointer_type  operator*()   { return  retrieve(); }   
 
     
-    virtual bool isValid() override;
+    bool isValid();
     bool isValid(const EventIDBase& t) const ;
 
     bool range(EventIDRange& r);
@@ -63,11 +66,9 @@ namespace SG {
     EventIDBase m_eid;
     CondCont<T>*  m_cc {nullptr};
     const T* m_obj { nullptr };
-    EventIDRange m_range;
+    const EventIDRange* m_range { nullptr };
     
     const SG::ReadCondHandleKey<T>& m_hkey;
-
-    StoreGateSvc* m_cs {nullptr};
   };
 
 
@@ -84,21 +85,17 @@ namespace SG {
   template <typename T>
   ReadCondHandle<T>::ReadCondHandle(const SG::ReadCondHandleKey<T>& key,
                                     const EventContext& ctx):
-    SG::VarHandleBase( key, &ctx ),
     m_eid( ctx.eventID() ),
     m_cc( key.getCC() ),
-    m_hkey(key),
-    m_cs ( key.getCS() )
+    m_hkey(key)
   {
     EventIDBase::number_type conditionsRun =
       ctx.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
     if (conditionsRun != EventIDBase::UNDEFNUM) {
       m_eid.set_run_number (conditionsRun);
     }
-    // Event number not used in IOV comparisons, only run+lbn.
-    m_eid.set_event_number (EventIDBase::UNDEFEVT);
 
-    if (! m_hkey.isInit()) {
+    if (ATH_UNLIKELY(!key.isInit())) {
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
       msg << MSG::ERROR 
           << "ReadCondHandleKey " << key.objKey() << " was not initialized"
@@ -106,13 +103,14 @@ namespace SG {
       throw std::runtime_error("ReadCondHandle: ReadCondHandleKey was not initialized");
     }
 
-    if (m_cc == 0) {
+    if (ATH_UNLIKELY(m_cc == 0)) {
       // try to retrieve it
+      StoreGateSvc* cs = m_hkey.getCS();
       CondContBase *cb(nullptr);
-      if (m_cs->retrieve(cb, SG::VarHandleKey::key()).isFailure()) {
+      if (cs->retrieve(cb, m_hkey.key()).isFailure()) {
         MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
         msg << MSG::ERROR
-            << "can't retrieve " << Gaudi::DataHandle::fullKey() 
+            << "can't retrieve " << m_hkey.fullKey() 
             << " via base class" << endmsg;
         throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
       } else {
@@ -120,7 +118,7 @@ namespace SG {
         if (m_cc == 0) {
           MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
           msg << MSG::ERROR
-              << "can't dcast CondContBase to " << Gaudi::DataHandle::fullKey() 
+              << "can't dcast CondContBase to " << m_hkey.fullKey() 
               << endmsg;
           throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
         }
@@ -151,13 +149,13 @@ namespace SG {
 
     if (m_obj != 0) return true;
 
-    if ( ! m_cc->find(m_eid, m_obj, &m_range) ) {
+    if ( ATH_UNLIKELY(!m_cc->find(m_eid, m_obj, &m_range)) ) {
       std::ostringstream ost;
       m_cc->list(ost);
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
       msg << MSG::ERROR 
           << "ReadCondHandle: could not find current EventTime " 
-          << m_eid  << " for key " << objKey() << "\n"
+          << m_eid  << " for key " << m_hkey.objKey() << "\n"
           << ost.str()
           << endmsg;
       m_obj = nullptr;
@@ -206,7 +204,7 @@ namespace SG {
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
       msg << MSG::ERROR 
           << "ReadCondHandle::retrieve() could not find EventTime " 
-          << eid  << " for key " << objKey() << "\n"
+          << eid  << " for key " << m_hkey.objKey() << "\n"
           << ost.str()
           << endmsg;
       return nullptr;
@@ -247,8 +245,12 @@ namespace SG {
       }
     }
 
-    r = m_range;
-    return true;
+    if (m_range) {
+      r = *m_range;
+      return true;
+    }
+      
+    return false;
   }
 
   //---------------------------------------------------------------------------

@@ -72,7 +72,7 @@ TileRawChannelBuilderQIEFilter::TileRawChannelBuilderQIEFilter(const std::string
 	declareInterface < TileRawChannelBuilder > (this);
 	declareInterface < TileRawChannelBuilderQIEFilter > (this);
 
-	m_TileRawChannelContainerID = "TileRawChannelQIE";
+	m_rawChannelContainerKey = "TileRawChannelQIE";
 
 	//declare properties
 //  declareProperty("TileCondToolTiming", m_tileToolTiming);

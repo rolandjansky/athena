@@ -36,6 +36,8 @@ BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
   m_numClusterShape(0),
   m_numJet(0),
   m_direction(0),
+  m_helperTool("Muon::MuonEDMHelperTool"),
+  m_idHelperTool("Muon::MuonIdHelperTool"),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
   declareProperty("cscSegmentContainerKey", m_cscSegmentContainerKey="NCB_MuonSegments");

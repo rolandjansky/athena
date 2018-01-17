@@ -44,7 +44,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
 
 class TFile;
 class Identifier;
@@ -117,20 +116,20 @@ private:
   
   // Vectors of TgcElement ids per chamber, wire/strip, BCID, layer
   // in case of multiple hits from the same channel, only the first is added
-  vector<Identifier> m_hitIdVects[3][2][2][6][48][9];//[pcn][ac][ws][eta][phi48][layer]
+  std::vector<Identifier> m_hitIdVects[3][2][2][6][48][9];//[pcn][ac][ws][eta][phi48][layer]
   
   // Vectors of variables read from the PRD Container
-  vector<int>    m_hitStation[2][2];   //[ac][ws]
-  vector<int>    m_hitLayer[2][2];     //[ac][ws]
-  vector<int>    m_hitChannel[2][2];   //[ac][ws]
-  vector<int>    m_hitSector[2][2];    //[ac][ws]
-  vector<int>    m_hitSectorPhi[2][2]; //[ac][ws]
-  vector<int>    m_hitEtaIndex[2][2];  //[ac][ws]
-  vector<int>    m_hitPhiIndex[2][2];  //[ac][ws]
-  vector<int>    m_hitPhi48[2][2];     //[ac][ws]
-  vector<int>    m_hitPhi4[2][2];      //[ac][ws]
-  vector<double> m_hitPosR[2][2];      //[ac][ws]
-  vector<double> m_hitPosPhi[2][2];    //[ac][ws]
+  std::vector<int>    m_hitStation[2][2];   //[ac][ws]
+  std::vector<int>    m_hitLayer[2][2];     //[ac][ws]
+  std::vector<int>    m_hitChannel[2][2];   //[ac][ws]
+  std::vector<int>    m_hitSector[2][2];    //[ac][ws]
+  std::vector<int>    m_hitSectorPhi[2][2]; //[ac][ws]
+  std::vector<int>    m_hitEtaIndex[2][2];  //[ac][ws]
+  std::vector<int>    m_hitPhiIndex[2][2];  //[ac][ws]
+  std::vector<int>    m_hitPhi48[2][2];     //[ac][ws]
+  std::vector<int>    m_hitPhi4[2][2];      //[ac][ws]
+  std::vector<double> m_hitPosR[2][2];      //[ac][ws]
+  std::vector<double> m_hitPosPhi[2][2];    //[ac][ws]
   
   // read Tgc PRD Container
   void readTgcPrepDataContainer(const Muon::TgcPrepDataContainer *tgc_prep_container, int pcn);

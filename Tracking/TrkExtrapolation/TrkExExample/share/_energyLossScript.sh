@@ -192,7 +192,7 @@ geo=${geo%_VALIDATION}
 
 if [ -z "$nocastor" ]
 then
-  eosbase="root://eosatlas//eos/atlas/user/w/wlukas"
+  eosbase="root://eosatlas.cern.ch//eos/atlas/user/w/wlukas"
   eosdir="$eosbase/Cylinder"
 
   if test -z "$eosdir"

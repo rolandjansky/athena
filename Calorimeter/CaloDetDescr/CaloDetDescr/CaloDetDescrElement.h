@@ -171,7 +171,7 @@ class CaloDetDescrElement : public Identifiable
 
   /** @brief cell identifier
    */
-  Identifier identify () const;
+  Identifier identify () const override final;
 
   /** @brief cell online identifier 1
    */
@@ -189,7 +189,7 @@ class CaloDetDescrElement : public Identifiable
   /** @brief cell subcalo hash 
       same as subcalo_hash(), but kept for backward compatibility 
   */
-  IdentifierHash identifyHash() const;
+  IdentifierHash identifyHash() const override final;
 
   /** @brief cell descriptor
    */

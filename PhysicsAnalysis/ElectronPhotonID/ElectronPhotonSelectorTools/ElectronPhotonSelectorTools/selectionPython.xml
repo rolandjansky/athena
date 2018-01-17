@@ -1,15 +1,10 @@
 <lcgdict>
-  <class name="IAsgElectronIsEMSelector" /> 
-  <class name="IAsgForwardElectronIsEMSelector" /> 
-  <class name="IAsgPhotonIsEMSelector" />
-  <class name="IAsgElectronMultiLeptonSelector" /> 
-  <class name="IAsgElectronLikelihoodTool" /> 
-  <class name="IEGammaAmbiguityTool" />
   <class name="AsgElectronIsEMSelector" /> 
   <class name="AsgForwardElectronIsEMSelector" /> 
   <class name="AsgPhotonIsEMSelector" />
   <class name="AsgElectronMultiLeptonSelector" /> 
   <class name="AsgElectronLikelihoodTool" /> 
   <class name="EGammaAmbiguityTool" /> 
+  <class name="AsgDeadHVCellRemovalTool" /> 
   <class name="AsgElectronChargeIDSelectorTool"/>
 </lcgdict>

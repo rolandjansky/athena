@@ -200,7 +200,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
               }
           }
 //  std::cout<<"FoundAppVrt="<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<", "<<newvrt.vertex[2]<<'\n';
-	  sc.setCode(StatusCode::FAILURE);
+	  sc = StatusCode::FAILURE;
           if     (xAODwrk){sc=VKalVrtFitBase(xAODwrk->tmpListTracks,
 	                                     newvrt.vertex,     newvrt.vertexMom, newvrt.vertexCharge, newvrt.vertexCov,
                                              newvrt.Chi2PerTrk, newvrt.TrkAtVrt,  newvrt.Chi2);}
@@ -402,7 +402,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	     }
 	  }
           RemoveTrackFromVertex(WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex);
-	  sc.setCode(0);
+          sc = StatusCode::FAILURE;
           if     (xAODwrk)sc = RefitVertex( WrkVrtSet, SelectedVertex, xAODwrk->listJetTracks);
           else if(RECwork)sc = RefitVertex( WrkVrtSet, SelectedVertex, RECwork->listJetTracks);
           (*WrkVrtSet)[SelectedVertex].ProjectedVrt=JetProjDist((*WrkVrtSet)[SelectedVertex].vertex, PrimVrt, JetDir);
@@ -533,7 +533,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           if(nth <= 1)                          continue;                    /* Definitely bad vertices */
           if((*WrkVrtSet)[iv].ProjectedVrt<0.)  continue;                    /* Remove vertices behind primary one */ 
           //VK   Refitting is not needed here - done previously. Option for safety
-	  //sc.setCode(0);
+	  //sc = StatusCode::FAILURE;
           //if     (xAODwrk)sc = RefitVertex( WrkVrtSet, iv, xAODwrk->listJetTracks);
           //else if(RECwork)sc = RefitVertex( WrkVrtSet, iv, RECwork->listJetTracks);
           //if( sc.isFailure() )                                   continue;           /* Bad fit - goto next solution */
@@ -668,7 +668,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
     struct MatchedSV { int indVrt; double Signif3D;}; std::vector<MatchedSV> matchSV(0);
     double Signif=0.; std::vector<double> Impact,ImpactError;
     for(int it=0; it<(int)nonusedTrk.size(); it++){
-      MatchedSV tmpV; tmpV.Signif3D=1.e9;
+      MatchedSV tmpV = {0, 1.e9};
       for(int iv=0; iv<(int)GoodVertices.size(); iv++){
         if(GoodVertices[iv].SelTrk.size()<2) continue;
         if     (RECwork)Signif = m_fitSvc->VKalGetImpact(RECwork->listJetTracks[nonusedTrk[it]], GoodVertices[iv].vertex, 1, Impact, ImpactError);

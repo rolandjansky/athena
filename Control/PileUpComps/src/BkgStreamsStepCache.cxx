@@ -136,7 +136,7 @@ BkgStreamsStepCache::setup(int firstXing,
     const std::string& streamName(bufName.str());
     try {
       m_streams.push_back(PileUpStream(streamName,serviceLocator(),selecName));
-    } catch (std::runtime_error e) {
+    } catch (const std::runtime_error& e) {
       ATH_MSG_ERROR ( "Exception thrown while creating PileUpStream "
                       << streamName << " : " << e.what() );
       return StatusCode::FAILURE;

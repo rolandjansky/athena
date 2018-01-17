@@ -92,8 +92,6 @@ public:
   ElementProxy& operator= (typename DVL::value_type rhs);
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
   /**
    * @brief Assignment operator, from a pointer.
    * @param rhs The pointer from which we're assigning.
@@ -104,8 +102,6 @@ public:
    * to use this interface.
    */
   ElementProxy& operator= (std::unique_ptr<typename DVL::base_value_type> rhs);
-#endif
-#endif
 
 
   /**
@@ -128,7 +124,13 @@ public:
   /**
    * @brief Return the container holding the element that this object proxies.
    */
-  DVL* container() const;
+  DVL* container();
+
+
+  /**
+   * @brief Return the container holding the element that this object proxies.
+   */
+  const DVL* container() const;
 
 
   typedef typename

@@ -17,7 +17,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>

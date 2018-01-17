@@ -7,10 +7,10 @@ atlas_subdir( Particle )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthenaKernel
+                          Control/AthContainers
+                          Control/AthLinks
                           Control/Navigation
-                          Control/SGTools
                           Event/EventKernel
                           Event/FourMom
                           GaudiKernel
@@ -29,13 +29,13 @@ atlas_add_library( Particle
                    src/*.cxx
                    PUBLIC_HEADERS Particle
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel Navigation SGTools EventKernel FourMom GaudiKernel TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack TrkTrackSummary VxVertex
+                   LINK_LIBRARIES AthLinks AthContainers Navigation AthenaKernel EventKernel FourMom GaudiKernel TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack TrkTrackSummary VxVertex
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( ParticleDict
                       Particle/ParticleDict.h
                       Particle/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel Navigation SGTools EventKernel FourMom GaudiKernel TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack TrkTrackSummary VxVertex Particle
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers Navigation AthenaKernel EventKernel FourMom GaudiKernel TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack TrkTrackSummary VxVertex Particle
                       NAVIGABLES Rec::TrackParticleContainer )
 

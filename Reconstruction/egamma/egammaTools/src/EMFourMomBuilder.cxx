@@ -56,6 +56,11 @@ StatusCode EMFourMomBuilder::initialize(){
   ATH_MSG_DEBUG(" Initializing EMFourMomBuilder");
   m_eg_resol=std::make_unique<eg_resolution>(m_ResolutionConfiguration); 
   m_eg_resol->msg().setLevel(this->msg().level());
+  if (m_useCombination) {
+    ATH_CHECK(m_FourMomCombiner.retrieve());
+  } else{
+    m_FourMomCombiner.disable();
+  }
   return StatusCode::SUCCESS;
 }
 

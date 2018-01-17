@@ -178,6 +178,9 @@ fi
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
     { time cpack; } 2>&1 | tee cmake_cpack.log
+    if [ "$BUILDTYPE" = "RelWithDebInfo" ]; then
+	{ time cpack --config CPackDbgRPMConfig.cmake; } 2>&1 | tee -a cmake_cpack.log
+    fi
     cp Athena*.rpm ${BUILDDIR}/
 fi
 

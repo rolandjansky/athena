@@ -15,7 +15,6 @@ NeutronFastSimTool::NeutronFastSimTool(const std::string& type, const std::strin
   declareProperty("TrackFastSimSDName", m_trackFastSimSDName);
   declareProperty("PrimaryEtaCut",m_etaCut);
   declareProperty("NeutronTimeCut",m_timeCut);
-  declareInterface<IFastSimulation>(this);
 }
 
 G4VFastSimulationModel* NeutronFastSimTool::makeFastSimModel()

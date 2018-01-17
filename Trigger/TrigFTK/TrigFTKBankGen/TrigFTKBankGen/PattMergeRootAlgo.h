@@ -10,10 +10,15 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "TrigFTKSim/FTKLogging.h"
+
+#include "TrigFTKSim/FTKSetup.h"
+#include "TrigFTKSim/FTKSSMap.h"
+
 #include <vector>
 #include <string>
 /////////////////////////////////////////////////////////////////////////////
 
+class FTKSSMap;
 
 class PattMergeRootAlgo: public AthAlgorithm , public FTKLogger {
  public:
@@ -38,6 +43,12 @@ protected:
    int m_Compression;
    std::string m_WhereToRunMerging;
    std::vector< std::string > m_InputFiles;
+
+   FTKSSMap *m_ssmap;
+   int m_hwmodeid;
+
+   std::string m_ssmap_path,m_pmap_path,m_rmap_path,m_modulelut_path;
+   int m_curreg;
  
 };
 

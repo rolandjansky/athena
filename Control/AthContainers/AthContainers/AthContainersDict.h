@@ -5,7 +5,6 @@
 */
 
 
-#include "AthContainers/UserDataStore.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/AuxVectorBase.h"
@@ -27,13 +26,12 @@
 
 struct AthContainersInstan
 {
-  std::pair<SG::auxid_set_t::iterator, bool> p1;
   std::pair<SG::auxid_set_t::const_iterator, bool> p2;
 };
 
 
 namespace {
-  struct GCCXML_DUMMY_INSTANTIATION_ATHCONTAINERS {
+  struct DUMMY_INSTANTIATION_ATHCONTAINERS {
     DataLink<SG::IConstAuxStore> dummy1;
 
     SG::PackedContainer<char>           pchar;

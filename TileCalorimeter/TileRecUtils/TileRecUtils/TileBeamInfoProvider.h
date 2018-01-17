@@ -22,19 +22,33 @@
  *   
  ********************************************************************/
 
+// Tile includes
+#include "TileEvent/TileBeamElemContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileTriggerContainer.h"
+#include "TileEvent/TileLaserObject.h"
+
 // Atlas includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 
-#include "GaudiKernel/IIncidentListener.h"
+#include <string>
+#include <vector>
+#include <inttypes.h>
+
+
 class TileHWID;
 class TileRawChannelCollection;
 class StoreGateSvc;
 class TileBeamInfoProvider;
-class TileDigitsContainer;
-class TileRawChannelContainer;
-class TileBeamElemContainer;
 class TileDCSSvc;
 class ITileBadChanTool;
 class IAtRndmGenSvc;
@@ -43,10 +57,6 @@ namespace CLHEP {
 }
 
 
-#include <string>
-#include <vector>
-
-#include <inttypes.h>
 
 /**
 @class coincBoard
@@ -290,11 +300,24 @@ class TileBeamInfoProvider: public AthAlgTool
   bool m_checkDCS;  //!< if false, do not use TileDCSSvc at all
   bool m_simulateTrips;  //! if true simulate drawer trips
 
-  std::string m_TileBeamContainerID;    //!< Name of the TileBeamElemContainer
-  std::string m_TileDigitsContainerID;  //!< Name of the TileDigitsContainer
-  std::string m_TileRawChContainerID;   //!< Name of the TileRawChannelContainer
-  std::string m_TileTriggerContainerID; //!< Name of the TileTriggerContainer
-  std::string m_TileLaserObjectID;      //!< Name of the TileLaserObject
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", 
+                                                    "EventInfo", "Input Event info key"};
+
+  SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey{this, "TileBeamElemContainer", 
+                                                                  "", "Input Tile beam elements container key"};
+
+  SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this, "TileDigitsContainer", 
+                                                              "", "Input Tile digits container key"};
+
+  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this, "TileRawChannelContainer", 
+                                                                      "", "Input Tile raw channel container key"};
+
+  SG::WriteHandleKey<TileTriggerContainer> m_triggerContainerKey{this, "TileTriggerContainer", 
+                                                                 "", "Output Tile trigger container key"};
+
+  SG::WriteHandleKey<TileLaserObject> m_laserObjectKey{this, "TileLaserObject", 
+                                                       "", "Output Tile laser object key"};
+  
 
   ServiceHandle<TileDCSSvc>   m_tileDCSSvc; //!< Pointer to TileDCSSvc
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use

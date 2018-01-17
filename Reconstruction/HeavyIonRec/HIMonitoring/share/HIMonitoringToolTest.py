@@ -8,7 +8,7 @@ af.FilesInput = [
 "/afs/cern.ch/work/d/derendar/data15_13TeV.00267359.physics_MinBias.merge.AOD.r7111_p2424_tid06562979_00/AOD.06562979._000370.pool.root.1"
 #"/afs/cern.ch/work/d/derendar/data15_13TeV.00271744.physics_Main.merge.AOD.r7111_p2424_tid06550034_00/AOD.06550034._000243.pool.root.1"
 #"/afs/cern.ch/work/d/derendar/data11_hi.00193270.physics_MinBias.recon.AOD.r6991_tid06320830_00/AOD.06320830._004356.pool.root.1"
-#"root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"
+#"root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"
 #"/afs/cern.ch/work/d/derendar/mc15_5TeV.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.AOD.e3754_s2633_r6797_tid05633705_00/AOD.05633705._000215.pool.root.1"
 ]
 

@@ -13,7 +13,6 @@
 #define	ATHTILETRIPREADER_H
 
 #include "PATCore/IAthSelectorTool.h"
-#include "PATCore/IUserDataCalcTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "PATCore/TAccept.h"
@@ -26,7 +25,6 @@ class INavigable4Momentum;
 static const InterfaceID IID_AthTileTripReader("AthTileTripReader", 1 , 0);
 
 class AthTileTripReader : virtual public IAthSelectorTool,
-        virtual public IUserDataCalcTool,
         public AthAlgTool
 {
 public:
@@ -45,12 +43,6 @@ public:
     const Root::TAccept& accept(const INavigable4Momentum* part=0);
     
     const Root::TResult& calculate(const INavigable4Momentum* part);
-    
-    virtual StatusCode calculateElementUserData( const IAthenaBarCode *abc );
-    
-    virtual StatusCode calculateEventUserData( /*nothing!*/ ){
-        return StatusCode::SUCCESS;
-    }
     
     bool checkEvent();
     

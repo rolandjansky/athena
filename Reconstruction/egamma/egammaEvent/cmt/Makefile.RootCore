@@ -1,8 +1,0 @@
-PACKAGE          = egammaEvent
-PACKAGE_PRELOAD  =
-PACKAGE_CXXFLAGS =
-PACKAGE_LDFLAGS  =
-PACKAGE_BINFLAGS =
-PACKAGE_DEP      =
-
-include $(ROOTCOREDIR)/Makefile-common

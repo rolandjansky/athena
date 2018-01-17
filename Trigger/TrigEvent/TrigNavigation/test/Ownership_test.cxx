@@ -55,7 +55,7 @@ TestBContainer* makeContainer(SG::OwnershipPolicy policy, int initval) {
   
 }
 
-StatusCode noMixTest() {
+bool noMixTest() {
   BEGIN_TEST("noMixTest");
   pStore->clearStore();
   hns->reset();
@@ -83,7 +83,7 @@ StatusCode noMixTest() {
   END_TEST;
 }
 
-StatusCode firsInsertDecidesPolicy() {
+bool firsInsertDecidesPolicy() {
   BEGIN_TEST("testing if the insert operation on an empty container makes it a view container");
   pStore->clearStore();
   hns->reset();
@@ -128,7 +128,7 @@ StatusCode firsInsertDecidesPolicy() {
   END_TEST;
 }
 
-StatusCode viewContainerAttachTest() {
+bool viewContainerAttachTest() {
   BEGIN_TEST("testing if the xAOD view container works");
   TestBContainer *b1 = makeContainer(SG::OWN_ELEMENTS, 2);
   TestBContainerView* view1 = new TestBContainerView();
@@ -201,17 +201,17 @@ int main() {
 
   } else  ABORT("navigation tool NOT retrieved" );
 
-  if ( firsInsertDecidesPolicy().isFailure() ) 
+  if ( !firsInsertDecidesPolicy() ) 
     ABORT("");
   
   
 
-  if ( noMixTest().isFailure() ) 
+  if ( !noMixTest() ) 
     ABORT("");
   
   
 
-  if ( viewContainerAttachTest().isFailure() ) {
+  if ( !viewContainerAttachTest() ) {
     ABORT("");
   }
 

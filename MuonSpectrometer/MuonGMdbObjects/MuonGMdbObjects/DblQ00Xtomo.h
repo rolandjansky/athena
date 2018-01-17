@@ -15,7 +15,8 @@
 #ifndef DBLQ00_XTOMO_H
 #define DBLQ00_XTOMO_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 
 namespace MuonGM
 {
@@ -26,7 +27,7 @@ class DblQ00Xtomo {
 public:
     DblQ00Xtomo();
     ~DblQ00Xtomo();
-    DblQ00Xtomo(IRDBQuery* m_xtomo);
+    DblQ00Xtomo(std::unique_ptr<IRDBQuery>&& xtomo);
 //    DblQ00Xtomo(std::string asciiFileName);
     
 //    void WriteXtomoToAsciiFile(std::string filename);

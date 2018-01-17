@@ -50,31 +50,31 @@ TrigSecVtxFinder::~TrigSecVtxFinder() {
 
 HLT::ErrorCode TrigSecVtxFinder::hltInitialize() {
 
-  msg() << MSG::INFO << "TrigSecVtxFinder::initialize()" << endmsg;
+  ATH_MSG_INFO( "TrigSecVtxFinder::initialize()"  );
 
   //* Retrieve TrigTrackJetFinder tool *//
   StatusCode sc = m_trackJetFinderTool.retrieve();
   if(sc.isFailure()) {
-    msg() << MSG::FATAL << "Failed to locate tool " << m_trackJetFinderTool << endmsg;
+    ATH_MSG_FATAL( "Failed to locate tool " << m_trackJetFinderTool  );
     return HLT::BAD_JOB_SETUP;
   } else
-    msg() << MSG::INFO << "Retrieved tool " << m_trackJetFinderTool << endmsg;
+    ATH_MSG_INFO( "Retrieved tool " << m_trackJetFinderTool  );
 
   sc = m_secvtxFinderTool.retrieve();
   if ( sc.isFailure() ){
-    msg() << MSG::FATAL << "Unable to retrieve TrigInDetVxInJetTool " << m_secvtxFinderTool << endmsg;
+    ATH_MSG_FATAL( "Unable to retrieve TrigInDetVxInJetTool " << m_secvtxFinderTool  );
     return HLT::BAD_JOB_SETUP;
   }
   else
-    msg() << MSG::INFO << "Retrieved tool " << m_secvtxFinderTool << endmsg;
+    ATH_MSG_INFO( "Retrieved tool " << m_secvtxFinderTool  );
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endmsg; 
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endmsg; 
-    msg() << MSG::DEBUG << " TrackJetTrkSelExt = "   << m_trackJetTrkSelExt << endmsg;
-    msg() << MSG::DEBUG << " UseJetDirection = "     << m_useJetDirection << endmsg; 
+    ATH_MSG_DEBUG( "declareProperty review:"  );
+    ATH_MSG_DEBUG( " AlgoId = "              << m_algo  );
+    ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag  );
+    ATH_MSG_DEBUG( " TrackJetTrkSelExt = "   << m_trackJetTrkSelExt  );
+    ATH_MSG_DEBUG( " UseJetDirection = "     << m_useJetDirection  );
   }
 
   return HLT::OK;
@@ -85,15 +85,12 @@ HLT::ErrorCode TrigSecVtxFinder::hltExecute(const HLT::TriggerElement* inputTE, 
   // ====== get RoI descriptor =========
   const TrigRoiDescriptor* roiDescriptor = 0;
   if ((getFeature(inputTE, roiDescriptor) == HLT::OK) && roiDescriptor) {
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Using inputTE: " 
-	    << "RoI id " << roiDescriptor->roiId()
-	    << ", Phi = " <<  roiDescriptor->phi()
-	    << ", Eta = " << roiDescriptor->eta() << endmsg;
-    }
+    ATH_MSG_DEBUG( "Using inputTE: " 
+                   << "RoI id " << roiDescriptor->roiId()
+                   << ", Phi = " <<  roiDescriptor->phi()
+                   << ", Eta = " << roiDescriptor->eta()  );
   } else {
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() <<  MSG::DEBUG << "No RoI for this Trigger Element" << endmsg;
+    ATH_MSG_DEBUG( "No RoI for this Trigger Element"  );
     
     return HLT::NAV_ERROR;
   }
@@ -103,30 +100,24 @@ HLT::ErrorCode TrigSecVtxFinder::hltExecute(const HLT::TriggerElement* inputTE, 
   Trk::RecVertex prmVtx;
   if ((sc = getPrmVtxForFit(prmVtx,outputTE)) != HLT::OK) {
 
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta() << endmsg;
-      msg() << MSG::DEBUG << "REGTEST:  No Secondary vertex reconstructed (primary vertex not available)" << endmsg;
-    }
+    ATH_MSG_DEBUG( "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta()  );
+    ATH_MSG_DEBUG( "REGTEST:  No Secondary vertex reconstructed (primary vertex not available)"  );
 
     return sc;
   }
 
   if(prmVtx.fitQuality().chiSquared() == -9) {
 
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta() << endmsg;
-      msg() << MSG::DEBUG << "REGTEST:  No Secondary vertex reconstructed (default primary vertex: -200 +/- -200)" << endmsg;
-    }
+    ATH_MSG_DEBUG( "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta()  );
+    ATH_MSG_DEBUG( "REGTEST:  No Secondary vertex reconstructed (default primary vertex: -200 +/- -200)"  );
 
     return HLT::OK;
   }
 
   if(prmVtx.fitQuality().chiSquared() == -99) {
 
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta() << endmsg;
-      msg() << MSG::DEBUG << "REGTEST:  No Secondary vertex reconstructed (beam spot status not meeting requirement)" << endmsg;
-    }
+    ATH_MSG_DEBUG( "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta()  );
+    ATH_MSG_DEBUG( "REGTEST:  No Secondary vertex reconstructed (beam spot status not meeting requirement)"  );
 
     return HLT::OK;
   }
@@ -135,10 +126,8 @@ HLT::ErrorCode TrigSecVtxFinder::hltExecute(const HLT::TriggerElement* inputTE, 
   if ((sc = getSelectedTracks(tracks,outputTE)) != HLT::OK) return sc;
   if (tracks.size() < 2) {
 
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta() << endmsg;
-      msg() << MSG::DEBUG << "REGTEST:  No Secondary vertex reconstructed (less than 2 tracks)" << endmsg;
-    }
+    ATH_MSG_DEBUG( "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = "   << roiDescriptor->phi() << ", Eta = "   << roiDescriptor->eta()  );
+    ATH_MSG_DEBUG( "REGTEST:  No Secondary vertex reconstructed (less than 2 tracks)"  );
 
     return HLT::OK;
   }
@@ -151,21 +140,18 @@ HLT::ErrorCode TrigSecVtxFinder::hltExecute(const HLT::TriggerElement* inputTE, 
  
 
   // ====== store the result ==========
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = " << roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endmsg;
+  ATH_MSG_DEBUG( "REGTEST:  RoI " << roiDescriptor->roiId() << ", Phi = " << roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta()  );
 
   if (!secVertex) {
     
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST:  No sec vtx reconstructed (not found by tool)" << endmsg;
+    ATH_MSG_DEBUG( "REGTEST:  No sec vtx reconstructed (not found by tool)"  );
     
     return HLT::OK;
 
   } else {
 
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST:  Sec vtx reconstructed: mass: " << secVertex->mass() 
-	    << " dl/sigma(dl): " << secVertex->decayLengthSignificance() << endmsg;
+    ATH_MSG_DEBUG( "REGTEST:  Sec vtx reconstructed: mass: " << secVertex->mass() 
+                   << " dl/sigma(dl): " << secVertex->decayLengthSignificance()  );
     
     TrackInVertexList* trackInVtx = secVertex->tracks();
 
@@ -184,8 +170,7 @@ HLT::ErrorCode TrigSecVtxFinder::hltExecute(const HLT::TriggerElement* inputTE, 
 
   if ((sc = attachFeature(outputTE, secVrtContainer, "secVrt")) != HLT::OK)
   {
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Cannot attach feature to TE!" << endmsg;
+    ATH_MSG_DEBUG( "Cannot attach feature to TE!"  );
     return sc;
   }
   
@@ -195,7 +180,7 @@ HLT::ErrorCode TrigSecVtxFinder::hltExecute(const HLT::TriggerElement* inputTE, 
 
 HLT::ErrorCode TrigSecVtxFinder::hltFinalize() {
 
-  msg() << MSG::INFO << "TrigSecVtxFinder::finalize()" << endmsg;
+  ATH_MSG_INFO( "TrigSecVtxFinder::finalize()"  );
   return HLT::OK;
 }
 
@@ -208,7 +193,7 @@ HLT::ErrorCode TrigSecVtxFinder::getPrmVtxForFit(Trk::RecVertex& vertex,
   std::vector<const TrigVertexCollection*> vectorOfL2PrmVtxCollections;
   const TrigVertexCollection* prmVtxColl = NULL;
   if (getFeatures(outputTE, vectorOfL2PrmVtxCollections, "") != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get TrigVertexCollection from the trigger element" << endmsg;
+    ATH_MSG_ERROR( "Failed to get TrigVertexCollection from the trigger element"  );
     return HLT::NAV_ERROR;
   }
 
@@ -221,13 +206,13 @@ HLT::ErrorCode TrigSecVtxFinder::getPrmVtxForFit(Trk::RecVertex& vertex,
         ((m_algo == 8) && vectorOfL2PrmVtxCollections[i]->front()->algorithmId() == 19) ||
 	((m_algo == 13) && vectorOfL2PrmVtxCollections[i]->front()->algorithmId() == 23) ) {
       prmVtxColl = vectorOfL2PrmVtxCollections[i];
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Retrieved prm vertex collection with algo_id " << prmVtxColl->front()->algorithmId() << endmsg;
+      ATH_MSG_DEBUG( "Retrieved prm vertex collection with algo_id " << prmVtxColl->front()->algorithmId()  );
       break;
     }
   }
   if (!prmVtxColl || prmVtxColl->size() == 0)
   {
-    msg() << MSG::ERROR << "Failed to get TrigVertexCollection from the trigger element" << endmsg;
+    ATH_MSG_ERROR( "Failed to get TrigVertexCollection from the trigger element"  );
     return HLT::MISSING_FEATURE;
   }
   
@@ -240,46 +225,45 @@ HLT::ErrorCode TrigSecVtxFinder::getPrmVtxForFit(Trk::RecVertex& vertex,
   }
 
   //* Retrieve beamspot information *//
-  IBeamCondSvc* m_iBeamCondSvc; 
-  StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
+  IBeamCondSvc* iBeamCondSvc; 
+  StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
 
-  if (sc.isFailure() || m_iBeamCondSvc == 0) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
+  if (sc.isFailure() || iBeamCondSvc == 0) {
+    ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. "  );
     return HLT::ERROR;
   }
 
-  Amg::Vector3D m_beamSpot = m_iBeamCondSvc->beamPos();
+  Amg::Vector3D beamSpot = iBeamCondSvc->beamPos();
 
-  int m_beamSpotBitMap = m_iBeamCondSvc->beamStatus();
+  int beamSpotBitMap = iBeamCondSvc->beamStatus();
 
   //* Check if beam spot is from online algorithms *//
-  int m_beamSpotStatus = ((m_beamSpotBitMap & 0x4) == 0x4);
+  int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
   
   //* Check if beam spot fit converged *//
-  if (m_beamSpotStatus)
-    m_beamSpotStatus = ((m_beamSpotBitMap & 0x3) == 0x3);
+  if (beamSpotStatus)
+    beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Beam spot from service: x=" << m_beamSpot.x() << ", y=" << m_beamSpot.y() << ", z=" << m_beamSpot.z() 
-	  << ", tiltXZ=" << m_iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << m_iBeamCondSvc->beamTilt(1) 
-	  << ", sigmaX=" << m_iBeamCondSvc->beamSigma(0) << ", sigmaY=" << m_iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << m_iBeamCondSvc->beamSigma(2) 
-	  << ", status=" << m_beamSpotStatus << endmsg;
+  ATH_MSG_DEBUG( "Beam spot from service: x=" << beamSpot.x() << ", y=" << beamSpot.y() << ", z=" << beamSpot.z() 
+                 << ", tiltXZ=" << iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << iBeamCondSvc->beamTilt(1) 
+                 << ", sigmaX=" << iBeamCondSvc->beamSigma(0) << ", sigmaY=" << iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << iBeamCondSvc->beamSigma(2) 
+                 << ", status=" << beamSpotStatus  );
 
-  if (m_useBeamSpotFlag && !m_beamSpotStatus) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Beam spot status not meeting requirement." << endmsg;
+  if (m_useBeamSpotFlag && !beamSpotStatus) {
+    ATH_MSG_DEBUG( "Beam spot status not meeting requirement."  );
     vertex = Trk::RecVertex(Amg::Vector3D(0.,0.,0.),0,-99);
     return HLT::OK;
   }
 
-  x = m_beamSpot.x();
-  y = m_beamSpot.y();
+  x = beamSpot.x();
+  y = beamSpot.y();
 
   //* Apply beam spot correction for tilt *//
-  x = x + tan(m_iBeamCondSvc->beamTilt(0)) * (z - m_beamSpot.z());
-  y = y + tan(m_iBeamCondSvc->beamTilt(1)) * (z - m_beamSpot.z());
+  x = x + tan(iBeamCondSvc->beamTilt(0)) * (z - beamSpot.z());
+  y = y + tan(iBeamCondSvc->beamTilt(1)) * (z - beamSpot.z());
 
-  exx = m_iBeamCondSvc->beamSigma(0);
-  eyy = m_iBeamCondSvc->beamSigma(1);
+  exx = iBeamCondSvc->beamSigma(0);
+  eyy = iBeamCondSvc->beamSigma(1);
 
   AmgSymMatrix(3) err;  
   err(1,1) = exx;
@@ -300,10 +284,10 @@ HLT::ErrorCode TrigSecVtxFinder::getSelectedTracks(std::vector<const TrigInDetTr
   tracks.clear();
   std::vector<const TrigInDetTrackCollection*> vectorOfL2TrackCollections;
   
-  if (HLT::ErrorCode status = getFeatures(outputTE, vectorOfL2TrackCollections, "") != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get InDetTrackCollection from the trigger element" << endmsg;
-  } else if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Got " << vectorOfL2TrackCollections.size() << " InDetTrackCollection" << endmsg;
+  if (getFeatures(outputTE, vectorOfL2TrackCollections, "") != HLT::OK) {
+    ATH_MSG_ERROR( "Failed to get InDetTrackCollection from the trigger element"  );
+  } else
+    ATH_MSG_DEBUG( "Got " << vectorOfL2TrackCollections.size() << " InDetTrackCollection"  );
 
   std::vector<const TrigInDetTrackCollection*>::iterator trackCollection    = vectorOfL2TrackCollections.begin();
   std::vector<const TrigInDetTrackCollection*>::iterator lastTrackColl = vectorOfL2TrackCollections.end();
@@ -311,16 +295,16 @@ HLT::ErrorCode TrigSecVtxFinder::getSelectedTracks(std::vector<const TrigInDetTr
   for ( ; trackCollection != lastTrackColl; trackCollection++) { 
     if ((*trackCollection)->size() != 0) {
       if ((*trackCollection)->front()->algorithmId() == m_algo) {
-        if (msgLvl() <= MSG::DEBUG && m_algo == 1) 
-          msg() << MSG::DEBUG << "Selected collection with SiTrack label" << endmsg;
-        else if (msgLvl() <= MSG::DEBUG && m_algo == 2) 
-          msg() << MSG::DEBUG << "Selected collection with IdScan label" << endmsg;
-	else if (msgLvl() <= MSG::DEBUG && m_algo == 5) 
-	  msg() << MSG::DEBUG << "Selected collection with L2Star label (strategy A)" << endmsg;
-	else if (msgLvl() <= MSG::DEBUG && m_algo == 6)
-	  msg() << MSG::DEBUG << "Selected collection with L2Star label (strategy B)" << endmsg;
-	else if (msgLvl() <= MSG::DEBUG && m_algo == 8)
-	  msg() << MSG::DEBUG << "Selected collection with L2Star label (strategy F)" << endmsg;
+        if (m_algo == 1) 
+          ATH_MSG_DEBUG( "Selected collection with SiTrack label"  );
+        else if (m_algo == 2) 
+          ATH_MSG_DEBUG( "Selected collection with IdScan label"  );
+	else if (m_algo == 5) 
+	  ATH_MSG_DEBUG( "Selected collection with L2Star label (strategy A)"  );
+	else if (m_algo == 6)
+	  ATH_MSG_DEBUG( "Selected collection with L2Star label (strategy B)"  );
+	else if (m_algo == 8)
+	  ATH_MSG_DEBUG( "Selected collection with L2Star label (strategy F)"  );
         break;
       }
     }
@@ -328,7 +312,7 @@ HLT::ErrorCode TrigSecVtxFinder::getSelectedTracks(std::vector<const TrigInDetTr
   
   if (trackCollection == lastTrackColl)
   {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No track collection found or colletion empty" << endmsg;  
+    ATH_MSG_DEBUG( "No track collection found or colletion empty"  );
     return HLT::OK; 
   }
   
@@ -336,7 +320,7 @@ HLT::ErrorCode TrigSecVtxFinder::getSelectedTracks(std::vector<const TrigInDetTr
     tracks.push_back((*trackCollection)->at(i));
 
   // TODO do track selection before calling trackJetFinder?
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Selected " << tracks.size() << " tracks." << endmsg;  
+  ATH_MSG_DEBUG( "Selected " << tracks.size() << " tracks."  );
 
   return HLT::OK;
 }
@@ -353,17 +337,14 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
   //* Get the updated RoI descriptor *//
   const TrigRoiDescriptor* roiDescriptor = 0;
   if ((getFeature(inputTE, roiDescriptor) == HLT::OK) && roiDescriptor) {
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Using inputTE: " << "RoI id " << roiDescriptor->roiId()
-	    << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endmsg;
-    }
+    ATH_MSG_DEBUG( "Using inputTE: " << "RoI id " << roiDescriptor->roiId()
+                   << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta()  );
 
     etaJet=roiDescriptor->eta();
     phiJet=roiDescriptor->phi();
 
   } else {
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() <<  MSG::DEBUG << "No RoI for this Trigger Element" << endmsg;
+    ATH_MSG_DEBUG( "No RoI for this Trigger Element"  );
 
     return HLT::NAV_ERROR;
   }
@@ -372,10 +353,8 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
   const TrigRoiDescriptor* initialRoI = 0;
   if (getFeature(inputTE,  initialRoI, "initialRoI") == HLT::OK) {
     if (initialRoI) {
-      if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "Using initialRoI: " << "RoI id " << initialRoI->roiId()
-	      << ", Phi = " <<  initialRoI->phi() << ", Eta = " << initialRoI->eta() << endmsg;
-      }
+      ATH_MSG_DEBUG( "Using initialRoI: " << "RoI id " << initialRoI->roiId()
+                     << ", Phi = " <<  initialRoI->phi() << ", Eta = " << initialRoI->eta()  );
     } else {
       initialRoI=roiDescriptor; // L1.5 Jets...
     }
@@ -384,8 +363,7 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
     phiRoI=initialRoI->phi();
 
   } else {
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() <<  MSG::DEBUG << "No RoI for this Trigger Element" << endmsg;
+    ATH_MSG_DEBUG( "No RoI for this Trigger Element"  );
     
     return HLT::NAV_ERROR;
   }
@@ -393,7 +371,7 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
   m_trackJetFinderTool->clear();
   m_trackJetFinderTool->inputPrimaryVertexZ(prmVtx_z);
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "getJetDirection() using Ext track sel = " << m_trackJetTrkSelExt << endmsg;  
+  ATH_MSG_DEBUG( "getJetDirection() using Ext track sel = " << m_trackJetTrkSelExt  );
   if(m_trackJetTrkSelExt) m_trackJetFinderTool->setExtTrackSel(true);
 
   for (unsigned int i = 0; i < (unsigned int) tracks.size(); i++) {
@@ -410,15 +388,13 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
     phiTrkJet = phiRoI;
   }
   
-  if (msgLvl() <= MSG::DEBUG) 
-    msg() <<  MSG::DEBUG << "eta RoI " << etaRoI << " phiRoI " << phiRoI 
-	  << "; eta TrkJet " << etaTrkJet << " phi TrkJet " << phiTrkJet 
-	  << "; eta Jet " << etaJet << " phi Jet " << phiJet << endmsg; 
+  ATH_MSG_DEBUG( "eta RoI " << etaRoI << " phiRoI " << phiRoI 
+                 << "; eta TrkJet " << etaTrkJet << " phi TrkJet " << phiTrkJet 
+                 << "; eta Jet " << etaJet << " phi Jet " << phiJet  );
 
   if (m_useJetDirection == 1) {
 
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() <<  MSG::DEBUG << "Using the LVL2 jet direction as input" << endmsg;
+    ATH_MSG_DEBUG( "Using the LVL2 jet direction as input"  );
 
     jetDirection.setX(cos(phiJet));
     jetDirection.setY(sin(phiJet));
@@ -426,8 +402,7 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
 
   } else if (m_useJetDirection == 2) {
 
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() <<  MSG::DEBUG << "Using the LVL2 track-jet direction as input" << endmsg;
+    ATH_MSG_DEBUG( "Using the LVL2 track-jet direction as input"  );
 
     jetDirection.setX(cos(phiTrkJet));
     jetDirection.setY(sin(phiTrkJet));
@@ -435,8 +410,7 @@ HLT::ErrorCode TrigSecVtxFinder::getJetDirection(CLHEP::HepLorentzVector& jetDir
 
   } else if (m_useJetDirection == 3) {
 
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() <<  MSG::DEBUG << "Using the LVL1 RoI jet direction as input" << endmsg;
+    ATH_MSG_DEBUG( "Using the LVL1 RoI jet direction as input"  );
 
     jetDirection.setX(cos(phiRoI));
     jetDirection.setY(sin(phiRoI));

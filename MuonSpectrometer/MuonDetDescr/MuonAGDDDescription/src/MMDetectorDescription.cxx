@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-MMDetectorDescription* MMDetectorDescription::current=0;
+MMDetectorDescription* MMDetectorDescription::s_current=0;
 
 
 MMDetectorDescription::MMDetectorDescription(std::string s): 
@@ -26,25 +26,26 @@ void MMDetectorDescription::Register()
 void MMDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 {
 		//std::cout<<"This is AGDDMicromegas::SetDetectorAddress "<<GetName()<<" "<<
-		//sType;
+		//m_sType;
 		p->ID.detectorType="Micromegas";
 		p->theDetector=this;
 		std::stringstream stringone;
 		std::string side="A";
 		if (p->ID.sideIndex<0) side="C";
 		int ctype=0;
-		int ml=atoi(sType.substr(3,1).c_str());
-		if (sType.substr(2,1)=="L") ctype=1;
-		else if (sType.substr(2,1)=="S") ctype=3;
-		int etaIndex=atoi(sType.substr(1,1).c_str());
+		int ml=atoi(subType().substr(3,1).c_str());
+		if (subType().substr(2,1)=="L") ctype=1;
+		else if (subType().substr(2,1)=="S") ctype=3;
+		int etaIndex=atoi(subType().substr(1,1).c_str());
 		stringone<<"sMD"<<ctype<<"-"<<etaIndex<<"-"<<ml<<"-phi"<<p->ID.phiIndex+1<<side<<std::endl;
 		//std::cout<<" stringone "<<stringone.str()<<std::endl;
 		p->ID.detectorAddress=stringone.str();
 }
 
-MM_Technology* MMDetectorDescription::GetTechnology()
+MuonGM::MM_Technology* MMDetectorDescription::GetTechnology()
 {
    AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();    
-   MM_Technology* t = dynamic_cast<MM_Technology*>(ds->GetTechnology(name));
+   MuonGM::MM_Technology* t =
+     dynamic_cast<MuonGM::MM_Technology*>(ds->GetTechnology(GetName()));
    return t;
 }

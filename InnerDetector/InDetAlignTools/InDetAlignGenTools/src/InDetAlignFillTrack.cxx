@@ -261,16 +261,16 @@ StatusCode InDetAlignFillTrack::FillTrack() {
     else ATH_MSG_DEBUG( "Collection with name "<< m_inputLowCol <<" found in StoreGate" );
   }
 
-  nt_ntracks = tracks->size();
+  m_nt_ntracks = tracks->size();
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Track Collection size: " << tracks->size() << endmsg;
 
   if (m_inputUpCol!="") {
-    nt_nUptracks = Uptracks->size();
+    m_nt_nUptracks = Uptracks->size();
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Up Track Collection size: " << Uptracks->size() << endmsg;
   }
 
   if (m_inputLowCol!="") {
-    nt_nLowtracks = Lowtracks->size();
+    m_nt_nLowtracks = Lowtracks->size();
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Low Track Collection size: " << Lowtracks->size() << endmsg;
   }
 
@@ -311,7 +311,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 	msg(MSG::DEBUG) << "Retrieved "<< truthCol->size() <<" truth tracks from StoreGate" << endmsg;
       }
       
-      nt_nmctracks = truthCol->size();
+      m_nt_nmctracks = truthCol->size();
       
       TrackCollection::const_iterator trackItr  = tracks->begin();
       TrackCollection::const_iterator trackItrE = tracks->end();
@@ -376,14 +376,14 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 						    << ", phi "<< genParticle->momentum().phi() << " CLHEP::rad"
 						    << endmsg;
 	    
-	    nt_mc_trkistruth[nTracks] = 1;
-	    nt_mc_Trk_pdg[nTracks] = genParticle->pdg_id();
-	    nt_mc_Trk_prob[nTracks] = trkTruthProb;
+	    m_nt_mc_trkistruth[nTracks] = 1;
+	    m_nt_mc_Trk_pdg[nTracks] = genParticle->pdg_id();
+	    m_nt_mc_Trk_prob[nTracks] = trkTruthProb;
 	    float pX = genParticle->momentum().px();  float pY = genParticle->momentum().py();
 	    float genParticlePt = sqrt((pX*pX)+(pY*pY));
-	    nt_mc_Trk_genParticlePt[nTracks] = genParticlePt;
-	    nt_mc_Trk_genParticleEta[nTracks] = genParticle->momentum().eta();
-	    nt_mc_Trk_genParticlePhi[nTracks] = genParticle->momentum().phi();
+	    m_nt_mc_Trk_genParticlePt[nTracks] = genParticlePt;
+	    m_nt_mc_Trk_genParticleEta[nTracks] = genParticle->momentum().eta();
+	    m_nt_mc_Trk_genParticlePhi[nTracks] = genParticle->momentum().phi();
 	    
 	    if(genParticle->pdg_id()==0) 
 	      ATH_MSG_WARNING("Particle with PDG 0!");
@@ -413,7 +413,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 		if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "reading from track record, size = " 
 							<< recordCollection->size() << endmsg;
 		
-		int m_nmctracks = 0;
+		int nmctracks = 0;
 		
 		for (TrackRecordCollection::const_iterator record = recordCollection->begin();  
 		     record != recordCollection->end();++record) {
@@ -517,23 +517,23 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 		    
 		  }
 		  
-		  dumpPerigee(generatedTrackPerigee, m_nmctracks); 
-		  nt_mc_Trk_vtxX[m_nmctracks] = productionVertex.x();
-		  nt_mc_Trk_vtxY[m_nmctracks] = productionVertex.y();
-		  nt_mc_Trk_vtxZ[m_nmctracks] = productionVertex.z();
+		  dumpPerigee(generatedTrackPerigee, nmctracks); 
+		  m_nt_mc_Trk_vtxX[nmctracks] = productionVertex.x();
+		  m_nt_mc_Trk_vtxY[nmctracks] = productionVertex.y();
+		  m_nt_mc_Trk_vtxZ[nmctracks] = productionVertex.z();
 		  
 		  delete productionVertexTrackParams;
 		  delete generatedTrackPerigee;
 		  
-		  m_nmctracks++;
+		  nmctracks++;
 		}
 	      }
 	      
 	      if (generatedTrackPerigee) {
 		dumpPerigee(generatedTrackPerigee, nTracks);     
-		nt_mc_Trk_vtxX[nTracks] = genParticle->production_vertex()->position().x();
-		nt_mc_Trk_vtxY[nTracks] = genParticle->production_vertex()->position().y();
-		nt_mc_Trk_vtxZ[nTracks] = genParticle->production_vertex()->position().z();
+		m_nt_mc_Trk_vtxX[nTracks] = genParticle->production_vertex()->position().x();
+		m_nt_mc_Trk_vtxY[nTracks] = genParticle->production_vertex()->position().y();
+		m_nt_mc_Trk_vtxZ[nTracks] = genParticle->production_vertex()->position().z();
 		
 		delete generatedTrackPerigee;
 		
@@ -541,7 +541,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 	      
 	    }
 	  }
-	  nt_mc_trkistruth[nTracks] = 0;
+	  m_nt_mc_trkistruth[nTracks] = 0;
 	}
 	//} // if (truthCol)  commented out for coverity 14309
   
@@ -628,65 +628,65 @@ void InDetAlignFillTrack::bookNtuple() {
     
     if (nt0) {
       StatusCode sc;
-      // nt0->addItem("event", nt_event); // event number
-      sc =  nt0->addItem("nTracks", nt_ntracks, 0, maxTracks); // number of tracks
-      if (m_doTruth) sc =nt0->addItem("mc_nTracks", nt_nmctracks, 0, maxTracks); // number of mc tracks
+      // nt0->addItem("event", m_nt_event); // event number
+      sc =  nt0->addItem("nTracks", m_nt_ntracks, 0, maxTracks); // number of tracks
+      if (m_doTruth) sc =nt0->addItem("mc_nTracks", m_nt_nmctracks, 0, maxTracks); // number of mc tracks
       
       // ----------------------------------------------------------------------
       // Trk::Track parameters
-      sc = nt0->addItem("Trk_d0",     nt_ntracks, nt_Trk_d0);
-      sc = nt0->addItem("Trk_z0",     nt_ntracks, nt_Trk_z0);
-      sc = nt0->addItem("Trk_phi0",   nt_ntracks, nt_Trk_phi0);
-      sc = nt0->addItem("Trk_theta0", nt_ntracks, nt_Trk_theta0);
-      sc = nt0->addItem("Trk_qoverp", nt_ntracks, nt_Trk_qoverp);
-      sc = nt0->addItem("Trk_pt",     nt_ntracks, nt_Trk_pt);
+      sc = nt0->addItem("Trk_d0",     m_nt_ntracks, m_nt_Trk_d0);
+      sc = nt0->addItem("Trk_z0",     m_nt_ntracks, m_nt_Trk_z0);
+      sc = nt0->addItem("Trk_phi0",   m_nt_ntracks, m_nt_Trk_phi0);
+      sc = nt0->addItem("Trk_theta0", m_nt_ntracks, m_nt_Trk_theta0);
+      sc = nt0->addItem("Trk_qoverp", m_nt_ntracks, m_nt_Trk_qoverp);
+      sc = nt0->addItem("Trk_pt",     m_nt_ntracks, m_nt_Trk_pt);
       // ----------------------------------------------------------------------
 
       // ----------------------------------------------------------------------
       // Trk::Track hits...
-      sc = nt0->addItem("Trk_nHits",       nt_ntracks, nt_Trk_nHits);
-      sc = nt0->addItem("Trk_nhitsPixels", nt_ntracks, nt_Trk_nhitspix);
-      sc = nt0->addItem("Trk_nhitsSCT",    nt_ntracks, nt_Trk_nhitssct);
-      sc = nt0->addItem("Trk_nhitsTRT",    nt_ntracks, nt_Trk_nhitstrt);
+      sc = nt0->addItem("Trk_nHits",       m_nt_ntracks, m_nt_Trk_nHits);
+      sc = nt0->addItem("Trk_nhitsPixels", m_nt_ntracks, m_nt_Trk_nhitspix);
+      sc = nt0->addItem("Trk_nhitsSCT",    m_nt_ntracks, m_nt_Trk_nhitssct);
+      sc = nt0->addItem("Trk_nhitsTRT",    m_nt_ntracks, m_nt_Trk_nhitstrt);
 
-      sc = nt0->addItem("Trk_nsharedPixels", nt_ntracks, nt_Trk_nsharedPixels);
-      sc = nt0->addItem("Trk_nsharedSCT",    nt_ntracks, nt_Trk_nsharedSCT);
-      sc = nt0->addItem("Trk_nshared",       nt_ntracks, nt_Trk_nshared);
+      sc = nt0->addItem("Trk_nsharedPixels", m_nt_ntracks, m_nt_Trk_nsharedPixels);
+      sc = nt0->addItem("Trk_nsharedSCT",    m_nt_ntracks, m_nt_Trk_nsharedSCT);
+      sc = nt0->addItem("Trk_nshared",       m_nt_ntracks, m_nt_Trk_nshared);
 
-      sc = nt0->addItem("Trk_nholesPixels", nt_ntracks, nt_Trk_nholesPixels);
-      sc = nt0->addItem("Trk_nholesSCT",    nt_ntracks, nt_Trk_nholesSCT);
-      sc = nt0->addItem("Trk_nholes",       nt_ntracks, nt_Trk_nholes);
+      sc = nt0->addItem("Trk_nholesPixels", m_nt_ntracks, m_nt_Trk_nholesPixels);
+      sc = nt0->addItem("Trk_nholesSCT",    m_nt_ntracks, m_nt_Trk_nholesSCT);
+      sc = nt0->addItem("Trk_nholes",       m_nt_ntracks, m_nt_Trk_nholes);
 
-      sc = nt0->addItem("Trk_chi2",     nt_ntracks, nt_Trk_chi2);
-      sc = nt0->addItem("Trk_ndof",     nt_ntracks, nt_Trk_ndof);
-      sc = nt0->addItem("Trk_chi2Prob", nt_ntracks, nt_Trk_chi2Prob);
+      sc = nt0->addItem("Trk_chi2",     m_nt_ntracks, m_nt_Trk_chi2);
+      sc = nt0->addItem("Trk_ndof",     m_nt_ntracks, m_nt_Trk_ndof);
+      sc = nt0->addItem("Trk_chi2Prob", m_nt_ntracks, m_nt_Trk_chi2Prob);
       // ----------------------------------------------------------------------
 
       if (m_doTruth) {
 	// ----------------------------------------------------------------------
-	sc = nt0->addItem("mc_TrkIsTruth",  nt_ntracks, nt_mc_trkistruth);
+	sc = nt0->addItem("mc_TrkIsTruth",  m_nt_ntracks, m_nt_mc_trkistruth);
 	
 	// generated particle parameters
-	sc = nt0->addItem("mc_Trk_genParticlePt",  nt_ntracks, nt_mc_Trk_genParticlePt);
-	sc = nt0->addItem("mc_Trk_genParticleEta", nt_ntracks, nt_mc_Trk_genParticleEta);
-	sc = nt0->addItem("mc_Trk_genParticlePhi", nt_ntracks, nt_mc_Trk_genParticlePhi);
+	sc = nt0->addItem("mc_Trk_genParticlePt",  m_nt_ntracks, m_nt_mc_Trk_genParticlePt);
+	sc = nt0->addItem("mc_Trk_genParticleEta", m_nt_ntracks, m_nt_mc_Trk_genParticleEta);
+	sc = nt0->addItem("mc_Trk_genParticlePhi", m_nt_ntracks, m_nt_mc_Trk_genParticlePhi);
 	
 	// MonteCarlo Track parameters
-	sc = nt0->addItem("mc_Trk_d0",      nt_ntracks, nt_mc_Trk_d0);
-	sc = nt0->addItem("mc_Trk_z0",      nt_ntracks, nt_mc_Trk_z0);
-	sc = nt0->addItem("mc_Trk_phi0",    nt_ntracks, nt_mc_Trk_phi0);
-	sc = nt0->addItem("mc_Trk_theta",   nt_ntracks, nt_mc_Trk_theta0);
-	sc = nt0->addItem("mc_Trk_eta",     nt_ntracks, nt_mc_Trk_eta);
-	sc = nt0->addItem("mc_Trk_qoverp",  nt_ntracks, nt_mc_Trk_qoverp);
-	sc = nt0->addItem("mc_Trk_qoverpt", nt_ntracks, nt_mc_Trk_qoverpt);
-	sc = nt0->addItem("mc_Trk_pt",      nt_ntracks, nt_mc_Trk_pt);
-	sc = nt0->addItem("mc_Trk_charge",  nt_ntracks, nt_mc_Trk_charge);
-	sc = nt0->addItem("mc_Trk_prob",    nt_ntracks, nt_mc_Trk_prob);
-	sc = nt0->addItem("mc_Trk_pdg",     nt_ntracks, nt_mc_Trk_pdg);
+	sc = nt0->addItem("mc_Trk_d0",      m_nt_ntracks, m_nt_mc_Trk_d0);
+	sc = nt0->addItem("mc_Trk_z0",      m_nt_ntracks, m_nt_mc_Trk_z0);
+	sc = nt0->addItem("mc_Trk_phi0",    m_nt_ntracks, m_nt_mc_Trk_phi0);
+	sc = nt0->addItem("mc_Trk_theta",   m_nt_ntracks, m_nt_mc_Trk_theta0);
+	sc = nt0->addItem("mc_Trk_eta",     m_nt_ntracks, m_nt_mc_Trk_eta);
+	sc = nt0->addItem("mc_Trk_qoverp",  m_nt_ntracks, m_nt_mc_Trk_qoverp);
+	sc = nt0->addItem("mc_Trk_qoverpt", m_nt_ntracks, m_nt_mc_Trk_qoverpt);
+	sc = nt0->addItem("mc_Trk_pt",      m_nt_ntracks, m_nt_mc_Trk_pt);
+	sc = nt0->addItem("mc_Trk_charge",  m_nt_ntracks, m_nt_mc_Trk_charge);
+	sc = nt0->addItem("mc_Trk_prob",    m_nt_ntracks, m_nt_mc_Trk_prob);
+	sc = nt0->addItem("mc_Trk_pdg",     m_nt_ntracks, m_nt_mc_Trk_pdg);
 
-	sc = nt0->addItem("mc_Trk_vtxX",    nt_ntracks, nt_mc_Trk_vtxX);
-	sc = nt0->addItem("mc_Trk_vtxY",    nt_ntracks, nt_mc_Trk_vtxY);
-	sc = nt0->addItem("mc_Trk_vtxZ",    nt_ntracks, nt_mc_Trk_vtxZ);
+	sc = nt0->addItem("mc_Trk_vtxX",    m_nt_ntracks, m_nt_mc_Trk_vtxX);
+	sc = nt0->addItem("mc_Trk_vtxY",    m_nt_ntracks, m_nt_mc_Trk_vtxY);
+	sc = nt0->addItem("mc_Trk_vtxZ",    m_nt_ntracks, m_nt_mc_Trk_vtxZ);
 	// ----------------------------------------------------------------------
       }
 
@@ -720,37 +720,37 @@ void InDetAlignFillTrack::bookUpNtuple() {
     
     if (nt1) {
       StatusCode sc;
-      // nt1->addItem("event", nt_event); // event number
-      sc = nt1->addItem("nTracks_Up", nt_nUptracks, 0, maxTracks); // number of tracks
+      // nt1->addItem("event", m_nt_event); // event number
+      sc = nt1->addItem("nTracks_Up", m_nt_nUptracks, 0, maxTracks); // number of tracks
 
       // ----------------------------------------------------------------------
       // Trk::Track parameters
-      sc = nt1->addItem("Trk_d0_Up",     nt_nUptracks, nt_Trk_d0_Up);
-      sc = nt1->addItem("Trk_z0_Up",     nt_nUptracks, nt_Trk_z0_Up);
-      sc = nt1->addItem("Trk_phi0_Up",   nt_nUptracks, nt_Trk_phi0_Up);
-      sc = nt1->addItem("Trk_theta0_Up", nt_nUptracks, nt_Trk_theta0_Up);
-      sc = nt1->addItem("Trk_qoverp_Up", nt_nUptracks, nt_Trk_qoverp_Up);
-      sc = nt1->addItem("Trk_pt_Up",     nt_nUptracks, nt_Trk_pt_Up);
+      sc = nt1->addItem("Trk_d0_Up",     m_nt_nUptracks, m_nt_Trk_d0_Up);
+      sc = nt1->addItem("Trk_z0_Up",     m_nt_nUptracks, m_nt_Trk_z0_Up);
+      sc = nt1->addItem("Trk_phi0_Up",   m_nt_nUptracks, m_nt_Trk_phi0_Up);
+      sc = nt1->addItem("Trk_theta0_Up", m_nt_nUptracks, m_nt_Trk_theta0_Up);
+      sc = nt1->addItem("Trk_qoverp_Up", m_nt_nUptracks, m_nt_Trk_qoverp_Up);
+      sc = nt1->addItem("Trk_pt_Up",     m_nt_nUptracks, m_nt_Trk_pt_Up);
       // ----------------------------------------------------------------------
 
       // ----------------------------------------------------------------------
       // Trk::Track hits...
-      sc = nt1->addItem("Trk_nHits_Up",       nt_nUptracks, nt_Trk_nHits_Up);
-      sc = nt1->addItem("Trk_nhitsPixels_Up", nt_nUptracks, nt_Trk_nhitspix_Up);
-      sc = nt1->addItem("Trk_nhitsSCT_Up",    nt_nUptracks, nt_Trk_nhitssct_Up);
-      sc = nt1->addItem("Trk_nhitsTRT_Up",    nt_nUptracks, nt_Trk_nhitstrt_Up);
+      sc = nt1->addItem("Trk_nHits_Up",       m_nt_nUptracks, m_nt_Trk_nHits_Up);
+      sc = nt1->addItem("Trk_nhitsPixels_Up", m_nt_nUptracks, m_nt_Trk_nhitspix_Up);
+      sc = nt1->addItem("Trk_nhitsSCT_Up",    m_nt_nUptracks, m_nt_Trk_nhitssct_Up);
+      sc = nt1->addItem("Trk_nhitsTRT_Up",    m_nt_nUptracks, m_nt_Trk_nhitstrt_Up);
       
-      sc = nt1->addItem("Trk_nsharedPixels_Up", nt_nUptracks, nt_Trk_nsharedPixels_Up);
-      sc = nt1->addItem("Trk_nsharedSCT_Up",    nt_nUptracks, nt_Trk_nsharedSCT_Up);
-      sc = nt1->addItem("Trk_nshared_Up",       nt_nUptracks, nt_Trk_nshared_Up);
+      sc = nt1->addItem("Trk_nsharedPixels_Up", m_nt_nUptracks, m_nt_Trk_nsharedPixels_Up);
+      sc = nt1->addItem("Trk_nsharedSCT_Up",    m_nt_nUptracks, m_nt_Trk_nsharedSCT_Up);
+      sc = nt1->addItem("Trk_nshared_Up",       m_nt_nUptracks, m_nt_Trk_nshared_Up);
       
-      sc = nt1->addItem("Trk_nholesPixels_Up", nt_nUptracks, nt_Trk_nholesPixels_Up);
-      sc = nt1->addItem("Trk_nholesSCT_Up",    nt_nUptracks, nt_Trk_nholesSCT_Up);
-      sc = nt1->addItem("Trk_nholes_Up",       nt_nUptracks, nt_Trk_nholes_Up);
+      sc = nt1->addItem("Trk_nholesPixels_Up", m_nt_nUptracks, m_nt_Trk_nholesPixels_Up);
+      sc = nt1->addItem("Trk_nholesSCT_Up",    m_nt_nUptracks, m_nt_Trk_nholesSCT_Up);
+      sc = nt1->addItem("Trk_nholes_Up",       m_nt_nUptracks, m_nt_Trk_nholes_Up);
       
-      sc = nt1->addItem("Trk_chi2_Up",     nt_nUptracks, nt_Trk_chi2_Up);
-      sc = nt1->addItem("Trk_ndof_Up",     nt_nUptracks, nt_Trk_ndof_Up);
-      sc = nt1->addItem("Trk_chi2Prob_Up", nt_nUptracks, nt_Trk_chi2Prob_Up);
+      sc = nt1->addItem("Trk_chi2_Up",     m_nt_nUptracks, m_nt_Trk_chi2_Up);
+      sc = nt1->addItem("Trk_ndof_Up",     m_nt_nUptracks, m_nt_Trk_ndof_Up);
+      sc = nt1->addItem("Trk_chi2Prob_Up", m_nt_nUptracks, m_nt_Trk_chi2Prob_Up);
       // ----------------------------------------------------------------------
      
       if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endmsg;
@@ -780,37 +780,37 @@ void InDetAlignFillTrack::bookLowNtuple() {
     
     if (nt2) {
       StatusCode sc;
-      // sc = nt2->addItem("event", nt_event); // event number
-      sc = nt2->addItem("nTracks_Low", nt_nLowtracks, 0, maxTracks); // number of tracks
+      // sc = nt2->addItem("event", m_nt_event); // event number
+      sc = nt2->addItem("nTracks_Low", m_nt_nLowtracks, 0, maxTracks); // number of tracks
 
       // ----------------------------------------------------------------------
       // Trk::Track parameters
-      sc = nt2->addItem("Trk_d0_Low",     nt_nLowtracks, nt_Trk_d0_Low);
-      sc = nt2->addItem("Trk_z0_Low",     nt_nLowtracks, nt_Trk_z0_Low);
-      sc = nt2->addItem("Trk_phi0_Low",   nt_nLowtracks, nt_Trk_phi0_Low);
-      sc = nt2->addItem("Trk_theta0_Low", nt_nLowtracks, nt_Trk_theta0_Low);
-      sc = nt2->addItem("Trk_qoverp_Low", nt_nLowtracks, nt_Trk_qoverp_Low);
-      sc = nt2->addItem("Trk_pt_Low",     nt_nLowtracks, nt_Trk_pt_Low);
+      sc = nt2->addItem("Trk_d0_Low",     m_nt_nLowtracks, m_nt_Trk_d0_Low);
+      sc = nt2->addItem("Trk_z0_Low",     m_nt_nLowtracks, m_nt_Trk_z0_Low);
+      sc = nt2->addItem("Trk_phi0_Low",   m_nt_nLowtracks, m_nt_Trk_phi0_Low);
+      sc = nt2->addItem("Trk_theta0_Low", m_nt_nLowtracks, m_nt_Trk_theta0_Low);
+      sc = nt2->addItem("Trk_qoverp_Low", m_nt_nLowtracks, m_nt_Trk_qoverp_Low);
+      sc = nt2->addItem("Trk_pt_Low",     m_nt_nLowtracks, m_nt_Trk_pt_Low);
       // ----------------------------------------------------------------------
 
       // ----------------------------------------------------------------------
       // Trk::Track hits...
-      sc = nt2->addItem("Trk_nHits_Low",       nt_nLowtracks, nt_Trk_nHits_Low);
-      sc = nt2->addItem("Trk_nhitsPixels_Low", nt_nLowtracks, nt_Trk_nhitspix_Low);
-      sc = nt2->addItem("Trk_nhitsSCT_Low",    nt_nLowtracks, nt_Trk_nhitssct_Low);
-      sc = nt2->addItem("Trk_nhitsTRT_Low",    nt_nLowtracks, nt_Trk_nhitstrt_Low);
+      sc = nt2->addItem("Trk_nHits_Low",       m_nt_nLowtracks, m_nt_Trk_nHits_Low);
+      sc = nt2->addItem("Trk_nhitsPixels_Low", m_nt_nLowtracks, m_nt_Trk_nhitspix_Low);
+      sc = nt2->addItem("Trk_nhitsSCT_Low",    m_nt_nLowtracks, m_nt_Trk_nhitssct_Low);
+      sc = nt2->addItem("Trk_nhitsTRT_Low",    m_nt_nLowtracks, m_nt_Trk_nhitstrt_Low);
 
-      sc = nt2->addItem("Trk_nsharedPixels_Low", nt_nLowtracks, nt_Trk_nsharedPixels_Low);
-      sc = nt2->addItem("Trk_nsharedSCT_Low",    nt_nLowtracks, nt_Trk_nsharedSCT_Low);
-      sc = nt2->addItem("Trk_nshared_Low",       nt_nLowtracks, nt_Trk_nshared_Low);
+      sc = nt2->addItem("Trk_nsharedPixels_Low", m_nt_nLowtracks, m_nt_Trk_nsharedPixels_Low);
+      sc = nt2->addItem("Trk_nsharedSCT_Low",    m_nt_nLowtracks, m_nt_Trk_nsharedSCT_Low);
+      sc = nt2->addItem("Trk_nshared_Low",       m_nt_nLowtracks, m_nt_Trk_nshared_Low);
 
-      sc = nt2->addItem("Trk_nholesPixels_Low", nt_nLowtracks, nt_Trk_nholesPixels_Low);
-      sc = nt2->addItem("Trk_nholesSCT_Low",    nt_nLowtracks, nt_Trk_nholesSCT_Low);
-      sc = nt2->addItem("Trk_nholes_Low",       nt_nLowtracks, nt_Trk_nholes_Low);
+      sc = nt2->addItem("Trk_nholesPixels_Low", m_nt_nLowtracks, m_nt_Trk_nholesPixels_Low);
+      sc = nt2->addItem("Trk_nholesSCT_Low",    m_nt_nLowtracks, m_nt_Trk_nholesSCT_Low);
+      sc = nt2->addItem("Trk_nholes_Low",       m_nt_nLowtracks, m_nt_Trk_nholes_Low);
 
-      sc = nt2->addItem("Trk_chi2_Low",     nt_nLowtracks, nt_Trk_chi2_Low);
-      sc = nt2->addItem("Trk_ndof_Low",     nt_nLowtracks, nt_Trk_ndof_Low);
-      sc = nt2->addItem("Trk_chi2Prob_Low", nt_nLowtracks, nt_Trk_chi2Prob_Low);
+      sc = nt2->addItem("Trk_chi2_Low",     m_nt_nLowtracks, m_nt_Trk_chi2_Low);
+      sc = nt2->addItem("Trk_ndof_Low",     m_nt_nLowtracks, m_nt_Trk_ndof_Low);
+      sc = nt2->addItem("Trk_chi2Prob_Low", m_nt_nLowtracks, m_nt_Trk_chi2Prob_Low);
       // ----------------------------------------------------------------------
       if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endmsg;
       else  msg(MSG::DEBUG) << "Ntuple " << nt2id << " has been booked successfully! " << endmsg;
@@ -839,20 +839,20 @@ void InDetAlignFillTrack::bookMatchingNtuple() {
     
     if (nt3) {
       StatusCode sc;
-      // sc = nt3->addItem("event", nt_event); // event number
+      // sc = nt3->addItem("event", m_nt_event); // event number
      
-      sc = nt3->addItem("nTracks_Match",nt_matchingTrk, 0, maxTracks); // number of tracks
+      sc = nt3->addItem("nTracks_Match",m_nt_matchingTrk, 0, maxTracks); // number of tracks
 
       // ----------------------------------------------------------------------
       // Matching for the usual Trk::Track parameters
-      sc = nt3->addItem("Trk_delta_d0",       nt_matchingTrk, nt_Trk_delta_d0);
-      sc = nt3->addItem("Trk_delta_phi0",      nt_matchingTrk, nt_Trk_delta_phi0);
-      sc = nt3->addItem("Trk_delta_theta0",    nt_matchingTrk, nt_Trk_delta_theta0);
-      sc = nt3->addItem("Trk_delta_eta",       nt_matchingTrk, nt_Trk_delta_eta);
-      sc = nt3->addItem("Trk_delta_z0",        nt_matchingTrk, nt_Trk_delta_z0);
-      sc = nt3->addItem("Trk_delta_qoverpt",   nt_matchingTrk, nt_Trk_delta_qoverpt);
-      sc = nt3->addItem("Trk_delta_pt",        nt_matchingTrk, nt_Trk_delta_pt);
-      sc = nt3->addItem("Trk_delta_charge",    nt_matchingTrk, nt_Trk_delta_charge);
+      sc = nt3->addItem("Trk_delta_d0",       m_nt_matchingTrk, m_nt_Trk_delta_d0);
+      sc = nt3->addItem("Trk_delta_phi0",      m_nt_matchingTrk, m_nt_Trk_delta_phi0);
+      sc = nt3->addItem("Trk_delta_theta0",    m_nt_matchingTrk, m_nt_Trk_delta_theta0);
+      sc = nt3->addItem("Trk_delta_eta",       m_nt_matchingTrk, m_nt_Trk_delta_eta);
+      sc = nt3->addItem("Trk_delta_z0",        m_nt_matchingTrk, m_nt_Trk_delta_z0);
+      sc = nt3->addItem("Trk_delta_qoverpt",   m_nt_matchingTrk, m_nt_Trk_delta_qoverpt);
+      sc = nt3->addItem("Trk_delta_pt",        m_nt_matchingTrk, m_nt_Trk_delta_pt);
+      sc = nt3->addItem("Trk_delta_charge",    m_nt_matchingTrk, m_nt_Trk_delta_charge);
       // ----------------------------------------------------------------------
       
       if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endmsg;
@@ -1034,79 +1034,79 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
     }  
     // Fill ntuple
     if (TrkColName=="Up") {
-      nt_Trk_d0_Up[itrk] = d0;
-      nt_Trk_z0_Up[itrk] = z0;
-      nt_Trk_phi0_Up[itrk] = phi0;
-      nt_Trk_theta0_Up[itrk] = theta;
-      nt_Trk_qoverp_Up[itrk] = qOverP;
-      nt_Trk_pt_Up[itrk] = transverseMomentum;
+      m_nt_Trk_d0_Up[itrk] = d0;
+      m_nt_Trk_z0_Up[itrk] = z0;
+      m_nt_Trk_phi0_Up[itrk] = phi0;
+      m_nt_Trk_theta0_Up[itrk] = theta;
+      m_nt_Trk_qoverp_Up[itrk] = qOverP;
+      m_nt_Trk_pt_Up[itrk] = transverseMomentum;
       
-      nt_Trk_nHits_Up[itrk] = nHits;
-      nt_Trk_nhitspix_Up[itrk] = nhitspix;
-      nt_Trk_nhitssct_Up[itrk] = nhitssct;
-      nt_Trk_nhitstrt_Up[itrk] = nhitstrt;
+      m_nt_Trk_nHits_Up[itrk] = nHits;
+      m_nt_Trk_nhitspix_Up[itrk] = nhitspix;
+      m_nt_Trk_nhitssct_Up[itrk] = nhitssct;
+      m_nt_Trk_nhitstrt_Up[itrk] = nhitstrt;
       
-      nt_Trk_nsharedPixels_Up[itrk] = nshpix;
-      nt_Trk_nsharedSCT_Up[itrk] = nshsct;
-      nt_Trk_nshared_Up[itrk] = nshared;
+      m_nt_Trk_nsharedPixels_Up[itrk] = nshpix;
+      m_nt_Trk_nsharedSCT_Up[itrk] = nshsct;
+      m_nt_Trk_nshared_Up[itrk] = nshared;
       
-      nt_Trk_nholesPixels_Up[itrk] = nhpix;
-      nt_Trk_nholesSCT_Up[itrk] = nhsct;
-      nt_Trk_nholes_Up[itrk] = nholes;
+      m_nt_Trk_nholesPixels_Up[itrk] = nhpix;
+      m_nt_Trk_nholesSCT_Up[itrk] = nhsct;
+      m_nt_Trk_nholes_Up[itrk] = nholes;
       
-      nt_Trk_chi2_Up[itrk] = fitQual->chiSquared();
-      nt_Trk_ndof_Up[itrk] = fitQual->numberDoF();
-      nt_Trk_chi2Prob_Up[itrk] = chi2Prob;
+      m_nt_Trk_chi2_Up[itrk] = fitQual->chiSquared();
+      m_nt_Trk_ndof_Up[itrk] = fitQual->numberDoF();
+      m_nt_Trk_chi2Prob_Up[itrk] = chi2Prob;
     }
     else if (TrkColName=="Low") {
-      nt_Trk_d0_Low[itrk] = d0;
-      nt_Trk_z0_Low[itrk] = z0;
-      nt_Trk_phi0_Low[itrk] = phi0;
-      nt_Trk_theta0_Low[itrk] = theta;
-      nt_Trk_qoverp_Low[itrk] = qOverP;
-      nt_Trk_pt_Low[itrk] = transverseMomentum;
+      m_nt_Trk_d0_Low[itrk] = d0;
+      m_nt_Trk_z0_Low[itrk] = z0;
+      m_nt_Trk_phi0_Low[itrk] = phi0;
+      m_nt_Trk_theta0_Low[itrk] = theta;
+      m_nt_Trk_qoverp_Low[itrk] = qOverP;
+      m_nt_Trk_pt_Low[itrk] = transverseMomentum;
       
-      nt_Trk_nHits_Low[itrk] = nHits;
-      nt_Trk_nhitspix_Low[itrk] = nhitspix;
-      nt_Trk_nhitssct_Low[itrk] = nhitssct;
-      nt_Trk_nhitstrt_Low[itrk] = nhitstrt;
+      m_nt_Trk_nHits_Low[itrk] = nHits;
+      m_nt_Trk_nhitspix_Low[itrk] = nhitspix;
+      m_nt_Trk_nhitssct_Low[itrk] = nhitssct;
+      m_nt_Trk_nhitstrt_Low[itrk] = nhitstrt;
       
-      nt_Trk_nsharedPixels_Low[itrk] = nshpix;
-      nt_Trk_nsharedSCT_Low[itrk] = nshsct;
-      nt_Trk_nshared_Low[itrk] = nshared;
+      m_nt_Trk_nsharedPixels_Low[itrk] = nshpix;
+      m_nt_Trk_nsharedSCT_Low[itrk] = nshsct;
+      m_nt_Trk_nshared_Low[itrk] = nshared;
       
-      nt_Trk_nholesPixels_Low[itrk] = nhpix;
-      nt_Trk_nholesSCT_Low[itrk] = nhsct;
-      nt_Trk_nholes_Low[itrk] = nholes;
+      m_nt_Trk_nholesPixels_Low[itrk] = nhpix;
+      m_nt_Trk_nholesSCT_Low[itrk] = nhsct;
+      m_nt_Trk_nholes_Low[itrk] = nholes;
       
-      nt_Trk_chi2_Low[itrk] = fitQual->chiSquared();
-      nt_Trk_ndof_Low[itrk] = fitQual->numberDoF();
-      nt_Trk_chi2Prob_Low[itrk] = chi2Prob;
+      m_nt_Trk_chi2_Low[itrk] = fitQual->chiSquared();
+      m_nt_Trk_ndof_Low[itrk] = fitQual->numberDoF();
+      m_nt_Trk_chi2Prob_Low[itrk] = chi2Prob;
     }
     else {
-      nt_Trk_d0[itrk] = d0;
-      nt_Trk_z0[itrk] = z0;
-      nt_Trk_phi0[itrk] = phi0;
-      nt_Trk_theta0[itrk] = theta;
-      nt_Trk_qoverp[itrk] = qOverP;
-      nt_Trk_pt[itrk] = transverseMomentum;
+      m_nt_Trk_d0[itrk] = d0;
+      m_nt_Trk_z0[itrk] = z0;
+      m_nt_Trk_phi0[itrk] = phi0;
+      m_nt_Trk_theta0[itrk] = theta;
+      m_nt_Trk_qoverp[itrk] = qOverP;
+      m_nt_Trk_pt[itrk] = transverseMomentum;
       
-      nt_Trk_nHits[itrk] = nHits;
-      nt_Trk_nhitspix[itrk] = nhitspix;
-      nt_Trk_nhitssct[itrk] = nhitssct;
-      nt_Trk_nhitstrt[itrk] = nhitstrt;
+      m_nt_Trk_nHits[itrk] = nHits;
+      m_nt_Trk_nhitspix[itrk] = nhitspix;
+      m_nt_Trk_nhitssct[itrk] = nhitssct;
+      m_nt_Trk_nhitstrt[itrk] = nhitstrt;
       
-      nt_Trk_nsharedPixels[itrk] = nshpix;
-      nt_Trk_nsharedSCT[itrk] = nshsct;
-      nt_Trk_nshared[itrk] = nshared;
+      m_nt_Trk_nsharedPixels[itrk] = nshpix;
+      m_nt_Trk_nsharedSCT[itrk] = nshsct;
+      m_nt_Trk_nshared[itrk] = nshared;
       
-      nt_Trk_nholesPixels[itrk] = nhpix;
-      nt_Trk_nholesSCT[itrk] = nhsct;
-      nt_Trk_nholes[itrk] = nholes;
+      m_nt_Trk_nholesPixels[itrk] = nhpix;
+      m_nt_Trk_nholesSCT[itrk] = nhsct;
+      m_nt_Trk_nholes[itrk] = nholes;
       
-      nt_Trk_chi2[itrk] = fitQual->chiSquared();
-      nt_Trk_ndof[itrk] = fitQual->numberDoF();
-      nt_Trk_chi2Prob[itrk] = chi2Prob;
+      m_nt_Trk_chi2[itrk] = fitQual->chiSquared();
+      m_nt_Trk_ndof[itrk] = fitQual->numberDoF();
+      m_nt_Trk_chi2Prob[itrk] = chi2Prob;
     }
   }
   
@@ -1143,15 +1143,15 @@ void InDetAlignFillTrack::dumpPerigee(const Trk::TrackParameters* generatedTrack
 	  << " pT = " << pt/CLHEP::GeV << " CLHEP::GeV/c" << endmsg;
   }
 
-  nt_mc_Trk_d0[index] = d0;
-  nt_mc_Trk_z0[index] = z0;
-  nt_mc_Trk_phi0[index] = phi0;
-  nt_mc_Trk_theta0[index] = theta;
-  nt_mc_Trk_eta[index] = eta;
-  nt_mc_Trk_qoverp[index] = qoverp;
-  nt_mc_Trk_qoverpt[index] = qoverpt;
-  nt_mc_Trk_pt[index] = pt;
-  nt_mc_Trk_charge[index] = charge;
+  m_nt_mc_Trk_d0[index] = d0;
+  m_nt_mc_Trk_z0[index] = z0;
+  m_nt_mc_Trk_phi0[index] = phi0;
+  m_nt_mc_Trk_theta0[index] = theta;
+  m_nt_mc_Trk_eta[index] = eta;
+  m_nt_mc_Trk_qoverp[index] = qoverp;
+  m_nt_mc_Trk_qoverpt[index] = qoverpt;
+  m_nt_mc_Trk_pt[index] = pt;
+  m_nt_mc_Trk_charge[index] = charge;
  
   return;  
 }
@@ -1274,16 +1274,16 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
     if(matchFound) {
       
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Match found!" <<endmsg;
-      nt_matchingTrk = 1;
-      nt_Trk_delta_d0[nTracksUpper] = d0Up - Matched_Low_d0;
-      nt_Trk_delta_phi0[nTracksUpper] = phi0Up - Matched_Low_phi0;
+      m_nt_matchingTrk = 1;
+      m_nt_Trk_delta_d0[nTracksUpper] = d0Up - Matched_Low_d0;
+      m_nt_Trk_delta_phi0[nTracksUpper] = phi0Up - Matched_Low_phi0;
       //**
-      nt_Trk_delta_theta0[nTracksUpper] = thetaUp - Matched_Low_theta;
-      nt_Trk_delta_eta[nTracksUpper] = eta0Up - Matched_Low_eta0;
-      nt_Trk_delta_z0[nTracksUpper] = z0Up - Matched_Low_z0;
-      nt_Trk_delta_qoverpt[nTracksUpper] = qOverPtUp - Matched_Low_qOverPt;
-      nt_Trk_delta_pt[nTracksUpper] = ptUp - Matched_Low_pt;
-      nt_Trk_delta_charge[nTracksUpper] = chargeUp - Matched_Low_charge;
+      m_nt_Trk_delta_theta0[nTracksUpper] = thetaUp - Matched_Low_theta;
+      m_nt_Trk_delta_eta[nTracksUpper] = eta0Up - Matched_Low_eta0;
+      m_nt_Trk_delta_z0[nTracksUpper] = z0Up - Matched_Low_z0;
+      m_nt_Trk_delta_qoverpt[nTracksUpper] = qOverPtUp - Matched_Low_qOverPt;
+      m_nt_Trk_delta_pt[nTracksUpper] = ptUp - Matched_Low_pt;
+      m_nt_Trk_delta_charge[nTracksUpper] = chargeUp - Matched_Low_charge;
       
     } // end match found
     

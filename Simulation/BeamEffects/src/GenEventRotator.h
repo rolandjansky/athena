@@ -14,18 +14,11 @@
 // Base class headers
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HepMC_Interfaces/IGenEventManipulator.h"
-// Athena headers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 // Gaudi headers
 #include "GaudiKernel/ServiceHandle.h"
 // CLHEP headers
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/LorentzRotation.h"
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 namespace HepMC {
   class GenParticle;
@@ -38,7 +31,7 @@ namespace Simulation {
       This tool takes a HepMC::GenEvent and applies rotations
       See https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AtlasG4EventFilters for more details.
   */
-  class GenEventRotator : public AthAlgTool, virtual public IGenEventManipulator
+  class GenEventRotator : public extends<AthAlgTool, IGenEventManipulator>
   {
 
   public:

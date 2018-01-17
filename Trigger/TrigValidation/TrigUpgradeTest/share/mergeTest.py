@@ -11,10 +11,9 @@
 #--------------------------------------------------------------
 
 # Configure the scheduler
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.ShowDataFlow=True
-svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataFlow( True )
 
 # Event-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
@@ -64,7 +63,7 @@ writeEmulationFiles(data)
 
 include("TrigUpgradeTest/L1CF.py")
 include("TrigUpgradeTest/HLTCF.py")
-
+l1Decoder.prescaler.EventInfo=""
 
 
 

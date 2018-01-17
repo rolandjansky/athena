@@ -27,6 +27,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/DataHandle.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -129,9 +130,6 @@ public:
   /// Get a CutBookkeeper given a CutID
   xAOD::CutBookkeeper* getCutBookkeeper( const CutIdentifier cutID );
 
-  // TTree* dumpCutFlowToTTree(const char* treeName="CutFlowTree");
-  // void loadCutFlowFromTTree(TTree*) override final;
-
   void print();
 
 private:
@@ -139,39 +137,10 @@ private:
   /// input meta-data store
   StatusCode determineCycleNumberFromInput( const std::string& collName );
 
-  /// Determine the cycle number from the old-style EventBookkeeper
-  StatusCode determineCycleNumberFromOldInput( const std::string& collName );
-
   /// Helper function to record the collection (and its aux store) to the
   /// output MetaData store
   StatusCode recordCollection( xAOD::CutBookkeeperContainer* coll,
                                const std::string &collName );
-
-  /// Update an existing (possibly empty) xAOD::CutBookkeeperContainer with
-  /// all the information from the container(s) form the input file
-  StatusCode updateCollFromInputStore( xAOD::CutBookkeeperContainer* coll,
-                                       const std::string &collName );
-
-  /// Helper class to update a container with information from another one
-  StatusCode updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
-                              const xAOD::CutBookkeeperContainer* otherCont );
-
-  /// Helper class to update a container with information from another one from the old EDM
-  StatusCode updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
-                                        const EventBookkeeperCollection* otherContOldEDM );
-
-  /// Helper class to update a container with information from another one from the old EDM
-  StatusCode updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
-                                        xAOD::CutBookkeeper* newEBK,
-                                        const EventBookkeeper* oldEBK,
-                                        const xAOD::CutBookkeeper* parentEBK=0 );
-
-  // bool inputStoreHasFlatTTree() const;
-  // void fillIncompleteCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll);
-  // void fillCompleteCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll);
-  // void fillCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll, int wantIsComplete);
-
-
 
   /// Create a typedef
   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
@@ -185,26 +154,25 @@ private:
   /// The event store
   StoreGateSvc_t m_eventStore;
 
+  DataHandle<xAOD::CutBookkeeperContainer> m_completeBook;
+
   /// The name of the completed, i.e., fully processed, CutBookkeeperContainer
-  StringProperty m_completeCollName;
+  std::string m_completeCollName;
 
   /// The name of the incomplete, i.e., not fully processed (e.g. failed job), CutBookkeeperContainer
-  StringProperty m_incompleteCollName;
+  std::string m_incompleteCollName;
 
   /// The current skimming cycle, i.e., how many processing stages we already had
   int m_skimmingCycle;
 
+  /// The name of the container in storegate with cutflow values for a file. 
+  std::string m_fileCollName;
+
   /// The name of the currently used input file stream
-  StringProperty m_inputStream;
-
-  /// Temporary container for frequent use
-  xAOD::CutBookkeeperContainer*  m_inputCompleteBookTmp;
-
-  /// Temporary auxiliary container for frequent use
-  xAOD::CutBookkeeperAuxContainer* m_inputCompleteBookAuxTmp;
+  std::string m_inputStream;
 
   /// A flag to say if the input file is currently open or not
-  bool m_fileCurrentlyOpened;
+  //bool m_fileCurrentlyOpened;
 
   /// Declare a simple typedef for the internal map
   typedef MAP_NS::unordered_map<CutIdentifier, xAOD::CutBookkeeper*> CutIDMap_t;
@@ -212,12 +180,6 @@ private:
   /// This internal map keeps the association between the instance identifier of each algorithm
   /// to the pointer of associated CutBookkeeper
   CutIDMap_t m_ebkMap;
-
-  /// Internal flag to track if the old-style EventBookkeepers from the input were already processed
-  bool m_alreadyCopiedEventBookkeepers;
-
-  /// Internal flag to track if we have already determined the cycle number from the first input file
-  //bool m_alreadyDeterminedCycleNumber;
 
 public:
 
@@ -228,8 +190,6 @@ public:
 
 
 
-
-
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
@@ -237,13 +197,5 @@ public:
 inline const InterfaceID& CutFlowSvc::interfaceID() {
   return ICutFlowSvc::interfaceID();
 }
-
-
-inline
-xAOD::CutBookkeeper*
-CutFlowSvc::getCutBookkeeper( const CutIdentifier cutID ) {
-  return m_ebkMap[cutID];
-}
-
 
 #endif //> !CUTFLOWSVC_H

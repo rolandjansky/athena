@@ -22,12 +22,6 @@
 // Trigger includes
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-using namespace std;
-using namespace Trig;
-using namespace TrigConf;
-using namespace xAOD;
-using namespace TrigAnalysisTest;
-
 /**
  * @class AthenaTestHarness
  * bSteer tests produced by TestFactory
@@ -52,8 +46,8 @@ class AthenaTestHarness : public AthAlgorithm
   std::string m_trigDecisionKey; //!< SG key of the trigger data (TrigDecision object)
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< interface to use the trigger data: TriggerTool
 
-	ITest *m_test;
-	const std::string m_test_name;
+  TrigAnalysisTest::ITest *m_test;
+  const std::string m_test_name;
 
 };
 

@@ -81,7 +81,6 @@ private:
   int    m_numberOfCharges;  
   bool				m_disableDistortions;
 
-  const InDetDD::SiDetectorElement *m_module;   
   bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model ?
   double m_doBichselBetaGammaCut;                      // replace momentum cut
   bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 

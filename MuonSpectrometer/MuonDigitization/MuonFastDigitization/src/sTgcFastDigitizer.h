@@ -124,6 +124,7 @@ class sTgcFastDigitizer : public AthAlgorithm {
      Reads parameters for intrinsic time response from timejitter.dat.
   */
   bool  readFileOfTimeJitter();
+  bool  m_mergePrds;
 
 
  protected:

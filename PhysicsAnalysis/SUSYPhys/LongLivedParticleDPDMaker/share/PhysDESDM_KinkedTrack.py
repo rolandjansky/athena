@@ -81,6 +81,7 @@ topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackJetFilter
                                                      SkimmingTools = [KinkTrkJetFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackJetFilterKernel"])
 
+# Multi-jets filter
 KinkTrkMultiJetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkMultiJetFilterTool",
                                                                                LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
                                                                                IsolatedTrack        = False,
@@ -114,6 +115,42 @@ topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackMultiJetF
                                                      SkimmingTools = [KinkTrkTrigMetMultiJetFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackMultiJetFilterKernel"])
 
+# Stublet filter
+KinkTrkStubletFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkStubletFilterTool",
+                                                                              LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
+                                                                              IsolatedTrack        = False,
+                                                                              JetContainerKey      = jetContainer,
+                                                                              ElectronContainerKey = electronContainer,
+                                                                              ElectronIDKey        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.electronIDKey,
+                                                                              MuonContainerKey     = muonContainer,
+                                                                              MuonIDKey            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.muonIDKey,
+                                                                              MetContainerKey      = METContainer,
+                                                                              MetTerm              = METTerm,
+                                                                              MetCut               = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutMetMinForStublet,
+                                                                              JetPtCuts            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutsEtMinForStublet,
+                                                                              JetEtaMax            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtaMax,
+                                                                              JetNumCut            = 1,
+                                                                              JetMetDphiMin        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetDphiMin,
+                                                                              JetMetPtMin          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetPtMin,
+                                                                              MetHtCut             = -1,
+                                                                              LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
+                                                                              LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
+
+print KinkTrkStubletFilterTool
+ToolSvc += KinkTrkStubletFilterTool
+
+KinkTrkStubletPrescaleTool = DerivationFramework__PrescaleTool(name = "KinkTrkStubletPrescaleTool",
+                                                           Prescale = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.preScaleStublet)
+ToolSvc += KinkTrkStubletPrescaleTool
+
+KinkTrkStubletFinalFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkStubletFinalFilterTool",
+                                                                 FilterList=[KinkTrkJetTriggerFilterTool, KinkTrkStubletFilterTool, KinkTrkStubletPrescaleTool],
+                                                                 OutputLevel=INFO)
+ToolSvc+= KinkTrkStubletFinalFilterTool 
+
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackStubletFilterKernel",
+                                                     SkimmingTools = [KinkTrkStubletFinalFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackStubletFilterKernel"])
 
 #====================================================================
 # Zee/Zmumu filter

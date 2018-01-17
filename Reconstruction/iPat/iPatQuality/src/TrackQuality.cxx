@@ -16,8 +16,13 @@
 TrackQuality::TrackQuality	(const std::string&	type,
 				 const std::string&	name,
 				 const IInterface*	parent)
-    :   AthAlgTool	(type, name, parent),
-	m_status	(segment)
+    :   AthAlgTool	     (type, name, parent),
+	m_maxPlanarHoles     (0),
+	m_minEffectiveLayers (0),
+	m_minFitProbability  (0.),
+	m_minPlanarClusters  (0),
+	m_minPt	             (0.),
+	m_status	     (segment)
 {
     declareInterface<ITrackQuality>(this);
 }

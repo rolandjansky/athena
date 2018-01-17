@@ -34,33 +34,33 @@
 
 TrigT2HistoPrmVtxAllTE::TrigT2HistoPrmVtxAllTE(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::AllTEAlgo(name, pSvcLocator),
-  c( new TrigT2HistoPrmVtxBase(msg(), msgLvl()) ),
+  m_c( new TrigT2HistoPrmVtxBase(msg(), msgLvl()) ),
   m_constTrigT2HistoPrmVtxBase(0),
   m_trigVertexColl(0)
 {
-  declareProperty ("AlgoId",             c->m_algo);
-  declareProperty ("Instance",           c->m_instance);
+  declareProperty ("AlgoId",             m_c->m_algo);
+  declareProperty ("Instance",           m_c->m_instance);
 
-  declareProperty ("NumBins",            c->m_nBins);
+  declareProperty ("NumBins",            m_c->m_nBins);
 
-  declareProperty ("UseBeamSpot",        c->m_useBeamSpot        = false);
-  declareProperty ("UseEtaPhiTrackSel",  c->m_useEtaPhiTrackSel  = false);
+  declareProperty ("UseBeamSpot",        m_c->m_useBeamSpot        = false);
+  declareProperty ("UseEtaPhiTrackSel",  m_c->m_useEtaPhiTrackSel  = false);
 
-  declareProperty ("EFTrkSel_Chi2",      c->m_efTrkSelChi2       = 0.0);
-  declareProperty ("EFTrkSel_BLayer",    c->m_efTrkSelBLayer     = 1);
-  declareProperty ("EFTrkSel_PixHits",   c->m_efTrkSelPixHits    = 2);
-  declareProperty ("EFTrkSel_SiHits",    c->m_efTrkSelSiHits     = 7);
-  declareProperty ("EFTrkSel_D0",        c->m_efTrkSelD0         = 1*CLHEP::mm);
-  declareProperty ("EFTrkSel_Pt",        c->m_efTrkSelPt         = 1*CLHEP::GeV);
+  declareProperty ("EFTrkSel_Chi2",      m_c->m_efTrkSelChi2       = 0.0);
+  declareProperty ("EFTrkSel_BLayer",    m_c->m_efTrkSelBLayer     = 1);
+  declareProperty ("EFTrkSel_PixHits",   m_c->m_efTrkSelPixHits    = 2);
+  declareProperty ("EFTrkSel_SiHits",    m_c->m_efTrkSelSiHits     = 7);
+  declareProperty ("EFTrkSel_D0",        m_c->m_efTrkSelD0         = 1*CLHEP::mm);
+  declareProperty ("EFTrkSel_Pt",        m_c->m_efTrkSelPt         = 1*CLHEP::GeV);
 
-  declareMonitoredVariable("PrmVtx",          c->zPrmVtx[0]          = -1);
-  declareMonitoredVariable("PrmVtxSigmaAll",  c->zPrmVtxSigmaAll[0]  = -1);
-  declareMonitoredVariable("PrmVtxSigma2Trk", c->zPrmVtxSigma2Trk[0] = -1);
-  declareMonitoredVariable("TracksPerVtx",    c->nTrackVtx[0]        = -1);
-  declareMonitoredVariable("NVtxFound",       c->nVtxFound           = -1);
+  declareMonitoredVariable("PrmVtx",          m_c->m_zPrmVtx[0]          = -1);
+  declareMonitoredVariable("PrmVtxSigmaAll",  m_c->m_zPrmVtxSigmaAll[0]  = -1);
+  declareMonitoredVariable("PrmVtxSigma2Trk", m_c->m_zPrmVtxSigma2Trk[0] = -1);
+  declareMonitoredVariable("TracksPerVtx",    m_c->m_nTrackVtx[0]        = -1);
+  declareMonitoredVariable("NVtxFound",       m_c->m_nVtxFound           = -1);
 
   declareMonitoredObject("Trk_selectedTracks", m_constTrigT2HistoPrmVtxBase, &TrigT2HistoPrmVtxBase::totSelectedTracks);
-  declareMonitoredStdContainer("Trk_stepsToSelect", c->m_listCutApplied);
+  declareMonitoredStdContainer("Trk_stepsToSelect", m_c->m_listCutApplied);
 }
 
 
@@ -75,31 +75,28 @@ TrigT2HistoPrmVtxAllTE::~TrigT2HistoPrmVtxAllTE() {}
 
 HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltInitialize() {
 
-  // Get message service
-  if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigT2HistoPrmVtxAllTE, version " << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO( "Initializing TrigT2HistoPrmVtxAllTE, version " << PACKAGE_VERSION  );
   
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " AlgoId = "              << c->m_algo << endmsg; 
-    msg() << MSG::DEBUG << " Instance = "            << c->m_instance << endmsg; 
-    msg() << MSG::DEBUG << " Numbins = "             << c->m_nBins << endmsg; 
-    msg() << MSG::DEBUG << " UseBeamSpot = "         << c->m_useBeamSpot << endmsg; 
-    msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << c->m_useEtaPhiTrackSel << endmsg;
+    ATH_MSG_DEBUG( "declareProperty review:"  );
+    ATH_MSG_DEBUG( " AlgoId = "              << m_c->m_algo  );
+    ATH_MSG_DEBUG( " Instance = "            << m_c->m_instance  );
+    ATH_MSG_DEBUG( " Numbins = "             << m_c->m_nBins  );
+    ATH_MSG_DEBUG( " UseBeamSpot = "         << m_c->m_useBeamSpot  );
+    ATH_MSG_DEBUG( " UseEtaPhiTrackSel = "   << m_c->m_useEtaPhiTrackSel  );
 
-    if (c->m_instance == "_EF" || c->m_instance == "_HLT") {
+    if (m_c->m_instance == "_EF" || m_c->m_instance == "_HLT") {
 
-      msg() << MSG::DEBUG << " EFTrkSel_Chi2 = "     << c->m_efTrkSelChi2 << endmsg; 
-      msg() << MSG::DEBUG << " EFTrkSel_BLayer = "   << c->m_efTrkSelBLayer << endmsg; 
-      msg() << MSG::DEBUG << " EFTrkSel_PixHits = "  << c->m_efTrkSelPixHits << endmsg; 
-      msg() << MSG::DEBUG << " EFTrkSel_SiHits = "   << c->m_efTrkSelSiHits << endmsg;    
-      msg() << MSG::DEBUG << " EFTrkSel_D0 = "       << c->m_efTrkSelD0 << endmsg; 
-      msg() << MSG::DEBUG << " EFTrkSel_Pt = "       << c->m_efTrkSelPt << endmsg; 
-
+      ATH_MSG_DEBUG( " EFTrkSel_Chi2 = "     << m_c->m_efTrkSelChi2  );
+      ATH_MSG_DEBUG( " EFTrkSel_BLayer = "   << m_c->m_efTrkSelBLayer  );
+      ATH_MSG_DEBUG( " EFTrkSel_PixHits = "  << m_c->m_efTrkSelPixHits  );
+      ATH_MSG_DEBUG( " EFTrkSel_SiHits = "   << m_c->m_efTrkSelSiHits  );
+      ATH_MSG_DEBUG( " EFTrkSel_D0 = "       << m_c->m_efTrkSelD0  );
+      ATH_MSG_DEBUG( " EFTrkSel_Pt = "       << m_c->m_efTrkSelPt  );
     }
   }
 
-  m_constTrigT2HistoPrmVtxBase = const_cast<const TrigT2HistoPrmVtxBase*>(c);
+  m_constTrigT2HistoPrmVtxBase = const_cast<const TrigT2HistoPrmVtxBase*>(m_c);
 
   return HLT::OK;
 }
@@ -113,12 +110,10 @@ unsigned int TrigT2HistoPrmVtxAllTE::getTrackNumbers(const xAOD::TrackParticleCo
   
   if (pointerToEFTrackCollections) {
     nEFtracks = pointerToEFTrackCollections->size();
-    if (msgLvl() <= MSG::DEBUG)  
-      msg() << MSG::DEBUG << "Found " << nEFtracks << " tracks in the RoI" << endmsg;
+    ATH_MSG_DEBUG( "Found " << nEFtracks << " tracks in the RoI"  );
   } else {
     nEFtracks = 0;
-    if (msgLvl() <= MSG::DEBUG)  
-      msg() << MSG::DEBUG << "No tracks in the RoI" << endmsg;
+    ATH_MSG_DEBUG( "No tracks in the RoI"  );
   }
   
   return nEFtracks;
@@ -133,61 +128,57 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
   // since this is an AllTEAlgo, we have to call the monitoring ourselves:
   beforeExecMonitors().ignore();
 
-  if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Executing TrigT2HistoPrmVtxAllTE" << endmsg;
+  ATH_MSG_DEBUG( "Executing TrigT2HistoPrmVtxAllTE"  );
 
   float zFirstTrack=0;
   float zFirstTrackError=0;
 
-  c->m_totTracks=0;
-  c->m_totTracks_All=0;
-  c->m_totSelTracks=0;
-  c->m_totSelTracks_All=0;
+  m_c->m_totTracks=0;
+  m_c->m_totTracks_All=0;
+  m_c->m_totSelTracks=0;
+  m_c->m_totSelTracks_All=0;
 
-  c->m_hisVtx->reset();
+  m_c->m_hisVtx->reset();
 
   for (int i = 0; i <3; i++) {
-    c->zPrmVtx.at(i) = -200;
-    c->zPrmVtxSigmaAll.at(i)  = -200;
-    c->zPrmVtxSigma2Trk.at(i) = -200;
-    c->nTrackVtx.at(i) = -200;
+    m_c->m_zPrmVtx.at(i) = -200;
+    m_c->m_zPrmVtxSigmaAll.at(i)  = -200;
+    m_c->m_zPrmVtxSigma2Trk.at(i) = -200;
+    m_c->m_nTrackVtx.at(i) = -200;
   }
 
   // Retrieve beamspot information
-  c->m_xBeamSpot = c->m_yBeamSpot = c->m_zBeamSpot = 0;
-  c->m_xBeamSpotSigma = c->m_yBeamSpotSigma = c->m_zBeamSpotSigma = 1e-6;
-  c->m_xBeamSpotTilt = c->m_yBeamSpotTilt = 0;
+  m_c->m_xBeamSpot = m_c->m_yBeamSpot = m_c->m_zBeamSpot = 0;
+  m_c->m_xBeamSpotSigma = m_c->m_yBeamSpotSigma = m_c->m_zBeamSpotSigma = 1e-6;
+  m_c->m_xBeamSpotTilt = m_c->m_yBeamSpotTilt = 0;
   
-  if(c->m_useBeamSpot) {
+  if(m_c->m_useBeamSpot) {
     
-    IBeamCondSvc* m_iBeamCondSvc; 
-    StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
+    IBeamCondSvc* iBeamCondSvc; 
+    StatusCode scBS = service("BeamCondSvc", iBeamCondSvc);
     
-    if (scBS.isFailure() || m_iBeamCondSvc == 0) {
-      m_iBeamCondSvc = 0;
+    if (scBS.isFailure() || iBeamCondSvc == 0) {
+      iBeamCondSvc = 0;
       
-      if (msgLvl() <= MSG::WARNING) {
-	msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
-	msg() << MSG::WARNING << "Using origin at ( " << c->m_xBeamSpot << " , " << c->m_yBeamSpot << " , " << c->m_zBeamSpot << " ) " << endmsg;
-      }
+      ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. "  );
+      ATH_MSG_WARNING( "Using origin at ( " << m_c->m_xBeamSpot << " , " << m_c->m_yBeamSpot << " , " << m_c->m_zBeamSpot << " ) "  );
       
     } else {
       
-      Amg::Vector3D m_beamSpot = m_iBeamCondSvc->beamPos();
+      Amg::Vector3D beamSpot = iBeamCondSvc->beamPos();
       
-      c->m_xBeamSpot = m_beamSpot.x();
-      c->m_yBeamSpot = m_beamSpot.y();
-      c->m_zBeamSpot = m_beamSpot.z();
-      c->m_xBeamSpotSigma = m_iBeamCondSvc->beamSigma(0);
-      c->m_yBeamSpotSigma = m_iBeamCondSvc->beamSigma(1);
-      c->m_zBeamSpotSigma = m_iBeamCondSvc->beamSigma(2);
-      c->m_xBeamSpotTilt = m_iBeamCondSvc->beamTilt(0);
-      c->m_yBeamSpotTilt = m_iBeamCondSvc->beamTilt(1);
+      m_c->m_xBeamSpot = beamSpot.x();
+      m_c->m_yBeamSpot = beamSpot.y();
+      m_c->m_zBeamSpot = beamSpot .z();
+      m_c->m_xBeamSpotSigma = iBeamCondSvc->beamSigma(0);
+      m_c->m_yBeamSpotSigma = iBeamCondSvc->beamSigma(1);
+      m_c->m_zBeamSpotSigma = iBeamCondSvc->beamSigma(2);
+      m_c->m_xBeamSpotTilt = iBeamCondSvc->beamTilt(0);
+      m_c->m_yBeamSpotTilt = iBeamCondSvc->beamTilt(1);
 
-      if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Beam spot from service: x = " << c->m_xBeamSpot << " +/- " << c->m_xBeamSpotSigma << "   "
-	      << "y = " << c->m_yBeamSpot << " +/- " << c->m_yBeamSpotSigma << "   "
-	      << "z = " << c->m_zBeamSpot << " +/- " << c->m_zBeamSpotSigma << endmsg;
+      ATH_MSG_DEBUG( "Beam spot from service: x = " << m_c->m_xBeamSpot << " +/- " << m_c->m_xBeamSpotSigma << "   "
+                     << "y = " << m_c->m_yBeamSpot << " +/- " << m_c->m_yBeamSpotSigma << "   "
+                     << "z = " << m_c->m_zBeamSpot << " +/- " << m_c->m_zBeamSpotSigma  );
     }
   }
   
@@ -198,17 +189,13 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
     const TrigRoiDescriptor* roiDescriptor; 
     
     if ((getFeature(*inner_it, roiDescriptor) == HLT::OK) && roiDescriptor) {
-      if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "Using inputTE: "
-	      << "RoI id " << roiDescriptor->roiId()
-	      << ", Phi = " <<  roiDescriptor->phi()
-	      << ", Eta = " << roiDescriptor->eta() << endmsg;
-      }
+      ATH_MSG_DEBUG( "Using inputTE: "
+                     << "RoI id " << roiDescriptor->roiId()
+                     << ", Phi = " <<  roiDescriptor->phi()
+                     << ", Eta = " << roiDescriptor->eta()  );
     }
     else {
-      if (msgLvl() <= MSG::WARNING) 
-	msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
-    
+      ATH_MSG_WARNING( "No RoI for this Trigger Element "  );
       return HLT::NAV_ERROR;
     }
     
@@ -216,70 +203,68 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
     const xAOD::TrackParticleContainer* pointerToEFTrackCollections=0;
 
     zFirstTrack=0;
-    c->m_totTracks=0;
-    c->m_totSelTracks=0;
+    m_c->m_totTracks=0;
+    m_c->m_totSelTracks=0;
     
-    if (c->m_instance == "_EF") { 
+    if (m_c->m_instance == "_EF") { 
       
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Executing TrigT2HistoPrmVtxAllTE at EF" << endmsg;
+      ATH_MSG_DEBUG( "Executing TrigT2HistoPrmVtxAllTE at EF"  );
 
       HLT::ErrorCode status = getFeature(*inner_it, pointerToEFTrackCollections, ""); 
       if (status != HLT::OK) {
-	msg() << MSG::DEBUG << "No tracks retrieved from TrigT2HistoPrmVtxAllTE" << endmsg;
+	ATH_MSG_DEBUG( "No tracks retrieved from TrigT2HistoPrmVtxAllTE"  );
       } 
-      else if (msgLvl() <= MSG::DEBUG)  
-	msg() << MSG::DEBUG << "Got collection from TrigT2HistoPrmVtxAllTE" << endmsg;   
+      else
+	ATH_MSG_DEBUG( "Got collection from TrigT2HistoPrmVtxAllTE"  );
       
       // Get tracks number
-      c->m_totTracks = getTrackNumbers(pointerToEFTrackCollections);
-      c->m_totTracks_All += c->m_totTracks;
-      c->m_listCutApplied.clear();
+      m_c->m_totTracks = getTrackNumbers(pointerToEFTrackCollections);
+      m_c->m_totTracks_All += m_c->m_totTracks;
+      m_c->m_listCutApplied.clear();
 
       // Retrieve z0 parameters  
-      for (unsigned int i = 0; i < c->m_totTracks; i++) {
+      for (unsigned int i = 0; i < m_c->m_totTracks; i++) {
 	
-	if (msgLvl() <= MSG::DEBUG && i == 0) 
-	  msg() << MSG::DEBUG << "Loop over tracks: retrieving z0" << endmsg;
+	if (i == 0) 
+	  ATH_MSG_DEBUG( "Loop over tracks: retrieving z0"  );
 		
 	const xAOD::TrackParticle* track = (*pointerToEFTrackCollections)[i];
 	float z0 =  track->z0();
 	const xAOD::ParametersCovMatrix_t covTrk = track->definingParametersCovMatrix();
 	float ez0 = Amg::error(covTrk, 1);
 
-	if (!c->efTrackSel(track, i, roiDescriptor->eta(), roiDescriptor->phi())) continue;
+	if (!m_c->efTrackSel(track, i, roiDescriptor->eta(), roiDescriptor->phi())) continue;
 	
-	c->m_totSelTracks++;
-	c->m_totSelTracks_All++;
+	m_c->m_totSelTracks++;
+	m_c->m_totSelTracks_All++;
 
-	if (c->m_totSelTracks == 1) {
+	if (m_c->m_totSelTracks == 1) {
 	  zFirstTrack=z0;
 	  zFirstTrackError=ez0;
 	}
 
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Track number " << i+1 << " with z0 = " << z0 << " and ez0 = " << ez0 << endmsg;
+        ATH_MSG_DEBUG( "Track number " << i+1 << " with z0 = " << z0 << " and ez0 = " << ez0  );
       
-	c->m_hisVtx->fill(z0);
+	m_c->m_hisVtx->fill(z0);
 	//std::cout << "PRMVTX-USING track " << z0 << std::endl;
       }
     }
   }
 
   // Get primary vertex from TrigT2HistoPrmVtxAllTE::findPrmVtx
-  if (c->m_totSelTracks_All == 1) {
-    c->zPrmVtx.at(0)          = zFirstTrack;
-    c->zPrmVtxSigmaAll.at(0)  = zFirstTrackError;
-    c->nTrackVtx.at(0)        = 1;
-    c->nVtxFound = 1;
+  if (m_c->m_totSelTracks_All == 1) {
+    m_c->m_zPrmVtx.at(0)          = zFirstTrack;
+    m_c->m_zPrmVtxSigmaAll.at(0)  = zFirstTrackError;
+    m_c->m_nTrackVtx.at(0)        = 1;
+    m_c->m_nVtxFound = 1;
   } else {
-    c->findPrmVtx();
+    m_c->findPrmVtx();
   }
 
   if (msgLvl() <= MSG::DEBUG) {
     for (int i = 0; i <3; i++)
-      msg() << MSG::DEBUG << "Primary vertex " << i << ": z=" << c->zPrmVtx.at(i) << ", sigma=" << c->zPrmVtxSigmaAll.at(i) 
-	    << ", nTracks=" << c->nTrackVtx.at(i) << ", and ntot track in all ROIs" << c->m_totSelTracks_All << endmsg;
+      ATH_MSG_DEBUG( "Primary vertex " << i << ": z=" << m_c->m_zPrmVtx.at(i) << ", sigma=" << m_c->m_zPrmVtxSigmaAll.at(i) 
+                     << ", nTracks=" << m_c->m_nTrackVtx.at(i) << ", and ntot track in all ROIs" << m_c->m_totSelTracks_All  );
   }
   
   if (msgLvl() <= MSG::DEBUG) {
@@ -287,13 +272,13 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
     const EventInfo* pEventInfo;
     
     if ( !store() || store()->retrieve(pEventInfo).isFailure() ) {
-      msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+      ATH_MSG_DEBUG( "Failed to get EventInfo "  );
     } else {
-      msg() << MSG::DEBUG << "PrmVtx summary (Run " << pEventInfo->event_ID()->run_number()
-	    << "; Event "<< pEventInfo->event_ID()->event_number() << ")" << endmsg;
-      msg() << MSG::DEBUG << "REGTEST: Number of RoIs " << inputTE[0].size() << endmsg;
-      msg() << MSG::DEBUG << "REGTEST: Tracks: " << c->m_totTracks_All << " reconstructed and " << c->m_totSelTracks_All <<" selected" << endmsg;
-      msg() << MSG::DEBUG << "REGTEST: Primary vertex: " << c->zPrmVtx.at(0) << " +/ " << c->zPrmVtxSigmaAll.at(0) << " with " << c->nTrackVtx.at(0) << " tracks" << endmsg;
+      ATH_MSG_DEBUG( "PrmVtx summary (Run " << pEventInfo->event_ID()->run_number()
+                     << "; Event "<< pEventInfo->event_ID()->event_number() << ")"  );
+      ATH_MSG_DEBUG( "REGTEST: Number of RoIs " << inputTE[0].size()  );
+      ATH_MSG_DEBUG( "REGTEST: Tracks: " << m_c->m_totTracks_All << " reconstructed and " << m_c->m_totSelTracks_All <<" selected"  );
+      ATH_MSG_DEBUG( "REGTEST: Primary vertex: " << m_c->m_zPrmVtx.at(0) << " +/ " << m_c->m_zPrmVtxSigmaAll.at(0) << " with " << m_c->m_nTrackVtx.at(0) << " tracks"  );
     }
   }
 
@@ -304,17 +289,17 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
   xAOD::Vertex* trigVertex = new xAOD::Vertex();
   m_trigVertexColl->push_back(trigVertex); 
 
-  trigVertex->setZ(c->zPrmVtx.at(0) + c->m_zBeamSpot);
+  trigVertex->setZ(m_c->m_zPrmVtx.at(0) + m_c->m_zBeamSpot);
 //  trigVertex->setX(c->m_xBeamSpot);
 //  trigVertex->setY(c->m_yBeamSpot);
-  trigVertex->setX(c->m_xBeamSpot + tan(c->m_xBeamSpotTilt) * trigVertex->z());
-  trigVertex->setY(c->m_yBeamSpot + tan(c->m_yBeamSpotTilt) * trigVertex->z());
+  trigVertex->setX(m_c->m_xBeamSpot + tan(m_c->m_xBeamSpotTilt) * trigVertex->z());
+  trigVertex->setY(m_c->m_yBeamSpot + tan(m_c->m_yBeamSpotTilt) * trigVertex->z());
   trigVertex->setVertexType(xAOD::VxType::PriVtx);
 
   AmgSymMatrix(3) cov;
-  cov(0,0) = c->m_xBeamSpotSigma*c->m_xBeamSpotSigma;
-  cov(1,1) = c->m_yBeamSpotSigma*c->m_yBeamSpotSigma;
-  cov(2,2) = c->zPrmVtxSigmaAll.at(0)*c->zPrmVtxSigmaAll.at(0);
+  cov(0,0) = m_c->m_xBeamSpotSigma*m_c->m_xBeamSpotSigma;
+  cov(1,1) = m_c->m_yBeamSpotSigma*m_c->m_yBeamSpotSigma;
+  cov(2,2) = m_c->m_zPrmVtxSigmaAll.at(0)*m_c->m_zPrmVtxSigmaAll.at(0);
   cov(0,1) = cov(1,0) = 0.0; 
   cov(0,2) = cov(2,0) = 0.0;
   cov(1,2) = cov(2,1) = 0.0;
@@ -325,20 +310,18 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, output);
   outputTE->setActiveState(true);
 
-  string key;
+  std::string key;
   
-  if (c->m_instance == "_EF" || c->m_instance == "_HLT" ) key = "EFHistoPrmVtx";
+  if (m_c->m_instance == "_EF" || m_c->m_instance == "_HLT" ) key = "EFHistoPrmVtx";
 
   HLT::ErrorCode stat = attachFeature(outputTE, m_trigVertexColl, key);
 
   if (stat != HLT::OK) {
-    if (msgLvl() <= MSG::WARNING) 
-      msg() << MSG::WARNING << "Failed to attach xAOD::VertexCollection to navigation" << endmsg;
+    ATH_MSG_WARNING( "Failed to attach xAOD::VertexCollection to navigation"  );
     return stat;
   }
   else {
-    if (msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Attached xAOD::VertexCollection to navigation" << endmsg;
+    ATH_MSG_DEBUG( "Attached xAOD::VertexCollection to navigation"  );
   }
   
   // since this is an AllTEAlgo, we have to call the monitoring ourselves:
@@ -352,9 +335,7 @@ HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltExecute(std::vector<std::vector<HLT::T
 
 HLT::ErrorCode TrigT2HistoPrmVtxAllTE::hltFinalize() {
 
-  if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Finalizing TrigT2HistoPrmVtxAllTE" << endmsg;
-
+  ATH_MSG_INFO( "Finalizing TrigT2HistoPrmVtxAllTE"  );
   return HLT::OK;
 }
 

@@ -23,8 +23,8 @@
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 #include "InDetByteStreamErrors/TRT_BSIdErrContainer.h"
 
-
-
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 /// Service for retrieving ByteStream conditions information
 class TRT_ByteStream_ConditionsSvc : public AthService,
@@ -125,8 +125,13 @@ class TRT_ByteStream_ConditionsSvc : public AthService,
   long long m_tot_num_sid_errors;
   long long m_tot_num_robStatus_errors;
 
-  TRT_BSIdErrContainer* m_IdCont;
-  TRT_BSErrContainer* m_cont;
+  //TRT_BSIdErrContainer* m_IdCont;
+  //TRT_BSErrContainer* m_cont;
+
+  SG::ReadHandleKey<TRT_BSIdErrContainer> m_keyerrContid{this,"ByteStreamIdErrsKey","TRT_ByteStreamIdErrs","RHK to retrieve ByteStream Error ID"};
+  SG::ReadHandleKey<TRT_BSErrContainer> m_keyerrCont{this,"ByteStreamErrsKey","TRT_ByteStreamErrs","RHK to retrieve ByteStream Errrors"};
+  SG::WriteHandleKey<TRT_BSIdErrContainer> m_writekeyErrContID{this,"ByteStreamIdErrsKeyContainer","TRT_ByteStreamIdErrs","WHK to write the ByteStream Error id"};
+  SG::WriteHandleKey<TRT_BSErrContainer> m_writekeyErrCont{this,"ByteStreamErrsKeyContainer","TRT_ByteStreamErrs","WHK to write the ByteStream Errors"};
 
 };
 

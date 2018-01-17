@@ -13,10 +13,9 @@ atlas_depends_on_subdirs(
    Control/AthLinks
    Control/AthenaKernel
    Control/CxxUtils
-   Control/DataModel
    PRIVATE
+   Control/AthContainers
    AtlasTest/TestTools
-   Control/SGTools
    Control/StoreGate
    GaudiKernel )
 
@@ -30,7 +29,7 @@ atlas_add_library( Navigation Navigation/*.h Navigation/*.icc src/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${UUID_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} AthAllocators AthLinks AthenaKernel
-   CxxUtils DataModel
+   CxxUtils 
    PRIVATE_LINK_LIBRARIES ${UUID_LIBRARIES} )
 
 atlas_add_dictionary( NavigationDict
@@ -45,7 +44,7 @@ atlas_add_test( NavigationToken_test
 atlas_add_test( NavigableIterator_test
    SOURCES test/NavigableIterator_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils DataModel TestTools SGTools
+   LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils AthContainers TestTools 
    StoreGateLib GaudiKernel Navigation
    EXTRA_PATTERNS "JobOptionsSvc +INFO"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

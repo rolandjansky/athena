@@ -116,7 +116,7 @@ StatusCode ReadLArRaw::execute() {
   //  StatusCode sc_read = StoreGate::retrieve( LArRaw, string( "LArRawChannelContainer" ) ) ;
   StatusCode sc_read = StoreGate::instance().retrieve( LArRaw, m_ChannelContainerName ) ;
 
-  if ( sc_read != SUCCESS ) {
+  if ( !sc_read.isSuccess() ) {
     log << MSG::FATAL << "Could not find event" << endmsg;
     return StatusCode::FAILURE;
   }

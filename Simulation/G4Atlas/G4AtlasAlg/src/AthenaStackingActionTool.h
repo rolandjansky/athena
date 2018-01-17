@@ -8,12 +8,12 @@
 // STL includes
 #include <string>
 
+// G4Atlas includes
+#include "G4AtlasInterfaces/IUserActionTool.h"
+#include "G4AtlasTools/UserActionToolBase.h"
+
 // Local includes
 #include "AthenaStackingAction.h"
-
-// Infrastructure includes
-#include "G4AtlasInterfaces/IG4StackingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
 
 
 namespace G4UA
@@ -24,8 +24,7 @@ namespace G4UA
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class AthenaStackingActionTool : public ActionToolBase<AthenaStackingAction>,
-                                   public IG4StackingActionTool
+  class AthenaStackingActionTool : public UserActionToolBase<AthenaStackingAction>
   {
 
     public:
@@ -37,14 +36,11 @@ namespace G4UA
       /// Initialize the tool
       virtual StatusCode initialize() override final;
 
-      /// Retrieve the stepping action
-      virtual G4UserStackingAction* getStackingAction() override final
-      { return static_cast<G4UserStackingAction*>( getAction() ); }
-
     protected:
 
-      /// Create an action for this thread
-      virtual std::unique_ptr<AthenaStackingAction> makeAction() override final;
+      // Setup the user action for current thread
+      virtual std::unique_ptr<AthenaStackingAction>
+      makeAndFillAction(G4AtlasUserActions& actionLists) override final;
 
     private:
 

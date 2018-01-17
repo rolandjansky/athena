@@ -141,9 +141,13 @@ StatusCode egammaSuperClusterBuilder::initialize() {
  
   if (m_correctClusters) {
     ATH_CHECK(m_clusterCorrectionTool.retrieve());
+  } else {
+    m_clusterCorrectionTool.disable();
   }
   if (m_calibrateClusters) {
     ATH_CHECK(m_MVACalibTool.retrieve());
+  } else {
+    m_MVACalibTool.disable();
   }
 
   return StatusCode::SUCCESS;
@@ -159,10 +163,10 @@ bool egammaSuperClusterBuilder::MatchesInWindow(const xAOD::CaloCluster *ref,
     float dPhi(fabs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     //
     float dEtaBarrel (fabs(ref->etaSample(CaloSampling::EMB2)-clus->eta())); 
-    float dPhiBarrel =(P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EMB2),clus->phi())); 
+    float dPhiBarrel (fabs(P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EMB2),clus->phi())));
     //
     float dEtaEndcap (fabs(ref->etaSample(CaloSampling::EME2)-clus->eta()));
-    float dPhiEndcap =(P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EME2),clus->phi())); 
+    float dPhiEndcap (fabs(P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EME2),clus->phi())));
     //Matches any in case of split
     return ( (dEta < m_searchWindowEtaBarrel && dPhi < m_searchWindowPhiBarrel) ||
 	     (dEta < m_searchWindowEtaEndcap && dPhi < m_searchWindowPhiEndcap) ||
@@ -313,8 +317,8 @@ StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster *new
 	   (fabs(ref->etaSample(CaloSampling::EME2)-cell->eta()) > m_addCellsWindowEtaEndcap) ){
 	continue;
       }
-      if ((P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EMB2),cell->phi()) > m_addCellsWindowPhiBarrel)&&
-	  (P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EME2),cell->phi()) > m_addCellsWindowPhiEndcap) ){
+      if ((fabs(P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EMB2),cell->phi())) > m_addCellsWindowPhiBarrel)&&
+	  (fabs(P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EME2),cell->phi())) > m_addCellsWindowPhiEndcap) ){
 	continue;
       }
     }

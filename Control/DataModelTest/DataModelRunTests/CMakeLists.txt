@@ -103,3 +103,52 @@ datamodel_run_test (CondReader
 datamodel_run_test (CondReaderMT
                     COMMAND "athena.py --thread=1"
                     DEPENDS CondWriter)
+
+
+
+# xAODTestWrite:
+# writes xaoddata.root (cvec, cvecWD, cview, gvec, ctrig, cinfo, hvec, hview, S2)
+#        
+# xAODTestRead:
+# reads xaoddata.root
+# writes xaoddata2.root (cvec, cvecWD, cview, gvec, ctrig, cinfo, hvec, hview,
+#                        copy_cvec, copy_cvecWD, copy_cview, copy_gvec, copy_ctrig,
+#                        copy_cinfo, copy_hvec, copy_hview)
+# writes xaoddata2b.root (same, with different decor)
+#
+# xAODTestRead2
+# reads xaoddata2.root
+# writes xaoddata2x.root (cvec)
+#
+# xAODTestRead2b
+# reads xaoddata2b.root
+#
+# xAODTestTypelessRead
+# reads xaoddata.root
+# writes xaoddata3.root (cvec, cvecWD, cview, ctrig, cinfo, hvec, hview,
+#                        copy_cvec, copy_cvecWD, copy_cview, copy_ctrig,
+#                        copy_cinfo, copy_hvec, copy_hview)
+#
+# xAODTestRead3
+# reads xaoddata3.root
+#
+# xAODTestReadRename
+# reads xaoddata.root
+#
+# xAODTestReadFilter
+# reads xaoddata.root
+# writes xaoddata_filt.root (cvec)
+#
+# xAODTestReadFilterRead
+# reads xaoddata_filt.root
+#
+# xAODTestReadARA
+# reads xaoddata.root
+#
+# xAODRootTestRead
+# reads xaoddata.root
+# writes xaodroot.root
+#
+# xAODRootTestRead2
+# reads xaoddata.root
+

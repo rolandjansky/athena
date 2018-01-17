@@ -19,7 +19,7 @@
 
     std::vector<const TrigInDetTrack*>::const_iterator   i_ntrk;
     int i,j,ipnt,ii,jj;
-    const TrigInDetTrackFitPar* m_mPer;
+    const TrigInDetTrackFitPar* mPer;
     double CovI[5][5];
     double A0Vert,ZVert,PhiVert,ThetaVert,PtVert,EtaVert,ct;
     const std::vector<double>* TrigTrkErr;
@@ -31,22 +31,22 @@
 //
 //-- MeasuredPerigee in TrigInDetTrack
 //
-       m_mPer = (*i_ntrk)->param();
-       if( m_mPer == 0 ){ continue; } 
-       TrigTrkErr = m_mPer->cov(); 
+       mPer = (*i_ntrk)->param();
+       if( mPer == 0 ){ continue; } 
+       TrigTrkErr = mPer->cov(); 
 //
 
-       A0Vert    = m_mPer->a0() ;
+       A0Vert    = mPer->a0() ;
        if( !std::isfinite(A0Vert) )     return StatusCode::FAILURE;
-       ZVert     = m_mPer->z0() ;
+       ZVert     = mPer->z0() ;
        if( !std::isfinite(ZVert) )      return StatusCode::FAILURE;
-       PhiVert   = m_mPer->phi0();
+       PhiVert   = mPer->phi0();
        if( !std::isfinite(PhiVert) )    return StatusCode::FAILURE;
        if(PhiVert>3.14159265358979) PhiVert-=2.*3.14159265358979;
-       EtaVert   = m_mPer->eta(); 
+       EtaVert   = mPer->eta(); 
        if( !std::isfinite(EtaVert) )    return StatusCode::FAILURE;
        ThetaVert = 2.0*atan(exp(-EtaVert)); 
-       PtVert    = m_mPer->pT();
+       PtVert    = mPer->pT();
        if( !std::isfinite(PtVert) )     return StatusCode::FAILURE;
 
 //std::cout<<" A0="<<A0Vert<<", ZV="<<ZVert<<", Phi="<<PhiVert<<", Eta="<<EtaVert<<"  Pt="<<PtVert<<'\n';
@@ -83,31 +83,31 @@
          CovI[3][4] = CovI[4][3] = (*TrigTrkErr)[13];
          CovI[4][4] =              (*TrigTrkErr)[14];
        } else {
-         CovI[0][0] =               m_mPer->ea0()*m_mPer->ea0();
+         CovI[0][0] =               mPer->ea0()*mPer->ea0();
 
          CovI[1][0] = CovI[0][1] =  0.;
-         CovI[1][1] =               m_mPer->ephi0()*m_mPer->ephi0();
+         CovI[1][1] =               mPer->ephi0()*mPer->ephi0();
 
          CovI[0][2] = CovI[2][0] =  0.;
          CovI[1][2] = CovI[2][1] =  0.;
-         CovI[2][2] =               m_mPer->ez0()*m_mPer->ez0();
+         CovI[2][2] =               mPer->ez0()*mPer->ez0();
 
          CovI[0][3] = CovI[3][0] =  0.;
          CovI[1][3] = CovI[3][1] =  0.;
          CovI[2][3] = CovI[3][2] =  0.; 
-         CovI[3][3] =               m_mPer->eeta()*m_mPer->eeta(); 
+         CovI[3][3] =               mPer->eeta()*mPer->eeta(); 
 
          CovI[0][4] = CovI[4][0] =  0.;
          CovI[1][4] = CovI[4][1] =  0.;
          CovI[2][4] = CovI[4][2] =  0.;
          CovI[3][4] = CovI[4][3] =  0.;
-         CovI[4][4] =               m_mPer->epT()*m_mPer->epT();
+         CovI[4][4] =               mPer->epT()*mPer->epT();
        }
 
        for(i=0; i<5; i++){ for(j=0; j<=i; j++){  if ( !std::isfinite(CovI[i][j]) ) return StatusCode::FAILURE;}}
 
 //std::cout<<CovI[0][0]<<", "<<CovI[1][0]<<", "<<CovI[1][1]<<", "<<TrigTrkErr<<'\n';
-//std::cout<<m_mPer->ephi0()<<", "<<m_mPer->ephi0()<<", "<<m_mPer->ea0()<<", "<<m_mPer->ez0()<<'\n';
+//std::cout<<mPer->ephi0()<<", "<<mPer->ephi0()<<", "<<mPer->ea0()<<", "<<mPer->ez0()<<'\n';
        if(CovI[0][0] < 1.e-30) CovI[0][0] = 1.0e-4;                 // 100mkm   A0
        if(CovI[1][1] < 1.e-30) CovI[2][2] = 3.0e-4;                 // 1deg   phi
        if(CovI[2][2] < 1.e-30) CovI[1][1] = 4.0e-4;                 // 200mkm   Z
@@ -134,7 +134,7 @@
        };}
 
 //
-       ntrk++; if(ntrk>=m_NTrMaxTrig) return StatusCode::FAILURE;
+       ntrk++; if(ntrk>=NTRMAXTRIG) return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
   }

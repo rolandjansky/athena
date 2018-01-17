@@ -44,7 +44,7 @@ get_joboptions addPatchRepository.py
 ##getting the data11_7TeV file with 100 events in it
 data_file="data12_8TeV.00200863.physics_eb_zee_zmumu._0001.data"
 echo "Copying data file from eos..."
-xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/${data_file} .
+xrdcp root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/${data_file} .
 
 status=$?
 if [ ${status} != 0 ]; then

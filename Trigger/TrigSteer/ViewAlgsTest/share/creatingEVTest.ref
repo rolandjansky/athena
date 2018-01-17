@@ -2,21 +2,20 @@ EMViewsMaker                                      DEBUG Property update for Outp
 EMViewsMaker                                      DEBUG input handles: 1
 EMViewsMaker                                      DEBUG output handles: 2
 EMViewsMaker                                      DEBUG Data Deps for EMViewsMaker
+EMViewsMaker                                      DEBUG input handles: 1
+EMViewsMaker                                      DEBUG output handles: 2
+EMViewsMaker                                      DEBUG Data Deps for EMViewsMaker
 EMViewsMaker                            0   0     DEBUG Placed RoICollection with a single RoI  RoIid: 0 RoIword: 1	 z: 0 (-225 - 225) eta: -0.6 (-0.7 - -0.5) phi: 0.2 (0.1 - 0.3) in the view EMViewsMaker_view 0
 EMViewsMaker                            0   0     DEBUG Placed RoICollection with a single RoI  RoIid: 0 RoIword: 1	 z: 0 (-225 - 225) eta: 1 (0.9 - 1.1) phi: -1.1 (-1.2 - -1) in the view EMViewsMaker_view 1
+EMViewsMaker                            0   0     DEBUG Execution in 2 Views performed
+EMViewsMaker                            0   0     DEBUG Recorded views under the key: EMClusterViews
 algInView                               0   0     DEBUG .. The alg operates on the view EMViewsMaker_view 0
 algInView                               0   0     DEBUG .. The alg operates on the view EMViewsMaker_view 1
-EMViewsMaker                            0   0     DEBUG Execution in 2 Views performed
-EMViewsMaker                            0   0     DEBUG Cluster of ET -4
-EMViewsMaker                            0   0     DEBUG Cluster of ET -1
-EMViewsMaker                            0   0     DEBUG Recorded views under the key: EMClusterViews
 EMViewsMaker                            2   0     DEBUG Placed RoICollection with a single RoI  RoIid: 0 RoIword: 2	 z: 0 (-225 - 225) eta: -0.6 (-0.7 - -0.5) phi: 1.5 (1.4 - 1.6) in the view EMViewsMaker_view 0
-algInView                               2   0     DEBUG .. The alg operates on the view EMViewsMaker_view 0
 EMViewsMaker                            2   0     DEBUG Execution in 1 Views performed
-EMViewsMaker                            2   0     DEBUG Cluster of ET 9
 EMViewsMaker                            2   0     DEBUG Recorded views under the key: EMClusterViews
+algInView                               2   0     DEBUG .. The alg operates on the view EMViewsMaker_view 0
 EMViewsMaker                            3   0     DEBUG Placed RoICollection with a single RoI  RoIid: 0 RoIword: 3	 z: 0 (-225 - 225) eta: -1 (-1.1 - -0.9) phi: -1 (-1.1 - -0.9) in the view EMViewsMaker_view 0
-algInView                               3   0     DEBUG .. The alg operates on the view EMViewsMaker_view 0
 EMViewsMaker                            3   0     DEBUG Execution in 1 Views performed
-EMViewsMaker                            3   0     DEBUG Cluster of ET -20
 EMViewsMaker                            3   0     DEBUG Recorded views under the key: EMClusterViews
+algInView                               3   0     DEBUG .. The alg operates on the view EMViewsMaker_view 0

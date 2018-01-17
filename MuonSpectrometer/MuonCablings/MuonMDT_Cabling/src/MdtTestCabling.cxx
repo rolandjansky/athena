@@ -259,7 +259,7 @@ bool MdtTestCabling::testMapTiming()
 				       multiLayer,layer,tube);
     if (!found) {
       ATH_MSG_FATAL( " coul dnot find the test channel" );
-      return StatusCode::FAILURE;
+      return false;
     }
   }
   m_chronoSvc->chronoStop(m_chrono1);

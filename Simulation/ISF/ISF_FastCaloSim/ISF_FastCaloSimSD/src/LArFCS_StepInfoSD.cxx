@@ -125,7 +125,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       }
       //Identifier for the subhit with max energy
       Identifier maxEnergyIdentifier = this->ConvertID(processedHits[maxSubHitEnergyindex].id);
-      CaloDetDescrElement *maxEnergyCell = m_calo_dd_man->get_element(maxEnergyIdentifier);
+      const CaloDetDescrElement *maxEnergyCell = m_calo_dd_man->get_element(maxEnergyIdentifier);
 
       Identifier invalidIdentifier;
       //for (size_t i=0; i<numberOfProcessedHits; ++i) {
@@ -163,7 +163,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                 G4cout << this->GetName()<<" VERBOSE ProcessHits: shifting subhits: largest energy subhit index is "<<maxSubHitEnergyindex<<" E: "<<maxSubHitEnergy<<" identifier: "<<maxEnergyIdentifier.getString()<<G4endl;
               }
               //from identifier
-              CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
+              const CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
               if (!maxEnergyCell) {
                 //How often does this happen? Do not shift.
                 G4cout << this->GetName()<<" WARNING ProcessHits: maxEnergyCell failed: "<<maxEnergyIdentifier.getString()<<G4endl
@@ -186,7 +186,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                 G4ThreeVector diff(thiscell->x()-maxEnergyCell->x(), thiscell->y()-maxEnergyCell->y(), thiscell->z()-maxEnergyCell->z());
                 stepPosition = originalStepPosition+diff;
                 if(m_config.verboseLevel > 9) {
-                  CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),originalStepPosition.eta(), originalStepPosition.phi());
+                  const CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),originalStepPosition.eta(), originalStepPosition.phi());
                   G4cout << this->GetName()<<" VERBOSE ProcessHits: Original step position: "<<originalStepPosition.x()<<" "<<originalStepPosition.y()<<" "<<originalStepPosition.z()<<G4endl
                   <<"          "<<"This cell: "<<thiscell->x()<<" "<<thiscell->y()<<" "<<thiscell->z()<<G4endl
                   <<"          "<<"Highest E cell: "<<maxEnergyCell->x()<<" "<<maxEnergyCell->y()<<" "<<maxEnergyCell->z()<<G4endl
@@ -201,7 +201,11 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         //double time = larhit.energy)==0 ? 0. : (double) larhit.time/larhit.energy/CLHEP::ns;
         double time = larhit.time;
         double energy = larhit.energy/CLHEP::MeV;
-        this->update_map(stepPosition, id, energy, time, true, numberOfProcessedHits); //store numberOfProcessedHits as info
+        // Get the appropriate merging limits
+        const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(id)->getSampling();
+        const double timeWindow(m_config.m_maxTime);
+        const double distanceWindow((layer == CaloCell_ID::EMB1 || layer == CaloCell_ID::EME1) ? m_config.m_maxRadiusFine : m_config.m_maxRadius); //Default 1mm merging in layers 1 & 5, 5mm merging elsewhere
+        this->update_map(stepPosition, id, energy, time, true, numberOfProcessedHits, timeWindow, distanceWindow); //store numberOfProcessedHits as info
       }//numberOfProcessedHits
     } //istep
     if (madeSubSteps) {

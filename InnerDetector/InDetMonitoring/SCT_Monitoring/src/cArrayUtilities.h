@@ -18,14 +18,14 @@ namespace SCT_Monitoring {
   // give the total size of a 3D C-style array
   template<class T, int Size1, int Size2, int Size3>
   int
-  extent(T (&parray)[Size1][Size2][Size3]) {
+  extent(T (&/*parray*/)[Size1][Size2][Size3]) {
     return Size1 * Size2 * Size3;
   }
 
   // give the total size of a 2D C-style array
   template<class T, int Size1, int Size2>
   int
-  extent(T (&parray)[Size1][Size2]) {
+  extent(T (&/*parray*/)[Size1][Size2]) {
     return Size1 * Size2;
   }
 

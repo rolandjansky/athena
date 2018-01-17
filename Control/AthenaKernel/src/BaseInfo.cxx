@@ -606,7 +606,7 @@ BaseInfoBase* BaseInfoBase::find1 (const std::type_info& tinfo)
       init = it->second;
       BaseInfoBaseImpl::s_init_list->erase (it);
     }
-    init();
+    init (bib);
   }
 
   return bib;
@@ -620,7 +620,7 @@ BaseInfoBase* BaseInfoBase::find1 (const std::type_info& tinfo)
  *
  * Returns 0 if no @c BaseInfoBase instance is available.
  */
-BaseInfoBase* BaseInfoBase::find_nc (const std::type_info& tinfo)
+const BaseInfoBase* BaseInfoBase::find (const std::type_info& tinfo)
 {
   BaseInfoBase* bib = find1 (tinfo);
 
@@ -652,19 +652,6 @@ BaseInfoBase* BaseInfoBase::find_nc (const std::type_info& tinfo)
   }
 
   return bib;
-}
-
-
-/**
- * @brief Find the @c BaseInfoBase instance for @c tinfo.
- * @param tinfo The @c std::type_info of the class
- *              for which we want information.
- *
- * Returns 0 if no @c BaseInfoBase instance is available.
- */
-const BaseInfoBase* BaseInfoBase::find (const std::type_info& tinfo)
-{
-  return find_nc (tinfo);
 }
 
 

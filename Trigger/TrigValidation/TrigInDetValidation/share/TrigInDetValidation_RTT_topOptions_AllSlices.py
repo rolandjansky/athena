@@ -13,16 +13,14 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #if athenaCommonFlags.FilesInput()==[]:
 #  athenaCommonFlags.FilesInput=[
-#    "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1",
+#    "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1",
 #  ]
 
 
-rMC = False
 rID = False
 rFTK=False
 rBperf=False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
+
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 if 'doBperf' in dir() and doBperf==True:
@@ -35,16 +33,16 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 (electronChainlist, electronAnalysischains) = electronChains(rID)
 tidaAnalysischains += electronAnalysischains
 
-(muonChainlist, muonAnalysischains) = muonChains(rMC, rID, rFTK)
+(muonChainlist, muonAnalysischains) = muonChains(rID, rFTK)
 tidaAnalysischains += muonAnalysischains
 
-(tauChainlist, tauAnalysischains) = tauChains(rMC, rID, rFTK)
+(tauChainlist, tauAnalysischains) = tauChains(rID, rFTK)
 tidaAnalysischains += tauAnalysischains
 
-(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID, rFTK, rBperf)
+(bjetChainlist, bjetAnalysischains) = bjetChains(rID, rFTK, rBperf)
 tidaAnalysischains += bjetAnalysischains
 
-(minBiasChainlist, minBiasAnalysischains) = minBiasChains(rMC, rID)
+(minBiasChainlist, minBiasAnalysischains) = minBiasChains(rID)
 tidaAnalysischains += minBiasAnalysischains
 
 def resetSigs():

@@ -71,7 +71,7 @@ StatusCode PFLCCalibTool::finalize() {
 
 void PFLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTool, xAOD::CaloCluster* cluster) {
 
-  assert(!m_useLocalWeight);
+  if (m_useLocalWeight) ATH_MSG_WARNING("Applying recalculated weights, when configuraiton requested to use original weights");
   CaloClusterCollectionProcessor* myCollectionProcessor = &(*calibTool);
   CaloClusterProcessor* myCalibProcessor = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor);
   if (myCalibProcessor) {

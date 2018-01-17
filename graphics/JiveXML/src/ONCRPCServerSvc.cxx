@@ -79,9 +79,17 @@ namespace JiveXML {
     // be serverd anymore
     m_runServerThread = false ; 
 
+// xdr_void is defined inconsistently in xdr.h and gets a warning from gcc8.
+#if __GNUC__ >= 8
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
     // Now issue the call with a timeout
     struct timeval timeout; timeout.tv_sec = 1; timeout.tv_usec = 0;
     clnt_call(client, NULLPROC, (xdrproc_t)xdr_void, NULL, (xdrproc_t)xdr_void, NULL, timeout);
+#if __GNUC__ >= 8
+# pragma GCC diagnostic pop
+#endif
 
     // A pointer to the return value of the thread
     void* ret;
@@ -368,7 +376,7 @@ namespace JiveXML {
       //Now add the new event
       m_eventStreamMap.insert(EventStreamPair(evtStreamID,event));
     
-    } catch ( std::exception e ) {
+    } catch ( const std::exception& e ) {
       ATH_MSG_ERROR( "Exception caught while updating event for stream " << evtStreamID.StreamName()
                      << ": " << e.what()  );
       //Also release the lock in this case

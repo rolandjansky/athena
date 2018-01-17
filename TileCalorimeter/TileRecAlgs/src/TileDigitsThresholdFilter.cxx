@@ -17,7 +17,7 @@
 
 // Tile includes
 #include "TileRecAlgs/TileDigitsThresholdFilter.h"
-#include "TileEvent/TileDigitsContainer.h"
+
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileConditions/TileCondToolDspThreshold.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -25,8 +25,9 @@
 
 // Atlas includes
 #include "AthContainers/ConstDataVector.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/errorcheck.h"
-
 
 
 //C++ STL includes
@@ -42,8 +43,6 @@ TileDigitsThresholdFilter::TileDigitsThresholdFilter(std::string name, ISvcLocat
   , m_tileHWID(nullptr)
   , m_tileDspThreshold("TileCondToolDspThreshold")
 {
-  declareProperty("InputDigitsContainer", m_inputContainer = "TileDigitsCnt");
-  declareProperty("OutputDigitsContainer", m_outputContainer = "TileDigitsFiltered");
   declareProperty("TileCondToolDspThreshold", m_tileDspThreshold);
 }
 
@@ -59,9 +58,11 @@ StatusCode TileDigitsThresholdFilter::initialize() {
 
   CHECK( m_tileDspThreshold.retrieve() );
 
-  ATH_MSG_INFO( "Input digits container: '" << m_inputContainer
-                << "'  output container: '" << m_outputContainer << "'" );
+  ATH_MSG_INFO( "Input digits container: '" << m_inputDigitsContainerKey.key()
+                << "'  output container: '" << m_outputDigitsContainerKey.key() << "'" );
 
+  ATH_CHECK( m_inputDigitsContainerKey.initialize() );
+  ATH_CHECK( m_outputDigitsContainerKey.initialize() );
 
   ATH_MSG_INFO( "initialization completed" );
 
@@ -76,29 +77,29 @@ StatusCode TileDigitsThresholdFilter::initialize() {
 StatusCode TileDigitsThresholdFilter::execute() {
 
   // Create new container for filtered digits
-  auto outputContainer = std::make_unique<TileDigitsContainer>(false, SG::VIEW_ELEMENTS);
+  SG::WriteHandle<TileDigitsContainer> outputDigitsContainer(m_outputDigitsContainerKey);
+  ATH_CHECK( outputDigitsContainer.record(std::make_unique<TileDigitsContainer>(false, SG::VIEW_ELEMENTS)) );
   
+  SG::ReadHandle<TileDigitsContainer> inputDigitsContainer(m_inputDigitsContainerKey);
+  ATH_CHECK( inputDigitsContainer.isValid() );
 
-  const TileDigitsContainer* inputContainer(nullptr);
-  CHECK( evtStore()->retrieve(inputContainer, m_inputContainer) );
+  outputDigitsContainer->set_unit(inputDigitsContainer->get_unit());
+  outputDigitsContainer->set_type(inputDigitsContainer->get_type());
+  outputDigitsContainer->set_bsflags(inputDigitsContainer->get_bsflags());
 
-  outputContainer->set_unit(inputContainer->get_unit());
-  outputContainer->set_type(inputContainer->get_type());
-  outputContainer->set_bsflags(inputContainer->get_bsflags());
+  TileDigitsContainer::const_iterator collItr = inputDigitsContainer->begin();
+  TileDigitsContainer::const_iterator collEnd = inputDigitsContainer->end();
 
-  TileDigitsContainer::const_iterator collItr = inputContainer->begin();
-  TileDigitsContainer::const_iterator collEnd = inputContainer->end();
   for (; collItr != collEnd; ++collItr) {
-    const TileDigitsCollection* digitsCollection = *collItr;
+    const TileDigitsCollection* digitsCollection = *collItr; 
 
-    auto outColl = std::make_unique<ConstDataVector<TileDigitsCollection> >
+    auto outputDigitsCollection = std::make_unique<ConstDataVector<TileDigitsCollection> >
       (SG::VIEW_ELEMENTS, digitsCollection->identify());
 
     int fragId = digitsCollection->identify();
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(fragId);
 
-    for (const TileDigits* tile_digits : *digitsCollection)
-    {
+    for (const TileDigits* tile_digits : *digitsCollection) {
       HWIdentifier adcId = tile_digits->adc_HWID();
       int channel = m_tileHWID->channel(adcId);
       int gain = m_tileHWID->adc(adcId);
@@ -111,16 +112,15 @@ StatusCode TileDigitsThresholdFilter::execute() {
       float maxDigit = *minMaxDigits.second;
 
       if (maxDigit - minDigit > dspThreshold) {
-        outColl->push_back(tile_digits);
+        outputDigitsCollection->push_back(tile_digits);
       }
 
     }
-    ATH_CHECK( outputContainer->addCollection (outColl.release()->asDataVector(),
-                                               collItr.hashId()) );
+    ATH_CHECK( outputDigitsContainer->addCollection (outputDigitsCollection.release()->asDataVector(), 
+                                                     collItr.hashId()) );
     
   }
 
-  CHECK( evtStore()->record(std::move(outputContainer), m_outputContainer, false) );
 
   return StatusCode::SUCCESS;
 }

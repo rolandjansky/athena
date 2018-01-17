@@ -60,7 +60,7 @@ TileRawChannelBuilderFitFilterCool::TileRawChannelBuilderFitFilterCool(const std
   declareInterface< TileRawChannelBuilder >( this );
   declareInterface< TileRawChannelBuilderFitFilterCool >(this);
 
-  m_TileRawChannelContainerID = "TileRawChannelFitCool";
+  m_rawChannelContainerKey = "TileRawChannelFitCool";
 
   //declare properties
   declareProperty("FrameLength",m_frameLength = 9);

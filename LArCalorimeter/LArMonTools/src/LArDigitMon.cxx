@@ -70,6 +70,7 @@ LArDigitMon::LArDigitMon(const std::string& type,
     m_strHelper(0),
     m_LArOnlineIDHelper(0),
     m_LArEM_IDHelper(0),
+    m_LArCablingService("LArCablingService"),
     m_badChannelMask("BadLArRawChannelMask"),
     m_summary(0),
     m_feedthroughID(0),
@@ -189,6 +190,8 @@ LArDigitMon::initialize()
       ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
       return StatusCode::FAILURE;
     }
+  } else {
+    m_badChannelMask.disable();
   }
   
   /** Retrieve pedestals container*/
@@ -252,30 +255,47 @@ LArDigitMon::bookHistograms()
     /**Book summary histo*/
     MonGroup generalGroup( this, "/LAr/Digits", run, ATTRIB_MANAGED );
     const char *  hName = "summary";
-    const char * hTitle = "High Energy Digit Summary";
+    const char * hTitle = "LArDigit Summary";
     
     m_summary = TH2F_LW::create(hName, hTitle,4,0.,4.,8,0.,8.);
     m_summary->GetXaxis()->SetTitle("Status");
-    m_summary->GetYaxis()->SetTitle("Sub Detector");
-    m_summary->GetYaxis()->SetBinLabel(1,"Barrel C");
-    m_summary->GetYaxis()->SetBinLabel(2,"Barrel A");
-    m_summary->GetYaxis()->SetBinLabel(3,"EMEC C");
-    m_summary->GetYaxis()->SetBinLabel(4,"EMEC A");
-    m_summary->GetYaxis()->SetBinLabel(5,"HEC C");
-    m_summary->GetYaxis()->SetBinLabel(6,"HEC A");
-    m_summary->GetYaxis()->SetBinLabel(7,"FCAL C");
-    m_summary->GetYaxis()->SetBinLabel(8,"FCAL A");
+    m_summary->GetYaxis()->SetTitle("Partition");
+    m_summary->GetYaxis()->SetBinLabel(1,"EMBC");
+    m_summary->GetYaxis()->SetBinLabel(2,"EMBA");
+    m_summary->GetYaxis()->SetBinLabel(3,"EMECC");
+    m_summary->GetYaxis()->SetBinLabel(4,"EMECA");
+    m_summary->GetYaxis()->SetBinLabel(5,"HECC");
+    m_summary->GetYaxis()->SetBinLabel(6,"HECA");
+    m_summary->GetYaxis()->SetBinLabel(7,"FCalC");
+    m_summary->GetYaxis()->SetBinLabel(8,"FCalA");
     m_summary->GetXaxis()->SetBinLabel(1,"OutOfRange");
     m_summary->GetXaxis()->SetBinLabel(2,"Saturation");
     m_summary->GetXaxis()->SetBinLabel(3,"Null Digits");  
     m_summary->GetXaxis()->SetBinLabel(4,"Mean Time");    
-    
     m_summary->GetXaxis()->SetLabelSize(0.055);
-    //Not supported in LWHists: m_summary->GetXaxis()->SetTitleOffset(1.2);
-    m_summary->GetYaxis()->SetLabelSize(0.055);    
-    //Not supported in LWHists: m_summary->GetYaxis()->SetTitleOffset(3);   
-    
+    m_summary->GetYaxis()->SetLabelSize(0.055);            
     generalGroup.regHist(m_summary).ignore();
+
+    hName = "summaryGain";
+    hTitle = "Gain per partition (only cells with LArDigit available)";    
+    m_summaryGain = TH2F_LW::create(hName, hTitle,3,0.,3.,8,0.,8.);
+    m_summaryGain->GetXaxis()->SetTitle("Gain");
+    m_summaryGain->GetYaxis()->SetTitle("Sub Detector");
+    m_summaryGain->GetYaxis()->SetTitle("Partition");
+    m_summaryGain->GetYaxis()->SetBinLabel(1,"EMBC");
+    m_summaryGain->GetYaxis()->SetBinLabel(2,"EMBA");
+    m_summaryGain->GetYaxis()->SetBinLabel(3,"EMECC");
+    m_summaryGain->GetYaxis()->SetBinLabel(4,"EMECA");
+    m_summaryGain->GetYaxis()->SetBinLabel(5,"HECC");
+    m_summaryGain->GetYaxis()->SetBinLabel(6,"HECA");
+    m_summaryGain->GetYaxis()->SetBinLabel(7,"FCalC");
+    m_summaryGain->GetYaxis()->SetBinLabel(8,"FCalA");
+    m_summaryGain->GetXaxis()->SetBinLabel(1,"HIGH");
+    m_summaryGain->GetXaxis()->SetBinLabel(2,"MEDIUM");
+    m_summaryGain->GetXaxis()->SetBinLabel(3,"LOW");  
+    m_summaryGain->GetXaxis()->SetLabelSize(0.055);
+    m_summaryGain->GetYaxis()->SetLabelSize(0.055);            
+    generalGroup.regHist(m_summaryGain).ignore();
     
     //}
   
@@ -472,6 +492,10 @@ LArDigitMon::fillHistograms()
     
     /** Determine to which partition this channel belongs to*/
     LArDigitMon::partition &ThisPartition=WhatPartition(id);
+
+    /** Fill the gain*/
+    m_summaryGain->Fill(gain,ThisPartition.sumpos);
+    
     
     /** Retrieve samples*/
     const std::vector<short>* digito = &pLArDigit->samples();

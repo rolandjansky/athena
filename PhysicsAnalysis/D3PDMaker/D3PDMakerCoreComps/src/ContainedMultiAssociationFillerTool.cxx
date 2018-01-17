@@ -159,7 +159,7 @@ ContainedMultiAssociationFillerTool::fillUntyped (const void* p,
   }
 
   if (!m_next)
-    return EMPTY;
+    return StatusCode(EMPTY);
 
   for (size_t i = 0; i < m_blockFillers.size(); i++) {
     StatusCode sc = m_blockFillers[i]->fillUntyped (m_next);
@@ -180,7 +180,7 @@ ContainedMultiAssociationFillerTool::fillUntyped (const void* p,
   // ContainedMultiAssociationFillerTools are used; any that return
   // a list of size 1 will have that object duplicated in all rows.
   if (m_next || !again)
-    return AGAIN;
+    return StatusCode(AGAIN);
 
   return StatusCode::SUCCESS;
 }

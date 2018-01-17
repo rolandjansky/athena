@@ -332,7 +332,6 @@ C
         IF( ENER.LT.EMIN ) GOTO 999
         IF( ENER.GT.EMAX ) GOTO 999
         
- 998    CONTINUE
         IACC = 1
 C
 C - Generate the azimuthal angle (PHI)

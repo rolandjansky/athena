@@ -31,7 +31,8 @@ namespace APRTest
      virtual void* getData(SG::auxid_t auxid, size_t size, size_t capacity ) override; 
      virtual const void* getData(SG::auxid_t auxid ) const override; 
      
-     virtual IAuxStore* getStore() const override { return (IAuxStore*)this; }
+     virtual IAuxStore* getStore() override { return (IAuxStore*)this; }
+     virtual const IAuxStore* getStore() const override { return (IAuxStore*)this; }
 
      virtual AuxStoreType getStoreType() const override  { return AST_ContainerStore; }
 

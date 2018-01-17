@@ -88,7 +88,6 @@ class Probe {
   float m_sf_reco;     // for closure tests
   float m_sf_isol;     // for closure tests
   float m_sf_trig;     // for closure tests
-  float m_sf_weight;     // for closure tests
   float m_dr_match;      // dR distance to closest match
 
   int m_tagPassTrigger;

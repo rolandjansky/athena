@@ -279,7 +279,7 @@ StatusCode LArDetectorToolNV::registerCallback()
   if(!m_applyAlignments)
   {
     log << MSG::DEBUG << "LAr alignments switched OFF" << endmsg;
-    return false;
+    return StatusCode::FAILURE;
   }
 
   std::string folderName = "/LAR/Align";

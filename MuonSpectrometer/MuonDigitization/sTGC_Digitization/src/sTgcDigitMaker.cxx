@@ -226,6 +226,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   //const float stripPropagationTime = 3.3*CLHEP::ns/CLHEP::m * detEl->distanceToReadout(posOnSurf_strip, elemId); // 8.5*ns/m was used until MC10. 
   const float stripPropagationTime = 0.; // 8.5*ns/m was used until MC10. 
 
+  float sDigitTimeWire = timeJitterDetector;
   float sDigitTimePad = timeJitterDetector + m_timeWindowOffsetPad;
   float sDigitTimeStrip = timeJitterDetector + m_timeWindowOffsetStrip + stripPropagationTime;
 
@@ -435,9 +436,9 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   //##################################################################################
   ATH_MSG_DEBUG("sTgcDigitMaker::wire response ");
   channelType = 2;
-  if( abs(m_idHelper->stationEta(layid)) >= 3 ) {
 
-    Identifier WIRE_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);// assign a invalid wireNumber first, sTgcReadoutElement::wireNumber will return the correct wireNumber 
+    // Find the ID of the first wiregroup
+    Identifier WIREGP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
         
     //************************************ find the nearest readout element ************************************** 
     int surfHash_wire =  detEl->surfaceHash(gasGap, 2);
@@ -449,27 +450,29 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
     insideBounds = SURF_WIRE.insideBounds(posOnSurf_wire);
 
     if(insideBounds) {
-      int wireNumber = detEl->stripNumber(posOnSurf_wire, WIRE_ID);
-      if( wireNumber == -1 ){
-        ATH_MSG_ERROR("Failed to obtain wire number " << m_idHelper->print_to_string(WIRE_ID) );
-        ATH_MSG_ERROR(" pos " << posOnSurf_wire );
-        //wireNumber = 1;
-      }  
+        // Determine the wire number
+
+        int wiregroupNumber = detEl->stripNumber(posOnSurf_wire, WIREGP_ID);
+        if( wiregroupNumber == -1 ){
+          ATH_MSG_ERROR("Failed to obtain wire number " << m_idHelper->print_to_string(WIREGP_ID) );
+          ATH_MSG_ERROR(" pos " << posOnSurf_wire );
+        }
   
-      newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, wireNumber, true, &isValid);
+        // Find ID of the actual wiregroup
+        newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, wiregroupNumber, true, &isValid);
   
-      if(isValid) {  
-        int NumberOfWires = detEl->numberOfStrips(newId); // 0 --> pad, 1 --> strip, 2 --> wire 
-        if(wireNumber>=1&&wireNumber<=NumberOfWires) addDigit(newId, bctag, sDigitTimePad, channelType);
-      } // end of if(isValid)
-      else if (wireNumber != -1){  
-        ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
-      }
+        if(isValid) {
+          int NumberOfWiregroups = detEl->numberOfStrips(newId); // 0 --> pad, 1 --> strip, 2 --> wire
+          if(wiregroupNumber>=1&&wiregroupNumber<=NumberOfWiregroups) addDigit(newId, bctag, sDigitTimeWire, channelType);
+        } // end of if(isValid)
+        else if (wiregroupNumber != -1){
+          ATH_MSG_ERROR("Failed to obtain wiregroup identifier " << m_idHelper->print_to_string(newId) );
+        }
     }
     else {
-      ATH_MSG_DEBUG("Outside of the wire surface boundary :" << m_idHelper->print_to_string(WIRE_ID)<< " local position " <<posOnSurf_wire ); 
+      ATH_MSG_DEBUG("Outside of the wire surface boundary :" << m_idHelper->print_to_string(WIREGP_ID)<< " local position " <<posOnSurf_wire );
     }
-  } // end of wire digitization 
+    // end of wire digitization
 
   return m_digits;
 }

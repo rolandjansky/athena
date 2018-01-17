@@ -32,8 +32,8 @@ namespace JiveXML{
     StatusCode initialize(); 
 
     /// Subroutine for constructing the item list string
-    StatusCode getItemLists(const Trig::ChainGroup* m_chains, 
-                            std::string& m_listName, std::string& m_prescaleName);
+    StatusCode getItemLists(const Trig::ChainGroup* chains, 
+                            std::string& listName, std::string& prescaleName);
 
   private:
 

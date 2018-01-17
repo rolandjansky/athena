@@ -20,7 +20,7 @@ namespace ISF {
       @author Andreas.Salzburger -at- cern.ch
   */
 
-  class SimHitSvc : public ISimHitSvc, virtual public AthService {
+  class SimHitSvc : public extends<AthService, ISimHitSvc> {
   public:
 
     //** Constructor with parameters */
@@ -34,9 +34,6 @@ namespace ISF {
 
     /** Release the event */
     StatusCode releaseEvent() override final;
-
-    /** Query the interfaces. **/
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
 
   private:
 

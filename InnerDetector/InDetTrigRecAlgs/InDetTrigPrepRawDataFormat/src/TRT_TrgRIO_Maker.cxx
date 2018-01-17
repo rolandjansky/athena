@@ -182,7 +182,7 @@ namespace InDet{
     //retrieve rob data provider service
     if (m_robDataProvider.retrieve().isFailure()){
       ATH_MSG_FATAL( "Failed to retrieve " << m_robDataProvider );
-      return StatusCode::FAILURE;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else
       ATH_MSG_INFO( "Retrieved service " << m_robDataProvider << " in TRT_TrgRIO_Maker." );

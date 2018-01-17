@@ -66,16 +66,14 @@ simFlags.MagneticField.set_On()
 # Debug outputs of user actions
 #CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 # Setup the algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-# SGInputLoader is a module in SGComps that will do a typeless StoreGate read
-# of data on disk, to preload it in the Whiteboard for other Alorithms to use.
-# It uses the same syntax as Algorithmic dependency declarations.
 from AthenaCommon import CfgMgr
-topSeq += CfgMgr.SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
-topSeq.SGInputLoader.Load = [('McEventCollection', 'StoreGateSvc+GEN_EVENT')]
+CfgMgr.SGInputLoader().Load += [('McEventCollection', 'StoreGateSvc+GEN_EVENT')]
 
 # Add the beam effects algorithm
 from AthenaCommon.CfgGetter import getAlgorithm
@@ -83,13 +81,11 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 # Add the (python) G4 simulation service.
 # This will kickstart a lot of simulation setup.
-from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
-svcMgr += PyG4AtlasSvc()
+topSeq += getAlgorithm("G4AtlasAlg", tryDefaultConfigurable=True)
 
 # Explicitly specify the data-flow dependencies of G4AtlasAlg and StreamHITS.
 # This is done like this because currently our VarHandles do not live in the
 # algorithm but rather in Geant4 components.
-# TODO: make this declaration more automatic
 topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','StoreGateSvc+BeamTruthEvent')]
 topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','StoreGateSvc+SCT_Hits')]
 topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs

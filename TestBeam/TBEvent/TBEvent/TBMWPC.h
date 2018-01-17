@@ -17,8 +17,8 @@
 
 #include <vector>
 #include "GaudiKernel/MsgStream.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TBEvent/TBBeamDetector.h"
 
 

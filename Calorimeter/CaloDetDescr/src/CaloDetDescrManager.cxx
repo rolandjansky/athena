@@ -24,7 +24,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "boost/foreach.hpp"
 #include <cmath>
 
 CaloDetDescrManager_Base::CaloDetDescrManager_Base():
@@ -72,8 +71,8 @@ void CaloDetDescrManager_Base::initialize ()
   for(int i = 0; i < nb; i++) {
     m_cell_id->calo_cell_hash_range(i,m_subCalo_min[i],m_subCalo_max[i]);
 
-    m_subCalo_begin[i] = m_element_vec.begin() + m_subCalo_min[i];
-    m_subCalo_end[i]   = m_element_vec.begin() + m_subCalo_max[i];
+    m_subCalo_begin[i] = calo_element_const_iterator(m_element_vec.begin()) + m_subCalo_min[i];
+    m_subCalo_end[i]   = calo_element_const_iterator(m_element_vec.begin()) + m_subCalo_max[i];
   }
 }
 
@@ -127,6 +126,13 @@ CaloDetDescrManager_Base::element_range() const
                              m_element_vec.end());
 }
     
+CaloDetDescrManager_Base::calo_nonconst_element_range
+CaloDetDescrManager_Base::element_range_nonconst()
+{
+  return calo_nonconst_element_range (m_element_vec.begin(), 
+                                      m_element_vec.end());
+}
+    
 CaloDetDescrManager_Base::calo_element_const_iterator
 CaloDetDescrManager_Base::element_begin(CaloCell_ID::SUBCALO subCalo) const
 {
@@ -149,7 +155,7 @@ CaloDetDescrManager_Base::element_range(CaloCell_ID::SUBCALO subCalo) const
                              m_subCalo_end[sCal]);
 }
 
-CaloDetDescrElement*
+const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element(const Identifier& cellId) const
 {
   IdentifierHash hash = m_cell_id->calo_cell_hash(cellId);
@@ -157,8 +163,15 @@ CaloDetDescrManager_Base::get_element(const Identifier& cellId) const
 }
 
 CaloDetDescrElement*
+CaloDetDescrManager_Base::get_element_nonconst(const Identifier& cellId)
+{
+  IdentifierHash hash = m_cell_id->calo_cell_hash(cellId);
+  return get_element_nonconst(hash);
+}
+
+const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
-                                       const IdentifierHash& subCaloCellHash) const
+                                       IdentifierHash subCaloCellHash) const
 {
   // meaningless interface for Tiles, will only work for LAr
 
@@ -168,7 +181,7 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
   else return 0 ;
 }  
 
-CaloDetDescrElement*
+const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
                                        int sampling_or_module, 
                                        bool barrel,
@@ -178,8 +191,8 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
 
   bool inCell=false;
   int niter=0;
-  CaloDetDescrElement* elt=0 ;
-  CaloDetDescrElement* elt_best=0 ;
+  const CaloDetDescrElement* elt=0 ;
+  const CaloDetDescrElement* elt_best=0 ;
   static CaloPhiRange range;
 
   double eta2=eta;
@@ -240,12 +253,12 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
   return elt;
 }
 
-CaloDetDescrElement*
+const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
                                       double eta, 
                                       double phi) const
 {
-  CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=0;
   static CaloPhiRange range;
   
   // For LAr loop on regions :
@@ -258,7 +271,7 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
 
     bool inCell=false;
     int niter=0;
-    CaloDetDescrElement* elt_best=0;
+    const CaloDetDescrElement* elt_best=0;
 
     double eta2=eta;
     double phi2=phi;
@@ -315,7 +328,7 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
   
     for ( unsigned int i = m_subCalo_min[CaloCell_ID::TILE]; 
 	  i < m_subCalo_max[CaloCell_ID::TILE]; i++ ) {
-      CaloDetDescrElement* pt = m_element_vec[i];
+      const CaloDetDescrElement* pt = m_element_vec[i];
       if (pt)
 	if ( pt->getSampling() == sample &&
 	     pt->eta()+pt->deta()/2 <= eta && 
@@ -328,13 +341,13 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
 }
 
 // Cut and paste, but from raw eta,phi
-CaloDetDescrElement*
+const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
                                           double eta, 
                                           double phi) const
 {
   //std::cout << " ----- in get_element_raw for eta,phi raw " << eta << " " << phi << std::endl;
-  CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=0;
   static CaloPhiRange range;
   
   // For LAr loop on regions :
@@ -347,7 +360,7 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
 
     bool inCell=false;
     int niter=0;
-    CaloDetDescrElement* elt_best=0 ;
+    const CaloDetDescrElement* elt_best=0 ;
 
     double eta2=eta;
     double phi2=phi;
@@ -409,7 +422,7 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
   
     for ( unsigned int i = m_subCalo_min[CaloCell_ID::TILE]; 
 	  i < m_subCalo_max[CaloCell_ID::TILE]; i++ ) {
-      CaloDetDescrElement* pt = m_element_vec[i];
+      const CaloDetDescrElement* pt = m_element_vec[i];
       if (pt)
 	if ( pt->getSampling() == sample &&
 	     pt->eta()+pt->deta()/2 <= eta && 
@@ -423,12 +436,12 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
 
 
 
-CaloDetDescrElement*
+const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element_FCAL(const CaloDetDescriptor* descr,
                                            double eta,
                                            double phi) const
 {
-  CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=0;
 
   //std::cout << " in get_element_FCAL " << descr->reg_min() << " " << descr->reg_max() <<  " eta,phi " << eta << " " << phi << std::endl;
   if (eta < (descr->reg_min()-0.01) || eta > (descr->reg_max()+0.01) ) return elt;
@@ -436,7 +449,7 @@ CaloDetDescrManager_Base::get_element_FCAL(const CaloDetDescriptor* descr,
   Identifier regId = descr->identify();
   Identifier cellId;
   IdentifierHash caloCellHash;
-  CaloDetDescrElement* elt2;
+  const CaloDetDescrElement* elt2;
   double drmax=9999.;
   for (int ieta=0; ieta<descr->n_eta(); ieta++) {
      for (int iphi=0; iphi<descr->n_phi(); iphi++) {
@@ -459,12 +472,12 @@ CaloDetDescrManager_Base::get_element_FCAL(const CaloDetDescriptor* descr,
   return elt;
 }
 
-CaloDetDescrElement*
+const CaloDetDescrElement*
 CaloDetDescrManager_Base::get_element_FCAL_raw(const CaloDetDescriptor* descr,
                                                double eta,
                                                double phi) const
 {
-  CaloDetDescrElement* elt=0;
+  const CaloDetDescrElement* elt=0;
 
   //std::cout << " in get_element_FCAL " << descr->reg_min() << " " << descr->reg_max() <<  " eta,phi " << eta << " " << phi << std::endl;
   if (std::fabs(eta) < (descr->calo_eta_min()-0.01) || std::fabs(eta) > (descr->calo_eta_max()+0.01) ) return elt;
@@ -472,7 +485,7 @@ CaloDetDescrManager_Base::get_element_FCAL_raw(const CaloDetDescriptor* descr,
   Identifier regId = descr->identify();
   Identifier cellId;
   IdentifierHash caloCellHash;
-  CaloDetDescrElement* elt2;
+  const CaloDetDescrElement* elt2;
   double drmax=9999.;
   for (int ieta=0; ieta<descr->n_eta(); ieta++) {
      for (int iphi=0; iphi<descr->n_phi(); iphi++) {
@@ -521,6 +534,12 @@ CaloDetDescrManager_Base::calo_descriptors_range() const
   return calo_descr_range (m_descr_vec.begin(), m_descr_vec.end());
 }
 
+CaloDetDescrManager_Base::calo_nonconst_descr_range
+CaloDetDescrManager_Base::calo_descriptors_range_nonconst()
+{
+  return calo_nonconst_descr_range (m_descr_vec.begin(), m_descr_vec.end());
+}
+
 CaloDetDescrManager_Base::calo_descr_const_iterator
 CaloDetDescrManager_Base::tile_descriptors_begin() const
 {
@@ -546,7 +565,14 @@ CaloDetDescrManager_Base::tile_descriptors_range() const
                            m_tile_descr_vec.end());
 }
  
-CaloDetDescriptor*
+CaloDetDescrManager_Base::calo_nonconst_descr_range
+CaloDetDescrManager_Base::tile_descriptors_range_nonconst()
+{
+  return calo_nonconst_descr_range (m_tile_descr_vec.begin(),
+                                    m_tile_descr_vec.end());
+}
+ 
+const CaloDetDescriptor*
 CaloDetDescrManager_Base::get_descriptor(const Identifier& regionId) const
 {
   IdentifierHash hash = m_cell_id->calo_region_hash(regionId);
@@ -557,16 +583,26 @@ CaloDetDescrManager_Base::get_descriptor(const Identifier& regionId) const
 }
 
 CaloDetDescriptor*
+CaloDetDescrManager_Base::get_descriptor_nonconst(const Identifier& regionId)
+{
+  IdentifierHash hash = m_cell_id->calo_region_hash(regionId);
+  if(hash < m_descr_vec.size()) 
+    return m_descr_vec[hash] ;
+  else 
+    return 0;
+}
+
+const CaloDetDescriptor*
 CaloDetDescrManager_Base::get_descriptor(CaloCell_ID::SUBCALO subCalo,
                                          int sampling_or_module, 
                                          bool barrel,
                                          double eta, 
                                          double phi) const
 {
-  CaloDetDescriptor* desc0 = 0;
-  CaloDetDescriptor* desc1 = 0;
-  CaloDetDescriptor* desc2 = 0;
-  CaloDetDescriptor* desc3 = 0;
+  const CaloDetDescriptor* desc0 = 0;
+  const CaloDetDescriptor* desc1 = 0;
+  const CaloDetDescriptor* desc2 = 0;
+  const CaloDetDescriptor* desc3 = 0;
 
   if(subCalo == CaloCell_ID::TILE) return 0;
   if(subCalo == CaloCell_ID::LARHEC && barrel == true) return 0;
@@ -574,7 +610,7 @@ CaloDetDescrManager_Base::get_descriptor(CaloCell_ID::SUBCALO subCalo,
    
   for (unsigned int i=0; i<m_descr_vec.size(); i++) 
   {
-    CaloDetDescriptor* reg = m_descr_vec[i];
+    const CaloDetDescriptor* reg = m_descr_vec[i];
 
     if(reg) 
     {
@@ -637,14 +673,14 @@ CaloDetDescrManager_Base::get_descriptor(CaloCell_ID::SUBCALO subCalo,
   else return 0;
 }
 
-CaloDetDescriptor*
+const CaloDetDescriptor*
 CaloDetDescrManager_Base::get_descriptor (CaloCell_ID::CaloSample sample,
                                           double eta, double phi) const
 {
   // note that this code does not work in the FCal as eta indices depend
   // on eta and phi
 
-  CaloDetDescriptor* desc = 0;
+  const CaloDetDescriptor* desc = 0;
 
   if ( sample  == CaloCell_ID::TileBar0 ||
        sample  == CaloCell_ID::TileBar1 ||
@@ -657,7 +693,7 @@ CaloDetDescrManager_Base::get_descriptor (CaloCell_ID::CaloSample sample,
        sample  == CaloCell_ID::TileExt2 )  return desc;
 
   for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) {
-    CaloDetDescriptor* reg = m_descr_vec[i];
+    const CaloDetDescriptor* reg = m_descr_vec[i];
 
     if (reg) {
       if ( reg->eta_channel(eta) >=0 && reg->phi_channel(phi) >=0) {
@@ -672,7 +708,7 @@ CaloDetDescrManager_Base::get_descriptor (CaloCell_ID::CaloSample sample,
   return desc;
 }
 
-CaloDetDescriptor*
+const CaloDetDescriptor*
 CaloDetDescrManager_Base::get_descriptor_raw (CaloCell_ID::CaloSample sample, 
                                               double eta, double phi) const
 {
@@ -681,7 +717,7 @@ CaloDetDescrManager_Base::get_descriptor_raw (CaloCell_ID::CaloSample sample,
 
   //std::cout << " in CaloDetDescrManager_Base::get_descriptor_raw " << std::endl;
 
-  CaloDetDescriptor* desc = 0;
+  const CaloDetDescriptor* desc = 0;
 
   if ( sample  == CaloCell_ID::TileBar0 ||
        sample  == CaloCell_ID::TileBar1 ||
@@ -694,7 +730,7 @@ CaloDetDescrManager_Base::get_descriptor_raw (CaloCell_ID::CaloSample sample,
        sample  == CaloCell_ID::TileExt2 )  return desc;
 
   for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) { 
-    CaloDetDescriptor* reg = m_descr_vec[i];
+    const CaloDetDescriptor* reg = m_descr_vec[i];
 
     if (reg) { 
       int reg_sampl = reg->getSampling(0);
@@ -726,6 +762,13 @@ void CaloDetDescrManager_Base::add(CaloDetDescriptor* descr)
 void CaloDetDescrManager_Base::add_tile(CaloDetDescriptor* descr)
 {
   m_tile_descr_vec.push_back(descr);
+}
+
+CaloDetDescrElement* CaloDetDescrManager_Base::release_element (IdentifierHash hash)
+{
+  CaloDetDescrElement* old = m_element_vec[hash];
+  m_element_vec[hash] = nullptr;
+  return old;
 }
 
 void CaloDetDescrManager_Base::set_helper(const CaloCell_Base_ID*  idHelper)
@@ -1677,13 +1720,11 @@ CaloSuperCellDetDescrManager::~CaloSuperCellDetDescrManager()
   // But for the supercell case, we do.
   // So delete them here.
 
-  BOOST_FOREACH (const CaloDetDescriptor* d, tile_descriptors_range()) {
+  for (const CaloDetDescriptor* d : tile_descriptors_range()) {
     delete d;
   }
 
-  BOOST_FOREACH (const CaloDetDescrElement* d,
-                 element_range (CaloCell_ID::TILE))
-  {
+  for (const CaloDetDescrElement* d : element_range (CaloCell_ID::TILE)) {
     delete d;
   }
 }

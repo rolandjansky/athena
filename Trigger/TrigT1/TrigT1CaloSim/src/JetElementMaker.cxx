@@ -42,11 +42,6 @@ JetElementMaker::JetElementMaker( const std::string& name, ISvcLocator* pSvcLoca
   declareProperty( "JetElementLocation", m_jetElementLocation ) ;
 }
   
-JetElementMaker::~JetElementMaker() {
-  
-  ATH_MSG_INFO( "Destructor called" );
-} 
-
 
   /** the initialise() method is called at the start of processing, so we set up any histograms
       etc. here*/

@@ -1,9 +1,0 @@
-
-PACKAGE          = ElectronEfficiencyCorrection
-PACKAGE_PRELOAD  = Tree TreePlayer XMLParser XMLIO
-PACKAGE_CXXFLAGS = -I/usr/include/libxml2 
-PACKAGE_BINFLAGS = -lxml2
-PACKAGE_DEP      = ElectronPhotonSelectorTools AsgAnalysisInterfaces AsgTools Asg_Boost xAODEgamma xAODEventInfo PATCore PATInterfaces PathResolver CxxUtils xAODMetaData
-PACKAGE_PEDANTIC = 1
-PACKAGE_REFLEX   = 1
-include $(ROOTCOREDIR)/Makefile-common

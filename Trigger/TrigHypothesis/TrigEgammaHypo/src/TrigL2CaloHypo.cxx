@@ -94,47 +94,47 @@ HLT::ErrorCode TrigL2CaloHypo::hltInitialize()
   unsigned int nEtaBin=m_etabin.size();
   if ( m_eTthr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " etThr size is " <<  m_eTthr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
   if ( m_eT2thr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " et2Thr size is " <<  m_eT2thr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   if ( m_hadeTthr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " hadetThr size is " <<  m_hadeTthr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   if ( m_hadeT2thr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " hadet2Thr size is " <<  m_hadeT2thr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
   if ( m_carcorethr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " carcore size is " <<  m_carcorethr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
   
   if ( m_caeratiothr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " caeratio size is " <<  m_caeratiothr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
   if ( m_WETA2thr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " Weta2 size is " <<  m_WETA2thr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
    if ( m_WSTOTthr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " Wstot size is " <<  m_WSTOTthr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }
 
    if ( m_F3thr.size() != nEtaBin-1 ) {
     msg() << MSG::ERROR << " Wstot size is " <<  m_WSTOTthr.size() << " but needs " << nEtaBin-1 << endmsg;
-    return StatusCode::FAILURE;
+    return HLT::BAD_JOB_SETUP;
   }  
  
   return HLT::OK;

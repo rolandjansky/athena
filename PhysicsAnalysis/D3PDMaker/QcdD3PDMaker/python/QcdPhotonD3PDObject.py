@@ -283,50 +283,21 @@ PhotonD3PDObject.defineHook (_photonRawClusterAssocHook)
 #
 
 if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
-    #if rec.doTruth():
-    #    PhotonD3PDObject.defineBlock \
-    #      (0, 'UDTruthFlags',
-    #       D3PDMakerCoreComps.UserDataFillerTool,
-    #       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-    #       Vars = ['truth_isConv',               '', 'bool',
-    #               'truth_isBrem',               '', 'bool',
-    #               'truth_isFromHardProc',       '', 'bool',
-    #               'truth_isPhotonFromHardProc', '', 'bool',
-    #               ])
+    defineBlockAndAlg (PhotonD3PDObject, 
+                       1, 'UDLayer1Shape',
+                       D3PDMakerCoreComps.AuxDataFillerTool,
+                       'egammaDeltaEmax2Config',
+                       AuxPrefix = auxprefix,
+                       Vars = ['deltaEmax2',
+                               ])
 
-    #    PhotonD3PDObject.defineBlock \
-    #      (1, 'UDTruthConv',
-    #       D3PDMakerCoreComps.UserDataFillerTool,
-    #       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-    #       Vars = ['truth_Rconv', '', 'float',
-    #               'truth_zconv', '', 'float'
-    #               ])
-
-    PhotonD3PDObject.defineBlock \
-      (1, 'UDLayer1Shape',
-       D3PDMakerCoreComps.UserDataFillerTool,
-       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-       Vars = ['deltaEmax2', '', 'float',
-               ])
-
-    isodoc = ("Mask of isolation cuts that this object fails.  " +
-              "Bits are defined in egammaInterfaces/egammaIsolationMVATopToolsDefs.h,"
-              "or from python, in ROOT.egammaIsolationType (in egammaInterfacesEnumsDict).")
-    PhotonD3PDObject.defineBlock \
-      (1, 'IsIso',
-       D3PDMakerCoreComps.UserDataFillerTool,
-       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-       Vars = ['isIso:' + isodoc, '', 'unsigned int',
-               ])
-
-    PhotonD3PDObject.defineBlock \
-      (2, 'UDTopoCones',
-       D3PDMakerCoreComps.UserDataFillerTool,
-       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-       Vars = ['topoEtcone20', '', 'float',
-               'topoEtcone40', '', 'float',
-               'topoEtcone60', '', 'float',
-               ])
+    PhotonD3PDObject.defineBlock (
+        1, 'TopoClusterIsolationCones',
+        D3PDMakerCoreComps.AuxDataFillerTool,
+        Vars = ['topoEtcone20 = topoetcone20_core57cells,topoetcone20',
+                'topoEtcone30 = topoetcone30_core57cells,topoetcone30',
+                'topoEtcone40 = topoetcone40_core57cells,topoetcone40',
+                ])
 
 
 

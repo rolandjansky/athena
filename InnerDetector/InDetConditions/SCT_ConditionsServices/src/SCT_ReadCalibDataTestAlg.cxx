@@ -18,9 +18,6 @@
 
 // Include Gaudi stuff
 
-// Include Read Handle
-#include "StoreGate/ReadHandle.h"
-
 // Include STL stuff
 #include <vector>
 #include <string>
@@ -30,7 +27,6 @@ SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvc
   AthAlgorithm(name, pSvcLocator),
   m_sc{StatusCode::SUCCESS, true},
   m_id_sct{nullptr},
-  m_currentEventKey{std::string{"EventInfo"}},
   m_moduleId{0},
   m_waferId{0},
   m_stripId{0},
@@ -97,8 +93,6 @@ StatusCode SCT_ReadCalibDataTestAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK(m_currentEventKey.initialize());
-
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataTestAlg::initialize()
 
@@ -149,18 +143,6 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
   
   // Print where you are
   ATH_MSG_DEBUG("in execute()");
-  
-  // Get the current event
-  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
-  if (not currentEvent.isValid() ) {
-    ATH_MSG_ERROR("Could not get event info");
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Current Run.Event,Time: "
-      << "[" << currentEvent->runNumber()
-      << "." << currentEvent->eventNumber()
-      << "," << currentEvent->timeStamp()
-      << "]");
   
   //Make sure data was filled
   bool CalibDataFilled = m_ReadCalibDataSvc->filled();  

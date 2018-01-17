@@ -320,4 +320,3 @@ ReadThinnedData      INFO        80 |        80
 ReadThinnedData      INFO        90 |        90
 ReadThinnedData      INFO ======================
 ReadThinnedData      INFO Finalizing ReadThinnedData...
-ReadThinnedData     DEBUG Calling destructor

@@ -214,7 +214,7 @@ then
   eos mkdir $castordir/$geo/logs/
 fi
 
-caspath="root://eosatlas/$castordir/$geo"
+caspath="root://eosatlas.cern.ch/$castordir/$geo"
 
 
 prefix="MaterStepFile"

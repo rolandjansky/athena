@@ -7,14 +7,14 @@ include.block ('InDetRecExample/ConfiguredInDetValidation.py')
 # ----------- Truth Validation algorithms for tracks
 #
 # ------------------------------------------------------------
-
 class  ConfiguredInDetValidation:
 
   def __init__ (self, nameExt = "",
                 doStat = True, doClusVal = True,
                 NewTrackingCuts = None,
                 TrackCollectionKeys=[] , TrackCollectionTruthKeys=[],
-                rmin = 0., rmax = 20.):
+                rmin = 0., rmax = 20.,
+                McEventCollectionKey = "TruthEvent"):
     
     from InDetRecExample.InDetJobProperties import InDetFlags
     from InDetRecExample.InDetKeys import InDetKeys
@@ -38,9 +38,10 @@ class  ConfiguredInDetValidation:
       from InDetRecStatistics.InDetRecStatisticsConf import InDet__InDetRecStatisticsAlg
       InDetRecStatistics = InDet__InDetRecStatisticsAlg (name                     = "InDetRecStatistics"+nameExt,
                                                          TrackCollectionKeys      = TrackCollectionKeys,
-                                                         TrackTruthCollectionKeys = TrackCollectionTruthKeys,
+                                                         TrackTruthCollectionKeys = TrackCollectionTruthKeys if InDetFlags.doTruth() else [],
+                                                         McTrackCollectionKey     = McEventCollectionKey     if InDetFlags.doTruth() else "",
                                                          PrintSecondary           = True,
-                                                         TruthToTrackTool         = (InDetTruthToTrack if InDetFlags.doTruth() else None),
+                                                         TruthToTrackTool         = (InDetTruthToTrack       if InDetFlags.doTruth() else None),
                                                          UseTrackSummary          = True,
                                                          SummaryTool              = InDetTrackSummaryToolSharedHits, # this is a bug !!!
                                                          DoTruth                  = InDetFlags.doTruth(),
@@ -60,7 +61,7 @@ class  ConfiguredInDetValidation:
                                                          minREndSecondary         = 1000.0, # ME: leaves in R
                                                          minZEndPrimary           = 2300.0, # ME: 2 disks in the forward
                                                          minZEndSecondary         = 2700.0) # ME: or leaves in z 
-      if InDetFlags.doDBMstandalone() or nameExt=="DBM":
+      if InDetFlags.doDBMstandalone() or nameExt=="DBM" or nameExt=="PUDBM":
         InDetRecStatistics.minPt              = .0*GeV
         InDetRecStatistics.maxEta             = 9999.
         InDetRecStatistics.maxRStartPrimary   = 9999999.
@@ -112,7 +113,7 @@ class  ConfiguredInDetValidation:
                                                                         useSCT                 = DetFlags.haveRIO.SCT_on()       ,
                                                                         useTRT                 = DetFlags.haveRIO.TRT_on()       )
 
-      if InDetFlags.doDBMstandalone() or  nameExt=="DBM":
+      if InDetFlags.doDBMstandalone() or  nameExt=="DBM" or nameExt=="PUDBM":
         InDetTrackClusterAssValidation.MomentumCut            = 0
         InDetTrackClusterAssValidation.RadiusMax              = 9999999.0
 #        InDetTrackClusterAssValidation.RapidityCut            = 9999.9

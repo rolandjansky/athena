@@ -42,7 +42,7 @@ if not "PrescaleXML" in dir():
 # AOD files to process
 if not "FilesInput" in dir():
   # Test file from AtlasHLT,21.0.15: data16_13TeV.00309640.physics_EnhancedBias.merge.AOD.r9083_r9084_p3008_tid10654269_00
-  FilesInput = ["root://eosatlas//eos/atlas/atlasdatadisk/rucio/data16_13TeV/8d/de/AOD.10654269._000566.pool.root.1"]
+  FilesInput = ["root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data16_13TeV/8d/de/AOD.10654269._000566.pool.root.1"]
 
 # If running over MC - we need the process cross section & filter efficiency of the sample
 # You can either supply these directly OR the dataset name for auto-lookup

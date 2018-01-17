@@ -40,7 +40,7 @@ void posXYZHandler::ElementHandle()
 		crot.rotateY(rot[1]*deg);
 		crot.rotateZ(rot[2]*deg);
 	}
-	if (printFlag) {
+	if (s_printFlag) {
 		std::cout<<"   posXYV "<<volume;
 		if (posRet) std::cout<<" pos= ("<<X_Y_Z[0]<<";"<<X_Y_Z[1]<<";"<<X_Y_Z[2]<<")";
 		if (rotRet) std::cout<<" rot= ("<<rot[0]<<";"<<rot[1]<<";"<<rot[2]<<")";

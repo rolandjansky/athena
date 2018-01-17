@@ -27,7 +27,7 @@
 //// trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 #include "xAODMuon/Muon.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // forward includes
 class TrigBphysHelperUtilsTool;

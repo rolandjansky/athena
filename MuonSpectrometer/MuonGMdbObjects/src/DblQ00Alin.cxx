@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Alin.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <stdio.h>
 
@@ -30,7 +29,7 @@
 namespace MuonGM
 {
 
-DblQ00Alin::DblQ00Alin(IRDBQuery* alin)
+DblQ00Alin::DblQ00Alin(std::unique_ptr<IRDBQuery>&& alin)
  : m_nObj(0)
 {
   if(alin) {

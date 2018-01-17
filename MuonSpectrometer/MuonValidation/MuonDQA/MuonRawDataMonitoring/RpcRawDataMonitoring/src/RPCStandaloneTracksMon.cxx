@@ -5120,7 +5120,7 @@ void RPCStandaloneTracksMon::bookRPCSummaryHistograms( int i_sec, const std::str
   std::string generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon";
   MonGroup rpcprd_expert_sum( this, generic_path_rpcmonitoring +"/Summary", run, ATTRIB_UNMANAGED ) ;
    
-  char sector_char[10]    ;
+  char sector_char[20]    ;
   std::string sector_name ;
   sprintf(sector_char, "Sector%.2d", i_sec+1) ;  // sector number with 2 digits
   sector_name = sector_char ;
@@ -5225,7 +5225,7 @@ void RPCStandaloneTracksMon::bookRPCSummaryFinalHistograms( int i_sec, const std
   
   ATH_MSG_DEBUG ( "Start bookRPCSummaryFinalHistograms: " << i_sec << " " << quantity ); 
   
-  char sector_char[10]    ;
+  char sector_char[20]    ;
   std::string sector_name ;
   sprintf(sector_char, "Sector%.2d", i_sec+1) ;  // sector number with 2 digits
   sector_name = sector_char ;

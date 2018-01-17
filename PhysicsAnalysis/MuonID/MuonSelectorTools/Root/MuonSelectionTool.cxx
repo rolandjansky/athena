@@ -291,7 +291,7 @@ namespace CP {
 	    static SG::AuxElement::Accessor<float> idPt_acc("InnerDetectorPt");
 	    mePt = mePt_acc(mu);
 	    idPt = idPt_acc(mu);
-	  } catch ( SG::ExcNoAuxStore b ) {
+	  } catch ( const SG::ExcNoAuxStore& b ) {
 	    ATH_MSG_FATAL( "No MomentumCorrections decorations available! MuonSelectionTool can not work!!! " <<
 			   "Please apply MuonMomentumCorrections before feeding the muon to MuonSelectorTools." );
 	    throw std::runtime_error( "No MomentumCorrections decorations available, throwing a runtime error" );
@@ -730,7 +730,7 @@ namespace CP {
 	  static SG::AuxElement::Accessor<float> idPt_acc("InnerDetectorPt");
 	  mePt = mePt_acc(mu);
 	  idPt = idPt_acc(mu);
-	} catch ( SG::ExcNoAuxStore b ) {
+	} catch ( const SG::ExcNoAuxStore& b ) {
 	  ATH_MSG_FATAL( "No MomentumCorrections decorations available! MuonSelectionTool can not work!!! " <<
 			 "Please apply MuonMomentumCorrections before feeding the muon to MuonSelectorTools." );
 	  throw std::runtime_error( "No MomentumCorrections decorations available, throwing a runtime error" );
@@ -902,7 +902,7 @@ namespace CP {
       }
       return ( CaloMuonIDTag > 10 ); 
     }
-    catch (SG::ExcBadAuxVar b) {
+    catch (const SG::ExcBadAuxVar& b) {
       return false; 
     }
   }

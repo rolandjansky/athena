@@ -43,6 +43,6 @@ private:
     bool        m_l1results[64];
     NUMBER_TYPE m_bits;
 };  
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FauxTriggerMap, 1287802, 0)
 #endif

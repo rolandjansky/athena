@@ -11,10 +11,9 @@
 #--------------------------------------------------------------
 
 # Configure the scheduler
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.ShowDataFlow=True
-svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataFlow( True )
 
 # include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
@@ -82,6 +81,7 @@ include("TrigUpgradeTest/HLTCF.py")
 L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
 l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
+l1Decoder.prescaler.EventInfo=""
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
 #ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
@@ -121,30 +121,41 @@ from TrigUpgradeTest.MenuComponents import *
 
 include("TrigUpgradeTest/HLTSignatureConfig.py")
 
+nsteps=2
 
 # muon chains
 muStep1 = muStep1Sequence()
+muStep2 = muStep2Sequence()
 MuChains  = [
-    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceHypoTool(muStep1,"mu20")])]),
-    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceHypoTool(muStep1,"mu8")] )])
+    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceHypoTool(muStep1,step1mu20())]),
+                                                         ChainStep("Step2_mu20", [SequenceHypoTool(muStep2,step2mu20())]) ] ),
+
+    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceHypoTool(muStep1,step1mu8())] ),
+                                                         ChainStep("Step2_mu8",  [SequenceHypoTool(muStep2,step2mu8())]) ] )
     ]
+
 
 
 #electron chains
 elStep1 = elStep1Sequence()
+elStep2 = elStep2Sequence()
 ElChains  = [
-    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ChainStep("Step1_e20",  [SequenceHypoTool(elStep1,"e20")])])
+    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [SequenceHypoTool(elStep1,step1e20())]),
+                                                        ChainStep("Step2_e20",  [SequenceHypoTool(elStep2,step2e20())]) ] )
     ]
 
 
 # combined chain
 muelStep1 = combStep1Sequence()
+muelStep2 = combStep2Sequence()
 CombChains =[
-    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ChainStep("Step1_mu8_e8",  [SequenceHypoTool(muelStep1,"mu8_e8")])])
+    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [SequenceHypoTool(muelStep1, step1mu8_e8())]),
+                                                              ChainStep("Step2_mu8_e8",  [SequenceHypoTool(muelStep2, step2mu8_e8())]) ] )
     ]
 
 
 group_of_chains = MuChains + ElChains + CombChains
+#+ ElChains + CombChains
 
 
 
@@ -162,7 +173,7 @@ TopHLTRootSeq += L1UnpackingSeq
 HLTAllStepsSeq = seqAND("HLTAllStepsSeq")
 TopHLTRootSeq += HLTAllStepsSeq
 
-decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=1)
+decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=nsteps)
 
 
 #from AthenaCommon.AlgSequence import dumpMasterSequence

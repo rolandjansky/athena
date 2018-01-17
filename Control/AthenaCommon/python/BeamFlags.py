@@ -91,6 +91,7 @@ for j in _list_Beam:
     jobproperties.Beam.add_JobProperty(j)
 del _list_Beam
 
+# For convenience, a shorthand alias to the beam flags
+beamFlags = jobproperties.Beam
 
 #=======================================================================
-

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <exception>
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -530,7 +531,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
         column_row_offset = -1;
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset;
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
-            msg(MSG::WARNING) << "getPixelId: Eta_module out of range (eta_module = " << eta_module
+            msg(MSG::ERROR) << "getPixelId: Eta_module out of range (eta_module = " << eta_module
                               << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return Identifier();
         }
@@ -607,8 +608,8 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
 #ifdef PIXEL_DEBUG
     unsigned int eta_index_max =  m_idHelper->eta_index_max(offlineId);
     unsigned int phi_index_max =  m_idHelper->phi_index_max(offlineId);
-    if (eta_index > eta_index_max) msg(MSG::WARNING) << "Error! eta_index: " << eta_index << " > eta_index_max: " << eta_index_max << endmsg;
-    if (phi_index > phi_index_max) msg(MSG::WARNING) << "Error! phi_index: " << phi_index << " > phi_index_max: " << phi_index_max << endmsg;
+    if (eta_index > eta_index_max) msg(MSG::ERROR) << "Error! eta_index: " << eta_index << " > eta_index_max: " << eta_index_max << endmsg;
+    if (phi_index > phi_index_max) msg(MSG::ERROR) << "Error! phi_index: " << phi_index << " > phi_index_max: " << phi_index_max << endmsg;
     //consistency check - to be removed to speed up
     uint32_t check_FE = getFE(&pixelId,offlineId);
     uint32_t check_row = getRow(&pixelId,offlineId) + column_row_offset;
@@ -668,7 +669,7 @@ uint32_t PixelCablingSvc::getFE(Identifier *pixelId, Identifier offlineId)
     case IBL:
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
-            msg(MSG::WARNING) << "getFE: Eta_module out of range (eta_module = " << eta_module
+            msg(MSG::ERROR) << "getFE: Eta_module out of range (eta_module = " << eta_module
                               << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
@@ -741,7 +742,7 @@ uint32_t PixelCablingSvc::getColumn(Identifier *pixelId, Identifier offlineId)
         column_offset = 1;
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
-            msg(MSG::WARNING) << "getColumn: Eta_module out of range (eta_module = " << eta_module
+            msg(MSG::ERROR) << "getColumn: Eta_module out of range (eta_module = " << eta_module
                               << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
@@ -779,7 +780,7 @@ uint32_t PixelCablingSvc::getColumn(Identifier *pixelId, Identifier offlineId)
     // Check output sanity
     // ---------------------
     if (column >= (int)columnsPerFE) {
-        msg(MSG::WARNING) << "Computed column number exceeds maximum value: col = " << column + column_offset
+        msg(MSG::ERROR) << "Computed column number exceeds maximum value: col = " << column + column_offset
                           << " (max = " << columnsPerFE << ")" <<  endmsg;
         return 0xffffffff;
     }
@@ -827,7 +828,7 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
         row_offset = 1;
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
-            msg(MSG::WARNING) << "getRow: Eta_module out of range (eta_module = " << eta_module
+            msg(MSG::ERROR) << "getRow: Eta_module out of range (eta_module = " << eta_module
                               << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
@@ -869,7 +870,7 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
     // Check output sanity
     // ---------------------
     if (row >= (int)rowsPerFE) {
-        msg(MSG::WARNING) << "Computed row number exceeds maximum value: row = " << row + row_offset
+        msg(MSG::ERROR) << "Computed row number exceeds maximum value: row = " << row + row_offset
                           << "(max = " << rowsPerFE << ")" << endmsg;
         return 0xffffffff;
     }
@@ -895,10 +896,16 @@ uint32_t PixelCablingSvc::getFEwrtSlink(Identifier *pixelId) {
     uint32_t linkNum = (onlineId >> 24) & 0xFFFF;
     unsigned int localFE = getFE(pixelId, offlineId);   // FE number within module, [0,1]. Increases with increasing eta_index
 
-    nnn = (linkNum >> (localFE * 8)) & 0xF;
+    if(localFE>1) {
+      msg(MSG::FATAL) << "Unexpected FE: "<<localFE<<"  PixelCablingSvc::getFEwrtSlink() "<< endmsg;
+      throw std::runtime_error( "Unexpected FE" );
+    }
+    else {
+      nnn = (linkNum >> (localFE * 8)) & 0xF;
+    }
 
     // Check for errors
-    if (nnn > 7) msg(MSG::WARNING) << "Error in the identification of the FE-I4 w.r.t. Slink" << endmsg;
+    if (nnn > 7) msg(MSG::ERROR) << "Error in the identification of the FE-I4 w.r.t. Slink" << endmsg;
 
     return nnn;
 }
@@ -1122,7 +1129,7 @@ unsigned int PixelCablingSvc::getLocalFEI4(const uint32_t fe, const uint64_t onl
 
     if (fe == linknum40) return 0;
     else if (fe == linknum80) return 1;
-    else msg(MSG::WARNING) << "Error in retrieving local FE-I4 number: linknumber " << fe
+    else msg(MSG::ERROR) << "Error in retrieving local FE-I4 number: linknumber " << fe
                            << " not found in onlineID " << std::hex << onlineId << endmsg;
     return 0xF;
 }
@@ -1188,6 +1195,12 @@ int PixelCablingSvc::getHitDiscCnfg(const uint32_t robId, const int link) {
 int PixelCablingSvc::getHitDiscCnfg(Identifier* pixelId) {
 
     uint32_t robId = getRobId(m_idHelper->wafer_id(*pixelId));
-    int link = getFEwrtSlink(pixelId);
+    int link = -999;
+    try {
+        link = getFEwrtSlink(pixelId);
+    }
+    catch(std::exception& ex) {
+        msg(MSG::FATAL) << "Exception caught in PixelCablingSvc::getFEwrtSlink(): "<<ex.what() << endmsg;
+    }
     return getHitDiscCnfg(robId, link);
 }

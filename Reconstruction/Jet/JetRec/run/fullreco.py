@@ -6,7 +6,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 try:
   eosdir=os.environ["EOSDIR"]
 except:
-  eosdir="root://eosatlas//eos"
+  eosdir="root://eosatlas.cern.ch//eos"
 if 1:
   # Standard ttbar, 14 TeV, mu=40 sample
   # For ESD and AOD see /afs/cern.ch/work/k/krasznaa/public/xAOD/devval_rel_4

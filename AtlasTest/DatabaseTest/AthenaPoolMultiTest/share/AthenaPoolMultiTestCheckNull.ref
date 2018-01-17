@@ -6,16 +6,11 @@ EventSelector        INFO EventSelection with query
 EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
 EventSelector        INFO Using standard collection ref 
 EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
-EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
-EventSelector        INFO Using standard collection ref 
-EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
 ReadData            DEBUG input handles: 0
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
-FullColl.FullCo...  DEBUG Property update for OutputLevel : new value = 2
 FullColl            DEBUG Property update for OutputLevel : new value = 2
+FullColl.FullCo...  DEBUG Property update for OutputLevel : new value = 2
 FullColl            DEBUG In initialize 
 FullColl            DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: FullColl with no Algs
@@ -39,5 +34,4 @@ EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the colle
 FullColl            DEBUG handle() incident type: MetaDataStop
 FullColl.Regist...   INFO Collection Events output: 0
 ReadData             INFO in finalize()
-ReadData            DEBUG Calling destructor
 FullColl            DEBUG In finalize

@@ -80,11 +80,12 @@ def addTrackProcessorTool(name,system=False):
 ### Base Version
 def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
     kwargs.setdefault('RandomGenerator', 'athena')
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
-
+    kwargs.setdefault('InputConverter', 'ISF_InputConverter')
     kwargs.setdefault('UserActionSvc','G4UA::ISFUserActionSvc')
+    if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
+        kwargs.setdefault('RecordFlux',simFlags.RecordFlux())
 
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
@@ -112,7 +113,7 @@ def getAFII_G4TransportTool(name='AFII_G4TransportTool', **kwargs):
 
 def getQuasiStableG4TransportTool(name='QuasiStableG4TransportTool', **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISFQuasiStableUserActionSvc')
-    kwargs.setdefault('QuasiStableParticlesIncluded', True)
+    kwargs.setdefault('InputConverter', 'ISF_LongLivedInputConverter')
     return getG4TransportTool(name, **kwargs)
 
 ## -----------------------------------------------------------------------------

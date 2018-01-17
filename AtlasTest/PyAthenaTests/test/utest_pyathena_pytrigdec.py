@@ -21,7 +21,7 @@ class PyTrigDecisionTool (PyAthenaTestCase):
 
         installRefFiles( ['pyathena_trigdectool_rel140100.ref'] )
         input_pool = [
-            'root://eosatlas//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
+            'root://eosatlas.cern.ch//eos/atlas/user/b/binet/reffiles/14.1.0.x'\
             '/AllBasicSamples.AOD.pool.root'
             ]
         output_pool_file = 'pyathena_pytrigdectool_rel140100.pool'

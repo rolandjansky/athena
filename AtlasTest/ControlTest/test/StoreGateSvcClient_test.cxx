@@ -26,8 +26,6 @@
 #include "SGTools/BaseInfo.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
-#include "AthContainers/DataList.h"
-#include "AthContainers/ConstDataList.h"
 
 #include "TestTools/initGaudi.h"
 using namespace Athena_test;
@@ -38,7 +36,7 @@ namespace Athena_test {
 //-----------------------------------
 
 ////////////////////////////////////////////////////////////////////////////
-// Test DataVector/DataList conversions.
+// Test DataVector conversions.
 // (This can't go in StoreGate since that doesn't have a DataModel dependency.
 //
 
@@ -70,7 +68,6 @@ struct C
 CLASS_DEF(Athena_test::A, 82734609, 1)
 
 DATAVECTOR_BASE(Athena_test::C, Athena_test::B);
-DATALIST_BASE(Athena_test::C, Athena_test::B);
 
 namespace Athena_test {
 
@@ -82,29 +79,16 @@ public:
   CV(SG::OwnershipPolicy ownPolicy) : DataVector<C> (ownPolicy) {}
 };
 
-struct CL
-  : public DataList<C>
-{
-public:
-  CL() {}
-  CL(SG::OwnershipPolicy ownPolicy) : DataList<C> (ownPolicy) {}
-};
-
 } // namespace Athena_test
 
 
 SG_BASES2 (Athena_test::C, Athena_test::B, Athena_test::A);
 SG_BASE(Athena_test::CV, DataVector<Athena_test::C>);
-SG_BASE(Athena_test::CL, DataList<Athena_test::C>);
 
 CLASS_DEF(DataVector<A>, 82734619, 1)
-CLASS_DEF(DataList<A>, 82734620, 1)
 CLASS_DEF(DataVector<B>, 82734621, 1)
-CLASS_DEF(DataList<B>, 82734622, 1)
 CLASS_DEF(DataVector<C>, 82734623, 1)
-CLASS_DEF(DataList<C>, 82734624, 1)
 CLASS_DEF(CV, 82734625, 1)
-CLASS_DEF(CL, 82734626, 1)
 
 struct Lockable 
   : public ILockable
@@ -200,10 +184,6 @@ void test_DVL_conversions (StoreGateSvc& sg)
                         DataVector<B>,
                         DataVector<C>,
                         CV>(sg);
-  test_DVL_conversions1<DataList<A>,
-                        DataList<B>,
-                        DataList<C>,
-                        CL>(sg);
 }
 
 
@@ -253,7 +233,6 @@ void test_const_DVL (StoreGateSvc& sg)
 {
   cout << "*** test_const_DVL\n";
   test_const_DVL1<CV, ConstDataVector<CV> > (sg);
-  test_const_DVL1<CL, ConstDataList<CL> > (sg);
 }
 
 

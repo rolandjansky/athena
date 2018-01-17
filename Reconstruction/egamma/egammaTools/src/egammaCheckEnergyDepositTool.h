@@ -31,12 +31,12 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
   virtual ~egammaCheckEnergyDepositTool();
 
   /** @brief initialize method */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** @brief finalize method */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   /** @brief execute method */
-  virtual bool checkFractioninSampling(const xAOD::Egamma* eg);
-  virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) ;
+  virtual bool checkFractioninSampling(const xAOD::Egamma* eg) const override final;
+  virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) const override final ;
 
  private:
 

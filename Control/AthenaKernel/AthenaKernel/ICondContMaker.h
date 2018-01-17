@@ -7,15 +7,21 @@
 #define ATHENAKERNEL_ICONDCONTMAKER_H 1
 
 #include <string>
+#include "AthenaKernel/DataObjectSharedPtr.h"
 #include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/DataObject.h"
 
-class CondContBase;
+
+namespace Athena {
+  class IRCUSvc;
+}
+
 
 namespace CondContainer {
 
   class ICondContMaker {
   public:
-    virtual CondContBase* Create(const CLID& clid, const std::string& key) const = 0;
+    virtual SG::DataObjectSharedPtr<DataObject> Create(Athena::IRCUSvc& rcusvc, const CLID& clid, const std::string& key) const = 0;
     virtual ~ICondContMaker() {}
   };
 }

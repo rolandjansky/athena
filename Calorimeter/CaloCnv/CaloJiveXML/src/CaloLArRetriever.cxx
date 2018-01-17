@@ -79,13 +79,13 @@ namespace JiveXML {
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
-	return false;
+	return StatusCode::FAILURE;
       }
 
    if(m_lar){
       DataMap data = getLArData(cellContainer);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-        return false;
+        return StatusCode::FAILURE;
       } else {
        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LAr retrieved" << endmsg;
       }

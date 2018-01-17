@@ -16,10 +16,10 @@ CREATED:  Oct. 05
 
 // INCLUDE HEADER FILES:
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigCaloEvent/TrigT2Jet.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** container of TrigT2Jet elements */
 class TrigT2JetContainer : public DataVector<TrigT2Jet> 

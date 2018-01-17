@@ -13,7 +13,8 @@
 #ifndef DBLQ00_WSUP_H
 #define DBLQ00_WSUP_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 namespace MuonGM
 {
 class DblQ00Wsup {
@@ -21,7 +22,7 @@ class DblQ00Wsup {
 public:
     DblQ00Wsup(){};
     ~DblQ00Wsup();
-    DblQ00Wsup(IRDBQuery*);
+    DblQ00Wsup(std::unique_ptr<IRDBQuery>&&);
 
     // data members for DblQ00/WSUP fields
     struct WSUP {

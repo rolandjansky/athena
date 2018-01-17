@@ -158,8 +158,10 @@ private:
   bool  m_produceDeadDigits;
   float m_deadtimeStrip;
   float m_deadtimePad;
+  float m_deadtimeWire;
   float m_readtimeStrip;
   float m_readtimePad;
+  float m_readtimeWire;
   float m_timeWindowOffsetPad;
   float m_timeWindowOffsetStrip;
   float m_timeWindowPad;
@@ -168,6 +170,9 @@ private:
   float m_timeJitterElectronicsStrip;
   float m_timeJitterElectronicsPad;
   float m_hitTimeMergeThreshold;
+
+  // Minimum energy deposit for hit to be digitized
+  double m_energyDepositThreshold;
 
   std::map< Identifier, int > m_hitSourceVec;
 

@@ -118,13 +118,6 @@ Tester::Tester
 }
 
 
-
-// Destructor
-Tester::~Tester() {
-    ATH_MSG_INFO( "Destructor called" );
-} 
-
-
 //---------------------------------
 // initialise() 
 //---------------------------------
@@ -917,7 +910,7 @@ std::vector<unsigned int>* LVL1::Tester::extractRoIWords(){
 }
 /** dump the cells belonging to an RoI. */
 void LVL1::Tester::dumpROICells(){
-  const t_EmTauROICollection* ROIs;
+  const t_EmTauROICollection* ROIs = nullptr;
   StatusCode sc1 = evtStore()->retrieve(ROIs,
 					 m_EmTauROILocation);
 

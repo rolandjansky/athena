@@ -16,7 +16,7 @@
 #ifndef TRIGCALOEVENT_TRIG3MOMENTUM_H 
 #define TRIGCALOEVENT_TRIG3MOMENTUM_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include <stdint.h>
 

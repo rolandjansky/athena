@@ -27,6 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
                           MuonSpectrometer/MuonReconstruction/MuonRecUtils/MuonLayerHough
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
+			  MuonSpectrometer/MuonCnv/MuonPrepRawDataProviderTools
                           Reconstruction/MuonIdentification/MuGirlStau
                           Reconstruction/MuonIdentification/MuidInterfaces
                           Reconstruction/MuonIdentification/MuonCombinedEvent
@@ -43,5 +44,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MuonCombinedTrackFindingTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives xAODTracking xAODTruth MdtCalibData MdtCalibSvcLib MuonDetDescrUtils MuonIdHelpersLib MuonClusterizationLib MuonHoughPatternToolsLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough MuGirlStauLib MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces TrkDriftCircleMath )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives xAODTracking xAODTruth MdtCalibData MdtCalibSvcLib MuonDetDescrUtils MuonIdHelpersLib MuonClusterizationLib MuonHoughPatternToolsLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough MuGirlStauLib MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces MuonPrepRawDataProviderToolsLib TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces TrkDriftCircleMath )
 

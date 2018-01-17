@@ -13,7 +13,8 @@
 #ifndef DBLQ00_APTP_H
 #define DBLQ00_APTP_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 
 namespace MuonGM
 {
@@ -23,7 +24,7 @@ class DblQ00Aptp {
 public:
     DblQ00Aptp(){};
     ~DblQ00Aptp();
-    DblQ00Aptp(IRDBQuery*);
+    DblQ00Aptp(std::unique_ptr<IRDBQuery>&&);
 
     // data members for DblQ00/APTP fields
     struct APTP {

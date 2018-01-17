@@ -13,7 +13,8 @@
 #ifndef DBLQ00_ALMN_H
 #define DBLQ00_ALMN_H
 
-class IRDBQuery;
+#include "RDBAccessSvc/IRDBQuery.h"
+#include <memory>
 
 namespace MuonGM
 {
@@ -24,7 +25,7 @@ class DblQ00Almn {
 public:
     DblQ00Almn(){};
     ~DblQ00Almn();
-    DblQ00Almn(IRDBQuery*);
+    DblQ00Almn(std::unique_ptr<IRDBQuery>&&);
     
     // data members for DblQ00/ALMN fields
     struct ALMN {

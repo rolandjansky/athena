@@ -17,7 +17,7 @@ class AtlasTrajectory : public G4Trajectory
 public:
 
   /// Constructor
-  AtlasTrajectory(const G4Track* aTrack);
+  AtlasTrajectory(const G4Track* aTrack, int subDetVolLevel);
 
   /// Overriden from G4 in order to do vertex analysis
   void AppendStep(const G4Step* aStep);
@@ -32,8 +32,8 @@ private:
 
   using G4Trajectory::DrawTrajectory;
 
-  /// Number of secondaries that have been processed so far.
-  unsigned int m_numCurrentSec;
+  /// The level in the G4 volume hierarchy at which can we find the sub-detector name
+  int m_subDetVolLevel;
 
 };
 

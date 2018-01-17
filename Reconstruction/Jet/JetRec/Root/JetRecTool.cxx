@@ -580,8 +580,7 @@ int JetRecTool::execute() const {
 template <typename TAux>
 int JetRecTool::record(const xAOD::JetContainer* pjets) const {
   bool overwrite = (m_outcoll == m_incoll) || (m_overwrite && m_incoll.size()==0);
-  TAux* pjetsaux =
-    dynamic_cast<TAux*>(pjets->getStore());
+  const TAux* pjetsaux = dynamic_cast<const TAux*>(pjets->getStore());
     ATH_MSG_DEBUG("Check Aux store: " << pjets << " ... " << &pjets->auxbase() << " ... " << pjetsaux );
   if ( pjetsaux == 0 ) {
     ATH_MSG_ERROR("Unable to retrieve Aux container");
@@ -592,7 +591,8 @@ int JetRecTool::record(const xAOD::JetContainer* pjets) const {
     ATH_MSG_ERROR("Conatainer overwrite is not supported in Root.");
 #else
     ATH_MSG_VERBOSE("Overwiting Jet Aux container.");
-    StatusCode sca = evtStore()->overwrite(pjetsaux, m_outcoll+"Aux.", false, false);
+    TAux* pmutjetsaux = const_cast<TAux*>(pjetsaux);
+    StatusCode sca = evtStore()->overwrite(pmutjetsaux, m_outcoll+"Aux.", false, false);
     if ( sca.isFailure() ) {
       ATH_MSG_ERROR("Unable to overwrite Aux Jet collection in event store: " << m_outcoll);
       return 3;
@@ -608,7 +608,13 @@ int JetRecTool::record(const xAOD::JetContainer* pjets) const {
 #endif
   } else {
     ATH_MSG_VERBOSE("Recording new Jet Aux container.");
-    StatusCode sca = evtStore()->record(pjetsaux, m_outcoll+"Aux.");
+#ifdef XAOD_STANDALONE
+    // TEvent only records mutable containers.
+    xAOD::JetContainer* pmutjetsaux = const_cast<TAux*>(pjetsaux);
+    StatusCode sca = evtStore()->record(pmutjetsaux, m_outcoll + "Aux.");
+#else
+    StatusCode sca = evtStore()->record(pjetsaux, m_outcoll + "Aux.");
+#endif
     if ( sca.isFailure() ) {
       ATH_MSG_ERROR("Unable to write new Aux Jet collection to event store: " << m_outcoll);
       return 3;

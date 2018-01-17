@@ -27,7 +27,7 @@ struct genpar {
   int   NBIN;
   float PROBE[100];
 };
-genpar genpar_;
+alignas(32) genpar genpar_;
 
 struct coscut {
   float ctcut;

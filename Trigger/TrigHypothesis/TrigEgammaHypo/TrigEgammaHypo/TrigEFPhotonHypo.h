@@ -42,8 +42,8 @@
 
 //RMW Sept 2013
 #include "PATCore/IAthSelectorTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 
 //#include <string
 #include "TrigTimeAlgs/TrigTimerSvc.h"

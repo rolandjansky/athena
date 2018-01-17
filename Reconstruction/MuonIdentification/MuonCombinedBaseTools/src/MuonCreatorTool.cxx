@@ -132,6 +132,7 @@ namespace MuonCombined {
     declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
     declareProperty("FillTimingInformation", m_fillTimingInformation = true );
     declareProperty("FillTimingInformationOnMuon", m_fillTimingInformationOnMuon = false );
+    declareProperty("AssociateSegmentsToLowBetaMuons",m_segLowBeta = false);
     //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
      
   }
@@ -148,6 +149,7 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
+    ATH_CHECK(m_caloExtTool.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
@@ -157,9 +159,13 @@ namespace MuonCombined {
     ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
     ATH_CHECK(m_trackQuery.retrieve());
     if(!m_momentumBalanceTool.empty()) ATH_CHECK(m_momentumBalanceTool.retrieve());
+    else m_momentumBalanceTool.disable();
     if(!m_scatteringAngleTool.empty()) ATH_CHECK(m_scatteringAngleTool.retrieve());   
+    else m_scatteringAngleTool.disable();
     if(!m_selectorTool.empty()) ATH_CHECK(m_selectorTool.retrieve());
+    else m_selectorTool.disable();
     if(!m_meanMDTdADCTool.empty()) ATH_CHECK(m_meanMDTdADCTool.retrieve());
+    else m_meanMDTdADCTool.disable();
     if(m_applyCaloNoiseCut) {
         // apply CaloNoiseTool to cell collected for ET_Core
         if(!m_caloNoiseTool.empty()) ATH_CHECK(m_caloNoiseTool.retrieve());
@@ -168,6 +174,7 @@ namespace MuonCombined {
             m_applyCaloNoiseCut = false;
         }
     }
+    else m_caloNoiseTool.disable();
     ATH_MSG_INFO("ET_Core calculation: tool, doNoiseCut, sigma - " << m_caloNoiseTool.name() << " "
                  << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
 
@@ -187,7 +194,7 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Creating xAOD::Muons from: " << numIdCan << " indet candidates and " << numMuCan << " muon candidates ");
     
     // Add RPC timing information to all MS tracks
-    if( m_fillTimingInformation  ) 
+    if( m_fillTimingInformation && muonCandidates ) 
       for (auto candidate : *muonCandidates) 
 	if(candidate->muonSpectrometerTrackLink().isValid())
 	  addRpcTiming(**(candidate->muonSpectrometerTrackLink()));    
@@ -201,7 +208,7 @@ namespace MuonCombined {
     else selectStaus(inDetCandidates, resolvedInDetCandidates);    
 
     if( inDetCandidates ) ATH_MSG_DEBUG("InDetCandidates : overlap removal " << inDetCandidates->size() << " in, " <<resolvedInDetCandidates.size() <<" out");
-    if( muonCandidates  ) ATH_MSG_DEBUG("MuonCandidates  : overlap removal " << muonCandidates->size() << " in, " <<resolvedMuonCandidates.size() <<" out");
+    if( !m_buildStauContainer && muonCandidates  ) ATH_MSG_DEBUG("MuonCandidates  : overlap removal " << muonCandidates->size() << " in, " <<resolvedMuonCandidates.size() <<" out");
 
     // Create a container for resolved candidates (always of type VIEW_ELEMENTS)
     for( auto can : resolvedInDetCandidates ) {
@@ -460,20 +467,20 @@ namespace MuonCombined {
             ATH_MSG_DEBUG("MuonCreatorTool MuGirlLowBetaTag combined");
     
             // Create the xAOD object:
-            xAOD::SlowMuon* slowMuon = 0;
             if( outputData.slowMuonContainer ) {
-              slowMuon = new xAOD::SlowMuon();
+              xAOD::SlowMuon* slowMuon = new xAOD::SlowMuon();
               outputData.slowMuonContainer->push_back( slowMuon );
-            }
-            addMuGirlLowBeta(*muon,muGirlLowBetaTag,slowMuon, outputData ); // CHECK to see what variables are created here.
+            
+	      addMuGirlLowBeta(*muon,muGirlLowBetaTag,slowMuon, outputData ); // CHECK to see what variables are created here.
 
-            ATH_MSG_DEBUG("slowMuon muonContainer size "<<outputData.muonContainer->size());
-            ElementLink<xAOD::MuonContainer> muonLink(*outputData.muonContainer,outputData.muonContainer->size()-1);
-            if( slowMuon && muonLink.isValid() ) {
+	      ATH_MSG_DEBUG("slowMuon muonContainer size "<<outputData.muonContainer->size());
+	      ElementLink<xAOD::MuonContainer> muonLink(*outputData.muonContainer,outputData.muonContainer->size()-1);
+	      if( slowMuon && muonLink.isValid() ) {
 
-              ATH_MSG_DEBUG("slowMuon muonLink valid");
-              slowMuon->setMuonLink(muonLink);
-            }
+		ATH_MSG_DEBUG("slowMuon muonLink valid");
+		slowMuon->setMuonLink(muonLink);
+	      }
+	    }
           }          
         }
       }else{
@@ -1467,7 +1474,7 @@ namespace MuonCombined {
 
     if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
-    if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
+    if( !m_trackSegmentAssociationTool.empty() && (muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon);
 
     addMSIDScatteringAngles(muon);
     if(muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));

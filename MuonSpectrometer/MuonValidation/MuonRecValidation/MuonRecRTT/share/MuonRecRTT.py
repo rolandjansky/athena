@@ -55,14 +55,14 @@ else:
   globalflags.InputFormat.set_Value_and_Lock('bytestream')
 
 if rec.readESD:
-  athenaCommonFlags.FilesInput.set_Value_and_Lock(["root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0010.1","root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0011.1","root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0012.1"])
+  athenaCommonFlags.FilesInput.set_Value_and_Lock(["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0010.1","root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0011.1","root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0012.1"])
   #athenaCommonFlags.FilesInput.set_Value_and_Lock(["root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/det-muon/Bytestream2010/MuonBytestreamZmumu_rec16.0.X.ESD.pool.root"])
   rec.doEgamma = False
   from JetRec.JetRecFlags import jetFlags
   jetFlags.Enabled=False
 else:
   #athenaCommonFlags.BSRDOInput... no longer working as expected, March 2011
-  athenaCommonFlags.FilesInput.set_Value_and_Lock(["root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1","root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1","root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1"])
+  athenaCommonFlags.FilesInput.set_Value_and_Lock(["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1","root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1","root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1"])
 
   #athenaCommonFlags.BSRDOInput.set_Value_and_Lock(["/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/Bytestream2010/MuonBytestreamRun155697_selectedCbMu10Events.data"])
 

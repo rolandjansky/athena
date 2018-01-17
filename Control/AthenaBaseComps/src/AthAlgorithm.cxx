@@ -29,10 +29,8 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
 			    ISvcLocator* pSvcLocator,
 			    const std::string& version ) : 
   ::Algorithm   ( name, pSvcLocator, version ),
-  ::AthMessaging( msgSvc(), name ),
   m_evtStore    ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore    ( "StoreGateSvc/DetectorStore", name ),
-  m_userStore   ( "UserDataSvc/UserDataSvc", name ),
   m_varHandleArraysDeclared (false)
 {
   //
@@ -41,10 +39,7 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
 
   auto props = getProperties();
   for( Property* prop : props ) {
-    if( prop->name() == "OutputLevel" ) {
-      prop->declareUpdateHandler
-        (&AthAlgorithm::msg_update_handler, this);
-    } else if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
+    if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
       prop->declareUpdateHandler
         (&AthAlgorithm::extraDeps_update_handler, this);
     }
@@ -60,13 +55,8 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
                    "Handle to a StoreGateSvc/DetectorStore instance: it will be used to "
                    "retrieve data during the course of the job" );
 
-  declareProperty( "UserStore",
-                   m_userStore = UserDataSvc_t ("UserDataSvc/UserDataSvc", name),
-                   "Handle to a UserDataSvc/UserDataSvc instance: it will be used to "
-                   "retrieve user data during the course of the job" );
-
   // Set up to run AthAlgorithmDHUpdate in sysInitialize before
-  // merging depedency lists.  This extends the output dependency
+  // merging dependency lists.  This extends the output dependency
   // list with any symlinks implied by inheritance relations.
   m_updateDataHandles =
     std::make_unique<AthenaBaseComps::AthAlgorithmDHUpdate>
@@ -78,7 +68,6 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
 ///////////////
 AthAlgorithm::~AthAlgorithm()
 { 
-  ATH_MSG_DEBUG ("Calling destructor");
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -111,9 +100,9 @@ AthAlgorithm::msg_update_handler( Property& outputLevel )
    // type at one point, to be able to fall back on something.
    IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
    if( iprop ) {
-      this->setLevel( static_cast<MSG::Level> (iprop->value()) );
+     msgStream().setLevel( static_cast<MSG::Level> (iprop->value()) );
    } else {
-      this->setLevel( msgLevel() );
+     msgStream().setLevel( msgLevel() );
    }
 }
 
@@ -160,6 +149,33 @@ StatusCode AthAlgorithm::sysInitialize()
 
   return StatusCode::SUCCESS;
 }
+
+
+/**
+ * @brief Handle START transition.
+ *
+ * We override this in order to make sure that conditions handle keys
+ * can cache a pointer to the conditions container.
+ */
+StatusCode AthAlgorithm::sysStart()
+{
+  ATH_CHECK( Algorithm::sysStart() );
+
+  // Call start() on all input handles.
+  // This allows CondHandleKeys to cache pointers to their conditions containers.
+  // (CondInputLoader makes the containers that it creates during start(),
+  // so initialize() is too early for this.)
+  for (Gaudi::DataHandle* h : inputHandles()) {
+    if (h->isCondition()) {
+      if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
+        ATH_CHECK( k->start() );
+      }
+    }
+  }
+  
+  return StatusCode::SUCCESS;
+}
+
 
 void AthAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
   vh.renounce();

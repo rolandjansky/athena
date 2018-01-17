@@ -23,7 +23,7 @@ namespace InDet {
 namespace iFatras {
   /** Concrete Implementation of the IPRD_AssociationTool interface.*/
   
-  class ISF_PRD_AssociationTool : virtual public Trk::IPRD_AssociationTool, public AthAlgTool {
+  class ISF_PRD_AssociationTool : public extends<AthAlgTool, Trk::IPRD_AssociationTool> {
     
   public:
     ISF_PRD_AssociationTool(const std::string&,const std::string&,const IInterface*);
@@ -70,7 +70,7 @@ namespace iFatras {
 	IMPORTANT: Please use the typedefs IPRD_AssociationTool::PrepRawDataRange and 
 	IPRD_AssociationTool::ConstPRD_MapIt (defined in the interface) to access the 
 	tracks, as the way the data is stored internally may change.*/
-    virtual Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange onTracks(const Trk::PrepRawData& prd) ;
+    virtual Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange onTracks(const Trk::PrepRawData& prd) const;
     
     /** resets the tool - should be called before using tool (and maybe afterwards to free up 
 	memory)*/

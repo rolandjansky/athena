@@ -58,7 +58,7 @@ declare -a filelist
 PathOnEos=`eos ls /eos/atlas/atlastier0/rucio/${project}/${stream}/00${1}/ | grep "RAW$"`
 if [[ $PathOnEos != "" ]] then
   #filelist=( `eos ls $PathOnEos | grep $1` )
-  #prefix="root://eosatlas/$PathOnEos"
+  #prefix="root://eosatlas.cern.ch/$PathOnEos"
   prefix="root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/${project}/${stream}/00${1}/$PathOnEos/"
   echo $prefix
   filelist=( `eos ls $prefix | grep $1` )

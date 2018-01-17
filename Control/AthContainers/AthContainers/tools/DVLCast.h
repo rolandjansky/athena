@@ -27,16 +27,6 @@
 namespace DataModel_detail {
 
 
-#ifdef __GCCXML__
-// Dummy version for reflex.
-template <class DVL>
-struct DVLCast
-{
-  typedef typename DVL::base_value_type T;
-  template <class U> static T* cast (U* b);
-  template <class U> static const T* cast (const U* b);
-};
-#else
 /**
  * @brief casting operations for @c DataVector/@c DataList.
  *
@@ -101,6 +91,18 @@ struct DVLCast<DVL, true>
 
 
   /**
+   * @brief Find the offset of @c T within @c U.
+   */
+  template <class U>
+  static int find_offset (U* b)
+  {
+    T* ret = dynamic_cast<T*> (b);
+    int offs = reinterpret_cast<char*>(ret) - reinterpret_cast<char*>(b);
+    return offs;
+  }
+
+
+  /**
    * @brief Cast @a b to a @c T*.
    * @param b Pointer to cast.
    */
@@ -114,12 +116,7 @@ struct DVLCast<DVL, true>
     if (!b)
       return 0;
     if (typeid(*b) == typeid(T)) {
-      static ptrdiff_t offs = LONG_MAX;
-      if (offs == LONG_MAX) {
-        T* ret = dynamic_cast<T*> (b);
-        offs = reinterpret_cast<char*>(ret) - reinterpret_cast<char*>(b);
-        return ret;
-      }
+      static const ptrdiff_t offs = find_offset (b);
       return reinterpret_cast<T*> (reinterpret_cast<char*>(b) + offs);
     }
     else
@@ -150,7 +147,6 @@ struct DVLCast<DVL, true>
       return dynamic_cast<const T*> (b);
   }
 };
-#endif // not __GCCXML__
 
 
 } // namespace DataModel_detail

@@ -32,52 +32,58 @@ struct OutputArgs
 
 
 template <class T>
-void fill_cont (size_t nbits, std::vector<T>& cont, size_t n, bool is_signed)
+void fill_cont (uint32_t& seed,
+                size_t nbits, std::vector<T>& cont, size_t n, bool is_signed)
 {
   for (size_t i = 0; i < n; i++) {
     if (is_signed) {
       int max = CxxUtils::ones<uint32_t> (nbits-1);
       if (nbits < 30) max *= 2;
       if (nbits < 29) max *= 2;
-      cont.push_back (static_cast<T> (Athena_test::randi (max, -max-1)));
+      cont.push_back (static_cast<T> (Athena_test::randi_seed (seed, max, -max-1)));
     }
     else
-      cont.push_back (static_cast<T> (Athena_test::rng()));
+      cont.push_back (static_cast<T> (Athena_test::rng_seed (seed)));
   }
 }
 
 
 template <class T>
-void fill_float_cont (size_t /*nbits*/, std::vector<T>& cont, size_t n, bool is_signed)
+void fill_float_cont (uint32_t& seed,
+                      size_t /*nbits*/, std::vector<T>& cont, size_t n, bool is_signed)
 {
   for (size_t i = 0; i < n; i++) {
     if (is_signed)
-      cont.push_back (Athena_test::randf(200) - 100);
+      cont.push_back (Athena_test::randf_seed (seed, 200) - 100);
     else
-      cont.push_back (Athena_test::randf(100));
+      cont.push_back (Athena_test::randf_seed (seed, 100));
   }
 }
 
 
-void fill_cont (size_t nbits, std::vector<float>& cont, size_t n, bool is_signed)
+void fill_cont (uint32_t& seed,
+                size_t nbits, std::vector<float>& cont, size_t n, bool is_signed)
 {
-  fill_float_cont (nbits, cont, n, is_signed);
+  fill_float_cont (seed, nbits, cont, n, is_signed);
 }
 
 
-void fill_cont (size_t nbits, std::vector<double>& cont, size_t n, bool is_signed)
+void fill_cont (uint32_t& seed,
+                size_t nbits, std::vector<double>& cont, size_t n, bool is_signed)
+                
 {
-  fill_float_cont (nbits, cont, n, is_signed);
+  fill_float_cont (seed, nbits, cont, n, is_signed);
 }
 
 
 template <class T>
-void fill_cont (size_t nbits, std::vector<std::vector<T> >& cont, size_t n, bool is_signed)
+void fill_cont (uint32_t& seed,
+                size_t nbits, std::vector<std::vector<T> >& cont, size_t n, bool is_signed)
 {
   cont.resize (n);
   for (size_t i = 0; i < n; i++) {
-    size_t nelt = Athena_test::randi (30);
-    fill_cont (nbits, cont[i], nelt, is_signed);
+    size_t nelt = Athena_test::randi_seed (seed, 30);
+    fill_cont (seed, nbits, cont[i], nelt, is_signed);
     assert (cont[i].size() == nelt);
   }
 }
@@ -203,12 +209,13 @@ void compare_cont (const SG::PackedParameters& parms,
 
 
 template <class T1, class T2>
-void testit (size_t nbits, size_t n = 100, bool is_signed = false,
+void testit (uint32_t& seed,
+             size_t nbits, size_t n = 100, bool is_signed = false,
              size_t nmantissa = 23)
 {
   std::vector<T1> c1;
 
-  fill_cont (nbits, c1, n, is_signed);
+  fill_cont (seed, nbits, c1, n, is_signed);
   assert (c1.size() == n);
 
   SG::PackedParameters parms;
@@ -239,91 +246,92 @@ void testit (size_t nbits, size_t n = 100, bool is_signed = false,
 #define TESTIT1(T) testit<T,T>
 
 
-void test1()
+void test1 (uint32_t& seed)
 {
   std::cout << "test1\n";
 
   for (int nbits=1; nbits <= 32; ++nbits) {
-    TESTIT1(uint32_t) (nbits);
-    TESTIT1(uint16_t) (nbits);
-    TESTIT1(uint8_t) (nbits);
+    TESTIT1(uint32_t) (seed, nbits);
+    TESTIT1(uint16_t) (seed, nbits);
+    TESTIT1(uint8_t) (seed, nbits);
   }
 
   for (int nbits=2; nbits <= 32; ++nbits) {
-    TESTIT1(int32_t) (nbits, 100, true);
-    TESTIT1(int16_t) (nbits, 100, true);
-    TESTIT1(int8_t) (nbits, 100, true);
+    TESTIT1(int32_t) (seed, nbits, 100, true);
+    TESTIT1(int16_t) (seed, nbits, 100, true);
+    TESTIT1(int8_t) (seed, nbits, 100, true);
   }
 
-  TESTIT1(float) (24, 100, false, 16);
-  TESTIT1(float) (24, 100, true, 16);
+  TESTIT1(float) (seed, 24, 100, false, 16);
+  TESTIT1(float) (seed, 24, 100, true, 16);
 
-  TESTIT1(double) (24, 100, false, 16);
-  TESTIT1(double) (24, 100, true, 16);
+  TESTIT1(double) (seed, 24, 100, false, 16);
+  TESTIT1(double) (seed, 24, 100, true, 16);
 }
 
 
 // Test doubly-nested vectors.
-void test2()
+void test2 (uint32_t& seed)
 {
   std::cout << "test2\n";
   for (int nbits=1; nbits <= 32; ++nbits) {
-    TESTIT1(std::vector<uint32_t>) (nbits);
-    TESTIT1(std::vector<uint16_t>) (nbits);
-    TESTIT1(std::vector<uint8_t>) (nbits);
+    TESTIT1(std::vector<uint32_t>) (seed, nbits);
+    TESTIT1(std::vector<uint16_t>) (seed, nbits);
+    TESTIT1(std::vector<uint8_t>) (seed, nbits);
   }
 
   for (int nbits=2; nbits <= 32; ++nbits) {
-    TESTIT1(std::vector<int32_t>) (nbits, 100, true);
-    TESTIT1(std::vector<int16_t>) (nbits, 100, true);
-    TESTIT1(std::vector<int8_t>) (nbits, 100, true);
+    TESTIT1(std::vector<int32_t>) (seed, nbits, 100, true);
+    TESTIT1(std::vector<int16_t>) (seed, nbits, 100, true);
+    TESTIT1(std::vector<int8_t>) (seed, nbits, 100, true);
   }
 
-  TESTIT1(std::vector<float>) (24, 100, false, 16);
-  TESTIT1(std::vector<float>) (24, 100, true, 16);
-  TESTIT1(std::vector<double>) (24, 100, false, 16);
-  TESTIT1(std::vector<double>) (24, 100, true, 16);
+  TESTIT1(std::vector<float>) (seed, 24, 100, false, 16);
+  TESTIT1(std::vector<float>) (seed, 24, 100, true, 16);
+  TESTIT1(std::vector<double>) (seed, 24, 100, false, 16);
+  TESTIT1(std::vector<double>) (seed, 24, 100, true, 16);
 }
 
 
 // Test triply-nested vectors.
-void test3()
+void test3 (uint32_t& seed)
 {
   std::cout << "test3\n";
   
   for (int nbits=1; nbits <= 32; ++nbits) {
-    TESTIT1(std::vector<std::vector<uint32_t> >) (nbits);
-    TESTIT1(std::vector<std::vector<uint16_t> >) (nbits);
-    TESTIT1(std::vector<std::vector<uint8_t> >) (nbits);
+    TESTIT1(std::vector<std::vector<uint32_t> >) (seed, nbits);
+    TESTIT1(std::vector<std::vector<uint16_t> >) (seed, nbits);
+    TESTIT1(std::vector<std::vector<uint8_t> >) (seed, nbits);
   }
 
   for (int nbits=2; nbits <= 32; ++nbits) {
-    TESTIT1(std::vector<std::vector<int32_t> >) (nbits, 100, true);
-    TESTIT1(std::vector<std::vector<int16_t> >) (nbits, 100, true);
-    TESTIT1(std::vector<std::vector<int8_t> >) (nbits, 100, true);
+    TESTIT1(std::vector<std::vector<int32_t> >) (seed, nbits, 100, true);
+    TESTIT1(std::vector<std::vector<int16_t> >) (seed, nbits, 100, true);
+    TESTIT1(std::vector<std::vector<int8_t> >) (seed, nbits, 100, true);
   }
 
-  TESTIT1(std::vector<std::vector<float> >) (24, 100, false, 16);
-  TESTIT1(std::vector<std::vector<float> >) (24, 100, true, 16);
-  TESTIT1(std::vector<std::vector<double> >) (24, 100, false, 16);
-  TESTIT1(std::vector<std::vector<double> >) (24, 100, true, 16);
+  TESTIT1(std::vector<std::vector<float> >) (seed, 24, 100, false, 16);
+  TESTIT1(std::vector<std::vector<float> >) (seed, 24, 100, true, 16);
+  TESTIT1(std::vector<std::vector<double> >) (seed, 24, 100, false, 16);
+  TESTIT1(std::vector<std::vector<double> >) (seed, 24, 100, true, 16);
 }
 
 
 // Test some simple conversions.
-void test4()
+void test4 (uint32_t& seed)
 {
   std::cout << "test4\n";
 
-  testit<uint16_t, uint32_t> (13);
+  testit<uint16_t, uint32_t> (seed, 13);
 }
 
 
 int main()
 {
-  test1();
-  test2();
-  test3();
-  test4();
+  uint32_t seed = 1;
+  test1 (seed);
+  test2 (seed);
+  test3 (seed);
+  test4 (seed);
   return 0;
 }

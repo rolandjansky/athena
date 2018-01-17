@@ -1,6 +1,6 @@
 # Select geometry version
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion="ATLAS-R2-2015-03-00-00"
+    DetDescrVersion="ATLAS-R2-2015-03-01-00"
     #DetDescrVersion="ATLAS-GEOTEST"
     print 'MuonGeoModelTest/NSWGeoSetup DetDescrVersion now set to ', DetDescrVersion
 else:

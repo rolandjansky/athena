@@ -254,11 +254,11 @@ LVL1CTP::CTPSimulation::initialize() {
    // registering with IOVDBSvc to get informed about BG changes
    if (m_applyBunchGroup == true) { 
       // registering callback for bunch group settings
-      const DataHandle<AthenaAttributeList>  m_dataHandle;
+      const DataHandle<AthenaAttributeList>  dataHandle;
       if(detStore()->contains<AthenaAttributeList>(m_BunchGroupLoc)){
          ATH_MSG_DEBUG("Registering callback for " << m_BunchGroupLoc );
          if (StatusCode::SUCCESS!=detStore()->regFcn(&CTPSimulation::callback, this,
-                                                     m_dataHandle, m_BunchGroupLoc))
+                                                     dataHandle, m_BunchGroupLoc))
             ATH_MSG_DEBUG("Cannot register callback for bunchgroup content");
       }
       else{

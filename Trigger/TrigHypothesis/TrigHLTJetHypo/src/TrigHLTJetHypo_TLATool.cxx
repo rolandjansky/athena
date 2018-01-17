@@ -75,9 +75,9 @@ StatusCode TrigHLTJetHypo_TLATool::checkVals() const {
                   << "ystar_maxs" <<  m_ystarMaxs.size() << " "
                   << "mass_mins" <<  m_massMins.size() << " "
                   << "mass_maxs" <<  m_massMaxs.size());
-    return false;
+    return StatusCode::FAILURE;
   }
-  return true;
+  return StatusCode::SUCCESS;
 }
 
 std::vector<std::shared_ptr<ICleaner>> TrigHLTJetHypo_TLATool::getCleaners () const {

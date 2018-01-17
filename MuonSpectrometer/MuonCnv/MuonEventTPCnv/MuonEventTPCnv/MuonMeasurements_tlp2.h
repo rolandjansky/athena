@@ -14,7 +14,7 @@
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MdtDriftCircleOnTrack_p2.h"
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MM_ClusterOnTrack_p1.h"
 #include "MuonEventTPCnv/MuonRIO_OnTrack/STGC_ClusterOnTrack_p1.h"
-#include "MuonEventTPCnv/MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrackCnv_p1.h"
+#include "MuonEventTPCnv/MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack_p1.h"
 #include <vector>
 
 // ------------
@@ -30,7 +30,7 @@ namespace TPCnv
     class MuonMeasurements_tlp2
     {
     public:
-      MuonMeasurements_tlp2() {}
+        MuonMeasurements_tlp2() {}
         std::vector< Muon::CscClusterOnTrack_p2 >           m_cscClustersOT;
         std::vector< Muon::RpcClusterOnTrack_p3 >           m_rpcClustersOT;
         std::vector< Muon::TgcClusterOnTrack_p2 >           m_tgcClustersOT;

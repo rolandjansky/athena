@@ -29,7 +29,7 @@ public:
 	
 	// constructor
 	inline sTGC_Technology(std::string s);
-	inline double Thickness() ;
+	inline double Thickness() const;
 };
 
 sTGC_Technology::sTGC_Technology(std::string s): AGDDTechnology(s),
@@ -39,7 +39,7 @@ sTGC_Technology::sTGC_Technology(std::string s): AGDDTechnology(s),
 {
 }
 
-double sTGC_Technology::Thickness() 
+double sTGC_Technology::Thickness() const
 {
 	//thickness=nlayers*(gasThickness+pcbThickness) + pcbThickness;
 	return thickness;

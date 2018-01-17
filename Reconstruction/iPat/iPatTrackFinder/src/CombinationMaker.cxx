@@ -40,6 +40,19 @@ CombinationMaker::CombinationMaker	(const std::string&	type,
 	m_finderTolerances		("FinderTolerances/FinderTolerances"),
 	m_layerNumberAllocator		("LayerNumberAllocator/LayerNumberAllocator"),
 	m_pointManager			("PointManager/PointManager"),
+	m_allowPrimaryShare		(false),
+	m_deltaPhiInner			(0.),
+	m_deltaPhiMiddle		(0.),
+	m_maxCurvature			(0.),
+	m_maxImpact			(0.),
+	m_middleInterchange		(false),
+	m_middleR			(0.),
+	m_middleTolerance		(0.),
+	m_numberOfSearches		(0),
+	m_pixelInterchange		(false),
+	m_radialSpread			(0.),
+	m_iPhiMax			(0.),
+	m_mPhiMax			(0.),		
 	m_outerCombinations		(0),
 	m_innerCombinations		(0),
 	m_intermediateCombinations	(0),
@@ -392,7 +405,7 @@ CombinationMaker::next_vertex_point (void)
 }
 
 void
-CombinationMaker::setProperties (const std::vector<Trk::SpacePoint*>&	spacePoints,
+CombinationMaker::setProperties (const std::vector<const Trk::SpacePoint*>&	spacePoints,
 				 const Amg::Vector3D&			vertexRegionCentre)
 {
     m_pointManager->setPoints(spacePoints,vertexRegionCentre);

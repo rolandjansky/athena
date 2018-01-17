@@ -393,7 +393,7 @@ double EnhancedBiasWeighter::getEBWeight(const xAOD::EventInfo* eventInfo) const
     return 0;
   }
 
-  ATH_CHECK( trackAverages(eventInfo) );
+  ATH_CHECK( trackAverages(eventInfo), 0 );
 
   if (m_calculateWeightingData) {
 

@@ -240,7 +240,6 @@ algsToBookkeep.append( "TriggerFilterInZeeStream_EF_e20_loose" )
 from UserDataUtils.UserDataUtilsConf import UserDataCalcJetQualityTool
 ToolSvc += UserDataCalcJetQualityTool( "UserDataCalcJetQualityToolInWenuStream",
                                        OutputLevel            = INFO,
-                                       userDataSvc            = "UserDataInWenuStream",
                                        userDataPrefix         = "jet_",
                                        userDataJetQualityName = "isGoodUglyBad"
                                        )
@@ -249,15 +248,14 @@ ToolSvc += UserDataCalcJetQualityTool( "UserDataCalcJetQualityToolInWenuStream",
 from D2PDMaker.D2PDMakerConf import D2PDJetSelector
 topSequence += D2PDJetSelector( "JetMetCleaningSelectorInWenuStream",
                                 OutputLevel          = INFO,
-                                userDataSvc          = "UserDataInWenuStream",
                                 inputCollection      = 'AntiKt4TopoJets',
                                 outputLinkCollection = 'WenuStreamEMScalePt10BadJetCollection',
-                                userDataCalcToolList = [ ToolSvc.UserDataCalcJetQualityToolInWenuStream ],
+                                #userDataCalcToolList = [ ToolSvc.UserDataCalcJetQualityToolInWenuStream ],
                                 minNumberPassed      = 1,
                                 useJetSignalState    = PyAthena.P4SignalState.JETEMSCALE,
                                 jetSignalStatePtMin  = 10.0*Units.GeV,
-                                userDataNameList     = [ "jet_isGoodUglyBad" ],
-                                userDataMinCutList   = [ 3.5 ] # good=1, ugly=2, bad=4 (combinations add up)
+                                #userDataNameList     = [ "jet_isGoodUglyBad" ],
+                                #userDataMinCutList   = [ 3.5 ] # good=1, ugly=2, bad=4 (combinations add up)
                                 )
 algsToBookkeep.append( "JetMetCleaningSelectorInWenuStream" )
 
@@ -396,7 +394,6 @@ if inputIsSimulation :
                                                  OutputLevel                = INFO,
                                                  mcTruthClassifier          = ElectronMCTruthClassifierInWenuStream,
                                                  inputAssociateToCollection = "SpclMC",
-                                                 userDataSvc                = "UserDataInWenuStream",
                                                  userDataPrefix             = "el_mcTruthClassifier_",
                                                  writeUserData              = True
                                                  )
@@ -407,9 +404,8 @@ if inputIsSimulation :
                                       OutputLevel                = INFO,
                                       inputAssociateToCollection = "TruthElectronFromWBosonLinkCollection",
                                       deltaRMax                  = 0.1,
-                                      userDataSvc                = "UserDataInWenuStream",
                                       userDataPrefix             = "el_deltaRMatchTruth_",
-                                      writeUserData              = True
+                                      writeUserData              = False
                                       )
 
     # Now, do a match to status code 1 electrons
@@ -417,9 +413,8 @@ if inputIsSimulation :
                                       OutputLevel                = INFO,
                                       inputAssociateToCollection = "TruthElectronStatusCode1FromWBosonLinkCollection",
                                       deltaRMax                  = 0.1,
-                                      userDataSvc                = "UserDataInWenuStream",
                                       userDataPrefix             = "el_deltaRMatchTruth_sc1_",
-                                      writeUserData              = True
+                                      writeUserData              = False
                                       )
 
     # Now, do a match to status code 3 electrons
@@ -427,9 +422,8 @@ if inputIsSimulation :
                                       OutputLevel                = INFO,
                                       inputAssociateToCollection = "TruthElectronStatusCode3FromWBosonLinkCollection",
                                       deltaRMax                  = 0.1,
-                                      userDataSvc                = "UserDataInWenuStream",
                                       userDataPrefix             = "el_deltaRMatchTruth_sc3_",
-                                      writeUserData              = True
+                                      writeUserData              = False
                                       )
 
     
@@ -745,13 +739,6 @@ WenuStream.AddItem( ['INav4MomLinkContainer#*'] )
 WenuStream.AddItem( ['INav4MomAssocs#*'] )
 
 
-
-#====================================================================
-# UserDataSvc, only really needed/used when UserData is computed...
-#====================================================================
-from AthenaServices.TheUserDataSvc import TheUserDataSvc
-svcMgr += TheUserDataSvc("UserDataInWenuStream")
-svcMgr.UserDataInWenuStream.OutputStream = WenuStream.Stream
 
 # Final message to log
 wenuDPD_msg.info( 'Finished configuration of %s' % D2PDFlags.WriteD2AOD_WENUStream.StreamName )

@@ -1,5 +1,0 @@
-package D3PDMakerInterfaces
-
-use AtlasPolicy                AtlasPolicy-*     
-use GaudiInterface             GaudiInterface-*        External
-

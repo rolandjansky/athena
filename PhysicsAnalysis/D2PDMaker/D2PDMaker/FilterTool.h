@@ -29,7 +29,7 @@
 
 // DataModel
 #include "AthLinks/ElementLink.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // Athena Tool
 #include "AthenaBaseComps/AthAlgTool.h"

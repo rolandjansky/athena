@@ -12,19 +12,25 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GenericAddress.h"
+#include "GaudiKernel/IAlgResourcePool.h"
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/IAlgManager.h"
 
+#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IRCUSvc.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainersInterfaces/IAuxStore.h"
 
 #include <algorithm>
 
-#include "boost/foreach.hpp"
+#include "boost/range.hpp"
 
 //________________________________________________________________________________
 AddressRemappingSvc::AddressRemappingSvc(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -32,8 +38,10 @@ AddressRemappingSvc::AddressRemappingSvc(const std::string& name, ISvcLocator* p
   m_clidSvc("ClassIDSvc", name),
   m_proxyDict("StoreGateSvc", name),
   m_RCUSvc("Athena::RCUSvc", name),
+  m_algResourcePool("AlgResourcePool", name),
   m_oldTads(),
-  m_newTads()
+  m_newTads(),
+  m_haveDeletes(false)
 {
    declareProperty("ProxyDict", m_proxyDict,
      "the IProxyDict we want to apply the remapping to (by default the event store)");
@@ -47,6 +55,9 @@ AddressRemappingSvc::AddressRemappingSvc(const std::string& name, ISvcLocator* p
                    "while renaming may not.  Format of list elements is OLDNAME#TYPE->NEWNAME.");
    
    declareProperty("SkipBadRemappings", m_skipBadRemappings=false,"If true, will delay the remapping setup until the first load, and will check against the given file");
+
+   declareProperty("AlgResourcePool", m_algResourcePool,
+                   "Algorithm resource pool service.");
 }
 //__________________________________________________________________________
 AddressRemappingSvc::~AddressRemappingSvc() {
@@ -59,6 +70,7 @@ StatusCode AddressRemappingSvc::initialize() {
    ATH_CHECK( ::AthService::initialize() );
    ATH_CHECK( m_clidSvc.retrieve() );
    ATH_CHECK( m_RCUSvc.retrieve() );
+   //ATH_CHECK( m_algResourcePool.retrieve() );
 
    m_oldTads.clear();
    m_newTads.clear();
@@ -191,6 +203,8 @@ StatusCode AddressRemappingSvc::finalize() {
       ATH_MSG_ERROR("Cannot release IProxyDict");
       return(status);
    }
+   ATH_CHECK( m_RCUSvc.release() );
+   ATH_CHECK( m_algResourcePool.release() );
    status = ::AthService::finalize();
    if (!status.isSuccess()) {
       ATH_MSG_ERROR("Can not finalize Service base class.");
@@ -202,9 +216,10 @@ StatusCode AddressRemappingSvc::finalize() {
 StatusCode AddressRemappingSvc::preLoadAddresses(StoreID::type /*storeID*/,
 	IAddressProvider::tadList& tads) {
 
+  lock_t lock (m_mutex);
   ATH_CHECK( renameTads (tads) );
   
-if(m_skipBadRemappings) return StatusCode::SUCCESS;
+  if(m_skipBadRemappings) return StatusCode::SUCCESS;
    StatusCode status = m_proxyDict.retrieve();
    if (!status.isSuccess()) {
       ATH_MSG_ERROR("Unable to get the IProxyDict");
@@ -223,6 +238,8 @@ if(m_skipBadRemappings) return StatusCode::SUCCESS;
 //________________________________________________________________________________
 StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
 	IAddressProvider::tadList& tads) {
+  lock_t lock (m_mutex);
+  initDeletes();
   ATH_CHECK( renameTads (tads) );
 
   if(!m_skipBadRemappings) return(StatusCode::SUCCESS);
@@ -247,7 +264,7 @@ StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
          //try base types 
          const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (newIter->clID());
          if (bi) {
-            BOOST_FOREACH(goodCLID, bi->get_bases()) {
+            for (CLID goodCLID : bi->get_bases()) {
                dataProxy = m_proxyDict->proxy(goodCLID, newIter->name());
                if(dataProxy) break;
                clidToKeep.erase(goodCLID); //was a bad CLID, so get rid of it
@@ -289,6 +306,7 @@ StatusCode AddressRemappingSvc::updateAddress(StoreID::type /*storeID*/,
 					      SG::TransientAddress* tad,
                                               const EventContext& /*ctx*/)
 {
+   lock_t lock (m_mutex);
    for (std::vector<SG::TransientAddress>::const_iterator oldIter = m_oldTads.begin(),
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
 		   oldIter != oldIterEnd; oldIter++, newIter++) {
@@ -321,16 +339,24 @@ StatusCode AddressRemappingSvc::updateAddress(StoreID::type /*storeID*/,
 StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
 {
   // Fetch the current rename map using RCU.
-  // We can exit early if it's empty.
   Athena::RCURead<InputRenameMap_t> r (*m_inputRenames);
-  if (r->empty()) return StatusCode::SUCCESS;
+
+  // We can exit early if there's nothing to do.
+  // FIXME: m_deletes will almost never be empty, but many times it will have
+  // no overlap with the input file.  Should try to speed up by
+  // noticing/caching that somehow.
+  if (r->empty() && m_deletes.empty()) return StatusCode::SUCCESS;
 
   // We may discover additional remappings due to autosymlinking.
   // Accumulate them here.
   InputRenameMap_t newmap;
 
   // Loop over all TADs.
-  for (SG::TransientAddress* & tad : tads) {
+  IAddressProvider::tadList::iterator pos = tads.begin();
+  IAddressProvider::tadList::iterator end = tads.end();
+  while (pos != end) {
+    SG::TransientAddress*& tad = *pos;
+
     // Has the object described by this TAD been renamed?
     // FIXME: Handle renaming aliases.
     CLID tad_clid = tad->clID();
@@ -383,6 +409,12 @@ StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
         delete tad;
         tad = tad_new.release();
       }
+
+      ++pos;
+    }
+
+    else if (isDeleted (*tad)) {
+      pos = tads.erase (pos);
     }
 
     else {
@@ -399,6 +431,8 @@ StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
           }
         }
       }
+
+      ++pos;
     }
   }
 
@@ -427,3 +461,50 @@ AddressRemappingSvc::inputRenameMap() const
     return nullptr;
   return m_inputRenames.get();
 }
+//______________________________________________________________________________
+void AddressRemappingSvc::initDeletes()
+{
+  if (m_haveDeletes) return;
+  m_haveDeletes = true;
+
+  for (IAlgorithm* ialg : m_algResourcePool->getFlatAlgList()) {
+    if (Algorithm* alg = dynamic_cast<Algorithm*> (ialg)) {
+      // Need to ignore SGInputLoader; it'll have output deps
+      // on everything being read.
+      if (alg->name() == "SGInputLoader") continue;
+
+      for (const DataObjID& dobj : alg->outputDataObjs()) {
+        static const std::string pref = "StoreGateSvc+";
+        if (dobj.key().substr (0, pref.size()) == pref) {
+          std::string key = dobj.key().substr (pref.size());
+          m_deletes.emplace (key, dobj.clid());
+
+          // If this looks like an xAOD type, then also make an entry
+          // for an aux store.  Don't want to try to rely on BaseInfo here,
+          // as we may not have loaded the proper libraries yet.
+          // Second line of the test is to handle the tests in DataModelTest.
+          if (dobj.fullKey().find ("xAOD") != std::string::npos ||
+              dobj.fullKey().find ("cinfo") != std::string::npos)
+          {
+            m_deletes.emplace (key + "Aux.",
+                               ClassID_traits<SG::IConstAuxStore>::ID());
+          }
+        }
+      }
+    }
+  }
+}
+//______________________________________________________________________________
+bool AddressRemappingSvc::isDeleted (const SG::TransientAddress& tad) const
+{
+  std::string key = tad.name();
+  for (auto p : boost::make_iterator_range (m_deletes.equal_range (key))) {
+    CLID clid = p.second;
+    if (tad.transientID (clid)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+

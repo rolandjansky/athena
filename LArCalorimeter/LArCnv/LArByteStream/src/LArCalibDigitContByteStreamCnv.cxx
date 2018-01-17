@@ -170,11 +170,7 @@ LArCalibDigitContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAd
 
 
   LArCalibDigitContainer* CalibDigitContainer=0;
-  sc=m_storeGate->fromStorable(pObj, CalibDigitContainer ); 
-  if (sc==StatusCode::FAILURE)
-    {(*m_log) << MSG::ERROR << "StoreGateSvc::fromStorable failed!" << endmsg;
-     return sc;
-    }
+  ATH_CHECK( m_storeGate->fromStorable(pObj, CalibDigitContainer) );
   if(!CalibDigitContainer){
      (*m_log) << MSG::ERROR << "Cannot get LArCalibDigitContainer for DataObject. Key=" << pObj->registry()->name() << endmsg ;
      return StatusCode::FAILURE;    

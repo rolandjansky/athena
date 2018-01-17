@@ -9,7 +9,7 @@ doRODMon = True
 doOverviewMon = True
 
 FilesInput = [
-    "root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00270448/data15_13TeV.00270448.express_express.merge.RAW/data15_13TeV.00270448.express_express.merge.RAW._lb0007._SFO-ALL._0001.1",
+    "root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00270448/data15_13TeV.00270448.express_express.merge.RAW/data15_13TeV.00270448.express_express.merge.RAW._lb0007._SFO-ALL._0001.1",
 ]
 
 

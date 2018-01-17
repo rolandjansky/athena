@@ -322,7 +322,7 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
 
     //if (fabs(jet.pt()*m_energyScale-700)<1 && fabs(jet.m()*m_energyScale-70)<1) ATH_MSG_INFO(Form("CombMass: %f*%f*%f + %f*%f*%f = %f",caloMassScale(jet).M()*m_energyScale,shiftFactorCalo,caloWeight,TAMassScale(jet).M()*m_energyScale,shiftFactorTA,TAWeight,combMass*m_energyScale));
 
-    return true;
+    return StatusCode::SUCCESS;
 }
 
 double CombinedMassUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const

@@ -468,13 +468,6 @@ Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
 DefaultCollMeta     DEBUG In execute 
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter1 Cyc=1 N=7 weight^2=7e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter2 Cyc=1 N=8 weight^2=8e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter3 Cyc=1 N=7 weight^2=7e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter456 Cyc=1 N=3 weight^2=3e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter7 Cyc=1 N=1 weight^2=1e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Splitter48 Cyc=1 N=2 weight^2=2e+06
-CutFlowSvc           INFO CutBookkeeper CutBookkeepers N/A Triggered Cyc=1 N=20 weight^2=2e+07
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream2              INFO Records written: 8
 Stream1              INFO Records written: 8
@@ -498,9 +491,6 @@ Splitter7            INFO in finalize()
 Splitter48           INFO in finalize()
 Triggered            INFO in finalize()
 DefaultCollMeta     DEBUG In finalize 
-Splitter1           DEBUG Calling destructor
-Splitter3           DEBUG Calling destructor
-DefaultCollMeta     DEBUG Calling destructor
 ItemListSvc         DEBUG STREAM Bad has (1) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
 ItemListSvc         DEBUG STREAM Others has (4) items
@@ -523,4 +513,3 @@ ItemListSvc         DEBUG    - EventStreamInfo_Stream3
 ItemListSvc         DEBUG  --> Overlap with Others (3) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (4) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (4) items
-name: "SplittableCollection.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 13  ptr: 0x14ddad80  [o] [u]

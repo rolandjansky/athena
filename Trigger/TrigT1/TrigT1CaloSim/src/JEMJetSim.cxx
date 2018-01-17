@@ -69,11 +69,6 @@ JEMJetSim::JEMJetSim
 
 }
 
-// Destructor
-JEMJetSim::~JEMJetSim() {
-  ATH_MSG_INFO("Destructor called" );
-}
-
 
 //---------------------------------
 // initialise()

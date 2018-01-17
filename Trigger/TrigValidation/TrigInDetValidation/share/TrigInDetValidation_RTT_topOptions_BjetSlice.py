@@ -15,14 +15,11 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #if athenaCommonFlags.FilesInput()==[]:
 #  athenaCommonFlags.FilesInput=[
-#    "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1",
+#    "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193/RDO.06752771._000001.pool.root.1",
 #    ]
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
@@ -35,7 +32,7 @@ if 'doFTK' in dir() and doFTK==True:
   TriggerFlags.doFTK=True
   rFTK=True
 
-(idtrigChainlist, tidaAnalysischains) = bjetChains(rMC,rID,rFTK,rBperf)
+(idtrigChainlist, tidaAnalysischains) = bjetChains(rID,rFTK,rBperf)
 
 
 def resetSigs():

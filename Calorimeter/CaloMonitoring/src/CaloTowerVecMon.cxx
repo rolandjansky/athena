@@ -85,7 +85,7 @@ CaloTowerVecMon::CaloTowerVecMon(const std::string& type,
   declareProperty("TriggerNames3",m_TriggerNames3);
   
   // energy threshold
-  declareProperty("NoOfThreshTests", m_threshtests=10);
+  declareProperty("NoOfThreshTests", m_threshtests=MAX_E);
 
   declareProperty("noEThresh", m_Ethresh[NO_E]=-999999.0);
   declareProperty("lowEThresh", m_Ethresh[LOW_E]=0.0);
@@ -316,7 +316,7 @@ StatusCode CaloTowerVecMon::checkTimeGran(bool isNewEventsBlock, bool isNewLumiB
     }
   }
 
-  return isNewTimeGran;
+  return StatusCode(isNewTimeGran);
 }
 
 void CaloTowerVecMon::bookTwrPreHists(const Interval_t theinterval){
@@ -725,7 +725,7 @@ StatusCode CaloTowerVecMon::checkFilters(bool& ifPass){
  StatusCode sc = StatusCode::SUCCESS;
 
  if(m_useLArNoisyAlg) {
-   const xAOD::EventInfo* thisEventInfo;
+   const xAOD::EventInfo* thisEventInfo = nullptr;
    sc = evtStore()->retrieve(thisEventInfo);
    if (sc!=StatusCode::SUCCESS){
      m_useLArNoisyAlg = false;

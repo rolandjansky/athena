@@ -56,45 +56,54 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
 
   ~TrigROBDataProviderSvc_RTT(void){};
 
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // fill histograms per event
   void FillEvent();
 
   /// set the name of the program which uses the ROBDataProviderSvc
-  void setCallerName(const std::string);
+  virtual void setCallerName(const std::string) override;
 
   //declare ROBdata // inherited from base class
-  void addROBData(const std::vector<uint32_t>& robIds,
-		  const std::string callerName="UNKNOWN");
+  using ROBDataProviderSvc::addROBData;
+  virtual void addROBData(const std::vector<uint32_t>& robIds,
+                          const std::string callerName="UNKNOWN") override;
 
   /// Retrieve ROBFragments for given ROB ids from cache 
-  void getROBData(const std::vector<uint32_t>& robIds, 
-		  std::vector<const ROBF*>& robFragments,
-		  const std::string callerName="UNKNOWN");
+  using ROBDataProviderSvc::getROBData;
+  virtual void getROBData(const std::vector<uint32_t>& robIds, 
+                          std::vector<const ROBF*>& robFragments,
+                          const std::string callerName="UNKNOWN") override;
  
   /// Add a given LVL1 ROBFragment to cache 
-  void setNextEvent(const std::vector<ROBF>& result);
+  using ROBDataProviderSvc::setNextEvent;
+  virtual void setNextEvent(const std::vector<ROBF>& result) override;
 
   /// Add all ROBFragments of a RawEvent to cache 
-  void setNextEvent(const RawEvent* re);
+  virtual void setNextEvent(const RawEvent* re) override;
 
 
-  void handle(const Incident& incident);
+  virtual void handle(const Incident& incident) override;
 
   /// Check if complete event data are already in cache
-  bool isEventComplete() { return TrigROBDataProviderSvc::isEventComplete();} ;
+  virtual bool isEventComplete() override { return TrigROBDataProviderSvc::isEventComplete(); }
+  virtual bool isEventComplete() const override { return TrigROBDataProviderSvc::isEventComplete(); }
+  virtual bool isEventComplete(const EventContext& ctx) const override
+  { return TrigROBDataProviderSvc::isEventComplete(ctx); }
 
   /// Collect all data for an event from the ROS and put them into the cache
   /// Return value: number of ROBs which were retrieved to complete the event
   /// Optinonally the name of the caller of this method can be specified for cost monitoring
-  int collectCompleteEventData(const std::string callerName="UNKNOWN") {return TrigROBDataProviderSvc::collectCompleteEventData(callerName);};
+  virtual int collectCompleteEventData(const std::string callerName="UNKNOWN") override
+  { return TrigROBDataProviderSvc::collectCompleteEventData (callerName); }
+  virtual int collectCompleteEventData(const EventContext& ctx, const std::string callerName="UNKNOWN") override
+  { return TrigROBDataProviderSvc::collectCompleteEventData (ctx, callerName); }
 
-  bool isMissingPrefetching()     { return 0;};// m_missingPrefetchingPerEvent; };
+  virtual bool isMissingPrefetching() override     { return 0;};// m_missingPrefetchingPerEvent; };
 
-  bool isPrefetchingAtAlgoLevel() { return m_enablePrefetchingAtAlgoLevel;};
+  virtual bool isPrefetchingAtAlgoLevel() override { return m_enablePrefetchingAtAlgoLevel;};
 
   void print(std::ostream& os) const;
 

@@ -171,7 +171,7 @@ StatusCode SCT_FastDigitizationTool::processBunchXing(int bunchXing,
       StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
       const SiHitCollection* seHitColl(nullptr);
-      CHECK(seStore.retrieve(seHitColl,m_inputObjectName).isSuccess());
+      CHECK(seStore.retrieve(seHitColl,m_inputObjectName));
 
       //Copy Hit Collection
       SiHitCollection* siHitColl(new SiHitCollection("SCT_Hits"));
@@ -1003,7 +1003,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
       std::vector<Identifier>::const_iterator existingClusterRDOIter = existingClusterRDOList.begin();
       for( ; existingClusterRDOIter != existingClusterRDOList.end(); ++existingClusterRDOIter)
         {
-          if(abs(existingClusterRDOIter->get_compact() - potentialClusterRDOIter->get_compact()) < 2)
+	  if(std::abs(static_cast<Identifier::diff_type>(existingClusterRDOIter->get_compact() - potentialClusterRDOIter->get_compact())) < 2)
             {
               isNeighbour = true;
               break;

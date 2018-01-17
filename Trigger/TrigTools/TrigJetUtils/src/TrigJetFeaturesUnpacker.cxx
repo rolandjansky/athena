@@ -120,17 +120,17 @@ StatusCode TrigJetFeaturesUnpacker::execute()
         num_jets = 0;
         for (std::size_t j = 0; j <  jetmapcoll_pri.get()->size(); ++j) {
             //count jets recorded in map
-            const JetMomentMap * m_ = jetmapcoll_pri.get()->at(j);
-            ATH_MSG_DEBUG("  "<<j<<": map  pointer: "<<MSG::hex<<m_<<MSG::dec);
+            const JetMomentMap * mmap = jetmapcoll_pri.get()->at(j);
+            ATH_MSG_DEBUG("  "<<j<<": map  pointer: "<<MSG::hex<<mmap<<MSG::dec);
             std::size_t n_ = 0;
-            while ( m_->getRecord(n_+1) ) { n_++; }
+            while ( mmap->getRecord(n_+1) ) { n_++; }
 
             //release first map
             if (!jetmap_)   jetmapcoll_pri.get()->swapElement(j, 0, jetmap_);
             else {  //transfer record
                  for (std::size_t i = 0; i < n_; ++i) {
-                     ATH_MSG_DEBUG("i+1="<<i+1<<"  record size: "<<m_->getRecord(i+1)->size());
-                     JetMomentMap::record_t * rec_ = new  JetMomentMap::record_t(*(m_->getRecord(i+1)));
+                     ATH_MSG_DEBUG("i+1="<<i+1<<"  record size: "<<mmap->getRecord(i+1)->size());
+                     JetMomentMap::record_t * rec_ = new  JetMomentMap::record_t(*(mmap->getRecord(i+1)));
                      jetmap_->assignRecord(num_jets+i+1, rec_);
                      ATH_MSG_DEBUG("num_jets+i+1="<<num_jets+i+1<<"  record size: "<<jetmap_->getRecord(num_jets+i+1)->size()<<" -  "<<jetmap_->numberOfMoments(num_jets+i+1));
                  }
@@ -154,15 +154,15 @@ StatusCode TrigJetFeaturesUnpacker::execute()
         num_jets = 0;
         for (std::size_t j = 0; j <  mmcoll->size(); ++j) {
             //count jets recorded in map
-            const JetMomentMap * m_ = mmcoll->at(j);
-            ATH_MSG_DEBUG("  "<<j<<": map  pointer: "<<MSG::hex<<m_<<MSG::dec);
+            const JetMomentMap * mmap = mmcoll->at(j);
+            ATH_MSG_DEBUG("  "<<j<<": map  pointer: "<<MSG::hex<<mmap<<MSG::dec);
             std::size_t n_ = 0;
-            while ( m_->getRecord(n_+1) ) { n_++; }
+            while ( mmap->getRecord(n_+1) ) { n_++; }
  
             //transfer record
             for (std::size_t i = 0; i < n_; ++i) {
-                 ATH_MSG_DEBUG("i+1="<<i+1<<"  record size: "<<m_->getRecord(i+1)->size());
-                 JetMomentMap::record_t * rec_ = new  JetMomentMap::record_t(*(m_->getRecord(i+1)));
+                 ATH_MSG_DEBUG("i+1="<<i+1<<"  record size: "<<mmap->getRecord(i+1)->size());
+                 JetMomentMap::record_t * rec_ = new  JetMomentMap::record_t(*(mmap->getRecord(i+1)));
                  comb_map->assignRecord(num_jets+i+1, rec_);
                  ATH_MSG_DEBUG("num_jets+i+1="<<num_jets+i+1<<"  record size: "<<comb_map->getRecord(num_jets+i+1)->size()<<" -  "<<comb_map->numberOfMoments(num_jets+i+1));
              }

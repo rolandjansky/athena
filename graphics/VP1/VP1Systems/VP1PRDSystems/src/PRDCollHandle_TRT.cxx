@@ -73,10 +73,10 @@ QColor PRDCollHandle_TRT::defaultColor() const
 }
 
 //____________________________________________________________________
-PRDHandleBase* PRDCollHandle_TRT::addPRD( Trk::PrepRawData * prd )
+PRDHandleBase* PRDCollHandle_TRT::addPRD( const Trk::PrepRawData * prd )
 {
-  assert(dynamic_cast<InDet::TRT_DriftCircle*>(prd));
-  return new PRDHandle_TRT(this,static_cast<InDet::TRT_DriftCircle*>(prd));
+  assert(dynamic_cast<const InDet::TRT_DriftCircle*>(prd));
+  return new PRDHandle_TRT(this,static_cast<const InDet::TRT_DriftCircle*>(prd));
 }
 
 //____________________________________________________________________

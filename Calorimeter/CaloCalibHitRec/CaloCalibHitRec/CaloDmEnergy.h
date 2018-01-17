@@ -113,7 +113,7 @@ class CaloDmEnergy
     CaloDmEnergy(const CaloDmDescrManager *dmMgr);
     ~CaloDmEnergy();
 
-    int initialize();
+    StatusCode initialize();
     int assign2clusters(const std::string &clusterContainerName);
     int assign2clusters(std::vector<const CaloCalibrationHitContainer *> &v_dmcchc, const xAOD::CaloClusterContainer *theClusters, std::vector<double> &v_cluster_calib_energy);
     bool get_distance_cluster_dmcell(const xAOD::CaloCluster *cluster, const CaloDmCell *dm_cell, double &energy, double &distance);

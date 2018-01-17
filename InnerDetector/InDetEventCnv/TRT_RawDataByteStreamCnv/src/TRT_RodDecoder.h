@@ -67,8 +67,6 @@
 #include <map>
 
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 // the tool to decode a ROB frament
 
 class TRT_RodDecoder : virtual public ITRT_RodDecoder, 
@@ -91,7 +89,7 @@ public:
   virtual StatusCode finalize();
 
   //! the method to fill the IDC
-  StatusCode fillCollection ( const ROBFragment* robFrag,
+  StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 			      TRT_RDO_Container* rdoIdc,
 			      std::vector<IdentifierHash>* vecHash = 0);
 
@@ -159,15 +157,15 @@ public:
    //! private methods
 private:
 
-   StatusCode int_fillExpanded ( const ROBFragment* robFrag,
+   StatusCode int_fillExpanded ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				TRT_RDO_Container* rodIdc,
 				std::vector<IdentifierHash>* vecHash = 0);
 
-   StatusCode int_fillMinimalCompress ( const ROBFragment* robFrag,
+   StatusCode int_fillMinimalCompress ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				       TRT_RDO_Container* rdoIdo,
 				       std::vector<IdentifierHash>* vecHash = 0);
 
-   StatusCode int_fillFullCompress ( const ROBFragment* robFrag,
+   StatusCode int_fillFullCompress ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				     TRT_RDO_Container* rdoIdo,
 				     t_CompressTable* Ctable,
 				     std::vector<IdentifierHash>* vecHash = 0);

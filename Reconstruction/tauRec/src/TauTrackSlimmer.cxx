@@ -100,7 +100,7 @@ StatusCode TauTrackSlimmer::execute()
     //---------------------------------------------------------------------------
     // Retrieve tau jet container
     //---------------------------------------------------------------------------
-    const Analysis::TauJetContainer  *tauContainer;
+    const Analysis::TauJetContainer  *tauContainer = nullptr;
     sc = evtStore()->retrieve( tauContainer, m_tauContainerName );
 
     if( sc.isFailure() || ! tauContainer )

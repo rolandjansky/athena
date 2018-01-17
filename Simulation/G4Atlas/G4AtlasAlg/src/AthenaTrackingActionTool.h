@@ -5,9 +5,9 @@
 #ifndef G4AtlasAlg_AthenaTrackingActionTool_H
 #define G4AtlasAlg_AthenaTrackingActionTool_H
 
-// Infrastructure includes
-#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+// G4Atlas includes
+#include "G4AtlasInterfaces/IUserActionTool.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
 #include "AthenaTrackingAction.h"
@@ -20,8 +20,7 @@ namespace G4UA
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class AthenaTrackingActionTool : public ActionToolBase<AthenaTrackingAction>,
-                                   public IG4TrackingActionTool
+  class AthenaTrackingActionTool : public UserActionToolBase<AthenaTrackingAction>
   {
 
     public:
@@ -33,19 +32,18 @@ namespace G4UA
       /// Initialize the tool (just for debugging printout)
       virtual StatusCode initialize() override;
 
-      /// Retrieve the tracking action
-      virtual G4UserTrackingAction* getTrackingAction() override final
-      { return static_cast<G4UserTrackingAction*>( getAction() ); }
-
     protected:
 
-      /// Create an action for this thread
-      virtual std::unique_ptr<AthenaTrackingAction> makeAction() override final;
+      /// Setup the user action for current thread
+      virtual std::unique_ptr<AthenaTrackingAction>
+      makeAndFillAction(G4AtlasUserActions& actionLists) override final;
 
     private:
 
       /// The saving level for secondaries.
       int m_secondarySavingLevel;
+      /// The level in the G4 volume hierarchy at which can we find the sub-detector name
+      int m_subDetVolLevel;
 
   }; // class AthenaTrackingActionTool
 

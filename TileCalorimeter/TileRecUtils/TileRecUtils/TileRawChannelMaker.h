@@ -24,11 +24,16 @@
  *   
  ********************************************************************/
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile includes
+#include "TileEvent/TileDigitsContainer.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ToolHandle.h"
+
 
 class TileRawChannelBuilder;
 
@@ -49,7 +54,8 @@ class TileRawChannelMaker: public AthAlgorithm {
     void fitOverflowedChannels(void);
 
     // name of TDS container with TileDigits
-    std::string m_TileDigitsContainerID;
+    SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer","TileDigitsCnt",
+                                                                "Input Tile digits container key"};
 
     /**
      * Vector with class name[/instance name] of builder sub-algs

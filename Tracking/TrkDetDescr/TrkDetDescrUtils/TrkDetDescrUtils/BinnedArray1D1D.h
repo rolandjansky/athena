@@ -34,7 +34,7 @@ namespace Trk {
 
     public:
       /** Default Constructor - needed for inherited classes */
-      BinnedArray1D1D() throw (GaudiException)
+      BinnedArray1D1D()
       : BinnedArray<T>(),
         m_array(0),
         m_arrayObjects(0),
@@ -47,7 +47,7 @@ namespace Trk {
           the global position is given by object! */
       BinnedArray1D1D(const std::vector< std::pair< SharedObject<const T>, Amg::Vector3D > >& tclassvector,
                      BinUtility* steeringBinGen1D,
-                     std::vector<BinUtility*>* singleBinGen) throw (GaudiException)
+                     std::vector<BinUtility*>* singleBinGen)
       : BinnedArray<T>(),
         m_array(0),
         m_arrayObjects(0),
@@ -79,7 +79,7 @@ namespace Trk {
       }
 
       /** Copy Constructor - copies only pointers! */
-      BinnedArray1D1D(const BinnedArray1D1D& barr) throw (GaudiException)
+      BinnedArray1D1D(const BinnedArray1D1D& barr)
       : BinnedArray<T>(),
         m_array(0),
         m_arrayObjects(0),

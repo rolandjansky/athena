@@ -84,7 +84,7 @@ int main( int argc, char* argv[] ) {
    //m_muonSelection.setProperty( "Author", 12 );
    //m_muonSelection.initialize();
    m_muonSelection.setProperty( "TurnOffMomCorr", true );
-   CHECK (m_muonSelection.initialize().isSuccess());
+   CHECK (m_muonSelection.initialize());
 
    int allMuons = 0;
    int badMuons = 0;

@@ -54,39 +54,18 @@ namespace Muon {
   StatusCode MuonSegmentFittingTool::initialize()
   {
     
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-    if( m_slPropagator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_slPropagator); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_idHelperTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_slTrackFitter.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_slTrackFitter); 
-      return StatusCode::FAILURE;
-    }    
-
-
-    if( m_curvedTrackFitter.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_curvedTrackFitter); 
-      return StatusCode::FAILURE;
-    }    
-
-    if( m_trackCleaner.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_trackCleaner); 
-      return StatusCode::FAILURE;
-    }    
+    ATH_CHECK( m_slPropagator.retrieve() );
+    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_slTrackFitter.retrieve() );
+    ATH_CHECK( m_curvedTrackFitter.retrieve() );
+    ATH_CHECK( m_trackCleaner.retrieve() );
 
     return StatusCode::SUCCESS;
   }
 
   StatusCode MuonSegmentFittingTool::finalize()
   {
-    return AthAlgTool::finalize();
+    return StatusCode::SUCCESS;
   }
 
   Trk::Track* MuonSegmentFittingTool::fit( const MuonSegment& segment ) const {

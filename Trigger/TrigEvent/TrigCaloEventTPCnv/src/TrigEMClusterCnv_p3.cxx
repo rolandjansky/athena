@@ -6,7 +6,7 @@
 
 #include "TrigCaloEventTPCnv/TrigEMCluster_p3.h"
 #include "TrigCaloEventTPCnv/TrigEMClusterCnv_p3.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrigCaloEvent/RingerRingsContainer.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 #include "TrigCaloEventTPCnv/TrigCaloClusterCnv_p2.h"

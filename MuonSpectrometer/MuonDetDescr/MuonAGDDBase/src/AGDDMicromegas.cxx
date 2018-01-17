@@ -29,7 +29,7 @@ using MuonGM::MYSQL;
 AGDDMicromegas::AGDDMicromegas(std::string s): 
 	MMDetectorDescription(s),AGDDVolume(s,true)
 {
-	current=this;
+	s_current=this;
 	Register();
 }
 
@@ -40,8 +40,8 @@ void AGDDMicromegas::CreateSolid()
 //	if (!p)
 //	{
 //		std::cout<<" creating solid with dimensions "<<
-//		_small_x<<" "<<_large_x<<" "<<_y<<" "<<_z<<std::endl;
-//		GeoShape* solid=new GeoTrd(_small_x/2.,_large_x/2.,_y/2.,_y/2.,_z/2.);
+//		m_small_x<<" "<<m_large_x<<" "<<m_y<<" "<<m_z<<std::endl;
+//		GeoShape* solid=new GeoTrd(m_small_x/2.,m_large_x/2.,m_y/2.,m_y/2.,m_z/2.);
 //		SetSolid(solid);
 //	}
 
@@ -53,10 +53,10 @@ void AGDDMicromegas::CreateVolume()
 	
 	MuonGM::MicromegasComponent *mm_comp=new MuonGM::MicromegasComponent;
 	mm_comp->name=tech;
-	mm_comp->dx1=_small_x;
-	mm_comp->dx2=_large_x;
-	mm_comp->dy=_y;
-	mm_comp->subType=sType;
+	mm_comp->dx1=small_x();
+	mm_comp->dx2=large_x();
+	mm_comp->dy=y();
+	mm_comp->subType=subType();
 	
 	MuonGM::Micromegas *cham=new MuonGM::Micromegas(mm_comp);
 	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);

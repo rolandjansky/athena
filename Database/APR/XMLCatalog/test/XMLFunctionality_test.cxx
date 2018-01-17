@@ -14,24 +14,22 @@
 #include "FileCatalog/IFCAction.h"
 
 
-using namespace pool;
-
 class XMLtest: public CppUnit::TestFixture{
   CPPUNIT_TEST_SUITE( XMLtest );
   CPPUNIT_TEST( testRegister );
   CPPUNIT_TEST( testDelete );
   CPPUNIT_TEST_SUITE_END();
 public:
-  IFileCatalog* mycatalog;
+  pool::IFileCatalog* mycatalog;
   std::vector<std::string> names;
-  FileCatalog::FileID fid;
-  IFCAction a;
-  FCregister r;
-  FClookup l;
-  FCAdmin d;
+  pool::FileCatalog::FileID fid;
+  pool::IFCAction a;
+  pool::FCregister r;
+  pool::FClookup l;
+  pool::FCAdmin d;
   std::string pfn,ftype;
   void setUp(){
-    mycatalog=new IFileCatalog;
+    mycatalog=new pool::IFileCatalog;
     mycatalog->setWriteCatalog("xmlcatalog_file:func.xml");
     std::string bigname;
     std::string sname("abcdefghij");
@@ -65,13 +63,13 @@ public:
         r.registerLFN(names[i], std::string("lfn1")+fid);
         r.registerLFN(names[i], std::string("LFN1")+fid);
         std::cout<<"[OVAL] lookupBestPFN "<<i<<std::endl;
-        r.lookupBestPFN(fid,FileCatalog::READ,FileCatalog::SEQUENTIAL,pfn,ftype);
+        r.lookupBestPFN(fid,pool::FileCatalog::READ,pool::FileCatalog::SEQUENTIAL,pfn,ftype);
         CPPUNIT_ASSERT_MESSAGE("wrong PFN",names[i]==pfn);  
         CPPUNIT_ASSERT_MESSAGE("wrong filetype","root tree"==ftype);
         std::cout<<"[OVAL] result pfn: "<<pfn<<" filetype: "<<ftype<<std::endl;
       }
       std::cout<<"[OVAL] lookupFileByPFN"<<std::endl;
-      FileCatalog::FileID myfid;
+      pool::FileCatalog::FileID myfid;
       a.lookupFileByPFN(pfn,myfid,ftype);
       CPPUNIT_ASSERT_MESSAGE("wrong fid",fid==myfid);
       CPPUNIT_ASSERT_MESSAGE("wrong filetype","root tree"==ftype);

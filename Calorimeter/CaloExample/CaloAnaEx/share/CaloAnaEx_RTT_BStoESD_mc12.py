@@ -8,7 +8,7 @@ os.system('get_files checkFile.py')
 ##if not 'BSRDOInput' in dir():
 #    BSRDOInput=["data_test.00007062.Single_Stream.daq.RAW._lb0000._Athena._0001.data"]
 #    BSRDOInput=["data_test.00005200.Single_Stream.daq.RAW._lb0000._Athena._0001.data"] 
-##BSRDOInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/RTTdata/calib0_csc11.007062.singlepart_gamma_E50.digit.RDO.v12000301_tid003215._00001.pool.root"]
+##BSRDOInput=["root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/RTTdata/calib0_csc11.007062.singlepart_gamma_E50.digit.RDO.v12000301_tid003215._00001.pool.root"]
 
 #from AthenaCommon.AthenaCommonFlags import jobproperties
 #jobproperties.AthenaCommonFlags.PoolBSRDOInput.set_Value_and_Lock(['/afs/cern.ch/work/t/tothj/public/CaloAnaEx_RTT_infiles/mc11/mc11_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1272_s1274_d580_tid541908_00/RDO.541908._000015.pool.root.1'])

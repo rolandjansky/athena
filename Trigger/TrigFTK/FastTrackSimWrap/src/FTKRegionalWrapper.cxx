@@ -26,6 +26,18 @@
 #include <algorithm>
 #include <sstream> 
 
+using std::endl;
+using std::vector;
+using std::string;
+using std::stringstream;
+using std::ofstream;
+using std::ios;
+using std::hex;
+using std::dec;
+using std::setprecision;
+using std::setw;
+
+
 FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
   m_hitInputTool("FTK_SGHitInput/FTK_SGHitInput"),

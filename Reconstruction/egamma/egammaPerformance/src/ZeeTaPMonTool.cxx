@@ -208,8 +208,8 @@ StatusCode ZeeTaPMonTool::fillHistograms()
     // Ask these electrons to be LHLoose
     bool isGood=false;
 
-    sc = (*e_iter)->passSelection(isGood,"LHLoose");
-    if(sc.isFailure() || !isGood ) ATH_MSG_DEBUG("not a good LHLoose electron candidate found in TDS");
+    bool passed = (*e_iter)->passSelection(isGood,"LHLoose");
+    if( passed || !isGood ) ATH_MSG_DEBUG("not a good LHLoose electron candidate found in TDS");
 
     // LHMedium
     // sc = (*e_iter)->passSelection(isGood,"LHMedium");
@@ -267,12 +267,10 @@ StatusCode ZeeTaPMonTool::fillHistograms()
   if (lead_el->charge()*subl_el->charge()>=0) return StatusCode::SUCCESS; 
   
   bool lead_isLHTight = false;
-  sc = lead_el->passSelection(lead_isLHTight,"LHTight");
-  if (sc.isFailure()) return StatusCode::FAILURE;
+  if ( !lead_el->passSelection(lead_isLHTight,"LHTight") ) return StatusCode::FAILURE;
 
   bool subl_isLHTight = false;
-  sc = subl_el->passSelection(subl_isLHTight,"LHTight");
-  if (sc.isFailure()) return StatusCode::FAILURE;
+  if ( !subl_el->passSelection(subl_isLHTight,"LHTight") ) return StatusCode::FAILURE;
 
   bool EventZcandidateUsed = false;
   
@@ -284,8 +282,7 @@ StatusCode ZeeTaPMonTool::fillHistograms()
     // Isolation Energy 
     float topoetcone40;
     bool subl_isIsolated = false;
-    sc = subl_el->isolationValue(topoetcone40,xAOD::Iso::topoetcone40);
-    if (sc.isFailure()) return StatusCode::FAILURE;
+    if ( !subl_el->isolationValue(topoetcone40,xAOD::Iso::topoetcone40) ) return StatusCode::FAILURE;
     if ( topoetcone40 < 4.5*GeV ) subl_isIsolated = true;
     fillElectronProbe(subl_el, subl_isLHTight, subl_isIsolated, mass);
   }
@@ -297,8 +294,7 @@ StatusCode ZeeTaPMonTool::fillHistograms()
     // Isolation Energy 
     float topoetcone40;
     bool lead_isIsolated = false;
-    sc = lead_el->isolationValue(topoetcone40,xAOD::Iso::topoetcone40);
-    if (sc.isFailure()) return StatusCode::FAILURE;
+    if ( !lead_el->isolationValue(topoetcone40,xAOD::Iso::topoetcone40) ) return StatusCode::FAILURE;
     if ( topoetcone40 < 4.5*GeV ) lead_isIsolated = true;
     fillElectronProbe(lead_el, lead_isLHTight, lead_isIsolated, mass);
   }

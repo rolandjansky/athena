@@ -11,14 +11,11 @@ template < class T, class CT >
 D2PDSelectorBase< T, CT >::D2PDSelectorBase( const std::string& name,
                                              ISvcLocator* pSvcLocator ) :
   AthFilterAlgorithm ( name, pSvcLocator ),
-  m_userDataSvc( "UserDataSvc", name ),
   m_kinSelectorTool( "KinematicSelector", this ),
-  m_userDataHelperTool( "UserDataHelperTool", this ),
   m_filterTool( "FilterTool", this ),
   m_selectionTools(this),
   m_selectorTools(this),
   m_associationTools(this),
-  m_userDataCalcTools(this),
   m_inputIsLinkColl(false),
   m_doPt(false),
   m_idxPt(0),
@@ -46,8 +43,6 @@ D2PDSelectorBase< T, CT >::D2PDSelectorBase( const std::string& name,
   m_idxSelectorTools(0),
   m_doAssociationTools(false),
   m_idxAssociationTools(0),
-  m_doUserDataTools(false),
-  m_idxUserDataTools(0),
   m_idxFinal(0),
   m_nEventsProcessed(0),
   m_nObjectsProcessed(0),
@@ -136,17 +131,6 @@ D2PDSelectorBase< T, CT >::D2PDSelectorBase( const std::string& name,
                   "List of the maximum number of associations an object has to have to pass this selection" );
 
 
-  declareProperty("userDataSvc",             m_userDataSvc, "The UserData service" );
-  declareProperty("forceExecuteUserData",    m_forceExecuteUserData=false,
-                  "Run UserData calculation, even if inputCollection is a link collection" );
-
-  declareProperty("userDataCalcToolList",    m_userDataCalcTools, "List of UserDataCalcTools to be used" );
-
-  declareProperty("userDataNameList",        m_userDataNameList,   "List of UserData variables to be used for selections" );
-  declareProperty("userDataMinCutList",      m_userDataMinCutList, "List of lower cut values for UserData selections" );
-  declareProperty("userDataMaxCutList",      m_userDataMaxCutList, "List of upper cut values for UserData selections" );
-
-  declareProperty("userDataHelperTool",      m_userDataHelperTool, "The tool to help retrieve UserData" );
   declareProperty("filterTool",              m_filterTool,         "The tool to help apply some filtering selections" );
 
   declareProperty("dumpStoreGate",           m_dumpStoreGate=false, "Flag to dump StoreGate content after each event" );
@@ -216,14 +200,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
       ATH_MSG_INFO( " using numberOfAssociationsMaxCutList = " << m_assoMaxCutList );
       ATH_MSG_INFO( " using forceExecuteAssociation        = " << m_forceExecuteAssociation );
 
-      ATH_MSG_INFO( " using userDataSvc                    = " << m_userDataSvc );
-      ATH_MSG_INFO( " using forceExecuteUserData           = " << m_forceExecuteUserData );
-      ATH_MSG_INFO( " using userDataCalcToolList           = " << m_userDataCalcTools );
-      ATH_MSG_INFO( " using userDataNameList               = " << m_userDataNameList );
-      ATH_MSG_INFO( " using userDataMinCutList             = " << m_userDataMinCutList );
-      ATH_MSG_INFO( " using userDataMaxCutList             = " << m_userDataMaxCutList );
-
-      ATH_MSG_INFO( " using userDataHelperTool             = " << m_userDataHelperTool );
       ATH_MSG_INFO( " using filterTool                     = " << m_filterTool );
 
       ATH_MSG_INFO( " using dumpStoreGate                  = " << m_dumpStoreGate );
@@ -231,14 +207,8 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
 
 
 
-  // Get the UserData service
-  ATH_CHECK( m_userDataSvc.retrieve() );
-
   // get the kinematic selector tool (derived class from ISelectorCore)
   ATH_CHECK( m_kinSelectorTool.retrieve() );
-
-  // get the UserDataHelperTool 
-  ATH_CHECK( m_userDataHelperTool.retrieve() );
 
   // get the FilterTool 
   ATH_CHECK( m_filterTool.retrieve() );
@@ -253,9 +223,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
   ATH_CHECK( m_associationTools.retrieve() );
   // Reserve the memory for the needed objects
   m_vecINav4MomAssocs.reserve( m_associationTools.size() );
-
-  // Get all the UserDataCalcTools
-  ATH_CHECK( m_userDataCalcTools.retrieve() );
 
    
 
@@ -291,16 +258,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
                       << " Please configure it properly..." );
       problemFound = true;
     }
-  if ( ( m_userDataMinCutList.size() != 0 && m_userDataNameList.size() != m_userDataMinCutList.size() )
-       || ( m_userDataMaxCutList.size() != 0 && m_userDataNameList.size() != m_userDataMaxCutList.size() )
-       )
-    {
-      ATH_MSG_ERROR ( "The userDataNameList does not have the same size as the userDataMinCutList and/or the userDataMaxCutList!"
-                      << " userDataNameList.size()=" << m_userDataNameList.size()
-                      << " userDataMinCutList.size()=" << m_userDataMinCutList.size()
-                      << " userDataMaxCutList.size()=" << m_userDataMaxCutList.size() );
-      problemFound = true;
-    }
   if ( problemFound )
     {
       return StatusCode::FAILURE;
@@ -326,28 +283,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
             }
         }
     } // End: if ( m_associationTools.size() != 0 )
-
-
-
-  // Now, if one of the userDataMxxCutLists has zero size 
-  // and the other doesn't, fill default cut values (no cut)
-  if ( m_userDataNameList.size() != 0 )
-    {
-      if ( m_userDataMinCutList.size() ==  m_userDataNameList.size() && m_userDataMaxCutList.size() == 0 )
-        {
-          for ( unsigned int i=0; i < m_userDataNameList.size(); ++i )
-            {
-              m_userDataMaxCutList.push_back( DBL_MAX );
-            }
-        }
-      if ( m_userDataMaxCutList.size() ==  m_userDataNameList.size() && m_userDataMinCutList.size() == 0 )
-        {
-          for ( unsigned int i=0; i < m_userDataNameList.size(); ++i )
-            {
-              m_userDataMinCutList.push_back( -DBL_MAX );
-            }
-        }
-    }
 
 
 
@@ -397,7 +332,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
   if ( m_selectionTools.size() > 0 )   m_doSelectionTools   = true;
   if ( m_selectorTools.size() > 0 )    m_doSelectorTools    = true;
   if ( m_assoMinCutList.size() > 0 )   m_doAssociationTools = true;
-  if ( m_userDataNameList.size() > 0 ) m_doUserDataTools    = true;
 
   // Setup the internal cutflow stuff
   if ( m_printInternalCutflow )
@@ -507,15 +441,6 @@ StatusCode D2PDSelectorBase< T, CT >::initialize()
             {
               m_objCutFlow.push_back(0);
               m_eventCutFlow.push_back( std::make_pair( m_associationTools[i].name(), std::make_pair(0,0) ) );
-            }
-        }
-      if ( m_doUserDataTools )
-        {
-          m_idxUserDataTools = m_objCutFlow.size();
-          for ( unsigned int i=0; i<m_userDataNameList.size(); ++i )
-            {
-              m_objCutFlow.push_back(0);
-              m_eventCutFlow.push_back( std::make_pair( m_userDataNameList[i], std::make_pair(0,0) ) );
             }
         }
       m_idxFinal = m_objCutFlow.size();
@@ -766,29 +691,6 @@ StatusCode D2PDSelectorBase< T, CT >::execute()
 
           
           //--------------------------
-          // Calculate the UserData
-          //--------------------------
-          // Do the calculation only if the input container is NOT a link container.
-          // That way, it is guaranteed that the same UserData will be calculated
-          // for every element in the input container.
-          // If the user is really sure about what (s)he is doing, then (s)he can 
-          // also force the calculation of the UserData on an input link container.
-          // In that case, the UserData will ONLY exist for those few elements of
-          // the original container where the link container was pointing to!
-          if ( !m_inputIsLinkColl || m_forceExecuteUserData )
-            {
-              ToolHandleArray<IUserDataCalcTool>::iterator toolItr    = m_userDataCalcTools.begin();
-              ToolHandleArray<IUserDataCalcTool>::iterator toolItrEnd = m_userDataCalcTools.end();
-              for ( ; toolItr != toolItrEnd; ++toolItr )
-                {
-                  ATH_CHECK( (*toolItr)->calculateElementUserData( inav ) );
-                }
-            } // End: if ( !m_inputIsLinkColl || m_forceExecuteUserData )
-
-
-
-
-          //--------------------------
           // Do the actual selections
           //--------------------------
           bool passAll = true;
@@ -970,30 +872,6 @@ StatusCode D2PDSelectorBase< T, CT >::execute()
                         } // End: if passAll
                     } // End: loop over association tools
                 } // End: if ( !m_inputIsLinkColl || m_forceExecuteAssociation )
-            } // End: if passAll
-
-
-
-
-          //----------------------------------------------------------
-          // Now, execute the selections based on provided UserData variables
-          //----------------------------------------------------------
-          if ( m_doUserDataTools && passAll )
-            {
-              ATH_MSG_VERBOSE ( "Object going into running the user data tools" );
-              for ( unsigned int i=0; i < m_userDataNameList.size(); ++i )
-                {
-                  if ( passAll )
-                    {
-                      ATH_CHECK( m_userDataHelperTool->passElementUserDataCut( inav,
-                                                                               m_userDataNameList[i],
-                                                                               m_userDataMinCutList[i],
-                                                                               m_userDataMaxCutList[i],
-                                                                               passAll ) );
-                      ATH_MSG_VERBOSE ( "Object passes the " << i << "th UserData cut " << passAll );
-                      if ( passAll && m_printInternalCutflow ) { m_objCutFlow[m_idxUserDataTools+i] += 1; }
-                    }
-                } // End: Loop over provided UserData names and place the selection cuts
             } // End: if passAll
 
 
@@ -1208,14 +1086,11 @@ StatusCode D2PDSelectorBase< T, CT >::finalize()
   ATH_CHECK( finalizeMore() );
   
   // Releasing the used tools and services
-  ATH_CHECK( m_userDataSvc.release() );
   ATH_CHECK( m_kinSelectorTool.release() );
-  ATH_CHECK( m_userDataHelperTool.release() );
   ATH_CHECK( m_filterTool.release() );
   ATH_CHECK( m_selectionTools.release() );
   ATH_CHECK( m_selectorTools.release() );
   ATH_CHECK( m_associationTools.release() );
-  ATH_CHECK( m_userDataCalcTools.release() );
 
   return StatusCode::SUCCESS;
 }

@@ -58,9 +58,9 @@ namespace JiveXML {
         thrNumber.push_back(DataType( itMU->getThrNumber()));
 
      // prevent empty threshold name list
-	std::string m_thrName = itMU->getThrName();
-        if (m_thrName ==""){ m_thrName = "empty"; };
-        thrName.push_back(DataType( m_thrName ));
+	std::string thisThrName = itMU->getThrName();
+        if (thisThrName ==""){ thisThrName = "empty"; };
+        thrName.push_back(DataType( thisThrName ));
 
         thrValue.push_back(DataType( itMU->getThrValue()));
         energy.push_back(DataType( itMU->getThrValue()/CLHEP::GeV));

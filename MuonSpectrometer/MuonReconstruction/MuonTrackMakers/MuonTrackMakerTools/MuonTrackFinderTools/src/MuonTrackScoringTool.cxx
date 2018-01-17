@@ -66,25 +66,16 @@ namespace Muon {
 
   StatusCode MuonTrackScoringTool::initialize()
   {
-    StatusCode sc = AlgTool::initialize();
-    if (sc.isFailure()) return sc;
     
-    sc = m_trkSummaryTool.retrieve();
-    if (sc.isFailure()) 
-      {
-	ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSummaryTool);
-	return sc;
-      } 
-    else 
-      ATH_MSG_DEBUG("Retrieved tool " << m_trkSummaryTool);
+    ATH_CHECK( m_trkSummaryTool.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_trkSummaryTool);
 
     return StatusCode::SUCCESS;
   }
 
   StatusCode MuonTrackScoringTool::finalize()
   {
-    StatusCode sc = AlgTool::finalize();
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   Trk::TrackScore MuonTrackScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const

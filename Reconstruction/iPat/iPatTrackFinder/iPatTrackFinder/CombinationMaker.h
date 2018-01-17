@@ -63,7 +63,7 @@ public:
     bool				next_vertex_point (void);
     Point*			       	outer_point (void) const;
     bool				pixelInterchange (void) const;
-    void				setProperties (const std::vector<Trk::SpacePoint*>&	spacePoints,
+    void				setProperties (const std::vector<const Trk::SpacePoint*>&	spacePoints,
 						       const Amg::Vector3D&			vertexRegionCentre);
     void				set_tolerances (double minPt);
     void				set_vertex_points (const PerigeeParameters& perigeeParameters);
@@ -107,10 +107,7 @@ private:
     double				m_middleTolerance;
     unsigned				m_numberOfSearches;
     bool				m_pixelInterchange;
-    bool				m_pixelSelect;
-    int					m_printLevel;
     double				m_radialSpread;
-    bool				m_sctSelect;
     search_order::const_iterator	m_search;
     search_order::const_iterator	m_searchEnd;
     search_order			m_searchOrder;
@@ -135,7 +132,6 @@ private:
     point_iterator                      m_vEnd;
     double				m_iPhiMax;
     double				m_mPhiMax;
-    double				m_mPhiTolerance;
     double				m_vPhiTolerance;
     // keep some statistics
     int					m_outerCombinations;

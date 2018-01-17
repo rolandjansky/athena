@@ -90,7 +90,6 @@ private:
     layer_vector			m_sctBarrel;
     layer_vector			m_sctEndcap;
     shape_vector*			m_shapes;
-    StoreGateSvc*			m_storeGate;
     layer_vector			m_supportCylinders;
     std::string				m_versionName;
 

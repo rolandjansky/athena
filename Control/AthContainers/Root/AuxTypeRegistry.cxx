@@ -14,8 +14,8 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/normalizedTypeinfoName.h"
-#include "AthContainers/tools/foreach.h"
 #include "AthLinks/ElementLinkBase.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <sstream>
 #include <cstring>
@@ -29,7 +29,7 @@ namespace SG {
  */
 AuxTypeRegistry& AuxTypeRegistry::instance()
 {
-  static AuxTypeRegistry auxTypeRegistry;
+  static AuxTypeRegistry auxTypeRegistry ATLAS_THREAD_SAFE;
   return auxTypeRegistry;
 }
 
@@ -651,9 +651,9 @@ AuxTypeRegistry::AuxTypeRegistry()
  */
 AuxTypeRegistry::~AuxTypeRegistry()
 {
-  ATHCONTAINERS_FOREACH (ti_map_t::value_type& p, m_factories)
+  for (ti_map_t::value_type& p : m_factories)
     delete p.second;
-  ATHCONTAINERS_FOREACH (const IAuxTypeVectorFactory* p, m_oldFactories)
+  for (const IAuxTypeVectorFactory* p : m_oldFactories)
     delete p;
 }
 
@@ -769,8 +769,8 @@ void AuxTypeRegistry::setELFlags (upgrading_lock_t& /*lock*/, auxid_t auxid)
   m_isEL.resize (auxid+1);
   m_isELVec.resize (auxid+1);
   std::string tname =  normalizedTypeinfoName (*m_types[auxid].m_ti);
-  static std::string pat1 = "ElementLink<";
-  static std::string pat2 = "std::vector<ElementLink<";
+  static const std::string pat1 = "ElementLink<";
+  static const std::string pat2 = "std::vector<ElementLink<";
   if (tname.substr (0, pat1.size()) == pat1)
     m_isEL[auxid] = true;
   else if (tname.substr (0, pat2.size()) == pat2)

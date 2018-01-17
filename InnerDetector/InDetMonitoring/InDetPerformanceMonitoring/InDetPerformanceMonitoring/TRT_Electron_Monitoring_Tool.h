@@ -105,7 +105,7 @@ public:
 
 	const TRT_ID*	m_pTRTHelper;
 
-  	const InDetDD::TRT_DetectorManager *mgr;
+  	const InDetDD::TRT_DetectorManager *m_mgr;
 
 	void bookGeoHistograms( lw_geo_hists_t &hists, const std::string& name);
 	void bookPCandHistograms( MonGroup &monGroup, lw_partcand_hists_t &hists, const std::string& name);
@@ -148,7 +148,7 @@ private:
 	std::string m_conversionName;
 
 	std::string m_isEMFlag;
-	myIsEMType isEMType;
+	myIsEMType m_isEMType;
 
 	bool m_doTracksMon;
 	bool m_doElectronMon;
@@ -169,14 +169,14 @@ private:
 	float m_ZRMax;
 	float m_PionTRTHitCut;
 
-	lw_geo_hists_t tBarrelA;
-	lw_geo_hists_t tBarrelC;
-	lw_geo_hists_t tEndCapA;
-	lw_geo_hists_t tEndCapC;
+	lw_geo_hists_t m_tBarrelA;
+	lw_geo_hists_t m_tBarrelC;
+	lw_geo_hists_t m_tEndCapA;
+	lw_geo_hists_t m_tEndCapC;
 
-	lw_partcand_hists_t tEl;
-	lw_partcand_hists_t tMu;
-	lw_partcand_hists_t tPi;
+	lw_partcand_hists_t m_tEl;
+	lw_partcand_hists_t m_tMu;
+	lw_partcand_hists_t m_tPi;
 
 };
 #endif

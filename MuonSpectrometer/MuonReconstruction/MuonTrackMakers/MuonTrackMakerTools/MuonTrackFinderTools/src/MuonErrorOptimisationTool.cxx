@@ -70,37 +70,11 @@ namespace Muon {
 
     ATH_MSG_INFO( "Initializing MuonErrorOptimisationTool" );
     
-    if( AthAlgTool::initialize().isFailure() ){
-      ATH_MSG_ERROR("Unable to initialize AthAlgTool");
-      return StatusCode::FAILURE;
-    }
-
-    if ( m_printer.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Unable to retrieve" << m_printer);
-      return StatusCode::FAILURE;
-    }
-
-    if ( m_helper.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Unable to retrieve" << m_helper);
-      return StatusCode::FAILURE;
-    }
-
-    if ( m_idHelper.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Unable to retrieve" << m_idHelper);
-      return StatusCode::FAILURE;
-    }
-
-    if ( m_trackSummaryTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Unable to retrieve" << m_trackSummaryTool);
-      return StatusCode::FAILURE;
-    }
-
-    if( !m_refitTool.empty() ){
-      if( m_refitTool.retrieve().isFailure() ){
-        ATH_MSG_ERROR("Could not get " << m_refitTool); 
-        return StatusCode::FAILURE;
-      }
-    }
+    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
+    if( !m_refitTool.empty() ) ATH_CHECK( m_refitTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -109,10 +83,6 @@ namespace Muon {
   StatusCode MuonErrorOptimisationTool::finalize()
   {
   
-    if( AthAlgTool::finalize().isFailure() ){
-      ATH_MSG_ERROR("Unable to finalize AthAlgTool");
-      return StatusCode::FAILURE;
-    }
     if( m_nrefitAll > 0 ){
       double scale = 1./m_nrefitAll;
       double scaleLowPt = m_nrefitAllLowPt > 0 ? 1./m_nrefitAllLowPt : 1.;

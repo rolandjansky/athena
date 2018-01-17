@@ -879,7 +879,7 @@ void CaloCellPacker_400_500::unpack
     size_t nheader = headerend - headerbeg;
     size_t parsize = sizeof(header) / sizeof(int);
     size_t ncopy = std::min (nheader, parsize);
-    int* parsbeg = &pars.m_length;
+    int* parsbeg = reinterpret_cast<int*>(&pars);
     std::copy (headerbeg, headerbeg+ncopy, parsbeg);
     if (nheader > parsize) {
       // Header was longer than we expected --- there's something

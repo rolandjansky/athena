@@ -26,6 +26,9 @@
 namespace SG {
 
 
+class VarHandleBase;
+
+
 /**
  * @brief A property holding a SG store/key/clid from which a VarHandle is made.
  *
@@ -59,6 +62,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * @param a Mode: read/write/update.
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
+   * @param isCond True if this is a CondHandleKey.
    *
    * The provided key may actually start with the name of the store,
    * separated by a "+":  "MyStore:Obj".  If no "+" is present
@@ -72,7 +76,8 @@ public:
   VarHandleKey (CLID clid,
                 const std::string& sgkey,
                 Gaudi::DataHandle::Mode a,
-                const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
+                const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE),
+                bool isCond = false);
 
 
   /**
@@ -129,10 +134,43 @@ public:
   /**
    * @brief Return handle to the referenced store.
    */
-  ServiceHandle<IProxyDict> storeHandle() const;
+  const ServiceHandle<IProxyDict>& storeHandle() const;
+
+
+  /**
+   * @brief Return the VarHandle that owns this key, if any.
+   *
+   * This should only be non-null for keys that are created automatically
+   * by a VarHandle when it is _not_ created from a VarHandleKey.
+   * This should always be null for keys that are created explicitly.
+   */
+  VarHandleBase* owningHandle();
+
+
+  /**
+   * @brief Does this key reference the primary event store?
+   */
+  bool isEventStore() const;
+
+
+  /**
+   * @brief Called by the owning algorithm during the START transition.
+   *
+   * AthAlgorithm and friends will call this during START.  This allows
+   * for extra initialization that we can't do during initialize(), such
+   * as retrieving a conditions container from the store.
+   *
+   * The default implementation is a no-op.
+   */
+  virtual StatusCode start();
 
 
 private:
+  /// Set the owning handle.  Only callable from VarHandleBase.
+  friend class VarHandleBase;
+  void setOwningHandle (VarHandleBase* handle);
+
+
   /// Don't allow calling these.
   virtual void setKey(const DataObjID& key) const override final;
   virtual void updateKey(const std::string& key) const override final;
@@ -164,7 +202,13 @@ private:
   ServiceHandle<IProxyDict> m_storeHandle;
 
   /// StoreGate key, that doesn't include the storename
-  std::string m_sgKey {""};
+  std::string m_sgKey;
+
+  /// Cache test for whether we're referencing the event store.
+  bool m_isEventStore = false;
+
+  /// Handle that owns this key, or nullptr if it is not owned.
+  VarHandleBase* m_owningHandle = nullptr;
 };
 
 
@@ -173,6 +217,9 @@ private:
 namespace std {
   ostream& operator<<(ostream& s, const SG::VarHandleKey& m);
 }
+
+
+#include "StoreGate/VarHandleKey.icc"
 
 
 #endif // not STOREGATE_VARHANDLEKEY_H

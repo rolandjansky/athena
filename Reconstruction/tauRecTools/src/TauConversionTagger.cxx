@@ -166,7 +166,7 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
     else {
 
       ATH_MSG_WARNING("No tau conversion tagger compatible with version "<<m_ConvTaggerVer);
-      return false;
+      return StatusCode::FAILURE;
     }
 
     ATH_MSG_VERBOSE("Is tau track a conversion? : " << m_TrkIsConv);

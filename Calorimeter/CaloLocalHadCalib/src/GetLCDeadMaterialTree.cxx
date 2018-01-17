@@ -29,7 +29,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCell.h"

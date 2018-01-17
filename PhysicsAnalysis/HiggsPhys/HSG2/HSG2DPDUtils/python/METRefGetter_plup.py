@@ -14,6 +14,8 @@ from AthenaCommon.Constants import *      # Loads DEBUG INFO etc..
 from AthenaCommon.Logging import logging  # loads logger 
 import traceback                          # to allow printout of trace back
 from AthenaCommon.AlgSequence import AlgSequence
+from JetRec.FastJetInterfaceConfig import *
+from EventShapeTools.EventEtClusterDensityConfig import * 
 
 from RecExConfig.Configured import Configured # import base class
 
@@ -542,7 +544,6 @@ class METRefGetter_plup ( Configured ):
             # a la Simoniello/Loch
             
             #from AthenaCommon.AppMgr import ToolSvc
-            from JetRec.FastJetInterfaceConfig import *
 
             ##############################################################
             # Set up FastJet tool for SoftTerm jets for extrapolated rho #
@@ -630,8 +631,7 @@ class METRefGetter_plup ( Configured ):
             	# Use EventShapeTool #
             	######################
             	
-            	from EventShapeTools.EventEtClusterDensityConfig import * 
-            	    
+           	    
             	rhoConfigDict = dict(defaultJetAreaConfigDict)
             	rhoConfigDict['Algorithm']	       = "kt"
             	rhoConfigDict['Radius'] 	       = 0.4

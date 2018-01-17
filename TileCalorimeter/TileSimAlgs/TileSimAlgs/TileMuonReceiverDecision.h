@@ -30,7 +30,16 @@
 #ifndef TILESIMALGS_TILEMUONRECEIVERDECISION_H
 #define TILESIMALGS_TILEMUONRECEIVERDECISION_H
 
+// Tile includes
+#include "TileEvent/TileRawChannelContainer.h"
+#include "TileEvent/TileContainer.h"
+
+// Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
+// Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -55,8 +64,17 @@ class TileMuonReceiverDecision: public AthAlgorithm {
   StatusCode finalize();   //!< finalize method
 
  private:
-  std::string m_MuRcvRawChContainer;  //!< Name of the algorithm raw channel container 
-  std::string m_TileMuRcvContainer;
+
+  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
+                                                                      "MuRcvRawChCnt",
+                                                                      "Input Tile raw channel container key"};
+
+
+  SG::WriteHandleKey<TileMuonReceiverContainer> m_muonReceiverContainerKey{this,"TileMuonReceiverContainer",
+                                                                           "TileMuRcvCnt",
+                                                                           "Output Tile muon receiver container key"};
+
+
   std::string m_infoName;             //!< Name of tile info object in TES
 
   const TileID*             m_tileID;
@@ -72,6 +90,7 @@ class TileMuonReceiverDecision: public AthAlgorithm {
 
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale;         //!< main Tile Calibration tool
 
+  bool m_run2;
 };
 
 #endif

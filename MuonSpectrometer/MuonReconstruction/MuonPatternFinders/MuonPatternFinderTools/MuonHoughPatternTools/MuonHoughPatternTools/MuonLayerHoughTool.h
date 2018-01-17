@@ -282,7 +282,8 @@ namespace Muon {
     bool m_debugHough;
     bool m_doParabolicExtrapolation; // if true, do parabolic; if false, do linear extrapolation
     float m_extrapolationDistance; // default value is 1500
-    
+    bool m_addSectors; // default true
+
     unsigned int m_ntechnologies;
     CollectionsPerSectorVec m_collectionsPerSector;
     mutable std::vector<TgcHitClusteringObj*> m_tgcClusteringObjs;

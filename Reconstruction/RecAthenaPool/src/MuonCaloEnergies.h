@@ -7,7 +7,7 @@
 #ifndef RECATHENAPOOL_MUONCALOENERGIES_H
 #define RECATHENAPOOL_MUONCALOENERGIES_H 
  
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
  
 namespace TPCnv {
 /** 'Dummy' class to produce convertor for MuonCaloEnergy_tlp  */

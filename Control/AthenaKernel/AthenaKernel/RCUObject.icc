@@ -35,7 +35,7 @@ void IRCUObject::quiescent()
 inline
 void IRCUObject::quiescent (const EventContext& ctx)
 {
-  std::lock_guard<std::mutex> g (m_mutex);
+  lock_t g (m_mutex);
   if (endGrace(g, ctx)) return;
   clearOld(g);
 }

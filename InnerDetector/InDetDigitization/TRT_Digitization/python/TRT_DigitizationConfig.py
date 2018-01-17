@@ -128,9 +128,8 @@ def TRTDigitizationPU(name="TRTDigitizationPU",**kwargs):
 
 def TRT_OverlayDigitizationTool(name="TRT_OverlayDigitizationTool",**kwargs):
      from OverlayCommonAlgs.OverlayFlags import overlayFlags
-     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-     kwargs.setdefault("OutputObjectName", "TRT_RDOs")
-     kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
+     kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+TRT_RDOs")
+     kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+ "+TRT_SDO_Map")
      kwargs.setdefault("HardScatterSplittingMode", 0)
      kwargs.setdefault("Override_getT0FromData", 0)
      kwargs.setdefault("Override_noiseInSimhits", 0)

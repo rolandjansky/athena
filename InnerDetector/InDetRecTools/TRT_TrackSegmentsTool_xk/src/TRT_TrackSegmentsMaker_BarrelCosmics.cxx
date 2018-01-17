@@ -160,14 +160,14 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<Id
   if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion()" << endmsg;
 
   clear();
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if (not m_trtcontainer.isValid()) {
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (not trtcontainer.isValid()) {
     msg(MSG::ERROR) << "m_trtcontainer is empty!!!" << endmsg;
     return;
   }   
 
   for( std::vector<IdentifierHash>::const_iterator d=vTRT.begin(); d!=vTRT.end(); d++ ) {
-    for ( InDet::TRT_DriftCircleContainer::const_iterator w = m_trtcontainer->indexFind((*d)); w!=m_trtcontainer->end(); w++ ) {
+    for ( InDet::TRT_DriftCircleContainer::const_iterator w = trtcontainer->indexFind((*d)); w!=trtcontainer->end(); w++ ) {
 	  for( InDet::TRT_DriftCircleCollection::const_iterator circleit=(*w)->begin(); circleit!=(*w)->end(); circleit++ ) {
 
         if(abs(m_trtid->barrel_ec( (*circleit)->identify() ))!=1) continue;

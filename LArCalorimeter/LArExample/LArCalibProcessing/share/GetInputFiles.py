@@ -15,7 +15,7 @@ def GetInputFiles(inputPath,filePattern):
         if f[len(f)-1:]=='\n':
             f=f[0:len(f)-1]
         if (inputPath[0:5]=='/eos/'):    
-           fileList+=['root://eosatlas/'+inputPath+'/'+f]
+           fileList+=['root://eosatlas.cern.ch/'+inputPath+'/'+f]
         else:   
            fileList+=[inputPath+'/'+f]
     print "Found ",len(fileList), " files"

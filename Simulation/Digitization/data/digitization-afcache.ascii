@@ -3,7 +3,7 @@
 fileinfos = [
 
 ## new-entry
-('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
+('root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
  {'beam_energy': ['N/A'],
   'beam_type': ['N/A'],
   'conditions_tag': 'OFLCOND-SIM-00-00-00',
@@ -38,7 +38,7 @@ fileinfos = [
   'evt_type': ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS'),
   'file_guid': 'AA2684EB-69B7-DD11-8E17-001A647894F0',
   'file_md5sum': 'd75acd2bb82e11ca2bbc236b7a7c4d17',
-  'file_name': 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
+  'file_name': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
   'file_type': 'pool',
   'geometry': 'ATLAS-GEO-02-01-00',
   'lumi_block': [0L],
@@ -192,7 +192,7 @@ fileinfos = [
 , 
 
 ## new-entry
-('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
+('root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
  {'beam_energy': ['N/A'],
   'beam_type': ['N/A'],
   'conditions_tag': 'OFLCOND-SIM-00-00-00',
@@ -227,7 +227,7 @@ fileinfos = [
   'evt_type': ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS'),
   'file_guid': 'E28A526D-AB75-DD11-BCA2-0030487C9D2F',
   'file_md5sum': '7b448dd8cdd6344d216ef54ef9b1ff7f',
-  'file_name': 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
+  'file_name': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
   'file_type': 'pool',
   'geometry': 'ATLAS-GEO-02-01-00',
   'lumi_block': [2L],
@@ -491,7 +491,7 @@ fileinfos = [
 , 
 
 ## new-entry
-('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105200.T1_McAtNlo_Jimmy.simul.HITS.e357_s462/HITS.025431._02899.pool.root.1',
+('root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105200.T1_McAtNlo_Jimmy.simul.HITS.e357_s462/HITS.025431._02899.pool.root.1',
  {'beam_energy': ['N/A'],
   'beam_type': ['N/A'],
   'conditions_tag': 'OFLCOND-SIM-00-00-00',
@@ -526,7 +526,7 @@ fileinfos = [
   'evt_type': ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS'),
   'file_guid': '2AF56BBD-828C-DD11-8706-0002B3D22069',
   'file_md5sum': None,
-  'file_name': 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105200.T1_McAtNlo_Jimmy.simul.HITS.e357_s462/HITS.025431._02899.pool.root.1',
+  'file_name': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.105200.T1_McAtNlo_Jimmy.simul.HITS.e357_s462/HITS.025431._02899.pool.root.1',
   'file_type': 'pool',
   'geometry': 'ATLAS-GEO-02-01-00',
   'lumi_block': [4L],
@@ -559,7 +559,7 @@ fileinfos = [
 , 
 
 ## new-entry
-('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108852.BeamHaloInputs.simul.HITS.e4_e348_s473/HITS.025027._00007.pool.root',
+('root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108852.BeamHaloInputs.simul.HITS.e4_e348_s473/HITS.025027._00007.pool.root',
  {'beam_energy': ['N/A'],
   'beam_type': ['N/A'],
   'conditions_tag': 'OFLCOND-SIM-00-00-00',
@@ -594,7 +594,7 @@ fileinfos = [
   'evt_type': ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS'),
   'file_guid': '26A58C5C-3C80-DD11-8BC6-001B243DE6B8',
   'file_md5sum': '59a46d98bad07164a958e29274bd73a6',
-  'file_name': 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108852.BeamHaloInputs.simul.HITS.e4_e348_s473/HITS.025027._00007.pool.root',
+  'file_name': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108852.BeamHaloInputs.simul.HITS.e4_e348_s473/HITS.025027._00007.pool.root',
   'file_type': 'pool',
   'geometry': 'ATLAS-GEO-02-01-00',
   'lumi_block': [1L],
@@ -628,7 +628,7 @@ fileinfos = [
 , 
 
 ## new-entry
-('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108863.Hijing_beamgas.simul.HITS.e4_s470/HITS.024853._00005.pool.root.1',
+('root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108863.Hijing_beamgas.simul.HITS.e4_s470/HITS.024853._00005.pool.root.1',
  {'beam_energy': ['N/A'],
   'beam_type': ['N/A'],
   'conditions_tag': 'OFLCOND-SIM-00-00-00',
@@ -663,7 +663,7 @@ fileinfos = [
   'evt_type': ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS'),
   'file_guid': '84829963-1279-DD11-9BBA-00A0D1E503D9',
   'file_md5sum': 'a2a88829bbd497a7a2c4a6a72c5d58ce',
-  'file_name': 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108863.Hijing_beamgas.simul.HITS.e4_s470/HITS.024853._00005.pool.root.1',
+  'file_name': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/mc08.108863.Hijing_beamgas.simul.HITS.e4_s470/HITS.024853._00005.pool.root.1',
   'file_type': 'pool',
   'geometry': 'ATLAS-GEO-02-01-00',
   'lumi_block': [0L],
@@ -696,7 +696,7 @@ fileinfos = [
 , 
 
 ## new-entry
-('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
+('root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
  {'beam_energy': ['N/A'],
   'beam_type': ['N/A'],
   'conditions_tag': 'OFLCOND-SIM-00-00-00',
@@ -739,7 +739,7 @@ fileinfos = [
   'evt_type': ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS'),
   'file_guid': '165C905F-4424-DE11-8221-0030487D065E',
   'file_md5sum': '82bc430c000ea0ad8fd464a055007631',
-  'file_name': 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
+  'file_name': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.005008.CavernInput.simul.HITS.e4_e365_s477/HITS.028773._00040.pool.root.1',
   'file_type': 'pool',
   'geometry': 'ATLAS-GEO-02-01-00',
   'lumi_block': [0L],
@@ -926,7 +926,7 @@ fileinfos = [
 , 
 
 ## new-entry
-('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
+('root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
  {'beam_energy': ['N/A'],
   'beam_type': ['N/A'],
   'conditions_tag': 'OFLCOND-SIM-00-00-00',
@@ -969,7 +969,7 @@ fileinfos = [
   'evt_type': ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS'),
   'file_guid': 'F4BF6543-3F24-DE11-9C0D-0030487CD928',
   'file_md5sum': 'ce97b869083692e277958f5749193a05',
-  'file_name': 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
+  'file_name': 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc08/filtered.mc08.105001.pythia_minbias.simul.HITS.e349_s462/HITS.024528._00030.pool.root',
   'file_type': 'pool',
   'geometry': 'ATLAS-GEO-02-01-00',
   'lumi_block': [2L],

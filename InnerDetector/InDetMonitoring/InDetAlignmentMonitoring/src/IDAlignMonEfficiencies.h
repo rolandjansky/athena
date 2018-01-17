@@ -429,7 +429,6 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
 	
   //const InDetDD::TRT_DetectorManager    *m_TRT_Mgr;
 
-  const float m_Pi;
   std::string m_stream;
   std::string m_tracksName;
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;

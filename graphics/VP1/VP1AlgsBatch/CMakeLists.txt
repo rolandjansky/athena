@@ -11,10 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/PoolSvc
                           GaudiKernel
                           PRIVATE
-                          Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
-                          Database/APR/PersistencySvc
                           Database/APR/StorageSvc
                           Event/EventInfo
                           Tools/PathResolver
@@ -29,7 +25,7 @@ find_package( Qt5 COMPONENTS Core OpenGL Gui HINTS ${QT5_ROOT} )
 atlas_add_component( VP1AlgsBatch
                      src/*.cxx
                      src/components/*.cxx
-                   LINK_LIBRARIES ${QT5_LIBRARIES} GL AthenaBaseComps GaudiKernel CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc EventInfo PathResolver VP1UtilsBase )
+                   LINK_LIBRARIES ${QT5_LIBRARIES} GL AthenaBaseComps GaudiKernel StorageSvc EventInfo PathResolver VP1UtilsBase )
 
 # Install files from the package:
 atlas_install_headers( VP1AlgsBatch )

@@ -15,7 +15,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamCnvSvc/IByteStreamFreeMetadataSvc.h"
 #include "ByteStreamData/RawEvent.h"
-
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "EventStorage/DataReader.h"
 
 // FrameWork includes
@@ -53,7 +53,8 @@ public:
 
    /// Return the current event status
    virtual unsigned int currentEventStatus() const;
-   virtual void validateEvent();
+   virtual void validateEvent(); 
+
 
    virtual long positionInBlock();
    virtual long getBlockIterator(const std::string fileName);
@@ -66,19 +67,28 @@ private: // internal member functions
    bool loadMetadata();
 
 private: // data
+   std::mutex m_readerMutex;
+
+   struct EventCache {
+     ~EventCache();
+     RawEvent*          rawEvent = 0;            //!< current event
+     unsigned int       eventStatus = 0;   //!< check_tree() status of the current event
+     long long int      eventOffset = 0;   //!< event offset within a file, can be -1          
+   };
+
+   SG::SlotSpecificObj<EventCache> m_eventsCache;
+
    //int                m_totalEventCounter; //!< event Counter
-   RawEvent*          m_re;            //!< current event
-   unsigned int       m_eventStatus;   //!< check_tree() status of the current event
    DataReader*        m_reader;        //!< DataReader from EventStorage
 
    mutable std::vector<int>     m_numEvt;    //!< number of events in that file
    mutable std::vector<int>     m_firstEvt;  //!< event number of first event in that file
    mutable std::vector<long long int> m_evtOffsets;  //!< offset for event i in that file
    unsigned int                 m_evtInFile;
-
+   long long int      m_evtFileOffset = 0;   //!< last read in event offset within a file, can be -1     
    // Event back navigation info
    std::string        m_fileGUID;      //!< current file GUID
-   long long int      m_eventOffset;   //!< event offset within a file, can be -1
+
 
    /// Pointer to StoreGate
    ServiceHandle<StoreGateSvc> m_sgSvc; //!< StoreGateSvc
@@ -105,10 +115,15 @@ private: // properties
 
 private: // internal helper functions
 
-   void buildFragment(void* data, uint32_t eventSize, bool validate);
-   void releaseCurrentEvent();
+   void buildFragment( EventCache* cache, void* data, uint32_t eventSize, bool validate ) const;
+   void releaseEvent( EventCache* );
    bool readerReady();
-   bool ROBFragmentCheck();
+   bool ROBFragmentCheck( const RawEvent* ) const;
+   unsigned validateEvent( const RawEvent* rawEvent ) const;
+   void setEvent( const EventContext& context, void* data, unsigned int eventStatus );
+   
+   enum Advance{ PREVIOUS = -1, NEXT = 1 };
+   const RawEvent* getEvent( Advance step );
 };
 
 #endif

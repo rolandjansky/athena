@@ -5,10 +5,10 @@
 #ifndef TRIG_IN_DET_TRACK_COLLECTION_H
 #define TRIG_IN_DET_TRACK_COLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class TrigInDetTrackCollection : public DataVector<TrigInDetTrack> {
 

@@ -28,7 +28,6 @@ athenaCommonFlags.EvtMax = 3
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
-#simFlags.RandomSvc = 'AtDSFMTGenSvc'
 
 ## Layout tags: see simFlags.SimLayout for allowed values
 ## Use the default layout:
@@ -63,9 +62,11 @@ simFlags.EventFilter.set_On()
 #callbacks.use_simplerunge_stepper()
 #callbacks.use_verbose_tracking()
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Add the G4 sim to the alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)

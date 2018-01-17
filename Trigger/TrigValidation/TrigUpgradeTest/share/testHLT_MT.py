@@ -28,7 +28,6 @@ class opt :
     doID             = True           # TriggerFlags.doID
     doCalo           = True           # TriggerFlags.doCalo
     doMuon           = True           # TriggerFlags.doMuon
-    enableViews      = True           # setup infrastructre for Views
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
@@ -229,16 +228,7 @@ for mod in modifierList:
 #--------------------------------------------------------------
 # Conditions setup.
 #--------------------------------------------------------------
-from IOVSvc.IOVSvcConf import CondSvc 
-svcMgr += CondSvc()
-
-from AthenaCommon.AlgSequence import AthSequencer 
-condSeq = AthSequencer("AthCondSeq") 
-
-from IOVSvc.IOVSvcConf import CondInputLoader 
-condSeq += CondInputLoader("CondInputLoader") 
-
-from IOVDbSvc.CondDB import conddb
+from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
 conddb.setGlobalTag(globalflags.ConditionsTag())
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -249,17 +239,10 @@ topSequence = AlgSequence()
 #--------------------------------------------------------------
 from AthenaCommon.ConcurrencyFlags import jobproperties
 if jobproperties.ConcurrencyFlags.NumThreads() > 0:
-    from SGComps.SGCompsConf import SGInputLoader
-    topSequence += SGInputLoader( OutputLevel = INFO, 
-                                  ShowEventDump = False,
-                                  FailIfNoProxy = False )
-    #topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','StoreGateSvc+RoIBResult') ]
-
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
     AlgScheduler.ShowDataDependencies( True )
-    AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 # EventInfo creation if needed
 from RecExConfig.ObjKeyStore import objKeyStore
@@ -336,51 +319,6 @@ else:
     from TrigUpgradeTest.TestUtils import L1EmulationTest
     topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
 
-# ----------------------------------------------------------------
-# Setup Views
-# ----------------------------------------------------------------
-if opt.enableViews:
-    log.info('Setting up Views...')
-    # Make a separate alg pool for the view algs
-    from GaudiHive.GaudiHiveConf import AlgResourcePool
-    svcMgr += AlgResourcePool('ViewAlgPool')
-    #Create IdentifiableCaches
-    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
-                                        Pixel_ClusterKey = "PixelTrigClustersCache",
-                                        SCT_ClusterKey   = "SCT_ClustersCache",
-                                        SpacePointCachePix = "PixelSpacePointCache",
-                                        SpacePointCacheSCT   = "SctSpacePointCache",
-                                        SCTRDOCacheKey       = "SctRDOCache",
-                                        PixRDOCacheKey = "PixRDOCache",
-                                        OutputLevel=DEBUG)
-    topSequence += InDetCacheCreatorTrigViews    
-    
-    # Set of view algs
-    allViewAlgs = AthSequencer( "allViewAlgorithms" )
-    allViewAlgs.ModeOR = False
-    allViewAlgs.Sequential = True
-    allViewAlgs.StopOverride = False
-    topSequence += allViewAlgs
-    
-    # Filter to stop view algs from running on whole event
-    allViewAlgs += CfgMgr.AthPrescaler( "alwaysFail" )
-    allViewAlgs.alwaysFail.PercentPass = 0.0
-
-    # dummy alg that just says you're running in a view
-    # allViewAlgs += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
-    # svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
-    # viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
-else:
-    #This is to workaround the problem CondHandle bug, this can be removed once a proper solution is made
-    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-    InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
-                                        Pixel_ClusterKey = "",
-                                        SCT_ClusterKey   = "",
-                                        SpacePointCachePix = "",
-                                        SpacePointCacheSCT   = "",
-                                        OutputLevel=INFO)
-    topSequence += InDetCacheCreatorTrigViews    
 # ---------------------------------------------------------------
 # Monitoring
 # ---------------------------------------------------------------

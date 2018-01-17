@@ -379,17 +379,15 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	    }
 	    else if (idHelper->is_pixel(id)){
               int HitLayer = HIT_UNKNOWN;
-	      if (pixelID->is_dbm(id)) {
-                m_hits_rec[HIT_DBM_ALL][Region]++;
-                m_hits_rec[HIT_DBM_ALL][ETA_ALL]++;
-                if (pixelID) {
-                  switch (pixelID->layer_disk(id)) {
-                  case 0:  HitLayer = HIT_DBM1; break;
-                  case 1:  HitLayer = HIT_DBM2; break;
-                  case 2:  HitLayer = HIT_DBM3; break;
-                  default: HitLayer = HIT_UNKNOWN;
-		  }
-                }
+	      if (pixelID && pixelID->is_dbm(id)) {
+              	m_hits_rec[HIT_DBM_ALL][Region]++;
+               	m_hits_rec[HIT_DBM_ALL][ETA_ALL]++;                
+               	switch (pixelID->layer_disk(id)) {
+               	case 0:  HitLayer = HIT_DBM1; break;
+               	case 1:  HitLayer = HIT_DBM2; break;
+               	case 2:  HitLayer = HIT_DBM3; break;
+               	default: HitLayer = HIT_UNKNOWN;
+		}
 	      }
 	      else {
 		m_hits_rec[HIT_PIXEL_ALL][Region]++;

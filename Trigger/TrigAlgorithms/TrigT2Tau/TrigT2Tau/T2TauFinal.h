@@ -53,10 +53,10 @@ class T2TauFinal: public HLT::FexAlgo {
   /** list of IAlgToolTau tools */
   ToolHandleArray<IAlgToolTau>   m_algTools;
 
-  const TrigInDetTrackCollection* pTrackColl;
-  const DataVector<TrigInDetTrack>* myTrackColl;
+  const TrigInDetTrackCollection* m_pTrackColl;
+  const DataVector<TrigInDetTrack>* m_myTrackColl;
 
-  const TrigRoiDescriptor* roiDescriptor;
+  const TrigRoiDescriptor* m_roiDescriptor;
 
   /** Eta of the seed */
   double m_Eta;
@@ -104,16 +104,16 @@ class T2TauFinal: public HLT::FexAlgo {
 class T2TauFinalMonOfDelta : public IMonitoredAlgo::IGetter {
 public:
   T2TauFinalMonOfDelta( const DataVector<TrigInDetTrack>*& y, const TrigRoiDescriptor*& z, int opt=1)  
-    : myTracks(y), roiDescriptor(z), myOpt(opt)  {}
+    : m_myTracks(y), m_roiDescriptor(z), m_myOpt(opt)  {}
 
   /** Size of the monitored collection */
-  unsigned size() const { return  myTracks!=0 ? myTracks->size():0; }
+  unsigned size() const { return  m_myTracks!=0 ? m_myTracks->size():0; }
   
   /** Get method used by monitorig framework */
   double get(unsigned pos) const { 
-    if(myOpt==1) return getDeltaR((* myTracks)[pos]);
-    if(myOpt==2) return getDeltaEta((* myTracks)[pos]);
-    if(myOpt==3) return getDeltaPhi((* myTracks)[pos]);
+    if(m_myOpt==1) return getDeltaR((* m_myTracks)[pos]);
+    if(m_myOpt==2) return getDeltaEta((* m_myTracks)[pos]);
+    if(m_myOpt==3) return getDeltaPhi((* m_myTracks)[pos]);
     return 0.0;
   }
 
@@ -125,9 +125,9 @@ public:
   double getDeltaPhi(const TrigInDetTrack* aTrack)const;
 
 private:
-  const DataVector<TrigInDetTrack>*& myTracks;
-  const TrigRoiDescriptor*& roiDescriptor;
-  int myOpt;
+  const DataVector<TrigInDetTrack>*& m_myTracks;
+  const TrigRoiDescriptor*& m_roiDescriptor;
+  int m_myOpt;
 };
 
 #endif

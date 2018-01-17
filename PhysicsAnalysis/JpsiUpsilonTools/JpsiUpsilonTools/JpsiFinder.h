@@ -15,7 +15,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
 #include "HepPDT/ParticleDataTable.hh"
 

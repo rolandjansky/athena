@@ -41,18 +41,24 @@ TrackFitter::TrackFitter (const std::string&	type,
     :	AthAlgTool			(type, name, parent),
 	m_driftHits			(0),
 	m_fieldOff			(false),
+	m_fitCode			(0),
 	m_fitProcedure			(0),
 	m_fitProcedureQuality		(0),
+	m_hit_pt3			(0),
 	m_materialAllocator		("Trk::MaterialAllocator/MaterialAllocator"),
 	m_parameters			(0),
 	m_planarHits			(0),
 	m_rungeKuttaIntersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
-	m_scatteringAngle		(13.6),		// Coulomb scattering constant
+	m_scatteringAngle		(13.6),                // Coulomb scattering constant
+	m_second_sigma_pt1		(0.),
+	m_sigma_pt1			(0.),
+	m_sigma_pt3			(0.),
 	m_solenoidalIntersector		("Trk::SolenoidalIntersector/SolenoidalIntersector"),
 	m_straightLineIntersector	("Trk::StraightLineIntersector/StraightLineIntersector"),
 	m_stepPropagator                ("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
 	m_trackingVolumesSvc            ("Trk::TrackingVolumesSvc/Trk::TrackingVolumesSvc",name),
-	m_vertexMeasurement		(0)
+	m_vertexMeasurement		(0),
+	m_indetVolume			(nullptr)
 {
     declareInterface<IiPatFitter>(this);
     declareProperty("MaterialAllocator",	m_materialAllocator);

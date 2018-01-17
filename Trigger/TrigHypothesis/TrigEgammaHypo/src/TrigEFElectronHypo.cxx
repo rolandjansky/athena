@@ -227,7 +227,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   //retrieving TrackToVertex:    
   if ( m_trackToVertexTool.retrieve().isFailure() ) {  
       ATH_MSG_ERROR("Failed to retrieve tool " << m_trackToVertexTool);
-      return StatusCode::FAILURE;  
+      return HLT::BAD_JOB_SETUP;  
   } else {  
     ATH_MSG_DEBUG("Retrieved tool " << m_trackToVertexTool);
   }
@@ -284,19 +284,19 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   if(m_applyIsolation){
     if ( m_EtConeCut.size() != m_EtConeSizes ) {
       ATH_MSG_ERROR(" m_EtConeCut size is " <<  m_EtConeCut.size() << " but needs " << m_EtConeSizes);
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
     if ( m_RelEtConeCut.size() != m_EtConeSizes ) {
       ATH_MSG_ERROR(" m_RelEtConeCut size is " <<  m_RelEtConeCut.size() << " but needs " << m_EtConeSizes);
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
     if ( m_PtConeCut.size() != m_PtConeSizes ) {
       ATH_MSG_ERROR(" m_PtConeCut size is " <<  m_PtConeCut.size() << " but needs " << m_PtConeSizes);
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
     if ( m_RelPtConeCut.size() != m_PtConeSizes ) {
       ATH_MSG_ERROR(" m_RelPtConeCut size is " <<  m_RelPtConeCut.size() << " but needs " << m_PtConeSizes);
-      return StatusCode::FAILURE;
+      return HLT::BAD_JOB_SETUP;
     }
 
     //Define mapping between vector of Isolation Cone Sizes and variable names 

@@ -143,7 +143,7 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     if ( sc1.isFailure() )
       {
 	ATH_MSG_ERROR( "Unable to get the StoreGateSvc"  );
-	return false ; 
+	return StatusCode::FAILURE ;
       }
     
     const EventInfo* evtInfo;
@@ -151,7 +151,7 @@ StatusCode CBNTAA_TBInfo::CBNT_execute(){
     if ( sc1.isFailure() )
       {
 	ATH_MSG_INFO( "Unable to get EventInfo, run probably not begun yet "  );
-	return false ; 
+	return StatusCode::FAILURE ;
       }
     
     int run = evtInfo->event_ID()->run_number(); 

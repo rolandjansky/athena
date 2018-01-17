@@ -22,7 +22,7 @@ namespace JiveXML {
    **/
   ElectronRetriever::ElectronRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Electron"){
+    m_typeName("Electron"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -87,7 +87,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect pt; pt.reserve(elCont->size());
     DataVect phi; phi.reserve(elCont->size());
@@ -121,7 +121,7 @@ namespace JiveXML {
     ElectronContainer::const_iterator elItr  = elCont->begin();
     ElectronContainer::const_iterator elItrE = elCont->end();
 
-    int m_MCdataType = 1;
+    int MCdataType = 1;
 
 // isEM from
 //   https://uimon.cern.ch/twiki/bin/view/Atlas/RemoveOverlap
@@ -191,14 +191,14 @@ namespace JiveXML {
             electronLabel += "_TightNoIsolation"; 
 //            electronIsEMString = "_TightNoIsolation"; // would need AtlantisJava changes
       }     
-      m_MCdataType = (*elItr)->dataType();
-      dataType.push_back( DataType(  m_MCdataType ) );
+      MCdataType = (*elItr)->dataType();
+      dataType.push_back( DataType(  MCdataType ) );
 
 // check: full simulation input file (1) or fast (0) 
 // code from:
 // PhysicsAnalysis/AnalysisCommon/AnalysisExamples/src/MiscellaneousExamples.cxx
 
-      if (m_MCdataType != 3){ // full simulation
+      if (MCdataType != 3){ // full simulation
 
           isEM.push_back( DataType((**elItr).isem() ) );
 
@@ -291,41 +291,41 @@ namespace JiveXML {
     } // end ElectronIterator 
 
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["px"] = px;
+    DataMap["py"] = py;
+    DataMap["pz"] = pz;
 
     // special Electron parameters
-    m_DataMap["eOverp"] = eOverp;
-    m_DataMap["isEM"] = isEM;
-    m_DataMap["isEMString"] = isEMString;
-    m_DataMap["label"] = label;
-    m_DataMap["hasTrack"] = hasTrack;
-    m_DataMap["author"] = author;
-    m_DataMap["pdgId"] = pdgId;
-    m_DataMap["dataType"] = dataType;
-    m_DataMap["hitsBLayer"] = hitsBLayer;
-    m_DataMap["hitsPixel"] = hitsPixel;
-    m_DataMap["hitsSCT"] = hitsSCT;
-    m_DataMap["hitsTRT"] = hitsTRT;
+    DataMap["eOverp"] = eOverp;
+    DataMap["isEM"] = isEM;
+    DataMap["isEMString"] = isEMString;
+    DataMap["label"] = label;
+    DataMap["hasTrack"] = hasTrack;
+    DataMap["author"] = author;
+    DataMap["pdgId"] = pdgId;
+    DataMap["dataType"] = dataType;
+    DataMap["hitsBLayer"] = hitsBLayer;
+    DataMap["hitsPixel"] = hitsPixel;
+    DataMap["hitsSCT"] = hitsSCT;
+    DataMap["hitsTRT"] = hitsTRT;
 
     // associations
-    m_DataMap["clusterKey"] = clusterKeyVec;
-    m_DataMap["clusterIndex"] = clusterIndexVec;
-    m_DataMap["trackKey"] = trackKeyVec;
-    m_DataMap["trackIndex"] = trackIndexVec;
+    DataMap["clusterKey"] = clusterKeyVec;
+    DataMap["clusterIndex"] = clusterIndexVec;
+    DataMap["trackKey"] = trackKeyVec;
+    DataMap["trackIndex"] = trackIndexVec;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

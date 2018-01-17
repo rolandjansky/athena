@@ -22,11 +22,12 @@ atlas_depends_on_subdirs(
    GaudiKernel
    LArCalorimeter/LArIdentifier
    LArCalorimeter/LArRawEvent
-   LArCalorimeter/LArTools
+   LArCalorimeter/LArCabling
    TileCalorimeter/TileConditions
    TileCalorimeter/TileDetDescr
    TileCalorimeter/TileEvent
    TileCalorimeter/TileIdentifier
+   graphics/VP1/VP1Systems/VP1UtilitySystems
    graphics/VP1/VP1HEPVis
    graphics/VP1/VP1Utils )
 
@@ -34,7 +35,7 @@ atlas_depends_on_subdirs(
 find_package( CLHEP )
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets )
-find_package( Qwt )
+#find_package( Qwt )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -51,7 +52,7 @@ atlas_add_library( VP1CaloSystems
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier VP1Base Qt5::Core
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${QWT_LIBRARIES} CaloDetDescrLib
-   StoreGateLib LArToolsLib TileConditionsLib CaloConditions CaloEvent
+   StoreGateLib LArCablingLib TileConditionsLib CaloConditions CaloEvent
    CaloIdentifier GeoModelKernel GeoModelUtilities GaudiKernel LArIdentifier
    LArRawEvent TileDetDescr TileEvent TileIdentifier VP1HEPVis VP1Utils
    Qt5::Gui )

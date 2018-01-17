@@ -7,7 +7,6 @@ test_proxy
 test_typeCount
 test_tRange
 test_pRange
-test_proxyList
 test_keys
 test_removeProxy
 test_clearStore

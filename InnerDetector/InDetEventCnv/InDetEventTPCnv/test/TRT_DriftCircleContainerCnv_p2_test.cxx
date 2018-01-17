@@ -148,12 +148,12 @@ const TRT_ID& make_dd()
   trt_id->initialize_from_dictionary (idd);
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  StoreGateSvc* sg = 0;
-  assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
-  assert ( sg->record (std::move (trt_id), "TRT_ID") );
+  StoreGateSvc* detStore = 0;
+  assert ( svcLoc->service("DetectorStore", detStore).isSuccess() );
+  assert ( detStore->record (std::move (trt_id), "TRT_ID") );
 
-  auto sct_dd = CxxUtils::make_unique<InDetDD::TRT_DetectorManager>(sg);
-  assert ( sg->record (std::move (sct_dd), "TRT_DetectorDescription") );
+  auto sct_dd = CxxUtils::make_unique<InDetDD::TRT_DetectorManager>(detStore);
+  assert ( detStore->record (std::move (sct_dd), "TRT_DetectorDescription") );
   return ret;
 }
 

@@ -134,7 +134,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
  if (!m_initializeForWriting) {
    ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
                    << name()<<".InitializeForWriting" );
-   return false;
+   return StatusCode::FAILURE;
  }
  ATH_MSG_DEBUG ( "Writing LArDigitContainer to ByteStream" );
  if (!digitCont) {
@@ -214,7 +214,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
  if (!m_initializeForWriting) {
    ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
                    << name()<<".InitializeForWriting" );
-   return false;
+   return StatusCode::FAILURE;
  }
  ATH_MSG_DEBUG ( "Writing LArCalibDigitContainer to ByteStream" );
  if (!digitCont) {
@@ -277,7 +277,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
  if (!m_initializeForWriting) {
    ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
                    << name()<<".InitializeForWriting" );
-   return false;
+   return StatusCode::FAILURE;
  }
  if (!channelCont) {
    ATH_MSG_DEBUG ( "Null pointer passed to WriteLArCalibDigit routine!" );

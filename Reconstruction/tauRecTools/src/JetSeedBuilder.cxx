@@ -101,7 +101,7 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 		ATH_MSG_DEBUG("Try to retrieve object from DataContainer");
 		//sc = tauEventData()->getObject("JetCollection", pJetColl);
 		// Try a different approach: grab it directly
-		sc = true;
+		sc = StatusCode::SUCCESS;
 		pJetColl = tauEventData()->seedContainer;
 		if (sc.isFailure() || !pJetColl) {
 			ATH_MSG_DEBUG("no JetCollection for trigger available");

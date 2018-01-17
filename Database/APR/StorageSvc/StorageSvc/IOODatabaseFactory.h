@@ -12,7 +12,7 @@
 
 // Reflex object factory definition
 namespace {
-  template <typename P> class Factory<P,pool::IOODatabase*(void*)> {
+  template <typename P> class Factory<P,pool::IOODatabase*()> {
   public: static void Func( void* ret, void* mem, const std::vector<void*>& arg, void*)     {
     void* p = (pool::IOODatabase*)(mem ? ::new(mem) P(arg[0]) : ::new P(arg[0]));
     if (ret) *(void**)ret = p;
@@ -20,6 +20,6 @@ namespace {
   };
 }
 
-#define DECLARE_OODATABASE(x) PLUGINSVC_FACTORY(x,pool::IOODatabase*(void*))
+#define DECLARE_OODATABASE(x) PLUGINSVC_FACTORY(x,pool::IOODatabase*())
 
 #endif

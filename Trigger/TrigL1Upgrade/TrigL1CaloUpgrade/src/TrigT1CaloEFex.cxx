@@ -68,7 +68,7 @@ StatusCode TrigT1CaloEFex::execute(){
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endmsg;
 
-	CaloCellContainer* scells(0);
+        std::vector<const CaloCell*> scells;
 	const xAOD::TriggerTowerContainer* TTs(0);
 	if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
 		msg << MSG::WARNING << " Could not get containers" << endmsg;
@@ -116,7 +116,10 @@ StatusCode TrigT1CaloEFex::execute(){
 		// if find the cluster position fails, etaCluster=999.0
 		if ( etaCluster > 998.0 ) continue;
 		// other cluster sizes for some of the shower shapes
-		findCellsAround(scells, (const float)etaCluster, (const float)phiCluster, m_cellsAround2,0.03,0.11);
+		findCellsAround(scells,
+                                static_cast<float>(etaCluster),
+                                static_cast<float>(phiCluster),
+                                m_cellsAround2,0.03,0.11);
 		// include TT (for Tile region only)
 		findTTsAround(TTs, etaCluster, phiCluster, m_TTsAround);
 		// check if seed cell is a local maximum (maybe could
@@ -160,7 +163,7 @@ StatusCode TrigT1CaloEFex::execute(){
 			cl->setEnergy( (CaloSampling::CaloSample)layer, cl->energy( (CaloSampling::CaloSample)layer )+cellAround->energy() );
 			if ( (layer==1) || (layer==5) ) {
 			  if ( cellAround->et() < 10 ) continue;
-			  wstot+=(cellAround->et()*fabsf(cellAround->eta()-etaCluster));
+			  wstot+=(cellAround->et()*std::abs(cellAround->eta()-etaCluster));
 			  wstot_nor+=(cellAround->et());
 			}
 		}// Loop over cells

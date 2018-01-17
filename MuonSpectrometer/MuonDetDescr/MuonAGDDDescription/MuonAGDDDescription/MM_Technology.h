@@ -29,7 +29,7 @@ public:
 
 	// constructor
 	inline MM_Technology(std::string s);
-	inline double Thickness() ;
+	inline double Thickness() const;
 };
 
 MM_Technology::MM_Technology(std::string s): AGDDTechnology(s),
@@ -39,7 +39,7 @@ MM_Technology::MM_Technology(std::string s): AGDDTechnology(s),
 {
 }
 
-double MM_Technology::Thickness() 
+double MM_Technology::Thickness() const
 {
 	//thickness=nlayers*(gasThickness+pcbThickness) + 2.*pcbThickness;
 	return thickness;

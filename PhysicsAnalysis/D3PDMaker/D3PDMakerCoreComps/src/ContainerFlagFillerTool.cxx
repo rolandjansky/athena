@@ -113,7 +113,7 @@ StatusCode ContainerFlagFillerTool::fillUntyped (const void* p,
                                                  bool /*again = false*/)
 {
   if (m_flags.empty())
-    return EMPTY;
+    return StatusCode(EMPTY);
 
   CHECK( m_map.reset() );
   for (size_t i = 0; i < m_flags.size(); i++)

@@ -480,42 +480,6 @@ ElectronVertAssoc.defineBlock (1, 'Vertex',
 #
 
 if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
-    ElectronD3PDObject.defineBlock \
-      (1, 'UDLayer1Shape',
-       D3PDMakerCoreComps.UserDataFillerTool,
-       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-       Vars = ['deltaEmax2', '', 'float',
-               ])
-
-
-    ElectronD3PDObject.defineBlock \
-      (1, 'BeamSpotAndPVImpact',
-       D3PDMakerCoreComps.UserDataFillerTool,
-       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-       Vars = ['trackd0beam:Transverse impact parameter wrt the beam spot',
-               'd0beam',         'float',
-               'tracksigd0beam:Uncertainty in the transverse impact parameter wrt the beam spot',
-               'sigd0beam',      'float',
-
-               'trackd0pv:Transverse impact parameter wrt the primary vertex',
-               'd0pv',           'float',
-               'tracksigd0pv:Uncertainty in the transverse impact parameter wrt the primary vertex',
-               'sigd0pv',        'float',
-               'trackz0pv:Longitudinal impact parameter wrt the primary vertex',
-               'z0pv',           'float',      
-               'tracksigz0pv:Uncertainty in the longitudinal impact parameter wrt the primary vertex',
-               'sigz0pv',        'float',
-
-               'trackd0pvunbiased:Transverse impact parameter wrt the primary vertex (unbiased)',
-               'd0pvunbiased',   'float',
-               'tracksigd0pvunbiased:Uncertainty in the transverse impact parameter wrt the primary vertex (unbiased)',
-               'sigd0pvunbiased','float',
-               'trackz0pvunbiased:Longitudinal impact parameter wrt the primary vertex (unbiased)',
-               'z0pvunbiased',   'float',
-               'tracksigz0pvunbiased:Uncertainty in the longitudinal impact parameter wrt the primary vertex (unbiased)',
-               'sigz0pvunbiased','float',
-               ])
-
     # `target' arg needs to be passed in from the caller;
     # otherwise, we don't make this block.
     def _jetAssocLevel (reqlev, args):
@@ -539,15 +503,6 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
            WriteE = True)
 
 
-    isodoc = ("Mask of isolation cuts that this object fails.  " +
-              "Bits are defined in egammaInterfaces/egammaIsolationMVATopToolsDefs.h " +
-              "or, from python, in ROOT.egammaIsolationType (in egammaInterfacesEnumsDict).")
-    ElectronD3PDObject.defineBlock \
-      (1, 'IsIso',
-       D3PDMakerCoreComps.UserDataFillerTool,
-       UDPrefix = D3PDMakerFlags.EgammaUserDataPrefix(),
-       Vars = ['isIso:' + isodoc, '', 'unsigned int',
-               ])
 
 
 ############################################################################

@@ -112,7 +112,7 @@ noFiles=(a.eventsPerJob()-1)/myEventsPerFile+1
 myFiles=os.popen(eos+" ls "+castorinputdir).readlines()
 print "Number of files: " + str(noFiles)
 for i in range(int(myFirstFile), int(myFirstFile)+noFiles):
-    copycmd="xrdcp root://eosatlas/"+castorinputdir+myFiles[i-1].rstrip('\n')+" ."
+    copycmd="xrdcp root://eosatlas.cern.ch/"+castorinputdir+myFiles[i-1].rstrip('\n')+" ."
     print "print copycmd: " + copycmd
     os.system(copycmd)
 
@@ -165,7 +165,7 @@ for ff in myArchiveCastor:
     print "Copying files of type "+ff+" to castor location "+castorbase
     for aa in os.popen("ls *"+ff+"*.root").readlines():
         aa=aa.rstrip('\n')
-        os.system("xrdcp "+aa+" root://eosatlas/"+castorbase)
+        os.system("xrdcp "+aa+" root://eosatlas.cern.ch/"+castorbase)
         os.system("rm "+aa)
 
 # Copy files back to RTT directory... 

@@ -3,7 +3,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 from AthenaCommon import CfgMgr
 
 ##InputFiles = ["/eos/user/r/rjansky/TCCTestFiles/mc15_13TeV.301282.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m4000.merge.AOD.e3743_s2608_s2183_r7772_r7676/AOD.08110078._000001.pool.root.1"]
-##InputFiles = ["root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/WPrime_4000/DAOD_JETM8.09331772._000001.pool.root.1"]
+##InputFiles = ["root://eosatlas.cern.ch//eos/atlas/user/n/ncalace/Samples_Physics/WPrime_4000/DAOD_JETM8.09331772._000001.pool.root.1"]
 #InputFiles   = ["/eos/atlas/user/r/rjansky/mc15_13TeV.301282.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m4000.merge.AOD.e3743_s2608_s2183_r7772_r7676/AOD.08110078._000001.pool.root.1"]
 InputFiles   = ["/afs/cern.ch/user/n/ncalace/work/public/mc15_13TeV/AOD.08110078._000001.pool.root.1"]
 

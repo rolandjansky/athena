@@ -399,7 +399,7 @@ TBCaloCoordinate:: read_MC_position()
 
     // get the manager used for simulation :
 
-    ATH_CHECK( detStore()->retrieve( m_MCmgr ) );
+    ATH_CHECK( detStore()->retrieve( m_MCmgr ), false );
   }
 
   ATH_MSG_DEBUG ( " found TBDetDescrManager " );

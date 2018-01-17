@@ -47,11 +47,13 @@ TrackFinder::TrackFinder(const std::string&	type,
 	m_trackBuilder		("TrackBuilder/TrackBuilder"),
 	m_trackFollower		("TrackFollower/TrackFollower"),
 	m_trackManager		("TrackManager/TrackManager"),
+	m_minPt			(0.),
 	m_perigeeVertex		(Amg::Vector3D(0.,0.,0.)),
 	m_printLevel		(0),
 	m_searchForPrimaries	(true),
 	m_searchForSecondaries	(true),
 	m_searchForVertexRegion	(true),
+	m_maxPt			(0),
 	m_vertex		(0)
 {
     declareInterface<ITrackFinder>(this);
@@ -184,7 +186,7 @@ TrackFinder::setProperties (double		maxSecondaryImpact,
 }
 
 TrackList::track_list*
-TrackFinder::trackSearch (const std::vector<Trk::SpacePoint*>& spacePoints)
+TrackFinder::trackSearch (const std::vector<const Trk::SpacePoint*>& spacePoints)
 {
     m_trackManager->newTrackSearch();
 

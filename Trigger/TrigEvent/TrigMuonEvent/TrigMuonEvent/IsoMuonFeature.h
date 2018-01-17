@@ -25,8 +25,8 @@ DATE:		V4.0 May 5th, 2008
 #include <cmath>
 
 // Gaudi/Athena include(s):
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "FourMom/P4PtEtaPhiMBase.h"
 #include "Navigation/NavigableTerminalNode.h"

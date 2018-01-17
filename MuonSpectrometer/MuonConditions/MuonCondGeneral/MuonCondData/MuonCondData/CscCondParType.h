@@ -40,32 +40,32 @@ namespace MuonCalib {
       operator unsigned int() const;
 
     private:
-      int type;
+      int m_type;
 
   };
 
-  inline  CscCondParType::CscCondParType() : type(0) {}
+  inline  CscCondParType::CscCondParType() : m_type(0) {}
 
   inline CscCondParType::CscCondParType(const unsigned int & t) {
-    type = t;
+    m_type = t;
   }
 
   inline CscCondParType::CscCondParType(const CscCondParType & t) {
-    type = t;
+    m_type = t;
   }
 
   inline CscCondParType & CscCondParType::operator=(unsigned int t) {
-    type = t;
+    m_type = t;
     return *this;
   }
 
   inline CscCondParType & CscCondParType::operator=(const CscCondParType& t) {
-    type = t;
+    m_type = t;
     return *this;
   }
 
   inline CscCondParType::operator unsigned int() const {
-    return type;
+    return m_type;
   }
 
   inline std::ostream & operator<< (std::ostream& s , const CscCondParType& type) {

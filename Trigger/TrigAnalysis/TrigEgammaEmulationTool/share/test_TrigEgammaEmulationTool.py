@@ -21,7 +21,7 @@ elif 'DIR' in dir():
   for ll in listfiles:
     finallist.append(dirtouse+'/'+ll)
 elif 'RTT' in dir():
-  rttfile='root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/'+RTT+'/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root'
+  rttfile='root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/'+RTT+'/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root'
   finallist.append(rttfile)
 else:
   default_file='/afs/cern.ch/work/j/jolopezl/datasets/egamma/valid1.147406.PowhegPythia8_AZNLO_Zee.recon.AOD.e3099_s2578_r7514/AOD.07499854._000097.pool.root.1' 

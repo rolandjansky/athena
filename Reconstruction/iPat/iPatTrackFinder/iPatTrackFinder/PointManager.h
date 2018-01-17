@@ -47,7 +47,7 @@ public:
     bool			nextSlice (void);
     std::vector<Point*>*	points (int layer) const;
     double			radius (int layer) const;
-    void			setPoints (const std::vector<Trk::SpacePoint*>&	spacePoints,
+    void			setPoints (const std::vector<const Trk::SpacePoint*>&	spacePoints,
 					   const Amg::Vector3D&			vertexRegionCentre);
     
 private:

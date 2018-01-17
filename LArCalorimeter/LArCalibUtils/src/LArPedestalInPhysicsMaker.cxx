@@ -283,7 +283,7 @@ StatusCode LArPedestalInPhysicsMaker::fillDB()
   ATH_MSG_INFO ( ">>> Fill DB" );
 
   // Create the LArPedestalComplete object
-  LArPedestalComplete* larPedestalComplete = new LArPedestalComplete();
+  auto larPedestalComplete = std::make_unique<LArPedestalComplete>();
 
   ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
   ATH_CHECK( larPedestalComplete->initialize() );
@@ -325,8 +325,7 @@ StatusCode LArPedestalInPhysicsMaker::fillDB()
  }
 
  if(m_record) {
-   ATH_CHECK( detStore()->record(larPedestalComplete, m_keyoutput) );
-   ATH_CHECK( detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete) );
+   ATH_CHECK( detStore()->record(std::move(larPedestalComplete), m_keyoutput) );
    m_record=0;
  }
 

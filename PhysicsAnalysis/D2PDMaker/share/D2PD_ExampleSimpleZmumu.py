@@ -108,9 +108,3 @@ ExampleSimpleZmumuStream.AddItem( ['INav4MomLinkContainer#MyZmumuTightMuonLinkCo
 
 
 
-#====================================================================
-# UserDataSvc, only really needed/used when UserData is computed...
-#====================================================================
-from AthenaServices.TheUserDataSvc import TheUserDataSvc
-svcMgr += TheUserDataSvc("UserDataInExampleSimpleZmumuStream")
-svcMgr.UserDataInExampleSimpleZmumuStream.OutputStream = ExampleSimpleZmumuStream.Stream

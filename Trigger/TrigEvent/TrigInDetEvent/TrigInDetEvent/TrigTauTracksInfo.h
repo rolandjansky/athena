@@ -15,7 +15,7 @@
 
 
 */
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "FourMom/P4PtEtaPhiM.h"
 #include "FourMom/P4PxPyPzE.h"
 #include "Navigation/Navigable.h"

@@ -17,7 +17,6 @@ public:
 private:
 
   StoreGateSvc* m_sgSvc;
-  HepMC::IO_GenEvent* m_ascii_in;
   
   // Setable Properties:-
   std::string m_key; 

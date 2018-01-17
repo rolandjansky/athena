@@ -5,9 +5,8 @@
 #include "TrigFTKPool/FTKAthTrack.h"
 
 #include <iostream>
-using namespace std;
-
 #include <TMath.h>
+using namespace std;
 
 FTKAthTrack::FTKAthTrack() :
    m_bankID(-1), m_roadID(-1),
@@ -163,7 +162,7 @@ unsigned int FTKAthTrack::getNCommonHits(const FTKAthTrack &track, const float *
      1 are similar and the other has a worse quality parameter
      -1 are similar and the other has a better quality parameter */
 int FTKAthTrack::HWChoice(const FTKAthTrack &other, const float *HW_dev,
-		       const unsigned int HW_ndiff, int HW_level)
+		       const unsigned int HW_ndiff, int HW_level) const
 {
   int accepted(0);
 

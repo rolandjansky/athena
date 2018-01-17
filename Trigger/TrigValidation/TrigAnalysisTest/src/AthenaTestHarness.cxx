@@ -12,6 +12,8 @@
 #include <iostream>
 #include <iomanip>
 
+using TrigAnalysisTest::GetTrigAnalysisTest;
+
 AthenaTestHarness::AthenaTestHarness(const std::string &name, ISvcLocator *pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),

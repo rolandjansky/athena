@@ -10,16 +10,18 @@ namespace G4UA
   //---------------------------------------------------------------------------
   HIPKillerTool::HIPKillerTool(const std::string& type, const std::string& name,
                                const IInterface* parent)
-    : ActionToolBase<HIPKiller>(type, name, parent)
+    : UserActionToolBase<HIPKiller>(type, name, parent)
   {
-    declareInterface<IG4SteppingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
-  std::unique_ptr<HIPKiller>  HIPKillerTool::makeAction()
+  std::unique_ptr<HIPKiller>
+  HIPKillerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<HIPKiller>();
+    ATH_MSG_DEBUG("Making a HIPKiller action");
+    auto action = std::make_unique<HIPKiller>();
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

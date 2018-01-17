@@ -393,7 +393,7 @@ int  TileMuonFitMonTool::getTMFpart(const TileCosmicMuon* tmf) {
   int part = -2;
 
   const CaloCellContainer* cellcoll;
-  CHECK( evtStore()->retrieve(cellcoll, m_cellContainerKey) );
+  CHECK( evtStore()->retrieve(cellcoll, m_cellContainerKey), -1 );
 
   CaloCellContainer::const_iterator f_cell = cellcoll->begin();
   CaloCellContainer::const_iterator l_cell = cellcoll->end();

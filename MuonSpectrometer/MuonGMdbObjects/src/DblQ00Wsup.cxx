@@ -13,7 +13,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonGMdbObjects/DblQ00Wsup.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include <iostream>
 #include <sstream>
 //#include <stdio>
@@ -31,7 +30,7 @@
 namespace MuonGM
 {
 
-DblQ00Wsup::DblQ00Wsup(IRDBQuery* wsup)
+DblQ00Wsup::DblQ00Wsup(std::unique_ptr<IRDBQuery>&& wsup)
  : m_nObj(0)
 {
   if(wsup) {
