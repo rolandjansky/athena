@@ -32,6 +32,7 @@ class TFCSSimulationState:public TObject
     typedef std::map<const CaloDetDescrElement*,float> t_cellmap;
 
     t_cellmap& cells() {return m_cells;};
+    const t_cellmap& cells() const {return m_cells;};
     void deposit(const CaloDetDescrElement* cellele, float E);
     
     void Print(Option_t *option="") const;
