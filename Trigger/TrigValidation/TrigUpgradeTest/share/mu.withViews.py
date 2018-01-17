@@ -6,6 +6,29 @@
   
 include("TrigUpgradeTest/testHLT_MT.py") 
 
+### workaround to prevent online trigger folders to be enabled ###
+from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
+
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doCaloSeededBrem = False
+
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.InDet25nsec = True 
+InDetFlags.doPrimaryVertex3DFinding = False 
+InDetFlags.doPrintConfigurables = False
+InDetFlags.doResolveBackTracks = True 
+InDetFlags.doSiSPSeededTrackFinder = True
+InDetFlags.doTRTPhaseCalculation = True
+InDetFlags.doTRTSeededTrackFinder = True
+InDetFlags.doTruth = False
+InDetFlags.init()
+
+### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
+include("InDetRecExample/InDetRecConditionsAccess.py")
+
+from InDetRecExample.InDetKeys import InDetKeys
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -41,15 +64,203 @@ from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
 doL2SA=True
-domuComb=False
+doL2CB=True
 doEFSA=False
+
+
+# ===============================================================================================
+#               Setup PrepData                                                                    
+# ===============================================================================================
  
+### Used the algorithms as Step2 "muComb step" ###
+if TriggerFlags.doID:
+  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+                                                   Pixel_ClusterKey = "PixelTrigClustersCache",
+                                                   SCT_ClusterKey   = "SCT_ClustersCache",
+                                                   SpacePointCachePix = "PixelSpacePointCache",
+                                                   SpacePointCacheSCT   = "SctSpacePointCache",
+                                                   SCTRDOCacheKey       = "SctRDOCache",
+                                                   PixRDOCacheKey = "PixRDOCache",
+                                                   OutputLevel=DEBUG)
+  ### Pixel ###
+  from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
+  InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder")
+  ToolSvc += InDetPixelRodDecoder
+  
+  from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
+  InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool",
+                                                           Decoder = InDetPixelRodDecoder)
+  ToolSvc += InDetPixelRawDataProviderTool
+  
+  ### load the PixelRawDataProvider ###
+  from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
+  InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
+                                                   RDOKey       = InDetKeys.PixelRDOs(),
+                                                   ProviderTool = InDetPixelRawDataProviderTool,
+                                                   RDOCacheKey  = InDetCacheCreatorTrigViews.PixRDOCacheKey,
+                                                   isRoI_Seeded = True,
+                                                   OutputLevel = INFO )
+  
+  ### SCT ###
+  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
+  InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
+                                      TriggerMode = False)
+  ToolSvc += InDetSCTRodDecoder
+  
+  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
+  InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
+                                                      Decoder = InDetSCTRodDecoder)
+  ToolSvc += InDetSCTRawDataProviderTool
+  
+  ### load the SCTRawDataProvider###
+  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
+  InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
+                                               RDOKey       = InDetKeys.SCT_RDOs(),
+                                               ProviderTool = InDetSCTRawDataProviderTool,
+                                               isRoI_Seeded = True )
+  
+  InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
+  
+  ### TRT ###
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
+  InDetTRTCalDbSvc = TRT_CalDbSvc()
+  ServiceMgr += InDetTRTCalDbSvc
+  
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
+  InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
+  ServiceMgr += InDetTRTStrawStatusSummarySvc
+  
+  from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
+  InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",
+                                      LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))  
+  ToolSvc += InDetTRTRodDecoder
+    
+  from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
+  InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
+                                                        Decoder = InDetTRTRodDecoder)
+  ToolSvc += InDetTRTRawDataProviderTool
+  
+    
+  #### load the TRTRawDataProvider ###
+  from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
+  InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
+                                               RDOKey       = "TRT_RDOs",
+                                               ProviderTool = InDetTRTRawDataProviderTool,
+                                               isRoI_Seeded = True
+                                               )
+  
+  ### Pixel clusterisation ###
+  from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
+  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
+      PixelCalibSvc        = None,
+      PixelOfflineCalibSvc = None,
+      UsePixelCalibCondDB  = False)
+  
+  ToolSvc += InDetClusterMakerTool
+  
+  
+  from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
+  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool",
+                                                  globalPosAlg            = InDetClusterMakerTool,
+                                                  MinimalSplitSize        = 0,
+                                                  MaximalSplitSize        = 49,
+                                                  MinimalSplitProbability = 0,
+                                                  DoIBLSplitting = True,
+                                                  SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
+  ToolSvc += InDetMergedPixelsTool
+  
+  from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
+  InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder")
+  ToolSvc += InDetPixelGangedAmbiguitiesFinder
+  
+  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
+  InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
+                                                        clusteringTool          = InDetMergedPixelsTool,
+                                                        gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
+                                                        DetectorManagerName     = InDetKeys.PixelManager(),
+                                                        DataObjectName          = InDetKeys.PixelRDOs(),
+                                                        ClustersName            = "PixelTrigClusters",
+                                                        isRoI_Seeded            = True)
+  
+  
+  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey
+  
+  #
+  # --- SCT_ClusteringTool (public)
+  #
+  from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
+  InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
+                                                      globalPosAlg      = InDetClusterMakerTool,
+                                                      conditionsService = InDetSCT_ConditionsSummarySvc)
+  #
+  # --- SCT_Clusterization algorithm
+  #
+  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
+  InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
+                                                      clusteringTool          = InDetSCT_ClusteringTool,
+                                                      # ChannelStatus         = InDetSCT_ChannelStatusAlg,
+                                                      DetectorManagerName     = InDetKeys.SCT_Manager(),
+                                                      DataObjectName          = InDetKeys.SCT_RDOs(),
+                                                      ClustersName            = "SCT_TrigClusters",
+                                                      conditionsService       = InDetSCT_ConditionsSummarySvc,
+                                                      FlaggedConditionService = InDetSCT_FlaggedConditionSvc, 
+                                                      isRoI_Seeded            = True )
+  
+  
+  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey
+  
+  ### #Space points and FTF ###
+  from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
+  InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
+  ToolSvc += InDetSiSpacePointMakerTool
+  
+  from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
+  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
+                                                                    SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
+                                                                    PixelsClustersName     = "PixelTrigClusters",
+                                                                    SCT_ClustersName       = "SCT_TrigClusters",
+                                                                    SpacePointsPixelName   = "PixelTrigSpacePoints",
+                                                                    SpacePointsSCTName     = "SCT_TrigSpacePoints",
+                                                                    SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
+                                                                    ProcessPixels          = DetFlags.haveRIO.pixel_on(),
+                                                                    ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
+                                                                    ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
+                                                                    OutputLevel=DEBUG)
+  
+  InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT
+  InDetSiTrackerSpacePointFinder.SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix
+
+
+  ### load TrigFastTrackFainder_Muon for muComb ###  
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
+  theFTF = TrigFastTrackFinder_Muon()
+  theFTF.OutputLevel = DEBUG
+  theFTF.TracksName = "TrigFastTrackFinder_MuTracks"
+  
+  ### A simple algorithm to confirm that data has been inherited from parent view ###
+  ### Required to satisfy data dependencies                                       ###
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuFastAlg_MuInfo')]
+  
+  from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+  from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+  
+  from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
+                                                           doIBLresidual = False,
+                                                           TrackName = theFTF.TracksName,
+                                                           TrackParticlesName = "xAODTracks",
+                                                           ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+
+  IDSequence = [ InDetPixelRawDataProvider, InDetSCTRawDataProvider, InDetTRTRawDataProvider, InDetPixelClusterization, InDetSCT_Clusterization, InDetSiTrackerSpacePointFinder, theFTF, ViewVerify, theTrackParticleCreatorAlg ]
+ 
+
+### Used the algorithms as Step1 "muFast step" ###
 if TriggerFlags.doMuon:
-# ==================================================================================================================================
-#               Setup PrepData 
-# ==================================================================================================================================
-  # Load data from Muon detectors
+  ### Load data from Muon detectors ###
   #topSequence.SGInputLoader.Load = [ ('MdtCsmContainer','MDTCSM'), ('RpcPadContainer','RPCPAD'), ('TgcRdoContainer','TGCRDO'), ('CscRawDataContainer','CSCRDO')]
+
   import MuonRecExample.MuonRecStandaloneOnlySetup
   from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
   muonRecFlags.doTrackPerformance    = True
@@ -268,9 +479,11 @@ if TriggerFlags.doMuon:
   filterL1RoIsAlg.Chains = testChains
   filterL1RoIsAlg.OutputLevel = DEBUG
 
-# ==================================================================================================================================
+
+# ===============================================================================================
 #               Setup L2MuonSA
-# ==================================================================================================================================
+# ===============================================================================================
+ 
   if doL2SA:
     ### set up MuFastSteering ###
     from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
@@ -283,10 +496,10 @@ if TriggerFlags.doMuon:
 
     muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuFastDecisions = "MuFastAlg_Decisions"
-    muFastAlg.MuFastComposite = "MuFastAlg_Composite"
-    muFastAlg.MuFastForID = "MuFastAlg_IdDecisions"
-    muFastAlg.MuFastForMS = "MuFastAlg_MsDecisions"
+    muFastAlg.MuFastDecisions = "MuFastAlg_MuInfo"
+    muFastAlg.MuFastComposite = "MuFastAlg_Decisions"
+    muFastAlg.MuFastForID = "MuFastAlg_IdInfo"
+    muFastAlg.MuFastForMS = "MuFastAlg_MsInfo"
 
     # set up MuFastHypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
@@ -302,42 +515,76 @@ if TriggerFlags.doMuon:
     trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
 
     muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
-    muFastStep = seqAND("muFastStep", [filterL1RoIsAlg, l2MuViewsMaker, l2MuViewNode, trigMufastHypo, muFastDecisionsDumper])
+    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode, trigMufastHypo ])
+
+    muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
 
 
-# ==================================================================================================================================
-#               Setup muComb
-# ==================================================================================================================================
-  if domuComb:
+# ===============================================================================================
+#               Setup muComb                                                                    
+# ===============================================================================================
+ 
+  if doL2CB:
+    ### RoRSeqFilter step2 ###
+    filterL2SAAlg = RoRSeqFilter("filterL2SAAlg")
+    filterL2SAAlg.Input = [trigMufastHypo.Decisions]
+    filterL2SAAlg.Output = ["Filtered"+trigMufastHypo.Decisions]
+    filterL2SAAlg.Chains = testChains
+    filterL2SAAlg.OutputLevel = DEBUG
+
+    l2muCombViewNode = AthSequencer("l2muCombViewNode", Sequential=False, ModeOR=False, StopOverride=False)
+    l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
+    l2muCombViewsMaker.ViewFallThrough = True
+ 
+    l2muCombViewsMaker.Decisions = filterL2SAAlg.Output[0] # Output of TrigMufastHypo
+    l2muCombViewsMaker.RoIsLink = "roi" # -||-
+    l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
+    l2muCombViewsMaker.Views = "MUTrkViewRoIs"
+    l2muCombViewsMaker.ViewNodeName = l2muCombViewNode.name()
+
+    ### Define input data of Inner Detector algorithms  ###
+    ### and Define EventViewNodes to run the algprithms ###
+    theTrackParticleCreatorAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
+    for idAlg in IDSequence:
+      l2muCombViewNode += idAlg
+      if idAlg.properties().has_key("RoIs"):
+        idAlg.RoIs = l2muCombViewsMaker.InViewRoIs
+
     ### please read out TrigmuCombMTConfig file ###
     ### and set up to run muCombMT algorithm    ###
+    from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
+    muCombAlg = TrigmuCombMTConfig("", theFTF.getName())
+    muCombAlg.OutputLevel = DEBUG
+    muCombAlg.L2StandAloneMuonContainerName = muFastAlg.MuFastDecisions 
+    #muCombAlg.TrackParticlesContainerName = theFTF.TracksName
+    muCombAlg.TrackParticlesContainerName = theTrackParticleCreatorAlg.TrackParticlesName
+    muCombAlg.L2CombinedMuonContainerName = "MuonL2CBInfo"
 
- 
-    ### if we wold like to run muComb chain after muFast chain, ###
-    ### please try the bellow lines.                            ###
-   
+    l2muCombViewNode += muCombAlg
+
     ### set up muCombHypo algorithm ###
-    #from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoConfig
-    #trigmuCombHypo = TrigmuCombHypoConfig()
-    #trigmuCombHypo.OutputLevel = DEBUG
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoConfig
+    trigmuCombHypo = TrigmuCombHypoConfig()
+    trigmuCombHypo.OutputLevel = DEBUG
   
-    #trigmuCombHypo.Decisions = "L2muCombDecisions"
-    #trigmuCombHypo.MuonSADecisions = trigMufastHypo.Decisions
-    #trigmuCombHypo.ViewRoIs = l2muCombViewsMaker.Views
-    #trigmuCombHypo.MuCombContainer = muCombAlg.Decisions
+    trigmuCombHypo.Decisions = "MuonL2CB_Decisions"
+    trigmuCombHypo.MuonSADecisions = trigMufastHypo.Decisions
+    trigmuCombHypo.ViewRoIs = l2muCombViewsMaker.Views
+    trigmuCombHypo.MuCombContainer = muCombAlg.L2CombinedMuonContainerName 
   
-    #trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( name = "L2muCombHypoTool", nath = c ) for c in testChains ] 
+    trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( name = "L2muCombHypoTool", nath = c ) for c in testChains ] 
   
-    #muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.Decisions )
+    muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.Decisions )
  
-    ### need to use ViewNode ### 
-    #muCombStep = stepSeq("muCombStep", filterL2MuonSARoIsAlg, [ l2muCombViewsMaker, trigmuCombHypo, muCombDecisionsDumper ])
+    ### Define a Sequence to run for muComb ### 
+    l2muCombSequence = seqAND("l2muCombSequence", [ InDetCacheCreatorTrigViews, l2muCombViewsMaker, l2muCombViewNode, trigmuCombHypo ] )
+    muCombStep = stepSeq("muCombStep", filterL2SAAlg, [ l2muCombSequence,  muCombDecisionsDumper ] )
 
-    pass 
 
-# ==================================================================================================================================
-#               Setup EFMuonSA
-# ==================================================================================================================================
+# ===============================================================================================
+#               Setup EFMuonSA                                                                    
+# ===============================================================================================
+
   if doEFSA:
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
     ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
@@ -422,27 +669,30 @@ if TriggerFlags.doMuon:
     themuoncreatoralg.CreateSAmuons=True
 
 
-# ==================================================================================================================================
+# ===============================================================================================
 #               Setup CF(Control Flow)
-# ==================================================================================================================================
+# ===============================================================================================
+
   ### CF construction ###
-  if doL2SA:
+if TriggerFlags.doMuon==True:    
+  if doL2SA==True and doL2CB==False:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.L1Decision = "HLTChains" 
-    summary.FinalDecisions = ["L2MuonFastDecisions"]
+    summary.FinalDecisions = [ trigMufastHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.L1Decision = "HLTChains" 
-    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ] 
+    mon.FinalDecisions = [ trigMufastHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
 
-    topSequence += hltTop   
+    topSequence += hltTop  
+
   if doEFSA:
     topSequence+=theSegmentFinderAlg
     #topSequence += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.
@@ -451,6 +701,29 @@ if TriggerFlags.doMuon:
     topSequence += theMuonCandidateAlg
     topSequence +=themuoncreatoralg
 
+if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
+  if doL2SA==True and doL2CB==True:
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.L1Decision = "HLTChains" 
+    #summary.FinalDecisions = [ trigMufastHypo.Decisions, trigmuCombHypo.Decisions ]
+    summary.FinalDecisions = [ trigmuCombHypo.Decisions ]
+    summary.OutputLevel = DEBUG 
+    step0 = parOR("step0", [ muFastStep ] )
+    step1 = parOR("step1", [ muCombStep ] )
+    HLTsteps = seqAND("HLTsteps", [ step0, step1, summary ]  ) 
+
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.L1Decision = "HLTChains" 
+    #mon.FinalDecisions = [ trigMufastHypo.Decisions, trigmuCombHypo.Decisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigmuCombHypo.Decisions, "WhateverElse" ] 
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+
+    topSequence += hltTop   
+
+   
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)
