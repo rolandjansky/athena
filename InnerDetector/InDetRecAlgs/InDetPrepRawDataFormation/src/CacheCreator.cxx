@@ -48,8 +48,9 @@ namespace InDet{
         ATH_CHECK( m_PixRDOCacheKey.initialize(!m_PixRDOCacheKey.key().empty()) );
         ATH_CHECK( m_condKey.initialize() );
         ATH_CHECK( m_condKey2.initialize() );
-	ATH_CHECK( m_condKey3.initialize() );
-	ATH_CHECK( m_condKey4.initialize() );
+        ATH_CHECK( m_condKey3.initialize() );
+        ATH_CHECK( m_condKey4.initialize() );
+        ATH_CHECK( m_condKey5.initialize() );
         if(!m_disableTRT) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
         ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
         ATH_CHECK(detStore()->retrieve(m_pix_idHelper, "PixelID"));
