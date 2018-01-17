@@ -67,6 +67,8 @@ namespace InDet
    virtual float LocalOccupancy( const Trk::Track& track);
    virtual float LocalOccupancy(const double eta, const double phi);
 
+   /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
+   virtual std::map<int, double> getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer );
 
    /** Return the global occupancy of the event*/ 
    /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */ 

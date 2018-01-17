@@ -87,21 +87,18 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         rndmStream = "InDetOverlay"
         indetovl.RndmEngine = rndmStream
         indetovl.RndmSvc = digitizationFlags.rndmSvc.get_Value();
-        
-        from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-        TRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "TRTStrawStatusSummarySvc")
-        ServiceMgr += TRTStrawStatusSummarySvc
-        indetovl.TRTStrawSummarySvc = TRTStrawStatusSummarySvc
 
-        from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-        TRTCalibDBSvc=TRT_CalDbSvc()
-        ServiceMgr += TRTCalibDBSvc
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+        TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(      name              ="TRT_LocalOccupancy",
+                                                             isTrigger         = False, 
+        )
+        ToolSvc += TRT_LocalOccupancy
+        indetovl.TRT_LocalOccupancyTool = TRT_LocalOccupancy  
         
-        from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
-        TRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "TRT_DriftFunctionTool",
-                                                           TRTCalDbTool=TRTCalibDBSvc           )
-        ToolSvc += TRT_DriftFunctionTool
-        indetovl.TRTDriftFunctionTool = TRT_DriftFunctionTool   
+        #HT hit correction fraction 
+        indetovl.TRT_HT_OccupancyCorrection = 0.12
+
+
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")
 

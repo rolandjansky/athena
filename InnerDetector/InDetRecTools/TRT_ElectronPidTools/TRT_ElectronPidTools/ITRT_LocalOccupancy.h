@@ -12,11 +12,13 @@
 // Include files
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkTrack/Track.h"
+#include "InDetRawData/TRT_RDO_Container.h"
 
 #include <vector>
-
+#include <map>
 
 class Identifier;
+
 namespace Trk { class Track ; }
 
   /** @class ITRT_LocalOccupancy 
@@ -45,7 +47,9 @@ namespace InDet
    virtual float LocalOccupancy( const Trk::Track& track) = 0;
    virtual float LocalOccupancy(const double eta, const double phi) = 0;
     
-   //   virtual void countHitsNearTrack(int track_hit_array[6][32]) = 0;
+   /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
+   virtual std::map<int, double>  getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) = 0;
+     
 
    /** Return the global occupancy of the event*/ 
    virtual std::vector<float> GlobalOccupancy( ) = 0 ;
