@@ -115,6 +115,9 @@ public: //possibly these should be private?
   //pile-up
   TimedHitCollection<CSCSimHit>* m_thpcCSC; // the hits
   std::list<CSCSimHitCollection*> m_cscHitCollList; // only for pileup events..
+  //pileup truth veto
+  bool m_includePileUpTruth;
+  IntegerProperty m_vetoThisBarcode;
 
   double m_timeWindowLowerOffset;
   double m_timeWindowUpperOffset;

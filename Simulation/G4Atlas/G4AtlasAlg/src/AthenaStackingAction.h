@@ -5,7 +5,9 @@
 #ifndef G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
 #define G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
 
-#include "G4AtlasInterfaces/IStackingAction.h"
+#include "G4UserStackingAction.hh"
+
+class PrimaryParticleInformation;
 
 namespace G4UA
 {
@@ -17,7 +19,7 @@ namespace G4UA
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class AthenaStackingAction : public IStackingAction
+  class AthenaStackingAction : public G4UserStackingAction
   {
 
     public:
@@ -29,6 +31,8 @@ namespace G4UA
         bool killAllNeutrinos;
         /// Photon energy cut
         double photonEnergyCut;
+        /// Is this an ISF job
+        bool isISFJob;
       };
 
       /// Constructor with configuration
@@ -37,15 +41,7 @@ namespace G4UA
       /// @brief Classify a new track.
       /// Result can be fUrgent, fWaiting, fPostpone, or fKill.
       virtual G4ClassificationOfNewTrack
-      classifyNewTrack(const G4Track* track) override;
-
-      /// @brief Called when starting the next priority queue.
-      /// The waiting stack gets moved into the urgent stack.
-      virtual void newStage() override;
-
-      /// @brief Invoked by stack manager at new event.
-      /// This method is possibly redundant so we could maybe remove it.
-      virtual void prepareNewEvent() override;
+      ClassifyNewTrack(const G4Track* track) override final;
 
     private:
 
@@ -53,8 +49,11 @@ namespace G4UA
       /// It might be useful to move this kind of functionality
       /// into some standalong helper function(s).
       bool isNeutrino(const G4Track*) const;
+
       /// @brief Identify track as a photon.
       bool isGamma(const G4Track*) const;
+      /// @brief obtain the PrimaryParticleInformation from the current G4Track
+      PrimaryParticleInformation* getPrimaryParticleInformation(const G4Track *track) const;
 
       /// My configuration options
       Config m_config;

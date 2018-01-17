@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
- #include "LArCalibTools/LArPulseShape.h"
+#include "LArCalibTools/LArPulseShape.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -44,13 +44,13 @@ StatusCode LArPulseShape::initialize() {
 
   ATH_MSG_DEBUG("Initializing LArPulseShape base class - finished");     
   if (m_ntpath.size()==0 || m_ntTitle.size()==0) {
-    msg(MSG::ERROR) << "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" << endreq;
+    ATH_MSG_ERROR( "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" );
     return StatusCode::FAILURE;
   }
 
   size_t i=m_ntpath.rfind('/');
   if (i==std::string::npos) {
-    msg(MSG::ERROR) << "Expected at least on '/' in path " << m_ntpath << endreq;
+    ATH_MSG_ERROR( "Expected at least on '/' in path " << m_ntpath );
     return StatusCode::FAILURE;
   }
   std::string basepath(m_ntpath.begin(),m_ntpath.begin()+i);
@@ -58,7 +58,7 @@ StatusCode LArPulseShape::initialize() {
 
   NTupleFilePtr file1(ntupleSvc(),basepath);
   if (!file1){
-    msg(MSG::ERROR) << "Could not get NTupleFilePtr with path " << basepath << " failed" << endreq;
+    ATH_MSG_ERROR( "Could not get NTupleFilePtr with path " << basepath << " failed" );
     return StatusCode::FAILURE;
   }
   NTuplePtr nt(ntupleSvc(),m_ntpath);
@@ -66,7 +66,7 @@ StatusCode LArPulseShape::initialize() {
     nt=ntupleSvc()->book(m_ntpath,CLID_ColumnWiseTuple,m_ntTitle);
   }
   if (!nt){
-    msg(MSG::ERROR) << "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" << endreq;
+    ATH_MSG_ERROR( "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" );
     return StatusCode::FAILURE; 
   }
   
@@ -462,7 +462,7 @@ StatusCode LArPulseShape::execute() {
 /////////////////////////////////////////////////////////////////////
 StatusCode LArPulseShape::stop() {
 
-  msg(MSG::INFO) << "LArPulseShape has finished." << endreq;
+  ATH_MSG_INFO( "LArPulseShape has finished." );
   return StatusCode::SUCCESS;
    
 }// end finalize-method.

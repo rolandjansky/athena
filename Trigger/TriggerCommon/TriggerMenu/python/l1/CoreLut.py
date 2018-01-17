@@ -79,7 +79,7 @@ class CoreLut(object):
 
 
     @staticmethod
-    def getLutAndBit(tip):
+    def getLutAndBitFromTIP(tip):
         tip = int(tip)
         if tip>=0 and tip<300:
             lut = tip/15
@@ -89,9 +89,8 @@ class CoreLut(object):
             bit = (tip-300) % 12
         elif tip>=504 and tip<512:
             lut = 37
-            bit = tip-504
         else:
-            raise RuntimeError("CoreLut.py getLutAndBit(tip): tip %i does not exist" % tip)
+            raise RuntimeError("CoreLut.py getLutAndBitFromTIP(tip): tip %i does not exist" % tip)
         return lut
 
 
@@ -102,20 +101,15 @@ class CoreLut(object):
 
         tip = firstTIPofConnector[ connector ] + signal
             
-        return CoreLut.getLutAndBit(tip)
+        return CoreLut.getLutAndBitFromTIP(tip)
 
 
     @staticmethod
     def isOnOneLut(connector, phase, listOfCableBits):
 
-        occupiedLuts = set([ getLutAndBit(connector,2*b + phase)[0] for b in listOfCableBits])
+        occupiedLuts = set([ CoreLut.getLutAndBit(connector,2*b + phase)[0] for b in listOfCableBits])
 
         if len(occupiedLuts)>1:
             raise RuntimeError("logic stretches over more than one LUT")
-
-
-
-
-        
 
 coreLut = CoreLut()

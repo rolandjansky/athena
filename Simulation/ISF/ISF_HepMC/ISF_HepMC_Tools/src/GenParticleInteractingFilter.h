@@ -29,8 +29,7 @@ namespace ISF {
  
        @author ZLMarshall -at- lbl.gov
       */
-      class GenParticleInteractingFilter : public AthAlgTool,
-                              virtual public IGenParticleFilter {
+  class GenParticleInteractingFilter : public extends<AthAlgTool, IGenParticleFilter> {
 
     public:
       //** Constructor with parameters */

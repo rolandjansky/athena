@@ -1,6 +1,6 @@
 ## Add RadLengthIntegrator to the UserActions, and produce a histogram
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::LengthIntegratorTool',['BeginOfEvent','EndOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::LengthIntegratorTool',['Event','Step'])
 
 
 from AthenaCommon.AppMgr import ServiceMgr

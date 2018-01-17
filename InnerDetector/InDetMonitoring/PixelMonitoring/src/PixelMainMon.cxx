@@ -41,6 +41,7 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelCabling/IPixelCablingSvc.h"
@@ -58,6 +59,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_pixelCableSvc("PixelCablingSvc", name),
     m_IBLParameterSvc("IBLParameterSvc", name),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
+    m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
     m_lumiTool("LuminosityTool"),
     m_moduleTemperature(new dcsDataHolder()),
     m_coolingPipeTemperatureInlet(new dcsDataHolder()),
@@ -74,6 +76,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("PixelByteStreamErrorsSvc", m_ErrorSvc);
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
+  declareProperty("TrackSelectionTool", m_trackSelTool);
   declareProperty("LuminosityTool", m_lumiTool);
 
   declareProperty("RDOName", m_Pixel_RDOName = "PixelRDOs");  // storegate container names
@@ -93,7 +96,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("doDetails", m_doDetails = false);
   declareProperty("doTiming", m_doTiming = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
-  declareProperty("doOfflineAnalysis", m_doOfflineAnalysis = false);  // uses a lot of memory (to be absolutely avoided for monitoring!)
 
   // flags to turn on/off parts of the code
   declareProperty("doRDO", m_doRDO = false);
@@ -130,7 +132,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nActive_mod, 0, sizeof(m_nActive_mod));
   m_pixelid = 0;
   m_event = 0;
-  m_event2 = 0;
   m_startTime = 0;
   m_majorityDisabled = 0;
   m_lumiBlockNum = 0;
@@ -164,7 +165,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_avgocc_ratioIBLB0_per_lumi = 0;
   memset(m_avgocc_per_lumi_mod, 0, sizeof(m_avgocc_per_lumi_mod));
   memset(m_avgocc_per_bcid_mod, 0, sizeof(m_avgocc_per_bcid_mod));
-  memset(m_avgocc_per_bcid_per_lumi_mod, 0, sizeof(m_avgocc_per_bcid_per_lumi_mod));
   memset(m_avgocc_active_per_lumi_mod, 0, sizeof(m_avgocc_active_per_lumi_mod));
   memset(m_maxocc_per_lumi_mod, 0, sizeof(m_maxocc_per_lumi_mod));
   memset(m_maxocc_per_bcid_mod, 0, sizeof(m_maxocc_per_bcid_mod));
@@ -176,10 +176,8 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
 
   // hit tot
   memset(m_hit_ToT, 0, sizeof(m_hit_ToT));
-  memset(m_hit_ToT_per_lumi_mod, 0, sizeof(m_hit_ToT_per_lumi_mod));
   memset(m_hit_ToT_tmp_mod, 0, sizeof(m_hit_ToT_tmp_mod));
   memset(m_hit_ToT_Mon_mod, 0, sizeof(m_hit_ToT_Mon_mod));
-  memset(m_ToT_etaphi_mod, 0, sizeof(m_ToT_etaphi_mod));
   memset(m_hit_ToTMean_mod, 0, sizeof(m_hit_ToTMean_mod));
 
   // timing
@@ -194,10 +192,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_Lvl1A_10min_mod, 0, sizeof(m_Lvl1A_10min_mod));
   memset(m_Lvl1ID_diff_mod_ATLAS_mod, 0, sizeof(m_Lvl1ID_diff_mod_ATLAS_mod));
   memset(m_diff_ROD_vs_Module_BCID_mod, 0, sizeof(m_diff_ROD_vs_Module_BCID_mod));
-
-  // quick status
-  m_nhits_L0_B11_S2_C6 = 0;
-  m_occupancy_L0_B11_S2_C6 = 0;
 
   // details
   m_Details_mod1_num_hits = 0;
@@ -236,21 +230,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   // cluster size
   memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
   memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));
-
-  // module histo
-  m_track_chi2_bcl1 = 0;
-  m_track_chi2_bcl0 = 0;
-  m_track_chi2_bclgt1 = 0;
-  m_track_chi2_bcl1_highpt = 0;
-  m_track_chi2_bcl0_highpt = 0;
-  m_track_chi2_bclgt1_highpt = 0;
-  m_clustot_vs_pt = 0;
-  m_clustot_lowpt = 0;
-  m_1hitclustot_lowpt = 0;
-  m_2hitclustot_lowpt = 0;
-  m_clustot_highpt = 0;
-  m_1hitclustot_highpt = 0;
-  m_2hitclustot_highpt = 0;
 
   // cluster histograms
   m_clusters_per_lumi = 0;
@@ -297,10 +276,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_cluster_LVL1A_mod = 0;
   m_clustersOnOffTrack_per_lumi = 0;
 
-  // quick status
-  m_clusters_onTrack_L0_B11_S2_C6 = 0;
-  m_clusters_offTrack_L0_B11_S2_C6 = 0;
-
   // module status
   m_disabledModules_per_lumi_PIX = 0;
   memset(m_badModules_per_lumi_mod, 0, sizeof(m_badModules_per_lumi_mod));
@@ -340,7 +315,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_cluster_ToT_LB = 0;
   m_num_clusters_LB = 0;
 
-  // DCS monitorning
+  // DCS monitoring
   m_hist_moduleTemperatureEtaPhi = 0;
   memset(m_hist_moduleTemperature2Dscatter, 0, sizeof(m_hist_moduleTemperature2Dscatter));
   memset(m_hist_moduleTemperatureLB, 0, sizeof(m_hist_moduleTemperatureLB));
@@ -479,6 +454,9 @@ StatusCode PixelMainMon::initialize() {
     }
   }
 
+  if (m_doOnTrack) {
+    ATH_CHECK(m_trackSelTool.retrieve());
+  }
   if (m_lumiTool.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endmsg;
     return StatusCode::FAILURE;
@@ -809,7 +787,20 @@ StatusCode PixelMainMon::fillHistograms() {
     }
   }
 
- // hits
+  // track
+  if (m_doTrack) {
+    if (evtStore()->contains<TrackCollection>(m_TracksName)) {
+      if (fillTrackMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
+      }
+    } else if (m_storegate_errors) {
+      m_storegate_errors->Fill(4., 2.);
+    }
+  } else {
+    if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
+  }
+
+  // hits
   if (m_doRDO) {
     if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName)) {
       if (fillHitsMon().isFailure()) {
@@ -832,19 +823,6 @@ StatusCode PixelMainMon::fillHistograms() {
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(5., 1.);
-  }
-
-  // track
-  if (m_doTrack) {
-    if (evtStore()->contains<TrackCollection>(m_TracksName)) {
-      if (fillTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(4., 2.);
-    }
-  } else {
-    if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
   }
 
   // cluster

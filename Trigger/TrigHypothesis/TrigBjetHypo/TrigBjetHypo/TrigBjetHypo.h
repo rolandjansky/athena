@@ -86,6 +86,10 @@ class TrigBjetHypo : public HLT::HypoAlgo {
   /** @brief to check the beam spot flag status. */
   bool m_useBeamSpotFlag;
 
+  /** @brief Overide the requirement that the BS is valid. */
+  /** @brief Used to not apply the correction to the GSC chains */
+  bool m_overRideBeamSpotValid;
+  
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   float m_monitorMethod;
 

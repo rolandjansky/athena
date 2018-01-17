@@ -474,7 +474,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
      for (unsigned int i=0;i<x.size();i++) {
        msg() << MSG::DEBUG  << x[i] << " " << y[i] << " / ";
      }
-     msg() << MSG::DEBUG  << " " << endreq;
+     msg() << MSG::DEBUG  << " " << endmsg;
      ATH_MSG_DEBUG  ( "     fitted a,b  " << anoise[icell] << " " << bnoise[icell] );
    }   
  }   // end first loop over cells to store anoise and bnoise
@@ -497,13 +497,12 @@ StatusCode CaloCellNoiseAlg::fitNoise()
           for (int phi=phimin;phi<=phimax;phi++) {
             Identifier id2 = m_calo_id->cell_id(regionId,eta,phi);
             if (id2.is_valid()) {
-              if(msgLvl(MSG::DEBUG))
-                msg() << MSG::DEBUG << "     cell in ring " << m_calo_id->show_to_string(id2) ;
+               if(msgLvl(MSG::DEBUG))
+                 msg() << MSG::DEBUG << "     cell in ring " << m_calo_id->show_to_string(id2) ;
                IdentifierHash idHash2 = m_calo_id->calo_cell_hash(id2);
                int index = (int)(idHash2);
                if (index>=0 && index<m_ncell) {
-                 if(msgLvl(MSG::DEBUG))
-                   msg() << MSG::DEBUG << " noise " << anoise[index] << endreq;
+                 ATH_MSG_DEBUG( " noise " << anoise[index] );
                  if (anoise[index]>3. && m_nevt_good[index]>0) {
                     nring+=1;
                     sum+=anoise[index];
@@ -515,8 +514,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
              float patched_noise = sum/((float)(nring));
              if (patched_noise>anoise[icell]) anoise[icell] = patched_noise;
           }
-          if(msgLvl(MSG::DEBUG))
-            msg() <<MSG::DEBUG << " corrected noise nring, anoise[icell] " << nring << " " << anoise[icell] << endreq;
+          ATH_MSG_DEBUG( " corrected noise nring, anoise[icell] " << nring << " " << anoise[icell] );
        }
     }
  }

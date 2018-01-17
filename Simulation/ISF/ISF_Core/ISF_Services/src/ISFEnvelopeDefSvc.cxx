@@ -14,7 +14,7 @@
 
 /** Constructor */
 ISF::ISFEnvelopeDefSvc::ISFEnvelopeDefSvc(const std::string& name, ISvcLocator* svc) :
-  AthService(name,svc),
+  base_class(name,svc),
   m_atlasEnvDefSvc("AtlasGeometry_EnvelopeDefSvc", name),
   m_rzBeamPipe(),
   m_rzInDet(),
@@ -145,18 +145,4 @@ const RZPairVector &ISF::ISFEnvelopeDefSvc::getRPositiveZBoundary( AtlasDetDescr
   if      ( region == AtlasDetDescr::fAtlasForward ) return m_rposzBeamPipe;
   else if ( region == AtlasDetDescr::fAtlasID )      return m_rposzInDet;
   else                                               return m_atlasEnvDefSvc->getRPositiveZBoundary( region );
-}
-
-
-/** Query the interfaces. */
-StatusCode ISF::ISFEnvelopeDefSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-
-  if ( IID_IEnvelopeDefSvc == riid )
-    *ppvInterface = (IEnvelopeDefSvc*)this;
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }

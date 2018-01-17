@@ -379,10 +379,17 @@ std::vector<int> dqm_algorithms::tools::GetBinRange(const TH1 *h, const std::map
   const double xmax = dqm_algorithms::tools::GetFirstFromMap("xmax", params, notFound);
   const double ymin = dqm_algorithms::tools::GetFirstFromMap("ymin", params, notFound);
   const double ymax = dqm_algorithms::tools::GetFirstFromMap("ymax", params, notFound);
+
+  /**The nested ternaries do the following. 
+   * Suppose xmax (or ymax) happen to be a value that corresponds to the boundary of a bin. 
+   * TAxis::FindBin then returns the bin for which the xmax is the lower edge of the bin.
+   * The nested ternaries prevent this happening by decrementing the bin number returned by TAxis::FindBin by 1.
+   */
   const int xlow    = (xmin == notFound) ? 1                 : xAxis->FindBin(xmin);
-  const int xhigh   = (xmax == notFound) ? xAxis->GetNbins() : xAxis->FindBin(xmax);
+  const int xhigh   = (xmax == notFound) ? xAxis->GetNbins() : (xAxis->GetBinLowEdge(xAxis->FindBin(xmax))== xmax) ? (xAxis->FindBin(xmax)-1) : xAxis->FindBin(xmax);
   const int ylow    = (ymin == notFound) ? 1                 : yAxis->FindBin(ymin);
-  const int yhigh   = (ymax == notFound) ? yAxis->GetNbins() : yAxis->FindBin(ymax);
+  const int yhigh   = (ymax == notFound) ? yAxis->GetNbins() : (yAxis->GetBinLowEdge(yAxis->FindBin(ymax))== ymax) ? (yAxis->FindBin(ymax)-1) : yAxis->FindBin(ymax);
+
                                                                                                                                                              
   if (xlow>xhigh) {
     char temp[128];

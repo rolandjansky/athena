@@ -11,7 +11,6 @@ def defineMenu():
     """
     
     from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
-    from TriggerMenu.l1topo.TopoOutput import TopoOutput
 
     L1TopoFlags.algos = []
     

@@ -27,6 +27,6 @@ export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoBS.py"
 
 source exec_athena_art_trigger_validation.sh
 athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.BStoESD.${JOB_LOG#*.}
-echo "art-result: $?"
+echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}.BStoESD"
 
 source exec_art_triggertest_post.sh

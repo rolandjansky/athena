@@ -29,7 +29,7 @@ def getFastMBKillerTool(name="G4UA::FastMBKillerTool", **kwargs):
 
 
 def addFastIDKillerTool(name="G4UA::FastIDKillerTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['BeginOfRun','Step'],system)
+    G4AtlasServicesConfig.addAction(name,['Run','Step'],system)
 
 
 def getHIPKillerTool(name="G4UA::HIPKillerTool", **kwargs):
@@ -45,7 +45,7 @@ def getHIPLArVolumeAcceptTool(name="G4UA::HIPLArVolumeAcceptTool", **kwargs):
 
 
 def addHIPLArVolumeAcceptTool(name="G4UA::HIPLArVolumeAcceptTool", system=False):
-    G4AtlasServicesConfig.addAction(theTool,['Step','BeginOfEvent','EndOfEvent'],system)
+    G4AtlasServicesConfig.addAction(theTool,['Step','Event'],system)
 
 
 def getLooperKillerTool(name="G4UA::LooperKillerTool", **kwargs):
@@ -77,7 +77,7 @@ def getMomentumConservationTool(name="G4UA::MomentumConservationTool", **kwargs)
 
 
 def addMomentumConservationTool(name="G4UA::MomentumConservationTool", system=False):
-    G4AtlasServicesConfig.addAction(name,['Step','EndOfEvent'],system)
+    G4AtlasServicesConfig.addAction(name,['Step','Event'],system)
 
 
 def getScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", **kwargs):
@@ -85,7 +85,7 @@ def getScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", *
 
 
 def addScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", system=False):
-    G4AtlasServicesConfig.addAction(theTool,['Step','EndOfEvent'],system)
+    G4AtlasServicesConfig.addAction(theTool,['Step','Event'],system)
 
 
 def getScoringPlaneTool(name="G4UA::ScoringPlaneTool", **kwargs):

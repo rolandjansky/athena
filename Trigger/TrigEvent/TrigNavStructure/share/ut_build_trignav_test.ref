@@ -19,6 +19,6 @@ INFO       LINE:129  Test truncate
 DEBUG      LINE:136  Test progressing
 DEBUG      LINE:144  Test progressing
 DEBUG      LINE:147  Test progressing
-size of the navigation payload smaller then reported size used to save TEs. 17 < 18
+size of the navigation payload smaller than the one required to save TEs. 17 < 18
 DEBUG      LINE:152  Test progressing
 OK         LINE:171  Test passed

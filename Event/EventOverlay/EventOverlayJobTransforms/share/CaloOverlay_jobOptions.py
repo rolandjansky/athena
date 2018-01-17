@@ -54,6 +54,7 @@ if DetFlags.overlay.LAr_on():
     from LArROD.LArDigits import DefaultLArDigitThinner
     LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
     if isRealData:
+       job.LArDigitThinner.RawChannelContainerName = "LArRawChannels_FromDigits"
        #job.digitmaker1.LArPileUpTool.OutputLevel=DEBUG
        #MessageSvc.debugLimit = 100000
        #job.digitmaker1.LArPileUpTool.useLArFloat=False

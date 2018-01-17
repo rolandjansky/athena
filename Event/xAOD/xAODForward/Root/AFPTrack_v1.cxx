@@ -16,7 +16,7 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 // Local include(s):
-#include "xAODForward/AFPSiHitContainer.h"
+#include "xAODForward/versions/AFPSiHitContainer_v1.h"
 #include "xAODForward/versions/AFPTrack_v1.h"
 
 namespace xAOD

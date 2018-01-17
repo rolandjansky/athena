@@ -27,13 +27,18 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
-
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/EgammaTruthxAODHelpers.h"
+#include "MCTruthClassifier/MCTruthClassifierDefs.h"
 // STL includes
 #include <algorithm> 
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+
+//Standard includes
+#include <cstdlib>
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -53,6 +58,7 @@ m_truthVerticesKey("TruthVertices"),
 m_muonsKey("Muons"),
 m_electronsKey("Electrons"),
 m_photonsKey("Photons"),
+m_egammaTruthKey("egammaTruthParticles"),
 m_nEventsProcessed(0),
 m_nParticlesProcessed(0),
 m_nVerticesProcessed(0),
@@ -60,7 +66,7 @@ m_nParticlesThinned(0),
 m_nVerticesThinned(0)
 {
    
-    declareProperty("ThinningSvc",          m_thinningSvc,
+    declareProperty("ThinningSvc", m_thinningSvc,
                     "The ThinningSvc instance for a particular output stream" );
     
     declareProperty("ThinGeantTruth", m_doThinning,
@@ -86,6 +92,9 @@ m_nVerticesThinned(0)
 
     declareProperty("PhotonsKey", m_photonsKey,
                     "StoreGate key for photons container");
+
+    declareProperty("EGammaTruthKey", m_egammaTruthKey,
+                    "StoreGate key for e-gamma truth container");
 
 }
 
@@ -202,6 +211,43 @@ StatusCode ThinGeantTruthAlg::execute()
         } 
     }
 
+    //Set up the indices for the egamma Truth Particles to keep
+    const xAOD::TruthParticleContainer* egammaTruthParticles(0);
+    if (evtStore()->contains<xAOD::TruthParticleContainer>(m_egammaTruthKey)) {
+      CHECK( evtStore()->retrieve( egammaTruthParticles , m_egammaTruthKey ) );
+    } else {
+      ATH_MSG_WARNING("No e-gamma truth container with key "+m_egammaTruthKey+" found.");
+    }
+
+    std::vector<int> egammaTruthIndices{};
+    if (egammaTruthParticles!=nullptr) {
+
+      for (auto egTruthParticle : *egammaTruthParticles) {
+
+	static const SG::AuxElement::ConstAccessor<int> accType("truthType");
+
+	if(!accType.isAvailable(*egTruthParticle) || 
+	   accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron || 
+	   std::abs(egTruthParticle->eta()) > 2.525){
+	  continue;
+	}
+
+
+	//Only central isolated true electrons	
+	typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
+	static SG::AuxElement::ConstAccessor<TruthLink_t> linkToTruth("truthParticleLink");
+	if (!linkToTruth.isAvailable(*egTruthParticle)) {
+	  continue;
+	}
+
+	const TruthLink_t& truthegamma = linkToTruth(*egTruthParticle);
+	if (!truthegamma.isValid()) {
+	  continue;
+	} 
+
+	egammaTruthIndices.push_back( (*truthegamma)->index());
+	}
+    }     
     // Set up masks
     std::vector<bool> particleMask, vertexMask;
     int nTruthParticles = truthParticles->size();
@@ -243,6 +289,7 @@ StatusCode ThinGeantTruthAlg::execute()
                 }        
             }
         }  
+
         // Retain particles and their descendants/ancestors associated with the reconstructed objects
         if ( std::find(recoParticleTruthIndices.begin(), recoParticleTruthIndices.end(), i) != recoParticleTruthIndices.end() ) { 
             if (abs(particle->barcode()) > m_geantOffset) { // only need to do this for Geant particles since non-Geant are kept anyway 
@@ -252,6 +299,13 @@ StatusCode ThinGeantTruthAlg::execute()
                 encounteredBarcodes.clear();
             }
         }
+
+        // Retain particles and their descendants  associated with the egamma Truth Particles
+        if ( std::find(egammaTruthIndices.begin(), egammaTruthIndices.end(), i) != egammaTruthIndices.end() ) { 
+	  descendants(particle,particleMask,encounteredBarcodes);
+	  encounteredBarcodes.clear();
+        }
+
         if (abs(particle->barcode()) < m_geantOffset) {
             particleMask[i] = true;
         }         

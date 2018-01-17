@@ -10,10 +10,9 @@
 LArTBH6TriggerTimeTool::LArTBH6TriggerTimeTool(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent) :
-  AthAlgTool(type,name,parent), m_time(0), m_newEvent(true),
+  base_class(type,name,parent), m_time(0), m_newEvent(true),
   m_fixed(true)
 {
-  declareInterface< ITriggerTime >(this) ;
   declareProperty("isFixed",m_fixed);
   declareProperty("FixedTime",m_time);
 
