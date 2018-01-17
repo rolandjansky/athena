@@ -14,14 +14,3 @@ include.block( "AthenaServices/ReadAthenaPoolSeek_jobOptions.py" )
 
 # Make sure that this has been read.
 include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
-
-# Set up for seeking.
-# Seeking only works with ImplicitROOT.
-if (ServiceMgr.EventSelector.properties()["CollectionType"] in
-    ["ImplicitROOT", Configurable.propertyNoValue]):
-    ServiceMgr.EventSelector.CollectionType = "SeekableROOT"
-else:
-    print "WARNING: Input seeking is not compatible", \
-          "with collection type of", \
-          ServiceMgr.EventSelector.properties()["CollectionType"]
-    print "  Seeking disabled."

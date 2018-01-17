@@ -128,7 +128,7 @@ ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
 WriteCond           DEBUG Property update for OutputLevel : new value = 2
 WriteCond            INFO in initialize()
-AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
+AthenaPoolAddre...  DEBUG Cannot find DataHeader in DetectorStore.
 ClassIDSvc           INFO  getRegistryEntries: read 3478 CLIDRegistry entries for module ALL
 WriteCond           DEBUG input handles: 0
 WriteCond           DEBUG output handles: 0

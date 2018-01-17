@@ -27,8 +27,6 @@
 namespace pool {
    class ICollectionCursor;
 }
-class IChronoStatSvc;
-class IClassIDSvc;
 class IIncidentSvc;
 class IOpaqueAddress;
 class ISvcLocator;
@@ -147,7 +145,6 @@ private: // data
    EventContextAthenaPool*      m_endIter;
 
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
-   ServiceHandle<StoreGateSvc> m_tagDataStore;
 
    mutable PoolCollectionConverter* m_poolCollectionConverter;
    mutable pool::ICollectionCursor* m_headerIterator;
@@ -155,8 +152,6 @@ private: // data
    mutable long long int m_satelliteOid1;
 
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
-   ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
-   ServiceHandle<IClassIDSvc> m_clidSvc;
    ServiceHandle<IIncidentSvc> m_incidentSvc;
 
 private: // properties
@@ -229,7 +224,6 @@ private: // properties
 
    typedef std::mutex CallMutex;
    mutable CallMutex m_callLock;
-
 };
 
 #endif

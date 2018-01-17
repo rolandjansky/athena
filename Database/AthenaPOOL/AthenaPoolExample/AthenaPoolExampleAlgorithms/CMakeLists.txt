@@ -181,12 +181,12 @@ _add_test( AthenaPoolExample_ReadcBs
 _add_test( AthenaPoolExample_WCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadcBs_ctest )
-_add_test( AthenaPoolExample_ACond
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ACondJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest )
+#_add_test( AthenaPoolExample_ACond
+#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ACondJobOptions.py"
+#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest )
 _add_test( AthenaPoolExample_RCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ACond_ctest )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest )
 
 # Testing 'Metadata' I/O
 _add_test( AthenaPoolExample_WMeta
