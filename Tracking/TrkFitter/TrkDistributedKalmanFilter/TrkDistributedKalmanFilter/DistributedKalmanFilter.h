@@ -102,28 +102,28 @@ private:
 	// Private functions:
 	///////////////////////////////////////////////////////////////////
 
-	Trk::TrkTrackState* m_extrapolate(TrkTrackState*, 
-				      TrkPlanarSurface*,
-				      TrkPlanarSurface*) const;
-	bool m_runForwardKalmanFilter(TrkTrackState*) const;
-	void m_runSmoother() const;
-	int  m_findOutliers(double) const;
-	void m_calculateLRsolution() const;
-	TrackStateOnSurface* m_createTrackStateOnSurface(TrkBaseNode*) const;
-	void m_deleteNodes() const;
-	void m_deleteSurfaces() const;
-	void m_deleteTrackStates() const;
-	void m_report();
-	void m_report(char fileName[]);
-	void m_getMagneticField(double[3],double*) const;
-	void m_matrixInversion5x5(double a[5][5]) const;
-	Perigee* m_createMeasuredPerigee(TrkTrackState*) const;
+	Trk::TrkTrackState* extrapolate(TrkTrackState*, 
+                                        TrkPlanarSurface*,
+                                        TrkPlanarSurface*) const;
+	bool runForwardKalmanFilter(TrkTrackState*) const;
+	void runSmoother() const;
+	int  findOutliers(double) const;
+	void calculateLRsolution() const;
+	TrackStateOnSurface* createTrackStateOnSurface(TrkBaseNode*) const;
+	void deleteNodes() const;
+	void deleteSurfaces() const;
+	void deleteTrackStates() const;
+	void report();
+	void report(char fileName[]);
+	void getMagneticField(double[3],double*) const;
+	void matrixInversion5x5(double a[5][5]) const;
+	Perigee* createMeasuredPerigee(TrkTrackState*) const;
 
-	void m_numericalJacobian(TrkTrackState*, TrkPlanarSurface*,TrkPlanarSurface*,
-				 double A[5][5]) const;
-	double m_integrate(double Rk[5], 
-			   TrkPlanarSurface* pSB,
-			   TrkPlanarSurface* pSE, double* Rf) const;
+	void numericalJacobian(TrkTrackState*, TrkPlanarSurface*,TrkPlanarSurface*,
+                               double A[5][5]) const;
+	double integrate(double Rk[5], 
+                         TrkPlanarSurface* pSB,
+                         TrkPlanarSurface* pSE, double* Rf) const;
 
 	///////////////////////////////////////////////////////////////////
 	// Private data:
