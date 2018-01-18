@@ -3,8 +3,8 @@
 */
 
 
-#ifndef SHOWER_LIB_STEP_INFO_H
-#define SHOWER_LIB_STEP_INFO_H
+#ifndef LARG4GENSHOWERLIB_STEPINFO_H
+#define LARG4GENSHOWERLIB_STEPINFO_H
 
 // STL includes
 #include <iostream>
@@ -93,5 +93,5 @@ namespace ShowerLib {
 
 } // namespace ShowerLib
 
-#endif // SHOWER_LIB_STEP_INFO_H
+#endif // LARG4GENSHOWERLIB_STEPINFO_H
 

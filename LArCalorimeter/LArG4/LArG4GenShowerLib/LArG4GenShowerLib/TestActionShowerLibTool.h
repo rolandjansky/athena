@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARG4GENSHOWERLIB_G4UA__TESTACTIONSHOWERLIBTOOL_H 
-#define LARG4GENSHOWERLIB_G4UA__TESTACTIONSHOWERLIBTOOL_H 
+#ifndef LARG4GENSHOWERLIB_G4UA__TESTACTIONSHOWERLIBTOOL_H
+#define LARG4GENSHOWERLIB_G4UA__TESTACTIONSHOWERLIBTOOL_H
+
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasInterfaces/IG4RunActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"

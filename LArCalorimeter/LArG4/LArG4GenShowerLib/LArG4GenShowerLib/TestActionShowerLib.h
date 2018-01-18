@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TestActionShowerLib_H
-#define TestActionShowerLib_H
+#ifndef LARG4GENSHOWERLIB_TestActionShowerLib_H
+#define LARG4GENSHOWERLIB_TestActionShowerLib_H
 
 // STL includes
 #include <string>

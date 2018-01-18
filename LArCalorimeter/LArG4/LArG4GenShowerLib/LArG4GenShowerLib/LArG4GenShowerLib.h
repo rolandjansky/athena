@@ -2,9 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#ifndef LARG4GENSHLIB_H
-#define LARG4GENSHLIB_H
+#ifndef LARG4GENSHOWERLIB_LARG4GENSHLIB_H
+#define LARG4GENSHOWERLIB_LARG4GENSHLIB_H
 
 // STL includes
 #include <string>
@@ -97,4 +96,4 @@ class LArG4GenShowerLib : public AthAlgorithm {
 
 }; // class LArG4GenShowerLib
 
-#endif // LARG4GENSHLIB_H
+#endif // LARG4GENSHOWERLIB_LARG4GENSHLIB_H

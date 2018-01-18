@@ -2,9 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#ifndef G4USERACTIONS_STEPINFOCOLLECTION_H
-#define G4USERACTIONS_STEPINFOCOLLECTION_H
+#ifndef LARG4GENSHOWERLIB_STEPINFOCOLLECTION_H
+#define LARG4GENSHOWERLIB_STEPINFOCOLLECTION_H
 
 // athena includes
 #include "DataModel/DataVector.h"
@@ -48,5 +47,4 @@ namespace ShowerLib {
 
 CLASS_DEF( ShowerLib::StepInfoCollection , 1151967000 , 1 )
 
-#endif
-
+#endif // LARG4GENSHOWERLIB_STEPINFOCOLLECTION_H
