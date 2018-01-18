@@ -11,8 +11,10 @@
 // local include
 #include "LArG4GenShowerLib/StepInfo.h"
 //#include <string>
-// Namespace for the ShowerLib related classes
-namespace ShowerLib {
+
+/// Namespace for the ShowerLib related classes
+namespace ShowerLib
+{
 
   /**
    *
@@ -26,16 +28,15 @@ namespace ShowerLib {
    *
    */
 
-  class StepInfoCollection : public DataVector<StepInfo> {
+  class StepInfoCollection : public DataVector<StepInfo>
+  {
 
   public:
 
-	  StepInfoCollection() : detector(), invalid_energy(0) {}
+    StepInfoCollection() : detector(), invalid_energy(0) {}
 
-	  char  detector[10];            //10 should be enough
-	  float invalid_energy;          //the amount of energy deposited outside the region
-
-  private:
+    char  detector[10];            //10 should be enough
+    float invalid_energy;          //the amount of energy deposited outside the region
 
   };
 

@@ -5,18 +5,26 @@
 #include "CxxUtils/make_unique.h"
 #include "LArG4GenShowerLib/TestActionShowerLibTool.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
 
+  //----------------------------------------------------------------------------
+  TestActionShowerLibTool::TestActionShowerLibTool(const std::string& type,
+                                                   const std::string& name,
+                                                   const IInterface* parent)
+    : ActionToolBase<TestActionShowerLib>(type, name, parent)
+  {}
 
-  TestActionShowerLibTool::TestActionShowerLibTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<TestActionShowerLib>(type, name, parent){
-  }
-  std::unique_ptr<TestActionShowerLib>  TestActionShowerLibTool::makeAction(){
+  //----------------------------------------------------------------------------
+  std::unique_ptr<TestActionShowerLib> TestActionShowerLibTool::makeAction()
+  {
     ATH_MSG_DEBUG("makeAction");
     return CxxUtils::make_unique<TestActionShowerLib>();
   }
+
+  //----------------------------------------------------------------------------
   StatusCode TestActionShowerLibTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
+
     if(riid == IG4EventActionTool::interfaceID()) {
       *ppvIf = (IG4EventActionTool*) this;
       addRef();
@@ -34,5 +42,5 @@ namespace G4UA{
     }
     return ActionToolBase<TestActionShowerLib>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA

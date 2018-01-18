@@ -42,7 +42,7 @@ namespace HepMC {
 class LArG4GenShowerLib : public AthAlgorithm {
 
  public:
-  
+
   LArG4GenShowerLib(const std::string& name, ISvcLocator* pSvcLocator);
 
   StatusCode initialize();
@@ -64,7 +64,7 @@ class LArG4GenShowerLib : public AthAlgorithm {
   //! return first MC truth particle for event
   const HepMC::GenParticle* getParticleFromMC();
   //! calculate moments from StepInfoCollection
-  void calculateMoments(const ShowerLib::StepInfoCollection&  eventSteps, 
+  void calculateMoments(const ShowerLib::StepInfoCollection&  eventSteps,
 			double& weights, double& xavfra, double& yavfra, double& ravfra);
   //! adding tag information (release, detector description, ...) to library comment
   void addingTagsToLibrary();
@@ -87,12 +87,12 @@ class LArG4GenShowerLib : public AthAlgorithm {
   int m_stat_valid;
   int m_stat_invalid;
   int m_stat_nolib;
-  
+
   std::map<ShowerLib::IShowerLib*, int> m_stat_lib_saved;
   std::map<ShowerLib::IShowerLib*, int> m_stat_lib_notsaved;
-  
+
   std::string m_physicslist_name;
-  
+
 
 }; // class LArG4GenShowerLib
 

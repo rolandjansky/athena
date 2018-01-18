@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef LARG4GENSHOWERLIB_STEPINFO_H
 #define LARG4GENSHOWERLIB_STEPINFO_H
 
@@ -14,15 +13,16 @@
 
 class MsgStream;
 
-// Namespace for the ShowerLib related classes
-namespace ShowerLib {
+/// Namespace for the ShowerLib related classes
+namespace ShowerLib
+{
 
   /**
    *
    *   @short Class to collect information about G4 steps
    *
    *          This class is designed to transfer hit information,
-   *          i.e. position, energy deposition and time, from 
+   *          i.e. position, energy deposition and time, from
    *          G4 simulation to the clustering algorithm
    *
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
@@ -32,7 +32,8 @@ namespace ShowerLib {
    *
    */
 
-  class StepInfo {
+  class StepInfo
+  {
 
   public:
 
@@ -80,13 +81,13 @@ namespace ShowerLib {
 
     //! energy weighted sum
     StepInfo& operator+=(const StepInfo& other );
-    
+
   private:
-    
+
     // data members
     CLHEP::Hep3Vector m_pos;    //!< spatial position
     double m_dep;        //!< deposited energy
-    double m_time;       //!< time 
+    double m_time;       //!< time
     bool m_valid;        //!< flag, if hit is valid
 
   };
@@ -94,4 +95,3 @@ namespace ShowerLib {
 } // namespace ShowerLib
 
 #endif // LARG4GENSHOWERLIB_STEPINFO_H
-
