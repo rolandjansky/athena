@@ -1,25 +1,28 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
 from AthenaCommon.SystemOfUnits import MeV
 
-def CaloTopoClusterCfg(inputFlags=None):
+def CaloTopoClusterCfg(inputFlags):
     result=ComponentAccumulator()
     
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
     
     #from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
 
-    #from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
-    #from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeightCalib
-
-
+    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
+    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeightCalib
     from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
 
     
+    result.executeModule(LArGMCfg,inputFlags)
+    result.executeModule(TileGMCfg,inputFlags)    
+    result.executeModule(CaloNoiseToolCfg,inputFlags)
 
-    #from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    #theCaloNoiseTool = CaloNoiseToolDefault()
+    theCaloNoiseTool=result.getPublicTool("CaloNoiseTool")
 
     # maker tools
     TopoMaker = CaloTopoClusterMaker("TopoMaker")
@@ -38,7 +41,7 @@ def CaloTopoClusterCfg(inputFlags=None):
                                    "TileExt0", "TileExt1", "TileExt2",
                                    "TileGap1", "TileGap2", "TileGap3",
                                    "FCAL0", "FCAL1", "FCAL2"] 
-    #TopoMaker.CaloNoiseTool=theCaloNoiseTool
+    TopoMaker.CaloNoiseTool=theCaloNoiseTool
     TopoMaker.UseCaloNoiseTool=True
     TopoMaker.UsePileUpNoise=True
     TopoMaker.NeighborOption = "super3D"
@@ -56,7 +59,7 @@ def CaloTopoClusterCfg(inputFlags=None):
     TopoMaker.SeedCutsInAbsE                 = True
     TopoMaker.ClusterEtorAbsEtCut            = 0.0*MeV
     # use 2-gaussian or single gaussian noise for TileCal
-    TopoMaker.TwoGaussianNoise = inputFlags.CaloTopoClusterFlags.doTwoGaussianNoise()
+    TopoMaker.TwoGaussianNoise = inputFlags.get("CaloRec.CaloTopoClusterConfigFlags.doTwoGaussianNoise")
         
     TopoSplitter = CaloTopoClusterSplitter("TopoSplitter")
     # cells from the following samplings will be able to form local
@@ -78,7 +81,7 @@ def CaloTopoClusterCfg(inputFlags=None):
                                            "FCAL1","FCAL2"]
     TopoSplitter.ShareBorderCells = True
     TopoSplitter.RestrictHECIWandFCalNeighbors  = False
-    TopoSplitter.WeightingOfNegClusters = inputFlags.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
+    TopoSplitter.WeightingOfNegClusters = inputFlags.get("CaloRec.CaloTopoClusterConfigFlags.doTreatEnergyCutAsAbsolute")
     #
     # the following options are not set, since these are the default
     # values
@@ -89,10 +92,30 @@ def CaloTopoClusterCfg(inputFlags=None):
         
 
     CaloTopoCluster=CaloClusterMaker("CaloTopoCluster")
-    CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"    # cluster maker
+    CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"   
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
             
     result.addEventAlgo(CaloTopoCluster)
     return result
 
+
+
+if __name__=="__main__":
+    cfg=ComponentAccumulator()
+
+    cfgFlags=ConfigFlagContainer()
+    cfgFlags.set("AthenaConfiguration.GlobalConfigFlags.isMC",False)
+    cfgFlags.set("AthenaConfiguration.GlobalConfigFlags.InputFiles",["myESD.pool.root"])
+
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    cfg.executeModule(PoolReadCfg,cfgFlags)
+    
+    cfg.executeModule(CaloTopoClusterCfg,cfgFlags)
+
+    cfg.getEventAlgo("CaloTopoCluster").ClustersOutputName="CaloCalTopoClustersNew" 
+
+    f=open("CaloTopoCluster.pkl","w")
+    cfg.store(f)
+    f.close()
+    
