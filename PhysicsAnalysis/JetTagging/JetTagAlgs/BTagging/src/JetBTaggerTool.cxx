@@ -131,8 +131,9 @@ namespace Analysis {
 
     /* Record the BTagging  output container */
     SG::WriteHandle<xAOD::BTaggingContainer> h_BTaggingCollectionName (m_BTaggingCollectionName);
-    ATH_CHECK( h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
-          std::make_unique<xAOD::BTaggingAuxContainer>()) );
+    StatusCode sc = h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
+        std::make_unique<xAOD::BTaggingAuxContainer>());
+    ATH_CHECK(sc, 1);
 
     if (!m_magFieldSvc->solenoidOn()) {
       for (size_t jetIndex=0; jetIndex < h_JetCollectionName->size() ; ++jetIndex) {
