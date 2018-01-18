@@ -1750,7 +1750,7 @@ bool TileDddbManager::addPlatesToCell() const
     {
       if ((*m_tileSwitches)[0]->isFieldNull("ADDPLATESTOCELL"))
         {
-          std::cerr << "\nTileDddbManager   WARNING TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE\n\n";
+//          std::cerr << "\nTileDddbManager   WARNING TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE\n\n";
           return true;
         }
       else
@@ -1760,7 +1760,7 @@ bool TileDddbManager::addPlatesToCell() const
     }
   else
     {
-      std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning addPlatesToCell= TRUE\n\n";
+//      std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning addPlatesToCell= TRUE\n\n";
       return true;
     }
 }
@@ -1772,7 +1772,7 @@ int TileDddbManager::Ushape() const
         try {
           if ((*m_tileSwitches)[0]->isFieldNull("USHAPE"))
             {
-              std::cerr << "\nTileDddbManager   WARNING TileSwitches(USHAPE) is EMPTY, returning Ushape= 0\n\n";
+ //             std::cerr << "\nTileDddbManager   WARNING TileSwitches(USHAPE) is EMPTY, returning Ushape= 0\n\n";
               return 0;
             }
           else
@@ -1780,7 +1780,7 @@ int TileDddbManager::Ushape() const
 	      return (*m_tileSwitches)[0]->getInt("USHAPE");
 	    }
         } catch (std::exception& e) {
-          std::cout << "\nTileDddbManager   WARNING TileSwitches table does not contain field USHAPE, returning Ushape= 0 \n\n";
+//          std::cout << "\nTileDddbManager   WARNING TileSwitches table does not contain field USHAPE, returning Ushape= 0 \n\n";
           return 0;
       }
     }
@@ -1797,7 +1797,7 @@ int TileDddbManager::glue() const
     {
       if ((*m_tileSwitches)[0]->isFieldNull("GLUE"))
         {
-          std::cerr << "\nTileDddbManager   WARNING TileSwitches(GLUE) is EMPTY, returning 1\n\n";
+//          std::cerr << "\nTileDddbManager   WARNING TileSwitches(GLUE) is EMPTY, returning 1\n\n";
           return 1;
         }
       else
@@ -1807,7 +1807,7 @@ int TileDddbManager::glue() const
     }
   else
     {
-      std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning glue= 1\n\n";
+ //     std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning glue= 1\n\n";
       return 1;
     }
 }
