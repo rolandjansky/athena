@@ -16,7 +16,6 @@ CREATED:  18th Aug, 2005
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/eflowCellIntegrator.h"
 #include "eflowRec/eflowDepthCalculator.h"
-#include "eflowRec/cycle.h"
 #include "eflowRec/LegendreWeights.h"
 #include "eflowRec/eflowDatabase.h"
 #include "eflowRec/eflowTrackCaloPoints.h"
@@ -27,6 +26,8 @@ CREATED:  18th Aug, 2005
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloEvent/CaloCell.h"
+
+#include "FourMomUtils/xAODP4Helpers.h"
 
 eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev) :
     m_rMax(rMaxOverStdDev * stdDev),
@@ -199,7 +200,7 @@ void eflowLayerIntegrator::measureCell(const CaloCell* cell, const eflowTrackCal
   const double phiWidth = caloDetDescrElement->dphi();
 
   const double dEta = cell->eta() - extrapTrackEta;
-  const double dPhi = cycle(cell->phi(), extrapTrackPhi) - extrapTrackPhi;
+  const double dPhi = xAOD::P4Helpers::deltaPhi(cell->phi(), extrapTrackPhi);
   const double dr = sqrt(dEta * dEta + dPhi * dPhi);
 
   if ( fabs(dr - std::max(etaWidth, phiWidth)) <= m_rMax || dr <= m_rMax ) {

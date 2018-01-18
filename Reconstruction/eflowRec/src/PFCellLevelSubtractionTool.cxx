@@ -14,7 +14,6 @@
 #include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
-#include "eflowRec/cycle.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
