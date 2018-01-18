@@ -73,7 +73,7 @@ Tests are called with:
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
-__version__ = '0.7.11'
+__version__ = '0.7.21'
 
 import logging
 import os
@@ -93,12 +93,12 @@ MODULE = "art"
 
 
 @dispatch.on('compare', 'ref')
-def compare_ref(file_name, ref_file, **kwargs):
+def compare_ref(path, ref_path, **kwargs):
     """Compare the output of a job."""
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     entries = kwargs['entries']
-    exit(ArtBase(art_directory).compare_ref(file_name, ref_file, entries))
+    exit(ArtBase(art_directory).compare_ref(path, ref_path, entries))
 
 
 @dispatch.on('compare', 'grid')
