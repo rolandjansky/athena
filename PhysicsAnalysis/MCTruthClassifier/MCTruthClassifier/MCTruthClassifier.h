@@ -132,8 +132,11 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
                                               Info* info) const;
 #endif
    //
-   void findAllJetMothers(const xAOD::TruthParticle* thePart,std::set<const xAOD::TruthParticle*>&) const;
-   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) ;
+   void findAllJetMothers(const xAOD::TruthParticle*,std::set<const xAOD::TruthParticle*>&) const;
+   void findParticleDaughters(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
+   double fracParticleInJet(const xAOD::TruthParticle*, const xAOD::Jet*, bool DR, bool nparts) const;
+   void findJetConstituents(const xAOD::Jet*, std::set<const xAOD::TruthParticle*>& constituents, bool DR) const;
+   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2);
    MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>) const;
    //
   
