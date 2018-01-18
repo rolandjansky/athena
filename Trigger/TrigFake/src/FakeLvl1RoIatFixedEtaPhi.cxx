@@ -64,7 +64,6 @@ FakeLvl1RoIatFixedEtaPhi::FakeLvl1RoIatFixedEtaPhi(const std::string& name, cons
     m_muonRoiEta(0.),
     m_jetRoiPhi(99.),
     m_jetRoiEta(0.),
-    instance(""),
     m_lvl1ID(1)
 {
   declareProperty( "FakeEmRoiPhi", m_emRoiPhi=99.);
