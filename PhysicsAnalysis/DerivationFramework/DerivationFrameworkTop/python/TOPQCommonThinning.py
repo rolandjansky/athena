@@ -28,7 +28,7 @@ def TOPQTriggerChains(TriggerFilter='allTriggers'):
   elecPlusMuTriggers = 'HLT_e.*mu.*|HLT_mu.*e.*'
   tauTriggers        = 'HLT_tau.*'
   jetTriggers        = 'HLT_3j.*|HLT_4j.*|HLT_5j.*|HLT_6j.*|HLT_7j.*|HLT_8j.*|HLT_j.*_a.*| HLT_ht.*'
-  bjetTriggers       = 'HLT_.*bmedium.*|HLT_.*btight.*|HLT_.*bloose.*'
+  bjetTriggers       = 'HLT_.*bmedium.*|HLT_.*btight.*|HLT_.*bloose.*|HLT_.*boffperf.*|HLT_.*bmv2.*'
   TriggerChains      = ''
   if TriggerFilter=='allTriggers':
     TriggerChains      = electronTriggers+"|"+muonTriggers+"|"+tauTriggers+"|"+jetTriggers+"|"+bjetTriggers+"|"+elecPlusMuTriggers
