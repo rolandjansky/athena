@@ -1668,7 +1668,6 @@ class ItemDef:
                     LVL1MenuItem('L1_MJJ-200').setLogic( TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)    # noqa: F821
                     LVL1MenuItem('L1_MJJ-100').setLogic( TOPO_100INVM9999_AJ30s6_AJ20s6 & physcond)    # noqa: F821
                     if '_v7' in TriggerFlags.triggerMenuSetup() or '_PhaseII' in TriggerFlags.triggerMenuSetup():
-                        LVL1MenuItem('L1_MJJ-800-NFF').setLogic( TOPO_800INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_MJJ-600-NFF').setLogic( TOPO_600INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_MJJ-500-NFF').setLogic( TOPO_500INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_MJJ-400-NFF').setLogic( TOPO_400INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821

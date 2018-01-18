@@ -1605,7 +1605,7 @@ class TopoAlgoDef:
 
         # VBF items INVM_NFF
         for x in [
-            {"algoname": 'INVM_NFF', "Threlist": [ 800, 600, 500, 400, 200 ], "maxInvm": 9999, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 15, "olist2" : "s", "nleading2" : 6 },
+            {"algoname": 'INVM_NFF', "Threlist": [ 600, 500, 400, 200 ], "maxInvm": 9999, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 15, "olist2" : "s", "nleading2" : 6 },
             ]:
             
             for k in x:
