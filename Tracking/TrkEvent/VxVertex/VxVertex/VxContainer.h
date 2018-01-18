@@ -6,9 +6,9 @@
 #ifndef VXVERTEX_VXCONTAINER_H
 #define VXVERTEX_VXCONTAINER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "VxVertex/VxCandidate.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 /**
  * @class VxContainer.h  
  *      
