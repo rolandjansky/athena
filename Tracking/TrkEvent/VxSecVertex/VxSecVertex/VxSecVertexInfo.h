@@ -29,8 +29,8 @@ given by a vector of VxCandidate*. The class OWNS the VxCandidate. Pointers
 #ifndef VXSECVERTEX_VXSECVERTEXINFO_H
 #define VXSECVERTEX_VXSECVERTEXINFO_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "xAODTracking/Vertex.h"
 #include <vector>
 
