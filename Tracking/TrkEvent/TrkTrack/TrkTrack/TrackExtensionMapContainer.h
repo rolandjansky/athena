@@ -5,9 +5,9 @@
 #ifndef TRKPRIM_TRACKEXTENSION_CNT_H
 #define TRKPRIM_TRACKEXTENSION_CNT_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrack/TrackExtensionMap.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
  /** @brief Container of TrackExtensionMap for the trigger navigation */
 
