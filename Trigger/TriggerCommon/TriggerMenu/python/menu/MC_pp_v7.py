@@ -2288,6 +2288,12 @@ def setupMenu():
         
         ]
 
+    if TriggerFlags.doFTK():
+        TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
+            ['noalg_ftk_L1FTK-EM',           'L1_FTK-EM',    [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
+            ['noalg_ftk_L1FTK-J',            'L1_FTK-J',     [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
+            ['noalg_ftk_L1FTK-MU',           'L1_FTK-MU',    [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
+            ]
  
     #TriggerFlags.GenericSlice.signatures = TriggerFlags.GenericSlice.signatures() + []
 
