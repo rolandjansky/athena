@@ -6,7 +6,7 @@
 #include "MM_Digitization/StripsResponseSimulation.h"
 #include "GaudiKernel/MsgStream.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
-#include "MM_Digitization/MM_StripResponse.h"
+#include "MM_Digitization/StripResponse.h"
 #include "PathResolver/PathResolver.h"
 
 #include<map>
@@ -50,6 +50,7 @@ StripsResponseSimulation::StripsResponseSimulation():
 	m_interactionDensityFunction(0),
 	m_random(0),
 	m_writeOutputFile(true),
+	m_writeEventDisplays(false),
 	m_outputFile(0)
 	{
 	}
@@ -61,14 +62,22 @@ void StripsResponseSimulation::initHistos()
 		if(m_outputFile) m_outputFile->cd();
 	}
 
-	m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",100,0,100);
+	m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",200,0,200);
 	m_mapOfHistograms["nElectrons"] = new TH1F("nElectrons","nElectrons",200,0,200);
 	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,3);
-	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,2e5);
+	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,1e5);
+	m_mapOfHistograms["effectiveNElectrons"] = new TH1F("effectiveNElectrons","effectiveNElectrons",200,0,200);
+
+	m_mapOf2DHistograms["pathLengthVsTheta"] = new TH2F("pathLengthVsTheta","pathLengthVsTheta",  100,0,10,  100,-3,3);
+	m_mapOf2DHistograms["pathLengthVsAlpha"] = new TH2F("pathLengthVsAlpha","pathLengthVsAlpha",  100,0,10,  100,-3,3);
 
 	m_mapOf2DHistograms["lorentzAngleVsTheta"] = new TH2F("lorentzAngleVsTheta","lorentzAngleVsTheta",  100,-3,3,  100,-3,3);
-	m_mapOf2DHistograms["lorentzAngleVsBy"] = new TH2F("lorentzAngleVsBy","lorentzAngleVsBy",  100,-3,3,  100,-2.,2.);
+	m_mapOf2DHistograms["lorentzAngleVsBy"]    = new TH2F("lorentzAngleVsBy","lorentzAngleVsBy",  100,-3,3,  100,-2.,2.);
 
+	m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]    = new TH2F("deltaLorentzAngleVsByForPosTheta","deltaLorentzAngleVsByForPosTheta",  100,-3,3,  100,-2.,2.);
+	m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]    = new TH2F("deltaLorentzAngleVsByForNegTheta","deltaLorentzAngleVsByForNegTheta",  100,-3,3,  100,-2.,2.);
+
+	m_mapOf2DHistograms["driftDistanceVsDriftTime"]            = new TH2F("driftDistanceVsDriftTime","driftDistanceVsDriftTime",  100,0,10,  100,0,200);
 
 }
 /*******************************************************************************/
@@ -76,13 +85,10 @@ void StripsResponseSimulation::writeHistos()
 {
 
 	if(m_outputFile){
-
 		m_outputFile->cd();
-		// for (auto & tmpHist : m_mapOfHistograms){
-		// 	tmpHist.second->Write();
-		// }
 		m_outputFile->Write();
 	}
+
 }
 /*******************************************************************************/
 void StripsResponseSimulation::initFunctions()
@@ -117,14 +123,6 @@ void StripsResponseSimulation::initFunctions()
 /*******************************************************************************/
 void StripsResponseSimulation::clearValues()
 {
-
-	if (m_polyaFunction                  != 0 ) delete m_polyaFunction                  ;
-	if (m_lorentzAngleFunction           != 0 ) delete m_lorentzAngleFunction           ;
-	if (m_longitudinalDiffusionFunction  != 0 ) delete m_longitudinalDiffusionFunction  ;
-	if (m_transverseDiffusionFunction    != 0 ) delete m_transverseDiffusionFunction    ;
-	if (m_interactionDensityFunction     != 0 ) delete m_interactionDensityFunction     ;
-	if (m_random                         != 0 ) delete m_random                         ;
-
 }
 
 /*******************************************************************************/
@@ -151,7 +149,13 @@ MmStripToolOutput StripsResponseSimulation::GetResponseFrom(const MmDigitToolInp
 	finalqStrip.clear();
 	finaltStrip.clear();
 
-	whichStrips(digiInput.positionWithinStrip(), digiInput.stripIDLocal(), digiInput.incomingAngle(), digiInput.stripMaxID(), digiInput);
+	whichStrips(digiInput.positionWithinStrip(),
+		digiInput.stripIDLocal(),
+		digiInput.incomingAngleXZ(), //degrees
+		digiInput.incomingAngleYZ(), //degrees
+		digiInput.stripMaxID(),
+		digiInput
+		);
 
 	log << MSG::DEBUG << "\t \t StripsResponseSimulation::GetResponseFrom creating MmDigitToolOutput object " << endmsg;
 
@@ -165,14 +169,21 @@ MmStripToolOutput StripsResponseSimulation::GetResponseFrom(const MmDigitToolInp
 //==================================================================================================
 // calculate the strips that got fired, charge and time. Assume any angle thetaDegrees....
 //==================================================================================================
-void StripsResponseSimulation::whichStrips(const float & hitx, const int & stripID, const float & thetaDegrees, const int & stripMaxID, const MmDigitToolInput & digiInput)
+void StripsResponseSimulation::whichStrips( const float & hitx,
+											const int & stripID,
+											const float & incidentAngleXZ,
+											const float & incidentAngleYZ,
+											const int & stripMaxID,
+											const MmDigitToolInput & digiInput)
 {
 
 	Athena::MsgStreamMember msglog("StripsResponseSimulation::whichStrips");
 	msglog << MSG::DEBUG << "\t \t StripsResponseSimulation::whichStrips start " << endmsg;
 
 	float eventTime = digiInput.eventTime();
-	float theta = thetaDegrees*TMath::Pi()/180.0;
+	float theta = incidentAngleXZ * M_PI/180.0; // Important for path length and strip distribution
+	float alpha = incidentAngleYZ * M_PI/180.0; // Important for path length
+
 
 	int nPrimaryIons = 0;
 
@@ -193,21 +204,35 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 
 	float pathLengthTraveled = ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
 
-	float pathLength         = m_driftGapWidth/TMath::Cos(theta);
+	float pathLength  = m_driftGapWidth/TMath::Cos(theta); // Increasing path length based on XZ angle
+	pathLength       /= TMath::Cos(alpha);                 // Further increasing path length for YZ angle
+
+	m_mapOf2DHistograms["pathLengthVsTheta"]->Fill(pathLength, theta);
+	m_mapOf2DHistograms["pathLengthVsAlpha"]->Fill(pathLength, alpha);
+
+	if (theta>0) m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]->Fill(  lorentzAngle-theta , b.y() );
+	else         m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]->Fill(  lorentzAngle-theta , b.y() );
 
 	while (pathLengthTraveled < pathLength){
 
+		// N.B. Needs correction from alpha angle still...
 		MM_IonizationCluster IonizationCluster(hitx, pathLengthTraveled*sin(theta), pathLengthTraveled*cos(theta));
 		IonizationCluster.createElectrons(m_random);
-		//    IonizationCluster.diffuseElectrons(longitudinalDiffusSigma, diffusSigma, m_random);
-		//---
+
 		TVector2 initialPosition = IonizationCluster.getIonizationStart();
 
-		msglog << MSG::DEBUG << "StripsResponseSimulation:: New interaction starting at x,y, pathLengthTraveled: " << initialPosition.X() << " " << initialPosition.Y() << " " << pathLengthTraveled<< endmsg;
+		msglog << MSG::DEBUG
+			<< "StripsResponseSimulation:: New interaction starting at x,y, pathLengthTraveled: "
+			<< initialPosition.X()
+			<< " "
+			<< initialPosition.Y()
+			<< " "
+			<< pathLengthTraveled
+			<< endmsg;
 
 		for (auto& Electron : IonizationCluster.getElectrons()){
 
-			m_longitudinalDiffusionFunction->SetParameters(1.0, initialPosition.Y(), initialPosition.Y()*m_longitudinalDiffusionSigma);
+			m_longitudinalDiffusionFunction->SetParameters(1.0, 0., initialPosition.Y()*m_longitudinalDiffusionSigma);
 
 			if ( m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
 
@@ -223,22 +248,34 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 
 		}
 
-		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity);
+		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity );
 
-		//---
+
+		int tmpEffectiveNElectrons = 0;
+
 		for (auto& Electron : IonizationCluster.getElectrons()){
 
 			float effectiveCharge = m_polyaFunction->GetRandom();
 
 			Electron->setCharge( effectiveCharge );
-			msglog << MSG::DEBUG << "StripsResponseSimulation::Electron's effective charge is  " << effectiveCharge << endmsg;
+
+			msglog << MSG::DEBUG
+				<< "StripsResponseSimulation::Electron's effective charge is  "
+				<< effectiveCharge
+				<< endmsg;
+
+			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
+
+			m_mapOf2DHistograms["driftDistanceVsDriftTime"]->Fill(Electron->getOffsetPosition().Mod(), Electron->getTime() );
 
 			// Add eventTime in Electron time
 			Electron->setTime(Electron->getTime() + eventTime);
 
-			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
-
+			tmpEffectiveNElectrons+= effectiveCharge;
 		}
+
+		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons*1e-4 );
+
 		//---
 		IonizationClusters.push_back(IonizationCluster);
 
@@ -253,22 +290,44 @@ void StripsResponseSimulation::whichStrips(const float & hitx, const int & strip
 
 	float timeresolution = 0.01; //ns
 
-	MM_StripResponse StripResponse(IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
-	StripResponse.timeOrderElectrons();
-	StripResponse.calculateTimeSeries(thetaDegrees, digiInput.gasgap());
-	StripResponse.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
-	StripResponse.calculateSummaries( m_qThreshold );
+	StripResponse stripResponseObject(IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
+	stripResponseObject.timeOrderElectrons();
+	stripResponseObject.calculateTimeSeries(incidentAngleXZ, digiInput.gasgap());
+	stripResponseObject.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
+	stripResponseObject.calculateSummaries( m_qThreshold );
 
 	//Connect the output with the rest of the existing code
-	finalNumberofStrip = StripResponse.getStripVec();
-	finalqStrip = StripResponse.getTotalChargeVec();
-	finaltStrip = StripResponse.getTimeThresholdVec();
-	tStripElectronicsAbThr = StripResponse.getTimeMaxChargeVec();
-	qStripElectronics = StripResponse.getMaxChargeVec();
+	//
+	finalNumberofStrip     = stripResponseObject.getStripVec();
+	finalqStrip            = stripResponseObject.getTotalChargeVec();
+	finaltStrip            = stripResponseObject.getTimeThresholdVec();
+	tStripElectronicsAbThr = stripResponseObject.getTimeMaxChargeVec();
+	qStripElectronics      = stripResponseObject.getMaxChargeVec();
 
+
+
+	// Output diagnostic hists and graphs
+	//
 	m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
-	m_mapOfHistograms["nElectrons"]->Fill( StripResponse.getNElectrons() );
+	m_mapOfHistograms["nElectrons"]->Fill( stripResponseObject.getNElectrons() );
 	m_mapOfHistograms["lorentzAngle"]->Fill( lorentzAngle );
+
+	if(m_writeEventDisplays){
+		if(m_outputFile) m_outputFile->cd();
+		TGraph grIonizationXZ( IonizationClusters.size() );
+		for (int iIonization=0; iIonization <  (int) IonizationClusters.size(); iIonization++) {
+			TVector2 ionizationPosition( IonizationClusters.at(iIonization).getIonizationStart() );
+			grIonizationXZ.SetPoint( iIonization, ionizationPosition.X(), ionizationPosition.Y() );
+		}
+		grIonizationXZ.Write("ionizationXZ");
+
+		TGraph grElectronsXZ( stripResponseObject.getNElectrons() );
+		std::vector<MM_Electron*> tmpElectrons = stripResponseObject.getElectrons();
+		for (int iElectron=0; iElectron < (int) tmpElectrons.size(); iElectron++){
+			grElectronsXZ.SetPoint( iElectron, tmpElectrons.at(iElectron)->getX(), tmpElectrons.at(iElectron)->getY() );
+		}
+		grElectronsXZ.Write("electronsXZ");
+	}
 
 } // end of whichStrips()
 
@@ -279,6 +338,6 @@ StripsResponseSimulation::~StripsResponseSimulation()
 		writeHistos();
 		delete m_outputFile;
 	}
-	clearValues();
+
 }
 /*******************************************************************************/
