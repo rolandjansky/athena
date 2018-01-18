@@ -33,7 +33,7 @@ int TFCSLateralShapeParametrizationHitBase::get_number_of_hits(TFCSSimulationSta
   return -1;
 }
 
-void TFCSLateralShapeParametrizationHitBase::simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+void TFCSLateralShapeParametrizationHitBase::simulate_hit(t_hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
