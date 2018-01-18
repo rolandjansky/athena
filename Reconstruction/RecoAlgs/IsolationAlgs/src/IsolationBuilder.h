@@ -12,6 +12,8 @@
 
 // STL includes
 #include <string>
+#include <set>
+#include <vector>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -113,71 +115,94 @@ class IsolationBuilder
       "useBremAssoc", true, "use track to track assoc after brem"};
 
   /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
-  Gaudi::Property<std::vector<std::vector<double> > > m_egisoInts {this,
-      "EgIsoTypes", {}, 
-      "The isolation types to do for egamma: vector of vector of enum type Iso::IsolationType, stored as float"};
+  Gaudi::Property<std::vector<std::vector<int> > > m_elisoInts {this,
+      "ElIsoTypes", {}, 
+      "The isolation types to do for electrons: vector of vector of enum type Iso::IsolationType, stored as float"};
 
-  Gaudi::Property<std::vector<std::vector<double> > > m_egcorInts {this,
-      "EgCorTypes", {}, 
-      "The correction types to do for egamma iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
+  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_elcorInts {this,
+      "ElCorTypes", {}, 
+      "The correction types to do for electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
 
-  Gaudi::Property<std::vector<std::vector<double> > > m_muisoInts {this,
+  /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
+  Gaudi::Property<std::vector<std::vector<int> > > m_phisoInts {this,
+      "PhIsoTypes", {}, 
+      "The isolation types to do for photons: vector of vector of enum type Iso::IsolationType, stored as float"};
+
+  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_phcorInts {this,
+      "PhCorTypes", {}, 
+      "The correction types to do for photons iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
+
+  Gaudi::Property<std::vector<std::vector<int> > > m_muisoInts {this,
       "MuIsoTypes", {}, 
       "The isolation types to do for Muons : vector of vector of enum type Iso::IsolationType, stored as float"};
 
-  Gaudi::Property<std::vector<std::vector<double> > > m_mucorInts {this,
+  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_mucorInts {this,
       "MuCorTypes", {}, 
       "The correction types to do for Muon iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
-  Gaudi::Property<std::vector<std::vector<double> > > m_fecorInts {this,
+  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_fecorInts {this,
       "FeCorTypes", {}, 
       "The correction types to do for forward electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
 
-  Gaudi::Property<std::vector<std::vector<double> > > m_feisoInts {this,
+  Gaudi::Property<std::vector<std::vector<int> > > m_feisoInts {this,
       "FeIsoTypes", {},
       "The isolation types to do for forward electron: vector of vector of enum type Iso::IsolationType, stored as float"};
 
-  // template<class T> 
-  // struct CaloIsoHelp {
+  Gaudi::Property<bool> m_addCoreCorr{this, "AddCoreCorr", true, 
+      "Add core correction for muon calo isolation"};
 
-  //   StatusCode initialize(const std::string &name); // note, not constructor
-
-  //   std::vector<SG::WriteDecorHandleKey<T> > isoDeco;
-  //   std::vector<SG::WriteDecorHandleKey<T> > nonecoreCorisoDeco;
-  //   SG::WriteDecorHandleKey<T> coreCorisoDeco;
-  //   std::vector<xAOD::Iso::IsolationType> isoTypes;
-  //   xAOD::CaloCorrection CorrList;
-  // };
-  struct CaloIsoHelp {
-    std::vector<SG::AuxElement::Decorator<float>*> isoDeco;
-    std::vector<SG::AuxElement::Decorator<float>*> nonecoreCorisoDeco;
-    SG::AuxElement::Decorator<float>* coreCorisoDeco;
+  template<class T> struct CaloIsoHelp {
+    std::vector<SG::WriteDecorHandleKey<T> > isoDeco;
+    std::vector<SG::WriteDecorHandleKey<T> > nonecoreCorisoDeco;
+    SG::WriteDecorHandleKey<T> coreCorisoDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::CaloCorrection CorrList;
   };
-  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp> m_egCaloIso, m_feCaloIso, m_muCaloIso;
 
-  struct TrackIsoHelp {
-    std::vector<SG::AuxElement::Decorator<float>*> isoDeco;
-    SG::AuxElement::Decorator<float>* coreCorisoDeco;
+
+  // struct CaloIsoHelp {
+  //   std::vector<SG::AuxElement::Decorator<float>*> isoDeco;
+  //   std::vector<SG::AuxElement::Decorator<float>*> nonecoreCorisoDeco;
+  //   SG::AuxElement::Decorator<float>* coreCorisoDeco;
+  //   std::vector<xAOD::Iso::IsolationType> isoTypes;
+  //   xAOD::CaloCorrection CorrList;
+  // };
+
+  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp<xAOD::ElectronContainer> > m_elCaloIso;
+  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp<xAOD::PhotonContainer> > m_phCaloIso;
+  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp<xAOD::ElectronContainer> > m_feCaloIso;
+  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp<xAOD::MuonContainer> > m_muCaloIso;
+
+  template<class T> struct TrackIsoHelp {
+    std::vector<SG::WriteDecorHandleKey<T> > isoDeco;
+    std::vector<SG::WriteDecorHandleKey<T> > isoDecoV;
+    SG::WriteDecorHandleKey<T> coreCorisoDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::TrackCorrection CorrList;
   };
-  std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp> m_egTrackIso, m_muTrackIso;
 
-  // individual flags to run or not computation on electron or photon
-  Gaudi::Property<bool> m_isolateEl {this, "IsolateEl", true, 
-      "since egIsoTypes is common for el and ph, a new flag to control individually : electron"};
+  // struct TrackIsoHelp {
+  //   std::vector<SG::AuxElement::Decorator<float>*> isoDeco;
+  //   SG::AuxElement::Decorator<float>* coreCorisoDeco;
+  //   std::vector<xAOD::Iso::IsolationType> isoTypes;
+  //   xAOD::TrackCorrection CorrList;
+  // };
+  std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp<xAOD::ElectronContainer> > m_elTrackIso;
+  std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp<xAOD::PhotonContainer> > m_phTrackIso;
+  std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp<xAOD::MuonContainer> > m_muTrackIso;
 
-  Gaudi::Property<bool> m_isolatePh {this, "IsolatePh", true, 
-      "since egIsoTypes is common for el and ph, a new flag to control individually : photon"};
+  template<class T>
+  StatusCode initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
+			   std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp<T> >* caloIsoMap, // out
+			   std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp<T> >* trackIsoMap, // out
+			   const std::string& containerName,
+			   const std::vector<std::vector<int> >& isoInts,
+			   const std::vector<std::vector<int> >& corrInts,
+			   const std::string& customConfig,
+			   bool addCoreCorr);
   
   // Compute the isolation variables
   StatusCode IsolateEgamma(std::string egType);
   StatusCode IsolateMuon();
-
-  Gaudi::Property<std::string> m_customConfig {this,
-      "CustomConfigurationName", "", 
-      "use a custom configuration"};
 
   // for the time being, only mu vs eg, no separation in eg
   Gaudi::Property<std::string> m_customConfigEl {this,
@@ -216,5 +241,104 @@ class IsolationBuilder
   
   
 }; 
+
+template<class T>
+StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
+					   std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp<T> >* caloIsoMap, // out
+					   std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp<T> >* trackIsoMap, // out
+
+					   const std::string& containerName,
+					   const std::vector<std::vector<int> >& isoInts,
+					   const std::vector<std::vector<int> >& corrInts,
+					   const std::string& customConfig,
+					   bool addCoreCorr)
+{
+
+  std::string prefix = containerName + ".";
+
+  for (size_t flavor = 0; flavor < isoInts.size(); flavor++) {
+    // iterate over the flavor (cell, topo, eflow, track
+    //   Note: it is a configuration error if different types
+    //         are included in one inner vector
+
+    CaloIsoHelp<T> cisoH;
+    TrackIsoHelp<T> tisoH
+
+    //std::vector<SG::AuxElement::Decorator<float>*> Deco;
+    xAOD::Iso::IsolationFlavour isoFlav =
+      xAOD::Iso::numIsolationFlavours;
+    xAOD::Iso::IsolationFlavour oldIsoFlav =
+      xAOD::Iso::numIsolationFlavours;
+    for (size_t type = 0; type < isoInts[flavor].size();type++) { // the cone size
+      xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(isoInts[flavor][type]);
+      isoFlav = xAOD::Iso::isolationFlavour(isoType);
+      if (oldIsoFlav != xAOD::Iso::numIsolationFlavours && oldIsoFlav != isoFlav) {
+	ATH_MSG_ERROR("Configuration error:  can only have one type of isolation in inner vector");
+	return StuatusCode::FAILURE;
+      }
+      oldIsoFlav = isoFlav;
+      std::string isoName = prefix + xAOD::Iso::toString(isoType);
+      if (customConfig != "") {
+	isoName += "_" + customConfig;
+      }
+      if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
+	cisoH.isoTypes.push_back(isoType);
+	cisoH.isoDeco.emplace_back(isoName);
+	ATH_CHECK(cisoH.isoDeco.back().initialize());
+      } else if (isoFlav == xAOD::Iso::ptcone) {
+	tisoH.isoTypes.push_back(isoType);
+	tisoH.isoDeco.emplace_back(isoName);
+	ATH_CHECK(tisoH.isoDeco.back().initialize());
+	std::string isoNameV = prefix + "ptvarcone" + std::to_string(100*xAOD::Iso::coneSize(isoType));
+	if (customConfig != "") {
+	  isoNameV += "_" + customConfig;
+	}
+	tisoH.isoDecoV.emplace_back(isoNameV);
+	ATH_CHECK(tisoH.isoDeco.back().initialize());
+      } else {
+	ATH_MSG_ERROR("Configuration error: Isolation flavor " << isFlav << " not supported.");
+	return StuatusCode::FAILURE;
+      }	
+    }
+    if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
+      
+      for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
+	const unsigned int cor = corInts[flavor][corrType];
+	cisoH.CorrList.calobitset.set(cor);
+	const xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(cor);
+	if (addCore && (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreMuon) ) {
+	  std::string isoCorName = prefix;
+	  if (isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
+	    isoCorName += xAOD::Iso::toString(isoFlav);
+	  }
+	  isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy) 
+	    + "Correction"; // hard coded since we never store the core area in fact
+	  if (customConfig != "") {
+	    isoCorName += "_" + customConfig;
+	  }
+	  cisoH.coreCorisoDeco = isoCorName;
+	  ATH_CHECK(cisoH.coreCorisoDeco.initialize());
+	}
+      }
+      if (caloIsoMap) {
+	caloIsoMap->insert(std::make_pair(isoFlav,cisoH));
+      } else {
+	ATH_MSG_ERROR("caloIsoMap was nullptr but the configuration attempted to use it");
+	return StuatusCode::FAILURE;
+      }
+    } else if (isoFlav == xAOD::Iso::ptcone) {
+      tisoH.CorrListtrackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
+      if (trackIsoMap) {
+	trackIsoMap->insert(std::make_pair(isoFlav,tisoH));
+      } else {
+	ATH_MSG_ERROR("trackIsoMap was nullptr but the configuration attempted to use it");
+	return StuatusCode::FAILURE;
+      }	
+    } else 
+      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
+    runIsoType.insert(isoFlav);
+  }
+}
+
 
 #endif //> !ISOLATIONALGS_ISOLATIONBUILDER_H

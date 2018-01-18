@@ -50,170 +50,30 @@ StatusCode IsolationBuilder::initialize()
   
   std::set<xAOD::Iso::IsolationFlavour> runIsoType;
   
-  // Build helpers for all required isolations
-  // For egamma (central)
-  unsigned int nI = m_egisoInts.size();
-  if (nI > 0 && m_egisoInts[0].size() > 0) 
-    ATH_MSG_INFO("Will built egamma isolation types : ");
-  else 
-    nI = 0;
-  for (unsigned int ii = 0; ii < nI; ii++) { // the various types : should be 4 by default (etcone, topoetcone, ptcone, neflowisol)
-    std::vector<xAOD::Iso::IsolationType> isoTypes;
-    std::vector<SG::AuxElement::Decorator<float>*> Deco;
-    xAOD::Iso::IsolationFlavour isoFlav =
-      xAOD::Iso::numIsolationFlavours;
-    for (unsigned int jj = 0; jj < m_egisoInts[ii].size(); jj++) { // the size of the cone : should be 3 by default
-      int egIso = int(m_egisoInts[ii][jj]+0.5);
-      xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
-      isoTypes.push_back(isoType);
-      isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toString(isoType);
-      if (m_customConfig != "") {
-	isoName += "_"; isoName += m_customConfig;
-	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
-      }
-      ATH_MSG_INFO(isoName);
-      if (isoFlav == xAOD::Iso::ptcone) {
-	isoName = "ptvarcone";
-	int is = 100*xAOD::Iso::coneSize(isoType);
-	isoName += std::to_string(is);
-	if (m_customConfig != "") {
-	  isoName += "_"; isoName += m_customConfig;
-	  Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
-	}
-	ATH_MSG_INFO(isoName);
-      }
-    }
-    if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
-      CaloIsoHelp cisoH;
-      cisoH.isoTypes = isoTypes;
-      if (m_customConfig != "") cisoH.isoDeco  = Deco;
-      xAOD::CaloCorrection corrlist;
-      for (unsigned int jj = 0; jj < m_egcorInts[ii].size(); jj++) {
-        int egCor = int(m_egcorInts[ii][jj]+0.5);
-	corrlist.calobitset.set(static_cast<unsigned int>(egCor));
-      }
-      cisoH.CorrList = corrlist;
-      m_egCaloIso.insert(std::make_pair(isoFlav,cisoH));
-    } else if (isoFlav == xAOD::Iso::ptcone) {
-      TrackIsoHelp tisoH;
-      tisoH.isoTypes = isoTypes;
-      if (m_customConfig != "") tisoH.isoDeco  = Deco;
-      xAOD::TrackCorrection corrlist;
-      corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
-      tisoH.CorrList = corrlist;
-      m_egTrackIso.insert(std::make_pair(isoFlav,tisoH));
-    } else 
-      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
-    if (runIsoType.find(isoFlav) == runIsoType.end()) runIsoType.insert(isoFlav);
-  }
-  
-  // For forward electrons
-  nI = m_feisoInts.size();
-  if (nI > 0 && m_feisoInts[0].size() > 0) 
-    ATH_MSG_INFO("Will built forward electron isolation types : ");
-  else 
-    nI = 0;
-  for (unsigned int ii = 0; ii < nI; ii++) { // here, should be at most three (no ptcone)
-    std::vector<xAOD::Iso::IsolationType> isoTypes;
-    std::vector<SG::AuxElement::Decorator<float>*> Deco;
-    xAOD::Iso::IsolationFlavour isoFlav =
-      xAOD::Iso::numIsolationFlavours;
-    for (unsigned int jj = 0; jj < m_feisoInts[ii].size(); jj++) {
-      int egIso = int(m_feisoInts[ii][jj]+0.5);
-      xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
-      isoTypes.push_back(isoType);
-      isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toString(isoType);
-      if (m_customConfig != "") {
-	isoName += "_"; isoName += m_customConfig;
-	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
-      }
-      ATH_MSG_INFO(isoName);
-    }
-    if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
-      CaloIsoHelp cisoH;
-      cisoH.isoTypes = isoTypes;
-      if (m_customConfig != "") cisoH.isoDeco  = Deco;
-      xAOD::CaloCorrection corrlist;
-      for (unsigned int jj = 0; jj < m_fecorInts[ii].size(); jj++) {
-        int egCor = int(m_fecorInts[ii][jj]+0.5);
-	corrlist.calobitset.set(static_cast<unsigned int>(egCor));
-      }
-      cisoH.CorrList = corrlist;
-      m_feCaloIso.insert(std::make_pair(isoFlav,cisoH));
-    } else 
-      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
-    if (runIsoType.find(isoFlav) == runIsoType.end()) runIsoType.insert(isoFlav);
-  }
+  ATH_MSG_DEBUG("Initializing central electrons");
+  ATH_CHECK(initializeIso(runIsoType, &m_elCaloIso, &m_elTrackIso, 
+			  m_ElectronContainerName,
+			  m_elisoInts, m_elcorInts,
+			  m_customConfigEl, false));
 
-  // For muons
-  nI = m_muisoInts.size();
-  if (nI > 0 && m_muisoInts[0].size() > 0) 
-    ATH_MSG_INFO("Will built muon isolation types : ");
-  else 
-    nI = 0;
-  for (unsigned int ii = 0; ii < nI; ii++) {   // the flavor (cell, topo, eflow, track
-    std::vector<xAOD::Iso::IsolationType> isoTypes;
-    std::vector<SG::AuxElement::Decorator<float>*> Deco;
-    xAOD::Iso::IsolationFlavour isoFlav =
-      xAOD::Iso::numIsolationFlavours;
-    for (unsigned int jj = 0; jj < m_muisoInts[ii].size(); jj++) { // the cone size
-      int muIso = int(m_muisoInts[ii][jj]+0.5);
-      xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(muIso);
-      isoTypes.push_back(isoType);
-      isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toString(isoType);
-      if (m_customConfigMu != "") {
-	isoName += "_"; isoName += m_customConfigMu;
-	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
-      }
-      ATH_MSG_INFO(isoName);
-      if (isoFlav == xAOD::Iso::ptcone) {
-	isoName = "ptvarcone";
-	int is = 100*xAOD::Iso::coneSize(isoType);
-	isoName += std::to_string(is);
-	if (m_customConfigMu != "") {
-	  isoName += "_"; isoName += m_customConfigMu;
-	  Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
-	}
-	ATH_MSG_INFO(isoName);
-      }
-    }
-    if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
-      CaloIsoHelp cisoH;
-      cisoH.isoTypes = isoTypes;
-      cisoH.coreCorisoDeco = nullptr;
-      if (m_customConfigMu != "") cisoH.isoDeco  = Deco;
-      xAOD::CaloCorrection corrlist;
-      for (unsigned int jj = 0; jj < m_mucorInts[ii].size(); jj++) {
-	int muCor = int(m_mucorInts[ii][jj]+0.5);
-	corrlist.calobitset.set(static_cast<unsigned int>(muCor));
-	xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(muCor);
-	if (m_customConfigMu != "" && (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreMuon) ) {
-	  std::string isoCorName = "";
-	  if (isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol)
-	    isoCorName = xAOD::Iso::toString(isoFlav);
-	  isoCorName += xAOD::Iso::toString(isoCor);
-	  isoCorName += xAOD::Iso::toString(xAOD::Iso::coreEnergy); isoCorName += "Correction"; // hard coded since we never store the core area in fact
-	  isoCorName += "_"; isoCorName += m_customConfigMu;
-	  cisoH.coreCorisoDeco = new SG::AuxElement::Decorator<float>(isoCorName);
-      }
-      }
-      cisoH.CorrList = corrlist;
-      m_muCaloIso.insert(std::make_pair(isoFlav,cisoH));
-    } else if (isoFlav == xAOD::Iso::ptcone) {
-      TrackIsoHelp tisoH;
-      tisoH.isoTypes = isoTypes;
-      if (m_customConfigMu != "") tisoH.isoDeco  = Deco;
-      xAOD::TrackCorrection corrlist;
-      corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
-      tisoH.CorrList = corrlist;
-      m_muTrackIso.insert(std::make_pair(isoFlav,tisoH));
-    } else 
-      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
-    if (runIsoType.find(isoFlav) == runIsoType.end()) runIsoType.insert(isoFlav);
-  }
+  ATH_MSG_DEBUG("Initializing central photons");
+  ATH_CHECK(initializeIso(runIsoType, &m_phCaloIso, &m_phTrackIso, 
+			  m_PhotonContainerName,
+			  m_phisoInts, m_phcorInts,
+			  m_customConfigPh, false));
+
+  ATH_MSG_DEBUG("Initializing forward electrons");
+  ATH_CHECK(initializeIso(runIsoType, &m_feCaloIso, nullptr, 
+			  m_FwdElectronContainerName,
+			  m_feisoInts, m_fecorInts,
+			  m_customConfigFwd, false));
+
+  ATH_MSG_DEBUG("Initializing muons");
+  ATH_CHECK(initializeIso(runIsoType, &m_muCaloIso, &m_muTrackIso, 
+			  m_MuonContainerName,
+			  m_muisoInts, m_mucorInts,
+			  m_customConfigMu, m_addCoreCorr));
+			  
 
   // Retrieve the tools (there three Calo ones are the same in fact)
   if (!m_cellIsolationTool.empty() && runIsoType.find(xAOD::Iso::etcone) != runIsoType.end()) {
@@ -257,34 +117,6 @@ StatusCode IsolationBuilder::initialize()
 StatusCode IsolationBuilder::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
-
- // Delete pointers to decorators
-  std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
-  for (; itc != itcE; itc++) {
-    std::vector<SG::AuxElement::Decorator<float>*> vec = itc->second.isoDeco;
-    for (unsigned int ii = 0; ii < vec.size(); ii++)
-      delete vec[ii];
-  }
-  std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp>::iterator itt = m_egTrackIso.begin(), ittE = m_egTrackIso.end();
-  for (; itt != ittE; itt++) {
-    std::vector<SG::AuxElement::Decorator<float>*> vec = itt->second.isoDeco;
-    for (unsigned int ii = 0; ii < vec.size(); ii++)
-      delete vec[ii];
-  }
-  itc = m_muCaloIso.begin(), itcE = m_muCaloIso.end();
-  for (; itc != itcE; itc++) {
-    if (itc->second.coreCorisoDeco != nullptr)      // it is only there for coreCone or coreMuon and if decoration
-      delete itc->second.coreCorisoDeco;            // only implemented for muon calo iso for the time being...
-    std::vector<SG::AuxElement::Decorator<float>*> vec = itc->second.isoDeco;
-    for (unsigned int ii = 0; ii < vec.size(); ii++)
-      delete vec[ii];
-  }
-  itt = m_muTrackIso.begin(), ittE = m_muTrackIso.end();
-  for (; itt != ittE; itt++) {
-    std::vector<SG::AuxElement::Decorator<float>*> vec = itt->second.isoDeco;
-    for (unsigned int ii = 0; ii < vec.size(); ii++)
-      delete vec[ii];
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -347,31 +179,6 @@ StatusCode IsolationBuilder::execute()
   // }
 
   // Compute isolations
-  /*
-  if (m_customConfig == "") { 
-    // Here, default configurations with standard names can be are computed
-    if (m_egCaloIso.size() != 0 || m_egTrackIso.size() != 0) {
-      if (m_ElectronContainerName.size()) CHECK(IsolateEgamma("electron"));
-      if (m_PhotonContainerName.size())   CHECK(IsolateEgamma("photon"));
-    }
-    if (m_feCaloIso.size() != 0)
-      if (m_FwdElectronContainerName.size()) CHECK(IsolateEgamma("fwdelectron"));
-      
-    if (m_muCaloIso.size() != 0 || m_muTrackIso.size() != 0)
-      if (m_MuonContainerName.size()) CHECK(IsolateMuon());
-  } else {
-    // Here, custom configurations with custom names can be computed
-    if (m_egCaloIso.size() != 0 || m_egTrackIso.size() != 0) {
-      if (m_ElectronContainerName.size()) CHECK(DecorateEgamma("electron"));
-      if (m_PhotonContainerName.size())   CHECK(DecorateEgamma("photon"));
-    }
-    if (m_feCaloIso.size() != 0)
-      if (m_FwdElectronContainerName.size()) CHECK(DecorateEgamma("fwdelectron"));
-
-    if (m_muCaloIso.size() != 0 || m_muTrackIso.size() != 0)
-      if (m_MuonContainerName.size()) CHECK(DecorateMuon());
-  }
-  */
   if (m_egCaloIso.size() != 0 || m_egTrackIso.size() != 0) {
     if (m_isolateEl && m_ElectronContainerName.size()) {
       if (m_customConfigEl == "")
