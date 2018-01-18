@@ -14,13 +14,19 @@ met_triggers_l1_expert = [
  
 met_triggers_hlt_shifter = [
     "HLT_xe110_pufit_L1XE50",
+    "HLT_xe110_pufit_xe70_L1XE50",
     "HLT_xe110_pufit_L1XE55",
+    "HLT_xe110_pufit_xe65_L1XE55",
     "HLT_xe110_pufit_L1XE60",
+    "HLT_xe110_pufit_xe65_L1XE60",
+    "HLT_xe100_pufit_xe75_L1XE60",
 ] 
 
 met_triggers_hlt_expert = [
+    "HLT_xe120_pufit_L1XE50",
+    "HLT_xe120_pufit_L1XE55",
     "HLT_xe120_pufit_L1XE60",
-    "HLT_xe120_mht_xe80_L1XE60",
+    #"HLT_xe120_mht_xe80_L1XE60",
         #"HLT_mu30",
         #"HLT_xs30",    
         #"HLT_xe70_tc_lcw",    

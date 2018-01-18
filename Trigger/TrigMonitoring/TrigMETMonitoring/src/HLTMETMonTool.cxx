@@ -11,6 +11,7 @@
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <iostream>
 #include <iomanip>
@@ -446,6 +447,13 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
 
 
+ // retrieve EventInfo 
+  const xAOD::EventInfo *eventInfo = nullptr;
+  sc = evtStore()->retrieve(eventInfo, "EventInfo");
+  if(sc.isFailure() || !eventInfo) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_RoIs with key \"EventInfo\" from TDS"  );
+  }
+
  // retrieve xAOD L1 ROI 
   const xAOD::EnergySumRoI *m_l1_roi_cont = 0;
   sc = evtStore()->retrieve(m_l1_roi_cont, m_lvl1_roi_key);
@@ -841,7 +849,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // HLT Basic
   monFolderName = monGroupName + "/Primary";
   setCurrentMonGroup(monFolderName);
-  if (hlt_met > -1) {
+  if (hlt_met > 0) { // remove MET=0 events
     fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
  }
 
@@ -858,7 +866,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   setCurrentMonGroup(monFolderName);
   
   if(METElectronFilled == true) {
-    fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    if (hlt_met > 0) { // remove MET=0 events
+      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    }
     met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
     fillHLTProfileHistograms(off_met,met_signatures_tolook);
   }
@@ -869,7 +879,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   setCurrentMonGroup(monFolderName);
 
   if(METMuonFilled == true) {
-    fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    if (hlt_met > 0) { // remove MET=0 events
+      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    }
     met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
     fillHLTProfileHistograms(off_met,met_signatures_tolook);
   }
@@ -881,6 +893,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::TrigMissingET *missETEF = 0;
   if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {
     missETEF = *(m_hlt_cell_met_cont->begin());
+
+    // Lumi Block histogram
+    if ((h = hist("HLT_limiBlock")) && eventInfo)    h->Fill(eventInfo->lumiBlock());
 
     // status histogram
     TH1F *h1i(0);
@@ -1528,6 +1543,9 @@ void HLTMETMonTool::fillHLTProfileHistograms(float off_met,std::map<std::string,
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addHLTStatusHistograms() {
+
+  // Lumiblock histogram
+  addHistogram(new TH1F("HLT_limiBlock", "HLT Lumi Block", 1000, 0, 1000));  
 
   // status in 1d
   TH1F *h1i = new TH1F("HLT_MET_status", "HLT MET Status", 32, -0.5, 31.5);
