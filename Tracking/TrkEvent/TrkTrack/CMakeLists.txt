@@ -9,7 +9,6 @@ atlas_subdir( TrkTrack )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/AthLinks
-                          Control/DataModel
                           Control/AthContainers
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkMaterialOnTrack
