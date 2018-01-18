@@ -32,8 +32,8 @@ StatusCode PhysValPFO::bookHistograms(){
   if (m_useNeutralPFO) type = "neutral";
   else scale = "";
 
-  std::string theName = "PFlow/PFO_JetETMiss/JetETMiss_"+scale+"_"+type;
-
+  std::string theName = "PFlow/"+m_PFOContainerHandleKey.key();
+  
   std::vector<HistData> hists;
   if (!m_useNeutralPFO){
     m_PFOChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName, theName));
