@@ -20,7 +20,7 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
               theBadFebTool=LArBadChanTool("KnownBADFEBsTool")
               theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownBADFEBs"
               havefolder=False
-              for fld in condb.iovdbsvc.Folders:
+              for fld in conddb.iovdbsvc.Folders:
                  if "KnownBADFEBs" in fld: havefolder=True
               pass
               if not havefolder:
@@ -32,7 +32,7 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
               theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
               theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
               havefolder=False
-              for fld in condb.iovdbsvc.Folders:
+              for fld in conddb.iovdbsvc.Folders:
                  if "KnownMNBFEBs" in fld: havefolder=True
               pass
               if not havefolder:
