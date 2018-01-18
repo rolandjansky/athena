@@ -2,4 +2,5 @@
   <!-- Requested dictionary generation -->
   <class name="IBTaggingEfficiencyTool" />
   <class name="IBTaggingSelectionTool" />
+   <class name="IBTaggingTruthTaggingTool" />
 </lcgdict>
