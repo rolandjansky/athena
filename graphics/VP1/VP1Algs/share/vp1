@@ -14,6 +14,22 @@
 #
 
 
+#fixme/todo: option to start cruise mode (event/second)
+#fixme/todo: MULTINP_CPY should not be allowed to exist beforehand!
+
+
+### TERMINAL COLORS ###
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+LIGHTBLUE='\033[1;34m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+# then use:
+# - printf "I ${RED}love${NC} Stack Overflow\n"
+# - echo -e "I ${RED}love${NC} Stack Overflow"
+i
+
+
 echo
 echo "******************************************"
 echo
@@ -30,13 +46,30 @@ echo
 # https://its.cern.ch/jira/browse/ATLASVPONE-228 #
 #                                                #
 ##################################################
-echo "*** VP1 NOTE *** setting LD_PRELOAD=/usr/lib64/libGL.so.1 env var, to correctly load OpenGL before all other TLS libs. That is caused by a bug in Red Hat 6. For details, see: https://its.cern.ch/jira/browse/ATLASVPONE-228"
+echo -e "${YELLOW}*** VP1 NOTE ***${NC} setting LD_PRELOAD=/usr/lib64/libGL.so.1 env var, to correctly load OpenGL before all other TLS libs. That is caused by a bug in Red Hat 6. For details, see: https://its.cern.ch/jira/browse/ATLASVPONE-228"
 export LD_PRELOAD=/usr/lib64/libGL.so.1
 ##################################################
 
+##################################################
+# Workaraound for keyboard input issue on LXPLUS #
+#                                                #
+# Details:                                       #
+# https://its.cern.ch/jira/browse/ATLASVPONE-380 #
+#                                                #
+##################################################
+echo "uname: " "$(expr substr $(uname -s) 1 5)"
+echo "hostname: " "$(hostname)"
+if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # We are on a GNU/Linux platform machine
+    if [[ $(hostname) == lxplus* ]]; then 
+        # We are on a LXPLUS machine
+        echo -e "${YELLOW}*** VP1 NOTE ***${NC} you are running VP1 remotely on a LXPLUS machine. Hence, we set the 'QT_XKB_CONFIG_ROOT environment variable to fix the problem LXPLUS machine have with the new Qt5 framework, which prevent a proper detection of keyboard events. For details, see: https://its.cern.ch/jira/browse/ATLASVPONE-380."
+        export QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
+    fi # closes "lxplus"
+fi # closes "Linux"
+##################################################
 
-#fixme/todo: option to start cruise mode (event/second)
-#fixme/todo: MULTINP_CPY should not be allowed to exist beforehand!
+
 
 APP=`basename $0`
 
