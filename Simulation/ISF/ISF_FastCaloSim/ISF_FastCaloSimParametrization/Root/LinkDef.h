@@ -9,6 +9,8 @@
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain.h+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase.h+;
+#pragma link C++ class TFCSHitCellMapping.h+;
+#pragma link C++ class TFCSHitCellMappingWiggleEMB.h+;
 #pragma link C++ class MeanAndRMS;
 #pragma link C++ class TreeReader;
 #pragma link C++ class EnergyParametrizationValidation;

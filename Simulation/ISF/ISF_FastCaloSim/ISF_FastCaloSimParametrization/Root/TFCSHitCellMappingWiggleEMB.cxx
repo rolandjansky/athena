@@ -75,7 +75,7 @@ double TFCSHitCellMappingWiggleEMB::doWiggle()
  return wiggle;
 }
 
-void TFCSHitCellMappingWiggleEMB::simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+void TFCSHitCellMappingWiggleEMB::simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   int cs=calosample();
 

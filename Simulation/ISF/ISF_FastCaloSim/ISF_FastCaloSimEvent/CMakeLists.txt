@@ -25,7 +25,21 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
-  ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h ISF_FastCaloSimEvent/DoubleArray.h ISF_FastCaloSimEvent/TFCS1DFunction.h ISF_FastCaloSimEvent/TFCSEnergyParametrization.h ISF_FastCaloSimEvent/TFCSExtrapolationState.h ISF_FastCaloSimEvent/TFCSParametrization.h ISF_FastCaloSimEvent/TFCSParametrizationBase.h ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h ISF_FastCaloSimEvent/TFCSSimulationState.h ISF_FastCaloSimEvent/TFCSTruthState.h ISF_FastCaloSimEvent/LinkDef.h )
+                           ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h 
+                           ISF_FastCaloSimEvent/DoubleArray.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunction.h 
+                           ISF_FastCaloSimEvent/TFCSEnergyParametrization.h 
+                           ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
+                           ISF_FastCaloSimEvent/TFCSParametrization.h 
+                           ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
+                           ISF_FastCaloSimEvent/TFCSParametrizationChain.h 
+                           ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h 
+                           ISF_FastCaloSimEvent/TFCSSimulationState.h 
+                           ISF_FastCaloSimEvent/TFCSTruthState.h 
+                           ISF_FastCaloSimEvent/LinkDef.h )
 
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx

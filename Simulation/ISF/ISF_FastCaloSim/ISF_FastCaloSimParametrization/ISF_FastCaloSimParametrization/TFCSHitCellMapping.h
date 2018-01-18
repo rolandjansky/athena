@@ -24,7 +24,7 @@ public:
 private:
   // simple shape information should be stored as private member variables here
 
-  CaloGeometry* m_geo;
+  CaloGeometry* m_geo; //! do not persistify
 
   ClassDef(TFCSHitCellMapping,1)  //TFCSHitCellMapping
 };

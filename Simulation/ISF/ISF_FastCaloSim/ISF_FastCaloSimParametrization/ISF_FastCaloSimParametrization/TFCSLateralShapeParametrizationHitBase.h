@@ -22,7 +22,7 @@ public:
   int calosample() const {return m_calosample;};
   void set_calosample(int cs);
 
-  virtual void set_geometry(CaloGeometry* geo) {};
+  virtual void set_geometry(CaloGeometry* /*geo*/) {};
 
   // Call get_number_of_hits() only once per shower simulation, as it could be build with random numbers and give different results each time
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;

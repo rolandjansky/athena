@@ -12,6 +12,7 @@
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationChain.h"
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
@@ -27,6 +28,7 @@
 #pragma link C++ class TFCSExtrapolationState+;
 #pragma link C++ class TFCSParametrization+;
 #pragma link C++ class TFCSParametrizationBase+;
+#pragma link C++ class TFCSParametrizationChain+;
 #pragma link C++ class TFCSPCAEnergyParametrization+;
 #pragma link C++ class TFCSSimulationState+;
 #pragma link C++ class TFCSTruthState+;

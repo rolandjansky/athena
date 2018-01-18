@@ -17,7 +17,7 @@ TFCSHitCellMapping::TFCSHitCellMapping(const char* name, const char* title, Calo
 {
 }
 
-void TFCSHitCellMapping::simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+void TFCSHitCellMapping::simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   int cs=calosample();
   const CaloDetDescrElement* cellele=m_geo->getDDE(cs,hit.eta(),hit.phi());

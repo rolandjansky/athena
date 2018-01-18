@@ -24,7 +24,7 @@ public:
   void Print(Option_t *option) const;
 
 private:
-  CaloGeometry* m_geo;
+  CaloGeometry* m_geo; //! do not persistify
   
   //** Array for the hit-to-cell assignment accordion structure fix (wiggle)  **//
   //** To be moved to the conditions database at some point **//

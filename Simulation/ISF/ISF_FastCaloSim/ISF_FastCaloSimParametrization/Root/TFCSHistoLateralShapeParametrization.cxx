@@ -60,6 +60,14 @@ bool TFCSHistoLateralShapeParametrization::Initialize(TH2* hist)
 {
 	m_hist=(TH2*)hist->Clone();
 	m_hist->SetDirectory(0);
+	for(int ix=1;ix<=m_hist->GetNbinsX();++ix) {
+  	for(int iy=1;iy<=m_hist->GetNbinsY();++iy) {
+  	  if(m_hist->GetBinContent(ix,iy)<0) {
+        std::cout << "WARNING: Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" : bin("<<ix<<","<<iy<<")="<<m_hist->GetBinContent(ix,ix)<<" is negative. Fixing to 0!"<<std::endl;
+  	    m_hist->SetBinContent(ix,iy,0);
+  	  }
+  	}
+	}
 
   return true;
 }
