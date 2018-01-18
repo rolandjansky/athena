@@ -6,6 +6,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+
 #include <string>
 
 
@@ -24,7 +26,11 @@ class ArtTest : public AthAlgorithm
  private:
   
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
-  
+
+  AsgElectronLikelihoodTool* m_LooseLH;
+  AsgElectronLikelihoodTool* m_MediumLH;
+  AsgElectronLikelihoodTool* m_TightLH;
+
 };
 
 #endif
