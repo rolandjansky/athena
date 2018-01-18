@@ -5,10 +5,7 @@
 #ifndef LARG4GENSHOWERLIB_G4UA__TESTACTIONSHOWERLIBTOOL_H
 #define LARG4GENSHOWERLIB_G4UA__TESTACTIONSHOWERLIBTOOL_H
 
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "LArG4GenShowerLib/TestActionShowerLib.h"
 
 namespace G4UA
@@ -21,30 +18,20 @@ namespace G4UA
   ///
   /// @author Andrea Di Simone
   ///
-  class TestActionShowerLibTool:
-  public ActionToolBase<TestActionShowerLib>,
-    public IG4EventActionTool, public IG4RunActionTool, public IG4SteppingActionTool
+  class TestActionShowerLibTool : public UserActionToolBase<TestActionShowerLib>
   {
 
   public:
+
     /// Standard tool ctor
     TestActionShowerLibTool(const std::string& type, const std::string& name,
                             const IInterface* parent);
-    /// Retrieves the event action
-    virtual G4UserEventAction* getEventAction() override final
-    { return static_cast<G4UserEventAction*>( getAction() ); }
-    /// Retrieves the run action
-    virtual G4UserRunAction* getRunAction() override final
-    { return static_cast<G4UserRunAction*>( getAction() ); }
-    /// Retrieves the stepping action
-    virtual G4UserSteppingAction* getSteppingAction() override final
-    { return static_cast<G4UserSteppingAction*>( getAction() ); }
-    /// Gaudi interface handling
-    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
   protected:
+
     /// Creates the action
-    virtual std::unique_ptr<TestActionShowerLib> makeAction() override final;
+    virtual std::unique_ptr<TestActionShowerLib>
+    makeAndFillAction(G4AtlasUserActions&) override final;
 
   }; // class TestActionShowerLibTool
 

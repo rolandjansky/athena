@@ -12,35 +12,19 @@ namespace G4UA
   TestActionShowerLibTool::TestActionShowerLibTool(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface* parent)
-    : ActionToolBase<TestActionShowerLib>(type, name, parent)
+    : UserActionToolBase<TestActionShowerLib>(type, name, parent)
   {}
 
   //----------------------------------------------------------------------------
-  std::unique_ptr<TestActionShowerLib> TestActionShowerLibTool::makeAction()
+  std::unique_ptr<TestActionShowerLib>
+  TestActionShowerLibTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
-    return CxxUtils::make_unique<TestActionShowerLib>();
-  }
-
-  //----------------------------------------------------------------------------
-  StatusCode TestActionShowerLibTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4RunActionTool::interfaceID()) {
-      *ppvIf = (IG4RunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<TestActionShowerLib>::queryInterface(riid, ppvIf);
+    ATH_MSG_DEBUG("Constructing a TestActionShowerLib");
+    auto action = CxxUtils::make_unique<TestActionShowerLib>();
+    actionList.runActions.push_back( action.get() );
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA
