@@ -21,10 +21,14 @@
 #include "CaloG4Sim/CalibrationDefaultProcessing.h"
 #include "CaloG4Sim/SimulationEnergies.h"
 
+// For the event-level flag
+#include "MCTruth/EventInformation.h"
+
 #include "G4VSensitiveDetector.hh"
 #include "G4SDManager.hh"
 #include "G4Run.hh"
 #include "G4Step.hh"
+#include "G4RunManager.hh"
 
 
 #include "GaudiKernel/Bootstrap.h"
@@ -55,8 +59,10 @@ namespace G4UA {
         {
           // We only want to perform the default processing if no other
           // calibration processing has occurred for this step.
-
-          if ( ! ::CaloG4::SimulationEnergies::StepWasProcessed() )
+          EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+          if ( event_info &&
+               ( event_info->GetLastProcessedBarcode() != a_step->GetTrack()->GetTrackID() ||
+                 event_info->GetLastProcessedStep() != a_step->GetTrack()->GetCurrentStepNumber() ) )
             {
               // We haven't performed any calibration processing for this
               // step (probably there is no sensitive detector for the
@@ -65,10 +71,11 @@ namespace G4UA {
               // the G4Step*, due to how G4VSensitiveDetector::Hit() is
               // defined.
               m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
-            }
 
-          // In any case, clear the flag for the next step.
-          ::CaloG4::SimulationEnergies::ResetStepProcessed();
+              // Update the step info
+              event_info->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
+              event_info->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
+            }
         }
 
       else

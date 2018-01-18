@@ -237,14 +237,20 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
   //OF A TILECAL SECONDARY PARTICLE HAS BEEN OCCURED
   if (! (m_tile_eep->GetEscapedFlag())) {
     ClassifyEnergy();
-    m_simEn->SetStepProcessed();
     m_doBirkFlag = true;
   } else {
     if (verboseLevel > 5) G4cout << "Escaped energy processing" << G4endl;
     SetEscapedEnergy(m_tile_eep->GetEscapedEnergy());
-    m_simEn->SetStepProcessed();
     m_tile_eep->SetEscapedFlag(false);
     m_doBirkFlag = false;
+  }
+
+  // Update the event information to note that this step has been dealt with
+  EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+  if ( event_info ) {
+      // Update the step info
+      event_info->SetLastProcessedBarcode( step->GetTrack()->GetTrackID() );
+      event_info->SetLastProcessedStep( step->GetTrack()->GetCurrentStepNumber() );
   }
 
   //THIS METHOD WILL CHECK WHETER ARE ALL CLASSIFIED ENERGIES
