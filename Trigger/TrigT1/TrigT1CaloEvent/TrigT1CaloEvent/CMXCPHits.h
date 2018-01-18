@@ -10,7 +10,7 @@
   #ifndef CMXCPHits_H
   #define CMXCPHits_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
 
 
   #include <iostream>

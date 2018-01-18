@@ -6,7 +6,7 @@
 #include "TrigT1CaloEvent/EnergyRoI.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 CLASS_DEF(LVL1::EnergyRoI, 6255, 1)
 // I would like to renumber this 6208, but it seems to cause problems.
