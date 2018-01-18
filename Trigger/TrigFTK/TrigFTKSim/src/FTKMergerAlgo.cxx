@@ -71,7 +71,6 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_ftrtrack_tomerge_bfname("FTKTracksStream%u."),
   m_ftkroad_tomerge_bfname("FTKRoadsStream%u."),
   m_MergeRegion(-1),
-  m_nStreamsToMerge(0),
   m_ftktrack_tomerge_tree(0),
   m_ftktrack_tomerge_file(0),
   m_ftktrack_tomerge_branch(0),
@@ -80,12 +79,10 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_ftktrack_mergeInputPath(""),
   m_ftktrack_mergeFileRoot(""),
   m_ftkroad_tomerge_branch(0),
-  m_ftkroad_tomerge_stream(0),
   m_forceAllInput(true),
   m_doGrid(false),
   m_ftktrack_paths_merged(),
   m_mergedtracks_chain(0x0),
-  m_mergedtracks_tree(0),
   m_mergedtracks_stream(0x0),
   m_srbanks(0),
   m_banks(0),
@@ -120,14 +117,12 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   //  m_particleCreatorTool(0x0),
   m_out_trackPC_Name("FTK_TrackParticles"),
   m_out_trackPC(0x0),
-  m_primcontainer(0),
   m_vxCandidatesPrimaryName("VxPrimaryCandidate"),
   m_truthFileNames(),
   m_truthTrackTreeName(""),
   m_evtinfoTreeName(""),
   m_offlineTreeName(""),
-  m_saveTruthTree(1),
-  m_out_convTrackPC(0)
+  m_saveTruthTree(1)
 {
   declareProperty("useStandalone",m_useStandalone,"Use tracks produced from the standalone version");
   declareProperty("SingleProces",m_singleProces,"Assume in the same process with the TF");

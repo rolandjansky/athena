@@ -112,7 +112,6 @@ class KD_Elm {
   int m_depth; // depth level, 0 is the top level
   int m_splitplane; // coordinate compared at this level
   PatternDefinition m_road; // A pattern
-  KD_Elm *m_parent; // parent element
   KD_Elm *m_left; // left sub-tree
   KD_Elm *m_right; // right sub-tree
 
@@ -162,7 +161,6 @@ private:
 
   int m_nplanes; // number of the planes
   int m_npatterns; // number of the patterns
-  int m_maxnhits;   // max number of hits in a pattern (used in bank construction)
   int m_maxnmissing; // maximum number of missing hits in the bank
 
   bool m_usehash; // if true for each pattern the relative hashes are stored
