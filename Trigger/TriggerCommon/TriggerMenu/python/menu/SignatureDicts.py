@@ -384,7 +384,7 @@ ElectronChainParts = {
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphideta','nod0','nodphires','nodeta','smooth'],
     'L2IDAlg'        : ['L2StarA','L2StarB','L2StarC','FTK','TRT','SiTrack','IdScan'],
-    'addInfo'        : ['etcut','ringer','noringer','conv','etisem','gsf','trkcut',
+    'addInfo'        : ['etcut','ringer','noringer','conv','etisem','gsf','trkcut','sc',
                         'L2Star','perf','IdTest'],
     }
 # ---- Egamma Dictinary of default Values ----
@@ -431,7 +431,7 @@ PhotonChainParts = {
     'hypoInfo'       : '',
     'recoAlg'        : [],
     'FSinfo'         : ['ftkFS',],
-    'addInfo'        : ['etcut', 'jetcalibdelayed', 'cosmic', 'perf', 'hiptrt','ringer','conv','larpeb'],
+    'addInfo'        : ['etcut', 'jetcalibdelayed', 'cosmic', 'perf', 'hiptrt','ringer','conv','larpeb','sc'],
     'topo'           : ['dPhi15'],
     }
 
