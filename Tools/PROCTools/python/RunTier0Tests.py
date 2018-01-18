@@ -311,17 +311,17 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
             # Error if the factor increases (very bad things)
             # Warning if the factor decreases (should be an understood feature)
             if  factor > float(1+Threshold) :
-                logging.error(SearchString+" in the",step," step with(out) your tag is",test,"(",ref,") "+MeasurementUnit  )
-                logging.error("Your tag changes "+SearchString+" by a factor "+str(factor)                                 )
-                logging.error("Is this an expected outcome of your tag(s)?"                                                )
+                logging.error(SearchString+" in the "+str(step)+" step with(out) your tag is "+str(test)+" ("+str(ref)+") "+str(MeasurementUnit))
+                logging.error("Your tag changes "+SearchString+" by a factor "+str(factor)                                                      )
+                logging.error("Is this an expected outcome of your tag(s)?"                                                                     )
                 _Test=False
                 logging.error(step+" : "+TestName                       )
                 logging.error("ref  "+str(ref)+" "+str(MeasurementUnit) )
                 logging.error("test "+str(test)+" "+str(MeasurementUnit))
             if factor < float(1-Threshold) :
-                logging.warning(SearchString+" in the",step," step with(out) your tag is",test,"(",ref,") "+MeasurementUnit  )
-                logging.warning("Your tag changes "+SearchString+" by a factor "+str(factor)                                 )
-                logging.warning("Is this an expected outcome of your tag(s)?"                                                )
+                logging.warning(SearchString+" in the "+str(step)+" step with(out) your tag is "+str(test)+" ("+str(ref)+") "+str(MeasurementUnit))
+                logging.warning("Your tag changes "+SearchString+" by a factor "+str(factor)                                                      )
+                logging.warning("Is this an expected outcome of your tag(s)?"                                                                     )
                 _Test=True
                 logging.warning(step+" : "+TestName                       )
                 logging.warning("ref  "+str(ref)+" "+str(MeasurementUnit) )
