@@ -26,7 +26,7 @@ find_package( AtlasCMake REQUIRED )
 # Build the project against LCG:
 set( LCG_VERSION_POSTFIX ""
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 88
+set( LCG_VERSION_NUMBER 91
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
