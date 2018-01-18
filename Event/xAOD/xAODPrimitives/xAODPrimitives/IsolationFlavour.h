@@ -8,6 +8,8 @@
 #ifndef XAODPRIMITIVES_ISOLATIONFLAVOUR_H
 #define XAODPRIMITIVES_ISOLATIONFLAVOUR_H
 
+#include <string>
+
 namespace xAOD {
 
    namespace Iso {
@@ -34,7 +36,7 @@ namespace xAOD {
 
      }; // enum IsolationFlavour
 
-     static inline const char* toString(IsolationFlavour type) {
+     static inline std::string toString(IsolationFlavour type) {
        switch (type) {
        case etcone:     return "etcone";
        case ptcone:     return "ptcone";

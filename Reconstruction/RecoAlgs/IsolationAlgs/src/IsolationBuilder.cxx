@@ -11,30 +11,7 @@
 // Isolation includes
 #include "IsolationBuilder.h"
 
-// FrameWork includes
-#include "GaudiKernel/Property.h"
-#include "StoreGate/ReadHandle.h"
 
-#include "xAODPrimitives/IsolationConeSize.h"
-#include "xAODPrimitives/IsolationHelpers.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
-#include "xAODEgamma/Photon.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/MuonAuxContainer.h"
-#include "xAODMuon/Muon.h"
-#include "CaloEvent/CaloCellContainer.h"
-
-#include "boost/foreach.hpp"
-#include "boost/format.hpp"
-
-#include <set>
-#include <utility>
 
 IsolationBuilder::IsolationBuilder( const std::string& name, 
 				    ISvcLocator* pSvcLocator ) : 
@@ -51,28 +28,28 @@ StatusCode IsolationBuilder::initialize()
   std::set<xAOD::Iso::IsolationFlavour> runIsoType;
   
   ATH_MSG_DEBUG("Initializing central electrons");
-  ATH_CHECK(initializeIso(runIsoType, &m_elCaloIso, &m_elTrackIso, 
-			  m_ElectronContainerName,
-			  m_elisoInts, m_elcorInts,
-			  m_customConfigEl, false));
+  ATH_CHECK(initializeIso<xAOD::ElectronContainer>(runIsoType, &m_elCaloIso, &m_elTrackIso, 
+						   m_ElectronContainerName,
+						   m_elisoInts, m_elcorInts,
+						   m_customConfigEl, false));
 
   ATH_MSG_DEBUG("Initializing central photons");
-  ATH_CHECK(initializeIso(runIsoType, &m_phCaloIso, &m_phTrackIso, 
-			  m_PhotonContainerName,
-			  m_phisoInts, m_phcorInts,
-			  m_customConfigPh, false));
+  ATH_CHECK(initializeIso<xAOD::PhotonContainer>(runIsoType, &m_phCaloIso, &m_phTrackIso, 
+						 m_PhotonContainerName,
+						 m_phisoInts, m_phcorInts,
+						 m_customConfigPh, false));
 
   ATH_MSG_DEBUG("Initializing forward electrons");
-  ATH_CHECK(initializeIso(runIsoType, &m_feCaloIso, nullptr, 
-			  m_FwdElectronContainerName,
-			  m_feisoInts, m_fecorInts,
-			  m_customConfigFwd, false));
+  ATH_CHECK(initializeIso<xAOD::ElectronContainer>(runIsoType, &m_feCaloIso, nullptr, 
+						   m_FwdElectronContainerName,
+						   m_feisoInts, m_fecorInts,
+						   m_customConfigFwd, false));
 
   ATH_MSG_DEBUG("Initializing muons");
-  ATH_CHECK(initializeIso(runIsoType, &m_muCaloIso, &m_muTrackIso, 
-			  m_MuonContainerName,
-			  m_muisoInts, m_mucorInts,
-			  m_customConfigMu, m_addCoreCorr));
+  ATH_CHECK(initializeIso<xAOD::MuonContainer>(runIsoType, &m_muCaloIso, &m_muTrackIso, 
+					       m_MuonContainerName,
+					       m_muisoInts, m_mucorInts,
+					       m_customConfigMu, m_addCoreCorr));
 			  
 
   // Retrieve the tools (there three Calo ones are the same in fact)
@@ -179,400 +156,20 @@ StatusCode IsolationBuilder::execute()
   // }
 
   // Compute isolations
-  if (m_egCaloIso.size() != 0 || m_egTrackIso.size() != 0) {
-    if (m_isolateEl && m_ElectronContainerName.size()) {
-      if (m_customConfigEl == "")
-	CHECK(IsolateEgamma("electron"));
-      else
-	CHECK(DecorateEgamma("electron"));
-    }
-    if (m_isolatePh && m_PhotonContainerName.size()) {
-      if (m_customConfigPh == "")
-	CHECK(IsolateEgamma("photon"));
-      else
-	CHECK(DecorateEgamma("photon"));
-    }
-  }
-  if (m_feCaloIso.size() != 0 && m_FwdElectronContainerName.size()) {
-    if (m_customConfigFwd == "")
-      CHECK(IsolateEgamma("fwdelectron"));
-    else
-      CHECK(DecorateEgamma("fwdelectron"));
-  }
-  if ( (m_muCaloIso.size() != 0 || m_muTrackIso.size() != 0) ) {
-    if (m_customConfigMu == "")
-      CHECK(IsolateMuon());
-    else
-      CHECK(DecorateMuon());
-  }
+
+  ATH_CHECK(executeCaloIso(m_elCaloIso));
+  ATH_CHECK(executeCaloIso(m_phCaloIso));
+  ATH_CHECK(executeCaloIso(m_feCaloIso));
+  ATH_CHECK(executeCaloIso(m_muCaloIso));
+
+  ATH_CHECK(executeTrackIso(m_elTrackIso));
+  ATH_CHECK(executeTrackIso(m_phTrackIso));
+  ATH_CHECK(executeTrackIso(m_muTrackIso));
 
   // if (m_isAODFix && !m_leakTool.empty())
   //   CHECK(runLeakage());
 
   
-  return StatusCode::SUCCESS;
-}
-
-StatusCode IsolationBuilder::IsolateEgamma(std::string egType) {
-
-  const xAOD::EgammaContainer *egC(0);
-  if (egType == "electron") {
-    if (evtStore()->contains<xAOD::ElectronContainer>(m_ElectronContainerName)) {
-      if (evtStore()->retrieve(egC,m_ElectronContainerName).isFailure()) {
-	ATH_MSG_FATAL("Cannot retrieve electron container " << m_ElectronContainerName);
-	return StatusCode::FAILURE;
-      }
-    } else {
-      ATH_MSG_DEBUG("ElectronContainer " << m_ElectronContainerName << " not available");
-      return StatusCode::SUCCESS;
-    }
-  } else if (egType == "photon") {
-    if (evtStore()->contains<xAOD::PhotonContainer>(m_PhotonContainerName)) {
-      if (evtStore()->retrieve(egC,m_PhotonContainerName).isFailure()) {
-	ATH_MSG_FATAL("Cannot retrieve photon container " << m_PhotonContainerName);
-	return StatusCode::FAILURE;
-      }
-    } else {
-      ATH_MSG_DEBUG("PhotonContainer " << m_PhotonContainerName << " not available");
-      return StatusCode::SUCCESS;
-    }
-  } else if (egType == "fwdelectron") {
-    if (evtStore()->contains<xAOD::ElectronContainer>(m_FwdElectronContainerName)) {
-      if (evtStore()->retrieve(egC,m_FwdElectronContainerName).isFailure()) {
-	ATH_MSG_FATAL("Cannot retrieve forward electron container " << m_FwdElectronContainerName);
-	return StatusCode::FAILURE;
-      }
-    } else {
-      ATH_MSG_DEBUG("Forward ElectronContainer " << m_FwdElectronContainerName << " not available");
-      return StatusCode::SUCCESS;
-    }
-  } else {
-    ATH_MSG_WARNING("Unknown egamma type " << egType);
-    return StatusCode::SUCCESS;
-  }
-  auto it = egC->begin(), itE = egC->end();
-  for (; it != itE; it++) {
-    auto eg = *it; 
-    //
-    ATH_MSG_DEBUG(egType << " pt,eta,phi = " << eg->pt()/1e3 << " " << eg->eta() << " " << eg->phi());
-    // 
-    // Calo Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
-    if (egType == "fwdelectron") {
-      itc  = m_feCaloIso.begin();
-      itcE = m_feCaloIso.end();
-    }
-    for (; itc != itcE; itc++) {
-      CaloIsoHelp isoH = itc->second;
-      xAOD::Iso::IsolationFlavour flav = itc->first;
-      bool bsc = false;
-      if (flav == xAOD::Iso::etcone && m_cellColl) 
-	bsc = m_cellIsolationTool->decorateParticle_caloCellIso(*eg, isoH.isoTypes, isoH.CorrList, m_cellColl);
-      else if (flav == xAOD::Iso::topoetcone)
-	bsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.isoTypes, isoH.CorrList);
-      else if (flav == xAOD::Iso::neflowisol)
-	bsc = m_pflowIsolationTool->decorateParticle_eflowIso(*eg, isoH.isoTypes, isoH.CorrList);
-      if (bsc) {
-	for (unsigned int i = 0; i < isoH.isoTypes.size(); i++) {
-	  float iso = 0;
-	  bool gotIso  = eg->isolationValue(iso,isoH.isoTypes[i]);
-	  if (gotIso)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
-	  else
-	    ATH_MSG_WARNING("Missing isolation result for " << isoH.isoTypes[i]);
-	}
-      } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << xAOD::Iso::toString(flav));
-    }
-    if (egType == "fwdelectron")
-      return StatusCode::SUCCESS;
-    // 
-    // Track Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp>::iterator itt = m_egTrackIso.begin(), ittE = m_egTrackIso.end();
-    for (; itt != ittE; itt++) {
-      TrackIsoHelp isoH = itt->second;
-      //const std::set<const xAOD::TrackParticle*> tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc);
-      std::set<const xAOD::TrackParticle*> tracksToExclude;
-      if (eg->type() == xAOD::Type::Electron)
-	tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc);
-      else {
-	if (m_allTrackRemoval) //New (from ??/??/16) : now this gives all tracks
-	  tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc);
-	else { // this is just to be able to have the 2015+2016 default case (only tracks from first vertex)
-	  const xAOD::Photon *gam = dynamic_cast<const xAOD::Photon *>(eg);
-	  if (gam->nVertices() > 0) {
-	    const xAOD::Vertex *phvtx = gam->vertex(0);
-	    for (unsigned int itk = 0; itk < phvtx->nTrackParticles(); itk++)
-	      tracksToExclude.insert(m_useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvtx->trackParticle(itk)) : phvtx->trackParticle(itk));
-	  }
-	}
-      }
-      xAOD::Vertex *vx = 0;
-      bool bsc = m_trackIsolationTool->decorateParticle(*eg, isoH.isoTypes, isoH.CorrList, vx, &tracksToExclude);
-      if (bsc) {
-	unsigned int nI = isoH.isoTypes.size();
-	for (unsigned int i = 0; i < nI; i++) {
-	  xAOD::Iso::IsolationConeSize coneSize = enumconeSize(isoH.isoTypes[i]);
-	  xAOD::Iso::IsolationType varIsoType   = xAOD::Iso::isolationType(xAOD::Iso::ptvarcone, coneSize);
-	  float iso = 0, isoV = 0;
-	  bool gotIso  = eg->isolationValue(iso,isoH.isoTypes[i]);
-	  bool gotIsoV = eg->isolationValue(isoV,varIsoType);
-	  if (gotIso && gotIsoV)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
-	  else
-	    ATH_MSG_WARNING("Missing isolation result " << gotIso << " " << gotIsoV);
-	}
-      } else
-	ATH_MSG_WARNING("Call to TrackIsolationTool failed");
-    }
-  }
-
-  return StatusCode::SUCCESS;
-} 
-StatusCode IsolationBuilder::IsolateMuon() {
-
-  SG::ReadHandle<xAOD::MuonContainer> muonC(m_MuonContainerName);      
-  if (!muonC.isValid()) {
-    ATH_MSG_FATAL("Cannot retrieve muons container " << m_MuonContainerName.key());
-    return StatusCode::FAILURE;
-  }
-
-  auto it = muonC->begin(), itE = muonC->end();
-  for (; it != itE; it++) {
-    auto mu = *it;
-
-    ATH_MSG_DEBUG("Muon pt,eta,phi = " << mu->pt()/1e3 << " " << mu->eta() << " " << mu->phi());
-    // 
-    // Calo Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp>::iterator itc = m_muCaloIso.begin(), itcE = m_muCaloIso.end();
-    for (; itc != itcE; itc++) {
-      CaloIsoHelp isoH = itc->second;
-      xAOD::Iso::IsolationFlavour flav = itc->first;
-      bool bsc = false;
-      if (flav == xAOD::Iso::IsolationFlavour::etcone && m_cellColl) 
-	bsc = m_cellIsolationTool->decorateParticle_caloCellIso(*mu, isoH.isoTypes, isoH.CorrList, m_cellColl);
-      else if (flav == xAOD::Iso::IsolationFlavour::topoetcone)
-	bsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*mu, isoH.isoTypes, isoH.CorrList);
-      else if (flav == xAOD::Iso::IsolationFlavour::neflowisol)
-	bsc = m_pflowIsolationTool->decorateParticle_eflowIso(*mu, isoH.isoTypes, isoH.CorrList);
-      if (bsc) {
-	for (unsigned int i = 0; i < isoH.isoTypes.size(); i++) {
-	  float iso = 0;
-	  bool gotIso  = mu->isolation(iso,isoH.isoTypes[i]);
-	  if (gotIso)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
-	  else
-	    ATH_MSG_WARNING("Missing isolation result for " << xAOD::Iso::toString(isoH.isoTypes[i]));
-	}
-      } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << xAOD::Iso::toString(flav));
-    }
-    // 
-    // Track Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp>::iterator itt = m_muTrackIso.begin(), ittE = m_muTrackIso.end();
-    for (; itt != ittE; itt++) {
-      TrackIsoHelp isoH = itt->second;
-      bool bsc = m_trackIsolationTool->decorateParticle(*mu, isoH.isoTypes, isoH.CorrList);
-      if (bsc) {
-	unsigned int nI = isoH.isoTypes.size();
-	for (unsigned int i = 0; i < nI; i++) {
-	  xAOD::Iso::IsolationConeSize coneSize = enumconeSize(isoH.isoTypes[i]);
-	  xAOD::Iso::IsolationType varIsoType   = xAOD::Iso::isolationType(xAOD::Iso::IsolationFlavour::ptvarcone, coneSize);
-	  float iso = 0, isoV = 0;
-	  bool gotIso  = mu->isolation(iso,isoH.isoTypes[i]);
-	  bool gotIsoV = mu->isolation(isoV,varIsoType);
-	  if (gotIso && gotIsoV)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
-	  else
-	    ATH_MSG_WARNING("Missing isolation result " << gotIso << " " << gotIsoV);
-	}
-      } else
-	ATH_MSG_WARNING("Call to TrackIsolationTool failed");
-    }
-  }
-
-  return StatusCode::SUCCESS;
-} 
-
-////
-//// Now, decorate, used for custom configurations, storing with decorators
-////
-StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
-
-  xAOD::EgammaContainer *egC(0);
-  if (egType == "electron") {
-    if (evtStore()->contains<xAOD::ElectronContainer>(m_ElectronContainerName)) {
-      if (evtStore()->retrieve(egC,m_ElectronContainerName).isFailure()) {
-	ATH_MSG_FATAL("Cannot retrieve electron container " << m_ElectronContainerName);
-	return StatusCode::FAILURE;
-      }
-    } else {
-      ATH_MSG_DEBUG("ElectronContainer " << m_ElectronContainerName << " not available");
-      return StatusCode::SUCCESS;
-    }
-  } else if (egType == "photon") {
-    if (evtStore()->contains<xAOD::PhotonContainer>(m_PhotonContainerName)) {
-      if (evtStore()->retrieve(egC,m_PhotonContainerName).isFailure()) {
-	ATH_MSG_FATAL("Cannot retrieve photon container " << m_PhotonContainerName);
-	return StatusCode::FAILURE;
-      }
-    } else {
-      ATH_MSG_DEBUG("PhotonContainer " << m_PhotonContainerName << " not available");
-      return StatusCode::SUCCESS;
-    } 
-  } else if (egType == "fwdelectron") {
-    if (evtStore()->contains<xAOD::ElectronContainer>(m_FwdElectronContainerName)) {
-      if (evtStore()->retrieve(egC,m_FwdElectronContainerName).isFailure()) {
-	ATH_MSG_FATAL("Cannot retrieve forward electron container " << m_FwdElectronContainerName);
-	return StatusCode::FAILURE;
-      }
-    } else {
-      ATH_MSG_DEBUG("Forward ElectronContainer " << m_FwdElectronContainerName << " not available");
-      return StatusCode::SUCCESS;
-    }
-  } else {
-    ATH_MSG_WARNING("Unknown egamma type " << egType);
-    return StatusCode::SUCCESS;
-  }
-  xAOD::EgammaContainer::iterator it = egC->begin(), itE = egC->end();
-  for (; it != itE; it++) {
-    xAOD::Egamma *eg = *it; 
-    //
-    ATH_MSG_DEBUG(egType << " pt,eta,phi = " << eg->pt()/1e3 << " " << eg->eta() << " " << eg->phi());
-    // 
-    // Calo Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
-    if (egType == "fwdelectron") {
-      itc  = m_feCaloIso.begin();
-      itcE = m_feCaloIso.end();
-    }
-    for (; itc != itcE; itc++) {
-      xAOD::CaloIsolation CaloIsoResult;
-      CaloIsoHelp isoH = itc->second;
-      xAOD::Iso::IsolationFlavour flav = itc->first;
-      bool bsc = false;
-      if (flav == xAOD::Iso::etcone && m_cellColl) 
-	bsc = m_cellIsolationTool->caloCellIsolation(CaloIsoResult, *eg, isoH.isoTypes, isoH.CorrList, m_cellColl);
-      else if (flav == xAOD::Iso::topoetcone)
-	bsc = m_topoIsolationTool->caloTopoClusterIsolation(CaloIsoResult, *eg, isoH.isoTypes, isoH.CorrList);
-      else if (flav == xAOD::Iso::neflowisol)
-	bsc = m_pflowIsolationTool->neutralEflowIsolation(CaloIsoResult, *eg, isoH.isoTypes, isoH.CorrList);
-      if (bsc) {
-	for (unsigned int i = 0; i < isoH.isoTypes.size(); i++) {
-	  float iso = CaloIsoResult.etcones[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
-	  (*isoH.isoDeco[i])(*eg) = iso;
-	}
-      } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toString(flav));
-    }
-    if (egType == "fwdelectron")
-      return StatusCode::SUCCESS;
-    // 
-    // Track Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp>::iterator itt = m_egTrackIso.begin(), ittE = m_egTrackIso.end();
-    for (; itt != ittE; itt++) {
-      xAOD::TrackIsolation TrackIsoResult;
-      TrackIsoHelp isoH = itt->second;
-      const std::set<const xAOD::TrackParticle*> tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc);
-      xAOD::Vertex *vx = 0;
-      bool bsc = m_trackIsolationTool->trackIsolation(TrackIsoResult, *eg, isoH.isoTypes, isoH.CorrList, vx, &tracksToExclude);
-      if (bsc) {
-	unsigned int nI = isoH.isoTypes.size();
-	for (unsigned int i = 0; i < nI; i++) {
-	  float iso = TrackIsoResult.ptcones[i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
-	  (*isoH.isoDeco[2*i])(*eg)   = iso;
-	  (*isoH.isoDeco[2*i+1])(*eg) = isoV;
-	}
-      } else
-	ATH_MSG_WARNING("Call to custom TrackIsolationTool failed");
-    }
-  }
-  
-  return StatusCode::SUCCESS;
-} 
-StatusCode IsolationBuilder::DecorateMuon() {
-
-  SG::ReadHandle<xAOD::MuonContainer> muonC(m_MuonContainerName);
-  if (!muonC.isValid()) {
-    ATH_MSG_FATAL("Cannot retrieve muons container " << m_MuonContainerName.key());
-    return StatusCode::FAILURE;
-  }
-
-  auto it = muonC->begin(), itE = muonC->end();
-  for (; it != itE; it++) {
-    auto mu = *it;
-    //
-    ATH_MSG_DEBUG("Muon pt,eta,phi = " << mu->pt()/1e3 << " " << mu->eta() << " " << mu->phi());
-    // 
-    // Calo Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,CaloIsoHelp>::iterator itc = m_muCaloIso.begin(), itcE = m_muCaloIso.end();
-    for (; itc != itcE; itc++) {
-      xAOD::CaloIsolation CaloIsoResult;
-      CaloIsoHelp isoH = itc->second;
-      xAOD::Iso::IsolationFlavour flav = itc->first;
-      bool bsc = false;
-      if (flav == xAOD::Iso::IsolationFlavour::etcone && m_cellColl) 
-	bsc = m_cellIsolationTool->caloCellIsolation(CaloIsoResult, *mu, isoH.isoTypes, isoH.CorrList, m_cellColl);
-      else if (flav == xAOD::Iso::IsolationFlavour::topoetcone)
-	bsc = m_topoIsolationTool->caloTopoClusterIsolation(CaloIsoResult, *mu, isoH.isoTypes, isoH.CorrList);
-      else if (flav == xAOD::Iso::IsolationFlavour::neflowisol)
-	bsc = m_pflowIsolationTool->neutralEflowIsolation(CaloIsoResult, *mu, isoH.isoTypes, isoH.CorrList);
-      if (bsc) {
-	for (unsigned int i = 0; i < isoH.isoTypes.size(); i++) {
-	  float iso = CaloIsoResult.etcones[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
-	  (*isoH.isoDeco[i])(*mu) = iso;
-	}
-	// not that nice. I expect a single core correction (e.g. for topoetcone, not coreMuon and coreCone together...)
-	xAOD::Iso::IsolationCaloCorrection icc = xAOD::Iso::coreCone;
-	bool ison = false;
-	if (CaloIsoResult.corrlist.calobitset.test(static_cast<unsigned int>(xAOD::Iso::coreMuon))) {
-	  icc  = xAOD::Iso::coreMuon;
-	  ison = true;
-	} else if (CaloIsoResult.corrlist.calobitset.test(static_cast<unsigned int>(xAOD::Iso::coreCone)))
-	  ison = true;
-	if (ison) {
-	  if (CaloIsoResult.coreCorrections.find(icc) != CaloIsoResult.coreCorrections.end()) {
-	    if (CaloIsoResult.coreCorrections[icc].find(xAOD::Iso::coreEnergy) != CaloIsoResult.coreCorrections[icc].end())
-	      (*isoH.coreCorisoDeco)(*mu) = CaloIsoResult.coreCorrections[icc][xAOD::Iso::coreEnergy];
-	    else
-	      ATH_MSG_WARNING("Cannot find the core energy correction for custom flavour " << xAOD::Iso::toString(flav));
-	  } else
-	    ATH_MSG_WARNING("Cannot find the core correction for custom flavour " << xAOD::Iso::toString(flav));
-	}
-      } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toString(flav));
-    }
-    // 
-    // Track Isolation types
-    //
-    std::map<xAOD::Iso::IsolationFlavour,TrackIsoHelp>::iterator itt = m_muTrackIso.begin(), ittE = m_muTrackIso.end();
-    for (; itt != ittE; itt++) {
-      xAOD::TrackIsolation TrackIsoResult;
-      TrackIsoHelp isoH = itt->second;
-      bool bsc = m_trackIsolationTool->trackIsolation(TrackIsoResult, *mu, isoH.isoTypes, isoH.CorrList);
-      if (bsc) {
-	unsigned int nI = isoH.isoTypes.size();
-	for (unsigned int i = 0; i < nI; i++) {
-	  float iso = TrackIsoResult.ptcones[i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
-	  (*isoH.isoDeco[2*i])(*mu)   = iso;
-	  (*isoH.isoDeco[2*i+1])(*mu) = isoV;
-	}
-      } else
-	ATH_MSG_WARNING("Call to custom TrackIsolationTool failed");
-    }
-  }
-
   return StatusCode::SUCCESS;
 }
  

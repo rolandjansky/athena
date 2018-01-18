@@ -8,6 +8,8 @@
 #ifndef XAODPRIMITIVES_ISOLATIONTYPE_H
 #define XAODPRIMITIVES_ISOLATIONTYPE_H
 
+#include <string>
+
 namespace xAOD {
 
    /// Namespace holding the IsolationType enumeration
@@ -72,7 +74,7 @@ namespace xAOD {
 
       }; // enum IsolationType
       
-      static inline const char* toString(IsolationType type)
+     static inline std::string toString(IsolationType type)
       {
           switch (type)
           {
