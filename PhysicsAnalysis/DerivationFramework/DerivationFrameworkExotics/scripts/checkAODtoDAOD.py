@@ -3,10 +3,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #******************************************
-#This script checks the reduction of derivations. It takes in input the log.AODtoDAOD file produced when running the command Reco_tf.py
+#This script checks the reduction of derivations. It takes in input the log.AODtoDAOD file produced by Reco_tf.py.
+#Example: python checkAODtoDAOD.py -f log.AODtoDAOD -t
 
+#******************************************
 __author__  = 'Francesco Guescini <Francesco.Guescini@cern.ch>'
-__version__ = '0.2'
+__version__ = '0.3'
 
 #******************************************
 #import stuff
@@ -91,9 +93,9 @@ def checkAODtoDAOD(args):
         #print "event disk size = %.3f kb"%(totEventDiskSize/poolFile.dataHeader.nEntries)
         daodeventssize.append(totEventDiskSize)
         
-    print '\nDAODs:'
+    print '\nderivation\tfile\t\t\t\tsize\tevents\tevent size'
     for i,d in enumerate(derivation):
-        print '  %s  \t%s\t%.1f MB\t%s\t%.3f kb'%(d, daod[i], daodsize[i]/1024./1024., daodevents[i], daodeventssize[i]/daodevents[i])
+        print '%s\t\t%s\t%.1f MB\t%s\t%.1f kb'%(d, daod[i], daodsize[i]/1024./1024., daodevents[i], daodeventssize[i]/daodevents[i])
         
     #------------------------------------------
     #results table
@@ -115,12 +117,12 @@ if __name__ == '__main__':
 
     #------------------------------------------
     #parse input arguments
-    parser = argparse.ArgumentParser(description='%prog [options]')
-    parser.add_argument('-f', '--file', dest='filename', default='', required=False, help='AOD to DAOD log file')
-    parser.add_argument('-t', '--table', dest='table', action='store_true', default=False, help='ouput table')
+    parser = argparse.ArgumentParser(epilog='example: python checkAODtoDAOD.py -f log.AODtoDAOD -t')
+    parser.add_argument('-f', '--file', dest='filename', type=str, default='log.AODtoDAOD', required=False, help='AOD to DAOD log file')
+    parser.add_argument('-t', '--table', dest='table', type=bool, action='store_true', default=False, required=False, help='ouput table')
     args = parser.parse_args()
     
     #------------------------------------------
-    #check hybrid jig calibration
+    #check derivation
     checkAODtoDAOD(args)
     print
