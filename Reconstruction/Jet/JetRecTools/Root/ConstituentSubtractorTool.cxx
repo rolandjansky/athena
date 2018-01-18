@@ -43,7 +43,6 @@ StatusCode ConstituentSubtractorTool::initialize() {
     }
   }
   return StatusCode::SUCCESS;
->>>>>>> Allow constituent pileup suppression tools to ignore charged PFOs
 }
 
 	
