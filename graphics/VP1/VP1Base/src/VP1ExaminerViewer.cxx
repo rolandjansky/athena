@@ -1659,7 +1659,9 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
     //    else
     //        glDisable(GL_MULTISAMPLE);
 
-    // --- NEW AA method (26Sep2017) ---
+
+    /*
+    // --- NEW AA method (26Sep2017) --- it works, but not on LXPLUS!!
     if (smoothing) {
 		VP1Msg::message("VP1ExaminerViewer: turning AA on.");
 
@@ -1683,6 +1685,8 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
         getGLRenderAction()->setSmoothing(smoothing);
         setSampleBuffers(0);
     }
+    */
+
 
     m_d->isantialias=smoothing;
 }
