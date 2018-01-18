@@ -89,8 +89,7 @@ class ArtHeader(object):
                         # handle values
                         if key not in self.header:
                             log.warning("Unknown art-header %s: %s in file %s", key, value, filename)
-                            self.header[key] = {}
-                            self.header[key]['value'] = None
+                            self.add(key, StringType)
                         if self.header[key]['value'] is None:
                             self.header[key]['value'] = value
                         else:
