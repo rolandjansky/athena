@@ -8,8 +8,8 @@ atlas_subdir( AthContainersInterfaces )
 
 # Extra dependencies, based on the build environment:
 if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/SGTools )
-   set( extra_libs SGTools )
+   set( extra_deps Control/AthenaKernel )
+   set( extra_libs AthenaKernel )
 endif()
 
 # Declare the package's dependencies:
