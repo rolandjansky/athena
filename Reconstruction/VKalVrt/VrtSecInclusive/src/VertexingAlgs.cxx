@@ -65,7 +65,10 @@ namespace VKalVrtAthena {
     // first make all 2-track vertices
     for( auto itrk = m_selectedTracks->begin(); itrk != m_selectedTracks->end(); ++itrk ) {
       for( auto jtrk = std::next(itrk); jtrk != m_selectedTracks->end(); ++jtrk ) {
-
+        
+        // avoid both tracks are too close to the beam line
+        if( fabs( (*itrk)->d0() ) < m_jp.d0TrkPVDstMinCut && fabs( (*jtrk)->d0() ) < m_jp.d0TrkPVDstMinCut ) continue;
+        
         const int itrk_id = itrk - m_selectedTracks->begin();
         const int jtrk_id = jtrk - m_selectedTracks->begin();
         
