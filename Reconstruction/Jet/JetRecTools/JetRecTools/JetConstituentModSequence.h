@@ -40,7 +40,7 @@ protected:
   // P-A : the actual type
   // Define as a basic integer type because Gaudi
   // doesn't support arbitrary property types
-  int m_inputType; // 
+  unsigned short m_inputType; // 
   
   
   ToolHandleArray<IJetConstituentModifier> m_modifiers;
