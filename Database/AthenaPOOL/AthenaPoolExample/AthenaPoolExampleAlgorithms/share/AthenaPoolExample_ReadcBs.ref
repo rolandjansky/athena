@@ -1,4 +1,4 @@
-Wed Dec 20 16:03:33 CST 2017
+Tue Jan  9 14:07:37 CST 2018
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5439 configurables from 18 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5433 configurables from 15 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
-                                          running on atlas2.hep.anl.gov on Wed Dec 20 16:03:47 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on atlas2.hep.anl.gov on Tue Jan  9 14:07:52 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -34,7 +34,7 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-17T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-01-05T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
 DBReplicaSvc         INFO Total of 1 servers found for host atlas2.hep.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
@@ -202,7 +202,7 @@ MetaData(ByteSt...  DEBUG Opening
 MetaData(ByteSt...  DEBUG    attributes# = 1
 MetaData(ByteSt...  DEBUG Branch container 'ByteStreamMetadataContainer_p1_ByteStreamMetadata'
 MetaData(ByteSt...  DEBUG Opened container MetaData(ByteStreamMetadataContainer_p1/ByteStreamMetadata) of type ROOT_Tree
-ClassIDSvc           INFO  getRegistryEntries: read 3714 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3710 CLIDRegistry entries for module ALL
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000000].
@@ -305,9 +305,9 @@ ToolSvc.ByteStr...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max= 1.67(+- 5.53)/    0/   20 [ms] #= 12
-cObj_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=    5(+- 9.22)/    0/   30 [ms] #= 10
-ChronoStatSvc        INFO Time User   : Tot= 1.02  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max= 1.67(+- 3.73)/    0/   10 [ms] #= 12
+cObj_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=    4(+- 6.63)/    0/   20 [ms] #= 10
+ChronoStatSvc        INFO Time User   : Tot= 1.05  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
