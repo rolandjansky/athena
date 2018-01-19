@@ -324,12 +324,6 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
     // New current state is the state extrapolated to the tracking volume boundary.
     currentState = m_stateAtBoundarySurface.stateAtBoundary;
 
-    // New reference parameters are the navigation parameters at the boundary surface
-    referenceParameters = m_stateAtBoundarySurface.navigationParameters;
-    //coverity 111522: null check is redundant here since referenceParameters is dereferenced later anyway.
-    //if (referenceParameters) printState("New Ref Parameters at next surface ", *referenceParameters);
-    printState("New Ref Parameters at next surface ", *referenceParameters);
-    
     // The volume that the extrapolation is about to enter into is called the nextVolume
     const Trk::TrackingVolume* nextVolume = m_stateAtBoundarySurface.trackingVolume;
 
@@ -341,6 +335,12 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
       break;
     }
 
+    // New reference parameters are the navigation parameters at the boundary surface
+    referenceParameters = m_stateAtBoundarySurface.navigationParameters;
+    //coverity 111522: null check is redundant here since referenceParameters is dereferenced later anyway.
+    //if (referenceParameters) printState("New Ref Parameters at next surface ", *referenceParameters);
+    printState("New Ref Parameters at next surface ", *referenceParameters);
+    
     // Break the lop if an oscillation is detected
     if ( previousVolume == nextVolume )
       ++fallbackOscillationCounter;
