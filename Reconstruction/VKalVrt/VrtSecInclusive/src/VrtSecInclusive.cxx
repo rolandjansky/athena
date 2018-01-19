@@ -413,7 +413,7 @@ namespace VKalVrtAthena {
       
       auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(),
                                  []( WrkVrt& wrkvrt ) {
-                                   return wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2; }
+                                   return wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2 || wrkvrt.fitQuality() > 10.; }
                                  );
       
       workVerticesContainer->erase( end, workVerticesContainer->end() );
