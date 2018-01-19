@@ -352,6 +352,8 @@ namespace VKalVrtAthena {
     m_selectedTracks.reset  ( new std::vector<const xAOD::TrackParticle*> );
     m_associatedTracks.reset( new std::vector<const xAOD::TrackParticle*> );
     
+    m_extrapolatedPatternBank.clear();
+    
     ///////////////////////////////////////////////////////////////////////////
     //
     // now start algorithm
