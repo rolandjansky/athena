@@ -20,8 +20,8 @@ namespace CP {
                 m_acc_IsoIsBackup("IsBackup_" + std::string(xAOD::Iso::toCString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
                 m_acc_iso_variable(xAOD::Iso::toCString(type)),
                 m_dec_iso_variable(xAOD::Iso::toCString(type)),
-                m_acc_iso_backup(std::string(xAOD::Iso::toCString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
-                m_dec_iso_backup(std::string(xAOD::Iso::toCString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix) {
+                m_acc_iso_backup(xAOD::Iso::toString(type) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
+                m_dec_iso_backup(xAOD::Iso::toString(type) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix) {
     }
 
     CorrectionCode IsoVariableHelper::getOrignalIsolation(const xAOD::IParticle* particle, float& value) const {
@@ -86,7 +86,7 @@ namespace CP {
         return m_isoType;
     }
     std::string IsoVariableHelper::name() const {
-        return std::string(xAOD::Iso::toCString(isotype()));
+        return xAOD::Iso::toString(isotype());
     }
 
 }

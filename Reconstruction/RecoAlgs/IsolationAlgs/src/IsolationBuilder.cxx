@@ -105,7 +105,7 @@ StatusCode IsolationBuilder::initialize()
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
       isoTypes.push_back(isoType);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toCString(isoType);
+      std::string isoName (xAOD::Iso::toString(isoType));
       if (m_customConfig != "") {
 	isoName += "_"; isoName += m_customConfig;
 	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
@@ -162,7 +162,7 @@ StatusCode IsolationBuilder::initialize()
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
       isoTypes.push_back(isoType);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toCString(isoType);
+      std::string isoName (xAOD::Iso::toString(isoType));
       if (m_customConfig != "") {
 	isoName += "_"; isoName += m_customConfig;
 	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
@@ -231,7 +231,7 @@ StatusCode IsolationBuilder::initialize()
 	if (m_customConfigMu != "" && (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreMuon) ) {
 	  std::string isoCorName = "";
 	  if (isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol)
-	    isoCorName = xAOD::Iso::toCString(isoFlav);
+	  isoCorName =xAOD::Iso::toCString(isoFlav);
 	  isoCorName += xAOD::Iso::toCString(isoCor);
 	  isoCorName += xAOD::Iso::toCString(xAOD::Iso::coreEnergy); isoCorName += "Correction"; // hard coded since we never store the core area in fact
 	  isoCorName += "_"; isoCorName += m_customConfigMu;
