@@ -292,6 +292,7 @@ namespace VKalVrtAthena {
       
       inline double ndof() const { return 2.0*( selectedTrackIndices.size() + associatedTrackIndices.size() ) - 3.0; }
       inline unsigned nTracksTotal() const { return selectedTrackIndices.size() + associatedTrackIndices.size(); }
+      inline double fitQuality() const { return Chi2 / ndof(); }
     };
     
     

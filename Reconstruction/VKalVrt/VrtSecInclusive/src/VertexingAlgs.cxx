@@ -158,20 +158,36 @@ namespace VKalVrtAthena {
         // track chi2 cut
         if( m_jp.FillHist ) m_hists["2trkChi2Dist"]->Fill( log10( wrkvrt.Chi2 ) );
         
-        if( wrkvrt.Chi2 > m_jp.SelVrtChi2Cut) {
+        if( wrkvrt.fitQuality() > m_jp.SelVrtChi2Cut) {
+          
+          ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": failed to pass chi2 threshold." );
+          
           if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 2 );
           continue;          /* Bad Chi2 */
         }
-        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": 2-track vrt mass/pt "<<wrkvrt.vertexMom.M()<<","<<wrkvrt.vertexMom.Perp());
-
-
+        
+        ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": attempting form vertex from ( " << itrk_id << ", " << jtrk_id << " )." );
+        ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": candidate vertex: "
+                       << " isGood  = "            << (wrkvrt.isGood? "true" : "false")
+                       << ", #ntrks = "            << wrkvrt.nTracksTotal()
+                       << ", #selectedTracks = "   << wrkvrt.selectedTrackIndices.size()
+                       << ", #associatedTracks = " << wrkvrt.associatedTrackIndices.size()
+                       << ", chi2/ndof = "         << wrkvrt.fitQuality()
+                       << ", (r, z) = ("           << wrkvrt.vertex.perp()
+                       <<", "                      << wrkvrt.vertex.z() << ")" );
+        
         // fake rejection cuts with track hit pattern consistencies
         if( m_jp.removeFakeVrt && !m_jp.removeFakeVrtLate ) {
           if( !this->passedFakeReject( wrkvrt.vertex, (*itrk), (*jtrk) ) ) {
+            
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass fake rejection algorithm." );
+            
             if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 3 );
             continue;
           }
         }
+        
+        ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": passed fake rejection." );
         
         if( m_jp.FillHist ) dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( wrkvrt.vertex.perp(), vPos );
         
@@ -196,6 +212,7 @@ namespace VKalVrtAthena {
         if( m_jp.doPVcompatibilityCut ) {
           if( vPos < m_jp.pvCompatibilityCut ) {
             if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 3 );
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut." );
             continue;
           }
         }
@@ -314,7 +331,7 @@ namespace VKalVrtAthena {
                                             wrkvrt.TrkAtVrt,
                                             wrkvrt.Chi2);
 
-        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": FoundAppVrt=" << solutionSize << ", (r, z) = " << wrkvrt.vertex.perp() << ", " << wrkvrt.vertex.z()  <<  ", chi2 = "  <<  wrkvrt.Chi2);
+        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": FoundAppVrt=" << solutionSize << ", (r, z) = " << wrkvrt.vertex.perp() << ", " << wrkvrt.vertex.z()  <<  ", chi2/ndof = "  <<  wrkvrt.fitQuality() );
 
         if( sc.isFailure() )  {
           ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": VKalVrtFit failed; continue.");
@@ -545,7 +562,7 @@ namespace VKalVrtAthena {
       
       ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": maximally shared track index = " << maxSharedTrack
                      << ", multiplicity = " << trackToVertexMap.at( maxSharedTrack ).size()
-                     << ", workst chi2 = " << worstChi2
+                     << ", worst chi2 = "   << worstChi2
                      << ", vertex index = " << worstMatchingVertex );
             
       //Choice of action
@@ -1253,7 +1270,7 @@ namespace VKalVrtAthena {
         const auto* trk = m_selectedTracks->at( wrkvrt.selectedTrackIndices[itrk] );
         const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
-          ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
+          ATH_MSG_INFO(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
           good_flag = false;
         }
         delete sv_perigee;
@@ -1262,12 +1279,13 @@ namespace VKalVrtAthena {
         const auto* trk = m_associatedTracks->at( wrkvrt.associatedTrackIndices[itrk] );
         const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
-          ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
+          ATH_MSG_INFO(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
           good_flag = false;
         }
         delete sv_perigee;
       }
       if( !good_flag ) {
+        ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": sv perigee could not be obtained --> rejected" );
         continue;
       }
       
@@ -1301,13 +1319,13 @@ namespace VKalVrtAthena {
       unsigned mult_ptAbove1GeV { 0 };
       
       // loop over vertex tracks
-      ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Track loop: size = " << tracks.size() );
+      ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": Track loop: size = " << tracks.size() );
       for( auto& pair : trackChi2Pairs ) {
         
         const auto* trk      = pair.first;
         const auto& chi2AtSV = pair.second;
 
-        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": start." );
+        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": start." );
 
         track_summary trk_summary;
         fillTrackSummary( trk_summary, trk );
@@ -1348,7 +1366,7 @@ namespace VKalVrtAthena {
           mult_ptAbove1GeV++;
         }
         
-        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": in vrt chg/px/py/pz/pt/e/phi/eta = "
+        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": in vrt chg/px/py/pz/pt/e/phi/eta = "
             << trk->charge() <<","
             <<trk_px<<","
             <<trk_py<<","
@@ -1360,11 +1378,11 @@ namespace VKalVrtAthena {
 
         /////////////////////////////////////////////
         // Get the perigee of the track at the vertex
-        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Get the prigee of the track at the vertex." );
+        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Get the prigee of the track at the vertex." );
 
         const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
-          ATH_MSG_WARNING(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
+          ATH_MSG_WARNING(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
           
           for( auto& pair : trkDecors ) {
             pair.second( *trk ) = AlgConsts::invalidFloat;
@@ -1411,10 +1429,10 @@ namespace VKalVrtAthena {
         
         delete sv_perigee;
 
-        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": end." );
+        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": end." );
       } // loop over tracks in vertex
 
-      ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: Track loop end. ");
+      ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Track loop end. ");
 
       //nVrtVx->emplace_back(tmpVx);
 
@@ -1424,7 +1442,7 @@ namespace VKalVrtAthena {
       vert_massp = sqrt(vep*vep - vx*vx -vy*vy -vz*vz);
 
 
-      ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Final Sec.Vertex="<<nth<<", "
+      ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": Final Sec.Vertex=" << wrkvrt.nTracksTotal() <<", "
           <<wrkvrt.vertex[0]<<", "<<wrkvrt.vertex[1]<<", "
           <<wrkvrt.vertex[2]<<","<<vert_mass<<","<<vert_pt<<","<<vert_masse);
 
@@ -1448,6 +1466,10 @@ namespace VKalVrtAthena {
       
         
       if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 5 );
+      
+      if( badIPflag ) {
+        ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": Bad impact parameter signif wrt SV was flagged." );
+      }
 
       ///////////////////////////////////////////////////
       // Data filling to xAOD container

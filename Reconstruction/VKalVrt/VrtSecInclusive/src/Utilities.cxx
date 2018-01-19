@@ -261,7 +261,7 @@ namespace VKalVrtAthena {
     //  Iterate track removal until vertex get good Chi2
     //
     
-    ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": begin: chi2 = " << vertex.Chi2);
+    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": begin: chi2 = " << vertex.Chi2);
     
     if( vertex.nTracksTotal() < 2 ) return 0.;
     
@@ -281,7 +281,7 @@ namespace VKalVrtAthena {
       size_t index   = maxChi2 - vertex.Chi2PerTrk.begin();
       
       
-      ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": maxChi2 index = " << index << " / " << vertex.Chi2PerTrk.size() );
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": maxChi2 index = " << index << " / " << vertex.Chi2PerTrk.size() );
       
       if( index < vertex.selectedTrackIndices.size() ) {
         vertex.selectedTrackIndices.erase( vertex.selectedTrackIndices.begin() + index ); //remove track
@@ -306,7 +306,7 @@ namespace VKalVrtAthena {
     
     //if(chi2Probability<0.001) vertex.isGood = false;
     
-    ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": end: chi2 = " << vertex.Chi2);
+    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": end: chi2 = " << vertex.Chi2);
     
     return chi2Probability;
   }
@@ -929,23 +929,33 @@ namespace VKalVrtAthena {
     
     std::set<long int> usedTracks;
     
+    auto concatenateVectorToString = []( auto vector ) -> std::string {
+      return std::accumulate( std::next(vector.begin()), vector.end(), std::to_string( vector.at(0) ),
+                              []( std::string str, auto& index ) { return str + ", " + std::to_string(index); } );
+    };
+    
     for(size_t iv=0; iv<workVerticesContainer->size(); iv++) {
       auto& wrkvrt = workVerticesContainer->at(iv);
-      unsigned ntrk = ( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() );
-      if( ntrk < 2 ) continue;
-      if( m_vertexingAlgorithmStep > 0 ) {
-        ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: "
-                       << " isGood  = "            << (wrkvrt.isGood? "true" : "false")
-                       << ", #ntrks = "            << ntrk
-                       << ", #selectedTracks = "   << wrkvrt.selectedTrackIndices.size()
-                       << ", #associatedTracks = " << wrkvrt.associatedTrackIndices.size()
-                       << ", chi2/ndof = "         << wrkvrt.Chi2 / ( wrkvrt.ndof() + AlgConsts::infinitesimal )
-                       << ", (r, z) = ("           << wrkvrt.vertex.perp()
-                       <<", "                      << wrkvrt.vertex.z() << ")" );
-      }
       
-      for( auto& index : wrkvrt.selectedTrackIndices ) usedTracks.insert( index );
-      for( auto& index : wrkvrt.associatedTrackIndices ) usedTracks.insert( index );
+      if( wrkvrt.nTracksTotal() < 2 ) continue;
+      
+      std::string sels    = concatenateVectorToString( wrkvrt.selectedTrackIndices   );
+      std::string assocs  = concatenateVectorToString( wrkvrt.associatedTrackIndices );
+      
+      for( auto& index : wrkvrt.selectedTrackIndices )   { usedTracks.insert( index ); }
+      for( auto& index : wrkvrt.associatedTrackIndices ) { usedTracks.insert( index ); }
+      
+      ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: "
+                     << " isGood  = "            << (wrkvrt.isGood? "true" : "false")
+                     << ", #ntrks = "            << wrkvrt.nTracksTotal()
+                     << ", #selectedTracks = "   << wrkvrt.selectedTrackIndices.size()
+                     << ", #associatedTracks = " << wrkvrt.associatedTrackIndices.size()
+                     << ", chi2/ndof = "         << wrkvrt.fitQuality()
+                     << ", (r, z) = ("           << wrkvrt.vertex.perp()
+                     << ", "                     << wrkvrt.vertex.z() << ")"
+                     << ", sels = { "            << sels << " }"
+                     << ", assocs = { "          << assocs << " }" );
+      
     }
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": number of used tracks = " << usedTracks.size() );
     
