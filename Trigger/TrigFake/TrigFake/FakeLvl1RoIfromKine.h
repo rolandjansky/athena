@@ -43,7 +43,6 @@ class FakeLvl1RoIfromKine : public HLT::LvlConverter {
   double m_muonRoiEtaMax;
   double m_jetRoiPtMin;
   double m_jetRoiEtaMax;
-  std::string instance;
   std::vector<int> m_emTauRoiParticles;
   std::vector<int> m_muonRoiParticles;
   std::vector<int> m_jetRoiParticles;
