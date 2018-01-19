@@ -11,34 +11,18 @@ namespace G4UA
   SG_StepNtupleTool::SG_StepNtupleTool(const std::string& type,
                                        const std::string& name,
                                        const IInterface* parent)
-    : ActionToolBase<SG_StepNtuple>(type, name, parent)
+    : UserActionToolBase<SG_StepNtuple>(type, name, parent)
   {}
 
-  std::unique_ptr<SG_StepNtuple> SG_StepNtupleTool::makeAction()
+  std::unique_ptr<SG_StepNtuple>
+  SG_StepNtupleTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing an SG_StepNtuple action");
     auto action = CxxUtils::make_unique<SG_StepNtuple>();
+    actionList.runActions.push_back( action.get() );
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
     return std::move(action);
-  }
-
-  StatusCode SG_StepNtupleTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IG4RunActionTool::interfaceID()) {
-      *ppvIf = (IG4RunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<SG_StepNtuple>::queryInterface(riid, ppvIf);
   }
 
 } // namespace G4UA
