@@ -26,15 +26,15 @@ get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions
 athena.py  -c 'ARTConfig=$fileList;EventMax=2000;'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice.py
 echo "art-result: $? athena_0"
 
-get_files -data TIDAdata11-rtt-offline.dat
+get_files -data TIDAdata11-rtt.dat
 get_files -data TIDAdata_cuts.dat
 get_files -data TIDAdata_chains.dat
 get_files -data TIDAbeam.dat
 get_files -data Test_bin.dat
-TIDArdict.exe TIDAdata11-rtt-offline.dat -f data-minBias.root -b Test_bin.dat
+TIDArdict.exe TIDAdata11-rtt.dat -f data-monitor.root -b Test_bin.dat
 echo "art-result: $? TIDArdict_1"
 
-TIDArun-art.sh data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig  -d HLTEF-plots
+TIDArun-art.sh data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots
 echo "art-result: $? TIDArun_2"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times

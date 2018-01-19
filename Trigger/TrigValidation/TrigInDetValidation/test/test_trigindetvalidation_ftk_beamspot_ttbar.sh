@@ -1,8 +1,7 @@
 #!/bin/bash
 # art-description: art job for FTK_beamspot_ttbar
 # art-type: grid
-# art-output: HLTL2-plots-lowpt
-# art-output: HLTEF-plots
+# art-output: HLTL2-plots
 # art-output: times
 # art-output: times-FTF
 # art-output: cost-perCall
@@ -27,11 +26,15 @@ get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions
 athena.py  -c 'ARTConfig=$fileList;EventMax=2000;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice.py
 echo "art-result: $? athena_0"
 
-get_files -data data-FTK_mu_ttbar_offline-reference.root
-TIDArdict.exe data-muon-FTK.root data-FTK_mu_ttbar_offline-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK HLT_mu6_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit   -d HLTL2-plots-lowpt
+get_files -data TIDAdata11-rtt.dat
+get_files -data TIDAdata_cuts.dat
+get_files -data TIDAdata_chains.dat
+get_files -data TIDAbeam.dat
+get_files -data Test_bin.dat
+TIDArdict.exe TIDAdata11-rtt.dat  -f data-beamspot-FTK.root -b Test_bin.dat
 echo "art-result: $? TIDArdict_1"
 
-TIDArun-art.sh data-bjet-FTK.root data-FTK_bjet_ttbar_offline-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots
+TIDArun-art.sh data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_idperf_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTKMon HLT_beamspot_allTE_FTKRefit_InDetTrigTrackingxAODCnv_BeamSpot_FTKRefit -d HLTL2-plots
 echo "art-result: $? TIDArun_2"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times

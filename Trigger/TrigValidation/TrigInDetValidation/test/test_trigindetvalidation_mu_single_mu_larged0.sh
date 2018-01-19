@@ -1,8 +1,8 @@
 #!/bin/bash
 # art-description: art job for mu_single_mu_larged0
 # art-type: grid
-# art-output: HLTL2-plots
 # art-output: HLTEF-plots
+# art-output: HLTL2-plots
 # art-output: times
 # art-output: times-FTF
 # art-output: cost-perCall
@@ -35,27 +35,30 @@ get_files -data Test_bin_larged0.dat
 TIDArdict.exe TIDAdata11-rtt-larged0.dat -f data-muon.root -p 13  -b Test_bin_larged0.dat
 echo "art-result: $? TIDArdict_1"
 
-TIDArun-art.sh data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots
+TIDArun-art.sh data-muon.root data-mu_single_mu_larged0-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots
 echo "art-result: $? TIDArun_2"
 
-TIDArun-art.sh data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots  expert-monitoring.root  expert-monitoring*-ref.root --auto -o times
+TIDArun-art.sh data-muon.root data-mu_single_mu_larged0-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots
 echo "art-result: $? TIDArun_3"
 
-TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF
+TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times
 echo "art-result: $? TIDArun_4"
 
+TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF
+echo "art-result: $? TIDArun_5"
+
 RunTrigCostD3PD.exe -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir
-echo "art-result: $? RunTrigCostD3PD_5"
+echo "art-result: $? RunTrigCostD3PD_6"
 
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"
-echo "art-result: $? TIDAcpucost_6"
-
-TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent"
 echo "art-result: $? TIDAcpucost_7"
 
-TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall"
+TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent"
 echo "art-result: $? TIDAcpucost_8"
 
-TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"
+TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall"
 echo "art-result: $? TIDAcpucost_9"
+
+TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"
+echo "art-result: $? TIDAcpucost_10"
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: art job for FTK_tau_tautau
 # art-type: grid
-# art-output: HLTL2-plots-lowpt
+# art-output: HLTL2-plots
 # art-output: HLTEF-plots
 # art-output: times
 # art-output: times-FTF
@@ -32,14 +32,13 @@ get_files -data TIDAdata_cuts.dat
 get_files -data TIDAdata_chains.dat
 get_files -data TIDAbeam.dat
 get_files -data Test_bin.dat
-TIDArdict.exe TIDAdata11-rtt.dat -f data-bjet-FTK.root -b Test_bin.dat
+TIDArdict.exe TIDAdata11-rtt.dat -f data-tau-FTK.root   -b Test_bin.dat
 echo "art-result: $? TIDArdict_1"
 
-get_files -data data-FTK_mu_ttbar_offline-reference.root
-TIDArdict.exe data-muon-FTK.root data-FTK_mu_ttbar_offline-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK HLT_mu6_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit   -d HLTL2-plots-lowpt
-echo "art-result: $? TIDArdict_2"
+TIDArun-art.sh data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit  -d HLTL2-plots
+echo "art-result: $? TIDArun_2"
 
-TIDArun-art.sh data-bjet-FTK.root data-FTK_bjet_ttbar_offline-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots
+TIDArun-art.sh data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig  -d HLTEF-plots
 echo "art-result: $? TIDArun_3"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times

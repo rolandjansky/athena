@@ -2,6 +2,7 @@
 # art-description: art job for mu_Zmumu_IBL_pu40_offline_rzMatcher
 # art-type: grid
 # art-output: HLTL2-plots
+# art-output: HLTEF-plots
 # art-output: times
 # art-output: times-FTF
 # art-output: cost-perCall
@@ -26,13 +27,18 @@ get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions
 athena.py  -c 'ARTConfig=$fileList;EventMax=4000;doIDNewTracking=True;PdgId=13'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
 echo "art-result: $? athena_0"
 
-  
-echo "art-result: $? _1"
+get_files -data TIDAdata11-rtt-offline-rzMatcher.dat
+get_files -data TIDAdata_cuts.dat
+get_files -data TIDAdata_chains.dat
+get_files -data TIDAbeam.dat
+get_files -data Test_bin.dat
+TIDArdict.exe TIDAdata11-rtt-offline-rzMatcher.dat -f data-muon-pileup-merge.root  -b Test_bin.dat
+echo "art-result: $? TIDArdict_1"
 
-TIDArun-art.sh data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF    -d HLTL2-plots
+TIDArun-art.sh data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF    -d HLTL2-plots
 echo "art-result: $? TIDArun_2"
 
-TIDArun.sh 
+TIDArun-art.sh data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline_rzMatcher-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots
 echo "art-result: $? TIDArun_3"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times

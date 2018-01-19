@@ -27,18 +27,18 @@ get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions
 athena.py  -c 'ARTConfig=$fileList;EventMax=4000;doIDNewTracking=True;PdgId=13'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
 echo "art-result: $? athena_0"
 
-get_files -data TIDAdata11-rtt-offline-rzMatcher.dat
+get_files -data TIDAdata11-rtt-offline.dat
 get_files -data TIDAdata_cuts.dat
 get_files -data TIDAdata_chains.dat
 get_files -data TIDAbeam.dat
 get_files -data Test_bin.dat
-  TIDAdata11-rtt-offline-rzMatcher.dat -f data-muon-pileup-merge.root  -b Test_bin.dat
-echo "art-result: $? _1"
+TIDArdict.exe TIDAdata11-rtt-offline.dat -f data-muon-pileup-merge.root  -b Test_bin.dat
+echo "art-result: $? TIDArdict_1"
 
-TIDArun-art.sh data-muon-bphys-merge.root data-mu_bphys_IBL-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF     -d HLTL2-plots
+TIDArun-art.sh data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots
 echo "art-result: $? TIDArun_2"
 
-TIDArun-art.sh data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots
+TIDArun-art.sh data-muon-pileup-merge.root data-mu_Zmumu_IBL_pu40_offline-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-plots
 echo "art-result: $? TIDArun_3"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times

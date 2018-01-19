@@ -1,7 +1,6 @@
 #!/bin/bash
 # art-description: art job for minBias_offline
 # art-type: grid
-# art-output: HLTL2-plots-lowpt
 # art-output: HLTEF-plots
 # art-output: times
 # art-output: times-FTF
@@ -27,11 +26,15 @@ get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions
 athena.py  -c 'ARTConfig=$fileList;EventMax=2000;doIDNewTracking=True'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice.py
 echo "art-result: $? athena_0"
 
-get_files -data data-FTK_mu_ttbar-reference.root
-  data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK HLT_mu6_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit   -d HLTL2-plots-lowpt
-echo "art-result: $? _1"
+get_files -data TIDAdata11-rtt-offline.dat
+get_files -data TIDAdata_cuts.dat
+get_files -data TIDAdata_chains.dat
+get_files -data TIDAbeam.dat
+get_files -data Test_bin.dat
+TIDArdict.exe TIDAdata11-rtt-offline.dat -f data-minBias.root -b Test_bin.dat
+echo "art-result: $? TIDArdict_1"
 
-TIDArun-art.sh data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig  -d HLTEF-plots
+TIDArun-art.sh data-minBias.root data-minBias_offline-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots
 echo "art-result: $? TIDArun_2"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times
