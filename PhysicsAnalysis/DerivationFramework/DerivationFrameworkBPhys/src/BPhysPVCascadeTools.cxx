@@ -4,14 +4,12 @@
 
 #include "DerivationFrameworkBPhys/BPhysPVCascadeTools.h"
 #include "xAODTracking/VertexContainer.h"
-#include "TrkVertexAnalysisUtils/V0Tools.h"
 #include <iostream>
-#include <cmath>
 #include "xAODBPhys/BPhysHelper.h"
-#include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include <limits>
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TVector3.h"
+#include "DerivationFrameworkBPhys/BPhysPVTools.h"
 using namespace std;
 
 DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(CascadeTools *cascadeTools) :
@@ -28,7 +26,7 @@ DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(CascadeTools *casc
 {
 }
 
-void DerivationFramework::BPhysPVCascadeTools::FillBPhysHelper(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::BPhysHelper &vtx,
+void DerivationFramework::BPhysPVCascadeTools::FillBPhysHelper(const std::vector<TLorentzVector> &mom, Amg::MatrixX cov, xAOD::BPhysHelper &vtx,
 							const xAOD::Vertex* PV, const xAOD::VertexContainer* PvContainer,
 							xAOD::BPhysHelper::pv_type pvtype, int refitCode) const {
 
@@ -50,7 +48,7 @@ void DerivationFramework::BPhysPVCascadeTools::FillBPhysHelper(std::vector<TLore
 
 }
 
-void DerivationFramework::BPhysPVCascadeTools::ProcessVertex(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::BPhysHypoHelper &vtx,
+void DerivationFramework::BPhysPVCascadeTools::ProcessVertex(const std::vector<TLorentzVector> &mom, Amg::MatrixX cov, xAOD::BPhysHypoHelper &vtx,
 							xAOD::BPhysHelper::pv_type pvtype, double mass) const {
 
   const xAOD::Vertex* pv = vtx.pv(pvtype);
@@ -75,22 +73,10 @@ void DerivationFramework::BPhysPVCascadeTools::ProcessVertex(std::vector<TLorent
 void DerivationFramework::BPhysPVCascadeTools::FillBPhysHelperNULL(xAOD::BPhysHelper &vtx,
 							    const xAOD::VertexContainer* PvContainer,
 							    xAOD::BPhysHelper::pv_type pvtype) {
-  const xAOD::Vertex* PV = NULL;
-  BPHYS_CHECK( vtx.setPv      ( PV, PvContainer, pvtype ) );
-  const float errConst = std::numeric_limits<float>::lowest();
-  // set variables claculated from PV
-  BPHYS_CHECK( vtx.setLxy    ( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setLxyErr ( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setA0     ( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setA0Err  ( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setA0xy   ( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setA0xyErr( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setZ0     ( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setZ0Err  ( errConst, pvtype ) );
-  BPHYS_CHECK( vtx.setRefitPVStatus  ( 0, pvtype ) );
+   DerivationFramework::BPhysPVTools::FillBPhysHelperNULL(vtx, PvContainer, pvtype);
 }
 
-size_t DerivationFramework::BPhysPVCascadeTools::FindLowZIndex(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &Obj,
+size_t DerivationFramework::BPhysPVCascadeTools::FindLowZIndex(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &Obj,
 							const std::vector<const xAOD::Vertex*> &PVlist,
 							const size_t PV_minNTracks) const {
   size_t lowZ  = 0;
@@ -113,15 +99,10 @@ size_t DerivationFramework::BPhysPVCascadeTools::FindLowZIndex(std::vector<TLore
 }
 
 size_t DerivationFramework::BPhysPVCascadeTools::FindHighPtIndex(const std::vector<const xAOD::Vertex*> &PVlist) {
-    // it SHOULD be the first one in the collection but it shouldn't take long to do a quick check
-    for(size_t i =0; i<PVlist.size(); i++) {
-        if(PVlist[i]->vertexType() == xAOD::VxType::PriVtx) return i;
-    }
-    cout << "FATAL ERROR High Pt Primary vertex not found - this should not happen\n";
-    return std::numeric_limits<std::size_t>::max(); //This should not happen
+    return DerivationFramework::BPhysPVTools::FindHighPtIndex(PVlist);
 }
 
-size_t DerivationFramework::BPhysPVCascadeTools::FindLowA0Index(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &Obj,
+size_t DerivationFramework::BPhysPVCascadeTools::FindLowA0Index(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &Obj,
 							 const std::vector<const xAOD::Vertex*> &PVlist,
 							 const size_t PV_minNTracks) const {
     size_t lowA0  = 0;
@@ -193,7 +174,7 @@ Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::GetBeamSpot(bool resetCa
 //-----------------------------------------------------------------------------
 // added by WW:
 //
-size_t DerivationFramework::BPhysPVCascadeTools::FindLowZ0BAIndex(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &obj,
+size_t DerivationFramework::BPhysPVCascadeTools::FindLowZ0BAIndex(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj,
 							   const std::vector<const xAOD::Vertex*> &PVlist,
 							   const size_t PV_minNTracks) const {
   
@@ -213,7 +194,7 @@ size_t DerivationFramework::BPhysPVCascadeTools::FindLowZ0BAIndex(std::vector<TL
 //-----------------------------------------------------------------------------
 // added by WW:
 //
-double DerivationFramework::BPhysPVCascadeTools::DistInZtoDOCA(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &obj, const xAOD::Vertex* vertex) const {
+double DerivationFramework::BPhysPVCascadeTools::DistInZtoDOCA(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj, const xAOD::Vertex* vertex) const {
 
   Amg::Vector3D pv    = vertex->position();
   Amg::Vector3D xDOCA = DocaExtrapToBeamSpot(mom, obj);
@@ -223,7 +204,7 @@ double DerivationFramework::BPhysPVCascadeTools::DistInZtoDOCA(std::vector<TLore
 //-----------------------------------------------------------------------------
 // added by WW:
 //
-Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::DocaExtrapToBeamSpot(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper& obj) const {
+Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::DocaExtrapToBeamSpot(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper& obj) const {
 
   Amg::Vector3D xDOCA(-99999., -99999., -99999.);
   TLorentzVector totalMom;

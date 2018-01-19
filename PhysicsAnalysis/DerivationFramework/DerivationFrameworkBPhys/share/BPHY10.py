@@ -137,7 +137,7 @@ BPHY10BdJpsiKst = Analysis__JpsiPlus2Tracks(
     UseMassConstraint	    = True,
     #DiTrackMassUpper        = 1500.,
     #DiTrackMassLower        = 500.,
-    Chi2Cut                 = 200.0,
+    Chi2Cut                 = 10.0,
     DiTrackPt               = 500.,
     TrkQuadrupletMassLower  = 4300.0,
     TrkQuadrupletMassUpper  = 6300.0,
@@ -310,10 +310,12 @@ if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY10_SelectBdJpsiKstEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY10_SelectBdJpsiKstEvent",
-     expression = "count(BdJpsiKstCandidates.passed_Bd > 0) > 0")
+     expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_BdBar > 0) + count(RecoV0Candidates) + count(RecoKshortContainerName) + count(RecoLambdaContainerName) + count(RecoLambdabarContainerName) ) > 0")
    
    ToolSvc += BPHY10_SelectBdJpsiKstEvent
    print BPHY10_SelectBdJpsiKstEvent
+
+
 
    #====================================================================
    # Make event selection based on an OR of the input skimming tools
@@ -332,7 +334,7 @@ BPHY10_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   ThinningService            = "BPHY10ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["BdJpsiKstCandidates"],
-  PassFlags                  = ["passed_Bd"] )
+  PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
 
 ToolSvc += BPHY10_thinningTool_Tracks
 
@@ -357,19 +359,7 @@ BPHY10MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(
     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += BPHY10MuonTPThinningTool
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-BPHY10ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(  
-    name                    = "BPHY10ElectronTPThinningTool",
-    ThinningService         = "BPHY10ThinningSvc",
-    SGKey                   = "Electrons",
-    GSFTrackParticlesKey    = "GSFTrackParticles",        
-    InDetTrackParticlesKey  = "InDetTrackParticles",
-    SelectionString = "",
-    BestMatchOnly = True,
-    ConeSize = 0.3,
-    ApplyAnd = False)
 
-ToolSvc+=BPHY10ElectronTPThinningTool
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
@@ -461,21 +451,14 @@ for cascades in CascadeCollections:
    StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % cascades]
 
 # Tagging information (in addition to that already requested by usual algorithms)
-#AllVariables += ["Electrons"] 
-AllVariables += ["GSFTrackParticles", "Electrons" , "Photons", "Kt4LCTopoEventShape" , "MuonSpectrometerTrackParticles" ] 
-tagJetCollections = ['AntiKt4LCTopoJets']
+AllVariables += ["GSFTrackParticles", "MuonSpectrometerTrackParticles" ] 
 
-for jet_collection in tagJetCollections:
-    AllVariables += [jet_collection]
-    AllVariables += ["BTagging_%s"       % (jet_collection[:-4]) ]
-    AllVariables += ["BTagging_%sJFVtx"  % (jet_collection[:-4]) ]
-    AllVariables += ["BTagging_%sSecVtx" % (jet_collection[:-4]) ]
+
 
 # Added by ASC
 # Truth information for MC only
 if isSimulation:
     AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
-    AllVariables += ["AntiKt4TruthJets","egammaTruthParticles", "AntiKt4TruthWZJets" ]
 
 AllVariables = list(set(AllVariables)) # remove duplicates
 

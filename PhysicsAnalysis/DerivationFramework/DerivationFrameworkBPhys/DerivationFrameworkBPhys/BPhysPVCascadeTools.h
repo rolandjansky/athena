@@ -47,21 +47,21 @@ namespace DerivationFramework {
                            const ServiceHandle<IBeamCondSvc> *beamSpotSvc);
          
        
-       void ProcessVertex(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::BPhysHypoHelper &vtx, xAOD::BPhysHelper::pv_type pvtype, double mass) const;
+       void ProcessVertex(const std::vector<TLorentzVector> &mom, Amg::MatrixX cov, xAOD::BPhysHypoHelper &vtx, xAOD::BPhysHelper::pv_type pvtype, double mass) const;
     
        static void FillBPhysHelperNULL(xAOD::BPhysHelper &vtx, const xAOD::VertexContainer* PvContainer,
            xAOD::BPhysHelper::pv_type pvtype);
        
        //Fills the BPhysHelper object with the standard parameters
-       void FillBPhysHelper(std::vector<TLorentzVector> mom, Amg::MatrixX cov, xAOD::BPhysHelper &vtx, const xAOD::Vertex* refPV,const xAOD::VertexContainer* refPvContainer,
+       void FillBPhysHelper(const std::vector<TLorentzVector> &mom, Amg::MatrixX cov, xAOD::BPhysHelper &vtx, const xAOD::Vertex* refPV,const xAOD::VertexContainer* refPvContainer,
                     xAOD::BPhysHelper::pv_type pvtype, int) const;
     
        //Returns the index integer of the vertex with the lowest Z in relation to the given vertex
-       size_t FindLowZIndex(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &Obj,
+       size_t FindLowZIndex(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &Obj,
 			    const std::vector<const xAOD::Vertex*> &PVlist,
 			    const size_t PV_minNTracks=0) const;
        //Returns the index integer of the vertex with the lowest A0 in relation to the given vertex
-       size_t FindLowA0Index(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &Obj,
+       size_t FindLowA0Index(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &Obj,
 			     const std::vector<const xAOD::Vertex*> &PVlist,
 			     const size_t PV_minNTracks=0) const;
        
@@ -90,16 +90,16 @@ namespace DerivationFramework {
 
        // Find the index for the PV with the lowest distance in z of
        // the SV's DOCA point w.r.t. the beamline and the PV.
-       size_t FindLowZ0BAIndex(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &obj,
+       size_t FindLowZ0BAIndex(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj,
 			       const std::vector<const xAOD::Vertex*> &PVlist,
 			       const size_t PV_minNTracks=0) const;
        // Calculate the distance along z axis between the PV and
        //  SV's DOCA point w.r.t. the beamline.
-       double DistInZtoDOCA(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &obj,
+       double DistInZtoDOCA(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj,
 			    const xAOD::Vertex* vertex) const;
        // Point of DOCA w.r.t. the beamline backward extrapolated
        // along the B candidate's momentum direction. 
-       Amg::Vector3D DocaExtrapToBeamSpot(std::vector<TLorentzVector> mom, const xAOD::BPhysHelper &obj) const;
+       Amg::Vector3D DocaExtrapToBeamSpot(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj) const;
 
 
   }; // class BPhysPVCascadeTools

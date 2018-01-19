@@ -10,7 +10,10 @@
 #include "DerivationFrameworkBPhys/BPhysPVCascadeTools.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "xAODBPhys/BPhysHypoHelper.h"
 #include <algorithm>
+#include "xAODTracking/VertexContainer.h"
+#include "DerivationFrameworkBPhys/LocalVector.h"
 
 namespace DerivationFramework {
     typedef ElementLink<xAOD::VertexContainer> VertexLink;
@@ -63,11 +66,6 @@ namespace DerivationFramework {
             ATH_MSG_DEBUG("Retrieved tool " << m_iVertexFitter);
         }
         
-        if(!m_vertexContainerKey.key().empty()) ATH_CHECK(m_vertexContainerKey.initialize());
-        if(!m_vertexV0ContainerKey.key().empty()) ATH_CHECK(m_vertexV0ContainerKey.initialize());
-        ATH_CHECK(m_cascadeOutputsKeys.initialize());
-        ATH_CHECK(m_VxPrimaryCandidateName.initialize());
-
         // retrieving the V0 tools
         if ( m_V0Tools.retrieve().isFailure() ) {
           ATH_MSG_FATAL("Failed to retrieve tool " << m_V0Tools);
@@ -108,54 +106,41 @@ namespace DerivationFramework {
         return StatusCode::SUCCESS;
     }
 
-    StatusCode JpsiPlusV0Cascade::finalize() {
-        return StatusCode::SUCCESS;
-    }
 
     StatusCode JpsiPlusV0Cascade::addBranches() const
     {
       std::vector<Trk::VxCascadeInfo*> cascadeinfoContainer;
+      constexpr int topoN = 2;
+      std::array<xAOD::VertexContainer*, topoN> Vtxwritehandles;
+      std::array<xAOD::VertexAuxContainer*, topoN> Vtxwritehandlesaux;
+      if(m_cascadeOutputsKeys.size() !=topoN)  { ATH_MSG_FATAL("Incorrect number of VtxContainers"); return StatusCode::FAILURE; }
 
-      auto Vtxwritehandles = m_cascadeOutputsKeys.makeHandles();
-      if(Vtxwritehandles.size() !=2)  { ATH_MSG_FATAL("Incorrect number of VtxContainers"); return StatusCode::FAILURE; }
-
-      auto cont1 = std::make_unique<xAOD::VertexContainer>();
-      auto cont1aux =  std::make_unique<xAOD::VertexAuxContainer>();
-      auto cont2  = std::make_unique<xAOD::VertexContainer>();
-      auto cont2aux = std::make_unique<xAOD::VertexAuxContainer>();
-      cont1->setStore(cont1aux.get());
-      cont2->setStore(cont2aux.get());
-      ATH_CHECK( Vtxwritehandles[0].record (std::move(cont1), std::move(cont1aux) ));
-      ATH_CHECK( Vtxwritehandles[1].record (std::move(cont2), std::move(cont2aux) ));
-
-      // get PV container
-      const xAOD::Vertex * primaryVertex(0);
-      SG::ReadHandle<xAOD::VertexContainer> pvContainer(m_VxPrimaryCandidateName);
-      if (!pvContainer.isValid()) {
-        ATH_MSG_WARNING("No VxPrimaryCandidate found in StoreGate");
-        return StatusCode::RECOVERABLE;
-      } else {
-        ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName.key() << " in StoreGate!");
-      }
-
-      if (pvContainer->size()==0){
-        ATH_MSG_WARNING("You have no primary vertices: " << pvContainer->size());
-        return StatusCode::RECOVERABLE;
-      } else {
-        xAOD::VertexContainer::const_iterator pvItr = pvContainer->begin();
-        primaryVertex = *pvItr;
+      for(int i =0; i<topoN;i++){
+         Vtxwritehandles[i] = new xAOD::VertexContainer();
+         Vtxwritehandlesaux[i] = new xAOD::VertexAuxContainer();
+         Vtxwritehandles[i]->setStore(Vtxwritehandlesaux[i]);
+         CHECK(evtStore()->record(Vtxwritehandles[i]   , m_cascadeOutputsKeys[i]       ));
+         CHECK(evtStore()->record(Vtxwritehandlesaux[i], m_cascadeOutputsKeys[i] + "Aux."));
       }
 
 //    //----------------------------------------------------
 //    // retrieve primary vertices
 //    //----------------------------------------------------
-//    const xAOD::VertexContainer* pvContainer = NULL;
-//    CHECK(evtStore()->retrieve(pvContainer, m_VxPrimaryCandidateName));
+      const xAOD::Vertex * primaryVertex(nullptr);
+      const xAOD::VertexContainer *pvContainer(nullptr);
+      CHECK(evtStore()->retrieve(pvContainer, m_VxPrimaryCandidateName));
+      ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName << " in StoreGate!");
+
+      if (pvContainer->size()==0){
+        ATH_MSG_WARNING("You have no primary vertices: " << pvContainer->size());
+        return StatusCode::RECOVERABLE;
+      } else {
+        primaryVertex = (*pvContainer)[0];
+      }
 
       //----------------------------------------------------
       // Try to retrieve refitted primary vertices
       //----------------------------------------------------
-      bool refPvExists = false;
       xAOD::VertexContainer*    refPvContainer    = NULL;
       xAOD::VertexAuxContainer* refPvAuxContainer = NULL;
       if (m_refitPV) {
@@ -163,17 +148,14 @@ namespace DerivationFramework {
           // refitted PV container exists. Get it from the store gate
           CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
           CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
-          refPvExists = true;
         } else {
           // refitted PV container does not exist. Create a new one.
           refPvContainer = new xAOD::VertexContainer;
           refPvAuxContainer = new xAOD::VertexAuxContainer;
           refPvContainer->setStore(refPvAuxContainer);
+          CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
+          CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
         }
-      }
-      if(!refPvExists && m_refitPV) {
-        CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
-        CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
       }
 
       ATH_CHECK(performSearch(&cascadeinfoContainer));
@@ -219,12 +201,12 @@ namespace DerivationFramework {
         // their momenta add up to the momentum of the 3rd track in momenta[1], the first two being the Jpsi tracks
 
         const std::vector<xAOD::Vertex*> &cascadeVertices = x->vertices();
-        if(cascadeVertices.size()!=2)
+        if(cascadeVertices.size()!=topoN)
           ATH_MSG_ERROR("Incorrect number of vertices");
         if(cascadeVertices[0] == nullptr || cascadeVertices[1] == nullptr) ATH_MSG_ERROR("Error null vertex");
         // Keep vertices (bear in mind that they come in reverse order!)
-        Vtxwritehandles[0]->push_back(cascadeVertices[0]);
-        Vtxwritehandles[1]->push_back(cascadeVertices[1]);
+        for(int i =0;i<topoN;i++) Vtxwritehandles[i]->push_back(cascadeVertices[i]);
+        
         x->getSVOwnership(false); // Prevent Container from deleting vertices
         const auto mainVertex = cascadeVertices[1]; // this is the Bd (Lambda_b, Lambda_bbar) vertex
         //const auto v0Vertex = cascadeVertices[0];   // this is the V0 (Kshort, Lambda, Lambdabar) vertex
@@ -232,8 +214,8 @@ namespace DerivationFramework {
 
         std::vector<xAOD::Vertex*> verticestoLink;
         verticestoLink.push_back(cascadeVertices[0]);
-        if(Vtxwritehandles[1].ptr() == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1].ptr() is null");
-        if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0].ptr(), cascadeVertices[1]))
+        if(Vtxwritehandles[1] == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1] is null");
+        if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating vertices");
 
         std::vector<const xAOD::TrackParticle*> exclTrk; exclTrk.clear();
@@ -273,12 +255,13 @@ namespace DerivationFramework {
         // loop over candidates -- Don't apply PV_minNTracks requirement here
         // because it may result in exclusion of the high-pt PV.
         // get good PVs
-        const std::vector<const xAOD::Vertex*> GoodPVs = helper.GetGoodPV(pvContainer.cptr());
+        const std::vector<const xAOD::Vertex*> GoodPVs = helper.GetGoodPV(pvContainer);
         ATH_MSG_DEBUG("number of good PVs " << GoodPVs.size() << " m_refitPV " << m_refitPV << " m_DoVertexType " << m_DoVertexType);
         const bool doPt   = (m_DoVertexType & 1) != 0;
         const bool doA0   = (m_DoVertexType & 2) != 0;
         const bool doZ0   = (m_DoVertexType & 4) != 0;
         const bool doZ0BA = (m_DoVertexType & 8) != 0;
+
         xAOD::BPhysHypoHelper vtx(m_hypoName, mainVertex);
 
         // get refitted track momenta from all vertices, charged tracks only
@@ -338,88 +321,58 @@ namespace DerivationFramework {
                  refPVvertexes_toDelete.push_back(refPV);
               }
             }
+            LocalVector<size_t, 4> indexesUsed;
+            LocalVector<std::pair<size_t, xAOD::BPhysHelper::pv_type>, 4> indexestoProcess;
 
-            size_t highPtindex = doPt ? helper.FindHighPtIndex(refPVvertexes) : 9999999; // Should be 0 in PV ordering
-            size_t lowA0 = doA0 ? helper.FindLowA0Index(moms[1], vtx, refPVvertexes, m_PV_minNTracks) : 9999998;
-            size_t lowZ  = doZ0 ? helper.FindLowZIndex(moms[1], vtx, refPVvertexes, m_PV_minNTracks) : 9999997;
-            size_t lowZBA = doZ0BA ? helper.FindLowZ0BAIndex(moms[1], vtx, refPVvertexes, m_PV_minNTracks) : 9999996;
-            ATH_MSG_DEBUG("EVA: pVMax = " << pVmax);
-            ATH_MSG_DEBUG("EVA: m_PV_minNTracks = " << m_PV_minNTracks);
-            ATH_MSG_DEBUG("EVA: hPt,lowA0/Z/ZBA = " << highPtindex << ", " << lowA0 << ", " << lowZ << ", " << lowZBA << " "
-                 << (lowA0 != lowZ   ? "1!" : "  ")
-                 << (lowA0 != lowZBA ? "2!" : "  ")
-                 << (lowZ  != lowZBA ? "3!" : "  ")
-                 << (highPtindex != lowA0  ? "4!" : "  ")
-                 << (highPtindex != lowZ   ? "5!" : "  ")
-                 << (highPtindex != lowZBA ? "6!" : "  ")
-                 );
-
-            // 2.a) the first PV with the largest sum pT.
-            if(doPt) {
-                // Choose old PV container if not refitted
-                const xAOD::VertexContainer* ParentContainer =
-                    (refPVvertexes_toDelete.at(highPtindex)) ? refPvContainer : pvContainer.cptr();
-                if(ParentContainer == refPvContainer) // if refitted add to refitted container
-                    refPvContainer->push_back(const_cast<xAOD::Vertex*>(refPVvertexes.at(highPtindex))); // store the new vertex
-
-                helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, refPVvertexes[highPtindex],
-                     ParentContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2, exitCode[highPtindex]);
-                vtx.setOrigPv(GoodPVs[highPtindex], pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2);
+            if(doPt){
+               indexestoProcess.push_back(std::make_pair
+                   (helper.FindHighPtIndex(refPVvertexes), xAOD::BPhysHelper::PV_MAX_SUM_PT2));
             }
-            // 2.b) the closest in 3D:
             if(doA0) {
-                const xAOD::VertexContainer* ParentContainer =
-                     (refPVvertexes_toDelete.at(lowA0)) ? refPvContainer : pvContainer.cptr();
-                if(ParentContainer == refPvContainer && highPtindex!=lowA0)
-                    refPvContainer->push_back(const_cast<xAOD::Vertex*>(refPVvertexes.at(lowA0))); // store the new vertex
-                helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, refPVvertexes[lowA0],
-                      ParentContainer, xAOD::BPhysHelper::PV_MIN_A0, exitCode[lowA0]);
-                vtx.setOrigPv(GoodPVs[lowA0], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0);
+               indexestoProcess.push_back(std::make_pair( helper.FindLowA0Index(moms[1], vtx, refPVvertexes, m_PV_minNTracks),  
+                  xAOD::BPhysHelper::PV_MIN_A0));
             }
-            // 2.c) the closest in Z:
             if(doZ0) {
-                const xAOD::VertexContainer* ParentContainer =
-                    (refPVvertexes_toDelete.at(lowZ)) ? refPvContainer : pvContainer.cptr();
-                if(ParentContainer == refPvContainer && highPtindex!=lowZ && lowZ!=lowA0)
-                    refPvContainer->push_back(const_cast<xAOD::Vertex*>(refPVvertexes.at(lowZ))); // store the new vertex
-                helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, refPVvertexes[lowZ],
-                      ParentContainer, xAOD::BPhysHelper::PV_MIN_Z0, exitCode[lowZ]);
-                vtx.setOrigPv(GoodPVs[lowZ], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0);
+               indexestoProcess.push_back(std::make_pair(helper.FindLowZIndex(moms[1], vtx, refPVvertexes, m_PV_minNTracks),
+                       xAOD::BPhysHelper::PV_MIN_Z0));
             }
-            // 2.d) the closest in Z (DOCA w.r.t. beam axis):
-            if (doZ0BA) {
-              if ( lowZBA < pVmax ) { // safety for vector indices
-                const xAOD::VertexContainer* ParentContainer =
-                  (refPVvertexes_toDelete.at(lowZBA)) ?
-                  refPvContainer : pvContainer.cptr();
-                if (ParentContainer == refPvContainer && highPtindex!=lowZBA
-                    && lowZBA!=lowA0 && lowZBA != lowZ) {
-                  // store the new vertex
-                  refPvContainer->push_back(const_cast<xAOD::Vertex*>
-                                            (refPVvertexes.at(lowZBA)));
-                }
-                helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, refPVvertexes[lowZBA],
-                                ParentContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA,
-                                exitCode[lowZBA]);
-                vtx.setOrigPv(GoodPVs[lowZBA], pvContainer.cptr(),
-                              xAOD::BPhysHelper::PV_MIN_Z0_BA);
-              } else {
-                // nothing found -- fill NULL
-                helper.FillBPhysHelperNULL(vtx, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA);
-              }
+            if(doZ0BA) {
+               size_t lowZBA = helper.FindLowZ0BAIndex(moms[1], vtx, refPVvertexes, m_PV_minNTracks);
+               if( lowZBA < pVmax ) { 
+                  indexestoProcess.push_back(std::make_pair(lowZBA, xAOD::BPhysHelper::PV_MIN_Z0_BA));
+               }
+               else helper.FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
             }
 
-            // nullify ptrs we want to keep so these won't get deleted
-            // "delete null" is valid in C++ and does nothing so this is quicker than a lot of if statements
-            if(doPt)                     refPVvertexes_toDelete[highPtindex] = nullptr;
-            if(doA0)                     refPVvertexes_toDelete[lowA0]       = nullptr;
-            if(doZ0)                     refPVvertexes_toDelete[lowZ]        = nullptr;
-            if(doZ0BA && lowZBA < pVmax) refPVvertexes_toDelete[lowZBA]      = nullptr;
-            // Loop over toDELETE container, anything that is used or was not refitted is null
-            // This cleans up all extra vertices that were created and not used
-            for(const xAOD::Vertex* ptr : refPVvertexes_toDelete) {
-                delete ptr;
+            ATH_MSG_DEBUG("pVMax = " << pVmax);
+            ATH_MSG_DEBUG("m_PV_minNTracks = " << m_PV_minNTracks);
+            for(auto x : indexestoProcess){
+               ATH_MSG_DEBUG("processing vertex type " << x.second << " of index " << x.first);
             }
+
+            for(size_t i =0 ; i<indexestoProcess.size(); i++){
+                //if refitted add to refitted container
+                auto index  = indexestoProcess[i].first;
+                auto pvtype = indexestoProcess[i].second;
+                const xAOD::VertexContainer* ParentContainer =
+                    (refPVvertexes_toDelete.at(index)) ? refPvContainer : pvContainer;
+                if(ParentContainer == refPvContainer && !indexesUsed.contains(index)) {
+                    // store the new vertex
+                    refPvContainer->push_back(const_cast<xAOD::Vertex*>(refPVvertexes.at(index))); 
+                    indexesUsed.push_back(index);
+                }
+                helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, refPVvertexes[index],
+                     ParentContainer, pvtype, exitCode[index]);
+                vtx.setOrigPv(GoodPVs[index], pvContainer, pvtype);               
+            }
+
+            //nullify ptrs we want to keep so these won't get deleted
+            //"delete null" is valid in C++ and does nothing so this is quicker than a lot of if statements
+            for(size_t x : indexesUsed) refPVvertexes_toDelete[x] = nullptr;
+
+            //Loop over toDELETE container, anything that is used or was not refitted is null
+            //This cleans up all extra vertices that were created and not used
+            for(const xAOD::Vertex* ptr : refPVvertexes_toDelete) delete ptr;
             refPVvertexes.clear(); // Clear lists of now dangling ptrs
             refPVvertexes_toDelete.clear();
             exitCode.clear();
@@ -429,26 +382,26 @@ namespace DerivationFramework {
             // 2.a) the first PV with the largest sum pT.
             if(doPt) {
               size_t highPtindex = helper.FindHighPtIndex(GoodPVs); // Should be 0 in PV ordering
-              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[highPtindex], pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2, 0);
+              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[highPtindex], pvContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2, 0);
             }
             // 2.b) the closest in 3D:
             if(doA0) {
               size_t lowA0 =  helper.FindLowA0Index(moms[1], vtx, GoodPVs, m_PV_minNTracks);
-              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowA0], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0, 0);
+              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowA0], pvContainer, xAOD::BPhysHelper::PV_MIN_A0, 0);
             }
             // 2.c) the closest in Z:
             if(doZ0) {
               size_t lowZ  = helper.FindLowZIndex(moms[1], vtx, GoodPVs, m_PV_minNTracks);
-              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowZ], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0, 0);
+              helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowZ], pvContainer, xAOD::BPhysHelper::PV_MIN_Z0, 0);
             }
             // 2.d) the closest in Z (DOCA w.r.t. beam axis):
             if(doZ0BA) {
               size_t lowZBA = helper.FindLowZ0BAIndex(moms[1], vtx, GoodPVs, m_PV_minNTracks);
               if ( lowZBA < GoodPVs.size() ) { // safety against vector index out-of-bounds
-                helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowZBA], pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
+                helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, GoodPVs[lowZBA], pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
               } else {
                 // nothing found -- fill NULL
-                helper.FillBPhysHelperNULL(vtx, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA);
+                helper.FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
               }
             }
           } // m_refitPV
@@ -460,23 +413,23 @@ namespace DerivationFramework {
 
           // 2.a) the first PV with the largest sum pT.
           if(doPt) {
-            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2, 0);
-            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MAX_SUM_PT2);
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2);
           }
           // 2.b) the closest in 3D:
           if(doA0) {
-            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0, 0);
-            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_A0);
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_A0, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_A0);
           }
           // 2.c) the closest in Z:
           if(doZ0) {
-            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0, 0);
-            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0);
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0);
           }
           // 2.d) the closest in Z (DOCA w.r.t. beam axis):
           if(doZ0BA) {
-            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
-            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer.cptr(), xAOD::BPhysHelper::PV_MIN_Z0_BA);
+            helper.FillBPhysHelper(moms[1], x->getCovariance()[1], vtx, Dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
+            if(m_refitPV) vtx.setOrigPv(Dummy, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
           }
 
         } // GoodPVs.empty()
@@ -651,18 +604,13 @@ namespace DerivationFramework {
         assert(cascadeinfoContainer!=nullptr);
 
         // Get Jpsi container
-        SG::ReadHandle<xAOD::VertexContainer>  jpsiContainer(m_vertexContainerKey);
-        if(!jpsiContainer.isValid()){
-            ATH_MSG_ERROR("No VertexContainer with key " << m_vertexContainerKey.key() << " found in StoreGate. BCandidates will be EMPTY!");
-            return StatusCode::FAILURE;
-        }
+        const xAOD::VertexContainer  *jpsiContainer(nullptr);
+        CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
 
         // Get V0 container
-        SG::ReadHandle<xAOD::VertexContainer>  v0Container(m_vertexV0ContainerKey);
-        if(!v0Container.isValid()){
-            ATH_MSG_ERROR("No V0Container with key " << m_vertexV0ContainerKey.key() << " found in StoreGate. BCandidates will be EMPTY!");
-            return StatusCode::FAILURE;
-        }
+        
+        const xAOD::VertexContainer  *v0Container(nullptr);
+        CHECK(evtStore()->retrieve(v0Container   , m_vertexV0ContainerKey       ));
 
         double mass_v0 = m_mass_ks; 
         std::vector<const xAOD::TrackParticle*> tracksJpsi;

@@ -8,11 +8,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "xAODTracking/VertexContainer.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
-#include "xAODBPhys/BPhysHypoHelper.h"
 #include <vector>
 
 
@@ -37,11 +35,11 @@ namespace DerivationFramework {
     class JpsiPlusV0Cascade : virtual public AthAlgTool, public IAugmentationTool
     {
 
-        SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey;
-        SG::ReadHandleKey<xAOD::VertexContainer> m_vertexV0ContainerKey;
-        SG::WriteHandleKeyArray<xAOD::VertexContainer> m_cascadeOutputsKeys;
+        std::string m_vertexContainerKey;
+        std::string m_vertexV0ContainerKey;
+        std::vector<std::string> m_cascadeOutputsKeys;
 
-        SG::ReadHandleKey<xAOD::VertexContainer>   m_VxPrimaryCandidateName;   //!< Name of primary vertex container
+        std::string   m_VxPrimaryCandidateName;   //!< Name of primary vertex container
 
         double m_jpsiMassLower;
         double m_jpsiMassUpper;
@@ -85,7 +83,6 @@ namespace DerivationFramework {
         JpsiPlusV0Cascade(const std::string& t, const std::string& n, const IInterface*  p);
         ~JpsiPlusV0Cascade();
         StatusCode initialize() override;
-        StatusCode finalize() override;
         StatusCode performSearch(std::vector<Trk::VxCascadeInfo*> *cascadeinfoContainer ) const;
         virtual StatusCode addBranches() const override;
     };
