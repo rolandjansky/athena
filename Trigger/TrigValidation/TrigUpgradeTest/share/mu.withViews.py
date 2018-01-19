@@ -241,7 +241,7 @@ if TriggerFlags.doID:
   ### A simple algorithm to confirm that data has been inherited from parent view ###
   ### Required to satisfy data dependencies                                       ###
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuFastAlg_MuInfo')]
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
   
   from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
@@ -259,8 +259,6 @@ if TriggerFlags.doID:
 ### Used the algorithms as Step1 "muFast step" ###
 if TriggerFlags.doMuon:
   ### Load data from Muon detectors ###
-  #topSequence.SGInputLoader.Load = [ ('MdtCsmContainer','MDTCSM'), ('RpcPadContainer','RPCPAD'), ('TgcRdoContainer','TGCRDO'), ('CscRawDataContainer','CSCRDO')]
-
   import MuonRecExample.MuonRecStandaloneOnlySetup
   from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
   muonRecFlags.doTrackPerformance    = True
@@ -496,10 +494,10 @@ if TriggerFlags.doMuon:
 
     muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
-    muFastAlg.MuFastDecisions = "MuFastAlg_MuInfo"
-    muFastAlg.MuFastComposite = "MuFastAlg_Decisions"
-    muFastAlg.MuFastForID = "MuFastAlg_IdInfo"
-    muFastAlg.MuFastForMS = "MuFastAlg_MsInfo"
+    muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
+    muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
+    muFastAlg.forID = "forID"
+    muFastAlg.forMS = "forMS"
 
     # set up MuFastHypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
@@ -507,7 +505,7 @@ if TriggerFlags.doMuon:
     trigMufastHypo.OutputLevel = DEBUG
 
     trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
-    trigMufastHypo.MuFastDecisions = muFastAlg.MuFastDecisions
+    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastAlg.MuonL2SAInfo
     trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
     trigMufastHypo.Decisions = "L2MuonFastDecisions"
     trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
@@ -553,10 +551,9 @@ if TriggerFlags.doMuon:
     ### please read out TrigmuCombMTConfig file ###
     ### and set up to run muCombMT algorithm    ###
     from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-    muCombAlg = TrigmuCombMTConfig("", theFTF.getName())
+    muCombAlg = TrigmuCombMTConfig("Muon", theFTF.getName())
     muCombAlg.OutputLevel = DEBUG
-    muCombAlg.L2StandAloneMuonContainerName = muFastAlg.MuFastDecisions 
-    #muCombAlg.TrackParticlesContainerName = theFTF.TracksName
+    muCombAlg.L2StandAloneMuonContainerName = muFastAlg.MuonL2SAInfo
     muCombAlg.TrackParticlesContainerName = theTrackParticleCreatorAlg.TrackParticlesName
     muCombAlg.L2CombinedMuonContainerName = "MuonL2CBInfo"
 
@@ -567,10 +564,10 @@ if TriggerFlags.doMuon:
     trigmuCombHypo = TrigmuCombHypoConfig()
     trigmuCombHypo.OutputLevel = DEBUG
   
-    trigmuCombHypo.Decisions = "MuonL2CB_Decisions"
-    trigmuCombHypo.MuonSADecisions = trigMufastHypo.Decisions
+    trigmuCombHypo.Decisions = "MuonL2CBDecisions"
+    trigmuCombHypo.L2MuonFastDecisions = trigMufastHypo.Decisions
     trigmuCombHypo.ViewRoIs = l2muCombViewsMaker.Views
-    trigmuCombHypo.MuCombContainer = muCombAlg.L2CombinedMuonContainerName 
+    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName 
   
     trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( name = "L2muCombHypoTool", nath = c ) for c in testChains ] 
   
@@ -706,7 +703,6 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.L1Decision = "HLTChains" 
-    #summary.FinalDecisions = [ trigMufastHypo.Decisions, trigmuCombHypo.Decisions ]
     summary.FinalDecisions = [ trigmuCombHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
@@ -715,7 +711,6 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.L1Decision = "HLTChains" 
-    #mon.FinalDecisions = [ trigMufastHypo.Decisions, trigmuCombHypo.Decisions, "WhateverElse" ] 
     mon.FinalDecisions = [ trigmuCombHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
