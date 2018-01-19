@@ -2001,6 +2001,7 @@ def setupMenu():
         
 
         #ATR-16089 supporting triggers for MC16c
+        ['e24_lhvloose_nod0_L1EM20VH',                'L1_EM20VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e26_lhvloose_nod0',        'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e28_lhvloose_nod0',        'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e28_lhtight_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
