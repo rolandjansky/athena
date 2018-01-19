@@ -25,7 +25,7 @@ if convenient)
 #ifndef VXSECVERTEX_VxJetFitterVertexInfo_H
 #define VXSECVERTEX_VxJetFitterVertexInfo_H
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include <vector>
 
