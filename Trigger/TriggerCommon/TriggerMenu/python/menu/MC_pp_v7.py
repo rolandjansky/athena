@@ -1292,7 +1292,7 @@ def setupMenu():
         ['e9_etcut_bBeexv2_L1BPH-0DR4-EM7J15',        'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['e9_etcut_bBeexM6000_L1BPH-0DR4-EM7J15',   'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['e9_bloose_bBeexM2700_L1BPH-0DR4-EM7J15', 'L1_BPH-0DR4-EM7J15',    ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_bloose_bBeexv2_L1bBPH-0DR4-EM7J15',      'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexv2_L1BPH-0DR4-EM7J15',      'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['e9_bloose_bBeexM6000_L1BPH-0DR4-EM7J15',  'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 			 ]
 
@@ -1601,6 +1601,36 @@ def setupMenu():
         ['e17_lhloose_nod0_ringer_mu14', 'L1_EM15VH_MU10', ['L1_EM15VH', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['parallel',-1,[] ]],
 
 
+        ['e9_bloose_e5_bloose_bBeexM6000_mu6_L1BPH-0M9-EM7-EM5',  'L1_MU6_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_e5_bloose_bBeexv2_mu6_L1BPH-0M9-EM7-EM5',         'L1_MU6_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_e5_bloose_bBeexM2700_L1BPH-0M9-EM7-EM5',  'L1_MU6_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+        ['e9_etcut_e5_etcut_bBeexM6000_mu6_L1MU6_BPH-0M9-EM7-EM5',  'L1_MU6_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexv2_mu6_L1MU6_BPH-0M9-EM7-EM5',         'L1_MU6_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexM2700_mu6_L1MU6_BPH-0M9-EM7-EM5',  'L1_MU6_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+        ['e9_etcut_bBeexM2700_mu6_L1MU6_BPH-0DR4-EM7J15',   'L1_MU6_BPH-0DR4-EM7J15',    ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexv2_mu6_L1MU6_BPH-0DR4-EM7J15',        'L1_MU6_BPH-0DR4-EM7J15',   ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexM6000_mu6_L1MU6_BPH-0DR4-EM7J15',   'L1_MU6_BPH-0DR4-EM7J15',   ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexM2700_mu6_L1MU6_BPH-0DR4-EM7J15', 'L1_MU6_BPH-0DR4-EM7J15',    ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexv2_mu6_L1MU6_BPH-0DR4-EM7J15',      'L1_MU6_BPH-0DR4-EM7J15',   ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexM6000_mu6_L1MU6_BPH-0DR4-EM7J15',  'L1_MU6_BPH-0DR4-EM7J15',   ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+
+        ['e9_bloose_e5_bloose_bBeexM6000_2mu4_L12MU4_BPH-0M9-EM7-EM5',  'L1_2MU4_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_e5_bloose_bBeexv2_2mu4_L12MU4_BPH-0M9-EM7-EM5',         'L1_2MU4_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_e5_bloose_bBeexM2700_2mu4_L12MU4_BPH-0M9-EM7-EM5',  'L1_2MU4_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+        ['e9_etcut_e5_etcut_bBeexM6000_2mu4_L12MU4_BPH-0M9-EM7-EM5',  'L1_2MU4_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexv2_2mu4_L12MU4_BPH-0M9-EM7-EM5',         'L1_2MU4_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexM2700_2mu4_L12MU4_BPH-0M9-EM7-EM5',  'L1_2MU4_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+        ['e9_etcut_bBeexM2700_2mu4_L12MU4_BPH-0DR4-EM7J15',   'L1_2MU4_BPH-0DR4-EM7J15',    ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexv2_2mu4_L12MU4_BPH-0DR4-EM7J15',        'L1_2MU4_BPH-0DR4-EM7J15',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexM6000_2mu4_L12MU4_BPH-0DR4-EM7J15',   'L1_2MU4_BPH-0DR4-EM7J15',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexM2700_2mu4_L12MU4_BPH-0DR4-EM7J15', 'L1_2MU4_BPH-0DR4-EM7J15',    ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexv2_2mu4_L12MU4_BPH-0DR4-EM7J15',      'L1_2MU4_BPH-0DR4-EM7J15',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_bloose_bBeexM6000_2mu4_L12MU4_BPH-0DR4-EM7J15',  'L1_2MU4_BPH-0DR4-EM7J15',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 
         ['j20_xe100_mht_L1XE50', 'L1_XE50', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j20','xe100_mht_L1XE50']]],
         ['j30_xe100_mht_L1XE50', 'L1_XE50', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe100_mht_L1XE50']]],

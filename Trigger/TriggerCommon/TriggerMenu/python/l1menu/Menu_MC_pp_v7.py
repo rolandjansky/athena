@@ -842,6 +842,11 @@ def defineMenu():
         'L1_BPH-8M15-2MU6',
         'L1_BPH-0M9-EM7-EM5',        
         'L1_BPH-0DR4-EM7J15',
+        'L1_MU6_BPH-0M9-EM7-EM5',        
+        'L1_MU6_BPH-0DR4-EM7J15',
+        'L1_2MU4_BPH-0M9-EM7-EM5',        
+        'L1_2MU4_BPH-0DR4-EM7J15',
+
         # combined L1Topo for VBF
         'L1_MU6_MJJ-200',
         'L1_3J20_4J20.0ETA49_MJJ-400',
@@ -1171,6 +1176,11 @@ def defineMenu():
         'L1_BPH-8M15-2MU6' : 180,
         'L1_BPH-0M9-EM7-EM5' : 80,
         'L1_BPH-0DR4-EM7J15' : 84,
+        'L1_MU6_BPH-0M9-EM7-EM5' : 124,
+        'L1_MU6_BPH-0DR4-EM7J15' : 134,
+        'L1_2MU4_BPH-0M9-EM7-EM5' : 153,
+        'L1_2MU4_BPH-0DR4-EM7J15' : 156,
+
         'L1_J15.0ETA25_2J15.31ETA49': 305 , 
         'L1_J25.0ETA23_2J15.31ETA49': 335 , 
         'L1_J40.0ETA25_2J15.31ETA49' : 181,
