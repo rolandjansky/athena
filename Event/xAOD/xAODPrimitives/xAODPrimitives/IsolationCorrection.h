@@ -8,7 +8,6 @@
 #define XAODPRIMITIVES_ISOLATIONCORRECTION_H
 #include <bitset>
 #include <vector>
-#include <string>
 
 namespace xAOD {
 
@@ -43,7 +42,7 @@ namespace xAOD {
 
     }; // enum IsolationCaloCorrection
 
-    static inline std::string toString(IsolationCaloCorrection corr)
+    static inline const char* toString(IsolationCaloCorrection corr)
     {
         switch (corr)
         {
@@ -77,7 +76,7 @@ namespace xAOD {
 
     }; // enum IsolationTrackCorrection
 
-    static inline std::string toString(IsolationTrackCorrection corr)
+    static inline const char* toString(IsolationTrackCorrection corr)
     {
         switch (corr)
         {
@@ -101,7 +100,7 @@ namespace xAOD {
 
     };
     
-    static inline std::string toString(IsolationCorrectionParameter corr)
+    static inline const char* toString(IsolationCorrectionParameter corr)
     {
         switch (corr)
         {

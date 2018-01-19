@@ -307,7 +307,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	return StatusCode::FAILURE;
       }
       oldIsoFlav = isoFlav;
-      std::string isoName = prefix + xAOD::Iso::toString(isoType);
+      std::string isoName = prefix + std::string(xAOD::Iso::toString(isoType));
       if (customConfig != "") {
 	isoName += "_" + customConfig;
       }
@@ -339,9 +339,9 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	if (addCoreCorr && (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreMuon) ) {
 	  std::string isoCorName = prefix;
 	  if (isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
-	    isoCorName += xAOD::Iso::toString(isoFlav);
+	    isoCorName += std::string(xAOD::Iso::toString(isoFlav));
 	  }
-	  isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy) 
+	  isoCorName += std::string(xAOD::Iso::toString(isoCor)) + std::string(xAOD::Iso::toString(xAOD::Iso::coreEnergy))
 	    + "Correction"; // hard coded since we never store the core area in fact
 	  if (customConfig != "") {
 	    isoCorName += "_" + customConfig;
@@ -366,7 +366,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	return StatusCode::FAILURE;
       }	
     } else 
-      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
+      ATH_MSG_WARNING("Isolation flavour " << std::string(xAOD::Iso::toString(isoFlav)) << " does not exist ! Check your inputs");
     runIsoType.insert(isoFlav);
   }
   return StatusCode::SUCCESS;
@@ -404,7 +404,7 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
       if (successfulCalc) {
 	for (unsigned int i = 0; i < keys.isoTypes.size(); i++) {
 	  float iso = CaloIsoResult.etcones[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(keys.isoTypes[i]) << " = " << iso/1e3);
+	  ATH_MSG_DEBUG("custom Iso " << std::string(xAOD::Iso::toString(keys.isoTypes[i])) << " = " << iso/1e3);
 	  (handles.isoDeco[i])(*part) = iso;
 	}
 	// not that nice. I expect a single core correction (e.g. for topoetcone, not coreMuon and coreCone together...)
@@ -422,15 +422,15 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
 	      if (CaloIsoResult.coreCorrections[icc].find(xAOD::Iso::coreEnergy) != CaloIsoResult.coreCorrections[icc].end()) {
 		(handles.coreCorisoDeco)(*part) = CaloIsoResult.coreCorrections[icc][xAOD::Iso::coreEnergy];
 	      } else {
-		ATH_MSG_WARNING("Cannot find the core energy correction for custom flavour " << xAOD::Iso::toString(flav));
+		ATH_MSG_WARNING("Cannot find the core energy correction for custom flavour " << std::string(xAOD::Iso::toString(flav)));
 	      }
 	    } else {
-	      ATH_MSG_WARNING("Cannot find the core correction for custom flavour " << xAOD::Iso::toString(flav));
+	      ATH_MSG_WARNING("Cannot find the core correction for custom flavour " << std::string(xAOD::Iso::toString(flav)));
 	    }
 	  }
 	}
       } else {
-	ATH_MSG_ERROR("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toString(flav));
+	ATH_MSG_ERROR("Call to CaloIsolationTool failed for custom flavour " << std::string(xAOD::Iso::toString(flav)));
 	return StatusCode::RECOVERABLE;
       }
     }
@@ -464,12 +464,12 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
 	for (unsigned int i = 0; i < keys.isoTypes.size(); i++) {
 	  float iso = TrackIsoResult.ptcones[i];
 	  float isoV = TrackIsoResult.ptvarcones_10GeVDivPt[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(keys.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
+	  ATH_MSG_DEBUG("custom Iso " << std::string(xAOD::Iso::toString(keys.isoTypes[i])) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
 	  (handles.isoDeco[i])(*part) = iso;
 	  (handles.isoDecoV[i])(*part) = isoV;
 	}
       } else {
-	ATH_MSG_ERROR("Call to TrackIsolationTool failed for custom flavour " << xAOD::Iso::toString(flav));
+	ATH_MSG_ERROR("Call to TrackIsolationTool failed for custom flavour " << std::string(xAOD::Iso::toString(flav)));
 	return StatusCode::RECOVERABLE;
       }
     }
