@@ -32,8 +32,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAMonitoring/MuonDQAEvent.h"
  
-using namespace std;
-
 class TFile;
 template <class ConcreteAlgorithm> class AlgFactory;
 
