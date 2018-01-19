@@ -42,7 +42,7 @@ namespace xAOD {
 
     }; // enum IsolationCaloCorrection
 
-    static inline const char* toString(IsolationCaloCorrection corr)
+    static inline const char* toCString(IsolationCaloCorrection corr)
     {
         switch (corr)
         {
@@ -76,7 +76,7 @@ namespace xAOD {
 
     }; // enum IsolationTrackCorrection
 
-    static inline const char* toString(IsolationTrackCorrection corr)
+    static inline const char* toCString(IsolationTrackCorrection corr)
     {
         switch (corr)
         {
@@ -100,7 +100,7 @@ namespace xAOD {
 
     };
     
-    static inline const char* toString(IsolationCorrectionParameter corr)
+    static inline const char* toCString(IsolationCorrectionParameter corr)
     {
         switch (corr)
         {

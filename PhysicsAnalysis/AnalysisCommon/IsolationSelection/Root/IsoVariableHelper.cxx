@@ -16,12 +16,12 @@ namespace CP {
     IsoVariableHelper::IsoVariableHelper(xAOD::Iso::IsolationType type, const std::string& BackupPreFix) :
                 m_isoType(type),
                 m_BackupIso(!BackupPreFix.empty()),
-                m_dec_IsoIsBackup("IsBackup_" + std::string(xAOD::Iso::toString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
-                m_acc_IsoIsBackup("IsBackup_" + std::string(xAOD::Iso::toString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
-                m_acc_iso_variable(xAOD::Iso::toString(type)),
-                m_dec_iso_variable(xAOD::Iso::toString(type)),
-                m_acc_iso_backup(std::string(xAOD::Iso::toString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
-                m_dec_iso_backup(std::string(xAOD::Iso::toString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix) {
+                m_dec_IsoIsBackup("IsBackup_" + std::string(xAOD::Iso::toCString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
+                m_acc_IsoIsBackup("IsBackup_" + std::string(xAOD::Iso::toCString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
+                m_acc_iso_variable(xAOD::Iso::toCString(type)),
+                m_dec_iso_variable(xAOD::Iso::toCString(type)),
+                m_acc_iso_backup(std::string(xAOD::Iso::toCString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix),
+                m_dec_iso_backup(std::string(xAOD::Iso::toCString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix) {
     }
 
     CorrectionCode IsoVariableHelper::getOrignalIsolation(const xAOD::IParticle* particle, float& value) const {
@@ -38,7 +38,7 @@ namespace CP {
             }
         } else {
             if (!m_acc_IsoIsBackup.isAvailable(*particle) || !m_acc_IsoIsBackup(*particle)) {
-                Warning("IsoVariableHelper::GetOrignalIsolation()", "No isolation value was backuped thus far. Did you call the BackupIsolation before for %s?", xAOD::Iso::toString(isotype()));
+                Warning("IsoVariableHelper::GetOrignalIsolation()", "No isolation value was backuped thus far. Did you call the BackupIsolation before for %s?", xAOD::Iso::toCString(isotype()));
                 return CorrectionCode::Error;
             } else {
                 value = m_acc_iso_backup(*particle);
@@ -49,7 +49,7 @@ namespace CP {
     }
     CorrectionCode IsoVariableHelper::getIsolation(const xAOD::IParticle* particle, float& value) const {
         if (!particle || !m_acc_iso_variable.isAvailable(*particle)) {
-            Error("IsoVariableHelper::GetIsolation()", "Failed to retrieve isolation %s", xAOD::Iso::toString(isotype()));
+            Error("IsoVariableHelper::GetIsolation()", "Failed to retrieve isolation %s", xAOD::Iso::toCString(isotype()));
             return CorrectionCode::Error;
         }
         value = m_acc_iso_variable(*particle);
@@ -86,7 +86,7 @@ namespace CP {
         return m_isoType;
     }
     std::string IsoVariableHelper::name() const {
-        return std::string(xAOD::Iso::toString(isotype()));
+        return std::string(xAOD::Iso::toCString(isotype()));
     }
 
 }

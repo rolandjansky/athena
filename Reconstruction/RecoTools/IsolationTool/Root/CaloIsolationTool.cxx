@@ -1278,7 +1278,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 // #endif // XAOD_ANALYSIS
       if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
 	result.etcones[i] -= corrvec[i];
-	ATH_MSG_DEBUG("eta = " << eg.eta() << ", phi = " << eg.phi() << ", pt = " << eg.pt() << ", isoType = " << Iso::toString(isoTypes[i]) 
+	ATH_MSG_DEBUG("eta = " << eg.eta() << ", phi = " << eg.phi() << ", pt = " << eg.pt() << ", isoType = " << Iso::toCString(isoTypes[i]) 
 		      << ", ptcorr = " << corrvec[i] << ", isol pt corrected = " << result.etcones[i] );    
       }
     }
@@ -1390,7 +1390,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if( bitsetAcc )
       (*bitsetAcc)(tp) = corrections.calobitset.to_ulong();
     else
-      ATH_MSG_WARNING("Cannot find bitset accessor for flavour " << toString(Iso::isolationFlavour(cones[0])));
+      ATH_MSG_WARNING("Cannot find bitset accessor for flavour " << toCString(Iso::isolationFlavour(cones[0])));
     
     // Fill all computed corrections
     // core correction type (e.g. coreMuon, core57cells)
@@ -1401,10 +1401,10 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 	if (par.first == Iso::coreArea) continue; // do not store area, as they are constant ! (pi R**2 or 5*0.025 * 7*pi/128)
 	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype, par.first );
 	if (isoCorAcc) { 
-	  ATH_MSG_DEBUG("Storing core correction " << Iso::toString(ctype) << " var " << Iso::toString(par.first) << " = " << par.second);
+	  ATH_MSG_DEBUG("Storing core correction " << Iso::toCString(ctype) << " var " << Iso::toCString(par.first) << " = " << par.second);
 	  (*isoCorAcc)(tp) = par.second;
 	} else {
-	  ATH_MSG_WARNING("Accessor not found for core correction " << Iso::toString(ctype) << ", var " << Iso::toString(par.first));
+	  ATH_MSG_WARNING("Accessor not found for core correction " << Iso::toCString(ctype) << ", var " << Iso::toCString(par.first));
 	}
       }
     }
@@ -1414,16 +1414,16 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       if (ctype == Iso::pileupCorrection) continue; // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
       std::vector<float> corrvec         = corrtype.second;
       if (corrvec.size() != cones.size()) {
-	ATH_MSG_WARNING("Only cone size-based corrections are supported. Will do nothing to" << Iso::toString(ctype) );
+	ATH_MSG_WARNING("Only cone size-based corrections are supported. Will do nothing to" << Iso::toCString(ctype) );
 	continue;
       }
       for (unsigned int i = 0; i < corrvec.size();i++) {
 	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator(cones[i],ctype);
 	if (isoCorAcc) {
-	  ATH_MSG_DEBUG("Storing non core correction " << Iso::toString(ctype) << " of iso type " << Iso::toString(cones[i]) << " = " << corrvec[i]);
+	  ATH_MSG_DEBUG("Storing non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]) << " = " << corrvec[i]);
 	  (*isoCorAcc)(tp) = corrvec[i];
 	} else
-	  ATH_MSG_WARNING("Accessor not found for non core correction " << Iso::toString(ctype) << " of iso type " << Iso::toString(cones[i]));
+	  ATH_MSG_WARNING("Accessor not found for non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]));
       }
     }
 
@@ -1435,10 +1435,10 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 	Iso::IsolationType type = cones[i];
         SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
         if ( isoTypeAcc ) {
-	  ATH_MSG_DEBUG("Filling " << Iso::toString(type) << " = " << result.etcones[i]);
+	  ATH_MSG_DEBUG("Filling " << Iso::toCString(type) << " = " << result.etcones[i]);
           (*isoTypeAcc)(tp) = result.etcones[i];
         } else 
-	  ATH_MSG_WARNING("Cannot find accessor for " << Iso::toString(type));
+	  ATH_MSG_WARNING("Cannot find accessor for " << Iso::toCString(type));
       }
     } else if( !result.etcones.empty() )
       ATH_MSG_WARNING("Inconsistent etcones vector size: results : " << result.etcones.size() << ", number of wanted cones : " << cones.size() );
