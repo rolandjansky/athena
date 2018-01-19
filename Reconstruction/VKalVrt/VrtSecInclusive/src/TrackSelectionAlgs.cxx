@@ -64,6 +64,8 @@ namespace VKalVrtAthena {
       if(TRTHits == 0 && PixelHits < 2)           return false;
     }
     
+    if( PixelHits == 0 && SctHits < 6 ) return false;
+    
     return true;
   }
   
