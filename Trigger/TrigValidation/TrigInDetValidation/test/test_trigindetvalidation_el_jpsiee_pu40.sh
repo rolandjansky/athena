@@ -13,12 +13,19 @@
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
+# art-input-nfiles: 25
+
+
 
 export RTTJOBNAME=TrigInDetValidation_el_Jpsiee_pu40
 
+
+fileList="['${ArtInFile//,/', '}']"
+echo "List of files = $fileList"
+
 get_files -jo            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py
-athena.py  -c 'ARTConfig=["/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000006.pool.root.1"];           EventMax=10000;runMergedChain=True'            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py
-JOBSTATUS_0=$?
+athena.py  -c 'ARTConfig=$fileList;EventMax=20000'            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py
+echo "art-result: $? athena_0"
 
 get_files -data TIDAdata11-rtt.dat
 get_files -data TIDAdata_cuts.dat
@@ -26,32 +33,32 @@ get_files -data TIDAdata_chains.dat
 get_files -data TIDAbeam.dat
 get_files -data Test_bin.dat
 TIDArdict.exe TIDAdata11-rtt.dat -f data-electron-merge.root -p 11 -b Test_bin.dat
-JOBSTATUS_1=$?
+echo "art-result: $? TIDArdict_1"
 
 TIDArun-art.sh data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots
-JOBSTATUS_2=$?
+echo "art-result: $? TIDArun_2"
 
 TIDArun-art.sh data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  -d HLTL2-plots
-JOBSTATUS_3=$?
+echo "art-result: $? TIDArun_3"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -o times
-JOBSTATUS_4=$?
+echo "art-result: $? TIDArun_4"
 
 TIDArun-art.sh expert-monitoring.root  expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF
-JOBSTATUS_5=$?
+echo "art-result: $? TIDArun_5"
 
 RunTrigCostD3PD.exe -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir
-JOBSTATUS_6=$?
+echo "art-result: $? RunTrigCostD3PD_6"
 
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"
-JOBSTATUS_7=$?
+echo "art-result: $? TIDAcpucost_7"
 
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent"
-JOBSTATUS_8=$?
+echo "art-result: $? TIDAcpucost_8"
 
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall"
-JOBSTATUS_9=$?
+echo "art-result: $? TIDAcpucost_9"
 
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"
-JOBSTATUS_10=$?
+echo "art-result: $? TIDAcpucost_10"
 
