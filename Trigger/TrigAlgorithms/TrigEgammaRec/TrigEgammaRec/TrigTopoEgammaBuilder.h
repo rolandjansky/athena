@@ -88,7 +88,7 @@ private:
 
   // Timers
   TrigTimer *m_timerTotal;
-  TrigTimer *m_timerTool1, *m_timerTool2, *m_timerTool3, *m_timerTool4, *m_timerTool5;
+  TrigTimer *m_timerTool1, *m_timerTool2, *m_timerTool3, *m_timerTool4, *m_timerTool5, *m_timerSCBuilder;
   TrigTimer *m_timerIsoTool1, *m_timerIsoTool2, *m_timerIsoTool3;
   TrigTimer *m_timerPIDTool1, *m_timerPIDTool2, *m_timerPIDTool3;
   // Container names for persistency 
