@@ -125,7 +125,6 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2Track",
                                     "BTagging_AntiKt2TrackJFVtx", 
-                                    "PrimaryVertices",
                                     "TruthVertices",
                                     "TruthEvents",
                                     "MET_Truth",
@@ -134,6 +133,8 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     ]
 
 FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
+                                       "PrimaryVertices.x.y.numberDoF.covariance",
+                                       "InDetTrackParticles.vx.vy.vz.truthMatchProbability",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
