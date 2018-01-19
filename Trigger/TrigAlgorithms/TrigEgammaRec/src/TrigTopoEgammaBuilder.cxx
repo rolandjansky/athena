@@ -109,7 +109,7 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
     declareProperty("ElectronContainerName", m_electronContainerName="egamma_Electrons");
     declareProperty("PhotonContainerName",   m_photonContainerName="egamma_Photons");
     // Additional property to retrieve slw and topo containers from TE
-    declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
+    // declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
     declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigEgammaTopoClusters");
     // ShowerBuilder (trigger specific)
     declareProperty("ShowerBuilderTool",  m_showerBuilder, "Handle to Shower Builder");
@@ -241,6 +241,7 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
     m_timerTool3=nullptr;
     m_timerTool4=nullptr;
     m_timerTool5=nullptr;
+    m_timerSCBuilder=nullptr;
     m_timerIsoTool1=nullptr;
     m_timerIsoTool2=nullptr;
     m_timerIsoTool3=nullptr;
@@ -594,30 +595,31 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     //**********************************************************************
     // Retrieve cluster container
     // get pointer to CaloClusterContainer from the trigger element
-    std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer;
+    // std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer;   <--- Will not use it!
+    // stat = getFeatures(inputTE, vectorClusterContainer,m_slwClusterContName);   <--- Will not use it!
     HLT::ErrorCode stat; 
-    if(m_doTopoIsolation) stat = getFeatures(inputTE, vectorClusterContainer,m_slwClusterContName);
-    else  stat = getFeatures(inputTE, vectorClusterContainer);
+    std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainerTopo;
+    stat = getFeatures(inputTE, vectorClusterContainerTopo,m_topoClusterContName);
     
     if ( stat!= HLT::OK ) {
         msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
         return HLT::OK;
-    }
-    //debug message
-    if ( msgLvl() <= MSG::VERBOSE)
-        msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainer.size()
-            << " CaloClusterContainers associated to the TE " << endreq;
+    // }
+    // //debug message
+    // if ( msgLvl() <= MSG::VERBOSE)
+    //     msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainer.size()
+    //         << " CaloClusterContainers associated to the TE " << endreq;
 
-    // Check that there is only one ClusterContainer in the RoI
-    if (vectorClusterContainer.size() < 1){
-        if ( msgLvl() <= MSG::ERROR )
-            msg() << MSG::ERROR
-                << "REGTEST: Size of vectorClusterContainer is not 1, it is: "
-                << vectorClusterContainer.size()
-                << endreq;
-        //return HLT::BAD_JOB_SETUP;
-        return HLT::OK;
-    }
+    // // Check that there is only one ClusterContainer in the RoI
+    // if (vectorClusterContainer.size() < 1){
+    //     if ( msgLvl() <= MSG::ERROR )
+    //         msg() << MSG::ERROR
+    //             << "REGTEST: Size of vectorClusterContainer is not 1, it is: "
+    //             << vectorClusterContainer.size()
+    //             << endreq;
+    //     //return HLT::BAD_JOB_SETUP;
+    //     return HLT::OK;
+    // }
 
     // Get the last ClusterContainer
     const xAOD::CaloClusterContainer* clusContainer = vectorClusterContainer.back();
@@ -632,9 +634,6 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     
 
     bool topoClusTrue = false; 
-    std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainerTopo;
-    if(m_doTopoIsolation){
-        stat = getFeatures(inputTE, vectorClusterContainerTopo,m_topoClusterContName);
     
         if ( stat!= HLT::OK ) {
             ATH_MSG_ERROR(" REGTEST: No CaloTopoClusterContainers retrieved for the trigger element");
@@ -652,7 +651,6 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
             if (clusContainerTopo->size() > 0) topoClusTrue = true;
             ATH_MSG_DEBUG("REGTEST: Number of topo containers : " << clusContainerTopo->size());
         } // vector of Cluster Container empty?!
-    }
 
 
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
@@ -835,7 +833,48 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     }
 
     /////////////////////////////////////////////////////////////////////////////
-    // Following offline egammaRec code
+    // Following offline  code -> By Dmitriy
+   //Create a shallow copy, the elements of this can be modified ,
+   //but no need to recreate the cluster
+   std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer(*input_topoclusters );
+
+   //Here it just needs to be a view copy ,
+   //i.e the collection we create does not really
+   //own its elements
+   ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
+
+
+  //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
+  {
+    smallChrono timer(m_timingProfile,this->name()+"_"+m_egammaTopoClusterCopier->name());
+    TRIG_CHECK_SC(m_egammaTopoClusterCopier->hltExecute(inputShallowcopy, viewCopy));
+  }
+
+  //Then retrieve them
+  const xAOD::CaloClusterContainer *topoclusters = viewCopy->asDataVector();
+
+
+  //Build the initial egamma Rec objects for all copied Topo Clusters
+  EgammaRecContainer* egammaRecs = new EgammaRecContainer();
+    {
+        std::string _egrContSGKey = "";
+        const std::string _tKey = "";
+                                  // use the same type as in TrigEgammaRec
+        HLT::ErrorCode sc = getUniqueKey( (xAOD::ElectronContainer *)0, _egrContSGKey, _tKey);
+        if (sc != HLT::OK) {
+            msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
+            return sc;
+        }
+
+        _egrContSGKey += "egammaRec";
+        //    // just store the thing now!
+        if ( store()-> record(egammaRecs, _egrContSGKey).isFailure() ) {
+            msg() << MSG::ERROR << "REGTEST: Could not register the EgammaRecContainer" << endreq;
+            return HLT::ERROR;
+        }
+    }
+
+
 
     // loop over clusters. 
     // Add egammaRec into container
