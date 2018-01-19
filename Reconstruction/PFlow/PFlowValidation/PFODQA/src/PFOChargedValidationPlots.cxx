@@ -7,7 +7,7 @@
 PFOChargedValidationPlots::PFOChargedValidationPlots(PlotBase* pParent, std::string sDir,  std::string sPFOContainerName) : PlotBase(pParent, sDir),
 															    m_PFOPlots(this,"",sPFOContainerName),
 															    m_PFOPVMatchedPlots(this,"",sPFOContainerName),
-															    m_PFOAlgPropertyPlots(this,"/",sPFOContainerName)
+															    m_PFOAlgPropertyPlots(this,"",sPFOContainerName)
 {}
 
 void PFOChargedValidationPlots::fill(const xAOD::PFO& thePFO, const xAOD::Vertex* theVertex ){
