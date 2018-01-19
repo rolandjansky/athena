@@ -638,8 +638,6 @@ namespace VKalVrtAthena {
           }
         }
         
-        //processedTracks.emplace_back( maxSharedTrack );
-        
       } else {
         
         // Here, a bad track association is detected
@@ -674,8 +672,8 @@ namespace VKalVrtAthena {
       
       auto& vertex = workVerticesContainer->at(iv);
 
-      if(!vertex.isGood )                 continue;  //don't work on vertex which is already bad
-      if( vertex.selectedTrackIndices.size() < 3 )      continue;
+      if(!vertex.isGood )                          continue;  //don't work on vertex which is already bad
+      if( vertex.selectedTrackIndices.size() < 3 ) continue;
 
       double chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() ); //Chi2 of the original vertex
 
@@ -684,9 +682,7 @@ namespace VKalVrtAthena {
       }
 
     }
-    //
-    //-----------------------------------------------------------------------------------------------
-    //
+    
     if( m_jp.FillNtuple ) {
       m_ntupleVars->get<unsigned int>( "NumRearrSecVrt" )=workVerticesContainer->size();
       ATH_MSG_DEBUG(" > rearrangeTracks: Size of Solution Set: "<< m_ntupleVars->get<unsigned int>( "NumRearrSecVrt" ));
@@ -1253,13 +1249,6 @@ namespace VKalVrtAthena {
         }
       }
       
-#if 0
-      if( TMath::Prob( wrkvrt.Chi2, wrkvrt.ndof() ) < m_jp.improveChi2ProbThreshold ) ) {
-        ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": bad fit quality " << wrkvrt.fitQuality() << " --> rejected." );
-        continue;
-      }
-#endif
-      
       if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 3 );
       
       //
@@ -1277,24 +1266,29 @@ namespace VKalVrtAthena {
       // Pre-check before storing vertex if the SV perigee is available
       bool good_flag = true;
       
-      for(size_t itrk=0; itrk<wrkvrt.selectedTrackIndices.size(); itrk++) {
-        const auto* trk = m_selectedTracks->at( wrkvrt.selectedTrackIndices[itrk] );
-        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
-        if( !sv_perigee ) {
-          ATH_MSG_INFO(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
-          good_flag = false;
+      std::map<const std::deque<long int>*, const std::vector<const xAOD::TrackParticle*>&> indicesSet
+        = {
+            { &(wrkvrt.selectedTrackIndices),   *m_selectedTracks   },
+            { &(wrkvrt.associatedTrackIndices), *m_associatedTracks }
+          };
+      
+      for( auto& pair : indicesSet ) {
+        
+        auto* indices = pair.first;
+        auto& tracks  = pair.second;
+        
+        for( auto& itrk : *indices ) {
+          const auto* trk = tracks.at( itrk );
+          const auto* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
+          if( !sv_perigee ) {
+            ATH_MSG_INFO(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
+            good_flag = false;
+          }
+          delete sv_perigee;
         }
-        delete sv_perigee;
+      
       }
-      for(size_t itrk=0; itrk<wrkvrt.associatedTrackIndices.size(); itrk++) {
-        const auto* trk = m_associatedTracks->at( wrkvrt.associatedTrackIndices[itrk] );
-        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
-        if( !sv_perigee ) {
-          ATH_MSG_INFO(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
-          good_flag = false;
-        }
-        delete sv_perigee;
-      }
+      
       if( !good_flag ) {
         ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": sv perigee could not be obtained --> rejected" );
         continue;
@@ -1308,9 +1302,9 @@ namespace VKalVrtAthena {
       
       {
         
-        for( const auto& index : wrkvrt.selectedTrackIndices )   tracks.emplace_back( m_selectedTracks->at( index ) );
-        for( const auto& index : wrkvrt.associatedTrackIndices ) tracks.emplace_back( m_associatedTracks->at( index ) );
-      
+        for( auto& pair : indicesSet ) {
+          for( const auto& index : *pair.first ) tracks.emplace_back( pair.second.at( index ) );
+        }
         
         auto trkitr = tracks.begin();
         auto chi2itr = wrkvrt.Chi2PerTrk.begin();

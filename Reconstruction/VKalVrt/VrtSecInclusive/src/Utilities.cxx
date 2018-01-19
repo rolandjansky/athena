@@ -308,8 +308,6 @@ namespace VKalVrtAthena {
       chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() );
     }
     
-    //if(chi2Probability<0.001) vertex.isGood = false;
-    
     ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": end: chi2 = " << vertex.Chi2);
     
     return chi2Probability;
@@ -410,7 +408,7 @@ namespace VKalVrtAthena {
       auto& vertex = workVerticesContainer->at(iv);
      
       if( vertex.selectedTrackIndices.size() < 2) continue;   /* Bad vertex */
-      if( vertex.closestWrkVrtIndex == 0 )   continue;   /* Used vertex */
+      if( vertex.closestWrkVrtIndex == 0 )        continue;   /* Used vertex */
      
       if( vertex.closestWrkVrtValue < minValue ) {
        
