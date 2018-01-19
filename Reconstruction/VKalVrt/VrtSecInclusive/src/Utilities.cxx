@@ -263,11 +263,15 @@ namespace VKalVrtAthena {
     
     ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": begin: chi2 = " << vertex.Chi2);
     
-    if( vertex.nTracksTotal() < 2 ) return 0.;
+    if( vertex.nTracksTotal() <= 2 ) return 0.;
     
-    StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
-    if( sc.isFailure() ) {
-      return 0;
+    {
+      WrkVrt backup = vertex;
+      StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
+      if( sc.isFailure() ) {
+        vertex = backup;
+        return 0;
+      }
     }
     
     double chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() );

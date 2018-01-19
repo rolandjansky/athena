@@ -322,14 +322,22 @@ namespace VKalVrtAthena {
         }
 
         // Perform vertex fitting
-        StatusCode sc =m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
-                                            wrkvrt.vertex,
-                                            wrkvrt.vertexMom,
-                                            wrkvrt.Charge,
-                                            wrkvrt.vertexCov,
-                                            wrkvrt.Chi2PerTrk, 
-                                            wrkvrt.TrkAtVrt,
-                                            wrkvrt.Chi2);
+        Amg::Vector3D IniVertex;
+        
+        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, IniVertex );/* Fast crude estimation */
+        if(sc.isFailure()) ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": fast crude estimation fails ");
+
+        m_fitSvc->setDefault();
+        m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z() );
+        
+        sc = m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
+                                  wrkvrt.vertex,
+                                  wrkvrt.vertexMom,
+                                  wrkvrt.Charge,
+                                  wrkvrt.vertexCov,
+                                  wrkvrt.Chi2PerTrk, 
+                                  wrkvrt.TrkAtVrt,
+                                  wrkvrt.Chi2);
 
         ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": FoundAppVrt=" << solutionSize << ", (r, z) = " << wrkvrt.vertex.perp() << ", " << wrkvrt.vertex.z()  <<  ", chi2/ndof = "  <<  wrkvrt.fitQuality() );
 
@@ -338,6 +346,11 @@ namespace VKalVrtAthena {
           continue;   /* Bad fit - goto next solution */
         }
 
+        sc = refitVertex( wrkvrt );
+        if( sc.isFailure() ) { 
+          continue;
+        }
+        
         ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": VKalVrtFit succeeded; register the vertex to the list.");
         wrkvrt.isGood                = true;
         wrkvrt.closestWrkVrtIndex    = AlgConsts::invalidUnsigned;
@@ -407,51 +420,26 @@ namespace VKalVrtAthena {
           baseTracks.emplace_back( m_selectedTracks->at( index ) );
         }
         
-        m_fitSvc->setDefault();
-
-        m_fitSvc->setApproximateVertex( cluster.position.x(), cluster.position.y(), cluster.position.z() );
-
         // Perform vertex fitting
-        StatusCode sc = m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
-                                             wrkvrt.vertex,
-                                             wrkvrt.vertexMom,
-                                             wrkvrt.Charge,
-                                             wrkvrt.vertexCov,
-                                             wrkvrt.Chi2PerTrk, 
-                                             wrkvrt.TrkAtVrt,
-                                             wrkvrt.Chi2);
+        Amg::Vector3D IniVertex;
         
+        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, IniVertex );/* Fast crude estimation */
+        if(sc.isFailure()) ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": fast crude estimation fails ");
+
+        m_fitSvc->setDefault();
+        m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z() );
+        
+        sc = m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
+                                  wrkvrt.vertex,
+                                  wrkvrt.vertexMom,
+                                  wrkvrt.Charge,
+                                  wrkvrt.vertexCov,
+                                  wrkvrt.Chi2PerTrk, 
+                                  wrkvrt.TrkAtVrt,
+                                  wrkvrt.Chi2);
+
         if( sc.isFailure() ) {
-          
-          wrkvrt.selectedTrackIndices.clear();
-          baseTracks.clear();
-          
-          for(auto& index: cluster.tracks) {
-            wrkvrt.selectedTrackIndices.emplace_back( index );
-            baseTracks.emplace_back( m_selectedTracks->at( index ) );
-            
-            if( wrkvrt.nTracksTotal() < 2 ) continue;
-            
-            m_fitSvc->setDefault();
-            
-            m_fitSvc->setApproximateVertex( cluster.position.x(), cluster.position.y(), cluster.position.z() );
-            
-            // Perform vertex fitting
-            sc = m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
-                                      wrkvrt.vertex,
-                                      wrkvrt.vertexMom,
-                                      wrkvrt.Charge,
-                                      wrkvrt.vertexCov,
-                                      wrkvrt.Chi2PerTrk, 
-                                      wrkvrt.TrkAtVrt,
-                                      wrkvrt.Chi2);
-            
-            if( sc.isFailure() ) {
-              wrkvrt.selectedTrackIndices.pop_back();
-              baseTracks.pop_back();
-            }
-            
-          }
+          continue;
         }
         
         workVerticesContainer->emplace_back( wrkvrt );
@@ -667,13 +655,20 @@ namespace VKalVrtAthena {
         auto end = std::remove_if( wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end(), [&]( auto& index ) { return index == maxSharedTrack; } );
         wrkvrt.selectedTrackIndices.erase( end, wrkvrt.selectedTrackIndices.end() );
         
-        auto wrkvrt_backup = wrkvrt;
-        StatusCode sc = refitVertex( wrkvrt );
-        if( sc.isFailure() ) {
-          wrkvrt = wrkvrt_backup;
+        if( wrkvrt.nTracksTotal() >=2 ) {
+          
+          auto wrkvrt_backup = wrkvrt;
+          StatusCode sc = refitVertex( wrkvrt );
+          if( sc.isFailure() ) {
+            wrkvrt = wrkvrt_backup;
+          }
+          
+        } else {
+          wrkvrt.isGood = false;
         }
         
         ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": removed track " << maxSharedTrack << " from vertex " << worstMatchingVertex );
+        
       }
       
     }
@@ -1219,29 +1214,39 @@ namespace VKalVrtAthena {
       {
         WrkVrt backup = wrkvrt;
       
-        StatusCode sc = refitVertexWithSuggestion( wrkvrt, wrkvrt.vertex );
+        StatusCode sc = refitVertex( wrkvrt );
         if( sc.isFailure() ) {
           
           auto indices = wrkvrt.associatedTrackIndices;
           
           wrkvrt.associatedTrackIndices.clear();
-          sc = refitVertexWithSuggestion( wrkvrt, wrkvrt.vertex );
+          sc = refitVertex( wrkvrt );
           if( sc.isFailure() ) {
             wrkvrt = backup;
           }
+          if( wrkvrt.fitQuality() > backup.fitQuality() ) wrkvrt = backup;
           
           for( auto& index : indices ) {
             backup = wrkvrt;
             wrkvrt.associatedTrackIndices.emplace_back( index );
-            sc = refitVertexWithSuggestion( wrkvrt, wrkvrt.vertex );
-            if( sc.isFailure() || wrkvrt.Chi2 / wrkvrt.ndof() > 1.e4 ) {
+            sc = refitVertex( wrkvrt );
+            if( sc.isFailure() || TMath::Prob( wrkvrt.Chi2, wrkvrt.ndof() ) < m_jp.improveChi2ProbThreshold ) {
               wrkvrt = backup;
               continue;
             }
           }
           
+        } else {
+          if( wrkvrt.fitQuality() > backup.fitQuality() ) wrkvrt = backup;
         }
       }
+      
+#if 0
+      if( TMath::Prob( wrkvrt.Chi2, wrkvrt.ndof() ) < m_jp.improveChi2ProbThreshold ) ) {
+        ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": bad fit quality " << wrkvrt.fitQuality() << " --> rejected." );
+        continue;
+      }
+#endif
       
       if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 3 );
       
