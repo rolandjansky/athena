@@ -6,7 +6,7 @@
 #define TRKTRACK_LINKTOXAODNEUTRALPARTICLE_H
 
 #include "TrkTrackLink/ITrackLink.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "xAODTracking/NeutralParticleContainer.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
