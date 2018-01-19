@@ -248,7 +248,7 @@ namespace VKalVrtAthena {
     ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": incompatible track pair size = " << m_incomp.size() );
     
     
-    if( m_incomp.size() < 500 ) {
+    if( workVerticesContainer->size() < 500 ) {
       
       ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": incompatibility graph finder mode" );
       
@@ -288,8 +288,6 @@ namespace VKalVrtAthena {
       // This is just a unused strawman needed for m_fitSvc->VKalVrtFit()
       std::vector<const xAOD::TrackParticle*>    baseTracks;
       std::vector<const xAOD::NeutralParticle*>  dummyNeutrals;
-
-      m_fitSvc->setDefault();
 
       // Main iteration
       while(true) {
@@ -453,20 +451,6 @@ namespace VKalVrtAthena {
     //-------------------------------------------------------
     // Iterative cleanup algorithm
 
-    //-Remove worst track from vertices with very bad Chi2
-    /*
-    ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Remove worst track from vertices with very bad Chi2.");
-    for(size_t iv=0; iv<workVerticesContainer->size(); iv++) {
-      auto& wrkvrt = workVerticesContainer->at(iv);
-        
-      if( wrkvrt.Chi2 > (4.*wrkvrt.selectedTrackIndices.size()) ) {
-        StatusCode sc = disassembleVertex( workVerticesContainer, iv );
-        if( sc.isFailure() ) {}
-      }
-        
-    }
-    */
-
     //-Remove vertices fully contained in other vertices 
     ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Remove vertices fully contained in other vertices .");
     while( workVerticesContainer->size() > 1 ) {
@@ -490,18 +474,12 @@ namespace VKalVrtAthena {
     //-Identify remaining 2-track vertices with very bad Chi2 and mass (b-tagging)
     ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Identify remaining 2-track vertices with very bad Chi2 and mass (b-tagging).");
     for( auto& wrkvrt : *workVerticesContainer ) {
+      
+      if( TMath::Prob( wrkvrt.Chi2, wrkvrt.ndof() ) < m_jp.improveChi2ProbThreshold ) wrkvrt.isGood = false;
       if( wrkvrt.selectedTrackIndices.size() != 2 ) continue;
-      if( m_jp.FillHist ) m_hists["NtrkChi2Dist"]->Fill( log10( wrkvrt.Chi2/wrkvrt.ndof() ) );
-      //if( wrkvrt.Chi2/wrkvrt.ndof() > 100.) wrkvrt.isGood=false;
+      if( m_jp.FillHist ) m_hists["NtrkChi2Dist"]->Fill( log10( wrkvrt.fitQuality() ) );
     }
 
-    //-Remove all bad vertices from the working set    
-    ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Remove all bad vertices from the working set.");
-    { 
-      auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(), []( WrkVrt& wrkvrt ) { return wrkvrt.isGood == false || wrkvrt.selectedTrackIndices.size() < 2; } );
-      workVerticesContainer->erase( end, workVerticesContainer->end() );
-    }
-    
     if( m_jp.FillNtuple) m_ntupleVars->get<unsigned int>( "NumInitSecVrt" ) = workVerticesContainer->size();
 
     return StatusCode::SUCCESS;
@@ -536,14 +514,7 @@ namespace VKalVrtAthena {
       // Fill trackToVertexMap with vertex IDs of each track
       trackClassification( workVerticesContainer, trackToVertexMap );
       
-      // Remove already processed tracks
-      for( auto& pt : processedTracks ) {
-        if( trackToVertexMap.find( pt ) != trackToVertexMap.end() ) {
-          trackToVertexMap.erase( pt );
-        }
-      }
-          
-    
+      
       auto worstChi2 = findWorstChi2ofMaximallySharedTrack( workVerticesContainer, trackToVertexMap, maxSharedTrack, worstMatchingVertex );
       
       if( worstChi2 == AlgConsts::invalidFloat ) {
@@ -625,7 +596,7 @@ namespace VKalVrtAthena {
             StatusCode sc = mergeVertices( workVerticesContainer->at( indexPair.first ), workVerticesContainer->at( indexPair.second ) );
           
             if( m_jp.FillHist ) { m_hists["mergeType"]->Fill( RECONSTRUCT_NTRK ); }
-          
+            
             if( sc.isFailure() ) {
               // revert to the original
               workVerticesContainer->at( indexPair.first  ) = vertex_backup1;
@@ -641,12 +612,32 @@ namespace VKalVrtAthena {
             badPairs.clear();
             
             ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Merged vertices " << indexPair.first << " and " << indexPair.second << ". merged vertex multiplicity = " << workVerticesContainer->at( indexPair.first ).selectedTrackIndices.size() );
+            
           } else {
+            
+            // Here, the significance between closest vertices sharing the track is sufficiently distant
+            // and cannot be merged, while the track-association chi2 is small as well.
+            // In order to resolve the ambiguity anyway, remove the track from the worst-associated vertex.
+            
+            auto& wrkvrt = workVerticesContainer->at( worstMatchingVertex );
+            
+            auto end = std::remove_if( wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end(), [&]( auto& index ) { return index == maxSharedTrack; } );
+            wrkvrt.selectedTrackIndices.erase( end, wrkvrt.selectedTrackIndices.end() );
+            
+            auto wrkvrt_backup = wrkvrt;
+            StatusCode sc = refitVertex( wrkvrt );
+            if( sc.isFailure() ) {
+              wrkvrt = wrkvrt_backup;
+            }
+            
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": removed track " << maxSharedTrack << " from vertex " << worstMatchingVertex );
+            
             break;
+            
           }
         }
         
-        processedTracks.emplace_back( maxSharedTrack );
+        //processedTracks.emplace_back( maxSharedTrack );
         
       } else {
         
