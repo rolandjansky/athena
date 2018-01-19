@@ -5,19 +5,24 @@
 #include "CxxUtils/make_unique.h"
 #include "SG_StepNtupleTool.h"
 
-namespace G4UA{ 
-  
-  
-  SG_StepNtupleTool::SG_StepNtupleTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<SG_StepNtuple>(type, name, parent){
-  }
-  std::unique_ptr<SG_StepNtuple>  SG_StepNtupleTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
+namespace G4UA
+{
+
+  SG_StepNtupleTool::SG_StepNtupleTool(const std::string& type,
+                                       const std::string& name,
+                                       const IInterface* parent)
+    : ActionToolBase<SG_StepNtuple>(type, name, parent)
+  {}
+
+  std::unique_ptr<SG_StepNtuple> SG_StepNtupleTool::makeAction()
+  {
+    ATH_MSG_DEBUG("Constructing an SG_StepNtuple action");
     auto action = CxxUtils::make_unique<SG_StepNtuple>();
     return std::move(action);
   }
-  StatusCode SG_StepNtupleTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
+
+  StatusCode SG_StepNtupleTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+  {
     if(riid == IG4RunActionTool::interfaceID()) {
       *ppvIf = (IG4RunActionTool*) this;
       addRef();
@@ -35,5 +40,5 @@ namespace G4UA{
     }
     return ActionToolBase<SG_StepNtuple>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA
