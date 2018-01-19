@@ -21,12 +21,13 @@ def defineMenu():
 
     Lvl1Flags.items += [
         # for running high rate tests in secondary CTP partitions
-        'L1_RD2_BGRP14', 'L1_RD3_BGRP15',
+        #'L1_RD2_BGRP14', 
+        'L1_RD3_BGRP15',
         ]
 
    #Make sure these triggers don't get assigned random CTPIDs
     Lvl1Flags.CtpIdMap().update({
-        'L1_RD2_BGRP14' : 463,
+        #'L1_RD2_BGRP14' : 463,
         'L1_RD3_BGRP15' : 464,
     })
 

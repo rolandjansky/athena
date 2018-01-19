@@ -10,7 +10,7 @@
  **
  **   Description: EF hypothesis algorithms for 3mu and 4mu signatures 
  ** 
- **  author Olya Igonkina 
+ **  author Olya Igonkina (Nikhef)
  **             
  **************************************************************************/ 
  

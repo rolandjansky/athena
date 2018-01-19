@@ -421,7 +421,17 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     StoredValue  = False
 
 class useDynamicAlignFolders(InDetFlagsJobProperty):
-    """ Use to turn on dynamic alignment constants folder scheme (new development for 2016) """
+    """ Deprecated property - use GeometryFlags directly to choose the alignment folder scheme """
+    def _do_action( self, *args, **kwds):
+       from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;  GeometryFlags.useDynamicAlignFolders.... ')
+       if self.StoredValue != 'none':
+          from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+          GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
+          self._log.info("GeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % GeometryFlags.useDynamicAlignFolders)
+       else:
+          self._log.warning("Not setting GeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
+          
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False

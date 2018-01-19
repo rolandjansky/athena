@@ -25,6 +25,9 @@ public:
   void setAlignable(bool flag = true);
   void setAlignAtModuleLevel(bool flag = true);
 
+  //dynamic alignment folders
+  void setDynamicAlignFolders(const bool flag = true);
+  bool dynamicAlignFolders() const;
 
 private:
 
@@ -33,7 +36,7 @@ private:
   bool m_dc2Geometry;
   bool m_alignable;
   bool m_alignModule;
-
+  bool m_dynAlignFolders;   //controls which set of alignment folders is used
 
 };
 

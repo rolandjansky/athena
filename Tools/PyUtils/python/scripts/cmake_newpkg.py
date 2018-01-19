@@ -43,7 +43,7 @@ def main(args):
     if full_pkg_name[0] == '/':
         full_pkg_name = full_pkg_name[1:]
     
-    pkg_path = os.path.dirname(os.environ['TestArea']+"/"+full_pkg_name)
+    pkg_path = os.path.dirname(os.getcwd() + "/" + full_pkg_name)
     pkg_name = os.path.basename(full_pkg_name)
     pkg_vers = '%s-00-00-00' % pkg_name
     author = os.path.expanduser(os.path.expandvars(args.author))

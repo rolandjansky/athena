@@ -659,7 +659,7 @@ class ItemDef:
         LVL1MenuItem('L1_LUCID_UNPAIRED_ISO'       ).setLogic( (LUCID_A.x(1)|LUCID_C.x(1))&unpaired_isocond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_LUCID_UNPAIRED_NONISO'    ).setLogic( (LUCID_A.x(1)|LUCID_C.x(1))&unpaired_nonisocond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_LUCID_COMM_EMPTY'         ).setLogic( NIMDIR5.x(1)&cosmiccond).setTriggerType(TT.minb)    # noqa: F821
-        LVL1MenuItem('L1_LUCID_COMM_UNPAIRED_ISO'  ).setLogic( NIMDIR5.x(1)&unpaired_isocond).setTriggerType(TT.minb)        
+        LVL1MenuItem('L1_LUCID_COMM_UNPAIRED_ISO'  ).setLogic( NIMDIR5.x(1)&unpaired_isocond).setTriggerType(TT.minb)       # noqa: F821 
         LVL1MenuItem('L1_LUCID_A_C_UNPAIRED_ISO'   ).setLogic( LUCID_A.x(1)&LUCID_C.x(1)&unpaired_isocond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_LUCID_A_C_UNPAIRED_NONISO').setLogic( LUCID_A.x(1)&LUCID_C.x(1)&unpaired_nonisocond).setTriggerType(TT.minb)    # noqa: F821
 

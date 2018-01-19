@@ -170,7 +170,7 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Track& t) {
             << "\tbl="   << t.bLayerHits() 
             << ":"  << ( t.expectBL() ? "t" : "f" )
             << ":"  << ( t.hasTruth() ? "t" : "f" )
-	    << "\tid=0x" << std::hex << t.id() << std::dec << std::hex << t.barcode() << std::dec
+	    << "\tid=0x" << std::hex << t.id() << std::dec << ":0x" << std::hex << t.barcode() << std::dec
 	    << "\t] ";
 }
 

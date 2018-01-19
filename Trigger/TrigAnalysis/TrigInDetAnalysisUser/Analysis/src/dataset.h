@@ -30,19 +30,29 @@ class dataset : public std::vector<std::string> {
   
 public:
   
-  dataset(const std::string& s) : m_directory(s) {
-    std::cout << "dataset::dataset() reading files from " << s << std::endl;
+  dataset(const std::string& st) : m_directory(st) {
+    std::cout << "dataset::dataset() reading files from " << st << std::endl;
+
+    std::string s = st;
 
     if ( s.find("root://eos")!=std::string::npos ) { 
       /// need to open on eos
-      
-      std::string  _cmd = "eos ls "+s+"/";
-      std::system( (_cmd+" > .eosfiles.log").c_str() );
 
-      std::string   cmd = "export EOSFILES=$("+_cmd+")";
+      /// eos.select no longer works
+      //      std::string  xcmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls "+s+"/";
+      size_t pos=s.find("//");
+      while( pos!=std::string::npos ) { 
+	s = s.substr(pos+1,s.length()); 
+	pos=s.find("//");
+      }
+      //      std::string  xcmd = "eos ls "+bases+"/";
+      std::string  xcmd = "eos ls "+s+"/";
+      std::system( (xcmd+" > .eosfiles-$$.log").c_str() );
+
+      std::string   cmd = "export EOSFILES=$("+xcmd+")";
       std::system(  cmd.c_str() );
 
-      std::ifstream infile(".eosfiles.log");
+      std::ifstream infile(".eosfiles-$$.log");
 
       while( !infile.fail() ) {
 	std::string file;

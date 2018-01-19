@@ -7,6 +7,9 @@
 
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODCaloEvent/CaloCluster.h" // cannot use CaloClusterFwd b/c of ClusterSize
+#include "AthContainers/ConstDataVector.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCore/ShallowAuxContainer.h"
 
 /**
    @class IegammaTopoClusterCopier
@@ -14,7 +17,7 @@
    @author christos
 */
 
-static const InterfaceID IID_IegammaTopoClusterCopier("IegammaTopoClusterCopier", 1, 0);
+static const InterfaceID IID_IegammaTopoClusterCopier("IegammaTopoClusterCopier", 1, 1);
 
 class IegammaTopoClusterCopier : virtual public IegammaBaseTool {
 
@@ -27,6 +30,8 @@ class IegammaTopoClusterCopier : virtual public IegammaBaseTool {
   virtual StatusCode initialize() = 0;
   /** @brief execute on containers */
   virtual StatusCode contExecute() = 0;
+  /** @brief execute on direct objects */
+  virtual StatusCode hltExecute(std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > &inputShallowcopy, ConstDataVector<xAOD::CaloClusterContainer>* viewCopy) const = 0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
 

@@ -150,8 +150,8 @@ else:
     # ----------- Configuring the conditions access
     #
     # ------------------------------------------------------------
-    
-    include ("InDetRecExample/InDetRecConditionsAccess.py")
+    if not rec.doAODMerging():
+      include ("InDetRecExample/InDetRecConditionsAccess.py")
 
     # ------------------------------------------------------------
     # 
@@ -159,7 +159,8 @@ else:
     #
     # ------------------------------------------------------------
     
-    include ("InDetRecExample/InDetRecLoadTools.py")
+    if not rec.doAODMerging():  
+      include ("InDetRecExample/InDetRecLoadTools.py")
 
     # ------------------------------------------------------------
     #
@@ -691,14 +692,15 @@ else:
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
 
-      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
-      InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
-                                                                 InDetKeys.ResolvedPixelPrdAssociationTracks(),
-                                                                 InDetKeys.ExtendedTracksPixelPrdAssociation(),
-                                                                 InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
-                                                                 TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys,
-                                                                 False)
+      if InDetFlags.doTRTExtension() :
+        include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+        InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
+                                                                   InDetKeys.ResolvedPixelPrdAssociationTracks(),
+                                                                   InDetKeys.ExtendedTracksPixelPrdAssociation(),
+                                                                   InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
+                                                                   TrackCollectionKeys,
+                                                                   TrackCollectionTruthKeys,
+                                                                   False)
 
     # ------------------------------------------------------------
     #
@@ -1066,7 +1068,10 @@ else:
       # Dummy Merger to fill additional info for PRD-associated pixel tracklets
       if InDetFlags.doTrackSegmentsPixelPrdAssociation():
        DummyCollection = []
-       DummyCollection += [ InDetKeys.ExtendedTracksPixelPrdAssociation()]
+       if InDetFlags.doTRTExtension() :
+         DummyCollection += [ InDetKeys.ExtendedTracksPixelPrdAssociation()]
+       else :
+         DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.PixelPrdAssociationTracks(),
@@ -1341,7 +1346,7 @@ else:
     #
     #
     # xAOD creation/conversion
-    if (InDetFlags.doxAOD()):
+    if (InDetFlags.doxAOD() and not rec.doAODMerging()):
       include("InDetRecExample/InDetxAODCreator.py")
 
     # Do post-processing algorithms (may depend on xAOD objects)

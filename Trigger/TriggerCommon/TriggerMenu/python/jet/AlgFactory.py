@@ -261,11 +261,12 @@ class AlgFactory(object):
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
             'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
+            'do_substructure': "'True'", # "'%s'" % (self.fex_params.do_substructure),
             'output_collection_label': "'%s'" % (self.fex_params.fex_label),
             'rclus': self.fex_params.rclus,
             'ptfrac': self.fex_params.ptfrac,
         }
-        print 'after kwds' #Nima!
+
         return [Alg(factory, (), kwds)]
    
     #HI
@@ -407,7 +408,7 @@ class AlgFactory(object):
         return [Alg(algType,(), kargs)]
 
 
-    def dimass_deta_kargs(self, algType):
+    def dimass_deta_kargs(self, algType): 
         kargs = self.etaet_kargs(algType)
         
         mass_min = self.hypo_params.mass_min
@@ -428,6 +429,24 @@ class AlgFactory(object):
 
         algType = 'TrigHLTJetHypo_DijetMassDEta'
         kargs = self.dimass_deta_kargs(algType)
+        return [Alg(algType,(), kargs)]
+
+
+    def dimass_deta_dphi_kargs(self, algType):
+        kargs = self.dimass_deta_kargs(algType)
+        
+        dPhi_max = self.hypo_params.dPhi_max
+        if dPhi_max is not None:
+            kargs['dPhi_maxs'] = [dPhi_max]
+        else:
+            kargs['dPhi_maxs'] = []
+
+        return kargs
+        
+    def hlthypo2_dimass_deta_dphi(self):
+
+        algType = 'TrigHLTJetHypo_DijetMassDEtaDPhi'
+        kargs = self.dimass_deta_dphi_kargs(algType)
         return [Alg(algType,(), kargs)]
 
 
