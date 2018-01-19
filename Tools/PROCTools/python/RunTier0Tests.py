@@ -28,7 +28,7 @@ logging.getLogger('').addHandler(console)
 def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     s=stest 
     logging.info("Running clean in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
     CleanDirName="clean_run_"+s+"_"+UniqID
 
@@ -37,17 +37,17 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
             " mkdir -p " + CleanDirName    +" ;" + 
             " cd "       + CleanDirName    +" ;" + 
             " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1" )
+            " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False " +extraArg+" > "+s+".log 2>&1" )
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished clean in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
     pass
 
 def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     s=stest 
     logging.info("Running patched in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
     cmd = " cd "+pwd+" ;"
     if nosetup:
@@ -59,12 +59,12 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     else :
         cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
     cmd += " mkdir -p run_"+s+"; cd run_"+s+";"
-    cmd += " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1" 
+    cmd += " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False " +extraArg+" > "+s+".log 2>&1" 
     
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished patched in rel "+release)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
     pass
 
 def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False, trigConfig="2017"):
@@ -80,7 +80,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
     if trigConfig == "2016":
         extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
-    logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
+    logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
 
     CleanDirName="clean_run_"+q+"_"+UniqID
@@ -90,7 +90,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
             " mkdir -p "+ CleanDirName    +" ;" + 
             " cd "      + CleanDirName    +" ;" + 
             " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            " Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1" )
+            " Reco_tf.py --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1" )
     subprocess.call(cmd,shell=True)
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
@@ -108,7 +108,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", 
     if trigConfig == "2016":
         extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
-    logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
+    logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
     cmd = " cd "+pwd+" ;"
     if nosetup:
@@ -120,7 +120,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", 
     else :
         cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
     cmd += " mkdir -p run_"+q+"; cd run_"+q+";"
-    cmd += " Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1" 
+    cmd += " Reco_tf.py --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1" 
     
     subprocess.call(cmd,shell=True)
 
