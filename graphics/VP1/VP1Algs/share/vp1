@@ -135,7 +135,8 @@ FLAG_NOGUI=0
 FLAG_CGAL=0
 FLAG_NSW=0
 FLAG_SLHC=0
-FLAG_CUSTOMGEOMETRY=0
+#FLAG_CUSTOMGEOMETRY=0 # currently not used
+FLAG_ADVANCED_ANTIALIASING=0
 MULTINP_SRC=""
 MULTINP_CPY=""
 TRIGDEC=""
@@ -273,8 +274,11 @@ while [ $i -le $# ]; do
     elif [ "x${arg}" == "x-slhc" ]; then
         echo "SLHC"
         FLAG_SLHC=1
-    elif [ "x${arg}" == "x-customgeom" ]; then
-        FLAG_CUSTOMGEOMETRY=1
+    #elif [ "x${arg}" == "x-customgeom" ]; then
+    #    FLAG_CUSTOMGEOMETRY=1
+    elif [ "x${arg}" == "x-advanced-aa" ]; then
+        FLAG_ADVANCED_ANTIALIASING=1
+        export VP1_ADVANCED_ANTIALIASING=1
     elif [ "x${arg}" == "x-mc" ]; then
 	FLAG_MC=1
     elif [ "x${arg}" == "x-multinp" ]; then
@@ -694,6 +698,8 @@ if [ "x$FLAG_HELP" != "x0" ]; then
     echo
     echo "  -customgeom                 : Enable a custom geometry."
     echo
+    echo "  -advanced-aa                : Enable advanced anti-aliasing for crisper, higher-quality images. DOES NOT WORK ON LXPLUS MACHINES!!!"
+    echo
     echo "  -test                       : Show the athena command instead of executing it."
     echo
     echo "Note that the order of specified files/options is not important, and that they can in general be mixed quite"
@@ -957,10 +963,14 @@ if [ "x$FLAG_SLHC" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1SLHC=True"
 fi
-if [ "x$FLAG_CUSTOMGEOMETRY" != "x0" ]; then
-    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
-    OPTS="${OPTS}vp1CustomGeometry=True"
-fi
+#if [ "x$FLAG_CUSTOMGEOMETRY" != "x0" ]; then
+#    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+#    OPTS="${OPTS}vp1CustomGeometry=True"
+#fi
+#if [ "x$FLAG_ADVANCED_ANTIALIASING" != "x0" ]; then
+#    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+#    OPTS="${OPTS}vp1AdvancedAntialiasing=True"
+#fi
 if [ "x$FLAG_NOGUI" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1NoGui=True"
