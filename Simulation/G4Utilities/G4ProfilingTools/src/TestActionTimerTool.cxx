@@ -7,19 +7,26 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1D.h"
 
-namespace G4UA{ 
-  
-  
-  TestActionTimerTool::TestActionTimerTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBaseReport<TestActionTimer>(type, name, parent),m_histSvc("THistSvc",name){
+namespace G4UA
+{
+
+  TestActionTimerTool::TestActionTimerTool(const std::string& type,
+                                           const std::string& name,
+                                           const IInterface* parent)
+    : ActionToolBaseReport<TestActionTimer>(type, name, parent),
+      m_histSvc("THistSvc", name)
+  {
   }
-  std::unique_ptr<TestActionTimer>  TestActionTimerTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
+
+  std::unique_ptr<TestActionTimer> TestActionTimerTool::makeAction()
+  {
+    ATH_MSG_DEBUG("Constructing a TestActionTimer");
     auto action = CxxUtils::make_unique<TestActionTimer>();
     return std::move(action);
   }
-  StatusCode TestActionTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
+
+  StatusCode TestActionTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+  {
     if(riid == IG4EventActionTool::interfaceID()) {
       *ppvIf = (IG4EventActionTool*) this;
       addRef();
@@ -37,19 +44,18 @@ namespace G4UA{
     }
     return ActionToolBase<TestActionTimer>::queryInterface(riid, ppvIf);
   }
-  
-  
-  
-  StatusCode TestActionTimerTool::finalize(){
+
+  StatusCode TestActionTimerTool::finalize()
+  {
     mergeReports();
     // now m_reports contain the global report
-    
+
     if(!m_report.time.empty()){
       G4double sumVTime = 0.;
       G4double sumPTime = 0.;
       for (int i(0); i <= TestActionTimer::eOther; ++i) sumVTime += m_report.time[i];
       for (int i(TestActionTimer::eElec); i < TestActionTimer::eMax; ++i) sumPTime += m_report.time[i];
-      
+
       if (m_report.nev>0){
 	ATH_MSG_INFO("****** TestActionTimer: Beginning timer dump ******");
 	
@@ -140,5 +146,5 @@ namespace G4UA{
     } else {ATH_MSG_INFO("******* TestActionTimer: No timing information recoreded! *********");}
     return StatusCode::SUCCESS;
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA
