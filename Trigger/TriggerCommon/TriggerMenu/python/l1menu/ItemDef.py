@@ -157,7 +157,6 @@ class ItemDef:
         LVL1MenuItem('L1_J40.0ETA25' ).setLogic( J400ETA25 & physcond).setTriggerType(TT.calo)        # noqa: F821
         LVL1MenuItem('L1_J50.31ETA49' ).setLogic( J5031ETA49 & physcond).setTriggerType(TT.calo)      # noqa: F821
         LVL1MenuItem('L1_J70.31ETA49' ).setLogic( J7031ETA49 & physcond).setTriggerType(TT.calo)      # noqa: F821
-        LVL1MenuItem('L1_J100.31ETA49' ).setLogic( J10031ETA49 & physcond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_J15.0ETA25'  ).setLogic( J150ETA25 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J20.0ETA28'  ).setLogic( J200ETA28 & physcond).setTriggerType(TT.calo)    # noqa: F821
@@ -558,7 +557,7 @@ class ItemDef:
 
         
         LVL1MenuItem('L1_J100_FIRSTEMPTY').setLogic( J100 & firstempty ).setTriggerType(TT.calo)    # noqa: F821
-        LVL1MenuItem('L1_J100.31ETA49_FIRSTEMPTY' ).setLogic( J10031ETA49 & firstempty ).setTriggerType(TT.calo)    # noqa: F821
+        #LVL1MenuItem('L1_J100.31ETA49_FIRSTEMPTY' ).setLogic( J10031ETA49 & firstempty ).setTriggerType(TT.calo)    # noqa: F821
 
         # multi jet
         LVL1MenuItem('L1_2J25.31ETA49'  ).setLogic( J2531ETA49 & physcond).setTriggerType(TT.calo)    # noqa: F821
@@ -621,7 +620,10 @@ class ItemDef:
         LVL1MenuItem('L1_3J15.0ETA25_XE40').setLogic( J150ETA25.x(3) & XE40 & physcond).setTriggerType(TT.calo)    # noqa: F821
         
         # combined em - jet
-        LVL1MenuItem('L1_EM15VH_JJ15.23ETA49' ).setLogic( EM15VH  & JJ1523ETA49  & physcond).setTriggerType(TT.calo)    # noqa: F821
+        #if '_v7' in TriggerFlags.triggerMenuSetup() or '_PhaseII' in TriggerFlags.triggerMenuSetup():
+        #LVL1MenuItem('L1_EM15VH_JJ15.23ETA49' ).setLogic( EM15VH  & JJ1523ETA49  & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_EM18VHI_JJ15.23ETA49' ).setLogic( EM18VHI  & JJ1523ETA49  & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_EM20VHI_JJ15.23ETA49' ).setLogic( EM20VHI  & JJ1523ETA49  & physcond).setTriggerType(TT.calo)    # noqa: F821
         if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
             LVL1MenuItem('L1_EM18VHI_3J20' ).setLogic( EM18VHI  & J20.x(3)  & physcond).setTriggerType(TT.calo)    # noqa: F821
             LVL1MenuItem('L1_EM20VH_3J20' ).setLogic( EM20VH  & J20.x(3)  & physcond).setTriggerType(TT.calo)      # noqa: F821
@@ -1666,8 +1668,8 @@ class ItemDef:
                     LVL1MenuItem('L1_MJJ-200').setLogic( TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)    # noqa: F821
                     LVL1MenuItem('L1_MJJ-100').setLogic( TOPO_100INVM9999_AJ30s6_AJ20s6 & physcond)    # noqa: F821
                     if '_v7' in TriggerFlags.triggerMenuSetup() or '_PhaseII' in TriggerFlags.triggerMenuSetup():
-                        LVL1MenuItem('L1_MJJ-800-NFF').setLogic( TOPO_800INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_MJJ-600-NFF').setLogic( TOPO_600INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
+                        LVL1MenuItem('L1_MJJ-500-NFF').setLogic( TOPO_500INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_MJJ-400-NFF').setLogic( TOPO_400INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_MJJ-200-NFF').setLogic( TOPO_200INVM9999_J30s6_AJ15s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_63DETA-J30J15').setLogic( TOPO_63DETA127_FJ20s1_FJ20s2 & physcond)    # noqa: F821

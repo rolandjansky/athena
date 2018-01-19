@@ -503,6 +503,10 @@ def setupMenu():
 
         # VBF triggers
         ['j80_0eta240_2j60_320eta490_invm700',  'L1_J40.0ETA25_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1 ], #Bjet rate but needs to be in the Jet slice
+        ['j70_j50_0eta490_invm900_dphi24_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm900_dphi26_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm900_dphi24_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm900_dphi26_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
 
 
@@ -2487,8 +2491,8 @@ ps_calibmon_list=[
     'satu20em_l1satmon_L1EM20VH_FIRSTEMPTY',
     'satu20em_l1satmon_L1EM22VHI_FIRSTEMPTY',
     'satu20em_l1satmon_L1J100',
-    'satu20em_l1satmon_L1J100.31ETA49',
-    'satu20em_l1satmon_L1J100.31ETA49_FIRSTEMPTY',
+    #'satu20em_l1satmon_L1J100.31ETA49',
+    #'satu20em_l1satmon_L1J100.31ETA49_FIRSTEMPTY',
     'satu20em_l1satmon_L1J100_FIRSTEMPTY',
     'sct_noise',
     'tilecalib_laser',
@@ -3542,7 +3546,7 @@ ps_streamers_list = [
      'noalg_L1EM7_MU10',
      'noalg_L1EM8VH',
      'noalg_L1J100',
-     'noalg_L1J100.31ETA49',
+     #'noalg_L1J100.31ETA49',
      'noalg_L1J12',
      'noalg_L1J120',
      'noalg_L1J15',
@@ -3650,7 +3654,7 @@ ps_streamers_list = [
      'noalg_l1calo_L1EM15',
      'noalg_l1calo_L1EM7',
      'noalg_l1calo_L1J100',
-     'noalg_l1calo_L1J10031ETA49',
+     #'noalg_l1calo_L1J10031ETA49',
      'noalg_l1calo_L1J120',
      'noalg_l1calo_L1J400',
      'noalg_l1calo_L1J5031ETA49',
