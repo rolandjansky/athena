@@ -34,7 +34,7 @@ int main() {
                                       "dev/PileupReweighting/ilumicalc_histograms_HLT_e12_lhvloose_nod0_L1EM10VH_297730-304494_OflLumi-13TeV-005.root:HLT_e12_lhvloose_nod0_L1EM10VH",
                                       "dev/PileupReweighting/ilumicalc_histograms_HLT_e24_lhvloose_nod0_L1EM20VH_297730-304494_OflLumi-13TeV-005.root:HLT_e24_lhvloose_nod0_L1EM20VH"}; //feed with lc files for each trigger
   
-
+  prwTool.setProperty( "DataScaleFactor", 1/1.09 );
   prwTool.setProperty( "LumiCalcFiles" , lcFiles );
   
   
