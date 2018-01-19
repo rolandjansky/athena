@@ -231,9 +231,9 @@ namespace DerivationFramework {
         const std::vector< std::vector<TLorentzVector> > &moms = x->getParticleMoms();
 
         std::vector<xAOD::Vertex*> verticestoLink;
-        verticestoLink.push_back(cascadeVertices[1]);
+        verticestoLink.push_back(cascadeVertices[0]);
         if(Vtxwritehandles[1].ptr() == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1].ptr() is null");
-        if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[1].ptr(), cascadeVertices[0])) 
+        if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0].ptr(), cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating vertices");
 
         std::vector<const xAOD::TrackParticle*> exclTrk; exclTrk.clear();
