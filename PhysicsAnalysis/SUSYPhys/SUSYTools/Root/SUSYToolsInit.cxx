@@ -137,9 +137,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_prwTool.setTypeAndName("CP::PileupReweightingTool/PrwTool");
     ATH_CHECK( m_prwTool.setProperty("ConfigFiles", file_conf) );
     ATH_CHECK( m_prwTool.setProperty("LumiCalcFiles", file_ilumi) );
-    ATH_CHECK( m_prwTool.setProperty("DataScaleFactor",     1. / 1.09) );
-    ATH_CHECK( m_prwTool.setProperty("DataScaleFactorUP",   1.) );
-    ATH_CHECK( m_prwTool.setProperty("DataScaleFactorDOWN", 1. / 1.18) );
+    ATH_CHECK( m_prwTool.setProperty("DataScaleFactor",     m_prwDataSF) ); // 1./1.03 -> default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
+    ATH_CHECK( m_prwTool.setProperty("DataScaleFactorUP",   m_prwDataSF_UP) ); // 1. -> old value (mc15), as the one for mc16 is still missing
+    ATH_CHECK( m_prwTool.setProperty("DataScaleFactorDOWN", m_prwDataSF_DW) ); // 1./1.18 -> old value (mc15), as the one for mc16 is still missing
     ATH_CHECK( m_prwTool.setProperty("OutputLevel", MSG::WARNING) );
     ATH_CHECK( m_prwTool.retrieve() );
   } else {
@@ -993,6 +993,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauEffTool.isUserConfigured()) {
     toolName = "TauEffTool_" + m_tauId;
     m_tauEffTool.setTypeAndName("TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName);
+    ATH_CHECK( m_tauEffTool.setProperty("PileupReweightingTool",m_prwTool.getHandle()) );
 
     if (!m_tauSelTool.empty()) {
       ATH_CHECK( m_tauEffTool.setProperty("TauSelectionTool", m_tauSelTool.getHandle()) );

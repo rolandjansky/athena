@@ -33,6 +33,7 @@ ToolSvc.SUSYTools.PRWLumiCalcFiles = [
     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root",
     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160803/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"
     ]
+#ToolSvc.SUSYTools.AutoconfigurePRWTool = True
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq") #The main alg sequence
 

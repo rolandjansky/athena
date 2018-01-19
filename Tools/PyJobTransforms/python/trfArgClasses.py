@@ -695,7 +695,7 @@ class argFile(argList):
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-                    if str(filename).startswith("https") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
+                    if str(filename).startswith("https") or str(filename).startswith("davs") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
                         msg.debug('Seems that only one file was given: {0}'.format(filename))
                         newValue.extend(([filename]))
                     else:
