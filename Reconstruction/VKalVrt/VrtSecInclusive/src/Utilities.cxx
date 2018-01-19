@@ -1059,7 +1059,14 @@ namespace VKalVrtAthena {
   bool VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
   {
     
-    std::unique_ptr<ExtrapolatedPattern> exPattern( extrapolatedPattern( trk ) );
+    if( m_extrapolatedPatternBank.find( trk ) == m_extrapolatedPatternBank.end() ) {
+      
+      std::unique_ptr<ExtrapolatedPattern> exPattern( extrapolatedPattern( trk ) );
+      m_extrapolatedPatternBank.emplace( std::pair<const xAOD::TrackParticle*, std::unique_ptr<ExtrapolatedPattern> >( trk, std::move(exPattern) ) );
+      
+    }
+    
+    auto& exPattern = *( m_extrapolatedPatternBank.at( trk ) );
     
     using LayerCombination = std::vector<int>;
     
@@ -1120,9 +1127,11 @@ namespace VKalVrtAthena {
     
     uint32_t expectedHitPattern { 0 };
     
+    auto minExpectedRadius = AlgConsts::maxValue;
+    
     // Loop over extrapolated points
-    for( auto itr = exPattern->begin(); itr != exPattern->end(); ++itr ) {
-      if( std::next( itr ) == exPattern->end() ) continue;
+    for( auto itr = exPattern.begin(); itr != exPattern.end(); ++itr ) {
+      if( std::next( itr ) == exPattern.end() ) continue;
       
       const auto& point      = *itr;
       const auto& nextPoint  = *( std::next( itr ) );
@@ -1132,8 +1141,11 @@ namespace VKalVrtAthena {
       // if the front-end module is not active, then the hit is not expected.
       if( false == std::get<isActive>( point ) ) continue;
       
-      auto sectionVector = std::get<position>( nextPoint ) - std::get<position>( point );
-      auto vertexVector  = TVector3( vertex.x(), vertex.y(), vertex.z() ) - std::get<position>( point );
+      auto& thisPos = std::get<position>( point );
+      auto& nextPos = std::get<position>( nextPoint );
+      
+      auto sectionVector = nextPos - thisPos;
+      auto vertexVector  = TVector3( vertex.x(), vertex.y(), vertex.z() ) - thisPos;
       
       // if the inner product of the above two vectors is positive,
       // then point is inner than the vertex.
@@ -1143,11 +1155,14 @@ namespace VKalVrtAthena {
       if( sectionVector.Mag() == 0. ) continue;
       
       ATH_MSG_VERBOSE( " > " <<  __FUNCTION__
-                       << ": sectionVector = (" << sectionVector.x() << ", " << sectionVector.y() << ", " << sectionVector.z() << ")"
-                       << ", vertexVector = (" << vertexVector.x() << ", " << vertexVector.y() << ", " << vertexVector.z() << ")"
-                       << ", cosTheta( sectionVector, vertexVector)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
+                       << ": hitPos = (" << thisPos.Perp() << ", " << thisPos.z() << ", " << thisPos.Phi() << ")"
+                       << ", sectionVec = (" << sectionVector.Perp() << ", " << sectionVector.z() << ", " << sectionVector.Phi() << ")"
+                       << ", vertexVec = (" << vertexVector.Perp() << ", " << vertexVector.z() << ", " << vertexVector.Phi() << ")"
+                       << ", cos(s,v)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
       
       if( sectionVector * vertexVector > 0. ) continue;
+      
+      if( minExpectedRadius > thisPos.Perp() ) minExpectedRadius = thisPos.Perp();
       
       // now, the hit is expected to present.
       
@@ -1162,21 +1177,63 @@ namespace VKalVrtAthena {
       }
     }
     
+    // If the first expected point's radius is smaller than the vertex radius,
+    // it's the case that the vertex was reconstructed in the opposite phi-direction
+    // to the track outgoing direction. Such a case should be rejected.
+    bool oppositeFlag = ( minExpectedRadius < vertex.perp() );
+    
+    std::vector<unsigned> expectedLayers;
+    std::vector<unsigned> recordedLayers;
+    
     std::string msg = "Expected hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( expectedHitPattern >> i ) & 1 );
+      if( ( expectedHitPattern >> i ) & 1 ) expectedLayers.emplace_back( i );
     }
-    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
     
     msg = "Recorded hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( trk->hitPattern() >> i ) & 1 );
+      if( ( trk->hitPattern() >> i ) & 1 ) recordedLayers.emplace_back( i );
     }
-    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": " << msg );
     
-    exPattern->clear();
+    uint8_t PixelHits = 0;
+    uint8_t SctHits   = 0; 
+    uint8_t TRTHits   = 0;
+    if( !(trk->summaryValue( PixelHits, xAOD::numberOfPixelHits ) ) ) PixelHits =0;
+    if( !(trk->summaryValue( SctHits,   xAOD::numberOfSCTHits   ) ) ) SctHits   =0;
+    if( !(trk->summaryValue( TRTHits,   xAOD::numberOfTRTHits   ) ) ) TRTHits   =0;
     
-    return ( expectedHitPattern == trk->hitPattern() );
+    auto dphi = trk->phi() - vertex.phi();
+    while( dphi >  TMath::Pi() ) dphi -= TMath::TwoPi();
+    while( dphi < -TMath::Pi() ) dphi += TMath::TwoPi();
+    
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": vtx phi = " << vertex.phi() << ", track phi = " << trk->phi() << ", dphi = " << dphi
+                   << ", oppositeFlag = " << oppositeFlag
+                   << ", nPixelHits = " << static_cast<int>(PixelHits)
+                   << ", nSCTHits = " << static_cast<int>(SctHits)
+                   << ", nTRTHits = " << static_cast<int>(TRTHits) );
+    
+    // Sometimes the vertex is reconstructed at the opposite phi direction.
+    // In this case, the pattern match may pass.
+    // This can be avoided by requiring that the 
+    if( oppositeFlag ) return false;
+    
+    // Requires the first 2 layers with the hit matches.
+    if( expectedLayers.size() < 2 || recordedLayers.size() < 2 ) return false;
+    
+    if( recordedLayers.at(0) >= Trk::sctEndCap0 && recordedLayers.size() < 5 ) return false;
+    if( recordedLayers.at(0) >= Trk::sctBarrel1 && SctHits < 6 ) return false;
+    
+    if( fabs( dphi ) > TMath::Pi()/2.0 ) return false;
+    
+    TVector3 trkP; trkP.SetPtEtaPhi( trk->pt(), trk->eta(), trk->phi() );
+    TVector3 vtx; vtx.SetXYZ( vertex.x(), vertex.y(), vertex.z() );
+    if( trkP.Dot( vtx ) < 0. ) return false;
+    
+    return ( expectedLayers.at(0) == recordedLayers.at(0) && expectedLayers.at(1) == recordedLayers.at(1) );
   }
     
 

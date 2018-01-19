@@ -303,6 +303,8 @@ namespace VKalVrtAthena {
     using ExtrapolatedPoint   = std::tuple<const TVector3, Detector, Bec, Layer, Flag>;
     using ExtrapolatedPattern = std::vector< ExtrapolatedPoint >;
     
+    std::map<const xAOD::TrackParticle*, std::unique_ptr<ExtrapolatedPattern> > m_extrapolatedPatternBank;
+    
     std::vector< std::pair<int, int> > m_incomp;
     
     

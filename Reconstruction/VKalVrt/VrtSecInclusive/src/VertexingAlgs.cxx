@@ -879,7 +879,8 @@ namespace VKalVrtAthena {
         if( fabs( impactParameters.at(k_z0) ) / sqrt( impactParErrors.at(2) ) > m_jp.associateMaxZ0Signif ) continue;
         
         // Hit pattern consistentcy requirement
-        if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, vertexPos ) ) continue;
+        // Due to CPU performance, here the "Classical" approach is taken.
+        if( ! ( this->*m_patternStrategyFuncs["Classical"] )( trk, vertexPos ) ) continue;
         
         ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": trk " << trk
                        << ": d0 to vtx = " << impactParameters.at(k_d0)
