@@ -875,8 +875,8 @@ namespace VKalVrtAthena {
         
         enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
         
-        if( fabs( impactParameters.at(k_d0) ) > m_jp.associateMaxD0 ) continue;
-        if( fabs( impactParameters.at(k_z0) ) > m_jp.associateMaxZ0 ) continue;
+        if( fabs( impactParameters.at(k_d0) ) / sqrt( impactParErrors.at(0) ) > m_jp.associateMaxD0Signif ) continue;
+        if( fabs( impactParameters.at(k_z0) ) / sqrt( impactParErrors.at(2) ) > m_jp.associateMaxZ0Signif ) continue;
         
         // Hit pattern consistentcy requirement
         if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, vertexPos ) ) continue;

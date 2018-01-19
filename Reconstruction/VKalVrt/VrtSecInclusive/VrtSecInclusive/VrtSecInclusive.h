@@ -182,8 +182,8 @@ namespace VKalVrtAthena {
       
       
       double associateMinDistanceToPV;
-      double associateMaxD0;
-      double associateMaxZ0;
+      double associateMaxD0Signif;
+      double associateMaxZ0Signif;
       double associatePtCut;
       double associateChi2Cut;
       

@@ -716,8 +716,8 @@ namespace VKalVrtAthena {
     declareProperty("VertexMergeCut",                  m_jp.VertexMergeCut                  = 3                             );
     declareProperty("TrackDetachCut",                  m_jp.TrackDetachCut                  = 6                             );
     declareProperty("associateMinDistanceToPV",        m_jp.associateMinDistanceToPV        = 1.                            );
-    declareProperty("associateMaxD0",                  m_jp.associateMaxD0                  = 1.                            ); // wrt. DV in [mm]
-    declareProperty("associateMaxZ0",                  m_jp.associateMaxZ0                  = 3.                            ); // wrt. DV in [mm]
+    declareProperty("associateMaxD0Signif",            m_jp.associateMaxD0Signif            = 3.                            ); // wrt. DV in unit of sigma
+    declareProperty("associateMaxZ0Signif",            m_jp.associateMaxZ0Signif            = 3.                            ); // wrt. DV in unit of sigma
     declareProperty("associatePtCut",                  m_jp.associatePtCut                  = 0.                            ); // in [MeV]
     declareProperty("associateChi2Cut",                m_jp.associateChi2Cut                = 20.                           );
     declareProperty("reassembleMaxImpactParameterD0",  m_jp.reassembleMaxImpactParameterD0  = 1.                            ); // wrt. DV in [mm]
