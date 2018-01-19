@@ -1779,10 +1779,10 @@ class ItemDef:
                     if '_v7' in TriggerFlags.triggerMenuSetup() or '_PhaseII' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_BPH-0M9-EM7-EM5'      ).setLogic( TOPO_0INVM9_EM7ab_EMab & physcond)     # noqa: F821
                         LVL1MenuItem('L1_BPH-0DR4-EM7J15').setLogic( TOPO_0DR04_EM7ab_CJ15ab & physcond)    # noqa: F821
-                        LVL1MenuItem('L1_MU6_BPH-0M9-EM7-EM5'      ).setLogic( MU6 & TOPO_0INVM9_EM7ab_EMab & physcond)     # noqa: F821
-                        LVL1MenuItem('L1_MU6_BPH-0DR4-EM7J15').setLogic(  MU6 &TOPO_0DR04_EM7ab_CJ15ab & physcond)    # noqa: F821
-                        LVL1MenuItem('L1_2MU4_BPH-0M9-EM7-EM5'      ).setLogic( MU4.x(2) & TOPO_0INVM9_EM7ab_EMab & physcond)     # noqa: F821
-                        LVL1MenuItem('L1_2MU4_BPH-0DR4-EM7J15').setLogic( MU4.x(2) & TOPO_0DR04_EM7ab_CJ15ab & physcond)    # noqa: F821
+                        LVL1MenuItem('L1_BPH-0M9-EM7-EM5_MU6'      ).setLogic( MU6 & TOPO_0INVM9_EM7ab_EMab & physcond)     # noqa: F821
+                        LVL1MenuItem('L1_BPH-0DR4-EM7J15_MU6').setLogic(  MU6 &TOPO_0DR04_EM7ab_CJ15ab & physcond)    # noqa: F821
+                        LVL1MenuItem('L1_BPH-0M9-EM7-EM5_2MU4'      ).setLogic( MU4.x(2) & TOPO_0INVM9_EM7ab_EMab & physcond)     # noqa: F821
+                        LVL1MenuItem('L1_BPH-0DR4-EM7J15_2MU4').setLogic( MU4.x(2) & TOPO_0DR04_EM7ab_CJ15ab & physcond)    # noqa: F821
     #SX end ATR-12789
 
                     LVL1MenuItem('L1_LATE-MU10_XE50').setLogic( TOPO_LATE_MU10s1 & XE50 & physcond)  # noqa: F821
