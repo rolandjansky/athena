@@ -65,6 +65,7 @@ class IBTaggingSelectionTool;
 
 class IMETMaker;
 class IMETSystematicsTool;
+class IMETSignificance;
 
 namespace CP {
   class IMuonSelectionTool;
@@ -168,6 +169,17 @@ namespace ST {
 			   // const xAOD::PhotonContainer* gamma = 0,
 			   // const xAOD::TauJetContainer* taujet = 0,
 			   ) override final;
+
+    StatusCode GetMETSig(xAOD::MissingETContainer& met,
+                      double& metSignificance,
+		      const xAOD::JetContainer* jet,
+                      const xAOD::ElectronContainer* elec = 0,
+                      const xAOD::MuonContainer* muon = 0,
+                      const xAOD::PhotonContainer* gamma = 0,
+                      const xAOD::TauJetContainer* taujet = 0,
+                      bool doTST = true, bool doJVTCut = true,
+		      const xAOD::IParticleContainer* invis = 0 
+		      ) override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
@@ -452,6 +464,10 @@ namespace ST {
     bool m_trkMETsyst;
     bool m_caloMETsyst;
 
+    int m_softTermParam;
+    bool m_treatPUJets;
+    bool m_doPhiReso;
+
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
     double m_muUncert;
@@ -668,6 +684,7 @@ namespace ST {
     //
     asg::AnaToolHandle<IMETMaker> m_metMaker;
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
+    asg::AnaToolHandle<IMETSignificance> m_metSignif;
     //
     asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigConfTool;
     asg::AnaToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
