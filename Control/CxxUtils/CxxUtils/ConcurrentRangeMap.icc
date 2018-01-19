@@ -64,6 +64,9 @@ CONCURRENTRANGEMAP::Impl::capacity() const
 }
 
 
+/***
+ * @brief Queue a payload object for deletion.
+ */
 T_CONCURRENTRANGEMAP
 void
 CONCURRENTRANGEMAP::Impl::discard (const T* p)
@@ -72,6 +75,13 @@ CONCURRENTRANGEMAP::Impl::discard (const T* p)
 }
 
 
+/**
+ * @brief Constructor.
+ * @param updater Object used to manage memory
+ *                (see comments at the start of the class).
+ * @param capacity Initial capacity of the map.
+ * @param compare Comparison object.
+ */
 T_CONCURRENTRANGEMAP
 CONCURRENTRANGEMAP::ConcurrentRangeMap (Updater_t&& updater,
                                         size_t capacity /*= 16*/,
@@ -204,10 +214,12 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
 
   // Install the new implementation.
   m_impl = new_impl.get();
-  m_updater.update (std::move (new_impl), ctx);
 
   // Make the update visible to other threads.
+  // Make sure not to add the old version to the garbage list before
+  // we've updated the pointers.
   updatePointers (new_begin, new_end);
+  m_updater.update (std::move (new_impl), ctx);
 }
 
 
@@ -268,10 +280,12 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
 
   // Install the new implementation.
   m_impl = new_impl.get();
-  m_updater.update (std::move (new_impl), ctx);
 
   // Make the update visible to other threads.
+  // Make sure not to add the old version to the garbage list before
+  // we've updated the pointers.
   updatePointers (new_begin, new_end);
+  m_updater.update (std::move (new_impl), ctx);
 }
 
 
