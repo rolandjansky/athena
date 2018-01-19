@@ -112,8 +112,6 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
 #
 FTAG2Seq += CfgMgr.BTagVertexAugmenter()
 for jc in ["AntiKt4EMTopoJets"]:
-    if 'Truth' in jc:
-        continue
     FTAG2Seq += CfgMgr.BTagTrackAugmenter(
         "BTagTrackAugmenter_" + jc,
         OutputLevel=INFO,
