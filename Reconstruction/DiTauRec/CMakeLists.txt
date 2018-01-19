@@ -24,8 +24,6 @@ if( NOT XAOD_STANDALONE )
     Reconstruction/tauRecTools
     Tracking/TrkEvent/TrkParametersIdentificationHelpers )
   
-# External dependencies:
-find_package( FastJet )
 
 else()
 atlas_depends_on_subdirs( PUBLIC
@@ -46,6 +44,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParametersIdentificationHelpers )
 endif()
 
+# External dependencies:
+find_package( FastJet )
+
+if( XAOD_STANDALONE)
 atlas_add_root_dictionary( DiTauRec DiTauRecLibCintDict
   ROOT_HEADERS
   DiTauRec/ILepHadBuilder.h
@@ -54,7 +56,7 @@ atlas_add_root_dictionary( DiTauRec DiTauRecLibCintDict
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )
-
+endif()
 
 # Component(s) in the package:
 
