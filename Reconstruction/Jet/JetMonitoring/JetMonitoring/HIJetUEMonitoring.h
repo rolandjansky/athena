@@ -31,16 +31,16 @@ class HIJetUEMonitoring : public JetHistoBase {
   //  virtual int getEventShape();
 
  private:
-  std::string container_key;
+  std::string m_container_key;
   const xAOD::HIEventShapeContainer* m_eventShape;
-  const xAOD::Jet* refContainer;
+  const xAOD::Jet* m_refContainer;
 
   /// Centrality
   float m_FCalET;
   float m_psiN_FCal;
   float m_vN_fcal;
-  unsigned int n;
-  unsigned int harmonic;
+  unsigned int m_n;
+  unsigned int m_harmonic;
   float m_ptcut=60.0;
 
  protected:
