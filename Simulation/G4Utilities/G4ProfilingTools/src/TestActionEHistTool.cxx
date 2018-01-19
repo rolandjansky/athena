@@ -11,7 +11,7 @@ namespace G4UA
   TestActionEHistTool::TestActionEHistTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent)
-    : ActionToolBase<TestActionEHist>(type, name, parent)
+    : UserActionToolBase<TestActionEHist>(type, name, parent)
   {
     declareProperty("ROOTFileName",m_config.name);
     declareProperty("CaloDepth",m_config.dCALO);
@@ -22,31 +22,15 @@ namespace G4UA
     declareProperty("DetailDepth",m_config.dDetail);
   }
 
-  std::unique_ptr<TestActionEHist> TestActionEHistTool::makeAction()
+  std::unique_ptr<TestActionEHist>
+  TestActionEHistTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a TestActionEHist");
     auto action = CxxUtils::make_unique<TestActionEHist>(m_config);
-    return std::move(action);
-  }
-
-  StatusCode TestActionEHistTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-    if(riid == IG4TrackingActionTool::interfaceID()) {
-      *ppvIf = (IG4TrackingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4RunActionTool::interfaceID()) {
-      *ppvIf = (IG4RunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<TestActionEHist>::queryInterface(riid, ppvIf);
+    actionList.runActions.push_back( action.get() );
+    actionList.trackingActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

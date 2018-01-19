@@ -23,7 +23,8 @@ using std::vector;
 namespace G4UA
 {
 
- // Formats print string for timer output
+  //----------------------------------------------------------------------------
+  // Formats print string for timer output
   inline std::string vPrFmt (double time, double nEv, double tRun, int depth, std::string id)
   {
     std::string dprnt = stringify(depth);
@@ -37,10 +38,11 @@ namespace G4UA
   typedef std::map<VolTree, TestActionVPTimer::volumeData> VolMap;
   typedef VolMap::const_iterator VolIt;
 
+  //----------------------------------------------------------------------------
   TestActionVPTimerTool::TestActionVPTimerTool(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent)
-    : ActionToolBaseReport<TestActionVPTimer>(type, name, parent)
+    : UserActionToolBase<TestActionVPTimer>(type, name, parent)
   {
     declareProperty("CaloDepth",m_config.dCALO);
     declareProperty("BeamPipeDepth",m_config.dBeam);
@@ -49,40 +51,30 @@ namespace G4UA
     declareProperty("DetailDepth",m_config.dDetail);
   }
 
-  std::unique_ptr<TestActionVPTimer> TestActionVPTimerTool::makeAction()
+  //----------------------------------------------------------------------------
+  std::unique_ptr<TestActionVPTimer>
+  TestActionVPTimerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a TestActionVPTimer");
     auto action = CxxUtils::make_unique<TestActionVPTimer>(m_config);
-    return std::move(action);
+    actionList.runActions.push_back( action.get() );
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
-  StatusCode TestActionVPTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4RunActionTool::interfaceID()) {
-      *ppvIf = (IG4RunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<TestActionVPTimer>::queryInterface(riid, ppvIf);
-  }
-
+  //----------------------------------------------------------------------------
   StatusCode TestActionVPTimerTool::finalize()
   {
-    for(auto tidAction : this->actions()) {
-      ((G4UserRunAction*)tidAction.second)->EndOfRunAction(0);
-    }
+    // We shouldn't need this. End-run actions should be called by Geant4.
+    // I'll leave this here, commented out for now, for reference.
+    //for(auto& tidAction : m_actions) {
+    //  ((G4UserRunAction*)tidAction.second)->EndOfRunAction(0);
+    //}
 
-    mergeReports();
+    // Accumulate results across threads
+    m_actions.accumulate(m_report, &TestActionVPTimer::getReport,
+                         &TestActionVPTimer::Report::merge);
 
     if(m_report.time_index.size()){
 
@@ -125,9 +117,11 @@ namespace G4UA
 
       } else { ATH_MSG_WARNING("******* No events timed! *******"); }
     } else { ATH_MSG_WARNING("******* No Timing information recorded! *******"); }
-      return StatusCode::SUCCESS;
+
+    return StatusCode::SUCCESS;
   }
 
+  //----------------------------------------------------------------------------
   void TestActionVPTimerTool::TreeOut(VolTree id, const double tAtlas, int depth)
   {
     VolIt v = m_report.time_index.find(id);
@@ -140,9 +134,9 @@ namespace G4UA
       }
       TimerPrint(*v, tAtlas, depth);
     }
-    return;
   }
 
+  //----------------------------------------------------------------------------
   // Prints information about time by particle type and volume (modify to suit)
   inline void TestActionVPTimerTool::TimerPrint(std::pair<VolTree, TestActionVPTimer::volumeData> vp,
                                                 const double tTotal, const int depth) const
@@ -160,7 +154,6 @@ namespace G4UA
 
     double tOther = vp.second.tTotal - vp.second.tElectron - vp.second.tPhoton - vp.second.tNeutron - vp.second.tPion;
     ATH_MSG_INFO(vPrFmt(tOther, m_report.nev, m_report.runTime, depth-1, " - other particles") );
-    return;
   }
 
 } // namespace G4UA
