@@ -316,6 +316,8 @@ for xmlfile in $FILES; do
          [ -e $outfile.bak  ]   && rm $outfile.bak
       fi
 
+      chmod 755 $outfile
+
     fi
 
 done
