@@ -796,7 +796,7 @@ namespace VKalVrtAthena {
     const xAOD::VertexContainer *pvs (nullptr);
     ATH_CHECK( evtStore()->retrieve( pvs, "PrimaryVertices") );
     
-    static SG::AuxElement::Decorator<char> decor_isAssociated( "is_associated" );
+    static SG::AuxElement::Decorator<char> decor_isAssociated( "is_associated" + m_jp.augVerString );
     
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": #verticess = " << workVerticesContainer->size() );
     
@@ -1158,17 +1158,17 @@ namespace VKalVrtAthena {
     enum { kPt, kEta, kPhi, kD0, kZ0, kErrP, kErrD0, kErrZ0, kChi2SV };
     static std::map< unsigned, SG::AuxElement::Decorator<float> > trkDecors
     {
-       { kPt,     SG::AuxElement::Decorator<float>("pt_wrtSV")    },
-       { kEta,    SG::AuxElement::Decorator<float>("eta_wrtSV")   }, 
-       { kPhi,    SG::AuxElement::Decorator<float>("phi_wrtSV")   },
-       { kD0,     SG::AuxElement::Decorator<float>("d0_wrtSV")    },
-       { kZ0,     SG::AuxElement::Decorator<float>("z0_wrtSV")    },
-       { kErrP,   SG::AuxElement::Decorator<float>("errP_wrtSV")  },
-       { kErrD0,  SG::AuxElement::Decorator<float>("errd0_wrtSV") },
-       { kErrZ0,  SG::AuxElement::Decorator<float>("errz0_wrtSV") },
-       { kChi2SV, SG::AuxElement::Decorator<float>("chi2_toSV")   }
+       { kPt,     SG::AuxElement::Decorator<float>("pt_wrtSV"    + m_jp.augVerString) },
+       { kEta,    SG::AuxElement::Decorator<float>("eta_wrtSV"   + m_jp.augVerString) }, 
+       { kPhi,    SG::AuxElement::Decorator<float>("phi_wrtSV"   + m_jp.augVerString) },
+       { kD0,     SG::AuxElement::Decorator<float>("d0_wrtSV"    + m_jp.augVerString) },
+       { kZ0,     SG::AuxElement::Decorator<float>("z0_wrtSV"    + m_jp.augVerString) },
+       { kErrP,   SG::AuxElement::Decorator<float>("errP_wrtSV"  + m_jp.augVerString) },
+       { kErrD0,  SG::AuxElement::Decorator<float>("errd0_wrtSV" + m_jp.augVerString) },
+       { kErrZ0,  SG::AuxElement::Decorator<float>("errz0_wrtSV" + m_jp.augVerString) },
+       { kChi2SV, SG::AuxElement::Decorator<float>("chi2_toSV"   + m_jp.augVerString) }
     };
-    static SG::AuxElement::Decorator<char> decor_svtrk( "is_svtrk_final" );
+    static SG::AuxElement::Decorator<char> decor_svtrk( "is_svtrk_final" + m_jp.augVerString );
 
     std::map<const WrkVrt*, const xAOD::Vertex*> wrkvrtLinkMap;
     
@@ -1360,8 +1360,8 @@ namespace VKalVrtAthena {
         mult_total++;
         
         // for selected tracks only
-        if( trk->isAvailable<char>("is_selected") ) {
-          if( trk->auxdataConst<char>("is_selected") ) {
+        if( trk->isAvailable<char>("is_selected" + m_jp.augVerString ) ) {
+          if( trk->auxdataConst<char>("is_selected" + m_jp.augVerString ) ) {
             vsum_selected += trk->p4();
             mult_selected++;
           }

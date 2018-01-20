@@ -112,6 +112,7 @@ namespace VKalVrtAthena {
       std::string          PrimVrtLocation;
       std::string          truthParticleContainerName;
       std::string          mcEventContainerName;
+      std::string          augVerString;
       
       std::string all2trksVerticesContainerName;
       std::string secondaryVerticesContainerName;

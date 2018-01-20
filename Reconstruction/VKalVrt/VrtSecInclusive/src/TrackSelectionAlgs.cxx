@@ -99,7 +99,7 @@ namespace VKalVrtAthena {
     //
     
 
-    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
+    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" + m_jp.augVerString );
 
     // Setup cut functions
     using cutFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle* ) const;
@@ -190,7 +190,7 @@ namespace VKalVrtAthena {
     const xAOD::MuonContainer* muons ( nullptr );
     ATH_CHECK( evtStore()->retrieve( muons, "Muons") );
     
-    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
+    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" + m_jp.augVerString );
     
     for( const auto& muon : *muons ) {
       const auto& primaryTrackLink = muon->primaryTrackParticleLink();
@@ -210,7 +210,7 @@ namespace VKalVrtAthena {
     const xAOD::ElectronContainer *electrons( nullptr );
     ATH_CHECK( evtStore()->retrieve( electrons, "Electrons" ) );
     
-    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
+    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" + m_jp.augVerString );
     
     for( const auto& electron : *electrons ) {
       if( 0 == electron->nTrackParticles() ) continue;

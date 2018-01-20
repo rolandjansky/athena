@@ -654,6 +654,7 @@ namespace VKalVrtAthena {
     declareProperty("PrimVrtLocation",                 m_jp.PrimVrtLocation                 = "PrimaryVertices"             );
     declareProperty("McParticleContainer",             m_jp.truthParticleContainerName      = "TruthParticles"              );
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );
+    declareProperty("AugmentingVersionString",         m_jp.augVerString                    = ""                            );
     
     declareProperty("All2trkVerticesContainerName",    m_jp.all2trksVerticesContainerName   = "All2TrksVertices"            );
     declareProperty("SecondaryVerticesContainerName",  m_jp.secondaryVerticesContainerName  = "SecondaryVertices"           );
@@ -932,6 +933,7 @@ namespace VKalVrtAthena {
     std::set<long int> usedTracks;
     
     auto concatenateVectorToString = []( auto vector ) -> std::string {
+      if( 0 == vector.size() ) return "";
       return std::accumulate( std::next(vector.begin()), vector.end(), std::to_string( vector.at(0) ),
                               []( std::string str, auto& index ) { return str + ", " + std::to_string(index); } );
     };

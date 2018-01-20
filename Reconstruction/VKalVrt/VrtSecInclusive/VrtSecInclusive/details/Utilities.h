@@ -112,19 +112,19 @@ namespace VKalVrtAthena {
     ATH_CHECK( evtStore()->retrieve( leptonContainer, containerName ) );
     
     using IPDecoratorType = SG::AuxElement::Decorator< std::vector< std::vector<float> > >;
-    static IPDecoratorType decor_d0wrtSV    ( "d0_wrtSVs" );
-    static IPDecoratorType decor_z0wrtSV    ( "z0_wrtSVs" );
-    static IPDecoratorType decor_ptwrtSV    ( "pt_wrtSVs" );
-    static IPDecoratorType decor_etawrtSV   ( "eta_wrtSVs" );
-    static IPDecoratorType decor_phiwrtSV   ( "phi_wrtSVs" );
-    static IPDecoratorType decor_d0errWrtSV ( "d0err_wrtSVs" );
-    static IPDecoratorType decor_z0errWrtSV ( "z0err_wrtSVs" );
+    static IPDecoratorType decor_d0wrtSV    ( "d0_wrtSVs"    + m_jp.augVerString );
+    static IPDecoratorType decor_z0wrtSV    ( "z0_wrtSVs"    + m_jp.augVerString );
+    static IPDecoratorType decor_ptwrtSV    ( "pt_wrtSVs"    + m_jp.augVerString );
+    static IPDecoratorType decor_etawrtSV   ( "eta_wrtSVs"   + m_jp.augVerString );
+    static IPDecoratorType decor_phiwrtSV   ( "phi_wrtSVs"   + m_jp.augVerString );
+    static IPDecoratorType decor_d0errWrtSV ( "d0err_wrtSVs" + m_jp.augVerString );
+    static IPDecoratorType decor_z0errWrtSV ( "z0err_wrtSVs" + m_jp.augVerString );
     
     // Grouping decorators
     std::vector< IPDecoratorType > decor_ipWrtSVs { decor_d0wrtSV, decor_z0wrtSV, decor_ptwrtSV, decor_etawrtSV, decor_phiwrtSV, decor_d0errWrtSV, decor_z0errWrtSV };
     enum { k_ip_d0, k_ip_z0, k_ip_pt, k_ip_eta, k_ip_phi, k_ip_d0err, k_ip_z0err };
     
-    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
+    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink( "svLinks" + m_jp.augVerString );
     
     // Loop over leptons
     for( const auto& lepton : *leptonContainer ) {
