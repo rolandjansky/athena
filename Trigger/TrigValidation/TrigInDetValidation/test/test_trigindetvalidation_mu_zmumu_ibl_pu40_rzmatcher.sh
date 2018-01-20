@@ -24,7 +24,7 @@ fileList="['${ArtInFile//,/', '}']"
 echo "List of files = $fileList"
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
-athena.py  -c 'ARTConfig=$fileList;EventMax=5000;PdgId=13'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
+athena.py  -c "ARTConfig=$fileList;EventMax=5000;PdgId=13"             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
 echo "art-result: $? athena_0"
 
 get_files -data TIDAdata11-rtt-rzMatcher.dat

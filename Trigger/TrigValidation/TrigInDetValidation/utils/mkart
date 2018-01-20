@@ -176,7 +176,7 @@ for xmlfile in $FILES; do
  
 #        echo  "athena.py  -c 'import glob;from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.FilesInput=glob.glob(\"$DATASET/*\");$cmdlineflags' $joboptions.py" >> $outfile
 #        echo  "athena.py  -c 'ARTConfig=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
-         echo  "athena.py  -c 'ARTConfig=\$fileList;$cmdlineflags' $joboptions.py" >> $outfile
+         echo  "athena.py  -c \"ARTConfig=\$fileList;$cmdlineflags\" $joboptions.py" >> $outfile
 
 	 echo  "echo \"art-result: \$? athena_$COUNTER\"" >> $outfile
 	 echo  "" >> $outfile

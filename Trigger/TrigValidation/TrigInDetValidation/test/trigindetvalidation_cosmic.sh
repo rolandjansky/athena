@@ -8,7 +8,7 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258_tid05313290_00
+# art-input:  mc14_cos.108865.CosSimPixVolSolOnTorOn.recon.RDO.s2111_r6258
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
@@ -23,7 +23,7 @@ fileList="['${ArtInFile//,/', '}']"
 echo "List of files = $fileList"
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_CosmicSlice.py
-athena.py  -c 'ARTConfig=$fileList;EventMax=10000;'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_CosmicSlice.py
+athena.py  -c "ARTConfig=$fileList;EventMax=10000;"             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_CosmicSlice.py
 echo "art-result: $? athena_0"
 
 get_files -data TIDAcosmic-rtt.dat

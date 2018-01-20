@@ -24,7 +24,7 @@ fileList="['${ArtInFile//,/', '}']"
 echo "List of files = $fileList"
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py
-athena.py  -c 'ARTConfig=$fileList;EventMax=10000;doFTK=True'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py
+athena.py  -c "ARTConfig=$fileList;EventMax=10000;doFTK=True"             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py
 echo "art-result: $? athena_0"
 
 get_files -data TIDAdata11-rtt.dat

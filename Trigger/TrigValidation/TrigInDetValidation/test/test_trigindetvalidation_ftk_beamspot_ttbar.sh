@@ -23,7 +23,7 @@ fileList="['${ArtInFile//,/', '}']"
 echo "List of files = $fileList"
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice.py
-athena.py  -c 'ARTConfig=$fileList;EventMax=2000;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)'             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice.py
+athena.py  -c "ARTConfig=$fileList;EventMax=2000;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)"             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice.py
 echo "art-result: $? athena_0"
 
 get_files -data TIDAdata11-rtt.dat
