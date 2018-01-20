@@ -171,7 +171,7 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
         if (m_seed == 0) {
             std::unique_ptr<TMD5> tmd=CxxUtils::make_unique<TMD5>();
             const char* tmd_as_string=tmd->FileChecksum(fname.get())->AsString();
-            m_seed = *reinterpret_cast<const int*>(tmd_as_string);
+            m_seed = *(reinterpret_cast<const unsigned long int*>(tmd_as_string));
             ATH_MSG_INFO("Seed (automatically) set to " << m_seed);
         }else {
             ATH_MSG_INFO("Seed set to " << m_seed);
