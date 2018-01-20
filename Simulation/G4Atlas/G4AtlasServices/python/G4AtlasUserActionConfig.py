@@ -60,7 +60,7 @@ def getDefaultActions():
     # Cosmic filter
     if flag_on('StoppedParticleFile') or (
        beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
-        defaultUA += ['G4UA::G4CosmicFilterTool']
+        actions += ['G4UA::G4CosmicFilterTool']
     # Stopped particle action
     if flag_on('StoppedParticleFile'):
         actions += ['G4UA::StoppedParticleActionTool']
@@ -72,7 +72,7 @@ def getDefaultActions():
         actions += ['G4UA::PhotonKillerTool']
     # Calo calibration default processing
     if simFlags.CalibrationRun == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
+        actions+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
 
     return actions
 
