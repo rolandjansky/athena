@@ -46,7 +46,7 @@ namespace mapkey{
         sys=5
 
     };
-    std::string keytostring (int input){
+    const char* keytostring (int input){
         switch(input){
         case(sf) : 
             return "sf";

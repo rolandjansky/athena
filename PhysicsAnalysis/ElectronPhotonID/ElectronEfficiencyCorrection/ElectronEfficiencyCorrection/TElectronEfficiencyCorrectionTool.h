@@ -160,19 +160,15 @@ namespace Root {
         std::vector< unsigned int > m_begRunNumberListFastSim;
         /// List of run numbers where histgrams stop being valid for fast simulation
         std::vector< unsigned int > m_endRunNumberListFastSim;    
+        //The vector holding the keys
+        std::vector<int> m_keys;
         /// List of histograms for full Geant4 simulation
         std::map<int, std::vector< TObjArray > > m_histList;
         std::vector< std::vector< TObjArray > > m_sysList;
         /// List of histograms for fast simulation
         std::map<int, std::vector< TObjArray > > m_fastHistList;
         std::vector< std::vector< TObjArray > > m_fastSysList;
-        /// The positions of the efficiency scale factor correlated systematics uncertainties in the result
-        std::vector<int> m_position_corrSys; 
-        /// The positions of the toy MC scale factors
-        std::vector<int> m_position_uncorrToyMCSF; 
-        ///The vector holding the keys
-        std::vector<int> m_keys;
-
+     
         TRandom3 m_Rndm;
     }; // End: class definition
 
