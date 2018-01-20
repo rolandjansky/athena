@@ -4,32 +4,25 @@
 
 // System include(s):
 #include <memory>
-#include <cstdlib>
-#include <iomanip>
 #include <string>
-#include <numeric>
 // ROOT include(s):
 #include <TFile.h>
 #include <TString.h>
-
 // Infrastructure include(s):
 #ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
 #endif // ROOTCORE
-
 //Asg includes
 #include "PATInterfaces/SystematicsUtil.h"
 #include "PATInterfaces/MakeSystematicsVector.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
-
 //Local includes
 #include "Messaging.h"
 #include "CreateDummyEl.h"
 //
 #include <boost/program_options.hpp>
-
 
 int main( int argc, char* argv[] ) {
     xAOD::TReturnCode::enableFailure();
@@ -255,7 +248,7 @@ int main( int argc, char* argv[] ) {
         totalNeg=sqrt(variance);
         totalPos=sqrt(variance);
     }
-    MSG_INFO("===> " <<model << " : SF = "<< nominalSF << " + " << totalPos << " - " <<totalNeg );
+   MSG_INFO("===> " <<model << " : SF = "<< nominalSF << " + " << totalPos << " - " <<totalNeg );
     return 0;
 }
 

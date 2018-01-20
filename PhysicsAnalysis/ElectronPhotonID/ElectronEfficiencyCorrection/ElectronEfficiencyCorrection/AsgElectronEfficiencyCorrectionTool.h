@@ -15,24 +15,21 @@
    @date   May 2014
 */
 class TH2F;
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 // STL includes
 #include <vector>
 #include <string>
 #include <iterator>
 #include <map>
 #include <unordered_map>
-// Include the return object and the underlying ROOT tool
-#include "PATCore/TResult.h"
-#include "AthContainers/AuxElement.h"
-//xAOD includes
-#include "AsgTools/AsgTool.h"
+//PAT includes
 #include "AsgTools/AsgMetadataTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
-
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
+// Include the underlying ROOT tool
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
+//xAOD includes
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
