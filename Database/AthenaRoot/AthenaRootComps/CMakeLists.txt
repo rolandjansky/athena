@@ -44,7 +44,7 @@ atlas_add_component( AthenaRootComps
 atlas_install_headers( AthenaRootComps )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/tests/*.py )
-atlas_install_scripts( test/*.sh test/ref.* )
+atlas_install_scripts( test/*.sh test/ref.* test/*.py )
 
 
 atlas_add_test( test_athena_ntuple_dumper_multiple
@@ -94,5 +94,12 @@ set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
                       PROPERTIES DEPENDS
                       "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
                     
-
-
+atlas_add_test( test_athena_multtuple
+                SCRIPT test/test_athena_multtuple.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+                    
+atlas_add_test( test_athena_multtuple_seek
+                SCRIPT test/test_athena_multtuple_seek.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
