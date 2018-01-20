@@ -105,20 +105,15 @@ StatusCode MDT_DQConditionsSvc::finalize()
 
 StatusCode MDT_DQConditionsSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endmsg;
   if(IMDT_DQConditionsSvc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::INFO) << "versionMatch=true" << endmsg;
       *ppvIF = this;
     }else if ( IMDTConditionsSvc::interfaceID().versionMatch(riid) ){
       *ppvIF = dynamic_cast<IMDTConditionsSvc*>(this);
-      msg(MSG::INFO) << "service cast***************************" << endmsg;
       
     } else {
-      msg(MSG::INFO) << "cannot find the interface!" << endmsg;
       return AthService::queryInterface(riid, ppvIF);
     }
-  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   //addRef();  // is this needed ??
   return StatusCode::SUCCESS;
 }
