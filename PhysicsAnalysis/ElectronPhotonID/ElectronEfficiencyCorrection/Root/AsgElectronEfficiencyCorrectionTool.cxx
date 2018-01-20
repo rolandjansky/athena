@@ -9,36 +9,25 @@
 
 // Include this class's header
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
-#include "PathResolver/PathResolver.h"
-
-// STL includes
+// Library includes
 #include <string>
 #include <cfloat>
 #include <iostream>
-#include <iomanip>
-#include <iostream>
-#include <limits.h>
 #include <fstream>
-#include <sys/types.h>
-#include <dirent.h>
-#include <errno.h>
-// Include the return object
-#include "PATCore/PATCoreEnums.h"
+#include <boost/algorithm/string.hpp>
 // xAOD includes
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
-
-#include <boost/algorithm/string.hpp>
-
+//PAT includes
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
-
+#include "AthContainers/AuxElement.h"
+#include "PATCore/PATCoreEnums.h"
 #include "xAODMetaData/FileMetaData.h"
 #include "PathResolver/PathResolver.h"
+//Implementation include
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
-
-
 // ROOT includes
 #include "TSystem.h"
 #include "TH2F.h"
@@ -52,10 +41,6 @@ namespace correlationModel{
         SYST=5
     };
 }
-
-// =============================================================================
-// Standard constructor
-// =============================================================================
 AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::string myname) :
     asg::AsgMetadataTool(myname),
     m_rootTool(0),
@@ -83,13 +68,10 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
                 "Key associated with isolation working point");
         declareProperty("TriggerKey", m_trigKey = "" ,
                 "Key associated with trigger working point");
-
         declareProperty("ForceDataType", m_dataTypeOverwrite = -1,
                 "Force the DataType of the electron to specified value (to circumvent problem of incorrect DataType for forward electrons in some old releases)");
-
         declareProperty("ResultPrefix", m_resultPrefix = "", "The prefix string for the result");
         declareProperty("ResultName", m_resultName = "", "The string for the result");
-
         declareProperty("CorrelationModel", m_correlation_model_name = "SIMPLIFIED",
                 "Uncertainty correlation model. At the moment TOTAL, FULL, SIMPLIFIED, SYST, MCTOYS and COMBMCTOYS are implemented. SIMPLIFIED is the default option.");
         declareProperty("NumberOfToys", m_number_of_toys = 100,"Number of ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only.");
@@ -100,9 +82,6 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
         declareProperty("DefaultRandomRunNumber",  m_defaultRandomRunNumber = 999999);
     }
 
-// =============================================================================
-// Standard destructor
-// =============================================================================
 AsgElectronEfficiencyCorrectionTool::~AsgElectronEfficiencyCorrectionTool() {
     if (m_UncorrRegions) {
         delete m_UncorrRegions;
@@ -113,9 +92,6 @@ AsgElectronEfficiencyCorrectionTool::~AsgElectronEfficiencyCorrectionTool() {
     delete m_rootTool;
 }
 
-// =============================================================================
-// Athena initialize method
-// =============================================================================
 StatusCode
 AsgElectronEfficiencyCorrectionTool::initialize() {
     // Forward the message level
@@ -463,9 +439,11 @@ AsgElectronEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAOD::Elec
     return result;
 }
 
-// =======================================================================
-//   Systematics Interface
-// =======================================================================
+/*
+ * Systematics Interface
+ */
+
+/// returns: bool indicating if affected by the variation
 bool
 AsgElectronEfficiencyCorrectionTool::isAffectedBySystematic(const CP::SystematicVariation &systematic) const {
     if (systematic.empty()) {
@@ -480,13 +458,11 @@ AsgElectronEfficiencyCorrectionTool::isAffectedBySystematic(const CP::Systematic
         return (sys.find(systematic) != sys.end());
     }
 }
-
 /// returns: the list of all systematics this tool can be affected by
 CP::SystematicSet
 AsgElectronEfficiencyCorrectionTool::affectingSystematics() const {
     return m_affectedSys;
 }
-
 // Register the systematics with the registry and add them to the recommended list
 CP::SystematicCode
 AsgElectronEfficiencyCorrectionTool::registerSystematics() {
@@ -498,13 +474,11 @@ AsgElectronEfficiencyCorrectionTool::registerSystematics() {
     }
     return CP::SystematicCode::Ok;
 }
-
 /// returns: the list of all systematics this tool recommends to use
 CP::SystematicSet
 AsgElectronEfficiencyCorrectionTool::recommendedSystematics() const {
     return affectingSystematics();
 }
-
 /// Apply one variation at a time
 CP::SystematicCode
 AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::SystematicSet &systConfig) {
@@ -589,7 +563,10 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
     return CP::SystematicCode::Ok;
 }
 
-//===============================================================================
+/*
+ * Metadata methods
+ */
+
 // begin input file
 StatusCode AsgElectronEfficiencyCorrectionTool::beginInputFile(){
 
@@ -685,6 +662,9 @@ int AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(const
     int reg = ((etabin) * m_UncorrRegions->GetNbinsX() + ptbin);
     return reg;
 }
+/*
+ * Helper Methods
+ */
 
 int AsgElectronEfficiencyCorrectionTool::currentUncorrSystRegion(const double cluster_eta, const double et) const {
     int etabin=0;
@@ -758,12 +738,13 @@ int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::E
     return currentSystRegion;
 }
 
-//===============================================================================
-// Map Key Feature for the finding the correct input files 
-//===============================================================================
+/*
+ * Map Key Feature for the finding the correct input files 
+ */
 // Gets the correction filename from map
 StatusCode
-AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey) {
+AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const std::string& idkey, 
+        const std::string& isokey, const std::string& trigkey) {
 
     std::string key = convertToOneKey(recokey, idkey, isokey, trigkey);
     std::string mapFileName = PathResolverFindCalibFile(m_mapFile);
@@ -788,7 +769,8 @@ AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const s
 // Convert reco, ID, iso and trigger key values into a
 // single key according to the map file key format
 std::string
-AsgElectronEfficiencyCorrectionTool::convertToOneKey(const std::string& recokey, const std::string& idkey, const std::string& isokey, const std::string& trigkey) const {
+AsgElectronEfficiencyCorrectionTool::convertToOneKey(const std::string& recokey, const std::string& idkey, 
+        const std::string& isokey, const std::string& trigkey) const {
 
     std::string key;
     // Reconstruction Key

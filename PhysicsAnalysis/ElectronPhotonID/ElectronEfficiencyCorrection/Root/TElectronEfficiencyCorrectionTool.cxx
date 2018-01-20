@@ -12,14 +12,10 @@
 // This class header
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 // STL includes
-#include <iomanip>
 #include <iostream>
-#include <cfloat>
 #include <cmath>
-#include <climits>
 #include "CxxUtils/make_unique.h"
 #include <memory>
-
 // ROOT includes
 #include "TSystem.h"
 #include "TROOT.h"
@@ -33,7 +29,6 @@
 #include "TMD5.h"
 
 namespace{
-
     template <class T>
         inline std::string toString(const T& in){
             std::stringstream stream;
@@ -502,7 +497,6 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     result[static_cast<size_t> (Position::GlobalBinNumber)]=globalBinNumber;
     return result;
 }
-
 // =============================================================================
 // Calculate the detail levels for a given eigenvector histogram
 // =============================================================================
@@ -527,7 +521,6 @@ Root::TElectronEfficiencyCorrectionTool::calcDetailLevels(TH1D *eig) {
     }
     m_nSys = nSys;
 }
-
 // =============================================================================
 // Build the toyMC tables from inputs
 // =============================================================================
@@ -565,7 +558,6 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(TH2D *sf, TH2D *stat, 
     }
     return tmpHists;
 }
-
 // =============================================================================
 // Build the combined toyMC tables from inputs
 // =============================================================================
@@ -617,7 +609,6 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(TH2D *sf, TH2D *st
     tmpHist->SetDirectory(0);
     return tmpHist;
 }
-
 // =============================================================================
 // Build the toyMC tables from inputs
 // =============================================================================
@@ -697,7 +688,6 @@ Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<fl
     }
     return nbinsTotal;
 }
-
 // =============================================================================
 // Get the input histograms from the input files
 // =============================================================================
@@ -784,7 +774,6 @@ int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
     } // End: file loop
     return 1;
 }
-
 // =============================================================================
 // Get the input histograms from a given folder/run number range
 // =============================================================================
@@ -832,8 +821,6 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
     TObject *obj(0);
     TString tmpName = "";
     int tmpCounter = 0;
-
-    //
     //Loop of the keys 
     while ((key = (TKey *) nextkey())) {
         obj = key->ReadObj();
