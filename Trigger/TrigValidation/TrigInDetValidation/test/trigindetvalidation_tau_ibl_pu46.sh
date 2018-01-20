@@ -62,3 +62,4 @@ echo "art-result: $? TIDAcpucost_9"
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"
 echo "art-result: $? TIDAcpucost_10"
 
+
