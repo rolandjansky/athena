@@ -95,7 +95,7 @@ namespace Root {
         /// Set the detail level 
         inline void setDetailLevel ( const int input_detailLevel ) { m_detailLevel = input_detailLevel; }
         ///Set the Random Seed
-        inline void setSeed( const int seed) { m_seed = seed; }
+        inline void setSeed( const unsigned long int seed) { m_seed = seed; }
 
     private:
         // Private methods
@@ -134,7 +134,7 @@ namespace Root {
         int m_nToyMC;
         //
         /// The seed
-        int m_seed;
+        unsigned long int m_seed;
         ///
         int m_sLevel[detailLevelEnd];
         int m_nSys;
