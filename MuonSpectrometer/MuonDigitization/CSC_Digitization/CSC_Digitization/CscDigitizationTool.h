@@ -83,12 +83,10 @@ public:
 
 public: //possibly these should be private?
   StatusCode FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap, //csc_newmap& data_SampleMapOddPhase,
-                                           std::map<IdentifierHash,deposits>& myDeposits,
-                                           CscSimDataCollection* sdoContainer, bool phaseToSet);
-  StatusCode FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposits>& myDeposits,
-                                           CscSimDataCollection* sdoContainer);
+                                           std::map<IdentifierHash,deposits>& myDeposits,bool phaseToSet);
+  StatusCode FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposits>& myDeposits);
 
-  StatusCode CoreDigitization(CscSimDataCollection* sdoCollection);
+  StatusCode CoreDigitization();
   
   // accessors
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
@@ -100,8 +98,9 @@ public: //possibly these should be private?
   ToolHandle<ICscCalibTool> m_pcalib;
 
   SG::WriteHandleKey<CscSimDataCollection> m_cscSimDataCollectionWriteHandleKey{this,"CSCSimDataCollectionOutputName","CSC_SDO","WriteHandleKey for Output CscSimDataCollection"};
-  
-  CscDigitContainer         * m_container;
+  SG::WriteHandleKey<CscDigitContainer> m_cscDigitContainerKey{this,"OutputObjectName","CSC_DIGITS","CSC digit container object"};
+  SG::WriteHandle<CscDigitContainer> m_container;
+  SG::WriteHandle<CscSimDataCollection> m_CSCSimDataCollectionWriteHandle;
 
   const MuonGM::MuonDetectorManager * m_geoMgr;
   CSC_Digitizer             * m_cscDigitizer;
@@ -141,7 +140,6 @@ protected:
   
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   std::string m_inputObjectName; // name of the input objects
-  std::string m_outputObjectName; // name of the output digits
   
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization

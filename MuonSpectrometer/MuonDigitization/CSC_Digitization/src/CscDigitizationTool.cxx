@@ -31,16 +31,15 @@ static constexpr unsigned int crazyParticleBarcode(
 // Barcodes at the HepMC level are int
 
 CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID) 
-  : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool"), m_container(0)
+  : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool")
   , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0)
   , m_vetoThisBarcode(crazyParticleBarcode), m_run(0), m_evt(0), m_mergeSvc(0)
-  , m_inputObjectName("CSC_Hits"), m_outputObjectName("csc_digits"), m_rndmSvc("AtRndmGenSvc", name )
+  , m_inputObjectName("CSC_Hits"), m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0), m_rndmEngineName("MuonDigitization") {
 
   declareInterface<IMuonDigitizationTool>(this);
 
   declareProperty("InputObjectName",  m_inputObjectName = "CSC_Hits", "name of the input objects");
-  declareProperty("OutputObjectName", m_outputObjectName = "csc_digits", "name of the output objects" );
   declareProperty("pedestal",m_pedestal = 0.0);
   declareProperty("WindowLowerOffset",m_timeWindowLowerOffset = -25.);
   declareProperty("WindowUpperOffset",m_timeWindowUpperOffset = +25.);
@@ -69,7 +68,6 @@ StatusCode CscDigitizationTool::initialize() {
 
   ATH_MSG_INFO ( "Initialized Properties :" );
   ATH_MSG_INFO ( "  InputObjectName           " << m_inputObjectName );
-  ATH_MSG_INFO ( "  OutputObjectName          " << m_outputObjectName );
   ATH_MSG_INFO ( "  WindowLowerOffset         " << m_timeWindowLowerOffset );
   ATH_MSG_INFO ( "  WindowUpperOffset         " << m_timeWindowUpperOffset );
   ATH_MSG_INFO ( "  PileUp On?                " << m_isPileUp );
@@ -83,7 +81,8 @@ StatusCode CscDigitizationTool::initialize() {
 
   ATH_MSG_INFO ( "  RndmSvc                   " << m_rndmSvc.typeAndName() );
   ATH_MSG_INFO ( "  cscCalibTool              " << m_pcalib.typeAndName() );
-
+  ATH_MSG_INFO ( "  CscSimDataCollection key  " << m_cscSimDataCollectionWriteHandleKey.key());
+  ATH_MSG_INFO ( "  CscDigitContainer key     " << m_cscDigitContainerKey.key());
 
   ATH_MSG_INFO ( "Retrieved Active Store Service." );
 
@@ -115,13 +114,6 @@ StatusCode CscDigitizationTool::initialize() {
     ATH_MSG_INFO ( "Input objects: '" << m_inputObjectName << "'" );
   }
 
-  // check the output object name
-  if (m_outputObjectName=="") {
-    ATH_MSG_ERROR ( "Property OutputObjectName not set !" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO ( "CSC:Digitizer::INFO: Output objects: '" << m_outputObjectName << "'" );
-  }
   //random number initialization
   if (!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_ERROR ( " Could not initialize Random Number Service" );
@@ -162,17 +154,7 @@ StatusCode CscDigitizationTool::initialize() {
 
   m_cscDigitizer->setWindow(m_timeWindowLowerOffset, m_timeWindowUpperOffset);
 
-  
-  // create an empty CSC digit container for filling
-  try{
-    m_container = new CscDigitContainer(m_cscIdHelper->module_hash_max());
-  } catch(const std::bad_alloc&){
-    ATH_MSG_FATAL ( "Could not create a new CscDigitContainer!");
-    return StatusCode::FAILURE;
-  }
-
-  m_container->addRef();
-
+  ATH_CHECK(m_cscDigitContainerKey.initialize());
 
   ATH_MSG_DEBUG("WP Current MSG Level FATAL ? " << msgLvl(MSG::FATAL) );
   ATH_MSG_DEBUG("WP Current MSG Level ERROR ? " << msgLvl(MSG::ERROR) );
@@ -189,16 +171,14 @@ StatusCode CscDigitizationTool::initialize() {
 // Inherited from PileUpTools
 StatusCode CscDigitizationTool::prepareEvent(unsigned int /*nInputEvents*/) {
 
-  // clean up the digit container
-  m_container->cleanup();
+  //create and record CscDigitContainer in SG
+  m_container=SG::makeHandle(m_cscDigitContainerKey);
+  ATH_CHECK(m_container.record(std::make_unique<CscDigitContainer>(m_cscIdHelper->module_hash_max())));
+  ATH_MSG_INFO("recorded CscDigitContainer with name "<<m_container.key());
 
-  // record the digit container in StoreGate
-  std::string key = "CSC_DIGITS";
-  if ( (evtStore()->record(m_container,key)).isFailure() )  {
-    ATH_MSG_ERROR ( "Unable to record CSC digit container in StoreGate" );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG ( "CscDigitContainer recorded in StoreGate." );
+  // create and record the SDO container in StoreGate
+  m_CSCSimDataCollectionWriteHandle=SG::makeHandle(m_cscSimDataCollectionWriteHandleKey);
+  ATH_CHECK(m_CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
 
   if (0 == m_thpcCSC)
     m_thpcCSC = new TimedHitCollection<CSCSimHit>();
@@ -218,22 +198,16 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
 
   ATH_MSG_DEBUG ( "in processAllSubEvents()" );
 
-  // clean up the digit container
-  m_container->cleanup();
-
-  // record the digit container in StoreGate
-  std::string key = "CSC_DIGITS";
-  if ( (evtStore()->record(m_container,key)).isFailure() )  {
-    ATH_MSG_ERROR ( "Unable to record CSC digit container in StoreGate" );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG ( "CscDigitContainer recorded in StoreGate." );
+  //create and record CscDigitContainer in SG
+  m_container=SG::makeHandle(m_cscDigitContainerKey);
+  ATH_CHECK(m_container.record(std::make_unique<CscDigitContainer>(m_cscIdHelper->module_hash_max())));
+  ATH_MSG_INFO("recorded CscDigitContainer with name "<<m_container.key());
 
   if (m_isPileUp) return StatusCode::SUCCESS;
 
   // create and record the SDO container in StoreGate
-  SG::WriteHandle<CscSimDataCollection> CSCSimDataCollectionWriteHandle(m_cscSimDataCollectionWriteHandleKey);
-  ATH_CHECK(CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
+  m_CSCSimDataCollectionWriteHandle=SG::makeHandle(m_cscSimDataCollectionWriteHandleKey);
+  ATH_CHECK(m_CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
 
   //merging of the hit collection in getNextEvent method    
 
@@ -245,11 +219,11 @@ StatusCode CscDigitizationTool::processAllSubEvents() {
     }
   }
 
-  return CoreDigitization(CSCSimDataCollectionWriteHandle.ptr());
+  return CoreDigitization();
 
 }
 
-StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContainer) {
+StatusCode CscDigitizationTool::CoreDigitization() {
   
   // get the iterator pairs for this DetEl
   //iterate over hits
@@ -355,11 +329,11 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
     double flat = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);                 // for other particles
     bool phaseToSet = (flat<0.5) ? true : false;
     if (phaseToSet)
-      return FillCollectionWithNewDigitEDM(data_SampleMapOddPhase, myDeposits, sdoContainer, phaseToSet);
+      return FillCollectionWithNewDigitEDM(data_SampleMapOddPhase, myDeposits, phaseToSet);
     else
-      return FillCollectionWithNewDigitEDM(data_SampleMap, myDeposits, sdoContainer, phaseToSet);
+      return FillCollectionWithNewDigitEDM(data_SampleMap, myDeposits, phaseToSet);
   }  else
-    return FillCollectionWithOldDigitEDM(data_map, myDeposits, sdoContainer);
+    return FillCollectionWithOldDigitEDM(data_map, myDeposits);
 
 }  
   
@@ -367,7 +341,6 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
 StatusCode CscDigitizationTool::
 FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap, 
                               std::map<IdentifierHash,deposits>& myDeposits,
-                              CscSimDataCollection* sdoContainer, 
                               bool phaseToSet
                               ) {
 
@@ -437,7 +410,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
     auto depositsForHash = myDeposits.find(hashId);
     if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
       depositsForHash->second[0].second.setCharge(stripCharge);
-      sdoContainer->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
+      m_CSCSimDataCollectionWriteHandle->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
     }
     
     // fill the digit collections in StoreGate
@@ -513,8 +486,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
 
 
 StatusCode CscDigitizationTool::
-FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposits>& myDeposits,
-                              CscSimDataCollection* sdoContainer) {
+FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposits>& myDeposits) {
 
   CscDigitCollection * collection = 0;
   IdContext context    = m_cscIdHelper->channel_context();
@@ -565,7 +537,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     auto depositsForHash = myDeposits.find(hashId);
     if (depositsForHash != myDeposits.end() && depositsForHash->second.size()) {
       depositsForHash->second[0].second.setCharge(stripCharge);
-      sdoContainer->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
+      m_CSCSimDataCollectionWriteHandle->insert ( std::make_pair(digitId, CscSimData(depositsForHash->second,0)) );
     }
     
     // fill the digit collections in StoreGate
@@ -624,8 +596,6 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
 StatusCode CscDigitizationTool::finalize() {
     
   ATH_MSG_DEBUG ( "finalize." );
-
-  m_container->release();
 
   return StatusCode::SUCCESS;
 }
@@ -723,11 +693,7 @@ StatusCode CscDigitizationTool::mergeEvent() {
 
   ATH_MSG_DEBUG ( "in mergeEvent()" );
 
-  // create and record the SDO container in StoreGate
-  SG::WriteHandle<CscSimDataCollection> CSCSimDataCollectionWriteHandle(m_cscSimDataCollectionWriteHandleKey);
-  ATH_CHECK(CSCSimDataCollectionWriteHandle.record(std::make_unique<CscSimDataCollection>()));
-
-  if ( CoreDigitization(CSCSimDataCollectionWriteHandle.ptr()).isFailure() ) { // 
+  if ( CoreDigitization().isFailure() ) { // 
     ATH_MSG_ERROR ("mergeEvent() got failure from CoreDigitization()");
     return StatusCode::FAILURE;
   }
