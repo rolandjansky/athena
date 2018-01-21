@@ -148,78 +148,91 @@ thinningTools=[]
 # Track thinning
 if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
+    TrackThinningKeepElectronTracks = True
+    TrackThinningKeepPhotonTracks = True
+    TrackThinningKeepJetTracks = False
+    TrackThinningKeepMuonTracks = True
+    TrackThinningKeepTauTracks = False
+    TrackThinningKeepPVTracks = False
+
     # Tracks associated with Jets
-    # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-    # EGAM8JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM8JetLCTPThinningTool",
-    #                                                                           ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
-    #                                                                           JetKey                  = "AntiKt4EMTopoJets",
-    #                                                                           InDetTrackParticlesKey  = "InDetTrackParticles",
-    #                                                                           ApplyAnd                = True)
-    # ToolSvc += EGAM8JetLCTPThinningTool
-    # print EGAM8JetLCTPThinningTool
-    # thinningTools.append(EGAM8JetLCTPThinningTool)
+    if (TrackThinningKeepJetTracks) : 
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+        EGAM8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM8JetTPThinningTool",
+                                                                                ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
+                                                                                JetKey                  = "AntiKt4EMTopoJets",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                ApplyAnd                = True)
+        ToolSvc += EGAM8JetTPThinningTool
+        print EGAM8JetTPThinningTool
+        thinningTools.append(EGAM8JetTPThinningTool)
     
     # Tracks associated with Muons
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-    EGAM8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM8MuonTPThinningTool",
-                                                                              ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
-                                                                              MuonKey                 = "Muons",
-                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
-    ToolSvc += EGAM8MuonTPThinningTool
-    print EGAM8MuonTPThinningTool
-    thinningTools.append(EGAM8MuonTPThinningTool)
-    
-    # Tracks associated with Electrons
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-    EGAM8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM8ElectronTPThinningTool",
-                                                                                    ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
-                                                                                    SGKey                   = "Electrons",
-                                                                                    GSFTrackParticlesKey    = "GSFTrackParticles",        
-                                                                                    InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                    SelectionString         = "Electrons.pt > 0*GeV",
-                                                                                    BestMatchOnly = True,
-                                                                                    ConeSize = 0.3,
-                                                                                    ApplyAnd = False)
-    ToolSvc += EGAM8ElectronTPThinningTool
-    print EGAM8ElectronTPThinningTool
-    thinningTools.append(EGAM8ElectronTPThinningTool)
-
-    # Tracks associated with Photons
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-    EGAM8PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM8PhotonTPThinningTool",
+    if (TrackThinningKeepMuonTracks) :
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+        EGAM8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM8MuonTPThinningTool",
                                                                                   ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
-                                                                                  SGKey                   = "Photons",
-                                                                                  GSFTrackParticlesKey    = "GSFTrackParticles",        
-                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                  SelectionString         = "Photons.pt > 0*GeV",
-                                                                                  BestMatchOnly = True,
-                                                                                  ConeSize = 0.3,
-                                                                                  ApplyAnd = False)
+                                                                                  MuonKey                 = "Muons",
+                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM8MuonTPThinningTool
+        print EGAM8MuonTPThinningTool
+        thinningTools.append(EGAM8MuonTPThinningTool)
 
-    ToolSvc += EGAM8PhotonTPThinningTool
-    print EGAM8PhotonTPThinningTool
-    thinningTools.append(EGAM8PhotonTPThinningTool)
-
+    # Tracks associated with Electrons
+    if (TrackThinningKeepElectronTracks) : 
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+        EGAM8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM8ElectronTPThinningTool",
+                                                                                        ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
+                                                                                        SGKey                   = "Electrons",
+                                                                                        GSFTrackParticlesKey    = "GSFTrackParticles",        
+                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                        SelectionString         = "Electrons.pt > 0*GeV",
+                                                                                        BestMatchOnly = True,
+                                                                                        ConeSize = 0.3,
+                                                                                        ApplyAnd = False)
+        ToolSvc += EGAM8ElectronTPThinningTool
+        print EGAM8ElectronTPThinningTool
+        thinningTools.append(EGAM8ElectronTPThinningTool)
+        
+    # Tracks associated with Photons
+    if (TrackThinningKeepPhotonTracks) : 
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+        EGAM8PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM8PhotonTPThinningTool",
+                                                                                      ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
+                                                                                      SGKey                   = "Photons",
+                                                                                      GSFTrackParticlesKey    = "GSFTrackParticles",        
+                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                      SelectionString         = "Photons.pt > 0*GeV",
+                                                                                      BestMatchOnly = True,
+                                                                                      ConeSize = 0.3,
+                                                                                      ApplyAnd = False)
+        
+        ToolSvc += EGAM8PhotonTPThinningTool
+        print EGAM8PhotonTPThinningTool
+        thinningTools.append(EGAM8PhotonTPThinningTool)
+        
     # Tracks associated with Taus
-    # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-    # EGAM8TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "EGAM8TauTPThinningTool",
-    #                                                                         ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
-    #                                                                         TauKey                  = "TauJets",
-    #                                                                         ConeSize                = 0.6,
-    #                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
-    # ToolSvc += EGAM8TauTPThinningTool
-    # print EGAM8TauTPThinningTool
-    # thinningTools.append(EGAM8TauTPThinningTool)
+    if (TrackThinningKeepTauTracks) :
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+        EGAM8TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "EGAM8TauTPThinningTool",
+                                                                                ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
+                                                                                TauKey                  = "TauJets",
+                                                                                ConeSize                = 0.6,
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM8TauTPThinningTool
+        print EGAM8TauTPThinningTool
+        thinningTools.append(EGAM8TauTPThinningTool)
 
     # Tracks from primary vertex
-    # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-    # EGAM8TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM8TPThinningTool",
-    #                                                                   ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
-    #                                                                   SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
-    #                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
-    # ToolSvc += EGAM8TPThinningTool
-    # print EGAM8TPThinningTool
-    # thinningTools.append(EGAM8TPThinningTool)
+    if (TrackThinningKeepPVTracks) :
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+        EGAM8TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM8TPThinningTool",
+                                                                          ThinningService         = EGAM8ThinningHelper.ThinningSvc(),
+                                                                          SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+        ToolSvc += EGAM8TPThinningTool
+        print EGAM8TPThinningTool
+        thinningTools.append(EGAM8TPThinningTool)
 
 
 # Truth thinning
