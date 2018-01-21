@@ -743,14 +743,20 @@ StatusCode JetObjectCollectionMaker::decorateDL1() {
   top::check( evtStore()->retrieve( jets , m_config->sgKeyJets() ) , "Failed to retrieve small-R jet collection"+m_config->sgKeyJets() );
 
   for(const auto& jet : *jets) {
-    if(! m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight) ){
-      DL1_weight = -999;
-    }
-    if(! m_btagSelToolsDL1Decor["DL1mu"]->getTaggerWeight(*jet, DL1mu_weight) ){
-      DL1mu_weight = -999;
-    }
-    if(! m_btagSelToolsDL1Decor["DL1rnn"]->getTaggerWeight(*jet, DL1rnn_weight) ){
-      DL1rnn_weight = -999;
+    // Suppress warnings if the DL1 weights do not exist and avoid repeated failed computation
+    if(m_DL1Possible){
+      if(! m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight) ){
+	DL1_weight = -999;
+	m_DL1Possible = false;
+      }
+      if(! m_btagSelToolsDL1Decor["DL1mu"]->getTaggerWeight(*jet, DL1mu_weight) ){
+	DL1mu_weight = -999;
+	m_DL1Possible = false;
+      }
+      if(! m_btagSelToolsDL1Decor["DL1rnn"]->getTaggerWeight(*jet, DL1rnn_weight) ){
+	DL1rnn_weight = -999;
+	m_DL1Possible = false;
+      }
     }
     DL1(*jet)    = DL1_weight;
     DL1mu(*jet)  = DL1mu_weight;    
