@@ -36,7 +36,7 @@ int main( int argc, char* argv[] ) {
     // The application's name:
     const char* APP_NAME = argv[ 0 ];
 
-    MSG::Level mylevel=MSG::DEBUG;
+    MSG::Level mylevel=MSG::INFO;
     MSGHELPERS::getMsgStream().msg().setLevel(mylevel);
     MSGHELPERS::getMsgStream().msg().setName(APP_NAME);
 
@@ -76,11 +76,11 @@ int main( int argc, char* argv[] ) {
 
     AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
     CHECK( ElEffCorrectionTool.setProperty("IdKey", "Medium"));
-    CHECK( ElEffCorrectionTool.setProperty("ForceDataType",3 ));
+    CHECK( ElEffCorrectionTool.setProperty("ForceDataType",1));
     CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
     CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "SIMPLIFIED" )); 
     CHECK( ElEffCorrectionTool.setProperty("UseRandomRunNumber", false ));
-    CHECK( ElEffCorrectionTool.setProperty("DefaultRandomRunNumber", 301000));
+    CHECK( ElEffCorrectionTool.setProperty("DefaultRandomRunNumber", 371000));
     CHECK( ElEffCorrectionTool.initialize());  
     asg::ToolStore::dumpToolConfig();
 
@@ -88,10 +88,8 @@ int main( int argc, char* argv[] ) {
     CP::SystematicSet recSysts = ElEffCorrectionTool.recommendedSystematics();
     // Convert into a simple list
     std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
-    std::cout << "=="<<std::endl;
     // Loop over the events:
-    Long64_t entry = 10;
-    entries = entry+1;
+    Long64_t entry = 1;
     for(  ; entry < entries; ++entry ) {
 
         // Tell the object which entry to look at:
@@ -145,12 +143,12 @@ int main( int argc, char* argv[] ) {
                 int sysreg = ElEffCorrectionTool.systUncorrVariationIndex(*el);
                 MSG_INFO( "sysregion " <<sysreg);
 
-                if(ElEffCorrectionTool.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
+                if(ElEffCorrectionTool.getEfficiencyScaleFactor(*el,SF) == CP::CorrectionCode::Error){
                     MSG_ERROR("Problem in getEfficiencyScaleFactor");
                     return EXIT_FAILURE;
                 }
 
-                if(ElEffCorrectionTool.applyEfficiencyScaleFactor(*el) != CP::CorrectionCode::Ok){
+                if(ElEffCorrectionTool.applyEfficiencyScaleFactor(*el) == CP::CorrectionCode::Error){
                     MSG_INFO( "Problem in applyEfficiencyScaleFactor");
                     return EXIT_FAILURE;
                 }
