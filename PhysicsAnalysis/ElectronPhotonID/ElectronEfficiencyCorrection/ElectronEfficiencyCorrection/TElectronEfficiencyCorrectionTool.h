@@ -69,15 +69,10 @@ namespace Root {
                 size_t& index_of_toys)
             const;
 
-
         /// Add an input file
         inline void addFileName ( const std::string& val ) 
         { m_corrFileNameList.push_back(val); }
-        /// Set the prefix of the result name
-        inline void setResultPrefix ( const std::string& val ) { m_resultPrefix = val; }
-        /// The string for the result name
-        inline void setResultName ( const std::string& val ) { m_resultName = val; }
-        ///MC Toys Helper functions
+         ///MC Toys Helper functions
         inline void bookToyMCScaleFactors(const int nToyMC) {
             m_doToyMC = kTRUE;
             m_nToyMC = nToyMC;
@@ -141,11 +136,6 @@ namespace Root {
         int m_nSysMax;
         int m_runNumBegin;
         int m_runNumEnd;
-
-        /// The prefix string for the result
-        std::string m_resultPrefix;
-        /// The string for the result
-        std::string m_resultName;
 
         ///Uncorrelated toy systematics
         std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;

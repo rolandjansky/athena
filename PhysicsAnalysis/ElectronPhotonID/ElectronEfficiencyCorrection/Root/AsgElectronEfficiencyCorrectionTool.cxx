@@ -161,10 +161,6 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         }
     }
     //
-    m_rootTool->setResultPrefix(m_resultPrefix);
-    m_rootTool->setResultName(m_resultName);
-    //
-    //
     //Find the proper correlation Model
     if (m_correlation_model_name == "COMBMCTOYS"){
         m_correlation_model= correlationModel::COMBMCTOYS;

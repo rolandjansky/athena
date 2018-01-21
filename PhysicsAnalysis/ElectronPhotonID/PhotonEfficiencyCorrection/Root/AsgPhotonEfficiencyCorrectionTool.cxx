@@ -158,12 +158,7 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   m_rootTool_con->addFileName( m_corrFileNameList[0] );
   m_rootTool_unc->addFileName( m_corrFileNameList[1] );
 
-  m_rootTool_con->setResultPrefix( m_resultPrefix );
-  m_rootTool_con->setResultName( m_resultName );
-  m_rootTool_unc->setResultPrefix( m_resultPrefix );
-  m_rootTool_unc->setResultName( m_resultName );  
-  
-  // Forward the message level
+    // Forward the message level
   m_rootTool_con->msg().setLevel(this->msg().level());
   m_rootTool_unc->msg().setLevel(this->msg().level());
 
@@ -191,10 +186,6 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   if(m_isoWP.size()){
     m_rootTool_conRadZ->addFileName( m_corrFileNameList[2] );
     m_rootTool_uncRadZ->addFileName( m_corrFileNameList[3] ); 
-    m_rootTool_conRadZ->setResultPrefix( m_resultPrefix );
-    m_rootTool_conRadZ->setResultName( m_resultName );
-    m_rootTool_uncRadZ->setResultPrefix( m_resultPrefix );
-    m_rootTool_uncRadZ->setResultName( m_resultName );  
     m_rootTool_conRadZ->msg().setLevel(this->msg().level());
     m_rootTool_uncRadZ->msg().setLevel(this->msg().level());
     if ( (0 == m_rootTool_conRadZ->initialize()) || (0 == m_rootTool_uncRadZ->initialize()) )
