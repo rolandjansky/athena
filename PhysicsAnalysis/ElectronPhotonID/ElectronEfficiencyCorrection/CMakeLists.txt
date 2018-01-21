@@ -32,8 +32,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTracking
-   Event/xAOD/xAODMetaData
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools	
+   Event/xAOD/xAODMetaData	
    ${extra_deps} )
 
 # External dependencies:

@@ -80,8 +80,6 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
     m_nSysMax(0),
     m_runNumBegin(0),
     m_runNumEnd(0),
-    m_resultPrefix("efficiency_SF"),
-    m_resultName(""),
     m_Rndm()
 {
     //Setup the keys
@@ -711,17 +709,6 @@ int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
             ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "input file name has wrong format!");
             return 0;
         }
-
-        if (m_resultPrefix.empty()) {// Only overwrite it if the user didn't explicitly set it
-            m_resultPrefix = ((TObjString *) myFileNameTokensList->At(0))->GetString();
-            m_resultPrefix += "_";
-        }
-        if (m_resultName.empty()) {// Only overwrite it if the user didn't explicitly set it
-            m_resultName = ((TObjString *) myFileNameTokensList->At(1))->GetString()
-                + "_" + ((TObjString *) myFileNameTokensList->At(2))->GetString();
-        }
-        ATH_MSG_INFO("Using resultPrefix: " << m_resultPrefix
-                << " and resultName: " << m_resultName);
 
     }
     // -------------------------------------------------------
