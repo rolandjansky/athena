@@ -105,12 +105,8 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
   m_useAttenuation         = m_settings->useAttenuation();
   m_innerRadiusOfStraw     = m_settings->innerRadiusOfStraw();
   m_outerRadiusOfWire      = m_settings->outerRadiusOfWire();
-  m_outerRadiusEndcap      = m_settings->outerRadiusEndcap();
-  m_innerRadiusEndcap      = m_settings->innerRadiusEndcap();
-  m_strawLengthBarrel      = m_settings->strawLengthBarrel();
   m_timeCorrection         = m_settings->timeCorrection();        // false for beamType='cosmics'
   m_solenoidFieldStrength  = m_settings->solenoidFieldStrength();
-
   m_ionisationPotential    = m_settings->ionisationPotential(0);  // strawGasType=0 here just to initialize
   m_smearingFactor         = m_settings->smearingFactor(0);       // to keep coverity happy. Reset correctly later.
   m_trEfficiencyBarrel     = m_settings->trEfficiencyBarrel(0);   //
@@ -152,10 +148,10 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
   //Create our own engine with own seeds:
   m_pHRengine = atRndmGenSvc->GetEngine("TRT_ProcessStraw");
 
-  // Tabulate exp(-dist/m_attenuationLength) as a function of dist = time*m_signalPropagationSpeed [0.0 mm ,1419.9 mm]
+  // Tabulate exp(-dist/m_attenuationLength) as a function of dist = time*m_signalPropagationSpeed [0.0 mm, 1500 mm)
   // otherwise we are doing an exp() for every cluster! > 99.9% of output digits are the same, saves 13% CPU time.
-  m_expattenuation.reserve(142);
-  for (unsigned int k=0; k<142; k++) {
+  m_expattenuation.reserve(150);
+  for (unsigned int k=0; k<150; k++) {
     double dist = 10.0*(k+0.5); // [5mm, 1415mm] max 5 mm error (sigma = 3 mm)
     m_expattenuation.push_back(exp(-dist/m_attenuationLength));
   }
@@ -287,9 +283,13 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   // We need the straw id several times in the following  //
   //////////////////////////////////////////////////////////
   const int hitID((*i)->GetHitID());
-  const bool isBarrel(!(hitID & 0x00200000));
-  const bool isECA(getRegion(hitID)==3);
-  const bool isECB(getRegion(hitID)==4);
+  unsigned int region(getRegion(hitID));
+  const bool isBarrel(region<3 );
+  //const bool isEC    (!isBarrel);
+  //const bool isShort (region==1);
+  //const bool isLong  (region==2);
+  const bool isECA   (region==3);
+  const bool isECB   (region==4);
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -564,9 +564,20 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
                                                int strawGasType)
 {
 
+  //
   // Some initial work before looping over the cluster
+  //
+
   deposits.clear();
-  const bool isBarrel(!(hitID & 0x00200000));
+
+  unsigned int region(getRegion(hitID));
+  const bool isBarrel(region<3 );
+  const bool isEC    (!isBarrel);
+  const bool isShort (region==1);
+  const bool isLong  (region==2);
+  //const bool isECA   (region==3);
+  //const bool isECB   (region==4);
+
   m_ionisationPotential = m_settings->ionisationPotential(strawGasType);
   m_smearingFactor      = m_settings->smearingFactor(strawGasType);
 
@@ -621,10 +632,6 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
   const double  wire_r2 = m_outerRadiusOfWire*m_outerRadiusOfWire;
   const double straw_r2 = m_innerRadiusOfStraw*m_innerRadiusOfStraw;
 
-  // straw length
-  const double halfECstrawLength = (m_outerRadiusEndcap-m_innerRadiusEndcap)/2;
-  const double quartBstrawLength = m_strawLengthBarrel/4;
-
   // Cluster loop
   for (;currentClusterIter!=endOfClusterList;++currentClusterIter)
     {
@@ -634,23 +641,27 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       const double cluster_z(currentClusterIter->zpos);
       const double cluster_x2(cluster_x*cluster_x);
       const double cluster_y2(cluster_y*cluster_y);
-
       double cluster_r2(cluster_x2+cluster_y2);
 
-      // Give a warning for clusters that are outside of the straw gas volume.
-      // Since T/P version 3 we should expect no such occurences (allow for 22.5 mm compression error).
-      if ( cluster_r2 > straw_r2+0.04 ) {
-        ATH_MSG_WARNING ( "Radius of cluster: "<<std::sqrt(cluster_r2)<<" mm is outside gas volume!" );
+      // The active gas volume along the straw z-axis is: Barrel long +-349.315 mm; Barrel short +-153.375 mm; End caps +-177.150 mm.
+      // Here we give a warning for clusters that are outside of the straw gas volume in in z. Since T/P version 3 cluster z values
+      // can go several mm outside these ranges; 30 mm is plenty allowance in the checks below.
+      if ( isLong  && fabs(cluster_z)>349.315+30 ) {
+        double d = cluster_z<0 ? cluster_z+349.315: cluster_z-349.315;
+        ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
       }
-      if (!isBarrel) {
-        if ( fabs(cluster_z) > halfECstrawLength + 22.5*CLHEP::mm ) ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume!" );
-      } else { // (fixme: does not check inner 9 strawlayers dead region )
-        if ( fabs(cluster_z) > quartBstrawLength + 22.5*CLHEP::mm ) ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume!" );
+      if ( isShort && fabs(cluster_z)>153.375+30 ) {
+        double d = cluster_z<0 ? cluster_z+153.375: cluster_z-153.375;
+        ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
+      }
+      if ( isEC    && fabs(cluster_z)>177.150+30 ) {
+        double d = cluster_z<0 ? cluster_z+177.150: cluster_z-177.150;
+        ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
       }
 
-      // Basic checks on radius for getAverageDriftTime() so that function does not need to check this.
+      // These may never occur, but could be very problematic for getAverageDriftTime(), so check and correct this now.
       if (cluster_r2<wire_r2)  cluster_r2=wire_r2;  // Compression may (v. rarely) cause r to be smaller than the wire radius. If r=0 then NaN's later!
-      if (cluster_r2>straw_r2) cluster_r2=straw_r2; // Again small error from compression, but might never occur.
+      if (cluster_r2>straw_r2) cluster_r2=straw_r2; // Should never occur
 
       const double cluster_r(std::sqrt(cluster_r2));      // cluster radius
       const double cluster_E(currentClusterIter->energy); // cluster energy
@@ -726,7 +737,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
       // get the wire propagation times (for direct and reflected signals)
       double timedirect(0.), timereflect(0.);
-      m_pTimeCorrection->PropagationTime( hitID, currentClusterIter->zpos, timedirect, timereflect );
+      m_pTimeCorrection->PropagationTime( hitID, cluster_z, timedirect, timereflect );
 
       // While we have the propagation times, we can calculate the exponential attenuation factor
       double expdirect(1.0), expreflect(1.0); // Initially set to "no attenuation".
@@ -734,18 +745,19 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
         {
            //expdirect  = exp( -timedirect *m_signalPropagationSpeed / m_attenuationLength);
            //expreflect = exp( -timereflect*m_signalPropagationSpeed / m_attenuationLength);
-           // Tabulating exp(-dist/m_attenuationLength) with only 142 elements: index [0,141].
+           // Tabulating exp(-dist/m_attenuationLength) with only 150 elements: index [0,149].
            //   > 99.9% of output digits are the same, saves 13% CPU time.
            // Distances the signal propagate along the wire:
-           //   distdirect is rarely negative (<0.2%) by a few mm due to z compression.
-           //   distreflect is very rarely > 1419.9 by a few mm due to z compression.
-           // Some other very strange bahaviour occurs for HIPs, see Jira ATLASSIM-2990.
+           // * distdirect is rarely negative (<0.2%) by ~ mm. In such cases there is
+           //   no attenuation, which is equivalent to distdirect=0 and so is good.
+           // * distreflect is always +ve and less than 1500, and so is good.
+           // The code is protected against out of bounds in anycase.
            const double distdirect  = timedirect *m_signalPropagationSpeed;
            const double distreflect = timereflect*m_signalPropagationSpeed;
            const unsigned int kdirect  = static_cast<unsigned int>(distdirect/10);
            const unsigned int kreflect = static_cast<unsigned int>(distreflect/10);
-           if (kdirect<142)  expdirect  = m_expattenuation[kdirect];
-           if (kreflect<142) expreflect = m_expattenuation[kreflect];
+           if (kdirect<150) expdirect  = m_expattenuation[kdirect];    // otherwise there
+           if (kreflect<150) expreflect = m_expattenuation[kreflect];  // is no attenuation.
         }
 
       // Finally, deposit the energy on the wire using the drift-time tool (diffusion is no longer available).
@@ -822,7 +834,7 @@ Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedH
 
 //________________________________________________________________________________
 unsigned int TRTProcessingOfStraw::getRegion(int hitID) {
-// 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+// 1=barrelShort, 2=barrelLong, 3=ECwheelA, 4=ECwheelB
   const int mask(0x0000001F);
   const int word_shift(5);
   int layerID, ringID, wheelID;
