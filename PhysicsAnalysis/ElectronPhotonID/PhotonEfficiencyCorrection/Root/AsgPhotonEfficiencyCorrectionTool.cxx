@@ -256,6 +256,10 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
 
   // retrieve transvrse energy from e/cosh(etaS2)
   const xAOD::CaloCluster* cluster  = egam->caloCluster(); 
+  if (!cluster){
+        ATH_MSG_ERROR("ERROR no cluster associated to the Photon \n"); 
+        return m_resultDummy;
+    }
   double eta2   = fabsf(cluster->etaBE(2));
   double et = egam->pt();
   	
@@ -302,21 +306,26 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
 const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::IParticle *part ) const
 {
   const xAOD::Egamma* egam = dynamic_cast<const xAOD::Egamma*>(part);
-  if ( egam )
-    {
+  if ( egam ){
       return calculate(egam);
     } 
-  else
-    {
+  else{
       ATH_MSG_ERROR ( " Could not cast to const egamma pointer!" );
       return m_resultDummy;
     }
 }
 
 CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Egamma& inputObject, double& efficiencyScaleFactor) const{
-   
-  // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1
-  if(fabs((inputObject.caloCluster())->etaBE(2))>MAXETA || inputObject.pt()<MIN_ET){
+
+    const xAOD::CaloCluster* cluster  = inputObject.caloCluster();  
+    if (!cluster){
+        ATH_MSG_ERROR("No  cluster associated to the Photon \n"); 
+        efficiencyScaleFactor=1;
+        return  CP::CorrectionCode::Error;
+    } 
+    // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1
+  
+    if(fabs(cluster->etaBE(2))>MAXETA || inputObject.pt()<MIN_ET){
     efficiencyScaleFactor=1;
     if(m_appliedSystematics!=nullptr) efficiencyScaleFactor+=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
 	return CP::CorrectionCode::OutOfValidityRange;
